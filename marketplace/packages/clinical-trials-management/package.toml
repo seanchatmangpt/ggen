@@ -23,3 +23,6 @@ hipaa = true
 gdpr = true
 fda = true
 gcp = true
+
+[marketplace]
+production_ready = false

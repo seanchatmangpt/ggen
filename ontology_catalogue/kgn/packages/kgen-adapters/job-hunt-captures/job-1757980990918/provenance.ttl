@@ -1,0 +1,33 @@
+@prefix : <https://jobhunt.me/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# Screenshot provenance
+:screenshot-c054e402 a :Screenshot, prov:Entity ;
+    :hash "sha256-c054e4026720fc597e6e2e1b2bb772daf7bcf77dc6f9d506d833fffe4772e47e" ;
+    :pageUrl <favorites://> ;
+    :pageTitle "Start Page" ;
+    :browser "Safari" ;
+    :capturedAt "2025-09-16T00:02:17.224Z"^^xsd:dateTime .
+
+# Job posting
+:job-1757980990918 a :JobPosting, prov:Entity ;
+    :company "Tech Innovators Inc." ;
+    :role "Senior Software Engineer" ;
+    :location "San Francisco, CA" ;
+    :salary "Competitive" ;
+    :remote false ;
+    :sourceUrl <favorites://> ;
+    prov:wasDerivedFrom :screenshot-c054e402 .
+
+# Extraction activity
+:extraction-job-1757980990918 a :DataExtraction, prov:Activity ;
+    prov:used :screenshot-c054e402 ;
+    :extractedBy :qwen2.5vl ;
+    :extractedAt "2025-09-16T00:03:10.918Z"^^xsd:dateTime .
+
+# Application tracking
+:application-job-1757980990918 a :JobApplication ;
+    :appliesTo :job-1757980990918 ;
+    :status "captured" ;
+    :capturedAt "2025-09-16T00:02:17.224Z"^^xsd:dateTime .

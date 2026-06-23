@@ -1,0 +1,65 @@
+@prefix span: <http://bitstar.ai/telemetry#> .
+@prefix task: <http://bitstar.ai/workflow#> .
+@prefix forex: <http://bitstar.ai/forex#> .
+@prefix dflss: <http://bitstar.ai/dflss#> .
+
+# Existing workflow mappings
+span:Plan span:maps task:Plan .
+span:Solve span:maps task:Solve .
+span:GenDocs span:maps task:GenDocs .
+span:Login2FA span:maps task:Login2FA .
+span:Upload span:maps task:Upload .
+span:Pay span:maps task:Pay .
+span:Submit span:maps task:Submit .
+span:Receipts span:maps task:DownloadReceipts .
+span:OrderService span:maps task:OrderService .
+
+# DFLSS Forex Control Chart Mappings
+span:ForexCTQ span:maps dflss:CTQMeasurement ;
+    span:hasAttribute dflss:max_adverse_excursion ;
+    span:hasAttribute dflss:realized_slippage ;
+    span:hasAttribute dflss:time_in_market ;
+    span:hasAttribute dflss:exit_latency ;
+    span:hasAttribute dflss:tail_risk_bps ;
+    span:hasAttribute dflss:envelope_breach ;
+    span:hasAttribute dflss:lens_id ;
+    span:hasAttribute dflss:pattern_id ;
+    span:hasAttribute dflss:sigma_level .
+
+span:ControlChart span:maps dflss:StatisticalProcessControl ;
+    span:hasAttribute dflss:chart_type ;
+    span:hasAttribute dflss:control_status ;
+    span:hasAttribute dflss:ucl ;
+    span:hasAttribute dflss:lcl ;
+    span:hasAttribute dflss:center_line ;
+    span:hasAttribute dflss:capability_index ;
+    span:hasAttribute dflss:violation_rules ;
+    span:hasAttribute dflss:out_of_control .
+
+span:DMAIC span:maps dflss:ProcessImprovement ;
+    span:hasAttribute dflss:dmaic_phase ;
+    span:hasAttribute dflss:root_causes ;
+    span:hasAttribute dflss:adjustments ;
+    span:hasAttribute dflss:failed_hypotheses ;
+    span:hasAttribute dflss:pattern_parking .
+
+# Forex Trading Specific Mappings
+span:TradeExecution span:maps forex:TradeExecution ;
+    span:hasAttribute forex:currency_pair ;
+    span:hasAttribute forex:position_size ;
+    span:hasAttribute forex:entry_price ;
+    span:hasAttribute forex:exit_price ;
+    span:hasAttribute forex:leverage ;
+    span:hasAttribute forex:trade_duration .
+
+span:RiskManagement span:maps forex:RiskControl ;
+    span:hasAttribute forex:var_99 ;
+    span:hasAttribute forex:drawdown ;
+    span:hasAttribute forex:position_risk ;
+    span:hasAttribute forex:margin_level .
+
+span:PatternRecognition span:maps forex:PatternAnalysis ;
+    span:hasAttribute forex:pattern_confidence ;
+    span:hasAttribute forex:pattern_type ;
+    span:hasAttribute forex:market_regime ;
+    span:hasAttribute forex:volatility .

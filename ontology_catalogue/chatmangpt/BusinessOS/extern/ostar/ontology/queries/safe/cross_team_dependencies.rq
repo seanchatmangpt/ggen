@@ -1,0 +1,31 @@
+# Cross-Team Dependencies Query
+# Returns all cross-team dependencies and their status
+
+PREFIX safe: <https://chatmangpt.com/ontologies/safe/pm#>
+PREFIX pm: <https://chatmangpt.com/ontologies/powl/pm#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?dependency ?dependencyLabel ?blockingTeam ?blockedTeam ?blockingItem ?blockedItem ?status ?priority
+WHERE {
+  # Find all dependencies
+  ?dependency a safe:Dependency .
+  OPTIONAL { ?dependency rdfs:label ?dependencyLabel }
+  ?dependency safe:dependencyStatus ?status .
+
+  # Find the work item being blocked
+  ?dependency safe:blocks ?blockedItem .
+  ?blockedItem pm:inSprint ?blockedSprint .
+  ?blockedSprint pm:hasTeam ?blockedTeam .
+  ?blockedItem rdfs:label ?blockedItemLabel .
+  ?blockedItem pm:priority ?priority .
+
+  # Find the work item causing the block
+  ?dependency safe:dependsOn ?blockingItem .
+  ?blockingItem pm:inSprint ?blockingSprint .
+  ?blockingSprint pm:hasTeam ?blockingTeam .
+  ?blockingItem rdfs:label ?blockingItemLabel .
+
+  # Filter to cross-team dependencies only
+  FILTER(?blockingTeam != ?blockedTeam)
+}
+ORDER BY DESC(?priority) ?status

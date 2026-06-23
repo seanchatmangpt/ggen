@@ -1,0 +1,47 @@
+# Unicode test file
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Latin characters
+ex:person1 foaf:name "José García" .
+ex:person2 foaf:name "François Müller" .
+ex:person3 foaf:name "Søren Ångström" .
+
+# Cyrillic
+ex:person4 foaf:name "Владимир Путин" .
+ex:person5 foaf:name "Михаил Горбачёв" .
+
+# Greek
+ex:person6 foaf:name "Αριστοτέλης" .
+ex:person7 foaf:name "Πλάτων" .
+
+# Arabic
+ex:person8 foaf:name "محمد عبدالله" .
+
+# Chinese
+ex:person9 foaf:name "李小明" .
+ex:person10 foaf:name "王美麗" .
+
+# Japanese
+ex:person11 foaf:name "田中太郎" .
+ex:person12 foaf:name "さくら" .
+
+# Korean
+ex:person13 foaf:name "김철수" .
+
+# Hebrew
+ex:person14 foaf:name "דוד כהן" .
+
+# Thai
+ex:person15 foaf:name "สมชาย" .
+
+# Emoji and symbols
+ex:company foaf:name "Tech Company 🚀" .
+ex:product foaf:name "Super App ⭐" .
+
+# Mathematical symbols
+ex:formula ex:value "E = mc²" .
+ex:equation ex:value "∑(x²) = ∫f(x)dx" .
+
+# Various Unicode blocks
+ex:misc ex:value "Ω α β γ δ ε π λ μ ρ σ τ φ χ ψ ω" .

@@ -45,23 +45,20 @@ pub struct InfoOutput {
 // ============================================================================
 
 fn load_verifying_key(key_path: &PathBuf) -> std::result::Result<VerifyingKey, String> {
-    let key_content = fs::read_to_string(key_path)
-        .map_err(|e| format!("Failed to read public key: {}", e))?;
+    let key_content =
+        fs::read_to_string(key_path).map_err(|e| format!("Failed to read public key: {}", e))?;
     let key_bytes = hex::decode(key_content.trim())
         .map_err(|e| format!("Failed to decode public key hex: {}", e))?;
     let key_array: [u8; 32] = key_bytes
         .as_slice()
         .try_into()
         .map_err(|_| "Public key must be exactly 32 bytes".to_string())?;
-    VerifyingKey::from_bytes(&key_array)
-        .map_err(|e| format!("Invalid verifying key: {}", e))
+    VerifyingKey::from_bytes(&key_array).map_err(|e| format!("Invalid verifying key: {}", e))
 }
 
 fn load_receipt(path: &PathBuf) -> std::result::Result<Receipt, String> {
-    let content = fs::read_to_string(path)
-        .map_err(|e| format!("Failed to read receipt: {}", e))?;
-    serde_json::from_str(&content)
-        .map_err(|e| format!("Failed to parse receipt JSON: {}", e))
+    let content = fs::read_to_string(path).map_err(|e| format!("Failed to read receipt: {}", e))?;
+    serde_json::from_str(&content).map_err(|e| format!("Failed to parse receipt JSON: {}", e))
 }
 
 fn resolve_key_path(public_key: Option<String>) -> Option<PathBuf> {
@@ -71,7 +68,9 @@ fn resolve_key_path(public_key: Option<String>) -> Option<PathBuf> {
     })
 }
 
-fn do_verify(receipt_path: String, public_key: Option<String>) -> std::result::Result<VerifyOutput, NounVerbError> {
+fn do_verify(
+    receipt_path: String, public_key: Option<String>,
+) -> std::result::Result<VerifyOutput, NounVerbError> {
     let receipt_file = PathBuf::from(&receipt_path);
 
     if !receipt_file.exists() {
@@ -103,10 +102,9 @@ fn do_verify(receipt_path: String, public_key: Option<String>) -> std::result::R
         }
     };
 
-    let receipt = load_receipt(&receipt_file)
-        .map_err(|e| NounVerbError::execution_error(e))?;
-    let verifying_key = load_verifying_key(&key_path)
-        .map_err(|e| NounVerbError::execution_error(e))?;
+    let receipt = load_receipt(&receipt_file).map_err(|e| NounVerbError::execution_error(e))?;
+    let verifying_key =
+        load_verifying_key(&key_path).map_err(|e| NounVerbError::execution_error(e))?;
     let is_valid = receipt.verify(&verifying_key).is_ok();
 
     Ok(VerifyOutput {
@@ -136,8 +134,7 @@ fn do_info(receipt_path: String) -> std::result::Result<InfoOutput, NounVerbErro
             receipt_file.display()
         )));
     }
-    let receipt = load_receipt(&receipt_file)
-        .map_err(|e| NounVerbError::execution_error(e))?;
+    let receipt = load_receipt(&receipt_file).map_err(|e| NounVerbError::execution_error(e))?;
     Ok(InfoOutput {
         receipt_file: receipt_path,
         operation_id: receipt.operation_id,

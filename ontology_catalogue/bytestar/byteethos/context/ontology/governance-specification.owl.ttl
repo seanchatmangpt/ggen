@@ -1,0 +1,54 @@
+@prefix : <https://bytestar.org/ontology/byteethos/governance-specification#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/byteethos/governance-specification>
+  a owl:Ontology ;
+  rdfs:label "ByteEthos Governance Specification" ;
+  rdfs:comment "The formal specification for the executable governance engine and the library of canonical governance ontologies." ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  owl:versionInfo "4.0.0" .
+
+:GovernanceCanon a owl:Class .
+:RONR a :GovernanceCanon ; rdfs:label "Rules of Non-Repudiation" .
+:S_at_S a :GovernanceCanon ; rdfs:label "SHACL@Scale" .
+:DfLSS a :GovernanceCanon ; rdfs:label "Design for Lean Six Sigma" .
+
+:enforces a owl:ObjectProperty ;
+    rdfs:domain bcore:ByteEthos ;
+    rdfs:range :GovernanceCanon .
+
+#################################################################
+# Risk Tiers for AI Agents (from ETHOS paper)
+#################################################################
+
+:RiskTier a owl:Class ;
+    rdfs:label "AI Agent Risk Tier" ;
+    rdfs:comment "Categorization of AI agents based on their potential risks, informing proportional oversight." .
+
+:UnacceptableRisk a owl:Class ;
+    rdfs:subClassOf :RiskTier ;
+    rdfs:label "Unacceptable Risk" ;
+    rdfs:comment "AI agents posing severe threats to rights and safety (e.g., warfare agents, mass surveillance)." .
+
+:HighRisk a owl:Class ;
+    rdfs:subClassOf :RiskTier ;
+    rdfs:label "High Risk" ;
+    rdfs:comment "AI agents in critical domains with significant societal impact (e.g., healthcare diagnostics, judicial AI)." .
+
+:ModerateRisk a owl:Class ;
+    rdfs:subClassOf :RiskTier ;
+    rdfs:label "Moderate Risk" ;
+    rdfs:comment "AI agents with measurable impacts in sensitive areas (e.g., workplace tools, educational AI)." .
+
+:MinimalRisk a owl:Class ;
+    rdfs:subClassOf :RiskTier ;
+    rdfs:label "Minimal Risk" ;
+    rdfs:comment "Routine, low-stakes AI with negligible harm (e.g., personal assistants, recreational AI)." .
+
+:appliesToAgentRiskTier a owl:ObjectProperty ;
+    rdfs:label "applies to AI Agent Risk Tier" ;
+    rdfs:domain :GovernanceCanon ;
+    rdfs:range :RiskTier ;
+    rdfs:comment "Links a governance canon to the specific risk tier(s) of AI agents it applies to." .

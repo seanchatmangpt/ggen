@@ -1,0 +1,280 @@
+# =============================================================================
+# Database Schema Ontology - E-commerce Domain
+# Defines tables, columns, indexes, and foreign keys
+# Source of truth for generating SQL DDL and migration files
+# =============================================================================
+
+@prefix db: <https://ggen.io/examples/db#> .
+@prefix schema: <https://ggen.io/ontology/db#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Database Configuration
+# =============================================================================
+
+db:EcommerceDB a schema:Database ;
+    schema:name "ecommerce" ;
+    schema:description "E-commerce platform database schema" ;
+    schema:version "1.0.0" ;
+    schema:dialect "postgresql" .
+
+# =============================================================================
+# users Table
+# =============================================================================
+
+db:UsersTable a schema:Table ;
+    schema:tableName "users" ;
+    rdfs:comment "Registered user accounts" ;
+    schema:hasColumn db:Users_id ;
+    schema:hasColumn db:Users_email ;
+    schema:hasColumn db:Users_username ;
+    schema:hasColumn db:Users_password_hash ;
+    schema:hasColumn db:Users_created_at ;
+    schema:hasColumn db:Users_updated_at ;
+    schema:hasIndex db:Users_email_idx ;
+    schema:hasIndex db:Users_username_idx .
+
+db:Users_id a schema:Column ;
+    schema:columnName "id" ;
+    schema:dataType "uuid" ;
+    schema:nullable false ;
+    schema:primaryKey true ;
+    schema:defaultValue "gen_random_uuid()" ;
+    rdfs:comment "Primary key" .
+
+db:Users_email a schema:Column ;
+    schema:columnName "email" ;
+    schema:dataType "varchar" ;
+    schema:length 255 ;
+    schema:nullable false ;
+    schema:unique true ;
+    rdfs:comment "User email address" .
+
+db:Users_username a schema:Column ;
+    schema:columnName "username" ;
+    schema:dataType "varchar" ;
+    schema:length 100 ;
+    schema:nullable false ;
+    schema:unique true ;
+    rdfs:comment "Display name" .
+
+db:Users_password_hash a schema:Column ;
+    schema:columnName "password_hash" ;
+    schema:dataType "varchar" ;
+    schema:length 255 ;
+    schema:nullable false ;
+    rdfs:comment "Bcrypt password hash" .
+
+db:Users_created_at a schema:Column ;
+    schema:columnName "created_at" ;
+    schema:dataType "timestamp" ;
+    schema:nullable false ;
+    schema:defaultValue "CURRENT_TIMESTAMP" ;
+    rdfs:comment "Account creation time" .
+
+db:Users_updated_at a schema:Column ;
+    schema:columnName "updated_at" ;
+    schema:dataType "timestamp" ;
+    schema:nullable false ;
+    schema:defaultValue "CURRENT_TIMESTAMP" ;
+    rdfs:comment "Last update time" .
+
+db:Users_email_idx a schema:Index ;
+    schema:indexName "idx_users_email" ;
+    schema:indexColumn "email" ;
+    schema:unique true .
+
+db:Users_username_idx a schema:Index ;
+    schema:indexName "idx_users_username" ;
+    schema:indexColumn "username" ;
+    schema:unique true .
+
+# =============================================================================
+# products Table
+# =============================================================================
+
+db:ProductsTable a schema:Table ;
+    schema:tableName "products" ;
+    rdfs:comment "Product catalog" ;
+    schema:hasColumn db:Products_id ;
+    schema:hasColumn db:Products_name ;
+    schema:hasColumn db:Products_description ;
+    schema:hasColumn db:Products_price ;
+    schema:hasColumn db:Products_stock_quantity ;
+    schema:hasColumn db:Products_category_id ;
+    schema:hasColumn db:Products_created_at ;
+    schema:hasIndex db:Products_category_idx .
+
+db:Products_id a schema:Column ;
+    schema:columnName "id" ;
+    schema:dataType "uuid" ;
+    schema:nullable false ;
+    schema:primaryKey true ;
+    schema:defaultValue "gen_random_uuid()" ;
+    rdfs:comment "Primary key" .
+
+db:Products_name a schema:Column ;
+    schema:columnName "name" ;
+    schema:dataType "varchar" ;
+    schema:length 500 ;
+    schema:nullable false ;
+    rdfs:comment "Product name" .
+
+db:Products_description a schema:Column ;
+    schema:columnName "description" ;
+    schema:dataType "text" ;
+    schema:nullable true ;
+    rdfs:comment "Full product description" .
+
+db:Products_price a schema:Column ;
+    schema:columnName "price" ;
+    schema:dataType "numeric" ;
+    schema:precision 10 ;
+    schema:scale 2 ;
+    schema:nullable false ;
+    rdfs:comment "Price in USD" .
+
+db:Products_stock_quantity a schema:Column ;
+    schema:columnName "stock_quantity" ;
+    schema:dataType "integer" ;
+    schema:nullable false ;
+    schema:defaultValue "0" ;
+    rdfs:comment "Available inventory count" .
+
+db:Products_category_id a schema:Column ;
+    schema:columnName "category_id" ;
+    schema:dataType "uuid" ;
+    schema:nullable true ;
+    schema:foreignKey true ;
+    schema:referencesTable "categories" ;
+    schema:referencesColumn "id" ;
+    rdfs:comment "FK to categories" .
+
+db:Products_created_at a schema:Column ;
+    schema:columnName "created_at" ;
+    schema:dataType "timestamp" ;
+    schema:nullable false ;
+    schema:defaultValue "CURRENT_TIMESTAMP" ;
+    rdfs:comment "Creation timestamp" .
+
+db:Products_category_idx a schema:Index ;
+    schema:indexName "idx_products_category" ;
+    schema:indexColumn "category_id" ;
+    schema:unique false .
+
+# =============================================================================
+# categories Table
+# =============================================================================
+
+db:CategoriesTable a schema:Table ;
+    schema:tableName "categories" ;
+    rdfs:comment "Product categories" ;
+    schema:hasColumn db:Categories_id ;
+    schema:hasColumn db:Categories_name ;
+    schema:hasColumn db:Categories_slug ;
+    schema:hasColumn db:Categories_parent_id ;
+    schema:hasIndex db:Categories_slug_idx .
+
+db:Categories_id a schema:Column ;
+    schema:columnName "id" ;
+    schema:dataType "uuid" ;
+    schema:nullable false ;
+    schema:primaryKey true ;
+    schema:defaultValue "gen_random_uuid()" ;
+    rdfs:comment "Primary key" .
+
+db:Categories_name a schema:Column ;
+    schema:columnName "name" ;
+    schema:dataType "varchar" ;
+    schema:length 255 ;
+    schema:nullable false ;
+    rdfs:comment "Category display name" .
+
+db:Categories_slug a schema:Column ;
+    schema:columnName "slug" ;
+    schema:dataType "varchar" ;
+    schema:length 255 ;
+    schema:nullable false ;
+    schema:unique true ;
+    rdfs:comment "URL-safe identifier" .
+
+db:Categories_parent_id a schema:Column ;
+    schema:columnName "parent_id" ;
+    schema:dataType "uuid" ;
+    schema:nullable true ;
+    schema:foreignKey true ;
+    schema:referencesTable "categories" ;
+    schema:referencesColumn "id" ;
+    rdfs:comment "Self-referential FK for nested categories" .
+
+db:Categories_slug_idx a schema:Index ;
+    schema:indexName "idx_categories_slug" ;
+    schema:indexColumn "slug" ;
+    schema:unique true .
+
+# =============================================================================
+# orders Table
+# =============================================================================
+
+db:OrdersTable a schema:Table ;
+    schema:tableName "orders" ;
+    rdfs:comment "Customer orders" ;
+    schema:hasColumn db:Orders_id ;
+    schema:hasColumn db:Orders_user_id ;
+    schema:hasColumn db:Orders_status ;
+    schema:hasColumn db:Orders_total_amount ;
+    schema:hasColumn db:Orders_created_at ;
+    schema:hasIndex db:Orders_user_idx ;
+    schema:hasIndex db:Orders_status_idx .
+
+db:Orders_id a schema:Column ;
+    schema:columnName "id" ;
+    schema:dataType "uuid" ;
+    schema:nullable false ;
+    schema:primaryKey true ;
+    schema:defaultValue "gen_random_uuid()" ;
+    rdfs:comment "Primary key" .
+
+db:Orders_user_id a schema:Column ;
+    schema:columnName "user_id" ;
+    schema:dataType "uuid" ;
+    schema:nullable false ;
+    schema:foreignKey true ;
+    schema:referencesTable "users" ;
+    schema:referencesColumn "id" ;
+    rdfs:comment "FK to users" .
+
+db:Orders_status a schema:Column ;
+    schema:columnName "status" ;
+    schema:dataType "varchar" ;
+    schema:length 50 ;
+    schema:nullable false ;
+    schema:defaultValue "'pending'" ;
+    rdfs:comment "Order lifecycle status" .
+
+db:Orders_total_amount a schema:Column ;
+    schema:columnName "total_amount" ;
+    schema:dataType "numeric" ;
+    schema:precision 10 ;
+    schema:scale 2 ;
+    schema:nullable false ;
+    rdfs:comment "Total order value" .
+
+db:Orders_created_at a schema:Column ;
+    schema:columnName "created_at" ;
+    schema:dataType "timestamp" ;
+    schema:nullable false ;
+    schema:defaultValue "CURRENT_TIMESTAMP" ;
+    rdfs:comment "Order placement time" .
+
+db:Orders_user_idx a schema:Index ;
+    schema:indexName "idx_orders_user" ;
+    schema:indexColumn "user_id" ;
+    schema:unique false .
+
+db:Orders_status_idx a schema:Index ;
+    schema:indexName "idx_orders_status" ;
+    schema:indexColumn "status" ;
+    schema:unique false .

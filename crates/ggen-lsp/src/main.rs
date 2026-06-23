@@ -1,9 +1,18 @@
+// stdout is the LSP frame channel — forbid print!/println! by construction so
+// log text can never interleave ahead of the Content-Length header again.
+#![deny(clippy::print_stdout)]
+
 use ggen_lsp::run_stdio;
 use std::env;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    tracing_subscriber::fmt().init();
+    // STDOUT carries the LSP JSON-RPC protocol (see run_stdio: Server::new uses
+    // tokio stdout). Logs MUST go to STDERR or they corrupt message framing and
+    // break Content-Length header parsing on the client.
+    tracing_subscriber::fmt()
+        .with_writer(std::io::stderr)
+        .init();
 
     let args: Vec<String> = env::args().collect();
 

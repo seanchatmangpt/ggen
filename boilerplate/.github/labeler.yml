@@ -1,0 +1,18 @@
+domain:
+  - crates/domain/**
+core:
+  - crates/core/**
+http:
+  - crates/service/**
+database:
+  - crates/sqlite/**
+config:
+  - crates/config/**
+mcp:
+  - crates/mcp-server/**
+ci:
+  - .github/workflows/**
+  - Makefile.toml
+docs:
+  - "**/*.md"
+  - docs/**

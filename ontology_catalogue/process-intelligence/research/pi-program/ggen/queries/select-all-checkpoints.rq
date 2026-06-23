@@ -1,0 +1,21 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX chk: <https://process.intelligence/checkpoint/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# SELECT: All Checkpoints (9 total: 6 ALIVE + 3 PARTIAL)
+# Returns all checkpoint verdicts with status, gate counts, and authority
+# Date: 2026-06-01
+
+SELECT ?checkpoint ?title ?status ?authority ?gateCriteria ?gatesCriteriaMet ?failedGates ?issued
+WHERE {
+    ?checkpoint a pi:Checkpoint .
+    ?checkpoint dcterms:title ?title .
+    ?checkpoint pi:status ?status .
+
+    OPTIONAL { ?checkpoint pi:authority ?authority }
+    OPTIONAL { ?checkpoint pi:gateCriteria ?gateCriteria }
+    OPTIONAL { ?checkpoint pi:gatesCriteriaMet ?gatesCriteriaMet }
+    OPTIONAL { ?checkpoint pi:failedGates ?failedGates }
+    OPTIONAL { ?checkpoint dcterms:issued ?issued }
+}
+ORDER BY DESC(?issued)

@@ -1,0 +1,84 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix cc:      <https://cargo-cicd.rs/ontology/> .
+@prefix ccsh:    <https://cargo-cicd.rs/shapes/> .
+
+# ── Shape ontology header ─────────────────────────────────────────────────────
+ccsh:EvidenceShapes
+    a owl:Ontology ;
+    dcterms:title "cargo-cicd evidence event SHACL shapes"@en ;
+    dcterms:description
+        "Validates prov:Activity evidence-event nodes: every event must carry a label, link back to its emitting capability, declare at least 8 required event fields, and name the wasm4pm oracle command that adjudicates it."@en ;
+    dcterms:created "2026-06-02"^^xsd:date ;
+    owl:imports <https://cargo-cicd.rs/ontology/evidence> ;
+    owl:versionInfo "26.6.2" .
+
+# ── EvidenceEventShape ────────────────────────────────────────────────────────
+#
+# Target: every prov:Activity in the evidence graph.
+# All nine events in cargo-cicd-evidence.ttl are of this type.
+#
+# Note on cc:requiredEventFields field-count check:
+#   The ontology stores the field list as a comma-separated string. The minimum
+#   of 8 fields translates to a string that contains at least 7 commas.
+#   We enforce this via sh:minLength on the comma-counted string using a pattern
+#   that requires at least 7 ", " separators (i.e. 8 tokens).
+#
+ccsh:EvidenceEventShape
+    a sh:NodeShape ;
+    sh:name "EvidenceEventShape" ;
+    sh:description
+        "Every prov:Activity emitted by a cargo-cicd command must carry a human label, link back to its originating capability, declare at least 8 required event fields, and identify the wasm4pm oracle sub-command used for adjudication."@en ;
+
+    sh:targetClass prov:Activity ;
+
+    # ── skos:prefLabel — required ─────────────────────────────────────────────
+    sh:property [
+        sh:path skos:prefLabel ;
+        sh:name "prefLabel" ;
+        sh:description "Human-readable name of the evidence event."@en ;
+        sh:minCount 1 ;
+        sh:message "prov:Activity evidence event must have at least one skos:prefLabel."@en ;
+    ] ;
+
+    # ── prov:wasGeneratedBy — required, must link to a prov:SoftwareAgent ────
+    #   In the capabilities model the commands are typed as prov:SoftwareAgent.
+    sh:property [
+        sh:path prov:wasGeneratedBy ;
+        sh:name "wasGeneratedBy" ;
+        sh:description "Links this evidence event to the cc:Capability (prov:SoftwareAgent) that produced it."@en ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class prov:SoftwareAgent ;
+        sh:message "prov:wasGeneratedBy is required and must point to a prov:SoftwareAgent (cc:Capability) node."@en ;
+    ] ;
+
+    # ── cc:requiredEventFields — required, at least 8 comma-separated fields ─
+    #   Pattern: at least 7 commas in the value → at least 8 tokens.
+    sh:property [
+        sh:path cc:requiredEventFields ;
+        sh:name "requiredEventFields" ;
+        sh:description "Comma-separated list of mandatory XES/OCEL event fields; at least 8 must be declared."@en ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^([^,]+,){7,}[^,]+$" ;
+        sh:message "cc:requiredEventFields is required and must list at least 8 comma-separated field names."@en ;
+    ] ;
+
+    # ── cc:wasm4pmOracleCommand — required, plain string ─────────────────────
+    sh:property [
+        sh:path cc:wasm4pmOracleCommand ;
+        sh:name "wasm4pmOracleCommand" ;
+        sh:description "The wpm sub-command that adjudicates this evidence (e.g. 'wpm audit', 'wpm doctor', 'wpm lean')."@en ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "cc:wasm4pmOracleCommand is required and must be a plain xsd:string."@en ;
+    ] .

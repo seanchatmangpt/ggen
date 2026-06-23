@@ -1,0 +1,16 @@
+# discover_prompt_surfaces.rq
+# Discovers all admitted MCP prompts with their semantic intent and argument structure.
+# Feeds proj:McpPromptFamily via unrdf sync.
+
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX mcp:   <https://chatmangpt.com/ontologies/o-star/mcp:>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:   <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?prompt ?name
+WHERE {
+  ?prompt a ostar:McpPrompt ;
+          ostar:admissibilityStatus ostar:Admitted ;
+          rdfs:label ?name .
+}
+ORDER BY ?name

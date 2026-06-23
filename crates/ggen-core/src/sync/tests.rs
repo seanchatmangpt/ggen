@@ -203,3 +203,71 @@ fn test_sync_receipt_is_deterministic() {
         "receipt must be a valid hex string"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Test 4: sync produces a three-pole coherence report (A ≅ O ≅ L)
+// ---------------------------------------------------------------------------
+
+/// RED claim: `sync()` must populate `coherence_report` on `SyncResult`,
+/// prove that the ontology pole and artifact pole are non-empty, and write
+/// `coherence-latest.json` to `.ggen/receipts/` when not in dry-run mode.
+#[test]
+fn test_sync_produces_coherence_report() {
+    use ggen_graph::coherence::Pole;
+
+    let (dir, ont_path, queries_dir) = setup_fixture(MINIMAL_TTL, &[("services", SERVICES_QUERY)]);
+    let output_dir = dir.path().join("output");
+
+    let config = SyncConfig {
+        ontology_path: ont_path,
+        queries_dir,
+        output_dir: output_dir.clone(),
+        language: SyncLanguage::Go,
+        validate: false,
+        dry_run: false,
+    };
+
+    let result = sync(config).expect("sync must succeed");
+
+    // Claim: coherence_report is populated
+    let report = result
+        .coherence_report
+        .expect("sync must produce a coherence_report");
+
+    // Claim: all three poles are present in the report
+    assert_eq!(report.poles.len(), 3, "three-pole report must have exactly 3 poles");
+
+    // Claim: ontology pole has a non-empty hash
+    let ont_pole = report.poles.iter().find(|p| p.pole == Pole::Ontology)
+        .expect("ontology pole must be present");
+    assert!(
+        !ont_pole.hash.is_empty(),
+        "ontology pole hash must be non-empty"
+    );
+
+    // Claim: artifact pole has a non-empty hash
+    let art_pole = report.poles.iter().find(|p| p.pole == Pole::Artifact)
+        .expect("artifact pole must be present");
+    assert!(
+        !art_pole.hash.is_empty(),
+        "artifact pole hash must be non-empty"
+    );
+
+    // Claim: coherence-latest.json was written to .ggen/receipts/
+    let receipt_path = output_dir.join(".ggen").join("receipts").join("coherence-latest.json");
+    assert!(
+        receipt_path.exists(),
+        "coherence-latest.json must exist at {:?}",
+        receipt_path
+    );
+
+    // Claim: the JSON is valid and contains the 'poles' field
+    let json_content = fs::read_to_string(&receipt_path).expect("read coherence json");
+    assert!(!json_content.is_empty(), "coherence JSON must be non-empty");
+    let parsed: serde_json::Value = serde_json::from_str(&json_content)
+        .expect("coherence JSON must be valid");
+    assert!(
+        parsed.get("poles").is_some(),
+        "coherence JSON must contain 'poles' field"
+    );
+}

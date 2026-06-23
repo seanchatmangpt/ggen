@@ -1,0 +1,120 @@
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix scrum: <https://bytestar.org/ontology/ethos/canon/scrum-at-scale#> .
+
+# Scrum Team Sprint Workflow with Cursor CLI Integration
+# This workflow orchestrates a complete Scrum sprint using GitVan and Cursor CLI
+
+ex:scrum-sprint-workflow rdf:type gh:Hook ;
+    gv:title "Scrum Team Sprint Workflow" ;
+    gh:hasPredicate ex:scrumSprintWorkflow ;
+    gh:orderedPipelines ex:scrum-sprint-pipeline .
+
+ex:scrum-sprint-pipeline rdf:type op:Pipeline ;
+    op:steps ex:sprint-planning-step ;
+    op:steps ex:daily-scrum-step ;
+    op:steps ex:sprint-review-step ;
+    op:steps ex:retrospective-step ;
+    op:steps ex:cursor-integration-step .
+
+# Step 1: Sprint Planning
+ex:sprint-planning-step rdf:type gv:SparqlStep ;
+    gv:text """
+        PREFIX scrum: <https://bytestar.org/ontology/ethos/canon/scrum-at-scale#>
+        PREFIX ex: <http://example.org/>
+        
+        SELECT ?sprint ?goal ?duration ?backlogItem WHERE {
+            ?sprint a scrum:Sprint ;
+                scrum:hasSprintGoal ?goal ;
+                scrum:hasDuration ?duration .
+            ?sprint scrum:containsItem ?backlogItem .
+            ?backlogItem a scrum:ProductBacklogItem .
+        }
+    """ ;
+    gv:outputMapping '{"sprint": "results", "planning": "data"}' .
+
+# Step 2: Daily Scrum Coordination
+ex:daily-scrum-step rdf:type gv:TemplateStep ;
+    gv:template """
+# Daily Scrum Report - {{ sprint.goal }}
+
+## Yesterday's Accomplishments
+- [ ] Completed tasks from previous day
+- [ ] Progress on sprint backlog items
+
+## Today's Plan
+- [ ] Priority tasks for today
+- [ ] Sprint goal alignment
+
+## Impediments
+- [ ] Blockers requiring attention
+- [ ] Dependencies on other teams
+
+## Team Coordination
+- [ ] Cross-team dependencies
+- [ ] Scrum of Scrums updates
+
+**Sprint Duration**: {{ sprint.duration }}
+**Sprint Goal**: {{ sprint.goal }}
+    """ ;
+    gv:outputPath "scrum-reports/daily-scrum-{{ date }}.md" .
+
+# Step 3: Sprint Review
+ex:sprint-review-step rdf:type gv:SparqlStep ;
+    gv:text """
+        PREFIX scrum: <https://bytestar.org/ontology/ethos/canon/scrum-at-scale#>
+        PREFIX ex: <http://example.org/>
+        
+        SELECT ?increment ?review ?feedback WHERE {
+            ?increment a scrum:Increment ;
+                scrum:hasReview ?review .
+            ?review scrum:hasFeedback ?feedback .
+        }
+    """ ;
+    gv:outputMapping '{"increment": "results", "review": "data"}' .
+
+# Step 4: Sprint Retrospective
+ex:retrospective-step rdf:type gv:TemplateStep ;
+    gv:template """
+# Sprint Retrospective - {{ sprint.goal }}
+
+## What Went Well
+- [ ] Successful practices
+- [ ] Team achievements
+- [ ] Process improvements
+
+## What Could Be Improved
+- [ ] Areas for enhancement
+- [ ] Process bottlenecks
+- [ ] Communication gaps
+
+## Action Items
+- [ ] Specific improvements for next sprint
+- [ ] Process changes to implement
+- [ ] Team commitments
+
+## Metrics
+- **Sprint Duration**: {{ sprint.duration }}
+- **Sprint Goal Achievement**: {{ sprint.goal }}
+- **Team Velocity**: [To be calculated]
+- **Burndown**: [To be tracked]
+
+## Next Sprint Planning
+- [ ] Carry-over items
+- [ ] New priorities
+- [ ] Process adjustments
+    """ ;
+    gv:outputPath "scrum-reports/retrospective-{{ date }}.md" .
+
+# Step 5: Cursor CLI Integration for Automated Workflow
+ex:cursor-integration-step rdf:type gv:CliStep ;
+    gv:command "cursor-agent" ;
+    gv:args "-p" ;
+    gv:args "Analyze this Scrum sprint workflow and provide optimization recommendations. Review the sprint planning, daily scrums, sprint review, and retrospective processes. Suggest improvements for team coordination, process efficiency, and outcome quality. Focus on Scrum at Scale best practices and provide actionable insights for the next sprint iteration." ;
+    gv:args "--output-format" ;
+    gv:args "text" ;
+    gv:outputPath "scrum-reports/cursor-analysis-{{ date }}.txt" .

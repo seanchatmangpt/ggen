@@ -1,0 +1,7 @@
+PREFIX lex: <https://chatmangpt.com/ontology/lexicon#>
+
+SELECT ?forbidden_code_points
+WHERE {
+  ?token a lex:ForbiddenToken ;
+         lex:encodedToken ?forbidden_code_points .
+}

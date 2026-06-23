@@ -1,0 +1,78 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix a2a: <https://a2a.com/schema/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Multi-stage Docker Build Example with Optimization Patterns
+:optimized_go_app a a2a:docker_config ;
+    a2a:app_label "go-app" ;
+    a2a:version_label "2.3.1" ;
+    a2a:managed_by "a2a" ;
+    a2a:base_image "golang:1.21-alpine" ;
+    a2a:expose_port 8080 ;
+    a2a:expose_port 8081 ;
+    a2a:volume_mount "/app" ;
+    a2a:environment_variable "GOMODCACHE" "/go/pkg/mod" ;
+    a2a:environment_variable "GOCACHE" "/root/.cache/go-build" ;
+    a2a:environment_variable "ENVIRONMENT" "production" ;
+    a2a:multi_stage_build true ;
+    a2a:health_check "http://localhost:8080/health" ;
+    a2a:liveness_probe "http://localhost:8080/health" ;
+    a2a:readiness_probe "tcp://localhost:8080" ;
+    a2a:liveness_probe_path "/health" ;
+    a2a:readiness_probe_path "/ready" ;
+    a2a:health_check_port 8080 ;
+    a2a:health_check_interval 10 ;
+    a2a:health_check_timeout 5 ;
+    a2a:build_arg "BUILDKIT_INLINE_CACHE=1" ;
+    a2a:build_arg "CGO_ENABLED=0" ;
+    a2a:build_arg "GOOS=linux" ;
+    a2a:build_arg "GOARCH=amd64" ;
+    a2a:network_mode "bridge" ;
+    a2a:user "appuser" ;
+    a2a:working_dir "/app" ;
+    a2a:command "./app" ;
+    a2a:entrypoint "/bin/sh -c" .
+
+## Multi-stage Dockerfile Template
+:multi_stage_dockerfile a a2a:dockerfile_template ;
+    rdfs:label "Multi-stage Build Dockerfile Template" ;
+    rdfs:comment """
+        # Builder stage
+        FROM golang:1.21-alpine as builder
+        WORKDIR /app
+        COPY go.mod go.sum ./
+        RUN go mod download
+        COPY . .
+        RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+
+        # Final stage
+        FROM alpine:latest
+        WORKDIR /root/
+        COPY --from=builder /app/main .
+        COPY --from=builder /app/config ./config
+        EXPOSE 8080
+        CMD ["./main"]
+    """ .
+
+## Docker Health Check Patterns
+:health_check_patterns a owl:Class ;
+    rdfs:label "Health Check Pattern" ;
+    rdfs:comment "Common health check patterns for different types of applications" .
+
+:http_health_check a a2a:health_check ;
+    rdfs:label "HTTP Health Check" ;
+    rdfs:comment "HTTP-based health check pattern" ;
+    rdfs:range "http://localhost:8080/health|http://localhost:8080/ready|http://localhost:8080/status" .
+
+:tcp_health_check a a2a:health_check ;
+    rdfs:label "TCP Health Check" ;
+    rdfs:comment "TCP socket health check pattern" ;
+    rdfs:range "tcp://localhost:8080|tcp://localhost:3306|tcp://localhost:5432" .
+
+:exec_health_check a a2a:health_check ;
+    rdfs:label "Exec Health Check" ;
+    rdfs:comment "Command execution health check pattern" ;
+    rdfs:range "exec:/bin/health-check|exec:/app/health.sh|exec:/usr/local/bin/health" .

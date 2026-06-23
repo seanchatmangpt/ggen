@@ -1,0 +1,91 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ddd: <http://example.org/ddd#> .
+@prefix ggen: <http://example.org/ggen#> .
+
+# Complete E-Commerce Domain Model
+
+# User Aggregate
+ggen:User a ddd:AggregateRoot ;
+    rdfs:label "User" ;
+    ddd:hasProperty ggen:User_id ;
+    ddd:hasProperty ggen:User_email ;
+    ddd:hasProperty ggen:User_name .
+
+ggen:User_id a ddd:Property ;
+    rdfs:label "id" ;
+    ddd:propertyType "Uuid" .
+
+ggen:User_email a ddd:Property ;
+    rdfs:label "email" ;
+    ddd:propertyType "String" .
+
+ggen:User_name a ddd:Property ;
+    rdfs:label "name" ;
+    ddd:propertyType "String" .
+
+# Product Aggregate
+ggen:Product a ddd:AggregateRoot ;
+    rdfs:label "Product" ;
+    ddd:hasProperty ggen:Product_id ;
+    ddd:hasProperty ggen:Product_name ;
+    ddd:hasProperty ggen:Product_price ;
+    ddd:hasProperty ggen:Product_sku .
+
+ggen:Product_id a ddd:Property ;
+    rdfs:label "id" ;
+    ddd:propertyType "Uuid" .
+
+ggen:Product_name a ddd:Property ;
+    rdfs:label "name" ;
+    ddd:propertyType "String" .
+
+ggen:Product_price a ddd:Property ;
+    rdfs:label "price" ;
+    ddd:propertyType "Money" .
+
+ggen:Product_sku a ddd:Property ;
+    rdfs:label "sku" ;
+    ddd:propertyType "String" .
+
+# Order Aggregate
+ggen:Order a ddd:AggregateRoot ;
+    rdfs:label "Order" ;
+    ddd:hasProperty ggen:Order_id ;
+    ddd:hasProperty ggen:Order_user_id ;
+    ddd:hasProperty ggen:Order_status ;
+    ddd:hasProperty ggen:Order_total .
+
+ggen:Order_id a ddd:Property ;
+    rdfs:label "id" ;
+    ddd:propertyType "Uuid" .
+
+ggen:Order_user_id a ddd:Property ;
+    rdfs:label "user_id" ;
+    ddd:propertyType "Uuid" .
+
+ggen:Order_status a ddd:Property ;
+    rdfs:label "status" ;
+    ddd:propertyType "OrderStatus" .
+
+ggen:Order_total a ddd:Property ;
+    rdfs:label "total" ;
+    ddd:propertyType "Money" .
+
+# Value Objects
+ggen:Money a ddd:ValueObject ;
+    rdfs:label "Money" ;
+    ddd:hasProperty ggen:Money_amount ;
+    ddd:hasProperty ggen:Money_currency .
+
+ggen:Money_amount a ddd:Property ;
+    rdfs:label "amount" ;
+    ddd:propertyType "i64" .
+
+ggen:Money_currency a ddd:Property ;
+    rdfs:label "currency" ;
+    ddd:propertyType "String" .
+
+ggen:OrderStatus a ddd:ValueObject ;
+    rdfs:label "OrderStatus" ;
+    ddd:enumValues "Pending,Processing,Shipped,Delivered,Cancelled" .

@@ -1,0 +1,632 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sg: <http://cns.ai/ontology/smart-grid#> .
+
+# SHACL Constraints for Smart Grid Safety and Operational Validation
+# Critical grid stability rules enforced at sub-millisecond speeds
+# BitActor integration for ultra-fast constraint checking
+
+#####################################################################
+# Grid Node Safety Constraints
+#####################################################################
+
+sg:GridNodeShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:GridNode ;
+    sh:property [
+        sh:path sg:gridNodeID ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 32 ;
+        sh:pattern "^[A-Z0-9_-]{4,32}$" ;
+        sh:name "Grid Node ID validation" ;
+        sh:description "Grid node ID must be 4-32 alphanumeric characters"
+    ] ;
+    sh:property [
+        sh:path sg:nominalVoltage ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ;  # 100V minimum
+        sh:maxInclusive 800.0 ; # 800kV maximum
+        sh:name "Nominal voltage validation" ;
+        sh:description "Nominal voltage must be between 0.1kV and 800kV"
+    ] ;
+    sh:property [
+        sh:path sg:operationalStatus ;
+        sh:datatype xsd:string ;
+        sh:in ( "online" "offline" "maintenance" "fault" "standby" ) ;
+        sh:name "Operational status validation" ;
+        sh:description "Operational status must be from approved list"
+    ] .
+
+#####################################################################
+# Power Plant Safety Constraints
+#####################################################################
+
+sg:PowerPlantShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:PowerPlant ;
+    sh:property [
+        sh:path sg:maxPower ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ;   # 100kW minimum
+        sh:maxInclusive 10000.0 ; # 10GW maximum
+        sh:name "Maximum power validation" ;
+        sh:description "Maximum power must be between 100kW and 10GW"
+    ] ;
+    sh:property [
+        sh:path sg:currentPower ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:name "Current power validation" ;
+        sh:description "Current power must be non-negative"
+    ] ;
+    sh:property [
+        sh:path sg:efficiency ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 10.0 ;  # 10% minimum efficiency
+        sh:maxInclusive 100.0 ; # 100% maximum efficiency
+        sh:name "Efficiency validation" ;
+        sh:description "Efficiency must be between 10% and 100%"
+    ] ;
+    sh:sparql [
+        sh:message "Current power must not exceed maximum power capacity" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "sg" ;
+                sh:namespace "http://cns.ai/ontology/smart-grid#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this sg:currentPower ?current .
+                $this sg:maxPower ?max .
+                FILTER (?current > ?max)
+            }
+        """
+    ] .
+
+#####################################################################
+# Renewable Power Plant Constraints
+#####################################################################
+
+sg:RenewablePowerPlantShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:RenewablePowerPlant ;
+    sh:property [
+        sh:path sg:carbonEmissionFactor ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 50.0 ; # Maximum 50 kg CO2/MWh for renewables
+        sh:name "Carbon emission validation" ;
+        sh:description "Renewable plants must have low carbon emissions"
+    ] ;
+    sh:property [
+        sh:path sg:weatherCondition ;
+        sh:datatype xsd:string ;
+        sh:in ( "sunny" "cloudy" "overcast" "windy" "calm" "rainy" "snowy" "stormy" ) ;
+        sh:name "Weather condition validation" ;
+        sh:description "Weather condition must be from approved list"
+    ] .
+
+sg:SolarPowerPlantShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:SolarPowerPlant ;
+    sh:property [
+        sh:path sg:solarIrradiance ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1400.0 ; # Maximum 1400 W/m² (clear day + reflection)
+        sh:name "Solar irradiance validation" ;
+        sh:description "Solar irradiance must be between 0 and 1400 W/m²"
+    ] .
+
+sg:WindPowerPlantShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:WindPowerPlant ;
+    sh:property [
+        sh:path sg:windSpeed ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ; # Maximum 100 m/s (extreme weather)
+        sh:name "Wind speed validation" ;
+        sh:description "Wind speed must be between 0 and 100 m/s"
+    ] ;
+    sh:property [
+        sh:path sg:windDirection ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 360.0 ;
+        sh:name "Wind direction validation" ;
+        sh:description "Wind direction must be between 0 and 360 degrees"
+    ] .
+
+#####################################################################
+# Energy Storage Safety Constraints
+#####################################################################
+
+sg:EnergyStorageShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:EnergyStorage ;
+    sh:property [
+        sh:path sg:storageCapacity ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ;    # 100kWh minimum
+        sh:maxInclusive 10000.0 ; # 10GWh maximum
+        sh:name "Storage capacity validation" ;
+        sh:description "Storage capacity must be between 100kWh and 10GWh"
+    ] ;
+    sh:property [
+        sh:path sg:currentStateOfCharge ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:name "State of charge validation" ;
+        sh:description "State of charge must be between 0% and 100%"
+    ] ;
+    sh:property [
+        sh:path sg:roundTripEfficiency ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 50.0 ;  # 50% minimum efficiency
+        sh:maxInclusive 98.0 ;  # 98% maximum efficiency
+        sh:name "Round-trip efficiency validation" ;
+        sh:description "Round-trip efficiency must be between 50% and 98%"
+    ] ;
+    sh:property [
+        sh:path sg:chargingMode ;
+        sh:datatype xsd:string ;
+        sh:in ( "charging" "discharging" "idle" "maintenance" ) ;
+        sh:name "Charging mode validation" ;
+        sh:description "Charging mode must be from approved list"
+    ] ;
+    sh:sparql [
+        sh:message "Charge rate must not exceed maximum charge rate" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "sg" ;
+                sh:namespace "http://cns.ai/ontology/smart-grid#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this sg:currentPower ?current .
+                $this sg:maxChargeRate ?maxCharge .
+                $this sg:chargingMode "charging" .
+                FILTER (?current > ?maxCharge)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Discharge rate must not exceed maximum discharge rate" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "sg" ;
+                sh:namespace "http://cns.ai/ontology/smart-grid#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this sg:currentPower ?current .
+                $this sg:maxDischargeRate ?maxDischarge .
+                $this sg:chargingMode "discharging" .
+                FILTER (?current > ?maxDischarge)
+            }
+        """
+    ] .
+
+#####################################################################
+# Grid Stability Constraints - Critical for Power Quality
+#####################################################################
+
+sg:GridStabilityShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:GridNode ;
+    sh:property [
+        sh:path sg:gridFrequency ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 49.5 ;  # 49.5 Hz minimum (±1% tolerance)
+        sh:maxInclusive 50.5 ;  # 50.5 Hz maximum for 50Hz systems
+        sh:name "Grid frequency validation" ;
+        sh:description "Grid frequency must be within ±1% of nominal (50Hz)"
+    ] ;
+    sh:property [
+        sh:path sg:totalHarmonicDistortion ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 8.0 ;   # 8% maximum THD
+        sh:name "THD validation" ;
+        sh:description "Total Harmonic Distortion must be below 8%"
+    ] ;
+    sh:property [
+        sh:path sg:voltageStability ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "Voltage stability validation" ;
+        sh:description "Voltage stability index must be between 0 and 1"
+    ] ;
+    sh:sparql [
+        sh:message "Voltage must be within ±10% of nominal voltage" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "sg" ;
+                sh:namespace "http://cns.ai/ontology/smart-grid#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this sg:nominalVoltage ?nominal .
+                $this sg:hasMeasurement ?measurement .
+                ?measurement a sg:VoltageMeasurement .
+                ?measurement sg:measurementValue ?actual .
+                BIND(?nominal * 0.9 AS ?minVoltage)
+                BIND(?nominal * 1.1 AS ?maxVoltage)
+                FILTER (?actual < ?minVoltage || ?actual > ?maxVoltage)
+            }
+        """
+    ] .
+
+#####################################################################
+# Electrical Measurement Constraints - Ultra-fast validation
+#####################################################################
+
+sg:ElectricalMeasurementShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:ElectricalMeasurement ;
+    sh:property [
+        sh:path sg:measurementValue ;
+        sh:datatype xsd:decimal ;
+        sh:name "Measurement value requirement" ;
+        sh:description "All measurements must have a numeric value"
+    ] ;
+    sh:property [
+        sh:path sg:measurementTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:name "Measurement timestamp requirement" ;
+        sh:description "All measurements must have a timestamp"
+    ] ;
+    sh:property [
+        sh:path sg:measurementAccuracy ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ;   # 0.1% minimum accuracy
+        sh:maxInclusive 5.0 ;   # 5% maximum error
+        sh:name "Measurement accuracy validation" ;
+        sh:description "Measurement accuracy must be between 0.1% and 5%"
+    ] ;
+    sh:property [
+        sh:path sg:samplingRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 1.0 ;     # 1 Hz minimum
+        sh:maxInclusive 10000.0 ; # 10 kHz maximum
+        sh:name "Sampling rate validation" ;
+        sh:description "Sampling rate must be between 1 Hz and 10 kHz"
+    ] ;
+    sh:property [
+        sh:path sg:processingLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 1000000.0 ; # 1ms maximum latency
+        sh:name "Processing latency constraint" ;
+        sh:description "Measurement processing must complete within 1ms"
+    ] ;
+    sh:property [
+        sh:path sg:ticksUsed ;
+        sh:datatype xsd:integer ;
+        sh:maxInclusive 8 ; # BitActor 8-tick guarantee
+        sh:name "CPU ticks constraint" ;
+        sh:description "Measurement processing must use ≤8 CPU ticks"
+    ] .
+
+sg:VoltageMeasurementShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:VoltageMeasurement ;
+    sh:property [
+        sh:path sg:measurementValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1000.0 ; # 1000kV maximum voltage measurement
+        sh:name "Voltage measurement range" ;
+        sh:description "Voltage measurements must be between 0 and 1000kV"
+    ] .
+
+sg:CurrentMeasurementShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:CurrentMeasurement ;
+    sh:property [
+        sh:path sg:measurementValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 50000.0 ; # 50kA maximum current measurement
+        sh:name "Current measurement range" ;
+        sh:description "Current measurements must be between 0 and 50kA"
+    ] .
+
+sg:FrequencyMeasurementShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:FrequencyMeasurement ;
+    sh:property [
+        sh:path sg:measurementValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 45.0 ;  # 45 Hz minimum (emergency)
+        sh:maxInclusive 65.0 ;  # 65 Hz maximum (emergency)
+        sh:name "Frequency measurement range" ;
+        sh:description "Frequency measurements must be between 45 and 65 Hz"
+    ] .
+
+#####################################################################
+# Grid Event Constraints - Safety and Response
+#####################################################################
+
+sg:GridEventShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:GridEvent ;
+    sh:property [
+        sh:path sg:eventSeverity ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:name "Event severity validation" ;
+        sh:description "Event severity must be rated 1-10"
+    ] ;
+    sh:property [
+        sh:path sg:eventTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:name "Event timestamp requirement" ;
+        sh:description "All events must have a timestamp"
+    ] ;
+    sh:property [
+        sh:path sg:eventDuration ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:name "Event duration validation" ;
+        sh:description "Event duration must be non-negative"
+    ] ;
+    sh:property [
+        sh:path sg:recoveryTime ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 86400.0 ; # 24 hours maximum recovery time
+        sh:name "Recovery time validation" ;
+        sh:description "Recovery time must be between 0 and 24 hours"
+    ] .
+
+sg:OutageShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:Outage ;
+    sh:property [
+        sh:path sg:eventSeverity ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 5 ; # Outages are inherently severe
+        sh:maxInclusive 10 ;
+        sh:name "Outage severity validation" ;
+        sh:description "Outages must have severity 5-10"
+    ] ;
+    sh:property [
+        sh:path sg:affectedNodes ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:name "Affected nodes validation" ;
+        sh:description "Outages must affect at least one node"
+    ] .
+
+#####################################################################
+# Transmission Line Safety Constraints
+#####################################################################
+
+sg:TransmissionLineShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:TransmissionLine ;
+    sh:property [
+        sh:path sg:lineLength ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ;    # 100m minimum
+        sh:maxInclusive 1000.0 ; # 1000km maximum
+        sh:name "Line length validation" ;
+        sh:description "Line length must be between 0.1 and 1000 km"
+    ] ;
+    sh:property [
+        sh:path sg:thermalRating ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 100.0 ;   # 100A minimum
+        sh:maxInclusive 10000.0 ; # 10kA maximum
+        sh:name "Thermal rating validation" ;
+        sh:description "Thermal rating must be between 100A and 10kA"
+    ] ;
+    sh:property [
+        sh:path sg:lineImpedance ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.001 ;  # 1mΩ minimum
+        sh:maxInclusive 1000.0 ; # 1kΩ maximum
+        sh:name "Line impedance validation" ;
+        sh:description "Line impedance must be between 1mΩ and 1kΩ"
+    ] .
+
+#####################################################################
+# Energy Consumer Constraints
+#####################################################################
+
+sg:EnergyConsumerShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:EnergyConsumer ;
+    sh:property [
+        sh:path sg:currentDemand ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:name "Current demand validation" ;
+        sh:description "Current demand must be non-negative"
+    ] ;
+    sh:property [
+        sh:path sg:priorityLevel ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:name "Priority level validation" ;
+        sh:description "Priority level must be between 1 and 10"
+    ] ;
+    sh:property [
+        sh:path sg:flexibilityFactor ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "Flexibility factor validation" ;
+        sh:description "Flexibility factor must be between 0 and 1"
+    ] ;
+    sh:sparql [
+        sh:message "Current demand must not exceed peak demand capacity" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "sg" ;
+                sh:namespace "http://cns.ai/ontology/smart-grid#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this sg:currentDemand ?current .
+                $this sg:peakDemand ?peak .
+                FILTER (?current > ?peak)
+            }
+        """
+    ] .
+
+#####################################################################
+# Grid Controller Constraints - Real-time Performance
+#####################################################################
+
+sg:GridControllerShape rdf:type sh:NodeShape ;
+    sh:targetClass sg:GridController ;
+    sh:property [
+        sh:path sg:responseTime ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 100.0 ; # 100ms maximum response time
+        sh:name "Response time validation" ;
+        sh:description "Control response time must be ≤100ms"
+    ] ;
+    sh:property [
+        sh:path sg:controlAccuracy ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 95.0 ;  # 95% minimum accuracy
+        sh:maxInclusive 100.0 ;
+        sh:name "Control accuracy validation" ;
+        sh:description "Control accuracy must be ≥95%"
+    ] ;
+    sh:property [
+        sh:path sg:controlMode ;
+        sh:datatype xsd:string ;
+        sh:in ( "automatic" "manual" "maintenance" "emergency" "remote" ) ;
+        sh:name "Control mode validation" ;
+        sh:description "Control mode must be from approved list"
+    ] ;
+    sh:property [
+        sh:path sg:realTimeProcessing ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ; # Real-time processing required
+        sh:name "Real-time processing requirement" ;
+        sh:description "Grid controllers must have real-time processing enabled"
+    ] .
+
+#####################################################################
+# BitActor Performance Constraints
+#####################################################################
+
+sg:BitActorPerformanceShape rdf:type sh:NodeShape ;
+    sh:targetNode sg:GridNode ;
+    sh:property [
+        sh:path sg:bitactorID ;
+        sh:datatype xsd:string ;
+        sh:pattern "^bitactor_grid_[0-9a-f]{8}$" ;
+        sh:name "BitActor ID format" ;
+        sh:description "BitActor ID must follow format 'bitactor_grid_########'"
+    ] ;
+    sh:sparql [
+        sh:message "Grid measurements must complete within 8 CPU ticks" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "sg" ;
+                sh:namespace "http://cns.ai/ontology/smart-grid#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this sg:hasMeasurement ?measurement .
+                ?measurement sg:ticksUsed ?ticks .
+                FILTER (?ticks > 8)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Critical grid events must have sub-millisecond processing" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "sg" ;
+                sh:namespace "http://cns.ai/ontology/smart-grid#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this sg:hasEvent ?event .
+                ?event sg:eventSeverity ?severity .
+                ?event sg:processingLatency ?latency .
+                FILTER (?severity >= 8 && ?latency > 1000000)
+            }
+        """
+    ] .
+
+#####################################################################
+# Grid Coordination Safety Rules
+#####################################################################
+
+sg:GridCoordinationShape rdf:type sh:NodeShape ;
+    sh:targetNode sg:GridNode ;
+    sh:sparql [
+        sh:message "Total generation must not exceed total demand by more than 5%" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "sg" ;
+                sh:namespace "http://cns.ai/ontology/smart-grid#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT ?grid
+            WHERE {
+                {
+                    SELECT (SUM(?generation) AS ?totalGeneration) WHERE {
+                        ?plant a sg:PowerPlant .
+                        ?plant sg:currentPower ?generation .
+                    }
+                }
+                {
+                    SELECT (SUM(?demand) AS ?totalDemand) WHERE {
+                        ?consumer a sg:EnergyConsumer .
+                        ?consumer sg:currentDemand ?demand .
+                    }
+                }
+                BIND("grid_system" AS ?grid)
+                FILTER (?totalGeneration > ?totalDemand * 1.05)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Grid frequency must be stable within emergency limits" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "sg" ;
+                sh:namespace "http://cns.ai/ontology/smart-grid#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this sg:gridFrequency ?frequency .
+                FILTER (?frequency < 47.0 || ?frequency > 53.0)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Energy storage must maintain minimum reserve capacity" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "sg" ;
+                sh:namespace "http://cns.ai/ontology/smart-grid#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this a sg:EnergyStorage .
+                $this sg:currentStateOfCharge ?soc .
+                $this sg:priorityLevel ?priority .
+                FILTER (?priority >= 8 && ?soc < 20.0)
+            }
+        """
+    ] .

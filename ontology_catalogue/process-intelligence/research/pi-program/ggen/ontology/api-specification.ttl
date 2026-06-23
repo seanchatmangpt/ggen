@@ -1,0 +1,410 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix api: <http://process-intelligence.org/api/> .
+@prefix pi: <http://process-intelligence.org/pi/> .
+
+# API Schema Definition - 7 Route Endpoints
+# Purpose: Define RESTful API surface for process intelligence manufacturing
+# Authority: PI Research Program Manufacturing Phase
+
+# Route 1: POST /api/v1/processes/manufacture
+api:route_manufacture_process a api:ApiEndpoint ;
+  rdfs:label "Manufacture Process" ;
+  api:method "POST" ;
+  api:path "/api/v1/processes/manufacture" ;
+  api:operationId "manufactureProcess" ;
+  api:summary "Initiate manufacturing of a process specification" ;
+  api:description "Accepts a process specification and manufactures a receipt chain" ;
+  api:requestBody api:spec_manufacture_request ;
+  api:responseBody api:spec_manufacture_response ;
+  api:statusCode 201 ;
+  api:authRequired true ;
+  api:rateLimitTier "standard" ;
+  api:tags ("manufacturing", "processes") .
+
+api:spec_manufacture_request a api:RequestSchema ;
+  rdfs:label "Manufacture Process Request" ;
+  api:contentType "application/json" ;
+  api:required ("processName", "specification") ;
+  api:properties (
+    [a api:SchemaProperty ;
+      api:name "processName" ;
+      api:type "string" ;
+      api:description "Name of the process to manufacture" ]
+    [a api:SchemaProperty ;
+      api:name "specification" ;
+      api:type "object" ;
+      api:description "Process specification in JSON format" ]
+    [a api:SchemaProperty ;
+      api:name "witness" ;
+      api:type "string" ;
+      api:description "Optional witness for specification" ]
+  ) .
+
+api:spec_manufacture_response a api:ResponseSchema ;
+  rdfs:label "Manufacture Process Response" ;
+  api:contentType "application/json" ;
+  api:properties (
+    [a api:SchemaProperty ;
+      api:name "receiptId" ;
+      api:type "string" ;
+      api:description "Unique receipt identifier" ]
+    [a api:SchemaProperty ;
+      api:name "manufactureStatus" ;
+      api:type "string" ;
+      api:enum ("SUCCESS", "PARTIAL", "FAILED") ]
+    [a api:SchemaProperty ;
+      api:name "artifacts" ;
+      api:type "array" ;
+      api:description "List of manufactured artifacts" ]
+  ) .
+
+# Route 2: GET /api/v1/processes/{processId}
+api:route_get_process a api:ApiEndpoint ;
+  rdfs:label "Get Process" ;
+  api:method "GET" ;
+  api:path "/api/v1/processes/{processId}" ;
+  api:operationId "getProcess" ;
+  api:summary "Retrieve process manufacturing status and receipt" ;
+  api:description "Fetches the current manufacturing status and receipt chain for a process" ;
+  api:pathParameters (
+    [a api:Parameter ;
+      api:name "processId" ;
+      api:type "string" ;
+      api:required true ;
+      api:description "Unique process identifier" ]
+  ) ;
+  api:responseBody api:spec_process_detail_response ;
+  api:statusCode 200 ;
+  api:authRequired true ;
+  api:rateLimitTier "standard" ;
+  api:tags ("manufacturing", "retrieval") .
+
+api:spec_process_detail_response a api:ResponseSchema ;
+  rdfs:label "Process Detail Response" ;
+  api:contentType "application/json" ;
+  api:properties (
+    [a api:SchemaProperty ;
+      api:name "processId" ;
+      api:type "string" ]
+    [a api:SchemaProperty ;
+      api:name "status" ;
+      api:type "string" ]
+    [a api:SchemaProperty ;
+      api:name "receipt" ;
+      api:type "object" ;
+      api:description "Receipt chain and proofs" ]
+    [a api:SchemaProperty ;
+      api:name "artifacts" ;
+      api:type "array" ]
+  ) .
+
+# Route 3: POST /api/v1/conformance/check
+api:route_conformance_check a api:ApiEndpoint ;
+  rdfs:label "Check Conformance" ;
+  api:method "POST" ;
+  api:path "/api/v1/conformance/check" ;
+  api:operationId "checkConformance" ;
+  api:summary "Validate process against specification" ;
+  api:description "Performs model-vs-log conformance checking" ;
+  api:requestBody api:spec_conformance_request ;
+  api:responseBody api:spec_conformance_response ;
+  api:statusCode 200 ;
+  api:authRequired true ;
+  api:rateLimitTier "intensive" ;
+  api:tags ("conformance", "validation") .
+
+api:spec_conformance_request a api:RequestSchema ;
+  rdfs:label "Conformance Check Request" ;
+  api:contentType "application/json" ;
+  api:required ("eventLog", "processModel") ;
+  api:properties (
+    [a api:SchemaProperty ;
+      api:name "eventLog" ;
+      api:type "object" ;
+      api:description "Event log in OCEL format" ]
+    [a api:SchemaProperty ;
+      api:name "processModel" ;
+      api:type "object" ;
+      api:description "Process model specification" ]
+    [a api:SchemaProperty ;
+      api:name "fitnessCriteria" ;
+      api:type "object" ;
+      api:description "Optional fitness constraints" ]
+  ) .
+
+api:spec_conformance_response a api:ResponseSchema ;
+  rdfs:label "Conformance Check Response" ;
+  api:contentType "application/json" ;
+  api:properties (
+    [a api:SchemaProperty ;
+      api:name "conformant" ;
+      api:type "boolean" ;
+      api:description "Whether process conforms to model" ]
+    [a api:SchemaProperty ;
+      api:name "fitness" ;
+      api:type "number" ;
+      api:description "Fitness score 0-1" ]
+    [a api:SchemaProperty ;
+      api:name "violations" ;
+      api:type "array" ;
+      api:description "List of conformance violations" ]
+    [a api:SchemaProperty ;
+      api:name "receipt" ;
+      api:type "object" ;
+      api:description "Conformance check receipt" ]
+  ) .
+
+# Route 4: GET /api/v1/governance/rules
+api:route_list_governance_rules a api:ApiEndpoint ;
+  rdfs:label "List Governance Rules" ;
+  api:method "GET" ;
+  api:path "/api/v1/governance/rules" ;
+  api:operationId "listGovernanceRules" ;
+  api:summary "List active governance rules" ;
+  api:description "Returns all active governance rules for the research program" ;
+  api:queryParameters (
+    [a api:Parameter ;
+      api:name "category" ;
+      api:type "string" ;
+      api:required false ;
+      api:description "Filter by rule category" ]
+    [a api:Parameter ;
+      api:name "limit" ;
+      api:type "integer" ;
+      api:required false ;
+      api:default "100" ]
+  ) ;
+  api:responseBody api:spec_governance_rules_response ;
+  api:statusCode 200 ;
+  api:authRequired false ;
+  api:rateLimitTier "standard" ;
+  api:tags ("governance", "rules") .
+
+api:spec_governance_rules_response a api:ResponseSchema ;
+  rdfs:label "Governance Rules Response" ;
+  api:contentType "application/json" ;
+  api:properties (
+    [a api:SchemaProperty ;
+      api:name "rules" ;
+      api:type "array" ;
+      api:description "List of governance rules" ]
+    [a api:SchemaProperty ;
+      api:name "totalCount" ;
+      api:type "integer" ]
+    [a api:SchemaProperty ;
+      api:name "pageInfo" ;
+      api:type "object" ]
+  ) .
+
+# Route 5: POST /api/v1/lifecycle/transition
+api:route_lifecycle_transition a api:ApiEndpoint ;
+  rdfs:label "Lifecycle Transition" ;
+  api:method "POST" ;
+  api:path "/api/v1/lifecycle/transition" ;
+  api:operationId "transitionLifecycle" ;
+  api:summary "Transition artifact through lifecycle states" ;
+  api:description "Moves an artifact through valid lifecycle state transitions" ;
+  api:requestBody api:spec_lifecycle_transition_request ;
+  api:responseBody api:spec_lifecycle_transition_response ;
+  api:statusCode 200 ;
+  api:authRequired true ;
+  api:rateLimitTier "standard" ;
+  api:tags ("lifecycle", "state-management") .
+
+api:spec_lifecycle_transition_request a api:RequestSchema ;
+  rdfs:label "Lifecycle Transition Request" ;
+  api:contentType "application/json" ;
+  api:required ("artifactId", "toState") ;
+  api:properties (
+    [a api:SchemaProperty ;
+      api:name "artifactId" ;
+      api:type "string" ;
+      api:description "Artifact to transition" ]
+    [a api:SchemaProperty ;
+      api:name "fromState" ;
+      api:type "string" ;
+      api:description "Current state" ]
+    [a api:SchemaProperty ;
+      api:name "toState" ;
+      api:type "string" ;
+      api:description "Target state" ]
+    [a api:SchemaProperty ;
+      api:name "reason" ;
+      api:type "string" ;
+      api:description "Transition reason" ]
+  ) .
+
+api:spec_lifecycle_transition_response a api:ResponseSchema ;
+  rdfs:label "Lifecycle Transition Response" ;
+  api:contentType "application/json" ;
+  api:properties (
+    [a api:SchemaProperty ;
+      api:name "artifactId" ;
+      api:type "string" ]
+    [a api:SchemaProperty ;
+      api:name "previousState" ;
+      api:type "string" ]
+    [a api:SchemaProperty ;
+      api:name "currentState" ;
+      api:type "string" ]
+    [a api:SchemaProperty ;
+      api:name "transitionProof" ;
+      api:type "string" ]
+  ) .
+
+# Route 6: POST /api/v1/evidence/validate
+api:route_validate_evidence a api:ApiEndpoint ;
+  rdfs:label "Validate Evidence" ;
+  api:method "POST" ;
+  api:path "/api/v1/evidence/validate" ;
+  api:operationId "validateEvidence" ;
+  api:summary "Cryptographically validate evidence block" ;
+  api:description "Verifies evidence integrity, witness correctness, and receipt chain" ;
+  api:requestBody api:spec_evidence_validate_request ;
+  api:responseBody api:spec_evidence_validate_response ;
+  api:statusCode 200 ;
+  api:authRequired true ;
+  api:rateLimitTier "standard" ;
+  api:tags ("evidence", "validation", "cryptography") .
+
+api:spec_evidence_validate_request a api:RequestSchema ;
+  rdfs:label "Evidence Validation Request" ;
+  api:contentType "application/json" ;
+  api:required ("evidence") ;
+  api:properties (
+    [a api:SchemaProperty ;
+      api:name "evidence" ;
+      api:type "object" ;
+      api:description "Evidence block to validate" ]
+    [a api:SchemaProperty ;
+      api:name "verifyWitness" ;
+      api:type "boolean" ;
+      api:default "true" ]
+    [a api:SchemaProperty ;
+      api:name "checkReceiptChain" ;
+      api:type "boolean" ;
+      api:default "true" ]
+  ) .
+
+api:spec_evidence_validate_response a api:ResponseSchema ;
+  rdfs:label "Evidence Validation Response" ;
+  api:contentType "application/json" ;
+  api:properties (
+    [a api:SchemaProperty ;
+      api:name "valid" ;
+      api:type "boolean" ]
+    [a api:SchemaProperty ;
+      api:name "witnessVerified" ;
+      api:type "boolean" ]
+    [a api:SchemaProperty ;
+      api:name "receiptChainValid" ;
+      api:type "boolean" ]
+    [a api:SchemaProperty ;
+      api:name "violations" ;
+      api:type "array" ;
+      api:description "Any validation violations" ]
+  ) .
+
+# Route 7: GET /api/v1/health
+api:route_health_check a api:ApiEndpoint ;
+  rdfs:label "Health Check" ;
+  api:method "GET" ;
+  api:path "/api/v1/health" ;
+  api:operationId "healthCheck" ;
+  api:summary "Check API health and manufacturing system status" ;
+  api:description "Returns system status, version, and manufacturing readiness" ;
+  api:responseBody api:spec_health_response ;
+  api:statusCode 200 ;
+  api:authRequired false ;
+  api:rateLimitTier "unlimited" ;
+  api:tags ("health", "status") .
+
+api:spec_health_response a api:ResponseSchema ;
+  rdfs:label "Health Check Response" ;
+  api:contentType "application/json" ;
+  api:properties (
+    [a api:SchemaProperty ;
+      api:name "status" ;
+      api:type "string" ;
+      api:enum ("healthy", "degraded", "unhealthy") ]
+    [a api:SchemaProperty ;
+      api:name "version" ;
+      api:type "string" ]
+    [a api:SchemaProperty ;
+      api:name "manufacturingReady" ;
+      api:type "boolean" ]
+    [a api:SchemaProperty ;
+      api:name "uptime" ;
+      api:type "integer" ;
+      api:description "Uptime in seconds" ]
+  ) .
+
+# Authentication Specification
+api:auth_bearer_token a api:AuthScheme ;
+  rdfs:label "Bearer Token Authentication" ;
+  api:type "http" ;
+  api:scheme "bearer" ;
+  api:bearerFormat "JWT" ;
+  api:description "JWT bearer token for API authentication" .
+
+api:auth_api_key a api:AuthScheme ;
+  rdfs:label "API Key Authentication" ;
+  api:type "apiKey" ;
+  api:name "X-API-Key" ;
+  api:in "header" ;
+  api:description "API key for non-bearer authentication" .
+
+# Rate Limiting Rules
+api:rate_limit_standard a api:RateLimit ;
+  rdfs:label "Standard Rate Limit" ;
+  api:requestsPerSecond 100 ;
+  api:requestsPerMinute 5000 ;
+  api:requestsPerHour 100000 ;
+  api:burstCapacity 200 .
+
+api:rate_limit_intensive a api:RateLimit ;
+  rdfs:label "Intensive Rate Limit" ;
+  api:requestsPerSecond 10 ;
+  api:requestsPerMinute 500 ;
+  api:requestsPerHour 10000 ;
+  api:burstCapacity 20 .
+
+api:rate_limit_unlimited a api:RateLimit ;
+  rdfs:label "Unlimited Rate Limit" ;
+  api:requestsPerSecond 1000 ;
+  api:requestsPerMinute 999999 ;
+  api:requestsPerHour 999999 ;
+  api:burstCapacity 5000 .
+
+# API Specification Metadata
+api:specification a api:ApiSpecification ;
+  rdfs:label "Process Intelligence Manufacturing API" ;
+  api:version "3.0.0" ;
+  api:title "PI Manufacturing API" ;
+  api:description "RESTful API for process intelligence manufacturing, validation, and lifecycle management" ;
+  api:contact (
+    [a api:Contact ;
+      api:name "PI Research Program" ;
+      api:email "pi-research@process-intelligence.org" ]
+  ) ;
+  api:license (
+    [a api:License ;
+      api:name "Proprietary" ;
+      api:url "https://process-intelligence.org/license" ]
+  ) ;
+  api:servers (
+    [a api:Server ;
+      api:url "https://api.process-intelligence.org" ;
+      api:description "Production API" ]
+  ) ;
+  api:endpoints (
+    api:route_manufacture_process
+    api:route_get_process
+    api:route_conformance_check
+    api:route_list_governance_rules
+    api:route_lifecycle_transition
+    api:route_validate_evidence
+    api:route_health_check
+  ) .

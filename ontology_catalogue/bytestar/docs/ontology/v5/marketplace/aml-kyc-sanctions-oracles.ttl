@@ -1,0 +1,1162 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix bam: <http://bytestar.org/ontology/marketplace/> .
+@prefix bamc: <http://bytestar.org/ontology/marketplace/compliance/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# =============================================================================
+# ByteStar AML/KYC Integration with Sanctions Oracles
+# Version: 5.0.0 - Marketplace Phase
+# =============================================================================
+
+<http://bytestar.org/ontology/marketplace/aml-kyc-sanctions> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/marketplace/aml-kyc-sanctions/5.0.0> ;
+    dct:title "ByteStar AML/KYC Integration with Sanctions Oracles" ;
+    dct:description "Comprehensive AML/KYC compliance system with real-time sanctions screening, identity verification, and automated compliance workflows for marketplace transactions" ;
+    dct:creator "ByteStar Architecture Team" ;
+    dct:created "2025-01-23"^^xsd:date ;
+    dct:modified "2025-01-23"^^xsd:date ;
+    owl:imports <http://bytestar.org/ontology/core>,
+                <http://bytestar.org/ontology/marketplace/trading-protocols>,
+                <http://bytestar.org/ontology/audit-system>,
+                <http://bytestar.org/ontology/compliance-framework> .
+
+# =============================================================================
+# Core AML/KYC System Classes
+# =============================================================================
+
+bamc:AMLSystem a owl:Class ;
+    rdfs:label "AML System" ;
+    rdfs:comment "Anti-Money Laundering system for transaction monitoring" ;
+    rdfs:subClassOf ba:ComplianceSystem .
+
+bamc:KYCSystem a owl:Class ;
+    rdfs:label "KYC System" ;
+    rdfs:comment "Know Your Customer identity verification system" ;
+    rdfs:subClassOf ba:IdentitySystem .
+
+bamc:SanctionsOracle a owl:Class ;
+    rdfs:label "Sanctions Oracle" ;
+    rdfs:comment "Oracle providing real-time sanctions list screening" ;
+    rdfs:subClassOf ba:Oracle .
+
+bamc:ComplianceOracle a owl:Class ;
+    rdfs:label "Compliance Oracle" ;
+    rdfs:comment "Oracle providing compliance status and regulatory updates" ;
+    rdfs:subClassOf ba:Oracle .
+
+bamc:RiskOracle a owl:Class ;
+    rdfs:label "Risk Oracle" ;
+    rdfs:comment "Oracle providing risk assessment and scoring" ;
+    rdfs:subClassOf ba:Oracle .
+
+bamc:IdentityVerificationSystem a owl:Class ;
+    rdfs:label "Identity Verification System" ;
+    rdfs:comment "System for verifying customer identity documents and data" ;
+    rdfs:subClassOf ba:VerificationSystem .
+
+bamc:TransactionMonitoringSystem a owl:Class ;
+    rdfs:label "Transaction Monitoring System" ;
+    rdfs:comment "System for real-time monitoring of suspicious transactions" ;
+    rdfs:subClassOf ba:MonitoringSystem .
+
+# =============================================================================
+# Identity and Customer Classes
+# =============================================================================
+
+bamc:Customer a owl:Class ;
+    rdfs:label "Customer" ;
+    rdfs:comment "Marketplace customer subject to AML/KYC requirements" ;
+    rdfs:subClassOf foaf:Person .
+
+bamc:CorporateCustomer a owl:Class ;
+    rdfs:label "Corporate Customer" ;
+    rdfs:comment "Corporate entity as marketplace customer" ;
+    rdfs:subClassOf foaf:Organization, bamc:Customer .
+
+bamc:IndividualCustomer a owl:Class ;
+    rdfs:label "Individual Customer" ;
+    rdfs:comment "Individual person as marketplace customer" ;
+    rdfs:subClassOf foaf:Person, bamc:Customer .
+
+bamc:PoliticallyExposedPerson a owl:Class ;
+    rdfs:label "Politically Exposed Person" ;
+    rdfs:comment "Person with prominent public position requiring enhanced scrutiny" ;
+    rdfs:subClassOf bamc:IndividualCustomer .
+
+bamc:HighRiskCustomer a owl:Class ;
+    rdfs:label "High Risk Customer" ;
+    rdfs:comment "Customer classified as high risk for AML purposes" ;
+    rdfs:subClassOf bamc:Customer .
+
+bamc:IdentityDocument a owl:Class ;
+    rdfs:label "Identity Document" ;
+    rdfs:comment "Official document used for identity verification" ;
+    rdfs:subClassOf ba:Document .
+
+bamc:Passport a owl:Class ;
+    rdfs:label "Passport" ;
+    rdfs:comment "Passport document for identity verification" ;
+    rdfs:subClassOf bamc:IdentityDocument .
+
+bamc:DriverLicense a owl:Class ;
+    rdfs:label "Driver License" ;
+    rdfs:comment "Driver's license for identity verification" ;
+    rdfs:subClassOf bamc:IdentityDocument .
+
+bamc:NationalID a owl:Class ;
+    rdfs:label "National ID" ;
+    rdfs:comment "National identity card for verification" ;
+    rdfs:subClassOf bamc:IdentityDocument .
+
+# =============================================================================
+# Sanctions and Watchlist Classes
+# =============================================================================
+
+bamc:SanctionsList a owl:Class ;
+    rdfs:label "Sanctions List" ;
+    rdfs:comment "Official sanctions list from regulatory authority" ;
+    rdfs:subClassOf ba:RegulatoryList .
+
+bamc:OFACSanctions a owl:Class ;
+    rdfs:label "OFAC Sanctions" ;
+    rdfs:comment "US Office of Foreign Assets Control sanctions list" ;
+    rdfs:subClassOf bamc:SanctionsList .
+
+bamc:EUSanctions a owl:Class ;
+    rdfs:label "EU Sanctions" ;
+    rdfs:comment "European Union sanctions list" ;
+    rdfs:subClassOf bamc:SanctionsList .
+
+bamc:UNSanctions a owl:Class ;
+    rdfs:label "UN Sanctions" ;
+    rdfs:comment "United Nations sanctions list" ;
+    rdfs:subClassOf bamc:SanctionsList .
+
+bamc:FATFBlacklist a owl:Class ;
+    rdfs:label "FATF Blacklist" ;
+    rdfs:comment "Financial Action Task Force blacklist" ;
+    rdfs:subClassOf bamc:SanctionsList .
+
+bamc:SanctionedEntity a owl:Class ;
+    rdfs:label "Sanctioned Entity" ;
+    rdfs:comment "Entity appearing on sanctions lists" ;
+    rdfs:subClassOf ba:Entity .
+
+bamc:SanctionedPerson a owl:Class ;
+    rdfs:label "Sanctioned Person" ;
+    rdfs:comment "Individual appearing on sanctions lists" ;
+    rdfs:subClassOf bamc:SanctionedEntity .
+
+bamc:SanctionedOrganization a owl:Class ;
+    rdfs:label "Sanctioned Organization" ;
+    rdfs:comment "Organization appearing on sanctions lists" ;
+    rdfs:subClassOf bamc:SanctionedEntity .
+
+bamc:WatchlistEntry a owl:Class ;
+    rdfs:label "Watchlist Entry" ;
+    rdfs:comment "Entry in compliance watchlist requiring monitoring" ;
+    rdfs:subClassOf ba:ListEntry .
+
+# =============================================================================
+# Screening and Verification Classes
+# =============================================================================
+
+bamc:SanctionsScreening a owl:Class ;
+    rdfs:label "Sanctions Screening" ;
+    rdfs:comment "Process of screening against sanctions lists" ;
+    rdfs:subClassOf ba:ScreeningProcess .
+
+bamc:IdentityVerification a owl:Class ;
+    rdfs:label "Identity Verification" ;
+    rdfs:comment "Process of verifying customer identity" ;
+    rdfs:subClassOf ba:VerificationProcess .
+
+bamc:DocumentVerification a owl:Class ;
+    rdfs:label "Document Verification" ;
+    rdfs:comment "Verification of identity documents authenticity" ;
+    rdfs:subClassOf bamc:IdentityVerification .
+
+bamc:BiometricVerification a owl:Class ;
+    rdfs:label "Biometric Verification" ;
+    rdfs:comment "Biometric-based identity verification" ;
+    rdfs:subClassOf bamc:IdentityVerification .
+
+bamc:AddressVerification a owl:Class ;
+    rdfs:label "Address Verification" ;
+    rdfs:comment "Verification of customer address information" ;
+    rdfs:subClassOf bamc:IdentityVerification .
+
+bamc:SourceOfFundsVerification a owl:Class ;
+    rdfs:label "Source of Funds Verification" ;
+    rdfs:comment "Verification of legitimate source of customer funds" ;
+    rdfs:subClassOf ba:VerificationProcess .
+
+bamc:EnhancedDueDiligence a owl:Class ;
+    rdfs:label "Enhanced Due Diligence" ;
+    rdfs:comment "Enhanced due diligence for high-risk customers" ;
+    rdfs:subClassOf ba:DueDiligenceProcess .
+
+bamc:ContinuousMonitoring a owl:Class ;
+    rdfs:label "Continuous Monitoring" ;
+    rdfs:comment "Ongoing monitoring of customer activities" ;
+    rdfs:subClassOf ba:MonitoringProcess .
+
+# =============================================================================
+# Transaction Monitoring and Risk Assessment
+# =============================================================================
+
+bamc:SuspiciousActivity a owl:Class ;
+    rdfs:label "Suspicious Activity" ;
+    rdfs:comment "Activity flagged as potentially suspicious" ;
+    rdfs:subClassOf ba:Activity .
+
+bamc:SARFiling a owl:Class ;
+    rdfs:label "SAR Filing" ;
+    rdfs:comment "Suspicious Activity Report filing process" ;
+    rdfs:subClassOf ba:RegulatoryFiling .
+
+bamc:CTRFiling a owl:Class ;
+    rdfs:label "CTR Filing" ;
+    rdfs:comment "Currency Transaction Report filing process" ;
+    rdfs:subClassOf ba:RegulatoryFiling .
+
+bamc:TransactionPattern a owl:Class ;
+    rdfs:label "Transaction Pattern" ;
+    rdfs:comment "Pattern of transactions indicating potential risk" ;
+    rdfs:subClassOf ba:Pattern .
+
+bamc:SmugglingPattern a owl:Class ;
+    rdfs:label "Smuggling Pattern" ;
+    rdfs:comment "Transaction pattern indicating potential smuggling" ;
+    rdfs:subClassOf bamc:TransactionPattern .
+
+bamc:LayeringPattern a owl:Class ;
+    rdfs:label "Layering Pattern" ;
+    rdfs:comment "Transaction pattern indicating money laundering layering" ;
+    rdfs:subClassOf bamc:TransactionPattern .
+
+bamc:StructuringPattern a owl:Class ;
+    rdfs:label "Structuring Pattern" ;
+    rdfs:comment "Transaction pattern indicating currency structuring" ;
+    rdfs:subClassOf bamc:TransactionPattern .
+
+bamc:RiskAssessment a owl:Class ;
+    rdfs:label "Risk Assessment" ;
+    rdfs:comment "Assessment of customer or transaction risk level" ;
+    rdfs:subClassOf ba:Assessment .
+
+bamc:CustomerRiskProfile a owl:Class ;
+    rdfs:label "Customer Risk Profile" ;
+    rdfs:comment "Comprehensive risk profile for customer" ;
+    rdfs:subClassOf ba:RiskProfile .
+
+bamc:TransactionRiskScore a owl:Class ;
+    rdfs:label "Transaction Risk Score" ;
+    rdfs:comment "Risk score assigned to individual transaction" ;
+    rdfs:subClassOf ba:RiskScore .
+
+# =============================================================================
+# Compliance Workflow and Automation
+# =============================================================================
+
+bamc:ComplianceWorkflow a owl:Class ;
+    rdfs:label "Compliance Workflow" ;
+    rdfs:comment "Automated workflow for compliance processing" ;
+    rdfs:subClassOf ba:Workflow .
+
+bamc:KYCWorkflow a owl:Class ;
+    rdfs:label "KYC Workflow" ;
+    rdfs:comment "Workflow for customer onboarding and KYC verification" ;
+    rdfs:subClassOf bamc:ComplianceWorkflow .
+
+bamc:AMLWorkflow a owl:Class ;
+    rdfs:label "AML Workflow" ;
+    rdfs:comment "Workflow for AML transaction monitoring" ;
+    rdfs:subClassOf bamc:ComplianceWorkflow .
+
+bamc:SanctionsWorkflow a owl:Class ;
+    rdfs:label "Sanctions Workflow" ;
+    rdfs:comment "Workflow for sanctions screening and response" ;
+    rdfs:subClassOf bamc:ComplianceWorkflow .
+
+bamc:ComplianceAlert a owl:Class ;
+    rdfs:label "Compliance Alert" ;
+    rdfs:comment "Alert generated for compliance violations" ;
+    rdfs:subClassOf ba:Alert .
+
+bamc:SanctionsMatch a owl:Class ;
+    rdfs:label "Sanctions Match" ;
+    rdfs:comment "Alert for potential sanctions list match" ;
+    rdfs:subClassOf bamc:ComplianceAlert .
+
+bamc:SuspiciousActivityAlert a owl:Class ;
+    rdfs:label "Suspicious Activity Alert" ;
+    rdfs:comment "Alert for suspicious activity detection" ;
+    rdfs:subClassOf bamc:ComplianceAlert .
+
+bamc:ComplianceCase a owl:Class ;
+    rdfs:label "Compliance Case" ;
+    rdfs:comment "Case opened for compliance investigation" ;
+    rdfs:subClassOf ba:Case .
+
+# =============================================================================
+# Regulatory Reporting and Record Keeping
+# =============================================================================
+
+bamc:RegulatoryReport a owl:Class ;
+    rdfs:label "Regulatory Report" ;
+    rdfs:comment "Report submitted to regulatory authorities" ;
+    rdfs:subClassOf ba:Report .
+
+bamc:ComplianceRecord a owl:Class ;
+    rdfs:label "Compliance Record" ;
+    rdfs:comment "Record maintained for compliance purposes" ;
+    rdfs:subClassOf ba:Record .
+
+bamc:CustomerRecord a owl:Class ;
+    rdfs:label "Customer Record" ;
+    rdfs:comment "Comprehensive record of customer information" ;
+    rdfs:subClassOf bamc:ComplianceRecord .
+
+bamc:TransactionRecord a owl:Class ;
+    rdfs:label "Transaction Record" ;
+    rdfs:comment "Record of transaction details for compliance" ;
+    rdfs:subClassOf bamc:ComplianceRecord .
+
+bamc:ScreeningRecord a owl:Class ;
+    rdfs:label "Screening Record" ;
+    rdfs:comment "Record of sanctions and compliance screening" ;
+    rdfs:subClassOf bamc:ComplianceRecord .
+
+bamc:RecordRetentionPolicy a owl:Class ;
+    rdfs:label "Record Retention Policy" ;
+    rdfs:comment "Policy governing retention of compliance records" ;
+    rdfs:subClassOf ba:RetentionPolicy .
+
+# =============================================================================
+# Properties for AML/KYC System
+# =============================================================================
+
+# Customer Properties
+bamc:customerID a owl:DatatypeProperty ;
+    rdfs:label "customer ID" ;
+    rdfs:domain bamc:Customer ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for the customer" .
+
+bamc:customerType a owl:DatatypeProperty ;
+    rdfs:label "customer type" ;
+    rdfs:domain bamc:Customer ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of customer (individual, corporate, government, etc.)" .
+
+bamc:riskLevel a owl:DatatypeProperty ;
+    rdfs:label "risk level" ;
+    rdfs:domain bamc:Customer ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Risk classification (low, medium, high, prohibited)" .
+
+bamc:onboardingDate a owl:DatatypeProperty ;
+    rdfs:label "onboarding date" ;
+    rdfs:domain bamc:Customer ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Date when customer was onboarded" .
+
+bamc:kycStatus a owl:DatatypeProperty ;
+    rdfs:label "KYC status" ;
+    rdfs:domain bamc:Customer ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Current KYC verification status" .
+
+bamc:lastReviewDate a owl:DatatypeProperty ;
+    rdfs:label "last review date" ;
+    rdfs:domain bamc:Customer ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Date of last compliance review" .
+
+bamc:nextReviewDate a owl:DatatypeProperty ;
+    rdfs:label "next review date" ;
+    rdfs:domain bamc:Customer ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Due date for next compliance review" .
+
+bamc:pepStatus a owl:DatatypeProperty ;
+    rdfs:label "PEP status" ;
+    rdfs:domain bamc:Customer ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether customer is a Politically Exposed Person" .
+
+bamc:sanctionsStatus a owl:DatatypeProperty ;
+    rdfs:label "sanctions status" ;
+    rdfs:domain bamc:Customer ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Current sanctions screening status" .
+
+# Identity Properties
+bamc:documentType a owl:DatatypeProperty ;
+    rdfs:label "document type" ;
+    rdfs:domain bamc:IdentityDocument ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of identity document" .
+
+bamc:documentNumber a owl:DatatypeProperty ;
+    rdfs:label "document number" ;
+    rdfs:domain bamc:IdentityDocument ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Official number of the identity document" .
+
+bamc:issuingCountry a owl:DatatypeProperty ;
+    rdfs:label "issuing country" ;
+    rdfs:domain bamc:IdentityDocument ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Country that issued the document" .
+
+bamc:expirationDate a owl:DatatypeProperty ;
+    rdfs:label "expiration date" ;
+    rdfs:domain bamc:IdentityDocument ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Expiration date of the document" .
+
+bamc:verificationStatus a owl:DatatypeProperty ;
+    rdfs:label "verification status" ;
+    rdfs:domain bamc:IdentityDocument ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Verification status of the document" .
+
+bamc:verificationDate a owl:DatatypeProperty ;
+    rdfs:label "verification date" ;
+    rdfs:domain bamc:IdentityVerification ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Date and time of verification" .
+
+bamc:verificationMethod a owl:DatatypeProperty ;
+    rdfs:label "verification method" ;
+    rdfs:domain bamc:IdentityVerification ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Method used for verification" .
+
+# Sanctions Properties
+bamc:listName a owl:DatatypeProperty ;
+    rdfs:label "list name" ;
+    rdfs:domain bamc:SanctionsList ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the sanctions list" .
+
+bamc:listSource a owl:DatatypeProperty ;
+    rdfs:label "list source" ;
+    rdfs:domain bamc:SanctionsList ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Regulatory authority maintaining the list" .
+
+bamc:lastUpdateDate a owl:DatatypeProperty ;
+    rdfs:label "last update date" ;
+    rdfs:domain bamc:SanctionsList ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Date when list was last updated" .
+
+bamc:sanctionType a owl:DatatypeProperty ;
+    rdfs:label "sanction type" ;
+    rdfs:domain bamc:SanctionedEntity ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of sanction applied" .
+
+bamc:sanctionReason a owl:DatatypeProperty ;
+    rdfs:label "sanction reason" ;
+    rdfs:domain bamc:SanctionedEntity ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Reason for the sanction" .
+
+bamc:effectiveDate a owl:DatatypeProperty ;
+    rdfs:label "effective date" ;
+    rdfs:domain bamc:SanctionedEntity ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Date when sanction became effective" .
+
+# Screening Properties
+bamc:screeningID a owl:DatatypeProperty ;
+    rdfs:label "screening ID" ;
+    rdfs:domain bamc:SanctionsScreening ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for screening process" .
+
+bamc:screeningDate a owl:DatatypeProperty ;
+    rdfs:label "screening date" ;
+    rdfs:domain bamc:SanctionsScreening ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Date and time of screening" .
+
+bamc:screeningResult a owl:DatatypeProperty ;
+    rdfs:label "screening result" ;
+    rdfs:domain bamc:SanctionsScreening ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Result of screening (clear, match, potential_match)" .
+
+bamc:matchScore a owl:DatatypeProperty ;
+    rdfs:label "match score" ;
+    rdfs:domain bamc:SanctionsScreening ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Confidence score for sanctions match (0.0-1.0)" .
+
+bamc:falsePositiveFlag a owl:DatatypeProperty ;
+    rdfs:label "false positive flag" ;
+    rdfs:domain bamc:SanctionsScreening ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether screening result is a false positive" .
+
+# Risk Assessment Properties
+bamc:riskScore a owl:DatatypeProperty ;
+    rdfs:label "risk score" ;
+    rdfs:domain bamc:RiskAssessment ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Numerical risk score (0.0-1.0)" .
+
+bamc:riskCategory a owl:DatatypeProperty ;
+    rdfs:label "risk category" ;
+    rdfs:domain bamc:RiskAssessment ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Risk category classification" .
+
+bamc:assessmentDate a owl:DatatypeProperty ;
+    rdfs:label "assessment date" ;
+    rdfs:domain bamc:RiskAssessment ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Date of risk assessment" .
+
+bamc:assessmentMethod a owl:DatatypeProperty ;
+    rdfs:label "assessment method" ;
+    rdfs:domain bamc:RiskAssessment ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Method used for risk assessment" .
+
+# Transaction Monitoring Properties
+bamc:alertID a owl:DatatypeProperty ;
+    rdfs:label "alert ID" ;
+    rdfs:domain bamc:ComplianceAlert ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for compliance alert" .
+
+bamc:alertType a owl:DatatypeProperty ;
+    rdfs:label "alert type" ;
+    rdfs:domain bamc:ComplianceAlert ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of compliance alert" .
+
+bamc:alertSeverity a owl:DatatypeProperty ;
+    rdfs:label "alert severity" ;
+    rdfs:domain bamc:ComplianceAlert ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Severity level of alert (low, medium, high, critical)" .
+
+bamc:alertTimestamp a owl:DatatypeProperty ;
+    rdfs:label "alert timestamp" ;
+    rdfs:domain bamc:ComplianceAlert ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when alert was generated" .
+
+bamc:alertStatus a owl:DatatypeProperty ;
+    rdfs:label "alert status" ;
+    rdfs:domain bamc:ComplianceAlert ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Current status of alert (open, investigating, resolved, closed)" .
+
+bamc:investigationNotes a owl:DatatypeProperty ;
+    rdfs:label "investigation notes" ;
+    rdfs:domain bamc:ComplianceAlert ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Notes from compliance investigation" .
+
+# Performance Properties (Doctrine of 8)
+bamc:screeningLatency a owl:DatatypeProperty ;
+    rdfs:label "screening latency" ;
+    rdfs:domain bamc:SanctionsScreening ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Latency for sanctions screening in milliseconds (must be ≤8ms)" .
+
+bamc:verificationTicks a owl:DatatypeProperty ;
+    rdfs:label "verification ticks" ;
+    rdfs:domain bamc:IdentityVerification ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:comment "Processing ticks for verification (must be ≤8)" .
+
+bamc:oracleResponseTime a owl:DatatypeProperty ;
+    rdfs:label "oracle response time" ;
+    rdfs:domain bamc:SanctionsOracle ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Oracle response time in milliseconds (must be ≤8ms)" .
+
+# =============================================================================
+# Object Properties for AML/KYC Relationships
+# =============================================================================
+
+# Customer Relationships
+bamc:hasIdentityDocument a owl:ObjectProperty ;
+    rdfs:label "has identity document" ;
+    rdfs:domain bamc:Customer ;
+    rdfs:range bamc:IdentityDocument ;
+    rdfs:comment "Customer has the identity document" .
+
+bamc:undergoesVerification a owl:ObjectProperty ;
+    rdfs:label "undergoes verification" ;
+    rdfs:domain bamc:Customer ;
+    rdfs:range bamc:IdentityVerification ;
+    rdfs:comment "Customer undergoes identity verification" .
+
+bamc:hasRiskProfile a owl:ObjectProperty ;
+    rdfs:label "has risk profile" ;
+    rdfs:domain bamc:Customer ;
+    rdfs:range bamc:CustomerRiskProfile ;
+    rdfs:comment "Customer has the risk profile" .
+
+bamc:subjectToScreening a owl:ObjectProperty ;
+    rdfs:label "subject to screening" ;
+    rdfs:domain bamc:Customer ;
+    rdfs:range bamc:SanctionsScreening ;
+    rdfs:comment "Customer is subject to sanctions screening" .
+
+# Screening Relationships
+bamc:screensAgainst a owl:ObjectProperty ;
+    rdfs:label "screens against" ;
+    rdfs:domain bamc:SanctionsScreening ;
+    rdfs:range bamc:SanctionsList ;
+    rdfs:comment "Screening process checks against sanctions list" .
+
+bamc:identifiedMatch a owl:ObjectProperty ;
+    rdfs:label "identified match" ;
+    rdfs:domain bamc:SanctionsScreening ;
+    rdfs:range bamc:SanctionedEntity ;
+    rdfs:comment "Screening identified match with sanctioned entity" .
+
+bamc:generatesAlert a owl:ObjectProperty ;
+    rdfs:label "generates alert" ;
+    rdfs:domain bamc:SanctionsScreening ;
+    rdfs:range bamc:ComplianceAlert ;
+    rdfs:comment "Screening generates compliance alert" .
+
+# Oracle Relationships
+bamc:providesData a owl:ObjectProperty ;
+    rdfs:label "provides data" ;
+    rdfs:domain bamc:SanctionsOracle ;
+    rdfs:range bamc:SanctionsList ;
+    rdfs:comment "Oracle provides sanctions list data" .
+
+bamc:consultedBy a owl:ObjectProperty ;
+    rdfs:label "consulted by" ;
+    rdfs:domain bamc:SanctionsOracle ;
+    rdfs:range bamc:SanctionsScreening ;
+    rdfs:comment "Oracle is consulted by screening process" .
+
+bamc:updatesFrom a owl:ObjectProperty ;
+    rdfs:label "updates from" ;
+    rdfs:domain bamc:SanctionsList ;
+    rdfs:range ba:RegulatoryAuthority ;
+    rdfs:comment "List updates from regulatory authority" .
+
+# Workflow Relationships
+bamc:triggersWorkflow a owl:ObjectProperty ;
+    rdfs:label "triggers workflow" ;
+    rdfs:domain bamc:ComplianceAlert ;
+    rdfs:range bamc:ComplianceWorkflow ;
+    rdfs:comment "Alert triggers compliance workflow" .
+
+bamc:executesWorkflow a owl:ObjectProperty ;
+    rdfs:label "executes workflow" ;
+    rdfs:domain bamc:AMLSystem ;
+    rdfs:range bamc:ComplianceWorkflow ;
+    rdfs:comment "System executes compliance workflow" .
+
+bamc:resultInCase a owl:ObjectProperty ;
+    rdfs:label "results in case" ;
+    rdfs:domain bamc:ComplianceAlert ;
+    rdfs:range bamc:ComplianceCase ;
+    rdfs:comment "Alert results in compliance case" .
+
+# Record Relationships
+bamc:maintainsRecord a owl:ObjectProperty ;
+    rdfs:label "maintains record" ;
+    rdfs:domain bamc:AMLSystem ;
+    rdfs:range bamc:ComplianceRecord ;
+    rdfs:comment "System maintains compliance record" .
+
+bamc:governedBy a owl:ObjectProperty ;
+    rdfs:label "governed by" ;
+    rdfs:domain bamc:ComplianceRecord ;
+    rdfs:range bamc:RecordRetentionPolicy ;
+    rdfs:comment "Record is governed by retention policy" .
+
+bamc:supportsReport a owl:ObjectProperty ;
+    rdfs:label "supports report" ;
+    rdfs:domain bamc:ComplianceRecord ;
+    rdfs:range bamc:RegulatoryReport ;
+    rdfs:comment "Record supports regulatory report" .
+
+# =============================================================================
+# Sanctions Oracle Instances
+# =============================================================================
+
+# Primary Sanctions Oracles
+bamc:OFACOracle a bamc:SanctionsOracle ;
+    rdfs:label "OFAC Sanctions Oracle" ;
+    rdfs:comment "Oracle providing OFAC sanctions data" ;
+    ba:dataSource "US Treasury OFAC" ;
+    bamc:oracleResponseTime 2.5 ;
+    ba:updateFrequency "PT15M"^^xsd:duration ;
+    ba:reliabilityScore 0.999 .
+
+bamc:EUOracle a bamc:SanctionsOracle ;
+    rdfs:label "EU Sanctions Oracle" ;
+    rdfs:comment "Oracle providing EU sanctions data" ;
+    ba:dataSource "European Council" ;
+    bamc:oracleResponseTime 3.0 ;
+    ba:updateFrequency "PT30M"^^xsd:duration ;
+    ba:reliabilityScore 0.998 .
+
+bamc:UNOracle a bamc:SanctionsOracle ;
+    rdfs:label "UN Sanctions Oracle" ;
+    rdfs:comment "Oracle providing UN sanctions data" ;
+    ba:dataSource "UN Security Council" ;
+    bamc:oracleResponseTime 4.0 ;
+    ba:updateFrequency "PT1H"^^xsd:duration ;
+    ba:reliabilityScore 0.997 .
+
+bamc:FATFOracle a bamc:SanctionsOracle ;
+    rdfs:label "FATF Blacklist Oracle" ;
+    rdfs:comment "Oracle providing FATF blacklist data" ;
+    ba:dataSource "Financial Action Task Force" ;
+    bamc:oracleResponseTime 3.5 ;
+    ba:updateFrequency "P1D"^^xsd:duration ;
+    ba:reliabilityScore 0.995 .
+
+# Composite Compliance Oracle
+bamc:CompositeSanctionsOracle a bamc:ComplianceOracle ;
+    rdfs:label "Composite Sanctions Oracle" ;
+    rdfs:comment "Oracle aggregating multiple sanctions sources" ;
+    ba:dataSource "Multiple" ;
+    bamc:oracleResponseTime 5.0 ;
+    ba:updateFrequency "PT5M"^^xsd:duration ;
+    ba:reliabilityScore 0.9999 .
+
+# Risk Assessment Oracle
+bamc:RiskAssessmentOracle a bamc:RiskOracle ;
+    rdfs:label "Risk Assessment Oracle" ;
+    rdfs:comment "Oracle providing customer risk assessment data" ;
+    ba:dataSource "Risk Analytics Engine" ;
+    bamc:oracleResponseTime 6.0 ;
+    ba:updateFrequency "PT1H"^^xsd:duration ;
+    ba:reliabilityScore 0.98 .
+
+# =============================================================================
+# AML/KYC System Instances
+# =============================================================================
+
+# Main Systems
+bamc:ByteStarAMLSystem a bamc:AMLSystem ;
+    rdfs:label "ByteStar AML System" ;
+    rdfs:comment "Primary AML system for ByteStar marketplace" ;
+    ba:systemVersion "5.0.0" ;
+    ba:operationalStatus "ACTIVE" ;
+    bamc:screeningLatency 4.5 ;
+    ba:processingCapacity 100000.0 .
+
+bamc:ByteStarKYCSystem a bamc:KYCSystem ;
+    rdfs:label "ByteStar KYC System" ;
+    rdfs:comment "Primary KYC system for customer verification" ;
+    ba:systemVersion "5.0.0" ;
+    ba:operationalStatus "ACTIVE" ;
+    bamc:verificationTicks 6 ;
+    ba:processingCapacity 50000.0 .
+
+# Monitoring Systems
+bamc:TransactionMonitor a bamc:TransactionMonitoringSystem ;
+    rdfs:label "Transaction Monitor" ;
+    rdfs:comment "Real-time transaction monitoring system" ;
+    ba:systemVersion "5.0.0" ;
+    ba:monitoringMode "REAL_TIME" ;
+    ba:alertThreshold 0.8 ;
+    ba:processingLatency 3.0 .
+
+bamc:IdentityVerifier a bamc:IdentityVerificationSystem ;
+    rdfs:label "Identity Verifier" ;
+    rdfs:comment "Automated identity verification system" ;
+    ba:systemVersion "5.0.0" ;
+    ba:verificationAccuracy 0.995 ;
+    bamc:verificationTicks 5 ;
+    ba:processingLatency 4.0 .
+
+# =============================================================================
+# Workflow Templates
+# =============================================================================
+
+# Standard KYC Workflow
+bamc:StandardKYCWorkflow a bamc:KYCWorkflow ;
+    rdfs:label "Standard KYC Workflow" ;
+    rdfs:comment "Standard KYC verification workflow for individual customers" ;
+    ba:workflowSteps [
+        ba:stepName "Identity Document Collection" ;
+        ba:stepOrder 1 ;
+        ba:maxDuration "PT10M"^^xsd:duration
+    ], [
+        ba:stepName "Document Verification" ;
+        ba:stepOrder 2 ;
+        ba:maxDuration "PT5M"^^xsd:duration
+    ], [
+        ba:stepName "Sanctions Screening" ;
+        ba:stepOrder 3 ;
+        ba:maxDuration "PT2M"^^xsd:duration
+    ], [
+        ba:stepName "Risk Assessment" ;
+        ba:stepOrder 4 ;
+        ba:maxDuration "PT3M"^^xsd:duration
+    ], [
+        ba:stepName "Approval Decision" ;
+        ba:stepOrder 5 ;
+        ba:maxDuration "PT1M"^^xsd:duration
+    ] .
+
+# Enhanced Due Diligence Workflow
+bamc:EDDWorkflow a bamc:KYCWorkflow ;
+    rdfs:label "Enhanced Due Diligence Workflow" ;
+    rdfs:comment "Enhanced due diligence workflow for high-risk customers" ;
+    ba:workflowSteps [
+        ba:stepName "Standard KYC" ;
+        ba:stepOrder 1 ;
+        ba:maxDuration "PT20M"^^xsd:duration
+    ], [
+        ba:stepName "Source of Funds Verification" ;
+        ba:stepOrder 2 ;
+        ba:maxDuration "PT30M"^^xsd:duration
+    ], [
+        ba:stepName "PEP Screening" ;
+        ba:stepOrder 3 ;
+        ba:maxDuration "PT10M"^^xsd:duration
+    ], [
+        ba:stepName "Enhanced Sanctions Screening" ;
+        ba:stepOrder 4 ;
+        ba:maxDuration "PT5M"^^xsd:duration
+    ], [
+        ba:stepName "Manual Review" ;
+        ba:stepOrder 5 ;
+        ba:maxDuration "P1D"^^xsd:duration
+    ] .
+
+# Transaction Monitoring Workflow
+bamc:TransactionMonitoringWorkflow a bamc:AMLWorkflow ;
+    rdfs:label "Transaction Monitoring Workflow" ;
+    rdfs:comment "Real-time transaction monitoring workflow" ;
+    ba:workflowSteps [
+        ba:stepName "Transaction Ingestion" ;
+        ba:stepOrder 1 ;
+        ba:maxDuration "PT1S"^^xsd:duration
+    ], [
+        ba:stepName "Pattern Matching" ;
+        ba:stepOrder 2 ;
+        ba:maxDuration "PT2S"^^xsd:duration
+    ], [
+        ba:stepName "Risk Scoring" ;
+        ba:stepOrder 3 ;
+        ba:maxDuration "PT1S"^^xsd:duration
+    ], [
+        ba:stepName "Alert Generation" ;
+        ba:stepOrder 4 ;
+        ba:maxDuration "PT1S"^^xsd:duration
+    ], [
+        ba:stepName "Investigation Queue" ;
+        ba:stepOrder 5 ;
+        ba:maxDuration "PT1S"^^xsd:duration
+    ] .
+
+# =============================================================================
+# SHACL Validation Shapes
+# =============================================================================
+
+bamc:CustomerShape a sh:NodeShape ;
+    sh:targetClass bamc:Customer ;
+    sh:property [
+        sh:path bamc:customerID ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^CUST-[A-Z0-9-]+$" ;
+        sh:message "Customer ID must start with CUST- prefix" ;
+    ] ;
+    sh:property [
+        sh:path bamc:customerType ;
+        sh:datatype xsd:string ;
+        sh:in ( "individual" "corporate" "government" "financial_institution" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Customer type must be one of the valid types" ;
+    ] ;
+    sh:property [
+        sh:path bamc:riskLevel ;
+        sh:datatype xsd:string ;
+        sh:in ( "low" "medium" "high" "prohibited" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Risk level must be low, medium, high, or prohibited" ;
+    ] ;
+    sh:property [
+        sh:path bamc:kycStatus ;
+        sh:datatype xsd:string ;
+        sh:in ( "pending" "in_progress" "verified" "rejected" "expired" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "KYC status must be valid status value" ;
+    ] ;
+    sh:property [
+        sh:path bamc:hasIdentityDocument ;
+        sh:class bamc:IdentityDocument ;
+        sh:minCount 1 ;
+        sh:message "Customer must have at least one identity document" ;
+    ] .
+
+bamc:SanctionsScreeningShape a sh:NodeShape ;
+    sh:targetClass bamc:SanctionsScreening ;
+    sh:property [
+        sh:path bamc:screeningID ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^SCR-[A-Z0-9-]+$" ;
+        sh:message "Screening ID must start with SCR- prefix" ;
+    ] ;
+    sh:property [
+        sh:path bamc:screeningResult ;
+        sh:datatype xsd:string ;
+        sh:in ( "clear" "match" "potential_match" "error" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Screening result must be clear, match, potential_match, or error" ;
+    ] ;
+    sh:property [
+        sh:path bamc:matchScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Match score must be between 0.0 and 1.0" ;
+    ] ;
+    sh:property [
+        sh:path bamc:screeningLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Screening latency must comply with Doctrine of 8 (≤8ms)" ;
+    ] .
+
+bamc:IdentityDocumentShape a sh:NodeShape ;
+    sh:targetClass bamc:IdentityDocument ;
+    sh:property [
+        sh:path bamc:documentType ;
+        sh:datatype xsd:string ;
+        sh:in ( "passport" "driver_license" "national_id" "utility_bill" "bank_statement" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Document type must be one of the valid types" ;
+    ] ;
+    sh:property [
+        sh:path bamc:documentNumber ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Document must have a document number" ;
+    ] ;
+    sh:property [
+        sh:path bamc:issuingCountry ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Z]{2,3}$" ;
+        sh:message "Issuing country must be valid ISO country code" ;
+    ] ;
+    sh:property [
+        sh:path bamc:verificationStatus ;
+        sh:datatype xsd:string ;
+        sh:in ( "pending" "verified" "failed" "expired" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Verification status must be valid status value" ;
+    ] .
+
+bamc:ComplianceAlertShape a sh:NodeShape ;
+    sh:targetClass bamc:ComplianceAlert ;
+    sh:property [
+        sh:path bamc:alertID ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^ALERT-[A-Z0-9-]+$" ;
+        sh:message "Alert ID must start with ALERT- prefix" ;
+    ] ;
+    sh:property [
+        sh:path bamc:alertType ;
+        sh:datatype xsd:string ;
+        sh:in ( "sanctions_match" "suspicious_activity" "high_risk_transaction" "kyc_failure" "aml_violation" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Alert type must be one of the valid types" ;
+    ] ;
+    sh:property [
+        sh:path bamc:alertSeverity ;
+        sh:datatype xsd:string ;
+        sh:in ( "low" "medium" "high" "critical" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Alert severity must be low, medium, high, or critical" ;
+    ] ;
+    sh:property [
+        sh:path bamc:alertStatus ;
+        sh:datatype xsd:string ;
+        sh:in ( "open" "investigating" "resolved" "closed" "false_positive" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Alert status must be valid status value" ;
+    ] .
+
+bamc:SanctionsOracleShape a sh:NodeShape ;
+    sh:targetClass bamc:SanctionsOracle ;
+    sh:property [
+        sh:path bamc:oracleResponseTime ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Oracle response time must comply with Doctrine of 8 (≤8ms)" ;
+    ] ;
+    sh:property [
+        sh:path ba:reliabilityScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.95 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Oracle reliability must be at least 95%" ;
+    ] ;
+    sh:property [
+        sh:path ba:updateFrequency ;
+        sh:datatype xsd:duration ;
+        sh:minInclusive "PT1M"^^xsd:duration ;
+        sh:maxInclusive "P1D"^^xsd:duration ;
+        sh:message "Update frequency must be between 1 minute and 1 day" ;
+    ] .
+
+bamc:PerformanceComplianceShape a sh:NodeShape ;
+    sh:targetClass bamc:AMLSystem ;
+    sh:property [
+        sh:path bamc:screeningLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "AML screening must comply with Doctrine of 8 (≤8ms)" ;
+    ] ;
+    sh:property [
+        sh:path ba:processingCapacity ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 10000.0 ;
+        sh:message "Processing capacity must be at least 10k operations/second" ;
+    ] .
+
+# Advanced validation rules
+bamc:KYCComplianceShape a sh:NodeShape ;
+    sh:targetClass bamc:Customer ;
+    sh:sparql [
+        sh:message "High-risk customers must have enhanced due diligence" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bamc:riskLevel "high" .
+                FILTER NOT EXISTS {
+                    $this bamc:undergoesVerification ?edd .
+                    ?edd a bamc:EnhancedDueDiligence .
+                }
+            }
+        """ ;
+    ] .
+
+bamc:DocumentExpirationShape a sh:NodeShape ;
+    sh:targetClass bamc:IdentityDocument ;
+    sh:sparql [
+        sh:message "Documents must not be expired" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bamc:expirationDate ?expDate .
+                FILTER(?expDate < NOW())
+                $this bamc:verificationStatus "verified" .
+            }
+        """ ;
+    ] .
+
+bamc:SanctionsMatchShape a sh:NodeShape ;
+    sh:targetClass bamc:Customer ;
+    sh:sparql [
+        sh:message "Customers with sanctions matches must be blocked" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bamc:subjectToScreening ?screening .
+                ?screening bamc:screeningResult "match" .
+                $this bamc:kycStatus ?status .
+                FILTER(?status != "rejected")
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# Performance Metrics
+# =============================================================================
+
+bamc:SanctionsScreeningLatencyMetric a ba:PerformanceMetric ;
+    rdfs:label "Sanctions Screening Latency Metric" ;
+    rdfs:comment "End-to-end latency for sanctions screening" ;
+    ba:targetValue 4.0 ;
+    ba:maxValue 8.0 ;
+    ba:unit "milliseconds" ;
+    ba:calculationMethod "screening_completed_time - screening_initiated_time" .
+
+bamc:KYCVerificationThroughputMetric a ba:PerformanceMetric ;
+    rdfs:label "KYC Verification Throughput Metric" ;
+    rdfs:comment "Number of KYC verifications processed per second" ;
+    ba:targetValue 1000.0 ;
+    ba:unit "verifications/second" ;
+    ba:calculationMethod "completed_verifications / elapsed_time" .
+
+bamc:FalsePositiveRateMetric a ba:QualityMetric ;
+    rdfs:label "False Positive Rate Metric" ;
+    rdfs:comment "Rate of false positive sanctions matches" ;
+    ba:targetValue 5.0 ;
+    ba:maxValue 10.0 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "false_positives / total_alerts * 100" .
+
+bamc:ComplianceAccuracyMetric a ba:QualityMetric ;
+    rdfs:label "Compliance Accuracy Metric" ;
+    rdfs:comment "Accuracy of compliance decisions" ;
+    ba:targetValue 99.5 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "correct_decisions / total_decisions * 100" .
+
+# =============================================================================
+# Integration with Other Systems
+# =============================================================================
+
+# Link to trading protocols
+bamt:TradingOrder bamc:subjectToScreening bamc:SanctionsScreening .
+bamt:TradeExecution bamc:monitored_by bamc:TransactionMonitoringSystem .
+bamt:Customer bamc:placesOrder bamt:TradingOrder .
+
+# Link to audit system
+baa:AuditEvent bamc:recordsScreening bamc:SanctionsScreening .
+baa:AuditEvent bamc:recordsVerification bamc:IdentityVerification .
+baa:AuditTrail bamc:tracksCompliance bamc:ComplianceWorkflow .
+
+# Link to compliance framework
+bac:ComplianceControl bamc:implementedBy bamc:AMLSystem .
+bac:ComplianceControl bamc:implementedBy bamc:KYCSystem .
+bac:RegulatoryReport bamc:supportedBy bamc:ComplianceRecord .
+
+# =============================================================================
+# End of Ontology
+# =============================================================================

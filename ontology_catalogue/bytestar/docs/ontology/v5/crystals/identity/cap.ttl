@@ -1,0 +1,602 @@
+@prefix cap: <http://bytestar.org/ontology/identity/cap#> .
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix baac: <http://bytestar.org/ontology/access-control/> .
+@prefix baa: <http://bytestar.org/ontology/audit/> .
+@prefix orgbind: <http://bytestar.org/ontology/identity/orgbind#> .
+@prefix revoke: <http://bytestar.org/ontology/identity/revoke#> .
+@prefix idc: <http://bytestar.org/ontology/identity/idc#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix crypto: <http://www.w3.org/2000/10/swap/crypto#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+# ================================================================================
+# .cap Crystal - Enhanced Capability Management Ontology
+# Version: 5.0.0 - Crystal Identity Suite
+# CTID: cap-2025-01-23-v5.0.0-threshold-enhanced
+# ================================================================================
+
+<http://bytestar.org/ontology/identity/cap> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/identity/cap/5.0.0> ;
+    dct:title "Capability Crystal (.cap) - Enhanced with Threshold Signatures"@en ;
+    dct:description """Enhanced capability crystal ontology with threshold signatures, distributed
+    capability management, fine-grained authorization, and seamless integration with identity,
+    organizational binding, and revocation systems. Provides quantum-resistant capability-based
+    access control under Doctrine of 8 performance constraints."""@en ;
+    dct:creator "ByteStar Identity Foundation" ;
+    dct:created "2025-01-23T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2025-01-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-threshold-enhanced" ;
+    dct:license <https://opensource.org/licenses/MIT> ;
+    # Leverage existing ontologies (80% reuse)
+    owl:imports <http://bytestar.org/ontology/access-control> ,
+                <http://bytestar.org/ontology/audit-system> ,
+                <http://bytestar.org/ontology/security-policy> ,
+                <http://bytestar.org/ontology/identity/orgbind> ,
+                <http://bytestar.org/ontology/identity/revoke> ,
+                <http://bytestar.org/ontology/identity/idc> ;
+    # Crystal metadata
+    cap:crystalType "capability-management" ;
+    cap:ctid "cap-2025-01-23-v5.0.0-threshold-enhanced" ;
+    cap:wireFormat "protobuf-v3-capability" ;
+    cap:storageFormat "capability-tree-store" ;
+    cap:capabilityFormat "threshold-macaroon-v3" ;
+    cap:quantumResistant true ;
+    cap:doctrineCompliant true ;
+    cap:thresholdSupported true .
+
+# ================================================================================
+# CRYSTAL CORE - ENHANCED CAPABILITY ARCHITECTURE
+# ================================================================================
+
+## Core Capability Classes (building on access-control patterns)
+cap:ThresholdCapability a owl:Class ;
+    rdfs:label "Threshold Capability"@en ;
+    rdfs:comment "Capability requiring threshold number of signatures for activation."@en ;
+    rdfs:subClassOf baac:Permission ;  # Build on existing permission model
+    cap:thresholdValue xsd:int ;
+    cap:totalSigners xsd:int ;
+    cap:signatureScheme "BLS-Threshold" ;
+    cap:quantumSafe true ;
+    cap:distributedValidation true ;
+    cap:activationLatency "< 8ms" .
+
+cap:CapabilityManager a owl:Class ;
+    rdfs:label "Capability Manager"@en ;
+    rdfs:comment "Service for managing distributed capability operations."@en ;
+    rdfs:subClassOf ba:SecurityService ;
+    cap:distributedArchitecture true ;
+    cap:consensusAlgorithm "Byzantine-Fault-Tolerant" ;
+    cap:throughputTarget "> 50K/sec" ;
+    cap:availabilityTarget "99.95%" ;
+    cap:latencyTarget "< 8ms" .
+
+cap:CapabilityToken a owl:Class ;
+    rdfs:label "Capability Token"@en ;
+    rdfs:comment "Cryptographic token representing a specific capability with constraints."@en ;
+    rdfs:subClassOf baac:AccessToken ;  # Leverage existing token structure
+    cap:tokenFormat "threshold-macaroon-v3" ;
+    cap:constraintsSupported true ;
+    cap:delegationAllowed true ;
+    cap:attenuationSupported true ;
+    cap:thresholdRequired true .
+
+## Distributed Capability Consensus (new 20%)
+cap:CapabilityConsensus a owl:Class ;
+    rdfs:label "Capability Consensus"@en ;
+    rdfs:comment "Consensus mechanism for distributed capability decisions."@en ;
+    rdfs:subClassOf ba:ConsensusProtocol ;
+    cap:consensusType "Byzantine-Fault-Tolerant" ;
+    cap:nodeCount xsd:int ;
+    cap:faultTolerance "f < n/3" ;
+    cap:finalityTime "< 5s" ;
+    cap:throughput "> 1000 TPS" .
+
+cap:CapabilityValidator a owl:Class ;
+    rdfs:label "Capability Validator"@en ;
+    rdfs:comment "Node participating in capability consensus validation."@en ;
+    rdfs:subClassOf ba:ValidatorNode ;
+    cap:validatorStake xsd:decimal ;
+    cap:validatorReputation xsd:double ;
+    cap:validationCapacity xsd:int ;
+    cap:slashingProtection true .
+
+cap:DistributedCapabilityStore a owl:Class ;
+    rdfs:label "Distributed Capability Store"@en ;
+    rdfs:comment "Distributed storage system for capability tokens and policies."@en ;
+    rdfs:subClassOf ba:DistributedStorage ;
+    cap:storageType "capability-tree-store" ;
+    cap:replicationFactor "3"^^xsd:int ;
+    cap:consistencyModel "eventual" ;
+    cap:shardingStrategy "hash-based" .
+
+## Fine-grained Authorization System (new 20%)
+cap:FineGrainedAuthz a owl:Class ;
+    rdfs:label "Fine-grained Authorization"@en ;
+    rdfs:comment "Highly granular authorization system with context-aware decisions."@en ;
+    rdfs:subClassOf baac:AccessControl ;  # Enhance existing access control
+    cap:granularity "field-level" ;
+    cap:contextAware true ;
+    cap:dynamicPolicies true ;
+    cap:predicateLogic true ;
+    cap:decisionLatency "< 2ms" .
+
+cap:CapabilityConstraint a owl:Class ;
+    rdfs:label "Capability Constraint"@en ;
+    rdfs:comment "Constraint that must be satisfied for capability activation."@en ;
+    rdfs:subClassOf ba:Constraint ;
+    cap:constraintType xsd:string ;
+    cap:constraintExpression xsd:string ;
+    cap:enforcementLevel "strict" ;
+    cap:evaluationTime "< 1ms" .
+
+cap:ConditionalCapability a owl:Class ;
+    rdfs:label "Conditional Capability"@en ;
+    rdfs:comment "Capability that is activated only when specific conditions are met."@en ;
+    rdfs:subClassOf cap:ThresholdCapability ;
+    cap:activationConditions xsd:string ;
+    cap:conditionEvaluator xsd:string ;
+    cap:dynamicActivation true ;
+    cap:contextRequired true .
+
+cap:ContextualAuthorization a owl:Class ;
+    rdfs:label "Contextual Authorization"@en ;
+    rdfs:comment "Authorization decision based on current context and environmental factors."@en ;
+    rdfs:subClassOf baac:AuthorizationMechanism ;
+    cap:contextFactors "location,time,device,network,risk-score" ;
+    cap:adaptiveDecision true ;
+    cap:machinelearningEnhanced true ;
+    cap:continuousEvaluation true .
+
+## Macaroon-based Capabilities (enhanced)
+cap:ThresholdMacaroon a owl:Class ;
+    rdfs:label "Threshold Macaroon"@en ;
+    rdfs:comment "Macaroon token enhanced with threshold signature requirements."@en ;
+    rdfs:subClassOf cap:CapabilityToken ;
+    cap:macaroonVersion "v3.0-threshold" ;
+    cap:thirdPartyCaveats true ;
+    cap:dischargeRequired true ;
+    cap:thresholdSignatures true ;
+    cap:quantumResistant true .
+
+cap:MacaroonCaveat a owl:Class ;
+    rdfs:label "Macaroon Caveat"@en ;
+    rdfs:comment "Constraint embedded in macaroon token limiting its scope."@en ;
+    rdfs:subClassOf cap:CapabilityConstraint ;
+    cap:caveatType xsd:string ;
+    cap:caveatPredicate xsd:string ;
+    cap:thirdPartyDischarge false ;
+    cap:verificationRequired true .
+
+cap:CapabilityAttenuation a owl:Class ;
+    rdfs:label "Capability Attenuation"@en ;
+    rdfs:comment "Process of reducing capability scope through additional constraints."@en ;
+    rdfs:subClassOf ba:SecurityProcess ;
+    cap:attenuationStrategy xsd:string ;
+    cap:scopeReduction xsd:double ;
+    cap:constraintAddition true ;
+    cap:irreversible true .
+
+# ================================================================================
+# DELEGATION AND PROXY CAPABILITIES
+# ================================================================================
+
+cap:CapabilityDelegation a owl:Class ;
+    rdfs:label "Capability Delegation"@en ;
+    rdfs:comment "Delegation of capabilities with threshold signature validation."@en ;
+    rdfs:subClassOf ba:DelegationProcess ;
+    cap:delegationType "threshold-based" ;
+    cap:maxDelegationDepth "5"^^xsd:int ;
+    cap:delegationConstraints xsd:string ;
+    cap:auditTrail true ;
+    cap:revocable true .
+
+cap:ProxyCapability a owl:Class ;
+    rdfs:label "Proxy Capability"@en ;
+    rdfs:comment "Capability that acts as a proxy for other capabilities."@en ;
+    rdfs:subClassOf cap:ThresholdCapability ;
+    cap:proxyType xsd:string ;
+    cap:proxiedCapabilities xsd:string ;
+    cap:authorizationChaining true ;
+    cap:transparentProxy false .
+
+cap:DelegationChain a owl:Class ;
+    rdfs:label "Delegation Chain"@en ;
+    rdfs:comment "Chain of capability delegations with cryptographic verification."@en ;
+    rdfs:subClassOf ba:SecurityChain ;
+    cap:chainLength xsd:int ;
+    cap:chainIntegrity "SHA3-256" ;
+    cap:linkVerification true ;
+    cap:maxChainDepth "10"^^xsd:int .
+
+# ================================================================================
+# CAPABILITY LIFECYCLE MANAGEMENT
+# ================================================================================
+
+cap:CapabilityLifecycle a owl:Class ;
+    rdfs:label "Capability Lifecycle"@en ;
+    rdfs:comment "Complete lifecycle management for capabilities."@en ;
+    rdfs:subClassOf ba:LifecycleProcess ;
+    cap:lifecyclePhases "creation,activation,usage,delegation,attenuation,revocation" ;
+    cap:auditRequired true ;
+    cap:governanceRequired true ;
+    cap:performanceMonitoring true .
+
+cap:CapabilityCreation a owl:Class ;
+    rdfs:label "Capability Creation"@en ;
+    rdfs:comment "Process of creating new capabilities with proper authorization."@en ;
+    rdfs:subClassOf ba:CreationProcess ;
+    cap:authorizationRequired true ;
+    cap:thresholdApproval true ;
+    cap:initialConstraints xsd:string ;
+    cap:creationAudit true .
+
+cap:CapabilityActivation a owl:Class ;
+    rdfs:label "Capability Activation"@en ;
+    rdfs:comment "Activation of capability tokens for actual use."@en ;
+    rdfs:subClassOf ba:ActivationProcess ;
+    cap:activationCriteria xsd:string ;
+    cap:thresholdValidation true ;
+    cap:contextValidation true ;
+    cap:activationAudit true .
+
+cap:CapabilityUsage a owl:Class ;
+    rdfs:label "Capability Usage"@en ;
+    rdfs:comment "Monitoring and controlling capability usage patterns."@en ;
+    rdfs:subClassOf ba:UsageProcess ;
+    cap:usageTracking true ;
+    cap:rateLimiting true ;
+    cap:anomalyDetection true ;
+    cap:usageAnalytics true .
+
+cap:CapabilityRevocation a owl:Class ;
+    rdfs:label "Capability Revocation"@en ;
+    rdfs:comment "Revocation of capabilities with immediate effect propagation."@en ;
+    rdfs:subClassOf revoke:CapabilityRevocation ;  # Link to revoke crystal
+    cap:immediateRevocation true ;
+    cap:cascadeRevocation true ;
+    cap:revocationProof true ;
+    cap:distributedPropagation true .
+
+# ================================================================================
+# CAPABILITY ANALYTICS AND MONITORING
+# ================================================================================
+
+cap:CapabilityAnalytics a owl:Class ;
+    rdfs:label "Capability Analytics"@en ;
+    rdfs:comment "Analytics service for capability usage patterns and security insights."@en ;
+    rdfs:subClassOf ba:AnalyticsService ;
+    cap:usagePatterns true ;
+    cap:accessPatterns true ;
+    cap:securityAnalysis true ;
+    cap:performanceMetrics true ;
+    cap:predictiveAnalytics true .
+
+cap:CapabilityMonitor a owl:Class ;
+    rdfs:label "Capability Monitor"@en ;
+    rdfs:comment "Real-time monitoring of capability operations and security events."@en ;
+    rdfs:subClassOf baa:RealTimeAuditMonitor ;  # Leverage audit monitoring
+    cap:realTimeMonitoring true ;
+    cap:alertGeneration true ;
+    cap:thresholdMonitoring true ;
+    cap:performanceTracking true .
+
+cap:CapabilityAudit a owl:Class ;
+    rdfs:label "Capability Audit"@en ;
+    rdfs:comment "Comprehensive audit logging for all capability operations."@en ;
+    rdfs:subClassOf baa:AuditEvent ;  # Use audit system
+    cap:operationLogging true ;
+    cap:thresholdValidationLogging true ;
+    cap:contextLogging true ;
+    cap:performanceLogging true .
+
+# ================================================================================
+# INTEGRATION WITH OTHER CRYSTALS
+# ================================================================================
+
+cap:IdentityCapabilityBinding a owl:Class ;
+    rdfs:label "Identity-Capability Binding"@en ;
+    rdfs:comment "Binding between identity and capabilities with verification requirements."@en ;
+    rdfs:subClassOf ba:SecurityBinding ;
+    cap:identityVerificationRequired true ;
+    cap:assuranceLevelMinimum "2"^^xsd:int ;
+    cap:biometricSupport true ;
+    cap:continuousAuthentication true .
+
+cap:OrganizationalCapability a owl:Class ;
+    rdfs:label "Organizational Capability"@en ;
+    rdfs:comment "Capability scoped to organizational context with binding verification."@en ;
+    rdfs:subClassOf cap:ThresholdCapability ;
+    cap:organizationScope xsd:string ;
+    cap:membershipVerificationRequired true ;
+    cap:organizationalAttestation true ;
+    cap:crossOrgCapability false .
+
+cap:RevocableCapability a owl:Class ;
+    rdfs:label "Revocable Capability"@en ;
+    rdfs:comment "Capability that can be immediately revoked through the revocation system."@en ;
+    rdfs:subClassOf cap:ThresholdCapability ;
+    cap:revocationSupported true ;
+    cap:revocationLatency "< 10s" ;
+    cap:emergencyRevocation true ;
+    cap:gracefulRevocation true .
+
+# ================================================================================
+# CRYSTAL ABI INTERFACES
+# ================================================================================
+
+## Wire Interface (Protobuf v3 Capability)
+cap:CapWireInterface a ba:WireInterface ;
+    rdfs:label "CAP Wire Interface"@en ;
+    rdfs:comment "Network protocol interface for capability operations."@en ;
+    ba:protocolVersion "3.0-capability" ;
+    ba:messageFormat "protobuf" ;
+    ba:compressionScheme "snappy" ;
+    ba:encryptionRequired true ;
+    cap:operationTypes "create,activate,delegate,attenuate,revoke,verify" ;
+    cap:maxMessageSize "1MB"^^xsd:int ;
+    cap:timeoutDefault "PT30S"^^xsd:duration .
+
+## Storage Interface (Capability Tree Store)
+cap:CapStorageInterface a ba:StorageInterface ;
+    rdfs:label "CAP Storage Interface"@en ;
+    rdfs:comment "Tree-based storage for capability hierarchies and relationships."@en ;
+    ba:storageType "capability-tree-store" ;
+    ba:compressionEnabled true ;
+    ba:encryptionAtRest true ;
+    cap:treeStructure "B+Tree" ;
+    cap:indexingStrategy "capability-based" ;
+    cap:versioningEnabled true .
+
+## Capability Interface (Threshold Macaroon v3)
+cap:CapCapabilityInterface a ba:CapabilityInterface ;
+    rdfs:label "CAP Capability Interface"@en ;
+    rdfs:comment "Native capability interface using threshold macaroons."@en ;
+    ba:capabilityFormat "threshold-macaroon-v3" ;
+    ba:bearerTokenRequired false ;
+    ba:delegationSupported true ;
+    cap:thresholdSignatures true ;
+    cap:caveatSupported true ;
+    cap:attenuationSupported true .
+
+# ================================================================================
+# OBJECT PROPERTIES (Enhanced relationships)
+# ================================================================================
+
+cap:hasThresholdSignature a owl:ObjectProperty ;
+    rdfs:label "has threshold signature"@en ;
+    rdfs:comment "Links capability to its threshold signature requirement."@en ;
+    rdfs:domain cap:ThresholdCapability ;
+    rdfs:range ba:ThresholdSignature .
+
+cap:constrainedBy a owl:ObjectProperty ;
+    rdfs:label "constrained by"@en ;
+    rdfs:comment "Links capability to its constraining caveats or conditions."@en ;
+    rdfs:domain cap:ThresholdCapability ;
+    rdfs:range cap:CapabilityConstraint .
+
+cap:delegatedTo a owl:ObjectProperty ;
+    rdfs:label "delegated to"@en ;
+    rdfs:comment "Links original capability to its delegated instances."@en ;
+    rdfs:domain cap:ThresholdCapability ;
+    rdfs:range cap:CapabilityDelegation .
+
+cap:attenuatedBy a owl:ObjectProperty ;
+    rdfs:label "attenuated by"@en ;
+    rdfs:comment "Links capability to attenuation process that reduced its scope."@en ;
+    rdfs:domain cap:ThresholdCapability ;
+    rdfs:range cap:CapabilityAttenuation .
+
+cap:validatedBy a owl:ObjectProperty ;
+    rdfs:label "validated by"@en ;
+    rdfs:comment "Links capability to validator nodes in consensus system."@en ;
+    rdfs:domain cap:ThresholdCapability ;
+    rdfs:range cap:CapabilityValidator .
+
+cap:authorizedFor a owl:ObjectProperty ;
+    rdfs:label "authorized for"@en ;
+    rdfs:comment "Links capability to the identity it authorizes."@en ;
+    rdfs:domain cap:ThresholdCapability ;
+    rdfs:range idc:QuantumResistantIdentity .
+
+# Integration properties with other crystals
+cap:boundToOrganization a owl:ObjectProperty ;
+    rdfs:label "bound to organization"@en ;
+    rdfs:comment "Links capability to organizational binding requirement."@en ;
+    rdfs:domain cap:OrganizationalCapability ;
+    rdfs:range orgbind:OrganizationEntity .
+
+cap:subjectToRevocation a owl:ObjectProperty ;
+    rdfs:label "subject to revocation"@en ;
+    rdfs:comment "Links capability to revocation system for immediate invalidation."@en ;
+    rdfs:domain cap:RevocableCapability ;
+    rdfs:range revoke:RevocationService .
+
+# ================================================================================
+# DATA PROPERTIES (Enhanced)
+# ================================================================================
+
+cap:thresholdValue a owl:DatatypeProperty ;
+    rdfs:label "threshold value"@en ;
+    rdfs:domain cap:ThresholdCapability ;
+    rdfs:range xsd:int ;
+    rdfs:comment "Minimum number of signatures required for capability activation" .
+
+cap:totalSigners a owl:DatatypeProperty ;
+    rdfs:label "total signers"@en ;
+    rdfs:domain cap:ThresholdCapability ;
+    rdfs:range xsd:int ;
+    rdfs:comment "Total number of possible signers for threshold scheme" .
+
+cap:activationLatency a owl:DatatypeProperty ;
+    rdfs:label "activation latency"@en ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Time required to activate capability with threshold validation" .
+
+cap:granularity a owl:DatatypeProperty ;
+    rdfs:label "granularity"@en ;
+    rdfs:domain cap:FineGrainedAuthz ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Level of authorization granularity (resource, field, record, etc.)" .
+
+cap:constraintType a owl:DatatypeProperty ;
+    rdfs:label "constraint type"@en ;
+    rdfs:domain cap:CapabilityConstraint ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of capability constraint (temporal, spatial, conditional, etc.)" .
+
+cap:delegationType a owl:DatatypeProperty ;
+    rdfs:label "delegation type"@en ;
+    rdfs:domain cap:CapabilityDelegation ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of capability delegation (full, partial, conditional, etc.)" .
+
+cap:maxDelegationDepth a owl:DatatypeProperty ;
+    rdfs:label "maximum delegation depth"@en ;
+    rdfs:range xsd:int ;
+    rdfs:comment "Maximum depth of capability delegation chain" .
+
+# ================================================================================
+# SHACL VALIDATION SHAPES
+# ================================================================================
+
+cap:ThresholdCapabilityShape a sh:NodeShape ;
+    sh:targetClass cap:ThresholdCapability ;
+    sh:property [
+        sh:path cap:thresholdValue ;
+        sh:datatype xsd:int ;
+        sh:minInclusive 1 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path cap:totalSigners ;
+        sh:datatype xsd:int ;
+        sh:minInclusive 2 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:sparql [
+        sh:message "Threshold value must be less than or equal to total signers" ;
+        sh:select """
+            PREFIX cap: <http://bytestar.org/ontology/identity/cap#>
+            SELECT $this
+            WHERE {
+                $this cap:thresholdValue ?t .
+                $this cap:totalSigners ?n .
+                FILTER(?t > ?n)
+            }
+        """ ;
+    ] .
+
+cap:PerformanceConstraintShape a sh:NodeShape ;
+    sh:targetClass cap:ThresholdCapability ;
+    sh:property [
+        sh:path cap:activationLatency ;
+        sh:pattern "< 8ms" ;
+        sh:message "Capability activation must comply with Doctrine of 8" ;
+    ] .
+
+cap:CapabilityManagerShape a sh:NodeShape ;
+    sh:targetClass cap:CapabilityManager ;
+    sh:property [
+        sh:path cap:latencyTarget ;
+        sh:pattern "< 8ms" ;
+        sh:message "Capability manager operations must meet latency targets" ;
+    ] ;
+    sh:property [
+        sh:path cap:availabilityTarget ;
+        sh:minInclusive "99.0%"^^xsd:string ;
+        sh:message "Availability target must be at least 99%" ;
+    ] .
+
+cap:DelegationDepthShape a sh:NodeShape ;
+    sh:targetClass cap:CapabilityDelegation ;
+    sh:property [
+        sh:path cap:maxDelegationDepth ;
+        sh:datatype xsd:int ;
+        sh:maxInclusive 10 ;
+        sh:message "Delegation depth should not exceed 10 levels" ;
+    ] .
+
+cap:FineGrainedAuthzShape a sh:NodeShape ;
+    sh:targetClass cap:FineGrainedAuthz ;
+    sh:property [
+        sh:path cap:decisionLatency ;
+        sh:pattern "< 2ms" ;
+        sh:message "Fine-grained authorization decisions must be under 2ms" ;
+    ] .
+
+# ================================================================================
+# CRYSTAL IMPLEMENTATION INSTANCES
+# ================================================================================
+
+# Default Threshold Capability System
+cap:DefaultThresholdSystem a cap:ThresholdCapability ;
+    rdfs:label "Default Threshold Capability System"@en ;
+    cap:thresholdValue "2"^^xsd:int ;
+    cap:totalSigners "3"^^xsd:int ;
+    cap:signatureScheme "BLS-Threshold" ;
+    cap:quantumSafe true ;
+    cap:activationLatency "< 8ms" .
+
+# High-Security Capability Manager
+cap:HighSecurityManager a cap:CapabilityManager ;
+    rdfs:label "High-Security Capability Manager"@en ;
+    cap:distributedArchitecture true ;
+    cap:consensusAlgorithm "Byzantine-Fault-Tolerant" ;
+    cap:throughputTarget "> 50K/sec" ;
+    cap:latencyTarget "< 8ms" .
+
+# Fine-Grained Authorization Engine
+cap:FineGrainedEngine a cap:FineGrainedAuthz ;
+    rdfs:label "Fine-Grained Authorization Engine"@en ;
+    cap:granularity "field-level" ;
+    cap:contextAware true ;
+    cap:dynamicPolicies true ;
+    cap:decisionLatency "< 2ms" .
+
+# Production Threshold Macaroon
+cap:ProductionMacaroon a cap:ThresholdMacaroon ;
+    rdfs:label "Production Threshold Macaroon"@en ;
+    cap:macaroonVersion "v3.0-threshold" ;
+    cap:thirdPartyCaveats true ;
+    cap:thresholdSignatures true ;
+    cap:quantumResistant true .
+
+# ================================================================================
+# INTEGRATION PATTERNS WITH OTHER CRYSTALS
+# ================================================================================
+
+# Identity-Capability Integration
+cap:identityIntegration a ba:IntegrationPattern ;
+    rdfs:label "Identity-Capability Integration"@en ;
+    rdfs:comment "Integration pattern linking capabilities with quantum-resistant identities."@en ;
+    cap:identityVerificationRequired true ;
+    idc:assuranceLevelMinimum "2"^^xsd:int ;
+    cap:thresholdValidation true .
+
+# Organizational Capability Integration
+cap:organizationalIntegration a ba:IntegrationPattern ;
+    rdfs:label "Organizational Capability Integration"@en ;
+    rdfs:comment "Integration with organizational binding for scoped capabilities."@en ;
+    cap:organizationScope true ;
+    orgbind:attestationRequired true ;
+    cap:membershipVerification true .
+
+# Revocation Integration
+cap:revocationIntegration a ba:IntegrationPattern ;
+    rdfs:label "Capability Revocation Integration"@en ;
+    rdfs:comment "Integration with revocation system for immediate capability invalidation."@en ;
+    cap:revocationSupported true ;
+    revoke:immediateEffect true ;
+    revoke:distributedPropagation true .
+
+# ================================================================================
+# END OF .cap ENHANCED CRYSTAL ONTOLOGY
+# ================================================================================

@@ -1,0 +1,291 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix pn:      <https://ggen.io/ontology/petri-net#> .
+@prefix ocel:    <https://www.ocel-standard.org/2.0/> .
+@prefix ptree:   <https://ggen.io/ontology/process-tree#> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Process Tree OWL Ontology
+#
+# Process Trees (Inductive Process Trees) are Van der Aalst's hierarchically
+# structured process models produced by the Inductive Miner algorithm. Every
+# process tree is provably sound (no deadlocks, no livelock) and block-
+# structured, making them uniquely amenable to conformance checking and
+# automated conversion to Petri Nets or BPMN.
+#
+# Reference: Van der Aalst, W. (2016). Process Mining: Data Science in Action.
+#            Leemans, S., Fahland, D., van der Aalst, W. (2013). Discovering
+#            Block-Structured Process Models from Event Logs.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<https://ggen.io/ontology/process-tree>
+    a owl:Ontology ;
+    dcterms:title "Process Tree Ontology" ;
+    dcterms:description "OWL formalisation of Van der Aalst's Process Trees (Inductive Process Trees): hierarchical, always-sound, block-structured process models discovered by the Inductive Miner algorithm from OCEL event logs." ;
+    owl:versionInfo "1.0.0" ;
+    dcterms:creator <https://github.com/seanchatmangpt> ;
+    dcterms:license <https://spdx.org/licenses/MIT> ;
+    dcterms:created "2026-06-20"^^xsd:date .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# § 1  CORE PROCESS TREE CLASSES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+ptree:ProcessTree a owl:Class ;
+    rdfs:label "ProcessTree" ;
+    rdfs:comment "A complete process tree model T discovered from an event log by the Inductive Miner algorithm. Every process tree is structurally sound: it has no deadlocks, livelocks, or dead transitions. It consists of a root node, inner operator nodes, and leaf activity nodes." .
+
+ptree:ProcessNode a owl:Class ;
+    rdfs:label "ProcessNode" ;
+    rdfs:comment "A node in a process tree — either an inner operator node (InternalNode) or a leaf activity node (LeafNode). Every node except the root has exactly one parent." .
+
+ptree:LeafNode a owl:Class ;
+    rdfs:subClassOf ptree:ProcessNode ;
+    rdfs:label "LeafNode" ;
+    rdfs:comment "A leaf node in a process tree representing a single activity (identified by an activity label) or the silent activity τ. Leaf nodes have no children." .
+
+ptree:InternalNode a owl:Class ;
+    rdfs:subClassOf ptree:ProcessNode ;
+    rdfs:label "InternalNode" ;
+    rdfs:comment "An inner node in a process tree that carries exactly one operator (→, ×, ∧, ↺, ◯, ⟷) and one or more child ProcessNodes. The operator determines how execution of the children is composed." .
+
+ptree:SilentLeaf a owl:Class ;
+    rdfs:subClassOf ptree:LeafNode ;
+    rdfs:label "SilentLeaf" ;
+    rdfs:comment "A leaf node representing the silent (invisible) activity τ. Silent leaves are used to model optional paths and skips without producing an observable event in the log." .
+
+ptree:RootNode a owl:Class ;
+    rdfs:subClassOf ptree:ProcessNode ;
+    rdfs:label "RootNode" ;
+    rdfs:comment "The unique topmost node of a process tree. Every ProcessTree has exactly one RootNode. The RootNode has no parent node." .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# § 2  OPERATOR CLASSES
+#
+# Each operator class is a sub-class of InternalNode. An internal node belongs
+# to exactly one operator class; this is enforced via owl:disjointWith between
+# all operator classes.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+ptree:SequenceNode a owl:Class ;
+    rdfs:subClassOf ptree:InternalNode ;
+    rdfs:label "SequenceNode" ;
+    rdfs:comment "Internal node with the → (sequence) operator. Children are executed one after another in the order defined by ptree:childOrder. The language of a SequenceNode is the concatenation of the languages of its children." .
+
+ptree:ExclusiveChoiceNode a owl:Class ;
+    rdfs:subClassOf ptree:InternalNode ;
+    rdfs:label "ExclusiveChoiceNode" ;
+    rdfs:comment "Internal node with the × (exclusive choice / XOR) operator. Exactly one child is chosen and executed. The language is the union of the children's languages; no trace can belong to more than one child's language." .
+
+ptree:ParallelNode a owl:Class ;
+    rdfs:subClassOf ptree:InternalNode ;
+    rdfs:label "ParallelNode" ;
+    rdfs:comment "Internal node with the ∧ (parallel / AND) operator. All children execute concurrently; the language is all interleavings of the children's languages." .
+
+ptree:LoopNode a owl:Class ;
+    rdfs:subClassOf ptree:InternalNode ;
+    rdfs:label "LoopNode" ;
+    rdfs:comment "Internal node with the ↺ (loop) operator. The first child (position 0) is the loop body; the second child (position 1) is the redo part executed between iterations. After the body completes, either the process exits the loop or the redo part executes and the body repeats." .
+
+ptree:InclusiveChoiceNode a owl:Class ;
+    rdfs:subClassOf ptree:InternalNode ;
+    rdfs:label "InclusiveChoiceNode" ;
+    rdfs:comment "Internal node with the ◯ (inclusive choice / OR) operator. At least one child executes; any non-empty subset of children may execute concurrently. The language is the non-empty power set of the children's languages interleaved." .
+
+ptree:InterleaveNode a owl:Class ;
+    rdfs:subClassOf ptree:InternalNode ;
+    rdfs:label "InterleaveNode" ;
+    rdfs:comment "Internal node with the ⟷ (interleave) operator. All children execute exactly once in any arbitrary order. Differs from ParallelNode in that children do not overlap in time — each child runs to completion before the next begins, but the ordering is unconstrained." .
+
+# ── Disjointness of operator node classes ───────────────────────────────────
+
+[] a owl:AllDisjointClasses ;
+    owl:members (
+        ptree:SequenceNode
+        ptree:ExclusiveChoiceNode
+        ptree:ParallelNode
+        ptree:LoopNode
+        ptree:InclusiveChoiceNode
+        ptree:InterleaveNode
+    ) .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# § 3  OPERATOR INDIVIDUALS
+#
+# Each process tree operator is also reified as an individual of ptree:Operator,
+# so that ptree:hasOperator assertions can reference a controlled vocabulary.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+ptree:Operator a owl:Class ;
+    rdfs:label "Operator" ;
+    rdfs:comment "A process tree operator that determines how an InternalNode composes the execution of its children. The six standard operators are: → (sequence), × (exclusive choice), ∧ (parallel), ↺ (loop), ◯ (inclusive choice), ⟷ (interleave)." .
+
+ptree:SequenceOperator a ptree:Operator ;
+    rdfs:label "SequenceOperator" ;
+    rdfs:comment "The → (sequence) operator: children execute in order." .
+
+ptree:ChoiceOperator a ptree:Operator ;
+    rdfs:label "ChoiceOperator" ;
+    rdfs:comment "The × (exclusive choice / XOR) operator: exactly one child executes." .
+
+ptree:ParallelOperator a ptree:Operator ;
+    rdfs:label "ParallelOperator" ;
+    rdfs:comment "The ∧ (parallel / AND) operator: all children execute concurrently." .
+
+ptree:LoopOperator a ptree:Operator ;
+    rdfs:label "LoopOperator" ;
+    rdfs:comment "The ↺ (loop) operator: body (child 0) repeats via redo part (child 1)." .
+
+ptree:InclusiveOperator a ptree:Operator ;
+    rdfs:label "InclusiveOperator" ;
+    rdfs:comment "The ◯ (inclusive choice / OR) operator: at least one child executes." .
+
+ptree:InterleaveOperator a ptree:Operator ;
+    rdfs:label "InterleaveOperator" ;
+    rdfs:comment "The ⟷ (interleave) operator: all children execute in any order." .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# § 4  STRUCTURAL PROPERTIES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── Tree topology ────────────────────────────────────────────────────────────
+
+ptree:hasRoot a owl:ObjectProperty ;
+    rdfs:label "hasRoot" ;
+    rdfs:comment "Links a ProcessTree to its unique RootNode." ;
+    rdfs:domain ptree:ProcessTree ;
+    rdfs:range ptree:RootNode .
+
+ptree:hasChild a owl:ObjectProperty ;
+    rdfs:label "hasChild" ;
+    rdfs:comment "Links an InternalNode to one of its direct child ProcessNodes. The ordering of children is given by ptree:childOrder." ;
+    rdfs:domain ptree:InternalNode ;
+    rdfs:range ptree:ProcessNode .
+
+ptree:parentNode a owl:ObjectProperty ;
+    rdfs:label "parentNode" ;
+    rdfs:comment "The parent InternalNode of a ProcessNode. The RootNode has no parentNode. This property is the inverse of ptree:hasChild." ;
+    rdfs:domain ptree:ProcessNode ;
+    rdfs:range ptree:InternalNode ;
+    owl:inverseOf ptree:hasChild .
+
+ptree:hasOperator a owl:ObjectProperty ;
+    rdfs:label "hasOperator" ;
+    rdfs:comment "Assigns the controlling ptree:Operator individual to an InternalNode. Every InternalNode has exactly one operator." ;
+    rdfs:domain ptree:InternalNode ;
+    rdfs:range ptree:Operator .
+
+# ── Child ordering ───────────────────────────────────────────────────────────
+
+ptree:childOrder a owl:DatatypeProperty ;
+    rdfs:label "childOrder" ;
+    rdfs:comment "Zero-based integer position of a ProcessNode among its parent's children. Required for SequenceNode and LoopNode where order is semantically significant." ;
+    rdfs:domain ptree:ProcessNode ;
+    rdfs:range xsd:integer .
+
+# ── Leaf node content ────────────────────────────────────────────────────────
+
+ptree:activityLabel a owl:DatatypeProperty ;
+    rdfs:label "activityLabel" ;
+    rdfs:comment "The activity label (event class) that a LeafNode represents. Corresponds to the 'ocel:activity' attribute in an OCEL 2.0 event log. A SilentLeaf typically has the reserved label 'τ'." ;
+    rdfs:domain ptree:LeafNode ;
+    rdfs:range xsd:string .
+
+ptree:isSilent a owl:DatatypeProperty ;
+    rdfs:label "isSilent" ;
+    rdfs:comment "True if and only if the LeafNode represents the silent (τ) activity. Silent leaves are invisible in the event log and are used to model optional or skip paths." ;
+    rdfs:domain ptree:LeafNode ;
+    rdfs:range xsd:boolean .
+
+# ── Tree metrics ─────────────────────────────────────────────────────────────
+
+ptree:depth a owl:DatatypeProperty ;
+    rdfs:label "depth" ;
+    rdfs:comment "The depth of a ProcessNode in the tree (root = 0). Used to bound recursion depth and to measure structural complexity." ;
+    rdfs:domain ptree:ProcessNode ;
+    rdfs:range xsd:nonNegativeInteger .
+
+ptree:subtreeSize a owl:DatatypeProperty ;
+    rdfs:label "subtreeSize" ;
+    rdfs:comment "The number of ProcessNodes in the sub-tree rooted at this node (inclusive). For a LeafNode this is always 1." ;
+    rdfs:domain ptree:ProcessNode ;
+    rdfs:range xsd:nonNegativeInteger .
+
+# ── Provenance link ──────────────────────────────────────────────────────────
+
+ptree:discoveredFrom a owl:ObjectProperty ;
+    rdfs:label "discoveredFrom" ;
+    rdfs:comment "Links the ProcessTree to the OCEL 2.0 EventLog from which it was discovered by the Inductive Miner algorithm. Provides full provenance from log to model." ;
+    rdfs:domain ptree:ProcessTree ;
+    rdfs:range ocel:EventLog .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# § 5  QUALITY AND CONFORMANCE PROPERTIES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+ptree:fitness a owl:DatatypeProperty ;
+    rdfs:label "fitness" ;
+    rdfs:comment "Token-replay or alignment-based fitness of the process tree against the discovery log: fraction of log traces that can be replayed by the model. Range [0.0, 1.0]. Higher is better." ;
+    rdfs:domain ptree:ProcessTree ;
+    rdfs:range xsd:decimal .
+
+ptree:precision a owl:DatatypeProperty ;
+    rdfs:label "precision" ;
+    rdfs:comment "Precision of the process tree: measures how much behaviour the model allows that is NOT observed in the log. Range [0.0, 1.0]. Higher means fewer spurious traces." ;
+    rdfs:domain ptree:ProcessTree ;
+    rdfs:range xsd:decimal .
+
+ptree:fMeasure a owl:DatatypeProperty ;
+    rdfs:label "fMeasure" ;
+    rdfs:comment "Harmonic mean of ptree:fitness and ptree:precision (F1 score). Range [0.0, 1.0]." ;
+    rdfs:domain ptree:ProcessTree ;
+    rdfs:range xsd:decimal .
+
+ptree:simplicity a owl:DatatypeProperty ;
+    rdfs:label "simplicity" ;
+    rdfs:comment "Structural simplicity score of the process tree. Typically derived from the number of nodes and operators relative to the number of distinct activities. Range [0.0, 1.0]. Higher means a simpler model." ;
+    rdfs:domain ptree:ProcessTree ;
+    rdfs:range xsd:decimal .
+
+ptree:isSound a owl:DatatypeProperty ;
+    rdfs:label "isSound" ;
+    rdfs:comment "Boolean soundness flag. Process trees are ALWAYS sound by construction — this property is always true. It is retained to make soundness assertions queryable via SPARQL and to enable compatibility with Petri Net tooling that requires an explicit soundness declaration." ;
+    rdfs:domain ptree:ProcessTree ;
+    rdfs:range xsd:boolean .
+
+ptree:noiseThreshold a owl:DatatypeProperty ;
+    rdfs:label "noiseThreshold" ;
+    rdfs:comment "The noise threshold parameter τ used by the Inductive Miner Infrequent (IMf) algorithm when this tree was discovered. Traces representing fewer than τ fraction of the log are treated as noise and excluded. Range [0.0, 1.0)." ;
+    rdfs:domain ptree:ProcessTree ;
+    rdfs:range xsd:decimal .
+
+ptree:discoveryAlgorithm a owl:DatatypeProperty ;
+    rdfs:label "discoveryAlgorithm" ;
+    rdfs:comment "The process discovery algorithm used to build this tree. Typical values: 'InductiveMiner', 'InductiveMinerInfrequent', 'InductiveMinerIncomplate'. Stored as a free-text string." ;
+    rdfs:domain ptree:ProcessTree ;
+    rdfs:range xsd:string .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# § 6  CONVERSION / EQUIVALENCE PROPERTIES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+ptree:equivalentPetriNet a owl:ObjectProperty ;
+    rdfs:label "equivalentPetriNet" ;
+    rdfs:comment "Links a ProcessTree to an equivalent pn:WorkflowNet in the Petri Net ontology. Process trees can be mechanically and losslessly converted to sound, block-structured workflow nets via the standard reduction rules." ;
+    rdfs:domain ptree:ProcessTree ;
+    rdfs:range pn:WorkflowNet .
+
+ptree:equivalentBPMN a owl:DatatypeProperty ;
+    rdfs:label "equivalentBPMN" ;
+    rdfs:comment "URI reference to an equivalent BPMN 2.0 process document generated from this process tree. Process trees map to block-structured BPMN via standard conversion, preserving all control-flow semantics." ;
+    rdfs:domain ptree:ProcessTree ;
+    rdfs:range xsd:anyURI .

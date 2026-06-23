@@ -1,0 +1,13 @@
+PREFIX cc:      <https://cargo-cicd.rs/ontology/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX skos:    <http://www.w3.org/2004/02/skos/core#>
+
+SELECT ?noun_name ?verb_name ?verb_about ?cli_command WHERE {
+    ?cap a skos:Concept ;
+         cc:noun ?noun_name ;
+         cc:verb ?verb_name ;
+         dcterms:description ?verb_about ;
+         cc:cliCommand ?cli_command .
+    BIND(CONCAT("cargo cicd ", ?noun_name, " ", ?verb_name) AS ?full_command)
+}
+ORDER BY ?noun_name ?verb_name

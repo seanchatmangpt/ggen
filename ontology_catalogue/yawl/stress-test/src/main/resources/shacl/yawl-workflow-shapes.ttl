@@ -1,0 +1,114 @@
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix yawl:    <http://yawlfoundation.org/yawl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix :        <http://yawlfoundation.org/shacl/yawl#> .
+
+# Process Task Shape
+:ProcessTaskShape a sh:NodeShape ;
+    rdfs:label "Process Task" ;
+    rdfs:comment "Shape for process tasks in YAWL workflows" ;
+    sh:targetClass yawl:ProcessTask ;
+    sh:property [
+        sh:path yawl:hasInputFlow ;
+        sh:node :FlowShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [: FlowShape ] ;
+        sh:qualifiedValueShapeTypes sh:NodeShape ;
+        sh:message "Process task must have exactly one input flow" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputFlow ;
+        sh:node :FlowShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [: FlowShape ] ;
+        sh:qualifiedValueShapeTypes sh:NodeShape ;
+        sh:message "Process task must have exactly one output flow" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasImplementation ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxLength 500 ;
+        sh:message "Process task must have an implementation reference" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .
+
+# Composite Task Shape
+:CompositeTaskShape a sh:NodeShape ;
+    rdfs:label "Composite Task" ;
+    rdfs:comment "Shape for composite tasks in YAWL workflows" ;
+    sh:targetClass yawl:CompositeTask ;
+    sh:property [
+        sh:path yawl:contains ;
+        sh:node :YAWLNetShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [: YAWLNetShape ] ;
+        sh:qualifiedValueShapeTypes sh:NodeShape ;
+        sh:message "Composite task must contain exactly one YAWL net" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasInputFlow ;
+        sh:node :FlowShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [: FlowShape ] ;
+        sh:qualifiedValueShapeTypes sh:NodeShape ;
+        sh:message "Composite task must have exactly one input flow" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputFlow ;
+        sh:node :FlowShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [: FlowShape ] ;
+        sh:qualifiedValueShapeTypes sh:NodeShape ;
+        sh:message "Composite task must have exactly one output flow" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .
+
+# Decomposition Shape
+:DecompositionShape a sh:NodeShape ;
+    rdfs:label "Decomposition" ;
+    rdfs:comment "Shape for task decompositions" ;
+    sh:targetClass yawl:Decomposition ;
+    sh:property [
+        sh:path yawl:decomposes ;
+        sh:node :YAWLNetShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [: YAWLNetShape ] ;
+        sh:qualifiedValueShapeTypes sh:NodeShape ;
+        sh:message "Decomposition must decompose exactly one YAWL net" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasType ;
+        sh:datatype xsd:string ;
+        sh:hasValue "AND" ;
+        sh:hasValue "OR" ;
+        sh:hasValue "XOR" ;
+        sh:in ("AND" "OR" "XOR") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Decomposition type must be AND, OR, or XOR" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .

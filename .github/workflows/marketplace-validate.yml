@@ -10,31 +10,35 @@ on:
       - 'crates/ggen-domain/src/marketplace/**'
       - 'crates/ggen-cli/src/cmds/marketplace.rs'
       - '.github/workflows/marketplace-validate.yml'
-  pull_request:
-    branches:
-      - main
-      - develop
-    paths:
-      - 'marketplace/**'
-      - 'crates/ggen-domain/src/marketplace/**'
-      - 'crates/ggen-cli/src/cmds/marketplace.rs'
+  workflow_dispatch:
+
+# Validation/regression checks; read-only on this repo's contents.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   marketplace-validate:
     name: Marketplace Validation & Health Check
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0  # Full history for comparison
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b  # stable (2024-06)
+        with:
+          toolchain: stable
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
         with:
           shared-key: marketplace-validation
 
@@ -102,7 +106,7 @@ jobs:
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
             const fs = require('fs');
@@ -148,11 +152,12 @@ jobs:
   regression-detection:
     name: Regression Detection
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     if: github.event_name == 'pull_request'
 
     steps:
       - name: Checkout PR branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
@@ -163,7 +168,9 @@ jobs:
           git branch -a
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b  # stable (2024-06)
+        with:
+          toolchain: stable
 
       - name: Build PR version
         run: cargo build --release -p ggen-cli
@@ -212,7 +219,7 @@ jobs:
 
       - name: Upload health artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: marketplace-health-metrics
           path: |
@@ -223,13 +230,16 @@ jobs:
   marketplace-quality:
     name: Marketplace Package Quality Gate
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b  # stable (2024-06)
+        with:
+          toolchain: stable
 
       - name: Check package quality
         run: |
@@ -263,6 +273,7 @@ jobs:
   summary:
     name: Validation Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: always()
     needs: [marketplace-validate, marketplace-quality]
 

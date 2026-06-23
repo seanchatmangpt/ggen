@@ -1,0 +1,27 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX api: <http://process-intelligence.org/api/>
+
+# Select all authentication schemes and their bindings to endpoints
+# For auth specification generation
+
+SELECT ?authScheme ?type ?scheme ?name ?bearerFormat ?description
+       (GROUP_CONCAT(?endpoint; separator=",") AS ?endpoints)
+WHERE {
+  ?authScheme a api:AuthScheme .
+  ?authScheme rdfs:label ?type .
+  ?authScheme api:description ?description .
+  OPTIONAL { ?authScheme api:scheme ?scheme }
+  OPTIONAL { ?authScheme api:name ?name }
+  OPTIONAL { ?authScheme api:bearerFormat ?bearerFormat }
+
+  # Find endpoints using this auth scheme
+  ?endpoint api:authRequired true .
+
+  BIND(CONCAT(
+    "- Type: ", ?type, "\n",
+    "- Description: ", ?description
+  ) AS ?authBinding)
+}
+GROUP BY ?authScheme ?type ?scheme ?name ?bearerFormat ?description
+ORDER BY ?type

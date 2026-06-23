@@ -1,0 +1,34 @@
+PREFIX fin: <https://kgen.dev/ontologies/finance#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT
+  (SUM(?revenue) AS ?totalRevenue)
+  (SUM(?cogs) AS ?totalCOGS)
+  (SUM(?opex) AS ?totalOpex)
+  (SUM(?revenue) - SUM(?cogs) AS ?grossProfit)
+  (SUM(?revenue) - SUM(?cogs) - SUM(?opex) AS ?netIncome)
+WHERE {
+  {
+    SELECT (SUM(?credit) AS ?revenue) WHERE {
+      ?entry a fin:JournalEntry ;
+             fin:hasAccount fin:SalesRevenue ;
+             fin:hasCredit ?credit .
+    }
+  }
+  UNION
+  {
+    SELECT (SUM(?debit) AS ?cogs) WHERE {
+      ?entry a fin:JournalEntry ;
+             fin:hasAccount fin:CostOfGoodsSold ;
+             fin:hasDebit ?debit .
+    }
+  }
+  UNION
+  {
+    SELECT (SUM(?debit) AS ?opex) WHERE {
+      ?entry a fin:JournalEntry ;
+             fin:hasAccount fin:OperatingExpenses ;
+             fin:hasDebit ?debit .
+    }
+  }
+}

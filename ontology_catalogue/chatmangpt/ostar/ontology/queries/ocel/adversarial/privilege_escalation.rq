@@ -1,0 +1,20 @@
+PREFIX ocel: <http://www.ocel-standard.org/ocel/2.0/>
+PREFIX ostar: <http://ostar.manufactory/schema/>
+
+# Detect privilege escalation or authority violations
+# Watch for unauthorized role changes or bypassed compliance gates
+
+ASK {
+  # Check if release event occurred without all required gates
+  ?event ocel:activity ?activity .
+  FILTER (?activity = "release-package")
+
+  # Release should only happen after all required gates
+  NOT EXISTS {
+    ?gate_event ocel:activity ?gate_activity .
+    FILTER (?gate_activity IN ("process-conformance", "benchmark-passed", "validation-complete"))
+    ?gate_event ocel:timestamp ?gate_ts .
+    ?event ocel:timestamp ?release_ts .
+    FILTER (?gate_ts < ?release_ts)
+  }
+}

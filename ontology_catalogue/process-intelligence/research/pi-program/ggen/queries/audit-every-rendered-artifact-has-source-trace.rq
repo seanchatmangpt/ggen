@@ -1,0 +1,21 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX gen: <https://process.intelligence/generation-rule/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# AUDIT: Every Rendered Artifact Has Source Trace
+# ASK query: Verifies all artifacts from READY rules can trace back to queries and templates
+# Passes if: Each outputFile is reachable through rule->template->artifact path
+# Date: 2026-06-01
+
+ASK {
+    FILTER NOT EXISTS {
+        ?rule a pi:GenerationRule .
+        ?rule pi:status "READY" .
+        ?rule pi:outputFile ?output .
+        
+        FILTER NOT EXISTS {
+            ?rule pi:template ?template .
+            ?rule pi:query ?query .
+        }
+    }
+}

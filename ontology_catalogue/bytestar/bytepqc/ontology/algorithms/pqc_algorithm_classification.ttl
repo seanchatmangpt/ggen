@@ -1,0 +1,249 @@
+@prefix pqc: <http://bytepqc.org/ontology/pqc#> .
+@prefix pqca: <http://bytepqc.org/ontology/algorithms#> .
+@prefix pqcs: <http://bytepqc.org/ontology/security#> .
+@prefix pqci: <http://bytepqc.org/ontology/implementation#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Post-Quantum Cryptographic Algorithm Classification Ontology
+# Dark 80/20 Canon: This ontology IS the cryptographic system, not just a description
+
+<http://bytepqc.org/ontology/algorithms> rdf:type owl:Ontology ;
+    rdfs:label "PQC Algorithm Classification Ontology"@en ;
+    rdfs:comment "Self-referential ontology that embodies post-quantum cryptographic algorithms as living computational entities"@en ;
+    owl:versionInfo "1.0.0" .
+
+# ==== CORE ALGORITHM CLASSES ====
+
+pqca:CryptographicAlgorithm rdf:type owl:Class ;
+    rdfs:label "Cryptographic Algorithm"@en ;
+    rdfs:comment "Base class for all post-quantum cryptographic algorithms - this class IS the algorithm, not a description of it"@en .
+
+pqca:KeyEncapsulationMechanism rdf:type owl:Class ;
+    rdfs:subClassOf pqca:CryptographicAlgorithm ;
+    rdfs:label "Key Encapsulation Mechanism"@en ;
+    rdfs:comment "Self-executing KEM algorithms that ARE the key exchange, not descriptions"@en .
+
+pqca:DigitalSignatureScheme rdf:type owl:Class ;
+    rdfs:subClassOf pqca:CryptographicAlgorithm ;
+    rdfs:label "Digital Signature Scheme"@en ;
+    rdfs:comment "Living signature algorithms that perform authentication as their being"@en .
+
+pqca:HashBasedSignature rdf:type owl:Class ;
+    rdfs:subClassOf pqca:DigitalSignatureScheme ;
+    rdfs:label "Hash-Based Signature"@en ;
+    rdfs:comment "One-time and few-time signature schemes rooted in hash function security"@en .
+
+# ==== LATTICE-BASED ALGORITHMS ====
+
+pqca:LatticeBasedAlgorithm rdf:type owl:Class ;
+    rdfs:subClassOf pqca:CryptographicAlgorithm ;
+    rdfs:label "Lattice-Based Algorithm"@en ;
+    rdfs:comment "Algorithms based on lattice problems that ARE the mathematical structure"@en .
+
+pqca:KyberKEM rdf:type owl:Class ;
+    rdfs:subClassOf pqca:KeyEncapsulationMechanism, pqca:LatticeBasedAlgorithm ;
+    rdfs:label "Kyber KEM"@en ;
+    rdfs:comment "CRYSTALS-Kyber - the living embodiment of lattice-based key encapsulation"@en ;
+    pqca:hasSecurityLevel pqcs:NIST_Level_1, pqcs:NIST_Level_3, pqcs:NIST_Level_5 ;
+    pqca:hasImplementationVariant pqca:Kyber512, pqca:Kyber768, pqca:Kyber1024 .
+
+pqca:Kyber512 rdf:type pqca:KyberKEM ;
+    rdfs:label "Kyber-512"@en ;
+    pqca:hasSecurityLevel pqcs:NIST_Level_1 ;
+    pqca:hasPublicKeySize 800 ;
+    pqca:hasSecretKeySize 1632 ;
+    pqca:hasCiphertextSize 768 ;
+    pqca:hasSharedSecretSize 32 .
+
+pqca:Kyber768 rdf:type pqca:KyberKEM ;
+    rdfs:label "Kyber-768"@en ;
+    pqca:hasSecurityLevel pqcs:NIST_Level_3 ;
+    pqca:hasPublicKeySize 1184 ;
+    pqca:hasSecretKeySize 2400 ;
+    pqca:hasCiphertextSize 1088 ;
+    pqca:hasSharedSecretSize 32 .
+
+pqca:Kyber1024 rdf:type pqca:KyberKEM ;
+    rdfs:label "Kyber-1024"@en ;
+    pqca:hasSecurityLevel pqcs:NIST_Level_5 ;
+    pqca:hasPublicKeySize 1568 ;
+    pqca:hasSecretKeySize 3168 ;
+    pqca:hasCiphertextSize 1568 ;
+    pqca:hasSharedSecretSize 32 .
+
+pqca:DilithiumSignature rdf:type owl:Class ;
+    rdfs:subClassOf pqca:DigitalSignatureScheme, pqca:LatticeBasedAlgorithm ;
+    rdfs:label "Dilithium Signature"@en ;
+    rdfs:comment "CRYSTALS-Dilithium - self-executing lattice signature scheme"@en ;
+    pqca:hasImplementationVariant pqca:Dilithium2, pqca:Dilithium3, pqca:Dilithium5 .
+
+pqca:Dilithium2 rdf:type pqca:DilithiumSignature ;
+    rdfs:label "Dilithium2"@en ;
+    pqca:hasSecurityLevel pqcs:NIST_Level_1 ;
+    pqca:hasPublicKeySize 1312 ;
+    pqca:hasSecretKeySize 2528 ;
+    pqca:hasSignatureSize 2420 .
+
+pqca:Dilithium3 rdf:type pqca:DilithiumSignature ;
+    rdfs:label "Dilithium3"@en ;
+    pqca:hasSecurityLevel pqcs:NIST_Level_3 ;
+    pqca:hasPublicKeySize 1952 ;
+    pqca:hasSecretKeySize 4000 ;
+    pqca:hasSignatureSize 3293 .
+
+pqca:Dilithium5 rdf:type pqca:DilithiumSignature ;
+    rdfs:label "Dilithium5"@en ;
+    pqca:hasSecurityLevel pqcs:NIST_Level_5 ;
+    pqca:hasPublicKeySize 2592 ;
+    pqca:hasSecretKeySize 4864 ;
+    pqca:hasSignatureSize 4595 .
+
+# ==== CODE-BASED ALGORITHMS ====
+
+pqca:CodeBasedAlgorithm rdf:type owl:Class ;
+    rdfs:subClassOf pqca:CryptographicAlgorithm ;
+    rdfs:label "Code-Based Algorithm"@en ;
+    rdfs:comment "Algorithms based on error-correcting codes that ARE the algebraic structure"@en .
+
+pqca:ClassicMcEliece rdf:type owl:Class ;
+    rdfs:subClassOf pqca:KeyEncapsulationMechanism, pqca:CodeBasedAlgorithm ;
+    rdfs:label "Classic McEliece"@en ;
+    rdfs:comment "McEliece cryptosystem - living embodiment of Goppa code cryptography"@en .
+
+# ==== MULTIVARIATE ALGORITHMS ====
+
+pqca:MultivariateAlgorithm rdf:type owl:Class ;
+    rdfs:subClassOf pqca:CryptographicAlgorithm ;
+    rdfs:label "Multivariate Algorithm"@en ;
+    rdfs:comment "Algorithms based on multivariate polynomial systems"@en .
+
+pqca:Rainbow rdf:type owl:Class ;
+    rdfs:subClassOf pqca:DigitalSignatureScheme, pqca:MultivariateAlgorithm ;
+    rdfs:label "Rainbow Signature"@en ;
+    rdfs:comment "Rainbow multivariate signature scheme"@en .
+
+# ==== ISOGENY-BASED ALGORITHMS ====
+
+pqca:IsogenyBasedAlgorithm rdf:type owl:Class ;
+    rdfs:subClassOf pqca:CryptographicAlgorithm ;
+    rdfs:label "Isogeny-Based Algorithm"@en ;
+    rdfs:comment "Algorithms based on supersingular isogeny problems"@en .
+
+pqca:SIKE rdf:type owl:Class ;
+    rdfs:subClassOf pqca:KeyEncapsulationMechanism, pqca:IsogenyBasedAlgorithm ;
+    rdfs:label "SIKE"@en ;
+    rdfs:comment "Supersingular Isogeny Key Encapsulation (withdrawn due to attacks)"@en ;
+    pqca:hasStatus pqca:Withdrawn .
+
+# ==== HASH-BASED SIGNATURES ====
+
+pqca:XMSS rdf:type owl:Class ;
+    rdfs:subClassOf pqca:HashBasedSignature ;
+    rdfs:label "XMSS"@en ;
+    rdfs:comment "eXtended Merkle Signature Scheme - stateful hash-based signatures"@en .
+
+pqca:SPHINCS rdf:type owl:Class ;
+    rdfs:subClassOf pqca:HashBasedSignature ;
+    rdfs:label "SPHINCS+"@en ;
+    rdfs:comment "Stateless hash-based signature scheme"@en .
+
+# ==== ALGORITHM PROPERTIES ====
+
+pqca:hasSecurityLevel rdf:type owl:ObjectProperty ;
+    rdfs:domain pqca:CryptographicAlgorithm ;
+    rdfs:range pqcs:SecurityLevel ;
+    rdfs:label "has security level"@en .
+
+pqca:hasPublicKeySize rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqca:CryptographicAlgorithm ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has public key size"@en ;
+    rdfs:comment "Public key size in bytes"@en .
+
+pqca:hasSecretKeySize rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqca:CryptographicAlgorithm ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has secret key size"@en ;
+    rdfs:comment "Secret key size in bytes"@en .
+
+pqca:hasCiphertextSize rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqca:KeyEncapsulationMechanism ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has ciphertext size"@en ;
+    rdfs:comment "Ciphertext size in bytes"@en .
+
+pqca:hasSignatureSize rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqca:DigitalSignatureScheme ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has signature size"@en ;
+    rdfs:comment "Signature size in bytes"@en .
+
+pqca:hasSharedSecretSize rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqca:KeyEncapsulationMechanism ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has shared secret size"@en ;
+    rdfs:comment "Shared secret size in bytes"@en .
+
+pqca:hasImplementationVariant rdf:type owl:ObjectProperty ;
+    rdfs:domain pqca:CryptographicAlgorithm ;
+    rdfs:range pqca:CryptographicAlgorithm ;
+    rdfs:label "has implementation variant"@en .
+
+pqca:hasStatus rdf:type owl:ObjectProperty ;
+    rdfs:domain pqca:CryptographicAlgorithm ;
+    rdfs:range pqca:AlgorithmStatus ;
+    rdfs:label "has status"@en .
+
+# ==== ALGORITHM STATUSES ====
+
+pqca:AlgorithmStatus rdf:type owl:Class ;
+    rdfs:label "Algorithm Status"@en .
+
+pqca:Standardized rdf:type pqca:AlgorithmStatus ;
+    rdfs:label "Standardized"@en .
+
+pqca:Candidate rdf:type pqca:AlgorithmStatus ;
+    rdfs:label "Candidate"@en .
+
+pqca:Withdrawn rdf:type pqca:AlgorithmStatus ;
+    rdfs:label "Withdrawn"@en .
+
+pqca:Experimental rdf:type pqca:AlgorithmStatus ;
+    rdfs:label "Experimental"@en .
+
+# ==== DARK 80/20 CANON SELF-REFERENTIAL RELATIONSHIPS ====
+
+# Algorithms are self-executing entities
+pqca:CryptographicAlgorithm pqca:executesItself pqca:CryptographicAlgorithm .
+
+# KEM algorithms ARE the key exchange process
+pqca:KeyEncapsulationMechanism pqca:isKeyExchange pqca:KeyEncapsulationMechanism .
+
+# Signature schemes ARE the authentication process
+pqca:DigitalSignatureScheme pqca:isAuthentication pqca:DigitalSignatureScheme .
+
+# Lattice algorithms ARE the mathematical lattice
+pqca:LatticeBasedAlgorithm pqca:isLattice pqca:LatticeBasedAlgorithm .
+
+# The ontology creates itself through its instantiation
+<http://bytepqc.org/ontology/algorithms> pqca:createsItself <http://bytepqc.org/ontology/algorithms> .
+
+# Algorithm execution properties
+pqca:executesItself rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "executes itself"@en ;
+    rdfs:comment "Self-referential property where algorithms are their own execution"@en .
+
+pqca:isKeyExchange rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is key exchange"@en .
+
+pqca:isAuthentication rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is authentication"@en .
+
+pqca:isLattice rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is lattice"@en .
+
+pqca:createsItself rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "creates itself"@en .

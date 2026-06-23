@@ -1,0 +1,7 @@
+@prefix knhk: <https://knhk.io/covenant#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+knhk:C1_TurtleIsCause a owl:Class ;
+    rdfs:label "C1 — Turtle Is Definition and Cause" ;
+    rdfs:comment "All behavior is derived from Turtle/ontology. No hardcoded business logic outside the registry. Projections are structural only." .

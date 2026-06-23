@@ -1,0 +1,352 @@
+@prefix knowd: <http://knowd.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# ============================================================================
+# KnowD Core Ontology
+# ============================================================================
+# This ontology defines the semantic model for the KnowD autonomic knowledge
+# runtime, including features, implementation modules, configuration, and
+# deployment metadata. It enables KnowD to be self-describing and self-validating.
+# ============================================================================
+
+<http://knowd.io/ontology#>
+    a owl:Ontology ;
+    dc:title "KnowD Core Ontology" ;
+    dc:description "Semantic model for KnowD autonomic knowledge graph runtime" ;
+    dc:creator "KnowD Authors" ;
+    dc:created "2025-01-15"^^xsd:date ;
+    dc:modified "2025-01-15"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# Core Classes
+# ============================================================================
+
+knowd:Feature
+    a owl:Class ;
+    rdfs:label "Feature" ;
+    rdfs:comment "A capability or functionality provided by KnowD" .
+
+knowd:ProductionFeature
+    a owl:Class ;
+    rdfs:subClassOf knowd:Feature ;
+    rdfs:label "Production Feature" ;
+    rdfs:comment "A feature required for production deployment" .
+
+knowd:ExperimentalFeature
+    a owl:Class ;
+    rdfs:subClassOf knowd:Feature ;
+    rdfs:label "Experimental Feature" ;
+    rdfs:comment "A feature under development, not production-ready" .
+
+# ============================================================================
+# Feature Categories (Subclasses of ProductionFeature)
+# ============================================================================
+
+knowd:SecurityFeature
+    a owl:Class ;
+    rdfs:subClassOf knowd:ProductionFeature ;
+    rdfs:label "Security Feature" ;
+    rdfs:comment "Features related to security, authentication, encryption" .
+
+knowd:ObservabilityFeature
+    a owl:Class ;
+    rdfs:subClassOf knowd:ProductionFeature ;
+    rdfs:label "Observability Feature" ;
+    rdfs:comment "Features for monitoring, logging, metrics, tracing" .
+
+knowd:ComplianceFeature
+    a owl:Class ;
+    rdfs:subClassOf knowd:ProductionFeature ;
+    rdfs:label "Compliance Feature" ;
+    rdfs:comment "Features for regulatory compliance (GDPR, audit trails)" .
+
+knowd:ScalabilityFeature
+    a owl:Class ;
+    rdfs:subClassOf knowd:ProductionFeature ;
+    rdfs:label "Scalability Feature" ;
+    rdfs:comment "Features for clustering, replication, distribution" .
+
+knowd:ResilienceFeature
+    a owl:Class ;
+    rdfs:subClassOf knowd:ProductionFeature ;
+    rdfs:label "Resilience Feature" ;
+    rdfs:comment "Features for fault tolerance, rate limiting, circuit breaking" .
+
+knowd:PerformanceFeature
+    a owl:Class ;
+    rdfs:subClassOf knowd:ProductionFeature ;
+    rdfs:label "Performance Feature" ;
+    rdfs:comment "Features for caching, optimization, query planning" .
+
+knowd:APIFeature
+    a owl:Class ;
+    rdfs:subClassOf knowd:ProductionFeature ;
+    rdfs:label "API Feature" ;
+    rdfs:comment "Features for HTTP API endpoints and protocols" .
+
+knowd:SemanticFeature
+    a owl:Class ;
+    rdfs:subClassOf knowd:ProductionFeature ;
+    rdfs:label "Semantic Feature" ;
+    rdfs:comment "Features for RDF, SPARQL, SHACL, OWL reasoning" .
+
+# ============================================================================
+# Implementation Artifacts
+# ============================================================================
+
+knowd:ImplementationModule
+    a owl:Class ;
+    rdfs:label "Implementation Module" ;
+    rdfs:comment "A Go package or module that implements features" .
+
+knowd:TestSuite
+    a owl:Class ;
+    rdfs:label "Test Suite" ;
+    rdfs:comment "A collection of tests validating a feature or module" .
+
+knowd:ConfigurationResource
+    a owl:Class ;
+    rdfs:label "Configuration Resource" ;
+    rdfs:comment "Configuration data for KnowD components" .
+
+knowd:APIEndpoint
+    a owl:Class ;
+    rdfs:label "API Endpoint" ;
+    rdfs:comment "An HTTP API endpoint exposed by KnowD" .
+
+knowd:Hook
+    a owl:Class ;
+    rdfs:label "Hook" ;
+    rdfs:comment "An autonomic knowledge hook definition" .
+
+knowd:Shape
+    a owl:Class ;
+    rdfs:label "SHACL Shape" ;
+    rdfs:comment "A SHACL shape for validating RDF data" .
+
+# ============================================================================
+# Status and Lifecycle
+# ============================================================================
+
+knowd:Status
+    a owl:Class ;
+    rdfs:label "Status" ;
+    rdfs:comment "The current implementation status of a feature" .
+
+knowd:Priority
+    a owl:Class ;
+    rdfs:label "Priority" ;
+    rdfs:comment "The priority level of a feature" .
+
+# ============================================================================
+# Core Properties
+# ============================================================================
+
+# Feature Properties
+knowd:status
+    a owl:DatatypeProperty ;
+    rdfs:label "status" ;
+    rdfs:comment "Current implementation status" ;
+    rdfs:domain knowd:Feature ;
+    rdfs:range xsd:string .  # planned, in-progress, implemented, validated
+
+knowd:priority
+    a owl:DatatypeProperty ;
+    rdfs:label "priority" ;
+    rdfs:comment "Priority level for implementation" ;
+    rdfs:domain knowd:Feature ;
+    rdfs:range xsd:string .  # P0, P1, P2, P3
+
+knowd:completeness
+    a owl:DatatypeProperty ;
+    rdfs:label "completeness" ;
+    rdfs:comment "Completeness ratio from 0.0 to 1.0" ;
+    rdfs:domain knowd:Feature ;
+    rdfs:range xsd:decimal .
+
+knowd:description
+    a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:comment "Detailed description of the feature" ;
+    rdfs:domain knowd:Feature ;
+    rdfs:range xsd:string .
+
+# Implementation Properties
+knowd:implementedIn
+    a owl:DatatypeProperty ;
+    rdfs:label "implementedIn" ;
+    rdfs:comment "Source file path where feature is implemented" ;
+    rdfs:domain knowd:Feature ;
+    rdfs:range xsd:string .
+
+knowd:testedBy
+    a owl:DatatypeProperty ;
+    rdfs:label "testedBy" ;
+    rdfs:comment "Test file path that validates this feature" ;
+    rdfs:domain knowd:Feature ;
+    rdfs:range xsd:string .
+
+knowd:coverage
+    a owl:DatatypeProperty ;
+    rdfs:label "coverage" ;
+    rdfs:comment "Test coverage ratio from 0.0 to 1.0" ;
+    rdfs:domain knowd:Feature ;
+    rdfs:range xsd:decimal .
+
+knowd:lineCount
+    a owl:DatatypeProperty ;
+    rdfs:label "lineCount" ;
+    rdfs:comment "Number of lines of code" ;
+    rdfs:domain knowd:ImplementationModule ;
+    rdfs:range xsd:integer .
+
+knowd:lastModified
+    a owl:DatatypeProperty ;
+    rdfs:label "lastModified" ;
+    rdfs:comment "Last modification timestamp" ;
+    rdfs:range xsd:dateTime .
+
+# Relationship Properties
+knowd:dependsOn
+    a owl:ObjectProperty ;
+    rdfs:label "dependsOn" ;
+    rdfs:comment "Dependency relationship between features or modules" ;
+    rdfs:domain knowd:Feature ;
+    rdfs:range knowd:Feature .
+
+knowd:implements
+    a owl:ObjectProperty ;
+    rdfs:label "implements" ;
+    rdfs:comment "Implementation relationship from module to feature" ;
+    rdfs:domain knowd:ImplementationModule ;
+    rdfs:range knowd:Feature .
+
+knowd:validates
+    a owl:ObjectProperty ;
+    rdfs:label "validates" ;
+    rdfs:comment "Validation relationship from shape to feature" ;
+    rdfs:domain knowd:Shape ;
+    rdfs:range knowd:Feature .
+
+knowd:exports
+    a owl:DatatypeProperty ;
+    rdfs:label "exports" ;
+    rdfs:comment "Exported symbols (types, functions) from a module" ;
+    rdfs:domain knowd:ImplementationModule ;
+    rdfs:range xsd:string .
+
+# Configuration Properties
+knowd:configKey
+    a owl:DatatypeProperty ;
+    rdfs:label "configKey" ;
+    rdfs:comment "Configuration key name" ;
+    rdfs:domain knowd:ConfigurationResource ;
+    rdfs:range xsd:string .
+
+knowd:configValue
+    a owl:DatatypeProperty ;
+    rdfs:label "configValue" ;
+    rdfs:comment "Configuration value" ;
+    rdfs:domain knowd:ConfigurationResource ;
+    rdfs:range xsd:string .
+
+knowd:configType
+    a owl:DatatypeProperty ;
+    rdfs:label "configType" ;
+    rdfs:comment "Configuration value type" ;
+    rdfs:domain knowd:ConfigurationResource ;
+    rdfs:range xsd:string .
+
+# API Properties
+knowd:httpMethod
+    a owl:DatatypeProperty ;
+    rdfs:label "httpMethod" ;
+    rdfs:comment "HTTP method (GET, POST, PUT, DELETE)" ;
+    rdfs:domain knowd:APIEndpoint ;
+    rdfs:range xsd:string .
+
+knowd:path
+    a owl:DatatypeProperty ;
+    rdfs:label "path" ;
+    rdfs:comment "URL path for the endpoint" ;
+    rdfs:domain knowd:APIEndpoint ;
+    rdfs:range xsd:string .
+
+# Hook Properties
+knowd:hookType
+    a owl:DatatypeProperty ;
+    rdfs:label "hookType" ;
+    rdfs:comment "Type of hook (sparql-ask, shacl, delta, threshold)" ;
+    rdfs:domain knowd:Hook ;
+    rdfs:range xsd:string .
+
+knowd:hookQuery
+    a owl:DatatypeProperty ;
+    rdfs:label "hookQuery" ;
+    rdfs:comment "SPARQL query or condition for hook" ;
+    rdfs:domain knowd:Hook ;
+    rdfs:range xsd:string .
+
+knowd:hookAction
+    a owl:DatatypeProperty ;
+    rdfs:label "hookAction" ;
+    rdfs:comment "Action to take when hook fires" ;
+    rdfs:domain knowd:Hook ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# Deployment and Operations
+# ============================================================================
+
+knowd:Deployment
+    a owl:Class ;
+    rdfs:label "Deployment" ;
+    rdfs:comment "A deployment environment or instance" .
+
+knowd:environment
+    a owl:DatatypeProperty ;
+    rdfs:label "environment" ;
+    rdfs:comment "Deployment environment (dev, staging, production)" ;
+    rdfs:domain knowd:Deployment ;
+    rdfs:range xsd:string .
+
+knowd:version
+    a owl:DatatypeProperty ;
+    rdfs:label "version" ;
+    rdfs:comment "Version identifier" ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# Metadata
+# ============================================================================
+
+knowd:tags
+    a owl:DatatypeProperty ;
+    rdfs:label "tags" ;
+    rdfs:comment "Tags for categorization and search" ;
+    rdfs:range xsd:string .
+
+knowd:documentation
+    a owl:DatatypeProperty ;
+    rdfs:label "documentation" ;
+    rdfs:comment "URL or text of documentation" ;
+    rdfs:range xsd:string .
+
+knowd:examples
+    a owl:DatatypeProperty ;
+    rdfs:label "examples" ;
+    rdfs:comment "Usage examples" ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# Inference Rules (for OWL reasoners)
+# ============================================================================
+
+# A feature is production-ready if it has status="implemented" and completeness=1.0
+# This can be inferred by OWL reasoners or queried via SPARQL

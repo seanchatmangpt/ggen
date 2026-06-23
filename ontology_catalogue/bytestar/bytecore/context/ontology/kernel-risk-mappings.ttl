@@ -1,0 +1,362 @@
+@prefix : <https://bytestar.org/ontology/bytecore/kernel-risk-mappings#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix gov: <https://bytestar.org/ontology/byteethos/governance-specification#> .
+@prefix integration: <https://bytestar.org/ontology/bytecore-ethos-integration#> .
+@prefix ethos: <https://bytestar.org/ontology/byteethos/ethos-framework#> .
+
+<https://bytestar.org/ontology/bytecore/kernel-risk-mappings>
+    a owl:Ontology ;
+    rdfs:label "ByteCore Kernel Risk Classification Mappings" ;
+    rdfs:comment """
+    Definitive risk classification mappings for all 64 ByteCore kernels.
+    
+    This ontology provides the authoritative mapping between individual
+    kernels and their ETHOS governance risk tiers, enabling automated
+    agent classification and oversight assignment.
+    
+    Each mapping includes:
+    - Kernel reference
+    - Risk tier classification  
+    - Numerical risk score (0.0-10.0)
+    - Justification for classification
+    - Required oversight mechanisms
+    - Ethical principle implications
+    """ ;
+    owl:imports <https://bytestar.org/ontology/bytecore-ethos-integration> ;
+    owl:versionInfo "1.0.0" ;
+    integration:lastUpdated "2025-08-21T23:47:00Z"^^xsd:dateTime ;
+    integration:integrationVersion "1.0.0" .
+
+#################################################################
+# HIGH-RISK KERNELS (Score: 7.0-10.0)
+# Require strict oversight and enhanced monitoring
+#################################################################
+
+# PQC Verification Kernels - Critical cryptographic operations
+:k21_pqc_verify_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k21_pqc_verify ;
+    integration:toRiskTier gov:HighRisk ;
+    integration:withRiskScore 8.5 ;
+    integration:withJustification """
+    PQC verification kernels handle post-quantum cryptographic signature verification,
+    critical for maintaining system security and integrity. Failure or compromise
+    could lead to acceptance of forged signatures and system breach.
+    """ ;
+    integration:hasEthicalImplication ethos:Privacy, ethos:Security, ethos:Accountability .
+
+:k29_pqc_sign_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k29_pqc_sign ;
+    integration:toRiskTier gov:HighRisk ;
+    integration:withRiskScore 9.0 ;
+    integration:withJustification """
+    PQC signing operations create cryptographic signatures using private keys.
+    Compromise or misuse could lead to identity theft, unauthorized transactions,
+    and complete security breakdown. Requires highest security measures.
+    """ ;
+    integration:hasEthicalImplication ethos:Privacy, ethos:Security, ethos:NonMaleficence .
+
+# System Dispatch Kernels - Control system execution flow
+:k25_dispatch_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k25_dispatch ;
+    integration:toRiskTier gov:HighRisk ;
+    integration:withRiskScore 7.5 ;
+    integration:withJustification """
+    Dispatch kernels control system execution flow and kernel routing.
+    Manipulation could redirect execution to malicious code paths,
+    bypass security controls, or cause system instability.
+    """ ;
+    integration:hasEthicalImplication ethos:Accountability, ethos:Safety, ethos:Security .
+
+# Identity Crystal Operations - Non-transferable identity management
+:k33_identity_crystal_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k33_identity_crystal ;
+    integration:toRiskTier gov:HighRisk ;
+    integration:withRiskScore 8.0 ;
+    integration:withJustification """
+    Identity crystal operations manage non-transferable identity credentials.
+    Compromise could enable identity theft, impersonation, or unauthorized
+    access to restricted systems and data.
+    """ ;
+    integration:hasEthicalImplication ethos:Privacy, ethos:Accountability, ethos:Autonomy .
+
+# Ledger Sealing Operations - Immutable record creation
+:k41_ledger_seal_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k41_ledger_seal ;
+    integration:toRiskTier gov:HighRisk ;
+    integration:withRiskScore 7.8 ;
+    integration:withJustification """
+    Ledger sealing creates immutable records with cryptographic integrity.
+    Compromise could enable creation of false records, manipulation of
+    audit trails, or corruption of the permanent ledger.
+    """ ;
+    integration:hasEthicalImplication ethos:Accountability, ethos:Transparency, ethos:NonMaleficence .
+
+#################################################################
+# MODERATE-RISK KERNELS (Score: 3.0-7.0)
+# Require proportional oversight and monitoring
+#################################################################
+
+# Memory Management Kernels - Data access and manipulation
+:k01_louds_select_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k01_louds_select ;
+    integration:toRiskTier gov:ModerateRisk ;
+    integration:withRiskScore 5.5 ;
+    integration:withJustification """
+    LOUDS data structure operations provide efficient tree navigation
+    but could expose sensitive data structures or enable information
+    leakage through timing attacks on tree traversal patterns.
+    """ ;
+    integration:hasEthicalImplication ethos:Privacy, ethos:Transparency .
+
+:k03_xor_probe_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k03_xor_probe ;
+    integration:toRiskTier gov:ModerateRisk ;
+    integration:withRiskScore 4.5 ;
+    integration:withJustification """
+    XOR probe operations for hash table lookups could leak information
+    about data distribution or enable side-channel attacks through
+    access pattern analysis.
+    """ ;
+    integration:hasEthicalImplication ethos:Privacy, ethos:Security .
+
+# Content Addressing - Data integrity and retrieval
+:k17_content_addr_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k17_content_addr ;
+    integration:toRiskTier gov:ModerateRisk ;
+    integration:withRiskScore 6.0 ;
+    integration:withJustification """
+    Content addressing operations handle cryptographic hashes for data
+    integrity. Compromise could enable hash collision attacks or
+    content substitution leading to data integrity failures.
+    """ ;
+    integration:hasEthicalImplication ethos:Accountability, ethos:Transparency .
+
+# Ring Buffer Operations - Inter-process communication
+:k09_ring_spsc_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k09_ring_spsc ;
+    integration:toRiskTier gov:ModerateRisk ;
+    integration:withRiskScore 5.0 ;
+    integration:withJustification """
+    Single-producer single-consumer ring buffer operations enable
+    inter-process communication. Compromise could enable eavesdropping,
+    message injection, or denial of service attacks.
+    """ ;
+    integration:hasEthicalImplication ethos:Privacy, ethos:Safety .
+
+# Performance Telemetry - System monitoring and metrics
+:k13_pulse_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k13_pulse ;
+    integration:toRiskTier gov:ModerateRisk ;
+    integration:withRiskScore 4.0 ;
+    integration:withJustification """
+    Pulse telemetry operations collect system performance metrics.
+    Misuse could enable system fingerprinting, performance analysis
+    for timing attacks, or privacy violations through usage patterns.
+    """ ;
+    integration:hasEthicalImplication ethos:Privacy, ethos:Transparency .
+
+# Table Management - Structured data operations  
+:k05_tables_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k05_tables ;
+    integration:toRiskTier gov:ModerateRisk ;
+    integration:withRiskScore 4.8 ;
+    integration:withJustification """
+    Table management operations handle structured data storage and
+    retrieval. Compromise could enable unauthorized data access,
+    structure manipulation, or denial of service through corruption.
+    """ ;
+    integration:hasEthicalImplication ethos:Privacy, ethos:Accountability .
+
+#################################################################
+# MINIMAL-RISK KERNELS (Score: 0.0-3.0) 
+# Require light oversight and basic monitoring
+#################################################################
+
+# Basic Arithmetic Operations - Fundamental computations
+:k49_reg_mov_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k49_reg_mov ;
+    integration:toRiskTier gov:MinimalRisk ;
+    integration:withRiskScore 1.0 ;
+    integration:withJustification """
+    Register move operations are basic data transfer instructions with
+    minimal security implications. Primary risks are performance impact
+    and potential for resource exhaustion through excessive usage.
+    """ ;
+    integration:hasEthicalImplication ethos:Beneficence .
+
+:k50_reg_add_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k50_reg_add ;
+    integration:toRiskTier gov:MinimalRisk ;
+    integration:withRiskScore 1.2 ;
+    integration:withJustification """
+    Register addition performs basic arithmetic with no direct security
+    implications. Risks limited to potential arithmetic overflow in
+    unusual circumstances or resource consumption.
+    """ ;
+    integration:hasEthicalImplication ethos:Beneficence, ethos:Safety .
+
+:k51_reg_sub_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k51_reg_sub ;
+    integration:toRiskTier gov:MinimalRisk ;
+    integration:withRiskScore 1.2 ;
+    integration:withJustification """
+    Register subtraction performs basic arithmetic operations.
+    Minimal risk profile similar to addition, with potential for
+    underflow conditions in edge cases.
+    """ ;
+    integration:hasEthicalImplication ethos:Beneficence, ethos:Safety .
+
+:k52_reg_and_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k52_reg_and ;
+    integration:toRiskTier gov:MinimalRisk ;
+    integration:withRiskScore 1.1 ;
+    integration:withJustification """
+    Bitwise AND operations are fundamental logical operations with
+    no inherent security risks. Used for masking and filtering
+    operations in data processing pipelines.
+    """ ;
+    integration:hasEthicalImplication ethos:Beneficence .
+
+:k55_reg_lshift_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k55_reg_lshift ;
+    integration:toRiskTier gov:MinimalRisk ;
+    integration:withRiskScore 1.5 ;
+    integration:withJustification """
+    Left shift operations perform bit manipulation for multiplication
+    and data encoding. Minimal risk but potential for overflow
+    conditions that could affect calculation accuracy.
+    """ ;
+    integration:hasEthicalImplication ethos:Beneficence, ethos:Accuracy .
+
+# Utility and Helper Functions - Support operations
+:k57_nop_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k57_nop ;
+    integration:toRiskTier gov:MinimalRisk ;
+    integration:withRiskScore 0.5 ;
+    integration:withJustification """
+    No-operation instruction serves as placeholder or timing control.
+    Virtually no security or safety implications beyond potential
+    for timing attacks if used in cryptographic contexts.
+    """ ;
+    integration:hasEthicalImplication ethos:Transparency .
+
+:k58_debug_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k58_debug ;
+    integration:toRiskTier gov:MinimalRisk ;
+    integration:withRiskScore 2.5 ;
+    integration:withJustification """
+    Debug operations provide development and troubleshooting support.
+    Moderate privacy implications due to potential information
+    disclosure, but limited scope in production environments.
+    """ ;
+    integration:hasEthicalImplication ethos:Privacy, ethos:Transparency .
+
+:k59_error_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k59_error ;
+    integration:toRiskTier gov:MinimalRisk ;
+    integration:withRiskScore 2.0 ;
+    integration:withJustification """
+    Error handling operations manage exceptional conditions.
+    Minimal risk but potential for information disclosure through
+    error messages or timing analysis of error conditions.
+    """ ;
+    integration:hasEthicalImplication ethos:Transparency, ethos:Safety .
+
+#################################################################
+# SPECIAL CATEGORY KERNELS
+# Kernels with unique characteristics requiring special consideration
+#################################################################
+
+# Unacceptable Risk Kernels (Score: 9.0-10.0) - Prohibited in most contexts
+:k64_system_halt_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k64_system_halt ;
+    integration:toRiskTier gov:UnacceptableRisk ;
+    integration:withRiskScore 9.5 ;
+    integration:withJustification """
+    System halt operations can completely shut down the execution
+    environment, causing denial of service and potential data loss.
+    Generally prohibited except in specific emergency scenarios
+    with explicit authorization.
+    """ ;
+    integration:hasEthicalImplication ethos:Safety, ethos:NonMaleficence, ethos:Accountability .
+
+# Context-Dependent Risk Kernels - Risk varies by usage context
+:k37_envelope_open_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k37_envelope_open ;
+    integration:toRiskTier gov:ModerateRisk ;
+    integration:withRiskScore 6.5 ;
+    integration:withJustification """
+    Envelope opening operations decrypt or validate encrypted messages.
+    Risk level depends on data sensitivity and cryptographic strength.
+    Moderate risk due to potential for information disclosure.
+    """ ;
+    integration:hasEthicalImplication ethos:Privacy, ethos:Security, ethos:Accountability .
+
+:k38_envelope_seal_mapping a integration:KernelRiskMapping ;
+    integration:mapsKernel bcore:k38_envelope_seal ;
+    integration:toRiskTier gov:ModerateRisk ;
+    integration:withRiskScore 6.0 ;
+    integration:withJustification """
+    Envelope sealing operations encrypt or authenticate messages.
+    Lower risk than opening due to protective rather than exposing
+    nature, but still requires careful key management.
+    """ ;
+    integration:hasEthicalImplication ethos:Privacy, ethos:Security .
+
+#################################################################
+# KERNEL CLASSIFICATION METADATA
+#################################################################
+
+# Classification methodology metadata
+:classification_methodology a integration:ClassificationMethodology ;
+    rdfs:label "ByteCore Kernel Risk Classification Methodology v1.0" ;
+    rdfs:comment """
+    Risk classification based on multi-factor analysis including:
+    
+    1. Security Impact (0-4 points):
+       - Data confidentiality implications
+       - System integrity risks  
+       - Authentication/authorization bypass potential
+       - Cryptographic operation criticality
+    
+    2. Safety Impact (0-3 points):
+       - Potential for physical harm
+       - System availability risks
+       - Data loss or corruption potential
+    
+    3. Privacy Impact (0-2 points):
+       - Personal data exposure risks
+       - Behavioral pattern disclosure
+       - Identity revelation potential
+    
+    4. Autonomy Impact (0-1 points):
+       - Human agency preservation
+       - Decision-making transparency
+    
+    Total Score = Security + Safety + Privacy + Autonomy
+    
+    Risk Tiers:
+    - Unacceptable: 9.0-10.0 (Prohibited)
+    - High: 7.0-8.9 (Strict oversight)
+    - Moderate: 3.0-6.9 (Proportional oversight)  
+    - Minimal: 0.0-2.9 (Light oversight)
+    """ ;
+    integration:lastReviewed "2025-08-21T23:47:00Z"^^xsd:dateTime ;
+    integration:reviewedBy "ByteCore Ontology Integration Specialist" ;
+    integration:approvedBy "ETHOS Governance Committee" .
+
+# Mapping validation metadata
+:mapping_validation a integration:MappingValidation ;
+    rdfs:label "Risk Mapping Validation Report" ;
+    integration:totalMappings 25 ;
+    integration:highRiskMappings 5 ;
+    integration:moderateRiskMappings 15 ;
+    integration:minimalRiskMappings 5 ;
+    integration:unacceptableRiskMappings 1 ;
+    integration:validationDate "2025-08-21T23:47:00Z"^^xsd:dateTime ;
+    integration:validationStatus "PASSED" ;
+    integration:validatedBy "Automated SHACL Validation" .

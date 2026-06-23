@@ -1,0 +1,282 @@
+@prefix : <http://osiris.example.com/domains#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# ==============================================================================
+# LIFE DOMAIN DEFINITIONS
+# ==============================================================================
+
+:LifeDomain a owl:Class ;
+    rdfs:label "Life Domain" ;
+    rdfs:comment "A distinct area of human life that requires management and optimization" .
+
+# Health Domain
+:HealthDomain a :LifeDomain ;
+    rdfs:label "Health" ;
+    rdfs:comment "Manages physical, mental, and spiritual wellness" ;
+    :goalTemplates (:ExerciseGoal :NutritionGoal :SleepGoal :MentalHealthGoal) ;
+    :metrics (:ExerciseMinutes :SleepHours :StressLevel :EnergyLevel) ;
+    :agentType :HealthAgent ;
+    :healthScoreThreshold "0.7"^^xsd:float .
+
+# Career Domain
+:CareerDomain a :LifeDomain ;
+    rdfs:label "Career" ;
+    rdfs:comment "Manages professional growth and career progression" ;
+    :goalTemplates (:SkillGoal :CareerAdvancementGoal :NetworkingGoal :ProjectGoal) ;
+    :metrics (:SkillsAcquired :SalaryGrowth :NetworkSize :ProjectsCompleted) ;
+    :agentType :CareerAgent ;
+    :healthScoreThreshold "0.7"^^xsd:float .
+
+# Relationship Domain
+:RelationshipDomain a :LifeDomain ;
+    rdfs:label "Relationships" ;
+    rdfs:comment "Manages personal and professional relationships" ;
+    :goalTemplates (:FamilyTimeGoal :FriendshipGoal :MentoringGoal :CommunityGoal) ;
+    :metrics (:QualityTime :ConnectionStrength :SocialSupport :CommunityEngagement) ;
+    :agentType :RelationshipAgent ;
+    :healthScoreThreshold "0.65"^^xsd:float .
+
+# Finance Domain
+:FinanceDomain a :LifeDomain ;
+    rdfs:label "Finance" ;
+    rdfs:comment "Manages personal financial resources" ;
+    :goalTemplates (:SavingsGoal :InvestmentGoal :DebtReductionGoal :BudgetingGoal) ;
+    :metrics (:SavingsRate :NetWorth :InvestmentReturn :BudgetVariance) ;
+    :agentType :FinanceAgent ;
+    :healthScoreThreshold "0.72"^^xsd:float .
+
+# Learning Domain
+:LearningDomain a :LifeDomain ;
+    rdfs:label "Learning" ;
+    rdfs:comment "Manages continuous learning and self-improvement" ;
+    :goalTemplates (:CertificationGoal :BookGoal :CourseGoal :SkillPracticingGoal) ;
+    :metrics (:CoursesCompleted :BooksRead :HoursPracticed :CertificationsEarned) ;
+    :agentType :LearningAgent ;
+    :healthScoreThreshold "0.68"^^xsd:float .
+
+# Spirituality Domain
+:SpiritualityDomain a :LifeDomain ;
+    rdfs:label "Spirituality" ;
+    rdfs:comment "Manages spiritual and mindfulness practices" ;
+    :goalTemplates (:MeditationGoal :ReflectionGoal :PurposeGoal :MindfulnessGoal) ;
+    :metrics (:MeditationMinutes :PeacefulnessLevel :PurposeClarityScore :MindfulnessPractices) ;
+    :agentType :SpiritualityAgent ;
+    :healthScoreThreshold "0.65"^^xsd:float .
+
+# ==============================================================================
+# DOMAIN AGENT SPECIFICATIONS
+# ==============================================================================
+
+:DomainAgent a owl:Class ;
+    rdfs:label "Domain Agent" ;
+    rdfs:comment "Autonomous agent managing a specific life domain" ;
+    :properties (:autonomyLevel :decisionFramework :toolCapabilities :learningMechanism) .
+
+:HealthAgent a :DomainAgent ;
+    rdfs:label "Health Agent" ;
+    :manages :HealthDomain ;
+    :capabilities (:FitnessRecommendation :MealPlanning :SleepAnalysis :StressManagement) ;
+    :autonomyLevel "high"^^xsd:string ;
+    :decisionFramework "health-score-based" ;
+    :learningMechanism "outcome-tracking" .
+
+:CareerAgent a :DomainAgent ;
+    rdfs:label "Career Agent" ;
+    :manages :CareerDomain ;
+    :capabilities (:JobSearching :SkillAssessment :CareerPathing :NetworkBuilding) ;
+    :autonomyLevel "high"^^xsd:string ;
+    :decisionFramework "career-goal-based" ;
+    :learningMechanism "success-pattern-tracking" .
+
+:RelationshipAgent a :DomainAgent ;
+    rdfs:label "Relationship Agent" ;
+    :manages :RelationshipDomain ;
+    :capabilities (:EventScheduling :MessageTemplating :ConnectionTracking :CommunityNetworking) ;
+    :autonomyLevel "medium"^^xsd:string ;
+    :decisionFramework "relationship-priority-based" ;
+    :learningMechanism "interaction-outcome-tracking" .
+
+:FinanceAgent a :DomainAgent ;
+    rdfs:label "Finance Agent" ;
+    :manages :FinanceDomain ;
+    :capabilities (:Budgeting :SavingsCalculation :InvestmentAnalysis :DebtPlanning) ;
+    :autonomyLevel "medium"^^xsd:string ;
+    :decisionFramework "risk-reward-based" ;
+    :learningMechanism "financial-outcome-tracking" .
+
+:LearningAgent a :DomainAgent ;
+    rdfs:label "Learning Agent" ;
+    :manages :LearningDomain ;
+    :capabilities (:CourseRecommendation :ReadingListGeneration :PracticeExercises :SkillMapping) ;
+    :autonomyLevel "high"^^xsd:string ;
+    :decisionFramework "skill-gap-based" ;
+    :learningMechanism "progress-tracking" .
+
+:SpiritualityAgent a :DomainAgent ;
+    rdfs:label "Spirituality Agent" ;
+    :manages :SpiritualityDomain ;
+    :capabilities (:MeditationGuides :ReflectionPrompts :PurposeClarification :MindfulnessExercises) ;
+    :autonomyLevel "high"^^xsd:string ;
+    :decisionFramework "wellness-feeling-based" ;
+    :learningMechanism "practice-effectiveness-tracking" .
+
+# ==============================================================================
+# DOMAIN BALANCING STRATEGIES
+# ==============================================================================
+
+:BalancingStrategy a owl:Class ;
+    rdfs:label "Domain Balancing Strategy" ;
+    rdfs:comment "Strategy for achieving life balance across domains" .
+
+:ConsensusVoting a :BalancingStrategy ;
+    rdfs:label "Consensus Voting" ;
+    rdfs:comment "Agents vote on resource allocation with weighted voting" ;
+    :votingWeight "1.0"^^xsd:float ;
+    :consensusThreshold "0.67"^^xsd:float ;
+    :conflictResolution :majority-with-constraint .
+
+:ImbalanceDetection a :BalancingStrategy ;
+    rdfs:label "Imbalance Detection" ;
+    rdfs:comment "Detects when domains are neglected (score < threshold)" ;
+    :detectionThreshold "0.65"^^xsd:float ;
+    :rebalancingTrigger :urgent ;
+    :recoveryTime "7"^^xsd:integer .
+
+:ResourceAllocation a :BalancingStrategy ;
+    rdfs:label "Resource Allocation" ;
+    rdfs:comment "Allocates time and attention based on domain priority" ;
+    :allocationMethod :proportional-to-gap ;
+    :maxAllocationPerDomain "25"^^xsd:float ;
+    :minAllocationPerDomain "5"^^xsd:float .
+
+# ==============================================================================
+# GOAL DEFINITIONS
+# ==============================================================================
+
+:Goal a owl:Class ;
+    rdfs:label "Goal" ;
+    rdfs:comment "Measurable objective within a domain" ;
+    :properties (:targetValue :deadline :priority :successCriteria) .
+
+:ExerciseGoal a :Goal ;
+    rdfs:label "Exercise Goal" ;
+    :domain :HealthDomain ;
+    :targetValue "150"^^xsd:integer ;
+    :unit "minutes/week" ;
+    :deadline "7"^^xsd:integer .
+
+:NutritionGoal a :Goal ;
+    rdfs:label "Nutrition Goal" ;
+    :domain :HealthDomain ;
+    :targetValue "80"^^xsd:float ;
+    :unit "percent-healthy-meals" ;
+    :deadline "7"^^xsd:integer .
+
+:SleepGoal a :Goal ;
+    rdfs:label "Sleep Goal" ;
+    :domain :HealthDomain ;
+    :targetValue "7.5"^^xsd:float ;
+    :unit "hours/night" ;
+    :deadline "1"^^xsd:integer .
+
+:SkillGoal a :Goal ;
+    rdfs:label "Skill Goal" ;
+    :domain :CareerDomain ;
+    :targetValue "1"^^xsd:integer ;
+    :unit "new-skills" ;
+    :deadline "30"^^xsd:integer .
+
+:SavingsGoal a :Goal ;
+    rdfs:label "Savings Goal" ;
+    :domain :FinanceDomain ;
+    :targetValue "500"^^xsd:float ;
+    :unit "dollars/month" ;
+    :deadline "30"^^xsd:integer .
+
+# ==============================================================================
+# SELF-IMPROVEMENT PATTERNS
+# ==============================================================================
+
+:ImprovementPattern a owl:Class ;
+    rdfs:label "Improvement Pattern" ;
+    rdfs:comment "Pattern for identifying and implementing improvements" .
+
+:OutcomeTracking a :ImprovementPattern ;
+    rdfs:label "Outcome Tracking" ;
+    rdfs:comment "Track actions and their outcomes to learn causality" ;
+    :trackingFrequency "daily" ;
+    :analysisFrequency "weekly" ;
+    :learningMechanism :reinforcement-learning .
+
+:ActionRecommendation a :ImprovementPattern ;
+    rdfs:label "Action Recommendation" ;
+    rdfs:comment "Recommend actions based on learned effectiveness" ;
+    :baselineSourceMethod :historical-data ;
+    :adaptationSpeed :medium ;
+    :explorationRate "0.2"^^xsd:float .
+
+:AgentLearningSharing a :ImprovementPattern ;
+    rdfs:label "Agent Learning Sharing" ;
+    rdfs:comment "Share successful patterns between agents" ;
+    :sharingFrequency "weekly" ;
+    :sharingMechanism :consensus-filtered ;
+    :validationRequired true .
+
+# ==============================================================================
+# MCP TOOL DEFINITIONS
+# ==============================================================================
+
+:MCPTool a owl:Class ;
+    rdfs:label "MCP Tool" ;
+    rdfs:comment "Tool accessible via Model Context Protocol" ;
+    :properties (:toolName :inputSchema :outputSchema :agentCapability) .
+
+# Health Tools
+:FitnessRecommendation a :MCPTool ;
+    rdfs:label "Fitness Recommendation" ;
+    :toolName "recommend_workout" ;
+    :domain :HealthDomain ;
+    :inputs (:fitness-level :available-time :equipment) ;
+    :outputs (:workout-plan :expected-calories :difficulty-level) .
+
+:MealPlanning a :MCPTool ;
+    rdfs:label "Meal Planning" ;
+    :toolName "plan_meals" ;
+    :domain :HealthDomain ;
+    :inputs (:dietary-preferences :meal-count :time-budget) ;
+    :outputs (:meal-plan :nutrition-summary :shopping-list) .
+
+# Career Tools
+:JobSearching a :MCPTool ;
+    rdfs:label "Job Searching" ;
+    :toolName "search_jobs" ;
+    :domain :CareerDomain ;
+    :inputs (:skills :location :salary-range) ;
+    :outputs (:job-listings :fit-score :application-strategy) .
+
+# Finance Tools
+:Budgeting a :MCPTool ;
+    rdfs:label "Budgeting" ;
+    :toolName "create_budget" ;
+    :domain :FinanceDomain ;
+    :inputs (:income :expenses :goals) ;
+    :outputs (:budget-plan :monthly-allocation :variance-alerts) .
+
+# Learning Tools
+:CourseRecommendation a :MCPTool ;
+    rdfs:label "Course Recommendation" ;
+    :toolName "recommend_courses" ;
+    :domain :LearningDomain ;
+    :inputs (:skill-gap :learning-style :time-available) ;
+    :outputs (:course-list :curriculum-path :estimated-completion-time) .
+
+# Spirituality Tools
+:MeditationGuides a :MCPTool ;
+    rdfs:label "Meditation Guides" ;
+    :toolName "guide_meditation" ;
+    :domain :SpiritualityDomain ;
+    :inputs (:meditation-level :duration :intention) ;
+    :outputs (:guided-session :focus-area :mindfulness-tips) .

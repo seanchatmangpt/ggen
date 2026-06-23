@@ -1,0 +1,432 @@
+@prefix tcps: <http://taiea.ai/ontology/tcps#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# =====================================================
+# TCPS Root Cause Analysis Ontology
+#
+# Toyota Production System's 5 Whys methodology
+# applied to software production quality management.
+# =====================================================
+
+# =====================================================
+# Classes
+# =====================================================
+
+tcps:RootCauseAnalysis a owl:Class ;
+    rdfs:label "Root Cause Analysis"@en ;
+    rdfs:comment "A systematic 5 Whys analysis of an Andon event to determine root cause and prevention actions"@en ;
+    rdfs:subClassOf tcps:QualityProcess .
+
+tcps:FiveWhysChain a owl:Class ;
+    rdfs:label "Five Whys Chain"@en ;
+    rdfs:comment "Sequential chain of 5 why questions and answers leading to root cause"@en .
+
+tcps:WhyQuestion a owl:Class ;
+    rdfs:label "Why Question"@en ;
+    rdfs:comment "A single why question and answer in the 5 Whys chain"@en .
+
+tcps:PreventionDelta a owl:Class ;
+    rdfs:label "Prevention Delta"@en ;
+    rdfs:comment "Automated prevention actions derived from root cause analysis"@en ;
+    rdfs:subClassOf tcps:Kaizen .
+
+tcps:ShaclAddition a owl:Class ;
+    rdfs:label "SHACL Shape Addition"@en ;
+    rdfs:comment "SHACL constraint to add for preventing recurrence"@en ;
+    rdfs:subClassOf tcps:PokaYoke .
+
+tcps:TestAddition a owl:Class ;
+    rdfs:label "Test Case Addition"@en ;
+    rdfs:comment "Test case to add based on failure analysis"@en ;
+    rdfs:subClassOf tcps:Jidoka .
+
+tcps:TemplateImprovement a owl:Class ;
+    rdfs:label "Template Improvement"@en ;
+    rdfs:comment "Template modification to prevent issue recurrence"@en ;
+    rdfs:subClassOf tcps:StandardWork .
+
+tcps:DependencyPin a owl:Class ;
+    rdfs:label "Dependency Pin"@en ;
+    rdfs:comment "Dependency version constraint to ensure determinism"@en ;
+    rdfs:subClassOf tcps:Determinism .
+
+# =====================================================
+# Properties - Root Cause Analysis
+# =====================================================
+
+tcps:analysisId a owl:DatatypeProperty ;
+    rdfs:label "analysis ID"@en ;
+    rdfs:domain tcps:RootCauseAnalysis ;
+    rdfs:range xsd:string .
+
+tcps:andonEventId a owl:ObjectProperty ;
+    rdfs:label "andon event ID"@en ;
+    rdfs:domain tcps:RootCauseAnalysis ;
+    rdfs:range tcps:AndonEvent .
+
+tcps:problemStatement a owl:DatatypeProperty ;
+    rdfs:label "problem statement"@en ;
+    rdfs:domain tcps:RootCauseAnalysis ;
+    rdfs:range xsd:string .
+
+tcps:hasFiveWhysChain a owl:ObjectProperty ;
+    rdfs:label "has 5 whys chain"@en ;
+    rdfs:domain tcps:RootCauseAnalysis ;
+    rdfs:range tcps:FiveWhysChain .
+
+tcps:rootCause a owl:DatatypeProperty ;
+    rdfs:label "root cause"@en ;
+    rdfs:domain tcps:RootCauseAnalysis ;
+    rdfs:range xsd:string .
+
+tcps:preventionAction a owl:DatatypeProperty ;
+    rdfs:label "prevention action"@en ;
+    rdfs:domain tcps:RootCauseAnalysis ;
+    rdfs:range xsd:string .
+
+tcps:hasPreventionDelta a owl:ObjectProperty ;
+    rdfs:label "has prevention delta"@en ;
+    rdfs:domain tcps:RootCauseAnalysis ;
+    rdfs:range tcps:PreventionDelta .
+
+tcps:analysisStatus a owl:DatatypeProperty ;
+    rdfs:label "analysis status"@en ;
+    rdfs:domain tcps:RootCauseAnalysis ;
+    rdfs:range xsd:string .
+# Expected values: "pending", "in_progress", "finalized"
+
+tcps:createdAt a owl:DatatypeProperty ;
+    rdfs:label "created at"@en ;
+    rdfs:domain tcps:RootCauseAnalysis ;
+    rdfs:range xsd:dateTime .
+
+tcps:updatedAt a owl:DatatypeProperty ;
+    rdfs:label "updated at"@en ;
+    rdfs:domain tcps:RootCauseAnalysis ;
+    rdfs:range xsd:dateTime .
+
+tcps:finalizedAt a owl:DatatypeProperty ;
+    rdfs:label "finalized at"@en ;
+    rdfs:domain tcps:RootCauseAnalysis ;
+    rdfs:range xsd:dateTime .
+
+tcps:analysisDurationMs a owl:DatatypeProperty ;
+    rdfs:label "analysis duration (ms)"@en ;
+    rdfs:domain tcps:RootCauseAnalysis ;
+    rdfs:range xsd:integer .
+
+# =====================================================
+# Properties - Five Whys Chain
+# =====================================================
+
+tcps:hasWhyQuestion a owl:ObjectProperty ;
+    rdfs:label "has why question"@en ;
+    rdfs:domain tcps:FiveWhysChain ;
+    rdfs:range tcps:WhyQuestion .
+
+tcps:whyNumber a owl:DatatypeProperty ;
+    rdfs:label "why number"@en ;
+    rdfs:domain tcps:WhyQuestion ;
+    rdfs:range xsd:integer .
+# Expected values: 1, 2, 3, 4, 5
+
+tcps:whyQuestion a owl:DatatypeProperty ;
+    rdfs:label "why question text"@en ;
+    rdfs:domain tcps:WhyQuestion ;
+    rdfs:range xsd:string .
+
+tcps:whyAnswer a owl:DatatypeProperty ;
+    rdfs:label "why answer text"@en ;
+    rdfs:domain tcps:WhyQuestion ;
+    rdfs:range xsd:string .
+
+# =====================================================
+# Properties - Prevention Delta
+# =====================================================
+
+tcps:hasShaclAddition a owl:ObjectProperty ;
+    rdfs:label "has SHACL addition"@en ;
+    rdfs:domain tcps:PreventionDelta ;
+    rdfs:range tcps:ShaclAddition .
+
+tcps:hasTestAddition a owl:ObjectProperty ;
+    rdfs:label "has test addition"@en ;
+    rdfs:domain tcps:PreventionDelta ;
+    rdfs:range tcps:TestAddition .
+
+tcps:hasTemplateImprovement a owl:ObjectProperty ;
+    rdfs:label "has template improvement"@en ;
+    rdfs:domain tcps:PreventionDelta ;
+    rdfs:range tcps:TemplateImprovement .
+
+tcps:hasDependencyPin a owl:ObjectProperty ;
+    rdfs:label "has dependency pin"@en ;
+    rdfs:domain tcps:PreventionDelta ;
+    rdfs:range tcps:DependencyPin .
+
+tcps:shaclConstraintText a owl:DatatypeProperty ;
+    rdfs:label "SHACL constraint text"@en ;
+    rdfs:domain tcps:ShaclAddition ;
+    rdfs:range xsd:string .
+
+tcps:testCaseDescription a owl:DatatypeProperty ;
+    rdfs:label "test case description"@en ;
+    rdfs:domain tcps:TestAddition ;
+    rdfs:range xsd:string .
+
+tcps:templateChangeDescription a owl:DatatypeProperty ;
+    rdfs:label "template change description"@en ;
+    rdfs:domain tcps:TemplateImprovement ;
+    rdfs:range xsd:string .
+
+tcps:dependencyName a owl:DatatypeProperty ;
+    rdfs:label "dependency name"@en ;
+    rdfs:domain tcps:DependencyPin ;
+    rdfs:range xsd:string .
+
+tcps:pinnedVersion a owl:DatatypeProperty ;
+    rdfs:label "pinned version"@en ;
+    rdfs:domain tcps:DependencyPin ;
+    rdfs:range xsd:string .
+
+# =====================================================
+# Example Instance - Test Failure Root Cause
+# =====================================================
+
+tcps:ExampleTestFailureAnalysis a tcps:RootCauseAnalysis ;
+    tcps:analysisId "analysis_1706284800000_123456" ;
+    tcps:andonEventId tcps:AndonEvent_TestFailure_001 ;
+    tcps:problemStatement "Unit test test_concurrent_access fails intermittently" ;
+    tcps:hasFiveWhysChain tcps:ExampleTestFailureChain ;
+    tcps:rootCause "Missing concurrency specification in ontology causing race condition" ;
+    tcps:preventionAction "Add tcps:concurrencyMode property to ontology and generate appropriate synchronization" ;
+    tcps:hasPreventionDelta tcps:ExampleTestFailureDelta ;
+    tcps:analysisStatus "finalized" ;
+    tcps:createdAt "2026-01-26T10:00:00Z"^^xsd:dateTime ;
+    tcps:finalizedAt "2026-01-26T10:15:00Z"^^xsd:dateTime ;
+    tcps:analysisDurationMs 900000 .
+
+tcps:ExampleTestFailureChain a tcps:FiveWhysChain ;
+    tcps:hasWhyQuestion tcps:ExampleWhy1, tcps:ExampleWhy2, tcps:ExampleWhy3,
+                        tcps:ExampleWhy4, tcps:ExampleWhy5 .
+
+tcps:ExampleWhy1 a tcps:WhyQuestion ;
+    tcps:whyNumber 1 ;
+    tcps:whyQuestion "Why did this problem occur?" ;
+    tcps:whyAnswer "Test shows race condition in data access" .
+
+tcps:ExampleWhy2 a tcps:WhyQuestion ;
+    tcps:whyNumber 2 ;
+    tcps:whyQuestion "Why did that happen?" ;
+    tcps:whyAnswer "Two processes modify shared ETS table simultaneously" .
+
+tcps:ExampleWhy3 a tcps:WhyQuestion ;
+    tcps:whyNumber 3 ;
+    tcps:whyQuestion "Why did that happen?" ;
+    tcps:whyAnswer "No synchronization mechanism for concurrent writes" .
+
+tcps:ExampleWhy4 a tcps:WhyQuestion ;
+    tcps:whyNumber 4 ;
+    tcps:whyQuestion "Why did that happen?" ;
+    tcps:whyAnswer "Template assumes single-process access pattern" .
+
+tcps:ExampleWhy5 a tcps:WhyQuestion ;
+    tcps:whyNumber 5 ;
+    tcps:whyQuestion "Why did that happen?" ;
+    tcps:whyAnswer "Ontology doesn't specify concurrency requirements" .
+
+tcps:ExampleTestFailureDelta a tcps:PreventionDelta ;
+    tcps:hasShaclAddition tcps:ExampleShaclAddition1 ;
+    tcps:hasTestAddition tcps:ExampleTestAddition1 .
+
+tcps:ExampleShaclAddition1 a tcps:ShaclAddition ;
+    tcps:shaclConstraintText "Add SHACL shape for required property validation" .
+
+tcps:ExampleTestAddition1 a tcps:TestAddition ;
+    tcps:testCaseDescription "Add concurrency test with multiple processes" .
+
+# =====================================================
+# Example Instance - Compilation Error Root Cause
+# =====================================================
+
+tcps:ExampleCompileErrorAnalysis a tcps:RootCauseAnalysis ;
+    tcps:analysisId "analysis_1706284900000_789012" ;
+    tcps:andonEventId tcps:AndonEvent_CompileError_001 ;
+    tcps:problemStatement "Compilation error: undefined record info" ;
+    tcps:hasFiveWhysChain tcps:ExampleCompileErrorChain ;
+    tcps:rootCause "Missing SHACL validation for record structure consistency" ;
+    tcps:preventionAction "Add SHACL shape enforcing tcps:recordField constraints" ;
+    tcps:hasPreventionDelta tcps:ExampleCompileErrorDelta ;
+    tcps:analysisStatus "finalized" ;
+    tcps:createdAt "2026-01-26T10:20:00Z"^^xsd:dateTime ;
+    tcps:finalizedAt "2026-01-26T10:30:00Z"^^xsd:dateTime ;
+    tcps:analysisDurationMs 600000 .
+
+tcps:ExampleCompileErrorChain a tcps:FiveWhysChain ;
+    tcps:hasWhyQuestion tcps:ExampleCompileWhy1, tcps:ExampleCompileWhy2,
+                        tcps:ExampleCompileWhy3, tcps:ExampleCompileWhy4,
+                        tcps:ExampleCompileWhy5 .
+
+tcps:ExampleCompileWhy1 a tcps:WhyQuestion ;
+    tcps:whyNumber 1 ;
+    tcps:whyQuestion "Why did this problem occur?" ;
+    tcps:whyAnswer "Record definition not included in generated module" .
+
+tcps:ExampleCompileWhy2 a tcps:WhyQuestion ;
+    tcps:whyNumber 2 ;
+    tcps:whyQuestion "Why did that happen?" ;
+    tcps:whyAnswer "Template filter didn't extract record from ontology" .
+
+tcps:ExampleCompileWhy3 a tcps:WhyQuestion ;
+    tcps:whyNumber 3 ;
+    tcps:whyQuestion "Why did that happen?" ;
+    tcps:whyAnswer "SPARQL query for records was incorrect" .
+
+tcps:ExampleCompileWhy4 a tcps:WhyQuestion ;
+    tcps:whyNumber 4 ;
+    tcps:whyQuestion "Why did that happen?" ;
+    tcps:whyAnswer "Record ontology structure changed without updating query" .
+
+tcps:ExampleCompileWhy5 a tcps:WhyQuestion ;
+    tcps:whyNumber 5 ;
+    tcps:whyQuestion "Why did that happen?" ;
+    tcps:whyAnswer "No SHACL validation ensuring record structure consistency" .
+
+tcps:ExampleCompileErrorDelta a tcps:PreventionDelta ;
+    tcps:hasShaclAddition tcps:ExampleShaclAddition2 ;
+    tcps:hasTemplateImprovement tcps:ExampleTemplateImprovement1 .
+
+tcps:ExampleShaclAddition2 a tcps:ShaclAddition ;
+    tcps:shaclConstraintText "Add SHACL datatype constraint" .
+
+tcps:ExampleTemplateImprovement1 a tcps:TemplateImprovement ;
+    tcps:templateChangeDescription "Add template helper for repeated code patterns" .
+
+# =====================================================
+# Example Instance - Non-Determinism Root Cause
+# =====================================================
+
+tcps:ExampleNonDeterminismAnalysis a tcps:RootCauseAnalysis ;
+    tcps:analysisId "analysis_1706285000000_345678" ;
+    tcps:andonEventId tcps:AndonEvent_NonDeterminism_001 ;
+    tcps:problemStatement "Generated code differs between runs" ;
+    tcps:hasFiveWhysChain tcps:ExampleNonDeterminismChain ;
+    tcps:rootCause "Dependency cowboy version 2.10.0 not pinned in ontology" ;
+    tcps:preventionAction "Pin all dependencies in ontology with exact versions" ;
+    tcps:hasPreventionDelta tcps:ExampleNonDeterminismDelta ;
+    tcps:analysisStatus "finalized" ;
+    tcps:createdAt "2026-01-26T10:40:00Z"^^xsd:dateTime ;
+    tcps:finalizedAt "2026-01-26T10:50:00Z"^^xsd:dateTime ;
+    tcps:analysisDurationMs 600000 .
+
+tcps:ExampleNonDeterminismChain a tcps:FiveWhysChain ;
+    tcps:hasWhyQuestion tcps:ExampleNonDetWhy1, tcps:ExampleNonDetWhy2,
+                        tcps:ExampleNonDetWhy3, tcps:ExampleNonDetWhy4,
+                        tcps:ExampleNonDetWhy5 .
+
+tcps:ExampleNonDetWhy1 a tcps:WhyQuestion ;
+    tcps:whyNumber 1 ;
+    tcps:whyQuestion "Why did this problem occur?" ;
+    tcps:whyAnswer "Dependency cowboy version changed between builds" .
+
+tcps:ExampleNonDetWhy2 a tcps:WhyQuestion ;
+    tcps:whyNumber 2 ;
+    tcps:whyQuestion "Why did that happen?" ;
+    tcps:whyAnswer "rebar.lock not checked into repository" .
+
+tcps:ExampleNonDetWhy3 a tcps:WhyQuestion ;
+    tcps:whyNumber 3 ;
+    tcps:whyQuestion "Why did that happen?" ;
+    tcps:whyAnswer "Template generation script didn't verify lock file" .
+
+tcps:ExampleNonDetWhy4 a tcps:WhyQuestion ;
+    tcps:whyNumber 4 ;
+    tcps:whyQuestion "Why did that happen?" ;
+    tcps:whyAnswer "No policy requiring dependency pinning" .
+
+tcps:ExampleNonDetWhy5 a tcps:WhyQuestion ;
+    tcps:whyNumber 5 ;
+    tcps:whyQuestion "Why did that happen?" ;
+    tcps:whyAnswer "Ontology doesn't model dependency version constraints" .
+
+tcps:ExampleNonDeterminismDelta a tcps:PreventionDelta ;
+    tcps:hasDependencyPin tcps:ExampleDependencyPin1 .
+
+tcps:ExampleDependencyPin1 a tcps:DependencyPin ;
+    tcps:dependencyName "cowboy" ;
+    tcps:pinnedVersion "2.10.0" .
+
+# =====================================================
+# SHACL Shapes for Validation
+# =====================================================
+# Note: These would typically be in a separate shapes/ file
+# but are included here for completeness
+
+tcps:RootCauseAnalysisShape a sh:NodeShape ;
+    sh:targetClass tcps:RootCauseAnalysis ;
+    sh:property [
+        sh:path tcps:analysisId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path tcps:andonEventId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class tcps:AndonEvent
+    ] ;
+    sh:property [
+        sh:path tcps:problemStatement ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 10
+    ] ;
+    sh:property [
+        sh:path tcps:hasFiveWhysChain ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class tcps:FiveWhysChain
+    ] ;
+    sh:property [
+        sh:path tcps:rootCause ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path tcps:analysisStatus ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("pending" "in_progress" "finalized")
+    ] .
+
+tcps:FiveWhysChainShape a sh:NodeShape ;
+    sh:targetClass tcps:FiveWhysChain ;
+    sh:property [
+        sh:path tcps:hasWhyQuestion ;
+        sh:minCount 5 ;
+        sh:maxCount 5 ;
+        sh:class tcps:WhyQuestion
+    ] .
+
+tcps:WhyQuestionShape a sh:NodeShape ;
+    sh:targetClass tcps:WhyQuestion ;
+    sh:property [
+        sh:path tcps:whyNumber ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5
+    ] ;
+    sh:property [
+        sh:path tcps:whyAnswer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 5
+    ] .

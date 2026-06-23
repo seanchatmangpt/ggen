@@ -1,0 +1,376 @@
+@prefix zoe:        <https://zoela.org/ontology/> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:     <https://schema.org/> .
+@prefix prov:       <http://www.w3.org/ns/prov#> .
+@prefix dcterms:    <http://purl.org/dc/terms/> .
+@prefix foaf:       <http://xmlns.com/foaf/0.1/> .
+@prefix org:        <http://www.w3.org/ns/org#> .
+@prefix odrl:       <http://www.w3.org/ns/odrl/2/> .
+
+# ============================================================================
+# ZOE LA Mobile — Core Integration Ontology
+# ============================================================================
+# Master integration ontology that imports every ZOE LA domain module and
+# declares the cross-module object properties that make the combinatorial
+# service graph coherent.
+#
+# Modules present as of 2026-05-17:
+#   campus, ministry, connect-groups, roles, permissions, consent,
+#   routes, evidence, ocel, volunteer, resource, care, need, receipt,
+#   policy, generations, person, event
+#
+# Modules added (imported below):
+#   kids, yth, leadership-college, partners, referrals, outcomes,
+#   household, categories, navigation
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# § 1  Ontology declaration
+# ----------------------------------------------------------------------------
+
+<https://zoela.org/ontology/core>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA Mobile Core Integration Ontology"@en ;
+    rdfs:comment "Master integration ontology importing all ZOE LA domain modules."@en ;
+    dcterms:created "2026-05-17"^^xsd:date ;
+    dcterms:description "Combinatorial service graph for ZOE LA church ministry operations."@en ;
+
+    # --- imports: every module that physically exists ---
+    owl:imports <https://zoela.org/ontology/campus> ;
+    owl:imports <https://zoela.org/ontology/ministry> ;
+    owl:imports <https://zoela.org/ontology/connect-groups> ;
+    owl:imports <https://zoela.org/ontology/roles> ;
+    owl:imports <https://zoela.org/ontology/permissions> ;
+    owl:imports <https://zoela.org/ontology/consent> ;
+    owl:imports <https://zoela.org/ontology/routes> ;
+    owl:imports <https://zoela.org/ontology/evidence> ;
+    owl:imports <https://zoela.org/ontology/ocel> ;
+    owl:imports <https://zoela.org/ontology/volunteer> ;
+    owl:imports <https://zoela.org/ontology/resource> ;
+    owl:imports <https://zoela.org/ontology/care> ;
+    owl:imports <https://zoela.org/ontology/need> ;
+    owl:imports <https://zoela.org/ontology/receipt> ;
+    owl:imports <https://zoela.org/ontology/policy> ;
+    owl:imports <https://zoela.org/ontology/generations> ;
+    owl:imports <https://zoela.org/ontology/kids> ;
+    owl:imports <https://zoela.org/ontology/yth> ;
+    owl:imports <https://zoela.org/ontology/leadership-college> ;
+    owl:imports <https://zoela.org/ontology/partners> ;
+    owl:imports <https://zoela.org/ontology/referrals> ;
+    owl:imports <https://zoela.org/ontology/outcomes> ;
+    owl:imports <https://zoela.org/ontology/household> ;
+    owl:imports <https://zoela.org/ontology/categories> ;
+    owl:imports <https://zoela.org/ontology/navigation> ;
+    owl:imports <https://zoela.org/ontology/notifications> ;
+    owl:imports <https://zoela.org/ontology/sensitivity> ;
+    owl:imports <https://zoela.org/ontology/connect-group-schedules> ;
+    owl:imports <https://zoela.org/ontology/connect-group-capacity> ;
+    owl:imports <https://zoela.org/ontology/connect-group-routes> ;
+    owl:imports <https://zoela.org/ontology/storehouse> ;
+    owl:imports <https://zoela.org/ontology/finance> ;
+
+    rdfs:comment """ZOE LA Mobile's data architecture is a public-ontology-aligned, combinatorial service graph.
+The ontology declares the possibility space: people, households, campuses, ministries, roles, permissions,
+consents, events, connect groups, kids/youth/generation segments, care needs, resources, volunteer assignments,
+service routes, route stages, evidence, receipts, partners, follow-ups, outcomes, and observed process events.
+SPARQL extracts generation facts. Tera renders app/database/policy artifacts. ggen signs manufactured output.
+mcpp gates service delivery. wasm4pm mines actual routes for conformance.
+The product is CodeManufactory; ZOE LA Mobile is proof that CodeManufactory works."""@en .
+
+# ----------------------------------------------------------------------------
+# § 2  (Removed in P0-A — 2026-05-18)
+#
+# This section previously contained owl:equivalentClass bridges for two
+# legacy namespace forms that were used by person, event, campus, ministry,
+# connect-groups, need, policy, and receipt modules. All eight source
+# modules now declare classes directly in the canonical
+# https://zoela.org/ontology/ namespace, so the bridges are no longer needed.
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# § 3  Forward-declared stub classes for future modules
+#
+# partners.ttl, referrals.ttl, outcomes.ttl do not yet exist.  The cross-
+# module properties below reference these classes.  Declaring them here
+# keeps the ontology consistent while the modules are being authored.
+# When the source modules are created they MUST declare owl:equivalentClass
+# (or rdfs:subClassOf) pointing back to these stubs.
+# ----------------------------------------------------------------------------
+
+zoe:PartnerOrganization
+    a owl:Class ;
+    rdfs:label "Partner Organization"@en ;
+    rdfs:comment "An external organization (social service agency, church partner, etc.) to which ZOE LA may refer members. Forward-declared pending partners.ttl."@en ;
+    skos:notation "partner_organization" .
+
+zoe:Referral
+    a owl:Class ;
+    rdfs:label "Referral"@en ;
+    rdfs:comment "A directed referral of a member to a PartnerOrganization or internal ministry. Forward-declared pending referrals.ttl."@en ;
+    skos:notation "referral" .
+
+zoe:RouteOutcome
+    a owl:Class ;
+    rdfs:label "Route Outcome"@en ;
+    rdfs:comment "The resolved outcome of a ServiceRoute instance (completed, withdrawn, referred, etc.). Forward-declared pending outcomes.ttl."@en ;
+    skos:notation "route_outcome" .
+
+# ----------------------------------------------------------------------------
+# § 3b  Forward-declared stub classes for newly-created modules
+#
+# kids.ttl, yth.ttl, leadership-college.ttl, household.ttl, categories.ttl,
+# and navigation.ttl now exist but core.ttl was authored before they were
+# created.  These stubs keep cross-module properties consistent.  Each source
+# module MUST declare the corresponding owl:Class (or owl:equivalentClass back
+# to these stubs).
+# ----------------------------------------------------------------------------
+
+# Leadership College (leadership-college.ttl)
+zoe:LeadershipCollegeCohort
+    a owl:Class ;
+    rdfs:label "Leadership College Cohort"@en ;
+    rdfs:comment "A ZOE Leadership College cohort group — from leadership-college.ttl"@en ;
+    rdfs:subClassOf schema:EducationalOccupationalProgram, org:OrganizationalUnit .
+
+zoe:LCModule
+    a owl:Class ;
+    rdfs:label "LC Module"@en ;
+    rdfs:comment "A single curriculum module within a Leadership College cohort — from leadership-college.ttl"@en ;
+    rdfs:subClassOf schema:Course .
+
+zoe:LCEnrollment
+    a owl:Class ;
+    rdfs:label "LC Enrollment"@en ;
+    rdfs:comment "A person's enrollment record for a Leadership College module — from leadership-college.ttl"@en ;
+    rdfs:subClassOf schema:RegisterAction, prov:Activity .
+
+zoe:LCCredential
+    a owl:Class ;
+    rdfs:label "LC Credential"@en ;
+    rdfs:comment "A credential awarded upon completing Leadership College requirements — from leadership-college.ttl"@en ;
+    rdfs:subClassOf schema:EducationalOccupationalCredential .
+
+# ZOE Kids (kids.ttl)
+zoe:ZoeKidsSession
+    a owl:Class ;
+    rdfs:label "ZOE Kids Session"@en ;
+    rdfs:comment "A scheduled ZOE Kids ministry session for children — from kids.ttl"@en ;
+    rdfs:subClassOf schema:Event .
+
+zoe:KidsCheckIn
+    a owl:Class ;
+    rdfs:label "Kids Check-In"@en ;
+    rdfs:comment "A check-in record for a child at a ZOE Kids session — from kids.ttl"@en ;
+    rdfs:subClassOf schema:CheckInAction, prov:Activity .
+
+zoe:KidsCampRegistration
+    a owl:Class ;
+    rdfs:label "Kids Camp Registration"@en ;
+    rdfs:comment "A child's registration for a ZOE Kids camp event — from kids.ttl"@en ;
+    rdfs:subClassOf schema:RegisterAction, prov:Activity .
+
+# ZOE Youth (yth.ttl)
+zoe:YthNight
+    a owl:Class ;
+    rdfs:label "Yth Night"@en ;
+    rdfs:comment "A scheduled ZOE Youth ministry night event — from yth.ttl"@en ;
+    rdfs:subClassOf schema:Event .
+
+zoe:YthConnectGroup
+    a owl:Class ;
+    rdfs:label "Yth Connect Group"@en ;
+    rdfs:comment "A youth-specific connect group within the ZOE Youth ministry — from yth.ttl"@en ;
+    rdfs:subClassOf schema:Organization, foaf:Group .
+
+zoe:YthCampRegistration
+    a owl:Class ;
+    rdfs:label "Yth Camp Registration"@en ;
+    rdfs:comment "A youth participant's registration for a ZOE Youth camp — from yth.ttl"@en ;
+    rdfs:subClassOf schema:RegisterAction .
+
+# Household (household.ttl)
+zoe:HouseholdMember
+    a owl:Class ;
+    rdfs:label "Household Member"@en ;
+    rdfs:comment "A person's membership role within a household grouping — from household.ttl"@en ;
+    rdfs:subClassOf org:Membership .
+
+zoe:HouseholdNeed
+    a owl:Class ;
+    rdfs:label "Household Need"@en ;
+    rdfs:comment "A care or resource need attributed to an entire household rather than a single person — from household.ttl"@en ;
+    rdfs:subClassOf schema:RequestAction, prov:Activity .
+
+# Categories (categories.ttl)
+zoe:CategoryRegistry
+    a owl:Class ;
+    rdfs:label "Category Registry"@en ;
+    rdfs:comment "A registry of ministry and service categories used for navigation and filtering — from categories.ttl"@en ;
+    rdfs:subClassOf skos:ConceptScheme .
+
+# Navigation (navigation.ttl)
+zoe:AppScreen
+    a owl:Class ;
+    rdfs:label "App Screen"@en ;
+    rdfs:comment "A mobile app screen or navigation destination in the ZOE LA app — from navigation.ttl"@en ;
+    rdfs:subClassOf schema:WebPage .
+
+# ----------------------------------------------------------------------------
+# § 4  Cross-module object properties
+#
+# These properties span two or more domain modules and therefore cannot live
+# in any single module file without creating circular imports.  They are
+# declared here in core.ttl as the authoritative location.
+# ----------------------------------------------------------------------------
+
+# 4.1  Person → RouteInstance
+zoe:activatesRoute
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:PersonProfile ;
+    rdfs:range zoe:RouteInstance ;
+    rdfs:label "activates route"@en ;
+    rdfs:comment "A person's action (need submission, event registration, etc.) activates a ServiceRoute instance."@en ;
+    skos:notation "activates_route" .
+
+# 4.2  Need → ServiceRoute
+zoe:needActivatesRoute
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:Need ;
+    rdfs:range zoe:ServiceRoute ;
+    rdfs:label "need activates route"@en ;
+    rdfs:comment "A Need activates the appropriate ServiceRoute for the need type."@en ;
+    skos:notation "need_activates_route" .
+
+# 4.3  RouteStage → Evidence
+zoe:stageRequiresEvidence
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:RouteStage ;
+    rdfs:range zoe:Evidence ;
+    rdfs:label "stage requires evidence"@en ;
+    rdfs:comment "A route stage requires evidence before it can be marked complete."@en ;
+    skos:notation "stage_requires_evidence" .
+
+# 4.4  Evidence → ServiceReceipt
+zoe:evidenceGeneratesReceipt
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:Evidence ;
+    rdfs:range zoe:ServiceReceipt ;
+    rdfs:label "evidence generates receipt"@en ;
+    rdfs:comment "Completed evidence triggers generation of a ServiceReceipt for the route stage."@en ;
+    skos:notation "evidence_generates_receipt" .
+
+# 4.5  ServiceReceipt → OcelEvent
+zoe:receiptEmitsOcelEvent
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:ServiceReceipt ;
+    rdfs:range zoe:OcelEvent ;
+    rdfs:label "receipt emits OCEL event"@en ;
+    rdfs:comment "A service receipt triggers an OCEL event for process mining."@en ;
+    skos:notation "receipt_emits_ocel" .
+
+# 4.6  Consent → RouteStage (unlocks)
+zoe:consentUnlocksStage
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:Consent ;
+    rdfs:range zoe:RouteStage ;
+    rdfs:label "consent unlocks stage"@en ;
+    rdfs:comment "A granted consent record unlocks the corresponding gated route stage."@en ;
+    skos:notation "consent_unlocks_stage" .
+
+# 4.7  VolunteerAssignment → RouteStage (satisfies requirement)
+zoe:assignmentSatisfiesStage
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:VolunteerAssignment ;
+    rdfs:range zoe:RouteStage ;
+    rdfs:label "assignment satisfies stage"@en ;
+    rdfs:comment "A confirmed volunteer assignment satisfies the role requirement for a route stage."@en ;
+    skos:notation "assignment_satisfies_stage" .
+
+# 4.8  Referral → PartnerOrganization
+zoe:referralTargetsPartner
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range zoe:PartnerOrganization ;
+    rdfs:label "referral targets partner"@en ;
+    rdfs:comment "A referral is directed to a specific partner organization."@en ;
+    skos:notation "referral_targets_partner" .
+
+# 4.9  RouteOutcome → OcelEvent
+zoe:outcomeEmitsEvent
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:RouteOutcome ;
+    rdfs:range zoe:OcelEvent ;
+    rdfs:label "outcome emits event"@en ;
+    rdfs:comment "A route outcome resolution emits an OCEL event for process mining."@en ;
+    skos:notation "outcome_emits_event" .
+
+# 4.10  PersonProfile → GenerationSegment (skos:Concept)
+zoe:personInSegment
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:PersonProfile ;
+    rdfs:range skos:Concept ;
+    rdfs:label "person in generation segment"@en ;
+    rdfs:comment "Links a person to their generation segment (affects consent requirements and ministry eligibility)."@en ;
+    skos:notation "person_segment" .
+
+# 4.11  PersonProfile → Household (membership)
+zoe:memberOfHousehold
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:PersonProfile ;
+    rdfs:range zoe:Household ;
+    rdfs:label "member of household"@en ;
+    rdfs:comment "A person is a member of a household grouping."@en ;
+    skos:notation "member_of_household" .
+
+# 4.12  EventRegistration → ZoeEvent
+zoe:registrationForEvent
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:EventRegistration ;
+    rdfs:range zoe:ZoeEvent ;
+    rdfs:label "registration for event"@en ;
+    rdfs:comment "Links an EventRegistration record to the ZoeEvent it registers for."@en ;
+    skos:notation "registration_for_event" .
+
+# 4.13  ZoeEvent → RouteInstance (event triggers route)
+zoe:eventActivatesRoute
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:ZoeEvent ;
+    rdfs:range zoe:RouteInstance ;
+    rdfs:label "event activates route"@en ;
+    rdfs:comment "An event (e.g. a baptism class) activates the corresponding service route instance."@en ;
+    skos:notation "event_activates_route" .
+
+# 4.14  Need → Referral (unmet need triggers referral)
+zoe:needTriggersReferral
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:Need ;
+    rdfs:range zoe:Referral ;
+    rdfs:label "need triggers referral"@en ;
+    rdfs:comment "An unmet or partially-met need may trigger an external referral."@en ;
+    skos:notation "need_triggers_referral" .
+
+# 4.15  RouteInstance → RouteOutcome
+zoe:routeHasOutcome
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:RouteInstance ;
+    rdfs:range zoe:RouteOutcome ;
+    rdfs:label "route has outcome"@en ;
+    rdfs:comment "Links a completed route instance to its recorded outcome."@en ;
+    skos:notation "route_has_outcome" .
+
+# 4.16  PersonProfile → EventRegistration
+zoe:personRegisteredFor
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:PersonProfile ;
+    rdfs:range zoe:EventRegistration ;
+    rdfs:label "person registered for"@en ;
+    rdfs:comment "Links a person to their event registration records."@en ;
+    skos:notation "person_registered_for" .
+
+# ============================================================================
+# End of ontology/zoela/core.ttl
+# ============================================================================

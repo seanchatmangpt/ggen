@@ -1,0 +1,782 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix bapa: <http://bytestar.org/ontology/privacy-automation/> .
+@prefix bac: <http://bytestar.org/ontology/compliance/> .
+@prefix baac: <http://bytestar.org/ontology/access-control/> .
+@prefix baa: <http://bytestar.org/ontology/audit/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix crypto: <http://www.w3.org/2000/10/swap/crypto#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+# =============================================================================
+# ByteStar Privacy and Regulatory Compliance Automation Ontology
+# Version: 5.0.0 - Phase 5
+# =============================================================================
+
+<http://bytestar.org/ontology/privacy-automation> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/privacy-automation/5.0.0> ;
+    dct:title "ByteStar Privacy and Regulatory Compliance Automation Ontology" ;
+    dct:description "Comprehensive privacy and regulatory compliance automation framework with GDPR/HIPAA/PCI compliance validation, differential privacy budget enforcement, data residency checking, redaction proof validation, and privacy-preserving analytics for crystal operations" ;
+    dct:creator "ByteStar Architecture Team" ;
+    dct:created "2025-01-23"^^xsd:date ;
+    dct:modified "2025-01-23"^^xsd:date ;
+    owl:imports <http://bytestar.org/ontology/core>,
+                <http://bytestar.org/ontology/compliance>,
+                <http://bytestar.org/ontology/access-control>,
+                <http://bytestar.org/ontology/audit>,
+                <http://bytestar.org/ontology/security> .
+
+# =============================================================================
+# AUTOMATED COMPLIANCE VALIDATION FRAMEWORK
+# =============================================================================
+
+## Core Compliance Automation Classes
+bapa:ComplianceAutomationFramework a owl:Class ;
+    rdfs:label "Compliance Automation Framework" ;
+    rdfs:comment "Comprehensive framework for automated compliance validation across multiple regulations" ;
+    rdfs:subClassOf ba:AutomatedSystem ;
+    ba:performanceRequirement "< 8ms validation latency" ;
+    ba:accuracyTarget "> 99.5%" ;
+    ba:supportedRegulations "GDPR,HIPAA,PCI-DSS,SOX,FISMA,CCPA" .
+
+bapa:AutomatedComplianceValidator a owl:Class ;
+    rdfs:label "Automated Compliance Validator" ;
+    rdfs:comment "AI-powered validator for real-time compliance checking" ;
+    rdfs:subClassOf ba:Validator ;
+    ba:validationLatency "< 5ms" ;
+    ba:falsePositiveRate "< 0.1%" ;
+    ba:continuousValidation true .
+
+bapa:ComplianceRuleEngine a owl:Class ;
+    rdfs:label "Compliance Rule Engine" ;
+    rdfs:comment "Rules engine executing compliance validation logic" ;
+    rdfs:subClassOf ba:RuleEngine ;
+    ba:ruleFormat "SHACL,SWRL,SPARQL" ;
+    ba:decisionLatency "< 2ms" ;
+    ba:throughput "> 1M validations/sec" .
+
+bapa:MultiJurisdictionCompliance a owl:Class ;
+    rdfs:label "Multi-Jurisdiction Compliance" ;
+    rdfs:comment "Compliance framework spanning multiple legal jurisdictions" ;
+    rdfs:subClassOf bapa:ComplianceAutomationFramework ;
+    ba:jurisdictionSupport "EU,US,UK,CA,AU,JP" ;
+    ba:harmonizationLevel "high" ;
+    ba:conflictResolution "automatic" .
+
+## GDPR Compliance Automation
+bapa:GDPRComplianceValidator a owl:Class ;
+    rdfs:label "GDPR Compliance Validator" ;
+    rdfs:comment "Automated validator for GDPR compliance requirements" ;
+    rdfs:subClassOf bapa:AutomatedComplianceValidator ;
+    bapa:regulatoryFramework bac:GDPR ;
+    bapa:lawfulBasisValidation true ;
+    bapa:consentManagement true ;
+    bapa:dataSubjectRights true ;
+    bapa:privacyByDesign true .
+
+bapa:GDPRLawfulBasisChecker a owl:Class ;
+    rdfs:label "GDPR Lawful Basis Checker" ;
+    rdfs:comment "Validates presence and validity of lawful basis for data processing" ;
+    rdfs:subClassOf bapa:GDPRComplianceValidator ;
+    bapa:supportedBases "consent,contract,legal_obligation,vital_interests,public_task,legitimate_interests" ;
+    bapa:validationDepth "comprehensive" .
+
+bapa:GDPRConsentValidator a owl:Class ;
+    rdfs:label "GDPR Consent Validator" ;
+    rdfs:comment "Validates consent collection and management compliance" ;
+    rdfs:subClassOf bapa:GDPRComplianceValidator ;
+    bapa:consentRequirements "freely_given,specific,informed,unambiguous" ;
+    bapa:withdrawalSupport true ;
+    bapa:childConsentHandling true .
+
+bapa:GDPRDataSubjectRightsEngine a owl:Class ;
+    rdfs:label "GDPR Data Subject Rights Engine" ;
+    rdfs:comment "Automated fulfillment of data subject rights requests" ;
+    rdfs:subClassOf bapa:GDPRComplianceValidator ;
+    bapa:supportedRights "access,rectification,erasure,portability,restriction,objection" ;
+    bapa:responseTimeLimit "P30D"^^xsd:duration ;
+    bapa:automationLevel "high" .
+
+## HIPAA Compliance Automation
+bapa:HIPAAComplianceValidator a owl:Class ;
+    rdfs:label "HIPAA Compliance Validator" ;
+    rdfs:comment "Automated validator for HIPAA privacy and security rules" ;
+    rdfs:subClassOf bapa:AutomatedComplianceValidator ;
+    bapa:regulatoryFramework bac:HIPAA ;
+    bapa:phiProtection true ;
+    bapa:minimumNecessary true ;
+    bapa:businessAssociateCompliance true ;
+    bapa:breachNotification true .
+
+bapa:PHIDetectionEngine a owl:Class ;
+    rdfs:label "PHI Detection Engine" ;
+    rdfs:comment "AI-powered detection of Protected Health Information" ;
+    rdfs:subClassOf bapa:HIPAAComplianceValidator ;
+    bapa:detectionAccuracy "> 99.8%" ;
+    bapa:identifierTypes "names,dates,addresses,phone,email,ssn,medical_records,health_plan,account_numbers,certificates,photos,biometrics,ipv4,ipv6,urls,devices" ;
+    bapa:contextualAnalysis true .
+
+bapa:MinimumNecessaryValidator a owl:Class ;
+    rdfs:label "Minimum Necessary Validator" ;
+    rdfs:comment "Validates adherence to minimum necessary standard" ;
+    rdfs:subClassOf bapa:HIPAAComplianceValidator ;
+    bapa:dataMinimization true ;
+    bapa:purposeLimitation true ;
+    bapa:accessControl true .
+
+## PCI-DSS Compliance Automation
+bapa:PCIComplianceValidator a owl:Class ;
+    rdfs:label "PCI Compliance Validator" ;
+    rdfs:comment "Automated validator for PCI-DSS compliance requirements" ;
+    rdfs:subClassOf bapa:AutomatedComplianceValidator ;
+    bapa:regulatoryFramework bac:PCI_DSS ;
+    bapa:cardholderDataProtection true ;
+    bapa:sensitiveDataEncryption true ;
+    bapa:accessControlValidation true ;
+    bapa:networkMonitoring true .
+
+bapa:CardholderDataDetector a owl:Class ;
+    rdfs:label "Cardholder Data Detector" ;
+    rdfs:comment "Automated detection of cardholder data and sensitive authentication data" ;
+    rdfs:subClassOf bapa:PCIComplianceValidator ;
+    bapa:panDetection true ;
+    bapa:expirationDateDetection true ;
+    bapa:cardholderNameDetection true ;
+    bapa:serviceCodeDetection true ;
+    bapa:sadDetection true .
+
+# =============================================================================
+# DIFFERENTIAL PRIVACY BUDGET ENFORCEMENT
+# =============================================================================
+
+bapa:DifferentialPrivacyFramework a owl:Class ;
+    rdfs:label "Differential Privacy Framework" ;
+    rdfs:comment "Comprehensive framework for differential privacy implementation and budget management" ;
+    rdfs:subClassOf ba:PrivacyFramework ;
+    ba:privacyGuarantees "epsilon-delta-dp" ;
+    ba:budgetManagement "automatic" ;
+    ba:compositionHandling "advanced" .
+
+bapa:PrivacyBudgetManager a owl:Class ;
+    rdfs:label "Privacy Budget Manager" ;
+    rdfs:comment "Centralized manager for differential privacy budget allocation and tracking" ;
+    rdfs:subClassOf ba:ResourceManager ;
+    bapa:budgetAllocation "adaptive" ;
+    bapa:budgetTracking "real-time" ;
+    bapa:budgetExhaustionPrevention true ;
+    ba:performanceRequirement "< 1ms budget checks" .
+
+bapa:EpsilonBudgetTracker a owl:Class ;
+    rdfs:label "Epsilon Budget Tracker" ;
+    rdfs:comment "Tracks epsilon privacy budget consumption across queries" ;
+    rdfs:subClassOf bapa:PrivacyBudgetManager ;
+    bapa:budgetType "epsilon" ;
+    bapa:compositionMethod "advanced" ;
+    bapa:budgetGranularity "per-user,per-dataset,global" .
+
+bapa:DeltaBudgetTracker a owl:Class ;
+    rdfs:label "Delta Budget Tracker" ;
+    rdfs:comment "Tracks delta privacy budget for (ε,δ)-differential privacy" ;
+    rdfs:subClassOf bapa:PrivacyBudgetManager ;
+    bapa:budgetType "delta" ;
+    bapa:probabilityBound true ;
+    bapa:failureProbability "< 1e-6" .
+
+bapa:NoiseCalibrator a owl:Class ;
+    rdfs:label "Noise Calibrator" ;
+    rdfs:comment "Calibrates noise addition for differential privacy guarantees" ;
+    rdfs:subClassOf ba:NoiseGenerator ;
+    bapa:noiseMechanisms "laplace,gaussian,exponential" ;
+    bapa:sensitivityCalculation "automatic" ;
+    bapa:utilityOptimization true .
+
+bapa:QueryPrivacyAnalyzer a owl:Class ;
+    rdfs:label "Query Privacy Analyzer" ;
+    rdfs:comment "Analyzes queries for privacy implications and budget requirements" ;
+    rdfs:subClassOf ba:QueryAnalyzer ;
+    bapa:sensitivityAnalysis true ;
+    bapa:compositionAnalysis true ;
+    bapa:privacyRiskAssessment true ;
+    ba:analysisLatency "< 5ms" .
+
+bapa:PrivacyProofGenerator a owl:Class ;
+    rdfs:label "Privacy Proof Generator" ;
+    rdfs:comment "Generates formal proofs of differential privacy guarantees" ;
+    rdfs:subClassOf ba:ProofSystem ;
+    bapa:proofType "formal-verification" ;
+    bapa:theoremProver "coq,lean,isabelle" ;
+    bapa:automatedProofGeneration true .
+
+# =============================================================================
+# DATA RESIDENCY AND SOVEREIGNTY CONTROL
+# =============================================================================
+
+bapa:DataResidencyController a owl:Class ;
+    rdfs:label "Data Residency Controller" ;
+    rdfs:comment "Controls data placement based on residency and sovereignty requirements" ;
+    rdfs:subClassOf ba:DataController ;
+    bapa:residencyEnforcement "strict" ;
+    bapa:sovereigntyCompliance true ;
+    bapa:crossBorderTransferControl true ;
+    ba:realtimeEnforcement true .
+
+bapa:DataSovereigntyEngine a owl:Class ;
+    rdfs:label "Data Sovereignty Engine" ;
+    rdfs:comment "Enforces data sovereignty requirements across jurisdictions" ;
+    rdfs:subClassOf bapa:DataResidencyController ;
+    bapa:jurisdictionalMapping true ;
+    bapa:legalFrameworkIntegration true ;
+    bapa:sovereigntyViolationPrevention true .
+
+bapa:GeographicDataMapper a owl:Class ;
+    rdfs:label "Geographic Data Mapper" ;
+    rdfs:comment "Maps data to geographic locations and jurisdictions" ;
+    rdfs:subClassOf ba:DataMapper ;
+    bapa:gpsMapping true ;
+    bapa:jurisdictionalBoundaries true ;
+    bapa:dataClassificationByLocation true ;
+    ba:mappingAccuracy "> 99.9%" .
+
+bapa:CrossBorderTransferValidator a owl:Class ;
+    rdfs:label "Cross-Border Transfer Validator" ;
+    rdfs:comment "Validates compliance for cross-border data transfers" ;
+    rdfs:subClassOf bapa:DataResidencyController ;
+    bapa:adequacyDecisionCheck true ;
+    bapa:safeguardValidation true ;
+    bapa:bcr_validation true ;
+    bapa:transferDocumentation true .
+
+bapa:AdequacyDecisionTracker a owl:Class ;
+    rdfs:label "Adequacy Decision Tracker" ;
+    rdfs:comment "Tracks adequacy decisions for international data transfers" ;
+    rdfs:subClassOf bapa:CrossBorderTransferValidator ;
+    bapa:adequacyStatus "real-time-tracking" ;
+    bapa:decisionExpiry true ;
+    bapa:suspensionDetection true .
+
+bapa:LocalizationRequirementEngine a owl:Class ;
+    rdfs:label "Localization Requirement Engine" ;
+    rdfs:comment "Enforces data localization requirements by jurisdiction" ;
+    rdfs:subClassOf bapa:DataSovereigntyEngine ;
+    bapa:localizationRules "per-jurisdiction" ;
+    bapa:exceptionHandling true ;
+    bapa:complianceValidation "continuous" .
+
+# =============================================================================
+# REDACTION PROOF VALIDATION SYSTEM
+# =============================================================================
+
+bapa:RedactionProofSystem a owl:Class ;
+    rdfs:label "Redaction Proof System" ;
+    rdfs:comment "Mathematical proof system for data redaction completeness and correctness" ;
+    rdfs:subClassOf ba:ProofSystem ;
+    bapa:redactionCompleteness true ;
+    bapa:mathematicalGuarantees true ;
+    bapa:zeroKnowledgeProofs true ;
+    ba:proofValidationTime "< 10ms" .
+
+bapa:RedactionCompletenessValidator a owl:Class ;
+    rdfs:label "Redaction Completeness Validator" ;
+    rdfs:comment "Validates mathematical completeness of data redaction" ;
+    rdfs:subClassOf bapa:RedactionProofSystem ;
+    bapa:completenessLevel "mathematical" ;
+    bapa:residualInformationDetection true ;
+    bapa:inferenceAttackPrevention true .
+
+bapa:ZeroKnowledgeRedactionProver a owl:Class ;
+    rdfs:label "Zero Knowledge Redaction Prover" ;
+    rdfs:comment "Generates zero-knowledge proofs of correct redaction" ;
+    rdfs:subClassOf bapa:RedactionProofSystem ;
+    bapa:zkProofSystem "zk-SNARKs,zk-STARKs" ;
+    bapa:redactionWitness true ;
+    bapa:publicVerifiability true .
+
+bapa:CryptographicRedactionEngine a owl:Class ;
+    rdfs:label "Cryptographic Redaction Engine" ;
+    rdfs:comment "Cryptographically secure redaction with provable guarantees" ;
+    rdfs:subClassOf ba:CryptographicEngine ;
+    bapa:redactionPrimitives "chameleon-hash,redactable-signatures" ;
+    bapa:integrityPreservation true ;
+    bapa:authenticityMaintenance true .
+
+bapa:RedactionPolicyEngine a owl:Class ;
+    rdfs:label "Redaction Policy Engine" ;
+    rdfs:comment "Policy-driven automated redaction based on compliance requirements" ;
+    rdfs:subClassOf ba:PolicyEngine ;
+    bapa:policyTypes "gdpr,hipaa,pci,classification" ;
+    bapa:contextualRedaction true ;
+    bapa:minimumRedaction true ;
+    ba:policyEvaluationTime "< 3ms" .
+
+bapa:RedactionAuditTrail a owl:Class ;
+    rdfs:label "Redaction Audit Trail" ;
+    rdfs:comment "Immutable audit trail for all redaction operations" ;
+    rdfs:subClassOf baa:ImmutableAuditTrail ;
+    bapa:redactionEvents true ;
+    bapa:proofAttachment true ;
+    bapa:complianceValidation true ;
+    ba:tamperProof true .
+
+# =============================================================================
+# PRIVACY-PRESERVING ANALYTICS FRAMEWORK
+# =============================================================================
+
+bapa:PrivacyPreservingAnalytics a owl:Class ;
+    rdfs:label "Privacy-Preserving Analytics" ;
+    rdfs:comment "Comprehensive analytics framework with built-in privacy guarantees" ;
+    rdfs:subClassOf ba:AnalyticsFramework ;
+    bapa:privacyTechniques "differential-privacy,homomorphic-encryption,secure-multiparty-computation" ;
+    bapa:utilityPreservation "> 95%" ;
+    bapa:privacyGuarantees "mathematically-provable" .
+
+bapa:DifferentialPrivateAnalytics a owl:Class ;
+    rdfs:label "Differential Private Analytics" ;
+    rdfs:comment "Analytics with differential privacy guarantees" ;
+    rdfs:subClassOf bapa:PrivacyPreservingAnalytics ;
+    bapa:epsilonValues "0.1,0.5,1.0,2.0" ;
+    bapa:utilityMetrics "accuracy,precision,recall" ;
+    bapa:compositionHandling "optimal" .
+
+bapa:HomomorphicAnalyticsEngine a owl:Class ;
+    rdfs:label "Homomorphic Analytics Engine" ;
+    rdfs:comment "Analytics on encrypted data using homomorphic encryption" ;
+    rdfs:subClassOf bapa:PrivacyPreservingAnalytics ;
+    bapa:encryptionScheme "CKKS,BFV,BGV" ;
+    bapa:bootstrapping true ;
+    bapa:circuitDepth "optimized" ;
+    ba:computationLatency "< 100ms" .
+
+bapa:SecureMultipartyComputation a owl:Class ;
+    rdfs:label "Secure Multiparty Computation" ;
+    rdfs:comment "Multi-party analytics without revealing individual inputs" ;
+    rdfs:subClassOf bapa:PrivacyPreservingAnalytics ;
+    bapa:protocolSecurity "semi-honest,malicious" ;
+    bapa:communicationRounds "minimal" ;
+    bapa:scalability "high" .
+
+bapa:FederatedAnalytics a owl:Class ;
+    rdfs:label "Federated Analytics" ;
+    rdfs:comment "Decentralized analytics preserving data locality" ;
+    rdfs:subClassOf bapa:PrivacyPreservingAnalytics ;
+    bapa:aggregationMethod "secure-aggregation" ;
+    bapa:participantPrivacy true ;
+    bapa:modelPrivacy true .
+
+# =============================================================================
+# AUTOMATED COMPLIANCE CHECKING ENGINE
+# =============================================================================
+
+bapa:AutomatedComplianceEngine a owl:Class ;
+    rdfs:label "Automated Compliance Engine" ;
+    rdfs:comment "Comprehensive engine for automated compliance checking across regulations" ;
+    rdfs:subClassOf ba:ComplianceEngine ;
+    bapa:multiRegulationSupport true ;
+    bapa:realTimeChecking true ;
+    bapa:proactiveCompliance true ;
+    ba:checkingLatency "< 5ms" ;
+    ba:accuracy "> 99.7%" .
+
+bapa:ComplianceOrchestrator a owl:Class ;
+    rdfs:label "Compliance Orchestrator" ;
+    rdfs:comment "Orchestrates compliance checking across multiple systems and regulations" ;
+    rdfs:subClassOf bapa:AutomatedComplianceEngine ;
+    bapa:orchestrationStrategy "parallel,sequential,hybrid" ;
+    bapa:prioritization "risk-based" ;
+    bapa:loadBalancing true .
+
+bapa:RiskBasedComplianceChecker a owl:Class ;
+    rdfs:label "Risk-Based Compliance Checker" ;
+    rdfs:comment "Prioritizes compliance checks based on risk assessment" ;
+    rdfs:subClassOf bapa:AutomatedComplianceEngine ;
+    bapa:riskScoring "dynamic" ;
+    bapa:riskFactors "data-sensitivity,regulation-severity,impact-scope" ;
+    bapa:adaptivePrioritization true .
+
+bapa:ContinuousComplianceMonitor a owl:Class ;
+    rdfs:label "Continuous Compliance Monitor" ;
+    rdfs:comment "24/7 monitoring of compliance status across all systems" ;
+    rdfs:subClassOf bapa:AutomatedComplianceEngine ;
+    bapa:monitoringFrequency "real-time" ;
+    bapa:alertGeneration true ;
+    bapa:anomalyDetection true ;
+    ba:uptime "> 99.99%" .
+
+# =============================================================================
+# CRYSTAL OPERATIONS PRIVACY INTEGRATION
+# =============================================================================
+
+bapa:CrystalPrivacyInterface a owl:Class ;
+    rdfs:label "Crystal Privacy Interface" ;
+    rdfs:comment "Privacy interface for ByteStar crystal operations" ;
+    rdfs:subClassOf ba:CrystalInterface ;
+    bapa:privacyByDesign true ;
+    bapa:crystalDataProtection true ;
+    bapa:quantumResistantPrivacy true .
+
+bapa:CrystalComplianceValidator a owl:Class ;
+    rdfs:label "Crystal Compliance Validator" ;
+    rdfs:comment "Compliance validation specifically for crystal operations" ;
+    rdfs:subClassOf bapa:AutomatedComplianceValidator ;
+    bapa:crystalOperationCompliance true ;
+    bapa:quantumSafetyValidation true ;
+    bapa:crystalDataGovernance true .
+
+bapa:CrystalDataClassifier a owl:Class ;
+    rdfs:label "Crystal Data Classifier" ;
+    rdfs:comment "Classifies crystal data for privacy and compliance purposes" ;
+    rdfs:subClassOf ba:DataClassifier ;
+    bapa:crystalSensitivityLevels "public,internal,confidential,restricted,top-secret" ;
+    bapa:quantumVulnerabilityAssessment true ;
+    bapa:classificationAccuracy "> 99.9%" .
+
+# =============================================================================
+# DATA PROPERTIES
+# =============================================================================
+
+## Privacy Budget Properties
+bapa:epsilonBudget a owl:DatatypeProperty ;
+    rdfs:label "epsilon budget" ;
+    rdfs:comment "Epsilon parameter for differential privacy budget" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bapa:EpsilonBudgetTracker .
+
+bapa:deltaBudget a owl:DatatypeProperty ;
+    rdfs:label "delta budget" ;
+    rdfs:comment "Delta parameter for (ε,δ)-differential privacy" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bapa:DeltaBudgetTracker .
+
+bapa:budgetConsumed a owl:DatatypeProperty ;
+    rdfs:label "budget consumed" ;
+    rdfs:comment "Amount of privacy budget consumed" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bapa:PrivacyBudgetManager .
+
+bapa:budgetRemaining a owl:DatatypeProperty ;
+    rdfs:label "budget remaining" ;
+    rdfs:comment "Remaining privacy budget available" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bapa:PrivacyBudgetManager .
+
+bapa:sensitivityLevel a owl:DatatypeProperty ;
+    rdfs:label "sensitivity level" ;
+    rdfs:comment "Global sensitivity of the query or function" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bapa:QueryPrivacyAnalyzer .
+
+## Geographic and Jurisdiction Properties
+bapa:dataLocation a owl:DatatypeProperty ;
+    rdfs:label "data location" ;
+    rdfs:comment "Geographic location of data storage or processing" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bapa:GeographicDataMapper .
+
+bapa:jurisdiction a owl:DatatypeProperty ;
+    rdfs:label "jurisdiction" ;
+    rdfs:comment "Legal jurisdiction governing the data" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bapa:DataSovereigntyEngine .
+
+bapa:residencyRequirement a owl:DatatypeProperty ;
+    rdfs:label "residency requirement" ;
+    rdfs:comment "Data residency requirement (local, regional, global)" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bapa:DataResidencyController .
+
+bapa:transferMechanism a owl:DatatypeProperty ;
+    rdfs:label "transfer mechanism" ;
+    rdfs:comment "Legal mechanism for cross-border data transfer" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bapa:CrossBorderTransferValidator .
+
+## Compliance Validation Properties
+bapa:complianceScore a owl:DatatypeProperty ;
+    rdfs:label "compliance score" ;
+    rdfs:comment "Numerical score indicating compliance level (0-100)" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bapa:AutomatedComplianceValidator .
+
+bapa:validationTimestamp a owl:DatatypeProperty ;
+    rdfs:label "validation timestamp" ;
+    rdfs:comment "Timestamp of compliance validation" ;
+    rdfs:range xsd:dateTime ;
+    rdfs:domain bapa:AutomatedComplianceValidator .
+
+bapa:riskLevel a owl:DatatypeProperty ;
+    rdfs:label "risk level" ;
+    rdfs:comment "Risk level assessment (low, medium, high, critical)" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bapa:RiskBasedComplianceChecker .
+
+bapa:violationSeverity a owl:DatatypeProperty ;
+    rdfs:label "violation severity" ;
+    rdfs:comment "Severity of compliance violation (minor, major, critical)" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bapa:AutomatedComplianceEngine .
+
+## Redaction Properties
+bapa:redactionLevel a owl:DatatypeProperty ;
+    rdfs:label "redaction level" ;
+    rdfs:comment "Level of redaction applied (partial, substantial, complete)" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bapa:RedactionProofSystem .
+
+bapa:redactionMethod a owl:DatatypeProperty ;
+    rdfs:label "redaction method" ;
+    rdfs:comment "Method used for redaction (cryptographic, physical, logical)" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bapa:CryptographicRedactionEngine .
+
+bapa:proofValidity a owl:DatatypeProperty ;
+    rdfs:label "proof validity" ;
+    rdfs:comment "Mathematical validity of redaction proof" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain bapa:RedactionCompletenessValidator .
+
+## Performance Properties (Doctrine of 8 Compliance)
+bapa:validationLatency a owl:DatatypeProperty ;
+    rdfs:label "validation latency" ;
+    rdfs:comment "Time required for compliance validation in milliseconds" ;
+    rdfs:range xsd:decimal ;
+    rdfs:domain bapa:AutomatedComplianceValidator .
+
+bapa:throughputRate a owl:DatatypeProperty ;
+    rdfs:label "throughput rate" ;
+    rdfs:comment "Number of compliance checks per second" ;
+    rdfs:range xsd:decimal ;
+    rdfs:domain bapa:AutomatedComplianceEngine .
+
+bapa:accuracyRate a owl:DatatypeProperty ;
+    rdfs:label "accuracy rate" ;
+    rdfs:comment "Accuracy of compliance validation as percentage" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bapa:AutomatedComplianceValidator .
+
+# =============================================================================
+# OBJECT PROPERTIES
+# =============================================================================
+
+## Privacy Budget Relationships
+bapa:managesBudget a owl:ObjectProperty ;
+    rdfs:label "manages budget" ;
+    rdfs:comment "Relationship between budget manager and budget tracker" ;
+    rdfs:domain bapa:PrivacyBudgetManager ;
+    rdfs:range bapa:EpsilonBudgetTracker .
+
+bapa:requiresBudget a owl:ObjectProperty ;
+    rdfs:label "requires budget" ;
+    rdfs:comment "Query or operation requiring privacy budget" ;
+    rdfs:domain bapa:QueryPrivacyAnalyzer ;
+    rdfs:range bapa:PrivacyBudgetManager .
+
+bapa:generateProof a owl:ObjectProperty ;
+    rdfs:label "generates proof" ;
+    rdfs:comment "Relationship between prover and generated proof" ;
+    rdfs:domain bapa:PrivacyProofGenerator ;
+    rdfs:range ba:MathematicalProof .
+
+## Geographic Relationships
+bapa:residesIn a owl:ObjectProperty ;
+    rdfs:label "resides in" ;
+    rdfs:comment "Data residing in specific geographic location" ;
+    rdfs:domain ba:Data ;
+    rdfs:range geo:Point .
+
+bapa:governedBy a owl:ObjectProperty ;
+    rdfs:label "governed by" ;
+    rdfs:comment "Data governed by specific jurisdiction" ;
+    rdfs:domain ba:Data ;
+    rdfs:range bapa:DataSovereigntyEngine .
+
+bapa:validates a owl:ObjectProperty ;
+    rdfs:label "validates" ;
+    rdfs:comment "Validator checking specific compliance aspect" ;
+    rdfs:domain bapa:AutomatedComplianceValidator ;
+    rdfs:range ba:ComplianceRequirement .
+
+## Redaction Relationships
+bapa:redactedBy a owl:ObjectProperty ;
+    rdfs:label "redacted by" ;
+    rdfs:comment "Data redacted using specific redaction engine" ;
+    rdfs:domain ba:Data ;
+    rdfs:range bapa:CryptographicRedactionEngine .
+
+bapa:provenBy a owl:ObjectProperty ;
+    rdfs:label "proven by" ;
+    rdfs:comment "Redaction proven by specific proof system" ;
+    rdfs:domain ba:RedactionOperation ;
+    rdfs:range bapa:RedactionProofSystem .
+
+## Crystal Operations Integration
+bapa:protectsCrystal a owl:ObjectProperty ;
+    rdfs:label "protects crystal" ;
+    rdfs:comment "Privacy system protecting crystal operations" ;
+    rdfs:domain bapa:CrystalPrivacyInterface ;
+    rdfs:range ba:CrystalOperation .
+
+bapa:integratesWith a owl:ObjectProperty ;
+    rdfs:label "integrates with" ;
+    rdfs:comment "Integration with existing ByteStar ontologies" ;
+    rdfs:domain bapa:ComplianceAutomationFramework ;
+    rdfs:range ba:ByteStarComponent .
+
+# =============================================================================
+# SHACL VALIDATION SHAPES
+# =============================================================================
+
+bapa:ComplianceValidatorShape a sh:NodeShape ;
+    sh:targetClass bapa:AutomatedComplianceValidator ;
+    sh:property [
+        sh:path bapa:validationLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Compliance validation must meet Doctrine of 8 (≤8ms)" ;
+    ] ;
+    sh:property [
+        sh:path bapa:accuracyRate ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 99.5 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Accuracy must be >99.5%" ;
+    ] .
+
+bapa:PrivacyBudgetShape a sh:NodeShape ;
+    sh:targetClass bapa:PrivacyBudgetManager ;
+    sh:property [
+        sh:path bapa:epsilonBudget ;
+        sh:datatype xsd:double ;
+        sh:minExclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Epsilon budget must be positive and reasonable" ;
+    ] ;
+    sh:property [
+        sh:path bapa:deltaBudget ;
+        sh:datatype xsd:double ;
+        sh:minExclusive 0.0 ;
+        sh:maxExclusive 1.0 ;
+        sh:message "Delta budget must be between 0 and 1" ;
+    ] .
+
+bapa:DataResidencyShape a sh:NodeShape ;
+    sh:targetClass bapa:DataResidencyController ;
+    sh:property [
+        sh:path bapa:residencyRequirement ;
+        sh:datatype xsd:string ;
+        sh:in ( "local" "regional" "global" "restricted" ) ;
+        sh:message "Residency requirement must be valid option" ;
+    ] .
+
+bapa:RedactionProofShape a sh:NodeShape ;
+    sh:targetClass bapa:RedactionProofSystem ;
+    sh:property [
+        sh:path bapa:proofValidity ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Redaction proof must be mathematically valid" ;
+    ] .
+
+bapa:PerformanceComplianceShape a sh:NodeShape ;
+    sh:targetClass bapa:ComplianceAutomationFramework ;
+    sh:property [
+        sh:path bapa:throughputRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 100000.0 ;
+        sh:message "Must support minimum 100K compliance checks/sec" ;
+    ] .
+
+# =============================================================================
+# COMPLIANCE AUTOMATION INSTANCES
+# =============================================================================
+
+# Main Compliance Automation System
+bapa:ByteStarComplianceAutomation a bapa:ComplianceAutomationFramework ;
+    rdfs:label "ByteStar Compliance Automation System" ;
+    rdfs:comment "Primary automated compliance system for ByteStar crystal operations" ;
+    bapa:validationLatency 4.2 ;
+    bapa:accuracyRate 99.8 ;
+    bapa:throughputRate 150000.0 ;
+    ba:operationalStatus "ACTIVE" .
+
+# Privacy Budget Management
+bapa:GlobalPrivacyBudgetManager a bapa:PrivacyBudgetManager ;
+    rdfs:label "Global Privacy Budget Manager" ;
+    rdfs:comment "Global manager for all differential privacy budgets" ;
+    bapa:budgetAllocation "adaptive" ;
+    bapa:epsilonBudget 1.0 ;
+    bapa:deltaBudget 1e-6 .
+
+# Data Residency Control
+bapa:EuropeanDataResidency a bapa:DataResidencyController ;
+    rdfs:label "European Data Residency Controller" ;
+    rdfs:comment "Enforces EU data residency requirements" ;
+    bapa:jurisdiction "European Union" ;
+    bapa:residencyRequirement "local" ;
+    bapa:transferMechanism "adequacy_decision" .
+
+# Redaction Proof System
+bapa:CrystalRedactionProof a bapa:RedactionProofSystem ;
+    rdfs:label "Crystal Redaction Proof System" ;
+    rdfs:comment "Mathematical proof system for crystal data redaction" ;
+    bapa:redactionLevel "complete" ;
+    bapa:redactionMethod "cryptographic" ;
+    bapa:proofValidity true .
+
+# =============================================================================
+# COMPLIANCE METRICS AND KPIS
+# =============================================================================
+
+bapa:ComplianceAutomationEffectiveness a ba:PerformanceMetric ;
+    rdfs:label "Compliance Automation Effectiveness" ;
+    rdfs:comment "Effectiveness of automated compliance validation" ;
+    ba:targetValue 99.5 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "successful_validations / total_validations * 100" .
+
+bapa:PrivacyBudgetUtilization a ba:UtilizationMetric ;
+    rdfs:label "Privacy Budget Utilization" ;
+    rdfs:comment "Efficiency of privacy budget utilization" ;
+    ba:targetValue 85.0 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "consumed_budget / allocated_budget * 100" .
+
+bapa:DataResidencyCompliance a ba:ComplianceMetric ;
+    rdfs:label "Data Residency Compliance" ;
+    rdfs:comment "Percentage of data meeting residency requirements" ;
+    ba:targetValue 100.0 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "compliant_data_locations / total_data_locations * 100" .
+
+bapa:RedactionCompleteness a ba:QualityMetric ;
+    rdfs:label "Redaction Completeness" ;
+    rdfs:comment "Mathematical completeness of redaction operations" ;
+    ba:targetValue 100.0 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "proven_complete_redactions / total_redactions * 100" .
+
+# =============================================================================
+# INTEGRATION WITH EXISTING ONTOLOGIES
+# =============================================================================
+
+# Link to Compliance Framework
+bac:GDPR bapa:automatedBy bapa:GDPRComplianceValidator .
+bac:HIPAA bapa:automatedBy bapa:HIPAAComplianceValidator .
+bac:PCI_DSS bapa:automatedBy bapa:PCIComplianceValidator .
+
+# Link to Access Control
+baac:ZeroTrustArchitecture bapa:enhancedBy bapa:ComplianceAutomationFramework .
+baac:AccessControlCache bapa:integratesWith bapa:AutomatedComplianceEngine .
+
+# Link to Audit System
+baa:ImmutableAuditTrail bapa:supports bapa:RedactionAuditTrail .
+baa:AuditSystem bapa:enhancedBy bapa:ContinuousComplianceMonitor .
+
+# =============================================================================
+# End of Ontology
+# =============================================================================

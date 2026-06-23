@@ -1,0 +1,18 @@
+# SPARQL Query: Extract Graduation Candidates from wasm4pm-compat ontology
+# Purpose: Identify all process forms and type constraints ready to graduate to wasm4pm engine
+# Usage: ggen query extract-graduation-candidates.rq --format json
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+
+SELECT ?form ?rustType ?sourceFile ?reason
+WHERE {
+  ?form a compat:ProcessForm ;
+        compat:rustType          ?rustType ;
+        compat:sourceFile        ?sourceFile ;
+        compat:graduatesToWasm4pm true ;
+        compat:graduationReason  ?reason .
+}
+ORDER BY ?rustType

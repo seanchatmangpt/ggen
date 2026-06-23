@@ -1,0 +1,781 @@
+@prefix : <http://bytestar.org/ontology/security/constant-time#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix be: <http://bytestar.org/ontology/byteethos#> .
+@prefix bf: <http://bytestar.org/ontology/byteflow#> .
+@prefix bc: <http://bytestar.org/ontology/bytecore#> .
+@prefix bp: <http://bytestar.org/ontology/bytepqc#> .
+@prefix doe: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix det: <http://bytestar.org/ontology/deterministic-execution#> .
+@prefix ztr: <http://bytestar.org/ontology/zero-tick-rejection#> .
+@prefix sp: <http://bytestar.org/ontology/security-policy#> .
+@prefix pqcval: <http://bytestar.org/ontology/security/pqc-validation#> .
+@prefix sidech: <http://bytestar.org/ontology/security/sidechannel#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix crypto: <https://w3id.org/security#> .
+@prefix nist: <https://csrc.nist.gov/schema#> .
+
+<http://bytestar.org/ontology/security/constant-time> rdf:type owl:Ontology ;
+    dct:title "ByteStar Constant-Time Cryptographic Operations Validator"@en ;
+    dct:description """Comprehensive validation framework for ensuring constant-time execution
+    of cryptographic operations across all ByteStar crystal implementations with formal verification.
+    
+    This ontology establishes:
+    1. Constant-time execution property definitions and formal semantics
+    2. Hardware-level timing validation and measurement frameworks
+    3. Formal verification methods for proving constant-time properties
+    4. Static analysis tools for compile-time constant-time validation
+    5. Dynamic testing frameworks for runtime timing validation
+    6. Branch-free algorithm verification and validation
+    7. Data-independent execution path validation
+    8. Memory access pattern independence verification
+    9. Cache-oblivious algorithm validation frameworks
+    10. Real-time timing attack detection and prevention
+    11. Performance-optimized validation (≤8 tick constraint)
+    12. Integration with zero-tick rejection for timing violations
+    
+    Advanced capabilities include:
+    - Nanosecond-precision timing measurement and validation
+    - Statistical analysis of execution time distributions
+    - Formal mathematical proofs of timing invariance
+    - Hardware counter integration for precise measurement
+    - Compiler integration for static constant-time verification
+    - Runtime monitoring with immediate violation detection
+    - Cross-platform timing validation and portability
+    - Hardware security module integration for attestation
+    
+    The validator ensures protection against:
+    - Timing attacks through execution time variations
+    - Branch prediction attacks through conditional operations
+    - Cache timing attacks through memory access patterns
+    - Instruction timing attacks through operation sequences
+    - Pipeline timing attacks through CPU pipeline behavior
+    - Microarchitectural timing attacks through hardware features
+    - Remote timing attacks through network-observable timing
+    - Statistical timing attacks through timing distribution analysis"""@en ;
+    dct:creator "ByteStar Constant-Time Validation Team"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-security"@en ;
+    dct:license <https://opensource.org/licenses/MIT> ;
+    rdfs:seeAlso <http://bytestar.org/docs/constant-time-validation> ;
+    owl:imports <http://bytestar.org/ontology/byteactor> ,
+                <http://bytestar.org/ontology/byteethos> ,
+                <http://bytestar.org/ontology/byteflow> ,
+                <http://bytestar.org/ontology/bytecore> ,
+                <http://bytestar.org/ontology/bytepqc> ,
+                <http://bytestar.org/ontology/doctrine-of-8> ,
+                <http://bytestar.org/ontology/deterministic-execution> ,
+                <http://bytestar.org/ontology/zero-tick-rejection> ,
+                <http://bytestar.org/ontology/security-policy> ,
+                <http://bytestar.org/ontology/security/pqc-validation> ,
+                <http://bytestar.org/ontology/security/sidechannel> .
+
+#################################################################
+#    Core Constant-Time Validation Framework Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/constant-time#ConstantTimeValidator
+:ConstantTimeValidator rdf:type owl:Class ;
+                       rdfs:subClassOf sidech:ConstantTimeValidator ,
+                                     sp:PreventiveControl ;
+                       rdfs:label "Constant-Time Validator"@en ;
+                       rdfs:comment """Comprehensive validator that ensures cryptographic operations
+                       execute in exactly constant time regardless of input values."""@en ;
+                       :validatesProperty :ConstantTimeExecution ;
+                       :hasValidationMethod :StaticAnalysis , :DynamicTesting , :FormalVerification ;
+                       :operatesWithinConstraint doe:EightTickConstraint ;
+                       :hasTimingPrecision "nanoseconds"^^xsd:string ;
+                       :triggersZeroTickOnViolation ztr:InstantRejection .
+
+###  http://bytestar.org/ontology/security/constant-time#ConstantTimeProperty
+:ConstantTimeProperty rdf:type owl:Class ;
+                      rdfs:subClassOf sp:SecurityProperty ;
+                      rdfs:label "Constant-Time Property"@en ;
+                      rdfs:comment """Formal property specifying that execution time
+                      is independent of secret input values."""@en ;
+                      :hasTimingInvariance :DataIndependentTiming ;
+                      :hasExecutionModel :DeterministicExecution ;
+                      :isFormallyVerifiable "true"^^xsd:boolean ;
+                      :hasMathematicalDefinition :TimingIndependenceFormula .
+
+###  http://bytestar.org/ontology/security/constant-time#TimingInvariance
+:TimingInvariance rdf:type owl:Class ;
+                  rdfs:subClassOf :ConstantTimeProperty ;
+                  rdfs:label "Timing Invariance"@en ;
+                  rdfs:comment """Property that execution time remains invariant
+                  across all possible input values and secret states."""@en ;
+                  :hasInvarianceType :DataIndependence , :StateIndependence , :InputIndependence ;
+                  :hasVarianceThreshold "0.0"^^xsd:decimal ;
+                  :isStatisticallyVerifiable "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#BranchFreeExecution
+:BranchFreeExecution rdf:type owl:Class ;
+                     rdfs:subClassOf :ConstantTimeProperty ;
+                     rdfs:label "Branch-Free Execution"@en ;
+                     rdfs:comment """Property ensuring execution paths contain no
+                     conditional branches dependent on secret data."""@en ;
+                     :hasControlFlow :LinearControlFlow ;
+                     :eliminatesConditionals "true"^^xsd:boolean ;
+                     :usesConstantTimeOperations "true"^^xsd:boolean ;
+                     :preventsDataDependentBranching "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#DataIndependentMemoryAccess
+:DataIndependentMemoryAccess rdf:type owl:Class ;
+                             rdfs:subClassOf :ConstantTimeProperty ;
+                             rdfs:label "Data-Independent Memory Access"@en ;
+                             rdfs:comment """Property ensuring memory access patterns
+                             are independent of secret data values."""@en ;
+                             :hasAccessPattern :FixedPattern ;
+                             :eliminatesDataDependentAccess "true"^^xsd:boolean ;
+                             :usesCacheObliviousAlgorithms "true"^^xsd:boolean ;
+                             :preventsCacheTimingLeakage "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#InstructionTimingInvariance
+:InstructionTimingInvariance rdf:type owl:Class ;
+                             rdfs:subClassOf :ConstantTimeProperty ;
+                             rdfs:label "Instruction Timing Invariance"@en ;
+                             rdfs:comment """Property ensuring individual instruction execution
+                             times are independent of operand values."""@en ;
+                             :usesConstantTimeInstructions "true"^^xsd:boolean ;
+                             :avoidsVariableTimeOperations "true"^^xsd:boolean ;
+                             :hasInstructionSet :ConstantTimeInstructionSet ;
+                             :isHardwareGuaranteed "true"^^xsd:boolean .
+
+#################################################################
+#    Formal Verification Framework Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/constant-time#FormalConstantTimeVerification
+:FormalConstantTimeVerification rdf:type owl:Class ;
+                                rdfs:subClassOf sidech:FormalVerification ;
+                                rdfs:label "Formal Constant-Time Verification"@en ;
+                                rdfs:comment """Formal mathematical verification system
+                                that proves constant-time properties using logic and theorem proving."""@en ;
+                                :usesVerificationMethod :TheoremProving , :ModelChecking , :SymbolicExecution ;
+                                :providesProofCertificate "true"^^xsd:boolean ;
+                                :hasVerificationLogic :TemporalLogic , :HoareLogic , :SeparationLogic ;
+                                :ensuresCompleteness "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#TheoremProvingVerification
+:TheoremProvingVerification rdf:type owl:Class ;
+                            rdfs:subClassOf :FormalConstantTimeVerification ;
+                            rdfs:label "Theorem Proving Verification"@en ;
+                            rdfs:comment """Verification method using interactive theorem proving
+                            to construct mathematical proofs of constant-time properties."""@en ;
+                            :usesTheoremProver :Coq , :Lean , :Isabelle , :Agda ;
+                            :constructsProof :MathematicalProof ;
+                            :hasProofAssistant :InteractiveProver ;
+                            :ensuresSoundness "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#ModelCheckingVerification
+:ModelCheckingVerification rdf:type owl:Class ;
+                           rdfs:subClassOf :FormalConstantTimeVerification ;
+                           rdfs:label "Model Checking Verification"@en ;
+                           rdfs:comment """Verification method using model checking
+                           to exhaustively verify timing properties."""@en ;
+                           :usesModelChecker :CBMC , :SMACK , :SeaHorn , :ESBMC ;
+                           :checksStateSpace :ExhaustiveSearch ;
+                           :hasModelType :FiniteStateModel ;
+                           :providesCounterexamples "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#SymbolicExecutionVerification
+:SymbolicExecutionVerification rdf:type owl:Class ;
+                               rdfs:subClassOf :FormalConstantTimeVerification ;
+                               rdfs:label "Symbolic Execution Verification"@en ;
+                               rdfs:comment """Verification method using symbolic execution
+                               to analyze all possible execution paths for timing properties."""@en ;
+                               :usesSymbolicEngine :SAGE , :KLEE , :CBMC , :SMACK ;
+                               :exploresPathSpace :AllPaths ;
+                               :hasConstraintSolver :SMTSolver ;
+                               :detectsTimingViolations "true"^^xsd:boolean .
+
+#################################################################
+#    Static Analysis Framework Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/constant-time#StaticTimingAnalysis
+:StaticTimingAnalysis rdf:type owl:Class ;
+                      rdfs:subClassOf :ConstantTimeValidator ;
+                      rdfs:label "Static Timing Analysis"@en ;
+                      rdfs:comment """Compile-time analysis that validates constant-time
+                      properties without executing the code."""@en ;
+                      :analyzesSourceCode "true"^^xsd:boolean ;
+                      :analyzesIntermediateRepresentation "true"^^xsd:boolean ;
+                      :analyzesAssemblyCode "true"^^xsd:boolean ;
+                      :detectsTimingLeaks "true"^^xsd:boolean ;
+                      :hasAnalysisPhase :CompileTime .
+
+###  http://bytestar.org/ontology/security/constant-time#ControlFlowAnalysis
+:ControlFlowAnalysis rdf:type owl:Class ;
+                     rdfs:subClassOf :StaticTimingAnalysis ;
+                     rdfs:label "Control Flow Analysis"@en ;
+                     rdfs:comment """Analysis that examines control flow graphs
+                     to detect data-dependent branching patterns."""@en ;
+                     :analyzesControlFlowGraph "true"^^xsd:boolean ;
+                     :detectsBranches :DataDependentBranch ;
+                     :ensuresLinearFlow "true"^^xsd:boolean ;
+                     :eliminatesConditionals "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#DataFlowAnalysis
+:DataFlowAnalysis rdf:type owl:Class ;
+                  rdfs:subClassOf :StaticTimingAnalysis ;
+                  rdfs:label "Data Flow Analysis"@en ;
+                  rdfs:comment """Analysis that tracks data flow to identify
+                  secret data influence on timing-sensitive operations."""@en ;
+                  :tracksSecretData "true"^^xsd:boolean ;
+                  :identifiesInfluence :SecretDataInfluence ;
+                  :analyzesDataDependence "true"^^xsd:boolean ;
+                  :detectsInformationFlow "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#MemoryAccessAnalysis
+:MemoryAccessAnalysis rdf:type owl:Class ;
+                      rdfs:subClassOf :StaticTimingAnalysis ;
+                      rdfs:label "Memory Access Analysis"@en ;
+                      rdfs:comment """Analysis that examines memory access patterns
+                      to ensure cache-oblivious and timing-invariant access."""@en ;
+                      :analyzesAccessPatterns "true"^^xsd:boolean ;
+                      :ensuresCacheOblivious "true"^^xsd:boolean ;
+                      :detectsDataDependentAccess "true"^^xsd:boolean ;
+                      :validatesAddressIndependence "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#CompilerIntegration
+:CompilerIntegration rdf:type owl:Class ;
+                     rdfs:subClassOf :StaticTimingAnalysis ;
+                     rdfs:label "Compiler Integration"@en ;
+                     rdfs:comment """Integration with compiler infrastructure
+                     to perform constant-time validation during compilation."""@en ;
+                     :integratesWithCompiler "true"^^xsd:boolean ;
+                     :providesCompilerPlugin "true"^^xsd:boolean ;
+                     :hasIntegrationLevel :LLVM , :GCC , :Clang ;
+                     :performsOptimizationValidation "true"^^xsd:boolean .
+
+#################################################################
+#    Dynamic Testing Framework Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/constant-time#DynamicTimingTesting
+:DynamicTimingTesting rdf:type owl:Class ;
+                      rdfs:subClassOf :ConstantTimeValidator ;
+                      rdfs:label "Dynamic Timing Testing"@en ;
+                      rdfs:comment """Runtime testing framework that measures
+                      actual execution times to validate constant-time properties."""@en ;
+                      :measuresExecutionTime "true"^^xsd:boolean ;
+                      :hasTimingPrecision "nanoseconds"^^xsd:string ;
+                      :usesHardwareCounters "true"^^xsd:boolean ;
+                      :performsStatisticalAnalysis "true"^^xsd:boolean ;
+                      :hasTestingPhase :Runtime .
+
+###  http://bytestar.org/ontology/security/constant-time#HardwareTimingMeasurement
+:HardwareTimingMeasurement rdf:type owl:Class ;
+                           rdfs:subClassOf :DynamicTimingTesting ;
+                           rdfs:label "Hardware Timing Measurement"@en ;
+                           rdfs:comment """Precise timing measurement using hardware
+                           performance counters and cycle-accurate timers."""@en ;
+                           :usesHardwareCounters "true"^^xsd:boolean ;
+                           :hasPrecision "cycle_accurate"^^xsd:string ;
+                           :accessesCPUCounters :TSC , :PMC , :PERF ;
+                           :measuresCycles "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#StatisticalTimingAnalysis
+:StatisticalTimingAnalysis rdf:type owl:Class ;
+                           rdfs:subClassOf :DynamicTimingTesting ;
+                           rdfs:label "Statistical Timing Analysis"@en ;
+                           rdfs:comment """Statistical analysis of timing measurements
+                           to detect and quantify timing variations."""@en ;
+                           :performsStatisticalTests :TTest , :WelchTest , :KSTest ;
+                           :computesStatistics :Mean , :Variance , :StandardDeviation ;
+                           :hasSignificanceLevel "0.001"^^xsd:decimal ;
+                           :detectsTimingLeakage "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#FuzzingBasedTesting
+:FuzzingBasedTesting rdf:type owl:Class ;
+                     rdfs:subClassOf :DynamicTimingTesting ;
+                     rdfs:label "Fuzzing-Based Testing"@en ;
+                     rdfs:comment """Automated testing using fuzzing techniques
+                     to generate diverse inputs and detect timing variations."""@en ;
+                     :generatesFuzzInputs "true"^^xsd:boolean ;
+                     :usesFuzzingEngine :AFL , :libFuzzer , :honggfuzz ;
+                     :explorerInputSpace :Comprehensive ;
+                     :detectsCornerCases "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#RealTimeMonitoring
+:RealTimeMonitoring rdf:type owl:Class ;
+                    rdfs:subClassOf :DynamicTimingTesting ,
+                                  sidech:RealTimeMonitor ;
+                    rdfs:label "Real-Time Monitoring"@en ;
+                    rdfs:comment """Continuous monitoring system that detects
+                    timing violations during live execution."""@en ;
+                    :monitorsRealTime "true"^^xsd:boolean ;
+                    :hasResponseTime "nanoseconds"^^xsd:string ;
+                    :triggersImmediateResponse "true"^^xsd:boolean ;
+                    :integrates ztr:InstantRejection .
+
+#################################################################
+#    Timing Attack Prevention Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/constant-time#TimingAttackPrevention
+:TimingAttackPrevention rdf:type owl:Class ;
+                        rdfs:subClassOf sp:PreventiveControl ;
+                        rdfs:label "Timing Attack Prevention"@en ;
+                        rdfs:comment """Comprehensive system for preventing timing attacks
+                        through constant-time implementation and validation."""@en ;
+                        :prevents sidech:TimingAttack ;
+                        :hasPreventionMethod :ConstantTimeImplementation , :TimingNoise , :Blinding ;
+                        :operatesAtHardwareLevel "true"^^xsd:boolean ;
+                        :providesProvenSecurity "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#ConstantTimeImplementation
+:ConstantTimeImplementation rdf:type owl:Class ;
+                            rdfs:subClassOf :TimingAttackPrevention ;
+                            rdfs:label "Constant-Time Implementation"@en ;
+                            rdfs:comment """Implementation approach that ensures all
+                            cryptographic operations execute in constant time."""@en ;
+                            :usesConstantTimeAlgorithms "true"^^xsd:boolean ;
+                            :eliminatesConditionalOperations "true"^^xsd:boolean ;
+                            :usesSelectInstructions "true"^^xsd:boolean ;
+                            :avoidsBranchingOnSecrets "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#TimingNoiseInjection
+:TimingNoiseInjection rdf:type owl:Class ;
+                      rdfs:subClassOf :TimingAttackPrevention ;
+                      rdfs:label "Timing Noise Injection"@en ;
+                      rdfs:comment """Countermeasure that injects controlled timing noise
+                      to mask execution time variations."""@en ;
+                      :injectsTimingNoise "true"^^xsd:boolean ;
+                      :hasNoiseModel :GaussianNoise , :UniformNoise ;
+                      :maintainsFunctionality "true"^^xsd:boolean ;
+                      :masksTimingSignals "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#BlindingTechniques
+:BlindingTechniques rdf:type owl:Class ;
+                    rdfs:subClassOf :TimingAttackPrevention ;
+                    rdfs:label "Blinding Techniques"@en ;
+                    rdfs:comment """Cryptographic technique that blinds secret values
+                    to make timing analysis ineffective."""@en ;
+                    :blindsSecretValues "true"^^xsd:boolean ;
+                    :usesRandomBlinding "true"^^xsd:boolean ;
+                    :hasBlindingType :MultiplicativeBlinding , :AdditiveBlinding ;
+                    :preservesCorrectness "true"^^xsd:boolean .
+
+#################################################################
+#    Hardware Integration Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/constant-time#HardwareIntegration
+:HardwareIntegration rdf:type owl:Class ;
+                     rdfs:subClassOf :ConstantTimeValidator ;
+                     rdfs:label "Hardware Integration"@en ;
+                     rdfs:comment """Integration with hardware features and security
+                     modules for constant-time validation and enforcement."""@en ;
+                     :integratesWithHardware "true"^^xsd:boolean ;
+                     :usesHardwareCounters "true"^^xsd:boolean ;
+                     :accessesSecurityFeatures "true"^^xsd:boolean ;
+                     :providesHardwareAttestation "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/constant-time#HSMConstantTimeValidation
+:HSMConstantTimeValidation rdf:type owl:Class ;
+                           rdfs:subClassOf :HardwareIntegration ,
+                                         pqcval:HSMIntegrationValidator ;
+                           rdfs:label "HSM Constant-Time Validation"@en ;
+                           rdfs:comment """Validation of constant-time properties
+                           within hardware security modules."""@en ;
+                           :validatesWithinHSM "true"^^xsd:boolean ;
+                           :usesTamperResistantHardware "true"^^xsd:boolean ;
+                           :providesHardwareAttestation "true"^^xsd:boolean ;
+                           :hasSecurityLevel :FIPS140_3_Level4 .
+
+###  http://bytestar.org/ontology/security/constant-time#TEEConstantTimeValidation
+:TEEConstantTimeValidation rdf:type owl:Class ;
+                           rdfs:subClassOf :HardwareIntegration ,
+                                         pqcval:TEEIntegrationValidator ;
+                           rdfs:label "TEE Constant-Time Validation"@en ;
+                           rdfs:comment """Validation of constant-time properties
+                           within trusted execution environments."""@en ;
+                           :validatesWithinTEE "true"^^xsd:boolean ;
+                           :usesEnclaveProtection "true"^^xsd:boolean ;
+                           :providesRemoteAttestation "true"^^xsd:boolean ;
+                           :hasEnclaveType :IntelSGX , :ARMTrustZone .
+
+###  http://bytestar.org/ontology/security/constant-time#CPUFeatureIntegration
+:CPUFeatureIntegration rdf:type owl:Class ;
+                       rdfs:subClassOf :HardwareIntegration ;
+                       rdfs:label "CPU Feature Integration"@en ;
+                       rdfs:comment """Integration with CPU-specific features
+                       for constant-time validation and enforcement."""@en ;
+                       :usesConstantTimeInstructions "true"^^xsd:boolean ;
+                       :accessesPerformanceCounters "true"^^xsd:boolean ;
+                       :usesTSC "true"^^xsd:boolean ;
+                       :hasCPUSupport :x86_64 , :ARM64 , :RISC_V .
+
+#################################################################
+#    Object Properties for Constant-Time Framework
+#################################################################
+
+###  http://bytestar.org/ontology/security/constant-time#validatesConstantTime
+:validatesConstantTime rdf:type owl:ObjectProperty ;
+                       rdfs:domain :ConstantTimeValidator ;
+                       rdfs:range ba:Operation ;
+                       rdfs:label "validates constant time"@en ;
+                       rdfs:comment "Indicates operation validated for constant-time execution."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#hasTimingProperty
+:hasTimingProperty rdf:type owl:ObjectProperty ;
+                   rdfs:domain ba:Operation ;
+                   rdfs:range :ConstantTimeProperty ;
+                   rdfs:label "has timing property"@en ;
+                   rdfs:comment "Indicates timing property of operation."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#ensuresInvariance
+:ensuresInvariance rdf:type owl:ObjectProperty ;
+                   rdfs:domain :ConstantTimeValidator ;
+                   rdfs:range :TimingInvariance ;
+                   rdfs:label "ensures invariance"@en ;
+                   rdfs:comment "Indicates timing invariance ensured by validator."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#detectsViolation
+:detectsViolation rdf:type owl:ObjectProperty ;
+                  rdfs:domain :DynamicTimingTesting ;
+                  rdfs:range :TimingViolation ;
+                  rdfs:label "detects violation"@en ;
+                  rdfs:comment "Indicates timing violation detected by testing."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#preventsAttack
+:preventsAttack rdf:type owl:ObjectProperty ;
+                rdfs:domain :TimingAttackPrevention ;
+                rdfs:range sidech:TimingAttack ;
+                rdfs:label "prevents attack"@en ;
+                rdfs:comment "Indicates timing attack prevented by mechanism."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#providesProof
+:providesProof rdf:type owl:ObjectProperty ;
+               rdfs:domain :FormalConstantTimeVerification ;
+               rdfs:range :MathematicalProof ;
+               rdfs:label "provides proof"@en ;
+               rdfs:comment "Indicates mathematical proof provided by verification."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#usesVerificationMethod
+:usesVerificationMethod rdf:type owl:ObjectProperty ;
+                        rdfs:domain :FormalConstantTimeVerification ;
+                        rdfs:range :VerificationMethod ;
+                        rdfs:label "uses verification method"@en ;
+                        rdfs:comment "Indicates verification method used."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#integrates
+:integrates rdf:type owl:ObjectProperty ;
+            rdfs:domain :HardwareIntegration ;
+            rdfs:range :HardwareComponent ;
+            rdfs:label "integrates"@en ;
+            rdfs:comment "Indicates hardware component integrated."@en .
+
+#################################################################
+#    Data Properties for Constant-Time Framework
+#################################################################
+
+###  http://bytestar.org/ontology/security/constant-time#hasExecutionTime
+:hasExecutionTime rdf:type owl:DatatypeProperty ;
+                  rdfs:domain ba:Operation ;
+                  rdfs:range xsd:nonNegativeInteger ;
+                  rdfs:label "has execution time"@en ;
+                  rdfs:comment "Execution time in nanoseconds."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#hasTimingVariance
+:hasTimingVariance rdf:type owl:DatatypeProperty ;
+                   rdfs:domain ba:Operation ;
+                   rdfs:range xsd:decimal ;
+                   rdfs:label "has timing variance"@en ;
+                   rdfs:comment "Timing variance (must be 0.0 for constant-time)."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#hasTimingPrecision
+:hasTimingPrecision rdf:type owl:DatatypeProperty ;
+                    rdfs:domain :ConstantTimeValidator ;
+                    rdfs:range xsd:string ;
+                    rdfs:label "has timing precision"@en ;
+                    rdfs:comment "Precision of timing measurements."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#isBranchFree
+:isBranchFree rdf:type owl:DatatypeProperty ;
+              rdfs:domain ba:Kernel ;
+              rdfs:range xsd:boolean ;
+              rdfs:label "is branch free"@en ;
+              rdfs:comment "Boolean indicating branch-free execution."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#isConstantTime
+:isConstantTime rdf:type owl:DatatypeProperty ;
+                rdfs:domain ba:Operation ;
+                rdfs:range xsd:boolean ;
+                rdfs:label "is constant time"@en ;
+                rdfs:comment "Boolean indicating constant-time execution."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#hasVarianceThreshold
+:hasVarianceThreshold rdf:type owl:DatatypeProperty ;
+                      rdfs:domain :TimingInvariance ;
+                      rdfs:range xsd:decimal ;
+                      rdfs:label "has variance threshold"@en ;
+                      rdfs:comment "Maximum allowed timing variance."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#hasSignificanceLevel
+:hasSignificanceLevel rdf:type owl:DatatypeProperty ;
+                      rdfs:domain :StatisticalTimingAnalysis ;
+                      rdfs:range xsd:decimal ;
+                      rdfs:label "has significance level"@en ;
+                      rdfs:comment "Statistical significance level for tests."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#hasTestPower
+:hasTestPower rdf:type owl:DatatypeProperty ;
+              rdfs:domain :StatisticalTimingAnalysis ;
+              rdfs:range xsd:decimal ;
+              rdfs:label "has test power"@en ;
+              rdfs:comment "Statistical power of timing tests."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#hasResponseTimeNanoseconds
+:hasResponseTimeNanoseconds rdf:type owl:DatatypeProperty ;
+                            rdfs:domain :RealTimeMonitoring ;
+                            rdfs:range xsd:nonNegativeInteger ;
+                            rdfs:label "has response time nanoseconds"@en ;
+                            rdfs:comment "Response time in nanoseconds."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#hasCycleAccuracy
+:hasCycleAccuracy rdf:type owl:DatatypeProperty ;
+                  rdfs:domain :HardwareTimingMeasurement ;
+                  rdfs:range xsd:boolean ;
+                  rdfs:label "has cycle accuracy"@en ;
+                  rdfs:comment "Boolean indicating cycle-accurate measurement."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#hasProofCompleteness
+:hasProofCompleteness rdf:type owl:DatatypeProperty ;
+                      rdfs:domain :FormalConstantTimeVerification ;
+                      rdfs:range xsd:boolean ;
+                      rdfs:label "has proof completeness"@en ;
+                      rdfs:comment "Boolean indicating proof completeness."@en .
+
+###  http://bytestar.org/ontology/security/constant-time#isHardwareEnforced
+:isHardwareEnforced rdf:type owl:DatatypeProperty ;
+                    rdfs:domain :ConstantTimeProperty ;
+                    rdfs:range xsd:boolean ;
+                    rdfs:label "is hardware enforced"@en ;
+                    rdfs:comment "Boolean indicating hardware enforcement."@en .
+
+#################################################################
+#    Validation Framework Instances
+#################################################################
+
+###  Master Constant-Time Validator
+:MasterConstantTimeValidator rdf:type :ConstantTimeValidator ;
+                             rdfs:label "Master Constant-Time Validator"@en ;
+                             rdfs:comment "Primary constant-time validator for ByteStar ecosystem."@en ;
+                             :validatesProperty :ConstantTimeExecution , :TimingInvariance , :BranchFreeExecution ;
+                             :hasValidationMethod :StaticAnalysis , :DynamicTesting , :FormalVerification ;
+                             :operatesWithinConstraint doe:EightTickConstraint ;
+                             :hasTimingPrecision "nanoseconds" ;
+                             :triggersZeroTickOnViolation ztr:InstantRejection .
+
+###  Crystal-Specific Validators
+:ByteActorConstantTimeValidator rdf:type :ConstantTimeValidator ;
+                                rdfs:label "ByteActor Constant-Time Validator"@en ;
+                                rdfs:comment "Constant-time validator for ByteActor kernels."@en ;
+                                :hasTimingPrecision "nanoseconds" ;
+                                :hasVarianceThreshold "0.0"^^xsd:decimal ;
+                                :isBranchFree "true"^^xsd:boolean ;
+                                :isConstantTime "true"^^xsd:boolean .
+
+:ByteCoreConstantTimeValidator rdf:type :ConstantTimeValidator ;
+                               rdfs:label "ByteCore Constant-Time Validator"@en ;
+                               rdfs:comment "Constant-time validator for ByteCore operations."@en ;
+                               :hasTimingPrecision "nanoseconds" ;
+                               :hasVarianceThreshold "0.0"^^xsd:decimal ;
+                               :isConstantTime "true"^^xsd:boolean .
+
+:BytePQCConstantTimeValidator rdf:type :ConstantTimeValidator ;
+                              rdfs:label "BytePQC Constant-Time Validator"@en ;
+                              rdfs:comment "Constant-time validator for PQC implementations."@en ;
+                              :hasTimingPrecision "nanoseconds" ;
+                              :hasVarianceThreshold "0.0"^^xsd:decimal ;
+                              :isConstantTime "true"^^xsd:boolean .
+
+###  Hardware Integration Instances
+:IntelSGXConstantTimeValidator rdf:type :TEEConstantTimeValidation ;
+                               rdfs:label "Intel SGX Constant-Time Validator"@en ;
+                               rdfs:comment "Constant-time validation within Intel SGX enclaves."@en ;
+                               :validatesWithinTEE "true"^^xsd:boolean ;
+                               :usesEnclaveProtection "true"^^xsd:boolean ;
+                               :providesRemoteAttestation "true"^^xsd:boolean ;
+                               :hasEnclaveType :IntelSGX .
+
+:HSMConstantTimeValidator rdf:type :HSMConstantTimeValidation ;
+                          rdfs:label "HSM Constant-Time Validator"@en ;
+                          rdfs:comment "Constant-time validation within HSMs."@en ;
+                          :validatesWithinHSM "true"^^xsd:boolean ;
+                          :usesTamperResistantHardware "true"^^xsd:boolean ;
+                          :providesHardwareAttestation "true"^^xsd:boolean ;
+                          :hasSecurityLevel :FIPS140_3_Level4 .
+
+###  Testing Framework Instances
+:PrecisionTimingTester rdf:type :HardwareTimingMeasurement ;
+                       rdfs:label "Precision Timing Tester"@en ;
+                       rdfs:comment "High-precision timing measurement system."@en ;
+                       :usesHardwareCounters "true"^^xsd:boolean ;
+                       :hasPrecision "cycle_accurate" ;
+                       :hasCycleAccuracy "true"^^xsd:boolean ;
+                       :accessesCPUCounters :TSC , :PMC , :PERF .
+
+:StatisticalTimingTester rdf:type :StatisticalTimingAnalysis ;
+                         rdfs:label "Statistical Timing Tester"@en ;
+                         rdfs:comment "Statistical analysis system for timing validation."@en ;
+                         :performsStatisticalTests :TTest , :WelchTest , :KSTest ;
+                         :hasSignificanceLevel "0.001"^^xsd:decimal ;
+                         :hasTestPower "99.9"^^xsd:decimal ;
+                         :detectsTimingLeakage "true"^^xsd:boolean .
+
+:RealTimeConstantTimeMonitor rdf:type :RealTimeMonitoring ;
+                             rdfs:label "Real-Time Constant-Time Monitor"@en ;
+                             rdfs:comment "Real-time monitoring for constant-time violations."@en ;
+                             :monitorsRealTime "true"^^xsd:boolean ;
+                             :hasResponseTime "nanoseconds" ;
+                             :hasResponseTimeNanoseconds 25 ;
+                             :triggersImmediateResponse "true"^^xsd:boolean .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+###  Constant-Time Property Shape
+:ConstantTimePropertyShape rdf:type sh:NodeShape ;
+                          sh:targetClass :ConstantTimeProperty ;
+                          rdfs:label "Constant-Time Property Shape"@en ;
+                          rdfs:comment "Validation shape for constant-time properties."@en ;
+                          sh:property [
+                              sh:path :hasTimingVariance ;
+                              sh:datatype xsd:decimal ;
+                              sh:hasValue "0.0"^^xsd:decimal ;
+                              sh:minCount 1 ;
+                              sh:maxCount 1 ;
+                              sh:message "Constant-time property must have zero timing variance"@en ;
+                              sh:severity sh:Violation
+                          ] ;
+                          sh:property [
+                              sh:path :isConstantTime ;
+                              sh:datatype xsd:boolean ;
+                              sh:hasValue "true"^^xsd:boolean ;
+                              sh:minCount 1 ;
+                              sh:message "Must be constant-time property"@en
+                          ] .
+
+###  Branch-Free Execution Shape
+:BranchFreeExecutionShape rdf:type sh:NodeShape ;
+                         sh:targetClass :BranchFreeExecution ;
+                         rdfs:label "Branch-Free Execution Shape"@en ;
+                         rdfs:comment "Validation shape for branch-free execution."@en ;
+                         sh:property [
+                             sh:path :isBranchFree ;
+                             sh:datatype xsd:boolean ;
+                             sh:hasValue "true"^^xsd:boolean ;
+                             sh:minCount 1 ;
+                             sh:message "Must be branch-free execution"@en
+                         ] ;
+                         sh:property [
+                             sh:path :eliminatesConditionals ;
+                             sh:datatype xsd:boolean ;
+                             sh:hasValue "true"^^xsd:boolean ;
+                             sh:message "Must eliminate conditional operations"@en
+                         ] .
+
+###  Timing Variance Shape
+:TimingVarianceShape rdf:type sh:NodeShape ;
+                    sh:targetClass ba:Operation ;
+                    rdfs:label "Timing Variance Shape"@en ;
+                    rdfs:comment "Validation shape for timing variance constraints."@en ;
+                    sh:property [
+                        sh:path :hasTimingVariance ;
+                        sh:datatype xsd:decimal ;
+                        sh:maxInclusive "0.0"^^xsd:decimal ;
+                        sh:minCount 1 ;
+                        sh:message "Operations must have zero timing variance for constant-time execution"@en ;
+                        sh:severity sh:Violation
+                    ] .
+
+###  Real-Time Response Shape
+:RealTimeResponseShape rdf:type sh:NodeShape ;
+                      sh:targetClass :RealTimeMonitoring ;
+                      rdfs:label "Real-Time Response Shape"@en ;
+                      rdfs:comment "Validation shape for real-time response requirements."@en ;
+                      sh:property [
+                          sh:path :hasResponseTimeNanoseconds ;
+                          sh:datatype xsd:nonNegativeInteger ;
+                          sh:maxInclusive 50 ;
+                          sh:minCount 1 ;
+                          sh:message "Response time must be ≤50 nanoseconds"@en
+                      ] .
+
+#################################################################
+#    Integration Axioms and Constraints
+#################################################################
+
+# Axiom: All ByteStar operations must be constant-time
+ba:Operation rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :isConstantTime ;
+    owl:hasValue "true"^^xsd:boolean
+] .
+
+# Axiom: All kernels must be branch-free
+ba:Kernel rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :isBranchFree ;
+    owl:hasValue "true"^^xsd:boolean
+] .
+
+# Axiom: Timing variance must be exactly zero for constant-time operations
+:ConstantTimeProperty rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasTimingVariance ;
+    owl:hasValue "0.0"^^xsd:decimal
+] .
+
+# Axiom: Constant-time validators must operate within 8 tick constraint
+:ConstantTimeValidator rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty doe:hasMaxExecutionTicks ;
+    owl:allValuesFrom [
+        rdf:type rdfs:Datatype ;
+        owl:withRestrictions ( [ xsd:maxInclusive 8 ] )
+    ]
+] .
+
+#################################################################
+#    Documentation and Metadata
+#################################################################
+
+:ConstantTimeValidatorDocumentation rdf:type owl:Class ;
+    rdfs:label "Constant-Time Validator Documentation"@en ;
+    rdfs:comment """Documentation for the constant-time validator framework
+    covering implementation guidelines, verification methods, and testing procedures."""@en ;
+    dct:creator "ByteStar Constant-Time Validation Team"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    prov:wasGeneratedBy :ConstantTimeValidatorDevelopment .
+
+:ConstantTimeValidatorDevelopment rdf:type prov:Activity ;
+    rdfs:label "Constant-Time Validator Development"@en ;
+    rdfs:comment "Development activity for creating the constant-time validator framework."@en ;
+    prov:startedAtTime "2025-04-01T00:00:00Z"^^xsd:dateTime ;
+    prov:endedAtTime "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    prov:wasAssociatedWith :ByteStarConstantTimeTeam .
+
+:ByteStarConstantTimeTeam rdf:type prov:Agent ,
+                                  foaf:Organization ;
+    rdfs:label "ByteStar Constant-Time Validation Team"@en ;
+    foaf:name "ByteStar Constant-Time Validation Team"@en .
+
+#################################################################
+#    End of Constant-Time Validator Ontology
+#################################################################

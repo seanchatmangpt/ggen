@@ -1,0 +1,105 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+ex:entity0 rdf:type ex:Entity .
+ex:entity1 rdfs:label "Entity 1" .
+ex:entity2 ex:hasValue 2 .
+ex:entity3 ex:relatedTo ex:entity4 .
+ex:entity4 rdf:type ex:Entity .
+ex:entity5 rdfs:label "Entity 5" .
+ex:entity6 ex:hasValue 6 .
+ex:entity7 ex:relatedTo ex:entity8 .
+ex:entity8 rdf:type ex:Entity .
+ex:entity9 rdfs:label "Entity 9" .
+ex:entity10 ex:hasValue 10 .
+ex:entity11 ex:relatedTo ex:entity12 .
+ex:entity12 rdf:type ex:Entity .
+ex:entity13 rdfs:label "Entity 13" .
+ex:entity14 ex:hasValue 14 .
+ex:entity15 ex:relatedTo ex:entity16 .
+ex:entity16 rdf:type ex:Entity .
+ex:entity17 rdfs:label "Entity 17" .
+ex:entity18 ex:hasValue 18 .
+ex:entity19 ex:relatedTo ex:entity20 .
+ex:entity20 rdf:type ex:Entity .
+ex:entity21 rdfs:label "Entity 21" .
+ex:entity22 ex:hasValue 22 .
+ex:entity23 ex:relatedTo ex:entity24 .
+ex:entity24 rdf:type ex:Entity .
+ex:entity25 rdfs:label "Entity 25" .
+ex:entity26 ex:hasValue 26 .
+ex:entity27 ex:relatedTo ex:entity28 .
+ex:entity28 rdf:type ex:Entity .
+ex:entity29 rdfs:label "Entity 29" .
+ex:entity30 ex:hasValue 30 .
+ex:entity31 ex:relatedTo ex:entity32 .
+ex:entity32 rdf:type ex:Entity .
+ex:entity33 rdfs:label "Entity 33" .
+ex:entity34 ex:hasValue 34 .
+ex:entity35 ex:relatedTo ex:entity36 .
+ex:entity36 rdf:type ex:Entity .
+ex:entity37 rdfs:label "Entity 37" .
+ex:entity38 ex:hasValue 38 .
+ex:entity39 ex:relatedTo ex:entity40 .
+ex:entity40 rdf:type ex:Entity .
+ex:entity41 rdfs:label "Entity 41" .
+ex:entity42 ex:hasValue 42 .
+ex:entity43 ex:relatedTo ex:entity44 .
+ex:entity44 rdf:type ex:Entity .
+ex:entity45 rdfs:label "Entity 45" .
+ex:entity46 ex:hasValue 46 .
+ex:entity47 ex:relatedTo ex:entity48 .
+ex:entity48 rdf:type ex:Entity .
+ex:entity49 rdfs:label "Entity 49" .
+ex:entity50 ex:hasValue 50 .
+ex:entity51 ex:relatedTo ex:entity52 .
+ex:entity52 rdf:type ex:Entity .
+ex:entity53 rdfs:label "Entity 53" .
+ex:entity54 ex:hasValue 54 .
+ex:entity55 ex:relatedTo ex:entity56 .
+ex:entity56 rdf:type ex:Entity .
+ex:entity57 rdfs:label "Entity 57" .
+ex:entity58 ex:hasValue 58 .
+ex:entity59 ex:relatedTo ex:entity60 .
+ex:entity60 rdf:type ex:Entity .
+ex:entity61 rdfs:label "Entity 61" .
+ex:entity62 ex:hasValue 62 .
+ex:entity63 ex:relatedTo ex:entity64 .
+ex:entity64 rdf:type ex:Entity .
+ex:entity65 rdfs:label "Entity 65" .
+ex:entity66 ex:hasValue 66 .
+ex:entity67 ex:relatedTo ex:entity68 .
+ex:entity68 rdf:type ex:Entity .
+ex:entity69 rdfs:label "Entity 69" .
+ex:entity70 ex:hasValue 70 .
+ex:entity71 ex:relatedTo ex:entity72 .
+ex:entity72 rdf:type ex:Entity .
+ex:entity73 rdfs:label "Entity 73" .
+ex:entity74 ex:hasValue 74 .
+ex:entity75 ex:relatedTo ex:entity76 .
+ex:entity76 rdf:type ex:Entity .
+ex:entity77 rdfs:label "Entity 77" .
+ex:entity78 ex:hasValue 78 .
+ex:entity79 ex:relatedTo ex:entity80 .
+ex:entity80 rdf:type ex:Entity .
+ex:entity81 rdfs:label "Entity 81" .
+ex:entity82 ex:hasValue 82 .
+ex:entity83 ex:relatedTo ex:entity84 .
+ex:entity84 rdf:type ex:Entity .
+ex:entity85 rdfs:label "Entity 85" .
+ex:entity86 ex:hasValue 86 .
+ex:entity87 ex:relatedTo ex:entity88 .
+ex:entity88 rdf:type ex:Entity .
+ex:entity89 rdfs:label "Entity 89" .
+ex:entity90 ex:hasValue 90 .
+ex:entity91 ex:relatedTo ex:entity92 .
+ex:entity92 rdf:type ex:Entity .
+ex:entity93 rdfs:label "Entity 93" .
+ex:entity94 ex:hasValue 94 .
+ex:entity95 ex:relatedTo ex:entity96 .
+ex:entity96 rdf:type ex:Entity .
+ex:entity97 rdfs:label "Entity 97" .
+ex:entity98 ex:hasValue 98 .
+ex:entity99 ex:relatedTo ex:entity0 .

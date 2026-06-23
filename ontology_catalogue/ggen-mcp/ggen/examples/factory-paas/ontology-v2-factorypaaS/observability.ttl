@@ -1,0 +1,545 @@
+# FactoryPaaS Observability - OpenTelemetry Instrumentation
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix otel:  <https://ggen.io/ontology/opentelemetry#> .
+@prefix fpaa:  <https://factorypaaS.io/ontology#> .
+
+# ============================================================================
+# OPENTELEMETRY CONFIGURATION
+# ============================================================================
+
+fpaa:OTelConfiguration a otel:Configuration ;
+  otel:serviceName "factorypaaS" ;
+  otel:serviceVersion "2.0.0" ;
+  otel:environment "production" ;
+  otel:exporterEndpoint "https://otel-collector.factorypaaS.io:4317" ;
+  otel:exporterProtocol "grpc" ;
+  otel:samplingStrategy fpaa:AdaptiveSampling ;
+  rdfs:comment "Global OpenTelemetry configuration" .
+
+fpaa:AdaptiveSampling a otel:SamplingStrategy ;
+  otel:name "AdaptiveSampling" ;
+  otel:defaultSampleRate "0.1" ;
+  otel:errorSampleRate "1.0" ;
+  otel:slowRequestSampleRate "1.0" ;
+  otel:slowThresholdMs "2000" ;
+  rdfs:comment "100% sample errors/slow requests, 10% normal traffic" .
+
+# ============================================================================
+# TRACES - DISTRIBUTED REQUEST TRACING
+# ============================================================================
+
+fpaa:CreateSiteTrace a otel:Trace ;
+  otel:name "create_site" ;
+  otel:operation "CreateSite" ;
+  otel:service "factorypaaS-api" ;
+  otel:span fpaa:ValidateInputSpan ;
+  otel:span fpaa:CreateDatabaseRecordSpan ;
+  otel:span fpaa:InitializeGCPResourcesSpan ;
+  otel:span fpaa:PublishEventSpan ;
+  rdfs:comment "End-to-end site creation trace" .
+
+fpaa:ValidateInputSpan a otel:Span ;
+  otel:name "validate_create_site_input" ;
+  otel:kind "INTERNAL" ;
+  otel:attribute fpaa:Attr_Domain ;
+  otel:attribute fpaa:Attr_Niche .
+
+fpaa:CreateDatabaseRecordSpan a otel:Span ;
+  otel:name "insert_site_record" ;
+  otel:kind "CLIENT" ;
+  otel:dbSystem "postgresql" ;
+  otel:dbStatement "INSERT INTO sites ..." .
+
+fpaa:InitializeGCPResourcesSpan a otel:Span ;
+  otel:name "initialize_gcp_resources" ;
+  otel:kind "CLIENT" ;
+  otel:childSpan fpaa:CreateStorageBucketSpan ;
+  otel:childSpan fpaa:CreateCloudRunServiceSpan .
+
+fpaa:CreateStorageBucketSpan a otel:Span ;
+  otel:name "create_storage_bucket" ;
+  otel:kind "CLIENT" ;
+  otel:rpcSystem "gcp" ;
+  otel:rpcService "storage.googleapis.com" .
+
+fpaa:CreateCloudRunServiceSpan a otel:Span ;
+  otel:name "create_cloud_run_service" ;
+  otel:kind "CLIENT" ;
+  otel:rpcSystem "gcp" ;
+  otel:rpcService "run.googleapis.com" .
+
+fpaa:PublishEventSpan a otel:Span ;
+  otel:name "publish_site_created_event" ;
+  otel:kind "PRODUCER" ;
+  otel:messagingSystem "pubsub" ;
+  otel:messagingDestination "factorypaaS-events" .
+
+# ============================================================================
+# GENERATE CONTENT TRACE
+# ============================================================================
+
+fpaa:GenerateContentTrace a otel:Trace ;
+  otel:name "generate_content" ;
+  otel:operation "GenerateContent" ;
+  otel:service "factorypaaS-content-gen" ;
+  otel:span fpaa:KeywordResearchSpan ;
+  otel:span fpaa:LLMGenerationSpan ;
+  otel:span fpaa:ContentOptimizationSpan ;
+  otel:span fpaa:StoreContentSpan .
+
+fpaa:KeywordResearchSpan a otel:Span ;
+  otel:name "research_keywords" ;
+  otel:kind "CLIENT" ;
+  otel:httpMethod "POST" ;
+  otel:httpUrl "https://api.semrush.com/v1/keywords" ;
+  otel:attribute fpaa:Attr_PrimaryKeyword .
+
+fpaa:LLMGenerationSpan a otel:Span ;
+  otel:name "llm_content_generation" ;
+  otel:kind "CLIENT" ;
+  otel:httpMethod "POST" ;
+  otel:httpUrl "https://api.openai.com/v1/chat/completions" ;
+  otel:attribute fpaa:Attr_Model ;
+  otel:attribute fpaa:Attr_TokensUsed ;
+  otel:attribute fpaa:Attr_PromptTokens ;
+  otel:attribute fpaa:Attr_CompletionTokens .
+
+fpaa:ContentOptimizationSpan a otel:Span ;
+  otel:name "optimize_content_seo" ;
+  otel:kind "INTERNAL" ;
+  otel:attribute fpaa:Attr_WordCount ;
+  otel:attribute fpaa:Attr_KeywordDensity ;
+  otel:attribute fpaa:Attr_ReadabilityScore .
+
+fpaa:StoreContentSpan a otel:Span ;
+  otel:name "store_generated_content" ;
+  otel:kind "CLIENT" ;
+  otel:dbSystem "postgresql" ;
+  otel:dbTable "niche_pages" .
+
+# ============================================================================
+# CLICK TRACKING TRACE
+# ============================================================================
+
+fpaa:TrackClickTrace a otel:Trace ;
+  otel:name "track_outbound_click" ;
+  otel:operation "TrackOutboundClick" ;
+  otel:service "factorypaaS-api" ;
+  otel:span fpaa:ReceiveClickSpan ;
+  otel:span fpaa:ValidateClickSpan ;
+  otel:span fpaa:PublishClickEventSpan ;
+  otel:span fpaa:RedirectUserSpan .
+
+fpaa:ReceiveClickSpan a otel:Span ;
+  otel:name "receive_click_request" ;
+  otel:kind "SERVER" ;
+  otel:httpMethod "GET" ;
+  otel:httpRoute "/go/:link_id" ;
+  otel:attribute fpaa:Attr_UserAgent ;
+  otel:attribute fpaa:Attr_Referrer .
+
+fpaa:ValidateClickSpan a otel:Span ;
+  otel:name "validate_click" ;
+  otel:kind "INTERNAL" ;
+  otel:attribute fpaa:Attr_LinkId ;
+  otel:attribute fpaa:Attr_SiteId .
+
+fpaa:PublishClickEventSpan a otel:Span ;
+  otel:name "publish_click_tracked_event" ;
+  otel:kind "PRODUCER" ;
+  otel:messagingSystem "pubsub" ;
+  otel:messagingDestination "factorypaaS-clicks" .
+
+fpaa:RedirectUserSpan a otel:Span ;
+  otel:name "redirect_to_affiliate" ;
+  otel:kind "CLIENT" ;
+  otel:httpStatusCode "302" ;
+  otel:attribute fpaa:Attr_DestinationUrl .
+
+# ============================================================================
+# DEPLOYMENT TRACE
+# ============================================================================
+
+fpaa:DeploymentTrace a otel:Trace ;
+  otel:name "deploy_to_gcp" ;
+  otel:operation "DeployToGCP" ;
+  otel:service "factorypaaS-api" ;
+  otel:span fpaa:BuildContainerSpan ;
+  otel:span fpaa:PushImageSpan ;
+  otel:span fpaa:UpdateCloudRunSpan ;
+  otel:span fpaa:HealthCheckSpan .
+
+fpaa:BuildContainerSpan a otel:Span ;
+  otel:name "build_container_image" ;
+  otel:kind "INTERNAL" ;
+  otel:attribute fpaa:Attr_ImageTag ;
+  otel:attribute fpaa:Attr_BuildDuration .
+
+fpaa:PushImageSpan a otel:Span ;
+  otel:name "push_to_gcr" ;
+  otel:kind "CLIENT" ;
+  otel:rpcSystem "gcp" ;
+  otel:rpcService "gcr.io" .
+
+fpaa:UpdateCloudRunSpan a otel:Span ;
+  otel:name "update_cloud_run_service" ;
+  otel:kind "CLIENT" ;
+  otel:rpcSystem "gcp" ;
+  otel:rpcService "run.googleapis.com" ;
+  otel:attribute fpaa:Attr_DeploymentStrategy .
+
+fpaa:HealthCheckSpan a otel:Span ;
+  otel:name "post_deployment_health_check" ;
+  otel:kind "CLIENT" ;
+  otel:httpMethod "GET" ;
+  otel:httpUrl "/health" ;
+  otel:attribute fpaa:Attr_HealthStatus .
+
+# ============================================================================
+# METRICS - BUSINESS & TECHNICAL KPIs
+# ============================================================================
+
+fpaa:SitesCreatedCounter a otel:Metric ;
+  otel:name "factorypaaS.sites.created" ;
+  otel:type "Counter" ;
+  otel:unit "1" ;
+  otel:description "Total number of sites created" ;
+  otel:dimension fpaa:Dim_Niche .
+
+fpaa:PagesPublishedCounter a otel:Metric ;
+  otel:name "factorypaaS.pages.published" ;
+  otel:type "Counter" ;
+  otel:unit "1" ;
+  otel:description "Total pages published across all sites" ;
+  otel:dimension fpaa:Dim_SiteId ;
+  otel:dimension fpaa:Dim_ContentType .
+
+fpaa:ClicksTrackedCounter a otel:Metric ;
+  otel:name "factorypaaS.clicks.tracked" ;
+  otel:type "Counter" ;
+  otel:unit "1" ;
+  otel:description "Outbound affiliate clicks tracked" ;
+  otel:dimension fpaa:Dim_SiteId ;
+  otel:dimension fpaa:Dim_PageId ;
+  otel:dimension fpaa:Dim_AffiliateNetwork .
+
+fpaa:CommissionRecordedGauge a otel:Metric ;
+  otel:name "factorypaaS.commission.amount" ;
+  otel:type "Histogram" ;
+  otel:unit "USD" ;
+  otel:description "Distribution of commission amounts" ;
+  otel:dimension fpaa:Dim_SiteId ;
+  otel:dimension fpaa:Dim_AffiliateNetwork .
+
+fpaa:ContentGenerationDuration a otel:Metric ;
+  otel:name "factorypaaS.content.generation.duration" ;
+  otel:type "Histogram" ;
+  otel:unit "ms" ;
+  otel:description "Time to generate content" ;
+  otel:dimension fpaa:Dim_ContentType ;
+  otel:dimension fpaa:Dim_WordCount .
+
+fpaa:LLMTokensConsumed a otel:Metric ;
+  otel:name "factorypaaS.llm.tokens.consumed" ;
+  otel:type "Counter" ;
+  otel:unit "1" ;
+  otel:description "Total LLM tokens consumed" ;
+  otel:dimension fpaa:Dim_AIProvider ;
+  otel:dimension fpaa:Dim_Model .
+
+fpaa:DeploymentDuration a otel:Metric ;
+  otel:name "factorypaaS.deployment.duration" ;
+  otel:type "Histogram" ;
+  otel:unit "s" ;
+  otel:description "Time to complete deployment" ;
+  otel:dimension fpaa:Dim_DeploymentStrategy .
+
+fpaa:ActiveSitesGauge a otel:Metric ;
+  otel:name "factorypaaS.sites.active" ;
+  otel:type "Gauge" ;
+  otel:unit "1" ;
+  otel:description "Current number of active sites" .
+
+fpaa:RevenuePerSiteGauge a otel:Metric ;
+  otel:name "factorypaaS.revenue.per_site" ;
+  otel:type "Gauge" ;
+  otel:unit "USD" ;
+  otel:description "Total revenue per site" ;
+  otel:dimension fpaa:Dim_SiteId .
+
+fpaa:SEOKeywordRankGauge a otel:Metric ;
+  otel:name "factorypaaS.seo.keyword_rank" ;
+  otel:type "Gauge" ;
+  otel:unit "1" ;
+  otel:description "Google ranking position for target keyword" ;
+  otel:dimension fpaa:Dim_PageId ;
+  otel:dimension fpaa:Dim_Keyword .
+
+fpaa:ConversionRateGauge a otel:Metric ;
+  otel:name "factorypaaS.conversion.rate" ;
+  otel:type "Gauge" ;
+  otel:unit "1" ;
+  otel:description "Click-to-commission conversion rate" ;
+  otel:dimension fpaa:Dim_SiteId ;
+  otel:dimension fpaa:Dim_PageId .
+
+fpaa:APIErrorRate a otel:Metric ;
+  otel:name "factorypaaS.api.error_rate" ;
+  otel:type "Gauge" ;
+  otel:unit "1" ;
+  otel:description "Ratio of failed API requests" ;
+  otel:dimension fpaa:Dim_HTTPStatusCode ;
+  otel:dimension fpaa:Dim_Endpoint .
+
+fpaa:CacheHitRatio a otel:Metric ;
+  otel:name "factorypaaS.cache.hit_ratio" ;
+  otel:type "Gauge" ;
+  otel:unit "1" ;
+  otel:description "Redis cache hit ratio" ;
+  otel:dimension fpaa:Dim_CacheKey .
+
+# ============================================================================
+# TRACE ATTRIBUTES
+# ============================================================================
+
+fpaa:Attr_Domain a otel:Attribute ;
+  otel:key "factorypaaS.domain" ;
+  otel:type "string" .
+
+fpaa:Attr_Niche a otel:Attribute ;
+  otel:key "factorypaaS.niche" ;
+  otel:type "string" .
+
+fpaa:Attr_PrimaryKeyword a otel:Attribute ;
+  otel:key "factorypaaS.keyword.primary" ;
+  otel:type "string" .
+
+fpaa:Attr_Model a otel:Attribute ;
+  otel:key "ai.model" ;
+  otel:type "string" .
+
+fpaa:Attr_TokensUsed a otel:Attribute ;
+  otel:key "ai.tokens.total" ;
+  otel:type "int" .
+
+fpaa:Attr_PromptTokens a otel:Attribute ;
+  otel:key "ai.tokens.prompt" ;
+  otel:type "int" .
+
+fpaa:Attr_CompletionTokens a otel:Attribute ;
+  otel:key "ai.tokens.completion" ;
+  otel:type "int" .
+
+fpaa:Attr_WordCount a otel:Attribute ;
+  otel:key "factorypaaS.content.word_count" ;
+  otel:type "int" .
+
+fpaa:Attr_KeywordDensity a otel:Attribute ;
+  otel:key "factorypaaS.seo.keyword_density" ;
+  otel:type "double" .
+
+fpaa:Attr_ReadabilityScore a otel:Attribute ;
+  otel:key "factorypaaS.content.readability_score" ;
+  otel:type "double" .
+
+fpaa:Attr_LinkId a otel:Attribute ;
+  otel:key "factorypaaS.link.id" ;
+  otel:type "string" .
+
+fpaa:Attr_SiteId a otel:Attribute ;
+  otel:key "factorypaaS.site.id" ;
+  otel:type "string" .
+
+fpaa:Attr_UserAgent a otel:Attribute ;
+  otel:key "http.user_agent" ;
+  otel:type "string" .
+
+fpaa:Attr_Referrer a otel:Attribute ;
+  otel:key "http.referrer" ;
+  otel:type "string" .
+
+fpaa:Attr_DestinationUrl a otel:Attribute ;
+  otel:key "factorypaaS.click.destination_url" ;
+  otel:type "string" .
+
+fpaa:Attr_ImageTag a otel:Attribute ;
+  otel:key "container.image.tag" ;
+  otel:type "string" .
+
+fpaa:Attr_BuildDuration a otel:Attribute ;
+  otel:key "factorypaaS.build.duration_ms" ;
+  otel:type "int" .
+
+fpaa:Attr_DeploymentStrategy a otel:Attribute ;
+  otel:key "factorypaaS.deployment.strategy" ;
+  otel:type "string" .
+
+fpaa:Attr_HealthStatus a otel:Attribute ;
+  otel:key "factorypaaS.health.status" ;
+  otel:type "string" .
+
+# ============================================================================
+# METRIC DIMENSIONS
+# ============================================================================
+
+fpaa:Dim_Niche a otel:Dimension ;
+  otel:key "niche" ;
+  otel:description "Market niche category" .
+
+fpaa:Dim_SiteId a otel:Dimension ;
+  otel:key "site_id" ;
+  otel:description "Unique site identifier" .
+
+fpaa:Dim_PageId a otel:Dimension ;
+  otel:key "page_id" ;
+  otel:description "Unique page identifier" .
+
+fpaa:Dim_ContentType a otel:Dimension ;
+  otel:key "content_type" ;
+  otel:description "Content format (comparison, review, guide, etc.)" .
+
+fpaa:Dim_AffiliateNetwork a otel:Dimension ;
+  otel:key "affiliate_network" ;
+  otel:description "Affiliate network provider" .
+
+fpaa:Dim_AIProvider a otel:Dimension ;
+  otel:key "ai_provider" ;
+  otel:description "LLM provider (openai, anthropic, google)" .
+
+fpaa:Dim_Model a otel:Dimension ;
+  otel:key "model" ;
+  otel:description "AI model name" .
+
+fpaa:Dim_WordCount a otel:Dimension ;
+  otel:key "word_count" ;
+  otel:description "Content word count bucket" .
+
+fpaa:Dim_DeploymentStrategy a otel:Dimension ;
+  otel:key "deployment_strategy" ;
+  otel:description "Deployment strategy (rolling, blue-green, canary)" .
+
+fpaa:Dim_Keyword a otel:Dimension ;
+  otel:key "keyword" ;
+  otel:description "SEO target keyword" .
+
+fpaa:Dim_HTTPStatusCode a otel:Dimension ;
+  otel:key "http_status_code" ;
+  otel:description "HTTP response status code" .
+
+fpaa:Dim_Endpoint a otel:Dimension ;
+  otel:key "endpoint" ;
+  otel:description "API endpoint path" .
+
+fpaa:Dim_CacheKey a otel:Dimension ;
+  otel:key "cache_key" ;
+  otel:description "Redis cache key pattern" .
+
+# ============================================================================
+# LOGS - STRUCTURED LOGGING
+# ============================================================================
+
+fpaa:AuditLog a otel:Log ;
+  otel:name "audit_log" ;
+  otel:severity "INFO" ;
+  otel:attribute fpaa:Log_EventType ;
+  otel:attribute fpaa:Log_ActorId ;
+  otel:attribute fpaa:Log_ResourceId ;
+  otel:attribute fpaa:Log_Action ;
+  otel:attribute fpaa:Log_Timestamp ;
+  rdfs:comment "Audit trail for compliance and security" .
+
+fpaa:ErrorLog a otel:Log ;
+  otel:name "error_log" ;
+  otel:severity "ERROR" ;
+  otel:attribute fpaa:Log_ErrorType ;
+  otel:attribute fpaa:Log_ErrorMessage ;
+  otel:attribute fpaa:Log_StackTrace ;
+  otel:attribute fpaa:Log_Context ;
+  rdfs:comment "Application error logging" .
+
+fpaa:PerformanceLog a otel:Log ;
+  otel:name "performance_log" ;
+  otel:severity "DEBUG" ;
+  otel:attribute fpaa:Log_Operation ;
+  otel:attribute fpaa:Log_DurationMs ;
+  otel:attribute fpaa:Log_ResourceUsage ;
+  rdfs:comment "Performance monitoring logs" .
+
+# ============================================================================
+# LOG ATTRIBUTES
+# ============================================================================
+
+fpaa:Log_EventType a otel:Attribute ;
+  otel:key "event.type" ;
+  otel:type "string" .
+
+fpaa:Log_ActorId a otel:Attribute ;
+  otel:key "actor.id" ;
+  otel:type "string" .
+
+fpaa:Log_ResourceId a otel:Attribute ;
+  otel:key "resource.id" ;
+  otel:type "string" .
+
+fpaa:Log_Action a otel:Attribute ;
+  otel:key "action" ;
+  otel:type "string" .
+
+fpaa:Log_Timestamp a otel:Attribute ;
+  otel:key "timestamp" ;
+  otel:type "string" .
+
+fpaa:Log_ErrorType a otel:Attribute ;
+  otel:key "error.type" ;
+  otel:type "string" .
+
+fpaa:Log_ErrorMessage a otel:Attribute ;
+  otel:key "error.message" ;
+  otel:type "string" .
+
+fpaa:Log_StackTrace a otel:Attribute ;
+  otel:key "error.stack_trace" ;
+  otel:type "string" .
+
+fpaa:Log_Context a otel:Attribute ;
+  otel:key "context" ;
+  otel:type "string" .
+
+fpaa:Log_Operation a otel:Attribute ;
+  otel:key "operation" ;
+  otel:type "string" .
+
+fpaa:Log_DurationMs a otel:Attribute ;
+  otel:key "duration_ms" ;
+  otel:type "int" .
+
+fpaa:Log_ResourceUsage a otel:Attribute ;
+  otel:key "resource.usage" ;
+  otel:type "string" .
+
+# ============================================================================
+# SLO (SERVICE LEVEL OBJECTIVES)
+# ============================================================================
+
+fpaa:AvailabilitySLO a otel:SLO ;
+  otel:name "AvailabilitySLO" ;
+  otel:target "0.999" ;
+  otel:window "30 days" ;
+  otel:metric fpaa:APIErrorRate ;
+  rdfs:comment "99.9% uptime over 30-day rolling window" .
+
+fpaa:LatencySLO a otel:SLO ;
+  otel:name "LatencySLO" ;
+  otel:target "p95 < 500ms" ;
+  otel:window "7 days" ;
+  otel:metric fpaa:TrackClickTrace ;
+  rdfs:comment "95th percentile latency under 500ms" .
+
+fpaa:ErrorRateSLO a otel:SLO ;
+  otel:name "ErrorRateSLO" ;
+  otel:target "< 0.01" ;
+  otel:window "24 hours" ;
+  otel:metric fpaa:APIErrorRate ;
+  rdfs:comment "Error rate below 1%" .

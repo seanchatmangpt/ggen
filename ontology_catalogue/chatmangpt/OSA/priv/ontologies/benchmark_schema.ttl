@@ -1,0 +1,129 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bench: <http://example.org/ontology/benchmark#> .
+@prefix op: <http://example.org/ontology/operation#> .
+
+bench:Benchmark rdf:type rdfs:Class ;
+    rdfs:label "Benchmark" ;
+    rdfs:comment "A performance benchmark for ontology operations" .
+
+bench:OntologyOperation rdf:type rdfs:Class ;
+    rdfs:label "Ontology Operation" ;
+    rdfs:comment "An ontology operation to benchmark" .
+
+bench:hasOperation rdf:type rdf:Property ;
+    rdfs:label "has operation" ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range bench:OntologyOperation .
+
+bench:targetLatencyMs rdf:type rdf:Property ;
+    rdfs:label "target latency milliseconds" ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:integer .
+
+bench:operationType rdf:type rdf:Property ;
+    rdfs:label "operation type" ;
+    rdfs:domain bench:OntologyOperation ;
+    rdfs:range xsd:string .
+
+bench:testDataSize rdf:type rdf:Property ;
+    rdfs:label "test data size" ;
+    rdfs:domain bench:OntologyOperation ;
+    rdfs:range xsd:integer .
+
+bench:iterations rdf:type rdf:Property ;
+    rdfs:label "iterations" ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:integer .
+
+# Ontology Operations
+op:LoadOntology rdf:type bench:OntologyOperation ;
+    rdfs:label "Load Ontology" ;
+    bench:operationType "load" ;
+    rdfs:comment "Load RDF ontology from file into triplestore" .
+
+op:SPARQLQuery rdf:type bench:OntologyOperation ;
+    rdfs:label "SPARQL Query" ;
+    bench:operationType "query" ;
+    rdfs:comment "Execute SPARQL SELECT/CONSTRUCT/ASK query" .
+
+op:ClassLookup rdf:type bench:OntologyOperation ;
+    rdfs:label "Class Lookup" ;
+    bench:operationType "lookup" ;
+    rdfs:comment "Lookup ontology class by IRI or name" .
+
+op:PropertyLookup rdf:type bench:OntologyOperation ;
+    rdfs:label "Property Lookup" ;
+    bench:operationType "lookup" ;
+    rdfs:comment "Lookup ontology property by IRI or name" .
+
+op:HierarchyTraversal rdf:type bench:OntologyOperation ;
+    rdfs:label "Hierarchy Traversal" ;
+    bench:operationType "traverse" ;
+    rdfs:comment "Traverse class hierarchy (parent/child relationships)" .
+
+op:InstanceClassification rdf:type bench:OntologyOperation ;
+    rdfs:label "Instance Classification" ;
+    bench:operationType "classify" ;
+    rdfs:comment "Classify instance against ontology classes" .
+
+op:Inference rdf:type bench:OntologyOperation ;
+    rdfs:label "Inference" ;
+    bench:operationType "infer" ;
+    rdfs:comment "Run reasoner to infer new triples" .
+
+op:Validation rdf:type bench:OntologyOperation ;
+    rdfs:label "Validation" ;
+    bench:operationType "validate" ;
+    rdfs:comment "Validate ontology syntax and semantics" .
+
+# Benchmark Definitions
+bench:RDFLoadBenchmark rdf:type bench:Benchmark ;
+    rdfs:label "RDF Load Benchmark" ;
+    bench:hasOperation op:LoadOntology ;
+    bench:targetLatencyMs 1000 ;
+    bench:iterations 100 ;
+    rdfs:comment "Benchmark loading RDF files of various sizes (4KB-100KB)" .
+
+bench:SPARQLQueryBenchmark rdf:type bench:Benchmark ;
+    rdfs:label "SPARQL Query Benchmark" ;
+    bench:hasOperation op:SPARQLQuery ;
+    bench:targetLatencyMs 100 ;
+    bench:iterations 1000 ;
+    rdfs:comment "Benchmark SPARQL query execution (SELECT/CONSTRUCT/ASK)" .
+
+bench:ClassLookupBenchmark rdf:type bench:Benchmark ;
+    rdfs:label "Class Lookup Benchmark" ;
+    bench:hasOperation op:ClassLookup ;
+    bench:targetLatencyMs 50 ;
+    bench:iterations 10000 ;
+    rdfs:comment "Benchmark ontology class lookup by IRI" .
+
+bench:HierarchyTraversalBenchmark rdf:type bench:Benchmark ;
+    rdfs:label "Hierarchy Traversal Benchmark" ;
+    bench:hasOperation op:HierarchyTraversal ;
+    bench:targetLatencyMs 200 ;
+    bench:iterations 500 ;
+    rdfs:comment "Benchmark class hierarchy traversal depth-first" .
+
+bench:InstanceClassificationBenchmark rdf:type bench:Benchmark ;
+    rdfs:label "Instance Classification Benchmark" ;
+    bench:hasOperation op:InstanceClassification ;
+    bench:targetLatencyMs 100 ;
+    bench:iterations 1000 ;
+    rdfs:comment "Benchmark instance classification against ontology" .
+
+bench:InferenceBenchmark rdf:type bench:Benchmark ;
+    rdfs:label "Inference Benchmark" ;
+    bench:hasOperation op:Inference ;
+    bench:targetLatencyMs 500 ;
+    bench:iterations 100 ;
+    rdfs:comment "Benchmark OWL reasoning performance" .
+
+bench:ValidationBenchmark rdf:type bench:Benchmark ;
+    rdfs:label "Validation Benchmark" ;
+    bench:hasOperation op:Validation ;
+    bench:targetLatencyMs 100 ;
+    bench:iterations 500 ;
+    rdfs:comment "Benchmark ontology validation (syntax + semantics)" .

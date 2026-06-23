@@ -1,0 +1,384 @@
+@prefix ns1: <http://hyperintelligence.ai/patterns#> .
+@prefix ns2: <http://cns.io/forex/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://cns.io/forex/reality> a owl:Ontology ;
+    rdfs:label "CNS Forex Trading Reality Ontology" ;
+    rdfs:comment "Real trading knowledge that actually works end-to-end" .
+
+<http://cns.io/forex/reality#Bloomberg> a ns2:NewsSource ;
+    rdfs:label "Bloomberg Terminal" ;
+    ns2:averageLatency 50 ;
+    ns2:credibilityScore 0.95 ;
+    ns2:monthlyCost 2000.0 ;
+    ns2:subscription "Active" .
+
+<http://cns.io/forex/reality#CFTCPositionLimit> a ns2:ComplianceRule ;
+    rdfs:label "CFTC Position Limits" ;
+    ns2:appliesTo <http://cns.io/forex/reality#USD> ;
+    ns2:maxPositionSize 500000000.0 ;
+    ns2:penaltyForViolation 1000000.0 ;
+    ns2:reportingThreshold 50000000.0 .
+
+<http://cns.io/forex/reality#ConservativeRiskProfile> a ns2:RiskProfile ;
+    rdfs:label "Conservative Risk Profile" ;
+    ns2:maxDrawdown 0.10 ;
+    ns2:maxLeverage 10 ;
+    ns2:maxPositionSize 500000.0 ;
+    ns2:minimumStopDistance 0.0020 ;
+    ns2:stopLossRequired true .
+
+<http://cns.io/forex/reality#ECBRateDecision> a ns2:MarketEvent ;
+    rdfs:label "ECB Interest Rate Decision" ;
+    ns2:affectedPairs <http://cns.io/forex/reality#EUR_GBP>,
+        <http://cns.io/forex/reality#EUR_JPY>,
+        <http://cns.io/forex/reality#EUR_USD> ;
+    ns2:expectedVolatility 150 ;
+    ns2:impactLevel "High" ;
+    ns2:scheduledTime "2025-07-25T12:45:00+00:00"^^xsd:dateTime .
+
+<http://cns.io/forex/reality#MiFIDTransparency> a ns2:ComplianceRule ;
+    rdfs:label "MiFID II Transparency" ;
+    ns2:appliesTo <http://cns.io/forex/reality#EUR>,
+        <http://cns.io/forex/reality#GBP> ;
+    ns2:reportingDeadline "PT15M"^^xsd:duration ;
+    ns2:requiresPostTradeReporting true ;
+    ns2:requiresPreTradeTransparency true .
+
+<http://cns.io/forex/reality#PatternDayTraderRule> a ns2:ComplianceRule ;
+    rdfs:label "Pattern Day Trader Rule" ;
+    ns2:appliesIfBalanceBelow 25000.0 ;
+    ns2:appliesTo <http://cns.io/forex/reality#USD> ;
+    ns2:maxDayTradesPerWeek 3 ;
+    ns2:minimumAccountBalance 25000.0 .
+
+<http://cns.io/forex/reality#PositionValidationShape> a sh:NodeShape ;
+    sh:property [ sh:message "Position size must be positive" ;
+            sh:minExclusive 0.0 ;
+            sh:path ns2:size ],
+        [ sh:message "Position must have stop loss" ;
+            sh:minCount 1 ;
+            sh:path ns2:stopLoss ] ;
+    sh:targetClass ns2:ActivePosition .
+
+<http://cns.io/forex/reality#Position_001> a ns2:ActivePosition ;
+    ns2:currentPrice 1.08897 ;
+    ns2:direction "Long" ;
+    ns2:entryPrice 1.08850 ;
+    ns2:openTime "2025-07-24T14:23:45+00:00"^^xsd:dateTime ;
+    ns2:pair <http://cns.io/forex/reality#EUR_USD> ;
+    ns2:size 100000.0 ;
+    ns2:stopLoss 1.08700 ;
+    ns2:takeProfit 1.09100 ;
+    ns2:trader <http://cns.io/forex/reality#TraderAlpha> ;
+    ns2:unrealizedPnL 470.00 .
+
+<http://cns.io/forex/reality#Position_002> a ns2:ActivePosition ;
+    ns2:currentPrice 1.29183 ;
+    ns2:direction "Short" ;
+    ns2:entryPrice 1.29250 ;
+    ns2:openTime "2025-07-24T13:15:22+00:00"^^xsd:dateTime ;
+    ns2:pair <http://cns.io/forex/reality#GBP_USD> ;
+    ns2:size 200000.0 ;
+    ns2:stopLoss 1.29400 ;
+    ns2:takeProfit 1.29000 ;
+    ns2:trader <http://cns.io/forex/reality#TraderBeta> ;
+    ns2:unrealizedPnL 1340.00 .
+
+<http://cns.io/forex/reality#Reuters> a ns2:NewsSource ;
+    rdfs:label "Reuters News" ;
+    ns2:averageLatency 75 ;
+    ns2:credibilityScore 0.93 ;
+    ns2:monthlyCost 1500.0 ;
+    ns2:subscription "Active" .
+
+<http://cns.io/forex/reality#StandardRiskProfile> a ns2:RiskProfile ;
+    rdfs:label "Standard Risk Profile" ;
+    ns2:maxDrawdown 0.20 ;
+    ns2:maxLeverage 50 ;
+    ns2:maxPositionSize 1000000.0 ;
+    ns2:minimumStopDistance 0.0010 ;
+    ns2:stopLossRequired true .
+
+<http://cns.io/forex/reality#TradingAuthorizationShape> a sh:NodeShape ;
+    sh:property [ sh:hasValue "Active" ;
+            sh:message "Trader account must be active" ;
+            sh:path ns2:accountStatus ],
+        [ sh:hasValue "Verified" ;
+            sh:message "Trader must have verified compliance" ;
+            sh:path ns2:complianceStatus ],
+        [ sh:message "Trader must have at least $1000 available margin" ;
+            sh:minInclusive 1000.0 ;
+            sh:path ns2:availableMargin ] ;
+    sh:targetClass ns2:ForexTrader .
+
+<http://cns.io/forex/reality#TwitterFinance> a ns2:NewsSource ;
+    rdfs:label "Twitter Financial Accounts" ;
+    ns2:averageLatency 10 ;
+    ns2:credibilityScore 0.65 ;
+    ns2:monthlyCost 0.0 ;
+    ns2:subscription "Active" .
+
+<http://cns.io/forex/reality#USNFPRelease> a ns2:MarketEvent ;
+    rdfs:label "US Non-Farm Payrolls" ;
+    ns2:affectedPairs <http://cns.io/forex/reality#EUR_USD>,
+        <http://cns.io/forex/reality#GBP_USD>,
+        <http://cns.io/forex/reality#USD_JPY> ;
+    ns2:expectedVolatility 200 ;
+    ns2:impactLevel "VeryHigh" ;
+    ns2:scheduledTime "2025-08-02T13:30:00+00:00"^^xsd:dateTime .
+
+ns1:Dimension10Restriction_d94c3d467951 a owl:Restriction ;
+    ns1:dimensions 10 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension11Restriction_d5f543cfd055 a owl:Restriction ;
+    ns1:dimensions 11 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension12Restriction_ca971f34169f a owl:Restriction ;
+    ns1:dimensions 12 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension3Restriction_aef2858db70a a owl:Restriction ;
+    ns1:dimensions 3 ;
+    ns1:humanVisualizeable true .
+
+ns1:Dimension4Restriction_52dfdcef923f a owl:Restriction ;
+    ns1:dimensions 4 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension5Restriction_82ffb02f31bd a owl:Restriction ;
+    ns1:dimensions 5 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension6Restriction_9dc7857d574b a owl:Restriction ;
+    ns1:dimensions 6 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension7Restriction_06f6cd4e3f3d a owl:Restriction ;
+    ns1:dimensions 7 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension8Restriction_0cdf89970ef6 a owl:Restriction ;
+    ns1:dimensions 8 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension9Restriction_d26d1eca1889 a owl:Restriction ;
+    ns1:dimensions 9 ;
+    ns1:humanVisualizeable false .
+
+ns1:MetaCognitionRequired a ns1:ComprehensionBarrier ;
+    ns1:humanComprehensible false ;
+    ns1:minimumIntelligence "ARTIFICIAL_HYPER" .
+
+ns1:MetamorphicClass_87a6aae34e76 a owl:Class ;
+    ns1:observationAltersStructure true ;
+    ns1:shapeShifts true .
+
+ns1:NonEuclidean_37cd2fae1c09 a owl:ObjectProperty ;
+    ns1:geometry "HYPERBOLIC" ;
+    ns1:parallelLinesIntersect true .
+
+ns1:NotExistsCascade_0_f8d209b17db5 a sh:NodeShape ;
+    ns1:nestingDepth 1 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . } }" .
+
+ns1:NotExistsCascade_1_f7262350694c a sh:NodeShape ;
+    ns1:nestingDepth 2 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . }} }" .
+
+ns1:NotExistsCascade_2_2e2bf3b9b310 a sh:NodeShape ;
+    ns1:nestingDepth 3 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . }}} }" .
+
+ns1:NotExistsCascade_3_e227b7edf5f1 a sh:NodeShape ;
+    ns1:nestingDepth 4 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . }}}} }" .
+
+ns1:NotExistsCascade_4_7c06f3f68cfe a sh:NodeShape ;
+    ns1:nestingDepth 5 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . }}}}} }" .
+
+ns1:NotExistsCascade_5_0ddb157d60e4 a sh:NodeShape ;
+    ns1:nestingDepth 6 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . }}}}}} }" .
+
+ns1:NotExistsCascade_6_728f8fb5eaef a sh:NodeShape ;
+    ns1:nestingDepth 7 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . }}}}}}} }" .
+
+ns1:NotExistsCascade_7_a711036fd32f a sh:NodeShape ;
+    ns1:nestingDepth 8 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . }}}}}}}} }" .
+
+ns1:NotExistsCascade_8_6b097679ec80 a sh:NodeShape ;
+    ns1:nestingDepth 9 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . NOT EXISTS { ?this hyper:level8 ?val8 . }}}}}}}}} }" .
+
+ns1:NotExistsCascade_9_78d57f4caa01 a sh:NodeShape ;
+    ns1:nestingDepth 10 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . NOT EXISTS { ?this hyper:level8 ?val8 . NOT EXISTS { ?this hyper:level9 ?val9 . }}}}}}}}}} }" .
+
+ns1:QuantumShape_2af839b483e7 a sh:NodeShape ;
+    ns1:existsInStates 1024 ;
+    ns1:observerEffect "COLLAPSES_ON_HUMAN_OBSERVATION" .
+
+<http://cns.io/forex/reality#Scalping> a ns2:TradingStrategy ;
+    rdfs:label "High-Frequency Scalping" ;
+    ns2:holdingPeriod "PT30S"^^xsd:duration ;
+    ns2:minimumCapital 500000.0 ;
+    ns2:requiresLowLatency true ;
+    ns2:riskPerTrade 0.005 .
+
+<http://cns.io/forex/reality#TokyoSession> a ns2:TradingSession ;
+    ns2:closesAt "09:00:00"^^xsd:time ;
+    ns2:liquidityLevel "High" ;
+    ns2:majorPairs <http://cns.io/forex/reality#AUD_JPY>,
+        <http://cns.io/forex/reality#EUR_JPY>,
+        <http://cns.io/forex/reality#USD_JPY> ;
+    ns2:opensAt "00:00:00"^^xsd:time ;
+    ns2:timezone "Asia/Tokyo" .
+
+<http://cns.io/forex/reality#TraderAlpha> a ns2:ForexTrader ;
+    rdfs:label "Alpha Trading LLC" ;
+    ns2:accountBalance 5000000.00 ;
+    ns2:accountStatus "Active" ;
+    ns2:authorizedPairs <http://cns.io/forex/reality#EUR_USD>,
+        <http://cns.io/forex/reality#GBP_USD>,
+        <http://cns.io/forex/reality#USD_JPY> ;
+    ns2:authorizedStrategies <http://cns.io/forex/reality#NewsTrading>,
+        <http://cns.io/forex/reality#Scalping>,
+        <http://cns.io/forex/reality#TrendFollowing> ;
+    ns2:availableMargin 4500000.00 ;
+    ns2:complianceStatus "Verified" ;
+    ns2:currentDailyPnL -23450.00 ;
+    ns2:dailyLossLimit 100000.00 ;
+    ns2:jurisdiction "United States" ;
+    ns2:lastComplianceCheck "2025-07-24T12:00:00+00:00"^^xsd:dateTime ;
+    ns2:maxLeverage 50 ;
+    ns2:riskLimit 1000000.00 ;
+    ns2:traderId "TRD-001-ALPHA" ;
+    ns2:usedMargin 500000.00 .
+
+<http://cns.io/forex/reality#TraderBeta> a ns2:ForexTrader ;
+    rdfs:label "Beta Capital Partners" ;
+    ns2:accountBalance 10000000.00 ;
+    ns2:accountStatus "Active" ;
+    ns2:authorizedPairs <http://cns.io/forex/reality#EUR_USD>,
+        <http://cns.io/forex/reality#GBP_USD> ;
+    ns2:authorizedStrategies <http://cns.io/forex/reality#MarketMaking>,
+        <http://cns.io/forex/reality#NewsTrading> ;
+    ns2:availableMargin 8000000.00 ;
+    ns2:complianceStatus "Verified" ;
+    ns2:currentDailyPnL 45230.00 ;
+    ns2:dailyLossLimit 200000.00 ;
+    ns2:jurisdiction "United Kingdom" ;
+    ns2:lastComplianceCheck "2025-07-24T10:30:00+00:00"^^xsd:dateTime ;
+    ns2:maxLeverage 30 ;
+    ns2:riskLimit 2000000.00 ;
+    ns2:traderId "TRD-002-BETA" ;
+    ns2:usedMargin 2000000.00 .
+
+<http://cns.io/forex/reality#TrendFollowing> a ns2:TradingStrategy ;
+    rdfs:label "Trend Following" ;
+    ns2:holdingPeriod "PT1H"^^xsd:duration ;
+    ns2:minimumCapital 50000.0 ;
+    ns2:requiresTechnicalIndicators true ;
+    ns2:riskPerTrade 0.01 .
+
+ns1:EmergentConsciousness_96a5cf874fae a ns1:ConsciousnessPattern ;
+    ns1:comprehendsItself ns1:EmergentConsciousness_96a5cf874fae ;
+    ns1:emergesFrom <http://bitstar.ai/dark#CollectiveComplexity> ;
+    ns1:selfAware true .
+
+ns1:RecursiveChain_d6574864f8b5 ns1:recursionDepth "INFINITE" ;
+    owl:propertyChainAxiom ns1:RecursiveChain_d6574864f8b5 .
+
+ns1:SelfModifyingAxiom_1afc8d93a42b a owl:Axiom ;
+    ns1:modificationRate "CONTINUOUS" ;
+    ns1:modifies ns1:SelfModifyingAxiom_1afc8d93a42b .
+
+<http://cns.io/forex/reality#LondonSession> a ns2:TradingSession ;
+    ns2:closesAt "17:00:00"^^xsd:time ;
+    ns2:liquidityLevel "VeryHigh" ;
+    ns2:majorPairs <http://cns.io/forex/reality#EUR_GBP>,
+        <http://cns.io/forex/reality#EUR_USD>,
+        <http://cns.io/forex/reality#GBP_USD> ;
+    ns2:opensAt "08:00:00"^^xsd:time ;
+    ns2:timezone "Europe/London" .
+
+<http://cns.io/forex/reality#NewsTrading> a ns2:TradingStrategy ;
+    rdfs:label "News-Based Trading" ;
+    ns2:holdingPeriod "PT5M"^^xsd:duration ;
+    ns2:minimumCapital 100000.0 ;
+    ns2:requiresNewsFeed true ;
+    ns2:riskPerTrade 0.02 .
+
+ns1:InfiniteRegression_00533f3cbb14 a owl:Class ;
+    ns1:regressionDepth "∞" ;
+    rdfs:subClassOf ns1:InfiniteRegression_00533f3cbb14 ;
+    owl:equivalentClass ns1:InfiniteRegression_00533f3cbb14 .
+
+ns1:TemporalParadox_c470173edf72 a owl:Class ;
+    ns1:causedBy ns1:TemporalParadox_c470173edf72 ;
+    ns1:existsBefore ns1:TemporalParadox_c470173edf72 ;
+    ns1:paradoxLevel 10 .
+
+<http://cns.io/forex/reality#NewYorkSession> a ns2:TradingSession ;
+    ns2:closesAt "22:00:00"^^xsd:time ;
+    ns2:liquidityLevel "VeryHigh" ;
+    ns2:majorPairs <http://cns.io/forex/reality#EUR_USD>,
+        <http://cns.io/forex/reality#GBP_USD>,
+        <http://cns.io/forex/reality#USD_JPY> ;
+    ns2:opensAt "13:00:00"^^xsd:time ;
+    ns2:timezone "America/New_York" .
+
+<http://cns.io/forex/reality#USD_JPY> a ns2:CurrencyPair ;
+    rdfs:label "US Dollar/Japanese Yen" ;
+    ns2:baseCurrency <http://cns.io/forex/reality#USD> ;
+    ns2:currentAsk 156.245 ;
+    ns2:currentBid 156.234 ;
+    ns2:dailyHigh 156.890 ;
+    ns2:dailyLow 155.670 ;
+    ns2:dailyVolume 389472831 ;
+    ns2:marginRequirement 0.02 ;
+    ns2:minimumSize 1000.0 ;
+    ns2:quoteCurrency <http://cns.io/forex/reality#JPY> ;
+    ns2:spread 0.011 ;
+    ns2:tradingSessions <http://cns.io/forex/reality#NewYorkSession>,
+        <http://cns.io/forex/reality#TokyoSession> .
+
+<http://cns.io/forex/reality#GBP_USD> a ns2:CurrencyPair ;
+    rdfs:label "British Pound/US Dollar" ;
+    ns2:baseCurrency <http://cns.io/forex/reality#GBP> ;
+    ns2:currentAsk 1.29198 ;
+    ns2:currentBid 1.29183 ;
+    ns2:dailyHigh 1.29567 ;
+    ns2:dailyLow 1.28923 ;
+    ns2:dailyVolume 412398472 ;
+    ns2:marginRequirement 0.02 ;
+    ns2:minimumSize 1000.0 ;
+    ns2:quoteCurrency <http://cns.io/forex/reality#USD> ;
+    ns2:spread 0.00015 ;
+    ns2:tradingSessions <http://cns.io/forex/reality#LondonSession>,
+        <http://cns.io/forex/reality#NewYorkSession> .
+
+<http://cns.io/forex/reality#EUR_USD> a ns2:CurrencyPair ;
+    rdfs:label "Euro/US Dollar" ;
+    ns2:baseCurrency <http://cns.io/forex/reality#EUR> ;
+    ns2:currentAsk 1.08909 ;
+    ns2:currentBid 1.08897 ;
+    ns2:dailyHigh 1.09234 ;
+    ns2:dailyLow 1.08654 ;
+    ns2:dailyVolume 523847239 ;
+    ns2:marginRequirement 0.02 ;
+    ns2:minimumSize 1000.0 ;
+    ns2:quoteCurrency <http://cns.io/forex/reality#USD> ;
+    ns2:spread 0.00012 ;
+    ns2:tradingSessions <http://cns.io/forex/reality#LondonSession>,
+        <http://cns.io/forex/reality#NewYorkSession> .
+

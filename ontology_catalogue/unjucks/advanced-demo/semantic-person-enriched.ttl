@@ -1,0 +1,124 @@
+@prefix ex: <http://example.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+
+# Advanced Person Schema with Rich Semantic Context
+ex:Person rdf:type owl:Class ;
+    rdfs:label "Person"@en ;
+    rdfs:comment "A person with comprehensive attributes and relationships"@en ;
+    owl:equivalentClass foaf:Person, schema:Person .
+
+ex:Organization rdf:type owl:Class ;
+    rdfs:label "Organization"@en ;
+    owl:equivalentClass schema:Organization .
+
+ex:Project rdf:type owl:Class ;
+    rdfs:label "Project"@en ;
+    owl:equivalentClass schema:Project .
+
+ex:Skill rdf:type owl:Class ;
+    rdfs:label "Skill"@en .
+
+ex:Certification rdf:type owl:Class ;
+    rdfs:label "Certification"@en .
+
+# Properties
+ex:hasName rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string .
+
+ex:hasAge rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:int .
+
+ex:hasEmail rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string .
+
+ex:hasSkill rdf:type owl:ObjectProperty ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Skill .
+
+ex:worksFor rdf:type owl:ObjectProperty ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Organization .
+
+ex:hasCertification rdf:type owl:ObjectProperty ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Certification .
+
+ex:leadsProject rdf:type owl:ObjectProperty ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Project .
+
+ex:collaboratesWith rdf:type owl:ObjectProperty ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Person .
+
+# Sample Data with Rich Context
+ex:john-doe rdf:type ex:Person ;
+    ex:hasName "John Doe" ;
+    ex:hasAge 32 ;
+    ex:hasEmail "john.doe@acme.com" ;
+    ex:worksFor ex:acme-corp ;
+    ex:hasSkill ex:javascript, ex:typescript, ex:react ;
+    ex:hasCertification ex:aws-certified-architect ;
+    ex:leadsProject ex:project-alpha ;
+    ex:collaboratesWith ex:jane-smith .
+
+ex:jane-smith rdf:type ex:Person ;
+    ex:hasName "Jane Smith" ;
+    ex:hasAge 28 ;
+    ex:hasEmail "jane.smith@acme.com" ;
+    ex:worksFor ex:acme-corp ;
+    ex:hasSkill ex:python, ex:machine-learning, ex:data-science ;
+    ex:hasCertification ex:google-cloud-professional ;
+    ex:leadsProject ex:project-beta ;
+    ex:collaboratesWith ex:john-doe .
+
+ex:acme-corp rdf:type ex:Organization ;
+    rdfs:label "ACME Corporation" ;
+    schema:industry "Technology" ;
+    schema:numberOfEmployees 500 .
+
+ex:project-alpha rdf:type ex:Project ;
+    rdfs:label "Project Alpha - AI Platform" ;
+    schema:startDate "2024-01-01"^^xsd:date ;
+    schema:description "Enterprise AI platform for customer analytics" .
+
+ex:project-beta rdf:type ex:Project ;
+    rdfs:label "Project Beta - Data Pipeline" ;
+    schema:startDate "2024-03-15"^^xsd:date ;
+    schema:description "Real-time data processing pipeline" .
+
+# Skills
+ex:javascript rdf:type ex:Skill ;
+    rdfs:label "JavaScript" .
+
+ex:typescript rdf:type ex:Skill ;
+    rdfs:label "TypeScript" .
+
+ex:react rdf:type ex:Skill ;
+    rdfs:label "React" .
+
+ex:python rdf:type ex:Skill ;
+    rdfs:label "Python" .
+
+ex:machine-learning rdf:type ex:Skill ;
+    rdfs:label "Machine Learning" .
+
+ex:data-science rdf:type ex:Skill ;
+    rdfs:label "Data Science" .
+
+# Certifications
+ex:aws-certified-architect rdf:type ex:Certification ;
+    rdfs:label "AWS Certified Solutions Architect" ;
+    schema:provider "Amazon Web Services" .
+
+ex:google-cloud-professional rdf:type ex:Certification ;
+    rdfs:label "Google Cloud Professional Data Engineer" ;
+    schema:provider "Google Cloud" .

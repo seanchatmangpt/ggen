@@ -1,0 +1,32 @@
+@prefix chatman: <http://chatmangpt.ontology/> .
+@prefix demo: <http://chatmangpt.demo/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+demo:artifact-bd57acce a prov:Entity ;
+    rdfs:label "Artifact: Deal DEAL-F7954B71B3BD6F36" ;
+    chatman:deal_id "DEAL-F7954B71B3BD6F36" ;
+    prov:generatedAtTime "2026-03-25T22:13:38.611681"^^xsd:dateTime ;
+    prov:wasAttributedTo demo:agent-c7ca6223 ;
+    prov:wasDerivedFrom demo:ontology-c0c8dcb0 ;
+    prov:wasGeneratedBy demo:transform-bfe07d82 .
+
+demo:transform-bfe07d82 a prov:Activity ;
+    rdfs:label "Transformation: deal-pipeline.yawl" ;
+    chatman:name "deal-pipeline.yawl" ;
+    prov:generatedAtTime "2026-03-25T22:13:38.611681"^^xsd:dateTime ;
+    prov:used demo:ontology-c0c8dcb0 ;
+    prov:wasAssociatedWith demo:agent-c7ca6223 .
+
+demo:agent-c7ca6223 a prov:Agent ;
+    rdfs:label "chatman-equation-demo" ;
+    foaf:name "chatman-equation-demo" .
+
+demo:ontology-c0c8dcb0 a prov:Entity ;
+    rdfs:label "Ontology: enterprise_sales_ontology v1.2.0" ;
+    chatman:name "enterprise_sales_ontology" ;
+    chatman:version "1.2.0" ;
+    prov:generatedAtTime "2026-03-25T22:13:38.611857"^^xsd:dateTime .
+

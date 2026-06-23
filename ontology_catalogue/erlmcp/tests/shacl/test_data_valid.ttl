@@ -1,0 +1,101 @@
+@prefix tcps: <http://taiea.io/ontology/tcps#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# ============================================================================
+# VALID TEST DATA - Should Pass All SHACL Validations
+# ============================================================================
+
+# Valid WorkOrder
+<http://taiea.io/workorder/wo-001>
+    a tcps:WorkOrder ;
+    tcps:demandSignal "Marketplace install spike detected for MCP server feature" ;
+    tcps:bucket "reliability" ;
+    tcps:priority 2 ;
+    tcps:status "completed" ;
+    tcps:createdAt "2026-01-26T10:00:00Z"^^xsd:dateTime ;
+    tcps:assignedTo "taiea-agent-01" .
+
+# Valid SKU
+<http://taiea.io/sku/sku-001>
+    a tcps:SKU ;
+    tcps:name "erlmcp-server" ;
+    tcps:version "0.6.0" ;
+    tcps:description "Enterprise MCP server implementation with TCPS quality gates" ;
+    tcps:workOrderId <http://taiea.io/workorder/wo-001> ;
+    tcps:hasReceipt <http://taiea.io/receipt/compile-001> ;
+    tcps:hasReceipt <http://taiea.io/receipt/test-001> ;
+    tcps:hasReceipt <http://taiea.io/receipt/release-001> ;
+    tcps:hasReceipt <http://taiea.io/receipt/publish-001> ;
+    tcps:qualityGatesPassed true ;
+    tcps:shippable true ;
+    tcps:createdAt "2026-01-26T10:05:00Z"^^xsd:dateTime .
+
+# Valid Compilation Receipt
+<http://taiea.io/receipt/compile-001>
+    a tcps:Receipt ;
+    tcps:stageName "compile" ;
+    tcps:timestamp "2026-01-26T10:10:00Z"^^xsd:dateTime ;
+    tcps:status "pass" ;
+    tcps:evidenceData "Build completed successfully with rebar3 compile" ;
+    tcps:relatedSKU <http://taiea.io/sku/sku-001> ;
+    tcps:executor "rebar3-build-agent" ;
+    tcps:buildOutput "Compiled 42 modules, 0 errors, 0 warnings" ;
+    tcps:errorCount 0 ;
+    tcps:warningCount 0 .
+
+# Valid Test Receipt
+<http://taiea.io/receipt/test-001>
+    a tcps:Receipt ;
+    tcps:stageName "test" ;
+    tcps:timestamp "2026-01-26T10:15:00Z"^^xsd:dateTime ;
+    tcps:status "pass" ;
+    tcps:evidenceData "All test suites passed with 85% coverage" ;
+    tcps:relatedSKU <http://taiea.io/sku/sku-001> ;
+    tcps:executor "ct-test-runner" ;
+    tcps:testResults "156 tests passed, 0 failed, 0 skipped" ;
+    tcps:passRate 100.0 ;
+    tcps:coverage 85.5 ;
+    tcps:totalTests 156 ;
+    tcps:failedTests 0 .
+
+# Valid Release Receipt
+<http://taiea.io/receipt/release-001>
+    a tcps:Receipt ;
+    tcps:stageName "release" ;
+    tcps:timestamp "2026-01-26T10:20:00Z"^^xsd:dateTime ;
+    tcps:status "pass" ;
+    tcps:evidenceData "Release artifact built and checksummed" ;
+    tcps:relatedSKU <http://taiea.io/sku/sku-001> ;
+    tcps:executor "release-automation" ;
+    tcps:artifactPath "gs://taiea-releases/erlmcp-server-0.6.0.tar.gz" ;
+    tcps:deterministicHash "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2" ;
+    tcps:artifactSize 15728640 ;
+    tcps:releaseNotes "Production release with full TCPS compliance" .
+
+# Valid Publish Receipt
+<http://taiea.io/receipt/publish-001>
+    a tcps:Receipt ;
+    tcps:stageName "publish" ;
+    tcps:timestamp "2026-01-26T10:25:00Z"^^xsd:dateTime ;
+    tcps:status "pass" ;
+    tcps:evidenceData "Published to marketplace with smoke tests passing" ;
+    tcps:relatedSKU <http://taiea.io/sku/sku-001> ;
+    tcps:executor "marketplace-publisher" ;
+    tcps:marketplaceUrl "https://marketplace.taiea.io/servers/erlmcp-server"^^xsd:anyURI ;
+    tcps:smokeTestResult "pass" ;
+    tcps:entitlementGateActive true ;
+    tcps:healthCheckPassed true ;
+    tcps:pubsubVerified true .
+
+# Valid Resolved Andon Event (from previous issue, now closed)
+<http://taiea.io/andon/andon-001>
+    a tcps:AndonEvent ;
+    tcps:failureReason "Initial test coverage was 75%, below 80% threshold" ;
+    tcps:affectedSKU <http://taiea.io/sku/sku-001> ;
+    tcps:rootCauseAnalysis "Missing edge case tests for transport layer error handling. Added comprehensive failure mode tests." ;
+    tcps:status "resolved" ;
+    tcps:createdAt "2026-01-26T09:00:00Z"^^xsd:dateTime ;
+    tcps:resolvedAt "2026-01-26T10:00:00Z"^^xsd:dateTime ;
+    tcps:preventiveAction "Added test templates for transport error scenarios to prevent future coverage gaps" ;
+    tcps:severity "high" .

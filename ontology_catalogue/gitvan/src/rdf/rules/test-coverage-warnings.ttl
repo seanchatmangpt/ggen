@@ -1,0 +1,15 @@
+# Test Coverage Warning Rule
+# Identifies files without corresponding test files
+# Helps maintain test coverage standards
+
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# RULE: {"id": "test-coverage-warnings", "name": "Test Coverage Warning", "description": "Identifies source files without corresponding test files", "antecedent": "?file rdf:type gv:SourceFile . FILTER(NOT EXISTS { ?testFile rdf:type gv:TestFile . FILTER(STRSTARTS(STR(?testFile), STR(?file))) })", "consequent": "?file gv:needsTest true", "priority": 90}
+
+# Example data structure
+ex:src/main.mjs rdf:type gv:SourceFile .
+ex:src/utils.mjs rdf:type gv:SourceFile .
+ex:tests/utils.test.mjs rdf:type gv:TestFile .

@@ -1,0 +1,29 @@
+@prefix bos: <http://bible.o.star/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<urn:ostar:usury-ledger-entry> a bos:WallSection ;
+    bos:gateAssignment bos:WallGeneral ;
+    bos:builderName bos:NoblesAndRulers ;
+    bos:provenance bos:Nehemiah_5_7 ;
+    bos:verdict bos:Verdict_UsuryHalted ;
+    bos:receiptRelation <urn:ostar:receipt:restitution-001> .
+
+bos:WallGeneral a bos:Wall ;
+    rdfs:label "Main Wall Perimeter" .
+
+bos:NoblesAndRulers a bos:Builder ;
+    rdfs:label "The Nobles and Rulers of Judah" .
+
+bos:Nehemiah_5_7 a bos:NationsLedger ;
+    rdfs:label "Nehemiah 5:7" .
+
+bos:Verdict_UsuryHalted a bos:InspectionVerdict ;
+    rdfs:label "Usury Identified and Halted" .
+
+<urn:ostar:receipt:restitution-001> a bos:Receipt ;
+    rdfs:label "Restitution Receipt #001" .
+
+<urn:ostar:usury-audit> a bos:UsuryLedger ;
+    bos:auditTarget bos:NoblesAndRulers ;
+    bos:issue "Lending at interest to brethren" .

@@ -1,0 +1,113 @@
+{
+  "objectTypes": [
+    {
+      "name": "order",
+      "attributes": [
+        {"name": "price", "type": "float"},
+        {"name": "customer", "type": "string"}
+      ]
+    },
+    {
+      "name": "item",
+      "attributes": [
+        {"name": "quantity", "type": "integer"},
+        {"name": "sku", "type": "string"}
+      ]
+    }
+  ],
+  "eventTypes": [
+    {"name": "Place Order", "attributes": []},
+    {"name": "Receive Payment", "attributes": []},
+    {"name": "Pick Item", "attributes": []},
+    {"name": "Ship Order", "attributes": []}
+  ],
+  "objects": [
+    {
+      "id": "order1",
+      "object_type": "order",
+      "attributes": [
+        {"key": "price", "value": 99.95},
+        {"key": "customer", "value": "alice"}
+      ],
+      "relationships": []
+    },
+    {
+      "id": "order2",
+      "object_type": "order",
+      "attributes": [
+        {"key": "price", "value": 24.50},
+        {"key": "customer", "value": "bob"}
+      ],
+      "relationships": [
+        {"source_object_id": "order2", "target_object_id": "order1", "qualifier": "referenced-by"}
+      ]
+    },
+    {
+      "id": "item1",
+      "object_type": "item",
+      "attributes": [
+        {"key": "quantity", "value": 3},
+        {"key": "sku", "value": "SKU-42"}
+      ],
+      "relationships": []
+    }
+  ],
+  "events": [
+    {
+      "id": "e1",
+      "activity": "Place Order",
+      "timestamp": "2026-01-01T08:00:00Z",
+      "relationships": [
+        {"object_id": "order1", "qualifier": "initiates"}
+      ],
+      "attributes": []
+    },
+    {
+      "id": "e2",
+      "activity": "Place Order",
+      "timestamp": "2026-01-01T09:00:00Z",
+      "relationships": [
+        {"object_id": "order2", "qualifier": "initiates"}
+      ],
+      "attributes": []
+    },
+    {
+      "id": "e3",
+      "activity": "Receive Payment",
+      "timestamp": "2026-01-02T10:00:00Z",
+      "relationships": [
+        {"object_id": "order1", "qualifier": "settles"}
+      ],
+      "attributes": []
+    },
+    {
+      "id": "e4",
+      "activity": "Pick Item",
+      "timestamp": "2026-01-02T11:00:00Z",
+      "relationships": [
+        {"object_id": "order1", "qualifier": "fulfills"},
+        {"object_id": "item1", "qualifier": "allocated"}
+      ],
+      "attributes": []
+    },
+    {
+      "id": "e5",
+      "activity": "Ship Order",
+      "timestamp": "2026-01-03T08:00:00Z",
+      "relationships": [
+        {"object_id": "order1", "qualifier": "dispatches"},
+        {"object_id": "item1", "qualifier": "shipped"}
+      ],
+      "attributes": []
+    },
+    {
+      "id": "e6",
+      "activity": "Receive Payment",
+      "timestamp": "2026-01-03T14:00:00Z",
+      "relationships": [
+        {"object_id": "order2", "qualifier": "settles"}
+      ],
+      "attributes": []
+    }
+  ]
+}

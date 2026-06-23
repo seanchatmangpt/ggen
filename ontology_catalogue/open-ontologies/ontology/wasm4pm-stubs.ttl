@@ -1,0 +1,945 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix powl:    <urn:ontostar:powl:> .
+@prefix w4pm:    <urn:ontostar:wasm4pm:> .
+
+# ============================================================================
+# wasm4pm Stub Module Specification Ontology
+# ============================================================================
+#
+# This ontology specifies the structure, types, and APIs of all wasm4pm stub
+# modules. It is the SOURCE OF TRUTH for:
+#
+#   1. wasm4pm_stub — POWL conformance testing & event log handling
+#   2. wasm4pm_types_stub — OCEL 2.0 event/trace/object models
+#   3. wasm4pm_cognition_stub — 9-breed cognition swarm dispatch
+#   4. wasm4pm_algos_stub — process mining conformance algorithms
+#
+# Each module is specified as an OWL class with required properties defining
+# the module's public API surface, struct definitions, and function signatures.
+#
+# ============================================================================
+
+<urn:ontostar:wasm4pm:ontology>
+    a owl:Ontology ;
+    rdfs:label   "wasm4pm Stub Module Specification"@en ;
+    rdfs:comment "SOURCE OF TRUTH specification of wasm4pm_stub, wasm4pm_types_stub, wasm4pm_cognition_stub, and wasm4pm_algos_stub modules. Defines public APIs, struct types, enums, and function signatures for process mining, OCEL event handling, and cognition dispatch."@en ;
+    dcterms:creator  "Sean Chatman" ;
+    dcterms:created  "2026-06-01"^^xsd:date ;
+    dcterms:license  <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo  "1.0.0" ;
+    owl:imports      <urn:ontostar:powl:> .
+
+# ============================================================================
+# 1. MODULE REGISTRY
+# ============================================================================
+
+w4pm:Module
+    a owl:Class ;
+    rdfs:label "wasm4pm Stub Module"@en ;
+    rdfs:comment "A stub module in the wasm4pm crate ecosystem. Each module defines a public API surface consisting of types, enums, and function implementations required for process mining, event log handling, cognition dispatch, or algorithm execution."@en .
+
+w4pm:wasm4pm_stub
+    a owl:NamedIndividual, w4pm:Module ;
+    rdfs:label "wasm4pm_stub"@en ;
+    rdfs:comment "Main wasm4pm stub module exporting POWL model parsing, event log types, conformance testing, and arena management. Re-exports submodules: powl, powl_arena, powl_event_log, powl_parser, powl_models."@en .
+
+w4pm:wasm4pm_types_stub
+    a owl:NamedIndividual, w4pm:Module ;
+    rdfs:label "wasm4pm_types_stub"@en ;
+    rdfs:comment "OCEL 2.0 type system stub. Defines Event, Trace, EventLog, Attribute, and OCEL (Object-Centric Event Log) types required for multi-object process discovery. All types serializable via serde (JSON)."@en .
+
+w4pm:wasm4pm_cognition_stub
+    a owl:NamedIndividual, w4pm:Module ;
+    rdfs:label "wasm4pm_cognition_stub"@en ;
+    rdfs:comment "9-breed cognition swarm dispatch stub. Implements dispatch_breed_test function to route candidate solutions through symbolic AI engines (Eliza, CBR, Dendral, STRIPS, Prolog, MYCIN, GPS, Soar, Hearsay). Returns selected candidate + elimination evidence."@en .
+
+w4pm:wasm4pm_algos_stub
+    a owl:NamedIndividual, w4pm:Module ;
+    rdfs:label "wasm4pm_algos_stub"@en ;
+    rdfs:comment "Process mining algorithms stub. Implements token replay conformance checking and Alpha algorithm discovery. Function signatures: check_conformance_alignment (fitness validation), discover_alpha (activity-centric discovery)."@en .
+
+# ============================================================================
+# 2. WASM4PM_STUB: POWL Conformance & Event Log Submodules
+# ============================================================================
+
+w4pm:PowlConformanceModule
+    a owl:Class ;
+    rdfs:label "POWL Conformance Module"@en ;
+    rdfs:comment "Sub-module of wasm4pm_stub implementing token replay and fitness scoring for POWL models. Exports: token_replay::FitnessResult, token_replay::TraceReplayResult, with is_perfect() method."@en ;
+    rdfs:isDefinedBy w4pm:wasm4pm_stub .
+
+w4pm:FitnessResult
+    a owl:Class ;
+    rdfs:label "Fitness Result"@en ;
+    rdfs:comment "Result of token replay fitness computation. Single field: fitness (f64 in [0.0, 1.0])."@en ;
+    rdfs:isDefinedBy w4pm:PowlConformanceModule ;
+    rdfs:subClassOf w4pm:ReplayResult .
+
+w4pm:TraceReplayResult
+    a owl:Class ;
+    rdfs:label "Trace Replay Result"@en ;
+    rdfs:comment "Detailed result of replaying a single trace through a POWL model. Captures token consumption, precision, and transition count. Implements is_perfect() method returning (fitness >= 1.0)."@en ;
+    rdfs:isDefinedBy w4pm:PowlConformanceModule ;
+    rdfs:subClassOf w4pm:ReplayResult .
+
+w4pm:ReplayResult
+    a owl:Class ;
+    rdfs:label "Token Replay Result"@en ;
+    rdfs:comment "Abstract base class for replay results. Contains fitness metrics and token accounting."@en .
+
+w4pm:hasProducedTokens
+    a owl:DatatypeProperty ;
+    rdfs:label "has produced tokens"@en ;
+    rdfs:comment "Number of tokens produced during trace replay (output place cardinality)"@en ;
+    rdfs:domain w4pm:TraceReplayResult ;
+    rdfs:range xsd:nonNegativeInteger .
+
+w4pm:hasConsumedTokens
+    a owl:DatatypeProperty ;
+    rdfs:label "has consumed tokens"@en ;
+    rdfs:comment "Number of tokens consumed during trace replay (input place cardinality)"@en ;
+    rdfs:domain w4pm:TraceReplayResult ;
+    rdfs:range xsd:nonNegativeInteger .
+
+w4pm:hasRemainingTokens
+    a owl:DatatypeProperty ;
+    rdfs:label "has remaining tokens"@en ;
+    rdfs:comment "Number of tokens remaining in the model after trace replay (unfinished activities)"@en ;
+    rdfs:domain w4pm:TraceReplayResult ;
+    rdfs:range xsd:nonNegativeInteger .
+
+w4pm:hasMissingTokens
+    a owl:DatatypeProperty ;
+    rdfs:label "has missing tokens"@en ;
+    rdfs:comment "Number of tokens required but missing during trace replay (deviation count)"@en ;
+    rdfs:domain w4pm:TraceReplayResult ;
+    rdfs:range xsd:nonNegativeInteger .
+
+w4pm:hasTransitions
+    a owl:DatatypeProperty ;
+    rdfs:label "has transitions"@en ;
+    rdfs:comment "Number of transitions in the POWL model replayed"@en ;
+    rdfs:domain w4pm:TraceReplayResult ;
+    rdfs:range xsd:nonNegativeInteger .
+
+w4pm:hasPrecision
+    a owl:DatatypeProperty ;
+    rdfs:label "has precision"@en ;
+    rdfs:comment "Precision score of the model with respect to the replayed trace (fraction of model-allowed behavior observed in trace)"@en ;
+    rdfs:domain w4pm:TraceReplayResult ;
+    rdfs:range xsd:decimal .
+
+w4pm:hasFitness
+    a owl:DatatypeProperty ;
+    rdfs:label "has fitness"@en ;
+    rdfs:comment "Fitness score (fraction of trace behavior allowed by model), in [0.0, 1.0]"@en ;
+    rdfs:domain w4pm:ReplayResult ;
+    rdfs:range xsd:decimal .
+
+# PowlArena — manages struct allocation for POWL model parsing
+w4pm:PowlArena
+    a owl:Class ;
+    rdfs:label "POWL Arena"@en ;
+    rdfs:comment "Memory arena for POWL model allocations. Default constructor: PowlArena::default() → PowlArena. Passed mutable to parse_powl_model_string for in-place parsing."@en ;
+    rdfs:isDefinedBy w4pm:wasm4pm_stub .
+
+# POWL Event Log Module
+w4pm:PowlEventLogModule
+    a owl:Class ;
+    rdfs:label "POWL Event Log Module"@en ;
+    rdfs:comment "Sub-module of wasm4pm_stub implementing XES-style event log model. Exports: Event, Trace, EventLog with standard lifecycle and attribute support."@en ;
+    rdfs:isDefinedBy w4pm:wasm4pm_stub .
+
+w4pm:Event
+    a owl:Class ;
+    rdfs:label "Event"@en ;
+    rdfs:comment "Single event in an XES event log. Fields: id (String), name (String), attributes (HashMap<String, String>), timestamp (DateTime<FixedOffset>), lifecycle (String)."@en ;
+    rdfs:isDefinedBy w4pm:PowlEventLogModule .
+
+w4pm:hasEventId
+    a owl:DatatypeProperty ;
+    rdfs:label "has event id"@en ;
+    rdfs:comment "Unique identifier for an event (String)"@en ;
+    rdfs:domain w4pm:Event ;
+    rdfs:range xsd:string .
+
+w4pm:hasEventName
+    a owl:DatatypeProperty ;
+    rdfs:label "has event name"@en ;
+    rdfs:comment "Activity name of the event (String)"@en ;
+    rdfs:domain w4pm:Event ;
+    rdfs:range xsd:string .
+
+w4pm:hasEventAttributes
+    a owl:ObjectProperty ;
+    rdfs:label "has event attributes"@en ;
+    rdfs:comment "Map of attribute key-value pairs for the event"@en ;
+    rdfs:domain w4pm:Event ;
+    rdfs:range w4pm:EventAttribute .
+
+w4pm:EventAttribute
+    a owl:Class ;
+    rdfs:label "Event Attribute"@en ;
+    rdfs:comment "Single key-value attribute attached to an event"@en .
+
+w4pm:hasAttributeKey
+    a owl:DatatypeProperty ;
+    rdfs:label "has attribute key"@en ;
+    rdfs:comment "String key of an event attribute"@en ;
+    rdfs:domain w4pm:EventAttribute ;
+    rdfs:range xsd:string .
+
+w4pm:hasAttributeValue
+    a owl:DatatypeProperty ;
+    rdfs:label "has attribute value"@en ;
+    rdfs:comment "String value of an event attribute"@en ;
+    rdfs:domain w4pm:EventAttribute ;
+    rdfs:range xsd:string .
+
+w4pm:hasEventTimestamp
+    a owl:DatatypeProperty ;
+    rdfs:label "has event timestamp"@en ;
+    rdfs:comment "Timestamp of the event as DateTime<FixedOffset>"@en ;
+    rdfs:domain w4pm:Event ;
+    rdfs:range xsd:dateTime .
+
+w4pm:hasEventLifecycle
+    a owl:DatatypeProperty ;
+    rdfs:label "has event lifecycle"@en ;
+    rdfs:comment "Lifecycle transition string (e.g., 'start', 'complete', 'cancel')"@en ;
+    rdfs:domain w4pm:Event ;
+    rdfs:range xsd:string .
+
+# Trace — sequence of events for a case
+w4pm:Trace
+    a owl:Class ;
+    rdfs:label "Trace"@en ;
+    rdfs:comment "Sequence of events for a single case (case_id). Fields: case_id (String), events (Vec<Event>), places (optional ordering). One Trace → one case instance."@en ;
+    rdfs:isDefinedBy w4pm:PowlEventLogModule .
+
+w4pm:hasCaseId
+    a owl:DatatypeProperty ;
+    rdfs:label "has case id"@en ;
+    rdfs:comment "Unique case identifier (String)"@en ;
+    rdfs:domain w4pm:Trace ;
+    rdfs:range xsd:string .
+
+w4pm:hasEvent
+    a owl:ObjectProperty ;
+    rdfs:label "has event"@en ;
+    rdfs:comment "Event belonging to this trace (multiple values, ordered)"@en ;
+    rdfs:domain w4pm:Trace ;
+    rdfs:range w4pm:Event .
+
+# EventLog — collection of traces
+w4pm:EventLog
+    a owl:Class ;
+    rdfs:label "Event Log"@en ;
+    rdfs:comment "Collection of traces (Vec<Trace>). Standard constructor: EventLog::new() → EventLog. Default: EventLog { traces: vec![] }."@en ;
+    rdfs:isDefinedBy w4pm:PowlEventLogModule .
+
+w4pm:hasTrace
+    a owl:ObjectProperty ;
+    rdfs:label "has trace"@en ;
+    rdfs:comment "Trace belonging to this event log (multiple values)"@en ;
+    rdfs:domain w4pm:EventLog ;
+    rdfs:range w4pm:Trace .
+
+# POWL Parser Module
+w4pm:PowlParserModule
+    a owl:Class ;
+    rdfs:label "POWL Parser Module"@en ;
+    rdfs:comment "Sub-module implementing POWL model parsing. Exports: PowlModel type and parse_powl_model_string function."@en ;
+    rdfs:isDefinedBy w4pm:wasm4pm_stub .
+
+w4pm:PowlModel
+    a owl:Class ;
+    rdfs:label "POWL Model"@en ;
+    rdfs:comment "Parsed POWL model struct. Fields: name (String). Single required field for identification."@en ;
+    rdfs:isDefinedBy w4pm:PowlParserModule .
+
+w4pm:hasModelName
+    a owl:DatatypeProperty ;
+    rdfs:label "has model name"@en ;
+    rdfs:comment "Name of the POWL model (String)"@en ;
+    rdfs:domain w4pm:PowlModel ;
+    rdfs:range xsd:string .
+
+# Function: parse_powl_model_string
+w4pm:parse_powl_model_string
+    a owl:NamedIndividual, w4pm:Function ;
+    rdfs:label "parse POWL model string"@en ;
+    rdfs:comment "Function signature: fn parse_powl_model_string(powl_string: &str, arena: &mut PowlArena) → PowlModel. Parses POWL syntax from string using arena allocation. Production version parses real POWL syntax; stub returns PowlModel { name: 'stub_model' }."@en ;
+    rdfs:isDefinedBy w4pm:PowlParserModule .
+
+w4pm:Function
+    a owl:Class ;
+    rdfs:label "Function"@en ;
+    rdfs:comment "A public function exported by a wasm4pm module"@en .
+
+# POWL Models Module
+w4pm:PowlModelsModule
+    a owl:Class ;
+    rdfs:label "POWL Models Module"@en ;
+    rdfs:comment "Sub-module exporting low-level POWL model representations: PowlMarking and PowlPetriNet."@en ;
+    rdfs:isDefinedBy w4pm:wasm4pm_stub .
+
+w4pm:PowlMarking
+    a owl:Class ;
+    rdfs:label "POWL Marking"@en ;
+    rdfs:comment "State marking in a POWL Petri net. Fields: state (String). Represents token distribution across places."@en ;
+    rdfs:isDefinedBy w4pm:PowlModelsModule .
+
+w4pm:hasMarkingState
+    a owl:DatatypeProperty ;
+    rdfs:label "has marking state"@en ;
+    rdfs:comment "String representation of the place markings"@en ;
+    rdfs:domain w4pm:PowlMarking ;
+    rdfs:range xsd:string .
+
+w4pm:PowlPetriNet
+    a owl:Class ;
+    rdfs:label "POWL Petri Net"@en ;
+    rdfs:comment "Low-level POWL Petri net representation. Fields: name (String), transitions (usize). Underlying model used by token replay conformance checking."@en ;
+    rdfs:isDefinedBy w4pm:PowlModelsModule .
+
+w4pm:hasNetName
+    a owl:DatatypeProperty ;
+    rdfs:label "has net name"@en ;
+    rdfs:comment "Name of the Petri net (String)"@en ;
+    rdfs:domain w4pm:PowlPetriNet ;
+    rdfs:range xsd:string .
+
+w4pm:hasTransitionCount
+    a owl:DatatypeProperty ;
+    rdfs:label "has transition count"@en ;
+    rdfs:comment "Number of transitions in the Petri net (usize)"@en ;
+    rdfs:domain w4pm:PowlPetriNet ;
+    rdfs:range xsd:nonNegativeInteger .
+
+# ============================================================================
+# 3. WASM4PM_TYPES_STUB: OCEL 2.0 Type System
+# ============================================================================
+
+w4pm:OCELTypeSystem
+    a owl:Class ;
+    rdfs:label "OCEL Type System"@en ;
+    rdfs:comment "OCEL 2.0 object-centric event log data types. Exports: OCEL, OCELType, OCELEvent, OCELEventAttribute, OCELAttributeValue, OCELObject, OCELRelationship."@en ;
+    rdfs:isDefinedBy w4pm:wasm4pm_types_stub .
+
+w4pm:OCEL
+    a owl:Class ;
+    rdfs:label "OCEL"@en ;
+    rdfs:comment "Complete Object-Centric Event Log. Fields: event_types (Vec<OCELType>), object_types (Vec<OCELType>), events (Vec<OCELEvent>), objects (Vec<OCELObject>). Top-level container for multi-object process discovery."@en ;
+    rdfs:isDefinedBy w4pm:OCELTypeSystem .
+
+w4pm:hasEventType
+    a owl:ObjectProperty ;
+    rdfs:label "has event type"@en ;
+    rdfs:comment "Event type definition in the OCEL (multiple values)"@en ;
+    rdfs:domain w4pm:OCEL ;
+    rdfs:range w4pm:OCELType .
+
+w4pm:hasObjectType
+    a owl:ObjectProperty ;
+    rdfs:label "has object type"@en ;
+    rdfs:comment "Object type definition in the OCEL (multiple values)"@en ;
+    rdfs:domain w4pm:OCEL ;
+    rdfs:range w4pm:OCELType .
+
+w4pm:hasOCELEvent
+    a owl:ObjectProperty ;
+    rdfs:label "has OCEL event"@en ;
+    rdfs:comment "Event in the OCEL (multiple values)"@en ;
+    rdfs:domain w4pm:OCEL ;
+    rdfs:range w4pm:OCELEvent .
+
+w4pm:hasOCELObject
+    a owl:ObjectProperty ;
+    rdfs:label "has OCEL object"@en ;
+    rdfs:comment "Business object in the OCEL (multiple values)"@en ;
+    rdfs:domain w4pm:OCEL ;
+    rdfs:range w4pm:OCELObject .
+
+# OCELType — event/object type definition
+w4pm:OCELType
+    a owl:Class ;
+    rdfs:label "OCEL Type"@en ;
+    rdfs:comment "Definition of an event type or object type in an OCEL. Fields: name (String), attributes (Vec<String>). Enumerates the attribute keys allowed for instances of this type."@en ;
+    rdfs:isDefinedBy w4pm:OCELTypeSystem .
+
+w4pm:hasTypeName
+    a owl:DatatypeProperty ;
+    rdfs:label "has type name"@en ;
+    rdfs:comment "Name of the event/object type (String)"@en ;
+    rdfs:domain w4pm:OCELType ;
+    rdfs:range xsd:string .
+
+w4pm:hasTypeAttribute
+    a owl:DatatypeProperty ;
+    rdfs:label "has type attribute"@en ;
+    rdfs:comment "Attribute key allowed for instances of this type (multiple values, Vec<String>)"@en ;
+    rdfs:domain w4pm:OCELType ;
+    rdfs:range xsd:string .
+
+# OCELEvent — single event with attributes
+w4pm:OCELEvent
+    a owl:Class ;
+    rdfs:label "OCEL Event"@en ;
+    rdfs:comment "Single event in an OCEL. Fields: id (String), event_type (String), time (DateTime<FixedOffset>), attributes (Vec<OCELEventAttribute>). Links to one or more business objects via object references in attributes."@en ;
+    rdfs:isDefinedBy w4pm:OCELTypeSystem .
+
+w4pm:hasOCELEventId
+    a owl:DatatypeProperty ;
+    rdfs:label "has OCEL event id"@en ;
+    rdfs:comment "Unique event identifier (String)"@en ;
+    rdfs:domain w4pm:OCELEvent ;
+    rdfs:range xsd:string .
+
+w4pm:hasEventTypeRef
+    a owl:DatatypeProperty ;
+    rdfs:label "has event type ref"@en ;
+    rdfs:comment "Reference to an event type defined in the OCEL (String)"@en ;
+    rdfs:domain w4pm:OCELEvent ;
+    rdfs:range xsd:string .
+
+w4pm:hasEventTime
+    a owl:DatatypeProperty ;
+    rdfs:label "has event time"@en ;
+    rdfs:comment "Timestamp of the event (DateTime<FixedOffset>)"@en ;
+    rdfs:domain w4pm:OCELEvent ;
+    rdfs:range xsd:dateTime .
+
+w4pm:hasOCELEventAttribute
+    a owl:ObjectProperty ;
+    rdfs:label "has OCEL event attribute"@en ;
+    rdfs:comment "Attribute of an OCEL event (multiple values)"@en ;
+    rdfs:domain w4pm:OCELEvent ;
+    rdfs:range w4pm:OCELEventAttribute .
+
+# OCELEventAttribute — event attribute with typed value
+w4pm:OCELEventAttribute
+    a owl:Class ;
+    rdfs:label "OCEL Event Attribute"@en ;
+    rdfs:comment "Typed attribute on an OCEL event. Fields: name (String), value (OCELAttributeValue). Value can be String or Number (f64)."@en ;
+    rdfs:isDefinedBy w4pm:OCELTypeSystem .
+
+w4pm:hasOCELAttributeName
+    a owl:DatatypeProperty ;
+    rdfs:label "has OCEL attribute name"@en ;
+    rdfs:comment "Attribute key name (String)"@en ;
+    rdfs:domain w4pm:OCELEventAttribute ;
+    rdfs:range xsd:string .
+
+w4pm:OCELAttributeValue
+    a owl:Class ;
+    rdfs:label "OCEL Attribute Value"@en ;
+    rdfs:comment "Union type for OCEL attribute values: String(String) or Number(f64). Serialized via serde untagged enum."@en ;
+    rdfs:isDefinedBy w4pm:OCELTypeSystem .
+
+w4pm:OCELAttributeValueString
+    a owl:Class ;
+    rdfs:subClassOf w4pm:OCELAttributeValue ;
+    rdfs:label "OCEL Attribute Value String"@en ;
+    rdfs:comment "String variant of OCELAttributeValue"@en .
+
+w4pm:OCELAttributeValueNumber
+    a owl:Class ;
+    rdfs:subClassOf w4pm:OCELAttributeValue ;
+    rdfs:label "OCEL Attribute Value Number"@en ;
+    rdfs:comment "Number (f64) variant of OCELAttributeValue"@en .
+
+# OCELObject — business object with relationships
+w4pm:OCELObject
+    a owl:Class ;
+    rdfs:label "OCEL Object"@en ;
+    rdfs:comment "Business object in an OCEL. Fields: id (String), object_type (String), attributes (Vec<String>), relationships (Vec<OCELRelationship>). Can relate to other objects via relationships."@en ;
+    rdfs:isDefinedBy w4pm:OCELTypeSystem .
+
+w4pm:hasOCELObjectId
+    a owl:DatatypeProperty ;
+    rdfs:label "has OCEL object id"@en ;
+    rdfs:comment "Unique object identifier (String)"@en ;
+    rdfs:domain w4pm:OCELObject ;
+    rdfs:range xsd:string .
+
+w4pm:hasObjectTypeRef
+    a owl:DatatypeProperty ;
+    rdfs:label "has object type ref"@en ;
+    rdfs:comment "Reference to an object type defined in the OCEL (String)"@en ;
+    rdfs:domain w4pm:OCELObject ;
+    rdfs:range xsd:string .
+
+w4pm:hasObjectAttribute
+    a owl:DatatypeProperty ;
+    rdfs:label "has object attribute"@en ;
+    rdfs:comment "Attribute key for this object type (multiple values)"@en ;
+    rdfs:domain w4pm:OCELObject ;
+    rdfs:range xsd:string .
+
+w4pm:hasRelationship
+    a owl:ObjectProperty ;
+    rdfs:label "has relationship"@en ;
+    rdfs:comment "Relationship to another OCEL object (multiple values)"@en ;
+    rdfs:domain w4pm:OCELObject ;
+    rdfs:range w4pm:OCELRelationship .
+
+# OCELRelationship — inter-object relationship
+w4pm:OCELRelationship
+    a owl:Class ;
+    rdfs:label "OCEL Relationship"@en ;
+    rdfs:comment "Typed relationship between two OCEL objects. Fields: target (String, ID of target object), qualifier (String, relationship type). Enables multi-object causality."@en ;
+    rdfs:isDefinedBy w4pm:OCELTypeSystem .
+
+w4pm:hasRelationshipTarget
+    a owl:DatatypeProperty ;
+    rdfs:label "has relationship target"@en ;
+    rdfs:comment "ID of the target OCEL object (String)"@en ;
+    rdfs:domain w4pm:OCELRelationship ;
+    rdfs:range xsd:string .
+
+w4pm:hasRelationshipQualifier
+    a owl:DatatypeProperty ;
+    rdfs:label "has relationship qualifier"@en ;
+    rdfs:comment "Relationship type qualifier (String)"@en ;
+    rdfs:domain w4pm:OCELRelationship ;
+    rdfs:range xsd:string .
+
+# Attribute type (generic key-value)
+w4pm:Attribute
+    a owl:Class ;
+    rdfs:label "Attribute"@en ;
+    rdfs:comment "Generic typed attribute. Fields: name (String), value (AttributeValue). Value can be String or Number (f64)."@en ;
+    rdfs:isDefinedBy w4pm:wasm4pm_types_stub .
+
+w4pm:hasAttrName
+    a owl:DatatypeProperty ;
+    rdfs:label "has attribute name"@en ;
+    rdfs:comment "Attribute key (String)"@en ;
+    rdfs:domain w4pm:Attribute ;
+    rdfs:range xsd:string .
+
+w4pm:AttributeValue
+    a owl:Class ;
+    rdfs:label "Attribute Value"@en ;
+    rdfs:comment "Union type for generic attribute values: String(String) or Number(f64). Serialized via serde untagged enum."@en ;
+    rdfs:isDefinedBy w4pm:wasm4pm_types_stub .
+
+w4pm:AttributeValueString
+    a owl:Class ;
+    rdfs:subClassOf w4pm:AttributeValue ;
+    rdfs:label "Attribute Value String"@en ;
+    rdfs:comment "String variant of AttributeValue"@en .
+
+w4pm:AttributeValueNumber
+    a owl:Class ;
+    rdfs:subClassOf w4pm:AttributeValue ;
+    rdfs:label "Attribute Value Number"@en ;
+    rdfs:comment "Number (f64) variant of AttributeValue"@en .
+
+# ============================================================================
+# 4. WASM4PM_COGNITION_STUB: 9-Breed Cognition Swarm
+# ============================================================================
+
+w4pm:CognitionModule
+    a owl:Class ;
+    rdfs:label "Cognition Module"@en ;
+    rdfs:comment "9-breed cognition swarm for candidate evaluation and selection. Exports: BreedId enum, BreedInput, BreedOutput, Candidate, Fact, Case, Goal, Rule, StateAtom types, and dispatch_breed_test function."@en ;
+    rdfs:isDefinedBy w4pm:wasm4pm_cognition_stub .
+
+w4pm:BreedId
+    a owl:Class ;
+    rdfs:label "Breed ID"@en ;
+    rdfs:comment "Enum of 9 symbolic AI breed architectures. Variants: Eliza, Cbr, Dendral, Strips, Prolog, Mycin, Gps, Soar, Hearsay. Each breed implements a distinct problem-solving paradigm."@en ;
+    rdfs:isDefinedBy w4pm:CognitionModule .
+
+w4pm:Eliza
+    a owl:NamedIndividual, w4pm:BreedId ;
+    rdfs:label "Eliza"@en ;
+    rdfs:comment "Dialogue pattern matching and substitution breed. Best for NLG-style text analysis and pattern-driven conversation."@en .
+
+w4pm:Cbr
+    a owl:NamedIndividual, w4pm:BreedId ;
+    rdfs:label "Case-Based Reasoning"@en ;
+    rdfs:comment "CBR breed using historical case retrieval and analogy. Best for problems with strong case library and similarity-based matching."@en .
+
+w4pm:Dendral
+    a owl:NamedIndividual, w4pm:BreedId ;
+    rdfs:label "Dendral"@en ;
+    rdfs:comment "Structural constraint satisfaction and plan synthesis breed. Best for manufacturing/assembly problems with compositional structure."@en .
+
+w4pm:Strips
+    a owl:NamedIndividual, w4pm:BreedId ;
+    rdfs:label "STRIPS"@en ;
+    rdfs:comment "Classical planning with state-space search. Best for deterministic sequential planning with clear preconditions/effects."@en .
+
+w4pm:Prolog
+    a owl:NamedIndividual, w4pm:BreedId ;
+    rdfs:label "Prolog"@en ;
+    rdfs:comment "Logic programming with SLD resolution and backtracking. Best for rule-based inference and constraint logic."@en .
+
+w4pm:Mycin
+    a owl:NamedIndividual, w4pm:BreedId ;
+    rdfs:label "MYCIN"@en ;
+    rdfs:comment "Probabilistic rule-based expert system. Best for diagnosis/recommendation with uncertainty and confidence factors."@en .
+
+w4pm:Gps
+    a owl:NamedIndividual, w4pm:BreedId ;
+    rdfs:label "General Problem Solver"@en ;
+    rdfs:comment "Means-ends analysis with difference reduction. Best for goal-directed reasoning with explicit means-ends tables."@en .
+
+w4pm:Soar
+    a owl:NamedIndividual, w4pm:BreedId ;
+    rdfs:label "SOAR"@en ;
+    rdfs:comment "Unified architecture for learning and problem solving via production rules. Best for complex multi-step problems with learning."@en .
+
+w4pm:Hearsay
+    a owl:NamedIndividual, w4pm:BreedId ;
+    rdfs:label "Hearsay-III"@en ;
+    rdfs:comment "Blackboard architecture for cooperative problem solving. Best for speech recognition and multi-source evidence integration."@en .
+
+# BreedInput — problem specification for breed dispatch
+w4pm:BreedInput
+    a owl:Class ;
+    rdfs:label "Breed Input"@en ;
+    rdfs:comment "Input to breed dispatch. Fields: scenario (String). Contains problem description, candidates list, facts, and goals to be solved by one or more breed engines."@en ;
+    rdfs:isDefinedBy w4pm:CognitionModule .
+
+w4pm:hasScenario
+    a owl:DatatypeProperty ;
+    rdfs:label "has scenario"@en ;
+    rdfs:comment "Problem scenario description (String)"@en ;
+    rdfs:domain w4pm:BreedInput ;
+    rdfs:range xsd:string .
+
+# BreedOutput — result of breed dispatch
+w4pm:BreedOutput
+    a owl:Class ;
+    rdfs:label "Breed Output"@en ;
+    rdfs:comment "Output of breed dispatch. Fields: selected (Candidate), explanation (String), inference_trace (Vec<String>), breed (BreedId), facts (Vec<Fact>), candidates (Vec<Candidate>), elimination_reason (Option<String>). Contains selected candidate + reasoning provenance."@en ;
+    rdfs:isDefinedBy w4pm:CognitionModule .
+
+w4pm:hasSelectedCandidate
+    a owl:ObjectProperty ;
+    rdfs:label "has selected candidate"@en ;
+    rdfs:comment "Candidate selected by breed dispatch"@en ;
+    rdfs:domain w4pm:BreedOutput ;
+    rdfs:range w4pm:Candidate .
+
+w4pm:hasExplanation
+    a owl:DatatypeProperty ;
+    rdfs:label "has explanation"@en ;
+    rdfs:comment "Natural language explanation of the selection (String)"@en ;
+    rdfs:domain w4pm:BreedOutput ;
+    rdfs:range xsd:string .
+
+w4pm:hasInferenceStep
+    a owl:DatatypeProperty ;
+    rdfs:label "has inference step"@en ;
+    rdfs:comment "Single step in the inference trace (multiple values, Vec<String>)"@en ;
+    rdfs:domain w4pm:BreedOutput ;
+    rdfs:range xsd:string .
+
+w4pm:usedBreed
+    a owl:ObjectProperty ;
+    rdfs:label "used breed"@en ;
+    rdfs:comment "Which breed engine produced this output (BreedId)"@en ;
+    rdfs:domain w4pm:BreedOutput ;
+    rdfs:range w4pm:BreedId .
+
+w4pm:hasFact
+    a owl:ObjectProperty ;
+    rdfs:label "has fact"@en ;
+    rdfs:comment "Fact derived during reasoning (multiple values)"@en ;
+    rdfs:domain w4pm:BreedOutput ;
+    rdfs:range w4pm:Fact .
+
+w4pm:hasEliminationReason
+    a owl:DatatypeProperty ;
+    rdfs:label "has elimination reason"@en ;
+    rdfs:comment "Why a candidate was eliminated (Option<String>, may be absent)"@en ;
+    rdfs:domain w4pm:BreedOutput ;
+    rdfs:range xsd:string .
+
+# Candidate — solution candidate for evaluation
+w4pm:Candidate
+    a owl:Class ;
+    rdfs:label "Candidate"@en ;
+    rdfs:comment "Solution candidate. Fields: id (String), score (f64), eliminated (bool), elimination_reason (Option<String>). Evaluated by breed engines to select best solution."@en ;
+    rdfs:isDefinedBy w4pm:CognitionModule .
+
+w4pm:hasCandidateId
+    a owl:DatatypeProperty ;
+    rdfs:label "has candidate id"@en ;
+    rdfs:comment "Candidate identifier (String)"@en ;
+    rdfs:domain w4pm:Candidate ;
+    rdfs:range xsd:string .
+
+w4pm:hasCandidateScore
+    a owl:DatatypeProperty ;
+    rdfs:label "has candidate score"@en ;
+    rdfs:comment "Candidate score (f64, higher is better)"@en ;
+    rdfs:domain w4pm:Candidate ;
+    rdfs:range xsd:decimal .
+
+w4pm:isCandidateEliminated
+    a owl:DatatypeProperty ;
+    rdfs:label "is candidate eliminated"@en ;
+    rdfs:comment "Whether candidate was eliminated during evaluation (bool)"@en ;
+    rdfs:domain w4pm:Candidate ;
+    rdfs:range xsd:boolean .
+
+# Fact — derived fact during reasoning
+w4pm:Fact
+    a owl:Class ;
+    rdfs:label "Fact"@en ;
+    rdfs:comment "Fact derived during symbolic reasoning. Fields: key (String), value (String). Key-value representation of asserted knowledge."@en ;
+    rdfs:isDefinedBy w4pm:CognitionModule .
+
+w4pm:hasFactKey
+    a owl:DatatypeProperty ;
+    rdfs:label "has fact key"@en ;
+    rdfs:comment "Fact key (String)"@en ;
+    rdfs:domain w4pm:Fact ;
+    rdfs:range xsd:string .
+
+w4pm:hasFactValue
+    a owl:DatatypeProperty ;
+    rdfs:label "has fact value"@en ;
+    rdfs:comment "Fact value (String)"@en ;
+    rdfs:domain w4pm:Fact ;
+    rdfs:range xsd:string .
+
+# Case — CBR case representation
+w4pm:Case
+    a owl:Class ;
+    rdfs:label "Case"@en ;
+    rdfs:comment "Case for Case-Based Reasoning. Fields: id (String). Represents a historical case in the case library."@en ;
+    rdfs:isDefinedBy w4pm:CognitionModule .
+
+w4pm:hasCaseId
+    a owl:DatatypeProperty ;
+    rdfs:label "has case id"@en ;
+    rdfs:comment "Case identifier (String)"@en ;
+    rdfs:domain w4pm:Case ;
+    rdfs:range xsd:string .
+
+# Goal — STRIPS/GPS goal
+w4pm:Goal
+    a owl:Class ;
+    rdfs:label "Goal"@en ;
+    rdfs:comment "Goal specification for STRIPS or GPS breed. Fields: goal (String). Describes desired end state."@en ;
+    rdfs:isDefinedBy w4pm:CognitionModule .
+
+w4pm:hasGoalDescription
+    a owl:DatatypeProperty ;
+    rdfs:label "has goal description"@en ;
+    rdfs:comment "Goal description (String)"@en ;
+    rdfs:domain w4pm:Goal ;
+    rdfs:range xsd:string .
+
+# Rule — Prolog/MYCIN rule
+w4pm:Rule
+    a owl:Class ;
+    rdfs:label "Rule"@en ;
+    rdfs:comment "Logical rule for Prolog or expert system. Fields: rule (String). Format depends on breed (Prolog clause, MYCIN rule, etc.)."@en ;
+    rdfs:isDefinedBy w4pm:CognitionModule .
+
+w4pm:hasRuleDescription
+    a owl:DatatypeProperty ;
+    rdfs:label "has rule description"@en ;
+    rdfs:comment "Rule specification (String)"@en ;
+    rdfs:domain w4pm:Rule ;
+    rdfs:range xsd:string .
+
+# StateAtom — ground atom in STRIPS state
+w4pm:StateAtom
+    a owl:Class ;
+    rdfs:label "State Atom"@en ;
+    rdfs:comment "Ground atom in STRIPS world state. Fields: atom (String). Boolean propositions that define the current state."@en ;
+    rdfs:isDefinedBy w4pm:CognitionModule .
+
+w4pm:hasAtomDescription
+    a owl:DatatypeProperty ;
+    rdfs:label "has atom description"@en ;
+    rdfs:comment "Atom proposition (String)"@en ;
+    rdfs:domain w4pm:StateAtom ;
+    rdfs:range xsd:string .
+
+# dispatch_breed_test function
+w4pm:dispatch_breed_test
+    a owl:NamedIndividual, w4pm:Function ;
+    rdfs:label "dispatch breed test"@en ;
+    rdfs:comment "Function signature: fn dispatch_breed_test(input: BreedInput) → Result<BreedOutput, String>. Routes candidate evaluation through 9-breed cognition swarm. Production: dispatches to real breed engines; stub: returns Err('wasm4pm_cognition not available')."@en ;
+    rdfs:isDefinedBy w4pm:CognitionModule .
+
+# ============================================================================
+# 5. WASM4PM_ALGOS_STUB: Process Mining Algorithms
+# ============================================================================
+
+w4pm:AlgorithmsModule
+    a owl:Class ;
+    rdfs:label "Algorithms Module"@en ;
+    rdfs:comment "Process mining algorithm implementations. Exports: conformance sub-module (token replay), alpha sub-module (discovery), and high-level conformance checking."@en ;
+    rdfs:isDefinedBy w4pm:wasm4pm_algos_stub .
+
+w4pm:ConformanceModule
+    a owl:Class ;
+    rdfs:label "Conformance Module"@en ;
+    rdfs:comment "Token replay conformance checking. Exports: check_conformance_alignment function."@en ;
+    rdfs:isDefinedBy w4pm:AlgorithmsModule .
+
+# check_conformance_alignment — conformance validation
+w4pm:check_conformance_alignment
+    a owl:NamedIndividual, w4pm:Function ;
+    rdfs:label "check conformance alignment"@en ;
+    rdfs:comment "Function signature: fn check_conformance_alignment(log: &EventLog, trace: &Trace, fitness: f64) → Result<bool, String>. Validates that a specific trace conforms to the model at the given fitness threshold. Production: replay trace and return fitness >= threshold; stub: returns Err('wasm4pm_algos not available')."@en ;
+    rdfs:isDefinedBy w4pm:ConformanceModule .
+
+w4pm:AlphaModule
+    a owl:Class ;
+    rdfs:label "Alpha Module"@en ;
+    rdfs:comment "Alpha algorithm discovery. Exports: discover_alpha function for activity-centric process model discovery."@en ;
+    rdfs:isDefinedBy w4pm:AlgorithmsModule .
+
+# discover_alpha — activity-centric discovery
+w4pm:discover_alpha
+    a owl:NamedIndividual, w4pm:Function ;
+    rdfs:label "discover alpha"@en ;
+    rdfs:comment "Function signature: fn discover_alpha(log: &EventLog, activity_key: &str) → Result<String, String>. Discovers a process model using Alpha algorithm with specified activity key. Production: returns Petri net in standard format; stub: returns Err('wasm4pm_algos not available')."@en ;
+    rdfs:isDefinedBy w4pm:AlphaModule .
+
+# ============================================================================
+# 6. CONFORMANCE VALIDATION SHAPES (SHACL)
+# ============================================================================
+
+w4pm:EventShape
+    a sh:NodeShape ;
+    sh:name        "EventShape" ;
+    rdfs:label     "Event Shape"@en ;
+    sh:description "Validates that an Event has required fields: id (String), name (String), timestamp (DateTime), lifecycle (String)." ;
+    sh:targetClass w4pm:Event ;
+
+    sh:property [
+        sh:path        w4pm:hasEventId ;
+        sh:datatype    xsd:string ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:name        "eventId" ;
+        sh:message     "Event must have exactly one id field of type string." ;
+    ] ;
+
+    sh:property [
+        sh:path        w4pm:hasEventName ;
+        sh:datatype    xsd:string ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:name        "eventName" ;
+        sh:message     "Event must have exactly one name field of type string." ;
+    ] ;
+
+    sh:property [
+        sh:path        w4pm:hasEventTimestamp ;
+        sh:datatype    xsd:dateTime ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:name        "timestamp" ;
+        sh:message     "Event must have exactly one timestamp of type dateTime." ;
+    ] ;
+
+    sh:property [
+        sh:path        w4pm:hasEventLifecycle ;
+        sh:datatype    xsd:string ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:name        "lifecycle" ;
+        sh:message     "Event must have exactly one lifecycle field of type string." ;
+    ] .
+
+w4pm:TraceShape
+    a sh:NodeShape ;
+    sh:name        "TraceShape" ;
+    rdfs:label     "Trace Shape"@en ;
+    sh:description "Validates that a Trace has a case_id and at least one event." ;
+    sh:targetClass w4pm:Trace ;
+
+    sh:property [
+        sh:path        w4pm:hasCaseId ;
+        sh:datatype    xsd:string ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:name        "caseId" ;
+        sh:message     "Trace must have exactly one case_id of type string." ;
+    ] ;
+
+    sh:property [
+        sh:path        w4pm:hasEvent ;
+        sh:minCount    1 ;
+        sh:class       w4pm:Event ;
+        sh:name        "events" ;
+        sh:message     "Trace must have at least one event." ;
+    ] .
+
+w4pm:CandidateShape
+    a sh:NodeShape ;
+    sh:name        "CandidateShape" ;
+    rdfs:label     "Candidate Shape"@en ;
+    sh:description "Validates that a Candidate has id and score." ;
+    sh:targetClass w4pm:Candidate ;
+
+    sh:property [
+        sh:path        w4pm:hasCandidateId ;
+        sh:datatype    xsd:string ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:name        "candidateId" ;
+        sh:message     "Candidate must have exactly one id field of type string." ;
+    ] ;
+
+    sh:property [
+        sh:path        w4pm:hasCandidateScore ;
+        sh:datatype    xsd:decimal ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:name        "score" ;
+        sh:message     "Candidate must have exactly one score field of type decimal." ;
+    ] .
+
+w4pm:OCELEventShape
+    a sh:NodeShape ;
+    sh:name        "OCELEventShape" ;
+    rdfs:label     "OCEL Event Shape"@en ;
+    sh:description "Validates that an OCEL Event has id, event_type, and time." ;
+    sh:targetClass w4pm:OCELEvent ;
+
+    sh:property [
+        sh:path        w4pm:hasOCELEventId ;
+        sh:datatype    xsd:string ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:name        "eventId" ;
+        sh:message     "OCEL Event must have exactly one id field of type string." ;
+    ] ;
+
+    sh:property [
+        sh:path        w4pm:hasEventTypeRef ;
+        sh:datatype    xsd:string ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:name        "eventType" ;
+        sh:message     "OCEL Event must have exactly one event_type reference of type string." ;
+    ] ;
+
+    sh:property [
+        sh:path        w4pm:hasEventTime ;
+        sh:datatype    xsd:dateTime ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:name        "time" ;
+        sh:message     "OCEL Event must have exactly one time field of type dateTime." ;
+    ] .

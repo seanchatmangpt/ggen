@@ -1,0 +1,39 @@
+@prefix : <https://bytestar.org/ontology/bytestar-market#> .
+@prefix bs: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix sec: <https://bytestar.org/ontology/bytestar-security#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-market>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ,
+              <https://bytestar.org/ontology/bytestar-security> ;
+  rdfs:label "ByteStar Marketplace" ;
+  rdfs:comment "CXP headers, private cells, agora, SHACL+PQC admission gates." .
+
+### Marketplace topology
+:PrivateCell a owl:Class .
+:Agora a owl:Class .
+:Offer a owl:Class .
+:Demand a owl:Class .
+
+### CXP headers & admission
+:CXPHeader a owl:Class .
+:hasHeader a owl:ObjectProperty ; rdfs:domain :Offer ; rdfs:range :CXPHeader .
+:hasHeader a owl:ObjectProperty ; rdfs:domain :Demand ; rdfs:range :CXPHeader .
+
+### Admission predicates
+:shapeOk a owl:DatatypeProperty ; rdfs:domain :CXPHeader ; rdfs:range xsd:boolean .
+:pqcOk a owl:DatatypeProperty ; rdfs:domain :CXPHeader ; rdfs:range xsd:boolean .
+:congruenceOk a owl:DatatypeProperty ; rdfs:domain :CXPHeader ; rdfs:range xsd:boolean .
+:admitted a owl:DatatypeProperty ; rdfs:domain :CXPHeader ; rdfs:range xsd:boolean .
+
+### Settlement mechanisms
+:settlesVia a owl:ObjectProperty ; rdfs:domain :CXPHeader ; rdfs:range sec:KEM .
+:privateSettlement a owl:DatatypeProperty ; rdfs:domain :CXPHeader ; rdfs:range xsd:boolean .
+
+### Market operations
+:matches a owl:ObjectProperty ; rdfs:domain :Offer ; rdfs:range :Demand .
+:inAgora a owl:ObjectProperty ; rdfs:domain :Offer ; rdfs:range :Agora .
+:inAgora a owl:ObjectProperty ; rdfs:domain :Demand ; rdfs:range :Agora .

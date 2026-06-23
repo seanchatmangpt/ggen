@@ -1,0 +1,174 @@
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dflss: <http://dflss.ontology/schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Shape for Sub-Ontology Validation
+dflss:SubOntologyShape a sh:NodeShape ;
+    sh:targetClass :SubOntology ;
+    sh:property [
+        sh:path dflss:businessValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Business value must be between 0 and 1" ;
+    ] ;
+    sh:property [
+        sh:path dflss:nodeCount ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:minCount 1 ;
+        sh:message "Node count must be at least 1" ;
+    ] ;
+    sh:property [
+        sh:path dflss:domain ;
+        sh:datatype xsd:string ;
+        sh:minLength 3 ;
+        sh:maxLength 100 ;
+        sh:minCount 1 ;
+        sh:message "Domain must be specified (3-100 characters)" ;
+    ] .
+
+# Shape for Working Implementation Validation
+dflss:WorkingImplementationShape a sh:NodeShape ;
+    sh:targetClass :WorkingImplementation ;
+    sh:property [
+        sh:path dflss:implementationCount ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:minCount 1 ;
+        sh:message "Must have at least 1 implementation" ;
+    ] ;
+    sh:property [
+        sh:path dflss:performanceScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Performance score must be 0-100" ;
+    ] ;
+    sh:property [
+        sh:path dflss:successRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Success rate must be 0-100%" ;
+    ] .
+
+# Shape for Test Validation
+dflss:TestValidationShape a sh:NodeShape ;
+    sh:targetClass :TestValidation ;
+    sh:property [
+        sh:path dflss:testCases ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:minCount 1 ;
+        sh:message "Must have at least 1 test case" ;
+    ] ;
+    sh:property [
+        sh:path dflss:testCoverage ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:minCount 1 ;
+        sh:message "Test coverage must be 0-100%" ;
+    ] ;
+    sh:property [
+        sh:path dflss:securityScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Security score must be 0-100" ;
+    ] .
+
+# Shape for Business Ecosystem
+dflss:BusinessEcosystemShape a sh:NodeShape ;
+    sh:targetClass :BusinessEcosystem ;
+    sh:property [
+        sh:path dflss:ecosystemPatterns ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Ecosystem patterns should be 1-10" ;
+    ] ;
+    sh:property [
+        sh:path dflss:ecosystemHealth ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Ecosystem health must be 0-100%" ;
+    ] ;
+    sh:sparql [
+        sh:message "Revenue potential must align with business value" ;
+        sh:select "SELECT $this WHERE { $this dflss:businessValue ?value ; dflss:revenuePotential ?revenue . FILTER (?value < 0.9 && ?revenue > 50000000) }" ;
+    ] .
+
+# Shape for Cross-Industry Collaboration
+dflss:CrossIndustryShape a sh:NodeShape ;
+    sh:targetClass :CrossIndustry ;
+    sh:property [
+        sh:path dflss:partnerCount ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 2 ;
+        sh:maxInclusive 50 ;
+        sh:message "Partner count should be 2-50" ;
+    ] ;
+    sh:property [
+        sh:path dflss:collaborationEfficiency ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Collaboration efficiency must be 0-100%" ;
+    ] .
+
+# Shape for Pareto Optimization
+dflss:ParetoOptimizationShape a sh:NodeShape ;
+    sh:targetClass :ParetoOptimization ;
+    sh:property [
+        sh:path dflss:optimizationRatio ;
+        sh:pattern "^\d+/\d+$" ;
+        sh:minCount 1 ;
+        sh:message "Optimization ratio must be in format XX/YY" ;
+    ] ;
+    sh:property [
+        sh:path dflss:valueConcentration ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 60.0 ;
+        sh:maxInclusive 95.0 ;
+        sh:message "Value concentration should be 60-95%" ;
+    ] ;
+    sh:sparql [
+        sh:message "Pareto optimization must have highest business value" ;
+        sh:select "SELECT $this WHERE { $this a :ParetoOptimization ; dflss:businessValue ?value . FILTER (?value < 0.94) }" ;
+    ] .
+
+# Shape for DFLSS Phase Validation
+dflss:DFLSSPhaseShape a sh:NodeShape ;
+    sh:targetClass :DFLSSPhase ;
+    sh:property [
+        sh:path dflss:purpose ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:maxLength 500 ;
+        sh:minCount 1 ;
+        sh:message "Phase purpose must be specified (10-500 chars)" ;
+    ] ;
+    sh:property [
+        sh:path :leadsTo ;
+        sh:class :DFLSSPhase ;
+        sh:maxCount 3 ;
+        sh:message "Each phase can lead to maximum 3 other phases" ;
+    ] .
+
+# Advanced Validation Rules
+dflss:ComprehensiveValidation a sh:NodeShape ;
+    sh:targetNode :DFLSSComprehensiveOntology ;
+    sh:sparql [
+        sh:message "Total sub-ontologies must equal 5" ;
+        sh:select "SELECT $this WHERE { $this a owl:Ontology . { SELECT (COUNT(?sub) as ?count) WHERE { ?sub a :SubOntology . } } FILTER (?count != 5) }" ;
+    ] ;
+    sh:sparql [
+        sh:message "Average business value must be above 0.9" ;
+        sh:select "SELECT $this WHERE { $this a owl:Ontology . { SELECT (AVG(?value) as ?avg) WHERE { ?sub a :SubOntology ; dflss:businessValue ?value . } } FILTER (?avg < 0.9) }" ;
+    ] .

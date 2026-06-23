@@ -1,0 +1,109 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/bytestar#> .
+
+ex:ByteStarMarketplace a owl:Ontology ;
+    rdfs:label "ByteStar Marketplace Ontology" ;
+    rdfs:comment "Real production ontology for marketplace operations" ;
+    owl:versionInfo "1.0.0" .
+
+# Core Classes
+ex:Actor a owl:Class ;
+    rdfs:label "Actor" ;
+    rdfs:comment "A participant in the ByteStar ecosystem" .
+
+ex:Citizen a owl:Class ;
+    rdfs:subClassOf ex:Actor ;
+    rdfs:label "Citizen" ;
+    rdfs:comment "Individual marketplace participant" .
+
+ex:Enterprise a owl:Class ;
+    rdfs:subClassOf ex:Actor ;
+    rdfs:label "Enterprise" ;
+    rdfs:comment "Business entity in marketplace" .
+
+ex:Transaction a owl:Class ;
+    rdfs:label "Transaction" ;
+    rdfs:comment "Marketplace transaction record" .
+
+ex:Crystal a owl:Class ;
+    rdfs:label "Mission Crystal" ;
+    rdfs:comment "Fabricated mission crystal artifact" .
+
+# Properties
+ex:hasBalance a owl:DatatypeProperty ;
+    rdfs:domain ex:Actor ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has balance" .
+
+ex:hasReputation a owl:DatatypeProperty ;
+    rdfs:domain ex:Actor ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has reputation" .
+
+ex:transactionAmount a owl:DatatypeProperty ;
+    rdfs:domain ex:Transaction ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "transaction amount" .
+
+ex:involves a owl:ObjectProperty ;
+    rdfs:domain ex:Transaction ;
+    rdfs:range ex:Actor ;
+    rdfs:label "involves actor" .
+
+ex:fabricates a owl:ObjectProperty ;
+    rdfs:domain ex:Transaction ;
+    rdfs:range ex:Crystal ;
+    rdfs:label "fabricates crystal" .
+
+# SHACL Shapes for validation
+ex:ActorShape a sh:NodeShape ;
+    sh:targetClass ex:Actor ;
+    sh:property [
+        sh:path ex:hasBalance ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        rdfs:comment "Actor balance must be non-negative"
+    ] ;
+    sh:property [
+        sh:path ex:hasReputation ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 100 ;
+        rdfs:comment "Reputation score 0-100"
+    ] .
+
+ex:TransactionShape a sh:NodeShape ;
+    sh:targetClass ex:Transaction ;
+    sh:property [
+        sh:path ex:transactionAmount ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.01 ;
+        rdfs:comment "Transaction amount must be positive"
+    ] ;
+    sh:property [
+        sh:path ex:involves ;
+        sh:class ex:Actor ;
+        sh:minCount 2 ;
+        sh:maxCount 2 ;
+        rdfs:comment "Transaction must involve exactly 2 actors"
+    ] .
+
+# Sample instances for testing
+ex:alice a ex:Citizen ;
+    ex:hasBalance 1500.00 ;
+    ex:hasReputation 85 ;
+    rdfs:label "Alice" .
+
+ex:bobCorp a ex:Enterprise ;
+    ex:hasBalance 50000.00 ;
+    ex:hasReputation 92 ;
+    rdfs:label "Bob Corporation" .
+
+ex:tx001 a ex:Transaction ;
+    ex:transactionAmount 250.00 ;
+    ex:involves ex:alice, ex:bobCorp ;
+    rdfs:label "Transaction 001" .

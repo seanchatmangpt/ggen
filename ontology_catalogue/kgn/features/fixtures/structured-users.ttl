@@ -1,0 +1,34 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# User data with structured types for variable extraction testing
+ex:User a rdfs:Class ;
+  rdfs:label "User" ;
+  rdfs:comment "Application user entity" .
+
+ex:john a ex:User ;
+  foaf:name "John Doe" ;
+  ex:age "30"^^xsd:integer ;
+  foaf:mbox "john@example.com" ;
+  ex:active true ;
+  ex:role "user" ;
+  ex:lastLogin "2024-01-15T10:30:00Z"^^xsd:dateTime .
+
+ex:jane a ex:User ;
+  foaf:name "Jane Smith" ;
+  ex:age "25"^^xsd:integer ;
+  foaf:mbox "jane@example.com" ;
+  ex:active true ;
+  ex:role "administrator" ;
+  ex:permissions "read,write,admin" ;
+  ex:lastLogin "2024-01-16T09:15:00Z"^^xsd:dateTime .
+
+ex:bob a ex:User ;
+  foaf:name "Bob Johnson" ;
+  ex:age "35"^^xsd:integer ;
+  foaf:mbox "bob@example.com" ;
+  ex:active false ;
+  ex:role "user" ;
+  ex:disabled true ;
+  ex:lastLogin "2024-01-10T16:45:00Z"^^xsd:dateTime .

@@ -1,0 +1,1130 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix test: <http://example.org/test#> .
+
+test:Class001 a owl:Class ;
+    rdfs:label "Class 001" ;
+    rdfs:comment "Test class 001" ;
+    rdfs:subClassOf test:Class001 .
+
+test:Class002 a owl:Class ;
+    rdfs:label "Class 002" ;
+    rdfs:comment "Test class 002" ;
+    rdfs:subClassOf test:Class001 .
+
+test:Class003 a owl:Class ;
+    rdfs:label "Class 003" ;
+    rdfs:comment "Test class 003" ;
+    rdfs:subClassOf test:Class002 .
+
+test:Class004 a owl:Class ;
+    rdfs:label "Class 004" ;
+    rdfs:comment "Test class 004" ;
+    rdfs:subClassOf test:Class003 .
+
+test:Class005 a owl:Class ;
+    rdfs:label "Class 005" ;
+    rdfs:comment "Test class 005" ;
+    rdfs:subClassOf test:Class004 .
+
+test:Class006 a owl:Class ;
+    rdfs:label "Class 006" ;
+    rdfs:comment "Test class 006" ;
+    rdfs:subClassOf test:Class005 .
+
+test:Class007 a owl:Class ;
+    rdfs:label "Class 007" ;
+    rdfs:comment "Test class 007" ;
+    rdfs:subClassOf test:Class006 .
+
+test:Class008 a owl:Class ;
+    rdfs:label "Class 008" ;
+    rdfs:comment "Test class 008" ;
+    rdfs:subClassOf test:Class007 .
+
+test:Class009 a owl:Class ;
+    rdfs:label "Class 009" ;
+    rdfs:comment "Test class 009" ;
+    rdfs:subClassOf test:Class008 .
+
+test:Class010 a owl:Class ;
+    rdfs:label "Class 010" ;
+    rdfs:comment "Test class 010" ;
+    rdfs:subClassOf test:Class009 .
+
+test:Class011 a owl:Class ;
+    rdfs:label "Class 011" ;
+    rdfs:comment "Test class 011" ;
+    rdfs:subClassOf test:Class010 .
+
+test:Class012 a owl:Class ;
+    rdfs:label "Class 012" ;
+    rdfs:comment "Test class 012" ;
+    rdfs:subClassOf test:Class011 .
+
+test:Class013 a owl:Class ;
+    rdfs:label "Class 013" ;
+    rdfs:comment "Test class 013" ;
+    rdfs:subClassOf test:Class012 .
+
+test:Class014 a owl:Class ;
+    rdfs:label "Class 014" ;
+    rdfs:comment "Test class 014" ;
+    rdfs:subClassOf test:Class013 .
+
+test:Class015 a owl:Class ;
+    rdfs:label "Class 015" ;
+    rdfs:comment "Test class 015" ;
+    rdfs:subClassOf test:Class014 .
+
+test:Class016 a owl:Class ;
+    rdfs:label "Class 016" ;
+    rdfs:comment "Test class 016" ;
+    rdfs:subClassOf test:Class015 .
+
+test:Class017 a owl:Class ;
+    rdfs:label "Class 017" ;
+    rdfs:comment "Test class 017" ;
+    rdfs:subClassOf test:Class016 .
+
+test:Class018 a owl:Class ;
+    rdfs:label "Class 018" ;
+    rdfs:comment "Test class 018" ;
+    rdfs:subClassOf test:Class017 .
+
+test:Class019 a owl:Class ;
+    rdfs:label "Class 019" ;
+    rdfs:comment "Test class 019" ;
+    rdfs:subClassOf test:Class018 .
+
+test:Class020 a owl:Class ;
+    rdfs:label "Class 020" ;
+    rdfs:comment "Test class 020" ;
+    rdfs:subClassOf test:Class019 .
+
+test:Class021 a owl:Class ;
+    rdfs:label "Class 021" ;
+    rdfs:comment "Test class 021" ;
+    rdfs:subClassOf test:Class020 .
+
+test:Class022 a owl:Class ;
+    rdfs:label "Class 022" ;
+    rdfs:comment "Test class 022" ;
+    rdfs:subClassOf test:Class021 .
+
+test:Class023 a owl:Class ;
+    rdfs:label "Class 023" ;
+    rdfs:comment "Test class 023" ;
+    rdfs:subClassOf test:Class022 .
+
+test:Class024 a owl:Class ;
+    rdfs:label "Class 024" ;
+    rdfs:comment "Test class 024" ;
+    rdfs:subClassOf test:Class023 .
+
+test:Class025 a owl:Class ;
+    rdfs:label "Class 025" ;
+    rdfs:comment "Test class 025" ;
+    rdfs:subClassOf test:Class024 .
+
+test:Class026 a owl:Class ;
+    rdfs:label "Class 026" ;
+    rdfs:comment "Test class 026" ;
+    rdfs:subClassOf test:Class025 .
+
+test:Class027 a owl:Class ;
+    rdfs:label "Class 027" ;
+    rdfs:comment "Test class 027" ;
+    rdfs:subClassOf test:Class026 .
+
+test:Class028 a owl:Class ;
+    rdfs:label "Class 028" ;
+    rdfs:comment "Test class 028" ;
+    rdfs:subClassOf test:Class027 .
+
+test:Class029 a owl:Class ;
+    rdfs:label "Class 029" ;
+    rdfs:comment "Test class 029" ;
+    rdfs:subClassOf test:Class028 .
+
+test:Class030 a owl:Class ;
+    rdfs:label "Class 030" ;
+    rdfs:comment "Test class 030" ;
+    rdfs:subClassOf test:Class029 .
+
+test:Class031 a owl:Class ;
+    rdfs:label "Class 031" ;
+    rdfs:comment "Test class 031" ;
+    rdfs:subClassOf test:Class030 .
+
+test:Class032 a owl:Class ;
+    rdfs:label "Class 032" ;
+    rdfs:comment "Test class 032" ;
+    rdfs:subClassOf test:Class031 .
+
+test:Class033 a owl:Class ;
+    rdfs:label "Class 033" ;
+    rdfs:comment "Test class 033" ;
+    rdfs:subClassOf test:Class032 .
+
+test:Class034 a owl:Class ;
+    rdfs:label "Class 034" ;
+    rdfs:comment "Test class 034" ;
+    rdfs:subClassOf test:Class033 .
+
+test:Class035 a owl:Class ;
+    rdfs:label "Class 035" ;
+    rdfs:comment "Test class 035" ;
+    rdfs:subClassOf test:Class034 .
+
+test:Class036 a owl:Class ;
+    rdfs:label "Class 036" ;
+    rdfs:comment "Test class 036" ;
+    rdfs:subClassOf test:Class035 .
+
+test:Class037 a owl:Class ;
+    rdfs:label "Class 037" ;
+    rdfs:comment "Test class 037" ;
+    rdfs:subClassOf test:Class036 .
+
+test:Class038 a owl:Class ;
+    rdfs:label "Class 038" ;
+    rdfs:comment "Test class 038" ;
+    rdfs:subClassOf test:Class037 .
+
+test:Class039 a owl:Class ;
+    rdfs:label "Class 039" ;
+    rdfs:comment "Test class 039" ;
+    rdfs:subClassOf test:Class038 .
+
+test:Class040 a owl:Class ;
+    rdfs:label "Class 040" ;
+    rdfs:comment "Test class 040" ;
+    rdfs:subClassOf test:Class039 .
+
+test:Class041 a owl:Class ;
+    rdfs:label "Class 041" ;
+    rdfs:comment "Test class 041" ;
+    rdfs:subClassOf test:Class040 .
+
+test:Class042 a owl:Class ;
+    rdfs:label "Class 042" ;
+    rdfs:comment "Test class 042" ;
+    rdfs:subClassOf test:Class041 .
+
+test:Class043 a owl:Class ;
+    rdfs:label "Class 043" ;
+    rdfs:comment "Test class 043" ;
+    rdfs:subClassOf test:Class042 .
+
+test:Class044 a owl:Class ;
+    rdfs:label "Class 044" ;
+    rdfs:comment "Test class 044" ;
+    rdfs:subClassOf test:Class043 .
+
+test:Class045 a owl:Class ;
+    rdfs:label "Class 045" ;
+    rdfs:comment "Test class 045" ;
+    rdfs:subClassOf test:Class044 .
+
+test:Class046 a owl:Class ;
+    rdfs:label "Class 046" ;
+    rdfs:comment "Test class 046" ;
+    rdfs:subClassOf test:Class045 .
+
+test:Class047 a owl:Class ;
+    rdfs:label "Class 047" ;
+    rdfs:comment "Test class 047" ;
+    rdfs:subClassOf test:Class046 .
+
+test:Class048 a owl:Class ;
+    rdfs:label "Class 048" ;
+    rdfs:comment "Test class 048" ;
+    rdfs:subClassOf test:Class047 .
+
+test:Class049 a owl:Class ;
+    rdfs:label "Class 049" ;
+    rdfs:comment "Test class 049" ;
+    rdfs:subClassOf test:Class048 .
+
+test:Class050 a owl:Class ;
+    rdfs:label "Class 050" ;
+    rdfs:comment "Test class 050" ;
+    rdfs:subClassOf test:Class049 .
+
+test:Class051 a owl:Class ;
+    rdfs:label "Class 051" ;
+    rdfs:comment "Test class 051" ;
+    rdfs:subClassOf test:Class050 .
+
+test:Class052 a owl:Class ;
+    rdfs:label "Class 052" ;
+    rdfs:comment "Test class 052" ;
+    rdfs:subClassOf test:Class051 .
+
+test:Class053 a owl:Class ;
+    rdfs:label "Class 053" ;
+    rdfs:comment "Test class 053" ;
+    rdfs:subClassOf test:Class052 .
+
+test:Class054 a owl:Class ;
+    rdfs:label "Class 054" ;
+    rdfs:comment "Test class 054" ;
+    rdfs:subClassOf test:Class053 .
+
+test:Class055 a owl:Class ;
+    rdfs:label "Class 055" ;
+    rdfs:comment "Test class 055" ;
+    rdfs:subClassOf test:Class054 .
+
+test:Class056 a owl:Class ;
+    rdfs:label "Class 056" ;
+    rdfs:comment "Test class 056" ;
+    rdfs:subClassOf test:Class055 .
+
+test:Class057 a owl:Class ;
+    rdfs:label "Class 057" ;
+    rdfs:comment "Test class 057" ;
+    rdfs:subClassOf test:Class056 .
+
+test:Class058 a owl:Class ;
+    rdfs:label "Class 058" ;
+    rdfs:comment "Test class 058" ;
+    rdfs:subClassOf test:Class057 .
+
+test:Class059 a owl:Class ;
+    rdfs:label "Class 059" ;
+    rdfs:comment "Test class 059" ;
+    rdfs:subClassOf test:Class058 .
+
+test:Class060 a owl:Class ;
+    rdfs:label "Class 060" ;
+    rdfs:comment "Test class 060" ;
+    rdfs:subClassOf test:Class059 .
+
+test:Class061 a owl:Class ;
+    rdfs:label "Class 061" ;
+    rdfs:comment "Test class 061" ;
+    rdfs:subClassOf test:Class060 .
+
+test:Class062 a owl:Class ;
+    rdfs:label "Class 062" ;
+    rdfs:comment "Test class 062" ;
+    rdfs:subClassOf test:Class061 .
+
+test:Class063 a owl:Class ;
+    rdfs:label "Class 063" ;
+    rdfs:comment "Test class 063" ;
+    rdfs:subClassOf test:Class062 .
+
+test:Class064 a owl:Class ;
+    rdfs:label "Class 064" ;
+    rdfs:comment "Test class 064" ;
+    rdfs:subClassOf test:Class063 .
+
+test:Class065 a owl:Class ;
+    rdfs:label "Class 065" ;
+    rdfs:comment "Test class 065" ;
+    rdfs:subClassOf test:Class064 .
+
+test:Class066 a owl:Class ;
+    rdfs:label "Class 066" ;
+    rdfs:comment "Test class 066" ;
+    rdfs:subClassOf test:Class065 .
+
+test:Class067 a owl:Class ;
+    rdfs:label "Class 067" ;
+    rdfs:comment "Test class 067" ;
+    rdfs:subClassOf test:Class066 .
+
+test:Class068 a owl:Class ;
+    rdfs:label "Class 068" ;
+    rdfs:comment "Test class 068" ;
+    rdfs:subClassOf test:Class067 .
+
+test:Class069 a owl:Class ;
+    rdfs:label "Class 069" ;
+    rdfs:comment "Test class 069" ;
+    rdfs:subClassOf test:Class068 .
+
+test:Class070 a owl:Class ;
+    rdfs:label "Class 070" ;
+    rdfs:comment "Test class 070" ;
+    rdfs:subClassOf test:Class069 .
+
+test:Class071 a owl:Class ;
+    rdfs:label "Class 071" ;
+    rdfs:comment "Test class 071" ;
+    rdfs:subClassOf test:Class070 .
+
+test:Class072 a owl:Class ;
+    rdfs:label "Class 072" ;
+    rdfs:comment "Test class 072" ;
+    rdfs:subClassOf test:Class071 .
+
+test:Class073 a owl:Class ;
+    rdfs:label "Class 073" ;
+    rdfs:comment "Test class 073" ;
+    rdfs:subClassOf test:Class072 .
+
+test:Class074 a owl:Class ;
+    rdfs:label "Class 074" ;
+    rdfs:comment "Test class 074" ;
+    rdfs:subClassOf test:Class073 .
+
+test:Class075 a owl:Class ;
+    rdfs:label "Class 075" ;
+    rdfs:comment "Test class 075" ;
+    rdfs:subClassOf test:Class074 .
+
+test:Class076 a owl:Class ;
+    rdfs:label "Class 076" ;
+    rdfs:comment "Test class 076" ;
+    rdfs:subClassOf test:Class075 .
+
+test:Class077 a owl:Class ;
+    rdfs:label "Class 077" ;
+    rdfs:comment "Test class 077" ;
+    rdfs:subClassOf test:Class076 .
+
+test:Class078 a owl:Class ;
+    rdfs:label "Class 078" ;
+    rdfs:comment "Test class 078" ;
+    rdfs:subClassOf test:Class077 .
+
+test:Class079 a owl:Class ;
+    rdfs:label "Class 079" ;
+    rdfs:comment "Test class 079" ;
+    rdfs:subClassOf test:Class078 .
+
+test:Class080 a owl:Class ;
+    rdfs:label "Class 080" ;
+    rdfs:comment "Test class 080" ;
+    rdfs:subClassOf test:Class079 .
+
+test:Class081 a owl:Class ;
+    rdfs:label "Class 081" ;
+    rdfs:comment "Test class 081" ;
+    rdfs:subClassOf test:Class080 .
+
+test:Class082 a owl:Class ;
+    rdfs:label "Class 082" ;
+    rdfs:comment "Test class 082" ;
+    rdfs:subClassOf test:Class081 .
+
+test:Class083 a owl:Class ;
+    rdfs:label "Class 083" ;
+    rdfs:comment "Test class 083" ;
+    rdfs:subClassOf test:Class082 .
+
+test:Class084 a owl:Class ;
+    rdfs:label "Class 084" ;
+    rdfs:comment "Test class 084" ;
+    rdfs:subClassOf test:Class083 .
+
+test:Class085 a owl:Class ;
+    rdfs:label "Class 085" ;
+    rdfs:comment "Test class 085" ;
+    rdfs:subClassOf test:Class084 .
+
+test:Class086 a owl:Class ;
+    rdfs:label "Class 086" ;
+    rdfs:comment "Test class 086" ;
+    rdfs:subClassOf test:Class085 .
+
+test:Class087 a owl:Class ;
+    rdfs:label "Class 087" ;
+    rdfs:comment "Test class 087" ;
+    rdfs:subClassOf test:Class086 .
+
+test:Class088 a owl:Class ;
+    rdfs:label "Class 088" ;
+    rdfs:comment "Test class 088" ;
+    rdfs:subClassOf test:Class087 .
+
+test:Class089 a owl:Class ;
+    rdfs:label "Class 089" ;
+    rdfs:comment "Test class 089" ;
+    rdfs:subClassOf test:Class088 .
+
+test:Class090 a owl:Class ;
+    rdfs:label "Class 090" ;
+    rdfs:comment "Test class 090" ;
+    rdfs:subClassOf test:Class089 .
+
+test:Class091 a owl:Class ;
+    rdfs:label "Class 091" ;
+    rdfs:comment "Test class 091" ;
+    rdfs:subClassOf test:Class090 .
+
+test:Class092 a owl:Class ;
+    rdfs:label "Class 092" ;
+    rdfs:comment "Test class 092" ;
+    rdfs:subClassOf test:Class091 .
+
+test:Class093 a owl:Class ;
+    rdfs:label "Class 093" ;
+    rdfs:comment "Test class 093" ;
+    rdfs:subClassOf test:Class092 .
+
+test:Class094 a owl:Class ;
+    rdfs:label "Class 094" ;
+    rdfs:comment "Test class 094" ;
+    rdfs:subClassOf test:Class093 .
+
+test:Class095 a owl:Class ;
+    rdfs:label "Class 095" ;
+    rdfs:comment "Test class 095" ;
+    rdfs:subClassOf test:Class094 .
+
+test:Class096 a owl:Class ;
+    rdfs:label "Class 096" ;
+    rdfs:comment "Test class 096" ;
+    rdfs:subClassOf test:Class095 .
+
+test:Class097 a owl:Class ;
+    rdfs:label "Class 097" ;
+    rdfs:comment "Test class 097" ;
+    rdfs:subClassOf test:Class096 .
+
+test:Class098 a owl:Class ;
+    rdfs:label "Class 098" ;
+    rdfs:comment "Test class 098" ;
+    rdfs:subClassOf test:Class097 .
+
+test:Class099 a owl:Class ;
+    rdfs:label "Class 099" ;
+    rdfs:comment "Test class 099" ;
+    rdfs:subClassOf test:Class098 .
+
+test:Class100 a owl:Class ;
+    rdfs:label "Class 100" ;
+    rdfs:comment "Test class 100" ;
+    rdfs:subClassOf test:Class099 .
+
+test:Class101 a owl:Class ;
+    rdfs:label "Class 101" ;
+    rdfs:comment "Test class 101" ;
+    rdfs:subClassOf test:Class100 .
+
+test:Class102 a owl:Class ;
+    rdfs:label "Class 102" ;
+    rdfs:comment "Test class 102" ;
+    rdfs:subClassOf test:Class101 .
+
+test:Class103 a owl:Class ;
+    rdfs:label "Class 103" ;
+    rdfs:comment "Test class 103" ;
+    rdfs:subClassOf test:Class102 .
+
+test:Class104 a owl:Class ;
+    rdfs:label "Class 104" ;
+    rdfs:comment "Test class 104" ;
+    rdfs:subClassOf test:Class103 .
+
+test:Class105 a owl:Class ;
+    rdfs:label "Class 105" ;
+    rdfs:comment "Test class 105" ;
+    rdfs:subClassOf test:Class104 .
+
+test:Class106 a owl:Class ;
+    rdfs:label "Class 106" ;
+    rdfs:comment "Test class 106" ;
+    rdfs:subClassOf test:Class105 .
+
+test:Class107 a owl:Class ;
+    rdfs:label "Class 107" ;
+    rdfs:comment "Test class 107" ;
+    rdfs:subClassOf test:Class106 .
+
+test:Class108 a owl:Class ;
+    rdfs:label "Class 108" ;
+    rdfs:comment "Test class 108" ;
+    rdfs:subClassOf test:Class107 .
+
+test:Class109 a owl:Class ;
+    rdfs:label "Class 109" ;
+    rdfs:comment "Test class 109" ;
+    rdfs:subClassOf test:Class108 .
+
+test:Class110 a owl:Class ;
+    rdfs:label "Class 110" ;
+    rdfs:comment "Test class 110" ;
+    rdfs:subClassOf test:Class109 .
+
+test:Class111 a owl:Class ;
+    rdfs:label "Class 111" ;
+    rdfs:comment "Test class 111" ;
+    rdfs:subClassOf test:Class110 .
+
+test:Class112 a owl:Class ;
+    rdfs:label "Class 112" ;
+    rdfs:comment "Test class 112" ;
+    rdfs:subClassOf test:Class111 .
+
+test:Class113 a owl:Class ;
+    rdfs:label "Class 113" ;
+    rdfs:comment "Test class 113" ;
+    rdfs:subClassOf test:Class112 .
+
+test:Class114 a owl:Class ;
+    rdfs:label "Class 114" ;
+    rdfs:comment "Test class 114" ;
+    rdfs:subClassOf test:Class113 .
+
+test:Class115 a owl:Class ;
+    rdfs:label "Class 115" ;
+    rdfs:comment "Test class 115" ;
+    rdfs:subClassOf test:Class114 .
+
+test:Class116 a owl:Class ;
+    rdfs:label "Class 116" ;
+    rdfs:comment "Test class 116" ;
+    rdfs:subClassOf test:Class115 .
+
+test:Class117 a owl:Class ;
+    rdfs:label "Class 117" ;
+    rdfs:comment "Test class 117" ;
+    rdfs:subClassOf test:Class116 .
+
+test:Class118 a owl:Class ;
+    rdfs:label "Class 118" ;
+    rdfs:comment "Test class 118" ;
+    rdfs:subClassOf test:Class117 .
+
+test:Class119 a owl:Class ;
+    rdfs:label "Class 119" ;
+    rdfs:comment "Test class 119" ;
+    rdfs:subClassOf test:Class118 .
+
+test:Class120 a owl:Class ;
+    rdfs:label "Class 120" ;
+    rdfs:comment "Test class 120" ;
+    rdfs:subClassOf test:Class119 .
+
+test:Class121 a owl:Class ;
+    rdfs:label "Class 121" ;
+    rdfs:comment "Test class 121" ;
+    rdfs:subClassOf test:Class120 .
+
+test:Class122 a owl:Class ;
+    rdfs:label "Class 122" ;
+    rdfs:comment "Test class 122" ;
+    rdfs:subClassOf test:Class121 .
+
+test:Class123 a owl:Class ;
+    rdfs:label "Class 123" ;
+    rdfs:comment "Test class 123" ;
+    rdfs:subClassOf test:Class122 .
+
+test:Class124 a owl:Class ;
+    rdfs:label "Class 124" ;
+    rdfs:comment "Test class 124" ;
+    rdfs:subClassOf test:Class123 .
+
+test:Class125 a owl:Class ;
+    rdfs:label "Class 125" ;
+    rdfs:comment "Test class 125" ;
+    rdfs:subClassOf test:Class124 .
+
+test:Class126 a owl:Class ;
+    rdfs:label "Class 126" ;
+    rdfs:comment "Test class 126" ;
+    rdfs:subClassOf test:Class125 .
+
+test:Class127 a owl:Class ;
+    rdfs:label "Class 127" ;
+    rdfs:comment "Test class 127" ;
+    rdfs:subClassOf test:Class126 .
+
+test:Class128 a owl:Class ;
+    rdfs:label "Class 128" ;
+    rdfs:comment "Test class 128" ;
+    rdfs:subClassOf test:Class127 .
+
+test:Class129 a owl:Class ;
+    rdfs:label "Class 129" ;
+    rdfs:comment "Test class 129" ;
+    rdfs:subClassOf test:Class128 .
+
+test:Class130 a owl:Class ;
+    rdfs:label "Class 130" ;
+    rdfs:comment "Test class 130" ;
+    rdfs:subClassOf test:Class129 .
+
+test:Class131 a owl:Class ;
+    rdfs:label "Class 131" ;
+    rdfs:comment "Test class 131" ;
+    rdfs:subClassOf test:Class130 .
+
+test:Class132 a owl:Class ;
+    rdfs:label "Class 132" ;
+    rdfs:comment "Test class 132" ;
+    rdfs:subClassOf test:Class131 .
+
+test:Class133 a owl:Class ;
+    rdfs:label "Class 133" ;
+    rdfs:comment "Test class 133" ;
+    rdfs:subClassOf test:Class132 .
+
+test:Class134 a owl:Class ;
+    rdfs:label "Class 134" ;
+    rdfs:comment "Test class 134" ;
+    rdfs:subClassOf test:Class133 .
+
+test:Class135 a owl:Class ;
+    rdfs:label "Class 135" ;
+    rdfs:comment "Test class 135" ;
+    rdfs:subClassOf test:Class134 .
+
+test:Class136 a owl:Class ;
+    rdfs:label "Class 136" ;
+    rdfs:comment "Test class 136" ;
+    rdfs:subClassOf test:Class135 .
+
+test:Class137 a owl:Class ;
+    rdfs:label "Class 137" ;
+    rdfs:comment "Test class 137" ;
+    rdfs:subClassOf test:Class136 .
+
+test:Class138 a owl:Class ;
+    rdfs:label "Class 138" ;
+    rdfs:comment "Test class 138" ;
+    rdfs:subClassOf test:Class137 .
+
+test:Class139 a owl:Class ;
+    rdfs:label "Class 139" ;
+    rdfs:comment "Test class 139" ;
+    rdfs:subClassOf test:Class138 .
+
+test:Class140 a owl:Class ;
+    rdfs:label "Class 140" ;
+    rdfs:comment "Test class 140" ;
+    rdfs:subClassOf test:Class139 .
+
+test:Class141 a owl:Class ;
+    rdfs:label "Class 141" ;
+    rdfs:comment "Test class 141" ;
+    rdfs:subClassOf test:Class140 .
+
+test:Class142 a owl:Class ;
+    rdfs:label "Class 142" ;
+    rdfs:comment "Test class 142" ;
+    rdfs:subClassOf test:Class141 .
+
+test:Class143 a owl:Class ;
+    rdfs:label "Class 143" ;
+    rdfs:comment "Test class 143" ;
+    rdfs:subClassOf test:Class142 .
+
+test:Class144 a owl:Class ;
+    rdfs:label "Class 144" ;
+    rdfs:comment "Test class 144" ;
+    rdfs:subClassOf test:Class143 .
+
+test:Class145 a owl:Class ;
+    rdfs:label "Class 145" ;
+    rdfs:comment "Test class 145" ;
+    rdfs:subClassOf test:Class144 .
+
+test:Class146 a owl:Class ;
+    rdfs:label "Class 146" ;
+    rdfs:comment "Test class 146" ;
+    rdfs:subClassOf test:Class145 .
+
+test:Class147 a owl:Class ;
+    rdfs:label "Class 147" ;
+    rdfs:comment "Test class 147" ;
+    rdfs:subClassOf test:Class146 .
+
+test:Class148 a owl:Class ;
+    rdfs:label "Class 148" ;
+    rdfs:comment "Test class 148" ;
+    rdfs:subClassOf test:Class147 .
+
+test:Class149 a owl:Class ;
+    rdfs:label "Class 149" ;
+    rdfs:comment "Test class 149" ;
+    rdfs:subClassOf test:Class148 .
+
+test:Class150 a owl:Class ;
+    rdfs:label "Class 150" ;
+    rdfs:comment "Test class 150" ;
+    rdfs:subClassOf test:Class149 .
+
+test:property001 a owl:ObjectProperty ;
+    rdfs:label "property 001" ;
+    rdfs:domain test:Class001 ;
+    rdfs:range test:Class002 .
+
+test:property002 a owl:ObjectProperty ;
+    rdfs:label "property 002" ;
+    rdfs:domain test:Class002 ;
+    rdfs:range test:Class003 .
+
+test:property003 a owl:ObjectProperty ;
+    rdfs:label "property 003" ;
+    rdfs:domain test:Class003 ;
+    rdfs:range test:Class004 .
+
+test:property004 a owl:ObjectProperty ;
+    rdfs:label "property 004" ;
+    rdfs:domain test:Class004 ;
+    rdfs:range test:Class005 .
+
+test:property005 a owl:ObjectProperty ;
+    rdfs:label "property 005" ;
+    rdfs:domain test:Class005 ;
+    rdfs:range test:Class006 .
+
+test:property006 a owl:ObjectProperty ;
+    rdfs:label "property 006" ;
+    rdfs:domain test:Class006 ;
+    rdfs:range test:Class007 .
+
+test:property007 a owl:ObjectProperty ;
+    rdfs:label "property 007" ;
+    rdfs:domain test:Class007 ;
+    rdfs:range test:Class008 .
+
+test:property008 a owl:ObjectProperty ;
+    rdfs:label "property 008" ;
+    rdfs:domain test:Class008 ;
+    rdfs:range test:Class009 .
+
+test:property009 a owl:ObjectProperty ;
+    rdfs:label "property 009" ;
+    rdfs:domain test:Class009 ;
+    rdfs:range test:Class010 .
+
+test:property010 a owl:ObjectProperty ;
+    rdfs:label "property 010" ;
+    rdfs:domain test:Class010 ;
+    rdfs:range test:Class011 .
+
+test:property011 a owl:ObjectProperty ;
+    rdfs:label "property 011" ;
+    rdfs:domain test:Class011 ;
+    rdfs:range test:Class012 .
+
+test:property012 a owl:ObjectProperty ;
+    rdfs:label "property 012" ;
+    rdfs:domain test:Class012 ;
+    rdfs:range test:Class013 .
+
+test:property013 a owl:ObjectProperty ;
+    rdfs:label "property 013" ;
+    rdfs:domain test:Class013 ;
+    rdfs:range test:Class014 .
+
+test:property014 a owl:ObjectProperty ;
+    rdfs:label "property 014" ;
+    rdfs:domain test:Class014 ;
+    rdfs:range test:Class015 .
+
+test:property015 a owl:ObjectProperty ;
+    rdfs:label "property 015" ;
+    rdfs:domain test:Class015 ;
+    rdfs:range test:Class016 .
+
+test:property016 a owl:ObjectProperty ;
+    rdfs:label "property 016" ;
+    rdfs:domain test:Class016 ;
+    rdfs:range test:Class017 .
+
+test:property017 a owl:ObjectProperty ;
+    rdfs:label "property 017" ;
+    rdfs:domain test:Class017 ;
+    rdfs:range test:Class018 .
+
+test:property018 a owl:ObjectProperty ;
+    rdfs:label "property 018" ;
+    rdfs:domain test:Class018 ;
+    rdfs:range test:Class019 .
+
+test:property019 a owl:ObjectProperty ;
+    rdfs:label "property 019" ;
+    rdfs:domain test:Class019 ;
+    rdfs:range test:Class020 .
+
+test:property020 a owl:ObjectProperty ;
+    rdfs:label "property 020" ;
+    rdfs:domain test:Class020 ;
+    rdfs:range test:Class021 .
+
+test:property021 a owl:ObjectProperty ;
+    rdfs:label "property 021" ;
+    rdfs:domain test:Class021 ;
+    rdfs:range test:Class022 .
+
+test:property022 a owl:ObjectProperty ;
+    rdfs:label "property 022" ;
+    rdfs:domain test:Class022 ;
+    rdfs:range test:Class023 .
+
+test:property023 a owl:ObjectProperty ;
+    rdfs:label "property 023" ;
+    rdfs:domain test:Class023 ;
+    rdfs:range test:Class024 .
+
+test:property024 a owl:ObjectProperty ;
+    rdfs:label "property 024" ;
+    rdfs:domain test:Class024 ;
+    rdfs:range test:Class025 .
+
+test:property025 a owl:ObjectProperty ;
+    rdfs:label "property 025" ;
+    rdfs:domain test:Class025 ;
+    rdfs:range test:Class026 .
+
+test:property026 a owl:ObjectProperty ;
+    rdfs:label "property 026" ;
+    rdfs:domain test:Class026 ;
+    rdfs:range test:Class027 .
+
+test:property027 a owl:ObjectProperty ;
+    rdfs:label "property 027" ;
+    rdfs:domain test:Class027 ;
+    rdfs:range test:Class028 .
+
+test:property028 a owl:ObjectProperty ;
+    rdfs:label "property 028" ;
+    rdfs:domain test:Class028 ;
+    rdfs:range test:Class029 .
+
+test:property029 a owl:ObjectProperty ;
+    rdfs:label "property 029" ;
+    rdfs:domain test:Class029 ;
+    rdfs:range test:Class030 .
+
+test:property030 a owl:ObjectProperty ;
+    rdfs:label "property 030" ;
+    rdfs:domain test:Class030 ;
+    rdfs:range test:Class031 .
+
+test:property031 a owl:ObjectProperty ;
+    rdfs:label "property 031" ;
+    rdfs:domain test:Class031 ;
+    rdfs:range test:Class032 .
+
+test:property032 a owl:ObjectProperty ;
+    rdfs:label "property 032" ;
+    rdfs:domain test:Class032 ;
+    rdfs:range test:Class033 .
+
+test:property033 a owl:ObjectProperty ;
+    rdfs:label "property 033" ;
+    rdfs:domain test:Class033 ;
+    rdfs:range test:Class034 .
+
+test:property034 a owl:ObjectProperty ;
+    rdfs:label "property 034" ;
+    rdfs:domain test:Class034 ;
+    rdfs:range test:Class035 .
+
+test:property035 a owl:ObjectProperty ;
+    rdfs:label "property 035" ;
+    rdfs:domain test:Class035 ;
+    rdfs:range test:Class036 .
+
+test:property036 a owl:ObjectProperty ;
+    rdfs:label "property 036" ;
+    rdfs:domain test:Class036 ;
+    rdfs:range test:Class037 .
+
+test:property037 a owl:ObjectProperty ;
+    rdfs:label "property 037" ;
+    rdfs:domain test:Class037 ;
+    rdfs:range test:Class038 .
+
+test:property038 a owl:ObjectProperty ;
+    rdfs:label "property 038" ;
+    rdfs:domain test:Class038 ;
+    rdfs:range test:Class039 .
+
+test:property039 a owl:ObjectProperty ;
+    rdfs:label "property 039" ;
+    rdfs:domain test:Class039 ;
+    rdfs:range test:Class040 .
+
+test:property040 a owl:ObjectProperty ;
+    rdfs:label "property 040" ;
+    rdfs:domain test:Class040 ;
+    rdfs:range test:Class041 .
+
+test:property041 a owl:ObjectProperty ;
+    rdfs:label "property 041" ;
+    rdfs:domain test:Class041 ;
+    rdfs:range test:Class042 .
+
+test:property042 a owl:ObjectProperty ;
+    rdfs:label "property 042" ;
+    rdfs:domain test:Class042 ;
+    rdfs:range test:Class043 .
+
+test:property043 a owl:ObjectProperty ;
+    rdfs:label "property 043" ;
+    rdfs:domain test:Class043 ;
+    rdfs:range test:Class044 .
+
+test:property044 a owl:ObjectProperty ;
+    rdfs:label "property 044" ;
+    rdfs:domain test:Class044 ;
+    rdfs:range test:Class045 .
+
+test:property045 a owl:ObjectProperty ;
+    rdfs:label "property 045" ;
+    rdfs:domain test:Class045 ;
+    rdfs:range test:Class046 .
+
+test:property046 a owl:ObjectProperty ;
+    rdfs:label "property 046" ;
+    rdfs:domain test:Class046 ;
+    rdfs:range test:Class047 .
+
+test:property047 a owl:ObjectProperty ;
+    rdfs:label "property 047" ;
+    rdfs:domain test:Class047 ;
+    rdfs:range test:Class048 .
+
+test:property048 a owl:ObjectProperty ;
+    rdfs:label "property 048" ;
+    rdfs:domain test:Class048 ;
+    rdfs:range test:Class049 .
+
+test:property049 a owl:ObjectProperty ;
+    rdfs:label "property 049" ;
+    rdfs:domain test:Class049 ;
+    rdfs:range test:Class050 .
+
+test:property050 a owl:ObjectProperty ;
+    rdfs:label "property 050" ;
+    rdfs:domain test:Class050 ;
+    rdfs:range test:Class051 .
+
+test:property051 a owl:ObjectProperty ;
+    rdfs:label "property 051" ;
+    rdfs:domain test:Class051 ;
+    rdfs:range test:Class052 .
+
+test:property052 a owl:ObjectProperty ;
+    rdfs:label "property 052" ;
+    rdfs:domain test:Class052 ;
+    rdfs:range test:Class053 .
+
+test:property053 a owl:ObjectProperty ;
+    rdfs:label "property 053" ;
+    rdfs:domain test:Class053 ;
+    rdfs:range test:Class054 .
+
+test:property054 a owl:ObjectProperty ;
+    rdfs:label "property 054" ;
+    rdfs:domain test:Class054 ;
+    rdfs:range test:Class055 .
+
+test:property055 a owl:ObjectProperty ;
+    rdfs:label "property 055" ;
+    rdfs:domain test:Class055 ;
+    rdfs:range test:Class056 .
+
+test:property056 a owl:ObjectProperty ;
+    rdfs:label "property 056" ;
+    rdfs:domain test:Class056 ;
+    rdfs:range test:Class057 .
+
+test:property057 a owl:ObjectProperty ;
+    rdfs:label "property 057" ;
+    rdfs:domain test:Class057 ;
+    rdfs:range test:Class058 .
+
+test:property058 a owl:ObjectProperty ;
+    rdfs:label "property 058" ;
+    rdfs:domain test:Class058 ;
+    rdfs:range test:Class059 .
+
+test:property059 a owl:ObjectProperty ;
+    rdfs:label "property 059" ;
+    rdfs:domain test:Class059 ;
+    rdfs:range test:Class060 .
+
+test:property060 a owl:ObjectProperty ;
+    rdfs:label "property 060" ;
+    rdfs:domain test:Class060 ;
+    rdfs:range test:Class061 .
+
+test:property061 a owl:ObjectProperty ;
+    rdfs:label "property 061" ;
+    rdfs:domain test:Class061 ;
+    rdfs:range test:Class062 .
+
+test:property062 a owl:ObjectProperty ;
+    rdfs:label "property 062" ;
+    rdfs:domain test:Class062 ;
+    rdfs:range test:Class063 .
+
+test:property063 a owl:ObjectProperty ;
+    rdfs:label "property 063" ;
+    rdfs:domain test:Class063 ;
+    rdfs:range test:Class064 .
+
+test:property064 a owl:ObjectProperty ;
+    rdfs:label "property 064" ;
+    rdfs:domain test:Class064 ;
+    rdfs:range test:Class065 .
+
+test:property065 a owl:ObjectProperty ;
+    rdfs:label "property 065" ;
+    rdfs:domain test:Class065 ;
+    rdfs:range test:Class066 .
+
+test:property066 a owl:ObjectProperty ;
+    rdfs:label "property 066" ;
+    rdfs:domain test:Class066 ;
+    rdfs:range test:Class067 .
+
+test:property067 a owl:ObjectProperty ;
+    rdfs:label "property 067" ;
+    rdfs:domain test:Class067 ;
+    rdfs:range test:Class068 .
+
+test:property068 a owl:ObjectProperty ;
+    rdfs:label "property 068" ;
+    rdfs:domain test:Class068 ;
+    rdfs:range test:Class069 .
+
+test:property069 a owl:ObjectProperty ;
+    rdfs:label "property 069" ;
+    rdfs:domain test:Class069 ;
+    rdfs:range test:Class070 .
+
+test:property070 a owl:ObjectProperty ;
+    rdfs:label "property 070" ;
+    rdfs:domain test:Class070 ;
+    rdfs:range test:Class071 .
+
+test:property071 a owl:ObjectProperty ;
+    rdfs:label "property 071" ;
+    rdfs:domain test:Class071 ;
+    rdfs:range test:Class072 .
+
+test:property072 a owl:ObjectProperty ;
+    rdfs:label "property 072" ;
+    rdfs:domain test:Class072 ;
+    rdfs:range test:Class073 .
+
+test:property073 a owl:ObjectProperty ;
+    rdfs:label "property 073" ;
+    rdfs:domain test:Class073 ;
+    rdfs:range test:Class074 .
+
+test:property074 a owl:ObjectProperty ;
+    rdfs:label "property 074" ;
+    rdfs:domain test:Class074 ;
+    rdfs:range test:Class075 .
+
+test:property075 a owl:ObjectProperty ;
+    rdfs:label "property 075" ;
+    rdfs:domain test:Class075 ;
+    rdfs:range test:Class076 .
+

@@ -1,0 +1,62 @@
+@prefix : <http://yawl.org/ontology/congruence#> .
+@prefix yawl: <http://yawl.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://yawl.org/ontology/congruence>
+  a owl:Ontology ;
+  rdfs:label "YAWL Congruence SPARQL Queries" ;
+  rdfs:comment "SPARQL queries for validating the congruence and consistency of YAWL workflow specifications, particularly for ByteFlow processing." ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports
+    yawl:yawl-index.owl.ttl .
+
+#################################################################
+# Conceptual SPARQL Query: Validate Pattern Conformance
+#################################################################
+
+# This ASK query conceptually checks if a given YAWL WorkflowSpecification
+# (or a part of it) structurally conforms to a defined canonical YAWL Pattern.
+# In a real-world scenario, this would involve complex graph pattern matching
+# and comparison against the formal definition of each yawl:Pattern individual.
+
+ASK WHERE {
+  ?workflowSpec a yawl:WorkflowSpecification .
+  ?workflowSpec yawl:hasTopLevelEWFNet ?topEWFNet .
+
+  # Check if the top-level EWF-net matches the structure of yawl:P1_Sequence (Sequence Pattern)
+  # P1_Sequence: Input Condition -> Task -> Output Condition
+  # This is a simplified structural check. A full congruence check would involve
+  # verifying split/join behaviors and ensuring no other unexpected elements.
+
+  ?topEWFNet yawl:hasInputCondition ?inputCond .
+  ?topEWFNet yawl:hasOutputCondition ?outputCond .
+  ?topEWFNet yawl:hasTask ?task .
+
+  ?flow1 a yawl:FlowRelation ;
+         yawl:fromNode ?inputCond ;
+         yawl:toNode ?task .
+
+  ?flow2 a yawl:FlowRelation ;
+         yawl:fromNode ?task ;
+         yawl:toNode ?outputCond .
+
+  # Ensure this is the only task and flow relations for simplicity in this example
+  FILTER (
+    NOT EXISTS { ?topEWFNet yawl:hasTask ?otherTask . FILTER (?otherTask != ?task) } &&
+    NOT EXISTS { ?topEWFNet yawl:hasFlowRelation ?otherFlow . FILTER (?otherFlow != ?flow1 && ?otherFlow != ?flow2) }
+  )
+
+  # Further checks could include:
+  # - The task's split behavior is AND-Split (default for sequence)
+  # - The task's join behavior is AND-Join (default for sequence)
+  # - The task is an AtomicTask
+  # - No multi-instance behavior
+  # - No removal behavior
+
+  # If this structure is found, then this workflow specification conceptually
+  # conforms to the P1_Sequence pattern.
+  # This query would typically be part of a larger validation process,
+  # potentially triggered by a SHACL rule or an external service.
+}

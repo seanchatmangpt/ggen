@@ -1,0 +1,936 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix ba-se: <http://bytestar.org/ontology/self-evolution/> .
+@prefix ba-pm: <http://bytestar.org/ontology/performance/> .
+@prefix ba-sa: <http://bytestar.org/ontology/safety/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# ==============================================================================
+# BYTESTAR SELF-EVOLUTION ONTOLOGY v5.0
+# ==============================================================================
+
+<http://bytestar.org/ontology/self-evolution> a owl:Ontology ;
+    rdfs:label "ByteStar Self-Evolution Ontology" ;
+    rdfs:comment "Comprehensive ontology for adaptive learning and autonomous system improvement" ;
+    owl:versionInfo "5.0.0" ;
+    dcterms:created "2025-08-23"^^xsd:date ;
+    dcterms:creator "ByteStar AI Systems" ;
+    owl:imports <http://bytestar.org/ontology/performance> ,
+                <http://bytestar.org/ontology/safety> .
+
+# ==============================================================================
+# CORE SELF-EVOLUTION CLASSES
+# ==============================================================================
+
+## Self-Evolution System
+ba-se:SelfEvolutionSystem a owl:Class ;
+    rdfs:label "Self-Evolution System" ;
+    rdfs:comment "A system capable of autonomous learning and improvement" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba-se:hasEvolutionStrategy ;
+        owl:someValuesFrom ba-se:EvolutionStrategy
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba-se:hasLearningMechanism ;
+        owl:someValuesFrom ba-se:LearningMechanism
+    ] .
+
+## Evolution Strategy
+ba-se:EvolutionStrategy a owl:Class ;
+    rdfs:label "Evolution Strategy" ;
+    rdfs:comment "Defines how a system evolves and adapts over time" ;
+    rdfs:subClassOf ba:ProcessDefinition .
+
+ba-se:GeneticAlgorithm a owl:Class ;
+    rdfs:label "Genetic Algorithm" ;
+    rdfs:comment "Evolutionary computation using genetic operations" ;
+    rdfs:subClassOf ba-se:EvolutionStrategy .
+
+ba-se:GradientBasedEvolution a owl:Class ;
+    rdfs:label "Gradient-Based Evolution" ;
+    rdfs:comment "Evolution using gradient optimization techniques" ;
+    rdfs:subClassOf ba-se:EvolutionStrategy .
+
+ba-se:ReinforcementLearning a owl:Class ;
+    rdfs:label "Reinforcement Learning" ;
+    rdfs:comment "Learning through trial and error with rewards" ;
+    rdfs:subClassOf ba-se:EvolutionStrategy .
+
+ba-se:OnlineEvolution a owl:Class ;
+    rdfs:label "Online Evolution" ;
+    rdfs:comment "Continuous evolution during system operation" ;
+    rdfs:subClassOf ba-se:EvolutionStrategy .
+
+ba-se:OfflineEvolution a owl:Class ;
+    rdfs:label "Offline Evolution" ;
+    rdfs:comment "Evolution performed during system downtime" ;
+    rdfs:subClassOf ba-se:EvolutionStrategy .
+
+# ==============================================================================
+# LEARNING MECHANISMS
+# ==============================================================================
+
+## Learning Mechanism Base Class
+ba-se:LearningMechanism a owl:Class ;
+    rdfs:label "Learning Mechanism" ;
+    rdfs:comment "Mechanism for acquiring knowledge and improving behavior" ;
+    rdfs:subClassOf ba:ProcessDefinition .
+
+## Supervised Learning
+ba-se:SupervisedLearning a owl:Class ;
+    rdfs:label "Supervised Learning" ;
+    rdfs:comment "Learning from labeled training data" ;
+    rdfs:subClassOf ba-se:LearningMechanism .
+
+## Unsupervised Learning
+ba-se:UnsupervisedLearning a owl:Class ;
+    rdfs:label "Unsupervised Learning" ;
+    rdfs:comment "Learning patterns from unlabeled data" ;
+    rdfs:subClassOf ba-se:LearningMechanism .
+
+## Transfer Learning
+ba-se:TransferLearning a owl:Class ;
+    rdfs:label "Transfer Learning" ;
+    rdfs:comment "Applying knowledge from one domain to another" ;
+    rdfs:subClassOf ba-se:LearningMechanism .
+
+## Meta Learning
+ba-se:MetaLearning a owl:Class ;
+    rdfs:label "Meta Learning" ;
+    rdfs:comment "Learning how to learn more effectively" ;
+    rdfs:subClassOf ba-se:LearningMechanism .
+
+## Continual Learning
+ba-se:ContinualLearning a owl:Class ;
+    rdfs:label "Continual Learning" ;
+    rdfs:comment "Learning continuously without forgetting previous knowledge" ;
+    rdfs:subClassOf ba-se:LearningMechanism .
+
+# ==============================================================================
+# ADAPTIVE BEHAVIOR PATTERNS
+# ==============================================================================
+
+## Adaptive Behavior
+ba-se:AdaptiveBehavior a owl:Class ;
+    rdfs:label "Adaptive Behavior" ;
+    rdfs:comment "Behavior that changes in response to environmental conditions" ;
+    rdfs:subClassOf ba:BehaviorPattern .
+
+## Response Mechanism
+ba-se:ResponseMechanism a owl:Class ;
+    rdfs:label "Response Mechanism" ;
+    rdfs:comment "Mechanism for responding to environmental changes" ;
+    rdfs:subClassOf ba:ProcessDefinition .
+
+ba-se:ReactiveResponse a owl:Class ;
+    rdfs:label "Reactive Response" ;
+    rdfs:comment "Immediate response to environmental stimuli" ;
+    rdfs:subClassOf ba-se:ResponseMechanism .
+
+ba-se:ProactiveResponse a owl:Class ;
+    rdfs:label "Proactive Response" ;
+    rdfs:comment "Anticipatory response based on prediction" ;
+    rdfs:subClassOf ba-se:ResponseMechanism .
+
+ba-se:AdaptiveResponse a owl:Class ;
+    rdfs:label "Adaptive Response" ;
+    rdfs:comment "Response that improves over time through learning" ;
+    rdfs:subClassOf ba-se:ResponseMechanism .
+
+# ==============================================================================
+# SYSTEM IMPROVEMENT AND OPTIMIZATION
+# ==============================================================================
+
+## System Improvement
+ba-se:SystemImprovement a owl:Class ;
+    rdfs:label "System Improvement" ;
+    rdfs:comment "Process of enhancing system performance and capabilities" ;
+    rdfs:subClassOf ba:ProcessInstance .
+
+## Optimization Process
+ba-se:OptimizationProcess a owl:Class ;
+    rdfs:label "Optimization Process" ;
+    rdfs:comment "Process for improving system performance" ;
+    rdfs:subClassOf ba-se:SystemImprovement .
+
+ba-se:PerformanceTuning a owl:Class ;
+    rdfs:label "Performance Tuning" ;
+    rdfs:comment "Optimization focused on performance metrics" ;
+    rdfs:subClassOf ba-se:OptimizationProcess .
+
+ba-se:ResourceOptimization a owl:Class ;
+    rdfs:label "Resource Optimization" ;
+    rdfs:comment "Optimization of resource utilization" ;
+    rdfs:subClassOf ba-se:OptimizationProcess .
+
+ba-se:ArchitecturalEvolution a owl:Class ;
+    rdfs:label "Architectural Evolution" ;
+    rdfs:comment "Evolution of system architecture" ;
+    rdfs:subClassOf ba-se:SystemImprovement .
+
+# ==============================================================================
+# NEURAL ADAPTATION AND MACHINE LEARNING
+# ==============================================================================
+
+## Neural Adaptation
+ba-se:NeuralAdaptation a owl:Class ;
+    rdfs:label "Neural Adaptation" ;
+    rdfs:comment "Adaptation using neural network principles" ;
+    rdfs:subClassOf ba-se:LearningMechanism .
+
+## Neural Network Evolution
+ba-se:NeuralNetworkEvolution a owl:Class ;
+    rdfs:label "Neural Network Evolution" ;
+    rdfs:comment "Evolution of neural network architectures" ;
+    rdfs:subClassOf ba-se:NeuralAdaptation .
+
+ba-se:WeightEvolution a owl:Class ;
+    rdfs:label "Weight Evolution" ;
+    rdfs:comment "Evolution of neural network weights" ;
+    rdfs:subClassOf ba-se:NeuralNetworkEvolution .
+
+ba-se:TopologyEvolution a owl:Class ;
+    rdfs:label "Topology Evolution" ;
+    rdfs:comment "Evolution of neural network topology" ;
+    rdfs:subClassOf ba-se:NeuralNetworkEvolution .
+
+ba-se:HyperparameterEvolution a owl:Class ;
+    rdfs:label "Hyperparameter Evolution" ;
+    rdfs:comment "Evolution of neural network hyperparameters" ;
+    rdfs:subClassOf ba-se:NeuralNetworkEvolution .
+
+# ==============================================================================
+# EMERGENT BEHAVIOR RECOGNITION
+# ==============================================================================
+
+## Emergent Behavior
+ba-se:EmergentBehavior a owl:Class ;
+    rdfs:label "Emergent Behavior" ;
+    rdfs:comment "Behavior that emerges from complex system interactions" ;
+    rdfs:subClassOf ba:BehaviorPattern .
+
+## Behavior Recognition
+ba-se:BehaviorRecognition a owl:Class ;
+    rdfs:label "Behavior Recognition" ;
+    rdfs:comment "Process of identifying and categorizing behaviors" ;
+    rdfs:subClassOf ba:ProcessDefinition .
+
+ba-se:PatternDetection a owl:Class ;
+    rdfs:label "Pattern Detection" ;
+    rdfs:comment "Detection of behavioral patterns" ;
+    rdfs:subClassOf ba-se:BehaviorRecognition .
+
+ba-se:AnomalyDetection a owl:Class ;
+    rdfs:label "Anomaly Detection" ;
+    rdfs:comment "Detection of unusual or unexpected behaviors" ;
+    rdfs:subClassOf ba-se:BehaviorRecognition .
+
+# ==============================================================================
+# EVOLUTION SAFETY AND CONSTRAINTS
+# ==============================================================================
+
+## Evolution Safety
+ba-se:EvolutionSafety a owl:Class ;
+    rdfs:label "Evolution Safety" ;
+    rdfs:comment "Safety mechanisms for controlling evolution" ;
+    rdfs:subClassOf ba-sa:SafetyMechanism .
+
+## Safety Constraint
+ba-se:SafetyConstraint a owl:Class ;
+    rdfs:label "Safety Constraint" ;
+    rdfs:comment "Constraint to ensure safe evolution" ;
+    rdfs:subClassOf ba-sa:SafetyConstraint .
+
+ba-se:PerformanceBound a owl:Class ;
+    rdfs:label "Performance Bound" ;
+    rdfs:comment "Constraint on performance degradation" ;
+    rdfs:subClassOf ba-se:SafetyConstraint .
+
+ba-se:StabilityConstraint a owl:Class ;
+    rdfs:label "Stability Constraint" ;
+    rdfs:comment "Constraint to maintain system stability" ;
+    rdfs:subClassOf ba-se:SafetyConstraint .
+
+ba-se:EvolutionLimit a owl:Class ;
+    rdfs:label "Evolution Limit" ;
+    rdfs:comment "Limit on the extent of evolution" ;
+    rdfs:subClassOf ba-se:SafetyConstraint .
+
+# ==============================================================================
+# EVOLUTION GOVERNANCE
+# ==============================================================================
+
+## Evolution Governance
+ba-se:EvolutionGovernance a owl:Class ;
+    rdfs:label "Evolution Governance" ;
+    rdfs:comment "Governance framework for managing evolution" ;
+    rdfs:subClassOf ba:GovernanceFramework .
+
+## Approval Process
+ba-se:ApprovalProcess a owl:Class ;
+    rdfs:label "Approval Process" ;
+    rdfs:comment "Process for approving evolutionary changes" ;
+    rdfs:subClassOf ba:ProcessDefinition .
+
+ba-se:AutomaticApproval a owl:Class ;
+    rdfs:label "Automatic Approval" ;
+    rdfs:comment "Automatic approval for low-risk changes" ;
+    rdfs:subClassOf ba-se:ApprovalProcess .
+
+ba-se:ManualApproval a owl:Class ;
+    rdfs:label "Manual Approval" ;
+    rdfs:comment "Manual approval for high-risk changes" ;
+    rdfs:subClassOf ba-se:ApprovalProcess .
+
+ba-se:CommitteeApproval a owl:Class ;
+    rdfs:label "Committee Approval" ;
+    rdfs:comment "Approval by a committee of experts" ;
+    rdfs:subClassOf ba-se:ApprovalProcess .
+
+# ==============================================================================
+# EXPERIENCE AND FEEDBACK
+# ==============================================================================
+
+## Experience
+ba-se:Experience a owl:Class ;
+    rdfs:label "Experience" ;
+    rdfs:comment "Knowledge gained from system operation and interaction" ;
+    rdfs:subClassOf ba:Knowledge .
+
+## Feedback Mechanism
+ba-se:FeedbackMechanism a owl:Class ;
+    rdfs:label "Feedback Mechanism" ;
+    rdfs:comment "Mechanism for collecting and processing feedback" ;
+    rdfs:subClassOf ba:ProcessDefinition .
+
+ba-se:PerformanceFeedback a owl:Class ;
+    rdfs:label "Performance Feedback" ;
+    rdfs:comment "Feedback based on performance metrics" ;
+    rdfs:subClassOf ba-se:FeedbackMechanism .
+
+ba-se:UserFeedback a owl:Class ;
+    rdfs:label "User Feedback" ;
+    rdfs:comment "Feedback from system users" ;
+    rdfs:subClassOf ba-se:FeedbackMechanism .
+
+ba-se:EnvironmentalFeedback a owl:Class ;
+    rdfs:label "Environmental Feedback" ;
+    rdfs:comment "Feedback from the system environment" ;
+    rdfs:subClassOf ba-se:FeedbackMechanism .
+
+# ==============================================================================
+# SUCCESS CRITERIA AND METRICS
+# ==============================================================================
+
+## Success Criteria
+ba-se:SuccessCriteria a owl:Class ;
+    rdfs:label "Success Criteria" ;
+    rdfs:comment "Criteria for evaluating evolution success" ;
+    rdfs:subClassOf ba:EvaluationCriteria .
+
+## Evolution Metric
+ba-se:EvolutionMetric a owl:Class ;
+    rdfs:label "Evolution Metric" ;
+    rdfs:comment "Metric for measuring evolutionary progress" ;
+    rdfs:subClassOf ba-pm:PerformanceMetric .
+
+ba-se:LearningRate a owl:Class ;
+    rdfs:label "Learning Rate" ;
+    rdfs:comment "Rate at which the system learns and improves" ;
+    rdfs:subClassOf ba-se:EvolutionMetric .
+
+ba-se:AdaptationSpeed a owl:Class ;
+    rdfs:label "Adaptation Speed" ;
+    rdfs:comment "Speed of adaptation to environmental changes" ;
+    rdfs:subClassOf ba-se:EvolutionMetric .
+
+ba-se:PerformanceImprovement a owl:Class ;
+    rdfs:label "Performance Improvement" ;
+    rdfs:comment "Measure of performance enhancement" ;
+    rdfs:subClassOf ba-se:EvolutionMetric .
+
+ba-se:StabilityIndex a owl:Class ;
+    rdfs:label "Stability Index" ;
+    rdfs:comment "Measure of system stability during evolution" ;
+    rdfs:subClassOf ba-se:EvolutionMetric .
+
+# ==============================================================================
+# OBJECT PROPERTIES
+# ==============================================================================
+
+## Evolution Relationships
+ba-se:hasEvolutionStrategy a owl:ObjectProperty ;
+    rdfs:label "has evolution strategy" ;
+    rdfs:comment "Relates a system to its evolution strategy" ;
+    rdfs:domain ba-se:SelfEvolutionSystem ;
+    rdfs:range ba-se:EvolutionStrategy .
+
+ba-se:hasLearningMechanism a owl:ObjectProperty ;
+    rdfs:label "has learning mechanism" ;
+    rdfs:comment "Relates a system to its learning mechanism" ;
+    rdfs:domain ba-se:SelfEvolutionSystem ;
+    rdfs:range ba-se:LearningMechanism .
+
+ba-se:hasAdaptiveBehavior a owl:ObjectProperty ;
+    rdfs:label "has adaptive behavior" ;
+    rdfs:comment "Relates a system to its adaptive behaviors" ;
+    rdfs:domain ba-se:SelfEvolutionSystem ;
+    rdfs:range ba-se:AdaptiveBehavior .
+
+ba-se:hasResponseMechanism a owl:ObjectProperty ;
+    rdfs:label "has response mechanism" ;
+    rdfs:comment "Relates behavior to response mechanism" ;
+    rdfs:domain ba-se:AdaptiveBehavior ;
+    rdfs:range ba-se:ResponseMechanism .
+
+## Improvement Relationships
+ba-se:hasImprovement a owl:ObjectProperty ;
+    rdfs:label "has improvement" ;
+    rdfs:comment "Relates a system to its improvements" ;
+    rdfs:domain ba-se:SelfEvolutionSystem ;
+    rdfs:range ba-se:SystemImprovement .
+
+ba-se:hasOptimizationProcess a owl:ObjectProperty ;
+    rdfs:label "has optimization process" ;
+    rdfs:comment "Relates system to optimization processes" ;
+    rdfs:domain ba-se:SelfEvolutionSystem ;
+    rdfs:range ba-se:OptimizationProcess .
+
+## Neural Adaptation Relationships
+ba-se:hasNeuralAdaptation a owl:ObjectProperty ;
+    rdfs:label "has neural adaptation" ;
+    rdfs:comment "Relates system to neural adaptation mechanisms" ;
+    rdfs:domain ba-se:SelfEvolutionSystem ;
+    rdfs:range ba-se:NeuralAdaptation .
+
+## Safety and Governance Relationships
+ba-se:hasEvolutionSafety a owl:ObjectProperty ;
+    rdfs:label "has evolution safety" ;
+    rdfs:comment "Relates system to evolution safety mechanisms" ;
+    rdfs:domain ba-se:SelfEvolutionSystem ;
+    rdfs:range ba-se:EvolutionSafety .
+
+ba-se:hasSafetyConstraint a owl:ObjectProperty ;
+    rdfs:label "has safety constraint" ;
+    rdfs:comment "Relates evolution to safety constraints" ;
+    rdfs:domain ba-se:EvolutionStrategy ;
+    rdfs:range ba-se:SafetyConstraint .
+
+ba-se:hasGovernance a owl:ObjectProperty ;
+    rdfs:label "has governance" ;
+    rdfs:comment "Relates evolution to governance framework" ;
+    rdfs:domain ba-se:SelfEvolutionSystem ;
+    rdfs:range ba-se:EvolutionGovernance .
+
+ba-se:hasApprovalProcess a owl:ObjectProperty ;
+    rdfs:label "has approval process" ;
+    rdfs:comment "Relates governance to approval processes" ;
+    rdfs:domain ba-se:EvolutionGovernance ;
+    rdfs:range ba-se:ApprovalProcess .
+
+## Experience and Feedback Relationships
+ba-se:hasExperience a owl:ObjectProperty ;
+    rdfs:label "has experience" ;
+    rdfs:comment "Relates system to accumulated experience" ;
+    rdfs:domain ba-se:SelfEvolutionSystem ;
+    rdfs:range ba-se:Experience .
+
+ba-se:hasFeedbackMechanism a owl:ObjectProperty ;
+    rdfs:label "has feedback mechanism" ;
+    rdfs:comment "Relates system to feedback mechanisms" ;
+    rdfs:domain ba-se:SelfEvolutionSystem ;
+    rdfs:range ba-se:FeedbackMechanism .
+
+ba-se:learnsFrom a owl:ObjectProperty ;
+    rdfs:label "learns from" ;
+    rdfs:comment "Relates learning mechanism to experience" ;
+    rdfs:domain ba-se:LearningMechanism ;
+    rdfs:range ba-se:Experience .
+
+## Success and Metrics Relationships
+ba-se:hasSuccessCriteria a owl:ObjectProperty ;
+    rdfs:label "has success criteria" ;
+    rdfs:comment "Relates evolution to success criteria" ;
+    rdfs:domain ba-se:EvolutionStrategy ;
+    rdfs:range ba-se:SuccessCriteria .
+
+ba-se:hasEvolutionMetric a owl:ObjectProperty ;
+    rdfs:label "has evolution metric" ;
+    rdfs:comment "Relates system to evolution metrics" ;
+    rdfs:domain ba-se:SelfEvolutionSystem ;
+    rdfs:range ba-se:EvolutionMetric .
+
+ba-se:measuredBy a owl:ObjectProperty ;
+    rdfs:label "measured by" ;
+    rdfs:comment "Relates criteria to metrics" ;
+    rdfs:domain ba-se:SuccessCriteria ;
+    rdfs:range ba-se:EvolutionMetric .
+
+## Emergent Behavior Relationships
+ba-se:hasEmergentBehavior a owl:ObjectProperty ;
+    rdfs:label "has emergent behavior" ;
+    rdfs:comment "Relates system to emergent behaviors" ;
+    rdfs:domain ba-se:SelfEvolutionSystem ;
+    rdfs:range ba-se:EmergentBehavior .
+
+ba-se:recognizedBy a owl:ObjectProperty ;
+    rdfs:label "recognized by" ;
+    rdfs:comment "Relates behavior to recognition mechanism" ;
+    rdfs:domain ba-se:EmergentBehavior ;
+    rdfs:range ba-se:BehaviorRecognition .
+
+# ==============================================================================
+# DATA PROPERTIES
+# ==============================================================================
+
+## Evolution Configuration
+ba-se:evolutionRate a owl:DatatypeProperty ;
+    rdfs:label "evolution rate" ;
+    rdfs:comment "Rate of evolutionary change" ;
+    rdfs:domain ba-se:EvolutionStrategy ;
+    rdfs:range xsd:double .
+
+ba-se:mutationRate a owl:DatatypeProperty ;
+    rdfs:label "mutation rate" ;
+    rdfs:comment "Rate of genetic mutations in evolution" ;
+    rdfs:domain ba-se:GeneticAlgorithm ;
+    rdfs:range xsd:double .
+
+ba-se:crossoverRate a owl:DatatypeProperty ;
+    rdfs:label "crossover rate" ;
+    rdfs:comment "Rate of genetic crossover in evolution" ;
+    rdfs:domain ba-se:GeneticAlgorithm ;
+    rdfs:range xsd:double .
+
+ba-se:populationSize a owl:DatatypeProperty ;
+    rdfs:label "population size" ;
+    rdfs:comment "Size of the genetic algorithm population" ;
+    rdfs:domain ba-se:GeneticAlgorithm ;
+    rdfs:range xsd:positiveInteger .
+
+## Learning Parameters
+ba-se:learningRateValue a owl:DatatypeProperty ;
+    rdfs:label "learning rate value" ;
+    rdfs:comment "Numerical value of the learning rate" ;
+    rdfs:domain ba-se:LearningMechanism ;
+    rdfs:range xsd:double .
+
+ba-se:memoryCapacity a owl:DatatypeProperty ;
+    rdfs:label "memory capacity" ;
+    rdfs:comment "Capacity for storing learned experiences" ;
+    rdfs:domain ba-se:LearningMechanism ;
+    rdfs:range xsd:positiveInteger .
+
+ba-se:adaptationThreshold a owl:DatatypeProperty ;
+    rdfs:label "adaptation threshold" ;
+    rdfs:comment "Threshold for triggering adaptation" ;
+    rdfs:domain ba-se:AdaptiveBehavior ;
+    rdfs:range xsd:double .
+
+## Performance Metrics
+ba-se:improvementScore a owl:DatatypeProperty ;
+    rdfs:label "improvement score" ;
+    rdfs:comment "Score measuring system improvement" ;
+    rdfs:domain ba-se:SystemImprovement ;
+    rdfs:range xsd:double .
+
+ba-se:stabilityScore a owl:DatatypeProperty ;
+    rdfs:label "stability score" ;
+    rdfs:comment "Score measuring system stability" ;
+    rdfs:domain ba-se:StabilityIndex ;
+    rdfs:range xsd:double .
+
+ba-se:adaptationTime a owl:DatatypeProperty ;
+    rdfs:label "adaptation time" ;
+    rdfs:comment "Time required for adaptation" ;
+    rdfs:domain ba-se:AdaptationSpeed ;
+    rdfs:range xsd:duration .
+
+## Safety Parameters
+ba-se:riskLevel a owl:DatatypeProperty ;
+    rdfs:label "risk level" ;
+    rdfs:comment "Risk level associated with evolution" ;
+    rdfs:domain ba-se:EvolutionStrategy ;
+    rdfs:range xsd:string .
+
+ba-se:maxDeviation a owl:DatatypeProperty ;
+    rdfs:label "maximum deviation" ;
+    rdfs:comment "Maximum allowed deviation from baseline" ;
+    rdfs:domain ba-se:SafetyConstraint ;
+    rdfs:range xsd:double .
+
+ba-se:approvalRequired a owl:DatatypeProperty ;
+    rdfs:label "approval required" ;
+    rdfs:comment "Whether approval is required for this evolution" ;
+    rdfs:domain ba-se:EvolutionStrategy ;
+    rdfs:range xsd:boolean .
+
+## Temporal Properties
+ba-se:evolutionStartTime a owl:DatatypeProperty ;
+    rdfs:label "evolution start time" ;
+    rdfs:comment "Time when evolution process started" ;
+    rdfs:domain ba-se:SystemImprovement ;
+    rdfs:range xsd:dateTime .
+
+ba-se:evolutionEndTime a owl:DatatypeProperty ;
+    rdfs:label "evolution end time" ;
+    rdfs:comment "Time when evolution process ended" ;
+    rdfs:domain ba-se:SystemImprovement ;
+    rdfs:range xsd:dateTime .
+
+ba-se:lastAdaptation a owl:DatatypeProperty ;
+    rdfs:label "last adaptation" ;
+    rdfs:comment "Timestamp of last adaptation" ;
+    rdfs:domain ba-se:SelfEvolutionSystem ;
+    rdfs:range xsd:dateTime .
+
+# ==============================================================================
+# SHACL SHAPES FOR VALIDATION
+# ==============================================================================
+
+## Self-Evolution System Shape
+ba-se:SelfEvolutionSystemShape a sh:NodeShape ;
+    sh:targetClass ba-se:SelfEvolutionSystem ;
+    sh:property [
+        sh:path ba-se:hasEvolutionStrategy ;
+        sh:minCount 1 ;
+        sh:class ba-se:EvolutionStrategy ;
+        sh:message "Self-evolution system must have at least one evolution strategy"
+    ] ;
+    sh:property [
+        sh:path ba-se:hasLearningMechanism ;
+        sh:minCount 1 ;
+        sh:class ba-se:LearningMechanism ;
+        sh:message "Self-evolution system must have at least one learning mechanism"
+    ] ;
+    sh:property [
+        sh:path ba-se:hasEvolutionSafety ;
+        sh:minCount 1 ;
+        sh:class ba-se:EvolutionSafety ;
+        sh:message "Self-evolution system must have evolution safety mechanisms"
+    ] ;
+    sh:property [
+        sh:path ba-se:hasGovernance ;
+        sh:minCount 1 ;
+        sh:class ba-se:EvolutionGovernance ;
+        sh:message "Self-evolution system must have governance framework"
+    ] .
+
+## Evolution Strategy Shape
+ba-se:EvolutionStrategyShape a sh:NodeShape ;
+    sh:targetClass ba-se:EvolutionStrategy ;
+    sh:property [
+        sh:path ba-se:evolutionRate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Evolution rate must be between 0.0 and 1.0"
+    ] ;
+    sh:property [
+        sh:path ba-se:riskLevel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("low" "medium" "high" "critical") ;
+        sh:message "Risk level must be one of: low, medium, high, critical"
+    ] ;
+    sh:property [
+        sh:path ba-se:hasSafetyConstraint ;
+        sh:minCount 1 ;
+        sh:class ba-se:SafetyConstraint ;
+        sh:message "Evolution strategy must have safety constraints"
+    ] ;
+    sh:property [
+        sh:path ba-se:hasSuccessCriteria ;
+        sh:minCount 1 ;
+        sh:class ba-se:SuccessCriteria ;
+        sh:message "Evolution strategy must have success criteria"
+    ] .
+
+## Genetic Algorithm Shape
+ba-se:GeneticAlgorithmShape a sh:NodeShape ;
+    sh:targetClass ba-se:GeneticAlgorithm ;
+    sh:property [
+        sh:path ba-se:mutationRate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Mutation rate must be between 0.0 and 1.0"
+    ] ;
+    sh:property [
+        sh:path ba-se:crossoverRate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Crossover rate must be between 0.0 and 1.0"
+    ] ;
+    sh:property [
+        sh:path ba-se:populationSize ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minInclusive 10 ;
+        sh:message "Population size must be at least 10"
+    ] .
+
+## Learning Mechanism Shape
+ba-se:LearningMechanismShape a sh:NodeShape ;
+    sh:targetClass ba-se:LearningMechanism ;
+    sh:property [
+        sh:path ba-se:learningRateValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Learning rate must be between 0.0 and 1.0"
+    ] ;
+    sh:property [
+        sh:path ba-se:memoryCapacity ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minInclusive 1 ;
+        sh:message "Memory capacity must be positive"
+    ] .
+
+## Safety Constraint Shape
+ba-se:SafetyConstraintShape a sh:NodeShape ;
+    sh:targetClass ba-se:SafetyConstraint ;
+    sh:property [
+        sh:path ba-se:maxDeviation ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:message "Maximum deviation must be non-negative"
+    ] .
+
+## System Improvement Shape
+ba-se:SystemImprovementShape a sh:NodeShape ;
+    sh:targetClass ba-se:SystemImprovement ;
+    sh:property [
+        sh:path ba-se:evolutionStartTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "System improvement must have start time"
+    ] ;
+    sh:property [
+        sh:path ba-se:improvementScore ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:message "Improvement score must be non-negative"
+    ] ;
+    sh:sparql [
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this ba-se:evolutionStartTime ?start ;
+                      ba-se:evolutionEndTime ?end .
+                FILTER(?end < ?start)
+            }
+        """ ;
+        sh:message "Evolution end time must be after start time"
+    ] .
+
+## Evolution Governance Shape
+ba-se:EvolutionGovernanceShape a sh:NodeShape ;
+    sh:targetClass ba-se:EvolutionGovernance ;
+    sh:property [
+        sh:path ba-se:hasApprovalProcess ;
+        sh:minCount 1 ;
+        sh:class ba-se:ApprovalProcess ;
+        sh:message "Evolution governance must have approval process"
+    ] .
+
+## Evolution Metric Shape
+ba-se:EvolutionMetricShape a sh:NodeShape ;
+    sh:targetClass ba-se:EvolutionMetric ;
+    sh:property [
+        sh:path ba-pm:hasValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:double ;
+        sh:message "Evolution metric must have a numerical value"
+    ] ;
+    sh:property [
+        sh:path ba-pm:measurementTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Evolution metric must have measurement time"
+    ] .
+
+# ==============================================================================
+# INTEGRATION WITH PERFORMANCE MEASUREMENT
+# ==============================================================================
+
+## Performance Integration
+ba-se:integratesWithPerformance a owl:ObjectProperty ;
+    rdfs:label "integrates with performance" ;
+    rdfs:comment "Relates evolution system to performance measurement" ;
+    rdfs:domain ba-se:SelfEvolutionSystem ;
+    rdfs:range ba-pm:PerformanceMeasurementSystem .
+
+ba-se:usesPerformanceMetric a owl:ObjectProperty ;
+    rdfs:label "uses performance metric" ;
+    rdfs:comment "Relates evolution to performance metrics used" ;
+    rdfs:domain ba-se:EvolutionStrategy ;
+    rdfs:range ba-pm:PerformanceMetric .
+
+ba-se:triggeredByPerformance a owl:ObjectProperty ;
+    rdfs:label "triggered by performance" ;
+    rdfs:comment "Evolution triggered by performance conditions" ;
+    rdfs:domain ba-se:SystemImprovement ;
+    rdfs:range ba-pm:PerformanceCondition .
+
+# ==============================================================================
+# AXIOMS AND RULES
+# ==============================================================================
+
+## Disjoint Classes
+[] a owl:AllDisjointClasses ;
+    owl:members (
+        ba-se:OnlineEvolution
+        ba-se:OfflineEvolution
+    ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members (
+        ba-se:SupervisedLearning
+        ba-se:UnsupervisedLearning
+        ba-se:ReinforcementLearning
+    ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members (
+        ba-se:AutomaticApproval
+        ba-se:ManualApproval
+        ba-se:CommitteeApproval
+    ) .
+
+## Property Characteristics
+ba-se:hasEvolutionStrategy a owl:FunctionalProperty .
+ba-se:evolutionRate a owl:FunctionalProperty .
+ba-se:learningRateValue a owl:FunctionalProperty .
+ba-se:improvementScore a owl:FunctionalProperty .
+
+# ==============================================================================
+# EVOLUTION PATTERNS AND TEMPLATES
+# ==============================================================================
+
+## Common Evolution Patterns
+ba-se:ContinuousEvolution a ba-se:EvolutionStrategy ;
+    rdfs:label "Continuous Evolution Pattern" ;
+    rdfs:comment "Template for continuous system evolution" ;
+    ba-se:evolutionRate 0.1 ;
+    ba-se:riskLevel "medium" .
+
+ba-se:SafeEvolution a ba-se:EvolutionStrategy ;
+    rdfs:label "Safe Evolution Pattern" ;
+    rdfs:comment "Template for safe system evolution" ;
+    ba-se:evolutionRate 0.05 ;
+    ba-se:riskLevel "low" ;
+    ba-se:approvalRequired true .
+
+ba-se:AggressiveEvolution a ba-se:EvolutionStrategy ;
+    rdfs:label "Aggressive Evolution Pattern" ;
+    rdfs:comment "Template for aggressive system evolution" ;
+    ba-se:evolutionRate 0.3 ;
+    ba-se:riskLevel "high" ;
+    ba-se:approvalRequired true .
+
+# ==============================================================================
+# EVOLUTION LIFECYCLE STATES
+# ==============================================================================
+
+## Evolution State
+ba-se:EvolutionState a owl:Class ;
+    rdfs:label "Evolution State" ;
+    rdfs:comment "State in the evolution lifecycle" ;
+    rdfs:subClassOf ba:State .
+
+ba-se:Planning a ba-se:EvolutionState ;
+    rdfs:label "Planning" ;
+    rdfs:comment "Planning phase of evolution" .
+
+ba-se:Learning a ba-se:EvolutionState ;
+    rdfs:label "Learning" ;
+    rdfs:comment "Learning phase of evolution" .
+
+ba-se:Adapting a ba-se:EvolutionState ;
+    rdfs:label "Adapting" ;
+    rdfs:comment "Adaptation phase of evolution" .
+
+ba-se:Evaluating a ba-se:EvolutionState ;
+    rdfs:label "Evaluating" ;
+    rdfs:comment "Evaluation phase of evolution" .
+
+ba-se:Implementing a ba-se:EvolutionState ;
+    rdfs:label "Implementing" ;
+    rdfs:comment "Implementation phase of evolution" .
+
+ba-se:Monitoring a ba-se:EvolutionState ;
+    rdfs:label "Monitoring" ;
+    rdfs:comment "Monitoring phase of evolution" .
+
+## State Transitions
+ba-se:hasEvolutionState a owl:ObjectProperty ;
+    rdfs:label "has evolution state" ;
+    rdfs:comment "Current state of evolution process" ;
+    rdfs:domain ba-se:SystemImprovement ;
+    rdfs:range ba-se:EvolutionState .
+
+ba-se:transitionsTo a owl:ObjectProperty ;
+    rdfs:label "transitions to" ;
+    rdfs:comment "Transitions from one evolution state to another" ;
+    rdfs:domain ba-se:EvolutionState ;
+    rdfs:range ba-se:EvolutionState .
+
+# ==============================================================================
+# END OF ONTOLOGY
+# ==============================================================================
+
+# Ontology validation constraints
+[] a sh:SPARQLConstraint ;
+    sh:targetClass ba-se:SelfEvolutionSystem ;
+    sh:select """
+        SELECT $this
+        WHERE {
+            $this ba-se:hasEvolutionStrategy ?strategy .
+            ?strategy ba-se:riskLevel "high" .
+            FILTER NOT EXISTS {
+                ?strategy ba-se:approvalRequired true .
+            }
+        }
+    """ ;
+    sh:message "High-risk evolution strategies must require approval" .
+
+[] a sh:SPARQLConstraint ;
+    sh:targetClass ba-se:SystemImprovement ;
+    sh:select """
+        SELECT $this
+        WHERE {
+            $this ba-se:improvementScore ?score .
+            FILTER(?score < 0)
+        }
+    """ ;
+    sh:message "System improvement score cannot be negative" .

@@ -1,0 +1,241 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix schema:  <https://schema.org/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+
+# ============================================================================
+# ZOE LA Mobile — Need Ontology
+# ============================================================================
+# Models service needs submitted by or on behalf of community members.
+# Needs are routable units of care: each has a category, urgency, status
+# lifecycle, optional privacy flag, and an optional set of follow-up tasks.
+#
+# Design alignment:
+#   zoe:Need        → schema:Action + prov:Entity (auditable, trackable)
+#   zoe:FollowUpTask → schema:Action (discrete follow-on unit)
+#   zoe:NeedCategory → skos:ConceptScheme (extensible controlled vocabulary)
+#   zoe:NeedStatus   → skos:ConceptScheme (lifecycle states)
+# ============================================================================
+
+zoe:NeedOntology a owl:Ontology ;
+  rdfs:label   "ZOE LA Mobile — Need Ontology"@en ;
+  rdfs:comment "Service need ontology for care routing, assignment, and lifecycle tracking in ZOE LA Mobile."@en ;
+  dcterms:creator  "Sean Chatman" ;
+  dcterms:license  <https://opensource.org/licenses/MIT> ;
+  owl:versionInfo  "1.0.0" .
+
+# ── Core class: Need ─────────────────────────────────────────────────────────
+
+zoe:Need a owl:Class ;
+  rdfs:subClassOf schema:Action ;
+  rdfs:subClassOf prov:Entity ;
+  rdfs:label   "Need"@en ;
+  rdfs:comment "A request for care, support, or service submitted by or on behalf of a community member. Routed to volunteers or ministry leads for fulfillment."@en .
+
+# ── Need properties ──────────────────────────────────────────────────────────
+
+zoe:needTitle a owl:DatatypeProperty ;
+  rdfs:domain  zoe:Need ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Need Title"@en ;
+  rdfs:comment "Short human-readable summary of the need (e.g. 'Groceries for family of four')."@en ;
+  skos:notation "need_title" .
+
+zoe:needDescription a owl:DatatypeProperty ;
+  rdfs:domain  zoe:Need ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Need Description"@en ;
+  rdfs:comment "Detailed narrative describing the nature and context of the need."@en ;
+  skos:notation "need_description" .
+
+zoe:needCategory a owl:ObjectProperty ;
+  rdfs:domain  zoe:Need ;
+  rdfs:range   zoe:NeedCategoryTerm ;
+  rdfs:label   "Need Category"@en ;
+  rdfs:comment "Controlled-vocabulary category classifying the type of care or service requested."@en ;
+  skos:notation "need_category" .
+
+zoe:requesterId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:Need ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Requester ID"@en ;
+  rdfs:comment "Identifier of the member or pastoral contact who submitted this need."@en ;
+  skos:notation "requester_id" .
+
+zoe:assignedTo a owl:DatatypeProperty ;
+  rdfs:domain  zoe:Need ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Assigned To"@en ;
+  rdfs:comment "Identifier of the volunteer or ministry lead currently assigned to fulfill this need."@en ;
+  skos:notation "task_assigned_to" .
+
+zoe:status a owl:ObjectProperty ;
+  rdfs:domain  zoe:Need ;
+  rdfs:range   zoe:NeedStatusTerm ;
+  rdfs:label   "Status"@en ;
+  rdfs:comment "Current lifecycle state of the need (Open, Assigned, InProgress, Fulfilled, Escalated, Closed)."@en ;
+  skos:notation "status" .
+
+zoe:urgency a owl:DatatypeProperty ;
+  rdfs:domain  zoe:Need ;
+  rdfs:range   xsd:integer ;
+  rdfs:label   "Urgency"@en ;
+  rdfs:comment "Integer priority score for the need (1 = routine, 5 = critical). Used to sort routing queues."@en ;
+  skos:notation "urgency" .
+
+zoe:isPrivate a owl:DatatypeProperty ;
+  rdfs:domain  zoe:Need ;
+  rdfs:range   xsd:boolean ;
+  rdfs:label   "Is Private"@en ;
+  rdfs:comment "When true, only pastoral-level staff may view this need. Hides from general volunteer queue."@en ;
+  skos:notation "is_private" .
+
+zoe:createdAt a owl:DatatypeProperty ;
+  rdfs:domain  zoe:Need ;
+  rdfs:range   xsd:dateTime ;
+  rdfs:label   "Created At"@en ;
+  rdfs:comment "ISO-8601 timestamp when the need was submitted."@en ;
+  skos:notation "created_at" .
+
+zoe:dueAt a owl:DatatypeProperty ;
+  rdfs:domain  zoe:Need ;
+  rdfs:range   xsd:dateTime ;
+  rdfs:label   "Due At"@en ;
+  rdfs:comment "Optional deadline by which the need should be fulfilled."@en ;
+  skos:notation "due_at" .
+
+# ── NeedCategory concept scheme ───────────────────────────────────────────────
+
+zoe:NeedCategoryScheme a skos:ConceptScheme ;
+  rdfs:label   "Need Category Scheme"@en ;
+  rdfs:comment "Controlled vocabulary of service categories for routing and reporting."@en ;
+  dcterms:title "ZOE LA Need Categories" .
+
+zoe:NeedCategoryTerm a owl:Class ;
+  rdfs:subClassOf skos:Concept ;
+  rdfs:label   "Need Category Term"@en ;
+  rdfs:comment "An individual term within the NeedCategory controlled vocabulary."@en .
+
+zoe:FoodSupport a zoe:NeedCategoryTerm ;
+  skos:inScheme   zoe:NeedCategoryScheme ;
+  skos:prefLabel  "Food Support"@en ;
+  rdfs:label      "Food Support"@en ;
+  rdfs:comment    "Needs related to groceries, meal preparation, or emergency food provision."@en ;
+  skos:notation   "food_support" .
+
+zoe:ClothingSupport a zoe:NeedCategoryTerm ;
+  skos:inScheme   zoe:NeedCategoryScheme ;
+  skos:prefLabel  "Clothing Support"@en ;
+  rdfs:label      "Clothing Support"@en ;
+  rdfs:comment    "Needs related to clothing donations, seasonal attire, or uniform assistance."@en ;
+  skos:notation   "clothing_support" .
+
+zoe:Benevolence a zoe:NeedCategoryTerm ;
+  skos:inScheme   zoe:NeedCategoryScheme ;
+  skos:prefLabel  "Benevolence"@en ;
+  rdfs:label      "Benevolence"@en ;
+  rdfs:comment    "Financial assistance needs including utility bills, rent support, or emergency funds."@en ;
+  skos:notation   "benevolence" .
+
+zoe:HospitalVisit a zoe:NeedCategoryTerm ;
+  skos:inScheme   zoe:NeedCategoryScheme ;
+  skos:prefLabel  "Hospital Visit"@en ;
+  rdfs:label      "Hospital Visit"@en ;
+  rdfs:comment    "Needs for in-person pastoral or volunteer visitation at medical facilities."@en ;
+  skos:notation   "hospital_visit" .
+
+zoe:SchoolReferral a zoe:NeedCategoryTerm ;
+  skos:inScheme   zoe:NeedCategoryScheme ;
+  skos:prefLabel  "School Referral"@en ;
+  rdfs:label      "School Referral"@en ;
+  rdfs:comment    "Needs related to educational support, tutoring referrals, or school supply provision."@en ;
+  skos:notation   "school_referral" .
+
+zoe:PrayerRequest a zoe:NeedCategoryTerm ;
+  skos:inScheme   zoe:NeedCategoryScheme ;
+  skos:prefLabel  "Prayer Request"@en ;
+  rdfs:label      "Prayer Request"@en ;
+  rdfs:comment    "Requests for intercessory prayer, which may also indicate underlying pastoral need."@en ;
+  skos:notation   "prayer_request" .
+
+zoe:CareRequest a zoe:NeedCategoryTerm ;
+  skos:inScheme   zoe:NeedCategoryScheme ;
+  skos:prefLabel  "Care Request"@en ;
+  rdfs:label      "Care Request"@en ;
+  rdfs:comment    "General pastoral care requests not covered by a more specific category."@en ;
+  skos:notation   "care_request" .
+
+zoe:YouthSupport a zoe:NeedCategoryTerm ;
+  skos:inScheme   zoe:NeedCategoryScheme ;
+  skos:prefLabel  "Youth Support"@en ;
+  rdfs:label      "Youth Support"@en ;
+  rdfs:comment    "Needs specific to minors or youth ministry context. Triggers youth-protection policy."@en ;
+  skos:notation   "youth_support" .
+
+zoe:RecoverySupport a zoe:NeedCategoryTerm ;
+  skos:inScheme   zoe:NeedCategoryScheme ;
+  skos:prefLabel  "Recovery Support"@en ;
+  rdfs:label      "Recovery Support"@en ;
+  rdfs:comment    "Needs related to addiction recovery, rehabilitation support, or mental health referrals."@en ;
+  skos:notation   "recovery_support" .
+
+# ── NeedStatus concept scheme ─────────────────────────────────────────────────
+
+zoe:NeedStatusScheme a skos:ConceptScheme ;
+  rdfs:label   "Need Status Scheme"@en ;
+  rdfs:comment "Lifecycle states for a service need from submission to closure."@en ;
+  dcterms:title "ZOE LA Need Lifecycle States" .
+
+zoe:NeedStatusTerm a owl:Class ;
+  rdfs:subClassOf skos:Concept ;
+  rdfs:label   "Need Status Term"@en ;
+  rdfs:comment "An individual lifecycle state within the NeedStatus controlled vocabulary."@en .
+
+zoe:Open a zoe:NeedStatusTerm ;
+  skos:inScheme   zoe:NeedStatusScheme ;
+  skos:prefLabel  "Open"@en ;
+  rdfs:label      "Open"@en ;
+  rdfs:comment    "Need has been submitted and is awaiting assignment to a volunteer or ministry lead."@en ;
+  skos:notation   "open" .
+
+zoe:Assigned a zoe:NeedStatusTerm ;
+  skos:inScheme   zoe:NeedStatusScheme ;
+  skos:prefLabel  "Assigned"@en ;
+  rdfs:label      "Assigned"@en ;
+  rdfs:comment    "Need has been assigned to a specific volunteer or ministry lead but work has not yet begun."@en ;
+  skos:notation   "assigned" .
+
+zoe:InProgress a zoe:NeedStatusTerm ;
+  skos:inScheme   zoe:NeedStatusScheme ;
+  skos:prefLabel  "In Progress"@en ;
+  rdfs:label      "In Progress"@en ;
+  rdfs:comment    "Assigned volunteer or ministry lead has begun active work toward fulfilling the need."@en ;
+  skos:notation   "in_progress" .
+
+zoe:Fulfilled a zoe:NeedStatusTerm ;
+  skos:inScheme   zoe:NeedStatusScheme ;
+  skos:prefLabel  "Fulfilled"@en ;
+  rdfs:label      "Fulfilled"@en ;
+  rdfs:comment    "Need has been completed and a service receipt has been issued."@en ;
+  skos:notation   "fulfilled" .
+
+zoe:Escalated a zoe:NeedStatusTerm ;
+  skos:inScheme   zoe:NeedStatusScheme ;
+  skos:prefLabel  "Escalated"@en ;
+  rdfs:label      "Escalated"@en ;
+  rdfs:comment    "Need has been escalated to pastoral leadership due to complexity, urgency, or sensitivity."@en ;
+  skos:notation   "escalated" .
+
+zoe:Closed a zoe:NeedStatusTerm ;
+  skos:inScheme   zoe:NeedStatusScheme ;
+  skos:prefLabel  "Closed"@en ;
+  rdfs:label      "Closed"@en ;
+  rdfs:comment    "Need has been closed without fulfillment (withdrawn, duplicate, or out of scope)."@en ;
+  skos:notation   "closed" .
+
+

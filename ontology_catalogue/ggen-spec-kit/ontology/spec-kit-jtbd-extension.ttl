@@ -1,0 +1,503 @@
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# Spec-Kit Jobs-to-be-Done (JTBD) Extension Ontology
+# ============================================================================
+# This ontology extends the core spec-kit schema to support Jobs-to-be-Done
+# framework for product development, enabling:
+# - Customer-centric feature planning
+# - Outcome-driven innovation
+# - Painpoint and progress maker identification
+# - Feature-to-job traceability
+# ============================================================================
+
+# ============================================================================
+# CLASSES - JTBD Framework
+# ============================================================================
+
+sk:CustomerSegment
+  a owl:Class ;
+  rdfs:label "Customer Segment" ;
+  rdfs:comment "Group of customers with similar characteristics and jobs to be done" ;
+  rdfs:subClassOf owl:Thing .
+
+sk:Persona
+  a owl:Class ;
+  rdfs:label "Persona" ;
+  rdfs:comment "Archetypal user representing a customer segment" ;
+  rdfs:subClassOf sk:CustomerSegment .
+
+sk:Job
+  a owl:Class ;
+  rdfs:label "Job" ;
+  rdfs:comment "High-level job that a customer is trying to get done" ;
+  rdfs:subClassOf owl:Thing .
+
+sk:Outcome
+  a owl:Class ;
+  rdfs:label "Outcome" ;
+  rdfs:comment "Measurable outcome the customer wants to achieve when getting a job done" ;
+  rdfs:subClassOf owl:Thing .
+
+sk:Painpoint
+  a owl:Class ;
+  rdfs:label "Painpoint" ;
+  rdfs:comment "Obstacle, frustration, or difficulty preventing outcome achievement" ;
+  rdfs:subClassOf owl:Thing .
+
+sk:ProgressMaker
+  a owl:Class ;
+  rdfs:label "Progress Maker" ;
+  rdfs:comment "Force or factor that helps customers make progress toward outcomes" ;
+  rdfs:subClassOf owl:Thing .
+
+sk:JobContext
+  a owl:Class ;
+  rdfs:label "Job Context" ;
+  rdfs:comment "Situation or circumstances when a job arises" ;
+  rdfs:subClassOf owl:Thing .
+
+sk:SuccessCriterion
+  a owl:Class ;
+  rdfs:label "Success Criterion" ;
+  rdfs:comment "Measurable metric to determine if outcome was achieved" ;
+  rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Customer Segment
+# ============================================================================
+
+sk:segmentName
+  a owl:DatatypeProperty ;
+  rdfs:label "Segment Name" ;
+  rdfs:comment "Name of the customer segment" ;
+  rdfs:domain sk:CustomerSegment ;
+  rdfs:range xsd:string .
+
+sk:segmentDescription
+  a owl:DatatypeProperty ;
+  rdfs:label "Segment Description" ;
+  rdfs:comment "Description of segment characteristics and behaviors" ;
+  rdfs:domain sk:CustomerSegment ;
+  rdfs:range xsd:string .
+
+sk:segmentSize
+  a owl:DatatypeProperty ;
+  rdfs:label "Segment Size" ;
+  rdfs:comment "Estimated market size or user count for this segment" ;
+  rdfs:domain sk:CustomerSegment ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Persona
+# ============================================================================
+
+sk:personaName
+  a owl:DatatypeProperty ;
+  rdfs:label "Persona Name" ;
+  rdfs:comment "Name of the persona (e.g., 'Dev Lead Dana')" ;
+  rdfs:domain sk:Persona ;
+  rdfs:range xsd:string .
+
+sk:personaRole
+  a owl:DatatypeProperty ;
+  rdfs:label "Persona Role" ;
+  rdfs:comment "Job role or title of the persona" ;
+  rdfs:domain sk:Persona ;
+  rdfs:range xsd:string .
+
+sk:personaGoals
+  a owl:DatatypeProperty ;
+  rdfs:label "Persona Goals" ;
+  rdfs:comment "Primary goals and motivations" ;
+  rdfs:domain sk:Persona ;
+  rdfs:range xsd:string .
+
+sk:personaFrustrations
+  a owl:DatatypeProperty ;
+  rdfs:label "Persona Frustrations" ;
+  rdfs:comment "Common frustrations and obstacles" ;
+  rdfs:domain sk:Persona ;
+  rdfs:range xsd:string .
+
+sk:personaBio
+  a owl:DatatypeProperty ;
+  rdfs:label "Persona Bio" ;
+  rdfs:comment "Background and context about the persona" ;
+  rdfs:domain sk:Persona ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Job
+# ============================================================================
+
+sk:jobName
+  a owl:DatatypeProperty ;
+  rdfs:label "Job Name" ;
+  rdfs:comment "Name of the job to be done" ;
+  rdfs:domain sk:Job ;
+  rdfs:range xsd:string .
+
+sk:jobDescription
+  a owl:DatatypeProperty ;
+  rdfs:label "Job Description" ;
+  rdfs:comment "Detailed description of the job" ;
+  rdfs:domain sk:Job ;
+  rdfs:range xsd:string .
+
+sk:jobVerb
+  a owl:DatatypeProperty ;
+  rdfs:label "Job Verb" ;
+  rdfs:comment "Action verb describing the job (e.g., 'manage', 'configure')" ;
+  rdfs:domain sk:Job ;
+  rdfs:range xsd:string .
+
+sk:jobObject
+  a owl:DatatypeProperty ;
+  rdfs:label "Job Object" ;
+  rdfs:comment "Object of the job (e.g., 'dependencies', 'tests')" ;
+  rdfs:domain sk:Job ;
+  rdfs:range xsd:string .
+
+sk:jobFrequency
+  a owl:DatatypeProperty ;
+  rdfs:label "Job Frequency" ;
+  rdfs:comment "How often this job occurs (Daily, Weekly, Monthly, Rarely)" ;
+  rdfs:domain sk:Job ;
+  rdfs:range xsd:string .
+
+sk:jobImportance
+  a owl:DatatypeProperty ;
+  rdfs:label "Job Importance" ;
+  rdfs:comment "Importance score (1-10) for this job" ;
+  rdfs:domain sk:Job ;
+  rdfs:range xsd:integer .
+
+sk:jobSatisfaction
+  a owl:DatatypeProperty ;
+  rdfs:label "Job Satisfaction" ;
+  rdfs:comment "Current satisfaction level (1-10) with existing solutions" ;
+  rdfs:domain sk:Job ;
+  rdfs:range xsd:integer .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Outcome
+# ============================================================================
+
+sk:outcomeName
+  a owl:DatatypeProperty ;
+  rdfs:label "Outcome Name" ;
+  rdfs:comment "Name of the desired outcome" ;
+  rdfs:domain sk:Outcome ;
+  rdfs:range xsd:string .
+
+sk:outcomeDescription
+  a owl:DatatypeProperty ;
+  rdfs:label "Outcome Description" ;
+  rdfs:comment "Detailed description of the outcome" ;
+  rdfs:domain sk:Outcome ;
+  rdfs:range xsd:string .
+
+sk:outcomeMetric
+  a owl:DatatypeProperty ;
+  rdfs:label "Outcome Metric" ;
+  rdfs:comment "Measurable metric for this outcome (e.g., 'time', 'accuracy', 'cost')" ;
+  rdfs:domain sk:Outcome ;
+  rdfs:range xsd:string .
+
+sk:outcomeTarget
+  a owl:DatatypeProperty ;
+  rdfs:label "Outcome Target" ;
+  rdfs:comment "Target value for the outcome metric (e.g., '< 5 minutes')" ;
+  rdfs:domain sk:Outcome ;
+  rdfs:range xsd:string .
+
+sk:outcomePriority
+  a owl:DatatypeProperty ;
+  rdfs:label "Outcome Priority" ;
+  rdfs:comment "Priority ranking (1=highest)" ;
+  rdfs:domain sk:Outcome ;
+  rdfs:range xsd:integer .
+
+sk:outcomeImportance
+  a owl:DatatypeProperty ;
+  rdfs:label "Outcome Importance" ;
+  rdfs:comment "How important this outcome is (1-10)" ;
+  rdfs:domain sk:Outcome ;
+  rdfs:range xsd:integer .
+
+sk:outcomeSatisfaction
+  a owl:DatatypeProperty ;
+  rdfs:label "Outcome Satisfaction" ;
+  rdfs:comment "Current satisfaction with achieving this outcome (1-10)" ;
+  rdfs:domain sk:Outcome ;
+  rdfs:range xsd:integer .
+
+sk:outcomeOpportunityScore
+  a owl:DatatypeProperty ;
+  rdfs:label "Outcome Opportunity Score" ;
+  rdfs:comment "Calculated opportunity score: importance + (importance - satisfaction)" ;
+  rdfs:domain sk:Outcome ;
+  rdfs:range xsd:decimal .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Painpoint
+# ============================================================================
+
+sk:painpointDescription
+  a owl:DatatypeProperty ;
+  rdfs:label "Painpoint Description" ;
+  rdfs:comment "Description of the painpoint or obstacle" ;
+  rdfs:domain sk:Painpoint ;
+  rdfs:range xsd:string .
+
+sk:painpointSeverity
+  a owl:DatatypeProperty ;
+  rdfs:label "Painpoint Severity" ;
+  rdfs:comment "Severity level (Low, Medium, High, Critical)" ;
+  rdfs:domain sk:Painpoint ;
+  rdfs:range xsd:string .
+
+sk:painpointFrequency
+  a owl:DatatypeProperty ;
+  rdfs:label "Painpoint Frequency" ;
+  rdfs:comment "How often this painpoint occurs" ;
+  rdfs:domain sk:Painpoint ;
+  rdfs:range xsd:string .
+
+sk:painpointImpact
+  a owl:DatatypeProperty ;
+  rdfs:label "Painpoint Impact" ;
+  rdfs:comment "Impact on user productivity or success" ;
+  rdfs:domain sk:Painpoint ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Progress Maker
+# ============================================================================
+
+sk:progressMakerDescription
+  a owl:DatatypeProperty ;
+  rdfs:label "Progress Maker Description" ;
+  rdfs:comment "Description of the progress maker or enabling force" ;
+  rdfs:domain sk:ProgressMaker ;
+  rdfs:range xsd:string .
+
+sk:progressMakerType
+  a owl:DatatypeProperty ;
+  rdfs:label "Progress Maker Type" ;
+  rdfs:comment "Type of progress maker (Tool, Process, Feature, Automation)" ;
+  rdfs:domain sk:ProgressMaker ;
+  rdfs:range xsd:string .
+
+sk:progressMakerImpact
+  a owl:DatatypeProperty ;
+  rdfs:label "Progress Maker Impact" ;
+  rdfs:comment "Estimated impact on outcome achievement" ;
+  rdfs:domain sk:ProgressMaker ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Job Context
+# ============================================================================
+
+sk:contextDescription
+  a owl:DatatypeProperty ;
+  rdfs:label "Context Description" ;
+  rdfs:comment "Description of when/where/why the job arises" ;
+  rdfs:domain sk:JobContext ;
+  rdfs:range xsd:string .
+
+sk:contextTrigger
+  a owl:DatatypeProperty ;
+  rdfs:label "Context Trigger" ;
+  rdfs:comment "What triggers this job to be needed" ;
+  rdfs:domain sk:JobContext ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# OBJECT PROPERTIES - Relationships
+# ============================================================================
+
+sk:hasJob
+  a owl:ObjectProperty ;
+  rdfs:label "Has Job" ;
+  rdfs:comment "Customer segment has this job to be done" ;
+  rdfs:domain sk:CustomerSegment ;
+  rdfs:range sk:Job .
+
+sk:hasOutcome
+  a owl:ObjectProperty ;
+  rdfs:label "Has Outcome" ;
+  rdfs:comment "Job has this desired outcome" ;
+  rdfs:domain sk:Job ;
+  rdfs:range sk:Outcome .
+
+sk:hasPainpoint
+  a owl:ObjectProperty ;
+  rdfs:label "Has Painpoint" ;
+  rdfs:comment "Job or outcome has this painpoint" ;
+  rdfs:domain owl:Thing ;
+  rdfs:range sk:Painpoint .
+
+sk:hasProgressMaker
+  a owl:ObjectProperty ;
+  rdfs:label "Has Progress Maker" ;
+  rdfs:comment "Job or outcome has this progress maker" ;
+  rdfs:domain owl:Thing ;
+  rdfs:range sk:ProgressMaker .
+
+sk:hasContext
+  a owl:ObjectProperty ;
+  rdfs:label "Has Context" ;
+  rdfs:comment "Job occurs in this context" ;
+  rdfs:domain sk:Job ;
+  rdfs:range sk:JobContext .
+
+sk:addressesJob
+  a owl:ObjectProperty ;
+  rdfs:label "Addresses Job" ;
+  rdfs:comment "Feature addresses this job to be done" ;
+  rdfs:domain sk:Feature ;
+  rdfs:range sk:Job .
+
+sk:deliversOutcome
+  a owl:ObjectProperty ;
+  rdfs:label "Delivers Outcome" ;
+  rdfs:comment "Feature delivers this outcome" ;
+  rdfs:domain sk:Feature ;
+  rdfs:range sk:Outcome .
+
+sk:solvesPainpoint
+  a owl:ObjectProperty ;
+  rdfs:label "Solves Painpoint" ;
+  rdfs:comment "Feature solves this painpoint" ;
+  rdfs:domain sk:Feature ;
+  rdfs:range sk:Painpoint .
+
+sk:enablesProgressMaker
+  a owl:ObjectProperty ;
+  rdfs:label "Enables Progress Maker" ;
+  rdfs:comment "Feature enables this progress maker" ;
+  rdfs:domain sk:Feature ;
+  rdfs:range sk:ProgressMaker .
+
+sk:targetsPersona
+  a owl:ObjectProperty ;
+  rdfs:label "Targets Persona" ;
+  rdfs:comment "Feature targets this persona" ;
+  rdfs:domain sk:Feature ;
+  rdfs:range sk:Persona .
+
+# ============================================================================
+# SHACL VALIDATION SHAPES
+# ============================================================================
+
+sk:PersonaShape
+  a sh:NodeShape ;
+  sh:targetClass sk:Persona ;
+  sh:property [
+    sh:path sk:personaName ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 3 ;
+    sh:message "Persona must have a name of at least 3 characters"@en ;
+  ] ;
+  sh:property [
+    sh:path sk:personaRole ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Persona must have a role defined"@en ;
+  ] .
+
+sk:JobShape
+  a sh:NodeShape ;
+  sh:targetClass sk:Job ;
+  sh:property [
+    sh:path sk:jobName ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 5 ;
+    sh:message "Job must have a name of at least 5 characters"@en ;
+  ] ;
+  sh:property [
+    sh:path sk:jobFrequency ;
+    sh:datatype xsd:string ;
+    sh:in ( "Daily" "Weekly" "Monthly" "Rarely" "Once" ) ;
+    sh:message "Job frequency must be: Daily, Weekly, Monthly, Rarely, or Once"@en ;
+  ] ;
+  sh:property [
+    sh:path sk:jobImportance ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 10 ;
+    sh:message "Job importance must be between 1 and 10"@en ;
+  ] ;
+  sh:property [
+    sh:path sk:jobSatisfaction ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 10 ;
+    sh:message "Job satisfaction must be between 1 and 10"@en ;
+  ] .
+
+sk:OutcomeShape
+  a sh:NodeShape ;
+  sh:targetClass sk:Outcome ;
+  sh:property [
+    sh:path sk:outcomeName ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 10 ;
+    sh:message "Outcome must have a name of at least 10 characters"@en ;
+  ] ;
+  sh:property [
+    sh:path sk:outcomePriority ;
+    sh:minCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:message "Outcome priority must be >= 1"@en ;
+  ] ;
+  sh:property [
+    sh:path sk:outcomeImportance ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 10 ;
+    sh:message "Outcome importance must be between 1 and 10"@en ;
+  ] ;
+  sh:property [
+    sh:path sk:outcomeSatisfaction ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 10 ;
+    sh:message "Outcome satisfaction must be between 1 and 10"@en ;
+  ] .
+
+sk:PainpointShape
+  a sh:NodeShape ;
+  sh:targetClass sk:Painpoint ;
+  sh:property [
+    sh:path sk:painpointDescription ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 15 ;
+    sh:message "Painpoint description must be at least 15 characters"@en ;
+  ] ;
+  sh:property [
+    sh:path sk:painpointSeverity ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ( "Low" "Medium" "High" "Critical" ) ;
+    sh:message "Painpoint severity must be: Low, Medium, High, or Critical"@en ;
+  ] .
+
+# ============================================================================
+# End of JTBD Extension Ontology
+# ============================================================================

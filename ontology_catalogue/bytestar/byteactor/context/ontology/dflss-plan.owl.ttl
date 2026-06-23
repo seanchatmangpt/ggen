@@ -1,0 +1,8 @@
+@prefix : <https://bytestar.org/ontology/byteactor/dflss-plan#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/byteactor/dflss-plan>
+  a owl:Ontology ;
+  rdfs:label "ByteActor DfLSS Project Plan" ;
+  rdfs:comment "The formal Design for Lean Six Sigma project plan for fabricating the ByteActor C-fast execution core." .

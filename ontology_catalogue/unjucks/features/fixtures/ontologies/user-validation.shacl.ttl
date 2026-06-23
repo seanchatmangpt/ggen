@@ -1,0 +1,328 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix api: <http://api.example.org/> .
+
+# SHACL Shapes for User Validation Testing
+
+# User Shape - Core validation rules for User entities
+ex:UserShape
+    a sh:NodeShape ;
+    sh:targetClass api:User ;
+    sh:property [
+        sh:path api:id ;
+        sh:name "User ID" ;
+        sh:description "Unique identifier for the user" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9_-]{8,}$" ;
+        sh:message "User ID must be at least 8 characters and contain only letters, numbers, hyphens, and underscores"
+    ] ;
+    sh:property [
+        sh:path api:email ;
+        sh:name "Email Address" ;
+        sh:description "Valid email address" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Must be a valid email address format"
+    ] ;
+    sh:property [
+        sh:path api:name ;
+        sh:name "Full Name" ;
+        sh:description "User's full name" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 2 ;
+        sh:maxLength 100 ;
+        sh:message "Full name must be between 2 and 100 characters"
+    ] ;
+    sh:property [
+        sh:path api:role ;
+        sh:name "User Role" ;
+        sh:description "User's role in the system" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:in ( "admin" "user" "moderator" "guest" ) ;
+        sh:message "Role must be one of: admin, user, moderator, guest"
+    ] ;
+    sh:property [
+        sh:path api:createdAt ;
+        sh:name "Created At" ;
+        sh:description "Timestamp when user was created" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Created timestamp is required"
+    ] ;
+    sh:property [
+        sh:path api:organization ;
+        sh:name "Organization" ;
+        sh:description "User's organization" ;
+        sh:class api:Organization ;
+        sh:maxCount 1 ;
+        sh:message "Organization must reference a valid Organization entity"
+    ] .
+
+# Organization Shape - Validation for Organization entities
+ex:OrganizationShape
+    a sh:NodeShape ;
+    sh:targetClass api:Organization ;
+    sh:property [
+        sh:path api:id ;
+        sh:name "Organization ID" ;
+        sh:description "Unique identifier for the organization" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^org_[a-zA-Z0-9_-]{6,}$" ;
+        sh:message "Organization ID must start with 'org_' and be at least 10 characters total"
+    ] ;
+    sh:property [
+        sh:path api:name ;
+        sh:name "Organization Name" ;
+        sh:description "Name of the organization" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 200 ;
+        sh:message "Organization name must be between 1 and 200 characters"
+    ] ;
+    sh:property [
+        sh:path api:domain ;
+        sh:name "Domain" ;
+        sh:description "Organization's domain name" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$" ;
+        sh:message "Must be a valid domain name format"
+    ] ;
+    sh:property [
+        sh:path api:members ;
+        sh:name "Members" ;
+        sh:description "Organization members" ;
+        sh:class api:User ;
+        sh:message "All members must be valid User entities"
+    ] .
+
+# Session Shape - Validation for authentication sessions
+ex:SessionShape
+    a sh:NodeShape ;
+    sh:targetClass api:Session ;
+    sh:property [
+        sh:path api:token ;
+        sh:name "Session Token" ;
+        sh:description "JWT token for the session" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 20 ;
+        sh:message "Session token is required and must be at least 20 characters"
+    ] ;
+    sh:property [
+        sh:path api:user ;
+        sh:name "User" ;
+        sh:description "User associated with this session" ;
+        sh:class api:User ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Session must be associated with exactly one valid user"
+    ] ;
+    sh:property [
+        sh:path api:expiresAt ;
+        sh:name "Expires At" ;
+        sh:description "When the session expires" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Session expiration timestamp is required"
+    ] .
+
+# Complex Validation Rules with SPARQL
+ex:UniqueEmailConstraint
+    a sh:NodeShape ;
+    sh:targetClass api:User ;
+    sh:sparql [
+        sh:message "Email address must be unique across all users" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "api" ;
+                sh:namespace "http://api.example.org/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this api:email ?email .
+                ?other api:email ?email .
+                FILTER ($this != ?other)
+            }
+        """
+    ] .
+
+ex:ValidSessionConstraint
+    a sh:NodeShape ;
+    sh:targetClass api:Session ;
+    sh:sparql [
+        sh:message "Session expiration must be in the future" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "api" ;
+                sh:namespace "http://api.example.org/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this api:expiresAt ?expires .
+                FILTER (?expires <= NOW())
+            }
+        """
+    ] .
+
+ex:OrganizationMembershipConstraint
+    a sh:NodeShape ;
+    sh:targetClass api:User ;
+    sh:sparql [
+        sh:message "User's organization must list them as a member" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "api" ;
+                sh:namespace "http://api.example.org/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this api:organization ?org .
+                FILTER NOT EXISTS { ?org api:members $this }
+            }
+        """
+    ] .
+
+# Error Case Shapes for Testing
+ex:CircularReferenceShape
+    a sh:NodeShape ;
+    sh:targetClass api:User ;
+    sh:sparql [
+        sh:message "Circular reference detected in organization hierarchy" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "api" ;
+                sh:namespace "http://api.example.org/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this api:organization/api:parentOrganization+ ?parent .
+                ?parent api:parentOrganization+ $this
+            }
+        """
+    ] .
+
+ex:InvalidPropertyTypeShape
+    a sh:NodeShape ;
+    sh:targetClass api:User ;
+    sh:property [
+        sh:path api:age ;
+        sh:name "Age" ;
+        sh:description "User's age (for testing invalid property types)" ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 150 ;
+        sh:message "Age must be an integer between 0 and 150"
+    ] .
+
+# Ontology Context Validation
+ex:MissingContextShape
+    a sh:NodeShape ;
+    sh:targetClass api:User ;
+    sh:sparql [
+        sh:message "@context declaration missing for entity type" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "api" ;
+                sh:namespace "http://api.example.org/"^^xsd:anyURI
+            ] ,
+            [
+                sh:prefix "schema" ;
+                sh:namespace "http://schema.org/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this a api:User .
+                FILTER NOT EXISTS { 
+                    $this schema:additionalType ?contextType 
+                }
+            }
+        """
+    ] .
+
+# Performance Validation Rules
+ex:LargeDatasetShape
+    a sh:NodeShape ;
+    sh:targetClass api:Organization ;
+    sh:property [
+        sh:path api:members ;
+        sh:name "Organization Members" ;
+        sh:description "Number of organization members should be reasonable" ;
+        sh:maxCount 10000 ;
+        sh:message "Organization cannot have more than 10,000 members for performance reasons"
+    ] .
+
+# Relationship Validation
+ex:RelationshipConsistencyShape
+    a sh:NodeShape ;
+    sh:targetClass api:User ;
+    sh:sparql [
+        sh:message "User relationships must be bidirectional where applicable" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "api" ;
+                sh:namespace "http://api.example.org/"^^xsd:anyURI
+            ] ,
+            [
+                sh:prefix "foaf" ;
+                sh:namespace "http://xmlns.com/foaf/0.1/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this foaf:knows ?friend .
+                FILTER NOT EXISTS { ?friend foaf:knows $this }
+            }
+        """
+    ] .
+
+# Input Validation for API Endpoints
+ex:LoginRequestShape
+    a sh:NodeShape ;
+    sh:targetClass api:LoginRequest ;
+    sh:property [
+        sh:path api:email ;
+        sh:name "Login Email" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Valid email is required for login"
+    ] ;
+    sh:property [
+        sh:path api:password ;
+        sh:name "Login Password" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 8 ;
+        sh:message "Password is required and must be at least 8 characters"
+    ] .

@@ -1,0 +1,45 @@
+@prefix : <http://healthcare.example.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Classes
+:Patient a owl:Class .
+:Disease a owl:Class .
+:Symptom a owl:Class .
+:Treatment a owl:Class .
+:Medication a owl:Class ;
+    rdfs:subClassOf :Treatment .
+:Procedure a owl:Class ;
+    rdfs:subClassOf :Treatment .
+:Condition a owl:Class .
+
+# Properties
+:hasCondition a owl:ObjectProperty ;
+    rdfs:domain :Patient ;
+    rdfs:range :Disease .
+
+:hasSymptom a owl:ObjectProperty ;
+    rdfs:domain :Disease ;
+    rdfs:range :Symptom .
+
+:prescribedTreatment a owl:ObjectProperty ;
+    rdfs:domain :Patient ;
+    rdfs:range :Treatment .
+
+:contraindicated a owl:ObjectProperty ;
+    rdfs:domain :Treatment ;
+    rdfs:range :Condition ;
+    rdfs:comment "Treatment is contraindicated for condition" .
+
+:patientId a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain :Patient ;
+    rdfs:range xsd:string .
+
+:age a owl:DatatypeProperty ;
+    rdfs:domain :Patient ;
+    rdfs:range xsd:integer .
+
+:dosage a owl:DatatypeProperty ;
+    rdfs:domain :Medication ;
+    rdfs:range xsd:string .

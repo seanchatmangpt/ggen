@@ -1,0 +1,315 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ggen: <http://ggen.io/ontology/database#> .
+@prefix blog: <http://example.com/blog#> .
+
+# ============================================================================
+# Example: Blog Application Database Schema
+# Demonstrates users, posts, comments, tags, and full-text search
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Database Definition
+# ----------------------------------------------------------------------------
+
+blog:BlogDatabase a ggen:Database ;
+    ggen:databaseName "blog_production" ;
+    ggen:databaseEngine "postgresql" ;
+    ggen:characterSet "UTF8" ;
+    ggen:collation "en_US.UTF-8" ;
+    ggen:hasTable blog:UsersTable, blog:PostsTable, blog:CommentsTable, blog:TagsTable, blog:PostTagsTable .
+
+# ----------------------------------------------------------------------------
+# Users Table
+# ----------------------------------------------------------------------------
+
+blog:UsersTable a ggen:Table ;
+    ggen:tableName "users" ;
+    ggen:tableComment "Blog users with authentication" ;
+    ggen:hasColumn blog:UserId, blog:UserEmail, blog:UserUsername, blog:UserPasswordHash, blog:UserCreatedAt, blog:UserUpdatedAt ;
+    ggen:hasConstraint blog:UsersPK, blog:UsersEmailUnique, blog:UsersUsernameUnique ;
+    ggen:hasIndex blog:UsersEmailIndex, blog:UsersUsernameIndex .
+
+blog:UserId a ggen:Column ;
+    ggen:columnName "id" ;
+    ggen:hasDataType blog:SerialType ;
+    ggen:isAutoIncrement true ;
+    ggen:isNullable false ;
+    ggen:columnComment "Primary key" ;
+    ggen:columnOrder 1 .
+
+blog:UserEmail a ggen:Column ;
+    ggen:columnName "email" ;
+    ggen:hasDataType blog:VarcharType ;
+    ggen:maxLength 255 ;
+    ggen:isNullable false ;
+    ggen:columnComment "User email address" ;
+    ggen:columnOrder 2 .
+
+blog:UserUsername a ggen:Column ;
+    ggen:columnName "username" ;
+    ggen:hasDataType blog:VarcharType ;
+    ggen:maxLength 100 ;
+    ggen:isNullable false ;
+    ggen:columnComment "Unique username" ;
+    ggen:columnOrder 3 .
+
+blog:UserPasswordHash a ggen:Column ;
+    ggen:columnName "password_hash" ;
+    ggen:hasDataType blog:VarcharType ;
+    ggen:maxLength 255 ;
+    ggen:isNullable false ;
+    ggen:columnComment "Bcrypt password hash" ;
+    ggen:columnOrder 4 .
+
+blog:UserCreatedAt a ggen:Column ;
+    ggen:columnName "created_at" ;
+    ggen:hasDataType blog:TimestampType ;
+    ggen:isNullable false ;
+    ggen:defaultValue "CURRENT_TIMESTAMP" ;
+    ggen:columnOrder 5 .
+
+blog:UserUpdatedAt a ggen:Column ;
+    ggen:columnName "updated_at" ;
+    ggen:hasDataType blog:TimestampType ;
+    ggen:isNullable false ;
+    ggen:defaultValue "CURRENT_TIMESTAMP" ;
+    ggen:columnOrder 6 .
+
+blog:UsersPK a ggen:PrimaryKey ;
+    ggen:constraintName "users_pkey" ;
+    ggen:constrainsColumn blog:UserId .
+
+blog:UsersEmailUnique a ggen:UniqueConstraint ;
+    ggen:constraintName "users_email_unique" ;
+    ggen:constrainsColumn blog:UserEmail .
+
+blog:UsersUsernameUnique a ggen:UniqueConstraint ;
+    ggen:constraintName "users_username_unique" ;
+    ggen:constrainsColumn blog:UserUsername .
+
+blog:UsersEmailIndex a ggen:BTreeIndex ;
+    ggen:indexName "idx_users_email" ;
+    ggen:indexesColumn blog:UserEmail .
+
+blog:UsersUsernameIndex a ggen:BTreeIndex ;
+    ggen:indexName "idx_users_username" ;
+    ggen:indexesColumn blog:UserUsername .
+
+# ----------------------------------------------------------------------------
+# Posts Table
+# ----------------------------------------------------------------------------
+
+blog:PostsTable a ggen:Table ;
+    ggen:tableName "posts" ;
+    ggen:tableComment "Blog posts with full-text search" ;
+    ggen:hasColumn blog:PostId, blog:PostUserId, blog:PostTitle, blog:PostSlug, blog:PostContent, blog:PostMetadata, blog:PostPublishedAt, blog:PostCreatedAt, blog:PostUpdatedAt ;
+    ggen:hasConstraint blog:PostsPK, blog:PostsSlugUnique, blog:PostsUserFK ;
+    ggen:hasIndex blog:PostsUserIdIndex, blog:PostsSlugIndex, blog:PostsPublishedAtIndex, blog:PostsSearchIndex, blog:PostsMetadataIndex .
+
+blog:PostId a ggen:Column ;
+    ggen:columnName "id" ;
+    ggen:hasDataType blog:SerialType ;
+    ggen:isAutoIncrement true ;
+    ggen:isNullable false ;
+    ggen:columnOrder 1 .
+
+blog:PostUserId a ggen:Column ;
+    ggen:columnName "user_id" ;
+    ggen:hasDataType blog:IntegerType ;
+    ggen:isNullable false ;
+    ggen:columnComment "Author user ID" ;
+    ggen:columnOrder 2 .
+
+blog:PostTitle a ggen:Column ;
+    ggen:columnName "title" ;
+    ggen:hasDataType blog:VarcharType ;
+    ggen:maxLength 255 ;
+    ggen:isNullable false ;
+    ggen:columnOrder 3 .
+
+blog:PostSlug a ggen:Column ;
+    ggen:columnName "slug" ;
+    ggen:hasDataType blog:VarcharType ;
+    ggen:maxLength 255 ;
+    ggen:isNullable false ;
+    ggen:columnComment "URL-friendly slug" ;
+    ggen:columnOrder 4 .
+
+blog:PostContent a ggen:Column ;
+    ggen:columnName "content" ;
+    ggen:hasDataType blog:TextType ;
+    ggen:isNullable false ;
+    ggen:columnOrder 5 .
+
+blog:PostMetadata a ggen:Column ;
+    ggen:columnName "metadata" ;
+    ggen:hasDataType blog:JsonbType ;
+    ggen:isNullable true ;
+    ggen:columnComment "JSON metadata (tags, SEO, etc.)" ;
+    ggen:columnOrder 6 .
+
+blog:PostPublishedAt a ggen:Column ;
+    ggen:columnName "published_at" ;
+    ggen:hasDataType blog:TimestampType ;
+    ggen:isNullable true ;
+    ggen:columnOrder 7 .
+
+blog:PostCreatedAt a ggen:Column ;
+    ggen:columnName "created_at" ;
+    ggen:hasDataType blog:TimestampType ;
+    ggen:isNullable false ;
+    ggen:defaultValue "CURRENT_TIMESTAMP" ;
+    ggen:columnOrder 8 .
+
+blog:PostUpdatedAt a ggen:Column ;
+    ggen:columnName "updated_at" ;
+    ggen:hasDataType blog:TimestampType ;
+    ggen:isNullable false ;
+    ggen:defaultValue "CURRENT_TIMESTAMP" ;
+    ggen:columnOrder 9 .
+
+blog:PostsPK a ggen:PrimaryKey ;
+    ggen:constraintName "posts_pkey" ;
+    ggen:constrainsColumn blog:PostId .
+
+blog:PostsSlugUnique a ggen:UniqueConstraint ;
+    ggen:constraintName "posts_slug_unique" ;
+    ggen:constrainsColumn blog:PostSlug .
+
+blog:PostsUserFK a ggen:ForeignKey ;
+    ggen:constraintName "posts_user_id_fkey" ;
+    ggen:constrainsColumn blog:PostUserId ;
+    ggen:referencesTable blog:UsersTable ;
+    ggen:referencesColumn blog:UserId ;
+    ggen:onDelete "CASCADE" .
+
+blog:PostsUserIdIndex a ggen:BTreeIndex ;
+    ggen:indexName "idx_posts_user_id" ;
+    ggen:indexesColumn blog:PostUserId .
+
+blog:PostsSlugIndex a ggen:BTreeIndex ;
+    ggen:indexName "idx_posts_slug" ;
+    ggen:indexesColumn blog:PostSlug .
+
+blog:PostsPublishedAtIndex a ggen:BTreeIndex ;
+    ggen:indexName "idx_posts_published_at" ;
+    ggen:indexesColumn blog:PostPublishedAt .
+
+blog:PostsSearchIndex a ggen:FullTextIndex ;
+    ggen:indexName "idx_posts_search" ;
+    ggen:indexesColumn blog:PostTitle, blog:PostContent .
+
+blog:PostsMetadataIndex a ggen:GINIndex ;
+    ggen:indexName "idx_posts_metadata" ;
+    ggen:indexesColumn blog:PostMetadata .
+
+# ----------------------------------------------------------------------------
+# Comments Table
+# ----------------------------------------------------------------------------
+
+blog:CommentsTable a ggen:Table ;
+    ggen:tableName "comments" ;
+    ggen:tableComment "User comments on posts" ;
+    ggen:hasColumn blog:CommentId, blog:CommentPostId, blog:CommentUserId, blog:CommentContent, blog:CommentCreatedAt ;
+    ggen:hasConstraint blog:CommentsPK, blog:CommentsPostFK, blog:CommentsUserFK ;
+    ggen:hasIndex blog:CommentsPostIdIndex, blog:CommentsUserIdIndex .
+
+blog:CommentId a ggen:Column ;
+    ggen:columnName "id" ;
+    ggen:hasDataType blog:SerialType ;
+    ggen:isAutoIncrement true ;
+    ggen:isNullable false ;
+    ggen:columnOrder 1 .
+
+blog:CommentPostId a ggen:Column ;
+    ggen:columnName "post_id" ;
+    ggen:hasDataType blog:IntegerType ;
+    ggen:isNullable false ;
+    ggen:columnOrder 2 .
+
+blog:CommentUserId a ggen:Column ;
+    ggen:columnName "user_id" ;
+    ggen:hasDataType blog:IntegerType ;
+    ggen:isNullable false ;
+    ggen:columnOrder 3 .
+
+blog:CommentContent a ggen:Column ;
+    ggen:columnName "content" ;
+    ggen:hasDataType blog:TextType ;
+    ggen:isNullable false ;
+    ggen:columnOrder 4 .
+
+blog:CommentCreatedAt a ggen:Column ;
+    ggen:columnName "created_at" ;
+    ggen:hasDataType blog:TimestampType ;
+    ggen:isNullable false ;
+    ggen:defaultValue "CURRENT_TIMESTAMP" ;
+    ggen:columnOrder 5 .
+
+blog:CommentsPK a ggen:PrimaryKey ;
+    ggen:constraintName "comments_pkey" ;
+    ggen:constrainsColumn blog:CommentId .
+
+blog:CommentsPostFK a ggen:ForeignKey ;
+    ggen:constraintName "comments_post_id_fkey" ;
+    ggen:constrainsColumn blog:CommentPostId ;
+    ggen:referencesTable blog:PostsTable ;
+    ggen:referencesColumn blog:PostId ;
+    ggen:onDelete "CASCADE" .
+
+blog:CommentsUserFK a ggen:ForeignKey ;
+    ggen:constraintName "comments_user_id_fkey" ;
+    ggen:constrainsColumn blog:CommentUserId ;
+    ggen:referencesTable blog:UsersTable ;
+    ggen:referencesColumn blog:UserId ;
+    ggen:onDelete "CASCADE" .
+
+blog:CommentsPostIdIndex a ggen:BTreeIndex ;
+    ggen:indexName "idx_comments_post_id" ;
+    ggen:indexesColumn blog:CommentPostId .
+
+blog:CommentsUserIdIndex a ggen:BTreeIndex ;
+    ggen:indexName "idx_comments_user_id" ;
+    ggen:indexesColumn blog:CommentUserId .
+
+# ----------------------------------------------------------------------------
+# Data Types
+# ----------------------------------------------------------------------------
+
+blog:SerialType a ggen:DataType ;
+    ggen:dataTypeName "SERIAL" ;
+    ggen:postgresqlType "SERIAL" ;
+    ggen:mysqlType "INT AUTO_INCREMENT" ;
+    ggen:sqliteType "INTEGER" .
+
+blog:IntegerType a ggen:DataType ;
+    ggen:dataTypeName "INTEGER" ;
+    ggen:postgresqlType "INTEGER" ;
+    ggen:mysqlType "INT" ;
+    ggen:sqliteType "INTEGER" .
+
+blog:VarcharType a ggen:DataType ;
+    ggen:dataTypeName "VARCHAR" ;
+    ggen:postgresqlType "VARCHAR" ;
+    ggen:mysqlType "VARCHAR" ;
+    ggen:sqliteType "TEXT" .
+
+blog:TextType a ggen:DataType ;
+    ggen:dataTypeName "TEXT" ;
+    ggen:postgresqlType "TEXT" ;
+    ggen:mysqlType "TEXT" ;
+    ggen:sqliteType "TEXT" .
+
+blog:TimestampType a ggen:DataType ;
+    ggen:dataTypeName "TIMESTAMP" ;
+    ggen:postgresqlType "TIMESTAMP" ;
+    ggen:mysqlType "DATETIME" ;
+    ggen:sqliteType "TEXT" .
+
+blog:JsonbType a ggen:DataType ;
+    ggen:dataTypeName "JSONB" ;
+    ggen:postgresqlType "JSONB" ;
+    ggen:mysqlType "JSON" ;
+    ggen:sqliteType "TEXT" .

@@ -1,0 +1,435 @@
+@prefix :     <http://yawl.io/migration/workflow#> .
+@prefix yawl: <http://yawlfoundation.org/yawl#> .
+@prefix rule: <http://yawl.io/java/migration/rule#> .
+@prefix j11:  <http://yawl.io/java/pattern/java11#> .
+@prefix j25:  <http://yawl.io/java/pattern/java25#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+
+# =============================================================================
+# YAWL Migration Workflow Ontology
+# Turtle representation of the Java Migration Pipeline as a YAWL process.
+# Complements JavaMigrationPipeline.xml with semantic annotations.
+#
+# This is the ontology-as-live-system layer:
+#   YAWL firing semantics = process correctness guarantees
+#   SPARQL CONSTRUCT = pattern recognition and plan generation
+#   Tera = Java 25 code rendering
+#   ggen.toml = executable specification binding all layers together
+# =============================================================================
+
+: a owl:Ontology ;
+    rdfs:label "YAWL Java Migration Workflow Ontology" ;
+    rdfs:comment "Turtle representation of the Java 11 → 25 migration pipeline as a YAWL process specification." ;
+    owl:versionInfo "1.0.0" .
+
+# ---------------------------------------------------------------------------
+# Workflow specification
+# ---------------------------------------------------------------------------
+
+:JavaMigrationSpec a yawl:Specification ;
+    yawl:specificationID "JavaMigrationPipeline" ;
+    yawl:specificationVersion "1.0" ;
+    yawl:specificationURI "http://yawl.io/migration/workflow/JavaMigrationPipeline" ;
+    yawl:hasNet :MigrationPipelineNet ;
+    dct:title "Java 11 → 25 Migration Pipeline" ;
+    dct:description """
+        Ontology-driven Java migration workflow.
+        YAWL coordinates: parse source → detect patterns → CONSTRUCT plan → generate code → validate → commit.
+        Powered by Oxigraph (SPARQL), ggen (Tera), and the java-code.ttl / java11-patterns.ttl / java25-patterns.ttl vocabulary.
+    """ ;
+    dct:created "2026-02-23"^^xsd:date ;
+    rdfs:comment "Formal YAWL specification for Java 11 → 25 migration pipeline. SPARQL CONSTRUCT replaces message passing for state evaluation." .
+
+# ---------------------------------------------------------------------------
+# Net definition
+# ---------------------------------------------------------------------------
+
+:MigrationPipelineNet a yawl:Net ;
+    yawl:netID "MigrationPipelineNet" ;
+    yawl:netName "Migration Pipeline Process" ;
+    yawl:isRootNet true ;
+
+    # Elements
+    yawl:hasElement :Start ;
+    yawl:hasElement :Phase1_Analyze ;
+    yawl:hasElement :Phase2_Detect ;
+    yawl:hasElement :Phase3_Plan ;
+
+    # CONSTRUCT tasks (AND-split)
+    yawl:hasElement :Construct_VirtualThread ;
+    yawl:hasElement :Construct_Record ;
+    yawl:hasElement :Construct_PatternMatch ;
+    yawl:hasElement :Construct_SwitchExpr ;
+    yawl:hasElement :Construct_TextBlock ;
+    yawl:hasElement :Construct_JavaTime ;
+    yawl:hasElement :Construct_ScopedValue ;
+    yawl:hasElement :Construct_Lambda ;
+    yawl:hasElement :Construct_Structured ;
+    yawl:hasElement :Construct_Collections ;
+
+    # AND-join condition
+    yawl:hasElement :PlanComplete ;
+
+    # Generate, Validate, Review, Commit
+    yawl:hasElement :Phase4_Generate ;
+    yawl:hasElement :Phase5_Validate ;
+    yawl:hasElement :Phase5_Fix ;
+    yawl:hasElement :ReviewDecision ;
+    yawl:hasElement :AutoCommit ;
+    yawl:hasElement :HumanReview ;
+    yawl:hasElement :End .
+
+# ---------------------------------------------------------------------------
+# Conditions (input, output, internal)
+# ---------------------------------------------------------------------------
+
+:Start a yawl:Condition ;
+    yawl:elementID "start" ;
+    yawl:elementName "Codebase Ready" ;
+    yawl:isInputCondition true ;
+    yawl:isOutputCondition false ;
+    rdfs:comment "Initial condition: Java 11 codebase available for migration." .
+
+:PlanComplete a yawl:Condition ;
+    yawl:elementID "PlanComplete_Condition" ;
+    yawl:elementName "Migration Plan Complete" ;
+    rdfs:comment "AND-join condition. All 10 CONSTRUCT queries complete here before Generate starts. YAWL token semantics: 10 tokens arrive, one propagates to Phase4_Generate." .
+
+:End a yawl:Condition ;
+    yawl:elementID "end" ;
+    yawl:elementName "Migration Complete" ;
+    yawl:isInputCondition false ;
+    yawl:isOutputCondition true ;
+    rdfs:comment "Final condition: LOW complexity committed as PR; MEDIUM/HIGH queued for review." .
+
+# ---------------------------------------------------------------------------
+# Phase 1: Analyze
+# ---------------------------------------------------------------------------
+
+:Phase1_Analyze a yawl:Task ;
+    yawl:taskID "Phase1_Analyze" ;
+    yawl:taskName "Phase 1: Analyze" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    rdfs:comment """
+        Parse Java source files into RDF codebase graph.
+        JavaParser extracts types, methods, fields, imports, statements, expressions.
+        Maps Java constructs to java-code.ttl vocabulary triples.
+        Output: codebase.trig
+    """ ;
+    :invokesPhase rule:Phase1_Analyze ;
+    :configuredBy <../ggen-java-migration.toml#phases.analyze> .
+
+# ---------------------------------------------------------------------------
+# Phase 2: Detect
+# ---------------------------------------------------------------------------
+
+:Phase2_Detect a yawl:Task ;
+    yawl:taskID "Phase2_Detect" ;
+    yawl:taskName "Phase 2: Detect Patterns" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    rdfs:comment """
+        SPARQL SELECT queries detect Java 11 pattern instances.
+        13 queries, one per migration rule class (R01–R13).
+        Output: migration-detection.json summarizing pattern instance counts.
+    """ ;
+    :invokesPhase rule:Phase2_Plan ;
+    :configuredBy <../ggen-java-migration.toml#phases.detect> ;
+    :detectsPatterns (
+        j11:ThreadCreationPattern
+        j11:ThreadPoolPattern
+        j11:ThreadLocalPattern
+        j11:GetterSetterPojoPattern
+        j11:AnonymousClassPattern
+        j11:InstanceofCastPattern
+        j11:ChainedInstanceofPattern
+        j11:SwitchStatementPattern
+        j11:MultiLineStringPattern
+        j11:DateCalendarPattern
+        j11:LegacyCollectionPattern
+        j11:RawTypePattern
+        j11:YawlSynchronizedEnginePattern
+    ) .
+
+# ---------------------------------------------------------------------------
+# Phase 3: Plan (AND-split spawning 10 CONSTRUCT tasks)
+# ---------------------------------------------------------------------------
+
+:Phase3_Plan a yawl:Task ;
+    yawl:taskID "Phase3_Plan" ;
+    yawl:taskName "Phase 3: Build Migration Plan" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    rdfs:comment """
+        AND-split: fires all 10 CONSTRUCT query tasks in parallel.
+        Each CONSTRUCT query enriches migration-plan.trig with j25: pattern triples.
+        YAWL AND-split correctness: all 10 parallel branches must complete before AND-join.
+    """ .
+
+# CONSTRUCT tasks (parallel)
+:Construct_VirtualThread a yawl:Task ;
+    yawl:taskID "Construct_VirtualThread" ;
+    yawl:taskName "CONSTRUCT: Virtual Threads" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    :appliesRule rule:R01_ThreadToVirtualThread, rule:R02_ExecutorToVirtualExecutor ;
+    :producesPattern j25:VirtualThreadPattern, j25:VirtualThreadExecutorPattern ;
+    :queryFile "query/migration/construct-virtual-thread.sparql" .
+
+:Construct_Record a yawl:Task ;
+    yawl:taskID "Construct_Record" ;
+    yawl:taskName "CONSTRUCT: Records" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    :appliesRule rule:R04_PojoToRecord ;
+    :producesPattern j25:RecordPattern ;
+    :queryFile "query/migration/construct-record.sparql" .
+
+:Construct_PatternMatch a yawl:Task ;
+    yawl:taskID "Construct_PatternMatch" ;
+    yawl:taskName "CONSTRUCT: Pattern Matching" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    :appliesRule rule:R06_InstanceofCastToPatternMatching, rule:R07_ChainedInstanceofToSwitchPattern ;
+    :producesPattern j25:PatternMatchingInstanceofPattern, j25:SwitchPatternMatchingPattern ;
+    :queryFile "query/migration/construct-pattern-matching.sparql" .
+
+:Construct_SwitchExpr a yawl:Task ;
+    yawl:taskID "Construct_SwitchExpr" ;
+    yawl:taskName "CONSTRUCT: Switch Expressions" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    :appliesRule rule:R08_SwitchStatementToExpression ;
+    :producesPattern j25:SwitchExpressionPattern ;
+    :queryFile "query/migration/construct-switch-expression.sparql" .
+
+:Construct_TextBlock a yawl:Task ;
+    yawl:taskID "Construct_TextBlock" ;
+    yawl:taskName "CONSTRUCT: Text Blocks" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    :appliesRule rule:R09_StringFormatToTextBlock ;
+    :producesPattern j25:FormattedTextBlockPattern ;
+    :queryFile "query/migration/construct-text-block.sparql" .
+
+:Construct_JavaTime a yawl:Task ;
+    yawl:taskID "Construct_JavaTime" ;
+    yawl:taskName "CONSTRUCT: java.time API" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    :appliesRule rule:R10_DateToInstant ;
+    :producesPattern j25:InstantPattern, j25:LocalDateTimePattern, j25:DateTimeFormatterPattern ;
+    :queryFile "query/migration/construct-java-time.sparql" .
+
+:Construct_ScopedValue a yawl:Task ;
+    yawl:taskID "Construct_ScopedValue" ;
+    yawl:taskName "CONSTRUCT: Scoped Values" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    :appliesRule rule:R03_ThreadLocalToScopedValue ;
+    :producesPattern j25:ScopedValuePattern ;
+    :queryFile "query/migration/construct-scoped-value.sparql" ;
+    rdfs:comment "HIGH complexity: produces review-flagged triples. Auto-apply disabled." .
+
+:Construct_Lambda a yawl:Task ;
+    yawl:taskID "Construct_Lambda" ;
+    yawl:taskName "CONSTRUCT: Lambdas" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    :appliesRule rule:R05_AnonymousClassToLambda ;
+    :producesPattern j25:LambdaPattern ;
+    :queryFile "query/migration/construct-lambda.sparql" .
+
+:Construct_Structured a yawl:Task ;
+    yawl:taskID "Construct_Structured" ;
+    yawl:taskName "CONSTRUCT: Structured Concurrency" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    :appliesRule rule:R13_SynchronizedToStructuredScope ;
+    :producesPattern j25:StructuredTaskScopePattern ;
+    :queryFile "query/migration/construct-structured-concurrency.sparql" ;
+    rdfs:comment "HIGH complexity: YAWL soundness must be verified before applying. Produces review-flagged triples." .
+
+:Construct_Collections a yawl:Task ;
+    yawl:taskID "Construct_Collections" ;
+    yawl:taskName "CONSTRUCT: Collections" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    :appliesRule rule:R11_LegacyCollectionToModern, rule:R12_RawTypeToGeneric ;
+    :producesPattern j25:ImmutableCollectionPattern ;
+    :queryFile "query/migration/construct-collections.sparql" .
+
+# ---------------------------------------------------------------------------
+# Phase 4: Generate
+# ---------------------------------------------------------------------------
+
+:Phase4_Generate a yawl:Task ;
+    yawl:taskID "Phase4_Generate" ;
+    yawl:taskName "Phase 4: Generate Java 25 Code" ;
+    yawl:joinType "AND" ;
+    yawl:splitType "AND" ;
+    rdfs:comment """
+        AND-join: receives token from PlanComplete condition (aggregates all CONSTRUCT outputs).
+        Renders Tera templates for each j25: pattern instance in migration-plan.trig.
+        Output: generated/java25-migration/ + docs/migration-report.md
+    """ ;
+    :invokesPhase rule:Phase3_Generate ;
+    :configuredBy <../ggen-java-migration.toml#phases.generate> .
+
+# ---------------------------------------------------------------------------
+# Phase 5: Validate
+# ---------------------------------------------------------------------------
+
+:Phase5_Validate a yawl:Task ;
+    yawl:taskID "Phase5_Validate" ;
+    yawl:taskName "Phase 5: Validate" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "XOR" ;
+    rdfs:comment """
+        Compile + guard + test generated code.
+        XOR-split: PASS → ReviewDecision, FAIL → Phase5_Fix
+        YAWL XOR-split: exactly one outgoing arc fires based on validationStatus predicate.
+    """ ;
+    :invokesPhase rule:Phase4_Validate .
+
+:Phase5_Fix a yawl:Task ;
+    yawl:taskID "Phase5_Fix" ;
+    yawl:taskName "Fix Validation Errors" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    rdfs:comment "Human task: investigate and fix compilation errors or test failures. Loops back to Validate." .
+
+# ---------------------------------------------------------------------------
+# Review and Commit
+# ---------------------------------------------------------------------------
+
+:ReviewDecision a yawl:Task ;
+    yawl:taskID "ReviewDecision" ;
+    yawl:taskName "Review and Commit Decision" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "XOR" ;
+    rdfs:comment "XOR-split: LOW → AutoCommit, MEDIUM/HIGH → HumanReview. Based on migration complexity distribution." .
+
+:AutoCommit a yawl:Task ;
+    yawl:taskID "AutoCommit" ;
+    yawl:taskName "Auto-Commit LOW Complexity Migrations" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    :invokesPhase rule:Phase5_Commit ;
+    rdfs:comment "Apply LOW complexity migrations atomically. Create PR via gh pr create." .
+
+:HumanReview a yawl:Task ;
+    yawl:taskID "HumanReview" ;
+    yawl:taskName "Queue for Human Review" ;
+    yawl:joinType "XOR" ;
+    yawl:splitType "AND" ;
+    rdfs:comment "Generate review package for MEDIUM/HIGH complexity. Assign to engineering team." .
+
+# ---------------------------------------------------------------------------
+# Flow definitions
+# ---------------------------------------------------------------------------
+
+:Flow_Start_Analyze a yawl:Flow ;
+    yawl:flowSource :Start ;
+    yawl:flowTarget :Phase1_Analyze .
+
+:Flow_Analyze_Detect a yawl:Flow ;
+    yawl:flowSource :Phase1_Analyze ;
+    yawl:flowTarget :Phase2_Detect .
+
+:Flow_Detect_Plan a yawl:Flow ;
+    yawl:flowSource :Phase2_Detect ;
+    yawl:flowTarget :Phase3_Plan .
+
+# AND-split from Phase3_Plan to all 10 CONSTRUCT tasks
+:Flow_Plan_VT a yawl:Flow ; yawl:flowSource :Phase3_Plan ; yawl:flowTarget :Construct_VirtualThread .
+:Flow_Plan_Rec a yawl:Flow ; yawl:flowSource :Phase3_Plan ; yawl:flowTarget :Construct_Record .
+:Flow_Plan_PM a yawl:Flow ; yawl:flowSource :Phase3_Plan ; yawl:flowTarget :Construct_PatternMatch .
+:Flow_Plan_SW a yawl:Flow ; yawl:flowSource :Phase3_Plan ; yawl:flowTarget :Construct_SwitchExpr .
+:Flow_Plan_TB a yawl:Flow ; yawl:flowSource :Phase3_Plan ; yawl:flowTarget :Construct_TextBlock .
+:Flow_Plan_JT a yawl:Flow ; yawl:flowSource :Phase3_Plan ; yawl:flowTarget :Construct_JavaTime .
+:Flow_Plan_SV a yawl:Flow ; yawl:flowSource :Phase3_Plan ; yawl:flowTarget :Construct_ScopedValue .
+:Flow_Plan_La a yawl:Flow ; yawl:flowSource :Phase3_Plan ; yawl:flowTarget :Construct_Lambda .
+:Flow_Plan_SC a yawl:Flow ; yawl:flowSource :Phase3_Plan ; yawl:flowTarget :Construct_Structured .
+:Flow_Plan_Co a yawl:Flow ; yawl:flowSource :Phase3_Plan ; yawl:flowTarget :Construct_Collections .
+
+# All 10 CONSTRUCT tasks flow to the AND-join condition
+:Flow_VT_Done a yawl:Flow ; yawl:flowSource :Construct_VirtualThread ; yawl:flowTarget :PlanComplete .
+:Flow_Rec_Done a yawl:Flow ; yawl:flowSource :Construct_Record ; yawl:flowTarget :PlanComplete .
+:Flow_PM_Done a yawl:Flow ; yawl:flowSource :Construct_PatternMatch ; yawl:flowTarget :PlanComplete .
+:Flow_SW_Done a yawl:Flow ; yawl:flowSource :Construct_SwitchExpr ; yawl:flowTarget :PlanComplete .
+:Flow_TB_Done a yawl:Flow ; yawl:flowSource :Construct_TextBlock ; yawl:flowTarget :PlanComplete .
+:Flow_JT_Done a yawl:Flow ; yawl:flowSource :Construct_JavaTime ; yawl:flowTarget :PlanComplete .
+:Flow_SV_Done a yawl:Flow ; yawl:flowSource :Construct_ScopedValue ; yawl:flowTarget :PlanComplete .
+:Flow_La_Done a yawl:Flow ; yawl:flowSource :Construct_Lambda ; yawl:flowTarget :PlanComplete .
+:Flow_SC_Done a yawl:Flow ; yawl:flowSource :Construct_Structured ; yawl:flowTarget :PlanComplete .
+:Flow_Co_Done a yawl:Flow ; yawl:flowSource :Construct_Collections ; yawl:flowTarget :PlanComplete .
+
+:Flow_PC_Generate a yawl:Flow ;
+    yawl:flowSource :PlanComplete ;
+    yawl:flowTarget :Phase4_Generate .
+
+:Flow_Generate_Validate a yawl:Flow ;
+    yawl:flowSource :Phase4_Generate ;
+    yawl:flowTarget :Phase5_Validate .
+
+:Flow_Validate_Review a yawl:Flow ;
+    yawl:flowSource :Phase5_Validate ;
+    yawl:flowTarget :ReviewDecision ;
+    yawl:predicate "validationStatus = 'PASS'" .
+
+:Flow_Validate_Fix a yawl:Flow ;
+    yawl:flowSource :Phase5_Validate ;
+    yawl:flowTarget :Phase5_Fix ;
+    yawl:predicate "validationStatus = 'FAIL'" .
+
+:Flow_Fix_Validate a yawl:Flow ;
+    yawl:flowSource :Phase5_Fix ;
+    yawl:flowTarget :Phase5_Validate .
+
+:Flow_Review_AutoCommit a yawl:Flow ;
+    yawl:flowSource :ReviewDecision ;
+    yawl:flowTarget :AutoCommit ;
+    yawl:predicate "hasLowComplexityMigrations = true" .
+
+:Flow_Review_Human a yawl:Flow ;
+    yawl:flowSource :ReviewDecision ;
+    yawl:flowTarget :HumanReview ;
+    yawl:predicate "hasMediumOrHighComplexityMigrations = true" .
+
+:Flow_AutoCommit_End a yawl:Flow ;
+    yawl:flowSource :AutoCommit ;
+    yawl:flowTarget :End .
+
+:Flow_Human_End a yawl:Flow ;
+    yawl:flowSource :HumanReview ;
+    yawl:flowTarget :End .
+
+# ---------------------------------------------------------------------------
+# Pipeline properties
+# ---------------------------------------------------------------------------
+
+:JavaMigrationSpec :hasSourcePatternVocabulary "ontology/migration/java11-patterns.ttl" ;
+    :hasTargetPatternVocabulary "ontology/migration/java25-patterns.ttl" ;
+    :hasMigrationRules "ontology/migration/migration-rules.ttl" ;
+    :hasPipelineSpec "ggen-java-migration.toml" ;
+    :hasWorkflowSpec "exampleSpecs/JavaMigrationPipeline.xml" ;
+    :sparqlEngine "Oxigraph" ;
+    :templateEngine "Tera" ;
+    rdfs:comment """
+    The full stack:
+      YAWL = process coordination (this spec + JavaMigrationPipeline.xml)
+      java-code.ttl = codebase-as-ontology vocabulary
+      java11-patterns.ttl = source pattern vocabulary
+      java25-patterns.ttl = target pattern vocabulary
+      migration-rules.ttl = rule definitions linking source → target
+      detect-*.sparql = SPARQL SELECT for pattern detection
+      construct-*.sparql = SPARQL CONSTRUCT for migration plan generation
+      *.tera = Tera templates for Java 25 code rendering
+      ggen-java-migration.toml = executable specification tying all layers together
+    """ .

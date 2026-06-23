@@ -1,0 +1,223 @@
+@prefix role: <http://bitstar.ai/roles#> .
+@prefix cap: <http://bitstar.ai/caps#> .
+@prefix map: <http://bitstar.ai/map#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ORTAC (Object-Role-Task-Access-Context) Ontology
+# Defines roles, capabilities, and mappings for legal automation system
+
+# Role Classes
+role:Role rdf:type rdfs:Class ;
+    rdfs:label "System Role" ;
+    rdfs:comment "A role that can be assigned to agents or users" .
+
+role:HumanRole rdf:type rdfs:Class ;
+    rdfs:subClassOf role:Role ;
+    rdfs:label "Human Role" ;
+    rdfs:comment "Role requiring human intervention" .
+
+role:AgentRole rdf:type rdfs:Class ;
+    rdfs:subClassOf role:Role ;
+    rdfs:label "Agent Role" ;
+    rdfs:comment "Role that can be performed by AI agents" .
+
+# Capability Classes
+cap:Capability rdf:type rdfs:Class ;
+    rdfs:label "System Capability" ;
+    rdfs:comment "A specific capability required to perform tasks" .
+
+cap:TechnicalCapability rdf:type rdfs:Class ;
+    rdfs:subClassOf cap:Capability ;
+    rdfs:label "Technical Capability" ;
+    rdfs:comment "Technical system capability" .
+
+cap:LegalCapability rdf:type rdfs:Class ;
+    rdfs:subClassOf cap:Capability ;
+    rdfs:label "Legal Capability" ;
+    rdfs:comment "Legal domain-specific capability" .
+
+# Mapping Classes
+map:TaskCapabilityMapping rdf:type rdfs:Class ;
+    rdfs:label "Task-Capability Mapping" ;
+    rdfs:comment "Maps workflow tasks to required capabilities" .
+
+# Properties
+role:hasCapability rdf:type rdf:Property ;
+    rdfs:domain role:Role ;
+    rdfs:range cap:Capability ;
+    rdfs:label "Has Capability" .
+
+map:requires rdf:type rdf:Property ;
+    rdfs:domain map:TaskCapabilityMapping ;
+    rdfs:range cap:Capability ;
+    rdfs:label "Requires Capability" .
+
+map:task rdf:type rdf:Property ;
+    rdfs:domain map:TaskCapabilityMapping ;
+    rdfs:range xsd:string ;
+    rdfs:label "Task Name" .
+
+role:accessLevel rdf:type rdf:Property ;
+    rdfs:domain role:Role ;
+    rdfs:range xsd:string ;
+    rdfs:label "Access Level" .
+
+cap:complexity rdf:type rdf:Property ;
+    rdfs:domain cap:Capability ;
+    rdfs:range xsd:string ;
+    rdfs:label "Complexity Level" .
+
+# Human Roles
+role:ProSe rdf:type role:HumanRole ;
+    rdfs:label "Pro Se Litigant" ;
+    role:accessLevel "BASIC" ;
+    role:hasCapability cap:ReviewDocuments, cap:AuthorizeActions, cap:ProvideEvidence ;
+    rdfs:comment "Self-representing litigant with basic system access" .
+
+role:Attorney rdf:type role:HumanRole ;
+    rdfs:label "Licensed Attorney" ;
+    role:accessLevel "FULL" ;
+    role:hasCapability cap:DraftPleading, cap:LegalStrategy, cap:ClientCounsel, cap:CourtAppearance ;
+    rdfs:comment "Licensed attorney with full system capabilities" .
+
+role:LegalAssistant rdf:type role:HumanRole ;
+    rdfs:label "Legal Assistant" ;
+    role:accessLevel "INTERMEDIATE" ;
+    role:hasCapability cap:DocumentPreparation, cap:ClientCommunication, cap:ScheduleManagement ;
+    rdfs:comment "Legal assistant with intermediate system access" .
+
+# Agent Roles  
+role:ChromeAgent rdf:type role:AgentRole ;
+    rdfs:label "Chrome Automation Agent" ;
+    role:accessLevel "SYSTEM" ;
+    role:hasCapability cap:EFilePortal, cap:FormFilling, cap:DocumentUpload, cap:NavigateSite ;
+    rdfs:comment "Chrome extension agent for portal automation" .
+
+role:Planner rdf:type role:AgentRole ;
+    rdfs:label "Strategic Planning Agent" ;
+    role:accessLevel "ANALYSIS" ;
+    role:hasCapability cap:CaseAnalysis, cap:VenueSelection, cap:TimelineManagement, cap:ResourceOptimization ;
+    rdfs:comment "AI agent for case planning and strategy" .
+
+role:Solver rdf:type role:AgentRole ;
+    rdfs:label "Problem Solving Agent" ;
+    role:accessLevel "EXECUTION" ;
+    role:hasCapability cap:ErrorRecovery, cap:ProcessOptimization, cap:DecisionMaking, cap:TaskCoordination ;
+    rdfs:comment "AI agent for problem resolution and optimization" .
+
+role:DocumentAgent rdf:type role:AgentRole ;
+    rdfs:label "Document Generation Agent" ;
+    role:accessLevel "CREATION" ;
+    role:hasCapability cap:DraftPleading, cap:DocumentFormatting, cap:LegalResearch, cap:CitationManagement ;
+    rdfs:comment "AI agent specialized in legal document generation" .
+
+# Technical Capabilities
+cap:EFilePortal rdf:type cap:TechnicalCapability ;
+    rdfs:label "E-Filing Portal Access" ;
+    cap:complexity "HIGH" ;
+    rdfs:comment "Ability to navigate and interact with court e-filing systems" .
+
+cap:2FA_SMS rdf:type cap:TechnicalCapability ;
+    rdfs:label "Two-Factor Authentication via SMS" ;
+    cap:complexity "MEDIUM" ;
+    rdfs:comment "Capability to handle SMS-based 2FA verification" .
+
+cap:Payment rdf:type cap:TechnicalCapability ;
+    rdfs:label "Payment Processing" ;
+    cap:complexity "HIGH" ;
+    rdfs:comment "Secure payment processing for filing fees" .
+
+cap:FormFilling rdf:type cap:TechnicalCapability ;
+    rdfs:label "Automated Form Filling" ;
+    cap:complexity "MEDIUM" ;
+    rdfs:comment "Ability to automatically fill web forms" .
+
+cap:DocumentUpload rdf:type cap:TechnicalCapability ;
+    rdfs:label "Document Upload" ;
+    cap:complexity "MEDIUM" ;
+    rdfs:comment "Capability to upload documents to web portals" .
+
+cap:NavigateSite rdf:type cap:TechnicalCapability ;
+    rdfs:label "Website Navigation" ;
+    cap:complexity "LOW" ;
+    rdfs:comment "Basic website navigation and interaction" .
+
+# Legal Capabilities
+cap:DraftPleading rdf:type cap:LegalCapability ;
+    rdfs:label "Draft Legal Pleadings" ;
+    cap:complexity "CRITICAL" ;
+    rdfs:comment "Ability to draft formal legal pleadings and motions" .
+
+cap:LegalResearch rdf:type cap:LegalCapability ;
+    rdfs:label "Legal Research" ;
+    cap:complexity "HIGH" ;
+    rdfs:comment "Capability to conduct comprehensive legal research" .
+
+cap:CaseAnalysis rdf:type cap:LegalCapability ;
+    rdfs:label "Case Analysis" ;
+    cap:complexity "CRITICAL" ;
+    rdfs:comment "Ability to analyze legal cases and develop strategy" .
+
+cap:VenueSelection rdf:type cap:LegalCapability ;
+    rdfs:label "Venue Selection" ;
+    cap:complexity "HIGH" ;
+    rdfs:comment "Capability to select optimal legal venues" .
+
+cap:CitationManagement rdf:type cap:LegalCapability ;
+    rdfs:label "Citation Management" ;
+    cap:complexity "MEDIUM" ;
+    rdfs:comment "Ability to manage legal citations and references" .
+
+# Task-Capability Mappings
+map:GenDocs rdf:type map:TaskCapabilityMapping ;
+    map:task "GenDocs" ;
+    map:requires cap:DraftPleading, cap:LegalResearch, cap:DocumentFormatting ;
+    rdfs:comment "Document generation requires legal drafting and research capabilities" .
+
+map:Login2FA rdf:type map:TaskCapabilityMapping ;
+    map:task "Login2FA" ;
+    map:requires cap:EFilePortal, cap:2FA_SMS ;
+    rdfs:comment "2FA login requires portal access and SMS verification" .
+
+map:Upload rdf:type map:TaskCapabilityMapping ;
+    map:task "Upload" ;
+    map:requires cap:EFilePortal, cap:DocumentUpload, cap:FormFilling ;
+    rdfs:comment "Document upload requires portal access and form handling" .
+
+map:Pay rdf:type map:TaskCapabilityMapping ;
+    map:task "Pay" ;
+    map:requires cap:Payment, cap:EFilePortal ;
+    rdfs:comment "Payment processing requires secure payment and portal access" .
+
+map:Submit rdf:type map:TaskCapabilityMapping ;
+    map:task "Submit" ;
+    map:requires cap:EFilePortal, cap:DocumentUpload, cap:FormFilling ;
+    rdfs:comment "Filing submission requires portal interaction capabilities" .
+
+map:DownloadReceipts rdf:type map:TaskCapabilityMapping ;
+    map:task "DownloadReceipts" ;
+    map:requires cap:EFilePortal, cap:NavigateSite ;
+    rdfs:comment "Receipt download requires portal navigation" .
+
+map:OrderService rdf:type map:TaskCapabilityMapping ;
+    map:task "OrderService" ;
+    map:requires cap:EFilePortal, cap:Payment, cap:FormFilling ;
+    rdfs:comment "Service ordering requires portal access and payment processing" .
+
+# Access Control Policies
+role:ProSeAccess rdf:type map:TaskCapabilityMapping ;
+    map:task "SystemAccess" ;
+    map:requires cap:ReviewDocuments, cap:AuthorizeActions ;
+    rdfs:comment "Pro Se users can review and authorize but not draft" .
+
+role:AttorneyAccess rdf:type map:TaskCapabilityMapping ;
+    map:task "FullAccess" ;
+    map:requires cap:DraftPleading, cap:LegalStrategy, cap:CourtAppearance ;
+    rdfs:comment "Attorneys have full legal practice capabilities" .
+
+role:AgentAccess rdf:type map:TaskCapabilityMapping ;
+    map:task "AutomationAccess" ;
+    map:requires cap:EFilePortal, cap:ProcessOptimization, cap:TaskCoordination ;
+    rdfs:comment "Agents handle technical automation and optimization" .

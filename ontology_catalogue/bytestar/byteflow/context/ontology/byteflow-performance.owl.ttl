@@ -1,0 +1,17 @@
+@prefix : <https://bytestar.org/ontology/byteflow-performance#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/byteflow-performance>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core#> ;
+  rdfs:label "ByteFlow Performance Ontology" .
+
+:WarmPathMetrics a owl:Class .
+:validationThroughput a owl:DatatypeProperty ; rdfs:domain :WarmPathMetrics ; rdfs:range xsd:decimal .
+:validationLatency a owl:DatatypeProperty ; rdfs:domain :WarmPathMetrics ; rdfs:range xsd:decimal .
+:p99Latency a owl:DatatypeProperty ; rdfs:domain :WarmPathMetrics ; rdfs:range xsd:decimal .
+
+:hasMetrics a owl:ObjectProperty ; rdfs:domain bytestar:ByteFlow ; rdfs:range :WarmPathMetrics .

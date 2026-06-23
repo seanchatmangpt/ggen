@@ -1,0 +1,241 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix odrl:    <http://www.w3.org/ns/odrl/2/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# ZOE LA Mobile — Autonomic Policies Ontology
+# ============================================================================
+# Formalizes the 8-conjunct AutonomicActionAllowed equation as OWL DL
+# class restrictions and named admission condition individuals.
+#
+# The 8-conjunct admission equation (from packages/autonomics/autonomicActions.ts):
+#
+#   AutonomicActionAllowed ↔
+#       RouteEnabled
+#     ∧ PolicyPermits
+#     ∧ ConsentSatisfied
+#     ∧ EvidenceSufficient
+#     ∧ RoleAuthoritySatisfied
+#     ∧ RiskWithinBand
+#     ∧ ReversibilityAllowed
+#     ∧ HumanPresenceNotRequired
+#
+# Grounded in ConnectGroups domain as:
+#   RouteEnabled         → zoe:RouteEnabledGate passes
+#   ConsentSatisfied     → zoe:ConsentGate passes
+#   RoleAuthoritySatisfied → zoe:RoleGate passes
+#   RiskWithinBand       → zoe:CapacityGate passes
+#   ReversibilityAllowed → zoe:ScheduleGate passes
+#   PolicyPermits        → zoe:PolicyGate passes (private group → A3, not A4)
+#   HumanPresenceNotRequired → zoe:NotificationBudgetGate passes
+#   EvidenceSufficient   → all 7 gates pass (aggregate)
+#
+# The product is CodeManufactory; ZOE LA Mobile is proof that CodeManufactory works.
+# ============================================================================
+
+<https://zoela.org/ontology/autonomic-policies>
+    a owl:Ontology ;
+    rdfs:label   "ZOE LA Mobile — Autonomic Policies Ontology"@en ;
+    rdfs:comment "OWL DL formalization of the 8-conjunct AutonomicActionAllowed equation and named admission condition individuals. Policy instances for all ZOE LA autonomic routes reside here."@en ;
+    dcterms:creator  "Sean Chatman" ;
+    dcterms:created  "2026-05-18"^^xsd:date ;
+    dcterms:license  <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo  "1.0.0" ;
+    owl:imports <https://zoela.org/ontology/autonomics> .
+
+# ============================================================================
+# § 1  AdmissionCondition — Named conditions for the 8 conjuncts
+# ============================================================================
+
+zoe:AdmissionCondition a owl:Class ;
+    rdfs:label   "Admission Condition"@en ;
+    rdfs:comment "A named conjunct in the AutonomicActionAllowed equation. Each condition corresponds to one of the 8 boolean predicates that must be true for autonomic execution to proceed."@en ;
+    rdfs:subClassOf owl:Thing ;
+    rdfs:subClassOf odrl:Constraint .
+
+# The 8 named conjuncts
+
+zoe:RouteEnabledCondition a zoe:AdmissionCondition ;
+    rdfs:label   "Route Enabled Condition"@en ;
+    rdfs:comment "The ServiceRoute is currently active and accepting new instances. Corresponds to RouteEnabledGate and the TypeScript ctx.routeEnabled field."@en ;
+    skos:notation "route_enabled" .
+
+zoe:ConsentSatisfiedCondition a zoe:AdmissionCondition ;
+    rdfs:label   "Consent Satisfied Condition"@en ;
+    rdfs:comment "An active CommunicationConsent record exists for the person. Corresponds to ConsentGate and the TypeScript ctx.hasConsent field. Failure → A4_REFUSE."@en ;
+    skos:notation "consent_satisfied" .
+
+zoe:RoleAuthoritySatisfiedCondition a zoe:AdmissionCondition ;
+    rdfs:label   "Role Authority Satisfied Condition"@en ;
+    rdfs:comment "The executing agent holds the role authority required by this route stage. Corresponds to RoleGate and the TypeScript ctx.hasRole field. Failure → A4_REFUSE."@en ;
+    skos:notation "role_authority_satisfied" .
+
+zoe:RiskWithinBandCondition a zoe:AdmissionCondition ;
+    rdfs:label   "Risk Within Band Condition"@en ;
+    rdfs:comment "Capacity risk is within acceptable bounds — the target group has available capacity. Corresponds to CapacityGate and the TypeScript ctx.groupHasCapacity field. Failure → A4_REFUSE (waitlist)."@en ;
+    skos:notation "risk_within_band" .
+
+zoe:ReversibilityAllowedCondition a zoe:AdmissionCondition ;
+    rdfs:label   "Reversibility Allowed Condition"@en ;
+    rdfs:comment "The person's schedule preferences match at least one candidate group meeting schedule. Corresponds to ScheduleGate and the TypeScript ctx.scheduleMatches field."@en ;
+    skos:notation "reversibility_allowed" .
+
+zoe:PolicyPermitsCondition a zoe:AdmissionCondition ;
+    rdfs:label   "Policy Permits Condition"@en ;
+    rdfs:comment "No active policy constraint blocks execution. For ConnectGroups: the target group is not marked isPrivateGroup. Corresponds to PolicyGate and the TypeScript ctx.isPrivateGroup field. Failure → A3_HUMAN (not A4_REFUSE) — escalates rather than refuses."@en ;
+    skos:notation "policy_permits" .
+
+zoe:NotificationBudgetCondition a zoe:AdmissionCondition ;
+    rdfs:label   "Notification Budget Condition"@en ;
+    rdfs:comment "The person has not exceeded the notification rate limit. Corresponds to NotificationBudgetGate and the TypeScript ctx.withinNotificationBudget field. Failure → A4_REFUSE."@en ;
+    skos:notation "notification_budget" .
+
+zoe:EvidenceSufficientCondition a zoe:AdmissionCondition ;
+    rdfs:label   "Evidence Sufficient Condition"@en ;
+    rdfs:comment "Aggregate condition: sufficient evidence exists across all required gates for the route stage to proceed. All 7 gate conditions must individually pass for this aggregate condition to hold."@en ;
+    skos:notation "evidence_sufficient" .
+
+# ============================================================================
+# § 2  AdmissionConditionSet — OWL class for the full conjunct set
+# ============================================================================
+
+zoe:AdmissionConditionSet a owl:Class ;
+    rdfs:label   "Admission Condition Set"@en ;
+    rdfs:comment "A set of AdmissionConditions that jointly constitute the AutonomicActionAllowed equation for a specific route. An AutonomicPolicy references a condition set to declare what must hold before execution proceeds."@en ;
+    rdfs:subClassOf odrl:Policy .
+
+# ============================================================================
+# § 3  Properties linking condition sets to their conjuncts
+# ============================================================================
+
+zoe:requiresCondition a owl:ObjectProperty ;
+    rdfs:domain  zoe:AdmissionConditionSet ;
+    rdfs:range   zoe:AdmissionCondition ;
+    rdfs:label   "Requires Condition"@en ;
+    rdfs:comment "Links an AdmissionConditionSet to one of its required conjunct AdmissionConditions. All linked conditions must hold for the set to be satisfied."@en ;
+    skos:notation "requires_condition" .
+
+zoe:satisfiedByGate a owl:ObjectProperty ;
+    rdfs:domain  zoe:AdmissionCondition ;
+    rdfs:range   zoe:AdmissionGate ;
+    rdfs:label   "Satisfied By Gate"@en ;
+    rdfs:comment "Links an AdmissionCondition to the runtime AdmissionGate whose evaluation determines whether this condition is satisfied. One-to-one for the 7 primary conditions; EvidenceSufficientCondition is the aggregate."@en ;
+    skos:notation "satisfied_by_gate" .
+
+# ============================================================================
+# § 4  Gate-to-Condition bindings (Connect Group domain)
+# ============================================================================
+
+zoe:RouteEnabledCondition    zoe:satisfiedByGate  zoe:RouteEnabledGate .
+zoe:ConsentSatisfiedCondition zoe:satisfiedByGate zoe:ConsentGate .
+zoe:RoleAuthoritySatisfiedCondition zoe:satisfiedByGate zoe:RoleGate .
+zoe:RiskWithinBandCondition  zoe:satisfiedByGate  zoe:CapacityGate .
+zoe:ReversibilityAllowedCondition zoe:satisfiedByGate zoe:ScheduleGate .
+zoe:PolicyPermitsCondition   zoe:satisfiedByGate  zoe:PolicyGate .
+zoe:NotificationBudgetCondition zoe:satisfiedByGate zoe:NotificationBudgetGate .
+
+# ============================================================================
+# § 5  ConnectGroupAdmissionConditionSet — the 8-conjunct equation instance
+# ============================================================================
+
+zoe:ConnectGroupAdmissionConditionSet a zoe:AdmissionConditionSet ;
+    rdfs:label   "Connect Group Admission Condition Set"@en ;
+    rdfs:comment "The 8-conjunct AutonomicActionAllowed equation grounded in the ConnectGroupJoinRoute domain. All 8 conditions must hold for A1_SAFE autonomic execution. PolicyPermitsCondition failure escalates to A3_HUMAN."@en ;
+    zoe:requiresCondition zoe:RouteEnabledCondition ;
+    zoe:requiresCondition zoe:ConsentSatisfiedCondition ;
+    zoe:requiresCondition zoe:RoleAuthoritySatisfiedCondition ;
+    zoe:requiresCondition zoe:RiskWithinBandCondition ;
+    zoe:requiresCondition zoe:ReversibilityAllowedCondition ;
+    zoe:requiresCondition zoe:PolicyPermitsCondition ;
+    zoe:requiresCondition zoe:NotificationBudgetCondition ;
+    zoe:requiresCondition zoe:EvidenceSufficientCondition .
+
+# ============================================================================
+# § 6  OWL DL restriction: AutonomicActionAllowed
+# ============================================================================
+# Formalizes the admission equation as an OWL DL class restriction.
+# A route execution decision is an instance of AutonomicActionAllowed iff it
+# satisfies every required condition in the policy's condition set.
+#
+# OWL DL restriction (open-world, no SWRL — remains within OWL DL profile):
+#   AutonomicActionAllowed ≡ ∃ zoe:satisfiesConditionSet . zoe:ConnectGroupAdmissionConditionSet
+#
+# This is intentionally structural — runtime enforcement via TypeScript
+# packages/autonomics/evaluateAdmission() and evaluateConnectGroupAdmission().
+
+zoe:AutonomicActionAllowed a owl:Class ;
+    rdfs:label   "Autonomic Action Allowed"@en ;
+    rdfs:comment "Class of execution decisions that satisfy all required conjuncts in the AutonomicActionAllowed equation. An individual is a member iff it asserts zoe:satisfiesConditionSet to an AdmissionConditionSet whose every requiresCondition holds."@en ;
+    rdfs:subClassOf odrl:Permission ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty  zoe:satisfiesConditionSet ;
+        owl:someValuesFrom zoe:AdmissionConditionSet
+    ] .
+
+zoe:satisfiesConditionSet a owl:ObjectProperty ;
+    rdfs:domain  zoe:AutonomicActionAllowed ;
+    rdfs:range   zoe:AdmissionConditionSet ;
+    rdfs:label   "Satisfies Condition Set"@en ;
+    rdfs:comment "Links an autonomic action execution decision to the AdmissionConditionSet it satisfies. An instance of AutonomicActionAllowed must satisfy at least one condition set."@en ;
+    skos:notation "satisfies_condition_set" .
+
+# ============================================================================
+# § 7  EscalationRule — formalizes A3 vs A4 branching
+# ============================================================================
+
+zoe:EscalationRule a owl:Class ;
+    rdfs:label   "Escalation Rule"@en ;
+    rdfs:comment "A named rule specifying which AutonomicActionClass applies when a specific AdmissionGate fails. Escalation rules override the default A4_REFUSE for gates that should route to human judgment rather than hard refusal."@en ;
+    rdfs:subClassOf owl:Thing ;
+    rdfs:subClassOf odrl:Rule .
+
+zoe:escalatesOnGate a owl:ObjectProperty ;
+    rdfs:domain  zoe:EscalationRule ;
+    rdfs:range   zoe:AdmissionGate ;
+    rdfs:label   "Escalates On Gate"@en ;
+    rdfs:comment "The AdmissionGate whose failure triggers this escalation rule."@en ;
+    skos:notation "escalates_on_gate" .
+
+zoe:escalatesToClass a owl:ObjectProperty ;
+    rdfs:domain  zoe:EscalationRule ;
+    rdfs:range   zoe:AutonomicActionClass ;
+    rdfs:label   "Escalates To Class"@en ;
+    rdfs:comment "The AutonomicActionClass that applies when the referenced gate fails. For most gates this is A4_REFUSE; for PolicyGate in ConnectGroups it is A3_HUMAN."@en ;
+    skos:notation "escalates_to_class" .
+
+# PolicyGate escalation rule: failure → A3_HUMAN (not A4_REFUSE)
+# This mirrors the TypeScript logic:
+#   if (!decision.allowed && decision.refusalGate === "PolicyGate") {
+#     return { ...decision, actionClass: A3_HUMAN };
+#   }
+
+zoe:ConnectGroupPolicyGateEscalation a zoe:EscalationRule ;
+    rdfs:label          "Connect Group Policy Gate Escalation"@en ;
+    rdfs:comment        "When PolicyGate fails for a Connect Group route (target group is private), the action class escalates to A3_HUMAN rather than A4_REFUSE, triggering human pastoral review before admission."@en ;
+    zoe:escalatesOnGate zoe:PolicyGate ;
+    zoe:escalatesToClass zoe:A3HumanRequired .
+
+# ============================================================================
+# § 8  hasEscalationRule property on AutonomicPolicy
+# ============================================================================
+
+zoe:hasEscalationRule a owl:ObjectProperty ;
+    rdfs:domain  zoe:AutonomicPolicy ;
+    rdfs:range   zoe:EscalationRule ;
+    rdfs:label   "Has Escalation Rule"@en ;
+    rdfs:comment "Links an AutonomicPolicy to an EscalationRule that overrides the default A4_REFUSE for a specific gate failure. Without escalation rules, all gate failures default to A4_REFUSE."@en ;
+    skos:notation "has_escalation_rule" .
+
+# Attach the escalation rule to the ConnectGroupAdmissionPolicy
+zoe:ConnectGroupAdmissionPolicy
+    zoe:hasEscalationRule zoe:ConnectGroupPolicyGateEscalation .
+
+# ============================================================================
+# End of ontology/zoela/autonomic-policies.ttl
+# ============================================================================

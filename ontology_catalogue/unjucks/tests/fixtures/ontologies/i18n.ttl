@@ -1,0 +1,50 @@
+@prefix : <http://example.org/i18n/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Ontology with internationalized labels
+# Tests i18n support in generation
+
+:Person a rdfs:Class ;
+  rdfs:label "Person"@en ;
+  rdfs:label "Persona"@es ;
+  rdfs:label "Personne"@fr ;
+  rdfs:comment "A person in the system"@en ;
+  rdfs:comment "Una persona en el sistema"@es ;
+  rdfs:comment "Une personne dans le système"@fr .
+
+:name a rdf:Property ;
+  rdfs:label "name"@en ;
+  rdfs:label "nombre"@es ;
+  rdfs:label "nom"@fr ;
+  rdfs:domain :Person ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Full name of the person"@en ;
+  rdfs:comment "Nombre completo de la persona"@es ;
+  rdfs:comment "Nom complet de la personne"@fr .
+
+:email a rdf:Property ;
+  rdfs:label "email"@en ;
+  rdfs:label "correo electrónico"@es ;
+  rdfs:label "courriel"@fr ;
+  rdfs:domain :Person ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Email address"@en ;
+  rdfs:comment "Dirección de correo electrónico"@es ;
+  rdfs:comment "Adresse électronique"@fr .
+
+:Organization a rdfs:Class ;
+  rdfs:label "Organization"@en ;
+  rdfs:label "Organización"@es ;
+  rdfs:label "Organisation"@fr ;
+  rdfs:comment "An organization"@en ;
+  rdfs:comment "Una organización"@es ;
+  rdfs:comment "Une organisation"@fr .
+
+:organizationName a rdf:Property ;
+  rdfs:label "organization name"@en ;
+  rdfs:label "nombre de la organización"@es ;
+  rdfs:label "nom de l'organisation"@fr ;
+  rdfs:domain :Organization ;
+  rdfs:range xsd:string .

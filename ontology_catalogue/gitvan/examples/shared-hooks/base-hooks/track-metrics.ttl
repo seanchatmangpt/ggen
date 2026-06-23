@@ -1,0 +1,40 @@
+@prefix gh: <http://example.org/git-hooks#> .
+@prefix git: <http://example.org/git#> .
+
+gh:TrackMetrics a gh:Hook ;
+  gh:name "Track Metrics" ;
+  gh:description "Collect workflow metrics for team analytics (commits, pushes, authors, branches)" ;
+  gh:version "1.0.0" ;
+  gh:maintainer "GitVan Community" ;
+
+  gh:trigger [
+    a gh:MultiEventTrigger ;
+    gh:events [
+      rdf:_1 [ a git:CommitEvent ] ;
+      rdf:_2 [ a git:PostPushEvent ] ;
+      rdf:_3 [ a git:PostMergeEvent ]
+    ]
+  ] ;
+
+  gh:action [
+    a gh:ShellAction ;
+    gh:script """
+      # Track metrics automatically
+      TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+      AUTHOR=$(git config --get user.email)
+      BRANCH=$(git rev-parse --abbrev-ref HEAD)
+      COMMIT=$(git rev-parse --short HEAD)
+
+      # Extract stats
+      STATS=$(git log -1 --pretty=%b)
+
+      echo "📊 Metrics tracked:"
+      echo "   Author: $AUTHOR"
+      echo "   Branch: $BRANCH"
+      echo "   Commit: $COMMIT"
+      echo "   Time: $TIMESTAMP"
+
+      # These are automatically aggregated by GitVan
+      # View with: gitvan metrics export --format json
+    """
+  ] .

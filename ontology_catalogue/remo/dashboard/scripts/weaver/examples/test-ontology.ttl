@@ -1,0 +1,138 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix weaver: <https://weaver.opentelemetry.io/ontology#> .
+@prefix capability: <https://weaver.opentelemetry.io/capability#> .
+@prefix security: <https://weaver.opentelemetry.io/domain/security#> .
+
+# Test Ontology for Weaver v2 CLI
+# This demonstrates a simple capability definition
+
+<https://example.com/test-ontology> a owl:Ontology ;
+    rdfs:label "Test Ontology for Weaver v2" ;
+    rdfs:comment "Simple ontology for testing the CLI functionality" ;
+    owl:versionInfo "1.0.0" .
+
+# Define a test security capability
+security:UserAuthentication a capability:Capability ;
+    rdfs:label "User Authentication" ;
+    rdfs:comment "Capability for authenticating users with JWT tokens" ;
+    capability:domain "security" ;
+    capability:type "component" ;
+    capability:priority 1 ;
+    capability:version "1.0.0" ;
+    capability:requiresTemplate "vue/component.vue.tmpl" ;
+    capability:requiresTemplate "api/endpoint.go.tmpl" ;
+    capability:dependsOn security:TokenValidation ;
+    capability:hasAttribute [
+        capability:name "jwtSecret" ;
+        capability:type "string" ;
+        capability:required true ;
+        capability:description "Secret key for JWT token signing"
+    ] ;
+    capability:hasAttribute [
+        capability:name "tokenExpiry" ;
+        capability:type "number" ;
+        capability:required false ;
+        capability:value 3600 ;
+        capability:description "Token expiry time in seconds"
+    ] ;
+    capability:hasAttribute [
+        capability:name "allowedRoles" ;
+        capability:type "array" ;
+        capability:required false ;
+        capability:value "admin,user,viewer" ;
+        capability:description "List of allowed user roles"
+    ] .
+
+# Define a dependency capability
+security:TokenValidation a capability:Capability ;
+    rdfs:label "Token Validation" ;
+    rdfs:comment "Capability for validating JWT tokens" ;
+    capability:domain "security" ;
+    capability:type "service" ;
+    capability:priority 2 ;
+    capability:version "1.0.0" ;
+    capability:requiresTemplate "helpers/security-functions.go.tmpl" ;
+    capability:hasAttribute [
+        capability:name "algorithm" ;
+        capability:type "string" ;
+        capability:required true ;
+        capability:value "HS256" ;
+        capability:description "JWT signing algorithm"
+    ] .
+
+# Define a performance monitoring capability
+<https://example.com/capabilities/PerformanceMetrics> a capability:Capability ;
+    rdfs:label "Performance Metrics" ;
+    rdfs:comment "Capability for collecting and reporting performance metrics" ;
+    capability:domain "performance" ;
+    capability:type "component" ;
+    capability:priority 3 ;
+    capability:version "1.0.0" ;
+    capability:requiresTemplate "vue/component.vue.tmpl" ;
+    capability:requiresTemplate "performance/metrics.go.tmpl" ;
+    capability:hasAttribute [
+        capability:name "metricsEndpoint" ;
+        capability:type "string" ;
+        capability:required true ;
+        capability:value "/api/metrics" ;
+        capability:description "Endpoint for metrics collection"
+    ] ;
+    capability:hasAttribute [
+        capability:name "sampleRate" ;
+        capability:type "number" ;
+        capability:required false ;
+        capability:value 0.1 ;
+        capability:description "Sampling rate for metrics collection"
+    ] .
+
+# Define a compliance capability
+<https://example.com/capabilities/GDPRCompliance> a capability:Capability ;
+    rdfs:label "GDPR Compliance" ;
+    rdfs:comment "Capability for ensuring GDPR compliance in data handling" ;
+    capability:domain "compliance" ;
+    capability:type "schema" ;
+    capability:priority 2 ;
+    capability:version "1.0.0" ;
+    capability:requiresTemplate "compliance/audit.go.tmpl" ;
+    capability:dependsOn security:DataEncryption ;
+    capability:hasAttribute [
+        capability:name "consentRequired" ;
+        capability:type "boolean" ;
+        capability:required true ;
+        capability:value true ;
+        capability:description "Whether user consent is required"
+    ] ;
+    capability:hasAttribute [
+        capability:name "dataRetentionDays" ;
+        capability:type "number" ;
+        capability:required true ;
+        capability:value 365 ;
+        capability:description "Data retention period in days"
+    ] .
+
+# Define another dependency
+security:DataEncryption a capability:Capability ;
+    rdfs:label "Data Encryption" ;
+    rdfs:comment "Capability for encrypting sensitive data" ;
+    capability:domain "security" ;
+    capability:type "service" ;
+    capability:priority 1 ;
+    capability:version "1.0.0" ;
+    capability:requiresTemplate "security/encryption.go.tmpl" ;
+    capability:hasAttribute [
+        capability:name "algorithm" ;
+        capability:type "string" ;
+        capability:required true ;
+        capability:value "AES-256-GCM" ;
+        capability:description "Encryption algorithm to use"
+    ] ;
+    capability:hasAttribute [
+        capability:name "keyRotationDays" ;
+        capability:type "number" ;
+        capability:required false ;
+        capability:value 90 ;
+        capability:description "Key rotation interval in days"
+    ] .

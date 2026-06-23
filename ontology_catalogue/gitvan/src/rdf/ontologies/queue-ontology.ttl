@@ -1,0 +1,419 @@
+@prefix queue: <https://gitvan.dev/queue#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# ============================================================================
+# GitVan Queue Ontology
+# ============================================================================
+# Defines semantic representation of job queues with dependency tracking.
+# Enables topological sorting, circular dependency detection, and DAG analysis.
+# Version: 1.0.0
+# Date: January 9, 2026
+# ============================================================================
+
+# Classes
+# ============================================================================
+
+queue:Job a owl:Class ;
+  rdfs:label "Job" ;
+  rdfs:comment "Background or scheduled job in execution queue" ;
+  rdfs:isDefinedBy <https://gitvan.dev/queue-ontology> .
+
+queue:JobStatus a owl:Class ;
+  rdfs:label "Job Status" ;
+  rdfs:comment "Enumeration of possible job states" ;
+  rdfs:isDefinedBy <https://gitvan.dev/queue-ontology> .
+
+queue:JobPriority a owl:Class ;
+  rdfs:label "Job Priority" ;
+  rdfs:comment "Priority level for job execution ordering" ;
+  rdfs:isDefinedBy <https://gitvan.dev/queue-ontology> .
+
+queue:Queue a owl:Class ;
+  rdfs:label "Queue" ;
+  rdfs:comment "Named queue containing multiple jobs" ;
+  rdfs:isDefinedBy <https://gitvan.dev/queue-ontology> .
+
+queue:JobBatch a owl:Class ;
+  rdfs:label "Job Batch" ;
+  rdfs:comment "Group of related jobs submitted together" ;
+  rdfs:isDefinedBy <https://gitvan.dev/queue-ontology> .
+
+# Job Status Individuals
+# ============================================================================
+
+queue:Pending a queue:JobStatus ;
+  rdfs:label "Pending" ;
+  rdfs:comment "Job is waiting to be executed" .
+
+queue:Running a queue:JobStatus ;
+  rdfs:label "Running" ;
+  rdfs:comment "Job is currently executing" .
+
+queue:Paused a queue:JobStatus ;
+  rdfs:label "Paused" ;
+  rdfs:comment "Job execution is paused" .
+
+queue:Completed a queue:JobStatus ;
+  rdfs:label "Completed" ;
+  rdfs:comment "Job completed successfully" .
+
+queue:Failed a queue:JobStatus ;
+  rdfs:label "Failed" ;
+  rdfs:comment "Job failed during execution" .
+
+queue:Cancelled a queue:JobStatus ;
+  rdfs:label "Cancelled" ;
+  rdfs:comment "Job was cancelled before execution" .
+
+queue:TimedOut a queue:JobStatus ;
+  rdfs:label "Timed Out" ;
+  rdfs:comment "Job exceeded timeout limit" .
+
+queue:Blocked a queue:JobStatus ;
+  rdfs:label "Blocked" ;
+  rdfs:comment "Job cannot proceed due to dependency issues" .
+
+# Job Priority Individuals
+# ============================================================================
+
+queue:Critical a queue:JobPriority ;
+  rdfs:label "Critical" ;
+  rdfs:comment "Critical priority (executes first)" ;
+  queue:priorityValue 1000 .
+
+queue:High a queue:JobPriority ;
+  rdfs:label "High" ;
+  rdfs:comment "High priority" ;
+  queue:priorityValue 100 .
+
+queue:Normal a queue:JobPriority ;
+  rdfs:label "Normal" ;
+  rdfs:comment "Normal/default priority" ;
+  queue:priorityValue 50 .
+
+queue:Low a queue:JobPriority ;
+  rdfs:label "Low" ;
+  rdfs:comment "Low priority (background work)" ;
+  queue:priorityValue 10 .
+
+queue:Deferred a queue:JobPriority ;
+  rdfs:label "Deferred" ;
+  rdfs:comment "Deferred priority (when idle)" ;
+  queue:priorityValue 1 .
+
+# Core Job Properties
+# ============================================================================
+
+queue:jobId a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:string ;
+  rdfs:label "Job ID" ;
+  rdfs:comment "Unique identifier for job" ;
+  owl:cardinality 1 .
+
+queue:jobName a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:string ;
+  rdfs:label "Job Name" ;
+  rdfs:comment "Human-readable name for job" .
+
+queue:description a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:string ;
+  rdfs:label "Description" ;
+  rdfs:comment "Detailed description of job purpose" .
+
+queue:status a owl:ObjectProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range queue:JobStatus ;
+  rdfs:label "Status" ;
+  rdfs:comment "Current execution status of job" ;
+  owl:cardinality 1 .
+
+queue:priority a owl:ObjectProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range queue:JobPriority ;
+  rdfs:label "Priority" ;
+  rdfs:comment "Execution priority of job" ;
+  owl:cardinality 1 .
+
+queue:priorityValue a owl:DatatypeProperty ;
+  rdfs:domain queue:JobPriority ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Priority Value" ;
+  rdfs:comment "Numeric priority for sorting (higher = first)" .
+
+# Timing Properties
+# ============================================================================
+
+queue:createdAt a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Created At" ;
+  rdfs:comment "ISO 8601 timestamp when job was created" ;
+  owl:cardinality 1 .
+
+queue:scheduledFor a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Scheduled For" ;
+  rdfs:comment "Requested time to start execution (for delayed jobs)" .
+
+queue:startedAt a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Started At" ;
+  rdfs:comment "ISO 8601 timestamp when job started executing" .
+
+queue:completedAt a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Completed At" ;
+  rdfs:comment "ISO 8601 timestamp when job completed" .
+
+queue:failedAt a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Failed At" ;
+  rdfs:comment "ISO 8601 timestamp when job failed" .
+
+queue:timeout a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Timeout (ms)" ;
+  rdfs:comment "Maximum execution time in milliseconds" .
+
+queue:executionTime a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Execution Time (ms)" ;
+  rdfs:comment "Actual execution time in milliseconds" .
+
+queue:queueTime a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Queue Time (ms)" ;
+  rdfs:comment "Time spent waiting in queue before execution" .
+
+# Dependency Properties
+# ============================================================================
+
+queue:dependsOn a owl:ObjectProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range queue:Job ;
+  rdfs:label "Depends On" ;
+  rdfs:comment "Job that must complete before this one can start" ;
+  owl:asymmetricProperty owl:AsymmetricProperty .
+
+queue:prerequisite a owl:ObjectProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range queue:Job ;
+  rdfs:label "Prerequisite" ;
+  rdfs:comment "Another name for dependsOn relationship" ;
+  owl:equivalentProperty queue:dependsOn .
+
+queue:requiredFor a owl:ObjectProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range queue:Job ;
+  rdfs:label "Required For" ;
+  rdfs:comment "Jobs that require this one to complete first" ;
+  owl:inverseOf queue:dependsOn ;
+  owl:asymmetricProperty owl:AsymmetricProperty .
+
+queue:blockedBy a owl:ObjectProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range queue:Job ;
+  rdfs:label "Blocked By" ;
+  rdfs:comment "Job that is currently blocking this one" .
+
+queue:blocks a owl:ObjectProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range queue:Job ;
+  rdfs:label "Blocks" ;
+  rdfs:comment "Jobs that this one is blocking" ;
+  owl:inverseOf queue:blockedBy .
+
+# DAG Properties
+# ============================================================================
+
+queue:dagPath a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:string ;
+  rdfs:label "DAG Path" ;
+  rdfs:comment "Topological sort path in job DAG" .
+
+queue:depth a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Depth" ;
+  rdfs:comment "Depth in job dependency DAG (0 = no deps)" .
+
+queue:width a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Width" ;
+  rdfs:comment "Number of parallel paths from this job" .
+
+queue:criticalPath a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Critical Path" ;
+  rdfs:comment "Whether job is on critical path (delays overall execution)" .
+
+queue:isTerminal a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Is Terminal" ;
+  rdfs:comment "Whether this is a terminal node (no dependents)" .
+
+# Result Properties
+# ============================================================================
+
+queue:exitCode a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Exit Code" ;
+  rdfs:comment "Exit code or return value from job" .
+
+queue:errorMessage a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:string ;
+  rdfs:label "Error Message" ;
+  rdfs:comment "Error message if job failed" .
+
+queue:errorStack a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:string ;
+  rdfs:label "Error Stack" ;
+  rdfs:comment "Stack trace if job failed" .
+
+queue:result a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:string ;
+  rdfs:label "Result" ;
+  rdfs:comment "JSON-serialized result from job execution" .
+
+queue:logs a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:string ;
+  rdfs:label "Logs" ;
+  rdfs:comment "Execution logs or output from job" .
+
+# Retry Properties
+# ============================================================================
+
+queue:retryCount a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Retry Count" ;
+  rdfs:comment "Number of times job has been retried" .
+
+queue:maxRetries a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Max Retries" ;
+  rdfs:comment "Maximum number of retry attempts" .
+
+queue:retryDelay a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Retry Delay (ms)" ;
+  rdfs:comment "Delay in milliseconds before retry" .
+
+queue:backoffMultiplier a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Backoff Multiplier" ;
+  rdfs:comment "Exponential backoff multiplier for retries" .
+
+queue:lastAttemptAt a owl:DatatypeProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Last Attempt At" ;
+  rdfs:comment "Timestamp of last retry attempt" .
+
+# Queue Properties
+# ============================================================================
+
+queue:queueName a owl:DatatypeProperty ;
+  rdfs:domain queue:Queue ;
+  rdfs:range xsd:string ;
+  rdfs:label "Queue Name" ;
+  rdfs:comment "Name of the queue" ;
+  owl:cardinality 1 .
+
+queue:containsJob a owl:ObjectProperty ;
+  rdfs:domain queue:Queue ;
+  rdfs:range queue:Job ;
+  rdfs:label "Contains Job" ;
+  rdfs:comment "Jobs in this queue" .
+
+queue:maxConcurrency a owl:DatatypeProperty ;
+  rdfs:domain queue:Queue ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Max Concurrency" ;
+  rdfs:comment "Maximum concurrent job executions" .
+
+queue:pendingCount a owl:DatatypeProperty ;
+  rdfs:domain queue:Queue ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Pending Count" ;
+  rdfs:comment "Number of pending jobs" .
+
+queue:runningCount a owl:DatatypeProperty ;
+  rdfs:domain queue:Queue ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Running Count" ;
+  rdfs:comment "Number of currently running jobs" .
+
+# Batch Properties
+# ============================================================================
+
+queue:batchId a owl:DatatypeProperty ;
+  rdfs:domain queue:JobBatch ;
+  rdfs:range xsd:string ;
+  rdfs:label "Batch ID" ;
+  rdfs:comment "Unique identifier for job batch" ;
+  owl:cardinality 1 .
+
+queue:batchSubmittedAt a owl:DatatypeProperty ;
+  rdfs:domain queue:JobBatch ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Submitted At" ;
+  rdfs:comment "When batch was submitted" .
+
+queue:jobsInBatch a owl:ObjectProperty ;
+  rdfs:domain queue:JobBatch ;
+  rdfs:range queue:Job ;
+  rdfs:label "Jobs In Batch" ;
+  rdfs:comment "Jobs that are part of this batch" .
+
+# Provenance Properties
+# ============================================================================
+
+queue:submittedBy a owl:ObjectProperty ;
+  rdfs:subPropertyOf prov:wasAttributedTo ;
+  rdfs:domain queue:Job ;
+  rdfs:range prov:Agent ;
+  rdfs:label "Submitted By" ;
+  rdfs:comment "Agent that submitted the job" .
+
+queue:assignedTo a owl:ObjectProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range prov:Agent ;
+  rdfs:label "Assigned To" ;
+  rdfs:comment "Worker or agent assigned to execute job" .
+
+queue:partOfWorkflow a owl:ObjectProperty ;
+  rdfs:domain queue:Job ;
+  rdfs:range prov:Activity ;
+  rdfs:label "Part Of Workflow" ;
+  rdfs:comment "Workflow or activity this job is part of" .
+
+# ============================================================================
+# End of Queue Ontology
+# ============================================================================

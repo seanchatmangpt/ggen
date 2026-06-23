@@ -1,0 +1,426 @@
+@prefix cns: <https://schema.chatman.ai/cns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# CNS Compilers Ontology - All Compiler and Code Generation Tools
+#################################################################
+
+# ============================================================================
+# COMPILER CLASSES
+# ============================================================================
+
+cns:Compiler a rdfs:Class ;
+    rdfs:label "Compiler" ;
+    rdfs:comment "A code generation or compilation tool" .
+
+cns:CodeGenerator a rdfs:Class ;
+    rdfs:label "Code Generator" ;
+    rdfs:comment "A tool that generates code from specifications" .
+
+cns:Template a rdfs:Class ;
+    rdfs:label "Template" ;
+    rdfs:comment "A template for code generation" .
+
+cns:Language a rdfs:Class ;
+    rdfs:label "Programming Language" ;
+    rdfs:comment "A programming language supported by compilers" .
+
+# ============================================================================
+# COMPILER PROPERTIES
+# ============================================================================
+
+cns:generatesCode a rdf:Property ;
+    rdfs:label "generates code" ;
+    rdfs:domain cns:Compiler ;
+    rdfs:range rdfs:Literal .
+
+cns:supportsLanguage a rdf:Property ;
+    rdfs:label "supports language" ;
+    rdfs:domain cns:Compiler ;
+    rdfs:range cns:Language .
+
+cns:usesTemplate a rdf:Property ;
+    rdfs:label "uses template" ;
+    rdfs:domain cns:Compiler ;
+    rdfs:range cns:Template .
+
+cns:filePath a rdf:Property ;
+    rdfs:label "file path" ;
+    rdfs:domain cns:Compiler ;
+    rdfs:range rdfs:Literal .
+
+cns:compilationTime a rdf:Property ;
+    rdfs:label "compilation time" ;
+    rdfs:domain cns:Compiler ;
+    rdfs:range xsd:integer .
+
+cns:outputFormat a rdf:Property ;
+    rdfs:label "output format" ;
+    rdfs:domain cns:Compiler ;
+    rdfs:range rdfs:Literal .
+
+# ============================================================================
+# PROGRAMMING LANGUAGES
+# ============================================================================
+
+cns:CLanguage a cns:Language ;
+    rdfs:label "C Language" ;
+    rdfs:comment "C programming language" .
+
+cns:CPPLanguage a cns:Language ;
+    rdfs:label "C++ Language" ;
+    rdfs:comment "C++ programming language" .
+
+cns:PythonLanguage a cns:Language ;
+    rdfs:label "Python Language" ;
+    rdfs:comment "Python programming language" .
+
+cns:TTLLanguage a cns:Language ;
+    rdfs:label "Turtle Language" ;
+    rdfs:comment "Turtle RDF serialization format" .
+
+cns:JSONLanguage a cns:Language ;
+    rdfs:label "JSON Language" ;
+    rdfs:comment "JSON data format" .
+
+# ============================================================================
+# TEMPLATES
+# ============================================================================
+
+cns:OTELHeaderTemplate a cns:Template ;
+    rdfs:label "OpenTelemetry Header Template" ;
+    cns:filePath "cns/templates/otel_header.h.j2" ;
+    rdfs:comment "Jinja template for OpenTelemetry headers" .
+
+cns:OTELInjectTemplate a cns:Template ;
+    rdfs:label "OpenTelemetry Injection Template" ;
+    cns:filePath "cns/templates/otel_inject.c.j2" ;
+    rdfs:comment "Jinja template for OpenTelemetry injection" .
+
+cns:ReportTemplate a cns:Template ;
+    rdfs:label "Report Generation Template" ;
+    cns:filePath "cns/templates/report.j2" ;
+    rdfs:comment "Jinja template for report generation" .
+
+cns:SimpleTemplate a cns:Template ;
+    rdfs:label "Simple Template" ;
+    cns:filePath "cns/templates/simple.j2" ;
+    rdfs:comment "Simple Jinja template example" .
+
+# ============================================================================
+# SQL COMPILERS
+# ============================================================================
+
+cns:SQLCompiler a cns:Compiler ;
+    rdfs:label "SQL Compiler" ;
+    cns:filePath "cns/sql_compiler.py" ;
+    cns:compilationTime 500 ;
+    cns:outputFormat "C" ;
+    cns:generatesCode "AOT compiled SQL functions" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage ;
+    rdfs:comment "Python-based SQL AOT compiler" .
+
+cns:SQLAOTCompiler a cns:Compiler ;
+    rdfs:label "SQL AOT Compiler" ;
+    cns:filePath "cns/sql_aot_compiler.py" ;
+    cns:compilationTime 300 ;
+    cns:outputFormat "C" ;
+    cns:generatesCode "Ahead-of-time SQL compilation" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage ;
+    rdfs:comment "Ahead-of-time SQL compilation system" .
+
+# ============================================================================
+# SPARQL COMPILERS
+# ============================================================================
+
+cns:SPARQLCompiler a cns:Compiler ;
+    rdfs:label "SPARQL Compiler" ;
+    cns:filePath "cns/sparql_aot_compiler.py" ;
+    cns:compilationTime 400 ;
+    cns:outputFormat "C" ;
+    cns:generatesCode "AOT compiled SPARQL functions" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage ;
+    rdfs:comment "Python-based SPARQL AOT compiler" .
+
+cns:SPARQL80_20Compiler a cns:Compiler ;
+    rdfs:label "SPARQL 80/20 Compiler" ;
+    cns:filePath "cns/sparql_80_20_compiler.py" ;
+    cns:compilationTime 200 ;
+    cns:outputFormat "C" ;
+    cns:generatesCode "80/20 optimized SPARQL functions" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage ;
+    rdfs:comment "80/20 optimized SPARQL compiler" .
+
+# ============================================================================
+# SHACL COMPILERS
+# ============================================================================
+
+cns:SHACLCompiler a cns:Compiler ;
+    rdfs:label "SHACL Compiler" ;
+    cns:filePath "cns/shacl_aot_compiler.py" ;
+    cns:compilationTime 350 ;
+    cns:outputFormat "C" ;
+    cns:generatesCode "AOT compiled SHACL validators" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage ;
+    rdfs:comment "Python-based SHACL AOT compiler" .
+
+cns:SHACL49CycleCompiler a cns:Compiler ;
+    rdfs:label "SHACL 49-Cycle Compiler" ;
+    cns:filePath "cns/shacl_49_cycle_compiler.py" ;
+    cns:compilationTime 250 ;
+    cns:outputFormat "C" ;
+    cns:generatesCode "49-cycle SHACL validators" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage ;
+    rdfs:comment "49-cycle optimized SHACL compiler" .
+
+# ============================================================================
+# OWL COMPILERS
+# ============================================================================
+
+cns:OWLCompiler a cns:Compiler ;
+    rdfs:label "OWL Compiler" ;
+    cns:filePath "cns/owl_aot_compiler.py" ;
+    cns:compilationTime 600 ;
+    cns:outputFormat "C" ;
+    cns:generatesCode "AOT compiled OWL reasoning functions" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage ;
+    rdfs:comment "Python-based OWL AOT compiler" .
+
+cns:OWL80_20Compiler a cns:Compiler ;
+    rdfs:label "OWL 80/20 Compiler" ;
+    cns:filePath "cns/owl_80_20_compiler.py" ;
+    cns:compilationTime 400 ;
+    cns:outputFormat "C" ;
+    cns:generatesCode "80/20 optimized OWL reasoning" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage ;
+    rdfs:comment "80/20 optimized OWL compiler" .
+
+# ============================================================================
+# GENERAL AOT COMPILERS
+# ============================================================================
+
+cns:AOTCompiler a cns:Compiler ;
+    rdfs:label "AOT Compiler" ;
+    cns:filePath "cns/codegen/aot_compiler.py" ;
+    cns:compilationTime 800 ;
+    cns:outputFormat "C" ;
+    cns:generatesCode "General AOT compilation framework" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage ;
+    rdfs:comment "General AOT compilation framework" .
+
+cns:OntologyCompiler a cns:Compiler ;
+    rdfs:label "Ontology Compiler" ;
+    cns:filePath "cns/codegen/ontology_compiler.py" ;
+    cns:compilationTime 700 ;
+    cns:outputFormat "C" ;
+    cns:generatesCode "Ontology ID mappings and rules" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:TTLLanguage ;
+    cns:supportsLanguage cns:CLanguage ;
+    rdfs:comment "Ontology compilation system" .
+
+# ============================================================================
+# WEAVER COMPILERS
+# ============================================================================
+
+cns:WeaverCompiler a cns:Compiler ;
+    rdfs:label "Weaver Compiler" ;
+    cns:filePath "cns/codegen/weaver_80_20_simple_final.py" ;
+    cns:compilationTime 450 ;
+    cns:outputFormat "C++" ;
+    cns:generatesCode "OpenTelemetry instrumentation code" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CPPLanguage ;
+    cns:usesTemplate cns:OTELHeaderTemplate ;
+    cns:usesTemplate cns:OTELInjectTemplate ;
+    rdfs:comment "Code weaver for telemetry instrumentation" .
+
+cns:WeaverSimpleCompiler a cns:Compiler ;
+    rdfs:label "Weaver Simple Compiler" ;
+    cns:filePath "cns/codegen/weaver_simple.py" ;
+    cns:compilationTime 300 ;
+    cns:outputFormat "C++" ;
+    cns:generatesCode "Simple telemetry instrumentation" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CPPLanguage ;
+    rdfs:comment "Simple code weaver" .
+
+cns:WeaverBenchmarkCompiler a cns:Compiler ;
+    rdfs:label "Weaver Benchmark Compiler" ;
+    cns:filePath "cns/codegen/weaver_benchmark.py" ;
+    cns:compilationTime 350 ;
+    cns:outputFormat "C++" ;
+    cns:generatesCode "Benchmark instrumentation code" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CPPLanguage ;
+    rdfs:comment "Benchmark-specific code weaver" .
+
+# ============================================================================
+# SPAN EXTRACTION COMPILERS
+# ============================================================================
+
+cns:SpanExtractor a cns:Compiler ;
+    rdfs:label "Span Extractor" ;
+    cns:filePath "cns/codegen/extract_spans.py" ;
+    cns:compilationTime 100 ;
+    cns:outputFormat "JSON" ;
+    cns:generatesCode "Span definitions from TTL" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:TTLLanguage ;
+    cns:supportsLanguage cns:JSONLanguage ;
+    rdfs:comment "Extract spans from TTL to JSON" .
+
+cns:SpanValidator a cns:Compiler ;
+    rdfs:label "Span Validator" ;
+    cns:filePath "cns/codegen/validate_weaver.py" ;
+    cns:compilationTime 150 ;
+    cns:outputFormat "JSON" ;
+    cns:generatesCode "Span validation reports" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:JSONLanguage ;
+    rdfs:comment "Validate weaver-generated spans" .
+
+# ============================================================================
+# REPORT GENERATION COMPILERS
+# ============================================================================
+
+cns:ReportGenerator a cns:Compiler ;
+    rdfs:label "Report Generator" ;
+    cns:filePath "cns/codegen/report_generator.py" ;
+    cns:compilationTime 200 ;
+    cns:outputFormat "Markdown" ;
+    cns:generatesCode "Implementation reports" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:usesTemplate cns:ReportTemplate ;
+    rdfs:comment "Generate implementation reports" .
+
+cns:BenchmarkReportGenerator a cns:Compiler ;
+    rdfs:label "Benchmark Report Generator" ;
+    cns:filePath "cns/codegen/benchmark_report.py" ;
+    cns:compilationTime 250 ;
+    cns:outputFormat "Markdown" ;
+    cns:generatesCode "Benchmark reports" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:JSONLanguage ;
+    rdfs:comment "Generate benchmark reports" .
+
+# ============================================================================
+# HEADER-ONLY COMPILERS
+# ============================================================================
+
+cns:HeaderOnlyCompiler a cns:Compiler ;
+    rdfs:label "Header-Only Compiler" ;
+    cns:filePath "cns/codegen/weaver_header_only.py" ;
+    cns:compilationTime 400 ;
+    cns:outputFormat "C++" ;
+    cns:generatesCode "Header-only C++ code" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CPPLanguage ;
+    rdfs:comment "Header-only code generation" .
+
+cns:HeaderOnlyFixedCompiler a cns:Compiler ;
+    rdfs:label "Header-Only Fixed Compiler" ;
+    cns:filePath "cns/codegen/weaver_header_only_fixed.py" ;
+    cns:compilationTime 400 ;
+    cns:outputFormat "C++" ;
+    cns:generatesCode "Fixed header-only C++ code" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CPPLanguage ;
+    rdfs:comment "Fixed header-only code generation" .
+
+# ============================================================================
+# OPTIONAL OTEL COMPILERS
+# ============================================================================
+
+cns:OptionalOTELCompiler a cns:Compiler ;
+    rdfs:label "Optional OTEL Compiler" ;
+    cns:filePath "cns/codegen/weaver_optional_otel.py" ;
+    cns:compilationTime 500 ;
+    cns:outputFormat "C++" ;
+    cns:generatesCode "Optional OpenTelemetry code" ;
+    cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CPPLanguage ;
+    rdfs:comment "Optional OpenTelemetry integration" .
+
+# ============================================================================
+# COMPILER RELATIONSHIPS
+# ============================================================================
+
+# SQL Compiler Relationships
+cns:SQLCompiler cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage .
+
+cns:SQLAOTCompiler cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage .
+
+# SPARQL Compiler Relationships
+cns:SPARQLCompiler cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage .
+
+cns:SPARQL80_20Compiler cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage .
+
+# SHACL Compiler Relationships
+cns:SHACLCompiler cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage .
+
+cns:SHACL49CycleCompiler cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage .
+
+# OWL Compiler Relationships
+cns:OWLCompiler cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage .
+
+cns:OWL80_20Compiler cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CLanguage .
+
+# Weaver Compiler Relationships
+cns:WeaverCompiler cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CPPLanguage ;
+    cns:usesTemplate cns:OTELHeaderTemplate ;
+    cns:usesTemplate cns:OTELInjectTemplate .
+
+cns:WeaverSimpleCompiler cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CPPLanguage .
+
+cns:WeaverBenchmarkCompiler cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CPPLanguage .
+
+# Span Extractor Relationships
+cns:SpanExtractor cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:TTLLanguage ;
+    cns:supportsLanguage cns:JSONLanguage .
+
+cns:SpanValidator cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:JSONLanguage .
+
+# Report Generator Relationships
+cns:ReportGenerator cns:supportsLanguage cns:PythonLanguage ;
+    cns:usesTemplate cns:ReportTemplate .
+
+cns:BenchmarkReportGenerator cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:JSONLanguage .
+
+# Header-Only Compiler Relationships
+cns:HeaderOnlyCompiler cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CPPLanguage .
+
+cns:HeaderOnlyFixedCompiler cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CPPLanguage .
+
+# Optional OTEL Compiler Relationships
+cns:OptionalOTELCompiler cns:supportsLanguage cns:PythonLanguage ;
+    cns:supportsLanguage cns:CPPLanguage . 

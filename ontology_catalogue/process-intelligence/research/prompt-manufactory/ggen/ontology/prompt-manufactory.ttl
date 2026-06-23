@@ -1,0 +1,232 @@
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix pm:   <https://pi-research.dev/ontology/prompt-manufactory#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# GGEN PROMPT MANUFACTORY ONTOLOGY
+# ============================================================================
+# Core classes for research program manufacturing.
+# All relations and properties defined here.
+# Grounded in public vocabularies: PROV-O, DCTERMS, DCAT, SKOS, SHACL.
+# No private vocabulary foundation.
+# ============================================================================
+
+# --- Classes ---
+
+pm:ResearchProgram a rdfs:Class ;
+  rdfs:comment "Top-level research program (PI, ZOEapp, wasm4pm-compat, etc.)" ;
+  rdfs:subClassOf prov:Entity .
+
+pm:Workflow a rdfs:Class ;
+  rdfs:comment "Dynamic workflow with phases and subagents" ;
+  rdfs:subClassOf prov:Entity .
+
+pm:Phase a rdfs:Class ;
+  rdfs:comment "One phase within a workflow" ;
+  rdfs:subClassOf prov:Entity .
+
+pm:SubagentRole a rdfs:Class ;
+  rdfs:comment "Bounded inspection station with mission, owned/forbidden surfaces, output contract" ;
+  rdfs:subClassOf prov:Entity .
+
+pm:Skill a rdfs:Class ;
+  rdfs:comment "Reusable standard-work capability (e.g., census, classify, audit)" ;
+  rdfs:subClassOf prov:Entity .
+
+pm:HookPolicy a rdfs:Class ;
+  rdfs:comment "Andon gate: deterministic lifecycle enforcement" ;
+  rdfs:subClassOf prov:Entity .
+
+pm:Checkpoint a rdfs:Class ;
+  rdfs:comment "ALIVE/PARTIAL verdict record" ;
+  rdfs:subClassOf prov:Entity .
+
+pm:RenderedPrompt a rdfs:Class ;
+  rdfs:comment "Manufactured research warrant (typed by PromptClass)" ;
+  rdfs:subClassOf prov:Entity .
+
+pm:AuditGate a rdfs:Class ;
+  rdfs:comment "Pass/fail condition for workflow" ;
+  rdfs:subClassOf prov:Entity .
+
+pm:RefusalCondition a rdfs:Class ;
+  rdfs:comment "Named reason workflow execution must stop" ;
+  rdfs:subClassOf prov:Entity .
+
+pm:OwnedSurface a rdfs:Class ;
+  rdfs:comment "File/directory surface a subagent inspects" ;
+  rdfs:subClassOf prov:Entity .
+
+pm:ForbiddenSurface a rdfs:Class ;
+  rdfs:comment "Surface a subagent must not touch" ;
+  rdfs:subClassOf prov:Entity .
+
+pm:Receipt a rdfs:Class ;
+  rdfs:comment "Proof-of-execution artifact with derivation and hash" ;
+  rdfs:subClassOf prov:Entity .
+
+pm:PromptClass a rdfs:Class ;
+  rdfs:comment "Type of research warrant: INTEL | RECONCILE | REMEDIATE | SYNC | AUDIT | CHECKPOINT | SPR | LIVESTREAM" ;
+  rdfs:subClassOf rdf:Property .
+
+pm:InvalidGgenFile a rdfs:Class ;
+  rdfs:comment "Classification record for legacy .ggen files found in referenced projects" ;
+  rdfs:subClassOf prov:Entity .
+
+# --- Relations (Object Properties) ---
+
+pm:hasProject a rdf:Property ;
+  rdfs:domain pm:ResearchProgram ;
+  rdfs:range prov:Entity ;
+  rdfs:comment "ResearchProgram references project" .
+
+pm:hasWorkflow a rdf:Property ;
+  rdfs:domain pm:ResearchProgram ;
+  rdfs:range pm:Workflow ;
+  rdfs:comment "ResearchProgram contains workflow" .
+
+pm:hasPhase a rdf:Property ;
+  rdfs:domain pm:Workflow ;
+  rdfs:range pm:Phase ;
+  rdfs:comment "Workflow contains phase" .
+
+pm:hasSubagentRole a rdf:Property ;
+  rdfs:domain pm:Phase ;
+  rdfs:range pm:SubagentRole ;
+  rdfs:comment "Phase requires subagent role" .
+
+pm:ownsSurface a rdf:Property ;
+  rdfs:domain pm:SubagentRole ;
+  rdfs:range pm:OwnedSurface ;
+  rdfs:comment "Subagent inspects owned surface" .
+
+pm:forbidsSurface a rdf:Property ;
+  rdfs:domain pm:SubagentRole ;
+  rdfs:range pm:ForbiddenSurface ;
+  rdfs:comment "Subagent must not touch forbidden surface" .
+
+pm:hasAuditGate a rdf:Property ;
+  rdfs:domain pm:Workflow ;
+  rdfs:range pm:AuditGate ;
+  rdfs:comment "Workflow enforces audit gate" .
+
+pm:emitsRefusal a rdf:Property ;
+  rdfs:domain pm:AuditGate ;
+  rdfs:range pm:RefusalCondition ;
+  rdfs:comment "Gate may fail with refusal" .
+
+pm:emitsCheckpoint a rdf:Property ;
+  rdfs:domain pm:Workflow ;
+  rdfs:range pm:Checkpoint ;
+  rdfs:comment "Workflow emits checkpoint verdict" .
+
+pm:derivedFrom a rdf:Property ;
+  rdfs:domain pm:RenderedPrompt ;
+  rdfs:range prov:Entity ;
+  rdfs:comment "Prompt derived from graph source (not hand-written)" .
+
+pm:governedBy a rdf:Property ;
+  rdfs:domain pm:RenderedPrompt ;
+  rdfs:range pm:AuditGate ;
+  rdfs:comment "Prompt must satisfy gate" .
+
+pm:proves a rdf:Property ;
+  rdfs:domain pm:Receipt ;
+  rdfs:range pm:RenderedPrompt ;
+  rdfs:comment "Receipt proves prompt was manufactured from law" .
+
+pm:hasPromptClass a rdf:Property ;
+  rdfs:domain pm:ResearchProgram ;
+  rdfs:range pm:PromptClass ;
+  rdfs:comment "Program emits this class of warrant" .
+
+pm:hasOutputContract a rdf:Property ;
+  rdfs:domain pm:SubagentRole ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Subagent must produce output matching this description" .
+
+pm:hasRefusalGate a rdf:Property ;
+  rdfs:domain pm:SubagentRole ;
+  rdfs:range pm:RefusalCondition ;
+  rdfs:comment "Subagent may refuse under this condition" .
+
+# --- Data Properties (Literal) ---
+
+pm:programId a rdf:Property ;
+  rdfs:domain pm:ResearchProgram ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Unique identifier (e.g., PI_RESEARCH_PROGRAM_INTEL_001)" .
+
+pm:mission a rdf:Property ;
+  rdfs:domain prov:Entity ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Human-readable description of purpose" .
+
+pm:filePath a rdf:Property ;
+  rdfs:domain pm:InvalidGgenFile ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Absolute file path of .ggen artifact" .
+
+pm:ownerProject a rdf:Property ;
+  rdfs:domain pm:InvalidGgenFile ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Project that owns this .ggen file" .
+
+pm:classification a rdf:Property ;
+  rdfs:domain pm:InvalidGgenFile ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Classification: LEGACY_INVALID_SOURCE | RENDERED_ARTIFACT_WITH_WRONG_EXTENSION | MIGRATION_REQUIRED | OUT_OF_SCOPE_EXTERNAL_ARTIFACT | BLOCKING_SOURCE_SURFACE" .
+
+pm:blockingStatus a rdf:Property ;
+  rdfs:domain pm:InvalidGgenFile ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "true = blocks Prompt Manufactory; false = non-blocking migration" .
+
+pm:remediationRoute a rdf:Property ;
+  rdfs:domain pm:InvalidGgenFile ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Remediation action: move, delete, rename, external, out-of-scope, etc." .
+
+# --- Constraints (SHACL) ---
+
+# Every ResearchProgram must have an ID
+[] a sh:NodeShape ;
+  sh:targetClass pm:ResearchProgram ;
+  sh:property [
+    sh:path pm:programId ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string
+  ] .
+
+# Every SubagentRole must have a mission
+[] a sh:NodeShape ;
+  sh:targetClass pm:SubagentRole ;
+  sh:property [
+    sh:path pm:mission ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string
+  ] .
+
+# Every RenderedPrompt must have derivedFrom source
+[] a sh:NodeShape ;
+  sh:targetClass pm:RenderedPrompt ;
+  sh:property [
+    sh:path pm:derivedFrom ;
+    sh:minCount 1 ;
+    sh:message "RenderedPrompt must have derivedFrom source (not hand-written)"
+  ] .
+
+# Every Checkpoint must have status (implied by ALIVE/PARTIAL verdict)
+[] a sh:NodeShape ;
+  sh:targetClass pm:Checkpoint ;
+  sh:property [
+    sh:path dct:issued ;
+    sh:minCount 1 ;
+    sh:datatype xsd:dateTime
+  ] .

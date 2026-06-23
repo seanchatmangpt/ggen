@@ -1,0 +1,66 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix yawl-exec: <http://bitflow.ai/ontology/yawl/execution/v1#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Simple valid workflow for testing basic patterns
+
+<http://example.org/test/simple-workflow> a yawl:WorkflowSpecification ;
+    rdfs:label "Simple Test Workflow" ;
+    rdfs:comment "Minimal valid workflow for integration testing" ;
+    yawl:versionNumber "1.0.0" ;
+
+    yawl:hasStartCondition <#start> ;
+    yawl:hasEndCondition <#end> ;
+
+    yawl:hasTask <#task1>,
+                  <#task2>,
+                  <#task3> ;
+
+    yawl:hasCondition <#start>,
+                      <#c1>,
+                      <#c2>,
+                      <#end> .
+
+<#start> a yawl:StartCondition ;
+    rdfs:label "Start" ;
+    yawl:initialMarking 1 ;
+    yawl:hasOutgoingFlow <#task1> .
+
+<#task1> a yawl:Task ;
+    rdfs:label "Task 1" ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl-exec:executionMode yawl-exec:Synchronous ;
+    yawl:hasOutgoingFlow <#c1> .
+
+<#c1> a yawl:Condition ;
+    rdfs:label "Condition 1" ;
+    yawl:initialMarking 0 ;
+    yawl:hasIncomingFlow <#task1> ;
+    yawl:hasOutgoingFlow <#task2> .
+
+<#task2> a yawl:Task ;
+    rdfs:label "Task 2" ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl-exec:executionMode yawl-exec:Synchronous ;
+    yawl:hasOutgoingFlow <#c2> .
+
+<#c2> a yawl:Condition ;
+    rdfs:label "Condition 2" ;
+    yawl:initialMarking 0 ;
+    yawl:hasIncomingFlow <#task2> ;
+    yawl:hasOutgoingFlow <#task3> .
+
+<#task3> a yawl:Task ;
+    rdfs:label "Task 3" ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl-exec:executionMode yawl-exec:Synchronous ;
+    yawl:hasOutgoingFlow <#end> .
+
+<#end> a yawl:EndCondition ;
+    rdfs:label "End" ;
+    yawl:initialMarking 0 ;
+    yawl:hasIncomingFlow <#task3> .

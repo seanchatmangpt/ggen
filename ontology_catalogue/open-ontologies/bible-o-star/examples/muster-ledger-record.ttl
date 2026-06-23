@@ -1,0 +1,49 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# MusterLedgerRecord: accountable counting, not vanity metrics.
+# Muster = naming builders by genealogy for assigned accountability.
+# Vanity metric = a number that flatters. Muster record = a number that obligates.
+
+bos:SonsOfHassenaah a bos:Builder ;
+    rdfs:label "Sons of Hassenaah" ;
+    bos:hasCanonicalReference "Neh.3.3"^^xsd:string ;
+    bos:assignedToGate bos:FishGate ;
+    rdfs:comment "Builders of the Fish Gate. Named in the muster by assignment, not by rank." ;
+    bos:hasSource "Neh.3.3" ;
+    dcterms:created "2026-06-02"^^xsd:date .
+
+bos:Eliashib a bos:Builder ;
+    rdfs:label "Eliashib the High Priest" ;
+    bos:hasCanonicalReference "Neh.3.1"^^xsd:string ;
+    bos:assignedToGate bos:SheepGate ;
+    rdfs:comment "High priest who built the Sheep Gate with his brothers the priests. Named first in the muster because work preceded rank." ;
+    bos:hasSource "Neh.3.1" .
+
+bos:MusterRecord001 a bos:MusterLedgerRecord ;
+    rdfs:label "Muster Record 001 — Sons of Hassenaah, Fish Gate" ;
+    bos:hasCanonicalReference "Neh.3.3"^^xsd:string ;
+    bos:assignedToGate bos:FishGate ;
+    rdfs:comment "Census entry: Sons of Hassenaah assigned to and completed the Fish Gate section. Accountable by name, by section, by source." ;
+    bos:hasMusterRecord bos:MusterRegistry001 ;
+    bos:hasSource "Neh.3.3" ;
+    bos:hasBuilder bos:SonsOfHassenaah .
+
+bos:MusterRecord002 a bos:MusterLedgerRecord ;
+    rdfs:label "Muster Record 002 — Eliashib, Sheep Gate" ;
+    bos:hasCanonicalReference "Neh.3.1"^^xsd:string ;
+    bos:assignedToGate bos:SheepGate ;
+    rdfs:comment "Census entry: Eliashib and the priests built the Sheep Gate and consecrated it. Named first because they set the consecration pattern for the wall." ;
+    bos:hasMusterRecord bos:MusterRegistry001 ;
+    bos:hasSource "Neh.3.1" ;
+    bos:hasBuilder bos:Eliashib .
+
+bos:MusterRegistry001 a bos:MusterRegistry ;
+    rdfs:label "Nehemiah Wall Muster Registry" ;
+    rdfs:comment "The full accountability registry of wall builders. Source: Nehemiah 3. This is not a census of population — it is a census of obligation." ;
+    bos:hasSource "Neh.3.1-32" ;
+    bos:hasCanonicalReference "Neh.3" .

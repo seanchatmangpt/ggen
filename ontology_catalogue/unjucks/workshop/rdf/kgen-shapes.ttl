@@ -1,0 +1,356 @@
+@prefix : <https://kgen.dev/shapes#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix kgen: <https://kgen.dev/ontology#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+# SHACL Shapes for KGEN Self-Hosting Validation
+# Ensures all charter and workshop data meets requirements
+
+:ProjectShape a sh:NodeShape ;
+    sh:targetClass kgen:Project ;
+    sh:property [
+        sh:path dct:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:message "Project must have a title of at least 5 characters"
+    ] ;
+    sh:property [
+        sh:path dct:description ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 20 ;
+        sh:message "Project must have a description of at least 20 characters"
+    ] ;
+    sh:property [
+        sh:path kgen:version ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+$" ;
+        sh:message "Project version must follow semantic versioning (x.y.z)"
+    ] ;
+    sh:property [
+        sh:path kgen:status ;
+        sh:datatype xsd:string ;
+        sh:in ( "planning" "active" "completed" "cancelled" ) ;
+        sh:message "Project status must be one of: planning, active, completed, cancelled"
+    ] ;
+    sh:property [
+        sh:path kgen:charter ;
+        sh:class kgen:Charter ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Project must have exactly one charter"
+    ] .
+
+:CharterShape a sh:NodeShape ;
+    sh:targetClass kgen:Charter ;
+    sh:property [
+        sh:path dct:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Charter must have a title"
+    ] ;
+    sh:property [
+        sh:path kgen:hasStakeholder ;
+        sh:class kgen:Stakeholder ;
+        sh:minCount 3 ;
+        sh:message "Charter must have at least 3 stakeholders"
+    ] ;
+    sh:property [
+        sh:path kgen:hasMilestone ;
+        sh:class kgen:Milestone ;
+        sh:minCount 4 ;
+        sh:message "Charter must have at least 4 milestones"
+    ] ;
+    sh:property [
+        sh:path kgen:hasCTQ ;
+        sh:class kgen:CTQMetric ;
+        sh:minCount 3 ;
+        sh:message "Charter must have at least 3 CTQ metrics"
+    ] .
+
+:StakeholderShape a sh:NodeShape ;
+    sh:targetClass kgen:Stakeholder ;
+    sh:property [
+        sh:path kgen:role ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "sponsor" "technical_lead" "quality_lead" "business_analyst" "developer" "architect" ) ;
+        sh:message "Stakeholder role must be from approved list"
+    ] ;
+    sh:property [
+        sh:path kgen:responsibility ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:message "Stakeholder must have defined responsibility (min 10 chars)"
+    ] ;
+    sh:property [
+        sh:path kgen:influence ;
+        sh:datatype xsd:string ;
+        sh:in ( "low" "medium" "high" ) ;
+        sh:message "Stakeholder influence must be low, medium, or high"
+    ] ;
+    sh:property [
+        sh:path kgen:communication ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Stakeholder must have defined communication cadence"
+    ] .
+
+:MilestoneShape a sh:NodeShape ;
+    sh:targetClass kgen:Milestone ;
+    sh:property [
+        sh:path dct:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Milestone must have a title"
+    ] ;
+    sh:property [
+        sh:path kgen:dueDate ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Milestone must have a due date"
+    ] ;
+    sh:property [
+        sh:path kgen:deliverables ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 20 ;
+        sh:message "Milestone must have deliverables description (min 20 chars)"
+    ] ;
+    sh:property [
+        sh:path kgen:criteria ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Milestone must have completion criteria"
+    ] ;
+    sh:property [
+        sh:path kgen:status ;
+        sh:datatype xsd:string ;
+        sh:in ( "planned" "in_progress" "completed" "delayed" "cancelled" ) ;
+        sh:message "Milestone status must be from approved list"
+    ] ;
+    sh:property [
+        sh:path kgen:progress ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 100 ;
+        sh:message "Milestone progress must be between 0 and 100"
+    ] .
+
+:CTQMetricShape a sh:NodeShape ;
+    sh:targetClass kgen:CTQMetric ;
+    sh:property [
+        sh:path dct:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "CTQ metric must have a title"
+    ] ;
+    sh:property [
+        sh:path kgen:target ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "CTQ metric must have a target"
+    ] ;
+    sh:property [
+        sh:path kgen:measure ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "CTQ metric must have a measurement method"
+    ] ;
+    sh:property [
+        sh:path kgen:threshold ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "CTQ metric must have a threshold"
+    ] ;
+    sh:property [
+        sh:path kgen:priority ;
+        sh:datatype xsd:string ;
+        sh:in ( "low" "medium" "high" "critical" ) ;
+        sh:message "CTQ metric priority must be low, medium, high, or critical"
+    ] .
+
+:ArchitectureShape a sh:NodeShape ;
+    sh:targetClass kgen:Architecture ;
+    sh:property [
+        sh:path kgen:hasComponent ;
+        sh:class kgen:Component ;
+        sh:minCount 3 ;
+        sh:message "Architecture must have at least 3 components"
+    ] ;
+    sh:property [
+        sh:path kgen:pattern ;
+        sh:datatype xsd:string ;
+        sh:in ( "monolithic" "microservices" "layered" "event_driven" ) ;
+        sh:message "Architecture pattern must be from approved list"
+    ] ;
+    sh:property [
+        sh:path kgen:deployment ;
+        sh:datatype xsd:string ;
+        sh:in ( "bare_metal" "containerized" "serverless" "hybrid" ) ;
+        sh:message "Deployment type must be from approved list"
+    ] .
+
+:ComponentShape a sh:NodeShape ;
+    sh:targetClass kgen:Component ;
+    sh:property [
+        sh:path dct:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Component must have a title"
+    ] ;
+    sh:property [
+        sh:path kgen:responsibility ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Component must have defined responsibility"
+    ] ;
+    sh:property [
+        sh:path kgen:technology ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Component must specify technology stack"
+    ] ;
+    sh:property [
+        sh:path kgen:interface ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Component must define interface"
+    ] .
+
+:SelfHostingCapabilityShape a sh:NodeShape ;
+    sh:targetClass kgen:SelfHostingCapability ;
+    sh:property [
+        sh:path kgen:generates ;
+        sh:class kgen:GeneratedArtifact ;
+        sh:minCount 1 ;
+        sh:message "Self-hosting capability must generate at least one artifact"
+    ] ;
+    sh:property [
+        sh:path kgen:validates ;
+        sh:minCount 1 ;
+        sh:message "Self-hosting capability must validate its outputs"
+    ] ;
+    sh:property [
+        sh:path kgen:demonstrates ;
+        sh:minCount 1 ;
+        sh:message "Self-hosting capability must demonstrate dogfooding"
+    ] .
+
+:GeneratedArtifactShape a sh:NodeShape ;
+    sh:targetClass kgen:GeneratedArtifact ;
+    sh:property [
+        sh:path dct:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Generated artifact must have a title"
+    ] ;
+    sh:property [
+        sh:path kgen:sourceRDF ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Generated artifact must specify source RDF"
+    ] ;
+    sh:property [
+        sh:path kgen:template ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Generated artifact must specify template"
+    ] ;
+    sh:property [
+        sh:path kgen:outputFormat ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Generated artifact must specify output format(s)"
+    ] .
+
+:TestSuiteShape a sh:NodeShape ;
+    sh:targetClass kgen:TestSuite ;
+    sh:property [
+        sh:path kgen:hasTest ;
+        sh:class kgen:Test ;
+        sh:minCount 3 ;
+        sh:message "Test suite must have at least 3 tests"
+    ] ;
+    sh:property [
+        sh:path kgen:coverage ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 80 ;
+        sh:maxInclusive 100 ;
+        sh:message "Test coverage must be at least 80%"
+    ] ;
+    sh:property [
+        sh:path kgen:automation ;
+        sh:datatype xsd:string ;
+        sh:in ( "none" "partial" "full" ) ;
+        sh:message "Automation level must be none, partial, or full"
+    ] .
+
+:TestShape a sh:NodeShape ;
+    sh:targetClass kgen:Test ;
+    sh:property [
+        sh:path dct:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Test must have a title"
+    ] ;
+    sh:property [
+        sh:path kgen:verifies ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Test must specify what it verifies"
+    ] ;
+    sh:property [
+        sh:path kgen:criteria ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Test must have pass/fail criteria"
+    ] .
+
+# Quality Gates for Self-Hosting
+:SelfHostingQualityGate a sh:NodeShape ;
+    sh:message "Self-hosting system quality gate" ;
+    sh:and (
+        [ sh:property [
+            sh:path kgen:generates ;
+            sh:minCount 3 ;
+            sh:message "Must generate at least 3 types of artifacts"
+        ] ]
+        [ sh:property [
+            sh:path kgen:validates ;
+            sh:minCount 3 ;
+            sh:message "Must validate at least 3 types of outputs"
+        ] ]
+        [ sh:property [
+            sh:path kgen:demonstrates ;
+            sh:minCount 1 ;
+            sh:message "Must demonstrate dogfooding approach"
+        ] ]
+    ) .

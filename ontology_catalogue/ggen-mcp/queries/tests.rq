@@ -1,0 +1,13 @@
+PREFIX ddd: <https://ddd-patterns.dev/schema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?test_name ?arrange_code ?act_code ?assert_code
+WHERE {
+  ?test a ddd:Test .
+  ?test rdfs:label ?test_name .
+  ?test ddd:hasArrange ?arrange_code .
+  ?test ddd:hasAct ?act_code .
+  ?test ddd:hasAssert ?assert_code .
+}
+ORDER BY ?test_name
+LIMIT 10000

@@ -1,0 +1,69 @@
+@prefix : <http://example.org/imports/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# Ontology metadata with imports
+<http://example.org/imports/> a owl:Ontology ;
+  owl:imports <http://xmlns.com/foaf/0.1/> ;
+  owl:imports <http://www.w3.org/2006/time#> ;
+  rdfs:label "Ontology with External Imports" ;
+  rdfs:comment "Tests import resolution and external vocabulary integration" .
+
+# Class extending FOAF Person
+:ExtendedPerson a rdfs:Class ;
+  rdfs:subClassOf foaf:Person ;
+  rdfs:label "Extended Person" ;
+  rdfs:comment "Person with additional properties" .
+
+# Additional properties on FOAF Person
+:employeeId a rdf:Property ;
+  rdfs:label "employeeId" ;
+  rdfs:domain foaf:Person ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Employee identification number" .
+
+:department a rdf:Property ;
+  rdfs:label "department" ;
+  rdfs:domain foaf:Person ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Department name" .
+
+:hireDate a rdf:Property ;
+  rdfs:label "hireDate" ;
+  rdfs:domain foaf:Person ;
+  rdfs:range time:Instant ;
+  rdfs:comment "Date of hire using W3C Time ontology" .
+
+# Event class using Time ontology
+:WorkEvent a rdfs:Class ;
+  rdfs:label "Work Event" ;
+  rdfs:comment "A work-related event with temporal properties" .
+
+:eventStart a rdf:Property ;
+  rdfs:label "eventStart" ;
+  rdfs:domain :WorkEvent ;
+  rdfs:range time:Instant ;
+  rdfs:comment "Event start time" .
+
+:eventEnd a rdf:Property ;
+  rdfs:label "eventEnd" ;
+  rdfs:domain :WorkEvent ;
+  rdfs:range time:Instant ;
+  rdfs:comment "Event end time" .
+
+:duration a rdf:Property ;
+  rdfs:label "duration" ;
+  rdfs:domain :WorkEvent ;
+  rdfs:range time:Duration ;
+  rdfs:comment "Event duration" .
+
+# Relationships
+:attendee a rdf:Property ;
+  rdfs:label "attendee" ;
+  rdfs:domain :WorkEvent ;
+  rdfs:range foaf:Person ;
+  rdfs:comment "Person attending the event" .

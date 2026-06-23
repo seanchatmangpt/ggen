@@ -1,0 +1,107 @@
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# CONSTRUCT Predicate Example - Dynamic Knowledge Graph Builder
+# "I want to automatically build knowledge graphs from code changes"
+
+ex:knowledge-graph-builder-hook rdf:type gh:Hook ;
+    gv:title "Knowledge Graph Builder" ;
+    gh:hasPredicate ex:knowledge-graph-builder-predicate ;
+    gh:orderedPipelines ex:knowledge-graph-builder-pipeline .
+
+# CONSTRUCT Predicate - Builds knowledge graphs dynamically
+ex:knowledge-graph-builder-predicate rdf:type gh:CONSTRUCTPredicate ;
+    gh:queryText """
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        
+        CONSTRUCT {
+            ?file rdf:type gv:SourceFile .
+            ?file gv:hasComponent ?component .
+            ?component rdf:type gv:Component .
+            ?component gv:hasDependency ?dependency .
+            ?dependency rdf:type gv:Dependency .
+        } WHERE {
+            ?file rdf:type gv:SourceFile .
+            ?file gv:filePath ?path .
+            FILTER(CONTAINS(?path, ".js") || CONTAINS(?path, ".ts"))
+            
+            # Extract component information from file path
+            BIND(IRI(CONCAT("https://gitvan.dev/component/", 
+                REPLACE(?path, ".*/([^/]+)\\.[^.]+$", "$1"))) AS ?component)
+            
+            # Extract dependencies from import statements
+            ?file gv:hasImport ?import .
+            BIND(IRI(CONCAT("https://gitvan.dev/dependency/", ?import)) AS ?dependency)
+        }
+    """ ;
+    gh:outputFormat "turtle" ;
+    gh:description "Builds knowledge graphs dynamically from code changes" .
+
+# Knowledge Graph Builder Pipeline
+ex:knowledge-graph-builder-pipeline rdf:type op:Pipeline ;
+    op:steps ex:analyze-code-structure, ex:build-knowledge-graph, ex:validate-graph, ex:update-graph-store .
+
+# Step 1: Analyze Code Structure
+ex:analyze-code-structure rdf:type gv:SparqlStep ;
+    gv:text """
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        
+        SELECT ?file ?component ?dependency WHERE {
+            ?file rdf:type gv:SourceFile .
+            ?file gv:filePath ?path .
+            FILTER(CONTAINS(?path, ".js") || CONTAINS(?path, ".ts"))
+            
+            BIND(IRI(CONCAT("https://gitvan.dev/component/", 
+                REPLACE(?path, ".*/([^/]+)\\.[^.]+$", "$1"))) AS ?component)
+            
+            OPTIONAL {
+                ?file gv:hasImport ?import .
+                BIND(IRI(CONCAT("https://gitvan.dev/dependency/", ?import)) AS ?dependency)
+            }
+        }
+    """ ;
+    gv:outputMapping '{"components": "results", "componentCount": "results.length"}' .
+
+# Step 2: Build Knowledge Graph
+ex:build-knowledge-graph rdf:type gv:TemplateStep ;
+    gv:text """
+        @prefix gv: <https://gitvan.dev/ontology#> .
+        @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+        
+        # Generated Knowledge Graph
+        # Generated: {{ "now" | date("YYYY-MM-DD HH:mm:ss") }}
+        # Components: {{ componentCount }}
+        
+        {% for component in components %}
+        {{ component.component.value }} rdf:type gv:Component ;
+            gv:definedIn {{ component.file.value }} .
+        
+        {{ component.file.value }} rdf:type gv:SourceFile ;
+            gv:defines {{ component.component.value }} .
+        
+        {% if component.dependency.value %}
+        {{ component.component.value }} gv:hasDependency {{ component.dependency.value }} .
+        {{ component.dependency.value }} rdf:type gv:Dependency .
+        {% endif %}
+        
+        {% endfor %}
+    """ ;
+    gv:filePath "./graph/generated/components-{{ 'now' | date('YYYY-MM-DD-HH-mm-ss') }}.ttl" ;
+    gv:dependsOn ex:analyze-code-structure .
+
+# Step 3: Validate Graph
+ex:validate-graph rdf:type gv:ShellStep ;
+    gv:command "echo 'Validating knowledge graph structure...'" ;
+    gv:description "Validate the generated knowledge graph" ;
+    gv:dependsOn ex:build-knowledge-graph .
+
+# Step 4: Update Graph Store
+ex:update-graph-store rdf:type gv:ShellStep ;
+    gv:command "echo 'Updating knowledge graph store...'" ;
+    gv:description "Update the persistent knowledge graph store" ;
+    gv:dependsOn ex:validate-graph .

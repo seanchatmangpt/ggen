@@ -1,0 +1,250 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<http://www.w3.org/ns/prov#>
+    a owl:Ontology ;
+    dcterms:title "PROV-O: The PROV Ontology" ;
+    dcterms:description "W3C PROV provenance vocabulary (W3C Recommendation 2013)" ;
+    owl:versionInfo "1.0" .
+
+# --- Starting Point Classes ---
+
+prov:Entity a owl:Class ;
+    rdfs:label "Entity" ;
+    rdfs:comment "An entity is a physical, digital, conceptual, or other kind of thing with some fixed aspects." .
+
+prov:Activity a owl:Class ;
+    rdfs:label "Activity" ;
+    rdfs:comment "An activity is something that occurs over a period of time and acts upon or with entities." .
+
+prov:Agent a owl:Class ;
+    rdfs:label "Agent" ;
+    rdfs:comment "An agent is something that bears some form of responsibility for an activity taking place." .
+
+# --- Expanded Classes ---
+
+prov:Usage a owl:Class ; rdfs:label "Usage" .
+prov:Generation a owl:Class ; rdfs:label "Generation" .
+prov:Derivation a owl:Class ; rdfs:label "Derivation" .
+prov:Revision a owl:Class ; rdfs:subClassOf prov:Derivation ; rdfs:label "Revision" .
+prov:Quotation a owl:Class ; rdfs:subClassOf prov:Derivation ; rdfs:label "Quotation" .
+prov:PrimarySource a owl:Class ; rdfs:subClassOf prov:Derivation ; rdfs:label "PrimarySource" .
+prov:Attribution a owl:Class ; rdfs:label "Attribution" .
+prov:Association a owl:Class ; rdfs:label "Association" .
+prov:Communication a owl:Class ; rdfs:label "Communication" .
+prov:Influence a owl:Class ; rdfs:label "Influence" .
+prov:Start a owl:Class ; rdfs:label "Start" .
+prov:End a owl:Class ; rdfs:label "End" .
+prov:Invalidation a owl:Class ; rdfs:label "Invalidation" .
+
+prov:Bundle a owl:Class ; rdfs:subClassOf prov:Entity ; rdfs:label "Bundle" .
+prov:Collection a owl:Class ; rdfs:subClassOf prov:Entity ; rdfs:label "Collection" .
+prov:EmptyCollection a owl:Class ; rdfs:subClassOf prov:Collection ; rdfs:label "EmptyCollection" .
+
+prov:Location a owl:Class ; rdfs:label "Location" .
+prov:Role a owl:Class ; rdfs:label "Role" .
+prov:Plan a owl:Class ; rdfs:subClassOf prov:Entity ; rdfs:label "Plan" .
+
+prov:SoftwareAgent a owl:Class ; rdfs:subClassOf prov:Agent ; rdfs:label "SoftwareAgent" .
+prov:Person a owl:Class ; rdfs:subClassOf prov:Agent ; rdfs:label "Person" .
+prov:Organization a owl:Class ; rdfs:subClassOf prov:Agent ; rdfs:label "Organization" .
+
+prov:InstantaneousEvent a owl:Class ; rdfs:label "InstantaneousEvent" .
+
+# --- Starting Point Properties ---
+
+prov:wasGeneratedBy a owl:ObjectProperty ;
+    rdfs:label "wasGeneratedBy" ;
+    rdfs:domain prov:Entity ;
+    rdfs:range prov:Activity .
+
+prov:wasDerivedFrom a owl:ObjectProperty ;
+    rdfs:label "wasDerivedFrom" ;
+    rdfs:domain prov:Entity ;
+    rdfs:range prov:Entity .
+
+prov:wasAttributedTo a owl:ObjectProperty ;
+    rdfs:label "wasAttributedTo" ;
+    rdfs:domain prov:Entity ;
+    rdfs:range prov:Agent .
+
+prov:startedAtTime a owl:DatatypeProperty ;
+    rdfs:label "startedAtTime" ;
+    rdfs:domain prov:Activity ;
+    rdfs:range xsd:dateTime .
+
+prov:endedAtTime a owl:DatatypeProperty ;
+    rdfs:label "endedAtTime" ;
+    rdfs:domain prov:Activity ;
+    rdfs:range xsd:dateTime .
+
+prov:used a owl:ObjectProperty ;
+    rdfs:label "used" ;
+    rdfs:domain prov:Activity ;
+    rdfs:range prov:Entity .
+
+prov:wasInformedBy a owl:ObjectProperty ;
+    rdfs:label "wasInformedBy" ;
+    rdfs:domain prov:Activity ;
+    rdfs:range prov:Activity .
+
+prov:actedOnBehalfOf a owl:ObjectProperty ;
+    rdfs:label "actedOnBehalfOf" ;
+    rdfs:domain prov:Agent ;
+    rdfs:range prov:Agent .
+
+prov:wasAssociatedWith a owl:ObjectProperty ;
+    rdfs:label "wasAssociatedWith" ;
+    rdfs:domain prov:Activity ;
+    rdfs:range prov:Agent .
+
+# --- Expanded Properties ---
+
+prov:wasRevisionOf a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:wasDerivedFrom ;
+    rdfs:label "wasRevisionOf" .
+
+prov:hadPrimarySource a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:wasDerivedFrom ;
+    rdfs:label "hadPrimarySource" .
+
+prov:wasQuotedFrom a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:wasDerivedFrom ;
+    rdfs:label "wasQuotedFrom" .
+
+prov:alternateOf a owl:ObjectProperty ;
+    rdfs:label "alternateOf" ;
+    rdfs:domain prov:Entity ;
+    rdfs:range prov:Entity .
+
+prov:specializationOf a owl:ObjectProperty ;
+    rdfs:label "specializationOf" ;
+    rdfs:domain prov:Entity ;
+    rdfs:range prov:Entity .
+
+prov:hadMember a owl:ObjectProperty ;
+    rdfs:label "hadMember" ;
+    rdfs:domain prov:Collection ;
+    rdfs:range prov:Entity .
+
+prov:atTime a owl:DatatypeProperty ;
+    rdfs:label "atTime" ;
+    rdfs:range xsd:dateTime .
+
+prov:entity a owl:ObjectProperty ;
+    rdfs:label "entity" ;
+    rdfs:range prov:Entity .
+
+prov:activity a owl:ObjectProperty ;
+    rdfs:label "activity" ;
+    rdfs:range prov:Activity .
+
+prov:agent a owl:ObjectProperty ;
+    rdfs:label "agent" ;
+    rdfs:range prov:Agent .
+
+prov:hadRole a owl:ObjectProperty ;
+    rdfs:label "hadRole" ;
+    rdfs:range prov:Role .
+
+prov:atLocation a owl:ObjectProperty ;
+    rdfs:label "atLocation" ;
+    rdfs:range prov:Location .
+
+prov:generated a owl:ObjectProperty ;
+    rdfs:label "generated" .
+
+prov:wasInfluencedBy a owl:ObjectProperty ;
+    rdfs:label "wasInfluencedBy" .
+
+prov:influenced a owl:ObjectProperty ;
+    rdfs:label "influenced" .
+
+prov:value a owl:DatatypeProperty ;
+    rdfs:label "value" .
+
+prov:generatedAtTime a owl:DatatypeProperty ;
+    rdfs:label "generatedAtTime" ;
+    rdfs:range xsd:dateTime .
+
+prov:invalidatedAtTime a owl:DatatypeProperty ;
+    rdfs:label "invalidatedAtTime" ;
+    rdfs:range xsd:dateTime .
+
+prov:wasInvalidatedBy a owl:ObjectProperty ;
+    rdfs:label "wasInvalidatedBy" ;
+    rdfs:range prov:Activity .
+
+prov:invalidated a owl:ObjectProperty ;
+    rdfs:label "invalidated" .
+
+prov:hadUsage a owl:ObjectProperty ;
+    rdfs:label "hadUsage" ;
+    rdfs:range prov:Usage .
+
+prov:hadGeneration a owl:ObjectProperty ;
+    rdfs:label "hadGeneration" ;
+    rdfs:range prov:Generation .
+
+prov:hadDerivation a owl:ObjectProperty ;
+    rdfs:label "hadDerivation" ;
+    rdfs:range prov:Derivation .
+
+prov:hadPlan a owl:ObjectProperty ;
+    rdfs:label "hadPlan" ;
+    rdfs:range prov:Plan .
+
+prov:qualifiedUsage a owl:ObjectProperty ;
+    rdfs:label "qualifiedUsage" ;
+    rdfs:range prov:Usage .
+
+prov:qualifiedGeneration a owl:ObjectProperty ;
+    rdfs:label "qualifiedGeneration" ;
+    rdfs:range prov:Generation .
+
+prov:qualifiedDerivation a owl:ObjectProperty ;
+    rdfs:label "qualifiedDerivation" ;
+    rdfs:range prov:Derivation .
+
+prov:qualifiedRevision a owl:ObjectProperty ;
+    rdfs:label "qualifiedRevision" ;
+    rdfs:range prov:Revision .
+
+prov:qualifiedQuotation a owl:ObjectProperty ;
+    rdfs:label "qualifiedQuotation" ;
+    rdfs:range prov:Quotation .
+
+prov:qualifiedPrimarySource a owl:ObjectProperty ;
+    rdfs:label "qualifiedPrimarySource" ;
+    rdfs:range prov:PrimarySource .
+
+prov:qualifiedAttribution a owl:ObjectProperty ;
+    rdfs:label "qualifiedAttribution" ;
+    rdfs:range prov:Attribution .
+
+prov:qualifiedAssociation a owl:ObjectProperty ;
+    rdfs:label "qualifiedAssociation" ;
+    rdfs:range prov:Association .
+
+prov:qualifiedCommunication a owl:ObjectProperty ;
+    rdfs:label "qualifiedCommunication" ;
+    rdfs:range prov:Communication .
+
+prov:qualifiedStart a owl:ObjectProperty ;
+    rdfs:label "qualifiedStart" ;
+    rdfs:range prov:Start .
+
+prov:qualifiedEnd a owl:ObjectProperty ;
+    rdfs:label "qualifiedEnd" ;
+    rdfs:range prov:End .
+
+prov:qualifiedInfluence a owl:ObjectProperty ;
+    rdfs:label "qualifiedInfluence" ;
+    rdfs:range prov:Influence .
+
+prov:influencer a owl:ObjectProperty ;
+    rdfs:label "influencer" .

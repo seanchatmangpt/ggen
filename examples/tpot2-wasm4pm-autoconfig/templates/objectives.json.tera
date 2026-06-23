@@ -1,0 +1,18 @@
+{
+  "generator": "tpot2-wasm4pm-autoconfig",
+  "selection_strategy": "NSGA2",
+  "random_seed": 42,
+  "_note": "Objectives are query-derived from queries/extract-fitness-objectives.rq (not a Tera literal).",
+  "objectives": [
+{%- for row in sparql_results %}
+    {
+      "objective_order": {{ row["objective_order"] | default(value="0") }},
+      "objective_id": "{{ row["objective_id"] | default(value="") }}",
+      "name": "{{ row["objective_name"] | default(value="") }}",
+      "metric": "{{ row["metric"] | default(value="") }}",
+      "direction": "{{ row["direction"] | default(value="") }}",
+      "weight": {{ row["weight"] | default(value="0") }}
+    }{% if not loop.last %},{% endif %}
+{%- endfor %}
+  ]
+}

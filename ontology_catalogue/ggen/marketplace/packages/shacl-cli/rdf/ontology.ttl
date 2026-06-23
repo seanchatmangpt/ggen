@@ -1,0 +1,564 @@
+@prefix : <http://ggen.ruv.io/ontology/shacl-cli#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ggen: <http://ggen.ruv.io/ontology/core#> .
+
+# ============================================================================
+# Ontology Metadata
+# ============================================================================
+
+:ShaclCliOntology a owl:Ontology ;
+    rdfs:label "SHACL CLI Ontology" ;
+    rdfs:comment "Ontology for SHACL validation, constraint enforcement, and reporting" ;
+    owl:versionInfo "1.0.0" ;
+    ggen:generatedBy "ggen" ;
+    ggen:usesFramework "clap-noun-verb" .
+
+# ============================================================================
+# NOUN: Shape
+# ============================================================================
+
+:Shape a owl:Class ;
+    rdfs:subClassOf ggen:Noun ;
+    rdfs:label "Shape" ;
+    rdfs:comment "SHACL shape for data validation and constraint definition" ;
+    ggen:clapNoun "shape" ;
+    ggen:hasVerb :CreateShape, :ListShapes, :ShowShape, :CompileShape, :ValidateShape ;
+    ggen:hasProperty :shapeType, :targetClass, :targetNode, :severity, :message ;
+    ggen:example "shape create --name PersonShape --target-class foaf:Person" .
+
+:ShapeType a owl:Class ;
+    rdfs:label "Shape Type" ;
+    rdfs:comment "Type of SHACL shape" .
+
+:NodeShape a :ShapeType ;
+    rdfs:label "Node Shape" ;
+    rdfs:comment "Shape that validates entire nodes" ;
+    sh:nodeKind sh:BlankNodeOrIRI .
+
+:PropertyShape a :ShapeType ;
+    rdfs:label "Property Shape" ;
+    rdfs:comment "Shape that validates property values" ;
+    sh:path rdf:Property .
+
+# Shape Properties
+:shapeType a owl:DatatypeProperty ;
+    rdfs:domain :Shape ;
+    rdfs:range :ShapeType ;
+    rdfs:label "shape type" ;
+    rdfs:comment "Type of SHACL shape (node or property)" .
+
+:targetClass a owl:ObjectProperty ;
+    rdfs:domain :Shape ;
+    rdfs:range rdfs:Class ;
+    rdfs:label "target class" ;
+    rdfs:comment "Class targeted by this shape" .
+
+:targetNode a owl:ObjectProperty ;
+    rdfs:domain :Shape ;
+    rdfs:range rdfs:Resource ;
+    rdfs:label "target node" ;
+    rdfs:comment "Specific node targeted by this shape" .
+
+:severity a owl:ObjectProperty ;
+    rdfs:domain :Shape ;
+    rdfs:range :SeverityLevel ;
+    rdfs:label "severity" ;
+    rdfs:comment "Severity level for validation failures" .
+
+:message a owl:DatatypeProperty ;
+    rdfs:domain :Shape ;
+    rdfs:range xsd:string ;
+    rdfs:label "message" ;
+    rdfs:comment "Validation message template" .
+
+# Shape Verbs
+:CreateShape a ggen:Verb ;
+    rdfs:label "create" ;
+    rdfs:comment "Create a new SHACL shape definition" ;
+    ggen:clapVerb "create" ;
+    ggen:appliesTo :Shape ;
+    ggen:hasArgument :shapeName, :shapeTypeArg, :targetClassArg ;
+    ggen:hasOption :propertyPath, :datatype, :minCount, :maxCount ;
+    ggen:example "shape create --name EmailShape --property-path foaf:mbox --datatype xsd:string" .
+
+:ListShapes a ggen:Verb ;
+    rdfs:label "list" ;
+    rdfs:comment "List all defined SHACL shapes" ;
+    ggen:clapVerb "list" ;
+    ggen:appliesTo :Shape ;
+    ggen:hasOption :filterType, :filterSeverity, :outputFormat ;
+    ggen:example "shape list --filter-type property --format json" .
+
+:ShowShape a ggen:Verb ;
+    rdfs:label "show" ;
+    rdfs:comment "Display detailed information about a shape" ;
+    ggen:clapVerb "show" ;
+    ggen:appliesTo :Shape ;
+    ggen:hasArgument :shapeName ;
+    ggen:hasOption :includeConstraints, :outputFormat ;
+    ggen:example "shape show PersonShape --include-constraints" .
+
+:CompileShape a ggen:Verb ;
+    rdfs:label "compile" ;
+    rdfs:comment "Compile shapes into optimized validation engine" ;
+    ggen:clapVerb "compile" ;
+    ggen:appliesTo :Shape ;
+    ggen:hasArgument :shapeFile ;
+    ggen:hasOption :outputPath, :optimizationLevel ;
+    ggen:example "shape compile shapes.ttl --output compiled.bin --optimize 3" .
+
+:ValidateShape a ggen:Verb ;
+    rdfs:label "validate-shape" ;
+    rdfs:comment "Validate the shape definition itself for correctness" ;
+    ggen:clapVerb "validate-shape" ;
+    ggen:appliesTo :Shape ;
+    ggen:hasArgument :shapeName ;
+    ggen:hasOption :strictMode ;
+    ggen:example "shape validate-shape PersonShape --strict" .
+
+# ============================================================================
+# NOUN: Constraint
+# ============================================================================
+
+:Constraint a owl:Class ;
+    rdfs:subClassOf ggen:Noun ;
+    rdfs:label "Constraint" ;
+    rdfs:comment "SHACL constraint for data validation" ;
+    ggen:clapNoun "constraint" ;
+    ggen:hasVerb :AddConstraint, :RemoveConstraint, :TestConstraint, :ExplainConstraint, :CustomizeConstraint ;
+    ggen:hasProperty :constraintType, :constraintValue, :constraintPath, :constraintLogic ;
+    ggen:example "constraint add --shape PersonShape --type minCount --value 1" .
+
+:ConstraintType a owl:Class ;
+    rdfs:label "Constraint Type" ;
+    rdfs:comment "Type of SHACL constraint" .
+
+# Constraint Types
+:CardinalityConstraint a :ConstraintType ;
+    rdfs:label "Cardinality Constraint" ;
+    rdfs:comment "Constraints on property cardinality" ;
+    ggen:hasSubType :MinCount, :MaxCount .
+
+:ValueConstraint a :ConstraintType ;
+    rdfs:label "Value Constraint" ;
+    rdfs:comment "Constraints on property values" ;
+    ggen:hasSubType :Datatype, :Class, :NodeKind, :Pattern .
+
+:LogicalConstraint a :ConstraintType ;
+    rdfs:label "Logical Constraint" ;
+    rdfs:comment "Logical combinations of constraints" ;
+    ggen:hasSubType :And, :Or, :Not, :Xone .
+
+:PropertyPairConstraint a :ConstraintType ;
+    rdfs:label "Property Pair Constraint" ;
+    rdfs:comment "Constraints between property pairs" ;
+    ggen:hasSubType :Equals, :Disjoint, :LessThan, :LessThanOrEquals .
+
+# Constraint Properties
+:constraintType a owl:ObjectProperty ;
+    rdfs:domain :Constraint ;
+    rdfs:range :ConstraintType ;
+    rdfs:label "constraint type" ;
+    rdfs:comment "Type of constraint being applied" .
+
+:constraintValue a owl:DatatypeProperty ;
+    rdfs:domain :Constraint ;
+    rdfs:label "constraint value" ;
+    rdfs:comment "Value parameter for the constraint" .
+
+:constraintPath a owl:ObjectProperty ;
+    rdfs:domain :Constraint ;
+    rdfs:range rdf:Property ;
+    rdfs:label "constraint path" ;
+    rdfs:comment "Property path for the constraint" .
+
+:constraintLogic a owl:DatatypeProperty ;
+    rdfs:domain :Constraint ;
+    rdfs:range xsd:string ;
+    rdfs:label "constraint logic" ;
+    rdfs:comment "SPARQL-based constraint logic" .
+
+# Constraint Verbs
+:AddConstraint a ggen:Verb ;
+    rdfs:label "add" ;
+    rdfs:comment "Add a constraint to a shape" ;
+    ggen:clapVerb "add" ;
+    ggen:appliesTo :Constraint ;
+    ggen:hasArgument :shapeName, :constraintTypeArg ;
+    ggen:hasOption :value, :path, :severity, :message ;
+    ggen:example "constraint add PersonShape --type datatype --path foaf:age --value xsd:integer" .
+
+:RemoveConstraint a ggen:Verb ;
+    rdfs:label "remove" ;
+    rdfs:comment "Remove a constraint from a shape" ;
+    ggen:clapVerb "remove" ;
+    ggen:appliesTo :Constraint ;
+    ggen:hasArgument :shapeName, :constraintId ;
+    ggen:example "constraint remove PersonShape constraint-123" .
+
+:TestConstraint a ggen:Verb ;
+    rdfs:label "test" ;
+    rdfs:comment "Test a constraint against sample data" ;
+    ggen:clapVerb "test" ;
+    ggen:appliesTo :Constraint ;
+    ggen:hasArgument :constraintId, :dataFile ;
+    ggen:hasOption :showMatches, :showViolations ;
+    ggen:example "constraint test constraint-123 data.ttl --show-violations" .
+
+:ExplainConstraint a ggen:Verb ;
+    rdfs:label "explain" ;
+    rdfs:comment "Explain constraint logic and validation behavior" ;
+    ggen:clapVerb "explain" ;
+    ggen:appliesTo :Constraint ;
+    ggen:hasArgument :constraintId ;
+    ggen:hasOption :includeExamples, :outputFormat ;
+    ggen:example "constraint explain constraint-123 --include-examples" .
+
+:CustomizeConstraint a ggen:Verb ;
+    rdfs:label "customize" ;
+    rdfs:comment "Create custom SPARQL-based constraint" ;
+    ggen:clapVerb "customize" ;
+    ggen:appliesTo :Constraint ;
+    ggen:hasArgument :shapeName, :sparqlQuery ;
+    ggen:hasOption :severity, :message, :name ;
+    ggen:example "constraint customize PersonShape query.sparql --severity violation" .
+
+# ============================================================================
+# NOUN: Validation
+# ============================================================================
+
+:Validation a owl:Class ;
+    rdfs:subClassOf ggen:Noun ;
+    rdfs:label "Validation" ;
+    rdfs:comment "SHACL validation execution and management" ;
+    ggen:clapNoun "validation" ;
+    ggen:hasVerb :ValidateData, :BatchValidate, :ContinuousValidate, :IncrementalValidate ;
+    ggen:hasProperty :validationStatus, :violationCount, :warningCount, :timestamp ;
+    ggen:example "validation validate data.ttl --shapes shapes.ttl" .
+
+:ValidationStatus a owl:Class ;
+    rdfs:label "Validation Status" ;
+    rdfs:comment "Status of a validation run" .
+
+:Valid a :ValidationStatus ;
+    rdfs:label "Valid" ;
+    rdfs:comment "Data conforms to all shapes" .
+
+:Invalid a :ValidationStatus ;
+    rdfs:label "Invalid" ;
+    rdfs:comment "Data has constraint violations" .
+
+:PartiallyValid a :ValidationStatus ;
+    rdfs:label "Partially Valid" ;
+    rdfs:comment "Data has warnings but no violations" .
+
+# Validation Properties
+:validationStatus a owl:ObjectProperty ;
+    rdfs:domain :Validation ;
+    rdfs:range :ValidationStatus ;
+    rdfs:label "validation status" ;
+    rdfs:comment "Overall status of validation" .
+
+:violationCount a owl:DatatypeProperty ;
+    rdfs:domain :Validation ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "violation count" ;
+    rdfs:comment "Number of constraint violations" .
+
+:warningCount a owl:DatatypeProperty ;
+    rdfs:domain :Validation ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "warning count" ;
+    rdfs:comment "Number of warnings" .
+
+:timestamp a owl:DatatypeProperty ;
+    rdfs:domain :Validation ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "timestamp" ;
+    rdfs:comment "Validation execution timestamp" .
+
+# Validation Verbs
+:ValidateData a ggen:Verb ;
+    rdfs:label "validate" ;
+    rdfs:comment "Validate RDF data against SHACL shapes" ;
+    ggen:clapVerb "validate" ;
+    ggen:appliesTo :Validation ;
+    ggen:hasArgument :dataFile, :shapesFile ;
+    ggen:hasOption :outputFormat, :failOnWarning, :maxViolations ;
+    ggen:example "validation validate data.ttl --shapes shapes.ttl --format turtle" .
+
+:BatchValidate a ggen:Verb ;
+    rdfs:label "batch" ;
+    rdfs:comment "Validate multiple data files in batch" ;
+    ggen:clapVerb "batch" ;
+    ggen:appliesTo :Validation ;
+    ggen:hasArgument :dataDirectory, :shapesFile ;
+    ggen:hasOption :recursive, :parallel, :outputDirectory ;
+    ggen:example "validation batch ./data --shapes shapes.ttl --recursive --parallel 4" .
+
+:ContinuousValidate a ggen:Verb ;
+    rdfs:label "continuous" ;
+    rdfs:comment "Continuously validate data with file watching" ;
+    ggen:clapVerb "continuous" ;
+    ggen:appliesTo :Validation ;
+    ggen:hasArgument :watchPath, :shapesFile ;
+    ggen:hasOption :interval, :notifyOnChange ;
+    ggen:example "validation continuous ./data --shapes shapes.ttl --interval 5" .
+
+:IncrementalValidate a ggen:Verb ;
+    rdfs:label "incremental" ;
+    rdfs:comment "Incrementally validate only changed data" ;
+    ggen:clapVerb "incremental" ;
+    ggen:appliesTo :Validation ;
+    ggen:hasArgument :dataFile, :shapesFile, :baselineFile ;
+    ggen:hasOption :cacheEnabled ;
+    ggen:example "validation incremental data.ttl --shapes shapes.ttl --baseline baseline.ttl" .
+
+# ============================================================================
+# NOUN: Report
+# ============================================================================
+
+:Report a owl:Class ;
+    rdfs:subClassOf ggen:Noun ;
+    rdfs:label "Report" ;
+    rdfs:comment "SHACL validation report generation and management" ;
+    ggen:clapNoun "report" ;
+    ggen:hasVerb :GenerateReport, :ExportReport, :SummarizeReport, :VisualizeReport ;
+    ggen:hasProperty :reportFormat, :validationResult, :resultSeverity, :focusNode ;
+    ggen:example "report generate validation.ttl --format html" .
+
+:ReportFormat a owl:Class ;
+    rdfs:label "Report Format" ;
+    rdfs:comment "Output format for validation reports" .
+
+:TurtleReport a :ReportFormat ;
+    rdfs:label "Turtle Report" ;
+    rdfs:comment "RDF Turtle format report" .
+
+:JsonReport a :ReportFormat ;
+    rdfs:label "JSON Report" ;
+    rdfs:comment "JSON format report" .
+
+:HtmlReport a :ReportFormat ;
+    rdfs:label "HTML Report" ;
+    rdfs:comment "HTML format report with visualization" .
+
+:MarkdownReport a :ReportFormat ;
+    rdfs:label "Markdown Report" ;
+    rdfs:comment "Markdown format report" .
+
+# Report Properties
+:reportFormat a owl:ObjectProperty ;
+    rdfs:domain :Report ;
+    rdfs:range :ReportFormat ;
+    rdfs:label "report format" ;
+    rdfs:comment "Output format of the report" .
+
+:validationResult a owl:ObjectProperty ;
+    rdfs:domain :Report ;
+    rdfs:range sh:ValidationResult ;
+    rdfs:label "validation result" ;
+    rdfs:comment "Individual validation result" .
+
+:resultSeverity a owl:ObjectProperty ;
+    rdfs:domain :Report ;
+    rdfs:range :SeverityLevel ;
+    rdfs:label "result severity" ;
+    rdfs:comment "Severity level of validation result" .
+
+:focusNode a owl:ObjectProperty ;
+    rdfs:domain :Report ;
+    rdfs:range rdfs:Resource ;
+    rdfs:label "focus node" ;
+    rdfs:comment "Node that failed validation" .
+
+# Severity Levels
+:SeverityLevel a owl:Class ;
+    rdfs:label "Severity Level" ;
+    rdfs:comment "Severity level for validation results" .
+
+:Violation a :SeverityLevel ;
+    rdfs:label "Violation" ;
+    rdfs:comment "Critical constraint violation" ;
+    sh:severity sh:Violation .
+
+:Warning a :SeverityLevel ;
+    rdfs:label "Warning" ;
+    rdfs:comment "Non-critical validation warning" ;
+    sh:severity sh:Warning .
+
+:Info a :SeverityLevel ;
+    rdfs:label "Info" ;
+    rdfs:comment "Informational validation message" ;
+    sh:severity sh:Info .
+
+# Report Verbs
+:GenerateReport a ggen:Verb ;
+    rdfs:label "generate" ;
+    rdfs:comment "Generate validation report from results" ;
+    ggen:clapVerb "generate" ;
+    ggen:appliesTo :Report ;
+    ggen:hasArgument :validationFile ;
+    ggen:hasOption :format, :template, :includeValid, :groupBy ;
+    ggen:example "report generate results.ttl --format html --group-by severity" .
+
+:ExportReport a ggen:Verb ;
+    rdfs:label "export" ;
+    rdfs:comment "Export validation report to file" ;
+    ggen:clapVerb "export" ;
+    ggen:appliesTo :Report ;
+    ggen:hasArgument :reportFile, :outputPath ;
+    ggen:hasOption :format, :compress ;
+    ggen:example "report export report.ttl output.json --format json" .
+
+:SummarizeReport a ggen:Verb ;
+    rdfs:label "summarize" ;
+    rdfs:comment "Generate summary statistics from validation report" ;
+    ggen:clapVerb "summarize" ;
+    ggen:appliesTo :Report ;
+    ggen:hasArgument :reportFile ;
+    ggen:hasOption :groupBy, :includeDetails ;
+    ggen:example "report summarize report.ttl --group-by shape --include-details" .
+
+:VisualizeReport a ggen:Verb ;
+    rdfs:label "visualize" ;
+    rdfs:comment "Create visual representation of validation report" ;
+    ggen:clapVerb "visualize" ;
+    ggen:appliesTo :Report ;
+    ggen:hasArgument :reportFile ;
+    ggen:hasOption :chartType, :outputFormat, :interactive ;
+    ggen:example "report visualize report.ttl --chart-type bar --format svg --interactive" .
+
+# ============================================================================
+# Arguments and Options
+# ============================================================================
+
+# Shape Arguments
+:shapeName a ggen:Argument ;
+    rdfs:label "shape-name" ;
+    rdfs:comment "Name of the SHACL shape" ;
+    ggen:argType "String" ;
+    ggen:required true .
+
+:shapeTypeArg a ggen:Argument ;
+    rdfs:label "shape-type" ;
+    rdfs:comment "Type of shape (node or property)" ;
+    ggen:argType "String" ;
+    ggen:allowedValues "node", "property" .
+
+:targetClassArg a ggen:Argument ;
+    rdfs:label "target-class" ;
+    rdfs:comment "Target class IRI" ;
+    ggen:argType "IRI" .
+
+:shapeFile a ggen:Argument ;
+    rdfs:label "shape-file" ;
+    rdfs:comment "Path to shapes file" ;
+    ggen:argType "PathBuf" ;
+    ggen:required true .
+
+# Constraint Arguments
+:constraintTypeArg a ggen:Argument ;
+    rdfs:label "constraint-type" ;
+    rdfs:comment "Type of constraint" ;
+    ggen:argType "String" ;
+    ggen:allowedValues "minCount", "maxCount", "datatype", "class", "pattern", "and", "or", "not" .
+
+:constraintId a ggen:Argument ;
+    rdfs:label "constraint-id" ;
+    rdfs:comment "Unique constraint identifier" ;
+    ggen:argType "String" ;
+    ggen:required true .
+
+:sparqlQuery a ggen:Argument ;
+    rdfs:label "sparql-query" ;
+    rdfs:comment "SPARQL query for custom constraint" ;
+    ggen:argType "PathBuf" .
+
+# Validation Arguments
+:dataFile a ggen:Argument ;
+    rdfs:label "data-file" ;
+    rdfs:comment "Path to RDF data file" ;
+    ggen:argType "PathBuf" ;
+    ggen:required true .
+
+:shapesFile a ggen:Argument ;
+    rdfs:label "shapes-file" ;
+    rdfs:comment "Path to shapes file" ;
+    ggen:argType "PathBuf" ;
+    ggen:required true .
+
+:dataDirectory a ggen:Argument ;
+    rdfs:label "data-directory" ;
+    rdfs:comment "Directory containing data files" ;
+    ggen:argType "PathBuf" ;
+    ggen:required true .
+
+:watchPath a ggen:Argument ;
+    rdfs:label "watch-path" ;
+    rdfs:comment "Path to watch for changes" ;
+    ggen:argType "PathBuf" ;
+    ggen:required true .
+
+:baselineFile a ggen:Argument ;
+    rdfs:label "baseline-file" ;
+    rdfs:comment "Baseline validation results" ;
+    ggen:argType "PathBuf" .
+
+# Report Arguments
+:validationFile a ggen:Argument ;
+    rdfs:label "validation-file" ;
+    rdfs:comment "Validation results file" ;
+    ggen:argType "PathBuf" ;
+    ggen:required true .
+
+:reportFile a ggen:Argument ;
+    rdfs:label "report-file" ;
+    rdfs:comment "Report file to process" ;
+    ggen:argType "PathBuf" ;
+    ggen:required true .
+
+:outputPath a ggen:Argument ;
+    rdfs:label "output-path" ;
+    rdfs:comment "Output file path" ;
+    ggen:argType "PathBuf" .
+
+# Common Options
+:outputFormat a ggen:Option ;
+    rdfs:label "--format" ;
+    rdfs:comment "Output format" ;
+    ggen:shortFlag "-f" ;
+    ggen:argType "String" ;
+    ggen:defaultValue "turtle" ;
+    ggen:allowedValues "turtle", "json", "html", "markdown" .
+
+:verbose a ggen:Option ;
+    rdfs:label "--verbose" ;
+    rdfs:comment "Enable verbose output" ;
+    ggen:shortFlag "-v" ;
+    ggen:argType "bool" ;
+    ggen:defaultValue false .
+
+:propertyPath a ggen:Option ;
+    rdfs:label "--property-path" ;
+    rdfs:comment "Property path for constraint" ;
+    ggen:argType "IRI" .
+
+:datatype a ggen:Option ;
+    rdfs:label "--datatype" ;
+    rdfs:comment "Expected datatype" ;
+    ggen:argType "IRI" .
+
+:minCount a ggen:Option ;
+    rdfs:label "--min-count" ;
+    rdfs:comment "Minimum cardinality" ;
+    ggen:argType "u32" .
+
+:maxCount a ggen:Option ;
+    rdfs:label "--max-count" ;
+    rdfs:comment "Maximum cardinality" ;
+    ggen:argType "u32" .

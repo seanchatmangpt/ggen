@@ -1,0 +1,606 @@
+@prefix rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:        <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl-bridge: <http://yawlfoundation.org/yawl/bridge#> .
+@prefix pm:          <http://yawlfoundation.org/yawl/processmining/bridge#> .
+
+pm:Fn_Rust4pmOffsetofOcelEventsResultEvents
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofOcelEventsResultEvents" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofoceleventsresultevents" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_ocel_events_result_events" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_EVENTS_RESULT_EVENTS .
+
+pm:Fn_Rust4pmSizeofParseResult
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmSizeofParseResult" .
+    yawl-bridge:fnJavaName "FnRust4pmsizeofparseresult" .
+    yawl-bridge:fnNativeSymbol "rust4pm_sizeof_parse_result" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_RESULT .
+
+pm:Fn_Rust4pmParseOcel2Json
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmParseOcel2Json" .
+    yawl-bridge:fnJavaName "FnRust4pmparseocel2json" .
+    yawl-bridge:fnNativeSymbol "rust4pm_parse_ocel2_json" .
+    yawl-bridge:fnReturnType "ADDRESS" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" .
+    yawl-bridge:forCapability pm:Cap_OCEL2_JSON .
+
+pm:Cap_DFG
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_DISCOVER_DFG" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_discover_dfg" .
+    yawl-bridge:nativeTarget "rust4pm_discover_dfg" .
+
+pm:Fn_Rust4pmOffsetofParseResultError
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofParseResultError" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofparseresulterror" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_parse_result_error" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_RESULT_ERROR .
+
+pm:Fn_Rust4pmOffsetofOcelEventCAttrCount
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofOcelEventCAttrCount" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofoceleventcattrcount" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_ocel_event_c_attr_count" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_EVENT_C_ATTR_COUNT .
+
+pm:Cap_OCEL2_JSON
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_PARSE_OCEL2_JSON" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_parse_ocel2_json" .
+    yawl-bridge:nativeTarget "rust4pm_parse_ocel2_json" .
+
+pm:Cap_OCEL_OBJECT_C_OBJECT_TYPE
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_OCEL_OBJECT_C_OBJECT_TYPE" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_ocel_object_c_object_type" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_ocel_object_c_object_type" .
+
+pm:Fn_Rust4pmOffsetofOcelEventCTimestampMs
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofOcelEventCTimestampMs" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofoceleventctimestampms" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_ocel_event_c_timestamp_ms" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_EVENT_C_TIMESTAMP_MS .
+
+pm:Cap_OCEL_EVENTS_RESULT_EVENTS
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_OCEL_EVENTS_RESULT_EVENTS" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_ocel_events_result_events" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_ocel_events_result_events" .
+
+pm:Fn_Rust4pmOffsetofOcelEventsResultError
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofOcelEventsResultError" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofoceleventsresulterror" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_ocel_events_result_error" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_EVENTS_RESULT_ERROR .
+
+pm:Cap_CONFORMANCE_RESULT_C_PRECISION
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_CONFORMANCE_RESULT_C_PRECISION" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_conformance_result_c_precision" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_conformance_result_c_precision" .
+
+pm:Fn_Rust4pmLogObjectCount
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmLogObjectCount" .
+    yawl-bridge:fnJavaName "FnRust4pmlogobjectcount" .
+    yawl-bridge:fnNativeSymbol "rust4pm_log_object_count" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of(ValueLayout.ADDRESS)" .
+    yawl-bridge:forCapability pm:Cap_OBJECT_COUNT .
+
+pm:Cap_OCEL_EVENT_C_ATTR_COUNT
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_OCEL_EVENT_C_ATTR_COUNT" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_ocel_event_c_attr_count" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_ocel_event_c_attr_count" .
+
+pm:Cap_FREE
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_LOG_FREE" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_log_free" .
+    yawl-bridge:nativeTarget "rust4pm_log_free" .
+
+pm:Fn_Rust4pmSizeofOcelLogHandle
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmSizeofOcelLogHandle" .
+    yawl-bridge:fnJavaName "FnRust4pmsizeofocelloghandle" .
+    yawl-bridge:fnNativeSymbol "rust4pm_sizeof_ocel_log_handle" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_HANDLE .
+
+pm:Cap_OCEL_OBJECT_C
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_SIZEOF_OCEL_OBJECT_C" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_sizeof_ocel_object_c" .
+    yawl-bridge:nativeTarget "rust4pm_sizeof_ocel_object_c" .
+
+pm:Cap_OCEL_OBJECTS_RESULT_COUNT
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_OCEL_OBJECTS_RESULT_COUNT" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_ocel_objects_result_count" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_ocel_objects_result_count" .
+
+pm:Fn_Rust4pmOffsetofOcelLogHandlePtr
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofOcelLogHandlePtr" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofocelloghandleptr" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_ocel_log_handle_ptr" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_HANDLE_PTR .
+
+pm:Cap_GET_EVENTS
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_LOG_GET_EVENTS" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_log_get_events" .
+    yawl-bridge:nativeTarget "rust4pm_log_get_events" .
+
+pm:Fn_Rust4pmSizeofDfgResultC
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmSizeofDfgResultC" .
+    yawl-bridge:fnJavaName "FnRust4pmsizeofdfgresultc" .
+    yawl-bridge:fnNativeSymbol "rust4pm_sizeof_dfg_result_c" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_DFG_RESULT_C .
+
+pm:Fn_Rust4pmOffsetofOcelObjectCObjectType
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofOcelObjectCObjectType" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofocelobjectcobjecttype" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_ocel_object_c_object_type" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_OBJECT_C_OBJECT_TYPE .
+
+pm:Fn_Rust4pmOffsetofConformanceResultCFitness
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofConformanceResultCFitness" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofconformanceresultcfitness" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_conformance_result_c_fitness" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_CONFORMANCE_RESULT_C_FITNESS .
+
+pm:Cap_CONFORMANCE_RESULT_C_ERROR
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_CONFORMANCE_RESULT_C_ERROR" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_conformance_result_c_error" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_conformance_result_c_error" .
+
+pm:Cap_OCEL_OBJECTS_RESULT
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_SIZEOF_OCEL_OBJECTS_RESULT" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_sizeof_ocel_objects_result" .
+    yawl-bridge:nativeTarget "rust4pm_sizeof_ocel_objects_result" .
+
+pm:Fn_Rust4pmLogEventCount
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmLogEventCount" .
+    yawl-bridge:fnJavaName "FnRust4pmlogeventcount" .
+    yawl-bridge:fnNativeSymbol "rust4pm_log_event_count" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of(ValueLayout.ADDRESS)" .
+    yawl-bridge:forCapability pm:Cap_EVENT_COUNT .
+
+pm:Fn_Rust4pmOffsetofParseResultHandle
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofParseResultHandle" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofparseresulthandle" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_parse_result_handle" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_RESULT_HANDLE .
+
+pm:Cap_OBJECTS_FREE
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OBJECTS_FREE" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_objects_free" .
+    yawl-bridge:nativeTarget "rust4pm_objects_free" .
+
+pm:Cap_DFG_RESULT_C_JSON
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_DFG_RESULT_C_JSON" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_dfg_result_c_json" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_dfg_result_c_json" .
+
+pm:Fn_Rust4pmOffsetofConformanceResultCError
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofConformanceResultCError" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofconformanceresultcerror" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_conformance_result_c_error" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_CONFORMANCE_RESULT_C_ERROR .
+
+pm:Cap_OCEL_EVENTS_RESULT_COUNT
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_OCEL_EVENTS_RESULT_COUNT" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_ocel_events_result_count" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_ocel_events_result_count" .
+
+pm:Cap_CONFORMANCE_RESULT_C
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_SIZEOF_CONFORMANCE_RESULT_C" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_sizeof_conformance_result_c" .
+    yawl-bridge:nativeTarget "rust4pm_sizeof_conformance_result_c" .
+
+pm:Cap_OCEL_EVENTS_RESULT
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_SIZEOF_OCEL_EVENTS_RESULT" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_sizeof_ocel_events_result" .
+    yawl-bridge:nativeTarget "rust4pm_sizeof_ocel_events_result" .
+
+pm:Cap_RESULT_ERROR
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_PARSE_RESULT_ERROR" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_parse_result_error" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_parse_result_error" .
+
+pm:Fn_Rust4pmOffsetofOcelEventCEventId
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofOcelEventCEventId" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofoceleventceventid" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_ocel_event_c_event_id" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_EVENT_C_EVENT_ID .
+
+pm:Cap_OCEL_OBJECT_C_OBJECT_ID
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_OCEL_OBJECT_C_OBJECT_ID" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_ocel_object_c_object_id" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_ocel_object_c_object_id" .
+
+pm:Cap_CONFORMANCE
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_CHECK_CONFORMANCE" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_check_conformance" .
+    yawl-bridge:nativeTarget "rust4pm_check_conformance" .
+
+pm:Fn_Rust4pmCheckConformance
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmCheckConformance" .
+    yawl-bridge:fnJavaName "FnRust4pmcheckconformance" .
+    yawl-bridge:fnNativeSymbol "rust4pm_check_conformance" .
+    yawl-bridge:fnReturnType "ADDRESS" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS)" .
+    yawl-bridge:forCapability pm:Cap_CONFORMANCE .
+
+pm:Fn_Rust4pmSizeofOcelEventC
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmSizeofOcelEventC" .
+    yawl-bridge:fnJavaName "FnRust4pmsizeofoceleventc" .
+    yawl-bridge:fnNativeSymbol "rust4pm_sizeof_ocel_event_c" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_EVENT_C .
+
+pm:Cap_DFG_FREE
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_DFG_FREE" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_dfg_free" .
+    yawl-bridge:nativeTarget "rust4pm_dfg_free" .
+
+pm:Fn_Rust4pmErrorFree
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmErrorFree" .
+    yawl-bridge:fnJavaName "FnRust4pmerrorfree" .
+    yawl-bridge:fnNativeSymbol "rust4pm_error_free" .
+    yawl-bridge:fnReturnType "void" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.ofVoid(ValueLayout.ADDRESS)" .
+    yawl-bridge:forCapability pm:Cap_ERROR_FREE .
+
+pm:Fn_Rust4pmSizeofOcelEventsResult
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmSizeofOcelEventsResult" .
+    yawl-bridge:fnJavaName "FnRust4pmsizeofoceleventsresult" .
+    yawl-bridge:fnNativeSymbol "rust4pm_sizeof_ocel_events_result" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_EVENTS_RESULT .
+
+pm:Fn_Rust4pmOffsetofOcelObjectsResultCount
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofOcelObjectsResultCount" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofocelobjectsresultcount" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_ocel_objects_result_count" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_OBJECTS_RESULT_COUNT .
+
+pm:Cap_OCEL_OBJECTS_RESULT_OBJECTS
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_OCEL_OBJECTS_RESULT_OBJECTS" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_ocel_objects_result_objects" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_ocel_objects_result_objects" .
+
+pm:Cap_OCEL_EVENTS_RESULT_ERROR
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_OCEL_EVENTS_RESULT_ERROR" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_ocel_events_result_error" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_ocel_events_result_error" .
+
+pm:Fn_Rust4pmOffsetofOcelObjectCObjectId
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofOcelObjectCObjectId" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofocelobjectcobjectid" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_ocel_object_c_object_id" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_OBJECT_C_OBJECT_ID .
+
+pm:Cap_DFG_RESULT_C
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_SIZEOF_DFG_RESULT_C" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_sizeof_dfg_result_c" .
+    yawl-bridge:nativeTarget "rust4pm_sizeof_dfg_result_c" .
+
+pm:Fn_Rust4pmOffsetofOcelEventsResultCount
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofOcelEventsResultCount" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofoceleventsresultcount" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_ocel_events_result_count" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_EVENTS_RESULT_COUNT .
+
+pm:Fn_Rust4pmOffsetofOcelObjectsResultError
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofOcelObjectsResultError" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofocelobjectsresulterror" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_ocel_objects_result_error" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_OBJECTS_RESULT_ERROR .
+
+pm:Fn_Rust4pmOffsetofDfgResultCError
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofDfgResultCError" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofdfgresultcerror" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_dfg_result_c_error" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_DFG_RESULT_C_ERROR .
+
+pm:Cap_DFG_RESULT_C_ERROR
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_DFG_RESULT_C_ERROR" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_dfg_result_c_error" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_dfg_result_c_error" .
+
+pm:Fn_Rust4pmEventsFree
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmEventsFree" .
+    yawl-bridge:fnJavaName "FnRust4pmeventsfree" .
+    yawl-bridge:fnNativeSymbol "rust4pm_events_free" .
+    yawl-bridge:fnReturnType "void" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.ofVoid(ValueLayout.ADDRESS)" .
+    yawl-bridge:forCapability pm:Cap_EVENTS_FREE .
+
+pm:Fn_Rust4pmLogFree
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmLogFree" .
+    yawl-bridge:fnJavaName "FnRust4pmlogfree" .
+    yawl-bridge:fnNativeSymbol "rust4pm_log_free" .
+    yawl-bridge:fnReturnType "void" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.ofVoid(ValueLayout.ADDRESS)" .
+    yawl-bridge:forCapability pm:Cap_FREE .
+
+pm:Cap_OCEL_HANDLE
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_SIZEOF_OCEL_LOG_HANDLE" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_sizeof_ocel_log_handle" .
+    yawl-bridge:nativeTarget "rust4pm_sizeof_ocel_log_handle" .
+
+pm:Cap_CONFORMANCE_RESULT_C_FITNESS
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_CONFORMANCE_RESULT_C_FITNESS" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_conformance_result_c_fitness" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_conformance_result_c_fitness" .
+
+pm:Cap_RESULT
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_SIZEOF_PARSE_RESULT" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_sizeof_parse_result" .
+    yawl-bridge:nativeTarget "rust4pm_sizeof_parse_result" .
+
+pm:Fn_Rust4pmLogGetEvents
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmLogGetEvents" .
+    yawl-bridge:fnJavaName "FnRust4pmloggetevents" .
+    yawl-bridge:fnNativeSymbol "rust4pm_log_get_events" .
+    yawl-bridge:fnReturnType "ADDRESS" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of(ValueLayout.ADDRESS)" .
+    yawl-bridge:forCapability pm:Cap_GET_EVENTS .
+
+pm:Fn_Rust4pmOffsetofOcelEventCEventType
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofOcelEventCEventType" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofoceleventceventtype" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_ocel_event_c_event_type" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_EVENT_C_EVENT_TYPE .
+
+pm:Cap_OCEL_EVENT_C_TIMESTAMP_MS
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_OCEL_EVENT_C_TIMESTAMP_MS" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_ocel_event_c_timestamp_ms" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_ocel_event_c_timestamp_ms" .
+
+pm:Cap_OCEL_OBJECTS_RESULT_ERROR
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_OCEL_OBJECTS_RESULT_ERROR" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_ocel_objects_result_error" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_ocel_objects_result_error" .
+
+pm:Cap_OCEL_EVENT_C_EVENT_TYPE
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_OCEL_EVENT_C_EVENT_TYPE" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_ocel_event_c_event_type" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_ocel_event_c_event_type" .
+
+pm:Cap_RESULT_HANDLE
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_PARSE_RESULT_HANDLE" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_parse_result_handle" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_parse_result_handle" .
+
+pm:Cap_OBJECT_COUNT
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_LOG_OBJECT_COUNT" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_log_object_count" .
+    yawl-bridge:nativeTarget "rust4pm_log_object_count" .
+
+pm:Fn_Rust4pmDiscoverDfg
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmDiscoverDfg" .
+    yawl-bridge:fnJavaName "FnRust4pmdiscoverdfg" .
+    yawl-bridge:fnNativeSymbol "rust4pm_discover_dfg" .
+    yawl-bridge:fnReturnType "ADDRESS" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of(ValueLayout.ADDRESS)" .
+    yawl-bridge:forCapability pm:Cap_DFG .
+
+pm:Cap_GET_OBJECTS
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_LOG_GET_OBJECTS" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_log_get_objects" .
+    yawl-bridge:nativeTarget "rust4pm_log_get_objects" .
+
+pm:Fn_Rust4pmObjectsFree
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmObjectsFree" .
+    yawl-bridge:fnJavaName "FnRust4pmobjectsfree" .
+    yawl-bridge:fnNativeSymbol "rust4pm_objects_free" .
+    yawl-bridge:fnReturnType "void" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.ofVoid(ValueLayout.ADDRESS)" .
+    yawl-bridge:forCapability pm:Cap_OBJECTS_FREE .
+
+pm:Cap_EVENTS_FREE
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_EVENTS_FREE" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_events_free" .
+    yawl-bridge:nativeTarget "rust4pm_events_free" .
+
+pm:Cap_OCEL_EVENT_C
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_SIZEOF_OCEL_EVENT_C" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_sizeof_ocel_event_c" .
+    yawl-bridge:nativeTarget "rust4pm_sizeof_ocel_event_c" .
+
+pm:Fn_Rust4pmOffsetofConformanceResultCPrecision
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofConformanceResultCPrecision" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofconformanceresultcprecision" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_conformance_result_c_precision" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_CONFORMANCE_RESULT_C_PRECISION .
+
+pm:Cap_EVENT_COUNT
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_LOG_EVENT_COUNT" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_log_event_count" .
+    yawl-bridge:nativeTarget "rust4pm_log_event_count" .
+
+pm:Fn_Rust4pmSizeofConformanceResultC
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmSizeofConformanceResultC" .
+    yawl-bridge:fnJavaName "FnRust4pmsizeofconformanceresultc" .
+    yawl-bridge:fnNativeSymbol "rust4pm_sizeof_conformance_result_c" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_CONFORMANCE_RESULT_C .
+
+pm:Fn_Rust4pmDfgFree
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmDfgFree" .
+    yawl-bridge:fnJavaName "FnRust4pmdfgfree" .
+    yawl-bridge:fnNativeSymbol "rust4pm_dfg_free" .
+    yawl-bridge:fnReturnType "void" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.ofVoid(ValueLayout.ADDRESS)" .
+    yawl-bridge:forCapability pm:Cap_DFG_FREE .
+
+pm:Fn_Rust4pmOffsetofDfgResultCJson
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofDfgResultCJson" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofdfgresultcjson" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_dfg_result_c_json" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_DFG_RESULT_C_JSON .
+
+pm:Cap_ERROR_FREE
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_ERROR_FREE" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_error_free" .
+    yawl-bridge:nativeTarget "rust4pm_error_free" .
+
+pm:Fn_Rust4pmLogGetObjects
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmLogGetObjects" .
+    yawl-bridge:fnJavaName "FnRust4pmloggetobjects" .
+    yawl-bridge:fnNativeSymbol "rust4pm_log_get_objects" .
+    yawl-bridge:fnReturnType "ADDRESS" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of(ValueLayout.ADDRESS)" .
+    yawl-bridge:forCapability pm:Cap_GET_OBJECTS .
+
+pm:Fn_Rust4pmSizeofOcelObjectC
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmSizeofOcelObjectC" .
+    yawl-bridge:fnJavaName "FnRust4pmsizeofocelobjectc" .
+    yawl-bridge:fnNativeSymbol "rust4pm_sizeof_ocel_object_c" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_OBJECT_C .
+
+pm:Cap_OCEL_HANDLE_PTR
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_OCEL_LOG_HANDLE_PTR" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_ocel_log_handle_ptr" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_ocel_log_handle_ptr" .
+
+pm:Cap_OCEL_EVENT_C_EVENT_ID
+    a yawl-bridge:BridgeCapability  .
+    yawl-bridge:capabilityName "RUST4PM_OFFSETOF_OCEL_EVENT_C_EVENT_ID" .
+    yawl-bridge:capabilityDescription "Native function: rust4pm_offsetof_ocel_event_c_event_id" .
+    yawl-bridge:nativeTarget "rust4pm_offsetof_ocel_event_c_event_id" .
+
+pm:Fn_Rust4pmOffsetofOcelObjectsResultObjects
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmOffsetofOcelObjectsResultObjects" .
+    yawl-bridge:fnJavaName "FnRust4pmoffsetofocelobjectsresultobjects" .
+    yawl-bridge:fnNativeSymbol "rust4pm_offsetof_ocel_objects_result_objects" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_OBJECTS_RESULT_OBJECTS .
+
+pm:Fn_Rust4pmSizeofOcelObjectsResult
+    a yawl-bridge:NativeFunction  .
+    yawl-bridge:fnHandleName "mh$Fn_Rust4pmSizeofOcelObjectsResult" .
+    yawl-bridge:fnJavaName "FnRust4pmsizeofocelobjectsresult" .
+    yawl-bridge:fnNativeSymbol "rust4pm_sizeof_ocel_objects_result" .
+    yawl-bridge:fnReturnType "JAVA_LONG" .
+    yawl-bridge:fnDescriptor "FunctionDescriptor.of()" .
+    yawl-bridge:forCapability pm:Cap_OCEL_OBJECTS_RESULT .
+

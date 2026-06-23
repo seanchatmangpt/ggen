@@ -1,0 +1,25 @@
+@prefix bflow_idx: <https://bytestar.org/ontology/byteflow-index#> .
+@prefix :        <https://bytestar.org/ontology/byteflow-index#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:      <https://bytestar.org/ontology/dark-canon#> .
+@prefix lgc:     <https://bytestar.org/ontology/bytestar-lgc#> .
+
+<https://bytestar.org/ontology/byteflow-index>
+  a owl:Ontology ;
+  owl:versionInfo "4.1.0" ;
+  rdfs:comment "This ByteFlow index ontology and its imported modules adhere to the ByteStar V6 doctrines, including the FullerV2 Canon, 8-Hop Envelope, Zero-Tick Rejection, Capability Algebra, and Receipts-First Methodology." ;
+  owl:imports <https://bytestar.org/ontology/bytecore-index> ,
+              <https://bytestar.org/ontology/byteflow/dflss-plan> ,
+              <https://bytestar.org/ontology/byteflow/fabrication-specification> ,
+              <https://bytestar.org/ontology/byteflow/orchestration-specification> ,
+              <https://bytestar.org/ontology/byteflow/patterns-specification> ,
+              <http://yawl.org/ontology/index> ,
+              <https://bytestar.org/ontology/byteflow/production-readiness#> ,
+              <https://bytestar.org/ontology/byteflow/production-shapes#> ,
+              <https://bytestar.org/ontology/byteflow/production-queries#> ;
+  rdfs:seeAlso dc:FullerV2 ;
+  rdfs:seeAlso lgc:EightHopLaw ;
+  rdfs:seeAlso lgc:ZeroTickReject ;
+  rdfs:seeAlso lgc:CapabilityAlgebra ;
+  rdfs:seeAlso lgc:ReceiptsFirstMethodology .

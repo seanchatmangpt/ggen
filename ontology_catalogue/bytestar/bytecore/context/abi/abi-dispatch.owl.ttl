@@ -1,0 +1,13 @@
+@prefix :        <https://bytestar.org/ontology/bytecore/abi/dispatch#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bcore:   <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/bytecore/abi/dispatch>
+  a owl:Ontology ;
+  rdfs:label "ByteCore Dispatch Table ABI" ;
+  rdfs:comment "The ABI for the MPHF-based dispatch table used by ByteActor." ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  owl:versionInfo "4.2.0" .
+
+:DispatchTableABI a owl:Class ; rdfs:subClassOf bcore:ABI .

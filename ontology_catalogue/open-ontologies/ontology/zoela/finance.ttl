@@ -1,0 +1,80 @@
+@prefix zoe:             <https://zoela.org/ontology/> .
+@prefix owl:             <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:             <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:            <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:             <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:            <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:          <https://schema.org/> .
+@prefix prov:            <http://www.w3.org/ns/prov#> .
+@prefix dcterms:         <http://purl.org/dc/terms/> .
+@prefix fibo-be-oac:     <https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/ControlParties/> .
+@prefix fibo-fnd-acc-cur: <https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/> .
+@prefix ex:              <http://example.org/> .
+
+# ============================================================================
+# ZOE LA Mobile — Finance Ontology
+# ============================================================================
+# Models financial resources, accounts, and monetary amounts in the ZOE LA
+# Mobile service graph, aligned with FIBO, Schema.org, and PROV-O.
+# ============================================================================
+
+zoe:FinanceOntology a owl:Ontology ;
+    rdfs:label   "ZOE LA Finance Ontology"@en ;
+    rdfs:comment "Defines financial concepts, accounts, and currency amounts in the ZOE LA Mobile service graph."@en ;
+    dcterms:creator  "Sean Chatman" ;
+    dcterms:created  "2026-05-25"^^xsd:date ;
+    dcterms:license  <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo  "1.0.0" .
+
+# ============================================================================
+# Class Mappings & Alignments
+# ============================================================================
+
+# --- ex:StorehouseUnit mapping ---
+ex:StorehouseUnit a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Storehouse Unit"@en ;
+    rdfs:comment "A unit of storage in the system, modeled as a PROV-O Entity."@en .
+
+# --- Account mapping ---
+zoe:Account a owl:Class ;
+    owl:equivalentClass fibo-be-oac:Account ;
+    rdfs:label "Account"@en ;
+    rdfs:comment "A formal record of financial transactions or resource balances."@en .
+
+# --- MonetaryAmount mapping ---
+zoe:MonetaryAmount a owl:Class ;
+    owl:equivalentClass fibo-fnd-acc-cur:MonetaryAmount , schema:MonetaryAmount ;
+    rdfs:label "Monetary Amount"@en ;
+    rdfs:comment "A quantity of money represented in a specific currency."@en .
+
+# --- Currency mapping ---
+zoe:Currency a owl:Class ;
+    owl:equivalentClass fibo-fnd-acc-cur:Currency ;
+    rdfs:label "Currency"@en ;
+    rdfs:comment "A medium of exchange, such as money, in circulation."@en .
+
+# ============================================================================
+# Property Mappings & Alignments
+# ============================================================================
+
+zoe:hasAmount a owl:DatatypeProperty ;
+    rdfs:label "has amount"@en ;
+    rdfs:comment "The numeric value of a monetary amount."@en ;
+    rdfs:domain zoe:MonetaryAmount ;
+    rdfs:range xsd:decimal ;
+    owl:equivalentProperty fibo-fnd-acc-cur:hasAmount , schema:value .
+
+zoe:hasCurrency a owl:ObjectProperty ;
+    rdfs:label "has currency"@en ;
+    rdfs:comment "The currency associated with a monetary amount or account."@en ;
+    rdfs:domain zoe:MonetaryAmount ;
+    rdfs:range zoe:Currency ;
+    owl:equivalentProperty fibo-fnd-acc-cur:hasCurrency .
+
+zoe:currencyCode a owl:DatatypeProperty ;
+    rdfs:label "currency code"@en ;
+    rdfs:comment "The currency code equivalent (e.g. ISO 4217 code like 'USD')."@en ;
+    rdfs:domain zoe:Currency ;
+    rdfs:range xsd:string ;
+    owl:equivalentProperty schema:currency .

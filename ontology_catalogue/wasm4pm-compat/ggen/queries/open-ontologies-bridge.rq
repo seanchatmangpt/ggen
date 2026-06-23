@@ -1,0 +1,119 @@
+# SPARQL Query: Open Ontologies Bridge — Join wasm4pm-compat with external standards
+# Purpose: Unite process forms (OCEL, BPMN, Petri nets, process trees) from wasm4pm-compat
+# with definitions, constraints, and validation rules from open-ontologies data sources.
+# This is the master join query; it establishes namespace alignment and enables downstream
+# extraction and validation queries.
+#
+# Assumptions:
+# - wasm4pm-compat.ttl is loaded (PRIMARY GRAPH)
+# - External open-ontologies data is available via SPARQL federation or named graphs
+# - Witness markers in compat: namespace map 1:1 to external standards (Ocel20 <-> ocel:StandardOCEL2.0, etc.)
+# - Process forms are structure-only; rule/constraint data flows FROM external sources TO compat forms
+#
+# Usage:
+#   ggen query open-ontologies-bridge.rq --format json
+#   ggen query open-ontologies-bridge.rq --service http://open-ontologies.example.org/sparql --format json
+#   (or use UNION with SERVICE for federation)
+#
+# Output columns:
+#   - compatForm: URI in wasm4pm-compat (e.g., compat:OcelLogForm)
+#   - externalDef: URI in open-ontologies (e.g., ocel:ObjectCentricEventLog)
+#   - witnessKey: The bridge identifier (e.g., 'ocel-2.0', 'bpmn-2.0')
+#   - alignmentBasis: Why they join (e.g., 'standard-namespace', 'structure-isomorphic', 'law-equivalent')
+#   - compatSourceFile: Where compat defines this form
+#   - externalResourceCount: How many external constraints/rules apply
+
+PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
+PREFIX owl:        <http://www.w3.org/2002/07/owl#>
+PREFIX skos:       <http://www.w3.org/2004/02/skos/core#>
+PREFIX compat:     <https://wasm4pm-compat.rs/ontology#>
+PREFIX paper:      <https://wasm4pm-compat.rs/paper#>
+
+# External namespaces — adjust URLs based on actual open-ontologies deployment
+PREFIX ocel:       <https://open-ontologies.org/ocel#>
+PREFIX bpmn:       <https://open-ontologies.org/bpmn#>
+PREFIX petri:      <https://open-ontologies.org/petri#>
+PREFIX pm4py:      <https://open-ontologies.org/pm4py#>
+PREFIX dcterms:    <http://purl.org/dc/terms/>
+PREFIX prov:       <http://www.w3.org/ns/prov#>
+
+SELECT DISTINCT
+  ?compatForm
+  ?compatRustType
+  ?compatSourceFile
+  ?externalDef
+  ?externalLabel
+  ?witnessKey
+  ?alignmentBasis
+  (COUNT(DISTINCT ?externalConstraint) AS ?externalConstraintCount)
+WHERE {
+  # ========== COMPAT SIDE ==========
+  # Step 1: Find all ProcessForms in wasm4pm-compat
+  ?compatForm
+    a compat:ProcessForm ;
+    compat:rustType ?compatRustType ;
+    compat:sourceFile ?compatSourceFile .
+
+  # Step 2: Find the witness marker (standard/paper/grammar) associated with this form
+  OPTIONAL {
+    ?compatForm compat:admittedAgainst ?witness .
+    ?witness compat:witnessKey ?witnessKey ;
+             compat:witnessTitle ?witnessTitle ;
+             compat:witnessFamily ?witnessFamily .
+  }
+
+  # ========== EXTERNAL SIDE (FEDERATION) ==========
+  # Step 3: Match compat form to external definition by witness key normalization
+  # This OPTIONAL block allows queries to work locally; UNION with SERVICE enables federation.
+
+  OPTIONAL {
+    # OCEL 2.0 mapping
+    FILTER (?witnessKey = 'ocel-2.0' || ?compatRustType = 'OcelLog')
+    ?externalDef
+      a ocel:ObjectCentricEventLog ;
+      rdfs:label ?externalLabel ;
+      rdfs:comment ?externalComment .
+    BIND ('standard-namespace' AS ?alignmentBasis)
+  }
+
+  UNION
+
+  OPTIONAL {
+    # BPMN 2.0 mapping
+    FILTER (?witnessKey = 'bpmn-2.0' || ?compatRustType = 'BpmnProcess')
+    ?externalDef
+      a bpmn:Process ;
+      rdfs:label ?externalLabel .
+    BIND ('standard-namespace' AS ?alignmentBasis)
+  }
+
+  UNION
+
+  OPTIONAL {
+    # Petri Net mapping
+    FILTER (?witnessKey = 'petri-net' || ?compatRustType = 'PetriNet')
+    ?externalDef
+      a petri:PetriNet ;
+      rdfs:label ?externalLabel .
+    BIND ('structure-isomorphic' AS ?alignmentBasis)
+  }
+
+  # ========== CONSTRAINT/RULE PROPAGATION ==========
+  # Step 4: Collect external constraints that apply to this form
+  OPTIONAL {
+    ?externalConstraint
+      rdfs:domain ?externalDef ;
+      a owl:Restriction .
+  }
+}
+GROUP BY
+  ?compatForm
+  ?compatRustType
+  ?compatSourceFile
+  ?externalDef
+  ?externalLabel
+  ?witnessKey
+  ?alignmentBasis
+ORDER BY ?compatRustType ?witnessKey

@@ -1,0 +1,255 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix pi:      <https://process.intelligence/ontology/> .
+@prefix grad:    <https://process.intelligence/graduation/> .
+@prefix proj:    <https://process.intelligence/project/> .
+
+# ============================================================
+# graduation-boundary.ttl — Graduation Signals and Reasons
+# Authority: Process Intelligence Research Foundry
+# Date: 2026-06-01
+# Doctrine: No compat execution. No engine in compat.
+#   All execution MUST graduate to wasm4pm ENGINE.
+# ============================================================
+
+<https://process.intelligence/ontology/graduation-boundary>
+    a owl:Ontology ;
+    owl:imports <https://process.intelligence/ontology/pi-program> ;
+    dcterms:title "PI Program Graduation Boundary Ontology" ;
+    dcterms:description "Defines the graduation boundary between the COMPATIBILITY_LAYER (wasm4pm-compat) and the ENGINE (wasm4pm). Every process execution capability must graduate to the ENGINE — the COMPATIBILITY_LAYER carries structure only." ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    dcterms:creator <https://process.intelligence/agent/research-foundry> ;
+    owl:versionInfo "1.0.0" ;
+    skos:editorialNote "Doctrine: HiddenProcessMiningGrowth is the tripwire. If a boundary declaration claims discovery/conformance/replay execution, strict mode refuses and points to wasm4pm graduation." .
+
+# ============================================================
+# SECTION 1: Graduation Signal Classes
+# ============================================================
+
+pi:GraduationReason
+    a owl:Class ;
+    rdfs:label "Graduation Reason" ;
+    skos:definition "A hard signal from the COMPATIBILITY_LAYER declaring that execution capability is required and must be delegated to the wasm4pm ENGINE." .
+
+pi:NeedsDiscovery
+    a owl:Class ;
+    rdfs:subClassOf pi:GraduationReason ;
+    rdfs:label "NeedsDiscovery" ;
+    skos:definition "The host has a raw event log and no process model. Discovery algorithm execution required. Graduate to wasm4pm inductive_miner, heuristics_miner, alpha_miner, or dfg_mining." .
+
+pi:NeedsConformanceExecution
+    a owl:Class ;
+    rdfs:subClassOf pi:GraduationReason ;
+    rdfs:label "NeedsConformanceExecution" ;
+    skos:definition "A conformance verdict must be computed, not carried. Graduate to wasm4pm token_replay_conformance. Fitness/precision values must be measured, not assumed." .
+
+pi:NeedsReplay
+    a owl:Class ;
+    rdfs:subClassOf pi:GraduationReason ;
+    rdfs:label "NeedsReplay" ;
+    skos:definition "Replay must be executed, not assumed. Graduate to wasm4pm ReplayEngine or StepSimulator for token game execution and OtelSpan generation." .
+
+pi:NeedsObjectCentricQueryExecution
+    a owl:Class ;
+    rdfs:subClassOf pi:GraduationReason ;
+    rdfs:label "NeedsObjectCentricQueryExecution" ;
+    skos:definition "OCPQ (Object-Centric Process Query) must be executed. Graduate to wasm4pm execute_ocpq_query with gas metering and recursion protection." .
+
+pi:RebuildingProcessMiningLocally
+    a owl:Class ;
+    rdfs:subClassOf pi:GraduationReason ;
+    rdfs:label "RebuildingProcessMiningLocally" ;
+    skos:definition "CRITICAL SIGNAL. The host is implementing process mining logic locally outside the ENGINE. This must never happen. Strict mode refuses and mandates graduation to wasm4pm." .
+
+# ============================================================
+# SECTION 2: Graduation Boundary Properties
+# ============================================================
+
+pi:graduationReason
+    a owl:ObjectProperty ;
+    rdfs:label "graduation reason" ;
+    rdfs:domain pi:GRADUATION_SIGNAL ;
+    rdfs:range pi:GraduationReason ;
+    skos:definition "The specific reason a capability must graduate from COMPATIBILITY_LAYER to ENGINE." .
+
+pi:graduationSubject
+    a owl:DatatypeProperty ;
+    rdfs:label "graduation subject" ;
+    rdfs:domain pi:GRADUATION_SIGNAL ;
+    rdfs:range xsd:string ;
+    skos:definition "The identifier of the entity that requires graduation (e.g., a log reference, a process model URI)." .
+
+pi:evidenceRef
+    a owl:DatatypeProperty ;
+    rdfs:label "evidence reference" ;
+    rdfs:domain pi:GRADUATION_SIGNAL ;
+    rdfs:range xsd:string ;
+    skos:definition "A Blake3 digest or OCEL pointer identifying the evidence requiring ENGINE execution. Must be verified by wasm4pm before execution." .
+
+pi:graduatesFrom
+    a owl:ObjectProperty ;
+    rdfs:label "graduates from" ;
+    rdfs:domain pi:GRADUATION_SIGNAL ;
+    rdfs:range pi:COMPATIBILITY_LAYER ;
+    skos:definition "The COMPATIBILITY_LAYER surface from which this graduation signal originates." .
+
+pi:graduatesTo
+    a owl:ObjectProperty ;
+    rdfs:label "graduates to" ;
+    rdfs:domain pi:GRADUATION_SIGNAL ;
+    rdfs:range pi:ENGINE ;
+    skos:definition "The ENGINE surface to which execution must be delegated." .
+
+pi:engineSurface
+    a owl:DatatypeProperty ;
+    rdfs:label "engine surface" ;
+    rdfs:domain pi:GRADUATION_SIGNAL ;
+    rdfs:range xsd:string ;
+    skos:definition "The specific wasm4pm function or module that must be invoked (e.g., inductive_miner, token_replay_conformance, execute_ocpq_query)." .
+
+# ============================================================
+# SECTION 3: Graduation Signal Instances
+# ============================================================
+
+grad:signal-needs-discovery
+    a prov:Entity, pi:GRADUATION_SIGNAL ;
+    pi:graduationReason pi:NeedsDiscovery ;
+    rdfs:label "Graduation Signal: Needs Discovery" ;
+    dcterms:description "Trigger: compat host has raw event log with no process model. The host must not implement discovery locally. Graduate to wasm4pm." ;
+    pi:graduatesFrom proj:wasm4pm-compat ;
+    pi:graduatesTo proj:wasm4pm ;
+    pi:engineSurface "inductive_miner(event_log, noise_threshold, public_key, signature) -> Evidence<ProcessTree, Admitted, InductiveWitness>" ;
+    skos:example "AwaitingDiscovery { log_ref: blake3:abc123 } → GraduationCandidate { reason: NeedsDiscovery, subject: log_ref, evidence_ref: blake3:abc123 }" .
+
+grad:signal-needs-conformance-execution
+    a prov:Entity, pi:GRADUATION_SIGNAL ;
+    pi:graduationReason pi:NeedsConformanceExecution ;
+    rdfs:label "Graduation Signal: Needs Conformance Execution" ;
+    dcterms:description "Trigger: compat host carries ConformanceVerdict shape but must compute fitness/precision. Graduate to wasm4pm token_replay_conformance. compat FitnessConst<NUM,DEN> carries shape only; actual value must come from ENGINE." ;
+    pi:graduatesFrom proj:wasm4pm-compat ;
+    pi:graduatesTo proj:wasm4pm ;
+    pi:engineSurface "token_replay_conformance(net, event_log) -> ConformanceVerdict{FullyConforming|PartiallyConforming{fitness,deviations}|NonConforming{reason}}" .
+
+grad:signal-needs-replay
+    a prov:Entity, pi:GRADUATION_SIGNAL ;
+    pi:graduationReason pi:NeedsReplay ;
+    rdfs:label "Graduation Signal: Needs Replay" ;
+    dcterms:description "Trigger: compat host carries receipt digest/replay-hint shapes but must execute replay. Graduate to wasm4pm ReplayEngine. compat Digest(String) and ReplayHint(String) carry shapes only; WellShaped checks presence not authenticity." ;
+    pi:graduatesFrom proj:wasm4pm-compat ;
+    pi:graduatesTo proj:wasm4pm ;
+    pi:engineSurface "ReplayEngine::new(net, event_log).replay() -> Evidence<ReplayTraces, (), WitnessState>" .
+
+grad:signal-needs-ocpq
+    a prov:Entity, pi:GRADUATION_SIGNAL ;
+    pi:graduationReason pi:NeedsObjectCentricQueryExecution ;
+    rdfs:label "Graduation Signal: Needs OCPQ Execution" ;
+    dcterms:description "Trigger: compat host names OCPQ query shape but must execute it. Graduate to wasm4pm execute_ocpq_query with O2E inverted index, gas metering (50 cycles/event evaluation, 30 cycles/object traversal), and recursion guard." ;
+    pi:graduatesFrom proj:wasm4pm-compat ;
+    pi:graduatesTo proj:wasm4pm ;
+    pi:engineSurface "execute_ocpq_query(ocel, query, gas_meter, recursion_guard) -> QueryResult{match_count, matches: Vec<OcpqMatch{event_1_id, event_2_id, object_id, duration_us}>}" .
+
+grad:signal-hidden-pm-growth
+    a prov:Entity, pi:GRADUATION_SIGNAL ;
+    pi:graduationReason pi:RebuildingProcessMiningLocally ;
+    rdfs:label "Graduation Signal: Hidden Process Mining Growth" ;
+    dcterms:description "CRITICAL TRIPWIRE. If a ProcessBoundary declaration in wasm4pm-compat claims process mining execution (discovery/conformance/replay) AND hidden_pm_growth=true, strict mode emits HiddenProcessMiningGrowth StrictViolation. Remediation: graduate to wasm4pm immediately. This is the primary enforcement mechanism preventing compat from becoming an engine." ;
+    pi:graduatesFrom proj:wasm4pm-compat ;
+    pi:graduatesTo proj:wasm4pm ;
+    pi:engineSurface "ALL wasm4pm execution surfaces" .
+
+# ============================================================
+# SECTION 4: Boundary Laws
+# ============================================================
+
+grad:compat-no-discovery-law
+    a prov:Entity ;
+    rdfs:label "Law: No Discovery in compat" ;
+    dcterms:description "Forbidden: Any discovery algorithm anywhere in wasm4pm-compat/src/. Permitted: Pm4pyShape::ProcessTree and SummaryShape::TraceVariants as shape descriptors (names only, never computed values). Graduation: Use wasm4pm inductive_miner or heuristics_miner for actual discovery." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+grad:compat-no-replay-law
+    a prov:Entity ;
+    rdfs:label "Law: No Replay in compat" ;
+    dcterms:description "Forbidden: Token-replay engine or alignment computation in wasm4pm-compat/src/. Permitted: conformance.rs provides ConformanceVerdict carriers with bounded metrics (FitnessConst<NUM,DEN>) but never computes them. Graduation: Real fitness computation in wasm4pm." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+grad:compat-no-ocpq-law
+    a prov:Entity ;
+    rdfs:label "Law: No OCPQ in compat" ;
+    dcterms:description "Forbidden: Query execution in wasm4pm-compat/src/. Permitted: ocpq.rs names the query shape (object type filtering), never executes. Graduation: wasm4pm execute_ocpq_query." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+grad:compat-no-receipt-computation-law
+    a prov:Entity ;
+    rdfs:label "Law: No Receipt Computation in compat" ;
+    dcterms:description "Forbidden: Hashing, signing, or verification in wasm4pm-compat/src/. Permitted: receipt.rs carries Digest(String) and ReplayHint(String) as transparent strings. WellShaped trait checks structural presence only. Graduation: BLAKE3/Ed25519 cryptography in wasm4pm." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+grad:compat-no-benchmarking-law
+    a prov:Entity ;
+    rdfs:label "Law: No Benchmarking in compat" ;
+    dcterms:description "Forbidden: Performance benchmark engines in wasm4pm-compat. Permitted: benches/ directory for zero-cost proofs that types are zero-cost abstractions." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+# ============================================================
+# SECTION 5: Graduation WIT World Boundary
+# ============================================================
+
+grad:compat-world
+    a prov:Entity ;
+    rdfs:label "WIT compat-world" ;
+    dcterms:description "WebAssembly Interface Types compat-world: structure-only validators. Components: evidence-types (witness catalog, state catalog, structural validation), admission-gate (11 named law checks), refusal-gate (named refusal reasons). No execution permitted." ;
+    pi:hasRole pi:COMPATIBILITY_LAYER .
+
+grad:engine-world
+    a prov:Entity ;
+    rdfs:label "WIT engine-world" ;
+    dcterms:description "WebAssembly Interface Types engine-world: execution-allowed (downstream wasm4pm only). Components: discovery, conformance, replay, receipt minting. Doctrine: No raw data laundering between worlds. All engine functions consume evidence certified by compat-world validators." ;
+    pi:hasRole pi:ENGINE .
+
+grad:wit-world-boundary-law
+    a prov:Entity ;
+    rdfs:label "WIT World Boundary Law" ;
+    dcterms:description "Immutable boundary between compat-world and engine-world. No function may claim membership in both worlds. No raw data may cross from compat-world to engine-world without Admit certification. Graduation bridge (GraduateToWasm4pm trait) is the only lawful crossing point." ;
+    prov:wasPartOf proj:ggen-primary-cell .
+
+# ============================================================
+# SECTION 6: SHACL Constraints
+# ============================================================
+
+pi:GraduationSignalShape
+    a sh:NodeShape ;
+    sh:targetClass pi:GRADUATION_SIGNAL ;
+    sh:property [
+        sh:path pi:graduationReason ;
+        sh:minCount 1 ;
+        sh:message "Every graduation signal must identify a specific graduation reason." ;
+    ] ;
+    sh:property [
+        sh:path pi:graduatesTo ;
+        sh:minCount 1 ;
+        sh:message "Every graduation signal must name the ENGINE surface it graduates to." ;
+    ] ;
+    sh:property [
+        sh:path pi:engineSurface ;
+        sh:minCount 1 ;
+        sh:message "Every graduation signal must specify the wasm4pm engine surface function." ;
+    ] .
+
+pi:CompatLayerShape
+    a sh:NodeShape ;
+    sh:targetClass pi:COMPATIBILITY_LAYER ;
+    sh:not [
+        sh:property [
+            sh:path pi:hasRole ;
+            sh:hasValue pi:ENGINE ;
+        ]
+    ] ;
+    sh:message "COMPATIBILITY_LAYER must not be classified as ENGINE — no execution in compat." .

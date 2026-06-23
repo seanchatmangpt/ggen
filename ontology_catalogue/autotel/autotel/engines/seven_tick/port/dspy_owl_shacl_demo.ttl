@@ -1,0 +1,286 @@
+@prefix : <http://example.org/cns-v8/> .
+@prefix dspy: <http://dspy.ai/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# CNS v8 Integration with DSPy-OWL-SHACL
+# Demonstrates fully automatic turtle loop with 80/20 optimization
+
+#############################################
+# DSPy Signature Ontology
+#############################################
+
+dspy:Signature a owl:Class ;
+    rdfs:label "DSPy Signature" ;
+    rdfs:comment "Base class for all DSPy signatures representing LM task interfaces" .
+
+dspy:Field a owl:Class ;
+    rdfs:label "DSPy Field" ;
+    rdfs:comment "Input or output field in a DSPy signature" .
+
+dspy:InputField rdfs:subClassOf dspy:Field ;
+    rdfs:label "Input Field" .
+
+dspy:OutputField rdfs:subClassOf dspy:Field ;
+    rdfs:label "Output Field" .
+
+# Properties
+dspy:hasInputField a owl:ObjectProperty ;
+    rdfs:domain dspy:Signature ;
+    rdfs:range dspy:InputField .
+
+dspy:hasOutputField a owl:ObjectProperty ;
+    rdfs:domain dspy:Signature ;
+    rdfs:range dspy:OutputField .
+
+dspy:fieldName a owl:DatatypeProperty ;
+    rdfs:domain dspy:Field ;
+    rdfs:range xsd:string .
+
+dspy:fieldType a owl:DatatypeProperty ;
+    rdfs:domain dspy:Field ;
+    rdfs:range xsd:string .
+
+dspy:hasInstruction a owl:DatatypeProperty ;
+    rdfs:domain dspy:Signature ;
+    rdfs:range xsd:string .
+
+#############################################
+# CNS v8 Specific Extensions
+#############################################
+
+:CNSv8Signature rdfs:subClassOf dspy:Signature ;
+    rdfs:label "CNS v8 Optimized Signature" ;
+    rdfs:comment "DSPy signature optimized for 7-tick execution" .
+
+:hasMaxCycles a owl:DatatypeProperty ;
+    rdfs:domain :CNSv8Signature ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum CPU cycles (must be <= 8)" .
+
+:hasMemoryAlignment a owl:DatatypeProperty ;
+    rdfs:domain :CNSv8Signature ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Memory alignment in bytes (must be 8)" .
+
+:uses80_20Optimization a owl:DatatypeProperty ;
+    rdfs:domain :CNSv8Signature ;
+    rdfs:range xsd:boolean .
+
+#############################################
+# Example DSPy Signatures for Turtle Loop
+#############################################
+
+# 1. Pattern Recognition Signature
+:PatternRecognitionSignature a :CNSv8Signature ;
+    rdfs:label "RDF Pattern Recognition" ;
+    dspy:hasInputField [
+        dspy:fieldName "triple" ;
+        dspy:fieldType "str" ;
+        dspy:hasDescription "RDF triple in N-Triples format"
+    ] ;
+    dspy:hasOutputField [
+        dspy:fieldName "pattern_type" ;
+        dspy:fieldType "str" ;
+        dspy:hasDescription "One of: type_decl, label, property, hierarchy, other"
+    ] ;
+    dspy:hasOutputField [
+        dspy:fieldName "confidence" ;
+        dspy:fieldType "float" ;
+        dspy:hasDescription "Pattern match confidence (0-1)"
+    ] ;
+    dspy:hasInstruction "Classify RDF triple into one of the 80/20 pattern categories" ;
+    :hasMaxCycles 7 ;
+    :hasMemoryAlignment 8 ;
+    :uses80_20Optimization true .
+
+# 2. Semantic Enhancement Signature
+:SemanticEnhancementSignature a :CNSv8Signature ;
+    rdfs:label "Triple Semantic Enhancement" ;
+    dspy:hasInputField [
+        dspy:fieldName "subject" ;
+        dspy:fieldType "str"
+    ] ;
+    dspy:hasInputField [
+        dspy:fieldName "predicate" ;
+        dspy:fieldType "str"
+    ] ;
+    dspy:hasInputField [
+        dspy:fieldName "object" ;
+        dspy:fieldType "str"
+    ] ;
+    dspy:hasOutputField [
+        dspy:fieldName "enhanced_triple" ;
+        dspy:fieldType "str" ;
+        dspy:hasDescription "Semantically enriched triple"
+    ] ;
+    dspy:hasOutputField [
+        dspy:fieldName "inferences" ;
+        dspy:fieldType "list[str]" ;
+        dspy:hasDescription "Additional inferred triples"
+    ] ;
+    dspy:hasInstruction "Enhance RDF triple with semantic context and inferences" ;
+    :hasMaxCycles 8 ;
+    :hasMemoryAlignment 8 .
+
+# 3. SHACL Validation Reasoning Signature
+:SHACLValidationSignature a :CNSv8Signature ;
+    rdfs:label "SHACL Constraint Validation" ;
+    dspy:hasInputField [
+        dspy:fieldName "data_graph" ;
+        dspy:fieldType "str" ;
+        dspy:hasDescription "RDF data to validate"
+    ] ;
+    dspy:hasInputField [
+        dspy:fieldName "shape_graph" ;
+        dspy:fieldType "str" ;
+        dspy:hasDescription "SHACL shapes"
+    ] ;
+    dspy:hasOutputField [
+        dspy:fieldName "valid" ;
+        dspy:fieldType "bool"
+    ] ;
+    dspy:hasOutputField [
+        dspy:fieldName "violations" ;
+        dspy:fieldType "list[dict]" ;
+        dspy:hasDescription "SHACL violation reports"
+    ] ;
+    dspy:hasInstruction "Validate RDF data against SHACL constraints" ;
+    :hasMaxCycles 8 .
+
+#############################################
+# SHACL Shapes for Validation
+#############################################
+
+# Shape for CNS v8 Signatures
+:CNSv8SignatureShape a sh:NodeShape ;
+    sh:targetClass :CNSv8Signature ;
+    sh:property [
+        sh:path dspy:hasInputField ;
+        sh:minCount 1 ;
+        sh:maxCount 10 ;
+        sh:message "CNS v8 signatures must have 1-10 input fields for 7-tick compliance"
+    ] ;
+    sh:property [
+        sh:path dspy:hasOutputField ;
+        sh:minCount 1 ;
+        sh:maxCount 10 ;
+        sh:message "CNS v8 signatures must have 1-10 output fields"
+    ] ;
+    sh:property [
+        sh:path :hasMaxCycles ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 8 ;
+        sh:message "Max cycles must be between 1 and 8"
+    ] ;
+    sh:property [
+        sh:path :hasMemoryAlignment ;
+        sh:hasValue 8 ;
+        sh:message "Memory must be 8-byte aligned"
+    ] .
+
+# Shape for 80/20 Optimized Processing
+:TurtleLoopProcessingShape a sh:NodeShape ;
+    sh:targetClass :TurtleLoopConfiguration ;
+    sh:property [
+        sh:path :enabledStages ;
+        sh:in ( "parse" "validate" "output" ) ;
+        sh:message "80/20 optimization enables only core stages"
+    ] ;
+    sh:property [
+        sh:path :priorityPatterns ;
+        sh:minCount 4 ;
+        sh:maxCount 4 ;
+        sh:message "Must focus on exactly 4 patterns for 80% coverage"
+    ] .
+
+#############################################
+# Example Turtle Loop Configuration
+#############################################
+
+:AutomaticTurtleLoop a :TurtleLoopConfiguration ;
+    rdfs:label "CNS v8 Automatic Turtle Processing Loop" ;
+    :enabledStages ( "parse" "validate" "output" ) ;
+    :priorityPatterns ( 
+        :TypeDeclarationPattern
+        :LabelPattern  
+        :PropertyPattern
+        :HierarchyPattern
+    ) ;
+    :usesSignature :PatternRecognitionSignature ;
+    :usesSignature :SemanticEnhancementSignature ;
+    :usesSignature :SHACLValidationSignature ;
+    :hasPerformanceTarget [
+        :throughput "1000000"^^xsd:integer ;
+        :unit "triples/second" ;
+        :maxLatency "8"^^xsd:integer ;
+        :latencyUnit "cycles/triple"
+    ] ;
+    :achievesParetoPrinciple [
+        :effortPercentage "20"^^xsd:float ;
+        :resultPercentage "80"^^xsd:float ;
+        :efficiency "0.92"^^xsd:float
+    ] .
+
+#############################################
+# Pattern Definitions (80% Coverage)
+#############################################
+
+:TypeDeclarationPattern a :TriplePattern ;
+    rdfs:label "Type Declaration Pattern" ;
+    :patternString "?s rdf:type ?o" ;
+    :coverage "30"^^xsd:float ;
+    :processingCycles 7 .
+
+:LabelPattern a :TriplePattern ;
+    rdfs:label "Label Pattern" ;
+    :patternString "?s rdfs:label ?o" ;
+    :coverage "20"^^xsd:float ;
+    :processingCycles 6 .
+
+:PropertyPattern a :TriplePattern ;
+    rdfs:label "General Property Pattern" ;
+    :patternString "?s ?p ?o" ;
+    :coverage "20"^^xsd:float ;
+    :processingCycles 7 .
+
+:HierarchyPattern a :TriplePattern ;
+    rdfs:label "Hierarchy Pattern" ;
+    :patternString "?s rdfs:subClassOf|rdfs:subPropertyOf ?o" ;
+    :coverage "10"^^xsd:float ;
+    :processingCycles 8 .
+
+#############################################
+# Complete Integration Example
+#############################################
+
+:ExampleIntegration a :CNSv8TurtleLoopInstance ;
+    rdfs:label "Production Turtle Loop" ;
+    :configuration :AutomaticTurtleLoop ;
+    :inputData [
+        a :TurtleDataset ;
+        :tripleCount 1000000 ;
+        :averageTripleSize 120 ;
+        :format "text/turtle"
+    ] ;
+    :processingResults [
+        :triplesProcessed 1000000 ;
+        :processingTime "0.98"^^xsd:float ;
+        :timeUnit "seconds" ;
+        :patternDistribution [
+            :typeDecl "29.8"^^xsd:float ;
+            :labels "19.5"^^xsd:float ;
+            :properties "21.2"^^xsd:float ;
+            :hierarchy "9.5"^^xsd:float ;
+            :other "20.0"^^xsd:float
+        ] ;
+        :validationResults [
+            :totalValidations 1000000 ;
+            :passed 999847 ;
+            :violations 153
+        ] ;
+        :paretoEfficiency "0.94"^^xsd:float
+    ] .

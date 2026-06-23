@@ -1,0 +1,329 @@
+# =============================================================================
+# Fortune 5 Compliance Integration Test Data — FIBO (Finance Domain)
+# =============================================================================
+#
+# Scenario: Deal creation with FIBO + compliance validation
+# Data: Financial deal with buyer, seller, instrument, and SOX-compliant terms
+#
+# Ontologies used:
+#   - fibo: Financial Industry Business Ontology (EDMC)
+#   - fibo-fbc: Financial Business Concepts (Corporations, Parties)
+#   - fibo-fbd: Financial Business Deals
+#   - xsd: XML Schema Datatypes
+#   - prov: W3C Provenance Ontology (for audit trails)
+#   - dcterms: Dublin Core Terms
+#
+# =============================================================================
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+# FIBO core namespaces (enterprise.data.gov)
+PREFIX fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/>
+PREFIX fibo-be: <https://spec.edmcouncil.org/fibo/ontology/BE/>
+PREFIX fibo-fbc: <https://spec.edmcouncil.org/fibo/ontology/FBC/>
+PREFIX fibo-fbd: <https://spec.edmcouncil.org/fibo/ontology/FBD/>
+PREFIX fibo-fin: <https://spec.edmcouncil.org/fibo/ontology/FIN/>
+PREFIX fibo-sec: <https://spec.edmcouncil.org/fibo/ontology/SEC/>
+PREFIX fibo-ind: <https://spec.edmcouncil.org/fibo/ontology/IND/>
+
+# Custom namespaces
+PREFIX bos: <https://chatmangpt.com/ontology/businessos/>
+PREFIX sox: <https://chatmangpt.com/ontology/compliance/sox/>
+PREFIX tests: <https://chatmangpt.com/tests/fortune5/>
+
+# =============================================================================
+# DEAL SCENARIO 1: Acme Corp → TechVendor (Equipment + Services)
+# =============================================================================
+#
+# Deal Structure:
+#   - Buyer: Acme Corp (Large enterprise, SOX reporting company)
+#   - Seller: TechVendor Inc (Equipment manufacturer)
+#   - Instrument: Capital Equipment Lease + Service Agreement
+#   - Value: $5,000,000 USD
+#   - Terms: 60-month amortized lease
+#   - Status: Under approval (SOX financial controls apply)
+#
+
+tests:deal-001
+  rdf:type fibo-fbd:Deal ;
+  dcterms:identifier "DEAL-2026-001" ;
+  dcterms:title "Acme Corp IT Infrastructure Modernization" ;
+  dcterms:description "Capital equipment lease (servers, networking) with managed services" ;
+
+  # Deal parties
+  fibo-fbd:hasBuyer tests:party-acme-corp ;
+  fibo-fbd:hasSeller tests:party-techvendor-inc ;
+
+  # Financial terms
+  fibo-fin:hasMonetaryAmount tests:deal-001-amount ;
+  fibo-fbd:hasPaymentTerms tests:deal-001-payment-schedule ;
+
+  # Legal instruments
+  fibo-fbd:hasAgreement tests:deal-001-lease-agreement ;
+  fibo-fbd:hasContract tests:deal-001-service-agreement ;
+
+  # Regulatory/SOX attributes
+  sox:isFinancialReportingAffected true ;
+  sox:requiresAuditTrail true ;
+  sox:materialityThreshold 100000.00 ;
+  sox:checksumAlgorithm "SHA256" ;
+  sox:checksumValue "8f9c3e2d1a5b7c9f4e6a8b2c1d3e5f7a9b8c6d4e2f1a3b5c7d9e1f3a5b7c9d" ;
+
+  # Audit trail (prov-O)
+  prov:wasAttributedTo tests:user-analyst-001 ;
+  prov:wasGeneratedBy tests:activity-deal-creation-001 ;
+  prov:wasDerivedFrom tests:deal-proposal-001 ;
+
+  # Metadata
+  dcterms:created "2026-03-24T10:00:00Z"^^xsd:dateTime ;
+  dcterms:modified "2026-03-24T14:30:00Z"^^xsd:dateTime ;
+  dcterms:creator tests:user-analyst-001 ;
+  bos:status "pending_approval" ;
+  bos:priority "high" ;
+  .
+
+# Deal participants (Parties)
+tests:party-acme-corp
+  rdf:type fibo-be:LegalEntity ;
+  rdf:type fibo-fbc:FinancialInstitutionOrCompany ;
+  dcterms:identifier "ORG-ACME-001" ;
+  dcterms:title "Acme Corporation" ;
+  fibo-fnd:hasName "Acme Corporation" ;
+  fibo-be:hasMissionCriticalIndicator true ;
+  sox:isPubliclyTraded true ;
+  sox:reportingComplianceRequired true ;
+  sox:fiscalYearEndDate "2026-12-31"^^xsd:date ;
+  prov:hadPrimarySource tests:dun-bradstreet-record-acme ;
+  .
+
+tests:party-techvendor-inc
+  rdf:type fibo-be:LegalEntity ;
+  dcterms:identifier "ORG-TECH-001" ;
+  dcterms:title "TechVendor Inc" ;
+  fibo-fnd:hasName "TechVendor Inc" ;
+  sox:isPubliclyTraded false ;
+  .
+
+# Financial amount (FND Money)
+tests:deal-001-amount
+  rdf:type fibo-fnd:MonetaryAmount ;
+  fibo-fnd:hasAmount 5000000.00 ;
+  fibo-fnd:hasCurrency tests:usd-currency ;
+  dcterms:date "2026-03-24"^^xsd:date ;
+  .
+
+tests:usd-currency
+  rdf:type fibo-fnd:Currency ;
+  dcterms:identifier "USD" ;
+  fibo-fnd:hasCurrencyCode "USD" ;
+  .
+
+# Payment schedule (60-month amortization)
+tests:deal-001-payment-schedule
+  rdf:type fibo-fbd:PaymentTerms ;
+  fibo-fbd:hasPaymentAmount tests:monthly-payment ;
+  fibo-fbd:hasPaymentFrequency tests:monthly-frequency ;
+  fibo-fbd:numberOfPayments 60 ;
+  fibo-fbd:hasPaymentMethod tests:wire-transfer-method ;
+  sox:paymentTrackingRequired true ;
+  .
+
+tests:monthly-payment
+  rdf:type fibo-fnd:MonetaryAmount ;
+  fibo-fnd:hasAmount 86111.11 ;  # 5,000,000 / 60 = 83,333.33 + interest
+  fibo-fnd:hasCurrency tests:usd-currency ;
+  .
+
+tests:monthly-frequency
+  rdf:type fibo-fbd:PaymentFrequency ;
+  dcterms:title "Monthly" ;
+  fibo-fbd:frequencyInMonths 1 ;
+  .
+
+tests:wire-transfer-method
+  rdf:type fibo-fbd:PaymentMethod ;
+  dcterms:title "Wire Transfer" ;
+  sox:methodIsLoggable true ;
+  sox:methodRequiresApproval true ;
+  .
+
+# Legal agreements
+tests:deal-001-lease-agreement
+  rdf:type fibo-fbd:Agreement ;
+  dcterms:title "Equipment Lease Agreement" ;
+  dcterms:created "2026-03-24"^^xsd:date ;
+  fibo-fbd:hasParty tests:party-acme-corp ;
+  fibo-fbd:hasParty tests:party-techvendor-inc ;
+  sox:agreementHasLegalReview true ;
+  sox:agreementApprovedBy tests:user-counsel-001 ;
+  sox:agreementReviewDate "2026-03-24"^^xsd:date ;
+  .
+
+tests:deal-001-service-agreement
+  rdf:type fibo-fbd:ServiceAgreement ;
+  dcterms:title "Managed Services Agreement" ;
+  dcterms:hasPart tests:sla-availability ;
+  dcterms:hasPart tests:sla-support ;
+  sox:slaIsMonitored true ;
+  sox:slaViolationNotificationRequired true ;
+  .
+
+tests:sla-availability
+  rdf:type fibo-fbd:ServiceLevelObjective ;
+  dcterms:title "System Availability" ;
+  bos:targetValue "99.9" ;
+  bos:targetUnit "percent" ;
+  .
+
+tests:sla-support
+  rdf:type fibo-fbd:ServiceLevelObjective ;
+  dcterms:title "Support Response Time" ;
+  bos:targetValue "4" ;
+  bos:targetUnit "hours" ;
+  .
+
+# =============================================================================
+# DEAL SCENARIO 2: Capital Equipment Valuation with Depreciation Schedule
+# =============================================================================
+
+tests:deal-002
+  rdf:type fibo-fbd:Deal ;
+  dcterms:identifier "DEAL-2026-002" ;
+  dcterms:title "Asset Acquisition - Manufacturing Equipment" ;
+
+  fibo-fbd:hasBuyer tests:party-acme-corp ;
+  fibo-fbd:hasSeller tests:party-equipment-supplier ;
+
+  fibo-fin:hasMonetaryAmount tests:deal-002-capex-amount ;
+  fibo-fbd:hasAsset tests:asset-manufacturing-line ;
+
+  sox:isCapitalizedAsset true ;
+  sox:depreciationSchedule tests:depreciation-schedule-macrs-7yr ;
+  sox:bookValue 2800000.00 ;
+  sox:accumulatedDepreciation 700000.00 ;
+  sox:netBookValue 2100000.00 ;
+
+  prov:wasGeneratedBy tests:activity-asset-acquisition-001 ;
+  dcterms:created "2026-03-20"^^xsd:dateTime ;
+  .
+
+tests:party-equipment-supplier
+  rdf:type fibo-be:LegalEntity ;
+  dcterms:title "Industrial Equipment Supplier" ;
+  .
+
+tests:deal-002-capex-amount
+  rdf:type fibo-fnd:MonetaryAmount ;
+  fibo-fnd:hasAmount 3500000.00 ;
+  fibo-fnd:hasCurrency tests:usd-currency ;
+  .
+
+tests:asset-manufacturing-line
+  rdf:type fibo-sec:Asset ;
+  dcterms:title "CNC Manufacturing Line" ;
+  dcterms:description "5-axis precision CNC with robotic loader" ;
+  fibo-sec:hasAssetValue tests:deal-002-capex-amount ;
+  sox:assetAccountNumber "1520" ;
+  sox:assetSerialNumber "MFG-2026-987654" ;
+  sox:assetLocationId "ACME-PLANT-1" ;
+  .
+
+tests:depreciation-schedule-macrs-7yr
+  rdf:type sox:DepreciationSchedule ;
+  dcterms:title "MACRS 7-year property" ;
+  sox:depreciationMethod "MACRS" ;
+  sox:usefulLife 7 ;
+  sox:residualValue 500000.00 ;
+  sox:yearlyDepreciation tests:yearly-depreciation-amounts ;
+  .
+
+tests:yearly-depreciation-amounts
+  rdf:type rdf:List ;
+  rdf:first 500000.00 ;
+  rdf:rest (
+    428571.43
+    306122.45
+    218659.61
+    156185.44
+    111561.74
+    79686.96
+    39612.38
+  ) ;
+  .
+
+# =============================================================================
+# AUDIT TRAIL ENTITIES (PROV-O)
+# =============================================================================
+
+tests:activity-deal-creation-001
+  rdf:type prov:Activity ;
+  dcterms:title "Deal Creation - Acme/TechVendor" ;
+  prov:startedAtTime "2026-03-24T10:00:00Z"^^xsd:dateTime ;
+  prov:endedAtTime "2026-03-24T10:00:45Z"^^xsd:dateTime ;
+  prov:wasAssociatedWith tests:user-analyst-001 ;
+  prov:used tests:deal-proposal-001 ;
+  prov:generated tests:deal-001 ;
+
+  # Audit attributes
+  prov:hashValue "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0" ;
+  prov:previousHashValue "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" ;
+  .
+
+tests:deal-proposal-001
+  rdf:type prov:Entity ;
+  dcterms:title "Deal Proposal Document" ;
+  dcterms:format "application/pdf" ;
+  prov:hadPrimarySource tests:sales-system ;
+  prov:generatedAtTime "2026-03-24T09:30:00Z"^^xsd:dateTime ;
+  .
+
+tests:user-analyst-001
+  rdf:type prov:Agent ;
+  rdf:type fibo-be:Person ;
+  dcterms:identifier "USER-ANALYST-001" ;
+  fibo-fnd:hasName "John Smith" ;
+  sox:userAccessLevel "Level 3" ;
+  sox:userRole "Financial Analyst" ;
+  sox:userApprovalAuthority true ;
+  .
+
+tests:user-counsel-001
+  rdf:type prov:Agent ;
+  dcterms:identifier "USER-COUNSEL-001" ;
+  fibo-fnd:hasName "Sarah Johnson" ;
+  sox:userAccessLevel "Level 4" ;
+  sox:userRole "General Counsel" ;
+  sox:userApprovalAuthority true ;
+  .
+
+tests:activity-asset-acquisition-001
+  rdf:type prov:Activity ;
+  dcterms:title "Asset Acquisition - Manufacturing Equipment" ;
+  prov:startedAtTime "2026-03-20T14:00:00Z"^^xsd:dateTime ;
+  prov:endedAtTime "2026-03-20T15:30:00Z"^^xsd:dateTime ;
+  prov:wasAssociatedWith tests:user-analyst-001 ;
+  prov:generated tests:deal-002 ;
+  .
+
+tests:sales-system
+  rdf:type prov:Organization ;
+  dcterms:title "Salesforce CRM System" ;
+  dcterms:identifier "sys-salesforce-prod" ;
+  sox:systemIsLoggingEnabled true ;
+  .
+
+tests:dun-bradstreet-record-acme
+  rdf:type prov:Entity ;
+  dcterms:title "Dun & Bradstreet D-U-N-S Record" ;
+  dcterms:identifier "DUNS-12-345-6789" ;
+  dcterms:issued "2020-01-15"^^xsd:date ;
+  prov:generatedAtTime "2020-01-15"^^xsd:dateTime ;
+  .
+
+# =============================================================================
+# END OF FIBO TEST DATA
+# =============================================================================

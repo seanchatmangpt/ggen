@@ -1,0 +1,132 @@
+@prefix : <http://bitactor.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Ontology Metadata
+:BitActorCoreOntology a owl:Ontology ;
+    rdfs:comment "Core ontology for the BitActor execution stack, defining fundamental concepts and relationships for AOT compilation." ;
+    owl:versionIRI <http://bitactor.org/ontology/1.0.0> ;
+    owl:imports <http://www.w3.org/2002/07/owl> .
+
+# Classes
+:Actor a owl:Class ;
+    rdfs:label "Actor" ;
+    rdfs:comment "Represents a BitActor entity with state and behavior." .
+
+:Behavior a owl:Class ;
+    rdfs:label "Behavior" ;
+    rdfs:comment "Represents a specific, compiled behavior or function that an Actor can execute." .
+
+:Opcode a owl:Class ;
+    rdfs:label "Opcode" ;
+    rdfs:comment "Represents a low-level BitActor instruction (e.g., ADD, MOV, ENTANGLE)." .
+
+:Contract a owl:Class ;
+    rdfs:label "Contract" ;
+    rdfs:comment "Represents a predicate-based dispatch rule for selecting Actor behaviors." .
+
+:TelemetrySpan a owl:Class ;
+    rdfs:label "Telemetry Span" ;
+    rdfs:comment "Represents a unit of execution for performance monitoring and causal validation." .
+
+:Entanglement a owl:Class ;
+    rdfs:label "Entanglement" ;
+    rdfs:comment "Represents a shared-memory causal propagation relationship between Actors." .
+
+# Properties
+:hasBehavior a owl:ObjectProperty ;
+    rdfs:label "has behavior" ;
+    rdfs:domain :Actor ;
+    rdfs:range :Behavior ;
+    rdfs:comment "Links an Actor to its defined Behavior." .
+
+:executesOpcode a owl:ObjectProperty ;
+    rdfs:label "executes opcode" ;
+    rdfs:domain :Behavior ;
+    rdfs:range :Opcode ;
+    rdfs:comment "Links a Behavior to the Opcodes it executes." .
+
+:hasTickCost a owl:DatatypeProperty ;
+    rdfs:label "has tick cost" ;
+    rdfs:domain :Opcode ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Specifies the deterministic CPU tick cost of an Opcode." .
+
+:hasBytecode a owl:DatatypeProperty ;
+    rdfs:label "has bytecode" ;
+    rdfs:domain :Behavior ;
+    rdfs:range xsd:hexBinary ; # Or a custom datatype for instruction stream
+    rdfs:comment "The compiled bytecode stream for a Behavior." .
+
+:hasPredicate a owl:DatatypeProperty ;
+    rdfs:label "has predicate" ;
+    rdfs:domain :Contract ;
+    rdfs:range xsd:string ; # Or a custom datatype for predicate logic
+    rdfs:comment "The logical predicate for a Contract." .
+
+:dispatchesTo a owl:ObjectProperty ;
+    rdfs:label "dispatches to" ;
+    rdfs:domain :Contract ;
+    rdfs:range :Behavior ;
+    rdfs:comment "Links a Contract to the Behavior it dispatches to." .
+
+:hasSpecHash a owl:DatatypeProperty ;
+    rdfs:label "has specification hash" ;
+    rdfs:domain :Behavior ;
+    rdfs:range xsd:hexBinary ; # 64-bit fingerprint
+    rdfs:comment "The 64-bit fingerprint of a Behavior's TTL specification." .
+
+:monitorsSpan a owl:ObjectProperty ;
+    rdfs:label "monitors span" ;
+    rdfs:domain :Behavior ;
+    rdfs:range :TelemetrySpan ;
+    rdfs:comment "Indicates that a Behavior is monitored by a TelemetrySpan." .
+
+:hasMaxCycles a owl:DatatypeProperty ;
+    rdfs:label "has maximum cycles" ;
+    rdfs:domain :TelemetrySpan ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "The maximum allowed CPU cycles for a TelemetrySpan." .
+
+:entanglesWith a owl:ObjectProperty ;
+    rdfs:label "entangles with" ;
+    rdfs:domain :Actor ;
+    rdfs:range :Actor ;
+    rdfs:comment "Defines an entanglement relationship between two Actors." .
+
+:hasTriggerMask a owl:DatatypeProperty ;
+    rdfs:label "has trigger mask" ;
+    rdfs:domain :Entanglement ;
+    rdfs:range xsd:hexBinary ; # 8-bit mask
+    rdfs:comment "The bitmask that triggers an entanglement." .
+
+:hasMaxHops a owl:DatatypeProperty ;
+    rdfs:label "has maximum hops" ;
+    rdfs:domain :Entanglement ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "The maximum propagation hops for an entanglement signal." .
+
+:isDarkTriple a owl:DatatypeProperty ;
+    rdfs:label "is dark triple" ;
+    rdfs:domain :Entanglement ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if an entanglement represents a dormant 'dark' triple." .
+
+# Individual Opcodes (L1)
+:BA_OP_ADD a :Opcode ;
+    :hasTickCost 2 ;
+    rdfs:label "ADD Opcode" .
+
+:BA_OP_MOV a :Opcode ;
+    :hasTickCost 1 ;
+    rdfs:label "MOV Opcode" .
+
+:BA_OP_ENTANGLE a :Opcode ;
+    :hasTickCost 5 ;
+    rdfs:label "ENTANGLE Opcode" .
+
+:BA_OP_COLLAPSE a :Opcode ;
+    :hasTickCost 7 ;
+    rdfs:label "COLLAPSE Opcode" .

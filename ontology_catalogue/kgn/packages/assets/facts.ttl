@@ -1,0 +1,33 @@
+@prefix ex: <https://kgen.dev/example#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Sample financial data
+ex:DemoCorpUS rdf:type ex:Organization ;
+    rdfs:label "Demo Corp US" .
+
+ex:DemoCorpEU rdf:type ex:Organization ;
+    rdfs:label "Demo Corp EU" .
+
+ex:DemoCorpAPAC rdf:type ex:Organization ;
+    rdfs:label "Demo Corp APAC" .
+
+# Financial records
+ex:record1 rdf:type ex:FinancialRecord ;
+    ex:belongsTo ex:DemoCorpUS ;
+    ex:hasRevenue "1500000"^^xsd:decimal ;
+    ex:hasExpenses "900000"^^xsd:decimal ;
+    ex:hasProfit "600000"^^xsd:decimal .
+
+ex:record2 rdf:type ex:FinancialRecord ;
+    ex:belongsTo ex:DemoCorpEU ;
+    ex:hasRevenue "2200000"^^xsd:decimal ;
+    ex:hasExpenses "1300000"^^xsd:decimal ;
+    ex:hasProfit "900000"^^xsd:decimal .
+
+ex:record3 rdf:type ex:FinancialRecord ;
+    ex:belongsTo ex:DemoCorpAPAC ;
+    ex:hasRevenue "1800000"^^xsd:decimal ;
+    ex:hasExpenses "1100000"^^xsd:decimal ;
+    ex:hasProfit "700000"^^xsd:decimal .

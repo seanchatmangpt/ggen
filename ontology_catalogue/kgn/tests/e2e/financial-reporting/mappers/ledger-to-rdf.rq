@@ -1,0 +1,33 @@
+PREFIX fin: <https://kgen.dev/ontologies/finance#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX : <https://kgen.dev/data/ledger#>
+
+# SPARQL CONSTRUCT query to map CSV ledger data to RDF
+CONSTRUCT {
+  ?entry a fin:JournalEntry ;
+         fin:hasDate ?date ;
+         fin:hasAccount ?account ;
+         fin:hasDescription ?description ;
+         fin:hasDebit ?debit ;
+         fin:hasCredit ?credit .
+}
+WHERE {
+  # This would be populated by the CSV to RDF mapping process
+  # In a real implementation, this would use SPARQL with CSV input
+  VALUES (?entryId ?dateStr ?accountStr ?description ?debitStr ?creditStr) {
+    # Data would be injected here from CSV parsing
+  }
+
+  BIND(IRI(CONCAT("https://kgen.dev/data/ledger#entry-", ?entryId)) AS ?entry)
+  BIND(xsd:date(?dateStr) AS ?date)
+  BIND(xsd:decimal(?debitStr) AS ?debit)
+  BIND(xsd:decimal(?creditStr) AS ?credit)
+
+  # Map account string to account IRI
+  BIND(
+    IF(?accountStr = "Sales Revenue", fin:SalesRevenue,
+    IF(?accountStr = "Cost of Goods Sold", fin:CostOfGoodsSold,
+    IF(?accountStr = "Operating Expenses", fin:OperatingExpenses,
+       fin:UnknownAccount))) AS ?account
+  )
+}

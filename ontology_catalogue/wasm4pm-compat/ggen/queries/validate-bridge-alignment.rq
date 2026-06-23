@@ -1,0 +1,170 @@
+# SPARQL Query: Validate Open Ontologies Bridge Alignment
+# Purpose: Audit bridge consistency and detect misalignments:
+# - Orphaned compat forms (no external match)
+# - Ambiguous alignments (multiple external matches with different semantics)
+# - Type law violations (external constraints not reflected in compat)
+# - Witness key inconsistencies
+#
+# Usage: ggen query validate-bridge-alignment.rq --format json
+
+PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
+PREFIX owl:        <http://www.w3.org/2002/07/owl#>
+PREFIX compat:     <https://wasm4pm-compat.rs/ontology#>
+PREFIX paper:      <https://wasm4pm-compat.rs/paper#>
+PREFIX ocel:       <https://open-ontologies.org/ocel#>
+PREFIX bpmn:       <https://open-ontologies.org/bpmn#>
+PREFIX petri:      <https://open-ontologies.org/petri#>
+
+# ============================================================================
+# AUDIT 1: Orphaned compat forms (no external match)
+# ============================================================================
+
+SELECT DISTINCT
+  'ORPHANED_FORM' AS ?auditKind
+  ?compatForm
+  ?compatRustType
+  ?compatSourceFile
+  ?witnessKey
+  'No external definition found for this form' AS ?issue
+  ?remediation
+WHERE {
+  ?compatForm
+    a compat:ProcessForm ;
+    compat:rustType ?compatRustType ;
+    compat:sourceFile ?compatSourceFile ;
+    compat:admittedAgainst ?witness .
+
+  ?witness compat:witnessKey ?witnessKey .
+
+  # Check: form has NO external alignment
+  FILTER NOT EXISTS {
+    ?compatForm compat:externalAlignment ?externalDef .
+  }
+
+  # Suggest remediation
+  BIND (
+    CONCAT(
+      'Create external alignment record in open-ontologies or update witness key. ',
+      'If intentional (compat-only form), add compat:noExternalMappingReason ',
+      '"', ?witnessKey, ' is internal bridge"'
+    )
+    AS ?remediation
+  )
+}
+
+UNION
+
+# ============================================================================
+# AUDIT 2: Ambiguous alignments (multiple external matches)
+# ============================================================================
+
+SELECT DISTINCT
+  'AMBIGUOUS_ALIGNMENT' AS ?auditKind
+  ?compatForm
+  ?compatRustType
+  (COUNT(DISTINCT ?externalDef) AS ?externalDefCount)
+  (GROUP_CONCAT(DISTINCT ?externalLabel; separator='; ') AS ?externalLabels)
+  'Multiple external definitions found; alignment is ambiguous' AS ?issue
+  'Manually select canonical external definition and add compat:canonicalExternalDef URI' AS ?remediation
+WHERE {
+  ?compatForm
+    a compat:ProcessForm ;
+    compat:rustType ?compatRustType ;
+    compat:externalAlignment ?externalDef .
+
+  ?externalDef rdfs:label ?externalLabel .
+
+  # Check: form has MULTIPLE external alignments
+  {
+    SELECT ?compatForm (COUNT(DISTINCT ?ed2) AS ?cnt)
+    WHERE {
+      ?compatForm compat:externalAlignment ?ed2 .
+    }
+    GROUP BY ?compatForm
+    HAVING (?cnt > 1)
+  }
+}
+GROUP BY ?compatForm ?compatRustType
+
+UNION
+
+# ============================================================================
+# AUDIT 3: Type law violations (external constraints missing in compat)
+# ============================================================================
+
+SELECT DISTINCT
+  'TYPE_LAW_VIOLATION' AS ?auditKind
+  ?compatForm
+  ?compatRustType
+  ?externalConstraint
+  ?externalConstraintLabel
+  ?constraintKind
+  'compat form does not reflect external constraint' AS ?issue
+  'Add compat:typeConstraint property to compat:ProcessForm, referencing constraint' AS ?remediation
+WHERE {
+  # Find compat forms with external alignment
+  ?compatForm
+    a compat:ProcessForm ;
+    compat:rustType ?compatRustType ;
+    compat:externalAlignment ?externalDef .
+
+  # Find constraints on the external definition
+  ?externalConstraint
+    rdfs:domain ?externalDef ;
+    rdf:type owl:Restriction ;
+    rdfs:label ?externalConstraintLabel .
+
+  # Extract constraint kind (cardinality, property, etc.)
+  OPTIONAL {
+    ?externalConstraint
+      owl:cardinality ?card ;
+      owl:onProperty ?prop .
+    BIND (CONCAT('cardinality(', STR(?prop), ')=', STR(?card)) AS ?constraintKind)
+  }
+
+  # Check: compat form has NO corresponding constraint
+  FILTER NOT EXISTS {
+    ?compatForm compat:typeConstraint ?cc .
+    ?cc compat:externalConstraintRef ?externalConstraint .
+  }
+}
+
+UNION
+
+# ============================================================================
+# AUDIT 4: Witness key inconsistencies
+# ============================================================================
+
+SELECT DISTINCT
+  'WITNESS_KEY_MISMATCH' AS ?auditKind
+  ?compatForm
+  ?compatRustType
+  ?declaredWitnessKey
+  ?inferencedWitnessKey
+  'Declared witness key does not match inferred key from external alignment' AS ?issue
+  'Update compat:admittedAgainst to reference correct witness marker' AS ?remediation
+WHERE {
+  ?compatForm
+    a compat:ProcessForm ;
+    compat:rustType ?compatRustType ;
+    compat:admittedAgainst ?witness ;
+    compat:externalAlignment ?externalDef .
+
+  ?witness compat:witnessKey ?declaredWitnessKey .
+
+  # Infer witness key from external definition type
+  BIND (
+    IF(CONTAINS(STR(?externalDef), 'ocel'), 'ocel-2.0',
+    IF(CONTAINS(STR(?externalDef), 'bpmn'), 'bpmn-2.0',
+    IF(CONTAINS(STR(?externalDef), 'petri'), 'petri-net',
+    'unknown')))
+    AS ?inferencedWitnessKey
+  )
+
+  # Check: declared and inferred don't match
+  FILTER (?declaredWitnessKey != ?inferencedWitnessKey)
+}
+
+ORDER BY ?auditKind ?compatRustType

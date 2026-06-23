@@ -1,0 +1,53 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix clap: <http://clap-noun-verb.io/ontology#> .
+@prefix calc: <http://example.org/calculator#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# CLI Application Definition
+calc:CalculatorApp a clap:CliApplication ;
+    clap:name "clap-noun-verb-cli" ;
+    clap:version "0.1.0" ;
+    clap:author "CLAP Noun Verb Team" ;
+    clap:about "A sample CLI for demonstrating unRDF generation" ;
+    clap:nouns (calc:CalculatorNoun) .
+
+# Noun: calculator
+calc:CalculatorNoun a clap:Noun ;
+    clap:name "calculator" ;
+    clap:about "Perform arithmetic operations" ;
+    clap:verbs (calc:AddVerb calc:SubtractVerb) .
+
+# Verb: add
+calc:AddVerb a clap:Verb ;
+    clap:name "add" ;
+    clap:about "Add two numbers" ;
+    clap:arguments (calc:LeftArg calc:RightArg) ;
+    clap:returnType xsd:integer ;
+    clap:example "clap-noun-verb-cli calculator add --left 10 --right 5" .
+
+# Verb: subtract
+calc:SubtractVerb a clap:Verb ;
+    clap:name "subtract" ;
+    clap:about "Subtract the right number from the left number" ;
+    clap:arguments (calc:LeftArg calc:RightArg) ;
+    clap:returnType xsd:integer ;
+    clap:example "clap-noun-verb-cli calculator subtract --left 10 --right 5" .
+
+# Argument: left
+calc:LeftArg a clap:Argument ;
+    clap:name "left" ;
+    clap:shortName "l" ;
+    clap:about "The left operand" ;
+    clap:valueType xsd:integer ;
+    clap:required true ;
+    clap:position 1 .
+
+# Argument: right
+calc:RightArg a clap:Argument ;
+    clap:name "right" ;
+    clap:shortName "r" ;
+    clap:about "The right operand" ;
+    clap:valueType xsd:integer ;
+    clap:required true ;
+    clap:position 2 .

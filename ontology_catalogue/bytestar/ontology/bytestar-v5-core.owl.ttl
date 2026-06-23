@@ -1,0 +1,123 @@
+@prefix : <https://bytestar.org/ontology/v5/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://bytestar.org/ontology/v5/core>
+  a owl:Ontology ;
+  rdfs:label "ByteStar v5 Core Ontology - The Foundational Physics" ;
+  rdfs:comment "This ontology defines the immutable, non-negotiable laws and the most fundamental concepts of the ByteStar ecosystem. It is the axiomatic foundation from which all other system properties are derived." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. The Governing Doctrines (The Physical Laws)
+# #################################################################
+
+:GoverningDoctrine a owl:Class ;
+  rdfs:label "Governing Doctrine" ;
+  rdfs:comment "An abstract class for the set of immutable physical laws that govern the entire ByteStar ecosystem. These are not policies; they are axioms." .
+
+:DoctrineOf8 a :GoverningDoctrine ;
+  rdfs:label "The Doctrine of 8" ;
+  rdfs:comment "The non-negotiable physical law that all hot-path kernels must execute in <= 8 CPU ticks and all end-to-end workflows must complete in <= 8 hops." .
+
+:OntologyAsAlgorithm a :GoverningDoctrine ;
+  rdfs:label "Ontology-as-Algorithm (OAA)" ;
+  rdfs:comment "The core philosophy that ontologies are not descriptive documents but are the generative blueprints from which the entire system is fabricated." .
+
+:ZeroTickRejection a :GoverningDoctrine ;
+  rdfs:label "Zero-Tick Rejection" ;
+  rdfs:comment "The safety principle wherein any crystal that fails the admission predicate (Theta) is rejected without consuming any hot-path execution ticks." .
+
+:ScheduleInvariance a :GoverningDoctrine ;
+  rdfs:label "Schedule Invariance" ;
+  rdfs:comment "The requirement that all hot-path operations must have a fixed address and branch trace, ensuring their execution time is a constant, independent of input data." .
+
+:LetItCrashDiscipline a :GoverningDoctrine ;
+    rdfs:label "Let-It-Crash Discipline" ;
+    rdfs:comment "The principle that the hot-path execution engine (ByteActor) contains zero defensive programming and trusts the admission gate (ByteFlow) completely. Safety is achieved by moving validation off the hot path." .
+
+# #################################################################
+# II. The Architectural Pillars (The Realms)
+# #################################################################
+
+:System a owl:Class ;
+    rdfs:label "System" .
+
+:ByteStarEcosystem a :System .
+
+:Subsystem a owl:Class ;
+    rdfs:subClassOf :System ;
+    rdfs:label "Subsystem" ;
+    rdfs:comment "Represents one of the core, physically isolated, and functionally distinct realms of the ByteStar ecosystem." .
+
+:ByteCore a :Subsystem ;
+    rdfs:label "ByteCore (The Foundation)" ;
+    rdfs:comment "The foundational layer defining immutable contracts, ABIs, and primitives shared across the ecosystem." .
+
+:ByteActor a :Subsystem ;
+  rdfs:label "ByteActor (A, The Engine)" ;
+  rdfs:comment "The C-fast, hot-path execution realm. Its sole purpose is the deterministic, physically-constrained execution of a single crystal." .
+
+:ByteFlow a :Subsystem ;
+  rdfs:label "ByteFlow (F, The Factory)" ;
+  rdfs:comment "The Erlang-wide, warm-path orchestration realm. It is responsible for the AOT fabrication of artifacts and the admission of work via the Theta predicate." .
+
+:ByteEthos a :Subsystem ;
+  rdfs:label "ByteEthos (E, The Rulebook)" ;
+  rdfs:comment "The governance and finality realm. It enforces the canonical rules of the ecosystem, manages identity, and maintains the PQC-sealed append-only ledger." .
+
+# #################################################################
+# III. The Computational Primitives
+# #################################################################
+
+:Kernel a owl:Class ;
+    rdfs:label "Kernel" ;
+    rdfs:comment "A single, constant-time, branch-free, L1-resident C algorithm from the canonical set of 64. This is the atomic unit of execution." .
+
+:Workflow a owl:Class ;
+    rdfs:label "Workflow" ;
+    rdfs:comment "A sequence of kernel executions that represents a complete unit of work." .
+
+:Crystal a owl:Class ;
+    rdfs:label "Crystal" ;
+    rdfs:comment "The atomic unit of work in the ecosystem. A self-contained, sealed artifact composed of an envelope and pointers to AOT-fabricated tables." .
+
+:Envelope a owl:Class ;
+    rdfs:label "Envelope" ;
+    rdfs:comment "The 64-byte, cache-line-aligned data structure that serves as the primary ingress/egress format for the ByteActor hot path." .
+
+# #################################################################
+# IV. Axiomatic Enforcement (Applying the Physics)
+# #################################################################
+
+:hasTickCost a owl:DatatypeProperty ;
+    rdfs:domain :Kernel ;
+    rdfs:range xsd:integer .
+
+:hasHopCount a owl:DatatypeProperty ;
+    rdfs:domain :Workflow ;
+    rdfs:range xsd:integer .
+
+# Axiom A1: Enforcing the Doctrine of 8
+# All Kernels must have a tick cost less than or equal to 8.
+:Kernel rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasTickCost ;
+    owl:allValuesFrom [ 
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:integer ;
+        owl:withRestrictions ( [xsd:maxInclusive "8"^^xsd:integer] )
+    ]
+] .
+
+# All Workflows must have a hop count less than or equal to 8.
+:Workflow rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasHopCount ;
+    owl:allValuesFrom [ 
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:integer ;
+        owl:withRestrictions ( [xsd:maxInclusive "8"^^xsd:integer] )
+    ]
+] .

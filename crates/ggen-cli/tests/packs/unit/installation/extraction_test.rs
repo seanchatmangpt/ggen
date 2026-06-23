@@ -1,4 +1,26 @@
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! Unit tests for package extraction functionality
 //!
 //! Tests cover:
@@ -145,7 +167,13 @@ fn create_malicious_archive_with_path_traversal() -> Vec<u8> {
     // Try to write outside target directory
     let data = b"malicious content";
     let mut header = tar::Header::new_gnu();
-    header.set_path("../../../etc/passwd").unwrap();
+    let path_bytes = b"../../../etc/passwd";
+    let bytes: &mut [u8; 512] = unsafe { std::mem::transmute(&mut header) };
+    bytes[0..path_bytes.len()].copy_from_slice(path_bytes);
+    for i in path_bytes.len()..100 {
+        bytes[i] = 0;
+    }
+
     header.set_size(data.len() as u64);
     header.set_cksum();
     ar.append(&header, &data[..]).unwrap();

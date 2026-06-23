@@ -1,0 +1,444 @@
+@prefix dfls: <http://cns.bitactor.io/ontology/dfls#> .
+@prefix otp: <http://cns.bitactor.io/ontology/otp#> .
+@prefix bitactor: <http://cns.bitactor.io/ontology/bitactor#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix test: <http://test.cns.bitactor.io/> .
+
+# ============================================================================
+# COMPREHENSIVE TEST ONTOLOGY FOR REAL DFLS TESTING
+# Contains actual instance data for meaningful semantic workflow testing
+# ============================================================================
+
+# ============================================================================
+# REAL GENSERVER INSTANCES FOR TESTING
+# ============================================================================
+
+test:forex_trade_manager a otp:GenServer ;
+    otp:hasModule "forex_trade_manager" ;
+    rdfs:label "Forex Trade Manager" ;
+    rdfs:comment "GenServer managing forex trading operations with Six Sigma quality" ;
+    dfls:hasQualityTarget test:trading_quality_target ;
+    otp:hasState test:forex_trade_state ;
+    bitactor:messageLatency "0.00035"^^xsd:double ;
+    otp:hasCallback [
+        otp:callbackName "handle_trade_request" ;
+        otp:callbackType "handle_call" ;
+        rdfs:comment "Process incoming trade requests with validation"
+    ] ;
+    otp:hasCallback [
+        otp:callbackName "update_position" ;
+        otp:callbackType "handle_cast" ;
+        rdfs:comment "Update trading position asynchronously"
+    ] ;
+    otp:hasCallback [
+        otp:callbackName "market_data_update" ;
+        otp:callbackType "handle_info" ;
+        rdfs:comment "Process real-time market data updates"
+    ] .
+
+test:risk_management_server a otp:GenServer ;
+    otp:hasModule "risk_management_server" ;
+    rdfs:label "Risk Management Server" ;
+    rdfs:comment "Real-time risk monitoring with DFLS quality controls" ;
+    dfls:hasQualityTarget test:risk_quality_target ;
+    otp:hasState test:risk_state ;
+    bitactor:messageLatency "0.00025"^^xsd:double ;
+    otp:hasCallback [
+        otp:callbackName "calculate_risk_score" ;
+        otp:callbackType "handle_call" ;
+        rdfs:comment "Calculate position risk scores in real-time"
+    ] ;
+    otp:hasCallback [
+        otp:callbackName "risk_limit_exceeded" ;
+        otp:callbackType "handle_info" ;
+        rdfs:comment "Handle risk limit breach notifications"
+    ] .
+
+test:position_tracker a otp:GenServer ;
+    otp:hasModule "position_tracker" ;
+    rdfs:label "Position Tracker" ;
+    rdfs:comment "Track and validate trading positions" ;
+    dfls:hasQualityTarget test:position_quality_target ;
+    otp:hasState test:position_state ;
+    bitactor:messageLatency "0.00048"^^xsd:double ;
+    otp:hasTimeoutHandler [
+        otp:timeoutValue "30000"^^xsd:integer ;
+        rdfs:comment "Position reconciliation timeout"
+    ] .
+
+test:market_data_feeder a bitactor:UltraFastGenServer ;
+    otp:hasModule "market_data_feeder" ;
+    rdfs:label "Ultra-Fast Market Data Feeder" ;
+    rdfs:comment "BitActor-optimized market data processing" ;
+    dfls:hasQualityTarget test:ultrafast_quality_target ;
+    bitactor:hasNIFModule test:market_data_nif ;
+    bitactor:messageLatency "0.00015"^^xsd:double ;
+    bitactor:cpuUsage "0.05"^^xsd:double ;
+    bitactor:memoryUsage "0.02"^^xsd:double ;
+    otp:hasState test:market_data_state .
+
+# ============================================================================
+# REAL SUPERVISOR INSTANCES FOR TESTING
+# ============================================================================
+
+test:trading_supervisor a otp:Supervisor ;
+    otp:hasModule "trading_supervisor" ;
+    rdfs:label "Trading System Supervisor" ;
+    rdfs:comment "Main supervisor for trading system with DFLS fault tolerance" ;
+    otp:hasRestartStrategy otp:OneForOne ;
+    otp:maxRestarts "5"^^xsd:integer ;
+    otp:maxSeconds "3600"^^xsd:integer ;
+    dfls:hasQualityTarget test:supervisor_quality_target ;
+    otp:hasChildSpec test:forex_manager_childspec ;
+    otp:hasChildSpec test:risk_manager_childspec ;
+    otp:hasChildSpec test:position_tracker_childspec .
+
+test:market_data_supervisor a otp:Supervisor ;
+    otp:hasModule "market_data_supervisor" ;
+    rdfs:label "Market Data Supervisor" ;
+    rdfs:comment "Supervisor for ultra-fast market data processing" ;
+    otp:hasRestartStrategy otp:RestForOne ;
+    otp:maxRestarts "3"^^xsd:integer ;
+    otp:maxSeconds "1800"^^xsd:integer ;
+    otp:hasChildSpec test:market_feeder_childspec .
+
+# ============================================================================
+# CHILD SPECIFICATIONS FOR REAL TESTING
+# ============================================================================
+
+test:forex_manager_childspec a otp:ChildSpec ;
+    otp:childId "forex_trade_manager" ;
+    otp:startFunc "{forex_trade_manager, start_link, []}" ;
+    otp:restartType otp:Permanent ;
+    otp:shutdownTimeout "5000"^^xsd:integer ;
+    otp:childType "worker" ;
+    otp:modules "[forex_trade_manager]" .
+
+test:risk_manager_childspec a otp:ChildSpec ;
+    otp:childId "risk_management_server" ;
+    otp:startFunc "{risk_management_server, start_link, []}" ;
+    otp:restartType otp:Permanent ;
+    otp:shutdownTimeout "3000"^^xsd:integer ;
+    otp:childType "worker" ;
+    otp:modules "[risk_management_server]" .
+
+test:position_tracker_childspec a otp:ChildSpec ;
+    otp:childId "position_tracker" ;
+    otp:startFunc "{position_tracker, start_link, []}" ;
+    otp:restartType otp:Transient ;
+    otp:shutdownTimeout "2000"^^xsd:integer ;
+    otp:childType "worker" ;
+    otp:modules "[position_tracker]" .
+
+test:market_feeder_childspec a otp:ChildSpec ;
+    otp:childId "market_data_feeder" ;
+    otp:startFunc "{market_data_feeder, start_link, []}" ;
+    otp:restartType otp:Permanent ;
+    otp:shutdownTimeout "1000"^^xsd:integer ;
+    otp:childType "worker" ;
+    otp:modules "[market_data_feeder]" .
+
+# ============================================================================
+# REAL STATE DEFINITIONS FOR TESTING
+# ============================================================================
+
+test:forex_trade_state a otp:ServerState ;
+    rdfs:label "Forex Trade State" ;
+    otp:hasStateField [
+        otp:fieldName "active_trades" ;
+        otp:fieldType "maps:map()" ;
+        otp:defaultValue "#{}" ;
+        rdfs:comment "Map of active trading positions"
+    ] ;
+    otp:hasStateField [
+        otp:fieldName "risk_limits" ;
+        otp:fieldType "list()" ;
+        otp:defaultValue "[]" ;
+        rdfs:comment "Current risk limit configurations"
+    ] ;
+    otp:hasStateField [
+        otp:fieldName "last_update" ;
+        otp:fieldType "integer()" ;
+        otp:defaultValue "0" ;
+        rdfs:comment "Timestamp of last position update"
+    ] .
+
+test:risk_state a otp:ServerState ;
+    rdfs:label "Risk Management State" ;
+    otp:hasStateField [
+        otp:fieldName "risk_scores" ;
+        otp:fieldType "maps:map()" ;
+        otp:defaultValue "#{}" ;
+        rdfs:comment "Current risk scores by position"
+    ] ;
+    otp:hasStateField [
+        otp:fieldName "breach_count" ;
+        otp:fieldType "integer()" ;
+        otp:defaultValue "0" ;
+        rdfs:comment "Number of risk limit breaches"
+    ] .
+
+test:position_state a otp:ServerState ;
+    rdfs:label "Position Tracking State" ;
+    otp:hasStateField [
+        otp:fieldName "positions" ;
+        otp:fieldType "list()" ;
+        otp:defaultValue "[]" ;
+        rdfs:comment "List of current positions"
+    ] ;
+    otp:hasStateField [
+        otp:fieldName "reconciliation_status" ;
+        otp:fieldType "atom()" ;
+        otp:defaultValue "ok" ;
+        rdfs:comment "Position reconciliation status"
+    ] .
+
+test:market_data_state a otp:ServerState ;
+    rdfs:label "Market Data State" ;
+    otp:hasStateField [
+        otp:fieldName "price_buffer" ;
+        otp:fieldType "binary()" ;
+        otp:defaultValue "<<>>" ;
+        rdfs:comment "High-performance price data buffer"
+    ] ;
+    otp:hasStateField [
+        otp:fieldName "update_count" ;
+        otp:fieldType "integer()" ;
+        otp:defaultValue "0" ;
+        rdfs:comment "Number of price updates processed"
+    ] .
+
+# ============================================================================
+# NIF MODULES FOR ULTRA-FAST TESTING
+# ============================================================================
+
+test:market_data_nif a bitactor:NIFModule ;
+    rdfs:label "Market Data NIF" ;
+    rdfs:comment "C implementation for ultra-fast market data processing" ;
+    bitactor:hasSourceFile "/Users/sac/cns/nif_src/market_data_nif.c" ;
+    bitactor:hasMemorySafetyCheck "true"^^xsd:boolean ;
+    bitactor:hasFunction [
+        bitactor:functionName "process_price_update" ;
+        bitactor:arity "2" ;
+        rdfs:comment "Process incoming price updates in C"
+    ] ;
+    bitactor:hasFunction [
+        bitactor:functionName "calculate_vwap" ;
+        bitactor:arity "3" ;
+        rdfs:comment "Calculate volume-weighted average price"
+    ] .
+
+# ============================================================================
+# REAL QUALITY TARGETS FOR TESTING
+# ============================================================================
+
+test:trading_quality_target a dfls:SixSigmaMetric ;
+    dfls:defectRate "0.00025"^^xsd:double ;
+    rdfs:label "Trading Quality Target" ;
+    rdfs:comment "Quality target for forex trading operations" ;
+    dfls:hasQualityCheck [
+        dfls:checkName "trade_validation" ;
+        dfls:checkType "pre_execution" ;
+        dfls:threshold "99.9975"^^xsd:double ;
+        rdfs:comment "Validate all trades before execution"
+    ] .
+
+test:risk_quality_target a dfls:SixSigmaMetric ;
+    dfls:defectRate "0.00015"^^xsd:double ;
+    rdfs:label "Risk Management Quality Target" ;
+    rdfs:comment "Higher quality target for risk management" ;
+    dfls:hasQualityCheck [
+        dfls:checkName "risk_calculation" ;
+        dfls:checkType "real_time" ;
+        dfls:threshold "99.9985"^^xsd:double ;
+        rdfs:comment "Real-time risk score validation"
+    ] .
+
+test:position_quality_target a dfls:SixSigmaMetric ;
+    dfls:defectRate "0.00034"^^xsd:double ;
+    rdfs:label "Position Tracking Quality Target" ;
+    rdfs:comment "Standard Six Sigma target for position tracking" .
+
+test:ultrafast_quality_target a dfls:SixSigmaMetric ;
+    dfls:defectRate "0.00010"^^xsd:double ;
+    rdfs:label "Ultra-Fast Quality Target" ;
+    rdfs:comment "Highest quality target for BitActor components" .
+
+test:supervisor_quality_target a dfls:SixSigmaMetric ;
+    dfls:defectRate "0.00020"^^xsd:double ;
+    rdfs:label "Supervisor Quality Target" ;
+    rdfs:comment "Quality target for fault tolerance supervision" .
+
+# ============================================================================
+# QUALITY GATES AND CONTROL CHARTS
+# ============================================================================
+
+test:trading_quality_gate a dfls:QualityGate ;
+    rdfs:label "Trading System Quality Gate" ;
+    rdfs:comment "Quality checkpoint for trading operations" ;
+    dfls:hasQualityCheck test:trading_quality_target ;
+    dfls:hasPassCriteria [
+        dfls:threshold "99.997"^^xsd:double ;
+        dfls:metric "success_rate" ;
+        rdfs:comment "99.997% success rate required"
+    ] .
+
+test:latency_control_chart a dfls:ControlChart ;
+    rdfs:label "Message Latency Control Chart" ;
+    rdfs:comment "Statistical control for message processing latency" ;
+    dfls:upperControlLimit "0.0008"^^xsd:double ;
+    dfls:lowerControlLimit "0.0001"^^xsd:double ;
+    dfls:targetValue "0.0004"^^xsd:double .
+
+test:risk_control_chart a dfls:ControlChart ;
+    rdfs:label "Risk Score Control Chart" ;
+    rdfs:comment "Control chart for risk management quality" ;
+    dfls:upperControlLimit "0.95"^^xsd:double ;
+    dfls:lowerControlLimit "0.05"^^xsd:double ;
+    dfls:targetValue "0.50"^^xsd:double .
+
+# ============================================================================
+# FMEA ANALYSIS FOR TESTING
+# ============================================================================
+
+test:trade_execution_fmea a dfls:FMEA ;
+    rdfs:label "Trade Execution FMEA" ;
+    rdfs:comment "Risk analysis for trade execution failure modes" ;
+    dfls:severity "8"^^xsd:integer ;
+    dfls:occurrence "2"^^xsd:integer ;
+    dfls:detection "3"^^xsd:integer ;
+    dfls:riskPriorityNumber "48"^^xsd:integer ;
+    dfls:failureMode "Invalid trade parameters" ;
+    dfls:effects "Trade rejection, potential loss" ;
+    dfls:causes "Input validation failure" ;
+    dfls:controls "Pre-execution validation, parameter checking" .
+
+test:market_data_fmea a dfls:FMEA ;
+    rdfs:label "Market Data FMEA" ;
+    rdfs:comment "Risk analysis for market data processing failures" ;
+    dfls:severity "7"^^xsd:integer ;
+    dfls:occurrence "1"^^xsd:integer ;
+    dfls:detection "2"^^xsd:integer ;
+    dfls:riskPriorityNumber "14"^^xsd:integer ;
+    dfls:failureMode "Stale market data" ;
+    dfls:effects "Suboptimal trading decisions" ;
+    dfls:causes "Network latency, data provider issues" ;
+    dfls:controls "Timestamp validation, redundant feeds" .
+
+# ============================================================================
+# MEMORY POOLS AND PERFORMANCE RESOURCES
+# ============================================================================
+
+test:trading_memory_pool a bitactor:MemoryPool ;
+    rdfs:label "Trading Memory Pool" ;
+    rdfs:comment "High-performance memory allocation for trading operations" ;
+    bitactor:allocationEfficiency "0.98"^^xsd:double ;
+    bitactor:fragmentation "0.02"^^xsd:double ;
+    bitactor:poolSize "1048576"^^xsd:integer ;
+    bitactor:blockSize "4096"^^xsd:integer .
+
+test:market_data_memory_pool a bitactor:MemoryPool ;
+    rdfs:label "Market Data Memory Pool" ;
+    rdfs:comment "Ultra-fast memory pool for market data processing" ;
+    bitactor:allocationEfficiency "0.99"^^xsd:double ;
+    bitactor:fragmentation "0.01"^^xsd:double ;
+    bitactor:poolSize "2097152"^^xsd:integer ;
+    bitactor:blockSize "1024"^^xsd:integer .
+
+# ============================================================================
+# COMPLETE DFLS SYSTEM INTEGRATION
+# ============================================================================
+
+test:forex_trading_system a dfls:DFLSSystem ;
+    rdfs:label "Complete Forex Trading System" ;
+    rdfs:comment "Full DFLS implementation with Six Sigma quality and lean principles" ;
+    dfls:hasQualityTarget test:trading_quality_target ;
+    dfls:hasSupervisionTree test:trading_supervisor ;
+    dfls:hasQualityGate test:trading_quality_gate ;
+    bitactor:hasMemoryPool test:trading_memory_pool ;
+    dfls:hasControlChart test:latency_control_chart ;
+    dfls:hasControlChart test:risk_control_chart ;
+    dfls:hasFMEA test:trade_execution_fmea ;
+    dfls:hasFMEA test:market_data_fmea .
+
+# ============================================================================
+# PRODUCTION WORKFLOW INSTANCES
+# ============================================================================
+
+test:genserver_production_workflow a dfls:ProductionWorkflow ;
+    rdfs:label "GenServer Production Workflow" ;
+    rdfs:comment "Automated workflow for generating GenServer modules" ;
+    dfls:hasInputOntology <http://test.cns.bitactor.io/> ;
+    dfls:hasOutputCode "forex_trade_manager.erl" ;
+    dfls:codeQualityScore "99.97"^^xsd:double ;
+    dfls:generationTime "0.0003"^^xsd:double .
+
+test:supervisor_production_workflow a dfls:ProductionWorkflow ;
+    rdfs:label "Supervisor Production Workflow" ;
+    rdfs:comment "Automated workflow for generating Supervisor modules" ;
+    dfls:hasInputOntology <http://test.cns.bitactor.io/> ;
+    dfls:hasOutputCode "trading_supervisor.erl" ;
+    dfls:codeQualityScore "99.95"^^xsd:double ;
+    dfls:generationTime "0.0004"^^xsd:double .
+
+# ============================================================================
+# JINJA TEMPLATE CONFIGURATIONS
+# ============================================================================
+
+test:forex_genserver_template a dfls:JinjaTemplate ;
+    rdfs:label "Forex GenServer Template" ;
+    rdfs:comment "Template for generating forex trading GenServers" ;
+    dfls:templateType dfls:GenServerTemplate ;
+    dfls:templateFile "forex_genserver.erl.j2" ;
+    dfls:templateVersion "2.1"^^xsd:string .
+
+test:trading_supervisor_template a dfls:JinjaTemplate ;
+    rdfs:label "Trading Supervisor Template" ;
+    rdfs:comment "Template for generating trading system supervisors" ;
+    dfls:templateType dfls:SupervisorTemplate ;
+    dfls:templateFile "trading_supervisor.erl.j2" ;
+    dfls:templateVersion "1.8"^^xsd:string .
+
+test:market_data_nif_template a dfls:JinjaTemplate ;
+    rdfs:label "Market Data NIF Template" ;
+    rdfs:comment "Template for generating ultra-fast NIF modules" ;
+    dfls:templateType dfls:NIFTemplate ;
+    dfls:templateFile "market_data_nif.c.j2" ;
+    dfls:templateVersion "3.0"^^xsd:string .
+
+# ============================================================================
+# CONTINUOUS IMPROVEMENT METRICS
+# ============================================================================
+
+test:previous_quality_target a dfls:SixSigmaMetric ;
+    dfls:defectRate "0.00045"^^xsd:double ;
+    rdfs:label "Previous Quality Target" ;
+    rdfs:comment "Historical quality target for improvement tracking" .
+
+# Link for continuous improvement tracking
+test:forex_trading_system dfls:hasPreviousQualityTarget test:previous_quality_target .
+
+# ============================================================================
+# PERFORMANCE BUDGET TRACKING
+# ============================================================================
+
+dfls:SystemPerformanceBudget a owl:NamedIndividual ;
+    rdfs:label "System Performance Budget" ;
+    rdfs:comment "Overall system performance constraints" .
+
+# Performance data for budget analysis
+test:forex_trade_manager bitactor:cpuUsage "0.15"^^xsd:double ;
+                          bitactor:memoryUsage "0.08"^^xsd:double .
+
+test:risk_management_server bitactor:cpuUsage "0.12"^^xsd:double ;
+                            bitactor:memoryUsage "0.06"^^xsd:double .
+
+test:position_tracker bitactor:cpuUsage "0.08"^^xsd:double ;
+                      bitactor:memoryUsage "0.04"^^xsd:double .
+
+# ============================================================================
+# END OF COMPREHENSIVE TEST ONTOLOGY
+# ============================================================================

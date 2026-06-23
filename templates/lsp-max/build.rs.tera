@@ -1,0 +1,14 @@
+fn main() {
+    // Rerun only when rule TOML files change so the LSP binary stays fresh.
+    println!("cargo:rerun-if-changed=rules/");
+    println!("cargo:rerun-if-changed=build.rs");
+
+    // Compile the tree-sitter grammar for `{{ grammar_crate }}`.
+    // Uncomment if the grammar crate ships a C source that must be compiled:
+    // let src = std::path::Path::new("src");
+    // let mut cfg = cc::Build::new();
+    // cfg.include(src);
+    // cfg.file(src.join("parser.c"));
+    // cfg.warnings(false);
+    // cfg.compile("{{ grammar_crate }}");
+}

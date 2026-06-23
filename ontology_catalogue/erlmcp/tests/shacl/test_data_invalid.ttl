@@ -1,0 +1,254 @@
+@prefix tcps: <http://taiea.io/ontology/tcps#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# ============================================================================
+# INVALID TEST DATA - Should Fail SHACL Validations
+# ============================================================================
+
+# INVALID: SKU missing required fields (name, version, description)
+<http://taiea.io/sku/invalid-001>
+    a tcps:SKU ;
+    tcps:workOrderId <http://taiea.io/workorder/wo-invalid-001> ;
+    tcps:qualityGatesPassed true ;
+    tcps:shippable false ;
+    tcps:createdAt "2026-01-26T11:00:00Z"^^xsd:dateTime .
+
+# INVALID: SKU with invalid version format
+<http://taiea.io/sku/invalid-002>
+    a tcps:SKU ;
+    tcps:name "bad-version-sku" ;
+    tcps:version "v1.0" ;  # Should be "1.0.0"
+    tcps:description "SKU with invalid semantic version" ;
+    tcps:workOrderId <http://taiea.io/workorder/wo-invalid-001> ;
+    tcps:hasReceipt <http://taiea.io/receipt/invalid-receipt-001> ;
+    tcps:qualityGatesPassed true ;
+    tcps:shippable true ;
+    tcps:createdAt "2026-01-26T11:05:00Z"^^xsd:dateTime .
+
+# INVALID: SKU with no receipts
+<http://taiea.io/sku/invalid-003>
+    a tcps:SKU ;
+    tcps:name "no-receipts-sku" ;
+    tcps:version "1.0.0" ;
+    tcps:description "SKU without any receipts (proof of work missing)" ;
+    tcps:workOrderId <http://taiea.io/workorder/wo-invalid-001> ;
+    tcps:qualityGatesPassed true ;
+    tcps:shippable true ;
+    tcps:createdAt "2026-01-26T11:10:00Z"^^xsd:dateTime .
+
+# INVALID: SKU with quality gates failed
+<http://taiea.io/sku/invalid-004>
+    a tcps:SKU ;
+    tcps:name "failed-gates-sku" ;
+    tcps:version "1.0.0" ;
+    tcps:description "SKU with quality gates that failed" ;
+    tcps:workOrderId <http://taiea.io/workorder/wo-invalid-001> ;
+    tcps:hasReceipt <http://taiea.io/receipt/invalid-receipt-002> ;
+    tcps:qualityGatesPassed false ;  # Should be true
+    tcps:shippable true ;
+    tcps:createdAt "2026-01-26T11:15:00Z"^^xsd:dateTime .
+
+# INVALID: SKU with open Andon event (cannot ship)
+<http://taiea.io/sku/invalid-005>
+    a tcps:SKU ;
+    tcps:name "open-andon-sku" ;
+    tcps:version "1.0.0" ;
+    tcps:description "SKU with unresolved failure blocking shipment" ;
+    tcps:workOrderId <http://taiea.io/workorder/wo-invalid-001> ;
+    tcps:hasReceipt <http://taiea.io/receipt/invalid-receipt-003> ;
+    tcps:hasAndonEvent <http://taiea.io/andon/invalid-andon-001> ;
+    tcps:qualityGatesPassed true ;
+    tcps:shippable true ;
+    tcps:createdAt "2026-01-26T11:20:00Z"^^xsd:dateTime .
+
+# INVALID: WorkOrder with invalid bucket
+<http://taiea.io/workorder/wo-invalid-001>
+    a tcps:WorkOrder ;
+    tcps:demandSignal "Test invalid work order" ;
+    tcps:bucket "performance" ;  # Invalid: must be reliability/security/cost/compliance
+    tcps:priority 5 ;
+    tcps:status "pending" ;
+    tcps:createdAt "2026-01-26T10:50:00Z"^^xsd:dateTime .
+
+# INVALID: WorkOrder with invalid status
+<http://taiea.io/workorder/wo-invalid-002>
+    a tcps:WorkOrder ;
+    tcps:demandSignal "Test invalid status" ;
+    tcps:bucket "security" ;
+    tcps:priority 3 ;
+    tcps:status "cancelled" ;  # Invalid: must be pending/in_progress/completed/failed
+    tcps:createdAt "2026-01-26T10:55:00Z"^^xsd:dateTime .
+
+# INVALID: WorkOrder with priority out of range
+<http://taiea.io/workorder/wo-invalid-003>
+    a tcps:WorkOrder ;
+    tcps:demandSignal "Test invalid priority" ;
+    tcps:bucket "cost" ;
+    tcps:priority 15 ;  # Invalid: must be 1-10
+    tcps:status "pending" ;
+    tcps:createdAt "2026-01-26T11:00:00Z"^^xsd:dateTime .
+
+# INVALID: Receipt with invalid stage name
+<http://taiea.io/receipt/invalid-receipt-001>
+    a tcps:Receipt ;
+    tcps:stageName "deployment" ;  # Invalid: not a TCPS stage
+    tcps:timestamp "2026-01-26T11:05:00Z"^^xsd:dateTime ;
+    tcps:status "pass" ;
+    tcps:evidenceData "Invalid stage receipt" ;
+    tcps:relatedSKU <http://taiea.io/sku/invalid-002> .
+
+# INVALID: Receipt with empty evidence data
+<http://taiea.io/receipt/invalid-receipt-002>
+    a tcps:Receipt ;
+    tcps:stageName "test" ;
+    tcps:timestamp "2026-01-26T11:10:00Z"^^xsd:dateTime ;
+    tcps:status "pass" ;
+    tcps:evidenceData "" ;  # Invalid: must be non-empty
+    tcps:relatedSKU <http://taiea.io/sku/invalid-004> .
+
+# INVALID: Receipt missing required SKU reference
+<http://taiea.io/receipt/invalid-receipt-003>
+    a tcps:Receipt ;
+    tcps:stageName "compile" ;
+    tcps:timestamp "2026-01-26T11:15:00Z"^^xsd:dateTime ;
+    tcps:status "pass" ;
+    tcps:evidenceData "Build completed" .
+    # Missing tcps:relatedSKU
+
+# INVALID: Compilation receipt with errors
+<http://taiea.io/receipt/invalid-compile-001>
+    a tcps:Receipt ;
+    tcps:stageName "compile" ;
+    tcps:timestamp "2026-01-26T11:20:00Z"^^xsd:dateTime ;
+    tcps:status "fail" ;
+    tcps:evidenceData "Compilation failed with errors" ;
+    tcps:relatedSKU <http://taiea.io/sku/invalid-005> ;
+    tcps:buildOutput "3 modules failed to compile" ;
+    tcps:errorCount 3 ;  # Invalid: must be 0
+    tcps:warningCount 5 .
+
+# INVALID: Test receipt with low pass rate
+<http://taiea.io/receipt/invalid-test-001>
+    a tcps:Receipt ;
+    tcps:stageName "test" ;
+    tcps:timestamp "2026-01-26T11:25:00Z"^^xsd:dateTime ;
+    tcps:status "fail" ;
+    tcps:evidenceData "Tests failed quality gate" ;
+    tcps:relatedSKU <http://taiea.io/sku/invalid-005> ;
+    tcps:testResults "50 tests passed, 50 failed" ;
+    tcps:passRate 50.0 ;  # Invalid: must be >= 80%
+    tcps:coverage 75.0 ;  # Invalid: must be >= 80%
+    tcps:totalTests 100 ;
+    tcps:failedTests 50 .
+
+# INVALID: Release receipt with invalid hash format
+<http://taiea.io/receipt/invalid-release-001>
+    a tcps:Receipt ;
+    tcps:stageName "release" ;
+    tcps:timestamp "2026-01-26T11:30:00Z"^^xsd:dateTime ;
+    tcps:status "pass" ;
+    tcps:evidenceData "Release artifact created" ;
+    tcps:relatedSKU <http://taiea.io/sku/invalid-005> ;
+    tcps:artifactPath "file:///tmp/artifact.tar.gz" ;
+    tcps:deterministicHash "abc123" ;  # Invalid: must be 64 hex chars (SHA-256)
+    tcps:artifactSize 1024 .
+
+# INVALID: Release receipt with invalid artifact path
+<http://taiea.io/receipt/invalid-release-002>
+    a tcps:Receipt ;
+    tcps:stageName "release" ;
+    tcps:timestamp "2026-01-26T11:35:00Z"^^xsd:dateTime ;
+    tcps:status "pass" ;
+    tcps:evidenceData "Release artifact created" ;
+    tcps:relatedSKU <http://taiea.io/sku/invalid-005> ;
+    tcps:artifactPath "/tmp/artifact.tar.gz" ;  # Invalid: must have URI scheme
+    tcps:deterministicHash "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2" ;
+    tcps:artifactSize 1024 .
+
+# INVALID: Publish receipt with smoke test failure
+<http://taiea.io/receipt/invalid-publish-001>
+    a tcps:Receipt ;
+    tcps:stageName "publish" ;
+    tcps:timestamp "2026-01-26T11:40:00Z"^^xsd:dateTime ;
+    tcps:status "fail" ;
+    tcps:evidenceData "Smoke test failed" ;
+    tcps:relatedSKU <http://taiea.io/sku/invalid-005> ;
+    tcps:marketplaceUrl "https://marketplace.taiea.io/test"^^xsd:anyURI ;
+    tcps:smokeTestResult "fail" ;  # Invalid: must be "pass"
+    tcps:entitlementGateActive true .
+
+# INVALID: Publish receipt with entitlement gate inactive
+<http://taiea.io/receipt/invalid-publish-002>
+    a tcps:Receipt ;
+    tcps:stageName "publish" ;
+    tcps:timestamp "2026-01-26T11:45:00Z"^^xsd:dateTime ;
+    tcps:status "pass" ;
+    tcps:evidenceData "Published without entitlement gate" ;
+    tcps:relatedSKU <http://taiea.io/sku/invalid-005> ;
+    tcps:marketplaceUrl "https://marketplace.taiea.io/test"^^xsd:anyURI ;
+    tcps:smokeTestResult "pass" ;
+    tcps:entitlementGateActive false .  # Invalid: must be true
+
+# INVALID: Andon event with short failure reason
+<http://taiea.io/andon/invalid-andon-001>
+    a tcps:AndonEvent ;
+    tcps:failureReason "Error" ;  # Invalid: minimum 10 characters
+    tcps:affectedSKU <http://taiea.io/sku/invalid-005> ;
+    tcps:rootCauseAnalysis "Bad code" ;  # Invalid: minimum 20 characters
+    tcps:status "open" ;
+    tcps:createdAt "2026-01-26T11:20:00Z"^^xsd:dateTime ;
+    tcps:severity "critical" .
+
+# INVALID: Andon event missing affected SKU
+<http://taiea.io/andon/invalid-andon-002>
+    a tcps:AndonEvent ;
+    tcps:failureReason "Critical failure in production pipeline" ;
+    tcps:rootCauseAnalysis "Analysis pending investigation of multiple subsystems" ;
+    tcps:status "investigating" ;
+    tcps:createdAt "2026-01-26T11:50:00Z"^^xsd:dateTime ;
+    tcps:severity "high" .
+    # Missing tcps:affectedSKU
+
+# INVALID: Resolved Andon without resolution timestamp
+<http://taiea.io/andon/invalid-andon-003>
+    a tcps:AndonEvent ;
+    tcps:failureReason "Test coverage dropped below threshold" ;
+    tcps:affectedSKU <http://taiea.io/sku/invalid-005> ;
+    tcps:rootCauseAnalysis "Refactoring removed test coverage for edge cases" ;
+    tcps:status "resolved" ;
+    tcps:createdAt "2026-01-26T11:00:00Z"^^xsd:dateTime ;
+    tcps:severity "medium" .
+    # Missing tcps:resolvedAt and tcps:preventiveAction
+
+# INVALID: Resolved Andon without preventive action
+<http://taiea.io/andon/invalid-andon-004>
+    a tcps:AndonEvent ;
+    tcps:failureReason "Security vulnerability detected in dependencies" ;
+    tcps:affectedSKU <http://taiea.io/sku/invalid-005> ;
+    tcps:rootCauseAnalysis "Outdated library version with known CVE" ;
+    tcps:status "closed" ;
+    tcps:createdAt "2026-01-26T10:00:00Z"^^xsd:dateTime ;
+    tcps:resolvedAt "2026-01-26T11:00:00Z"^^xsd:dateTime ;
+    tcps:severity "critical" .
+    # Missing tcps:preventiveAction
+
+# INVALID: Andon with invalid status
+<http://taiea.io/andon/invalid-andon-005>
+    a tcps:AndonEvent ;
+    tcps:failureReason "Build system configuration error" ;
+    tcps:affectedSKU <http://taiea.io/sku/invalid-005> ;
+    tcps:rootCauseAnalysis "rebar.config missing required dependency specification" ;
+    tcps:status "pending" ;  # Invalid: must be open/investigating/resolved/closed
+    tcps:createdAt "2026-01-26T11:30:00Z"^^xsd:dateTime ;
+    tcps:severity "low" .
+
+# INVALID: Andon with invalid severity
+<http://taiea.io/andon/invalid-andon-006>
+    a tcps:AndonEvent ;
+    tcps:failureReason "Documentation out of sync with implementation" ;
+    tcps:affectedSKU <http://taiea.io/sku/invalid-005> ;
+    tcps:rootCauseAnalysis "API changes not reflected in markdown documentation" ;
+    tcps:status "open" ;
+    tcps:createdAt "2026-01-26T12:00:00Z"^^xsd:dateTime ;
+    tcps:severity "trivial" .  # Invalid: must be critical/high/medium/low

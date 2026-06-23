@@ -1,0 +1,2 @@
+PREFIX art: <https://chatmangpt.com/ontologies/o-star/artifact:>
+SELECT ?release WHERE { ?release a art:ReleaseArtifact . }

@@ -1,0 +1,213 @@
+@prefix : <https://bytestar.org/ontology/trojan-gift#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix spr: <http://bytestar.net/ontology/spr_calculus#> .
+@prefix lgc: <https://bytestar.org/ontology/bytestar-lgc#> .
+@prefix dc: <https://bytestar.org/ontology/dark-canon#> .
+
+<https://bytestar.org/ontology/trojan-gift>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/trojan-gift/v1.0> ;
+    rdfs:comment "Ontology for the ByteStar Trojan Gift model, specifically the Nuxt/Supabase implementation of the Sovereign Access Plane (SAP)." ;
+    owl:imports spr: ,
+                lgc: ,
+                dc: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:TrojanGift rdf:type owl:Class ;
+    rdfs:comment "Represents the ByteStar Trojan Gift, a self-hostable Supabase+Nuxt stack." .
+
+:GiftAppliance rdf:type owl:Class ;
+    rdfs:subClassOf :TrojanGift ;
+    rdfs:comment "A deployable instance of the Trojan Gift, either hosted or customer-managed." .
+
+:SupabaseInstance rdf:type owl:Class ;
+    rdfs:comment "Represents a Supabase project instance, serving as the data substrate." .
+
+:NuxtLayer rdf:type owl:Class ;
+    rdfs:comment "Represents a layer within the Nuxt multi-layer frontend of the SAP." .
+
+:SovereignAccessPlane rdf:type owl:Class ;
+    rdfs:comment "The overall architectural pattern of the SAP, implemented by the Trojan Gift." .
+
+:GiftRelay rdf:type owl:Class ;
+    rdfs:comment "The conceptual mechanism for deploying and managing Trojan Gifts, onboarding orgs into ByteEthos." .
+
+:IndustryCanon rdf:type owl:Class ;
+    rdfs:comment "A domain-specific ontology (Ontology Plug Pack) tailored for a particular industry." .
+
+:ShadowProduct rdf:type owl:Class ;
+    rdfs:comment "A privacy-safe, monetizable aggregate or insight derived from raw data." .
+
+:ValueLens rdf:type owl:Class ;
+    rdfs:subClassOf :ShadowProduct ;
+    rdfs:comment "A specific mechanism or algorithm for generating a ShadowProduct." .
+
+:N_DimensionalMarketplace rdf:type owl:Class ;
+    rdfs:comment "The marketplace where ShadowProducts are traded." .
+
+:Install rdf:type owl:Class ;
+    rdfs:comment "Represents an active Trojan Gift deployment at an organization." .
+
+:CanonicalCoverage rdf:type owl:Class ;
+    rdfs:comment "The fraction of an organization's data mapped to a canonical industry ontology." .
+
+:ActiveLens rdf:type owl:Class ;
+    rdfs:comment "A ValueLens that is actively generating ShadowProducts for an organization." .
+
+:TrustIndex rdf:type owl:Class ;
+    rdfs:comment "A metric reflecting the trustworthiness of the system, inferred from receipts quality." .
+
+:SemanticAmplification rdf:type owl:Class ;
+    rdfs:comment "The factor by which semantic reuse accelerates supply generation in the marketplace." .
+
+:GiftPlaybookMove rdf:type owl:Class ;
+    rdfs:comment "A strategic move within the Trojan Gift playbook (e.g., GiftDefault, OwnSurface)." .
+
+:RuntimeGuard rdf:type owl:Class ;
+    rdfs:comment "A hard runtime invariant that must hold for the Trojan Gift's operation." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:deploysGift rdf:type owl:ObjectProperty ;
+    rdfs:domain :GiftRelay ;
+    rdfs:range :GiftAppliance ;
+    rdfs:comment "Indicates that a GiftRelay deploys a GiftAppliance." .
+
+:hasSupabaseInstance rdf:type owl:ObjectProperty ;
+    rdfs:domain :GiftAppliance ;
+    rdfs:range :SupabaseInstance ;
+    rdfs:comment "Links a GiftAppliance to its underlying Supabase instance." .
+
+:hasNuxtLayer rdf:type owl:ObjectProperty ;
+    rdfs:domain :GiftAppliance ;
+    rdfs:range :NuxtLayer ;
+    rdfs:comment "Links a GiftAppliance to its Nuxt frontend layers." .
+
+:implementsSAP rdf:type owl:ObjectProperty ;
+    rdfs:domain :TrojanGift ;
+    rdfs:range :SovereignAccessPlane ;
+    rdfs:comment "Indicates that a TrojanGift implements the Sovereign Access Plane." .
+
+:usesIndustryCanon rdf:type owl:ObjectProperty ;
+    rdfs:domain :TrojanGift ;
+    rdfs:range :IndustryCanon ;
+    rdfs:comment "Links a TrojanGift to the IndustryCanon it utilizes." .
+
+:generatesShadowProduct rdf:type owl:ObjectProperty ;
+    rdfs:domain :ValueLens ;
+    rdfs:range :ShadowProduct ;
+    rdfs:comment "Indicates that a ValueLens generates a specific ShadowProduct." .
+
+:listsProduct rdf:type owl:ObjectProperty ;
+    rdfs:domain :N_DimensionalMarketplace ;
+    rdfs:range :ShadowProduct ;
+    rdfs:comment "Indicates that the marketplace lists a ShadowProduct." .
+
+:hasInstall rdf:type owl:ObjectProperty ;
+    rdfs:domain :GiftRelay ;
+    rdfs:range :Install ;
+    rdfs:comment "Links the GiftRelay to an active installation." .
+
+:hasCanonicalCoverage rdf:type owl:ObjectProperty ;
+    rdfs:domain :Install ;
+    rdfs:range :CanonicalCoverage ;
+    rdfs:comment "Links an Install to its CanonicalCoverage metric." .
+
+:hasActiveLens rdf:type owl:ObjectProperty ;
+    rdfs:domain :Install ;
+    rdfs:range :ActiveLens ;
+    rdfs:comment "Links an Install to its active ValueLenses." .
+
+:influencesTrust rdf:type owl:ObjectProperty ;
+    rdfs:domain :GiftRelay ;
+    rdfs:range :TrustIndex ;
+    rdfs:comment "Indicates that the GiftRelay's operation influences the overall TrustIndex." .
+
+:drivesAmplification rdf:type owl:ObjectProperty ;
+    rdfs:domain :GiftRelay ;
+    rdfs:range :SemanticAmplification ;
+    rdfs:comment "Indicates that the GiftRelay's semantic reuse drives SemanticAmplification." .
+
+:followsPlaybookMove rdf:type owl:ObjectProperty ;
+    rdfs:domain :GiftRelay ;
+    rdfs:range :GiftPlaybookMove ;
+    rdfs:comment "Indicates that the GiftRelay follows a specific strategic playbook move." .
+
+:enforcesGuard rdf:type owl:ObjectProperty ;
+    rdfs:domain :TrojanGift ;
+    rdfs:range :RuntimeGuard ;
+    rdfs:comment "Indicates that the TrojanGift enforces a specific RuntimeGuard." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:hasVersion rdf:type owl:DatatypeProperty ;
+    rdfs:domain :TrojanGift ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The version of the Trojan Gift implementation." .
+
+:hasConfidenceScore rdf:type owl:DatatypeProperty ;
+    rdfs:domain :IndustryCanon ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The confidence score of industry auto-detection." .
+
+:hasRevenueShare rdf:type owl:DatatypeProperty ;
+    rdfs:domain :N_DimensionalMarketplace ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The revenue share or take rate of the marketplace." .
+
+:hasValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ShadowProduct ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The value or content of a ShadowProduct." .
+
+:hasPrivacyBudget rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ShadowProduct ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The differential privacy budget (epsilon) associated with a ShadowProduct." .
+
+:hasInstallCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Install ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "The number of active Trojan Gift installs." .
+
+:hasCoverageFraction rdf:type owl:DatatypeProperty ;
+    rdfs:domain :CanonicalCoverage ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The fraction of data covered by canonical ontology, between 0.0 and 1.0." .
+
+:hasLensCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ActiveLens ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "The number of active ValueLenses." .
+
+:hasTrustValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :TrustIndex ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The numerical value of the Trust Index, typically between 0.0 and 1.0." .
+
+:hasAmplificationFactor rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SemanticAmplification ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The semantic amplification factor (kappa), typically >= 1.0." .
+
+:hasDescription rdf:type owl:DatatypeProperty ;
+    rdfs:domain :GiftPlaybookMove ;
+    rdfs:range xsd:string ;
+    rdfs:comment "A description of the strategic playbook move." .
+
+:hasCondition rdf:type owl:DatatypeProperty ;
+    rdfs:domain :RuntimeGuard ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The condition that defines the runtime guard." .
+

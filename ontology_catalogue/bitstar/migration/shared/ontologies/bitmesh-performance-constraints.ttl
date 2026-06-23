@@ -1,0 +1,478 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bitmesh: <http://bitmesh.io/ontology/layers#> .
+@prefix perf: <http://bitmesh.io/ontology/performance#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix unit: <http://qudt.org/vocab/unit#> .
+
+<http://bitmesh.io/ontology/performance> a owl:Ontology ;
+    rdfs:label "BitMesh Performance Constraints Model" ;
+    rdfs:comment "Detailed model of BitMesh performance constraints including 250ps FSM cycles and 8-tick budget enforcement" ;
+    owl:versionInfo "1982.5.30" ;
+    owl:imports <http://bitmesh.io/ontology/layers> ;
+    rdfs:seeAlso <http://bitflow.io/ontology> .
+
+# ===========================
+# Performance Classes        
+# ===========================
+
+perf:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Abstract base class for all performance measurements" .
+
+perf:TimingMetric a owl:Class ;
+    rdfs:subClassOf perf:PerformanceMetric ;
+    rdfs:label "Timing Metric" ;
+    rdfs:comment "Time-based performance measurements" .
+
+perf:ResourceMetric a owl:Class ;
+    rdfs:subClassOf perf:PerformanceMetric ;
+    rdfs:label "Resource Metric" ;
+    rdfs:comment "Resource utilization measurements" .
+
+perf:ThroughputMetric a owl:Class ;
+    rdfs:subClassOf perf:PerformanceMetric ;
+    rdfs:label "Throughput Metric" ;
+    rdfs:comment "Operations per time unit measurements" .
+
+# Timing Constraint Classes
+perf:FSMCycleConstraint a owl:Class ;
+    rdfs:subClassOf bitmesh:PerformanceConstraint ;
+    rdfs:label "FSM Cycle Constraint" ;
+    rdfs:comment "250 picosecond FSM cycle precision constraint for L2-Rotor layer" .
+
+perf:TickBudgetConstraint a owl:Class ;
+    rdfs:subClassOf bitmesh:PerformanceConstraint ;
+    rdfs:label "Tick Budget Constraint" ;
+    rdfs:comment "8-tick maximum budget constraint for all operations" .
+
+perf:LatencyConstraint a owl:Class ;
+    rdfs:subClassOf bitmesh:PerformanceConstraint ;
+    rdfs:label "Latency Constraint" ;
+    rdfs:comment "Maximum allowed latency for layer operations" .
+
+perf:ThroughputConstraint a owl:Class ;
+    rdfs:subClassOf bitmesh:PerformanceConstraint ;
+    rdfs:label "Throughput Constraint" ;
+    rdfs:comment "Minimum required throughput for layer operations" .
+
+# Memory Constraint Classes
+perf:MemoryBoundConstraint a owl:Class ;
+    rdfs:subClassOf bitmesh:PerformanceConstraint ;
+    rdfs:label "Memory Bound Constraint" ;
+    rdfs:comment "Memory usage limits and bounds" .
+
+perf:CrystalStorageConstraint a owl:Class ;
+    rdfs:subClassOf perf:MemoryBoundConstraint ;
+    rdfs:label "Crystal Storage Constraint" ;
+    rdfs:comment "10M memory crystal storage limit for L7-Trace" .
+
+perf:QuadStorageConstraint a owl:Class ;
+    rdfs:subClassOf perf:MemoryBoundConstraint ;
+    rdfs:label "Quad Storage Constraint" ;
+    rdfs:comment "1M TURTLE quad storage limit" .
+
+# Operational Constraint Classes
+perf:RecursionConstraint a owl:Class ;
+    rdfs:subClassOf bitmesh:PerformanceConstraint ;
+    rdfs:label "Recursion Constraint" ;
+    rdfs:comment "100-level maximum recursion depth for L6-Recurs YAWL workflows" .
+
+perf:TrustLevelConstraint a owl:Class ;
+    rdfs:subClassOf bitmesh:PerformanceConstraint ;
+    rdfs:label "Trust Level Constraint" ;
+    rdfs:comment "Trust level validation constraints (0-100)" .
+
+perf:ConcurrencyConstraint a owl:Class ;
+    rdfs:subClassOf bitmesh:PerformanceConstraint ;
+    rdfs:label "Concurrency Constraint" ;
+    rdfs:comment "Maximum concurrent operations per layer" .
+
+# Violation Classes
+perf:ConstraintViolation a owl:Class ;
+    rdfs:label "Constraint Violation" ;
+    rdfs:comment "Performance constraint violation event" .
+
+perf:TimingViolation a owl:Class ;
+    rdfs:subClassOf perf:ConstraintViolation ;
+    rdfs:label "Timing Violation" ;
+    rdfs:comment "Timing constraint violation (exceeds tick budget or FSM precision)" .
+
+perf:MemoryViolation a owl:Class ;
+    rdfs:subClassOf perf:ConstraintViolation ;
+    rdfs:label "Memory Violation" ;
+    rdfs:comment "Memory constraint violation (exceeds storage limits)" .
+
+perf:RecursionViolation a owl:Class ;
+    rdfs:subClassOf perf:ConstraintViolation ;
+    rdfs:label "Recursion Violation" ;
+    rdfs:comment "Recursion depth constraint violation" .
+
+# Performance Monitoring Classes
+perf:PerformanceMonitor a owl:Class ;
+    rdfs:label "Performance Monitor" ;
+    rdfs:comment "Layer performance monitoring component" .
+
+perf:MetricsCollector a owl:Class ;
+    rdfs:label "Metrics Collector" ;
+    rdfs:comment "Component that collects performance metrics" .
+
+perf:ConstraintEnforcer a owl:Class ;
+    rdfs:label "Constraint Enforcer" ;
+    rdfs:comment "Component that enforces performance constraints" .
+
+# ===========================
+# Performance Properties     
+# ===========================
+
+# Timing Properties
+perf:cyclePrecisionPs a owl:DatatypeProperty ;
+    rdfs:label "Cycle Precision (Picoseconds)" ;
+    rdfs:comment "FSM cycle precision in picoseconds" ;
+    rdfs:domain perf:FSMCycleConstraint ;
+    rdfs:range xsd:integer .
+
+perf:maxTicksAllowed a owl:DatatypeProperty ;
+    rdfs:label "Maximum Ticks Allowed" ;
+    rdfs:comment "Maximum CPU ticks allowed per operation" ;
+    rdfs:domain perf:TickBudgetConstraint ;
+    rdfs:range xsd:integer .
+
+perf:actualTicksUsed a owl:DatatypeProperty ;
+    rdfs:label "Actual Ticks Used" ;
+    rdfs:comment "Actual CPU ticks consumed by operation" ;
+    rdfs:range xsd:integer .
+
+perf:latencyMicroseconds a owl:DatatypeProperty ;
+    rdfs:label "Latency (Microseconds)" ;
+    rdfs:comment "Operation latency in microseconds" ;
+    rdfs:range xsd:long .
+
+perf:maxLatencyAllowed a owl:DatatypeProperty ;
+    rdfs:label "Maximum Latency Allowed" ;
+    rdfs:comment "Maximum allowed latency in microseconds" ;
+    rdfs:domain perf:LatencyConstraint ;
+    rdfs:range xsd:long .
+
+# Throughput Properties
+perf:operationsPerSecond a owl:DatatypeProperty ;
+    rdfs:label "Operations Per Second" ;
+    rdfs:comment "Throughput in operations per second" ;
+    rdfs:domain perf:ThroughputMetric ;
+    rdfs:range xsd:long .
+
+perf:minThroughputRequired a owl:DatatypeProperty ;
+    rdfs:label "Minimum Throughput Required" ;
+    rdfs:comment "Minimum required throughput in ops/sec" ;
+    rdfs:domain perf:ThroughputConstraint ;
+    rdfs:range xsd:long .
+
+perf:currentThroughput a owl:DatatypeProperty ;
+    rdfs:label "Current Throughput" ;
+    rdfs:comment "Current measured throughput in ops/sec" ;
+    rdfs:range xsd:long .
+
+# Memory Properties
+perf:maxMemoryCrystals a owl:DatatypeProperty ;
+    rdfs:label "Maximum Memory Crystals" ;
+    rdfs:comment "Maximum number of memory crystals allowed" ;
+    rdfs:domain perf:CrystalStorageConstraint ;
+    rdfs:range xsd:long .
+
+perf:currentMemoryCrystals a owl:DatatypeProperty ;
+    rdfs:label "Current Memory Crystals" ;
+    rdfs:comment "Current number of memory crystals in use" ;
+    rdfs:range xsd:long .
+
+perf:maxTurtleQuads a owl:DatatypeProperty ;
+    rdfs:label "Maximum TURTLE Quads" ;
+    rdfs:comment "Maximum number of TURTLE quads allowed" ;
+    rdfs:domain perf:QuadStorageConstraint ;
+    rdfs:range xsd:long .
+
+perf:currentTurtleQuads a owl:DatatypeProperty ;
+    rdfs:label "Current TURTLE Quads" ;
+    rdfs:comment "Current number of TURTLE quads in use" ;
+    rdfs:range xsd:long .
+
+perf:memoryUtilizationPercent a owl:DatatypeProperty ;
+    rdfs:label "Memory Utilization Percentage" ;
+    rdfs:comment "Memory utilization as percentage (0-100)" ;
+    rdfs:range xsd:float .
+
+# Recursion Properties
+perf:maxRecursionDepth a owl:DatatypeProperty ;
+    rdfs:label "Maximum Recursion Depth" ;
+    rdfs:comment "Maximum recursion depth allowed" ;
+    rdfs:domain perf:RecursionConstraint ;
+    rdfs:range xsd:integer .
+
+perf:currentRecursionDepth a owl:DatatypeProperty ;
+    rdfs:label "Current Recursion Depth" ;
+    rdfs:comment "Current recursion depth" ;
+    rdfs:range xsd:integer .
+
+# Trust Properties
+perf:minTrustLevelRequired a owl:DatatypeProperty ;
+    rdfs:label "Minimum Trust Level Required" ;
+    rdfs:comment "Minimum trust level required (0-100)" ;
+    rdfs:domain perf:TrustLevelConstraint ;
+    rdfs:range xsd:integer .
+
+perf:maxTrustLevelGranted a owl:DatatypeProperty ;
+    rdfs:label "Maximum Trust Level Granted" ;
+    rdfs:comment "Maximum trust level that can be granted (0-100)" ;
+    rdfs:domain perf:TrustLevelConstraint ;
+    rdfs:range xsd:integer .
+
+# Concurrency Properties
+perf:maxConcurrentOperations a owl:DatatypeProperty ;
+    rdfs:label "Maximum Concurrent Operations" ;
+    rdfs:comment "Maximum number of concurrent operations allowed" ;
+    rdfs:domain perf:ConcurrencyConstraint ;
+    rdfs:range xsd:integer .
+
+perf:currentConcurrentOperations a owl:DatatypeProperty ;
+    rdfs:label "Current Concurrent Operations" ;
+    rdfs:comment "Current number of concurrent operations" ;
+    rdfs:range xsd:integer .
+
+# Violation Properties
+perf:violationTimestamp a owl:DatatypeProperty ;
+    rdfs:label "Violation Timestamp" ;
+    rdfs:comment "Timestamp when violation occurred" ;
+    rdfs:domain perf:ConstraintViolation ;
+    rdfs:range xsd:dateTime .
+
+perf:violationSeverity a owl:DatatypeProperty ;
+    rdfs:label "Violation Severity" ;
+    rdfs:comment "Severity level: critical, major, minor, warning" ;
+    rdfs:domain perf:ConstraintViolation ;
+    rdfs:range xsd:string .
+
+perf:violationCount a owl:DatatypeProperty ;
+    rdfs:label "Violation Count" ;
+    rdfs:comment "Number of times this constraint has been violated" ;
+    rdfs:domain perf:ConstraintViolation ;
+    rdfs:range xsd:integer .
+
+perf:violationDescription a owl:DatatypeProperty ;
+    rdfs:label "Violation Description" ;
+    rdfs:comment "Human-readable description of the violation" ;
+    rdfs:domain perf:ConstraintViolation ;
+    rdfs:range xsd:string .
+
+# Monitoring Properties
+perf:samplingRateHz a owl:DatatypeProperty ;
+    rdfs:label "Sampling Rate (Hz)" ;
+    rdfs:comment "Monitoring sampling rate in Hertz" ;
+    rdfs:domain perf:PerformanceMonitor ;
+    rdfs:range xsd:float .
+
+perf:monitoringEnabled a owl:DatatypeProperty ;
+    rdfs:label "Monitoring Enabled" ;
+    rdfs:comment "Whether performance monitoring is enabled" ;
+    rdfs:domain perf:PerformanceMonitor ;
+    rdfs:range xsd:boolean .
+
+perf:alertThreshold a owl:DatatypeProperty ;
+    rdfs:label "Alert Threshold" ;
+    rdfs:comment "Threshold value for triggering alerts" ;
+    rdfs:range xsd:float .
+
+# ===========================
+# Object Properties          
+# ===========================
+
+perf:violatesConstraint a owl:ObjectProperty ;
+    rdfs:label "Violates Constraint" ;
+    rdfs:comment "Operation violates performance constraint" ;
+    rdfs:domain bitmesh:Layer ;
+    rdfs:range bitmesh:PerformanceConstraint .
+
+perf:enforcesConstraint a owl:ObjectProperty ;
+    rdfs:label "Enforces Constraint" ;
+    rdfs:comment "Layer enforces performance constraint" ;
+    rdfs:domain bitmesh:Layer ;
+    rdfs:range bitmesh:PerformanceConstraint .
+
+perf:measuredBy a owl:ObjectProperty ;
+    rdfs:label "Measured By" ;
+    rdfs:comment "Constraint is measured by monitor" ;
+    rdfs:domain bitmesh:PerformanceConstraint ;
+    rdfs:range perf:PerformanceMonitor .
+
+perf:collectsMetric a owl:ObjectProperty ;
+    rdfs:label "Collects Metric" ;
+    rdfs:comment "Collector gathers performance metric" ;
+    rdfs:domain perf:MetricsCollector ;
+    rdfs:range perf:PerformanceMetric .
+
+perf:triggersViolation a owl:ObjectProperty ;
+    rdfs:label "Triggers Violation" ;
+    rdfs:comment "Operation triggers constraint violation" ;
+    rdfs:range perf:ConstraintViolation .
+
+perf:appliesTo a owl:ObjectProperty ;
+    rdfs:label "Applies To" ;
+    rdfs:comment "Constraint applies to specific layer" ;
+    rdfs:domain bitmesh:PerformanceConstraint ;
+    rdfs:range bitmesh:Layer .
+
+# ===========================
+# Constraint Individuals     
+# ===========================
+
+# FSM Cycle Constraint (250ps)
+perf:FSM250psConstraint a perf:FSMCycleConstraint ;
+    rdfs:label "250ps FSM Cycle Constraint" ;
+    perf:cyclePrecisionPs 250 ;
+    perf:appliesTo bitmesh:L2_Rotor ;
+    rdfs:comment "L2-Rotor layer must maintain 250 picosecond FSM cycle precision" .
+
+# Tick Budget Constraint (8 ticks)
+perf:EightTickBudget a perf:TickBudgetConstraint ;
+    rdfs:label "8-Tick Budget Constraint" ;
+    perf:maxTicksAllowed 8 ;
+    rdfs:comment "All operations must complete within 8 CPU ticks maximum" .
+
+# Memory Crystal Constraint (10M)
+perf:TenMillionCrystalLimit a perf:CrystalStorageConstraint ;
+    rdfs:label "10M Memory Crystal Limit" ;
+    perf:maxMemoryCrystals 10000000 ;
+    perf:appliesTo bitmesh:L7_Trace ;
+    rdfs:comment "L7-Trace layer limited to 10 million memory crystals" .
+
+# TURTLE Quad Constraint (1M)
+perf:OneMillionQuadLimit a perf:QuadStorageConstraint ;
+    rdfs:label "1M TURTLE Quad Limit" ;
+    perf:maxTurtleQuads 1000000 ;
+    rdfs:comment "System limited to 1 million TURTLE quads" .
+
+# Recursion Depth Constraint (100)
+perf:HundredLevelRecursion a perf:RecursionConstraint ;
+    rdfs:label "100-Level Recursion Limit" ;
+    perf:maxRecursionDepth 100 ;
+    perf:appliesTo bitmesh:L6_Recurs ;
+    rdfs:comment "L6-Recurs YAWL workflows limited to 100 recursion levels" .
+
+# Trust Level Constraints (0-100)
+perf:TrustLevelRange a perf:TrustLevelConstraint ;
+    rdfs:label "Trust Level Range (0-100)" ;
+    perf:minTrustLevelRequired 0 ;
+    perf:maxTrustLevelGranted 100 ;
+    perf:appliesTo bitmesh:L5_Citadel ;
+    rdfs:comment "L5-Citadel trust levels must be between 0 and 100" .
+
+# Latency Constraints per Layer
+perf:InvariantLatencyLimit a perf:LatencyConstraint ;
+    rdfs:label "L0 Invariant Latency Limit" ;
+    perf:maxLatencyAllowed 1000 ;  # 1ms max
+    perf:appliesTo bitmesh:L0_Invariant ;
+    rdfs:comment "L0-Invariant validation must complete within 1ms" .
+
+perf:RotorLatencyLimit a perf:LatencyConstraint ;
+    rdfs:label "L2 Rotor Latency Limit" ;
+    perf:maxLatencyAllowed 250 ;   # 250μs max
+    perf:appliesTo bitmesh:L2_Rotor ;
+    rdfs:comment "L2-Rotor state transitions must complete within 250μs" .
+
+perf:ForgeLatencyLimit a perf:LatencyConstraint ;
+    rdfs:label "L3 Forge Latency Limit" ;
+    perf:maxLatencyAllowed 10000 ; # 10ms max
+    perf:appliesTo bitmesh:L3_Forge ;
+    rdfs:comment "L3-Forge compilation must complete within 10ms" .
+
+perf:EchoLatencyLimit a perf:LatencyConstraint ;
+    rdfs:label "L11 Echo Latency Limit" ;
+    perf:maxLatencyAllowed 100000 ; # 100ms max
+    perf:appliesTo bitmesh:L11_Echo ;
+    rdfs:comment "L11-Echo human interface responses within 100ms" .
+
+# Throughput Requirements per Layer
+perf:InvariantThroughputReq a perf:ThroughputConstraint ;
+    rdfs:label "L0 Invariant Throughput Requirement" ;
+    perf:minThroughputRequired 1000000 ; # 1M validations/sec
+    perf:appliesTo bitmesh:L0_Invariant ;
+    rdfs:comment "L0-Invariant must validate at least 1M operations/sec" .
+
+perf:RotorThroughputReq a perf:ThroughputConstraint ;
+    rdfs:label "L2 Rotor Throughput Requirement" ;
+    perf:minThroughputRequired 4000000 ; # 4M FSM transitions/sec
+    perf:appliesTo bitmesh:L2_Rotor ;
+    rdfs:comment "L2-Rotor must process at least 4M FSM transitions/sec" .
+
+perf:TraceThroughputReq a perf:ThroughputConstraint ;
+    rdfs:label "L7 Trace Throughput Requirement" ;
+    perf:minThroughputRequired 500000 ; # 500K crystallizations/sec
+    perf:appliesTo bitmesh:L7_Trace ;
+    rdfs:comment "L7-Trace must crystallize at least 500K memories/sec" .
+
+# Concurrency Limits per Layer
+perf:InvariantConcurrency a perf:ConcurrencyConstraint ;
+    rdfs:label "L0 Invariant Concurrency Limit" ;
+    perf:maxConcurrentOperations 1024 ;
+    perf:appliesTo bitmesh:L0_Invariant ;
+    rdfs:comment "L0-Invariant supports up to 1024 concurrent validations" .
+
+perf:RecursConcurrency a perf:ConcurrencyConstraint ;
+    rdfs:label "L6 Recurs Concurrency Limit" ;
+    perf:maxConcurrentOperations 64 ;
+    perf:appliesTo bitmesh:L6_Recurs ;
+    rdfs:comment "L6-Recurs supports up to 64 concurrent YAWL workflows" .
+
+perf:BindConcurrency a perf:ConcurrencyConstraint ;
+    rdfs:label "L8 Bind Concurrency Limit" ;
+    perf:maxConcurrentOperations 256 ;
+    perf:appliesTo bitmesh:L8_Bind ;
+    rdfs:comment "L8-Bind supports up to 256 concurrent contract executions" .
+
+# ===========================
+# Performance Monitors       
+# ===========================
+
+perf:L0InvariantMonitor a perf:PerformanceMonitor ;
+    rdfs:label "L0 Invariant Performance Monitor" ;
+    perf:samplingRateHz 1000.0 ;
+    perf:monitoringEnabled true ;
+    perf:alertThreshold 0.95 ;  # Alert at 95% threshold
+    perf:measuredBy perf:InvariantLatencyLimit, perf:InvariantThroughputReq, perf:InvariantConcurrency .
+
+perf:L2RotorMonitor a perf:PerformanceMonitor ;
+    rdfs:label "L2 Rotor Performance Monitor" ;
+    perf:samplingRateHz 4000.0 ;  # High frequency for FSM monitoring
+    perf:monitoringEnabled true ;
+    perf:alertThreshold 0.90 ;
+    perf:measuredBy perf:FSM250psConstraint, perf:RotorLatencyLimit, perf:RotorThroughputReq .
+
+perf:L7TraceMonitor a perf:PerformanceMonitor ;
+    rdfs:label "L7 Trace Performance Monitor" ;
+    perf:samplingRateHz 100.0 ;
+    perf:monitoringEnabled true ;
+    perf:alertThreshold 0.85 ;
+    perf:measuredBy perf:TenMillionCrystalLimit, perf:TraceThroughputReq .
+
+# ===========================
+# Enforcement Relationships  
+# ===========================
+
+# All layers enforce the 8-tick budget
+bitmesh:L0_Invariant perf:enforcesConstraint perf:EightTickBudget .
+bitmesh:L1_Lexon perf:enforcesConstraint perf:EightTickBudget .
+bitmesh:L2_Rotor perf:enforcesConstraint perf:EightTickBudget, perf:FSM250psConstraint .
+bitmesh:L3_Forge perf:enforcesConstraint perf:EightTickBudget .
+bitmesh:L4_Infuse perf:enforcesConstraint perf:EightTickBudget .
+bitmesh:L5_Citadel perf:enforcesConstraint perf:EightTickBudget, perf:TrustLevelRange .
+bitmesh:L6_Recurs perf:enforcesConstraint perf:EightTickBudget, perf:HundredLevelRecursion .
+bitmesh:L7_Trace perf:enforcesConstraint perf:EightTickBudget, perf:TenMillionCrystalLimit .
+bitmesh:L8_Bind perf:enforcesConstraint perf:EightTickBudget .
+bitmesh:L9_Vector perf:enforcesConstraint perf:EightTickBudget .
+bitmesh:L10_Prime perf:enforcesConstraint perf:EightTickBudget .
+bitmesh:L11_Echo perf:enforcesConstraint perf:EightTickBudget .
+
+# Global constraints apply to all layers
+perf:OneMillionQuadLimit perf:appliesTo bitmesh:L0_Invariant, bitmesh:L1_Lexon, bitmesh:L2_Rotor, 
+    bitmesh:L3_Forge, bitmesh:L4_Infuse, bitmesh:L5_Citadel, bitmesh:L6_Recurs, bitmesh:L7_Trace,
+    bitmesh:L8_Bind, bitmesh:L9_Vector, bitmesh:L10_Prime, bitmesh:L11_Echo .

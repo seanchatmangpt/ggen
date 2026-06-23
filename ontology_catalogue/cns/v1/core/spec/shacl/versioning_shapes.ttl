@@ -1,0 +1,4 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ver: <https://cns.dev/version#> .
+
+ver:SemVerShape a sh:NodeShape ; sh:targetClass ver:SemVer .

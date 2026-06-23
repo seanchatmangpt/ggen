@@ -1,0 +1,73 @@
+@prefix mcp:  <https://ggen.io/examples/mcp#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+mcp:GgenServer a mcp:Server ;
+    mcp:serverName   "ggen-mcp" ;
+    mcp:serverStruct "GgenMcpServer" ;
+    mcp:description  "ggen code generation MCP server" ;
+    mcp:version      "1.0.0" .
+
+mcp:SyncTool a mcp:Tool ;
+    mcp:serverOf    mcp:GgenServer ;
+    mcp:toolName    "sync_project" ;
+    mcp:structName  "SyncProjectParams" ;
+    mcp:description "Run ggen sync pipeline on a project directory" ;
+    mcp:order       1 .
+
+mcp:SyncPathParam a mcp:Parameter ;
+    mcp:toolOf     mcp:SyncTool ;
+    mcp:paramName  "project_path" ;
+    mcp:paramType  "String" ;
+    mcp:required   "required" ;
+    mcp:brief      "Path to the ggen project directory containing ggen.toml" .
+
+mcp:SyncDryRunParam a mcp:Parameter ;
+    mcp:toolOf     mcp:SyncTool ;
+    mcp:paramName  "dry_run" ;
+    mcp:paramType  "bool" ;
+    mcp:required   "optional" ;
+    mcp:brief      "Preview changes without writing files" .
+
+mcp:ValidateTool a mcp:Tool ;
+    mcp:serverOf    mcp:GgenServer ;
+    mcp:toolName    "validate_ontology" ;
+    mcp:structName  "ValidateOntologyParams" ;
+    mcp:description "Validate a Turtle (.ttl) ontology file" ;
+    mcp:order       2 .
+
+mcp:ValidatePathParam a mcp:Parameter ;
+    mcp:toolOf     mcp:ValidateTool ;
+    mcp:paramName  "ontology_path" ;
+    mcp:paramType  "String" ;
+    mcp:required   "required" ;
+    mcp:brief      "Path to the .ttl file to validate" .
+
+mcp:ListTool a mcp:Tool ;
+    mcp:serverOf    mcp:GgenServer ;
+    mcp:toolName    "list_examples" ;
+    mcp:structName  "ListExamplesParams" ;
+    mcp:description "List available ggen example projects" ;
+    mcp:order       3 .
+
+mcp:PreviewTool a mcp:Tool ;
+    mcp:serverOf    mcp:GgenServer ;
+    mcp:toolName    "generate_preview" ;
+    mcp:structName  "GeneratePreviewParams" ;
+    mcp:description "Preview generated output for a rule without writing files" ;
+    mcp:order       4 .
+
+mcp:PreviewPathParam a mcp:Parameter ;
+    mcp:toolOf     mcp:PreviewTool ;
+    mcp:paramName  "project_path" ;
+    mcp:paramType  "String" ;
+    mcp:required   "required" ;
+    mcp:brief      "Path to the ggen project directory" .
+
+mcp:PreviewRuleParam a mcp:Parameter ;
+    mcp:toolOf     mcp:PreviewTool ;
+    mcp:paramName  "rule_name" ;
+    mcp:paramType  "String" ;
+    mcp:required   "required" ;
+    mcp:brief      "Name of the generation rule to preview" .

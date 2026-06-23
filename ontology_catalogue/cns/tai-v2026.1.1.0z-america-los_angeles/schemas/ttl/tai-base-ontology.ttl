@@ -1,0 +1,172 @@
+@prefix tai: <http://tai.cognitive-mesh.org/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# TAI Base Ontology - Temporal Association Intelligence
+# Version: 2026.1.1.0z-america-los_angeles
+# Description: Core ontology for cognitive mesh architecture
+
+# ===== ONTOLOGY METADATA =====
+tai: a owl:Ontology ;
+    dc:title "TAI Cognitive Mesh Ontology" ;
+    dc:description "Core ontology for Temporal Association Intelligence cognitive mesh system" ;
+    dc:creator "TAI Cognitive Mesh System" ;
+    dct:created "2026-01-01T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2026-01-01T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "2026.1.1.0z" ;
+    rdfs:comment "Defines cognitive primitives, substrates, and semantic relationships for TAI system" .
+
+# ===== ROOT CLASSES =====
+
+# Core Cognitive Entity
+tai:CognitiveEntity a owl:Class ;
+    rdfs:label "Cognitive Entity" ;
+    rdfs:comment "Abstract base class for all cognitive constructs in TAI system" ;
+    rdfs:subClassOf owl:Thing .
+
+# Substrate - execution environment
+tai:Substrate a owl:Class ;
+    rdfs:label "Substrate" ;
+    rdfs:comment "Execution environment or medium for cognitive processes" ;
+    rdfs:subClassOf tai:CognitiveEntity .
+
+# Cognitive Primitive - basic building blocks
+tai:CognitivePrimitive a owl:Class ;
+    rdfs:label "Cognitive Primitive" ;
+    rdfs:comment "Fundamental building block of cognitive processes" ;
+    rdfs:subClassOf tai:CognitiveEntity .
+
+# Temporal Construct
+tai:TemporalConstruct a owl:Class ;
+    rdfs:label "Temporal Construct" ;
+    rdfs:comment "Entity with temporal properties and evolution" ;
+    rdfs:subClassOf tai:CognitiveEntity .
+
+# Semantic Construct
+tai:SemanticConstruct a owl:Class ;
+    rdfs:label "Semantic Construct" ;
+    rdfs:comment "Entity carrying semantic meaning and relationships" ;
+    rdfs:subClassOf tai:CognitiveEntity .
+
+# Connection - relationships between entities
+tai:Connection a owl:Class ;
+    rdfs:label "Connection" ;
+    rdfs:comment "Relationship or link between cognitive entities" ;
+    rdfs:subClassOf tai:CognitiveEntity .
+
+# ===== CORE PROPERTIES =====
+
+# Temporal properties
+tai:hasTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has timestamp" ;
+    rdfs:comment "Associates entity with specific temporal moment" ;
+    rdfs:domain tai:TemporalConstruct ;
+    rdfs:range xsd:dateTime .
+
+tai:hasDuration a owl:DatatypeProperty ;
+    rdfs:label "has duration" ;
+    rdfs:comment "Duration of temporal entity existence or activity" ;
+    rdfs:domain tai:TemporalConstruct ;
+    rdfs:range xsd:duration .
+
+tai:hasFrequency a owl:DatatypeProperty ;
+    rdfs:label "has frequency" ;
+    rdfs:comment "Frequency of periodic or recurring entity" ;
+    rdfs:domain tai:TemporalConstruct ;
+    rdfs:range xsd:double .
+
+# Semantic properties
+tai:hasSemanticWeight a owl:DatatypeProperty ;
+    rdfs:label "has semantic weight" ;
+    rdfs:comment "Semantic importance or gravity of entity" ;
+    rdfs:domain tai:SemanticConstruct ;
+    rdfs:range xsd:double .
+
+tai:hasConfidence a owl:DatatypeProperty ;
+    rdfs:label "has confidence" ;
+    rdfs:comment "Confidence level in entity or relationship (0.0-1.0)" ;
+    rdfs:domain tai:CognitiveEntity ;
+    rdfs:range xsd:double .
+
+tai:hasSuggestionStrength a owl:DatatypeProperty ;
+    rdfs:label "has suggestion strength" ;
+    rdfs:comment "Strength of suggested connection (soft logic)" ;
+    rdfs:domain tai:Connection ;
+    rdfs:range xsd:double .
+
+# Identity and metadata
+tai:hasIdentifier a owl:DatatypeProperty ;
+    rdfs:label "has identifier" ;
+    rdfs:comment "Unique identifier for cognitive entity" ;
+    rdfs:domain tai:CognitiveEntity ;
+    rdfs:range xsd:string .
+
+tai:hasLabel a owl:DatatypeProperty ;
+    rdfs:label "has label" ;
+    rdfs:comment "Human-readable label for entity" ;
+    rdfs:domain tai:CognitiveEntity ;
+    rdfs:range xsd:string .
+
+tai:hasDescription a owl:DatatypeProperty ;
+    rdfs:label "has description" ;
+    rdfs:comment "Textual description of entity" ;
+    rdfs:domain tai:CognitiveEntity ;
+    rdfs:range xsd:string .
+
+# Substrate properties
+tai:executesOn a owl:ObjectProperty ;
+    rdfs:label "executes on" ;
+    rdfs:comment "Indicates which substrate hosts a cognitive entity" ;
+    rdfs:domain tai:CognitivePrimitive ;
+    rdfs:range tai:Substrate .
+
+tai:supports a owl:ObjectProperty ;
+    rdfs:label "supports" ;
+    rdfs:comment "Indicates what cognitive primitives a substrate can support" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range tai:CognitivePrimitive .
+
+# Connection properties
+tai:connectsTo a owl:ObjectProperty ;
+    rdfs:label "connects to" ;
+    rdfs:comment "Direct connection between cognitive entities" ;
+    rdfs:domain tai:CognitiveEntity ;
+    rdfs:range tai:CognitiveEntity .
+
+tai:suggestsConnectionTo a owl:ObjectProperty ;
+    rdfs:label "suggests connection to" ;
+    rdfs:comment "Suggested (soft logic) connection between entities" ;
+    rdfs:domain tai:CognitiveEntity ;
+    rdfs:range tai:CognitiveEntity .
+
+tai:hasSemanticDistance a owl:DatatypeProperty ;
+    rdfs:label "has semantic distance" ;
+    rdfs:comment "Semantic distance measure between connected entities" ;
+    rdfs:domain tai:Connection ;
+    rdfs:range xsd:double .
+
+# Evolution and learning properties
+tai:evolves a owl:ObjectProperty ;
+    rdfs:label "evolves" ;
+    rdfs:comment "Indicates evolutionary relationship between entity states" ;
+    rdfs:domain tai:CognitiveEntity ;
+    rdfs:range tai:CognitiveEntity .
+
+tai:hasEvolutionRate a owl:DatatypeProperty ;
+    rdfs:label "has evolution rate" ;
+    rdfs:comment "Rate of change or evolution for dynamic entities" ;
+    rdfs:domain tai:CognitiveEntity ;
+    rdfs:range xsd:double .
+
+tai:learnedFrom a owl:ObjectProperty ;
+    rdfs:label "learned from" ;
+    rdfs:comment "Indicates learning or derivation relationship" ;
+    rdfs:domain tai:CognitiveEntity ;
+    rdfs:range tai:CognitiveEntity .

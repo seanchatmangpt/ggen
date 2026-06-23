@@ -1,0 +1,480 @@
+@prefix erlmcp: <http://erlmcp.org/schema/> .
+@prefix otel: <http://erlmcp.org/schema/otel/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+otel:Metric a rdfs:Class, owl:Class ;
+    rdfs:label "Metric" ;
+    rdfs:comment "OpenTelemetry metric" ;
+    otel:hasName xsd:string ;
+    otel:hasDescription xsd:string ;
+    otel:hasUnit otel:Unit ;
+    otel:hasInstrumentationScope otel:InstrumentationScope .
+
+otel:Counter a otel:Metric, owl:Class ;
+    rdfs:label "Counter" ;
+    rdfs:comment "Monotonic counter metric that only increases" ;
+    rdfs:subClassOf otel:SynchronousInstrument ;
+    otel:aggregation otel:MonotonicSum .
+
+otel:Gauge a otel:Metric, owl:Class ;
+    rdfs:label "Gauge" ;
+    rdfs:comment "Gauge metric that can increase or decrease" ;
+    rdfs:subClassOf otel:SynchronousInstrument ;
+    otel:aggregation otel:LastValue .
+
+otel:Histogram a otel:Metric, owl:Class ;
+    rdfs:label "Histogram" ;
+    rdfs:comment "Histogram metric for distribution analysis" ;
+    rdfs:subClassOf otel:SynchronousInstrument ;
+    otel:aggregation otel:ExplicitBucketHistogram ;
+    otel:hasBoundaries xsd:double .
+
+otel:UpDownCounter a otel:Metric, owl:Class ;
+    rdfs:label "UpDownCounter" ;
+    rdfs:comment "Counter that can increase or decrease" ;
+    rdfs:subClassOf otel:SynchronousInstrument ;
+    otel:aggregation otel:Sum .
+
+otel:ObservableCounter a otel:Metric, owl:Class ;
+    rdfs:label "ObservableCounter" ;
+    rdfs:comment "Asynchronous counter instrument" ;
+    rdfs:subClassOf otel:AsynchronousInstrument ;
+    otel:aggregation otel:MonotonicSum .
+
+otel:ObservableGauge a otel:Metric, owl:Class ;
+    rdfs:label "ObservableGauge" ;
+    rdfs:comment "Asynchronous gauge instrument" ;
+    rdfs:subClassOf otel:AsynchronousInstrument ;
+    otel:aggregation otel:LastValue .
+
+otel:SynchronousInstrument a rdfs:Class, owl:Class ;
+    rdfs:label "SynchronousInstrument" ;
+    rdfs:comment "Instrument that measures during code execution" ;
+    rdfs:subClassOf otel:Instrument .
+
+otel:AsynchronousInstrument a rdfs:Class, owl:Class ;
+    rdfs:label "AsynchronousInstrument" ;
+    rdfs:comment "Instrument that collects data via callbacks" ;
+    rdfs:subClassOf otel:Instrument .
+
+otel:Instrument a rdfs:Class, owl:Class ;
+    rdfs:label "Instrument" ;
+    rdfs:comment "Base class for metric instruments" ;
+    rdfs:subClassOf otel:Metric .
+
+otel:hasUnit a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otel:Metric ;
+    rdfs:range otel:Unit ;
+    rdfs:label "has unit" ;
+    rdfs:comment "The unit of measurement for the metric" .
+
+otel:hasName a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:Metric ;
+    rdfs:range xsd:string ;
+    rdfs:label "has name" .
+
+otel:hasDescription a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:Metric ;
+    rdfs:range xsd:string ;
+    rdfs:label "has description" .
+
+otel:hasInstrumentationScope a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otel:Metric ;
+    rdfs:range otel:InstrumentationScope ;
+    rdfs:label "has instrumentation scope" .
+
+otel:Unit a rdfs:Class, owl:Class ;
+    rdfs:label "Unit" ;
+    rdfs:comment "Unit of measurement" ;
+    owl:oneOf (
+        otel:Bytes
+        otel:Milliseconds
+        otel:Seconds
+        otel:Count
+        otel:Percentage
+        otel:RequestsPerSecond
+    ) .
+
+otel:Bytes a otel:Unit ;
+    rdfs:label "Bytes" ;
+    otel:symbol "By" .
+
+otel:Milliseconds a otel:Unit ;
+    rdfs:label "Milliseconds" ;
+    otel:symbol "ms" .
+
+otel:Seconds a otel:Unit ;
+    rdfs:label "Seconds" ;
+    otel:symbol "s" .
+
+otel:Count a otel:Unit ;
+    rdfs:label "Count" ;
+    otel:symbol "1" .
+
+otel:Percentage a otel:Unit ;
+    rdfs:label "Percentage" ;
+    otel:symbol "%" .
+
+otel:RequestsPerSecond a otel:Unit ;
+    rdfs:label "RequestsPerSecond" ;
+    otel:symbol "r/s" .
+
+otel:symbol a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:Unit ;
+    rdfs:range xsd:string ;
+    rdfs:label "symbol" .
+
+otel:Trace a rdfs:Class, owl:Class ;
+    rdfs:label "Trace" ;
+    rdfs:comment "Distributed trace representing a request path" ;
+    otel:hasTraceId xsd:string ;
+    otel:hasRootSpan otel:Span ;
+    otel:hasSpan otel:Span .
+
+otel:Span a rdfs:Class, owl:Class ;
+    rdfs:label "Span" ;
+    rdfs:comment "Trace span representing a unit of work" ;
+    otel:hasSpanId xsd:string ;
+    otel:hasParentSpanId xsd:string ;
+    otel:hasTraceId xsd:string ;
+    otel:hasName xsd:string ;
+    otel:hasKind otel:SpanKind ;
+    otel:hasStatus otel:Status ;
+    otel:hasStartTime xsd:dateTime ;
+    otel:hasEndTime xsd:dateTime ;
+    otel:hasAttribute otel:Attribute ;
+    otel:hasEvent otel:Event ;
+    otel:hasLink otel:Link .
+
+otel:SpanKind a rdfs:Class, owl:Class ;
+    rdfs:label "SpanKind" ;
+    rdfs:comment "Type of span" ;
+    owl:oneOf (
+        otel:Internal
+        otel:Server
+        otel:Client
+        otel:Producer
+        otel:Consumer
+    ) .
+
+otel:Internal a otel:SpanKind ;
+    rdfs:label "Internal" ;
+    rdfs:comment "Internal operation within a service" .
+
+otel:Server a otel:SpanKind ;
+    rdfs:label "Server" ;
+    rdfs:comment "Server-side handling of a request" .
+
+otel:Client a otel:SpanKind ;
+    rdfs:label "Client" ;
+    rdfs:comment "Client-side making a request" .
+
+otel:Producer a otel:SpanKind ;
+    rdfs:label "Producer" ;
+    rdfs:comment "Producer sending a message" .
+
+otel:Consumer a otel:SpanKind ;
+    rdfs:label "Consumer" ;
+    rdfs:comment "Consumer receiving a message" .
+
+otel:Status a rdfs:Class, owl:Class ;
+    rdfs:label "Status" ;
+    rdfs:comment "Span status" ;
+    otel:hasCode otel:StatusCode ;
+    otel:hasDescription xsd:string .
+
+otel:StatusCode a rdfs:Class, owl:Class ;
+    rdfs:label "StatusCode" ;
+    rdfs:comment "Status code values" ;
+    owl:oneOf (
+        otel:Unset
+        otel:Ok
+        otel:Error
+    ) .
+
+otel:Unset a otel:StatusCode ;
+    rdfs:label "Unset" ;
+    rdfs:comment "Status not set" .
+
+otel:Ok a otel:StatusCode ;
+    rdfs:label "Ok" ;
+    rdfs:comment "Operation completed successfully" .
+
+otel:Error a otel:StatusCode ;
+    rdfs:label "Error" ;
+    rdfs:comment "Operation encountered an error" .
+
+otel:Attribute a rdfs:Class, owl:Class ;
+    rdfs:label "Attribute" ;
+    rdfs:comment "Key-value pair attached to spans or metrics" ;
+    otel:hasKey xsd:string ;
+    otel:hasValue rdfs:Literal .
+
+otel:hasSpanId a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:Span ;
+    rdfs:range xsd:string ;
+    rdfs:label "has span ID" .
+
+otel:hasParentSpanId a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:Span ;
+    rdfs:range xsd:string ;
+    rdfs:label "has parent span ID" .
+
+otel:hasTraceId a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:Span ;
+    rdfs:range xsd:string ;
+    rdfs:label "has trace ID" .
+
+otel:hasName a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:Span ;
+    rdfs:range xsd:string ;
+    rdfs:label "has name" .
+
+otel:hasKind a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otel:Span ;
+    rdfs:range otel:SpanKind ;
+    rdfs:label "has kind" .
+
+otel:hasStatus a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otel:Span ;
+    rdfs:range otel:Status ;
+    rdfs:label "has status" .
+
+otel:hasStartTime a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:Span ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "has start time" .
+
+otel:hasEndTime a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:Span ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "has end time" .
+
+otel:hasTraceId a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:Trace ;
+    rdfs:range xsd:string ;
+    rdfs:label "has trace ID" .
+
+otel:hasRootSpan a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otel:Trace ;
+    rdfs:range otel:Span ;
+    rdfs:label "has root span" .
+
+otel:hasSpan a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otel:Trace ;
+    rdfs:range otel:Span ;
+    rdfs:label "has span" .
+
+otel:hasAttribute a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otel:Span ;
+    rdfs:range otel:Attribute ;
+    rdfs:label "has attribute" .
+
+otel:hasEvent a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otel:Span ;
+    rdfs:range otel:Event ;
+    rdfs:label "has event" .
+
+otel:hasLink a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otel:Span ;
+    rdfs:range otel:Link ;
+    rdfs:label "has link" .
+
+otel:hasCode a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otel:Status ;
+    rdfs:range otel:StatusCode ;
+    rdfs:label "has code" .
+
+otel:hasDescription a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:Status ;
+    rdfs:range xsd:string ;
+    rdfs:label "has description" .
+
+otel:hasKey a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:Attribute ;
+    rdfs:range xsd:string ;
+    rdfs:label "has key" .
+
+otel:hasValue a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:Attribute ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "has value" .
+
+otel:Event a rdfs:Class, owl:Class ;
+    rdfs:label "Event" ;
+    rdfs:comment "Timed event within a span" ;
+    otel:hasName xsd:string ;
+    otel:hasTimestamp xsd:dateTime ;
+    otel:hasAttribute otel:Attribute .
+
+otel:Link a rdfs:Class, owl:Class ;
+    rdfs:label "Link" ;
+    rdfs:comment "Link to another span" ;
+    otel:hasTraceId xsd:string ;
+    otel:hasSpanId xsd:string ;
+    otel:hasAttribute otel:Attribute .
+
+otel:InstrumentationScope a rdfs:Class, owl:Class ;
+    rdfs:label "InstrumentationScope" ;
+    rdfs:comment "Scope of instrumentation" ;
+    otel:hasName xsd:string ;
+    otel:hasVersion xsd:string ;
+    otel:hasSchemaUrl xsd:anyURI .
+
+otel:hasVersion a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:InstrumentationScope ;
+    rdfs:range xsd:string ;
+    rdfs:label "has version" .
+
+otel:hasSchemaUrl a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:InstrumentationScope ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "has schema URL" .
+
+otel:aggregation a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otel:Metric ;
+    rdfs:range otel:Aggregation ;
+    rdfs:label "aggregation" .
+
+otel:Aggregation a rdfs:Class, owl:Class ;
+    rdfs:label "Aggregation" ;
+    rdfs:comment "Aggregation type for metrics" ;
+    owl:oneOf (
+        otel:MonotonicSum
+        otel:Sum
+        otel:LastValue
+        otel:ExplicitBucketHistogram
+    ) .
+
+otel:MonotonicSum a otel:Aggregation ;
+    rdfs:label "MonotonicSum" ;
+    rdfs:comment "Sum of monotonic values" .
+
+otel:Sum a otel:Aggregation ;
+    rdfs:label "Sum" ;
+    rdfs:comment "Sum of values" .
+
+otel:LastValue a otel:Aggregation ;
+    rdfs:label "LastValue" ;
+    rdfs:comment "Last recorded value" .
+
+otel:ExplicitBucketHistogram a otel:Aggregation ;
+    rdfs:label "ExplicitBucketHistogram" ;
+    rdfs:comment "Histogram with explicit bucket boundaries" .
+
+otel:hasBoundaries a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otel:Histogram ;
+    rdfs:range xsd:double ;
+    rdfs:label "has boundaries" .
+
+erlmcp:hasMetric a rdf:Property, owl:ObjectProperty ;
+    rdfs:range otel:Metric ;
+    rdfs:label "has metric" ;
+    rdfs:comment "Associates an entity with a metric" .
+
+erlmcp:hasTrace a rdf:Property, owl:ObjectProperty ;
+    rdfs:range otel:Trace ;
+    rdfs:label "has trace" ;
+    rdfs:comment "Associates an entity with a trace" .
+
+erlmcp:HealthCheck a rdfs:Class, owl:Class ;
+    rdfs:label "HealthCheck" ;
+    rdfs:comment "Health check endpoint" ;
+    erlmcp:hasHealthStatus erlmcp:HealthStatus ;
+    erlmcp:hasCheckType erlmcp:CheckType ;
+    erlmcp:hasLastCheck xsd:dateTime ;
+    erlmcp:hasResponseTimeMs xsd:integer ;
+    erlmcp:hasDependencies erlmcp:Dependency .
+
+erlmcp:HealthStatus a rdfs:Class, owl:Class ;
+    rdfs:label "HealthStatus" ;
+    rdfs:comment "Health status values" ;
+    owl:oneOf (
+        erlmcp:Healthy
+        erlmcp:Degraded
+        erlmcp:Unhealthy
+        erlmcp:Unknown
+    ) .
+
+erlmcp:Healthy a erlmcp:HealthStatus ;
+    rdfs:label "Healthy" ;
+    rdfs:comment "System is operating normally" .
+
+erlmcp:Degraded a erlmcp:HealthStatus ;
+    rdfs:label "Degraded" ;
+    rdfs:comment "System is operational but below normal performance" .
+
+erlmcp:Unhealthy a erlmcp:HealthStatus ;
+    rdfs:label "Unhealthy" ;
+    rdfs:comment "System is not operational" .
+
+erlmcp:Unknown a erlmcp:HealthStatus ;
+    rdfs:label "Unknown" ;
+    rdfs:comment "Health status cannot be determined" .
+
+erlmcp:CheckType a rdfs:Class, owl:Class ;
+    rdfs:label "CheckType" ;
+    rdfs:comment "Types of health checks" ;
+    owl:oneOf (
+        erlmcp:Liveness
+        erlmcp:Readiness
+        erlmcp:Startup
+    ) .
+
+erlmcp:Liveness a erlmcp:CheckType ;
+    rdfs:label "Liveness" ;
+    rdfs:comment "Check if the application is running" .
+
+erlmcp:Readiness a erlmcp:CheckType ;
+    rdfs:label "Readiness" ;
+    rdfs:comment "Check if the application is ready to serve traffic" .
+
+erlmcp:Startup a erlmcp:CheckType ;
+    rdfs:label "Startup" ;
+    rdfs:comment "Check if the application has started successfully" .
+
+erlmcp:Dependency a rdfs:Class, owl:Class ;
+    rdfs:label "Dependency" ;
+    rdfs:comment "Dependency for health checks" ;
+    erlmcp:hasName xsd:string ;
+    erlmcp:hasType xsd:string ;
+    erlmcp:isRequired xsd:boolean ;
+    erlmcp:hasHealthStatus erlmcp:HealthStatus .
+
+erlmcp:healthStatus a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain erlmcp:HealthCheck ;
+    rdfs:range erlmcp:HealthStatus ;
+    rdfs:label "health status" .
+
+erlmcp:hasHealthStatus a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain erlmcp:HealthCheck ;
+    rdfs:range erlmcp:HealthStatus ;
+    rdfs:label "has health status" .
+
+erlmcp:hasCheckType a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain erlmcp:HealthCheck ;
+    rdfs:range erlmcp:CheckType ;
+    rdfs:label "has check type" .
+
+erlmcp:hasLastCheck a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain erlmcp:HealthCheck ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "has last check" .
+
+erlmcp:hasResponseTimeMs a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain erlmcp:HealthCheck ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has response time ms" .
+
+erlmcp:hasDependencies a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain erlmcp:HealthCheck ;
+    rdfs:range erlmcp:Dependency ;
+    rdfs:label "has dependencies" .
+
+erlmcp:isRequired a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain erlmcp:Dependency ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is required" .

@@ -1,0 +1,848 @@
+@prefix ba: <https://bytestar.org/ontology/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+
+# ByteStar Resource Allocation Ontology
+# Defines deterministic scheduling and resource management systems
+# Version: 5.0.0 - Phase 3
+# Domain: Ultra-high performance distributed consensus with quantum-resistant cryptography
+# Compliance: Doctrine of 8 - Sub-8-tick performance guarantees
+
+# ================================
+# CORE RESOURCE ALLOCATION CLASSES
+# ================================
+
+ba:ResourceAllocation a owl:Class ;
+    rdfs:label "Resource Allocation" ;
+    rdfs:comment "Root class for all resource allocation concepts in ByteStar system" ;
+    rdfs:subClassOf ba:SystemComponent .
+
+ba:Resource a owl:Class ;
+    rdfs:label "Resource" ;
+    rdfs:comment "System resource that can be allocated, scheduled, and managed" ;
+    rdfs:subClassOf ba:ResourceAllocation .
+
+ba:ResourceAllocator a owl:Class ;
+    rdfs:label "Resource Allocator" ;
+    rdfs:comment "Component responsible for resource allocation decisions" ;
+    rdfs:subClassOf ba:ResourceAllocation .
+
+ba:AllocationStrategy a owl:Class ;
+    rdfs:label "Allocation Strategy" ;
+    rdfs:comment "Strategy for resource allocation and scheduling" ;
+    rdfs:subClassOf ba:ResourceAllocation .
+
+ba:Scheduler a owl:Class ;
+    rdfs:label "Scheduler" ;
+    rdfs:comment "Component responsible for task and resource scheduling" ;
+    rdfs:subClassOf ba:ResourceAllocator .
+
+# ================================
+# RESOURCE TYPE HIERARCHY
+# ================================
+
+ba:ComputeResource a owl:Class ;
+    rdfs:label "Compute Resource" ;
+    rdfs:comment "Computational processing resources" ;
+    rdfs:subClassOf ba:Resource .
+
+ba:CpuResource a owl:Class ;
+    rdfs:label "CPU Resource" ;
+    rdfs:comment "Central processing unit resources" ;
+    rdfs:subClassOf ba:ComputeResource .
+
+ba:CpuCore a owl:Class ;
+    rdfs:label "CPU Core" ;
+    rdfs:comment "Individual CPU core resource" ;
+    rdfs:subClassOf ba:CpuResource .
+
+ba:CpuThread a owl:Class ;
+    rdfs:label "CPU Thread" ;
+    rdfs:comment "CPU hardware thread resource" ;
+    rdfs:subClassOf ba:CpuResource .
+
+ba:GpuResource a owl:Class ;
+    rdfs:label "GPU Resource" ;
+    rdfs:comment "Graphics processing unit resources" ;
+    rdfs:subClassOf ba:ComputeResource .
+
+ba:MemoryResource a owl:Class ;
+    rdfs:label "Memory Resource" ;
+    rdfs:comment "Memory storage resources" ;
+    rdfs:subClassOf ba:Resource .
+
+ba:L1Cache a owl:Class ;
+    rdfs:label "L1 Cache" ;
+    rdfs:comment "Level 1 CPU cache resource" ;
+    rdfs:subClassOf ba:MemoryResource .
+
+ba:L2Cache a owl:Class ;
+    rdfs:label "L2 Cache" ;
+    rdfs:comment "Level 2 CPU cache resource" ;
+    rdfs:subClassOf ba:MemoryResource .
+
+ba:L3Cache a owl:Class ;
+    rdfs:label "L3 Cache" ;
+    rdfs:comment "Level 3 CPU cache resource" ;
+    rdfs:subClassOf ba:MemoryResource .
+
+ba:RamResource a owl:Class ;
+    rdfs:label "RAM Resource" ;
+    rdfs:comment "Random access memory resource" ;
+    rdfs:subClassOf ba:MemoryResource .
+
+ba:NetworkResource a owl:Class ;
+    rdfs:label "Network Resource" ;
+    rdfs:comment "Network bandwidth and connectivity resources" ;
+    rdfs:subClassOf ba:Resource .
+
+ba:NetworkBandwidth a owl:Class ;
+    rdfs:label "Network Bandwidth" ;
+    rdfs:comment "Available network bandwidth resource" ;
+    rdfs:subClassOf ba:NetworkResource .
+
+ba:NetworkLatency a owl:Class ;
+    rdfs:label "Network Latency" ;
+    rdfs:comment "Network latency characteristics" ;
+    rdfs:subClassOf ba:NetworkResource .
+
+ba:StorageResource a owl:Class ;
+    rdfs:label "Storage Resource" ;
+    rdfs:comment "Persistent storage resources" ;
+    rdfs:subClassOf ba:Resource .
+
+ba:SsdStorage a owl:Class ;
+    rdfs:label "SSD Storage" ;
+    rdfs:comment "Solid state drive storage resource" ;
+    rdfs:subClassOf ba:StorageResource .
+
+ba:NvmeStorage a owl:Class ;
+    rdfs:label "NVMe Storage" ;
+    rdfs:comment "NVMe high-performance storage resource" ;
+    rdfs:subClassOf ba:StorageResource .
+
+# ================================
+# ALLOCATION STRATEGIES
+# ================================
+
+ba:DeterministicAllocation a owl:Class ;
+    rdfs:label "Deterministic Allocation" ;
+    rdfs:comment "Allocation strategy with deterministic behavior and guarantees" ;
+    rdfs:subClassOf ba:AllocationStrategy .
+
+ba:FairAllocation a owl:Class ;
+    rdfs:label "Fair Allocation" ;
+    rdfs:comment "Fair resource allocation ensuring equitable resource distribution" ;
+    rdfs:subClassOf ba:AllocationStrategy .
+
+ba:PriorityBasedAllocation a owl:Class ;
+    rdfs:label "Priority-Based Allocation" ;
+    rdfs:comment "Resource allocation based on task priorities" ;
+    rdfs:subClassOf ba:AllocationStrategy .
+
+ba:RoundRobinAllocation a owl:Class ;
+    rdfs:label "Round Robin Allocation" ;
+    rdfs:comment "Round-robin fair scheduling allocation" ;
+    rdfs:subClassOf ba:FairAllocation .
+
+ba:WeightedFairQueuing a owl:Class ;
+    rdfs:label "Weighted Fair Queuing" ;
+    rdfs:comment "Weighted fair queuing allocation strategy" ;
+    rdfs:subClassOf ba:FairAllocation .
+
+ba:ProportionalShareAllocation a owl:Class ;
+    rdfs:label "Proportional Share Allocation" ;
+    rdfs:comment "Allocation based on proportional resource shares" ;
+    rdfs:subClassOf ba:FairAllocation .
+
+# ================================
+# SCHEDULING ALGORITHMS
+# ================================
+
+ba:SchedulingAlgorithm a owl:Class ;
+    rdfs:label "Scheduling Algorithm" ;
+    rdfs:comment "Algorithm for task and resource scheduling" ;
+    rdfs:subClassOf ba:AllocationStrategy .
+
+ba:DeterministicScheduling a owl:Class ;
+    rdfs:label "Deterministic Scheduling" ;
+    rdfs:comment "Scheduling with deterministic execution order and timing" ;
+    rdfs:subClassOf ba:SchedulingAlgorithm .
+
+ba:RealTimeScheduling a owl:Class ;
+    rdfs:label "Real-Time Scheduling" ;
+    rdfs:comment "Scheduling for real-time systems with deadline guarantees" ;
+    rdfs:subClassOf ba:DeterministicScheduling .
+
+ba:EarliestDeadlineFirst a owl:Class ;
+    rdfs:label "Earliest Deadline First" ;
+    rdfs:comment "EDF scheduling algorithm prioritizing earliest deadlines" ;
+    rdfs:subClassOf ba:RealTimeScheduling .
+
+ba:RateMonotonicScheduling a owl:Class ;
+    rdfs:label "Rate Monotonic Scheduling" ;
+    rdfs:comment "RMS scheduling with fixed priority based on task periods" ;
+    rdfs:subClassOf ba:RealTimeScheduling .
+
+ba:DeadlineMonotonicScheduling a owl:Class ;
+    rdfs:label "Deadline Monotonic Scheduling" ;
+    rdfs:comment "DMS scheduling with priority based on relative deadlines" ;
+    rdfs:subClassOf ba:RealTimeScheduling .
+
+ba:PreemptiveScheduling a owl:Class ;
+    rdfs:label "Preemptive Scheduling" ;
+    rdfs:comment "Scheduling allowing task preemption for higher priorities" ;
+    rdfs:subClassOf ba:SchedulingAlgorithm .
+
+ba:NonPreemptiveScheduling a owl:Class ;
+    rdfs:label "Non-Preemptive Scheduling" ;
+    rdfs:comment "Scheduling without task preemption" ;
+    rdfs:subClassOf ba:SchedulingAlgorithm .
+
+# ================================
+# RESOURCE RESERVATION & ADMISSION
+# ================================
+
+ba:ResourceReservation a owl:Class ;
+    rdfs:label "Resource Reservation" ;
+    rdfs:comment "System for reserving resources in advance" ;
+    rdfs:subClassOf ba:ResourceAllocation .
+
+ba:AdmissionControl a owl:Class ;
+    rdfs:label "Admission Control" ;
+    rdfs:comment "Control system for accepting or rejecting resource requests" ;
+    rdfs:subClassOf ba:ResourceReservation .
+
+ba:ResourceQuota a owl:Class ;
+    rdfs:label "Resource Quota" ;
+    rdfs:comment "Defined limits for resource consumption" ;
+    rdfs:subClassOf ba:ResourceReservation .
+
+ba:GuaranteedAllocation a owl:Class ;
+    rdfs:label "Guaranteed Allocation" ;
+    rdfs:comment "Resource allocation with performance guarantees" ;
+    rdfs:subClassOf ba:ResourceReservation .
+
+ba:BestEffortAllocation a owl:Class ;
+    rdfs:label "Best Effort Allocation" ;
+    rdfs:comment "Resource allocation without guarantees" ;
+    rdfs:subClassOf ba:ResourceAllocation .
+
+# ================================
+# LOAD BALANCING & DISTRIBUTION
+# ================================
+
+ba:LoadBalancer a owl:Class ;
+    rdfs:label "Load Balancer" ;
+    rdfs:comment "Component for distributing load across resources" ;
+    rdfs:subClassOf ba:ResourceAllocator .
+
+ba:LoadBalancingStrategy a owl:Class ;
+    rdfs:label "Load Balancing Strategy" ;
+    rdfs:comment "Strategy for distributing workload" ;
+    rdfs:subClassOf ba:AllocationStrategy .
+
+ba:RoundRobinLoadBalancing a owl:Class ;
+    rdfs:label "Round Robin Load Balancing" ;
+    rdfs:comment "Round-robin load distribution" ;
+    rdfs:subClassOf ba:LoadBalancingStrategy .
+
+ba:LeastConnectionsLoadBalancing a owl:Class ;
+    rdfs:label "Least Connections Load Balancing" ;
+    rdfs:comment "Load balancing based on connection count" ;
+    rdfs:subClassOf ba:LoadBalancingStrategy .
+
+ba:WeightedRoundRobinLoadBalancing a owl:Class ;
+    rdfs:label "Weighted Round Robin Load Balancing" ;
+    rdfs:comment "Weighted round-robin load distribution" ;
+    rdfs:subClassOf ba:LoadBalancingStrategy .
+
+ba:ConsistentHashingLoadBalancing a owl:Class ;
+    rdfs:label "Consistent Hashing Load Balancing" ;
+    rdfs:comment "Load balancing using consistent hashing" ;
+    rdfs:subClassOf ba:LoadBalancingStrategy .
+
+# ================================
+# PERFORMANCE ISOLATION & QOS
+# ================================
+
+ba:PerformanceIsolation a owl:Class ;
+    rdfs:label "Performance Isolation" ;
+    rdfs:comment "Mechanism ensuring performance isolation between tasks" ;
+    rdfs:subClassOf ba:ResourceAllocation .
+
+ba:QualityOfService a owl:Class ;
+    rdfs:label "Quality of Service" ;
+    rdfs:comment "QoS guarantees for resource allocation" ;
+    rdfs:subClassOf ba:PerformanceIsolation .
+
+ba:ServiceLevelAgreement a owl:Class ;
+    rdfs:label "Service Level Agreement" ;
+    rdfs:comment "SLA defining performance guarantees" ;
+    rdfs:subClassOf ba:QualityOfService .
+
+ba:ResourceContainer a owl:Class ;
+    rdfs:label "Resource Container" ;
+    rdfs:comment "Container providing resource isolation" ;
+    rdfs:subClassOf ba:PerformanceIsolation .
+
+ba:CpuQuota a owl:Class ;
+    rdfs:label "CPU Quota" ;
+    rdfs:comment "CPU usage quota for performance isolation" ;
+    rdfs:subClassOf ba:ResourceContainer .
+
+ba:MemoryQuota a owl:Class ;
+    rdfs:label "Memory Quota" ;
+    rdfs:comment "Memory usage quota for performance isolation" ;
+    rdfs:subClassOf ba:ResourceContainer .
+
+# ================================
+# DEADLOCK PREVENTION & RESOLUTION
+# ================================
+
+ba:DeadlockPrevention a owl:Class ;
+    rdfs:label "Deadlock Prevention" ;
+    rdfs:comment "System for preventing resource deadlocks" ;
+    rdfs:subClassOf ba:ResourceAllocation .
+
+ba:DeadlockDetection a owl:Class ;
+    rdfs:label "Deadlock Detection" ;
+    rdfs:comment "System for detecting resource deadlocks" ;
+    rdfs:subClassOf ba:DeadlockPrevention .
+
+ba:DeadlockResolution a owl:Class ;
+    rdfs:label "Deadlock Resolution" ;
+    rdfs:comment "System for resolving detected deadlocks" ;
+    rdfs:subClassOf ba:DeadlockPrevention .
+
+ba:BankersAlgorithm a owl:Class ;
+    rdfs:label "Banker's Algorithm" ;
+    rdfs:comment "Banker's algorithm for deadlock avoidance" ;
+    rdfs:subClassOf ba:DeadlockPrevention .
+
+ba:ResourceOrderingProtocol a owl:Class ;
+    rdfs:label "Resource Ordering Protocol" ;
+    rdfs:comment "Protocol ensuring ordered resource acquisition" ;
+    rdfs:subClassOf ba:DeadlockPrevention .
+
+# ================================
+# DYNAMIC SCALING & ADAPTATION
+# ================================
+
+ba:DynamicScaling a owl:Class ;
+    rdfs:label "Dynamic Scaling" ;
+    rdfs:comment "System for dynamic resource scaling" ;
+    rdfs:subClassOf ba:ResourceAllocation .
+
+ba:AutoScaling a owl:Class ;
+    rdfs:label "Auto Scaling" ;
+    rdfs:comment "Automatic resource scaling based on demand" ;
+    rdfs:subClassOf ba:DynamicScaling .
+
+ba:HorizontalScaling a owl:Class ;
+    rdfs:label "Horizontal Scaling" ;
+    rdfs:comment "Scaling by adding more resource instances" ;
+    rdfs:subClassOf ba:DynamicScaling .
+
+ba:VerticalScaling a owl:Class ;
+    rdfs:label "Vertical Scaling" ;
+    rdfs:comment "Scaling by increasing resource capacity" ;
+    rdfs:subClassOf ba:DynamicScaling .
+
+ba:ElasticScaling a owl:Class ;
+    rdfs:label "Elastic Scaling" ;
+    rdfs:comment "Elastic scaling adapting to workload changes" ;
+    rdfs:subClassOf ba:AutoScaling .
+
+ba:PredictiveScaling a owl:Class ;
+    rdfs:label "Predictive Scaling" ;
+    rdfs:comment "Scaling based on predicted resource needs" ;
+    rdfs:subClassOf ba:AutoScaling .
+
+# ================================
+# RESOURCE OPTIMIZATION
+# ================================
+
+ba:ResourceOptimization a owl:Class ;
+    rdfs:label "Resource Optimization" ;
+    rdfs:comment "System for optimizing resource utilization" ;
+    rdfs:subClassOf ba:ResourceAllocation .
+
+ba:EfficiencyMaximization a owl:Class ;
+    rdfs:label "Efficiency Maximization" ;
+    rdfs:comment "Strategy for maximizing resource efficiency" ;
+    rdfs:subClassOf ba:ResourceOptimization .
+
+ba:ThroughputOptimization a owl:Class ;
+    rdfs:label "Throughput Optimization" ;
+    rdfs:comment "Optimization focused on maximizing throughput" ;
+    rdfs:subClassOf ba:ResourceOptimization .
+
+ba:LatencyOptimization a owl:Class ;
+    rdfs:label "Latency Optimization" ;
+    rdfs:comment "Optimization focused on minimizing latency" ;
+    rdfs:subClassOf ba:ResourceOptimization .
+
+ba:EnergyOptimization a owl:Class ;
+    rdfs:label "Energy Optimization" ;
+    rdfs:comment "Optimization focused on energy efficiency" ;
+    rdfs:subClassOf ba:ResourceOptimization .
+
+# ================================
+# OBJECT PROPERTIES
+# ================================
+
+ba:allocatesResource a owl:ObjectProperty ;
+    rdfs:label "allocates resource" ;
+    rdfs:comment "Indicates that an allocator allocates a specific resource" ;
+    rdfs:domain ba:ResourceAllocator ;
+    rdfs:range ba:Resource .
+
+ba:usesAllocationStrategy a owl:ObjectProperty ;
+    rdfs:label "uses allocation strategy" ;
+    rdfs:comment "Indicates the allocation strategy used by an allocator" ;
+    rdfs:domain ba:ResourceAllocator ;
+    rdfs:range ba:AllocationStrategy .
+
+ba:implementsSchedulingAlgorithm a owl:ObjectProperty ;
+    rdfs:label "implements scheduling algorithm" ;
+    rdfs:comment "Indicates the scheduling algorithm implemented by a scheduler" ;
+    rdfs:domain ba:Scheduler ;
+    rdfs:range ba:SchedulingAlgorithm .
+
+ba:hasResourceQuota a owl:ObjectProperty ;
+    rdfs:label "has resource quota" ;
+    rdfs:comment "Indicates resource quota allocation" ;
+    rdfs:range ba:ResourceQuota .
+
+ba:guaranteesQoS a owl:ObjectProperty ;
+    rdfs:label "guarantees QoS" ;
+    rdfs:comment "Indicates QoS guarantees provided" ;
+    rdfs:range ba:QualityOfService .
+
+ba:preventsDeadlock a owl:ObjectProperty ;
+    rdfs:label "prevents deadlock" ;
+    rdfs:comment "Indicates deadlock prevention mechanism" ;
+    rdfs:range ba:DeadlockPrevention .
+
+ba:optimizesResource a owl:ObjectProperty ;
+    rdfs:label "optimizes resource" ;
+    rdfs:comment "Indicates resource optimization relationship" ;
+    rdfs:domain ba:ResourceOptimization ;
+    rdfs:range ba:Resource .
+
+ba:scalesResource a owl:ObjectProperty ;
+    rdfs:label "scales resource" ;
+    rdfs:comment "Indicates resource scaling relationship" ;
+    rdfs:domain ba:DynamicScaling ;
+    rdfs:range ba:Resource .
+
+ba:balancesLoad a owl:ObjectProperty ;
+    rdfs:label "balances load" ;
+    rdfs:comment "Indicates load balancing relationship" ;
+    rdfs:domain ba:LoadBalancer ;
+    rdfs:range ba:Resource .
+
+ba:isolatesPerformance a owl:ObjectProperty ;
+    rdfs:label "isolates performance" ;
+    rdfs:comment "Indicates performance isolation relationship" ;
+    rdfs:domain ba:PerformanceIsolation ;
+    rdfs:range ba:Resource .
+
+# ================================
+# DATA PROPERTIES
+# ================================
+
+ba:hasCapacity a owl:DatatypeProperty ;
+    rdfs:label "has capacity" ;
+    rdfs:comment "Total capacity of a resource" ;
+    rdfs:domain ba:Resource ;
+    rdfs:range xsd:decimal .
+
+ba:hasAvailableCapacity a owl:DatatypeProperty ;
+    rdfs:label "has available capacity" ;
+    rdfs:comment "Currently available capacity of a resource" ;
+    rdfs:domain ba:Resource ;
+    rdfs:range xsd:decimal .
+
+ba:hasUtilization a owl:DatatypeProperty ;
+    rdfs:label "has utilization" ;
+    rdfs:comment "Current utilization percentage of a resource" ;
+    rdfs:domain ba:Resource ;
+    rdfs:range xsd:decimal .
+
+ba:hasPriority a owl:DatatypeProperty ;
+    rdfs:label "has priority" ;
+    rdfs:comment "Priority level for allocation or scheduling" ;
+    rdfs:range xsd:integer .
+
+ba:hasDeadline a owl:DatatypeProperty ;
+    rdfs:label "has deadline" ;
+    rdfs:comment "Deadline for task completion (in ticks)" ;
+    rdfs:range xsd:decimal .
+
+ba:hasDeadlineConstraint a owl:DatatypeProperty ;
+    rdfs:label "has deadline constraint" ;
+    rdfs:comment "Deadline constraint in ticks from current time" ;
+    rdfs:range xsd:decimal .
+
+ba:hasExecutionTime a owl:DatatypeProperty ;
+    rdfs:label "has execution time" ;
+    rdfs:comment "Expected execution time (in ticks)" ;
+    rdfs:range xsd:decimal .
+
+ba:hasPeriod a owl:DatatypeProperty ;
+    rdfs:label "has period" ;
+    rdfs:comment "Period for periodic tasks (in ticks)" ;
+    rdfs:range xsd:decimal .
+
+ba:hasWeight a owl:DatatypeProperty ;
+    rdfs:label "has weight" ;
+    rdfs:comment "Weight for weighted allocation strategies" ;
+    rdfs:range xsd:decimal .
+
+ba:hasMinAllocation a owl:DatatypeProperty ;
+    rdfs:label "has minimum allocation" ;
+    rdfs:comment "Minimum guaranteed resource allocation" ;
+    rdfs:domain ba:ResourceQuota ;
+    rdfs:range xsd:decimal .
+
+ba:hasMaxAllocation a owl:DatatypeProperty ;
+    rdfs:label "has maximum allocation" ;
+    rdfs:comment "Maximum allowed resource allocation" ;
+    rdfs:domain ba:ResourceQuota ;
+    rdfs:range xsd:decimal .
+
+ba:hasTargetUtilization a owl:DatatypeProperty ;
+    rdfs:label "has target utilization" ;
+    rdfs:comment "Target utilization percentage for optimization" ;
+    rdfs:domain ba:ResourceOptimization ;
+    rdfs:range xsd:decimal .
+
+ba:hasScalingThreshold a owl:DatatypeProperty ;
+    rdfs:label "has scaling threshold" ;
+    rdfs:comment "Threshold for triggering scaling operations" ;
+    rdfs:domain ba:DynamicScaling ;
+    rdfs:range xsd:decimal .
+
+ba:hasLatencyGuarantee a owl:DatatypeProperty ;
+    rdfs:label "has latency guarantee" ;
+    rdfs:comment "Maximum guaranteed latency (in ticks)" ;
+    rdfs:domain ba:QualityOfService ;
+    rdfs:range xsd:decimal .
+
+ba:hasThroughputGuarantee a owl:DatatypeProperty ;
+    rdfs:label "has throughput guarantee" ;
+    rdfs:comment "Minimum guaranteed throughput" ;
+    rdfs:domain ba:QualityOfService ;
+    rdfs:range xsd:decimal .
+
+ba:hasJitterBound a owl:DatatypeProperty ;
+    rdfs:label "has jitter bound" ;
+    rdfs:comment "Maximum allowed jitter (in ticks)" ;
+    rdfs:domain ba:QualityOfService ;
+    rdfs:range xsd:decimal .
+
+# ================================
+# INTEGRATION WITH PERFORMANCE MEASUREMENT
+# ================================
+
+ba:ResourceAllocationMetric a owl:Class ;
+    rdfs:label "Resource Allocation Metric" ;
+    rdfs:comment "Performance metric specific to resource allocation" ;
+    rdfs:subClassOf ba:PerformanceMetric .
+
+ba:AllocationEfficiencyMetric a owl:Class ;
+    rdfs:label "Allocation Efficiency Metric" ;
+    rdfs:comment "Metric measuring allocation efficiency" ;
+    rdfs:subClassOf ba:ResourceAllocationMetric .
+
+ba:SchedulingLatencyMetric a owl:Class ;
+    rdfs:label "Scheduling Latency Metric" ;
+    rdfs:comment "Metric measuring scheduling latency" ;
+    rdfs:subClassOf ba:ResourceAllocationMetric .
+
+ba:ResourceUtilizationMetric a owl:Class ;
+    rdfs:label "Resource Utilization Metric" ;
+    rdfs:comment "Metric measuring resource utilization" ;
+    rdfs:subClassOf ba:ResourceAllocationMetric .
+
+ba:DeadlineMissRatio a owl:Class ;
+    rdfs:label "Deadline Miss Ratio" ;
+    rdfs:comment "Ratio of missed deadlines to total tasks" ;
+    rdfs:subClassOf ba:ResourceAllocationMetric .
+
+ba:FairnessIndex a owl:Class ;
+    rdfs:label "Fairness Index" ;
+    rdfs:comment "Metric measuring allocation fairness" ;
+    rdfs:subClassOf ba:ResourceAllocationMetric .
+
+ba:LoadBalanceEfficiency a owl:Class ;
+    rdfs:label "Load Balance Efficiency" ;
+    rdfs:comment "Metric measuring load balancing efficiency" ;
+    rdfs:subClassOf ba:ResourceAllocationMetric .
+
+# ================================
+# SHACL VALIDATION SHAPES
+# ================================
+
+ba:ResourceAllocationValidationShape
+    a sh:NodeShape ;
+    sh:targetClass ba:ResourceAllocation ;
+    rdfs:label "Resource Allocation Validation" ;
+    rdfs:comment "Validates resource allocation configurations" ;
+    sh:property [
+        sh:path ba:hasCapacity ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:message "Resource capacity must be positive"
+    ] ;
+    sh:property [
+        sh:path ba:hasUtilization ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Resource utilization must be between 0% and 100%"
+    ] .
+
+ba:DeterministicSchedulingValidationShape
+    a sh:NodeShape ;
+    sh:targetClass ba:DeterministicScheduling ;
+    rdfs:label "Deterministic Scheduling Validation" ;
+    rdfs:comment "Validates deterministic scheduling properties" ;
+    sh:property [
+        sh:path ba:hasExecutionTime ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:maxInclusive 8.0 ;  # Sub-8-tick guarantee
+        sh:message "Execution time must be positive and under 8 ticks"
+    ] ;
+    sh:property [
+        sh:path ba:hasDeadline ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:message "Deadline must be positive"
+    ] .
+
+ba:RealTimeSchedulingValidationShape
+    a sh:NodeShape ;
+    sh:targetClass ba:RealTimeScheduling ;
+    rdfs:label "Real-Time Scheduling Validation" ;
+    rdfs:comment "Validates real-time scheduling constraints" ;
+    sh:property [
+        sh:path ba:hasDeadlineConstraint ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;  # Doctrine of 8
+        sh:message "Deadline constraint must not exceed 8 ticks"
+    ] ;
+    sh:property [
+        sh:path ba:hasLatencyGuarantee ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;  # Sub-8-tick guarantee
+        sh:message "Latency guarantee must not exceed 8 ticks"
+    ] .
+
+ba:ResourceQuotaValidationShape
+    a sh:NodeShape ;
+    sh:targetClass ba:ResourceQuota ;
+    rdfs:label "Resource Quota Validation" ;
+    rdfs:comment "Validates resource quota configurations" ;
+    sh:property [
+        sh:path ba:hasMinAllocation ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Minimum allocation must be non-negative"
+    ] ;
+    sh:property [
+        sh:path ba:hasMaxAllocation ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:message "Maximum allocation must be positive"
+    ] ;
+    sh:sparql [
+        sh:message "Maximum allocation must be greater than or equal to minimum allocation" ;
+        sh:prefixes ba: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this ba:hasMinAllocation ?min .
+                $this ba:hasMaxAllocation ?max .
+                FILTER (?max < ?min)
+            }
+        """
+    ] .
+
+ba:QualityOfServiceValidationShape
+    a sh:NodeShape ;
+    sh:targetClass ba:QualityOfService ;
+    rdfs:label "Quality of Service Validation" ;
+    rdfs:comment "Validates QoS guarantee specifications" ;
+    sh:property [
+        sh:path ba:hasLatencyGuarantee ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;  # Sub-8-tick guarantee
+        sh:message "Latency guarantee must not exceed 8 ticks"
+    ] ;
+    sh:property [
+        sh:path ba:hasThroughputGuarantee ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:message "Throughput guarantee must be positive"
+    ] ;
+    sh:property [
+        sh:path ba:hasJitterBound ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 1.0 ;  # Low jitter requirement
+        sh:message "Jitter bound must not exceed 1 tick"
+    ] .
+
+ba:PriorityValidationShape
+    a sh:NodeShape ;
+    rdfs:label "Priority Validation" ;
+    rdfs:comment "Validates priority assignments" ;
+    sh:targetNode [
+        sh:path ba:hasPriority ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 255 ;
+        sh:message "Priority must be between 0 and 255"
+    ] .
+
+ba:LoadBalancingValidationShape
+    a sh:NodeShape ;
+    sh:targetClass ba:LoadBalancingStrategy ;
+    rdfs:label "Load Balancing Validation" ;
+    rdfs:comment "Validates load balancing configurations" ;
+    sh:property [
+        sh:path ba:hasWeight ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:message "Load balancing weight must be positive"
+    ] .
+
+ba:ScalingValidationShape
+    a sh:NodeShape ;
+    sh:targetClass ba:DynamicScaling ;
+    rdfs:label "Scaling Validation" ;
+    rdfs:comment "Validates dynamic scaling configurations" ;
+    sh:property [
+        sh:path ba:hasScalingThreshold ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Scaling threshold must be between 0% and 100%"
+    ] ;
+    sh:property [
+        sh:path ba:hasTargetUtilization ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Target utilization must be between 0% and 100%"
+    ] .
+
+# ================================
+# DOCTRINE OF 8 COMPLIANCE
+# ================================
+
+ba:SubEightTickGuarantee a owl:Class ;
+    rdfs:label "Sub-8-Tick Guarantee" ;
+    rdfs:comment "Guarantee that operations complete within 8 ticks" ;
+    rdfs:subClassOf ba:QualityOfService .
+
+ba:EightTickDeadline a owl:Class ;
+    rdfs:label "8-Tick Deadline" ;
+    rdfs:comment "Hard deadline of 8 ticks for critical operations" ;
+    rdfs:subClassOf ba:SubEightTickGuarantee .
+
+ba:DeterministicEightTickScheduling a owl:Class ;
+    rdfs:label "Deterministic 8-Tick Scheduling" ;
+    rdfs:comment "Deterministic scheduling ensuring sub-8-tick completion" ;
+    rdfs:subClassOf ba:DeterministicScheduling .
+
+# Validation for Doctrine of 8 compliance
+ba:DoctrineOfEightValidationShape
+    a sh:NodeShape ;
+    rdfs:label "Doctrine of 8 Validation" ;
+    rdfs:comment "Validates compliance with Doctrine of 8 performance guarantees" ;
+    sh:target [
+        sh:union (
+            ba:SubEightTickGuarantee
+            ba:EightTickDeadline
+            ba:DeterministicEightTickScheduling
+        )
+    ] ;
+    sh:property [
+        sh:path ba:hasExecutionTime ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Execution time must not exceed 8 ticks per Doctrine of 8"
+    ] ;
+    sh:property [
+        sh:path ba:hasDeadline ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Deadline must not exceed 8 ticks per Doctrine of 8"
+    ] ;
+    sh:property [
+        sh:path ba:hasLatencyGuarantee ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Latency guarantee must not exceed 8 ticks per Doctrine of 8"
+    ] .
+
+# ================================
+# PERFORMANCE INTEGRATION AXIOMS
+# ================================
+
+# All resource allocation operations must be measurable
+[
+    rdfs:label "Resource Allocation Measurability Axiom" ;
+    rdfs:comment "All resource allocation operations must have associated performance metrics"
+] : {
+    ?allocation a ba:ResourceAllocation .
+} => {
+    ?allocation ba:hasMeasurement ?metric .
+    ?metric a ba:ResourceAllocationMetric .
+} .
+
+# All deterministic scheduling must guarantee sub-8-tick performance
+[
+    rdfs:label "Deterministic Scheduling Performance Axiom" ;
+    rdfs:comment "All deterministic scheduling must provide sub-8-tick guarantees"
+] : {
+    ?scheduler a ba:DeterministicScheduling .
+} => {
+    ?scheduler ba:guaranteesQoS ?qos .
+    ?qos a ba:SubEightTickGuarantee .
+    ?qos ba:hasLatencyGuarantee ?latency .
+    FILTER (?latency <= 8.0)
+} .
+
+# All real-time scheduling must prevent deadline misses
+[
+    rdfs:label "Real-Time Scheduling Reliability Axiom" ;
+    rdfs:comment "All real-time scheduling must prevent deadline violations"
+] : {
+    ?scheduler a ba:RealTimeScheduling .
+} => {
+    ?scheduler ba:hasMeasurement ?metric .
+    ?metric a ba:DeadlineMissRatio .
+    ?metric ba:hasValue 0.0 .  # Zero deadline misses
+} .
+
+# All resource allocation must maintain fairness
+[
+    rdfs:label "Fair Allocation Axiom" ;
+    rdfs:comment "All fair allocation strategies must maintain measurable fairness"
+] : {
+    ?strategy a ba:FairAllocation .
+} => {
+    ?strategy ba:hasMeasurement ?fairness .
+    ?fairness a ba:FairnessIndex .
+    ?fairness ba:hasMinValue 0.8 .  # Minimum fairness threshold
+} .

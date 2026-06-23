@@ -1,0 +1,89 @@
+# Query to extract CLI command specifications for documentation generation
+# Returns commands with their arguments, options, and examples in structured format
+# Designed to produce JSON-LD output for Tera template rendering
+
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?command
+  ?commandName
+  ?commandDescription
+  ?commandGroup
+  ?commandAlias
+  ?commandDeprecated
+
+  # Arguments
+  ?argument
+  ?argName
+  ?argType
+  ?argRequired
+  ?argDefault
+  ?argHelp
+  ?argIndex
+
+  # Options
+  ?option
+  ?optName
+  ?optShort
+  ?optType
+  ?optRequired
+  ?optDefault
+  ?optHelp
+  ?optEnvVar
+  ?optMultiple
+
+  # Examples
+  ?example
+  ?exampleCommand
+  ?exampleDescription
+  ?exampleOutput
+
+WHERE {
+  # Command base entity
+  ?command a sk:Command .
+  ?command sk:commandName ?commandName .
+  ?command sk:commandDescription ?commandDescription .
+
+  # Optional command metadata
+  OPTIONAL { ?command sk:commandGroup ?commandGroup }
+  OPTIONAL { ?command sk:commandAlias ?commandAlias }
+  OPTIONAL { ?command sk:commandDeprecated ?commandDeprecated }
+
+  # Optional arguments (positional parameters)
+  OPTIONAL {
+    ?command sk:hasArgument ?argument .
+    ?argument sk:argumentName ?argName .
+    ?argument sk:argumentType ?argType .
+    ?argument sk:argumentRequired ?argRequired .
+
+    OPTIONAL { ?argument sk:argumentDefault ?argDefault }
+    OPTIONAL { ?argument sk:argumentHelp ?argHelp }
+    OPTIONAL { ?argument sk:argumentIndex ?argIndex }
+  }
+
+  # Optional options (flags and named parameters)
+  OPTIONAL {
+    ?command sk:hasOption ?option .
+    ?option sk:optionName ?optName .
+    ?option sk:optionType ?optType .
+
+    OPTIONAL { ?option sk:optionShort ?optShort }
+    OPTIONAL { ?option sk:optionRequired ?optRequired }
+    OPTIONAL { ?option sk:optionDefault ?optDefault }
+    OPTIONAL { ?option sk:optionHelp ?optHelp }
+    OPTIONAL { ?option sk:optionEnvVar ?optEnvVar }
+    OPTIONAL { ?option sk:optionMultiple ?optMultiple }
+  }
+
+  # Optional usage examples
+  OPTIONAL {
+    ?command sk:hasExample ?example .
+    ?example sk:exampleCommand ?exampleCommand .
+    ?example sk:exampleDescription ?exampleDescription .
+
+    OPTIONAL { ?example sk:exampleOutput ?exampleOutput }
+  }
+}
+ORDER BY ?commandGroup ?commandName ?argIndex ?optName ?example

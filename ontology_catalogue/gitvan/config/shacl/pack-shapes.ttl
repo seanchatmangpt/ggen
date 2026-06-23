@@ -1,0 +1,224 @@
+# SHACL Shapes for Pack System Validation
+# Validates pack definitions, dependencies, and metadata
+# Version: 1.0.0
+# Date: January 10, 2026
+
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix pack: <https://gitvan.dev/pack#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# PACK METADATA SHAPES
+# ============================================================================
+
+# Pack must have name and version
+pack:PackShape a sh:NodeShape ;
+  sh:targetClass pack:Pack ;
+  rdfs:label "Pack Shape" ;
+  rdfs:comment "Validates pack definition" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path pack:name ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:pattern "^[a-z0-9-]+$" ;
+    sh:message "Pack name must be lowercase alphanumeric with hyphens" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:version ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$" ;
+    sh:message "Pack version must follow semantic versioning (e.g., 1.2.3)" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:description ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Pack description should be a string" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:author ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Pack author should be a string" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:license ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ("MIT" "Apache-2.0" "GPL-3.0" "BSD-3-Clause" "ISC" "MPL-2.0") ;
+    sh:message "Pack license should be a recognized SPDX identifier" ;
+  ] .
+
+# ============================================================================
+# PACK DEPENDENCY SHAPES
+# ============================================================================
+
+# Dependency version range must be valid semver
+pack:DependencyVersionShape a sh:NodeShape ;
+  sh:targetClass pack:Dependency ;
+  rdfs:label "Dependency Version Shape" ;
+  rdfs:comment "Validates dependency version constraints" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path pack:versionRange ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[~^>=<\\d\\.]+(\\s+[~^>=<\\d\\.]+)*$" ;
+    sh:message "Version range must be valid semver constraint (e.g., ^1.2.0)" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:targetPack ;
+    sh:minCount 1 ;
+    sh:message "Dependency must specify target pack" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:isOptional ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "Optional flag should be boolean" ;
+  ] .
+
+# ============================================================================
+# PACK CONTENT SHAPES
+# ============================================================================
+
+# Pack template metadata
+pack:TemplateShape a sh:NodeShape ;
+  sh:targetClass pack:Template ;
+  rdfs:label "Pack Template Shape" ;
+  rdfs:comment "Validates template in pack" ;
+  sh:severity sh:Warning ;
+
+  sh:property [
+    sh:path pack:templateId ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Template must have ID" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:templateName ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Template must have name" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:templatePath ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Template must have path" ;
+  ] .
+
+# Pack job definition
+pack:JobShape a sh:NodeShape ;
+  sh:targetClass pack:Job ;
+  rdfs:label "Pack Job Shape" ;
+  rdfs:comment "Validates job in pack" ;
+  sh:severity sh:Warning ;
+
+  sh:property [
+    sh:path pack:jobId ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Job must have ID" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:jobName ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Job must have name" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:jobHandler ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Job must have handler reference" ;
+  ] .
+
+# Pack workflow definition
+pack:WorkflowShape a sh:NodeShape ;
+  sh:targetClass pack:Workflow ;
+  rdfs:label "Pack Workflow Shape" ;
+  rdfs:comment "Validates workflow in pack" ;
+  sh:severity sh:Warning ;
+
+  sh:property [
+    sh:path pack:workflowId ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Workflow must have ID" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:workflowName ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Workflow must have name" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:workflowPath ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Workflow must have path" ;
+  ] .
+
+# ============================================================================
+# PACK PUBLICATION SHAPES
+# ============================================================================
+
+# Pack manifest for publishing
+pack:ManifestShape a sh:NodeShape ;
+  sh:targetClass pack:Manifest ;
+  rdfs:label "Pack Manifest Shape" ;
+  rdfs:comment "Validates pack manifest for publishing" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path pack:name ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Manifest must specify pack name" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:version ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Manifest must specify version" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:files ;
+    sh:minCount 1 ;
+    sh:message "Manifest must list files" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:checksum ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Manifest must have checksum" ;
+  ] .

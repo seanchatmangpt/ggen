@@ -1,0 +1,74 @@
+@prefix dev: <https://gitvan.dev/developer#> .
+@prefix scrum: <https://gitvan.dev/scrum#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Definition of Done Validation Hook
+dev:definition-of-done-hook rdf:type gh:Hook ;
+    gv:title "Definition of Done Validation" ;
+    gh:hasPredicate dev:definition-of-done-predicate ;
+    gh:orderedPipelines dev:definition-of-done-pipeline .
+
+# Predicate: Check if work item meets Definition of Done
+dev:definition-of-done-predicate rdf:type gh:ASKPredicate ;
+    gh:queryText """
+        PREFIX scrum: <https://gitvan.dev/scrum#>
+        PREFIX dev: <https://gitvan.dev/developer#>
+        
+        ASK WHERE {
+            ?item rdf:type scrum:SprintBacklogItem ;
+                  scrum:status "in-progress" .
+            ?item scrum:hasDefinitionOfDone ?dod .
+            ?dod scrum:criteria ?criteria .
+            # Check if all criteria are met
+            FILTER NOT EXISTS {
+                ?criteria scrum:status "not-met"
+            }
+        }
+    """ ;
+    gh:description "Triggers when work item meets Definition of Done" .
+
+# Definition of Done Pipeline
+dev:definition-of-done-pipeline rdf:type op:Pipeline ;
+    op:steps dev:validate-criteria, dev:update-item-status, dev:notify-team .
+
+# Step 1: Validate Criteria
+dev:validate-criteria rdf:type gv:ShellStep ;
+    gv:command "echo 'Validating Definition of Done criteria...'" ;
+    gv:description "Check all Definition of Done criteria" .
+
+# Step 2: Update Item Status
+dev:update-item-status rdf:type gv:HttpStep ;
+    gv:httpUrl "https://api.scrum.com/sprint-items" ;
+    gv:httpMethod "PUT" ;
+    gv:headers '{"Content-Type": "application/json"}' ;
+    gv:body """
+        {
+            "action": "update-item-status",
+            "item": "{{ item.id }}",
+            "status": "done",
+            "developer": "{{ developer.id }}",
+            "sprint": "{{ sprint.id }}"
+        }
+    """ ;
+    gv:description "Update sprint backlog item status" ;
+    gv:dependsOn dev:validate-criteria .
+
+# Step 3: Notify Team
+dev:notify-team rdf:type gv:HttpStep ;
+    gv:httpUrl "https://api.scrum.com/notifications" ;
+    gv:httpMethod "POST" ;
+    gv:headers '{"Content-Type": "application/json"}' ;
+    gv:body """
+        {
+            "action": "notify-team",
+            "message": "Sprint item completed: {{ item.title }}",
+            "developer": "{{ developer.id }}",
+            "sprint": "{{ sprint.id }}"
+        }
+    """ ;
+    gv:description "Notify team of completed work" ;
+    gv:dependsOn dev:update-item-status .
+

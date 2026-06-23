@@ -1,0 +1,14 @@
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# AUDIT: FAIL if JSON/string collapse found without FORBIDDEN_COLLAPSE boundary classification
+# Query returns violations (empty result = PASS)
+SELECT ?collapse ?label
+WHERE {
+  ?collapse a pi:FORBIDDEN_COLLAPSE ;
+            rdfs:label ?label ;
+            dcterms:description ?desc .
+  FILTER (!BOUND(?collapse))
+}

@@ -1,0 +1,136 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix req:    <https://ggen.io/onto/requirements/> .
+
+# ============================================================================
+# Requirements Andon / CTQ Forge — SHACL Admission Shapes
+# ============================================================================
+#
+# These shapes are ADVISORY for external auditors / ad-hoc validation. The
+# authoritative admission semantics live in src/admission.rs (RequirementProposed
+# / CtqAdmitted / WorkOrderAdmitted ops) and src/server.rs handlers
+# (onto_propose_requirement / onto_admit_ctq / onto_admit_work_order). The
+# Rust gate denies with typed DefectClass values; this SHACL surface lets
+# tooling outside Rust check the same invariants.
+#
+# Every shape mirrors a defect in src/defects.rs:
+#
+#   RequirementWithoutSource         <-> SourceSignalShape
+#   CtqIncomplete{missing}           <-> CtqShape
+#   WorkOrderMissingCounterfactual   <-> WorkOrderShape
+#
+# ============================================================================
+
+# ── RequirementWithoutSource — every CandidateRequirement needs source voice ──
+
+req:SourceSignalShape
+  a sh:NodeShape ;
+  sh:name "SourceSignalShape" ;
+  sh:description "Mirrors RequirementWithoutSource. Every CandidateRequirement (and its subclass CandidateCtq) must have a non-empty hasSourceVoice." ;
+  sh:targetClass req:CandidateRequirement ;
+  sh:property [
+    sh:path req:hasSourceVoice ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:name "hasSourceVoice required" ;
+    sh:message "RequirementWithoutSource: hasSourceVoice is required and non-empty." ;
+  ] .
+
+# ── CtqIncomplete — every CandidateCtq needs all 5 CTQ fields ────────────────
+
+req:CtqShape
+  a sh:NodeShape ;
+  sh:name "CtqShape" ;
+  sh:description "Mirrors CtqIncomplete{missing}. A CandidateCtq must carry all 5 mandatory fields, all non-empty." ;
+  sh:targetClass req:CandidateCtq ;
+  sh:property [
+    sh:path req:hasCtqText ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "CtqIncomplete{missing=ctq_text}" ;
+  ] ;
+  sh:property [
+    sh:path req:hasMeasure ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "CtqIncomplete{missing=measure}" ;
+  ] ;
+  sh:property [
+    sh:path req:hasVerification ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "CtqIncomplete{missing=verification}" ;
+  ] ;
+  sh:property [
+    sh:path req:hasNegativeCase ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "CtqIncomplete{missing=negative_case}" ;
+  ] ;
+  sh:property [
+    sh:path req:hasControlPlan ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "CtqIncomplete{missing=control_plan}" ;
+  ] .
+
+# ── WorkOrderMissingCounterfactual ───────────────────────────────────────────
+
+req:WorkOrderShape
+  a sh:NodeShape ;
+  sh:name "WorkOrderShape" ;
+  sh:description "Mirrors WorkOrderMissingCounterfactual. A WorkOrder must derive from an admitted CTQ AND carry a counterfactual delta with all 3 fields non-empty." ;
+  sh:targetClass req:WorkOrder ;
+  sh:property [
+    sh:path req:derivesFromCtq ;
+    sh:minCount 1 ;
+    sh:class req:AdmittedCtq ;
+    sh:message "WorkOrder must derive from an AdmittedCtq." ;
+  ] ;
+  sh:property [
+    sh:path req:hasCounterfactual ;
+    sh:minCount 1 ;
+    sh:class req:Counterfactual ;
+    sh:message "WorkOrderMissingCounterfactual: hasCounterfactual is required." ;
+  ] .
+
+req:CounterfactualShape
+  a sh:NodeShape ;
+  sh:name "CounterfactualShape" ;
+  sh:description "Mirrors WorkOrderMissingCounterfactual. The counterfactual itself must carry all 3 string fields non-empty." ;
+  sh:targetClass req:Counterfactual ;
+  sh:property [
+    sh:path req:nakedCraftPath ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "WorkOrderMissingCounterfactual: nakedCraftPath required." ;
+  ] ;
+  sh:property [
+    sh:path req:manufacturingPath ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "WorkOrderMissingCounterfactual: manufacturingPath required." ;
+  ] ;
+  sh:property [
+    sh:path req:counterfactualDelta ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "WorkOrderMissingCounterfactual: counterfactualDelta required." ;
+  ] .

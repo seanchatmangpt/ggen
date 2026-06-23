@@ -1,0 +1,210 @@
+@prefix : <http://darkmatter.ai/ontology/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix pqc: <http://darkmatter.ai/ontology/pqc#> .
+@prefix acl: <http://darkmatter.ai/ontology/acl#> .
+
+# -- Core Domain Classes --
+
+:Project a rdfs:Class ;
+    rdfs:label "Project"@en ;
+    rdfs:comment "A container for tasks, resources, and user collaboration in a multi-tenant environment."@en .
+
+:User a rdfs:Class ;
+    rdfs:label "User"@en ;
+    rdfs:comment "An individual or agent interacting with the system, with role-based permissions."@en .
+
+:Task a rdfs:Class ;
+    rdfs:label "Task"@en ;
+    rdfs:comment "A single unit of work within a project, with status tracking and assignments."@en .
+
+:Asset a rdfs:Class ;
+    rdfs:label "Asset"@en ;
+    rdfs:comment "A digital resource or file associated with projects or tasks."@en .
+
+:Claim a rdfs:Class ;
+    rdfs:label "Claim"@en ;
+    rdfs:comment "A compliance or governance claim requiring verification and attestation."@en .
+
+:Policy a rdfs:Class ;
+    rdfs:label "Policy"@en ;
+    rdfs:comment "A governance rule or compliance requirement applied to resources."@en .
+
+# -- Tenant and Security Classes --
+
+:Tenant a rdfs:Class ;
+    rdfs:label "Tenant"@en ;
+    rdfs:comment "A logical boundary for multi-tenant data isolation and access control."@en .
+
+:Role a rdfs:Class ;
+    rdfs:label "Role"@en ;
+    rdfs:comment "A set of permissions and capabilities assigned to users."@en .
+
+:Permission a rdfs:Class ;
+    rdfs:label "Permission"@en ;
+    rdfs:comment "A specific capability to perform actions on resources."@en .
+
+# -- Core Properties --
+
+:hasTask a rdf:Property ;
+    rdfs:label "has task"@en ;
+    rdfs:comment "Relates a project to a task it contains."@en ;
+    rdfs:domain :Project ;
+    rdfs:range :Task .
+
+:hasMember a rdf:Property ;
+    rdfs:label "has member"@en ;
+    rdfs:comment "Relates a project to a user who is a member with specific role."@en ;
+    rdfs:domain :Project ;
+    rdfs:range :User .
+
+:belongsToTenant a rdf:Property ;
+    rdfs:label "belongs to tenant"@en ;
+    rdfs:comment "Indicates which tenant a resource belongs to for isolation."@en ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range :Tenant .
+
+:hasRole a rdf:Property ;
+    rdfs:label "has role"@en ;
+    rdfs:comment "Assigns a role to a user within a specific context."@en ;
+    rdfs:domain :User ;
+    rdfs:range :Role .
+
+:assignedTo a rdf:Property ;
+    rdfs:label "assigned to"@en ;
+    rdfs:comment "Assigns a task to a specific user."@en ;
+    rdfs:domain :Task ;
+    rdfs:range :User .
+
+:hasStatus a rdf:Property ;
+    rdfs:label "has status"@en ;
+    rdfs:comment "Current status of a task or claim."@en ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range xsd:string .
+
+:createdAt a rdf:Property ;
+    rdfs:label "created at"@en ;
+    rdfs:comment "Timestamp when the resource was created."@en ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range xsd:dateTime .
+
+:updatedAt a rdf:Property ;
+    rdfs:label "updated at"@en ;
+    rdfs:comment "Timestamp when the resource was last modified."@en ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range xsd:dateTime .
+
+# -- PQC and Security Properties --
+
+pqc:PqcSignature a rdfs:Class ;
+    rdfs:label "Post-Quantum Signature"@en ;
+    rdfs:comment "A digital signature generated using post-quantum cryptographic algorithms."@en .
+
+pqc:isSignedWith a rdf:Property ;
+    rdfs:label "is signed with"@en ;
+    rdfs:comment "Indicates that a resource is signed with a specific PQC signature."@en ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range pqc:PqcSignature .
+
+pqc:algorithm a rdf:Property ;
+    rdfs:label "algorithm"@en ;
+    rdfs:comment "The PQC algorithm used (dilithium, sphincs+)."@en ;
+    rdfs:domain pqc:PqcSignature ;
+    rdfs:range xsd:string .
+
+pqc:signature a rdf:Property ;
+    rdfs:label "signature"@en ;
+    rdfs:comment "The actual signature bytes in hex format."@en ;
+    rdfs:domain pqc:PqcSignature ;
+    rdfs:range xsd:string .
+
+# -- Access Control Annotations --
+
+acl:ReadRule a rdfs:Class ;
+    rdfs:label "Read Rule"@en ;
+    rdfs:comment "A rule defining read access conditions."@en .
+
+acl:WriteRule a rdfs:Class ;
+    rdfs:label "Write Rule"@en ;
+    rdfs:comment "A rule defining write access conditions."@en .
+
+acl:canBeReadBy a rdf:Property ;
+    rdfs:label "can be read by"@en ;
+    rdfs:comment "Specifies the condition under which a resource can be read."@en ;
+    rdfs:domain rdfs:Class ;
+    rdfs:range acl:ReadRule .
+
+acl:canBeWrittenBy a rdf:Property ;
+    rdfs:label "can be written by"@en ;
+    rdfs:comment "Specifies the condition under which a resource can be modified."@en ;
+    rdfs:domain rdfs:Class ;
+    rdfs:range acl:WriteRule .
+
+acl:ruleLogic a rdf:Property ;
+    rdfs:label "rule logic"@en ;
+    rdfs:comment "SQL-like expression defining the access rule logic."@en ;
+    rdfs:domain acl:ReadRule, acl:WriteRule ;
+    rdfs:range xsd:string .
+
+# -- RLS Policy Definitions --
+
+:Project acl:canBeReadBy [
+    a acl:ReadRule ;
+    acl:ruleLogic "auth.uid() IN (SELECT user_id FROM project_members WHERE project_id = projects.id)"
+] .
+
+:Task acl:canBeReadBy [
+    a acl:ReadRule ;
+    acl:ruleLogic "auth.uid() IN (SELECT user_id FROM project_members WHERE project_id = tasks.project_id)"
+] .
+
+:Asset acl:canBeReadBy [
+    a acl:ReadRule ;
+    acl:ruleLogic "auth.uid() = assets.created_by OR auth.uid() IN (SELECT user_id FROM project_members WHERE project_id = assets.project_id)"
+] .
+
+:Claim acl:canBeReadBy [
+    a acl:ReadRule ;
+    acl:ruleLogic "auth.jwt() ->> 'app_metadata' ->> 'role' IN ('admin', 'compliance_officer') OR auth.uid() = claims.created_by"
+] .
+
+# -- Capability Definitions for Code Generation --
+
+:Capability a rdfs:Class ;
+    rdfs:label "Capability"@en ;
+    rdfs:comment "A functional capability that generates specific code artifacts."@en .
+
+:codegen a rdf:Property ;
+    rdfs:label "code generation"@en ;
+    rdfs:comment "Links a capability to its code generation specifications."@en ;
+    rdfs:domain :Capability ;
+    rdfs:range :CodegenSpec .
+
+:CodegenSpec a rdfs:Class ;
+    rdfs:label "Code Generation Specification"@en ;
+    rdfs:comment "Specification for generating code artifacts from ontology."@en .
+
+:type a rdf:Property ;
+    rdfs:label "type"@en ;
+    rdfs:comment "Type of code generation (gen, db, test)."@en ;
+    rdfs:domain :CodegenSpec ;
+    rdfs:range xsd:string .
+
+:schema a rdf:Property ;
+    rdfs:label "schema"@en ;
+    rdfs:comment "Path to the schema file for generation."@en ;
+    rdfs:domain :CodegenSpec ;
+    rdfs:range xsd:string .
+
+:template a rdf:Property ;
+    rdfs:label "template"@en ;
+    rdfs:comment "Path to the template for code generation."@en ;
+    rdfs:domain :CodegenSpec ;
+    rdfs:range xsd:string .
+
+:output a rdf:Property ;
+    rdfs:label "output"@en ;
+    rdfs:comment "Output directory for generated code."@en ;
+    rdfs:domain :CodegenSpec ;
+    rdfs:range xsd:string .

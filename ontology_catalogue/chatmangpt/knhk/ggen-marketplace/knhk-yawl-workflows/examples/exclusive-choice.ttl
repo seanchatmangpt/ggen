@@ -1,0 +1,141 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Exclusive Choice Pattern (XOR)
+# Decision point where ONE of multiple paths is taken based on condition
+# YAWL Pattern: Exclusive Choice (XOR split)
+
+<http://example.org/workflow/exclusive-choice> a yawl:WorkflowSpecification ;
+    rdfs:label "Exclusive Choice Workflow" ;
+    rdfs:comment "Conditional branching where exactly one path is chosen" ;
+    dcterms:created "2024-11-16T00:00:00Z"^^xsd:dateTime ;
+    yawl:hasStartCondition <http://example.org/cond/start> ;
+    yawl:hasEndCondition <http://example.org/cond/end> ;
+    yawl:hasTask <http://example.org/task/start>,
+                  <http://example.org/task/decision>,
+                  <http://example.org/task/approved>,
+                  <http://example.org/task/rejected>,
+                  <http://example.org/task/end> ;
+    yawl:hasCondition <http://example.org/cond/start>,
+                      <http://example.org/cond/decision-output>,
+                      <http://example.org/cond/approved>,
+                      <http://example.org/cond/rejected>,
+                      <http://example.org/cond/merge>,
+                      <http://example.org/cond/end> .
+
+# === START TASK ===
+
+<http://example.org/task/start> a yawl:Task ;
+    rdfs:label "Prepare Request" ;
+    rdfs:comment "Prepare the request for decision" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasOutgoingFlow <http://example.org/cond/decision-output> .
+
+# === DECISION TASK (XOR SPLIT) ===
+
+<http://example.org/task/decision> a yawl:Task ;
+    rdfs:label "Decision Point" ;
+    rdfs:comment "Make decision based on request - uses XOR split for exclusive choice" ;
+    yawl:hasSplitType yawl:XOR ;  # XOR split - only ONE path will be taken
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/cond/decision-output> ;
+    yawl:hasOutgoingFlow <http://example.org/cond/approved>,
+                         <http://example.org/cond/rejected> ;
+    rdfs:comment "XOR routing is based on flow predicates" .
+
+# === EXCLUSIVE PATHS ===
+
+<http://example.org/task/approved> a yawl:Task ;
+    rdfs:label "Process Approved" ;
+    rdfs:comment "Handle approved request (only executes if decision is true)" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/cond/approved> ;
+    yawl:flowCondition "decision == true" ;  # Condition on incoming flow
+    yawl:hasOutgoingFlow <http://example.org/cond/merge> .
+
+<http://example.org/task/rejected> a yawl:Task ;
+    rdfs:label "Process Rejected" ;
+    rdfs:comment "Handle rejected request (only executes if decision is false)" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/cond/rejected> ;
+    yawl:flowCondition "decision == false" ;  # Condition on incoming flow
+    yawl:hasOutgoingFlow <http://example.org/cond/merge> .
+
+# === MERGE (SIMPLE MERGE) ===
+
+<http://example.org/task/end> a yawl:Task ;
+    rdfs:label "Complete" ;
+    rdfs:comment "Complete the workflow after either path" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/cond/merge> ;
+    yawl:hasOutgoingFlow <http://example.org/cond/end> .
+
+# === CONDITIONS (Places) ===
+
+<http://example.org/cond/start> a yawl:StartCondition ;
+    rdfs:label "Start" ;
+    yawl:hasOutgoingFlow <http://example.org/task/start> ;
+    yawl:initialMarking 1 .
+
+<http://example.org/cond/decision-output> a yawl:Condition ;
+    rdfs:label "Ready for Decision" ;
+    rdfs:comment "Output from start task, input to decision" ;
+    yawl:hasIncomingFlow <http://example.org/task/start> ;
+    yawl:hasOutgoingFlow <http://example.org/task/decision> ;
+    yawl:initialMarking 0 .
+
+<http://example.org/cond/approved> a yawl:Condition ;
+    rdfs:label "Approved Path" ;
+    rdfs:comment "Path taken when request is approved (decision true)" ;
+    yawl:hasIncomingFlow <http://example.org/task/decision> ;
+    yawl:hasOutgoingFlow <http://example.org/task/approved> ;
+    yawl:initialMarking 0 ;
+    yawl:flowPredicate "decision == true" .
+
+<http://example.org/cond/rejected> a yawl:Condition ;
+    rdfs:label "Rejected Path" ;
+    rdfs:comment "Path taken when request is rejected (decision false)" ;
+    yawl:hasIncomingFlow <http://example.org/task/decision> ;
+    yawl:hasOutgoingFlow <http://example.org/task/rejected> ;
+    yawl:initialMarking 0 ;
+    yawl:flowPredicate "decision == false" .
+
+<http://example.org/cond/merge> a yawl:Condition ;
+    rdfs:label "Merge Point" ;
+    rdfs:comment "Simple merge point - just passes through whichever path activated" ;
+    yawl:hasIncomingFlow <http://example.org/task/approved>,
+                         <http://example.org/task/rejected> ;
+    yawl:hasOutgoingFlow <http://example.org/task/end> ;
+    yawl:initialMarking 0 .
+
+<http://example.org/cond/end> a yawl:EndCondition ;
+    rdfs:label "End" ;
+    yawl:hasIncomingFlow <http://example.org/task/end> ;
+    yawl:initialMarking 0 .
+
+# === PATTERN METADATA ===
+
+<http://example.org/workflow/exclusive-choice>
+    yawl:patternName "ExclusiveChoice" ;
+    yawl:patternCategory "ControlFlow" ;
+    yawl:complexity "MEDIUM" ;
+    yawl:estimatedDuration "PT30M"^^xsd:duration ;
+    yawl:description "XOR split that routes to exactly one of multiple paths based on conditions" ;
+    yawl:routingSemantics "Only ONE of the outgoing flows will be taken" ;
+    yawl:mergeSemantics "Simple merge - paths converge without synchronization" .
+
+# === FLOW PREDICATE DEFINITIONS ===
+
+<http://example.org/predicate/approved> a yawl:FlowPredicate ;
+    rdfs:label "Approved" ;
+    yawl:predicateExpression "decision == true" .
+
+<http://example.org/predicate/rejected> a yawl:FlowPredicate ;
+    rdfs:label "Rejected" ;
+    yawl:predicateExpression "decision == false" .

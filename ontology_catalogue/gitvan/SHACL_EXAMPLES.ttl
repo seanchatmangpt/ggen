@@ -1,0 +1,573 @@
+# SHACL Shape Examples for GitVan
+# Ready-to-use SHACL shapes for validating GitVan ontologies
+# Version: 1.0
+# Date: January 10, 2026
+
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix gitv: <https://gitvan.dev/ontology/git#> .
+@prefix pack: <https://gitvan.dev/pack#> .
+@prefix cfg: <https://gitvan.dev/config#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# ============================================================================
+# SECTION 1: WORKFLOW VALIDATION SHAPES
+# ============================================================================
+
+# Workflow definition must have id, title, and at least one step
+gv:WorkflowShape a sh:NodeShape ;
+  sh:targetClass gv:Workflow ;
+  rdfs:label "Workflow Shape" ;
+  rdfs:comment "Validates complete workflow definition structure" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:id ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Workflow must have non-empty id" ;
+  ] ;
+
+  sh:property [
+    sh:path gv:title ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Workflow must have non-empty title" ;
+  ] ;
+
+  sh:property [
+    sh:path op:steps ;
+    sh:minCount 1 ;
+    sh:message "Workflow must have at least one step" ;
+  ] .
+
+# Pipeline must contain steps
+op:PipelineShape a sh:NodeShape ;
+  sh:targetClass op:Pipeline ;
+  rdfs:label "Pipeline Shape" ;
+  rdfs:comment "Ensures pipeline has steps" ;
+
+  sh:property [
+    sh:path op:steps ;
+    sh:minCount 1 ;
+    sh:message "Pipeline must contain at least one step" ;
+  ] .
+
+# ============================================================================
+# SECTION 2: WORKFLOW STEP TYPE SHAPES
+# ============================================================================
+
+# Base constraints for all workflow steps
+gv:BaseStepShape a sh:NodeShape ;
+  sh:targetClass gv:WorkflowStep ;
+  rdfs:label "Base Step Shape" ;
+  rdfs:comment "Common constraints for all step types" ;
+
+  sh:property [
+    sh:path gv:id ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Step must have id" ;
+  ] ;
+
+  sh:property [
+    sh:path gv:dependsOn ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Dependencies must reference other steps by IRI" ;
+  ] ;
+
+  sh:property [
+    sh:path gv:timeout ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 3600000 ;
+    sh:message "Timeout must be between 1ms and 1 hour (3600000ms)" ;
+  ] ;
+
+  sh:property [
+    sh:path gv:outputMapping ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+  ] .
+
+# SPARQL step must have SPARQL query text
+gv:SparqlStepShape a sh:NodeShape ;
+  sh:targetClass gv:SparqlStep ;
+  rdfs:label "SPARQL Step Shape" ;
+  rdfs:comment "Validates SPARQL step has required properties" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:text ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 10 ;
+    sh:message "SPARQL step must have query text (at least 10 characters)" ;
+  ] .
+
+# Template step must have template and file path
+gv:TemplateStepShape a sh:NodeShape ;
+  sh:targetClass gv:TemplateStep ;
+  rdfs:label "Template Step Shape" ;
+  rdfs:comment "Validates template step has required properties" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:text ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Template step must have template text" ;
+  ] ;
+
+  sh:property [
+    sh:path gv:filePath ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Template step must have output file path" ;
+  ] .
+
+# File step must have path and operation
+gv:FileStepShape a sh:NodeShape ;
+  sh:targetClass gv:FileStep ;
+  rdfs:label "File Step Shape" ;
+  rdfs:comment "Validates file step has required properties" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:filePath ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "File step must specify path" ;
+  ] ;
+
+  sh:property [
+    sh:path gv:operation ;
+    sh:maxCount 1 ;
+    sh:in ("read" "write" "append" "delete") ;
+    sh:message "File operation must be one of: read, write, append, delete" ;
+  ] .
+
+# HTTP step must have URL and method
+gv:HttpStepShape a sh:NodeShape ;
+  sh:targetClass gv:HttpStep ;
+  rdfs:label "HTTP Step Shape" ;
+  rdfs:comment "Validates HTTP step has required properties" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:httpUrl ;
+    sh:minCount 1 ;
+    sh:datatype xsd:anyURI ;
+    sh:message "HTTP step must have valid URL" ;
+  ] ;
+
+  sh:property [
+    sh:path gv:httpMethod ;
+    sh:minCount 1 ;
+    sh:in ("GET" "POST" "PUT" "DELETE" "PATCH" "HEAD" "OPTIONS") ;
+    sh:message "HTTP method must be one of: GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS" ;
+  ] .
+
+# CLI step must have command
+gv:CliStepShape a sh:NodeShape ;
+  sh:targetClass gv:CliStep ;
+  rdfs:label "CLI Step Shape" ;
+  rdfs:comment "Validates CLI step has required properties" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:cliCommand ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "CLI step must have command" ;
+  ] .
+
+# Git step must have command
+gv:GitStepShape a sh:NodeShape ;
+  sh:targetClass gv:GitStep ;
+  rdfs:label "Git Step Shape" ;
+  rdfs:comment "Validates Git step has required properties" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:gitCommand ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Git step must have command" ;
+  ] .
+
+# ============================================================================
+# SECTION 3: WORKFLOW DAG VALIDATION SHAPES
+# ============================================================================
+
+# Detect self-dependencies (step cannot depend on itself)
+gv:NoSelfDependencyShape a sh:NodeShape ;
+  sh:targetClass gv:WorkflowStep ;
+  rdfs:label "No Self Dependency Shape" ;
+  rdfs:comment "Step cannot depend on itself" ;
+  sh:severity sh:Violation ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Step cannot depend on itself" ;
+    sh:select """
+      PREFIX gv: <https://gitvan.dev/ontology#>
+      SELECT $this WHERE {
+        $this gv:dependsOn $this .
+      }
+    """ ;
+  ] .
+
+# Detect circular dependencies in workflow
+gv:AcyclicWorkflowShape a sh:NodeShape ;
+  sh:targetClass op:Pipeline ;
+  rdfs:label "Acyclic Workflow Shape" ;
+  rdfs:comment "Workflow must form a DAG (no circular dependencies)" ;
+  sh:severity sh:Violation ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Workflow contains circular dependency: {?cycle}" ;
+    sh:prefixes gv: ;
+    sh:select """
+      PREFIX gv: <https://gitvan.dev/ontology#>
+      PREFIX op: <https://gitvan.dev/op#>
+
+      SELECT DISTINCT $this ?cycle WHERE {
+        $this op:steps ?step .
+        ?step gv:dependsOn* ?intermediate .
+        ?intermediate gv:dependsOn+ ?step .
+        BIND(CONCAT(STR(?step), ' -> ', STR(?intermediate)) AS ?cycle)
+      }
+    """ ;
+  ] .
+
+# All dependencies must reference valid steps
+gv:ValidDependencyShape a sh:NodeShape ;
+  sh:targetClass gv:WorkflowStep ;
+  rdfs:label "Valid Dependency Shape" ;
+  rdfs:comment "Dependencies must reference existing steps in workflow" ;
+  sh:severity sh:Warning ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Dependency references non-existent step: {?dep}" ;
+    sh:select """
+      PREFIX gv: <https://gitvan.dev/ontology#>
+      PREFIX op: <https://gitvan.dev/op#>
+
+      SELECT $this ?dep WHERE {
+        $this gv:dependsOn ?dep .
+        FILTER NOT EXISTS {
+          ?parent op:steps ?dep .
+        }
+      }
+    """ ;
+  ] .
+
+# ============================================================================
+# SECTION 4: HOOK VALIDATION SHAPES
+# ============================================================================
+
+# Hook definition structure
+gh:HookShape a sh:NodeShape ;
+  sh:targetClass gh:Hook ;
+  rdfs:label "Hook Shape" ;
+  rdfs:comment "Validates hook definition has required components" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:title ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Hook must have non-empty title" ;
+  ] ;
+
+  sh:property [
+    sh:path gh:hasPredicate ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Hook must have exactly one predicate" ;
+  ] ;
+
+  sh:property [
+    sh:path gh:orderedPipelines ;
+    sh:minCount 1 ;
+    sh:message "Hook must have at least one pipeline" ;
+  ] .
+
+# Result Delta predicate must have query
+gh:ResultDeltaShape a sh:NodeShape ;
+  sh:targetClass gh:ResultDelta ;
+  rdfs:label "Result Delta Predicate Shape" ;
+  rdfs:comment "ResultDelta predicate must define SPARQL query" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gh:hasQuery ;
+    sh:minCount 1 ;
+    sh:message "ResultDelta predicate must have SPARQL query" ;
+  ] .
+
+# Select Threshold predicate requirements
+gh:SelectThresholdShape a sh:NodeShape ;
+  sh:targetClass gh:SelectThreshold ;
+  rdfs:label "Select Threshold Predicate Shape" ;
+  rdfs:comment "SelectThreshold predicate must have query, threshold, and operator" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gh:hasQuery ;
+    sh:minCount 1 ;
+    sh:message "SelectThreshold must have SPARQL query" ;
+  ] ;
+
+  sh:property [
+    sh:path gh:threshold ;
+    sh:minCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:message "SelectThreshold must have numeric threshold" ;
+  ] ;
+
+  sh:property [
+    sh:path gh:operator ;
+    sh:minCount 1 ;
+    sh:in (">" ">=" "<" "<=" "==" "!=") ;
+    sh:message "SelectThreshold operator must be valid comparison operator" ;
+  ] .
+
+# SHACL All Conform predicate
+gh:SHACLAllConformShape a sh:NodeShape ;
+  sh:targetClass gh:SHACLAllConform ;
+  rdfs:label "SHACL All Conform Predicate Shape" ;
+  rdfs:comment "SHACLAllConform predicate must define shapes" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gh:hasShapes ;
+    sh:minCount 1 ;
+    sh:message "SHACLAllConform predicate must specify SHACL shapes" ;
+  ] .
+
+# ============================================================================
+# SECTION 5: GIT EVENT VALIDATION SHAPES
+# ============================================================================
+
+# Base Git event constraints
+gitv:GitEventShape a sh:NodeShape ;
+  sh:targetClass gitv:GitEvent ;
+  rdfs:label "Git Event Shape" ;
+  rdfs:comment "Validates git event has required metadata" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gitv:eventType ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Git event must specify event type" ;
+  ] ;
+
+  sh:property [
+    sh:path gitv:timestamp ;
+    sh:minCount 1 ;
+    sh:datatype xsd:dateTime ;
+    sh:message "Git event must have valid ISO 8601 timestamp" ;
+  ] ;
+
+  sh:property [
+    sh:path gitv:exitCode ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:message "Exit code must be non-negative integer" ;
+  ] .
+
+# Pre-commit event must list staged files
+gitv:PreCommitEventShape a sh:NodeShape ;
+  sh:targetClass gitv:PreCommitEvent ;
+  rdfs:label "Pre-Commit Event Shape" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gitv:stagedFiles ;
+    sh:minCount 1 ;
+    sh:message "Pre-commit event must list staged files" ;
+  ] .
+
+# Post-push event must list pushed references
+gitv:PostPushEventShape a sh:NodeShape ;
+  sh:targetClass gitv:PostPushEvent ;
+  rdfs:label "Post-Push Event Shape" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gitv:pushedRefs ;
+    sh:minCount 1 ;
+    sh:message "Post-push event must list pushed references" ;
+  ] .
+
+# Post-checkout event must have branch information
+gitv:PostCheckoutEventShape a sh:NodeShape ;
+  sh:targetClass gitv:PostCheckoutEvent ;
+  rdfs:label "Post-Checkout Event Shape" ;
+  sh:severity sh:Warning ;
+
+  sh:property [
+    sh:path gitv:previousBranch ;
+    sh:maxCount 1 ;
+    sh:message "Post-checkout should indicate previous branch" ;
+  ] ;
+
+  sh:property [
+    sh:path gitv:currentBranch ;
+    sh:maxCount 1 ;
+    sh:message "Post-checkout should indicate current branch" ;
+  ] .
+
+# Duration must be reasonable (not negative, not extremely long)
+gitv:ReasonableDurationShape a sh:NodeShape ;
+  sh:targetClass gitv:GitEvent ;
+  rdfs:label "Reasonable Duration Shape" ;
+  rdfs:comment "Event duration should be within reasonable bounds" ;
+  sh:severity sh:Warning ;
+
+  sh:property [
+    sh:path gitv:duration ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 3600000 ;
+    sh:message "Duration should be between 0ms and 1 hour" ;
+  ] .
+
+# ============================================================================
+# SECTION 6: CONFIGURATION VALIDATION SHAPES
+# ============================================================================
+
+# Global hooks configuration constraints
+cfg:HooksConfigShape a sh:NodeShape ;
+  sh:targetClass cfg:HooksConfig ;
+  rdfs:label "Hooks Configuration Shape" ;
+  rdfs:comment "Validates hooks configuration values" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path cfg:auditRetentionDays ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 3650 ;
+    sh:message "Audit retention must be between 1 and 3650 days (10 years)" ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:maxConcurrency ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 256 ;
+    sh:message "Max concurrency must be between 1 and 256" ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:enableMetrics ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:enableTracing ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+  ] .
+
+# ============================================================================
+# SECTION 7: PACK SYSTEM VALIDATION SHAPES
+# ============================================================================
+
+# Pack must have name and version
+pack:PackShape a sh:NodeShape ;
+  sh:targetClass pack:Pack ;
+  rdfs:label "Pack Shape" ;
+  rdfs:comment "Validates pack definition" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path pack:name ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Pack must have unique name" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:version ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$" ;
+    sh:message "Pack version must follow semantic versioning (e.g., 1.2.3)" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:description ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+  ] .
+
+# Dependency version range must be valid semver
+pack:DependencyVersionShape a sh:NodeShape ;
+  sh:targetClass pack:Dependency ;
+  rdfs:label "Dependency Version Shape" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path pack:versionRange ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[~^>=<\\d\\.]+(\\s+[~^>=<\\d\\.]+)*$" ;
+    sh:message "Version range must be valid semver constraint (e.g., ^1.2.0)" ;
+  ] ;
+
+  sh:property [
+    sh:path pack:targetPack ;
+    sh:minCount 1 ;
+    sh:message "Dependency must specify target pack" ;
+  ] .
+
+# ============================================================================
+# END OF SHACL SHAPE EXAMPLES
+# ============================================================================
+# These shapes can be used to validate:
+# 1. Workflow definitions (.ttl files)
+# 2. Hook definitions in Turtle format
+# 3. Git events as RDF triples
+# 4. Configuration objects represented as RDF
+# 5. Pack metadata
+#
+# Usage:
+#   1. Load shapes with rdf-validate-shacl
+#   2. Validate data graph against these shapes
+#   3. Report violations and suggestions
+#
+# Reference: https://www.w3.org/TR/shacl/
+# ============================================================================

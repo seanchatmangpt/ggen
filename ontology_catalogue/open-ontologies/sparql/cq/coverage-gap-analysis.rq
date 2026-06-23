@@ -1,0 +1,9 @@
+# CQ-4: Which LIVE rules have no coverage (gap analysis)?
+PREFIX aat: <urn:ontostar:aat:live:>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?rule ?label ?requiredSpan WHERE {
+  ?rule a aat:LiveRule ;
+        rdfs:label ?label ;
+        aat:coverageStatus "none" .
+  OPTIONAL { ?rule aat:requiredSpan ?requiredSpan }
+} ORDER BY ?label

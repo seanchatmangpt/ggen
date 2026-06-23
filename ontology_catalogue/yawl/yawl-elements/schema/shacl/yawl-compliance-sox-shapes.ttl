@@ -1,0 +1,26 @@
+# SOX Compliance Shapes (minimal version for bridge generation)
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix yawl: <http://yawlfoundation.org/yawl#> .
+@prefix sox: <http://yawlfoundation.org/sox#> .
+
+sox:SOXComplianceShape a sh:NodeShape ;
+    rdfs:label "SOX Compliance" ;
+    rdfs:comment "SOX compliance requirements" ;
+    sh:targetClass yawl:Specification ;
+    sh:severity sh:Violation ;
+    sh:message "Process must comply with SOX requirements" .
+
+sox:FinancialTaskShape a sh:NodeShape ;
+    rdfs:label "Financial Task" ;
+    rdfs:comment "Tasks related to financial processing" ;
+    sh:targetClass yawl:Task ;
+    sh:severity sh:Violation ;
+    sh:message "Task involves financial data" .
+
+sox:ControlShape a sh:NodeShape ;
+    rdfs:label "Internal Control" ;
+    rdfs:comment "Internal control requirements" ;
+    sh:severity sh:Violation ;
+    sh:message "Controls must be properly documented" .

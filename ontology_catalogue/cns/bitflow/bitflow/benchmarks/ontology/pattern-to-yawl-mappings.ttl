@@ -1,0 +1,690 @@
+# Pattern-to-YAWL Mappings (Turtle/TTL Format)
+# Maps van der Aalst workflow patterns to YAWL v2 constructs for BitFlow execution
+# Addresses BitFlow performance fraud (52,704x) and missing patterns (35)
+# 
+# Author: YAWL_Specification_Analyst Agent
+# Date: 2025-08-02
+# Version: 2.0.0
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bwp: <http://bitflow.org/ontology/workflow-patterns#> .
+@prefix yawl: <http://www.yawlfoundation.org/ontology#> .
+@prefix yawlmap: <http://bitflow.org/ontology/yawl-mappings#> .
+@prefix perf: <http://bitflow.org/ontology/performance#> .
+
+# =====================================================================
+# ONTOLOGY METADATA
+# =====================================================================
+
+<http://bitflow.org/ontology/yawl-mappings> 
+    a owl:Ontology ;
+    owl:versionIRI <http://bitflow.org/ontology/yawl-mappings/2.0> ;
+    rdfs:label "BitFlow Pattern to YAWL Mappings"@en ;
+    rdfs:comment """Comprehensive mappings between van der Aalst workflow patterns 
+                    and YAWL v2 constructs for BitFlow execution engine."""@en ;
+    owl:versionInfo "2.0.0" ;
+    rdfs:seeAlso <http://www.yawlfoundation.org/> ;
+    rdfs:seeAlso <http://workflowpatterns.com> ;
+    owl:imports <http://bitflow.org/ontology/workflow-patterns> ;
+    owl:imports <http://www.yawlfoundation.org/ontology> .
+
+# =====================================================================
+# YAWL MAPPING CLASSES AND PROPERTIES
+# =====================================================================
+
+## Mapping Classes
+yawlmap:PatternMapping a owl:Class ;
+    rdfs:label "Pattern Mapping"@en ;
+    rdfs:comment "Maps a workflow pattern to YAWL constructs"@en .
+
+yawlmap:YAWLConstruct a owl:Class ;
+    rdfs:label "YAWL Construct"@en ;
+    rdfs:comment "YAWL language construct (task, condition, split, join)"@en .
+
+yawlmap:ExecutionSemantics a owl:Class ;
+    rdfs:label "Execution Semantics"@en ;
+    rdfs:comment "Defines execution semantics for pattern-to-YAWL mapping"@en .
+
+yawlmap:PerformanceConstraint a owl:Class ;
+    rdfs:label "Performance Constraint"@en ;
+    rdfs:comment "Performance constraints for YAWL execution (≤8 CPU ticks)"@en .
+
+## Mapping Properties
+yawlmap:mapsToYAWL a owl:ObjectProperty ;
+    rdfs:label "maps to YAWL"@en ;
+    rdfs:comment "Maps BitFlow pattern to YAWL construct"@en ;
+    rdfs:domain bwp:WorkflowPattern ;
+    rdfs:range yawlmap:YAWLConstruct .
+
+yawlmap:hasExecutionSemantics a owl:ObjectProperty ;
+    rdfs:label "has execution semantics"@en ;
+    rdfs:comment "Defines execution semantics for mapping"@en ;
+    rdfs:domain yawlmap:PatternMapping ;
+    rdfs:range yawlmap:ExecutionSemantics .
+
+yawlmap:hasPerformanceConstraint a owl:ObjectProperty ;
+    rdfs:label "has performance constraint"@en ;
+    rdfs:comment "Associates performance constraints with mapping"@en ;
+    rdfs:domain yawlmap:PatternMapping ;
+    rdfs:range yawlmap:PerformanceConstraint .
+
+yawlmap:implementationFunction a owl:DatatypeProperty ;
+    rdfs:label "implementation function"@en ;
+    rdfs:comment "C function name implementing the pattern"@en ;
+    rdfs:domain yawlmap:PatternMapping ;
+    rdfs:range xsd:string .
+
+yawlmap:yawlSpecificationId a owl:DatatypeProperty ;
+    rdfs:label "YAWL specification ID"@en ;
+    rdfs:comment "YAWL specification identifier"@en ;
+    rdfs:domain yawlmap:PatternMapping ;
+    rdfs:range xsd:string .
+
+yawlmap:yawlNetId a owl:DatatypeProperty ;
+    rdfs:label "YAWL net ID"@en ;
+    rdfs:comment "YAWL net identifier within specification"@en ;
+    rdfs:domain yawlmap:PatternMapping ;
+    rdfs:range xsd:string .
+
+yawlmap:executionComplexity a owl:DatatypeProperty ;
+    rdfs:label "execution complexity"@en ;
+    rdfs:comment "YAWL execution complexity in CPU ticks"@en ;
+    rdfs:domain yawlmap:ExecutionSemantics ;
+    rdfs:range xsd:unsignedByte .
+
+yawlmap:memoryRequirement a owl:DatatypeProperty ;
+    rdfs:label "memory requirement"@en ;
+    rdfs:comment "Memory requirement in bytes for YAWL execution"@en ;
+    rdfs:domain yawlmap:ExecutionSemantics ;
+    rdfs:range xsd:unsignedLong .
+
+yawlmap:timeoutDuration a owl:DatatypeProperty ;
+    rdfs:label "timeout duration"@en ;
+    rdfs:comment "Maximum execution timeout in nanoseconds"@en ;
+    rdfs:domain yawlmap:ExecutionSemantics ;
+    rdfs:range xsd:unsignedLong .
+
+# =====================================================================
+# YAWL CONSTRUCT DEFINITIONS
+# =====================================================================
+
+## YAWL Task Types
+yawl:AtomicTask a yawlmap:YAWLConstruct ;
+    rdfs:label "Atomic Task"@en ;
+    rdfs:comment "YAWL atomic task with single activity"@en .
+
+yawl:CompositeTask a yawlmap:YAWLConstruct ;
+    rdfs:label "Composite Task"@en ;
+    rdfs:comment "YAWL composite task with subnet"@en .
+
+yawl:MultipleInstanceTask a yawlmap:YAWLConstruct ;
+    rdfs:label "Multiple Instance Task"@en ;
+    rdfs:comment "YAWL task with multiple instances"@en .
+
+## YAWL Split/Join Types
+yawl:XORSplit a yawlmap:YAWLConstruct ;
+    rdfs:label "XOR Split"@en ;
+    rdfs:comment "YAWL exclusive choice split"@en .
+
+yawl:ANDSplit a yawlmap:YAWLConstruct ;
+    rdfs:label "AND Split"@en ;
+    rdfs:comment "YAWL parallel split"@en .
+
+yawl:ORSplit a yawlmap:YAWLConstruct ;
+    rdfs:label "OR Split"@en ;
+    rdfs:comment "YAWL multi-choice split"@en .
+
+yawl:XORJoin a yawlmap:YAWLConstruct ;
+    rdfs:label "XOR Join"@en ;
+    rdfs:comment "YAWL exclusive choice join"@en .
+
+yawl:ANDJoin a yawlmap:YAWLConstruct ;
+    rdfs:label "AND Join"@en ;
+    rdfs:comment "YAWL synchronization join"@en .
+
+yawl:ORJoin a yawlmap:YAWLConstruct ;
+    rdfs:label "OR Join"@en ;
+    rdfs:comment "YAWL multi-merge join"@en .
+
+## YAWL Conditions
+yawl:InputCondition a yawlmap:YAWLConstruct ;
+    rdfs:label "Input Condition"@en ;
+    rdfs:comment "YAWL workflow start condition"@en .
+
+yawl:OutputCondition a yawlmap:YAWLConstruct ;
+    rdfs:label "Output Condition"@en ;
+    rdfs:comment "YAWL workflow end condition"@en .
+
+yawl:Condition a yawlmap:YAWLConstruct ;
+    rdfs:label "Condition"@en ;
+    rdfs:comment "YAWL intermediate condition"@en .
+
+# =====================================================================
+# PATTERN MAPPINGS: BASIC CONTROL FLOW (WCP 1-5) - IMPLEMENTED
+# =====================================================================
+
+## WCP-1: Sequence Pattern Mapping
+yawlmap:SequenceMapping a yawlmap:PatternMapping ;
+    rdfs:label "Sequence Pattern Mapping"@en ;
+    rdfs:comment "Maps WCP-1 Sequence to YAWL sequential tasks"@en ;
+    yawlmap:mapsPattern bwp:Sequence ;
+    yawlmap:mapsToYAWL yawl:AtomicTask ;
+    yawlmap:yawlSpecificationId "basic-control-flow" ;
+    yawlmap:yawlNetId "SequencePattern" ;
+    yawlmap:implementationFunction "bitflow_pattern_sequence_a, bitflow_pattern_sequence_b" ;
+    yawlmap:hasExecutionSemantics yawlmap:SequenceSemantics ;
+    yawlmap:hasPerformanceConstraint yawlmap:SequenceConstraints .
+
+yawlmap:SequenceSemantics a yawlmap:ExecutionSemantics ;
+    rdfs:label "Sequence Execution Semantics"@en ;
+    rdfs:comment "Task A followed by Task B in strict sequential order"@en ;
+    yawlmap:executionComplexity 2 ;  # 2 CPU ticks total
+    yawlmap:memoryRequirement 32 ;   # 32 bytes
+    yawlmap:timeoutDuration 100000 . # 100μs
+
+yawlmap:SequenceConstraints a yawlmap:PerformanceConstraint ;
+    rdfs:label "Sequence Performance Constraints"@en ;
+    perf:executionComplexity "O(1)" ;
+    perf:memoryFootprint 32 ;
+    perf:estimatedThroughput 1000000 ;
+    perf:estimatedLatency 100 .
+
+bwp:Sequence yawlmap:mapsToYAWL yawl:AtomicTask .
+
+## WCP-2: Parallel Split Pattern Mapping
+yawlmap:ParallelSplitMapping a yawlmap:PatternMapping ;
+    rdfs:label "Parallel Split Pattern Mapping"@en ;
+    rdfs:comment "Maps WCP-2 Parallel Split to YAWL AND-split"@en ;
+    yawlmap:mapsPattern bwp:ParallelSplit ;
+    yawlmap:mapsToYAWL yawl:ANDSplit ;
+    yawlmap:yawlSpecificationId "basic-control-flow" ;
+    yawlmap:yawlNetId "ParallelSplitPattern" ;
+    yawlmap:implementationFunction "bitflow_pattern_parallel_split" ;
+    yawlmap:hasExecutionSemantics yawlmap:ParallelSplitSemantics ;
+    yawlmap:hasPerformanceConstraint yawlmap:ParallelSplitConstraints .
+
+yawlmap:ParallelSplitSemantics a yawlmap:ExecutionSemantics ;
+    rdfs:label "Parallel Split Execution Semantics"@en ;
+    rdfs:comment "Single thread splits into multiple parallel threads"@en ;
+    yawlmap:executionComplexity 4 ;  # 4 CPU ticks for split + sync
+    yawlmap:memoryRequirement 64 ;   # 64 bytes
+    yawlmap:timeoutDuration 200000 . # 200μs
+
+yawlmap:ParallelSplitConstraints a yawlmap:PerformanceConstraint ;
+    rdfs:label "Parallel Split Performance Constraints"@en ;
+    perf:executionComplexity "O(n)" ;
+    perf:memoryFootprint 64 ;
+    perf:estimatedThroughput 500000 ;
+    perf:estimatedLatency 200 .
+
+bwp:ParallelSplit yawlmap:mapsToYAWL yawl:ANDSplit .
+
+## WCP-3: Synchronization Pattern Mapping
+yawlmap:SynchronizationMapping a yawlmap:PatternMapping ;
+    rdfs:label "Synchronization Pattern Mapping"@en ;
+    rdfs:comment "Maps WCP-3 Synchronization to YAWL AND-join"@en ;
+    yawlmap:mapsPattern bwp:Synchronization ;
+    yawlmap:mapsToYAWL yawl:ANDJoin ;
+    yawlmap:yawlSpecificationId "basic-control-flow" ;
+    yawlmap:yawlNetId "ParallelSplitPattern" ;
+    yawlmap:implementationFunction "bitflow_pattern_synchronization" ;
+    yawlmap:hasExecutionSemantics yawlmap:SynchronizationSemantics ;
+    yawlmap:hasPerformanceConstraint yawlmap:SynchronizationConstraints .
+
+yawlmap:SynchronizationSemantics a yawlmap:ExecutionSemantics ;
+    rdfs:label "Synchronization Execution Semantics"@en ;
+    rdfs:comment "Multiple parallel threads converge into single thread"@en ;
+    yawlmap:executionComplexity 4 ;  # 4 CPU ticks for synchronization
+    yawlmap:memoryRequirement 96 ;   # 96 bytes
+    yawlmap:timeoutDuration 300000 . # 300μs
+
+yawlmap:SynchronizationConstraints a yawlmap:PerformanceConstraint ;
+    rdfs:label "Synchronization Performance Constraints"@en ;
+    perf:executionComplexity "O(n)" ;
+    perf:memoryFootprint 96 ;
+    perf:estimatedThroughput 400000 ;
+    perf:estimatedLatency 300 .
+
+bwp:Synchronization yawlmap:mapsToYAWL yawl:ANDJoin .
+
+## WCP-4: Exclusive Choice Pattern Mapping
+yawlmap:ExclusiveChoiceMapping a yawlmap:PatternMapping ;
+    rdfs:label "Exclusive Choice Pattern Mapping"@en ;
+    rdfs:comment "Maps WCP-4 Exclusive Choice to YAWL XOR-split"@en ;
+    yawlmap:mapsPattern bwp:ExclusiveChoice ;
+    yawlmap:mapsToYAWL yawl:XORSplit ;
+    yawlmap:yawlSpecificationId "basic-control-flow" ;
+    yawlmap:yawlNetId "ExclusiveChoicePattern" ;
+    yawlmap:implementationFunction "bitflow_pattern_exclusive_choice" ;
+    yawlmap:hasExecutionSemantics yawlmap:ExclusiveChoiceSemantics ;
+    yawlmap:hasPerformanceConstraint yawlmap:ExclusiveChoiceConstraints .
+
+yawlmap:ExclusiveChoiceSemantics a yawlmap:ExecutionSemantics ;
+    rdfs:label "Exclusive Choice Execution Semantics"@en ;
+    rdfs:comment "Single thread chooses one of several alternatives"@en ;
+    yawlmap:executionComplexity 2 ;  # 2 CPU ticks for choice evaluation
+    yawlmap:memoryRequirement 48 ;   # 48 bytes
+    yawlmap:timeoutDuration 150000 . # 150μs
+
+yawlmap:ExclusiveChoiceConstraints a yawlmap:PerformanceConstraint ;
+    rdfs:label "Exclusive Choice Performance Constraints"@en ;
+    perf:executionComplexity "O(1)" ;
+    perf:memoryFootprint 48 ;
+    perf:estimatedThroughput 800000 ;
+    perf:estimatedLatency 150 .
+
+bwp:ExclusiveChoice yawlmap:mapsToYAWL yawl:XORSplit .
+
+## WCP-5: Simple Merge Pattern Mapping
+yawlmap:SimpleMergeMapping a yawlmap:PatternMapping ;
+    rdfs:label "Simple Merge Pattern Mapping"@en ;
+    rdfs:comment "Maps WCP-5 Simple Merge to YAWL XOR-join"@en ;
+    yawlmap:mapsPattern bwp:SimpleMerge ;
+    yawlmap:mapsToYAWL yawl:XORJoin ;
+    yawlmap:yawlSpecificationId "basic-control-flow" ;
+    yawlmap:yawlNetId "ExclusiveChoicePattern" ;
+    yawlmap:implementationFunction "bitflow_pattern_simple_merge" ;
+    yawlmap:hasExecutionSemantics yawlmap:SimpleMergeSemantics ;
+    yawlmap:hasPerformanceConstraint yawlmap:SimpleMergeConstraints .
+
+yawlmap:SimpleMergeSemantics a yawlmap:ExecutionSemantics ;
+    rdfs:label "Simple Merge Execution Semantics"@en ;
+    rdfs:comment "One of several alternative branches reconverges"@en ;
+    yawlmap:executionComplexity 1 ;  # 1 CPU tick for merge
+    yawlmap:memoryRequirement 40 ;   # 40 bytes
+    yawlmap:timeoutDuration 125000 . # 125μs
+
+yawlmap:SimpleMergeConstraints a yawlmap:PerformanceConstraint ;
+    rdfs:label "Simple Merge Performance Constraints"@en ;
+    perf:executionComplexity "O(1)" ;
+    perf:memoryFootprint 40 ;
+    perf:estimatedThroughput 750000 ;
+    perf:estimatedLatency 125 .
+
+bwp:SimpleMerge yawlmap:mapsToYAWL yawl:XORJoin .
+
+# =====================================================================
+# PATTERN MAPPINGS: ADVANCED PATTERNS (WCP 6-25) - MISSING
+# =====================================================================
+
+## WCP-6: Multi-Choice Pattern Mapping (MISSING - CRITICAL)
+yawlmap:MultiChoiceMapping a yawlmap:PatternMapping ;
+    rdfs:label "Multi-Choice Pattern Mapping"@en ;
+    rdfs:comment "Maps WCP-6 Multi-Choice to YAWL OR-split (MISSING IMPLEMENTATION)"@en ;
+    yawlmap:mapsPattern bwp:MultiChoice ;
+    yawlmap:mapsToYAWL yawl:ORSplit ;
+    yawlmap:yawlSpecificationId "advanced-patterns" ;
+    yawlmap:yawlNetId "MultiChoicePattern" ;
+    yawlmap:implementationFunction "bitflow_pattern_multi_choice_STUB" ;
+    yawlmap:hasExecutionSemantics yawlmap:MultiChoiceSemantics ;
+    yawlmap:hasPerformanceConstraint yawlmap:MultiChoiceConstraints .
+
+yawlmap:MultiChoiceSemantics a yawlmap:ExecutionSemantics ;
+    rdfs:label "Multi-Choice Execution Semantics"@en ;
+    rdfs:comment "One or more branches can be chosen based on decision (PERFORMANCE CRITICAL)"@en ;
+    yawlmap:executionComplexity 8 ;  # 8 CPU ticks maximum
+    yawlmap:memoryRequirement 128 ;  # 128 bytes
+    yawlmap:timeoutDuration 1000000 . # 1ms
+
+yawlmap:MultiChoiceConstraints a yawlmap:PerformanceConstraint ;
+    rdfs:label "Multi-Choice Performance Constraints"@en ;
+    rdfs:comment "CRITICAL: Addresses 52,704x performance fraud"@en ;
+    perf:executionComplexity "O(2^n)" ;
+    perf:memoryFootprint 128 ;
+    perf:estimatedThroughput 100000 ;
+    perf:estimatedLatency 1000 ;
+    bwp:criticalForPerformance true .
+
+bwp:MultiChoice yawlmap:mapsToYAWL yawl:ORSplit .
+
+## WCP-7: Structured Synchronizing Merge Pattern Mapping (MISSING - CRITICAL)
+yawlmap:StructuredSyncMergeMapping a yawlmap:PatternMapping ;
+    rdfs:label "Structured Synchronizing Merge Pattern Mapping"@en ;
+    rdfs:comment "Maps WCP-7 Structured Synchronizing Merge to YAWL OR-join (MISSING)"@en ;
+    yawlmap:mapsPattern bwp:StructuredSynchronizingMerge ;
+    yawlmap:mapsToYAWL yawl:ORJoin ;
+    yawlmap:yawlSpecificationId "advanced-patterns" ;
+    yawlmap:yawlNetId "MultiChoicePattern" ;
+    yawlmap:implementationFunction "bitflow_pattern_structured_sync_merge_STUB" ;
+    yawlmap:hasExecutionSemantics yawlmap:StructuredSyncMergeSemantics ;
+    yawlmap:hasPerformanceConstraint yawlmap:StructuredSyncMergeConstraints .
+
+yawlmap:StructuredSyncMergeSemantics a yawlmap:ExecutionSemantics ;
+    rdfs:label "Structured Synchronizing Merge Execution Semantics"@en ;
+    rdfs:comment "Merge pattern for multi-choice that waits for active branches"@en ;
+    yawlmap:executionComplexity 8 ;  # 8 CPU ticks maximum
+    yawlmap:memoryRequirement 256 ;  # 256 bytes
+    yawlmap:timeoutDuration 1500000 . # 1.5ms
+
+yawlmap:StructuredSyncMergeConstraints a yawlmap:PerformanceConstraint ;
+    rdfs:label "Structured Synchronizing Merge Performance Constraints"@en ;
+    rdfs:comment "CRITICAL: Required for multi-choice pattern completion"@en ;
+    perf:executionComplexity "O(n)" ;
+    perf:memoryFootprint 256 ;
+    perf:estimatedThroughput 80000 ;
+    perf:estimatedLatency 1500 ;
+    bwp:criticalForPerformance true .
+
+bwp:StructuredSynchronizingMerge yawlmap:mapsToYAWL yawl:ORJoin .
+
+## WCP-12: Multiple Instances without Synchronization (MISSING - CRITICAL)
+yawlmap:MultipleInstancesMapping a yawlmap:PatternMapping ;
+    rdfs:label "Multiple Instances Pattern Mapping"@en ;
+    rdfs:comment "Maps WCP-12 Multiple Instances to YAWL MI task (MISSING)"@en ;
+    yawlmap:mapsPattern bwp:MultipleInstancesWithoutSynchronization ;
+    yawlmap:mapsToYAWL yawl:MultipleInstanceTask ;
+    yawlmap:yawlSpecificationId "advanced-patterns" ;
+    yawlmap:yawlNetId "MultipleInstancePattern" ;
+    yawlmap:implementationFunction "bitflow_pattern_multiple_instance_worker_STUB" ;
+    yawlmap:hasExecutionSemantics yawlmap:MultipleInstancesSemantics ;
+    yawlmap:hasPerformanceConstraint yawlmap:MultipleInstancesConstraints .
+
+yawlmap:MultipleInstancesSemantics a yawlmap:ExecutionSemantics ;
+    rdfs:label "Multiple Instances Execution Semantics"@en ;
+    rdfs:comment "Multiple instances of task without synchronization"@en ;
+    yawlmap:executionComplexity 8 ;  # 8 CPU ticks per instance
+    yawlmap:memoryRequirement 384 ;  # 384 bytes total
+    yawlmap:timeoutDuration 600000 . # 600μs
+
+yawlmap:MultipleInstancesConstraints a yawlmap:PerformanceConstraint ;
+    rdfs:label "Multiple Instances Performance Constraints"@en ;
+    rdfs:comment "CRITICAL: High memory usage pattern"@en ;
+    perf:executionComplexity "O(n)" ;
+    perf:memoryFootprint 384 ;
+    perf:estimatedThroughput 150000 ;
+    perf:estimatedLatency 600 ;
+    bwp:criticalForPerformance true .
+
+bwp:MultipleInstancesWithoutSynchronization yawlmap:mapsToYAWL yawl:MultipleInstanceTask .
+
+## WCP-16: Deferred Choice Pattern Mapping (MISSING - STATE-BASED)
+yawlmap:DeferredChoiceMapping a yawlmap:PatternMapping ;
+    rdfs:label "Deferred Choice Pattern Mapping"@en ;
+    rdfs:comment "Maps WCP-16 Deferred Choice to YAWL event-driven tasks (MISSING)"@en ;
+    yawlmap:mapsPattern bwp:DeferredChoice ;
+    yawlmap:mapsToYAWL yawl:AtomicTask ;
+    yawlmap:yawlSpecificationId "advanced-patterns" ;
+    yawlmap:yawlNetId "DeferredChoicePattern" ;
+    yawlmap:implementationFunction "bitflow_event_listener_STUB, bitflow_event_handler_STUB" ;
+    yawlmap:hasExecutionSemantics yawlmap:DeferredChoiceSemantics ;
+    yawlmap:hasPerformanceConstraint yawlmap:DeferredChoiceConstraints .
+
+yawlmap:DeferredChoiceSemantics a yawlmap:ExecutionSemantics ;
+    rdfs:label "Deferred Choice Execution Semantics"@en ;
+    rdfs:comment "Choice between alternatives made by environment, not workflow"@en ;
+    yawlmap:executionComplexity 6 ;  # 6 CPU ticks for event handling
+    yawlmap:memoryRequirement 160 ;  # 160 bytes
+    yawlmap:timeoutDuration 550000 . # 550μs
+
+yawlmap:DeferredChoiceConstraints a yawlmap:PerformanceConstraint ;
+    rdfs:label "Deferred Choice Performance Constraints"@en ;
+    rdfs:comment "Event-driven pattern with external dependencies"@en ;
+    perf:executionComplexity "O(n)" ;
+    perf:memoryFootprint 160 ;
+    perf:estimatedThroughput 180000 ;
+    perf:estimatedLatency 550 .
+
+bwp:DeferredChoice yawlmap:mapsToYAWL yawl:AtomicTask .
+
+# =====================================================================
+# PATTERN MAPPINGS: BITFLOW EXTENSION PATTERNS (26-43) - CRITICAL
+# =====================================================================
+
+## BF-26: Bulk Execution Pattern Mapping (CRITICAL FOR 52,704x FRAUD)
+yawlmap:BulkExecutionMapping a yawlmap:PatternMapping ;
+    rdfs:label "Bulk Execution Pattern Mapping"@en ;
+    rdfs:comment "Maps BF-26 Bulk Execution to YAWL vectorized task (CRITICAL)"@en ;
+    yawlmap:mapsPattern bwp:BulkExecution ;
+    yawlmap:mapsToYAWL yawl:AtomicTask ;
+    yawlmap:yawlSpecificationId "extension-patterns" ;
+    yawlmap:yawlNetId "BulkExecutionPattern" ;
+    yawlmap:implementationFunction "bitflow_pattern_bulk_execution_STUB" ;
+    yawlmap:hasExecutionSemantics yawlmap:BulkExecutionSemantics ;
+    yawlmap:hasPerformanceConstraint yawlmap:BulkExecutionConstraints .
+
+yawlmap:BulkExecutionSemantics a yawlmap:ExecutionSemantics ;
+    rdfs:label "Bulk Execution Execution Semantics"@en ;
+    rdfs:comment "Execute multiple instances in vectorized batch - ADDRESSES 52,704x FRAUD"@en ;
+    yawlmap:executionComplexity 4 ;  # 4 CPU ticks for vectorized batch
+    yawlmap:memoryRequirement 1024 ; # 1KB for batch processing
+    yawlmap:timeoutDuration 50000 .  # 50μs ultra-fast
+
+yawlmap:BulkExecutionConstraints a yawlmap:PerformanceConstraint ;
+    rdfs:label "Bulk Execution Performance Constraints"@en ;
+    rdfs:comment "CRITICAL: Must achieve 2M ops/sec to address performance fraud"@en ;
+    perf:executionComplexity "O(n/k)" ;
+    perf:memoryFootprint 1024 ;
+    perf:estimatedThroughput 2000000 ;
+    perf:estimatedLatency 50 ;
+    bwp:criticalForPerformance true ;
+    bwp:performanceImpact "CRITICAL" .
+
+bwp:BulkExecution yawlmap:mapsToYAWL yawl:AtomicTask .
+
+## BF-27: Pipelined Execution Pattern Mapping (CRITICAL FOR 374MB LEAK)
+yawlmap:PipelinedExecutionMapping a yawlmap:PatternMapping ;
+    rdfs:label "Pipelined Execution Pattern Mapping"@en ;
+    rdfs:comment "Maps BF-27 Pipelined Execution to YAWL pipeline task (CRITICAL)"@en ;
+    yawlmap:mapsPattern bwp:PipelinedExecution ;
+    yawlmap:mapsToYAWL yawl:CompositeTask ;
+    yawlmap:yawlSpecificationId "extension-patterns" ;
+    yawlmap:yawlNetId "PipelinedExecutionPattern" ;
+    yawlmap:implementationFunction "bitflow_pipeline_stage_STUB" ;
+    yawlmap:hasExecutionSemantics yawlmap:PipelinedExecutionSemantics ;
+    yawlmap:hasPerformanceConstraint yawlmap:PipelinedExecutionConstraints .
+
+yawlmap:PipelinedExecutionSemantics a yawlmap:ExecutionSemantics ;
+    rdfs:label "Pipelined Execution Execution Semantics"@en ;
+    rdfs:comment "Pipeline stages with overlapping execution - ADDRESSES 374MB MEMORY LEAK"@en ;
+    yawlmap:executionComplexity 6 ;  # 6 CPU ticks for pipeline coordination
+    yawlmap:memoryRequirement 512 ;  # 512 bytes controlled memory
+    yawlmap:timeoutDuration 75000 .  # 75μs
+
+yawlmap:PipelinedExecutionConstraints a yawlmap:PerformanceConstraint ;
+    rdfs:label "Pipelined Execution Performance Constraints"@en ;
+    rdfs:comment "CRITICAL: Must prevent memory leaks through controlled pipeline"@en ;
+    perf:executionComplexity "O(n+k)" ;
+    perf:memoryFootprint 512 ;
+    perf:estimatedThroughput 1500000 ;
+    perf:estimatedLatency 75 ;
+    bwp:criticalForPerformance true ;
+    bwp:performanceImpact "CRITICAL" .
+
+bwp:PipelinedExecution yawlmap:mapsToYAWL yawl:CompositeTask .
+
+## BF-36: Lock-Free Coordination Pattern Mapping (ULTRA-HIGH PERFORMANCE)
+yawlmap:LockFreeCoordinationMapping a yawlmap:PatternMapping ;
+    rdfs:label "Lock-Free Coordination Pattern Mapping"@en ;
+    rdfs:comment "Maps BF-36 Lock-Free Coordination to YAWL atomic task (ULTRA-FAST)"@en ;
+    yawlmap:mapsPattern bwp:LockFreeCoordination ;
+    yawlmap:mapsToYAWL yawl:AtomicTask ;
+    yawlmap:yawlSpecificationId "extension-patterns" ;
+    yawlmap:yawlNetId "LockFreeCoordinationPattern" ;
+    yawlmap:implementationFunction "bitflow_lockfree_coordinator_STUB" ;
+    yawlmap:hasExecutionSemantics yawlmap:LockFreeCoordinationSemantics ;
+    yawlmap:hasPerformanceConstraint yawlmap:LockFreeCoordinationConstraints .
+
+yawlmap:LockFreeCoordinationSemantics a yawlmap:ExecutionSemantics ;
+    rdfs:label "Lock-Free Coordination Execution Semantics"@en ;
+    rdfs:comment "Lock-free synchronization using atomic operations - MAXIMUM PERFORMANCE"@en ;
+    yawlmap:executionComplexity 1 ;  # 1 CPU tick only
+    yawlmap:memoryRequirement 64 ;   # 64 bytes minimal
+    yawlmap:timeoutDuration 20000 .  # 20μs ultra-fast
+
+yawlmap:LockFreeCoordinationConstraints a yawlmap:PerformanceConstraint ;
+    rdfs:label "Lock-Free Coordination Performance Constraints"@en ;
+    rdfs:comment "ULTRA-HIGH PERFORMANCE: 5M ops/sec target"@en ;
+    perf:executionComplexity "O(1)" ;
+    perf:memoryFootprint 64 ;
+    perf:estimatedThroughput 5000000 ;
+    perf:estimatedLatency 20 ;
+    bwp:criticalForPerformance true ;
+    bwp:performanceImpact "CRITICAL" .
+
+bwp:LockFreeCoordination yawlmap:mapsToYAWL yawl:AtomicTask .
+
+# =====================================================================
+# EXECUTION SEMANTIC RULES
+# =====================================================================
+
+## Semantic Rule Classes
+yawlmap:SemanticRule a owl:Class ;
+    rdfs:label "Semantic Rule"@en ;
+    rdfs:comment "Rule governing YAWL execution semantics"@en .
+
+yawlmap:PerformanceRule a owl:Class ;
+    rdfs:label "Performance Rule"@en ;
+    rdfs:comment "Rule enforcing performance constraints"@en ;
+    rdfs:subClassOf yawlmap:SemanticRule .
+
+yawlmap:MemoryRule a owl:Class ;
+    rdfs:label "Memory Rule"@en ;
+    rdfs:comment "Rule governing memory usage"@en ;
+    rdfs:subClassOf yawlmap:SemanticRule .
+
+## Rule Properties
+yawlmap:enforcesConstraint a owl:ObjectProperty ;
+    rdfs:label "enforces constraint"@en ;
+    rdfs:comment "Rule enforces a specific constraint"@en ;
+    rdfs:domain yawlmap:SemanticRule ;
+    rdfs:range yawlmap:PerformanceConstraint .
+
+yawlmap:ruleExpression a owl:DatatypeProperty ;
+    rdfs:label "rule expression"@en ;
+    rdfs:comment "Logical expression defining the rule"@en ;
+    rdfs:domain yawlmap:SemanticRule ;
+    rdfs:range xsd:string .
+
+## Semantic Rules
+yawlmap:MaxCpuTicksRule a yawlmap:PerformanceRule ;
+    rdfs:label "Maximum CPU Ticks Rule"@en ;
+    rdfs:comment "Enforces ≤8 CPU ticks constraint for all patterns"@en ;
+    yawlmap:ruleExpression "executionComplexity <= 8" ;
+    yawlmap:enforcesConstraint yawlmap:GlobalPerformanceConstraints .
+
+yawlmap:MemoryLeakPreventionRule a yawlmap:MemoryRule ;
+    rdfs:label "Memory Leak Prevention Rule"@en ;
+    rdfs:comment "Prevents memory leaks exceeding 374MB threshold"@en ;
+    yawlmap:ruleExpression "memoryRequirement < 392167424" ; # 374MB in bytes
+    yawlmap:enforcesConstraint yawlmap:GlobalMemoryConstraints .
+
+yawlmap:PerformanceFraudDetectionRule a yawlmap:PerformanceRule ;
+    rdfs:label "Performance Fraud Detection Rule"@en ;
+    rdfs:comment "Detects 52,704x performance degradation"@en ;
+    yawlmap:ruleExpression "actualLatency / expectedLatency < 52704" ;
+    yawlmap:enforcesConstraint yawlmap:GlobalPerformanceConstraints .
+
+## Global Constraints
+yawlmap:GlobalPerformanceConstraints a yawlmap:PerformanceConstraint ;
+    rdfs:label "Global Performance Constraints"@en ;
+    rdfs:comment "Global constraints for all BitFlow patterns"@en ;
+    perf:executionComplexity "≤8 CPU ticks" ;
+    perf:estimatedThroughput 500000 ;  # Minimum 500K ops/sec
+    perf:estimatedLatency 50000 .      # Maximum 50μs
+
+yawlmap:GlobalMemoryConstraints a yawlmap:PerformanceConstraint ;
+    rdfs:label "Global Memory Constraints"@en ;
+    rdfs:comment "Global memory constraints for all BitFlow patterns"@en ;
+    perf:memoryFootprint 392167424 ;   # 374MB maximum
+    yawlmap:memoryRequirement 392167424 .
+
+# =====================================================================
+# VALIDATION QUERIES FOR MISSING PATTERNS
+# =====================================================================
+
+## SPARQL Queries for Missing Pattern Detection
+yawlmap:MissingPatternQuery a owl:Class ;
+    rdfs:label "Missing Pattern Query"@en ;
+    rdfs:comment "SPARQL query to identify missing pattern implementations"@en .
+
+yawlmap:findMissingCriticalPatterns a yawlmap:MissingPatternQuery ;
+    rdfs:label "Find Missing Critical Patterns"@en ;
+    rdfs:comment "Query to find all missing patterns critical for performance"@en ;
+    yawlmap:queryText """
+        SELECT ?pattern ?label ?vdaalstId WHERE {
+            ?pattern bwp:bitflowImplemented false .
+            ?pattern bwp:criticalForPerformance true .
+            ?pattern rdfs:label ?label .
+            ?pattern bwp:vdaalstId ?vdaalstId .
+        }
+        ORDER BY ?vdaalstId
+    """ .
+
+yawlmap:findHighMemoryPatterns a yawlmap:MissingPatternQuery ;
+    rdfs:label "Find High Memory Patterns"@en ;
+    rdfs:comment "Query to find patterns with high memory footprint"@en ;
+    yawlmap:queryText """
+        SELECT ?pattern ?label ?memory WHERE {
+            ?pattern perf:memoryFootprint ?memory .
+            ?pattern rdfs:label ?label .
+            FILTER (?memory > 500)
+        }
+        ORDER BY DESC(?memory)
+    """ .
+
+yawlmap:findUnmappedPatterns a yawlmap:MissingPatternQuery ;
+    rdfs:label "Find Unmapped Patterns"@en ;
+    rdfs:comment "Query to find patterns without YAWL mappings"@en ;
+    yawlmap:queryText """
+        SELECT ?pattern ?label WHERE {
+            ?pattern a bwp:WorkflowPattern .
+            ?pattern rdfs:label ?label .
+            FILTER NOT EXISTS { ?pattern yawlmap:mapsToYAWL ?yawlConstruct }
+        }
+        ORDER BY ?label
+    """ .
+
+# =====================================================================
+# IMPLEMENTATION STATUS SUMMARY
+# =====================================================================
+
+yawlmap:ImplementationSummary a owl:Class ;
+    rdfs:label "Implementation Summary"@en ;
+    rdfs:comment "Summary of pattern implementation status"@en .
+
+yawlmap:BitFlowImplementationStatus a yawlmap:ImplementationSummary ;
+    rdfs:label "BitFlow Implementation Status"@en ;
+    rdfs:comment "Current status of BitFlow pattern implementations"@en ;
+    yawlmap:totalPatterns 43 ;
+    yawlmap:implementedPatterns 8 ;
+    yawlmap:missingPatterns 35 ;
+    yawlmap:criticalMissingPatterns 12 ;
+    yawlmap:performanceFraudFactor 52704 ;
+    yawlmap:memoryLeakThresholdBytes 392167424 ;
+    yawlmap:targetThroughput 2000000 ;
+    yawlmap:maxCpuTicks 8 .
+
+yawlmap:totalPatterns a owl:DatatypeProperty ;
+    rdfs:domain yawlmap:ImplementationSummary ;
+    rdfs:range xsd:unsignedInt .
+
+yawlmap:implementedPatterns a owl:DatatypeProperty ;
+    rdfs:domain yawlmap:ImplementationSummary ;
+    rdfs:range xsd:unsignedInt .
+
+yawlmap:missingPatterns a owl:DatatypeProperty ;
+    rdfs:domain yawlmap:ImplementationSummary ;
+    rdfs:range xsd:unsignedInt .
+
+yawlmap:criticalMissingPatterns a owl:DatatypeProperty ;
+    rdfs:domain yawlmap:ImplementationSummary ;
+    rdfs:range xsd:unsignedInt .
+
+yawlmap:performanceFraudFactor a owl:DatatypeProperty ;
+    rdfs:domain yawlmap:ImplementationSummary ;
+    rdfs:range xsd:double .
+
+yawlmap:memoryLeakThresholdBytes a owl:DatatypeProperty ;
+    rdfs:domain yawlmap:ImplementationSummary ;
+    rdfs:range xsd:unsignedLong .
+
+yawlmap:targetThroughput a owl:DatatypeProperty ;
+    rdfs:domain yawlmap:ImplementationSummary ;
+    rdfs:range xsd:unsignedInt .
+
+yawlmap:maxCpuTicks a owl:DatatypeProperty ;
+    rdfs:domain yawlmap:ImplementationSummary ;
+    rdfs:range xsd:unsignedByte .

@@ -1,0 +1,109 @@
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix mcpp:  <https://w3id.org/mcpp#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix dc:    <http://purl.org/dc/elements/1.1/> .
+
+# ──────────────────────────────────────────────────────────────────────────────
+# mcpp-lifecycle-v1.skos.ttl
+#
+# 8 closed SKOS concepts encoding the lawful object lifecycle used by the
+# fsm-lifecycle .part.wasm operator.  skos:related triples encode the lawful
+# transition graph (from → to).  Non-listed transitions are REFUSED by the
+# fsm-lifecycle part with code `invalid-input("unlawful transition")`.
+#
+# v26.5.16 Slice A — created 2026-05-15
+# ──────────────────────────────────────────────────────────────────────────────
+
+mcpp:LifecycleScheme
+    a skos:ConceptScheme ;
+    dc:title    "MCPP Object Lifecycle v1" ;
+    dc:creator  "mcpp v26.5.16 Slice A" ;
+    skos:hasTopConcept mcpp:lc-created ;
+    rdfs:comment
+        "8-state closed lifecycle for MCPP-managed objects (Container, Receipt, etc.). Lawful transitions are encoded as skos:related triples."
+    .
+
+# ── Concept: created ──────────────────────────────────────────────────────────
+
+mcpp:lc-created
+    a skos:Concept ;
+    skos:inScheme   mcpp:LifecycleScheme ;
+    skos:prefLabel  "created"@en ;
+    skos:definition "Object has been instantiated but not yet received by the next actor."@en ;
+    skos:topConceptOf mcpp:LifecycleScheme ;
+    # Lawful next state via 'receive' event
+    skos:related    mcpp:lc-received .
+
+# ── Concept: received ─────────────────────────────────────────────────────────
+
+mcpp:lc-received
+    a skos:Concept ;
+    skos:inScheme   mcpp:LifecycleScheme ;
+    skos:prefLabel  "received"@en ;
+    skos:definition "Object has been acknowledged by the receiving actor."@en ;
+    # Lawful next state via 'inspect' event
+    skos:related    mcpp:lc-inspected .
+
+# ── Concept: inspected ────────────────────────────────────────────────────────
+
+mcpp:lc-inspected
+    a skos:Concept ;
+    skos:inScheme   mcpp:LifecycleScheme ;
+    skos:prefLabel  "inspected"@en ;
+    skos:definition "Object has passed initial inspection. May proceed to held or released."@en ;
+    # Lawful next states via 'hold' or 'release' events
+    skos:related    mcpp:lc-held ;
+    skos:related    mcpp:lc-released .
+
+# ── Concept: held ────────────────────────────────────────────────────────────
+
+mcpp:lc-held
+    a skos:Concept ;
+    skos:inScheme   mcpp:LifecycleScheme ;
+    skos:prefLabel  "held"@en ;
+    skos:definition "Object is under a hold (customs, compliance review, gap investigation)."@en ;
+    # Lawful next states via 'release' or 'dispute' events
+    skos:related    mcpp:lc-released ;
+    skos:related    mcpp:lc-disputed .
+
+# ── Concept: released ────────────────────────────────────────────────────────
+
+mcpp:lc-released
+    a skos:Concept ;
+    skos:inScheme   mcpp:LifecycleScheme ;
+    skos:prefLabel  "released"@en ;
+    skos:definition "Object has been released to the next stage of the manufacturing route."@en ;
+    # Lawful next states via 'settle' or 'dispute' events
+    skos:related    mcpp:lc-settled ;
+    skos:related    mcpp:lc-disputed .
+
+# ── Concept: settled ─────────────────────────────────────────────────────────
+
+mcpp:lc-settled
+    a skos:Concept ;
+    skos:inScheme   mcpp:LifecycleScheme ;
+    skos:prefLabel  "settled"@en ;
+    skos:definition "Commercial or financial settlement completed for this object."@en ;
+    # Lawful next state via 'retire' event
+    skos:related    mcpp:lc-retired .
+
+# ── Concept: disputed ────────────────────────────────────────────────────────
+
+mcpp:lc-disputed
+    a skos:Concept ;
+    skos:inScheme   mcpp:LifecycleScheme ;
+    skos:prefLabel  "disputed"@en ;
+    skos:definition "A dispute has been raised against this object's state or evidence."@en ;
+    # Lawful next states via 'resolve' (→ released) or 'retire' events
+    skos:related    mcpp:lc-released ;
+    skos:related    mcpp:lc-retired .
+
+# ── Concept: retired ─────────────────────────────────────────────────────────
+
+mcpp:lc-retired
+    a skos:Concept ;
+    skos:inScheme   mcpp:LifecycleScheme ;
+    skos:prefLabel  "retired"@en ;
+    skos:definition "Terminal state. Object lifecycle is complete. No further transitions."@en .
+    # No skos:related — terminal state.

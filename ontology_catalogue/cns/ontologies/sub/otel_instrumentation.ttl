@@ -1,0 +1,596 @@
+@prefix otel: <http://cns.io/ontology/otel#> .
+@prefix weaver: <http://opentelemetry.io/weaver#> .
+@prefix dfls: <http://cns.bitactor.io/ontology/dfls#> .
+@prefix bitactor: <http://cns.bitactor.io/ontology/bitactor#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# =============================================================================
+# OTEL INSTRUMENTATION SUB-ONTOLOGY
+# Comprehensive semantic model for OpenTelemetry Weaver integration
+# with DFLS quality constraints and minimal wrapper generation
+# =============================================================================
+
+otel: a owl:Ontology ;
+    rdfs:label "OTEL Instrumentation Sub-Ontology" ;
+    rdfs:comment "OpenTelemetry Weaver semantic model with DFLS integration for minimal wrapper generation with NO business logic" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports dfls:, bitactor: .
+
+# =============================================================================
+# CORE OTEL WEAVER CLASSES
+# =============================================================================
+
+# Base Instrumentation Classes
+otel:Instrumentable a owl:Class ;
+    rdfs:label "Instrumentable Component" ;
+    rdfs:comment "Base class for components that can be instrumented with OTEL Weaver" ;
+    rdfs:subClassOf dfls:DFLSComponent .
+
+otel:WeaverTemplate a owl:Class ;
+    rdfs:label "Weaver Template" ;
+    rdfs:comment "OTEL Weaver template for minimal wrapper generation" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otel:hasBusinessLogic ;
+        owl:hasValue false
+    ] .
+
+otel:MinimalWrapper a owl:Class ;
+    rdfs:label "Minimal Wrapper" ;
+    rdfs:comment "Generated minimal wrapper with NO business logic, only instrumentation" ;
+    rdfs:subClassOf otel:Instrumentable ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otel:hasBusinessLogic ;
+        owl:hasValue false
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otel:wrapperComplexity ;
+        owl:maxInclusive "0.1"^^xsd:double  # <10% complexity overhead
+    ] .
+
+# Telemetry Data Classes
+otel:Span a owl:Class ;
+    rdfs:label "OTEL Span" ;
+    rdfs:comment "OpenTelemetry span for distributed tracing" ;
+    rdfs:subClassOf otel:TelemetryData ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otel:spanDuration ;
+        owl:someValuesFrom xsd:duration
+    ] .
+
+otel:Metric a owl:Class ;
+    rdfs:label "OTEL Metric" ;
+    rdfs:comment "OpenTelemetry metric for monitoring and observability" ;
+    rdfs:subClassOf otel:TelemetryData, dfls:SixSigmaMetric ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otel:metricType ;
+        owl:allValuesFrom otel:MetricType
+    ] .
+
+otel:Log a owl:Class ;
+    rdfs:label "OTEL Log" ;
+    rdfs:comment "OpenTelemetry structured log entry" ;
+    rdfs:subClassOf otel:TelemetryData .
+
+otel:TelemetryData a owl:Class ;
+    rdfs:label "Telemetry Data" ;
+    rdfs:comment "Base class for all OpenTelemetry data types" ;
+    rdfs:subClassOf dfls:QualityData .
+
+# Span Types
+otel:RootSpan a owl:Class ;
+    rdfs:label "Root Span" ;
+    rdfs:comment "Top-level span in a trace hierarchy" ;
+    rdfs:subClassOf otel:Span .
+
+otel:ChildSpan a owl:Class ;
+    rdfs:label "Child Span" ;
+    rdfs:comment "Child span with parent-child relationship" ;
+    rdfs:subClassOf otel:Span ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otel:hasParentSpan ;
+        owl:cardinality 1
+    ] .
+
+otel:InternalSpan a owl:Class ;
+    rdfs:label "Internal Span" ;
+    rdfs:comment "Span for internal operations and processes" ;
+    rdfs:subClassOf otel:Span .
+
+otel:ClientSpan a owl:Class ;
+    rdfs:label "Client Span" ;
+    rdfs:comment "Span for outbound requests" ;
+    rdfs:subClassOf otel:Span .
+
+otel:ServerSpan a owl:Class ;
+    rdfs:label "Server Span" ;
+    rdfs:comment "Span for inbound requests" ;
+    rdfs:subClassOf otel:Span .
+
+# Metric Types
+otel:MetricType a owl:Class ;
+    rdfs:label "Metric Type" ;
+    rdfs:comment "Type classification for OTEL metrics" .
+
+otel:Counter a owl:Class ;
+    rdfs:label "Counter Metric" ;
+    rdfs:comment "Monotonically increasing counter metric" ;
+    rdfs:subClassOf otel:MetricType .
+
+otel:Gauge a owl:Class ;
+    rdfs:label "Gauge Metric" ;
+    rdfs:comment "Point-in-time value that can go up or down" ;
+    rdfs:subClassOf otel:MetricType .
+
+otel:Histogram a owl:Class ;
+    rdfs:label "Histogram Metric" ;
+    rdfs:comment "Distribution of measurements over time" ;
+    rdfs:subClassOf otel:MetricType .
+
+otel:Summary a owl:Class ;
+    rdfs:label "Summary Metric" ;
+    rdfs:comment "Quantile statistics over sliding time window" ;
+    rdfs:subClassOf otel:MetricType .
+
+# Performance Monitoring Classes
+otel:PerformanceMonitor a owl:Class ;
+    rdfs:label "Performance Monitor" ;
+    rdfs:comment "Component for monitoring system performance with DFLS constraints" ;
+    rdfs:subClassOf otel:Instrumentable, dfls:QualityGate ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otel:monitoringOverhead ;
+        owl:maxInclusive "0.05"^^xsd:double  # <5% overhead
+    ] .
+
+otel:LatencyMonitor a owl:Class ;
+    rdfs:label "Latency Monitor" ;
+    rdfs:comment "Monitor for latency measurements with Six Sigma targets" ;
+    rdfs:subClassOf otel:PerformanceMonitor ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otel:targetLatency ;
+        owl:maxInclusive "0.001"^^xsd:double  # <1ms target
+    ] .
+
+otel:ThroughputMonitor a owl:Class ;
+    rdfs:label "Throughput Monitor" ;
+    rdfs:comment "Monitor for throughput measurements" ;
+    rdfs:subClassOf otel:PerformanceMonitor .
+
+otel:ErrorRateMonitor a owl:Class ;
+    rdfs:label "Error Rate Monitor" ;
+    rdfs:comment "Monitor for error rate with Six Sigma quality targets" ;
+    rdfs:subClassOf otel:PerformanceMonitor ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otel:targetErrorRate ;
+        owl:maxInclusive "0.00034"^^xsd:double  # Six Sigma: 3.4 defects per million
+    ] .
+
+# Context and Propagation Classes
+otel:Context a owl:Class ;
+    rdfs:label "OTEL Context" ;
+    rdfs:comment "Context for trace and span propagation" .
+
+otel:TraceContext a owl:Class ;
+    rdfs:label "Trace Context" ;
+    rdfs:comment "W3C Trace Context for distributed tracing" ;
+    rdfs:subClassOf otel:Context .
+
+otel:BaggageContext a owl:Class ;
+    rdfs:label "Baggage Context" ;
+    rdfs:comment "Baggage context for cross-cutting concerns" ;
+    rdfs:subClassOf otel:Context .
+
+# Sampling Classes
+otel:Sampler a owl:Class ;
+    rdfs:label "Trace Sampler" ;
+    rdfs:comment "Sampling strategy for trace collection" .
+
+otel:AlwaysOnSampler a owl:Class ;
+    rdfs:label "Always On Sampler" ;
+    rdfs:comment "Sampler that always samples (for critical systems)" ;
+    rdfs:subClassOf otel:Sampler .
+
+otel:AlwaysOffSampler a owl:Class ;
+    rdfs:label "Always Off Sampler" ;
+    rdfs:comment "Sampler that never samples" ;
+    rdfs:subClassOf otel:Sampler .
+
+otel:ProbabilitySampler a owl:Class ;
+    rdfs:label "Probability Sampler" ;
+    rdfs:comment "Sampler with configurable probability rate" ;
+    rdfs:subClassOf otel:Sampler ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otel:samplingRate ;
+        owl:allValuesFrom [
+            a rdfs:Datatype ;
+            owl:onDatatype xsd:double ;
+            owl:withRestrictions ( [ xsd:minInclusive "0.0"^^xsd:double ] [ xsd:maxInclusive "1.0"^^xsd:double ] )
+        ]
+    ] .
+
+otel:RateLimitingSampler a owl:Class ;
+    rdfs:label "Rate Limiting Sampler" ;
+    rdfs:comment "Sampler with rate limiting for performance" ;
+    rdfs:subClassOf otel:Sampler .
+
+# Exporter Classes
+otel:Exporter a owl:Class ;
+    rdfs:label "OTEL Exporter" ;
+    rdfs:comment "Component for exporting telemetry data" .
+
+otel:OTLPExporter a owl:Class ;
+    rdfs:label "OTLP Exporter" ;
+    rdfs:comment "OpenTelemetry Protocol exporter" ;
+    rdfs:subClassOf otel:Exporter .
+
+otel:PrometheusExporter a owl:Class ;
+    rdfs:label "Prometheus Exporter" ;
+    rdfs:comment "Prometheus metrics exporter" ;
+    rdfs:subClassOf otel:Exporter .
+
+otel:JaegerExporter a owl:Class ;
+    rdfs:label "Jaeger Exporter" ;
+    rdfs:comment "Jaeger tracing exporter" ;
+    rdfs:subClassOf otel:Exporter .
+
+otel:ConsoleExporter a owl:Class ;
+    rdfs:label "Console Exporter" ;
+    rdfs:comment "Console debug exporter" ;
+    rdfs:subClassOf otel:Exporter .
+
+# =============================================================================
+# OTEL PROPERTIES
+# =============================================================================
+
+# Core Instrumentation Properties
+otel:hasBusinessLogic a owl:DatatypeProperty ;
+    rdfs:label "Has Business Logic" ;
+    rdfs:comment "Whether component contains business logic (MUST be false for minimal wrappers)" ;
+    rdfs:domain otel:Instrumentable ;
+    rdfs:range xsd:boolean ;
+    a owl:FunctionalProperty .
+
+otel:wrapperComplexity a owl:DatatypeProperty ;
+    rdfs:label "Wrapper Complexity" ;
+    rdfs:comment "Complexity overhead of wrapper (0.0-1.0, target <0.1)" ;
+    rdfs:domain otel:MinimalWrapper ;
+    rdfs:range xsd:double .
+
+otel:instrumentationOverhead a owl:DatatypeProperty ;
+    rdfs:label "Instrumentation Overhead" ;
+    rdfs:comment "Performance overhead from instrumentation (target <5%)" ;
+    rdfs:domain otel:Instrumentable ;
+    rdfs:range xsd:double .
+
+# Span Properties
+otel:spanName a owl:DatatypeProperty ;
+    rdfs:label "Span Name" ;
+    rdfs:comment "Human-readable span name" ;
+    rdfs:domain otel:Span ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+otel:spanId a owl:DatatypeProperty ;
+    rdfs:label "Span ID" ;
+    rdfs:comment "Unique span identifier" ;
+    rdfs:domain otel:Span ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+otel:traceId a owl:DatatypeProperty ;
+    rdfs:label "Trace ID" ;
+    rdfs:comment "Unique trace identifier" ;
+    rdfs:domain otel:Span ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+otel:spanDuration a owl:DatatypeProperty ;
+    rdfs:label "Span Duration" ;
+    rdfs:comment "Duration of span execution" ;
+    rdfs:domain otel:Span ;
+    rdfs:range xsd:duration .
+
+otel:spanKind a owl:DatatypeProperty ;
+    rdfs:label "Span Kind" ;
+    rdfs:comment "Span kind (internal/client/server/producer/consumer)" ;
+    rdfs:domain otel:Span ;
+    rdfs:range xsd:string .
+
+otel:spanStatus a owl:DatatypeProperty ;
+    rdfs:label "Span Status" ;
+    rdfs:comment "Span status (ok/error/timeout)" ;
+    rdfs:domain otel:Span ;
+    rdfs:range xsd:string .
+
+# Metric Properties
+otel:metricName a owl:DatatypeProperty ;
+    rdfs:label "Metric Name" ;
+    rdfs:comment "Human-readable metric name" ;
+    rdfs:domain otel:Metric ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+otel:metricValue a owl:DatatypeProperty ;
+    rdfs:label "Metric Value" ;
+    rdfs:comment "Numeric value of the metric" ;
+    rdfs:domain otel:Metric ;
+    rdfs:range xsd:double .
+
+otel:metricUnit a owl:DatatypeProperty ;
+    rdfs:label "Metric Unit" ;
+    rdfs:comment "Unit of measurement for metric" ;
+    rdfs:domain otel:Metric ;
+    rdfs:range xsd:string .
+
+otel:metricDescription a owl:DatatypeProperty ;
+    rdfs:label "Metric Description" ;
+    rdfs:comment "Human-readable metric description" ;
+    rdfs:domain otel:Metric ;
+    rdfs:range xsd:string .
+
+# Performance Properties
+otel:targetLatency a owl:DatatypeProperty ;
+    rdfs:label "Target Latency" ;
+    rdfs:comment "Target latency in seconds (DFLS requirement)" ;
+    rdfs:domain otel:LatencyMonitor ;
+    rdfs:range xsd:double .
+
+otel:targetErrorRate a owl:DatatypeProperty ;
+    rdfs:label "Target Error Rate" ;
+    rdfs:comment "Target error rate (Six Sigma: 0.00034)" ;
+    rdfs:domain otel:ErrorRateMonitor ;
+    rdfs:range xsd:double .
+
+otel:monitoringOverhead a owl:DatatypeProperty ;
+    rdfs:label "Monitoring Overhead" ;
+    rdfs:comment "Performance overhead from monitoring (target <5%)" ;
+    rdfs:domain otel:PerformanceMonitor ;
+    rdfs:range xsd:double .
+
+# Sampling Properties
+otel:samplingRate a owl:DatatypeProperty ;
+    rdfs:label "Sampling Rate" ;
+    rdfs:comment "Probability for sampling (0.0-1.0)" ;
+    rdfs:domain otel:ProbabilitySampler ;
+    rdfs:range xsd:double .
+
+otel:maxTracesPerSecond a owl:DatatypeProperty ;
+    rdfs:label "Max Traces Per Second" ;
+    rdfs:comment "Maximum traces per second for rate limiting" ;
+    rdfs:domain otel:RateLimitingSampler ;
+    rdfs:range xsd:integer .
+
+# Template Properties
+otel:templateContent a owl:DatatypeProperty ;
+    rdfs:label "Template Content" ;
+    rdfs:comment "Weaver template content for code generation" ;
+    rdfs:domain otel:WeaverTemplate ;
+    rdfs:range xsd:string .
+
+otel:templateLanguage a owl:DatatypeProperty ;
+    rdfs:label "Template Language" ;
+    rdfs:comment "Target language for template (python/go/java/rust)" ;
+    rdfs:domain otel:WeaverTemplate ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# OBJECT PROPERTIES (RELATIONSHIPS)
+# =============================================================================
+
+# Span Relationships
+otel:hasParentSpan a owl:ObjectProperty ;
+    rdfs:label "Has Parent Span" ;
+    rdfs:comment "Child span has parent span" ;
+    rdfs:domain otel:ChildSpan ;
+    rdfs:range otel:Span ;
+    a owl:FunctionalProperty .
+
+otel:hasChildSpan a owl:ObjectProperty ;
+    rdfs:label "Has Child Span" ;
+    rdfs:comment "Parent span has child spans" ;
+    rdfs:domain otel:Span ;
+    rdfs:range otel:ChildSpan ;
+    owl:inverseOf otel:hasParentSpan .
+
+otel:belongsToTrace a owl:ObjectProperty ;
+    rdfs:label "Belongs To Trace" ;
+    rdfs:comment "Span belongs to trace" ;
+    rdfs:domain otel:Span ;
+    rdfs:range otel:Trace .
+
+# Instrumentation Relationships
+otel:instrumentedBy a owl:ObjectProperty ;
+    rdfs:label "Instrumented By" ;
+    rdfs:comment "Component is instrumented by wrapper" ;
+    rdfs:domain otel:Instrumentable ;
+    rdfs:range otel:MinimalWrapper ;
+    a owl:FunctionalProperty .
+
+otel:generatesSpan a owl:ObjectProperty ;
+    rdfs:label "Generates Span" ;
+    rdfs:comment "Component generates span for tracing" ;
+    rdfs:domain otel:Instrumentable ;
+    rdfs:range otel:Span .
+
+otel:generatesMetric a owl:ObjectProperty ;
+    rdfs:label "Generates Metric" ;
+    rdfs:comment "Component generates metric for monitoring" ;
+    rdfs:domain otel:Instrumentable ;
+    rdfs:range otel:Metric .
+
+otel:generatesLog a owl:ObjectProperty ;
+    rdfs:label "Generates Log" ;
+    rdfs:comment "Component generates structured log" ;
+    rdfs:domain otel:Instrumentable ;
+    rdfs:range otel:Log .
+
+# Metric Relationships
+otel:hasMetricType a owl:ObjectProperty ;
+    rdfs:label "Has Metric Type" ;
+    rdfs:comment "Metric has specific type" ;
+    rdfs:domain otel:Metric ;
+    rdfs:range otel:MetricType ;
+    a owl:FunctionalProperty .
+
+otel:monitorsComponent a owl:ObjectProperty ;
+    rdfs:label "Monitors Component" ;
+    rdfs:comment "Monitor tracks component performance" ;
+    rdfs:domain otel:PerformanceMonitor ;
+    rdfs:range otel:Instrumentable .
+
+# Sampling Relationships
+otel:usesSampler a owl:ObjectProperty ;
+    rdfs:label "Uses Sampler" ;
+    rdfs:comment "Instrumentation uses sampling strategy" ;
+    rdfs:domain otel:Instrumentable ;
+    rdfs:range otel:Sampler .
+
+# Export Relationships
+otel:usesExporter a owl:ObjectProperty ;
+    rdfs:label "Uses Exporter" ;
+    rdfs:comment "Telemetry data uses exporter" ;
+    rdfs:domain otel:TelemetryData ;
+    rdfs:range otel:Exporter .
+
+# Template Relationships
+otel:usesTemplate a owl:ObjectProperty ;
+    rdfs:label "Uses Template" ;
+    rdfs:comment "Wrapper uses Weaver template" ;
+    rdfs:domain otel:MinimalWrapper ;
+    rdfs:range otel:WeaverTemplate .
+
+# DFLS Integration Relationships
+otel:satisfiesQualityGate a owl:ObjectProperty ;
+    rdfs:label "Satisfies Quality Gate" ;
+    rdfs:comment "Instrumentation satisfies DFLS quality gate" ;
+    rdfs:domain otel:PerformanceMonitor ;
+    rdfs:range dfls:QualityGate .
+
+otel:measuresQualityMetric a owl:ObjectProperty ;
+    rdfs:label "Measures Quality Metric" ;
+    rdfs:comment "OTEL metric measures DFLS quality metric" ;
+    rdfs:domain otel:Metric ;
+    rdfs:range dfls:SixSigmaMetric .
+
+# =============================================================================
+# CORE INSTANCES
+# =============================================================================
+
+# Standard Metric Types
+otel:ExecutionTimeMetric a otel:Histogram ;
+    rdfs:label "Execution Time Metric" ;
+    rdfs:comment "Histogram for measuring execution time" ;
+    otel:metricName "execution_time" ;
+    otel:metricUnit "seconds" ;
+    otel:metricDescription "Time taken to execute operation" .
+
+otel:RequestCountMetric a otel:Counter ;
+    rdfs:label "Request Count Metric" ;
+    rdfs:comment "Counter for measuring request count" ;
+    otel:metricName "request_count" ;
+    otel:metricUnit "1" ;
+    otel:metricDescription "Total number of requests processed" .
+
+otel:ErrorCountMetric a otel:Counter ;
+    rdfs:label "Error Count Metric" ;
+    rdfs:comment "Counter for measuring error count" ;
+    otel:metricName "error_count" ;
+    otel:metricUnit "1" ;
+    otel:metricDescription "Total number of errors encountered" .
+
+otel:ActiveConnectionsMetric a otel:Gauge ;
+    rdfs:label "Active Connections Metric" ;
+    rdfs:comment "Gauge for measuring active connections" ;
+    otel:metricName "active_connections" ;
+    otel:metricUnit "1" ;
+    otel:metricDescription "Current number of active connections" .
+
+# Standard Samplers
+otel:ProductionSampler a otel:ProbabilitySampler ;
+    rdfs:label "Production Sampler" ;
+    rdfs:comment "Default sampler for production environments" ;
+    otel:samplingRate "0.01"^^xsd:double .  # 1% sampling
+
+otel:DevelopmentSampler a otel:AlwaysOnSampler ;
+    rdfs:label "Development Sampler" ;
+    rdfs:comment "Sampler for development environments" .
+
+otel:LoadTestSampler a otel:RateLimitingSampler ;
+    rdfs:label "Load Test Sampler" ;
+    rdfs:comment "Sampler for load testing scenarios" ;
+    otel:maxTracesPerSecond 100 .
+
+# Performance Monitors
+otel:BitActorLatencyMonitor a otel:LatencyMonitor ;
+    rdfs:label "BitActor Latency Monitor" ;
+    rdfs:comment "Monitor for BitActor component latency" ;
+    otel:targetLatency "0.0005"^^xsd:double ;  # 500μs target
+    otel:monitoringOverhead "0.02"^^xsd:double .  # 2% overhead
+
+otel:SystemErrorRateMonitor a otel:ErrorRateMonitor ;
+    rdfs:label "System Error Rate Monitor" ;
+    rdfs:comment "Monitor for system-wide error rate" ;
+    otel:targetErrorRate "0.00034"^^xsd:double ;  # Six Sigma target
+    otel:monitoringOverhead "0.01"^^xsd:double .  # 1% overhead
+
+# Standard Templates
+otel:PythonWeaverTemplate a otel:WeaverTemplate ;
+    rdfs:label "Python Weaver Template" ;
+    rdfs:comment "Standard Python template for minimal wrappers" ;
+    otel:templateLanguage "python" ;
+    otel:hasBusinessLogic false ;
+    otel:templateContent """
+@weaver.instrument(
+    span_name="{span_name}",
+    metrics=["{metric_name}"]
+)
+def {function_name}_wrapper(*args, **kwargs):
+    with weaver.start_span("{span_name}") as span:
+        try:
+            result = {original_function}(*args, **kwargs)
+            span.set_attribute("success", True)
+            return result
+        except Exception as e:
+            span.set_attribute("success", False)
+            span.set_attribute("error", str(e))
+            raise
+""" .
+
+otel:GoWeaverTemplate a otel:WeaverTemplate ;
+    rdfs:label "Go Weaver Template" ;
+    rdfs:comment "Standard Go template for minimal wrappers" ;
+    otel:templateLanguage "go" ;
+    otel:hasBusinessLogic false ;
+    otel:templateContent """
+func {function_name}Wrapper(ctx context.Context, args ...interface{}) (interface{}, error) {
+    ctx, span := weaver.StartSpan(ctx, "{span_name}")
+    defer span.End()
+    
+    result, err := {original_function}(ctx, args...)
+    if err != nil {
+        span.SetAttribute("success", false)
+        span.SetAttribute("error", err.Error())
+        return nil, err
+    }
+    
+    span.SetAttribute("success", true)
+    return result, nil
+}
+""" .
+
+# =============================================================================
+# END OF ONTOLOGY
+# =============================================================================

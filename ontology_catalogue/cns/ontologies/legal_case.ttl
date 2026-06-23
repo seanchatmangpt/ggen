@@ -1,0 +1,101 @@
+@prefix ex: <http://bitstar.ai/legal#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Legal Case Ontology for BitStar Legal Filing System
+# Defines the structure for legal cases, evidence, and filing metadata
+
+# Case Definition
+ex:Case rdf:type rdfs:Class ;
+    rdfs:label "Legal Case" ;
+    rdfs:comment "A legal case with all associated metadata and evidence" .
+
+ex:EvidenceBundle rdf:type rdfs:Class ;
+    rdfs:label "Evidence Bundle" ;
+    rdfs:comment "A collection of evidence items with integrity hash" .
+
+ex:Email rdf:type rdfs:Class ;
+    rdfs:label "Email Evidence" ;
+    rdfs:comment "Email communications as evidence" .
+
+# Properties
+ex:venue rdf:type rdf:Property ;
+    rdfs:domain ex:Case ;
+    rdfs:range xsd:string ;
+    rdfs:label "Court Venue" .
+
+ex:caseType rdf:type rdf:Property ;
+    rdfs:domain ex:Case ;
+    rdfs:range xsd:string ;
+    rdfs:label "Case Type" .
+
+ex:plaintiff rdf:type rdf:Property ;
+    rdfs:domain ex:Case ;
+    rdfs:range xsd:string ;
+    rdfs:label "Plaintiff" .
+
+ex:defendants rdf:type rdf:Property ;
+    rdfs:domain ex:Case ;
+    rdfs:range xsd:string ;
+    rdfs:label "Defendants" .
+
+ex:reliefRequestedUSD rdf:type rdf:Property ;
+    rdfs:domain ex:Case ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Relief Requested in USD" .
+
+ex:evidenceBundle rdf:type rdf:Property ;
+    rdfs:domain ex:Case ;
+    rdfs:range ex:EvidenceBundle ;
+    rdfs:label "Evidence Bundle" .
+
+ex:serviceVendor rdf:type rdf:Property ;
+    rdfs:domain ex:Case ;
+    rdfs:range xsd:string ;
+    rdfs:label "Service Vendor" .
+
+ex:contains rdf:type rdf:Property ;
+    rdfs:domain ex:EvidenceBundle ;
+    rdfs:range ex:Email ;
+    rdfs:label "Contains Evidence" .
+
+ex:hash rdf:type rdf:Property ;
+    rdfs:domain ex:EvidenceBundle ;
+    rdfs:range xsd:string ;
+    rdfs:label "Integrity Hash" .
+
+# Specific Case Instance: Nevada v. Lopez et al.
+ex:Case_NV_001 rdf:type ex:Case ;
+    ex:venue "NV-DIST-CLARK" ;
+    ex:caseType "Malpractice+RICO" ;
+    ex:plaintiff "Sean Chatman" ;
+    ex:defendants "Matthew Lopez; Richard Liu; Li Xu; Vulcaneer; Does 1-50" ;
+    ex:reliefRequestedUSD "10000000"^^xsd:integer ;
+    ex:evidenceBundle ex:Bundle_Emails_1, ex:Bundle_Bar_Refs_1 ;
+    ex:serviceVendor "NV-ABC-ProcessLLC" ;
+    rdfs:comment "Legal malpractice and RICO case in Nevada District Court" .
+
+# Evidence Bundles
+ex:Bundle_Emails_1 rdf:type ex:EvidenceBundle ;
+    ex:contains ex:Email_Matt_2025_06_18, ex:Email_Kate_2025_06_18 ;
+    ex:hash "SHA256:a1b2c3d4e5f6789..." ;
+    rdfs:comment "Email communications evidence bundle" .
+
+ex:Bundle_Bar_Refs_1 rdf:type ex:EvidenceBundle ;
+    ex:contains ex:BarRef_Matt_2025, ex:BarRef_Liu_2025 ;
+    ex:hash "SHA256:f6e5d4c3b2a1987..." ;
+    rdfs:comment "Bar reference and disciplinary records bundle" .
+
+# Individual Evidence Items
+ex:Email_Matt_2025_06_18 rdf:type ex:Email ;
+    rdfs:label "Email from Matthew Lopez dated 2025-06-18" .
+
+ex:Email_Kate_2025_06_18 rdf:type ex:Email ;
+    rdfs:label "Email from Kate dated 2025-06-18" .
+
+ex:BarRef_Matt_2025 rdf:type ex:Email ;
+    rdfs:label "Bar reference for Matthew Lopez" .
+
+ex:BarRef_Liu_2025 rdf:type ex:Email ;
+    rdfs:label "Bar reference for Richard Liu" .

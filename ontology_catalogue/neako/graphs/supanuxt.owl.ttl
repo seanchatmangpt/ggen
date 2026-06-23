@@ -1,0 +1,111 @@
+@prefix sn:   <urn:supanuxt#> .
+@prefix nuxt: <urn:nuxt#> .
+@prefix supa: <urn:supabase#> .
+@prefix bff:  <urn:bff#> .
+@prefix dep:  <urn:deploy#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+sn: a owl:Ontology ;
+  rdfs:label "Supabase × Nuxt Ontology" ;
+  owl:versionInfo "0.1" .
+
+### Core projects
+sn:Project            a owl:Class .
+nuxt:NuxtApp          a owl:Class .
+supa:SupabaseProject  a owl:Class .
+
+### Nuxt surface
+nuxt:Page       a owl:Class .
+nuxt:Layout     a owl:Class .
+nuxt:Component  a owl:Class .
+nuxt:Composable a owl:Class .
+nuxt:Store      a owl:Class ; rdfs:comment "e.g., Pinia store" .
+nuxt:Route      a owl:Class .
+nuxt:Middleware a owl:Class .
+nuxt:Plugin     a owl:Class .
+nuxt:EnvVar     a owl:Class .
+
+### BFF / Server routes (Nitro)
+bff:APIEndpoint a owl:Class ; rdfs:comment "server/api/* Nitro endpoint" .
+bff:Middleware  a owl:Class .
+
+### Supabase data plane
+supa:Schema        a owl:Class .
+supa:Table         a owl:Class .
+supa:Column        a owl:Class .
+supa:View          a owl:Class .
+supa:Index         a owl:Class .
+supa:FunctionPG    a owl:Class ; rdfs:comment "PostgreSQL function" .
+supa:Trigger       a owl:Class .
+supa:Policy        a owl:Class ; rdfs:comment "RLS policy" .
+supa:RPC           a owl:Class ; rdfs:comment "PostgREST /rpc/*" .
+supa:EdgeFunction  a owl:Class ; rdfs:comment "Supabase Functions (Deno)" .
+supa:StorageBucket a owl:Class .
+supa:AuthProvider  a owl:Class .
+supa:User          a owl:Class .
+supa:RealtimeChannel a owl:Class .
+
+### Deployment/runtime
+dep:DeploymentTarget a owl:Class ; rdfs:comment "e.g., Vercel, Netlify, Docker" .
+
+### Object properties (structure)
+sn:belongsToProject      a owl:ObjectProperty ; rdfs:domain [owl:unionOf (nuxt:NuxtApp supa:SupabaseProject)] ; rdfs:range sn:Project .
+nuxt:hasPage             a owl:ObjectProperty ; rdfs:domain nuxt:NuxtApp ; rdfs:range nuxt:Page .
+nuxt:hasLayout           a owl:ObjectProperty ; rdfs:domain nuxt:NuxtApp ; rdfs:range nuxt:Layout .
+nuxt:hasComponent        a owl:ObjectProperty ; rdfs:domain nuxt:NuxtApp ; rdfs:range nuxt:Component .
+nuxt:hasRoute            a owl:ObjectProperty ; rdfs:domain nuxt:NuxtApp ; rdfs:range nuxt:Route .
+nuxt:usesComposable      a owl:ObjectProperty ; rdfs:domain [owl:unionOf (nuxt:Page nuxt:Component nuxt:Store)] ; rdfs:range nuxt:Composable .
+nuxt:usesStore           a owl:ObjectProperty ; rdfs:domain nuxt:Component ; rdfs:range nuxt:Store .
+nuxt:routeComponent      a owl:ObjectProperty ; rdfs:domain nuxt:Route ; rdfs:range nuxt:Component .
+nuxt:routeMiddleware     a owl:ObjectProperty ; rdfs:domain nuxt:Route ; rdfs:range nuxt:Middleware .
+nuxt:loadsPlugin         a owl:ObjectProperty ; rdfs:domain nuxt:NuxtApp ; rdfs:range nuxt:Plugin .
+nuxt:consumesEnvVar      a owl:ObjectProperty ; rdfs:domain [owl:unionOf (nuxt:NuxtApp bff:APIEndpoint supa:EdgeFunction)] ; rdfs:range nuxt:EnvVar .
+nuxt:exposesEndpoint     a owl:ObjectProperty ; rdfs:domain nuxt:NuxtApp ; rdfs:range bff:APIEndpoint .
+
+supa:hasSchema           a owl:ObjectProperty ; rdfs:domain supa:SupabaseProject ; rdfs:range supa:Schema .
+supa:inSchema            a owl:ObjectProperty ; rdfs:domain [owl:unionOf (supa:Table supa:View supa:FunctionPG)] ; rdfs:range supa:Schema .
+supa:hasTable            a owl:ObjectProperty ; rdfs:domain supa:Schema ; rdfs:range supa:Table .
+supa:hasColumn           a owl:ObjectProperty ; rdfs:domain supa:Table ; rdfs:range supa:Column .
+supa:hasIndex            a owl:ObjectProperty ; rdfs:domain supa:Table ; rdfs:range supa:Index .
+supa:hasPolicy           a owl:ObjectProperty ; rdfs:domain supa:Table ; rdfs:range supa:Policy .
+supa:hasTrigger          a owl:ObjectProperty ; rdfs:domain supa:Table ; rdfs:range supa:Trigger .
+supa:triggersFunction    a owl:ObjectProperty ; rdfs:domain supa:Trigger ; rdfs:range supa:FunctionPG .
+supa:watchesTable        a owl:ObjectProperty ; rdfs:domain supa:Trigger ; rdfs:range supa:Table .
+supa:exposesRPC          a owl:ObjectProperty ; rdfs:domain supa:FunctionPG ; rdfs:range supa:RPC .
+supa:hasBucket           a owl:ObjectProperty ; rdfs:domain supa:SupabaseProject ; rdfs:range supa:StorageBucket .
+supa:authProvider        a owl:ObjectProperty ; rdfs:domain supa:SupabaseProject ; rdfs:range supa:AuthProvider .
+supa:hasRealtimeChannel  a owl:ObjectProperty ; rdfs:domain supa:SupabaseProject ; rdfs:range supa:RealtimeChannel .
+
+### Cross-cutting usage
+sn:usesTable             a owl:ObjectProperty ; rdfs:domain [owl:unionOf (nuxt:Composable bff:APIEndpoint supa:EdgeFunction)] ; rdfs:range supa:Table .
+sn:readsTable            a owl:ObjectProperty ; rdfs:subPropertyOf sn:usesTable .
+sn:writesTable           a owl:ObjectProperty ; rdfs:subPropertyOf sn:usesTable .
+sn:callsRPC              a owl:ObjectProperty ; rdfs:domain [owl:unionOf (nuxt:Composable bff:APIEndpoint supa:EdgeFunction)] ; rdfs:range supa:RPC .
+sn:callsEdgeFunction     a owl:ObjectProperty ; rdfs:domain bff:APIEndpoint ; rdfs:range supa:EdgeFunction .
+sn:subscribesChannel     a owl:ObjectProperty ; rdfs:domain [owl:unionOf (nuxt:Composable nuxt:Component)] ; rdfs:range supa:RealtimeChannel .
+sn:storesInBucket        a owl:ObjectProperty ; rdfs:domain [owl:unionOf (nuxt:Composable bff:APIEndpoint supa:EdgeFunction)] ; rdfs:range supa:StorageBucket .
+sn:deployedTo            a owl:ObjectProperty ; rdfs:domain [owl:unionOf (nuxt:NuxtApp bff:APIEndpoint supa:EdgeFunction)] ; rdfs:range dep:DeploymentTarget .
+sn:dependsOn             a owl:ObjectProperty ; rdfs:domain owl:Thing ; rdfs:range owl:Thing .
+
+### Data properties
+sn:name          a owl:DatatypeProperty ; rdfs:range xsd:string .
+sn:description   a owl:DatatypeProperty ; rdfs:range xsd:string .
+nuxt:path        a owl:DatatypeProperty ; rdfs:domain [owl:unionOf (nuxt:Page nuxt:Route)] ; rdfs:range xsd:string .
+nuxt:file        a owl:DatatypeProperty ; rdfs:domain [owl:unionOf (nuxt:Component nuxt:Composable nuxt:Plugin)] ; rdfs:range xsd:string .
+nuxt:httpMethod  a owl:DatatypeProperty ; rdfs:domain bff:APIEndpoint ; rdfs:range xsd:string .
+nuxt:routePath   a owl:DatatypeProperty ; rdfs:domain nuxt:Route ; rdfs:range xsd:string .
+
+supa:tableName   a owl:DatatypeProperty ; rdfs:domain supa:Table ; rdfs:range xsd:string .
+supa:columnName  a owl:DatatypeProperty ; rdfs:domain supa:Column ; rdfs:range xsd:string .
+supa:dataType    a owl:DatatypeProperty ; rdfs:domain supa:Column ; rdfs:range xsd:string .
+supa:sql         a owl:DatatypeProperty ; rdfs:domain [owl:unionOf (supa:View supa:FunctionPG supa:Index supa:Policy supa:Trigger)] ; rdfs:range xsd:string .
+supa:policyCheck a owl:DatatypeProperty ; rdfs:domain supa:Policy ; rdfs:range xsd:string .
+supa:bucketName  a owl:DatatypeProperty ; rdfs:domain supa:StorageBucket ; rdfs:range xsd:string .
+
+dep:targetName   a owl:DatatypeProperty ; rdfs:domain dep:DeploymentTarget ; rdfs:range xsd:string .
+
+### Disjointness (top-level)
+[ a owl:AllDisjointClasses ; owl:members ( nuxt:NuxtApp supa:SupabaseProject sn:Project ) ] .
+[ a owl:AllDisjointClasses ; owl:members ( nuxt:Page nuxt:Component nuxt:Composable bff:APIEndpoint supa:Table supa:EdgeFunction ) ] .

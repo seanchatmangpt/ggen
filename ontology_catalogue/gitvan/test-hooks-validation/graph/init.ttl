@@ -1,0 +1,38 @@
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Project Information
+ex:project rdf:type gv:Project ;
+    gv:name "validation-test" ;
+    gv:description "Testing real hooks functionality" ;
+    gv:version "1.0.0" ;
+    gv:createdDate "2025-09-20T20:09:52.860Z" ;
+    gv:status "active" .
+
+# Initial Project State
+ex:project-state rdf:type gv:ProjectState ;
+    gv:project ex:project ;
+    gv:phase "initialization" ;
+    gv:lastUpdated "2025-09-20T20:09:52.860Z" ;
+    gv:status "setup-complete" .
+
+# Sample Entities for Testing
+ex:test-item-1 rdf:type gv:TestItem ;
+    gv:name "Sample Item 1" ;
+    gv:status "active" ;
+    gv:priority "medium" .
+
+ex:test-item-2 rdf:type gv:TestItem ;
+    gv:name "Sample Item 2" ;
+    gv:status "pending" ;
+    gv:priority "high" .
+
+# Sample Metrics
+ex:project-metrics rdf:type gv:ProjectMetrics ;
+    gv:project ex:project ;
+    gv:totalItems 2 ;
+    gv:activeItems 1 ;
+    gv:pendingItems 1 ;
+    gv:lastCalculated "2025-09-20T20:09:52.860Z" .

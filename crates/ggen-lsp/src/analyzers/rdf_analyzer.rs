@@ -209,7 +209,9 @@ impl RdfAnalyzer {
         None
     }
 
-    pub fn document_symbols(&self, _range: Option<Range>) -> Vec<lsp_max::lsp_types::DocumentSymbol> {
+    pub fn document_symbols(
+        &self, _range: Option<Range>,
+    ) -> Vec<lsp_max::lsp_types::DocumentSymbol> {
         let mut symbols = Vec::new();
 
         // 1. Prefixes

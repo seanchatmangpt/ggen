@@ -1,0 +1,494 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bitstar: <http://bitstar.io/ontology#> .
+@prefix bs-shapes: <http://bitstar.io/shapes#> .
+
+# SHACL Shapes for BitStar Ontology Validation
+# Defines constraints and validation rules for the BitStar ecosystem
+
+# =====================
+# BitActor Shapes
+# =====================
+
+bs-shapes:BitActorShape a sh:NodeShape ;
+    sh:targetClass bitstar:BitActor ;
+    rdfs:label "BitActor Shape" ;
+    rdfs:comment "Validation shape for all BitStar actors" ;
+    sh:property [
+        sh:path bitstar:actorId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:pattern "^[a-zA-Z][a-zA-Z0-9-_]*$" ;
+        rdfs:comment "Actor ID must be alphanumeric with hyphens/underscores"
+    ] .
+
+bs-shapes:ActorShape a sh:NodeShape ;
+    sh:targetClass bitstar:Actor ;
+    rdfs:label "Actor Shape" ;
+    rdfs:comment "Validation shape for individual actors" ;
+    sh:property [
+        sh:path bitstar:sendsMessageTo ;
+        sh:class bitstar:BitActor ;
+        rdfs:comment "Actor can only send messages to other BitActors"
+    ] .
+
+bs-shapes:PoolShape a sh:NodeShape ;
+    sh:targetClass bitstar:Pool ;
+    rdfs:label "Pool Shape" ;
+    rdfs:comment "Validation shape for actor pools" ;
+    sh:property [
+        sh:path bitstar:maxInstances ;
+        sh:datatype xsd:int ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 1000 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        rdfs:comment "Pool must have between 1-1000 max instances"
+    ] ;
+    sh:property [
+        sh:path bitstar:contains ;
+        sh:class bitstar:Actor ;
+        sh:minCount 1 ;
+        rdfs:comment "Pool must contain at least one actor"
+    ] .
+
+bs-shapes:SupervisorShape a sh:NodeShape ;
+    sh:targetClass bitstar:Supervisor ;
+    rdfs:label "Supervisor Shape" ;
+    rdfs:comment "Validation shape for supervisors" ;
+    sh:property [
+        sh:path bitstar:supervises ;
+        sh:class bitstar:BitActor ;
+        sh:minCount 1 ;
+        rdfs:comment "Supervisor must supervise at least one actor"
+    ] .
+
+# =====================
+# BitFlow Shapes
+# =====================
+
+bs-shapes:BitFlowShape a sh:NodeShape ;
+    sh:targetClass bitstar:BitFlow ;
+    rdfs:label "BitFlow Shape" ;
+    rdfs:comment "Validation shape for workflows" ;
+    sh:property [
+        sh:path bitstar:hasStage ;
+        sh:class bitstar:Stage ;
+        sh:minCount 1 ;
+        rdfs:comment "Workflow must have at least one stage"
+    ] ;
+    sh:property [
+        sh:path bitstar:implementsPattern ;
+        sh:class bitstar:Pattern ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        rdfs:comment "Workflow must implement exactly one pattern"
+    ] .
+
+bs-shapes:StageShape a sh:NodeShape ;
+    sh:targetClass bitstar:Stage ;
+    rdfs:label "Stage Shape" ;
+    rdfs:comment "Validation shape for workflow stages" ;
+    sh:property [
+        sh:path bitstar:transitionsTo ;
+        sh:class bitstar:Stage ;
+        rdfs:comment "Stage can transition to other stages"
+    ] .
+
+bs-shapes:PatternShape a sh:NodeShape ;
+    sh:targetClass bitstar:Pattern ;
+    rdfs:label "Pattern Shape" ;
+    rdfs:comment "Validation shape for workflow patterns" ;
+    sh:property [
+        sh:path bitstar:patternType ;
+        sh:datatype xsd:string ;
+        sh:in ( "sequential" "parallel" "conditional" "loop" "scatter-gather" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        rdfs:comment "Pattern type must be one of the defined values"
+    ] .
+
+# =====================
+# Service Shapes
+# =====================
+
+bs-shapes:ServiceShape a sh:NodeShape ;
+    sh:targetClass bitstar:Service ;
+    rdfs:label "Service Shape" ;
+    rdfs:comment "Validation shape for all services" ;
+    sh:property [
+        sh:path bitstar:endpoint ;
+        sh:datatype xsd:anyURI ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        rdfs:comment "Service must have exactly one endpoint"
+    ] ;
+    sh:property [
+        sh:path bitstar:version ;
+        sh:datatype xsd:string ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?$" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        rdfs:comment "Version must follow semver format (e.g., 1.2.3)"
+    ] ;
+    sh:property [
+        sh:path bitstar:exposes ;
+        sh:class bitstar:DataModel ;
+        sh:minCount 1 ;
+        rdfs:comment "Service must expose at least one data model"
+    ] .
+
+bs-shapes:RESTServiceShape a sh:NodeShape ;
+    sh:targetClass bitstar:RESTService ;
+    rdfs:label "REST Service Shape" ;
+    rdfs:comment "Validation shape for REST services" ;
+    sh:property [
+        sh:path bitstar:endpoint ;
+        sh:pattern "^https?://.*" ;
+        rdfs:comment "REST service endpoint must use HTTP/HTTPS"
+    ] .
+
+bs-shapes:GraphQLServiceShape a sh:NodeShape ;
+    sh:targetClass bitstar:GraphQLService ;
+    rdfs:label "GraphQL Service Shape" ;
+    rdfs:comment "Validation shape for GraphQL services" ;
+    sh:property [
+        sh:path bitstar:endpoint ;
+        sh:pattern ".*/graphql$" ;
+        rdfs:comment "GraphQL endpoint should end with /graphql"
+    ] .
+
+bs-shapes:gRPCServiceShape a sh:NodeShape ;
+    sh:targetClass bitstar:gRPCService ;
+    rdfs:label "gRPC Service Shape" ;
+    rdfs:comment "Validation shape for gRPC services" ;
+    sh:property [
+        sh:path bitstar:endpoint ;
+        sh:pattern "^grpc://.*:\\d+$" ;
+        rdfs:comment "gRPC endpoint must use grpc:// scheme with port"
+    ] .
+
+bs-shapes:WebSocketServiceShape a sh:NodeShape ;
+    sh:targetClass bitstar:WebSocketService ;
+    rdfs:label "WebSocket Service Shape" ;
+    rdfs:comment "Validation shape for WebSocket services" ;
+    sh:property [
+        sh:path bitstar:endpoint ;
+        sh:pattern "^wss?://.*" ;
+        rdfs:comment "WebSocket endpoint must use ws:// or wss://"
+    ] .
+
+# =====================
+# Data Model Shapes
+# =====================
+
+bs-shapes:DataModelShape a sh:NodeShape ;
+    sh:targetClass bitstar:DataModel ;
+    rdfs:label "Data Model Shape" ;
+    rdfs:comment "Base validation shape for data models" ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        rdfs:comment "Data model must have a non-empty label"
+    ] .
+
+bs-shapes:EntityShape a sh:NodeShape ;
+    sh:targetClass bitstar:Entity ;
+    rdfs:label "Entity Shape" ;
+    rdfs:comment "Validation shape for entities" ;
+    sh:property [
+        sh:path bitstar:composedOf ;
+        sh:class bitstar:ValueObject ;
+        sh:minCount 1 ;
+        rdfs:comment "Entity must be composed of at least one value object"
+    ] ;
+    sh:property [
+        sh:path bitstar:hasRelationship ;
+        sh:class bitstar:Entity ;
+        rdfs:comment "Entity relationships must point to other entities"
+    ] .
+
+bs-shapes:ValueObjectShape a sh:NodeShape ;
+    sh:targetClass bitstar:ValueObject ;
+    rdfs:label "Value Object Shape" ;
+    rdfs:comment "Validation shape for value objects" ;
+    # Value objects should be immutable - no additional constraints needed
+    sh:closed false .
+
+# =====================
+# Constraint Shapes
+# =====================
+
+bs-shapes:ConstraintShape a sh:NodeShape ;
+    sh:targetClass bitstar:Constraint ;
+    rdfs:label "Constraint Shape" ;
+    rdfs:comment "Validation shape for constraints" ;
+    sh:property [
+        sh:path bitstar:constrains ;
+        sh:class bitstar:DataModel ;
+        sh:minCount 1 ;
+        rdfs:comment "Constraint must apply to at least one data model"
+    ] .
+
+bs-shapes:ValidationRuleShape a sh:NodeShape ;
+    sh:targetClass bitstar:ValidationRule ;
+    rdfs:label "Validation Rule Shape" ;
+    rdfs:comment "Validation shape for validation rules" ;
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:pattern ".*[Vv]alidat.*" ;
+        rdfs:comment "Validation rule comment must describe validation logic"
+    ] .
+
+bs-shapes:BusinessRuleShape a sh:NodeShape ;
+    sh:targetClass bitstar:BusinessRule ;
+    rdfs:label "Business Rule Shape" ;
+    rdfs:comment "Validation shape for business rules" ;
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:minLength 10 ;
+        rdfs:comment "Business rule must have detailed description"
+    ] .
+
+# =====================
+# Instrumentation Shapes
+# =====================
+
+bs-shapes:InstrumentationShape a sh:NodeShape ;
+    sh:targetClass bitstar:Instrumentation ;
+    rdfs:label "Instrumentation Shape" ;
+    rdfs:comment "Validation shape for instrumentation" ;
+    sh:property [
+        sh:path bitstar:instruments ;
+        sh:or (
+            [ sh:class bitstar:Service ]
+            [ sh:class bitstar:BitActor ]
+            [ sh:class bitstar:BitFlow ]
+        ) ;
+        sh:minCount 1 ;
+        rdfs:comment "Instrumentation must target services, actors, or flows"
+    ] .
+
+bs-shapes:MetricShape a sh:NodeShape ;
+    sh:targetClass bitstar:Metric ;
+    rdfs:label "Metric Shape" ;
+    rdfs:comment "Validation shape for metrics" ;
+    sh:property [
+        sh:path bitstar:metricName ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z][a-z0-9_]*[a-z0-9]$" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        rdfs:comment "Metric name must be snake_case lowercase"
+    ] .
+
+bs-shapes:TraceShape a sh:NodeShape ;
+    sh:targetClass bitstar:Trace ;
+    rdfs:label "Trace Shape" ;
+    rdfs:comment "Validation shape for traces" ;
+    sh:property [
+        sh:path bitstar:spanName ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z][a-z0-9_]*[a-z0-9]$" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        rdfs:comment "Span name must be snake_case lowercase"
+    ] .
+
+# =====================
+# Cross-Cutting Validation Rules
+# =====================
+
+# Rule: Services that implement workflows must expose compatible data models
+bs-shapes:ServiceWorkflowCompatibility a sh:NodeShape ;
+    sh:targetClass bitstar:Service ;
+    rdfs:label "Service-Workflow Compatibility" ;
+    rdfs:comment "Services implementing workflows must expose compatible data" ;
+    sh:sparql [
+        sh:message "Service implements workflow but doesn't expose related data models" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "bitstar" ;
+                sh:namespace "http://bitstar.io/ontology#"
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bitstar:implements ?workflow .
+                ?workflow bitstar:hasStage ?stage .
+                FILTER NOT EXISTS {
+                    $this bitstar:exposes ?data .
+                    ?data rdfs:label ?label .
+                }
+            }
+        """
+    ] .
+
+# Rule: Pools must have realistic maximum instances based on system constraints
+bs-shapes:RealisticPoolSize a sh:NodeShape ;
+    sh:targetClass bitstar:Pool ;
+    rdfs:label "Realistic Pool Size" ;
+    rdfs:comment "Pool sizes should be reasonable for system resources" ;
+    sh:property [
+        sh:path bitstar:maxInstances ;
+        sh:maxInclusive 100 ;
+        sh:message "Pool size over 100 may cause resource exhaustion"
+    ] .
+
+# Rule: Workflow stages should form a connected graph (no orphaned stages)
+bs-shapes:ConnectedWorkflow a sh:NodeShape ;
+    sh:targetClass bitstar:BitFlow ;
+    rdfs:label "Connected Workflow" ;
+    rdfs:comment "All workflow stages should be reachable" ;
+    sh:sparql [
+        sh:message "Workflow contains disconnected stages" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "bitstar" ;
+                sh:namespace "http://bitstar.io/ontology#"
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bitstar:hasStage ?stage1 .
+                $this bitstar:hasStage ?stage2 .
+                FILTER(?stage1 != ?stage2)
+                FILTER NOT EXISTS {
+                    ?stage1 bitstar:transitionsTo* ?stage2
+                }
+                FILTER NOT EXISTS {
+                    ?stage2 bitstar:transitionsTo* ?stage1
+                }
+            }
+        """
+    ] .
+
+# Rule: Actors in pools should be compatible with pool purpose
+bs-shapes:PoolActorCompatibility a sh:NodeShape ;
+    sh:targetClass bitstar:Pool ;
+    rdfs:label "Pool-Actor Compatibility" ;
+    rdfs:comment "Pool should contain actors suitable for its purpose" ;
+    sh:property [
+        sh:path bitstar:contains ;
+        sh:nodeKind sh:IRI ;
+        rdfs:comment "Pool must contain valid actor instances"
+    ] .
+
+# Rule: Supervisor hierarchy should be acyclic (no circular supervision)
+bs-shapes:AcyclicSupervision a sh:NodeShape ;
+    sh:targetClass bitstar:Supervisor ;
+    rdfs:label "Acyclic Supervision" ;
+    rdfs:comment "Supervision hierarchy must not contain cycles" ;
+    sh:sparql [
+        sh:message "Circular supervision detected" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "bitstar" ;
+                sh:namespace "http://bitstar.io/ontology#"
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bitstar:supervises+ $this
+            }
+        """
+    ] .
+
+# Rule: Service endpoints should be unique across the system
+bs-shapes:UniqueServiceEndpoints a sh:NodeShape ;
+    sh:targetClass bitstar:Service ;
+    rdfs:label "Unique Service Endpoints" ;
+    rdfs:comment "No two services should share the same endpoint" ;
+    sh:sparql [
+        sh:message "Duplicate service endpoint detected" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "bitstar" ;
+                sh:namespace "http://bitstar.io/ontology#"
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bitstar:endpoint ?endpoint .
+                ?other bitstar:endpoint ?endpoint .
+                FILTER($this != ?other)
+            }
+        """
+    ] .
+
+# Rule: Metrics and traces should have meaningful names related to what they instrument
+bs-shapes:MeaningfulInstrumentationNames a sh:NodeShape ;
+    sh:targetClass bitstar:Instrumentation ;
+    rdfs:label "Meaningful Instrumentation Names" ;
+    rdfs:comment "Instrumentation names should relate to instrumented components" ;
+    sh:sparql [
+        sh:message "Instrumentation name doesn't match instrumented component" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "bitstar" ;
+                sh:namespace "http://bitstar.io/ontology#"
+            ] ;
+            sh:declare [
+                sh:prefix "rdfs" ;
+                sh:namespace "http://www.w3.org/2000/01/rdf-schema#"
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                {
+                    $this a bitstar:Metric ;
+                    bitstar:metricName ?name ;
+                    bitstar:instruments ?target .
+                    ?target rdfs:label ?targetLabel .
+                } UNION {
+                    $this a bitstar:Trace ;
+                    bitstar:spanName ?name ;
+                    bitstar:instruments ?target .
+                    ?target rdfs:label ?targetLabel .
+                }
+                FILTER(!CONTAINS(LCASE(?name), LCASE(?targetLabel)))
+            }
+        """
+    ] .
+
+# Performance-related constraints
+bs-shapes:PerformanceConstraints a sh:NodeShape ;
+    sh:targetClass bitstar:Service ;
+    rdfs:label "Performance Constraints" ;
+    rdfs:comment "Services should have reasonable performance characteristics" ;
+    sh:sparql [
+        sh:message "Service lacks performance instrumentation" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "bitstar" ;
+                sh:namespace "http://bitstar.io/ontology#"
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this a bitstar:Service .
+                FILTER NOT EXISTS {
+                    ?metric bitstar:instruments $this ;
+                           bitstar:metricName ?name .
+                    FILTER(CONTAINS(?name, "duration") || CONTAINS(?name, "latency"))
+                }
+            }
+        """
+    ] .

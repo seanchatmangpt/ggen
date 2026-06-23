@@ -1,0 +1,81 @@
+# SPARQL SELECT Query: Extract PhD Defense Data for Documentation
+# Extracts all claims, benchmarks, tests, and proofs for Tera rendering
+
+PREFIX phd: <http://chatmangpt.com/phd/2026#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Project metadata
+SELECT ?project_name ?epoch_id ?epoch_timestamp WHERE {
+  BIND("ChatmanGPT PhD Defense 2026" AS ?project_name)
+  BIND("epoch-$(date +%s)" AS ?epoch_id)
+  BIND("$(date -u +"%Y-%m-%dT%H:%M:%SZ")"^^xsd:dateTime AS ?epoch_timestamp)
+}
+
+# Defense claims
+SELECT ?id ?label ?claim_text ?actual_result ?evidence ?status ?proof_artifact WHERE {
+  ?claim a phd:DefenseClaim ;
+         rdfs:label ?label ;
+         phd:claimText ?claim_text ;
+         phd:actualResult ?actual_result ;
+         phd:evidence ?evidence ;
+         phd:status ?status ;
+         phd:proofArtifact ?proof_artifact .
+  BIND(REPLACE(STR(?claim), ".*#", "") AS ?id)
+}
+ORDER BY ?id
+
+# pm4py-mcp benchmarks
+SELECT ?algorithm ?input_size ?avg_time ?min_time ?max_time ?hardware ?speedup WHERE {
+  ?bench a phd:BenchmarkResult ;
+         rdfs:label ?label ;
+         phd:system phd:pm4py-mcp ;
+         phd:algorithm ?algorithm ;
+         phd:inputSize ?input_size ;
+         phd:avgTime ?avg_time ;
+         phd:minTime ?min_time ;
+         phd:maxTime ?max_time ;
+         phd:hardware ?hardware .
+  OPTIONAL { ?bench phd:speedup ?speedup }
+}
+
+# BusinessOS benchmarks
+SELECT ?component ?operation ?avg_time ?allocations WHERE {
+  ?bench a phd:BenchmarkResult ;
+         rdfs:label ?label ;
+         phd:system phd:BusinessOS ;
+         phd:component ?component ;
+         phd:operation ?operation ;
+         phd:avgTime ?avg_time ;
+         phd:allocations ?allocations .
+}
+
+# Test results
+SELECT ?system ?total ?passing ?failing ?warnings ?date WHERE {
+  ?test a phd:TestResult ;
+         rdfs:label ?label ;
+         phd:system ?system_name ;
+         phd:totalTests ?total ;
+         phd:passingTests ?passing ;
+         phd:failingTests ?failing ;
+         phd:compilerWarnings ?warnings ;
+         phd:date ?date .
+  BIND(REPLACE(STR(?system_name), ".*#", "") AS ?system)
+}
+
+# Verification proofs
+SELECT ?id ?system ?otel_span ?otel_service ?test_assertion ?weaver_check ?weaver_schema ?date WHERE {
+  ?proof a phd:VerificationProof ;
+         rdfs:label ?label ;
+         phd:system ?system_name ;
+         phd:otelSpan ?otel_span ;
+         phd:otelService ?otel_service ;
+         phd:testAssertion ?test_assertion ;
+         phd:weaverCheck ?weaver_check ;
+         phd:weaverSchema ?weaver_schema ;
+         phd:date ?date .
+  BIND(REPLACE(STR(?proof), ".*#", "") AS ?id)
+  BIND(REPLACE(STR(?system_name), ".*#", "") AS ?system)
+}
+ORDER BY ?id

@@ -1,0 +1,21 @@
+PREFIX java: <https://jgen.dev/ontology/java#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Extract record declarations with their components and validation
+SELECT ?record ?name ?package ?component ?componentName ?componentType ?annotation ?hasCompactConstructor
+WHERE {
+    ?record a java:Record .
+    ?record java:hasName ?name .
+
+    OPTIONAL { ?record java:hasPackage ?package }
+    OPTIONAL {
+        ?record java:hasComponent ?component .
+        ?component java:hasName ?componentName .
+        ?component java:hasType ?componentType .
+        OPTIONAL { ?component java:hasAnnotation ?annotation }
+    }
+    OPTIONAL { ?record java:hasConstructor ?ctor }
+
+    BIND(EXISTS { ?record java:hasConstructor ?_ } AS ?hasCompactConstructor)
+}
+ORDER BY ?package ?name

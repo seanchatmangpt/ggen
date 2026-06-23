@@ -1,0 +1,449 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix opt: <https://gitvan.dev/workflow/optimization#> .
+
+# ============================================================================
+# Workflow Optimization Ontology (Phase 6)
+# ============================================================================
+# Defines classes, properties, and SHACL shapes for workflow optimization
+# support in GitVan, enabling parallelization detection, critical path
+# analysis, and performance optimization through RDF and SPARQL.
+# ============================================================================
+
+# ============================================================================
+# Section 1: Core Classes
+# ============================================================================
+
+opt:WorkflowStep a owl:Class ;
+  rdfs:label "Workflow Step"@en ;
+  rdfs:comment "A single step in a workflow execution plan"@en ;
+  rdfs:subClassOf gv:Step .
+
+opt:StepDependency a owl:Class ;
+  rdfs:label "Step Dependency"@en ;
+  rdfs:comment "A dependency relationship between workflow steps"@en .
+
+opt:CriticalPath a owl:Class ;
+  rdfs:label "Critical Path"@en ;
+  rdfs:comment "The longest path through a workflow dependency graph"@en .
+
+opt:ParallelBatch a owl:Class ;
+  rdfs:label "Parallel Batch"@en ;
+  rdfs:comment "A batch of steps that can execute in parallel"@en .
+
+opt:OptimizationSuggestion a owl:Class ;
+  rdfs:label "Optimization Suggestion"@en ;
+  rdfs:comment "A recommendation for workflow performance optimization"@en .
+
+opt:PerformanceProfile a owl:Class ;
+  rdfs:label "Performance Profile"@en ;
+  rdfs:comment "Performance characteristics of a workflow or step"@en .
+
+opt:BottleneckStep a owl:Class ;
+  rdfs:label "Bottleneck Step"@en ;
+  rdfs:comment "A step that significantly impacts overall workflow duration"@en ;
+  rdfs:subClassOf opt:WorkflowStep .
+
+opt:ParallelizableStep a owl:Class ;
+  rdfs:label "Parallelizable Step"@en ;
+  rdfs:comment "A step that can execute in parallel with others"@en ;
+  rdfs:subClassOf opt:WorkflowStep .
+
+# ============================================================================
+# Section 2: Properties
+# ============================================================================
+
+# Duration and Performance Properties
+opt:duration a rdf:Property ;
+  rdfs:label "Duration"@en ;
+  rdfs:comment "Estimated execution duration in milliseconds"@en ;
+  rdfs:range xsd:int ;
+  rdfs:domain opt:WorkflowStep .
+
+opt:actualDuration a rdf:Property ;
+  rdfs:label "Actual Duration"@en ;
+  rdfs:comment "Actual execution duration in milliseconds"@en ;
+  rdfs:range xsd:int ;
+  rdfs:domain opt:WorkflowStep .
+
+opt:estimatedDuration a rdf:Property ;
+  rdfs:label "Estimated Duration"@en ;
+  rdfs:comment "Estimated total workflow duration"@en ;
+  rdfs:range xsd:int .
+
+opt:criticalPathDuration a rdf:Property ;
+  rdfs:label "Critical Path Duration"@en ;
+  rdfs:comment "Total duration of the critical path"@en ;
+  rdfs:range xsd:int .
+
+# Dependency Properties
+opt:dependsOn a rdf:Property ;
+  rdfs:label "Depends On"@en ;
+  rdfs:comment "Direct dependency on another step"@en ;
+  rdfs:domain opt:WorkflowStep ;
+  rdfs:range opt:WorkflowStep .
+
+opt:dependencies a rdf:Property ;
+  rdfs:label "Dependencies"@en ;
+  rdfs:comment "RDF list of all dependencies for a step"@en ;
+  rdfs:domain opt:WorkflowStep ;
+  rdfs:range rdf:List .
+
+opt:dependentSteps a rdf:Property ;
+  rdfs:label "Dependent Steps"@en ;
+  rdfs:comment "Steps that depend on this step"@en ;
+  rdfs:domain opt:WorkflowStep ;
+  rdfs:range rdf:List .
+
+# Parallelization Properties
+opt:canParallelize a rdf:Property ;
+  rdfs:label "Can Parallelize"@en ;
+  rdfs:comment "Whether a step can execute in parallel with others"@en ;
+  rdfs:range xsd:boolean ;
+  rdfs:domain opt:WorkflowStep .
+
+opt:parallelizableWith a rdf:Property ;
+  rdfs:label "Parallelizable With"@en ;
+  rdfs:comment "Steps that can execute in parallel with this step"@en ;
+  rdfs:domain opt:WorkflowStep ;
+  rdfs:range rdf:List .
+
+opt:inParallelBatch a rdf:Property ;
+  rdfs:label "In Parallel Batch"@en ;
+  rdfs:comment "The parallel batch this step belongs to"@en ;
+  rdfs:domain opt:WorkflowStep ;
+  rdfs:range opt:ParallelBatch .
+
+opt:batchIndex a rdf:Property ;
+  rdfs:label "Batch Index"@en ;
+  rdfs:comment "Index of the parallel batch (0-based)"@en ;
+  rdfs:range xsd:int ;
+  rdfs:domain opt:ParallelBatch .
+
+opt:batchSteps a rdf:Property ;
+  rdfs:label "Batch Steps"@en ;
+  rdfs:comment "Steps in this parallel batch"@en ;
+  rdfs:range rdf:List ;
+  rdfs:domain opt:ParallelBatch .
+
+# Critical Path Properties
+opt:onCriticalPath a rdf:Property ;
+  rdfs:label "On Critical Path"@en ;
+  rdfs:comment "Whether this step is on the critical path"@en ;
+  rdfs:range xsd:boolean ;
+  rdfs:domain opt:WorkflowStep .
+
+opt:criticalPathIndex a rdf:Property ;
+  rdfs:label "Critical Path Index"@en ;
+  rdfs:comment "Position in the critical path (0 = first)"@en ;
+  rdfs:range xsd:int ;
+  rdfs:domain opt:WorkflowStep .
+
+opt:pathLength a rdf:Property ;
+  rdfs:label "Path Length"@en ;
+  rdfs:comment "Length of the critical path from this step"@en ;
+  rdfs:range xsd:int ;
+  rdfs:domain opt:WorkflowStep .
+
+# Optimization Properties
+opt:isBottleneck a rdf:Property ;
+  rdfs:label "Is Bottleneck"@en ;
+  rdfs:comment "Whether this step is a performance bottleneck"@en ;
+  rdfs:range xsd:boolean ;
+  rdfs:domain opt:WorkflowStep .
+
+opt:optimizationPotential a rdf:Property ;
+  rdfs:label "Optimization Potential"@en ;
+  rdfs:comment "Potential time savings from optimization (ms)"@en ;
+  rdfs:range xsd:int ;
+  rdfs:domain opt:WorkflowStep .
+
+opt:complexity a rdf:Property ;
+  rdfs:label "Complexity"@en ;
+  rdfs:comment "Complexity level: low, medium, high"@en ;
+  rdfs:range [ a rdfs:Datatype ; owl:oneOf ("low" "medium" "high") ] ;
+  rdfs:domain opt:WorkflowStep .
+
+opt:parallelizationGain a rdf:Property ;
+  rdfs:label "Parallelization Gain"@en ;
+  rdfs:comment "Time saved by parallelizing steps (milliseconds)"@en ;
+  rdfs:range xsd:int .
+
+opt:potentialTimeSavings a rdf:Property ;
+  rdfs:label "Potential Time Savings"@en ;
+  rdfs:comment "Total time that could be saved with optimizations"@en ;
+  rdfs:range xsd:int .
+
+# Optimization Suggestion Properties
+opt:suggestionType a rdf:Property ;
+  rdfs:label "Suggestion Type"@en ;
+  rdfs:comment "Type of optimization: parallelization, caching, optimization, restructuring"@en ;
+  rdfs:range [ a rdfs:Datatype ; owl:oneOf ("parallelization" "caching" "optimization" "restructuring") ] ;
+  rdfs:domain opt:OptimizationSuggestion .
+
+opt:targetStep a rdf:Property ;
+  rdfs:label "Target Step"@en ;
+  rdfs:comment "The step to which this suggestion applies"@en ;
+  rdfs:domain opt:OptimizationSuggestion ;
+  rdfs:range opt:WorkflowStep .
+
+opt:estimatedSavings a rdf:Property ;
+  rdfs:label "Estimated Savings"@en ;
+  rdfs:comment "Estimated time savings from this suggestion (ms)"@en ;
+  rdfs:range xsd:int ;
+  rdfs:domain opt:OptimizationSuggestion .
+
+opt:priority a rdf:Property ;
+  rdfs:label "Priority"@en ;
+  rdfs:comment "Priority level: low, medium, high, critical"@en ;
+  rdfs:range [ a rdfs:Datatype ; owl:oneOf ("low" "medium" "high" "critical") ] ;
+  rdfs:domain opt:OptimizationSuggestion .
+
+opt:description a rdf:Property ;
+  rdfs:label "Description"@en ;
+  rdfs:comment "Human-readable description of the suggestion"@en ;
+  rdfs:range xsd:string ;
+  rdfs:domain opt:OptimizationSuggestion .
+
+opt:applicability a rdf:Property ;
+  rdfs:label "Applicability"@en ;
+  rdfs:comment "How applicable this suggestion is (0.0-1.0)"@en ;
+  rdfs:range [ rdf:type rdfs:Datatype ; xsd:minInclusive 0.0 ; xsd:maxInclusive 1.0 ] ;
+  rdfs:domain opt:OptimizationSuggestion .
+
+# Performance Profile Properties
+opt:avgDuration a rdf:Property ;
+  rdfs:label "Average Duration"@en ;
+  rdfs:comment "Average step duration"@en ;
+  rdfs:range xsd:int ;
+  rdfs:domain opt:PerformanceProfile .
+
+opt:maxDuration a rdf:Property ;
+  rdfs:label "Max Duration"@en ;
+  rdfs:comment "Maximum step duration"@en ;
+  rdfs:range xsd:int ;
+  rdfs:domain opt:PerformanceProfile .
+
+opt:minDuration a rdf:Property ;
+  rdfs:label "Min Duration"@en ;
+  rdfs:comment "Minimum step duration"@en ;
+  rdfs:range xsd:int ;
+  rdfs:domain opt:PerformanceProfile .
+
+opt:executionCount a rdf:Property ;
+  rdfs:label "Execution Count"@en ;
+  rdfs:comment "Number of times this step has executed"@en ;
+  rdfs:range xsd:int ;
+  rdfs:domain opt:PerformanceProfile .
+
+# ============================================================================
+# Section 3: SHACL Shapes for Validation
+# ============================================================================
+
+opt:WorkflowStepShape a sh:NodeShape ;
+  sh:targetClass opt:WorkflowStep ;
+  sh:property [
+    sh:path gv:id ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Step ID"@en ;
+  ] ;
+  sh:property [
+    sh:path gv:type ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Step Type"@en ;
+  ] ;
+  sh:property [
+    sh:path opt:duration ;
+    sh:datatype xsd:int ;
+    sh:minInclusive 0 ;
+    sh:name "Duration"@en ;
+  ] ;
+  sh:property [
+    sh:path opt:canParallelize ;
+    sh:datatype xsd:boolean ;
+    sh:name "Can Parallelize"@en ;
+  ] ;
+  sh:property [
+    sh:path opt:complexity ;
+    sh:in ("low" "medium" "high") ;
+    sh:name "Complexity"@en ;
+  ] .
+
+opt:CriticalPathShape a sh:NodeShape ;
+  sh:targetClass opt:CriticalPath ;
+  sh:property [
+    sh:path opt:criticalPathDuration ;
+    sh:datatype xsd:int ;
+    sh:minInclusive 0 ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Critical Path Duration"@en ;
+  ] ;
+  sh:property [
+    sh:path opt:batchSteps ;
+    sh:node sh:List ;
+    sh:minCount 1 ;
+    sh:name "Path Steps"@en ;
+  ] .
+
+opt:ParallelBatchShape a sh:NodeShape ;
+  sh:targetClass opt:ParallelBatch ;
+  sh:property [
+    sh:path opt:batchIndex ;
+    sh:datatype xsd:int ;
+    sh:minInclusive 0 ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Batch Index"@en ;
+  ] ;
+  sh:property [
+    sh:path opt:batchSteps ;
+    sh:node sh:List ;
+    sh:minCount 1 ;
+    sh:name "Batch Steps"@en ;
+  ] .
+
+opt:OptimizationSuggestionShape a sh:NodeShape ;
+  sh:targetClass opt:OptimizationSuggestion ;
+  sh:property [
+    sh:path opt:suggestionType ;
+    sh:in ("parallelization" "caching" "optimization" "restructuring") ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Suggestion Type"@en ;
+  ] ;
+  sh:property [
+    sh:path opt:targetStep ;
+    sh:nodeKind sh:IRI ;
+    sh:minCount 1 ;
+    sh:name "Target Step"@en ;
+  ] ;
+  sh:property [
+    sh:path opt:estimatedSavings ;
+    sh:datatype xsd:int ;
+    sh:minInclusive 0 ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Estimated Savings"@en ;
+  ] ;
+  sh:property [
+    sh:path opt:description ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 10 ;
+    sh:name "Description"@en ;
+  ] ;
+  sh:property [
+    sh:path opt:applicability ;
+    sh:datatype xsd:float ;
+    sh:minInclusive 0.0 ;
+    sh:maxInclusive 1.0 ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Applicability"@en ;
+  ] ;
+  sh:property [
+    sh:path opt:priority ;
+    sh:in ("low" "medium" "high" "critical") ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Priority"@en ;
+  ] .
+
+opt:PerformanceProfileShape a sh:NodeShape ;
+  sh:targetClass opt:PerformanceProfile ;
+  sh:property [
+    sh:path opt:avgDuration ;
+    sh:datatype xsd:int ;
+    sh:minInclusive 0 ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Average Duration"@en ;
+  ] ;
+  sh:property [
+    sh:path opt:executionCount ;
+    sh:datatype xsd:int ;
+    sh:minInclusive 0 ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Execution Count"@en ;
+  ] .
+
+# ============================================================================
+# Section 4: Inference Rules (SPARQL-based)
+# ============================================================================
+
+# Rule 1: Identify parallelizable steps (no dependencies or independent dependencies)
+opt:ParallelizableStepRule a owl:Rule ;
+  rdfs:label "Parallelizable Step Identification"@en ;
+  rdfs:comment "Steps with no mutual dependencies can be parallelized"@en .
+
+# Rule 2: Critical path calculation
+opt:CriticalPathRule a owl:Rule ;
+  rdfs:label "Critical Path Calculation"@en ;
+  rdfs:comment "Calculate the longest path through the dependency DAG"@en .
+
+# Rule 3: Bottleneck identification
+opt:BottleneckIdentificationRule a owl:Rule ;
+  rdfs:label "Bottleneck Identification"@en ;
+  rdfs:comment "Steps on the critical path with high duration are bottlenecks"@en .
+
+# Rule 4: Optimization potential calculation
+opt:OptimizationPotentialRule a owl:Rule ;
+  rdfs:label "Optimization Potential"@en ;
+  rdfs:comment "Calculate potential time savings for each optimization type"@en .
+
+# ============================================================================
+# Section 5: Workflow Composition Ontology Extensions
+# ============================================================================
+
+opt:ComposedWorkflow a owl:Class ;
+  rdfs:label "Composed Workflow"@en ;
+  rdfs:comment "A workflow composed from multiple sub-workflows"@en ;
+  rdfs:subClassOf gv:Workflow .
+
+opt:subworkflows a rdf:Property ;
+  rdfs:label "Sub-workflows"@en ;
+  rdfs:comment "RDF list of sub-workflows in a composed workflow"@en ;
+  rdfs:domain opt:ComposedWorkflow ;
+  rdfs:range rdf:List .
+
+opt:compositionStrategy a rdf:Property ;
+  rdfs:label "Composition Strategy"@en ;
+  rdfs:comment "How sub-workflows are composed: sequential, parallel, or mixed"@en ;
+  rdfs:range [ a rdfs:Datatype ; owl:oneOf ("sequential" "parallel" "mixed") ] ;
+  rdfs:domain opt:ComposedWorkflow .
+
+# ============================================================================
+# Section 6: Example Workflow Patterns
+# ============================================================================
+
+# Pattern 1: Linear workflow
+opt:LinearWorkflowPattern a owl:Class ;
+  rdfs:label "Linear Workflow Pattern"@en ;
+  rdfs:comment "Sequential steps with no parallelization opportunity"@en .
+
+# Pattern 2: Diamond dependency pattern
+opt:DiamondPattern a owl:Class ;
+  rdfs:label "Diamond Dependency Pattern"@en ;
+  rdfs:comment "Parallel branches converging to a single step"@en .
+
+# Pattern 3: Fan-out pattern
+opt:FanOutPattern a owl:Class ;
+  rdfs:label "Fan-Out Pattern"@en ;
+  rdfs:comment "Single step spawning multiple independent paths"@en .
+
+# Pattern 4: Complex DAG
+opt:ComplexDAGPattern a owl:Class ;
+  rdfs:label "Complex DAG Pattern"@en ;
+  rdfs:comment "Complex multi-level dependency graph with multiple parallelization opportunities"@en .

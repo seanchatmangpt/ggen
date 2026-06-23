@@ -1,0 +1,440 @@
+# FactoryPaaS Infrastructure - GCP Deployment Topology
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix cloud: <https://ggen.io/ontology/cloud#> .
+@prefix togaf: <https://ggen.io/ontology/togaf#> .
+@prefix fpaa:  <https://factorypaaS.io/ontology#> .
+
+# ============================================================================
+# TOGAF ARCHITECTURE BUILDING BLOCKS
+# ============================================================================
+
+fpaa:FactoryPaaSServiceABB a togaf:ArchitectureBuildingBlock ;
+  togaf:name "FactoryPaaS Platform" ;
+  rdfs:comment "Logical affiliate site generation and hosting platform" ;
+  togaf:capability "Generate, deploy, and monetize SEO-optimized affiliate sites" ;
+  togaf:realizedBy fpaa:FactoryPaaSServiceSBB .
+
+fpaa:FactoryPaaSServiceSBB a togaf:SolutionBuildingBlock ;
+  togaf:name "factorypaaS-platform" ;
+  rdfs:comment "Rust + Axum microservices platform" ;
+  togaf:technology "Rust" ;
+  togaf:framework "Axum" ;
+  togaf:runsOn fpaa:CloudRunService .
+
+fpaa:ContentGenerationABB a togaf:ArchitectureBuildingBlock ;
+  togaf:name "AI Content Generator" ;
+  rdfs:comment "AI-powered SEO content creation service" ;
+  togaf:capability "Generate keyword-optimized affiliate content" ;
+  togaf:realizedBy fpaa:ContentGenerationSBB .
+
+fpaa:ContentGenerationSBB a togaf:SolutionBuildingBlock ;
+  togaf:name "content-generator" ;
+  rdfs:comment "LLM-based content generation with SEO optimization" ;
+  togaf:technology "Rust + genai" ;
+  togaf:aiProvider "openai,anthropic,google" ;
+  togaf:runsOn fpaa:CloudRunContentService .
+
+# ============================================================================
+# GCP CLOUD RUN SERVICES
+# ============================================================================
+
+fpaa:CloudRunService a cloud:ComputeService ;
+  cloud:name "factorypaaS-api" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud Run" ;
+  cloud:region "us-central1" ;
+  cloud:containerImage "gcr.io/PROJECT_ID/factorypaaS-api:latest" ;
+  cloud:port "8080" ;
+  cloud:minInstances "0" ;
+  cloud:maxInstances "100" ;
+  cloud:cpuLimit "2000m" ;
+  cloud:memoryLimit "2Gi" ;
+  cloud:concurrency "80" ;
+  cloud:timeout "300s" ;
+  cloud:autoScaling true ;
+  cloud:publicAccess true ;
+  rdfs:comment "Main API service for site management and click tracking" .
+
+fpaa:CloudRunContentService a cloud:ComputeService ;
+  cloud:name "factorypaaS-content-gen" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud Run" ;
+  cloud:region "us-central1" ;
+  cloud:containerImage "gcr.io/PROJECT_ID/content-generator:latest" ;
+  cloud:port "8081" ;
+  cloud:minInstances "1" ;
+  cloud:maxInstances "50" ;
+  cloud:cpuLimit "4000m" ;
+  cloud:memoryLimit "8Gi" ;
+  cloud:concurrency "10" ;
+  cloud:timeout "900s" ;
+  cloud:autoScaling true ;
+  cloud:publicAccess false ;
+  rdfs:comment "AI content generation service (internal only)" .
+
+fpaa:CloudRunSiteRenderer a cloud:ComputeService ;
+  cloud:name "factorypaaS-site-renderer" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud Run" ;
+  cloud:region "us-central1" ;
+  cloud:containerImage "gcr.io/PROJECT_ID/site-renderer:latest" ;
+  cloud:port "8082" ;
+  cloud:minInstances "0" ;
+  cloud:maxInstances "200" ;
+  cloud:cpuLimit "1000m" ;
+  cloud:memoryLimit "1Gi" ;
+  cloud:concurrency "100" ;
+  cloud:timeout "60s" ;
+  cloud:autoScaling true ;
+  cloud:publicAccess true ;
+  rdfs:comment "Serves published affiliate site content" .
+
+# ============================================================================
+# CLOUD STORAGE
+# ============================================================================
+
+fpaa:ContentBucket a cloud:StorageBucket ;
+  cloud:name "factorypaaS-content-{site-id}" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud Storage" ;
+  cloud:region "us-central1" ;
+  cloud:storageClass "STANDARD" ;
+  cloud:versioning true ;
+  cloud:lifecycleRules "delete after 90 days (archived status)" ;
+  cloud:publicAccess true ;
+  cloud:cors true ;
+  rdfs:comment "Per-site content storage (HTML, images, assets)" .
+
+fpaa:AssetsCDNBucket a cloud:StorageBucket ;
+  cloud:name "factorypaaS-assets-cdn" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud Storage" ;
+  cloud:region "us" ;
+  cloud:storageClass "STANDARD" ;
+  cloud:cdnEnabled true ;
+  cloud:publicAccess true ;
+  cloud:cacheControl "public, max-age=31536000" ;
+  rdfs:comment "Global CDN-backed asset storage" .
+
+fpaa:BackupBucket a cloud:StorageBucket ;
+  cloud:name "factorypaaS-backups" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud Storage" ;
+  cloud:region "us-central1" ;
+  cloud:storageClass "NEARLINE" ;
+  cloud:versioning true ;
+  cloud:retentionPolicyDays "365" ;
+  cloud:publicAccess false ;
+  rdfs:comment "Encrypted backups with 1-year retention" .
+
+# ============================================================================
+# CLOUD CDN
+# ============================================================================
+
+fpaa:GlobalCDN a cloud:CDN ;
+  cloud:name "factorypaaS-cdn" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud CDN" ;
+  cloud:backend fpaa:AssetsCDNBucket ;
+  cloud:cacheMode "CACHE_ALL_STATIC" ;
+  cloud:defaultTTL "3600" ;
+  cloud:maxTTL "86400" ;
+  cloud:negativeCache true ;
+  cloud:compressionEnabled true ;
+  rdfs:comment "Global edge caching for static assets" .
+
+fpaa:SiteCDN a cloud:CDN ;
+  cloud:name "factorypaaS-site-cdn-{site-id}" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud CDN" ;
+  cloud:backend fpaa:CloudRunSiteRenderer ;
+  cloud:cacheMode "USE_ORIGIN_HEADERS" ;
+  cloud:defaultTTL "300" ;
+  cloud:maxTTL "3600" ;
+  cloud:compressionEnabled true ;
+  rdfs:comment "Per-site content CDN with origin-based caching" .
+
+# ============================================================================
+# CLOUD SQL (POSTGRESQL)
+# ============================================================================
+
+fpaa:PostgreSQLInstance a cloud:Database ;
+  cloud:name "factorypaaS-db" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud SQL" ;
+  cloud:engine "PostgreSQL" ;
+  cloud:version "15" ;
+  cloud:tier "db-g1-small" ;
+  cloud:diskSize "100GB" ;
+  cloud:diskType "SSD" ;
+  cloud:region "us-central1" ;
+  cloud:highAvailability true ;
+  cloud:backupEnabled true ;
+  cloud:backupRetentionDays "7" ;
+  cloud:pointInTimeRecovery true ;
+  cloud:publicIP false ;
+  cloud:privateNetwork fpaa:VPCNetwork ;
+  rdfs:comment "PostgreSQL for sites, pages, clicks, commissions" .
+
+# ============================================================================
+# CLOUD REDIS (CACHE)
+# ============================================================================
+
+fpaa:RedisCache a cloud:Cache ;
+  cloud:name "factorypaaS-cache" ;
+  cloud:provider "gcp" ;
+  cloud:service "Memorystore Redis" ;
+  cloud:version "7.0" ;
+  cloud:tier "BASIC" ;
+  cloud:memorySizeGB "5" ;
+  cloud:region "us-central1" ;
+  cloud:replicaCount "0" ;
+  cloud:transitEncryption true ;
+  rdfs:comment "Session cache, API rate limiting, query cache" .
+
+# ============================================================================
+# CLOUD PUB/SUB
+# ============================================================================
+
+fpaa:EventBusTopic a cloud:MessageQueue ;
+  cloud:name "factorypaaS-events" ;
+  cloud:provider "gcp" ;
+  cloud:service "Pub/Sub" ;
+  cloud:messageRetentionDuration "604800s" ;
+  cloud:schema fpaa:DomainEventSchema ;
+  rdfs:comment "Domain events bus (SiteCreated, PagePublished, etc.)" .
+
+fpaa:ClickTrackingTopic a cloud:MessageQueue ;
+  cloud:name "factorypaaS-clicks" ;
+  cloud:provider "gcp" ;
+  cloud:service "Pub/Sub" ;
+  cloud:messageRetentionDuration "259200s" ;
+  rdfs:comment "High-throughput click tracking events" .
+
+fpaa:ContentGenerationQueue a cloud:MessageQueue ;
+  cloud:name "factorypaaS-content-jobs" ;
+  cloud:provider "gcp" ;
+  cloud:service "Pub/Sub" ;
+  cloud:deadLetterPolicy fpaa:DeadLetterTopic ;
+  cloud:ackDeadlineSeconds "600" ;
+  cloud:retryPolicy "exponential backoff" ;
+  rdfs:comment "Async content generation job queue" .
+
+fpaa:DeadLetterTopic a cloud:MessageQueue ;
+  cloud:name "factorypaaS-dlq" ;
+  cloud:provider "gcp" ;
+  cloud:service "Pub/Sub" ;
+  cloud:messageRetentionDuration "1209600s" ;
+  rdfs:comment "Dead letter queue for failed messages" .
+
+# ============================================================================
+# CLOUD SCHEDULER
+# ============================================================================
+
+fpaa:ContentGenerationScheduler a cloud:Scheduler ;
+  cloud:name "scheduled-content-generation" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud Scheduler" ;
+  cloud:schedule "0 2 * * *" ;
+  cloud:timezone "America/Los_Angeles" ;
+  cloud:target fpaa:ContentGenerationQueue ;
+  cloud:payload "{\"job_type\": \"scheduled_generation\"}" ;
+  rdfs:comment "Daily content generation at 2am PST" .
+
+fpaa:SitemapGenerationScheduler a cloud:Scheduler ;
+  cloud:name "sitemap-refresh" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud Scheduler" ;
+  cloud:schedule "0 0 * * 0" ;
+  cloud:timezone "UTC" ;
+  cloud:target fpaa:CloudRunService ;
+  cloud:httpTarget "/api/internal/refresh-sitemaps" ;
+  rdfs:comment "Weekly sitemap regeneration on Sundays" .
+
+# ============================================================================
+# CLOUD MONITORING & ALERTING
+# ============================================================================
+
+fpaa:ApplicationMonitoring a cloud:Monitoring ;
+  cloud:name "factorypaaS-monitoring" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud Monitoring" ;
+  cloud:metricsCollectionInterval "60s" ;
+  cloud:alertPolicy fpaa:HighErrorRateAlert ;
+  cloud:alertPolicy fpaa:HighLatencyAlert ;
+  cloud:alertPolicy fpaa:LowAvailabilityAlert ;
+  rdfs:comment "Application health and performance monitoring" .
+
+fpaa:HighErrorRateAlert a cloud:AlertPolicy ;
+  cloud:name "high-error-rate" ;
+  cloud:condition "error_rate > 0.05 FOR 5 minutes" ;
+  cloud:notificationChannel "pagerduty,slack" ;
+  cloud:severity "critical" .
+
+fpaa:HighLatencyAlert a cloud:AlertPolicy ;
+  cloud:name "high-latency" ;
+  cloud:condition "p95_latency > 2000ms FOR 10 minutes" ;
+  cloud:notificationChannel "slack" ;
+  cloud:severity "warning" .
+
+fpaa:LowAvailabilityAlert a cloud:AlertPolicy ;
+  cloud:name "low-availability" ;
+  cloud:condition "uptime < 0.995 FOR 15 minutes" ;
+  cloud:notificationChannel "pagerduty,slack" ;
+  cloud:severity "critical" .
+
+# ============================================================================
+# CLOUD TRACE (DISTRIBUTED TRACING)
+# ============================================================================
+
+fpaa:DistributedTracing a cloud:Tracing ;
+  cloud:name "factorypaaS-tracing" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud Trace" ;
+  cloud:samplingRate "0.1" ;
+  cloud:exportFormat "OpenTelemetry" ;
+  rdfs:comment "Distributed request tracing across services" .
+
+# ============================================================================
+# SECRET MANAGER
+# ============================================================================
+
+fpaa:DatabasePassword a cloud:Secret ;
+  cloud:name "postgres-password" ;
+  cloud:provider "gcp" ;
+  cloud:service "Secret Manager" ;
+  cloud:replicationPolicy "automatic" ;
+  cloud:rotationPolicy "90 days" .
+
+fpaa:OpenAIKey a cloud:Secret ;
+  cloud:name "openai-api-key" ;
+  cloud:provider "gcp" ;
+  cloud:service "Secret Manager" ;
+  cloud:replicationPolicy "automatic" .
+
+fpaa:AffiliateNetworkCredentials a cloud:Secret ;
+  cloud:name "affiliate-network-creds" ;
+  cloud:provider "gcp" ;
+  cloud:service "Secret Manager" ;
+  cloud:replicationPolicy "automatic" ;
+  rdfs:comment "API keys for Impact, ShareASale, CJ, etc." .
+
+# ============================================================================
+# VPC NETWORK
+# ============================================================================
+
+fpaa:VPCNetwork a cloud:VirtualNetwork ;
+  cloud:name "factorypaaS-vpc" ;
+  cloud:provider "gcp" ;
+  cloud:service "VPC" ;
+  cloud:region "us-central1" ;
+  cloud:subnet fpaa:PrivateSubnet ;
+  cloud:subnet fpaa:ServerlessVPCConnector .
+
+fpaa:PrivateSubnet a cloud:Subnet ;
+  cloud:name "private-services" ;
+  cloud:cidr "10.0.0.0/24" ;
+  cloud:region "us-central1" ;
+  cloud:privateGoogleAccess true ;
+  rdfs:comment "Private subnet for Cloud SQL, Redis" .
+
+fpaa:ServerlessVPCConnector a cloud:Subnet ;
+  cloud:name "serverless-connector" ;
+  cloud:cidr "10.8.0.0/28" ;
+  cloud:region "us-central1" ;
+  cloud:purpose "VPC_CONNECTOR" ;
+  rdfs:comment "Connects Cloud Run to VPC for private DB access" .
+
+# ============================================================================
+# LOAD BALANCER
+# ============================================================================
+
+fpaa:GlobalLoadBalancer a cloud:LoadBalancer ;
+  cloud:name "factorypaaS-lb" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud Load Balancing" ;
+  cloud:type "HTTPS" ;
+  cloud:backend fpaa:CloudRunService ;
+  cloud:backend fpaa:CloudRunSiteRenderer ;
+  cloud:sslPolicy "TLS 1.2+" ;
+  cloud:httpsRedirect true ;
+  cloud:cdnEnabled true ;
+  rdfs:comment "Global HTTPS load balancer with SSL termination" .
+
+# ============================================================================
+# CLOUD ARMOR (WAF)
+# ============================================================================
+
+fpaa:WebApplicationFirewall a cloud:SecurityPolicy ;
+  cloud:name "factorypaaS-waf" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud Armor" ;
+  cloud:rule fpaa:BlockSQLInjection ;
+  cloud:rule fpaa:BlockXSS ;
+  cloud:rule fpaa:RateLimitAPI ;
+  cloud:appliesTo fpaa:GlobalLoadBalancer .
+
+fpaa:BlockSQLInjection a cloud:SecurityRule ;
+  cloud:name "block-sqli" ;
+  cloud:priority "1000" ;
+  cloud:expression "evaluatePreconfiguredExpr('sqli-stable')" ;
+  cloud:action "deny(403)" .
+
+fpaa:BlockXSS a cloud:SecurityRule ;
+  cloud:name "block-xss" ;
+  cloud:priority "1001" ;
+  cloud:expression "evaluatePreconfiguredExpr('xss-stable')" ;
+  cloud:action "deny(403)" .
+
+fpaa:RateLimitAPI a cloud:SecurityRule ;
+  cloud:name "rate-limit-api" ;
+  cloud:priority "2000" ;
+  cloud:expression "true" ;
+  cloud:rateLimitOptions "100 requests per minute per IP" ;
+  cloud:action "rate_based_ban" .
+
+# ============================================================================
+# CLOUD FUNCTIONS (SERVERLESS AUTOMATION)
+# ============================================================================
+
+fpaa:SitemapGeneratorFunction a cloud:ServerlessFunction ;
+  cloud:name "sitemap-generator" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud Functions" ;
+  cloud:runtime "rust" ;
+  cloud:entryPoint "generate_sitemap" ;
+  cloud:trigger "HTTP" ;
+  cloud:timeout "300s" ;
+  cloud:memoryLimit "512Mi" ;
+  rdfs:comment "Generate XML sitemaps for Google indexing" .
+
+fpaa:ImageOptimizerFunction a cloud:ServerlessFunction ;
+  cloud:name "image-optimizer" ;
+  cloud:provider "gcp" ;
+  cloud:service "Cloud Functions" ;
+  cloud:runtime "rust" ;
+  cloud:entryPoint "optimize_image" ;
+  cloud:trigger fpaa:ContentBucket ;
+  cloud:timeout "60s" ;
+  cloud:memoryLimit "1Gi" ;
+  rdfs:comment "Auto-optimize uploaded images (WebP conversion, compression)" .
+
+# ============================================================================
+# DEPENDENCIES
+# ============================================================================
+
+fpaa:CloudRunService cloud:dependsOn fpaa:PostgreSQLInstance ;
+  cloud:protocol "postgresql" ;
+  cloud:port "5432" .
+
+fpaa:CloudRunService cloud:dependsOn fpaa:RedisCache ;
+  cloud:protocol "redis" ;
+  cloud:port "6379" .
+
+fpaa:CloudRunContentService cloud:dependsOn fpaa:ContentGenerationQueue ;
+  cloud:protocol "pubsub" .
+
+fpaa:CloudRunSiteRenderer cloud:dependsOn fpaa:ContentBucket ;
+  cloud:protocol "https" .

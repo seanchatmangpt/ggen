@@ -1,0 +1,124 @@
+# ============================================================================
+# FIBO Sample: Loan Approval Workflow Ontology
+# ============================================================================
+@prefix fibo: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialEntities/Loan/> .
+@prefix ex: <http://example.org/bank/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Workflow specification
+ex:LoanApprovalProcess a owl:Class ;
+    rdfs:label "Loan Approval Process" ;
+    rdfs:comment "The complete workflow for approving a loan application" ;
+    ex:stereo "BusinessProcess" .
+
+# Process steps (tasks)
+ex:ReceiveApplication a owl:Class ;
+    rdfs:label "Receive Application" ;
+    rdfs:subClassOf ex:LoanApprovalProcess ;
+    rdfs:comment "Receive and log loan application" ;
+    ex:stereo "ProcessStep" .
+
+ex:VerifyDocumentation a owl:Class ;
+    rdfs:label "Verify Documentation" ;
+    rdfs:subClassOf ex:LoanApprovalProcess ;
+    rdfs:comment "Verify all required documents are present" ;
+    ex:stereo "ProcessStep" .
+
+ex:CreditCheck a owl:Class ;
+    rdfs:label "Credit Check" ;
+    rdfs:subClassOf ex:LoanApprovalProcess ;
+    rdfs:comment "Perform credit history check and score assessment" ;
+    ex:stereo "ProcessStep" .
+
+ex:IncomeVerification a owl:Class ;
+    rdfs:label "Income Verification" ;
+    rdfs:subClassOf ex:LoanApprovalProcess ;
+    rdfs:comment "Verify applicant income and employment" ;
+    ex:stereo "ProcessStep" .
+
+ex:RiskAssessment a owl:Class ;
+    rdfs:label "Risk Assessment" ;
+    rdfs:subClassOf ex:LoanApprovalProcess ;
+    rdfs:comment "Assess overall risk level of the loan" ;
+    ex:stereo "ProcessStep" .
+
+ex:ApprovalDecision a owl:Class ;
+    rdfs:label "Approval Decision" ;
+    rdfs:subClassOf ex:LoanApprovalProcess ;
+    rdfs:comment "Make final approval or rejection decision" ;
+    ex:stereo "ProcessStep" .
+
+ex:LoanDisbursement a owl:Class ;
+    rdfs:label "Loan Disbursement" ;
+    rdfs:subClassOf ex:LoanApprovalProcess ;
+    rdfs:comment "Disburse approved loan funds" ;
+    ex:stereo "ProcessStep" .
+
+# Flow relationships (sequence)
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:ReceiveApplication ;
+    rdfs:range ex:VerifyDocumentation ;
+    rdfs:label "next step" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:VerifyDocumentation ;
+    rdfs:range ex:CreditCheck ;
+    rdfs:label "next step" .
+
+ex:requiresCreditCheck a owl:ObjectProperty ;
+    rdfs:domain ex:CreditCheck ;
+    rdfs:range ex:RiskAssessment ;
+    rdfs:label "requires" .
+
+# Parallel branch: income verification runs with credit check
+ex:runsConcurrentlyWith a owl:ObjectProperty ;
+    rdfs:domain ex:CreditCheck ;
+    rdfs:range ex:IncomeVerification ;
+    rdfs:label "runs concurrently with" .
+
+ex:requiresIncomeVerification a owl:ObjectProperty ;
+    rdfs:domain ex:IncomeVerification ;
+    rdfs:range ex:RiskAssessment ;
+    rdfs:label "requires" .
+
+# Conditional flow based on risk level
+ex:LowRiskProcess a owl:Class ;
+    rdfs:label "Low Risk Process" ;
+    rdfs:subClassOf ex:LoanApprovalProcess ;
+    rdfs:comment "Fast track for low-risk applications" ;
+    ex:stereo "ProcessStep" .
+
+ex:HighRiskProcess a owl:Class ;
+    rdfs:label "High Risk Process" ;
+    rdfs:subClassOf ex:LoanApprovalProcess ;
+    rdfs:comment "Additional review for high-risk applications" ;
+    ex:stereo "ProcessStep" .
+
+ex:requiresLowRiskApproval a owl:ObjectProperty ;
+    rdfs:domain ex:RiskAssessment ;
+    rdfs:range ex:LowRiskProcess ;
+    rdfs:label "low risk path" .
+
+ex:requiresHighRiskApproval a owl:ObjectProperty ;
+    rdfs:domain ex:RiskAssessment ;
+    rdfs:range ex:HighRiskProcess ;
+    rdfs:label "high risk path" .
+
+# Both paths merge to final approval
+ex:mergesToApproval a owl:ObjectProperty ;
+    rdfs:domain ex:LowRiskProcess ;
+    rdfs:range ex:ApprovalDecision ;
+    rdfs:label "merges to" .
+
+ex:mergesToApproval a owl:ObjectProperty ;
+    rdfs:domain ex:HighRiskProcess ;
+    rdfs:range ex:ApprovalDecision ;
+    rdfs:label "merges to" .
+
+# Final step
+ex:leadsToDisbursement a owl:ObjectProperty ;
+    rdfs:domain ex:ApprovalDecision ;
+    rdfs:range ex:LoanDisbursement ;
+    rdfs:label "leads to" .

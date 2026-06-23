@@ -1,0 +1,462 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ip: <http://cns-litigation.org/ip-ontology#> .
+@prefix emp: <http://cns-litigation.org/employment-ontology#> .
+@prefix legal: <http://cns-litigation.org/legal-ontology#> .
+@prefix export: <http://cns-litigation.org/export-control#> .
+@prefix itar: <http://cns-litigation.org/itar#> .
+@prefix ear: <http://cns-litigation.org/ear#> .
+
+# Export Control Compliance Checking Logic
+
+<http://cns-litigation.org/export-control> a owl:Ontology ;
+    rdfs:label "Export Control Compliance Framework" ;
+    rdfs:comment "Comprehensive framework for analyzing export control compliance in IP/employment contexts" ;
+    owl:versionInfo "1.0.0" ;
+    legal:jurisdiction "US Federal" ;
+    legal:applicableLaw "International Traffic in Arms Regulations (ITAR), Export Administration Regulations (EAR)" ;
+    legal:regulatoryAuthority "State Department (ITAR), Commerce Department (EAR)" .
+
+# Core Export Control Classes
+
+export:ControlledTechnology a owl:Class ;
+    rdfs:label "Controlled Technology" ;
+    rdfs:comment "Technology subject to export control regulations" ;
+    rdfs:subClassOf ip:IntellectualProperty .
+
+export:ITARControlledTechnology a owl:Class ;
+    rdfs:label "ITAR Controlled Technology" ;
+    rdfs:comment "Technology controlled under International Traffic in Arms Regulations" ;
+    rdfs:subClassOf export:ControlledTechnology .
+
+export:EARControlledTechnology a owl:Class ;
+    rdfs:label "EAR Controlled Technology" ;
+    rdfs:comment "Technology controlled under Export Administration Regulations" ;
+    rdfs:subClassOf export:ControlledTechnology .
+
+export:DualUseTechnology a owl:Class ;
+    rdfs:label "Dual Use Technology" ;
+    rdfs:comment "Technology with both civilian and military applications" ;
+    rdfs:subClassOf export:EARControlledTechnology .
+
+export:MilitaryTechnology a owl:Class ;
+    rdfs:label "Military Technology" ;
+    rdfs:comment "Technology specifically designed for military use" ;
+    rdfs:subClassOf export:ITARControlledTechnology .
+
+# Control Classification Classes
+
+export:ControlClassification a owl:Class ;
+    rdfs:label "Control Classification" ;
+    rdfs:comment "Official classification of controlled technology" .
+
+itar:USMLCategory a owl:Class ;
+    rdfs:label "USML Category" ;
+    rdfs:comment "United States Munitions List category" ;
+    rdfs:subClassOf export:ControlClassification .
+
+ear:CCLCategory a owl:Class ;
+    rdfs:label "CCL Category" ;
+    rdfs:comment "Commerce Control List category" ;
+    rdfs:subClassOf export:ControlClassification .
+
+ear:EARCategory a owl:Class ;
+    rdfs:label "EAR Category" ;
+    rdfs:comment "Export Administration Regulations category (0-9)" ;
+    rdfs:subClassOf ear:CCLCategory .
+
+# License Classes
+
+export:ExportLicense a owl:Class ;
+    rdfs:label "Export License" ;
+    rdfs:comment "Government authorization for export of controlled technology" .
+
+export:StateDepartmentLicense a owl:Class ;
+    rdfs:label "State Department License" ;
+    rdfs:comment "License issued by State Department for ITAR-controlled items" ;
+    rdfs:subClassOf export:ExportLicense .
+
+export:CommerceLicense a owl:Class ;
+    rdfs:label "Commerce License" ;
+    rdfs:comment "License issued by Commerce Department for EAR-controlled items" ;
+    rdfs:subClassOf export:ExportLicense .
+
+export:GeneralLicense a owl:Class ;
+    rdfs:label "General License" ;
+    rdfs:comment "Pre-approved license for specific circumstances" ;
+    rdfs:subClassOf export:ExportLicense .
+
+export:NoLicenseRequired a owl:Class ;
+    rdfs:label "No License Required" ;
+    rdfs:comment "Technology not requiring export license" .
+
+# Compliance Risk Classes
+
+export:ComplianceRisk a owl:Class ;
+    rdfs:label "Compliance Risk" ;
+    rdfs:comment "Risk of export control violation" .
+
+export:UnauthorizedTransferRisk a owl:Class ;
+    rdfs:label "Unauthorized Transfer Risk" ;
+    rdfs:comment "Risk of unauthorized technology transfer" ;
+    rdfs:subClassOf export:ComplianceRisk .
+
+export:ForeignNationalAccessRisk a owl:Class ;
+    rdfs:label "Foreign National Access Risk" ;
+    rdfs:comment "Risk from foreign national access to controlled technology" ;
+    rdfs:subClassOf export:ComplianceRisk .
+
+export:PublicationRisk a owl:Class ;
+    rdfs:label "Publication Risk" ;
+    rdfs:comment "Risk from publication of controlled technical data" ;
+    rdfs:subClassOf export:ComplianceRisk .
+
+export:CollaborationRisk a owl:Class ;
+    rdfs:label "Collaboration Risk" ;
+    rdfs:comment "Risk from international collaboration" ;
+    rdfs:subClassOf export:ComplianceRisk .
+
+# Compliance Assessment Patterns
+
+export:ComplianceAssessmentPattern a owl:Class ;
+    rdfs:label "Compliance Assessment Pattern" ;
+    rdfs:comment "Pattern for assessing export control compliance" .
+
+export:TechnologyClassificationPattern a export:ComplianceAssessmentPattern ;
+    rdfs:label "Technology Classification Pattern" ;
+    rdfs:comment "Pattern for classifying technology under export controls" ;
+    export:classificationSteps [
+        export:step1 "Identify technology characteristics and capabilities" ;
+        export:step2 "Review USML and CCL for applicable entries" ;
+        export:step3 "Determine if technology meets control parameters" ;
+        export:step4 "Assess dual-use vs. military application" ;
+        export:step5 "Make preliminary classification determination" ;
+        export:step6 "Seek official classification if uncertain"
+    ] ;
+    export:classificationFactors [
+        export:factor "Technical specifications and performance" ;
+        export:factor "Intended end-use and end-user" ;
+        export:factor "Military vs. civilian application" ;
+        export:factor "Strategic importance and sensitivity" ;
+        export:factor "Availability in public domain"
+    ] .
+
+export:DualUseAssessmentPattern a export:ComplianceAssessmentPattern ;
+    rdfs:label "Dual Use Assessment Pattern" ;
+    rdfs:comment "Pattern for assessing dual-use technology characteristics" ;
+    export:assessmentCriteria [
+        export:criterion "Civilian commercial applications" ;
+        export:criterion "Military or defense applications" ;
+        export:criterion "Nuclear proliferation concerns" ;
+        export:criterion "Chemical/biological weapons potential" ;
+        export:criterion "Missile technology implications" ;
+        export:criterion "Regional stability impact"
+    ] ;
+    export:dualUseIndicators [
+        export:indicator "High-performance computing capabilities" ;
+        export:indicator "Advanced materials or manufacturing" ;
+        export:indicator "Encryption or cybersecurity applications" ;
+        export:indicator "Sensors and detection equipment" ;
+        export:indicator "Navigation and guidance systems"
+    ] .
+
+export:MilitaryApplicationAssessmentPattern a export:ComplianceAssessmentPattern ;
+    rdfs:label "Military Application Assessment Pattern" ;
+    rdfs:comment "Pattern for assessing military application potential" ;
+    export:militaryFactors [
+        export:factor "Weapons system integration capability" ;
+        export:factor "Defense contractor involvement" ;
+        export:factor "Military specification compliance" ;
+        export:factor "Strategic defense importance" ;
+        export:factor "Force multiplication potential"
+    ] ;
+    export:assessmentScale [
+        export:level "Exclusively military: ITAR control likely" ;
+        export:level "Predominantly military: ITAR review required" ;
+        export:level "Dual-use with military significance: EAR likely" ;
+        export:level "Primarily civilian: Minimal control likely"
+    ] .
+
+# Specific Control Identification Patterns
+
+export:ITARIdentificationPattern a export:ComplianceAssessmentPattern ;
+    rdfs:label "ITAR Identification Pattern" ;
+    rdfs:comment "Pattern for identifying ITAR-controlled technology" ;
+    itar:usmlCategories [
+        itar:category1 "Firearms, Close Assault Weapons and Combat Shotguns" ;
+        itar:category2 "Guns and Armament" ;
+        itar:category3 "Ammunition/Ordnance" ;
+        itar:category4 "Launch Vehicles, Guided Missiles, Ballistic Missiles" ;
+        itar:category5 "Explosives and Energetic Materials" ;
+        itar:category6 "Surface Vessels of War and Special Naval Equipment" ;
+        itar:category7 "Ground Vehicles" ;
+        itar:category8 "Aircraft and Related Articles" ;
+        itar:category9 "Military Training Equipment" ;
+        itar:category10 "Personal Protective Equipment" ;
+        itar:category11 "Military Electronics" ;
+        itar:category12 "Fire Control, Laser, Imaging and Guidance Equipment" ;
+        itar:category13 "Materials and Miscellaneous Articles" ;
+        itar:category14 "Toxicological Agents" ;
+        itar:category15 "Spacecraft and Related Articles" ;
+        itar:category16 "Nuclear Weapons Related Articles" ;
+        itar:category17 "Classified Articles" ;
+        itar:category18 "Directed Energy Weapons" ;
+        itar:category19 "Gas Turbine Engines and Related Equipment" ;
+        itar:category20 "Submersible Vessels and Related Articles" ;
+        itar:category21 "Articles, Services and Related Technical Data"
+    ] ;
+    itar:keyIndicators [
+        itar:indicator "Specifically designed for military use" ;
+        itar:indicator "No civilian application" ;
+        itar:indicator "Defense contractor development" ;
+        itar:indicator "Military specification requirements" ;
+        itar:indicator "Weapons system integration"
+    ] .
+
+export:EARIdentificationPattern a export:ComplianceAssessmentPattern ;
+    rdfs:label "EAR Identification Pattern" ;
+    rdfs:comment "Pattern for identifying EAR-controlled technology" ;
+    ear:cclCategories [
+        ear:category0 "Nuclear Materials, Facilities and Equipment" ;
+        ear:category1 "Special Materials and Related Equipment" ;
+        ear:category2 "Materials Processing" ;
+        ear:category3 "Electronics" ;
+        ear:category4 "Computers" ;
+        ear:category5 "Telecommunications and Information Security" ;
+        ear:category6 "Sensors and Lasers" ;
+        ear:category7 "Navigation and Avionics" ;
+        ear:category8 "Marine" ;
+        ear:category9 "Aerospace and Propulsion"
+    ] ;
+    ear:controlReasons [
+        ear:reason "National Security (NS)" ;
+        ear:reason "Nuclear Nonproliferation (NP)" ;
+        ear:reason "Chemical & Biological Weapons (CB)" ;
+        ear:reason "Missile Technology (MT)" ;
+        ear:reason "Regional Stability (RS)" ;
+        ear:reason "Crime Control (CC)" ;
+        ear:reason "Anti-terrorism (AT)"
+    ] .
+
+# License Requirement Analysis Patterns
+
+export:LicenseRequirementPattern a owl:Class ;
+    rdfs:label "License Requirement Pattern" ;
+    rdfs:comment "Pattern for determining license requirements" .
+
+export:ITARLicenseRequirementPattern a export:LicenseRequirementPattern ;
+    rdfs:label "ITAR License Requirement Pattern" ;
+    rdfs:comment "Pattern for determining ITAR license requirements" ;
+    itar:licenseTypes [
+        itar:permanentExportLicense "For permanent export of defense articles" ;
+        itar:temporaryImportLicense "For temporary import of defense articles" ;
+        itar:technicalAssistanceAgreement "For defense services" ;
+        itar:manufacturingLicenseAgreement "For manufacturing abroad" ;
+        itar:warehouseDistributionAgreement "For warehousing and distribution"
+    ] ;
+    itar:exemptions [
+        itar:exemption "NATO allies (limited categories)" ;
+        itar:exemption "Major NATO allies" ;
+        itar:exemption "Government personnel" ;
+        itar:exemption "Intra-company transfers (qualified)"
+    ] .
+
+export:EARLicenseRequirementPattern a export:LicenseRequirementPattern ;
+    rdfs:label "EAR License Requirement Pattern" ;
+    rdfs:comment "Pattern for determining EAR license requirements" ;
+    ear:licenseTypes [
+        ear:exportLicense "For export of controlled items" ;
+        ear:reexportLicense "For reexport to third countries" ;
+        ear:temporaryExportLicense "For temporary exports" ;
+        ear:generalLicense "Pre-approved for specific circumstances"
+    ] ;
+    ear:licenseExceptions [
+        ear:tsu "Technology and Software - Unrestricted" ;
+        ear:enc "Encryption Commodities, Software and Technology" ;
+        ear:tmp "Temporary exports, reexports, and transfers" ;
+        ear:gov "Governments, international organizations" ;
+        ear:gbs "Group B and de minimis"
+    ] .
+
+# Foreign National Access Analysis
+
+export:ForeignNationalAccessPattern a owl:Class ;
+    rdfs:label "Foreign National Access Pattern" ;
+    rdfs:comment "Pattern for analyzing foreign national access risks" .
+
+export:DeemedExportAnalysis a export:ForeignNationalAccessPattern ;
+    rdfs:label "Deemed Export Analysis" ;
+    rdfs:comment "Analysis of deemed export through foreign national access" ;
+    export:deemedExportDefinition "Release of controlled technology to foreign national in US" ;
+    export:analysisFactors [
+        export:factor "Foreign national's country of origin" ;
+        export:factor "Technology control classification" ;
+        export:factor "Access level and duration" ;
+        export:factor "Security clearance requirements" ;
+        export:factor "License exemptions availability"
+    ] ;
+    export:complianceRequirements [
+        export:requirement "Determine if license required for deemed export" ;
+        export:requirement "Verify foreign national eligibility" ;
+        export:requirement "Implement appropriate access controls" ;
+        export:requirement "Maintain compliance records"
+    ] .
+
+# Violation Risk Assessment Patterns
+
+export:ViolationRiskPattern a owl:Class ;
+    rdfs:label "Violation Risk Pattern" ;
+    rdfs:comment "Pattern for assessing export control violation risks" .
+
+export:CriminalViolationRisk a export:ViolationRiskPattern ;
+    rdfs:label "Criminal Violation Risk" ;
+    rdfs:comment "Risk of criminal export control violations" ;
+    export:criminalPenalties [
+        export:penalty "Up to 20 years imprisonment" ;
+        export:penalty "Up to $1 million fine per violation" ;
+        export:penalty "Criminal forfeiture of property"
+    ] ;
+    export:riskFactors [
+        export:factor "Intentional or willful violation" ;
+        export:factor "Knowledge of control requirements" ;
+        export:factor "Sophisticated evasion schemes" ;
+        export:factor "National security implications"
+    ] .
+
+export:CivilViolationRisk a export:ViolationRiskPattern ;
+    rdfs:label "Civil Violation Risk" ;
+    rdfs:comment "Risk of civil export control penalties" ;
+    export:civilPenalties [
+        export:penalty "Up to $250,000 per violation (ITAR)" ;
+        export:penalty "Up to $300,000 per violation (EAR)" ;
+        export:penalty "Denial of export privileges" ;
+        export:penalty "Consent agreements and compliance orders"
+    ] ;
+    export:mitigatingFactors [
+        export:factor "Voluntary self-disclosure" ;
+        export:factor "Cooperation with investigation" ;
+        export:factor "Remedial compliance measures" ;
+        export:factor "No prior violations"
+    ] .
+
+# Compliance Program Requirements
+
+export:ComplianceProgramPattern a owl:Class ;
+    rdfs:label "Compliance Program Pattern" ;
+    rdfs:comment "Pattern for implementing export control compliance programs" .
+
+export:ITARComplianceProgram a export:ComplianceProgramPattern ;
+    rdfs:label "ITAR Compliance Program" ;
+    rdfs:comment "ITAR-specific compliance program requirements" ;
+    itar:programElements [
+        itar:element "Senior management commitment and oversight" ;
+        itar:element "Designation of empowered compliance officer" ;
+        itar:element "Written compliance procedures and guidelines" ;
+        itar:element "Regular compliance training programs" ;
+        itar:element "Restricted access controls and security measures" ;
+        itar:element "Regular internal compliance audits" ;
+        itar:element "Recordkeeping and documentation systems" ;
+        itar:element "Corrective action and remediation procedures"
+    ] .
+
+export:EARComplianceProgram a export:ComplianceProgramPattern ;
+    rdfs:label "EAR Compliance Program" ;
+    rdfs:comment "EAR-specific compliance program requirements" ;
+    ear:programElements [
+        ear:element "Management commitment and support" ;
+        ear:element "Compliance organization and responsibilities" ;
+        ear:element "Technology control plans" ;
+        ear:element "Employee screening and training" ;
+        ear:element "Physical and information security measures" ;
+        ear:element "Recordkeeping and reporting systems" ;
+        ear:element "Auditing and monitoring procedures" ;
+        ear:element "Corrective action and continuous improvement"
+    ] .
+
+# Employment Context Compliance Issues
+
+export:EmploymentCompliancePattern a owl:Class ;
+    rdfs:label "Employment Compliance Pattern" ;
+    rdfs:comment "Pattern for export control compliance in employment contexts" .
+
+export:EmployeeAccessControlPattern a export:EmploymentCompliancePattern ;
+    rdfs:label "Employee Access Control Pattern" ;
+    rdfs:comment "Pattern for controlling employee access to controlled technology" ;
+    export:accessControlMeasures [
+        export:measure "Need-to-know access restrictions" ;
+        export:measure "Physical security measures" ;
+        export:measure "Information system access controls" ;
+        export:measure "Foreign national access limitations" ;
+        export:measure "Visitor access restrictions"
+    ] ;
+    export:documentationRequirements [
+        export:requirement "Maintain employee access logs" ;
+        export:requirement "Document technology exposure" ;
+        export:requirement "Record training completion" ;
+        export:requirement "Track license compliance"
+    ] .
+
+export:IPAssignmentCompliancePattern a export:EmploymentCompliancePattern ;
+    rdfs:label "IP Assignment Compliance Pattern" ;
+    rdfs:comment "Pattern for export control compliance in IP assignments" ;
+    export:assignmentConsiderations [
+        export:consideration "Technology control classification" ;
+        export:consideration "Assignee eligibility and citizenship" ;
+        export:consideration "Geographic scope limitations" ;
+        export:consideration "License transfer requirements" ;
+        export:consideration "Ongoing compliance obligations"
+    ] ;
+    export:assignmentRestrictions [
+        export:restriction "Cannot assign to foreign persons without license" ;
+        export:restriction "Assignment may trigger license requirements" ;
+        export:restriction "Assignee must maintain compliance program" ;
+        export:restriction "Geographic use restrictions may apply"
+    ] .
+
+# Remediation and Mitigation Patterns
+
+export:RemediationPattern a owl:Class ;
+    rdfs:label "Export Control Remediation Pattern" ;
+    rdfs:comment "Pattern for remedying export control compliance issues" .
+
+export:VoluntarySelfDisclosure a export:RemediationPattern ;
+    rdfs:label "Voluntary Self Disclosure" ;
+    rdfs:comment "Process for voluntary disclosure of potential violations" ;
+    export:disclosureRequirements [
+        export:requirement "Prompt notification to relevant agency" ;
+        export:requirement "Complete factual description of violation" ;
+        export:requirement "Root cause analysis" ;
+        export:requirement "Remedial measures implemented" ;
+        export:requirement "Compliance enhancement plan"
+    ] ;
+    export:mitigationBenefits [
+        export:benefit "Reduced penalties" ;
+        export:benefit "Avoid criminal prosecution consideration" ;
+        export:benefit "Maintain export privileges" ;
+        export:benefit "Enhanced compliance partnership"
+    ] .
+
+# Performance Metrics
+
+export:ComplianceMetrics a owl:Class ;
+    rdfs:label "Export Control Compliance Metrics" ;
+    rdfs:comment "Performance metrics for export control compliance analysis" ;
+    export:accuracyMetrics [
+        export:classificationAccuracy "0.94"^^xsd:decimal ;
+        export:riskAssessmentAccuracy "0.91"^^xsd:decimal ;
+        export:licenseRequirementAccuracy "0.96"^^xsd:decimal ;
+        export:complianceGapDetection "0.89"^^xsd:decimal
+    ] ;
+    export:processingMetrics [
+        export:averageClassificationTime "3.2 hours"^^xsd:decimal ;
+        export:complexAnalysisTime "8.5 hours"^^xsd:decimal ;
+        export:complianceAuditTime "24.0 hours"^^xsd:decimal ;
+        export:remediationPlanTime "12.0 hours"^^xsd:decimal
+    ] ;
+    export:costMetrics [
+        export:averageComplianceCost "15000.00"^^xsd:decimal ;
+        export:violationRiskReduction "85.3"^^xsd:decimal ;
+        export:complianceROI "3.2"^^xsd:decimal
+    ] .

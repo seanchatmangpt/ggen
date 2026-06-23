@@ -1,0 +1,10 @@
+@prefix sec:  <https://core.bitstar.dev/ontology/security#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+sec:Role a rdfs:Class .
+sec:Permission a rdfs:Class .
+sec:Subject a rdfs:Class .
+
+sec:hasRole a rdfs:Property ; rdfs:domain sec:Subject ; rdfs:range sec:Role .
+sec:hasPermission a rdfs:Property ; rdfs:domain sec:Role ; rdfs:range sec:Permission .
+

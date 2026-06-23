@@ -439,7 +439,10 @@ const ENV_WHITELIST: &[&str] = &[
 fn insert_env(ctx: &mut Context) {
     for (k, v) in env::vars() {
         // Only insert variables that are in the whitelist or start with GGEN_ or TEST_GGEN_ (for tests)
-        if ENV_WHITELIST.contains(&k.as_str()) || k.starts_with("GGEN_") || k.starts_with("TEST_GGEN_") {
+        if ENV_WHITELIST.contains(&k.as_str())
+            || k.starts_with("GGEN_")
+            || k.starts_with("TEST_GGEN_")
+        {
             ctx.insert(&k, &v);
         }
     }
@@ -448,9 +451,34 @@ fn insert_env(ctx: &mut Context) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
     use std::collections::BTreeMap;
     use std::fs;
     use tempfile::TempDir;
+
+    /// Saves the prior value of an env var on construction and restores it
+    /// (or removes it if previously unset) on Drop.
+    struct EnvVarGuard {
+        key: &'static str,
+        previous: Option<std::ffi::OsString>,
+    }
+
+    impl EnvVarGuard {
+        fn set(key: &'static str, value: &str) -> Self {
+            let previous = std::env::var_os(key);
+            std::env::set_var(key, value);
+            Self { key, previous }
+        }
+    }
+
+    impl Drop for EnvVarGuard {
+        fn drop(&mut self) {
+            match &self.previous {
+                None => std::env::remove_var(self.key),
+                Some(v) => std::env::set_var(self.key, v),
+            }
+        }
+    }
 
     fn create_test_pipeline() -> Pipeline {
         Pipeline::new().unwrap()
@@ -705,18 +733,16 @@ invalid_yaml: [unclosed
     }
 
     #[test]
+    #[serial(TEST_GGEN_VAR)]
     fn test_insert_env() {
         let mut ctx = Context::new();
 
         // Set a test environment variable
-        std::env::set_var("TEST_GGEN_VAR", "test_value");
+        let _guard = EnvVarGuard::set("TEST_GGEN_VAR", "test_value");
 
         insert_env(&mut ctx);
 
         // Verify environment variable was inserted
         assert!(ctx.get("TEST_GGEN_VAR").is_some());
-
-        // Clean up
-        std::env::remove_var("TEST_GGEN_VAR");
     }
 }

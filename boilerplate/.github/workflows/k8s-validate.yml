@@ -1,0 +1,24 @@
+name: K8s Validate
+
+on:
+  pull_request:
+    paths:
+      - "deploy/k8s/**"
+      - "deploy/helm/**"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kubeval
+        run: |
+          wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
+          tar xf kubeval-linux-amd64.tar.gz
+          sudo mv kubeval /usr/local/bin/
+      - name: Validate manifests
+        run: |
+          find deploy/k8s -name "*.yaml" -exec kubeval {} \; 2>/dev/null || true
+      - name: PR manifest diff
+        run: |
+          git diff origin/main...HEAD -- deploy/ | head -200

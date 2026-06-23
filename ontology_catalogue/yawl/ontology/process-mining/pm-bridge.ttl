@@ -1,0 +1,445 @@
+# =============================================================================
+# pm-bridge.ttl — Process Mining Bridge Ontology
+# rust4pm v1.0.0: Standard process_mining crate integration
+#
+# Vocabulary: yawl-bridge: (from .specify/patterns/native-bridge.ttl)
+# Bridge: ProcessMining — XES import/export, DFG discovery, Alpha miner, Conformance
+#
+# Generated from: rust/yawl-rust4pm/rust4pm/src/lib.rs
+# Compile invariant: edit this file → ggen sync → Java artifacts regenerated
+# =============================================================================
+
+@prefix rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:        <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl-bridge: <http://yawlfoundation.org/yawl/bridge#> .
+@prefix pm:          <http://yawlfoundation.org/yawl/processmining/bridge#> .
+
+# =============================================================================
+# BRIDGE INSTANCE
+# =============================================================================
+
+pm:ProcessMiningBridge
+    a yawl-bridge:NativeBridge ;
+    yawl-bridge:bridgeName      "ProcessMining" ;
+    yawl-bridge:packageName     "org.yawlfoundation.yawl.processmining.bridge" ;
+    yawl-bridge:nativeLibrary   "libyawl_process_mining.so" ;
+    yawl-bridge:libraryPathProp "yawl.rust4pm.lib" ;
+    yawl-bridge:l2Class         "ProcessMiningL2" ;
+    yawl-bridge:l3Class         "ProcessMiningL3" ;
+    yawl-bridge:testClass       "ProcessMiningIntegrationTest" ;
+    yawl-bridge:hasCapability   pm:Cap_XES_IMPORT
+                            ,   pm:Cap_XES_EXPORT
+                            ,   pm:Cap_DFG_DISCOVERY
+                            ,   pm:Cap_ALPHA_MINER
+                            ,   pm:Cap_CONFORMANCE_CHECKING
+                            ,   pm:Cap_PNML_IMPORT
+                            ,   pm:Cap_PNML_EXPORT
+                            ,   pm:Cap_RESOURCE_FREE
+                            ,   pm:Cap_ERROR_FREE
+                            ,   pm:Cap_SIZEOF_EVENT_LOG_HANDLE
+                            ,   pm:Cap_SIZEOF_DFG_RESULT
+                            ,   pm:Cap_SIZEOF_CONFORMANCE_RESULT
+                            ,   pm:Cap_SIZEOF_ALPHA_RESULT
+                            ,   pm:Cap_OFFSETOF_EVENT_LOG_HANDLE_PTR
+                            ,   pm:Cap_OFFSETOF_ALPHA_RESULT_PNML
+                            ,   pm:Cap_OFFSETOF_DFG_RESULT_JSON
+                            ,   pm:Cap_OFFSETOF_CONFORMANCE_RESULT_FITNESS
+                            ,   pm:Cap_JNI_XES_IMPORT
+                            ,   pm:Cap_JNI_ALPHA_MINER
+                            ,   pm:Cap_DIRECT_PROCESS_MINING ;
+    yawl-bridge:hasFunction     pm:Fn_xes_import
+                            ,   pm:Fn_xes_export
+                            ,   pm:Fn_discover_dfg
+                            ,   pm:Fn_discover_alpha
+                            ,   pm:Fn_check_conformance
+                            ,   pm:Fn_pnml_import
+                            ,   pm:Fn_pnml_export
+                            ,   pm:Fn_event_log_free
+                            ,   pm:Fn_dfg_free
+                            ,   pm:Fn_alpha_free
+                            ,   pm:Fn_conformance_free
+                            ,   pm:Fn_error_free ;
+    yawl-bridge:hasDomainOperation pm:Op_xesImport
+                            ,   pm:Op_xesExport
+                            ,   pm:Op_discoverDfg
+                            ,   pm:Op_discoverAlpha
+                            ,   pm:Op_checkConformance
+                            ,   pm:Op_pnmlImport
+                            ,   pm:Op_pnmlExport
+                            ,   pm:Op_free .
+
+# =============================================================================
+# BRIDGE PROPERTIES FOR ROUTING
+# =============================================================================
+
+yawl-bridge:callPattern a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:BridgeCapability ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Execution domain: jvm, nif, or direct" .
+
+yawl-bridge:registryKind a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:BridgeCapability ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Kind of registry entry: EventLogHandle, DfgResult, ConformanceResult, or inline" .
+
+# =============================================================================
+# BRIDGE CAPABILITIES (18)
+# Groups: IMPORT(2) DISCOVER(2) CONFORMANCE(1) EXPORT(2) MEMORY(7) PROBES(6)
+# =============================================================================
+
+# --- IMPORT ---
+
+pm:Cap_XES_IMPORT
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "XES_IMPORT" ;
+    yawl-bridge:capabilityDescription "Import XES event log from file using process_mining crate" ;
+    yawl-bridge:callPattern           "jni" ;
+    yawl-bridge:registryKind          "EventLogHandle" ;
+    yawl-bridge:nativeTarget          "xes_import/1" .
+
+pm:Cap_XES_EXPORT
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "XES_EXPORT" ;
+    yawl-bridge:capabilityDescription "Export event log to XES format using process_mining crate" ;
+    yawl-bridge:callPattern           "jni" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "xes_export/1" .
+
+# --- DISCOVER ---
+
+pm:Cap_DFG_DISCOVERY
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "DFG_DISCOVERY" ;
+    yawl-bridge:capabilityDescription "Discover Directly-Follows Graph from event log using process_mining::discovery::dfg" ;
+    yawl-bridge:callPattern           "nif" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "process_mining::discover_dfg" .
+
+pm:Cap_ALPHA_MINER
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "ALPHA_MINER" ;
+    yawl-bridge:capabilityDescription "Discover Petri net using Alpha++ algorithm from process_mining::discovery::alpha" ;
+    yawl-bridge:callPattern           "nif" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "process_mining::discover_alpha" .
+
+# --- CONFORMANCE ---
+
+pm:Cap_CONFORMANCE_CHECKING
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "CONFORMANCE_CHECKING" ;
+    yawl-bridge:capabilityDescription "Check conformance via token replay using process_mining::conformance" ;
+    yawl-bridge:callPattern           "nif" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "process_mining::check_conformance" .
+
+# --- EXPORT ---
+
+pm:Cap_PNML_IMPORT
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "PNML_IMPORT" ;
+    yawl-bridge:capabilityDescription "Import Petri Net from PNML format using process_mining::core::PetriNet" ;
+    yawl-bridge:callPattern           "nif" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "process_mining::pnml_import" .
+
+pm:Cap_PNML_EXPORT
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "PNML_EXPORT" ;
+    yawl-bridge:capabilityDescription "Export Petri Net to PNML format using process_mining::core::PetriNet" ;
+    yawl-bridge:callPattern           "nif" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "process_mining::pnml_export" .
+
+# --- RESOURCE MANAGEMENT ---
+
+pm:Cap_RESOURCE_FREE
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "RESOURCE_FREE" ;
+    yawl-bridge:capabilityDescription "Free event log, DFG, conformance, and alpha resources" ;
+    yawl-bridge:callPattern           "nif" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "process_mining::free_resources" .
+
+pm:Cap_ERROR_FREE
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "ERROR_FREE" ;
+    yawl-bridge:capabilityDescription "Free error message string" ;
+    yawl-bridge:callPattern           "nif" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "error_free" .
+
+# --- SIZEOF PROBES (5) ---
+
+pm:Cap_SIZEOF_EVENT_LOG_HANDLE
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "SIZEOF_EVENT_LOG_HANDLE" ;
+    yawl-bridge:capabilityDescription "sizeof(EventLogHandle) for L1 layout verification" ;
+    yawl-bridge:callPattern           "nif" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "process_mining::sizeof_event_log_handle" .
+
+pm:Cap_SIZEOF_DFG_RESULT
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "SIZEOF_DFG_RESULT" ;
+    yawl-bridge:capabilityDescription "sizeof(DfgResult) for L1 layout verification" ;
+    yawl-bridge:callPattern           "nif" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "process_mining::sizeof_dfg_result" .
+
+pm:Cap_SIZEOF_CONFORMANCE_RESULT
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "SIZEOF_CONFORMANCE_RESULT" ;
+    yawl-bridge:capabilityDescription "sizeof(ConformanceResult) for L1 layout verification" ;
+    yawl-bridge:callPattern           "nif" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "process_mining::sizeof_conformance_result" .
+
+pm:Cap_SIZEOF_ALPHA_RESULT
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "SIZEOF_ALPHA_RESULT" ;
+    yawl-bridge:capabilityDescription "sizeof(AlphaResult) for L1 layout verification" ;
+    yawl-bridge:callPattern           "nif" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "process_mining::sizeof_alpha_result" .
+
+# --- OFFSETOF PROBES (4) ---
+
+pm:Cap_OFFSETOF_EVENT_LOG_HANDLE_PTR
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "OFFSETOF_EVENT_LOG_HANDLE_PTR" ;
+    yawl-bridge:capabilityDescription "offsetof(EventLogHandle, ptr)" ;
+    yawl-bridge:callPattern           "nif" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "process_mining::offsetof_event_log_handle_ptr" .
+
+pm:Cap_OFFSETOF_ALPHA_RESULT_PNML
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "OFFSETOF_ALPHA_RESULT_PNML" ;
+    yawl-bridge:capabilityDescription "offsetof(AlphaResult, pnml)" ;
+    yawl-bridge:callPattern           "nif" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "process_mining::offsetof_alpha_result_pnml" .
+
+pm:Cap_OFFSETOF_DFG_RESULT_JSON
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "OFFSETOF_DFG_RESULT_JSON" ;
+    yawl-bridge:capabilityDescription "offsetof(DfgResult, json)" ;
+    yawl-bridge:callPattern           "nif" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "process_mining::offsetof_dfg_result_json" .
+
+pm:Cap_OFFSETOF_CONFORMANCE_RESULT_FITNESS
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "OFFSETOF_CONFORMANCE_RESULT_FITNESS" ;
+    yawl-bridge:capabilityDescription "offsetof(ConformanceResult, fitness)" ;
+    yawl-bridge:callPattern           "nif" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "process_mining::offsetof_conformance_result_fitness" .
+
+# --- JVM-DOMAIN CAPABILITIES (Java JNI bindings) ---
+
+pm:Cap_JNI_XES_IMPORT
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "JNI_XES_IMPORT" ;
+    yawl-bridge:callPattern           "jvm" ;
+    yawl-bridge:registryKind          "EventLogHandle" ;
+    yawl-bridge:nativeTarget          "org.yawlfoundation.yawl.bridge.processmining.XesImporter.importXes" .
+
+pm:Cap_JNI_ALPHA_MINER
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "JNI_ALPHA_MINER" ;
+    yawl-bridge:callPattern           "jvm" ;
+    yawl-bridge:registryKind          "inline" ;
+    yawl-bridge:nativeTarget          "org.yawlfoundation.yawl.bridge.processmining.AlphaMiner.discoverAlphaPlusPlus" .
+
+# --- DIRECT PATTERN CAPABILITIES (blocked for security) ---
+
+pm:Cap_DIRECT_PROCESS_MINING
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:callPattern           "direct" ;
+    yawl-bridge:capabilityName        "DIRECT_PROCESS_MINING_BLOCKED" ;
+    rdfs:comment "Escape valve - blocked for security. Rust process_mining crate direct access." .
+
+# =============================================================================
+# NATIVE FUNCTIONS (12)
+# Core operations: char* → char* (uniform JSON-in JSON-out C ABI for NIF)
+# =============================================================================
+
+pm:Fn_xes_import
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$xes_import" ;
+    yawl-bridge:fnJavaName     "xesImport" ;
+    yawl-bridge:fnNativeSymbol "process_mining::xes_import" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:forCapability  pm:Cap_XES_IMPORT .
+
+pm:Fn_xes_export
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$xes_export" ;
+    yawl-bridge:fnJavaName     "xesExport" ;
+    yawl-bridge:fnNativeSymbol "process_mining::xes_export" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG)" ;
+    yawl-bridge:forCapability  pm:Cap_XES_EXPORT .
+
+pm:Fn_discover_dfg
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$discover_dfg" ;
+    yawl-bridge:fnJavaName     "discoverDfg" ;
+    yawl-bridge:fnNativeSymbol "process_mining::discover_dfg" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:forCapability  pm:Cap_DFG_DISCOVERY .
+
+pm:Fn_discover_alpha
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$discover_alpha" ;
+    yawl-bridge:fnJavaName     "discoverAlpha" ;
+    yawl-bridge:fnNativeSymbol "process_mining::discover_alpha" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:forCapability  pm:Cap_ALPHA_MINER .
+
+pm:Fn_check_conformance
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$check_conformance" ;
+    yawl-bridge:fnJavaName     "checkConformance" ;
+    yawl-bridge:fnNativeSymbol "process_mining::check_conformance" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG)" ;
+    yawl-bridge:forCapability  pm:Cap_CONFORMANCE_CHECKING .
+
+pm:Fn_pnml_import
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$pnml_import" ;
+    yawl-bridge:fnJavaName     "pnmlImport" ;
+    yawl-bridge:fnNativeSymbol "process_mining::pnml_import" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:forCapability  pm:Cap_PNML_IMPORT .
+
+pm:Fn_pnml_export
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$pnml_export" ;
+    yawl-bridge:fnJavaName     "pnmlExport" ;
+    yawl-bridge:fnNativeSymbol "process_mining::pnml_export" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:forCapability  pm:Cap_PNML_EXPORT .
+
+pm:Fn_event_log_free
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$event_log_free" ;
+    yawl-bridge:fnJavaName     "eventLogFree" ;
+    yawl-bridge:fnNativeSymbol "process_mining::event_log_free" ;
+    yawl-bridge:fnReturnType   "void" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.ofVoid(ValueLayout.ADDRESS)" ;
+    yawl-bridge:forCapability  pm:Cap_RESOURCE_FREE .
+
+pm:Fn_dfg_free
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dfg_free" ;
+    yawl-bridge:fnJavaName     "dfgFree" ;
+    yawl-bridge:fnNativeSymbol "process_mining::dfg_free" ;
+    yawl-bridge:fnReturnType   "void" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.ofVoid(ValueLayout.ADDRESS)" ;
+    yawl-bridge:forCapability  pm:Cap_RESOURCE_FREE .
+
+pm:Fn_alpha_free
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$alpha_free" ;
+    yawl-bridge:fnJavaName     "alphaFree" ;
+    yawl-bridge:fnNativeSymbol "process_mining::alpha_free" ;
+    yawl-bridge:fnReturnType   "void" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.ofVoid(ValueLayout.ADDRESS)" ;
+    yawl-bridge:forCapability  pm:Cap_RESOURCE_FREE .
+
+pm:Fn_conformance_free
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$conformance_free" ;
+    yawl-bridge:fnJavaName     "conformanceFree" ;
+    yawl-bridge:fnNativeSymbol "process_mining::conformance_free" ;
+    yawl-bridge:fnReturnType   "void" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.ofVoid(ValueLayout.ADDRESS)" ;
+    yawl-bridge:forCapability  pm:Cap_RESOURCE_FREE .
+
+pm:Fn_error_free
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$error_free" ;
+    yawl-bridge:fnJavaName     "errorFree" ;
+    yawl-bridge:fnNativeSymbol "error_free" ;
+    yawl-bridge:fnReturnType   "void" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.ofVoid(ValueLayout.ADDRESS)" ;
+    yawl-bridge:forCapability  pm:Cap_ERROR_FREE .
+
+# =============================================================================
+# DOMAIN OPERATIONS (8)
+# All operations: String request → String response (no FFM types at call site)
+# =============================================================================
+
+pm:Op_xesImport
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "xesImport" ;
+    yawl-bridge:opL2JavaName  "xesImport" ;
+    yawl-bridge:opDescription "Import XES event log from file path and return handle" ;
+    yawl-bridge:testFixture   "xes-sample" ;
+    yawl-bridge:forCapability pm:Cap_XES_IMPORT .
+
+pm:Op_xesExport
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "xesExport" ;
+    yawl-bridge:opL2JavaName  "xesExport" ;
+    yawl-bridge:opDescription "Export event log to XES format and return JSON path" ;
+    yawl-bridge:testFixture   "xes-sample" ;
+    yawl-bridge:forCapability pm:Cap_XES_EXPORT .
+
+pm:Op_discoverDfg
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "discoverDfg" ;
+    yawl-bridge:opL2JavaName  "discoverDfg" ;
+    yawl-bridge:opDescription "Discover Directly-Follows Graph from event log and return JSON" ;
+    yawl-bridge:testFixture   "xes-sample" ;
+    yawl-bridge:forCapability pm:Cap_DFG_DISCOVERY .
+
+pm:Op_discoverAlpha
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "discoverAlpha" ;
+    yawl-bridge:opL2JavaName  "discoverAlpha" ;
+    yawl-bridge:opDescription "Discover Petri net using Alpha++ algorithm and return PNML" ;
+    yawl-bridge:testFixture   "xes-sample" ;
+    yawl-bridge:forCapability pm:Cap_ALPHA_MINER .
+
+pm:Op_checkConformance
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "checkConformance" ;
+    yawl-bridge:opL2JavaName  "checkConformance" ;
+    yawl-bridge:opDescription "Check conformance via token replay against PNML Petri net" ;
+    yawl-bridge:testFixture   "conformance-sample" ;
+    yawl-bridge:forCapability pm:Cap_CONFORMANCE_CHECKING .
+
+pm:Op_pnmlImport
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "pnmlImport" ;
+    yawl-bridge:opL2JavaName  "pnmlImport" ;
+    yawl-bridge:opDescription "Import Petri Net from PNML XML and return handle" ;
+    yawl-bridge:testFixture   "pnml-sample" ;
+    yawl-bridge:forCapability pm:Cap_PNML_IMPORT .
+
+pm:Op_pnmlExport
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "pnmlExport" ;
+    yawl-bridge:opL2JavaName  "pnmlExport" ;
+    yawl-bridge:opDescription "Export Petri Net to PNML XML format" ;
+    yawl-bridge:testFixture   "pnml-sample" ;
+    yawl-bridge:forCapability pm:Cap_PNML_EXPORT .
+
+pm:Op_free
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "free" ;
+    yawl-bridge:opL2JavaName  "free" ;
+    yawl-bridge:opDescription "Free all resources (event log, DFG, conformance, alpha results)" ;
+    yawl-bridge:testFixture   "xes-sample" ;
+    yawl-bridge:forCapability pm:Cap_RESOURCE_FREE .

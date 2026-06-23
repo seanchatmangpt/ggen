@@ -1,0 +1,423 @@
+# Domain Ontology: Process Forms
+# Defines all process form classes (EventLog, PetriNet, ProcessTree, DFG, OCEL, Declare, etc.)
+# and their relationships to standard ontologies (OCEL, XES, BPMN, PM).
+#
+# Companion to wasm4pm-compat-integrated.ttl
+
+@prefix compat: <https://wasm4pm-compat.rs/ontology#> .
+@prefix domain: <https://wasm4pm-compat.rs/domain#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+
+# Standard process-mining ontologies
+@prefix pm:     <http://www.purl.org/pm/ontology/2023/05#> .
+@prefix ocel:   <https://ocel-standard.org/ontology#> .
+@prefix xes:    <http://www.xes-standard.org/ontology#> .
+@prefix bpmn:   <https://www.omg.org/spec/BPMN/20100524/MODEL#> .
+
+<https://wasm4pm-compat.rs/domain/process-forms>
+    a owl:Ontology ;
+    rdfs:label "Process Forms Domain Ontology" ;
+    rdfs:comment "Domain-specific definitions for all process forms: event logs, Petri nets, process trees, DFGs, OCEL, Declare, BPMN, OCPQ, and object-centric structures. Bridges Rust types to standard process-mining ontologies." ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://www.purl.org/pm/ontology/2023/05> ;
+    owl:imports <https://ocel-standard.org/ontology> ;
+    owl:imports <http://www.xes-standard.org/ontology> .
+
+# ============================================================================
+# TOP-LEVEL PROCESS FORM CLASS
+# ============================================================================
+
+domain:ProcessForm
+    a rdfs:Class ;
+    rdfs:label "Process Form" ;
+    rdfs:comment "A primary process-evidence shape defined in a wasm4pm-compat module. All process forms are structure-only carriers — they hold data shapes and never execute discovery, conformance, or replay. Engine logic graduates to wasm4pm." ;
+    owl:equivalentClass compat:ProcessForm .
+
+# ============================================================================
+# EVENT LOG PROCESS FORMS
+# ============================================================================
+
+domain:EventLog
+    a rdfs:Class ;
+    rdfs:label "Event Log" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Classic flat event log shape: EventLog, Trace, Event. Builder API: Event::new().at_ns().by().with_lifecycle(). Structure only." ;
+    owl:equivalentClass compat:EventLog ;
+    skos:exactMatch xes:Log ;
+    skos:related ocel:OcelLog ;
+    rdfs:comment "A flat sequence of event traces, each trace a sequence of events with attributes and lifecycle states." .
+
+domain:Trace
+    a rdfs:Class ;
+    rdfs:label "Trace" ;
+    rdfs:subClassOf rdf:Seq ;
+    rdfs:comment "A sequence of events forming a single process execution instance or case." .
+
+domain:Event
+    a rdfs:Class ;
+    rdfs:label "Event" ;
+    rdfs:comment "An atomic activity occurrence with timestamp, attributes, and optional lifecycle state." ;
+    skos:exactMatch xes:Event ;
+    skos:related ocel:Event .
+
+domain:OcelLog
+    a rdfs:Class ;
+    rdfs:label "Object-Centric Event Log" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "OCEL 2.0 object-centric event log shape: OcelLog, OcelEvent, EventObjectLink, ObjectObjectLink, ObjectChange. Builder chains on all link/change types. Structure only." ;
+    owl:equivalentClass compat:OcelLog ;
+    owl:sameAs ocel:OcelLog ;
+    rdfs:comment "Object-centric log with explicit event-to-object and object-to-object relationships, enabling multi-object process analysis." .
+
+domain:OcelEvent
+    a rdfs:Class ;
+    rdfs:label "OCEL Event" ;
+    rdfs:subClassOf domain:Event ;
+    owl:sameAs ocel:Event ;
+    rdfs:comment "An event in an OCEL log, explicitly linked to one or more business objects." .
+
+domain:EventObjectLink
+    a rdfs:Class ;
+    rdfs:label "Event-Object Link" ;
+    rdfs:comment "Explicit relationship between an event and a business object (many-to-many). Records the type of relationship (e.g., created, updated, consumed)." ;
+    owl:sameAs ocel:EventObjectLink .
+
+domain:ObjectObjectLink
+    a rdfs:Class ;
+    rdfs:label "Object-Object Link" ;
+    rdfs:comment "Explicit relationship between two business objects (e.g., parent-child, derived-from, correlated-with)." ;
+    owl:sameAs ocel:ObjectObjectLink .
+
+domain:ObjectChange
+    a rdfs:Class ;
+    rdfs:label "Object Change" ;
+    rdfs:comment "A state change to a business object (attribute update, lifecycle transition)." ;
+    owl:sameAs ocel:ObjectChange .
+
+domain:XesLog
+    a rdfs:Class ;
+    rdfs:label "XES Event Log" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "XES (IEEE 1849-2016) event log shape. Import/export contracts, round-trip claims, loss surfaces. Feature: formats." ;
+    owl:equivalentClass compat:XesLog ;
+    owl:sameAs xes:Log ;
+    rdfs:comment "Extensible Event Stream (IEEE 1849-2016) log with extensions for concepts, organization, resources, and lifecycle states." .
+
+domain:StreamingLog
+    a rdfs:Class ;
+    rdfs:label "Streaming Event Log" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "EventStream append-only buffer for streaming process evidence. Online monitoring and windowed conformance checking graduate to wasm4pm." ;
+    owl:equivalentClass compat:StreamingLog ;
+    rdfs:comment "A forward-only event stream for online/real-time process monitoring. Events are appended but never modified or deleted." .
+
+# ============================================================================
+# PETRI NET AND WORKFLOW NET PROCESS FORMS
+# ============================================================================
+
+domain:PetriNet
+    a rdfs:Class ;
+    rdfs:label "Petri Net" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Petri net shape: PetriNet, Place, Transition, Arc, Marking. Structural validate only. Soundness, reachability, and token-game replay graduate to wasm4pm." ;
+    owl:equivalentClass compat:PetriNet ;
+    owl:sameAs pm:PetriNet ;
+    rdfs:comment "A directed bipartite graph with places (state containers) and transitions (activity occurrences), connected by arcs. Can represent concurrent and synchronization patterns." .
+
+domain:Place
+    a rdfs:Class ;
+    rdfs:label "Place" ;
+    rdfs:comment "A state container in a Petri net. Holds a non-negative integer marking (token count)." ;
+    owl:sameAs pm:Place .
+
+domain:Transition
+    a rdfs:Class ;
+    rdfs:label "Transition" ;
+    rdfs:comment "An activity occurrence in a Petri net. Fires when input places have sufficient tokens." ;
+    owl:sameAs pm:Transition .
+
+domain:Arc
+    a rdfs:Class ;
+    rdfs:label "Arc" ;
+    rdfs:comment "A directed connection in a Petri net, either place-to-transition or transition-to-place. May have a weight (cardinality)." ;
+    owl:sameAs pm:Arc .
+
+domain:Marking
+    a rdfs:Class ;
+    rdfs:label "Marking" ;
+    rdfs:comment "An assignment of tokens to places in a Petri net. Defines the current state." .
+
+domain:WfNet
+    a rdfs:Class ;
+    rdfs:label "Workflow Net" ;
+    rdfs:subClassOf domain:PetriNet ;
+    skos:definition "Typed workflow net with const-generic soundness token: SoundnessUnknown (default), SoundnessClaimed, SoundnessWitnessed. Non-forgeable witness path. Soundness verification graduates to wasm4pm." ;
+    owl:equivalentClass compat:WfNetConst ;
+    owl:sameAs pm:WorkflowNet ;
+    rdfs:comment "A Petri net subclass with a unique source and unique sink place, designed to model single-case workflow processes." .
+
+domain:SeparableWfNet
+    a rdfs:Class ;
+    rdfs:label "Separable Workflow Net" ;
+    rdfs:subClassOf domain:WfNet ;
+    skos:definition "The separable WF-net subclass (Kourani et al., 2026). Separability is a structural law; conversion to POWL 2.0 preserves language." ;
+    owl:equivalentClass compat:SeparableWfNet ;
+    rdfs:comment "A WF-net where process structure can be hierarchically decomposed along a process cube without losing soundness." .
+
+domain:ObjectCentricPetriNet
+    a rdfs:Class ;
+    rdfs:label "Object-Centric Petri Net" ;
+    rdfs:subClassOf domain:PetriNet ;
+    skos:definition "OC-Petri net shape: typed arcs by object type, variable arcs. Structure only; discovery and replay graduate to wasm4pm." ;
+    owl:equivalentClass compat:ObjectCentricPetriNet ;
+    rdfs:comment "A Petri net extension where arcs are typed by object type and may be variable (binding multiple objects), enabling object-centric semantics." .
+
+domain:WorkflowNet
+    a rdfs:Class ;
+    rdfs:label "Workflow Net" ;
+    rdfs:subClassOf domain:PetriNet ;
+    skos:definition "Workflow net shape. Structural only; YAWL-style routing constructs, multiple-instance tasks. Engine logic graduates to wasm4pm." ;
+    owl:equivalentClass compat:WorkflowNet ;
+    rdfs:comment "YAWL-style workflow net with cancellation regions and multiple-instance task handling." .
+
+# ============================================================================
+# PROCESS DISCOVERY FORMS
+# ============================================================================
+
+domain:ProcessTree
+    a rdfs:Class ;
+    rdfs:label "Process Tree" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Block-structured process tree shape: ProcessTree, ProcessTreeNode, ProcessTreeOperator (sequence, exclusive choice, parallel, loop, silent). TypedLoopNode<ARITY> with Require<{ARITY==2}>: IsTrue. Structure only." ;
+    owl:equivalentClass compat:ProcessTree ;
+    rdfs:comment "A hierarchical tree model where each non-leaf node represents a composition operator (sequence, choice, parallelism, or loop) and each leaf is an activity." .
+
+domain:ProcessTreeNode
+    a rdfs:Class ;
+    rdfs:label "Process Tree Node" ;
+    rdfs:comment "A node in a process tree, either a leaf (activity) or an internal node with an operator and children." .
+
+domain:ProcessTreeOperator
+    a rdfs:Class ;
+    rdfs:label "Process Tree Operator" ;
+    rdfs:comment "A composition operator at a tree node: sequence (→), exclusive choice (X), parallel (∧), loop (⟲), or silent (τ)." .
+
+domain:PowlNode
+    a rdfs:Class ;
+    rdfs:label "POWL Node" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "POWL (Partially Ordered Workflow Language) shape: PowlNode, PowlNodeKind (StrictOrder, Loop, XorGateway, SilentTransition, ChoiceGraph). TreeProjectable sealed trait. Structure only." ;
+    owl:equivalentClass compat:PowlNode ;
+    rdfs:comment "Partially Ordered Workflow Language extending classical block structures with explicit partial ordering relations between activities." .
+
+domain:PowlNodeKind
+    a rdfs:Class ;
+    rdfs:label "POWL Node Kind" ;
+    rdfs:comment "The type of a POWL node: StrictOrder, Loop, XorGateway, SilentTransition, or ChoiceGraph." .
+
+domain:DirectlyFollowsGraph
+    a rdfs:Class ;
+    rdfs:label "Directly-Follows Graph" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Directly-Follows Graph shape (including OC-DFG). Structure only; DFG mining and filtering graduate to wasm4pm." ;
+    owl:equivalentClass compat:DfgShape ;
+    owl:sameAs pm:DirectlyFollowsGraph ;
+    rdfs:comment "A graph representation where nodes are activities and directed edges represent immediate precedence relationships (one activity directly follows another)." .
+
+domain:CausalNet
+    a rdfs:Class ;
+    rdfs:label "Causal Net" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Causal net shape. Structure only; Heuristics Miner-style discovery and causal dependency computation graduate to wasm4pm." ;
+    owl:equivalentClass compat:CausalNet ;
+    rdfs:comment "A process model from Heuristics Miner consisting of nodes (activities) and causal dependencies with frequency and confidence annotations." .
+
+# ============================================================================
+# DECLARATIVE AND CONSTRAINT-BASED PROCESS FORMS
+# ============================================================================
+
+domain:DeclareModel
+    a rdfs:Class ;
+    rdfs:label "Declare Model" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Declare constraint model shape: named constraint templates (Response, Precedence, ChainSuccession, etc.) with LTL semantics. Structure only; LTL checking graduates to wasm4pm." ;
+    owl:equivalentClass compat:DeclareModel ;
+    owl:sameAs pm:DeclareModel ;
+    rdfs:comment "A declarative process model using LTL constraint templates. Unlike procedural models, Declare specifies what must/may not happen without explicitly defining control flow." .
+
+domain:OcpqQuery
+    a rdfs:Class ;
+    rdfs:label "OCPQ Query" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "OCPQ query and result shape: OcpqQuery, OcpqResult, predicate witness markers (EventPredicate, ObjectPredicate, RelationPredicate, TemporalPredicate, CardinalityPredicate, NestedQuery, Constraint), OcpqRefusal. Query execution graduates to wasm4pm." ;
+    owl:equivalentClass compat:OcpqQuery ;
+    rdfs:comment "Object-Centric Process Querying language for extracting and filtering object-centric process data. Supports rich predicates on events, objects, and relationships." .
+
+# ============================================================================
+# BPMN PROCESS FORMS
+# ============================================================================
+
+domain:BpmnModel
+    a rdfs:Class ;
+    rdfs:label "BPMN Model" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "BPMN 2.0 shape: task, gateway (XOR/AND/OR), event, pool, lane, subprocess, message flow. Gateway type as PhantomData witness. Structure only." ;
+    owl:equivalentClass compat:BpmnModel ;
+    owl:sameAs bpmn:Process ;
+    rdfs:comment "Business Process Model and Notation 2.0 model with tasks, gateways, events, and flows organized into pools and lanes." .
+
+domain:BpmnTask
+    a rdfs:Class ;
+    rdfs:label "BPMN Task" ;
+    rdfs:subClassOf owl:Thing ;
+    owl:sameAs bpmn:Task ;
+    rdfs:comment "An atomic activity in BPMN: user task, service task, script task, business rule task, send task, or receive task." .
+
+domain:BpmnGateway
+    a rdfs:Class ;
+    rdfs:label "BPMN Gateway" ;
+    rdfs:subClassOf owl:Thing ;
+    owl:sameAs bpmn:Gateway ;
+    rdfs:comment "A control-flow merge/split point: exclusive (XOR), parallel (AND), or inclusive (OR) gateway." .
+
+domain:BpmnEvent
+    a rdfs:Class ;
+    rdfs:label "BPMN Event" ;
+    rdfs:subClassOf owl:Thing ;
+    owl:sameAs bpmn:Event ;
+    rdfs:comment "A point in a process where something happens: start, intermediate, or end event (message, timer, error, etc.)." .
+
+# ============================================================================
+# CONFORMANCE AND ANALYSIS FORMS
+# ============================================================================
+
+domain:ConformanceVerdict
+    a rdfs:Class ;
+    rdfs:label "Conformance Verdict" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Conformance verdict carrier shape: Fitness, Precision, F1 (bounded [0,1] newtypes), Deviation, SyncMove, LogOnlyMove, ModelOnlyMove, ConformanceRefusal. Values computed by wasm4pm engine; this crate holds the shape." ;
+    owl:equivalentClass compat:ConformanceVerdict ;
+    rdfs:comment "A structured report of conformance metrics (fitness, precision, F1 score) and alignment details (sync moves, model-only, log-only)." .
+
+domain:PredictionTarget
+    a rdfs:Class ;
+    rdfs:label "Prediction Target" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Predictive process monitoring shape: PredictionTarget structure. Prediction execution and compliance-constraint binding graduate to wasm4pm." ;
+    owl:equivalentClass compat:PredictionTarget ;
+    rdfs:comment "A structure encoding what to predict in a process instance (next activity, outcome, duration) and how to verify predictions." .
+
+domain:ProcessCube
+    a rdfs:Class ;
+    rdfs:label "Process Cube" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Process cube framework shape: ProcessCube, CubeDimension, CubeSlice, CubeCell, CubeProjectionWitness, CellComparison. Cube computation graduates to wasm4pm." ;
+    owl:equivalentClass compat:ProcessCube ;
+    rdfs:comment "A multi-dimensional data structure for process analysis. Dimensions slice event data by case, activity, resource, or time; cells hold process models or metrics." .
+
+domain:TemporalConstraint
+    a rdfs:Class ;
+    rdfs:label "Temporal Constraint" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Temporal constraint shape for temporal profile conformance checking. Structure only; zeta-value computation graduates to wasm4pm." ;
+    owl:equivalentClass compat:TemporalConstraint ;
+    rdfs:comment "A constraint on the temporal distance between activity pairs (min/max durations, average duration, statistical distribution)." .
+
+domain:ObjectLifecycle
+    a rdfs:Class ;
+    rdfs:label "Object Lifecycle" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Object lifecycle shape for object-centric process analysis. Structure only." ;
+    owl:equivalentClass compat:ObjectLifecycle ;
+    rdfs:comment "The lifecycle of a single business object: creation, state transitions, attributes, relationships to other objects, termination." .
+
+domain:CausalityGraph
+    a rdfs:Class ;
+    rdfs:label "Causality Graph" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Causality graph shape for cross-object causal ordering. Cycle detection and consistency checking graduate to wasm4pm." ;
+    owl:equivalentClass compat:CausalityGraph ;
+    rdfs:comment "A directed acyclic graph representing causal dependencies between events across multiple objects, enforcing happens-before consistency." .
+
+# ============================================================================
+# MULTI-PERSPECTIVE AND INTEROP FORMS
+# ============================================================================
+
+domain:MultiPerspectiveLog
+    a rdfs:Class ;
+    rdfs:label "Multi-Perspective Process Log" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Multi-perspective process log shape (Mannhardt et al., 2016): control-flow, data, resource, time perspectives. Structure only; alignment cost computation graduates to wasm4pm." ;
+    owl:equivalentClass compat:MultiPerspective ;
+    rdfs:comment "An event log with multiple orthogonal perspectives: control-flow (activities), data (object attributes), resource (who did it), time (when and how long)." .
+
+domain:CorrelationSchema
+    a rdfs:Class ;
+    rdfs:label "Correlation Schema" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Cross-log correlation schema shape. Multi-log merging and join execution graduate to wasm4pm." ;
+    owl:equivalentClass compat:CorrelationSchema ;
+    rdfs:comment "A schema for correlating events across multiple event logs using matching criteria (e.g., case ID, timestamp ranges, attribute values)." .
+
+domain:Receipt
+    a rdfs:Class ;
+    rdfs:label "Receipt" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Provenance-bearing receipt envelope. Records provenance and the witness a value answered to. Structure only — the natural hand-off shape for graduation." ;
+    owl:equivalentClass compat:Receipt ;
+    rdfs:comment "An opaque provenance-bearing envelope that records what value was admitted, which witness it satisfied, and the lifecycle state. Natural hand-off to wasm4pm." .
+
+domain:InteropBridge
+    a rdfs:Class ;
+    rdfs:label "Interop Bridge" ;
+    rdfs:subClassOf domain:ProcessForm ;
+    skos:definition "Format interop bridge: bridges OCEL, XES, BPMN shapes via named loss surfaces. No route from external format directly to another — must go through admitted compat." ;
+    owl:equivalentClass compat:InteropBridge ;
+    rdfs:comment "Named projection surfaces between different process data formats, tracking and accounting for all information loss." .
+
+# ============================================================================
+# PROCESS FORM LIFECYCLE PROPERTIES
+# ============================================================================
+
+domain:formType
+    a rdf:Property ;
+    rdfs:label "form type" ;
+    rdfs:comment "The Rust type name of this process form (e.g., 'EventLog', 'PetriNet', 'ProcessTree')." ;
+    rdfs:domain domain:ProcessForm ;
+    rdfs:range xsd:string .
+
+domain:graduatesToWasm4pm
+    a rdf:Property ;
+    rdfs:label "graduates to wasm4pm" ;
+    rdfs:comment "Whether engine logic for this process form graduates to the wasm4pm execution engine (true) or is fully expressible as structure-only (false)." ;
+    rdfs:domain domain:ProcessForm ;
+    rdfs:range xsd:boolean .
+
+domain:graduationReason
+    a rdf:Property ;
+    rdfs:label "graduation reason" ;
+    rdfs:comment "If graduating to wasm4pm, the named reason: NeedsDiscovery, NeedsConformanceExecution, NeedsReplay, etc." ;
+    rdfs:domain domain:ProcessForm ;
+    rdfs:range xsd:string .
+
+domain:equivalentStandardForm
+    a rdf:Property ;
+    rdfs:label "equivalent standard form" ;
+    rdfs:comment "Links to the equivalent class in a standard ontology (OCEL, XES, BPMN, PM)." ;
+    rdfs:domain domain:ProcessForm ;
+    rdfs:range owl:Class .
+
+# ============================================================================
+# CLOSED-WORLD STATEMENT
+# ============================================================================
+
+<https://wasm4pm-compat.rs/domain/process-forms>
+    skos:note "All process forms enumerated here are exhaustive in wasm4pm-compat. No process form class exists outside this ontology that is valid. Each form bridges to zero or more standard process-mining ontologies; if a bridge is missing, that interop surface has not been implemented." .
+
+# ============================================================================
+# END OF DOMAIN ONTOLOGY: PROCESS FORMS
+# ============================================================================

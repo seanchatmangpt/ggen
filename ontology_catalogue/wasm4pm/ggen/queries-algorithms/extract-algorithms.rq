@@ -1,0 +1,32 @@
+# SPARQL query: extract all PI algorithm instances for template rendering.
+# Variable names match ALL Tera templates in ggen/templates-algorithms/.
+# ORDER BY ?category ?algorithm_id guarantees deterministic template output.
+
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX pi:   <https://wasm4pm.dev/pi#>
+
+SELECT ?algorithm_id ?algorithm_label ?algorithm_doc ?citation ?output_type ?category
+       ?speed_tier ?quality_tier ?wasm_export ?cli_alias ?input_format
+       ?algorithm_status ?pi_standing ?vda_fitness ?vda_precision ?vda_generalization ?vda_simplicity
+WHERE {
+  ?a a pi:ProcessIntelligenceAlgorithm ;
+     pi:algorithmId    ?algorithm_id ;
+     pi:algorithmLabel ?algorithm_label ;
+     pi:algorithmDoc   ?algorithm_doc ;
+     pi:citation       ?citation ;
+     pi:outputType     ?output_type ;
+     pi:category       ?category ;
+     pi:speedTier      ?speed_tier ;
+     pi:qualityTier    ?quality_tier ;
+     pi:wasmExport     ?wasm_export ;
+     pi:inputFormat    ?input_format .
+  OPTIONAL { ?a pi:cliAlias            ?cli_alias }
+  OPTIONAL { ?a pi:algorithmStatus     ?algorithm_status }
+  OPTIONAL { ?a pi:standing            ?pi_standing }
+  OPTIONAL { ?a pi:vdaFitness          ?vda_fitness }
+  OPTIONAL { ?a pi:vdaPrecision        ?vda_precision }
+  OPTIONAL { ?a pi:vdaGeneralization   ?vda_generalization }
+  OPTIONAL { ?a pi:vdaSimplicity       ?vda_simplicity }
+}
+ORDER BY ?category ?algorithm_id

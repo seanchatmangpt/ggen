@@ -1,0 +1,16 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:Alice a ex:Person ;
+    ex:name "Alice Smith" ;
+    ex:age 30 ;
+    ex:knows ex:Bob .
+
+ex:Bob a ex:Person ;
+    ex:name "Robert Jones" ;
+    ex:age 25 ;
+    ex:knows ex:Alice .
+
+ex:Person rdfs:subClassOf ex:Agent .
+ex:Agent a rdfs:Class .

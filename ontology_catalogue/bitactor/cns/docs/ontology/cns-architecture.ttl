@@ -1,0 +1,570 @@
+@prefix cns: <https://schema.chatman.ai/cns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# CNS Architecture Ontology
+#################################################################
+
+# ============================================================================
+# ARCHITECTURE LAYERS
+# ============================================================================
+
+cns:ArchitectureLayer a rdfs:Class ;
+    rdfs:label "Architecture Layer" ;
+    rdfs:comment "A layer in the CNS architecture" .
+
+cns:CoreEngineLayer a cns:ArchitectureLayer ;
+    rdfs:label "Core Engine Layer" ;
+    rdfs:comment "Low-level CNS engine with hash-based command dispatch" ;
+    cns:layerLevel 1 ;
+    cns:performanceTier cns:SevenTickTier .
+
+cns:CommandLayer a cns:ArchitectureLayer ;
+    rdfs:label "Command Layer" ;
+    rdfs:comment "Command registration and routing layer" ;
+    cns:layerLevel 2 ;
+    cns:performanceTier cns:SevenTickTier .
+
+cns:DomainLayer a cns:ArchitectureLayer ;
+    rdfs:label "Domain Layer" ;
+    rdfs:comment "Domain-based command organization layer" ;
+    cns:layerLevel 3 ;
+    cns:performanceTier cns:SubMicrosecondTier .
+
+cns:TelemetryLayer a cns:ArchitectureLayer ;
+    rdfs:label "Telemetry Layer" ;
+    rdfs:comment "OpenTelemetry integration layer" ;
+    cns:layerLevel 4 ;
+    cns:performanceTier cns:SevenTickTier .
+
+cns:BenchmarkLayer a cns:ArchitectureLayer ;
+    rdfs:label "Benchmark Layer" ;
+    rdfs:comment "Performance validation and regression testing layer" ;
+    cns:layerLevel 5 ;
+    cns:performanceTier cns:MicrosecondTier .
+
+# ============================================================================
+# COMPONENT INTERFACES
+# ============================================================================
+
+cns:ComponentInterface a rdfs:Class ;
+    rdfs:label "Component Interface" ;
+    rdfs:comment "An interface for CNS components" .
+
+cns:CommandInterface a cns:ComponentInterface ;
+    rdfs:label "Command Interface" ;
+    rdfs:comment "Interface for command handlers" ;
+    cns:interfaceType "handler" ;
+    cns:signature "int (*handler)(CNSContext*, int, char**)" .
+
+cns:DomainInterface a cns:ComponentInterface ;
+    rdfs:label "Domain Interface" ;
+    rdfs:comment "Interface for domain modules" ;
+    cns:interfaceType "module" ;
+    cns:signature "typedef struct { const char* name; const cns_command_t* commands; size_t command_count; cns_init_fn init; cns_cleanup_fn cleanup; cns_telemetry_t* telemetry; } cns_domain_t" .
+
+cns:EngineInterface a cns:ComponentInterface ;
+    rdfs:label "Engine Interface" ;
+    rdfs:comment "Interface for specialized engines" ;
+    cns:interfaceType "engine" ;
+    cns:signature "typedef struct { const char* name; void* data; cns_init_fn init; cns_cleanup_fn cleanup; } cns_engine_t" .
+
+cns:TelemetryInterface a cns:ComponentInterface ;
+    rdfs:label "Telemetry Interface" ;
+    rdfs:comment "Interface for telemetry integration" ;
+    cns:interfaceType "telemetry" ;
+    cns:signature "typedef struct { const char* service_name; double trace_sample_rate; cns_exporter_fn exporter; } cns_telemetry_config_t" .
+
+# ============================================================================
+# ARCHITECTURAL PATTERNS
+# ============================================================================
+
+cns:ArchitecturalPattern a rdfs:Class ;
+    rdfs:label "Architectural Pattern" ;
+    rdfs:comment "A pattern used in the CNS architecture" .
+
+cns:CommandRegistrationPattern a cns:ArchitecturalPattern ;
+    rdfs:label "Command Registration Pattern" ;
+    rdfs:comment "Static registration with compile-time verification" ;
+    cns:patternType "registration" ;
+    cns:performanceImpact "minimal" .
+
+cns:DomainModulePattern a cns:ArchitecturalPattern ;
+    rdfs:label "Domain Module Pattern" ;
+    rdfs:comment "Each domain is a self-contained module" ;
+    cns:patternType "modularity" ;
+    cns:performanceImpact "low" .
+
+cns:SevenTickEnforcementPattern a cns:ArchitecturalPattern ;
+    rdfs:label "7-Tick Enforcement Pattern" ;
+    rdfs:comment "Automatic cycle tracking and assertion" ;
+    cns:patternType "enforcement" ;
+    cns:performanceImpact "minimal" .
+
+cns:TelemetryIntegrationPattern a cns:ArchitecturalPattern ;
+    rdfs:label "Telemetry Integration Pattern" ;
+    rdfs:comment "Automatic span creation for commands" ;
+    cns:patternType "observability" ;
+    cns:performanceImpact "low" .
+
+cns:HashBasedDispatchPattern a cns:ArchitecturalPattern ;
+    rdfs:label "Hash-Based Dispatch Pattern" ;
+    rdfs:comment "Ultra-fast hash-based command dispatch" ;
+    cns:patternType "dispatch" ;
+    cns:performanceImpact "minimal" .
+
+cns:ArenaAllocationPattern a cns:ArchitecturalPattern ;
+    rdfs:label "Arena Allocation Pattern" ;
+    rdfs:comment "Per-command arena allocation with zero-copy parsing" ;
+    cns:patternType "memory" ;
+    cns:performanceImpact "minimal" .
+
+# ============================================================================
+# DEPLOYMENT MODELS
+# ============================================================================
+
+cns:DeploymentModel a rdfs:Class ;
+    rdfs:label "Deployment Model" ;
+    rdfs:comment "A deployment model for CNS" .
+
+cns:StandaloneDeployment a cns:DeploymentModel ;
+    rdfs:label "Standalone Deployment" ;
+    rdfs:comment "Single-process standalone deployment" ;
+    cns:deploymentType "standalone" ;
+    cns:scalability "single" .
+
+cns:DistributedDeployment a cns:DeploymentModel ;
+    rdfs:label "Distributed Deployment" ;
+    rdfs:comment "Multi-process distributed deployment" ;
+    cns:deploymentType "distributed" ;
+    cns:scalability "horizontal" .
+
+cns:EmbeddedDeployment a cns:DeploymentModel ;
+    rdfs:label "Embedded Deployment" ;
+    rdfs:comment "Embedded within other applications" ;
+    cns:deploymentType "embedded" ;
+    cns:scalability "vertical" .
+
+# ============================================================================
+# DATA FLOWS
+# ============================================================================
+
+cns:DataFlow a rdfs:Class ;
+    rdfs:label "Data Flow" ;
+    rdfs:comment "A data flow in the CNS system" .
+
+cns:CommandFlow a cns:DataFlow ;
+    rdfs:label "Command Flow" ;
+    rdfs:comment "Flow of commands through the system" ;
+    cns:flowType "command" ;
+    cns:performanceTier cns:SevenTickTier .
+
+cns:TelemetryFlow a cns:DataFlow ;
+    rdfs:label "Telemetry Flow" ;
+    rdfs:comment "Flow of telemetry data" ;
+    cns:flowType "telemetry" ;
+    cns:performanceTier cns:SevenTickTier .
+
+cns:BenchmarkFlow a cns:DataFlow ;
+    rdfs:label "Benchmark Flow" ;
+    rdfs:comment "Flow of benchmark data" ;
+    cns:flowType "benchmark" ;
+    cns:performanceTier cns:MicrosecondTier .
+
+cns:ValidationFlow a cns:DataFlow ;
+    rdfs:label "Validation Flow" ;
+    rdfs:comment "Flow of validation data" ;
+    cns:flowType "validation" ;
+    cns:performanceTier cns:SubMicrosecondTier .
+
+# ============================================================================
+# ARCHITECTURE PROPERTIES
+# ============================================================================
+
+cns:layerLevel a rdf:Property ;
+    rdfs:label "layer level" ;
+    rdfs:domain cns:ArchitectureLayer ;
+    rdfs:range xsd:integer .
+
+cns:interfaceType a rdf:Property ;
+    rdfs:label "interface type" ;
+    rdfs:domain cns:ComponentInterface ;
+    rdfs:range xsd:string .
+
+cns:signature a rdf:Property ;
+    rdfs:label "signature" ;
+    rdfs:domain cns:ComponentInterface ;
+    rdfs:range xsd:string .
+
+cns:patternType a rdf:Property ;
+    rdfs:label "pattern type" ;
+    rdfs:domain cns:ArchitecturalPattern ;
+    rdfs:range xsd:string .
+
+cns:performanceImpact a rdf:Property ;
+    rdfs:label "performance impact" ;
+    rdfs:domain cns:ArchitecturalPattern ;
+    rdfs:range xsd:string .
+
+cns:deploymentType a rdf:Property ;
+    rdfs:label "deployment type" ;
+    rdfs:domain cns:DeploymentModel ;
+    rdfs:range xsd:string .
+
+cns:scalability a rdf:Property ;
+    rdfs:label "scalability" ;
+    rdfs:domain cns:DeploymentModel ;
+    rdfs:range xsd:string .
+
+cns:flowType a rdf:Property ;
+    rdfs:label "flow type" ;
+    rdfs:domain cns:DataFlow ;
+    rdfs:range xsd:string .
+
+cns:belongsToLayer a rdf:Property ;
+    rdfs:label "belongs to layer" ;
+    rdfs:domain cns:Component ;
+    rdfs:range cns:ArchitectureLayer .
+
+cns:implementsInterface a rdf:Property ;
+    rdfs:label "implements interface" ;
+    rdfs:domain cns:Component ;
+    rdfs:range cns:ComponentInterface .
+
+cns:usesPattern a rdf:Property ;
+    rdfs:label "uses pattern" ;
+    rdfs:domain cns:Component ;
+    rdfs:range cns:ArchitecturalPattern .
+
+cns:supportsDeployment a rdf:Property ;
+    rdfs:label "supports deployment" ;
+    rdfs:domain cns:Component ;
+    rdfs:range cns:DeploymentModel .
+
+cns:participatesInFlow a rdf:Property ;
+    rdfs:label "participates in flow" ;
+    rdfs:domain cns:Component ;
+    rdfs:range cns:DataFlow .
+
+# ============================================================================
+# CORE COMPONENTS BY LAYER
+# ============================================================================
+
+# Core Engine Layer Components
+cns:engine a cns:Component ;
+    cns:belongsToLayer cns:CoreEngineLayer ;
+    cns:implementsInterface cns:EngineInterface ;
+    cns:usesPattern cns:HashBasedDispatchPattern ;
+    rdfs:label "Core Engine" ;
+    rdfs:comment "Core CNS engine with hash-based dispatch" .
+
+cns:parser a cns:Component ;
+    cns:belongsToLayer cns:CoreEngineLayer ;
+    cns:implementsInterface cns:CommandInterface ;
+    cns:usesPattern cns:SevenTickEnforcementPattern ;
+    rdfs:label "Parser" ;
+    rdfs:comment "Ultra-fast command parsing" .
+
+cns:executor a cns:Component ;
+    cns:belongsToLayer cns:CoreEngineLayer ;
+    cns:implementsInterface cns:CommandInterface ;
+    cns:usesPattern cns:SevenTickEnforcementPattern ;
+    rdfs:label "Executor" ;
+    rdfs:comment "Command execution with cycle tracking" .
+
+cns:registry a cns:Component ;
+    cns:belongsToLayer cns:CoreEngineLayer ;
+    cns:implementsInterface cns:CommandInterface ;
+    cns:usesPattern cns:CommandRegistrationPattern ;
+    rdfs:label "Registry" ;
+    rdfs:comment "Command registration and lookup" .
+
+cns:memory a cns:Component ;
+    cns:belongsToLayer cns:CoreEngineLayer ;
+    cns:implementsInterface cns:EngineInterface ;
+    cns:usesPattern cns:ArenaAllocationPattern ;
+    rdfs:label "Memory Manager" ;
+    rdfs:comment "Memory management (arena allocator)" .
+
+cns:perf a cns:Component ;
+    cns:belongsToLayer cns:CoreEngineLayer ;
+    cns:implementsInterface cns:EngineInterface ;
+    cns:usesPattern cns:SevenTickEnforcementPattern ;
+    rdfs:label "Performance Monitor" ;
+    rdfs:comment "Performance monitoring and assertions" .
+
+# Command Layer Components
+cns:baseCommand a cns:Component ;
+    cns:belongsToLayer cns:CommandLayer ;
+    cns:implementsInterface cns:CommandInterface ;
+    cns:usesPattern cns:CommandRegistrationPattern ;
+    rdfs:label "Base Command" ;
+    rdfs:comment "Base command interface" .
+
+cns:builtinCommand a cns:Component ;
+    cns:belongsToLayer cns:CommandLayer ;
+    cns:implementsInterface cns:CommandInterface ;
+    cns:usesPattern cns:CommandRegistrationPattern ;
+    rdfs:label "Built-in Command" ;
+    rdfs:comment "Built-in system commands" .
+
+cns:domainCommand a cns:Component ;
+    cns:belongsToLayer cns:CommandLayer ;
+    cns:implementsInterface cns:DomainInterface ;
+    cns:usesPattern cns:DomainModulePattern ;
+    rdfs:label "Domain Command" ;
+    rdfs:comment "Domain command interface" .
+
+cns:handler a cns:Component ;
+    cns:belongsToLayer cns:CommandLayer ;
+    cns:implementsInterface cns:CommandInterface ;
+    cns:usesPattern cns:CommandRegistrationPattern ;
+    rdfs:label "Command Handler" ;
+    rdfs:comment "Command handler types" .
+
+cns:router a cns:Component ;
+    cns:belongsToLayer cns:CommandLayer ;
+    cns:implementsInterface cns:CommandInterface ;
+    cns:usesPattern cns:HashBasedDispatchPattern ;
+    rdfs:label "Command Router" ;
+    rdfs:comment "Command routing logic" .
+
+# Domain Layer Components
+cns:sparqlDomain a cns:Component ;
+    cns:belongsToLayer cns:DomainLayer ;
+    cns:implementsInterface cns:DomainInterface ;
+    cns:usesPattern cns:DomainModulePattern ;
+    cns:participatesInFlow cns:CommandFlow ;
+    rdfs:label "SPARQL Domain" ;
+    rdfs:comment "SPARQL query processing domain" .
+
+cns:shaclDomain a cns:Component ;
+    cns:belongsToLayer cns:DomainLayer ;
+    cns:implementsInterface cns:DomainInterface ;
+    cns:usesPattern cns:DomainModulePattern ;
+    cns:participatesInFlow cns:ValidationFlow ;
+    rdfs:label "SHACL Domain" ;
+    rdfs:comment "SHACL validation domain" .
+
+cns:cjinjaDomain a cns:Component ;
+    cns:belongsToLayer cns:DomainLayer ;
+    cns:implementsInterface cns:DomainInterface ;
+    cns:usesPattern cns:DomainModulePattern ;
+    cns:participatesInFlow cns:CommandFlow ;
+    rdfs:label "CJinja Domain" ;
+    rdfs:comment "Template rendering domain" .
+
+cns:telemetryDomain a cns:Component ;
+    cns:belongsToLayer cns:DomainLayer ;
+    cns:implementsInterface cns:DomainInterface ;
+    cns:usesPattern cns:DomainModulePattern ;
+    cns:participatesInFlow cns:TelemetryFlow ;
+    rdfs:label "Telemetry Domain" ;
+    rdfs:comment "Telemetry domain" .
+
+cns:benchmarkDomain a cns:Component ;
+    cns:belongsToLayer cns:DomainLayer ;
+    cns:implementsInterface cns:DomainInterface ;
+    cns:usesPattern cns:DomainModulePattern ;
+    cns:participatesInFlow cns:BenchmarkFlow ;
+    rdfs:label "Benchmark Domain" ;
+    rdfs:comment "Benchmark domain" .
+
+# Telemetry Layer Components
+cns:otel a cns:Component ;
+    cns:belongsToLayer cns:TelemetryLayer ;
+    cns:implementsInterface cns:TelemetryInterface ;
+    cns:usesPattern cns:TelemetryIntegrationPattern ;
+    cns:participatesInFlow cns:TelemetryFlow ;
+    rdfs:label "OpenTelemetry" ;
+    rdfs:comment "OpenTelemetry integration" .
+
+cns:tracer a cns:Component ;
+    cns:belongsToLayer cns:TelemetryLayer ;
+    cns:implementsInterface cns:TelemetryInterface ;
+    cns:usesPattern cns:TelemetryIntegrationPattern ;
+    cns:participatesInFlow cns:TelemetryFlow ;
+    rdfs:label "Tracer" ;
+    rdfs:comment "Distributed tracing" .
+
+cns:metrics a cns:Component ;
+    cns:belongsToLayer cns:TelemetryLayer ;
+    cns:implementsInterface cns:TelemetryInterface ;
+    cns:usesPattern cns:TelemetryIntegrationPattern ;
+    cns:participatesInFlow cns:TelemetryFlow ;
+    rdfs:label "Metrics" ;
+    rdfs:comment "Metrics collection" .
+
+cns:spans a cns:Component ;
+    cns:belongsToLayer cns:TelemetryLayer ;
+    cns:implementsInterface cns:TelemetryInterface ;
+    cns:usesPattern cns:TelemetryIntegrationPattern ;
+    cns:participatesInFlow cns:TelemetryFlow ;
+    rdfs:label "Spans" ;
+    rdfs:comment "Span management" .
+
+cns:context a cns:Component ;
+    cns:belongsToLayer cns:TelemetryLayer ;
+    cns:implementsInterface cns:TelemetryInterface ;
+    cns:usesPattern cns:TelemetryIntegrationPattern ;
+    cns:participatesInFlow cns:TelemetryFlow ;
+    rdfs:label "Context" ;
+    rdfs:comment "Trace context propagation" .
+
+cns:exporter a cns:Component ;
+    cns:belongsToLayer cns:TelemetryLayer ;
+    cns:implementsInterface cns:TelemetryInterface ;
+    cns:usesPattern cns:TelemetryIntegrationPattern ;
+    cns:participatesInFlow cns:TelemetryFlow ;
+    rdfs:label "Exporter" ;
+    rdfs:comment "Data export interface" .
+
+# Benchmark Layer Components
+cns:framework a cns:Component ;
+    cns:belongsToLayer cns:BenchmarkLayer ;
+    cns:implementsInterface cns:EngineInterface ;
+    cns:usesPattern cns:SevenTickEnforcementPattern ;
+    cns:participatesInFlow cns:BenchmarkFlow ;
+    rdfs:label "Benchmark Framework" ;
+    rdfs:comment "Benchmark framework" .
+
+cns:harness a cns:Component ;
+    cns:belongsToLayer cns:BenchmarkLayer ;
+    cns:implementsInterface cns:EngineInterface ;
+    cns:usesPattern cns:SevenTickEnforcementPattern ;
+    cns:participatesInFlow cns:BenchmarkFlow ;
+    rdfs:label "Test Harness" ;
+    rdfs:comment "Test harness" .
+
+cns:cycles a cns:Component ;
+    cns:belongsToLayer cns:BenchmarkLayer ;
+    cns:implementsInterface cns:EngineInterface ;
+    cns:usesPattern cns:SevenTickEnforcementPattern ;
+    cns:participatesInFlow cns:BenchmarkFlow ;
+    rdfs:label "Cycle Counter" ;
+    rdfs:comment "Cycle-accurate timing" .
+
+cns:stats a cns:Component ;
+    cns:belongsToLayer cns:BenchmarkLayer ;
+    cns:implementsInterface cns:EngineInterface ;
+    cns:usesPattern cns:SevenTickEnforcementPattern ;
+    cns:participatesInFlow cns:BenchmarkFlow ;
+    rdfs:label "Statistics" ;
+    rdfs:comment "Statistical analysis" .
+
+cns:report a cns:Component ;
+    cns:belongsToLayer cns:BenchmarkLayer ;
+    cns:implementsInterface cns:EngineInterface ;
+    cns:usesPattern cns:SevenTickEnforcementPattern ;
+    cns:participatesInFlow cns:BenchmarkFlow ;
+    rdfs:label "Report Generator" ;
+    rdfs:comment "Report generation" .
+
+cns:regression a cns:Component ;
+    cns:belongsToLayer cns:BenchmarkLayer ;
+    cns:implementsInterface cns:EngineInterface ;
+    cns:usesPattern cns:SevenTickEnforcementPattern ;
+    cns:participatesInFlow cns:BenchmarkFlow ;
+    rdfs:label "Regression Detector" ;
+    rdfs:comment "Regression detection" .
+
+# ============================================================================
+# SHACL SHAPES FOR ARCHITECTURE VALIDATION
+# ============================================================================
+
+cns:ArchitectureLayerShape a sh:NodeShape ;
+    sh:targetClass cns:ArchitectureLayer ;
+    sh:property [
+        sh:path cns:layerLevel ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Every architecture layer must have a level between 1 and 10"
+    ] ;
+    sh:property [
+        sh:path cns:hasPerformanceTier ;
+        sh:class cns:PerformanceMetric ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every architecture layer must have a performance tier"
+    ] .
+
+cns:ComponentInterfaceShape a sh:NodeShape ;
+    sh:targetClass cns:ComponentInterface ;
+    sh:property [
+        sh:path cns:interfaceType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("handler" "module" "engine" "telemetry") ;
+        sh:message "Interface type must be handler, module, engine, or telemetry"
+    ] ;
+    sh:property [
+        sh:path cns:signature ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every component interface must have a signature"
+    ] .
+
+cns:ArchitecturalPatternShape a sh:NodeShape ;
+    sh:targetClass cns:ArchitecturalPattern ;
+    sh:property [
+        sh:path cns:patternType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("registration" "modularity" "enforcement" "observability" "dispatch" "memory") ;
+        sh:message "Pattern type must be one of the defined types"
+    ] ;
+    sh:property [
+        sh:path cns:performanceImpact ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("minimal" "low" "medium" "high") ;
+        sh:message "Performance impact must be minimal, low, medium, or high"
+    ] .
+
+cns:DeploymentModelShape a sh:NodeShape ;
+    sh:targetClass cns:DeploymentModel ;
+    sh:property [
+        sh:path cns:deploymentType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("standalone" "distributed" "embedded") ;
+        sh:message "Deployment type must be standalone, distributed, or embedded"
+    ] ;
+    sh:property [
+        sh:path cns:scalability ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("single" "horizontal" "vertical") ;
+        sh:message "Scalability must be single, horizontal, or vertical"
+    ] .
+
+cns:DataFlowShape a sh:NodeShape ;
+    sh:targetClass cns:DataFlow ;
+    sh:property [
+        sh:path cns:flowType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("command" "telemetry" "benchmark" "validation") ;
+        sh:message "Flow type must be command, telemetry, benchmark, or validation"
+    ] ;
+    sh:property [
+        sh:path cns:hasPerformanceTier ;
+        sh:class cns:PerformanceMetric ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every data flow must have a performance tier"
+    ] . 

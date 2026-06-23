@@ -56,13 +56,17 @@ fn write(dir: &Path, name: &str, content: &str) -> PathBuf {
 
 async fn editor_rework_config(state: &ServerState, root: &Path, name: &str) {
     let uri = url_from_path(root.join(name));
-    let broken_diags = ggen_lsp::analyzers::build_analyzer(uri.path().as_str(), "[logging]\nlevel = \"verbose\"\n")
-        .map(|a| a.diagnostics())
-        .unwrap_or_default();
+    let broken_diags = ggen_lsp::analyzers::build_analyzer(
+        uri.path().as_str(),
+        "[logging]\nlevel = \"verbose\"\n",
+    )
+    .map(|a| a.diagnostics())
+    .unwrap_or_default();
     state.observe_diagnostics(&uri, &broken_diags).await;
-    let fixed_diags = ggen_lsp::analyzers::build_analyzer(uri.path().as_str(), "[logging]\nlevel = \"info\"\n")
-        .map(|a| a.diagnostics())
-        .unwrap_or_default();
+    let fixed_diags =
+        ggen_lsp::analyzers::build_analyzer(uri.path().as_str(), "[logging]\nlevel = \"info\"\n")
+            .map(|a| a.diagnostics())
+            .unwrap_or_default();
     state.observe_diagnostics(&uri, &fixed_diags).await;
 }
 

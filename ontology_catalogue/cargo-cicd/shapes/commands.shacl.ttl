@@ -1,0 +1,100 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix cc:      <https://cargo-cicd.rs/ontology/> .
+@prefix ccsh:    <https://cargo-cicd.rs/shapes/> .
+
+# ── Shape ontology header ─────────────────────────────────────────────────────
+ccsh:CommandsShapes
+    a owl:Ontology ;
+    dcterms:title "cargo-cicd capability (command) SHACL shapes"@en ;
+    dcterms:description
+        "Validates cc:Capability nodes: every public sub-command must carry a label, a well-formed CLI string, noun, verb, emitted event, and a public-boundary declaration."@en ;
+    dcterms:created "2026-06-02"^^xsd:date ;
+    owl:imports <https://cargo-cicd.rs/ontology/capabilities> ;
+    owl:versionInfo "26.6.2" .
+
+# ── CapabilityShape ───────────────────────────────────────────────────────────
+#
+# Target: every node that is both a skos:Concept and a prov:SoftwareAgent.
+# In the capabilities ontology these are the nine public commands.
+#
+ccsh:CapabilityShape
+    a sh:NodeShape ;
+    sh:name "CapabilityShape" ;
+    sh:description
+        "Every cc:Capability (modelled as skos:Concept ∩ prov:SoftwareAgent) must carry a human label, a typed CLI invocation string, structured noun/verb segments, a link to the emitted evidence event, and an explicit public-boundary flag."@en ;
+
+    # Target: any node declared as both skos:Concept and prov:SoftwareAgent
+    sh:targetClass prov:SoftwareAgent ;
+
+    # ── skos:prefLabel — required, plain string ───────────────────────────────
+    sh:property [
+        sh:path skos:prefLabel ;
+        sh:name "prefLabel" ;
+        sh:description "Human-readable name of the capability."@en ;
+        sh:minCount 1 ;
+        sh:datatype rdf:langString ;
+        sh:message "cc:Capability must have exactly one skos:prefLabel (language-tagged string)."@en ;
+    ] ;
+
+    # ── cc:cliCommand — required, must start with "cargo cicd " ───────────────
+    sh:property [
+        sh:path cc:cliCommand ;
+        sh:name "cliCommand" ;
+        sh:description "Full CLI invocation string, e.g. 'cargo cicd status show'."@en ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^cargo cicd .+" ;
+        sh:message "cc:cliCommand is required, must be a plain xsd:string, and must match pattern 'cargo cicd *'."@en ;
+    ] ;
+
+    # ── cc:noun — required, plain string ─────────────────────────────────────
+    sh:property [
+        sh:path cc:noun ;
+        sh:name "noun" ;
+        sh:description "The noun segment of the sub-command (e.g. 'status', 'git')."@en ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "cc:noun is required and must be a plain xsd:string."@en ;
+    ] ;
+
+    # ── cc:verb — required, plain string ─────────────────────────────────────
+    sh:property [
+        sh:path cc:verb ;
+        sh:name "verb" ;
+        sh:description "The verb segment of the sub-command (e.g. 'show', 'close')."@en ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "cc:verb is required and must be a plain xsd:string."@en ;
+    ] ;
+
+    # ── cc:emitsEvent — required, must link to a prov:Activity ───────────────
+    sh:property [
+        sh:path cc:emitsEvent ;
+        sh:name "emitsEvent" ;
+        sh:description "Links this capability to the prov:Activity it produces as evidence."@en ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class prov:Activity ;
+        sh:message "cc:emitsEvent is required and must point to a prov:Activity node."@en ;
+    ] ;
+
+    # ── cc:publicBoundaryClean — required, boolean ────────────────────────────
+    sh:property [
+        sh:path cc:publicBoundaryClean ;
+        sh:name "publicBoundaryClean" ;
+        sh:description "True iff the command is safe to expose at the public API boundary without side-effects requiring adjudication."@en ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "cc:publicBoundaryClean is required and must be an xsd:boolean."@en ;
+    ] .

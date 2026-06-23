@@ -1,0 +1,37 @@
+# Invalid TTL - Missing Required Properties
+# Tests DDD pattern violations
+
+@prefix ddd: <http://ggen-mcp.dev/ontology/ddd#> .
+@prefix ex: <http://example.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Aggregate without any properties - INVALID
+ex:EmptyAggregate a owl:Class ;
+    rdfs:subClassOf ddd:AggregateRoot ;
+    rdfs:label "Empty Aggregate"@en ;
+    rdfs:comment "This aggregate has no properties - invalid!"@en .
+
+# Value object without properties - INVALID
+ex:EmptyValueObject a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Empty Value Object"@en .
+
+# Command without properties - INVALID
+ex:EmptyCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Empty Command"@en .
+
+# Repository without forAggregate - INVALID
+ex:BrokenRepository a owl:Class ;
+    rdfs:subClassOf ddd:Repository ;
+    rdfs:label "Broken Repository"@en .
+
+# Invariant without check - INVALID
+ex:ClassWithBadInvariant a owl:Class ;
+    rdfs:subClassOf ddd:AggregateRoot ;
+    ddd:hasProperty ex:someProperty ;
+    ddd:hasInvariant [
+        rdfs:label "Incomplete invariant" ;
+        ddd:message "Missing check expression"
+    ] .

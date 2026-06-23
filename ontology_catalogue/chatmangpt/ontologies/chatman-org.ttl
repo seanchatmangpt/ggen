@@ -1,0 +1,694 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix chatman: <https://ontology.chatmangpt.com/core#> .
+
+###############################################################################
+# CHATMANGPT ORGANIZATIONAL ONTOLOGY
+#
+# Organizational structure using W3C ORG and FOAF vocabularies
+#
+# IRI: https://ontology.chatmangpt.com/org
+# Module: chatman-org.ttl
+#
+# This ontology models the ChatmanGPT organization structure, including:
+# - Company hierarchy (ChatmanGPT with divisions for each project)
+# - Organizational units and teams
+# - People with roles, positions, and reporting relationships
+# - Sites and locations
+# - Memberships and role assignments
+###############################################################################
+
+<https://ontology.chatmangpt.com/org>
+  a owl:Ontology ;
+  dcterms:title "ChatmanGPT Organizational Ontology"@en ;
+  dcterms:description "W3C ORG and FOAF-based organizational structure for ChatmanGPT. Models the company hierarchy, teams, people, roles, and reporting relationships. Enables SPARQL queries for organizational reporting: 'Who reports to whom?', 'What teams exist in Engineering?', 'List all agents by project'."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:created "2026-03-25T00:00:00Z"^^xsd:dateTime ;
+  dcterms:creator "Sean Chatman"@en ;
+  dcterms:license <https://creativecommons.org/licenses/by-sa/4.0/> ;
+  dcterms:isPartOf <https://ontology.chatmangpt.com/> ;
+  owl:versionIRI <https://ontology.chatmangpt.com/org/1.0> ;
+  owl:versionInfo "1.0"^^xsd:string ;
+
+  # Import the core ontology (includes W3C ORG)
+  owl:imports <https://ontology.chatmangpt.com/core> ;
+
+  rdfs:comment "This ontology extends chatman-core.ttl with organizational structure details. It uses W3C ORG (org:Organization, org:OrganizationalUnit, org:Post, org:Role, org:Membership, org:reportsTo) combined with FOAF (foaf:Person, foaf:name, foaf:mbox) to provide a complete organizational graph. The structure can be queried with SPARQL to answer organizational questions and generate reports."@en ;
+  .
+
+###############################################################################
+# ORGANIZATIONAL STRUCTURE
+###############################################################################
+
+chatman:ChatmanGPTOrganization
+  a org:Organization ;
+  dcterms:identifier "chatman-gpt-org"@en ;
+  foaf:name "ChatmanGPT"@en ;
+  rdfs:label "ChatmanGPT Organization"@en ;
+  foaf:homepage <https://chatmangpt.com> ;
+  foaf:mbox <mailto:info@chatmangpt.com> ;
+  dcterms:description "Fortune 500-grade AI systems company with AGI-level cross-project connections. Building integrated ecosystem across BusinessOS, Canopy, OSA, and pm4py-rust."@en ;
+  org:based_near chatman:PasadenaLocation ;
+  org:hasUnit chatman:EngineeringUnit ;
+  org:hasUnit chatman:ProductUnit ;
+  org:hasUnit chatman:OperationsUnit ;
+  .
+
+###############################################################################
+# LOCATIONS / SITES
+###############################################################################
+
+chatman:PasadenaLocation
+  a org:Site ;
+  foaf:name "Pasadena, CA Headquarters"@en ;
+  rdfs:label "Pasadena Headquarters"@en ;
+  vcard:hasStreetAddress "115 E Del Mar Blvd, Unit 405, Pasadena, CA 91105"@en ;
+  vcard:hasLocality "Pasadena"@en ;
+  vcard:hasRegion "California"@en ;
+  vcard:hasPostalCode "91105"@en ;
+  vcard:hasCountryName "United States"@en ;
+  dcterms:description "Primary headquarters and development location for ChatmanGPT."@en ;
+  .
+
+###############################################################################
+# ORGANIZATIONAL UNITS
+###############################################################################
+
+chatman:EngineeringUnit
+  a org:OrganizationalUnit ;
+  dcterms:identifier "engineering"@en ;
+  foaf:name "Engineering"@en ;
+  rdfs:label "Engineering Division"@en ;
+  org:unitOf chatman:ChatmanGPTOrganization ;
+  dcterms:description "Core engineering teams building BusinessOS, Canopy, OSA, and pm4py-rust."@en ;
+  org:hasSubUnit chatman:BusinessOSTeam ;
+  org:hasSubUnit chatman:CanopyTeam ;
+  org:hasSubUnit chatman:OSATeam ;
+  org:hasSubUnit chatman:DataEngineering ;
+  .
+
+chatman:BusinessOSTeam
+  a org:OrganizationalUnit ;
+  dcterms:identifier "businessos-team"@en ;
+  foaf:name "BusinessOS Team"@en ;
+  rdfs:label "BusinessOS Engineering"@en ;
+  org:unitOf chatman:EngineeringUnit ;
+  dcterms:description "Go backend + SvelteKit frontend + Electron desktop for AI business operating system."@en ;
+  org:hasMember chatman:SeanChatmanRole ;
+  org:hasMember chatman:RobertoRole ;
+  .
+
+chatman:CanopyTeam
+  a org:OrganizationalUnit ;
+  dcterms:identifier "canopy-team"@en ;
+  foaf:name "Canopy Team"@en ;
+  rdfs:label "Canopy Engineering"@en ;
+  org:unitOf chatman:EngineeringUnit ;
+  dcterms:description "Elixir/Phoenix + SvelteKit/Tauri workspace protocol and command center."@en ;
+  org:hasMember chatman:SeanChatmanRole ;
+  org:hasMember chatman:RobertoRole ;
+  .
+
+chatman:OSATeam
+  a org:OrganizationalUnit ;
+  dcterms:identifier "osa-team"@en ;
+  foaf:name "OSA Team"@en ;
+  rdfs:label "OSA Engineering"@en ;
+  org:unitOf chatman:EngineeringUnit ;
+  dcterms:description "Elixir/OTP + Rust multi-agent orchestration system."@en ;
+  org:hasMember chatman:SeanChatmanRole ;
+  .
+
+chatman:DataEngineering
+  a org:OrganizationalUnit ;
+  dcterms:identifier "data-engineering"@en ;
+  foaf:name "Data Engineering"@en ;
+  rdfs:label "Data Engineering"@en ;
+  org:unitOf chatman:EngineeringUnit ;
+  dcterms:description "Process mining (pm4py-rust), ontology management, data pipeline orchestration."@en ;
+  org:hasMember chatman:SeanChatmanRole ;
+  .
+
+chatman:ProductUnit
+  a org:OrganizationalUnit ;
+  dcterms:identifier "product"@en ;
+  foaf:name "Product"@en ;
+  rdfs:label "Product Division"@en ;
+  org:unitOf chatman:ChatmanGPTOrganization ;
+  dcterms:description "Product strategy, roadmap, and vision alignment across all projects."@en ;
+  org:hasMember chatman:SeanChatmanRole ;
+  .
+
+chatman:OperationsUnit
+  a org:OrganizationalUnit ;
+  dcterms:identifier "operations"@en ;
+  foaf:name "Operations"@en ;
+  rdfs:label "Operations Division"@en ;
+  org:unitOf chatman:ChatmanGPTOrganization ;
+  dcterms:description "DevOps, infrastructure, CI/CD, deployment, compliance."@en ;
+  org:hasMember chatman:RobertoRole ;
+  org:hasMember chatman:SlaughterRole ;
+  .
+
+###############################################################################
+# JOB TITLES / ROLES (Abstract Role Types)
+###############################################################################
+
+chatman:FounderCEORole
+  a org:Role ;
+  dcterms:identifier "founder-ceo"@en ;
+  rdfs:label "Founder & CEO"@en ;
+  dcterms:description "Founder, CEO, and chief architect. 25 years of staff-level engineering experience across fintech, entertainment, telecom, and gaming. Primary decision maker and technical leader."@en ;
+  org:roleTitle "Founder & CEO"@en ;
+  .
+
+chatman:StaffEngineerRole
+  a org:Role ;
+  dcterms:identifier "staff-engineer"@en ;
+  rdfs:label "Staff Engineer"@en ;
+  dcterms:description "Senior technical leadership across multiple systems. Architects cross-system integrations, designs ontologies, leads high-impact initiatives."@en ;
+  org:roleTitle "Staff Engineer"@en ;
+  .
+
+chatman:SeniorFullStackRole
+  a org:Role ;
+  dcterms:identifier "senior-fullstack"@en ;
+  rdfs:label "Senior Full-Stack Engineer"@en ;
+  dcterms:description "Frontend and backend development across web, desktop, and mobile platforms."@en ;
+  org:roleTitle "Senior Full-Stack Engineer"@en ;
+  .
+
+chatman:DevOpsRole
+  a org:Role ;
+  dcterms:identifier "devops-engineer"@en ;
+  rdfs:label "DevOps Engineer"@en ;
+  dcterms:description "Infrastructure, CI/CD pipelines, deployment automation, system reliability."@en ;
+  org:roleTitle "DevOps Engineer"@en ;
+  .
+
+###############################################################################
+# PEOPLE (FOAF Person Instances)
+###############################################################################
+
+chatman:SeanChatman
+  a foaf:Person ;
+  dcterms:identifier "sean-chatman"@en ;
+  foaf:name "Sean Chatman"@en ;
+  rdfs:label "Sean Chatman"@en ;
+  foaf:givenName "Sean"@en ;
+  foaf:familyName "Chatman"@en ;
+  foaf:mbox <mailto:info@chatmangpt.com> ;
+  foaf:phone <tel:+1-323-252-2071> ;
+  foaf:homepage <https://github.com/seanchatmangpt> ;
+  foaf:workplaceHomepage <https://chatmangpt.com> ;
+  vcard:hasStreetAddress "115 E Del Mar Blvd, Unit 405"@en ;
+  vcard:hasLocality "Pasadena"@en ;
+  vcard:hasRegion "California"@en ;
+  vcard:hasPostalCode "91105"@en ;
+  vcard:hasCountryName "United States"@en ;
+  foaf:title "Mr."@en ;
+  dcterms:description "Founder, CEO, and chief architect of ChatmanGPT. Staff-level engineer with 25 years of experience across fintech (Intuit), entertainment (Disney, Method Studios), telecom (AT&T), and gaming. Expert in Python, TypeScript, JavaScript. Vibe-codes in Java, Rust, Erlang, Go. Builder of dspygen (130+ GitHub stars) and YAWL v6 (Java 25 workflow engine with FIBO ontology integration). Currently contracting at Disney Studios as frontend engineer and tech lead for AI-assisted development task force. Leads ChatmanGPT's vision for Fortune 500-grade AI systems."@en ;
+  foaf:made <https://github.com/seanchatmangpt/dspygen> ;
+  foaf:made <https://github.com/seanchatmangpt/yawl-v6> ;
+  org:holds chatman:SeanChatmanPost ;
+  .
+
+chatman:Roberto
+  a foaf:Person ;
+  dcterms:identifier "roberto"@en ;
+  foaf:name "Roberto"@en ;
+  rdfs:label "Roberto"@en ;
+  foaf:givenName "Roberto"@en ;
+  dcterms:description "Senior Full-Stack Engineer at MIOSA and ChatmanGPT. Leads frontend OS development, agent templates, and DevOps. Key collaborator on BusinessOS and Canopy projects."@en ;
+  org:holds chatman:RobertoPost ;
+  .
+
+chatman:Slaughter
+  a foaf:Person ;
+  dcterms:identifier "slaughter"@en ;
+  foaf:name "Slaughter"@en ;
+  rdfs:label "Slaughter"@en ;
+  foaf:givenName "Slaughter"@en ;
+  dcterms:description "Operations and DevOps team member. Manages infrastructure, deployment pipelines, and system operations. Works with MIOSA team."@en ;
+  org:holds chatman:SlaughterPost ;
+  .
+
+###############################################################################
+# POSITIONS (Concrete Role Assignments)
+###############################################################################
+
+chatman:SeanChatmanPost
+  a org:Post ;
+  dcterms:identifier "sean-founder-ceo-post"@en ;
+  rdfs:label "Sean Chatman - Founder & CEO"@en ;
+  org:postIn chatman:ChatmanGPTOrganization ;
+  org:role chatman:FounderCEORole ;
+  org:reportsTo chatman:BoardOfDirectorsPost ;
+  dcterms:issued "2020-01-01"^^xsd:date ;
+  dcterms:description "Founder and Chief Executive Officer. Responsible for strategic direction, technical architecture, and leadership across all ChatmanGPT divisions."@en ;
+  .
+
+chatman:BoardOfDirectorsPost
+  a org:Post ;
+  dcterms:identifier "board-of-directors"@en ;
+  rdfs:label "Board of Directors"@en ;
+  org:postIn chatman:ChatmanGPTOrganization ;
+  dcterms:description "Board governance body (role position for reporting hierarchy)."@en ;
+  .
+
+chatman:RobertoPost
+  a org:Post ;
+  dcterms:identifier "roberto-staff-post"@en ;
+  rdfs:label "Roberto - Senior Full-Stack Engineer"@en ;
+  org:postIn chatman:EngineeringUnit ;
+  org:role chatman:SeniorFullStackRole ;
+  org:reportsTo chatman:SeanChatmanPost ;
+  dcterms:issued "2023-06-15"^^xsd:date ;
+  dcterms:description "Senior Full-Stack Engineer leading frontend OS development, agent template design, and platform architecture for BusinessOS and Canopy."@en ;
+  .
+
+chatman:SlaughterPost
+  a org:Post ;
+  dcterms:identifier "slaughter-devops-post"@en ;
+  rdfs:label "Slaughter - DevOps Engineer"@en ;
+  org:postIn chatman:OperationsUnit ;
+  org:role chatman:DevOpsRole ;
+  org:reportsTo chatman:SeanChatmanPost ;
+  dcterms:issued "2023-09-01"^^xsd:date ;
+  dcterms:description "DevOps Engineer managing infrastructure, CI/CD pipelines, deployment automation, and cross-system integration testing."@en ;
+  .
+
+###############################################################################
+# MEMBERSHIPS (Team Assignments)
+###############################################################################
+
+chatman:SeanBusinessOSMembership
+  a org:Membership ;
+  dcterms:identifier "sean-businessos-member"@en ;
+  rdfs:label "Sean - BusinessOS Team Member"@en ;
+  org:member chatman:SeanChatman ;
+  org:memberOf chatman:BusinessOSTeam ;
+  org:role chatman:StaffEngineerRole ;
+  dcterms:issued "2024-01-01"^^xsd:date ;
+  dcterms:description "Sean's membership in the BusinessOS team as Staff Engineer/Architect."@en ;
+  .
+
+chatman:SeanCanopyMembership
+  a org:Membership ;
+  dcterms:identifier "sean-canopy-member"@en ;
+  rdfs:label "Sean - Canopy Team Member"@en ;
+  org:member chatman:SeanChatman ;
+  org:memberOf chatman:CanopyTeam ;
+  org:role chatman:StaffEngineerRole ;
+  dcterms:issued "2024-01-01"^^xsd:date ;
+  dcterms:description "Sean's membership in the Canopy team as Staff Engineer/Architect."@en ;
+  .
+
+chatman:SeanOSAMembership
+  a org:Membership ;
+  dcterms:identifier "sean-osa-member"@en ;
+  rdfs:label "Sean - OSA Team Member"@en ;
+  org:member chatman:SeanChatman ;
+  org:memberOf chatman:OSATeam ;
+  org:role chatman:StaffEngineerRole ;
+  dcterms:issued "2024-01-01"^^xsd:date ;
+  dcterms:description "Sean's membership in the OSA team as Staff Engineer/Architect."@en ;
+  .
+
+chatman:SeanDataEngineeringMembership
+  a org:Membership ;
+  dcterms:identifier "sean-data-eng-member"@en ;
+  rdfs:label "Sean - Data Engineering Team Member"@en ;
+  org:member chatman:SeanChatman ;
+  org:memberOf chatman:DataEngineering ;
+  org:role chatman:StaffEngineerRole ;
+  dcterms:issued "2024-01-01"^^xsd:date ;
+  dcterms:description "Sean's membership in the Data Engineering team for process mining and ontology work."@en ;
+  .
+
+chatman:RobertoBusinessOSMembership
+  a org:Membership ;
+  dcterms:identifier "roberto-businessos-member"@en ;
+  rdfs:label "Roberto - BusinessOS Team Member"@en ;
+  org:member chatman:Roberto ;
+  org:memberOf chatman:BusinessOSTeam ;
+  org:role chatman:SeniorFullStackRole ;
+  dcterms:issued "2023-06-15"^^xsd:date ;
+  dcterms:description "Roberto's membership in the BusinessOS team as Senior Full-Stack Engineer."@en ;
+  .
+
+chatman:RobertoCanopyMembership
+  a org:Membership ;
+  dcterms:identifier "roberto-canopy-member"@en ;
+  rdfs:label "Roberto - Canopy Team Member"@en ;
+  org:member chatman:Roberto ;
+  org:memberOf chatman:CanopyTeam ;
+  org:role chatman:SeniorFullStackRole ;
+  dcterms:issued "2023-06-15"^^xsd:date ;
+  dcterms:description "Roberto's membership in the Canopy team as Senior Full-Stack Engineer."@en ;
+  .
+
+chatman:SlaughterOperationsMembership
+  a org:Membership ;
+  dcterms:identifier "slaughter-ops-member"@en ;
+  rdfs:label "Slaughter - Operations Team Member"@en ;
+  org:member chatman:Slaughter ;
+  org:memberOf chatman:OperationsUnit ;
+  org:role chatman:DevOpsRole ;
+  dcterms:issued "2023-09-01"^^xsd:date ;
+  dcterms:description "Slaughter's membership in Operations as DevOps Engineer."@en ;
+  .
+
+###############################################################################
+# COLLABORATION / MIOSA PARTNERSHIP
+###############################################################################
+
+chatman:MIOSAOrganization
+  a org:Organization ;
+  dcterms:identifier "miosa-org"@en ;
+  foaf:name "MIOSA"@en ;
+  rdfs:label "MIOSA (miosa.ai)"@en ;
+  foaf:homepage <https://miosa.ai> ;
+  dcterms:description "Collaborator organization providing open-source components: BusinessOS, Canopy, and OSA frameworks. ChatmanGPT builds upon these foundations for distinct enterprise products."@en ;
+  org:based_near chatman:RemoteLocation ;
+  .
+
+chatman:RemoteLocation
+  a org:Site ;
+  foaf:name "Remote / Distributed"@en ;
+  rdfs:label "Remote Operations"@en ;
+  dcterms:description "MIOSA operates as a distributed team."@en ;
+  .
+
+###############################################################################
+# ORGANIZATIONAL RELATIONSHIPS
+###############################################################################
+
+chatman:ChatmanGPTMIOSACollaboration
+  a org:OrganizationalCollaboration ;
+  dcterms:identifier "chatman-miosa-collaboration"@en ;
+  rdfs:label "ChatmanGPT-MIOSA Collaboration"@en ;
+  dcterms:description "Strategic partnership where ChatmanGPT leverages MIOSA's open-source frameworks (BusinessOS, Canopy, OSA) as foundation while building proprietary enterprise AI systems and integrations."@en ;
+  prov:wasInformedBy chatman:MIOSAOrganization ;
+  prov:wasInformedBy chatman:ChatmanGPTOrganization ;
+  dcterms:issued "2025-01-01"^^xsd:date ;
+  .
+
+###############################################################################
+# SPARQL QUERY EXAMPLES (Documentation)
+###############################################################################
+
+chatman:SPARQLQueryExamples
+  a owl:Class ;
+  rdfs:label "SPARQL Query Examples for Organizational Ontology"@en ;
+  rdfs:comment """
+This organizational ontology enables rich SPARQL queries:
+
+1. WHO REPORTS TO WHOM?
+   PREFIX org: <http://www.w3.org/ns/org#>
+   PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+   SELECT ?person ?personName ?manager ?managerName
+   WHERE {
+     ?person org:holds ?post .
+     ?post org:reportsTo ?managerPost .
+     ?managerPost org:holds ?manager .
+     ?person foaf:name ?personName .
+     ?manager foaf:name ?managerName .
+   }
+
+2. WHAT TEAMS EXIST IN ENGINEERING?
+   PREFIX org: <http://www.w3.org/ns/org#>
+   PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+   SELECT ?team ?teamName
+   WHERE {
+     ?team org:unitOf* <https://ontology.chatmangpt.com/org#EngineeringUnit> .
+     ?team foaf:name ?teamName .
+   }
+
+3. WHO ARE THE MEMBERS OF BUSINESSOS TEAM?
+   PREFIX org: <http://www.w3.org/ns/org#>
+   PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+   SELECT ?person ?personName ?role
+   WHERE {
+     ?team foaf:name "BusinessOS Team"@en .
+     ?membership org:member ?person .
+     ?membership org:memberOf ?team .
+     ?membership org:role ?roleType .
+     ?person foaf:name ?personName .
+     ?roleType rdfs:label ?role .
+   }
+
+4. WHO WORKS ON MULTIPLE TEAMS?
+   PREFIX org: <http://www.w3.org/ns/org#>
+   PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+   SELECT ?person ?personName (COUNT(?team) as ?teamCount)
+   WHERE {
+     ?person org:holds ?post .
+     ?membership org:member ?person .
+     ?membership org:memberOf ?team .
+     ?person foaf:name ?personName .
+   }
+   GROUP BY ?person ?personName
+   HAVING (?teamCount > 1)
+
+5. LIST ALL ROLES IN THE ORGANIZATION
+   PREFIX org: <http://www.w3.org/ns/org#>
+   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+   SELECT ?roleTitle ?description
+   WHERE {
+     ?role a org:Role .
+     ?role org:roleTitle ?roleTitle .
+     ?role rdfs:comment ?description .
+   }
+
+6. ORGANIZATIONAL HIERARCHY (TREE VIEW)
+   PREFIX org: <http://www.w3.org/ns/org#>
+   PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+   SELECT ?parentOrg ?parentName ?childUnit ?childName
+   WHERE {
+     ?parentOrg a org:Organization .
+     ?parentOrg foaf:name ?parentName .
+     ?childUnit org:unitOf ?parentOrg .
+     ?childUnit foaf:name ?childName .
+   }
+
+7. FIND PEOPLE AT A SPECIFIC LOCATION
+   PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+   PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+
+   SELECT ?person ?personName ?city
+   WHERE {
+     ?person a foaf:Person .
+     ?person foaf:name ?personName .
+     ?person vcard:hasLocality ?city .
+     FILTER (?city = "Pasadena"@en)
+   }
+
+These queries can be executed against Oxigraph or any SPARQL endpoint
+to generate real-time organizational reports, validate hierarchies,
+and analyze team composition.
+  """@en ;
+  .
+
+###############################################################################
+# COMPANY.YAML CONVERSION GUIDE
+###############################################################################
+
+chatman:CompanyYamlConversionGuide
+  a owl:Class ;
+  rdfs:label "company.yaml to RDF Conversion Pattern"@en ;
+  rdfs:comment """
+CONVERTING YAML ORGANIZATIONAL STRUCTURE TO THIS ONTOLOGY:
+
+If a company.yaml file existed, it would follow this pattern:
+
+┌─ company.yaml ─────────────────────────────────────────────────────────────┐
+│ company:                                                                    │
+│   name: "ChatmanGPT"                                                        │
+│   website: "https://chatmangpt.com"                                         │
+│   email: "info@chatmangpt.com"                                              │
+│                                                                             │
+│   divisions:                                                                │
+│     - id: "engineering"                                                     │
+│       name: "Engineering"                                                   │
+│       teams:                                                                │
+│         - id: "businessos"                                                  │
+│           name: "BusinessOS Team"                                           │
+│           members:                                                          │
+│             - name: "Sean Chatman"                                          │
+│               role: "Staff Engineer"                                        │
+│               manager: "CEO"                                                │
+│             - name: "Roberto"                                               │
+│               role: "Senior Full-Stack"                                     │
+│               manager: "Sean Chatman"                                       │
+│                                                                             │
+│     - id: "operations"                                                      │
+│       name: "Operations"                                                    │
+│       members:                                                              │
+│         - name: "Slaughter"                                                 │
+│           role: "DevOps Engineer"                                           │
+│           manager: "Sean Chatman"                                           │
+│                                                                             │
+│   locations:                                                                │
+│     - id: "pasadena"                                                        │
+│       name: "Pasadena HQ"                                                   │
+│       address: "115 E Del Mar Blvd, Unit 405, Pasadena, CA 91105"          │
+│       type: "headquarters"                                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CONVERSION ALGORITHM (Python-like pseudocode):
+
+def yaml_to_rdf(yaml_data):
+    # 1. CREATE ORGANIZATION
+    org_uri = f"https://ontology.chatmangpt.com/org#{yaml_data['name'].replace(' ', '')}"
+    create_instance(org_uri, org:Organization)
+    set_property(org_uri, foaf:name, yaml_data['name'])
+    set_property(org_uri, foaf:mbox, f"mailto:{yaml_data['email']}")
+
+    # 2. CREATE LOCATIONS
+    for location in yaml_data['locations']:
+        loc_uri = f"https://ontology.chatmangpt.com/org#{location['id']}"
+        create_instance(loc_uri, org:Site)
+        set_property(loc_uri, foaf:name, location['name'])
+        set_property(loc_uri, vcard:hasStreetAddress, location['address'])
+        set_property(org_uri, org:based_near, loc_uri)
+
+    # 3. CREATE ORGANIZATIONAL UNITS (Divisions)
+    for division in yaml_data['divisions']:
+        div_uri = f"https://ontology.chatmangpt.com/org#{division['id']}"
+        create_instance(div_uri, org:OrganizationalUnit)
+        set_property(div_uri, foaf:name, division['name'])
+        set_property(div_uri, org:unitOf, org_uri)
+
+        # 4. CREATE TEAMS (Sub-units)
+        for team in division['teams']:
+            team_uri = f"https://ontology.chatmangpt.com/org#{team['id']}"
+            create_instance(team_uri, org:OrganizationalUnit)
+            set_property(team_uri, foaf:name, team['name'])
+            set_property(team_uri, org:unitOf, div_uri)
+
+    # 5. CREATE PEOPLE
+    for person_data in extract_all_people(yaml_data):
+        person_uri = f"https://ontology.chatmangpt.com/org#{person_data['name'].lower().replace(' ', '')}"
+        create_instance(person_uri, foaf:Person)
+        set_property(person_uri, foaf:name, person_data['name'])
+
+        # 6. CREATE POSTS (Role Assignments)
+        post_uri = f"https://ontology.chatmangpt.com/org#{person_data['name'].lower().replace(' ', '')}-post"
+        create_instance(post_uri, org:Post)
+        set_property(post_uri, org:role, lookup_role(person_data['role']))
+        set_property(person_uri, org:holds, post_uri)
+
+        # 7. CREATE MEMBERSHIPS
+        for team_id in person_data['teams']:
+            member_uri = f"https://ontology.chatmangpt.com/org#{person_data['name'].lower().replace(' ', '')}-{team_id}"
+            create_instance(member_uri, org:Membership)
+            set_property(member_uri, org:member, person_uri)
+            set_property(member_uri, org:memberOf, lookup_team_uri(team_id))
+            set_property(member_uri, org:role, lookup_role(person_data['role']))
+
+    return rdf_graph
+
+SPECIAL MAPPINGS:
+
+YAML Company Field          →  RDF Property
+─────────────────────────────────────────────────
+company.name                →  foaf:name
+company.website             →  foaf:homepage
+company.email               →  foaf:mbox
+location.address            →  vcard:hasStreetAddress
+division.teams              →  org:OrganizationalUnit (sub-units)
+person.role                 →  org:Role
+person.manager              →  org:Post (reportsTo) chain
+person.teams                →  org:Membership (multiple)
+person.email                →  foaf:mbox
+person.phone                →  foaf:phone
+
+VALIDATION:
+
+After conversion, verify:
+1. All foaf:Person instances have foaf:name (required)
+2. All org:Post instances have org:role (required)
+3. All org:OrganizationalUnit instances have org:unitOf or org:unitOf* chain back to org:Organization
+4. No circular reporting relationships: org:reportsTo paths must be acyclic
+5. All referenced roles and teams exist before linking
+6. Manager (org:reportsTo) resolves to actual org:Post instances
+  """@en ;
+  .
+
+###############################################################################
+# ONTOLOGY USAGE NOTES
+###############################################################################
+
+chatman:UsageNotes
+  a owl:Class ;
+  rdfs:label "Usage Notes for Organizational Ontology"@en ;
+  rdfs:comment """
+KEY DESIGN DECISIONS:
+
+1. W3C ORG (MANDATORY):
+   - org:Organization: Top-level company
+   - org:OrganizationalUnit: Teams, divisions, departments
+   - org:Post: Job position / role assignment for a person
+   - org:Role: Abstract job title (can be shared across multiple posts)
+   - org:Membership: Team membership with optional role override
+   - org:reportsTo: Reporting relationships between posts
+
+2. FOAF (MANDATORY):
+   - foaf:Person: Every team member
+   - foaf:name: Required for all people and organizations
+   - foaf:mbox: Email addresses (mailto: scheme)
+   - foaf:homepage: Personal/organizational websites
+   - foaf:phone: Phone numbers (tel: scheme)
+
+3. vCard (LOCATION INFO):
+   - vcard:hasStreetAddress, hasLocality, hasRegion, hasPostalCode, hasCountryName
+   - Used for both person and site location information
+
+4. DCTERMS (METADATA):
+   - dcterms:identifier: Stable, human-readable IDs (not URIs)
+   - dcterms:description: Human-readable descriptions
+   - dcterms:issued: When relationship became effective
+   - dcterms:creator: Who created the record
+
+5. PROV (PROVENANCE):
+   - prov:wasInformedBy: For collaboration relationships
+
+QUERY PATTERNS:
+
+• Hierarchical lookup: Use org:unitOf* (transitive) to find all nested teams
+• Reporting chain: Follow org:reportsTo from post to post to build chain
+• Team members: Query org:Membership with org:memberOf filter
+• Role lookup: Get all posts with specific org:role
+• Multi-team members: Count distinct org:memberOf per person
+
+EXPANSION POINTS:
+
+To extend this ontology further, add:
+- org:subOrganization for subsidiary companies
+- foaf:givenName / foaf:familyName for internationalization
+- foaf:workplaceHomepage for team pages
+- foaf:interest / foaf:topic for expertise areas
+- org:reportsTo chains for approval workflows
+- Temporal validity: prov:startedAtTime / prov:endedAtTime for historical org changes
+- org:linkedTo for peer relationships (not hierarchical)
+  """@en ;
+  .
+
+###############################################################################
+# END OF ORGANIZATIONAL ONTOLOGY
+###############################################################################

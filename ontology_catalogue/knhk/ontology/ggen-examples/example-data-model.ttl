@@ -1,0 +1,205 @@
+@prefix knhk: <http://knhk.io/ontology/v1#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+
+# Example: Data Model for User Management
+# This ontology demonstrates generating Rust data structures from RDF
+#
+# Covenant 1: RDF ontology is the single source of truth for data structures
+# Covenant 2: All validation constraints are enforced in generated code
+
+<http://knhk.io/example/UserModel> a knhk:DataModel ;
+    rdfs:label "User Management Model" ;
+    rdfs:comment "RDF ontology defining user data structures and validation rules" ;
+    knhk:hasModelVersion "1.0.0"^^xsd:string ;
+    knhk:includeBuilderPattern true ;
+    knhk:includeConversions true ;
+    knhk:includeValidation true ;
+    knhk:hasClass
+        <http://knhk.io/example/User>,
+        <http://knhk.io/example/UserProfile>,
+        <http://knhk.io/example/ContactInfo> .
+
+# RDF Class: User
+<http://knhk.io/example/User> a rdfs:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "Represents a system user" ;
+    knhk:rustStructName "User" ;
+    knhk:includeBuilderPattern true ;
+    knhk:includeComparison true ;
+    knhk:hasProperty
+        <http://knhk.io/example/prop-user-id>,
+        <http://knhk.io/example/prop-username>,
+        <http://knhk.io/example/prop-email>,
+        <http://knhk.io/example/prop-created-at> ;
+    knhk:hasValidationRule
+        <http://knhk.io/example/rule-user-id-required>,
+        <http://knhk.io/example/rule-username-length>,
+        <http://knhk.io/example/rule-email-valid> .
+
+# Properties of User
+<http://knhk.io/example/prop-user-id> a rdf:Property ;
+    rdfs:label "id" ;
+    rdfs:comment "Unique user identifier" ;
+    rdfs:domain <http://knhk.io/example/User> ;
+    rdfs:range xsd:string ;
+    knhk:rustFieldName "id" ;
+    knhk:rustFieldType "String" ;
+    knhk:isRequired true ;
+    knhk:isOptional false ;
+    shacl:minLength 1 .
+
+<http://knhk.io/example/prop-username> a rdf:Property ;
+    rdfs:label "username" ;
+    rdfs:comment "User login name" ;
+    rdfs:domain <http://knhk.io/example/User> ;
+    rdfs:range xsd:string ;
+    knhk:rustFieldName "username" ;
+    knhk:rustFieldType "String" ;
+    knhk:isRequired true ;
+    knhk:isOptional false ;
+    shacl:minLength 3 ;
+    shacl:maxLength 50 .
+
+<http://knhk.io/example/prop-email> a rdf:Property ;
+    rdfs:label "email" ;
+    rdfs:comment "User email address" ;
+    rdfs:domain <http://knhk.io/example/User> ;
+    rdfs:range xsd:string ;
+    knhk:rustFieldName "email" ;
+    knhk:rustFieldType "String" ;
+    knhk:isRequired true ;
+    knhk:isOptional false .
+
+<http://knhk.io/example/prop-created-at> a rdf:Property ;
+    rdfs:label "created_at" ;
+    rdfs:comment "Timestamp when user was created" ;
+    rdfs:domain <http://knhk.io/example/User> ;
+    rdfs:range xsd:dateTime ;
+    knhk:rustFieldName "created_at" ;
+    knhk:rustFieldType "chrono::DateTime<chrono::Utc>" ;
+    knhk:isRequired false ;
+    knhk:isOptional true .
+
+# Validation Rules (Covenant 2: Q invariants = non-negotiable)
+<http://knhk.io/example/rule-user-id-required> a knhk:ValidationRule ;
+    rdfs:label "User ID is required" ;
+    knhk:appliesToClass <http://knhk.io/example/User> ;
+    knhk:hasCondition "!self.id.is_empty()" ;
+    knhk:hasErrorMessage "User ID cannot be empty" ;
+    knhk:isCovenantRule true ;
+    knhk:ruleID "USER_001" ;
+    knhk:ruleSeverity "ERROR"^^xsd:string .
+
+<http://knhk.io/example/rule-username-length> a knhk:ValidationRule ;
+    rdfs:label "Username length constraints" ;
+    knhk:appliesToClass <http://knhk.io/example/User> ;
+    knhk:hasCondition "self.username.len() >= 3 && self.username.len() <= 50" ;
+    knhk:hasErrorMessage "Username must be between 3 and 50 characters" ;
+    knhk:isCovenantRule true ;
+    knhk:ruleID "USER_002" ;
+    knhk:ruleSeverity "ERROR"^^xsd:string .
+
+<http://knhk.io/example/rule-email-valid> a knhk:ValidationRule ;
+    rdfs:label "Email format validation" ;
+    knhk:appliesToClass <http://knhk.io/example/User> ;
+    knhk:hasCondition "self.email.contains('@')" ;
+    knhk:hasErrorMessage "Email must contain @ symbol" ;
+    knhk:isCovenantRule false ;
+    knhk:ruleID "USER_003" ;
+    knhk:ruleSeverity "WARN"^^xsd:string .
+
+# RDF Class: UserProfile
+<http://knhk.io/example/UserProfile> a rdfs:Class ;
+    rdfs:label "User Profile" ;
+    rdfs:comment "Extended user profile information" ;
+    knhk:rustStructName "UserProfile" ;
+    knhk:includeBuilderPattern true ;
+    knhk:hasProperty
+        <http://knhk.io/example/prop-profile-user-id>,
+        <http://knhk.io/example/prop-profile-first-name>,
+        <http://knhk.io/example/prop-profile-last-name>,
+        <http://knhk.io/example/prop-profile-bio> ;
+    knhk:hasValidationRule
+        <http://knhk.io/example/rule-profile-user-id-required> .
+
+<http://knhk.io/example/prop-profile-user-id> a rdf:Property ;
+    rdfs:label "user_id" ;
+    rdfs:comment "Reference to user" ;
+    rdfs:domain <http://knhk.io/example/UserProfile> ;
+    rdfs:range xsd:string ;
+    knhk:rustFieldName "user_id" ;
+    knhk:rustFieldType "String" ;
+    knhk:isRequired true ;
+    knhk:isOptional false .
+
+<http://knhk.io/example/prop-profile-first-name> a rdf:Property ;
+    rdfs:label "first_name" ;
+    rdfs:comment "User first name" ;
+    rdfs:domain <http://knhk.io/example/UserProfile> ;
+    rdfs:range xsd:string ;
+    knhk:rustFieldName "first_name" ;
+    knhk:rustFieldType "Option<String>" ;
+    knhk:isRequired false ;
+    knhk:isOptional true .
+
+<http://knhk.io/example/prop-profile-last-name> a rdf:Property ;
+    rdfs:label "last_name" ;
+    rdfs:comment "User last name" ;
+    rdfs:domain <http://knhk.io/example/UserProfile> ;
+    rdfs:range xsd:string ;
+    knhk:rustFieldName "last_name" ;
+    knhk:rustFieldType "Option<String>" ;
+    knhk:isRequired false ;
+    knhk:isOptional true .
+
+<http://knhk.io/example/prop-profile-bio> a rdf:Property ;
+    rdfs:label "bio" ;
+    rdfs:comment "User biography" ;
+    rdfs:domain <http://knhk.io/example/UserProfile> ;
+    rdfs:range xsd:string ;
+    knhk:rustFieldName "bio" ;
+    knhk:rustFieldType "Option<String>" ;
+    knhk:isRequired false ;
+    knhk:isOptional true ;
+    shacl:maxLength 500 .
+
+<http://knhk.io/example/rule-profile-user-id-required> a knhk:ValidationRule ;
+    rdfs:label "Profile user ID is required" ;
+    knhk:appliesToClass <http://knhk.io/example/UserProfile> ;
+    knhk:hasCondition "!self.user_id.is_empty()" ;
+    knhk:hasErrorMessage "User profile must reference a user" ;
+    knhk:isCovenantRule true ;
+    knhk:ruleID "PROFILE_001" ;
+    knhk:ruleSeverity "ERROR"^^xsd:string .
+
+# RDF Class: ContactInfo
+<http://knhk.io/example/ContactInfo> a rdfs:Class ;
+    rdfs:label "Contact Information" ;
+    rdfs:comment "User contact details" ;
+    knhk:rustStructName "ContactInfo" ;
+    knhk:hasProperty
+        <http://knhk.io/example/prop-contact-phone>,
+        <http://knhk.io/example/prop-contact-address> .
+
+<http://knhk.io/example/prop-contact-phone> a rdf:Property ;
+    rdfs:label "phone" ;
+    rdfs:comment "Phone number" ;
+    rdfs:domain <http://knhk.io/example/ContactInfo> ;
+    rdfs:range xsd:string ;
+    knhk:rustFieldName "phone" ;
+    knhk:rustFieldType "Option<String>" ;
+    knhk:isRequired false ;
+    knhk:isOptional true .
+
+<http://knhk.io/example/prop-contact-address> a rdf:Property ;
+    rdfs:label "address" ;
+    rdfs:comment "Physical address" ;
+    rdfs:domain <http://knhk.io/example/ContactInfo> ;
+    rdfs:range xsd:string ;
+    knhk:rustFieldName "address" ;
+    knhk:rustFieldType "Option<String>" ;
+    knhk:isRequired false ;
+    knhk:isOptional true .

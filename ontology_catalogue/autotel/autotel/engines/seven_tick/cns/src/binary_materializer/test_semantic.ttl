@@ -1,0 +1,89 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix cns: <http://cns.ai/ontology#> .
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# CNS Ontology Definitions
+cns:SemanticEntity a owl:Class ;
+    rdfs:label "CNS Semantic Entity" ;
+    rdfs:comment "Base class for all CNS semantic entities" .
+
+cns:7TickCompliant a owl:Class ;
+    rdfs:subClassOf cns:SemanticEntity ;
+    rdfs:label "7-Tick Compliant Entity" ;
+    rdfs:comment "Entities that meet 7-tick performance constraints" .
+
+cns:CognitivePattern a owl:Class ;
+    rdfs:subClassOf cns:SemanticEntity ;
+    rdfs:label "Cognitive Pattern" ;
+    rdfs:comment "Patterns for 8-hop cognitive cycles" .
+
+# Properties
+cns:hasPerformanceMetric a owl:DatatypeProperty ;
+    rdfs:domain cns:7TickCompliant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "CPU cycles for operation" .
+
+cns:triggersReasoning a owl:ObjectProperty ;
+    rdfs:domain cns:CognitivePattern ;
+    rdfs:range cns:SemanticEntity ;
+    owl:TransitiveProperty a owl:Class .
+
+cns:violatesConstraint a owl:ObjectProperty ;
+    rdfs:domain cns:SemanticEntity ;
+    rdfs:range cns:SHACLConstraint ;
+    owl:SymmetricProperty a owl:Class .
+
+# Example instances for testing
+ex:FastQuery a cns:7TickCompliant ;
+    cns:hasPerformanceMetric 7 ;
+    rdfs:label "Fast SPARQL Query" .
+
+ex:SlowQuery a cns:SemanticEntity ;
+    cns:hasPerformanceMetric 42 ;
+    rdfs:label "Non-optimized Query" .
+
+ex:Pattern1 a cns:CognitivePattern ;
+    cns:triggersReasoning ex:FastQuery ;
+    rdfs:label "Optimization Pattern 1" .
+
+# SHACL constraints as RDF
+cns:PersonShape a cns:SHACLConstraint ;
+    rdfs:label "Person Shape" ;
+    cns:targetClass foaf:Person ;
+    cns:propertyConstraint [
+        cns:path foaf:name ;
+        cns:minCount 1 ;
+        cns:maxCount 3
+    ] .
+
+# Test data
+ex:Alice a foaf:Person ;
+    foaf:name "Alice" ;
+    foaf:knows ex:Bob .
+
+ex:Bob a foaf:Person ;
+    foaf:name "Bob" ;
+    foaf:name "Robert" ;  # Multiple names
+    foaf:knows ex:Alice .
+
+# OWL reasoning test
+cns:ReasoningTest a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            cns:7TickCompliant
+            [ a owl:Restriction ;
+              owl:onProperty cns:hasPerformanceMetric ;
+              owl:hasValue 7
+            ]
+        )
+    ] .
+
+# Transitive property test
+ex:A cns:triggersReasoning ex:B .
+ex:B cns:triggersReasoning ex:C .
+# Should infer: ex:A cns:triggersReasoning ex:C

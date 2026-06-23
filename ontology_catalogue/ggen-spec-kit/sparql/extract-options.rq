@@ -1,0 +1,31 @@
+PREFIX : <http://uvmgr.io/cli#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Extract options/flags for each command
+# Result: Command options with name, flag, short flag, type, required, and default value
+
+SELECT DISTINCT
+  ?commandName
+  ?optionName
+  ?flag
+  ?shortFlag
+  ?optionType
+  ?required
+  ?defaultValue
+  ?isVariadic
+  ?description
+WHERE {
+  ?command a :Command .
+  ?command :name ?commandName .
+  ?command :hasOption ?option .
+  ?option :name ?optionName .
+  ?option :flag ?flag .
+  ?option :parameterType ?optionType .
+  ?option :description ?description .
+  OPTIONAL { ?option :shortFlag ?shortFlag . }
+  OPTIONAL { ?option :required ?required . }
+  OPTIONAL { ?option :defaultValue ?defaultValue . }
+  OPTIONAL { ?option :isVariadic ?isVariadic . }
+}
+ORDER BY ?commandName ?optionName

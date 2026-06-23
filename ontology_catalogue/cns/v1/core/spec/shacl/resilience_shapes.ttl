@@ -1,0 +1,6 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix res: <https://cns.dev/resilience#> .
+
+res:RetryShape a sh:NodeShape ; sh:targetClass res:Retry .
+res:CircuitBreakerShape a sh:NodeShape ; sh:targetClass res:CircuitBreaker .
+res:RateLimiterShape a sh:NodeShape ; sh:targetClass res:RateLimiter .

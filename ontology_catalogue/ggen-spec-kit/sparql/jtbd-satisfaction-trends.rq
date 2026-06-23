@@ -1,0 +1,137 @@
+# ============================================================================
+# JTBD Query: Satisfaction Score Trends
+# ============================================================================
+# Purpose: Track satisfaction score changes over time for jobs, outcomes,
+#          and features. Identifies improving/declining satisfaction trends,
+#          correlates with feature releases, and predicts churn risk.
+#
+# Output: Time-series satisfaction data with trends, correlations, predictions
+# Use: Product health monitoring, churn prevention, feature impact analysis
+#
+# Example Output:
+# Entity              | Type    | Current | 30d Ago | 90d Ago | Trend      | Change Rate | Churn Risk
+# Manage dependencies | Job     | 8.9     | 8.1     | 7.2     | Improving  | +1.7/90d    | Low
+# Auto-dep manager    | Feature | 9.1     | 8.8     | 8.9     | Stable     | +0.2/90d    | Low
+# Configure OTEL      | Job     | 4.2     | 5.1     | 6.8     | Declining  | -2.6/90d    | High
+# OTEL wizard         | Feature | 6.1     | 5.8     | 5.2     | Improving  | +0.9/90d    | Medium
+# ============================================================================
+
+PREFIX jtbd: <http://github.com/github/spec-kit/jtbd#>
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?entityName
+  ?entityType
+  ?personaName
+  ?currentSatisfaction
+  ?satisfaction30dAgo
+  ?satisfaction60dAgo
+  ?satisfaction90dAgo
+  (?currentSatisfaction - ?satisfaction30dAgo AS ?change30d)
+  (?currentSatisfaction - ?satisfaction90dAgo AS ?change90d)
+  ((?currentSatisfaction - ?satisfaction90dAgo) / 90.0 AS ?changeRatePerDay)
+  (IF((?currentSatisfaction - ?satisfaction90dAgo) > 1.0, "Improving",
+      IF((?currentSatisfaction - ?satisfaction90dAgo) < -1.0, "Declining",
+         "Stable")) AS ?trend)
+  (IF(?currentSatisfaction >= 8.0, "Excellent",
+      IF(?currentSatisfaction >= 6.5, "Good",
+         IF(?currentSatisfaction >= 5.0, "At Risk",
+            "Critical"))) AS ?healthStatus)
+  (IF(?currentSatisfaction < 5.0 || (?currentSatisfaction - ?satisfaction90dAgo) < -2.0, "High",
+      IF(?currentSatisfaction < 6.5 || (?currentSatisfaction - ?satisfaction90dAgo) < -1.0, "Medium",
+         "Low")) AS ?churnRisk)
+  ?importanceScore
+  (?importanceScore - ?currentSatisfaction AS ?importanceSatisfactionGap)
+  (IF(?importanceScore >= 8.0 && ?currentSatisfaction < 6.0, "Critical Gap",
+      IF(?importanceScore >= 7.0 && ?currentSatisfaction < 5.0, "High Priority Gap",
+         "No Urgent Gap")) AS ?gapAssessment)
+  ?recentFeatureRelease
+  ?featureReleaseDate
+  ?satisfactionPostRelease
+  (?satisfactionPostRelease - ?satisfactionPreRelease AS ?featureImpact)
+  ?sampleSize
+  ?confidenceInterval
+  ?dateCollected
+WHERE {
+  # Jobs with satisfaction tracking
+  {
+    ?entity a jtbd:Job ;
+            jtbd:jobTitle ?entityName .
+    BIND("Job" AS ?entityType)
+
+    # Current satisfaction (from outcome priorities)
+    OPTIONAL {
+      ?entity jtbd:hasDesiredOutcome ?outcome .
+      ?outcome jtbd:hasOutcomePriority ?priority .
+      ?priority jtbd:satisfactionScore ?currentSatisfaction ;
+                jtbd:importanceScore ?importanceScore .
+    }
+  }
+  UNION
+  # Features with satisfaction tracking
+  {
+    ?entity a sk:Feature ;
+            sk:featureName ?entityName .
+    BIND("Feature" AS ?entityType)
+
+    OPTIONAL { ?entity sk:userSatisfaction ?currentSatisfaction }
+    OPTIONAL { ?entity sk:importanceScore ?importanceScore }
+  }
+  UNION
+  # Outcomes with satisfaction tracking
+  {
+    ?entity a jtbd:DesiredOutcome ;
+            jtbd:outcomeStatement ?entityName .
+    BIND("Outcome" AS ?entityType)
+
+    OPTIONAL {
+      ?entity jtbd:hasOutcomePriority ?priority .
+      ?priority jtbd:satisfactionScore ?currentSatisfaction ;
+                jtbd:importanceScore ?importanceScore .
+    }
+  }
+
+  # Persona context
+  OPTIONAL {
+    {
+      ?entity jtbd:performedBy ?segment .
+      ?segment jtbd:hasPersona ?persona .
+      ?persona jtbd:personaName ?personaName .
+    }
+    UNION
+    {
+      ?entity jtbd:targetsSegment ?segment .
+      ?segment jtbd:hasPersona ?persona .
+      ?persona jtbd:personaName ?personaName .
+    }
+  }
+
+  # Historical satisfaction scores
+  OPTIONAL { ?entity sk:satisfaction30dAgo ?satisfaction30dAgo }
+  OPTIONAL { ?entity sk:satisfaction60dAgo ?satisfaction60dAgo }
+  OPTIONAL { ?entity sk:satisfaction90dAgo ?satisfaction90dAgo }
+
+  # Feature release correlation
+  OPTIONAL {
+    ?entity sk:recentFeatureRelease ?recentFeatureRelease ;
+            sk:featureReleaseDate ?featureReleaseDate ;
+            sk:satisfactionPreRelease ?satisfactionPreRelease ;
+            sk:satisfactionPostRelease ?satisfactionPostRelease .
+  }
+
+  # Statistical confidence
+  OPTIONAL { ?entity sk:sampleSize ?sampleSize }
+  OPTIONAL { ?entity sk:confidenceInterval ?confidenceInterval }
+
+  # Data collection timestamp
+  OPTIONAL { ?entity sk:dateCollected ?dateCollected }
+
+  # Default values
+  BIND(COALESCE(?currentSatisfaction, 5.0) AS ?currentSatisfaction)
+  BIND(COALESCE(?satisfaction30dAgo, ?currentSatisfaction) AS ?satisfaction30dAgo)
+  BIND(COALESCE(?satisfaction60dAgo, ?currentSatisfaction) AS ?satisfaction60dAgo)
+  BIND(COALESCE(?satisfaction90dAgo, ?currentSatisfaction) AS ?satisfaction90dAgo)
+  BIND(COALESCE(?importanceScore, 5.0) AS ?importanceScore)
+}
+ORDER BY ?churnRisk DESC ?healthStatus DESC ?trend ?entityName

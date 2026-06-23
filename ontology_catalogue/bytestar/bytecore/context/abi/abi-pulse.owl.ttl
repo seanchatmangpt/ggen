@@ -1,0 +1,13 @@
+@prefix :        <https://bytestar.org/ontology/bytecore/abi/pulse#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bcore:   <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/bytecore/abi/pulse>
+  a owl:Ontology ;
+  rdfs:label "ByteCore Completion Pulse ABI" ;
+  rdfs:comment "The ABI for the off-path observability message, derived from a Result Crystal." ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  owl:versionInfo "4.2.0" .
+
+:CompletionPulseABI a owl:Class ; rdfs:subClassOf bcore:ABI .

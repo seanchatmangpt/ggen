@@ -1,0 +1,1557 @@
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# YAWL 4.0 Ontology
+# Generated from YAWL_Schema4.0.xsd
+# This ontology defines the YAWL workflow specification schema as RDF/OWL classes and properties
+
+# ============================================================================
+# Enumerations - Simple Types
+# ============================================================================
+
+# ControlType enumeration (and/or/xor)
+yawl:ControlType a rdfs:Class ;
+    rdfs:label "ControlType" ;
+    rdfs:comment "Control flow type: AND, OR, or XOR" .
+
+yawl:ControlTypeAnd a yawl:ControlType ;
+    rdfs:label "AND" ;
+    rdfs:comment "AND join/split" .
+
+yawl:ControlTypeOr a yawl:ControlType ;
+    rdfs:label "OR" ;
+    rdfs:comment "OR join/split" .
+
+yawl:ControlTypeXor a yawl:ControlType ;
+    rdfs:label "XOR" ;
+    rdfs:comment "XOR join/split" .
+
+# CreationMode enumeration (static/dynamic)
+yawl:CreationMode a rdfs:Class ;
+    rdfs:label "CreationMode" ;
+    rdfs:comment "Instance creation mode" .
+
+yawl:CreationModeStatic a yawl:CreationMode ;
+    rdfs:label "Static" ;
+    rdfs:comment "Static creation mode" .
+
+yawl:CreationModeDynamic a yawl:CreationMode ;
+    rdfs:label "Dynamic" ;
+    rdfs:comment "Dynamic creation mode" .
+
+# TimerInterval enumeration
+yawl:TimerInterval a rdfs:Class ;
+    rdfs:label "TimerInterval" ;
+    rdfs:comment "Timer interval unit" .
+
+yawl:TimerIntervalYear a yawl:TimerInterval ;
+    rdfs:label "YEAR" .
+
+yawl:TimerIntervalMonth a yawl:TimerInterval ;
+    rdfs:label "MONTH" .
+
+yawl:TimerIntervalWeek a yawl:TimerInterval ;
+    rdfs:label "WEEK" .
+
+yawl:TimerIntervalDay a yawl:TimerInterval ;
+    rdfs:label "DAY" .
+
+yawl:TimerIntervalHour a yawl:TimerInterval ;
+    rdfs:label "HOUR" .
+
+yawl:TimerIntervalMin a yawl:TimerInterval ;
+    rdfs:label "MIN" .
+
+yawl:TimerIntervalSec a yawl:TimerInterval ;
+    rdfs:label "SEC" .
+
+yawl:TimerIntervalMsec a yawl:TimerInterval ;
+    rdfs:label "MSEC" .
+
+# TimerTrigger enumeration
+yawl:TimerTrigger a rdfs:Class ;
+    rdfs:label "TimerTrigger" ;
+    rdfs:comment "Timer trigger point" .
+
+yawl:TimerTriggerOnEnabled a yawl:TimerTrigger ;
+    rdfs:label "OnEnabled" ;
+    rdfs:comment "Timer triggers when task is enabled" .
+
+yawl:TimerTriggerOnExecuting a yawl:TimerTrigger ;
+    rdfs:label "OnExecuting" ;
+    rdfs:comment "Timer triggers when task starts executing" .
+
+# ResourcingExternalInteraction enumeration
+yawl:ResourcingExternalInteraction a rdfs:Class ;
+    rdfs:label "ResourcingExternalInteraction" ;
+    rdfs:comment "External interaction type" .
+
+yawl:ResourcingExternalInteractionManual a yawl:ResourcingExternalInteraction ;
+    rdfs:label "Manual" .
+
+yawl:ResourcingExternalInteractionAutomated a yawl:ResourcingExternalInteraction ;
+    rdfs:label "Automated" .
+
+# ResourcingInitiator enumeration
+yawl:ResourcingInitiator a rdfs:Class ;
+    rdfs:label "ResourcingInitiator" ;
+    rdfs:comment "Who initiates resource allocation" .
+
+yawl:ResourcingInitiatorSystem a yawl:ResourcingInitiator ;
+    rdfs:label "System" .
+
+yawl:ResourcingInitiatorUser a yawl:ResourcingInitiator ;
+    rdfs:label "User" .
+
+# DirectionMode enumeration
+yawl:DirectionMode a rdfs:Class ;
+    rdfs:label "DirectionMode" ;
+    rdfs:comment "Parameter direction" .
+
+yawl:DirectionModeInput a yawl:DirectionMode ;
+    rdfs:label "Input" .
+
+yawl:DirectionModeOutput a yawl:DirectionMode ;
+    rdfs:label "Output" .
+
+yawl:DirectionModeBoth a yawl:DirectionMode ;
+    rdfs:label "Both" .
+
+# ResourcingPrivilege enumeration
+yawl:ResourcingPrivilege a rdfs:Class ;
+    rdfs:label "ResourcingPrivilege" ;
+    rdfs:comment "Resource privilege type" .
+
+yawl:ResourcingPrivilegeCanSuspend a yawl:ResourcingPrivilege ;
+    rdfs:label "canSuspend" .
+
+yawl:ResourcingPrivilegeCanReallocateStateless a yawl:ResourcingPrivilege ;
+    rdfs:label "canReallocateStateless" .
+
+yawl:ResourcingPrivilegeCanReallocateStateful a yawl:ResourcingPrivilege ;
+    rdfs:label "canReallocateStateful" .
+
+yawl:ResourcingPrivilegeCanDeallocate a yawl:ResourcingPrivilege ;
+    rdfs:label "canDeallocate" .
+
+yawl:ResourcingPrivilegeCanDelegate a yawl:ResourcingPrivilege ;
+    rdfs:label "canDelegate" .
+
+yawl:ResourcingPrivilegeCanSkip a yawl:ResourcingPrivilege ;
+    rdfs:label "canSkip" .
+
+yawl:ResourcingPrivilegeCanPile a yawl:ResourcingPrivilege ;
+    rdfs:label "canPile" .
+
+# ResourcingResourceType enumeration
+yawl:ResourcingResourceType a rdfs:Class ;
+    rdfs:label "ResourcingResourceType" ;
+    rdfs:comment "Type of resource" .
+
+yawl:ResourcingResourceTypeParticipant a yawl:ResourcingResourceType ;
+    rdfs:label "Participant" .
+
+yawl:ResourcingResourceTypeRole a yawl:ResourcingResourceType ;
+    rdfs:label "Role" .
+
+# InputPortValueType enumeration
+yawl:InputPortValueType a rdfs:Class ;
+    rdfs:label "InputPortValueType" .
+
+yawl:InputPortValueActivated a yawl:InputPortValueType ;
+    rdfs:label "Activated" .
+
+yawl:InputPortValueBlocked a yawl:InputPortValueType ;
+    rdfs:label "Blocked" .
+
+yawl:InputPortValueHidden a yawl:InputPortValueType ;
+    rdfs:label "Hidden" .
+
+# OutputPortValueType enumeration
+yawl:OutputPortValueType a rdfs:Class ;
+    rdfs:label "OutputPortValueType" .
+
+yawl:OutputPortValueActivated a yawl:OutputPortValueType ;
+    rdfs:label "Activated" .
+
+yawl:OutputPortValueBlocked a yawl:OutputPortValueType ;
+    rdfs:label "Blocked" .
+
+# CreationModeConfigType enumeration
+yawl:CreationModeConfigType a rdfs:Class ;
+    rdfs:label "CreationModeConfigType" .
+
+yawl:CreationModeConfigRestrict a yawl:CreationModeConfigType ;
+    rdfs:label "Restrict" .
+
+yawl:CreationModeConfigKeep a yawl:CreationModeConfigType ;
+    rdfs:label "Keep" .
+
+# ============================================================================
+# Core Classes
+# ============================================================================
+
+# SpecificationSet - root element
+yawl:SpecificationSet a rdfs:Class ;
+    rdfs:label "SpecificationSet" ;
+    rdfs:comment "Container for workflow specifications" .
+
+# Specification - workflow specification
+yawl:Specification a rdfs:Class ;
+    rdfs:label "Specification" ;
+    rdfs:comment "YAWL workflow specification" ;
+    rdfs:subClassOf yawl:SpecificationSet .
+
+# Decomposition - abstract base for nets and web service gateways
+yawl:Decomposition a rdfs:Class ;
+    rdfs:label "Decomposition" ;
+    rdfs:comment "Abstract decomposition (net or web service gateway)" .
+
+# Net - workflow net
+yawl:Net a rdfs:Class ;
+    rdfs:label "Net" ;
+    rdfs:comment "Workflow net (process definition)" ;
+    rdfs:subClassOf yawl:Decomposition .
+
+# NetElement - base for tasks and conditions
+yawl:NetElement a rdfs:Class ;
+    rdfs:label "NetElement" ;
+    rdfs:comment "Base class for workflow net elements" .
+
+# Task - workflow task
+yawl:Task a rdfs:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "Workflow task" ;
+    rdfs:subClassOf yawl:NetElement .
+
+# MultipleInstanceTask - multiple instance task
+yawl:MultipleInstanceTask a rdfs:Class ;
+    rdfs:label "MultipleInstanceTask" ;
+    rdfs:comment "Multiple instance task" ;
+    rdfs:subClassOf yawl:Task .
+
+# Condition - workflow condition
+yawl:Condition a rdfs:Class ;
+    rdfs:label "Condition" ;
+    rdfs:comment "Workflow condition (place)" ;
+    rdfs:subClassOf yawl:NetElement .
+
+# InputCondition - input condition
+yawl:InputCondition a rdfs:Class ;
+    rdfs:label "InputCondition" ;
+    rdfs:comment "Input condition of a net" ;
+    rdfs:subClassOf yawl:Condition .
+
+# OutputCondition - output condition
+yawl:OutputCondition a rdfs:Class ;
+    rdfs:label "OutputCondition" ;
+    rdfs:comment "Output condition of a net" ;
+    rdfs:subClassOf yawl:Condition .
+
+# Variable - workflow variable
+yawl:Variable a rdfs:Class ;
+    rdfs:label "Variable" ;
+    rdfs:comment "Workflow variable" .
+
+# VariableBase - base for all variable types
+yawl:VariableBase a rdfs:Class ;
+    rdfs:label "VariableBase" ;
+    rdfs:comment "Base class for variables" .
+
+yawl:Variable rdfs:subClassOf yawl:VariableBase .
+
+# InputParameter - input parameter
+yawl:InputParameter a rdfs:Class ;
+    rdfs:label "InputParameter" ;
+    rdfs:comment "Input parameter" ;
+    rdfs:subClassOf yawl:VariableBase .
+
+# OutputParameter - output parameter
+yawl:OutputParameter a rdfs:Class ;
+    rdfs:label "OutputParameter" ;
+    rdfs:comment "Output parameter" ;
+    rdfs:subClassOf yawl:VariableBase .
+
+# Resourcing - resource allocation
+yawl:Resourcing a rdfs:Class ;
+    rdfs:label "Resourcing" ;
+    rdfs:comment "Resource allocation configuration" .
+
+# ResourcingOffer - resource offer configuration
+yawl:ResourcingOffer a rdfs:Class ;
+    rdfs:label "ResourcingOffer" ;
+    rdfs:comment "Resource offer configuration" .
+
+# ResourcingAllocate - resource allocation configuration
+yawl:ResourcingAllocate a rdfs:Class ;
+    rdfs:label "ResourcingAllocate" ;
+    rdfs:comment "Resource allocation configuration" .
+
+# ResourcingSet - set of resources
+yawl:ResourcingSet a rdfs:Class ;
+    rdfs:label "ResourcingSet" ;
+    rdfs:comment "Set of participants and roles" .
+
+# ResourcingDistributionSet - distribution set
+yawl:ResourcingDistributionSet a rdfs:Class ;
+    rdfs:label "ResourcingDistributionSet" ;
+    rdfs:comment "Resource distribution set" .
+
+# ResourcingSelector - resource selector
+yawl:ResourcingSelector a rdfs:Class ;
+    rdfs:label "ResourcingSelector" ;
+    rdfs:comment "Resource selector with parameters" .
+
+# ResourcingPrivileges - resource privileges
+yawl:ResourcingPrivileges a rdfs:Class ;
+    rdfs:label "ResourcingPrivileges" ;
+    rdfs:comment "Resource privileges configuration" .
+
+# ResourcingSecondary - secondary resources
+yawl:ResourcingSecondary a rdfs:Class ;
+    rdfs:label "ResourcingSecondary" ;
+    rdfs:comment "Secondary resources including non-human resources" ;
+    rdfs:subClassOf yawl:ResourcingSet .
+
+# Timer - timer configuration
+yawl:Timer a rdfs:Class ;
+    rdfs:label "Timer" ;
+    rdfs:comment "Timer configuration for tasks" .
+
+# TimerDuration - timer duration parameters
+yawl:TimerDuration a rdfs:Class ;
+    rdfs:label "TimerDuration" ;
+    rdfs:comment "Timer duration with ticks and interval" .
+
+# VarMapping - variable mapping
+yawl:VarMapping a rdfs:Class ;
+    rdfs:label "VarMapping" ;
+    rdfs:comment "Variable mapping expression" .
+
+# VarMappingSet - set of variable mappings
+yawl:VarMappingSet a rdfs:Class ;
+    rdfs:label "VarMappingSet" ;
+    rdfs:comment "Set of variable mappings" .
+
+# Expression - XQuery expression
+yawl:Expression a rdfs:Class ;
+    rdfs:label "Expression" ;
+    rdfs:comment "XQuery expression" .
+
+# Predicate - XPath predicate
+yawl:Predicate a rdfs:Class ;
+    rdfs:label "Predicate" ;
+    rdfs:comment "XPath predicate with ordering" .
+
+# FlowsInto - flow relationship
+yawl:FlowsInto a rdfs:Class ;
+    rdfs:label "FlowsInto" ;
+    rdfs:comment "Flow from one element to another" .
+
+# RemovesTokensFromFlow - token removal
+yawl:RemovesTokensFromFlow a rdfs:Class ;
+    rdfs:label "RemovesTokensFromFlow" ;
+    rdfs:comment "Token removal from flow" .
+
+# WebServiceGateway - web service gateway
+yawl:WebServiceGateway a rdfs:Class ;
+    rdfs:label "WebServiceGateway" ;
+    rdfs:comment "Web service gateway decomposition" ;
+    rdfs:subClassOf yawl:Decomposition .
+
+# YAWLService - YAWL service definition
+yawl:YAWLService a rdfs:Class ;
+    rdfs:label "YAWLService" ;
+    rdfs:comment "YAWL service definition" .
+
+# Metadata - specification metadata
+yawl:Metadata a rdfs:Class ;
+    rdfs:label "Metadata" ;
+    rdfs:comment "Dublin Core metadata" .
+
+# Configuration - task configuration
+yawl:Configuration a rdfs:Class ;
+    rdfs:label "Configuration" ;
+    rdfs:comment "Task configuration (join, split, rem, nofi)" .
+
+# JoinConfig - join configuration
+yawl:JoinConfig a rdfs:Class ;
+    rdfs:label "JoinConfig" ;
+    rdfs:comment "Join port configuration" .
+
+# SplitConfig - split configuration
+yawl:SplitConfig a rdfs:Class ;
+    rdfs:label "SplitConfig" ;
+    rdfs:comment "Split port configuration" .
+
+# RemConfig - removes tokens configuration
+yawl:RemConfig a rdfs:Class ;
+    rdfs:label "RemConfig" ;
+    rdfs:comment "Removes tokens configuration" .
+
+# NofiConfig - number of instances configuration
+yawl:NofiConfig a rdfs:Class ;
+    rdfs:label "NofiConfig" ;
+    rdfs:comment "Number of instances configuration" .
+
+# InputPortConfig - input port configuration
+yawl:InputPortConfig a rdfs:Class ;
+    rdfs:label "InputPortConfig" ;
+    rdfs:comment "Input port configuration" .
+
+# OutputPortConfig - output port configuration
+yawl:OutputPortConfig a rdfs:Class ;
+    rdfs:label "OutputPortConfig" ;
+    rdfs:comment "Output port configuration" .
+
+# LogPredicate - logging predicate
+yawl:LogPredicate a rdfs:Class ;
+    rdfs:label "LogPredicate" ;
+    rdfs:comment "Logging predicate for start/completion" .
+
+# Layout - layout information
+yawl:Layout a rdfs:Class ;
+    rdfs:label "Layout" ;
+    rdfs:comment "Layout information for specifications" .
+
+# LayoutNet - layout for a net
+yawl:LayoutNet a rdfs:Class ;
+    rdfs:label "LayoutNet" ;
+    rdfs:comment "Layout information for a net" .
+
+# LayoutVertex - layout vertex
+yawl:LayoutVertex a rdfs:Class ;
+    rdfs:label "LayoutVertex" ;
+    rdfs:comment "Layout vertex (position, icon, attributes)" .
+
+# LayoutContainer - layout container
+yawl:LayoutContainer a rdfs:Class ;
+    rdfs:label "LayoutContainer" ;
+    rdfs:comment "Layout container" .
+
+# LayoutFlow - layout flow
+yawl:LayoutFlow a rdfs:Class ;
+    rdfs:label "LayoutFlow" ;
+    rdfs:comment "Layout flow (edge)" .
+
+# LayoutDecorator - layout decorator
+yawl:LayoutDecorator a rdfs:Class ;
+    rdfs:label "LayoutDecorator" ;
+    rdfs:comment "Layout decorator" .
+
+# LayoutLabel - layout label
+yawl:LayoutLabel a rdfs:Class ;
+    rdfs:label "LayoutLabel" ;
+    rdfs:comment "Layout label" .
+
+# LayoutPoint - layout point
+yawl:LayoutPoint a rdfs:Class ;
+    rdfs:label "LayoutPoint" ;
+    rdfs:comment "2D point (x, y)" .
+
+# LayoutLocale - layout locale
+yawl:LayoutLocale a rdfs:Class ;
+    rdfs:label "LayoutLocale" ;
+    rdfs:comment "Locale information" .
+
+# LayoutPorts - layout ports
+yawl:LayoutPorts a rdfs:Class ;
+    rdfs:label "LayoutPorts" ;
+    rdfs:comment "Input/output port counts" .
+
+# LayoutAttributes - layout attributes
+yawl:LayoutAttributes a rdfs:Class ;
+    rdfs:label "LayoutAttributes" ;
+    rdfs:comment "Layout visual attributes" .
+
+# LayoutRectangle - layout rectangle
+yawl:LayoutRectangle a rdfs:Class ;
+    rdfs:label "LayoutRectangle" ;
+    rdfs:comment "Rectangle bounds" .
+
+# LayoutFrame - layout frame
+yawl:LayoutFrame a rdfs:Class ;
+    rdfs:label "LayoutFrame" ;
+    rdfs:comment "Frame bounds" .
+
+# LayoutPoints - layout points collection
+yawl:LayoutPoints a rdfs:Class ;
+    rdfs:label "LayoutPoints" ;
+    rdfs:comment "Collection of points" .
+
+# LayoutFont - layout font
+yawl:LayoutFont a rdfs:Class ;
+    rdfs:label "LayoutFont" ;
+    rdfs:comment "Font information" .
+
+# LayoutDimension - layout dimension
+yawl:LayoutDimension a rdfs:Class ;
+    rdfs:label "LayoutDimension" ;
+    rdfs:comment "Width and height" .
+
+# LayoutUserObjectHTML - HTML user object
+yawl:LayoutUserObjectHTML a rdfs:Class ;
+    rdfs:label "LayoutUserObjectHTML" ;
+    rdfs:comment "HTML user object" .
+
+# ============================================================================
+# Properties - Datatype Properties
+# ============================================================================
+
+yawl:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:comment "Name of the element" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range xsd:string .
+
+yawl:documentation a rdf:Property ;
+    rdfs:label "documentation" ;
+    rdfs:comment "Documentation string" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range xsd:string .
+
+yawl:uri a rdf:Property ;
+    rdfs:label "uri" ;
+    rdfs:comment "URI identifier" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range xsd:anyURI .
+
+yawl:id a rdf:Property ;
+    rdfs:label "id" ;
+    rdfs:comment "Identifier (NMTOKEN)" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range xsd:NMTOKEN .
+
+yawl:index a rdf:Property ;
+    rdfs:label "index" ;
+    rdfs:comment "Index value" ;
+    rdfs:domain yawl:VariableBase ;
+    rdfs:range xsd:integer .
+
+yawl:initialValue a rdf:Property ;
+    rdfs:label "initialValue" ;
+    rdfs:comment "Initial value" ;
+    rdfs:domain yawl:Variable ;
+    rdfs:range xsd:string .
+
+yawl:defaultValue a rdf:Property ;
+    rdfs:label "defaultValue" ;
+    rdfs:comment "Default value" ;
+    rdfs:domain yawl:OutputParameter ;
+    rdfs:range rdfs:Resource .
+
+yawl:mandatory a rdf:Property ;
+    rdfs:label "mandatory" ;
+    rdfs:comment "Whether parameter is mandatory" ;
+    rdfs:domain yawl:OutputParameter ;
+    rdfs:range xsd:boolean .
+
+yawl:isCutThroughParam a rdf:Property ;
+    rdfs:label "isCutThroughParam" ;
+    rdfs:comment "Whether parameter is cut-through" ;
+    rdfs:domain yawl:OutputParameter ;
+    rdfs:range xsd:boolean .
+
+yawl:isUntyped a rdf:Property ;
+    rdfs:label "isUntyped" ;
+    rdfs:comment "Whether variable is untyped" ;
+    rdfs:domain yawl:VariableBase ;
+    rdfs:range xsd:boolean .
+
+yawl:query a rdf:Property ;
+    rdfs:label "query" ;
+    rdfs:comment "XQuery expression string" ;
+    rdfs:domain yawl:Expression ;
+    rdfs:range xsd:string .
+
+yawl:ordering a rdf:Property ;
+    rdfs:label "ordering" ;
+    rdfs:comment "Ordering value for predicate" ;
+    rdfs:domain yawl:Predicate ;
+    rdfs:range xsd:integer .
+
+yawl:mapsTo a rdf:Property ;
+    rdfs:label "mapsTo" ;
+    rdfs:comment "Variable name to map to" ;
+    rdfs:domain yawl:VarMapping ;
+    rdfs:range xsd:NMTOKEN .
+
+yawl:isRootNet a rdf:Property ;
+    rdfs:label "isRootNet" ;
+    rdfs:comment "Whether net is root net" ;
+    rdfs:domain yawl:Net ;
+    rdfs:range xsd:boolean .
+
+yawl:isDefaultFlow a rdf:Property ;
+    rdfs:label "isDefaultFlow" ;
+    rdfs:comment "Whether flow is default" ;
+    rdfs:domain yawl:FlowsInto ;
+    rdfs:range xsd:boolean .
+
+yawl:expiry a rdf:Property ;
+    rdfs:label "expiry" ;
+    rdfs:comment "Timer expiry timestamp" ;
+    rdfs:domain yawl:Timer ;
+    rdfs:range xsd:long .
+
+yawl:duration a rdf:Property ;
+    rdfs:label "duration" ;
+    rdfs:comment "Timer duration" ;
+    rdfs:domain yawl:Timer ;
+    rdfs:range xsd:duration .
+
+yawl:ticks a rdf:Property ;
+    rdfs:label "ticks" ;
+    rdfs:comment "Timer duration ticks" ;
+    rdfs:domain yawl:TimerDuration ;
+    rdfs:range xsd:long .
+
+yawl:workdays a rdf:Property ;
+    rdfs:label "workdays" ;
+    rdfs:comment "Whether timer uses workdays only" ;
+    rdfs:domain yawl:Timer ;
+    rdfs:range xsd:boolean .
+
+yawl:netparam a rdf:Property ;
+    rdfs:label "netparam" ;
+    rdfs:comment "Net parameter reference" ;
+    rdfs:domain yawl:Timer ;
+    rdfs:range xsd:string .
+
+yawl:minimum a rdf:Property ;
+    rdfs:label "minimum" ;
+    rdfs:comment "Minimum number of instances" ;
+    rdfs:domain yawl:MultipleInstanceTask ;
+    rdfs:range xsd:string .
+
+yawl:maximum a rdf:Property ;
+    rdfs:label "maximum" ;
+    rdfs:comment "Maximum number of instances" ;
+    rdfs:domain yawl:MultipleInstanceTask ;
+    rdfs:range xsd:string .
+
+yawl:threshold a rdf:Property ;
+    rdfs:label "threshold" ;
+    rdfs:comment "Threshold for instance creation" ;
+    rdfs:domain yawl:MultipleInstanceTask ;
+    rdfs:range xsd:string .
+
+yawl:formalInputParam a rdf:Property ;
+    rdfs:label "formalInputParam" ;
+    rdfs:comment "Formal input parameter name" ;
+    rdfs:domain yawl:MultipleInstanceTask ;
+    rdfs:range xsd:NMTOKEN .
+
+yawl:formalOutputExpression a rdf:Property ;
+    rdfs:label "formalOutputExpression" ;
+    rdfs:comment "Formal output expression" ;
+    rdfs:domain yawl:MultipleInstanceTask ;
+    rdfs:range xsd:string .
+
+yawl:resultAppliedToLocalVariable a rdf:Property ;
+    rdfs:label "resultAppliedToLocalVariable" ;
+    rdfs:comment "Local variable for result" ;
+    rdfs:domain yawl:MultipleInstanceTask ;
+    rdfs:range xsd:NMTOKEN .
+
+yawl:customForm a rdf:Property ;
+    rdfs:label "customForm" ;
+    rdfs:comment "Custom form URI" ;
+    rdfs:domain yawl:Task ;
+    rdfs:range xsd:anyURI .
+
+yawl:codelet a rdf:Property ;
+    rdfs:label "codelet" ;
+    rdfs:comment "Codelet name" ;
+    rdfs:domain yawl:WebServiceGateway ;
+    rdfs:range xsd:NCName .
+
+yawl:wsdlLocation a rdf:Property ;
+    rdfs:label "wsdlLocation" ;
+    rdfs:comment "WSDL location URI" ;
+    rdfs:domain yawl:YAWLService ;
+    rdfs:range xsd:anyURI .
+
+yawl:operationName a rdf:Property ;
+    rdfs:label "operationName" ;
+    rdfs:comment "Operation name" ;
+    rdfs:domain yawl:YAWLService ;
+    rdfs:range xsd:NMTOKEN .
+
+yawl:title a rdf:Property ;
+    rdfs:label "title" ;
+    rdfs:comment "Title" ;
+    rdfs:domain yawl:Metadata ;
+    rdfs:range xsd:normalizedString .
+
+yawl:creator a rdf:Property ;
+    rdfs:label "creator" ;
+    rdfs:comment "Creator" ;
+    rdfs:domain yawl:Metadata ;
+    rdfs:range xsd:string .
+
+yawl:subject a rdf:Property ;
+    rdfs:label "subject" ;
+    rdfs:comment "Subject" ;
+    rdfs:domain yawl:Metadata ;
+    rdfs:range xsd:string .
+
+yawl:description a rdf:Property ;
+    rdfs:label "description" ;
+    rdfs:comment "Description" ;
+    rdfs:domain yawl:Metadata ;
+    rdfs:range xsd:normalizedString .
+
+yawl:contributor a rdf:Property ;
+    rdfs:label "contributor" ;
+    rdfs:comment "Contributor" ;
+    rdfs:domain yawl:Metadata ;
+    rdfs:range xsd:string .
+
+yawl:coverage a rdf:Property ;
+    rdfs:label "coverage" ;
+    rdfs:comment "Coverage" ;
+    rdfs:domain yawl:Metadata ;
+    rdfs:range xsd:string .
+
+yawl:validFrom a rdf:Property ;
+    rdfs:label "validFrom" ;
+    rdfs:comment "Valid from date" ;
+    rdfs:domain yawl:Metadata ;
+    rdfs:range xsd:date .
+
+yawl:validUntil a rdf:Property ;
+    rdfs:label "validUntil" ;
+    rdfs:comment "Valid until date" ;
+    rdfs:domain yawl:Metadata ;
+    rdfs:range xsd:date .
+
+yawl:created a rdf:Property ;
+    rdfs:label "created" ;
+    rdfs:comment "Creation date" ;
+    rdfs:domain yawl:Metadata ;
+    rdfs:range xsd:date .
+
+yawl:version a rdf:Property ;
+    rdfs:label "version" ;
+    rdfs:comment "Version number" ;
+    rdfs:domain yawl:Metadata ;
+    rdfs:range xsd:decimal .
+
+yawl:status a rdf:Property ;
+    rdfs:label "status" ;
+    rdfs:comment "Status" ;
+    rdfs:domain yawl:Metadata ;
+    rdfs:range xsd:string .
+
+yawl:persistent a rdf:Property ;
+    rdfs:label "persistent" ;
+    rdfs:comment "Whether specification is persistent" ;
+    rdfs:domain yawl:Metadata ;
+    rdfs:range xsd:boolean .
+
+yawl:identifier a rdf:Property ;
+    rdfs:label "identifier" ;
+    rdfs:comment "Identifier" ;
+    rdfs:domain yawl:Metadata ;
+    rdfs:range xsd:NCName .
+
+yawl:start a rdf:Property ;
+    rdfs:label "start" ;
+    rdfs:comment "Start log predicate name" ;
+    rdfs:domain yawl:LogPredicate ;
+    rdfs:range xsd:string .
+
+yawl:completion a rdf:Property ;
+    rdfs:label "completion" ;
+    rdfs:comment "Completion log predicate name" ;
+    rdfs:domain yawl:LogPredicate ;
+    rdfs:range xsd:string .
+
+yawl:externalDataGateway a rdf:Property ;
+    rdfs:label "externalDataGateway" ;
+    rdfs:comment "External data gateway name" ;
+    rdfs:domain yawl:Net ;
+    rdfs:range xsd:string .
+
+yawl:importedNet a rdf:Property ;
+    rdfs:label "importedNet" ;
+    rdfs:comment "Imported net URI" ;
+    rdfs:domain yawl:Specification ;
+    rdfs:range xsd:anyURI .
+
+yawl:minIncrease a rdf:Property ;
+    rdfs:label "minIncrease" ;
+    rdfs:comment "Minimum increase" ;
+    rdfs:domain yawl:NofiConfig ;
+    rdfs:range xsd:positiveInteger .
+
+yawl:maxDecrease a rdf:Property ;
+    rdfs:label "maxDecrease" ;
+    rdfs:comment "Maximum decrease" ;
+    rdfs:domain yawl:NofiConfig ;
+    rdfs:range xsd:positiveInteger .
+
+yawl:thresIncrease a rdf:Property ;
+    rdfs:label "thresIncrease" ;
+    rdfs:comment "Threshold increase" ;
+    rdfs:domain yawl:NofiConfig ;
+    rdfs:range xsd:positiveInteger .
+
+yawl:key a rdf:Property ;
+    rdfs:label "key" ;
+    rdfs:comment "Parameter key" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range xsd:string .
+
+yawl:value a rdf:Property ;
+    rdfs:label "value" ;
+    rdfs:comment "Parameter value" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range rdfs:Resource .
+
+yawl:participant a rdf:Property ;
+    rdfs:label "participant" ;
+    rdfs:comment "Participant name" ;
+    rdfs:domain yawl:ResourcingSet ;
+    rdfs:range xsd:string .
+
+yawl:role a rdf:Property ;
+    rdfs:label "role" ;
+    rdfs:comment "Role name" ;
+    rdfs:domain yawl:ResourcingSet ;
+    rdfs:range xsd:string .
+
+yawl:nonHumanResource a rdf:Property ;
+    rdfs:label "nonHumanResource" ;
+    rdfs:comment "Non-human resource name" ;
+    rdfs:domain yawl:ResourcingSecondary ;
+    rdfs:range xsd:string .
+
+yawl:nonHumanCategory a rdf:Property ;
+    rdfs:label "nonHumanCategory" ;
+    rdfs:comment "Non-human category name" ;
+    rdfs:domain yawl:ResourcingSecondary ;
+    rdfs:range xsd:string .
+
+yawl:subcategory a rdf:Property ;
+    rdfs:label "subcategory" ;
+    rdfs:comment "Subcategory name" ;
+    rdfs:domain yawl:ResourcingSecondary ;
+    rdfs:range xsd:string .
+
+yawl:allowall a rdf:Property ;
+    rdfs:label "allowall" ;
+    rdfs:comment "Allow all privilege" ;
+    rdfs:domain yawl:ResourcingPrivileges ;
+    rdfs:range xsd:boolean .
+
+yawl:familiarParticipant a rdf:Property ;
+    rdfs:label "familiarParticipant" ;
+    rdfs:comment "Familiar participant task ID" ;
+    rdfs:domain yawl:ResourcingOffer ;
+    rdfs:range xsd:string .
+
+yawl:x a rdf:Property ;
+    rdfs:label "x" ;
+    rdfs:comment "X coordinate" ;
+    rdfs:domain [ rdfs:Class yawl:LayoutPoint yawl:LayoutRectangle yawl:LayoutFrame ] ;
+    rdfs:range xsd:string .
+
+yawl:y a rdf:Property ;
+    rdfs:label "y" ;
+    rdfs:comment "Y coordinate" ;
+    rdfs:domain [ rdfs:Class yawl:LayoutPoint yawl:LayoutRectangle yawl:LayoutFrame ] ;
+    rdfs:range xsd:string .
+
+yawl:w a rdf:Property ;
+    rdfs:label "w" ;
+    rdfs:comment "Width" ;
+    rdfs:domain [ rdfs:Class yawl:LayoutRectangle yawl:LayoutFrame yawl:LayoutDimension ] ;
+    rdfs:range xsd:string .
+
+yawl:h a rdf:Property ;
+    rdfs:label "h" ;
+    rdfs:comment "Height" ;
+    rdfs:domain [ rdfs:Class yawl:LayoutRectangle yawl:LayoutFrame yawl:LayoutDimension ] ;
+    rdfs:range xsd:string .
+
+yawl:language a rdf:Property ;
+    rdfs:label "language" ;
+    rdfs:comment "Language code" ;
+    rdfs:domain yawl:LayoutLocale ;
+    rdfs:range xsd:string .
+
+yawl:country a rdf:Property ;
+    rdfs:label "country" ;
+    rdfs:comment "Country code" ;
+    rdfs:domain yawl:LayoutLocale ;
+    rdfs:range xsd:string .
+
+yawl:in a rdf:Property ;
+    rdfs:label "in" ;
+    rdfs:comment "Input port count" ;
+    rdfs:domain yawl:LayoutPorts ;
+    rdfs:range xsd:integer .
+
+yawl:out a rdf:Property ;
+    rdfs:label "out" ;
+    rdfs:comment "Output port count" ;
+    rdfs:domain yawl:LayoutPorts ;
+    rdfs:range xsd:integer .
+
+yawl:source a rdf:Property ;
+    rdfs:label "source" ;
+    rdfs:comment "Source element ID" ;
+    rdfs:domain yawl:LayoutFlow ;
+    rdfs:range xsd:NCName .
+
+yawl:target a rdf:Property ;
+    rdfs:label "target" ;
+    rdfs:comment "Target element ID" ;
+    rdfs:domain yawl:LayoutFlow ;
+    rdfs:range xsd:NCName .
+
+yawl:position a rdf:Property ;
+    rdfs:label "position" ;
+    rdfs:comment "Position" ;
+    rdfs:domain yawl:LayoutDecorator ;
+    rdfs:range xsd:integer .
+
+yawl:type a rdf:Property ;
+    rdfs:label "type" ;
+    rdfs:comment "Type name" ;
+    rdfs:domain yawl:VariableBase ;
+    rdfs:range xsd:NCName .
+
+yawl:namespace a rdf:Property ;
+    rdfs:label "namespace" ;
+    rdfs:comment "Namespace URI" ;
+    rdfs:domain yawl:VariableBase ;
+    rdfs:range xsd:anyURI .
+
+yawl:element a rdf:Property ;
+    rdfs:label "element" ;
+    rdfs:comment "Element name" ;
+    rdfs:domain yawl:VariableBase ;
+    rdfs:range xsd:NCName .
+
+yawl:startpoint a rdf:Property ;
+    rdfs:label "startpoint" ;
+    rdfs:comment "Start point" ;
+    rdfs:domain yawl:LayoutVertex ;
+    rdfs:range yawl:LayoutPoint .
+
+yawl:iconpath a rdf:Property ;
+    rdfs:label "iconpath" ;
+    rdfs:comment "Icon path URI" ;
+    rdfs:domain yawl:LayoutVertex ;
+    rdfs:range xsd:anyURI .
+
+yawl:notes a rdf:Property ;
+    rdfs:label "notes" ;
+    rdfs:comment "Notes" ;
+    rdfs:domain yawl:LayoutVertex ;
+    rdfs:range xsd:string .
+
+yawl:bgImage a rdf:Property ;
+    rdfs:label "bgImage" ;
+    rdfs:comment "Background image" ;
+    rdfs:domain yawl:LayoutNet ;
+    rdfs:range xsd:string .
+
+yawl:scale a rdf:Property ;
+    rdfs:label "scale" ;
+    rdfs:comment "Scale factor" ;
+    rdfs:domain yawl:LayoutNet ;
+    rdfs:range xsd:string .
+
+yawl:cancellationtask a rdf:Property ;
+    rdfs:label "cancellationtask" ;
+    rdfs:comment "Cancellation task ID" ;
+    rdfs:domain yawl:LayoutNet ;
+    rdfs:range xsd:NCName .
+
+yawl:bgColor a rdf:Property ;
+    rdfs:label "bgColor" ;
+    rdfs:comment "Background color" ;
+    rdfs:domain [ rdfs:Class yawl:LayoutNet yawl:LayoutAttributes ] ;
+    rdfs:range xsd:integer .
+
+yawl:defaultBgColor a rdf:Property ;
+    rdfs:label "defaultBgColor" ;
+    rdfs:comment "Default background color" ;
+    rdfs:domain yawl:Layout ;
+    rdfs:range xsd:integer .
+
+yawl:labelFontSize a rdf:Property ;
+    rdfs:label "labelFontSize" ;
+    rdfs:comment "Label font size" ;
+    rdfs:domain yawl:Layout ;
+    rdfs:range xsd:integer .
+
+yawl:refers a rdf:Property ;
+    rdfs:label "refers" ;
+    rdfs:comment "Resource type reference" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range yawl:ResourcingResourceType .
+
+yawl:taskID a rdf:Property ;
+    rdfs:label "taskID" ;
+    rdfs:comment "Task ID" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# Properties - Object Properties
+# ============================================================================
+
+yawl:hasSpecification a rdf:Property ;
+    rdfs:label "hasSpecification" ;
+    rdfs:comment "Specification in set" ;
+    rdfs:domain yawl:SpecificationSet ;
+    rdfs:range yawl:Specification .
+
+yawl:hasDecomposition a rdf:Property ;
+    rdfs:label "hasDecomposition" ;
+    rdfs:comment "Decomposition in specification" ;
+    rdfs:domain yawl:Specification ;
+    rdfs:range yawl:Decomposition .
+
+yawl:hasMetadata a rdf:Property ;
+    rdfs:label "hasMetadata" ;
+    rdfs:comment "Metadata for specification" ;
+    rdfs:domain yawl:Specification ;
+    rdfs:range yawl:Metadata .
+
+yawl:hasLayout a rdf:Property ;
+    rdfs:label "hasLayout" ;
+    rdfs:comment "Layout for specification set" ;
+    rdfs:domain yawl:SpecificationSet ;
+    rdfs:range yawl:Layout .
+
+yawl:hasInputParameter a rdf:Property ;
+    rdfs:label "hasInputParameter" ;
+    rdfs:comment "Input parameter" ;
+    rdfs:domain yawl:Decomposition ;
+    rdfs:range yawl:InputParameter .
+
+yawl:hasOutputParameter a rdf:Property ;
+    rdfs:label "hasOutputParameter" ;
+    rdfs:comment "Output parameter" ;
+    rdfs:domain yawl:Decomposition ;
+    rdfs:range yawl:OutputParameter .
+
+yawl:hasLocalVariable a rdf:Property ;
+    rdfs:label "hasLocalVariable" ;
+    rdfs:comment "Local variable in net" ;
+    rdfs:domain yawl:Net ;
+    rdfs:range yawl:Variable .
+
+yawl:hasInputCondition a rdf:Property ;
+    rdfs:label "hasInputCondition" ;
+    rdfs:comment "Input condition of net" ;
+    rdfs:domain yawl:Net ;
+    rdfs:range yawl:InputCondition .
+
+yawl:hasOutputCondition a rdf:Property ;
+    rdfs:label "hasOutputCondition" ;
+    rdfs:comment "Output condition of net" ;
+    rdfs:domain yawl:Net ;
+    rdfs:range yawl:OutputCondition .
+
+yawl:hasTask a rdf:Property ;
+    rdfs:label "hasTask" ;
+    rdfs:comment "Task in net" ;
+    rdfs:domain yawl:Net ;
+    rdfs:range yawl:Task .
+
+yawl:hasCondition a rdf:Property ;
+    rdfs:label "hasCondition" ;
+    rdfs:comment "Condition in net" ;
+    rdfs:domain yawl:Net ;
+    rdfs:range yawl:Condition .
+
+yawl:flowsInto a rdf:Property ;
+    rdfs:label "flowsInto" ;
+    rdfs:comment "Flow from element to element" ;
+    rdfs:domain yawl:NetElement ;
+    rdfs:range yawl:FlowsInto .
+
+yawl:nextElementRef a rdf:Property ;
+    rdfs:label "nextElementRef" ;
+    rdfs:comment "Reference to next element" ;
+    rdfs:domain yawl:FlowsInto ;
+    rdfs:range yawl:NetElement .
+
+yawl:hasPredicate a rdf:Property ;
+    rdfs:label "hasPredicate" ;
+    rdfs:comment "Predicate for flow" ;
+    rdfs:domain yawl:FlowsInto ;
+    rdfs:range yawl:Predicate .
+
+yawl:hasJoin a rdf:Property ;
+    rdfs:label "hasJoin" ;
+    rdfs:comment "Join control type" ;
+    rdfs:domain yawl:Task ;
+    rdfs:range yawl:ControlType .
+
+yawl:hasSplit a rdf:Property ;
+    rdfs:label "hasSplit" ;
+    rdfs:comment "Split control type" ;
+    rdfs:domain yawl:Task ;
+    rdfs:range yawl:ControlType .
+
+yawl:hasTimer a rdf:Property ;
+    rdfs:label "hasTimer" ;
+    rdfs:comment "Timer configuration" ;
+    rdfs:domain yawl:Task ;
+    rdfs:range yawl:Timer .
+
+yawl:hasResourcing a rdf:Property ;
+    rdfs:label "hasResourcing" ;
+    rdfs:comment "Resource allocation configuration" ;
+    rdfs:domain yawl:Task ;
+    rdfs:range yawl:Resourcing .
+
+yawl:hasTrigger a rdf:Property ;
+    rdfs:label "hasTrigger" ;
+    rdfs:comment "Timer trigger type" ;
+    rdfs:domain yawl:Timer ;
+    rdfs:range yawl:TimerTrigger .
+
+yawl:hasDurationParams a rdf:Property ;
+    rdfs:label "hasDurationParams" ;
+    rdfs:comment "Timer duration parameters" ;
+    rdfs:domain yawl:Timer ;
+    rdfs:range yawl:TimerDuration .
+
+yawl:hasInterval a rdf:Property ;
+    rdfs:label "hasInterval" ;
+    rdfs:comment "Timer interval type" ;
+    rdfs:domain yawl:TimerDuration ;
+    rdfs:range yawl:TimerInterval .
+
+yawl:hasOffer a rdf:Property ;
+    rdfs:label "hasOffer" ;
+    rdfs:comment "Resource offer configuration" ;
+    rdfs:domain yawl:Resourcing ;
+    rdfs:range yawl:ResourcingOffer .
+
+yawl:hasAllocate a rdf:Property ;
+    rdfs:label "hasAllocate" ;
+    rdfs:comment "Resource allocation configuration" ;
+    rdfs:domain yawl:Resourcing ;
+    rdfs:range yawl:ResourcingAllocate .
+
+yawl:hasStart a rdf:Property ;
+    rdfs:label "hasStart" ;
+    rdfs:comment "Resource start configuration" ;
+    rdfs:domain yawl:Resourcing ;
+    rdfs:range yawl:ResourcingInitiator .
+
+yawl:hasSecondary a rdf:Property ;
+    rdfs:label "hasSecondary" ;
+    rdfs:comment "Secondary resources" ;
+    rdfs:domain yawl:Resourcing ;
+    rdfs:range yawl:ResourcingSecondary .
+
+yawl:hasPrivileges a rdf:Property ;
+    rdfs:label "hasPrivileges" ;
+    rdfs:comment "Resource privileges" ;
+    rdfs:domain yawl:Resourcing ;
+    rdfs:range yawl:ResourcingPrivileges .
+
+yawl:hasInitiator a rdf:Property ;
+    rdfs:label "hasInitiator" ;
+    rdfs:comment "Initiator type" ;
+    rdfs:domain [ rdfs:Class yawl:ResourcingOffer yawl:ResourcingAllocate ] ;
+    rdfs:range yawl:ResourcingInitiator .
+
+yawl:hasDistributionSet a rdf:Property ;
+    rdfs:label "hasDistributionSet" ;
+    rdfs:comment "Distribution set" ;
+    rdfs:domain yawl:ResourcingOffer ;
+    rdfs:range yawl:ResourcingDistributionSet .
+
+yawl:hasInitialSet a rdf:Property ;
+    rdfs:label "hasInitialSet" ;
+    rdfs:comment "Initial resource set" ;
+    rdfs:domain yawl:ResourcingDistributionSet ;
+    rdfs:range yawl:ResourcingSet .
+
+yawl:hasFilter a rdf:Property ;
+    rdfs:label "hasFilter" ;
+    rdfs:comment "Resource filter" ;
+    rdfs:domain yawl:ResourcingDistributionSet ;
+    rdfs:range yawl:ResourcingSelector .
+
+yawl:hasConstraint a rdf:Property ;
+    rdfs:label "hasConstraint" ;
+    rdfs:comment "Resource constraint" ;
+    rdfs:domain yawl:ResourcingDistributionSet ;
+    rdfs:range yawl:ResourcingSelector .
+
+yawl:hasAllocator a rdf:Property ;
+    rdfs:label "hasAllocator" ;
+    rdfs:comment "Resource allocator" ;
+    rdfs:domain yawl:ResourcingAllocate ;
+    rdfs:range yawl:ResourcingSelector .
+
+yawl:hasParams a rdf:Property ;
+    rdfs:label "hasParams" ;
+    rdfs:comment "Selector parameters" ;
+    rdfs:domain yawl:ResourcingSelector ;
+    rdfs:range rdfs:Resource .
+
+yawl:hasParam a rdf:Property ;
+    rdfs:label "hasParam" ;
+    rdfs:comment "Parameter" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range rdfs:Resource .
+
+yawl:hasPrivilege a rdf:Property ;
+    rdfs:label "hasPrivilege" ;
+    rdfs:comment "Privilege" ;
+    rdfs:domain yawl:ResourcingPrivileges ;
+    rdfs:range rdfs:Resource .
+
+yawl:hasPrivilegeName a rdf:Property ;
+    rdfs:label "hasPrivilegeName" ;
+    rdfs:comment "Privilege name" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range yawl:ResourcingPrivilege .
+
+yawl:hasPrivilegeSet a rdf:Property ;
+    rdfs:label "hasPrivilegeSet" ;
+    rdfs:comment "Privilege set" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range yawl:ResourcingSet .
+
+yawl:hasRemovesTokens a rdf:Property ;
+    rdfs:label "hasRemovesTokens" ;
+    rdfs:comment "Element that removes tokens" ;
+    rdfs:domain yawl:Task ;
+    rdfs:range yawl:NetElement .
+
+yawl:hasRemovesTokensFromFlow a rdf:Property ;
+    rdfs:label "hasRemovesTokensFromFlow" ;
+    rdfs:comment "Token removal from flow" ;
+    rdfs:domain yawl:Task ;
+    rdfs:range yawl:RemovesTokensFromFlow .
+
+yawl:flowSource a rdf:Property ;
+    rdfs:label "flowSource" ;
+    rdfs:comment "Flow source element" ;
+    rdfs:domain yawl:RemovesTokensFromFlow ;
+    rdfs:range yawl:NetElement .
+
+yawl:flowDestination a rdf:Property ;
+    rdfs:label "flowDestination" ;
+    rdfs:comment "Flow destination element" ;
+    rdfs:domain yawl:RemovesTokensFromFlow ;
+    rdfs:range yawl:NetElement .
+
+yawl:hasStartingMappings a rdf:Property ;
+    rdfs:label "hasStartingMappings" ;
+    rdfs:comment "Starting variable mappings" ;
+    rdfs:domain yawl:Task ;
+    rdfs:range yawl:VarMappingSet .
+
+yawl:hasCompletedMappings a rdf:Property ;
+    rdfs:label "hasCompletedMappings" ;
+    rdfs:comment "Completed variable mappings" ;
+    rdfs:domain yawl:Task ;
+    rdfs:range yawl:VarMappingSet .
+
+yawl:hasEnablementMappings a rdf:Property ;
+    rdfs:label "hasEnablementMappings" ;
+    rdfs:comment "Enablement variable mappings" ;
+    rdfs:domain yawl:Task ;
+    rdfs:range yawl:VarMappingSet .
+
+yawl:hasMapping a rdf:Property ;
+    rdfs:label "hasMapping" ;
+    rdfs:comment "Variable mapping" ;
+    rdfs:domain yawl:VarMappingSet ;
+    rdfs:range yawl:VarMapping .
+
+yawl:hasExpression a rdf:Property ;
+    rdfs:label "hasExpression" ;
+    rdfs:comment "XQuery expression" ;
+    rdfs:domain yawl:VarMapping ;
+    rdfs:range yawl:Expression .
+
+yawl:hasSplittingExpression a rdf:Property ;
+    rdfs:label "hasSplittingExpression" ;
+    rdfs:comment "Splitting expression" ;
+    rdfs:domain yawl:MultipleInstanceTask ;
+    rdfs:range yawl:Expression .
+
+yawl:hasOutputJoiningExpression a rdf:Property ;
+    rdfs:label "hasOutputJoiningExpression" ;
+    rdfs:comment "Output joining expression" ;
+    rdfs:domain yawl:MultipleInstanceTask ;
+    rdfs:range yawl:Expression .
+
+yawl:hasCreationMode a rdf:Property ;
+    rdfs:label "hasCreationMode" ;
+    rdfs:comment "Creation mode" ;
+    rdfs:domain yawl:MultipleInstanceTask ;
+    rdfs:range yawl:CreationMode .
+
+yawl:hasCreationModeConfig a rdf:Property ;
+    rdfs:label "hasCreationModeConfig" ;
+    rdfs:comment "Creation mode configuration" ;
+    rdfs:domain yawl:NofiConfig ;
+    rdfs:range yawl:CreationModeConfigType .
+
+yawl:hasDecomposesTo a rdf:Property ;
+    rdfs:label "hasDecomposesTo" ;
+    rdfs:comment "Decomposition reference" ;
+    rdfs:domain yawl:Task ;
+    rdfs:range yawl:Decomposition .
+
+yawl:hasDefaultConfiguration a rdf:Property ;
+    rdfs:label "hasDefaultConfiguration" ;
+    rdfs:comment "Default task configuration" ;
+    rdfs:domain yawl:Task ;
+    rdfs:range yawl:Configuration .
+
+yawl:hasConfiguration a rdf:Property ;
+    rdfs:label "hasConfiguration" ;
+    rdfs:comment "Task configuration" ;
+    rdfs:domain yawl:Task ;
+    rdfs:range yawl:Configuration .
+
+yawl:hasJoinConfig a rdf:Property ;
+    rdfs:label "hasJoinConfig" ;
+    rdfs:comment "Join configuration" ;
+    rdfs:domain yawl:Configuration ;
+    rdfs:range yawl:JoinConfig .
+
+yawl:hasSplitConfig a rdf:Property ;
+    rdfs:label "hasSplitConfig" ;
+    rdfs:comment "Split configuration" ;
+    rdfs:domain yawl:Configuration ;
+    rdfs:range yawl:SplitConfig .
+
+yawl:hasRemConfig a rdf:Property ;
+    rdfs:label "hasRemConfig" ;
+    rdfs:comment "Removes tokens configuration" ;
+    rdfs:domain yawl:Configuration ;
+    rdfs:range yawl:RemConfig .
+
+yawl:hasNofiConfig a rdf:Property ;
+    rdfs:label "hasNofiConfig" ;
+    rdfs:comment "Number of instances configuration" ;
+    rdfs:domain yawl:Configuration ;
+    rdfs:range yawl:NofiConfig .
+
+yawl:hasPort a rdf:Property ;
+    rdfs:label "hasPort" ;
+    rdfs:comment "Port configuration" ;
+    rdfs:domain [ rdfs:Class yawl:JoinConfig yawl:SplitConfig ] ;
+    rdfs:range [ rdfs:Class yawl:InputPortConfig yawl:OutputPortConfig ] .
+
+yawl:hasFlowSource a rdf:Property ;
+    rdfs:label "hasFlowSource" ;
+    rdfs:comment "Flow source element" ;
+    rdfs:domain yawl:InputPortConfig ;
+    rdfs:range yawl:NetElement .
+
+yawl:hasFlowDestination a rdf:Property ;
+    rdfs:label "hasFlowDestination" ;
+    rdfs:comment "Flow destination element" ;
+    rdfs:domain yawl:OutputPortConfig ;
+    rdfs:range yawl:NetElement .
+
+yawl:hasPortValue a rdf:Property ;
+    rdfs:label "hasPortValue" ;
+    rdfs:comment "Port value type" ;
+    rdfs:domain [ rdfs:Class yawl:InputPortConfig yawl:OutputPortConfig yawl:RemConfig ] ;
+    rdfs:range [ rdfs:Class yawl:InputPortValueType yawl:OutputPortValueType ] .
+
+yawl:hasEnablementParam a rdf:Property ;
+    rdfs:label "hasEnablementParam" ;
+    rdfs:comment "Enablement parameter" ;
+    rdfs:domain yawl:WebServiceGateway ;
+    rdfs:range yawl:InputParameter .
+
+yawl:hasYAWLService a rdf:Property ;
+    rdfs:label "hasYAWLService" ;
+    rdfs:comment "YAWL service definition" ;
+    rdfs:domain yawl:WebServiceGateway ;
+    rdfs:range yawl:YAWLService .
+
+yawl:hasExternalInteraction a rdf:Property ;
+    rdfs:label "hasExternalInteraction" ;
+    rdfs:comment "External interaction type" ;
+    rdfs:domain yawl:WebServiceGateway ;
+    rdfs:range yawl:ResourcingExternalInteraction .
+
+yawl:hasLogPredicate a rdf:Property ;
+    rdfs:label "hasLogPredicate" ;
+    rdfs:comment "Logging predicate" ;
+    rdfs:domain [ rdfs:Class yawl:Decomposition yawl:InputParameter yawl:OutputParameter ] ;
+    rdfs:range yawl:LogPredicate .
+
+yawl:hasLocale a rdf:Property ;
+    rdfs:label "hasLocale" ;
+    rdfs:comment "Locale information" ;
+    rdfs:domain yawl:Layout ;
+    rdfs:range yawl:LayoutLocale .
+
+yawl:hasSpecificationLayout a rdf:Property ;
+    rdfs:label "hasSpecificationLayout" ;
+    rdfs:comment "Layout for specification" ;
+    rdfs:domain yawl:Layout ;
+    rdfs:range rdfs:Resource .
+
+yawl:hasNetLayout a rdf:Property ;
+    rdfs:label "hasNetLayout" ;
+    rdfs:comment "Layout for net" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range yawl:LayoutNet .
+
+yawl:hasVertex a rdf:Property ;
+    rdfs:label "hasVertex" ;
+    rdfs:comment "Layout vertex" ;
+    rdfs:domain [ rdfs:Class yawl:LayoutNet yawl:LayoutContainer ] ;
+    rdfs:range yawl:LayoutVertex .
+
+yawl:hasContainer a rdf:Property ;
+    rdfs:label "hasContainer" ;
+    rdfs:comment "Layout container" ;
+    rdfs:domain yawl:LayoutNet ;
+    rdfs:range yawl:LayoutContainer .
+
+yawl:hasFlow a rdf:Property ;
+    rdfs:label "hasFlow" ;
+    rdfs:comment "Layout flow" ;
+    rdfs:domain yawl:LayoutNet ;
+    rdfs:range yawl:LayoutFlow .
+
+yawl:hasLabel a rdf:Property ;
+    rdfs:label "hasLabel" ;
+    rdfs:comment "Layout label" ;
+    rdfs:domain [ rdfs:Class yawl:LayoutContainer yawl:LayoutFlow ] ;
+    rdfs:range yawl:LayoutLabel .
+
+yawl:hasDecorator a rdf:Property ;
+    rdfs:label "hasDecorator" ;
+    rdfs:comment "Layout decorator" ;
+    rdfs:domain yawl:LayoutContainer ;
+    rdfs:range yawl:LayoutDecorator .
+
+yawl:hasAttributes a rdf:Property ;
+    rdfs:label "hasAttributes" ;
+    rdfs:comment "Layout attributes" ;
+    rdfs:domain [ rdfs:Class yawl:LayoutVertex yawl:LayoutFlow yawl:LayoutLabel yawl:LayoutDecorator ] ;
+    rdfs:range yawl:LayoutAttributes .
+
+yawl:hasUserObject a rdf:Property ;
+    rdfs:label "hasUserObject" ;
+    rdfs:comment "HTML user object" ;
+    rdfs:domain yawl:LayoutLabel ;
+    rdfs:range yawl:LayoutUserObjectHTML .
+
+yawl:hasBounds a rdf:Property ;
+    rdfs:label "hasBounds" ;
+    rdfs:comment "Bounds rectangle" ;
+    rdfs:domain [ rdfs:Class yawl:LayoutNet yawl:LayoutAttributes ] ;
+    rdfs:range yawl:LayoutRectangle .
+
+yawl:hasFrame a rdf:Property ;
+    rdfs:label "hasFrame" ;
+    rdfs:comment "Frame bounds" ;
+    rdfs:domain yawl:LayoutNet ;
+    rdfs:range yawl:LayoutFrame .
+
+yawl:hasViewport a rdf:Property ;
+    rdfs:label "hasViewport" ;
+    rdfs:comment "Viewport bounds" ;
+    rdfs:domain yawl:LayoutNet ;
+    rdfs:range yawl:LayoutFrame .
+
+yawl:hasPoints a rdf:Property ;
+    rdfs:label "hasPoints" ;
+    rdfs:comment "Collection of points" ;
+    rdfs:domain yawl:LayoutAttributes ;
+    rdfs:range yawl:LayoutPoints .
+
+yawl:hasPoint a rdf:Property ;
+    rdfs:label "hasPoint" ;
+    rdfs:comment "Point in collection" ;
+    rdfs:domain yawl:LayoutPoints ;
+    rdfs:range yawl:LayoutPoint .
+
+yawl:hasFont a rdf:Property ;
+    rdfs:label "hasFont" ;
+    rdfs:comment "Font information" ;
+    rdfs:domain yawl:LayoutAttributes ;
+    rdfs:range yawl:LayoutFont .
+
+yawl:hasSize a rdf:Property ;
+    rdfs:label "hasSize" ;
+    rdfs:comment "Size dimension" ;
+    rdfs:domain [ rdfs:Class yawl:LayoutAttributes rdfs:Resource ] ;
+    rdfs:range yawl:LayoutDimension .
+
+yawl:hasLabelPosition a rdf:Property ;
+    rdfs:label "hasLabelPosition" ;
+    rdfs:comment "Label position" ;
+    rdfs:domain yawl:LayoutAttributes ;
+    rdfs:range yawl:LayoutPoint .
+
+yawl:hasOffset a rdf:Property ;
+    rdfs:label "hasOffset" ;
+    rdfs:comment "Offset point" ;
+    rdfs:domain yawl:LayoutAttributes ;
+    rdfs:range yawl:LayoutPoint .
+
+yawl:hasHTML a rdf:Property ;
+    rdfs:label "hasHTML" ;
+    rdfs:comment "HTML content" ;
+    rdfs:domain yawl:LayoutUserObjectHTML ;
+    rdfs:range rdfs:Resource .
+
+yawl:hasBody a rdf:Property ;
+    rdfs:label "hasBody" ;
+    rdfs:comment "HTML body" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range rdfs:Resource .
+
+yawl:hasStyle a rdf:Property ;
+    rdfs:label "hasStyle" ;
+    rdfs:comment "Style attribute" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range xsd:string .
+
+yawl:hasAlign a rdf:Property ;
+    rdfs:label "hasAlign" ;
+    rdfs:comment "Alignment attribute" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range xsd:string .
+
+yawl:hasFontName a rdf:Property ;
+    rdfs:label "hasFontName" ;
+    rdfs:comment "Font name" ;
+    rdfs:domain yawl:LayoutFont ;
+    rdfs:range xsd:string .
+
+yawl:hasFontStyle a rdf:Property ;
+    rdfs:label "hasFontStyle" ;
+    rdfs:comment "Font style" ;
+    rdfs:domain yawl:LayoutFont ;
+    rdfs:range xsd:integer .
+
+yawl:hasFontSize a rdf:Property ;
+    rdfs:label "hasFontSize" ;
+    rdfs:comment "Font size" ;
+    rdfs:domain yawl:LayoutFont ;
+    rdfs:range xsd:integer .
+

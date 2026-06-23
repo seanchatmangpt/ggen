@@ -1,0 +1,23 @@
+@prefix bethos_idx: <https://bytestar.org/ontology/byteethos-index#> .
+@prefix :         <https://bytestar.org/ontology/byteethos-index#> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:       <https://bytestar.org/ontology/dark-canon#> .
+@prefix lgc:      <https://bytestar.org/ontology/bytestar-lgc#> .
+
+<https://bytestar.org/ontology/byteethos-index>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytecore-index> ,
+              <https://bytestar.org/ontology/byteethos/dflss-plan> ,
+              <https://bytestar.org/ontology/byteethos/ledger-specification> ,
+              <https://bytestar.org/ontology/byteethos/identity-specification> ,
+              <https://bytestar.org/ontology/byteethos/governance-specification> ,
+              <https://bytestar.org/ontology/byteethos/production-readiness#> ,
+              <https://bytestar.org/ontology/byteethos/production-shapes#> ,
+              <https://bytestar.org/ontology/byteethos/production-queries#> ;
+  rdfs:comment "This ByteEthos index ontology and its imported modules adhere to the ByteStar V6 doctrines, including the FullerV2 Canon, 8-Hop Envelope, Zero-Tick Rejection, Capability Algebra, and Receipts-First Methodology." ;
+  rdfs:seeAlso dc:FullerV2 ;
+  rdfs:seeAlso lgc:EightHopLaw ;
+  rdfs:seeAlso lgc:ZeroTickReject ;
+  rdfs:seeAlso lgc:CapabilityAlgebra ;
+  rdfs:seeAlso lgc:ReceiptsFirstMethodology .

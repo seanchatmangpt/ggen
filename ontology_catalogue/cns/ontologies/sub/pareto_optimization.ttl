@@ -1,0 +1,678 @@
+@prefix po: <http://pareto-optimization.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# 80/20 Optimization Sub-Ontology (Pareto Principle)
+# Designed for systematic application of Pareto principle across all domains
+# Enabling 20% effort to achieve 80% value through intelligent prioritization
+
+<http://pareto-optimization.org/ontology> a owl:Ontology ;
+    rdfs:label "80/20 Optimization Sub-Ontology" ;
+    rdfs:comment "Comprehensive Pareto principle optimization for ultrathink methodology" ;
+    owl:versionInfo "2.0" .
+
+# ==============================================================================
+# CORE PARETO CLASSES
+# ==============================================================================
+
+po:ParetoElement a owl:Class ;
+    rdfs:label "Pareto Element" ;
+    rdfs:comment "Base class for any element that can be evaluated using Pareto principle" .
+
+po:CoreElement a owl:Class ;
+    rdfs:subClassOf po:ParetoElement ;
+    rdfs:label "Core Element" ;
+    rdfs:comment "High-impact element in the critical 20% that delivers 80% value" .
+
+po:ExtendedElement a owl:Class ;
+    rdfs:subClassOf po:ParetoElement ;
+    rdfs:label "Extended Element" ;
+    rdfs:comment "Lower-impact element in the 80% that delivers 20% value" .
+
+po:ValueContribution a owl:Class ;
+    rdfs:label "Value Contribution" ;
+    rdfs:comment "Quantified contribution of an element to overall system value" .
+
+po:EffortInvestment a owl:Class ;
+    rdfs:label "Effort Investment" ;
+    rdfs:comment "Resources required to implement or maintain an element" .
+
+# ==============================================================================
+# OPTIMIZATION PATTERN CLASSES
+# ==============================================================================
+
+po:OptimizationPattern a owl:Class ;
+    rdfs:label "Optimization Pattern" ;
+    rdfs:comment "Reusable pattern for applying 80/20 optimization" .
+
+po:ResourceAllocation a owl:Class ;
+    rdfs:subClassOf po:OptimizationPattern ;
+    rdfs:label "Resource Allocation" ;
+    rdfs:comment "Pattern for optimal resource distribution using Pareto principle" .
+
+po:PriorityRanking a owl:Class ;
+    rdfs:subClassOf po:OptimizationPattern ;
+    rdfs:label "Priority Ranking" ;
+    rdfs:comment "Pattern for ranking elements by value/effort ratio" .
+
+po:ParetoFrontier a owl:Class ;
+    rdfs:subClassOf po:OptimizationPattern ;
+    rdfs:label "Pareto Frontier" ;
+    rdfs:comment "Set of non-dominated solutions in multi-objective optimization" .
+
+po:ValueEffortAnalysis a owl:Class ;
+    rdfs:subClassOf po:OptimizationPattern ;
+    rdfs:label "Value/Effort Analysis" ;
+    rdfs:comment "Systematic analysis of value delivered per unit effort" .
+
+# ==============================================================================
+# PERFORMANCE METRICS CLASSES
+# ==============================================================================
+
+po:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Measurable indicator of optimization effectiveness" .
+
+po:Coverage a owl:Class ;
+    rdfs:subClassOf po:PerformanceMetric ;
+    rdfs:label "Coverage" ;
+    rdfs:comment "Percentage of total value captured by core elements" .
+
+po:Efficiency a owl:Class ;
+    rdfs:subClassOf po:PerformanceMetric ;
+    rdfs:label "Efficiency" ;
+    rdfs:comment "Ratio of value delivered to effort invested" .
+
+po:ROI a owl:Class ;
+    rdfs:subClassOf po:PerformanceMetric ;
+    rdfs:label "Return on Investment" ;
+    rdfs:comment "Financial or strategic return per unit investment" .
+
+po:OptimizationGain a owl:Class ;
+    rdfs:subClassOf po:PerformanceMetric ;
+    rdfs:label "Optimization Gain" ;
+    rdfs:comment "Improvement achieved through Pareto optimization" .
+
+# ==============================================================================
+# DECISION CRITERIA CLASSES
+# ==============================================================================
+
+po:DecisionCriterion a owl:Class ;
+    rdfs:label "Decision Criterion" ;
+    rdfs:comment "Factor used in Pareto optimization decisions" .
+
+po:Impact a owl:Class ;
+    rdfs:subClassOf po:DecisionCriterion ;
+    rdfs:label "Impact" ;
+    rdfs:comment "Magnitude of effect on system performance or value" .
+
+po:Effort a owl:Class ;
+    rdfs:subClassOf po:DecisionCriterion ;
+    rdfs:label "Effort" ;
+    rdfs:comment "Resources required for implementation or maintenance" .
+
+po:Risk a owl:Class ;
+    rdfs:subClassOf po:DecisionCriterion ;
+    rdfs:label "Risk" ;
+    rdfs:comment "Probability and consequence of failure or negative outcomes" .
+
+po:Urgency a owl:Class ;
+    rdfs:subClassOf po:DecisionCriterion ;
+    rdfs:label "Urgency" ;
+    rdfs:comment "Time sensitivity and priority level" .
+
+po:Dependency a owl:Class ;
+    rdfs:subClassOf po:DecisionCriterion ;
+    rdfs:label "Dependency" ;
+    rdfs:comment "Relationships and prerequisites with other elements" .
+
+# ==============================================================================
+# RESOURCE CONSTRAINT CLASSES
+# ==============================================================================
+
+po:ResourceConstraint a owl:Class ;
+    rdfs:label "Resource Constraint" ;
+    rdfs:comment "Limitation that affects optimization decisions" .
+
+po:TimeConstraint a owl:Class ;
+    rdfs:subClassOf po:ResourceConstraint ;
+    rdfs:label "Time Constraint" ;
+    rdfs:comment "Temporal limitations on implementation or execution" .
+
+po:CostConstraint a owl:Class ;
+    rdfs:subClassOf po:ResourceConstraint ;
+    rdfs:label "Cost Constraint" ;
+    rdfs:comment "Financial limitations and budget restrictions" .
+
+po:ComplexityConstraint a owl:Class ;
+    rdfs:subClassOf po:ResourceConstraint ;
+    rdfs:label "Complexity Constraint" ;
+    rdfs:comment "Technical or implementation complexity limitations" .
+
+po:CapacityConstraint a owl:Class ;
+    rdfs:subClassOf po:ResourceConstraint ;
+    rdfs:label "Capacity Constraint" ;
+    rdfs:comment "Human resource or infrastructure capacity limitations" .
+
+# ==============================================================================
+# ALGORITHM CLASSES
+# ==============================================================================
+
+po:OptimizationAlgorithm a owl:Class ;
+    rdfs:label "Optimization Algorithm" ;
+    rdfs:comment "Algorithm for computing Pareto optimization solutions" .
+
+po:ParetoFrontierCalculation a owl:Class ;
+    rdfs:subClassOf po:OptimizationAlgorithm ;
+    rdfs:label "Pareto Frontier Calculation" ;
+    rdfs:comment "Algorithm for computing non-dominated solution sets" .
+
+po:PriorityScheduling a owl:Class ;
+    rdfs:subClassOf po:OptimizationAlgorithm ;
+    rdfs:label "Priority Scheduling" ;
+    rdfs:comment "Algorithm for optimal task scheduling based on value/effort" .
+
+po:ResourceOptimization a owl:Class ;
+    rdfs:subClassOf po:OptimizationAlgorithm ;
+    rdfs:label "Resource Optimization" ;
+    rdfs:comment "Algorithm for optimal resource allocation using Pareto principle" .
+
+# ==============================================================================
+# CORE PROPERTIES - Element Characteristics
+# ==============================================================================
+
+po:hasValueContribution a owl:ObjectProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range po:ValueContribution ;
+    rdfs:label "has value contribution" .
+
+po:hasEffortInvestment a owl:ObjectProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range po:EffortInvestment ;
+    rdfs:label "has effort investment" .
+
+po:hasValueEffortRatio a owl:DatatypeProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has value/effort ratio" ;
+    rdfs:comment "Primary metric for Pareto optimization (0.0-1.0)" .
+
+po:isCoreElement a owl:DatatypeProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is core element" ;
+    rdfs:comment "True if element is in the critical 20%" .
+
+po:paretoRank a owl:DatatypeProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "pareto rank" ;
+    rdfs:comment "Ranking based on value/effort optimization" .
+
+# ==============================================================================
+# VALUE AND EFFORT PROPERTIES
+# ==============================================================================
+
+po:valueScore a owl:DatatypeProperty ;
+    rdfs:domain po:ValueContribution ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "value score" ;
+    rdfs:comment "Quantified value score (0.0-1.0)" .
+
+po:effortScore a owl:DatatypeProperty ;
+    rdfs:domain po:EffortInvestment ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "effort score" ;
+    rdfs:comment "Quantified effort score (0.0-1.0)" .
+
+po:expectedValue a owl:DatatypeProperty ;
+    rdfs:domain po:ValueContribution ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "expected value" ;
+    rdfs:comment "Expected value delivery" .
+
+po:actualValue a owl:DatatypeProperty ;
+    rdfs:domain po:ValueContribution ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "actual value" ;
+    rdfs:comment "Measured actual value delivered" .
+
+po:estimatedEffort a owl:DatatypeProperty ;
+    rdfs:domain po:EffortInvestment ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "estimated effort" ;
+    rdfs:comment "Estimated effort required" .
+
+po:actualEffort a owl:DatatypeProperty ;
+    rdfs:domain po:EffortInvestment ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "actual effort" ;
+    rdfs:comment "Measured actual effort invested" .
+
+# ==============================================================================
+# DECISION CRITERIA PROPERTIES
+# ==============================================================================
+
+po:hasImpact a owl:ObjectProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range po:Impact ;
+    rdfs:label "has impact" .
+
+po:hasEffort a owl:ObjectProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range po:Effort ;
+    rdfs:label "has effort" .
+
+po:hasRisk a owl:ObjectProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range po:Risk ;
+    rdfs:label "has risk" .
+
+po:impactLevel a owl:DatatypeProperty ;
+    rdfs:domain po:Impact ;
+    rdfs:range xsd:string ;
+    rdfs:label "impact level" ;
+    rdfs:comment "High, Medium, Low" .
+
+po:impactScore a owl:DatatypeProperty ;
+    rdfs:domain po:Impact ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "impact score" ;
+    rdfs:comment "Quantified impact (0.0-1.0)" .
+
+po:effortLevel a owl:DatatypeProperty ;
+    rdfs:domain po:Effort ;
+    rdfs:range xsd:string ;
+    rdfs:label "effort level" ;
+    rdfs:comment "High, Medium, Low" .
+
+po:riskLevel a owl:DatatypeProperty ;
+    rdfs:domain po:Risk ;
+    rdfs:range xsd:string ;
+    rdfs:label "risk level" ;
+    rdfs:comment "High, Medium, Low" .
+
+po:riskProbability a owl:DatatypeProperty ;
+    rdfs:domain po:Risk ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "risk probability" ;
+    rdfs:comment "Probability of risk occurrence (0.0-1.0)" .
+
+# ==============================================================================
+# CONSTRAINT PROPERTIES
+# ==============================================================================
+
+po:hasTimeConstraint a owl:ObjectProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range po:TimeConstraint ;
+    rdfs:label "has time constraint" .
+
+po:hasCostConstraint a owl:ObjectProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range po:CostConstraint ;
+    rdfs:label "has cost constraint" .
+
+po:hasComplexityConstraint a owl:ObjectProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range po:ComplexityConstraint ;
+    rdfs:label "has complexity constraint" .
+
+po:maxTimeAllowed a owl:DatatypeProperty ;
+    rdfs:domain po:TimeConstraint ;
+    rdfs:range xsd:duration ;
+    rdfs:label "max time allowed" .
+
+po:maxCostAllowed a owl:DatatypeProperty ;
+    rdfs:domain po:CostConstraint ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "max cost allowed" .
+
+po:complexityScore a owl:DatatypeProperty ;
+    rdfs:domain po:ComplexityConstraint ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "complexity score" ;
+    rdfs:comment "Complexity rating (0.0-1.0)" .
+
+# ==============================================================================
+# OPTIMIZATION ALGORITHM PROPERTIES
+# ==============================================================================
+
+po:appliesAlgorithm a owl:ObjectProperty ;
+    rdfs:domain po:OptimizationPattern ;
+    rdfs:range po:OptimizationAlgorithm ;
+    rdfs:label "applies algorithm" .
+
+po:algorithmComplexity a owl:DatatypeProperty ;
+    rdfs:domain po:OptimizationAlgorithm ;
+    rdfs:range xsd:string ;
+    rdfs:label "algorithm complexity" ;
+    rdfs:comment "Big O notation for algorithm complexity" .
+
+po:convergenceTime a owl:DatatypeProperty ;
+    rdfs:domain po:OptimizationAlgorithm ;
+    rdfs:range xsd:duration ;
+    rdfs:label "convergence time" ;
+    rdfs:comment "Expected time to reach optimal solution" .
+
+# ==============================================================================
+# PERFORMANCE METRICS PROPERTIES
+# ==============================================================================
+
+po:hasPerformanceMetric a owl:ObjectProperty ;
+    rdfs:domain po:OptimizationPattern ;
+    rdfs:range po:PerformanceMetric ;
+    rdfs:label "has performance metric" .
+
+po:coveragePercentage a owl:DatatypeProperty ;
+    rdfs:domain po:Coverage ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "coverage percentage" ;
+    rdfs:comment "Percentage of total value covered (0.0-100.0)" .
+
+po:efficiencyRatio a owl:DatatypeProperty ;
+    rdfs:domain po:Efficiency ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "efficiency ratio" ;
+    rdfs:comment "Value/effort efficiency ratio" .
+
+po:roiPercentage a owl:DatatypeProperty ;
+    rdfs:domain po:ROI ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "ROI percentage" ;
+    rdfs:comment "Return on investment percentage" .
+
+po:optimizationGainPercentage a owl:DatatypeProperty ;
+    rdfs:domain po:OptimizationGain ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "optimization gain percentage" ;
+    rdfs:comment "Improvement percentage from optimization" .
+
+# ==============================================================================
+# RELATIONSHIPS AND DEPENDENCIES
+# ==============================================================================
+
+po:dominates a owl:ObjectProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range po:ParetoElement ;
+    rdfs:label "dominates" ;
+    rdfs:comment "Element A dominates element B if A is better in all criteria" .
+
+po:dependsOn a owl:ObjectProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range po:ParetoElement ;
+    rdfs:label "depends on" ;
+    rdfs:comment "Implementation dependency relationship" .
+
+po:enabledBy a owl:ObjectProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range po:ParetoElement ;
+    rdfs:label "enabled by" ;
+    rdfs:comment "Element is enabled by successful implementation of another" .
+
+po:conflictsWith a owl:ObjectProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range po:ParetoElement ;
+    rdfs:label "conflicts with" ;
+    rdfs:comment "Mutually exclusive elements" .
+
+po:synergizesWith a owl:ObjectProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range po:ParetoElement ;
+    rdfs:label "synergizes with" ;
+    rdfs:comment "Elements that provide additional value when combined" .
+
+# ==============================================================================
+# TEMPORAL PROPERTIES
+# ==============================================================================
+
+po:implementationTime a owl:DatatypeProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range xsd:duration ;
+    rdfs:label "implementation time" ;
+    rdfs:comment "Time required to implement element" .
+
+po:timeToValue a owl:DatatypeProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range xsd:duration ;
+    rdfs:label "time to value" ;
+    rdfs:comment "Time from implementation to value realization" .
+
+po:deprecationTime a owl:DatatypeProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range xsd:duration ;
+    rdfs:label "deprecation time" ;
+    rdfs:comment "Expected time until element becomes obsolete" .
+
+# ==============================================================================
+# LIFECYCLE PROPERTIES
+# ==============================================================================
+
+po:lifecycleStage a owl:DatatypeProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range xsd:string ;
+    rdfs:label "lifecycle stage" ;
+    rdfs:comment "Current stage: Concept, Development, Implementation, Maintenance, Deprecated" .
+
+po:maturityLevel a owl:DatatypeProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range xsd:string ;
+    rdfs:label "maturity level" ;
+    rdfs:comment "Maturity: Experimental, Alpha, Beta, Stable, Legacy" .
+
+po:adoptionRate a owl:DatatypeProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "adoption rate" ;
+    rdfs:comment "Rate of adoption across target population (0.0-1.0)" .
+
+# ==============================================================================
+# CONTEXT AND DOMAIN PROPERTIES
+# ==============================================================================
+
+po:appliesInDomain a owl:DatatypeProperty ;
+    rdfs:domain po:OptimizationPattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "applies in domain" ;
+    rdfs:comment "Domain where optimization pattern is applicable" .
+
+po:contextualWeight a owl:DatatypeProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "contextual weight" ;
+    rdfs:comment "Context-specific importance weight (0.0-1.0)" .
+
+po:stakeholderPriority a owl:DatatypeProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "stakeholder priority" ;
+    rdfs:comment "Priority from stakeholder perspective (0.0-1.0)" .
+
+# ==============================================================================
+# VALIDATION AND QUALITY PROPERTIES
+# ==============================================================================
+
+po:validationStatus a owl:DatatypeProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range xsd:string ;
+    rdfs:label "validation status" ;
+    rdfs:comment "Validation status: Validated, Pending, Failed" .
+
+po:qualityScore a owl:DatatypeProperty ;
+    rdfs:domain po:ParetoElement ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "quality score" ;
+    rdfs:comment "Quality assessment score (0.0-1.0)" .
+
+po:confidenceLevel a owl:DatatypeProperty ;
+    rdfs:domain po:ValueContribution ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "confidence level" ;
+    rdfs:comment "Confidence in value estimation (0.0-1.0)" .
+
+# ==============================================================================
+# INDIVIDUALS - PREDEFINED OPTIMIZATION PATTERNS
+# ==============================================================================
+
+po:Classic80_20Pattern a po:ResourceAllocation ;
+    rdfs:label "Classic 80/20 Pattern" ;
+    rdfs:comment "Standard Pareto principle: 20% effort for 80% value" ;
+    po:appliesInDomain "General" .
+
+po:HighImpactLowEffortPattern a po:PriorityRanking ;
+    rdfs:label "High Impact Low Effort Pattern" ;
+    rdfs:comment "Prioritize high-impact, low-effort opportunities" ;
+    po:appliesInDomain "Software Development" .
+
+po:CoreExtendedPattern a po:ResourceAllocation ;
+    rdfs:label "Core-Extended Pattern" ;
+    rdfs:comment "Focus resources on core functionality, extend incrementally" ;
+    po:appliesInDomain "Product Development" .
+
+po:QuickWinsPattern a po:PriorityRanking ;
+    rdfs:label "Quick Wins Pattern" ;
+    rdfs:comment "Identify and execute quick wins for immediate value" ;
+    po:appliesInDomain "Process Improvement" .
+
+# ==============================================================================
+# INDIVIDUALS - STANDARD METRICS
+# ==============================================================================
+
+po:Standard80PercentCoverage a po:Coverage ;
+    po:coveragePercentage 80.0 ;
+    rdfs:label "Standard 80% Coverage" ;
+    rdfs:comment "Target 80% value coverage with 20% effort" .
+
+po:HighEfficiencyThreshold a po:Efficiency ;
+    po:efficiencyRatio 4.0 ;
+    rdfs:label "High Efficiency Threshold" ;
+    rdfs:comment "4:1 value-to-effort ratio threshold" .
+
+po:PositiveROIThreshold a po:ROI ;
+    po:roiPercentage 0.0 ;
+    rdfs:label "Positive ROI Threshold" ;
+    rdfs:comment "Minimum positive return threshold" .
+
+# ==============================================================================
+# INDIVIDUALS - IMPACT LEVELS
+# ==============================================================================
+
+po:HighImpact a po:Impact ;
+    po:impactLevel "High" ;
+    po:impactScore 0.8 ;
+    rdfs:label "High Impact" .
+
+po:MediumImpact a po:Impact ;
+    po:impactLevel "Medium" ;
+    po:impactScore 0.5 ;
+    rdfs:label "Medium Impact" .
+
+po:LowImpact a po:Impact ;
+    po:impactLevel "Low" ;
+    po:impactScore 0.2 ;
+    rdfs:label "Low Impact" .
+
+# ==============================================================================
+# INDIVIDUALS - EFFORT LEVELS
+# ==============================================================================
+
+po:HighEffort a po:Effort ;
+    po:effortLevel "High" ;
+    rdfs:label "High Effort" .
+
+po:MediumEffort a po:Effort ;
+    po:effortLevel "Medium" ;
+    rdfs:label "Medium Effort" .
+
+po:LowEffort a po:Effort ;
+    po:effortLevel "Low" ;
+    rdfs:label "Low Effort" .
+
+# ==============================================================================
+# INDIVIDUALS - RISK LEVELS
+# ==============================================================================
+
+po:HighRisk a po:Risk ;
+    po:riskLevel "High" ;
+    po:riskProbability 0.7 ;
+    rdfs:label "High Risk" .
+
+po:MediumRisk a po:Risk ;
+    po:riskLevel "Medium" ;
+    po:riskProbability 0.4 ;
+    rdfs:label "Medium Risk" .
+
+po:LowRisk a po:Risk ;
+    po:riskLevel "Low" ;
+    po:riskProbability 0.1 ;
+    rdfs:label "Low Risk" .
+
+# ==============================================================================
+# OWL RESTRICTIONS AND RULES
+# ==============================================================================
+
+# Rule: Core elements must have high value/effort ratio
+[] a owl:Restriction ;
+    owl:onProperty po:hasValueEffortRatio ;
+    owl:allValuesFrom [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions ( [ xsd:minInclusive 0.8 ] )
+    ] ;
+    rdfs:subClassOf po:CoreElement .
+
+# Rule: Every Pareto element must have value contribution and effort investment
+[] a owl:Restriction ;
+    owl:onProperty po:hasValueContribution ;
+    owl:someValuesFrom po:ValueContribution ;
+    rdfs:subClassOf po:ParetoElement .
+
+[] a owl:Restriction ;
+    owl:onProperty po:hasEffortInvestment ;
+    owl:someValuesFrom po:EffortInvestment ;
+    rdfs:subClassOf po:ParetoElement .
+
+# Rule: Optimization patterns must have performance metrics
+[] a owl:Restriction ;
+    owl:onProperty po:hasPerformanceMetric ;
+    owl:someValuesFrom po:PerformanceMetric ;
+    rdfs:subClassOf po:OptimizationPattern .
+
+# Rule: Value contribution must have confidence level
+[] a owl:Restriction ;
+    owl:onProperty po:confidenceLevel ;
+    owl:someValuesFrom xsd:decimal ;
+    rdfs:subClassOf po:ValueContribution .
+
+# Cardinality Constraints
+[] a owl:Restriction ;
+    owl:onProperty po:hasValueEffortRatio ;
+    owl:cardinality 1 ;
+    rdfs:subClassOf po:ParetoElement .
+
+[] a owl:Restriction ;
+    owl:onProperty po:paretoRank ;
+    owl:cardinality 1 ;
+    rdfs:subClassOf po:ParetoElement .
+
+# ==============================================================================
+# DISJOINT CLASSES
+# ==============================================================================
+
+# Core and Extended elements are disjoint
+po:CoreElement owl:disjointWith po:ExtendedElement .
+
+# Different impact levels are disjoint
+po:HighImpact owl:disjointWith po:MediumImpact , po:LowImpact .
+po:MediumImpact owl:disjointWith po:LowImpact .
+
+# Different effort levels are disjoint  
+po:HighEffort owl:disjointWith po:MediumEffort , po:LowEffort .
+po:MediumEffort owl:disjointWith po:LowEffort .
+
+# Different risk levels are disjoint
+po:HighRisk owl:disjointWith po:MediumRisk , po:LowRisk .
+po:MediumRisk owl:disjointWith po:LowRisk .

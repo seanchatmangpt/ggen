@@ -1,0 +1,206 @@
+# =============================================================================
+# erlmcp Message Queue Ontology
+# =============================================================================
+# Defines async message processing queue
+#
+# Features:
+#   - FIFO queue with priority support
+#   - Persistent and in-memory storage
+#   - Dead letter queue
+#   - Worker pool management
+#   - Backpressure handling
+#   - Message acknowledgment
+# =============================================================================
+
+@prefix queue: <http://erlmcp.org/schema/queue/> .
+@prefix otp: <http://erlang.org/otp/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# -----------------------------------------------------------------------------
+# Core Classes
+# -----------------------------------------------------------------------------
+
+queue:MessageQueue a rdfs:Class ;
+    rdfs:label "Message Queue" ;
+    rdfs:comment "Async message processing queue" ;
+    rdfs:subClassOf otp:GenServer .
+
+queue:Message a rdfs:Class ;
+    rdfs:label "Message" ;
+    rdfs:comment "Queued message" .
+
+queue:QueueConfig a rdfs:Class ;
+    rdfs:label "Queue Config" ;
+    rdfs:comment "Queue configuration" .
+
+queue:WorkerPool a rdfs:Class ;
+    rdfs:label "Worker Pool" ;
+    rdfs:comment "Pool of message processing workers" .
+
+queue:DeadLetterQueue a rdfs:Class ;
+    rdfs:label "Dead Letter Queue" ;
+    rdfs:comment "Failed message storage" .
+
+# -----------------------------------------------------------------------------
+# Queue Types
+# -----------------------------------------------------------------------------
+
+queue:FIFOQueue a rdfs:Class ;
+    rdfs:label "FIFO Queue" ;
+    rdfs:comment "First-in-first-out queue" .
+
+queue:PriorityQueue a rdfs:Class ;
+    rdfs:label "Priority Queue" ;
+    rdfs:comment "Priority-based queue" .
+
+queue:DelayQueue a rdfs:Class ;
+    rdfs:label "Delay Queue" ;
+    rdfs:comment "Scheduled delivery queue" .
+
+# -----------------------------------------------------------------------------
+# Properties
+# -----------------------------------------------------------------------------
+
+queue:queueName a rdf:Property ;
+    rdfs:domain queue:MessageQueue ;
+    rdfs:range xsd:string ;
+    rdfs:label "queue name" .
+
+queue:hasConfig a rdf:Property ;
+    rdfs:domain queue:MessageQueue ;
+    rdfs:range queue:QueueConfig ;
+    rdfs:label "has config" .
+
+queue:maxSize a rdf:Property ;
+    rdfs:domain queue:QueueConfig ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max size" .
+
+queue:storageBackend a rdf:Property ;
+    rdfs:domain queue:QueueConfig ;
+    rdfs:range xsd:string ;
+    rdfs:label "storage backend (memory|ets|disk|redis)" .
+
+queue:messageId a rdf:Property ;
+    rdfs:domain queue:Message ;
+    rdfs:range xsd:string ;
+    rdfs:label "message ID" .
+
+queue:payload a rdf:Property ;
+    rdfs:domain queue:Message ;
+    rdfs:range xsd:string ;
+    rdfs:label "payload" .
+
+queue:priority a rdf:Property ;
+    rdfs:domain queue:Message ;
+    rdfs:range xsd:integer ;
+    rdfs:label "priority (0-9)" .
+
+queue:attempts a rdf:Property ;
+    rdfs:domain queue:Message ;
+    rdfs:range xsd:integer ;
+    rdfs:label "delivery attempts" .
+
+queue:maxAttempts a rdf:Property ;
+    rdfs:domain queue:Message ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max attempts" .
+
+queue:createdAt a rdf:Property ;
+    rdfs:domain queue:Message ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "created at" .
+
+queue:scheduledAt a rdf:Property ;
+    rdfs:domain queue:Message ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "scheduled at" .
+
+queue:expiresAt a rdf:Property ;
+    rdfs:domain queue:Message ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "expires at" .
+
+queue:workerCount a rdf:Property ;
+    rdfs:domain queue:WorkerPool ;
+    rdfs:range xsd:integer ;
+    rdfs:label "worker count" .
+
+queue:minWorkers a rdf:Property ;
+    rdfs:domain queue:WorkerPool ;
+    rdfs:range xsd:integer ;
+    rdfs:label "min workers" .
+
+queue:maxWorkers a rdf:Property ;
+    rdfs:domain queue:WorkerPool ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max workers" .
+
+queue:hasWorkerPool a rdf:Property ;
+    rdfs:domain queue:MessageQueue ;
+    rdfs:range queue:WorkerPool ;
+    rdfs:label "has worker pool" .
+
+queue:hasDeadLetterQueue a rdf:Property ;
+    rdfs:domain queue:MessageQueue ;
+    rdfs:range queue:DeadLetterQueue ;
+    rdfs:label "has dead letter queue" .
+
+queue:ackTimeoutMs a rdf:Property ;
+    rdfs:domain queue:QueueConfig ;
+    rdfs:range xsd:integer ;
+    rdfs:label "ack timeout ms" .
+
+queue:retryBackoffMs a rdf:Property ;
+    rdfs:domain queue:QueueConfig ;
+    rdfs:range xsd:integer ;
+    rdfs:label "retry backoff ms" .
+
+queue:deadLetterThreshold a rdf:Property ;
+    rdfs:domain queue:QueueConfig ;
+    rdfs:range xsd:integer ;
+    rdfs:label "dead letter threshold (attempts)" .
+
+# -----------------------------------------------------------------------------
+# Message States
+# -----------------------------------------------------------------------------
+
+queue:Pending a rdfs:Class ;
+    rdfs:label "Pending" ;
+    rdfs:comment "Message awaiting delivery" .
+
+queue:Delivered a rdfs:Class ;
+    rdfs:label "Delivered" ;
+    rdfs:comment "Message delivered to worker" .
+
+queue:Acknowledged a rdfs:Class ;
+    rdfs:label "Acknowledged" ;
+    rdfs:comment "Message acknowledged" .
+
+queue:Failed a rdfs:Class ;
+    rdfs:label "Failed" ;
+    rdfs:comment "Message processing failed" .
+
+queue:DeadLettered a rdfs:Class ;
+    rdfs:label "Dead Lettered" ;
+    rdfs:comment "Message moved to DLQ" .
+
+# -----------------------------------------------------------------------------
+# Default Configurations
+# -----------------------------------------------------------------------------
+
+queue:DefaultConfig a queue:QueueConfig ;
+    queue:maxSize 10000 ;
+    queue:storageBackend "ets" ;
+    queue:ackTimeoutMs 30000 ;
+    queue:retryBackoffMs 1000 ;
+    queue:deadLetterThreshold 5 .
+
+queue:InMemoryConfig a queue:QueueConfig ;
+    queue:maxSize 1000 ;
+    queue:storageBackend "memory" ;
+    queue:ackTimeoutMs 5000 ;
+    queue:retryBackoffMs 500 ;
+    queue:deadLetterThreshold 3 .

@@ -76,3 +76,6 @@ ggen template generate wvda-soundness-dod/template.tera \\
 quick_start = "WvdA soundness DoD: deadlock freedom, liveness guarantee, boundedness"
 features = "Timeout verification, loop bound checking, queue/cache limits, formal verification workflow"
 use_cases = "Workflow engines (YAWL, BPMN), process mining systems, coordination frameworks, agent systems"
+
+[marketplace]
+production_ready = false

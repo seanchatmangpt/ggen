@@ -1,0 +1,4 @@
+@prefix ex: <http://example.org/> .
+ex:Alice ex:knows ex:Bob .
+ex:Bob ex:knows ex:Charlie .
+ex:Alice ex:age "30" .

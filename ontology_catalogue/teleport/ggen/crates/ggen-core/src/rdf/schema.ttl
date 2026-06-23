@@ -1,0 +1,260 @@
+@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Ontology Metadata
+ggen: a owl:Ontology ;
+    rdfs:label "Ggen Template Ontology" ;
+    rdfs:comment "Ontology for describing code generation templates and their relationships" ;
+    dcterms:created "2025-11-01"^^xsd:date ;
+    owl:versionInfo "1.2.0" .
+
+# Core Classes
+
+ggen:Template a rdfs:Class ;
+    rdfs:label "Template" ;
+    rdfs:comment "A template for generating file trees and code artifacts" ;
+    rdfs:subClassOf ggen:Artifact .
+
+ggen:File a rdfs:Class ;
+    rdfs:label "File" ;
+    rdfs:comment "A generated file artifact" ;
+    rdfs:subClassOf ggen:Artifact .
+
+ggen:Variable a rdfs:Class ;
+    rdfs:label "Variable" ;
+    rdfs:comment "A template variable used for substitution" .
+
+ggen:Directory a rdfs:Class ;
+    rdfs:label "Directory" ;
+    rdfs:comment "A generated directory structure" ;
+    rdfs:subClassOf ggen:Artifact .
+
+ggen:Artifact a rdfs:Class ;
+    rdfs:label "Artifact" ;
+    rdfs:comment "Base class for all generated artifacts" .
+
+ggen:Dependency a rdfs:Class ;
+    rdfs:label "Dependency" ;
+    rdfs:comment "A dependency relationship between templates" .
+
+ggen:FileFormat a rdfs:Class ;
+    rdfs:label "File Format" ;
+    rdfs:comment "The format/language of a generated file" .
+
+# Core Properties - Template Generation
+
+ggen:generatesFile a rdf:Property ;
+    rdfs:label "generates file" ;
+    rdfs:comment "Links a template to the files it generates" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range ggen:File .
+
+ggen:generatesDirectory a rdf:Property ;
+    rdfs:label "generates directory" ;
+    rdfs:comment "Links a template to the directories it creates" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range ggen:Directory .
+
+ggen:hasVariable a rdf:Property ;
+    rdfs:label "has variable" ;
+    rdfs:comment "Associates a variable with a template" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range ggen:Variable .
+
+ggen:requiresVariable a rdf:Property ;
+    rdfs:label "requires variable" ;
+    rdfs:comment "Specifies a required variable for template rendering" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range ggen:Variable .
+
+# Template Metadata Properties
+
+ggen:templateName a rdf:Property ;
+    rdfs:label "template name" ;
+    rdfs:comment "The unique name identifier for a template" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range xsd:string .
+
+ggen:templateVersion a rdf:Property ;
+    rdfs:label "template version" ;
+    rdfs:comment "Semantic version of the template" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range xsd:string .
+
+ggen:templateDescription a rdf:Property ;
+    rdfs:label "description" ;
+    rdfs:comment "Human-readable description of template purpose" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range xsd:string .
+
+ggen:templateAuthor a rdf:Property ;
+    rdfs:label "author" ;
+    rdfs:comment "Author or maintainer of the template" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range xsd:string .
+
+ggen:createdAt a rdf:Property ;
+    rdfs:label "created at" ;
+    rdfs:comment "Timestamp when template was created" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range xsd:dateTime .
+
+ggen:updatedAt a rdf:Property ;
+    rdfs:label "updated at" ;
+    rdfs:comment "Timestamp when template was last modified" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range xsd:dateTime .
+
+# Variable Properties
+
+ggen:variableName a rdf:Property ;
+    rdfs:label "variable name" ;
+    rdfs:comment "The name identifier of a template variable" ;
+    rdfs:domain ggen:Variable ;
+    rdfs:range xsd:string .
+
+ggen:variableType a rdf:Property ;
+    rdfs:label "variable type" ;
+    rdfs:comment "The data type of a variable (string, number, boolean, array, object)" ;
+    rdfs:domain ggen:Variable ;
+    rdfs:range xsd:string .
+
+ggen:variableDefault a rdf:Property ;
+    rdfs:label "default value" ;
+    rdfs:comment "Default value for the variable if not provided" ;
+    rdfs:domain ggen:Variable ;
+    rdfs:range rdfs:Literal .
+
+ggen:variableDescription a rdf:Property ;
+    rdfs:label "variable description" ;
+    rdfs:comment "Description of the variable's purpose" ;
+    rdfs:domain ggen:Variable ;
+    rdfs:range xsd:string .
+
+ggen:isRequired a rdf:Property ;
+    rdfs:label "is required" ;
+    rdfs:comment "Whether the variable must be provided" ;
+    rdfs:domain ggen:Variable ;
+    rdfs:range xsd:boolean .
+
+# File Properties
+
+ggen:filePath a rdf:Property ;
+    rdfs:label "file path" ;
+    rdfs:comment "Relative path where the file will be generated" ;
+    rdfs:domain ggen:File ;
+    rdfs:range xsd:string .
+
+ggen:fileFormat a rdf:Property ;
+    rdfs:label "file format" ;
+    rdfs:comment "Format or language of the generated file" ;
+    rdfs:domain ggen:File ;
+    rdfs:range ggen:FileFormat .
+
+ggen:fileExtension a rdf:Property ;
+    rdfs:label "file extension" ;
+    rdfs:comment "File extension (e.g., .rs, .md, .json)" ;
+    rdfs:domain ggen:File ;
+    rdfs:range xsd:string .
+
+ggen:fileSize a rdf:Property ;
+    rdfs:label "file size" ;
+    rdfs:comment "Expected size of generated file in bytes" ;
+    rdfs:domain ggen:File ;
+    rdfs:range xsd:integer .
+
+# Relationship Properties
+
+ggen:dependsOn a rdf:Property ;
+    rdfs:label "depends on" ;
+    rdfs:comment "Template dependency relationship" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range ggen:Template .
+
+ggen:extends a rdf:Property ;
+    rdfs:label "extends" ;
+    rdfs:comment "Template inheritance relationship" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range ggen:Template ;
+    rdfs:subPropertyOf ggen:dependsOn .
+
+ggen:includes a rdf:Property ;
+    rdfs:label "includes" ;
+    rdfs:comment "Template inclusion relationship" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range ggen:Template ;
+    rdfs:subPropertyOf ggen:dependsOn .
+
+ggen:overrides a rdf:Property ;
+    rdfs:label "overrides" ;
+    rdfs:comment "Template override relationship" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range ggen:Template .
+
+# Template Categories
+
+ggen:category a rdf:Property ;
+    rdfs:label "category" ;
+    rdfs:comment "Template category for organization" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range xsd:string .
+
+ggen:tag a rdf:Property ;
+    rdfs:label "tag" ;
+    rdfs:comment "Tag for template discovery and search" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range xsd:string .
+
+# Quality Metadata
+
+ggen:testCoverage a rdf:Property ;
+    rdfs:label "test coverage" ;
+    rdfs:comment "Percentage of template code covered by tests" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range xsd:decimal .
+
+ggen:stability a rdf:Property ;
+    rdfs:label "stability" ;
+    rdfs:comment "Stability level: experimental, stable, deprecated" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range xsd:string .
+
+ggen:usageCount a rdf:Property ;
+    rdfs:label "usage count" ;
+    rdfs:comment "Number of times template has been used" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range xsd:integer .
+
+# Predefined File Formats
+
+ggen:RustFormat a ggen:FileFormat ;
+    rdfs:label "Rust" ;
+    ggen:fileExtension ".rs" .
+
+ggen:JavaScriptFormat a ggen:FileFormat ;
+    rdfs:label "JavaScript" ;
+    ggen:fileExtension ".js" .
+
+ggen:TypeScriptFormat a ggen:FileFormat ;
+    rdfs:label "TypeScript" ;
+    ggen:fileExtension ".ts" .
+
+ggen:MarkdownFormat a ggen:FileFormat ;
+    rdfs:label "Markdown" ;
+    ggen:fileExtension ".md" .
+
+ggen:YAMLFormat a ggen:FileFormat ;
+    rdfs:label "YAML" ;
+    ggen:fileExtension ".yaml" .
+
+ggen:TOMLFormat a ggen:FileFormat ;
+    rdfs:label "TOML" ;
+    ggen:fileExtension ".toml" .
+
+ggen:JSONFormat a ggen:FileFormat ;
+    rdfs:label "JSON" ;
+    ggen:fileExtension ".json" .

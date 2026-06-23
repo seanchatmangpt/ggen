@@ -1,0 +1,257 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix schema:  <https://schema.org/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+
+# ============================================================================
+# ZOE LA Mobile — Volunteer Ontology
+# ============================================================================
+# Models volunteer opportunities, assignments, and serve-team assignments
+# in the ZOE LA Mobile combinatorial service graph.
+#
+# Design alignment:
+#   zoe:VolunteerOpportunity  → schema:Offer (an offered volunteer role)
+#   zoe:VolunteerAssignment   → schema:AssignAction + prov:Activity (auditable)
+#   zoe:ServeTeamAssignment   → zoe:VolunteerAssignment (event-specific serve)
+#   zoe:AssignmentStatusScheme → skos:ConceptScheme (lifecycle states)
+# ============================================================================
+
+zoe:VolunteerOntology a owl:Ontology ;
+  rdfs:label   "ZOE LA Mobile — Volunteer Ontology"@en ;
+  rdfs:comment "Volunteer opportunity, assignment, and serve-team ontology for the ZOE LA Mobile manufacturing pipeline."@en ;
+  dcterms:creator  "Sean Chatman" ;
+  dcterms:created  "2026-05-17"^^xsd:date ;
+  dcterms:license  <https://opensource.org/licenses/MIT> ;
+  owl:versionInfo  "1.0.0" .
+
+# ── Class: VolunteerOpportunity ───────────────────────────────────────────────
+
+zoe:VolunteerOpportunity a owl:Class ;
+  rdfs:subClassOf schema:Offer ;
+  rdfs:label   "Volunteer Opportunity"@en ;
+  rdfs:comment "A defined role or position available for volunteers within a ministry or event at ZOE LA."@en ;
+  skos:notation "volunteer_opportunity" .
+
+zoe:opportunityCode a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerOpportunity ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Opportunity Code"@en ;
+  rdfs:comment "Short unique code identifying this volunteer opportunity (e.g. 'FOOD-SERVE-01')."@en ;
+  skos:notation "opportunity_code" .
+
+zoe:ministryCode a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerOpportunity ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Ministry Code"@en ;
+  rdfs:comment "Code of the ministry context in which this volunteer opportunity operates."@en ;
+  skos:notation "ministry_code" .
+
+zoe:minimumHoursPerMonth a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerOpportunity ;
+  rdfs:range   xsd:decimal ;
+  rdfs:label   "Minimum Hours Per Month"@en ;
+  rdfs:comment "Minimum number of service hours per calendar month expected for this opportunity."@en ;
+  skos:notation "minimum_hours_per_month" .
+
+zoe:requiresRole a owl:ObjectProperty ;
+  rdfs:domain  zoe:VolunteerOpportunity ;
+  rdfs:range   skos:Concept ;
+  rdfs:label   "Requires Role"@en ;
+  rdfs:comment "SKOS concept denoting the ministry role required before a volunteer may be assigned to this opportunity."@en ;
+  skos:notation "requires_role" .
+
+zoe:requiresConsent a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerOpportunity ;
+  rdfs:range   xsd:boolean ;
+  rdfs:label   "Requires Consent"@en ;
+  rdfs:comment "When true, the volunteer must have a current signed consent on record before being admitted to this opportunity."@en ;
+  skos:notation "requires_consent" .
+
+zoe:maxVolunteers a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerOpportunity ;
+  rdfs:range   xsd:integer ;
+  rdfs:label   "Max Volunteers"@en ;
+  rdfs:comment "Maximum number of volunteers that may be simultaneously assigned to this opportunity."@en ;
+  skos:notation "max_volunteers" .
+
+zoe:isActive a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerOpportunity ;
+  rdfs:range   xsd:boolean ;
+  rdfs:label   "Is Active"@en ;
+  rdfs:comment "When true, this opportunity is open for new volunteer assignments. When false, it is paused or retired."@en ;
+  skos:notation "is_active" .
+
+zoe:opportunityDescription a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerOpportunity ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Opportunity Description"@en ;
+  rdfs:comment "Human-readable narrative describing the duties, schedule, and expectations of this volunteer opportunity."@en ;
+  skos:notation "opportunity_description" .
+
+zoe:eventId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerOpportunity ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Event ID"@en ;
+  rdfs:comment "Optional identifier linking this opportunity to a specific scheduled event. Absent when the opportunity is recurring rather than event-scoped."@en ;
+  skos:notation "event_id" .
+
+# ── Class: VolunteerAssignment ────────────────────────────────────────────────
+
+zoe:VolunteerAssignment a owl:Class ;
+  rdfs:subClassOf schema:AssignAction ;
+  rdfs:subClassOf prov:Activity ;
+  rdfs:label   "Volunteer Assignment"@en ;
+  rdfs:comment "A record of a specific volunteer being assigned to a specific opportunity. Carries provenance metadata and lifecycle status."@en ;
+  skos:notation "volunteer_assignment" .
+
+zoe:assignmentId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerAssignment ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Assignment ID"@en ;
+  rdfs:comment "UUID primary key uniquely identifying this volunteer assignment record."@en ;
+  skos:notation "assignment_id" .
+
+zoe:volunteerId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerAssignment ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Volunteer ID"@en ;
+  rdfs:comment "Identifier of the person assigned to serve in this opportunity."@en ;
+  skos:notation "volunteer_id" .
+
+zoe:opportunityId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerAssignment ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Opportunity ID"@en ;
+  rdfs:comment "Identifier of the volunteer opportunity to which this person has been assigned."@en ;
+  skos:notation "opportunity_id" .
+
+zoe:assignedAt a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerAssignment ;
+  rdfs:range   xsd:dateTime ;
+  rdfs:label   "Assigned At"@en ;
+  rdfs:comment "ISO-8601 timestamp when the assignment record was created."@en ;
+  skos:notation "assigned_at" .
+
+zoe:confirmedAt a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerAssignment ;
+  rdfs:range   xsd:dateTime ;
+  rdfs:label   "Confirmed At"@en ;
+  rdfs:comment "ISO-8601 timestamp when the volunteer confirmed their acceptance of this assignment."@en ;
+  skos:notation "confirmed_at" .
+
+zoe:completedAt a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerAssignment ;
+  rdfs:range   xsd:dateTime ;
+  rdfs:label   "Completed At"@en ;
+  rdfs:comment "ISO-8601 timestamp when the assignment was marked complete by the ministry lead or system."@en ;
+  skos:notation "completed_at" .
+
+zoe:hoursLogged a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerAssignment ;
+  rdfs:range   xsd:decimal ;
+  rdfs:label   "Hours Logged"@en ;
+  rdfs:comment "Total number of service hours logged for this assignment upon completion."@en ;
+  skos:notation "hours_logged" .
+
+zoe:assignmentStatus a owl:ObjectProperty ;
+  rdfs:domain  zoe:VolunteerAssignment ;
+  rdfs:range   zoe:AssignmentStatusTerm ;
+  rdfs:label   "Assignment Status"@en ;
+  rdfs:comment "Current lifecycle state of this assignment from the AssignmentStatus controlled vocabulary."@en ;
+  skos:notation "assignment_status" .
+
+zoe:routeInstanceId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerAssignment ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Route Instance ID"@en ;
+  rdfs:comment "Identifier of the service route instance that generated or owns this assignment."@en ;
+  skos:notation "route_instance_id" .
+
+zoe:receiptId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:VolunteerAssignment ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Receipt ID"@en ;
+  rdfs:comment "Identifier of the proof receipt emitted when this assignment reached a terminal state."@en ;
+  skos:notation "receipt_id" .
+
+# ── Class: ServeTeamAssignment ────────────────────────────────────────────────
+
+zoe:ServeTeamAssignment a owl:Class ;
+  rdfs:subClassOf zoe:VolunteerAssignment ;
+  rdfs:label   "Serve Team Assignment"@en ;
+  rdfs:comment "A VolunteerAssignment scoped to a specific serve-team position at a dated event. Extends the base assignment with team and event-date metadata."@en ;
+  skos:notation "serve_team_assignment" .
+
+zoe:serveTeamCode a owl:DatatypeProperty ;
+  rdfs:domain  zoe:ServeTeamAssignment ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Serve Team Code"@en ;
+  rdfs:comment "Code identifying the serve team to which this assignment belongs (e.g. 'WORSHIP-USHER', 'KIDS-LEADER')."@en ;
+  skos:notation "serve_team_code" .
+
+zoe:eventDate a owl:DatatypeProperty ;
+  rdfs:domain  zoe:ServeTeamAssignment ;
+  rdfs:range   xsd:date ;
+  rdfs:label   "Event Date"@en ;
+  rdfs:comment "Calendar date of the event for which this serve-team assignment is scheduled."@en ;
+  skos:notation "event_date" .
+
+# ── SKOS ConceptScheme: AssignmentStatus ──────────────────────────────────────
+
+zoe:AssignmentStatusScheme a skos:ConceptScheme ;
+  rdfs:label   "Assignment Status Scheme"@en ;
+  rdfs:comment "Controlled vocabulary of lifecycle states for volunteer assignments."@en ;
+  dcterms:title "ZOE LA Assignment Status Vocabulary" .
+
+zoe:AssignmentStatusTerm a owl:Class ;
+  rdfs:subClassOf skos:Concept ;
+  rdfs:label   "Assignment Status Term"@en ;
+  rdfs:comment "An individual lifecycle state within the AssignmentStatus controlled vocabulary."@en .
+
+zoe:PendingStatus a zoe:AssignmentStatusTerm ;
+  skos:inScheme  zoe:AssignmentStatusScheme ;
+  skos:prefLabel "Pending"@en ;
+  rdfs:label     "Pending"@en ;
+  rdfs:comment   "Assignment has been created but the volunteer has not yet confirmed."@en ;
+  skos:notation  "PENDING" .
+
+zoe:ConfirmedStatus a zoe:AssignmentStatusTerm ;
+  skos:inScheme  zoe:AssignmentStatusScheme ;
+  skos:prefLabel "Confirmed"@en ;
+  rdfs:label     "Confirmed"@en ;
+  rdfs:comment   "Volunteer has confirmed acceptance of the assignment."@en ;
+  skos:notation  "CONFIRMED" .
+
+zoe:ActiveStatus a zoe:AssignmentStatusTerm ;
+  skos:inScheme  zoe:AssignmentStatusScheme ;
+  skos:prefLabel "Active"@en ;
+  rdfs:label     "Active"@en ;
+  rdfs:comment   "Assignment is currently in progress; the volunteer is actively serving."@en ;
+  skos:notation  "ACTIVE" .
+
+zoe:CompletedStatus a zoe:AssignmentStatusTerm ;
+  skos:inScheme  zoe:AssignmentStatusScheme ;
+  skos:prefLabel "Completed"@en ;
+  rdfs:label     "Completed"@en ;
+  rdfs:comment   "Assignment has been fully completed and hours have been logged."@en ;
+  skos:notation  "COMPLETED" .
+
+zoe:CancelledStatus a zoe:AssignmentStatusTerm ;
+  skos:inScheme  zoe:AssignmentStatusScheme ;
+  skos:prefLabel "Cancelled"@en ;
+  rdfs:label     "Cancelled"@en ;
+  rdfs:comment   "Assignment was cancelled before the volunteer served."@en ;
+  skos:notation  "CANCELLED" .
+
+zoe:NoShowStatus a zoe:AssignmentStatusTerm ;
+  skos:inScheme  zoe:AssignmentStatusScheme ;
+  skos:prefLabel "No Show"@en ;
+  rdfs:label     "No Show"@en ;
+  rdfs:comment   "Volunteer did not appear for a confirmed assignment without prior cancellation."@en ;
+  skos:notation  "NO_SHOW" .

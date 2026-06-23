@@ -1,0 +1,89 @@
+# SPARQL Query: BPMN 2.0 Compatibility Join
+# Purpose: Extract BPMN 2.0 process forms from wasm4pm-compat and join with external
+# BPMN standard definitions. Maps compat:BpmnProcess, compat:BpmnTask, compat:BpmnGateway,
+# compat:BpmnEvent, compat:BpmnPool, compat:BpmnLane, compat:BpmnSubProcess,
+# compat:BpmnMessageFlow to their external BPMN counterparts.
+#
+# Usage: ggen query extract-bpmn-compat-join.rq --format json
+
+PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat:     <https://wasm4pm-compat.rs/ontology#>
+PREFIX paper:      <https://wasm4pm-compat.rs/paper#>
+PREFIX bpmn:       <https://open-ontologies.org/bpmn#>
+PREFIX dcterms:    <http://purl.org/dc/terms/>
+PREFIX owl:        <http://www.w3.org/2002/07/owl#>
+
+SELECT DISTINCT
+  ?compatForm
+  ?compatRustType
+  ?compatSourceFile
+  ?bpmnElement
+  ?bpmnElementType
+  ?bpmnElementLabel
+  ?gatewayType
+  (GROUP_CONCAT(DISTINCT ?bpmnConstraintName; separator='; ') AS ?bpmnConstraints)
+  (COUNT(DISTINCT ?bpmnProperty) AS ?propertyCount)
+WHERE {
+  # ========== COMPAT SIDE: BPMN Forms ==========
+  ?compatForm
+    a compat:ProcessForm ;
+    compat:rustType ?compatRustType ;
+    compat:sourceFile ?compatSourceFile ;
+    compat:admittedAgainst ?bpmnWitness .
+
+  ?bpmnWitness compat:witnessKey 'bpmn-2.0' .
+
+  # ========== GATEWAY TYPE SPECIALIZATION ==========
+  # Extract gateway type (XOR, AND, OR) if applicable
+  OPTIONAL {
+    ?compatForm compat:gatewayType ?gatewayType .
+  }
+
+  # ========== EXTERNAL SIDE: BPMN Standard Elements ==========
+  # Bind external element types based on compat type
+  BIND (
+    IF(?compatRustType = 'BpmnProcess', bpmn:Process,
+    IF(?compatRustType = 'BpmnTask', bpmn:Task,
+    IF(?compatRustType = 'BpmnGateway', bpmn:Gateway,
+    IF(?compatRustType = 'BpmnEvent', bpmn:Event,
+    IF(?compatRustType = 'BpmnPool', bpmn:Pool,
+    IF(?compatRustType = 'BpmnLane', bpmn:Lane,
+    IF(?compatRustType = 'BpmnSubProcess', bpmn:SubProcess,
+    IF(?compatRustType = 'BpmnMessageFlow', bpmn:MessageFlow,
+    bpmn:Element))))))))
+    AS ?bpmnElementType
+  )
+
+  # Match external BPMN element definitions
+  OPTIONAL {
+    ?bpmnElement
+      a ?bpmnElementType ;
+      rdfs:label ?bpmnElementLabel ;
+      rdfs:comment ?bpmnElementComment .
+
+    # Collect BPMN properties (e.g., isExecutable, isTriggeredByEvent)
+    OPTIONAL {
+      ?bpmnElement ?bpmnProperty ?bpmnPropertyValue .
+      FILTER (?bpmnProperty != rdfs:label && ?bpmnProperty != rdfs:comment)
+    }
+  }
+
+  # Collect BPMN-specific constraints
+  OPTIONAL {
+    ?bpmnConstraintDef
+      rdfs:domain ?bpmnElementType ;
+      rdf:type owl:Restriction ;
+      rdfs:label ?bpmnConstraintName .
+  }
+}
+GROUP BY
+  ?compatForm
+  ?compatRustType
+  ?compatSourceFile
+  ?bpmnElement
+  ?bpmnElementType
+  ?bpmnElementLabel
+  ?gatewayType
+ORDER BY ?compatRustType ?bpmnElementType

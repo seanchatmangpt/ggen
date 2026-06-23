@@ -1,0 +1,512 @@
+@prefix jurisdiction: <http://cns-litigation.org/jurisdiction#> .
+@prefix bar: <http://cns-litigation.org/bar#> .
+@prefix court: <http://cns-litigation.org/court#> .
+@prefix filing: <http://cns-litigation.org/filing#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix legal: <http://cns-litigation.org/legal#> .
+@prefix procedure: <http://cns-litigation.org/procedure#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+# California Comprehensive Jurisdiction Mapping
+# Jurisdiction Analyst Agent - CNS Litigation Swarm System
+# Generated: 2025-07-30T07:25:00Z
+
+jurisdiction:CaliforniaJurisdictionOntology a owl:Ontology ;
+    rdfs:label "California Comprehensive Jurisdiction Mapping" ;
+    rdfs:comment "Complete mapping of California legal jurisdictions, filing procedures, and coordination requirements" ;
+    owl:versionInfo "3.0" ;
+    dct:created "2025-07-30T07:25:00Z"^^xsd:dateTime ;
+    dct:creator "JurisdictionAnalyst-CNS-Swarm" ;
+    jurisdiction:operationCode "CNS-JURISDICTION-ALPHA" .
+
+# === PRIMARY CALIFORNIA JURISDICTIONS ===
+
+jurisdiction:CaliforniaState a jurisdiction:StateJurisdiction ;
+    rdfs:label "State of California" ;
+    jurisdiction:stateCode "CA" ;
+    jurisdiction:capital "Sacramento" ;
+    jurisdiction:population "39538223"^^xsd:integer ;
+    geo:lat "36.7783"^^xsd:float ;
+    geo:long "-119.4179"^^xsd:float ;
+    jurisdiction:hasBarAuthority jurisdiction:StateBarCalifornia ;
+    jurisdiction:hasCourtSystem jurisdiction:CaliforniaSupremeCourt ;
+    jurisdiction:hasCourtSystem jurisdiction:CaliforniaCourtOfAppeal ;
+    jurisdiction:hasCourtSystem jurisdiction:CaliforniaSuperiorCourt .
+
+# === CALIFORNIA STATE BAR AUTHORITY ===
+
+jurisdiction:StateBarCalifornia a jurisdiction:BarJurisdiction ;
+    rdfs:label "State Bar of California" ;
+    jurisdiction:barId "CA-SB-001" ;
+    foaf:homepage <https://www.calbar.ca.gov> ;
+    jurisdiction:disciplinaryWebsite <https://www.calbar.ca.gov/About/Complaints-Discipline> ;
+    jurisdiction:onlineComplaintPortal <https://apps.calbar.ca.gov/complaint/> ;
+    
+    # Primary Contact Information
+    jurisdiction:headquarters [
+        jurisdiction:address "180 Howard Street, San Francisco, CA 94105" ;
+        foaf:phone "+1-415-538-2000" ;
+        foaf:mbox <mailto:complaints@calbar.ca.gov> ;
+        geo:lat "37.7749"^^xsd:float ;
+        geo:long "-122.4194"^^xsd:float ;
+        jurisdiction:businessHours "Monday-Friday 8:30 AM - 5:00 PM PST"
+    ] ;
+    
+    # Los Angeles Office
+    jurisdiction:regionalOffice [
+        jurisdiction:officeName "Los Angeles Office" ;
+        jurisdiction:address "845 S. Figueroa Street, Los Angeles, CA 90017" ;
+        foaf:phone "+1-213-765-1000" ;
+        geo:lat "34.0522"^^xsd:float ;
+        geo:long "-118.2437"^^xsd:float
+    ] ;
+    
+    # San Diego Office  
+    jurisdiction:regionalOffice [
+        jurisdiction:officeName "San Diego Office" ;
+        jurisdiction:address "4010 Morena Blvd., Suite 300, San Diego, CA 92117" ;
+        foaf:phone "+1-619-525-1300" ;
+        geo:lat "32.7157"^^xsd:float ;
+        geo:long "-117.1611"^^xsd:float
+    ] ;
+    
+    # Filing Requirements
+    jurisdiction:filingRequirements [
+        filing:format "PDF, Word, or Physical Paper" ;
+        filing:copiesRequired "1"^^xsd:integer ;
+        filing:verificationRequired "true"^^xsd:boolean ;
+        filing:notarizationRequired "false"^^xsd:boolean ;
+        filing:electronicFilingAvailable "true"^^xsd:boolean ;
+        filing:filingFee "0.00"^^xsd:decimal ;
+        filing:currency "USD" ;
+        filing:processingTime "5-10 business days initial review" ;
+        filing:confirmationMethod "Email confirmation with tracking number"
+    ] ;
+    
+    # Jurisdictional Scope
+    jurisdiction:hasJurisdictionOver [
+        jurisdiction:scope "All California licensed attorneys" ;
+        jurisdiction:memberCount "280000"^^xsd:integer ;
+        jurisdiction:activeMembers "200000"^^xsd:integer ;
+        jurisdiction:inactiveMembers "80000"^^xsd:integer
+    ] ;
+    
+    # Disciplinary Procedure
+    jurisdiction:disciplinaryProcess [
+        procedure:step1 [
+            procedure:stageName "Initial Review" ;
+            procedure:duration "30-60 days" ;
+            procedure:description "Administrative review of complaint for jurisdiction and merit" ;
+            procedure:outcome "Dismissal, Investigation, or Referral"
+        ] ;
+        procedure:step2 [
+            procedure:stageName "Investigation" ;
+            procedure:duration "6-18 months" ;
+            procedure:description "Fact-finding, interviews, document review" ;
+            procedure:investigator "State Bar Investigator"
+        ] ;
+        procedure:step3 [
+            procedure:stageName "Notice to Show Cause" ;
+            procedure:duration "30 days response time" ;
+            procedure:description "Formal charges if probable cause found" ;
+            procedure:hearingVenue "State Bar Court"
+        ] ;
+        procedure:step4 [
+            procedure:stageName "Hearing" ;
+            procedure:duration "3-12 months to completion" ;
+            procedure:description "Formal disciplinary hearing" ;
+            procedure:judge "State Bar Court Judge"
+        ]
+    ] ;
+    
+    # Time Limitations
+    jurisdiction:timeLimit "4 years from discovery of misconduct" ;
+    jurisdiction:continuingViolationException "true"^^xsd:boolean ;
+    jurisdiction:criminalConvictionException "No time limit for felony convictions" ;
+    
+    # Required Complaint Elements
+    jurisdiction:requiredElements [
+        filing:element "Respondent attorney name and bar number" ;
+        filing:element "Respondent law firm and address" ;
+        filing:element "Complainant name and contact information" ;
+        filing:element "Date(s) of alleged misconduct" ;
+        filing:element "Detailed description of conduct" ;
+        filing:element "Specific professional conduct rules violated" ;
+        filing:element "Attorney-client relationship details" ;
+        filing:element "Supporting documentation" ;
+        filing:element "Complainant signature and verification"
+    ] ;
+    
+    # Professional Conduct Rules
+    jurisdiction:rulesReference [
+        legal:rulebook "California Rules of Professional Conduct" ;
+        legal:effectiveDate "2018-11-01"^^xsd:date ;
+        legal:primaryRules (
+            "Rule 1.1 - Competence"
+            "Rule 1.2 - Scope of Representation and Allocation of Authority"
+            "Rule 1.3 - Diligence"
+            "Rule 1.4 - Communication with Clients"
+            "Rule 1.5 - Fees for Legal Services"
+            "Rule 1.6 - Confidentiality of Information"
+            "Rule 1.7 - Conflict of Interest: Current Clients"
+            "Rule 1.8 - Conflict of Interest: Specific Rules"
+            "Rule 1.9 - Duties to Former Clients"
+            "Rule 3.1 - Meritorious Claims and Contentions"
+            "Rule 3.3 - Candor Toward the Tribunal"
+            "Rule 3.4 - Fairness to Opposing Party and Counsel"
+            "Rule 4.1 - Truthfulness in Statements to Others"
+            "Rule 8.4 - Professional Responsibility"
+        )
+    ] .
+
+# === CALIFORNIA COURT SYSTEM ===
+
+jurisdiction:CaliforniaSuperiorCourt a court:TrialCourt ;
+    rdfs:label "California Superior Courts" ;
+    court:courtLevel "Trial" ;
+    court:jurisdiction "General" ;
+    court:countyCount "58"^^xsd:integer ;
+    
+    # Major Superior Courts
+    court:majorCourt [
+        court:name "Los Angeles County Superior Court" ;
+        court:address "111 N. Hill Street, Los Angeles, CA 90012" ;
+        foaf:phone "+1-213-830-0800" ;
+        court:website <https://www.lacourt.org> ;
+        court:filingSystem "Electronic and Paper" ;
+        court:cmecfSystem "false"^^xsd:boolean ;
+        geo:lat "34.0522"^^xsd:float ;
+        geo:long "-118.2437"^^xsd:float
+    ] ;
+    
+    court:majorCourt [
+        court:name "San Francisco County Superior Court" ;
+        court:address "400 McAllister Street, San Francisco, CA 94102" ;
+        foaf:phone "+1-415-551-4000" ;
+        court:website <https://www.sfsuperiorcourt.org> ;
+        court:filingSystem "Electronic preferred" ;
+        geo:lat "37.7749"^^xsd:float ;
+        geo:long "-122.4194"^^xsd:float
+    ] ;
+    
+    court:majorCourt [
+        court:name "San Diego County Superior Court" ;
+        court:address "330 W. Broadway, San Diego, CA 92101" ;
+        foaf:phone "+1-619-844-2700" ;
+        court:website <https://www.sdcourt.ca.gov> ;
+        geo:lat "32.7157"^^xsd:float ;
+        geo:long "-117.1611"^^xsd:float
+    ] ;
+    
+    # Filing Procedures
+    court:filingProcedures [
+        filing:civilFilingFee "435.00"^^xsd:decimal ;
+        filing:smallClaimsLimit "10000.00"^^xsd:decimal ;
+        filing:unlimitedJurisdictionThreshold "25000.00"^^xsd:decimal ;
+        filing:electronicFilingMandatory "true"^^xsd:boolean ;
+        filing:serviceOfProcessRules "California Code of Civil Procedure Section 415 et seq." ;
+        filing:responsePeriod "30 days general demurrer"
+    ] .
+
+# === FEDERAL COURTS IN CALIFORNIA ===
+
+jurisdiction:FederalDistrictCaliforniaNorthern a jurisdiction:FederalJurisdiction ;
+    rdfs:label "U.S. District Court for the Northern District of California" ;
+    court:district "CAND" ;
+    court:headquarters [
+        court:address "450 Golden Gate Avenue, San Francisco, CA 94102" ;
+        foaf:phone "+1-415-522-2000" ;
+        court:website <https://www.cand.uscourts.gov> ;
+        geo:lat "37.7749"^^xsd:float ;
+        geo:long "-122.4194"^^xsd:float
+    ] ;
+    
+    # Divisional Offices
+    court:division [
+        court:divisionName "San Francisco Division" ;
+        court:address "450 Golden Gate Avenue, San Francisco, CA 94102"
+    ] ;
+    court:division [
+        court:divisionName "Oakland Division" ;
+        court:address "1301 Clay Street, Oakland, CA 94612"
+    ] ;
+    court:division [
+        court:divisionName "San Jose Division" ;
+        court:address "280 South 1st Street, San Jose, CA 95113"
+    ] ;
+    
+    # CM/ECF Filing
+    court:cmecfSystem [
+        court:systemName "Northern District CM/ECF" ;
+        court:website <https://ecf.cand.uscourts.gov> ;
+        court:filingFee "402.00"^^xsd:decimal ;
+        court:electronicServiceRequired "true"^^xsd:boolean ;
+        court:businessHours "24/7 electronic filing" ;
+        court:technicalSupport "+1-415-522-2017"
+    ] .
+
+jurisdiction:FederalDistrictCalifornaEastern a jurisdiction:FederalJurisdiction ;
+    rdfs:label "U.S. District Court for the Eastern District of California" ;
+    court:district "CAED" ;
+    court:headquarters [
+        court:address "501 I Street, Sacramento, CA 95814" ;
+        foaf:phone "+1-916-930-4000" ;
+        court:website <https://www.caed.uscourts.gov>
+    ] .
+
+jurisdiction:FederalDistrictCalifornaaCentral a jurisdiction:FederalJurisdiction ;
+    rdfs:label "U.S. District Court for the Central District of California" ;
+    court:district "CACD" ;
+    court:headquarters [
+        court:address "350 W. 1st Street, Los Angeles, CA 90012" ;
+        foaf:phone "+1-213-894-1565" ;
+        court:website <https://www.cacd.uscourts.gov>
+    ] .
+
+jurisdiction:FederalDistrictCaliforniaSouthern a jurisdiction:FederalJurisdiction ;
+    rdfs:label "U.S. District Court for the Southern District of California" ;
+    court:district "CASD" ;
+    court:headquarters [
+        court:address "333 W. Broadway, San Diego, CA 92101" ;
+        foaf:phone "+1-619-557-5600" ;
+        court:website <https://www.casd.uscourts.gov>
+    ] .
+
+# === EMPLOYMENT CLASSIFICATION FILING REQUIREMENTS ===
+
+jurisdiction:CaliforniaEmploymentLaw a legal:EmploymentClassificationFramework ;
+    rdfs:label "California Employment Classification Requirements" ;
+    
+    # AB5/Dynamex Test
+    legal:independentContractorTest [
+        legal:testName "ABC Test (AB5/Dynamex)" ;
+        legal:effectiveDate "2020-01-01"^^xsd:date ;
+        legal:criteria [
+            legal:prong "A" ;
+            legal:requirement "Worker is free from control and direction in performance"
+        ] ;
+        legal:criteria [
+            legal:prong "B" ;
+            legal:requirement "Worker performs work outside usual course of business"
+        ] ;
+        legal:criteria [
+            legal:prong "C" ;
+            legal:requirement "Worker is customarily engaged in independent trade/occupation"
+        ] ;
+        legal:burden "All three prongs must be satisfied for independent contractor status"
+    ] ;
+    
+    # Filing Authorities
+    legal:filingAuthority [
+        legal:agency "California Department of Industrial Relations (DIR)" ;
+        legal:website <https://www.dir.ca.gov> ;
+        legal:complaintForm "https://www.dir.ca.gov/dlse/HowToFileWageClaim.htm" ;
+        legal:address "455 Golden Gate Avenue, San Francisco, CA 94102"
+    ] ;
+    
+    legal:filingAuthority [
+        legal:agency "California Employment Development Department (EDD)" ;
+        legal:website <https://www.edd.ca.gov> ;
+        legal:auditDivision "https://www.edd.ca.gov/payroll_taxes/Employment_Tax_Audits.htm" ;
+        legal:address "800 Capitol Mall, Sacramento, CA 95814"
+    ] ;
+    
+    legal:filingAuthority [
+        legal:agency "California Workers' Compensation Appeals Board" ;
+        legal:website <https://www.wcab.ca.gov> ;
+        legal:address "455 Golden Gate Avenue, San Francisco, CA 94102"
+    ] .
+
+# === CIVIL RIGHTS FILING OPTIONS ===
+
+jurisdiction:CaliforniaCivilRights a legal:CivilRightsFramework ;
+    rdfs:label "California Civil Rights Filing Requirements" ;
+    
+    # State Civil Rights Agencies
+    legal:filingVenue [
+        legal:agency "California Civil Rights Department (CRD)" ;
+        legal:formerName "Department of Fair Employment and Housing (DFEH)" ;
+        legal:website <https://www.crd.ca.gov> ;
+        legal:complaintDeadline "1 year from last incident" ;
+        legal:address "2218 Kausen Drive, Suite 100, Elk Grove, CA 95758" ;
+        legal:regionalOffices (
+            "Los Angeles: 611 W. 6th Street, Los Angeles, CA 90017"
+            "San Francisco: 1515 Clay Street, Oakland, CA 94612"
+            "San Diego: 1350 Front Street, San Diego, CA 92101"
+        )
+    ] ;
+    
+    # Federal Civil Rights Filing
+    legal:federalFiling [
+        legal:agency "U.S. Equal Employment Opportunity Commission (EEOC)" ;
+        legal:complaintDeadline "300 days from incident (deferral state)" ;
+        legal:website <https://www.eeoc.gov> ;
+        legal:rightToSue "90 days after EEOC determination or 180 days after filing"
+    ] ;
+    
+    # Court Filing Options
+    legal:courtVenue [
+        legal:stateCourt "California Superior Court" ;
+        legal:timeLimit "2-3 years depending on cause of action" ;
+        legal:filingFee "435.00"^^xsd:decimal
+    ] ;
+    
+    legal:courtVenue [
+        legal:federalCourt "U.S. District Court" ;
+        legal:timeLimit "Federal civil rights statutes vary (2-6 years)" ;
+        legal:filingFee "402.00"^^xsd:decimal ;
+        legal:jurisdiction "Federal question or diversity"
+    ] .
+
+# === TIMELINE REGULATION FRAMEWORK ===
+
+jurisdiction:CaliforniaTimelineRegulation a procedure:TimelineRegulationSystem ;
+    rdfs:label "California Multi-Jurisdictional Timeline Coordination" ;
+    
+    # Statute of Limitations Coordination
+    procedure:statuteLimitations [
+        legal:civilProcedure "California Code of Civil Procedure Section 335 et seq." ;
+        legal:personalInjury "2 years" ;
+        legal:contractWritten "4 years" ;
+        legal:contractOral "2 years" ;
+        legal:fraud "3 years from discovery" ;
+        legal:professionalMalpractice "1 year from discovery, 4 years from occurrence"
+    ] ;
+    
+    # Service Timeline Requirements
+    procedure:serviceRequirements [
+        legal:personalService "Immediate effect upon service" ;
+        legal:substitutedService "10 days after mailing" ;
+        legal:publicationService "Court-ordered timeline" ;
+        legal:electronicService "Consent required, effective on transmission"
+    ] ;
+    
+    # Response Deadlines
+    procedure:responseDeadlines [
+        legal:generalDemurrer "30 days" ;
+        legal:motionToStrike "30 days" ;
+        legal:answerToComplaint "30 days" ;
+        legal:discoveryResponses "30 days" ;
+        legal:motionPractice "Various, typically 16 court days notice"
+    ] .
+
+# === CONTRADICTION VALIDATION SYSTEM ===
+
+jurisdiction:ContradictionValidation a procedure:ContradictionDetectionFramework ;
+    rdfs:label "California Opposing Counsel Contradiction Detection" ;
+    
+    # Detection Categories
+    procedure:contradictionType [
+        procedure:category "Factual Contradictions" ;
+        procedure:definition "Inconsistent statements of material fact" ;
+        procedure:evidenceStandard "Clear and convincing evidence of inconsistency" ;
+        procedure:legalEffect "Impeachment, sanctions under CCP 128.7"
+    ] ;
+    
+    procedure:contradictionType [
+        procedure:category "Legal Position Contradictions" ;
+        procedure:definition "Inconsistent legal arguments in same or related cases" ;
+        procedure:evidenceStandard "Judicial estoppel analysis" ;
+        procedure:legalEffect "Preclusion of inconsistent position"
+    ] ;
+    
+    procedure:contradictionType [
+        procedure:category "Timeline Contradictions" ;
+        procedure:definition "Inconsistent chronology of events" ;
+        procedure:evidenceStandard "Documentary evidence of conflicting dates" ;
+        procedure:legalEffect "Credibility impeachment"
+    ] ;
+    
+    # Validation Procedures
+    procedure:validationMethod [
+        procedure:step "Document Collection" ;
+        procedure:sources "Pleadings, discovery responses, depositions, exhibits" ;
+        procedure:timeline "Ongoing throughout litigation"
+    ] ;
+    
+    procedure:validationMethod [
+        procedure:step "Cross-Reference Analysis" ;
+        procedure:method "Digital text analysis and human review" ;
+        procedure:output "Contradiction matrix with citations"
+    ] ;
+    
+    procedure:validationMethod [
+        procedure:step "Legal Brief Preparation" ;
+        procedure:format "Motion for sanctions or impeachment evidence" ;
+        procedure:standard "California Code of Civil Procedure Section 128.7"
+    ] .
+
+# === AUDITABLE DATA PROVENANCE ===
+
+jurisdiction:DataProvenance a procedure:AuditabilityFramework ;
+    rdfs:label "California Jurisdiction Data Audit Trail" ;
+    dct:created "2025-07-30T07:25:00Z"^^xsd:dateTime ;
+    dct:creator "JurisdictionAnalyst-CNS-Swarm" ;
+    
+    # Source Authentication
+    procedure:dataSource [
+        procedure:source "California State Bar Official Website" ;
+        procedure:url <https://www.calbar.ca.gov> ;
+        procedure:accessDate "2025-07-30"^^xsd:date ;
+        procedure:verificationMethod "Direct official source review"
+    ] ;
+    
+    procedure:dataSource [
+        procedure:source "California Courts Official Website" ;
+        procedure:url <https://www.courts.ca.gov> ;
+        procedure:accessDate "2025-07-30"^^xsd:date ;
+        procedure:verificationMethod "Official judicial branch publication"
+    ] ;
+    
+    procedure:dataSource [
+        procedure:source "California Code of Civil Procedure" ;
+        procedure:publisher "California Legislature" ;
+        procedure:version "Current through 2024 legislative session" ;
+        procedure:verificationMethod "Official legislative publication"
+    ] ;
+    
+    # Update Tracking
+    procedure:updatePolicy [
+        procedure:frequency "Quarterly review" ;
+        procedure:triggerEvents "Legislative changes, court rule amendments, agency updates" ;
+        procedure:verificationRequired "true"^^xsd:boolean ;
+        procedure:approvalAuthority "JurisdictionAnalyst-CNS-Swarm"
+    ] ;
+    
+    # Accuracy Validation
+    procedure:validationProcess [
+        procedure:method "Multi-source cross-reference" ;
+        procedure:reviewCycle "30 days" ;
+        procedure:errorReporting "Immediate correction with audit trail" ;
+        procedure:qualityAssurance "Automated consistency checking"
+    ] .
+
+# === OPERATIONAL INTEGRATION ===
+
+jurisdiction:CNSIntegration a procedure:SystemIntegration ;
+    rdfs:label "CNS Litigation Swarm Integration Points" ;
+    
+    # Memory Coordination
+    procedure:memoryIntegration [
+        procedure:keyPrefix "swarm/jurisdiction/california/" ;
+        procedure:updateTriggers "Filing status changes, deadline alerts, contradiction detection" ;
+        procedure:coordinationAgents "Timeline Regulator, Contradiction Validator, Filing Coordinator"
+    ] ;
+    
+    # Hook Integration
+    procedure:hookIntegration [
+        procedure:preFileHooks "Jurisdiction validation, requirement checking, deadline verification" ;
+        procedure:postFileHooks "Status tracking, confirmation processing, timeline updates" ;
+        procedure:alertHooks "Deadline warnings, contradiction detection, filing confirmations"
+    ] .
+
+# Generated by JurisdictionAnalyst Agent
+# CNS Litigation Swarm System
+# Operation: CNS-JURISDICTION-ALPHA
+# Classification: Litigation Intelligence - Restricted

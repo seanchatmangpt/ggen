@@ -1,0 +1,80 @@
+@prefix : <http://criticaltest.com/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Business Ontology for E-commerce
+: a owl:Ontology ;
+    rdfs:label "Critical Test E-commerce Ontology"@en .
+
+# Core Classes
+:Customer a owl:Class ;
+    rdfs:label "Customer"@en ;
+    rdfs:comment "A person who purchases products"@en .
+
+:Product a owl:Class ;
+    rdfs:label "Product"@en ;
+    rdfs:comment "An item available for purchase"@en .
+
+:Order a owl:Class ;
+    rdfs:label "Order"@en ;
+    rdfs:comment "A purchase transaction"@en .
+
+# Customer Properties
+:customerName a owl:DatatypeProperty ;
+    rdfs:label "customer name"@en ;
+    rdfs:domain :Customer ;
+    rdfs:range xsd:string .
+
+:email a owl:DatatypeProperty ;
+    rdfs:label "email address"@en ;
+    rdfs:domain :Customer ;
+    rdfs:range xsd:string .
+
+:isVip a owl:DatatypeProperty ;
+    rdfs:label "VIP status"@en ;
+    rdfs:domain :Customer ;
+    rdfs:range xsd:boolean .
+
+# Product Properties
+:productName a owl:DatatypeProperty ;
+    rdfs:label "product name"@en ;
+    rdfs:domain :Product ;
+    rdfs:range xsd:string .
+
+:price a owl:DatatypeProperty ;
+    rdfs:label "price"@en ;
+    rdfs:domain :Product ;
+    rdfs:range xsd:decimal .
+
+:inStock a owl:DatatypeProperty ;
+    rdfs:label "in stock"@en ;
+    rdfs:domain :Product ;
+    rdfs:range xsd:boolean .
+
+# Order Properties
+:orderTotal a owl:DatatypeProperty ;
+    rdfs:label "order total"@en ;
+    rdfs:domain :Order ;
+    rdfs:range xsd:decimal .
+
+:orderDate a owl:DatatypeProperty ;
+    rdfs:label "order date"@en ;
+    rdfs:domain :Order ;
+    rdfs:range xsd:dateTime .
+
+# Relationships
+:hasCustomer a owl:ObjectProperty ;
+    rdfs:label "has customer"@en ;
+    rdfs:domain :Order ;
+    rdfs:range :Customer .
+
+:hasProduct a owl:ObjectProperty ;
+    rdfs:label "has product"@en ;
+    rdfs:domain :Order ;
+    rdfs:range :Product .
+
+:purchases a owl:ObjectProperty ;
+    rdfs:label "purchases"@en ;
+    rdfs:domain :Customer ;
+    rdfs:range :Product .

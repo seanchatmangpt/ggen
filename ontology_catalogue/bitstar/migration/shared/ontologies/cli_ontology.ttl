@@ -1,0 +1,704 @@
+@prefix cli: <http://cns.io/cli#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+@prefix weaver: <http://opentelemetry.io/weaver#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# CLI Ontology for OTEL Weaver Command Generation
+# This ontology defines CLI commands that get rendered into executable code using OTEL Weaver
+
+cli: a owl:Ontology ;
+    rdfs:label "CNS CLI Ontology" ;
+    rdfs:comment "Semantic model for CLI commands with OTEL Weaver integration" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://cns.io/ontology#> ,
+                <http://opentelemetry.io/weaver#> .
+
+# =============================================================================
+# CORE CLI CLASSES
+# =============================================================================
+
+# Base Command Class
+cli:Command a owl:Class ;
+    rdfs:label "CLI Command" ;
+    rdfs:comment "Base class for all CLI commands in the system" ;
+    rdfs:subClassOf cns:Operation .
+
+# Command Categories (80/20 principle)
+cli:CoreCommand a owl:Class ;
+    rdfs:label "Core Command" ;
+    rdfs:comment "High-priority commands (20% that provide 80% value)" ;
+    rdfs:subClassOf cli:Command ;
+    cli:priority "high" ;
+    cli:coverage "80%" .
+
+cli:ExtendedCommand a owl:Class ;
+    rdfs:label "Extended Command" ;
+    rdfs:comment "Lower-priority commands for specialized use cases" ;
+    rdfs:subClassOf cli:Command ;
+    cli:priority "medium" ;
+    cli:coverage "20%" .
+
+# Command Groups
+cli:SystemCommand a owl:Class ;
+    rdfs:label "System Command" ;
+    rdfs:comment "System management and status commands" ;
+    rdfs:subClassOf cli:CoreCommand .
+
+cli:BuildCommand a owl:Class ;
+    rdfs:label "Build Command" ;
+    rdfs:comment "Build and compilation commands" ;
+    rdfs:subClassOf cli:CoreCommand .
+
+cli:TestCommand a owl:Class ;
+    rdfs:label "Test Command" ;
+    rdfs:comment "Testing and validation commands" ;
+    rdfs:subClassOf cli:CoreCommand .
+
+cli:DeployCommand a owl:Class ;
+    rdfs:label "Deploy Command" ;
+    rdfs:comment "Deployment and infrastructure commands" ;
+    rdfs:subClassOf cli:CoreCommand .
+
+cli:AnalysisCommand a owl:Class ;
+    rdfs:label "Analysis Command" ;
+    rdfs:comment "Turtle file analysis and heuristics commands" ;
+    rdfs:subClassOf cli:CoreCommand .
+
+cli:SemanticCommand a owl:Class ;
+    rdfs:label "Semantic Command" ;
+    rdfs:comment "TTL/RDF processing and conversion commands" ;
+    rdfs:subClassOf cli:ExtendedCommand .
+
+cli:OptimizationCommand a owl:Class ;
+    rdfs:label "Optimization Command" ;
+    rdfs:comment "Performance optimization and heuristics commands" ;
+    rdfs:subClassOf cli:ExtendedCommand .
+
+# =============================================================================
+# OTEL WEAVER INTEGRATION CLASSES
+# =============================================================================
+
+cli:WeaverWrapper a owl:Class ;
+    rdfs:label "Weaver Wrapper" ;
+    rdfs:comment "OTEL Weaver-generated command wrapper with instrumentation" ;
+    rdfs:subClassOf weaver:InstrumentedComponent .
+
+cli:CommandModule a owl:Class ;
+    rdfs:label "Command Module" ;
+    rdfs:comment "Separate module containing command implementation logic" ;
+    rdfs:subClassOf cns:Operation .
+
+cli:TelemetrySpan a owl:Class ;
+    rdfs:label "Command Telemetry Span" ;
+    rdfs:comment "OTEL span for command execution tracking" ;
+    rdfs:subClassOf otel:Span .
+
+cli:MetricDefinition a owl:Class ;
+    rdfs:label "Command Metric Definition" ;
+    rdfs:comment "OTEL metric definition for command performance" ;
+    rdfs:subClassOf otel:Metric .
+
+# =============================================================================
+# COMMAND PROPERTIES
+# =============================================================================
+
+# Basic Command Properties
+cli:commandName a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    rdfs:label "Command Name" ;
+    rdfs:comment "The CLI command name (e.g., 'status', 'build')" ;
+    a owl:FunctionalProperty .
+
+cli:commandGroup a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    rdfs:label "Command Group" ;
+    rdfs:comment "Command group namespace (e.g., 'turtle', 'forge')" ;
+    a owl:FunctionalProperty .
+
+cli:description a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    rdfs:label "Description" ;
+    rdfs:comment "Human-readable command description" ;
+    a owl:FunctionalProperty .
+
+cli:usage a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    rdfs:label "Usage Pattern" ;
+    rdfs:comment "Command usage syntax and examples" .
+
+# Performance Properties
+cli:expectedDuration a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:duration ;
+    rdfs:label "Expected Duration" ;
+    rdfs:comment "Expected command execution duration" .
+
+cli:maxCycles a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "Maximum Cycles" ;
+    rdfs:comment "Maximum CPU cycles for command execution" ;
+    owl:minInclusive 1 ;
+    owl:maxInclusive 8 .
+
+cli:priority a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    rdfs:label "Priority Level" ;
+    rdfs:comment "Command priority (high/medium/low)" .
+
+# OTEL Properties
+cli:spanName a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    rdfs:label "OTEL Span Name" ;
+    rdfs:comment "OpenTelemetry span name for command tracking" ;
+    a owl:FunctionalProperty .
+
+cli:metricName a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    rdfs:label "OTEL Metric Name" ;
+    rdfs:comment "OpenTelemetry metric name for command performance" ;
+    a owl:FunctionalProperty .
+
+# Module Properties
+cli:moduleFile a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    rdfs:label "Module File" ;
+    rdfs:comment "Python module file containing command implementation" ;
+    a owl:FunctionalProperty .
+
+cli:functionName a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    rdfs:label "Function Name" ;
+    rdfs:comment "Function name within the module" ;
+    a owl:FunctionalProperty .
+
+# =============================================================================
+# OBJECT PROPERTIES
+# =============================================================================
+
+# Command Relationships
+cli:hasSubCommand a owl:ObjectProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Command ;
+    rdfs:label "Has Sub-command" ;
+    rdfs:comment "Links parent command to sub-commands" .
+
+cli:dependsOn a owl:ObjectProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Command ;
+    rdfs:label "Depends On" ;
+    rdfs:comment "Command dependency relationship" .
+
+cli:hasArgument a owl:ObjectProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:CommandArgument ;
+    rdfs:label "Has Argument" ;
+    rdfs:comment "Links command to its arguments" .
+
+cli:hasOption a owl:ObjectProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:CommandOption ;
+    rdfs:label "Has Option" ;
+    rdfs:comment "Links command to its options" .
+
+# OTEL Integration Relationships
+cli:instrumentedBy a owl:ObjectProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:WeaverWrapper ;
+    rdfs:label "Instrumented By" ;
+    rdfs:comment "Links command to its OTEL Weaver wrapper" ;
+    a owl:FunctionalProperty .
+
+cli:implementedBy a owl:ObjectProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:CommandModule ;
+    rdfs:label "Implemented By" ;
+    rdfs:comment "Links command to its implementation module" ;
+    a owl:FunctionalProperty .
+
+cli:emitsSpan a owl:ObjectProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:TelemetrySpan ;
+    rdfs:label "Emits Span" ;
+    rdfs:comment "Links command to its telemetry spans" .
+
+cli:tracksMetric a owl:ObjectProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:MetricDefinition ;
+    rdfs:label "Tracks Metric" ;
+    rdfs:comment "Links command to its performance metrics" .
+
+# =============================================================================
+# COMMAND ARGUMENTS AND OPTIONS
+# =============================================================================
+
+cli:CommandArgument a owl:Class ;
+    rdfs:label "Command Argument" ;
+    rdfs:comment "Positional argument for CLI command" .
+
+cli:CommandOption a owl:Class ;
+    rdfs:label "Command Option" ;
+    rdfs:comment "Optional flag or parameter for CLI command" .
+
+# Argument Properties
+cli:argumentName a owl:DatatypeProperty ;
+    rdfs:domain cli:CommandArgument ;
+    rdfs:range xsd:string ;
+    rdfs:label "Argument Name" ;
+    a owl:FunctionalProperty .
+
+cli:argumentType a owl:DatatypeProperty ;
+    rdfs:domain cli:CommandArgument ;
+    rdfs:range xsd:string ;
+    rdfs:label "Argument Type" ;
+    rdfs:comment "Data type (string, int, float, path, bool)" .
+
+cli:required a owl:DatatypeProperty ;
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf (cli:CommandArgument cli:CommandOption)
+    ] ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Required" ;
+    rdfs:comment "Whether argument/option is required" .
+
+# Option Properties
+cli:optionName a owl:DatatypeProperty ;
+    rdfs:domain cli:CommandOption ;
+    rdfs:range xsd:string ;
+    rdfs:label "Option Name" ;
+    a owl:FunctionalProperty .
+
+cli:shortFlag a owl:DatatypeProperty ;
+    rdfs:domain cli:CommandOption ;
+    rdfs:range xsd:string ;
+    rdfs:label "Short Flag" ;
+    rdfs:comment "Short option flag (e.g., '-v')" .
+
+cli:longFlag a owl:DatatypeProperty ;
+    rdfs:domain cli:CommandOption ;
+    rdfs:range xsd:string ;
+    rdfs:label "Long Flag" ;
+    rdfs:comment "Long option flag (e.g., '--verbose')" .
+
+cli:defaultValue a owl:DatatypeProperty ;
+    rdfs:domain cli:CommandOption ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "Default Value" ;
+    rdfs:comment "Default value for option" .
+
+# =============================================================================
+# COMMAND INSTANCES (80/20 Core Commands)
+# =============================================================================
+
+# System Commands
+cli:Status a cli:SystemCommand ;
+    cli:commandName "status" ;
+    cli:commandGroup "system" ;
+    cli:description "Show comprehensive system status across all components" ;
+    cli:spanName "cli.system.status" ;
+    cli:metricName "cli.system.status.duration" ;
+    cli:moduleFile "modules/system_commands.py" ;
+    cli:functionName "execute_status" ;
+    cli:maxCycles 4 ;
+    cli:expectedDuration "PT2S" ;
+    cli:priority "high" .
+
+cli:Health a cli:SystemCommand ;
+    cli:commandName "health" ;
+    cli:commandGroup "system" ;
+    cli:description "Run comprehensive health checks" ;
+    cli:spanName "cli.system.health" ;
+    cli:metricName "cli.system.health.duration" ;
+    cli:moduleFile "modules/system_commands.py" ;
+    cli:functionName "execute_health" ;
+    cli:maxCycles 6 ;
+    cli:expectedDuration "PT5S" ;
+    cli:priority "high" .
+
+# Build Commands
+cli:BuildAll a cli:BuildCommand ;
+    cli:commandName "build" ;
+    cli:commandGroup "build" ;
+    cli:description "Build all components with parallel execution" ;
+    cli:spanName "cli.build.all" ;
+    cli:metricName "cli.build.duration" ;
+    cli:moduleFile "modules/build_commands.py" ;
+    cli:functionName "execute_build_all" ;
+    cli:maxCycles 8 ;
+    cli:expectedDuration "PT30S" ;
+    cli:priority "high" .
+
+cli:BuildBitActor a cli:BuildCommand ;
+    cli:commandName "build-bitactor" ;
+    cli:commandGroup "build" ;
+    cli:description "Build BitActor C components with optimization" ;
+    cli:spanName "cli.build.bitactor" ;
+    cli:metricName "cli.build.bitactor.duration" ;
+    cli:moduleFile "modules/build_commands.py" ;
+    cli:functionName "execute_build_bitactor" ;
+    cli:maxCycles 8 ;
+    cli:expectedDuration "PT15S" ;
+    cli:priority "high" .
+
+# Test Commands
+cli:TestAll a cli:TestCommand ;
+    cli:commandName "test" ;
+    cli:commandGroup "test" ;
+    cli:description "Run comprehensive test suite with intelligent routing" ;
+    cli:spanName "cli.test.all" ;
+    cli:metricName "cli.test.duration" ;
+    cli:moduleFile "modules/test_commands.py" ;
+    cli:functionName "execute_test_all" ;
+    cli:maxCycles 8 ;
+    cli:expectedDuration "PT60S" ;
+    cli:priority "high" .
+
+cli:TestPermutation a cli:TestCommand ;
+    cli:commandName "test-permutation" ;
+    cli:commandGroup "test" ;
+    cli:description "Run permutation tests across all demos" ;
+    cli:spanName "cli.test.permutation" ;
+    cli:metricName "cli.test.permutation.duration" ;
+    cli:moduleFile "modules/test_commands.py" ;
+    cli:functionName "execute_permutation_tests" ;
+    cli:maxCycles 8 ;
+    cli:expectedDuration "PT120S" ;
+    cli:priority "high" .
+
+cli:TestAdversarial a cli:TestCommand ;
+    cli:commandName "test-adversarial" ;
+    cli:commandGroup "test" ;
+    cli:description "Run adversarial tests to break systems" ;
+    cli:spanName "cli.test.adversarial" ;
+    cli:metricName "cli.test.adversarial.duration" ;
+    cli:moduleFile "modules/test_commands.py" ;
+    cli:functionName "execute_adversarial_tests" ;
+    cli:maxCycles 8 ;
+    cli:expectedDuration "PT180S" ;
+    cli:priority "medium" .
+
+# Analysis Commands
+cli:AnalyzeTurtle a cli:AnalysisCommand ;
+    cli:commandName "analyze" ;
+    cli:commandGroup "turtle" ;
+    cli:description "Analyze turtle files with 80/20 heuristics" ;
+    cli:spanName "cli.turtle.analyze" ;
+    cli:metricName "cli.turtle.analyze.duration" ;
+    cli:moduleFile "modules/turtle_commands.py" ;
+    cli:functionName "execute_turtle_analyze" ;
+    cli:maxCycles 6 ;
+    cli:expectedDuration "PT5S" ;
+    cli:priority "high" .
+
+cli:FindLies a cli:AnalysisCommand ;
+    cli:commandName "find-lies" ;
+    cli:commandGroup "analysis" ;
+    cli:description "Find mock/fake implementations using ultrathink swarm" ;
+    cli:spanName "cli.analysis.find_lies" ;
+    cli:metricName "cli.analysis.lies.count" ;
+    cli:moduleFile "modules/analysis_commands.py" ;
+    cli:functionName "execute_find_lies" ;
+    cli:maxCycles 8 ;
+    cli:expectedDuration "PT45S" ;
+    cli:priority "high" .
+
+# Deploy Commands  
+cli:DeployK8s a cli:DeployCommand ;
+    cli:commandName "deploy" ;
+    cli:commandGroup "k8s" ;
+    cli:description "Deploy to Kubernetes with validation" ;
+    cli:spanName "cli.deploy.k8s" ;
+    cli:metricName "cli.deploy.k8s.duration" ;
+    cli:moduleFile "modules/deploy_commands.py" ;
+    cli:functionName "execute_k8s_deploy" ;
+    cli:maxCycles 8 ;
+    cli:expectedDuration "PT300S" ;
+    cli:priority "medium" .
+
+# Semantic Commands
+cli:ConvertTTL a cli:SemanticCommand ;
+    cli:commandName "convert" ;
+    cli:commandGroup "semantic" ;
+    cli:description "Convert TTL to various formats (DSPy, BitActor, etc.)" ;
+    cli:spanName "cli.semantic.convert" ;
+    cli:metricName "cli.semantic.convert.duration" ;
+    cli:moduleFile "modules/semantic_commands.py" ;
+    cli:functionName "execute_ttl_convert" ;
+    cli:maxCycles 6 ;
+    cli:expectedDuration "PT10S" ;
+    cli:priority "medium" .
+
+# Optimization Commands
+cli:OptimizeHeuristics a cli:OptimizationCommand ;
+    cli:commandName "optimize" ;
+    cli:commandGroup "heuristics" ;
+    cli:description "Run heuristics optimization algorithms" ;
+    cli:spanName "cli.heuristics.optimize" ;
+    cli:metricName "cli.heuristics.optimize.duration" ;
+    cli:moduleFile "modules/heuristics_commands.py" ;
+    cli:functionName "execute_heuristics_optimize" ;
+    cli:maxCycles 8 ;
+    cli:expectedDuration "PT30S" ;
+    cli:priority "medium" .
+
+# =============================================================================
+# COMMAND ARGUMENTS AND OPTIONS INSTANCES
+# =============================================================================
+
+# Status Command Arguments
+cli:StatusVerboseOption a cli:CommandOption ;
+    cli:optionName "verbose" ;
+    cli:shortFlag "-v" ;
+    cli:longFlag "--verbose" ;
+    cli:argumentType "bool" ;
+    cli:defaultValue "false"^^xsd:boolean ;
+    cli:required "false"^^xsd:boolean ;
+    rdfs:comment "Show detailed status information" .
+
+cli:Status cli:hasOption cli:StatusVerboseOption .
+
+# Build Command Options
+cli:BuildOptimizationOption a cli:CommandOption ;
+    cli:optionName "optimization" ;
+    cli:shortFlag "-O" ;
+    cli:longFlag "--optimization" ;
+    cli:argumentType "string" ;
+    cli:defaultValue "O3" ;
+    cli:required "false"^^xsd:boolean ;
+    rdfs:comment "Optimization level (O0/O1/O2/O3)" .
+
+cli:BuildTargetOption a cli:CommandOption ;
+    cli:optionName "target" ;
+    cli:shortFlag "-t" ;
+    cli:longFlag "--target" ;
+    cli:argumentType "string" ;
+    cli:defaultValue "all" ;
+    cli:required "false"^^xsd:boolean ;
+    rdfs:comment "Build target (all/core/specific)" .
+
+cli:BuildAll cli:hasOption cli:BuildOptimizationOption ;
+           cli:hasOption cli:BuildTargetOption .
+
+# Turtle Analysis Arguments
+cli:TurtleFileArgument a cli:CommandArgument ;
+    cli:argumentName "file" ;
+    cli:argumentType "path" ;
+    cli:required "true"^^xsd:boolean ;
+    rdfs:comment "Turtle file to analyze" .
+
+cli:TurtleDetailedOption a cli:CommandOption ;
+    cli:optionName "detailed" ;
+    cli:shortFlag "-d" ;
+    cli:longFlag "--detailed" ;
+    cli:argumentType "bool" ;
+    cli:defaultValue "false"^^xsd:boolean ;
+    cli:required "false"^^xsd:boolean ;
+    rdfs:comment "Show detailed analysis results" .
+
+cli:TurtleSwarmOption a cli:CommandOption ;
+    cli:optionName "swarm" ;
+    cli:shortFlag "-s" ;
+    cli:longFlag "--swarm" ;
+    cli:argumentType "bool" ;
+    cli:defaultValue "false"^^xsd:boolean ;
+    cli:required "false"^^xsd:boolean ;
+    rdfs:comment "Deploy 12-agent swarm for analysis" .
+
+cli:AnalyzeTurtle cli:hasArgument cli:TurtleFileArgument ;
+                 cli:hasOption cli:TurtleDetailedOption ;
+                 cli:hasOption cli:TurtleSwarmOption .
+
+# =============================================================================
+# WEAVER INSTRUMENTATION DEFINITIONS
+# =============================================================================
+
+# Status Command Instrumentation
+cli:StatusSpan a cli:TelemetrySpan ;
+    cli:spanName "cli.system.status" ;
+    otel:operationName "system_status_check" ;
+    otel:spanKind "internal" ;
+    cli:attributes [
+        otel:attributeName "cli.command" ;
+        otel:attributeValue "status" ;
+        otel:attributeType "string"
+    ] ,
+    [
+        otel:attributeName "cli.group" ;
+        otel:attributeValue "system" ;
+        otel:attributeType "string"  
+    ] ,
+    [
+        otel:attributeName "system.components_checked" ;
+        otel:attributeType "int"
+    ] ,
+    [
+        otel:attributeName "system.health_score" ;
+        otel:attributeType "float"
+    ] .
+
+cli:StatusDurationMetric a cli:MetricDefinition ;
+    cli:metricName "cli.system.status.duration" ;
+    otel:metricType "histogram" ;
+    otel:unit "ms" ;
+    otel:description "Duration of status command execution" .
+
+cli:Status cli:emitsSpan cli:StatusSpan ;
+          cli:tracksMetric cli:StatusDurationMetric .
+
+# Build Command Instrumentation
+cli:BuildSpan a cli:TelemetrySpan ;
+    cli:spanName "cli.build.all" ;
+    otel:operationName "build_execution" ;
+    otel:spanKind "internal" ;
+    cli:attributes [
+        otel:attributeName "cli.command" ;
+        otel:attributeValue "build" ;
+        otel:attributeType "string"
+    ] ,
+    [
+        otel:attributeName "build.target" ;
+        otel:attributeType "string"
+    ] ,
+    [
+        otel:attributeName "build.optimization" ;
+        otel:attributeType "string"
+    ] ,
+    [
+        otel:attributeName "build.components_built" ;
+        otel:attributeType "int"
+    ] ,
+    [
+        otel:attributeName "build.success" ;
+        otel:attributeType "bool"
+    ] .
+
+cli:BuildDurationMetric a cli:MetricDefinition ;
+    cli:metricName "cli.build.duration" ;
+    otel:metricType "histogram" ;
+    otel:unit "ms" ;
+    otel:description "Duration of build command execution" .
+
+cli:BuildSuccessMetric a cli:MetricDefinition ;
+    cli:metricName "cli.build.success_rate" ;
+    otel:metricType "counter" ;
+    otel:unit "1" ;
+    otel:description "Build success rate counter" .
+
+cli:BuildAll cli:emitsSpan cli:BuildSpan ;
+            cli:tracksMetric cli:BuildDurationMetric ;
+            cli:tracksMetric cli:BuildSuccessMetric .
+
+# =============================================================================
+# SHACL CONSTRAINTS FOR VALIDATION
+# =============================================================================
+
+# Every command must have a name and module
+cli:CommandShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    sh:property [
+        sh:path cli:commandName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z][a-z0-9-]*[a-z0-9]$"
+    ] ;
+    sh:property [
+        sh:path cli:moduleFile ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^modules/.*\\.py$"
+    ] ;
+    sh:property [
+        sh:path cli:functionName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^execute_.*"
+    ] .
+
+# Core commands must have OTEL instrumentation
+cli:CoreCommandShape a sh:NodeShape ;
+    sh:targetClass cli:CoreCommand ;
+    sh:property [
+        sh:path cli:spanName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^cli\\.[a-z]+\\.[a-z_]+$"
+    ] ;
+    sh:property [
+        sh:path cli:metricName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^cli\\.[a-z]+\\.[a-z_]+\\.(duration|count|rate)$"
+    ] ;
+    sh:property [
+        sh:path cli:maxCycles ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 8
+    ] .
+
+# =============================================================================
+# GENERATION RULES FOR WEAVER
+# =============================================================================
+
+cli:WeaverGenerationRule a owl:Class ;
+    rdfs:label "Weaver Generation Rule" ;
+    rdfs:comment "Rules for generating OTEL Weaver command wrappers" .
+
+cli:CommandWrapperRule a cli:WeaverGenerationRule ;
+    rdfs:label "Command Wrapper Generation" ;
+    cli:condition "For each cli:Command" ;
+    cli:generates "OTEL instrumented Typer command wrapper" ;
+    cli:template """
+@app.command("{command_name}")
+@weaver.instrument(
+    span_name="{span_name}",
+    metrics=["{metric_name}"]
+)
+def {command_name}_wrapper({args}):
+    ''''{description}''''
+    with weaver.start_span("{span_name}") as span:
+        span.set_attribute("cli.command", "{command_name}")
+        span.set_attribute("cli.group", "{command_group}")
+        
+        try:
+            result = {module_name}.{function_name}({args})
+            span.set_attribute("cli.success", True)
+            return result
+        except Exception as e:
+            span.set_attribute("cli.success", False)
+            span.set_attribute("cli.error", str(e))
+            raise
+""" .
+
+cli:MetricCollectionRule a cli:WeaverGenerationRule ;
+    rdfs:label "Metric Collection Generation" ;
+    cli:condition "For each cli:MetricDefinition" ;
+    cli:generates "OTEL metric collection code" ;
+    cli:template """
+{metric_name} = weaver.create_histogram(
+    name="{metric_name}",
+    description="{description}",
+    unit="{unit}"
+)
+""" .

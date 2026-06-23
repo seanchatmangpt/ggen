@@ -1,0 +1,462 @@
+@prefix bs:      <https://bytestar.org/ontology/bytestar-core.owl.ttl#> .
+@prefix bsreg:   <https://bytestar.org/ontology/bytestar-registry.owl.ttl#> .
+@prefix bsds:    <https://bytestar.org/ontology/bytestar-datastruct.owl.ttl#> .
+@prefix bsrep:   <https://bytestar.org/ontology/bytestar-report-2026-impact.owl.ttl#> .
+@prefix bsalgo:  <https://bytestar.org/ontology/bytestar-algos.owl.ttl#> .
+@prefix dct:     <http://purl.org/dc/terms/> .
+@prefix schema:  <http://schema.org/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix qudt:    <http://qudt.org/schema/qudt/> .
+@prefix unit:    <http://qudt.org/vocab/unit/> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-report-2026-impact.owl.ttl> a owl:Ontology ;
+  rdfs:label "ByteActor Impact Report 2026 — Ontology encoding" ;
+  dct:created "2025-01-01"^^xsd:date ;
+  owl:imports
+      <https://bytestar.org/ontology/bytestar-core.owl.ttl> ,
+      <https://bytestar.org/ontology/bytestar-registry.owl.ttl> .
+
+############################
+# EXTENSION CLASSES (if not in core)
+############################
+
+# Benchmark and measurement classes
+bsrep:BenchmarkRun a owl:Class ;
+  rdfs:label "Benchmark Run" ;
+  rdfs:comment "A specific benchmark execution with hardware profile and results" .
+
+bsrep:UseCase a owl:Class ;
+  rdfs:label "Use Case" ;
+  rdfs:comment "A specific application scenario with latency/throughput requirements" .
+
+bsrep:HardwareProfile a owl:Class ;
+  rdfs:label "Hardware Profile" ;
+  rdfs:comment "Hardware configuration for benchmarking" .
+
+bsrep:ImpactReport a owl:Class ;
+  rdfs:label "Impact Report" ;
+  rdfs:comment "A comprehensive report documenting system impact and projections" .
+
+bsrep:Prediction a owl:Class ;
+  rdfs:label "Prediction" ;
+  rdfs:comment "Future projection or claim about system capabilities" .
+
+bsrep:Risk a owl:Class ;
+  rdfs:comment "Identified risk with mitigation strategy" .
+
+bsrep:MarketEstimate a owl:Class ;
+  rdfs:label "Market Estimate" ;
+  rdfs:comment "Market size and breakdown estimates" .
+
+bsrep:SPR a owl:Class ;
+  rdfs:label "SPR" ;
+  rdfs:comment "System Pattern Representation snapshot" .
+
+# Properties for measurements and relationships
+bsrep:benchComponent a owl:ObjectProperty ;
+  rdfs:domain bsrep:BenchmarkRun ;
+  rdfs:range bs:SoftwareComponent .
+
+bsrep:hardwareProfile a owl:ObjectProperty ;
+  rdfs:domain bsrep:BenchmarkRun ;
+  rdfs:range bsrep:HardwareProfile .
+
+bsrep:kernelTickBudget a owl:ObjectProperty ;
+  rdfs:domain bsrep:BenchmarkRun ;
+  rdfs:range qudt:QuantityValue .
+
+bsrep:kernelExecTime a owl:ObjectProperty ;
+  rdfs:domain bsrep:BenchmarkRun ;
+  rdfs:range qudt:QuantityValue .
+
+bsrep:l1ResidencyPct a owl:ObjectProperty ;
+  rdfs:domain bsrep:BenchmarkRun ;
+  rdfs:range qudt:QuantityValue .
+
+bsrep:branchMispredictPct a owl:ObjectProperty ;
+  rdfs:domain bsrep:BenchmarkRun ;
+  rdfs:range qudt:QuantityValue .
+
+bsrep:contextSwitchesPerSec a owl:ObjectProperty ;
+  rdfs:domain bsrep:BenchmarkRun ;
+  rdfs:range qudt:QuantityValue .
+
+bsrep:throughputTheoretical a owl:ObjectProperty ;
+  rdfs:domain bsrep:BenchmarkRun ;
+  rdfs:range qudt:QuantityValue .
+
+bsrep:throughputSustained a owl:ObjectProperty ;
+  rdfs:domain bsrep:BenchmarkRun ;
+  rdfs:range qudt:QuantityValue .
+
+bsrep:throughputSustainedLow a owl:ObjectProperty ;
+  rdfs:domain bsrep:BenchmarkRun ;
+  rdfs:range qudt:QuantityValue .
+
+bsrep:throughputSustainedHigh a owl:ObjectProperty ;
+  rdfs:domain bsrep:BenchmarkRun ;
+  rdfs:range qudt:QuantityValue .
+
+bsrep:notes a owl:DatatypeProperty ;
+  rdfs:domain bsrep:BenchmarkRun ;
+  rdfs:range xsd:string .
+
+# Hardware profile properties
+bsrep:cpuModel a owl:DatatypeProperty ;
+  rdfs:domain bsrep:HardwareProfile ;
+  rdfs:range xsd:string .
+
+bsrep:corePinningPolicy a owl:DatatypeProperty ;
+  rdfs:domain bsrep:HardwareProfile ;
+  rdfs:range xsd:string .
+
+bsrep:l1DataKB a owl:DatatypeProperty ;
+  rdfs:domain bsrep:HardwareProfile ;
+  rdfs:range xsd:integer .
+
+bsrep:l1InstrKB a owl:DatatypeProperty ;
+  rdfs:domain bsrep:HardwareProfile ;
+  rdfs:range xsd:integer .
+
+bsrep:clockGHz a owl:DatatypeProperty ;
+  rdfs:domain bsrep:HardwareProfile ;
+  rdfs:range xsd:decimal .
+
+# Use case properties
+bsrep:useCaseLatencyNow a owl:ObjectProperty ;
+  rdfs:domain bsrep:UseCase ;
+  rdfs:range qudt:QuantityValue .
+
+bsrep:useCaseLatencyNowHigh a owl:ObjectProperty ;
+  rdfs:domain bsrep:UseCase ;
+  rdfs:range qudt:QuantityValue .
+
+bsrep:useCaseLatencyWithBS a owl:ObjectProperty ;
+  rdfs:domain bsrep:UseCase ;
+  rdfs:range qudt:QuantityValue .
+
+bsrep:speedupFactor a owl:DatatypeProperty ;
+  rdfs:domain bsrep:UseCase ;
+  rdfs:range xsd:integer .
+
+bsrep:throughputPerCore a owl:ObjectProperty ;
+  rdfs:domain bsrep:UseCase ;
+  rdfs:range qudt:QuantityValue .
+
+bsrep:safetyWCET a owl:DatatypeProperty ;
+  rdfs:domain bsrep:UseCase ;
+  rdfs:range xsd:boolean .
+
+# Impact report properties
+bsrep:targetsYear a owl:DatatypeProperty ;
+  rdfs:domain bsrep:ImpactReport ;
+  rdfs:range xsd:integer .
+
+bsrep:coversComponent a owl:ObjectProperty ;
+  rdfs:domain bsrep:ImpactReport ;
+  rdfs:range bs:SoftwareComponent .
+
+bsrep:includesBenchmark a owl:ObjectProperty ;
+  rdfs:domain bsrep:ImpactReport ;
+  rdfs:range bsrep:BenchmarkRun .
+
+bsrep:includesUseCase a owl:ObjectProperty ;
+  rdfs:domain bsrep:ImpactReport ;
+  rdfs:range bsrep:UseCase .
+
+bsrep:includesRisk a owl:ObjectProperty ;
+  rdfs:domain bsrep:ImpactReport ;
+  rdfs:range bsrep:Risk .
+
+bsrep:includesMarket a owl:ObjectProperty ;
+  rdfs:domain bsrep:ImpactReport ;
+  rdfs:range bsrep:MarketEstimate .
+
+bsrep:includesPrediction a owl:ObjectProperty ;
+  rdfs:domain bsrep:ImpactReport ;
+  rdfs:range bsrep:Prediction .
+
+# Market and prediction properties
+bsrep:marketUSD a owl:DatatypeProperty ;
+  rdfs:domain bsrep:MarketEstimate ;
+  rdfs:range xsd:decimal .
+
+bsrep:marketBreakdown a owl:DatatypeProperty ;
+  rdfs:domain bsrep:MarketEstimate ;
+  rdfs:range xsd:string .
+
+bsrep:predictionForYear a owl:DatatypeProperty ;
+  rdfs:domain bsrep:Prediction ;
+  rdfs:range xsd:integer .
+
+bsrep:claim a owl:DatatypeProperty ;
+  rdfs:domain bsrep:Prediction ;
+  rdfs:range xsd:string .
+
+# Risk properties
+bsrep:mitigation a owl:DatatypeProperty ;
+  rdfs:domain bsrep:Risk ;
+  rdfs:range xsd:string .
+
+# SPR properties
+bsrep:sprText a owl:DatatypeProperty ;
+  rdfs:domain bsrep:SPR ;
+  rdfs:range xsd:string .
+
+# Additional properties for software components
+bsrep:componentKind a owl:DatatypeProperty ;
+  rdfs:domain bs:SoftwareComponent ;
+  rdfs:range xsd:string .
+
+bsrep:constantTime a owl:DatatypeProperty ;
+  rdfs:domain bs:SoftwareComponent ;
+  rdfs:range xsd:boolean .
+
+bsrep:tickBudgetMax a owl:DatatypeProperty ;
+  rdfs:domain bs:SoftwareComponent ;
+  rdfs:range xsd:integer .
+
+bsrep:l1Residency a owl:DatatypeProperty ;
+  rdfs:domain bs:SoftwareComponent ;
+  rdfs:range xsd:string .
+
+bsrep:enforcesTickBudget a owl:ObjectProperty ;
+  rdfs:domain bs:SoftwareComponent ;
+  rdfs:range qudt:QuantityValue .
+
+bsrep:enforcesConstantTime a owl:DatatypeProperty ;
+  rdfs:domain bs:SoftwareComponent ;
+  rdfs:range xsd:boolean .
+
+bsrep:enforcesHopBudget a owl:ObjectProperty ;
+  rdfs:domain bs:SoftwareComponent ;
+  rdfs:range qudt:QuantityValue .
+
+############################
+# COMPONENTS & VERSIONS
+############################
+
+bsrep:ByteActor_v3 a bs:SoftwareComponent ;
+  rdfs:label "ByteActor v3.0" ;
+  bsrep:componentKind "Actor" ;
+  bsrep:constantTime true ;
+  bsrep:tickBudgetMax 8 ;
+  bsrep:l1Residency "K1..K64, MPHF, 64B envelope" ;
+  schema:softwareVersion "3.0" .
+
+bsrep:ByteFlow_v3 a bs:SoftwareComponent ; 
+  rdfs:label "ByteFlow v3.0" ; 
+  bsrep:componentKind "Flow" .
+
+bsrep:ByteEthos_v3 a bs:SoftwareComponent ; 
+  rdfs:label "ByteEthos v3.0" ; 
+  bsrep:componentKind "Ethos" .
+
+############################
+# HARDWARE ENVIRONMENTS
+############################
+
+bsrep:HW_2024_Xeon6354 a bsrep:HardwareProfile ;
+  rdfs:label "Intel Xeon Gold 6354 @ 3.2GHz (2024 baseline)" ;
+  bsrep:cpuModel "Intel Xeon Gold 6354" ;
+  bsrep:corePinningPolicy "A→core0, F→core1, E→core2" ;
+  bsrep:l1DataKB 48 ; 
+  bsrep:l1InstrKB 32 ;
+  bsrep:clockGHz 3.2 .
+
+bsrep:HW_2025_SapphireRapids a bsrep:HardwareProfile ;
+  rdfs:label "Sapphire Rapids @ 4.0GHz (2025 projection)" ;
+  bsrep:cpuModel "Intel Sapphire Rapids" ;
+  bsrep:clockGHz 4.0 ;
+  bsrep:notes "AVX-512 tuned; prefetch improvements" .
+
+bsrep:HW_2026_ASIC a bsrep:HardwareProfile ;
+  rdfs:label "Purpose-built Workflow ASIC (2026)" ;
+  bsrep:cpuModel "ByteStar Workflow Core" ;
+  bsrep:clockGHz 5.0 ;
+  bsrep:notes "Hardware MPHF; on-die workflow cache; envelope registers" .
+
+############################
+# IMPACT REPORT DOC
+############################
+
+bsrep:ImpactReport_2026 a bsrep:ImpactReport ;
+  dct:title "ByteActor Impact Report: The Nanosecond Workflow Revolution" ;
+  dct:date "2025-01-01"^^xsd:date ;
+  dct:creator "ByteStar AHI Office" ;
+  schema:copyrightYear "2025" ;
+  bsrep:targetsYear 2026 ;
+  bsrep:coversComponent bsrep:ByteActor_v3 ;
+  schema:about bs:ByteActor, bs:ByteFlow, bs:ByteEthos ;
+  prov:wasDerivedFrom bsrep:SPR_ConversationSnapshot .
+
+# Optional: embed a compressed SPR/summary for agents (opaque literal)
+bsrep:SPR_ConversationSnapshot a bsrep:SPR ;
+  rdfs:label "SPR snapshot (conversation-wide)" ;
+  bsrep:sprText """⟦B={A,F,E}; Det∘; Θ=1⇒h≤8; PB congruence; L1={K1..K64,MPHF,ε}; SPSC; receipts=H(ρ∥r); PoA/PoR; fab.mode∈{cpu,gpu,hybrid}; LET-IT-CRASH(A)⟧""" .
+
+############################
+# MEASUREMENTS & UNITS
+############################
+
+# Helper blank node patterns reused in runs
+bsrep:TickBudget8 a qudt:QuantityValue ;
+  qudt:numericValue 8 ;
+  qudt:unit unit:DimensionlessUnit .
+
+bsrep:KernelTime_2p5ns a qudt:QuantityValue ;
+  qudt:numericValue 2.5 ;
+  qudt:unit unit:NanoSEC .
+
+bsrep:L1Residency_100 a qudt:QuantityValue ;
+  qudt:numericValue 100 ;
+  qudt:unit unit:PERCENT .
+
+bsrep:Throughput_Theoretical_400M a qudt:QuantityValue ;
+  qudt:numericValue 400000000 ;
+  qudt:unit unit:PER-SEC .
+
+bsrep:Throughput_Sustained_280M a qudt:QuantityValue ;
+  qudt:numericValue 280000000 ;
+  qudt:unit unit:PER-SEC .
+
+bsrep:Throughput_Sustained_320M a qudt:QuantityValue ;
+  qudt:numericValue 320000000 ;
+  qudt:unit unit:PER-SEC .
+
+############################
+# BENCHMARK RUNS
+############################
+
+bsrep:Run_2024_Baseline a bsrep:BenchmarkRun ;
+  rdfs:label "2024 Baseline — Xeon 6354 @3.2GHz" ;
+  bsrep:benchComponent bsrep:ByteActor_v3 ;
+  bsrep:hardwareProfile bsrep:HW_2024_Xeon6354 ;
+  bsrep:kernelTickBudget bsrep:TickBudget8 ;
+  bsrep:kernelExecTime bsrep:KernelTime_2p5ns ;
+  bsrep:l1ResidencyPct bsrep:L1Residency_100 ;
+  bsrep:branchMispredictPct [ qudt:numericValue 0 ; qudt:unit unit:PERCENT ] ;
+  bsrep:contextSwitchesPerSec [ qudt:numericValue 0 ; qudt:unit unit:PER-SEC ] ;
+  bsrep:throughputTheoretical bsrep:Throughput_Theoretical_400M ;
+  bsrep:throughputSustainedLow  bsrep:Throughput_Sustained_280M ;
+  bsrep:throughputSustainedHigh bsrep:Throughput_Sustained_320M ;
+  dct:date "2024-12-01"^^xsd:date .
+
+bsrep:Run_2025_Projection a bsrep:BenchmarkRun ;
+  rdfs:label "2025 Projection — Sapphire Rapids @4.0GHz" ;
+  bsrep:benchComponent bsrep:ByteActor_v3 ;
+  bsrep:hardwareProfile bsrep:HW_2025_SapphireRapids ;
+  bsrep:throughputSustained [ qudt:numericValue 400000000 ; qudt:unit unit:PER-SEC ] ;
+  dct:date "2025-12-01"^^xsd:date ;
+  bsrep:notes "AVX-512 and prefetch gains" .
+
+bsrep:Run_2026_ASIC a bsrep:BenchmarkRun ;
+  rdfs:label "2026 Projection — Workflow ASIC" ;
+  bsrep:benchComponent bsrep:ByteActor_v3 ;
+  bsrep:hardwareProfile bsrep:HW_2026_ASIC ;
+  bsrep:throughputSustained [ qudt:numericValue 1000000000 ; qudt:unit unit:PER-SEC ] ;
+  dct:date "2026-06-01"^^xsd:date ;
+  bsrep:notes "Hardware dispatch & cache" .
+
+############################
+# USE-CASE IMPACT CLAIMS
+############################
+
+# Template property usage:
+#   bsrep:useCaseLatencyNow, bsrep:useCaseLatencyWithBS, bsrep:speedupFactor
+
+bsrep:UC_HFT a bsrep:UseCase ;
+  rdfs:label "High-Frequency Trading (HFT)" ;
+  bsrep:useCaseLatencyNow [ qudt:numericValue 1.0 ; qudt:unit unit:MicroSEC ] ;      # lower bound
+  bsrep:useCaseLatencyNowHigh [ qudt:numericValue 10.0 ; qudt:unit unit:MicroSEC ] ; # upper bound
+  bsrep:useCaseLatencyWithBS [ qudt:numericValue 0.05 ; qudt:unit unit:MicroSEC ] ;
+  bsrep:speedupFactor 50 ;
+  bsrep:notes "Sub-µs arbitrage detection; PQC receipts for audit" .
+
+bsrep:UC_6G a bsrep:UseCase ;
+  rdfs:label "5G/6G NFV" ;
+  bsrep:useCaseLatencyNow [ qudt:numericValue 1.0 ; qudt:unit unit:MilliSEC ] ;
+  bsrep:useCaseLatencyNowHigh [ qudt:numericValue 5.0 ; qudt:unit unit:MilliSEC ] ;
+  bsrep:useCaseLatencyWithBS [ qudt:numericValue 0.1 ; qudt:unit unit:MicroSEC ] ;
+  bsrep:throughputPerCore [ qudt:numericValue 10000000 ; qudt:unit unit:PER-SEC ] ;
+  bsrep:notes "10M pps/core; sub-1ms e2e feasible" .
+
+bsrep:UC_Auto a bsrep:UseCase ;
+  rdfs:label "Autonomous Vehicles" ;
+  bsrep:useCaseLatencyNow [ qudt:numericValue 10.0 ; qudt:unit unit:MilliSEC ] ;
+  bsrep:useCaseLatencyNowHigh [ qudt:numericValue 100.0 ; qudt:unit unit:MilliSEC ] ;
+  bsrep:useCaseLatencyWithBS [ qudt:numericValue 10.0 ; qudt:unit unit:MicroSEC ] ;
+  bsrep:safetyWCET true ;
+  bsrep:notes "Deterministic WCET for safety-critical loops" .
+
+bsrep:UC_Video a bsrep:UseCase ;
+  rdfs:label "Real-Time Video" ;
+  bsrep:useCaseLatencyNow [ qudt:numericValue 16.0 ; qudt:unit unit:MilliSEC ] ;
+  bsrep:useCaseLatencyWithBS [ qudt:numericValue 0.1 ; qudt:unit unit:MicroSEC ] ;
+  bsrep:notes "10,000 fps-equivalent processing" .
+
+bsrep:UC_DB a bsrep:UseCase ;
+  rdfs:label "Distributed Databases" ;
+  bsrep:useCaseLatencyNow [ qudt:numericValue 1.0 ; qudt:unit unit:MilliSEC ] ;
+  bsrep:useCaseLatencyWithBS [ qudt:numericValue 1.0 ; qudt:unit unit:MicroSEC ] ;
+  bsrep:speedupFactor 1000 ;
+  bsrep:notes "µs-class coordination; strict serializability" .
+
+############################
+# MARKET & PREDICTIONS
+############################
+
+bsrep:TAM_2026 a bsrep:MarketEstimate ;
+  rdfs:label "Addressable Market 2026" ;
+  bsrep:marketUSD "2700000000000"^^xsd:decimal ;
+  bsrep:marketBreakdown """
+  FS=800B; Telco=600B; Auto=500B; Cloud=400B; Media=400B
+  """ .
+
+bsrep:Prediction_NanoEconomy a bsrep:Prediction ;
+  rdfs:label "Nanosecond Economy" ;
+  bsrep:predictionForYear 2026 ;
+  bsrep:claim "Nanosecond SLAs become standard for critical systems" .
+
+############################
+# RISKS & MITIGATIONS
+############################
+
+bsrep:Risk_Quantum a bsrep:Risk ;
+  rdfs:label "Quantum Disruption" ;
+  bsrep:mitigation "Tiered PQC; GPU batch; KEM settlement; ZK hooks" .
+
+bsrep:Risk_MemoryWall a bsrep:Risk ;
+  rdfs:label "Memory Wall" ;
+  bsrep:mitigation "3D stacking; photonic interconnect; on-die cache" .
+
+bsrep:Risk_CompilerComplexity a bsrep:Risk ;
+  rdfs:label "Compiler Complexity" ;
+  bsrep:mitigation "ML-driven AOT optimization; deterministic pipelines" .
+
+############################
+# DOCTRINE ASSERTIONS (LINKS)
+############################
+
+# Doctrine: every kernel ≤8 ticks & constant-time (already in bsreg)
+# We assert the systemic constraints here for ByteActor v3 (redundant but queryable)
+
+bsrep:ByteActor_v3 bsrep:enforcesTickBudget bsrep:TickBudget8 ;
+                    bsrep:enforcesConstantTime true ;
+                    bsrep:enforcesHopBudget [ qudt:numericValue 8 ; qudt:unit unit:DimensionlessUnit ] .
+
+# Link report to runs & use-cases
+bsrep:ImpactReport_2026
+  bsrep:includesBenchmark bsrep:Run_2024_Baseline, bsrep:Run_2025_Projection, bsrep:Run_2026_ASIC ;
+  bsrep:includesUseCase    bsrep:UC_HFT, bsrep:UC_6G, bsrep:UC_Auto, bsrep:UC_Video, bsrep:UC_DB ;
+  bsrep:includesRisk       bsrep:Risk_Quantum, bsrep:Risk_MemoryWall, bsrep:Risk_CompilerComplexity ;
+  bsrep:includesMarket     bsrep:TAM_2026 ;
+  bsrep:includesPrediction bsrep:Prediction_NanoEconomy .
+
+
+
+
+

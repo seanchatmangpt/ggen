@@ -1,0 +1,592 @@
+# Complete ByteStar Kernel Ontology - All 64 Kernels (A01..A64)
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bs: <urn:bs:> .
+@prefix bscore: <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/bytestar-kernels>
+  a owl:Ontology ;
+  rdfs:label "ByteStar Complete Kernel Definitions" ;
+  rdfs:comment """Complete ontological definitions for all 64 ByteActor kernels (A01..A64).
+    Each kernel is a constant-time, branch-free, L1-resident algorithm that executes in ≤8 CPU ticks.
+    This ontology implements the Ontology-as-Algorithm (OAA) principle where these definitions
+    directly drive the C implementation and validation.""" ;
+  owl:versionInfo "3.0.0" ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> .
+
+#################################################################
+# Movement Control Kernels (A01-A16)
+#################################################################
+
+<urn:bs:k/A01> a bscore:Kernel ;
+  rdfs:label "MPHF Dispatch" ;
+  rdfs:comment "Minimal Perfect Hash Function dispatch to target kernel" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "0"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k01_mphf_dispatch.c" .
+
+<urn:bs:k/A02> a bscore:Kernel ;
+  rdfs:label "LOUDS Select" ;
+  rdfs:comment "Level-Order Unary Degree Sequence select operation" ;
+  bscore:hasTickCost "3"^^xsd:integer ;
+  bscore:hasOpcode "1"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k02_louds_select.c" .
+
+<urn:bs:k/A03> a bscore:Kernel ;
+  rdfs:label "XOR Probe" ;
+  rdfs:comment "XOR filter membership probe" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "2"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k03_xor_probe.c" .
+
+<urn:bs:k/A04> a bscore:Kernel ;
+  rdfs:label "Envelope Load" ;
+  rdfs:comment "Load 64-byte envelope into L1 cache" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "3"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k04_envelope_load.c" .
+
+<urn:bs:k/A05> a bscore:Kernel ;
+  rdfs:label "BLAKE3 Mix" ;
+  rdfs:comment "BLAKE3 compression function mix" ;
+  bscore:hasTickCost "4"^^xsd:integer ;
+  bscore:hasOpcode "4"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k05_blake3_mix.c" .
+
+<urn:bs:k/A06> a bscore:Kernel ;
+  rdfs:label "SPSC Dequeue" ;
+  rdfs:comment "Single Producer Single Consumer queue dequeue" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "5"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k06_spsc_dequeue.c" .
+
+<urn:bs:k/A07> a bscore:Kernel ;
+  rdfs:label "Mask Select" ;
+  rdfs:comment "Bitwise mask selection operation" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "6"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k07_mask_select.c" .
+
+<urn:bs:k/A08> a bscore:Kernel ;
+  rdfs:label "Core Misc" ;
+  rdfs:comment "Miscellaneous core operations" ;
+  bscore:hasTickCost "3"^^xsd:integer ;
+  bscore:hasOpcode "7"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k08_core_misc.c" .
+
+<urn:bs:k/A09> a bscore:Kernel ;
+  rdfs:label "MPHF Dispatch V2" ;
+  rdfs:comment "Enhanced MPHF dispatch with optimizations" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "8"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k09_mphf_dispatch_v2.c" .
+
+<urn:bs:k/A10> a bscore:Kernel ;
+  rdfs:label "LOUDS Select V2" ;
+  rdfs:comment "Enhanced LOUDS select operation" ;
+  bscore:hasTickCost "3"^^xsd:integer ;
+  bscore:hasOpcode "9"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k10_louds_select_v2.c" .
+
+<urn:bs:k/A11> a bscore:Kernel ;
+  rdfs:label "XOR Probe V2" ;
+  rdfs:comment "Enhanced XOR filter probe" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "10"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k11_xor_probe_v2.c" .
+
+<urn:bs:k/A12> a bscore:Kernel ;
+  rdfs:label "Envelope Store" ;
+  rdfs:comment "Store envelope to memory with cache optimization" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "11"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k12_envelope_store.c" .
+
+<urn:bs:k/A13> a bscore:Kernel ;
+  rdfs:label "BLAKE3 Finalize" ;
+  rdfs:comment "BLAKE3 hash finalization" ;
+  bscore:hasTickCost "3"^^xsd:integer ;
+  bscore:hasOpcode "12"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k13_blake3_finalize.c" .
+
+<urn:bs:k/A14> a bscore:Kernel ;
+  rdfs:label "SPSC Enqueue" ;
+  rdfs:comment "Single Producer Single Consumer queue enqueue" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "13"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k14_spsc_enqueue.c" .
+
+<urn:bs:k/A15> a bscore:Kernel ;
+  rdfs:label "Bitset Check" ;
+  rdfs:comment "Bitset membership check operation" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "14"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k15_bitset_check.c" .
+
+<urn:bs:k/A16> a bscore:Kernel ;
+  rdfs:label "Core Fault" ;
+  rdfs:comment "Core fault handling and recovery" ;
+  bscore:hasTickCost "4"^^xsd:integer ;
+  bscore:hasOpcode "15"^^xsd:integer ;
+  bscore:kernelCategory "movement_control" ;
+  bscore:implementation "k16_core_fault.c" .
+
+#################################################################
+# Data Structure Kernels (A17-A32)
+#################################################################
+
+<urn:bs:k/A17> a bscore:Kernel ;
+  rdfs:label "MPHF Verify" ;
+  rdfs:comment "Verify MPHF table integrity" ;
+  bscore:hasTickCost "3"^^xsd:integer ;
+  bscore:hasOpcode "16"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k17_mphf_verify.c" .
+
+<urn:bs:k/A18> a bscore:Kernel ;
+  rdfs:label "LOUDS Insert" ;
+  rdfs:comment "Insert node into LOUDS tree" ;
+  bscore:hasTickCost "5"^^xsd:integer ;
+  bscore:hasOpcode "17"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k18_louds_insert.c" .
+
+<urn:bs:k/A19> a bscore:Kernel ;
+  rdfs:label "XOR Add" ;
+  rdfs:comment "Add element to XOR filter" ;
+  bscore:hasTickCost "4"^^xsd:integer ;
+  bscore:hasOpcode "18"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k19_xor_add.c" .
+
+<urn:bs:k/A20> a bscore:Kernel ;
+  rdfs:label "Envelope Transform" ;
+  rdfs:comment "Transform envelope data format" ;
+  bscore:hasTickCost "3"^^xsd:integer ;
+  bscore:hasOpcode "19"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k20_envelope_xform.c" .
+
+<urn:bs:k/A21> a bscore:Kernel ;
+  rdfs:label "PQC Verify" ;
+  rdfs:comment "Post-quantum cryptographic signature verification" ;
+  bscore:hasTickCost "8"^^xsd:integer ;
+  bscore:hasOpcode "20"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k21_pqc_verify.c" .
+
+<urn:bs:k/A22> a bscore:Kernel ;
+  rdfs:label "SPSC Peek" ;
+  rdfs:comment "Peek at next element in SPSC queue" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "21"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k22_spsc_peek.c" .
+
+<urn:bs:k/A23> a bscore:Kernel ;
+  rdfs:label "Mask AND" ;
+  rdfs:comment "Bitwise AND operation with mask" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "22"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k23_mask_and.c" .
+
+<urn:bs:k/A24> a bscore:Kernel ;
+  rdfs:label "Core ID" ;
+  rdfs:comment "Core identification and status" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "23"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k24_core_id.c" .
+
+<urn:bs:k/A25> a bscore:Kernel ;
+  rdfs:label "Dispatch Indirect" ;
+  rdfs:comment "Indirect dispatch through function pointer" ;
+  bscore:hasTickCost "3"^^xsd:integer ;
+  bscore:hasOpcode "24"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k25_dispatch_indirect.c" .
+
+<urn:bs:k/A26> a bscore:Kernel ;
+  rdfs:label "LOUDS Delete" ;
+  rdfs:comment "Delete node from LOUDS tree" ;
+  bscore:hasTickCost "6"^^xsd:integer ;
+  bscore:hasOpcode "25"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k26_louds_delete.c" .
+
+<urn:bs:k/A27> a bscore:Kernel ;
+  rdfs:label "XOR Build" ;
+  rdfs:comment "Build XOR filter from elements" ;
+  bscore:hasTickCost "7"^^xsd:integer ;
+  bscore:hasOpcode "26"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k27_xor_build.c" .
+
+<urn:bs:k/A28> a bscore:Kernel ;
+  rdfs:label "Envelope Seal" ;
+  rdfs:comment "Cryptographically seal envelope" ;
+  bscore:hasTickCost "6"^^xsd:integer ;
+  bscore:hasOpcode "27"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k28_envelope_seal.c" .
+
+<urn:bs:k/A29> a bscore:Kernel ;
+  rdfs:label "PQC Sign" ;
+  rdfs:comment "Post-quantum cryptographic signing" ;
+  bscore:hasTickCost "8"^^xsd:integer ;
+  bscore:hasOpcode "28"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k29_pqc_sign.c" .
+
+<urn:bs:k/A30> a bscore:Kernel ;
+  rdfs:label "SPSC Commit" ;
+  rdfs:comment "Commit SPSC queue transaction" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "29"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k30_spsc_commit.c" .
+
+<urn:bs:k/A31> a bscore:Kernel ;
+  rdfs:label "Mask OR" ;
+  rdfs:comment "Bitwise OR operation with mask" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "30"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k31_mask_or.c" .
+
+<urn:bs:k/A32> a bscore:Kernel ;
+  rdfs:label "Core Timer" ;
+  rdfs:comment "Core timing and synchronization" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "31"^^xsd:integer ;
+  bscore:kernelCategory "data_structure" ;
+  bscore:implementation "k32_core_timer.c" .
+
+#################################################################
+# Control Flow Kernels (A33-A48)
+#################################################################
+
+<urn:bs:k/A33> a bscore:Kernel ;
+  rdfs:label "Dispatch Table Swap" ;
+  rdfs:comment "Atomic dispatch table swap operation" ;
+  bscore:hasTickCost "3"^^xsd:integer ;
+  bscore:hasOpcode "32"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k33_dispatch_table_swap.c" .
+
+<urn:bs:k/A34> a bscore:Kernel ;
+  rdfs:label "LOUDS Traverse" ;
+  rdfs:comment "Traverse LOUDS tree structure" ;
+  bscore:hasTickCost "4"^^xsd:integer ;
+  bscore:hasOpcode "33"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k34_louds_traverse.c" .
+
+<urn:bs:k/A35> a bscore:Kernel ;
+  rdfs:label "XOR Contains" ;
+  rdfs:comment "Check if XOR filter contains element" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "34"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k35_xor_contains.c" .
+
+<urn:bs:k/A36> a bscore:Kernel ;
+  rdfs:label "Envelope Unseal" ;
+  rdfs:comment "Verify and unseal envelope" ;
+  bscore:hasTickCost "5"^^xsd:integer ;
+  bscore:hasOpcode "35"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k36_envelope_unseal.c" .
+
+<urn:bs:k/A37> a bscore:Kernel ;
+  rdfs:label "PQC Encap" ;
+  rdfs:comment "Post-quantum key encapsulation" ;
+  bscore:hasTickCost "7"^^xsd:integer ;
+  bscore:hasOpcode "36"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k37_pqc_encap.c" .
+
+<urn:bs:k/A38> a bscore:Kernel ;
+  rdfs:label "SPSC Abort" ;
+  rdfs:comment "Abort SPSC queue transaction" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "37"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k38_spsc_abort.c" .
+
+<urn:bs:k/A39> a bscore:Kernel ;
+  rdfs:label "Mask XOR" ;
+  rdfs:comment "Bitwise XOR operation with mask" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "38"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k39_mask_xor.c" .
+
+<urn:bs:k/A40> a bscore:Kernel ;
+  rdfs:label "Core NOP" ;
+  rdfs:comment "No-operation core instruction" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "39"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k40_core_nop.c" .
+
+<urn:bs:k/A41> a bscore:Kernel ;
+  rdfs:label "Pattern AND Join" ;
+  rdfs:comment "Join patterns with AND operation" ;
+  bscore:hasTickCost "3"^^xsd:integer ;
+  bscore:hasOpcode "40"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k41_pattern_and_join.c" .
+
+<urn:bs:k/A42> a bscore:Kernel ;
+  rdfs:label "Pattern XOR Split" ;
+  rdfs:comment "Split pattern with XOR operation" ;
+  bscore:hasTickCost "3"^^xsd:integer ;
+  bscore:hasOpcode "41"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k42_pattern_xor_split.c" .
+
+<urn:bs:k/A43> a bscore:Kernel ;
+  rdfs:label "Pattern N of M" ;
+  rdfs:comment "N-of-M pattern selection" ;
+  bscore:hasTickCost "4"^^xsd:integer ;
+  bscore:hasOpcode "42"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k43_pattern_n_of_m.c" .
+
+<urn:bs:k/A44> a bscore:Kernel ;
+  rdfs:label "Pattern Sync Merge" ;
+  rdfs:comment "Synchronous pattern merge operation" ;
+  bscore:hasTickCost "4"^^xsd:integer ;
+  bscore:hasOpcode "43"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k44_pattern_sync_merge.c" .
+
+<urn:bs:k/A45> a bscore:Kernel ;
+  rdfs:label "Pattern Cancel Region" ;
+  rdfs:comment "Cancel pattern execution region" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "44"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k45_pattern_cancel_region.c" .
+
+<urn:bs:k/A46> a bscore:Kernel ;
+  rdfs:label "Pattern MI Fan Out" ;
+  rdfs:comment "Multiple Input fan-out pattern" ;
+  bscore:hasTickCost "3"^^xsd:integer ;
+  bscore:hasOpcode "45"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k46_pattern_mi_fan_out.c" .
+
+<urn:bs:k/A47> a bscore:Kernel ;
+  rdfs:label "Pattern MI Fan In" ;
+  rdfs:comment "Multiple Input fan-in pattern" ;
+  bscore:hasTickCost "3"^^xsd:integer ;
+  bscore:hasOpcode "46"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k47_pattern_mi_fan_in.c" .
+
+<urn:bs:k/A48> a bscore:Kernel ;
+  rdfs:label "Pattern Cycle Gate" ;
+  rdfs:comment "Cycle-based pattern gate control" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "47"^^xsd:integer ;
+  bscore:kernelCategory "control_flow" ;
+  bscore:implementation "k48_pattern_cycle_gate.c" .
+
+#################################################################
+# Register Operations Kernels (A49-A64)
+#################################################################
+
+<urn:bs:k/A49> a bscore:Kernel ;
+  rdfs:label "Register Move" ;
+  rdfs:comment "Register-to-register move operation" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "48"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k49_reg_mov.c" .
+
+<urn:bs:k/A50> a bscore:Kernel ;
+  rdfs:label "Register Add" ;
+  rdfs:comment "Register addition operation" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "49"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k50_reg_add.c" .
+
+<urn:bs:k/A51> a bscore:Kernel ;
+  rdfs:label "Register Subtract" ;
+  rdfs:comment "Register subtraction operation" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "50"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k51_reg_sub.c" .
+
+<urn:bs:k/A52> a bscore:Kernel ;
+  rdfs:label "Register AND" ;
+  rdfs:comment "Register bitwise AND operation" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "51"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k52_reg_and.c" .
+
+<urn:bs:k/A53> a bscore:Kernel ;
+  rdfs:label "Register OR" ;
+  rdfs:comment "Register bitwise OR operation" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "52"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k53_reg_or.c" .
+
+<urn:bs:k/A54> a bscore:Kernel ;
+  rdfs:label "Register XOR" ;
+  rdfs:comment "Register bitwise XOR operation" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "53"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k54_reg_xor.c" .
+
+<urn:bs:k/A55> a bscore:Kernel ;
+  rdfs:label "Register Left Shift" ;
+  rdfs:comment "Register left shift operation" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "54"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k55_reg_lshift.c" .
+
+<urn:bs:k/A56> a bscore:Kernel ;
+  rdfs:label "Register Right Shift" ;
+  rdfs:comment "Register right shift operation" ;
+  bscore:hasTickCost "1"^^xsd:integer ;
+  bscore:hasOpcode "55"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k56_reg_rshift.c" .
+
+<urn:bs:k/A57> a bscore:Kernel ;
+  rdfs:label "Memory Load 64" ;
+  rdfs:comment "Load 64-bit value from memory" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "56"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k57_mem_load_64.c" .
+
+<urn:bs:k/A58> a bscore:Kernel ;
+  rdfs:label "Memory Store 64" ;
+  rdfs:comment "Store 64-bit value to memory" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "57"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k58_mem_store_64.c" .
+
+<urn:bs:k/A59> a bscore:Kernel ;
+  rdfs:label "Memory Load 32" ;
+  rdfs:comment "Load 32-bit value from memory" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "58"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k59_mem_load_32.c" .
+
+<urn:bs:k/A60> a bscore:Kernel ;
+  rdfs:label "Memory Store 32" ;
+  rdfs:comment "Store 32-bit value to memory" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "59"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k60_mem_store_32.c" .
+
+<urn:bs:k/A61> a bscore:Kernel ;
+  rdfs:label "Memory Load 16" ;
+  rdfs:comment "Load 16-bit value from memory" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "60"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k61_mem_load_16.c" .
+
+<urn:bs:k/A62> a bscore:Kernel ;
+  rdfs:label "Memory Store 16" ;
+  rdfs:comment "Store 16-bit value to memory" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "61"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k62_mem_store_16.c" .
+
+<urn:bs:k/A63> a bscore:Kernel ;
+  rdfs:label "Memory Load 8" ;
+  rdfs:comment "Load 8-bit value from memory" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "62"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k63_mem_load_8.c" .
+
+<urn:bs:k/A64> a bscore:Kernel ;
+  rdfs:label "Memory Store 8" ;
+  rdfs:comment "Store 8-bit value to memory" ;
+  bscore:hasTickCost "2"^^xsd:integer ;
+  bscore:hasOpcode "63"^^xsd:integer ;
+  bscore:kernelCategory "register_ops" ;
+  bscore:implementation "k64_mem_store_8.c" .
+
+#################################################################
+# Kernel Properties and Relations
+#################################################################
+
+bscore:hasOpcode a owl:DatatypeProperty ;
+  rdfs:label "hasOpcode" ;
+  rdfs:comment "The numerical opcode for the kernel" ;
+  rdfs:domain bscore:Kernel ;
+  rdfs:range xsd:integer .
+
+bscore:kernelCategory a owl:DatatypeProperty ;
+  rdfs:label "kernelCategory" ;
+  rdfs:comment "The functional category of the kernel" ;
+  rdfs:domain bscore:Kernel ;
+  rdfs:range xsd:string .
+
+bscore:implementation a owl:DatatypeProperty ;
+  rdfs:label "implementation" ;
+  rdfs:comment "The C source file implementing this kernel" ;
+  rdfs:domain bscore:Kernel ;
+  rdfs:range xsd:string .
+
+#################################################################
+# Validation Constraints
+#################################################################
+
+# All kernels must have tick cost ≤ 8 (Doctrine of 8)
+bscore:Kernel rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty bscore:hasTickCost ;
+  owl:allValuesFrom [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "1"^^xsd:integer ]
+      [ xsd:maxInclusive "8"^^xsd:integer ]
+    )
+  ]
+] .
+
+# All kernels must have unique opcodes
+bscore:Kernel rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty bscore:hasOpcode ;
+  owl:cardinality "1"^^xsd:nonNegativeInteger
+] .

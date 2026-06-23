@@ -1,0 +1,44 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://example.org/storehouse#> .
+@prefix fibo: <http://www.omg.org/spec/EDMC-FIBO/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+ex:StorehouseUnitShape
+    a sh:NodeShape ;
+    sh:targetClass ex:StorehouseUnit ;
+    sh:property [
+        sh:path fibo:fnd-acc-acc:hasAmount ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path fibo:fnd-acc-cur:hasCurrency ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path prov:generatedAtTime ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+    ] .
+
+ex:ReceiptShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Invoice ;
+    sh:property [
+        sh:path schema:totalPaymentDue ;
+        sh:nodeKind sh:Literal ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dcterms:issued ;
+        sh:datatype xsd:dateTime ;
+    ] ;
+    sh:property [
+        sh:path prov:wasGeneratedBy ;
+        sh:class ex:StorehouseUnit ;
+    ] .

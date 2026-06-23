@@ -1,0 +1,89 @@
+# CONSTRUCT: Compute the full closure of a compound
+#
+# For each ontology in the compound, materialises its alignment rules,
+# closure constraints, lawful invariants, and dependency-graph edges.
+# The result is a merged graph suitable for reasoning.
+#
+# Parameter: ?compound -- a prov:Bundle URI
+#
+# Public ontology terms:
+#   OntologyCompound -> prov:Bundle
+#   AlignmentRule -> dct:conformsTo
+#   ClosureConstraint -> prov:Entity with dct:type
+#   LawfulInvariant -> prov:Entity with dct:type
+#   DependencyGraph -> prov:Entity with dct:type
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+CONSTRUCT {
+  # Compound core (prov:Bundle)
+  ?compound rdf:type prov:Bundle .
+  ?compound prov:hadMember ?ontology .
+
+  # Ontology identity
+  ?ontology rdf:type owl:Ontology .
+
+  # Alignment rules attached to this ontology (dct:conformsTo)
+  ?alignmentRule rdf:type prov:Entity .
+  ?alignmentRule dct:conformsTo ?ontology .
+  ?alignmentRule prov:wasDerivedFrom ?targetOntology .
+  ?alignmentRule dct:subject ?mappedProperty .
+
+  # Closure constraints attached to this ontology
+  ?closureConstraint rdf:type prov:Entity .
+  ?closureConstraint dct:type ?constraintType .
+  ?closureConstraint dct:format ?constraintSPARQL .
+
+  # Lawful invariants attached to this ontology
+  ?lawfulInvariant rdf:type prov:Entity .
+  ?lawfulInvariant dct:title ?invariantName .
+  ?lawfulInvariant dct:type ?invariantType .
+  ?lawfulInvariant dct:source ?verificationQuery .
+
+  # Dependency graph edges
+  ?depGraph rdf:type prov:Entity .
+  ?depGraph prov:wasDerivedFrom ?dependedOn .
+  ?depGraph prov:hadDerivation ?dependedBy .
+}
+WHERE {
+  # Bind the compound parameter -- replace the VALUES block with a concrete URI
+  VALUES ?compound { <https://chatmangpt.com/compounds/placeholder> }
+
+  ?compound prov:hadMember ?ontology .
+
+  # Alignment rules for this ontology
+  OPTIONAL {
+    ?compound prov:hadMember ?alignmentRule .
+    ?alignmentRule dct:conformsTo ?ontology .
+    OPTIONAL { ?alignmentRule prov:wasDerivedFrom ?targetOntology . }
+    OPTIONAL { ?alignmentRule dct:subject ?mappedProperty . }
+  }
+
+  # Closure constraints for this ontology
+  OPTIONAL {
+    ?compound prov:hadMember ?closureConstraint .
+    OPTIONAL { ?closureConstraint dct:type ?constraintType . }
+    OPTIONAL { ?closureConstraint dct:format ?constraintSPARQL . }
+  }
+
+  # Lawful invariants for this ontology
+  OPTIONAL {
+    ?compound prov:hadMember ?lawfulInvariant .
+    OPTIONAL { ?lawfulInvariant dct:title ?invariantName . }
+    OPTIONAL { ?lawfulInvariant dct:type ?invariantType . }
+    OPTIONAL { ?lawfulInvariant dct:source ?verificationQuery . }
+  }
+
+  # Dependency graph edges originating from this ontology
+  OPTIONAL {
+    ?depGraph rdf:type prov:Entity .
+    ?depGraph prov:wasDerivedFrom ?ontology .
+    OPTIONAL { ?depGraph prov:hadDerivation ?dependedBy . }
+    BIND(?ontology AS ?dependedOn)
+  }
+}

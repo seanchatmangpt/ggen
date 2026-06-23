@@ -37,7 +37,15 @@ expected_commands = [
     '11_verify_proof_report',
     '12_detect_contradictions',
     '13_adjudicate_gall_promotion',
-    '20_capture_full_worktree_inventory'
+    '20_capture_full_worktree_inventory',
+    # W-series scripts are verified on second-pass adjudication runs;
+    # first-pass omits self-referential check of 21_verify_command_transcripts.
+    '22_verify_script_adequacy',
+    '23_run_sabotage_suite',
+    '24_run_clean_room_rebuild',
+    '25_verify_cross_artifact_consistency',
+    '26_verify_ocel_causal_sufficiency',
+    '27_verify_contradiction_supersession',
 ]
 
 def check_file_sha256(path):

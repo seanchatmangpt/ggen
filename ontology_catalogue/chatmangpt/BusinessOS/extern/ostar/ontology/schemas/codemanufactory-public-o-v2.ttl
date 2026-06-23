@@ -1,0 +1,631 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix odrl:    <http://www.w3.org/ns/odrl/2/> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix vcard:   <http://www.w3.org/2006/vcard/ns#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix schema:  <https://schema.org/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+
+#################################################################
+# DATASET / ONTOLOGY SURFACE
+#################################################################
+
+[] a dcat:Dataset, owl:Ontology ;
+   dcterms:title "CodeManufactory public O schema v2" ;
+   dcterms:description "Public-namespace-only ontology/schema for CodeManufactory: ontology breeding, deterministic manufacturing, projection, packages, repositories, receipts, observability, validation, release, and MCP participant surfaces, expressed without any custom namespace." ;
+   dcterms:creator [ a foaf:Person ; foaf:name "Sean Chatman" ] ;
+   dcterms:subject
+     "Code Manufacturing",
+     "Ontology Breeding",
+     "Deterministic Projection",
+     "Artifact Manufacturing",
+     "Receipts",
+     "Observability",
+     "MCP Participants",
+     "Validation",
+     "Proof",
+     "Benchmarks",
+     "Release Engineering",
+     "Knowledge Operating System" ;
+   dcterms:license <http://creativecommons.org/licenses/by/4.0/> .
+
+#################################################################
+# CORE CONCEPT SCHEMES
+#################################################################
+
+[] a skos:ConceptScheme ;
+   dcterms:title "CodeManufactory artifact kind scheme" ;
+   skos:hasTopConcept
+     [ a skos:Concept ; skos:prefLabel "ontology" ; skos:notation "ontology" ],
+     [ a skos:Concept ; skos:prefLabel "schema" ; skos:notation "schema" ],
+     [ a skos:Concept ; skos:prefLabel "source code" ; skos:notation "source-code" ],
+     [ a skos:Concept ; skos:prefLabel "package" ; skos:notation "package" ],
+     [ a skos:Concept ; skos:prefLabel "repository" ; skos:notation "repository" ],
+     [ a skos:Concept ; skos:prefLabel "workflow model" ; skos:notation "workflow-model" ],
+     [ a skos:Concept ; skos:prefLabel "MCP participant surface" ; skos:notation "mcp-participant-surface" ],
+     [ a skos:Concept ; skos:prefLabel "semantic convention" ; skos:notation "semantic-convention" ],
+     [ a skos:Concept ; skos:prefLabel "benchmark" ; skos:notation "benchmark" ],
+     [ a skos:Concept ; skos:prefLabel "validation artifact" ; skos:notation "validation-artifact" ],
+     [ a skos:Concept ; skos:prefLabel "receipt" ; skos:notation "receipt" ],
+     [ a skos:Concept ; skos:prefLabel "documentation" ; skos:notation "documentation" ],
+     [ a skos:Concept ; skos:prefLabel "release artifact" ; skos:notation "release-artifact" ],
+     [ a skos:Concept ; skos:prefLabel "case study" ; skos:notation "case-study" ],
+     [ a skos:Concept ; skos:prefLabel "telemetry mapping" ; skos:notation "telemetry-mapping" ] .
+
+[] a skos:ConceptScheme ;
+   dcterms:title "CodeManufactory manufacturing stage scheme" ;
+   skos:hasTopConcept
+     [ a skos:Concept ; skos:prefLabel "seeded" ; skos:notation "seeded" ],
+     [ a skos:Concept ; skos:prefLabel "bred" ; skos:notation "bred" ],
+     [ a skos:Concept ; skos:prefLabel "validated" ; skos:notation "validated" ],
+     [ a skos:Concept ; skos:prefLabel "projected" ; skos:notation "projected" ],
+     [ a skos:Concept ; skos:prefLabel "compiled" ; skos:notation "compiled" ],
+     [ a skos:Concept ; skos:prefLabel "benchmarked" ; skos:notation "benchmarked" ],
+     [ a skos:Concept ; skos:prefLabel "released" ; skos:notation "released" ],
+     [ a skos:Concept ; skos:prefLabel "observed" ; skos:notation "observed" ],
+     [ a skos:Concept ; skos:prefLabel "receipted" ; skos:notation "receipted" ] .
+
+[] a skos:ConceptScheme ;
+   dcterms:title "CodeManufactory operator scheme" ;
+   skos:hasTopConcept
+     [ a skos:Concept ; skos:prefLabel "breed ontology" ; skos:notation "breed-ontology" ],
+     [ a skos:Concept ; skos:prefLabel "validate ontology" ; skos:notation "validate-ontology" ],
+     [ a skos:Concept ; skos:prefLabel "project artifact" ; skos:notation "project-artifact" ],
+     [ a skos:Concept ; skos:prefLabel "compile artifact" ; skos:notation "compile-artifact" ],
+     [ a skos:Concept ; skos:prefLabel "generate participant surface" ; skos:notation "generate-participant-surface" ],
+     [ a skos:Concept ; skos:prefLabel "emit telemetry mapping" ; skos:notation "emit-telemetry-mapping" ],
+     [ a skos:Concept ; skos:prefLabel "emit receipt" ; skos:notation "emit-receipt" ],
+     [ a skos:Concept ; skos:prefLabel "run benchmark" ; skos:notation "run-benchmark" ],
+     [ a skos:Concept ; skos:prefLabel "run validation" ; skos:notation "run-validation" ],
+     [ a skos:Concept ; skos:prefLabel "release package" ; skos:notation "release-package" ] .
+
+[] a skos:ConceptScheme ;
+   dcterms:title "CodeManufactory proof gate scheme" ;
+   skos:hasTopConcept
+     [ a skos:Concept ; skos:prefLabel "schema valid" ; skos:notation "schema-valid" ],
+     [ a skos:Concept ; skos:prefLabel "projection complete" ; skos:notation "projection-complete" ],
+     [ a skos:Concept ; skos:prefLabel "compilation passes" ; skos:notation "compilation-passes" ],
+     [ a skos:Concept ; skos:prefLabel "benchmark complete" ; skos:notation "benchmark-complete" ],
+     [ a skos:Concept ; skos:prefLabel "observability present" ; skos:notation "observability-present" ],
+     [ a skos:Concept ; skos:prefLabel "receipt recomputable" ; skos:notation "receipt-recomputable" ],
+     [ a skos:Concept ; skos:prefLabel "cross-system causality proven" ; skos:notation "cross-system-causality-proven" ],
+     [ a skos:Concept ; skos:prefLabel "sustained validation complete" ; skos:notation "sustained-validation-complete" ] .
+
+[] a skos:ConceptScheme ;
+   dcterms:title "CodeManufactory runtime topology scheme" ;
+   skos:hasTopConcept
+     [ a skos:Concept ; skos:prefLabel "cloud" ; skos:notation "cloud" ],
+     [ a skos:Concept ; skos:prefLabel "fog" ; skos:notation "fog" ],
+     [ a skos:Concept ; skos:prefLabel "edge" ; skos:notation "edge" ],
+     [ a skos:Concept ; skos:prefLabel "IoT" ; skos:notation "iot" ],
+     [ a skos:Concept ; skos:prefLabel "desktop" ; skos:notation "desktop" ],
+     [ a skos:Concept ; skos:prefLabel "server" ; skos:notation "server" ],
+     [ a skos:Concept ; skos:prefLabel "browser" ; skos:notation "browser" ],
+     [ a skos:Concept ; skos:prefLabel "WASM host" ; skos:notation "wasm-host" ] .
+
+[] a skos:ConceptScheme ;
+   dcterms:title "CodeManufactory language and substrate scheme" ;
+   skos:hasTopConcept
+     [ a skos:Concept ; skos:prefLabel "C" ; skos:notation "c" ],
+     [ a skos:Concept ; skos:prefLabel "Rust" ; skos:notation "rust" ],
+     [ a skos:Concept ; skos:prefLabel "Elixir" ; skos:notation "elixir" ],
+     [ a skos:Concept ; skos:prefLabel "Erlang" ; skos:notation "erlang" ],
+     [ a skos:Concept ; skos:prefLabel "Python" ; skos:notation "python" ],
+     [ a skos:Concept ; skos:prefLabel "WebAssembly" ; skos:notation "wasm" ],
+     [ a skos:Concept ; skos:prefLabel "AtomVM" ; skos:notation "atomvm" ] .
+
+[] a skos:ConceptScheme ;
+   dcterms:title "CodeManufactory governance scheme" ;
+   skos:hasTopConcept
+     [ a skos:Concept ; skos:prefLabel "genesis ontology" ; skos:notation "genesis-ontology" ],
+     [ a skos:Concept ; skos:prefLabel "manufacturing organization" ; skos:notation "manufacturing-organization" ],
+     [ a skos:Concept ; skos:prefLabel "principal architect" ; skos:notation "principal-architect" ],
+     [ a skos:Concept ; skos:prefLabel "proof gate" ; skos:notation "proof-gate" ] .
+
+#################################################################
+# GENESIS ONTOLOGY SHAPE
+#################################################################
+
+[] a sh:NodeShape ;
+   dcterms:title "Genesis ontology shape" ;
+   sh:targetSubjectsOf dcterms:title ;
+   sh:property [
+     sh:path rdf:type ;
+     sh:hasValue owl:Ontology ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:title ;
+     sh:datatype xsd:string ;
+     sh:minCount 1 ;
+     sh:maxCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:description ;
+     sh:datatype xsd:string ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path prov:wasAttributedTo ;
+     sh:class prov:Agent ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:type ;
+     sh:class skos:Concept ;
+     sh:minCount 1
+   ] .
+
+#################################################################
+# MANUFACTURING OPERATOR SHAPE
+#################################################################
+
+[] a sh:NodeShape ;
+   dcterms:title "Manufacturing operator activity shape" ;
+   sh:targetClass prov:Activity ;
+   sh:property [
+     sh:path dcterms:type ;
+     sh:class skos:Concept ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path prov:used ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path prov:generated ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path prov:startedAtTime ;
+     sh:datatype xsd:dateTime ;
+     sh:minCount 1 ;
+     sh:maxCount 1
+   ] ;
+   sh:property [
+     sh:path prov:endedAtTime ;
+     sh:datatype xsd:dateTime ;
+     sh:minCount 0 ;
+     sh:maxCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:identifier ;
+     sh:datatype xsd:string ;
+     sh:minCount 1 ;
+     sh:maxCount 1
+   ] .
+
+#################################################################
+# MANUFACTURED ARTIFACT SHAPE
+#################################################################
+
+[] a sh:NodeShape ;
+   dcterms:title "Manufactured artifact shape" ;
+   sh:targetSubjectsOf prov:wasGeneratedBy ;
+   sh:property [
+     sh:path dcterms:title ;
+     sh:datatype xsd:string ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:type ;
+     sh:class skos:Concept ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path prov:wasGeneratedBy ;
+     sh:class prov:Activity ;
+     sh:minCount 1 ;
+     sh:maxCount 1
+   ] ;
+   sh:property [
+     sh:path prov:wasDerivedFrom ;
+     sh:minCount 0
+   ] ;
+   sh:property [
+     sh:path dcterms:created ;
+     sh:datatype xsd:dateTime ;
+     sh:minCount 0 ;
+     sh:maxCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:identifier ;
+     sh:datatype xsd:string ;
+     sh:minCount 1 ;
+     sh:maxCount 1
+   ] .
+
+[] a sh:NodeShape ;
+   dcterms:title "Repository artifact shape" ;
+   sh:targetClass schema:SoftwareSourceCode ;
+   sh:property [
+     sh:path schema:codeRepository ;
+     sh:datatype xsd:anyURI ;
+     sh:minCount 0
+   ] ;
+   sh:property [
+     sh:path schema:programmingLanguage ;
+     sh:minCount 0
+   ] ;
+   sh:property [
+     sh:path schema:runtimePlatform ;
+     sh:minCount 0
+   ] ;
+   sh:property [
+     sh:path schema:maintainer ;
+     sh:minCount 0
+   ] .
+
+[] a sh:NodeShape ;
+   dcterms:title "Package artifact shape" ;
+   sh:targetClass schema:SoftwareApplication ;
+   sh:property [
+     sh:path schema:name ;
+     sh:datatype xsd:string ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path schema:softwareVersion ;
+     sh:datatype xsd:string ;
+     sh:minCount 0
+   ] ;
+   sh:property [
+     sh:path schema:programmingLanguage ;
+     sh:minCount 0
+   ] ;
+   sh:property [
+     sh:path schema:runtimePlatform ;
+     sh:minCount 0
+   ] ;
+   sh:property [
+     sh:path schema:isBasedOn ;
+     sh:minCount 0
+   ] .
+
+[] a sh:NodeShape ;
+   dcterms:title "Benchmark artifact shape" ;
+   sh:targetClass schema:Dataset ;
+   sh:property [
+     sh:path dcterms:type ;
+     sh:class skos:Concept ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path schema:measurementTechnique ;
+     sh:datatype xsd:string ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path schema:variableMeasured ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:creator ;
+     sh:minCount 1
+   ] .
+
+#################################################################
+# ONTOLOGY BREEDING / EVOLUTION SHAPE
+#################################################################
+
+[] a sh:NodeShape ;
+   dcterms:title "Ontology breeding action shape" ;
+   sh:targetClass schema:UpdateAction ;
+   sh:property [
+     sh:path schema:object ;
+     sh:minCount 1 ;
+     sh:maxCount 1
+   ] ;
+   sh:property [
+     sh:path schema:result ;
+     sh:minCount 1 ;
+     sh:maxCount 1
+   ] ;
+   sh:property [
+     sh:path prov:used ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:description ;
+     sh:datatype xsd:string ;
+     sh:minCount 0
+   ] ;
+   sh:property [
+     sh:path dcterms:type ;
+     sh:class skos:Concept ;
+     sh:minCount 1
+   ] .
+
+#################################################################
+# MCP PARTICIPANT SURFACE SHAPE
+#################################################################
+
+[] a sh:NodeShape ;
+   dcterms:title "MCP participant surface shape" ;
+   sh:targetSubjectsOf schema:potentialAction ;
+   sh:property [
+     sh:path rdf:type ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path schema:roleName ;
+     sh:datatype xsd:string ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path schema:potentialAction ;
+     sh:class schema:Action ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path schema:knowsAbout ;
+     sh:minCount 0
+   ] ;
+   sh:property [
+     sh:path dcterms:type ;
+     sh:class skos:Concept ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path schema:memberOf ;
+     sh:minCount 0
+   ] .
+
+#################################################################
+# OBSERVABILITY SHAPE
+#################################################################
+
+[] a sh:NodeShape ;
+   dcterms:title "Observability event shape" ;
+   sh:targetClass prov:Activity ;
+   sh:property [
+     sh:path dcterms:identifier ;
+     sh:datatype xsd:string ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:type ;
+     sh:class skos:Concept ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path prov:wasAssociatedWith ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path prov:used ;
+     sh:minCount 0
+   ] ;
+   sh:property [
+     sh:path prov:generated ;
+     sh:minCount 0
+   ] ;
+   sh:property [
+     sh:path prov:startedAtTime ;
+     sh:datatype xsd:dateTime ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path prov:endedAtTime ;
+     sh:datatype xsd:dateTime ;
+     sh:minCount 0
+   ] .
+
+#################################################################
+# RECEIPT SHAPE
+#################################################################
+
+[] a sh:NodeShape ;
+   dcterms:title "Receipt entity shape" ;
+   sh:targetSubjectsOf dcterms:created ;
+   sh:property [
+     sh:path dcterms:type ;
+     sh:class skos:Concept ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:identifier ;
+     sh:datatype xsd:string ;
+     sh:minCount 1 ;
+     sh:maxCount 1
+   ] ;
+   sh:property [
+     sh:path prov:wasGeneratedBy ;
+     sh:class prov:Activity ;
+     sh:minCount 1 ;
+     sh:maxCount 1
+   ] ;
+   sh:property [
+     sh:path prov:wasDerivedFrom ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:created ;
+     sh:datatype xsd:dateTime ;
+     sh:minCount 1 ;
+     sh:maxCount 1
+   ] .
+
+#################################################################
+# VALIDATION / PROOF GATE SHAPE
+#################################################################
+
+[] a sh:NodeShape ;
+   dcterms:title "Validation run shape" ;
+   sh:targetClass schema:CheckAction ;
+   sh:property [
+     sh:path schema:object ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path schema:result ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:type ;
+     sh:class skos:Concept ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path schema:startTime ;
+     sh:datatype xsd:dateTime ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path schema:endTime ;
+     sh:datatype xsd:dateTime ;
+     sh:minCount 0
+   ] ;
+   sh:property [
+     sh:path dcterms:identifier ;
+     sh:datatype xsd:string ;
+     sh:minCount 1
+   ] .
+
+#################################################################
+# RELEASE SHAPE
+#################################################################
+
+[] a sh:NodeShape ;
+   dcterms:title "Release action shape" ;
+   sh:targetClass schema:ActivateAction ;
+   sh:property [
+     sh:path schema:object ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path schema:result ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path schema:agent ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:type ;
+     sh:class skos:Concept ;
+     sh:minCount 1
+   ] .
+
+#################################################################
+# TOPOLOGY / PORTABILITY SHAPE
+#################################################################
+
+[] a sh:NodeShape ;
+   dcterms:title "Portable runtime artifact shape" ;
+   sh:targetClass schema:SoftwareApplication ;
+   sh:property [
+     sh:path schema:runtimePlatform ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path schema:programmingLanguage ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:type ;
+     sh:class skos:Concept ;
+     sh:minCount 1
+   ] .
+
+#################################################################
+# CASE STUDY SHAPE
+#################################################################
+
+[] a sh:NodeShape ;
+   dcterms:title "Case study artifact shape" ;
+   sh:targetClass schema:CreativeWork ;
+   sh:property [
+     sh:path dcterms:title ;
+     sh:datatype xsd:string ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:description ;
+     sh:datatype xsd:string ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path dcterms:type ;
+     sh:class skos:Concept ;
+     sh:minCount 1
+   ] ;
+   sh:property [
+     sh:path prov:wasDerivedFrom ;
+     sh:minCount 0
+   ] ;
+   sh:property [
+     sh:path dcterms:creator ;
+     sh:minCount 1
+   ] .
+
+#################################################################
+# POLICY / GOVERNANCE
+#################################################################
+
+[] a odrl:Policy ;
+   dcterms:title "Release proof policy" ;
+   dcterms:type [ a skos:Concept ; skos:prefLabel "proof gate" ; skos:notation "proof-gate" ] ;
+   odrl:permission [
+     a odrl:Permission ;
+     odrl:action odrl:use
+   ] ;
+   odrl:duty [
+     a odrl:Duty ;
+     odrl:action odrl:review
+   ] ;
+   odrl:duty [
+     a odrl:Duty ;
+     odrl:action odrl:attribute
+   ] .
+
+[] a odrl:Policy ;
+   dcterms:title "Benchmark publication policy" ;
+   odrl:permission [
+     a odrl:Permission ;
+     odrl:action odrl:use
+   ] ;
+   odrl:duty [
+     a odrl:Duty ;
+     odrl:action odrl:attribute
+   ] ;
+   odrl:duty [
+     a odrl:Duty ;
+     odrl:action odrl:review
+   ] .
+
+#################################################################
+# MINIMAL PUBLIC O EXEMPLARS
+#################################################################
+
+[
+  a schema:Organization, org:Organization, prov:Agent ;
+  schema:name "CodeManufactory" ;
+  dcterms:type [ a skos:Concept ; skos:prefLabel "manufacturing organization" ; skos:notation "manufacturing-organization" ]
+] .
+
+[
+  a foaf:Person, prov:Agent ;
+  foaf:name "Sean Chatman" ;
+  schema:roleName "founder" ;
+  dcterms:type [ a skos:Concept ; skos:prefLabel "principal architect" ; skos:notation "principal-architect" ]
+] .
+
+[
+  a owl:Ontology ;
+  dcterms:title "Genesis O" ;
+  dcterms:description "Bootstrap public O for CodeManufactory." ;
+  dcterms:type [ a skos:Concept ; skos:prefLabel "genesis ontology" ; skos:notation "genesis-ontology" ] ;
+  prov:wasAttributedTo [
+    a foaf:Person, prov:Agent ;
+    foaf:name "Sean Chatman"
+  ]
+] .

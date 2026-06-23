@@ -1,0 +1,130 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix kgen: <http://kgen.org/shapes/> .
+
+# =============================================================================
+# KGEN Data Quality Rule Pack
+# Comprehensive SHACL shapes for enforcing data quality standards
+# =============================================================================
+
+# Completeness Rules
+kgen:CompletenessRuleShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Thing ;
+    sh:property [
+        sh:path schema:name ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "All entities must have a name (Completeness Rule)"
+    ] ;
+    sh:property [
+        sh:path dct:created ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "All entities must have creation timestamp (Completeness Rule)"
+    ] .
+
+# Consistency Rules
+kgen:ConsistencyRuleShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Thing ;
+    sh:sparql [
+        sh:severity sh:Violation ;
+        sh:message "Modified date must be after or equal to created date (Consistency Rule)" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "dct" ;
+                sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this ?created ?modified WHERE {
+                $this dct:created ?created ;
+                      dct:modified ?modified .
+                FILTER(?modified < ?created)
+            }
+        """
+    ] .
+
+# Accuracy Rules
+kgen:AccuracyRuleShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Person ;
+    sh:property [
+        sh:path schema:email ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:severity sh:Violation ;
+        sh:message "Email must be valid format (Accuracy Rule)"
+    ] ;
+    sh:property [
+        sh:path schema:age ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 150 ;
+        sh:severity sh:Violation ;
+        sh:message "Age must be realistic (0-150) (Accuracy Rule)"
+    ] .
+
+# Validity Rules
+kgen:ValidityRuleShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Thing ;
+    sh:property [
+        sh:path dct:created ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "Creation date must be valid dateTime (Validity Rule)"
+    ] ;
+    sh:property [
+        sh:path schema:url ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https?://.+" ;
+        sh:severity sh:Warning ;
+        sh:message "URLs should use HTTP or HTTPS protocol (Validity Rule)"
+    ] .
+
+# Uniqueness Rules
+kgen:UniquenessRuleShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Person ;
+    sh:sparql [
+        sh:severity sh:Violation ;
+        sh:message "Email addresses must be unique across all persons (Uniqueness Rule)" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "schema" ;
+                sh:namespace "http://schema.org/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this ?email WHERE {
+                $this schema:email ?email .
+                ?other schema:email ?email .
+                FILTER($this != ?other)
+            }
+        """
+    ] .
+
+# Timeliness Rules
+kgen:TimelinessRuleShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Thing ;
+    sh:sparql [
+        sh:severity sh:Warning ;
+        sh:message "Entity should have been modified recently (Timeliness Rule)" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "dct" ;
+                sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this ?modified WHERE {
+                $this dct:modified ?modified .
+                FILTER(?modified < (NOW() - "P30D"^^xsd:duration))
+            }
+        """
+    ] .

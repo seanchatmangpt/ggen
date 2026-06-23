@@ -1,0 +1,219 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix aat:     <urn:ontostar:aat:live:> .
+@prefix powl:    <urn:ontostar:powl:> .
+@prefix sr:      <urn:ontostar:shared-receipt:> .
+@prefix mcpp:    <urn:ontostar:mcpp:> .
+@prefix onto:    <https://ggen.io/onto/cli/open-ontologies/> .
+@prefix integ:   <urn:ontostar:integration:wasm4pm-mcpp:> .
+
+# ============================================================================
+# OntoStar wasm4pm-mcpp Master Integration Ontology
+# ============================================================================
+#
+# Imports and connects all ontology modules created for the wasm4pm-mcpp
+# integration:
+#
+#   aat-live-rules.ttl          — 16 LIVE correlation rules (199 triples)
+#   powl-process-mining.ttl     — POWL variants + conformance dimensions (80 triples)
+#   shared-receipt-shapes.ttl   — SHACL shapes for SharedReceiptV1
+#
+# This ontology adds the cross-module bridge layer:
+#
+#   1. aat:CoveredRule / aat:UncoveredRule   — partition of aat:LiveRule by coverage status
+#   2. powl:satisfiesLiveRule               — object property linking DiscoveryVariant → LiveRule
+#   3. sr:ReceiptConformance                — class binding SharedReceiptV1 conformance to LIVE rules
+# ============================================================================
+
+# ── Ontology declaration ─────────────────────────────────────────────────────
+
+<urn:ontostar:integration:wasm4pm-mcpp>
+    a owl:Ontology ;
+    rdfs:label   "OntoStar wasm4pm-mcpp Integration Ontology"@en ;
+    rdfs:comment "Master integration ontology connecting AAT-Live rules, POWL process mining, and SharedReceiptV1 conformance shapes for the wasm4pm-mcpp manufacturing pipeline."@en ;
+    dcterms:creator  "Sean Chatman" ;
+    dcterms:created  "2026-05-17"^^xsd:date ;
+    dcterms:license  <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo  "1.0.0" ;
+    owl:imports <urn:ontostar:aat:live:> ;
+    owl:imports <urn:ontostar:powl:> .
+
+# ── 1. aat:CoveredRule — LiveRule individuals whose coverageStatus is 'covered' ──
+#
+# Defined as an OWL class restricted to coverageStatus = "covered".
+# Individuals: LIVE-01, LIVE-02, LIVE-03, LIVE-04, LIVE-05, LIVE-08,
+#              LIVE-09, LIVE-12, LIVE-13.
+
+aat:CoveredRule
+    a owl:Class ;
+    rdfs:subClassOf aat:LiveRule ;
+    rdfs:label   "Covered Live Rule"@en ;
+    rdfs:comment "An AAT-Live correlation rule whose wasm4pm bridge is fully implemented (coverageStatus = 'covered'). All required OTel spans and attributes are emitted by the corresponding bridge function."@en ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            aat:LiveRule
+            [
+                a owl:Restriction ;
+                owl:onProperty aat:coverageStatus ;
+                owl:hasValue "covered"
+            ]
+        )
+    ] .
+
+# ── 2. aat:UncoveredRule — LiveRule individuals whose coverageStatus is 'none' ──
+#
+# Individuals: LIVE-06.
+
+aat:UncoveredRule
+    a owl:Class ;
+    rdfs:subClassOf aat:LiveRule ;
+    rdfs:label   "Uncovered Live Rule"@en ;
+    rdfs:comment "An AAT-Live correlation rule for which no wasm4pm bridge exists yet (coverageStatus = 'none'). The required OTel spans and attributes are declared in the rule definition but not emitted at runtime."@en ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            aat:LiveRule
+            [
+                a owl:Restriction ;
+                owl:onProperty aat:coverageStatus ;
+                owl:hasValue "none"
+            ]
+        )
+    ] .
+
+# ── 3. aat:PartialRule — LiveRule individuals whose coverageStatus is 'partial' ──
+#
+# Individuals: LIVE-07, LIVE-10, LIVE-11, LIVE-14, LIVE-15, LIVE-16.
+
+aat:PartialRule
+    a owl:Class ;
+    rdfs:subClassOf aat:LiveRule ;
+    rdfs:label   "Partially Covered Live Rule"@en ;
+    rdfs:comment "An AAT-Live correlation rule whose wasm4pm bridge emits the required span but one or more required attributes depend on runtime conditions (BEAM runtime, cryptographic verification, or embedded hardware) that are not available in the mock test environment."@en ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            aat:LiveRule
+            [
+                a owl:Restriction ;
+                owl:onProperty aat:coverageStatus ;
+                owl:hasValue "partial"
+            ]
+        )
+    ] .
+
+# ── 4. powl:satisfiesLiveRule — object property linking DiscoveryVariant → LiveRule ──
+#
+# Semantics: a DiscoveryVariant satisfies a LiveRule when the discovery algorithm
+# produces a POWL model that enables the mcpp-server to evaluate that LIVE check.
+# For example, DecisionGraphCyclic discovers models with XOR + sequence + loop cuts,
+# enabling spine-span correlation (LIVE-01) and conformance dimension checks (LIVE-02).
+
+powl:satisfiesLiveRule
+    a owl:ObjectProperty ;
+    rdfs:label   "satisfies live rule"@en ;
+    rdfs:comment "Relates a POWL DiscoveryVariant to an AAT-Live LiveRule that the variant's discovered model enables the mcpp-server to evaluate. A variant satisfies a rule when its cut repertoire produces the process structure required for the rule's OTel correlation check to produce a meaningful verdict."@en ;
+    rdfs:domain  powl:DiscoveryVariant ;
+    rdfs:range   aat:LiveRule .
+
+# Sample assertions — representative linkages grounded in the source implementations.
+
+# LIVE-01: All 5 spine spans present. DecisionGraphCyclic discovers the full
+# XOR → Seq → Concurrency → Loop structure that maps to all 5 spine activities.
+powl:DecisionGraphCyclic powl:satisfiesLiveRule aat:LIVE-01 .
+
+# LIVE-02: proof.aggregate carries conformance dimensions.
+# DecisionGraphCyclic produces fitness + precision scores consumed by LIVE-02.
+powl:DecisionGraphCyclic powl:satisfiesLiveRule aat:LIVE-02 .
+
+# LIVE-09: Gap closure lawful. BruteForce exhaustively enumerates partial orders,
+# which guarantees that powl.gap.detected → powl.gap.closed lifecycle is discovered.
+powl:BruteForce powl:satisfiesLiveRule aat:LIVE-09 .
+
+# LIVE-01 also satisfied by DecisionGraphMax (superset of DecisionGraphCyclic cuts).
+powl:DecisionGraphMax powl:satisfiesLiveRule aat:LIVE-01 .
+
+# LIVE-02 also satisfied by DecisionGraphMax (produces same conformance dimensions).
+powl:DecisionGraphMax powl:satisfiesLiveRule aat:LIVE-02 .
+
+# LIVE-01 satisfied by Tree (sequential spine is a degenerate tree).
+powl:Tree powl:satisfiesLiveRule aat:LIVE-01 .
+
+# ── 5. sr:ReceiptConformance — binds SharedReceiptV1 conformance to LIVE rules ──
+
+sr:ReceiptConformance
+    a owl:Class ;
+    rdfs:label   "Receipt Conformance"@en ;
+    rdfs:comment "A conformance record that associates a SharedReceiptV1 instance with the AAT-Live correlation rules that its captured OTel evidence satisfies. Produced by the mcpp-server admission pipeline after evaluating the LIVE rule set against the receipt's proof_pack."@en .
+
+sr:hasLiveRuleCoverage
+    a owl:ObjectProperty ;
+    rdfs:label   "has live rule coverage"@en ;
+    rdfs:comment "Points from a sr:ReceiptConformance instance to each aat:LiveRule individual whose LIVE check passed for the associated SharedReceiptV1 receipt. The set of individuals reachable via this property constitutes the LIVE coverage report for that receipt."@en ;
+    rdfs:domain  sr:ReceiptConformance ;
+    rdfs:range   aat:LiveRule .
+
+sr:forReceipt
+    a owl:ObjectProperty ;
+    rdfs:label   "for receipt"@en ;
+    rdfs:comment "Links a sr:ReceiptConformance to the sr:SharedReceiptV1 instance it evaluates."@en ;
+    rdfs:domain  sr:ReceiptConformance ;
+    rdfs:range   sr:SharedReceiptV1 .
+
+sr:conformanceScore
+    a owl:DatatypeProperty ;
+    rdfs:label   "conformance score"@en ;
+    rdfs:comment "The fraction of AAT-Live LIVE rules (out of 16) that passed for the associated receipt, expressed as a decimal in [0.0, 1.0]. A score of 1.0 indicates all 16 LIVE checks passed."@en ;
+    rdfs:domain  sr:ReceiptConformance ;
+    rdfs:range   xsd:decimal .
+
+# ── 6. Integration cross-annotations ────────────────────────────────────────
+#
+# Bind the SharedReceiptV1 conformance sub-object dimensions back to the
+# canonical powl:ConformanceDimension individuals, establishing that the
+# 'fitness' and 'precision' fields in a SharedReceiptV1 receipt correspond to
+# the Van der Aalst conformance dimensions modelled in powl-process-mining.ttl.
+
+sr:fitness   rdfs:seeAlso powl:Fitness .
+sr:precision rdfs:seeAlso powl:Precision .
+
+# ── 7. SHACL shape for sr:ReceiptConformance ────────────────────────────────
+
+integ:ReceiptConformanceShape
+    a sh:NodeShape ;
+    sh:name        "ReceiptConformanceShape" ;
+    rdfs:label     "Receipt Conformance Shape"@en ;
+    sh:description "Validates that a sr:ReceiptConformance instance has a score and at least one live rule coverage link." ;
+    sh:targetClass sr:ReceiptConformance ;
+
+    sh:property [
+        sh:path        sr:conformanceScore ;
+        sh:datatype    xsd:decimal ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1 ;
+        sh:name        "conformanceScore" ;
+        sh:message     "conformanceScore must be present and in [0.0, 1.0]." ;
+    ] ;
+
+    sh:property [
+        sh:path     sr:hasLiveRuleCoverage ;
+        sh:minCount 1 ;
+        sh:class    aat:LiveRule ;
+        sh:name     "hasLiveRuleCoverage" ;
+        sh:message  "At least one aat:LiveRule must be linked via sr:hasLiveRuleCoverage." ;
+    ] ;
+
+    sh:property [
+        sh:path     sr:forReceipt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name     "forReceipt" ;
+        sh:message  "Exactly one sr:SharedReceiptV1 must be referenced via sr:forReceipt." ;
+    ] .

@@ -1,0 +1,503 @@
+# Craftplan MCP Ontology
+# Extends Erlang MCP with Craftplan-specific ERP tools
+
+@prefix : <https://github.com/a2a/ontology/craftplan-mcp#> .
+@prefix mcp: <https://github.com/a2a/ontology/erlang-mcp#> .
+@prefix a2a: <https://a2a.com/schema/> .
+@prefix erl: <https://github.com/a2a/ontology/erlang-otp#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# Craftplan MCP Server
+# ============================================================================
+
+:CraftplanMCPServer a rdfs:Class ;
+    rdfs:subClassOf mcp:ErlangMCPServer ;
+    rdfs:label "Craftplan MCP Server" ;
+    rdfs:comment "MCP server exposing Craftplan ERP capabilities" ;
+    erl:hasBehaviour :CraftplanMCPServerBehaviour .
+
+:CraftplanMCPServerBehaviour a rdfs:Class ;
+    rdfs:subClassOf mcp:MCPServerBehaviour ;
+    rdfs:label "Craftplan MCP Server Behaviour" ;
+    rdfs:comment "OTP behaviour for Craftplan MCP server" .
+
+# ============================================================================
+# Craftplan ERP Tools
+# ============================================================================
+
+# Customer Management Tool
+:CustomerManagementTool a rdfs:Class ;
+    rdfs:subClassOf mcp:MCPTool ;
+    rdfs:label "Customer Management Tool" ;
+    rdfs:comment "Manage customer records in Craftplan ERP" .
+
+customer_mcp_tool a :CustomerManagementTool ;
+    :mcpToolName "customer_management" ;
+    :mcpToolDescription "Create, read, update, and delete customer records" ;
+    :mcpToolInputSchema '{
+        "type": "object",
+        "properties": {
+            "operation": {
+                "type": "string",
+                "enum": ["list", "get", "create", "update", "delete"],
+                "description": "The operation to perform"
+            },
+            "customer_id": {
+                "type": "string",
+                "description": "Customer ID for get/update/delete operations"
+            },
+            "customer_data": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "email": {"type": "string"},
+                    "phone": {"type": "string"},
+                    "address": {"type": "object"},
+                    "tags": {"type": "array", "items": {"type": "string"}}
+                }
+            },
+            "filters": {
+                "type": "object",
+                "description": "Filters for list operation"
+            },
+            "limit": {"type": "integer", "default": 50},
+            "offset": {"type": "integer", "default": 0}
+        },
+        "required": ["operation"]
+    }' ;
+    :mcpToolOutputSchema '{
+        "type": "object",
+        "properties": {
+            "success": {"type": "boolean"},
+            "data": {"type": "object"},
+            "error": {"type": "string"}
+        }
+    }' ;
+    :mcpToolTimeout "30s" ;
+    :mcpToolEnabled true .
+
+# Order Management Tool
+:OrderManagementTool a rdfs:Class ;
+    rdfs:subClassOf mcp:MCPTool ;
+    rdfs:label "Order Management Tool" ;
+    rdfs:comment "Manage orders in Craftplan ERP" .
+
+order_mcp_tool a :OrderManagementTool ;
+    :mcpToolName "order_management" ;
+    :mcpToolDescription "Create, read, update, and process orders" ;
+    :mcpToolInputSchema '{
+        "type": "object",
+        "properties": {
+            "operation": {
+                "type": "string",
+                "enum": ["list", "get", "create", "update", "cancel", "fulfill", "refund"],
+                "description": "The operation to perform"
+            },
+            "order_id": {
+                "type": "string",
+                "description": "Order ID"
+            },
+            "order_data": {
+                "type": "object",
+                "properties": {
+                    "customer_id": {"type": "string"},
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "product_id": {"type": "string"},
+                                "quantity": {"type": "integer"},
+                                "price": {"type": "number"}
+                            }
+                        }
+                    },
+                    "shipping_address": {"type": "object"},
+                    "billing_address": {"type": "object"},
+                    "notes": {"type": "string"}
+                }
+            },
+            "filters": {
+                "type": "object",
+                "properties": {
+                    "status": {"type": "string"},
+                    "customer_id": {"type": "string"},
+                    "date_from": {"type": "string", "format": "date"},
+                    "date_to": {"type": "string", "format": "date"}
+                }
+            },
+            "limit": {"type": "integer", "default": 50},
+            "offset": {"type": "integer", "default": 0}
+        },
+        "required": ["operation"]
+    }' ;
+    :mcpToolOutputSchema '{
+        "type": "object",
+        "properties": {
+            "success": {"type": "boolean"},
+            "order": {"type": "object"},
+            "orders": {"type": "array"},
+            "error": {"type": "string"}
+        }
+    }' ;
+    :mcpToolTimeout "30s" ;
+    :mcpToolEnabled true .
+
+# Inventory Management Tool
+:InventoryManagementTool a rdfs:Class ;
+    rdfs:subClassOf mcp:MCPTool ;
+    rdfs:label "Inventory Management Tool" ;
+    rdfs:comment "Manage inventory and products" .
+
+inventory_mcp_tool a :InventoryManagementTool ;
+    :mcpToolName "inventory_management" ;
+    :mcpToolDescription "Manage products, inventory levels, and stock" ;
+    :mcpToolInputSchema '{
+        "type": "object",
+        "properties": {
+            "operation": {
+                "type": "string",
+                "enum": ["list_products", "get_product", "create_product", "update_product",
+                         "check_stock", "adjust_stock", "low_stock_report", "movement_history"],
+                "description": "The operation to perform"
+            },
+            "product_id": {
+                "type": "string",
+                "description": "Product ID"
+            },
+            "product_data": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "sku": {"type": "string"},
+                    "description": {"type": "string"},
+                    "price": {"type": "number"},
+                    "cost": {"type": "number"},
+                    "category": {"type": "string"}
+                }
+            },
+            "quantity": {
+                "type": "integer",
+                "description": "Quantity for stock adjustment"
+            },
+            "reason": {
+                "type": "string",
+                "description": "Reason for stock movement"
+            },
+            "threshold": {
+                "type": "integer",
+                "description": "Low stock threshold"
+            }
+        },
+        "required": ["operation"]
+    }' ;
+    :mcpToolOutputSchema '{
+        "type": "object",
+        "properties": {
+            "success": {"type": "boolean"},
+            "product": {"type": "object"},
+            "products": {"type": "array"},
+            "stock_level": {"type": "integer"},
+            "movements": {"type": "array"},
+            "error": {"type": "string"}
+        }
+    }' ;
+    :mcpToolTimeout "30s" ;
+    :mcpToolEnabled true .
+
+# Production Planning Tool
+:ProductionPlanningTool a rdfs:Class ;
+    rdfs:subClassOf mcp:MCPTool ;
+    rdfs:label "Production Planning Tool" ;
+    rdfs:comment "Plan and track production orders" .
+
+production_mcp_tool a :ProductionPlanningTool ;
+    :mcpToolName "production_planning" ;
+    :mcpToolDescription "Manage production orders, schedules, and work orders" ;
+    :mcpToolInputSchema '{
+        "type": "object",
+        "properties": {
+            "operation": {
+                "type": "string",
+                "enum": ["list_orders", "create_order", "update_status", "schedule",
+                         "get_materials", "record_production", "quality_check"],
+                "description": "The operation to perform"
+            },
+            "production_order_id": {
+                "type": "string",
+                "description": "Production Order ID"
+            },
+            "order_data": {
+                "type": "object",
+                "properties": {
+                    "product_id": {"type": "string"},
+                    "quantity": {"type": "integer"},
+                    "priority": {"type": "string", "enum": ["low", "normal", "high", "urgent"]},
+                    "due_date": {"type": "string", "format": "date"},
+                    "notes": {"type": "string"}
+                }
+            },
+            "status": {
+                "type": "string",
+                "enum": ["planned", "scheduled", "in_progress", "completed", "cancelled"]
+            },
+            "scheduled_start": {"type": "string", "format": "date-time"},
+            "scheduled_end": {"type": "string", "format": "date-time"},
+            "quantity_produced": {"type": "integer"},
+            "quality_result": {"type": "object"}
+        },
+        "required": ["operation"]
+    }' ;
+    :mcpToolOutputSchema '{
+        "type": "object",
+        "properties": {
+            "success": {"type": "boolean"},
+            "order": {"type": "object"},
+            "orders": {"type": "array"},
+            "materials": {"type": "array"},
+            "error": {"type": "string"}
+        }
+    }' ;
+    :mcpToolTimeout "30s" ;
+    :mcpToolEnabled true .
+
+# Analytics & Reporting Tool
+:AnalyticsTool a rdfs:Class ;
+    rdfs:subClassOf mcp:MCPTool ;
+    rdfs:label "Analytics Tool" ;
+    rdfs:comment "Generate reports and analytics" .
+
+analytics_mcp_tool a :AnalyticsTool ;
+    :mcpToolName "analytics" ;
+    :mcpToolDescription "Generate sales, inventory, and production reports" ;
+    :mcpToolInputSchema '{
+        "type": "object",
+        "properties": {
+            "report_type": {
+                "type": "string",
+                "enum": ["sales_summary", "revenue", "inventory_value", "production_efficiency",
+                         "customer_metrics", "product_performance", "order_status_breakdown"],
+                "description": "Type of report to generate"
+            },
+            "date_range": {
+                "type": "object",
+                "properties": {
+                    "start": {"type": "string", "format": "date"},
+                    "end": {"type": "string", "format": "date"}
+                }
+            },
+            "group_by": {
+                "type": "string",
+                "enum": ["day", "week", "month", "quarter", "year", "product", "category"]
+            },
+            "filters": {
+                "type": "object"
+            }
+        },
+        "required": ["report_type"]
+    }' ;
+    :mcpToolOutputSchema '{
+        "type": "object",
+        "properties": {
+            "success": {"type": "boolean"},
+            "report": {"type": "object"},
+            "data": {"type": "array"},
+            "summary": {"type": "object"},
+            "error": {"type": "string"}
+        }
+    }' ;
+    :mcpToolTimeout "60s" ;
+    :mcpToolEnabled true .
+
+# Shipping & Fulfillment Tool
+:ShippingTool a rdfs:Class ;
+    rdfs:subClassOf mcp:MCPTool ;
+    rdfs:label "Shipping Tool" ;
+    rdfs:comment "Manage shipping and fulfillment" .
+
+shipping_mcp_tool a :ShippingTool ;
+    :mcpToolName "shipping" ;
+    :mcpToolDescription "Process shipments, track packages, manage carriers" ;
+    :mcpToolInputSchema '{
+        "type": "object",
+        "properties": {
+            "operation": {
+                "type": "string",
+                "enum": ["create_shipment", "track", "list_carriers", "get_rates",
+                         "update_tracking", "process_return"],
+                "description": "The operation to perform"
+            },
+            "order_id": {"type": "string"},
+            "shipment_data": {
+                "type": "object",
+                "properties": {
+                    "carrier": {"type": "string"},
+                    "service": {"type": "string"},
+                    "packages": {"type": "array"},
+                    "ship_date": {"type": "string", "format": "date"}
+                }
+            },
+            "tracking_number": {"type": "string"},
+            "carrier": {"type": "string"}
+        },
+        "required": ["operation"]
+    }' ;
+    :mcpToolOutputSchema '{
+        "type": "object",
+        "properties": {
+            "success": {"type": "boolean"},
+            "shipment": {"type": "object"},
+            "tracking": {"type": "object"},
+            "rates": {"type": "array"},
+            "error": {"type": "string"}
+        }
+    }' ;
+    :mcpToolTimeout "30s" ;
+    :mcpToolEnabled true .
+
+# ============================================================================
+# Craftplan A2A Agent
+# ============================================================================
+
+:CraftplanA2AAgent a rdfs:Class ;
+    rdfs:subClassOf a2a:agent ;
+    rdfs:label "Craftplan A2A Agent" ;
+    rdfs:comment "A2A agent for Craftplan ERP collaboration" .
+
+craftplan_a2a_agent a :CraftplanA2AAgent ;
+    a2a:agent_id "craftplan-erp-agent" ;
+    a2a:agent_name "Craftplan ERP Agent" ;
+    a2a:agent_capabilities (
+        "customer_management"
+        "order_management"
+        "inventory_management"
+        "production_planning"
+        "analytics"
+        "shipping"
+        "multi_tenant_support"
+        "hot_code_upgrade"
+    ) .
+
+# ============================================================================
+# A2A Skills (from MCP Tools)
+# ============================================================================
+
+customer_management_skill a a2a:skill ;
+    a2a:skill_name "customer_management" ;
+    a2a:skill_description "Manage customer records in the ERP system" ;
+    a2a:skill_parameters [
+        ["operation", "string", "required"],
+        ["customer_id", "string", "optional"],
+        ["customer_data", "object", "optional"]
+    ] .
+
+order_management_skill a a2a:skill ;
+    a2a:skill_name "order_management" ;
+    a2a:skill_description "Create, update, and process orders" ;
+    a2a:skill_parameters [
+        ["operation", "string", "required"],
+        ["order_id", "string", "optional"],
+        ["order_data", "object", "optional"]
+    ] .
+
+inventory_management_skill a a2a:skill ;
+    a2a:skill_name "inventory_management" ;
+    a2a:skill_description "Manage products and inventory levels" ;
+    a2a:skill_parameters [
+        ["operation", "string", "required"],
+        ["product_id", "string", "optional"],
+        ["quantity", "integer", "optional"]
+    ] .
+
+production_planning_skill a a2a:skill ;
+    a2a:skill_name "production_planning" ;
+    a2a:skill_description "Plan and track production orders" ;
+    a2a:skill_parameters [
+        ["operation", "string", "required"],
+        ["production_order_id", "string", "optional"],
+        ["order_data", "object", "optional"]
+    ] .
+
+analytics_skill a a2a:skill ;
+    a2a:skill_name "analytics" ;
+    a2a:skill_description "Generate business reports and analytics" ;
+    a2a:skill_parameters [
+        ["report_type", "string", "required"],
+        ["date_range", "object", "optional"],
+        ["group_by", "string", "optional"]
+    ] .
+
+shipping_skill a a2a:skill ;
+    a2a:skill_name "shipping" ;
+    a2a:skill_description "Process shipments and track packages" ;
+    a2a:skill_parameters [
+        ["operation", "string", "required"],
+        ["order_id", "string", "optional"],
+        ["shipment_data", "object", "optional"]
+    ] .
+
+# ============================================================================
+# MCP-A2A Bridge Properties
+# ============================================================================
+
+:mcpToA2AMapping a rdfs:Property ;
+    rdfs:label "MCP to A2A Mapping" ;
+    rdfs:comment "Maps MCP tools to A2A skills" ;
+    rdfs:domain mcp:MCPTool ;
+    rdfs:range a2a:skill .
+
+# Map each MCP tool to its A2A skill
+customer_mcp_tool :mcpToA2AMapping customer_management_skill .
+order_mcp_tool :mcpToA2AMapping order_management_skill .
+inventory_mcp_tool :mcpToA2AMapping inventory_management_skill .
+production_mcp_tool :mcpToA2AMapping production_planning_skill .
+analytics_mcp_tool :mcpToA2AMapping analytics_skill .
+shipping_mcp_tool :mcpToA2AMapping shipping_skill .
+
+# ============================================================================
+# Craftplan MCP Server Instance
+# ============================================================================
+
+craftplan_mcp_server a :CraftplanMCPServer ;
+    mcp:mcpServerName "craftplan-mcp-server" ;
+    mcp:mcpServerPort 8090 ;
+    mcp:mcpServerHost "0.0.0.0" ;
+    mcp:mcpProtocolVersion "2024-11-05" ;
+    mcp:mcpMaxConnections 100 ;
+    mcp:mcpHeartbeatInterval "30s" ;
+    mcp:mcpHotCIEnabled true ;
+    mcp:mcpHotCIMonitorInterval "60s" ;
+    erl:applicationName "craftplan_mcp_server" ;
+    erl:releaseName "craftplan_mcp" ;
+    erl:hasDependencies ["cowboy", "jiffy", "jsx", "hackney"] ;
+    erl:hasOTPBehaviour "application" ;
+    :craftplanAPIURL "http://craftplan:4000/api" ;
+    :craftplanAPIToken "" .
+
+# ============================================================================
+# Craftplan Configuration Properties
+# ============================================================================
+
+:craftplanAPIURL a rdfs:Property ;
+    rdfs:label "Craftplan API URL" ;
+    rdfs:domain :CraftplanMCPServer ;
+    rdfs:range xsd:string ;
+    erl:isRequired true .
+
+:craftplanAPIToken a rdfs:Property ;
+    rdfs:label "Craftplan API Token" ;
+    rdfs:domain :CraftplanMCPServer ;
+    rdfs:range xsd:string .
+
+:craftplanTenantID a rdfs:Property ;
+    rdfs:label "Craftplan Tenant ID" ;
+    rdfs:domain :CraftplanMCPServer ;
+    rdfs:range xsd:string .
+
+:enableMultiTenant a rdfs:Property ;
+    rdfs:label "Enable Multi-Tenant" ;
+    rdfs:domain :CraftplanMCPServer ;
+    rdfs:range xsd:boolean ;
+    erl:defaultValue true .

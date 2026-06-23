@@ -1,0 +1,16 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix code: <https://chatmangpt.com/ontology/codegen#> .
+@prefix rust: <https://chatmangpt.com/ontology/rust#> .
+
+rust:HotCrateShape a sh:NodeShape ;
+  sh:targetObjectsOf rust:executionClass ;
+  sh:property [
+    sh:path rust:crateMode ;
+    sh:hasValue rust:NoStd ;
+    sh:message "Hot eligible crates must be no_std." ;
+  ] ;
+  sh:property [
+    sh:path rust:crateMode ;
+    sh:hasValue rust:NoAlloc ;
+    sh:message "Hot eligible crates must be no_alloc." ;
+  ] .

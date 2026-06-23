@@ -1,0 +1,926 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix bac: <http://bytestar.org/ontology/compliance/> .
+@prefix baac: <http://bytestar.org/ontology/access-control/> .
+@prefix baa: <http://bytestar.org/ontology/audit/> .
+@prefix dsc: <http://bytestar.org/ontology/crystals/dataset/> .
+@prefix view: <http://bytestar.org/ontology/crystals/view/> .
+@prefix pmc: <http://bytestar.org/ontology/crystals/public-mirror/> .
+@prefix dpb: <http://bytestar.org/ontology/crystals/dp-budget/> .
+@prefix rct: <http://bytestar.org/ontology/crystals/redaction/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# =============================================================================
+# ByteStar Redaction Proof Crystal Ontology (.redact.rct)
+# Version: 5.0.0 - Data/Privacy Domain
+# =============================================================================
+
+<http://bytestar.org/ontology/crystals/redaction> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/crystals/redaction/5.0.0> ;
+    dct:title "ByteStar Redaction Proof Crystal Ontology" ;
+    dct:description "Redaction proof crystal with cryptographic PII protection, zero-knowledge proofs, and verifiable redaction for privacy-preserving data sharing" ;
+    dct:creator "ByteStar Architecture Team" ;
+    dct:created "2025-01-23"^^xsd:date ;
+    dct:modified "2025-01-23"^^xsd:date ;
+    owl:imports <http://bytestar.org/ontology/crystals/dataset>,
+                <http://bytestar.org/ontology/crystals/view>,
+                <http://bytestar.org/ontology/crystals/public-mirror>,
+                <http://bytestar.org/ontology/crystals/dp-budget>,
+                <http://bytestar.org/ontology/compliance-framework>,
+                <http://bytestar.org/ontology/access-control>,
+                <http://bytestar.org/ontology/audit-system>,
+                <http://bytestar.org/ontology/core>,
+                <http://www.w3.org/ns/prov#> ;
+    ba:crystalType "Redaction Proof Crystal" ;
+    ba:piiProtected true ;
+    ba:cryptographicallyProven true ;
+    ba:performanceTarget "< 8ms redaction verification" .
+
+# =============================================================================
+# CORE REDACTION PROOF CLASSES
+# =============================================================================
+
+rct:RedactionProofCrystal a owl:Class ;
+    rdfs:label "Redaction Proof Crystal"@en ;
+    rdfs:comment "Cryptographic proof crystal demonstrating complete and verifiable PII redaction"@en ;
+    rdfs:subClassOf ba:Crystal ;
+    ba:cryptographicallySecured true ;
+    ba:zeroKnowledgeProof true ;
+    ba:verifiableRedaction true ;
+    ba:piiCompletelyRemoved true .
+
+rct:RedactionProof a owl:Class ;
+    rdfs:label "Redaction Proof"@en ;
+    rdfs:comment "Mathematical proof that all PII has been properly redacted"@en ;
+    rdfs:subClassOf ba:CryptographicProof ;
+    ba:proofType "ZERO_KNOWLEDGE" ;
+    ba:mathematicallySound true ;
+    ba:publiclyVerifiable true .
+
+rct:PIIRedactionEngine a owl:Class ;
+    rdfs:label "PII Redaction Engine"@en ;
+    rdfs:comment "Advanced engine for detecting and redacting personally identifiable information"@en ;
+    rdfs:subClassOf ba:ProcessingEngine ;
+    ba:aiPowered true ;
+    ba:contextAware true ;
+    ba:multilingual true ;
+    ba:highPrecision true .
+
+rct:RedactionValidator a owl:Class ;
+    rdfs:label "Redaction Validator"@en ;
+    rdfs:comment "Validator ensuring completeness and correctness of PII redaction"@en ;
+    rdfs:subClassOf ba:Validator ;
+    ba:completenessCheck true ;
+    ba:accuracyVerification true ;
+    ba:contextualValidation true .
+
+rct:RedactionCertificate a owl:Class ;
+    rdfs:label "Redaction Certificate"@en ;
+    rdfs:comment "Digital certificate attesting to successful PII redaction"@en ;
+    rdfs:subClassOf ba:Certificate ;
+    ba:digitallySigned true ;
+    ba:timestamped true ;
+    ba:cryptographicallyBound true .
+
+# =============================================================================
+# PII DETECTION AND CLASSIFICATION
+# =============================================================================
+
+rct:PIIDetector a owl:Class ;
+    rdfs:label "PII Detector"@en ;
+    rdfs:comment "AI-powered detector for identifying PII in diverse data formats"@en ;
+    rdfs:subClassOf ba:Detector ;
+    ba:multiModal true ;
+    ba:patternRecognition true ;
+    ba:semanticAnalysis true ;
+    ba:contextualInference true .
+
+rct:PIIClassifier a owl:Class ;
+    rdfs:label "PII Classifier"@en ;
+    rdfs:comment "Classifier categorizing PII types and sensitivity levels"@en ;
+    rdfs:subClassOf ba:Classifier ;
+    ba:hierarchicalClassification true ;
+    ba:sensitivityScoring true ;
+    ba:regulatoryMapping true .
+
+rct:PIICategory a owl:Class ;
+    rdfs:label "PII Category"@en ;
+    rdfs:comment "Classification category for personally identifiable information"@en ;
+    rdfs:subClassOf ba:Category ;
+    ba:categoryType xsd:string ;
+    ba:sensitivityLevel xsd:string ;
+    ba:regulatoryClass xsd:string .
+
+rct:DirectPII a owl:Class ;
+    rdfs:label "Direct PII"@en ;
+    rdfs:comment "Directly identifying personal information"@en ;
+    rdfs:subClassOf rct:PIICategory ;
+    ba:categoryType "DIRECT" ;
+    ba:sensitivityLevel "HIGH" ;
+    ba:immediatelyIdentifying true .
+
+rct:IndirectPII a owl:Class ;
+    rdfs:label "Indirect PII"@en ;
+    rdfs:comment "Indirectly identifying personal information"@en ;
+    rdfs:subClassOf rct:PIICategory ;
+    ba:categoryType "INDIRECT" ;
+    ba:sensitivityLevel "MEDIUM" ;
+    ba:combinatorialIdentifying true .
+
+rct:QuasiIdentifier a owl:Class ;
+    rdfs:label "Quasi-Identifier"@en ;
+    rdfs:comment "Quasi-identifying information that can lead to reidentification"@en ;
+    rdfs:subClassOf rct:PIICategory ;
+    ba:categoryType "QUASI" ;
+    ba:sensitivityLevel "VARIABLE" ;
+    ba:linkageRisk true .
+
+rct:SensitiveAttribute a owl:Class ;
+    rdfs:label "Sensitive Attribute"@en ;
+    rdfs:comment "Sensitive personal attributes requiring special protection"@en ;
+    rdfs:subClassOf rct:PIICategory ;
+    ba:categoryType "SENSITIVE" ;
+    ba:sensitivityLevel "CRITICAL" ;
+    ba:specialProtection true .
+
+# =============================================================================
+# REDACTION TECHNIQUES
+# =============================================================================
+
+rct:RedactionTechnique a owl:Class ;
+    rdfs:label "Redaction Technique"@en ;
+    rdfs:comment "Method for redacting or protecting PII while preserving utility"@en ;
+    rdfs:subClassOf ba:Technique ;
+    ba:techniqueType xsd:string ;
+    ba:reversibility xsd:string ;
+    ba:utilityPreservation xsd:double .
+
+rct:CompleteRemoval a owl:Class ;
+    rdfs:label "Complete Removal"@en ;
+    rdfs:comment "Complete removal of PII fields from dataset"@en ;
+    rdfs:subClassOf rct:RedactionTechnique ;
+    ba:techniqueType "REMOVAL" ;
+    ba:reversibility "IRREVERSIBLE" ;
+    ba:utilityPreservation 0.0 .
+
+rct:MaskingRedaction a owl:Class ;
+    rdfs:label "Masking Redaction"@en ;
+    rdfs:comment "Masking PII with replacement characters or patterns"@en ;
+    rdfs:subClassOf rct:RedactionTechnique ;
+    ba:techniqueType "MASKING" ;
+    ba:reversibility "IRREVERSIBLE" ;
+    ba:maskingPattern xsd:string .
+
+rct:TokenizationRedaction a owl:Class ;
+    rdfs:label "Tokenization Redaction"@en ;
+    rdfs:comment "Replacing PII with cryptographic tokens"@en ;
+    rdfs:subClassOf rct:RedactionTechnique ;
+    ba:techniqueType "TOKENIZATION" ;
+    ba:reversibility "REVERSIBLE" ;
+    ba:tokenFormat xsd:string .
+
+rct:HashingRedaction a owl:Class ;
+    rdfs:label "Hashing Redaction"@en ;
+    rdfs:comment "Replacing PII with cryptographic hashes"@en ;
+    rdfs:subClassOf rct:RedactionTechnique ;
+    ba:techniqueType "HASHING" ;
+    ba:reversibility "IRREVERSIBLE" ;
+    ba:hashFunction xsd:string ;
+    ba:saltUsed true .
+
+rct:EncryptionRedaction a owl:Class ;
+    rdfs:label "Encryption Redaction"@en ;
+    rdfs:comment "Encrypting PII for authorized access only"@en ;
+    rdfs:subClassOf rct:RedactionTechnique ;
+    ba:techniqueType "ENCRYPTION" ;
+    ba:reversibility "CONDITIONAL" ;
+    ba:encryptionAlgorithm xsd:string ;
+    ba:keyManagement true .
+
+# =============================================================================
+# ZERO-KNOWLEDGE PROOF SYSTEM
+# =============================================================================
+
+rct:ZKProofSystem a owl:Class ;
+    rdfs:label "Zero-Knowledge Proof System"@en ;
+    rdfs:comment "System for generating and verifying zero-knowledge proofs of redaction"@en ;
+    rdfs:subClassOf ba:ProofSystem ;
+    ba:zeroKnowledge true ;
+    ba:soundness true ;
+    ba:completeness true .
+
+rct:ZKProofGenerator a owl:Class ;
+    rdfs:label "ZK Proof Generator"@en ;
+    rdfs:comment "Generator creating zero-knowledge proofs of complete redaction"@en ;
+    rdfs:subClassOf ba:ProofGenerator ;
+    ba:proverRole true ;
+    ba:proofGeneration true ;
+    ba:witnessSecret true .
+
+rct:ZKProofVerifier a owl:Class ;
+    rdfs:label "ZK Proof Verifier"@en ;
+    rdfs:comment "Verifier checking zero-knowledge proofs without revealing secrets"@en ;
+    rdfs:subClassOf ba:ProofVerifier ;
+    ba:verifierRole true ;
+    ba:proofVerification true ;
+    ba:publicValidation true .
+
+rct:CircuitDefinition a owl:Class ;
+    rdfs:label "Circuit Definition"@en ;
+    rdfs:comment "Arithmetic circuit defining the redaction proof statement"@en ;
+    rdfs:subClassOf ba:Definition ;
+    ba:circuitType xsd:string ;
+    ba:constraintSystem true ;
+    ba:satisfiability true .
+
+rct:ProofCircuit a owl:Class ;
+    rdfs:label "Proof Circuit"@en ;
+    rdfs:comment "Specific circuit proving complete PII redaction"@en ;
+    rdfs:subClassOf rct:CircuitDefinition ;
+    ba:circuitType "REDACTION_PROOF" ;
+    ba:inputCommitments true ;
+    ba:outputCommitments true .
+
+# =============================================================================
+# COMMITMENT SCHEMES
+# =============================================================================
+
+rct:CommitmentScheme a owl:Class ;
+    rdfs:label "Commitment Scheme"@en ;
+    rdfs:comment "Cryptographic commitment scheme for data integrity"@en ;
+    rdfs:subClassOf ba:CryptographicScheme ;
+    ba:hiding true ;
+    ba:binding true ;
+    ba:homomorphic true .
+
+rct:PedersenCommitment a owl:Class ;
+    rdfs:label "Pedersen Commitment"@en ;
+    rdfs:comment "Pedersen commitment scheme for homomorphic commitments"@en ;
+    rdfs:subClassOf rct:CommitmentScheme ;
+    ba:homomorphic true ;
+    ba:additivelyHomomorphic true ;
+    ba:discreteLogBased true .
+
+rct:MerkleCommitment a owl:Class ;
+    rdfs:label "Merkle Commitment"@en ;
+    rdfs:comment "Merkle tree commitment for batch data integrity"@en ;
+    rdfs:subClassOf rct:CommitmentScheme ;
+    ba:treeStructure true ;
+    ba:batchCommitment true ;
+    ba:efficientVerification true .
+
+rct:DataCommitment a owl:Class ;
+    rdfs:label "Data Commitment"@en ;
+    rdfs:comment "Cryptographic commitment to original dataset"@en ;
+    rdfs:subClassOf ba:Commitment ;
+    ba:dataIntegrity true ;
+    ba:tamperEvident true ;
+    ba:bindingProperty true .
+
+rct:RedactionCommitment a owl:Class ;
+    rdfs:label "Redaction Commitment"@en ;
+    rdfs:comment "Commitment to redacted dataset and redaction process"@en ;
+    rdfs:subClassOf ba:Commitment ;
+    ba:processIntegrity true ;
+    ba:completenessProof true ;
+    ba:verifiable true .
+
+# =============================================================================
+# VERIFICATION AND VALIDATION
+# =============================================================================
+
+rct:RedactionVerification a owl:Class ;
+    rdfs:label "Redaction Verification"@en ;
+    rdfs:comment "Comprehensive verification of redaction completeness and correctness"@en ;
+    rdfs:subClassOf ba:Verification ;
+    ba:completenessCheck true ;
+    ba:correctnessCheck true ;
+    ba:consistencyCheck true .
+
+rct:CompletenessVerifier a owl:Class ;
+    rdfs:label "Completeness Verifier"@en ;
+    rdfs:comment "Verifier ensuring all PII has been identified and redacted"@en ;
+    rdfs:subClassOf ba:Verifier ;
+    ba:exhaustiveCheck true ;
+    ba:coverageAnalysis true ;
+    ba:falseNegativeDetection true .
+
+rct:CorrectnessVerifier a owl:Class ;
+    rdfs:label "Correctness Verifier"@en ;
+    rdfs:comment "Verifier ensuring redaction was applied correctly"@en ;
+    rdfs:subClassOf ba:Verifier ;
+    ba:accuracyCheck true ;
+    ba:precisionAnalysis true ;
+    ba:falsePositiveDetection true .
+
+rct:ConsistencyVerifier a owl:Class ;
+    rdfs:label "Consistency Verifier"@en ;
+    rdfs:comment "Verifier ensuring consistent redaction across related data"@en ;
+    rdfs:subClassOf ba:Verifier ;
+    ba:crossReferenceCheck true ;
+    ba:uniformityAnalysis true ;
+    ba:coherenceVerification true .
+
+rct:IndependentAuditor a owl:Class ;
+    rdfs:label "Independent Auditor"@en ;
+    rdfs:comment "Third-party auditor for unbiased redaction verification"@en ;
+    rdfs:subClassOf ba:Auditor ;
+    ba:independent true ;
+    ba:unbiased true ;
+    ba:certified true .
+
+# =============================================================================
+# PII PROTECTION MECHANISMS
+# =============================================================================
+
+rct:PIIProtectionFramework a owl:Class ;
+    rdfs:label "PII Protection Framework"@en ;
+    rdfs:comment "Comprehensive framework for PII protection and privacy preservation"@en ;
+    rdfs:subClassOf ba:ProtectionFramework ;
+    ba:multiLayered true ;
+    ba:defenseInDepth true ;
+    ba:adaptiveProtection true .
+
+rct:ContextualProtection a owl:Class ;
+    rdfs:label "Contextual Protection"@en ;
+    rdfs:comment "Context-aware protection adapting to data usage and sharing context"@en ;
+    rdfs:subClassOf ba:Protection ;
+    ba:contextAware true ;
+    ba:adaptive true ;
+    ba:purposeSpecific true .
+
+rct:SemanticProtection a owl:Class ;
+    rdfs:label "Semantic Protection"@en ;
+    rdfs:comment "Protection considering semantic relationships and inference risks"@en ;
+    rdfs:subClassOf ba:Protection ;
+    ba:semanticAware true ;
+    ba:inferenceProtection true ;
+    ba:relationshipAnalysis true .
+
+rct:TemporalProtection a owl:Class ;
+    rdfs:label "Temporal Protection"@en ;
+    rdfs:comment "Time-aware protection considering temporal privacy risks"@en ;
+    rdfs:subClassOf ba:Protection ;
+    ba:temporalAware true ;
+    ba:longitudinalProtection true ;
+    ba:timeSeriesAnalysis true .
+
+rct:CrossDatasetProtection a owl:Class ;
+    rdfs:label "Cross-Dataset Protection"@en ;
+    rdfs:comment "Protection against linkage attacks across multiple datasets"@en ;
+    rdfs:subClassOf ba:Protection ;
+    ba:linkageProtection true ;
+    ba:crossDatasetAnalysis true ;
+    ba:auxiliaryDataConsidered true .
+
+# =============================================================================
+# REGULATORY COMPLIANCE
+# =============================================================================
+
+rct:GDPRRedactionCompliance a owl:Class ;
+    rdfs:label "GDPR Redaction Compliance"@en ;
+    rdfs:comment "GDPR-compliant redaction ensuring right to erasure"@en ;
+    rdfs:subClassOf ba:Compliance ;
+    bac:requiresCompliance bac:GDPR ;
+    ba:rightToErasure true ;
+    ba:dataMinimization true ;
+    ba:purposeLimitation true .
+
+rct:HIPAARedactionCompliance a owl:Class ;
+    rdfs:label "HIPAA Redaction Compliance"@en ;
+    rdfs:comment "HIPAA-compliant redaction for protected health information"@en ;
+    rdfs:subClassOf ba:Compliance ;
+    bac:requiresCompliance bac:HIPAA ;
+    ba:phiProtection true ;
+    ba:minimumNecessary true ;
+    ba:deidentificationStandards true .
+
+rct:CCPARedactionCompliance a owl:Class ;
+    rdfs:label "CCPA Redaction Compliance"@en ;
+    rdfs:comment "CCPA-compliant redaction for California consumer privacy"@en ;
+    rdfs:subClassOf ba:Compliance ;
+    ba:consumerRights true ;
+    ba:rightToDelete true ;
+    ba:personalInformationProtection true .
+
+rct:ComplianceValidator a owl:Class ;
+    rdfs:label "Compliance Validator"@en ;
+    rdfs:comment "Validator ensuring redaction meets regulatory requirements"@en ;
+    rdfs:subClassOf ba:Validator ;
+    ba:regulatoryCompliance true ;
+    ba:standardsAdherence true ;
+    ba:certificationSupport true .
+
+# =============================================================================
+# DATA PROPERTIES
+# =============================================================================
+
+# Redaction Properties
+rct:redactionLevel a owl:DatatypeProperty ;
+    rdfs:label "redaction level"@en ;
+    rdfs:domain rct:RedactionProofCrystal ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Level: PARTIAL, SUBSTANTIAL, COMPLETE" .
+
+rct:redactionMethod a owl:DatatypeProperty ;
+    rdfs:label "redaction method"@en ;
+    rdfs:domain rct:RedactionTechnique ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Method used for redaction" .
+
+rct:redactionTimestamp a owl:DatatypeProperty ;
+    rdfs:label "redaction timestamp"@en ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when redaction was performed" .
+
+rct:redactionHash a owl:DatatypeProperty ;
+    rdfs:label "redaction hash"@en ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cryptographic hash of redaction process" .
+
+# PII Detection Properties
+rct:piiDetectionAccuracy a owl:DatatypeProperty ;
+    rdfs:label "PII detection accuracy"@en ;
+    rdfs:domain rct:PIIDetector ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Accuracy of PII detection (0-1)" .
+
+rct:piiDetectionRecall a owl:DatatypeProperty ;
+    rdfs:label "PII detection recall"@en ;
+    rdfs:domain rct:PIIDetector ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Recall of PII detection (0-1)" .
+
+rct:piiDetectionPrecision a owl:DatatypeProperty ;
+    rdfs:label "PII detection precision"@en ;
+    rdfs:domain rct:PIIDetector ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Precision of PII detection (0-1)" .
+
+rct:falsePositiveRate a owl:DatatypeProperty ;
+    rdfs:label "false positive rate"@en ;
+    rdfs:domain rct:PIIDetector ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Rate of false positive PII detection" .
+
+rct:falseNegativeRate a owl:DatatypeProperty ;
+    rdfs:label "false negative rate"@en ;
+    rdfs:domain rct:PIIDetector ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Rate of false negative PII detection" .
+
+# Proof Properties
+rct:proofSize a owl:DatatypeProperty ;
+    rdfs:label "proof size"@en ;
+    rdfs:domain rct:RedactionProof ;
+    rdfs:range xsd:long ;
+    rdfs:comment "Size of zero-knowledge proof in bytes" .
+
+rct:proofGenerationTime a owl:DatatypeProperty ;
+    rdfs:label "proof generation time"@en ;
+    rdfs:domain rct:RedactionProof ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Time required to generate proof" .
+
+rct:proofVerificationTime a owl:DatatypeProperty ;
+    rdfs:label "proof verification time"@en ;
+    rdfs:domain rct:RedactionProof ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Time required to verify proof" .
+
+rct:proofSoundness a owl:DatatypeProperty ;
+    rdfs:label "proof soundness"@en ;
+    rdfs:domain rct:ZKProofSystem ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Soundness parameter of proof system" .
+
+rct:proofCompleteness a owl:DatatypeProperty ;
+    rdfs:label "proof completeness"@en ;
+    rdfs:domain rct:ZKProofSystem ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Completeness parameter of proof system" .
+
+# Commitment Properties
+rct:commitmentValue a owl:DatatypeProperty ;
+    rdfs:label "commitment value"@en ;
+    rdfs:domain ba:Commitment ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cryptographic commitment value" .
+
+rct:randomness a owl:DatatypeProperty ;
+    rdfs:label "randomness"@en ;
+    rdfs:domain ba:Commitment ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Randomness used in commitment (kept secret)" .
+
+rct:openingValue a owl:DatatypeProperty ;
+    rdfs:label "opening value"@en ;
+    rdfs:domain ba:Commitment ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Value revealed when opening commitment" .
+
+# Verification Properties
+rct:verificationResult a owl:DatatypeProperty ;
+    rdfs:label "verification result"@en ;
+    rdfs:domain rct:RedactionVerification ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Result: VERIFIED, FAILED, PARTIAL" .
+
+rct:verificationScore a owl:DatatypeProperty ;
+    rdfs:label "verification score"@en ;
+    rdfs:domain rct:RedactionVerification ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Verification confidence score (0-1)" .
+
+rct:coveragePercentage a owl:DatatypeProperty ;
+    rdfs:label "coverage percentage"@en ;
+    rdfs:domain rct:CompletenessVerifier ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Percentage of PII covered by verification" .
+
+# Utility Properties
+rct:utilityPreservationScore a owl:DatatypeProperty ;
+    rdfs:label "utility preservation score"@en ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Score measuring preserved utility after redaction" .
+
+rct:informationLossScore a owl:DatatypeProperty ;
+    rdfs:label "information loss score"@en ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Score measuring information lost through redaction" .
+
+# =============================================================================
+# OBJECT PROPERTIES
+# =============================================================================
+
+# Redaction Relationships
+rct:redactedFrom a owl:ObjectProperty ;
+    rdfs:label "redacted from"@en ;
+    rdfs:domain rct:RedactionProofCrystal ;
+    rdfs:range dsc:DatasetCrystal ;
+    rdfs:comment "Original dataset this was redacted from" .
+
+rct:redactedBy a owl:ObjectProperty ;
+    rdfs:label "redacted by"@en ;
+    rdfs:domain rct:RedactionProofCrystal ;
+    rdfs:range rct:PIIRedactionEngine ;
+    rdfs:comment "Engine that performed the redaction" .
+
+rct:hasRedactionProof a owl:ObjectProperty ;
+    rdfs:label "has redaction proof"@en ;
+    rdfs:domain rct:RedactionProofCrystal ;
+    rdfs:range rct:RedactionProof ;
+    rdfs:comment "Cryptographic proof of redaction" .
+
+rct:usesTechnique a owl:ObjectProperty ;
+    rdfs:label "uses technique"@en ;
+    rdfs:domain rct:PIIRedactionEngine ;
+    rdfs:range rct:RedactionTechnique ;
+    rdfs:comment "Redaction technique employed" .
+
+# PII Detection Relationships
+rct:detectsPII a owl:ObjectProperty ;
+    rdfs:label "detects PII"@en ;
+    rdfs:domain rct:PIIDetector ;
+    rdfs:range rct:PIICategory ;
+    rdfs:comment "Type of PII detected" .
+
+rct:classifiesAs a owl:ObjectProperty ;
+    rdfs:label "classifies as"@en ;
+    rdfs:domain rct:PIIClassifier ;
+    rdfs:range rct:PIICategory ;
+    rdfs:comment "PII category classification" .
+
+rct:appliesTo a owl:ObjectProperty ;
+    rdfs:label "applies to"@en ;
+    rdfs:domain rct:RedactionTechnique ;
+    rdfs:range rct:PIICategory ;
+    rdfs:comment "PII category this technique applies to" .
+
+# Proof System Relationships
+rct:hasProofSystem a owl:ObjectProperty ;
+    rdfs:label "has proof system"@en ;
+    rdfs:domain rct:RedactionProof ;
+    rdfs:range rct:ZKProofSystem ;
+    rdfs:comment "Zero-knowledge proof system used" .
+
+rct:generatedBy a owl:ObjectProperty ;
+    rdfs:label "generated by"@en ;
+    rdfs:domain rct:RedactionProof ;
+    rdfs:range rct:ZKProofGenerator ;
+    rdfs:comment "Generator that created the proof" .
+
+rct:verifiedBy a owl:ObjectProperty ;
+    rdfs:label "verified by"@en ;
+    rdfs:domain rct:RedactionProof ;
+    rdfs:range rct:ZKProofVerifier ;
+    rdfs:comment "Verifier that validated the proof" .
+
+rct:usesCircuit a owl:ObjectProperty ;
+    rdfs:label "uses circuit"@en ;
+    rdfs:domain rct:ZKProofSystem ;
+    rdfs:range rct:CircuitDefinition ;
+    rdfs:comment "Arithmetic circuit used in proof" .
+
+# Commitment Relationships
+rct:hasDataCommitment a owl:ObjectProperty ;
+    rdfs:label "has data commitment"@en ;
+    rdfs:domain rct:RedactionProofCrystal ;
+    rdfs:range rct:DataCommitment ;
+    rdfs:comment "Commitment to original dataset" .
+
+rct:hasRedactionCommitment a owl:ObjectProperty ;
+    rdfs:label "has redaction commitment"@en ;
+    rdfs:domain rct:RedactionProofCrystal ;
+    rdfs:range rct:RedactionCommitment ;
+    rdfs:comment "Commitment to redacted dataset" .
+
+rct:usesCommitmentScheme a owl:ObjectProperty ;
+    rdfs:label "uses commitment scheme"@en ;
+    rdfs:domain ba:Commitment ;
+    rdfs:range rct:CommitmentScheme ;
+    rdfs:comment "Cryptographic commitment scheme used" .
+
+# Verification Relationships
+rct:validatedBy a owl:ObjectProperty ;
+    rdfs:label "validated by"@en ;
+    rdfs:domain rct:RedactionProofCrystal ;
+    rdfs:range rct:RedactionValidator ;
+    rdfs:comment "Validator that verified redaction" .
+
+rct:hasVerification a owl:ObjectProperty ;
+    rdfs:label "has verification"@en ;
+    rdfs:domain rct:RedactionProofCrystal ;
+    rdfs:range rct:RedactionVerification ;
+    rdfs:comment "Verification record for redaction" .
+
+rct:checkedBy a owl:ObjectProperty ;
+    rdfs:label "checked by"@en ;
+    rdfs:domain rct:RedactionVerification ;
+    rdfs:range ba:Verifier ;
+    rdfs:comment "Verifier that performed check" .
+
+rct:auditedBy a owl:ObjectProperty ;
+    rdfs:label "audited by"@en ;
+    rdfs:domain rct:RedactionProofCrystal ;
+    rdfs:range rct:IndependentAuditor ;
+    rdfs:comment "Independent auditor that verified redaction" .
+
+# Protection Relationships
+rct:protectedBy a owl:ObjectProperty ;
+    rdfs:label "protected by"@en ;
+    rdfs:domain rct:PIICategory ;
+    rdfs:range rct:PIIProtectionFramework ;
+    rdfs:comment "Protection framework applied" .
+
+rct:implementsProtection a owl:ObjectProperty ;
+    rdfs:label "implements protection"@en ;
+    rdfs:domain rct:PIIRedactionEngine ;
+    rdfs:range ba:Protection ;
+    rdfs:comment "Protection mechanism implemented" .
+
+# Compliance Relationships
+rct:ensuresCompliance a owl:ObjectProperty ;
+    rdfs:label "ensures compliance"@en ;
+    rdfs:domain rct:RedactionProofCrystal ;
+    rdfs:range ba:Compliance ;
+    rdfs:comment "Regulatory compliance ensured" .
+
+rct:validatesCompliance a owl:ObjectProperty ;
+    rdfs:label "validates compliance"@en ;
+    rdfs:domain rct:ComplianceValidator ;
+    rdfs:range ba:Compliance ;
+    rdfs:comment "Compliance validation performed" .
+
+# Certificate Relationships
+rct:hasRedactionCertificate a owl:ObjectProperty ;
+    rdfs:label "has redaction certificate"@en ;
+    rdfs:domain rct:RedactionProofCrystal ;
+    rdfs:range rct:RedactionCertificate ;
+    rdfs:comment "Digital certificate of redaction" .
+
+# Audit Integration
+rct:auditedBy a owl:ObjectProperty ;
+    rdfs:label "audited by"@en ;
+    rdfs:domain rct:RedactionProofCrystal ;
+    rdfs:range baa:AuditSystem ;
+    rdfs:comment "Audit system monitoring redaction" .
+
+# =============================================================================
+# SHACL VALIDATION SHAPES
+# =============================================================================
+
+rct:RedactionProofCrystalShape a sh:NodeShape ;
+    sh:targetClass rct:RedactionProofCrystal ;
+    sh:property [
+        sh:path rct:redactedFrom ;
+        sh:minCount 1 ;
+        sh:message "Redaction proof must reference source dataset" ;
+    ] ;
+    sh:property [
+        sh:path rct:hasRedactionProof ;
+        sh:minCount 1 ;
+        sh:message "Must have cryptographic redaction proof" ;
+    ] ;
+    sh:property [
+        sh:path rct:hasVerification ;
+        sh:minCount 1 ;
+        sh:message "Must have verification record" ;
+    ] ;
+    sh:property [
+        sh:path rct:redactionLevel ;
+        sh:in ("PARTIAL" "SUBSTANTIAL" "COMPLETE") ;
+        sh:message "Must specify valid redaction level" ;
+    ] .
+
+rct:RedactionProofShape a sh:NodeShape ;
+    sh:targetClass rct:RedactionProof ;
+    sh:property [
+        sh:path rct:hasProofSystem ;
+        sh:minCount 1 ;
+        sh:message "Proof must specify proof system used" ;
+    ] ;
+    sh:property [
+        sh:path rct:proofSize ;
+        sh:minInclusive 1 ;
+        sh:message "Proof size must be positive" ;
+    ] ;
+    sh:property [
+        sh:path rct:proofGenerationTime ;
+        sh:maxInclusive "PT100MS"^^xsd:duration ;
+        sh:message "Proof generation should be under 100ms" ;
+    ] .
+
+rct:PIIDetectorShape a sh:NodeShape ;
+    sh:targetClass rct:PIIDetector ;
+    sh:property [
+        sh:path rct:piiDetectionAccuracy ;
+        sh:minInclusive 0.95 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "PII detection accuracy must be at least 95%" ;
+    ] ;
+    sh:property [
+        sh:path rct:falseNegativeRate ;
+        sh:maxInclusive 0.01 ;
+        sh:message "False negative rate must be below 1%" ;
+    ] .
+
+rct:ZKProofSystemShape a sh:NodeShape ;
+    sh:targetClass rct:ZKProofSystem ;
+    sh:property [
+        sh:path rct:proofSoundness ;
+        sh:minInclusive 0.999999 ;
+        sh:message "Proof soundness must be very high" ;
+    ] ;
+    sh:property [
+        sh:path rct:proofCompleteness ;
+        sh:minInclusive 1.0 ;
+        sh:message "Proof completeness must be perfect" ;
+    ] .
+
+rct:VerificationResultShape a sh:NodeShape ;
+    sh:targetClass rct:RedactionVerification ;
+    sh:property [
+        sh:path rct:verificationResult ;
+        sh:in ("VERIFIED" "FAILED" "PARTIAL") ;
+        sh:message "Must specify valid verification result" ;
+    ] ;
+    sh:property [
+        sh:path rct:verificationScore ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Verification score must be between 0 and 1" ;
+    ] .
+
+rct:ComplianceShape a sh:NodeShape ;
+    sh:targetClass rct:RedactionProofCrystal ;
+    sh:sparql [
+        sh:message "GDPR compliance must include right to erasure" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this rct:ensuresCompliance ?compliance .
+                ?compliance a rct:GDPRRedactionCompliance .
+                FILTER NOT EXISTS { ?compliance ba:rightToErasure true }
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# PERFORMANCE REQUIREMENTS (DOCTRINE OF 8)
+# =============================================================================
+
+rct:RedactionProofPerformance a ba:PerformanceSpecification ;
+    rdfs:label "Redaction Proof Crystal Performance Requirements" ;
+    rdfs:comment "Performance requirements under Doctrine of 8" ;
+    ba:redactionProcessingTime "< 8ms"^^xsd:duration ;
+    ba:piiDetectionLatency "< 5ms"^^xsd:duration ;
+    ba:proofGenerationTime "< 10ms"^^xsd:duration ;
+    ba:proofVerificationTime "< 3ms"^^xsd:duration ;
+    ba:verificationLatency "< 2ms"^^xsd:duration ;
+    ba:throughputTarget "20K redaction ops/sec"^^xsd:string .
+
+# =============================================================================
+# INTEGRATION INSTANCES
+# =============================================================================
+
+# Standard PII Categories
+rct:EmailAddress a rct:DirectPII ;
+    rdfs:label "Email Address" ;
+    rdfs:comment "Email address as direct PII" ;
+    ba:piiType "EMAIL" ;
+    ba:regulatoryClass "PERSONAL_DATA" ;
+    ba:detectionPattern "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b" .
+
+rct:PhoneNumber a rct:DirectPII ;
+    rdfs:label "Phone Number" ;
+    rdfs:comment "Phone number as direct PII" ;
+    ba:piiType "PHONE" ;
+    ba:regulatoryClass "PERSONAL_DATA" ;
+    ba:detectionPattern "\\b\\d{3}[-.]?\\d{3}[-.]?\\d{4}\\b" .
+
+rct:SocialSecurityNumber a rct:DirectPII ;
+    rdfs:label "Social Security Number" ;
+    rdfs:comment "SSN as direct PII" ;
+    ba:piiType "SSN" ;
+    ba:regulatoryClass "SENSITIVE_PERSONAL_DATA" ;
+    ba:detectionPattern "\\b\\d{3}-\\d{2}-\\d{4}\\b" .
+
+rct:CreditCardNumber a rct:SensitiveAttribute ;
+    rdfs:label "Credit Card Number" ;
+    rdfs:comment "Credit card number as sensitive PII" ;
+    ba:piiType "CREDIT_CARD" ;
+    ba:regulatoryClass "FINANCIAL_DATA" ;
+    ba:detectionPattern "\\b(?:\\d{4}[-\\s]?){3}\\d{4}\\b" .
+
+# Standard Redaction Techniques
+rct:EmailMasking a rct:MaskingRedaction ;
+    rdfs:label "Email Masking" ;
+    rdfs:comment "Masking technique for email addresses" ;
+    ba:maskingPattern "***@***.***" ;
+    rct:appliesTo rct:EmailAddress .
+
+rct:PhoneTokenization a rct:TokenizationRedaction ;
+    rdfs:label "Phone Tokenization" ;
+    rdfs:comment "Tokenization for phone numbers" ;
+    ba:tokenFormat "PHN_TOKEN_{hash}" ;
+    rct:appliesTo rct:PhoneNumber .
+
+rct:SSNCompleteRemoval a rct:CompleteRemoval ;
+    rdfs:label "SSN Complete Removal" ;
+    rdfs:comment "Complete removal of SSN" ;
+    rct:appliesTo rct:SocialSecurityNumber .
+
+# Compliance Templates
+rct:GDPRCompliantRedaction a rct:GDPRRedactionCompliance ;
+    rdfs:label "GDPR Compliant Redaction" ;
+    rdfs:comment "Standard GDPR-compliant redaction" ;
+    ba:rightToErasure true ;
+    ba:dataMinimization true ;
+    ba:purposeLimitation true .
+
+rct:HIPAACompliantRedaction a rct:HIPAARedactionCompliance ;
+    rdfs:label "HIPAA Compliant Redaction" ;
+    rdfs:comment "Standard HIPAA-compliant redaction" ;
+    ba:phiProtection true ;
+    ba:minimumNecessary true ;
+    ba:deidentificationStandards true .
+
+# ZK Proof System Instance
+rct:StandardZKProofSystem a rct:ZKProofSystem ;
+    rdfs:label "Standard ZK Proof System" ;
+    rdfs:comment "Standard zero-knowledge proof system for redaction" ;
+    rct:proofSoundness 0.999999 ;
+    rct:proofCompleteness 1.0 ;
+    ba:zeroKnowledge true .
+
+# Audit Integration
+rct:RedactionAuditEvent a baa:SecurityAuditEvent ;
+    rdfs:label "Redaction Audit Event" ;
+    baa:eventCategory "PII_REDACTION" ;
+    baa:eventSeverity "HIGH" ;
+    rct:auditTarget rct:RedactionProofCrystal .
+
+rct:PIIDetectionAuditEvent a baa:DataAuditEvent ;
+    rdfs:label "PII Detection Audit Event" ;
+    baa:eventCategory "PII_DETECTION" ;
+    baa:eventSeverity "MEDIUM" ;
+    rct:auditTarget rct:PIIDetector .
+
+rct:ProofVerificationAuditEvent a baa:SecurityAuditEvent ;
+    rdfs:label "Proof Verification Audit Event" ;
+    baa:eventCategory "PROOF_VERIFICATION" ;
+    baa:eventSeverity "CRITICAL" ;
+    rct:auditTarget rct:RedactionProof .
+
+# =============================================================================
+# End of Redaction Proof Crystal Ontology
+# =============================================================================

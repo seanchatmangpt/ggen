@@ -1,0 +1,59 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix scrum: <http://example.org/scrum#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Scrum at Scale Ontology
+scrum:Sprint rdf:type owl:Class .
+scrum:Story rdf:type owl:Class .
+scrum:Developer rdf:type owl:Class .
+scrum:Impediment rdf:type owl:Class .
+scrum:Team rdf:type owl:Class .
+
+# Properties
+scrum:hasStory rdf:type owl:ObjectProperty ;
+    rdfs:domain scrum:Sprint ;
+    rdfs:range scrum:Story .
+
+scrum:storyTitle rdf:type owl:DatatypeProperty ;
+    rdfs:domain scrum:Story ;
+    rdfs:range xsd:string .
+
+scrum:storyStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain scrum:Story ;
+    rdfs:range xsd:string .
+
+scrum:storyPoints rdf:type owl:DatatypeProperty ;
+    rdfs:domain scrum:Story ;
+    rdfs:range xsd:integer .
+
+scrum:developerName rdf:type owl:DatatypeProperty ;
+    rdfs:domain scrum:Developer ;
+    rdfs:range xsd:string .
+
+scrum:developerCapacity rdf:type owl:DatatypeProperty ;
+    rdfs:domain scrum:Developer ;
+    rdfs:range xsd:integer .
+
+scrum:impedimentTitle rdf:type owl:DatatypeProperty ;
+    rdfs:domain scrum:Impediment ;
+    rdfs:range xsd:string .
+
+scrum:impedimentSeverity rdf:type owl:DatatypeProperty ;
+    rdfs:domain scrum:Impediment ;
+    rdfs:range xsd:string .
+
+scrum:impedimentStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain scrum:Impediment ;
+    rdfs:range xsd:string .
+
+# GitVan specific properties
+gv:id rdf:type owl:DatatypeProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:string .
+
+gv:active rdf:type owl:DatatypeProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:boolean .

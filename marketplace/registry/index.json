@@ -1,1742 +1,4145 @@
 {
+  "version": "1.0.0",
+  "registry_url": "https://github.com/seanchatmangpt/ggen",
+  "updated_at": "2026-06-18T06:37:36.215081Z",
+  "package_count": 77,
   "categories": {
-    "academic": 6,
-    "ai": 2,
-    "architecture": 3,
-    "data": 2,
+    "academic-tools": 1,
+    "academic-workflow": 1,
+    "showcase": 2,
+    "ai-agents": 5,
+    "ai": 1,
+    "microservices": 1,
+    "templates": 1,
+    "quality-gate": 3,
+    "academic-paper": 4,
+    "Enterprise": 5,
+    "finance": 7,
+    "ai-tools": 1,
+    "framework": 1,
+    "uncategorized": 23,
+    "healthcare": 7,
     "enterprise": 3,
-    "finance": 2,
-    "healthcare": 3,
-    "rust": 3,
-    "templates": 4,
-    "uncategorized": 38
+    "database": 1,
+    "education": 1,
+    "api": 1,
+    "starter": 1,
+    "ecommerce": 3,
+    "web": 1,
+    "architecture": 1,
+    "financial": 1,
+    "core-power-packages": 1
   },
-  "package_count": 66,
   "packages": [
     {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "academic",
-      "checksum": "a0cad51aa6e421d04f3f02d1692b6cab4de87763ca55b736b71f29f16ccede06",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "academic-bibliography-manager package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.055850+00:00",
-      "license": "MIT",
       "name": "academic-bibliography-manager",
+      "version": "1.0.0",
+      "category": "academic-tools",
+      "description": "Bibliography management system with BibTeX support, citation validation, duplicate detection, and multi-format export",
+      "tags": [
+        "bibliography",
+        "bibtex",
+        "citations",
+        "academic"
+      ],
+      "keywords": [
+        "bibliography",
+        "bibtex",
+        "citations",
+        "references",
+        "doi",
+        "orcid"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
       "path": "marketplace/packages/academic-bibliography-manager",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "becfae4c580cbf26cc871a44925b584f6c8ded54d6627c89c965d12b906ff186"
     },
     {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "academic",
-      "checksum": "48e57ceacbe484c9e90ccb7e45329a1e0587d1d962765a9e946cd4817f272330",
-      "critical_guards_passed": 3,
-      "critical_guards_total": 5,
-      "description": "academic-peer-review-workflow package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.060154+00:00",
-      "license": "MIT",
       "name": "academic-peer-review-workflow",
+      "version": "1.0.0",
+      "category": "academic-workflow",
+      "description": "Integrated peer review workflow with reviewer comments, author responses, revision tracking, and decision management",
+      "tags": [
+        "workflow",
+        "peer-review",
+        "academic",
+        "collaboration"
+      ],
+      "keywords": [
+        "peer-review",
+        "workflow",
+        "academic-publishing",
+        "revision-tracking",
+        "collaboration"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [
+        "academic-paper-lifecycle"
+      ],
       "path": "marketplace/packages/academic-peer-review-workflow",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "66.7",
-      "version": "1.0.0"
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "4f1f9f45574492a11942780bec92192e91c09e15a36e6e6f9ae915009f5807e1"
     },
     {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "rust",
-      "checksum": "5fedbf7ce00d6758f5b9044e5855dbaf248aa812cb73b3f7705d01b288707b46",
-      "critical_guards_passed": 3,
-      "critical_guards_total": 5,
-      "description": "advanced-rust-project package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "rust"
-      ],
-      "last_validated": "2026-03-24T06:27:54.050448+00:00",
-      "license": "MIT",
       "name": "advanced-rust-project",
+      "version": "1.0.0",
+      "category": "showcase",
+      "description": "Advanced Rust project demonstrating all ggen features: lifecycle, AI, SPARQL, templates, and security",
+      "tags": [
+        "rust",
+        "showcase",
+        "lifecycle",
+        "ai",
+        "sparql",
+        "templates",
+        "security"
+      ],
+      "keywords": [
+        "ggen",
+        "rust",
+        "microservice",
+        "ai-generation",
+        "sparql",
+        "lifecycle"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
       "path": "marketplace/packages/advanced-rust-project",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "rust"
-      ],
-      "validation_score": "62.5",
-      "version": "1.0.0"
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "91f8c3f5b702abe0bb6336a4921f56db59020b49ad5ebec053f3cafdb65c668e"
     },
     {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "69a2b7bcb93a2026feffaa944c0eeab5634a5d00b5ee02bde68ef2f92ddb09d5",
-      "critical_guards_passed": 3,
-      "critical_guards_total": 5,
-      "description": "agent-cli-copilot package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.044798+00:00",
-      "license": "MIT",
       "name": "agent-cli-copilot",
+      "version": "1.0.0",
+      "category": "ai-agents",
+      "description": "Intelligent CLI command assistant with natural language understanding, command suggestion, and execution validation",
+      "tags": [
+        "ai",
+        "cli",
+        "copilot",
+        "automation",
+        "natural-language",
+        "shell",
+        "commands",
+        "safety",
+        "productivity"
+      ],
+      "keywords": [
+        "cli-assistant",
+        "command-copilot",
+        "natural-language",
+        "automation",
+        "shell-helper"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
       "path": "marketplace/packages/agent-cli-copilot",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "62.5",
-      "version": "1.0.0"
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "7864099ab33c67ccf3238bdf13f81b02659c803c2ee036bc0412aa4cc4485251"
     },
     {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "7250a91a23281c95f7b815b46c9764205632226d8eba36d86b3b297880ec2597",
-      "critical_guards_passed": 3,
-      "critical_guards_total": 5,
-      "description": "agent-context-crafter package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.066663+00:00",
-      "license": "MIT",
       "name": "agent-context-crafter",
+      "version": "1.0.0",
+      "category": "ai-agents",
+      "description": "Advanced context and state management for AI agents with semantic understanding, persistence, and cross-session continuity",
+      "tags": [
+        "ai",
+        "context",
+        "state-management",
+        "rdf",
+        "persistence",
+        "semantic",
+        "multi-agent",
+        "continuity"
+      ],
+      "keywords": [
+        "context-management",
+        "state-persistence",
+        "semantic-graph",
+        "rdf-ontology",
+        "ai-memory"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [
+        "agent-memory-forge"
+      ],
       "path": "marketplace/packages/agent-context-crafter",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "62.5",
-      "version": "1.0.0"
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "aeb930eeb106d4a025577fdd035b1a2f43135840597e56361f48058065885fef"
     },
     {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "1ca47645270518802ea544a157637c4ecf68738efaff777b46037bd36c12dba1",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "agent-editor package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.052388+00:00",
-      "license": "MIT",
       "name": "agent-editor",
+      "version": "1.0.0",
+      "category": "ai-agents",
+      "description": "AI-powered code editor automation with multi-language support, semantic understanding, and production-grade refactoring",
+      "tags": [
+        "ai",
+        "editor",
+        "automation",
+        "refactoring",
+        "code-quality",
+        "multi-language",
+        "sparql",
+        "rdf",
+        "tdd",
+        "production"
+      ],
+      "keywords": [
+        "ai-editor",
+        "code-automation",
+        "refactoring",
+        "semantic-editing",
+        "rdf-ontology"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
       "path": "marketplace/packages/agent-editor",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "47.9",
-      "version": "1.0.0"
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "4ddfa8e952714ead0f0bdff6469c7c3412e209bb479d2c611eea925c6d10df23"
     },
     {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "7dce6a1a8a6af8bf97bb6703c7ba4e25eeef4eab59a218c4359cccda65db53f8",
-      "critical_guards_passed": 3,
-      "critical_guards_total": 5,
-      "description": "agent-memory-forge package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.045369+00:00",
-      "license": "MIT",
       "name": "agent-memory-forge",
+      "version": "1.0.0",
+      "category": "ai-agents",
+      "description": "Comprehensive memory system for AI agents with episodic, semantic, and procedural memory using RDF ontologies",
+      "tags": [
+        "ai",
+        "memory",
+        "rdf",
+        "knowledge-graph",
+        "episodic",
+        "semantic",
+        "procedural",
+        "learning",
+        "persistence"
+      ],
+      "keywords": [
+        "ai-memory",
+        "knowledge-graph",
+        "episodic-memory",
+        "semantic-memory",
+        "rdf-ontology"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
       "path": "marketplace/packages/agent-memory-forge",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "62.5",
-      "version": "1.0.0"
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "472272eaebf224a5b2416ddc666e29b72b04d7bec4adc6218f6c140ee9488e12"
     },
     {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "8167476f5108b8596a98dcd5afcec731562f473b62de3ce5458a525789572be3",
-      "critical_guards_passed": 3,
-      "critical_guards_total": 5,
-      "description": "agent-reasoning-mcp package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.068081+00:00",
-      "license": "MIT",
       "name": "agent-reasoning-mcp",
+      "version": "1.0.0",
+      "category": "ai-agents",
+      "description": "Advanced reasoning engine with MCP integration, semantic inference, and multi-hop logical reasoning using RDF/SPARQL",
+      "tags": [
+        "ai",
+        "reasoning",
+        "inference",
+        "mcp",
+        "sparql",
+        "logic",
+        "rdf",
+        "knowledge-graph",
+        "planning",
+        "explanation"
+      ],
+      "keywords": [
+        "ai-reasoning",
+        "logical-inference",
+        "mcp-integration",
+        "sparql-reasoning",
+        "rdf-entailment"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [
+        "agent-memory-forge",
+        "agent-context-crafter"
+      ],
       "path": "marketplace/packages/agent-reasoning-mcp",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "62.5",
-      "version": "1.0.0"
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "e572cc8e0856bef9770e9f3eea1e7f53b27c7a42fd398b88b3a0c6604fdd3091"
     },
     {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "ai",
-      "checksum": "280574bb738fac5ce9576bee4cbfa506e30eca9d2e16c07b8fe278f38854061c",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "ai-code-generation package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "ai"
-      ],
-      "last_validated": "2026-03-24T06:27:54.041097+00:00",
-      "license": "MIT",
       "name": "ai-code-generation",
-      "path": "marketplace/packages/ai-code-generation",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "ai"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "architecture",
-      "checksum": "e5dfc8a0b6ee8f5392947d1ded30e56b07581a3ac5b733d10e86b6066ac1185d",
-      "critical_guards_passed": 1,
-      "critical_guards_total": 5,
-      "description": "ai-microservice package (v0.1.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "microservices",
-        "ai"
-      ],
-      "last_validated": "2026-03-24T06:27:54.039543+00:00",
-      "license": "MIT",
-      "name": "ai-microservice",
-      "path": "marketplace/packages/ai-microservice",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "microservices",
-        "ai"
-      ],
-      "validation_score": "14.6",
-      "version": "0.1.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "f8bbe1293e05b78ff93bab1ab803827b9e958d738305941da1f3ace687419068",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "api-endpoint package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.047126+00:00",
-      "license": "MIT",
-      "name": "api-endpoint",
-      "path": "marketplace/packages/api-endpoint",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "academic",
-      "checksum": "f33bd137e9d682c60a80efd3dd4152759a15b7491c918750481a9453f59ff1b9",
-      "critical_guards_passed": 1,
-      "critical_guards_total": 5,
-      "description": "arxiv-paper-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "template"
-      ],
-      "last_validated": "2026-03-24T06:27:54.042388+00:00",
-      "license": "MIT",
-      "name": "arxiv-paper-template",
-      "path": "marketplace/packages/arxiv-paper-template",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "template"
-      ],
-      "validation_score": "31.2",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "d119f4da71fedc527734472248255173a85437168b9a0189666edb577196c2a6",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "asset-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.058851+00:00",
-      "license": "MIT",
-      "name": "asset-management",
-      "path": "marketplace/packages/asset-management",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "finance",
-      "checksum": "e9b5d402426f55349147d01b5721e8f8f09b47a6a13c2b96f68614fbe786a860",
-      "critical_guards_passed": 0,
-      "critical_guards_total": 5,
-      "description": "banking-core package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.061566+00:00",
-      "license": "MIT",
-      "name": "banking-core",
-      "path": "marketplace/packages/banking-core",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "0.0",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "32b3a73b80f41ae3e878987ac0e05f80e543136f0fa9fc7a4506c81821206e31",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "business-intelligence-reporting package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.067217+00:00",
-      "license": "MIT",
-      "name": "business-intelligence-reporting",
-      "path": "marketplace/packages/business-intelligence-reporting",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "c1744e0d57ed61f88549a9d84a4c1e2cf3459f0841c299b4357b02a5e15e8a84",
-      "critical_guards_passed": 3,
-      "critical_guards_total": 5,
-      "description": "chatman-cli package (v0.1.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.054969+00:00",
-      "license": "MIT",
-      "name": "chatman-cli",
-      "path": "marketplace/packages/chatman-cli",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "47.9",
-      "version": "0.1.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "c0fc0d458371273776e676e96752f718ecef37340ce22e2487d907a2232c3934",
-      "critical_guards_passed": 3,
-      "critical_guards_total": 5,
-      "description": "clap-noun-verb package (v5.3.2)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.054024+00:00",
-      "license": "MIT",
-      "name": "clap-noun-verb",
-      "path": "marketplace/packages/clap-noun-verb",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "66.7",
-      "version": "5.3.2"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "templates",
-      "checksum": "2d4022a32f427f5a8d703eb659b79e6ad1ee2713165038af54eb82beab2a2a22",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "cli-application-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "template"
-      ],
-      "last_validated": "2026-03-24T06:27:54.066967+00:00",
-      "license": "MIT",
-      "name": "cli-application-template",
-      "path": "marketplace/packages/cli-application-template",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "template"
-      ],
-      "validation_score": "47.9",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "7f53983f4bbaa5ca784fb4ade8be510a1063ed47e0f81ed6e0cc50e9ebeaec56",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "clinical-trials-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.047642+00:00",
-      "license": "MIT",
-      "name": "clinical-trials-management",
-      "path": "marketplace/packages/clinical-trials-management",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "rust",
-      "checksum": "1a19024289356558967c7d47abbcea9b77de609f6adcbbf3963b0a5d928a83eb",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "comprehensive-rust-showcase package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "rust"
-      ],
-      "last_validated": "2026-03-24T06:27:54.037748+00:00",
-      "license": "MIT",
-      "name": "comprehensive-rust-showcase",
-      "path": "marketplace/packages/comprehensive-rust-showcase",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "rust"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "enterprise",
-      "checksum": "100b192827ec2c30fafed9f0d13ff8c17da4233e22c7f6cd3c06fad6508330d1",
-      "critical_guards_passed": 1,
-      "critical_guards_total": 5,
-      "description": "crm-customer-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.059488+00:00",
-      "license": "MIT",
-      "name": "crm-customer-management",
-      "path": "marketplace/packages/crm-customer-management",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "31.2",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "627dfdc9dd28cb95fa0adbf2680201ab093163fbc862b5c90297aedfc6c1e4bf",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "cryptocurrency-exchange package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.056444+00:00",
-      "license": "MIT",
-      "name": "cryptocurrency-exchange",
-      "path": "marketplace/packages/cryptocurrency-exchange",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "47.9",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "2ca880e99697d969358451f21497c3e07d14e65beaaae331b794693f4f7d8e59",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "customer-loyalty-rewards package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.042074+00:00",
-      "license": "MIT",
-      "name": "customer-loyalty-rewards",
-      "path": "marketplace/packages/customer-loyalty-rewards",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "47.9",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "data",
-      "checksum": "fd941754d1f38de6369093680c13bd40591f8ea2b7dd46e2eb0be6457a7672da",
-      "critical_guards_passed": 5,
-      "critical_guards_total": 5,
-      "description": "data-pipeline-cli package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.064268+00:00",
-      "license": "MIT",
-      "name": "data-pipeline-cli",
-      "path": "marketplace/packages/data-pipeline-cli",
-      "production_ready": true,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "100.0",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "data",
-      "checksum": "6c1c177141cb4a1b73d3ae81049ae3a65e7b38ae9b5f4be20526baa41bc9d7da",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "database-schema-generator package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.062797+00:00",
-      "license": "MIT",
-      "name": "database-schema-generator",
-      "path": "marketplace/packages/database-schema-generator",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "47.9",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "b1e8fc20afe89a7aab47b332f4b5635df909ebe6d3d8e75428906671e0f5969c",
-      "critical_guards_passed": 3,
-      "critical_guards_total": 5,
-      "description": "document-management-system package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.054477+00:00",
-      "license": "MIT",
-      "name": "document-management-system",
-      "path": "marketplace/packages/document-management-system",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "62.5",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "healthcare",
-      "checksum": "c29d9294f8e9a047e362aa599818621d0e2ff01a2b580f1d9dd3f2e41046f8b4",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "ehr-integration package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.063514+00:00",
-      "license": "MIT",
-      "name": "ehr-integration",
-      "path": "marketplace/packages/ehr-integration",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "enterprise",
-      "checksum": "7bd7da7147d173cd5f2acdcd41738a1f928fcdd5c56f6d37a23a5f2f7d8c81f1",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "enterprise-erp-core package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.049734+00:00",
-      "license": "MIT",
-      "name": "enterprise-erp-core",
-      "path": "marketplace/packages/enterprise-erp-core",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "47.9",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "templates",
-      "checksum": "84c9af8f16fbc70ea07e80865d4c406f4f54b072b727f07fb1162486e3f2607b",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "graphql-api-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "template"
-      ],
-      "last_validated": "2026-03-24T06:27:54.052053+00:00",
-      "license": "MIT",
-      "name": "graphql-api-template",
-      "path": "marketplace/packages/graphql-api-template",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "template"
-      ],
-      "validation_score": "47.9",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "healthcare",
-      "checksum": "90bde027d905200d24a21167ac91e02ec26b353ed4df8d1df6365b095ace7200",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "healthcare-analytics package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.059161+00:00",
-      "license": "MIT",
-      "name": "healthcare-analytics",
-      "path": "marketplace/packages/healthcare-analytics",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "2199a63e840abfae074bdf317c1ade1d0f4fd23bc4acde87807b96ec5e5f0b00",
-      "critical_guards_passed": 0,
-      "critical_guards_total": 5,
-      "description": "hello-world package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.053430+00:00",
-      "license": "MIT",
-      "name": "hello-world",
-      "path": "marketplace/packages/hello-world",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "0.0",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "07ef3c0c0df4e147dc0aafbb8653d7849d7cb9d1a826aa396ea0b07a221b6a81",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "human-resources-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.038538+00:00",
-      "license": "MIT",
-      "name": "human-resources-management",
-      "path": "marketplace/packages/human-resources-management",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "academic",
-      "checksum": "8d3c04c7f07f7c68b25a96a059203b13dc789dcd51131415515aa124f9c4841c",
-      "critical_guards_passed": 1,
-      "critical_guards_total": 5,
-      "description": "ieee-paper-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "template"
-      ],
-      "last_validated": "2026-03-24T06:27:54.058106+00:00",
-      "license": "MIT",
-      "name": "ieee-paper-template",
-      "path": "marketplace/packages/ieee-paper-template",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "template"
-      ],
-      "validation_score": "31.2",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "559215b8efa48b57f0cbf7ca192fe34da053b9d61cc54f29ecac6c21ee68a518",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "inventory-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.046733+00:00",
-      "license": "MIT",
-      "name": "inventory-management",
-      "path": "marketplace/packages/inventory-management",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "42488565425ad95a60a9200dcf59b738210f62c701b68f6e70f73a34855182a4",
-      "critical_guards_passed": 3,
-      "critical_guards_total": 5,
-      "description": "io.ggen.nextjs.ontology-crud package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.067593+00:00",
-      "license": "MIT",
-      "name": "io.ggen.nextjs.ontology-crud",
-      "path": "marketplace/packages/io.ggen.nextjs.ontology-crud",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "66.7",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "finance",
-      "checksum": "5ac1bcfcadee9431c28d6b122559e1ae7713d04fbe7a7b67535b5a710d92230e",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "iso-20022-payments package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.066074+00:00",
-      "license": "MIT",
-      "name": "iso-20022-payments",
-      "path": "marketplace/packages/iso-20022-payments",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "47.9",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "5b32c36e1ec02471d47d9f9c5930fa8587ca85494c0ed85866e3c2d35e53579a",
-      "critical_guards_passed": 3,
-      "critical_guards_total": 5,
-      "description": "knowledge-graph-cli package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.048741+00:00",
-      "license": "MIT",
-      "name": "knowledge-graph-cli",
-      "path": "marketplace/packages/knowledge-graph-cli",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "66.7",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "d1a6f4087f98241c2dd848ff200973e04b601784c0038950a760b73b4610527f",
-      "critical_guards_passed": 1,
-      "critical_guards_total": 5,
-      "description": "kyc-aml-compliance package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.043905+00:00",
-      "license": "MIT",
-      "name": "kyc-aml-compliance",
-      "path": "marketplace/packages/kyc-aml-compliance",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "31.2",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "113dd6cfcb39bda4af42ad37f9c72e458739b7a89f0fee32fe5235bd4d32a92d",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "laboratory-information-system package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.044341+00:00",
-      "license": "MIT",
-      "name": "laboratory-information-system",
-      "path": "marketplace/packages/laboratory-information-system",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "healthcare",
-      "checksum": "93f4617bde70fc70e25e0cd429f8dc1ebb0f0d01f355823db9e83764cca9fe9a",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "medical-billing package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.052858+00:00",
-      "license": "MIT",
-      "name": "medical-billing",
-      "path": "marketplace/packages/medical-billing",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "architecture",
-      "checksum": "51396c3b86013a1dd7e3d967cfa353743a4c952f13a082663e187bbd91771021",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "microservices-architecture package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "microservices"
-      ],
-      "last_validated": "2026-03-24T06:27:54.043330+00:00",
-      "license": "MIT",
-      "name": "microservices-architecture",
-      "path": "marketplace/packages/microservices-architecture",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "microservices"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "architecture",
-      "checksum": "f3253793f55364e072c43d0b4b7f3ab95ccf6198d21c56a4d9a01ef86334f3c5",
-      "critical_guards_passed": 3,
-      "critical_guards_total": 5,
-      "description": "microservices-architecture-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "template",
-        "microservices"
-      ],
-      "last_validated": "2026-03-24T06:27:54.069433+00:00",
-      "license": "MIT",
-      "name": "microservices-architecture-template",
-      "path": "marketplace/packages/microservices-architecture-template",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "template",
-        "microservices"
-      ],
-      "validation_score": "62.5",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "enterprise",
-      "checksum": "b7da43c0b50dbc9de6570373ddcb53cfc7ab19304dde3ce5a12053d7ce5e89c3",
-      "critical_guards_passed": 3,
-      "critical_guards_total": 5,
-      "description": "multi-tenant-saas package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.069125+00:00",
-      "license": "MIT",
-      "name": "multi-tenant-saas",
-      "path": "marketplace/packages/multi-tenant-saas",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "62.5",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "academic",
-      "checksum": "ce1ad63d42e50db4a0e8c99e36b37c0e9ac9bbfca8f200f0fba029f7effbb38f",
-      "critical_guards_passed": 1,
-      "critical_guards_total": 5,
-      "description": "neurips-paper-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "template"
-      ],
-      "last_validated": "2026-03-24T06:27:54.048082+00:00",
-      "license": "MIT",
-      "name": "neurips-paper-template",
-      "path": "marketplace/packages/neurips-paper-template",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "template"
-      ],
-      "validation_score": "31.2",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "e17be2980d3ba9442caec019d7fb58ab8205f12717d2d9a98f9abd2c39ca54ca",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "order-management-system package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.060782+00:00",
-      "license": "MIT",
-      "name": "order-management-system",
-      "path": "marketplace/packages/order-management-system",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "47.9",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "7f403d059cec03f3699c91bfa60f787410d28a6ff3679656a42490b905c198f1",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "pharmacy-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.059756+00:00",
-      "license": "MIT",
-      "name": "pharmacy-management",
-      "path": "marketplace/packages/pharmacy-management",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "templates",
-      "checksum": "a138653bd39588080a2ef6751aa2c0e30adaff1df3616abed3860c40b341e3b2",
-      "critical_guards_passed": 1,
-      "critical_guards_total": 5,
-      "description": "phd-thesis-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "template"
-      ],
-      "last_validated": "2026-03-24T06:27:54.061226+00:00",
-      "license": "MIT",
-      "name": "phd-thesis-template",
-      "path": "marketplace/packages/phd-thesis-template",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "template"
-      ],
-      "validation_score": "31.2",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "e5cc03bf52acaaa2a34972ff2bdfdcfb13857d02ba1694969804fb4189c5be73",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "product-recommendations package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.042747+00:00",
-      "license": "MIT",
-      "name": "product-recommendations",
-      "path": "marketplace/packages/product-recommendations",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "839816813c41846ac1ffcd4e5c7b59c7c864445ff60549aade6a23be30ffe291",
-      "critical_guards_passed": 3,
-      "critical_guards_total": 5,
-      "description": "project-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.048387+00:00",
-      "license": "MIT",
-      "name": "project-management",
-      "path": "marketplace/packages/project-management",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "62.5",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "267445dc7f7320d0c363b7a0e34c2be4cac4361df8516238bdc434bd6388ab36",
-      "critical_guards_passed": 4,
-      "critical_guards_total": 5,
-      "description": "reasoner-cli package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.045820+00:00",
-      "license": "MIT",
-      "name": "reasoner-cli",
-      "path": "marketplace/packages/reasoner-cli",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "79.2",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "templates",
-      "checksum": "4494bb742ea3f91fd2a10eb5cedb1643a7076db8335a6b57eca022a4f970ef19",
-      "critical_guards_passed": 3,
-      "critical_guards_total": 5,
-      "description": "rest-api-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "template"
-      ],
-      "last_validated": "2026-03-24T06:27:54.057841+00:00",
-      "license": "MIT",
-      "name": "rest-api-template",
-      "path": "marketplace/packages/rest-api-template",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "template"
-      ],
-      "validation_score": "68.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "357ffb17d5758eddd4b151363c6f6e814ac8584526b196288cad1096572f051b",
-      "critical_guards_passed": 0,
-      "critical_guards_total": 5,
-      "description": "risk-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.050067+00:00",
-      "license": "MIT",
-      "name": "risk-management",
-      "path": "marketplace/packages/risk-management",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "0.0",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "8f0a0dc47bd159a0c1dc6f64fdb6f9a606cac7ddb685e471dd8c1c355f88d01e",
-      "critical_guards_passed": 0,
-      "critical_guards_total": 5,
-      "description": "robo-advisor package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.056907+00:00",
-      "license": "MIT",
-      "name": "robo-advisor",
-      "path": "marketplace/packages/robo-advisor",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "0.0",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "389fdd7fa2f4fc6d174de416f9c0b8dd0e3323bd1c0cb324f9b38d3df02f3963",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "schema-forge-cli package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.041585+00:00",
-      "license": "MIT",
-      "name": "schema-forge-cli",
-      "path": "marketplace/packages/schema-forge-cli",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "9f5a40c08a166fb849957a06158314e6086bbf082c7d2888588db5f8cf4f389f",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "sector-api-gateway-8020 package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.063825+00:00",
-      "license": "MIT",
-      "name": "sector-api-gateway-8020",
-      "path": "marketplace/packages/sector-api-gateway-8020",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "f22bfc6d4b5402829d78deedad4c82f97e5dfafec1d21b167a72c1849270f8a8",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "sector-observability-8020 package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.049160+00:00",
-      "license": "MIT",
-      "name": "sector-observability-8020",
-      "path": "marketplace/packages/sector-observability-8020",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "academic",
-      "checksum": "59f25eb015a93738a56a0267948f59d2dde2d04c1a304f9e288fae30961c429d",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "sector-paper-lifecycle-8020 package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.040591+00:00",
-      "license": "MIT",
-      "name": "sector-paper-lifecycle-8020",
-      "path": "marketplace/packages/sector-paper-lifecycle-8020",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "rust",
-      "checksum": "c259786440e22fa37fab650dccbbe663ea174a2abd99ae3b0fefdd49381abc86",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "sector-rust-microservice-8020 package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "rust",
-        "microservices"
-      ],
-      "last_validated": "2026-03-24T06:27:54.057356+00:00",
-      "license": "MIT",
-      "name": "sector-rust-microservice-8020",
-      "path": "marketplace/packages/sector-rust-microservice-8020",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "rust",
-        "microservices"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "72d11af01e0a9aa35ac4c2ed8273c86679c93b6dcbb3586bbeaa311bd0fdceb6",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "sector-support-hooks-8020 package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.063081+00:00",
-      "license": "MIT",
-      "name": "sector-support-hooks-8020",
-      "path": "marketplace/packages/sector-support-hooks-8020",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "8c87d886f08a58aec04cf39a7a8c0b18b4312f752124380d09a3c2056b6406f9",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "semantic-cli package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.068701+00:00",
-      "license": "MIT",
-      "name": "semantic-cli",
-      "path": "marketplace/packages/semantic-cli",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "45.8",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "cca7f897e3229dccf1ebfa83411925596f8f5e8482ea9cd2c615d1f8edeebbee",
-      "critical_guards_passed": 4,
-      "critical_guards_total": 5,
-      "description": "shacl-cli package (v0.1.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.033979+00:00",
-      "license": "MIT",
-      "name": "shacl-cli",
-      "path": "marketplace/packages/shacl-cli",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "79.2",
-      "version": "0.1.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "5cb07dc9f81d5bda464221d33fe3ee3ce87b69c405942fa590323782c490a95e",
-      "critical_guards_passed": 4,
-      "critical_guards_total": 5,
-      "description": "sparql-cli package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.061913+00:00",
-      "license": "MIT",
-      "name": "sparql-cli",
-      "path": "marketplace/packages/sparql-cli",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "79.2",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
+      "version": "1.0.0",
       "category": "ai",
-      "checksum": "2ccef7cd1f21df3507104730566909c9ea540a10735bdd1353c23a4f61705bfd",
-      "critical_guards_passed": 1,
-      "critical_guards_total": 5,
-      "description": "supply-chain-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "ai"
-      ],
-      "last_validated": "2026-03-24T06:27:54.039122+00:00",
-      "license": "MIT",
-      "name": "supply-chain-management",
-      "path": "marketplace/packages/supply-chain-management",
-      "production_ready": false,
-      "stars": 0,
+      "description": "AI-powered code generation with multi-provider support and comprehensive validation",
       "tags": [
-        "ai"
+        "ai",
+        "code-generation",
+        "ollama",
+        "openai",
+        "llm"
       ],
-      "validation_score": "31.2",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "696e5cbdc8f1651796d55dd36df50e746311f140fc1a2098bdf29c87f9264949",
-      "critical_guards_passed": 2,
-      "critical_guards_total": 5,
-      "description": "telemedicine-platform package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
       "keywords": [
-        "package"
+        "ai",
+        "code-generation",
+        "llm",
+        "ollama",
+        "qwen"
       ],
-      "last_validated": "2026-03-24T06:27:54.058370+00:00",
+      "author": "ggen-team",
       "license": "MIT",
-      "name": "telemedicine-platform",
-      "path": "marketplace/packages/telemedicine-platform",
-      "production_ready": false,
+      "downloads": 0,
       "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "31.2",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "67a9776b2b7a649a538e74803ed0f10ddc9261aff7f4e261dd1159ef24e18496",
-      "critical_guards_passed": 1,
-      "critical_guards_total": 5,
-      "description": "trading-platform package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.066401+00:00",
-      "license": "MIT",
-      "name": "trading-platform",
-      "path": "marketplace/packages/trading-platform",
-      "production_ready": false,
-      "stars": 0,
-      "tags": [
-        "package"
-      ],
-      "validation_score": "31.2",
-      "version": "1.0.0"
-    },
-    {
-      "author": "ggen-team",
-      "bonus_guards_passed": 0,
-      "bonus_guards_total": 0,
-      "category": "uncategorized",
-      "checksum": "26bb740fff09cc3bc5b657f3441a892c5239887e30b5e5cceacd50414a08ded1",
-      "critical_guards_passed": 5,
-      "critical_guards_total": 5,
-      "description": "workflow-engine-cli package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "downloads": 0,
-      "keywords": [
-        "package"
-      ],
-      "last_validated": "2026-03-24T06:27:54.051044+00:00",
-      "license": "MIT",
-      "name": "workflow-engine-cli",
-      "path": "marketplace/packages/workflow-engine-cli",
       "production_ready": true,
-      "stars": 0,
+      "dependencies": [],
+      "path": "marketplace/packages/ai-code-generation",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "0e7d8113665e435694e6e92ffe32baf6a68fe4ad32cb33eb99dc503199c305e0"
+    },
+    {
+      "name": "ai-microservice",
+      "version": "0.1.0",
+      "category": "microservices",
+      "description": "AI-powered microservice with template generation, refactoring, and ontology support",
       "tags": [
-        "package"
+        "ai",
+        "microservice",
+        "template",
+        "refactoring",
+        "ontology"
       ],
-      "validation_score": "100.0",
-      "version": "1.0.0"
+      "keywords": [
+        "ai",
+        "microservice",
+        "generation",
+        "refactoring",
+        "llm"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/ai-microservice",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "3465b0d21a6ae3c82d60f0f32f2671168c766cb85097b8a2b518e6a0db0bdaa5"
+    },
+    {
+      "name": "api-endpoint",
+      "version": "1.0.0",
+      "category": "templates",
+      "description": "Complete REST API endpoint templates with OpenAPI documentation, validation, and security",
+      "tags": [
+        "api",
+        "rest",
+        "axum",
+        "openapi",
+        "templates"
+      ],
+      "keywords": [
+        "api",
+        "rest",
+        "endpoint",
+        "axum",
+        "openapi"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/api-endpoint",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "575aec8af7c619dc3ed421a8466a6583651b5f4229beb4c62ff0fc612a9a4830"
+    },
+    {
+      "name": "armstrong-compliance-dod",
+      "version": "1.0.0",
+      "category": "quality-gate",
+      "description": "DoD focused on Armstrong fault tolerance: supervision trees, no shared state, let-it-crash, budget constraints. For Erlang/OTP, Elixir, and fault-tolerant systems.",
+      "tags": [
+        "dod",
+        "armstrong",
+        "fault-tolerance",
+        "erlang",
+        "elixir",
+        "supervision",
+        "quality-gate"
+      ],
+      "keywords": [
+        "definition-of-done",
+        "armstrong",
+        "let-it-crash",
+        "supervision",
+        "no-shared-state",
+        "budget"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/armstrong-compliance-dod",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "5da65564bc1e6afe7af0985e56d24676cb2e031986e4194f906d157bae501c37"
+    },
+    {
+      "name": "arxiv-paper-template",
+      "version": "1.0.0",
+      "category": "academic-paper",
+      "description": "arXiv-compatible preprint format with automatic metadata extraction and submission support",
+      "tags": [
+        "paper",
+        "arxiv",
+        "preprint",
+        "latex",
+        "academic"
+      ],
+      "keywords": [
+        "arxiv",
+        "preprint",
+        "latex",
+        "open-access",
+        "academic-writing"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/arxiv-paper-template",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "779a0ad86630db6883152926b891ee241396fe9e3c692e20123587b4c4d3af2a"
+    },
+    {
+      "name": "asset-management",
+      "version": "1.0.0",
+      "category": "Enterprise",
+      "description": "Enterprise Asset Management with tracking, depreciation, maintenance, and lifecycle management",
+      "tags": [
+        "assets",
+        "tracking",
+        "depreciation",
+        "maintenance",
+        "lifecycle",
+        "barcode",
+        "rfid",
+        "enterprise"
+      ],
+      "keywords": [],
+      "author": null,
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/asset-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "c3ffd380aafcc7f0e35fda7ac6fd23e1a7cdadf27a4706e4d2912d6a07b6c767"
+    },
+    {
+      "name": "banking-core",
+      "version": "1.0.0",
+      "category": "finance",
+      "description": "Core banking system with account management, transactions, interest calculation, and regulatory reporting",
+      "tags": [
+        "banking",
+        "accounts",
+        "transactions",
+        "ledger",
+        "compliance",
+        "regulatory"
+      ],
+      "keywords": [],
+      "author": "ggen Marketplace",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/banking-core",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "acadf2a303a38071c522eb2eceba1ac4724c93faaff0541dfd5e584189ad5d35"
+    },
+    {
+      "name": "business-intelligence-reporting",
+      "version": "1.0.0",
+      "category": "Enterprise",
+      "description": "Business Intelligence and Reporting with OLAP, dashboards, KPIs, and dimensional modeling",
+      "tags": [
+        "bi",
+        "reporting",
+        "analytics",
+        "olap",
+        "dashboards",
+        "kpi",
+        "data-warehouse",
+        "enterprise"
+      ],
+      "keywords": [],
+      "author": null,
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/business-intelligence-reporting",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "edd1db346b3d4334cbb1d8a74a4077eb8043e8670c892c55b758a66b76c3cbd8"
+    },
+    {
+      "name": "chatman-cli",
+      "version": "0.1.0",
+      "category": "ai-tools",
+      "description": "Knowledge Hook-powered chat automation framework with semantic understanding, AI integration, and production-grade conversation management",
+      "tags": [
+        "ai",
+        "chat",
+        "cli",
+        "knowledge-hooks",
+        "automation",
+        "conversation",
+        "assistant",
+        "semantic",
+        "rdf",
+        "production"
+      ],
+      "keywords": [
+        "chatman",
+        "cli-chat",
+        "ai-assistant",
+        "knowledge-hooks",
+        "conversation-manager"
+      ],
+      "author": "Sean Chatman <sean@chatmangpt.com>",
+      "license": "MIT OR Apache-2.0",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/chatman-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "b788cb1cb8dcc9742daa48aeedd44c58e119471d4dc9d9c2ead37859086afd65"
+    },
+    {
+      "name": "clap-noun-verb",
+      "version": "5.3.2",
+      "category": "framework",
+      "description": "Generate production-grade Rust CLIs from RDF with domain logic protection",
+      "tags": [],
+      "keywords": [],
+      "author": "seanchatmangpt",
+      "license": "MIT OR Apache-2.0",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/clap-noun-verb",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "186ae74a185bf31f1170c120d0037f4a8f54ca9631c6bce46229392137594206"
+    },
+    {
+      "name": "cli-application-template",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "Generate production-ready CLI applications with commands, args, config, and help",
+      "tags": [],
+      "keywords": [],
+      "author": "ggen-marketplace",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/cli-application-template",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "2a10a3a98bdb9123ff4748eafda46a3435fd0d1d2dde5c9db1867a4421a6ddbe"
+    },
+    {
+      "name": "clinical-trials-management",
+      "version": "1.0.0",
+      "category": "healthcare",
+      "description": "Clinical trials management with protocol management, patient recruitment, and data collection",
+      "tags": [
+        "clinical-trials",
+        "research",
+        "protocol-management",
+        "patient-recruitment",
+        "data-collection"
+      ],
+      "keywords": [],
+      "author": "ggen Healthcare Team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/clinical-trials-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "0ceaa7a310f639a9cd4f65eecc5e8de919071ccb398119fce644ec7981e6fa03"
+    },
+    {
+      "name": "comprehensive-rust-showcase",
+      "version": "1.0.0",
+      "category": "showcase",
+      "description": "Comprehensive showcase of ALL ggen features: lifecycle, AI, SPARQL, templates, security, performance, monitoring",
+      "tags": [
+        "rust",
+        "showcase",
+        "complete",
+        "enterprise",
+        "production",
+        "ai",
+        "sparql",
+        "lifecycle"
+      ],
+      "keywords": [
+        "ggen",
+        "rust",
+        "microservice",
+        "enterprise",
+        "production-ready",
+        "comprehensive"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/comprehensive-rust-showcase",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "4d537b47d5097a56ceca23c463eb4d9af13e01e0b2f35e6f0ecffc29d6a7e54c"
+    },
+    {
+      "name": "crm-customer-management",
+      "version": "1.0.0",
+      "category": "enterprise",
+      "description": "CRM system for sales pipeline, customer relationships, and opportunity tracking",
+      "tags": [
+        "crm",
+        "sales",
+        "pipeline",
+        "customers",
+        "opportunities"
+      ],
+      "keywords": [],
+      "author": "GGEN Marketplace",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/crm-customer-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "92b32b85d7d0537caba253ea6cc75189702313e5ad4271d78d8ad616f62caa3c"
+    },
+    {
+      "name": "cryptocurrency-exchange",
+      "version": "1.0.0",
+      "category": "finance",
+      "description": "Cryptocurrency exchange platform with wallet management, order matching, blockchain integration, and DeFi protocols",
+      "tags": [
+        "crypto",
+        "exchange",
+        "blockchain",
+        "defi",
+        "wallet",
+        "trading"
+      ],
+      "keywords": [],
+      "author": "ggen Marketplace",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/cryptocurrency-exchange",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "8f0c6bcced8fe0eb35ab22785df9433f837c4a6bd4000cc0775ac8941017dadb"
+    },
+    {
+      "name": "customer-loyalty-rewards",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "Comprehensive loyalty program with points, tiers, and gamification",
+      "tags": [],
+      "keywords": [
+        "e-commerce",
+        "loyalty",
+        "rewards",
+        "gamification",
+        "rdf"
+      ],
+      "author": null,
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/customer-loyalty-rewards",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "7c09626f205e544ac15e68697e9daed46ea45ca6aa8cff6b6bee81e7caa240ec"
+    },
+    {
+      "name": "data-pipeline-cli",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "ETL data pipelines, transformation, and integration using clap-noun-verb",
+      "tags": [],
+      "keywords": [
+        "etl",
+        "pipeline",
+        "data-integration",
+        "transformation",
+        "ingestion",
+        "clap-noun-verb"
+      ],
+      "author": null,
+      "license": "MIT OR Apache-2.0",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/data-pipeline-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "4524f02269378337a0424847beb07efc4e99cff1169fc0064225f71af8f9960b"
+    },
+    {
+      "name": "database-schema-generator",
+      "version": "1.0.0",
+      "category": "database",
+      "description": "Multi-database schema generator from RDF ontology using SPARQL",
+      "tags": [
+        "database",
+        "schema",
+        "rdf",
+        "sparql",
+        "postgresql",
+        "mysql",
+        "sqlite",
+        "ddl",
+        "migrations"
+      ],
+      "keywords": [],
+      "author": "ggen.io",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/database-schema-generator",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "44d66e3dceb9f1ac048f307ea6809502c5da0a9af04027e3bc9242b1662c0125"
+    },
+    {
+      "name": "dlss-curriculum",
+      "version": "1.0.0",
+      "category": "education",
+      "description": "Design for Lean Six Sigma (DLSS) Black Belt certification curriculum following DMEDI methodology. 53 modules across 5 phases with real-world examples, statistical datasets, exercises, and capstone project.",
+      "tags": [
+        "dlss",
+        "six-sigma",
+        "black-belt",
+        "dmadi",
+        "curriculum",
+        "education",
+        "quality",
+        "lean"
+      ],
+      "keywords": [
+        "design-for-lean-six-sigma",
+        "black-belt",
+        "dmadi",
+        "qfd",
+        "doe",
+        "anova",
+        "triz",
+        "robust-design",
+        "rsm"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": true,
+      "dependencies": [],
+      "path": "marketplace/packages/dlss-curriculum",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "72733d6fe1512e146d0135893989f66e2eb23b57a68b59095abe7d87a788adfd"
+    },
+    {
+      "name": "document-management-system",
+      "version": "1.0.0",
+      "category": "Enterprise",
+      "description": "Enterprise Document Management System with versioning, workflow, OCR, and compliance tracking",
+      "tags": [
+        "documents",
+        "versioning",
+        "workflow",
+        "OCR",
+        "compliance",
+        "metadata",
+        "enterprise"
+      ],
+      "keywords": [],
+      "author": null,
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/document-management-system",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "eba4d50e6a881c91b83470e64def53c0d8071932a9be33df3ff5510e50236eeb"
+    },
+    {
+      "name": "ehr-integration",
+      "version": "1.0.0",
+      "category": "healthcare",
+      "description": "EHR integration with Epic/Cerner connectors and SMART on FHIR support",
+      "tags": [
+        "ehr",
+        "epic",
+        "cerner",
+        "fhir",
+        "smart-on-fhir",
+        "patient-portal"
+      ],
+      "keywords": [],
+      "author": "ggen Healthcare Team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/ehr-integration",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "554dcbec4522c98f560e3af619fdd6d435179df562ebc712681068b8296389cc"
+    },
+    {
+      "name": "enterprise-erp-core",
+      "version": "1.0.0",
+      "category": "enterprise",
+      "description": "Comprehensive ERP and accounting system with double-entry bookkeeping",
+      "tags": [
+        "erp",
+        "accounting",
+        "finance",
+        "double-entry",
+        "financial-statements"
+      ],
+      "keywords": [],
+      "author": "GGEN Marketplace",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/enterprise-erp-core",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "283a264f2eb761e6be5629f5a5aa716d82e07424bae342ddf12ff5323998324c"
+    },
+    {
+      "name": "graphql-api-template",
+      "version": "1.0.0",
+      "category": "api",
+      "description": "Production-ready GraphQL API template with DataLoaders, subscriptions, and multi-language support",
+      "tags": [
+        "graphql",
+        "api",
+        "dataloader",
+        "subscriptions",
+        "apollo",
+        "strawberry"
+      ],
+      "keywords": [],
+      "author": "ggen-marketplace",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/graphql-api-template",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "00ae787b38984221fa132eba94f7c7aebe5caf050f38c64a5d3d28a005564361"
+    },
+    {
+      "name": "healthcare-analytics",
+      "version": "1.0.0",
+      "category": "healthcare",
+      "description": "Healthcare analytics with population health, quality measures, and predictive analytics",
+      "tags": [
+        "analytics",
+        "population-health",
+        "quality-measures",
+        "predictive-analytics",
+        "business-intelligence"
+      ],
+      "keywords": [],
+      "author": "ggen Healthcare Team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/healthcare-analytics",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "423b1fde4c6863ebb68f2e4c3d3410f7e5cb75b1139f8b5ee75d01706e7ee828"
+    },
+    {
+      "name": "hello-world",
+      "version": "1.0.0",
+      "category": "starter",
+      "description": "Simple Hello World starter template for learning ggen basics",
+      "tags": [
+        "starter",
+        "hello-world",
+        "beginner",
+        "tutorial"
+      ],
+      "keywords": [
+        "hello-world",
+        "starter",
+        "beginner",
+        "rust"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/hello-world",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "256d2b7689daa68c0f9c796382f45d911444b9f9c3d4ef660206d136c5e5b456"
+    },
+    {
+      "name": "human-resources-management",
+      "version": "1.0.0",
+      "category": "Enterprise",
+      "description": "Complete HR Management with recruitment, performance reviews, payroll, and benefits administration",
+      "tags": [
+        "hr",
+        "employees",
+        "recruitment",
+        "performance",
+        "payroll",
+        "benefits",
+        "compliance",
+        "enterprise"
+      ],
+      "keywords": [],
+      "author": null,
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/human-resources-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "1023d165cc66de2e7fb55fd862955e7b20429379cf4d62bf404f6d15a48df566"
+    },
+    {
+      "name": "ieee-paper-template",
+      "version": "1.0.0",
+      "category": "academic-paper",
+      "description": "IEEE conference paper generation with two-column layout, automatic bibliography, and figure/table support",
+      "tags": [
+        "paper",
+        "ieee",
+        "conference",
+        "latex",
+        "academic"
+      ],
+      "keywords": [
+        "ieee",
+        "conference-paper",
+        "two-column",
+        "latex",
+        "academic-writing"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/ieee-paper-template",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "9584015e8840d400745c5c1d01fbedca3c7f2f877fd5639b2366f15fbe6394f0"
+    },
+    {
+      "name": "inventory-management",
+      "version": "1.0.0",
+      "category": "ecommerce",
+      "description": "Comprehensive inventory and warehouse management with stock tracking, FIFO/LIFO valuation, lot tracing, reorder automation, and multi-channel allocation",
+      "tags": [
+        "inventory",
+        "warehouse",
+        "stock",
+        "fifo",
+        "lot-tracking",
+        "reorder",
+        "multi-channel",
+        "valuation",
+        "rdf",
+        "sparql"
+      ],
+      "keywords": [
+        "inventory-management",
+        "warehouse-system",
+        "stock-tracking",
+        "lot-tracing",
+        "demand-forecast"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/inventory-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "9600100ca99437ea525064314156d9715fa7378ffa8de56c362e6e328ce5688d"
+    },
+    {
+      "name": "io.ggen.nextjs.ontology-crud",
+      "version": "1.0.0",
+      "category": "web",
+      "description": "Full-stack Next.js application with shadcn/ui where CRUD tables auto-sync with RDF ontology via git hooks",
+      "tags": [
+        "nextjs",
+        "typescript",
+        "shadcn",
+        "ontology",
+        "crud",
+        "rdf",
+        "fullstack"
+      ],
+      "keywords": [],
+      "author": "ggen",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/io.ggen.nextjs.ontology-crud",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "0a3d10ad2b33d73a684ff05576cc8adf113628336ba12347c30af7f814e40d30"
+    },
+    {
+      "name": "iso-20022-payments",
+      "version": "1.0.0",
+      "category": "finance",
+      "description": "ISO 20022 Payment Messages - RDF ontology, SPARQL templates, and multi-language implementation",
+      "tags": [
+        "iso20022",
+        "payments",
+        "sepa",
+        "banking",
+        "fintech",
+        "rdf",
+        "sparql"
+      ],
+      "keywords": [],
+      "author": "ggen Marketplace",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/iso-20022-payments",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "1c579c66bc3c48ed6af25f95afe286e49f3b3b8c31bd5e2e0b18e854473a7269"
+    },
+    {
+      "name": "java26-core",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "Core OWL vocabulary for Java 26 Pattern Language with ggen",
+      "tags": [],
+      "keywords": [
+        "java26",
+        "ontology",
+        "vocabulary",
+        "sealed",
+        "records",
+        "virtual-threads"
+      ],
+      "author": null,
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/java26-core",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "1c49fb77bd265777b950d08031467971bf50432e2e39ffaf3573af688c176c1f"
+    },
+    {
+      "name": "java26-pattern-matched-controller",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "PATTERN-MATCHED CONTROLLER \u2014 Generate @RestController using Java 26 switch expressions with type patterns for exhaustive dispatch",
+      "tags": [],
+      "keywords": [
+        "java26",
+        "rest",
+        "controller",
+        "pattern-matching",
+        "switch-expression",
+        "sealed"
+      ],
+      "author": null,
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/java26-pattern-matched-controller",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "49ce0c53710380bf476d795a17727d7d5610d76677a3ee8207b8ce68cd619e14"
+    },
+    {
+      "name": "java26-record-value-object",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "RECORD VALUE OBJECT \u2014 Generate immutable Java records as domain value objects",
+      "tags": [],
+      "keywords": [
+        "java26",
+        "records",
+        "value-object",
+        "ddd",
+        "immutable"
+      ],
+      "author": null,
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/java26-record-value-object",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "58f2ea53498e4d8cd4c0848ceb804e44765afab395213b7b0b04d451ff781697"
+    },
+    {
+      "name": "java26-sealed-domain",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "SEALED DOMAIN HIERARCHY \u2014 Generate sealed interface + record variants from RDF ontology",
+      "tags": [],
+      "keywords": [
+        "java26",
+        "sealed",
+        "records",
+        "domain-model",
+        "pattern-language"
+      ],
+      "author": null,
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/java26-sealed-domain",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "0e130dd2f6d4459333001d6cf7a719f49884440fb1a53a56b5d4c05000243e6e"
+    },
+    {
+      "name": "java26-transactional-service",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "TRANSACTIONAL SERVICE \u2014 Generate @Service classes with @Transactional, command records, and read/write separation",
+      "tags": [],
+      "keywords": [
+        "java26",
+        "service",
+        "transactional",
+        "spring-boot",
+        "command-pattern"
+      ],
+      "author": null,
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/java26-transactional-service",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "4ab4b894886d8568d4fe96b3ad5686f6bad475f9e949e704e1585ac5c2a7c4b4"
+    },
+    {
+      "name": "java26-virtual-thread-dao",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "VIRTUAL THREAD DAO \u2014 Generate DAO classes using Project Loom virtual threads",
+      "tags": [],
+      "keywords": [
+        "java26",
+        "virtual-threads",
+        "dao",
+        "loom",
+        "jdbc"
+      ],
+      "author": null,
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/java26-virtual-thread-dao",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "3d57de4b78f1b1cb8b0473f905b295c1c42e5e339e8d1bffb876fd1f3763e7a3"
+    },
+    {
+      "name": "knowledge-graph-cli",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "Knowledge graph operations CLI using clap-noun-verb pattern",
+      "tags": [],
+      "keywords": [
+        "knowledge-graph",
+        "rdf",
+        "graph",
+        "cli",
+        "clap-noun-verb"
+      ],
+      "author": null,
+      "license": "MIT OR Apache-2.0",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/knowledge-graph-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "5f231eb2d4b3302407733c13fcb3ab4390ebcafab065c5f72b403d9b24c52616"
+    },
+    {
+      "name": "kyc-aml-compliance",
+      "version": "1.0.0",
+      "category": "finance",
+      "description": "KYC/AML Compliance - Identity verification, risk scoring, sanctions screening, and transaction monitoring",
+      "tags": [
+        "kyc",
+        "aml",
+        "compliance",
+        "sanctions",
+        "risk-assessment",
+        "rdf",
+        "sparql"
+      ],
+      "keywords": [],
+      "author": "ggen Marketplace",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/kyc-aml-compliance",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "ebfe2f839a8c0f46d693e2f0bf8145eda74bddc7f425e7854b17809716dbd59e"
+    },
+    {
+      "name": "laboratory-information-system",
+      "version": "1.0.0",
+      "category": "healthcare",
+      "description": "Laboratory information system with test ordering, specimen tracking, and results reporting",
+      "tags": [
+        "laboratory",
+        "lab-tests",
+        "specimen-tracking",
+        "results",
+        "pathology"
+      ],
+      "keywords": [],
+      "author": "ggen Healthcare Team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/laboratory-information-system",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "ad63c60f827d74939a01ed970fed5af73342f44e0135e6e6602f5c159b85bdbf"
+    },
+    {
+      "name": "medical-billing",
+      "version": "1.0.0",
+      "category": "healthcare",
+      "description": "Medical billing with CPT/ICD-10 codes, insurance claims, and revenue cycle management",
+      "tags": [
+        "medical-billing",
+        "cpt",
+        "icd-10",
+        "insurance-claims",
+        "revenue-cycle"
+      ],
+      "keywords": [],
+      "author": "ggen Healthcare Team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/medical-billing",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "354a28c742b8e05642960be02bae322f0e16e50b9930c6e6aafc9795f3c00aee"
+    },
+    {
+      "name": "microservices-architecture",
+      "version": "1.0.0",
+      "category": "architecture",
+      "description": "Complete e-commerce microservices architecture with Rust, Docker, PostgreSQL, and Redis",
+      "tags": [
+        "microservices",
+        "architecture",
+        "docker",
+        "kubernetes",
+        "rust"
+      ],
+      "keywords": [
+        "microservices",
+        "architecture",
+        "e-commerce",
+        "docker",
+        "kubernetes"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/microservices-architecture",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "79fceafa6981692aead87cce0eb7c1a48a29a0a4ae0a69a5836bdfb2eb32930f"
+    },
+    {
+      "name": "microservices-architecture-template",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "Production-grade microservices architecture with distributed tracing, circuit breakers, and comprehensive observability",
+      "tags": [],
+      "keywords": [
+        "microservices",
+        "architecture",
+        "distributed-systems",
+        "docker",
+        "kubernetes",
+        "observability"
+      ],
+      "author": null,
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/microservices-architecture-template",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "1bac25ca043077ead8ff2ae88528f2247cdf2728a457d3a4793486af3d21d6f0"
+    },
+    {
+      "name": "multi-tenant-saas",
+      "version": "1.0.0",
+      "category": "ecommerce",
+      "description": "Multi-tenant SaaS architecture with tenant isolation, provisioning, subscription tiers, usage metering, and billing engine",
+      "tags": [
+        "multi-tenant",
+        "saas",
+        "billing",
+        "isolation",
+        "provisioning",
+        "subscription",
+        "metering",
+        "compliance",
+        "rdf",
+        "sparql"
+      ],
+      "keywords": [
+        "multi-tenancy",
+        "saas-platform",
+        "tenant-isolation",
+        "usage-billing",
+        "subscription-management"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/multi-tenant-saas",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "4a3e81d5bc6b39b53904f1bf92ebc639ff188c80f00b6e760a2a932005b80745"
+    },
+    {
+      "name": "neurips-paper-template",
+      "version": "1.0.0",
+      "category": "academic-paper",
+      "description": "NeurIPS conference paper generation with double-blind review, appendices, and neural networks focus",
+      "tags": [
+        "paper",
+        "neurips",
+        "conference",
+        "machine-learning",
+        "latex"
+      ],
+      "keywords": [
+        "neurips",
+        "conference-paper",
+        "machine-learning",
+        "neural-networks",
+        "deep-learning"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/neurips-paper-template",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "d8c694252e4768ba58d59da069dbba245557aba8754a0ce6c17e2e1906d79baf"
+    },
+    {
+      "name": "order-management-system",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "Production-ready order processing and fulfillment system with comprehensive RDF ontology",
+      "tags": [],
+      "keywords": [
+        "e-commerce",
+        "order-management",
+        "fulfillment",
+        "rdf",
+        "sparql"
+      ],
+      "author": null,
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/order-management-system",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "2b323ca55153d756d24ea16ef8a192890541786e1bdb346e249a038f9ef994bc"
+    },
+    {
+      "name": "payment-admission",
+      "version": "1.0.0",
+      "category": "financial",
+      "description": "Vision 2030: Compiled admission discipline for high-value payments",
+      "tags": [],
+      "keywords": [
+        "semantic-os",
+        "financial",
+        "admissibility",
+        "compliance"
+      ],
+      "author": "ggen",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/payment-admission",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "02c767c9598753565a97b46ab0a2c8b39d38beb0e8b56a9c793291d8d1b1919c"
+    },
+    {
+      "name": "pharmacy-management",
+      "version": "1.0.0",
+      "category": "healthcare",
+      "description": "Pharmacy management with medication dispensing, drug interactions, and insurance claims",
+      "tags": [
+        "pharmacy",
+        "medication",
+        "drug-interactions",
+        "insurance-claims",
+        "dispensing"
+      ],
+      "keywords": [],
+      "author": "ggen Healthcare Team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/pharmacy-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "84cb6967a32696f6dea1ef93a523818fdfc738cd670a83b27efc2a633457a1b3"
+    },
+    {
+      "name": "phd-thesis-template",
+      "version": "1.0.0",
+      "category": "academic-paper",
+      "description": "PhD thesis template with chapters, appendices, TOC/LOF/LOT, and customizable university requirements",
+      "tags": [
+        "thesis",
+        "phd",
+        "dissertation",
+        "latex",
+        "academic"
+      ],
+      "keywords": [
+        "phd-thesis",
+        "dissertation",
+        "chapter-based",
+        "academic-writing",
+        "latex"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/phd-thesis-template",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "1a1fc4c0126e01db1df0889aabb5c486ca291b990f921fbd03063fe03459d7ed"
+    },
+    {
+      "name": "product-recommendations",
+      "version": "1.0.0",
+      "category": "ecommerce",
+      "description": "AI-powered product recommendation engine with collaborative filtering, content-based filtering, A/B testing, real-time personalization, and ML model training",
+      "tags": [
+        "recommendations",
+        "collaborative-filtering",
+        "personalization",
+        "ab-testing",
+        "ml",
+        "user-behavior",
+        "rdf",
+        "sparql"
+      ],
+      "keywords": [
+        "recommendation-engine",
+        "collaborative-filter",
+        "personalization",
+        "ml-models",
+        "ab-testing"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/product-recommendations",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "1b1e2882b617c89177e9c20446c111c5a31bf5c3ee822ae6152a762e29113fc0"
+    },
+    {
+      "name": "project-management",
+      "version": "1.0.0",
+      "category": "Enterprise",
+      "description": "Comprehensive Project Management with Gantt charts, sprints, resource allocation, and budget tracking",
+      "tags": [
+        "projects",
+        "tasks",
+        "gantt",
+        "sprints",
+        "agile",
+        "resources",
+        "budget",
+        "enterprise"
+      ],
+      "keywords": [],
+      "author": null,
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/project-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "79031391805fa48937874be1fc2accdb2af1bea38efa1a5766e2b305830cbc05"
+    },
+    {
+      "name": "reasoner-cli",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "OWL inference engine and ontology classification using clap-noun-verb",
+      "tags": [],
+      "keywords": [
+        "owl",
+        "inference",
+        "classification",
+        "ontology",
+        "semantic-web",
+        "clap-noun-verb"
+      ],
+      "author": null,
+      "license": "MIT OR Apache-2.0",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/reasoner-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "db08a5d58972eb117ea2dc123ca37f7a6252079b1fa2633ded36c7f556e8e6fc"
+    },
+    {
+      "name": "rest-api-template",
+      "version": "1.0.0",
+      "category": "core-power-packages",
+      "description": "Production-ready REST API template with multi-language support (Rust/TypeScript/Python)",
+      "tags": [
+        "rest",
+        "api",
+        "web",
+        "backend",
+        "http",
+        "crud",
+        "authentication",
+        "validation"
+      ],
+      "keywords": [],
+      "author": "GGEN Marketplace",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/rest-api-template",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "cd12ea997f3d211c334c227ceb48fe6efc2f1083246b7fc558ee31db195e0773"
+    },
+    {
+      "name": "risk-management",
+      "version": "1.0.0",
+      "category": "finance",
+      "description": "Comprehensive risk management system with VaR calculation, stress testing, credit risk, and market risk analysis",
+      "tags": [
+        "risk",
+        "var",
+        "stress-testing",
+        "credit-risk",
+        "market-risk",
+        "compliance"
+      ],
+      "keywords": [],
+      "author": "ggen Marketplace",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/risk-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "d52df0e6a662cf31867ac6a4e8d576b8ee14abe816409b71a4a9dd2b9ed7c3f7"
+    },
+    {
+      "name": "robo-advisor",
+      "version": "1.0.0",
+      "category": "finance",
+      "description": "Automated investment advisor with portfolio allocation, rebalancing, tax-loss harvesting, and risk tolerance assessment",
+      "tags": [
+        "robo-advisor",
+        "portfolio",
+        "rebalancing",
+        "tax-optimization",
+        "asset-allocation"
+      ],
+      "keywords": [],
+      "author": "ggen Marketplace",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/robo-advisor",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "0306542f881226c8427c0f377cce9cf85059b98b9a88a9960eecfff3ca4c92d5"
+    },
+    {
+      "name": "schema-forge-cli",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "Data modeling and schema generation CLI using clap-noun-verb pattern",
+      "tags": [],
+      "keywords": [
+        "schema",
+        "modeling",
+        "validation",
+        "cli",
+        "clap-noun-verb"
+      ],
+      "author": null,
+      "license": "MIT OR Apache-2.0",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/schema-forge-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "28b6ee839815c23b6d4c6ed53b76dd885b5eab8f11000a31ca78c9eb3ecee0aa"
+    },
+    {
+      "name": "sector-api-gateway-8020",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "8020 Bundle: Production-ready API gateway configuration covering 80% of gateway infrastructure needs",
+      "tags": [],
+      "keywords": [],
+      "author": null,
+      "license": "MIT OR Apache-2.0",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/sector-api-gateway-8020",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "6ee5d8a848abd5bfcf2d6958c4e0cc1b3c08edc5ecc9827066ce5cd173e31851"
+    },
+    {
+      "name": "sector-observability-8020",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "8020 Bundle: Complete observability stack covering 80% of real-world telemetry needs",
+      "tags": [],
+      "keywords": [],
+      "author": null,
+      "license": "MIT OR Apache-2.0",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/sector-observability-8020",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "724c4e5c1ece67739e5984f53c06ecb647330cce0aebf320a3a2f347027ebc82"
+    },
+    {
+      "name": "sector-paper-lifecycle-8020",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "8020 Bundle: Academic paper lifecycle management covering 80% of submission and formatting needs",
+      "tags": [],
+      "keywords": [],
+      "author": null,
+      "license": "MIT OR Apache-2.0",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/sector-paper-lifecycle-8020",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "c2a6d8e50431a5a7fa4d7de84da347c1ba768ef49173a0c3d25f16b40f592e5c"
+    },
+    {
+      "name": "sector-rust-microservice-8020",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "8020 Bundle: Production-ready Rust microservice scaffolding covering 80% of service architecture needs",
+      "tags": [],
+      "keywords": [],
+      "author": null,
+      "license": "MIT OR Apache-2.0",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/sector-rust-microservice-8020",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "ac64c55c89a87cda309da21dbe3e9099ea9ce64229b7bdbe6e9e7dbbf08fb3cf"
+    },
+    {
+      "name": "sector-support-hooks-8020",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "8020 Bundle: Intelligent support case routing and hook patterns covering 80% of customer support workflows",
+      "tags": [],
+      "keywords": [],
+      "author": null,
+      "license": "MIT OR Apache-2.0",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/sector-support-hooks-8020",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "0698981fd9c3149bc633acf6e32cd82e38d8b9fcf664fb97df99d88c93042181"
+    },
+    {
+      "name": "semantic-cli",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "RDF/OWL ontology management CLI using clap-noun-verb pattern",
+      "tags": [],
+      "keywords": [
+        "rdf",
+        "owl",
+        "sparql",
+        "ontology",
+        "cli",
+        "clap-noun-verb"
+      ],
+      "author": null,
+      "license": "MIT OR Apache-2.0",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/semantic-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "acb1163ace8882f2a29e0e6797933b1f2894e518425c26ba8710b002e02e4a8f"
+    },
+    {
+      "name": "shacl-cli",
+      "version": "0.1.0",
+      "category": "uncategorized",
+      "description": "SHACL validation, constraint enforcement, and reporting using clap-noun-verb",
+      "tags": [],
+      "keywords": [
+        "shacl",
+        "validation",
+        "constraints",
+        "rdf",
+        "quality",
+        "clap-noun-verb"
+      ],
+      "author": null,
+      "license": "MIT OR Apache-2.0",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/shacl-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "9df7d1951c454d3760a8ff8d8024848fc4db0ccdbabdd74020ad21cfa3a91fa0"
+    },
+    {
+      "name": "sparql-cli",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "SPARQL query execution, optimization, and federation using clap-noun-verb",
+      "tags": [],
+      "keywords": [
+        "sparql",
+        "rdf",
+        "query",
+        "federation",
+        "optimization",
+        "clap-noun-verb"
+      ],
+      "author": null,
+      "license": "MIT OR Apache-2.0",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/sparql-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "77e3542338e55d4655e22a667781b7439c7183acb5b9c565fb8719ecde6f69dc"
+    },
+    {
+      "name": "supply-chain-management",
+      "version": "1.0.0",
+      "category": "enterprise",
+      "description": "Supply chain optimization with procurement, logistics, and warehouse management",
+      "tags": [
+        "supply-chain",
+        "procurement",
+        "logistics",
+        "warehouse",
+        "demand-planning"
+      ],
+      "keywords": [],
+      "author": "GGEN Marketplace",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/supply-chain-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "0b9faac28eb09ad5225516ff42001c5ec6ecc5903a46ac11c22565a969d6001d"
+    },
+    {
+      "name": "telemedicine-platform",
+      "version": "1.0.0",
+      "category": "healthcare",
+      "description": "Comprehensive telemedicine platform with video conferencing, appointments, and prescriptions",
+      "tags": [
+        "telemedicine",
+        "video-conferencing",
+        "appointments",
+        "prescriptions",
+        "patient-care"
+      ],
+      "keywords": [],
+      "author": "ggen Healthcare Team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/telemedicine-platform",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "d384e1ed4438731ae4697f99f3948805f199097e50db24630b00d12ff22b55d9"
+    },
+    {
+      "name": "three-layer-verification-dod",
+      "version": "1.0.0",
+      "category": "quality-gate",
+      "description": "Full three-layer DoD: OTEL span proof + test assertion + weaver schema conformance. For production projects requiring complete evidence-based verification.",
+      "tags": [
+        "dod",
+        "verification",
+        "otel",
+        "weaver",
+        "tdd",
+        "quality-gate",
+        "production"
+      ],
+      "keywords": [
+        "definition-of-done",
+        "evidence-based",
+        "otel",
+        "weaver",
+        "chicago-tdd",
+        "wvda",
+        "armstrong"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/three-layer-verification-dod",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "55666fa10443d53264ec8dcabd9cfc4a0c41773ce0e971c6aaa6e356d191f277"
+    },
+    {
+      "name": "trading-platform",
+      "version": "1.0.0",
+      "category": "finance",
+      "description": "Trading Platform - RDF ontology for order books, matching engine, and market data",
+      "tags": [
+        "trading",
+        "orderbook",
+        "fix-protocol",
+        "market-data",
+        "rdf",
+        "sparql"
+      ],
+      "keywords": [],
+      "author": "ggen Marketplace",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/trading-platform",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "deb837df4719f198abcc89ab995f27b873cace0c662825e4cf760090a4658293"
+    },
+    {
+      "name": "workflow-engine-cli",
+      "version": "1.0.0",
+      "category": "uncategorized",
+      "description": "BPMN workflow execution and orchestration using clap-noun-verb",
+      "tags": [],
+      "keywords": [
+        "bpmn",
+        "workflow",
+        "orchestration",
+        "process",
+        "automation",
+        "clap-noun-verb"
+      ],
+      "author": null,
+      "license": "MIT OR Apache-2.0",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/workflow-engine-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "2cb5957730864964a048b73b71518422005ab609b4d254e75633a14f460a6b83"
+    },
+    {
+      "name": "wvda-soundness-dod",
+      "version": "1.0.0",
+      "category": "quality-gate",
+      "description": "DoD focused on van der Aalst soundness: deadlock freedom, liveness guarantee, boundedness. For workflow engines, process mining, and coordination systems.",
+      "tags": [
+        "dod",
+        "wvda",
+        "soundness",
+        "deadlock",
+        "liveness",
+        "boundedness",
+        "petri-net",
+        "process-mining"
+      ],
+      "keywords": [
+        "definition-of-done",
+        "van-der-aalst",
+        "soundness",
+        "deadlock-freedom",
+        "liveness",
+        "boundedness",
+        "workflow"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/wvda-soundness-dod",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "9dd5fee6a6af8e2a2df313fba68ab7b1cf593480d1a78ca498dadcb734c6f6df"
     }
   ],
-  "registry_url": "https://github.com/seanchatmangpt/ggen",
-  "updated_at": "2026-03-24T06:27:57.241370+00:00",
-  "version": "1.0.0"
+  "search_index": {
+    "bibliography": [
+      "academic-bibliography-manager"
+    ],
+    "bibtex": [
+      "academic-bibliography-manager"
+    ],
+    "citations": [
+      "academic-bibliography-manager"
+    ],
+    "academic": [
+      "academic-bibliography-manager",
+      "academic-peer-review-workflow",
+      "arxiv-paper-template",
+      "ieee-paper-template",
+      "phd-thesis-template"
+    ],
+    "references": [
+      "academic-bibliography-manager"
+    ],
+    "doi": [
+      "academic-bibliography-manager"
+    ],
+    "orcid": [
+      "academic-bibliography-manager"
+    ],
+    "academic-tools": [
+      "academic-bibliography-manager"
+    ],
+    "manager": [
+      "academic-bibliography-manager"
+    ],
+    "workflow": [
+      "academic-peer-review-workflow",
+      "document-management-system",
+      "workflow-engine-cli",
+      "wvda-soundness-dod"
+    ],
+    "peer-review": [
+      "academic-peer-review-workflow"
+    ],
+    "collaboration": [
+      "academic-peer-review-workflow"
+    ],
+    "academic-publishing": [
+      "academic-peer-review-workflow"
+    ],
+    "revision-tracking": [
+      "academic-peer-review-workflow"
+    ],
+    "academic-workflow": [
+      "academic-peer-review-workflow"
+    ],
+    "peer": [
+      "academic-peer-review-workflow"
+    ],
+    "review": [
+      "academic-peer-review-workflow"
+    ],
+    "rust": [
+      "advanced-rust-project",
+      "comprehensive-rust-showcase",
+      "hello-world",
+      "microservices-architecture",
+      "sector-rust-microservice-8020"
+    ],
+    "showcase": [
+      "advanced-rust-project",
+      "comprehensive-rust-showcase"
+    ],
+    "lifecycle": [
+      "advanced-rust-project",
+      "asset-management",
+      "comprehensive-rust-showcase",
+      "sector-paper-lifecycle-8020"
+    ],
+    "ai": [
+      "advanced-rust-project",
+      "agent-cli-copilot",
+      "agent-context-crafter",
+      "agent-editor",
+      "agent-memory-forge",
+      "agent-reasoning-mcp",
+      "ai-code-generation",
+      "ai-microservice",
+      "chatman-cli",
+      "comprehensive-rust-showcase"
+    ],
+    "sparql": [
+      "advanced-rust-project",
+      "agent-editor",
+      "agent-reasoning-mcp",
+      "comprehensive-rust-showcase",
+      "database-schema-generator",
+      "inventory-management",
+      "iso-20022-payments",
+      "kyc-aml-compliance",
+      "multi-tenant-saas",
+      "order-management-system",
+      "product-recommendations",
+      "semantic-cli",
+      "sparql-cli",
+      "trading-platform"
+    ],
+    "templates": [
+      "advanced-rust-project",
+      "api-endpoint"
+    ],
+    "security": [
+      "advanced-rust-project"
+    ],
+    "ggen": [
+      "advanced-rust-project",
+      "comprehensive-rust-showcase"
+    ],
+    "microservice": [
+      "advanced-rust-project",
+      "ai-microservice",
+      "comprehensive-rust-showcase",
+      "sector-rust-microservice-8020"
+    ],
+    "ai-generation": [
+      "advanced-rust-project"
+    ],
+    "advanced": [
+      "advanced-rust-project"
+    ],
+    "project": [
+      "advanced-rust-project",
+      "project-management"
+    ],
+    "cli": [
+      "agent-cli-copilot",
+      "chatman-cli",
+      "cli-application-template",
+      "data-pipeline-cli",
+      "knowledge-graph-cli",
+      "reasoner-cli",
+      "schema-forge-cli",
+      "semantic-cli",
+      "shacl-cli",
+      "sparql-cli",
+      "workflow-engine-cli"
+    ],
+    "copilot": [
+      "agent-cli-copilot"
+    ],
+    "automation": [
+      "agent-cli-copilot",
+      "agent-editor",
+      "chatman-cli",
+      "workflow-engine-cli"
+    ],
+    "natural-language": [
+      "agent-cli-copilot"
+    ],
+    "shell": [
+      "agent-cli-copilot"
+    ],
+    "commands": [
+      "agent-cli-copilot"
+    ],
+    "safety": [
+      "agent-cli-copilot"
+    ],
+    "productivity": [
+      "agent-cli-copilot"
+    ],
+    "cli-assistant": [
+      "agent-cli-copilot"
+    ],
+    "command-copilot": [
+      "agent-cli-copilot"
+    ],
+    "shell-helper": [
+      "agent-cli-copilot"
+    ],
+    "ai-agents": [
+      "agent-cli-copilot",
+      "agent-context-crafter",
+      "agent-editor",
+      "agent-memory-forge",
+      "agent-reasoning-mcp"
+    ],
+    "agent": [
+      "agent-cli-copilot",
+      "agent-context-crafter",
+      "agent-editor",
+      "agent-memory-forge",
+      "agent-reasoning-mcp"
+    ],
+    "context": [
+      "agent-context-crafter"
+    ],
+    "state-management": [
+      "agent-context-crafter"
+    ],
+    "rdf": [
+      "agent-context-crafter",
+      "agent-editor",
+      "agent-memory-forge",
+      "agent-reasoning-mcp",
+      "chatman-cli",
+      "customer-loyalty-rewards",
+      "database-schema-generator",
+      "inventory-management",
+      "io.ggen.nextjs.ontology-crud",
+      "iso-20022-payments",
+      "knowledge-graph-cli",
+      "kyc-aml-compliance",
+      "multi-tenant-saas",
+      "order-management-system",
+      "product-recommendations",
+      "semantic-cli",
+      "shacl-cli",
+      "sparql-cli",
+      "trading-platform"
+    ],
+    "persistence": [
+      "agent-context-crafter",
+      "agent-memory-forge"
+    ],
+    "semantic": [
+      "agent-context-crafter",
+      "agent-memory-forge",
+      "chatman-cli",
+      "semantic-cli"
+    ],
+    "multi-agent": [
+      "agent-context-crafter"
+    ],
+    "continuity": [
+      "agent-context-crafter"
+    ],
+    "context-management": [
+      "agent-context-crafter"
+    ],
+    "state-persistence": [
+      "agent-context-crafter"
+    ],
+    "semantic-graph": [
+      "agent-context-crafter"
+    ],
+    "rdf-ontology": [
+      "agent-context-crafter",
+      "agent-editor",
+      "agent-memory-forge"
+    ],
+    "ai-memory": [
+      "agent-context-crafter",
+      "agent-memory-forge"
+    ],
+    "crafter": [
+      "agent-context-crafter"
+    ],
+    "editor": [
+      "agent-editor"
+    ],
+    "refactoring": [
+      "agent-editor",
+      "ai-microservice"
+    ],
+    "code-quality": [
+      "agent-editor"
+    ],
+    "multi-language": [
+      "agent-editor"
+    ],
+    "tdd": [
+      "agent-editor",
+      "three-layer-verification-dod"
+    ],
+    "production": [
+      "agent-editor",
+      "chatman-cli",
+      "comprehensive-rust-showcase",
+      "three-layer-verification-dod"
+    ],
+    "ai-editor": [
+      "agent-editor"
+    ],
+    "code-automation": [
+      "agent-editor"
+    ],
+    "semantic-editing": [
+      "agent-editor"
+    ],
+    "memory": [
+      "agent-memory-forge"
+    ],
+    "knowledge-graph": [
+      "agent-memory-forge",
+      "agent-reasoning-mcp",
+      "knowledge-graph-cli"
+    ],
+    "episodic": [
+      "agent-memory-forge"
+    ],
+    "procedural": [
+      "agent-memory-forge"
+    ],
+    "learning": [
+      "agent-memory-forge"
+    ],
+    "episodic-memory": [
+      "agent-memory-forge"
+    ],
+    "semantic-memory": [
+      "agent-memory-forge"
+    ],
+    "forge": [
+      "agent-memory-forge",
+      "schema-forge-cli"
+    ],
+    "reasoning": [
+      "agent-reasoning-mcp"
+    ],
+    "inference": [
+      "agent-reasoning-mcp",
+      "reasoner-cli"
+    ],
+    "mcp": [
+      "agent-reasoning-mcp"
+    ],
+    "logic": [
+      "agent-reasoning-mcp"
+    ],
+    "planning": [
+      "agent-reasoning-mcp"
+    ],
+    "explanation": [
+      "agent-reasoning-mcp"
+    ],
+    "ai-reasoning": [
+      "agent-reasoning-mcp"
+    ],
+    "logical-inference": [
+      "agent-reasoning-mcp"
+    ],
+    "mcp-integration": [
+      "agent-reasoning-mcp"
+    ],
+    "sparql-reasoning": [
+      "agent-reasoning-mcp"
+    ],
+    "rdf-entailment": [
+      "agent-reasoning-mcp"
+    ],
+    "code-generation": [
+      "ai-code-generation"
+    ],
+    "ollama": [
+      "ai-code-generation"
+    ],
+    "openai": [
+      "ai-code-generation"
+    ],
+    "llm": [
+      "ai-code-generation",
+      "ai-microservice"
+    ],
+    "qwen": [
+      "ai-code-generation"
+    ],
+    "code": [
+      "ai-code-generation"
+    ],
+    "generation": [
+      "ai-code-generation",
+      "ai-microservice"
+    ],
+    "template": [
+      "ai-microservice",
+      "arxiv-paper-template",
+      "cli-application-template",
+      "graphql-api-template",
+      "ieee-paper-template",
+      "microservices-architecture-template",
+      "neurips-paper-template",
+      "phd-thesis-template",
+      "rest-api-template"
+    ],
+    "ontology": [
+      "ai-microservice",
+      "io.ggen.nextjs.ontology-crud",
+      "java26-core",
+      "reasoner-cli",
+      "semantic-cli"
+    ],
+    "microservices": [
+      "ai-microservice",
+      "microservices-architecture",
+      "microservices-architecture-template"
+    ],
+    "api": [
+      "api-endpoint",
+      "graphql-api-template",
+      "rest-api-template",
+      "sector-api-gateway-8020"
+    ],
+    "rest": [
+      "api-endpoint",
+      "java26-pattern-matched-controller",
+      "rest-api-template"
+    ],
+    "axum": [
+      "api-endpoint"
+    ],
+    "openapi": [
+      "api-endpoint"
+    ],
+    "endpoint": [
+      "api-endpoint"
+    ],
+    "dod": [
+      "armstrong-compliance-dod",
+      "three-layer-verification-dod",
+      "wvda-soundness-dod"
+    ],
+    "armstrong": [
+      "armstrong-compliance-dod",
+      "three-layer-verification-dod"
+    ],
+    "fault-tolerance": [
+      "armstrong-compliance-dod"
+    ],
+    "erlang": [
+      "armstrong-compliance-dod"
+    ],
+    "elixir": [
+      "armstrong-compliance-dod"
+    ],
+    "supervision": [
+      "armstrong-compliance-dod"
+    ],
+    "quality-gate": [
+      "armstrong-compliance-dod",
+      "three-layer-verification-dod",
+      "wvda-soundness-dod"
+    ],
+    "definition-of-done": [
+      "armstrong-compliance-dod",
+      "three-layer-verification-dod",
+      "wvda-soundness-dod"
+    ],
+    "let-it-crash": [
+      "armstrong-compliance-dod"
+    ],
+    "no-shared-state": [
+      "armstrong-compliance-dod"
+    ],
+    "budget": [
+      "armstrong-compliance-dod",
+      "project-management"
+    ],
+    "compliance": [
+      "armstrong-compliance-dod",
+      "banking-core",
+      "document-management-system",
+      "human-resources-management",
+      "kyc-aml-compliance",
+      "multi-tenant-saas",
+      "payment-admission",
+      "risk-management"
+    ],
+    "paper": [
+      "arxiv-paper-template",
+      "ieee-paper-template",
+      "neurips-paper-template",
+      "sector-paper-lifecycle-8020"
+    ],
+    "arxiv": [
+      "arxiv-paper-template"
+    ],
+    "preprint": [
+      "arxiv-paper-template"
+    ],
+    "latex": [
+      "arxiv-paper-template",
+      "ieee-paper-template",
+      "neurips-paper-template",
+      "phd-thesis-template"
+    ],
+    "open-access": [
+      "arxiv-paper-template"
+    ],
+    "academic-writing": [
+      "arxiv-paper-template",
+      "ieee-paper-template",
+      "phd-thesis-template"
+    ],
+    "academic-paper": [
+      "arxiv-paper-template",
+      "ieee-paper-template",
+      "neurips-paper-template",
+      "phd-thesis-template"
+    ],
+    "assets": [
+      "asset-management"
+    ],
+    "tracking": [
+      "asset-management"
+    ],
+    "depreciation": [
+      "asset-management"
+    ],
+    "maintenance": [
+      "asset-management"
+    ],
+    "barcode": [
+      "asset-management"
+    ],
+    "rfid": [
+      "asset-management"
+    ],
+    "enterprise": [
+      "asset-management",
+      "business-intelligence-reporting",
+      "comprehensive-rust-showcase",
+      "crm-customer-management",
+      "document-management-system",
+      "enterprise-erp-core",
+      "human-resources-management",
+      "project-management",
+      "supply-chain-management"
+    ],
+    "asset": [
+      "asset-management"
+    ],
+    "management": [
+      "asset-management",
+      "clinical-trials-management",
+      "crm-customer-management",
+      "document-management-system",
+      "human-resources-management",
+      "inventory-management",
+      "order-management-system",
+      "pharmacy-management",
+      "project-management",
+      "risk-management",
+      "supply-chain-management"
+    ],
+    "banking": [
+      "banking-core",
+      "iso-20022-payments"
+    ],
+    "accounts": [
+      "banking-core"
+    ],
+    "transactions": [
+      "banking-core"
+    ],
+    "ledger": [
+      "banking-core"
+    ],
+    "regulatory": [
+      "banking-core"
+    ],
+    "finance": [
+      "banking-core",
+      "cryptocurrency-exchange",
+      "enterprise-erp-core",
+      "iso-20022-payments",
+      "kyc-aml-compliance",
+      "risk-management",
+      "robo-advisor",
+      "trading-platform"
+    ],
+    "core": [
+      "banking-core",
+      "enterprise-erp-core",
+      "java26-core"
+    ],
+    "bi": [
+      "business-intelligence-reporting"
+    ],
+    "reporting": [
+      "business-intelligence-reporting"
+    ],
+    "analytics": [
+      "business-intelligence-reporting",
+      "healthcare-analytics"
+    ],
+    "olap": [
+      "business-intelligence-reporting"
+    ],
+    "dashboards": [
+      "business-intelligence-reporting"
+    ],
+    "kpi": [
+      "business-intelligence-reporting"
+    ],
+    "data-warehouse": [
+      "business-intelligence-reporting"
+    ],
+    "business": [
+      "business-intelligence-reporting"
+    ],
+    "intelligence": [
+      "business-intelligence-reporting"
+    ],
+    "chat": [
+      "chatman-cli"
+    ],
+    "knowledge-hooks": [
+      "chatman-cli"
+    ],
+    "conversation": [
+      "chatman-cli"
+    ],
+    "assistant": [
+      "chatman-cli"
+    ],
+    "chatman": [
+      "chatman-cli"
+    ],
+    "cli-chat": [
+      "chatman-cli"
+    ],
+    "ai-assistant": [
+      "chatman-cli"
+    ],
+    "conversation-manager": [
+      "chatman-cli"
+    ],
+    "ai-tools": [
+      "chatman-cli"
+    ],
+    "framework": [
+      "clap-noun-verb"
+    ],
+    "clap": [
+      "clap-noun-verb"
+    ],
+    "noun": [
+      "clap-noun-verb"
+    ],
+    "verb": [
+      "clap-noun-verb"
+    ],
+    "uncategorized": [
+      "cli-application-template",
+      "customer-loyalty-rewards",
+      "data-pipeline-cli",
+      "java26-core",
+      "java26-pattern-matched-controller",
+      "java26-record-value-object",
+      "java26-sealed-domain",
+      "java26-transactional-service",
+      "java26-virtual-thread-dao",
+      "knowledge-graph-cli",
+      "microservices-architecture-template",
+      "order-management-system",
+      "reasoner-cli",
+      "schema-forge-cli",
+      "sector-api-gateway-8020",
+      "sector-observability-8020",
+      "sector-paper-lifecycle-8020",
+      "sector-rust-microservice-8020",
+      "sector-support-hooks-8020",
+      "semantic-cli",
+      "shacl-cli",
+      "sparql-cli",
+      "workflow-engine-cli"
+    ],
+    "application": [
+      "cli-application-template"
+    ],
+    "clinical-trials": [
+      "clinical-trials-management"
+    ],
+    "research": [
+      "clinical-trials-management"
+    ],
+    "protocol-management": [
+      "clinical-trials-management"
+    ],
+    "patient-recruitment": [
+      "clinical-trials-management"
+    ],
+    "data-collection": [
+      "clinical-trials-management"
+    ],
+    "healthcare": [
+      "clinical-trials-management",
+      "ehr-integration",
+      "healthcare-analytics",
+      "laboratory-information-system",
+      "medical-billing",
+      "pharmacy-management",
+      "telemedicine-platform"
+    ],
+    "clinical": [
+      "clinical-trials-management"
+    ],
+    "trials": [
+      "clinical-trials-management"
+    ],
+    "complete": [
+      "comprehensive-rust-showcase"
+    ],
+    "production-ready": [
+      "comprehensive-rust-showcase"
+    ],
+    "comprehensive": [
+      "comprehensive-rust-showcase"
+    ],
+    "crm": [
+      "crm-customer-management"
+    ],
+    "sales": [
+      "crm-customer-management"
+    ],
+    "pipeline": [
+      "crm-customer-management",
+      "data-pipeline-cli"
+    ],
+    "customers": [
+      "crm-customer-management"
+    ],
+    "opportunities": [
+      "crm-customer-management"
+    ],
+    "customer": [
+      "crm-customer-management",
+      "customer-loyalty-rewards"
+    ],
+    "crypto": [
+      "cryptocurrency-exchange"
+    ],
+    "exchange": [
+      "cryptocurrency-exchange"
+    ],
+    "blockchain": [
+      "cryptocurrency-exchange"
+    ],
+    "defi": [
+      "cryptocurrency-exchange"
+    ],
+    "wallet": [
+      "cryptocurrency-exchange"
+    ],
+    "trading": [
+      "cryptocurrency-exchange",
+      "trading-platform"
+    ],
+    "cryptocurrency": [
+      "cryptocurrency-exchange"
+    ],
+    "e-commerce": [
+      "customer-loyalty-rewards",
+      "microservices-architecture",
+      "order-management-system"
+    ],
+    "loyalty": [
+      "customer-loyalty-rewards"
+    ],
+    "rewards": [
+      "customer-loyalty-rewards"
+    ],
+    "gamification": [
+      "customer-loyalty-rewards"
+    ],
+    "etl": [
+      "data-pipeline-cli"
+    ],
+    "data-integration": [
+      "data-pipeline-cli"
+    ],
+    "transformation": [
+      "data-pipeline-cli"
+    ],
+    "ingestion": [
+      "data-pipeline-cli"
+    ],
+    "clap-noun-verb": [
+      "data-pipeline-cli",
+      "knowledge-graph-cli",
+      "reasoner-cli",
+      "schema-forge-cli",
+      "semantic-cli",
+      "shacl-cli",
+      "sparql-cli",
+      "workflow-engine-cli"
+    ],
+    "data": [
+      "data-pipeline-cli"
+    ],
+    "database": [
+      "database-schema-generator"
+    ],
+    "schema": [
+      "database-schema-generator",
+      "schema-forge-cli"
+    ],
+    "postgresql": [
+      "database-schema-generator"
+    ],
+    "mysql": [
+      "database-schema-generator"
+    ],
+    "sqlite": [
+      "database-schema-generator"
+    ],
+    "ddl": [
+      "database-schema-generator"
+    ],
+    "migrations": [
+      "database-schema-generator"
+    ],
+    "generator": [
+      "database-schema-generator"
+    ],
+    "dlss": [
+      "dlss-curriculum"
+    ],
+    "six-sigma": [
+      "dlss-curriculum"
+    ],
+    "black-belt": [
+      "dlss-curriculum"
+    ],
+    "dmadi": [
+      "dlss-curriculum"
+    ],
+    "curriculum": [
+      "dlss-curriculum"
+    ],
+    "education": [
+      "dlss-curriculum"
+    ],
+    "quality": [
+      "dlss-curriculum",
+      "shacl-cli"
+    ],
+    "lean": [
+      "dlss-curriculum"
+    ],
+    "design-for-lean-six-sigma": [
+      "dlss-curriculum"
+    ],
+    "qfd": [
+      "dlss-curriculum"
+    ],
+    "doe": [
+      "dlss-curriculum"
+    ],
+    "anova": [
+      "dlss-curriculum"
+    ],
+    "triz": [
+      "dlss-curriculum"
+    ],
+    "robust-design": [
+      "dlss-curriculum"
+    ],
+    "rsm": [
+      "dlss-curriculum"
+    ],
+    "documents": [
+      "document-management-system"
+    ],
+    "versioning": [
+      "document-management-system"
+    ],
+    "ocr": [
+      "document-management-system"
+    ],
+    "metadata": [
+      "document-management-system"
+    ],
+    "document": [
+      "document-management-system"
+    ],
+    "system": [
+      "document-management-system",
+      "laboratory-information-system",
+      "order-management-system"
+    ],
+    "ehr": [
+      "ehr-integration"
+    ],
+    "epic": [
+      "ehr-integration"
+    ],
+    "cerner": [
+      "ehr-integration"
+    ],
+    "fhir": [
+      "ehr-integration"
+    ],
+    "smart-on-fhir": [
+      "ehr-integration"
+    ],
+    "patient-portal": [
+      "ehr-integration"
+    ],
+    "integration": [
+      "ehr-integration"
+    ],
+    "erp": [
+      "enterprise-erp-core"
+    ],
+    "accounting": [
+      "enterprise-erp-core"
+    ],
+    "double-entry": [
+      "enterprise-erp-core"
+    ],
+    "financial-statements": [
+      "enterprise-erp-core"
+    ],
+    "graphql": [
+      "graphql-api-template"
+    ],
+    "dataloader": [
+      "graphql-api-template"
+    ],
+    "subscriptions": [
+      "graphql-api-template"
+    ],
+    "apollo": [
+      "graphql-api-template"
+    ],
+    "strawberry": [
+      "graphql-api-template"
+    ],
+    "population-health": [
+      "healthcare-analytics"
+    ],
+    "quality-measures": [
+      "healthcare-analytics"
+    ],
+    "predictive-analytics": [
+      "healthcare-analytics"
+    ],
+    "business-intelligence": [
+      "healthcare-analytics"
+    ],
+    "starter": [
+      "hello-world"
+    ],
+    "hello-world": [
+      "hello-world"
+    ],
+    "beginner": [
+      "hello-world"
+    ],
+    "tutorial": [
+      "hello-world"
+    ],
+    "hello": [
+      "hello-world"
+    ],
+    "world": [
+      "hello-world"
+    ],
+    "hr": [
+      "human-resources-management"
+    ],
+    "employees": [
+      "human-resources-management"
+    ],
+    "recruitment": [
+      "human-resources-management"
+    ],
+    "performance": [
+      "human-resources-management"
+    ],
+    "payroll": [
+      "human-resources-management"
+    ],
+    "benefits": [
+      "human-resources-management"
+    ],
+    "human": [
+      "human-resources-management"
+    ],
+    "resources": [
+      "human-resources-management",
+      "project-management"
+    ],
+    "ieee": [
+      "ieee-paper-template"
+    ],
+    "conference": [
+      "ieee-paper-template",
+      "neurips-paper-template"
+    ],
+    "conference-paper": [
+      "ieee-paper-template",
+      "neurips-paper-template"
+    ],
+    "two-column": [
+      "ieee-paper-template"
+    ],
+    "inventory": [
+      "inventory-management"
+    ],
+    "warehouse": [
+      "inventory-management",
+      "supply-chain-management"
+    ],
+    "stock": [
+      "inventory-management"
+    ],
+    "fifo": [
+      "inventory-management"
+    ],
+    "lot-tracking": [
+      "inventory-management"
+    ],
+    "reorder": [
+      "inventory-management"
+    ],
+    "multi-channel": [
+      "inventory-management"
+    ],
+    "valuation": [
+      "inventory-management"
+    ],
+    "inventory-management": [
+      "inventory-management"
+    ],
+    "warehouse-system": [
+      "inventory-management"
+    ],
+    "stock-tracking": [
+      "inventory-management"
+    ],
+    "lot-tracing": [
+      "inventory-management"
+    ],
+    "demand-forecast": [
+      "inventory-management"
+    ],
+    "ecommerce": [
+      "inventory-management",
+      "multi-tenant-saas",
+      "product-recommendations"
+    ],
+    "nextjs": [
+      "io.ggen.nextjs.ontology-crud"
+    ],
+    "typescript": [
+      "io.ggen.nextjs.ontology-crud"
+    ],
+    "shadcn": [
+      "io.ggen.nextjs.ontology-crud"
+    ],
+    "crud": [
+      "io.ggen.nextjs.ontology-crud",
+      "rest-api-template"
+    ],
+    "fullstack": [
+      "io.ggen.nextjs.ontology-crud"
+    ],
+    "web": [
+      "io.ggen.nextjs.ontology-crud",
+      "rest-api-template"
+    ],
+    "io.ggen.nextjs.ontology": [
+      "io.ggen.nextjs.ontology-crud"
+    ],
+    "iso20022": [
+      "iso-20022-payments"
+    ],
+    "payments": [
+      "iso-20022-payments"
+    ],
+    "sepa": [
+      "iso-20022-payments"
+    ],
+    "fintech": [
+      "iso-20022-payments"
+    ],
+    "iso": [
+      "iso-20022-payments"
+    ],
+    "20022": [
+      "iso-20022-payments"
+    ],
+    "java26": [
+      "java26-core",
+      "java26-pattern-matched-controller",
+      "java26-record-value-object",
+      "java26-sealed-domain",
+      "java26-transactional-service",
+      "java26-virtual-thread-dao"
+    ],
+    "vocabulary": [
+      "java26-core"
+    ],
+    "sealed": [
+      "java26-core",
+      "java26-pattern-matched-controller",
+      "java26-sealed-domain"
+    ],
+    "records": [
+      "java26-core",
+      "java26-record-value-object",
+      "java26-sealed-domain"
+    ],
+    "virtual-threads": [
+      "java26-core",
+      "java26-virtual-thread-dao"
+    ],
+    "controller": [
+      "java26-pattern-matched-controller"
+    ],
+    "pattern-matching": [
+      "java26-pattern-matched-controller"
+    ],
+    "switch-expression": [
+      "java26-pattern-matched-controller"
+    ],
+    "pattern": [
+      "java26-pattern-matched-controller"
+    ],
+    "matched": [
+      "java26-pattern-matched-controller"
+    ],
+    "value-object": [
+      "java26-record-value-object"
+    ],
+    "ddd": [
+      "java26-record-value-object"
+    ],
+    "immutable": [
+      "java26-record-value-object"
+    ],
+    "record": [
+      "java26-record-value-object"
+    ],
+    "value": [
+      "java26-record-value-object"
+    ],
+    "object": [
+      "java26-record-value-object"
+    ],
+    "domain-model": [
+      "java26-sealed-domain"
+    ],
+    "pattern-language": [
+      "java26-sealed-domain"
+    ],
+    "domain": [
+      "java26-sealed-domain"
+    ],
+    "service": [
+      "java26-transactional-service"
+    ],
+    "transactional": [
+      "java26-transactional-service"
+    ],
+    "spring-boot": [
+      "java26-transactional-service"
+    ],
+    "command-pattern": [
+      "java26-transactional-service"
+    ],
+    "dao": [
+      "java26-virtual-thread-dao"
+    ],
+    "loom": [
+      "java26-virtual-thread-dao"
+    ],
+    "jdbc": [
+      "java26-virtual-thread-dao"
+    ],
+    "virtual": [
+      "java26-virtual-thread-dao"
+    ],
+    "thread": [
+      "java26-virtual-thread-dao"
+    ],
+    "graph": [
+      "knowledge-graph-cli"
+    ],
+    "knowledge": [
+      "knowledge-graph-cli"
+    ],
+    "kyc": [
+      "kyc-aml-compliance"
+    ],
+    "aml": [
+      "kyc-aml-compliance"
+    ],
+    "sanctions": [
+      "kyc-aml-compliance"
+    ],
+    "risk-assessment": [
+      "kyc-aml-compliance"
+    ],
+    "laboratory": [
+      "laboratory-information-system"
+    ],
+    "lab-tests": [
+      "laboratory-information-system"
+    ],
+    "specimen-tracking": [
+      "laboratory-information-system"
+    ],
+    "results": [
+      "laboratory-information-system"
+    ],
+    "pathology": [
+      "laboratory-information-system"
+    ],
+    "information": [
+      "laboratory-information-system"
+    ],
+    "medical-billing": [
+      "medical-billing"
+    ],
+    "cpt": [
+      "medical-billing"
+    ],
+    "icd-10": [
+      "medical-billing"
+    ],
+    "insurance-claims": [
+      "medical-billing",
+      "pharmacy-management"
+    ],
+    "revenue-cycle": [
+      "medical-billing"
+    ],
+    "medical": [
+      "medical-billing"
+    ],
+    "billing": [
+      "medical-billing",
+      "multi-tenant-saas"
+    ],
+    "architecture": [
+      "microservices-architecture",
+      "microservices-architecture-template"
+    ],
+    "docker": [
+      "microservices-architecture",
+      "microservices-architecture-template"
+    ],
+    "kubernetes": [
+      "microservices-architecture",
+      "microservices-architecture-template"
+    ],
+    "distributed-systems": [
+      "microservices-architecture-template"
+    ],
+    "observability": [
+      "microservices-architecture-template",
+      "sector-observability-8020"
+    ],
+    "multi-tenant": [
+      "multi-tenant-saas"
+    ],
+    "saas": [
+      "multi-tenant-saas"
+    ],
+    "isolation": [
+      "multi-tenant-saas"
+    ],
+    "provisioning": [
+      "multi-tenant-saas"
+    ],
+    "subscription": [
+      "multi-tenant-saas"
+    ],
+    "metering": [
+      "multi-tenant-saas"
+    ],
+    "multi-tenancy": [
+      "multi-tenant-saas"
+    ],
+    "saas-platform": [
+      "multi-tenant-saas"
+    ],
+    "tenant-isolation": [
+      "multi-tenant-saas"
+    ],
+    "usage-billing": [
+      "multi-tenant-saas"
+    ],
+    "subscription-management": [
+      "multi-tenant-saas"
+    ],
+    "multi": [
+      "multi-tenant-saas"
+    ],
+    "tenant": [
+      "multi-tenant-saas"
+    ],
+    "neurips": [
+      "neurips-paper-template"
+    ],
+    "machine-learning": [
+      "neurips-paper-template"
+    ],
+    "neural-networks": [
+      "neurips-paper-template"
+    ],
+    "deep-learning": [
+      "neurips-paper-template"
+    ],
+    "order-management": [
+      "order-management-system"
+    ],
+    "fulfillment": [
+      "order-management-system"
+    ],
+    "order": [
+      "order-management-system"
+    ],
+    "semantic-os": [
+      "payment-admission"
+    ],
+    "financial": [
+      "payment-admission"
+    ],
+    "admissibility": [
+      "payment-admission"
+    ],
+    "payment": [
+      "payment-admission"
+    ],
+    "admission": [
+      "payment-admission"
+    ],
+    "pharmacy": [
+      "pharmacy-management"
+    ],
+    "medication": [
+      "pharmacy-management"
+    ],
+    "drug-interactions": [
+      "pharmacy-management"
+    ],
+    "dispensing": [
+      "pharmacy-management"
+    ],
+    "thesis": [
+      "phd-thesis-template"
+    ],
+    "phd": [
+      "phd-thesis-template"
+    ],
+    "dissertation": [
+      "phd-thesis-template"
+    ],
+    "phd-thesis": [
+      "phd-thesis-template"
+    ],
+    "chapter-based": [
+      "phd-thesis-template"
+    ],
+    "recommendations": [
+      "product-recommendations"
+    ],
+    "collaborative-filtering": [
+      "product-recommendations"
+    ],
+    "personalization": [
+      "product-recommendations"
+    ],
+    "ab-testing": [
+      "product-recommendations"
+    ],
+    "ml": [
+      "product-recommendations"
+    ],
+    "user-behavior": [
+      "product-recommendations"
+    ],
+    "recommendation-engine": [
+      "product-recommendations"
+    ],
+    "collaborative-filter": [
+      "product-recommendations"
+    ],
+    "ml-models": [
+      "product-recommendations"
+    ],
+    "product": [
+      "product-recommendations"
+    ],
+    "projects": [
+      "project-management"
+    ],
+    "tasks": [
+      "project-management"
+    ],
+    "gantt": [
+      "project-management"
+    ],
+    "sprints": [
+      "project-management"
+    ],
+    "agile": [
+      "project-management"
+    ],
+    "owl": [
+      "reasoner-cli",
+      "semantic-cli"
+    ],
+    "classification": [
+      "reasoner-cli"
+    ],
+    "semantic-web": [
+      "reasoner-cli"
+    ],
+    "reasoner": [
+      "reasoner-cli"
+    ],
+    "backend": [
+      "rest-api-template"
+    ],
+    "http": [
+      "rest-api-template"
+    ],
+    "authentication": [
+      "rest-api-template"
+    ],
+    "validation": [
+      "rest-api-template",
+      "schema-forge-cli",
+      "shacl-cli"
+    ],
+    "core-power-packages": [
+      "rest-api-template"
+    ],
+    "risk": [
+      "risk-management"
+    ],
+    "var": [
+      "risk-management"
+    ],
+    "stress-testing": [
+      "risk-management"
+    ],
+    "credit-risk": [
+      "risk-management"
+    ],
+    "market-risk": [
+      "risk-management"
+    ],
+    "robo-advisor": [
+      "robo-advisor"
+    ],
+    "portfolio": [
+      "robo-advisor"
+    ],
+    "rebalancing": [
+      "robo-advisor"
+    ],
+    "tax-optimization": [
+      "robo-advisor"
+    ],
+    "asset-allocation": [
+      "robo-advisor"
+    ],
+    "robo": [
+      "robo-advisor"
+    ],
+    "advisor": [
+      "robo-advisor"
+    ],
+    "modeling": [
+      "schema-forge-cli"
+    ],
+    "sector": [
+      "sector-api-gateway-8020",
+      "sector-observability-8020",
+      "sector-paper-lifecycle-8020",
+      "sector-rust-microservice-8020",
+      "sector-support-hooks-8020"
+    ],
+    "gateway": [
+      "sector-api-gateway-8020"
+    ],
+    "8020": [
+      "sector-api-gateway-8020",
+      "sector-observability-8020",
+      "sector-paper-lifecycle-8020",
+      "sector-rust-microservice-8020",
+      "sector-support-hooks-8020"
+    ],
+    "support": [
+      "sector-support-hooks-8020"
+    ],
+    "hooks": [
+      "sector-support-hooks-8020"
+    ],
+    "shacl": [
+      "shacl-cli"
+    ],
+    "constraints": [
+      "shacl-cli"
+    ],
+    "query": [
+      "sparql-cli"
+    ],
+    "federation": [
+      "sparql-cli"
+    ],
+    "optimization": [
+      "sparql-cli"
+    ],
+    "supply-chain": [
+      "supply-chain-management"
+    ],
+    "procurement": [
+      "supply-chain-management"
+    ],
+    "logistics": [
+      "supply-chain-management"
+    ],
+    "demand-planning": [
+      "supply-chain-management"
+    ],
+    "supply": [
+      "supply-chain-management"
+    ],
+    "chain": [
+      "supply-chain-management"
+    ],
+    "telemedicine": [
+      "telemedicine-platform"
+    ],
+    "video-conferencing": [
+      "telemedicine-platform"
+    ],
+    "appointments": [
+      "telemedicine-platform"
+    ],
+    "prescriptions": [
+      "telemedicine-platform"
+    ],
+    "patient-care": [
+      "telemedicine-platform"
+    ],
+    "platform": [
+      "telemedicine-platform",
+      "trading-platform"
+    ],
+    "verification": [
+      "three-layer-verification-dod"
+    ],
+    "otel": [
+      "three-layer-verification-dod"
+    ],
+    "weaver": [
+      "three-layer-verification-dod"
+    ],
+    "evidence-based": [
+      "three-layer-verification-dod"
+    ],
+    "chicago-tdd": [
+      "three-layer-verification-dod"
+    ],
+    "wvda": [
+      "three-layer-verification-dod",
+      "wvda-soundness-dod"
+    ],
+    "three": [
+      "three-layer-verification-dod"
+    ],
+    "layer": [
+      "three-layer-verification-dod"
+    ],
+    "orderbook": [
+      "trading-platform"
+    ],
+    "fix-protocol": [
+      "trading-platform"
+    ],
+    "market-data": [
+      "trading-platform"
+    ],
+    "bpmn": [
+      "workflow-engine-cli"
+    ],
+    "orchestration": [
+      "workflow-engine-cli"
+    ],
+    "process": [
+      "workflow-engine-cli"
+    ],
+    "engine": [
+      "workflow-engine-cli"
+    ],
+    "soundness": [
+      "wvda-soundness-dod"
+    ],
+    "deadlock": [
+      "wvda-soundness-dod"
+    ],
+    "liveness": [
+      "wvda-soundness-dod"
+    ],
+    "boundedness": [
+      "wvda-soundness-dod"
+    ],
+    "petri-net": [
+      "wvda-soundness-dod"
+    ],
+    "process-mining": [
+      "wvda-soundness-dod"
+    ],
+    "van-der-aalst": [
+      "wvda-soundness-dod"
+    ],
+    "deadlock-freedom": [
+      "wvda-soundness-dod"
+    ]
+  },
+  "o_crates": [
+    {
+      "id": "kgn",
+      "version": "1.0.0",
+      "ontologyCount": 51,
+      "queryCount": 3,
+      "blake3Hash": "801e07f7fd96069d793062a0c79e5bbe81dd1a4fa8c1aa36c1f302e27a0c32cf",
+      "path": "ontology_catalogue/kgn"
+    },
+    {
+      "id": "mcpp",
+      "version": "1.0.0",
+      "ontologyCount": 37,
+      "queryCount": 0,
+      "blake3Hash": "d4e28067271532535b7278295b40a3b3772c9574700430904542f17171ba8430",
+      "path": "ontology_catalogue/mcpp"
+    },
+    {
+      "id": "bitactor",
+      "version": "1.0.0",
+      "ontologyCount": 52,
+      "queryCount": 0,
+      "blake3Hash": "04f4205fd2258af407719e54cec4feb4d9a72227854cc08766a1777e33039b3d",
+      "path": "ontology_catalogue/bitactor"
+    },
+    {
+      "id": "clnrm",
+      "version": "1.0.0",
+      "ontologyCount": 3,
+      "queryCount": 0,
+      "blake3Hash": "6d5112c80e49ac1a49b50bb4d946c05a1285110f0d08a402aa1775317592c960",
+      "path": "ontology_catalogue/clnrm"
+    },
+    {
+      "id": "gitvan",
+      "version": "1.0.0",
+      "ontologyCount": 125,
+      "queryCount": 0,
+      "blake3Hash": "6cb85cd67123ed07f9ef41db234db36fc2f6c0cacc7f306d550732892ecdd2d2",
+      "path": "ontology_catalogue/gitvan"
+    },
+    {
+      "id": "jotp",
+      "version": "1.0.0",
+      "ontologyCount": 12,
+      "queryCount": 11,
+      "blake3Hash": "51d96be4457a8adc8d3371cf135638a0520c8db7b8ae2dc805ef0c8ac2648eda",
+      "path": "ontology_catalogue/jotp"
+    },
+    {
+      "id": "truex",
+      "version": "1.0.0",
+      "ontologyCount": 1,
+      "queryCount": 0,
+      "blake3Hash": "86ffbe59637ce30b46a8bf43ea22ee81bd7394f87be04a97b86c10468922b4ee",
+      "path": "ontology_catalogue/truex"
+    },
+    {
+      "id": "wasm4pm-wt-p4",
+      "version": "1.0.0",
+      "ontologyCount": 27,
+      "queryCount": 7,
+      "blake3Hash": "97300f88641b927df85f7e6651484c9b362c7b36ebd6a14afdcdab4501b06c7e",
+      "path": "ontology_catalogue/wasm4pm-wt-p4"
+    },
+    {
+      "id": "wasm4pm-wt-p3",
+      "version": "1.0.0",
+      "ontologyCount": 27,
+      "queryCount": 7,
+      "blake3Hash": "0f0d1cfb70539c373b0024a4af296e74823c45860bb5e4fad3188ae5bb1c8e17",
+      "path": "ontology_catalogue/wasm4pm-wt-p3"
+    },
+    {
+      "id": "dteam",
+      "version": "1.0.0",
+      "ontologyCount": 4,
+      "queryCount": 4,
+      "blake3Hash": "7a87d84812c263a139fdadf20265951a26469c4ddb82f5679b55ab5d26ef52da",
+      "path": "ontology_catalogue/dteam"
+    },
+    {
+      "id": "wasm4pm",
+      "version": "1.0.0",
+      "ontologyCount": 33,
+      "queryCount": 9,
+      "blake3Hash": "c24f1d39be7813909922f28fba9f93f2a204cb956e0a5e15f6213ee15fd6ea5c",
+      "path": "ontology_catalogue/wasm4pm"
+    },
+    {
+      "id": "a2a-rs",
+      "version": "1.0.0",
+      "ontologyCount": 8,
+      "queryCount": 3,
+      "blake3Hash": "2294b1e558f335add67e234ad24140fa81a0cc1f8e9d1b161223e7f391376b48",
+      "path": "ontology_catalogue/a2a-rs"
+    },
+    {
+      "id": "rocket-craft",
+      "version": "1.0.0",
+      "ontologyCount": 1,
+      "queryCount": 0,
+      "blake3Hash": "e49dad73d9c381669339707b93f69cea0f08be149298f9c611172208d48bcc62",
+      "path": "ontology_catalogue/rocket-craft"
+    },
+    {
+      "id": "erlmcp",
+      "version": "1.0.0",
+      "ontologyCount": 26,
+      "queryCount": 19,
+      "blake3Hash": "c48836646264e0e3c00e29d026713c8ed6f52129fa3f54ac0fa9adcdd12f6598",
+      "path": "ontology_catalogue/erlmcp"
+    },
+    {
+      "id": "wasm4pm-wt-p2",
+      "version": "1.0.0",
+      "ontologyCount": 27,
+      "queryCount": 7,
+      "blake3Hash": "3a43e7306accbce2394321d738eae416f4870384d43a4fd5c9ef702cbb2ef1bc",
+      "path": "ontology_catalogue/wasm4pm-wt-p2"
+    },
+    {
+      "id": "unrdf",
+      "version": "1.0.0",
+      "ontologyCount": 133,
+      "queryCount": 10,
+      "blake3Hash": "8c1a0fc23b016e9afacdfee79a6e8818ed0c53840a3d0bd2ea666ed4cd655b0a",
+      "path": "ontology_catalogue/unrdf"
+    },
+    {
+      "id": "unibit",
+      "version": "1.0.0",
+      "ontologyCount": 104,
+      "queryCount": 1,
+      "blake3Hash": "1cfc2d1b5647afe61bc240aec77eb92f981939548422e30eafcaf034b7b563ac",
+      "path": "ontology_catalogue/unibit"
+    },
+    {
+      "id": "stpnt",
+      "version": "1.0.0",
+      "ontologyCount": 2,
+      "queryCount": 0,
+      "blake3Hash": "01ba18674039a251a0a839a0068b7e78ba567ee8dfeaf4a539662ae605b5aaa7",
+      "path": "ontology_catalogue/stpnt"
+    },
+    {
+      "id": "A2A",
+      "version": "1.0.0",
+      "ontologyCount": 19,
+      "queryCount": 0,
+      "blake3Hash": "37ca6195f7a295616d97fde93fe52c5c6559ca561e91cb0f4275be4fb063e3f3",
+      "path": "ontology_catalogue/A2A"
+    },
+    {
+      "id": "cre",
+      "version": "1.0.0",
+      "ontologyCount": 28,
+      "queryCount": 0,
+      "blake3Hash": "15ee9d405bf11163c196a426ea87e7a89fd2e75bdb73044818542f1c2da498c6",
+      "path": "ontology_catalogue/cre"
+    },
+    {
+      "id": "chatmangpt",
+      "version": "1.0.0",
+      "ontologyCount": 145,
+      "queryCount": 273,
+      "blake3Hash": "f0269c795e4bd303cd8bb41e96c270fe6fb479ee275923219e2eb9798ac1ea3b",
+      "path": "ontology_catalogue/chatmangpt"
+    },
+    {
+      "id": "knowd",
+      "version": "1.0.0",
+      "ontologyCount": 13,
+      "queryCount": 3,
+      "blake3Hash": "9c62f20eaa70cdbc61ad2fda3d5437a52929cdd0009ca5789e93260a0039f235",
+      "path": "ontology_catalogue/knowd"
+    },
+    {
+      "id": "zoeapp",
+      "version": "1.0.0",
+      "ontologyCount": 18,
+      "queryCount": 1,
+      "blake3Hash": "598af266df862e91e934a686e3a32aa07151eb27f69bbdb033fb7ed2f07156c8",
+      "path": "ontology_catalogue/zoeapp"
+    },
+    {
+      "id": "remo",
+      "version": "1.0.0",
+      "ontologyCount": 23,
+      "queryCount": 0,
+      "blake3Hash": "df7294e5f4203a0383c6d8dafdbd4071e57d85699f2747d59248b21424787387",
+      "path": "ontology_catalogue/remo"
+    },
+    {
+      "id": "affidavit",
+      "version": "1.0.0",
+      "ontologyCount": 2,
+      "queryCount": 0,
+      "blake3Hash": "6efe0bcd634e4c10e760f0dbbbc7ca71b869b9b5db941afe25ed5f5403da35b9",
+      "path": "ontology_catalogue/affidavit"
+    },
+    {
+      "id": "bytestar",
+      "version": "1.0.0",
+      "ontologyCount": 429,
+      "queryCount": 0,
+      "blake3Hash": "b85e03f06c98e1fc01482d8a26028449ad8ec0eab0a715d87bb0e4bacd050aa9",
+      "path": "ontology_catalogue/bytestar"
+    },
+    {
+      "id": "wasm4pm-compat",
+      "version": "1.0.0",
+      "ontologyCount": 21,
+      "queryCount": 52,
+      "blake3Hash": "f6701bb47e8bd66765afc5f0a669c2f00e3bc3a8b848dab9f9131d4a277bcd83",
+      "path": "ontology_catalogue/wasm4pm-compat"
+    },
+    {
+      "id": "lsp-max",
+      "version": "1.0.0",
+      "ontologyCount": 5,
+      "queryCount": 0,
+      "blake3Hash": "9ca112e787cdb9e0254dcaed5ba31ed4687eaab7dd4084aad0833c2bd59f2644",
+      "path": "ontology_catalogue/lsp-max"
+    },
+    {
+      "id": "chicago-tdd-tools",
+      "version": "1.0.0",
+      "ontologyCount": 3,
+      "queryCount": 0,
+      "blake3Hash": "96c497d69e87315e0d2c74a9639de65500f4a9cf24bab404808f4df26c1da564",
+      "path": "ontology_catalogue/chicago-tdd-tools"
+    },
+    {
+      "id": "teleport",
+      "version": "1.0.0",
+      "ontologyCount": 166,
+      "queryCount": 48,
+      "blake3Hash": "264a92497350ff919d19a9390f12b9a79edda005106606a5e1a35370c496c2b0",
+      "path": "ontology_catalogue/teleport"
+    },
+    {
+      "id": "yawl",
+      "version": "1.0.0",
+      "ontologyCount": 52,
+      "queryCount": 0,
+      "blake3Hash": "05ec950e6e2668a222301103bb457d2f839541527de325a8ccc07bfc5dcae883",
+      "path": "ontology_catalogue/yawl"
+    },
+    {
+      "id": "process-intelligence",
+      "version": "1.0.0",
+      "ontologyCount": 27,
+      "queryCount": 77,
+      "blake3Hash": "b797c56d6d63cd811549d50d9c3dad8051e21692cfb881df2fefdf6a8acd4457",
+      "path": "ontology_catalogue/process-intelligence"
+    },
+    {
+      "id": "clap-noun-verb",
+      "version": "1.0.0",
+      "ontologyCount": 20,
+      "queryCount": 11,
+      "blake3Hash": "bb28228e8d624986f9e8e6ec1767cebbb2a16f9c7420a8c22b91aac8c1385fd8",
+      "path": "ontology_catalogue/clap-noun-verb"
+    },
+    {
+      "id": "speckit-ralph",
+      "version": "1.0.0",
+      "ontologyCount": 5,
+      "queryCount": 0,
+      "blake3Hash": "c4f8b2b8fbb911c6b130b86b6a936d1cec3fd3c1e57f84f5669d7da985ece176",
+      "path": "ontology_catalogue/speckit-ralph"
+    },
+    {
+      "id": "pcp",
+      "version": "1.0.0",
+      "ontologyCount": 2,
+      "queryCount": 0,
+      "blake3Hash": "df99e6e7f642d9646d589a4c61570cff72db4a528d9b5ce3ba6f430da0be4e72",
+      "path": "ontology_catalogue/pcp"
+    },
+    {
+      "id": "cns",
+      "version": "1.0.0",
+      "ontologyCount": 421,
+      "queryCount": 6,
+      "blake3Hash": "f93c504c11d9882f54d284efe2a80db625fc03b7de846e62fd2e3af51bcd2943",
+      "path": "ontology_catalogue/cns"
+    },
+    {
+      "id": "wasm4pm-wt-abstractions",
+      "version": "1.0.0",
+      "ontologyCount": 27,
+      "queryCount": 7,
+      "blake3Hash": "c9776270a47d74f151b71fd89533c425058cd0b2df484526565f7c85ebbfd5e9",
+      "path": "ontology_catalogue/wasm4pm-wt-abstractions"
+    },
+    {
+      "id": "cargo-cicd",
+      "version": "1.0.0",
+      "ontologyCount": 14,
+      "queryCount": 9,
+      "blake3Hash": "ec9d9994ad2649d15574b5da74b2c1d817bf0ed76feae668b4d37212c90120a1",
+      "path": "ontology_catalogue/cargo-cicd"
+    },
+    {
+      "id": "autotel",
+      "version": "1.0.0",
+      "ontologyCount": 66,
+      "queryCount": 0,
+      "blake3Hash": "c875843a761c6bfba4b9906a297b2c3584c7e4e4e7692d376a189a1443f68a18",
+      "path": "ontology_catalogue/autotel"
+    },
+    {
+      "id": "ggen",
+      "version": "1.0.0",
+      "ontologyCount": 376,
+      "queryCount": 142,
+      "blake3Hash": "81da77f4fa43e23a21dc6060e3d7dcba00668f50a4c41dd79fab783ad265ae34",
+      "path": "ontology_catalogue/ggen"
+    },
+    {
+      "id": "storehouse-infrastructure",
+      "version": "1.0.0",
+      "ontologyCount": 1,
+      "queryCount": 0,
+      "blake3Hash": "b6803ba2ad616d0cc0a3614ffc05b6078f65017b8677d59f1e950029a64e4de1",
+      "path": "ontology_catalogue/storehouse-infrastructure"
+    },
+    {
+      "id": "open-ontologies",
+      "version": "1.0.0",
+      "ontologyCount": 164,
+      "queryCount": 6,
+      "blake3Hash": "a6dba0f737b91ad28051019e41fd2553dff47544d6b31474e0d4df1384afcf35",
+      "path": "ontology_catalogue/open-ontologies"
+    },
+    {
+      "id": "bitstar",
+      "version": "1.0.0",
+      "ontologyCount": 75,
+      "queryCount": 0,
+      "blake3Hash": "f1bba0bc4189c68c844efdde3ac40fe2755e1073153a6a1c4828e34c609a6797",
+      "path": "ontology_catalogue/bitstar"
+    },
+    {
+      "id": "obsr",
+      "version": "1.0.0",
+      "ontologyCount": 0,
+      "queryCount": 3,
+      "blake3Hash": "528c84e39b409f23cabbddfc8b6be7c036990ea0ae496de544e0b3d2e15961c6",
+      "path": "ontology_catalogue/obsr"
+    },
+    {
+      "id": "optimus",
+      "version": "1.0.0",
+      "ontologyCount": 3,
+      "queryCount": 0,
+      "blake3Hash": "17e5de239f5587e6ffe2bc9d136ea9d5a5479daaefb5523258673cbd335ea1b6",
+      "path": "ontology_catalogue/optimus"
+    },
+    {
+      "id": "knhk",
+      "version": "1.0.0",
+      "ontologyCount": 93,
+      "queryCount": 5,
+      "blake3Hash": "4abed72fa996f3a5c89b981fea573a3b4d00ea664d4beb0e308a87304baf4b1a",
+      "path": "ontology_catalogue/knhk"
+    },
+    {
+      "id": "seth",
+      "version": "1.0.0",
+      "ontologyCount": 29,
+      "queryCount": 0,
+      "blake3Hash": "93f97a8bc1cf6feafb6ab6daf31edeb8c58edaeeaa89db2c5bf3e8bd499ad97c",
+      "path": "ontology_catalogue/seth"
+    },
+    {
+      "id": "ggen-mcp",
+      "version": "1.0.0",
+      "ontologyCount": 333,
+      "queryCount": 68,
+      "blake3Hash": "7aa646fe8d141de469c293c87fd2225563769d608cfd2e125543b3e33dc7d3d1",
+      "path": "ontology_catalogue/ggen-mcp"
+    },
+    {
+      "id": "dis",
+      "version": "1.0.0",
+      "ontologyCount": 4,
+      "queryCount": 0,
+      "blake3Hash": "8b1b087eeea2a8e04987228be912c1ede891f38798d9c2cea724cf6a184b9319",
+      "path": "ontology_catalogue/dis"
+    },
+    {
+      "id": "semantic_bit",
+      "version": "1.0.0",
+      "ontologyCount": 2,
+      "queryCount": 0,
+      "blake3Hash": "33ded9c4a8db54d4f8cc0ec9b73e7b0cb045161cf13fa8012ea0ba6587087cd9",
+      "path": "ontology_catalogue/semantic_bit"
+    },
+    {
+      "id": "dogturk",
+      "version": "1.0.0",
+      "ontologyCount": 12,
+      "queryCount": 0,
+      "blake3Hash": "0759d5f2bad7e0273ee205bf3acbbf24bc645a1706c4b17c293cd26ce009f27d",
+      "path": "ontology_catalogue/dogturk"
+    },
+    {
+      "id": "wasm4pm-wt-p1",
+      "version": "1.0.0",
+      "ontologyCount": 27,
+      "queryCount": 7,
+      "blake3Hash": "2587ae3aa826b14a5505f080d1cbcb2db81ef3acc588139a2c5480450fc4eded",
+      "path": "ontology_catalogue/wasm4pm-wt-p1"
+    },
+    {
+      "id": "intvw",
+      "version": "1.0.0",
+      "ontologyCount": 1,
+      "queryCount": 0,
+      "blake3Hash": "97024590e12a97a0d527abc580caee1b20d09b233218dabf9d61e537e446551c",
+      "path": "ontology_catalogue/intvw"
+    },
+    {
+      "id": "hive-queen",
+      "version": "1.0.0",
+      "ontologyCount": 5,
+      "queryCount": 0,
+      "blake3Hash": "8750e451cc03b68f5f43c50fdbab263bf3a6ed57f8aad1b0951e8da9c39508cb",
+      "path": "ontology_catalogue/hive-queen"
+    },
+    {
+      "id": "powlv2lsp",
+      "version": "1.0.0",
+      "ontologyCount": 1,
+      "queryCount": 0,
+      "blake3Hash": "3b15311f726d3562a7c45cfc295de8ed97727e55a588623bd075ffde1b418469",
+      "path": "ontology_catalogue/powlv2lsp"
+    },
+    {
+      "id": "neako",
+      "version": "1.0.0",
+      "ontologyCount": 4,
+      "queryCount": 0,
+      "blake3Hash": "b60816339fb1436b554f4e290a6a49fb620edff6903ea42baaa88c6553de7790",
+      "path": "ontology_catalogue/neako"
+    },
+    {
+      "id": "wasm4pm-wt-integration",
+      "version": "1.0.0",
+      "ontologyCount": 27,
+      "queryCount": 7,
+      "blake3Hash": "840eee1c0e40aafdbe6ea29be324b7e6bd45ac83ba613aa3768c2346735bbe3e",
+      "path": "ontology_catalogue/wasm4pm-wt-integration"
+    },
+    {
+      "id": "sos",
+      "version": "1.0.0",
+      "ontologyCount": 3,
+      "queryCount": 3,
+      "blake3Hash": "7810a215c762da50e83352f1b21db5bdf9d54a9c0401cc91deee2c0b118a8076",
+      "path": "ontology_catalogue/sos"
+    },
+    {
+      "id": "unjucks",
+      "version": "1.0.0",
+      "ontologyCount": 175,
+      "queryCount": 0,
+      "blake3Hash": "52ff5169542909fd4cbe3cea1115fc9883e55dc8b7a4d2a095dd1c8ebe076ab8",
+      "path": "ontology_catalogue/unjucks"
+    },
+    {
+      "id": "unrdf-clean",
+      "version": "1.0.0",
+      "ontologyCount": 53,
+      "queryCount": 3,
+      "blake3Hash": "82a8fffec2af21878970ff41e5200e02be582458c32788bc4c3cf12772f428ad",
+      "path": "ontology_catalogue/unrdf-clean"
+    },
+    {
+      "id": "tower-lsp-composition",
+      "version": "1.0.0",
+      "ontologyCount": 1,
+      "queryCount": 0,
+      "blake3Hash": "f425676a6d1c712d11607536b17174bd82860b5c60730e220a61121e0fd45ee5",
+      "path": "ontology_catalogue/tower-lsp-composition"
+    },
+    {
+      "id": "ggen-spec-kit",
+      "version": "1.0.0",
+      "ontologyCount": 25,
+      "queryCount": 27,
+      "blake3Hash": "536e2d1d778cbb6e3c13ad63cb949cf3e1d9444dfc37862597fe35b85962d686",
+      "path": "ontology_catalogue/ggen-spec-kit"
+    }
+  ],
+  "o_crate_count": 62
 }

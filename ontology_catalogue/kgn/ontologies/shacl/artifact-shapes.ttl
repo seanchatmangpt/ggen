@@ -1,0 +1,604 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix kgen: <https://kgen.dev/ontology#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# KGEN Artifact Constraints - SHACL Validation Shapes
+# 
+# This file defines SHACL constraints for validating KGEN artifacts including:
+# - Artifact metadata and provenance
+# - Template generation constraints  
+# - Source code quality requirements
+# - File organization rules
+# - Build process validation
+
+#######################################
+# Artifact Core Constraints
+#######################################
+
+kgen:ArtifactShape a sh:NodeShape ;
+    rdfs:label "Artifact Shape" ;
+    rdfs:comment "Constraints for all KGEN generated artifacts" ;
+    sh:targetClass kgen:Artifact ;
+    
+    # Every artifact must have an identifier
+    sh:property [
+        sh:path kgen:hasId ;
+        sh:name "artifact identifier" ;
+        sh:description "Unique identifier for the artifact" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:pattern "^[a-zA-Z0-9_-]+$" ;
+        sh:message "Artifact must have a valid identifier (alphanumeric, underscore, hyphen only)" ;
+    ] ;
+    
+    # Artifact type is required
+    sh:property [
+        sh:path kgen:artifactType ;
+        sh:name "artifact type" ;
+        sh:description "Type of artifact being generated" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            kgen:SourceCode
+            kgen:Configuration
+            kgen:Documentation
+            kgen:Test
+            kgen:Schema
+            kgen:Template
+            kgen:Metadata
+        ) ;
+        sh:message "Artifact type must be one of the supported types" ;
+    ] ;
+    
+    # Generation timestamp is mandatory
+    sh:property [
+        sh:path prov:generatedAtTime ;
+        sh:name "generation timestamp" ;
+        sh:description "When the artifact was generated" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Artifact must have a generation timestamp" ;
+    ] ;
+    
+    # Source template reference
+    sh:property [
+        sh:path kgen:generatedFrom ;
+        sh:name "source template" ;
+        sh:description "Template used to generate this artifact" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Artifact must reference its source template" ;
+    ] ;
+    
+    # Content validation
+    sh:property [
+        sh:path kgen:hasContent ;
+        sh:name "artifact content" ;
+        sh:description "The generated content of the artifact" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Artifact must have non-empty content" ;
+    ] ;
+    
+    # Quality score
+    sh:property [
+        sh:path kgen:qualityScore ;
+        sh:name "quality score" ;
+        sh:description "Quality assessment score (0-100)" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 100 ;
+        sh:message "Quality score must be between 0 and 100" ;
+    ] .
+
+#######################################  
+# Source Code Artifact Constraints
+#######################################
+
+kgen:SourceCodeShape a sh:NodeShape ;
+    rdfs:label "Source Code Shape" ;
+    rdfs:comment "Constraints specific to source code artifacts" ;
+    sh:targetClass kgen:SourceCode ;
+    
+    # Programming language is required
+    sh:property [
+        sh:path kgen:programmingLanguage ;
+        sh:name "programming language" ;
+        sh:description "Programming language of the source code" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "javascript"
+            "typescript"
+            "python"
+            "java"
+            "rust"
+            "go"
+            "csharp"
+            "cpp"
+            "c"
+            "ruby"
+            "php"
+            "kotlin"
+            "swift"
+        ) ;
+        sh:message "Must specify a supported programming language" ;
+    ] ;
+    
+    # File extension must match language
+    sh:property [
+        sh:path kgen:fileExtension ;
+        sh:name "file extension" ;
+        sh:description "File extension for the source code" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^\\.[a-z0-9]+$" ;
+        sh:message "File extension must start with dot and contain only lowercase letters and numbers" ;
+    ] ;
+    
+    # Complexity constraints
+    sh:property [
+        sh:path kgen:cyclomaticComplexity ;
+        sh:name "cyclomatic complexity" ;
+        sh:description "Cyclomatic complexity metric" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 15 ;
+        sh:message "Cyclomatic complexity should not exceed 15" ;
+    ] ;
+    
+    # Line count constraints
+    sh:property [
+        sh:path kgen:lineCount ;
+        sh:name "line count" ;
+        sh:description "Number of lines in the source file" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 500 ;
+        sh:message "Source files should not exceed 500 lines" ;
+    ] ;
+    
+    # Syntax validation flag
+    sh:property [
+        sh:path kgen:syntaxValid ;
+        sh:name "syntax validity" ;
+        sh:description "Whether the generated code has valid syntax" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Generated source code must have valid syntax" ;
+    ] .
+
+#######################################
+# Template Constraints  
+#######################################
+
+kgen:TemplateShape a sh:NodeShape ;
+    rdfs:label "Template Shape" ;
+    rdfs:comment "Constraints for KGEN templates" ;
+    sh:targetClass kgen:Template ;
+    
+    # Template engine specification
+    sh:property [
+        sh:path kgen:templateEngine ;
+        sh:name "template engine" ;
+        sh:description "Template engine used for processing" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "nunjucks"
+            "handlebars"
+            "mustache"
+            "ejs"
+            "pug"
+            "liquid"
+        ) ;
+        sh:message "Must specify a supported template engine" ;
+    ] ;
+    
+    # Template variables
+    sh:property [
+        sh:path kgen:hasVariable ;
+        sh:name "template variable" ;
+        sh:description "Variables used in the template" ;
+        sh:nodeKind sh:BlankNode ;
+        sh:node kgen:TemplateVariableShape ;
+    ] ;
+    
+    # Output format
+    sh:property [
+        sh:path kgen:outputFormat ;
+        sh:name "output format" ;  
+        sh:description "Expected output format" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "text"
+            "json"
+            "yaml"
+            "xml"
+            "html"
+            "markdown"
+            "csv"
+        ) ;
+        sh:message "Must specify a valid output format" ;
+    ] .
+
+kgen:TemplateVariableShape a sh:NodeShape ;
+    rdfs:label "Template Variable Shape" ;
+    rdfs:comment "Constraints for template variables" ;
+    
+    sh:property [
+        sh:path kgen:variableName ;
+        sh:name "variable name" ;
+        sh:description "Name of the template variable" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z][a-zA-Z0-9_]*$" ;
+        sh:message "Variable name must start with letter and contain only alphanumeric characters and underscores" ;
+    ] ;
+    
+    sh:property [
+        sh:path kgen:variableType ;
+        sh:name "variable type" ;
+        sh:description "Data type of the variable" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "string"
+            "number"
+            "boolean"
+            "array"
+            "object"
+            "date"
+        ) ;
+        sh:message "Variable type must be one of the supported types" ;
+    ] ;
+    
+    sh:property [
+        sh:path kgen:isRequired ;
+        sh:name "is required" ;
+        sh:description "Whether the variable is required" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Must specify if variable is required" ;
+    ] .
+
+#######################################
+# Documentation Constraints
+#######################################
+
+kgen:DocumentationShape a sh:NodeShape ;
+    rdfs:label "Documentation Shape" ;
+    rdfs:comment "Constraints for documentation artifacts" ;
+    sh:targetClass kgen:Documentation ;
+    
+    # Documentation type
+    sh:property [
+        sh:path kgen:documentationType ;
+        sh:name "documentation type" ;
+        sh:description "Type of documentation" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "readme"
+            "api"
+            "tutorial"
+            "reference"
+            "changelog"
+            "license"
+            "contributing"
+        ) ;
+        sh:message "Must specify a valid documentation type" ;
+    ] ;
+    
+    # Format requirements
+    sh:property [
+        sh:path kgen:documentFormat ;
+        sh:name "document format" ;
+        sh:description "Format of the documentation" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "markdown"
+            "html"
+            "rst"
+            "asciidoc"
+            "pdf"
+            "docx"
+        ) ;
+        sh:message "Must specify a supported documentation format" ;
+    ] ;
+    
+    # Word count constraints
+    sh:property [
+        sh:path kgen:wordCount ;
+        sh:name "word count" ;
+        sh:description "Number of words in the documentation" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Documentation must have at least 1 word" ;
+    ] .
+
+#######################################
+# Test Artifact Constraints
+#######################################
+
+kgen:TestShape a sh:NodeShape ;
+    rdfs:label "Test Shape" ;
+    rdfs:comment "Constraints for test artifacts" ;
+    sh:targetClass kgen:Test ;
+    
+    # Test framework
+    sh:property [
+        sh:path kgen:testFramework ;
+        sh:name "test framework" ;
+        sh:description "Testing framework used" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "jest"
+            "mocha"
+            "vitest"
+            "pytest" 
+            "junit"
+            "rspec"
+            "phpunit"
+            "cucumber"
+        ) ;
+        sh:message "Must specify a supported test framework" ;
+    ] ;
+    
+    # Test type
+    sh:property [
+        sh:path kgen:testType ;
+        sh:name "test type" ;
+        sh:description "Type of test" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "unit"
+            "integration"
+            "e2e"
+            "performance"
+            "security"
+            "accessibility"
+        ) ;
+        sh:message "Must specify a valid test type" ;
+    ] ;
+    
+    # Coverage requirements
+    sh:property [
+        sh:path kgen:coverageTarget ;
+        sh:name "coverage target" ;
+        sh:description "Target code coverage percentage" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 100 ;
+        sh:message "Coverage target must be between 0 and 100" ;
+    ] .
+
+#######################################
+# Configuration Constraints
+#######################################
+
+kgen:ConfigurationShape a sh:NodeShape ;
+    rdfs:label "Configuration Shape" ;
+    rdfs:comment "Constraints for configuration artifacts" ;
+    sh:targetClass kgen:Configuration ;
+    
+    # Config format
+    sh:property [
+        sh:path kgen:configFormat ;
+        sh:name "configuration format" ;
+        sh:description "Format of the configuration file" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "json"
+            "yaml"
+            "toml"
+            "ini"
+            "xml"
+            "properties"
+            "env"
+        ) ;
+        sh:message "Must specify a supported configuration format" ;
+    ] ;
+    
+    # Schema validation
+    sh:property [
+        sh:path kgen:hasSchema ;
+        sh:name "has schema" ;
+        sh:description "Whether configuration has a validation schema" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Should specify if configuration has a schema" ;
+    ] ;
+    
+    # Environment constraints
+    sh:property [
+        sh:path kgen:targetEnvironment ;
+        sh:name "target environment" ;
+        sh:description "Environment this configuration targets" ;
+        sh:maxCount 1 ;
+        sh:in (
+            "development"
+            "testing"
+            "staging"
+            "production"
+            "local"
+        ) ;
+        sh:message "Must specify a valid target environment" ;
+    ] .
+
+#######################################
+# Provenance and Metadata Constraints
+#######################################
+
+kgen:ProvenanceShape a sh:NodeShape ;
+    rdfs:label "Provenance Shape" ;
+    rdfs:comment "Constraints for artifact provenance tracking" ;
+    sh:targetClass prov:Activity ;
+    
+    # Activity must have start and end times
+    sh:property [
+        sh:path prov:startedAtTime ;
+        sh:name "start time" ;
+        sh:description "When the generation activity started" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Generation activity must have a start time" ;
+    ] ;
+    
+    sh:property [
+        sh:path prov:endedAtTime ;
+        sh:name "end time" ;
+        sh:description "When the generation activity ended" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Generation activity must have an end time" ;
+    ] ;
+    
+    # Generation tool information
+    sh:property [
+        sh:path prov:wasAssociatedWith ;
+        sh:name "associated tool" ;
+        sh:description "Tool or agent that performed the generation" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Must specify the tool that generated the artifact" ;
+    ] .
+
+# Timing constraint: end time must be after start time
+kgen:ProvenanceShape sh:sparql [
+    sh:message "End time must be after start time" ;
+    sh:prefixes [
+        sh:declare [
+            sh:prefix "prov" ;
+            sh:namespace "http://www.w3.org/ns/prov#"^^xsd:anyURI ;
+        ] ;
+    ] ;
+    sh:select """
+        SELECT $this ?startTime ?endTime
+        WHERE {
+            $this prov:startedAtTime ?startTime .
+            $this prov:endedAtTime ?endTime .
+            FILTER(?endTime <= ?startTime)
+        }
+    """ ;
+] .
+
+#######################################
+# File Organization Constraints
+#######################################
+
+kgen:FileSystemShape a sh:NodeShape ;
+    rdfs:label "File System Shape" ;
+    rdfs:comment "Constraints for file system organization" ;
+    sh:targetClass kgen:FileSystemArtifact ;
+    
+    # File path constraints
+    sh:property [
+        sh:path kgen:filePath ;
+        sh:name "file path" ;
+        sh:description "Path where the artifact should be placed" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        # Prevent absolute paths and dangerous patterns
+        sh:pattern "^(?!/)(?!.*\\.\\.)(?!.*//)[a-zA-Z0-9/_.-]+$" ;
+        sh:message "File path must be relative, safe, and well-formed" ;
+    ] ;
+    
+    # Directory structure validation
+    sh:property [
+        sh:path kgen:directoryLevel ;
+        sh:name "directory level" ;
+        sh:description "Depth level in directory structure" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 10 ;
+        sh:message "Directory nesting should not exceed 10 levels" ;
+    ] ;
+    
+    # File size constraints
+    sh:property [
+        sh:path kgen:fileSize ;
+        sh:name "file size" ;
+        sh:description "Size of the generated file in bytes" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 10485760 ; # 10MB limit
+        sh:message "Generated files should not exceed 10MB" ;
+    ] .
+
+#######################################
+# Build Process Constraints
+#######################################
+
+kgen:BuildProcessShape a sh:NodeShape ;
+    rdfs:label "Build Process Shape" ;
+    rdfs:comment "Constraints for build process validation" ;
+    sh:targetClass kgen:BuildProcess ;
+    
+    # Build status
+    sh:property [
+        sh:path kgen:buildStatus ;
+        sh:name "build status" ;
+        sh:description "Status of the build process" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "pending"
+            "running"
+            "success"
+            "failure"
+            "cancelled"
+        ) ;
+        sh:message "Must specify a valid build status" ;
+    ] ;
+    
+    # Build duration constraints
+    sh:property [
+        sh:path kgen:buildDuration ;
+        sh:name "build duration" ;
+        sh:description "Duration of the build process in seconds" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 3600 ; # 1 hour max
+        sh:message "Build duration should not exceed 1 hour" ;
+    ] ;
+    
+    # Dependencies
+    sh:property [
+        sh:path kgen:dependsOn ;
+        sh:name "depends on" ;
+        sh:description "Artifacts this build depends on" ;
+        sh:nodeKind sh:IRI ;
+    ] .

@@ -1,0 +1,911 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix chatman: <https://ontology.chatmangpt.com/core#> .
+@prefix shacl-chatman: <https://ontology.chatmangpt.com/shacl/provenance#> .
+
+###############################################################################
+# CHATMANGPT PROV-O PROVENANCE SHACL SHAPES
+#
+# IRI: https://ontology.chatmangpt.com/shacl/provenance
+# Module: provenance.shacl.ttl
+#
+# SHACL shapes enforcing PROV-O (W3C Provenance Ontology) requirements
+# across the ChatmanGPT ecosystem. Validates provenance chains, prevents
+# cycles, ensures entities and activities have complete provenance records.
+#
+# Key constraints:
+# 1. Every prov:Entity must have a prov:wasGeneratedBy (generator activity)
+# 2. Every prov:Activity must use entities and have an associated agent
+# 3. No cycles in provenance chains (acyclic DAG requirement)
+# 4. All provenance must eventually trace to source (leaf traceability)
+# 5. Property cardinality and range validation (PROV-O ontology enforcement)
+# 6. Timestamp constraints (all temporal assertions must be xsd:dateTime)
+#
+# Severity levels:
+# - sh:Violation: Critical (missing required provenance)
+# - sh:Warning: Advisory (misuse of PROV predicates, weak chains)
+#
+# This shapes graph is executable by SPARQL engines supporting SHACL
+# (e.g., Oxigraph, TopBraid, RDF4J, Apache Jena).
+###############################################################################
+
+<https://ontology.chatmangpt.com/shacl/provenance>
+  a owl:Ontology ;
+  dcterms:title "ChatmanGPT PROV-O Provenance SHACL Shapes"@en ;
+  dcterms:description "SHACL constraint shapes enforcing PROV-O provenance requirements. Validates entity generators, activity usage, prevents cycles, ensures traceability. Violations are critical (missing provenance); warnings are advisory (weak chains, misused predicates)."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:created "2026-03-25T00:00:00Z"^^xsd:dateTime ;
+  dcterms:creator "Sean Chatman"@en ;
+  dcterms:license <https://creativecommons.org/licenses/by-sa/4.0/> ;
+  owl:versionIRI <https://ontology.chatmangpt.com/shacl/provenance/1.0> ;
+  owl:versionInfo "1.0"^^xsd:string ;
+
+  # Import core ChatmanGPT ontology (includes PROV-O)
+  owl:imports <https://ontology.chatmangpt.com/core> ;
+
+  rdfs:comment "This shapes graph provides automated validation of PROV-O provenance constraints. Use with: `oxigraph query --shapes provenance.shacl.ttl data.ttl` or equivalent SHACL validators. All shapes use sh:severity to distinguish critical violations from advisory warnings."@en ;
+  .
+
+###############################################################################
+# ENTITY SHAPES — Every prov:Entity must have complete provenance
+###############################################################################
+
+#
+# NodeShape: chatman:Provenance_EntityShape
+# Target: All prov:Entity instances
+# Violations: Missing required prov:wasGeneratedBy property, invalid timestamp
+#
+shacl-chatman:Provenance_EntityShape
+  a sh:NodeShape ;
+  sh:targetClass prov:Entity ;
+
+  sh:name "PROV-O Entity Provenance Shape"@en ;
+  sh:description """Every prov:Entity must have exactly one prov:wasGeneratedBy property pointing to the prov:Activity that generated it.
+The generator activity must exist and be a valid prov:Activity. Additionally, every entity must have a prov:generatedAtTime
+with xsd:dateTime type (ISO8601 format). These are CRITICAL requirements for complete provenance tracking."""@en ;
+
+  # CRITICAL: Every entity must have a generator (required)
+  sh:property [
+    sh:path prov:wasGeneratedBy ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class prov:Activity ;
+    sh:severity sh:Violation ;
+    sh:name "Entity Generator (CRITICAL)"@en ;
+    sh:description """Every prov:Entity MUST have exactly one prov:wasGeneratedBy pointing to the prov:Activity that created it.
+This is a critical provenance requirement (PROV-O constraint 12). Entities without generators are orphaned and cannot be
+traced back through the provenance chain."""@en ;
+    sh:message "VIOLATION (CRITICAL): prov:Entity {$focusNode} missing or invalid prov:wasGeneratedBy property. Every entity must have exactly one generator activity (prov:Activity). Entities without generators break the provenance chain and cannot be audited."@en ;
+  ] ;
+
+  # Required: Timestamp on entity (ISO8601 xsd:dateTime)
+  sh:property [
+    sh:path prov:generatedAtTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+    sh:severity sh:Violation ;
+    sh:name "Generation Timestamp (CRITICAL)"@en ;
+    sh:description """Every prov:Entity must have exactly one prov:generatedAtTime with xsd:dateTime type (ISO8601 format, e.g. 2026-03-25T14:32:00Z).
+This records WHEN the entity was generated and is essential for temporal ordering of the provenance chain. Without timestamps,
+causal relationships cannot be verified."""@en ;
+    sh:message "VIOLATION (CRITICAL): prov:Entity {$focusNode} missing or invalid prov:generatedAtTime. Must be xsd:dateTime (ISO8601 format, e.g. 2026-03-25T14:32:00Z). Timestamp is required for temporal provenance tracking and causal ordering."@en ;
+  ] ;
+
+  # Optional but strongly recommended: Entity may have wasDerivedFrom (chain to predecessor)
+  sh:property [
+    sh:path prov:wasDerivedFrom ;
+    sh:maxCount 1 ;
+    sh:class prov:Entity ;
+    sh:severity sh:Warning ;
+    sh:name "Derivation Predecessor (OPTIONAL)"@en ;
+    sh:description """If prov:wasDerivedFrom is present, it must point to exactly one prov:Entity (the predecessor in the derivation chain).
+This enables tracing back through transformations. Most entities will either be leaf entities (no wasDerivedFrom, but with documented source)
+or derived entities (with wasDerivedFrom pointing to an upstream entity)."""@en ;
+    sh:message "WARNING: prov:Entity {$focusNode} has invalid prov:wasDerivedFrom. If present, must point to exactly one prov:Entity (predecessor in derivation chain). If this is a leaf entity, add rdfs:comment or prov:wasAttributedTo instead."@en ;
+  ] ;
+
+  # Optional: Entity may have rdf:comment (human-readable description)
+  sh:property [
+    sh:path rdfs:comment ;
+    sh:maxCount 1 ;
+    sh:datatype rdf:langString ;
+    sh:severity sh:Info ;
+    sh:name "Entity Description (OPTIONAL)"@en ;
+    sh:description "Optional human-readable description of the entity's role in the provenance chain. For leaf entities (no wasDerivedFrom), rdfs:comment is strongly recommended to document the source."@en ;
+  ] ;
+  .
+
+###############################################################################
+# ACTIVITY SHAPES — Every prov:Activity must use entities and have agents
+###############################################################################
+
+#
+# NodeShape: chatman:Provenance_ActivityShape
+# Target: All prov:Activity instances
+# Violations: Missing required prov:used, prov:wasAssociatedWith, or timestamps
+#
+shacl-chatman:Provenance_ActivityShape
+  a sh:NodeShape ;
+  sh:targetClass prov:Activity ;
+
+  sh:name "PROV-O Activity Provenance Shape"@en ;
+  sh:description """Every prov:Activity must use at least one prov:Entity (input dependencies), be associated with at least one prov:Agent
+(responsibility attribution), and have both start/end timestamps (temporal boundaries). This ensures activities are properly
+contextualized in the provenance chain and can be audited for compliance."""@en ;
+
+  # CRITICAL: Activity must use at least one entity
+  sh:property [
+    sh:path prov:used ;
+    sh:minCount 1 ;
+    sh:class prov:Entity ;
+    sh:severity sh:Violation ;
+    sh:name "Activity Input Entities (CRITICAL)"@en ;
+    sh:description """Every prov:Activity MUST have at least one prov:used property pointing to prov:Entity instances that the activity consumed.
+This establishes input dependencies and enables upstream tracing. Activities without inputs are incomplete (missing context about
+what data they operated on)."""@en ;
+    sh:message "VIOLATION (CRITICAL): prov:Activity {$focusNode} has no prov:used properties. Every activity must use at least one entity as input. This is required to establish upstream provenance and data flow."@en ;
+  ] ;
+
+  # CRITICAL: Activity must be associated with at least one agent
+  sh:property [
+    sh:path prov:wasAssociatedWith ;
+    sh:minCount 1 ;
+    sh:class prov:Agent ;
+    sh:severity sh:Violation ;
+    sh:name "Activity Agent Association (CRITICAL)"@en ;
+    sh:description """Every prov:Activity MUST have at least one prov:wasAssociatedWith property linking to a prov:Agent (human, organization, or software process).
+This establishes responsibility and attribution, which is essential for audit trails and accountability. Activities without associated
+agents cannot be attributed to any responsible party."""@en ;
+    sh:message "VIOLATION (CRITICAL): prov:Activity {$focusNode} not associated with any prov:Agent. Every activity must record who/what performed it. This is required for responsibility attribution and SOC2/compliance audit trails."@en ;
+  ] ;
+
+  # CRITICAL: Activity must have start time
+  sh:property [
+    sh:path prov:startedAtTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+    sh:severity sh:Violation ;
+    sh:name "Activity Start Time (CRITICAL)"@en ;
+    sh:description """Every prov:Activity must have exactly one prov:startedAtTime with xsd:dateTime type (ISO8601 format).
+This records when the activity commenced and is essential for temporal ordering."""@en ;
+    sh:message "VIOLATION (CRITICAL): prov:Activity {$focusNode} missing or invalid prov:startedAtTime (must be xsd:dateTime, e.g. 2026-03-25T14:30:00Z). Start time is required for temporal ordering."@en ;
+  ] ;
+
+  # CRITICAL: Activity must have end time
+  sh:property [
+    sh:path prov:endedAtTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+    sh:severity sh:Violation ;
+    sh:name "Activity End Time (CRITICAL)"@en ;
+    sh:description """Every prov:Activity must have exactly one prov:endedAtTime with xsd:dateTime type (ISO8601 format).
+This records when the activity concluded. End time must be >= start time (monotonic time)."""@en ;
+    sh:message "VIOLATION (CRITICAL): prov:Activity {$focusNode} missing or invalid prov:endedAtTime (must be xsd:dateTime, e.g. 2026-03-25T14:32:00Z). End time must be >= start time."@en ;
+  ] ;
+
+  # Optional: Activity may have wasInformedBy (causal dependency on another activity)
+  sh:property [
+    sh:path prov:wasInformedBy ;
+    sh:class prov:Activity ;
+    sh:severity sh:Warning ;
+    sh:name "Activity Causal Dependency (OPTIONAL)"@en ;
+    sh:description """If prov:wasInformedBy is present, it must point to prov:Activity instances that this activity depends on causally.
+This forms causal chains in the workflow. This is optional; not all activities have upstream dependencies."""@en ;
+    sh:message "WARNING: prov:Activity {$focusNode} has invalid prov:wasInformedBy reference. Must point to prov:Activity instances."@en ;
+  ] ;
+  .
+
+###############################################################################
+# AGENT SHAPES — Every prov:Agent must have identifying properties
+###############################################################################
+
+#
+# NodeShape: chatman:Provenance_AgentShape
+# Target: All prov:Agent instances
+# Violations: Missing agent type or identifier
+#
+shacl-chatman:Provenance_AgentShape
+  a sh:NodeShape ;
+  sh:targetClass prov:Agent ;
+
+  sh:name "PROV-O Agent Identity Shape"@en ;
+  sh:description "Every prov:Agent must be identifiable and typed. Agents can be prov:SoftwareAgent, prov:Person, or prov:Organization."@en ;
+
+  # CRITICAL: Agent must have rdfs:label or dcterms:title (human-readable name)
+  sh:property [
+    sh:path [ sh:alternativePath ( rdfs:label dcterms:title ) ] ;
+    sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:name "Agent Identifier"@en ;
+    sh:description "Every prov:Agent MUST have at least one rdfs:label or dcterms:title for human-readable identification. Examples: 'Healing Agent', 'Sean Chatman', 'BusinessOS'."@en ;
+    sh:message "VIOLATION: prov:Agent {$focusNode} missing rdfs:label or dcterms:title. Agents must be identifiable."@en ;
+  ] ;
+
+  # Optional: Agent may be typed as specific agent subclass
+  sh:property [
+    sh:path rdf:type ;
+    sh:in (
+      prov:SoftwareAgent
+      prov:Person
+      prov:Organization
+    ) ;
+    sh:severity sh:Warning ;
+    sh:name "Agent Type"@en ;
+    sh:description "Agents should be typed as prov:SoftwareAgent (software process), prov:Person (human), or prov:Organization (collective entity). Helps disambiguate agent roles."@en ;
+    sh:message "WARNING: prov:Agent {$focusNode} is not explicitly typed as SoftwareAgent, Person, or Organization. Explicit typing improves provenance clarity."@en ;
+  ] ;
+  .
+
+###############################################################################
+# PROPERTY SHAPES — Enforce PROV-O property constraints and cardinality
+###############################################################################
+
+#
+# PropertyShape: chatman:ProvenanceProperty_wasGeneratedBy
+# Constraint: wasGeneratedBy must point to prov:Activity (not just any resource)
+#
+shacl-chatman:ProvenanceProperty_wasGeneratedBy
+  a sh:PropertyShape ;
+  sh:name "Property: prov:wasGeneratedBy"@en ;
+  sh:description "The prov:wasGeneratedBy property MUST reference a prov:Activity. Range check: {$focusNode} prov:wasGeneratedBy ?activity . ?activity rdf:type prov:Activity ."@en ;
+
+  sh:path prov:wasGeneratedBy ;
+  sh:nodeKind sh:IRI ;
+  sh:class prov:Activity ;
+  sh:severity sh:Violation ;
+  sh:message "VIOLATION: prov:wasGeneratedBy must reference a prov:Activity. Referenced resource {$value} is not an Activity."@en ;
+  .
+
+#
+# PropertyShape: chatman:ProvenanceProperty_wasDerivedFrom
+# Constraint: wasDerivedFrom must point to a valid prov:Entity or chain back to source
+#
+shacl-chatman:ProvenanceProperty_wasDerivedFrom
+  a sh:PropertyShape ;
+  sh:name "Property: prov:wasDerivedFrom"@en ;
+  sh:description "The prov:wasDerivedFrom property indicates that an entity is a transformation of another entity (chain to predecessor). Must reference prov:Entity."@en ;
+
+  sh:path prov:wasDerivedFrom ;
+  sh:nodeKind sh:IRI ;
+  sh:class prov:Entity ;
+  sh:maxCount 1 ;
+  sh:severity sh:Warning ;
+  sh:message "WARNING: prov:wasDerivedFrom should reference exactly one prov:Entity (the predecessor). Value {$value} is not an Entity or cardinality violated (max 1)."@en ;
+  .
+
+#
+# PropertyShape: chatman:ProvenanceProperty_wasAssociatedWith
+# Constraint: wasAssociatedWith must reference a prov:Agent (who is responsible)
+#
+shacl-chatman:ProvenanceProperty_wasAssociatedWith
+  a sh:PropertyShape ;
+  sh:name "Property: prov:wasAssociatedWith"@en ;
+  sh:description "The prov:wasAssociatedWith property MUST reference a prov:Agent. This establishes responsibility and attribution."@en ;
+
+  sh:path prov:wasAssociatedWith ;
+  sh:nodeKind sh:IRI ;
+  sh:class prov:Agent ;
+  sh:severity sh:Violation ;
+  sh:message "VIOLATION: prov:wasAssociatedWith must reference a prov:Agent. Referenced resource {$value} is not an Agent."@en ;
+  .
+
+#
+# PropertyShape: chatman:ProvenanceProperty_used
+# Constraint: used properties must reference prov:Entity instances
+#
+shacl-chatman:ProvenanceProperty_used
+  a sh:PropertyShape ;
+  sh:name "Property: prov:used"@en ;
+  sh:description "The prov:used property indicates that an activity consumed an entity. Must reference prov:Entity instances."@en ;
+
+  sh:path prov:used ;
+  sh:nodeKind sh:IRI ;
+  sh:class prov:Entity ;
+  sh:severity sh:Violation ;
+  sh:message "VIOLATION: prov:used must reference prov:Entity instances. Referenced resource {$value} is not an Entity."@en ;
+  .
+
+#
+# PropertyShape: chatman:ProvenanceProperty_hadDictionaryMember
+# Constraint: Warn if hadDictionaryMember is used (should only be on prov:Dictionary)
+#
+shacl-chatman:ProvenanceProperty_hadDictionaryMember
+  a sh:PropertyShape ;
+  sh:name "Property: prov:hadDictionaryMember (Advisory)"@en ;
+  sh:description "The prov:hadDictionaryMember property should only be used on prov:Dictionary instances. If found on other entities, it is likely a misuse."@en ;
+
+  sh:path prov:hadDictionaryMember ;
+  sh:class prov:Dictionary ;
+  sh:severity sh:Warning ;
+  sh:message "WARNING: prov:hadDictionaryMember found on {$focusNode}, which is not a prov:Dictionary. This property should only be used on Dictionary instances for membership tracking."@en ;
+  .
+
+###############################################################################
+# COMPLEX SPARQL-BASED SHAPES
+#
+# These shapes use SPARQL SELECT queries to validate constraints that
+# cannot be expressed with simple property constraints. Examples:
+# 1. No cycles in provenance chains
+# 2. All leaf entities trace back to source
+###############################################################################
+
+#
+# SPARQL Shape 1: chatman:Provenance_NoCyclesShape
+# Constraint: Provenance chain must be acyclic (no A -> B -> ... -> A)
+# SPARQL: Find paths where an entity wasGeneratedBy an activity,
+#         then trace back through wasDerivedFrom, ensuring no cycles.
+#
+shacl-chatman:Provenance_NoCyclesShape
+  a sh:NodeShape ;
+  sh:targetClass prov:Entity ;
+
+  sh:name "Provenance Acyclicity Constraint"@en ;
+  sh:description "Provenance chains must form a directed acyclic graph (DAG). No cycles allowed: if A wasGeneratedBy B and B's inputs derive from A, that's a cycle. This SPARQL shape detects cycles by traversing wasDerivedFrom edges."@en ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "VIOLATION: Provenance cycle detected starting from {$focusNode}. Trace: {?path} (acyclic DAG required for valid provenance)."@en ;
+    sh:severity sh:Violation ;
+    sh:prefixes shacl-chatman: ;
+    sh:select """
+      PREFIX prov: <http://www.w3.org/ns/prov#>
+
+      # Detect cycles by checking if an entity can reach itself through:
+      # entity1 -wasDerivedFrom-> entity2 -wasDerivedFrom-> ... -wasDerivedFrom-> entity1
+      SELECT $focusNode
+      WHERE {
+        $focusNode prov:wasDerivedFrom ?successor .
+        ?successor prov:wasDerivedFrom* $focusNode .
+      }
+    """ ;
+  ] ;
+  .
+
+#
+# SPARQL Shape 2: chatman:Provenance_LeafTraceabilityShape
+# Constraint: Every leaf entity (with no wasDerivedFrom) must eventually
+# trace to a documented source (rdfs:comment, dcterms:source, or prov:wasAttributedTo).
+#
+shacl-chatman:Provenance_LeafTraceabilityShape
+  a sh:NodeShape ;
+  sh:targetClass prov:Entity ;
+
+  sh:name "Leaf Entity Source Traceability"@en ;
+  sh:description "Entities with no wasDerivedFrom predecessor (leaf entities) must have documented source via rdfs:comment, dcterms:source, or prov:wasAttributedTo. This ensures all data ultimately traces back to a documented origin."@en ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "WARNING: Leaf entity {$focusNode} has no documented source. Entities with no prov:wasDerivedFrom must have rdfs:comment (source doc), dcterms:source, or prov:wasAttributedTo to ensure traceability."@en ;
+    sh:severity sh:Warning ;
+    sh:prefixes shacl-chatman: ;
+    sh:select """
+      PREFIX prov: <http://www.w3.org/ns/prov#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX dcterms: <http://purl.org/dc/terms/>
+
+      # Find leaf entities (no wasDerivedFrom) without documented source
+      SELECT $focusNode
+      WHERE {
+        # Entity has no predecessor (it's a leaf)
+        FILTER NOT EXISTS { $focusNode prov:wasDerivedFrom ?predecessor }
+
+        # Entity has no documented source
+        FILTER NOT EXISTS { $focusNode rdfs:comment ?comment }
+        FILTER NOT EXISTS { $focusNode dcterms:source ?source }
+        FILTER NOT EXISTS { $focusNode prov:wasAttributedTo ?agent }
+      }
+    """ ;
+  ] ;
+  .
+
+#
+# SPARQL Shape 3: chatman:Provenance_ActivityOutputShape
+# Constraint: Every prov:Activity must generate at least one prov:Entity
+# (activities should produce output, not be "no-op").
+#
+shacl-chatman:Provenance_ActivityOutputShape
+  a sh:NodeShape ;
+  sh:targetClass prov:Activity ;
+
+  sh:name "Activity Output Requirement"@en ;
+  sh:description "Every prov:Activity must generate at least one prov:Entity. Activities without outputs are incomplete or 'no-op', which breaks causality. Uses SPARQL to count generated entities."@en ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "WARNING: prov:Activity {$focusNode} does not generate any prov:Entity. Activities should produce output to be meaningful in the provenance chain."@en ;
+    sh:severity sh:Warning ;
+    sh:prefixes shacl-chatman: ;
+    sh:select """
+      PREFIX prov: <http://www.w3.org/ns/prov#>
+
+      # Find activities with no generated entities
+      SELECT $focusNode
+      WHERE {
+        FILTER NOT EXISTS {
+          ?generatedEntity prov:wasGeneratedBy $focusNode .
+        }
+      }
+    """ ;
+  ] ;
+  .
+
+###############################################################################
+# TIMESTAMP VALIDATION SHAPES
+#
+# Temporal constraints across provenance chain. Ensures timestamps are
+# monotonic (parent activity starts before child) and valid (ISO8601).
+###############################################################################
+
+#
+# SPARQL Shape 4: chatman:Provenance_TemporalOrderingShape
+# Constraint: If activity A generates entity E, and entity E is input to
+# activity B (via prov:used), then A.endedAtTime <= B.startedAtTime
+#
+shacl-chatman:Provenance_TemporalOrderingShape
+  a sh:NodeShape ;
+  sh:targetClass prov:Activity ;
+
+  sh:name "Temporal Ordering in Provenance Chain"@en ;
+  sh:description """Provenance chains must respect causal temporal ordering: if activity A generates entity E, and activity B uses E,
+then A must finish before or at the same time B starts (A.endedAtTime <= B.startedAtTime). This prevents temporal paradoxes
+where an activity uses data that hasn't been generated yet."""@en ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "WARNING: Temporal ordering violated at {$focusNode}. Activity uses entity from activity that finished after this one started. Recheck timestamps: {?entity} generated by {?generator} at {?genEnd}, but {$focusNode} started at {?selfStart}."@en ;
+    sh:severity sh:Warning ;
+    sh:prefixes shacl-chatman: ;
+    sh:select """
+      PREFIX prov: <http://www.w3.org/ns/prov#>
+
+      # Find temporal inversions: activity uses entity generated by later activity
+      SELECT $focusNode ?entity ?generator ?genEnd ?selfStart
+      WHERE {
+        # This activity uses an entity
+        $focusNode prov:used ?entity ;
+                   prov:startedAtTime ?selfStart .
+
+        # That entity was generated by another activity
+        ?entity prov:wasGeneratedBy ?generator .
+        ?generator prov:endedAtTime ?genEnd .
+
+        # Check: generator must finish <= this activity starts
+        FILTER (?genEnd > ?selfStart)
+      }
+    """ ;
+  ] ;
+  .
+
+#
+# SPARQL Shape 5: chatman:Provenance_MonotonicTimeShape
+# Constraint: Every prov:Activity must have endedAtTime >= startedAtTime
+# (monotonic time — activities cannot end before they start)
+#
+shacl-chatman:Provenance_MonotonicTimeShape
+  a sh:NodeShape ;
+  sh:targetClass prov:Activity ;
+
+  sh:name "Monotonic Time Constraint for Activities"@en ;
+  sh:description """Every prov:Activity must have endedAtTime >= startedAtTime. Monotonic time ensures that activities
+cannot end before they start. This is a fundamental requirement of temporal logic."""@en ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "VIOLATION: Temporal paradox at {$focusNode}. Activity ended ({?endTime}) before it started ({?startTime}). Fix: endedAtTime must be >= startedAtTime."@en ;
+    sh:severity sh:Violation ;
+    sh:prefixes shacl-chatman: ;
+    sh:select """
+      PREFIX prov: <http://www.w3.org/ns/prov#>
+
+      # Find activities where endedAtTime < startedAtTime
+      SELECT $focusNode ?startTime ?endTime
+      WHERE {
+        $focusNode prov:startedAtTime ?startTime ;
+                   prov:endedAtTime ?endTime .
+
+        # Check: end time must be >= start time
+        FILTER (?endTime < ?startTime)
+      }
+    """ ;
+  ] ;
+  .
+
+###############################################################################
+# DOCUMENTATION: TESTING AND VALIDATION
+#
+# This section provides example SPARQL queries for testing these shapes.
+# Execute them against a dataset to validate PROV-O compliance.
+###############################################################################
+
+shacl-chatman:ValidationGuide
+  a rdfs:Class ;
+  rdfs:label "SHACL Validation Test Guide"@en ;
+  rdfs:comment """
+================================================================================
+SEVERITY LEVELS: Understanding Violations vs. Warnings vs. Info
+================================================================================
+
+sh:Violation (CRITICAL):
+  - Marks fundamental violations of PROV-O requirements
+  - Examples:
+    * prov:Entity without prov:wasGeneratedBy (orphaned entity)
+    * prov:Entity without prov:generatedAtTime (un-timestamped)
+    * prov:Activity without prov:wasAssociatedWith (unattributed)
+    * prov:Activity endedAtTime < startedAtTime (temporal paradox)
+    * Cycles in prov:wasDerivedFrom (breaks DAG requirement)
+  - Action: MUST FIX before merge to production
+  - Impact on compliance: SOC2/audit trail broken if violations present
+
+sh:Warning (ADVISORY):
+  - Marks suboptimal patterns or incomplete provenance documentation
+  - Examples:
+    * prov:Activity with no generated output (no-op activity)
+    * Leaf prov:Entity without documented source (traceability weak)
+    * Temporal ordering violations (suspicious but not impossible)
+    * prov:Activity informed by non-existent activity
+  - Action: SHOULD FIX (strongly recommended, not mandatory)
+  - Impact on compliance: Audit trail still valid but harder to trace
+
+sh:Info (INFORMATIONAL):
+  - Marks missing optional properties that improve clarity
+  - Examples:
+    * prov:Entity without rdfs:comment (no description)
+    * prov:Agent without dcterms:title (no formal name)
+  - Action: NICE TO HAVE (informational only)
+  - Impact on compliance: No impact; purely for documentation
+
+================================================================================
+TESTING PROV-O SHAPES WITH SPARQL VALIDATORS
+================================================================================
+
+Requirement: SPARQL engine with SHACL support (Oxigraph, RDF4J, Jena, TopBraid).
+
+1. VALIDATE ENTIRE DATASET AGAINST SHAPES:
+   Command: oxigraph validate shapes.ttl data.ttl
+   Expected: PASS (no violations), WARN (advisory warnings)
+
+2. TEST: ENTITY REQUIRES GENERATOR
+   Query:
+   PREFIX prov: <http://www.w3.org/ns/prov#>
+   ASK {
+     ?entity a prov:Entity .
+     FILTER NOT EXISTS { ?entity prov:wasGeneratedBy ?activity . }
+   }
+   Expected: false (no orphan entities)
+
+3. TEST: NO CYCLES IN PROVENANCE
+   Query:
+   PREFIX prov: <http://www.w3.org/ns/prov#>
+   ASK {
+     ?entity1 prov:wasDerivedFrom ?entity2 .
+     ?entity2 prov:wasDerivedFrom* ?entity1 .
+   }
+   Expected: false (no cycles detected)
+
+4. TEST: ACTIVITIES GENERATE OUTPUT
+   Query:
+   PREFIX prov: <http://www.w3.org/ns/prov#>
+   SELECT ?orphanActivity
+   WHERE {
+     ?orphanActivity a prov:Activity .
+     FILTER NOT EXISTS {
+       ?output prov:wasGeneratedBy ?orphanActivity .
+     }
+   }
+   Expected: empty (all activities have outputs)
+
+5. TEST: TEMPORAL ORDERING
+   Query:
+   PREFIX prov: <http://www.w3.org/ns/prov#>
+   SELECT ?activityA ?activityB ?entity
+   WHERE {
+     ?activityA prov:endedAtTime ?endA .
+     ?entity prov:wasGeneratedBy ?activityA .
+     ?activityB prov:used ?entity ;
+                prov:startedAtTime ?startB .
+     FILTER (?endA > ?startB)
+   }
+   Expected: empty (no temporal inversions)
+
+6. TEST: LEAF ENTITY TRACEABILITY
+   Query:
+   PREFIX prov: <http://www.w3.org/ns/prov#>
+   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+   SELECT ?leafEntity
+   WHERE {
+     ?leafEntity a prov:Entity .
+     FILTER NOT EXISTS { ?leafEntity prov:wasDerivedFrom ?predecessor . }
+     FILTER NOT EXISTS { ?leafEntity rdfs:comment ?source . }
+     FILTER NOT EXISTS { ?leafEntity prov:wasAttributedTo ?agent . }
+   }
+   Expected: empty (all leaf entities have documented sources)
+
+================================================================================
+EXAMPLE: VALIDATING A SINGLE AGENT OPERATION
+================================================================================
+
+Suppose OSA Healing Agent produces a diagnosis. Expected provenance:
+
+  Healing.Diagnosis (prov:Entity)
+    ├─ prov:wasGeneratedBy → HealingDiagnosisActivity
+    ├─ prov:generatedAtTime → 2026-03-25T14:32:00Z
+    ├─ prov:wasDerivedFrom → SystemLogs (input)
+    └─ rdfs:comment → "Deadlock detected in stagnation_detection"
+
+  HealingDiagnosisActivity (prov:Activity)
+    ├─ prov:used → SystemLogs
+    ├─ prov:wasAssociatedWith → HealingAgent
+    ├─ prov:startedAtTime → 2026-03-25T14:31:00Z
+    └─ prov:endedAtTime → 2026-03-25T14:32:00Z
+
+  HealingAgent (prov:Agent, prov:SoftwareAgent)
+    ├─ rdfs:label → "OSA Healing Agent v1.0"
+    └─ rdf:type → prov:SoftwareAgent
+
+Validation: All properties present, timestamps ordered, no cycles, leaf
+entities traced to source. Status: VALID.
+
+================================================================================
+COMMON VIOLATIONS AND FIXES
+================================================================================
+
+Violation 1: MISSING GENERATOR
+Problem:  Diagnosis entity exists but has no prov:wasGeneratedBy
+Shape:    chatman:Provenance_EntityShape
+Fix:      Add: diagnosis prov:wasGeneratedBy healingActivity .
+
+Violation 2: CYCLE IN DERIVATION
+Problem:  Entity A derives from B, B derives from A
+Shape:    chatman:Provenance_NoCyclesShape
+Fix:      Remove duplicate derivation edge (DAG requirement)
+
+Violation 3: ACTIVITY WITHOUT AGENT
+Problem:  Activity exists but has no prov:wasAssociatedWith
+Shape:    chatman:Provenance_ActivityShape
+Fix:      Add: activity prov:wasAssociatedWith agent .
+
+Warning 1: LEAF ENTITY WITHOUT SOURCE
+Problem:  Leaf entity (no wasDerivedFrom) lacks documented source
+Shape:    chatman:Provenance_LeafTraceabilityShape
+Fix:      Add: entity rdfs:comment "Input from system logs" .
+          OR:  entity prov:wasAttributedTo sourceAgent .
+
+Warning 2: ORPHAN ACTIVITY
+Problem:  Activity exists but generates no output entities
+Shape:    chatman:Provenance_ActivityOutputShape
+Fix:      Add: outputEntity prov:wasGeneratedBy activity .
+
+================================================================================
+CONCRETE EXAMPLES: PASSING vs. FAILING RDF
+================================================================================
+
+PASSING EXAMPLE 1: Complete Provenance Chain
+─────────────────────────────────────────────────────────────────────────────
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ex: <http://example.com/>
+
+ex:diagnosis-2026-03-25T14:32:00Z
+  a prov:Entity ;
+  prov:wasGeneratedBy ex:activity-healing-001 ;                    # ✅ REQUIRED
+  prov:generatedAtTime "2026-03-25T14:32:00Z"^^xsd:dateTime ;      # ✅ REQUIRED (ISO8601)
+  prov:wasDerivedFrom ex:system-logs-2026-03-25T14:00:00Z ;        # ✅ OPTIONAL (derivation chain)
+  rdfs:comment "Deadlock detected in stagnation_detection"@en ;    # ✅ OPTIONAL (documentation)
+  .
+
+ex:activity-healing-001
+  a prov:Activity ;
+  prov:used ex:system-logs-2026-03-25T14:00:00Z ;                  # ✅ REQUIRED (input)
+  prov:wasAssociatedWith ex:healing-agent ;                         # ✅ REQUIRED (attribution)
+  prov:startedAtTime "2026-03-25T14:30:00Z"^^xsd:dateTime ;        # ✅ REQUIRED (start)
+  prov:endedAtTime "2026-03-25T14:32:00Z"^^xsd:dateTime ;          # ✅ REQUIRED (end >= start)
+  prov:wasInformedBy ex:activity-log-collection-001 ;              # ✅ OPTIONAL (causality)
+  .
+
+ex:healing-agent
+  a prov:Agent ;
+  a prov:SoftwareAgent ;
+  rdfs:label "OSA Healing Agent"@en ;                               # ✅ REQUIRED (identification)
+  .
+
+VALIDATION RESULT: ✅ ALL SHAPES PASS
+  - Entity shape: PASS (has generator, timestamp, derivation, comment)
+  - Activity shape: PASS (has inputs, agent, start/end times)
+  - Agent shape: PASS (labeled and typed)
+  - No cycles: PASS (linear chain only)
+  - Temporal ordering: PASS (end times monotonic, causality respected)
+
+─────────────────────────────────────────────────────────────────────────────
+
+FAILING EXAMPLE 1: Missing Entity Generator
+─────────────────────────────────────────────────────────────────────────────
+
+ex:diagnosis-orphan
+  a prov:Entity ;
+  # ❌ MISSING: prov:wasGeneratedBy (VIOLATION — CRITICAL)
+  prov:generatedAtTime "2026-03-25T14:32:00Z"^^xsd:dateTime ;
+  rdfs:comment "This diagnosis has no recorded generator"@en ;
+  .
+
+VALIDATION RESULT: ❌ VIOLATIONS
+  - Shape: shacl-chatman:Provenance_EntityShape
+  - Violation: prov:Entity ex:diagnosis-orphan missing prov:wasGeneratedBy
+  - Severity: sh:Violation (CRITICAL)
+  - Fix: Add line: ex:diagnosis-orphan prov:wasGeneratedBy ex:activity-001 ;
+
+─────────────────────────────────────────────────────────────────────────────
+
+FAILING EXAMPLE 2: Entity Without Timestamp
+─────────────────────────────────────────────────────────────────────────────
+
+ex:diagnosis-undated
+  a prov:Entity ;
+  prov:wasGeneratedBy ex:activity-healing-002 ;
+  # ❌ MISSING: prov:generatedAtTime (VIOLATION — CRITICAL)
+  rdfs:comment "This diagnosis lacks generation timestamp"@en ;
+  .
+
+VALIDATION RESULT: ❌ VIOLATIONS
+  - Shape: shacl-chatman:Provenance_EntityShape
+  - Violation: prov:Entity ex:diagnosis-undated missing prov:generatedAtTime
+  - Severity: sh:Violation (CRITICAL)
+  - Fix: Add line: ex:diagnosis-undated prov:generatedAtTime "2026-03-25T14:32:00Z"^^xsd:dateTime ;
+
+─────────────────────────────────────────────────────────────────────────────
+
+FAILING EXAMPLE 3: Activity Without Agent
+─────────────────────────────────────────────────────────────────────────────
+
+ex:activity-unattributed
+  a prov:Activity ;
+  prov:used ex:input-data ;
+  prov:startedAtTime "2026-03-25T14:30:00Z"^^xsd:dateTime ;
+  prov:endedAtTime "2026-03-25T14:32:00Z"^^xsd:dateTime ;
+  # ❌ MISSING: prov:wasAssociatedWith (VIOLATION — CRITICAL)
+  .
+
+VALIDATION RESULT: ❌ VIOLATIONS
+  - Shape: shacl-chatman:Provenance_ActivityShape
+  - Violation: prov:Activity ex:activity-unattributed not associated with any Agent
+  - Severity: sh:Violation (CRITICAL)
+  - Fix: Add line: ex:activity-unattributed prov:wasAssociatedWith ex:agent-001 ;
+
+─────────────────────────────────────────────────────────────────────────────
+
+FAILING EXAMPLE 4: Temporal Paradox (End Before Start)
+─────────────────────────────────────────────────────────────────────────────
+
+ex:activity-paradox
+  a prov:Activity ;
+  prov:used ex:input-data ;
+  prov:wasAssociatedWith ex:agent-001 ;
+  prov:startedAtTime "2026-03-25T14:32:00Z"^^xsd:dateTime ;
+  # ❌ INVALID: endedAtTime < startedAtTime (VIOLATION — CRITICAL)
+  prov:endedAtTime "2026-03-25T14:30:00Z"^^xsd:dateTime ;
+  .
+
+VALIDATION RESULT: ❌ VIOLATIONS
+  - Shape: shacl-chatman:Provenance_MonotonicTimeShape
+  - Violation: Activity ex:activity-paradox ended (14:30) before it started (14:32)
+  - Severity: sh:Violation (CRITICAL)
+  - Fix: Ensure endedAtTime >= startedAtTime
+
+─────────────────────────────────────────────────────────────────────────────
+
+FAILING EXAMPLE 5: Cycle in Derivation Chain
+─────────────────────────────────────────────────────────────────────────────
+
+ex:entity-a
+  a prov:Entity ;
+  prov:wasGeneratedBy ex:activity-a ;
+  prov:generatedAtTime "2026-03-25T14:00:00Z"^^xsd:dateTime ;
+  prov:wasDerivedFrom ex:entity-b ;  # A derived from B
+  .
+
+ex:entity-b
+  a prov:Entity ;
+  prov:wasGeneratedBy ex:activity-b ;
+  prov:generatedAtTime "2026-03-25T14:01:00Z"^^xsd:dateTime ;
+  prov:wasDerivedFrom ex:entity-c ;  # B derived from C
+  .
+
+ex:entity-c
+  a prov:Entity ;
+  prov:wasGeneratedBy ex:activity-c ;
+  prov:generatedAtTime "2026-03-25T14:02:00Z"^^xsd:dateTime ;
+  prov:wasDerivedFrom ex:entity-a ;  # ❌ C derived from A → CYCLE (A→B→C→A)
+  .
+
+VALIDATION RESULT: ❌ VIOLATIONS
+  - Shape: shacl-chatman:Provenance_NoCyclesShape
+  - Violation: Cycle detected in prov:wasDerivedFrom chain
+  - Severity: sh:Violation (CRITICAL)
+  - Fix: Remove one derivation edge (e.g., remove: ex:entity-c prov:wasDerivedFrom ex:entity-a)
+
+─────────────────────────────────────────────────────────────────────────────
+
+WARNING EXAMPLE 1: Activity Without Output
+─────────────────────────────────────────────────────────────────────────────
+
+ex:activity-orphan
+  a prov:Activity ;
+  prov:used ex:input-data ;
+  prov:wasAssociatedWith ex:agent-001 ;
+  prov:startedAtTime "2026-03-25T14:30:00Z"^^xsd:dateTime ;
+  prov:endedAtTime "2026-03-25T14:32:00Z"^^xsd:dateTime ;
+  # ❌ WARNING: No prov:Entity has prov:wasGeneratedBy pointing to this activity
+  .
+
+VALIDATION RESULT: ⚠️ WARNINGS
+  - Shape: shacl-chatman:Provenance_ActivityOutputShape
+  - Warning: Activity ex:activity-orphan does not generate any Entity
+  - Severity: sh:Warning (ADVISORY)
+  - Recommendation: Either:
+    (a) Add output entity: ex:output-data prov:wasGeneratedBy ex:activity-orphan .
+    (b) Remove activity (no-op activities should be omitted)
+
+─────────────────────────────────────────────────────────────────────────────
+
+WARNING EXAMPLE 2: Leaf Entity Without Source Documentation
+─────────────────────────────────────────────────────────────────────────────
+
+ex:raw-data
+  a prov:Entity ;
+  prov:wasGeneratedBy ex:activity-import ;
+  prov:generatedAtTime "2026-03-25T10:00:00Z"^^xsd:dateTime ;
+  # MISSING: prov:wasDerivedFrom (it's a leaf — OK)
+  # ❌ WARNING: No documented source (no rdfs:comment, dcterms:source, or prov:wasAttributedTo)
+  .
+
+VALIDATION RESULT: ⚠️ WARNINGS
+  - Shape: shacl-chatman:Provenance_LeafTraceabilityShape
+  - Warning: Leaf entity ex:raw-data has no documented source
+  - Severity: sh:Warning (ADVISORY)
+  - Recommendation: Add one of:
+    (a) rdfs:comment "Imported from external API (version 2.4)"@en ;
+    (b) dcterms:source <http://external-api.example.com/> ;
+    (c) prov:wasAttributedTo ex:external-api-agent ;
+
+─────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+TOOLS & INTEGRATION
+================================================================================
+
+1. Continuous Validation in CI/CD:
+   ./scripts/validate-provenance.sh data.ttl provenance.shacl.ttl
+
+2. Oxigraph SHACL Validation:
+   oxigraph validate --shapes provenance.shacl.ttl data.ttl
+
+3. RDF4J SHACL (Java):
+   ShaclValidator.validate(shapesGraph, dataGraph, true)
+
+4. Apache Jena SHACL:
+   ShaclValidator.get().validate(shapesGraph, dataGraph)
+
+5. Dashboard Integration:
+   - Mark entities/activities as "provenance-valid" tag in PROV graph
+   - Run validation hourly, report violations to OSA Monitoring agent
+   - Alert on any new Violations (critical) or Warnings (advisory)
+
+6. Validation Reports (Structured):
+   - Generate RDF report: shacl:ValidationReport (machine-readable)
+   - Include sh:severity, sh:resultMessage, sh:focusNode for each violation
+   - Track compliance percentage over time (target: 100% Violation-free)
+
+================================================================================
+""" ;
+  .
+

@@ -1,0 +1,172 @@
+@prefix : <https://ggen.io/thesis/kgc-unified/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix wfe: <http://ggen.ruv.io/workflow-engine#> .
+@prefix fibo-fbc-fi: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# =============================================================================
+# Workflow-Finance Bridge Ontology
+# Connecting BPMN Workflow Engine with FIBO Financial Domain
+# =============================================================================
+
+<https://ggen.io/thesis/kgc-unified/workflow-finance-bridge>
+    a owl:Ontology ;
+    dcterms:title "Workflow-Finance Bridge Ontology" ;
+    dcterms:description "Bridge ontology connecting BPMN workflows with FIBO financial instruments" ;
+    dcterms:created "2025-12-19"^^xsd:date ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://ggen.ruv.io/workflow-engine> ,
+                <https://ggen.io/thesis/kgc-unified/fibo-subset> ;
+    rdfs:comment "Demonstrates CONSTRUCT-based inference across financial and workflow domains" .
+
+# -----------------------------------------------------------------------------
+# Bridge Classes
+# -----------------------------------------------------------------------------
+
+:FinancialWorkflow
+    a owl:Class ;
+    rdfs:label "Financial Workflow" ;
+    rdfs:comment "BPMN workflow specifically designed for financial operations" ;
+    rdfs:subClassOf wfe:Workflow ;
+    skos:example "Trade execution workflow, settlement process, compliance validation" .
+
+:ComplianceCheckpoint
+    a owl:Class ;
+    rdfs:label "Compliance Checkpoint" ;
+    rdfs:comment "Workflow task that validates regulatory compliance" ;
+    rdfs:subClassOf wfe:Task .
+
+:RiskAssessmentTask
+    a owl:Class ;
+    rdfs:label "Risk Assessment Task" ;
+    rdfs:comment "Task that calculates risk metrics for financial instruments" ;
+    rdfs:subClassOf wfe:Task .
+
+# -----------------------------------------------------------------------------
+# Bridge Properties (Connect Workflows to Financial Instruments)
+# -----------------------------------------------------------------------------
+
+:processesInstrument
+    a owl:ObjectProperty ;
+    rdfs:label "processes instrument" ;
+    rdfs:comment "Workflow processes this financial instrument" ;
+    rdfs:domain wfe:Workflow ;
+    rdfs:range fibo-fbc-fi:FinancialInstrument .
+
+:requiresCompliance
+    a owl:ObjectProperty ;
+    rdfs:label "requires compliance" ;
+    rdfs:comment "Workflow must comply with this regulatory framework" ;
+    rdfs:domain wfe:Workflow ;
+    rdfs:range :RegulatoryFramework .
+
+:hasRiskLevel
+    a owl:DatatypeProperty ;
+    rdfs:label "has risk level" ;
+    rdfs:comment "Calculated risk level based on workflow complexity and instrument risk" ;
+    rdfs:domain wfe:Workflow ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Values: low, medium, high, critical" .
+
+:operatesOnInstrument
+    a owl:ObjectProperty ;
+    rdfs:label "operates on instrument" ;
+    rdfs:comment "Task operates on this financial instrument" ;
+    rdfs:domain wfe:Task ;
+    rdfs:range fibo-fbc-fi:FinancialInstrument .
+
+:validatesCompliance
+    a owl:ObjectProperty ;
+    rdfs:label "validates compliance" ;
+    rdfs:comment "Task validates compliance with this regulation" ;
+    rdfs:domain :ComplianceCheckpoint ;
+    rdfs:range :RegulatoryFramework .
+
+:calculatesRisk
+    a owl:DatatypeProperty ;
+    rdfs:label "calculates risk" ;
+    rdfs:comment "Risk metric calculated by this task" ;
+    rdfs:domain :RiskAssessmentTask ;
+    rdfs:range xsd:decimal .
+
+:workflowComplexityScore
+    a owl:DatatypeProperty ;
+    rdfs:label "workflow complexity score" ;
+    rdfs:comment "Numeric score representing workflow complexity (task count + gateway count)" ;
+    rdfs:domain wfe:Workflow ;
+    rdfs:range xsd:integer .
+
+:approvalGateCount
+    a owl:DatatypeProperty ;
+    rdfs:label "approval gate count" ;
+    rdfs:comment "Number of approval gateways in workflow" ;
+    rdfs:domain wfe:Workflow ;
+    rdfs:range xsd:integer .
+
+# -----------------------------------------------------------------------------
+# CONSTRUCT Inference Rules (Documented as Ontology Comments)
+# -----------------------------------------------------------------------------
+
+:InferenceRule
+    a owl:Class ;
+    rdfs:label "CONSTRUCT Inference Rule" ;
+    rdfs:comment "Metadata class for documenting SPARQL CONSTRUCT rules" .
+
+:rule-derive-compliance
+    a :InferenceRule ;
+    rdfs:label "Derive Compliance Requirements" ;
+    rdfs:comment """
+    CONSTRUCT {
+      ?workflow :requiresCompliance ?regulation .
+    }
+    WHERE {
+      ?workflow a wfe:Workflow ;
+               :processesInstrument ?instrument .
+      ?instrument fibo-fbc-fi:isSubjectTo ?regulation .
+    }
+    """ ;
+    :executionOrder 1 .
+
+:rule-calculate-risk-level
+    a :InferenceRule ;
+    rdfs:label "Calculate Workflow Risk Level" ;
+    rdfs:comment """
+    CONSTRUCT {
+      ?workflow :hasRiskLevel ?riskLevel .
+    }
+    WHERE {
+      ?workflow a wfe:Workflow ;
+               :workflowComplexityScore ?complexity ;
+               :processesInstrument ?instrument .
+      ?instrument fibo-fbc-fi:hasRiskClassification ?instrumentRisk .
+
+      BIND(
+        IF(?complexity > 20 && ?instrumentRisk = 'high', 'critical',
+        IF(?complexity > 10 || ?instrumentRisk = 'high', 'high',
+        IF(?complexity > 5 || ?instrumentRisk = 'medium', 'medium',
+        'low'))) AS ?riskLevel
+      )
+    }
+    """ ;
+    :executionOrder 2 .
+
+:rule-identify-compliance-checkpoints
+    a :InferenceRule ;
+    rdfs:label "Identify Required Compliance Checkpoints" ;
+    rdfs:comment """
+    CONSTRUCT {
+      ?task a :ComplianceCheckpoint ;
+            :validatesCompliance ?regulation .
+    }
+    WHERE {
+      ?workflow a wfe:Workflow ;
+               :requiresCompliance ?regulation ;
+               wfe:hasProcess/wfe:hasTask ?task .
+      ?task wfe:taskType 'user' .
+      FILTER(CONTAINS(LCASE(?taskName), 'approve') || CONTAINS(LCASE(?taskName), 'review'))
+    }
+    """ ;
+    :executionOrder 3 .

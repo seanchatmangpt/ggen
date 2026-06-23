@@ -1,0 +1,17 @@
+# verbs-mod.rq
+# Single-row aggregate: the module list for verbs/mod.rs.
+#
+# Projected columns (MUST equal verbs-mod.rs.tera's {{ }} vars):
+#   modules - GROUP_CONCAT of sanitized (kebab->snake) verb names, separator ",".
+#             One entry per verb; each becomes `pub mod <name>;`. Empty if no verbs.
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX cnv: <http://clap-noun-verb.io/ontology#>
+
+SELECT
+  (GROUP_CONCAT(DISTINCT ?moduleName ; separator=",") AS ?modules)
+WHERE {
+  ?verb a cnv:Verb ;
+        cnv:hasVerbName ?verbName .
+  BIND(REPLACE(?verbName, "-", "_") AS ?moduleName)
+}

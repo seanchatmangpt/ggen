@@ -1,0 +1,221 @@
+@prefix kmkt: <https://kgen.io/marketplace#> .
+@prefix kgen: <https://kgen.io/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Architect View Schema for technical deep-dive
+
+kmkt:ArchitectView a owl:Class ;
+    rdfs:label "Architect View"@en ;
+    rdfs:comment "Solution architect perspective with dependency graphs and patterns"@en .
+
+kmkt:hasDependencyGraph a owl:ObjectProperty ;
+    rdfs:label "has dependency graph"@en ;
+    rdfs:domain kmkt:ArchitectView ;
+    rdfs:range kmkt:DependencyGraph .
+
+kmkt:hasArchitecturalPattern a owl:ObjectProperty ;
+    rdfs:label "has architectural pattern"@en ;
+    rdfs:domain kmkt:ArchitectView ;
+    rdfs:range kmkt:ArchitecturalPattern .
+
+kmkt:hasPerformanceBenchmark a owl:ObjectProperty ;
+    rdfs:label "has performance benchmark"@en ;
+    rdfs:domain kmkt:ArchitectView ;
+    rdfs:range kmkt:PerformanceBenchmark .
+
+kmkt:hasTechnicalMetrics a owl:ObjectProperty ;
+    rdfs:label "has technical metrics"@en ;
+    rdfs:domain kmkt:ArchitectView ;
+    rdfs:range kmkt:TechnicalMetrics .
+
+# Dependency Graph
+kmkt:DependencyGraph a owl:Class ;
+    rdfs:label "Dependency Graph"@en ;
+    rdfs:comment "Visual representation of component dependencies"@en .
+
+kmkt:totalNodes a owl:DatatypeProperty ;
+    rdfs:label "total nodes"@en ;
+    rdfs:domain kmkt:DependencyGraph ;
+    rdfs:range xsd:integer .
+
+kmkt:hasCriticalPath a owl:ObjectProperty ;
+    rdfs:label "has critical path"@en ;
+    rdfs:domain kmkt:DependencyGraph ;
+    rdfs:range kmkt:CriticalPath .
+
+kmkt:hasCyclicDependency a owl:ObjectProperty ;
+    rdfs:label "has cyclic dependency"@en ;
+    rdfs:domain kmkt:DependencyGraph ;
+    rdfs:range kmkt:CyclicDependency .
+
+kmkt:hasVersionConflict a owl:ObjectProperty ;
+    rdfs:label "has version conflict"@en ;
+    rdfs:domain kmkt:DependencyGraph ;
+    rdfs:range kmkt:VersionConflict .
+
+# Critical Path
+kmkt:CriticalPath a owl:Class ;
+    rdfs:label "Critical Path"@en ;
+    rdfs:comment "Critical dependency path in the system"@en .
+
+kmkt:pathLength a owl:DatatypeProperty ;
+    rdfs:label "path length"@en ;
+    rdfs:domain kmkt:CriticalPath ;
+    rdfs:range xsd:integer .
+
+kmkt:riskScore a owl:DatatypeProperty ;
+    rdfs:label "risk score"@en ;
+    rdfs:domain kmkt:CriticalPath ;
+    rdfs:range xsd:decimal .
+
+# Architectural Pattern
+kmkt:ArchitecturalPattern a owl:Class ;
+    rdfs:label "Architectural Pattern"@en ;
+    rdfs:comment "Identified architectural design pattern"@en .
+
+kmkt:patternName a owl:DatatypeProperty ;
+    rdfs:label "pattern name"@en ;
+    rdfs:domain kmkt:ArchitecturalPattern ;
+    rdfs:range xsd:string .
+
+kmkt:patternType a owl:DatatypeProperty ;
+    rdfs:label "pattern type"@en ;
+    rdfs:domain kmkt:ArchitecturalPattern ;
+    rdfs:range xsd:string .
+
+kmkt:usage a owl:DatatypeProperty ;
+    rdfs:label "usage"@en ;
+    rdfs:domain kmkt:ArchitecturalPattern ;
+    rdfs:range xsd:integer .
+
+kmkt:healthScore a owl:DatatypeProperty ;
+    rdfs:label "health score"@en ;
+    rdfs:domain kmkt:ArchitecturalPattern ;
+    rdfs:range xsd:decimal .
+
+# Performance Benchmark
+kmkt:PerformanceBenchmark a owl:Class ;
+    rdfs:label "Performance Benchmark"@en ;
+    rdfs:comment "System performance measurements and benchmarks"@en .
+
+kmkt:throughput a owl:DatatypeProperty ;
+    rdfs:label "throughput"@en ;
+    rdfs:domain kmkt:PerformanceBenchmark ;
+    rdfs:range xsd:decimal .
+
+kmkt:latency a owl:DatatypeProperty ;
+    rdfs:label "latency"@en ;
+    rdfs:domain kmkt:PerformanceBenchmark ;
+    rdfs:range xsd:decimal .
+
+kmkt:memoryUsage a owl:DatatypeProperty ;
+    rdfs:label "memory usage"@en ;
+    rdfs:domain kmkt:PerformanceBenchmark ;
+    rdfs:range xsd:decimal .
+
+kmkt:cpuUsage a owl:DatatypeProperty ;
+    rdfs:label "CPU usage"@en ;
+    rdfs:domain kmkt:PerformanceBenchmark ;
+    rdfs:range xsd:decimal .
+
+# Technical Metrics
+kmkt:TechnicalMetrics a owl:Class ;
+    rdfs:label "Technical Metrics"@en ;
+    rdfs:comment "Comprehensive technical quality metrics"@en .
+
+kmkt:codeQuality a owl:DatatypeProperty ;
+    rdfs:label "code quality"@en ;
+    rdfs:domain kmkt:TechnicalMetrics ;
+    rdfs:range xsd:decimal .
+
+kmkt:maintainability a owl:DatatypeProperty ;
+    rdfs:label "maintainability"@en ;
+    rdfs:domain kmkt:TechnicalMetrics ;
+    rdfs:range xsd:decimal .
+
+kmkt:testability a owl:DatatypeProperty ;
+    rdfs:label "testability"@en ;
+    rdfs:domain kmkt:TechnicalMetrics ;
+    rdfs:range xsd:decimal .
+
+kmkt:documentation a owl:DatatypeProperty ;
+    rdfs:label "documentation"@en ;
+    rdfs:domain kmkt:TechnicalMetrics ;
+    rdfs:range xsd:decimal .
+
+kmkt:standardsCompliance a owl:DatatypeProperty ;
+    rdfs:label "standards compliance"@en ;
+    rdfs:domain kmkt:TechnicalMetrics ;
+    rdfs:range xsd:decimal .
+
+# Integration Pattern
+kmkt:IntegrationPattern a owl:Class ;
+    rdfs:label "Integration Pattern"@en ;
+    rdfs:comment "System integration architecture pattern"@en .
+
+kmkt:integrationComplexity a owl:DatatypeProperty ;
+    rdfs:label "integration complexity"@en ;
+    rdfs:domain kmkt:IntegrationPattern ;
+    rdfs:range xsd:decimal .
+
+kmkt:hasEndpoint a owl:ObjectProperty ;
+    rdfs:label "has endpoint"@en ;
+    rdfs:domain kmkt:IntegrationPattern ;
+    rdfs:range kmkt:APIEndpoint .
+
+kmkt:hasProtocol a owl:ObjectProperty ;
+    rdfs:label "has protocol"@en ;
+    rdfs:domain kmkt:IntegrationPattern ;
+    rdfs:range kmkt:Protocol .
+
+# API Endpoint
+kmkt:APIEndpoint a owl:Class ;
+    rdfs:label "API Endpoint"@en ;
+    rdfs:comment "API service endpoint definition"@en .
+
+kmkt:endpointURL a owl:DatatypeProperty ;
+    rdfs:label "endpoint URL"@en ;
+    rdfs:domain kmkt:APIEndpoint ;
+    rdfs:range xsd:string .
+
+kmkt:httpMethod a owl:DatatypeProperty ;
+    rdfs:label "HTTP method"@en ;
+    rdfs:domain kmkt:APIEndpoint ;
+    rdfs:range xsd:string .
+
+kmkt:responseTime a owl:DatatypeProperty ;
+    rdfs:label "response time"@en ;
+    rdfs:domain kmkt:APIEndpoint ;
+    rdfs:range xsd:decimal .
+
+# Protocol
+kmkt:Protocol a owl:Class ;
+    rdfs:label "Protocol"@en ;
+    rdfs:comment "Communication protocol specification"@en .
+
+kmkt:protocolName a owl:DatatypeProperty ;
+    rdfs:label "protocol name"@en ;
+    rdfs:domain kmkt:Protocol ;
+    rdfs:range xsd:string .
+
+kmkt:protocolVersion a owl:DatatypeProperty ;
+    rdfs:label "protocol version"@en ;
+    rdfs:domain kmkt:Protocol ;
+    rdfs:range xsd:string .
+
+# Technical Debt
+kmkt:TechnicalDebt a owl:Class ;
+    rdfs:label "Technical Debt"@en ;
+    rdfs:comment "Accumulated technical debt metrics"@en .
+
+kmkt:debtLevel a owl:DatatypeProperty ;
+    rdfs:label "debt level"@en ;
+    rdfs:domain kmkt:TechnicalDebt ;
+    rdfs:range xsd:string .
+
+kmkt:estimatedEffort a owl:DatatypeProperty ;
+    rdfs:label "estimated effort"@en ;
+    rdfs:domain kmkt:TechnicalDebt ;
+    rdfs:range xsd:integer .

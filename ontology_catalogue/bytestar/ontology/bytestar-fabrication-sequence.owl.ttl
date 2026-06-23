@@ -1,0 +1,230 @@
+@prefix : <https://bytestar.org/ontology/fabrication-sequence#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+@prefix doctrines: <https://bytestar.org/ontology/doctrines#> .
+@prefix spr: <http://bytestar.net/ontology/spr_calculus#> .
+@prefix bytegen_fab: <https://bytestar.org/ontology/bytegen/fabrication#> .
+@prefix sap_arch: <https://bytestar.org/ontology/sap/architecture#> .
+
+<https://bytestar.org/ontology/fabrication-sequence>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/fabrication-sequence/v1.0> ;
+    rdfs:comment "Ontology modeling the 64ns fabrication sequence within the ByteStar ecosystem, detailing the flow through architecture components." ;
+    owl:imports arch: ,
+                doctrines: ,
+                spr: ,
+                bytegen_fab: ,
+                sap_arch: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:FabricationSequence rdf:type owl:Class ;
+    rdfs:comment "The end-to-end sequence of steps for fabricating a ByteStar solution." .
+
+:FabricationStep rdf:type owl:Class ;
+    rdfs:comment "A distinct step within the fabrication sequence, involving a specific ByteStar component." .
+
+:InitialFabrication rdf:type :FabricationStep ;
+    rdfs:comment "Step 1: Initial fabrication and generation by ByteGen." .
+
+:OntologyReasoning rdf:type :FabricationStep ;
+    rdfs:comment "Step 1.5: Ontology reasoning and validation." .
+
+:EthicalGovernance rdf:type :FabricationStep ;
+    rdfs:comment "Step 2 & 6: Ethical and governance layer validation by ByteEthos." .
+
+:WorkflowOrchestration rdf:type :FabricationStep ;
+    rdfs:comment "Step 3 & 5: Workflow orchestration by ByteFlow." .
+
+:ActorProcessing rdf:type :FabricationStep ;
+    rdfs:comment "Step 4: Actor model processing by ByteActor." .
+
+:FinalGeneration rdf:type :FabricationStep ;
+    rdfs:comment "Step 7: Final generation by ByteGen." .
+
+:DatabaseSubstrateDeployment rdf:type :FabricationStep ;
+    rdfs:comment "Step 8: Deployment to the Supabase database substrate." .
+
+:FrontendAccessPlaneDeployment rdf:type :FabricationStep ;
+    rdfs:comment "Step 9: Deployment to the Nuxt frontend access plane." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:hasStep rdf:type owl:ObjectProperty ;
+    rdfs:domain :FabricationSequence ;
+    rdfs:range :FabricationStep ;
+    rdfs:comment "A fabrication sequence consists of distinct steps." .
+
+:precedesStep rdf:type owl:ObjectProperty ;
+    rdfs:domain :FabricationStep ;
+    rdfs:range :FabricationStep ;
+    rdfs:comment "Indicates that one fabrication step precedes another in the sequence." .
+
+:involvesComponent rdf:type owl:ObjectProperty ;
+    rdfs:domain :FabricationStep ;
+    rdfs:range arch:Component ;
+    rdfs:comment "A fabrication step involves a specific ByteStar architecture component." .
+
+:hasInput rdf:type owl:ObjectProperty ;
+    rdfs:domain :FabricationStep ;
+    rdfs:range rdfs:Resource ;
+    rdfs:comment "A fabrication step takes a specific input." .
+
+:hasOutput rdf:type owl:ObjectProperty ;
+    rdfs:domain :FabricationStep ;
+    rdfs:range rdfs:Resource ;
+    rdfs:comment "A fabrication step produces a specific output." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:hasSequenceNumber rdf:type owl:DatatypeProperty ;
+    rdfs:domain :FabricationStep ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The sequential number of the step in the fabrication sequence." .
+
+:hasDuration_ns rdf:type owl:DatatypeProperty ;
+    rdfs:domain :FabricationStep ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The duration of the fabrication step in nanoseconds." .
+
+:isCoreFabricationStep rdf:type owl:DatatypeProperty ;
+    rdfs:domain :FabricationStep ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if this step is part of the core 64ns fabrication hot-path." .
+
+#################################################################
+#    Individuals
+#################################################################
+
+:The64nsFabricationSequence rdf:type :FabricationSequence ;
+    :hasStep :step1_ByteGen_InitialFab ,
+             :step1_5_OntologyReasoning ,
+             :step2_ByteEthos_EthicalGov ,
+             :step3_ByteFlow_Orchestration ,
+             :step4_ByteActor_Processing ,
+             :step5_ByteFlow_ReturnOrchestration ,
+             :step6_ByteEthos_EthicsValidation ,
+             :step7_ByteGen_FinalGeneration ,
+             :step8_Supabase_Deployment ,
+             :step9_Nuxt_Deployment .
+
+### Step 1: ByteGen - Initial fabrication/generation
+:step1_ByteGen_InitialFab rdf:type :InitialFabrication ;
+    :hasSequenceNumber 1.0 ;
+    :involvesComponent arch:ByteGen_Instance ;
+    :hasInput bytegen_fab:RawEndpointsData ;
+    :hasOutput bytegen_fab:CanonProposal ;
+    :precedesStep :step1_5_OntologyReasoning ;
+    :isCoreFabricationStep "true"^^xsd:boolean ;
+    :hasDuration_ns 10.0 ; # Example duration
+    rdfs:comment "ByteGen ingests raw data and generates a canon proposal." .
+
+### Step 1.5: Ontology Reasoning
+:step1_5_OntologyReasoning rdf:type :OntologyReasoning ;
+    :hasSequenceNumber 1.5 ;
+    :involvesComponent arch:ByteGen_Instance ;
+    :hasInput bytegen_fab:CanonProposal ;
+    :hasOutput :ValidatedCanonProposal ;
+    :precedesStep :step2_ByteEthos_EthicalGov ;
+    :isCoreFabricationStep "true"^^xsd:boolean ;
+    :hasDuration_ns 2.0 ; # Example duration for reasoning
+    rdfs:comment "ByteGen invokes an OWL reasoner (HermiT) to validate the generated canon proposal for consistency and infer new axioms." .
+
+:ValidatedCanonProposal rdf:type rdfs:Resource ;
+    rdfs:comment "A canon proposal validated by an OWL reasoner." .
+
+### Step 2: ByteEthos - Ethical/governance layer
+:step2_ByteEthos_EthicalGov rdf:type :EthicalGovernance ;
+    :hasSequenceNumber 2.0 ;
+    :involvesComponent arch:ByteEthos_Instance ;
+    :hasInput :ValidatedCanonProposal ;
+    :hasOutput spr:Receipt ;
+    :precedesStep :step3_ByteFlow_Orchestration ;
+    :isCoreFabricationStep "true"^^xsd:boolean ;
+    :hasDuration_ns 8.0 ; # Example duration
+    rdfs:comment "ByteEthos validates the canon proposal and issues receipts." .
+
+### Step 3: ByteFlow - Workflow orchestration
+:step3_ByteFlow_Orchestration rdf:type :WorkflowOrchestration ;
+    :hasSequenceNumber 3.0 ;
+    :involvesComponent arch:ByteFlow_Instance ;
+    :hasInput spr:Receipt ;
+    :hasOutput spr:SPR ;
+    :precedesStep :step4_ByteActor_Processing ;
+    :isCoreFabricationStep "true"^^xsd:boolean ;
+    :hasDuration_ns 8.0 ; # Example duration
+    rdfs:comment "ByteFlow orchestrates the workflow based on ByteEthos's approval." .
+
+### Step 4: ByteActor - Actor model processing
+:step4_ByteActor_Processing rdf:type :ActorProcessing ;
+    :hasSequenceNumber 4.0 ;
+    :involvesComponent arch:ByteActor_Instance ;
+    :hasInput spr:SPR ;
+    :hasOutput spr:Receipt ;
+    :precedesStep :step5_ByteFlow_ReturnOrchestration ;
+    :isCoreFabricationStep "true"^^xsd:boolean ;
+    :hasDuration_ns 8.0 ; # Example duration
+    rdfs:comment "ByteActor executes the core processing and generates execution receipts." .
+
+### Step 5: ByteFlow - Return workflow orchestration
+:step5_ByteFlow_ReturnOrchestration rdf:type :WorkflowOrchestration ;
+    :hasSequenceNumber 5.0 ;
+    :involvesComponent arch:ByteFlow_Instance ;
+    :hasInput spr:Receipt ;
+    :hasOutput spr:SPR ;
+    :precedesStep :step6_ByteEthos_EthicsValidation ;
+    :isCoreFabricationStep "true"^^xsd:boolean ;
+    :hasDuration_ns 8.0 ; # Example duration
+    rdfs:comment "ByteFlow orchestrates the return path of the workflow." .
+
+### Step 6: ByteEthos - Ethics validation
+:step6_ByteEthos_EthicsValidation rdf:type :EthicalGovernance ;
+    :hasSequenceNumber 6.0 ;
+    :involvesComponent arch:ByteEthos_Instance ;
+    :hasInput spr:SPR ;
+    :hasOutput spr:Receipt ;
+    :precedesStep :step7_ByteGen_FinalGeneration ;
+    :isCoreFabricationStep "true"^^xsd:boolean ;
+    :hasDuration_ns 8.0 ; # Example duration
+    rdfs:comment "ByteEthos performs final ethics validation and commits receipts." .
+
+### Step 7: ByteGen - Final generation
+:step7_ByteGen_FinalGeneration rdf:type :FinalGeneration ;
+    :hasSequenceNumber 7.0 ;
+    :involvesComponent arch:ByteGen_Instance ;
+    :hasInput spr:Receipt ;
+    :hasOutput sap_arch:SovereignAccessPlane ;
+    :precedesStep :step8_Supabase_Deployment ;
+    :isCoreFabricationStep "true"^^xsd:boolean ;
+    :hasDuration_ns 8.0 ; # Example duration
+    rdfs:comment "ByteGen performs final generation of the SAP components." .
+
+### Step 8: Supabase - Database substrate
+:step8_Supabase_Deployment rdf:type :DatabaseSubstrateDeployment ;
+    :hasSequenceNumber 8.0 ;
+    :involvesComponent sap_arch:SupabaseBackend ;
+    :hasInput sap_arch:SovereignAccessPlane ;
+    :hasOutput sap_arch:SupabaseBackend ;
+    :precedesStep :step9_Nuxt_Deployment ;
+    :isCoreFabricationStep "false"^^xsd:boolean ; # Deployment is not part of the 64ns hot-path
+    :hasDuration_ns 0.0 ; # Duration is external to 64ns hot-path, depends on cloud provider
+    rdfs:comment "Deployment of the Supabase database substrate." .
+
+### Step 9: Nuxt - Frontend access plane
+:step9_Nuxt_Deployment rdf:type :FrontendAccessPlaneDeployment ;
+    :hasSequenceNumber 9.0 ;
+    :involvesComponent sap_arch:NuxtLayeredFrontend ;
+    :hasInput sap_arch:SupabaseBackend ;
+    :hasOutput sap_arch:NuxtLayeredFrontend ;
+    :isCoreFabricationStep "false"^^xsd:boolean ; # Deployment is not part of the 64ns hot-path
+    :hasDuration_ns 0.0 ; # Duration is external to 64ns hot-path, depends on cloud provider
+    rdfs:comment "Deployment of the Nuxt frontend access plane." .

@@ -1,0 +1,144 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# =============================================================================
+# Nehemiah 52 SHACL Shapes
+# Prefix: bos: <https://open-ontologies.org/bible-o-star#>
+# Mission: Purge invalid structure and compose validation shapes.
+# =============================================================================
+
+<https://open-ontologies.org/ontology/nehemiah-52-shapes>
+    a owl:Ontology ;
+    rdfs:label "Nehemiah 52 SHACL Shapes" ;
+    dcterms:created "2026-06-02"^^xsd:date ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> .
+
+bos:GateShape a sh:NodeShape ;
+    sh:targetClass bos:Gate ;
+    sh:message "A Gate must be one of the 10 sanctioned boundaries and have a canonical reference." ;
+    sh:in ( bos:SheepGate bos:FishGate bos:OldGate bos:ValleyGate bos:DungGate bos:FountainGate bos:WaterGate bos:HorseGate bos:EastGate bos:TheInspectionGate ) ;
+    sh:property [
+        sh:path bos:hasCanonicalReference ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] .
+
+bos:BuilderShape a sh:NodeShape ;
+    sh:targetClass bos:Builder ;
+    sh:message "A Builder must have a canonical reference and be assigned to a sanctioned gate." ;
+    sh:property [
+        sh:path bos:hasCanonicalReference ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path bos:assignedToGate ;
+        sh:minCount 1 ;
+        sh:class bos:Gate ;
+    ] .
+
+bos:WallSectionShape a sh:NodeShape ;
+    sh:targetClass bos:WallSection ;
+    sh:message "A WallSection must have a canonical reference and be assigned to a sanctioned gate." ;
+    sh:property [
+        sh:path bos:hasCanonicalReference ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path bos:assignedToGate ;
+        sh:minCount 1 ;
+        sh:class bos:Gate ;
+    ] .
+
+bos:CourierRecordShape a sh:NodeShape ;
+    sh:targetClass bos:CourierRecord ;
+    sh:message "A CourierRecord must have a canonical reference and route to a sanctioned gate." ;
+    sh:property [
+        sh:path bos:hasCanonicalReference ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path bos:routesToGate ;
+        sh:minCount 1 ;
+        sh:class bos:Gate ;
+    ] .
+
+bos:FalseReportShape a sh:NodeShape ;
+    sh:targetClass bos:FalseReport ;
+    sh:message "A FalseReport must have a canonical reference (source citation)." ;
+    sh:property [
+        sh:path bos:hasCanonicalReference ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] .
+
+bos:MockerFeedbackShape a sh:NodeShape ;
+    sh:targetClass bos:MockerFeedback ;
+    sh:message "MockerFeedback must have a canonical reference." ;
+    sh:property [
+        sh:path bos:hasCanonicalReference ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] .
+
+bos:UsuryLedgerRecordShape a sh:NodeShape ;
+    sh:targetClass bos:UsuryLedgerRecord ;
+    sh:message "UsuryLedgerRecord must have a canonical reference." ;
+    sh:property [
+        sh:path bos:hasCanonicalReference ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] .
+
+bos:MusterLedgerRecordShape a sh:NodeShape ;
+    sh:targetClass bos:MusterLedgerRecord ;
+    sh:message "MusterLedgerRecord must have a canonical reference and be associated with a gate." ;
+    sh:property [
+        sh:path bos:hasCanonicalReference ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path bos:assignedToGate ;
+        sh:minCount 1 ;
+        sh:class bos:Gate ;
+    ] .
+
+bos:PropheticProclamationShape a sh:NodeShape ;
+    sh:targetClass bos:PropheticProclamation ;
+    sh:message "PropheticProclamation must have a canonical reference." ;
+    sh:property [
+        sh:path bos:hasCanonicalReference ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] .
+
+bos:NationsLedgerRecordShape a sh:NodeShape ;
+    sh:targetClass bos:NationsLedgerRecord ;
+    sh:message "NationsLedgerRecord must have a canonical reference." ;
+    sh:property [
+        sh:path bos:hasCanonicalReference ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] .
+
+bos:InspectionReceiptShape a sh:NodeShape ;
+    sh:targetClass bos:InspectionReceipt ;
+    sh:message "InspectionReceipt must have a canonical reference and a verdict (ALIVE, PARTIAL, BLOCKED)." ;
+    sh:property [
+        sh:path bos:hasCanonicalReference ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path bos:hasVerdict ;
+        sh:minCount 1 ;
+        sh:class bos:Verdict ;
+    ] .

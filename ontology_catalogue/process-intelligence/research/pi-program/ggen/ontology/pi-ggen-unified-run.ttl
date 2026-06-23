@@ -1,0 +1,211 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix dcat:   <http://www.w3.org/ns/dcat#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema: <https://schema.org/> .
+@prefix pi:     <https://process.intelligence/ontology/> .
+@prefix grun:   <https://process.intelligence/ggen-unified-run/> .
+
+# GGEN Unified Run — Top-Level Workflow Metadata
+# Describes the complete program graph census and ontology manufacturing process
+# Date: 2026-06-01
+# Authority: Process Intelligence Research Program
+
+grun:UNIFIED_RUN_001 a owl:NamedIndividual, pi:UnifiedProgramGraph ;
+    dcterms:title "Process Intelligence ggen Unified Program Graph" ;
+    dcterms:description "Complete ontology of 7 discovered projects, 92 sources, 3 ggen.toml files, all generation rules, invalid extension classifications, and 15 audit gates with SHACL constraints" ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    dcterms:creator "PI Research Program" ;
+    dcterms:issued "2026-06-01T00:00:00Z"^^xsd:dateTime ;
+    dcat:theme "program-graph", "manufacturing", "ggen-census" ;
+    prov:wasGeneratedBy grun:CENSUS_ACTIVITY_001 ;
+    prov:wasAttributedTo <file:///Users/sac/process-intelligence> ;
+    skos:definition "Unified RDF/OWL ontology capturing the complete state of the ggen ecosystem: projects, sources, generation rules, conformance gates, and manufacturing pipelines" ;
+    .
+
+grun:CENSUS_ACTIVITY_001 a prov:Activity ;
+    dcterms:title "ggen Unified Census Activity" ;
+    prov:startedAtTime "2026-06-01T00:00:00Z"^^xsd:dateTime ;
+    prov:endedAtTime "2026-06-01T12:00:00Z"^^xsd:dateTime ;
+    prov:wasAssociatedWith <http://anthropic.com/claude-code> ;
+    skos:definition "Census inspection of ggen projects: discovered 7 projects, 92 sources, 3 toml files, 34 invalid extensions, 15 audit gates" ;
+    .
+
+# Manufacturing Pipeline Phases
+grun:PHASE_ONTOLOGY_EXTRACTION a pi:ManufacturingPhase ;
+    dcterms:title "Ontology Extraction & Classification" ;
+    skos:definition "Identification and RDF grounding of project registry, source ledger, generation rules, and audit gates" ;
+    schema:position 1 ;
+    .
+
+grun:PHASE_GRAPH_CONSTRUCTION a pi:ManufacturingPhase ;
+    dcterms:title "Unified Graph Construction" ;
+    skos:definition "Assembly of 7 TTL files forming coherent program graph" ;
+    schema:position 2 ;
+    .
+
+grun:PHASE_SHACL_VALIDATION a pi:ManufacturingPhase ;
+    dcterms:title "SHACL Shape Validation" ;
+    skos:definition "Enforcement of 15 audit gates as SHACL constraints with pass/fail criteria" ;
+    schema:position 3 ;
+    .
+
+grun:PHASE_RECEIPT_EMISSION a pi:ManufacturingPhase ;
+    dcterms:title "Receipt & Proof Chain Emission" ;
+    skos:definition "Cryptographic sealing of unified program graph with BLAKE3 hash and prov-o attribution" ;
+    schema:position 4 ;
+    .
+
+# Output Artifacts (7 TTL files)
+grun:ARTIFACT_1 a owl:NamedIndividual, pi:ManufacturedArtifact ;
+    dcterms:title "pi-ggen-unified-run.ttl" ;
+    dcterms:description "Top-level workflow metadata and phase definitions" ;
+    dcat:theme "workflow", "metadata" ;
+    pi:artifactType "ttl" ;
+    pi:artifactRole "top-level-workflow" ;
+    pi:outputPath "/research/pi-program/ggen/ontology/pi-ggen-unified-run.ttl" ;
+    prov:wasGeneratedBy grun:UNIFIED_RUN_001 ;
+    .
+
+grun:ARTIFACT_2 a owl:NamedIndividual, pi:ManufacturedArtifact ;
+    dcterms:title "pi-ggen-project-registry.ttl" ;
+    dcterms:description "7 discovered projects with roles, dependencies, and authority outputs" ;
+    dcat:theme "project-registry", "roles", "dependencies" ;
+    pi:artifactType "ttl" ;
+    pi:artifactRole "project-discovery" ;
+    pi:outputPath "/research/pi-program/ggen/ontology/pi-ggen-project-registry.ttl" ;
+    pi:projectCount 7 ;
+    prov:wasGeneratedBy grun:UNIFIED_RUN_001 ;
+    .
+
+grun:ARTIFACT_3 a owl:NamedIndividual, pi:ManufacturedArtifact ;
+    dcterms:title "pi-ggen-source-ledger.ttl" ;
+    dcterms:description "92 sources classified: 22 TTL ontologies, 36 SPARQL queries, 34 Tera templates" ;
+    dcat:theme "source-inventory", "source-classification" ;
+    pi:artifactType "ttl" ;
+    pi:artifactRole "source-ledger" ;
+    pi:outputPath "/research/pi-program/ggen/ontology/pi-ggen-source-ledger.ttl" ;
+    pi:ttlFileCount 22 ;
+    pi:rqFileCount 36 ;
+    pi:teraFileCount 34 ;
+    prov:wasGeneratedBy grun:UNIFIED_RUN_001 ;
+    .
+
+grun:ARTIFACT_4 a owl:NamedIndividual, pi:ManufacturedArtifact ;
+    dcterms:title "pi-ggen-generation-ledger.ttl" ;
+    dcterms:description "All generation rules from 3 ggen.toml files: 15+ declared rules across process-intelligence-ggen, PI_RESEARCH_PROGRAM_INTEL_001, prompt-manufactory" ;
+    dcat:theme "generation-rules", "generation-ledger" ;
+    pi:artifactType "ttl" ;
+    pi:artifactRole "generation-manifest" ;
+    pi:outputPath "/research/pi-program/ggen/ontology/pi-ggen-generation-ledger.ttl" ;
+    pi:generationRuleCount 15 ;
+    pi:tomlFileCount 3 ;
+    prov:wasGeneratedBy grun:UNIFIED_RUN_001 ;
+    .
+
+grun:ARTIFACT_5 a owl:NamedIndividual, pi:ManufacturedArtifact ;
+    dcterms:title "pi-ggen-invalid-extension-ledger.ttl" ;
+    dcterms:description "Classification of all 23 .ggen files in referenced tree: MIGRATION_REQUIRED (Tera templates awaiting ggen engine)" ;
+    dcat:theme "invalid-files", "file-classification", "extension-inventory" ;
+    pi:artifactType "ttl" ;
+    pi:artifactRole "file-inventory" ;
+    pi:outputPath "/research/pi-program/ggen/ontology/pi-ggen-invalid-extension-ledger.ttl" ;
+    pi:ggenFileCount 23 ;
+    pi:migrationRequiredCount 23 ;
+    prov:wasGeneratedBy grun:UNIFIED_RUN_001 ;
+    .
+
+grun:ARTIFACT_6 a owl:NamedIndividual, pi:ManufacturedArtifact ;
+    dcterms:title "pi-ggen-checkpoint-ledger.ttl" ;
+    dcterms:description "All discovered checkpoints with verdict status: 6 ALIVE sealed, 3 PARTIAL with gaps, timestamp seals, gate criteria, receipt references" ;
+    dcat:theme "checkpoints", "verdicts", "seals" ;
+    pi:artifactType "ttl" ;
+    pi:artifactRole "checkpoint-registry" ;
+    pi:outputPath "/research/pi-program/ggen/ontology/pi-ggen-checkpoint-ledger.ttl" ;
+    pi:aliveCheckpointCount 6 ;
+    pi:partialCheckpointCount 3 ;
+    prov:wasGeneratedBy grun:UNIFIED_RUN_001 ;
+    .
+
+grun:ARTIFACT_7 a owl:NamedIndividual, pi:ManufacturedArtifact ;
+    dcterms:title "pi-ggen-audit-law.ttl" ;
+    dcterms:description "15 audit gates with SHACL pass/fail constraints: component boundaries, feature law, projection safety, DTO flattening prevention, tool smuggling detection, etc." ;
+    dcat:theme "audit-gates", "proof-gates", "shacl-constraints" ;
+    pi:artifactType "ttl" ;
+    pi:artifactRole "audit-law-specification" ;
+    pi:outputPath "/research/pi-program/ggen/ontology/pi-ggen-audit-law.ttl" ;
+    pi:auditGateCount 15 ;
+    pi:shaclConstraintCount 15 ;
+    prov:wasGeneratedBy grun:UNIFIED_RUN_001 ;
+    .
+
+# Integration Points
+grun:UNIFIED_RUN_001 pi:feeds [
+    a pi:DownstreamIntegration ;
+    dcterms:title "ggen Manufacturing Pipeline" ;
+    skos:definition "Input to ggen template rendering for wasm4pm-compat audit, blue-river orchestrator generation, and M&A deck manufacturing" ;
+    pi:inputOntologies grun:ARTIFACT_1, grun:ARTIFACT_2, grun:ARTIFACT_3, grun:ARTIFACT_4, grun:ARTIFACT_5, grun:ARTIFACT_6, grun:ARTIFACT_7 ;
+    pi:outputProducts "wasm4pm-compat audit scripts", "blue-river governance engine", "M&A pitch deck" ;
+] ;
+.
+
+# Vocabulary Definition: Classes for this ontology
+pi:UnifiedProgramGraph a owl:Class ;
+    rdfs:label "Unified Program Graph" ;
+    skos:definition "Complete RDF ontology of a ggen ecosystem capturing projects, sources, generation rules, and audit gates" ;
+    .
+
+pi:ManufacturingPhase a owl:Class ;
+    rdfs:label "Manufacturing Phase" ;
+    skos:definition "Sequential stage in the ggen manufacturing pipeline" ;
+    .
+
+pi:ManufacturedArtifact a owl:Class ;
+    rdfs:label "Manufactured Artifact" ;
+    skos:definition "TTL ontology output from unified graph construction phase" ;
+    .
+
+pi:DownstreamIntegration a owl:Class ;
+    rdfs:label "Downstream Integration" ;
+    skos:definition "Connection point for manufactured ontologies to feed downstream processes" ;
+    .
+
+# Properties
+pi:artifactType a owl:DatatypeProperty ;
+    rdfs:label "artifact type" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:artifactRole a owl:DatatypeProperty ;
+    rdfs:label "artifact role" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:outputPath a owl:DatatypeProperty ;
+    rdfs:label "output path" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:projectCount a owl:DatatypeProperty ;
+    rdfs:label "project count" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:feeds a owl:ObjectProperty ;
+    rdfs:label "feeds" ;
+    skos:definition "Supplies manufactured artifacts to downstream integration points" ;
+    .
+
+pi:inputOntologies a owl:ObjectProperty ;
+    rdfs:label "input ontologies" ;
+    skos:definition "Ontology files that feed into downstream integration" ;
+    .
+
+pi:outputProducts a owl:DatatypeProperty ;
+    rdfs:label "output products" ;
+    skos:definition "Downstream artifacts manufactured from integrated ontologies" ;
+    .

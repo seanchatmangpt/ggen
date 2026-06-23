@@ -1,0 +1,29 @@
+# SPARQL Query: Extract Conformance Authority Definitions from wasm4pm-compat ontology
+# Purpose: Identify all conformance process forms and constraints that graduate to wasm4pm
+# engine for model-to-log alignment, fitness calculation, and declarative checking
+# Usage: ggen query extract-conformance-authority.rq --format json
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+
+SELECT ?authority ?rustType ?sourceFile ?description
+WHERE {
+  ?authority a compat:ProcessForm ;
+             compat:rustType ?rustType ;
+             compat:sourceFile ?sourceFile ;
+             compat:graduatesToWasm4pm true ;
+             rdfs:comment ?description .
+
+  FILTER (
+    CONTAINS(?description, "conform") ||
+    CONTAINS(?description, "alignment") ||
+    CONTAINS(?description, "fitness") ||
+    CONTAINS(?description, "precision") ||
+    CONTAINS(?description, "generalization") ||
+    CONTAINS(?description, "compliance") ||
+    CONTAINS(?description, "declarative")
+  )
+}
+ORDER BY ?rustType

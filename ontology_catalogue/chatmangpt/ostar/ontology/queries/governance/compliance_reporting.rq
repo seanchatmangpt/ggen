@@ -1,0 +1,56 @@
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX rr: <https://chatmangpt.com/ontologies/o-star/governance:roberts-rules:>
+
+SELECT ?reportingPeriod ?totalMotions ?passedMotions ?failedMotions ?anomalyCount ?avgDecisionTime
+WHERE {
+  {
+    SELECT (COUNT(?motion) AS ?totalMotions)
+    WHERE {
+      ?motion a rr:Motion .
+      ?motion prov:generatedAtTime ?timestamp .
+      FILTER(?timestamp >= ?periodStart && ?timestamp <= ?periodEnd)
+    }
+  }
+
+  {
+    SELECT (COUNT(?motion) AS ?passedMotions)
+    WHERE {
+      ?motion a rr:Motion .
+      ?motion rr:resultsIn ?decision .
+      ?decision rr:decisionOutcome "Passed" .
+      ?decision prov:generatedAtTime ?timestamp .
+      FILTER(?timestamp >= ?periodStart && ?timestamp <= ?periodEnd)
+    }
+  }
+
+  {
+    SELECT (COUNT(?motion) AS ?failedMotions)
+    WHERE {
+      ?motion a rr:Motion .
+      ?motion rr:resultsIn ?decision .
+      ?decision rr:decisionOutcome "Failed" .
+      ?decision prov:generatedAtTime ?timestamp .
+      FILTER(?timestamp >= ?periodStart && ?timestamp <= ?periodEnd)
+    }
+  }
+
+  {
+    SELECT (COUNT(?anomaly) AS ?anomalyCount)
+    WHERE {
+      ?anomaly a anom:GovernanceAnomaly .
+      ?anomaly prov:generatedAtTime ?timestamp .
+      FILTER(?timestamp >= ?periodStart && ?timestamp <= ?periodEnd)
+    }
+  }
+
+  {
+    SELECT (AVG(?duration) AS ?avgDecisionTime)
+    WHERE {
+      ?motion a rr:Motion .
+      ?motion prov:generatedAtTime ?startTime .
+      ?motion rr:resultsIn ?decision .
+      ?decision prov:generatedAtTime ?endTime .
+      BIND(?endTime - ?startTime AS ?duration)
+    }
+  }
+}

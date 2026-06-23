@@ -1,0 +1,14 @@
+@prefix : <https://bytestar.org/ontology/pqc-fabric-index#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/pqc-fabric-index>
+  a owl:Ontology ;
+  rdfs:label "PQC Fabric Index" ;
+  owl:imports
+    <https://bytestar.org/ontology/pqc-fabric/kernel-registry> ,
+    <https://bytestar.org/ontology/pqc-fabric/dilithium-verify> ,
+    <https://bytestar.org/ontology/pqc-fabric/kyber-kem> ,
+    <https://bytestar.org/ontology/pqc-fabric/precognitive-pipeline> ,
+    <https://bytestar.org/ontology/pqc-fabric/polymorphic-kernel> ,
+    <https://bytestar.org/ontology/pqc-fabric/ntt-fabric> .

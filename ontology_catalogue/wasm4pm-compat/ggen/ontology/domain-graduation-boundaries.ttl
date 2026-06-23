@@ -1,0 +1,384 @@
+# Domain Ontology: Graduation Boundaries
+# Defines the boundaries where wasm4pm-compat structure ends and the wasm4pm execution
+# engine begins. Includes graduation surfaces, authorities, and the graduation bridge trait.
+#
+# Companion to wasm4pm-compat-integrated.ttl
+
+@prefix compat: <https://wasm4pm-compat.rs/ontology#> .
+@prefix domain: <https://wasm4pm-compat.rs/domain#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+
+<https://wasm4pm-compat.rs/domain/graduation-boundaries>
+    a owl:Ontology ;
+    rdfs:label "Graduation Boundaries Domain Ontology" ;
+    rdfs:comment "Domain-specific definitions for graduation boundaries and surfaces where wasm4pm-compat graduates process-mining logic to the wasm4pm execution engine." ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# GRADUATION BOUNDARY CLASSES
+# ============================================================================
+
+domain:GraduationBoundary
+    a rdfs:Class ;
+    rdfs:label "Graduation Boundary" ;
+    rdfs:comment "A named boundary where wasm4pm-compat structure ends and the wasm4pm engine begins. Corresponds to GraduationReason enum variants in src/graduation.rs." ;
+    owl:equivalentClass compat:GraduationBoundary .
+
+# ============================================================================
+# GRADUATION REASON INSTANCES
+# ============================================================================
+
+domain:NeedsDiscovery
+    a domain:GraduationBoundary ;
+    rdfs:label "Needs Discovery" ;
+    compat:rustType "GraduationReason::NeedsDiscovery" ;
+    skos:definition "Surface hits a wall requiring process discovery execution (Alpha Miner, Inductive Miner, Heuristics Miner, DFG mining). Graduate to wasm4pm." ;
+    rdfs:comment "Process discovery algorithms that extract a process model from an event log. Graduation reason indicates the surface has defined the shape but cannot execute discovery." ;
+    domain:graduatesToWasm4pmAuthority domain:MiningAuthority ;
+    domain:applicableProcessForms
+        compat:ProcessTree,
+        compat:PowlNode,
+        compat:DirectlyFollowsGraph,
+        compat:CausalNet .
+
+domain:NeedsConformanceExecution
+    a domain:GraduationBoundary ;
+    rdfs:label "Needs Conformance Execution" ;
+    compat:rustType "GraduationReason::NeedsConformanceExecution" ;
+    skos:definition "Surface requires token-replay, alignment, or conformance scoring execution. Graduate to wasm4pm." ;
+    rdfs:comment "Conformance checking and model-to-log alignment computation. Graduation reason indicates metrics/verdicts are structured but cannot be computed." ;
+    domain:graduatesToWasm4pmAuthority domain:ConformanceAuthority ;
+    domain:applicableProcessForms
+        compat:PetriNet,
+        compat:WfNetConst,
+        compat:DeclareModel,
+        compat:ConformanceVerdict,
+        compat:ProcessCube,
+        compat:TemporalConstraint,
+        compat:MultiPerspective,
+        compat:CausalityGraph,
+        compat:OcpqQuery .
+
+domain:NeedsReplay
+    a domain:GraduationBoundary ;
+    rdfs:label "Needs Replay" ;
+    compat:rustType "GraduationReason::NeedsReplay" ;
+    skos:definition "Surface requires a token-replay or language-inclusion check. Graduate to wasm4pm." ;
+    rdfs:comment "Token-based simulation and replay. Graduation reason indicates replayability structures are defined but replay cannot be executed." ;
+    domain:graduatesToWasm4pmAuthority domain:ReplayAuthority ;
+    domain:applicableProcessForms
+        compat:PetriNet,
+        compat:WfNetConst,
+        compat:ObjectCentricPetriNet .
+
+domain:NeedsBenchmarkGating
+    a domain:GraduationBoundary ;
+    rdfs:label "Needs Benchmark Gating" ;
+    compat:rustType "GraduationReason::NeedsBenchmarkGating" ;
+    skos:definition "Surface requires a benchmark gate (throughput, latency, scalability measurement). Graduate to wasm4pm." ;
+    rdfs:comment "Performance measurement and benchmark orchestration. Graduation reason indicates performance gates are declared but cannot be measured." ;
+    domain:graduatesToWasm4pmAuthority domain:PerformanceAuthority .
+
+domain:NeedsObjectCentricQuery
+    a domain:GraduationBoundary ;
+    rdfs:label "Needs Object-Centric Query" ;
+    compat:rustType "GraduationReason::NeedsObjectCentricQuery" ;
+    skos:definition "Surface requires OCPQ query execution over an OCEL log. Graduate to wasm4pm." ;
+    rdfs:comment "Object-centric process querying (OCPQ). Graduation reason indicates queries are structured but cannot be executed." ;
+    domain:graduatesToWasm4pmAuthority domain:QueryAuthority ;
+    domain:applicableProcessForms compat:OcpqQuery, compat:OcelLog .
+
+domain:RebuildingProcessMiningLocally
+    a domain:GraduationBoundary ;
+    rdfs:label "Rebuilding Process Mining Locally" ;
+    compat:rustType "GraduationReason::RebuildingProcessMiningLocally" ;
+    skos:definition "Consumer is rebuilding process mining logic inside the compat layer — the clearest signal to graduate the entire surface to wasm4pm." ;
+    rdfs:comment "The consumer has begun implementing process-mining logic that belongs in wasm4pm. This is a signal to graduate the entire surface and its dependencies." ;
+    domain:graduatesToWasm4pmAuthority domain:MultipleAuthorities ;
+    domain:severity "CRITICAL" .
+
+# ============================================================================
+# GRADUATION SURFACES (wasm4pm Authorities)
+# ============================================================================
+
+domain:GraduationSurface
+    a rdfs:Class ;
+    rdfs:label "Graduation Surface" ;
+    rdfs:comment "A named wasm4pm module surface where compat structure graduates to engine logic. Renders Evidence carriers and witness markers." ;
+    owl:equivalentClass compat:GraduationSurface .
+
+domain:MiningAuthority
+    a domain:GraduationSurface ;
+    rdfs:label "Mining Authority" ;
+    compat:rustType "MiningAuthority" ;
+    compat:graduatesTo "wasm4pm::mining" ;
+    compat:requiresWitness compat:MiningWitness ;
+    compat:evidenceCarrier "Evidence<T, Admitted|Projected, MiningWitness>" ;
+    skos:definition "Process discovery graduation surface. Handles inductive mining, heuristic mining, alpha mining, variant analysis, and trace abstraction." ;
+    rdfs:comment "The wasm4pm mining module where discovery algorithms extract process models from event logs." ;
+    domain:discoveryAlgorithms
+        "Alpha Algorithm (van der Aalst et al., 2004)",
+        "Inductive Miner (Leemans et al., 2013)",
+        "Heuristics Miner (Weijters and Aalst, 2001)",
+        "DFG Mining",
+        "Variant Analysis",
+        "Trace Abstraction" ;
+    domain:inputForms compat:EventLog, compat:OcelLog, compat:StreamingLog ;
+    domain:outputForms compat:ProcessTree, compat:PowlNode, compat:DirectlyFollowsGraph, compat:CausalNet, compat:PetriNet .
+
+domain:ConformanceAuthority
+    a domain:GraduationSurface ;
+    rdfs:label "Conformance Authority" ;
+    compat:rustType "ConformanceAuthority" ;
+    compat:graduatesTo "wasm4pm::conformance" ;
+    compat:requiresWitness compat:ConformanceWitness ;
+    compat:evidenceCarrier "Evidence<T, Admitted|Projected, ConformanceWitness>" ;
+    skos:definition "Conformance checking graduation surface. Handles model-to-log alignment, fitness calculation, precision/recall/generalization metrics, and declarative constraint checking." ;
+    rdfs:comment "The wasm4pm conformance module where model-to-log alignment and conformance metrics are computed." ;
+    domain:conformanceMetrics
+        "Fitness (fraction of log traces replayed)",
+        "Precision (fraction of model traces in log)",
+        "Generalization",
+        "F1 Score",
+        "Alignment Cost",
+        "Edit Distance" ;
+    domain:inputForms compat:EventLog, compat:OcelLog, compat:PetriNet, compat:ProcessTree, compat:DeclareModel ;
+    domain:outputForms compat:ConformanceVerdict ;
+    domain:associatedConstraintWitnesses
+        domain:ControlFlowPerspectiveWitness,
+        domain:DataPerspectiveWitness,
+        domain:ResourcePerspectiveWitness,
+        domain:TimePerspectiveWitness .
+
+domain:ReplayAuthority
+    a domain:GraduationSurface ;
+    rdfs:label "Replay Authority" ;
+    compat:rustType "ReplayAuthority" ;
+    compat:graduatesTo "wasm4pm::replay" ;
+    compat:requiresWitness compat:ReplayWitness ;
+    compat:evidenceCarrier "Evidence<T, Admitted|Projected, ReplayWitness>" ;
+    skos:definition "Token replay and simulation graduation surface. Handles token-based replay, parallel path execution, path finding, and execution profiling." ;
+    rdfs:comment "The wasm4pm replay module where Petri nets are step-wise executed against event traces." ;
+    domain:replayStrategies
+        "Token-based step-wise replay",
+        "Parallel path execution",
+        "A* path finding for missing moves",
+        "Execution profiling and bottleneck analysis" ;
+    domain:inputForms compat:PetriNet, compat:WfNetConst, compat:ObjectCentricPetriNet ;
+    domain:outputForms compat:ConformanceVerdict .
+
+domain:LifecycleAuthority
+    a domain:GraduationSurface ;
+    rdfs:label "Lifecycle Authority" ;
+    compat:rustType "LifecycleAuthority" ;
+    compat:graduatesTo "wasm4pm::lifecycle" ;
+    compat:requiresWitness compat:LifecycleWitness ;
+    compat:evidenceCarrier "Evidence<T, Admitted|Projected, LifecycleWitness>" ;
+    skos:definition "Object-centric lifecycle graduation surface. Handles OCEL object tracking, state machine execution, artifact provenance, and object lifecycle states." ;
+    rdfs:comment "The wasm4pm lifecycle module where object-centric process execution and state tracking occurs." ;
+    domain:lifecycleCapabilities
+        "Object lifecycle state tracking",
+        "Multi-object process orchestration",
+        "Artifact provenance and causality",
+        "Cross-object correlation and causal ordering",
+        "Object-centric conformance checking" ;
+    domain:inputForms compat:OcelLog, compat:ObjectCentricPetriNet, compat:CorrelationSchema ;
+    domain:outputForms compat:ObjectLifecycle, compat:CausalityGraph .
+
+domain:QueryAuthority
+    a domain:GraduationSurface ;
+    rdfs:label "Query Authority" ;
+    compat:rustType "QueryAuthority" ;
+    compat:graduatesTo "wasm4pm::query" ;
+    compat:requiresWitness compat:QueryWitness ;
+    compat:evidenceCarrier "Evidence<OcpqQuery, Admitted|Projected, QueryWitness>" ;
+    skos:definition "Object-centric process querying graduation surface. Executes OCPQ queries over OCEL logs." ;
+    rdfs:comment "The wasm4pm query module where OCPQ queries are compiled and executed." ;
+    domain:queryCapabilities
+        "Event predicate evaluation",
+        "Object predicate evaluation",
+        "Relation predicate evaluation",
+        "Temporal predicate evaluation",
+        "Cardinality predicate evaluation",
+        "Nested query execution" ;
+    domain:inputForms compat:OcelLog, compat:OcpqQuery ;
+    domain:outputForms compat:OcpqQuery .
+
+domain:PerformanceAuthority
+    a domain:GraduationSurface ;
+    rdfs:label "Performance Authority" ;
+    compat:rustType "PerformanceAuthority" ;
+    compat:graduatesTo "wasm4pm::performance" ;
+    rdfs:comment "The wasm4pm performance module where benchmark gates and scalability measurements are executed." ;
+    domain:performanceMetrics
+        "Throughput (events/sec)",
+        "Latency (p50, p95, p99 response time)",
+        "Memory usage (peak, average)",
+        "CPU utilization",
+        "Scalability (strong/weak scaling)" .
+
+domain:MultipleAuthorities
+    a domain:GraduationSurface ;
+    rdfs:label "Multiple Authorities" ;
+    rdfs:comment "Graduation to multiple wasm4pm authorities simultaneously. Used when a surface touches discovery, conformance, replay, and lifecycle logic." .
+
+# ============================================================================
+# GRADUATION BRIDGE TRAIT AND CANDIDATES
+# ============================================================================
+
+domain:GraduationBridgeTrait
+    a rdfs:Class ;
+    rdfs:label "GraduateToWasm4pm Trait" ;
+    rdfs:comment "The Rust trait that enables a type to declare itself as a graduation candidate. Implementing this trait signals readiness to hand off to wasm4pm." ;
+    skos:definition "GraduateToWasm4pm trait implementation signals readiness for graduation." ;
+    domain:featureFlag "wasm4pm" .
+
+domain:GraduationCandidate
+    a rdfs:Class ;
+    rdfs:label "Graduation Candidate" ;
+    rdfs:comment "A type that implements GraduateToWasm4pm and declares one or more GraduationReason variants. Ready for handoff." ;
+    owl:equivalentClass compat:GraduationCandidate ;
+    domain:hasGraduationReasons compat:GraduationReason ;
+    domain:isGrounded "true|false" .
+
+domain:GroundedCandidate
+    a rdfs:Class ;
+    rdfs:label "Grounded Graduation Candidate" ;
+    rdfs:subClassOf domain:GraduationCandidate ;
+    rdfs:comment "A graduation candidate with a concrete wasm4pm module surface to hand off to." ;
+    domain:isGrounded "true" .
+
+domain:UngroundedCandidate
+    a rdfs:Class ;
+    rdfs:label "Ungrounded Graduation Candidate" ;
+    rdfs:subClassOf domain:GraduationCandidate ;
+    rdfs:comment "A graduation candidate with a GraduationReason but no concrete wasm4pm surface yet. Signals a TODO/gap." ;
+    domain:isGrounded "false" .
+
+# ============================================================================
+# GRADUATION PROPERTIES
+# ============================================================================
+
+domain:graduatesToWasm4pmAuthority
+    a rdf:Property ;
+    rdfs:label "graduates to wasm4pm authority" ;
+    rdfs:comment "The specific wasm4pm authority surface that this graduation reason routes to." ;
+    rdfs:domain domain:GraduationBoundary ;
+    rdfs:range domain:GraduationSurface .
+
+domain:applicableProcessForms
+    a rdf:Property ;
+    rdfs:label "applicable process forms" ;
+    rdfs:comment "The process forms that trigger this graduation reason." ;
+    rdfs:domain domain:GraduationBoundary ;
+    rdfs:range [ owl:unionOf ( compat:ProcessForm ) ] .
+
+domain:inputForms
+    a rdf:Property ;
+    rdfs:label "input forms" ;
+    rdfs:comment "The process forms that a graduation surface accepts as input." ;
+    rdfs:domain domain:GraduationSurface ;
+    rdfs:range [ owl:unionOf ( compat:ProcessForm ) ] .
+
+domain:outputForms
+    a rdf:Property ;
+    rdfs:label "output forms" ;
+    rdfs:comment "The process forms that a graduation surface produces as output." ;
+    rdfs:domain domain:GraduationSurface ;
+    rdfs:range [ owl:unionOf ( compat:ProcessForm ) ] .
+
+domain:conformanceMetrics
+    a rdf:Property ;
+    rdfs:label "conformance metrics" ;
+    rdfs:comment "Named conformance metrics handled by this authority." ;
+    rdfs:domain domain:ConformanceAuthority ;
+    rdfs:range xsd:string .
+
+domain:discoveryAlgorithms
+    a rdf:Property ;
+    rdfs:label "discovery algorithms" ;
+    rdfs:comment "Named process discovery algorithms handled by this authority." ;
+    rdfs:domain domain:MiningAuthority ;
+    rdfs:range xsd:string .
+
+domain:replayStrategies
+    a rdf:Property ;
+    rdfs:label "replay strategies" ;
+    rdfs:comment "Named token-replay strategies handled by this authority." ;
+    rdfs:domain domain:ReplayAuthority ;
+    rdfs:range xsd:string .
+
+domain:lifecycleCapabilities
+    a rdf:Property ;
+    rdfs:label "lifecycle capabilities" ;
+    rdfs:comment "Named object-centric lifecycle capabilities handled by this authority." ;
+    rdfs:domain domain:LifecycleAuthority ;
+    rdfs:range xsd:string .
+
+domain:queryCapabilities
+    a rdf:Property ;
+    rdfs:label "query capabilities" ;
+    rdfs:comment "Named OCPQ query capabilities handled by this authority." ;
+    rdfs:domain domain:QueryAuthority ;
+    rdfs:range xsd:string .
+
+domain:performanceMetrics
+    a rdf:Property ;
+    rdfs:label "performance metrics" ;
+    rdfs:comment "Named performance metrics measured by this authority." ;
+    rdfs:domain domain:PerformanceAuthority ;
+    rdfs:range xsd:string .
+
+domain:severity
+    a rdf:Property ;
+    rdfs:label "severity" ;
+    rdfs:comment "The architectural severity of hitting this graduation boundary: LOW, MEDIUM, HIGH, CRITICAL." ;
+    rdfs:domain domain:GraduationBoundary ;
+    rdfs:range xsd:string .
+
+domain:featureFlag
+    a rdf:Property ;
+    rdfs:label "feature flag" ;
+    rdfs:comment "The Cargo feature flag (if any) required to enable this graduation bridge or authority." ;
+    rdfs:domain [ owl:unionOf ( domain:GraduationBridgeTrait domain:GraduationSurface ) ] ;
+    rdfs:range xsd:string .
+
+domain:associatedConstraintWitnesses
+    a rdf:Property ;
+    rdfs:label "associated constraint witnesses" ;
+    rdfs:comment "Witness markers for constraint families this authority enforces." ;
+    rdfs:domain domain:GraduationSurface ;
+    rdfs:range domain:WitnessMarker .
+
+# ============================================================================
+# GRADUATION DOCUMENTATION PROPERTIES
+# ============================================================================
+
+domain:graduationGap
+    a rdf:Property ;
+    rdfs:label "graduation gap" ;
+    rdfs:comment "An identified gap or TODO between wasm4pm-compat structure and wasm4pm engine implementation." ;
+    rdfs:domain domain:UngroundedCandidate ;
+    rdfs:range xsd:string .
+
+domain:roadmapItem
+    a rdf:Property ;
+    rdfs:label "roadmap item" ;
+    rdfs:comment "A planned graduation surface or authority to be implemented in a future wasm4pm release." ;
+    rdfs:domain domain:GraduationSurface ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# CLOSED-WORLD STATEMENT
+# ============================================================================
+
+<https://wasm4pm-compat.rs/domain/graduation-boundaries>
+    skos:note "All graduation boundaries and surfaces enumerated here are exhaustive in the wasm4pm-compat / wasm4pm interface. The six primary graduation reasons (NeedsDiscovery, NeedsConformanceExecution, NeedsReplay, NeedsBenchmarkGating, NeedsObjectCentricQuery, RebuildingProcessMiningLocally) cover the full spectrum of process-mining execution needs. Each graduates to one or more wasm4pm authorities. No graduation boundary exists outside this ontology." .
+
+# ============================================================================
+# END OF DOMAIN ONTOLOGY: GRADUATION BOUNDARIES
+# ============================================================================

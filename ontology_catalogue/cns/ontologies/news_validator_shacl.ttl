@@ -1,0 +1,109 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix news: <http://cns.io/news#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# SHACL Constraints for News Validation
+
+# Article must have valid source
+news:ArticleShape a sh:NodeShape ;
+    sh:targetClass news:Article ;
+    sh:property [
+        sh:path news:source ;
+        sh:minCount 1 ;
+        sh:node news:SourceShape ;
+        sh:message "Article must have credible source"
+    ] ;
+    sh:property [
+        sh:path news:publishDate ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+        sh:lessThanOrEquals "NOW()" ;
+        sh:message "Publish date cannot be in future"
+    ] ;
+    sh:property [
+        sh:path news:claims ;
+        sh:node news:ClaimShape ;
+        sh:message "All claims must be validatable"
+    ] .
+
+# Source credibility requirements
+news:SourceShape a sh:NodeShape ;
+    sh:targetClass news:Source ;
+    sh:property [
+        sh:path news:credibilityScore ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 100 ;
+        sh:message "Credibility must be 0-100"
+    ] ;
+    sh:property [
+        sh:path news:domain ;
+        sh:pattern "^[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Invalid domain format"
+    ] .
+
+# Claim validation rules
+news:ClaimShape a sh:NodeShape ;
+    sh:targetClass news:Claim ;
+    sh:property [
+        sh:path news:confidence ;
+        sh:datatype xsd:float ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+    ] ;
+    sh:sparql [
+        sh:message "Statistical claims need data source" ;
+        sh:prefixes news: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this news:claimType news:StatisticalClaim .
+                FILTER NOT EXISTS {
+                    $this news:dataSource ?source .
+                }
+            }
+        """
+    ] .
+
+# Evidence requirements
+news:EvidenceShape a sh:NodeShape ;
+    sh:targetClass news:Evidence ;
+    sh:property [
+        sh:path news:evidenceType ;
+        sh:in ( "primary" "secondary" "expert" "statistical" ) ;
+    ] ;
+    sh:property [
+        sh:path news:verificationHash ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9a-f]{64}$" ;
+        sh:message "Invalid SHA256 hash"
+    ] .
+
+# Cross-validation rules
+news:CrossValidationShape a sh:NodeShape ;
+    sh:targetClass news:Claim ;
+    sh:sparql [
+        sh:message "Conflicting claims must be marked" ;
+        sh:prefixes news: ;
+        sh:select """
+            SELECT $this (COUNT(?other) as ?conflicts)
+            WHERE {
+                $this news:about ?subject .
+                ?other news:about ?subject .
+                ?other news:contradicts $this .
+                FILTER NOT EXISTS {
+                    $this news:verificationStatus "disputed" .
+                }
+            }
+            GROUP BY $this
+            HAVING (?conflicts > 0)
+        """
+    ] .
+
+# Temporal consistency
+news:TemporalConsistencyShape a sh:NodeShape ;
+    sh:targetClass news:EventClaim ;
+    sh:property [
+        sh:path news:eventDate ;
+        sh:lessThanOrEquals news:publishDate ;
+        sh:message "Event cannot happen after publication"
+    ] .

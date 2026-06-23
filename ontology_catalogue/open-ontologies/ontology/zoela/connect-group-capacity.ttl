@@ -1,0 +1,304 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl:     <http://www.w3.org/ns/odrl/2/> .
+
+# ============================================================================
+# ZOE LA Mobile — Connect Group Capacity Ontology
+# ============================================================================
+# Models the capacity management dimension of Connect Groups: available spots,
+# waitlist logic, and spot reservations during the invite/join flow.
+#
+# Three primary classes:
+#   zoe:GroupCapacityRule  — max/min/reserved capacity configuration
+#   zoe:SpotReservation    — temporary spot hold during the invite flow
+#   zoe:WaitlistEntry      — ordered waitlist entry when group is at capacity
+#
+# One SKOS scheme (CapacityStateScheme) + 4 concepts, five named
+# GroupCapacityRule individuals corresponding to the five schedule groups
+# declared in connect-group-schedules.ttl.
+# ============================================================================
+
+<https://zoela.org/ontology/connect-group-capacity>
+    a owl:Ontology ;
+    rdfs:label   "ZOE LA Connect Group Capacity"@en ;
+    rdfs:comment "Capacity rules, spot reservation, and waitlist management for Connect Groups."@en ;
+    dcterms:creator  "Sean Chatman" ;
+    dcterms:created  "2026-05-17"^^xsd:date ;
+    dcterms:license  <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo  "1.0.0" ;
+    owl:imports      <https://zoela.org/ontology/connect-groups> .
+
+# ============================================================================
+# § 1  Classes
+# ============================================================================
+
+zoe:GroupCapacityRule a owl:Class ;
+    rdfs:label   "Group Capacity Rule"@en ;
+    rdfs:comment "Capacity configuration for a Connect Group. Declares the maximum number of members the group can hold, the minimum viable size, reserved spots held back for late joiners, and waitlist behaviour."@en ;
+    skos:notation "group_capacity_rule" ;
+    rdfs:subClassOf odrl:Constraint .
+
+zoe:SpotReservation a owl:Class ;
+    rdfs:label   "Spot Reservation"@en ;
+    rdfs:comment "A temporary spot hold created during the connect-group invite flow. A reservation keeps one spot off the open-capacity count for a bounded window, giving a prospective member time to confirm. Expires automatically if not confirmed within the window."@en ;
+    skos:notation "spot_reservation" ;
+    rdfs:subClassOf schema:Reservation .
+
+zoe:WaitlistEntry a owl:Class ;
+    rdfs:label   "Waitlist Entry"@en ;
+    rdfs:comment "An ordered entry on the Connect Group waitlist created when a person expresses interest in a group that is at full capacity. Entries are processed in position order; when a spot opens, the front-of-list person is offered the spot."@en ;
+    skos:notation "waitlist_entry" ;
+    rdfs:subClassOf schema:Reservation .
+
+# ============================================================================
+# § 2  Datatype properties — GroupCapacityRule
+# ============================================================================
+
+zoe:maxCapacityRule a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupCapacityRule ;
+    rdfs:range   xsd:integer ;
+    rdfs:label   "Max Capacity"@en ;
+    rdfs:comment "Maximum total number of active members the group can accommodate. When currentSize reaches this value the group is AtCapacity and no new direct joins are accepted without a waitlist entry or reservation."@en ;
+    skos:notation "max_capacity_rule" .
+
+zoe:minCapacity a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupCapacityRule ;
+    rdfs:range   xsd:integer ;
+    rdfs:label   "Min Capacity"@en ;
+    rdfs:comment "Minimum viable number of members for the group to remain active. If attendance drops below this value for two consecutive seasons the group is flagged for pastor review."@en ;
+    skos:notation "min_capacity" .
+
+zoe:reservedSpots a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupCapacityRule ;
+    rdfs:range   xsd:integer ;
+    rdfs:label   "Reserved Spots"@en ;
+    rdfs:comment "Number of capacity slots held in reserve. Reserved spots do not count towards the open-capacity display. Used to hold positions for invited guests or transfer members."@en ;
+    skos:notation "reserved_spots" .
+
+zoe:allowsWaitlist a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupCapacityRule ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Allows Waitlist"@en ;
+    rdfs:comment "True when the group accepts waitlist entries after reaching maxCapacity. If false, persons are redirected to discover alternate groups when the group is full."@en ;
+    skos:notation "allows_waitlist" .
+
+zoe:maxWaitlistSize a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupCapacityRule ;
+    rdfs:range   xsd:integer ;
+    rdfs:label   "Max Waitlist Size"@en ;
+    rdfs:comment "Maximum number of WaitlistEntry records permitted on this group's waitlist. Once the waitlist is full, additional interest is redirected to group discovery."@en ;
+    skos:notation "max_waitlist_size" .
+
+# ============================================================================
+# § 3  Object properties — GroupCapacityRule
+# ============================================================================
+
+zoe:capacityForGroup a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupCapacityRule ;
+    rdfs:range   zoe:ConnectGroup ;
+    rdfs:label   "Capacity For Group"@en ;
+    rdfs:comment "Associates the GroupCapacityRule with the Connect Group it governs. Each Connect Group should have at most one active GroupCapacityRule."@en ;
+    skos:notation "capacity_for_group" .
+
+zoe:capacityState a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupCapacityRule ;
+    rdfs:range   skos:Concept ;
+    rdfs:label   "Capacity State"@en ;
+    rdfs:comment "Current capacity state concept from zoe:CapacityStateScheme: OpenCapacity, NearCapacity, AtCapacity, or OverCapacity."@en ;
+    skos:notation "capacity_state" .
+
+# ============================================================================
+# § 4  Datatype properties — SpotReservation
+# ============================================================================
+
+zoe:reservationExpiresAt a owl:DatatypeProperty ;
+    rdfs:domain  zoe:SpotReservation ;
+    rdfs:range   xsd:dateTime ;
+    rdfs:label   "Reservation Expires At"@en ;
+    rdfs:comment "ISO-8601 datetime after which this reservation automatically transitions to 'expired' status and the held spot is returned to open capacity."@en ;
+    skos:notation "reservation_expires_at" .
+
+zoe:reservationStatus a owl:DatatypeProperty ;
+    rdfs:domain  zoe:SpotReservation ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Reservation Status"@en ;
+    rdfs:comment "Current lifecycle status of the reservation. Allowed values: 'held' (spot locked, awaiting confirmation), 'confirmed' (person joined), 'expired' (time window elapsed), 'released' (cancelled by person or admin)."@en ;
+    skos:notation "reservation_status" .
+
+# ============================================================================
+# § 5  Object properties — SpotReservation
+# ============================================================================
+
+zoe:reservationForGroup a owl:ObjectProperty ;
+    rdfs:domain  zoe:SpotReservation ;
+    rdfs:range   zoe:ConnectGroup ;
+    rdfs:label   "Reservation For Group"@en ;
+    rdfs:comment "Associates the SpotReservation with the Connect Group for which the spot is being held."@en ;
+    skos:notation "reservation_for_group" .
+
+zoe:reservationForPerson a owl:ObjectProperty ;
+    rdfs:domain  zoe:SpotReservation ;
+    rdfs:range   zoe:PersonProfile ;
+    rdfs:label   "Reservation For Person"@en ;
+    rdfs:comment "Links the SpotReservation to the PersonProfile for whom the spot is being held during the invite flow."@en ;
+    skos:notation "reservation_for_person" .
+
+# ============================================================================
+# § 6  Datatype properties — WaitlistEntry
+# ============================================================================
+
+zoe:waitlistPosition a owl:DatatypeProperty ;
+    rdfs:domain  zoe:WaitlistEntry ;
+    rdfs:range   xsd:integer ;
+    rdfs:label   "Waitlist Position"@en ;
+    rdfs:comment "1-based integer position of this entry in the group's waitlist. Position 1 is next to be offered a spot. Positions are recomputed when entries ahead are offered, accepted, or removed."@en ;
+    skos:notation "waitlist_position" .
+
+zoe:waitlistCreatedAt a owl:DatatypeProperty ;
+    rdfs:domain  zoe:WaitlistEntry ;
+    rdfs:range   xsd:dateTime ;
+    rdfs:label   "Waitlist Created At"@en ;
+    rdfs:comment "ISO-8601 datetime when the person joined the waitlist. Used as the tiebreaker when two entries have the same position after a reorder."@en ;
+    skos:notation "waitlist_created_at" .
+
+zoe:waitlistStatus a owl:DatatypeProperty ;
+    rdfs:domain  zoe:WaitlistEntry ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Waitlist Status"@en ;
+    rdfs:comment "Current status of the waitlist entry. Allowed values: 'waiting' (in queue), 'offered' (spot offered, awaiting accept), 'expired' (offer window lapsed), 'joined' (person accepted and joined group)."@en ;
+    skos:notation "waitlist_status" .
+
+# ============================================================================
+# § 7  Object properties — WaitlistEntry
+# ============================================================================
+
+zoe:waitlistForGroup a owl:ObjectProperty ;
+    rdfs:domain  zoe:WaitlistEntry ;
+    rdfs:range   zoe:ConnectGroup ;
+    rdfs:label   "Waitlist For Group"@en ;
+    rdfs:comment "Associates the WaitlistEntry with the Connect Group the person is waiting to join."@en ;
+    skos:notation "waitlist_for_group" .
+
+zoe:waitlistPerson a owl:ObjectProperty ;
+    rdfs:domain  zoe:WaitlistEntry ;
+    rdfs:range   zoe:PersonProfile ;
+    rdfs:label   "Waitlist Person"@en ;
+    rdfs:comment "Links the WaitlistEntry to the PersonProfile who is waiting for a spot in the group."@en ;
+    skos:notation "waitlist_person" .
+
+# ============================================================================
+# § 8  SKOS ConceptScheme: CapacityStateScheme
+# ============================================================================
+
+zoe:CapacityStateScheme a skos:ConceptScheme ;
+    rdfs:label      "Capacity State Scheme"@en ;
+    rdfs:comment    "Controlled vocabulary of capacity states for Connect Groups. States drive UI display and routing logic in the ZOE LA Mobile join flow."@en ;
+    skos:prefLabel  "ZOE LA Capacity State Scheme"@en .
+
+zoe:OpenCapacity a skos:Concept ;
+    skos:inScheme   zoe:CapacityStateScheme ;
+    skos:notation   "OPEN" ;
+    rdfs:label      "Open Capacity"@en ;
+    skos:prefLabel  "Open — spots available"@en ;
+    skos:definition "The group has open spots available below the 80% full threshold. New members may join directly without a reservation."@en ;
+    rdfs:comment    "Capacity state: group has available spots (below 80% full)."@en .
+
+zoe:NearCapacity a skos:Concept ;
+    skos:inScheme   zoe:CapacityStateScheme ;
+    skos:notation   "NEAR_CAPACITY" ;
+    rdfs:label      "Near Capacity"@en ;
+    skos:prefLabel  "Near Capacity — 80% or more full"@en ;
+    skos:definition "The group is 80% or more full. Joining requires a spot reservation to ensure the spot is held during the confirmation flow."@en ;
+    rdfs:comment    "Capacity state: group is at or above 80% full."@en .
+
+zoe:AtCapacity a skos:Concept ;
+    skos:inScheme   zoe:CapacityStateScheme ;
+    skos:notation   "AT_CAPACITY" ;
+    rdfs:label      "At Capacity"@en ;
+    skos:prefLabel  "At Capacity — full"@en ;
+    skos:definition "The group has reached its maximum capacity. No direct joins are accepted. Prospective members are offered the waitlist if allowsWaitlist is true."@en ;
+    rdfs:comment    "Capacity state: group is fully at maxCapacity."@en .
+
+zoe:OverCapacity a skos:Concept ;
+    skos:inScheme   zoe:CapacityStateScheme ;
+    skos:notation   "OVER_CAPACITY" ;
+    rdfs:label      "Over Capacity"@en ;
+    skos:prefLabel  "Over Capacity — waitlist only"@en ;
+    skos:definition "The group has exceeded its standard capacity (e.g. due to admin overrides). Only waitlist entries are accepted; the group leader is alerted to review membership."@en ;
+    rdfs:comment    "Capacity state: group is above maxCapacity, waitlist only."@en .
+
+zoe:CapacityStateScheme skos:hasTopConcept
+    zoe:OpenCapacity ,
+    zoe:NearCapacity ,
+    zoe:AtCapacity ,
+    zoe:OverCapacity .
+
+# ============================================================================
+# § 9  Named GroupCapacityRule individuals
+#       One per scheduled group from connect-group-schedules.ttl
+# ============================================================================
+
+zoe:SundayEveningGroupCapacity a zoe:GroupCapacityRule ;
+    rdfs:label         "Sunday Evening Group Capacity Rule"@en ;
+    rdfs:comment       "Capacity configuration for the weekly Sunday evening in-person Connect Group. Max 12, min 4, 1 reserved spot, waitlist on."@en ;
+    zoe:maxCapacityRule 12 ;
+    zoe:minCapacity    4 ;
+    zoe:reservedSpots  1 ;
+    zoe:allowsWaitlist true ;
+    zoe:maxWaitlistSize 5 ;
+    zoe:capacityState  zoe:OpenCapacity ;
+    skos:notation      "CAP-SUN-EVE" .
+
+zoe:WednesdayMorningWomensGroupCapacity a zoe:GroupCapacityRule ;
+    rdfs:label         "Wednesday Morning Women's Group Capacity Rule"@en ;
+    rdfs:comment       "Capacity configuration for the weekly Wednesday morning hybrid women's Connect Group. Max 10, min 4, 1 reserved spot, waitlist on."@en ;
+    zoe:maxCapacityRule 10 ;
+    zoe:minCapacity    4 ;
+    zoe:reservedSpots  1 ;
+    zoe:allowsWaitlist true ;
+    zoe:maxWaitlistSize 5 ;
+    zoe:capacityState  zoe:OpenCapacity ;
+    skos:notation      "CAP-WED-MORN-WOMENS" .
+
+zoe:SaturdayMensGroupCapacity a zoe:GroupCapacityRule ;
+    rdfs:label         "Saturday Men's Group Capacity Rule"@en ;
+    rdfs:comment       "Capacity configuration for the bi-weekly Saturday in-person men's Connect Group. Max 15, min 4, 0 reserved spots, waitlist on."@en ;
+    zoe:maxCapacityRule 15 ;
+    zoe:minCapacity    4 ;
+    zoe:reservedSpots  0 ;
+    zoe:allowsWaitlist true ;
+    zoe:maxWaitlistSize 5 ;
+    zoe:capacityState  zoe:OpenCapacity ;
+    skos:notation      "CAP-SAT-MENS" .
+
+zoe:ThursdayYoungAdultsGroupCapacity a zoe:GroupCapacityRule ;
+    rdfs:label         "Thursday Young Adults Group Capacity Rule"@en ;
+    rdfs:comment       "Capacity configuration for the weekly Thursday evening online young adults Connect Group. Max 8, min 4, 1 reserved spot, waitlist on."@en ;
+    zoe:maxCapacityRule 8 ;
+    zoe:minCapacity    4 ;
+    zoe:reservedSpots  1 ;
+    zoe:allowsWaitlist true ;
+    zoe:maxWaitlistSize 5 ;
+    zoe:capacityState  zoe:OpenCapacity ;
+    skos:notation      "CAP-THU-YA" .
+
+zoe:FridayCouplesGroupCapacity a zoe:GroupCapacityRule ;
+    rdfs:label         "Friday Couples Group Capacity Rule"@en ;
+    rdfs:comment       "Capacity configuration for the bi-weekly Friday evening in-person couples Connect Group. Max 12, min 4, 0 reserved spots, waitlist on."@en ;
+    zoe:maxCapacityRule 12 ;
+    zoe:minCapacity    4 ;
+    zoe:reservedSpots  0 ;
+    zoe:allowsWaitlist true ;
+    zoe:maxWaitlistSize 5 ;
+    zoe:capacityState  zoe:OpenCapacity ;
+    skos:notation      "CAP-FRI-COUPLES" .
+
+# ============================================================================
+# End of ontology/zoela/connect-group-capacity.ttl
+# ============================================================================

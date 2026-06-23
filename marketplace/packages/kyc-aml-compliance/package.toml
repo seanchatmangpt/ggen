@@ -22,15 +22,16 @@ rust = "templates/rust/src/lib.rs"
 typescript = "templates/typescript/src/index.ts"
 python = "templates/python/kyc_aml/__init__.py"
 
-[features]
-- "Customer identity verification (passport, license, utility bill)"
-- "Risk scoring and assessment (Low/Medium/High)"
-- "Sanctions screening (OFAC, EU, UN lists)"
-- "PEP (Politically Exposed Persons) checks"
-- "Transaction monitoring with alerts"
-- "Suspicious Activity Reporting (SAR)"
-- "Enhanced Due Diligence (EDD)"
-- "Regulatory compliance (FATF, FinCEN, MiFID II)"
+features = [
+    "Customer identity verification (passport, license, utility bill)",
+    "Risk scoring and assessment (Low/Medium/High)",
+    "Sanctions screening (OFAC, EU, UN lists)",
+    "PEP (Politically Exposed Persons) checks",
+    "Transaction monitoring with alerts",
+    "Suspicious Activity Reporting (SAR)",
+    "Enhanced Due Diligence (EDD)",
+    "Regulatory compliance (FATF, FinCEN, MiFID II)"
+]
 
 [screening]
 match_types = ["exact", "fuzzy"]
@@ -40,3 +41,6 @@ sanctions_lists = ["OFAC", "EU", "UN"]
 [compliance]
 frameworks = ["FATF", "FinCEN", "MiFID II", "AMLD", "BSA"]
 regulations = ["AML", "KYC", "PSD2"]
+
+[marketplace]
+production_ready = false

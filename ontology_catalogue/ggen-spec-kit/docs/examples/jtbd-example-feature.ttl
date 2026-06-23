@@ -1,0 +1,330 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix jtbd: <http://github.com/github/spec-kit/jtbd#> .
+
+# ============================================================================
+# JTBD Example: Code Review Feature for GitHub
+# ============================================================================
+# Scenario: GitHub wants to improve their code review experience
+# Job: Help developers ensure code quality before merging
+# ============================================================================
+
+# ============================================================================
+# PRIMARY JOB - Functional
+# ============================================================================
+
+:EnsureCodeQualityJob a jtbd:FunctionalJob ;
+    jtbd:jobTitle "Ensure Code Quality Before Merging" ;
+    jtbd:jobDescription "When reviewing pull requests, developers need to verify that new code meets quality standards, doesn't introduce bugs, and follows team conventions before it gets merged into the main codebase." ;
+    jtbd:jobType "Functional" ;
+    jtbd:jobSize "Big" ;
+    jtbd:jobStability "Stable" ;
+    jtbd:hasJobStatement :EnsureCodeQualityStatement ;
+    jtbd:hasDesiredOutcome
+        :MinimizeTimeToFindIssues,
+        :MinimizeMissedDefects,
+        :MaximizeReviewConfidence,
+        :MinimizeContextSwitching ;
+    jtbd:hasSuccessCriteria :ReviewCompletenessMetric ;
+    jtbd:hasPainpoint
+        :SlowReviewProcess,
+        :MissedSecurityIssues,
+        :InconsistentStandards ;
+    jtbd:performedBy :SeniorEngineerSegment ;
+    jtbd:inCircumstance :PullRequestReviewCircumstance ;
+    jtbd:hasPushForce :ManualReviewPain ;
+    jtbd:hasPullForce :AutomatedInsights ;
+    jtbd:hasHabit :ManualLineByLineReview ;
+    jtbd:hasAnxiety :MissingCriticalBugs ;
+    jtbd:solvedBy :GitHubCodeReviewSolution .
+
+:EnsureCodeQualityStatement a jtbd:JobStatement ;
+    jtbd:when "I receive a pull request notification for code that affects critical system components" ;
+    jtbd:wantTo "quickly identify potential issues, security vulnerabilities, and standard violations" ;
+    jtbd:soICan "confidently approve or request changes without fear of introducing bugs to production" ;
+    jtbd:fullStatement "When I receive a pull request notification for code that affects critical system components, I want to quickly identify potential issues, security vulnerabilities, and standard violations, so I can confidently approve or request changes without fear of introducing bugs to production." .
+
+# ============================================================================
+# RELATED JOBS - Emotional & Social
+# ============================================================================
+
+:FeelConfidentJob a jtbd:EmotionalJob ;
+    jtbd:jobTitle "Feel Confident About Merge Decisions" ;
+    jtbd:jobDescription "Reviewers want to feel assured that they haven't missed anything critical when approving code." ;
+    jtbd:jobType "Emotional" ;
+    jtbd:jobSize "Small" ;
+    jtbd:jobStability "Stable" ;
+    jtbd:hasJobStatement :FeelConfidentStatement ;
+    jtbd:parentJob :EnsureCodeQualityJob .
+
+:FeelConfidentStatement a jtbd:JobStatement ;
+    jtbd:when "I am about to approve a large pull request" ;
+    jtbd:wantTo "have comprehensive assurance that I've reviewed all critical areas" ;
+    jtbd:soICan "feel confident that I'm not introducing technical debt or bugs" ;
+    jtbd:fullStatement "When I am about to approve a large pull request, I want to have comprehensive assurance that I've reviewed all critical areas, so I can feel confident that I'm not introducing technical debt or bugs." .
+
+:MaintainReputationJob a jtbd:SocialJob ;
+    jtbd:jobTitle "Maintain Reputation as Thorough Reviewer" ;
+    jtbd:jobDescription "Reviewers want to be seen as diligent and detail-oriented by their team." ;
+    jtbd:jobType "Social" ;
+    jtbd:jobSize "Small" ;
+    jtbd:jobStability "Stable" ;
+    jtbd:hasJobStatement :MaintainReputationStatement ;
+    jtbd:parentJob :EnsureCodeQualityJob .
+
+:MaintainReputationStatement a jtbd:JobStatement ;
+    jtbd:when "I participate in team code reviews" ;
+    jtbd:wantTo "consistently catch important issues and provide valuable feedback" ;
+    jtbd:soICan "be recognized as a reliable gatekeeper for code quality" ;
+    jtbd:fullStatement "When I participate in team code reviews, I want to consistently catch important issues and provide valuable feedback, so I can be recognized as a reliable gatekeeper for code quality." .
+
+# ============================================================================
+# DESIRED OUTCOMES - Measurable Results
+# ============================================================================
+
+:MinimizeTimeToFindIssues a jtbd:DesiredOutcome ;
+    jtbd:outcomeStatement "Minimize the time it takes to identify critical bugs and security vulnerabilities in pull requests" ;
+    jtbd:outcomeDirection "Minimize" ;
+    jtbd:outcomeMetric "time" ;
+    jtbd:outcomeObject "to identify critical bugs and security vulnerabilities" ;
+    jtbd:outcomeClarifier "in pull requests" ;
+    jtbd:hasOutcomePriority :TimeToFindPriority ;
+    jtbd:hasOpportunityScore :TimeToFindOpportunity .
+
+:TimeToFindPriority a jtbd:OutcomePriority ;
+    jtbd:importanceScore "9.2"^^xsd:decimal ;
+    jtbd:satisfactionScore "4.1"^^xsd:decimal .
+
+:TimeToFindOpportunity a jtbd:OpportunityScore ;
+    jtbd:opportunityScoreValue "14.3"^^xsd:decimal ;
+    jtbd:opportunityType "Underserved" .
+
+:MinimizeMissedDefects a jtbd:DesiredOutcome ;
+    jtbd:outcomeStatement "Minimize the likelihood of approving code that contains critical defects or vulnerabilities" ;
+    jtbd:outcomeDirection "Minimize" ;
+    jtbd:outcomeMetric "likelihood" ;
+    jtbd:outcomeObject "of approving code with critical defects" ;
+    jtbd:outcomeClarifier "during review process" ;
+    jtbd:hasOutcomePriority :MissedDefectsPriority ;
+    jtbd:hasOpportunityScore :MissedDefectsOpportunity .
+
+:MissedDefectsPriority a jtbd:OutcomePriority ;
+    jtbd:importanceScore "9.8"^^xsd:decimal ;
+    jtbd:satisfactionScore "3.5"^^xsd:decimal .
+
+:MissedDefectsOpportunity a jtbd:OpportunityScore ;
+    jtbd:opportunityScoreValue "16.1"^^xsd:decimal ;
+    jtbd:opportunityType "Severely Underserved" .
+
+:MaximizeReviewConfidence a jtbd:DesiredOutcome ;
+    jtbd:outcomeStatement "Maximize confidence that all critical code paths have been reviewed thoroughly" ;
+    jtbd:outcomeDirection "Maximize" ;
+    jtbd:outcomeMetric "confidence" ;
+    jtbd:outcomeObject "that critical paths are reviewed" ;
+    jtbd:outcomeClarifier "before approval" ;
+    jtbd:hasOutcomePriority :ConfidencePriority ;
+    jtbd:hasOpportunityScore :ConfidenceOpportunity .
+
+:ConfidencePriority a jtbd:OutcomePriority ;
+    jtbd:importanceScore "8.9"^^xsd:decimal ;
+    jtbd:satisfactionScore "4.8"^^xsd:decimal .
+
+:ConfidenceOpportunity a jtbd:OpportunityScore ;
+    jtbd:opportunityScoreValue "13.0"^^xsd:decimal ;
+    jtbd:opportunityType "Underserved" .
+
+:MinimizeContextSwitching a jtbd:DesiredOutcome ;
+    jtbd:outcomeStatement "Minimize the number of context switches required to gather all information needed for review" ;
+    jtbd:outcomeDirection "Minimize" ;
+    jtbd:outcomeMetric "number" ;
+    jtbd:outcomeObject "of context switches" ;
+    jtbd:outcomeClarifier "during review workflow" ;
+    jtbd:hasOutcomePriority :ContextSwitchPriority ;
+    jtbd:hasOpportunityScore :ContextSwitchOpportunity .
+
+:ContextSwitchPriority a jtbd:OutcomePriority ;
+    jtbd:importanceScore "7.5"^^xsd:decimal ;
+    jtbd:satisfactionScore "3.9"^^xsd:decimal .
+
+:ContextSwitchOpportunity a jtbd:OpportunityScore ;
+    jtbd:opportunityScoreValue "11.1"^^xsd:decimal ;
+    jtbd:opportunityType "Underserved" .
+
+# ============================================================================
+# SUCCESS CRITERIA & METRICS
+# ============================================================================
+
+:ReviewCompletenessMetric a jtbd:SuccessCriteria ;
+    jtbd:criteriaDescription "Review is complete when all critical code paths have been examined and all automated checks pass" ;
+    jtbd:measuredBy
+        :TimeToReviewMetric,
+        :DefectDetectionRate,
+        :ReviewCoverage .
+
+:TimeToReviewMetric a jtbd:SuccessMetric ;
+    jtbd:metricName "Time to Complete Review" ;
+    jtbd:metricType "Time" ;
+    jtbd:targetValue "< 15 minutes for PRs under 500 lines" ;
+    jtbd:currentValue "~35 minutes average" .
+
+:DefectDetectionRate a jtbd:SuccessMetric ;
+    jtbd:metricName "Critical Defect Detection Rate" ;
+    jtbd:metricType "Quality" ;
+    jtbd:targetValue "> 95% of critical issues caught in review" ;
+    jtbd:currentValue "~72% caught in manual review" .
+
+:ReviewCoverage a jtbd:SuccessMetric ;
+    jtbd:metricName "Code Review Coverage" ;
+    jtbd:metricType "Quality" ;
+    jtbd:targetValue "100% of changed lines reviewed" ;
+    jtbd:currentValue "~85% of lines receive comments" .
+
+# ============================================================================
+# CUSTOMER SEGMENTS & PERSONAS
+# ============================================================================
+
+:SeniorEngineerSegment a jtbd:CustomerSegment ;
+    jtbd:segmentName "Senior Engineers with Review Responsibilities" ;
+    jtbd:segmentDescription "Experienced software engineers (5+ years) who regularly review pull requests from their team members. They are responsible for maintaining code quality standards and preventing bugs from reaching production." ;
+    jtbd:segmentSize "12000"^^xsd:integer ;
+    jtbd:marketShare "35.5"^^xsd:decimal ;
+    jtbd:hasPersona :TechLeadAlex ;
+    jtbd:hasContextClue :PullRequestNotification ;
+    jtbd:currentlyUsing :ManualGitHubReview .
+
+:TechLeadAlex a jtbd:Persona ;
+    jtbd:personaName "Tech Lead Alex" ;
+    jtbd:personaRole "Senior Software Engineer & Tech Lead" ;
+    jtbd:personaGoals "Maintain high code quality standards while helping team members grow their skills. Ship features quickly without compromising on quality or security." ;
+    jtbd:personaChallenges "Limited time for thorough reviews (often 5-10 PRs per day). Fear of missing critical security issues. Difficulty balancing speed with thoroughness. Struggling to provide consistent, constructive feedback." .
+
+# ============================================================================
+# CONTEXT CLUES & CIRCUMSTANCES
+# ============================================================================
+
+:PullRequestNotification a jtbd:ContextClue ;
+    jtbd:contextDescription "Developer receives notification that a pull request is ready for review, especially for code touching critical systems" ;
+    jtbd:triggerType "Event-based" ;
+    jtbd:triggerFrequency "Daily" .
+
+:PullRequestReviewCircumstance a jtbd:JobCircumstance ;
+    jtbd:circumstanceDescription "Reviewer is at their desk during work hours, has 15-30 minutes available, and needs to review code they didn't write for a feature they may not be fully familiar with" ;
+    jtbd:environmentalFactors "Time pressure from upcoming sprint deadlines. Multiple PRs in queue. Limited context on feature requirements. Working in IDE or GitHub web interface." .
+
+# ============================================================================
+# PAINPOINTS - Specific Friction Points
+# ============================================================================
+
+:SlowReviewProcess a jtbd:Painpoint ;
+    jtbd:painpointDescription "Manual review process requires checking out code locally, running tests, checking linters, reviewing security implications - takes 30+ minutes per PR" ;
+    jtbd:painpointSeverity "Critical" ;
+    jtbd:workaround "Reviewers skim large PRs and trust automated tests, leading to missed issues" .
+
+:MissedSecurityIssues a jtbd:Painpoint ;
+    jtbd:painpointDescription "Reviewers without security expertise may miss SQL injection, XSS, or authentication bypass vulnerabilities in code" ;
+    jtbd:painpointSeverity "Critical" ;
+    jtbd:workaround "Request security team review for sensitive changes, causing delays" .
+
+:InconsistentStandards a jtbd:Painpoint ;
+    jtbd:painpointDescription "Different reviewers enforce different standards, leading to confusion and rework for developers" ;
+    jtbd:painpointSeverity "Moderate" ;
+    jtbd:workaround "Create lengthy style guides that are rarely followed completely" .
+
+# ============================================================================
+# FORCES AFFECTING ADOPTION
+# ============================================================================
+
+# Push Forces - Problems with Current State
+
+:ManualReviewPain a jtbd:PushForce ;
+    jtbd:pushReason "Manual review process is time-consuming, error-prone, and inconsistent across team members" ;
+    jtbd:forceStrength "Strong" ;
+    jtbd:forceDescription "Reviewers spend 2-3 hours daily on code reviews, often missing critical issues while nitpicking style" .
+
+# Pull Forces - Benefits of New Solution
+
+:AutomatedInsights a jtbd:PullForce ;
+    jtbd:pullBenefit "AI-powered analysis can automatically flag security issues, performance problems, and standard violations" ;
+    jtbd:forceStrength "Strong" ;
+    jtbd:forceDescription "Automated checks can reduce review time by 60% while improving defect detection rate" .
+
+# Habits - Current Behavior Creating Inertia
+
+:ManualLineByLineReview a jtbd:Habit ;
+    jtbd:habitDescription "Reviewers are accustomed to manually reading every line of code and leaving comments inline" ;
+    jtbd:habitStrength "Moderate" ;
+    jtbd:forceDescription "Many senior engineers take pride in their manual review skills and may resist automation as 'dumbing down' the process" .
+
+# Anxieties - Fears About New Solution
+
+:MissingCriticalBugs a jtbd:Anxiety ;
+    jtbd:anxietyDescription "Fear that automated tools will miss subtle bugs that human reviewers would catch, or create false positives that waste time" ;
+    jtbd:anxietyType "Performance Risk" ;
+    jtbd:forceStrength "Moderate" ;
+    jtbd:forceDescription "Reviewers worry about over-relying on automation and missing context-dependent issues" .
+
+# ============================================================================
+# SOLUTIONS - Current and Proposed
+# ============================================================================
+
+:ManualGitHubReview a jtbd:CurrentSolution ;
+    jtbd:solutionName "Manual GitHub Code Review" ;
+    jtbd:solutionDescription "Developers manually review code changes in GitHub web interface, leaving inline comments and approving/rejecting PRs" ;
+    jtbd:adoptionRate "98.0"^^xsd:decimal ;
+    jtbd:hireFrequency "Frequently" ;
+    jtbd:fireReason "Too time-consuming for large PRs, inconsistent quality, high cognitive load" .
+
+:GitHubCodeReviewSolution a jtbd:ProposedSolution ;
+    jtbd:solutionName "GitHub AI-Powered Code Review Assistant" ;
+    jtbd:solutionDescription "Automated code analysis that flags security issues, suggests improvements, and provides review checklists tailored to the code changes" ;
+    jtbd:adoptionRate "0.0"^^xsd:decimal ;
+    jtbd:hireFrequency "Frequently" ;
+    jtbd:competesWithSolution :CodeClimate, :SonarQube .
+
+:CodeClimate a jtbd:CompetitiveSolution ;
+    jtbd:solutionName "Code Climate Quality" ;
+    jtbd:solutionDescription "Third-party automated code review tool integrated with GitHub" ;
+    jtbd:adoptionRate "15.2"^^xsd:decimal ;
+    jtbd:hireFrequency "Occasionally" .
+
+:SonarQube a jtbd:CompetitiveSolution ;
+    jtbd:solutionName "SonarQube" ;
+    jtbd:solutionDescription "Code quality and security analysis platform" ;
+    jtbd:adoptionRate "22.8"^^xsd:decimal ;
+    jtbd:hireFrequency "Occasionally" .
+
+# ============================================================================
+# INTEGRATION WITH SPEC-KIT FEATURE
+# ============================================================================
+
+:AICodeReviewFeature a sk:Feature ;
+    sk:featureBranch "001-ai-code-review" ;
+    sk:featureName "AI-Powered Code Review Assistant" ;
+    sk:created "2025-12-21"^^xsd:date ;
+    sk:status "Draft" ;
+    sk:userInput "Add AI assistant that helps reviewers find security issues and quality problems faster" ;
+    jtbd:targetsSegment :SeniorEngineerSegment ;
+    jtbd:addressesPainpoint :SlowReviewProcess, :MissedSecurityIssues ;
+    jtbd:enablesOutcome :MinimizeTimeToFindIssues, :MinimizeMissedDefects ;
+    sk:hasUserStory :AutomatedSecurityScan .
+
+:AutomatedSecurityScan a sk:UserStory ;
+    sk:storyIndex "1"^^xsd:integer ;
+    sk:title "Automated Security Vulnerability Detection" ;
+    sk:priority "P1" ;
+    sk:description "As a code reviewer, I want automated security scanning to flag potential SQL injection, XSS, and authentication issues so I can focus on business logic review" ;
+    sk:priorityRationale "Security issues are the highest risk items that reviewers frequently miss in manual reviews" ;
+    sk:independentTest "Submit a PR with known SQL injection vulnerability and verify AI assistant flags it with explanation" ;
+    sk:hasAcceptanceScenario :SecurityFlagScenario .
+
+:SecurityFlagScenario a sk:AcceptanceScenario ;
+    sk:scenarioIndex "1"^^xsd:integer ;
+    sk:given "a pull request contains code with SQL injection vulnerability" ;
+    sk:when "the AI review assistant analyzes the code" ;
+    sk:then "it flags the vulnerability with specific line number, severity level, and remediation suggestion" .
+
+# ============================================================================
+# End of JTBD Example
+# ============================================================================

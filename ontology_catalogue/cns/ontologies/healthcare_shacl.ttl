@@ -1,0 +1,677 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix health: <http://cns.ai/ontology/healthcare#> .
+
+# SHACL Constraints for Healthcare Monitoring System Validation
+# Critical patient safety rules enforced at sub-millisecond speeds
+# BitActor integration for ultra-fast clinical decision support
+
+#####################################################################
+# Patient Safety Constraints
+#####################################################################
+
+health:PatientShape rdf:type sh:NodeShape ;
+    sh:targetClass health:Patient ;
+    sh:property [
+        sh:path health:patientID ;
+        sh:datatype xsd:string ;
+        sh:minLength 6 ;
+        sh:maxLength 20 ;
+        sh:pattern "^[A-Z0-9_-]{6,20}$" ;
+        sh:name "Patient ID validation" ;
+        sh:description "Patient ID must be 6-20 alphanumeric characters"
+    ] ;
+    sh:property [
+        sh:path health:medicalRecordNumber ;
+        sh:datatype xsd:string ;
+        sh:minLength 8 ;
+        sh:maxLength 15 ;
+        sh:pattern "^[0-9]{8,15}$" ;
+        sh:name "Medical record number validation" ;
+        sh:description "Medical record number must be 8-15 digits"
+    ] ;
+    sh:property [
+        sh:path health:age ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 120 ;
+        sh:name "Age validation" ;
+        sh:description "Patient age must be between 0 and 120 years"
+    ] ;
+    sh:property [
+        sh:path health:weight ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.5 ; # 500g minimum (neonates)
+        sh:maxInclusive 500.0 ; # 500kg theoretical maximum
+        sh:name "Weight validation" ;
+        sh:description "Patient weight must be between 0.5kg and 500kg"
+    ] ;
+    sh:property [
+        sh:path health:height ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 25.0 ; # 25cm minimum (neonates)
+        sh:maxInclusive 250.0 ; # 250cm theoretical maximum
+        sh:name "Height validation" ;
+        sh:description "Patient height must be between 25cm and 250cm"
+    ] ;
+    sh:property [
+        sh:path health:acuityLevel ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:name "Acuity level validation" ;
+        sh:description "Patient acuity level must be rated 1-5"
+    ] ;
+    sh:property [
+        sh:path health:gender ;
+        sh:datatype xsd:string ;
+        sh:in ( "male" "female" "other" "unknown" ) ;
+        sh:name "Gender validation" ;
+        sh:description "Gender must be from approved list"
+    ] .
+
+#####################################################################
+# Vital Signs Constraints - Ultra-fast validation
+#####################################################################
+
+health:VitalSignShape rdf:type sh:NodeShape ;
+    sh:targetClass health:VitalSign ;
+    sh:property [
+        sh:path health:measurementTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:name "Measurement timestamp requirement" ;
+        sh:description "All vital sign measurements must have a timestamp"
+    ] ;
+    sh:property [
+        sh:path health:measurementUnit ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 20 ;
+        sh:name "Measurement unit requirement" ;
+        sh:description "All measurements must specify units"
+    ] ;
+    sh:property [
+        sh:path health:processingLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 1000000.0 ; # 1ms maximum latency
+        sh:name "Processing latency constraint" ;
+        sh:description "Vital sign processing must complete within 1ms"
+    ] ;
+    sh:property [
+        sh:path health:ticksUsed ;
+        sh:datatype xsd:integer ;
+        sh:maxInclusive 8 ; # BitActor 8-tick guarantee
+        sh:name "CPU ticks constraint" ;
+        sh:description "Vital sign processing must use ≤8 CPU ticks"
+    ] .
+
+health:HeartRateShape rdf:type sh:NodeShape ;
+    sh:targetClass health:HeartRate ;
+    sh:property [
+        sh:path health:beatsPerMinute ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 20 ; # Extreme bradycardia
+        sh:maxInclusive 300 ; # Maximum theoretical heart rate
+        sh:name "Heart rate validation" ;
+        sh:description "Heart rate must be between 20-300 BPM"
+    ] ;
+    sh:property [
+        sh:path health:measurementValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 20.0 ;
+        sh:maxInclusive 300.0 ;
+        sh:name "Heart rate measurement validation" ;
+        sh:description "Heart rate measurement must be physiologically possible"
+    ] .
+
+health:BloodPressureShape rdf:type sh:NodeShape ;
+    sh:targetClass health:BloodPressure ;
+    sh:property [
+        sh:path health:systolicPressure ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 50.0 ; # Severe hypotension
+        sh:maxInclusive 300.0 ; # Severe hypertensive crisis
+        sh:name "Systolic pressure validation" ;
+        sh:description "Systolic pressure must be between 50-300 mmHg"
+    ] ;
+    sh:property [
+        sh:path health:diastolicPressure ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 20.0 ; # Severe hypotension
+        sh:maxInclusive 200.0 ; # Severe hypertensive crisis
+        sh:name "Diastolic pressure validation" ;
+        sh:description "Diastolic pressure must be between 20-200 mmHg"
+    ] ;
+    sh:sparql [
+        sh:message "Systolic pressure must be higher than diastolic pressure" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "health" ;
+                sh:namespace "http://cns.ai/ontology/healthcare#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this health:systolicPressure ?systolic .
+                $this health:diastolicPressure ?diastolic .
+                FILTER (?systolic <= ?diastolic)
+            }
+        """
+    ] .
+
+health:RespiratoryRateShape rdf:type sh:NodeShape ;
+    sh:targetClass health:RespiratoryRate ;
+    sh:property [
+        sh:path health:breathsPerMinute ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 4 ; # Severe bradypnea
+        sh:maxInclusive 60 ; # Severe tachypnea
+        sh:name "Respiratory rate validation" ;
+        sh:description "Respiratory rate must be between 4-60 breaths/min"
+    ] .
+
+health:BodyTemperatureShape rdf:type sh:NodeShape ;
+    sh:targetClass health:BodyTemperature ;
+    sh:property [
+        sh:path health:temperatureCelsius ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 30.0 ; # Severe hypothermia
+        sh:maxInclusive 45.0 ; # Extreme hyperthermia
+        sh:name "Body temperature validation" ;
+        sh:description "Body temperature must be between 30-45°C"
+    ] .
+
+health:OxygenSaturationShape rdf:type sh:NodeShape ;
+    sh:targetClass health:OxygenSaturation ;
+    sh:property [
+        sh:path health:oxygenSaturationPercent ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 70.0 ; # Critical hypoxemia
+        sh:maxInclusive 100.0 ; # Maximum possible saturation
+        sh:name "Oxygen saturation validation" ;
+        sh:description "Oxygen saturation must be between 70-100%"
+    ] .
+
+health:BloodGlucoseShape rdf:type sh:NodeShape ;
+    sh:targetClass health:BloodGlucose ;
+    sh:property [
+        sh:path health:glucoseMgDl ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 20.0 ; # Severe hypoglycemia
+        sh:maxInclusive 800.0 ; # Severe hyperglycemia
+        sh:name "Blood glucose validation" ;
+        sh:description "Blood glucose must be between 20-800 mg/dL"
+    ] .
+
+health:PainLevelShape rdf:type sh:NodeShape ;
+    sh:targetClass health:PainLevel ;
+    sh:property [
+        sh:path health:painScore ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 10 ;
+        sh:name "Pain score validation" ;
+        sh:description "Pain score must be between 0-10"
+    ] .
+
+#####################################################################
+# Medical Device Constraints - Performance requirements
+#####################################################################
+
+health:MedicalDeviceShape rdf:type sh:NodeShape ;
+    sh:targetClass health:MedicalDevice ;
+    sh:property [
+        sh:path health:deviceID ;
+        sh:datatype xsd:string ;
+        sh:minLength 6 ;
+        sh:maxLength 32 ;
+        sh:pattern "^[A-Z0-9_-]{6,32}$" ;
+        sh:name "Device ID validation" ;
+        sh:description "Device ID must be 6-32 alphanumeric characters"
+    ] ;
+    sh:property [
+        sh:path health:deviceStatus ;
+        sh:datatype xsd:string ;
+        sh:in ( "operational" "maintenance" "calibrating" "fault" "offline" "standby" ) ;
+        sh:name "Device status validation" ;
+        sh:description "Device status must be from approved list"
+    ] ;
+    sh:property [
+        sh:path health:deviceManufacturer ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:name "Manufacturer requirement" ;
+        sh:description "All devices must have manufacturer information"
+    ] ;
+    sh:property [
+        sh:path health:deviceModel ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:name "Model requirement" ;
+        sh:description "All devices must have model information"
+    ] .
+
+health:MonitoringDeviceShape rdf:type sh:NodeShape ;
+    sh:targetClass health:MonitoringDevice ;
+    sh:property [
+        sh:path health:realTimeMonitoring ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ; # Real-time monitoring required
+        sh:name "Real-time monitoring requirement" ;
+        sh:description "Monitoring devices must have real-time monitoring enabled"
+    ] ;
+    sh:property [
+        sh:path health:measurementAccuracy ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 90.0 ; # Minimum 90% accuracy for medical devices
+        sh:maxInclusive 100.0 ;
+        sh:name "Measurement accuracy validation" ;
+        sh:description "Measurement accuracy must be ≥90%"
+    ] ;
+    sh:property [
+        sh:path health:samplingRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ; # 0.1 Hz minimum
+        sh:maxInclusive 1000.0 ; # 1 kHz maximum for medical devices
+        sh:name "Sampling rate validation" ;
+        sh:description "Sampling rate must be between 0.1 Hz and 1 kHz"
+    ] .
+
+health:ECGMonitorShape rdf:type sh:NodeShape ;
+    sh:targetClass health:ECGMonitor ;
+    sh:property [
+        sh:path health:samplingRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 125.0 ; # Minimum for ECG monitoring
+        sh:maxInclusive 1000.0 ;
+        sh:name "ECG sampling rate validation" ;
+        sh:description "ECG monitors require sampling rate ≥125 Hz"
+    ] .
+
+health:PulseOximeterShape rdf:type sh:NodeShape ;
+    sh:targetClass health:PulseOximeter ;
+    sh:property [
+        sh:path health:measurementAccuracy ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 95.0 ; # Higher accuracy required for pulse oximetry
+        sh:maxInclusive 100.0 ;
+        sh:name "Pulse oximeter accuracy validation" ;
+        sh:description "Pulse oximeters must have ≥95% accuracy"
+    ] .
+
+#####################################################################
+# Medical Alert Constraints - Critical safety requirements
+#####################################################################
+
+health:MedicalAlertShape rdf:type sh:NodeShape ;
+    sh:targetClass health:MedicalAlert ;
+    sh:property [
+        sh:path health:alertID ;
+        sh:datatype xsd:string ;
+        sh:minLength 8 ;
+        sh:maxLength 64 ;
+        sh:pattern "^[A-Z0-9_-]+$" ;
+        sh:name "Alert ID validation" ;
+        sh:description "Alert ID must be 8-64 alphanumeric characters"
+    ] ;
+    sh:property [
+        sh:path health:alertSeverity ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:name "Alert severity validation" ;
+        sh:description "Alert severity must be rated 1-5"
+    ] ;
+    sh:property [
+        sh:path health:alertTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:name "Alert timestamp requirement" ;
+        sh:description "All alerts must have a timestamp"
+    ] ;
+    sh:property [
+        sh:path health:alertStatus ;
+        sh:datatype xsd:string ;
+        sh:in ( "active" "acknowledged" "resolved" "escalated" "cancelled" ) ;
+        sh:name "Alert status validation" ;
+        sh:description "Alert status must be from approved workflow states"
+    ] ;
+    sh:property [
+        sh:path health:alertResponseTime ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 5000.0 ; # 5 seconds maximum response time
+        sh:name "Alert response time constraint" ;
+        sh:description "Medical alerts must be processed within 5 seconds"
+    ] ;
+    sh:property [
+        sh:path health:alertType ;
+        sh:datatype xsd:string ;
+        sh:in ( "vital_sign" "device_fault" "medication" "patient_deterioration" "code_blue" "technical" ) ;
+        sh:name "Alert type validation" ;
+        sh:description "Alert type must be from approved list"
+    ] .
+
+health:CriticalAlertShape rdf:type sh:NodeShape ;
+    sh:targetClass health:CriticalAlert ;
+    sh:property [
+        sh:path health:alertSeverity ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 4 ; # Critical alerts must be severity 4 or 5
+        sh:maxInclusive 5 ;
+        sh:name "Critical alert severity constraint" ;
+        sh:description "Critical alerts must have severity level 4 or 5"
+    ] ;
+    sh:property [
+        sh:path health:alertResponseTime ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 1000.0 ; # 1 second maximum for critical alerts
+        sh:name "Critical alert response time" ;
+        sh:description "Critical alerts must be processed within 1 second"
+    ] .
+
+#####################################################################
+# Medication Safety Constraints
+#####################################################################
+
+health:MedicationShape rdf:type sh:NodeShape ;
+    sh:targetClass health:Medication ;
+    sh:property [
+        sh:path health:medicationName ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 200 ;
+        sh:name "Medication name requirement" ;
+        sh:description "All medications must have a name"
+    ] .
+
+health:DosageShape rdf:type sh:NodeShape ;
+    sh:targetClass health:Dosage ;
+    sh:property [
+        sh:path health:dosageAmount ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.001 ; # 0.001 mg minimum dose
+        sh:maxInclusive 10000.0 ; # 10g maximum single dose
+        sh:name "Dosage amount validation" ;
+        sh:description "Dosage amount must be between 0.001mg and 10g"
+    ] ;
+    sh:property [
+        sh:path health:dosageUnit ;
+        sh:datatype xsd:string ;
+        sh:in ( "mg" "g" "mcg" "mL" "L" "units" "IU" "mEq" ) ;
+        sh:name "Dosage unit validation" ;
+        sh:description "Dosage unit must be from approved pharmaceutical units"
+    ] ;
+    sh:property [
+        sh:path health:frequency ;
+        sh:datatype xsd:string ;
+        sh:in ( "once" "BID" "TID" "QID" "q4h" "q6h" "q8h" "q12h" "daily" "PRN" "STAT" ) ;
+        sh:name "Frequency validation" ;
+        sh:description "Administration frequency must be from approved list"
+    ] ;
+    sh:property [
+        sh:path health:route ;
+        sh:datatype xsd:string ;
+        sh:in ( "oral" "IV" "IM" "SQ" "topical" "inhalation" "rectal" "sublingual" "transdermal" ) ;
+        sh:name "Route validation" ;
+        sh:description "Route of administration must be from approved list"
+    ] .
+
+health:PrescriptionShape rdf:type sh:NodeShape ;
+    sh:targetClass health:Prescription ;
+    sh:property [
+        sh:path health:prescriptionDate ;
+        sh:datatype xsd:dateTime ;
+        sh:name "Prescription date requirement" ;
+        sh:description "All prescriptions must have a date"
+    ] .
+
+#####################################################################
+# BitActor Performance Constraints
+#####################################################################
+
+health:BitActorPerformanceShape rdf:type sh:NodeShape ;
+    sh:targetNode health:MedicalDevice ;
+    sh:property [
+        sh:path health:bitactorID ;
+        sh:datatype xsd:string ;
+        sh:pattern "^bitactor_health_[0-9a-f]{8}$" ;
+        sh:name "BitActor ID format" ;
+        sh:description "BitActor ID must follow format 'bitactor_health_########'"
+    ] ;
+    sh:sparql [
+        sh:message "Vital sign measurements must complete within 8 CPU ticks" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "health" ;
+                sh:namespace "http://cns.ai/ontology/healthcare#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                ?vitals health:generatedBy $this .
+                ?vitals health:ticksUsed ?ticks .
+                FILTER (?ticks > 8)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Critical patient monitoring must have sub-millisecond processing" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "health" ;
+                sh:namespace "http://cns.ai/ontology/healthcare#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                ?patient health:monitoredBy $this .
+                ?patient health:acuityLevel ?acuity .
+                ?vitals health:generatedBy $this .
+                ?vitals health:processingLatency ?latency .
+                FILTER (?acuity >= 4 && ?latency > 1000000)
+            }
+        """
+    ] .
+
+#####################################################################
+# Clinical Safety Rules
+#####################################################################
+
+health:PatientSafetyShape rdf:type sh:NodeShape ;
+    sh:targetNode health:Patient ;
+    sh:sparql [
+        sh:message "Critical vital signs require immediate alert generation" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "health" ;
+                sh:namespace "http://cns.ai/ontology/healthcare#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                ?vitals health:measurementOf $this .
+                ?vitals health:measurementValue ?value .
+                ?vitals health:criticalRangeHigh ?critHigh .
+                ?vitals health:criticalRangeLow ?critLow .
+                FILTER (?value > ?critHigh || ?value < ?critLow)
+                FILTER NOT EXISTS {
+                    ?alert a health:MedicalAlert .
+                    ?alert health:relatedTo $this .
+                    ?alert health:alertStatus "active" .
+                    ?alert health:alertTimestamp ?alertTime .
+                    ?vitals health:measurementTimestamp ?vitalTime .
+                    FILTER (?alertTime >= ?vitalTime)
+                }
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "High-acuity patients require continuous monitoring" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "health" ;
+                sh:namespace "http://cns.ai/ontology/healthcare#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this health:acuityLevel ?acuity .
+                FILTER (?acuity >= 4)
+                FILTER NOT EXISTS {
+                    ?device health:monitoredBy $this .
+                    ?device health:realTimeMonitoring true .
+                    ?device health:deviceStatus "operational" .
+                }
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Patients with multiple chronic conditions require enhanced monitoring" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "health" ;
+                sh:namespace "http://cns.ai/ontology/healthcare#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this (COUNT(?condition) AS ?conditionCount)
+            WHERE {
+                $this health:diagnosedWith ?condition .
+                ?condition a health:ChronicCondition .
+            }
+            GROUP BY $this
+            HAVING (?conditionCount >= 3)
+        """
+    ] .
+
+#####################################################################
+# Medication Safety Rules
+#####################################################################
+
+health:MedicationSafetyShape rdf:type sh:NodeShape ;
+    sh:targetNode health:Patient ;
+    sh:sparql [
+        sh:message "High-risk medication combinations require approval" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "health" ;
+                sh:namespace "http://cns.ai/ontology/healthcare#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                ?prescription1 health:prescribedFor $this .
+                ?prescription2 health:prescribedFor $this .
+                ?prescription1 health:contains ?med1 .
+                ?prescription2 health:contains ?med2 .
+                ?med1 health:medicationName "warfarin" .
+                ?med2 health:medicationName "aspirin" .
+                FILTER (?prescription1 != ?prescription2)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Pediatric patients require weight-based dosing validation" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "health" ;
+                sh:namespace "http://cns.ai/ontology/healthcare#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this health:age ?age .
+                $this health:weight ?weight .
+                ?prescription health:prescribedFor $this .
+                ?dosage health:prescribedIn ?prescription .
+                ?dosage health:dosageAmount ?amount .
+                FILTER (?age < 18)
+                # Weight-based dosing check would be more complex in practice
+                FILTER (?amount > (?weight * 10)) # Simplified safety check
+            }
+        """
+    ] .
+
+#####################################################################
+# Device Calibration and Maintenance Rules
+#####################################################################
+
+health:DeviceMaintenanceShape rdf:type sh:NodeShape ;
+    sh:targetNode health:MedicalDevice ;
+    sh:sparql [
+        sh:message "Critical monitoring devices require recent calibration" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "health" ;
+                sh:namespace "http://cns.ai/ontology/healthcare#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this a health:MonitoringDevice .
+                $this health:lastCalibrationDate ?calibDate .
+                ?patient health:acuityLevel ?acuity .
+                ?patient health:monitoredBy $this .
+                FILTER (?acuity >= 4)
+                FILTER (?calibDate < (NOW() - "P30D"^^xsd:duration))
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Devices with fault status must be removed from service" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "health" ;
+                sh:namespace "http://cns.ai/ontology/healthcare#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this health:deviceStatus "fault" .
+                ?patient health:monitoredBy $this .
+            }
+        """
+    ] .
+
+#####################################################################
+# Early Warning System Rules
+#####################################################################
+
+health:EarlyWarningShape rdf:type sh:NodeShape ;
+    sh:targetNode health:Patient ;
+    sh:sparql [
+        sh:message "Deteriorating vital sign trends require early warning score calculation" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "health" ;
+                sh:namespace "http://cns.ai/ontology/healthcare#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                ?vitals1 health:measurementOf $this .
+                ?vitals2 health:measurementOf $this .
+                ?vitals1 health:measurementTimestamp ?time1 .
+                ?vitals2 health:measurementTimestamp ?time2 .
+                ?vitals1 health:measurementValue ?value1 .
+                ?vitals2 health:measurementValue ?value2 .
+                FILTER (?time2 > ?time1)
+                FILTER ((?time2 - ?time1) <= "PT1H"^^xsd:duration)
+                # Simplified trend detection - significant change in vitals
+                FILTER (ABS(?value2 - ?value1) / ?value1 > 0.2)
+            }
+        """
+    ] .

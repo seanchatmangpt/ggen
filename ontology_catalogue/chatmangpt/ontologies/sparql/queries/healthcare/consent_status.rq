@@ -1,0 +1,86 @@
+# @name: consent_status
+# @category: healthcare/consent
+# @description: SPARQL SELECT checking current consent status for patient data access
+# @params: ?patient_uri, ?resource_type (optional), ?user_uri (optional)
+# @returns: SELECT result set with columns: consent_id, consent_status, resource_type, user_permitted, expiration_date, consent_scope, consent_given_date, withdrawal_date, is_expired, days_until_expiration
+# @version: 1.0
+# @stability: stable
+# @compliance: GDPR Article 7 (Consent), HIPAA 164.508 (Authorization)
+# @timeout_ms: 10000
+#
+# Use Case: Before processing any data access
+# "Check if patient Jane Doe has consented to share clinical data with Dr. Smith for treatment"
+#
+# Example binding:
+#   ?patient_uri = <http://businessos.dev/id/patients/MRN-12345>
+#   ?resource_type = "ClinicalData" (optional, filter by type)
+#   ?user_uri = <http://businessos.dev/id/users/doctor-001> (optional, check specific user permission)
+#
+# Returns consent records showing:
+#   - Consent ID and status (active, withdrawn, pending, expired)
+#   - Resource types covered (ClinicalData, PaymentData, ContactInfo, BiometricData, all)
+#   - Whether access is permitted for requesting user
+#   - Expiration date (GDPR: explicit time limit required)
+#   - Scope of consent (treatment, payment, research, audit, marketing)
+#   - When consent was given and (if applicable) withdrawn
+#   - Whether consent is currently expired
+#   - Days remaining until expiration
+#
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX chatman_health: <https://ontology.chatmangpt.com/healthcare#>
+PREFIX schema: <http://schema.org/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?consent_id ?consent_status ?resource_type ?user_permitted ?expiration_date ?consent_scope ?consent_given_date ?withdrawal_date ?is_expired ?days_until_expiration
+WHERE {
+  # Patient filter (required parameter)
+  BIND(?patient_uri AS ?patient)
+
+  # Get all consent records for patient
+  ?consent a chatman_health:ConsentRecord ;
+    schema:identifier ?consent_id ;
+    chatman_health:consentStatus ?consent_status ;
+    chatman_health:resourceType ?resource_type ;
+    chatman_health:consentScope ?consent_scope ;
+    dcterms:issued ?consent_given_date ;
+    chatman_health:dataSubject ?patient .
+
+  # Check if user is permitted (if user specified)
+  OPTIONAL {
+    ?consent odrl:assignee ?permitted_user .
+    BIND(?permitted_user = ?user_uri AS ?user_check)
+  }
+  BIND(COALESCE(?user_check, true) AS ?user_permitted)
+
+  # Expiration date is required for GDPR
+  OPTIONAL {
+    ?consent chatman_health:expirationDate ?expiration_date .
+  }
+
+  # Check if withdrawn (optional)
+  OPTIONAL {
+    ?consent chatman_health:withdrawnDate ?withdrawal_date .
+  }
+
+  # Only include active or pending consent (exclude already withdrawn)
+  FILTER(!BOUND(?withdrawal_date) || ?consent_status = "pending")
+
+  # Compute expiration status
+  BIND(IF(BOUND(?expiration_date) && ?expiration_date <= NOW(), true, false) AS ?is_expired)
+
+  # Compute days until expiration (or -1 if already expired or no expiration)
+  BIND(IF(BOUND(?expiration_date) && ?expiration_date > NOW(),
+    FLOOR(((?expiration_date - NOW()) / "PT86400S"^^xsd:duration)),
+    IF(BOUND(?expiration_date), 0, -1)
+  ) AS ?days_until_expiration)
+
+  # Resource type filter (optional)
+  FILTER(!BOUND(?resource_type_filter) || ?resource_type = ?resource_type_filter)
+}
+ORDER BY ASC(?consent_status) ASC(?days_until_expiration)

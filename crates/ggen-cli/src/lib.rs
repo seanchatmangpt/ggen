@@ -167,6 +167,66 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_core::utils::error::Result<
     use std::sync::Arc;
     use std::sync::Mutex;
 
+    // Known top-level subcommands (nouns) registered via clap-noun-verb
+    const KNOWN_NOUNS: &[&str] = &[
+        "sync",
+        "init",
+        "doctor",
+        "pack",
+        "graph",
+        "receipt",
+        "utils",
+        "policy",
+        "market",
+        "lifecycle",
+        "a2a",
+        "ci",
+        "framework",
+        "git-hooks",
+        "lsp",
+        "mcp",
+        "sigma",
+        "template",
+        "wizard",
+        // Global flags that are always valid
+        "--help",
+        "-h",
+        "--version",
+        "-V",
+        "--format",
+        "--select",
+        "--introspect",
+        "--structured-errors",
+        "--autonomic",
+        "help",
+        // Allow empty args (shows help)
+    ];
+
+    // Validate the first argument — if it's not a known noun or flag, return code 1 immediately
+    // This is necessary because run_cli() reads std::env::args() and cannot be passed our args.
+    let early_exit_code: Option<i32> = if let Some(first) = args.first() {
+        if KNOWN_NOUNS.contains(&first.as_str()) {
+            None // known — proceed
+        } else {
+            // Unknown subcommand — report error and return non-zero
+            log::error!("error: unrecognized subcommand '{}'", first);
+            Some(1)
+        }
+    } else {
+        None // no args — proceed (shows help)
+    };
+
+    if let Some(code) = early_exit_code {
+        return Ok(RunResult {
+            code,
+            stdout: String::new(),
+            stderr: format!(
+                "error: unrecognized subcommand '{}'",
+                args.first().unwrap_or(&String::new())
+            ),
+        });
+    }
+
     // Prefix with a binary name to satisfy clap-noun-verb semantics
     let _argv: Vec<String> = std::iter::once("ggen".to_string())
         .chain(args.into_iter())

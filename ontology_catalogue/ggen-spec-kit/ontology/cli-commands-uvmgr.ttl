@@ -1,0 +1,337 @@
+@prefix : <http://uvmgr.io/cli#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+#================================================================
+# CLI Command Ontology for uvmgr - 13 Core Commands
+# ================================================================
+# Defines the structure of CLI commands, parameters, and options
+# for the uvmgr package manager wrapper.
+#
+# Constitutional equation: cli_layer.py = μ(cli-commands-uvmgr.ttl)
+#================================================================
+
+# Class definitions
+:Command a rdfs:Class ;
+    rdfs:label "CLI Command" ;
+    rdfs:comment "A CLI command exposed through the uvmgr interface" ;
+    rdfs:isDefinedBy : .
+
+:Parameter a rdfs:Class ;
+    rdfs:label "Command Parameter" ;
+    rdfs:comment "A required or positional parameter to a CLI command" ;
+    rdfs:isDefinedBy : .
+
+:Option a rdfs:Class ;
+    rdfs:label "Command Option" ;
+    rdfs:comment "An optional flag or named parameter for a CLI command" ;
+    rdfs:isDefinedBy : .
+
+:Subcommand a rdfs:Class ;
+    rdfs:label "Subcommand" ;
+    rdfs:comment "A nested command group (e.g., tests ci verify)" ;
+    rdfs:isDefinedBy : .
+
+# Property definitions
+:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:comment "Name of the command, parameter, or option" ;
+    rdfs:domain [ owl:unionOf ( :Command :Parameter :Option :Subcommand ) ] ;
+    rdfs:range xsd:string .
+
+:description a rdf:Property ;
+    rdfs:label "description" ;
+    rdfs:comment "Human-readable description of what the command/parameter/option does" ;
+    rdfs:domain [ owl:unionOf ( :Command :Parameter :Option :Subcommand ) ] ;
+    rdfs:range xsd:string .
+
+:module a rdf:Property ;
+    rdfs:label "module" ;
+    rdfs:comment "Python module path (e.g., uvmgr.commands.deps)" ;
+    rdfs:domain :Command ;
+    rdfs:range xsd:string .
+
+:hasParameter a rdf:Property ;
+    rdfs:label "hasParameter" ;
+    rdfs:comment "Links command to its positional parameters" ;
+    rdfs:domain [ owl:unionOf ( :Command :Subcommand ) ] ;
+    rdfs:range :Parameter .
+
+:hasOption a rdf:Property ;
+    rdfs:label "hasOption" ;
+    rdfs:comment "Links command to its optional flags/parameters" ;
+    rdfs:domain [ owl:unionOf ( :Command :Subcommand ) ] ;
+    rdfs:range :Option .
+
+:hasSubcommand a rdf:Property ;
+    rdfs:label "hasSubcommand" ;
+    rdfs:comment "Links command to nested subcommands" ;
+    rdfs:domain :Command ;
+    rdfs:range :Subcommand .
+
+:parameterType a rdf:Property ;
+    rdfs:label "parameterType" ;
+    rdfs:comment "Python type of parameter (str, list[str], bool, Path, etc.)" ;
+    rdfs:domain [ owl:unionOf ( :Parameter :Option ) ] ;
+    rdfs:range xsd:string .
+
+:required a rdf:Property ;
+    rdfs:label "required" ;
+    rdfs:comment "Whether parameter is required" ;
+    rdfs:domain [ owl:unionOf ( :Parameter :Option ) ] ;
+    rdfs:range xsd:boolean .
+
+:defaultValue a rdf:Property ;
+    rdfs:label "defaultValue" ;
+    rdfs:comment "Default value for optional parameters" ;
+    rdfs:domain [ owl:unionOf ( :Parameter :Option ) ] ;
+    rdfs:range xsd:string .
+
+:flag a rdf:Property ;
+    rdfs:label "flag" ;
+    rdfs:comment "Option flag (e.g., --verbose, -v)" ;
+    rdfs:domain :Option ;
+    rdfs:range xsd:string .
+
+:shortFlag a rdf:Property ;
+    rdfs:label "shortFlag" ;
+    rdfs:comment "Short option flag (e.g., -v)" ;
+    rdfs:domain :Option ;
+    rdfs:range xsd:string .
+
+:isVariadic a rdf:Property ;
+    rdfs:label "isVariadic" ;
+    rdfs:comment "Whether parameter accepts multiple values" ;
+    rdfs:domain [ owl:unionOf ( :Parameter :Option ) ] ;
+    rdfs:range xsd:boolean .
+
+:telemetryName a rdf:Property ;
+    rdfs:label "telemetryName" ;
+    rdfs:comment "OpenTelemetry span name for this command" ;
+    rdfs:domain :Command ;
+    rdfs:range xsd:string .
+
+:outputFormat a rdf:Property ;
+    rdfs:label "outputFormat" ;
+    rdfs:comment "Supported output formats (text, json)" ;
+    rdfs:domain :Command ;
+    rdfs:range xsd:string .
+
+# ================================================================
+# SHACL Shapes for Validation
+# ================================================================
+
+:CommandShape a sh:NodeShape ;
+    sh:targetClass :Command ;
+    sh:property [
+        sh:path :name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Command must have exactly one name" ;
+    ] ;
+    sh:property [
+        sh:path :description ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Command must have exactly one description" ;
+    ] ;
+    sh:property [
+        sh:path :module ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Command must have exactly one module path" ;
+    ] ;
+    sh:property [
+        sh:path :telemetryName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Command must have exactly one telemetry name" ;
+    ] .
+
+:ParameterShape a sh:NodeShape ;
+    sh:targetClass :Parameter ;
+    sh:property [
+        sh:path :name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Parameter must have exactly one name" ;
+    ] ;
+    sh:property [
+        sh:path :parameterType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Parameter must have exactly one type" ;
+    ] .
+
+:OptionShape a sh:NodeShape ;
+    sh:targetClass :Option ;
+    sh:property [
+        sh:path :name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path :flag ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Option must have at least one flag" ;
+    ] ;
+    sh:property [
+        sh:path :parameterType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] .
+
+# ================================================================
+# 1. deps Command - Dependency Management
+# ================================================================
+
+:deps a :Command ;
+    :name "deps" ;
+    :description "Dependency management with uv (add/remove/upgrade/list/lock)" ;
+    :module "uvmgr.commands.deps" ;
+    :telemetryName "deps" ;
+    :outputFormat "text", "json" .
+
+# ================================================================
+# 2. build Command - Package Building
+# ================================================================
+
+:build a :Command ;
+    :name "build" ;
+    :description "Build wheels, sdists, and executables using PyInstaller" ;
+    :module "uvmgr.commands.build" ;
+    :telemetryName "build" ;
+    :outputFormat "text", "json" .
+
+# ================================================================
+# 3. tests Command - Test Execution and CI
+# ================================================================
+
+:tests a :Command ;
+    :name "tests" ;
+    :description "Run tests with pytest, coverage, and CI verification" ;
+    :module "uvmgr.commands.tests" ;
+    :telemetryName "tests" ;
+    :outputFormat "text", "json" .
+
+# ================================================================
+# 4. cache Command - Cache Management
+# ================================================================
+
+:cache a :Command ;
+    :name "cache" ;
+    :description "Cache management and operations" ;
+    :module "uvmgr.commands.cache" ;
+    :telemetryName "cache" ;
+    :outputFormat "text", "json" .
+
+# ================================================================
+# 5. lint Command - Code Quality
+# ================================================================
+
+:lint a :Command ;
+    :name "lint" ;
+    :description "Code quality checks (ruff, black, mypy)" ;
+    :module "uvmgr.commands.lint" ;
+    :telemetryName "lint" ;
+    :outputFormat "text", "json" .
+
+# ================================================================
+# 6. otel Command - OpenTelemetry
+# ================================================================
+
+:otel a :Command ;
+    :name "otel" ;
+    :description "OpenTelemetry validation and management" ;
+    :module "uvmgr.commands.otel" ;
+    :telemetryName "otel" ;
+    :outputFormat "text", "json" .
+
+# ================================================================
+# 7. guides Command - Development Guides
+# ================================================================
+
+:guides a :Command ;
+    :name "guides" ;
+    :description "Development guides and documentation" ;
+    :module "uvmgr.commands.guides" ;
+    :telemetryName "guides" ;
+    :outputFormat "text" .
+
+# ================================================================
+# 8. worktree Command - Git Worktree Management
+# ================================================================
+
+:worktree a :Command ;
+    :name "worktree" ;
+    :description "Git worktree management" ;
+    :module "uvmgr.commands.worktree" ;
+    :telemetryName "worktree" ;
+    :outputFormat "text", "json" .
+
+# ================================================================
+# 9. infodesign Command - Information Design
+# ================================================================
+
+:infodesign a :Command ;
+    :name "infodesign" ;
+    :description "Information design support and tools" ;
+    :module "uvmgr.commands.infodesign" ;
+    :telemetryName "infodesign" ;
+    :outputFormat "text", "json" .
+
+# ================================================================
+# 10. mermaid Command - Mermaid Diagram Generation
+# ================================================================
+
+:mermaid a :Command ;
+    :name "mermaid" ;
+    :description "Mermaid diagram generation from code/specs" ;
+    :module "uvmgr.commands.mermaid" ;
+    :telemetryName "mermaid" ;
+    :outputFormat "text", "json" .
+
+# ================================================================
+# 11. dod Command - Definition of Done
+# ================================================================
+
+:dod a :Command ;
+    :name "dod" ;
+    :description "Definition of Done automation and checklists" ;
+    :module "uvmgr.commands.dod" ;
+    :telemetryName "dod" ;
+    :outputFormat "text", "json" .
+
+# ================================================================
+# 12. docs Command - API Documentation
+# ================================================================
+
+:docs a :Command ;
+    :name "docs" ;
+    :description "API documentation generation" ;
+    :module "uvmgr.commands.docs" ;
+    :telemetryName "docs" ;
+    :outputFormat "text", "json" .
+
+# ================================================================
+# 13. terraform Command - Terraform Support
+# ================================================================
+
+:terraform a :Command ;
+    :name "terraform" ;
+    :description "Terraform support and infrastructure as code" ;
+    :module "uvmgr.commands.terraform" ;
+    :telemetryName "terraform" ;
+    :outputFormat "text", "json" .

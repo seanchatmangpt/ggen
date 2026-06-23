@@ -1,0 +1,43 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix cnv: <http://example.org/clap-noun-verb/> .
+
+# Compact reference for OSHB morphology provenance
+# Full details: ../docs/OSHB_LICENSE_COMPLIANCE.md
+# Full ontology: ./oshb-morphology-source.ttl
+
+cnv:HebrewMorphologySource a rdf:Resource ;
+    rdfs:label "Open Scriptures Hebrew Bible (OSHB)" ;
+    dct:identifier "oshb" ;
+    dct:source <https://github.com/openscriptures/morphhb> ;
+    dct:license <https://creativecommons.org/licenses/by/4.0/> ;
+    dct:description "Hebrew Bible with lemma and morphology annotations; CC BY 4.0 licensed" ;
+    prov:wasDerivedFrom "Westminster Hebrew Morphology" ;
+    dct:isPartOf cnv:PublicLanguageResources ;
+    rdfs:comment "Reference externally; do not vendor. Attribution: https://creativecommons.org/licenses/by/4.0/" ;
+    .
+
+cnv:PublicLanguageResources a rdfs:Class ;
+    rdfs:label "Public Language Resources" ;
+    rdfs:comment "Publicly-licensed linguistic datasets safe for reference integration" ;
+    rdfs:seeAlso <file:../docs/PUBLIC_SOURCE_LEDGER.md> ;
+    .
+
+cnv:HebrewLemmaInventory dct:source cnv:HebrewMorphologySource ;
+    rdfs:label "Hebrew Lemma Inventory (OSHB)" ;
+    dct:description "Root word forms and English glosses from OSHB" ;
+    dct:accessURL <https://github.com/openscriptures/morphhb/blob/master/morphhb/hebrew/> ;
+    .
+
+cnv:HebrewMorphologyTags dct:source cnv:HebrewMorphologySource ;
+    rdfs:label "Hebrew Morphology Tags (OSHB)" ;
+    dct:description "POS, gender, number, binyan, stem tags from Westminster Hebrew Morphology" ;
+    dct:accessURL <https://github.com/openscriptures/hebrew-morphology> ;
+    .
+
+# Integration note: Use as external reference layer in semantic composition
+cnv:SemanticCompositionFramework prov:wasInformedBy cnv:HebrewMorphologySource ;
+    rdfs:comment "Hebrew morphology integrated as reference layer for noun-verb semantic binding" ;
+    .

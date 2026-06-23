@@ -1,0 +1,469 @@
+# Chatman Equation Ontology
+# Mathematical framework for unified value creation and disruption analysis
+# Originated by James I. Chatman, formalized by Sean Chatman
+#
+# Base namespace: urn:chatman:
+# Version: 1.0.0
+# License: MIT
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix foaf: <http://www.foaf-project.org/> .
+
+# Base namespace for Chatman Equation Ontology
+@prefix chatman: <urn:chatman:> .
+@prefix ce: <urn:chatman:equation:> .
+@prefix lineage: <urn:chatman:lineage:> .
+
+# =============================================================================
+# ONTOLOGY METADATA
+# =============================================================================
+
+chatman:ChatmanEquationOntology a owl:Ontology ;
+    rdfs:label "Chatman Equation Ontology"@en ;
+    rdfs:comment """The Chatman Equation is a mathematical framework for understanding
+    value creation, disruption, and strategic transformation across domains. It provides
+    a closure operator algebra that unifies market dynamics, organizational strategy,
+    blue ocean formation, and innovation arithmetic under a single mathematical formalism.
+
+    Originally conceived by James I. Chatman and formalized by Sean Chatman, this ontology
+    captures the core concepts: Artifacts (value carriers), Observations (empirical data),
+    and Closure Operators (transformation rules)."""@en ;
+    owl:versionInfo "1.0.0" ;
+    dcterms:created "2026-01-18"^^xsd:date ;
+    dcterms:creator lineage:SeanChatman ;
+    dcterms:contributor lineage:JamesIChatman ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    rdfs:seeAlso <https://github.com/seanchatmangpt/unrdf> ;
+    skos:historyNote """The Chatman Equation emerged from decades of work by James I. Chatman
+    on strategic business frameworks, later formalized mathematically by Sean Chatman as part
+    of the Knowledge Geometry Calculus (KGC) substrate."""@en .
+
+# =============================================================================
+# LINEAGE - INTELLECTUAL PROVENANCE
+# =============================================================================
+
+lineage:JamesIChatman a foaf:Person, prov:Agent ;
+    foaf:name "James I. Chatman" ;
+    rdfs:label "James I. Chatman"@en ;
+    rdfs:comment "Originator of the Chatman Equation conceptual framework."@en ;
+    prov:actedOnBehalfOf lineage:ChatmanLineage ;
+    dcterms:description """James I. Chatman developed the foundational concepts of value
+    transformation and strategic closure operators through decades of business strategy work.
+    His insights into market dynamics and organizational transformation laid the groundwork
+    for the mathematical formalization."""@en .
+
+lineage:SeanChatman a foaf:Person, prov:Agent ;
+    foaf:name "Sean Chatman" ;
+    foaf:mbox <mailto:seanchatman@example.org> ;
+    rdfs:label "Sean Chatman"@en ;
+    rdfs:comment "Mathematical formalizer and implementer of the Chatman Equation."@en ;
+    prov:actedOnBehalfOf lineage:ChatmanLineage ;
+    dcterms:relation lineage:JamesIChatman ;
+    dcterms:description """Sean Chatman formalized the Chatman Equation mathematically,
+    integrating it with the Knowledge Geometry Calculus (KGC) and implementing it as
+    part of the UNRDF autonomic knowledge graph platform. He extended the original
+    concepts into a rigorous algebraic framework with cryptographic guarantees."""@en ;
+    prov:wasDerivedFrom lineage:JamesIChatman .
+
+lineage:ChatmanLineage a prov:Organization ;
+    rdfs:label "Chatman Intellectual Lineage"@en ;
+    rdfs:comment "The intellectual tradition from James I. Chatman to Sean Chatman."@en ;
+    prov:hadMember lineage:JamesIChatman, lineage:SeanChatman .
+
+# =============================================================================
+# CORE CLASSES - THE CHATMAN TRIAD
+# =============================================================================
+
+ce:Artifact a rdfs:Class, owl:Class ;
+    rdfs:label "Artifact"@en ;
+    rdfs:comment """An Artifact is a value-carrying entity in the Chatman Equation framework.
+    Artifacts represent products, services, strategies, or any structured object that can
+    undergo transformation through closure operators. They are the fundamental units of
+    analysis in value creation and disruption."""@en ;
+    rdfs:subClassOf prov:Entity ;
+    skos:definition """Artifact ∈ Domain D: A structured entity with measurable properties
+    that can be observed, transformed, and unified through closure operators."""@en ;
+    skos:example """Examples: Product designs, market offerings, organizational structures,
+    business models, strategic plans, software systems, innovation proposals."""@en .
+
+ce:Observation a rdfs:Class, owl:Class ;
+    rdfs:label "Observation"@en ;
+    rdfs:comment """An Observation is an empirical measurement or data point about an Artifact
+    or its context. Observations provide the grounding for closure operator application,
+    enabling data-driven transformation decisions."""@en ;
+    rdfs:subClassOf prov:Activity ;
+    skos:definition """Observation O: (artifact, property, value, timestamp, observer)
+    A timestamped measurement of an artifact's properties by an observer."""@en ;
+    skos:example """Examples: Market share percentage, customer satisfaction score,
+    revenue figures, performance metrics, competitive positioning data."""@en .
+
+ce:ClosureOperator a rdfs:Class, owl:Class ;
+    rdfs:label "Closure Operator"@en ;
+    rdfs:comment """A Closure Operator is a transformation function that unifies, combines,
+    or evolves artifacts according to mathematical closure properties. Closure operators
+    are the engines of value creation and disruption in the Chatman Equation."""@en ;
+    skos:definition """Closure Operator Γ: P(D) → P(D) satisfying:
+    1. Extensivity: X ⊆ Γ(X) (transformation preserves essence)
+    2. Monotonicity: X ⊆ Y ⟹ Γ(X) ⊆ Γ(Y) (consistent scaling)
+    3. Idempotence: Γ(Γ(X)) = Γ(X) (convergence to stable form)
+
+    where D is the domain of artifacts."""@en ;
+    skos:example """Examples: Blue Ocean Strategy operator, Disruptive Innovation operator,
+    Market Consolidation operator, Strategic Pivot operator."""@en .
+
+# Specialized Closure Operators
+ce:UnificationOperator a rdfs:Class, owl:Class ;
+    rdfs:label "Unification Operator"@en ;
+    rdfs:comment """A closure operator that unifies disparate artifacts into a coherent whole,
+    eliminating contradictions and creating synergy."""@en ;
+    rdfs:subClassOf ce:ClosureOperator ;
+    skos:definition """Γ_unify(X) = minimal superset of X with no internal conflicts."""@en .
+
+ce:DisruptionOperator a rdfs:Class, owl:Class ;
+    rdfs:label "Disruption Operator"@en ;
+    rdfs:comment """A closure operator that transforms artifacts by introducing discontinuities
+    in value delivery, typically through innovation or paradigm shifts."""@en ;
+    rdfs:subClassOf ce:ClosureOperator ;
+    skos:definition """Γ_disrupt(X) = X ∪ {novel artifacts outside current value curve}."""@en .
+
+ce:BlueOceanOperator a rdfs:Class, owl:Class ;
+    rdfs:label "Blue Ocean Operator"@en ;
+    rdfs:comment """A closure operator that creates uncontested market space by eliminating
+    competition through strategic differentiation and value innovation."""@en ;
+    rdfs:subClassOf ce:ClosureOperator ;
+    skos:definition """Γ_blueocean(X) = {artifacts in X with unique value propositions +
+    eliminated competition factors}. Satisfies: competitive_density(Γ_blueocean(X)) → 0."""@en ;
+    rdfs:seeAlso <https://www.blueoceanstrategy.com/> .
+
+ce:StrategicPivotOperator a rdfs:Class, owl:Class ;
+    rdfs:label "Strategic Pivot Operator"@en ;
+    rdfs:comment """A closure operator that transforms organizational direction while
+    preserving core capabilities and assets."""@en ;
+    rdfs:subClassOf ce:ClosureOperator ;
+    skos:definition """Γ_pivot(X) = {artifacts in X rotated to new strategic axis}."""@en .
+
+# =============================================================================
+# UNIFICATION DOMAINS
+# =============================================================================
+
+ce:UnificationDomain a rdfs:Class, owl:Class ;
+    rdfs:label "Unification Domain"@en ;
+    rdfs:comment """A UnificationDomain is a specific area of application for the Chatman
+    Equation, characterized by its artifacts, observations, and applicable closure operators."""@en ;
+    skos:definition """Domain D: (Artifact_Types, Observation_Types, Closure_Operators,
+    Constraints, Success_Metrics)."""@en .
+
+# Concrete Domains
+ce:MarketDomain a ce:UnificationDomain ;
+    rdfs:label "Market Dynamics Domain"@en ;
+    rdfs:comment """Application of Chatman Equation to market analysis, competitive strategy,
+    and value curve transformation."""@en ;
+    skos:example """Analyzing market consolidation, blue ocean formation, competitive positioning."""@en .
+
+ce:OrganizationalDomain a ce:UnificationDomain ;
+    rdfs:label "Organizational Strategy Domain"@en ;
+    rdfs:comment """Application to organizational design, capability development, and
+    strategic transformation."""@en ;
+    skos:example """Organizational restructuring, capability mapping, strategic alignment."""@en .
+
+ce:InnovationDomain a ce:UnificationDomain ;
+    rdfs:label "Innovation Arithmetic Domain"@en ;
+    rdfs:comment """Application to innovation processes, disruptive technology assessment,
+    and R&D portfolio optimization."""@en ;
+    skos:example """Innovation pipeline analysis, disruption risk assessment, technology roadmapping."""@en .
+
+ce:ProductDomain a ce:UnificationDomain ;
+    rdfs:label "Product Development Domain"@en ;
+    rdfs:comment """Application to product design, feature evolution, and product-market fit."""@en ;
+    skos:example """Feature prioritization, product positioning, portfolio rationalization."""@en .
+
+ce:FinanceDomain a ce:UnificationDomain ;
+    rdfs:label "Financial Strategy Domain"@en ;
+    rdfs:comment """Application to financial modeling, investment analysis, and value creation."""@en ;
+    skos:example """Portfolio optimization, M&A analysis, capital allocation."""@en .
+
+ce:TechnologyDomain a ce:UnificationDomain ;
+    rdfs:label "Technology Evolution Domain"@en ;
+    rdfs:comment """Application to technology stack decisions, platform evolution, and
+    architectural transformation."""@en ;
+    skos:example """Technical debt management, platform migration, architecture modernization."""@en .
+
+# =============================================================================
+# PROPERTIES - RELATIONSHIPS AND TRANSFORMATIONS
+# =============================================================================
+
+# --- Core Relationships ---
+
+ce:unifies a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "unifies"@en ;
+    rdfs:comment """Links a closure operator to the artifacts it unifies into a coherent whole."""@en ;
+    rdfs:domain ce:ClosureOperator ;
+    rdfs:range ce:Artifact ;
+    skos:definition """unifies(Γ, A) ⟺ A ∈ Γ(input_artifacts)."""@en .
+
+ce:transforms a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "transforms"@en ;
+    rdfs:comment """Links a closure operator to the artifacts it transforms."""@en ;
+    rdfs:domain ce:ClosureOperator ;
+    rdfs:range ce:Artifact ;
+    skos:definition """transforms(Γ, A_in, A_out) ⟺ A_out ∈ Γ({A_in})."""@en .
+
+ce:observes a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "observes"@en ;
+    rdfs:comment """Links an observation to the artifact being observed."""@en ;
+    rdfs:domain ce:Observation ;
+    rdfs:range ce:Artifact ;
+    skos:definition """observes(O, A) ⟺ O measures properties of A."""@en .
+
+ce:appliesTo a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "applies to"@en ;
+    rdfs:comment """Links a closure operator to the domain where it applies."""@en ;
+    rdfs:domain ce:ClosureOperator ;
+    rdfs:range ce:UnificationDomain .
+
+ce:produces a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "produces"@en ;
+    rdfs:comment """Links a closure operator to the output artifacts it produces."""@en ;
+    rdfs:domain ce:ClosureOperator ;
+    rdfs:range ce:Artifact .
+
+ce:consumes a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "consumes"@en ;
+    rdfs:comment """Links a closure operator to the input artifacts it consumes."""@en ;
+    rdfs:domain ce:ClosureOperator ;
+    rdfs:range ce:Artifact .
+
+ce:derivedFrom a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "derived from"@en ;
+    rdfs:comment """Links an artifact to its source artifacts (provenance)."""@en ;
+    rdfs:domain ce:Artifact ;
+    rdfs:range ce:Artifact ;
+    rdfs:subPropertyOf prov:wasDerivedFrom .
+
+ce:inDomain a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "in domain"@en ;
+    rdfs:comment """Links an artifact to its unification domain."""@en ;
+    rdfs:domain ce:Artifact ;
+    rdfs:range ce:UnificationDomain .
+
+# --- Measurement Properties ---
+
+ce:measuredBy a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "measured by"@en ;
+    rdfs:comment """Links an artifact to observations about it."""@en ;
+    rdfs:domain ce:Artifact ;
+    rdfs:range ce:Observation ;
+    owl:inverseOf ce:observes .
+
+ce:observedProperty a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "observed property"@en ;
+    rdfs:comment """The property name being observed (e.g., 'market_share', 'revenue')."""@en ;
+    rdfs:domain ce:Observation ;
+    rdfs:range xsd:string .
+
+ce:observedValue a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "observed value"@en ;
+    rdfs:comment """The measured value of the observation."""@en ;
+    rdfs:domain ce:Observation ;
+    rdfs:range rdfs:Literal .
+
+ce:observedAt a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "observed at"@en ;
+    rdfs:comment """Timestamp when the observation was made."""@en ;
+    rdfs:domain ce:Observation ;
+    rdfs:range xsd:dateTime .
+
+ce:observer a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "observer"@en ;
+    rdfs:comment """The agent or system that made the observation."""@en ;
+    rdfs:domain ce:Observation ;
+    rdfs:range prov:Agent .
+
+# --- Closure Properties (Mathematical) ---
+
+ce:isExtensive a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "is extensive"@en ;
+    rdfs:comment """Boolean: Does this operator satisfy extensivity (X ⊆ Γ(X))?"""@en ;
+    rdfs:domain ce:ClosureOperator ;
+    rdfs:range xsd:boolean .
+
+ce:isMonotonic a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "is monotonic"@en ;
+    rdfs:comment """Boolean: Does this operator satisfy monotonicity?"""@en ;
+    rdfs:domain ce:ClosureOperator ;
+    rdfs:range xsd:boolean .
+
+ce:isIdempotent a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "is idempotent"@en ;
+    rdfs:comment """Boolean: Does this operator satisfy idempotence (Γ(Γ(X)) = Γ(X))?"""@en ;
+    rdfs:domain ce:ClosureOperator ;
+    rdfs:range xsd:boolean .
+
+ce:convergenceProperty a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "convergence property"@en ;
+    rdfs:comment """Description of what stable state the operator converges to."""@en ;
+    rdfs:domain ce:ClosureOperator ;
+    rdfs:range xsd:string .
+
+# --- Strategic Properties ---
+
+ce:valueCreated a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "value created"@en ;
+    rdfs:comment """Quantitative measure of value created by transformation."""@en ;
+    rdfs:domain ce:ClosureOperator ;
+    rdfs:range xsd:decimal .
+
+ce:disruptionIndex a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "disruption index"@en ;
+    rdfs:comment """Measure of disruption intensity (0-1 scale)."""@en ;
+    rdfs:domain ce:DisruptionOperator ;
+    rdfs:range xsd:decimal ;
+    sh:minInclusive 0.0 ;
+    sh:maxInclusive 1.0 .
+
+ce:competitiveDensity a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "competitive density"@en ;
+    rdfs:comment """Measure of competition intensity in domain (0-1, lower is better for blue ocean)."""@en ;
+    rdfs:domain ce:UnificationDomain ;
+    rdfs:range xsd:decimal ;
+    sh:minInclusive 0.0 ;
+    sh:maxInclusive 1.0 .
+
+ce:valueCurvePosition a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "value curve position"@en ;
+    rdfs:comment """Position on the value-cost curve (JSON or vector representation)."""@en ;
+    rdfs:domain ce:Artifact ;
+    rdfs:range xsd:string .
+
+# --- Artifact Properties ---
+
+ce:artifactType a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "artifact type"@en ;
+    rdfs:comment """Type classification of the artifact (e.g., 'product', 'strategy', 'organization')."""@en ;
+    rdfs:domain ce:Artifact ;
+    rdfs:range xsd:string .
+
+ce:artifactName a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "artifact name"@en ;
+    rdfs:comment """Human-readable name of the artifact."""@en ;
+    rdfs:domain ce:Artifact ;
+    rdfs:range xsd:string .
+
+ce:artifactDescription a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "artifact description"@en ;
+    rdfs:comment """Detailed description of the artifact."""@en ;
+    rdfs:domain ce:Artifact ;
+    rdfs:range xsd:string .
+
+ce:createdAt a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "created at"@en ;
+    rdfs:comment """Timestamp when artifact was created."""@en ;
+    rdfs:domain ce:Artifact ;
+    rdfs:range xsd:dateTime .
+
+ce:version a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "version"@en ;
+    rdfs:comment """Version identifier for the artifact."""@en ;
+    rdfs:domain ce:Artifact ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# AXIOMS AND RULES (N3 REASONING)
+# =============================================================================
+
+# Transitivity of derivation
+ce:DerivedFromTransitivity a owl:Axiom ;
+    rdfs:label "Derivation Transitivity"@en ;
+    rdfs:comment """If A derives from B and B derives from C, then A derives from C."""@en ;
+    owl:propertyChainAxiom ( ce:derivedFrom ce:derivedFrom ) ;
+    rdfs:subPropertyOf ce:derivedFrom .
+
+# Closure operator guarantees
+ce:ClosureAxiom a owl:Axiom ;
+    rdfs:label "Closure Operator Axiom"@en ;
+    rdfs:comment """All closure operators must satisfy extensivity, monotonicity, and idempotence."""@en ;
+    sh:targetClass ce:ClosureOperator ;
+    sh:property [
+        sh:path ce:isExtensive ;
+        sh:hasValue true ;
+    ] ;
+    sh:property [
+        sh:path ce:isMonotonic ;
+        sh:hasValue true ;
+    ] ;
+    sh:property [
+        sh:path ce:isIdempotent ;
+        sh:hasValue true ;
+    ] .
+
+# =============================================================================
+# STANDARD INSTANCES - PRE-DEFINED OPERATORS
+# =============================================================================
+
+# Market Consolidation Operator
+ce:MarketConsolidation a ce:UnificationOperator ;
+    rdfs:label "Market Consolidation"@en ;
+    rdfs:comment """Unifies fragmented market players into consolidated entities."""@en ;
+    ce:appliesTo ce:MarketDomain ;
+    ce:isExtensive true ;
+    ce:isMonotonic true ;
+    ce:isIdempotent true ;
+    ce:convergenceProperty "Oligopoly or monopoly with reduced player count" .
+
+# Blue Ocean Strategy Operator
+ce:BlueOceanStrategy a ce:BlueOceanOperator ;
+    rdfs:label "Blue Ocean Strategy"@en ;
+    rdfs:comment """Creates uncontested market space through value innovation."""@en ;
+    ce:appliesTo ce:MarketDomain, ce:ProductDomain ;
+    ce:isExtensive true ;
+    ce:isMonotonic true ;
+    ce:isIdempotent true ;
+    ce:convergenceProperty "Differentiated position with minimal competition" ;
+    rdfs:seeAlso <https://www.blueoceanstrategy.com/> .
+
+# Disruptive Innovation Operator
+ce:DisruptiveInnovation a ce:DisruptionOperator ;
+    rdfs:label "Disruptive Innovation"@en ;
+    rdfs:comment """Introduces innovations that disrupt existing value networks."""@en ;
+    ce:appliesTo ce:InnovationDomain, ce:TechnologyDomain ;
+    ce:isExtensive true ;
+    ce:isMonotonic true ;
+    ce:isIdempotent true ;
+    ce:disruptionIndex 0.8 ;
+    ce:convergenceProperty "New value curve displacing incumbents" ;
+    rdfs:seeAlso <http://www.claytonchristensen.com/> .
+
+# Strategic Pivot Operator
+ce:StrategicPivot a ce:StrategicPivotOperator ;
+    rdfs:label "Strategic Pivot"@en ;
+    rdfs:comment """Transforms organizational direction while preserving core assets."""@en ;
+    ce:appliesTo ce:OrganizationalDomain, ce:ProductDomain ;
+    ce:isExtensive false ;
+    ce:isMonotonic false ;
+    ce:isIdempotent true ;
+    ce:convergenceProperty "Reoriented strategy aligned with new market conditions" .
+
+# =============================================================================
+# ALIGNMENT WITH KGC AND UNRDF
+# =============================================================================
+
+ce:AlignmentWithKGC a owl:Axiom ;
+    rdfs:label "Chatman-KGC Alignment"@en ;
+    rdfs:comment """The Chatman Equation integrates with Knowledge Geometry Calculus:
+    - Artifacts ≈ Knowledge Entities in RDF graphs
+    - Observations ≈ SPARQL query results / SHACL validations
+    - Closure Operators ≈ Knowledge Hooks with field-theoretic transformations
+    - Unification Domains ≈ Bounded contexts in domain-driven design
+
+    The Chatman Constant Θ=8 represents the bounded complexity of closure operator
+    evaluation in the KGC substrate."""@en ;
+    rdfs:seeAlso <urn:unrdf:kgc:> .
+
+# End of Chatman Equation Ontology

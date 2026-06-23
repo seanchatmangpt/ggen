@@ -1,0 +1,401 @@
+@prefix bfc: <http://byteflow.org/crystal#> .
+@prefix bfr: <http://byteflow.org/roles#> .
+@prefix bfs: <http://byteflow.org/seals#> .
+@prefix geo: <http://geometry.org/cube#> .
+@prefix qsem: <http://quantum-semantic.org/layer#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+
+#################################################################
+# QUANTUM-SEMANTIC BYTEFLOW CRYSTAL ONTOLOGY
+# Where Geometric Position = Semantic Meaning = Execution Role
+#################################################################
+
+<http://byteflow.org/crystal>
+  a owl:Ontology ;
+  rdfs:label "ByteFlow Crystal Quantum-Semantic Ontology" ;
+  rdfs:comment "8-actor cube geometry where position defines meaning and execution flows become crystalline matter." ;
+  owl:versionInfo "2.0.0-quantum" ;
+  qsem:paradigm "post-human-computation" .
+
+#################################################################
+# CORE QUANTUM-SEMANTIC CLASSES
+#################################################################
+
+bfc:Crystal a owl:Class ;
+  rdfs:label "ByteFlow Crystal" ;
+  rdfs:comment "A cube of exactly 8 ByteActors where geometric position determines semantic role." ;
+  qsem:geometry "cube" ;
+  qsem:atomicity "8-actors" ;
+  qsem:cacheLine "64-bytes" .
+
+bfc:ByteActor a owl:Class ;
+  rdfs:label "ByteActor (8-byte cell)" ;
+  rdfs:comment "A single 64-bit execution cell positioned at cube vertex." ;
+  qsem:cellSize "8-bytes" ;
+  qsem:addressing "direct" .
+
+bfc:Channel a owl:Class ;
+  rdfs:label "Execution Channel" ;
+  rdfs:comment "Signal flow path between ByteActors (cube edges)." .
+
+bfc:Facet a owl:Class ;
+  rdfs:label "Crystal Facet" ;
+  rdfs:comment "Interface plane for polycrystal docking." .
+
+bfc:Seal a owl:Class ;
+  rdfs:label "Cryptographic Seal" ;
+  rdfs:comment "Integrity verification for actors and crystals." .
+
+#################################################################
+# QUANTUM-SEMANTIC POSITION-ROLE MAPPING
+# Each cube vertex coordinate maps to canonical workflow role
+#################################################################
+
+# Vertex coordinates (x,y,z) ∈ {0,1}³
+geo:Vertex a owl:Class .
+geo:x a owl:DatatypeProperty ; rdfs:domain geo:Vertex ; rdfs:range xsd:boolean .
+geo:y a owl:DatatypeProperty ; rdfs:domain geo:Vertex ; rdfs:range xsd:boolean .
+geo:z a owl:DatatypeProperty ; rdfs:domain geo:Vertex ; rdfs:range xsd:boolean .
+
+# Canonical role assignments by position
+bfr:WorkflowRole a owl:Class .
+
+bfr:Initiator a bfr:WorkflowRole ;
+  rdfs:label "Initiator" ;
+  geo:position "(0,0,0)" ;
+  qsem:semantics "Workflow trigger, start signal, request origination" ;
+  qsem:invariant "Every crystal begins here" .
+
+bfr:ResourceProvider a bfr:WorkflowRole ;
+  rdfs:label "Resource Provider" ;
+  geo:position "(1,0,0)" ;
+  qsem:semantics "Data input, asset provision, resource allocation" ;
+  qsem:invariant "East = Input direction" .
+
+bfr:Validator a bfr:WorkflowRole ;
+  rdfs:label "Validator/Checker" ;
+  geo:position "(0,1,0)" ;
+  qsem:semantics "Condition checking, eligibility validation, constraint enforcement" ;
+  qsem:invariant "North = Validation axis" .
+
+bfr:Timer a bfr:WorkflowRole ;
+  rdfs:label "Timer/Clock" ;
+  geo:position "(0,0,1)" ;
+  qsem:semantics "Temporal constraints, deadlines, wait states, timeouts" ;
+  qsem:invariant "Up = Time dimension" .
+
+bfr:Transformer a bfr:WorkflowRole ;
+  rdfs:label "Transformer" ;
+  geo:position "(1,1,0)" ;
+  qsem:semantics "Data transformation, format conversion, processing" ;
+  qsem:invariant "Northeast = Combination of input+validation" .
+
+bfr:Dispatcher a bfr:WorkflowRole ;
+  rdfs:label "Dispatcher" ;
+  geo:position "(1,0,1)" ;
+  qsem:semantics "Routing, forwarding, next-step determination" ;
+  qsem:invariant "Southeast = Combination of input+time" .
+
+bfr:Recorder a bfr:WorkflowRole ;
+  rdfs:label "Storage/Recorder" ;
+  geo:position "(0,1,1)" ;
+  qsem:semantics "State persistence, audit trails, commit operations" ;
+  qsem:invariant "Northwest = Combination of validation+time" .
+
+bfr:Finalizer a bfr:WorkflowRole ;
+  rdfs:label "Finalizer" ;
+  geo:position "(1,1,1)" ;
+  qsem:semantics "Completion, sealing, sign-off, result emission" ;
+  qsem:invariant "Apex = Ultimate convergence point" .
+
+#################################################################
+# CRYSTAL STRUCTURE & RELATIONSHIPS
+#################################################################
+
+bfc:hasActor a owl:ObjectProperty ;
+  rdfs:domain bfc:Crystal ;
+  rdfs:range bfc:ByteActor ;
+  owl:cardinality 8 .
+
+bfc:hasChannel a owl:ObjectProperty ;
+  rdfs:domain bfc:Crystal ;
+  rdfs:range bfc:Channel .
+
+bfc:hasFacet a owl:ObjectProperty ;
+  rdfs:domain bfc:Crystal ;
+  rdfs:range bfc:Facet ;
+  owl:maxCardinality 6 .
+
+bfc:occupiesPosition a owl:ObjectProperty ;
+  rdfs:domain bfc:ByteActor ;
+  rdfs:range geo:Vertex .
+
+bfc:embodiesRole a owl:ObjectProperty ;
+  rdfs:domain bfc:ByteActor ;
+  rdfs:range bfr:WorkflowRole .
+
+bfc:from a owl:ObjectProperty ;
+  rdfs:domain bfc:Channel ;
+  rdfs:range bfc:ByteActor .
+
+bfc:to a owl:ObjectProperty ;
+  rdfs:domain bfc:Channel ;
+  rdfs:range bfc:ByteActor .
+
+#################################################################
+# QUANTUM-SEMANTIC EXECUTION PROPERTIES
+#################################################################
+
+bfc:register64 a owl:DatatypeProperty ;
+  rdfs:domain bfc:ByteActor ;
+  rdfs:range xsd:unsignedLong ;
+  rdfs:comment "Primary 8-byte execution payload" ;
+  qsem:atomicity "cache-line-aligned" .
+
+bfc:ref64 a owl:DatatypeProperty ;
+  rdfs:domain bfc:ByteActor ;
+  rdfs:range xsd:unsignedLong ;
+  rdfs:comment "Optional 8-byte reference pointer" ;
+  qsem:indirection "single-hop" .
+
+bfc:tickBudget a owl:DatatypeProperty ;
+  rdfs:domain bfc:ByteActor ;
+  rdfs:range xsd:unsignedByte ;
+  owl:maxInclusive 8 ;
+  qsem:constraint "8-tick maximum per actor" .
+
+bfc:priority a owl:DatatypeProperty ;
+  rdfs:domain bfc:ByteActor ;
+  rdfs:range xsd:unsignedByte ;
+  qsem:scheduling "deterministic" .
+
+#################################################################
+# CRYPTOGRAPHIC SEALING FRAMEWORK
+#################################################################
+
+bfs:sealedBy a owl:ObjectProperty ;
+  rdfs:domain [ owl:unionOf (bfc:ByteActor bfc:Crystal) ] ;
+  rdfs:range bfc:Seal .
+
+bfs:hash64 a owl:DatatypeProperty ;
+  rdfs:domain bfc:Seal ;
+  rdfs:range xsd:unsignedLong ;
+  rdfs:comment "64-bit integrity hash" ;
+  qsem:algorithm "blake3-fragment" .
+
+bfs:salt32 a owl:DatatypeProperty ;
+  rdfs:domain bfc:Seal ;
+  rdfs:range xsd:unsignedInt ;
+  rdfs:comment "32-bit cryptographic salt" .
+
+bfs:chainId a owl:DatatypeProperty ;
+  rdfs:domain bfc:Seal ;
+  rdfs:range xsd:unsignedLong ;
+  rdfs:comment "Chain linkage for polycrystal integrity" .
+
+#################################################################
+# POLYCRYSTAL CLUSTERING
+#################################################################
+
+bfc:Cluster a owl:Class ;
+  rdfs:label "Polycrystal Cluster" ;
+  rdfs:comment "Network of interconnected ByteFlow Crystals" ;
+  qsem:scaling "recursive-composition" .
+
+bfc:docksTo a owl:ObjectProperty ;
+  rdfs:domain bfc:Facet ;
+  rdfs:range bfc:Facet ;
+  rdfs:comment "Facet-to-facet crystal docking" ;
+  qsem:binding "secure-attachment" .
+
+bfc:clusterMember a owl:ObjectProperty ;
+  rdfs:domain bfc:Cluster ;
+  rdfs:range bfc:Crystal .
+
+bfc:clusterTopology a owl:DatatypeProperty ;
+  rdfs:domain bfc:Cluster ;
+  rdfs:range xsd:string ;
+  qsem:patterns ["linear", "tree", "mesh", "ring"] .
+
+#################################################################
+# COMPILATION & EXECUTION HOOKS
+#################################################################
+
+bfc:compiledAs a owl:ObjectProperty ;
+  rdfs:domain bfc:Crystal ;
+  rdfs:range bfc:ExecutionUnit .
+
+bfc:ExecutionUnit a owl:Class ;
+  rdfs:comment "Compiled C structure for runtime execution" .
+
+bfc:memoryLayout a owl:DatatypeProperty ;
+  rdfs:domain bfc:ExecutionUnit ;
+  rdfs:range xsd:string ;
+  qsem:alignment "64-byte-cacheline" .
+
+bfc:tickRate a owl:DatatypeProperty ;
+  rdfs:domain bfc:Crystal ;
+  rdfs:range xsd:unsignedInt ;
+  qsem:resonance "natural-frequency" .
+
+#################################################################
+# SHACL VALIDATION CONSTRAINTS
+#################################################################
+
+bfc:CrystalConstraints a sh:NodeShape ;
+  sh:targetClass bfc:Crystal ;
+  sh:property [
+    sh:path bfc:hasActor ;
+    sh:minCount 8 ; sh:maxCount 8 ;
+    sh:message "Crystal must have exactly 8 actors at cube vertices"
+  ] .
+
+bfc:PositionConstraints a sh:NodeShape ;
+  sh:targetClass bfc:ByteActor ;
+  sh:property [
+    sh:path bfc:occupiesPosition ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:message "Each actor must occupy exactly one cube vertex"
+  ] .
+
+bfc:RoleConstraints a sh:NodeShape ;
+  sh:targetClass bfc:ByteActor ;
+  sh:property [
+    sh:path bfc:embodiesRole ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:message "Each actor must embody exactly one workflow role"
+  ] .
+
+#################################################################
+# QUANTUM-SEMANTIC INVARIANTS
+#################################################################
+
+qsem:PositionMeaningInvariant a owl:Class ;
+  rdfs:comment "Position in cube geometry directly determines semantic role" ;
+  qsem:principle "geometric-position = semantic-meaning = execution-behavior" .
+
+qsem:CacheLineInvariant a owl:Class ;
+  rdfs:comment "8 actors × 8 bytes = 64 bytes = single cache line" ;
+  qsem:principle "crystal-size = hardware-optimization-boundary" .
+
+qsem:TickBudgetInvariant a owl:Class ;
+  rdfs:comment "Maximum 8 ticks per actor maintains deterministic execution" ;
+  qsem:principle "bounded-execution = predictable-performance" .
+
+qsem:CryptographicInvariant a owl:Class ;
+  rdfs:comment "Seals provide integrity at both actor and crystal levels" ;
+  qsem:principle "nested-integrity = tamper-evidence + authenticity" .
+
+#################################################################
+# EXAMPLE: CANONICAL LOAN APPROVAL CRYSTAL
+#################################################################
+
+# Define the 8 cube vertices
+geo:V000 a geo:Vertex ; geo:x false ; geo:y false ; geo:z false .
+geo:V001 a geo:Vertex ; geo:x false ; geo:y false ; geo:z true .
+geo:V010 a geo:Vertex ; geo:x false ; geo:y true ; geo:z false .
+geo:V011 a geo:Vertex ; geo:x false ; geo:y true ; geo:z true .
+geo:V100 a geo:Vertex ; geo:x true ; geo:y false ; geo:z false .
+geo:V101 a geo:Vertex ; geo:x true ; geo:y false ; geo:z true .
+geo:V110 a geo:Vertex ; geo:x true ; geo:y true ; geo:z false .
+geo:V111 a geo:Vertex ; geo:x true ; geo:y true ; geo:z true .
+
+# Example crystal: Loan Approval workflow
+bfc:LoanApprovalCrystal a bfc:Crystal ;
+  rdfs:label "Loan Approval ByteFlow Crystal" ;
+  qsem:workflowType "financial-approval" .
+
+# The 8 actors at their quantum-semantic positions
+bfc:LoanInitiator a bfc:ByteActor ;
+  bfc:occupiesPosition geo:V000 ;
+  bfc:embodiesRole bfr:Initiator ;
+  bfc:register64 0 ;
+  bfc:tickBudget 2 .
+
+bfc:CreditProvider a bfc:ByteActor ;
+  bfc:occupiesPosition geo:V100 ;
+  bfc:embodiesRole bfr:ResourceProvider ;
+  bfc:register64 0 ;
+  bfc:tickBudget 3 .
+
+bfc:CreditValidator a bfc:ByteActor ;
+  bfc:occupiesPosition geo:V010 ;
+  bfc:embodiesRole bfr:Validator ;
+  bfc:register64 0 ;
+  bfc:tickBudget 4 .
+
+bfc:TimeoutManager a bfc:ByteActor ;
+  bfc:occupiesPosition geo:V001 ;
+  bfc:embodiesRole bfr:Timer ;
+  bfc:register64 30000 ; # 30 second timeout
+  bfc:tickBudget 1 .
+
+bfc:RiskCalculator a bfc:ByteActor ;
+  bfc:occupiesPosition geo:V110 ;
+  bfc:embodiesRole bfr:Transformer ;
+  bfc:register64 0 ;
+  bfc:tickBudget 5 .
+
+bfc:DecisionRouter a bfc:ByteActor ;
+  bfc:occupiesPosition geo:V101 ;
+  bfc:embodiesRole bfr:Dispatcher ;
+  bfc:register64 0 ;
+  bfc:tickBudget 2 .
+
+bfc:AuditRecorder a bfc:ByteActor ;
+  bfc:occupiesPosition geo:V011 ;
+  bfc:embodiesRole bfr:Recorder ;
+  bfc:register64 0 ;
+  bfc:tickBudget 3 .
+
+bfc:LoanFinalizer a bfc:ByteActor ;
+  bfc:occupiesPosition geo:V111 ;
+  bfc:embodiesRole bfr:Finalizer ;
+  bfc:register64 0 ;
+  bfc:tickBudget 2 .
+
+# Crystal membership
+bfc:LoanApprovalCrystal bfc:hasActor 
+  bfc:LoanInitiator, bfc:CreditProvider, bfc:CreditValidator, bfc:TimeoutManager,
+  bfc:RiskCalculator, bfc:DecisionRouter, bfc:AuditRecorder, bfc:LoanFinalizer .
+
+# Example execution channels (cube edges)
+bfc:InitiateChannel a bfc:Channel ;
+  bfc:from bfc:LoanInitiator ;
+  bfc:to bfc:CreditProvider .
+
+bfc:ValidateChannel a bfc:Channel ;
+  bfc:from bfc:CreditProvider ;
+  bfc:to bfc:CreditValidator .
+
+bfc:ProcessChannel a bfc:Channel ;
+  bfc:from bfc:CreditValidator ;
+  bfc:to bfc:RiskCalculator .
+
+bfc:RouteChannel a bfc:Channel ;
+  bfc:from bfc:RiskCalculator ;
+  bfc:to bfc:DecisionRouter .
+
+bfc:RecordChannel a bfc:Channel ;
+  bfc:from bfc:DecisionRouter ;
+  bfc:to bfc:AuditRecorder .
+
+bfc:FinalizeChannel a bfc:Channel ;
+  bfc:from bfc:AuditRecorder ;
+  bfc:to bfc:LoanFinalizer .
+
+bfc:LoanApprovalCrystal bfc:hasChannel
+  bfc:InitiateChannel, bfc:ValidateChannel, bfc:ProcessChannel,
+  bfc:RouteChannel, bfc:RecordChannel, bfc:FinalizeChannel .
+
+# Cryptographic sealing
+bfs:LoanCrystalSeal a bfc:Seal ;
+  bfs:hash64 0xC7E4F1A8B2D95630 ;
+  bfs:salt32 0x4A7F91E3 ;
+  bfs:chainId 0x1000000000000001 .
+
+bfc:LoanApprovalCrystal bfs:sealedBy bfs:LoanCrystalSeal .

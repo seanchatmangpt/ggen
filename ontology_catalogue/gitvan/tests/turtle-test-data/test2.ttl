@@ -1,0 +1,6 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+
+# Another hook
+<https://example.org/hook2> a gh:Hook ;
+    gh:hasPredicate <https://example.org/predicate2> .

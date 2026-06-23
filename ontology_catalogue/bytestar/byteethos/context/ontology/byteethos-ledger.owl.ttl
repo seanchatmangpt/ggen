@@ -1,0 +1,92 @@
+@prefix : <https://bytestar.org/ontology/byteethos/ledger#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+@prefix doctrines: <https://bytestar.org/ontology/doctrines#> .
+@prefix spr: <http://bytestar.net/ontology/spr_calculus#> .
+
+<https://bytestar.org/ontology/byteethos/ledger>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/byteethos/ledger/v1.0> ;
+    rdfs:comment "Ontology defining the ledger finality, receipt anchoring, and PQC sealing processes within the ByteEthos realm." ;
+    owl:imports arch: ,
+                doctrines: ,
+                spr: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:Ledger rdf:type owl:Class ;
+    rdfs:comment "The immutable, PQC-sealed ledger within ByteEthos." .
+
+:Block rdf:type owl:Class ;
+    rdfs:comment "A block in the ledger, containing transactions and receipts." .
+
+:Transaction rdf:type owl:Class ;
+    rdfs:comment "A record of an action or event committed to the ledger." .
+
+:ReceiptAnchoring rdf:type owl:Class ;
+    rdfs:comment "The process of securely anchoring a receipt to the ledger." .
+
+:PQC_Sealing rdf:type owl:Class ;
+    rdfs:comment "The process of applying Post-Quantum Cryptography for data integrity and authenticity." .
+
+:LedgerFinality rdf:type owl:Class ;
+    rdfs:comment "The state where a transaction or block is irreversibly committed to the ledger." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:containsBlock rdf:type owl:ObjectProperty ;
+    rdfs:domain :Ledger ;
+    rdfs:range :Block ;
+    rdfs:comment "A ledger contains blocks." .
+
+:containsTransaction rdf:type owl:ObjectProperty ;
+    rdfs:domain :Block ;
+    rdfs:range :Transaction ;
+    rdfs:comment "A block contains transactions." .
+
+:anchorsReceipt rdf:type owl:ObjectProperty ;
+    rdfs:domain :ReceiptAnchoring ;
+    rdfs:range spr:Receipt ;
+    rdfs:comment "The process of anchoring a specific receipt." .
+
+:usesPQC_Sealing rdf:type owl:ObjectProperty ;
+    rdfs:domain :ReceiptAnchoring ;
+    rdfs:range :PQC_Sealing ;
+    rdfs:comment "Receipt anchoring uses PQC sealing." .
+
+:achievesFinality rdf:type owl:ObjectProperty ;
+    rdfs:domain :Block ;
+    rdfs:range :LedgerFinality ;
+    rdfs:comment "A block achieves ledger finality." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:hasBlockHash rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Block ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The cryptographic hash of a block." .
+
+:hasTimestamp rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Block ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "The timestamp of a block." .
+
+:isImmutable rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Ledger ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the ledger is immutable." .
+
+:usesAlgorithm rdf:type owl:DatatypeProperty ;
+    rdfs:domain :PQC_Sealing ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The PQC algorithm used for sealing (e.g., Kyber, Dilithium)." .
+

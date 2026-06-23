@@ -1,0 +1,1235 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcterms_type: <http://purl.org/dc/dcmitype/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dqv: <http://www.w3.org/ns/dqv#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix bfo: <http://purl.obolibrary.org/obo/BFO_> .
+@prefix iao: <http://purl.obolibrary.org/obo/IAO_> .
+@prefix dul: <http://www.loa.istc.cnr.it/ontologies/DUL.owl#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix td: <https://www.w3.org/2022/wot/td#> .
+@prefix chatman: <https://ontology.chatmangpt.com/core#> .
+
+###############################################################################
+# CHATMANGPT AGENT ONTOLOGY
+#
+# Semantic definitions for OSA agent types, capabilities, tool affordances,
+# and cross-agent coordination patterns.
+#
+# IRI: https://ontology.chatmangpt.com/agents
+# Module: chatman-agents.ttl
+#
+# This ontology extends chatman-core.ttl with:
+# 1. Agent role definitions (Coordinator, Worker, Sensor, Analyzer, Healing)
+# 2. DUL-based agent typing (AIAgent, LLMAgent, ProcessAgent, SensorAgent)
+# 3. WoT Thing Description ActionAffordances for all OSA tools (35+ tools)
+# 4. Agent capability declarations and cross-system A2A patterns
+# 5. Example agent instances (OptimalSystemAgent, ProcessOptimizer, HealingDiagnosis)
+###############################################################################
+
+<https://ontology.chatmangpt.com/agents>
+  a owl:Ontology ;
+  dcterms:title "ChatmanGPT Agent Ontology"@en ;
+  dcterms:description "Semantic model for OSA multi-agent orchestration. Defines agent role hierarchies (DUL-based), tool capabilities as W3C WoT Thing Description ActionAffordances, agent tier mappings (critical/high/normal/low), and cross-system A2A coordination patterns. Integrates with chatman-core.ttl for foundational ontologies."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:created "2026-03-25T00:00:00Z"^^xsd:dateTime ;
+  dcterms:creator "Sean Chatman"@en ;
+  dcterms:contributor "OSA Development Team"@en ;
+  dcterms:license <https://creativecommons.org/licenses/by-sa/4.0/> ;
+  dcterms:isPartOf <https://ontology.chatmangpt.com/> ;
+  owl:versionIRI <https://ontology.chatmangpt.com/agents/1.0> ;
+  owl:versionInfo "1.0"^^xsd:string ;
+
+  owl:imports <https://ontology.chatmangpt.com/core> ;
+  owl:imports <http://www.w3.org/ns/sosa/> ;
+  owl:imports <https://www.w3.org/2022/wot/td> ;
+
+  rdfs:comment "This ontology provides the semantic foundation for OSA agent orchestration. Agents are classified using DUL social entities, role concepts from YAWL coordination patterns, and WoT Thing Description affordances for tool invocation. Cross-system communication follows A2A (agent-to-agent) protocols defined in chatman-a2a.ttl."@en ;
+  .
+
+###############################################################################
+# SECTION 1: AGENT CLASS HIERARCHY
+#
+# Defines agent types using DUL (Description Logic Upper Level) and
+# integrates with BFO for formal ontology classification.
+###############################################################################
+
+chatman:AIAgent
+  a owl:Class ;
+  rdfs:label "AI Agent"@en ;
+  rdfs:comment "An autonomous software agent powered by artificial intelligence. AI agents have goals, can perceive their environment, make decisions, and perform actions through tool invocation. Subclass of DUL SocialAgent (entities that participate in social interactions and coordination)."@en ;
+  rdfs:subClassOf dul:SocialAgent ;
+  rdfs:subClassOf bfo:Object ;  # Agents persist through time as independent objects
+  owl:disjointWith dul:InformationObject ;
+  .
+
+chatman:LLMAgent
+  a owl:Class ;
+  rdfs:label "LLM-Powered Agent"@en ;
+  rdfs:comment "An AI agent whose reasoning is powered by a Large Language Model (Claude, GPT-4, Ollama, etc.). Uses ReAct (Reasoning + Action) loop. Has provider (Anthropic, OpenAI, etc.) and model parameters."@en ;
+  rdfs:subClassOf chatman:AIAgent ;
+  owl:disjointWith chatman:ProcessAgent ;
+  owl:disjointWith chatman:SensorAgent ;
+  .
+
+chatman:ProcessAgent
+  a owl:Class ;
+  rdfs:label "Process Agent"@en ;
+  rdfs:comment "An AI agent whose reasoning is deterministic process-based (YAWL patterns, workflow, decision trees, state machines). No LLM reasoning; execution follows explicit control flow. Used for coordination, consensus, and structured tasks."@en ;
+  rdfs:subClassOf chatman:AIAgent ;
+  owl:disjointWith chatman:LLMAgent ;
+  owl:disjointWith chatman:SensorAgent ;
+  .
+
+chatman:SensorAgent
+  a owl:Class ;
+  rdfs:label "Sensor Agent"@en ;
+  rdfs:comment "An agent whose primary purpose is sensing: monitoring system state, collecting metrics, detecting anomalies, triggering alerts. Implements SOSA (Sensor, Observation, Sample, Actuator) patterns. Can emit observations to other agents."@en ;
+  rdfs:subClassOf chatman:AIAgent ;
+  rdfs:subClassOf sosa:Sensor ;
+  owl:disjointWith chatman:LLMAgent ;
+  owl:disjointWith chatman:ProcessAgent ;
+  .
+
+###############################################################################
+# SECTION 2: AGENT ROLE DEFINITIONS
+#
+# Defines roles that agents play in system coordination using DUL Roles and
+# YAWL coordination pattern concepts.
+###############################################################################
+
+chatman:AgentRole
+  a owl:Class ;
+  rdfs:label "Agent Role"@en ;
+  rdfs:comment "An abstract role that an agent can play in system coordination. Roles are responsibilities and capabilities that agents assume. Based on DUL Role entities and YAWL coordination patterns (20 control flow patterns + 23 advanced patterns)."@en ;
+  rdfs:subClassOf dul:Role ;
+  rdfs:subClassOf bfo:RealizableEntity ;  # Roles are capabilities that can be realized by an agent
+  .
+
+chatman:CoordinatorRole
+  a owl:Class ;
+  rdfs:label "Coordinator Role"@en ;
+  rdfs:comment "Agent role: Coordinates parallel execution, merges results, enforces deadlines, detects deadlock. Uses YAWL patterns: AND-split, OR-split, synchronization, cancellation. Example: OSA Heartbeat Manager."@en ;
+  rdfs:subClassOf chatman:AgentRole ;
+  skos:broader chatman:AgentRole ;
+  .
+
+chatman:WorkerRole
+  a owl:Class ;
+  rdfs:label "Worker Role"@en ;
+  rdfs:comment "Agent role: Executes a single task, tool invocation, or computation. Waits for assignments, executes, reports results. Example: Tool executor agents in OSA."@en ;
+  rdfs:subClassOf chatman:AgentRole ;
+  skos:broader chatman:AgentRole ;
+  .
+
+chatman:SensorRole
+  a owl:Class ;
+  rdfs:label "Sensor Role"@en ;
+  rdfs:comment "Agent role: Observes system state, emits observations, detects anomalies. Implements SOSA Observation pattern. Example: Process fingerprint sensor, org evolution sensor, healing reflex arc."@en ;
+  rdfs:subClassOf chatman:AgentRole ;
+  skos:broader chatman:AgentRole ;
+  .
+
+chatman:AnalyzerRole
+  a owl:Class ;
+  rdfs:label "Analyzer Role"@en ;
+  rdfs:comment "Agent role: Receives observations from sensors, analyzes patterns, synthesizes insights. Implements diagnostic reasoning. Example: Healing diagnosis agent, consensus analyzer."@en ;
+  rdfs:subClassOf chatman:AgentRole ;
+  skos:broader chatman:AgentRole ;
+  .
+
+chatman:HealingRole
+  a owl:Class ;
+  rdfs:label "Healing Role"@en ;
+  rdfs:comment "Agent role: Detects failures (via sensors), diagnoses root causes (via analyzers), recommends corrections, executes recovery actions. Armstrong let-it-crash + WvdA soundness patterns. Example: Healing reflex arc agent."@en ;
+  rdfs:subClassOf chatman:AgentRole ;
+  skos:broader chatman:AgentRole ;
+  .
+
+###############################################################################
+# SECTION 3: TOOL CAPABILITY DEFINITIONS
+#
+# Maps OSA built-in tools to WoT Thing Description ActionAffordances.
+# Each tool is a chatman:ToolCapability instance with input/output schemas,
+# security level, and usage constraints.
+###############################################################################
+
+chatman:ToolCapability
+  a owl:Class ;
+  rdfs:label "Tool Capability"@en ;
+  rdfs:comment "A capability that an agent possesses to interact with external systems or perform a computation. Modeled as a W3C WoT Thing Description ActionAffordance: has input schema (properties the action requires), output schema (what the action returns), and security/permission level (public/internal/sensitive)."@en ;
+  rdfs:subClassOf td:ActionAffordance ;
+  rdfs:subClassOf dul:Concept ;  # Tool capabilities are concepts, can be instantiated by agents
+  .
+
+chatman:ToolSecurityLevel
+  a owl:Class ;
+  rdfs:label "Tool Security Level"@en ;
+  rdfs:comment "Classification of tool access level: public (available to all agents), internal (only organizational agents), sensitive (requires explicit permission + audit)."@en ;
+  skos:hasTopConcept chatman:SecurityPublic ;
+  skos:hasTopConcept chatman:SecurityInternal ;
+  skos:hasTopConcept chatman:SecuritySensitive ;
+  .
+
+chatman:SecurityPublic
+  a skos:Concept ;
+  rdfs:label "Public Security Level"@en ;
+  rdfs:comment "Tool is publicly available. No authentication required. Examples: help, list_agents, list_skills."@en ;
+  skos:inScheme chatman:ToolSecurityLevel ;
+  .
+
+chatman:SecurityInternal
+  a skos:Concept ;
+  rdfs:label "Internal Security Level"@en ;
+  rdfs:comment "Tool available to agents within the organization. Requires agent authentication. Examples: businessos_api, delegate, message_agent."@en ;
+  skos:inScheme chatman:ToolSecurityLevel ;
+  .
+
+chatman:SecuritySensitive
+  a skos:Concept ;
+  rdfs:label "Sensitive Security Level"@en ;
+  rdfs:comment "Tool requires explicit permission grant + audit trail. High-risk operations. Examples: shell_execute, file_write, file_edit, git (write operations)."@en ;
+  skos:inScheme chatman:ToolSecurityLevel ;
+  .
+
+chatman:ToolSafetyMode
+  a owl:Class ;
+  rdfs:label "Tool Safety Mode"@en ;
+  rdfs:comment "Classification of tool mutability: read_only (no side effects), write (modifies state), execute (runs code/commands)."@en ;
+  skos:hasTopConcept chatman:SafetyReadOnly ;
+  skos:hasTopConcept chatman:SafetyWrite ;
+  skos:hasTopConcept chatman:SafetyExecute ;
+  .
+
+chatman:SafetyReadOnly
+  a skos:Concept ;
+  rdfs:label "Read-Only Safety"@en ;
+  rdfs:comment "Tool only reads information. No mutations. Examples: file_read, file_glob, file_grep, dir_list, list_agents, code_symbols."@en ;
+  skos:inScheme chatman:ToolSafetyMode ;
+  .
+
+chatman:SafetyWrite
+  a skos:Concept ;
+  rdfs:label "Write Safety"@en ;
+  rdfs:comment "Tool modifies persistent state (files, memory, databases). Examples: file_write, file_edit, multi_file_edit, memory_save, create_agent, create_skill."@en ;
+  skos:inScheme chatman:ToolSafetyMode ;
+  .
+
+chatman:SafetyExecute
+  a skos:Concept ;
+  rdfs:label "Execute Safety"@en ;
+  rdfs:comment "Tool runs code or system commands. Highest risk. Examples: shell_execute, computer_use, git (push/force-push), delegate (runs another agent)."@en ;
+  skos:inScheme chatman:ToolSafetyMode ;
+  .
+
+###############################################################################
+# FILE SYSTEM TOOLS
+###############################################################################
+
+chatman:FileReadTool
+  a chatman:ToolCapability ;
+  rdfs:label "File Read Tool"@en ;
+  dcterms:identifier "file_read" ;
+  dcterms:description "Read a file from the filesystem. Supports text files and images (.png, .jpg, .gif, .webp) for vision analysis. Returns base64-encoded content for images."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "path": {"type": "string", "description": "File path (supports ~ expansion)"},
+      "offset": {"type": "integer", "description": "Line number to start reading (1-based, optional)"},
+      "limit": {"type": "integer", "description": "Max number of lines to read (optional)"}
+    },
+    "required": ["path"]
+  }
+  """^^xsd:string ;
+  td:hasOutputSchema """
+  {
+    "type": "string",
+    "description": "File contents (text) or JSON with base64 image data"
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityPublic ;
+  dcat:relation chatman:SafetyReadOnly ;
+  dqv:hasMetric "max_file_size_mb" ;
+  dqv:hasMetric "supported_formats" ;
+  .
+
+chatman:FileWriteTool
+  a chatman:ToolCapability ;
+  rdfs:label "File Write Tool"@en ;
+  dcterms:identifier "file_write" ;
+  dcterms:description "Write content to a file. Creates new file or overwrites existing. Path must be in allowed directories. Requires sensitive access level."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "file_path": {"type": "string", "description": "Destination file path"},
+      "content": {"type": "string", "description": "Content to write"}
+    },
+    "required": ["file_path", "content"]
+  }
+  """^^xsd:string ;
+  td:hasOutputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "status": {"type": "string", "enum": ["success", "error"]},
+      "path": {"type": "string"},
+      "bytes_written": {"type": "integer"}
+    }
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecuritySensitive ;
+  dcat:relation chatman:SafetyWrite ;
+  .
+
+chatman:FileEditTool
+  a chatman:ToolCapability ;
+  rdfs:label "File Edit Tool"@en ;
+  dcterms:identifier "file_edit" ;
+  dcterms:description "Edit a specific section of a file using old_string → new_string replacement. Atomic operation. Preserves file structure."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "file_path": {"type": "string"},
+      "old_string": {"type": "string", "description": "Exact text to find and replace"},
+      "new_string": {"type": "string", "description": "Replacement text"},
+      "replace_all": {"type": "boolean", "description": "Replace all occurrences (optional, default: false)"}
+    },
+    "required": ["file_path", "old_string", "new_string"]
+  }
+  """^^xsd:string ;
+  td:hasOutputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "status": {"type": "string"},
+      "lines_modified": {"type": "integer"}
+    }
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecuritySensitive ;
+  dcat:relation chatman:SafetyWrite ;
+  .
+
+chatman:MultiFileEditTool
+  a chatman:ToolCapability ;
+  rdfs:label "Multi-File Edit Tool"@en ;
+  dcterms:identifier "multi_file_edit" ;
+  dcterms:description "Atomically apply the same edit operation across multiple files. Used for refactoring."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "files": {"type": "array", "items": {"type": "string"}},
+      "old_string": {"type": "string"},
+      "new_string": {"type": "string"},
+      "replace_all": {"type": "boolean"}
+    },
+    "required": ["files", "old_string", "new_string"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecuritySensitive ;
+  dcat:relation chatman:SafetyWrite ;
+  .
+
+chatman:DirListTool
+  a chatman:ToolCapability ;
+  rdfs:label "Directory List Tool"@en ;
+  dcterms:identifier "dir_list" ;
+  dcterms:description "List files and directories in a folder with metadata (size, modified date, is_dir)."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "path": {"type": "string", "description": "Directory path"},
+      "pattern": {"type": "string", "description": "Optional glob pattern to filter results"}
+    },
+    "required": ["path"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityPublic ;
+  dcat:relation chatman:SafetyReadOnly ;
+  .
+
+chatman:FileGlobTool
+  a chatman:ToolCapability ;
+  rdfs:label "File Glob Tool"@en ;
+  dcterms:identifier "file_glob" ;
+  dcterms:description "Find files matching a glob pattern (e.g., **/*.rs). Returns file paths sorted by modification time."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "pattern": {"type": "string", "description": "Glob pattern (e.g., **/*.py, src/**/test_*.go)"}
+    },
+    "required": ["pattern"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityPublic ;
+  dcat:relation chatman:SafetyReadOnly ;
+  .
+
+chatman:FileGrepTool
+  a chatman:ToolCapability ;
+  rdfs:label "File Grep Tool"@en ;
+  dcterms:identifier "file_grep" ;
+  dcterms:description "Search for content matching a regex pattern across files. Supports multiline patterns. Returns matching lines with context."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "pattern": {"type": "string", "description": "Regex pattern to search for"},
+      "path": {"type": "string", "description": "Directory or file to search in"},
+      "file_type": {"type": "string", "description": "Limit to file type (e.g., 'py', 'go', 'rs', optional)"},
+      "context": {"type": "integer", "description": "Lines of context before/after match (optional)"},
+      "head_limit": {"type": "integer", "description": "Max results to return (optional, default 250)"}
+    },
+    "required": ["pattern"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityPublic ;
+  dcat:relation chatman:SafetyReadOnly ;
+  .
+
+###############################################################################
+# MEMORY & KNOWLEDGE TOOLS
+###############################################################################
+
+chatman:MemorySaveTool
+  a chatman:ToolCapability ;
+  rdfs:label "Memory Save Tool"@en ;
+  dcterms:identifier "memory_save" ;
+  dcterms:description "Save key-value pairs to agent episodic memory (persistent across conversations). Memory is stored in SQLite and indexed for fast retrieval."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "key": {"type": "string", "description": "Memory key"},
+      "value": {"type": "string", "description": "Value to store"},
+      "category": {"type": "string", "description": "Optional category (e.g., 'project_context', 'decision_record')"}
+    },
+    "required": ["key", "value"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityInternal ;
+  dcat:relation chatman:SafetyWrite ;
+  .
+
+chatman:MemoryRecallTool
+  a chatman:ToolCapability ;
+  rdfs:label "Memory Recall Tool"@en ;
+  dcterms:identifier "memory_recall" ;
+  dcterms:description "Retrieve values from agent episodic memory by key. Returns most recent value or all values in a category."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "key": {"type": "string", "description": "Memory key to retrieve (exact or prefix search)"},
+      "category": {"type": "string", "description": "Optional category filter"}
+    }
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityInternal ;
+  dcat:relation chatman:SafetyReadOnly ;
+  .
+
+chatman:SessionSearchTool
+  a chatman:ToolCapability ;
+  rdfs:label "Session Search Tool"@en ;
+  dcterms:identifier "session_search" ;
+  dcterms:description "Search across session history for conversations, decisions, or artifacts."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "query": {"type": "string", "description": "Search query"},
+      "limit": {"type": "integer", "description": "Max results (optional)"}
+    },
+    "required": ["query"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityInternal ;
+  dcat:relation chatman:SafetyReadOnly ;
+  .
+
+###############################################################################
+# CODE & ANALYSIS TOOLS
+###############################################################################
+
+chatman:CodeSymbolsTool
+  a chatman:ToolCapability ;
+  rdfs:label "Code Symbols Tool"@en ;
+  dcterms:identifier "code_symbols" ;
+  dcterms:description "Extract and analyze code symbols (functions, classes, types, constants) from source files. Returns symbol locations and signatures."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "file_path": {"type": "string", "description": "Source file to analyze"}
+    },
+    "required": ["file_path"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityPublic ;
+  dcat:relation chatman:SafetyReadOnly ;
+  .
+
+###############################################################################
+# NETWORK & INTEGRATION TOOLS
+###############################################################################
+
+chatman:WebFetchTool
+  a chatman:ToolCapability ;
+  rdfs:label "Web Fetch Tool"@en ;
+  dcterms:identifier "web_fetch" ;
+  dcterms:description "Fetch and parse content from a URL. Converts HTML to markdown. Includes self-cleaning cache (15-minute TTL)."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "url": {"type": "string", "description": "Full URL to fetch"},
+      "prompt": {"type": "string", "description": "What information to extract from content"}
+    },
+    "required": ["url", "prompt"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityPublic ;
+  dcat:relation chatman:SafetyReadOnly ;
+  .
+
+chatman:DownloadTool
+  a chatman:ToolCapability ;
+  rdfs:label "Download Tool"@en ;
+  dcterms:identifier "download" ;
+  dcterms:description "Download file from URL and save to local filesystem. Supports partial downloads (resume), redirects, and progress tracking."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "url": {"type": "string"},
+      "destination": {"type": "string", "description": "Local file path to save"},
+      "timeout_seconds": {"type": "integer", "description": "Download timeout (optional)"}
+    },
+    "required": ["url", "destination"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecuritySensitive ;
+  dcat:relation chatman:SafetyWrite ;
+  .
+
+chatman:A2ACallTool
+  a chatman:ToolCapability ;
+  rdfs:label "Agent-to-Agent Call Tool"@en ;
+  dcterms:identifier "a2a_call" ;
+  dcterms:description "Invoke another agent synchronously. Cross-system A2A over HTTP or MCP. Supports task delegation and parallel agent orchestration."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "agent_url": {"type": "string", "description": "Remote agent HTTP endpoint"},
+      "action": {"type": "string", "description": "Action name to invoke on remote agent"},
+      "params": {"type": "object", "description": "Parameters for the action"}
+    },
+    "required": ["agent_url", "action"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityInternal ;
+  dcat:relation chatman:SafetyExecute ;
+  .
+
+chatman:BusinessOSAPITool
+  a chatman:ToolCapability ;
+  rdfs:label "BusinessOS API Tool"@en ;
+  dcterms:identifier "businessos_api" ;
+  dcterms:description "Invoke BusinessOS HTTP API endpoints. Used for company management, deal tracking, team coordination."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "endpoint": {"type": "string", "description": "API endpoint path (e.g., /api/integrations/a2a/agents)"},
+      "method": {"type": "string", "enum": ["GET", "POST", "PUT", "DELETE"]},
+      "body": {"type": "object", "description": "Request body (for POST/PUT)"}
+    },
+    "required": ["endpoint", "method"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityInternal ;
+  dcat:relation chatman:SafetyExecute ;
+  .
+
+###############################################################################
+# COMMAND EXECUTION TOOLS
+###############################################################################
+
+chatman:ShellExecuteTool
+  a chatman:ToolCapability ;
+  rdfs:label "Shell Execute Tool"@en ;
+  dcterms:identifier "shell_execute" ;
+  dcterms:description "Execute arbitrary shell commands (bash, zsh). High-risk. Used for build, test, deploy operations. Requires sensitive permission."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "command": {"type": "string", "description": "Shell command to execute"},
+      "timeout_ms": {"type": "integer", "description": "Command timeout in milliseconds (optional)"},
+      "run_in_background": {"type": "boolean", "description": "Run detached (optional, default: false)"}
+    },
+    "required": ["command"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecuritySensitive ;
+  dcat:relation chatman:SafetyExecute ;
+  .
+
+chatman:GitTool
+  a chatman:ToolCapability ;
+  rdfs:label "Git Tool"@en ;
+  dcterms:identifier "git" ;
+  dcterms:description "Execute git operations: clone, commit, push, pull, branch, merge. Read operations are public; write operations are sensitive."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "operation": {"type": "string", "description": "Git operation (status, log, clone, commit, push, pull, branch, merge, etc.)"},
+      "args": {"type": "object", "description": "Operation arguments"}
+    },
+    "required": ["operation"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecuritySensitive ;
+  dcat:relation chatman:SafetyExecute ;
+  .
+
+###############################################################################
+# AGENT COORDINATION TOOLS
+###############################################################################
+
+chatman:DelegateTool
+  a chatman:ToolCapability ;
+  rdfs:label "Delegate Tool"@en ;
+  dcterms:identifier "delegate" ;
+  dcterms:description "Create a sub-agent and delegate a task to it. Used for parallel work, specialization. Returns new agent ID and execution result."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "task": {"type": "string", "description": "Task description for delegated agent"},
+      "role": {"type": "string", "description": "Optional agent role (coordinator, worker, analyzer, etc.)"},
+      "dependencies": {"type": "array", "items": {"type": "string"}, "description": "Task IDs this task depends on"}
+    },
+    "required": ["task"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityInternal ;
+  dcat:relation chatman:SafetyExecute ;
+  .
+
+chatman:MessageAgentTool
+  a chatman:ToolCapability ;
+  rdfs:label "Message Agent Tool"@en ;
+  dcterms:identifier "message_agent" ;
+  dcterms:description "Send a message to another agent (async). Used for event notifications, heartbeat updates."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "agent_id": {"type": "string", "description": "Target agent ID"},
+      "message": {"type": "object", "description": "Message content"}
+    },
+    "required": ["agent_id", "message"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityInternal ;
+  dcat:relation chatman:SafetyExecute ;
+  .
+
+chatman:PeerClaimRegionTool
+  a chatman:ToolCapability ;
+  rdfs:label "Peer Claim Region Tool"@en ;
+  dcterms:identifier "peer_claim_region" ;
+  dcterms:description "In a multi-agent swarm, claim a region of work to prevent conflicts (YAWL synchronization)."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "region_id": {"type": "string"},
+      "lease_duration_ms": {"type": "integer"}
+    },
+    "required": ["region_id"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityInternal ;
+  dcat:relation chatman:SafetyExecute ;
+  .
+
+chatman:PeerNegotiateTaskTool
+  a chatman:ToolCapability ;
+  rdfs:label "Peer Negotiate Task Tool"@en ;
+  dcterms:identifier "peer_negotiate_task" ;
+  dcterms:description "Propose a task to peer agents and negotiate execution (consensus, auction, assignment)."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "task": {"type": "object"},
+      "strategy": {"type": "string", "enum": ["first-come", "bid", "consensus"]},
+      "timeout_ms": {"type": "integer"}
+    },
+    "required": ["task"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityInternal ;
+  dcat:relation chatman:SafetyExecute ;
+  .
+
+chatman:PeerReviewTool
+  a chatman:ToolCapability ;
+  rdfs:label "Peer Review Tool"@en ;
+  dcterms:identifier "peer_review" ;
+  dcterms:description "Request peer agents to review work (code, decision, output). Implements code review patterns."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "artifact": {"type": "string", "description": "Code or decision to review"},
+      "context": {"type": "string"},
+      "reviewer_count": {"type": "integer", "description": "Number of reviewers to request"}
+    },
+    "required": ["artifact"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityInternal ;
+  dcat:relation chatman:SafetyExecute ;
+  .
+
+###############################################################################
+# PROCESS MINING & ANALYSIS TOOLS
+###############################################################################
+
+chatman:PM4PyDiscoverTool
+  a chatman:ToolCapability ;
+  rdfs:label "PM4Py Discover Tool"@en ;
+  dcterms:identifier "pm4py_discover" ;
+  dcterms:description "Discover process model from event log using PM4Py. Returns YAWL model, control-flow metrics, bottlenecks."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "event_log": {"type": "string", "description": "Path to event log file (XES or CSV)"},
+      "method": {"type": "string", "enum": ["inductive", "alpha", "heuristic"], "description": "Discovery method"}
+    },
+    "required": ["event_log"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityPublic ;
+  dcat:relation chatman:SafetyReadOnly ;
+  .
+
+###############################################################################
+# AGENT MANAGEMENT TOOLS
+###############################################################################
+
+chatman:ListAgentsTool
+  a chatman:ToolCapability ;
+  rdfs:label "List Agents Tool"@en ;
+  dcterms:identifier "list_agents" ;
+  dcterms:description "List all active agents in the system. Returns agent IDs, roles, status, and resource usage."@en ;
+  dcat:relation chatman:SecurityPublic ;
+  dcat:relation chatman:SafetyReadOnly ;
+  .
+
+chatman:CreateAgentTool
+  a chatman:ToolCapability ;
+  rdfs:label "Create Agent Tool"@en ;
+  dcterms:identifier "create_agent" ;
+  dcterms:description "Dynamically create a new agent with specified role, provider, and permissions. Returns agent ID."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "name": {"type": "string"},
+      "role": {"type": "string", "description": "Agent role (coordinator, worker, analyzer, etc.)"},
+      "provider": {"type": "string", "enum": ["anthropic", "openai", "ollama", "process", "sensor"]},
+      "model": {"type": "string", "description": "LLM model name (for LLM agents)"},
+      "permissions": {"type": "array", "items": {"type": "string"}}
+    },
+    "required": ["name", "role"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecuritySensitive ;
+  dcat:relation chatman:SafetyExecute ;
+  .
+
+chatman:ListSkillsTool
+  a chatman:ToolCapability ;
+  rdfs:label "List Skills Tool"@en ;
+  dcterms:identifier "list_skills" ;
+  dcterms:description "List all available skills (hot-reloadable markdown specifications)."@en ;
+  dcat:relation chatman:SecurityPublic ;
+  dcat:relation chatman:SafetyReadOnly ;
+  .
+
+chatman:CreateSkillTool
+  a chatman:ToolCapability ;
+  rdfs:label "Create Skill Tool"@en ;
+  dcterms:identifier "create_skill" ;
+  dcterms:description "Create a new skill as a markdown specification. Skills are hot-reloadable and can be used by any agent."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "name": {"type": "string"},
+      "description": {"type": "string"},
+      "steps": {"type": "array", "items": {"type": "string"}},
+      "examples": {"type": "array", "items": {"type": "string"}}
+    },
+    "required": ["name", "description"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityInternal ;
+  dcat:relation chatman:SafetyWrite ;
+  .
+
+chatman:AskUserTool
+  a chatman:ToolCapability ;
+  rdfs:label "Ask User Tool"@en ;
+  dcterms:identifier "ask_user" ;
+  dcterms:description "Pause agent execution and request human input. Used for confirmation, approval, or data entry."@en ;
+  td:hasInputSchema """
+  {
+    "type": "object",
+    "properties": {
+      "question": {"type": "string"},
+      "choices": {"type": "array", "items": {"type": "string"}, "description": "Optional predefined choices"}
+    },
+    "required": ["question"]
+  }
+  """^^xsd:string ;
+  dcat:relation chatman:SecurityPublic ;
+  dcat:relation chatman:SafetyExecute ;
+  .
+
+chatman:HelpTool
+  a chatman:ToolCapability ;
+  rdfs:label "Help Tool"@en ;
+  dcterms:identifier "help" ;
+  dcterms:description "Display help information for tools, agent roles, coordination patterns."@en ;
+  dcat:relation chatman:SecurityPublic ;
+  dcat:relation chatman:SafetyReadOnly ;
+  .
+
+###############################################################################
+# COMPUTER USE (VISION-BASED INTERACTION)
+###############################################################################
+
+chatman:ComputerUseTool
+  a chatman:ToolCapability ;
+  rdfs:label "Computer Use Tool"@en ;
+  dcterms:identifier "computer_use" ;
+  dcterms:description "Vision-based computer interaction: screenshot, click, type, scroll. Used for UI automation and testing."@en ;
+  dcat:relation chatman:SecuritySensitive ;
+  dcat:relation chatman:SafetyExecute ;
+  .
+
+###############################################################################
+# ADDITIONAL INTEGRATION TOOLS
+###############################################################################
+
+chatman:CrossTeamQueryTool
+  a chatman:ToolCapability ;
+  rdfs:label "Cross-Team Query Tool"@en ;
+  dcterms:identifier "cross_team_query" ;
+  dcterms:description "Query knowledge across organizational teams and agents. Returns aggregated information."@en ;
+  dcat:relation chatman:SecurityInternal ;
+  dcat:relation chatman:SafetyReadOnly ;
+  .
+
+###############################################################################
+# SECTION 4: AGENT CAPABILITY DECLARATIONS
+#
+# Properties that define what an agent can do, what role it plays, and
+# what tier it operates in (critical/high/normal/low).
+###############################################################################
+
+chatman:canPerformAction
+  a owl:ObjectProperty ;
+  rdfs:label "Can Perform Action"@en ;
+  rdfs:comment "An agent can invoke this tool capability as an action. Domain: chatman:AIAgent. Range: chatman:ToolCapability."@en ;
+  rdfs:domain chatman:AIAgent ;
+  rdfs:range chatman:ToolCapability ;
+  rdfs:subPropertyOf dul:hasCapability ;
+  .
+
+chatman:hasRole
+  a owl:ObjectProperty ;
+  rdfs:label "Has Role"@en ;
+  rdfs:comment "An agent plays this role in system coordination. Maps to DUL Role and YAWL pattern responsibilities."@en ;
+  rdfs:domain chatman:AIAgent ;
+  rdfs:range chatman:AgentRole ;
+  rdfs:subPropertyOf dul:hasRole ;
+  .
+
+chatman:operatesInTier
+  a owl:ObjectProperty ;
+  rdfs:label "Operates In Tier"@en ;
+  rdfs:comment "The operational tier or priority level at which this agent operates. Affects budget constraints, latency SLAs, and failure recovery time."@en ;
+  rdfs:domain chatman:AIAgent ;
+  rdfs:range chatman:OperationalTier ;
+  .
+
+chatman:OperationalTier
+  a owl:Class ;
+  rdfs:label "Operational Tier"@en ;
+  rdfs:comment "Classification of agent operational priority: critical (must complete within 100ms, 1000 calls/min), high (500ms, 100 calls/min), normal (5s, 10 calls/min), low (30s, 1 call/min)."@en ;
+  skos:hasTopConcept chatman:TierCritical ;
+  skos:hasTopConcept chatman:TierHigh ;
+  skos:hasTopConcept chatman:TierNormal ;
+  skos:hasTopConcept chatman:TierLow ;
+  .
+
+chatman:TierCritical
+  a skos:Concept ;
+  rdfs:label "Critical Tier"@en ;
+  rdfs:comment "Critical operations: <100ms latency, 1000 ops/min budget. Examples: heartbeat, consensus, healing reflexes. WvdA soundness proof required."@en ;
+  skos:inScheme chatman:OperationalTier ;
+  .
+
+chatman:TierHigh
+  a skos:Concept ;
+  rdfs:label "High Tier"@en ;
+  rdfs:comment "High-priority operations: <500ms latency, 100 ops/min. Examples: business logic, API coordination."@en ;
+  skos:inScheme chatman:OperationalTier ;
+  .
+
+chatman:TierNormal
+  a skos:Concept ;
+  rdfs:label "Normal Tier"@en ;
+  rdfs:comment "Standard operations: <5s latency, 10 ops/min. Examples: background jobs, analytics."@en ;
+  skos:inScheme chatman:OperationalTier ;
+  .
+
+chatman:TierLow
+  a skos:Concept ;
+  rdfs:label "Low Tier"@en ;
+  rdfs:comment "Low-priority operations: <30s latency, 1 op/min. Examples: housekeeping, batch processing."@en ;
+  skos:inScheme chatman:OperationalTier ;
+  .
+
+###############################################################################
+# SECTION 5: EXAMPLE AGENT INSTANCES
+#
+# Real agent declarations showing how to use the agent ontology.
+# Each example demonstrates DUL roles, tool capabilities, and tier assignment.
+###############################################################################
+
+###############################################################################
+# EXAMPLE 1: Optimal System Agent (OSA Coordinator)
+# A coordinator agent responsible for orchestrating multi-agent workflows.
+###############################################################################
+
+<https://ontology.chatmangpt.com/agents/example/optimal-system-agent>
+  a chatman:ProcessAgent ;
+  a chatman:LLMAgent ;  # Can also be both if uses LLM for some decisions
+  rdfs:label "Optimal System Agent"@en ;
+  dcterms:identifier "osa-coordinator-1" ;
+  dcterms:description "Master orchestration agent for OSA. Coordinates parallel execution, manages heartbeat, detects deadlock, enforces SLAs. Uses HotStuff consensus for critical decisions."@en ;
+
+  # Role declarations (DUL-based)
+  chatman:hasRole chatman:CoordinatorRole ;
+  chatman:hasRole chatman:AnalyzerRole ;
+
+  # Operational tier (critical = <100ms SLA)
+  chatman:operatesInTier chatman:TierCritical ;
+
+  # Tool capabilities this agent uses
+  chatman:canPerformAction chatman:ListAgentsTool ;
+  chatman:canPerformAction chatman:MessageAgentTool ;
+  chatman:canPerformAction chatman:A2ACallTool ;
+  chatman:canPerformAction chatman:DelegateTool ;
+  chatman:canPerformAction chatman:MemorySaveTool ;
+  chatman:canPerformAction chatman:MemoryRecallTool ;
+  chatman:canPerformAction chatman:PeerClaimRegionTool ;
+  chatman:canPerformAction chatman:PeerNegotiateTaskTool ;
+
+  # Provider configuration (LLM)
+  dcterms:isPartOf <https://ontology.chatmangpt.com/agents/osa> ;
+  dqv:hasQualityMeasurement
+    [ a dqv:QualityMeasurement ;
+      dqv:isMeasurementOf "uptime"^^xsd:string ;
+      rdf:value 0.999 ;
+      dcterms:date "2026-03-25T00:00:00Z"^^xsd:dateTime ] ,
+    [ a dqv:QualityMeasurement ;
+      dqv:isMeasurementOf "p99_latency_ms"^^xsd:string ;
+      rdf:value 95 ;
+      dcterms:date "2026-03-25T00:00:00Z"^^xsd:dateTime ] ;
+
+  # Participation in processes (YAWL-based)
+  dul:participatesIn
+    [ a bfo:Process ;
+      rdfs:label "Heartbeat Dispatch"@en ;
+      dqv:hasQualityMeasurement
+        [ a dqv:QualityMeasurement ;
+          dqv:isMeasurementOf "cycle_time_ms"^^xsd:string ;
+          rdf:value 1000 ] ] ;
+
+  # Relationships
+  prov:wasDerivedFrom <https://ontology.chatmangpt.com/patterns/yawl/synchronization> ;
+  .
+
+###############################################################################
+# EXAMPLE 2: Process Optimizer Agent (Worker + Analyzer)
+# Analyzes process execution logs, detects inefficiencies, recommends optimizations.
+###############################################################################
+
+<https://ontology.chatmangpt.com/agents/example/process-optimizer>
+  a chatman:LLMAgent ;
+  rdfs:label "Process Optimizer Agent"@en ;
+  dcterms:identifier "process-optimizer-1" ;
+  dcterms:description "Analyzes process logs using PM4Py, detects bottlenecks, proposes YAWL pattern optimizations. Implements SICA pattern engine for workflow synthesis."@en ;
+
+  # Roles
+  chatman:hasRole chatman:WorkerRole ;
+  chatman:hasRole chatman:AnalyzerRole ;
+
+  # Operational tier (high = <500ms)
+  chatman:operatesInTier chatman:TierHigh ;
+
+  # Tool capabilities
+  chatman:canPerformAction chatman:PM4PyDiscoverTool ;
+  chatman:canPerformAction chatman:FileReadTool ;
+  chatman:canPerformAction chatman:FileGlobTool ;
+  chatman:canPerformAction chatman:CodeSymbolsTool ;
+  chatman:canPerformAction chatman:MemorySaveTool ;
+  chatman:canPerformAction chatman:MemoryRecallTool ;
+  chatman:canPerformAction chatman:DelegateTool ;
+
+  # Knowledge base references
+  dul:isMemberOf <https://ontology.chatmangpt.com/knowledge/process-mining> ;
+  dul:isMemberOf <https://ontology.chatmangpt.com/knowledge/yawl-patterns> ;
+
+  # Quality metrics
+  dqv:hasQualityMeasurement
+    [ a dqv:QualityMeasurement ;
+      dqv:isMeasurementOf "optimization_proposals_per_hour"^^xsd:string ;
+      rdf:value 5 ] ,
+    [ a dqv:QualityMeasurement ;
+      dqv:isMeasurementOf "average_improvement_percent"^^xsd:string ;
+      rdf:value 23 ] ;
+  .
+
+###############################################################################
+# EXAMPLE 3: Healing Diagnosis Agent (Sensor + Analyzer)
+# Detects system failures, diagnoses root causes, recommends healing actions.
+# Implements Armstrong fault tolerance + WvdA soundness principles.
+###############################################################################
+
+<https://ontology.chatmangpt.com/agents/example/healing-diagnosis>
+  a chatman:LLMAgent ;
+  a chatman:SensorAgent ;
+  rdfs:label "Healing Diagnosis Agent"@en ;
+  dcterms:identifier "healing-diagnosis-1" ;
+  dcterms:description "Detects system failures through process fingerprinting, diagnoses root causes (deadlock, timeout, race condition, resource exhaustion), and recommends healing actions (restart, timeout increase, load balancing). Implements Armstrong let-it-crash + WvdA formal verification."@en ;
+
+  # Roles
+  chatman:hasRole chatman:SensorRole ;
+  chatman:hasRole chatman:AnalyzerRole ;
+  chatman:hasRole chatman:HealingRole ;
+
+  # Operational tier (critical = <100ms diagnosis latency)
+  chatman:operatesInTier chatman:TierCritical ;
+
+  # Tool capabilities
+  chatman:canPerformAction chatman:MemoryRecallTool ;
+  chatman:canPerformAction chatman:MemorySaveTool ;
+  chatman:canPerformAction chatman:MessageAgentTool ;
+  chatman:canPerformAction chatman:DelegateTool ;
+  chatman:canPerformAction chatman:ShellExecuteTool ;
+
+  # Observable behavior (SOSA)
+  sosa:observes <https://ontology.chatmangpt.com/observations/process-state> ;
+  sosa:observes <https://ontology.chatmangpt.com/observations/resource-usage> ;
+
+  # Healing reflex arc
+  dul:participatesIn
+    [ a bfo:Process ;
+      rdfs:label "Healing Reflex Arc"@en ;
+      dul:hasPart
+        [ a bfo:Process ; rdfs:label "Sense"@en ] ,
+        [ a bfo:Process ; rdfs:label "Diagnose"@en ] ,
+        [ a bfo:Process ; rdfs:label "Heal"@en ] ] ;
+
+  # Quality/performance metrics
+  dqv:hasQualityMeasurement
+    [ a dqv:QualityMeasurement ;
+      dqv:isMeasurementOf "detection_latency_ms"^^xsd:string ;
+      rdf:value 45 ] ,
+    [ a dqv:QualityMeasurement ;
+      dqv:isMeasurementOf "diagnosis_confidence"^^xsd:string ;
+      rdf:value 0.94 ] ,
+    [ a dqv:QualityMeasurement ;
+      dqv:isMeasurementOf "healing_success_rate"^^xsd:string ;
+      rdf:value 0.91 ] ;
+
+  # Formal verification constraints
+  dcterms:relation <https://ontology.chatmangpt.com/constraints/wvda-soundness> ;
+  dcterms:relation <https://ontology.chatmangpt.com/constraints/armstrong-supervision> ;
+  .
+
+###############################################################################
+# AGENT SYSTEM ORGANIZATION
+#
+# Collections and relationships between agents.
+###############################################################################
+
+<https://ontology.chatmangpt.com/agents/osa>
+  a dul:Group ;
+  rdfs:label "OSA Agent System"@en ;
+  rdfs:comment "Collection of all agents running in the OSA (Optimal System Agent) orchestration system."@en ;
+  dul:hasMember <https://ontology.chatmangpt.com/agents/example/optimal-system-agent> ;
+  dul:hasMember <https://ontology.chatmangpt.com/agents/example/process-optimizer> ;
+  dul:hasMember <https://ontology.chatmangpt.com/agents/example/healing-diagnosis> ;
+  dcterms:hasPart <https://ontology.chatmangpt.com/knowledge/process-mining> ;
+  dcterms:hasPart <https://ontology.chatmangpt.com/knowledge/yawl-patterns> ;
+  dcterms:hasPart <https://ontology.chatmangpt.com/knowledge/armstrong-patterns> ;
+  .
+
+###############################################################################
+# TOOL REGISTRY
+#
+# Grouped index of all tool capabilities for discovery.
+###############################################################################
+
+chatman:FileSystemToolCategory
+  a skos:ConceptScheme ;
+  rdfs:label "File System Tools"@en ;
+  skos:hasTopConcept chatman:FileReadTool ;
+  skos:hasTopConcept chatman:FileWriteTool ;
+  skos:hasTopConcept chatman:FileEditTool ;
+  skos:hasTopConcept chatman:MultiFileEditTool ;
+  skos:hasTopConcept chatman:DirListTool ;
+  skos:hasTopConcept chatman:FileGlobTool ;
+  skos:hasTopConcept chatman:FileGrepTool ;
+  .
+
+chatman:MemoryToolCategory
+  a skos:ConceptScheme ;
+  rdfs:label "Memory & Knowledge Tools"@en ;
+  skos:hasTopConcept chatman:MemorySaveTool ;
+  skos:hasTopConcept chatman:MemoryRecallTool ;
+  skos:hasTopConcept chatman:SessionSearchTool ;
+  .
+
+chatman:NetworkToolCategory
+  a skos:ConceptScheme ;
+  rdfs:label "Network & Integration Tools"@en ;
+  skos:hasTopConcept chatman:WebFetchTool ;
+  skos:hasTopConcept chatman:DownloadTool ;
+  skos:hasTopConcept chatman:A2ACallTool ;
+  skos:hasTopConcept chatman:BusinessOSAPITool ;
+  .
+
+chatman:ExecutionToolCategory
+  a skos:ConceptScheme ;
+  rdfs:label "Command & Code Execution Tools"@en ;
+  skos:hasTopConcept chatman:ShellExecuteTool ;
+  skos:hasTopConcept chatman:GitTool ;
+  skos:hasTopConcept chatman:ComputerUseTool ;
+  .
+
+chatman:CoordinationToolCategory
+  a skos:ConceptScheme ;
+  rdfs:label "Agent Coordination Tools"@en ;
+  skos:hasTopConcept chatman:DelegateTool ;
+  skos:hasTopConcept chatman:MessageAgentTool ;
+  skos:hasTopConcept chatman:PeerClaimRegionTool ;
+  skos:hasTopConcept chatman:PeerNegotiateTaskTool ;
+  skos:hasTopConcept chatman:PeerReviewTool ;
+  .
+
+chatman:AnalysisToolCategory
+  a skos:ConceptScheme ;
+  rdfs:label "Process Analysis Tools"@en ;
+  skos:hasTopConcept chatman:PM4PyDiscoverTool ;
+  skos:hasTopConcept chatman:CodeSymbolsTool ;
+  .
+
+chatman:ManagementToolCategory
+  a skos:ConceptScheme ;
+  rdfs:label "Agent Management Tools"@en ;
+  skos:hasTopConcept chatman:ListAgentsTool ;
+  skos:hasTopConcept chatman:CreateAgentTool ;
+  skos:hasTopConcept chatman:ListSkillsTool ;
+  skos:hasTopConcept chatman:CreateSkillTool ;
+  skos:hasTopConcept chatman:AskUserTool ;
+  skos:hasTopConcept chatman:HelpTool ;
+  .
+
+###############################################################################
+# FINAL NOTES
+###############################################################################
+
+chatman:AgentOntologyNote
+  rdfs:comment """
+This ontology defines the semantic foundation for OSA agents. Key concepts:
+
+1. AGENT TYPES (DUL-based):
+   - chatman:AIAgent: Autonomous software entities
+   - chatman:LLMAgent: Reasoning via Large Language Models (ReAct)
+   - chatman:ProcessAgent: Deterministic process-based execution (YAWL)
+   - chatman:SensorAgent: Monitoring and observation (SOSA)
+
+2. ROLES (YAWL pattern responsibilities):
+   - CoordinatorRole: Parallel orchestration, deadlock detection
+   - WorkerRole: Task execution
+   - SensorRole: State monitoring (SOSA Observation)
+   - AnalyzerRole: Pattern analysis, synthesis
+   - HealingRole: Failure detection + diagnosis + recovery (Armstrong + WvdA)
+
+3. TOOL CAPABILITIES (WoT Thing Description ActionAffordances):
+   - File system operations (read, write, edit, search)
+   - Memory and knowledge (save, recall, search)
+   - Network and integration (web, A2A, BusinessOS API)
+   - Command execution (shell, git, computer use)
+   - Agent coordination (delegate, message, negotiate)
+   - Process analysis (PM4Py discovery)
+   - Management (create agents, skills, ask user)
+
+4. OPERATIONAL TIERS (Resource Budget Constraints):
+   - Critical: <100ms, 1000 ops/min (heartbeat, consensus, healing)
+   - High: <500ms, 100 ops/min (business logic)
+   - Normal: <5s, 10 ops/min (background)
+   - Low: <30s, 1 op/min (housekeeping)
+
+5. EXAMPLE AGENTS:
+   - OptimalSystemAgent: Coordinator for entire OSA system
+   - ProcessOptimizer: Analyzes logs, proposes YAWL optimizations
+   - HealingDiagnosis: Detects/diagnoses/heals failures (Armstrong + WvdA)
+
+All tool capabilities include:
+- Input schema (JSON Schema for parameters)
+- Output schema (structure of results)
+- Security level (public/internal/sensitive)
+- Safety mode (read-only/write/execute)
+- Quality metrics and constraints
+
+This ontology is compatible with:
+- PROV-O (agent actions are prov:Activity)
+- W3C ORG (agents participate in org:OrganizationalUnit)
+- DCAT 3 (agents consume/produce dcat:Dataset)
+- SOSA (sensor agents implement sosa:Sensor)
+- WoT Thing Description (tools are td:ActionAffordance)
+- DUL (agents are dul:SocialAgent, roles are dul:Role)
+- BFO (agents are bfo:Object, actions are bfo:Process)
+"""@en ;
+  .

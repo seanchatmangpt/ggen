@@ -1,0 +1,287 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix : <http://example.org/onto#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==========================================
+# SHACL SHAPES FOR COMPREHENSIVE OWL TEST ONTOLOGY
+# ==========================================
+
+# Shape for Person class
+:PersonShape a sh:NodeShape ;
+    sh:targetClass :Person ;
+    rdfs:label "Person Shape"@en ;
+    rdfs:comment "Validates Person instances"@en ;
+    
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "Label" ;
+        sh:description "Every person must have a label" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Person must have exactly one label" ;
+    ] ;
+    
+    sh:property [
+        sh:path :hasAge ;
+        sh:name "Age" ;
+        sh:description "Person's age if specified" ;
+        sh:datatype xsd:integer ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 150 ;
+        sh:message "Age must be between 0 and 150" ;
+    ] ;
+    
+    sh:property [
+        sh:path :hasName ;
+        sh:name "Name" ;
+        sh:description "Person's name if specified" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:message "Name must be between 1 and 100 characters" ;
+    ] .
+
+# Shape for Animal class
+:AnimalShape a sh:NodeShape ;
+    sh:targetClass :Animal ;
+    rdfs:label "Animal Shape"@en ;
+    rdfs:comment "Validates Animal instances"@en ;
+    
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "Label" ;
+        sh:description "Every animal must have a label" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Animal must have at least one label" ;
+    ] ;
+    
+    sh:property [
+        sh:path :hasOwner ;
+        sh:name "Owner" ;
+        sh:description "Animal's owner if any" ;
+        sh:class :Person ;
+        sh:maxCount 1 ;
+        sh:message "Animal can have at most one owner, and owner must be a Person" ;
+    ] ;
+    
+    sh:property [
+        sh:path :hasAge ;
+        sh:name "Age" ;
+        sh:description "Animal's age if specified" ;
+        sh:datatype xsd:integer ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 50 ;
+        sh:message "Animal age must be between 0 and 50" ;
+    ] .
+
+# Shape for Dog class (inherits from Animal)
+:DogShape a sh:NodeShape ;
+    sh:targetClass :Dog ;
+    rdfs:label "Dog Shape"@en ;
+    rdfs:comment "Validates Dog instances with specific constraints"@en ;
+    
+    # Dogs must have owners (stricter than general animals)
+    sh:property [
+        sh:path :hasOwner ;
+        sh:name "Owner" ;
+        sh:description "Dogs must have an owner" ;
+        sh:class :Person ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every dog must have exactly one Person owner" ;
+    ] ;
+    
+    # Dogs must live somewhere
+    sh:property [
+        sh:path :livesIn ;
+        sh:name "Home" ;
+        sh:description "Dogs must have a place to live" ;
+        sh:class :Place ;
+        sh:minCount 1 ;
+        sh:message "Dog must live in at least one Place" ;
+    ] .
+
+# Shape for Place class
+:PlaceShape a sh:NodeShape ;
+    sh:targetClass :Place ;
+    rdfs:label "Place Shape"@en ;
+    rdfs:comment "Validates Place instances"@en ;
+    
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "Label" ;
+        sh:description "Every place must have a label" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Place must have at least one label" ;
+    ] .
+
+# Shape for marriage relationships (symmetric property validation)
+:MarriageShape a sh:NodeShape ;
+    sh:targetNode :alice, :bob ; # Specific targets
+    rdfs:label "Marriage Shape"@en ;
+    rdfs:comment "Validates marriage relationships are symmetric"@en ;
+    
+    sh:property [
+        sh:path :marriedTo ;
+        sh:name "Spouse" ;
+        sh:description "Marriage must be symmetric" ;
+        sh:class :Person ;
+        sh:maxCount 1 ; # Monogamous marriage
+    ] .
+
+# Property shape for hasOwner relationship
+:HasOwnerPropertyShape a sh:PropertyShape ;
+    sh:targetClass :Animal ;
+    sh:path :hasOwner ;
+    rdfs:label "Has Owner Property Shape"@en ;
+    
+    # Owner must be a Person
+    sh:class :Person ;
+    
+    # Custom constraint: if animal has owner, owner must be adult (age >= 18)
+    sh:sparql [
+        sh:message "Animal owner must be an adult (age >= 18)" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "ex" ;
+                sh:namespace "http://example.org/onto#"^^xsd:anyURI ;
+            ] ;
+        ] ;
+        sh:select """
+            SELECT $this ?owner WHERE {
+                $this ex:hasOwner ?owner .
+                ?owner ex:hasAge ?age .
+                FILTER (?age < 18)
+            }
+        """ ;
+    ] .
+
+# Property shape for ancestorOf (transitivity validation)
+:AncestorPropertyShape a sh:PropertyShape ;
+    sh:targetClass :Person ;
+    sh:path :ancestorOf ;
+    rdfs:label "Ancestor Property Shape"@en ;
+    
+    # Ancestor must be a Person
+    sh:class :Person ;
+    
+    # No one can be ancestor of themselves (prevent cycles)
+    sh:disjoint :ancestorOf ; # This prevents self-reference
+    
+    # Custom constraint: check transitivity consistency
+    sh:sparql [
+        sh:message "Ancestor relationship should be transitive" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "ex" ;
+                sh:namespace "http://example.org/onto#"^^xsd:anyURI ;
+            ] ;
+        ] ;
+        sh:select """
+            SELECT $this ?middle ?end WHERE {
+                $this ex:ancestorOf ?middle .
+                ?middle ex:ancestorOf ?end .
+                FILTER NOT EXISTS { $this ex:ancestorOf ?end }
+            }
+        """ ;
+    ] .
+
+# Shape for validating property chains
+:PropertyChainValidationShape a sh:NodeShape ;
+    sh:targetClass :Person ;
+    rdfs:label "Property Chain Validation Shape"@en ;
+    
+    # If someone is a grandparent, they must be connected through parent chain
+    sh:sparql [
+        sh:message "Grandparent relationship must be supported by parent chain" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "ex" ;
+                sh:namespace "http://example.org/onto#"^^xsd:anyURI ;
+            ] ;
+        ] ;
+        sh:select """
+            SELECT $this ?grandchild WHERE {
+                $this ex:grandparentOf ?grandchild .
+                FILTER NOT EXISTS {
+                    ?middle a ex:Person .
+                    $this ex:parentOf ?middle .
+                    ?middle ex:parentOf ?grandchild .
+                }
+            }
+        """ ;
+    ] .
+
+# Ontology-level constraints
+:OntologyConstraintsShape a sh:NodeShape ;
+    sh:targetNode <http://example.org/onto> ;
+    rdfs:label "Ontology Constraints Shape"@en ;
+    
+    # Ensure ontology has proper metadata
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Ontology must have a label" ;
+    ] ;
+    
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Ontology must have a comment/description" ;
+    ] .
+
+# Cardinality constraints for specific relationships
+:CardinalityConstraintsShape a sh:NodeShape ;
+    sh:targetClass :LivingBeing ;
+    rdfs:label "Cardinality Constraints"@en ;
+    
+    # Living beings can have at most one age
+    sh:property [
+        sh:path :hasAge ;
+        sh:maxCount 1 ;
+        sh:message "Living being can have at most one age value" ;
+    ] .
+
+# Data quality constraints
+:DataQualityShape a sh:NodeShape ;
+    sh:targetClass :Entity ;
+    rdfs:label "Data Quality Shape"@en ;
+    
+    # All entities should have meaningful labels
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minLength 2 ; # At least 2 characters
+        sh:pattern "^[A-Za-z0-9\\s]+$" ; # Alphanumeric and spaces only
+        sh:message "Label must be at least 2 characters and contain only letters, numbers, and spaces" ;
+    ] .
+
+# ==========================================
+# EXPECTED VALIDATION RESULTS:
+#
+# CONFORMING DATA:
+# - alice, bob, charlie (Person): should pass PersonShape
+# - buddy (Dog): should pass DogShape if has owner and place
+# - fluffy (Cat): should pass AnimalShape  
+# - home (Place): should pass PlaceShape
+# - Ontology itself: should pass OntologyConstraintsShape
+#
+# VIOLATIONS THAT SHOULD BE DETECTED:
+# - Missing required properties (labels, etc.)
+# - Invalid age ranges (< 0 or > limits)
+# - Invalid cardinalities (multiple ages, etc.)
+# - Data quality issues (too short labels, invalid characters)
+# - Property chain inconsistencies
+# - Relationship constraint violations
+# ==========================================

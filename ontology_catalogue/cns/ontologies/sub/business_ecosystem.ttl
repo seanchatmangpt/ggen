@@ -1,0 +1,557 @@
+@prefix :       <http://bitbizeco.dev/ontology/v1/business-ecosystem#> .
+@prefix beco:   <http://bitbizeco.dev/ontology/v1/business-ecosystem#> .
+@prefix dflss:  <http://bitbizeco.dev/ontology/v1/dflss#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix time:   <http://www.w3.org/2006/time#> .
+
+<http://bitbizeco.dev/ontology/v1/business-ecosystem>
+  a owl:Ontology ;
+  rdfs:label "Business Ecosystem Design Framework" ;
+  rdfs:comment "Michael Lewrick Design Thinking for Business Growth framework integrated with bit* monetization strategy and ecosystem thinking." ;
+  owl:imports <http://bitbizeco.dev/ontology/v1/dflss> ;
+  owl:versionInfo "1.0.0" ;
+  :basedonFramework "Michael Lewrick Design Thinking for Business Growth" ;
+  :targetRevenue [
+    :year1 380000 ;
+    :year2 1950000 ;
+    :year3 5000000
+  ] .
+
+#################################################################
+# Core Business Model Components (Canvas + Lewrick Framework)
+#################################################################
+
+## Value Proposition Classes
+beco:ValueProposition        a owl:Class ;
+  rdfs:label "Value Proposition" ;
+  rdfs:comment "Core value offered to customer segments through ecosystem interactions" .
+
+beco:CustomerSegment         a owl:Class ;
+  rdfs:label "Customer Segment" ;
+  rdfs:comment "Distinct groups of people or organizations an enterprise aims to reach and serve" .
+
+beco:RevenueStream          a owl:Class ;
+  rdfs:label "Revenue Stream" ;
+  rdfs:comment "Cash a company generates from each Customer Segment" .
+
+beco:KeyPartnership         a owl:Class ;
+  rdfs:label "Key Partnership" ;
+  rdfs:comment "Network of suppliers and partners that make the business model work" .
+
+beco:KeyResource            a owl:Class ;
+  rdfs:label "Key Resource" ;
+  rdfs:comment "Most important assets required to make a business model work" .
+
+beco:KeyActivity            a owl:Class ;
+  rdfs:label "Key Activity" ;
+  rdfs:comment "Most important things a company must do to make its business model work" .
+
+#################################################################
+# Ecosystem Architecture Layers (Platform + Network Effects)
+#################################################################
+
+## Platform Layers
+beco:EcosystemLayer         a owl:Class ;
+  rdfs:label "Ecosystem Layer" ;
+  rdfs:comment "Distinct layer in the business ecosystem architecture" .
+
+beco:CorePlatform           a owl:Class ;
+  rdfs:subClassOf beco:EcosystemLayer ;
+  rdfs:label "Core Platform" ;
+  rdfs:comment "Central platform providing core bit* services (API, SDK, Infrastructure)" .
+
+beco:DeveloperEcosystem     a owl:Class ;
+  rdfs:subClassOf beco:EcosystemLayer ;
+  rdfs:label "Developer Ecosystem" ;
+  rdfs:comment "Developer-facing tools, APIs, documentation, and community" .
+
+beco:PartnerEcosystem       a owl:Class ;
+  rdfs:subClassOf beco:EcosystemLayer ;
+  rdfs:label "Partner Ecosystem" ;
+  rdfs:comment "Strategic partnerships across industries for cross-pollination" .
+
+beco:UserEcosystem          a owl:Class ;
+  rdfs:subClassOf beco:EcosystemLayer ;
+  rdfs:label "User Ecosystem" ;
+  rdfs:comment "End-user community and customer-facing applications" .
+
+#################################################################
+# Design Thinking Lenses (Lewrick Framework)
+#################################################################
+
+beco:DesignLens             a owl:Class ;
+  rdfs:label "Design Lens" ;
+  rdfs:comment "Different perspectives for analyzing and designing business ecosystems" .
+
+beco:TechnicalLens          a owl:Class ;
+  rdfs:subClassOf beco:DesignLens ;
+  rdfs:label "Technical Lens" ;
+  rdfs:comment "Technology architecture, performance, scalability perspective" .
+
+beco:BusinessLens           a owl:Class ;
+  rdfs:subClassOf beco:DesignLens ;
+  rdfs:label "Business Lens" ;
+  rdfs:comment "Business model, revenue, market dynamics perspective" .
+
+beco:UserExperienceLens     a owl:Class ;
+  rdfs:subClassOf beco:DesignLens ;
+  rdfs:label "User Experience Lens" ;
+  rdfs:comment "Human-centered design, usability, accessibility perspective" .
+
+beco:EcosystemLens          a owl:Class ;
+  rdfs:subClassOf beco:DesignLens ;
+  rdfs:label "Ecosystem Lens" ;
+  rdfs:comment "Network effects, partnerships, platform dynamics perspective" .
+
+beco:SustainabilityLens     a owl:Class ;
+  rdfs:subClassOf beco:DesignLens ;
+  rdfs:label "Sustainability Lens" ;
+  rdfs:comment "Environmental, social, governance impact perspective" .
+
+#################################################################
+# Monetization Patterns (bit* Strategy)
+#################################################################
+
+beco:MonetizationPattern    a owl:Class ;
+  rdfs:label "Monetization Pattern" ;
+  rdfs:comment "Different ways to generate revenue from ecosystem participation" .
+
+beco:SubscriptionModel      a owl:Class ;
+  rdfs:subClassOf beco:MonetizationPattern ;
+  rdfs:label "Subscription Model" ;
+  rdfs:comment "Recurring revenue from platform access and services" .
+
+beco:UsageBasedModel        a owl:Class ;
+  rdfs:subClassOf beco:MonetizationPattern ;
+  rdfs:label "Usage-Based Model" ;
+  rdfs:comment "Pay-per-use pricing for API calls, compute, storage" .
+
+beco:EnterpriseModel        a owl:Class ;
+  rdfs:subClassOf beco:MonetizationPattern ;
+  rdfs:label "Enterprise Model" ;
+  rdfs:comment "High-value enterprise contracts with custom SLAs" .
+
+beco:ProfessionalServices   a owl:Class ;
+  rdfs:subClassOf beco:MonetizationPattern ;
+  rdfs:label "Professional Services" ;
+  rdfs:comment "Consulting, implementation, training services" .
+
+beco:MarketplaceCommission  a owl:Class ;
+  rdfs:subClassOf beco:MonetizationPattern ;
+  rdfs:label "Marketplace Commission" ;
+  rdfs:comment "Commission from transactions facilitated by platform" .
+
+#################################################################
+# Network Effects (Platform Economics)
+#################################################################
+
+beco:NetworkEffect          a owl:Class ;
+  rdfs:label "Network Effect" ;
+  rdfs:comment "Value creation through network participation and growth" .
+
+beco:DeveloperNetwork       a owl:Class ;
+  rdfs:subClassOf beco:NetworkEffect ;
+  rdfs:label "Developer Network Effect" ;
+  rdfs:comment "More developers → better tools → more applications → more users" .
+
+beco:DataNetwork            a owl:Class ;
+  rdfs:subClassOf beco:NetworkEffect ;
+  rdfs:label "Data Network Effect" ;
+  rdfs:comment "More data → better insights → better products → more users" .
+
+beco:PartnerNetwork         a owl:Class ;
+  rdfs:subClassOf beco:NetworkEffect ;
+  rdfs:label "Partner Network Effect" ;
+  rdfs:comment "More partners → broader reach → more customers → more partners" .
+
+beco:UserNetwork            a owl:Class ;
+  rdfs:subClassOf beco:NetworkEffect ;
+  rdfs:label "User Network Effect" ;
+  rdfs:comment "More users → more content/activity → higher value → more users" .
+
+#################################################################
+# Cross-Industry Collaboration Patterns
+#################################################################
+
+beco:CollaborationPattern   a owl:Class ;
+  rdfs:label "Collaboration Pattern" ;
+  rdfs:comment "Structured approach to cross-industry ecosystem participation" .
+
+beco:PlatformIntegration    a owl:Class ;
+  rdfs:subClassOf beco:CollaborationPattern ;
+  rdfs:label "Platform Integration" ;
+  rdfs:comment "Technical integration between different industry platforms" .
+
+beco:DataSharing           a owl:Class ;
+  rdfs:subClassOf beco:CollaborationPattern ;
+  rdfs:label "Data Sharing" ;
+  rdfs:comment "Controlled sharing of data assets across industry boundaries" .
+
+beco:JointInnovation       a owl:Class ;
+  rdfs:subClassOf beco:CollaborationPattern ;
+  rdfs:label "Joint Innovation" ;
+  rdfs:comment "Collaborative R&D and product development initiatives" .
+
+beco:MarketExpansion       a owl:Class ;
+  rdfs:subClassOf beco:CollaborationPattern ;
+  rdfs:label "Market Expansion" ;
+  rdfs:comment "Leveraging partners to enter new markets and customer segments" .
+
+#################################################################
+# Success Metrics & KPIs (Growth Framework)
+#################################################################
+
+beco:SuccessMetric          a owl:Class ;
+  rdfs:subClassOf dflss:Metric ;
+  rdfs:label "Success Metric" ;
+  rdfs:comment "Key performance indicators for ecosystem health and growth" .
+
+beco:RevenueMetric          a owl:Class ;
+  rdfs:subClassOf beco:SuccessMetric ;
+  rdfs:label "Revenue Metric" ;
+  rdfs:comment "Financial performance indicators" .
+
+beco:GrowthMetric           a owl:Class ;
+  rdfs:subClassOf beco:SuccessMetric ;
+  rdfs:label "Growth Metric" ;
+  rdfs:comment "User, customer, and ecosystem growth indicators" .
+
+beco:EngagementMetric       a owl:Class ;
+  rdfs:subClassOf beco:SuccessMetric ;
+  rdfs:label "Engagement Metric" ;
+  rdfs:comment "User and developer engagement indicators" .
+
+beco:HealthMetric           a owl:Class ;
+  rdfs:subClassOf beco:SuccessMetric ;
+  rdfs:label "Health Metric" ;
+  rdfs:comment "Overall ecosystem health and sustainability indicators" .
+
+#################################################################
+# Growth Stages (Scaling Framework)
+#################################################################
+
+beco:GrowthStage            a owl:Class ;
+  rdfs:label "Growth Stage" ;
+  rdfs:comment "Distinct phases in ecosystem development and scaling" .
+
+beco:Foundation             a owl:Class ;
+  rdfs:subClassOf beco:GrowthStage ;
+  rdfs:label "Foundation Stage" ;
+  rdfs:comment "Initial platform development and core value proposition validation" .
+
+beco:Expansion              a owl:Class ;
+  rdfs:subClassOf beco:GrowthStage ;
+  rdfs:label "Expansion Stage" ;
+  rdfs:comment "Market expansion and ecosystem partner acquisition" .
+
+beco:Scaling                a owl:Class ;
+  rdfs:subClassOf beco:GrowthStage ;
+  rdfs:label "Scaling Stage" ;
+  rdfs:comment "Rapid growth and international expansion" .
+
+beco:Optimization           a owl:Class ;
+  rdfs:subClassOf beco:GrowthStage ;
+  rdfs:label "Optimization Stage" ;
+  rdfs:comment "Efficiency improvements and profitability optimization" .
+
+#################################################################
+# Object Properties (Relationships)
+#################################################################
+
+## Core Business Model Relationships
+beco:serves                 a owl:ObjectProperty ;
+  rdfs:domain beco:ValueProposition ;
+  rdfs:range beco:CustomerSegment ;
+  rdfs:label "serves" ;
+  rdfs:comment "Value proposition serves customer segment" .
+
+beco:generatesRevenue       a owl:ObjectProperty ;
+  rdfs:domain beco:CustomerSegment ;
+  rdfs:range beco:RevenueStream ;
+  rdfs:label "generates revenue" ;
+  rdfs:comment "Customer segment generates revenue stream" .
+
+beco:utilizesMonetization   a owl:ObjectProperty ;
+  rdfs:domain beco:RevenueStream ;
+  rdfs:range beco:MonetizationPattern ;
+  rdfs:label "utilizes monetization" ;
+  rdfs:comment "Revenue stream utilizes monetization pattern" .
+
+## Ecosystem Architecture Relationships
+beco:participatesInLayer    a owl:ObjectProperty ;
+  rdfs:domain beco:KeyPartnership ;
+  rdfs:range beco:EcosystemLayer ;
+  rdfs:label "participates in layer" ;
+  rdfs:comment "Partnership participates in ecosystem layer" .
+
+beco:enablesNetworkEffect   a owl:ObjectProperty ;
+  rdfs:domain beco:EcosystemLayer ;
+  rdfs:range beco:NetworkEffect ;
+  rdfs:label "enables network effect" ;
+  rdfs:comment "Ecosystem layer enables network effect" .
+
+beco:facilitatesCollaboration a owl:ObjectProperty ;
+  rdfs:domain beco:PartnerEcosystem ;
+  rdfs:range beco:CollaborationPattern ;
+  rdfs:label "facilitates collaboration" ;
+  rdfs:comment "Partner ecosystem facilitates collaboration pattern" .
+
+## Design Lens Relationships
+beco:analyzedThrough        a owl:ObjectProperty ;
+  rdfs:domain owl:Thing ;
+  rdfs:range beco:DesignLens ;
+  rdfs:label "analyzed through" ;
+  rdfs:comment "Business component analyzed through design lens" .
+
+beco:informsDesign          a owl:ObjectProperty ;
+  rdfs:domain beco:DesignLens ;
+  rdfs:range beco:ValueProposition ;
+  rdfs:label "informs design" ;
+  rdfs:comment "Design lens informs value proposition design" .
+
+## Growth and Metrics Relationships
+beco:measuredBy             a owl:ObjectProperty ;
+  rdfs:domain beco:GrowthStage ;
+  rdfs:range beco:SuccessMetric ;
+  rdfs:label "measured by" ;
+  rdfs:comment "Growth stage measured by success metric" .
+
+beco:targetsStage           a owl:ObjectProperty ;
+  rdfs:domain beco:ValueProposition ;
+  rdfs:range beco:GrowthStage ;
+  rdfs:label "targets stage" ;
+  rdfs:comment "Value proposition targets growth stage" .
+
+beco:evolvesToward          a owl:ObjectProperty ;
+  rdfs:domain beco:GrowthStage ;
+  rdfs:range beco:GrowthStage ;
+  rdfs:label "evolves toward" ;
+  rdfs:comment "Growth stage evolves toward next stage" .
+
+#################################################################
+# Data Properties (Attributes)
+#################################################################
+
+## Business Model Attributes
+beco:annualRevenueTarget    a owl:DatatypeProperty ;
+  rdfs:domain beco:RevenueStream ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "annual revenue target" ;
+  rdfs:comment "Target annual revenue for this stream" .
+
+beco:customerAcquisitionCost a owl:DatatypeProperty ;
+  rdfs:domain beco:CustomerSegment ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "customer acquisition cost" ;
+  rdfs:comment "Cost to acquire customer in this segment" .
+
+beco:lifetimeValue          a owl:DatatypeProperty ;
+  rdfs:domain beco:CustomerSegment ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "lifetime value" ;
+  rdfs:comment "Expected lifetime value of customer in this segment" .
+
+## Growth Metrics
+beco:monthlyGrowthRate      a owl:DatatypeProperty ;
+  rdfs:domain beco:GrowthMetric ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "monthly growth rate" ;
+  rdfs:comment "Month-over-month growth rate percentage" .
+
+beco:churnRate              a owl:DatatypeProperty ;
+  rdfs:domain beco:EngagementMetric ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "churn rate" ;
+  rdfs:comment "Customer churn rate percentage" .
+
+beco:netPromoterScore       a owl:DatatypeProperty ;
+  rdfs:domain beco:EngagementMetric ;
+  rdfs:range xsd:integer ;
+  rdfs:label "net promoter score" ;
+  rdfs:comment "Customer satisfaction and loyalty score" .
+
+## Ecosystem Health
+beco:partnerSatisfactionScore a owl:DatatypeProperty ;
+  rdfs:domain beco:HealthMetric ;
+  rdfs:range xsd:integer ;
+  rdfs:label "partner satisfaction score" ;
+  rdfs:comment "Partner ecosystem satisfaction score" .
+
+beco:apiUsageGrowth         a owl:DatatypeProperty ;
+  rdfs:domain beco:GrowthMetric ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "API usage growth" ;
+  rdfs:comment "API usage growth rate indicating developer adoption" .
+
+beco:ecosystemVelocity      a owl:DatatypeProperty ;
+  rdfs:domain beco:HealthMetric ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "ecosystem velocity" ;
+  rdfs:comment "Speed of innovation and value creation in ecosystem" .
+
+#################################################################
+# Temporal Properties (Time-based Relationships)
+#################################################################
+
+beco:timeframe              a owl:DatatypeProperty ;
+  rdfs:domain beco:GrowthStage ;
+  rdfs:range xsd:duration ;
+  rdfs:label "timeframe" ;
+  rdfs:comment "Expected duration of growth stage" .
+
+beco:revenueYear            a owl:DatatypeProperty ;
+  rdfs:domain beco:RevenueStream ;
+  rdfs:range xsd:gYear ;
+  rdfs:label "revenue year" ;
+  rdfs:comment "Year for revenue target" .
+
+#################################################################
+# Industry Context Properties
+#################################################################
+
+beco:targetIndustry         a owl:DatatypeProperty ;
+  rdfs:domain beco:CustomerSegment ;
+  rdfs:range xsd:string ;
+  rdfs:label "target industry" ;
+  rdfs:comment "Primary industry for customer segment" .
+
+beco:crossIndustryPotential a owl:DatatypeProperty ;
+  rdfs:domain beco:CollaborationPattern ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "cross-industry potential" ;
+  rdfs:comment "Whether pattern enables cross-industry collaboration" .
+
+beco:industryDisruption     a owl:DatatypeProperty ;
+  rdfs:domain beco:ValueProposition ;
+  rdfs:range xsd:string ;
+  rdfs:label "industry disruption" ;
+  rdfs:comment "Type of industry disruption enabled by value proposition" .
+
+#################################################################
+# Specific bit* Ecosystem Instances
+#################################################################
+
+## Core bit* Platform Instance
+:bitPlatformCore           a beco:CorePlatform ;
+  rdfs:label "bit* Core Platform" ;
+  rdfs:comment "Central bit* platform providing AI, automation, and integration services" ;
+  beco:enablesNetworkEffect :bitDeveloperNetwork, :bitDataNetwork ;
+  beco:analyzedThrough :bitTechnicalLens, :bitBusinessLens .
+
+## Revenue Streams for bit* Ecosystem
+:bitSubscriptionRevenue    a beco:RevenueStream ;
+  rdfs:label "bit* Subscription Revenue" ;
+  beco:utilizesMonetization :bitSubscriptionModel ;
+  beco:annualRevenueTarget 380000 ;
+  beco:revenueYear "2025"^^xsd:gYear .
+
+:bitEnterpriseRevenue      a beco:RevenueStream ;
+  rdfs:label "bit* Enterprise Revenue" ;
+  beco:utilizesMonetization :bitEnterpriseModel ;
+  beco:annualRevenueTarget 1950000 ;
+  beco:revenueYear "2026"^^xsd:gYear .
+
+:bitScaleRevenue           a beco:RevenueStream ;
+  rdfs:label "bit* Scale Revenue" ;
+  beco:utilizesMonetization :bitUsageBasedModel, :bitMarketplaceCommission ;
+  beco:annualRevenueTarget 5000000 ;
+  beco:revenueYear "2027"^^xsd:gYear .
+
+## Customer Segments
+:bitDevelopers            a beco:CustomerSegment ;
+  rdfs:label "Developer Community" ;
+  beco:targetIndustry "Software Development" ;
+  beco:customerAcquisitionCost 150.00 ;
+  beco:lifetimeValue 2400.00 ;
+  beco:generatesRevenue :bitSubscriptionRevenue .
+
+:bitEnterprises           a beco:CustomerSegment ;
+  rdfs:label "Enterprise Customers" ;
+  beco:targetIndustry "Multiple Industries" ;
+  beco:customerAcquisitionCost 25000.00 ;
+  beco:lifetimeValue 180000.00 ;
+  beco:generatesRevenue :bitEnterpriseRevenue .
+
+## Growth Stages
+:bitFoundationStage       a beco:Foundation ;
+  rdfs:label "bit* Foundation (2025)" ;
+  beco:timeframe "P12M"^^xsd:duration ;
+  beco:measuredBy :bitDeveloperAdoption, :bitRevenueGrowth ;
+  beco:evolvesToward :bitExpansionStage .
+
+:bitExpansionStage        a beco:Expansion ;
+  rdfs:label "bit* Expansion (2026)" ;
+  beco:timeframe "P12M"^^xsd:duration ;
+  beco:measuredBy :bitPartnerGrowth, :bitMarketPenetration ;
+  beco:evolvesToward :bitScalingStage .
+
+:bitScalingStage          a beco:Scaling ;
+  rdfs:label "bit* Scaling (2027+)" ;
+  beco:timeframe "P24M"^^xsd:duration ;
+  beco:measuredBy :bitGlobalExpansion, :bitEcosystemHealth .
+
+## Success Metrics Instances
+:bitDeveloperAdoption     a beco:GrowthMetric ;
+  rdfs:label "Developer Adoption Rate" ;
+  beco:monthlyGrowthRate 15.0 ;
+  beco:apiUsageGrowth 25.0 .
+
+:bitRevenueGrowth         a beco:RevenueMetric ;
+  rdfs:label "Revenue Growth Rate" ;
+  beco:monthlyGrowthRate 8.0 .
+
+:bitPartnerGrowth         a beco:GrowthMetric ;
+  rdfs:label "Partner Ecosystem Growth" ;
+  beco:monthlyGrowthRate 12.0 .
+
+:bitEcosystemHealth       a beco:HealthMetric ;
+  rdfs:label "Ecosystem Health Score" ;
+  beco:partnerSatisfactionScore 85 ;
+  beco:ecosystemVelocity 0.85 .
+
+## Network Effects Instances
+:bitDeveloperNetwork      a beco:DeveloperNetwork ;
+  rdfs:label "bit* Developer Network Effect" ;
+  rdfs:comment "Growing developer community creates tools, applications, and integrations" .
+
+:bitDataNetwork           a beco:DataNetwork ;
+  rdfs:label "bit* Data Network Effect" ;
+  rdfs:comment "More data usage improves AI models and platform intelligence" .
+
+## Monetization Model Instances
+:bitSubscriptionModel     a beco:SubscriptionModel ;
+  rdfs:label "bit* Subscription Model" ;
+  rdfs:comment "Monthly/annual subscriptions for platform access and basic features" .
+
+:bitUsageBasedModel       a beco:UsageBasedModel ;
+  rdfs:label "bit* Usage-Based Model" ;
+  rdfs:comment "Pay-per-API-call, compute usage, and storage consumption" .
+
+:bitEnterpriseModel       a beco:EnterpriseModel ;
+  rdfs:label "bit* Enterprise Model" ;
+  rdfs:comment "Custom enterprise contracts with SLAs and dedicated support" .
+
+:bitMarketplaceCommission a beco:MarketplaceCommission ;
+  rdfs:label "bit* Marketplace Commission" ;
+  rdfs:comment "Commission from third-party integrations and marketplace transactions" .
+
+## Design Lens Instances
+:bitTechnicalLens         a beco:TechnicalLens ;
+  rdfs:label "bit* Technical Lens" ;
+  rdfs:comment "Focus on API design, performance, scalability, and technical excellence" .
+
+:bitBusinessLens          a beco:BusinessLens ;
+  rdfs:label "bit* Business Lens" ;
+  rdfs:comment "Focus on revenue models, market dynamics, and business value creation" .
+
+:bitUXLens               a beco:UserExperienceLens ;
+  rdfs:label "bit* UX Lens" ;
+  rdfs:comment "Focus on developer experience, ease of integration, and user satisfaction" .
+
+:bitEcosystemLens        a beco:EcosystemLens ;
+  rdfs:label "bit* Ecosystem Lens" ;
+  rdfs:comment "Focus on network effects, partnerships, and ecosystem health" .

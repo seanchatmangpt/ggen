@@ -1,0 +1,289 @@
+@prefix : <https://bytestar.org/ontology/v5/hive-mind#> .
+@prefix hive: <https://bytestar.org/ontology/v5/hive-mind#> .
+@prefix neural: <https://bytestar.org/ontology/v5/neural#> .
+@prefix swarm: <https://bytestar.org/ontology/v5/swarm#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/v5/hive-mind>
+  a owl:Ontology ;
+  owl:versionInfo "5.0.0" ;
+  rdfs:label "ByteStar HIVE MIND Neural Orchestration Ontology" ;
+  rdfs:comment "Defines the complete neural orchestration system for adaptive runtime optimization" .
+
+#################################################################
+# Core HIVE MIND Classes
+#################################################################
+
+:HiveMindOrchestrator a owl:Class ;
+  rdfs:label "HIVE MIND Orchestrator" ;
+  rdfs:comment "Central neural orchestration system managing swarm intelligence" .
+
+:NeuralAgent a owl:Class ;
+  rdfs:label "Neural Agent" ;
+  rdfs:comment "Individual intelligent agent in the swarm" .
+
+:SwarmConsensus a owl:Class ;
+  rdfs:label "Swarm Consensus" ;
+  rdfs:comment "Distributed consensus mechanism for swarm decisions" .
+
+:LearnedPattern a owl:Class ;
+  rdfs:label "Learned Pattern" ;
+  rdfs:comment "Runtime-discovered optimization pattern" .
+
+:AdaptiveTopology a owl:Class ;
+  rdfs:label "Adaptive Topology" ;
+  rdfs:comment "Self-organizing network topology" .
+
+#################################################################
+# Neural Components
+#################################################################
+
+neural:Neuron a owl:Class ;
+  rdfs:label "Artificial Neuron" ;
+  rdfs:comment "Basic neural processing unit" .
+
+neural:SynapticWeight a owl:Class ;
+  rdfs:label "Synaptic Weight" ;
+  rdfs:comment "Connection strength between neurons" .
+
+neural:ActivationFunction a owl:Class ;
+  rdfs:label "Activation Function" ;
+  rdfs:comment "Neural activation function (ReLU, Sigmoid, etc.)" .
+
+neural:BackpropagationPath a owl:Class ;
+  rdfs:label "Backpropagation Path" ;
+  rdfs:comment "Learning path for weight adjustment" .
+
+#################################################################
+# Swarm Intelligence Components
+#################################################################
+
+swarm:Agent a owl:Class ;
+  rdfs:subClassOf :NeuralAgent ;
+  rdfs:label "Swarm Agent" ;
+  rdfs:comment "Autonomous agent in swarm" .
+
+swarm:Queen a owl:Class ;
+  rdfs:subClassOf swarm:Agent ;
+  rdfs:label "Queen Agent" ;
+  rdfs:comment "Hierarchical coordinator in swarm" .
+
+swarm:Worker a owl:Class ;
+  rdfs:subClassOf swarm:Agent ;
+  rdfs:label "Worker Agent" ;
+  rdfs:comment "Task execution agent" .
+
+swarm:Scout a owl:Class ;
+  rdfs:subClassOf swarm:Agent ;
+  rdfs:label "Scout Agent" ;
+  rdfs:comment "Exploration and discovery agent" .
+
+#################################################################
+# 80/20 Optimization Classes
+#################################################################
+
+:CriticalPath a owl:Class ;
+  rdfs:label "Critical Path" ;
+  rdfs:comment "High-impact execution path (20% providing 80% value)" .
+
+:HotKernel a owl:Class ;
+  rdfs:subClassOf bytestar:Kernel ;
+  rdfs:label "Hot Kernel" ;
+  rdfs:comment "Frequently executed kernel requiring optimization" .
+
+:ColdKernel a owl:Class ;
+  rdfs:subClassOf bytestar:Kernel ;
+  rdfs:label "Cold Kernel" ;
+  rdfs:comment "Rarely executed kernel" .
+
+:OptimizationStrategy a owl:Class ;
+  rdfs:label "Optimization Strategy" ;
+  rdfs:comment "Learned optimization approach" .
+
+#################################################################
+# Consensus Mechanisms
+#################################################################
+
+:ByzantineConsensus a owl:Class ;
+  rdfs:subClassOf :SwarmConsensus ;
+  rdfs:label "Byzantine Consensus" ;
+  rdfs:comment "Fault-tolerant consensus with malicious actors" .
+
+:RaftConsensus a owl:Class ;
+  rdfs:subClassOf :SwarmConsensus ;
+  rdfs:label "Raft Consensus" ;
+  rdfs:comment "Leader-based consensus protocol" .
+
+:PaxosConsensus a owl:Class ;
+  rdfs:subClassOf :SwarmConsensus ;
+  rdfs:label "Paxos Consensus" ;
+  rdfs:comment "Partition-tolerant consensus" .
+
+#################################################################
+# Properties
+#################################################################
+
+# Neural Properties
+:hasNeuron a owl:ObjectProperty ;
+  rdfs:domain :HiveMindOrchestrator ;
+  rdfs:range neural:Neuron .
+
+:hasSynapticWeight a owl:DatatypeProperty ;
+  rdfs:domain neural:SynapticWeight ;
+  rdfs:range xsd:float ;
+  rdfs:comment "Weight value between -1.0 and 1.0" .
+
+:hasActivationThreshold a owl:DatatypeProperty ;
+  rdfs:domain neural:Neuron ;
+  rdfs:range xsd:float .
+
+:learningRate a owl:DatatypeProperty ;
+  rdfs:domain :HiveMindOrchestrator ;
+  rdfs:range xsd:float ;
+  rdfs:comment "Learning rate for neural network (0.0 to 1.0)" .
+
+# Swarm Properties
+:hasAgent a owl:ObjectProperty ;
+  rdfs:domain :HiveMindOrchestrator ;
+  rdfs:range swarm:Agent .
+
+:swarmSize a owl:DatatypeProperty ;
+  rdfs:domain :HiveMindOrchestrator ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Number of agents in swarm" .
+
+:consensusThreshold a owl:DatatypeProperty ;
+  rdfs:domain :SwarmConsensus ;
+  rdfs:range xsd:float ;
+  rdfs:comment "Minimum agreement ratio for consensus (0.0 to 1.0)" .
+
+:votingPower a owl:DatatypeProperty ;
+  rdfs:domain swarm:Agent ;
+  rdfs:range xsd:float ;
+  rdfs:comment "Agent's voting weight in consensus" .
+
+# Pattern Learning Properties
+:discoveredPattern a owl:ObjectProperty ;
+  rdfs:domain :HiveMindOrchestrator ;
+  rdfs:range :LearnedPattern .
+
+:patternConfidence a owl:DatatypeProperty ;
+  rdfs:domain :LearnedPattern ;
+  rdfs:range xsd:float ;
+  rdfs:comment "Confidence score for learned pattern (0.0 to 1.0)" .
+
+:patternFrequency a owl:DatatypeProperty ;
+  rdfs:domain :LearnedPattern ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Number of times pattern observed" .
+
+:averageSpeedup a owl:DatatypeProperty ;
+  rdfs:domain :LearnedPattern ;
+  rdfs:range xsd:float ;
+  rdfs:comment "Average performance improvement factor" .
+
+# 80/20 Optimization Properties
+:isCritical a owl:DatatypeProperty ;
+  rdfs:domain bytestar:Kernel ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Whether kernel is in critical 20%" .
+
+:executionFrequency a owl:DatatypeProperty ;
+  rdfs:domain bytestar:Kernel ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Execution count in time window" .
+
+:optimizationPriority a owl:DatatypeProperty ;
+  rdfs:domain bytestar:Kernel ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Priority for optimization (1-10)" .
+
+#################################################################
+# Constraints and Rules
+#################################################################
+
+# Swarm must have minimum agents
+:HiveMindOrchestrator rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty :swarmSize ;
+  owl:minCardinality "3"^^xsd:integer ;
+  rdfs:comment "Minimum 3 agents for consensus"
+] .
+
+# Learning rate bounds
+:HiveMindOrchestrator rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty :learningRate ;
+  owl:allValuesFrom [ 
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:float ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "0.0"^^xsd:float ]
+      [ xsd:maxInclusive "1.0"^^xsd:float ]
+    )
+  ]
+] .
+
+# Consensus threshold bounds
+:SwarmConsensus rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty :consensusThreshold ;
+  owl:allValuesFrom [ 
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:float ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "0.51"^^xsd:float ]  # Majority required
+      [ xsd:maxInclusive "1.0"^^xsd:float ]
+    )
+  ]
+] .
+
+#################################################################
+# Individuals (Configuration)
+#################################################################
+
+:ProductionHiveMind a :HiveMindOrchestrator ;
+  :swarmSize "8"^^xsd:integer ;
+  :learningRate "0.01"^^xsd:float ;
+  :hasAgent :Queen1, :Worker1, :Worker2, :Worker3, :Scout1, :Scout2, :Scout3, :Scout4 ;
+  rdfs:comment "Production HIVE MIND configuration" .
+
+:Queen1 a swarm:Queen ;
+  :votingPower "2.0"^^xsd:float ;
+  rdfs:comment "Primary coordinator with double voting weight" .
+
+:Worker1 a swarm:Worker ;
+  :votingPower "1.0"^^xsd:float .
+
+:DefaultConsensus a :ByzantineConsensus ;
+  :consensusThreshold "0.67"^^xsd:float ;
+  rdfs:comment "2/3 majority for Byzantine fault tolerance" .
+
+#################################################################
+# SPARQL Query Examples
+#################################################################
+
+# Find critical kernels needing optimization
+# SELECT ?kernel ?freq WHERE {
+#   ?kernel a :HotKernel ;
+#           :executionFrequency ?freq ;
+#           :isCritical true .
+#   FILTER(?freq > 1000)
+# }
+
+# Get swarm consensus status
+# SELECT ?consensus ?threshold WHERE {
+#   ?consensus a :SwarmConsensus ;
+#              :consensusThreshold ?threshold .
+# }
+
+# Find learned patterns with high confidence
+# SELECT ?pattern ?confidence ?speedup WHERE {
+#   ?pattern a :LearnedPattern ;
+#            :patternConfidence ?confidence ;
+#            :averageSpeedup ?speedup .
+#   FILTER(?confidence > 0.9 && ?speedup > 2.0)
+# }

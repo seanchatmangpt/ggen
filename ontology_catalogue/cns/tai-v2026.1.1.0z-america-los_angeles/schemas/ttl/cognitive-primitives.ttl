@@ -1,0 +1,332 @@
+@prefix tai: <http://tai.cognitive-mesh.org/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# TAI Cognitive Primitives Schema
+# Defines the seven core cognitive primitives: pulse, link, signal, fossil, wave, spiral, cut
+
+# ===== COGNITIVE PRIMITIVE CLASSES =====
+
+# Pulse - momentary activation or event
+tai:Pulse a owl:Class ;
+    rdfs:label "Pulse" ;
+    rdfs:comment "Momentary activation, event, or discrete cognitive stimulus" ;
+    rdfs:subClassOf tai:CognitivePrimitive, tai:TemporalConstruct ;
+    rdfs:seeAlso "Represents discrete temporal events in cognitive processing" .
+
+# Link - connection or relationship
+tai:Link a owl:Class ;
+    rdfs:label "Link" ;
+    rdfs:comment "Connection, relationship, or association between cognitive entities" ;
+    rdfs:subClassOf tai:CognitivePrimitive, tai:Connection ;
+    rdfs:seeAlso "Fundamental relationship primitive in cognitive mesh" .
+
+# Signal - information carrier
+tai:Signal a owl:Class ;
+    rdfs:label "Signal" ;
+    rdfs:comment "Information carrier, communication channel, or data flow" ;
+    rdfs:subClassOf tai:CognitivePrimitive, tai:TemporalConstruct ;
+    rdfs:seeAlso "Carries information between cognitive entities" .
+
+# Fossil - preserved state or memory
+tai:Fossil a owl:Class ;
+    rdfs:label "Fossil" ;
+    rdfs:comment "Preserved state, memory, or historical trace of cognitive activity" ;
+    rdfs:subClassOf tai:CognitivePrimitive, tai:SemanticConstruct ;
+    rdfs:seeAlso "Preserves cognitive history and learned patterns" .
+
+# Wave - oscillatory or rhythmic pattern
+tai:Wave a owl:Class ;
+    rdfs:label "Wave" ;
+    rdfs:comment "Oscillatory, rhythmic, or periodic cognitive pattern" ;
+    rdfs:subClassOf tai:CognitivePrimitive, tai:TemporalConstruct ;
+    rdfs:seeAlso "Represents periodic and oscillatory cognitive phenomena" .
+
+# Spiral - iterative growth or recursive pattern
+tai:Spiral a owl:Class ;
+    rdfs:label "Spiral" ;
+    rdfs:comment "Iterative growth, recursive pattern, or evolutionary trajectory" ;
+    rdfs:subClassOf tai:CognitivePrimitive, tai:TemporalConstruct ;
+    rdfs:seeAlso "Models iterative development and recursive cognitive processes" .
+
+# Cut - separation, boundary, or discontinuity
+tai:Cut a owl:Class ;
+    rdfs:label "Cut" ;
+    rdfs:comment "Separation, boundary, discontinuity, or cognitive edge" ;
+    rdfs:subClassOf tai:CognitivePrimitive, tai:SemanticConstruct ;
+    rdfs:seeAlso "Defines boundaries and separations in cognitive space" .
+
+# ===== PULSE PROPERTIES =====
+
+tai:hasAmplitude a owl:DatatypeProperty ;
+    rdfs:label "has amplitude" ;
+    rdfs:comment "Amplitude or intensity of pulse activation" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range xsd:double .
+
+tai:hasTriggerCondition a owl:DatatypeProperty ;
+    rdfs:label "has trigger condition" ;
+    rdfs:comment "Condition that triggers pulse activation" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range xsd:string .
+
+tai:triggeredBy a owl:ObjectProperty ;
+    rdfs:label "triggered by" ;
+    rdfs:comment "Entity or event that triggered this pulse" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range tai:CognitiveEntity .
+
+tai:triggers a owl:ObjectProperty ;
+    rdfs:label "triggers" ;
+    rdfs:comment "Entity or event triggered by this pulse" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range tai:CognitiveEntity .
+
+# ===== LINK PROPERTIES =====
+
+tai:hasLinkType a owl:DatatypeProperty ;
+    rdfs:label "has link type" ;
+    rdfs:comment "Type or category of cognitive link" ;
+    rdfs:domain tai:Link ;
+    rdfs:range xsd:string .
+
+tai:hasLinkStrength a owl:DatatypeProperty ;
+    rdfs:label "has link strength" ;
+    rdfs:comment "Strength or weight of cognitive link (0.0-1.0)" ;
+    rdfs:domain tai:Link ;
+    rdfs:range xsd:double .
+
+tai:isBidirectional a owl:DatatypeProperty ;
+    rdfs:label "is bidirectional" ;
+    rdfs:comment "Whether link operates in both directions" ;
+    rdfs:domain tai:Link ;
+    rdfs:range xsd:boolean .
+
+tai:linksFrom a owl:ObjectProperty ;
+    rdfs:label "links from" ;
+    rdfs:comment "Source entity of the link" ;
+    rdfs:domain tai:Link ;
+    rdfs:range tai:CognitiveEntity .
+
+tai:linksTo a owl:ObjectProperty ;
+    rdfs:label "links to" ;
+    rdfs:comment "Target entity of the link" ;
+    rdfs:domain tai:Link ;
+    rdfs:range tai:CognitiveEntity .
+
+# ===== SIGNAL PROPERTIES =====
+
+tai:hasSignalType a owl:DatatypeProperty ;
+    rdfs:label "has signal type" ;
+    rdfs:comment "Type or category of signal (analog, digital, symbolic)" ;
+    rdfs:domain tai:Signal ;
+    rdfs:range xsd:string .
+
+tai:hasPayload a owl:DatatypeProperty ;
+    rdfs:label "has payload" ;
+    rdfs:comment "Information content carried by signal" ;
+    rdfs:domain tai:Signal ;
+    rdfs:range xsd:string .
+
+tai:hasSignalStrength a owl:DatatypeProperty ;
+    rdfs:label "has signal strength" ;
+    rdfs:comment "Strength or amplitude of signal" ;
+    rdfs:domain tai:Signal ;
+    rdfs:range xsd:double .
+
+tai:hasNoiseLevel a owl:DatatypeProperty ;
+    rdfs:label "has noise level" ;
+    rdfs:comment "Noise level in signal transmission" ;
+    rdfs:domain tai:Signal ;
+    rdfs:range xsd:double .
+
+tai:carriesInformation a owl:ObjectProperty ;
+    rdfs:label "carries information" ;
+    rdfs:comment "Information or data carried by signal" ;
+    rdfs:domain tai:Signal ;
+    rdfs:range tai:CognitiveEntity .
+
+# ===== FOSSIL PROPERTIES =====
+
+tai:hasAge a owl:DatatypeProperty ;
+    rdfs:label "has age" ;
+    rdfs:comment "Age or temporal distance of fossilized state" ;
+    rdfs:domain tai:Fossil ;
+    rdfs:range xsd:duration .
+
+tai:hasPreservationQuality a owl:DatatypeProperty ;
+    rdfs:label "has preservation quality" ;
+    rdfs:comment "Quality of preservation (0.0-1.0, 1.0 = perfect)" ;
+    rdfs:domain tai:Fossil ;
+    rdfs:range xsd:double .
+
+tai:hasOriginalContext a owl:DatatypeProperty ;
+    rdfs:label "has original context" ;
+    rdfs:comment "Context in which original state existed" ;
+    rdfs:domain tai:Fossil ;
+    rdfs:range xsd:string .
+
+tai:preserves a owl:ObjectProperty ;
+    rdfs:label "preserves" ;
+    rdfs:comment "Original cognitive entity or state preserved" ;
+    rdfs:domain tai:Fossil ;
+    rdfs:range tai:CognitiveEntity .
+
+tai:fossilizedFrom a owl:ObjectProperty ;
+    rdfs:label "fossilized from" ;
+    rdfs:comment "Process or event that created the fossil" ;
+    rdfs:domain tai:Fossil ;
+    rdfs:range tai:CognitiveEntity .
+
+# ===== WAVE PROPERTIES =====
+
+tai:hasWaveform a owl:DatatypeProperty ;
+    rdfs:label "has waveform" ;
+    rdfs:comment "Shape or pattern of wave (sine, square, sawtooth, etc.)" ;
+    rdfs:domain tai:Wave ;
+    rdfs:range xsd:string .
+
+tai:hasPhase a owl:DatatypeProperty ;
+    rdfs:label "has phase" ;
+    rdfs:comment "Phase offset of wave in radians" ;
+    rdfs:domain tai:Wave ;
+    rdfs:range xsd:double .
+
+tai:hasWaveAmplitude a owl:DatatypeProperty ;
+    rdfs:label "has wave amplitude" ;
+    rdfs:comment "Maximum amplitude of wave oscillation" ;
+    rdfs:domain tai:Wave ;
+    rdfs:range xsd:double .
+
+tai:hasPeriod a owl:DatatypeProperty ;
+    rdfs:label "has period" ;
+    rdfs:comment "Period of wave oscillation" ;
+    rdfs:domain tai:Wave ;
+    rdfs:range xsd:duration .
+
+tai:interferesWith a owl:ObjectProperty ;
+    rdfs:label "interferes with" ;
+    rdfs:comment "Wave interference relationship" ;
+    rdfs:domain tai:Wave ;
+    rdfs:range tai:Wave .
+
+tai:resonatesWith a owl:ObjectProperty ;
+    rdfs:label "resonates with" ;
+    rdfs:comment "Resonance relationship between waves" ;
+    rdfs:domain tai:Wave ;
+    rdfs:range tai:Wave .
+
+# ===== SPIRAL PROPERTIES =====
+
+tai:hasSpiralType a owl:DatatypeProperty ;
+    rdfs:label "has spiral type" ;
+    rdfs:comment "Type of spiral (logarithmic, Archimedean, etc.)" ;
+    rdfs:domain tai:Spiral ;
+    rdfs:range xsd:string .
+
+tai:hasGrowthRate a owl:DatatypeProperty ;
+    rdfs:label "has growth rate" ;
+    rdfs:comment "Rate of spiral growth or expansion" ;
+    rdfs:domain tai:Spiral ;
+    rdfs:range xsd:double .
+
+tai:hasIteration a owl:DatatypeProperty ;
+    rdfs:label "has iteration" ;
+    rdfs:comment "Current iteration number in spiral" ;
+    rdfs:domain tai:Spiral ;
+    rdfs:range xsd:integer .
+
+tai:hasRevolution a owl:DatatypeProperty ;
+    rdfs:label "has revolution" ;
+    rdfs:comment "Number of complete revolutions in spiral" ;
+    rdfs:domain tai:Spiral ;
+    rdfs:range xsd:double .
+
+tai:nextIteration a owl:ObjectProperty ;
+    rdfs:label "next iteration" ;
+    rdfs:comment "Next iteration in spiral sequence" ;
+    rdfs:domain tai:Spiral ;
+    rdfs:range tai:Spiral .
+
+tai:convergesToward a owl:ObjectProperty ;
+    rdfs:label "converges toward" ;
+    rdfs:comment "Attractor or target that spiral converges toward" ;
+    rdfs:domain tai:Spiral ;
+    rdfs:range tai:CognitiveEntity .
+
+# ===== CUT PROPERTIES =====
+
+tai:hasCutType a owl:DatatypeProperty ;
+    rdfs:label "has cut type" ;
+    rdfs:comment "Type of cut (temporal, spatial, semantic, etc.)" ;
+    rdfs:domain tai:Cut ;
+    rdfs:range xsd:string .
+
+tai:hasSharpness a owl:DatatypeProperty ;
+    rdfs:label "has sharpness" ;
+    rdfs:comment "Sharpness or abruptness of cut boundary" ;
+    rdfs:domain tai:Cut ;
+    rdfs:range xsd:double .
+
+tai:hasDepth a owl:DatatypeProperty ;
+    rdfs:label "has depth" ;
+    rdfs:comment "Depth or extent of cut separation" ;
+    rdfs:domain tai:Cut ;
+    rdfs:range xsd:double .
+
+tai:separates a owl:ObjectProperty ;
+    rdfs:label "separates" ;
+    rdfs:comment "Entities separated by the cut" ;
+    rdfs:domain tai:Cut ;
+    rdfs:range tai:CognitiveEntity .
+
+tai:createsBoundary a owl:ObjectProperty ;
+    rdfs:label "creates boundary" ;
+    rdfs:comment "Boundary or edge created by the cut" ;
+    rdfs:domain tai:Cut ;
+    rdfs:range tai:CognitiveEntity .
+
+# ===== PRIMITIVE INTERACTIONS =====
+
+# Pulse can trigger other primitives
+tai:pulseTriggersLink a owl:ObjectProperty ;
+    rdfs:label "pulse triggers link" ;
+    rdfs:comment "Pulse activation triggers link formation" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range tai:Link .
+
+tai:pulseGeneratesSignal a owl:ObjectProperty ;
+    rdfs:label "pulse generates signal" ;
+    rdfs:comment "Pulse creates or emits signal" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range tai:Signal .
+
+# Signal propagation and interaction
+tai:signalPropagatesThrough a owl:ObjectProperty ;
+    rdfs:label "signal propagates through" ;
+    rdfs:comment "Signal travels through link or medium" ;
+    rdfs:domain tai:Signal ;
+    rdfs:range tai:Link .
+
+tai:signalModulatesWave a owl:ObjectProperty ;
+    rdfs:label "signal modulates wave" ;
+    rdfs:comment "Signal modifies wave properties" ;
+    rdfs:domain tai:Signal ;
+    rdfs:range tai:Wave .
+
+# Wave and spiral interactions
+tai:waveFormsSpiralPattern a owl:ObjectProperty ;
+    rdfs:label "wave forms spiral pattern" ;
+    rdfs:comment "Wave evolution creates spiral trajectory" ;
+    rdfs:domain tai:Wave ;
+    rdfs:range tai:Spiral .
+
+# Cut creates fossils
+tai:cutPreservesFossil a owl:ObjectProperty ;
+    rdfs:label "cut preserves fossil" ;
+    rdfs:comment "Cut operation preserves state as fossil" ;
+    rdfs:domain tai:Cut ;
+    rdfs:range tai:Fossil .

@@ -1,0 +1,313 @@
+# Complete Domain Model - Comprehensive Example
+# Demonstrates a complete bounded context with multiple aggregates
+
+@prefix domain: <http://ggen-mcp.dev/domain/complete#> .
+@prefix ddd: <http://ggen-mcp.dev/ontology/ddd#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# =============================================================================
+# ONTOLOGY METADATA
+# =============================================================================
+
+domain:CompleteDomainOntology a owl:Ontology ;
+    rdfs:label "Complete Domain Ontology"@en ;
+    rdfs:comment "Comprehensive example with multiple aggregates, services, and policies"@en ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# CUSTOMER AGGREGATE
+# =============================================================================
+
+domain:Customer a owl:Class ;
+    rdfs:subClassOf ddd:AggregateRoot ;
+    rdfs:label "Customer"@en ;
+    ddd:hasProperty domain:customerId, domain:customerEmail, domain:customerName .
+
+domain:CustomerId a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Customer ID"@en .
+
+domain:CustomerEmail a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Customer Email"@en .
+
+domain:CustomerName a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Customer Name"@en .
+
+# Properties
+domain:customerId a owl:ObjectProperty ;
+    rdfs:domain domain:Customer ;
+    rdfs:range domain:CustomerId .
+
+domain:customerEmail a owl:ObjectProperty ;
+    rdfs:domain domain:Customer ;
+    rdfs:range domain:CustomerEmail .
+
+domain:customerName a owl:ObjectProperty ;
+    rdfs:domain domain:Customer ;
+    rdfs:range domain:CustomerName .
+
+# Commands
+domain:RegisterCustomerCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Register Customer Command"@en .
+
+domain:UpdateCustomerEmailCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Update Customer Email Command"@en .
+
+# Events
+domain:CustomerRegisteredEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Customer Registered Event"@en .
+
+domain:CustomerEmailUpdatedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Customer Email Updated Event"@en .
+
+# Repository
+domain:CustomerRepository a owl:Class ;
+    rdfs:subClassOf ddd:Repository ;
+    rdfs:label "Customer Repository"@en ;
+    ddd:forAggregate domain:Customer .
+
+# =============================================================================
+# PRODUCT AGGREGATE
+# =============================================================================
+
+domain:Product a owl:Class ;
+    rdfs:subClassOf ddd:AggregateRoot ;
+    rdfs:label "Product"@en ;
+    ddd:hasProperty domain:productId, domain:sku, domain:productName, domain:price .
+
+domain:ProductId a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Product ID"@en .
+
+domain:SKU a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "SKU"@en ;
+    rdfs:comment "Stock Keeping Unit"@en .
+
+domain:ProductName a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Product Name"@en .
+
+domain:Price a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Price"@en .
+
+# Properties
+domain:productId a owl:ObjectProperty ;
+    rdfs:domain domain:Product ;
+    rdfs:range domain:ProductId .
+
+domain:sku a owl:ObjectProperty ;
+    rdfs:domain domain:Product ;
+    rdfs:range domain:SKU .
+
+domain:productName a owl:ObjectProperty ;
+    rdfs:domain domain:Product ;
+    rdfs:range domain:ProductName .
+
+domain:price a owl:ObjectProperty ;
+    rdfs:domain domain:Product ;
+    rdfs:range domain:Price .
+
+# Commands
+domain:CreateProductCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Create Product Command"@en .
+
+domain:UpdatePriceCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Update Price Command"@en .
+
+# Events
+domain:ProductCreatedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Product Created Event"@en .
+
+domain:PriceChangedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Price Changed Event"@en .
+
+# Repository
+domain:ProductRepository a owl:Class ;
+    rdfs:subClassOf ddd:Repository ;
+    rdfs:label "Product Repository"@en ;
+    ddd:forAggregate domain:Product .
+
+# =============================================================================
+# ORDER AGGREGATE
+# =============================================================================
+
+domain:Order a owl:Class ;
+    rdfs:subClassOf ddd:AggregateRoot ;
+    rdfs:label "Order"@en ;
+    ddd:hasProperty domain:orderId, domain:orderCustomerId, domain:orderItems, domain:totalAmount .
+
+domain:OrderId a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Order ID"@en .
+
+domain:OrderItem a owl:Class ;
+    rdfs:subClassOf ddd:Entity ;
+    rdfs:label "Order Item"@en .
+
+domain:TotalAmount a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Total Amount"@en .
+
+# Properties
+domain:orderId a owl:ObjectProperty ;
+    rdfs:domain domain:Order ;
+    rdfs:range domain:OrderId .
+
+domain:orderCustomerId a owl:ObjectProperty ;
+    rdfs:domain domain:Order ;
+    rdfs:range domain:CustomerId .
+
+domain:orderItems a owl:ObjectProperty ;
+    rdfs:domain domain:Order ;
+    rdfs:range domain:OrderItem .
+
+domain:totalAmount a owl:ObjectProperty ;
+    rdfs:domain domain:Order ;
+    rdfs:range domain:TotalAmount .
+
+# Commands
+domain:PlaceOrderCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Place Order Command"@en .
+
+domain:CancelOrderCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Cancel Order Command"@en .
+
+# Events
+domain:OrderPlacedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Order Placed Event"@en .
+
+domain:OrderCancelledEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Order Cancelled Event"@en .
+
+# Repository
+domain:OrderRepository a owl:Class ;
+    rdfs:subClassOf ddd:Repository ;
+    rdfs:label "Order Repository"@en ;
+    ddd:forAggregate domain:Order .
+
+# =============================================================================
+# DOMAIN SERVICES
+# =============================================================================
+
+domain:OrderingService a owl:Class ;
+    rdfs:subClassOf ddd:Service ;
+    rdfs:label "Ordering Service"@en ;
+    rdfs:comment "Orchestrates order placement across aggregates"@en ;
+    ddd:uses domain:CustomerRepository, domain:ProductRepository, domain:OrderRepository ;
+    ddd:handles domain:PlaceOrderCommand ;
+    ddd:emits domain:OrderPlacedEvent .
+
+domain:PricingService a owl:Class ;
+    rdfs:subClassOf ddd:Service ;
+    rdfs:label "Pricing Service"@en ;
+    rdfs:comment "Calculates prices with business rules"@en ;
+    ddd:uses domain:ProductRepository .
+
+# =============================================================================
+# FACTORIES
+# =============================================================================
+
+domain:OrderFactory a owl:Class ;
+    rdfs:subClassOf ddd:Factory ;
+    rdfs:label "Order Factory"@en ;
+    rdfs:comment "Creates complex order aggregates"@en .
+
+domain:ProductFactory a owl:Class ;
+    rdfs:subClassOf ddd:Factory ;
+    rdfs:label "Product Factory"@en ;
+    rdfs:comment "Creates product aggregates with validation"@en .
+
+# =============================================================================
+# POLICIES
+# =============================================================================
+
+domain:OrderConfirmationPolicy a owl:Class ;
+    rdfs:subClassOf ddd:Policy ;
+    rdfs:label "Order Confirmation Policy"@en ;
+    rdfs:comment "Policy that confirms orders after payment"@en ;
+    ddd:listensTo domain:OrderPlacedEvent ;
+    ddd:invokes domain:ConfirmOrderCommand .
+
+# =============================================================================
+# QUERIES
+# =============================================================================
+
+domain:GetCustomerOrdersQuery a owl:Class ;
+    rdfs:subClassOf ddd:Query ;
+    rdfs:label "Get Customer Orders Query"@en ;
+    rdfs:comment "Query to retrieve all orders for a customer"@en .
+
+domain:SearchProductsQuery a owl:Class ;
+    rdfs:subClassOf ddd:Query ;
+    rdfs:label "Search Products Query"@en ;
+    rdfs:comment "Query to search products by criteria"@en .
+
+# =============================================================================
+# HANDLERS
+# =============================================================================
+
+domain:PlaceOrderHandler a owl:Class ;
+    rdfs:subClassOf ddd:Handler ;
+    rdfs:label "Place Order Handler"@en ;
+    ddd:handles domain:PlaceOrderCommand ;
+    ddd:emits domain:OrderPlacedEvent .
+
+domain:RegisterCustomerHandler a owl:Class ;
+    rdfs:subClassOf ddd:Handler ;
+    rdfs:label "Register Customer Handler"@en ;
+    ddd:handles domain:RegisterCustomerCommand ;
+    ddd:emits domain:CustomerRegisteredEvent .
+
+# =============================================================================
+# SHACL SHAPES
+# =============================================================================
+
+domain:CustomerShape a sh:NodeShape ;
+    sh:targetClass domain:Customer ;
+    sh:property [
+        sh:path domain:customerId ;
+        sh:class domain:CustomerId ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path domain:customerEmail ;
+        sh:class domain:CustomerEmail ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .
+
+domain:OrderShape a sh:NodeShape ;
+    sh:targetClass domain:Order ;
+    sh:property [
+        sh:path domain:orderId ;
+        sh:class domain:OrderId ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path domain:orderItems ;
+        sh:class domain:OrderItem ;
+        sh:minCount 1 ;
+        sh:message "Order must have at least one item"
+    ] .

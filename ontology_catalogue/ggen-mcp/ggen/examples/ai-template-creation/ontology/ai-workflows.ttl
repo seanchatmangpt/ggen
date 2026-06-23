@@ -1,0 +1,267 @@
+@prefix ai: <https://ggen.io/ontology/ai#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# ===== Classes =====
+
+ai:AIWorkflow a rdfs:Class ;
+    rdfs:label "AIWorkflow" ;
+    rdfs:comment "A workflow using AI for template generation" .
+
+ai:Prompt a rdfs:Class ;
+    rdfs:label "Prompt" ;
+    rdfs:comment "A prompt for AI template generation" .
+
+ai:MockResponse a rdfs:Class ;
+    rdfs:label "MockResponse" ;
+    rdfs:comment "Mock response for prompt (for testing without AI)" .
+
+ai:ValidationRule a rdfs:Class ;
+    rdfs:label "ValidationRule" ;
+    rdfs:comment "Rule for validating AI-generated templates" .
+
+ai:IterativeWorkflow a rdfs:Class ;
+    rdfs:label "IterativeWorkflow" ;
+    rdfs:comment "Multi-step workflow with validation loops" .
+
+ai:IterationStep a rdfs:Class ;
+    rdfs:label "IterationStep" ;
+    rdfs:comment "Single step in an iterative workflow" .
+
+ai:Command a rdfs:Class ;
+    rdfs:label "Command" ;
+    rdfs:comment "AI command (generate, validate, optimize)" .
+
+ai:Provider a rdfs:Class ;
+    rdfs:label "Provider" ;
+    rdfs:comment "LLM provider (OpenAI, Anthropic, Ollama)" .
+
+# ===== Properties =====
+
+ai:name a rdf:Property ;
+    rdfs:domain ai:AIWorkflow ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of workflow or entity" .
+
+ai:text a rdf:Property ;
+    rdfs:domain ai:Prompt ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Prompt text" .
+
+ai:category a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Category classification" .
+
+ai:forPrompt a rdf:Property ;
+    rdfs:domain ai:MockResponse ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Prompt this response is for" .
+
+ai:response a rdf:Property ;
+    rdfs:domain ai:MockResponse ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Mock response content" .
+
+ai:expectedOutput a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Expected output format" .
+
+ai:validation a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Validation criteria" .
+
+ai:hasValidation a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Associated validation" .
+
+ai:steps a rdf:Property ;
+    rdfs:domain ai:AIWorkflow ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Workflow steps" .
+
+ai:syntax a rdf:Property ;
+    rdfs:domain ai:Command ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Command syntax" .
+
+ai:examples a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Usage examples" .
+
+ai:stepNumber a rdf:Property ;
+    rdfs:domain ai:IterationStep ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Step number in workflow" .
+
+ai:prompt a rdf:Property ;
+    rdfs:domain ai:IterationStep ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Prompt for this step" .
+
+ai:validates a rdf:Property ;
+    rdfs:domain ai:IterationStep ;
+    rdfs:range xsd:string ;
+    rdfs:comment "What this step validates" .
+
+# ===== SHACL Validation =====
+
+ai:PromptShape a sh:NodeShape ;
+    sh:targetClass ai:Prompt ;
+    sh:property [
+        sh:path ai:text ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ai:category ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] .
+
+ai:CommandShape a sh:NodeShape ;
+    sh:targetClass ai:Command ;
+    sh:property [
+        sh:path ai:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ai:syntax ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] .
+
+# ===== Instance Data =====
+
+# Prompts
+<#prompt-user-struct> a ai:Prompt ;
+    ai:name "Create User Struct" ;
+    ai:category "Struct Generation" ;
+    ai:text "Generate a Rust struct for a User entity with id, username, email, and is_active fields" ;
+    ai:expectedOutput "struct User { pub id: u64, pub username: String, pub email: String, pub is_active: bool }" .
+
+<#prompt-api-endpoint> a ai:Prompt ;
+    ai:name "Create API Endpoint" ;
+    ai:category "API Generation" ;
+    ai:text "Generate an Axum REST endpoint for listing users with pagination" ;
+    ai:expectedOutput "async fn list_users(Query(params): Query<Pagination>) -> Json<Vec<User>>" .
+
+<#prompt-validation-schema> a ai:Prompt ;
+    ai:name "Create Validation Schema" ;
+    ai:category "Validation" ;
+    ai:text "Generate a Zod schema for validating User creation requests" ;
+    ai:expectedOutput "export const createUserSchema = z.object({ username: z.string(), email: z.string().email() })" .
+
+# Mock Responses for testing without API
+<#mock-user-struct> a ai:MockResponse ;
+    ai:name "Mock: User Struct" ;
+    ai:forPrompt "Create User Struct" ;
+    ai:response "#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct User {
+    pub id: u64,
+    pub username: String,
+    pub email: String,
+    pub is_active: bool,
+}
+
+impl User {
+    pub fn new(id: u64, username: String, email: String) -> Self {
+        Self { id, username, email, is_active: true }
+    }
+}" .
+
+<#mock-api-endpoint> a ai:MockResponse ;
+    ai:name "Mock: API Endpoint" ;
+    ai:forPrompt "Create API Endpoint" ;
+    ai:response "use axum::{extract::Query, Json};
+
+#[derive(serde::Deserialize)]
+pub struct Pagination {
+    pub skip: Option<u64>,
+    pub take: Option<u64>,
+}
+
+pub async fn list_users(Query(params): Query<Pagination>) -> Json<Vec<User>> {
+    let users = vec![];
+    Json(users)
+}" .
+
+# Validation Rules
+<#rule-syntax> a ai:ValidationRule ;
+    ai:name "Rust Syntax Validation" ;
+    rdfs:comment "Check if generated code is valid Rust syntax" ;
+    ai:examples "rustc --crate-type lib generated.rs" .
+
+<#rule-safety> a ai:ValidationRule ;
+    ai:name "Safety Checks" ;
+    rdfs:comment "Verify no unsafe blocks in generated code" ;
+    ai:examples "grep -c 'unsafe' generated.rs" .
+
+<#rule-coverage> a ai:ValidationRule ;
+    ai:name "Test Coverage" ;
+    rdfs:comment "Ensure generated code has tests" ;
+    ai:examples "#[test] blocks present in output" .
+
+# AI Commands
+<#cmd-generate> a ai:Command ;
+    ai:name "ggen ai generate" ;
+    rdfs:comment "Generate templates from natural language" ;
+    ai:syntax "ggen ai generate [OPTIONS] <PROMPT>" ;
+    ai:examples "ggen ai generate 'User struct with id and email'
+ggen ai generate --mock 'API endpoint for posts'
+ggen ai generate --validate 'Database model'" .
+
+<#cmd-validate> a ai:Command ;
+    ai:name "ggen ai validate" ;
+    rdfs:comment "Validate AI-generated templates" ;
+    ai:syntax "ggen ai validate [OPTIONS] <TEMPLATE>" ;
+    ai:examples "ggen ai validate templates/user.tera
+ggen ai validate --verbose templates/*.tera" .
+
+<#cmd-optimize> a ai:Command ;
+    ai:name "ggen ai optimize" ;
+    rdfs:comment "Optimize templates for performance/readability" ;
+    ai:syntax "ggen ai optimize [OPTIONS] <TEMPLATE>" ;
+    ai:examples "ggen ai optimize templates/user.tera
+ggen ai optimize --focus performance templates/api.tera" .
+
+# Workflows
+<#workflow-basic> a ai:AIWorkflow ;
+    ai:name "Basic Template Generation" ;
+    rdfs:comment "Simple one-step template generation" ;
+    ai:steps ("Prompt AI" "Save Template") .
+
+<#workflow-iterative> a ai:IterativeWorkflow ;
+    ai:name "Iterative Template Refinement" ;
+    rdfs:comment "Multi-step workflow with validation and iteration" .
+
+<#iter-step-1> a ai:IterationStep ;
+    ai:stepNumber 1 ;
+    ai:prompt "Generate Rust struct from description" ;
+    ai:validates "Syntax" .
+
+<#iter-step-2> a ai:IterationStep ;
+    ai:stepNumber 2 ;
+    ai:prompt "Add validation logic if missing" ;
+    ai:validates "Safety" .
+
+<#iter-step-3> a ai:IterationStep ;
+    ai:stepNumber 3 ;
+    ai:prompt "Generate tests for the struct" ;
+    ai:validates "Coverage" .
+
+# Providers
+<#provider-openai> a ai:Provider ;
+    ai:name "OpenAI" ;
+    rdfs:comment "OpenAI GPT models" .
+
+<#provider-anthropic> a ai:Provider ;
+    ai:name "Anthropic" ;
+    rdfs:comment "Anthropic Claude models" .
+
+<#provider-ollama> a ai:Provider ;
+    ai:name "Ollama" ;
+    rdfs:comment "Local Ollama inference" .

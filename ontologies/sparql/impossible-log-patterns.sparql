@@ -1,0 +1,200 @@
+# Impossible Log Pattern Detection
+# Based on Van der Aalst's process mining anti-cheating principle (2016).
+#
+# An "impossible log" contains events that could never arise from a lawful
+# process execution. These patterns are injected in negative tests to verify
+# that the conformance checker rejects them.
+#
+# Patterns checked (in UNION order):
+#   1. COMPLETE_WITHOUT_CREATE   – a completion/finish event references an
+#      object that has no preceding create/start event.
+#   2. DUAL_TERMINAL_STATE       – the same object reaches both a failure
+#      terminal state and a success terminal state without a rework event
+#      between them.
+#   3. FUTURE_TIMESTAMP          – an event carries a timestamp beyond 2030,
+#      indicating clock skew or fabricated telemetry.
+#   4. EMIT_BEFORE_VALIDATE      – μ₅ Emit started before μ₄ Validate ended
+#      for the same pipeline run (ggen-specific impossible pattern).
+#   5. RECEIPT_WITHOUT_RUN       – a receipt exists but references no known
+#      pipeline run (orphan proof object).
+#
+# Return columns:
+#   ?violationType   – short code identifying the pattern class
+#   ?violatingEvent  – the event IRI that triggered the detection
+#   ?description     – human-readable explanation for the violation
+
+PREFIX ocel: <https://www.ocel-standard.org/2.0/>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pipe: <https://ggen.io/ontology/pipeline#>
+PREFIX ggen: <https://ggen.io/ontology/core#>
+
+SELECT ?violationType ?violatingEvent ?description WHERE {
+
+  # ── Pattern 1: Complete/Finish without a preceding Create/Start ─────────────
+  {
+    ?event ocel:activityName ?actName ;
+           ocel:timestamp    ?ts ;
+           ocel:hasRelationship ?rel .
+    ?rel ocel:relationshipObject ?obj .
+
+    FILTER(
+      CONTAINS(LCASE(STR(?actName)), "complete") ||
+      CONTAINS(LCASE(STR(?actName)), "finish")   ||
+      CONTAINS(LCASE(STR(?actName)), "emit")     ||
+      CONTAINS(LCASE(STR(?actName)), "release")
+    )
+
+    FILTER NOT EXISTS {
+      ?createEvent ocel:activityName    ?createAct ;
+                   ocel:timestamp       ?createTs ;
+                   ocel:hasRelationship ?createRel .
+      ?createRel ocel:relationshipObject ?obj .
+      FILTER(
+        CONTAINS(LCASE(STR(?createAct)), "create") ||
+        CONTAINS(LCASE(STR(?createAct)), "start")  ||
+        CONTAINS(LCASE(STR(?createAct)), "initiat") ||
+        CONTAINS(LCASE(STR(?createAct)), "load")   ||
+        CONTAINS(LCASE(STR(?createAct)), "seed")
+      )
+      FILTER(?createTs <= ?ts)
+    }
+
+    BIND("COMPLETE_WITHOUT_CREATE" AS ?violationType)
+    BIND(?event AS ?violatingEvent)
+    BIND(
+      CONCAT(
+        "Event '", STR(?actName),
+        "' at ", STR(?ts),
+        " has no preceding Create/Start for object ", STR(?obj)
+      ) AS ?description
+    )
+  }
+
+  UNION
+
+  # ── Pattern 2: Dual terminal states on the same object ──────────────────────
+  {
+    ?event1 ocel:activityName    ?act1 ;
+            ocel:hasRelationship ?rel1 .
+    ?rel1 ocel:relationshipObject ?obj .
+
+    ?event2 ocel:activityName    ?act2 ;
+            ocel:hasRelationship ?rel2 .
+    ?rel2 ocel:relationshipObject ?obj .
+
+    # event1 is a failure terminal
+    FILTER(
+      CONTAINS(LCASE(STR(?act1)), "fail")   ||
+      CONTAINS(LCASE(STR(?act1)), "reject") ||
+      CONTAINS(LCASE(STR(?act1)), "abort")  ||
+      CONTAINS(LCASE(STR(?act1)), "cancel")
+    )
+    # event2 is a success terminal
+    FILTER(
+      CONTAINS(LCASE(STR(?act2)), "release")  ||
+      CONTAINS(LCASE(STR(?act2)), "complete") ||
+      CONTAINS(LCASE(STR(?act2)), "approve")  ||
+      CONTAINS(LCASE(STR(?act2)), "emit")
+    )
+    FILTER(?event1 != ?event2)
+
+    # Ensure no rework event between the two terminals (makes it truly impossible)
+    ?event1 ocel:timestamp ?ts1 .
+    ?event2 ocel:timestamp ?ts2 .
+    FILTER NOT EXISTS {
+      ?reworkEvent ocel:activityName    ?reworkAct ;
+                   ocel:timestamp       ?reworkTs ;
+                   ocel:hasRelationship ?reworkRel .
+      ?reworkRel ocel:relationshipObject ?obj .
+      FILTER(
+        CONTAINS(LCASE(STR(?reworkAct)), "rework") ||
+        CONTAINS(LCASE(STR(?reworkAct)), "retry")  ||
+        CONTAINS(LCASE(STR(?reworkAct)), "repair")
+      )
+      FILTER(?reworkTs > ?ts1 && ?reworkTs < ?ts2)
+    }
+
+    BIND("DUAL_TERMINAL_STATE" AS ?violationType)
+    BIND(?event1 AS ?violatingEvent)
+    BIND(
+      CONCAT(
+        "Object ", STR(?obj),
+        " reached failure state ('", STR(?act1), "') at ", STR(?ts1),
+        " and success state ('", STR(?act2), "') at ", STR(?ts2),
+        " with no rework event between them"
+      ) AS ?description
+    )
+  }
+
+  UNION
+
+  # ── Pattern 3: Event timestamp in the far future (clock skew / fabrication) ─
+  {
+    ?event ocel:activityName ?actName ;
+           ocel:timestamp    ?ts .
+
+    FILTER(?ts > "2030-01-01T00:00:00Z"^^xsd:dateTime)
+
+    BIND("FUTURE_TIMESTAMP" AS ?violationType)
+    BIND(?event AS ?violatingEvent)
+    BIND(
+      CONCAT(
+        "Event '", STR(?actName),
+        "' carries a suspicious future timestamp: ", STR(?ts)
+      ) AS ?description
+    )
+  }
+
+  UNION
+
+  # ── Pattern 4: μ₅ Emit started before μ₄ Validate ended (ggen-specific) ────
+  {
+    ?pipelineRun a pipe:PipelineRun ;
+                 pipe:stageOrder ?validateStage ;
+                 pipe:stageOrder ?emitStage .
+
+    ?validateStage pipe:stageIndex 4 ;
+                   prov:endedAtTime ?validateEnd .
+
+    ?emitStage pipe:stageIndex    5 ;
+               prov:startedAtTime ?emitStart .
+
+    FILTER(?emitStart < ?validateEnd)
+
+    BIND("EMIT_BEFORE_VALIDATE" AS ?violationType)
+    BIND(?emitStage AS ?violatingEvent)
+    BIND(
+      CONCAT(
+        "μ₅ Emit started at ", STR(?emitStart),
+        " before μ₄ Validate finished at ", STR(?validateEnd),
+        " in run ", STR(?pipelineRun)
+      ) AS ?description
+    )
+  }
+
+  UNION
+
+  # ── Pattern 5: Receipt that references no known pipeline run ─────────────────
+  {
+    ?receipt a ggen:Receipt .
+
+    FILTER NOT EXISTS {
+      ?receipt ggen:producedByRun ?run .
+      ?run a pipe:PipelineRun .
+    }
+
+    BIND("RECEIPT_WITHOUT_RUN" AS ?violationType)
+    BIND(?receipt AS ?violatingEvent)
+    BIND(
+      CONCAT(
+        "Receipt ", STR(?receipt),
+        " is an orphan: it does not reference any known PipelineRun"
+      ) AS ?description
+    )
+  }
+
+}
+ORDER BY ?violationType ?violatingEvent

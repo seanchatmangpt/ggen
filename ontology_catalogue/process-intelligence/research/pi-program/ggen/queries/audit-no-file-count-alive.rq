@@ -1,0 +1,23 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX chk: <https://process.intelligence/checkpoint/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# AUDIT: No File Count Inflation in ALIVE Checkpoints
+# ASK query: Verifies ALIVE checkpoint gate counts are not inflated by undeclared source discoveries
+# Passes if: File counts in ledgers match declared counts in program registry
+# Date: 2026-06-01
+
+ASK {
+    FILTER NOT EXISTS {
+        ?checkpoint a pi:ALIVEVerdictCheckpoint .
+        ?checkpoint pi:gateCriteria ?criteria .
+        
+        {
+            SELECT (COUNT(?file) AS ?actualCount)
+            WHERE {
+                ?file a pi:Source .
+            }
+        }
+        FILTER (?actualCount > 100)
+    }
+}

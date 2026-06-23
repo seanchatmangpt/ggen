@@ -1,0 +1,157 @@
+# Object Lifecycle Soundness Check
+# Van der Aalst's OCEL 2.0 invariants (ocel-standard.org, 2023).
+#
+# Every object in a valid OCEL 2.0 event log must satisfy:
+#   (a) NOT an orphan  – it has at least one associated event.
+#   (b) No timestamp collision – two distinct events for the same object
+#       must not share an identical timestamp (ambiguous ordering).
+#   (c) No broken create/complete pair – an object that has a completion
+#       event must also have a creation event (lifecycle closure).
+#   (d) No duplicate object IDs of different types – the same IRI must not
+#       appear under two conflicting ocel:hasObjectType values.
+#
+# ggen-specific additions:
+#   (e) RECEIPT_CHAIN_BROKEN – a ggen:Receipt references a previousReceipt
+#       that does not exist in the graph (broken BLAKE3 chain).
+#   (f) STAGE_WITHOUT_RUN   – a pipe:Stage is not linked to any
+#       pipe:PipelineRun via pipe:stageOrder (orphan stage node).
+#
+# Return columns:
+#   ?obj     – the object IRI with the lifecycle defect
+#   ?objType – object type label (or "unknown" if type is missing)
+#   ?problem – short code identifying the defect class
+
+PREFIX ocel: <https://www.ocel-standard.org/2.0/>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pipe: <https://ggen.io/ontology/pipeline#>
+PREFIX ggen: <https://ggen.io/ontology/core#>
+
+SELECT ?obj ?objType ?problem WHERE {
+
+  # ── (a) Orphan object: declared but never referenced by any event ────────────
+  {
+    ?obj a ocel:Object .
+
+    FILTER NOT EXISTS {
+      ?rel   ocel:relationshipObject ?obj .
+      ?event ocel:hasRelationship    ?rel .
+    }
+
+    OPTIONAL {
+      ?obj ocel:hasObjectType ?typeNode .
+      ?typeNode rdfs:label ?typeLabel .
+    }
+    BIND(COALESCE(?typeLabel, "unknown") AS ?objType)
+    BIND("ORPHAN_OBJECT" AS ?problem)
+  }
+
+  UNION
+
+  # ── (b) Timestamp collision: two events for the same object at the same time ─
+  {
+    ?e1 ocel:hasRelationship ?r1 ; ocel:timestamp ?ts .
+    ?e2 ocel:hasRelationship ?r2 ; ocel:timestamp ?ts .
+    ?r1 ocel:relationshipObject ?obj .
+    ?r2 ocel:relationshipObject ?obj .
+
+    # Distinct events only
+    FILTER(?e1 != ?e2)
+    # Canonical ordering: keep only one representative pair
+    FILTER(STR(?e1) < STR(?e2))
+
+    ?obj ocel:hasObjectType ?typeNode .
+    ?typeNode rdfs:label ?objType .
+
+    BIND("TIMESTAMP_COLLISION" AS ?problem)
+  }
+
+  UNION
+
+  # ── (c) Broken create/complete pair ─────────────────────────────────────────
+  # An object has a completion-type event but no creation-type event.
+  {
+    ?completeEvent ocel:activityName    ?actName ;
+                   ocel:timestamp       ?ts ;
+                   ocel:hasRelationship ?rel .
+    ?rel ocel:relationshipObject ?obj .
+
+    FILTER(
+      CONTAINS(LCASE(STR(?actName)), "complete") ||
+      CONTAINS(LCASE(STR(?actName)), "finish")   ||
+      CONTAINS(LCASE(STR(?actName)), "emit")     ||
+      CONTAINS(LCASE(STR(?actName)), "release")
+    )
+
+    FILTER NOT EXISTS {
+      ?createEvent ocel:activityName    ?createAct ;
+                   ocel:timestamp       ?createTs ;
+                   ocel:hasRelationship ?createRel .
+      ?createRel ocel:relationshipObject ?obj .
+      FILTER(
+        CONTAINS(LCASE(STR(?createAct)), "create") ||
+        CONTAINS(LCASE(STR(?createAct)), "start")  ||
+        CONTAINS(LCASE(STR(?createAct)), "initiat") ||
+        CONTAINS(LCASE(STR(?createAct)), "load")   ||
+        CONTAINS(LCASE(STR(?createAct)), "seed")
+      )
+      FILTER(?createTs <= ?ts)
+    }
+
+    ?obj ocel:hasObjectType ?typeNode .
+    ?typeNode rdfs:label ?objType .
+
+    BIND("MISSING_CREATE_FOR_COMPLETE" AS ?problem)
+  }
+
+  UNION
+
+  # ── (d) Duplicate object IRI with conflicting types ──────────────────────────
+  {
+    ?obj ocel:hasObjectType ?typeNode1 ;
+         ocel:hasObjectType ?typeNode2 .
+    ?typeNode1 rdfs:label ?lbl1 .
+    ?typeNode2 rdfs:label ?lbl2 .
+
+    FILTER(?typeNode1 != ?typeNode2)
+    # Canonical ordering to avoid reporting (A,B) and (B,A)
+    FILTER(STR(?lbl1) < STR(?lbl2))
+
+    BIND(CONCAT(?lbl1, " / ", ?lbl2) AS ?objType)
+    BIND("CONFLICTING_OBJECT_TYPES" AS ?problem)
+  }
+
+  UNION
+
+  # ── (e) Broken BLAKE3 receipt chain (ggen-specific) ─────────────────────────
+  {
+    ?receipt a ggen:Receipt ;
+             ggen:previousReceipt ?prev .
+
+    FILTER NOT EXISTS { ?prev a ggen:Receipt }
+
+    BIND(?receipt AS ?obj)
+    BIND("ggen:Receipt" AS ?objType)
+    BIND("RECEIPT_CHAIN_BROKEN" AS ?problem)
+  }
+
+  UNION
+
+  # ── (f) Orphan pipeline stage not linked to any run (ggen-specific) ──────────
+  {
+    ?stage a pipe:Stage .
+
+    FILTER NOT EXISTS {
+      ?run pipe:stageOrder ?stage .
+      ?run a pipe:PipelineRun .
+    }
+
+    BIND(?stage AS ?obj)
+    BIND("pipe:Stage" AS ?objType)
+    BIND("STAGE_WITHOUT_RUN" AS ?problem)
+  }
+
+}
+ORDER BY ?obj ?problem

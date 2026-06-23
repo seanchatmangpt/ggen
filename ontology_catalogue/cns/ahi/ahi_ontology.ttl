@@ -1,0 +1,18 @@
+@prefix ahi: <http://ahi.legal/ontology/> .
+@prefix legal: <http://legal.domain/> .
+@prefix nevada: <http://nevada.gov/legal/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# AHI Legal Ontology - Generated Aug  9 2025
+
+<urn:jurisdiction:nevada> a legal:Jurisdiction ;
+    legal:name "State of Nevada" ;
+    legal:type "state" ;
+    legal:automationReady true .
+
+<urn:workflow:11012397894167943392> a ahi:LegalWorkflow ;
+    ahi:goal "File civil complaint in Nevada court" ;
+    ahi:automationPercentage 85 ;
+    ahi:hasSteps 5 ;
+    ahi:humanApprovalRequired true .
+

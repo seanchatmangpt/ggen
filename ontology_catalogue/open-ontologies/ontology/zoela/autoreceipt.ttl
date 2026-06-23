@@ -1,0 +1,31 @@
+@prefix ostar: <urn:ostar:ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+<urn:ostar:law:AutoReceiptPipeline> a ostar:Law ;
+    ostar:lawId "AutoReceiptPipeline" ;
+    ostar:hasTransition [
+        ostar:inputValue "0" ;
+        ostar:selectCondition "ArchitecturalReceiptParsed" ;
+    ],
+    [
+        ostar:inputValue "1" ;
+        ostar:selectCondition "ExpectedOcelManufactured" ;
+    ],
+    [
+        ostar:inputValue "2" ;
+        ostar:selectCondition "ExecutionRegistryBound" ;
+    ],
+    [
+        ostar:inputValue "3" ;
+        ostar:selectCondition "ObservedOcelCaptured" ;
+    ],
+    [
+        ostar:inputValue "4" ;
+        ostar:selectCondition "AlignmentVerified" ;
+    ],
+    [
+        ostar:inputValue "5" ;
+        ostar:selectCondition "ReceiptEmitted" ;
+    ] .

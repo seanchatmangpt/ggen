@@ -1,0 +1,33 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix fin:  <https://kgen.dev/ontologies/finance#> .
+
+fin:TransactionShape a sh:NodeShape ;
+  sh:targetClass fin:Transaction ;
+  sh:property [
+    sh:path fin:hasAmount ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path fin:hasCurrency ;
+    sh:in ("USD" "EUR") ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path fin:hasAccount ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path fin:isIntercompany ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1
+  ] .
+
+fin:TransactionDateShape a sh:NodeShape ;
+  sh:targetClass fin:Transaction ;
+  sh:property [
+    sh:path fin:hasDate ;
+    sh:datatype xsd:date ;
+    sh:minCount 1
+  ] .

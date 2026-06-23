@@ -1,0 +1,164 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix fibo: <https://spec.edmcouncil.org/fibo/ontology/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# ATM Cash Withdrawal - Real-World Financial Workflow
+# Patterns: Sequence (1), XOR Choice (4), Deferred Choice (16), Cancellation (19)
+
+<http://bitflow.ai/workflows/atm/withdrawal> a yawl:Specification ;
+    yawl:specName "ATM Cash Withdrawal" ;
+    yawl:version "1.0" ;
+    yawl:hasInputCondition <http://bitflow.ai/workflows/atm/withdrawal/start> ;
+    yawl:hasOutputCondition <http://bitflow.ai/workflows/atm/withdrawal/end> ;
+
+    # Tasks
+    yawl:hasTask <http://bitflow.ai/workflows/atm/withdrawal/verify_card> ;
+    yawl:hasTask <http://bitflow.ai/workflows/atm/withdrawal/verify_pin> ;
+    yawl:hasTask <http://bitflow.ai/workflows/atm/withdrawal/check_balance> ;
+    yawl:hasTask <http://bitflow.ai/workflows/atm/withdrawal/dispense_cash> ;
+    yawl:hasTask <http://bitflow.ai/workflows/atm/withdrawal/update_balance> ;
+    yawl:hasTask <http://bitflow.ai/workflows/atm/withdrawal/print_receipt> ;
+    yawl:hasTask <http://bitflow.ai/workflows/atm/withdrawal/cancel_transaction> ;
+
+    # Conditions
+    yawl:hasCondition <http://bitflow.ai/workflows/atm/withdrawal/card_verified> ;
+    yawl:hasCondition <http://bitflow.ai/workflows/atm/withdrawal/pin_verified> ;
+    yawl:hasCondition <http://bitflow.ai/workflows/atm/withdrawal/balance_ok> ;
+    yawl:hasCondition <http://bitflow.ai/workflows/atm/withdrawal/cash_dispensed> ;
+
+    # Flows
+    yawl:hasFlow <http://bitflow.ai/workflows/atm/withdrawal/flow_1> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/atm/withdrawal/flow_2> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/atm/withdrawal/flow_3> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/atm/withdrawal/flow_4> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/atm/withdrawal/flow_5> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/atm/withdrawal/flow_6> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/atm/withdrawal/flow_7> .
+
+# Input Condition
+<http://bitflow.ai/workflows/atm/withdrawal/start> a yawl:InputCondition ;
+    yawl:conditionName "Customer Inserts Card" .
+
+# Output Condition
+<http://bitflow.ai/workflows/atm/withdrawal/end> a yawl:OutputCondition ;
+    yawl:conditionName "Transaction Complete" .
+
+# Task 1: Verify Card
+<http://bitflow.ai/workflows/atm/withdrawal/verify_card> a yawl:AtomicTask ;
+    yawl:taskName "Verify Card" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:timeout "30s" ;
+    yawl:hasInputParameter [
+        yawl:paramName "cardNumber" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasOutputParameter [
+        yawl:paramName "cardValid" ;
+        yawl:paramType "boolean"
+    ] .
+
+# Task 2: Verify PIN
+<http://bitflow.ai/workflows/atm/withdrawal/verify_pin> a yawl:AtomicTask ;
+    yawl:taskName "Verify PIN" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:maxRetries 3 ;
+    yawl:hasInputParameter [
+        yawl:paramName "pin" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasOutputParameter [
+        yawl:paramName "pinValid" ;
+        yawl:paramType "boolean"
+    ] .
+
+# Task 3: Check Balance
+<http://bitflow.ai/workflows/atm/withdrawal/check_balance> a yawl:AtomicTask ;
+    yawl:taskName "Check Balance" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:hasInputParameter [
+        yawl:paramName "accountNumber" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "withdrawalAmount" ;
+        yawl:paramType "decimal"
+    ] ;
+    yawl:hasOutputParameter [
+        yawl:paramName "balance" ;
+        yawl:paramType "decimal"
+    ] .
+
+# Task 4: Dispense Cash (Pattern 1: Sequence)
+<http://bitflow.ai/workflows/atm/withdrawal/dispense_cash> a yawl:AtomicTask ;
+    yawl:taskName "Dispense Cash" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:hasInputParameter [
+        yawl:paramName "amount" ;
+        yawl:paramType "decimal"
+    ] .
+
+# Task 5: Update Balance
+<http://bitflow.ai/workflows/atm/withdrawal/update_balance> a yawl:AtomicTask ;
+    yawl:taskName "Update Account Balance" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeAnd ;
+    yawl:hasInputParameter [
+        yawl:paramName "accountNumber" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "debitAmount" ;
+        yawl:paramType "decimal"
+    ] .
+
+# Task 6: Print Receipt
+<http://bitflow.ai/workflows/atm/withdrawal/print_receipt> a yawl:AtomicTask ;
+    yawl:taskName "Print Receipt" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor .
+
+# Task 7: Cancel Transaction (Pattern 19: Cancellation)
+<http://bitflow.ai/workflows/atm/withdrawal/cancel_transaction> a yawl:AtomicTask ;
+    yawl:taskName "Cancel Transaction" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:cancellationRegion [
+        yawl:cancels <http://bitflow.ai/workflows/atm/withdrawal/check_balance> ;
+        yawl:cancels <http://bitflow.ai/workflows/atm/workflows/atm/withdrawal/dispense_cash>
+    ] .
+
+# Flows (Pattern 1: Sequence)
+<http://bitflow.ai/workflows/atm/withdrawal/flow_1> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/atm/withdrawal/start> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/atm/withdrawal/verify_card> .
+
+<http://bitflow.ai/workflows/atm/withdrawal/flow_2> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/atm/withdrawal/verify_card> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/atm/withdrawal/verify_pin> ;
+    yawl:predicate "cardValid == true" .
+
+<http://bitflow.ai/workflows/atm/withdrawal/flow_3> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/atm/withdrawal/verify_pin> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/atm/withdrawal/check_balance> ;
+    yawl:predicate "pinValid == true" .
+
+<http://bitflow.ai/workflows/atm/withdrawal/flow_4> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/atm/withdrawal/check_balance> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/atm/withdrawal/dispense_cash> ;
+    yawl:predicate "balance >= withdrawalAmount" .
+
+<http://bitflow.ai/workflows/atm/withdrawal/flow_5> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/atm/withdrawal/dispense_cash> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/atm/withdrawal/update_balance> .
+
+<http://bitflow.ai/workflows/atm/withdrawal/flow_6> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/atm/withdrawal/update_balance> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/atm/withdrawal/print_receipt> .
+
+<http://bitflow.ai/workflows/atm/withdrawal/flow_7> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/atm/withdrawal/print_receipt> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/atm/withdrawal/end> .

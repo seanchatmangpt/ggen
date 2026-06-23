@@ -1,0 +1,146 @@
+@prefix fhir: <http://hl7.org/fhir/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sct: <http://snomed.info/sct/> .
+@prefix loinc: <http://loinc.org/rdf#> .
+
+# Anonymized FHIR R4 Patient Data for Testing
+# Based on real healthcare patterns, PHI removed
+
+<patient/anonymous-001> a fhir:Patient ;
+    fhir:identifier [
+        fhir:system "http://acme-hospital.com/patient-id" ;
+        fhir:value "ANON-001"
+    ] ;
+    fhir:active "true"^^xsd:boolean ;
+    fhir:name [
+        fhir:family "DOE" ;
+        fhir:given "JOHN" ;
+        fhir:use "official"
+    ] ;
+    fhir:telecom [
+        fhir:system "email" ;
+        fhir:value "patient@example.com"
+    ] ;
+    fhir:gender "male" ;
+    fhir:birthDate "1980-01-01"^^xsd:date ;
+    fhir:address [
+        fhir:city "ANYTOWN" ;
+        fhir:state "NY" ;
+        fhir:postalCode "00000"
+    ] .
+
+<condition/diabetes-001> a fhir:Condition ;
+    fhir:subject <patient/anonymous-001> ;
+    fhir:code [
+        fhir:coding [
+            fhir:system sct: ;
+            fhir:code "73211009" ;
+            fhir:display "Diabetes mellitus"
+        ]
+    ] ;
+    fhir:onsetDateTime "2020-05-15T00:00:00Z"^^xsd:dateTime ;
+    fhir:clinicalStatus "active" .
+
+<medication/metformin-001> a fhir:Medication ;
+    fhir:code [
+        fhir:coding [
+            fhir:system "http://www.nlm.nih.gov/research/umls/rxnorm" ;
+            fhir:code "6809" ;
+            fhir:display "Metformin"
+        ]
+    ] ;
+    fhir:form [
+        fhir:coding [
+            fhir:system sct: ;
+            fhir:code "385055001" ;
+            fhir:display "Tablet"
+        ]
+    ] .
+
+<medicationrequest/metformin-prescription-001> a fhir:MedicationRequest ;
+    fhir:status "active" ;
+    fhir:intent "order" ;
+    fhir:medicationReference <medication/metformin-001> ;
+    fhir:subject <patient/anonymous-001> ;
+    fhir:dosageInstruction [
+        fhir:timing [
+            fhir:repeat [
+                fhir:frequency "2"^^xsd:int ;
+                fhir:period "1"^^xsd:decimal ;
+                fhir:periodUnit "d"
+            ]
+        ] ;
+        fhir:doseAndRate [
+            fhir:doseQuantity [
+                fhir:value "500"^^xsd:decimal ;
+                fhir:unit "mg"
+            ]
+        ]
+    ] .
+
+<observation/glucose-001> a fhir:Observation ;
+    fhir:status "final" ;
+    fhir:category [
+        fhir:coding [
+            fhir:system "http://terminology.hl7.org/CodeSystem/observation-category" ;
+            fhir:code "vital-signs"
+        ]
+    ] ;
+    fhir:code [
+        fhir:coding [
+            fhir:system loinc: ;
+            fhir:code "33747-0" ;
+            fhir:display "Glucose [Mass/volume] in Blood"
+        ]
+    ] ;
+    fhir:subject <patient/anonymous-001> ;
+    fhir:effectiveDateTime "2023-12-01T09:30:00Z"^^xsd:dateTime ;
+    fhir:valueQuantity [
+        fhir:value "120"^^xsd:decimal ;
+        fhir:unit "mg/dL" ;
+        fhir:system "http://unitsofmeasure.org" ;
+        fhir:code "mg/dL"
+    ] .
+
+# Additional test patients for performance testing
+<patient/anonymous-002> a fhir:Patient ;
+    fhir:identifier [
+        fhir:system "http://acme-hospital.com/patient-id" ;
+        fhir:value "ANON-002"
+    ] ;
+    fhir:active "true"^^xsd:boolean ;
+    fhir:name [
+        fhir:family "SMITH" ;
+        fhir:given "JANE" ;
+        fhir:use "official"
+    ] ;
+    fhir:gender "female" ;
+    fhir:birthDate "1975-06-15"^^xsd:date .
+
+<condition/hypertension-002> a fhir:Condition ;
+    fhir:subject <patient/anonymous-002> ;
+    fhir:code [
+        fhir:coding [
+            fhir:system sct: ;
+            fhir:code "38341003" ;
+            fhir:display "Hypertension"
+        ]
+    ] ;
+    fhir:onsetDateTime "2019-03-20T00:00:00Z"^^xsd:dateTime ;
+    fhir:clinicalStatus "active" .
+
+# Performance test data structure (100+ patients would be generated programmatically)
+<patient/perf-test-batch-001> a fhir:Patient ;
+    fhir:identifier [
+        fhir:system "http://test-hospital.com/patient-id" ;
+        fhir:value "PERF-BATCH-001"
+    ] ;
+    fhir:active "true"^^xsd:boolean ;
+    fhir:name [
+        fhir:family "PERFORMANCE" ;
+        fhir:given "TEST" ;
+        fhir:use "official"
+    ] ;
+    fhir:gender "other" ;
+    fhir:birthDate "1990-01-01"^^xsd:date .

@@ -8,3 +8,6 @@ keywords = ["java26", "rest", "controller", "pattern-matching", "switch-expressi
 categories = ["java", "spring-boot", "patterns"]
 pattern_number = 22
 pattern_name = "PATTERN-MATCHED CONTROLLER"
+
+[marketplace]
+production_ready = false

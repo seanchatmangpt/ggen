@@ -1,0 +1,36 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix : <http://example.org/user#> .
+
+# User ontology for BDD testing
+:UserOntology a owl:Ontology ;
+    rdfs:label "User Domain Ontology" ;
+    rdfs:comment "A simple ontology for testing user-related concepts." .
+
+:User a owl:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "A user of the system." .
+
+:hasName a owl:DatatypeProperty ;
+    rdfs:label "has name" ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string .
+
+:hasEmail a owl:DatatypeProperty ;
+    rdfs:label "has email" ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string .
+
+:hasAge a owl:DatatypeProperty ;
+    rdfs:label "has age" ;
+    rdfs:domain :User ;
+    rdfs:range xsd:integer .
+
+# Sample user instance
+:john a :User ;
+    :hasName "John Doe" ;
+    :hasEmail "john@example.com" ;
+    :hasAge 30 .

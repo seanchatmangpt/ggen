@@ -1,0 +1,105 @@
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:entity0 rdfs:label "Entity 0 for small test dataset" .
+ex:entity1 ex:hasId 1 .
+ex:entity2 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity3 ex:belongsToDataset ex:smallDataset .
+ex:entity4 rdf:type ex:TestEntity .
+ex:entity5 rdfs:label "Entity 5 for small test dataset" .
+ex:entity6 ex:hasId 6 .
+ex:entity7 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity8 ex:belongsToDataset ex:smallDataset .
+ex:entity9 rdf:type ex:TestEntity .
+ex:entity10 rdfs:label "Entity 10 for small test dataset" .
+ex:entity11 ex:hasId 11 .
+ex:entity12 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity13 ex:belongsToDataset ex:smallDataset .
+ex:entity14 rdf:type ex:TestEntity .
+ex:entity15 rdfs:label "Entity 15 for small test dataset" .
+ex:entity16 ex:hasId 16 .
+ex:entity17 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity18 ex:belongsToDataset ex:smallDataset .
+ex:entity19 rdf:type ex:TestEntity .
+ex:entity20 rdfs:label "Entity 20 for small test dataset" .
+ex:entity21 ex:hasId 21 .
+ex:entity22 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity23 ex:belongsToDataset ex:smallDataset .
+ex:entity24 rdf:type ex:TestEntity .
+ex:entity25 rdfs:label "Entity 25 for small test dataset" .
+ex:entity26 ex:hasId 26 .
+ex:entity27 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity28 ex:belongsToDataset ex:smallDataset .
+ex:entity29 rdf:type ex:TestEntity .
+ex:entity30 rdfs:label "Entity 30 for small test dataset" .
+ex:entity31 ex:hasId 31 .
+ex:entity32 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity33 ex:belongsToDataset ex:smallDataset .
+ex:entity34 rdf:type ex:TestEntity .
+ex:entity35 rdfs:label "Entity 35 for small test dataset" .
+ex:entity36 ex:hasId 36 .
+ex:entity37 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity38 ex:belongsToDataset ex:smallDataset .
+ex:entity39 rdf:type ex:TestEntity .
+ex:entity40 rdfs:label "Entity 40 for small test dataset" .
+ex:entity41 ex:hasId 41 .
+ex:entity42 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity43 ex:belongsToDataset ex:smallDataset .
+ex:entity44 rdf:type ex:TestEntity .
+ex:entity45 rdfs:label "Entity 45 for small test dataset" .
+ex:entity46 ex:hasId 46 .
+ex:entity47 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity48 ex:belongsToDataset ex:smallDataset .
+ex:entity49 rdf:type ex:TestEntity .
+ex:entity50 rdfs:label "Entity 50 for small test dataset" .
+ex:entity51 ex:hasId 51 .
+ex:entity52 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity53 ex:belongsToDataset ex:smallDataset .
+ex:entity54 rdf:type ex:TestEntity .
+ex:entity55 rdfs:label "Entity 55 for small test dataset" .
+ex:entity56 ex:hasId 56 .
+ex:entity57 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity58 ex:belongsToDataset ex:smallDataset .
+ex:entity59 rdf:type ex:TestEntity .
+ex:entity60 rdfs:label "Entity 60 for small test dataset" .
+ex:entity61 ex:hasId 61 .
+ex:entity62 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity63 ex:belongsToDataset ex:smallDataset .
+ex:entity64 rdf:type ex:TestEntity .
+ex:entity65 rdfs:label "Entity 65 for small test dataset" .
+ex:entity66 ex:hasId 66 .
+ex:entity67 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity68 ex:belongsToDataset ex:smallDataset .
+ex:entity69 rdf:type ex:TestEntity .
+ex:entity70 rdfs:label "Entity 70 for small test dataset" .
+ex:entity71 ex:hasId 71 .
+ex:entity72 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity73 ex:belongsToDataset ex:smallDataset .
+ex:entity74 rdf:type ex:TestEntity .
+ex:entity75 rdfs:label "Entity 75 for small test dataset" .
+ex:entity76 ex:hasId 76 .
+ex:entity77 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity78 ex:belongsToDataset ex:smallDataset .
+ex:entity79 rdf:type ex:TestEntity .
+ex:entity80 rdfs:label "Entity 80 for small test dataset" .
+ex:entity81 ex:hasId 81 .
+ex:entity82 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity83 ex:belongsToDataset ex:smallDataset .
+ex:entity84 rdf:type ex:TestEntity .
+ex:entity85 rdfs:label "Entity 85 for small test dataset" .
+ex:entity86 ex:hasId 86 .
+ex:entity87 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity88 ex:belongsToDataset ex:smallDataset .
+ex:entity89 rdf:type ex:TestEntity .
+ex:entity90 rdfs:label "Entity 90 for small test dataset" .
+ex:entity91 ex:hasId 91 .
+ex:entity92 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity93 ex:belongsToDataset ex:smallDataset .
+ex:entity94 rdf:type ex:TestEntity .
+ex:entity95 rdfs:label "Entity 95 for small test dataset" .
+ex:entity96 ex:hasId 96 .
+ex:entity97 ex:createdAt "2025-09-12T18:31:45.816Z"^^xsd:dateTime .
+ex:entity98 ex:belongsToDataset ex:smallDataset .
+ex:entity99 rdf:type ex:TestEntity .

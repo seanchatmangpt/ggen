@@ -1,0 +1,33 @@
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX rr: <https://chatmangpt.com/ontologies/o-star/governance:roberts-rules:>
+
+SELECT ?motion ?ayeCount ?nayCount ?abstainCount ?totalVotes ?outcome
+WHERE {
+  ?motion a rr:Motion .
+
+  # Aggregate votes
+  {
+    SELECT ?motion
+      (SUM(IF(?vote = "Aye", 1, 0)) AS ?ayeCount)
+      (SUM(IF(?vote = "Nay", 1, 0)) AS ?nayCount)
+      (SUM(IF(?vote = "Abstain", 1, 0)) AS ?abstainCount)
+    WHERE {
+      ?motion rr:hasVote ?voteRecord .
+      ?voteRecord rr:voteValue ?vote .
+    }
+    GROUP BY ?motion
+  }
+
+  BIND(?ayeCount + ?nayCount + ?abstainCount AS ?totalVotes)
+
+  # Determine outcome based on motion threshold
+  ?motion rr:requiresMajority ?requiresMajority .
+  ?motion rr:requiresSupermajority ?requiresSupermajority .
+
+  BIND(
+    IF(?requiresSupermajority && ?ayeCount > (?totalVotes * 0.67), "Passed",
+    IF(?requiresMajority && ?ayeCount > (?totalVotes * 0.5), "Passed",
+    IF(?nayCount > ?ayeCount, "Failed", "Tied")))
+    AS ?outcome
+  )
+}

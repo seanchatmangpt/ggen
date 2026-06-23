@@ -1,0 +1,254 @@
+# TTL Grammar Examples
+# This file demonstrates every grammar production rule with examples
+
+# ==============================================================================
+# DIRECTIVES (Rules 3-5, 5s, 6s)
+# ==============================================================================
+
+# Rule 4: prefixID
+@prefix ex: <http://example.org/> .
+@prefix : <http://default.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Rule 5: base
+@base <http://example.org/base/> .
+
+# Rule 5s: sparqlBase (case-insensitive)
+BASE <http://example.org/sparql-base/>
+
+# Rule 6s: sparqlPrefix (case-insensitive)
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+prefix owl: <http://www.w3.org/2002/07/owl#>
+
+# ==============================================================================
+# TRIPLE PATTERNS (Rules 6-12)
+# ==============================================================================
+
+# Rule 6: Simple triples (subject predicateObjectList)
+ex:john ex:name "John Doe" .
+ex:john ex:age 30 .
+
+# Rule 7: predicateObjectList with semicolons
+ex:jane 
+    ex:name "Jane Smith" ;
+    ex:age 25 ;
+    ex:email "jane@example.org" .
+
+# Rule 8: objectList with commas
+ex:project 
+    ex:members ex:john, ex:jane, ex:bob ;
+    ex:status "active" .
+
+# Rule 9: verb using 'a' keyword
+ex:john a ex:Person .
+ex:jane rdf:type ex:Person .  # equivalent using rdf:type
+
+# Rule 10-12: Different subject/object types
+<http://example.org/absolute-iri> ex:label "Absolute IRI" .
+_:blank1 ex:label "Labeled blank node" .
+[ ex:label "Anonymous blank node" ] ex:hasValue 42 .
+(1 2 3) ex:sum 6 .  # collection as subject
+
+# ==============================================================================
+# LITERALS (Rules 13, 16, 128s, 133s)
+# ==============================================================================
+
+# Rule 133s: BooleanLiteral
+ex:system ex:active true .
+ex:system ex:deprecated false .
+
+# Rule 16: NumericLiteral - INTEGER
+ex:data ex:count 42 .
+ex:data ex:negative -42 .
+ex:data ex:positive +42 .
+ex:data ex:withLeadingZeros 007 .
+
+# Rule 16: NumericLiteral - DECIMAL  
+ex:data ex:price 19.99 .
+ex:data ex:noLeading .5 .
+ex:data ex:noTrailing 5. .
+ex:data ex:negative -3.14 .
+
+# Rule 16: NumericLiteral - DOUBLE
+ex:data ex:scientific 1.5e10 .
+ex:data ex:negativeExp 2.5e-10 .
+ex:data ex:capitalE 3E5 .
+ex:data ex:noFraction 5e10 .
+
+# Rule 128s: RDFLiteral with language tags
+ex:greeting ex:text "Hello"@en .
+ex:greeting ex:text "Bonjour"@fr .
+ex:greeting ex:text "你好"@zh .
+ex:greeting ex:text "Hello"@en-US .
+ex:greeting ex:text "Hello"@en-GB .
+
+# Rule 128s: RDFLiteral with datatypes
+ex:event ex:date "2024-01-01"^^xsd:date .
+ex:event ex:time "14:30:00"^^xsd:time .
+ex:data ex:integer "42"^^xsd:integer .
+ex:data ex:float "3.14"^^xsd:float .
+ex:data ex:custom "data"^^<http://example.org/MyType> .
+
+# ==============================================================================
+# STRING LITERALS (Rules 17, 22-25)
+# ==============================================================================
+
+# Rule 22: STRING_LITERAL_QUOTE
+ex:s1 ex:p "Simple string" .
+ex:s2 ex:p "String with \"escaped quotes\"" .
+ex:s3 ex:p "String with \n newline \t and tab" .
+ex:s4 ex:p "Unicode: \u00E9 and \U0001F600" .
+
+# Rule 23: STRING_LITERAL_SINGLE_QUOTE  
+ex:s5 ex:p 'Single quoted string' .
+ex:s6 ex:p 'String with \'escaped quotes\'' .
+
+# Rule 24: STRING_LITERAL_LONG_SINGLE_QUOTE
+ex:s7 ex:p '''Long
+single-quoted
+string''' .
+ex:s8 ex:p '''String with '' two quotes''' .
+ex:s9 ex:p '''String with embedded 'single' quotes''' .
+
+# Rule 25: STRING_LITERAL_LONG_QUOTE
+ex:s10 ex:p """Long
+double-quoted  
+string""" .
+ex:s11 ex:p """String with "" two quotes""" .
+ex:s12 ex:p """String with embedded "double" quotes""" .
+
+# ==============================================================================
+# COLLECTIONS AND BLANK NODES (Rules 14-15, 137s, 141s, 162s)
+# ==============================================================================
+
+# Rule 15: collection (RDF List)
+ex:numbers ex:list (1 2 3 4 5) .
+ex:empty ex:list () .
+ex:nested ex:list ((1 2) (3 4) (5 6)) .
+ex:mixed ex:list (42 "string" true ex:item) .
+
+# Rule 14: blankNodePropertyList
+ex:person ex:knows [
+    ex:name "Anonymous Person" ;
+    ex:age 30
+] .
+
+# Rule 141s: BLANK_NODE_LABEL
+_:b1 ex:label "Blank node 1" .
+_:node123 ex:label "Blank node with alphanumeric" .
+_:complex_name ex:label "Blank node with underscores" .
+
+# Rule 162s: ANON (anonymous blank node)
+ex:s ex:p [] .
+ex:s ex:p [    ] .  # with whitespace
+ex:s ex:p [
+    # with comments and newlines
+] .
+
+# Nested blank nodes
+ex:company ex:employee [
+    ex:name "John" ;
+    ex:address [
+        ex:street "123 Main St" ;
+        ex:city "Anytown"
+    ]
+] .
+
+# ==============================================================================
+# IRIS AND PREFIXED NAMES (Rules 135s-140s)
+# ==============================================================================
+
+# Rule 18: IRIREF
+<http://example.org/resource> ex:type "Absolute IRI" .
+<https://example.org/secure> ex:secure true .
+<file:///path/to/file> ex:local true .
+<urn:isbn:0451450523> ex:type "URN" .
+<http://example.org/path?query=value#fragment> ex:hasQuery true .
+
+# Rule 139s-140s: Prefixed names
+ex:localName ex:type "Prefixed name" .
+:defaultName ex:type "Default prefix" .
+ex: ex:type "Empty local name" .
+
+# Prefixed names with special characters
+ex:name-with-dashes ex:valid true .
+ex:name.with.dots ex:valid true .
+ex:name_with_underscores ex:valid true .
+ex:name123 ex:valid true .
+ex:123start ex:valid true .  # numbers allowed at start with PLX
+
+# Percent-encoded local names
+ex:name%20with%20spaces ex:encoded true .
+ex:special%21%40%23 ex:encoded true .
+
+# Escaped local names
+ex:escaped\-name ex:valid true .
+ex:dot\.name ex:valid true .
+ex:special\!char ex:valid true .
+
+# ==============================================================================
+# COMPLEX STRUCTURES
+# ==============================================================================
+
+# Combination of features
+_:person1 a foaf:Person ;
+    foaf:name "Alice" ;
+    foaf:knows [
+        a foaf:Person ;
+        foaf:name "Bob" ;
+        foaf:mbox <mailto:bob@example.org>
+    ] ;
+    foaf:interest (
+        [ rdfs:label "Music"@en ]
+        [ rdfs:label "Sports"@en ]
+        [ rdfs:label "Programming"@en ]
+    ) ;
+    foaf:age 30 ;
+    foaf:based_near [
+        a ex:Location ;
+        ex:lat "51.5074"^^xsd:float ;
+        ex:long "-0.1278"^^xsd:float ;
+        ex:city "London"
+    ] .
+
+# Graph with cycles using labeled blank nodes
+_:node1 ex:connectsTo _:node2 .
+_:node2 ex:connectsTo _:node3 .
+_:node3 ex:connectsTo _:node1 .
+
+# Multiple references to same blank node
+_:shared a ex:SharedResource ;
+    ex:value "Shared data" .
+ex:user1 ex:uses _:shared .
+ex:user2 ex:uses _:shared .
+
+# ==============================================================================
+# WHITESPACE AND COMMENTS
+# ==============================================================================
+
+# Comments can appear almost anywhere
+ex:subject # inline comment
+    ex:predicate # another comment
+    "object" # before semicolon
+    ; # after semicolon
+    ex:p2 # between predicates  
+    42 # before dot
+    . # after statement
+
+# But not inside strings or IRIs
+ex:s ex:p "This # is not a comment" .
+<http://example.org/page#section> ex:type "IRI with hash" .
+
+# ==============================================================================
+# SPARQL COMPATIBILITY
+# ==============================================================================
+
+# Mixed Turtle and SPARQL directives
+@prefix ex1: <http://example1.org/> .
+PREFIX ex2: <http://example2.org/>
+@base <http://base1.org/> .
+BASE <http://base2.org/>
+
+# Both styles work
+ex1:s ex2:p <relative> .

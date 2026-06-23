@@ -1,0 +1,41 @@
+# extract-arguments.rq
+# Extract argument specifications for a given verb
+# Returns: argumentName, shortName, argumentAbout, argumentType, valueType, required, defaultValue
+# Works with any verb in the ontology; uses StatusVerb as example
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX cnv: <http://clap-noun-verb.io/ontology#>
+PREFIX ex: <http://clap-noun-verb.io/examples#>
+
+SELECT
+  ?argument
+  ?argumentName
+  ?shortName
+  ?argumentAbout
+  ?argumentTypeLabel
+  ?valueType
+  ?required
+  ?defaultValue
+WHERE {
+  # Find the verb (can be any verb; filtering for demonstration)
+  ?verb a cnv:Verb ;
+    cnv:hasVerbName "status"@en .
+
+  # Handle both single arguments and RDF list syntax
+  ?verb cnv:hasArguments ?argument .
+  ?argument cnv:hasArgumentName ?argumentName .
+
+  OPTIONAL { ?argument cnv:shortName ?shortName . }
+  OPTIONAL { ?argument cnv:argumentAbout ?argumentAbout . }
+  OPTIONAL {
+    ?argument cnv:argumentType ?argumentType .
+    ?argumentType rdfs:label ?argumentTypeLabel .
+  }
+  OPTIONAL { ?argument cnv:valueType ?valueType . }
+  OPTIONAL { ?argument cnv:required ?required . }
+  OPTIONAL { ?argument cnv:defaultValue ?defaultValue . }
+}
+ORDER BY ?argumentName

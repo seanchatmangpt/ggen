@@ -1,0 +1,564 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix bytestar: <http://bytestar.ai/ontology/> .
+@prefix canon: <http://bytestar.ai/canonical/> .
+@prefix fuller: <http://bytestar.ai/fuller-canon/> .
+@prefix sap: <http://bytestar.ai/sovereign-access-plane/> .
+@prefix : <http://bytestar.ai/external-system-canon/> .
+
+# ==============================================================================
+# External System Canonical Ontology Template
+# Phase 1: Sovereign Access Plane
+# 
+# This ontology template defines canonical forms for external system integration
+# following Fuller Canon principles for entropy reduction and semantic precision.
+# ==============================================================================
+
+<http://bytestar.ai/external-system-canon/> a owl:Ontology ;
+    rdfs:label "External System Canonical Ontology"@en ;
+    rdfs:comment """
+    Canonical ontology template for external system integration within the 
+    Sovereign Access Plane. Implements Fuller Canon principles for transforming
+    discovered external systems into ByteGen-compatible canonical forms.
+    """@en ;
+    dc:created "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+    dc:modified "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+    dc:creator "Sovereign Access Plane Agent" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports bytestar: ;
+    fuller:canonicalForm "ExternalSystemCanon(Σ) → ΩCanonical" ;
+    fuller:entropyReduction "≥0.3"^^xsd:decimal ;
+    fuller:semanticPrecision "maximum" .
+
+# ==============================================================================
+# CORE CANONICAL CLASSES
+# ==============================================================================
+
+:ExternalSystem a owl:Class ;
+    rdfs:label "External System"@en ;
+    rdfs:comment "Any system external to ByteStar requiring canonical integration"@en ;
+    fuller:canonicalForm "∀s:System → (Discovered(s) ∧ External(s) ∧ Canonicalizable(s))" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasSystemMetadata ;
+        owl:minCardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasCanonicalForm ;
+        owl:cardinality 1
+    ] .
+
+:DatabaseSystem a owl:Class ;
+    rdfs:label "Database System"@en ;
+    rdfs:comment "External database system with discoverable schema"@en ;
+    rdfs:subClassOf :ExternalSystem ;
+    fuller:canonicalForm "Database(S) → (Schema(S) ∧ Tables(S) ∧ Relations(S))" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasSchema ;
+        owl:minCardinality 1
+    ] .
+
+:APISystem a owl:Class ;
+    rdfs:label "API System"@en ;
+    rdfs:comment "External API system with discoverable endpoints and schemas"@en ;
+    rdfs:subClassOf :ExternalSystem ;
+    fuller:canonicalForm "API(S) → (Endpoints(S) ∧ Schemas(S) ∧ Operations(S))" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasAPISpec ;
+        owl:minCardinality 1
+    ] .
+
+:ServiceSystem a owl:Class ;
+    rdfs:label "Service System"@en ;
+    rdfs:comment "External service system combining multiple interfaces"@en ;
+    rdfs:subClassOf :ExternalSystem ;
+    fuller:canonicalForm "Service(S) → (Interfaces(S) ∧ Contracts(S) ∧ Behaviors(S))" .
+
+# ==============================================================================
+# CANONICAL DATA STRUCTURES
+# ==============================================================================
+
+:CanonicalEntity a owl:Class ;
+    rdfs:label "Canonical Entity"@en ;
+    rdfs:comment "Entity transformed to canonical form with minimal entropy"@en ;
+    fuller:canonicalForm "Entity(E) → Canonical(E) where Entropy(Canonical(E)) < Entropy(E)" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasCanonicalIdentifier ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasCanonicalProperties ;
+        owl:minCardinality 1
+    ] .
+
+:CanonicalProperty a owl:Class ;
+    rdfs:label "Canonical Property"@en ;
+    rdfs:comment "Property transformed to canonical form with semantic precision"@en ;
+    fuller:canonicalForm "Property(P) → Canonical(P) where Precision(Canonical(P)) = maximum" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasSemanticType ;
+        owl:cardinality 1
+    ] .
+
+:CanonicalRelationship a owl:Class ;
+    rdfs:label "Canonical Relationship"@en ;
+    rdfs:comment "Relationship transformed to canonical form with clear semantics"@en ;
+    fuller:canonicalForm "Relation(R) → Canonical(R) where Ambiguity(Canonical(R)) = 0" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasSource ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasTarget ;
+        owl:cardinality 1
+    ] .
+
+# ==============================================================================
+# SCHEMA AND METADATA CLASSES  
+# ==============================================================================
+
+:DatabaseSchema a owl:Class ;
+    rdfs:label "Database Schema"@en ;
+    rdfs:comment "Canonical representation of database schema structure"@en ;
+    fuller:canonicalForm "Schema(S) → {Tables(S), Views(S), Constraints(S), Indexes(S)}" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasTable ;
+        owl:minCardinality 1
+    ] .
+
+:CanonicalTable a owl:Class ;
+    rdfs:label "Canonical Table"@en ;
+    rdfs:comment "Table structure in canonical form"@en ;
+    fuller:canonicalForm "Table(T) → {Columns(T), PrimaryKey(T), ForeignKeys(T), Constraints(T)}" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasColumn ;
+        owl:minCardinality 1
+    ] .
+
+:CanonicalColumn a owl:Class ;
+    rdfs:label "Canonical Column"@en ;
+    rdfs:comment "Column definition in canonical form"@en ;
+    fuller:canonicalForm "Column(C) → {Type(C), Constraints(C), Semantics(C)}" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasDataType ;
+        owl:cardinality 1
+    ] .
+
+:APISpecification a owl:Class ;
+    rdfs:label "API Specification"@en ;
+    rdfs:comment "Canonical API specification following OpenAPI standards"@en ;
+    fuller:canonicalForm "APISpec(S) → {Endpoints(S), Schemas(S), Security(S)}" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasEndpoint ;
+        owl:minCardinality 1
+    ] .
+
+:CanonicalEndpoint a owl:Class ;
+    rdfs:label "Canonical Endpoint"@en ;
+    rdfs:comment "API endpoint in canonical form"@en ;
+    fuller:canonicalForm "Endpoint(E) → {Path(E), Method(E), Parameters(E), Responses(E)}" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasPath ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasHTTPMethod ;
+        owl:cardinality 1
+    ] .
+
+# ==============================================================================
+# SECURITY AND GOVERNANCE CLASSES
+# ==============================================================================
+
+:SecurityPolicy a owl:Class ;
+    rdfs:label "Security Policy"@en ;
+    rdfs:comment "Canonical security policy extracted from system analysis"@en ;
+    fuller:canonicalForm "SecurityPolicy(P) → {Rules(P), Enforcement(P), Scope(P)}" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasSecurityRule ;
+        owl:minCardinality 1
+    ] .
+
+:RLSPolicy a owl:Class ;
+    rdfs:label "Row Level Security Policy"@en ;
+    rdfs:comment "Canonical RLS policy for data access control"@en ;
+    rdfs:subClassOf :SecurityPolicy ;
+    fuller:canonicalForm "RLS(P) → {Target(P), Operations(P), Conditions(P), Roles(P)}" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :appliesTo ;
+        owl:minCardinality 1
+    ] .
+
+:AccessControlRule a owl:Class ;
+    rdfs:label "Access Control Rule"@en ;
+    rdfs:comment "Canonical access control rule"@en ;
+    fuller:canonicalForm "ACRule(R) → {Subject(R), Object(R), Action(R), Condition(R)}" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasSubject ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasObject ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasAction ;
+        owl:cardinality 1
+    ] .
+
+# ==============================================================================
+# PERFORMANCE AND METRICS CLASSES
+# ==============================================================================
+
+:PerformanceProfile a owl:Class ;
+    rdfs:label "Performance Profile"@en ;
+    rdfs:comment "Canonical performance characteristics of external system"@en ;
+    fuller:canonicalForm "PerfProfile(P) → {Latency(P), Throughput(P), Resources(P), Bottlenecks(P)}" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasLatencyMetrics ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasThroughputMetrics ;
+        owl:cardinality 1
+    ] .
+
+:CanonicalMetric a owl:Class ;
+    rdfs:label "Canonical Metric"@en ;
+    rdfs:comment "Performance metric in canonical form"@en ;
+    fuller:canonicalForm "Metric(M) → {Value(M), Unit(M), Context(M), Timestamp(M)}" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasValue ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasUnit ;
+        owl:cardinality 1
+    ] .
+
+# ==============================================================================
+# FULLER CANON METADATA CLASSES
+# ==============================================================================
+
+:FullerCanonForm a owl:Class ;
+    rdfs:label "Fuller Canon Form"@en ;
+    rdfs:comment "Canonical form following Fuller Canon principles"@en ;
+    fuller:canonicalForm "FullerCanon(F) → {OriginalEntropy(F), CanonicalEntropy(F), Reduction(F)}" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasOriginalEntropy ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasCanonicalEntropy ;
+        owl:cardinality 1
+    ] .
+
+:ProvenanceRecord a owl:Class ;
+    rdfs:label "Provenance Record"@en ;
+    rdfs:comment "Canonical provenance information for system transformation"@en ;
+    fuller:canonicalForm "Provenance(P) → {Source(P), Transformation(P), Evidence(P), Confidence(P)}" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasSource ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasTransformationTimestamp ;
+        owl:cardinality 1
+    ] .
+
+# ==============================================================================
+# CORE PROPERTIES
+# ==============================================================================
+
+# System Properties
+:hasSystemMetadata a owl:ObjectProperty ;
+    rdfs:label "has system metadata"@en ;
+    rdfs:comment "Links external system to its metadata"@en ;
+    rdfs:domain :ExternalSystem ;
+    rdfs:range :SystemMetadata ;
+    fuller:canonicalForm "hasSystemMetadata(s, m) → SystemMetadata(m) ∧ describes(m, s)" .
+
+:hasCanonicalForm a owl:ObjectProperty ;
+    rdfs:label "has canonical form"@en ;
+    rdfs:comment "Links entity to its Fuller Canon form"@en ;
+    rdfs:range :FullerCanonForm ;
+    fuller:canonicalForm "hasCanonicalForm(e, c) → FullerCanon(c) ∧ represents(c, e)" .
+
+:hasSchema a owl:ObjectProperty ;
+    rdfs:label "has schema"@en ;
+    rdfs:comment "Links database system to its schema"@en ;
+    rdfs:domain :DatabaseSystem ;
+    rdfs:range :DatabaseSchema ;
+    fuller:canonicalForm "hasSchema(db, s) → Schema(s) ∧ defines(s, db)" .
+
+:hasAPISpec a owl:ObjectProperty ;
+    rdfs:label "has API specification"@en ;
+    rdfs:comment "Links API system to its specification"@en ;
+    rdfs:domain :APISystem ;
+    rdfs:range :APISpecification ;
+    fuller:canonicalForm "hasAPISpec(api, spec) → APISpec(spec) ∧ defines(spec, api)" .
+
+# Structure Properties  
+:hasTable a owl:ObjectProperty ;
+    rdfs:label "has table"@en ;
+    rdfs:comment "Links schema to its tables"@en ;
+    rdfs:domain :DatabaseSchema ;
+    rdfs:range :CanonicalTable ;
+    fuller:canonicalForm "hasTable(s, t) → Table(t) ∧ contains(s, t)" .
+
+:hasColumn a owl:ObjectProperty ;
+    rdfs:label "has column"@en ;
+    rdfs:comment "Links table to its columns"@en ;
+    rdfs:domain :CanonicalTable ;
+    rdfs:range :CanonicalColumn ;
+    fuller:canonicalForm "hasColumn(t, c) → Column(c) ∧ contains(t, c)" .
+
+:hasEndpoint a owl:ObjectProperty ;
+    rdfs:label "has endpoint"@en ;
+    rdfs:comment "Links API specification to its endpoints"@en ;
+    rdfs:domain :APISpecification ;
+    rdfs:range :CanonicalEndpoint ;
+    fuller:canonicalForm "hasEndpoint(spec, e) → Endpoint(e) ∧ defines(spec, e)" .
+
+# Canonical Properties
+:hasCanonicalIdentifier a owl:DatatypeProperty ;
+    rdfs:label "has canonical identifier"@en ;
+    rdfs:comment "Canonical unique identifier for entity"@en ;
+    rdfs:domain :CanonicalEntity ;
+    rdfs:range xsd:anyURI ;
+    fuller:canonicalForm "hasCanonicalID(e, id) → Unique(id) ∧ identifies(id, e)" .
+
+:hasCanonicalProperties a owl:ObjectProperty ;
+    rdfs:label "has canonical properties"@en ;
+    rdfs:comment "Links entity to its canonical properties"@en ;
+    rdfs:domain :CanonicalEntity ;
+    rdfs:range :CanonicalProperty ;
+    fuller:canonicalForm "hasCanonicalProperties(e, props) → ∀p∈props: Canonical(p)" .
+
+:hasSemanticType a owl:DatatypeProperty ;
+    rdfs:label "has semantic type"@en ;
+    rdfs:comment "Semantic type annotation for property"@en ;
+    rdfs:domain :CanonicalProperty ;
+    rdfs:range xsd:anyURI ;
+    fuller:canonicalForm "hasSemanticType(p, t) → SemanticType(t) ∧ annotates(t, p)" .
+
+# Relationship Properties
+:hasSource a owl:ObjectProperty ;
+    rdfs:label "has source"@en ;
+    rdfs:comment "Source entity of relationship"@en ;
+    rdfs:domain :CanonicalRelationship ;
+    fuller:canonicalForm "hasSource(r, s) → Entity(s) ∧ originates(r, s)" .
+
+:hasTarget a owl:ObjectProperty ;
+    rdfs:label "has target"@en ;
+    rdfs:comment "Target entity of relationship"@en ;
+    rdfs:domain :CanonicalRelationship ;
+    fuller:canonicalForm "hasTarget(r, t) → Entity(t) ∧ terminates(r, t)" .
+
+# Data Properties
+:hasDataType a owl:DatatypeProperty ;
+    rdfs:label "has data type"@en ;
+    rdfs:comment "Canonical data type of column or property"@en ;
+    rdfs:domain :CanonicalColumn ;
+    rdfs:range xsd:anyURI ;
+    fuller:canonicalForm "hasDataType(c, dt) → DataType(dt) ∧ typed(c, dt)" .
+
+:hasPath a owl:DatatypeProperty ;
+    rdfs:label "has path"@en ;
+    rdfs:comment "URL path of API endpoint"@en ;
+    rdfs:domain :CanonicalEndpoint ;
+    rdfs:range xsd:string ;
+    fuller:canonicalForm "hasPath(e, p) → Path(p) ∧ locates(p, e)" .
+
+:hasHTTPMethod a owl:DatatypeProperty ;
+    rdfs:label "has HTTP method"@en ;
+    rdfs:comment "HTTP method of API endpoint"@en ;
+    rdfs:domain :CanonicalEndpoint ;
+    rdfs:range xsd:string ;
+    fuller:canonicalForm "hasHTTPMethod(e, m) → HTTPMethod(m) ∧ supports(e, m)" .
+
+# Security Properties
+:hasSecurityRule a owl:ObjectProperty ;
+    rdfs:label "has security rule"@en ;
+    rdfs:comment "Security rule within policy"@en ;
+    rdfs:domain :SecurityPolicy ;
+    rdfs:range :AccessControlRule ;
+    fuller:canonicalForm "hasSecurityRule(p, r) → Rule(r) ∧ contains(p, r)" .
+
+:appliesTo a owl:ObjectProperty ;
+    rdfs:label "applies to"@en ;
+    rdfs:comment "Entity that policy applies to"@en ;
+    rdfs:domain :SecurityPolicy ;
+    fuller:canonicalForm "appliesTo(p, e) → Policy(p) ∧ Entity(e) ∧ governs(p, e)" .
+
+:hasSubject a owl:ObjectProperty ;
+    rdfs:label "has subject"@en ;
+    rdfs:comment "Subject of access control rule"@en ;
+    rdfs:domain :AccessControlRule ;
+    fuller:canonicalForm "hasSubject(r, s) → Subject(s) ∧ actor(r, s)" .
+
+:hasObject a owl:ObjectProperty ;
+    rdfs:label "has object"@en ;
+    rdfs:comment "Object of access control rule"@en ;
+    rdfs:domain :AccessControlRule ;
+    fuller:canonicalForm "hasObject(r, o) → Object(o) ∧ target(r, o)" .
+
+:hasAction a owl:DatatypeProperty ;
+    rdfs:label "has action"@en ;
+    rdfs:comment "Action in access control rule"@en ;
+    rdfs:domain :AccessControlRule ;
+    rdfs:range xsd:string ;
+    fuller:canonicalForm "hasAction(r, a) → Action(a) ∧ operation(r, a)" .
+
+# Performance Properties
+:hasLatencyMetrics a owl:ObjectProperty ;
+    rdfs:label "has latency metrics"@en ;
+    rdfs:comment "Latency performance metrics"@en ;
+    rdfs:domain :PerformanceProfile ;
+    rdfs:range :CanonicalMetric ;
+    fuller:canonicalForm "hasLatencyMetrics(p, m) → LatencyMetric(m) ∧ measures(m, p)" .
+
+:hasThroughputMetrics a owl:ObjectProperty ;
+    rdfs:label "has throughput metrics"@en ;
+    rdfs:comment "Throughput performance metrics"@en ;
+    rdfs:domain :PerformanceProfile ;
+    rdfs:range :CanonicalMetric ;
+    fuller:canonicalForm "hasThroughputMetrics(p, m) → ThroughputMetric(m) ∧ measures(m, p)" .
+
+:hasValue a owl:DatatypeProperty ;
+    rdfs:label "has value"@en ;
+    rdfs:comment "Numeric value of metric"@en ;
+    rdfs:domain :CanonicalMetric ;
+    rdfs:range xsd:decimal ;
+    fuller:canonicalForm "hasValue(m, v) → Value(v) ∧ quantifies(v, m)" .
+
+:hasUnit a owl:DatatypeProperty ;
+    rdfs:label "has unit"@en ;
+    rdfs:comment "Unit of measurement for metric"@en ;
+    rdfs:domain :CanonicalMetric ;
+    rdfs:range xsd:string ;
+    fuller:canonicalForm "hasUnit(m, u) → Unit(u) ∧ dimensionalizes(u, m)" .
+
+# Fuller Canon Properties
+:hasOriginalEntropy a owl:DatatypeProperty ;
+    rdfs:label "has original entropy"@en ;
+    rdfs:comment "Entropy before canonicalization"@en ;
+    rdfs:domain :FullerCanonForm ;
+    rdfs:range xsd:decimal ;
+    fuller:canonicalForm "hasOriginalEntropy(f, e) → Entropy(e) ∧ original(e, f)" .
+
+:hasCanonicalEntropy a owl:DatatypeProperty ;
+    rdfs:label "has canonical entropy"@en ;
+    rdfs:comment "Entropy after canonicalization"@en ;
+    rdfs:domain :FullerCanonForm ;
+    rdfs:range xsd:decimal ;
+    fuller:canonicalForm "hasCanonicalEntropy(f, e) → Entropy(e) ∧ canonical(e, f)" .
+
+:hasEntropyReduction a owl:DatatypeProperty ;
+    rdfs:label "has entropy reduction"@en ;
+    rdfs:comment "Entropy reduction ratio achieved"@en ;
+    rdfs:domain :FullerCanonForm ;
+    rdfs:range xsd:decimal ;
+    fuller:canonicalForm "hasEntropyReduction(f, r) → Reduction(r) ∧ achieved(r, f)" .
+
+:hasTransformationTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has transformation timestamp"@en ;
+    rdfs:comment "Timestamp of canonical transformation"@en ;
+    rdfs:domain :ProvenanceRecord ;
+    rdfs:range xsd:dateTime ;
+    fuller:canonicalForm "hasTransformationTimestamp(p, t) → Timestamp(t) ∧ records(t, p)" .
+
+# ==============================================================================
+# INDIVIDUAL INSTANCES (Examples)
+# ==============================================================================
+
+:ExampleDatabaseSystem a :DatabaseSystem ;
+    rdfs:label "Example PostgreSQL Database" ;
+    rdfs:comment "Example canonical database system representation" ;
+    :hasSystemMetadata :ExampleDatabaseMetadata ;
+    :hasCanonicalForm :ExampleDatabaseCanonicalForm ;
+    :hasSchema :ExampleSchema .
+
+:ExampleAPISystem a :APISystem ;
+    rdfs:label "Example REST API" ;
+    rdfs:comment "Example canonical API system representation" ;
+    :hasSystemMetadata :ExampleAPIMetadata ;
+    :hasCanonicalForm :ExampleAPICanonicalForm ;
+    :hasAPISpec :ExampleAPISpec .
+
+# ==============================================================================
+# AXIOMS AND CONSTRAINTS
+# ==============================================================================
+
+# Fuller Canon Constraints
+[ a owl:Restriction ;
+  owl:onProperty :hasEntropyReduction ;
+  owl:minInclusive "0.0"^^xsd:decimal ;
+  owl:maxInclusive "1.0"^^xsd:decimal ] 
+  rdfs:subClassOf :FullerCanonForm .
+
+# Uniqueness Constraints
+:hasCanonicalIdentifier a owl:FunctionalProperty .
+:hasCanonicalForm a owl:FunctionalProperty .
+
+# Performance Constraints  
+[ a owl:Restriction ;
+  owl:onProperty :hasLatencyMetrics ;
+  owl:someValuesFrom [
+    a owl:Restriction ;
+    owl:onProperty :hasValue ;
+    owl:maxInclusive "1.0"^^xsd:decimal  # Sub-microsecond requirement
+  ] ] 
+  rdfs:subClassOf :PerformanceProfile .
+
+# ==============================================================================
+# ANNOTATIONS AND METADATA
+# ==============================================================================
+
+# Fuller Canon Annotations
+fuller:canonicalForm rdfs:comment "Mathematical representation in Fuller Canon form" .
+fuller:entropyReduction rdfs:comment "Minimum entropy reduction required for canonicalization" .
+fuller:semanticPrecision rdfs:comment "Semantic precision level achieved" .
+
+# Provenance Annotations
+dc:created rdfs:comment "Creation timestamp of canonical ontology" .
+dc:modified rdfs:comment "Last modification timestamp" .
+dc:creator rdfs:comment "Agent responsible for canonicalization" .
+
+# Performance Annotations
+sap:performanceRequirement "sub-microsecond"^^xsd:string .
+sap:scalabilityTarget "petabyte-scale"^^xsd:string .
+sap:availabilityRequirement "99.99%"^^xsd:decimal .

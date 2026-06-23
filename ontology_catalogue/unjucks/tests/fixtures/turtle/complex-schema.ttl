@@ -1,0 +1,60 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+@prefix ex: <http://example.org/schema/> .
+
+# Organization Schema
+ex:Organization a rdfs:Class, owl:Class ;
+    rdfs:label "Organization" ;
+    rdfs:comment "A formal organization entity" ;
+    rdfs:subClassOf schema:Organization .
+
+ex:Project a rdfs:Class, owl:Class ;
+    rdfs:label "Project" ;
+    rdfs:comment "A work project with team members and tasks" .
+
+# Properties
+ex:hasProject a rdf:Property ;
+    rdfs:label "has project" ;
+    rdfs:domain ex:Organization ;
+    rdfs:range ex:Project .
+
+ex:projectBudget a rdf:Property ;
+    rdfs:label "project budget" ;
+    rdfs:domain ex:Project ;
+    rdfs:range xsd:decimal .
+
+ex:startDate a rdf:Property ;
+    rdfs:label "start date" ;
+    rdfs:domain ex:Project ;
+    rdfs:range xsd:date .
+
+ex:priority a rdf:Property ;
+    rdfs:label "priority" ;
+    rdfs:domain ex:Project ;
+    rdfs:range [ a rdfs:Datatype ;
+                 owl:oneOf ( "low" "medium" "high" "critical" ) ] .
+
+# Sample data
+ex:acmeOrg a ex:Organization ;
+    rdfs:label "ACME Corporation" ;
+    ex:hasProject ex:project1, ex:project2 .
+
+ex:project1 a ex:Project ;
+    rdfs:label "Website Redesign" ;
+    rdfs:comment "Complete overhaul of company website" ;
+    ex:projectBudget "50000.00"^^xsd:decimal ;
+    ex:startDate "2024-03-01"^^xsd:date ;
+    ex:priority "high" ;
+    dcterms:created "2024-01-15T10:30:00Z"^^xsd:dateTime .
+
+ex:project2 a ex:Project ;
+    rdfs:label "Database Migration" ;
+    rdfs:comment "Migrate legacy database to cloud platform" ;
+    ex:projectBudget "75000.00"^^xsd:decimal ;
+    ex:startDate "2024-06-01"^^xsd:date ;
+    ex:priority "critical" ;
+    dcterms:created "2024-02-01T14:00:00Z"^^xsd:dateTime .

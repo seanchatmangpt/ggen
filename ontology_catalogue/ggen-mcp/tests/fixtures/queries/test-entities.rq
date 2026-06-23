@@ -1,0 +1,21 @@
+# SPARQL Query: Extract Entity Definitions
+# Used for testing ontology generation harness
+
+PREFIX api: <http://ggen-mcp.dev/test/api#>
+PREFIX ddd: <http://ggen-mcp.dev/ontology/ddd#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?entity ?entityName ?description ?propertyName ?propertyType ?required
+WHERE {
+    ?entity a ddd:Entity ;
+            ddd:entityName ?entityName ;
+            ddd:description ?description .
+
+    OPTIONAL {
+        ?entity ddd:hasProperty ?property .
+        ?property ddd:propertyName ?propertyName ;
+                  ddd:propertyType ?propertyType ;
+                  ddd:required ?required .
+    }
+}
+ORDER BY ?entityName ?propertyName

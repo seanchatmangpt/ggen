@@ -1,0 +1,59 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix playground: <http://example.org/playground#> .
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# SHACL Shapes for Playground Ontology
+
+playground:KnowledgeHookShape a sh:NodeShape ;
+    sh:targetClass playground:KnowledgeHook ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Knowledge Hook must have a label"@en ;
+    ] ;
+    sh:property [
+        sh:path playground:hookPriority ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 100 ;
+        sh:message "Hook priority must be between 0 and 100"@en ;
+    ] ;
+    sh:property [
+        sh:path playground:isEnabled ;
+        sh:datatype xsd:boolean ;
+        sh:maxCount 1 ;
+    ] .
+
+playground:PolicyPackShape a sh:NodeShape ;
+    sh:targetClass playground:PolicyPack ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path playground:hasHook ;
+        sh:class playground:KnowledgeHook ;
+    ] ;
+    sh:property [
+        sh:path playground:hasRule ;
+        sh:class playground:ValidationRule ;
+    ] .
+
+playground:QueryTemplateShape a sh:NodeShape ;
+    sh:targetClass playground:QueryTemplate ;
+    sh:property [
+        sh:path playground:sparqlQuery ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Query template must have a SPARQL query"@en ;
+    ] .

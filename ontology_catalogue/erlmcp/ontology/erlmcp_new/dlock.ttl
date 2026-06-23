@@ -1,0 +1,154 @@
+# =============================================================================
+# erlmcp Distributed Lock Ontology
+# =============================================================================
+# Defines distributed locking for cluster-wide synchronization
+#
+# Features:
+#   - Mutual exclusion across cluster nodes
+#   - Lock acquisition with timeout
+#   - Automatic lock expiration
+#   - Lock waiting/queuing
+#   - Lock owner tracking
+#   - Lock event notification
+# =============================================================================
+
+@prefix dlock: <http://erlmcp.org/schema/dlock/> .
+@prefix otp: <http://erlang.org/otp/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# -----------------------------------------------------------------------------
+# Core Classes
+# -----------------------------------------------------------------------------
+
+dlock:DistributedLock a rdfs:Class ;
+    rdfs:label "Distributed Lock" ;
+    rdfs:comment "Cluster-wide lock manager" ;
+    rdfs:subClassOf otp:GenServer .
+
+dlock:Lock a rdfs:Class ;
+    rdfs:label "Lock" ;
+    rdfs:comment "Acquired lock instance" .
+
+dlock:LockRequest a rdfs:Class ;
+    rdfs:label "Lock Request" ;
+    rdfs:comment "Pending lock acquisition request" .
+
+dlock:LockOptions a rdfs:Class ;
+    rdfs:label "Lock Options" ;
+    rdfs:comment "Lock acquisition options" .
+
+# -----------------------------------------------------------------------------
+# Properties
+# -----------------------------------------------------------------------------
+
+dlock:lockName a rdf:Property ;
+    rdfs:domain dlock:Lock ;
+    rdfs:range xsd:string ;
+    rdfs:label "lock name" .
+
+dlock:owner a rdf:Property ;
+    rdfs:domain dlock:Lock ;
+    rdfs:range xsd:string ;
+    rdfs:label "owner (node/process)" .
+
+dlock:acquiredAt a rdf:Property ;
+    rdfs:domain dlock:Lock ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "acquired at" .
+
+dlock:expiresAt a rdf:Property ;
+    rdfs:domain dlock:Lock ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "expires at" .
+
+dlock:ttlMs a rdf:Property ;
+    rdfs:domain dlock:Lock ;
+    rdfs:range xsd:integer ;
+    rdfs:label "time to live milliseconds" .
+
+dlock:waitTimeoutMs a rdf:Property ;
+    rdfs:domain dlock:LockOptions ;
+    rdfs:range xsd:integer ;
+    rdfs:label "wait timeout milliseconds" .
+
+dlock:retryIntervalMs a rdf:Property ;
+    rdfs:domain dlock:LockOptions ;
+    rdfs:range xsd:integer ;
+    rdfs:label "retry interval milliseconds" .
+
+dlock:autoExtend a rdf:Property ;
+    rdfs:domain dlock:LockOptions ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "auto extend" .
+
+dlock:requestId a rdf:Property ;
+    rdfs:domain dlock:LockRequest ;
+    rdfs:range xsd:string ;
+    rdfs:label "request ID" .
+
+dlock:requestedBy a rdf:Property ;
+    rdfs:domain dlock:LockRequest ;
+    rdfs:range xsd:string ;
+    rdfs:label "requested by" .
+
+dlock:requestedAt a rdf:Property ;
+    rdfs:domain dlock:LockRequest ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "requested at" .
+
+dlock:priority a rdf:Property ;
+    rdfs:domain dlock:LockRequest ;
+    rdfs:range xsd:integer ;
+    rdfs:label "priority" .
+
+# -----------------------------------------------------------------------------
+# Lock Strategies
+# -----------------------------------------------------------------------------
+
+dlock:FastFail a rdfs:Class ;
+    rdfs:label "Fast Fail" ;
+    rdfs:comment "Return immediately if lock unavailable" .
+
+dlock:Wait a rdfs:Class ;
+    rdfs:label "Wait" ;
+    rdfs:comment "Wait for lock with timeout" .
+
+dlock:Queue a rdfs:Class ;
+    rdfs:label "Queue" ;
+    rdfs:comment "Queue request and notify when available" .
+
+# -----------------------------------------------------------------------------
+# Events
+# -----------------------------------------------------------------------------
+
+dlock:LockAcquired a rdfs:Class ;
+    rdfs:label "Lock Acquired" ;
+    rdfs:comment "Lock successfully acquired event" .
+
+dlock:LockReleased a rdfs:Class ;
+    rdfs:label "Lock Released" ;
+    rdfs:comment "Lock released event" .
+
+dlock:LockExpired a rdfs:Class ;
+    rdfs:label "Lock Expired" ;
+    rdfs:comment "Lock expired event" .
+
+dlock:LockStolen a rdfs:Class ;
+    rdfs:label "Lock Stolen" ;
+    rdfs:comment "Lock forcibly taken event" .
+
+# -----------------------------------------------------------------------------
+# Default Options
+# -----------------------------------------------------------------------------
+
+dlock:DefaultOptions a dlock:LockOptions ;
+    dlock:waitTimeoutMs 30000 ;
+    dlock:retryIntervalMs 500 ;
+    dlock:autoExtend false .
+
+dlock:LongWaitOptions a dlock:LockOptions ;
+    dlock:waitTimeoutMs 300000 ;
+    dlock:retryIntervalMs 1000 ;
+    dlock:autoExtend true .

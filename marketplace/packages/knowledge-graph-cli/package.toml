@@ -27,11 +27,11 @@ anyhow = "1.0"
 uuid = { version = "1.0", features = ["v4", "serde"] }
 
 [marketplace]
+production_ready = false
 category = "cli-tools"
 subcategory = "graph-databases"
 tags = ["knowledge-graph", "rdf", "inference", "graph", "clap-noun-verb"]
 crates_io_ready = true
-production_ready = true
 
 [templates]
 cli = "templates/cli.tmpl"

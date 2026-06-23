@@ -1,0 +1,217 @@
+@prefix job: <http://rflow.dev/ontology/job-model#> .
+@prefix yawl: <http://rflow.dev/ontology/yawl-core#> .
+@prefix example: <http://rflow.dev/example/parallel-gateway#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@base <http://rflow.dev/example/parallel-gateway> .
+
+# Example ABox: Parallel Gateway Workflow
+# Demonstrates: Start -> AND-split -> (Activity A || Activity B) -> AND-join -> End
+
+#################################################################
+# Job Definition
+#################################################################
+
+example:ParallelGatewayJob rdf:type job:JobDefinition ;
+   job:hasJobId "parallel-gateway-001" ;
+   yawl:hasName "Parallel Gateway Workflow" ;
+   yawl:hasDescription "Workflow demonstrating parallel execution with AND gateway" .
+
+#################################################################
+# Workflow Elements
+#################################################################
+
+# Start Event
+example:StartEvent rdf:type yawl:StartEvent ;
+   yawl:hasId "start" ;
+   yawl:hasName "Start" ;
+   yawl:belongsTo example:ParallelGatewayJob ;
+   yawl:isEnabled true .
+
+# Parallel Split Gateway (AND-split)
+example:ParallelSplit rdf:type yawl:ParallelGateway ;
+   yawl:hasId "parallel-split" ;
+   yawl:hasName "AND Split" ;
+   yawl:hasDescription "Split execution into parallel branches" ;
+   yawl:belongsTo example:ParallelGatewayJob ;
+   yawl:isEnabled false .
+
+# Activity A (parallel branch 1)
+example:ActivityA rdf:type yawl:AtomicActivity ;
+   yawl:hasId "activity-a" ;
+   yawl:hasName "Process Payment" ;
+   yawl:hasDescription "Process payment information" ;
+   yawl:belongsTo example:ParallelGatewayJob ;
+   yawl:isEnabled false ;
+   yawl:isExecuting false ;
+   yawl:isCompleted false .
+
+# Activity B (parallel branch 2)
+example:ActivityB rdf:type yawl:AtomicActivity ;
+   yawl:hasId "activity-b" ;
+   yawl:hasName "Send Notification" ;
+   yawl:hasDescription "Send notification to user" ;
+   yawl:belongsTo example:ParallelGatewayJob ;
+   yawl:isEnabled false ;
+   yawl:isExecuting false ;
+   yawl:isCompleted false .
+
+# Synchronization Gateway (AND-join)  
+example:Synchronization rdf:type yawl:ParallelGateway ;
+   yawl:hasId "synchronization" ;
+   yawl:hasName "AND Join" ;
+   yawl:hasDescription "Wait for all parallel branches to complete" ;
+   yawl:belongsTo example:ParallelGatewayJob ;
+   yawl:isEnabled false .
+
+# Activity C (after join)
+example:ActivityC rdf:type yawl:AtomicActivity ;
+   yawl:hasId "activity-c" ;
+   yawl:hasName "Generate Report" ;
+   yawl:hasDescription "Generate completion report" ;
+   yawl:belongsTo example:ParallelGatewayJob ;
+   yawl:isEnabled false ;
+   yawl:isExecuting false ;
+   yawl:isCompleted false .
+
+# End Event
+example:EndEvent rdf:type yawl:EndEvent ;
+   yawl:hasId "end" ;
+   yawl:hasName "End" ;
+   yawl:belongsTo example:ParallelGatewayJob ;
+   yawl:isEnabled false .
+
+#################################################################
+# Flow Connections
+#################################################################
+
+# Flow: Start -> Parallel Split
+example:Flow1 rdf:type yawl:Flow ;
+   yawl:hasId "flow-1" ;
+   yawl:flowsFrom example:StartEvent ;
+   yawl:flowsTo example:ParallelSplit .
+
+example:StartEvent yawl:hasOutputFlow example:Flow1 .
+example:ParallelSplit yawl:hasInputFlow example:Flow1 .
+
+# Flow: Parallel Split -> Activity A
+example:Flow2 rdf:type yawl:Flow ;
+   yawl:hasId "flow-2" ;
+   yawl:flowsFrom example:ParallelSplit ;
+   yawl:flowsTo example:ActivityA .
+
+example:ParallelSplit yawl:hasOutputFlow example:Flow2 .
+example:ActivityA yawl:hasInputFlow example:Flow2 .
+
+# Flow: Parallel Split -> Activity B
+example:Flow3 rdf:type yawl:Flow ;
+   yawl:hasId "flow-3" ;
+   yawl:flowsFrom example:ParallelSplit ;
+   yawl:flowsTo example:ActivityB .
+
+example:ParallelSplit yawl:hasOutputFlow example:Flow3 .
+example:ActivityB yawl:hasInputFlow example:Flow3 .
+
+# Flow: Activity A -> Synchronization
+example:Flow4 rdf:type yawl:Flow ;
+   yawl:hasId "flow-4" ;
+   yawl:flowsFrom example:ActivityA ;
+   yawl:flowsTo example:Synchronization .
+
+example:ActivityA yawl:hasOutputFlow example:Flow4 .
+example:Synchronization yawl:hasInputFlow example:Flow4 .
+
+# Flow: Activity B -> Synchronization  
+example:Flow5 rdf:type yawl:Flow ;
+   yawl:hasId "flow-5" ;
+   yawl:flowsFrom example:ActivityB ;
+   yawl:flowsTo example:Synchronization .
+
+example:ActivityB yawl:hasOutputFlow example:Flow5 .
+example:Synchronization yawl:hasInputFlow example:Flow5 .
+
+# Flow: Synchronization -> Activity C
+example:Flow6 rdf:type yawl:Flow ;
+   yawl:hasId "flow-6" ;
+   yawl:flowsFrom example:Synchronization ;
+   yawl:flowsTo example:ActivityC .
+
+example:Synchronization yawl:hasOutputFlow example:Flow6 .
+example:ActivityC yawl:hasInputFlow example:Flow6 .
+
+# Flow: Activity C -> End
+example:Flow7 rdf:type yawl:Flow ;
+   yawl:hasId "flow-7" ;
+   yawl:flowsFrom example:ActivityC ;
+   yawl:flowsTo example:EndEvent .
+
+example:ActivityC yawl:hasOutputFlow example:Flow7 .
+example:EndEvent yawl:hasInputFlow example:Flow7 .
+
+#################################################################
+# Pattern Classifications
+#################################################################
+
+# Parallel Split pattern (MVP supported)
+example:ParallelSplitPattern rdf:type yawl:ParallelSplit ;
+   yawl:hasName "Payment and Notification Split" ;
+   yawl:hasDescription "Split into parallel payment processing and notification" ;
+   yawl:belongsTo example:ParallelGatewayJob .
+
+# Synchronization pattern (MVP supported)  
+example:SynchronizationPattern rdf:type yawl:Synchronization ;
+   yawl:hasName "Payment and Notification Join" ;
+   yawl:hasDescription "Wait for both payment and notification to complete" ;
+   yawl:belongsTo example:ParallelGatewayJob .
+
+# Sequential patterns
+example:SequencePattern1 rdf:type yawl:Sequence ;
+   yawl:hasName "Start to Split Sequence" ;
+   yawl:flowsFrom example:StartEvent ;
+   yawl:flowsTo example:ParallelSplit ;
+   yawl:belongsTo example:ParallelGatewayJob .
+
+example:SequencePattern2 rdf:type yawl:Sequence ;
+   yawl:hasName "Join to Report Sequence" ;
+   yawl:flowsFrom example:Synchronization ;
+   yawl:flowsTo example:ActivityC ;
+   yawl:belongsTo example:ParallelGatewayJob .
+
+example:SequencePattern3 rdf:type yawl:Sequence ;
+   yawl:hasName "Report to End Sequence" ;
+   yawl:flowsFrom example:ActivityC ;
+   yawl:flowsTo example:EndEvent ;
+   yawl:belongsTo example:ParallelGatewayJob .
+
+#################################################################
+# Runtime Configuration
+#################################################################
+
+# Execution context
+example:ExecutionContext rdf:type job:ExecutionContext ;
+   job:hasProgramCounter 0 ;
+   job:hasVersion "1.0.0" .
+
+# Namespace  
+example:DefaultNamespace rdf:type job:Namespace ;
+   yawl:hasId "default" ;
+   yawl:hasName "Default Namespace" .
+
+example:ParallelGatewayJob job:belongsToNamespace example:DefaultNamespace .
+
+#################################################################
+# Expected PlanPack Metadata
+#################################################################
+
+example:ExpectedPlanPack rdf:type job:PlanPack ;
+   job:hasPlanHash "blake3-hash-parallel-gateway" ;
+   job:hasTBoxHash "yawl-core-tbox-hash" ;
+   job:compiledFrom example:ParallelGatewayJob .
+
+# Pattern assertions
+example:PatternAssertions rdf:type job:PatternAssertions ;
+   rdfs:comment "All patterns (Sequence, ParallelSplit, Synchronization) are MVP supported" ;
+   rdfs:comment "No RequiresRule patterns present" .

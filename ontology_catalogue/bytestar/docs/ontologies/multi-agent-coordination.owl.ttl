@@ -1,0 +1,1031 @@
+@prefix : <https://bytestar.org/ontology/multi-agent-coordination#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix pg: <https://bytestar.org/ontology/performance-guarantees#> .
+@prefix ag: <https://bytestar.org/ontology/autonomous-governance#> .
+@prefix cl: <https://bytestar.org/ontology/crystal-lattice#> .
+
+@base <https://bytestar.org/ontology/multi-agent-coordination> .
+
+<https://bytestar.org/ontology/multi-agent-coordination> rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/multi-agent-coordination/1.0> ;
+    rdfs:label "Multi-Agent Coordination Ontology" ;
+    rdfs:comment """
+    The Multi-Agent Coordination Ontology defines the intelligent orchestration
+    mechanisms that enable autonomous agents to collaborate effectively within
+    the ByteStar fabric while maintaining performance guarantees and governance compliance.
+    
+    This ontology embodies the principles of distributed intelligence, where
+    multiple specialized agents coordinate their activities to achieve system-wide
+    objectives through emergent collective behavior.
+    
+    Coordination Patterns:
+    - Hierarchical Coordination: Tree-based command and control structures
+    - Mesh Coordination: Peer-to-peer collaborative networks
+    - Swarm Coordination: Emergent collective intelligence patterns
+    - Hybrid Coordination: Adaptive topology switching based on context
+    
+    Key Features:
+    - Agent Lifecycle Management: Spawn, configure, coordinate, terminate
+    - Task Decomposition: Breaking complex objectives into agent-specific work
+    - Resource Arbitration: Fair allocation of computational resources
+    - Conflict Resolution: Handling competing objectives and resource contention
+    - Performance Optimization: Maintaining 8-tick guarantees across agent interactions
+    """ ;
+    owl:imports <https://bytestar.org/ontology/performance-guarantees> ,
+                <https://bytestar.org/ontology/autonomous-governance> ,
+                <https://bytestar.org/ontology/crystal-lattice> .
+
+#################################################################
+#    Core Agent Classes
+#################################################################
+
+:Agent a owl:Class ;
+    rdfs:label "Agent" ;
+    rdfs:comment """
+    Autonomous computational entity capable of perception, reasoning,
+    and action within the ByteStar coordination environment.
+    """ .
+
+:AutonomousAgent a owl:Class ;
+    rdfs:subClassOf :Agent ;
+    rdfs:label "Autonomous Agent" ;
+    rdfs:comment """
+    Agent with complete self-governance capabilities, able to make
+    independent decisions within coordination constraints.
+    """ .
+
+:SpecializedAgent a owl:Class ;
+    rdfs:subClassOf :Agent ;
+    rdfs:label "Specialized Agent" ;
+    rdfs:comment """
+    Agent optimized for specific domain expertise and
+    particular types of computational tasks.
+    """ .
+
+:CoordinatorAgent a owl:Class ;
+    rdfs:subClassOf :SpecializedAgent ;
+    rdfs:label "Coordinator Agent" ;
+    rdfs:comment """
+    Agent responsible for orchestrating the activities of
+    other agents and maintaining coordination protocols.
+    """ .
+
+:WorkerAgent a owl:Class ;
+    rdfs:subClassOf :SpecializedAgent ;
+    rdfs:label "Worker Agent" ;
+    rdfs:comment """
+    Agent that performs specific computational tasks as
+    directed by coordination protocols.
+    """ .
+
+:MonitoringAgent a owl:Class ;
+    rdfs:subClassOf :SpecializedAgent ;
+    rdfs:label "Monitoring Agent" ;
+    rdfs:comment """
+    Agent that observes system state, performance metrics,
+    and coordination effectiveness.
+    """ .
+
+#################################################################
+#    Coordination Topology Classes
+#################################################################
+
+:CoordinationTopology a owl:Class ;
+    rdfs:label "Coordination Topology" ;
+    rdfs:comment """
+    Abstract structure defining how agents are organized
+    and how communication flows between them.
+    """ .
+
+:HierarchicalTopology a owl:Class ;
+    rdfs:subClassOf :CoordinationTopology ;
+    rdfs:label "Hierarchical Topology" ;
+    rdfs:comment """
+    Tree-based coordination structure with clear command
+    chains and delegated authority.
+    """ .
+
+:MeshTopology a owl:Class ;
+    rdfs:subClassOf :CoordinationTopology ;
+    rdfs:label "Mesh Topology" ;
+    rdfs:comment """
+    Peer-to-peer coordination structure where agents
+    communicate directly without central authority.
+    """ .
+
+:SwarmTopology a owl:Class ;
+    rdfs:subClassOf :CoordinationTopology ;
+    rdfs:label "Swarm Topology" ;
+    rdfs:comment """
+    Emergent coordination structure based on simple rules
+    leading to complex collective behaviors.
+    """ .
+
+:HybridTopology a owl:Class ;
+    rdfs:subClassOf :CoordinationTopology ;
+    rdfs:label "Hybrid Topology" ;
+    rdfs:comment """
+    Adaptive coordination structure that switches between
+    topologies based on current context and requirements.
+    """ .
+
+:StarTopology a owl:Class ;
+    rdfs:subClassOf :CoordinationTopology ;
+    rdfs:label "Star Topology" ;
+    rdfs:comment """
+    Centralized coordination structure with a single
+    coordination point managing all agent interactions.
+    """ .
+
+:RingTopology a owl:Class ;
+    rdfs:subClassOf :CoordinationTopology ;
+    rdfs:label "Ring Topology" ;
+    rdfs:comment """
+    Circular coordination structure where agents
+    communicate with immediate neighbors only.
+    """ .
+
+#################################################################
+#    Task and Objective Classes
+#################################################################
+
+:Task a owl:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment """
+    Discrete unit of work that can be assigned to
+    agents for execution within coordination framework.
+    """ .
+
+:CompositeTask a owl:Class ;
+    rdfs:subClassOf :Task ;
+    rdfs:label "Composite Task" ;
+    rdfs:comment """
+    Complex task composed of multiple subtasks that
+    require coordination across multiple agents.
+    """ .
+
+:AtomicTask a owl:Class ;
+    rdfs:subClassOf :Task ;
+    rdfs:label "Atomic Task" ;
+    rdfs:comment """
+    Indivisible task that can be executed by a
+    single agent without further decomposition.
+    """ .
+
+:Objective a owl:Class ;
+    rdfs:label "Objective" ;
+    rdfs:comment """
+    High-level goal or desired outcome that guides
+    agent behavior and coordination strategies.
+    """ .
+
+:SharedObjective a owl:Class ;
+    rdfs:subClassOf :Objective ;
+    rdfs:label "Shared Objective" ;
+    rdfs:comment """
+    Objective that requires collaboration between
+    multiple agents for achievement.
+    """ .
+
+:IndividualObjective a owl:Class ;
+    rdfs:subClassOf :Objective ;
+    rdfs:label "Individual Objective" ;
+    rdfs:comment """
+    Objective that can be achieved by a single
+    agent working independently.
+    """ .
+
+#################################################################
+#    Communication and Message Classes
+#################################################################
+
+:Message a owl:Class ;
+    rdfs:label "Message" ;
+    rdfs:comment """
+    Communication unit exchanged between agents
+    to coordinate activities and share information.
+    """ .
+
+:CoordinationMessage a owl:Class ;
+    rdfs:subClassOf :Message ;
+    rdfs:label "Coordination Message" ;
+    rdfs:comment """
+    Message containing coordination instructions,
+    protocol updates, or synchronization signals.
+    """ .
+
+:DataMessage a owl:Class ;
+    rdfs:subClassOf :Message ;
+    rdfs:label "Data Message" ;
+    rdfs:comment """
+    Message containing computational data, results,
+    or information shared between agents.
+    """ .
+
+:StatusMessage a owl:Class ;
+    rdfs:subClassOf :Message ;
+    rdfs:label "Status Message" ;
+    rdfs:comment """
+    Message reporting agent state, task progress,
+    or system health information.
+    """ .
+
+:RequestMessage a owl:Class ;
+    rdfs:subClassOf :Message ;
+    rdfs:label "Request Message" ;
+    rdfs:comment """
+    Message requesting actions, resources, or
+    information from other agents.
+    """ .
+
+:ResponseMessage a owl:Class ;
+    rdfs:subClassOf :Message ;
+    rdfs:label "Response Message" ;
+    rdfs:comment """
+    Message providing requested information or
+    acknowledging completed actions.
+    """ .
+
+:CommunicationChannel a owl:Class ;
+    rdfs:label "Communication Channel" ;
+    rdfs:comment """
+    Pathway through which messages are transmitted
+    between agents with specific properties and guarantees.
+    """ .
+
+#################################################################
+#    Resource Management Classes
+#################################################################
+
+:Resource a owl:Class ;
+    rdfs:label "Resource" ;
+    rdfs:comment """
+    Computational, memory, or network resource
+    that agents require for task execution.
+    """ .
+
+:ComputationalResource a owl:Class ;
+    rdfs:subClassOf :Resource ;
+    rdfs:label "Computational Resource" ;
+    rdfs:comment """
+    CPU cycles, processing power, or computational
+    capacity available to agents.
+    """ .
+
+:MemoryResource a owl:Class ;
+    rdfs:subClassOf :Resource ;
+    rdfs:label "Memory Resource" ;
+    rdfs:comment """
+    RAM, cache, or storage resources available
+    for agent data and state management.
+    """ .
+
+:NetworkResource a owl:Class ;
+    rdfs:subClassOf :Resource ;
+    rdfs:label "Network Resource" ;
+    rdfs:comment """
+    Bandwidth, connection capacity, or communication
+    resources for inter-agent messaging.
+    """ .
+
+:ResourcePool a owl:Class ;
+    rdfs:label "Resource Pool" ;
+    rdfs:comment """
+    Managed collection of resources that can be
+    allocated to agents based on coordination policies.
+    """ .
+
+:ResourceArbitrator a owl:Class ;
+    rdfs:label "Resource Arbitrator" ;
+    rdfs:comment """
+    System component responsible for fair allocation
+    of resources among competing agents.
+    """ .
+
+:ResourceQuota a owl:Class ;
+    rdfs:label "Resource Quota" ;
+    rdfs:comment """
+    Allocation limit defining maximum resources
+    that an agent can consume.
+    """ .
+
+#################################################################
+#    Coordination Protocol Classes
+#################################################################
+
+:CoordinationProtocol a owl:Class ;
+    rdfs:label "Coordination Protocol" ;
+    rdfs:comment """
+    Formal specification of rules and procedures
+    governing agent interactions and collaboration.
+    """ .
+
+:ConsensusProtocol a owl:Class ;
+    rdfs:subClassOf :CoordinationProtocol ;
+    rdfs:label "Consensus Protocol" ;
+    rdfs:comment """
+    Protocol enabling agents to reach agreement
+    on shared decisions or system state.
+    """ .
+
+:ElectionProtocol a owl:Class ;
+    rdfs:subClassOf :CoordinationProtocol ;
+    rdfs:label "Election Protocol" ;
+    rdfs:comment """
+    Protocol for selecting coordinator agents
+    or leaders in distributed systems.
+    """ .
+
+:SynchronizationProtocol a owl:Class ;
+    rdfs:subClassOf :CoordinationProtocol ;
+    rdfs:label "Synchronization Protocol" ;
+    rdfs:comment """
+    Protocol ensuring coordinated timing and
+    sequencing of agent activities.
+    """ .
+
+:NegotiationProtocol a owl:Class ;
+    rdfs:subClassOf :CoordinationProtocol ;
+    rdfs:label "Negotiation Protocol" ;
+    rdfs:comment """
+    Protocol enabling agents to negotiate
+    resource allocation and task assignments.
+    """ .
+
+:BargainingProtocol a owl:Class ;
+    rdfs:subClassOf :NegotiationProtocol ;
+    rdfs:label "Bargaining Protocol" ;
+    rdfs:comment """
+    Negotiation protocol focusing on mutual
+    agreement through iterative proposal exchange.
+    """ .
+
+:AuctionProtocol a owl:Class ;
+    rdfs:subClassOf :NegotiationProtocol ;
+    rdfs:label "Auction Protocol" ;
+    rdfs:comment """
+    Negotiation protocol using bidding mechanisms
+    for resource allocation and task assignment.
+    """ .
+
+#################################################################
+#    Performance and Quality Classes
+#################################################################
+
+:CoordinationMetric a owl:Class ;
+    rdfs:label "Coordination Metric" ;
+    rdfs:comment """
+    Quantitative measure of coordination effectiveness,
+    efficiency, or quality.
+    """ .
+
+:LatencyMetric a owl:Class ;
+    rdfs:subClassOf :CoordinationMetric ;
+    rdfs:label "Latency Metric" ;
+    rdfs:comment """
+    Measurement of time delays in agent communication
+    and coordination activities.
+    """ .
+
+:ThroughputMetric a owl:Class ;
+    rdfs:subClassOf :CoordinationMetric ;
+    rdfs:label "Throughput Metric" ;
+    rdfs:comment """
+    Measurement of task completion rate and
+    agent productivity within coordination system.
+    """ .
+
+:EfficiencyMetric a owl:Class ;
+    rdfs:subClassOf :CoordinationMetric ;
+    rdfs:label "Efficiency Metric" ;
+    rdfs:comment """
+    Measurement of resource utilization effectiveness
+    and coordination overhead.
+    """ .
+
+:ReliabilityMetric a owl:Class ;
+    rdfs:subClassOf :CoordinationMetric ;
+    rdfs:label "Reliability Metric" ;
+    rdfs:comment """
+    Measurement of coordination system fault tolerance
+    and failure recovery capabilities.
+    """ .
+
+:ScalabilityMetric a owl:Class ;
+    rdfs:subClassOf :CoordinationMetric ;
+    rdfs:label "Scalability Metric" ;
+    rdfs:comment """
+    Measurement of coordination system performance
+    as the number of agents increases.
+    """ .
+
+#################################################################
+#    Agent Lifecycle Classes
+#################################################################
+
+:AgentLifecycle a owl:Class ;
+    rdfs:label "Agent Lifecycle" ;
+    rdfs:comment """
+    Management framework for agent creation, configuration,
+    execution, and termination within coordination system.
+    """ .
+
+:AgentSpawning a owl:Class ;
+    rdfs:label "Agent Spawning" ;
+    rdfs:comment """
+    Process of creating new agents with specified
+    capabilities and coordination parameters.
+    """ .
+
+:AgentConfiguration a owl:Class ;
+    rdfs:label "Agent Configuration" ;
+    rdfs:comment """
+    Process of setting agent parameters, capabilities,
+    and coordination relationships.
+    """ .
+
+:AgentRegistration a owl:Class ;
+    rdfs:label "Agent Registration" ;
+    rdfs:comment """
+    Process of registering agents with coordination
+    infrastructure and discovery services.
+    """ .
+
+:AgentTermination a owl:Class ;
+    rdfs:label "Agent Termination" ;
+    rdfs:comment """
+    Process of gracefully shutting down agents
+    and cleaning up their resources.
+    """ .
+
+:AgentMigration a owl:Class ;
+    rdfs:label "Agent Migration" ;
+    rdfs:comment """
+    Process of moving agents between computational
+    nodes while preserving state and coordination.
+    """ .
+
+#################################################################
+#    Agent Properties
+#################################################################
+
+:hasAgentType a owl:ObjectProperty ;
+    rdfs:label "has agent type" ;
+    rdfs:domain :Agent ;
+    rdfs:comment "Type classification of the agent." .
+
+:hasCapability a owl:ObjectProperty ;
+    rdfs:label "has capability" ;
+    rdfs:domain :Agent ;
+    rdfs:comment "Capability possessed by the agent." .
+
+:hasObjective a owl:ObjectProperty ;
+    rdfs:label "has objective" ;
+    rdfs:domain :Agent ;
+    rdfs:range :Objective ;
+    rdfs:comment "Objective assigned to or pursued by the agent." .
+
+:assignedTask a owl:ObjectProperty ;
+    rdfs:label "assigned task" ;
+    rdfs:domain :Agent ;
+    rdfs:range :Task ;
+    rdfs:comment "Task assigned to the agent for execution." .
+
+:coordinatesWith a owl:ObjectProperty , owl:SymmetricProperty ;
+    rdfs:label "coordinates with" ;
+    rdfs:domain :Agent ;
+    rdfs:range :Agent ;
+    rdfs:comment "Coordination relationship between agents." .
+
+:supervisesAgent a owl:ObjectProperty ;
+    rdfs:label "supervises agent" ;
+    rdfs:domain :CoordinatorAgent ;
+    rdfs:range :Agent ;
+    rdfs:comment "Agent under supervision by the coordinator." .
+
+:reportsTo a owl:ObjectProperty ;
+    rdfs:label "reports to" ;
+    rdfs:domain :Agent ;
+    rdfs:range :CoordinatorAgent ;
+    rdfs:comment "Coordinator agent to which this agent reports." .
+
+#################################################################
+#    Communication Properties
+#################################################################
+
+:sendsMessage a owl:ObjectProperty ;
+    rdfs:label "sends message" ;
+    rdfs:domain :Agent ;
+    rdfs:range :Message ;
+    rdfs:comment "Message sent by the agent." .
+
+:receivesMessage a owl:ObjectProperty ;
+    rdfs:label "receives message" ;
+    rdfs:domain :Agent ;
+    rdfs:range :Message ;
+    rdfs:comment "Message received by the agent." .
+
+:hasMessageContent a owl:DatatypeProperty ;
+    rdfs:label "has message content" ;
+    rdfs:domain :Message ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Content payload of the message." .
+
+:hasMessageTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has message timestamp" ;
+    rdfs:domain :Message ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when the message was created." .
+
+:hasMessagePriority a owl:DatatypeProperty ;
+    rdfs:label "has message priority" ;
+    rdfs:domain :Message ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Priority level of the message (higher numbers = higher priority)." .
+
+:usesChannel a owl:ObjectProperty ;
+    rdfs:label "uses channel" ;
+    rdfs:domain :Message ;
+    rdfs:range :CommunicationChannel ;
+    rdfs:comment "Communication channel used for message transmission." .
+
+:hasChannelBandwidth a owl:DatatypeProperty ;
+    rdfs:label "has channel bandwidth" ;
+    rdfs:domain :CommunicationChannel ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Available bandwidth of the communication channel in Mbps." .
+
+:hasChannelLatency a owl:DatatypeProperty ;
+    rdfs:label "has channel latency" ;
+    rdfs:domain :CommunicationChannel ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Communication latency of the channel in milliseconds." .
+
+#################################################################
+#    Task and Objective Properties
+#################################################################
+
+:hasTask a owl:ObjectProperty ;
+    rdfs:label "has task" ;
+    rdfs:range :Task ;
+    rdfs:comment "Task associated with the entity." .
+
+:decomposesInto a owl:ObjectProperty ;
+    rdfs:label "decomposes into" ;
+    rdfs:domain :CompositeTask ;
+    rdfs:range :Task ;
+    rdfs:comment "Subtask that the composite task decomposes into." .
+
+:dependsOn a owl:ObjectProperty ;
+    rdfs:label "depends on" ;
+    rdfs:domain :Task ;
+    rdfs:range :Task ;
+    rdfs:comment "Task dependency relationship." .
+
+:hasTaskPriority a owl:DatatypeProperty ;
+    rdfs:label "has task priority" ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Priority level of the task." .
+
+:hasTaskDeadline a owl:DatatypeProperty ;
+    rdfs:label "has task deadline" ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Deadline for task completion." .
+
+:hasEstimatedDuration a owl:DatatypeProperty ;
+    rdfs:label "has estimated duration" ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Estimated execution duration in seconds." .
+
+:hasTaskStatus a owl:DatatypeProperty ;
+    rdfs:label "has task status" ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Current status of the task execution." .
+
+:achievesObjective a owl:ObjectProperty ;
+    rdfs:label "achieves objective" ;
+    rdfs:domain :Task ;
+    rdfs:range :Objective ;
+    rdfs:comment "Objective achieved by completing the task." .
+
+#################################################################
+#    Resource Properties
+#################################################################
+
+:requiresResource a owl:ObjectProperty ;
+    rdfs:label "requires resource" ;
+    rdfs:range :Resource ;
+    rdfs:comment "Resource required for operation." .
+
+:allocatesResource a owl:ObjectProperty ;
+    rdfs:label "allocates resource" ;
+    rdfs:domain :ResourceArbitrator ;
+    rdfs:range :Resource ;
+    rdfs:comment "Resource being allocated by the arbitrator." .
+
+:hasResourceCapacity a owl:DatatypeProperty ;
+    rdfs:label "has resource capacity" ;
+    rdfs:domain :Resource ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Total capacity of the resource." .
+
+:hasResourceUtilization a owl:DatatypeProperty ;
+    rdfs:label "has resource utilization" ;
+    rdfs:domain :Resource ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Current utilization level (0.0-1.0)." .
+
+:hasQuota a owl:ObjectProperty ;
+    rdfs:label "has quota" ;
+    rdfs:domain :Agent ;
+    rdfs:range :ResourceQuota ;
+    rdfs:comment "Resource quota assigned to the agent." .
+
+:hasQuotaLimit a owl:DatatypeProperty ;
+    rdfs:label "has quota limit" ;
+    rdfs:domain :ResourceQuota ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Maximum resource allocation limit." .
+
+:consumesResource a owl:ObjectProperty ;
+    rdfs:label "consumes resource" ;
+    rdfs:domain :Agent ;
+    rdfs:range :Resource ;
+    rdfs:comment "Resource consumed by the agent." .
+
+#################################################################
+#    Coordination Properties
+#################################################################
+
+:usesTopology a owl:ObjectProperty ;
+    rdfs:label "uses topology" ;
+    rdfs:range :CoordinationTopology ;
+    rdfs:comment "Coordination topology being used." .
+
+:implementsProtocol a owl:ObjectProperty ;
+    rdfs:label "implements protocol" ;
+    rdfs:range :CoordinationProtocol ;
+    rdfs:comment "Coordination protocol being implemented." .
+
+:hasCoordinationLevel a owl:DatatypeProperty ;
+    rdfs:label "has coordination level" ;
+    rdfs:domain :Agent ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Hierarchical level in coordination structure." .
+
+:hasAuthorityScope a owl:DatatypeProperty ;
+    rdfs:label "has authority scope" ;
+    rdfs:domain :CoordinatorAgent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Scope of coordination authority." .
+
+:hasDelegatedAuthority a owl:ObjectProperty ;
+    rdfs:label "has delegated authority" ;
+    rdfs:domain :Agent ;
+    rdfs:range :CoordinatorAgent ;
+    rdfs:comment "Authority delegated from coordinator." .
+
+:participatesInProtocol a owl:ObjectProperty ;
+    rdfs:label "participates in protocol" ;
+    rdfs:domain :Agent ;
+    rdfs:range :CoordinationProtocol ;
+    rdfs:comment "Coordination protocol the agent participates in." .
+
+#################################################################
+#    Performance Properties
+#################################################################
+
+:hasCoordinationMetric a owl:ObjectProperty ;
+    rdfs:label "has coordination metric" ;
+    rdfs:range :CoordinationMetric ;
+    rdfs:comment "Coordination metric associated with the entity." .
+
+:hasMetricValue a owl:DatatypeProperty ;
+    rdfs:label "has metric value" ;
+    rdfs:domain :CoordinationMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Measured value of the coordination metric." .
+
+:hasCoordinationLatency a owl:DatatypeProperty ;
+    rdfs:label "has coordination latency" ;
+    rdfs:domain :LatencyMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Coordination latency in milliseconds." .
+
+:hasCoordinationThroughput a owl:DatatypeProperty ;
+    rdfs:label "has coordination throughput" ;
+    rdfs:domain :ThroughputMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Coordination throughput in tasks per second." .
+
+:hasEfficiencyScore a owl:DatatypeProperty ;
+    rdfs:label "has efficiency score" ;
+    rdfs:domain :EfficiencyMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Coordination efficiency score (0.0-1.0)." .
+
+:hasReliabilityScore a owl:DatatypeProperty ;
+    rdfs:label "has reliability score" ;
+    rdfs:domain :ReliabilityMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Coordination reliability score (0.0-1.0)." .
+
+#################################################################
+#    Lifecycle Properties
+#################################################################
+
+:hasLifecycleState a owl:DatatypeProperty ;
+    rdfs:label "has lifecycle state" ;
+    rdfs:domain :Agent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Current lifecycle state of the agent." .
+
+:hasSpawnTime a owl:DatatypeProperty ;
+    rdfs:label "has spawn time" ;
+    rdfs:domain :Agent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when the agent was spawned." .
+
+:hasTerminationTime a owl:DatatypeProperty ;
+    rdfs:label "has termination time" ;
+    rdfs:domain :Agent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when the agent was terminated." .
+
+:hasUptime a owl:DatatypeProperty ;
+    rdfs:label "has uptime" ;
+    rdfs:domain :Agent ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Agent uptime in seconds since spawning." .
+
+:managesLifecycle a owl:ObjectProperty ;
+    rdfs:label "manages lifecycle" ;
+    rdfs:domain :AgentLifecycle ;
+    rdfs:range :Agent ;
+    rdfs:comment "Agent whose lifecycle is being managed." .
+
+:spawnsAgent a owl:ObjectProperty ;
+    rdfs:label "spawns agent" ;
+    rdfs:domain :AgentSpawning ;
+    rdfs:range :Agent ;
+    rdfs:comment "Agent created by the spawning process." .
+
+:configuresAgent a owl:ObjectProperty ;
+    rdfs:label "configures agent" ;
+    rdfs:domain :AgentConfiguration ;
+    rdfs:range :Agent ;
+    rdfs:comment "Agent being configured." .
+
+#################################################################
+#    Mathematical Constraints and Axioms
+#################################################################
+
+# Coordination Hierarchy Constraint
+:CoordinatorAgent rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :supervisesAgent ;
+    owl:minCardinality 1
+] .
+
+# Resource Utilization Bounds
+:Resource rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasResourceUtilization ;
+    owl:minInclusive 0.0
+] .
+
+:Resource rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasResourceUtilization ;
+    owl:maxInclusive 1.0
+] .
+
+# Task Dependency Acyclicity (implied through proper usage)
+# Note: SHACL validation would enforce DAG structure
+
+# Message Priority Ordering
+:Message rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasMessagePriority ;
+    owl:minInclusive 0
+] .
+
+# Performance Metric Bounds
+:EfficiencyMetric rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasEfficiencyScore ;
+    owl:minInclusive 0.0
+] .
+
+:EfficiencyMetric rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasEfficiencyScore ;
+    owl:maxInclusive 1.0
+] .
+
+:ReliabilityMetric rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasReliabilityScore ;
+    owl:minInclusive 0.0
+] .
+
+:ReliabilityMetric rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasReliabilityScore ;
+    owl:maxInclusive 1.0
+] .
+
+# Supervisor-Subordinate Inverse Relationship
+:supervisesAgent owl:inverseOf :reportsTo .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+:AgentShape a shacl:NodeShape ;
+    shacl:targetClass :Agent ;
+    shacl:property [
+        shacl:path :hasObjective ;
+        shacl:class :Objective ;
+        shacl:minCount 1 ;
+        shacl:message "Agent must have at least one objective"
+    ] ;
+    shacl:property [
+        shacl:path :hasLifecycleState ;
+        shacl:datatype xsd:string ;
+        shacl:in ( "spawning" "configuring" "active" "suspended" "terminating" "terminated" ) ;
+        shacl:message "Agent lifecycle state must be valid"
+    ] .
+
+:TaskShape a shacl:NodeShape ;
+    shacl:targetClass :Task ;
+    shacl:property [
+        shacl:path :hasTaskPriority ;
+        shacl:datatype xsd:integer ;
+        shacl:minInclusive 0 ;
+        shacl:maxInclusive 10 ;
+        shacl:message "Task priority must be between 0 and 10"
+    ] ;
+    shacl:property [
+        shacl:path :hasTaskDeadline ;
+        shacl:datatype xsd:dateTime ;
+        shacl:message "Task must have a deadline"
+    ] .
+
+:ResourceShape a shacl:NodeShape ;
+    shacl:targetClass :Resource ;
+    shacl:property [
+        shacl:path :hasResourceUtilization ;
+        shacl:datatype xsd:decimal ;
+        shacl:minInclusive 0.0 ;
+        shacl:maxInclusive 1.0 ;
+        shacl:message "Resource utilization must be between 0.0 and 1.0"
+    ] .
+
+:MessageShape a shacl:NodeShape ;
+    shacl:targetClass :Message ;
+    shacl:property [
+        shacl:path :hasMessageTimestamp ;
+        shacl:datatype xsd:dateTime ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:message "Message must have exactly one timestamp"
+    ] .
+
+#################################################################
+#    Individual Instances
+#################################################################
+
+# Coordination Topologies
+:PrimaryHierarchicalTopology a :HierarchicalTopology ;
+    rdfs:label "Primary Hierarchical Topology" ;
+    rdfs:comment "Main hierarchical coordination structure." .
+
+:PrimaryMeshTopology a :MeshTopology ;
+    rdfs:label "Primary Mesh Topology" ;
+    rdfs:comment "Main peer-to-peer coordination structure." .
+
+:PrimarySwarmTopology a :SwarmTopology ;
+    rdfs:label "Primary Swarm Topology" ;
+    rdfs:comment "Main emergent coordination structure." .
+
+:AdaptiveHybridTopology a :HybridTopology ;
+    rdfs:label "Adaptive Hybrid Topology" ;
+    rdfs:comment "Adaptive coordination structure for dynamic environments." .
+
+# Coordination Protocols
+:PrimaryConsensusProtocol a :ConsensusProtocol ;
+    rdfs:label "Primary Consensus Protocol" ;
+    rdfs:comment "Main consensus protocol for agent agreement." .
+
+:FastElectionProtocol a :ElectionProtocol ;
+    rdfs:label "Fast Election Protocol" ;
+    rdfs:comment "Optimized protocol for coordinator election." .
+
+:TickSynchronizationProtocol a :SynchronizationProtocol ;
+    rdfs:label "8-Tick Synchronization Protocol" ;
+    rdfs:comment "Synchronization protocol aligned with 8-tick doctrine." .
+
+# Resource Pools
+:PrimaryComputePool a :ResourcePool ;
+    rdfs:label "Primary Compute Resource Pool" ;
+    rdfs:comment "Main pool of computational resources." .
+
+:PrimaryMemoryPool a :ResourcePool ;
+    rdfs:label "Primary Memory Resource Pool" ;
+    rdfs:comment "Main pool of memory resources." .
+
+:PrimaryNetworkPool a :ResourcePool ;
+    rdfs:label "Primary Network Resource Pool" ;
+    rdfs:comment "Main pool of network resources." .
+
+# Resource Arbitrator
+:PrimaryResourceArbitrator a :ResourceArbitrator ;
+    rdfs:label "Primary Resource Arbitrator" ;
+    rdfs:comment "Main system for resource allocation arbitration." .
+
+# Communication Channels
+:HighPriorityChannel a :CommunicationChannel ;
+    rdfs:label "High Priority Communication Channel" ;
+    rdfs:comment "Channel for urgent coordination messages." ;
+    :hasChannelBandwidth 1000.0 ;
+    :hasChannelLatency 0.1 .
+
+:StandardChannel a :CommunicationChannel ;
+    rdfs:label "Standard Communication Channel" ;
+    rdfs:comment "Channel for regular coordination messages." ;
+    :hasChannelBandwidth 100.0 ;
+    :hasChannelLatency 1.0 .
+
+# Agent Lifecycle Manager
+:PrimaryAgentLifecycle a :AgentLifecycle ;
+    rdfs:label "Primary Agent Lifecycle Manager" ;
+    rdfs:comment "Main system for agent lifecycle management." .
+
+# Sample Agents
+:SystemCoordinator a :CoordinatorAgent ;
+    rdfs:label "System Coordinator Agent" ;
+    rdfs:comment "Primary coordinator for system-wide coordination." ;
+    :hasLifecycleState "active" ;
+    :hasCoordinationLevel 1 ;
+    :hasAuthorityScope "system-wide" .
+
+:TaskProcessor a :WorkerAgent ;
+    rdfs:label "Task Processor Agent" ;
+    rdfs:comment "Worker agent for general task processing." ;
+    :hasLifecycleState "active" ;
+    :hasCoordinationLevel 2 ;
+    :reportsTo :SystemCoordinator .
+
+:PerformanceMonitor a :MonitoringAgent ;
+    rdfs:label "Performance Monitoring Agent" ;
+    rdfs:comment "Agent monitoring system performance metrics." ;
+    :hasLifecycleState "active" ;
+    :hasCoordinationLevel 2 ;
+    :reportsTo :SystemCoordinator .
+
+# Sample Tasks and Objectives
+:SystemOptimization a :SharedObjective ;
+    rdfs:label "System Optimization Objective" ;
+    rdfs:comment "Shared objective for optimizing system performance." .
+
+:DataProcessingTask a :CompositeTask ;
+    rdfs:label "Data Processing Task" ;
+    rdfs:comment "Complex task for processing large datasets." ;
+    :hasTaskPriority 8 ;
+    :achievesObjective :SystemOptimization .
+
+:AnalysisSubtask a :AtomicTask ;
+    rdfs:label "Data Analysis Subtask" ;
+    rdfs:comment "Subtask for data analysis within processing task." ;
+    :hasTaskPriority 7 .
+
+:DataProcessingTask :decomposesInto :AnalysisSubtask .
+
+# Sample Metrics
+:CurrentLatencyMetric a :LatencyMetric ;
+    rdfs:label "Current Coordination Latency Metric" ;
+    rdfs:comment "Current measurement of coordination latency." ;
+    :hasCoordinationLatency 2.3 ;
+    :hasMetricValue 2.3 .
+
+:CurrentThroughputMetric a :ThroughputMetric ;
+    rdfs:label "Current Coordination Throughput Metric" ;
+    rdfs:comment "Current measurement of coordination throughput." ;
+    :hasCoordinationThroughput 15000.0 ;
+    :hasMetricValue 15000.0 .
+
+:CurrentEfficiencyMetric a :EfficiencyMetric ;
+    rdfs:label "Current Coordination Efficiency Metric" ;
+    rdfs:comment "Current measurement of coordination efficiency." ;
+    :hasEfficiencyScore 0.94 ;
+    :hasMetricValue 0.94 .

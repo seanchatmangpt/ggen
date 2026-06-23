@@ -1,0 +1,805 @@
+
+@prefix : <http://example.org/medium#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:TestClass0 a owl:Class ;
+    rdfs:label "Test Class 0" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty0 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass0 ;
+    rdfs:range xsd:string .
+
+:TestClass1 a owl:Class ;
+    rdfs:label "Test Class 1" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty1 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass1 ;
+    rdfs:range xsd:string .
+
+:TestClass2 a owl:Class ;
+    rdfs:label "Test Class 2" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty2 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass2 ;
+    rdfs:range xsd:string .
+
+:TestClass3 a owl:Class ;
+    rdfs:label "Test Class 3" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty3 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass3 ;
+    rdfs:range xsd:string .
+
+:TestClass4 a owl:Class ;
+    rdfs:label "Test Class 4" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty4 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass4 ;
+    rdfs:range xsd:string .
+
+:TestClass5 a owl:Class ;
+    rdfs:label "Test Class 5" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty5 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass5 ;
+    rdfs:range xsd:string .
+
+:TestClass6 a owl:Class ;
+    rdfs:label "Test Class 6" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty6 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass6 ;
+    rdfs:range xsd:string .
+
+:TestClass7 a owl:Class ;
+    rdfs:label "Test Class 7" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty7 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass7 ;
+    rdfs:range xsd:string .
+
+:TestClass8 a owl:Class ;
+    rdfs:label "Test Class 8" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty8 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass8 ;
+    rdfs:range xsd:string .
+
+:TestClass9 a owl:Class ;
+    rdfs:label "Test Class 9" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty9 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass9 ;
+    rdfs:range xsd:string .
+
+:TestClass10 a owl:Class ;
+    rdfs:label "Test Class 10" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty10 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass10 ;
+    rdfs:range xsd:string .
+
+:TestClass11 a owl:Class ;
+    rdfs:label "Test Class 11" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty11 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass11 ;
+    rdfs:range xsd:string .
+
+:TestClass12 a owl:Class ;
+    rdfs:label "Test Class 12" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty12 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass12 ;
+    rdfs:range xsd:string .
+
+:TestClass13 a owl:Class ;
+    rdfs:label "Test Class 13" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty13 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass13 ;
+    rdfs:range xsd:string .
+
+:TestClass14 a owl:Class ;
+    rdfs:label "Test Class 14" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty14 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass14 ;
+    rdfs:range xsd:string .
+
+:TestClass15 a owl:Class ;
+    rdfs:label "Test Class 15" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty15 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass15 ;
+    rdfs:range xsd:string .
+
+:TestClass16 a owl:Class ;
+    rdfs:label "Test Class 16" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty16 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass16 ;
+    rdfs:range xsd:string .
+
+:TestClass17 a owl:Class ;
+    rdfs:label "Test Class 17" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty17 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass17 ;
+    rdfs:range xsd:string .
+
+:TestClass18 a owl:Class ;
+    rdfs:label "Test Class 18" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty18 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass18 ;
+    rdfs:range xsd:string .
+
+:TestClass19 a owl:Class ;
+    rdfs:label "Test Class 19" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty19 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass19 ;
+    rdfs:range xsd:string .
+
+:TestClass20 a owl:Class ;
+    rdfs:label "Test Class 20" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty20 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass20 ;
+    rdfs:range xsd:string .
+
+:TestClass21 a owl:Class ;
+    rdfs:label "Test Class 21" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty21 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass21 ;
+    rdfs:range xsd:string .
+
+:TestClass22 a owl:Class ;
+    rdfs:label "Test Class 22" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty22 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass22 ;
+    rdfs:range xsd:string .
+
+:TestClass23 a owl:Class ;
+    rdfs:label "Test Class 23" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty23 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass23 ;
+    rdfs:range xsd:string .
+
+:TestClass24 a owl:Class ;
+    rdfs:label "Test Class 24" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty24 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass24 ;
+    rdfs:range xsd:string .
+
+:TestClass25 a owl:Class ;
+    rdfs:label "Test Class 25" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty25 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass25 ;
+    rdfs:range xsd:string .
+
+:TestClass26 a owl:Class ;
+    rdfs:label "Test Class 26" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty26 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass26 ;
+    rdfs:range xsd:string .
+
+:TestClass27 a owl:Class ;
+    rdfs:label "Test Class 27" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty27 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass27 ;
+    rdfs:range xsd:string .
+
+:TestClass28 a owl:Class ;
+    rdfs:label "Test Class 28" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty28 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass28 ;
+    rdfs:range xsd:string .
+
+:TestClass29 a owl:Class ;
+    rdfs:label "Test Class 29" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty29 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass29 ;
+    rdfs:range xsd:string .
+
+:TestClass30 a owl:Class ;
+    rdfs:label "Test Class 30" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty30 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass30 ;
+    rdfs:range xsd:string .
+
+:TestClass31 a owl:Class ;
+    rdfs:label "Test Class 31" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty31 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass31 ;
+    rdfs:range xsd:string .
+
+:TestClass32 a owl:Class ;
+    rdfs:label "Test Class 32" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty32 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass32 ;
+    rdfs:range xsd:string .
+
+:TestClass33 a owl:Class ;
+    rdfs:label "Test Class 33" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty33 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass33 ;
+    rdfs:range xsd:string .
+
+:TestClass34 a owl:Class ;
+    rdfs:label "Test Class 34" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty34 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass34 ;
+    rdfs:range xsd:string .
+
+:TestClass35 a owl:Class ;
+    rdfs:label "Test Class 35" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty35 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass35 ;
+    rdfs:range xsd:string .
+
+:TestClass36 a owl:Class ;
+    rdfs:label "Test Class 36" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty36 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass36 ;
+    rdfs:range xsd:string .
+
+:TestClass37 a owl:Class ;
+    rdfs:label "Test Class 37" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty37 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass37 ;
+    rdfs:range xsd:string .
+
+:TestClass38 a owl:Class ;
+    rdfs:label "Test Class 38" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty38 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass38 ;
+    rdfs:range xsd:string .
+
+:TestClass39 a owl:Class ;
+    rdfs:label "Test Class 39" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty39 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass39 ;
+    rdfs:range xsd:string .
+
+:TestClass40 a owl:Class ;
+    rdfs:label "Test Class 40" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty40 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass40 ;
+    rdfs:range xsd:string .
+
+:TestClass41 a owl:Class ;
+    rdfs:label "Test Class 41" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty41 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass41 ;
+    rdfs:range xsd:string .
+
+:TestClass42 a owl:Class ;
+    rdfs:label "Test Class 42" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty42 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass42 ;
+    rdfs:range xsd:string .
+
+:TestClass43 a owl:Class ;
+    rdfs:label "Test Class 43" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty43 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass43 ;
+    rdfs:range xsd:string .
+
+:TestClass44 a owl:Class ;
+    rdfs:label "Test Class 44" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty44 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass44 ;
+    rdfs:range xsd:string .
+
+:TestClass45 a owl:Class ;
+    rdfs:label "Test Class 45" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty45 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass45 ;
+    rdfs:range xsd:string .
+
+:TestClass46 a owl:Class ;
+    rdfs:label "Test Class 46" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty46 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass46 ;
+    rdfs:range xsd:string .
+
+:TestClass47 a owl:Class ;
+    rdfs:label "Test Class 47" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty47 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass47 ;
+    rdfs:range xsd:string .
+
+:TestClass48 a owl:Class ;
+    rdfs:label "Test Class 48" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty48 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass48 ;
+    rdfs:range xsd:string .
+
+:TestClass49 a owl:Class ;
+    rdfs:label "Test Class 49" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty49 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass49 ;
+    rdfs:range xsd:string .
+
+:TestClass50 a owl:Class ;
+    rdfs:label "Test Class 50" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty50 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass50 ;
+    rdfs:range xsd:string .
+
+:TestClass51 a owl:Class ;
+    rdfs:label "Test Class 51" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty51 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass51 ;
+    rdfs:range xsd:string .
+
+:TestClass52 a owl:Class ;
+    rdfs:label "Test Class 52" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty52 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass52 ;
+    rdfs:range xsd:string .
+
+:TestClass53 a owl:Class ;
+    rdfs:label "Test Class 53" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty53 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass53 ;
+    rdfs:range xsd:string .
+
+:TestClass54 a owl:Class ;
+    rdfs:label "Test Class 54" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty54 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass54 ;
+    rdfs:range xsd:string .
+
+:TestClass55 a owl:Class ;
+    rdfs:label "Test Class 55" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty55 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass55 ;
+    rdfs:range xsd:string .
+
+:TestClass56 a owl:Class ;
+    rdfs:label "Test Class 56" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty56 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass56 ;
+    rdfs:range xsd:string .
+
+:TestClass57 a owl:Class ;
+    rdfs:label "Test Class 57" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty57 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass57 ;
+    rdfs:range xsd:string .
+
+:TestClass58 a owl:Class ;
+    rdfs:label "Test Class 58" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty58 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass58 ;
+    rdfs:range xsd:string .
+
+:TestClass59 a owl:Class ;
+    rdfs:label "Test Class 59" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty59 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass59 ;
+    rdfs:range xsd:string .
+
+:TestClass60 a owl:Class ;
+    rdfs:label "Test Class 60" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty60 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass60 ;
+    rdfs:range xsd:string .
+
+:TestClass61 a owl:Class ;
+    rdfs:label "Test Class 61" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty61 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass61 ;
+    rdfs:range xsd:string .
+
+:TestClass62 a owl:Class ;
+    rdfs:label "Test Class 62" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty62 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass62 ;
+    rdfs:range xsd:string .
+
+:TestClass63 a owl:Class ;
+    rdfs:label "Test Class 63" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty63 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass63 ;
+    rdfs:range xsd:string .
+
+:TestClass64 a owl:Class ;
+    rdfs:label "Test Class 64" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty64 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass64 ;
+    rdfs:range xsd:string .
+
+:TestClass65 a owl:Class ;
+    rdfs:label "Test Class 65" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty65 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass65 ;
+    rdfs:range xsd:string .
+
+:TestClass66 a owl:Class ;
+    rdfs:label "Test Class 66" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty66 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass66 ;
+    rdfs:range xsd:string .
+
+:TestClass67 a owl:Class ;
+    rdfs:label "Test Class 67" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty67 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass67 ;
+    rdfs:range xsd:string .
+
+:TestClass68 a owl:Class ;
+    rdfs:label "Test Class 68" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty68 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass68 ;
+    rdfs:range xsd:string .
+
+:TestClass69 a owl:Class ;
+    rdfs:label "Test Class 69" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty69 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass69 ;
+    rdfs:range xsd:string .
+
+:TestClass70 a owl:Class ;
+    rdfs:label "Test Class 70" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty70 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass70 ;
+    rdfs:range xsd:string .
+
+:TestClass71 a owl:Class ;
+    rdfs:label "Test Class 71" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty71 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass71 ;
+    rdfs:range xsd:string .
+
+:TestClass72 a owl:Class ;
+    rdfs:label "Test Class 72" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty72 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass72 ;
+    rdfs:range xsd:string .
+
+:TestClass73 a owl:Class ;
+    rdfs:label "Test Class 73" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty73 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass73 ;
+    rdfs:range xsd:string .
+
+:TestClass74 a owl:Class ;
+    rdfs:label "Test Class 74" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty74 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass74 ;
+    rdfs:range xsd:string .
+
+:TestClass75 a owl:Class ;
+    rdfs:label "Test Class 75" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty75 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass75 ;
+    rdfs:range xsd:string .
+
+:TestClass76 a owl:Class ;
+    rdfs:label "Test Class 76" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty76 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass76 ;
+    rdfs:range xsd:string .
+
+:TestClass77 a owl:Class ;
+    rdfs:label "Test Class 77" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty77 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass77 ;
+    rdfs:range xsd:string .
+
+:TestClass78 a owl:Class ;
+    rdfs:label "Test Class 78" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty78 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass78 ;
+    rdfs:range xsd:string .
+
+:TestClass79 a owl:Class ;
+    rdfs:label "Test Class 79" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty79 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass79 ;
+    rdfs:range xsd:string .
+
+:TestClass80 a owl:Class ;
+    rdfs:label "Test Class 80" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty80 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass80 ;
+    rdfs:range xsd:string .
+
+:TestClass81 a owl:Class ;
+    rdfs:label "Test Class 81" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty81 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass81 ;
+    rdfs:range xsd:string .
+
+:TestClass82 a owl:Class ;
+    rdfs:label "Test Class 82" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty82 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass82 ;
+    rdfs:range xsd:string .
+
+:TestClass83 a owl:Class ;
+    rdfs:label "Test Class 83" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty83 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass83 ;
+    rdfs:range xsd:string .
+
+:TestClass84 a owl:Class ;
+    rdfs:label "Test Class 84" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty84 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass84 ;
+    rdfs:range xsd:string .
+
+:TestClass85 a owl:Class ;
+    rdfs:label "Test Class 85" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty85 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass85 ;
+    rdfs:range xsd:string .
+
+:TestClass86 a owl:Class ;
+    rdfs:label "Test Class 86" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty86 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass86 ;
+    rdfs:range xsd:string .
+
+:TestClass87 a owl:Class ;
+    rdfs:label "Test Class 87" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty87 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass87 ;
+    rdfs:range xsd:string .
+
+:TestClass88 a owl:Class ;
+    rdfs:label "Test Class 88" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty88 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass88 ;
+    rdfs:range xsd:string .
+
+:TestClass89 a owl:Class ;
+    rdfs:label "Test Class 89" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty89 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass89 ;
+    rdfs:range xsd:string .
+
+:TestClass90 a owl:Class ;
+    rdfs:label "Test Class 90" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty90 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass90 ;
+    rdfs:range xsd:string .
+
+:TestClass91 a owl:Class ;
+    rdfs:label "Test Class 91" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty91 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass91 ;
+    rdfs:range xsd:string .
+
+:TestClass92 a owl:Class ;
+    rdfs:label "Test Class 92" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty92 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass92 ;
+    rdfs:range xsd:string .
+
+:TestClass93 a owl:Class ;
+    rdfs:label "Test Class 93" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty93 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass93 ;
+    rdfs:range xsd:string .
+
+:TestClass94 a owl:Class ;
+    rdfs:label "Test Class 94" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty94 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass94 ;
+    rdfs:range xsd:string .
+
+:TestClass95 a owl:Class ;
+    rdfs:label "Test Class 95" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty95 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass95 ;
+    rdfs:range xsd:string .
+
+:TestClass96 a owl:Class ;
+    rdfs:label "Test Class 96" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty96 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass96 ;
+    rdfs:range xsd:string .
+
+:TestClass97 a owl:Class ;
+    rdfs:label "Test Class 97" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty97 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass97 ;
+    rdfs:range xsd:string .
+
+:TestClass98 a owl:Class ;
+    rdfs:label "Test Class 98" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty98 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass98 ;
+    rdfs:range xsd:string .
+
+:TestClass99 a owl:Class ;
+    rdfs:label "Test Class 99" ;
+    rdfs:subClassOf :BaseClass .
+
+:testProperty99 a owl:DatatypeProperty ;
+    rdfs:domain :TestClass99 ;
+    rdfs:range xsd:string .

@@ -1,0 +1,513 @@
+@prefix ex: <http://example.org/gitvan/hooks/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix git: <https://gitvan.dev/git#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# =============================================================================
+# Review Large Commits Hook
+# =============================================================================
+#
+# USE CASE:
+# Alert reviewers when commits exceed size thresholds, especially for junior devs
+# Encourages smaller, more focused commits and better code review practices
+#
+# TRIGGERS ON:
+# - post-commit (after commit is created)
+# - pre-push (before pushing to remote for review)
+#
+# SUCCESS CRITERIA:
+# - Detects commits with >1000 lines changed
+# - Identifies author experience level (junior, mid, senior)
+# - Suggests commit splitting strategies
+# - Notifies appropriate reviewers based on complexity
+#
+# INSTALLATION:
+# 1. Copy to .gitvan/hooks/review-large-commits.ttl
+# 2. Configure size thresholds:
+#    git config gitvan.commit.maxLines 1000
+#    git config gitvan.commit.warningLines 500
+# 3. Configure team experience levels:
+#    git config gitvan.author.junior "alice,bob"
+#    git config gitvan.author.senior "charlie,diana"
+# 4. Enable hook: gitvan hooks enable review-large-commits
+#
+# =============================================================================
+
+ex:review-large-commits-hook rdf:type gh:Hook ;
+    rdfs:label "Review Large Commits" ;
+    gv:title "Large Commit Detection and Review Routing" ;
+    rdfs:comment "Detects oversized commits and routes to appropriate reviewers" ;
+    gh:hookType "post-commit" ;
+    gh:priority 75 ;
+    gh:enabled true ;
+    gh:hasPredicate ex:large-commit-predicate ;
+    gh:orderedPipelines ex:large-commit-pipeline .
+
+# =============================================================================
+# ASK Predicate - Detects Large Commits
+# =============================================================================
+ex:large-commit-predicate rdf:type gh:ASKPredicate ;
+    gh:queryText """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        ASK WHERE {
+            # Get recent commit
+            ?commit rdf:type git:Commit ;
+                    git:linesAdded ?added ;
+                    git:linesDeleted ?deleted .
+
+            # Calculate total lines changed
+            BIND(?added + ?deleted AS ?totalLines)
+
+            # Detect large commits (>1000 lines)
+            FILTER(?totalLines > 1000)
+
+            # Ensure this is a recent commit (last 10 minutes)
+            ?commit git:timestamp ?time .
+            BIND(NOW() - ?time AS ?age)
+            FILTER(?age < "PT10M"^^xsd:duration)
+        }
+    """ ;
+    gh:description "Detects commits with more than 1000 lines changed" .
+
+# =============================================================================
+# Pipeline - Large Commit Review Workflow
+# =============================================================================
+ex:large-commit-pipeline rdf:type op:Pipeline ;
+    rdfs:label "Large Commit Review Pipeline" ;
+    op:steps (
+        ex:analyze-commit-size,
+        ex:identify-author-level,
+        ex:calculate-complexity,
+        ex:suggest-split-strategy,
+        ex:route-to-reviewers,
+        ex:generate-review-report
+    ) .
+
+# =============================================================================
+# Step 1: Analyze Commit Size
+# =============================================================================
+ex:analyze-commit-size rdf:type gv:SparqlStep ;
+    rdfs:label "Analyze Commit Size and Impact" ;
+    gv:text """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?commit ?sha ?message ?author ?added ?deleted ?totalLines
+               ?filesChanged ?severity WHERE {
+            # Get recent large commit
+            ?commit rdf:type git:Commit ;
+                    git:sha ?sha ;
+                    git:message ?message ;
+                    git:author ?author ;
+                    git:linesAdded ?added ;
+                    git:linesDeleted ?deleted ;
+                    git:filesChanged ?filesChanged ;
+                    git:timestamp ?time .
+
+            # Calculate metrics
+            BIND(?added + ?deleted AS ?totalLines)
+
+            # Determine severity
+            BIND(
+                IF(?totalLines > 5000, "critical",
+                IF(?totalLines > 3000, "high",
+                IF(?totalLines > 1000, "medium", "low")))
+                AS ?severity
+            )
+
+            # Recent commits only
+            BIND(NOW() - ?time AS ?age)
+            FILTER(?age < "PT10M"^^xsd:duration)
+            FILTER(?totalLines > 1000)
+        }
+        ORDER BY DESC(?totalLines)
+        LIMIT 1
+    """ ;
+    gv:outputMapping '{
+        "commitSha": "results[0].sha.value.substring(0, 7)",
+        "message": "results[0].message.value",
+        "author": "results[0].author.value",
+        "linesAdded": "parseInt(results[0].added.value)",
+        "linesDeleted": "parseInt(results[0].deleted.value)",
+        "totalLines": "parseInt(results[0].totalLines.value)",
+        "filesChanged": "parseInt(results[0].filesChanged.value)",
+        "severity": "results[0].severity.value",
+        "avgLinesPerFile": "Math.round(parseInt(results[0].totalLines.value) / parseInt(results[0].filesChanged.value))"
+    }' .
+
+# =============================================================================
+# Step 2: Identify Author Experience Level
+# =============================================================================
+ex:identify-author-level rdf:type gv:SparqlStep ;
+    rdfs:label "Identify Author Experience Level" ;
+    gv:text """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX team: <https://gitvan.dev/team#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?author ?level ?commitCount ?avgCommitSize ?teamTenure WHERE {
+            # Get author info
+            ?commit git:author ?author .
+
+            # Determine experience level
+            OPTIONAL {
+                ?author team:experienceLevel ?level .
+            }
+
+            # Calculate commit statistics
+            {
+                SELECT ?author (COUNT(?c) AS ?commitCount)
+                       (AVG(?lines) AS ?avgCommitSize) WHERE {
+                    ?c git:author ?author ;
+                       git:linesAdded ?added ;
+                       git:linesDeleted ?deleted .
+                    BIND(?added + ?deleted AS ?lines)
+                }
+                GROUP BY ?author
+            }
+
+            # Calculate team tenure (months)
+            OPTIONAL {
+                ?author team:joinedAt ?joinDate .
+                BIND(FLOOR((NOW() - ?joinDate) / (60*60*24*30)) AS ?teamTenure)
+            }
+
+            # Infer level if not explicitly set
+            BIND(COALESCE(
+                ?level,
+                IF(?commitCount < 100 || COALESCE(?teamTenure, 0) < 6, "junior",
+                IF(?commitCount < 500 || ?teamTenure < 24, "mid-level",
+                "senior"))
+            ) AS ?level)
+        }
+    """ ;
+    gv:outputMapping '{
+        "experienceLevel": "results[0].level.value",
+        "totalCommits": "parseInt(results[0].commitCount?.value || \"0\")",
+        "avgCommitSize": "parseInt(results[0].avgCommitSize?.value || \"0\")",
+        "teamTenureMonths": "parseInt(results[0].teamTenure?.value || \"0\")",
+        "isJunior": "results[0].level.value === \"junior\"",
+        "needsMentoring": "results[0].level.value === \"junior\" && parseInt(results[0].totalLines.value) > 2000"
+    }' ;
+    gv:dependsOn ex:analyze-commit-size .
+
+# =============================================================================
+# Step 3: Calculate Complexity Score
+# =============================================================================
+ex:calculate-complexity rdf:type gv:SparqlStep ;
+    rdfs:label "Calculate Commit Complexity" ;
+    gv:text """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?complexityScore ?riskLevel ?reviewTimeEstimate WHERE {
+            ?commit rdf:type git:Commit ;
+                    git:linesAdded ?added ;
+                    git:linesDeleted ?deleted ;
+                    git:filesChanged ?files .
+
+            # Get file types
+            ?commit git:hasChange ?change .
+            ?change git:filePath ?path .
+
+            # Count different file types
+            {
+                SELECT (COUNT(DISTINCT ?type) AS ?fileTypeCount) WHERE {
+                    ?commit git:hasChange ?change .
+                    ?change git:filePath ?path .
+                    BIND(REPLACE(?path, "^.+\\.([^.]+)$", "$1") AS ?type)
+                }
+            }
+
+            # Calculate complexity factors
+            BIND(?added + ?deleted AS ?totalLines)
+            BIND(?totalLines / ?files AS ?linesPerFile)
+
+            # Complexity score (0-100)
+            BIND(
+                ((?totalLines / 100) * 0.4) +
+                (?files * 2 * 0.3) +
+                (?fileTypeCount * 5 * 0.2) +
+                (IF(?deleted > ?added, 10, 0) * 0.1)
+                AS ?complexityScore
+            )
+
+            # Risk level
+            BIND(
+                IF(?complexityScore > 80, "very-high",
+                IF(?complexityScore > 60, "high",
+                IF(?complexityScore > 40, "medium", "low")))
+                AS ?riskLevel
+            )
+
+            # Estimate review time (minutes)
+            BIND(
+                CEIL((?totalLines / 100) * 5 + ?files * 2)
+                AS ?reviewTimeEstimate
+            )
+        }
+    """ ;
+    gv:outputMapping '{
+        "complexityScore": "Math.round(parseFloat(results[0].complexityScore.value))",
+        "riskLevel": "results[0].riskLevel.value",
+        "reviewTimeMinutes": "parseInt(results[0].reviewTimeEstimate.value)",
+        "reviewTimeHours": "Math.round(parseInt(results[0].reviewTimeEstimate.value) / 60 * 10) / 10"
+    }' ;
+    gv:dependsOn ex:identify-author-level .
+
+# =============================================================================
+# Step 4: Suggest Split Strategy
+# =============================================================================
+ex:suggest-split-strategy rdf:type gv:SparqlStep ;
+    rdfs:label "Suggest Commit Splitting Strategy" ;
+    gv:text """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?strategy ?suggestedCommits ?splitBy WHERE {
+            ?commit git:hasChange ?change .
+
+            # Analyze change patterns
+            {
+                SELECT (COUNT(DISTINCT ?dir) AS ?dirCount)
+                       (COUNT(DISTINCT ?type) AS ?typeCount)
+                       (COUNT(?change) AS ?fileCount) WHERE {
+                    ?commit git:hasChange ?change .
+                    ?change git:filePath ?path .
+                    BIND(REPLACE(?path, "^([^/]+)/.*", "$1") AS ?dir)
+                    BIND(REPLACE(?path, "^.+\\.([^.]+)$", "$1") AS ?type)
+                }
+            }
+
+            # Determine split strategy
+            BIND(
+                IF(?dirCount > 5, "directory",
+                IF(?typeCount > 3, "file-type",
+                IF(?fileCount > 20, "feature-area", "logical-groups")))
+                AS ?strategy
+            )
+
+            # Suggest number of commits
+            BIND(
+                IF(?dirCount > 5, ?dirCount,
+                IF(?typeCount > 3, ?typeCount,
+                CEIL(?fileCount / 10)))
+                AS ?suggestedCommits
+            )
+
+            # Split dimension
+            BIND(
+                IF(?strategy = "directory", "Group by top-level directory",
+                IF(?strategy = "file-type", "Group by file type (tests, docs, src)",
+                IF(?strategy = "feature-area", "Split by feature or component",
+                "Split into logical, cohesive changes")))
+                AS ?splitBy
+            )
+        }
+    """ ;
+    gv:outputMapping '{
+        "splitStrategy": "results[0].strategy.value",
+        "suggestedCommitCount": "parseInt(results[0].suggestedCommits.value)",
+        "splitDimension": "results[0].splitBy.value"
+    }' ;
+    gv:dependsOn ex:calculate-complexity .
+
+# =============================================================================
+# Step 5: Route to Appropriate Reviewers
+# =============================================================================
+ex:route-to-reviewers rdf:type gv:SparqlStep ;
+    rdfs:label "Select Appropriate Reviewers" ;
+    gv:text """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX team: <https://gitvan.dev/team#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?reviewer ?reviewerLevel ?expertise WHERE {
+            ?commit git:author ?author .
+
+            # Find suitable reviewers (not the author)
+            ?reviewer rdf:type team:TeamMember ;
+                      team:experienceLevel ?reviewerLevel .
+            FILTER(?reviewer != ?author)
+
+            # For junior authors or high complexity, require senior reviewer
+            FILTER(
+                IF(?authorLevel = "junior" || ?complexity > 70,
+                   ?reviewerLevel = "senior",
+                   ?reviewerLevel IN ("mid-level", "senior"))
+            )
+
+            # Match expertise with changed files
+            OPTIONAL {
+                ?reviewer team:expertise ?expertise .
+                ?commit git:hasChange ?change .
+                ?change git:filePath ?path .
+                FILTER(CONTAINS(?path, ?expertise))
+            }
+        }
+        ORDER BY DESC(?expertise) ?reviewerLevel
+        LIMIT 3
+    """ ;
+    gv:outputMapping '{
+        "primaryReviewer": "results[0]?.reviewer.value || \"team-lead\"",
+        "secondaryReviewer": "results[1]?.reviewer.value || null",
+        "reviewerExpertise": "results[0]?.expertise.value || \"general\"",
+        "requiresSeniorReview": "isJunior || complexityScore > 70"
+    }' ;
+    gv:dependsOn ex:suggest-split-strategy .
+
+# =============================================================================
+# Step 6: Generate Review Report
+# =============================================================================
+ex:generate-review-report rdf:type gv:TemplateStep ;
+    rdfs:label "Generate Large Commit Review Report" ;
+    gv:text """
+# Large Commit Review Alert
+
+**Generated:** {{ "now" | date("YYYY-MM-DD HH:mm:ss") }}
+**Hook:** Review Large Commits
+**Severity:** {% if severity == "critical" %}🔴 CRITICAL{% elif severity == "high" %}🟠 HIGH{% elif severity == "medium" %}🟡 MEDIUM{% else %}🟢 LOW{% endif %}
+
+## Commit Information
+
+- **SHA:** `{{ commitSha }}`
+- **Author:** {{ author }} ({{ experienceLevel }})
+- **Message:** {{ message }}
+- **Team Tenure:** {{ teamTenureMonths }} months
+
+## Size Analysis
+
+⚠️ **This commit is significantly large**
+
+| Metric | Value | Threshold |
+|--------|-------|-----------|
+| **Total Lines** | {{ totalLines }} | 1,000 (exceeded by {{ totalLines - 1000 }}) |
+| **Lines Added** | +{{ linesAdded }} | - |
+| **Lines Deleted** | -{{ linesDeleted }} | - |
+| **Files Changed** | {{ filesChanged }} | - |
+| **Avg Lines/File** | {{ avgLinesPerFile }} | - |
+
+## Complexity Assessment
+
+- **Complexity Score:** {{ complexityScore }}/100
+- **Risk Level:** {{ riskLevel | upper }}
+- **Estimated Review Time:** ~{{ reviewTimeHours }}h ({{ reviewTimeMinutes }} min)
+
+{% if isJunior %}
+### 🎓 Junior Developer Alert
+This large commit was authored by a junior developer. Additional mentoring and guidance recommended.
+
+**Author Statistics:**
+- Total Commits: {{ totalCommits }}
+- Average Commit Size: {{ avgCommitSize }} lines
+- Needs Mentoring: {% if needsMentoring %}✅ Yes{% else %}❌ No{% endif %}
+{% endif %}
+
+## Recommended Actions
+
+### 1. Consider Splitting This Commit
+
+**Strategy:** {{ splitStrategy | title }}
+**Suggested Commits:** {{ suggestedCommitCount }}
+**Split By:** {{ splitDimension }}
+
+### 2. How to Split
+
+```bash
+# Reset the commit (keeps changes staged)
+git reset --soft HEAD~1
+
+# Split into logical commits
+git add <group-1-files>
+git commit -m "{{ splitDimension }} - Part 1"
+
+git add <group-2-files>
+git commit -m "{{ splitDimension }} - Part 2"
+
+# Continue for all groups...
+```
+
+### 3. Alternative: Enhance Commit Message
+
+If splitting is not practical, provide a detailed commit message explaining:
+- Why this change is large
+- What areas are affected
+- What testing was performed
+- Any breaking changes or risks
+
+## Review Assignment
+
+{% if requiresSeniorReview %}
+⚠️ **Senior review required** due to {% if isJunior %}junior author{% else %}high complexity{% endif %}
+{% endif %}
+
+**Primary Reviewer:** @{{ primaryReviewer }} ({{ reviewerExpertise }} expertise)
+{% if secondaryReviewer %}**Secondary Reviewer:** @{{ secondaryReviewer }}{% endif %}
+
+**Review Checklist:**
+- [ ] Verify all changes are related to stated purpose
+- [ ] Check for potential performance impacts
+- [ ] Ensure adequate test coverage
+- [ ] Look for security implications
+- [ ] Validate error handling
+- [ ] Confirm documentation updates
+{% if isJunior %}
+- [ ] Provide constructive feedback on commit size
+- [ ] Suggest best practices for future commits
+{% endif %}
+
+## Best Practices for Future Commits
+
+### Ideal Commit Size
+- **Target:** 50-200 lines changed
+- **Maximum:** 500 lines (soft limit)
+- **Warning:** >1,000 lines
+- **Critical:** >3,000 lines
+
+### Commit Splitting Benefits
+✅ Easier code review
+✅ Better git history
+✅ Simpler bug tracking
+✅ Safer rollbacks
+✅ Clearer intent
+
+### When Large Commits Are OK
+- Initial project setup
+- Third-party library updates
+- Auto-generated code (migrations, types)
+- Major refactoring with approval
+
+## Resources
+
+- [Git Commit Best Practices](https://gitvan.dev/docs/best-practices/commits)
+- [Code Review Guidelines](https://gitvan.dev/docs/best-practices/code-review)
+- [How to Split Commits](https://gitvan.dev/docs/guides/split-commits)
+
+---
+*This alert was automatically generated by the Review Large Commits Hook*
+*Assigned reviewers have been notified via email and Slack*
+    """ ;
+    gv:filePath "./reports/large-commits/{{ commitSha }}-{{ 'now' | date('YYYY-MM-DD-HH-mm-ss') }}.md" ;
+    gv:notifyChannels "slack:code-review, email:{{ primaryReviewer }}" ;
+    gv:dependsOn ex:route-to-reviewers .
+
+# =============================================================================
+# Metadata
+# =============================================================================
+ex:review-large-commits-hook
+    gv:version "1.0.0" ;
+    gv:author "GitVan Team" ;
+    gv:created "2025-12-03T00:00:00Z" ;
+    gv:tags "git", "code-review", "mentoring", "best-practices", "quality" ;
+    gv:documentation "https://gitvan.dev/docs/hooks/review-large-commits" .

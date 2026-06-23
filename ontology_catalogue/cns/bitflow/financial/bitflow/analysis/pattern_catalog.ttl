@@ -1,0 +1,651 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bf: <http://bitflow.com/ontology/> .
+@prefix fin: <http://bitflow.com/ontology/financial/> .
+@prefix yawl: <http://yawl.org/ontology/> .
+
+# BitFlow Financial System - OWL TTL YAWL Pattern Catalog
+# Comprehensive workflow pattern ontology for financial trading systems
+
+# ================================
+# Core Ontology Declaration
+# ================================
+
+<http://bitflow.com/ontology/financial/>
+    a owl:Ontology ;
+    rdfs:label "BitFlow Financial Workflow Patterns"@en ;
+    rdfs:comment "Comprehensive OWL TTL YAWL pattern catalog for financial trading systems"@en ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://bitflow.com/ontology/> ,
+                <http://yawl.org/ontology/> .
+
+# ================================
+# Pattern Classification Hierarchy
+# ================================
+
+fin:WorkflowPattern
+    a owl:Class ;
+    rdfs:subClassOf bf:Pattern ;
+    rdfs:label "Financial Workflow Pattern"@en ;
+    rdfs:comment "Base class for all financial workflow patterns"@en .
+
+fin:TradingPattern
+    a owl:Class ;
+    rdfs:subClassOf fin:WorkflowPattern ;
+    rdfs:label "Trading Pattern"@en ;
+    rdfs:comment "Patterns related to trade execution and order management"@en .
+
+fin:RiskPattern
+    a owl:Class ;
+    rdfs:subClassOf fin:WorkflowPattern ;
+    rdfs:label "Risk Management Pattern"@en ;
+    rdfs:comment "Patterns for risk assessment and control"@en .
+
+fin:CompliancePattern
+    a owl:Class ;
+    rdfs:subClassOf fin:WorkflowPattern ;
+    rdfs:label "Compliance Pattern"@en ;
+    rdfs:comment "Patterns for regulatory compliance and reporting"@en .
+
+fin:DataPattern
+    a owl:Class ;
+    rdfs:subClassOf fin:WorkflowPattern ;
+    rdfs:label "Data Management Pattern"@en ;
+    rdfs:comment "Patterns for data processing and analytics"@en .
+
+fin:IntegrationPattern
+    a owl:Class ;
+    rdfs:subClassOf fin:WorkflowPattern ;
+    rdfs:label "Integration Pattern"@en ;
+    rdfs:comment "Patterns for system integration and communication"@en .
+
+# ================================
+# Pattern Properties
+# ================================
+
+fin:hasLatencyRequirement
+    a owl:DatatypeProperty ;
+    rdfs:domain fin:WorkflowPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:label "latency requirement (nanoseconds)"@en ;
+    rdfs:comment "Maximum acceptable latency in nanoseconds"@en .
+
+fin:hasThroughputRequirement
+    a owl:DatatypeProperty ;
+    rdfs:domain fin:WorkflowPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:label "throughput requirement (ops/sec)"@en ;
+    rdfs:comment "Minimum required throughput in operations per second"@en .
+
+fin:hasRiskLevel
+    a owl:DatatypeProperty ;
+    rdfs:domain fin:WorkflowPattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "risk level"@en ;
+    rdfs:comment "Risk classification: LOW, MEDIUM, HIGH, CRITICAL"@en .
+
+fin:requiresCompliance
+    a owl:ObjectProperty ;
+    rdfs:domain fin:WorkflowPattern ;
+    rdfs:range fin:RegulatoryFramework ;
+    rdfs:label "requires compliance"@en ;
+    rdfs:comment "Regulatory frameworks this pattern must comply with"@en .
+
+fin:hasImplementationStatus
+    a owl:DatatypeProperty ;
+    rdfs:domain fin:WorkflowPattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "implementation status"@en ;
+    rdfs:comment "Current implementation status: IMPLEMENTED, PARTIAL, MISSING, PLANNED"@en .
+
+# ================================
+# YAWL Integration Properties
+# ================================
+
+fin:hasYAWLNet
+    a owl:ObjectProperty ;
+    rdfs:domain fin:WorkflowPattern ;
+    rdfs:range yawl:Net ;
+    rdfs:label "has YAWL net"@en ;
+    rdfs:comment "Associated YAWL workflow net specification"@en .
+
+fin:hasControlFlow
+    a owl:ObjectProperty ;
+    rdfs:domain fin:WorkflowPattern ;
+    rdfs:range yawl:ControlFlow ;
+    rdfs:label "has control flow"@en ;
+    rdfs:comment "Control flow specification for the pattern"@en .
+
+fin:hasDataFlow
+    a owl:ObjectProperty ;
+    rdfs:domain fin:WorkflowPattern ;
+    rdfs:range yawl:DataFlow ;
+    rdfs:label "has data flow"@en ;
+    rdfs:comment "Data flow specification for the pattern"@en .
+
+# ================================
+# Regulatory Framework Classes
+# ================================
+
+fin:RegulatoryFramework
+    a owl:Class ;
+    rdfs:label "Regulatory Framework"@en ;
+    rdfs:comment "Financial regulatory frameworks and standards"@en .
+
+fin:MiFIDII
+    a fin:RegulatoryFramework ;
+    rdfs:label "MiFID II"@en ;
+    rdfs:comment "Markets in Financial Instruments Directive II (EU)"@en .
+
+fin:EMIR
+    a fin:RegulatoryFramework ;
+    rdfs:label "EMIR"@en ;
+    rdfs:comment "European Market Infrastructure Regulation"@en .
+
+fin:DoddFrank
+    a fin:RegulatoryFramework ;
+    rdfs:label "Dodd-Frank"@en ;
+    rdfs:comment "Dodd-Frank Wall Street Reform Act (US)"@en .
+
+fin:SOX
+    a fin:RegulatoryFramework ;
+    rdfs:label "SOX"@en ;
+    rdfs:comment "Sarbanes-Oxley Act (US)"@en .
+
+# ================================
+# Currently Implemented Patterns
+# ================================
+
+fin:OrderManagementPattern
+    a fin:TradingPattern ;
+    rdfs:label "Order Management System Pattern"@en ;
+    rdfs:comment "Ultra-low latency order processing with CRC32 integrity"@en ;
+    fin:hasLatencyRequirement 50000 ;
+    fin:hasThroughputRequirement 100000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "IMPLEMENTED" ;
+    fin:requiresCompliance fin:MiFIDII , fin:EMIR .
+
+fin:MarketDataPattern
+    a fin:DataPattern ;
+    rdfs:label "Market Data Processing Pattern"@en ;
+    rdfs:comment "10M ticks/second processing with sub-100ns latency"@en ;
+    fin:hasLatencyRequirement 10000 ;
+    fin:hasThroughputRequirement 10000000 ;
+    fin:hasRiskLevel "MEDIUM" ;
+    fin:hasImplementationStatus "IMPLEMENTED" .
+
+fin:HFTOrderBookPattern
+    a fin:TradingPattern ;
+    rdfs:label "HFT Order Book Pattern"@en ;
+    rdfs:comment "Lock-free order matching with price-time priority"@en ;
+    fin:hasLatencyRequirement 100000 ;
+    fin:hasThroughputRequirement 1000000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "IMPLEMENTED" .
+
+fin:RiskManagementPattern
+    a fin:RiskPattern ;
+    rdfs:label "Risk Management Pattern"@en ;
+    rdfs:comment "Real-time position limits and circuit breakers"@en ;
+    fin:hasLatencyRequirement 1000000 ;
+    fin:hasThroughputRequirement 50000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "IMPLEMENTED" ;
+    fin:requiresCompliance fin:SOX , fin:DoddFrank .
+
+fin:PositionTrackingPattern
+    a fin:TradingPattern ;
+    rdfs:label "Position Tracking Pattern"@en ;
+    rdfs:comment "Atomic position updates with version control"@en ;
+    fin:hasLatencyRequirement 500000 ;
+    fin:hasThroughputRequirement 150000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "IMPLEMENTED" .
+
+fin:TradeExecutionPattern
+    a fin:TradingPattern ;
+    rdfs:label "Trade Execution Pattern"@en ;
+    rdfs:comment "Multiple order types (Market, Limit, IOC, FOK)"@en ;
+    fin:hasLatencyRequirement 30000 ;
+    fin:hasThroughputRequirement 300000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "IMPLEMENTED" ;
+    fin:requiresCompliance fin:MiFIDII .
+
+fin:MarketMakingPattern
+    a fin:TradingPattern ;
+    rdfs:label "Market Making Pattern"@en ;
+    rdfs:comment "Automated bid/ask spread management"@en ;
+    fin:hasLatencyRequirement 50000 ;
+    fin:hasThroughputRequirement 200000 ;
+    fin:hasRiskLevel "MEDIUM" ;
+    fin:hasImplementationStatus "IMPLEMENTED" .
+
+fin:KillSwitchPattern
+    a fin:RiskPattern ;
+    rdfs:label "Kill Switch Pattern"@en ;
+    rdfs:comment "Global emergency halt with <100ns propagation"@en ;
+    fin:hasLatencyRequirement 100 ;
+    fin:hasThroughputRequirement 1 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "IMPLEMENTED" .
+
+fin:CircuitBreakerPattern
+    a fin:RiskPattern ;
+    rdfs:label "Circuit Breaker Pattern"@en ;
+    rdfs:comment "Multi-tier risk protection"@en ;
+    fin:hasLatencyRequirement 1000 ;
+    fin:hasThroughputRequirement 1000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "IMPLEMENTED" .
+
+fin:BackpressureControlPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "Backpressure Control Pattern"@en ;
+    rdfs:comment "Graceful degradation under load"@en ;
+    fin:hasLatencyRequirement 5000 ;
+    fin:hasThroughputRequirement 764000 ;
+    fin:hasRiskLevel "MEDIUM" ;
+    fin:hasImplementationStatus "IMPLEMENTED" .
+
+# ================================
+# Critical Missing Patterns
+# ================================
+
+# Workflow Orchestration Patterns
+
+fin:MultiAssetTradeSettlementPattern
+    a fin:TradingPattern ;
+    rdfs:label "Multi-Asset Trade Settlement Pattern"@en ;
+    rdfs:comment "Cross-asset arbitrage and complex derivatives trading"@en ;
+    fin:hasLatencyRequirement 1000000 ;
+    fin:hasThroughputRequirement 10000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" ;
+    fin:requiresCompliance fin:EMIR , fin:DoddFrank .
+
+fin:AlgorithmicTradingWorkflowPattern
+    a fin:TradingPattern ;
+    rdfs:label "Algorithmic Trading Workflow Pattern"@en ;
+    rdfs:comment "Automated trading strategies and quantitative models"@en ;
+    fin:hasLatencyRequirement 100000 ;
+    fin:hasThroughputRequirement 50000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" ;
+    fin:requiresCompliance fin:MiFIDII .
+
+fin:OrderRoutingOptimizationPattern
+    a fin:TradingPattern ;
+    rdfs:label "Order Routing Optimization Pattern"@en ;
+    rdfs:comment "Best execution compliance and latency optimization"@en ;
+    fin:hasLatencyRequirement 25000 ;
+    fin:hasThroughputRequirement 100000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" ;
+    fin:requiresCompliance fin:MiFIDII .
+
+# Data Management Patterns
+
+fin:RealTimeMarketAnalyticsPattern
+    a fin:DataPattern ;
+    rdfs:label "Real-Time Market Analytics Pattern"@en ;
+    rdfs:comment "Trading signal generation and market intelligence"@en ;
+    fin:hasLatencyRequirement 1000000 ;
+    fin:hasThroughputRequirement 1000000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:HistoricalDataManagementPattern
+    a fin:DataPattern ;
+    rdfs:label "Historical Data Management Pattern"@en ;
+    rdfs:comment "Backtesting, compliance reporting, and risk analysis"@en ;
+    fin:hasLatencyRequirement 10000000 ;
+    fin:hasThroughputRequirement 100000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" ;
+    fin:requiresCompliance fin:MiFIDII , fin:SOX .
+
+fin:ReferenceDataManagementPattern
+    a fin:DataPattern ;
+    rdfs:label "Reference Data Management Pattern"@en ;
+    rdfs:comment "Instrument definitions, corporate actions, holidays"@en ;
+    fin:hasLatencyRequirement 5000000 ;
+    fin:hasThroughputRequirement 1000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" .
+
+# Risk and Compliance Patterns
+
+fin:DynamicRiskLimitManagementPattern
+    a fin:RiskPattern ;
+    rdfs:label "Dynamic Risk Limit Management Pattern"@en ;
+    rdfs:comment "Adaptive risk controls based on market conditions"@en ;
+    fin:hasLatencyRequirement 500000 ;
+    fin:hasThroughputRequirement 10000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:RegulatoryReportingPattern
+    a fin:CompliancePattern ;
+    rdfs:label "Regulatory Reporting Pattern"@en ;
+    rdfs:comment "MiFID II, EMIR, Dodd-Frank compliance"@en ;
+    fin:hasLatencyRequirement 60000000 ;
+    fin:hasThroughputRequirement 1000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" ;
+    fin:requiresCompliance fin:MiFIDII , fin:EMIR , fin:DoddFrank .
+
+fin:AntiMoneyLaunderingPattern
+    a fin:CompliancePattern ;
+    rdfs:label "Anti-Money Laundering Pattern"@en ;
+    rdfs:comment "Legal compliance and risk mitigation"@en ;
+    fin:hasLatencyRequirement 10000000 ;
+    fin:hasThroughputRequirement 1000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:CollateralManagementPattern
+    a fin:RiskPattern ;
+    rdfs:label "Collateral Management Pattern"@en ;
+    rdfs:comment "Margin and collateral optimization"@en ;
+    fin:hasLatencyRequirement 1000000 ;
+    fin:hasThroughputRequirement 5000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "MISSING" .
+
+# Integration Patterns
+
+fin:FIXProtocolIntegrationPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "FIX Protocol Integration Pattern"@en ;
+    rdfs:comment "Industry-standard messaging for institutional trading"@en ;
+    fin:hasLatencyRequirement 10000 ;
+    fin:hasThroughputRequirement 100000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:VenueConnectivityPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "Venue Connectivity Pattern"@en ;
+    rdfs:comment "Multi-market access and execution"@en ;
+    fin:hasLatencyRequirement 5000 ;
+    fin:hasThroughputRequirement 500000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:ClientPortfolioIntegrationPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "Client Portfolio Integration Pattern"@en ;
+    rdfs:comment "Multi-client position aggregation"@en ;
+    fin:hasLatencyRequirement 1000000 ;
+    fin:hasThroughputRequirement 10000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "MISSING" .
+
+# Operations Patterns
+
+fin:TradeLifecycleManagementPattern
+    a fin:TradingPattern ;
+    rdfs:label "Trade Lifecycle Management Pattern"@en ;
+    rdfs:comment "Complete trade processing from order to settlement"@en ;
+    fin:hasLatencyRequirement 5000000 ;
+    fin:hasThroughputRequirement 10000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" ;
+    fin:requiresCompliance fin:EMIR .
+
+fin:SystemHealthMonitoringPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "System Health Monitoring Pattern"@en ;
+    rdfs:comment "Proactive system management and SLA compliance"@en ;
+    fin:hasLatencyRequirement 1000000 ;
+    fin:hasThroughputRequirement 1000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:DisasterRecoveryPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "Disaster Recovery Pattern"@en ;
+    rdfs:comment "Business continuity and operational resilience"@en ;
+    fin:hasLatencyRequirement 60000000 ;
+    fin:hasThroughputRequirement 100 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:ConfigurationManagementPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "Configuration Management Pattern"@en ;
+    rdfs:comment "Dynamic system configuration without restarts"@en ;
+    fin:hasLatencyRequirement 1000000 ;
+    fin:hasThroughputRequirement 100 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "MISSING" .
+
+# Advanced Financial Patterns
+
+fin:OptionsPricingAndGreeksPattern
+    a fin:TradingPattern ;
+    rdfs:label "Options Pricing and Greeks Pattern"@en ;
+    rdfs:comment "Derivatives trading and risk management"@en ;
+    fin:hasLatencyRequirement 10000 ;
+    fin:hasThroughputRequirement 100000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:YieldCurveManagementPattern
+    a fin:DataPattern ;
+    rdfs:label "Yield Curve Management Pattern"@en ;
+    rdfs:comment "Fixed income trading and risk"@en ;
+    fin:hasLatencyRequirement 100000 ;
+    fin:hasThroughputRequirement 10000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:ForeignExchangePattern
+    a fin:TradingPattern ;
+    rdfs:label "Foreign Exchange Pattern"@en ;
+    rdfs:comment "Multi-currency trading and hedging"@en ;
+    fin:hasLatencyRequirement 5000 ;
+    fin:hasThroughputRequirement 200000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:CreditRiskAssessmentPattern
+    a fin:RiskPattern ;
+    rdfs:label "Credit Risk Assessment Pattern"@en ;
+    rdfs:comment "Counterparty risk management"@en ;
+    fin:hasLatencyRequirement 1000000 ;
+    fin:hasThroughputRequirement 1000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "MISSING" .
+
+# Workflow Automation Patterns
+
+fin:EventDrivenProcessingPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "Event-Driven Processing Pattern"@en ;
+    rdfs:comment "Reactive system architecture for real-time responses"@en ;
+    fin:hasLatencyRequirement 1000 ;
+    fin:hasThroughputRequirement 1000000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:BatchProcessingPattern
+    a fin:DataPattern ;
+    rdfs:label "Batch Processing Pattern"@en ;
+    rdfs:comment "End-of-day processing and reporting"@en ;
+    fin:hasLatencyRequirement 3600000000 ;
+    fin:hasThroughputRequirement 10000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:WorkflowStateManagementPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "Workflow State Management Pattern"@en ;
+    rdfs:comment "Complex business process orchestration"@en ;
+    fin:hasLatencyRequirement 10000 ;
+    fin:hasThroughputRequirement 10000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "MISSING" .
+
+# Performance and Scalability Patterns
+
+fin:HorizontalScalingPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "Horizontal Scaling Pattern"@en ;
+    rdfs:comment "Increased throughput for growing business"@en ;
+    fin:hasLatencyRequirement 10000 ;
+    fin:hasThroughputRequirement 5000000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:CacheCoherencyPattern
+    a fin:DataPattern ;
+    rdfs:label "Cache Coherency Pattern"@en ;
+    rdfs:comment "Data consistency across distributed components"@en ;
+    fin:hasLatencyRequirement 1000 ;
+    fin:hasThroughputRequirement 1000000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:AsynchronousProcessingPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "Asynchronous Processing Pattern"@en ;
+    rdfs:comment "Decoupled system components and improved latency"@en ;
+    fin:hasLatencyRequirement 5000 ;
+    fin:hasThroughputRequirement 500000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" .
+
+# Testing Patterns
+
+fin:PropertyBasedTestingPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "Property-Based Testing Pattern"@en ;
+    rdfs:comment "Comprehensive test coverage for financial calculations"@en ;
+    fin:hasLatencyRequirement 1000000000 ;
+    fin:hasThroughputRequirement 1000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:ChaosEngineeringPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "Chaos Engineering Pattern"@en ;
+    rdfs:comment "System resilience validation"@en ;
+    fin:hasLatencyRequirement 1000000000 ;
+    fin:hasThroughputRequirement 100 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:PerformanceTestingPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "Performance Testing Pattern"@en ;
+    rdfs:comment "SLA validation and capacity planning"@en ;
+    fin:hasLatencyRequirement 1000000000 ;
+    fin:hasThroughputRequirement 1000 ;
+    fin:hasRiskLevel "HIGH" ;
+    fin:hasImplementationStatus "MISSING" .
+
+# Security Patterns
+
+fin:SecureCommunicationPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "Secure Communication Pattern"@en ;
+    rdfs:comment "Data protection and regulatory compliance"@en ;
+    fin:hasLatencyRequirement 10000 ;
+    fin:hasThroughputRequirement 100000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" .
+
+fin:AuditTrailPattern
+    a fin:CompliancePattern ;
+    rdfs:label "Audit Trail Pattern"@en ;
+    rdfs:comment "Regulatory compliance and forensic analysis"@en ;
+    fin:hasLatencyRequirement 1000000 ;
+    fin:hasThroughputRequirement 100000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" ;
+    fin:requiresCompliance fin:SOX , fin:MiFIDII .
+
+fin:AccessControlPattern
+    a fin:IntegrationPattern ;
+    rdfs:label "Access Control Pattern"@en ;
+    rdfs:comment "Security and segregation of duties"@en ;
+    fin:hasLatencyRequirement 10000 ;
+    fin:hasThroughputRequirement 10000 ;
+    fin:hasRiskLevel "CRITICAL" ;
+    fin:hasImplementationStatus "MISSING" .
+
+# ================================
+# Pattern Dependencies
+# ================================
+
+fin:dependsOn
+    a owl:ObjectProperty ;
+    rdfs:domain fin:WorkflowPattern ;
+    rdfs:range fin:WorkflowPattern ;
+    rdfs:label "depends on"@en ;
+    rdfs:comment "This pattern depends on another pattern"@en .
+
+# Define key dependencies
+fin:AlgorithmicTradingWorkflowPattern fin:dependsOn fin:OrderManagementPattern .
+fin:AlgorithmicTradingWorkflowPattern fin:dependsOn fin:RiskManagementPattern .
+fin:AlgorithmicTradingWorkflowPattern fin:dependsOn fin:RealTimeMarketAnalyticsPattern .
+
+fin:RegulatoryReportingPattern fin:dependsOn fin:AuditTrailPattern .
+fin:RegulatoryReportingPattern fin:dependsOn fin:TradeLifecycleManagementPattern .
+
+fin:OrderRoutingOptimizationPattern fin:dependsOn fin:VenueConnectivityPattern .
+fin:OrderRoutingOptimizationPattern fin:dependsOn fin:FIXProtocolIntegrationPattern .
+
+fin:MultiAssetTradeSettlementPattern fin:dependsOn fin:TradeLifecycleManagementPattern .
+fin:MultiAssetTradeSettlementPattern fin:dependsOn fin:ReferenceDataManagementPattern .
+
+# ================================
+# Pattern Quality Metrics
+# ================================
+
+fin:hasComplexity
+    a owl:DatatypeProperty ;
+    rdfs:domain fin:WorkflowPattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "complexity"@en ;
+    rdfs:comment "Implementation complexity: LOW, MEDIUM, HIGH, VERY_HIGH"@en .
+
+fin:hasBusinessValue
+    a owl:DatatypeProperty ;
+    rdfs:domain fin:WorkflowPattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "business value"@en ;
+    rdfs:comment "Business impact: LOW, MEDIUM, HIGH, CRITICAL"@en .
+
+fin:hasImplementationEffort
+    a owl:DatatypeProperty ;
+    rdfs:domain fin:WorkflowPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:label "implementation effort (weeks)"@en ;
+    rdfs:comment "Estimated implementation effort in weeks"@en .
+
+# Add complexity and effort estimates for critical missing patterns
+fin:MultiAssetTradeSettlementPattern fin:hasComplexity "VERY_HIGH" .
+fin:MultiAssetTradeSettlementPattern fin:hasBusinessValue "CRITICAL" .
+fin:MultiAssetTradeSettlementPattern fin:hasImplementationEffort 16 .
+
+fin:AlgorithmicTradingWorkflowPattern fin:hasComplexity "HIGH" .
+fin:AlgorithmicTradingWorkflowPattern fin:hasBusinessValue "CRITICAL" .
+fin:AlgorithmicTradingWorkflowPattern fin:hasImplementationEffort 12 .
+
+fin:RegulatoryReportingPattern fin:hasComplexity "HIGH" .
+fin:RegulatoryReportingPattern fin:hasBusinessValue "CRITICAL" .
+fin:RegulatoryReportingPattern fin:hasImplementationEffort 8 .
+
+fin:FIXProtocolIntegrationPattern fin:hasComplexity "MEDIUM" .
+fin:FIXProtocolIntegrationPattern fin:hasBusinessValue "CRITICAL" .
+fin:FIXProtocolIntegrationPattern fin:hasImplementationEffort 6 .
+
+# ================================
+# End of Ontology
+# ================================

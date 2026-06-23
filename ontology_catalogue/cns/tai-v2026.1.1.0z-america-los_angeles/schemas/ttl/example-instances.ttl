@@ -1,0 +1,407 @@
+@prefix tai: <http://tai.cognitive-mesh.org/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# TAI Schema Example Instances
+# Demonstrates usage of TAI ontology with concrete examples
+
+# ===== SUBSTRATE INSTANCES =====
+
+# Digital Substrate Example
+tai:gpu_cluster_01 a tai:GPUSubstrate ;
+    tai:hasIdentifier "gpu-cluster-01" ;
+    tai:hasLabel "GPU Cluster Alpha" ;
+    tai:hasDescription "High-performance GPU cluster for parallel cognitive processing" ;
+    tai:hasComputationalCapacity 1000000.0 ;
+    tai:hasLatency 0.5 ;
+    tai:hasBandwidth 10000.0 ;
+    tai:hasMemoryCapacity 512000.0 ;
+    tai:hasEnergyConsumption 5000.0 ;
+    tai:hasReliability 0.99 ;
+    tai:hasScalability 0.85 ;
+    tai:hasTimestamp "2026-01-01T12:00:00Z"^^xsd:dateTime .
+
+# Quantum Substrate Example
+tai:quantum_annealer_01 a tai:QuantumGateSubstrate ;
+    tai:hasIdentifier "quantum-annealer-01" ;
+    tai:hasLabel "Quantum Annealer System" ;
+    tai:hasDescription "Quantum computing substrate for optimization problems" ;
+    tai:hasComputationalCapacity 500.0 ;
+    tai:hasLatency 10.0 ;
+    tai:hasBandwidth 100.0 ;
+    tai:hasMemoryCapacity 1000.0 ;
+    tai:hasEnergyConsumption 200.0 ;
+    tai:hasReliability 0.92 ;
+    tai:hasScalability 0.45 ;
+    tai:hasTimestamp "2026-01-01T12:00:00Z"^^xsd:dateTime .
+
+# Neuromorphic Substrate Example  
+tai:neuromorphic_chip_01 a tai:NeuromorphicSubstrate ;
+    tai:hasIdentifier "neuromorphic-chip-01" ;
+    tai:hasLabel "Neuromorphic Processing Unit" ;
+    tai:hasDescription "Bio-inspired neuromorphic computing substrate" ;
+    tai:hasComputationalCapacity 50000.0 ;
+    tai:hasLatency 0.1 ;
+    tai:hasBandwidth 5000.0 ;
+    tai:hasMemoryCapacity 32000.0 ;
+    tai:hasEnergyConsumption 50.0 ;
+    tai:hasReliability 0.95 ;
+    tai:hasScalability 0.70 ;
+    tai:hasTimestamp "2026-01-01T12:00:00Z"^^xsd:dateTime .
+
+# ===== COGNITIVE PRIMITIVE INSTANCES =====
+
+# Pulse Examples
+tai:activation_pulse_01 a tai:Pulse ;
+    tai:hasIdentifier "pulse-activation-01" ;
+    tai:hasLabel "Neural Activation Pulse" ;
+    tai:hasDescription "Discrete activation event in neural processing" ;
+    tai:hasAmplitude 0.75 ;
+    tai:hasTimestamp "2026-01-01T12:00:01.500Z"^^xsd:dateTime ;
+    tai:hasDuration "PT0.001S"^^xsd:duration ;
+    tai:hasConfidence 0.92 ;
+    tai:executesOn tai:neuromorphic_chip_01 ;
+    tai:hasTriggerCondition "input_threshold >= 0.7" .
+
+tai:sync_pulse_01 a tai:Pulse ;
+    tai:hasIdentifier "pulse-sync-01" ;
+    tai:hasLabel "Synchronization Pulse" ;
+    tai:hasDescription "Timing synchronization pulse across substrates" ;
+    tai:hasAmplitude 1.0 ;
+    tai:hasTimestamp "2026-01-01T12:00:02.000Z"^^xsd:dateTime ;
+    tai:hasDuration "PT0.0001S"^^xsd:duration ;
+    tai:hasConfidence 0.98 ;
+    tai:executesOn tai:gpu_cluster_01 ;
+    tai:hasTriggerCondition "clock_sync_required" .
+
+# Link Examples
+tai:semantic_link_01 a tai:Link ;
+    tai:hasIdentifier "link-semantic-01" ;
+    tai:hasLabel "Concept Association Link" ;
+    tai:hasDescription "Semantic association between related concepts" ;
+    tai:hasLinkType "semantic_association" ;
+    tai:hasLinkStrength 0.82 ;
+    tai:isBidirectional true ;
+    tai:hasConfidence 0.88 ;
+    tai:hasSemanticDistance 0.35 ;
+    tai:executesOn tai:neuromorphic_chip_01 .
+
+tai:causal_link_01 a tai:Link ;
+    tai:hasIdentifier "link-causal-01" ;
+    tai:hasLabel "Causal Relationship Link" ;
+    tai:hasDescription "Causal relationship between events" ;
+    tai:hasLinkType "causal" ;
+    tai:hasLinkStrength 0.94 ;
+    tai:isBidirectional false ;
+    tai:hasConfidence 0.91 ;
+    tai:hasSemanticDistance 0.15 ;
+    tai:executesOn tai:gpu_cluster_01 .
+
+# Signal Examples
+tai:data_signal_01 a tai:Signal ;
+    tai:hasIdentifier "signal-data-01" ;
+    tai:hasLabel "Neural Data Signal" ;
+    tai:hasDescription "Information signal carrying neural state data" ;
+    tai:hasSignalType "digital" ;
+    tai:hasPayload "neural_state_vector_compressed" ;
+    tai:hasSignalStrength 0.78 ;
+    tai:hasNoiseLevel 0.05 ;
+    tai:hasFrequency 1000.0 ;
+    tai:hasTimestamp "2026-01-01T12:00:01.750Z"^^xsd:dateTime ;
+    tai:hasConfidence 0.89 ;
+    tai:executesOn tai:neuromorphic_chip_01 .
+
+# Wave Examples
+tai:alpha_wave_01 a tai:Wave ;
+    tai:hasIdentifier "wave-alpha-01" ;
+    tai:hasLabel "Alpha Cognitive Wave" ;
+    tai:hasDescription "Alpha-frequency cognitive oscillation" ;
+    tai:hasWaveform "sine" ;
+    tai:hasFrequency 10.0 ;
+    tai:hasWaveAmplitude 0.65 ;
+    tai:hasPhase 1.57 ;
+    tai:hasPeriod "PT0.1S"^^xsd:duration ;
+    tai:hasTimestamp "2026-01-01T12:00:00Z"^^xsd:dateTime ;
+    tai:hasConfidence 0.85 ;
+    tai:executesOn tai:neuromorphic_chip_01 .
+
+tai:gamma_wave_01 a tai:Wave ;
+    tai:hasIdentifier "wave-gamma-01" ;
+    tai:hasLabel "Gamma Cognitive Wave" ;
+    tai:hasDescription "Gamma-frequency cognitive oscillation" ;
+    tai:hasWaveform "sine" ;
+    tai:hasFrequency 40.0 ;
+    tai:hasWaveAmplitude 0.42 ;
+    tai:hasPhase 0.0 ;
+    tai:hasPeriod "PT0.025S"^^xsd:duration ;
+    tai:hasTimestamp "2026-01-01T12:00:00Z"^^xsd:dateTime ;
+    tai:hasConfidence 0.83 ;
+    tai:executesOn tai:neuromorphic_chip_01 .
+
+# Spiral Examples
+tai:learning_spiral_01 a tai:Spiral ;
+    tai:hasIdentifier "spiral-learning-01" ;
+    tai:hasLabel "Iterative Learning Spiral" ;
+    tai:hasDescription "Spiral pattern of iterative learning improvement" ;
+    tai:hasSpiralType "logarithmic" ;
+    tai:hasGrowthRate 0.15 ;
+    tai:hasIteration 5 ;
+    tai:hasRevolution 1.25 ;
+    tai:hasTimestamp "2026-01-01T12:00:00Z"^^xsd:dateTime ;
+    tai:hasConfidence 0.87 ;
+    tai:executesOn tai:gpu_cluster_01 .
+
+# Fossil Examples
+tai:memory_fossil_01 a tai:Fossil ;
+    tai:hasIdentifier "fossil-memory-01" ;
+    tai:hasLabel "Preserved Memory State" ;
+    tai:hasDescription "Fossilized cognitive state from previous learning" ;
+    tai:hasAge "PT24H"^^xsd:duration ;
+    tai:hasPreservationQuality 0.92 ;
+    tai:hasOriginalContext "pattern_recognition_training" ;
+    tai:hasSemanticWeight 0.78 ;
+    tai:hasTimestamp "2026-01-01T12:00:00Z"^^xsd:dateTime ;
+    tai:hasConfidence 0.84 ;
+    tai:executesOn tai:gpu_cluster_01 .
+
+# Cut Examples
+tai:boundary_cut_01 a tai:Cut ;
+    tai:hasIdentifier "cut-boundary-01" ;
+    tai:hasLabel "Semantic Boundary Cut" ;
+    tai:hasDescription "Boundary separating different semantic domains" ;
+    tai:hasCutType "semantic" ;
+    tai:hasSharpness 0.85 ;
+    tai:hasDepth 2.5 ;
+    tai:hasSemanticWeight 0.71 ;
+    tai:hasTimestamp "2026-01-01T12:00:00Z"^^xsd:dateTime ;
+    tai:hasConfidence 0.79 ;
+    tai:executesOn tai:neuromorphic_chip_01 .
+
+# ===== PULSE SEQUENCE EXAMPLES =====
+
+tai:recognition_sequence_01 a tai:PulseSequence ;
+    tai:hasIdentifier "sequence-recognition-01" ;
+    tai:hasLabel "Pattern Recognition Sequence" ;
+    tai:hasDescription "Pulse sequence implementing pattern recognition" ;
+    tai:hasSequenceLength 4 ;
+    tai:hasSequenceDuration "PT0.010S"^^xsd:duration ;
+    tai:isRepeating false ;
+    tai:hasTimestamp "2026-01-01T12:00:01.500Z"^^xsd:dateTime ;
+    tai:hasConfidence 0.91 .
+
+# Pulses in sequence
+tai:pulse_seq_01_p1 a tai:Pulse ;
+    tai:hasIdentifier "pulse-seq-01-p1" ;
+    tai:hasLabel "Input Processing Pulse" ;
+    tai:hasAmplitude 0.8 ;
+    tai:hasTimestamp "2026-01-01T12:00:01.500Z"^^xsd:dateTime ;
+    tai:isPartOfSequence tai:recognition_sequence_01 ;
+    tai:hasSequenceOrder 1 ;
+    tai:executesOn tai:neuromorphic_chip_01 .
+
+tai:pulse_seq_01_p2 a tai:Pulse ;
+    tai:hasIdentifier "pulse-seq-01-p2" ;
+    tai:hasLabel "Feature Extraction Pulse" ;
+    tai:hasAmplitude 0.72 ;
+    tai:hasTimestamp "2026-01-01T12:00:01.503Z"^^xsd:dateTime ;
+    tai:isPartOfSequence tai:recognition_sequence_01 ;
+    tai:hasSequenceOrder 2 ;
+    tai:executesOn tai:neuromorphic_chip_01 ;
+    tai:followsInSequence tai:pulse_seq_01_p1 .
+
+tai:pulse_seq_01_p3 a tai:Pulse ;
+    tai:hasIdentifier "pulse-seq-01-p3" ;
+    tai:hasLabel "Pattern Matching Pulse" ;  
+    tai:hasAmplitude 0.85 ;
+    tai:hasTimestamp "2026-01-01T12:00:01.507Z"^^xsd:dateTime ;
+    tai:isPartOfSequence tai:recognition_sequence_01 ;
+    tai:hasSequenceOrder 3 ;
+    tai:executesOn tai:gpu_cluster_01 ;
+    tai:followsInSequence tai:pulse_seq_01_p2 .
+
+tai:pulse_seq_01_p4 a tai:Pulse ;
+    tai:hasIdentifier "pulse-seq-01-p4" ;
+    tai:hasLabel "Decision Output Pulse" ;
+    tai:hasAmplitude 0.95 ;
+    tai:hasTimestamp "2026-01-01T12:00:01.510Z"^^xsd:dateTime ;
+    tai:isPartOfSequence tai:recognition_sequence_01 ;
+    tai:hasSequenceOrder 4 ;
+    tai:executesOn tai:neuromorphic_chip_01 ;
+    tai:followsInSequence tai:pulse_seq_01_p3 .
+
+# ===== SEMANTIC GRAPH EXAMPLES =====
+
+# Semantic Nodes
+tai:concept_vision a tai:Concept ;
+    tai:hasIdentifier "concept-vision" ;
+    tai:hasLabel "Vision Processing Concept" ;
+    tai:hasSemanticValue "visual_information_processing" ;
+    tai:hasSemanticType "cognitive_function" ;
+    tai:hasActivationLevel 0.78 ;
+    tai:hasSemanticDensity 0.85 ;
+    tai:hasConceptualDepth 3 ;
+    tai:hasSemanticWeight 0.82 ;
+    tai:hasConfidence 0.89 .
+
+tai:concept_memory a tai:Concept ;
+    tai:hasIdentifier "concept-memory" ;
+    tai:hasLabel "Memory Storage Concept" ;
+    tai:hasSemanticValue "information_storage_retrieval" ;
+    tai:hasSemanticType "cognitive_function" ;
+    tai:hasActivationLevel 0.65 ;
+    tai:hasSemanticDensity 0.77 ;
+    tai:hasConceptualDepth 2 ;
+    tai:hasSemanticWeight 0.71 ;
+    tai:hasConfidence 0.84 .
+
+# Semantic Edges
+tai:vision_memory_edge a tai:SemanticEdge ;
+    tai:hasIdentifier "edge-vision-memory" ;
+    tai:hasLabel "Vision-Memory Association" ;
+    tai:hasSemanticRelationType "functional_association" ;
+    tai:hasSemanticStrength 0.73 ;
+    tai:isDirectional false ;
+    tai:hasSymmetry 0.92 ;
+    tai:hasSemanticDistance 0.42 ;
+    tai:hasSourceNode tai:concept_vision ;
+    tai:hasTargetNode tai:concept_memory ;
+    tai:hasConfidence 0.86 .
+
+# Semantic Cluster
+tai:cognitive_functions_cluster a tai:SemanticCluster ;
+    tai:hasIdentifier "cluster-cognitive-functions" ;
+    tai:hasLabel "Cognitive Functions Cluster" ;
+    tai:hasClusterRadius 1.5 ;
+    tai:hasClusterCohesion 0.78 ;
+    tai:hasIntraClusterDistance 0.65 ;
+    tai:hasClusterCentroid tai:concept_vision .
+
+# Cluster membership
+tai:concept_vision tai:belongsToCluster tai:cognitive_functions_cluster .
+tai:concept_memory tai:belongsToCluster tai:cognitive_functions_cluster .
+
+# ===== SOFT LOGIC EXAMPLES =====
+
+# Suggestion Engine
+tai:pattern_suggester_01 a tai:SuggestionEngine ;
+    tai:hasIdentifier "suggester-pattern-01" ;
+    tai:hasLabel "Pattern Association Suggester" ;
+    tai:hasDescription "Engine for suggesting pattern-based associations" ;
+    tai:hasConfidence 0.82 .
+
+# Suggestion
+tai:vision_attention_suggestion a tai:Suggestion ;
+    tai:hasIdentifier "suggest-vision-attention" ;
+    tai:hasLabel "Vision-Attention Connection Suggestion" ;
+    tai:hasSuggestionReason "Frequent co-activation in visual processing tasks" ;
+    tai:hasSuggestionScore 0.74 ;
+    tai:isAccepted false ;
+    tai:hasSuggestionStrength 0.68 ;
+    tai:hasConfidence 0.71 ;
+    tai:suggestsConnection tai:concept_vision .
+
+tai:pattern_suggester_01 tai:generatesSuggestion tai:vision_attention_suggestion .
+
+# Fuzzy Set Example
+tai:high_confidence_set a tai:FuzzySet ;
+    tai:hasIdentifier "fuzzyset-high-confidence" ;
+    tai:hasLabel "High Confidence Fuzzy Set" ;
+    tai:hasMembershipFunction "sigmoid(x, 0.7, 10)" ;
+    tai:hasMembershipDegree 0.85 .
+
+# ===== TEMPORAL RELATIONSHIPS =====
+
+# Temporal patterns and synchronization
+tai:alpha_wave_01 tai:interferesWith tai:gamma_wave_01 .
+tai:activation_pulse_01 tai:synchronizesWith tai:sync_pulse_01 .
+tai:activation_pulse_01 tai:triggeredBy tai:data_signal_01 .
+tai:data_signal_01 tai:carriesInformation tai:concept_vision .
+
+# Causal relationships
+tai:pulse_seq_01_p1 tai:causallyChainsTo tai:pulse_seq_01_p2 ;
+    tai:hasCausalDelay "PT0.003S"^^xsd:duration ;
+    tai:hasCausalStrength 0.89 .
+
+tai:pulse_seq_01_p2 tai:causallyChainsTo tai:pulse_seq_01_p3 ;
+    tai:hasCausalDelay "PT0.004S"^^xsd:duration ;
+    tai:hasCausalStrength 0.85 .
+
+# ===== SUBSTRATE RELATIONSHIPS =====
+
+# Substrate bridges and compatibility
+tai:gpu_neuro_bridge a tai:SubstrateBridge ;
+    tai:hasIdentifier "bridge-gpu-neuro" ;
+    tai:hasLabel "GPU-Neuromorphic Bridge" ;
+    tai:hasCompatibilityScore 0.73 ;
+    tai:hasSemanticDistance 0.45 .
+
+tai:gpu_cluster_01 tai:bridgesTo tai:neuromorphic_chip_01 ;
+    tai:hasBridge tai:gpu_neuro_bridge .
+
+tai:gpu_cluster_01 tai:isCompatibleWith tai:neuromorphic_chip_01 .
+tai:gpu_cluster_01 tai:hasAffinityWith tai:quantum_annealer_01 .
+
+# Translation mechanism
+tai:gpu_neuro_translator a tai:TranslationMechanism ;
+    tai:hasIdentifier "translator-gpu-neuro" ;
+    tai:hasLabel "GPU to Neuromorphic Translator" ;
+    tai:translatesFrom tai:gpu_cluster_01 ;
+    tai:translatesTo tai:neuromorphic_chip_01 ;
+    tai:hasTranslationEfficiency 0.78 ;
+    tai:hasTranslationLatency 2.5 .
+
+# ===== SEMANTIC GRAVITY EXAMPLES =====
+
+# Semantic attractor
+tai:vision_attractor a tai:SemanticAttractor ;
+    tai:hasIdentifier "attractor-vision" ;
+    tai:hasLabel "Vision Processing Attractor" ;
+    tai:hasAttractionRadius 2.8 ;
+    tai:hasSemanticWeight 0.87 ;
+    tai:attractsNode tai:concept_vision ;
+    tai:attractsNode tai:concept_memory .
+
+# Gravity well
+tai:cognitive_gravity_well a tai:SemanticGravityWell ;
+    tai:hasIdentifier "gravity-well-cognitive" ;
+    tai:hasLabel "Cognitive Processing Gravity Well" ;
+    tai:hasGravitationalStrength 0.82 ;
+    tai:hasFieldStrength 0.75 ;
+    tai:encompassesNode tai:concept_vision ;
+    tai:encompassesNode tai:concept_memory .
+
+# ===== EVOLUTION AND LEARNING =====
+
+# Learning spiral convergence
+tai:learning_spiral_01 tai:convergesToward tai:concept_vision .
+tai:learning_spiral_01 tai:nextIteration tai:learning_spiral_02 .
+
+tai:learning_spiral_02 a tai:Spiral ;
+    tai:hasIdentifier "spiral-learning-02" ;
+    tai:hasLabel "Learning Spiral Iteration 2" ;
+    tai:hasSpiralType "logarithmic" ;
+    tai:hasGrowthRate 0.12 ;
+    tai:hasIteration 6 ;
+    tai:hasRevolution 1.5 ;
+    tai:hasTimestamp "2026-01-01T12:05:00Z"^^xsd:dateTime ;
+    tai:hasConfidence 0.89 ;
+    tai:executesOn tai:gpu_cluster_01 .
+
+# Fossil preservation relationship
+tai:memory_fossil_01 tai:preserves tai:concept_memory ;
+    tai:fossilizedFrom tai:learning_spiral_01 .
+
+# Semantic evolution
+tai:vision_evolution a tai:SemanticEvolution ;
+    tai:hasIdentifier "evolution-vision" ;
+    tai:hasLabel "Vision Concept Evolution" ;
+    tai:evolvesSemantics tai:concept_vision ;
+    tai:hasEvolutionPressure 0.65 ;
+    tai:hasAdaptationRate 0.23 ;
+    tai:hasTimestamp "2026-01-01T12:00:00Z"^^xsd:dateTime .
+
+# Cut boundary creation
+tai:boundary_cut_01 tai:separates tai:concept_vision ;
+    tai:separates tai:concept_memory ;
+    tai:createsBoundary tai:cognitive_functions_cluster .

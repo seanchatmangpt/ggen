@@ -1,0 +1,320 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cli: <http://github.com/github/spec-kit/cli#> .
+
+# ============================================================================
+# CLI Commands Ontology - Commands as Classes
+# ============================================================================
+# Constitutional equation: commands/*.py = μ(cli-commands.ttl)
+#
+# Design: Each CLI command is an owl:Class that ggen extracts.
+# Arguments and options are properties with structured comments.
+# Format: [type:argument|option] [flag:--name] [short:-x] [default:value] [required:true|false] [env:VAR] [pytype:Type] Description
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Base Command Class (abstract)
+# ----------------------------------------------------------------------------
+
+cli:Command a owl:Class ;
+    rdfs:label "Command"@en ;
+    rdfs:comment "Base class for CLI commands. Subclasses define specific commands."@en .
+
+# ============================================================================
+# ROOT COMMANDS
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# InitCommand - Initialize a new project
+# ----------------------------------------------------------------------------
+
+cli:InitCommand a owl:Class ;
+    rdfs:subClassOf cli:Command ;
+    rdfs:label "init"@en ;
+    rdfs:comment "Initialize a new Specify project from the latest template"@en .
+
+cli:init_project_name a owl:DatatypeProperty ;
+    rdfs:domain cli:InitCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:argument] [index:0] [required:false] Name of the project to create. Omit if using --here."@en .
+
+cli:init_ai a owl:DatatypeProperty ;
+    rdfs:domain cli:InitCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:option] [flag:--ai] [short:-a] [required:false] AI assistant type (claude, cursor, copilot)"@en .
+
+cli:init_script a owl:DatatypeProperty ;
+    rdfs:domain cli:InitCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:option] [flag:--script] [short:-s] [default:sh] [required:false] Script type for helper scripts (sh or ps1)"@en .
+
+cli:init_here a owl:DatatypeProperty ;
+    rdfs:domain cli:InitCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--here] [short:-H] [default:false] [required:false] Initialize in current directory instead of creating new"@en .
+
+cli:init_no_git a owl:DatatypeProperty ;
+    rdfs:domain cli:InitCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--no-git] [default:false] [required:false] Skip git repository initialization"@en .
+
+cli:init_github_token a owl:DatatypeProperty ;
+    rdfs:domain cli:InitCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:option] [flag:--github-token] [env:GH_TOKEN] [required:false] GitHub token for authenticated requests"@en .
+
+cli:init_verbose a owl:DatatypeProperty ;
+    rdfs:domain cli:InitCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--verbose] [short:-v] [default:false] [required:false] Enable verbose output"@en .
+
+cli:init_debug a owl:DatatypeProperty ;
+    rdfs:domain cli:InitCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--debug] [default:false] [required:false] Enable debug output"@en .
+
+# ----------------------------------------------------------------------------
+# CheckCommand - Check for required tools
+# ----------------------------------------------------------------------------
+
+cli:CheckCommand a owl:Class ;
+    rdfs:subClassOf cli:Command ;
+    rdfs:label "check"@en ;
+    rdfs:comment "Check for required and optional tools"@en .
+
+cli:check_verbose a owl:DatatypeProperty ;
+    rdfs:domain cli:CheckCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--verbose] [short:-v] [default:false] [required:false] Show detailed information about each tool"@en .
+
+cli:check_json a owl:DatatypeProperty ;
+    rdfs:domain cli:CheckCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--json] [default:false] [required:false] Output results as JSON"@en .
+
+cli:check_include_optional a owl:DatatypeProperty ;
+    rdfs:domain cli:CheckCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--include-optional] [default:true] [required:false] Include optional tools in the check"@en .
+
+# ----------------------------------------------------------------------------
+# VersionCommand - Show version information
+# ----------------------------------------------------------------------------
+
+cli:VersionCommand a owl:Class ;
+    rdfs:subClassOf cli:Command ;
+    rdfs:label "version"@en ;
+    rdfs:comment "Show version information"@en .
+
+cli:version_check_updates a owl:DatatypeProperty ;
+    rdfs:domain cli:VersionCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--check-updates] [short:-u] [default:false] [required:false] Check for available updates"@en .
+
+cli:version_json a owl:DatatypeProperty ;
+    rdfs:domain cli:VersionCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--json] [default:false] [required:false] Output results as JSON"@en .
+
+cli:version_verbose a owl:DatatypeProperty ;
+    rdfs:domain cli:VersionCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--verbose] [short:-v] [default:false] [required:false] Show detailed build information"@en .
+
+# ============================================================================
+# GGEN SUBCOMMANDS
+# ============================================================================
+
+cli:GgenCommand a owl:Class ;
+    rdfs:subClassOf cli:Command ;
+    rdfs:label "ggen"@en ;
+    rdfs:comment "RDF-first code generation command group"@en .
+
+cli:GgenSyncCommand a owl:Class ;
+    rdfs:subClassOf cli:GgenCommand ;
+    rdfs:label "sync"@en ;
+    rdfs:comment "Transform RDF specifications to code/markdown using ggen sync"@en .
+
+cli:ggen_sync_watch a owl:DatatypeProperty ;
+    rdfs:domain cli:GgenSyncCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--watch] [short:-w] [default:false] [required:false] Watch for file changes and automatically re-run"@en .
+
+cli:ggen_sync_verbose a owl:DatatypeProperty ;
+    rdfs:domain cli:GgenSyncCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--verbose] [short:-v] [default:false] [required:false] Enable verbose output"@en .
+
+cli:ggen_sync_dry_run a owl:DatatypeProperty ;
+    rdfs:domain cli:GgenSyncCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--dry-run] [default:false] [required:false] Preview changes without writing files"@en .
+
+cli:ggen_sync_json a owl:DatatypeProperty ;
+    rdfs:domain cli:GgenSyncCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--json] [default:false] [required:false] Output results as JSON"@en .
+
+# ============================================================================
+# PM SUBCOMMANDS (Process Mining)
+# ============================================================================
+
+cli:PmCommand a owl:Class ;
+    rdfs:subClassOf cli:Command ;
+    rdfs:label "pm"@en ;
+    rdfs:comment "Process mining command group using pm4py"@en .
+
+cli:PmDiscoverCommand a owl:Class ;
+    rdfs:subClassOf cli:PmCommand ;
+    rdfs:label "discover"@en ;
+    rdfs:comment "Discover a process model from an event log"@en .
+
+cli:pm_discover_input_file a owl:DatatypeProperty ;
+    rdfs:domain cli:PmDiscoverCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:argument] [index:0] [required:true] [pytype:Path] Input event log file (CSV or XES)"@en .
+
+cli:pm_discover_output a owl:DatatypeProperty ;
+    rdfs:domain cli:PmDiscoverCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:option] [flag:--output] [short:-o] [required:false] [pytype:Path] Output file for discovered model"@en .
+
+cli:pm_discover_algorithm a owl:DatatypeProperty ;
+    rdfs:domain cli:PmDiscoverCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:option] [flag:--algorithm] [short:-a] [default:inductive] [required:false] Discovery algorithm: alpha, heuristic, inductive, ilp"@en .
+
+cli:pm_discover_noise a owl:DatatypeProperty ;
+    rdfs:domain cli:PmDiscoverCommand ;
+    rdfs:range xsd:float ;
+    rdfs:comment "[type:option] [flag:--noise] [short:-n] [default:0.0] [required:false] Noise threshold for inductive miner (0.0-1.0)"@en .
+
+cli:pm_discover_case_id a owl:DatatypeProperty ;
+    rdfs:domain cli:PmDiscoverCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:option] [flag:--case-id] [default:case:concept:name] [required:false] Column name for case ID (CSV only)"@en .
+
+cli:pm_discover_activity a owl:DatatypeProperty ;
+    rdfs:domain cli:PmDiscoverCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:option] [flag:--activity] [default:concept:name] [required:false] Column name for activity (CSV only)"@en .
+
+cli:pm_discover_timestamp a owl:DatatypeProperty ;
+    rdfs:domain cli:PmDiscoverCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:option] [flag:--timestamp] [default:time:timestamp] [required:false] Column name for timestamp (CSV only)"@en .
+
+cli:pm_discover_verbose a owl:DatatypeProperty ;
+    rdfs:domain cli:PmDiscoverCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--verbose] [short:-v] [default:false] [required:false] Show detailed progress"@en .
+
+cli:pm_discover_json a owl:DatatypeProperty ;
+    rdfs:domain cli:PmDiscoverCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--json] [default:false] [required:false] Output results as JSON"@en .
+
+cli:PmConformCommand a owl:Class ;
+    rdfs:subClassOf cli:PmCommand ;
+    rdfs:label "conform"@en ;
+    rdfs:comment "Check conformance between event log and process model"@en .
+
+cli:pm_conform_log_file a owl:DatatypeProperty ;
+    rdfs:domain cli:PmConformCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:argument] [index:0] [required:true] [pytype:Path] Input event log file (CSV or XES)"@en .
+
+cli:pm_conform_model_file a owl:DatatypeProperty ;
+    rdfs:domain cli:PmConformCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:argument] [index:1] [required:true] [pytype:Path] Process model file (PNML or BPMN)"@en .
+
+cli:pm_conform_method a owl:DatatypeProperty ;
+    rdfs:domain cli:PmConformCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:option] [flag:--method] [short:-m] [default:token] [required:false] Conformance method: token or alignment"@en .
+
+cli:pm_conform_verbose a owl:DatatypeProperty ;
+    rdfs:domain cli:PmConformCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--verbose] [short:-v] [default:false] [required:false] Show detailed diagnostics"@en .
+
+cli:pm_conform_json a owl:DatatypeProperty ;
+    rdfs:domain cli:PmConformCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--json] [default:false] [required:false] Output results as JSON"@en .
+
+cli:PmStatsCommand a owl:Class ;
+    rdfs:subClassOf cli:PmCommand ;
+    rdfs:label "stats"@en ;
+    rdfs:comment "Extract statistics from an event log"@en .
+
+cli:pm_stats_input_file a owl:DatatypeProperty ;
+    rdfs:domain cli:PmStatsCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:argument] [index:0] [required:true] [pytype:Path] Input event log file (CSV or XES)"@en .
+
+cli:pm_stats_case_id a owl:DatatypeProperty ;
+    rdfs:domain cli:PmStatsCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:option] [flag:--case-id] [default:case:concept:name] [required:false] Column name for case ID"@en .
+
+cli:pm_stats_verbose a owl:DatatypeProperty ;
+    rdfs:domain cli:PmStatsCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--verbose] [short:-v] [default:false] [required:false] Show detailed statistics"@en .
+
+cli:pm_stats_json a owl:DatatypeProperty ;
+    rdfs:domain cli:PmStatsCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--json] [default:false] [required:false] Output results as JSON"@en .
+
+# ============================================================================
+# SPIFF SUBCOMMANDS (BPMN Workflow)
+# ============================================================================
+
+cli:SpiffCommand a owl:Class ;
+    rdfs:subClassOf cli:Command ;
+    rdfs:label "wf"@en ;
+    rdfs:comment "BPMN workflow command group using SpiffWorkflow"@en .
+
+cli:SpiffValidateCommand a owl:Class ;
+    rdfs:subClassOf cli:SpiffCommand ;
+    rdfs:label "validate"@en ;
+    rdfs:comment "Execute full OTEL validation workflow"@en .
+
+cli:spiff_validate_iterations a owl:DatatypeProperty ;
+    rdfs:domain cli:SpiffValidateCommand ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "[type:option] [flag:--iterations] [short:-i] [default:1] [required:false] Number of validation iterations"@en .
+
+cli:spiff_validate_verbose a owl:DatatypeProperty ;
+    rdfs:domain cli:SpiffValidateCommand ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "[type:option] [flag:--verbose] [short:-v] [default:false] [required:false] Verbose output"@en .
+
+cli:spiff_validate_export_json a owl:DatatypeProperty ;
+    rdfs:domain cli:SpiffValidateCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:option] [flag:--export-json] [required:false] [pytype:Path] Export results to JSON file"@en .
+
+cli:SpiffRunWorkflowCommand a owl:Class ;
+    rdfs:subClassOf cli:SpiffCommand ;
+    rdfs:label "run-workflow"@en ;
+    rdfs:comment "Execute a BPMN workflow file"@en .
+
+cli:spiff_run_workflow_file a owl:DatatypeProperty ;
+    rdfs:domain cli:SpiffRunWorkflowCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:argument] [index:0] [required:true] [pytype:Path] BPMN workflow file to execute"@en .
+
+cli:spiff_run_export_json a owl:DatatypeProperty ;
+    rdfs:domain cli:SpiffRunWorkflowCommand ;
+    rdfs:range xsd:string ;
+    rdfs:comment "[type:option] [flag:--export-json] [required:false] [pytype:Path] Export results to JSON"@en .
+
+# ============================================================================
+# End of CLI Commands Ontology
+# ============================================================================

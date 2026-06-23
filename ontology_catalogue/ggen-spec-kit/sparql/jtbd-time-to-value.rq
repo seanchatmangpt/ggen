@@ -1,0 +1,159 @@
+# ============================================================================
+# JTBD Query: Time-to-Value Metrics
+# ============================================================================
+# Purpose: Calculate time-to-value for jobs, features, and outcomes.
+#          Measures how quickly customers achieve desired outcomes,
+#          identifies friction in customer journeys, and tracks onboarding.
+#
+# Output: Jobs/features with time metrics, friction points, journey stages
+# Use: Onboarding optimization, friction reduction, customer success tracking
+#
+# Example Output:
+# Entity              | Type    | Time to First Value | Time to Full Value | Friction Points | Journey Stage
+# Manage dependencies | Job     | 2 min               | 15 min             | 0               | Adoption
+# Auto-dep manager    | Feature | 30 sec              | 5 min              | 1 (learning)    | Early majority
+# Configure OTEL      | Job     | 45 min              | 3 hours            | 5 (complexity)  | Pre-adoption
+# OTEL wizard         | Feature | 10 min              | 30 min             | 2 (config)      | Innovators
+# ============================================================================
+
+PREFIX jtbd: <http://github.com/github/spec-kit/jtbd#>
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?entityName
+  ?entityType
+  ?entityDescription
+  ?personaName
+  ?timeToFirstValue
+  ?timeToFullValue
+  ?timeToFirstValueUnit
+  ?timeToFullValueUnit
+  (IF(?timeToFullValue <= ?targetTime, "Excellent - Below Target",
+      IF(?timeToFullValue <= (?targetTime * 1.5), "Good - Near Target",
+         IF(?timeToFullValue <= (?targetTime * 2.0), "Needs Improvement",
+            "Critical - Far Above Target"))) AS ?timeToValueRating)
+  ?targetTime
+  ?targetTimeUnit
+  ?frictionPointCount
+  ?primaryFrictionPoint
+  ?frictionSeverity
+  ?journeyStage
+  ?adoptionPhase
+  ?churnRisk
+  (IF(?frictionPointCount = 0, "No Friction",
+      IF(?frictionPointCount <= 2, "Low Friction",
+         IF(?frictionPointCount <= 4, "Moderate Friction - Address",
+            "High Friction - Critical"))) AS ?frictionAssessment)
+  ?avgOnboardingTime
+  ?avgTimeToAdoption
+  ?avgTimeToHabit
+  ?dateRangeStart
+  ?dateRangeEnd
+WHERE {
+  # Jobs with time-to-value metrics
+  {
+    ?entity a jtbd:Job ;
+            jtbd:jobTitle ?entityName .
+    BIND("Job" AS ?entityType)
+    OPTIONAL { ?entity jtbd:jobDescription ?entityDescription }
+
+    # Persona performing job
+    OPTIONAL {
+      ?entity jtbd:performedBy ?segment .
+      ?segment jtbd:hasPersona ?persona .
+      ?persona jtbd:personaName ?personaName .
+    }
+  }
+  UNION
+  # Features with time-to-value metrics
+  {
+    ?entity a sk:Feature ;
+            sk:featureName ?entityName .
+    BIND("Feature" AS ?entityType)
+    OPTIONAL { ?entity sk:featureDescription ?entityDescription }
+
+    # Persona targeted by feature
+    OPTIONAL {
+      ?entity jtbd:targetsSegment ?segment .
+      ?segment jtbd:hasPersona ?persona .
+      ?persona jtbd:personaName ?personaName .
+    }
+  }
+
+  # Time to first value (initial outcome achieved)
+  OPTIONAL {
+    ?entity sk:timeToFirstValue ?timeToFirstValue .
+    OPTIONAL { ?entity sk:timeToFirstValueUnit ?timeToFirstValueUnit }
+  }
+
+  # Time to full value (complete job/feature mastery)
+  OPTIONAL {
+    ?entity sk:timeToFullValue ?timeToFullValue .
+    OPTIONAL { ?entity sk:timeToFullValueUnit ?timeToFullValueUnit }
+  }
+
+  # Target time metrics
+  OPTIONAL {
+    ?entity sk:targetTime ?targetTime .
+    OPTIONAL { ?entity sk:targetTimeUnit ?targetTimeUnit }
+  }
+
+  # Friction points in journey
+  OPTIONAL {
+    SELECT ?entity
+           (COUNT(?friction) AS ?frictionPointCount)
+           (SAMPLE(?frictionDesc) AS ?primaryFrictionPoint)
+           (SAMPLE(?frictionSev) AS ?frictionSeverity)
+    WHERE {
+      {
+        ?entity jtbd:hasPainpoint ?friction .
+        ?friction jtbd:painpointDescription ?frictionDesc ;
+                  jtbd:painpointSeverity ?frictionSev .
+      }
+      UNION
+      {
+        ?entity jtbd:hasAnxiety ?friction .
+        ?friction jtbd:anxietyDescription ?frictionDesc .
+        BIND("Anxiety" AS ?frictionSev)
+      }
+      UNION
+      {
+        ?entity jtbd:hasHabit ?friction .
+        ?friction jtbd:habitDescription ?frictionDesc ;
+                  jtbd:habitStrength ?frictionSev .
+      }
+    }
+    GROUP BY ?entity
+  }
+
+  # Customer journey stage
+  OPTIONAL { ?entity sk:journeyStage ?journeyStage }
+
+  # Adoption phase (Rogers' Diffusion of Innovations)
+  OPTIONAL { ?entity sk:adoptionPhase ?adoptionPhase }
+
+  # Churn risk based on time-to-value
+  OPTIONAL {
+    BIND(IF(?timeToFullValue > (?targetTime * 2.5), "High",
+            IF(?timeToFullValue > (?targetTime * 1.5), "Medium",
+               "Low")) AS ?churnRisk)
+  }
+
+  # Onboarding and adoption time metrics
+  OPTIONAL { ?entity sk:avgOnboardingTime ?avgOnboardingTime }
+  OPTIONAL { ?entity sk:avgTimeToAdoption ?avgTimeToAdoption }
+  OPTIONAL { ?entity sk:avgTimeToHabit ?avgTimeToHabit }
+
+  # Date range filtering
+  OPTIONAL { ?entity sk:metricsDateStart ?dateRangeStart }
+  OPTIONAL { ?entity sk:metricsDateEnd ?dateRangeEnd }
+
+  # Default values
+  BIND(COALESCE(?timeToFirstValue, 0.0) AS ?timeToFirstValue)
+  BIND(COALESCE(?timeToFullValue, 0.0) AS ?timeToFullValue)
+  BIND(COALESCE(?frictionPointCount, 0) AS ?frictionPointCount)
+  BIND(COALESCE(?timeToFirstValueUnit, "minutes") AS ?timeToFirstValueUnit)
+  BIND(COALESCE(?timeToFullValueUnit, "minutes") AS ?timeToFullValueUnit)
+}
+ORDER BY DESC(?timeToFullValue) DESC(?frictionPointCount) ?entityName

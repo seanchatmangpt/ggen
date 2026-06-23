@@ -1,0 +1,120 @@
+@prefix fr: <http://example.org/financial-reporting#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Financial Reporting Ontology
+fr:FinancialReportingOntology a owl:Ontology ;
+    rdfs:label "Financial Reporting Ontology for Consolidation" ;
+    rdfs:comment "Semantic model for multi-entity financial reporting and consolidation" .
+
+# Classes
+fr:Entity a owl:Class ;
+    rdfs:label "Legal Entity" ;
+    rdfs:comment "A legal entity that maintains financial records" .
+
+fr:Transaction a owl:Class ;
+    rdfs:label "Financial Transaction" ;
+    rdfs:comment "A financial transaction between entities or with external parties" .
+
+fr:Currency a owl:Class ;
+    rdfs:label "Currency" ;
+    rdfs:comment "A monetary currency" .
+
+fr:Account a owl:Class ;
+    rdfs:label "Chart of Accounts Entry" ;
+    rdfs:comment "An account in the chart of accounts" .
+
+fr:ConsolidationRule a owl:Class ;
+    rdfs:label "Consolidation Rule" ;
+    rdfs:comment "Rules for eliminating intercompany transactions" .
+
+# Properties
+fr:hasEntity a owl:ObjectProperty ;
+    rdfs:domain fr:Transaction ;
+    rdfs:range fr:Entity .
+
+fr:hasCounterparty a owl:ObjectProperty ;
+    rdfs:domain fr:Transaction ;
+    rdfs:range fr:Entity .
+
+fr:hasAccount a owl:ObjectProperty ;
+    rdfs:domain fr:Transaction ;
+    rdfs:range fr:Account .
+
+fr:hasCurrency a owl:ObjectProperty ;
+    rdfs:domain fr:Transaction ;
+    rdfs:range fr:Currency .
+
+fr:amount a owl:DatatypeProperty ;
+    rdfs:domain fr:Transaction ;
+    rdfs:range xsd:decimal .
+
+fr:exchangeRate a owl:DatatypeProperty ;
+    rdfs:domain fr:Currency ;
+    rdfs:range xsd:decimal .
+
+fr:isIntercompany a owl:DatatypeProperty ;
+    rdfs:domain fr:Transaction ;
+    rdfs:range xsd:boolean .
+
+fr:transactionDate a owl:DatatypeProperty ;
+    rdfs:domain fr:Transaction ;
+    rdfs:range xsd:date .
+
+# Entities
+fr:ParentCorp a fr:Entity ;
+    rdfs:label "Parent Corporation" ;
+    fr:entityCode "PC001" .
+
+fr:SubsidiaryA a fr:Entity ;
+    rdfs:label "Subsidiary A" ;
+    fr:entityCode "SA001" .
+
+fr:SubsidiaryB a fr:Entity ;
+    rdfs:label "Subsidiary B" ;
+    fr:entityCode "SB001" .
+
+# Currencies
+fr:USD a fr:Currency ;
+    rdfs:label "US Dollar" ;
+    fr:currencyCode "USD" ;
+    fr:exchangeRate "1.0"^^xsd:decimal .
+
+fr:EUR a fr:Currency ;
+    rdfs:label "Euro" ;
+    fr:currencyCode "EUR" ;
+    fr:exchangeRate "1.1"^^xsd:decimal .
+
+fr:GBP a fr:Currency ;
+    rdfs:label "British Pound" ;
+    fr:currencyCode "GBP" ;
+    fr:exchangeRate "1.25"^^xsd:decimal .
+
+# Accounts
+fr:Revenue a fr:Account ;
+    rdfs:label "Revenue" ;
+    fr:accountCode "4000" .
+
+fr:CostOfSales a fr:Account ;
+    rdfs:label "Cost of Sales" ;
+    fr:accountCode "5000" .
+
+fr:IntercompanyRevenue a fr:Account ;
+    rdfs:label "Intercompany Revenue" ;
+    fr:accountCode "4100" .
+
+fr:IntercompanyCost a fr:Account ;
+    rdfs:label "Intercompany Cost" ;
+    fr:accountCode "5100" .
+
+# Consolidation Rules
+fr:EliminateIntercompanyRevenue a fr:ConsolidationRule ;
+    rdfs:label "Eliminate Intercompany Revenue" ;
+    fr:eliminationAccount fr:IntercompanyRevenue ;
+    fr:requiresMatching true .
+
+fr:EliminateIntercompanyCost a fr:ConsolidationRule ;
+    rdfs:label "Eliminate Intercompany Cost" ;
+    fr:eliminationAccount fr:IntercompanyCost ;
+    fr:requiresMatching true .

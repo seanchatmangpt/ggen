@@ -1,0 +1,83 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl: <http://rflow.io/ontology/yawl-core#> .
+@prefix job: <http://rflow.io/ontology/job-model#> .
+@prefix ex: <http://example.org/workflow#> .
+
+# Exclusive Choice Workflow
+# A -> (B XOR C) -> D
+
+ex:workflow3 a job:WorkflowJob ;
+    job:hasJobId "wf-003" ;
+    job:hasJobName "Exclusive Choice Workflow" ;
+    job:hasState job:Pending .
+
+ex:activityA a job:ActivityJob ;
+    job:hasJobId "act-A3" ;
+    job:hasJobName "Decision Point Activity" ;
+    job:implementsPattern yawl:activity ;
+    job:belongsToWorkflow ex:workflow3 ;
+    job:hasState job:Pending .
+
+ex:exclusiveChoice a job:ActivityJob ;
+    job:hasJobId "xor-split-001" ;
+    job:hasJobName "Exclusive Choice" ;
+    job:implementsPattern yawl:xorSplit ;
+    job:belongsToWorkflow ex:workflow3 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:activityA ;
+    yawl:hasCondition "input.priority > 5" .
+
+ex:activityB a job:ActivityJob ;
+    job:hasJobId "act-B3" ;
+    job:hasJobName "High Priority Path" ;
+    job:implementsPattern yawl:activity ;
+    job:belongsToWorkflow ex:workflow3 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:exclusiveChoice ;
+    job:hasPriority 10 .
+
+ex:activityC a job:ActivityJob ;
+    job:hasJobId "act-C3" ;
+    job:hasJobName "Low Priority Path" ;
+    job:implementsPattern yawl:activity ;
+    job:belongsToWorkflow ex:workflow3 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:exclusiveChoice ;
+    job:hasPriority 1 .
+
+ex:simpleMerge a job:ActivityJob ;
+    job:hasJobId "xor-join-001" ;
+    job:hasJobName "Simple Merge" ;
+    job:implementsPattern yawl:xorJoin ;
+    job:belongsToWorkflow ex:workflow3 ;
+    job:hasState job:Pending .
+
+ex:activityD a job:ActivityJob ;
+    job:hasJobId "act-D3" ;
+    job:hasJobName "Final Activity" ;
+    job:implementsPattern yawl:activity ;
+    job:belongsToWorkflow ex:workflow3 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:simpleMerge .
+
+# Pattern relationships
+ex:exclusiveChoice yawl:enablesPattern ex:activityB ;
+    yawl:enablesPattern ex:activityC .
+
+# Merge dependencies (alternative paths)
+ex:activityB job:triggers ex:simpleMerge .
+ex:activityC job:triggers ex:simpleMerge .
+
+# Conditions for choice
+ex:exclusiveChoice yawl:hasCondition "input.priority > 5 ? 'high' : 'low'" .
+
+# Validation assertions
+ex:workflow3 yawl:isAcyclic true .
+ex:activityA yawl:isAcyclic true .
+ex:exclusiveChoice yawl:isAcyclic true .
+ex:activityB yawl:isAcyclic true .
+ex:activityC yawl:isAcyclic true .
+ex:simpleMerge yawl:isAcyclic true .
+ex:activityD yawl:isAcyclic true .

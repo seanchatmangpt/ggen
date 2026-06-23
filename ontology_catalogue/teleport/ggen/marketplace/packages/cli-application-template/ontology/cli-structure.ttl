@@ -1,0 +1,359 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cli: <http://ggen.dev/ontology/cli#> .
+@prefix gen: <http://ggen.dev/ontology/generator#> .
+
+# Core CLI Application Ontology
+cli:CLIApplication a owl:Class ;
+    rdfs:label "CLI Application" ;
+    rdfs:comment "A command-line interface application with commands, arguments, and configuration" .
+
+cli:Command a owl:Class ;
+    rdfs:label "Command" ;
+    rdfs:comment "A CLI command that performs an action" ;
+    rdfs:subClassOf cli:CLIApplication .
+
+cli:Subcommand a owl:Class ;
+    rdfs:label "Subcommand" ;
+    rdfs:comment "A nested command under a parent command" ;
+    rdfs:subClassOf cli:Command .
+
+cli:Argument a owl:Class ;
+    rdfs:label "Argument" ;
+    rdfs:comment "A positional argument to a command" .
+
+cli:Option a owl:Class ;
+    rdfs:label "Option" ;
+    rdfs:comment "A named option/flag for a command" .
+
+cli:Flag a owl:Class ;
+    rdfs:label "Flag" ;
+    rdfs:comment "A boolean flag (--verbose, -v)" ;
+    rdfs:subClassOf cli:Option .
+
+# Data Type Classes
+cli:ArgumentType a owl:Class ;
+    rdfs:label "Argument Type" ;
+    rdfs:comment "The data type of an argument or option" .
+
+cli:StringType a cli:ArgumentType ;
+    rdfs:label "String Type" ;
+    cli:rustType "String" ;
+    cli:tsType "string" ;
+    cli:pythonType "str" .
+
+cli:IntegerType a cli:ArgumentType ;
+    rdfs:label "Integer Type" ;
+    cli:rustType "i64" ;
+    cli:tsType "number" ;
+    cli:pythonType "int" .
+
+cli:BooleanType a cli:ArgumentType ;
+    rdfs:label "Boolean Type" ;
+    cli:rustType "bool" ;
+    cli:tsType "boolean" ;
+    cli:pythonType "bool" .
+
+cli:FloatType a cli:ArgumentType ;
+    rdfs:label "Float Type" ;
+    cli:rustType "f64" ;
+    cli:tsType "number" ;
+    cli:pythonType "float" .
+
+cli:EnumType a cli:ArgumentType ;
+    rdfs:label "Enum Type" ;
+    cli:rustType "enum" ;
+    cli:tsType "union" ;
+    cli:pythonType "Literal" .
+
+cli:PathType a cli:ArgumentType ;
+    rdfs:label "Path Type" ;
+    cli:rustType "PathBuf" ;
+    cli:tsType "string" ;
+    cli:pythonType "Path" .
+
+# Properties for Commands
+cli:hasCommand a owl:ObjectProperty ;
+    rdfs:domain cli:CLIApplication ;
+    rdfs:range cli:Command ;
+    rdfs:label "has command" .
+
+cli:hasSubcommand a owl:ObjectProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Subcommand ;
+    rdfs:label "has subcommand" .
+
+cli:commandName a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    rdfs:label "command name" .
+
+cli:commandAlias a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    rdfs:label "command alias" .
+
+cli:commandAbout a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    rdfs:label "command description" .
+
+cli:commandLongAbout a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    rdfs:label "command long description" .
+
+# Properties for Arguments
+cli:hasArgument a owl:ObjectProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Argument ;
+    rdfs:label "has argument" .
+
+cli:hasOption a owl:ObjectProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Option ;
+    rdfs:label "has option" .
+
+cli:argumentName a owl:DatatypeProperty ;
+    rdfs:domain cli:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "argument name" .
+
+cli:argumentType a owl:ObjectProperty ;
+    rdfs:domain cli:Argument ;
+    rdfs:range cli:ArgumentType ;
+    rdfs:label "argument type" .
+
+cli:argumentRequired a owl:DatatypeProperty ;
+    rdfs:domain cli:Argument ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "argument required" .
+
+cli:argumentDefault a owl:DatatypeProperty ;
+    rdfs:domain cli:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "argument default value" .
+
+cli:argumentHelp a owl:DatatypeProperty ;
+    rdfs:domain cli:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "argument help text" .
+
+cli:argumentPosition a owl:DatatypeProperty ;
+    rdfs:domain cli:Argument ;
+    rdfs:range xsd:integer ;
+    rdfs:label "argument position" .
+
+# Properties for Options
+cli:optionShort a owl:DatatypeProperty ;
+    rdfs:domain cli:Option ;
+    rdfs:range xsd:string ;
+    rdfs:label "short option flag" .
+
+cli:optionLong a owl:DatatypeProperty ;
+    rdfs:domain cli:Option ;
+    rdfs:range xsd:string ;
+    rdfs:label "long option flag" .
+
+cli:optionType a owl:ObjectProperty ;
+    rdfs:domain cli:Option ;
+    rdfs:range cli:ArgumentType ;
+    rdfs:label "option type" .
+
+cli:optionRequired a owl:DatatypeProperty ;
+    rdfs:domain cli:Option ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "option required" .
+
+cli:optionDefault a owl:DatatypeProperty ;
+    rdfs:domain cli:Option ;
+    rdfs:range xsd:string ;
+    rdfs:label "option default value" .
+
+cli:optionHelp a owl:DatatypeProperty ;
+    rdfs:domain cli:Option ;
+    rdfs:range xsd:string ;
+    rdfs:label "option help text" .
+
+cli:optionMultiple a owl:DatatypeProperty ;
+    rdfs:domain cli:Option ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "option accepts multiple values" .
+
+cli:optionEnumValues a owl:DatatypeProperty ;
+    rdfs:domain cli:Option ;
+    rdfs:range xsd:string ;
+    rdfs:label "option enum values (comma-separated)" .
+
+# Validation Properties
+cli:Validator a owl:Class ;
+    rdfs:label "Validator" ;
+    rdfs:comment "A validation rule for arguments/options" .
+
+cli:hasValidator a owl:ObjectProperty ;
+    rdfs:domain cli:Argument ;
+    rdfs:range cli:Validator ;
+    rdfs:label "has validator" .
+
+cli:validatorType a owl:DatatypeProperty ;
+    rdfs:domain cli:Validator ;
+    rdfs:range xsd:string ;
+    rdfs:label "validator type (regex, range, custom)" .
+
+cli:validatorPattern a owl:DatatypeProperty ;
+    rdfs:domain cli:Validator ;
+    rdfs:range xsd:string ;
+    rdfs:label "regex pattern for validation" .
+
+cli:validatorMin a owl:DatatypeProperty ;
+    rdfs:domain cli:Validator ;
+    rdfs:range xsd:integer ;
+    rdfs:label "minimum value" .
+
+cli:validatorMax a owl:DatatypeProperty ;
+    rdfs:domain cli:Validator ;
+    rdfs:range xsd:integer ;
+    rdfs:label "maximum value" .
+
+cli:validatorErrorMessage a owl:DatatypeProperty ;
+    rdfs:domain cli:Validator ;
+    rdfs:range xsd:string ;
+    rdfs:label "validation error message" .
+
+# Configuration Classes
+cli:Configuration a owl:Class ;
+    rdfs:label "Configuration" ;
+    rdfs:comment "Configuration file and environment variable support" .
+
+cli:ConfigFile a owl:Class ;
+    rdfs:label "Config File" ;
+    rdfs:comment "Configuration file (TOML, YAML, JSON)" ;
+    rdfs:subClassOf cli:Configuration .
+
+cli:EnvVar a owl:Class ;
+    rdfs:label "Environment Variable" ;
+    rdfs:comment "Environment variable binding" ;
+    rdfs:subClassOf cli:Configuration .
+
+cli:hasConfig a owl:ObjectProperty ;
+    rdfs:domain cli:CLIApplication ;
+    rdfs:range cli:Configuration ;
+    rdfs:label "has configuration" .
+
+cli:configFormat a owl:DatatypeProperty ;
+    rdfs:domain cli:ConfigFile ;
+    rdfs:range xsd:string ;
+    rdfs:label "config file format (toml, yaml, json)" .
+
+cli:configPath a owl:DatatypeProperty ;
+    rdfs:domain cli:ConfigFile ;
+    rdfs:range xsd:string ;
+    rdfs:label "default config file path" .
+
+cli:envVarName a owl:DatatypeProperty ;
+    rdfs:domain cli:EnvVar ;
+    rdfs:range xsd:string ;
+    rdfs:label "environment variable name" .
+
+cli:envVarPrefix a owl:DatatypeProperty ;
+    rdfs:domain cli:EnvVar ;
+    rdfs:range xsd:string ;
+    rdfs:label "environment variable prefix" .
+
+# Help and Documentation
+cli:HelpText a owl:Class ;
+    rdfs:label "Help Text" ;
+    rdfs:comment "Help and documentation metadata" .
+
+cli:hasHelp a owl:ObjectProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:HelpText ;
+    rdfs:label "has help text" .
+
+cli:helpTemplate a owl:DatatypeProperty ;
+    rdfs:domain cli:HelpText ;
+    rdfs:range xsd:string ;
+    rdfs:label "custom help template" .
+
+cli:helpExample a owl:DatatypeProperty ;
+    rdfs:domain cli:HelpText ;
+    rdfs:range xsd:string ;
+    rdfs:label "usage example" .
+
+cli:helpAfter a owl:DatatypeProperty ;
+    rdfs:domain cli:HelpText ;
+    rdfs:range xsd:string ;
+    rdfs:label "text after help" .
+
+# Shell Completion
+cli:ShellCompletion a owl:Class ;
+    rdfs:label "Shell Completion" ;
+    rdfs:comment "Shell completion script support" .
+
+cli:hasCompletion a owl:ObjectProperty ;
+    rdfs:domain cli:CLIApplication ;
+    rdfs:range cli:ShellCompletion ;
+    rdfs:label "has shell completion" .
+
+cli:completionShell a owl:DatatypeProperty ;
+    rdfs:domain cli:ShellCompletion ;
+    rdfs:range xsd:string ;
+    rdfs:label "completion shell (bash, zsh, fish, powershell)" .
+
+# Interactive Prompts
+cli:InteractivePrompt a owl:Class ;
+    rdfs:label "Interactive Prompt" ;
+    rdfs:comment "Interactive prompt for user input" .
+
+cli:hasPrompt a owl:ObjectProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:InteractivePrompt ;
+    rdfs:label "has interactive prompt" .
+
+cli:promptType a owl:DatatypeProperty ;
+    rdfs:domain cli:InteractivePrompt ;
+    rdfs:range xsd:string ;
+    rdfs:label "prompt type (input, select, multiselect, confirm)" .
+
+cli:promptMessage a owl:DatatypeProperty ;
+    rdfs:domain cli:InteractivePrompt ;
+    rdfs:range xsd:string ;
+    rdfs:label "prompt message" .
+
+cli:promptChoices a owl:DatatypeProperty ;
+    rdfs:domain cli:InteractivePrompt ;
+    rdfs:range xsd:string ;
+    rdfs:label "prompt choices (comma-separated)" .
+
+# Code Generation Metadata
+gen:generateStruct a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "generate struct/class for command" .
+
+gen:generateParser a owl:DatatypeProperty ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "generate argument parser" .
+
+gen:generateValidator a owl:DatatypeProperty ;
+    rdfs:domain cli:Argument ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "generate validation code" .
+
+gen:generateConfig a owl:DatatypeProperty ;
+    rdfs:domain cli:Configuration ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "generate config file handling" .
+
+gen:generateHelp a owl:DatatypeProperty ;
+    rdfs:domain cli:HelpText ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "generate help text rendering" .
+
+gen:targetLanguage a owl:DatatypeProperty ;
+    rdfs:domain cli:CLIApplication ;
+    rdfs:range xsd:string ;
+    rdfs:label "target programming language" .

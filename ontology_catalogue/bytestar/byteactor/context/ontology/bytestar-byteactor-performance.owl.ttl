@@ -1,0 +1,244 @@
+@prefix : <https://bytestar.org/ontology/bytestar-byteactor-performance#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix byteactor: <https://bytestar.org/ontology/bytestar-byteactor#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-byteactor-performance>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  owl:imports <https://bytestar.org/ontology/bytestar-byteactor> ;
+  rdfs:label "ByteStar ByteActor Performance Ontology" ;
+  rdfs:comment "Performance characteristics, metrics, and guarantees for ByteActor execution." .
+
+### Performance Classes
+:PerformanceMetric, :LatencyBound, :ThroughputBound, :ScalingProfile a owl:Class .
+:DoctrineOf8, :L1Residency, :CacheBehavior, :MemoryDiscipline a owl:Class .
+
+### Doctrine of 8 Implementation
+:DoctrineOf8 a owl:Class .
+:maxTicksPerKernel a owl:DatatypeProperty ; rdfs:domain :DoctrineOf8 ; rdfs:range xsd:integer .
+:maxHopsEndToEnd a owl:DatatypeProperty ; rdfs:domain :DoctrineOf8 ; rdfs:range xsd:integer .
+:enforcedByFabrication a owl:DatatypeProperty ; rdfs:domain :DoctrineOf8 ; rdfs:range xsd:boolean .
+:neverCheckedAtRuntime a owl:DatatypeProperty ; rdfs:domain :DoctrineOf8 ; rdfs:range xsd:boolean .
+
+# Doctrine of 8 must be enforced by fabrication
+:DoctrineOf8 rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :enforcedByFabrication ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Doctrine of 8 must never be checked at runtime
+:DoctrineOf8 rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :neverCheckedAtRuntime ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Maximum ticks per kernel must be ≤8
+:DoctrineOf8 rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :maxTicksPerKernel ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions ( [ xsd:minInclusive "1"^^xsd:integer ]
+                            [ xsd:maxInclusive "8"^^xsd:integer ] ) ] ] .
+
+# Maximum hops end-to-end must be ≤8
+:DoctrineOf8 rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :maxHopsEndToEnd ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions ( [ xsd:minInclusive "1"^^xsd:integer ]
+                            [ xsd:maxInclusive "8"^^xsd:integer ] ) ] ] .
+
+### L1 Residency Guarantees
+:L1Residency a owl:Class .
+:hotSetSize a owl:DatatypeProperty ; rdfs:domain :L1Residency ; rdfs:range xsd:integer .
+:maxL1Size a owl:DatatypeProperty ; rdfs:domain :L1Residency ; rdfs:range xsd:integer .
+:zeroCacheMisses a owl:DatatypeProperty ; rdfs:domain :L1Residency ; rdfs:range xsd:boolean .
+:alwaysResident a owl:DatatypeProperty ; rdfs:domain :L1Residency ; rdfs:range xsd:boolean .
+
+# L1 residency must guarantee zero cache misses
+:L1Residency rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :zeroCacheMisses ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# L1 residency must be always resident
+:L1Residency rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :alwaysResident ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Hot set size must not exceed L1 cache capacity
+:L1Residency rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :hotSetSize ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions ( [ xsd:maxInclusive "32768"^^xsd:integer ] ) ] ] .
+
+### Cache Behavior Constraints
+:CacheBehavior a owl:Class .
+:cacheLineAligned a owl:DatatypeProperty ; rdfs:domain :CacheBehavior ; rdfs:range xsd:boolean .
+:cacheLineSize a owl:DatatypeProperty ; rdfs:domain :CacheBehavior ; rdfs:range xsd:integer .
+:noStraddling a owl:DatatypeProperty ; rdfs:domain :CacheBehavior ; rdfs:range xsd:boolean .
+:prefetchFriendly a owl:DatatypeProperty ; rdfs:domain :CacheBehavior ; rdfs:range xsd:boolean .
+
+# Cache behavior must be line-aligned
+:CacheBehavior rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :cacheLineAligned ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Cache line size must be 64 bytes
+:CacheBehavior rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :cacheLineSize ; owl:hasValue "64"^^xsd:integer
+] .
+
+# Cache behavior must not straddle lines
+:CacheBehavior rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :noStraddling ; owl:hasValue "true"^^xsd:boolean
+] .
+
+### Memory Discipline Rules
+:MemoryDiscipline a owl:Class .
+:noDynamicAllocation a owl:DatatypeProperty ; rdfs:domain :MemoryDiscipline ; rdfs:range xsd:boolean .
+:preAllocatedPools a owl:DatatypeProperty ; rdfs:domain :MemoryDiscipline ; rdfs:range xsd:boolean .
+:fixedSizeStructures a owl:DatatypeProperty ; rdfs:domain :MemoryDiscipline ; rdfs:range xsd:boolean .
+:noGarbageCollection a owl:DatatypeProperty ; rdfs:domain :MemoryDiscipline ; rdfs:range xsd:boolean .
+
+# Memory discipline must not use dynamic allocation
+:MemoryDiscipline rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :noDynamicAllocation ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Memory discipline must use pre-allocated pools
+:MemoryDiscipline rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :preAllocatedPools ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Memory discipline must use fixed-size structures
+:MemoryDiscipline rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :fixedSizeStructures ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Memory discipline must not use garbage collection
+:MemoryDiscipline rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :noGarbageCollection ; owl:hasValue "true"^^xsd:boolean
+] .
+
+### Latency Bounds
+:LatencyBound a owl:Class .
+:kernelExecutionTime a owl:DatatypeProperty ; rdfs:domain :LatencyBound ; rdfs:range xsd:decimal .
+:ringOperationTime a owl:DatatypeProperty ; rdfs:domain :LatencyBound ; rdfs:range xsd:decimal .
+:mphfLookupTime a owl:DatatypeProperty ; rdfs:domain :LatencyBound ; rdfs:range xsd:decimal .
+:totalLatency a owl:DatatypeProperty ; rdfs:domain :LatencyBound ; rdfs:range xsd:decimal .
+
+# Kernel execution time must be ≤8 ticks
+:LatencyBound rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :kernelExecutionTime ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:decimal ;
+    owl:withRestrictions ( [ xsd:maxInclusive "8.0"^^xsd:decimal ] ) ] ] .
+
+# Ring operation time must be O(1) constant
+:LatencyBound rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :ringOperationTime ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:decimal ;
+    owl:withRestrictions ( [ xsd:maxInclusive "1.0"^^xsd:decimal ] ) ] ] .
+
+# MPHF lookup time must be O(1) constant
+:LatencyBound rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :mphfLookupTime ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:decimal ;
+    owl:withRestrictions ( [ xsd:maxInclusive "1.0"^^xsd:decimal ] ) ] ] .
+
+### Throughput Bounds
+:ThroughputBound a owl:Class .
+:crystalsPerSecond a owl:DatatypeProperty ; rdfs:domain :ThroughputBound ; rdfs:range xsd:decimal .
+:scalingEfficiency a owl:DatatypeProperty ; rdfs:domain :ThroughputBound ; rdfs:range xsd:decimal .
+:bottleneckIdentification a owl:DatatypeProperty ; rdfs:domain :ThroughputBound ; rdfs:range xsd:string .
+
+# Scaling efficiency must be ≥90%
+:ThroughputBound rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :scalingEfficiency ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:decimal ;
+    owl:withRestrictions ( [ xsd:minInclusive "0.9"^^xsd:decimal ]
+                            [ xsd:maxInclusive "1.0"^^xsd:decimal ] ) ] ] .
+
+### Scaling Profile
+:ScalingProfile a owl:Class .
+:horizontalScaling a owl:DatatypeProperty ; rdfs:domain :ScalingProfile ; rdfs:range xsd:boolean .
+:verticalScaling a owl:DatatypeProperty ; rdfs:domain :ScalingProfile ; rdfs:range xsd:boolean .
+:numaAwareness a owl:DatatypeProperty ; rdfs:domain :ScalingProfile ; rdfs:range xsd:boolean .
+:loadBalancing a owl:DatatypeProperty ; rdfs:domain :ScalingProfile ; rdfs:range xsd:boolean .
+
+# Scaling profile must support horizontal scaling
+:ScalingProfile rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :horizontalScaling ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Scaling profile must support NUMA awareness
+:ScalingProfile rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :numaAwareness ; owl:hasValue "true"^^xsd:boolean
+] .
+
+### Performance Metrics
+:PerformanceMetric a owl:Class .
+:metricName a owl:DatatypeProperty ; rdfs:domain :PerformanceMetric ; rdfs:range xsd:string .
+:metricValue a owl:DatatypeProperty ; rdfs:domain :PerformanceMetric ; rdfs:range xsd:decimal .
+:metricUnit a owl:DatatypeProperty ; rdfs:domain :PerformanceMetric ; rdfs:range xsd:string .
+:measurementTime a owl:DatatypeProperty ; rdfs:domain :PerformanceMetric ; rdfs:range xsd:dateTime .
+
+### Performance Monitoring
+:PerformanceMonitoring a owl:Class .
+:realTimeMetrics a owl:DatatypeProperty ; rdfs:domain :PerformanceMonitoring ; rdfs:range xsd:boolean .
+:offPathCollection a owl:DatatypeProperty ; rdfs:domain :PerformanceMonitoring ; rdfs:range xsd:boolean .
+:noBackpressure a owl:DatatypeProperty ; rdfs:domain :PerformanceMonitoring ; rdfs:range xsd:boolean .
+
+# Performance monitoring must be real-time
+:PerformanceMonitoring rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :realTimeMetrics ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Performance monitoring must be off-path
+:PerformanceMonitoring rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :offPathCollection ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Performance monitoring must have no backpressure
+:PerformanceMonitoring rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :noBackpressure ; owl:hasValue "true"^^xsd:boolean
+] .
+
+### ByteActor Performance Constraints
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :implementsDoctrineOf8 ;
+  owl:allValuesFrom :DoctrineOf8
+] .
+
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :guaranteesL1Residency ;
+  owl:allValuesFrom :L1Residency
+] .
+
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :enforcesCacheBehavior ;
+  owl:allValuesFrom :CacheBehavior
+] .
+
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :maintainsMemoryDiscipline ;
+  owl:allValuesFrom :MemoryDiscipline
+] .
+
+### Performance Properties
+:implementsDoctrineOf8 a owl:ObjectProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range :DoctrineOf8 .
+:guaranteesL1Residency a owl:ObjectProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range :L1Residency .
+:enforcesCacheBehavior a owl:ObjectProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range :CacheBehavior .
+:maintainsMemoryDiscipline a owl:ObjectProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range :MemoryDiscipline .
+
+### Annotations for Performance
+:DoctrineOf8 rdfs:comment "Universal law: ≤8 ticks per kernel, ≤8 hops end-to-end, enforced by fabrication." .
+:L1Residency rdfs:comment "Hot set {K1..K64, MPHF, envelope} must never miss L1 cache." .
+:CacheBehavior rdfs:comment "All structures must be 64B cache-line aligned with no straddling." .
+:MemoryDiscipline rdfs:comment "No dynamic allocation, pre-allocated pools only, fixed-size structures." .
+

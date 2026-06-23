@@ -1,0 +1,115 @@
+# Query: Quality Metrics for Kaizen Analysis
+#
+# Business Logic:
+# - Calculates key TPS quality metrics over time periods
+# - Metrics: Lead time (creation to completion), defect rate, rework percentage
+# - Supports daily/weekly/monthly aggregation for trend analysis
+# - Used for continuous improvement (Kaizen) decision-making
+#
+# Parameters:
+# - ?start_date: Beginning of analysis period (ISO 8601 format, REQUIRED)
+# - ?end_date: End of analysis period (ISO 8601 format, REQUIRED)
+# - ?grouping_period: Aggregation level - "daily", "weekly", "monthly" (default: "daily")
+#
+# Returns:
+# - time_period: Aggregation bucket (date for daily, week number, month)
+# - work_orders_completed: Count of completed work orders
+# - avg_lead_time_hours: Average time from creation to completion (hours)
+# - defect_rate: Percentage of work orders with quality issues
+# - rework_percentage: Percentage of work orders requiring rework
+# - total_andon_events: Count of quality alerts triggered
+#
+# Usage Example:
+# BIND("2024-01-01T00:00:00Z"^^xsd:dateTime AS ?start_date)
+# BIND("2024-01-31T23:59:59Z"^^xsd:dateTime AS ?end_date)
+# BIND("daily" AS ?grouping_period)
+
+PREFIX tcps: <http://example.org/tcps#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?time_period
+       (COUNT(?work_order) AS ?work_orders_completed)
+       (AVG(?lead_time_hours) AS ?avg_lead_time_hours)
+       ((?defect_count / COUNT(?work_order) * 100) AS ?defect_rate)
+       ((?rework_count / COUNT(?work_order) * 100) AS ?rework_percentage)
+       (SUM(?andon_count) AS ?total_andon_events)
+WHERE {
+  # Bind date parameters (must be provided by caller)
+  # Example: BIND("2024-01-01T00:00:00Z"^^xsd:dateTime AS ?start_date)
+
+  # Default grouping to daily if not specified
+  BIND(COALESCE(?grouping_period, "daily") AS ?period)
+
+  # Get completed work orders within date range
+  ?work_order rdf:type tcps:WorkOrder ;
+              tcps:workOrderId ?work_order_id ;
+              tcps:status "completed" ;
+              tcps:createdTimestamp ?created ;
+              tcps:completedTimestamp ?completed .
+
+  # Filter by date range
+  FILTER(?completed >= ?start_date && ?completed <= ?end_date)
+
+  # Calculate lead time in hours
+  BIND((xsd:decimal(?completed) - xsd:decimal(?created)) / 3600 AS ?lead_time_hours)
+
+  # Determine time period bucket based on grouping
+  BIND(
+    IF(?period = "daily",
+       SUBSTR(STR(?completed), 1, 10),  # YYYY-MM-DD
+    IF(?period = "weekly",
+       CONCAT(SUBSTR(STR(?completed), 1, 4), "-W",
+              STR(FLOOR((DAY(?completed) - 1) / 7) + 1)),  # YYYY-W##
+       SUBSTR(STR(?completed), 1, 7)))  # YYYY-MM (monthly)
+    AS ?time_period
+  )
+
+  # Check for defects (failed receipts or Andon events)
+  OPTIONAL {
+    SELECT ?work_order_id (COUNT(?failed_receipt) AS ?has_defect)
+    WHERE {
+      ?work_order tcps:workOrderId ?work_order_id ;
+                  tcps:skuId ?sku_id .
+
+      ?failed_receipt rdf:type tcps:Receipt ;
+                      tcps:skuId ?sku_id ;
+                      tcps:status "FAIL" .
+    }
+    GROUP BY ?work_order_id
+  }
+  BIND(IF(BOUND(?has_defect) && ?has_defect > 0, 1, 0) AS ?is_defect)
+
+  # Check for rework (work order reprocessed)
+  OPTIONAL {
+    ?work_order tcps:reworkCount ?rework_count_val .
+  }
+  BIND(IF(BOUND(?rework_count_val) && ?rework_count_val > 0, 1, 0) AS ?is_rework)
+
+  # Count Andon events for this work order
+  OPTIONAL {
+    SELECT ?work_order_id (COUNT(?andon) AS ?andon_count)
+    WHERE {
+      ?work_order tcps:workOrderId ?work_order_id ;
+                  tcps:skuId ?sku_id .
+
+      ?andon rdf:type tcps:AndonEvent ;
+             tcps:skuId ?sku_id .
+    }
+    GROUP BY ?work_order_id
+  }
+  BIND(COALESCE(?andon_count, 0) AS ?andon_cnt)
+
+  # Aggregate counts for rate calculations
+  {
+    SELECT ?time_period
+           (SUM(?is_defect) AS ?defect_count)
+           (SUM(?is_rework) AS ?rework_count)
+    WHERE {
+      # Inner grouping for defect/rework counts
+    }
+    GROUP BY ?time_period
+  }
+}
+GROUP BY ?time_period
+ORDER BY ASC(?time_period)

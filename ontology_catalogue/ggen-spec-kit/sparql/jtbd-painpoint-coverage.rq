@@ -1,0 +1,62 @@
+# ============================================================================
+# JTBD Query: Painpoint Coverage Analysis
+# ============================================================================
+# Purpose: For each painpoint, show which features address it and calculate
+#          coverage metrics. Identify unaddressed painpoints by severity.
+#
+# Output: Painpoint, severity, addressing features, coverage score
+# Use: Pain-driven development, priority ranking, gap identification
+#
+# Example Output:
+# Painpoint                          | Severity | Features Addressing | Count | Status
+# Slow dependency resolution         | High     | deps-add, deps-sync | 2     | Covered
+# No vulnerability scanning          | Critical | deps-audit          | 1     | Covered
+# Manual OTEL configuration          | Medium   | NULL                | 0     | UNADDRESSED
+# Complex test setup                 | High     | tests-init          | 1     | Partial
+# ============================================================================
+
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?painpointDescription
+  ?painpointSeverity
+  ?painpointFrequency
+  ?painpointImpact
+  ?relatedJob
+  ?relatedOutcome
+  ?featureName
+  ?featureStatus
+  (COUNT(DISTINCT ?feature) AS ?featureCount)
+  (IF(?featureCount = 0, "UNADDRESSED",
+      IF(?featureCount = 1, "Partial",
+         "Covered")) AS ?coverageStatus)
+  (IF(?painpointSeverity = "Critical", 100,
+      IF(?painpointSeverity = "High", 75,
+         IF(?painpointSeverity = "Medium", 50, 25))) AS ?priorityScore)
+WHERE {
+  # All painpoints
+  ?painpoint a sk:Painpoint ;
+             sk:painpointDescription ?painpointDescription .
+
+  OPTIONAL { ?painpoint sk:painpointSeverity ?painpointSeverity }
+  OPTIONAL { ?painpoint sk:painpointFrequency ?painpointFrequency }
+  OPTIONAL { ?painpoint sk:painpointImpact ?painpointImpact }
+
+  # Related job or outcome
+  OPTIONAL {
+    { ?job sk:hasPainpoint ?painpoint . ?job sk:jobName ?relatedJob }
+    UNION
+    { ?outcome sk:hasPainpoint ?painpoint . ?outcome sk:outcomeName ?relatedOutcome }
+  }
+
+  # Features solving this painpoint
+  OPTIONAL {
+    ?feature sk:solvesPainpoint ?painpoint ;
+             sk:featureName ?featureName .
+
+    OPTIONAL { ?feature sk:status ?featureStatus }
+  }
+}
+GROUP BY ?painpointDescription ?painpointSeverity ?painpointFrequency ?painpointImpact ?relatedJob ?relatedOutcome ?featureName ?featureStatus
+ORDER BY DESC(?priorityScore) ?painpointDescription

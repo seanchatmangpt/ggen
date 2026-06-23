@@ -1,0 +1,1155 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix compat: <https://wasm4pm-compat.rs/ontology#> .
+
+# ── Domain witnesses — sourced from ~/Documents/Papers/ subdirectories ──
+# Covers: Business_Management/ (62), Security_Systems/ (26), Maturity_Models/ (16),
+#         BEAM/ (11), General/ (47), and Root papers (9).
+# paperCategory = "domain" → rendered into src/witnesses_domain.rs.
+
+# ═══════════════════════════════════════════════════════════════════════
+# Business_Management/
+# ═══════════════════════════════════════════════════════════════════════
+
+compat:TogafSematKernelPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TogafSematKernelPaper" ;
+    compat:witnessKey   "domain/togaf-semat-essence-kernel" ;
+    compat:witnessTitle "A Brief TOGAF Description using SEMAT Essence Kernel" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "TOGAF enterprise architecture described through SEMAT Essence Kernel practices." .
+
+compat:DigitalBusinessEcosystemMaturityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "DigitalBusinessEcosystemMaturityPaper" ;
+    compat:witnessKey   "domain/digital-business-ecosystem-maturity-service-firms" ;
+    compat:witnessTitle "A Digital Business Ecosystem Maturity Model for Personal Service Firms" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Digital business ecosystem maturity model tailored to personal service firm contexts." .
+
+compat:DigitalGameMaturityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "DigitalGameMaturityPaper" ;
+    compat:witnessKey   "domain/digital-game-maturity-model" ;
+    compat:witnessTitle "A Digital Game Maturity Model (DGMM)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "DGMM: maturity model for digital game development and release processes." .
+
+compat:TotalQualityLeadershipPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TotalQualityLeadershipPaper" ;
+    compat:witnessKey   "domain/total-quality-leadership-tqm-practices" ;
+    compat:witnessTitle "A Review on Total Quality Leadership in TQM Practices: Industrial Management and Organizations" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Review of total quality leadership practices in TQM for industrial management." .
+
+compat:IsicClassificationLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "IsicClassificationLlmPaper" ;
+    compat:witnessKey   "domain/isic-classification-llm-circular-economy" ;
+    compat:witnessTitle "A Unified Framework to Classify Business Activities into ISIC through Large Language Models for Circular Economy" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "LLM-based ISIC business activity classification framework for circular economy analysis." .
+
+compat:AgricultureCloudBigDataPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AgricultureCloudBigDataPaper" ;
+    compat:witnessKey   "domain/agriculture-cloud-bigdata-activity-monitoring" ;
+    compat:witnessTitle "An Integrated (Crop Model, Cloud and Big Data Analytic) Framework to Support Agriculture Activity Monitoring System" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Integrated crop model, cloud, and big data analytics for agriculture activity monitoring." .
+
+compat:TogafArchimateIafDodafPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TogafArchimateIafDodafPaper" ;
+    compat:witnessKey   "domain/togaf-archimate-iaf-dodaf-security-ea" ;
+    compat:witnessTitle "An Integrated Conceptual Model for Information System Security Risk Management and Enterprise Architecture Management based on TOGAF, ArchiMate, IAF and DoDAF" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Integrated IS security risk management and EA model using TOGAF/ArchiMate/IAF/DoDAF." .
+
+compat:AiOmgStandardsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AiOmgStandardsPaper" ;
+    compat:witnessKey   "domain/artificial-intelligence-omg-standards" ;
+    compat:witnessTitle "Artificial Intelligence OMG Standards" ;
+    compat:witnessFamily compat:Standard ;
+    compat:paperCategory "domain" ;
+    compat:description  "OMG AI standards portfolio — normative specifications for AI interoperability." .
+
+compat:AtlasAdaptiveTradingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AtlasAdaptiveTradingPaper" ;
+    compat:witnessKey   "domain/atlas-adaptive-trading-llm-multi-agent" ;
+    compat:witnessTitle "ATLAS: Adaptive Trading with LLM AgentS Through Dynamic Prompt Optimization and Multi-Agent Coordination" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "ATLAS: multi-agent LLM system for adaptive trading via dynamic prompt optimization." .
+
+compat:AuditMaturityModelPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AuditMaturityModelPaper" ;
+    compat:witnessKey   "domain/audit-maturity-model" ;
+    compat:witnessTitle "Audit Maturity Model" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Maturity model for assessing organizational audit function capability." .
+
+compat:AutoPropertyInsurancePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AutoPropertyInsurancePaper" ;
+    compat:witnessKey   "domain/auto-property-insurance-analysis" ;
+    compat:witnessTitle "Auto-Property Insurance Analysis" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Analysis document for auto and property insurance domain processes." .
+
+compat:PosthumousDataManagementPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PosthumousDataManagementPaper" ;
+    compat:witnessKey   "domain/posthumous-data-management-digital-will" ;
+    compat:witnessTitle "Beyond Life: A Digital Will Solution for Posthumous Data Management" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Digital will framework for lawful posthumous personal data management." .
+
+compat:BlockchainVehicleAuctionPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BlockchainVehicleAuctionPaper" ;
+    compat:witnessKey   "domain/blockchain-secure-vehicle-auction-smart-contracts" ;
+    compat:witnessTitle "Blockchain-Based Secure Vehicle Auction System with Smart Contracts" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Blockchain and smart contract architecture for secure vehicle auction processes." .
+
+compat:CenterOfExcellencePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CenterOfExcellencePaper" ;
+    compat:witnessKey   "domain/center-of-excellence-blueprint" ;
+    compat:witnessTitle "Center of Excellence: Blueprint for Cyberinfrastructure" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Blueprint document for establishing and operating a Center of Excellence." .
+
+compat:BprSupplyChainHalalPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BprSupplyChainHalalPaper" ;
+    compat:witnessKey   "domain/bpr-supply-chain-halal-industry" ;
+    compat:witnessTitle "Business Process Re-engineering in Supply Chains: Examining the Case of the Expanding Halal Industry" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "BPR in supply chains applied to the expanding Halal industry case study." .
+
+compat:ComputationalIrreducibilityAgencyPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ComputationalIrreducibilityAgencyPaper" ;
+    compat:witnessKey   "domain/computational-irreducibility-agency-undecidability" ;
+    compat:witnessTitle "Computational Irreducibility as the Foundation of Agency: A Formal Model Connecting Undecidability to Autonomous Behavior in Complex Systems" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Formal model grounding autonomous agency in computational irreducibility and undecidability." .
+
+compat:CorlEnvManagementPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CorlEnvManagementPaper" ;
+    compat:witnessKey   "domain/corl-environment-system-integration" ;
+    compat:witnessTitle "CoRL: Environment Creation and Management Focused on System Integration" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "CoRL environment creation and management framework with system integration focus." .
+
+compat:DigitalTwinCellularNetworksPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "DigitalTwinCellularNetworksPaper" ;
+    compat:witnessKey   "domain/digital-twin-emerging-cellular-networks-survey" ;
+    compat:witnessTitle "From Simulators to Digital Twins for Enabling Emerging Cellular Networks: A Tutorial and Survey" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Tutorial and survey on digital twin technologies for emerging cellular network management." .
+
+compat:HierarchyFrustrationsIntermarketPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "HierarchyFrustrationsIntermarketPaper" ;
+    compat:witnessKey   "domain/hierarchy-frustrations-complex-intermarket" ;
+    compat:witnessTitle "Hierarchy of Frustrations as Supplementary Indices in Complex System Dynamics, Applied to the U.S. Intermarket" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Frustration index hierarchy applied to U.S. intermarket complex system dynamics." .
+
+compat:HighFrequencyTradingMiniFlashPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "HighFrequencyTradingMiniFlashPaper" ;
+    compat:witnessKey   "domain/hft-mini-flash-crashes" ;
+    compat:witnessTitle "High Frequency Trading and Mini Flash Crashes" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Study of HFT strategies and their relationship to mini flash crash events." .
+
+compat:ComplexProgramManagementPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ComplexProgramManagementPaper" ;
+    compat:witnessKey   "domain/complex-program-management" ;
+    compat:witnessTitle "How to Manage Complex Programs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Practitioner guide for managing complex multi-workstream programs." .
+
+compat:IntermarketTradingStrategiesPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "IntermarketTradingStrategiesPaper" ;
+    compat:witnessKey   "domain/intermarket-trading-strategies-katsanos" ;
+    compat:witnessTitle "Intermarket Trading Strategies (Katsanos)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Katsanos: quantitative intermarket trading strategies for equities, bonds, and commodities." .
+
+compat:LeadLagStopReversePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LeadLagStopReversePaper" ;
+    compat:witnessKey   "domain/lead-lag-stop-reverse-minmax" ;
+    compat:witnessTitle "Lead-Lag Relationship using a Stop-and-Reverse MinMax Process" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Stop-and-reverse MinMax process for measuring lead-lag relationships in financial markets." .
+
+compat:MiddlePathInnovationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MiddlePathInnovationPaper" ;
+    compat:witnessKey   "domain/middle-path-innovation" ;
+    compat:witnessTitle "Middle Path to Innovation" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Framework for pragmatic innovation balancing exploration and exploitation." .
+
+compat:VirtualOrgBreedingMethodPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "VirtualOrgBreedingMethodPaper" ;
+    compat:witnessKey   "domain/virtual-org-architecture-breeding-methodology" ;
+    compat:witnessTitle "Modeling Virtual Organization Architecture with the Virtual Organization Breeding Methodology" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Virtual organization breeding methodology for collaborative network architecture modeling." .
+
+compat:NomadFairMaterialsSciencePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "NomadFairMaterialsSciencePaper" ;
+    compat:witnessKey   "domain/nomad-fair-big-data-materials-science" ;
+    compat:witnessTitle "NOMAD: The FAIR Concept for Big-Data-Driven Materials Science" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "NOMAD repository: FAIR principles applied to big-data-driven computational materials science." .
+
+compat:ScrumAtScalePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ScrumAtScalePaper" ;
+    compat:witnessKey   "domain/official-scrum-at-scale-guide" ;
+    compat:witnessTitle "Official Scrum@Scale Guide" ;
+    compat:witnessFamily compat:Standard ;
+    compat:paperCategory "domain" ;
+    compat:description  "Official Scrum@Scale framework guide for scaling agile across large organizations." .
+
+compat:CdnArchitecturePerformancePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CdnArchitecturePerformancePaper" ;
+    compat:witnessKey   "domain/cdn-architecture-performance-future-trends" ;
+    compat:witnessTitle "Optimizing Digital Experiences with Content Delivery Networks: Architectures, Performance Strategies, and Future Trends" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "CDN architectures, performance optimization strategies, and future trend analysis." .
+
+compat:LifestyleRedesignOccupationalPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LifestyleRedesignOccupationalPaper" ;
+    compat:witnessKey   "domain/lifestyle-redesign-health-wellbeing" ;
+    compat:witnessTitle "Optimizing Occupations, Habits, and Routines for Health and Well-Being With Lifestyle Redesign" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Lifestyle Redesign OT intervention: optimizing occupations and habits for health and well-being." .
+
+compat:W6HEnterpriseArchitecturePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "W6HEnterpriseArchitecturePaper" ;
+    compat:witnessKey   "domain/w6h-stakeholder-viewpoint-enterprise-architecture" ;
+    compat:witnessTitle "Ordering Stakeholder Viewpoint Concerns for Holistic and Incremental Enterprise Architecture: The W6H Framework" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "W6H framework for ordering stakeholder viewpoints in holistic enterprise architecture." .
+
+compat:PricingCyberInsuranceMaturityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PricingCyberInsuranceMaturityPaper" ;
+    compat:witnessKey   "domain/pricing-cyber-insurance-maturity-models" ;
+    compat:witnessTitle "Pricing Cyber-Insurance for Systems via Maturity Models" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Maturity model-based actuarial approach to pricing cyber insurance for systems." .
+
+compat:AgileTeamAutonomyPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AgileTeamAutonomyPaper" ;
+    compat:witnessKey   "domain/agile-scrum-team-autonomy-antecedents" ;
+    compat:witnessTitle "Psychological Antecedents to Emergence of Team Autonomy in Agile Scrum Teams" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Psychological antecedents to autonomous self-organization in Agile Scrum teams." .
+
+compat:QuantconnectLeanEnginePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "QuantconnectLeanEnginePaper" ;
+    compat:witnessKey   "domain/quantconnect-lean-engine-python" ;
+    compat:witnessTitle "QuantConnect LEAN Engine Python Guide" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "QuantConnect LEAN algorithmic trading engine Python API guide." .
+
+compat:PricingDrivenDevOpsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PricingDrivenDevOpsPaper" ;
+    compat:witnessKey   "domain/pricing-driven-devops-saas-industry-support" ;
+    compat:witnessTitle "Racing the Market: An Industry Support Analysis for Pricing-Driven DevOps in SaaS" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Industry support analysis for pricing-driven DevOps practices in SaaS companies." .
+
+compat:SbomFaq2024Paper
+    a compat:WitnessMarker ;
+    compat:rustType     "SbomFaq2024Paper" ;
+    compat:witnessKey   "domain/sbom-faq-2024" ;
+    compat:witnessTitle "SBOM FAQ 2024" ;
+    compat:witnessFamily compat:Standard ;
+    compat:paperCategory "domain" ;
+    compat:description  "2024 SBOM frequently asked questions — software bill of materials guidance." .
+
+compat:ServiceColoniesArchitecturePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ServiceColoniesArchitecturePaper" ;
+    compat:witnessKey   "domain/service-colonies-autonomous-cooperative-architecture" ;
+    compat:witnessTitle "Service Colonies: A Novel Architectural Style for Developing Software Systems with Autonomous and Cooperative Services" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Service colonies: autonomous cooperative service architecture style for distributed systems." .
+
+compat:ApiManagementMaturitySourcePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ApiManagementMaturitySourcePaper" ;
+    compat:witnessKey   "domain/api-management-maturity-focus-area" ;
+    compat:witnessTitle "Source Data for the Focus Area Maturity Model for API Management" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Source data and evidence base for the API management focus area maturity model." .
+
+compat:SystemReliabilityIndustry40Paper
+    a compat:WitnessMarker ;
+    compat:rustType     "SystemReliabilityIndustry40Paper" ;
+    compat:witnessKey   "domain/system-reliability-engineering-industry-4-0" ;
+    compat:witnessTitle "System Reliability Engineering in the Age of Industry 4.0: Challenges and Innovations" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Reliability engineering challenges and innovations in Industry 4.0 environments." .
+
+compat:TokenizedAssetPortabilityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TokenizedAssetPortabilityPaper" ;
+    compat:witnessKey   "domain/tokenized-assets-portability-distributed-ledgers" ;
+    compat:witnessTitle "Factors in the Portability of Tokenized Assets on Distributed Ledgers" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Factors affecting portability of tokenized assets across distributed ledger platforms." .
+
+compat:TechnologyAdoptionNetworkExternalitiesPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TechnologyAdoptionNetworkExternalitiesPaper" ;
+    compat:witnessKey   "domain/technology-adoption-network-externalities-finance" ;
+    compat:witnessTitle "Technology Adoption and Network Externalities in Financial Systems: A Spatial-Network Approach" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Spatial-network model of technology adoption and network externality effects in finance." .
+
+compat:TddMaturityAntiPatternsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TddMaturityAntiPatternsPaper" ;
+    compat:witnessKey   "domain/tdd-maturity-model-anti-patterns" ;
+    compat:witnessTitle "Towards a TDD Maturity Model through an Anti-patterns Framework" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "TDD maturity model constructed from anti-patterns framework analysis." .
+
+compat:GlobalSoftwareChangeManagementPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "GlobalSoftwareChangeManagementPaper" ;
+    compat:witnessKey   "domain/change-management-traceability-global-software" ;
+    compat:witnessTitle "Towards Dependable Change Management and Traceability for Global Software Development" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Change management and traceability framework for dependable global software development." .
+
+compat:UsdChfGoldHmmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "UsdChfGoldHmmPaper" ;
+    compat:witnessKey   "domain/trading-usdchf-gold-hmm-coupling" ;
+    compat:witnessTitle "Trading USDCHF Filtered by Gold Dynamics via HMM Coupling" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "HMM coupling-based USDCHF trading strategy filtered by gold market dynamics." .
+
+compat:BayesianNetworkProjectRiskPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BayesianNetworkProjectRiskPaper" ;
+    compat:witnessKey   "domain/bayesian-network-project-maturity-risk" ;
+    compat:witnessTitle "Use of Bayesian Network Characteristics to Link Project Management Maturity and Risk of Project Overcost" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Bayesian network model linking PM maturity level to project overcost risk." .
+
+compat:IntermarketEfficientMarketHypothesisPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "IntermarketEfficientMarketHypothesisPaper" ;
+    compat:witnessKey   "domain/intermarket-emh-ml-evaluation" ;
+    compat:witnessTitle "Using Intermarket Data to Evaluate the Efficient Market Hypothesis with Machine Learning" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "ML evaluation of the EMH using intermarket data correlations across asset classes." .
+
+compat:C4isrVvaPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "C4isrVvaPaper" ;
+    compat:witnessKey   "domain/c4isr-architecture-framework-vva-simulation" ;
+    compat:witnessTitle "Using the C4ISR Architecture Framework as a Tool to Facilitate VV&A for Simulation Systems within the Military Application Domain" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "C4ISR architecture framework applied to simulation system VV&A in military domains." .
+
+compat:MetaverseUserExperiencePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MetaverseUserExperiencePaper" ;
+    compat:witnessKey   "domain/metaverse-ux-business-readiness-competitiveness" ;
+    compat:witnessTitle "Exploring the Future Metaverse: Research Models for User Experience, Business Readiness, and National Competitiveness" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Research models for metaverse UX, business readiness, and national competitiveness." .
+
+compat:LeanIxCapabilityMapFullPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LeanIxCapabilityMapFullPaper" ;
+    compat:witnessKey   "domain/sap-leanix-business-capability-map-full" ;
+    compat:witnessTitle "SAP LeanIX Business Capability Map (Full)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "SAP LeanIX full business capability map for enterprise architecture modeling." .
+
+compat:LeanIxCapabilityMapLightPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LeanIxCapabilityMapLightPaper" ;
+    compat:witnessKey   "domain/sap-leanix-business-capability-map-light" ;
+    compat:witnessTitle "SAP LeanIX Business Capability Map (Light)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "SAP LeanIX lightweight business capability map for quick EA reference." .
+
+compat:AiRiskMaturityNistPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AiRiskMaturityNistPaper" ;
+    compat:witnessKey   "domain/ai-risk-management-maturity-nist-rmf" ;
+    compat:witnessTitle "Evolving AI Risk Management: A Maturity Model based on the NIST AI Risk Management Framework" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "NIST AI RMF-grounded maturity model for AI risk management capability." .
+
+compat:WhichTestMetricsProjectSuccessPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "WhichTestMetricsProjectSuccessPaper" ;
+    compat:witnessKey   "domain/test-metrics-software-project-success" ;
+    compat:witnessTitle "Which Combination of Test Metrics Can Predict Success of a Software Project? A Case Study in a Year-Long Project Course" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Empirical study: test metric combinations as predictors of software project success." .
+
+# ═══════════════════════════════════════════════════════════════════════
+# Maturity_Models/
+# ═══════════════════════════════════════════════════════════════════════
+
+compat:SplMaturityModelPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SplMaturityModelPaper" ;
+    compat:witnessKey   "domain/spl-business-maturity-model" ;
+    compat:witnessTitle "A Business Maturity Model of Software Product Line Engineering" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Business maturity model for software product line (SPL) engineering capability." .
+
+compat:PublicAdminOpenTranslationMaturityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PublicAdminOpenTranslationMaturityPaper" ;
+    compat:witnessKey   "domain/public-admin-open-translation-maturity" ;
+    compat:witnessTitle "A Maturity Model for Public Administration as Open Translation Data Providers" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Maturity model for public administration as open translation data providers." .
+
+compat:MaturityModelsDevOpsSurveyPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MaturityModelsDevOpsSurveyPaper" ;
+    compat:witnessKey   "domain/maturity-models-survey-nolon-devops" ;
+    compat:witnessTitle "A Survey of Maturity Models from Nolon to DevOps and Their Applications in Process Improvement" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Survey of maturity model evolution from NOLON through DevOps-era process improvement." .
+
+compat:SplArchitectureMaturityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SplArchitectureMaturityPaper" ;
+    compat:witnessKey   "domain/spl-architecture-process-maturity" ;
+    compat:witnessTitle "An Architecture Process Maturity Model of Software Product Line Engineering" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Architecture process maturity model for SPL engineering organizations." .
+
+compat:DistributedSoftwareMaturityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "DistributedSoftwareMaturityPaper" ;
+    compat:witnessKey   "domain/distributed-software-org-maturity-model" ;
+    compat:witnessTitle "Constructing a Maturity Model for a Distributed Software Organization" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Maturity model construction methodology for geographically distributed software organizations." .
+
+compat:Ism3HumanFactorsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "Ism3HumanFactorsPaper" ;
+    compat:witnessKey   "domain/ism3-human-factors-security-maturity" ;
+    compat:witnessTitle "Enhancing the Conventional Information Security Management Maturity Model (ISM3) in Resolving Human Factors in Organization Information Sharing" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "ISM3 enhancement addressing human factors in organizational information sharing security." .
+
+compat:SystemResiliencyDesignPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SystemResiliencyDesignPaper" ;
+    compat:witnessKey   "domain/system-resiliency-design-methods" ;
+    compat:witnessTitle "Exploring System Resiliency and Supporting Design Methods" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Systematic exploration of system resiliency properties and supporting design methods." .
+
+compat:MaturityModelGraphTheoryPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MaturityModelGraphTheoryPaper" ;
+    compat:witnessKey   "domain/maturity-models-combinatorial-graph-theory" ;
+    compat:witnessTitle "Graph Drawing Applications in Combinatorial Theory of Maturity Models" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Combinatorial graph theory applications in maturity model structure analysis." .
+
+compat:CmmiItilSqaMaturityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CmmiItilSqaMaturityPaper" ;
+    compat:witnessKey   "domain/cmmi-itil-sqa-service-maturity" ;
+    compat:witnessTitle "Innovative SQA Service Maturity Model using CMMI and ITIL" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "CMMI + ITIL integrated SQA service maturity model for software quality assurance." .
+
+compat:ProgramControlsEffectivenessPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ProgramControlsEffectivenessPaper" ;
+    compat:witnessKey   "domain/program-controls-effectiveness-framework" ;
+    compat:witnessTitle "Program Controls Effectiveness Measurement Framework & Metrics" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Framework and metrics for measuring program control effectiveness in large initiatives." .
+
+compat:ResponsibleAiMaturityGlobalPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ResponsibleAiMaturityGlobalPaper" ;
+    compat:witnessKey   "domain/responsible-ai-maturity-global-survey" ;
+    compat:witnessTitle "Responsible AI in the Global Context: Maturity Model and Survey" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Global survey-based responsible AI maturity model across international contexts." .
+
+compat:DefectPreventionCmmiXpPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "DefectPreventionCmmiXpPaper" ;
+    compat:witnessKey   "domain/defect-prevention-cmmi-xp-integration" ;
+    compat:witnessTitle "Software Process Improvement Based on Defect Prevention Using Capability and Testing Model Integration in Extreme Programming" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "CMMI + XP defect prevention integration for software process improvement." .
+
+compat:SreHimmHealthcareMaturityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SreHimmHealthcareMaturityPaper" ;
+    compat:witnessKey   "domain/sre-himm-healthcare-requirements-maturity" ;
+    compat:witnessTitle "Software Requirements Engineering Healthcare Implementation Maturity Model (SRE-HIMM) for Global Health-Care Information System" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "SRE-HIMM: requirements engineering maturity model for global healthcare information systems." .
+
+compat:SoftwareTestingGlossaryPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SoftwareTestingGlossaryPaper" ;
+    compat:witnessKey   "domain/software-testing-glossary-syntactic-semantic" ;
+    compat:witnessTitle "Supplementary Results of a Comparative Syntactic and Semantic Study of Terms for Software Testing Glossaries" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Comparative syntactic and semantic analysis of software testing terminology glossaries." .
+
+compat:UlsSystemsInteroperabilityMaturityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "UlsSystemsInteroperabilityMaturityPaper" ;
+    compat:witnessKey   "domain/uls-systems-architecture-maturity-interoperability" ;
+    compat:witnessTitle "Towards a Software Architecture Maturity Model for Improving Ultra-Large-Scale Systems Interoperability" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Software architecture maturity model for ULS system interoperability improvement." .
+
+compat:UpcaseUsabilityMaturityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "UpcaseUsabilityMaturityPaper" ;
+    compat:witnessKey   "domain/upcase-usability-process-maturity-small-org" ;
+    compat:witnessTitle "UPCASE: A Method for Self-Assessing the Capability of the Usability Process in Small Organizations" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "UPCASE: self-assessment method for usability process capability in small organizations." .
+
+# ═══════════════════════════════════════════════════════════════════════
+# Security_Systems/
+# ═══════════════════════════════════════════════════════════════════════
+
+compat:ZeroTrustIdentitySegmentationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ZeroTrustIdentitySegmentationPaper" ;
+    compat:witnessKey   "domain/zero-trust-identity-threat-segmentation" ;
+    compat:witnessTitle "Autonomous Identity-Based Threat Segmentation in Zero Trust Architectures" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Autonomous identity-based threat segmentation for zero trust network architecture." .
+
+compat:BartPredictIotSecurityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BartPredictIotSecurityPaper" ;
+    compat:witnessKey   "domain/bartpredict-llm-iot-cyber-threat" ;
+    compat:witnessTitle "BARTPredict: Empowering IoT Security with LLM-Driven Cyber Threat Prediction" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "BARTPredict: LLM-driven cyber threat prediction for IoT security environments." .
+
+compat:ZuchongzhiQuantumAdvantage105QubitPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ZuchongzhiQuantumAdvantage105QubitPaper" ;
+    compat:witnessKey   "domain/zuchongzhi-3-0-quantum-computational-advantage" ;
+    compat:witnessTitle "Establishing a New Benchmark in Quantum Computational Advantage with 105-qubit Zuchongzhi 3.0 Processor" ;
+    compat:witnessYear  2024 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Zuchongzhi 3.0: 105-qubit quantum computational advantage benchmark paper." .
+
+compat:FaplFederatedLearningIovPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "FaplFederatedLearningIovPaper" ;
+    compat:witnessKey   "domain/fapl-federated-learning-privacy-iov" ;
+    compat:witnessTitle "FAPL-DM-BC: A Secure and Scalable FL Framework with Adaptive Privacy and Dynamic Masking, Blockchain, and XAI for the IoVs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "FAPL-DM-BC: federated learning with adaptive privacy, dynamic masking, blockchain for IoV." .
+
+compat:IcsCtm2CybersecurityMaturityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "IcsCtm2CybersecurityMaturityPaper" ;
+    compat:witnessKey   "domain/ics-ctm2-industrial-cybersecurity-maturity" ;
+    compat:witnessTitle "ICS-CTM2: Industrial Control System Cybersecurity Testbed Maturity Model" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "ICS-CTM2: maturity model for industrial control system cybersecurity testbeds." .
+
+compat:MlsmmSecurityMaturityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MlsmmSecurityMaturityPaper" ;
+    compat:witnessKey   "domain/mlsmm-machine-learning-security-maturity" ;
+    compat:witnessTitle "MLSMM: Machine Learning Security Maturity Model" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "MLSMM: maturity model for machine learning system security capability assessment." .
+
+compat:MyDigiTwinPrivacyRiskPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MyDigiTwinPrivacyRiskPaper" ;
+    compat:witnessKey   "domain/mydigitwin-privacy-cardiovascular-risk" ;
+    compat:witnessTitle "MyDigiTwin: A Privacy-Preserving Framework for Personalized Cardiovascular Risk Prediction and Scenario Exploration" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "MyDigiTwin: privacy-preserving digital twin for cardiovascular risk prediction." .
+
+compat:IotVulnerabilityFixTimesPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "IotVulnerabilityFixTimesPaper" ;
+    compat:witnessKey   "domain/iot-vulnerability-fix-times-survival-model" ;
+    compat:witnessTitle "Predicting IoT Device Vulnerability Fix Times with Survival and Failure Time Models" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Survival analysis model predicting vulnerability fix times for IoT devices." .
+
+compat:MalwarePredictionWindowsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MalwarePredictionWindowsPaper" ;
+    compat:witnessKey   "domain/malware-prediction-ml-windows-machines" ;
+    compat:witnessTitle "Predicting Vulnerability to Malware Using Machine Learning Models: A Study on Microsoft Windows Machines" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "ML models predicting Windows machine vulnerability to malware infections." .
+
+compat:PostQuantumCryptographyTransitionPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PostQuantumCryptographyTransitionPaper" ;
+    compat:witnessKey   "domain/pqc-government-transition-2024" ;
+    compat:witnessTitle "Government Transition to Post-Quantum Cryptography (2024)" ;
+    compat:witnessYear  2024 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "US government PQC migration guidance and transition planning for 2024." .
+
+compat:PseudoAutomationLaborPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PseudoAutomationLaborPaper" ;
+    compat:witnessKey   "domain/pseudo-automation-labor-frontline-retail" ;
+    compat:witnessTitle "Pseudo-Automation: How Labor-Offsetting Technologies Reconfigure Roles and Relationships in Frontline Retail Work" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Study of how pseudo-automation reconfigures labor roles in frontline retail environments." .
+
+compat:BlockchainTrilemmaAlgorandPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BlockchainTrilemmaAlgorandPaper" ;
+    compat:witnessKey   "domain/blockchain-trilemma-algorand-ethereum-analysis" ;
+    compat:witnessTitle "Quantifying the Blockchain Trilemma: A Comparative Analysis of Algorand, Ethereum 2.0, and Beyond" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Quantitative blockchain trilemma analysis across Algorand, Ethereum 2.0, and others." .
+
+compat:CcmmCybersecurityCapabilityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CcmmCybersecurityCapabilityPaper" ;
+    compat:witnessKey   "domain/ccmm-cybersecurity-capability-maturity-limitations" ;
+    compat:witnessTitle "SoK: Identifying Limitations and Bridging Gaps of Cybersecurity Capability Maturity Models (CCMMs)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "SoK: systematic survey of CCMMs — limitations, gaps, and bridging strategies." .
+
+compat:StixV21Paper
+    a compat:WitnessMarker ;
+    compat:rustType     "StixV21Paper" ;
+    compat:witnessKey   "domain/stix-v2-1-oasis-standard" ;
+    compat:witnessTitle "STIX Version 2.1 (OASIS Standard)" ;
+    compat:witnessYear  2021 ;
+    compat:witnessFamily compat:Standard ;
+    compat:paperCategory "domain" ;
+    compat:description  "STIX v2.1 OASIS standard: Structured Threat Information eXpression for cyber threat intelligence." .
+
+compat:ResearchSoftwareSecurityMaturityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ResearchSoftwareSecurityMaturityPaper" ;
+    compat:witnessKey   "domain/research-software-security-maturity" ;
+    compat:witnessTitle "Toward a Research Software Security Maturity Model" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Maturity model for security practices in research software development." .
+
+compat:CryptoAgilityMaturityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CryptoAgilityMaturityPaper" ;
+    compat:witnessKey   "domain/crypto-agility-maturity-assessment" ;
+    compat:witnessTitle "Towards a Maturity Model for Crypto-Agility Assessment" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Maturity model for organizational crypto-agility: readiness for cryptographic algorithm migration." .
+
+compat:TrustedCiCybersecurityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TrustedCiCybersecurityPaper" ;
+    compat:witnessKey   "domain/trusted-ci-cybersecurity-open-science" ;
+    compat:witnessTitle "Trusted CI Experiences in Cybersecurity and Service to Open Science" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Trusted CI experiences in cybersecurity services supporting open science infrastructure." .
+
+compat:PrivacyNormsWebFormsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PrivacyNormsWebFormsPaper" ;
+    compat:witnessKey   "domain/privacy-norms-web-forms" ;
+    compat:witnessTitle "Understanding Privacy Norms through Web Forms" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Empirical study of privacy norm expression and expectations through web form design." .
+
+compat:AutomationTrustEpistemicPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AutomationTrustEpistemicPaper" ;
+    compat:witnessKey   "domain/automation-trust-zero-sum-epistemic-agency" ;
+    compat:witnessTitle "When Trust is Zero Sum: Automation Threat to Epistemic Agency" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Zero-sum trust dynamics: automation as a threat to human epistemic agency." .
+
+# ═══════════════════════════════════════════════════════════════════════
+# BEAM/
+# ═══════════════════════════════════════════════════════════════════════
+
+compat:AshFrameworkElixirPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AshFrameworkElixirPaper" ;
+    compat:witnessKey   "domain/ash-framework-elixir-b5" ;
+    compat:witnessTitle "Ash Framework for Elixir (B5.0)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Ash Framework B5.0: resource-oriented application framework for Elixir." .
+
+compat:BroadwayElixirPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BroadwayElixirPaper" ;
+    compat:witnessKey   "domain/broadway-elixir-data-processing" ;
+    compat:witnessTitle "Broadway: Data Processing Pipelines for Elixir" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Broadway: multi-stage data processing pipeline library for Elixir." .
+
+compat:ClosedFormTaskSuccessBeamPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ClosedFormTaskSuccessBeamPaper" ;
+    compat:witnessKey   "domain/closed-form-task-success-status-driven" ;
+    compat:witnessTitle "Closed-Form and Boundary Expressions for Task-Success Probability in Status-Driven Systems" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Closed-form task success probability expressions for status-driven BEAM systems." .
+
+compat:ConcurrentDataProcessingElixirPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ConcurrentDataProcessingElixirPaper" ;
+    compat:witnessKey   "domain/concurrent-data-processing-elixir" ;
+    compat:witnessTitle "Concurrent Data Processing in Elixir" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Guide to concurrent data processing patterns using Elixir GenStage and Flow." .
+
+compat:EngineeringElixirApplicationsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "EngineeringElixirApplicationsPaper" ;
+    compat:witnessKey   "domain/engineering-elixir-applications" ;
+    compat:witnessTitle "Engineering Elixir Applications" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Engineering Elixir Applications: OTP patterns, deployment, and production practices." .
+
+compat:GeneticAlgorithmsElixirPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "GeneticAlgorithmsElixirPaper" ;
+    compat:witnessKey   "domain/genetic-algorithms-elixir" ;
+    compat:witnessTitle "Genetic Algorithms in Elixir" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Genetic algorithm implementation and evolution strategies using Elixir and Nx." .
+
+compat:InstructorExElixirPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "InstructorExElixirPaper" ;
+    compat:witnessKey   "domain/instructor-ex-elixir-structured-output" ;
+    compat:witnessTitle "instructor_ex: Structured Outputs for Elixir LLM Applications" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "instructor_ex quickstart: structured LLM output library for Elixir applications." .
+
+compat:IntroAdoptingElixirPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "IntroAdoptingElixirPaper" ;
+    compat:witnessKey   "domain/intro-adopting-elixir" ;
+    compat:witnessTitle "Intro to Adopting Elixir" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Introductory guide for teams adopting Elixir: philosophy, tooling, and migration patterns." .
+
+compat:ProgrammingPhoenixLiveViewPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ProgrammingPhoenixLiveViewPaper" ;
+    compat:witnessKey   "domain/programming-phoenix-liveview" ;
+    compat:witnessTitle "Programming Phoenix LiveView" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Programming Phoenix LiveView: real-time server-side UIs without JavaScript frameworks." .
+
+compat:RealTimePhoenixPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "RealTimePhoenixPaper" ;
+    compat:witnessKey   "domain/real-time-phoenix-channels" ;
+    compat:witnessTitle "Real-Time Phoenix" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Real-Time Phoenix: building scalable real-time applications with Phoenix Channels." .
+
+# ═══════════════════════════════════════════════════════════════════════
+# General/
+# ═══════════════════════════════════════════════════════════════════════
+
+compat:AutoTablesRelationalizePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AutoTablesRelationalizePaper" ;
+    compat:witnessKey   "domain/auto-tables-multi-step-transformations" ;
+    compat:witnessTitle "Auto-Tables: Synthesizing Multi-Step Transformations to Relationalize Tables without Using Examples" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Auto-Tables: automatic multi-step transformation synthesis to relationalize messy tables." .
+
+compat:Blake3HashFunctionPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "Blake3HashFunctionPaper" ;
+    compat:witnessKey   "domain/blake3-hash-function-2020" ;
+    compat:witnessTitle "BLAKE3: One Function, Fast Everywhere (arXiv:2012.04616)" ;
+    compat:witnessYear  2020 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "BLAKE3 cryptographic hash function (O'Connor et al. 2020): design, security, and performance." .
+
+compat:CategoryTheoryProbabilityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CategoryTheoryProbabilityPaper" ;
+    compat:witnessKey   "domain/category-theory-probability-foundations" ;
+    compat:witnessTitle "Category Theory: Probability Foundations" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Category-theoretic foundations for probability theory and stochastic processes." .
+
+compat:GenoMultimodalWebPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "GenoMultimodalWebPaper" ;
+    compat:witnessKey   "domain/geno-multimodal-interaction-web-applications" ;
+    compat:witnessTitle "Geno: A Developer Tool for Authoring Multimodal Interaction on Existing Web Applications" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Geno: developer tool for adding multimodal interaction layers to existing web apps." .
+
+compat:DeveloperVerificationGuidelinesPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "DeveloperVerificationGuidelinesPaper" ;
+    compat:witnessKey   "domain/developer-verification-software-guidelines" ;
+    compat:witnessTitle "Guidelines on Minimum Standards for Developer Verification of Software" ;
+    compat:witnessFamily compat:Standard ;
+    compat:paperCategory "domain" ;
+    compat:description  "NIST/government guidelines on minimum software developer verification standards." .
+
+compat:MoggiMonadsComputationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MoggiMonadsComputationPaper" ;
+    compat:witnessKey   "domain/moggi-1991-notions-computation-monads" ;
+    compat:witnessTitle "Notions of Computation and Monads (Moggi 1991)" ;
+    compat:witnessYear  1991 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Moggi (1991): categorical semantics for monadic computation — foundation for Haskell/FP." .
+
+compat:FogComputingObservabilityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "FogComputingObservabilityPaper" ;
+    compat:witnessKey   "domain/observability-fog-computing" ;
+    compat:witnessTitle "Observability in Fog Computing" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Observability patterns and tools for distributed fog computing architectures." .
+
+compat:OdataV4CsdlPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "OdataV4CsdlPaper" ;
+    compat:witnessKey   "domain/odata-v4-csdl-errata03" ;
+    compat:witnessTitle "OData Version 4.0 Errata 03 — Common Schema Definition Language (CSDL)" ;
+    compat:witnessFamily compat:Standard ;
+    compat:paperCategory "domain" ;
+    compat:description  "OData v4.0 CSDL specification (errata 03): schema definition language for OData services." .
+
+compat:PhotonicPulseSynchronizationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PhotonicPulseSynchronizationPaper" ;
+    compat:witnessKey   "domain/picosecond-mode-locked-laser-quantum-networks" ;
+    compat:witnessTitle "Picosecond Synchronization of Mode-Locked Lasers for Metropolitan-Scale Quantum Networks" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Picosecond synchronization technique for mode-locked lasers in metropolitan quantum networks." .
+
+compat:MentalHealthOtHigherEdPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MentalHealthOtHigherEdPaper" ;
+    compat:witnessKey   "domain/mental-health-ot-higher-education" ;
+    compat:witnessTitle "Promoting Mental Health: Occupational Therapy in Higher Education" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Occupational therapy approaches to promoting mental health in higher education settings." .
+
+compat:PersuasionSellingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PersuasionSellingPaper" ;
+    compat:witnessKey   "domain/selling-item-through-persuasion" ;
+    compat:witnessTitle "Selling an Item through Persuasion" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Economic model of item selling through persuasion and information disclosure." .
+
+compat:SessionTypesTcpPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SessionTypesTcpPaper" ;
+    compat:witnessKey   "domain/session-types-transport-layer-tcp" ;
+    compat:witnessTitle "Session Types for the Transport Layer: Towards an Implementation of TCP*" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Session type theory applied to TCP transport layer protocol verification." .
+
+compat:SignalTheoryArchitecturePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SignalTheoryArchitecturePaper" ;
+    compat:witnessKey   "domain/signal-theory-optimal-intent-encoding" ;
+    compat:witnessTitle "Signal Theory: The Architecture of Optimal Intent Encoding in Communication Systems" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Signal theory framework for optimal intent encoding in communication system design." .
+
+compat:SignatureEventContextPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SignatureEventContextPaper" ;
+    compat:witnessKey   "domain/signature-event-context-derrida" ;
+    compat:witnessTitle "Signature Event Context (Derrida)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Derrida's Signature Event Context: deconstruction of speech act theory and iterability." .
+
+compat:SimulationResearchMethodPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SimulationResearchMethodPaper" ;
+    compat:witnessKey   "domain/simulation-research-method-software-engineering" ;
+    compat:witnessTitle "Teaching Simulation as a Research Method in Empirical Software Engineering" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Simulation as empirical software engineering research method — teaching curriculum." .
+
+compat:GreatMentalModelsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "GreatMentalModelsPaper" ;
+    compat:witnessKey   "domain/great-mental-models-farnam-street" ;
+    compat:witnessTitle "The Great Mental Models (Farnam Street)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Farnam Street: general thinking tools and mental models for better decision-making." .
+
+compat:PragmaticProgrammerPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PragmaticProgrammerPaper" ;
+    compat:witnessKey   "domain/pragmatic-programmer-20th-anniversary" ;
+    compat:witnessTitle "The Pragmatic Programmer: Your Journey to Mastery (20th Anniversary Edition)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Hunt & Thomas: Pragmatic Programmer 20th ed — timeless software engineering practices." .
+
+compat:AnsibleWorkshopPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AnsibleWorkshopPaper" ;
+    compat:witnessKey   "domain/ansible-workshop-automation" ;
+    compat:witnessTitle "The Ansible Workshop" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Ansible Workshop: hands-on infrastructure automation with Ansible playbooks." .
+
+compat:Tpot2AutomlPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "Tpot2AutomlPaper" ;
+    compat:witnessKey   "domain/tpot2-automl-evolutionary-optimization" ;
+    compat:witnessTitle "TPOT2: Next Generation Automated Machine Learning (AutoML) via Evolutionary Optimization" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "TPOT2: evolutionary AutoML pipeline optimization using genetic programming." .
+
+compat:WebServiceCompositionSearchPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "WebServiceCompositionSearchPaper" ;
+    compat:witnessKey   "domain/web-service-composition-search-tree" ;
+    compat:witnessTitle "Usages of Composition Search Tree in Web Service Composition" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Composition search tree approach for automated web service composition." .
+
+compat:InformationGovernanceAmazonOneMedicalPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "InformationGovernanceAmazonOneMedicalPaper" ;
+    compat:witnessKey   "domain/information-governance-amazon-one-medical" ;
+    compat:witnessTitle "Using Information Governance to Evaluate Patient Care in Amazon's One Medical" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Information governance framework applied to evaluate patient care quality at One Medical." .
+
+compat:WolpertMaceadyNoFreeLunchPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "WolpertMaceadyNoFreeLunchPaper" ;
+    compat:witnessKey   "domain/wolpert-macready-1997-no-free-lunch" ;
+    compat:witnessTitle "No Free Lunch Theorems for Optimization (Wolpert & Macready 1997)" ;
+    compat:witnessYear  1997 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Wolpert & Macready (1997): no free lunch theorems — all optimization algorithms equivalent in aggregate." .
+
+# ═══════════════════════════════════════════════════════════════════════
+# Root Papers (~/Documents/Papers/*.pdf / *.md)
+# ═══════════════════════════════════════════════════════════════════════
+
+compat:ExcessGrowthRatePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ExcessGrowthRatePaper" ;
+    compat:witnessKey   "domain/excess-growth-rate-mathematical-study" ;
+    compat:witnessTitle "A Mathematical Study of the Excess Growth Rate" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Mathematical study of excess growth rate dynamics in portfolio theory." .
+
+compat:AiShipFinancePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AiShipFinancePaper" ;
+    compat:witnessKey   "domain/ai-ship-finance-loan-origination" ;
+    compat:witnessTitle "Artificial Intelligence in Ship Finance: Applications, Opportunities, and a Case Study in AI-Augmented Loan Origination" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "AI applications in ship finance with case study: AI-augmented loan origination process." .
+
+compat:TwinTransitionMultinationalPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TwinTransitionMultinationalPaper" ;
+    compat:witnessKey   "domain/twin-transition-green-digital-roadmapping" ;
+    compat:witnessTitle "Orchestrating the Twin Transition in Multinational Corporations: Technology Roadmapping for Green and Digital Global Business Services" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Technology roadmapping for green+digital twin transition in multinational corporations." .
+
+compat:ProofBoundEnterpriseChangePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ProofBoundEnterpriseChangePaper" ;
+    compat:witnessKey   "domain/proof-bound-enterprise-change" ;
+    compat:witnessTitle "Proof-Bound Enterprise Change" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Proof-bound approach to enterprise change management and verification." .
+
+compat:TypeSafeProcessEvidencePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TypeSafeProcessEvidencePaper" ;
+    compat:witnessKey   "domain/type-safe-process-evidence-engineering" ;
+    compat:witnessTitle "Type-Safe Process-Evidence Engineering" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Type-safe process evidence engineering: formal Rust type law for process mining compat." .
+
+compat:UavSwarmSearchRescuePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "UavSwarmSearchRescuePaper" ;
+    compat:witnessKey   "domain/uav-swarm-market-replanning-search-rescue" ;
+    compat:witnessTitle "Market-Based Replanning for Safety-Critical UAV Swarms in Search and Rescue Missions" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "domain" ;
+    compat:description  "Market-based replanning algorithm for safety-critical UAV swarm search and rescue." .

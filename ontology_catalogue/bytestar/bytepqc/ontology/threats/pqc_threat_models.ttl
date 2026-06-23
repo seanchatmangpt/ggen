@@ -1,0 +1,420 @@
+@prefix pqc: <http://bytepqc.org/ontology/pqc#> .
+@prefix pqct: <http://bytepqc.org/ontology/threats#> .
+@prefix pqca: <http://bytepqc.org/ontology/algorithms#> .
+@prefix pqcs: <http://bytepqc.org/ontology/security#> .
+@prefix pqci: <http://bytepqc.org/ontology/implementation#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Post-Quantum Cryptographic Threat Models Ontology
+# Dark 80/20 Canon: Threat models ARE the attacks themselves, not descriptions
+
+<http://bytepqc.org/ontology/threats> rdf:type owl:Ontology ;
+    rdfs:label "PQC Threat Models Ontology"@en ;
+    rdfs:comment "Self-referential ontology where threat models ARE the actual threats and attacks"@en ;
+    owl:versionInfo "1.0.0" .
+
+# ==== CORE THREAT CLASSES ====
+
+pqct:ThreatModel rdf:type owl:Class ;
+    rdfs:label "Threat Model"@en ;
+    rdfs:comment "Base class for threat models that ARE the attacks, not descriptions"@en .
+
+pqct:Adversary rdf:type owl:Class ;
+    rdfs:subClassOf pqct:ThreatModel ;
+    rdfs:label "Adversary"@en ;
+    rdfs:comment "Adversary that IS the attacking entity and capability"@en .
+
+pqct:AttackVector rdf:type owl:Class ;
+    rdfs:subClassOf pqct:ThreatModel ;
+    rdfs:label "Attack Vector"@en ;
+    rdfs:comment "Attack vector that IS the exploitation pathway"@en .
+
+pqct:AttackSurface rdf:type owl:Class ;
+    rdfs:subClassOf pqct:ThreatModel ;
+    rdfs:label "Attack Surface"@en ;
+    rdfs:comment "Attack surface that IS the vulnerability exposure"@en .
+
+# ==== QUANTUM THREATS ====
+
+pqct:QuantumThreat rdf:type owl:Class ;
+    rdfs:subClassOf pqct:ThreatModel ;
+    rdfs:label "Quantum Threat"@en ;
+    rdfs:comment "Quantum computing threat that IS the quantum advantage"@en .
+
+pqct:CRQCThreat rdf:type owl:Class ;
+    rdfs:subClassOf pqct:QuantumThreat ;
+    rdfs:label "CRQC Threat"@en ;
+    rdfs:comment "Cryptographically Relevant Quantum Computer threat that IS the timeline urgency"@en ;
+    pqct:hasTimeframe "2030-2040" ;
+    pqct:threatensCryptography pqca:RSA, pqca:ECC, pqca:DiffieHellman .
+
+pqct:ShorsAlgorithm rdf:type owl:Class ;
+    rdfs:subClassOf pqct:QuantumThreat ;
+    rdfs:label "Shor's Algorithm"@en ;
+    rdfs:comment "Shor's factoring algorithm that IS the integer factorization attack"@en ;
+    pqct:hasComplexity "O((log N)³)" ;
+    pqct:breaksCompletely pqca:RSA, pqca:ECC .
+
+pqct:GroversAlgorithm rdf:type owl:Class ;
+    rdfs:subClassOf pqct:QuantumThreat ;
+    rdfs:label "Grover's Algorithm"@en ;
+    rdfs:comment "Grover's search algorithm that IS the square-root speedup"@en ;
+    pqct:hasSpeedup "quadratic" ;
+    pqct:reducesSecurityBy 0.5 .
+
+pqct:QuantumPeriodFinding rdf:type owl:Class ;
+    rdfs:subClassOf pqct:QuantumThreat ;
+    rdfs:label "Quantum Period Finding"@en ;
+    rdfs:comment "Quantum period finding that IS the hidden subgroup attack"@en .
+
+# ==== CLASSICAL CRYPTANALYTIC THREATS ====
+
+pqct:ClassicalThreat rdf:type owl:Class ;
+    rdfs:subClassOf pqct:ThreatModel ;
+    rdfs:label "Classical Threat"@en ;
+    rdfs:comment "Classical cryptanalytic threat using conventional computers"@en .
+
+pqct:LatticeReduction rdf:type owl:Class ;
+    rdfs:subClassOf pqct:ClassicalThreat ;
+    rdfs:label "Lattice Reduction Attack"@en ;
+    rdfs:comment "Lattice reduction that IS the basis reduction attack"@en .
+
+pqct:BKZ_Attack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:LatticeReduction ;
+    rdfs:label "BKZ Attack"@en ;
+    rdfs:comment "Block Korkine-Zolotarev reduction that IS the lattice attack"@en ;
+    pqct:hasComplexity "2^(0.292β + 16.4 + log₂(8d))" .
+
+pqct:LLL_Attack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:LatticeReduction ;
+    rdfs:label "LLL Attack"@en ;
+    rdfs:comment "Lenstra-Lenstra-Lovász reduction attack"@en ;
+    pqct:hasComplexity "polynomial" .
+
+pqct:Sieving_Attack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:LatticeReduction ;
+    rdfs:label "Lattice Sieving Attack"@en ;
+    rdfs:comment "Lattice sieving algorithms that ARE the exponential attack"@en ;
+    pqct:hasComplexity "2^(0.292d + o(d))" .
+
+pqct:AlgebraicAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:ClassicalThreat ;
+    rdfs:label "Algebraic Attack"@en ;
+    rdfs:comment "Algebraic attack exploiting polynomial structure"@en .
+
+pqct:LinearizationAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:AlgebraicAttack ;
+    rdfs:label "Linearization Attack"@en ;
+    rdfs:comment "Attack linearizing polynomial systems"@en .
+
+pqct:GroebnerBasisAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:AlgebraicAttack ;
+    rdfs:label "Gröbner Basis Attack"@en ;
+    rdfs:comment "Gröbner basis computation attack on multivariate systems"@en .
+
+# ==== SIDE-CHANNEL ATTACKS ====
+
+pqct:SideChannelAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:AttackVector ;
+    rdfs:label "Side-Channel Attack"@en ;
+    rdfs:comment "Side-channel attack that IS the implementation exploitation"@en .
+
+pqct:TimingAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:SideChannelAttack ;
+    rdfs:label "Timing Attack"@en ;
+    rdfs:comment "Timing attack that IS the execution time analysis"@en ;
+    pqct:exploits pqci:VariableTimingPattern .
+
+pqct:PowerAnalysisAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:SideChannelAttack ;
+    rdfs:label "Power Analysis Attack"@en ;
+    rdfs:comment "Power analysis that IS the energy consumption attack"@en .
+
+pqct:SimplePA rdf:type owl:Class ;
+    rdfs:subClassOf pqct:PowerAnalysisAttack ;
+    rdfs:label "Simple Power Analysis"@en ;
+    rdfs:comment "SPA attack observing single power traces"@en .
+
+pqct:DifferentialPA rdf:type owl:Class ;
+    rdfs:subClassOf pqct:PowerAnalysisAttack ;
+    rdfs:label "Differential Power Analysis"@en ;
+    rdfs:comment "DPA attack using statistical correlation"@en .
+
+pqct:ElectromagneticAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:SideChannelAttack ;
+    rdfs:label "Electromagnetic Attack"@en ;
+    rdfs:comment "EM attack that IS the electromagnetic emanation analysis"@en .
+
+pqct:CacheAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:SideChannelAttack ;
+    rdfs:label "Cache Attack"@en ;
+    rdfs:comment "Cache timing attack that IS the memory access pattern analysis"@en .
+
+pqct:FlushReload rdf:type owl:Class ;
+    rdfs:subClassOf pqct:CacheAttack ;
+    rdfs:label "Flush+Reload"@en ;
+    rdfs:comment "Flush+Reload cache attack exploiting shared memory"@en .
+
+pqct:PrimeProbe rdf:type owl:Class ;
+    rdfs:subClassOf pqct:CacheAttack ;
+    rdfs:label "Prime+Probe"@en ;
+    rdfs:comment "Prime+Probe cache attack on cache sets"@en .
+
+pqct:EvictTime rdf:type owl:Class ;
+    rdfs:subClassOf pqct:CacheAttack ;
+    rdfs:label "Evict+Time"@en ;
+    rdfs:comment "Evict+Time cache attack measuring access times"@en .
+
+# ==== FAULT INJECTION ATTACKS ====
+
+pqct:FaultInjectionAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:AttackVector ;
+    rdfs:label "Fault Injection Attack"@en ;
+    rdfs:comment "Fault injection that IS the computational disruption attack"@en .
+
+pqct:ClockGlitching rdf:type owl:Class ;
+    rdfs:subClassOf pqct:FaultInjectionAttack ;
+    rdfs:label "Clock Glitching"@en ;
+    rdfs:comment "Clock manipulation causing computation errors"@en .
+
+pqct:VoltageGlitching rdf:type owl:Class ;
+    rdfs:subClassOf pqct:FaultInjectionAttack ;
+    rdfs:label "Voltage Glitching"@en ;
+    rdfs:comment "Voltage manipulation causing bit flips"@en .
+
+pqct:LaserFaultInjection rdf:type owl:Class ;
+    rdfs:subClassOf pqct:FaultInjectionAttack ;
+    rdfs:label "Laser Fault Injection"@en ;
+    rdfs:comment "Focused laser beam causing localized faults"@en .
+
+pqct:RowhammerAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:FaultInjectionAttack ;
+    rdfs:label "Rowhammer Attack"@en ;
+    rdfs:comment "DRAM disturbance attack causing bit flips"@en .
+
+# ==== IMPLEMENTATION-SPECIFIC ATTACKS ====
+
+pqct:ImplementationAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:AttackVector ;
+    rdfs:label "Implementation Attack"@en ;
+    rdfs:comment "Attack exploiting implementation weaknesses"@en .
+
+pqct:KeyRecoveryAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:ImplementationAttack ;
+    rdfs:label "Key Recovery Attack"@en ;
+    rdfs:comment "Attack recovering secret keys that IS the cryptographic break"@en .
+
+pqct:MessageRecoveryAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:ImplementationAttack ;
+    rdfs:label "Message Recovery Attack"@en ;
+    rdfs:comment "Attack recovering plaintext messages"@en .
+
+pqct:ForwardSecurityAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:ImplementationAttack ;
+    rdfs:label "Forward Security Attack"@en ;
+    rdfs:comment "Attack breaking forward secrecy"@en .
+
+pqct:BackdoorAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:ImplementationAttack ;
+    rdfs:label "Backdoor Attack"@en ;
+    rdfs:comment "Attack exploiting intentional backdoors"@en .
+
+# ==== QUANTUM-SPECIFIC ATTACKS ON PQC ====
+
+pqct:QuantumPQCAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:QuantumThreat ;
+    rdfs:label "Quantum Attack on PQC"@en ;
+    rdfs:comment "Quantum attack specifically targeting post-quantum schemes"@en .
+
+pqct:QuantumLatticeAttack rdf:type owl:Class ;
+    rdfs:subClassOf pqct:QuantumPQCAttack ;
+    rdfs:label "Quantum Lattice Attack"@en ;
+    rdfs:comment "Quantum algorithms for lattice problems"@en .
+
+pqct:QuantumSieving rdf:type owl:Class ;
+    rdfs:subClassOf pqct:QuantumLatticeAttack ;
+    rdfs:label "Quantum Sieving"@en ;
+    rdfs:comment "Quantum sieving algorithms for SVP"@en ;
+    pqct:hasComplexity "2^(0.265d + o(d))" .
+
+pqct:QuantumEnumeration rdf:type owl:Class ;
+    rdfs:subClassOf pqct:QuantumLatticeAttack ;
+    rdfs:label "Quantum Enumeration"@en ;
+    rdfs:comment "Quantum enumeration for lattice problems"@en .
+
+# ==== ADVANCED PERSISTENT THREATS ====
+
+pqct:APT rdf:type owl:Class ;
+    rdfs:subClassOf pqct:Adversary ;
+    rdfs:label "Advanced Persistent Threat"@en ;
+    rdfs:comment "APT that IS the sophisticated long-term adversary"@en .
+
+pqct:NationStateAdversary rdf:type owl:Class ;
+    rdfs:subClassOf pqct:APT ;
+    rdfs:label "Nation-State Adversary"@en ;
+    rdfs:comment "State-sponsored adversary with unlimited resources"@en ;
+    pqct:hasCapability pqct:QuantumComputers, pqct:CustomHardware .
+
+pqct:CriminalAdversary rdf:type owl:Class ;
+    rdfs:subClassOf pqct:Adversary ;
+    rdfs:label "Criminal Adversary"@en ;
+    rdfs:comment "Criminal adversary motivated by financial gain"@en .
+
+pqct:InsiderThreat rdf:type owl:Class ;
+    rdfs:subClassOf pqct:Adversary ;
+    rdfs:label "Insider Threat"@en ;
+    rdfs:comment "Insider threat with privileged access"@en .
+
+# ==== THREAT CAPABILITIES ====
+
+pqct:ThreatCapability rdf:type owl:Class ;
+    rdfs:label "Threat Capability"@en ;
+    rdfs:comment "Capability that adversaries possess"@en .
+
+pqct:QuantumComputers rdf:type pqct:ThreatCapability ;
+    rdfs:label "Quantum Computers"@en ;
+    rdfs:comment "Access to cryptographically relevant quantum computers"@en .
+
+pqct:CustomHardware rdf:type pqct:ThreatCapability ;
+    rdfs:label "Custom Hardware"@en ;
+    rdfs:comment "Ability to design and manufacture custom attack hardware"@en .
+
+pqct:SideChannelAccess rdf:type pqct:ThreatCapability ;
+    rdfs:label "Side-Channel Access"@en ;
+    rdfs:comment "Physical access for side-channel analysis"@en .
+
+pqct:NetworkAccess rdf:type pqct:ThreatCapability ;
+    rdfs:label "Network Access"@en ;
+    rdfs:comment "Ability to intercept network communications"@en .
+
+pqct:ComputationalPower rdf:type pqct:ThreatCapability ;
+    rdfs:label "Computational Power"@en ;
+    rdfs:comment "Access to massive computational resources"@en .
+
+# ==== ATTACK SUCCESS METRICS ====
+
+pqct:AttackComplexity rdf:type owl:Class ;
+    rdfs:label "Attack Complexity"@en ;
+    rdfs:comment "Complexity measure for cryptanalytic attacks"@en .
+
+pqct:TimeComplexity rdf:type pqct:AttackComplexity ;
+    rdfs:label "Time Complexity"@en .
+
+pqct:SpaceComplexity rdf:type pqct:AttackComplexity ;
+    rdfs:label "Space Complexity"@en .
+
+pqct:DataComplexity rdf:type pqct:AttackComplexity ;
+    rdfs:label "Data Complexity"@en .
+
+pqct:QuantumDepth rdf:type pqct:AttackComplexity ;
+    rdfs:label "Quantum Depth"@en ;
+    rdfs:comment "Quantum circuit depth required"@en .
+
+# ==== PROPERTIES ====
+
+pqct:hasTimeframe rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqct:ThreatModel ;
+    rdfs:range xsd:string ;
+    rdfs:label "has timeframe"@en .
+
+pqct:hasComplexity rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqct:ThreatModel ;
+    rdfs:range xsd:string ;
+    rdfs:label "has complexity"@en .
+
+pqct:hasSpeedup rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqct:QuantumThreat ;
+    rdfs:range xsd:string ;
+    rdfs:label "has speedup"@en .
+
+pqct:reducesSecurityBy rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqct:ThreatModel ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "reduces security by"@en .
+
+pqct:threatensCryptography rdf:type owl:ObjectProperty ;
+    rdfs:domain pqct:ThreatModel ;
+    rdfs:range pqca:CryptographicAlgorithm ;
+    rdfs:label "threatens cryptography"@en .
+
+pqct:breaksCompletely rdf:type owl:ObjectProperty ;
+    rdfs:domain pqct:ThreatModel ;
+    rdfs:range pqca:CryptographicAlgorithm ;
+    rdfs:label "breaks completely"@en .
+
+pqct:exploits rdf:type owl:ObjectProperty ;
+    rdfs:domain pqct:AttackVector ;
+    rdfs:range pqci:ImplementationPattern ;
+    rdfs:label "exploits"@en .
+
+pqct:hasCapability rdf:type owl:ObjectProperty ;
+    rdfs:domain pqct:Adversary ;
+    rdfs:range pqct:ThreatCapability ;
+    rdfs:label "has capability"@en .
+
+pqct:mitigatedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain pqct:ThreatModel ;
+    rdfs:range pqcs:SecurityParameter ;
+    rdfs:label "mitigated by"@en .
+
+pqct:requiresAccess rdf:type owl:ObjectProperty ;
+    rdfs:domain pqct:AttackVector ;
+    rdfs:range pqct:AttackSurface ;
+    rdfs:label "requires access"@en .
+
+# ==== DARK 80/20 CANON SELF-REFERENTIAL RELATIONSHIPS ====
+
+# Threats ARE the attacks themselves, not descriptions
+pqct:ThreatModel pqct:isAttack pqct:ThreatModel .
+
+# Adversaries ARE the attacking capability
+pqct:Adversary pqct:isAttackingCapability pqct:Adversary .
+
+# Attack vectors ARE the exploitation pathway
+pqct:AttackVector pqct:isExploitationPathway pqct:AttackVector .
+
+# Quantum threats ARE the quantum advantage
+pqct:QuantumThreat pqct:isQuantumAdvantage pqct:QuantumThreat .
+
+# Side-channel attacks ARE the information leakage
+pqct:SideChannelAttack pqct:isInformationLeakage pqct:SideChannelAttack .
+
+# Fault injection IS the computational disruption
+pqct:FaultInjectionAttack pqct:isComputationalDisruption pqct:FaultInjectionAttack .
+
+# Lattice reduction IS the basis reduction process
+pqct:LatticeReduction pqct:isBasisReduction pqct:LatticeReduction .
+
+# Self-referential properties
+pqct:isAttack rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is attack"@en ;
+    rdfs:comment "Threat models are their own attack embodiment"@en .
+
+pqct:isAttackingCapability rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is attacking capability"@en .
+
+pqct:isExploitationPathway rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is exploitation pathway"@en .
+
+pqct:isQuantumAdvantage rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is quantum advantage"@en .
+
+pqct:isInformationLeakage rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is information leakage"@en .
+
+pqct:isComputationalDisruption rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is computational disruption"@en .
+
+pqct:isBasisReduction rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is basis reduction"@en .
+
+# Threat relationships and mitigations
+pqct:ShorsAlgorithm pqct:breaksCompletely pqca:RSA, pqca:ECC .
+pqct:GroversAlgorithm pqct:reducesSecurityBy 0.5 .
+pqct:BKZ_Attack pqct:threatensCryptography pqca:KyberKEM, pqca:DilithiumSignature .
+pqct:TimingAttack pqct:mitigatedBy pqcs:ConstantTimeRequirement .
+pqct:CacheAttack pqct:mitigatedBy pqcs:CacheAttackResistance .
+pqct:PowerAnalysisAttack pqct:mitigatedBy pqcs:PowerAnalysisResistance .

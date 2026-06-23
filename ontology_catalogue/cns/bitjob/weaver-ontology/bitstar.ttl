@@ -1,0 +1,449 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+@prefix bitstar: <http://bitstar.io/ontology#> .
+@prefix bs: <http://bitstar.io/instances#> .
+
+# BitStar Knowledge Graph - Instance Data
+# This TTL file contains concrete instances of the BitStar ontology concepts
+
+# =====================
+# BitActor Instances
+# =====================
+
+# User Management Actors
+bs:UserActor a bitstar:Actor ;
+    bitstar:actorId "user-actor-001" ;
+    rdfs:label "User Management Actor" ;
+    rdfs:comment "Handles user registration, authentication, and profile management" .
+
+bs:AuthActor a bitstar:Actor ;
+    bitstar:actorId "auth-actor-001" ;
+    rdfs:label "Authentication Actor" ;
+    rdfs:comment "Manages JWT tokens, sessions, and security validation" .
+
+bs:NotificationActor a bitstar:Actor ;
+    bitstar:actorId "notify-actor-001" ;
+    rdfs:label "Notification Actor" ;
+    rdfs:comment "Handles email, SMS, and push notifications" .
+
+# Actor Pools
+bs:UserPool a bitstar:Pool ;
+    bitstar:actorId "user-pool-001" ;
+    bitstar:maxInstances 10 ;
+    bitstar:contains bs:UserActor ;
+    rdfs:label "User Actor Pool" ;
+    rdfs:comment "Load-balanced pool of user management actors" .
+
+bs:AuthPool a bitstar:Pool ;
+    bitstar:actorId "auth-pool-001" ;
+    bitstar:maxInstances 5 ;
+    bitstar:contains bs:AuthActor ;
+    rdfs:label "Authentication Actor Pool" .
+
+# Supervisors
+bs:UserSupervisor a bitstar:Supervisor ;
+    bitstar:actorId "user-supervisor-001" ;
+    bitstar:supervises bs:UserPool, bs:AuthPool ;
+    rdfs:label "User Management Supervisor" ;
+    rdfs:comment "Supervises user-related actor pools with restart strategies" .
+
+bs:SystemSupervisor a bitstar:Supervisor ;
+    bitstar:actorId "system-supervisor-001" ;
+    bitstar:supervises bs:UserSupervisor, bs:NotificationActor ;
+    rdfs:label "System Supervisor" ;
+    rdfs:comment "Top-level supervisor for system resilience" .
+
+# =====================
+# BitFlow Instances
+# =====================
+
+# Workflow Patterns
+bs:SequentialPattern a bitstar:Pattern ;
+    bitstar:patternType "sequential" ;
+    rdfs:label "Sequential Processing Pattern" ;
+    rdfs:comment "Execute stages one after another" .
+
+bs:ParallelPattern a bitstar:Pattern ;
+    bitstar:patternType "parallel" ;
+    rdfs:label "Parallel Processing Pattern" ;
+    rdfs:comment "Execute multiple stages simultaneously" .
+
+bs:ConditionalPattern a bitstar:Pattern ;
+    bitstar:patternType "conditional" ;
+    rdfs:label "Conditional Branching Pattern" ;
+    rdfs:comment "Branch execution based on conditions" .
+
+# User Registration Workflow
+bs:UserRegistrationFlow a bitstar:BitFlow ;
+    rdfs:label "User Registration Workflow" ;
+    rdfs:comment "Complete user onboarding process" ;
+    bitstar:implementsPattern bs:SequentialPattern ;
+    bitstar:hasStage bs:ValidateUserData, bs:CreateUserAccount, bs:SendWelcomeEmail .
+
+bs:ValidateUserData a bitstar:Stage ;
+    rdfs:label "Validate User Data" ;
+    rdfs:comment "Validate email, password strength, and required fields" ;
+    bitstar:transitionsTo bs:CreateUserAccount .
+
+bs:CreateUserAccount a bitstar:Stage ;
+    rdfs:label "Create User Account" ;
+    rdfs:comment "Store user in database and generate initial profile" ;
+    bitstar:transitionsTo bs:SendWelcomeEmail .
+
+bs:SendWelcomeEmail a bitstar:Stage ;
+    rdfs:label "Send Welcome Email" ;
+    rdfs:comment "Send welcome email with account activation link" .
+
+# Order Processing Workflow
+bs:OrderProcessingFlow a bitstar:BitFlow ;
+    rdfs:label "Order Processing Workflow" ;
+    rdfs:comment "Handle customer orders from creation to fulfillment" ;
+    bitstar:implementsPattern bs:ConditionalPattern ;
+    bitstar:hasStage bs:ValidateOrder, bs:ProcessPayment, bs:UpdateInventory, bs:ShipOrder .
+
+bs:ValidateOrder a bitstar:Stage ;
+    rdfs:label "Validate Order" ;
+    rdfs:comment "Check product availability and customer details" ;
+    bitstar:transitionsTo bs:ProcessPayment .
+
+bs:ProcessPayment a bitstar:Stage ;
+    rdfs:label "Process Payment" ;
+    rdfs:comment "Handle payment authorization and capture" ;
+    bitstar:transitionsTo bs:UpdateInventory .
+
+bs:UpdateInventory a bitstar:Stage ;
+    rdfs:label "Update Inventory" ;
+    rdfs:comment "Reduce stock levels and update product availability" ;
+    bitstar:transitionsTo bs:ShipOrder .
+
+bs:ShipOrder a bitstar:Stage ;
+    rdfs:label "Ship Order" ;
+    rdfs:comment "Generate shipping labels and track delivery" .
+
+# =====================
+# Service Instances
+# =====================
+
+# REST Services
+bs:UserAPI a bitstar:RESTService ;
+    bitstar:endpoint "https://api.bitstar.io/v1/users"^^xsd:anyURI ;
+    bitstar:version "1.2.0" ;
+    rdfs:label "User Management API" ;
+    rdfs:comment "RESTful API for user operations" ;
+    bitstar:implements bs:UserRegistrationFlow ;
+    bitstar:exposes bs:User, bs:UserProfile .
+
+bs:OrderAPI a bitstar:RESTService ;
+    bitstar:endpoint "https://api.bitstar.io/v1/orders"^^xsd:anyURI ;
+    bitstar:version "1.1.0" ;
+    rdfs:label "Order Management API" ;
+    rdfs:comment "RESTful API for order processing" ;
+    bitstar:implements bs:OrderProcessingFlow ;
+    bitstar:exposes bs:Order, bs:OrderItem .
+
+# GraphQL Service
+bs:UserGraphQL a bitstar:GraphQLService ;
+    bitstar:endpoint "https://api.bitstar.io/graphql"^^xsd:anyURI ;
+    bitstar:version "1.0.0" ;
+    rdfs:label "User GraphQL API" ;
+    rdfs:comment "GraphQL interface for flexible user data queries" ;
+    bitstar:exposes bs:User, bs:UserProfile, bs:UserPreferences .
+
+# gRPC Service
+bs:NotificationgRPC a bitstar:gRPCService ;
+    bitstar:endpoint "grpc://notifications.bitstar.io:443"^^xsd:anyURI ;
+    bitstar:version "2.0.0" ;
+    rdfs:label "Notification gRPC Service" ;
+    rdfs:comment "High-performance notification delivery service" ;
+    bitstar:exposes bs:Notification, bs:NotificationTemplate .
+
+# WebSocket Service
+bs:RealtimeUpdates a bitstar:WebSocketService ;
+    bitstar:endpoint "wss://live.bitstar.io/updates"^^xsd:anyURI ;
+    bitstar:version "1.0.0" ;
+    rdfs:label "Real-time Updates Service" ;
+    rdfs:comment "Live updates for order status and notifications" ;
+    bitstar:exposes bs:OrderStatus, bs:LiveNotification .
+
+# =====================
+# Data Model Instances
+# =====================
+
+# Core Entities
+bs:User a bitstar:Entity ;
+    rdfs:label "User Entity" ;
+    rdfs:comment "Core user entity with authentication and profile data" ;
+    bitstar:composedOf bs:Email, bs:Username, bs:PasswordHash ;
+    bitstar:hasRelationship bs:UserProfile, bs:Order .
+
+bs:UserProfile a bitstar:Entity ;
+    rdfs:label "User Profile Entity" ;
+    rdfs:comment "Extended user information and preferences" ;
+    bitstar:composedOf bs:FirstName, bs:LastName, bs:Avatar, bs:Timezone ;
+    bitstar:hasRelationship bs:User .
+
+bs:Order a bitstar:Entity ;
+    rdfs:label "Order Entity" ;
+    rdfs:comment "Customer order with items and payment information" ;
+    bitstar:composedOf bs:OrderId, bs:OrderTotal, bs:OrderDate ;
+    bitstar:hasRelationship bs:User, bs:OrderItem, bs:Payment .
+
+bs:OrderItem a bitstar:Entity ;
+    rdfs:label "Order Item Entity" ;
+    rdfs:comment "Individual items within an order" ;
+    bitstar:composedOf bs:ProductId, bs:Quantity, bs:Price ;
+    bitstar:hasRelationship bs:Order, bs:Product .
+
+bs:Product a bitstar:Entity ;
+    rdfs:label "Product Entity" ;
+    rdfs:comment "Product catalog item" ;
+    bitstar:composedOf bs:ProductName, bs:Description, bs:Price, bs:Stock ;
+    bitstar:hasRelationship bs:OrderItem .
+
+# Value Objects
+bs:Email a bitstar:ValueObject ;
+    rdfs:label "Email Address" ;
+    rdfs:comment "RFC-compliant email address value object" .
+
+bs:Username a bitstar:ValueObject ;
+    rdfs:label "Username" ;
+    rdfs:comment "Unique user identifier string" .
+
+bs:PasswordHash a bitstar:ValueObject ;
+    rdfs:label "Password Hash" ;
+    rdfs:comment "Bcrypt hashed password for security" .
+
+bs:FirstName a bitstar:ValueObject ;
+    rdfs:label "First Name" ;
+    rdfs:comment "User's given name" .
+
+bs:LastName a bitstar:ValueObject ;
+    rdfs:label "Last Name" ;
+    rdfs:comment "User's family name" .
+
+bs:Avatar a bitstar:ValueObject ;
+    rdfs:label "Avatar URL" ;
+    rdfs:comment "User profile image URL" .
+
+bs:Timezone a bitstar:ValueObject ;
+    rdfs:label "Timezone" ;
+    rdfs:comment "User's preferred timezone (IANA format)" .
+
+bs:OrderId a bitstar:ValueObject ;
+    rdfs:label "Order ID" ;
+    rdfs:comment "Unique order identifier (UUID)" .
+
+bs:OrderTotal a bitstar:ValueObject ;
+    rdfs:label "Order Total" ;
+    rdfs:comment "Total order amount in cents" .
+
+bs:OrderDate a bitstar:ValueObject ;
+    rdfs:label "Order Date" ;
+    rdfs:comment "ISO 8601 formatted order timestamp" .
+
+bs:ProductId a bitstar:ValueObject ;
+    rdfs:label "Product ID" ;
+    rdfs:comment "Unique product identifier" .
+
+bs:ProductName a bitstar:ValueObject ;
+    rdfs:label "Product Name" ;
+    rdfs:comment "Display name for product" .
+
+bs:Description a bitstar:ValueObject ;
+    rdfs:label "Description" ;
+    rdfs:comment "Product description text" .
+
+bs:Price a bitstar:ValueObject ;
+    rdfs:label "Price" ;
+    rdfs:comment "Product price in cents" .
+
+bs:Stock a bitstar:ValueObject ;
+    rdfs:label "Stock Quantity" ;
+    rdfs:comment "Available inventory count" .
+
+bs:Quantity a bitstar:ValueObject ;
+    rdfs:label "Item Quantity" ;
+    rdfs:comment "Number of items ordered" .
+
+# =====================
+# Constraint Instances
+# =====================
+
+# Validation Rules
+bs:EmailValidation a bitstar:ValidationRule ;
+    rdfs:label "Email Validation Rule" ;
+    rdfs:comment "Validates email format using regex pattern" ;
+    bitstar:constrains bs:Email .
+
+bs:PasswordStrength a bitstar:ValidationRule ;
+    rdfs:label "Password Strength Rule" ;
+    rdfs:comment "Enforces minimum 8 characters, mixed case, numbers" ;
+    bitstar:constrains bs:PasswordHash .
+
+bs:UsernameUnique a bitstar:ValidationRule ;
+    rdfs:label "Username Uniqueness Rule" ;
+    rdfs:comment "Ensures username is unique across all users" ;
+    bitstar:constrains bs:Username .
+
+bs:StockAvailability a bitstar:ValidationRule ;
+    rdfs:label "Stock Availability Rule" ;
+    rdfs:comment "Validates sufficient stock before order processing" ;
+    bitstar:constrains bs:Stock, bs:Quantity .
+
+# Business Rules
+bs:OrderMinimum a bitstar:BusinessRule ;
+    rdfs:label "Minimum Order Value Rule" ;
+    rdfs:comment "Orders must meet minimum $10 value requirement" ;
+    bitstar:constrains bs:OrderTotal .
+
+bs:UserAgeRequirement a bitstar:BusinessRule ;
+    rdfs:label "Minimum Age Requirement" ;
+    rdfs:comment "Users must be 13+ years old (COPPA compliance)" ;
+    bitstar:constrains bs:UserProfile .
+
+bs:RefundWindow a bitstar:BusinessRule ;
+    rdfs:label "Refund Time Window Rule" ;
+    rdfs:comment "Refunds allowed within 30 days of purchase" ;
+    bitstar:constrains bs:Order .
+
+# =====================
+# Instrumentation Instances
+# =====================
+
+# Metrics
+bs:UserRegistrationMetric a bitstar:Metric ;
+    bitstar:metricName "user_registrations_total" ;
+    rdfs:label "User Registration Counter" ;
+    rdfs:comment "Counts successful user registrations" ;
+    bitstar:instruments bs:UserRegistrationFlow .
+
+bs:OrderProcessingTime a bitstar:Metric ;
+    bitstar:metricName "order_processing_duration_seconds" ;
+    rdfs:label "Order Processing Duration" ;
+    rdfs:comment "Measures time to process orders end-to-end" ;
+    bitstar:instruments bs:OrderProcessingFlow .
+
+bs:APILatency a bitstar:Metric ;
+    bitstar:metricName "api_request_duration_seconds" ;
+    rdfs:label "API Request Latency" ;
+    rdfs:comment "Measures API response times" ;
+    bitstar:instruments bs:UserAPI, bs:OrderAPI .
+
+bs:ActorMessageRate a bitstar:Metric ;
+    bitstar:metricName "actor_messages_per_second" ;
+    rdfs:label "Actor Message Rate" ;
+    rdfs:comment "Tracks message processing rate per actor" ;
+    bitstar:instruments bs:UserActor, bs:AuthActor .
+
+# Traces
+bs:UserJourneyTrace a bitstar:Trace ;
+    bitstar:spanName "user_registration_journey" ;
+    rdfs:label "User Registration Journey" ;
+    rdfs:comment "Traces complete user onboarding flow" ;
+    bitstar:instruments bs:UserRegistrationFlow .
+
+bs:OrderFulfillmentTrace a bitstar:Trace ;
+    bitstar:spanName "order_fulfillment" ;
+    rdfs:label "Order Fulfillment Trace" ;
+    rdfs:comment "Traces order from creation to shipping" ;
+    bitstar:instruments bs:OrderProcessingFlow .
+
+bs:AuthenticationTrace a bitstar:Trace ;
+    bitstar:spanName "user_authentication" ;
+    rdfs:label "Authentication Trace" ;
+    rdfs:comment "Traces login and token validation" ;
+    bitstar:instruments bs:AuthActor .
+
+bs:DatabaseOperationTrace a bitstar:Trace ;
+    bitstar:spanName "database_operation" ;
+    rdfs:label "Database Operation Trace" ;
+    rdfs:comment "Traces database queries and transactions" ;
+    bitstar:instruments bs:User, bs:Order .
+
+# =====================
+# Actor Communication Relationships
+# =====================
+
+# Message flows between actors
+bs:UserActor bitstar:sendsMessageTo bs:AuthActor ;
+    rdfs:comment "User actor requests authentication from auth actor" .
+
+bs:AuthActor bitstar:sendsMessageTo bs:NotificationActor ;
+    rdfs:comment "Auth actor triggers welcome notification" .
+
+bs:UserActor bitstar:sendsMessageTo bs:NotificationActor ;
+    rdfs:comment "User actor sends profile update notifications" .
+
+# =====================
+# Service Dependencies
+# =====================
+
+# Services expose multiple data models
+bs:UserAPI bitstar:exposes bs:UserPreferences .
+bs:OrderAPI bitstar:exposes bs:Payment, bs:ShippingAddress .
+bs:RealtimeUpdates bitstar:exposes bs:UserActivity .
+
+# Additional entities for comprehensive coverage
+bs:UserPreferences a bitstar:Entity ;
+    rdfs:label "User Preferences Entity" ;
+    rdfs:comment "User settings and customization options" ;
+    bitstar:hasRelationship bs:User .
+
+bs:Payment a bitstar:Entity ;
+    rdfs:label "Payment Entity" ;
+    rdfs:comment "Payment method and transaction details" ;
+    bitstar:hasRelationship bs:Order .
+
+bs:ShippingAddress a bitstar:Entity ;
+    rdfs:label "Shipping Address Entity" ;
+    rdfs:comment "Delivery address information" ;
+    bitstar:hasRelationship bs:Order .
+
+bs:Notification a bitstar:Entity ;
+    rdfs:label "Notification Entity" ;
+    rdfs:comment "User notification message" .
+
+bs:NotificationTemplate a bitstar:Entity ;
+    rdfs:label "Notification Template Entity" ;
+    rdfs:comment "Reusable notification message template" .
+
+bs:OrderStatus a bitstar:ValueObject ;
+    rdfs:label "Order Status" ;
+    rdfs:comment "Current state of order processing" .
+
+bs:LiveNotification a bitstar:ValueObject ;
+    rdfs:label "Live Notification" ;
+    rdfs:comment "Real-time notification message" .
+
+bs:UserActivity a bitstar:ValueObject ;
+    rdfs:label "User Activity" ;
+    rdfs:comment "Real-time user interaction events" .
+
+# =====================
+# Additional Constraints
+# =====================
+
+# More validation rules for completeness
+bs:PhoneValidation a bitstar:ValidationRule ;
+    rdfs:label "Phone Number Validation" ;
+    rdfs:comment "Validates international phone number format" .
+
+bs:AddressValidation a bitstar:ValidationRule ;
+    rdfs:label "Address Validation Rule" ;
+    rdfs:comment "Validates shipping address completeness" ;
+    bitstar:constrains bs:ShippingAddress .
+
+# Additional business rules
+bs:InventoryThreshold a bitstar:BusinessRule ;
+    rdfs:label "Low Inventory Alert Rule" ;
+    rdfs:comment "Alert when inventory falls below threshold" ;
+    bitstar:constrains bs:Stock .
+
+bs:FraudDetection a bitstar:BusinessRule ;
+    rdfs:label "Fraud Detection Rule" ;
+    rdfs:comment "Flag suspicious payment patterns" ;
+    bitstar:constrains bs:Payment .

@@ -1,0 +1,102 @@
+@prefix : <http://remo-dash.example/ontology/security#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Security Ontology for RLS and Access Control
+:SecurityPolicy a owl:Class ;
+    rdfs:label "Security Policy" ;
+    rdfs:comment "Defines access control and security constraints" .
+
+:RLSPolicy a owl:Class ;
+    rdfs:subClassOf :SecurityPolicy ;
+    rdfs:label "Row Level Security Policy" ;
+    rdfs:comment "Database-level row filtering based on user context" .
+
+:User a owl:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "System user with role-based access" .
+
+:Role a owl:Class ;
+    rdfs:label "Role" ;
+    rdfs:comment "User role defining access permissions" .
+
+:hasRole a owl:ObjectProperty ;
+    rdfs:domain :User ;
+    rdfs:range :Role .
+
+:accessLevel a owl:DatatypeProperty ;
+    rdfs:domain :Role ;
+    rdfs:range xsd:integer .
+
+# RLS Policy Shapes
+:RLSPolicyShape a sh:NodeShape ;
+    sh:targetClass :RLSPolicy ;
+    sh:property [
+        sh:path :appliesTo ;
+        sh:class :DataTable ;
+        sh:minCount 1
+    ] ;
+    sh:property [
+        sh:path :requiresRole ;
+        sh:class :Role ;
+        sh:minCount 1
+    ] .
+
+# User Constraint Shapes  
+:UserShape a sh:NodeShape ;
+    sh:targetClass :User ;
+    sh:property [
+        sh:path :hasRole ;
+        sh:class :Role ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path :email ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:minCount 1
+    ] .
+
+# Data Classification
+:DataTable a owl:Class ;
+    rdfs:label "Data Table" ;
+    rdfs:comment "Database table with security classification" .
+
+:PIIField a owl:Class ;
+    rdfs:label "PII Field" ;
+    rdfs:comment "Personally Identifiable Information field requiring special handling" .
+
+:sensitivityLevel a owl:DatatypeProperty ;
+    rdfs:domain :PIIField ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "1=low, 2=medium, 3=high, 4=critical" .
+
+# Receipt and Audit Trail
+:AuditEvent a owl:Class ;
+    rdfs:label "Audit Event" ;
+    rdfs:comment "Auditable action requiring PQC receipt" .
+
+:generatesPQCReceipt a owl:DatatypeProperty ;
+    rdfs:domain :AuditEvent ;
+    rdfs:range xsd:boolean .
+
+# Security Roles
+:MemberRole a :Role ;
+    rdfs:label "Member" ;
+    :accessLevel 1 .
+
+:ManagerRole a :Role ;
+    rdfs:label "Manager" ;
+    :accessLevel 2 .
+
+:AnalystRole a :Role ;
+    rdfs:label "Analyst" ;
+    :accessLevel 3 .
+
+:AdminRole a :Role ;
+    rdfs:label "Admin" ;
+    :accessLevel 4 .

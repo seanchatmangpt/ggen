@@ -1,0 +1,387 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix cli: <http://ggen.dev/schema/cli#> .
+@prefix cnv: <http://ggen.dev/schema/clap-noun-verb#> .
+
+# ============================================================================
+# CLAP-NOUN-VERB v3.3.0 ONTOLOGY SCHEMA
+# ============================================================================
+#
+# Complete ontology for clap-noun-verb v3.3.0 with all features:
+#
+# v3.3.0 - Advanced clap Features & Typer-style Enhancements:
+# - Custom Value Parsers (PathBuf, IpAddr, Url, etc.)
+# - Enhanced Help (long_help, next_line_help, help override)
+# - Display Order (display_order for argument ordering)
+# - Exclusive Groups (mutually exclusive argument groups)
+# - Trailing Varargs (trailing variable arguments)
+# - Negative Numbers (negative numbers in numeric arguments)
+#
+# v3.2.0 - Complete clap Feature Support:
+# - Environment Variables (#[arg(env = "VAR_NAME")])
+# - Positional Arguments (#[arg(index = 0)])
+# - Enhanced Actions (Count, SetFalse with auto-inference)
+# - Argument Groups (Groups, requires, conflicts_with)
+# - Better Help (long_about, hide, help_heading)
+#
+# v3.0.0 - Attribute Macros & Auto-Discovery:
+# - Attribute Macros (#[noun], #[verb])
+# - Auto-Discovery (compile-time command discovery)
+# - Auto-Inference (verb names from function names)
+# - Type Inference (arguments from function signatures)
+# - JSON Output (automatic JSON serialization)
+#
+
+# Ontology Definition
+cnv:CliNounVerbOntology a owl:Ontology ;
+    rdfs:label "clap-noun-verb v3.3.0 Ontology Schema" ;
+    rdfs:comment "Complete RDF schema for clap-noun-verb v3.3.0 CLI generation" ;
+    owl:versionInfo "3.3.0" ;
+    owl:imports <http://ggen.dev/schema/cli#> .
+
+# ============================================================================
+# CORE CLASSES
+# ============================================================================
+
+cnv:Noun a owl:Class ;
+    rdfs:label "Noun" ;
+    rdfs:comment "A noun in the noun-verb command structure (e.g., 'template', 'project')" .
+
+cnv:Verb a owl:Class ;
+    rdfs:label "Verb" ;
+    rdfs:comment "A verb action for a noun (e.g., 'generate', 'list', 'delete')" .
+
+cnv:Argument a owl:Class ;
+    rdfs:label "Argument" ;
+    rdfs:comment "Command-line argument (flag or positional)" .
+
+cnv:ArgumentType a owl:Class ;
+    rdfs:label "Argument Type" ;
+    rdfs:comment "Type constraint for arguments with custom parsers" .
+
+cnv:Validation a owl:Class ;
+    rdfs:label "Validation Rule" ;
+    rdfs:comment "Validation rule for argument values" .
+
+cnv:ArgumentGroup a owl:Class ;
+    rdfs:label "Argument Group" ;
+    rdfs:comment "Group of arguments with mutual exclusivity or dependencies" .
+
+cnv:Dependency a owl:Class ;
+    rdfs:label "Dependency" ;
+    rdfs:comment "Cargo dependency specification" .
+
+# ============================================================================
+# NOUN PROPERTIES
+# ============================================================================
+
+cnv:nounName a owl:DatatypeProperty ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range xsd:string ;
+    rdfs:label "noun name" ;
+    rdfs:comment "Noun identifier (e.g., 'template', 'project')" .
+
+cnv:nounDescription a owl:DatatypeProperty ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range xsd:string ;
+    rdfs:label "noun description" ;
+    rdfs:comment "Human-readable description" .
+
+cnv:nounModulePath a owl:DatatypeProperty ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range xsd:string ;
+    rdfs:label "module path" ;
+    rdfs:comment "Module path (e.g., 'cmds::template')" .
+
+cnv:hasVerb a owl:ObjectProperty ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range cnv:Verb ;
+    rdfs:label "has verb" ;
+    rdfs:comment "Noun supports this verb action" .
+
+# ============================================================================
+# VERB PROPERTIES (v3.0.0 - Attribute Macros & Auto-Discovery)
+# ============================================================================
+
+cnv:verbName a owl:DatatypeProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string ;
+    rdfs:label "verb name" ;
+    rdfs:comment "Verb identifier (e.g., 'generate', 'list'). Auto-inferred from function name if not specified." .
+
+cnv:verbDescription a owl:DatatypeProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string ;
+    rdfs:label "verb description" ;
+    rdfs:comment "Human-readable description" .
+
+cnv:verbAlias a owl:DatatypeProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string ;
+    rdfs:label "verb alias" ;
+    rdfs:comment "Short alias (e.g., 'gen' for 'generate')" .
+
+cnv:hasArgument a owl:ObjectProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range cnv:Argument ;
+    rdfs:label "has argument" ;
+    rdfs:comment "Verb accepts this argument" .
+
+cnv:hasValidation a owl:ObjectProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range cnv:Validation ;
+    rdfs:label "has validation" ;
+    rdfs:comment "Validation rule for this verb" .
+
+cnv:hasGroup a owl:ObjectProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range cnv:ArgumentGroup ;
+    rdfs:label "has argument group" ;
+    rdfs:comment "Argument group for this verb" .
+
+# ============================================================================
+# ARGUMENT PROPERTIES (v3.2.0 & v3.3.0 Features)
+# ============================================================================
+
+cnv:argName a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "argument name" ;
+    rdfs:comment "Argument name (e.g., 'output', 'force'). Auto-inferred from function parameter if not specified." .
+
+cnv:argLong a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "long flag" ;
+    rdfs:comment "Long flag (e.g., '--output'). Auto-inferred from parameter name if not specified." .
+
+cnv:argShort a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "short flag" ;
+    rdfs:comment "Short flag (e.g., '-o'). Auto-inferred if not specified." .
+
+cnv:argHelp a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "help text" ;
+    rdfs:comment "Help text for --help" .
+
+cnv:argLongHelp a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "long help text" ;
+    rdfs:comment "Long help text (v3.3.0: long_help). Shown in detailed --help output." .
+
+cnv:argNextLineHelp a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "next line help" ;
+    rdfs:comment "Whether to show help on next line (v3.3.0: next_line_help)" .
+
+cnv:argHelpOverride a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "help override" ;
+    rdfs:comment "Override default help text (v3.3.0: help override support)" .
+
+cnv:argRequired a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "required" ;
+    rdfs:comment "Whether argument is required. Auto-inferred from type (String vs Option<T>)." .
+
+cnv:argDefault a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "default value" ;
+    rdfs:comment "Default value if not provided" .
+
+cnv:argValueName a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "value name" ;
+    rdfs:comment "Value placeholder (e.g., 'PATH', 'NAME')" .
+
+cnv:argPosition a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:integer ;
+    rdfs:label "positional index" ;
+    rdfs:comment "Position for positional arguments (v3.2.0: #[arg(index = 0)]). 0-indexed." .
+
+cnv:argEnv a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "environment variable" ;
+    rdfs:comment "Environment variable for fallback (v3.2.0: #[arg(env = \"VAR_NAME\")])" .
+
+cnv:argDisplayOrder a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:integer ;
+    rdfs:label "display order" ;
+    rdfs:comment "Order in which argument appears in help (v3.3.0: display_order). Lower numbers appear first." .
+
+cnv:argTrailingVararg a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "trailing vararg" ;
+    rdfs:comment "Whether this is a trailing variable argument (v3.3.0: trailing varargs)" .
+
+cnv:argAllowNegativeNumbers a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "allow negative numbers" ;
+    rdfs:comment "Whether to allow negative numbers in numeric arguments (v3.3.0: negative numbers)" .
+
+cnv:hasType a owl:ObjectProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range cnv:ArgumentType ;
+    rdfs:label "has type" ;
+    rdfs:comment "Type constraint for argument" .
+
+cnv:belongsToGroup a owl:ObjectProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range cnv:ArgumentGroup ;
+    rdfs:label "belongs to group" ;
+    rdfs:comment "Argument group this argument belongs to" .
+
+# ============================================================================
+# ARGUMENT TYPE PROPERTIES (v3.3.0 - Custom Value Parsers)
+# ============================================================================
+
+cnv:typeName a owl:DatatypeProperty ;
+    rdfs:domain cnv:ArgumentType ;
+    rdfs:range xsd:string ;
+    rdfs:label "type name" ;
+    rdfs:comment "Rust type (e.g., 'String', 'PathBuf', 'IpAddr', 'Url', 'bool', 'u32', 'Option<String>'). Auto-inferred from function signature." .
+
+cnv:typeParser a owl:DatatypeProperty ;
+    rdfs:domain cnv:ArgumentType ;
+    rdfs:range xsd:string ;
+    rdfs:label "type parser" ;
+    rdfs:comment "Custom parser function name if needed. v3.3.0: Auto-inferred parsers for PathBuf, IpAddr, Url, etc." .
+
+cnv:typeAction a owl:DatatypeProperty ;
+    rdfs:domain cnv:ArgumentType ;
+    rdfs:range xsd:string ;
+    rdfs:label "argument action" ;
+    rdfs:comment "Action type (v3.2.0: SetTrue, SetFalse, Count, Append). Auto-inferred: bool → SetTrue, usize → Count, Vec<T> → Append." .
+
+# ============================================================================
+# VALIDATION PROPERTIES
+# ============================================================================
+
+cnv:validationRule a owl:DatatypeProperty ;
+    rdfs:domain cnv:Validation ;
+    rdfs:range xsd:string ;
+    rdfs:label "validation rule" ;
+    rdfs:comment "Validation rule type (e.g., 'file_exists', 'path_valid', 'regex', 'range')" .
+
+cnv:validationPattern a owl:DatatypeProperty ;
+    rdfs:domain cnv:Validation ;
+    rdfs:range xsd:string ;
+    rdfs:label "validation pattern" ;
+    rdfs:comment "Pattern for validation (e.g., regex pattern for regex rules)" .
+
+cnv:validationMessage a owl:DatatypeProperty ;
+    rdfs:domain cnv:Validation ;
+    rdfs:range xsd:string ;
+    rdfs:label "error message" ;
+    rdfs:comment "Error message shown on validation failure" .
+
+# ============================================================================
+# ARGUMENT GROUP PROPERTIES (v3.2.0 & v3.3.0 - Exclusive Groups)
+# ============================================================================
+
+cnv:groupName a owl:DatatypeProperty ;
+    rdfs:domain cnv:ArgumentGroup ;
+    rdfs:range xsd:string ;
+    rdfs:label "group name" ;
+    rdfs:comment "Name of the argument group" .
+
+cnv:groupExclusive a owl:DatatypeProperty ;
+    rdfs:domain cnv:ArgumentGroup ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "exclusive group" ;
+    rdfs:comment "Whether this is an exclusive group (v3.3.0: mutually exclusive arguments). Only one argument in group can be provided." .
+
+cnv:groupRequires a owl:ObjectProperty ;
+    rdfs:domain cnv:ArgumentGroup ;
+    rdfs:range cnv:ArgumentGroup ;
+    rdfs:label "requires group" ;
+    rdfs:comment "This group requires the specified group (v3.2.0: requires)" .
+
+cnv:groupConflictsWith a owl:ObjectProperty ;
+    rdfs:domain cnv:ArgumentGroup ;
+    rdfs:range cnv:ArgumentGroup ;
+    rdfs:label "conflicts with group" ;
+    rdfs:comment "This group conflicts with the specified group (v3.2.0: conflicts_with)" .
+
+# ============================================================================
+# DEPENDENCY PROPERTIES
+# ============================================================================
+
+cnv:depName a owl:DatatypeProperty ;
+    rdfs:domain cnv:Dependency ;
+    rdfs:range xsd:string ;
+    rdfs:label "dependency name" ;
+    rdfs:comment "Crate name" .
+
+cnv:depVersion a owl:DatatypeProperty ;
+    rdfs:domain cnv:Dependency ;
+    rdfs:range xsd:string ;
+    rdfs:label "version" ;
+    rdfs:comment "Version constraint (e.g., '3.3.0', '4.0')" .
+
+cnv:depFeatures a owl:DatatypeProperty ;
+    rdfs:domain cnv:Dependency ;
+    rdfs:range xsd:string ;
+    rdfs:label "features" ;
+    rdfs:comment "Cargo features to enable (comma-separated)" .
+
+cnv:depOptional a owl:DatatypeProperty ;
+    rdfs:domain cnv:Dependency ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "optional" ;
+    rdfs:comment "Whether dependency is optional" .
+
+# ============================================================================
+# COMMAND PROPERTIES (v3.0.0 - Auto-Discovery & JSON Output)
+# ============================================================================
+
+cnv:commandSerialize a owl:DatatypeProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "serialize output" ;
+    rdfs:comment "Whether to serialize output as JSON (v3.0.0: JSON Output). Default: true." .
+
+cnv:commandAutoDiscover a owl:DatatypeProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "auto-discover" ;
+    rdfs:comment "Whether command is auto-discovered (v3.0.0: Auto-Discovery). Default: true when using #[verb] attribute." .
+
+# ============================================================================
+# HELP PROPERTIES (v3.2.0 - Better Help)
+# ============================================================================
+
+cnv:commandLongAbout a owl:DatatypeProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string ;
+    rdfs:label "long about" ;
+    rdfs:comment "Long description shown in detailed help (v3.2.0: long_about)" .
+
+cnv:commandHide a owl:DatatypeProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "hide from help" ;
+    rdfs:comment "Whether to hide command from help output (v3.2.0: hide)" .
+
+cnv:commandHelpHeading a owl:DatatypeProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string ;
+    rdfs:label "help heading" ;
+    rdfs:comment "Help heading for grouping commands (v3.2.0: help_heading)" .
+

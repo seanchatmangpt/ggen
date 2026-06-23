@@ -1,0 +1,19 @@
+
+        @prefix : <http://example.com/> .
+        @prefix owl: <http://www.w3.org/2002/07/owl#> .
+        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+        @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+        
+        :Task a owl:Class ;
+          rdfs:label "Task" .
+          
+        :title a owl:DatatypeProperty ;
+          rdfs:label "title" ;
+          rdfs:domain :Task ;
+          rdfs:range xsd:string .
+          
+        :completed a owl:DatatypeProperty ;
+          rdfs:label "completed" ;
+          rdfs:domain :Task ;
+          rdfs:range xsd:boolean .
+      

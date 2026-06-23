@@ -1,0 +1,146 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix pi:     <https://wasm4pm.dev/pi#> .
+@prefix tpot:   <https://wasm4pm.dev/tpot#> .
+
+# ============================================================================
+# SHACL SHAPES for the TPOT2 search-space layer
+# ============================================================================
+# Minimal, real shapes validating the three node kinds that must hold their
+# invariants for the genetic search to be well-formed:
+#   * tpot:PipelineStage    — declared statically in tpot-search-space.ttl
+#   * tpot:Operator         — DERIVED by inference/derive-operators.rq (Agent 2);
+#                             this shape is the contract the CONSTRUCT must satisfy
+#   * tpot:FitnessObjective — declared statically in tpot-search-space.ttl
+# Keep it minimal: each shape asserts presence + datatype of the load-bearing
+# predicates only. Nothing here invents predicates outside the FROZEN tpot:
+# vocabulary in CONTRACT.md section 5.
+# ============================================================================
+
+
+# ----------------------------------------------------------------------------
+# PipelineStage: needs a stableId, an integer order, and a category to bind to.
+# ----------------------------------------------------------------------------
+tpot:PipelineStageShape a sh:NodeShape ;
+  sh:targetClass tpot:PipelineStage ;
+  rdfs:label "Shape: tpot:PipelineStage" ;
+  sh:property [
+    sh:path     tpot:stageId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message  "PipelineStage requires exactly one tpot:stageId (xsd:string)." ;
+  ] ;
+  sh:property [
+    sh:path     tpot:stageOrder ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message  "PipelineStage requires exactly one tpot:stageOrder (xsd:integer)." ;
+  ] ;
+  sh:property [
+    sh:path     tpot:forCategory ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in       ( "import_export" "discovery" "object_centric" "discovery_analytics"
+                  "conformance" "ml_analytics" "prediction" "simulation" "agentic" ) ;
+    sh:message  "PipelineStage tpot:forCategory must be one of the 9 frozen pi:category strings." ;
+  ] .
+
+
+# ----------------------------------------------------------------------------
+# Operator (DERIVED): each derived operator must carry its id, the algorithm it
+# wraps, the stage it belongs to, and its computed fitness score. This shape is
+# what inference/derive-operators.rq (Agent 2) must produce for every operator.
+# ----------------------------------------------------------------------------
+tpot:OperatorShape a sh:NodeShape ;
+  sh:targetClass tpot:Operator ;
+  rdfs:label "Shape: tpot:Operator (derived)" ;
+  sh:property [
+    sh:path     tpot:operatorId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message  "Operator requires exactly one tpot:operatorId (xsd:string, = algorithmId)." ;
+  ] ;
+  sh:property [
+    sh:path     tpot:wrapsAlgorithm ;
+    sh:nodeKind sh:IRI ;
+    sh:class    pi:ProcessIntelligenceAlgorithm ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message  "Operator requires exactly one tpot:wrapsAlgorithm pointing at a pi:ProcessIntelligenceAlgorithm." ;
+  ] ;
+  sh:property [
+    sh:path     tpot:atStage ;
+    sh:nodeKind sh:IRI ;
+    sh:class    tpot:PipelineStage ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message  "Operator requires exactly one tpot:atStage pointing at a tpot:PipelineStage." ;
+  ] ;
+  sh:property [
+    sh:path     tpot:fitnessScore ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message  "Operator requires exactly one tpot:fitnessScore (xsd:decimal = qualityTier - 0.5*speedTier)." ;
+  ] ;
+  # Derived tier/identity predicates (copied from pi: by derive-operators.rq).
+  # Datatypes verified against the CONSTRUCT output in research/06: pi: tiers are
+  # xsd:integer; pi:category / pi:wasmExport are xsd:string.
+  sh:property [
+    sh:path     tpot:opSpeedTier ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message  "Operator requires one tpot:opSpeedTier (xsd:integer, copied from pi:speedTier)." ;
+  ] ;
+  sh:property [
+    sh:path     tpot:opQualityTier ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message  "Operator requires one tpot:opQualityTier (xsd:integer, copied from pi:qualityTier)." ;
+  ] ;
+  sh:property [
+    sh:path     tpot:opCategory ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message  "Operator requires one tpot:opCategory (xsd:string, copied from pi:category)." ;
+  ] ;
+  sh:property [
+    sh:path     tpot:wasmExport ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message  "Operator requires one tpot:wasmExport (xsd:string, copied from pi:wasmExport)." ;
+  ] .
+
+
+# ----------------------------------------------------------------------------
+# FitnessObjective: needs a metric and a direction restricted to {maximize,minimize}.
+# ----------------------------------------------------------------------------
+tpot:FitnessObjectiveShape a sh:NodeShape ;
+  sh:targetClass tpot:FitnessObjective ;
+  rdfs:label "Shape: tpot:FitnessObjective" ;
+  sh:property [
+    sh:path     tpot:metric ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in       ( "qualityTier" "speedTier" ) ;
+    sh:message  "FitnessObjective requires one tpot:metric in {qualityTier, speedTier}." ;
+  ] ;
+  sh:property [
+    sh:path     tpot:direction ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in       ( "maximize" "minimize" ) ;
+    sh:message  "FitnessObjective requires one tpot:direction in {maximize, minimize}." ;
+  ] .

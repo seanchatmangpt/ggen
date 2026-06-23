@@ -1,0 +1,74 @@
+@prefix : <http://social.example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Ontology
+:Person a owl:Class .
+:Post a owl:Class .
+:follows a owl:ObjectProperty ;
+    rdfs:domain :Person ;
+    rdfs:range :Person .
+:likes a owl:ObjectProperty ;
+    rdfs:domain :Person ;
+    rdfs:range :Post .
+:created a owl:ObjectProperty ;
+    rdfs:domain :Person ;
+    rdfs:range :Post .
+:followerCount a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:integer .
+
+# Social Network Data
+:Alice a :Person ;
+    :follows :Bob, :Charlie, :Diana, :Eve ;
+    :followerCount 15000 ;
+    :created :Post1, :Post2 .
+
+:Bob a :Person ;
+    :follows :Alice, :Charlie ;
+    :followerCount 25000 ;
+    :created :Post3, :Post4 .
+
+:Charlie a :Person ;
+    :follows :Alice, :Bob, :Diana, :Eve, :Frank ;
+    :followerCount 50000 ;
+    :created :Post5, :Post6, :Post7 .
+
+:Diana a :Person ;
+    :follows :Alice, :Charlie ;
+    :followerCount 8000 ;
+    :created :Post8 .
+
+:Eve a :Person ;
+    :follows :Bob, :Charlie, :Diana ;
+    :followerCount 12000 ;
+    :created :Post9, :Post10 .
+
+:Frank a :Person ;
+    :follows :Charlie ;
+    :followerCount 100000 ;
+    :created :Post11, :Post12, :Post13 .
+
+# Posts
+:Post1 a :Post ; :likeCount 150 ; :topic "Technology" .
+:Post2 a :Post ; :likeCount 200 ; :topic "Science" .
+:Post3 a :Post ; :likeCount 500 ; :topic "Technology" .
+:Post4 a :Post ; :likeCount 300 ; :topic "Art" .
+:Post5 a :Post ; :likeCount 1000 ; :topic "Science" .
+:Post6 a :Post ; :likeCount 1500 ; :topic "Technology" .
+:Post7 a :Post ; :likeCount 2000 ; :topic "Art" .
+:Post8 a :Post ; :likeCount 100 ; :topic "Science" .
+:Post9 a :Post ; :likeCount 250 ; :topic "Technology" .
+:Post10 a :Post ; :likeCount 180 ; :topic "Art" .
+:Post11 a :Post ; :likeCount 5000 ; :topic "Technology" .
+:Post12 a :Post ; :likeCount 4500 ; :topic "Science" .
+:Post13 a :Post ; :likeCount 6000 ; :topic "Art" .
+
+# Likes
+:Alice :likes :Post3, :Post5, :Post11 .
+:Bob :likes :Post1, :Post5, :Post6 .
+:Charlie :likes :Post1, :Post3, :Post11, :Post12 .
+:Diana :likes :Post5, :Post6, :Post7 .
+:Eve :likes :Post3, :Post4, :Post11 .
+:Frank :likes :Post1, :Post5, :Post6 .

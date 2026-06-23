@@ -1,0 +1,97 @@
+# ===========================================================================
+# RENDERED PIPELINE SPECIFICATION (a record, NOT a runnable manifest)
+# wasm4pm Pareto-optimal process-mining pipeline
+# ===========================================================================
+# Emitted by `ggen sync` (run against the project-root ggen.toml) as a
+# human-readable RECORD of the auto-selected pipeline.
+#
+# This file is a SPECIFICATION, not a re-runnable driver, because:
+#   * its query/template/ontology paths are written PROJECT-ROOT-relative, but a
+#     run of THIS file would resolve them from `generated/`, so they would not
+#     resolve in place (research/01 §6, research/08 §A); and
+#   * it intentionally omits the [inference] rules + [ontology] imports that DERIVE
+#     the tpot:Operator search space, so its SELECTs would match 0 rows (E0004).
+# The runnable driver is the project-root ggen.toml; the canonical machine-readable
+# form of the chosen pipeline is generated/pipeline.json.
+#
+# Pipeline source : queries/extract-pareto-pipeline.rq (per-stage elite operators)
+# Selection rule  : argmax fitnessScore per stage, where
+#                   fitnessScore = qualityTier - (0.5 * speedTier)  (lambdaCost = 0.5)
+# Determinism     : rows are pre-ORDER BY'd by stage_order; random_seed = 42.
+#
+# Chosen pipeline (stage_order. stage_id -> operator_id):
+{%- for row in sparql_results -%}
+{%- set stage_order = row["stage_order"] | default(value="") -%}
+{%- set stage_id = row["stage_id"] | default(value="") -%}
+{%- set operator_id = row["operator_id"] | default(value="") %}
+#   {{ stage_order }}. {{ stage_id }} -> {{ operator_id }}
+{%- endfor %}
+# ===========================================================================
+
+[project]
+name = "wasm4pm-autoconfigured-pipeline"
+version = "0.1.0"
+description = "Pareto-optimal wasm4pm process-mining pipeline auto-selected by TPOT2-style SPARQL fitness ranking"
+authors = ["tpot2-wasm4pm-autoconfig"]
+license = "MIT"
+
+[ontology]
+# Primary ontology: the TPOT2 search space (stages, operators, fitness objectives).
+# NOTE: the REAL runtime input to the generated pipeline is the OCEL/XES event log
+# (an object-centric / extensible event-stream process-mining log) consumed by each
+# wasm4pm wasm export below — the ontology only encodes the operator selection.
+source = "ontology/tpot-search-space.ttl"
+
+[ontology.prefixes]
+pi = "https://wasm4pm.dev/pi#"
+compat = "https://wasm4pm.dev/ns#"
+tpot = "https://wasm4pm.dev/tpot#"
+
+[generation]
+output_dir = "generated/"
+
+{% for row in sparql_results -%}
+{%- set stage_order = row["stage_order"] | default(value="") -%}
+{%- set stage_id = row["stage_id"] | default(value="") -%}
+{%- set operator_id = row["operator_id"] | default(value="") -%}
+{%- set wasm_export = row["wasm_export"] | default(value="") -%}
+{%- set speed_tier = row["speed_tier"] | default(value="") -%}
+{%- set quality_tier = row["quality_tier"] | default(value="") -%}
+{%- set fitness_score = row["fitness_score"] | default(value="") -%}
+{%- set proof_query = row["proof_query"] | default(value="") -%}
+{%- if proof_query != "" %}
+# stage {{ stage_order }} ({{ stage_id }}): elite operator "{{ operator_id }}" | wasm_export = {{ wasm_export }} | speed_tier = {{ speed_tier }} | quality_tier = {{ quality_tier }} | fitness_score = {{ fitness_score }}
+[[generation.rules]]
+name = "stage-{{ stage_id }}-{{ operator_id }}"
+# wasm4pm result-mapping for this stage: queries/{{ proof_query }} (CONSTRUCT: wasm JSON -> RDF).
+# The generation query is the pipeline SELECT; the per-stage template filters to
+# this stage and records the result-mapping proof in the emitted descriptor.
+query = { file = "queries/extract-pareto-pipeline.rq" }
+template = { file = "templates/{{ stage_id }}.tera" }
+output_file = "{{ stage_id }}-result.ttl"
+mode = "Overwrite"
+
+{% endif -%}
+{%- endfor %}
+# -----------------------------------------------------------------------------
+# Cross-cutting drift monitor — the 6th wasm4pm semconv proof
+# (queries/detect-drift.rq). Watches the predict stage for concept drift
+# (ADWIN / Page-Hinkley). Emitted as a sibling of the predict-stage rule.
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "monitor-drift-detect_drift"
+query = { file = "queries/extract-pareto-pipeline.rq" }
+template = { file = "templates/drift.tera" }
+output_file = "drift-monitor.ttl"
+mode = "Overwrite"
+
+[sync]
+enabled = true
+on_change = "manual"
+validate_after = true
+conflict_mode = "fail"
+
+[rdf]
+formats = ["turtle"]
+default_format = "turtle"
+strict_validation = false

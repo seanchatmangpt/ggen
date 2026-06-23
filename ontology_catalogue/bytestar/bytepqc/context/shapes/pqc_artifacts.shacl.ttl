@@ -1,0 +1,108 @@
+@prefix : <https://bytestar.org/shapes/pqc-artifacts#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bpqc: <https://bytestar.org/ontology/pqc-fabric/kernel-registry#> .
+
+<https://bytestar.org/shapes/pqc-artifacts>
+  a owl:Ontology ;
+  rdfs:label "PQC Artifact SHACL Shapes" ;
+  rdfs:comment "SHACL shapes for validating the structure and integrity of PQC cryptographic artifacts within the ByteStar ecosystem." .
+
+### Shape for PQC Public Keys
+:PQC_PublicKeyShape
+  a sh:NodeShape ;
+  sh:targetClass bcore:PublicKey ;
+  sh:property [
+    sh:path bcore:hasBytes ;
+    sh:datatype xsd:hexBinary ;
+    sh:minInclusive 800 ; # Minimum size for Kyber512 public key
+    sh:maxInclusive 1312 ; # Maximum size for Dilithium2 public key
+    sh:description "The raw bytes of the PQC public key." ;
+    sh:message "PQC Public Key bytes must be a hexBinary and within the expected size range." ;
+  ] ;
+  sh:property [
+    sh:path bcore:hasAlgorithm ;
+    sh:in ( "Kyber" "Dilithium" "Falcon" ) ;
+    sh:description "The PQC algorithm used for this public key." ;
+    sh:message "PQC Public Key must specify a supported algorithm (Kyber, Dilithium, Falcon)." ;
+  ] .
+
+### Shape for PQC Secret Keys
+:PQC_SecretKeyShape
+  a sh:NodeShape ;
+  sh:targetClass bcore:SecretKey ;
+  sh:property [
+    sh:path bcore:hasBytes ;
+    sh:datatype xsd:hexBinary ;
+    sh:minInclusive 1632 ; # Minimum size for Kyber512 secret key
+    sh:maxInclusive 2528 ; # Maximum size for Dilithium2 secret key
+    sh:description "The raw bytes of the PQC secret key." ;
+    sh:message "PQC Secret Key bytes must be a hexBinary and within the expected size range." ;
+  ] ;
+  sh:property [
+    sh:path bcore:hasAlgorithm ;
+    sh:in ( "Kyber" "Dilithium" "Falcon" ) ;
+    sh:description "The PQC algorithm used for this secret key." ;
+    sh:message "PQC Secret Key must specify a supported algorithm (Kyber, Dilithium, Falcon)." ;
+  ] .
+
+### Shape for PQC Signatures
+:PQC_SignatureShape
+  a sh:NodeShape ;
+  sh:targetClass bcore:Signature ;
+  sh:property [
+    sh:path bcore:hasBytes ;
+    sh:datatype xsd:hexBinary ;
+    sh:minInclusive 2420 ; # Size for Dilithium2 signature
+    sh:maxInclusive 2420 ; # Size for Dilithium2 signature
+    sh:description "The raw bytes of the PQC signature." ;
+    sh:message "PQC Signature bytes must be a hexBinary and match the expected size for the algorithm." ;
+  ] ;
+  sh:property [
+    sh:path bcore:hasAlgorithm ;
+    sh:in ( "Dilithium" "Falcon" ) ;
+    sh:description "The PQC algorithm used for this signature." ;
+    sh:message "PQC Signature must specify a supported algorithm (Dilithium, Falcon)." ;
+  ] .
+
+### Shape for PQC Ciphertexts (KEM)
+:PQC_CiphertextShape
+  a sh:NodeShape ;
+  sh:targetClass bcore:Ciphertext ;
+  sh:property [
+    sh:path bcore:hasBytes ;
+    sh:datatype xsd:hexBinary ;
+    sh:minInclusive 768 ; # Size for Kyber512 ciphertext
+    sh:maxInclusive 768 ; # Size for Kyber512 ciphertext
+    sh:description "The raw bytes of the PQC ciphertext." ;
+    sh:message "PQC Ciphertext bytes must be a hexBinary and match the expected size for the algorithm." ;
+  ] ;
+  sh:property [
+    sh:path bcore:hasAlgorithm ;
+    sh:in ( "Kyber" ) ;
+    sh:description "The PQC algorithm used for this ciphertext." ;
+    sh:message "PQC Ciphertext must specify a supported algorithm (Kyber)." ;
+  ] .
+
+### Shape for PQC Shared Secrets (KEM)
+:PQC_SharedSecretShape
+  a sh:NodeShape ;
+  sh:targetClass bcore:SharedSecret ;
+  sh:property [
+    sh:path bcore:hasBytes ;
+    sh:datatype xsd:hexBinary ;
+    sh:minInclusive 32 ; # Size for Kyber512 shared secret
+    sh:maxInclusive 32 ; # Size for Kyber512 shared secret
+    sh:description "The raw bytes of the PQC shared secret." ;
+    sh:message "PQC Shared Secret bytes must be a hexBinary and match the expected size for the algorithm." ;
+  ] ;
+  sh:property [
+    sh:path bcore:hasAlgorithm ;
+    sh:in ( "Kyber" ) ;
+    sh:description "The PQC algorithm used for this shared secret." ;
+    sh:message "PQC Shared Secret must specify a supported algorithm (Kyber)." ;
+  ] .

@@ -1,0 +1,339 @@
+# Web Server CLI - Server Configuration and Management
+# Demonstrates service management with configuration and daemon modes
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix clap: <http://clap-noun-verb.io/ontology#> .
+@prefix srv: <http://example.org/web-server#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# CLI Application Definition
+srv:WebServerApp a clap:CliApplication ;
+    clap:name "webserver" ;
+    clap:version "4.0.0" ;
+    clap:author "Server Infrastructure Team" ;
+    clap:about "Web server management CLI for configuration and control" ;
+    clap:nouns (srv:ServerNoun srv:ConfigNoun srv:RouteNoun) ;
+    clap:globalFlags (srv:ConfigFileFlag srv:LogLevelFlag) .
+
+# Noun: server
+srv:ServerNoun a clap:Noun ;
+    clap:name "server" ;
+    clap:about "Server lifecycle management" ;
+    clap:verbs (srv:StartVerb srv:StopVerb srv:RestartVerb srv:StatusVerb srv:ReloadVerb) .
+
+# Noun: config
+srv:ConfigNoun a clap:Noun ;
+    clap:name "config" ;
+    clap:about "Server configuration management" ;
+    clap:verbs (srv:ValidateConfigVerb srv:ShowConfigVerb srv:SetConfigVerb srv:ResetConfigVerb) .
+
+# Noun: route
+srv:RouteNoun a clap:Noun ;
+    clap:name "route" ;
+    clap:about "Route management" ;
+    clap:verbs (srv:AddRouteVerb srv:RemoveRouteVerb srv:ListRoutesVerb srv:TestRouteVerb) .
+
+# Verb: start (server)
+# Usage: webserver server start --port 8080 --host 0.0.0.0 --daemon
+srv:StartVerb a clap:Verb ;
+    clap:name "start" ;
+    clap:about "Start the web server" ;
+    clap:arguments (srv:PortArg srv:HostArg srv:WorkersArg) ;
+    clap:flags (srv:DaemonFlag srv:VerboseFlag srv:DryRunFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "webserver server start --port 8080 --host 0.0.0.0 --daemon" ;
+    clap:validation srv:ValidPort .
+
+# Verb: stop (server)
+# Usage: webserver server stop --timeout 30
+srv:StopVerb a clap:Verb ;
+    clap:name "stop" ;
+    clap:about "Stop the running web server" ;
+    clap:arguments (srv:TimeoutArg) ;
+    clap:flags (srv:VerboseFlag srv:ForceFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "webserver server stop --timeout 30" .
+
+# Verb: restart (server)
+# Usage: webserver server restart --graceful
+srv:RestartVerb a clap:Verb ;
+    clap:name "restart" ;
+    clap:about "Restart the web server" ;
+    clap:arguments (srv:TimeoutArg) ;
+    clap:flags (srv:VerboseFlag srv:GracefulFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "webserver server restart --graceful" .
+
+# Verb: status (server)
+# Usage: webserver server status
+srv:StatusVerb a clap:Verb ;
+    clap:name "status" ;
+    clap:about "Check server status and health" ;
+    clap:flags (srv:VerboseFlag srv:JsonFlag) ;
+    clap:returnType srv:ServerStatus ;
+    clap:example "webserver server status --verbose" .
+
+# Verb: reload (server)
+# Usage: webserver server reload
+srv:ReloadVerb a clap:Verb ;
+    clap:name "reload" ;
+    clap:about "Reload server configuration without restart" ;
+    clap:flags (srv:VerboseFlag srv:DryRunFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "webserver server reload" .
+
+# Verb: validate (config)
+# Usage: webserver config validate --config-file /etc/webserver/config.toml
+srv:ValidateConfigVerb a clap:Verb ;
+    clap:name "validate" ;
+    clap:about "Validate configuration file" ;
+    clap:arguments (srv:ConfigFileArg) ;
+    clap:flags (srv:VerboseFlag srv:StrictFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "webserver config validate --config-file /etc/webserver/config.toml" ;
+    clap:validation srv:ConfigFileExists .
+
+# Verb: show (config)
+# Usage: webserver config show --format json
+srv:ShowConfigVerb a clap:Verb ;
+    clap:name "show" ;
+    clap:about "Display current configuration" ;
+    clap:arguments (srv:FormatArg) ;
+    clap:flags (srv:JsonFlag) ;
+    clap:returnType xsd:string ;
+    clap:example "webserver config show --format json" .
+
+# Verb: set (config)
+# Usage: webserver config set --key server.port --value 8080
+srv:SetConfigVerb a clap:Verb ;
+    clap:name "set" ;
+    clap:about "Set a configuration value" ;
+    clap:arguments (srv:KeyArg srv:ValueArg) ;
+    clap:flags (srv:VerboseFlag srv:DryRunFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "webserver config set --key server.port --value 8080" .
+
+# Verb: reset (config)
+# Usage: webserver config reset --confirm
+srv:ResetConfigVerb a clap:Verb ;
+    clap:name "reset" ;
+    clap:about "Reset configuration to defaults" ;
+    clap:flags (srv:ConfirmFlag srv:VerboseFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "webserver config reset --confirm" .
+
+# Verb: add (route)
+# Usage: webserver route add --path /api/users --handler users_handler --method GET
+srv:AddRouteVerb a clap:Verb ;
+    clap:name "add" ;
+    clap:about "Add a new route" ;
+    clap:arguments (srv:PathArg srv:HandlerArg srv:MethodArg) ;
+    clap:flags (srv:VerboseFlag srv:DryRunFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "webserver route add --path /api/users --handler users_handler --method GET" .
+
+# Verb: remove (route)
+# Usage: webserver route remove --path /api/users
+srv:RemoveRouteVerb a clap:Verb ;
+    clap:name "remove" ;
+    clap:about "Remove an existing route" ;
+    clap:arguments (srv:PathArg) ;
+    clap:flags (srv:VerboseFlag srv:ConfirmFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "webserver route remove --path /api/users --confirm" .
+
+# Verb: list (route)
+# Usage: webserver route list --filter /api
+srv:ListRoutesVerb a clap:Verb ;
+    clap:name "list" ;
+    clap:about "List all configured routes" ;
+    clap:arguments (srv:FilterArg) ;
+    clap:flags (srv:VerboseFlag srv:JsonFlag) ;
+    clap:returnType srv:RouteList ;
+    clap:example "webserver route list --filter /api" .
+
+# Verb: test (route)
+# Usage: webserver route test --path /api/users --method GET
+srv:TestRouteVerb a clap:Verb ;
+    clap:name "test" ;
+    clap:about "Test a route configuration" ;
+    clap:arguments (srv:PathArg srv:MethodArg) ;
+    clap:flags (srv:VerboseFlag) ;
+    clap:returnType srv:RouteTestResult ;
+    clap:example "webserver route test --path /api/users --method GET" .
+
+# Arguments
+srv:PortArg a clap:Argument ;
+    clap:name "port" ;
+    clap:shortName "p" ;
+    clap:about "Server port number" ;
+    clap:valueType xsd:integer ;
+    clap:required false ;
+    clap:defaultValue 8080 .
+
+srv:HostArg a clap:Argument ;
+    clap:name "host" ;
+    clap:shortName "h" ;
+    clap:about "Server bind address" ;
+    clap:valueType xsd:string ;
+    clap:required false ;
+    clap:defaultValue "127.0.0.1" .
+
+srv:WorkersArg a clap:Argument ;
+    clap:name "workers" ;
+    clap:shortName "w" ;
+    clap:about "Number of worker threads" ;
+    clap:valueType xsd:integer ;
+    clap:required false ;
+    clap:defaultValue 4 .
+
+srv:TimeoutArg a clap:Argument ;
+    clap:name "timeout" ;
+    clap:shortName "t" ;
+    clap:about "Operation timeout in seconds" ;
+    clap:valueType xsd:integer ;
+    clap:required false ;
+    clap:defaultValue 30 .
+
+srv:ConfigFileArg a clap:Argument ;
+    clap:name "config-file" ;
+    clap:about "Path to configuration file" ;
+    clap:valueType clap:Path ;
+    clap:required false .
+
+srv:FormatArg a clap:Argument ;
+    clap:name "format" ;
+    clap:about "Output format (json, yaml, toml)" ;
+    clap:valueType xsd:string ;
+    clap:required false ;
+    clap:defaultValue "toml" .
+
+srv:KeyArg a clap:Argument ;
+    clap:name "key" ;
+    clap:shortName "k" ;
+    clap:about "Configuration key (dot-separated path)" ;
+    clap:valueType xsd:string ;
+    clap:required true .
+
+srv:ValueArg a clap:Argument ;
+    clap:name "value" ;
+    clap:about "Configuration value" ;
+    clap:valueType xsd:string ;
+    clap:required true .
+
+srv:PathArg a clap:Argument ;
+    clap:name "path" ;
+    clap:about "Route path pattern" ;
+    clap:valueType xsd:string ;
+    clap:required true .
+
+srv:HandlerArg a clap:Argument ;
+    clap:name "handler" ;
+    clap:about "Handler function name" ;
+    clap:valueType xsd:string ;
+    clap:required true .
+
+srv:MethodArg a clap:Argument ;
+    clap:name "method" ;
+    clap:shortName "m" ;
+    clap:about "HTTP method (GET, POST, PUT, DELETE, etc.)" ;
+    clap:valueType xsd:string ;
+    clap:required false ;
+    clap:defaultValue "GET" .
+
+srv:FilterArg a clap:Argument ;
+    clap:name "filter" ;
+    clap:shortName "f" ;
+    clap:about "Filter pattern for routes" ;
+    clap:valueType xsd:string ;
+    clap:required false .
+
+# Global Flags
+srv:ConfigFileFlag a clap:Flag ;
+    clap:name "config" ;
+    clap:shortName "c" ;
+    clap:about "Configuration file path" ;
+    clap:valueType clap:Path ;
+    clap:global true ;
+    clap:env "WEBSERVER_CONFIG" .
+
+srv:LogLevelFlag a clap:Flag ;
+    clap:name "log-level" ;
+    clap:about "Logging level (debug, info, warn, error)" ;
+    clap:valueType xsd:string ;
+    clap:defaultValue "info" ;
+    clap:global true ;
+    clap:env "LOG_LEVEL" .
+
+# Regular Flags
+srv:DaemonFlag a clap:Flag ;
+    clap:name "daemon" ;
+    clap:shortName "d" ;
+    clap:about "Run as background daemon" ;
+    clap:valueType xsd:boolean ;
+    clap:defaultValue false .
+
+srv:VerboseFlag a clap:Flag ;
+    clap:name "verbose" ;
+    clap:shortName "v" ;
+    clap:about "Enable verbose output" ;
+    clap:valueType xsd:boolean ;
+    clap:defaultValue false .
+
+srv:DryRunFlag a clap:Flag ;
+    clap:name "dry-run" ;
+    clap:about "Show what would be done without executing" ;
+    clap:valueType xsd:boolean ;
+    clap:defaultValue false .
+
+srv:ForceFlag a clap:Flag ;
+    clap:name "force" ;
+    clap:about "Force operation without graceful handling" ;
+    clap:valueType xsd:boolean ;
+    clap:defaultValue false .
+
+srv:GracefulFlag a clap:Flag ;
+    clap:name "graceful" ;
+    clap:about "Perform graceful restart with zero downtime" ;
+    clap:valueType xsd:boolean ;
+    clap:defaultValue false .
+
+srv:JsonFlag a clap:Flag ;
+    clap:name "json" ;
+    clap:about "Output in JSON format" ;
+    clap:valueType xsd:boolean ;
+    clap:defaultValue false .
+
+srv:StrictFlag a clap:Flag ;
+    clap:name "strict" ;
+    clap:about "Enable strict validation mode" ;
+    clap:valueType xsd:boolean ;
+    clap:defaultValue false .
+
+srv:ConfirmFlag a clap:Flag ;
+    clap:name "confirm" ;
+    clap:about "Confirm destructive operation" ;
+    clap:valueType xsd:boolean ;
+    clap:defaultValue false .
+
+# Complex Types
+srv:ServerStatus a clap:ComplexType ;
+    clap:fields (srv:StatusField srv:UptimeField srv:PortField srv:WorkersField) .
+
+srv:RouteList a clap:ComplexType ;
+    clap:fields (srv:RoutesField srv:CountField) .
+
+srv:RouteTestResult a clap:ComplexType ;
+    clap:fields (srv:PathField srv:HandlerField srv:StatusField) .
+
+# Validations
+srv:ValidPort a clap:Validation ;
+    clap:field "port" ;
+    clap:constraint "value >= 1 && value <= 65535" ;
+    clap:errorMessage "Port must be between 1 and 65535" .
+
+srv:ConfigFileExists a clap:Validation ;
+    clap:field "config-file" ;
+    clap:constraint "path.exists() && path.is_file()" ;
+    clap:errorMessage "Configuration file does not exist" .

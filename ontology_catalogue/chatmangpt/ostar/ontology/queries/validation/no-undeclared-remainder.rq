@@ -1,0 +1,44 @@
+# Undeclared Semantic Remainder Check
+#
+# Finds custom classes/properties that:
+# - Are NOT standard public (prov, skos, odrl, vc, sh, dcat, time, foaf, org)
+# - Are NOT part of published concept schemes
+# - Have no documented justification
+#
+# These must be either published as public concept schemes or eliminated.
+#
+# Expected: false (all custom terms are in concept schemes or standard classes).
+
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+ASK {
+  FILTER EXISTS {
+    ?term a ?term_type .
+    FILTER(?term_type IN (owl:Class, rdf:Property))
+    FILTER(STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/"))
+    # Exclude declared closure terms (o-star, governance, pictl, process-intelligence, odrl, vc, mappings, shapes, validation, capability)
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/o-star/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/governance/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/pictl/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/process-intelligence/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/odrl/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/vc/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/public/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/capability/"))
+    # Exclude legacy ostar.org namespace (pending migration)
+    FILTER(!STRSTARTS(STR(?term), "http://ostar.org/"))
+    # Now check for truly undeclared terms
+    FILTER NOT EXISTS { ?term a skos:Concept }
+    FILTER NOT EXISTS { ?term a skos:ConceptScheme }
+    FILTER NOT EXISTS { ?term a prov:Activity }
+    FILTER NOT EXISTS { ?term a prov:Entity }
+    FILTER NOT EXISTS { ?term a prov:Agent }
+    FILTER NOT EXISTS { ?term a prov:Bundle }
+    FILTER NOT EXISTS { ?term a sh:NodeShape }
+    FILTER NOT EXISTS { ?term a sh:PropertyShape }
+  }
+}

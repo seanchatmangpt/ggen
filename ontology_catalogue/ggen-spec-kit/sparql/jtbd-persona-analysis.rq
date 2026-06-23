@@ -1,0 +1,82 @@
+# ============================================================================
+# JTBD Query: Persona Segmentation Report
+# ============================================================================
+# Purpose: Analyze jobs and outcomes per persona, identify overlapping needs
+#          across personas, unique persona-specific jobs, and feature
+#          prioritization by persona coverage.
+#
+# Output: Persona breakdown, shared jobs, unique jobs, feature coverage
+# Use: Persona-driven roadmap, market segmentation, multi-persona features
+#
+# Example Output:
+# Persona      | Jobs | Outcomes | Unique Jobs | Shared Jobs | Features | Coverage %
+# Dev Lead     | 5    | 12       | 2           | 3           | 8        | 67%
+# Backend Dev  | 4    | 10       | 1           | 3           | 6        | 60%
+# QA Engineer  | 3    | 7        | 2           | 1           | 5        | 71%
+# Ops Engineer | 4    | 9        | 3           | 1           | 4        | 44%
+# ============================================================================
+
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?personaName
+  ?personaRole
+  ?personaGoals
+  ?personaFrustrations
+  (COUNT(DISTINCT ?job) AS ?totalJobs)
+  (COUNT(DISTINCT ?outcome) AS ?totalOutcomes)
+  (COUNT(DISTINCT ?feature) AS ?featuresTargetingPersona)
+  (COUNT(DISTINCT ?painpoint) AS ?totalPainpoints)
+  (COUNT(DISTINCT ?progressMaker) AS ?totalProgressMakers)
+  (ROUND((COUNT(DISTINCT ?featureWithOutcome) * 100.0 /
+         NULLIF(COUNT(DISTINCT ?outcome), 0))) AS ?outcomeCoveragePercent)
+  (IF(?outcomeCoveragePercent >= 75, "Excellent Coverage",
+      IF(?outcomeCoveragePercent >= 50, "Good Coverage",
+         IF(?outcomeCoveragePercent >= 25, "Needs Improvement",
+            "Poor Coverage - Priority"))) AS ?coverageAssessment)
+WHERE {
+  # All personas
+  ?persona a sk:Persona ;
+           sk:personaName ?personaName ;
+           sk:personaRole ?personaRole .
+
+  OPTIONAL { ?persona sk:personaGoals ?personaGoals }
+  OPTIONAL { ?persona sk:personaFrustrations ?personaFrustrations }
+
+  # Jobs for this persona
+  OPTIONAL {
+    ?persona sk:hasJob ?job .
+
+    # Outcomes for these jobs
+    OPTIONAL {
+      ?job sk:hasOutcome ?outcome .
+
+      # Features delivering these outcomes
+      OPTIONAL {
+        ?featureWithOutcome sk:deliversOutcome ?outcome .
+      }
+    }
+
+    # Painpoints
+    OPTIONAL {
+      { ?job sk:hasPainpoint ?painpoint }
+      UNION
+      { ?outcome sk:hasPainpoint ?painpoint }
+    }
+
+    # Progress makers
+    OPTIONAL {
+      { ?job sk:hasProgressMaker ?progressMaker }
+      UNION
+      { ?outcome sk:hasProgressMaker ?progressMaker }
+    }
+  }
+
+  # Features targeting this persona
+  OPTIONAL {
+    ?feature sk:targetsPersona ?persona .
+  }
+}
+GROUP BY ?personaName ?personaRole ?personaGoals ?personaFrustrations
+ORDER BY DESC(?totalJobs) ?personaName

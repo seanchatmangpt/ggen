@@ -1,0 +1,22 @@
+PREFIX : <http://uvmgr.io/cli#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Extract all CLI commands with their metadata
+# Result: List of commands with name, description, module path, telemetry name, and output formats
+
+SELECT DISTINCT
+  ?commandName
+  ?description
+  ?module
+  ?telemetryName
+  (GROUP_CONCAT(?outputFormat; separator=",") AS ?outputFormats)
+WHERE {
+  ?command a :Command .
+  ?command :name ?commandName .
+  ?command :description ?description .
+  ?command :module ?module .
+  ?command :telemetryName ?telemetryName .
+  OPTIONAL { ?command :outputFormat ?outputFormat }
+}
+GROUP BY ?commandName ?description ?module ?telemetryName
+ORDER BY ?commandName

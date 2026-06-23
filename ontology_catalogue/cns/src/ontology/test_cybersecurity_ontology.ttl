@@ -1,0 +1,88 @@
+@prefix cyber: <http://cybersecurity.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Classes
+cyber:Asset a owl:Class ;
+    rdfs:label "Asset" ;
+    rdfs:comment "A valuable resource that needs protection" .
+
+cyber:NetworkAsset a owl:Class ;
+    rdfs:subClassOf cyber:Asset ;
+    rdfs:label "Network Asset" ;
+    rdfs:comment "An asset connected to the network" .
+
+cyber:Threat a owl:Class ;
+    rdfs:label "Threat" ;
+    rdfs:comment "A potential security threat" .
+
+cyber:Vulnerability a owl:Class ;
+    rdfs:label "Vulnerability" ;
+    rdfs:comment "A weakness that can be exploited" .
+
+cyber:SecurityControl a owl:Class ;
+    rdfs:label "Security Control" ;
+    rdfs:comment "A measure to mitigate threats" .
+
+cyber:SecurityIncident a owl:Class ;
+    rdfs:label "Security Incident" ;
+    rdfs:comment "An actual security breach or attack" .
+
+# Properties
+cyber:hasVulnerability a owl:ObjectProperty ;
+    rdfs:domain cyber:Asset ;
+    rdfs:range cyber:Vulnerability ;
+    rdfs:label "has vulnerability" .
+
+cyber:exploits a owl:ObjectProperty ;
+    rdfs:domain cyber:Threat ;
+    rdfs:range cyber:Vulnerability ;
+    rdfs:label "exploits" .
+
+cyber:mitigates a owl:ObjectProperty ;
+    rdfs:domain cyber:SecurityControl ;
+    rdfs:range cyber:Threat ;
+    rdfs:label "mitigates" .
+
+cyber:protects a owl:ObjectProperty ;
+    rdfs:domain cyber:SecurityControl ;
+    rdfs:range cyber:Asset ;
+    rdfs:label "protects" .
+
+cyber:targets a owl:ObjectProperty ;
+    rdfs:domain cyber:SecurityIncident ;
+    rdfs:range cyber:Asset ;
+    a owl:FunctionalProperty ;
+    rdfs:label "targets" .
+
+# Data Properties
+cyber:name a owl:DatatypeProperty ;
+    rdfs:domain cyber:Asset ;
+    rdfs:range xsd:string ;
+    rdfs:label "name" .
+
+cyber:ipAddress a owl:DatatypeProperty ;
+    rdfs:domain cyber:NetworkAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "IP address" .
+
+cyber:severity a owl:DatatypeProperty ;
+    rdfs:domain cyber:Threat ;
+    rdfs:range xsd:integer ;
+    rdfs:label "severity level" .
+
+cyber:cvssScore a owl:DatatypeProperty ;
+    rdfs:domain cyber:Vulnerability ;
+    rdfs:range xsd:float ;
+    rdfs:label "CVSS score" .
+
+cyber:effectiveness a owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityControl ;
+    rdfs:range xsd:integer ;
+    rdfs:label "effectiveness rating" .
+
+cyber:detectedAt a owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityIncident ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "detection timestamp" .

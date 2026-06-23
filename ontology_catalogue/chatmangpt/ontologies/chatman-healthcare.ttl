@@ -1,0 +1,899 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dqv: <http://www.w3.org/ns/dqv#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix bfo: <http://purl.obolibrary.org/obo/BFO_> .
+@prefix iao: <http://purl.obolibrary.org/obo/IAO_> .
+@prefix dul: <http://www.loa.istc.cnr.it/ontologies/DUL.owl#> .
+@prefix gdprov: <https://www.w3.org/ns/gdprov#> .
+
+# HEALTHCARE ONTOLOGY PREFIXES
+@prefix fhir: <http://hl7.org/fhir/> .
+@prefix snomed: <http://snomed.info/sct/> .
+@prefix icd11: <http://id.who.int/icd/entity/> .
+@prefix loinc: <http://loinc.org/rdf/> .
+@prefix chatman_health: <https://ontology.chatmangpt.com/healthcare#> .
+
+###############################################################################
+# CHATMANGPT HEALTHCARE ONTOLOGY
+#
+# Foundational healthcare ontology for BusinessOS HIPAA compliance and
+# medical data handling. Integrates FHIR, SNOMED CT, ICD-11, and LOINC
+# with ChatmanGPT's core ontology for PHI tracking and consent management.
+#
+# IRI: https://ontology.chatmangpt.com/healthcare
+# Module: chatman-healthcare.ttl
+# Status: Template for Future Healthcare Integration
+#
+# Healthcare Data Flows:
+#   Patient Data → Medical Record → PHI Lineage Tracking
+#   Consent → Policy Enforcement → Audit Trail
+#
+###############################################################################
+
+<https://ontology.chatmangpt.com/healthcare>
+  a owl:Ontology ;
+  dcterms:title "ChatmanGPT Healthcare Ontology"@en ;
+  dcterms:description "Foundation for HIPAA-compliant healthcare data handling in BusinessOS. Integrates HL7 FHIR, SNOMED CT, ICD-11, LOINC with PROV-O and GDPR provenance for PHI lineage tracking and consent enforcement."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:created "2026-03-25T00:00:00Z"^^xsd:dateTime ;
+  dcterms:creator "Sean Chatman"@en ;
+  dcterms:version "0.1.0"^^xsd:string ;
+  dcterms:status "template"@en ;
+  dcterms:description "This ontology is a template for future use when healthcare is added to the BusinessOS platform. Not currently in production."@en ;
+  owl:versionIRI <https://ontology.chatmangpt.com/healthcare/0.1.0> ;
+
+  # Core ontology imports
+  owl:imports <https://ontology.chatmangpt.com/core> ;
+
+  # HIPAA-relevant W3C standards
+  owl:imports <http://www.w3.org/ns/prov#> ;           # Provenance
+  owl:imports <http://www.w3.org/2006/time#> ;         # Temporal reasoning
+  owl:imports <http://www.w3.org/ns/odrl/2/> ;         # Consent/policy
+  owl:imports <http://xmlns.com/foaf/0.1/> ;           # Person/agent data
+
+  # Healthcare standards (external, not imported at runtime)
+  rdfs:comment "External standards: FHIR, SNOMED CT, ICD-11, LOINC. See HEALTHCARE_NAMESPACE_MAPPING.md for integration points."@en .
+
+###############################################################################
+# SECTION 1: PHI (Protected Health Information) Classification
+###############################################################################
+
+chatman_health:PHICategory
+  a owl:Class ;
+  rdfs:label "PHI Category"@en ;
+  rdfs:comment "Classification of Protected Health Information per HIPAA 164.103: patient identifiers, clinical data, payment/insurance data, contact info, biometric data." ;
+  owl:equivalentClass [
+    a owl:Class ;
+    owl:unionOf (
+      chatman_health:Identifier
+      chatman_health:ClinicalData
+      chatman_health:PaymentData
+      chatman_health:ContactInformation
+      chatman_health:BiometricData
+    )
+  ] ;
+  rdfs:subClassOf dul:InformationObject .
+
+chatman_health:Identifier
+  a owl:Class ;
+  rdfs:label "PHI Identifier"@en ;
+  rdfs:comment "Unique identifiers: MRN, SSN, email, IP address, biometric ID, account number." ;
+  rdfs:subClassOf chatman_health:PHICategory .
+
+chatman_health:ClinicalData
+  a owl:Class ;
+  rdfs:label "Clinical Data"@en ;
+  rdfs:comment "Patient medical history, diagnosis, treatment, medication, lab results. Maps to FHIR Condition, Observation, Medication, Procedure." ;
+  rdfs:subClassOf chatman_health:PHICategory ;
+  owl:sameAs fhir:Condition, fhir:Observation .
+
+chatman_health:PaymentData
+  a owl:Class ;
+  rdfs:label "Payment Information"@en ;
+  rdfs:comment "Insurance claims, billing codes, payment records, coverage info." ;
+  rdfs:subClassOf chatman_health:PHICategory .
+
+chatman_health:ContactInformation
+  a owl:Class ;
+  rdfs:label "Contact Information"@en ;
+  rdfs:comment "Phone, email, address, emergency contact, employer." ;
+  rdfs:subClassOf chatman_health:PHICategory .
+
+chatman_health:BiometricData
+  a owl:Class ;
+  rdfs:label "Biometric Data"@en ;
+  rdfs:comment "Fingerprint, facial recognition, voice, genetic data." ;
+  rdfs:subClassOf chatman_health:PHICategory .
+
+###############################################################################
+# SECTION 2: Patient Entity (using FHIR + FOAF)
+###############################################################################
+
+chatman_health:Patient
+  a owl:Class ;
+  rdfs:label "Patient"@en ;
+  rdfs:comment "Individual receiving healthcare. Maps to FHIR Patient resource." ;
+  owl:equivalentClass fhir:Patient ;
+  rdfs:subClassOf foaf:Person ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:hasPatientIdentifier ;
+    owl:minCardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:hasConsent ;
+    owl:minCardinality 1
+  ] .
+
+# Properties for Patient
+chatman_health:hasPatientIdentifier
+  a owl:DatatypeProperty ;
+  rdfs:label "has Patient Identifier"@en ;
+  rdfs:domain chatman_health:Patient ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Unique medical record number (MRN), SSN, or external ID." .
+
+chatman_health:hasDateOfBirth
+  a owl:DatatypeProperty ;
+  rdfs:label "has Date of Birth"@en ;
+  rdfs:domain chatman_health:Patient ;
+  rdfs:range xsd:dateTime .
+
+chatman_health:hasGender
+  a owl:DatatypeProperty ;
+  rdfs:label "has Gender"@en ;
+  rdfs:domain chatman_health:Patient ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ("male"^^xsd:string "female"^^xsd:string "other"^^xsd:string "unknown"^^xsd:string)
+  ] .
+
+chatman_health:hasContact
+  a owl:ObjectProperty ;
+  rdfs:label "has Contact"@en ;
+  rdfs:domain chatman_health:Patient ;
+  rdfs:range chatman_health:ContactInformation ;
+  owl:equivalentProperty foaf:based_near .
+
+chatman_health:hasConsent
+  a owl:ObjectProperty ;
+  rdfs:label "has Consent"@en ;
+  rdfs:domain chatman_health:Patient ;
+  rdfs:range chatman_health:ConsentAgreement ;
+  rdfs:comment "Reference to active consent for treatment, research, or data sharing." .
+
+###############################################################################
+# SECTION 3: Medical Record (using DCAT + DQV for quality)
+###############################################################################
+
+chatman_health:MedicalRecord
+  a owl:Class ;
+  rdfs:label "Medical Record"@en ;
+  rdfs:comment "Comprehensive clinical documentation. Structured as DCAT Dataset for interoperability." ;
+  rdfs:subClassOf dcat:Dataset ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:belongsToPatient ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty dqv:hasQualityMeasurement ;
+    owl:minCardinality 0
+  ] .
+
+# Properties for MedicalRecord
+chatman_health:belongsToPatient
+  a owl:ObjectProperty ;
+  rdfs:label "belongs to Patient"@en ;
+  rdfs:domain chatman_health:MedicalRecord ;
+  rdfs:range chatman_health:Patient ;
+  owl:inverseOf chatman_health:hasMedicalRecord .
+
+chatman_health:hasMedicalRecord
+  a owl:ObjectProperty ;
+  rdfs:label "has Medical Record"@en ;
+  rdfs:domain chatman_health:Patient ;
+  rdfs:range chatman_health:MedicalRecord .
+
+chatman_health:hasCondition
+  a owl:ObjectProperty ;
+  rdfs:label "has Condition"@en ;
+  rdfs:domain chatman_health:MedicalRecord ;
+  rdfs:range chatman_health:Condition ;
+  owl:equivalentProperty fhir:Condition .
+
+chatman_health:hasObservation
+  a owl:ObjectProperty ;
+  rdfs:label "has Observation"@en ;
+  rdfs:domain chatman_health:MedicalRecord ;
+  rdfs:range chatman_health:Observation ;
+  owl:equivalentProperty fhir:Observation .
+
+chatman_health:hasMedication
+  a owl:ObjectProperty ;
+  rdfs:label "has Medication"@en ;
+  rdfs:domain chatman_health:MedicalRecord ;
+  rdfs:range chatman_health:Medication .
+
+chatman_health:hasProcedure
+  a owl:ObjectProperty ;
+  rdfs:label "has Procedure"@en ;
+  rdfs:domain chatman_health:MedicalRecord ;
+  rdfs:range chatman_health:Procedure .
+
+# Record metadata
+chatman_health:recordCreatedDate
+  a owl:DatatypeProperty ;
+  rdfs:label "record Created Date"@en ;
+  rdfs:domain chatman_health:MedicalRecord ;
+  rdfs:range xsd:dateTime ;
+  owl:equivalentProperty dcterms:issued .
+
+chatman_health:recordModifiedDate
+  a owl:DatatypeProperty ;
+  rdfs:label "record Modified Date"@en ;
+  rdfs:domain chatman_health:MedicalRecord ;
+  rdfs:range xsd:dateTime ;
+  owl:equivalentProperty dcterms:modified .
+
+###############################################################################
+# SECTION 4: Clinical Elements (Condition, Observation, Medication, Procedure)
+###############################################################################
+
+chatman_health:Condition
+  a owl:Class ;
+  rdfs:label "Condition"@en ;
+  rdfs:comment "Patient diagnosis or medical condition. Maps to FHIR Condition, ICD-11 diagnosis." ;
+  owl:equivalentClass fhir:Condition ;
+  rdfs:subClassOf bfo:BFO_0000015 ;  # Process (disease is a process)
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:hasSNOMEDCode ;
+    owl:maxCardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:hasICD11Code ;
+    owl:maxCardinality 1
+  ] .
+
+chatman_health:hasSNOMEDCode
+  a owl:DatatypeProperty ;
+  rdfs:label "has SNOMED Code"@en ;
+  rdfs:domain chatman_health:Condition ;
+  rdfs:range xsd:string ;
+  rdfs:comment "SNOMED CT code for diagnosis, e.g., '44054006' for diabetes mellitus." .
+
+chatman_health:hasICD11Code
+  a owl:DatatypeProperty ;
+  rdfs:label "has ICD-11 Code"@en ;
+  rdfs:domain chatman_health:Condition ;
+  rdfs:range xsd:string ;
+  rdfs:comment "WHO ICD-11 code for disease classification." .
+
+chatman_health:conditionOnsetDate
+  a owl:DatatypeProperty ;
+  rdfs:label "condition Onset Date"@en ;
+  rdfs:domain chatman_health:Condition ;
+  rdfs:range xsd:dateTime .
+
+chatman_health:conditionAbatementDate
+  a owl:DatatypeProperty ;
+  rdfs:label "condition Abatement Date"@en ;
+  rdfs:domain chatman_health:Condition ;
+  rdfs:range xsd:dateTime .
+
+chatman_health:conditionClinicalStatus
+  a owl:DatatypeProperty ;
+  rdfs:label "condition Clinical Status"@en ;
+  rdfs:domain chatman_health:Condition ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ("active"^^xsd:string "recurrence"^^xsd:string "relapse"^^xsd:string "resolved"^^xsd:string "remission"^^xsd:string)
+  ] .
+
+##
+
+chatman_health:Observation
+  a owl:Class ;
+  rdfs:label "Observation"@en ;
+  rdfs:comment "Lab test, vital sign, or measurement result. Maps to FHIR Observation, LOINC code." ;
+  owl:equivalentClass fhir:Observation ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:hasLOINCCode ;
+    owl:maxCardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:hasObservationValue ;
+    owl:minCardinality 1
+  ] .
+
+chatman_health:hasLOINCCode
+  a owl:DatatypeProperty ;
+  rdfs:label "has LOINC Code"@en ;
+  rdfs:domain chatman_health:Observation ;
+  rdfs:range xsd:string ;
+  rdfs:comment "LOINC code for test/observation, e.g., '2345-7' for glucose." .
+
+chatman_health:hasObservationValue
+  a owl:DatatypeProperty ;
+  rdfs:label "has Observation Value"@en ;
+  rdfs:domain chatman_health:Observation ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Numeric or text value of observation." .
+
+chatman_health:hasUnit
+  a owl:DatatypeProperty ;
+  rdfs:label "has Unit"@en ;
+  rdfs:domain chatman_health:Observation ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Unit of measurement, e.g., 'mg/dL', 'mmol/L'." .
+
+chatman_health:observationDate
+  a owl:DatatypeProperty ;
+  rdfs:label "observation Date"@en ;
+  rdfs:domain chatman_health:Observation ;
+  rdfs:range xsd:dateTime .
+
+chatman_health:observationStatus
+  a owl:DatatypeProperty ;
+  rdfs:label "observation Status"@en ;
+  rdfs:domain chatman_health:Observation ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ("preliminary"^^xsd:string "final"^^xsd:string "amended"^^xsd:string "corrected"^^xsd:string)
+  ] .
+
+##
+
+chatman_health:Medication
+  a owl:Class ;
+  rdfs:label "Medication"@en ;
+  rdfs:comment "Prescribed or administered drug. Uses RxNorm coding." ;
+  rdfs:subClassOf bfo:BFO_0000031 .  # Object (substance)
+
+chatman_health:hasRxNormCode
+  a owl:DatatypeProperty ;
+  rdfs:label "has RxNorm Code"@en ;
+  rdfs:domain chatman_health:Medication ;
+  rdfs:range xsd:string .
+
+chatman_health:medicationName
+  a owl:DatatypeProperty ;
+  rdfs:label "medication Name"@en ;
+  rdfs:domain chatman_health:Medication ;
+  rdfs:range xsd:string .
+
+chatman_health:medicationDosage
+  a owl:DatatypeProperty ;
+  rdfs:label "medication Dosage"@en ;
+  rdfs:domain chatman_health:Medication ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Dose and frequency, e.g., '500mg twice daily'." .
+
+##
+
+chatman_health:Procedure
+  a owl:Class ;
+  rdfs:label "Procedure"@en ;
+  rdfs:comment "Surgical or diagnostic procedure. Maps to FHIR Procedure, SNOMED CT procedure codes." ;
+  owl:equivalentClass fhir:Procedure ;
+  rdfs:subClassOf bfo:BFO_0000015 .  # Process
+
+chatman_health:procedureSNOMEDCode
+  a owl:DatatypeProperty ;
+  rdfs:label "procedure SNOMED Code"@en ;
+  rdfs:domain chatman_health:Procedure ;
+  rdfs:range xsd:string .
+
+chatman_health:procedureDate
+  a owl:DatatypeProperty ;
+  rdfs:label "procedure Date"@en ;
+  rdfs:domain chatman_health:Procedure ;
+  rdfs:range xsd:dateTime .
+
+###############################################################################
+# SECTION 5: PHI Tracking using PROV-O + GDPROV
+###############################################################################
+
+chatman_health:PHILineageRecord
+  a owl:Class ;
+  rdfs:label "PHI Lineage Record"@en ;
+  rdfs:comment "Complete audit trail for PHI: creation, modification, access, deletion. Uses PROV-O provenance model." ;
+  rdfs:subClassOf prov:Entity ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:trackedPHI ;
+    owl:minCardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty prov:wasGeneratedBy ;
+    owl:minCardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:accessedBy ;
+    owl:minCardinality 0
+  ] .
+
+chatman_health:trackedPHI
+  a owl:ObjectProperty ;
+  rdfs:label "tracked PHI"@en ;
+  rdfs:domain chatman_health:PHILineageRecord ;
+  rdfs:range chatman_health:PHICategory ;
+  owl:propertyChainAxiom ( chatman_health:trackedPHI prov:wasDerivedFrom ) .
+
+chatman_health:accessedBy
+  a owl:ObjectProperty ;
+  rdfs:label "accessed By"@en ;
+  rdfs:domain chatman_health:PHILineageRecord ;
+  rdfs:range prov:Agent ;
+  owl:equivalentProperty prov:wasAttributedTo .
+
+chatman_health:accessTimestamp
+  a owl:DatatypeProperty ;
+  rdfs:label "access Timestamp"@en ;
+  rdfs:domain chatman_health:PHILineageRecord ;
+  rdfs:range xsd:dateTime ;
+  owl:equivalentProperty prov:generatedAtTime .
+
+chatman_health:accessAction
+  a owl:DatatypeProperty ;
+  rdfs:label "access Action"@en ;
+  rdfs:domain chatman_health:PHILineageRecord ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ("CREATE"^^xsd:string "READ"^^xsd:string "UPDATE"^^xsd:string "DELETE"^^xsd:string "EXPORT"^^xsd:string "SHARE"^^xsd:string)
+  ] ;
+  rdfs:comment "CRUD operations + healthcare-specific: EXPORT, SHARE (for research/treatment)." .
+
+chatman_health:accessLocation
+  a owl:DatatypeProperty ;
+  rdfs:label "access Location"@en ;
+  rdfs:domain chatman_health:PHILineageRecord ;
+  rdfs:range xsd:string ;
+  rdfs:comment "IP address, system name, geographic location." .
+
+chatman_health:accessReason
+  a owl:DatatypeProperty ;
+  rdfs:label "access Reason"@en ;
+  rdfs:domain chatman_health:PHILineageRecord ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Purpose: treatment, payment, healthcare operations, research, legal." .
+
+# GDPROV extension for GDPR data subject rights
+chatman_health:hasGDPRDataSubject
+  a owl:ObjectProperty ;
+  rdfs:label "has GDPR Data Subject"@en ;
+  rdfs:domain chatman_health:PHILineageRecord ;
+  rdfs:range chatman_health:Patient ;
+  owl:equivalentProperty gdprov:hasDataSubject .
+
+###############################################################################
+# SECTION 6: Consent Management (using ODRL)
+###############################################################################
+
+chatman_health:ConsentAgreement
+  a owl:Class ;
+  rdfs:label "Consent Agreement"@en ;
+  rdfs:comment "Patient consent for treatment, research, data sharing. Modeled using ODRL (Open Digital Rights Language)." ;
+  rdfs:subClassOf odrl:Agreement ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:consentPatient ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:consentStatus ;
+    owl:minCardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:consentPolicy ;
+    owl:minCardinality 1
+  ] .
+
+chatman_health:consentPatient
+  a owl:ObjectProperty ;
+  rdfs:label "consent Patient"@en ;
+  rdfs:domain chatman_health:ConsentAgreement ;
+  rdfs:range chatman_health:Patient ;
+  owl:equivalentProperty odrl:profile .
+
+chatman_health:consentStatus
+  a owl:DatatypeProperty ;
+  rdfs:label "consent Status"@en ;
+  rdfs:domain chatman_health:ConsentAgreement ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ("draft"^^xsd:string "proposed"^^xsd:string "active"^^xsd:string "rejected"^^xsd:string "revoked"^^xsd:string "expired"^^xsd:string)
+  ] .
+
+chatman_health:consentPolicy
+  a owl:ObjectProperty ;
+  rdfs:label "consent Policy"@en ;
+  rdfs:domain chatman_health:ConsentAgreement ;
+  rdfs:range chatman_health:ConsentPolicy ;
+  owl:equivalentProperty odrl:hasPolicy .
+
+chatman_health:consentEffectiveDate
+  a owl:DatatypeProperty ;
+  rdfs:label "consent Effective Date"@en ;
+  rdfs:domain chatman_health:ConsentAgreement ;
+  rdfs:range xsd:dateTime ;
+  owl:equivalentProperty odrl:odrl:isValid .
+
+chatman_health:consentExpiryDate
+  a owl:DatatypeProperty ;
+  rdfs:label "consent Expiry Date"@en ;
+  rdfs:domain chatman_health:ConsentAgreement ;
+  rdfs:range xsd:dateTime .
+
+chatman_health:ConsentPolicy
+  a owl:Class ;
+  rdfs:label "Consent Policy"@en ;
+  rdfs:comment "Policy document specifying what healthcare operations are permitted under HIPAA." ;
+  rdfs:subClassOf odrl:Policy ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:permitsTreatment ;
+    owl:minCardinality 0
+  ] ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:permitsPayment ;
+    owl:minCardinality 0
+  ] ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:permitsResearch ;
+    owl:minCardinality 0
+  ] .
+
+chatman_health:permitsTreatment
+  a owl:DatatypeProperty ;
+  rdfs:label "permits Treatment"@en ;
+  rdfs:domain chatman_health:ConsentPolicy ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Can PHI be used for direct patient care?" ;
+  owl:equivalentProperty odrl:hasPermission .
+
+chatman_health:permitsPayment
+  a owl:DatatypeProperty ;
+  rdfs:label "permits Payment"@en ;
+  rdfs:domain chatman_health:ConsentPolicy ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Can PHI be used for billing and insurance?" .
+
+chatman_health:permitsResearch
+  a owl:DatatypeProperty ;
+  rdfs:label "permits Research"@en ;
+  rdfs:domain chatman_health:ConsentPolicy ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Can PHI be used for medical research?" .
+
+chatman_health:permitsSecondaryUse
+  a owl:DatatypeProperty ;
+  rdfs:label "permits Secondary Use"@en ;
+  rdfs:domain chatman_health:ConsentPolicy ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Can PHI be shared with third parties for operations?" .
+
+chatman_health:hasDataExportRestriction
+  a owl:DatatypeProperty ;
+  rdfs:label "has Data Export Restriction"@en ;
+  rdfs:domain chatman_health:ConsentPolicy ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Is PHI export prohibited or restricted?" .
+
+###############################################################################
+# SECTION 7: Healthcare Provider & Facility
+###############################################################################
+
+chatman_health:HealthcareProvider
+  a owl:Class ;
+  rdfs:label "Healthcare Provider"@en ;
+  rdfs:comment "Physician, nurse, clinician. Maps to FHIR Practitioner." ;
+  owl:equivalentClass fhir:Practitioner ;
+  rdfs:subClassOf foaf:Person ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:providerLicense ;
+    owl:minCardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty org:memberOf ;
+    owl:minCardinality 1
+  ] .
+
+chatman_health:providerLicense
+  a owl:DatatypeProperty ;
+  rdfs:label "provider License"@en ;
+  rdfs:domain chatman_health:HealthcareProvider ;
+  rdfs:range xsd:string .
+
+chatman_health:HealthcareFacility
+  a owl:Class ;
+  rdfs:label "Healthcare Facility"@en ;
+  rdfs:comment "Hospital, clinic, laboratory. Maps to FHIR Organization, Location." ;
+  owl:equivalentClass fhir:Organization ;
+  rdfs:subClassOf org:Organization ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:facilityNPI ;
+    owl:maxCardinality 1
+  ] .
+
+chatman_health:facilityNPI
+  a owl:DatatypeProperty ;
+  rdfs:label "facility NPI"@en ;
+  rdfs:domain chatman_health:HealthcareFacility ;
+  rdfs:range xsd:string ;
+  rdfs:comment "National Provider Identifier (NPI) for facility." .
+
+###############################################################################
+# SECTION 8: HIPAA Audit Trail
+###############################################################################
+
+chatman_health:HIPAAEvent
+  a owl:Class ;
+  rdfs:label "HIPAA Event"@en ;
+  rdfs:comment "Auditable event per HIPAA Security Rule 164.312(b). Complete trail of PHI access/modification." ;
+  rdfs:subClassOf prov:Activity ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:eventType ;
+    owl:minCardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:eventAgent ;
+    owl:minCardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:eventTimestamp ;
+    owl:minCardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty chatman_health:eventOutcome ;
+    owl:minCardinality 1
+  ] .
+
+chatman_health:eventType
+  a owl:DatatypeProperty ;
+  rdfs:label "event Type"@en ;
+  rdfs:domain chatman_health:HIPAAEvent ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf (
+      "USER_LOGIN"^^xsd:string
+      "USER_LOGOUT"^^xsd:string
+      "PHI_ACCESS"^^xsd:string
+      "PHI_MODIFY"^^xsd:string
+      "PHI_DELETE"^^xsd:string
+      "PHI_EXPORT"^^xsd:string
+      "PHI_SHARE"^^xsd:string
+      "CONSENT_CREATE"^^xsd:string
+      "CONSENT_REVOKE"^^xsd:string
+      "UNAUTHORIZED_ACCESS_ATTEMPT"^^xsd:string
+      "SECURITY_INCIDENT"^^xsd:string
+      "ENCRYPTION_ENABLED"^^xsd:string
+      "ENCRYPTION_DISABLED"^^xsd:string
+      "BACKUP_CREATED"^^xsd:string
+      "BACKUP_RESTORED"^^xsd:string
+    )
+  ] .
+
+chatman_health:eventAgent
+  a owl:ObjectProperty ;
+  rdfs:label "event Agent"@en ;
+  rdfs:domain chatman_health:HIPAAEvent ;
+  rdfs:range prov:Agent ;
+  owl:equivalentProperty prov:wasAssociatedWith .
+
+chatman_health:eventTimestamp
+  a owl:DatatypeProperty ;
+  rdfs:label "event Timestamp"@en ;
+  rdfs:domain chatman_health:HIPAAEvent ;
+  rdfs:range xsd:dateTime ;
+  owl:equivalentProperty prov:startedAtTime .
+
+chatman_health:eventOutcome
+  a owl:DatatypeProperty ;
+  rdfs:label "event Outcome"@en ;
+  rdfs:domain chatman_health:HIPAAEvent ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ("SUCCESS"^^xsd:string "FAILURE"^^xsd:string "UNKNOWN"^^xsd:string)
+  ] .
+
+chatman_health:eventResource
+  a owl:ObjectProperty ;
+  rdfs:label "event Resource"@en ;
+  rdfs:domain chatman_health:HIPAAEvent ;
+  rdfs:range chatman_health:PHICategory ;
+  owl:equivalentProperty prov:used .
+
+chatman_health:eventFailureReason
+  a owl:DatatypeProperty ;
+  rdfs:label "event Failure Reason"@en ;
+  rdfs:domain chatman_health:HIPAAEvent ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Reason for failure if outcome is FAILURE: access denied, encryption error, etc." .
+
+###############################################################################
+# SECTION 9: Data Quality Metrics (DQV)
+###############################################################################
+
+chatman_health:HealthcareDataQuality
+  a owl:Class ;
+  rdfs:label "Healthcare Data Quality"@en ;
+  rdfs:comment "Data quality assessment using DQV for medical records completeness, accuracy, timeliness." ;
+  rdfs:subClassOf dqv:QualityMeasurement ;
+  rdfs:subClassOf [
+    a owl:Class ;
+    owl:onProperty dqv:isMeasurementOf ;
+    owl:cardinality 1
+  ] .
+
+chatman_health:completenessScore
+  a dqv:QualityMetric ;
+  rdfs:label "completeness Score"@en ;
+  rdfs:comment "Percentage of required fields populated in medical record (0-100)." ;
+  dqv:expectedDataType xsd:integer ;
+  dqv:inCategory dqv:Completeness .
+
+chatman_health:accuracyScore
+  a dqv:QualityMetric ;
+  rdfs:label "accuracy Score"@en ;
+  rdfs:comment "Percentage of data verified by clinician or cross-referenced (0-100)." ;
+  dqv:expectedDataType xsd:integer ;
+  dqv:inCategory dqv:Accuracy .
+
+chatman_health:timelinessScore
+  a dqv:QualityMetric ;
+  rdfs:label "timeliness Score"@en ;
+  rdfs:comment "Days between event and record entry (lower is better)." ;
+  dqv:expectedDataType xsd:integer ;
+  dqv:inCategory dqv:Timeliness .
+
+chatman_health:consistencyScore
+  a dqv:QualityMetric ;
+  rdfs:label "consistency Score"@en ;
+  rdfs:comment "Consistency across multiple records for same patient (0-100)." ;
+  dqv:expectedDataType xsd:integer ;
+  dqv:inCategory dqv:Consistency .
+
+###############################################################################
+# SECTION 10: Validation Shapes (SHACL)
+###############################################################################
+
+chatman_health:PatientShape
+  a shacl:NodeShape ;
+  shacl:targetClass chatman_health:Patient ;
+  rdfs:label "Patient Validation Shape"@en ;
+  shacl:property [
+    shacl:path chatman_health:hasPatientIdentifier ;
+    shacl:minCount 1 ;
+    shacl:datatype xsd:string ;
+    shacl:message "Patient must have at least one identifier (MRN)"@en
+  ] ;
+  shacl:property [
+    shacl:path chatman_health:hasConsent ;
+    shacl:minCount 1 ;
+    shacl:class chatman_health:ConsentAgreement ;
+    shacl:message "Patient must have active consent"@en
+  ] .
+
+chatman_health:MedicalRecordShape
+  a shacl:NodeShape ;
+  shacl:targetClass chatman_health:MedicalRecord ;
+  rdfs:label "Medical Record Validation Shape"@en ;
+  shacl:property [
+    shacl:path chatman_health:belongsToPatient ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:class chatman_health:Patient ;
+    shacl:message "Medical record must belong to exactly one patient"@en
+  ] ;
+  shacl:property [
+    shacl:path chatman_health:recordCreatedDate ;
+    shacl:minCount 1 ;
+    shacl:datatype xsd:dateTime ;
+    shacl:message "Medical record must have creation date"@en
+  ] .
+
+chatman_health:ConsentShape
+  a shacl:NodeShape ;
+  shacl:targetClass chatman_health:ConsentAgreement ;
+  rdfs:label "Consent Agreement Validation Shape"@en ;
+  shacl:property [
+    shacl:path chatman_health:consentStatus ;
+    shacl:minCount 1 ;
+    shacl:in ("draft" "proposed" "active" "rejected" "revoked" "expired") ;
+    shacl:message "Consent status must be valid"@en
+  ] ;
+  shacl:property [
+    shacl:path chatman_health:consentEffectiveDate ;
+    shacl:minCount 1 ;
+    shacl:datatype xsd:dateTime ;
+    shacl:message "Consent must have effective date"@en
+  ] .
+
+chatman_health:PHILineageShape
+  a shacl:NodeShape ;
+  shacl:targetClass chatman_health:PHILineageRecord ;
+  rdfs:label "PHI Lineage Record Validation Shape"@en ;
+  shacl:property [
+    shacl:path chatman_health:trackedPHI ;
+    shacl:minCount 1 ;
+    shacl:message "PHI lineage record must track at least one PHI category"@en
+  ] ;
+  shacl:property [
+    shacl:path chatman_health:accessAction ;
+    shacl:minCount 1 ;
+    shacl:in ("CREATE" "READ" "UPDATE" "DELETE" "EXPORT" "SHARE") ;
+    shacl:message "Access action must be valid HIPAA operation"@en
+  ] ;
+  shacl:property [
+    shacl:path chatman_health:accessTimestamp ;
+    shacl:minCount 1 ;
+    shacl:datatype xsd:dateTime ;
+    shacl:message "Access must have timestamp (required for audit trail)"@en
+  ] .
+
+###############################################################################
+# SECTION 11: Ontology Documentation
+###############################################################################
+
+chatman_health:summary
+  rdfs:label "Healthcare Ontology Summary"@en ;
+  rdfs:comment """
+  This ontology provides a template for HIPAA-compliant healthcare data handling
+  in BusinessOS. It is NOT currently in production but serves as the foundation
+  for future healthcare integration.
+
+  Key design decisions:
+  1. Patient data modeled using FHIR + FOAF for interoperability
+  2. Medical records as DCAT Datasets with DQV quality metrics
+  3. PHI tracking via PROV-O + GDPROV for complete lineage
+  4. Consent management using ODRL (Open Digital Rights Language)
+  5. HIPAA audit trail via HIPAAEvent with comprehensive event types
+  6. SHACL validation shapes for data integrity enforcement
+  7. Mapping to standard healthcare ontologies (SNOMED CT, ICD-11, LOINC, RxNorm)
+
+  Security Posture:
+  - All PHI access logged with agent, timestamp, action, outcome
+  - Consent enforcement at policy level (ODRL)
+  - Lineage tracking for data provenance (PROV-O)
+  - GDPR compliance support (GDPROV)
+  - Quality metrics for data accuracy (DQV)
+
+  When activating this ontology for production:
+  1. Implement SPARQL CONSTRUCT queries for PHI lineage extraction
+  2. Implement consent enforcement middleware
+  3. Deploy SHACL validation on all healthcare data
+  4. Configure audit logger to emit HIPAAEvent instances
+  5. Integrate with encryption/anonymization services
+  6. Establish data retention and deletion policies
+  """ .

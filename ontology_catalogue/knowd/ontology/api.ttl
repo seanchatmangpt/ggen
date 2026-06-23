@@ -1,0 +1,305 @@
+@prefix api: <http://knowd.io/api#> .
+@prefix http: <http://www.w3.org/2011/http#> .
+@prefix hydra: <http://www.w3.org/ns/hydra/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix knowd: <http://knowd.io/ontology#> .
+
+# KnowD API Ontology - Self-Describing REST API in RDF
+# This ontology describes all API endpoints, request/response types, and behaviors
+
+## Core API Resource Class
+api:Endpoint a rdfs:Class ;
+    rdfs:label "API Endpoint" ;
+    rdfs:comment "Represents an HTTP API endpoint with path, method, and behavior" .
+
+api:RequestBody a rdfs:Class ;
+    rdfs:label "Request Body" ;
+    rdfs:comment "Structure of expected request payload" .
+
+api:ResponseBody a rdfs:Class ;
+    rdfs:label "Response Body" ;
+    rdfs:comment "Structure of returned response payload" .
+
+## Properties
+api:path a rdf:Property ;
+    rdfs:label "path" ;
+    rdfs:domain api:Endpoint ;
+    rdfs:range xsd:string ;
+    rdfs:comment "URL path for this endpoint (e.g., /v1/tx)" .
+
+api:method a rdf:Property ;
+    rdfs:label "HTTP method" ;
+    rdfs:domain api:Endpoint ;
+    rdfs:range xsd:string ;
+    rdfs:comment "HTTP method (GET, POST, PUT, DELETE, PATCH)" .
+
+api:requestBody a rdf:Property ;
+    rdfs:label "request body" ;
+    rdfs:domain api:Endpoint ;
+    rdfs:range api:RequestBody ;
+    rdfs:comment "Expected request body structure" .
+
+api:response a rdf:Property ;
+    rdfs:label "response" ;
+    rdfs:domain api:Endpoint ;
+    rdfs:range api:ResponseBody ;
+    rdfs:comment "Returned response structure" .
+
+api:requiresAuth a rdf:Property ;
+    rdfs:label "requires authentication" ;
+    rdfs:domain api:Endpoint ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether endpoint requires authentication" .
+
+api:rateLimit a rdf:Property ;
+    rdfs:label "rate limit" ;
+    rdfs:domain api:Endpoint ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum requests per minute" .
+
+api:openapi a rdf:Property ;
+    rdfs:label "OpenAPI spec" ;
+    rdfs:domain api:Endpoint ;
+    rdfs:range xsd:string ;
+    rdfs:comment "OpenAPI specification fragment in JSON" .
+
+## Transaction Endpoint
+api:TransactionEndpoint a api:Endpoint , hydra:Resource ;
+    hydra:title "Transaction Endpoint" ;
+    hydra:description "Submit RDF transactions with delta operations (add/remove quads)" ;
+    api:path "/v1/tx" ;
+    api:method "POST" ;
+    api:requestBody api:TransactionRequest ;
+    api:response api:TransactionReceipt ;
+    api:requiresAuth true ;
+    api:rateLimit 1000 ;
+    api:openapi """{
+  "paths": {
+    "/v1/tx": {
+      "post": {
+        "summary": "Submit Transaction",
+        "description": "Submit RDF transaction with delta operations",
+        "tags": ["Transactions"],
+        "security": [{"bearerAuth": []}, {"apiKeyAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/TransactionRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction processed successfully",
+            "content": {
+              "application/ld+json": {
+                "schema": {"$ref": "#/components/schemas/TransactionResponse"}
+              }
+            }
+          },
+          "400": {"description": "Invalid request body"},
+          "500": {"description": "Internal server error"}
+        }
+      }
+    }
+  }
+}""" .
+
+## Query Endpoint
+api:QueryEndpoint a api:Endpoint , hydra:Resource ;
+    hydra:title "SPARQL Query Endpoint" ;
+    hydra:description "Execute SPARQL SELECT, ASK, or CONSTRUCT queries" ;
+    api:path "/v1/query" ;
+    api:method "POST" ;
+    api:requestBody api:QueryRequest ;
+    api:response api:QueryResponse ;
+    api:requiresAuth true ;
+    api:rateLimit 500 ;
+    api:openapi """{
+  "paths": {
+    "/v1/query": {
+      "post": {
+        "summary": "Execute SPARQL Query",
+        "description": "Run SPARQL SELECT, ASK, or CONSTRUCT query",
+        "tags": ["Queries"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/QueryRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Query executed successfully",
+            "content": {
+              "application/ld+json": {
+                "schema": {"$ref": "#/components/schemas/QueryResponse"}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}""" .
+
+## Validation Endpoint
+api:ValidationEndpoint a api:Endpoint , hydra:Resource ;
+    hydra:title "SHACL Validation Endpoint" ;
+    hydra:description "Validate RDF data against SHACL shapes" ;
+    api:path "/v1/validate" ;
+    api:method "POST" ;
+    api:requestBody api:ValidationRequest ;
+    api:response api:ValidationResponse ;
+    api:requiresAuth true ;
+    api:rateLimit 200 ;
+    api:openapi """{
+  "paths": {
+    "/v1/validate": {
+      "post": {
+        "summary": "Validate RDF Data",
+        "description": "Validate RDF against SHACL shapes",
+        "tags": ["Validation"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/ValidationRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Validation completed"}
+        }
+      }
+    }
+  }
+}""" .
+
+## Health Check Endpoint
+api:HealthEndpoint a api:Endpoint , hydra:Resource ;
+    hydra:title "Health Check Endpoint" ;
+    hydra:description "Check service health and availability" ;
+    api:path "/healthz" ;
+    api:method "GET" ;
+    api:requiresAuth false ;
+    api:rateLimit 10000 ;
+    api:openapi """{
+  "paths": {
+    "/healthz": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Returns service health status",
+        "tags": ["System"],
+        "responses": {
+          "200": {"description": "Service is healthy"}
+        }
+      }
+    }
+  }
+}""" .
+
+## Request/Response Type Definitions
+api:TransactionRequest a api:RequestBody , hydra:Class ;
+    hydra:supportedProperty [
+        hydra:property knowd:namespace ;
+        hydra:required true ;
+        rdfs:comment "Namespace for the transaction" ;
+    ] , [
+        hydra:property knowd:actor ;
+        hydra:required true ;
+        rdfs:comment "Identity performing the transaction" ;
+    ] , [
+        hydra:property api:delta ;
+        hydra:required true ;
+        rdfs:comment "Delta operations with add/remove quads" ;
+    ] .
+
+api:TransactionReceipt a api:ResponseBody , hydra:Class ;
+    hydra:supportedProperty [
+        hydra:property knowd:receiptId ;
+        rdfs:comment "Unique receipt identifier" ;
+    ] , [
+        hydra:property knowd:merkleRoot ;
+        rdfs:comment "Merkle root hash for verification" ;
+    ] , [
+        hydra:property knowd:signature ;
+        rdfs:comment "Cryptographic signature" ;
+    ] , [
+        hydra:property knowd:timestamp ;
+        rdfs:comment "Transaction timestamp" ;
+    ] .
+
+api:QueryRequest a api:RequestBody , hydra:Class ;
+    hydra:supportedProperty [
+        hydra:property api:query ;
+        hydra:required true ;
+        rdfs:comment "SPARQL query string" ;
+    ] , [
+        hydra:property api:kind ;
+        hydra:required true ;
+        rdfs:comment "Query kind: sparql-select, sparql-ask, or sparql-construct" ;
+    ] .
+
+api:QueryResponse a api:ResponseBody , hydra:Class ;
+    hydra:supportedProperty [
+        hydra:property api:json ;
+        rdfs:comment "Query results in JSON format" ;
+    ] .
+
+api:ValidationRequest a api:RequestBody , hydra:Class ;
+    hydra:supportedProperty [
+        hydra:property api:data ;
+        hydra:required true ;
+        rdfs:comment "RDF data to validate (Turtle format)" ;
+    ] , [
+        hydra:property api:shapes ;
+        rdfs:comment "SHACL shapes for validation" ;
+    ] .
+
+api:ValidationResponse a api:ResponseBody , hydra:Class ;
+    hydra:supportedProperty [
+        hydra:property api:conforms ;
+        rdfs:comment "Whether data conforms to shapes" ;
+    ] , [
+        hydra:property api:violations ;
+        rdfs:comment "List of validation violations" ;
+    ] .
+
+## Additional Properties
+api:delta a rdf:Property ;
+    rdfs:label "delta" ;
+    rdfs:comment "Delta operations containing add and remove quad arrays" .
+
+api:query a rdf:Property ;
+    rdfs:label "query" ;
+    rdfs:comment "SPARQL query string" .
+
+api:kind a rdf:Property ;
+    rdfs:label "kind" ;
+    rdfs:comment "Type of query or operation" .
+
+api:json a rdf:Property ;
+    rdfs:label "json" ;
+    rdfs:comment "JSON representation of results" .
+
+api:data a rdf:Property ;
+    rdfs:label "data" ;
+    rdfs:comment "RDF data payload" .
+
+api:shapes a rdf:Property ;
+    rdfs:label "shapes" ;
+    rdfs:comment "SHACL shapes for validation" .
+
+api:conforms a rdf:Property ;
+    rdfs:label "conforms" ;
+    rdfs:comment "Validation conformance status" .
+
+api:violations a rdf:Property ;
+    rdfs:label "violations" ;
+    rdfs:comment "List of validation violations" .

@@ -1,0 +1,108 @@
+# SPARQL Query: Petri Net Compatibility Join
+# Purpose: Extract Petri net process forms from wasm4pm-compat (PetriNet, Place, Transition, Arc, Marking)
+# and join with external Petri net standard definitions. Includes WF-net soundness constraints
+# and object-centric Petri net mappings.
+#
+# Usage: ggen query extract-petri-compat-join.rq --format json
+
+PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat:     <https://wasm4pm-compat.rs/ontology#>
+PREFIX paper:      <https://wasm4pm-compat.rs/paper#>
+PREFIX petri:      <https://open-ontologies.org/petri#>
+PREFIX wfnet:      <https://open-ontologies.org/wfnet#>
+PREFIX ocpn:       <https://open-ontologies.org/ocpn#>
+PREFIX dcterms:    <http://purl.org/dc/terms/>
+PREFIX owl:        <http://www.w3.org/2002/07/owl#>
+
+SELECT DISTINCT
+  ?compatForm
+  ?compatRustType
+  ?compatSourceFile
+  ?petriComponent
+  ?petriComponentType
+  ?petriComponentLabel
+  ?soundnessConstraint
+  ?isSoundWfNet
+  ?objectCentricVariant
+  (COUNT(DISTINCT ?arcProperty) AS ?arcPropertyCount)
+WHERE {
+  # ========== COMPAT SIDE: Petri Net Forms ==========
+  ?compatForm
+    a compat:ProcessForm ;
+    compat:rustType ?compatRustType ;
+    compat:sourceFile ?compatSourceFile ;
+    compat:admittedAgainst ?petriWitness .
+
+  ?petriWitness compat:witnessKey ?witnessKey .
+  FILTER (?witnessKey = 'petri-net' || ?witnessKey = 'wf-net' || ?witnessKey = 'object-centric-petri-net')
+
+  # ========== WF-NET SOUNDNESS CONSTRAINT ==========
+  OPTIONAL {
+    ?compatForm compat:wfNetSoundness ?soundnessConstraint .
+  }
+
+  OPTIONAL {
+    ?compatForm compat:isSoundWfNet ?isSoundWfNet .
+  }
+
+  # ========== OBJECT-CENTRIC VARIANT ==========
+  OPTIONAL {
+    ?compatForm compat:objectCentricVariant ?objectCentricVariant .
+  }
+
+  # ========== EXTERNAL SIDE: Petri Net Components ==========
+  # Bind external component types based on compat type
+  BIND (
+    IF(?compatRustType = 'PetriNet', petri:PetriNet,
+    IF(?compatRustType = 'Place', petri:Place,
+    IF(?compatRustType = 'Transition', petri:Transition,
+    IF(?compatRustType = 'Arc', petri:Arc,
+    IF(?compatRustType = 'Marking', petri:Marking,
+    IF(?compatRustType = 'WfNet', wfnet:WorkflowNet,
+    IF(?compatRustType = 'ObjectCentricPetriNet', ocpn:ObjectCentricPetriNet,
+    petri:Component)))))))
+    AS ?petriComponentType
+  )
+
+  # Match external Petri net definitions
+  OPTIONAL {
+    ?petriComponent
+      a ?petriComponentType ;
+      rdfs:label ?petriComponentLabel ;
+      rdfs:comment ?petriComponentComment .
+
+    # Collect arc properties for reachability/soundness analysis
+    OPTIONAL {
+      ?petriComponent petri:hasArc ?arc .
+      ?arc ?arcProperty ?arcValue .
+    }
+  }
+
+  # WF-net specific constraints
+  OPTIONAL {
+    ?wfnetConstraint
+      rdfs:domain wfnet:WorkflowNet ;
+      rdf:type owl:Restriction ;
+      rdfs:comment ?wfnetConstraintDesc .
+  }
+
+  # Object-centric Petri net constraints
+  OPTIONAL {
+    ?ocpnConstraint
+      rdfs:domain ocpn:ObjectCentricPetriNet ;
+      rdf:type owl:Restriction .
+  }
+}
+GROUP BY
+  ?compatForm
+  ?compatRustType
+  ?compatSourceFile
+  ?petriComponent
+  ?petriComponentType
+  ?petriComponentLabel
+  ?soundnessConstraint
+  ?isSoundWfNet
+  ?objectCentricVariant
+ORDER BY ?compatRustType ?petriComponentType

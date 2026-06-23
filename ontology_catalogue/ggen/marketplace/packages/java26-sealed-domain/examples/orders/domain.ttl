@@ -1,0 +1,155 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix java26: <http://ggen.io/java26#> .
+@prefix my:     <http://example.com/my-domain#> .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SEALED DOMAIN HIERARCHY — Order Management Example
+#
+# This TTL file is the source of truth for your domain model.
+# ggen sync reads it and precipitates compilable Java 26 from it.
+#
+# Formula: A = μ(O)
+#   A = Java source artifacts
+#   O = This ontology (the instances below)
+#   μ = ggen sync pipeline (SPARQL → Tera → javac-ready files)
+#
+# HOW TO CUSTOMIZE:
+#   1. Change the "my:" URIs to your domain namespace
+#   2. Edit java26:name literals to your class names
+#   3. Edit java26:javaPackage to your package
+#   4. Add/remove my:SealedRecord instances as needed
+#   5. Run: ggen sync
+#
+# PATTERN LANGUAGE REFERENCE:
+#   Pattern  #8 — AGGREGATE ROOT       → my:Order (java26:AggregateRoot)
+#   Pattern  #9 — SEALED DOMAIN HIER.  → my:OrderStatus (java26:SealedInterface)
+#   Pattern #10 — SEALED EVENT HIER.   → extend this file with events
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+# =============================================================================
+# AGGREGATE ROOT — generates: @Entity, @Service, @RestController
+# =============================================================================
+# An AggregateRoot is the consistency boundary for a cluster of domain objects.
+# ggen generates three Java files for it:
+#   1. Order.java          — @Entity with JPA annotations
+#   2. OrderService.java   — @Service with CRUD + state transitions (via AggregateRoot.java.tera)
+#   3. OrderController.java — @RestController with pattern-matched dispatch
+#
+# The "status" field below references the sealed type we define next.
+# =============================================================================
+
+my:Order a java26:AggregateRoot ;
+    java26:name "Order" ;
+    java26:javaPackage "com.example.orders" ;
+    java26:field my:orderId, my:status, my:createdAt, my:customerId .
+
+# Field definitions for Order
+my:orderId    a java26:Field ;
+    java26:fieldName "id" ;
+    java26:fieldType "UUID" ;
+    java26:id true .
+
+my:status     a java26:Field ;
+    java26:fieldName "status" ;
+    java26:fieldType "OrderStatus" .
+
+my:createdAt  a java26:Field ;
+    java26:fieldName "createdAt" ;
+    java26:fieldType "Instant" ;
+    java26:nullable false .
+
+my:customerId a java26:Field ;
+    java26:fieldName "customerId" ;
+    java26:fieldType "UUID" ;
+    java26:nullable false .
+
+
+# =============================================================================
+# SEALED DOMAIN HIERARCHY — generates: sealed interface + N record variants
+# =============================================================================
+# The SealedInterface is the type contract that names every valid state.
+# Each SealedRecord is one permitted implementation (one named state).
+#
+# Java 26 enforces: any switch over OrderStatus MUST be exhaustive.
+# Add a new variant here, run ggen sync, and the compiler finds every
+# switch that needs a new case. Zero runtime surprises.
+#
+# The "permits" clause on the generated interface is derived automatically
+# by inverting the java26:implements property on each record below.
+# =============================================================================
+
+my:OrderStatus a java26:SealedInterface ;
+    java26:name "OrderStatus" ;
+    java26:javaPackage "com.example.orders" .
+
+# --- Variant 1: PendingOrder ---
+# Initial state. Order placed, payment not yet confirmed.
+my:PendingOrder a java26:SealedRecord ;
+    java26:name "PendingOrder" ;
+    java26:javaPackage "com.example.orders" ;
+    java26:implements my:OrderStatus ;
+    java26:field my:pendingAt .
+
+# --- Variant 2: ProcessingOrder ---
+# Payment confirmed. Warehouse picking in progress.
+my:ProcessingOrder a java26:SealedRecord ;
+    java26:name "ProcessingOrder" ;
+    java26:javaPackage "com.example.orders" ;
+    java26:implements my:OrderStatus ;
+    java26:field my:paymentRef .
+
+# --- Variant 3: ShippedOrder ---
+# Handed off to carrier. Tracking number issued.
+my:ShippedOrder a java26:SealedRecord ;
+    java26:name "ShippedOrder" ;
+    java26:javaPackage "com.example.orders" ;
+    java26:implements my:OrderStatus ;
+    java26:field my:trackingId .
+
+# --- Variant 4: DeliveredOrder ---
+# Carrier confirmed delivery. Terminal success state.
+my:DeliveredOrder a java26:SealedRecord ;
+    java26:name "DeliveredOrder" ;
+    java26:javaPackage "com.example.orders" ;
+    java26:implements my:OrderStatus ;
+    java26:field my:deliveredAt .
+
+# --- Variant 5: CancelledOrder ---
+# Order cancelled. Terminal failure state.
+my:CancelledOrder a java26:SealedRecord ;
+    java26:name "CancelledOrder" ;
+    java26:javaPackage "com.example.orders" ;
+    java26:implements my:OrderStatus ;
+    java26:field my:cancelReason .
+
+
+# =============================================================================
+# VARIANT FIELDS — one or more fields per SealedRecord variant
+# =============================================================================
+# Each variant carries only the data relevant to its state.
+# This is a key advantage over enums: no nullable fields, no "might be null
+# depending on the state" — each state is self-describing.
+# =============================================================================
+
+my:pendingAt    a java26:Field ;
+    java26:fieldName "placedAt" ;
+    java26:fieldType "Instant" .
+
+my:paymentRef   a java26:Field ;
+    java26:fieldName "paymentRef" ;
+    java26:fieldType "String" .
+
+my:trackingId   a java26:Field ;
+    java26:fieldName "trackingId" ;
+    java26:fieldType "String" .
+
+my:deliveredAt  a java26:Field ;
+    java26:fieldName "deliveredAt" ;
+    java26:fieldType "Instant" .
+
+my:cancelReason a java26:Field ;
+    java26:fieldName "cancelReason" ;
+    java26:fieldType "String" .

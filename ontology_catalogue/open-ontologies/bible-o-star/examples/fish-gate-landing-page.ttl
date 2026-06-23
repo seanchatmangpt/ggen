@@ -1,0 +1,46 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Fish Gate = catching the right people by truth, not bait.
+# The Fish Gate is the public category entry point: those who respond to what is true
+# are drawn in; those who seek bait are repelled by the same gate.
+
+bos:SonsOfHassenaah a bos:Builder ;
+    rdfs:label "Sons of Hassenaah" ;
+    rdfs:comment "Builders responsible for repairing the Fish Gate section. Named without rank — the work is the witness." ;
+    bos:hasCanonicalReference "Neh.3.3"^^xsd:string ;
+    bos:assignedToGate bos:FishGate ;
+    bos:hasSource "Neh.3.3" ;
+    dcterms:created "2026-06-02"^^xsd:date .
+
+bos:FishGateSection a bos:WallSection ;
+    rdfs:label "Fish Gate Section" ;
+    rdfs:comment "The segment of the wall including the Fish Gate: beams, doors, bolts, and bars were set." ;
+    bos:assignedToGate bos:FishGate ;
+    bos:hasCanonicalReference "Neh.3.3"^^xsd:string ;
+    bos:hasBuilder bos:SonsOfHassenaah ;
+    bos:hasSource "Neh.3.3" ;
+    bos:hasReceipt bos:FishGateSectionReceipt .
+
+bos:FishGate a owl:NamedIndividual ;
+    rdfs:label "Fish Gate" ;
+    rdfs:comment "Public entry category: catches by truth. Those drawn by truth enter; those who seek bait are not welcomed. Not a fishing metaphor — a truth-selection mechanism." ;
+    bos:hasWallSection bos:FishGateSection ;
+    bos:hasCanonicalReference "Neh.3.3"^^xsd:string ;
+    bos:hasCanonicalNehRef "Neh.3.3"^^xsd:string ;
+    bos:hasSource "Neh.3.3" .
+
+bos:FishGateSectionReceipt a bos:InspectionReceipt ;
+    rdfs:label "Fish Gate Section Receipt" ;
+    bos:hasCanonicalReference "Neh.3.3"^^xsd:string ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasSource "Neh.3.3" ;
+    rdfs:comment "Wall section complete: beams set, doors hung, bolts and bars in place." .
+
+bos:VerdictAlive a bos:Verdict ;
+    rdfs:label "ALIVE" ;
+    rdfs:comment "Section validated: structure is sound, receipt is grounded, builder is named." .

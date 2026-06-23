@@ -1,0 +1,171 @@
+# File Manager CLI - File System Operations
+# Demonstrates complex command structure with flags and path handling
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix clap: <http://clap-noun-verb.io/ontology#> .
+@prefix fm: <http://example.org/file-manager#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# CLI Application Definition
+fm:FileManagerApp a clap:CliApplication ;
+    clap:name "fm" ;
+    clap:version "2.0.0" ;
+    clap:author "File System Team" ;
+    clap:about "A powerful file manager CLI for file and directory operations" ;
+    clap:nouns (fm:FileNoun fm:DirNoun) .
+
+# Noun: file
+fm:FileNoun a clap:Noun ;
+    clap:name "file" ;
+    clap:about "File operations" ;
+    clap:verbs (fm:CreateFileVerb fm:DeleteFileVerb fm:CopyFileVerb fm:MoveFileVerb fm:ListFileVerb) .
+
+# Noun: dir
+fm:DirNoun a clap:Noun ;
+    clap:name "dir" ;
+    clap:about "Directory operations" ;
+    clap:verbs (fm:CreateDirVerb fm:DeleteDirVerb fm:ListDirVerb fm:MoveDirVerb) .
+
+# Verb: create (file)
+# Usage: fm file create --path /tmp/newfile.txt
+fm:CreateFileVerb a clap:Verb ;
+    clap:name "create" ;
+    clap:about "Create a new file" ;
+    clap:arguments (fm:PathArg) ;
+    clap:flags (fm:VerboseFlag fm:ForceFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "fm file create --path /tmp/newfile.txt --verbose" .
+
+# Verb: delete (file)
+# Usage: fm file delete --path /tmp/oldfile.txt --force
+fm:DeleteFileVerb a clap:Verb ;
+    clap:name "delete" ;
+    clap:about "Delete an existing file" ;
+    clap:arguments (fm:PathArg) ;
+    clap:flags (fm:VerboseFlag fm:ForceFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "fm file delete --path /tmp/oldfile.txt --force" ;
+    clap:validation fm:PathExists .
+
+# Verb: copy (file)
+# Usage: fm file copy --path source.txt --destination dest.txt
+fm:CopyFileVerb a clap:Verb ;
+    clap:name "copy" ;
+    clap:about "Copy a file to a new location" ;
+    clap:arguments (fm:PathArg fm:DestinationArg) ;
+    clap:flags (fm:VerboseFlag fm:ForceFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "fm file copy --path source.txt --destination dest.txt" ;
+    clap:validation fm:PathExists .
+
+# Verb: move (file)
+# Usage: fm file move --path old.txt --destination new.txt
+fm:MoveFileVerb a clap:Verb ;
+    clap:name "move" ;
+    clap:about "Move/rename a file" ;
+    clap:arguments (fm:PathArg fm:DestinationArg) ;
+    clap:flags (fm:VerboseFlag fm:ForceFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "fm file move --path old.txt --destination new.txt" ;
+    clap:validation fm:PathExists .
+
+# Verb: list (file)
+# Usage: fm file list --path /tmp
+fm:ListFileVerb a clap:Verb ;
+    clap:name "list" ;
+    clap:about "List files in a directory" ;
+    clap:arguments (fm:PathArg) ;
+    clap:flags (fm:VerboseFlag fm:RecursiveFlag) ;
+    clap:returnType xsd:string ;
+    clap:example "fm file list --path /tmp --recursive" .
+
+# Verb: create (dir)
+# Usage: fm dir create --path /tmp/newdir
+fm:CreateDirVerb a clap:Verb ;
+    clap:name "create" ;
+    clap:about "Create a new directory" ;
+    clap:arguments (fm:PathArg) ;
+    clap:flags (fm:VerboseFlag fm:RecursiveFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "fm dir create --path /tmp/newdir --recursive" .
+
+# Verb: delete (dir)
+# Usage: fm dir delete --path /tmp/olddir --recursive --force
+fm:DeleteDirVerb a clap:Verb ;
+    clap:name "delete" ;
+    clap:about "Delete a directory" ;
+    clap:arguments (fm:PathArg) ;
+    clap:flags (fm:VerboseFlag fm:ForceFlag fm:RecursiveFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "fm dir delete --path /tmp/olddir --recursive --force" ;
+    clap:validation fm:PathExists .
+
+# Verb: list (dir)
+# Usage: fm dir list --path /tmp --recursive
+fm:ListDirVerb a clap:Verb ;
+    clap:name "list" ;
+    clap:about "List contents of a directory" ;
+    clap:arguments (fm:PathArg) ;
+    clap:flags (fm:VerboseFlag fm:RecursiveFlag) ;
+    clap:returnType xsd:string ;
+    clap:example "fm dir list --path /tmp --recursive" .
+
+# Verb: move (dir)
+# Usage: fm dir move --path olddir --destination newdir
+fm:MoveDirVerb a clap:Verb ;
+    clap:name "move" ;
+    clap:about "Move/rename a directory" ;
+    clap:arguments (fm:PathArg fm:DestinationArg) ;
+    clap:flags (fm:VerboseFlag fm:ForceFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "fm dir move --path olddir --destination newdir" ;
+    clap:validation fm:PathExists .
+
+# Argument: path (required)
+fm:PathArg a clap:Argument ;
+    clap:name "path" ;
+    clap:shortName "p" ;
+    clap:about "File or directory path" ;
+    clap:valueType clap:Path ;
+    clap:required true ;
+    clap:position 1 .
+
+# Argument: destination (optional)
+fm:DestinationArg a clap:Argument ;
+    clap:name "destination" ;
+    clap:shortName "d" ;
+    clap:about "Destination path for copy/move operations" ;
+    clap:valueType clap:Path ;
+    clap:required true ;
+    clap:position 2 .
+
+# Flag: recursive
+fm:RecursiveFlag a clap:Flag ;
+    clap:name "recursive" ;
+    clap:shortName "r" ;
+    clap:about "Perform operation recursively" ;
+    clap:valueType xsd:boolean ;
+    clap:defaultValue false .
+
+# Flag: verbose
+fm:VerboseFlag a clap:Flag ;
+    clap:name "verbose" ;
+    clap:shortName "v" ;
+    clap:about "Enable verbose output" ;
+    clap:valueType xsd:boolean ;
+    clap:defaultValue false .
+
+# Flag: force
+fm:ForceFlag a clap:Flag ;
+    clap:name "force" ;
+    clap:shortName "f" ;
+    clap:about "Force operation without confirmation" ;
+    clap:valueType xsd:boolean ;
+    clap:defaultValue false .
+
+# Validation: Path exists
+fm:PathExists a clap:Validation ;
+    clap:field "path" ;
+    clap:constraint "path.exists()" ;
+    clap:errorMessage "Path does not exist" .

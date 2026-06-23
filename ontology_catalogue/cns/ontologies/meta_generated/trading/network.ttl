@@ -1,0 +1,10 @@
+# Network Module
+# Part of trading ontology
+
+@prefix : <http://cns.io/trading/network#> .
+@prefix trading: <http://cns.io/trading#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Network Classes
+

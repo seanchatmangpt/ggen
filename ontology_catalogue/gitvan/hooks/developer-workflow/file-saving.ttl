@@ -1,0 +1,59 @@
+@prefix dev: <https://gitvan.dev/developer#> .
+@prefix scrum: <https://gitvan.dev/scrum#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# File Saving Workflow Hook
+dev:file-saving-hook rdf:type gh:Hook ;
+    gv:title "File Saving Workflow" ;
+    gh:hasPredicate dev:file-saving-predicate ;
+    gh:orderedPipelines dev:file-saving-pipeline .
+
+# Predicate: Check if file is being saved
+dev:file-saving-predicate rdf:type gh:ASKPredicate ;
+    gh:queryText """
+        PREFIX dev: <https://gitvan.dev/developer#>
+        PREFIX scrum: <https://gitvan.dev/scrum#>
+        
+        ASK WHERE {
+            ?file rdf:type dev:SourceFile ;
+                  dev:status "saving" .
+            ?file dev:belongsToSprint ?sprint .
+            ?sprint scrum:status "active" .
+        }
+    """ ;
+    gh:description "Triggers when developer saves a file" .
+
+# File Saving Pipeline
+dev:file-saving-pipeline rdf:type op:Pipeline ;
+    op:steps dev:validate-code-quality, dev:check-definition-of-done, dev:update-sprint-progress .
+
+# Step 1: Validate Code Quality
+dev:validate-code-quality rdf:type gv:ShellStep ;
+    gv:command "echo 'Validating code quality...'" ;
+    gv:description "Run code quality checks" .
+
+# Step 2: Check Definition of Done
+dev:check-definition-of-done rdf:type gv:HttpStep ;
+    gv:httpUrl "https://api.scrum.com/definition-of-done" ;
+    gv:httpMethod "POST" ;
+    gv:headers '{"Content-Type": "application/json"}' ;
+    gv:body """
+        {
+            "action": "check-definition-of-done",
+            "file": "{{ file.path }}",
+            "sprint": "{{ sprint.id }}",
+            "developer": "{{ developer.id }}"
+        }
+    """ ;
+    gv:description "Validate against Definition of Done criteria" ;
+    gv:dependsOn dev:validate-code-quality .
+
+# Step 3: Update Sprint Progress
+dev:update-sprint-progress rdf:type gv:ShellStep ;
+    gv:command "echo 'Updating sprint progress...'" ;
+    gv:description "Update sprint progress metrics" ;
+    gv:dependsOn dev:check-definition-of-done .
+

@@ -1,0 +1,49 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Sheep Gate = public entry gate.
+# Those who are admitted enter as named, accountable agents — not as anonymous traffic.
+# Eliashib and the priests built first, consecrated first, and set the pattern for all other sections.
+# No admission without consecration. The gate that opens must also be sealed.
+
+bos:Eliashib a bos:Builder ;
+    rdfs:label "Eliashib the High Priest" ;
+    rdfs:comment "High priest of Judah. Led his brothers the priests to build and consecrate the Sheep Gate. Acted first — before any other section was begun." ;
+    bos:hasCanonicalReference "Neh.3.1"^^xsd:string ;
+    bos:assignedToGate bos:SheepGate ;
+    bos:hasSource "Neh.3.1" ;
+    dcterms:created "2026-06-02"^^xsd:date .
+
+bos:SheepGateSection a bos:WallSection ;
+    rdfs:label "Sheep Gate Section" ;
+    rdfs:comment "The wall section including the Sheep Gate. Repaired and consecrated by Eliashib and the priests. Doors were set; towers of Meah and Hananel were included in scope." ;
+    bos:assignedToGate bos:SheepGate ;
+    bos:hasCanonicalReference "Neh.3.1"^^xsd:string ;
+    bos:hasBuilder bos:Eliashib ;
+    bos:hasSource "Neh.3.1" ;
+    bos:hasReceipt bos:SheepGateSectionReceipt .
+
+bos:SheepGatePublicSourceAdmittance a bos:InspectionReceipt ;
+    rdfs:label "Sheep Gate Public Source Admittance Record" ;
+    rdfs:comment "Admittance record: Eliashib and the priests consecrated the Sheep Gate section. Public entry point established. Towers of Meah and Hananel included. Consecration precedes opening — this is the law of the Sheep Gate." ;
+    bos:hasCanonicalReference "Neh.3.1"^^xsd:string ;
+    bos:hasBuilder bos:Eliashib ;
+    bos:hasSource "Neh.3.1" ;
+    bos:assignedToGate bos:SheepGate ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasReceipt bos:SheepGateSectionReceipt .
+
+bos:SheepGateSectionReceipt a bos:InspectionReceipt ;
+    rdfs:label "Sheep Gate Section Receipt" ;
+    bos:hasCanonicalReference "Neh.3.1"^^xsd:string ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasSource "Neh.3.1" ;
+    rdfs:comment "Section complete: gate built, consecrated, doors set, towers of Meah and Hananel sanctioned." .
+
+bos:VerdictAlive a bos:Verdict ;
+    rdfs:label "ALIVE" ;
+    rdfs:comment "Section validated: structure is sound, receipt is grounded, builder is named." .

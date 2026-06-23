@@ -1,0 +1,117 @@
+# SaaS Commands - Write Operations
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ddd:   <https://ggen.io/ontology/ddd#> .
+@prefix attr:  <https://ggen.io/examples/attribution#> .
+
+# ============================================================================
+# TRACK SUBSCRIPTION COMMAND
+# ============================================================================
+
+attr:TrackSubscription a ddd:Command ;
+  ddd:name "TrackSubscription" ;
+  rdfs:comment "Track new or updated SaaS subscription" ;
+  ddd:aggregate attr:RevenueAggregate ;
+  ddd:emitsEvent attr:SubscriptionCreated ;
+  ddd:hasField attr:TrackSubscription_program_id ;
+  ddd:hasField attr:TrackSubscription_publisher_id ;
+  ddd:hasField attr:TrackSubscription_customer_id ;
+  ddd:hasField attr:TrackSubscription_plan ;
+  ddd:hasField attr:TrackSubscription_mrr_amount ;
+  ddd:hasField attr:TrackSubscription_currency ;
+  ddd:hasField attr:TrackSubscription_start_date .
+
+attr:TrackSubscription_program_id a ddd:Field ;
+  ddd:name "program_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  rdfs:comment "SaaS program ID" .
+
+attr:TrackSubscription_publisher_id a ddd:Field ;
+  ddd:name "publisher_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  rdfs:comment "Publisher who referred subscription" .
+
+attr:TrackSubscription_customer_id a ddd:Field ;
+  ddd:name "customer_id" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "External customer ID" .
+
+attr:TrackSubscription_plan a ddd:Field ;
+  ddd:name "plan" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Subscription plan" .
+
+attr:TrackSubscription_mrr_amount a ddd:Field ;
+  ddd:name "mrr_amount" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  rdfs:comment "Monthly recurring revenue" .
+
+attr:TrackSubscription_currency a ddd:Field ;
+  ddd:name "currency" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  ddd:default "USD" .
+
+attr:TrackSubscription_start_date a ddd:Field ;
+  ddd:name "start_date" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+# ============================================================================
+# RECORD RECURRING COMMISSION COMMAND
+# ============================================================================
+
+attr:RecordRecurringCommission a ddd:Command ;
+  ddd:name "RecordRecurringCommission" ;
+  rdfs:comment "Record monthly commission for active subscription" ;
+  ddd:aggregate attr:RevenueAggregate ;
+  ddd:emitsEvent attr:RecurringCommissionRecorded ;
+  ddd:hasField attr:RecordRecurringCommission_subscription_id ;
+  ddd:hasField attr:RecordRecurringCommission_period_start ;
+  ddd:hasField attr:RecordRecurringCommission_period_end .
+
+attr:RecordRecurringCommission_subscription_id a ddd:Field ;
+  ddd:name "subscription_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  rdfs:comment "Active subscription ID" .
+
+attr:RecordRecurringCommission_period_start a ddd:Field ;
+  ddd:name "period_start" ;
+  ddd:type "DateTime" ;
+  ddd:required true ;
+  rdfs:comment "Billing period start" .
+
+attr:RecordRecurringCommission_period_end a ddd:Field ;
+  ddd:name "period_end" ;
+  ddd:type "DateTime" ;
+  ddd:required true ;
+  rdfs:comment "Billing period end" .
+
+# ============================================================================
+# CANCEL SUBSCRIPTION COMMAND
+# ============================================================================
+
+attr:CancelSubscription a ddd:Command ;
+  ddd:name "CancelSubscription" ;
+  rdfs:comment "Mark subscription as canceled" ;
+  ddd:aggregate attr:RevenueAggregate ;
+  ddd:emitsEvent attr:SubscriptionCanceled ;
+  ddd:hasField attr:CancelSubscription_subscription_id ;
+  ddd:hasField attr:CancelSubscription_cancel_date .
+
+attr:CancelSubscription_subscription_id a ddd:Field ;
+  ddd:name "subscription_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:CancelSubscription_cancel_date a ddd:Field ;
+  ddd:name "cancel_date" ;
+  ddd:type "DateTime" ;
+  ddd:required true .

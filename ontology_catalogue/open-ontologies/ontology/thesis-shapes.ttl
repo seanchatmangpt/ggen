@@ -1,0 +1,384 @@
+@prefix tm:     <https://ggen.io/onto/thesis-manufacturing/> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix dcterms:<http://purl.org/dc/terms/> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix earl:   <http://www.w3.org/ns/earl#> .
+
+# ============================================================================
+# Thesis Manufacturing SHACL Shapes
+# ============================================================================
+#
+# SHACL shapes that validate the RDF projection of thesis claims, evidence,
+# defects, and chapters. Admission requires:
+#
+# 1. SHACL: RDF graph conforms to these shapes
+# 2. PROV:  manufacturing lineage is present (prov:wasDerivedFrom for evidence)
+# 3. Admission gates: deterministic logic checks domain, scope, support status
+#
+# IMPORTANT: SHACL validates STRUCTURE only. Admission semantics (support
+# status validity, defect severity interpretation, evidence binding rules)
+# live in the ThesisMaker workflow logic, not here.
+#
+# ============================================================================
+
+# ============================================================================
+# Thesis Claim Shape
+# ============================================================================
+
+tm:ClaimShape
+  a sh:NodeShape ;
+  sh:name "Thesis Claim Shape" ;
+  sh:description "Validates structure of a thesis claim. Required fields: supportStatus, scope, domain. Support status must be in SupportStatusScheme." ;
+  sh:targetClass tm:Claim ;
+
+  # Required class membership
+  sh:property [
+    sh:path rdf:type ;
+    sh:hasValue tm:Claim ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Type: tm:Claim" ;
+  ] ;
+
+  # Required metadata
+  sh:property [
+    sh:path tm:claimText ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:name "Claim Text" ;
+    sh:description "The full text of the claim proposition." ;
+  ] ;
+
+  # Support status is required and must be in SupportStatusScheme
+  sh:property [
+    sh:path tm:supportStatus ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class skos:Concept ;
+    sh:name "Support Status" ;
+    sh:description "One of: supported, partially-supported, unproven, overclaimed, contradicted, projection-only." ;
+    sh:in (
+      tm:Supported
+      tm:PartiallySupportedStatus
+      tm:UnprovenStatus
+      tm:OverclaimedStatus
+      tm:ContradictedStatus
+      tm:ProjectionOnlyStatus
+    ) ;
+  ] ;
+
+  # Domain is required
+  sh:property [
+    sh:path tm:domain ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:name "Domain" ;
+    sh:description "Field or domain of the claim (e.g., machine learning, manufacturing)." ;
+  ] ;
+
+  # Scope is required
+  sh:property [
+    sh:path tm:scope ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:name "Scope" ;
+    sh:description "Textual description of what the claim asserts and what it does not." ;
+  ] .
+
+# ============================================================================
+# Thesis Evidence Shape
+# ============================================================================
+
+tm:EvidenceShape
+  a sh:NodeShape ;
+  sh:name "Thesis Evidence Shape" ;
+  sh:description "Validates structure of evidence. Required fields: prov:wasDerivedFrom (provenance), tm:claimSupported, tm:evidenceType." ;
+  sh:targetClass tm:Evidence ;
+
+  # Required class membership
+  sh:property [
+    sh:path rdf:type ;
+    sh:hasValue tm:Evidence ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Type: tm:Evidence" ;
+  ] ;
+
+  # Provenance: evidence must derive from a source (published artifact, dataset, code)
+  sh:property [
+    sh:path prov:wasDerivedFrom ;
+    sh:minCount 1 ;
+    sh:class prov:Entity ;
+    sh:name "Provenance" ;
+    sh:description "The source entity from which this evidence was derived. Required: evidence must have lineage." ;
+  ] ;
+
+  # Evidence must support at least one claim
+  sh:property [
+    sh:path tm:supportedByClaim ;
+    sh:minCount 1 ;
+    sh:class tm:Claim ;
+    sh:name "Supports Claim" ;
+    sh:description "The claim this evidence supports." ;
+  ] ;
+
+  # Evidence type must be specified
+  sh:property [
+    sh:path tm:evidenceType ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:name "Evidence Type" ;
+    sh:description "Type: empirical-data, measurement, simulation, citation, code, dataset, etc." ;
+  ] .
+
+# ============================================================================
+# Thesis Defect Shape
+# ============================================================================
+
+tm:DefectShape
+  a sh:NodeShape ;
+  sh:name "Thesis Defect Shape" ;
+  sh:description "Validates structure of defects. Required fields: tm:defectClass, tm:targetClaim, tm:severity." ;
+  sh:targetClass tm:Defect ;
+
+  # Required class membership
+  sh:property [
+    sh:path rdf:type ;
+    sh:hasValue tm:Defect ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Type: tm:Defect" ;
+  ] ;
+
+  # Defect class must be in DefectClassScheme
+  sh:property [
+    sh:path tm:defectClass ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class skos:Concept ;
+    sh:name "Defect Class" ;
+    sh:description "Classification of the defect (ProjectionSubstitutedForProof, EvidenceMissing, etc.)" ;
+    sh:in (
+      tm:ProjectionSubstitutedForProof
+      tm:BenchmarkClaimWithoutMeasurement
+      tm:CitationMissing
+      tm:EvidenceMissing
+      tm:LLMAuthorityLeak
+      tm:OverbroadNoveltyClaim
+      tm:DefenseUnready
+      tm:CircularDependency
+      tm:UnreproducibleEvidence
+      tm:ScopeCreep
+      tm:ArtifactLocatorBroken
+      tm:MeasurementUnitMismatch
+    ) ;
+  ] ;
+
+  # Target claim is required
+  sh:property [
+    sh:path tm:targetClaim ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class tm:Claim ;
+    sh:name "Target Claim" ;
+    sh:description "The claim affected by this defect." ;
+  ] ;
+
+  # Severity is required and must be one of: red, orange, yellow
+  sh:property [
+    sh:path tm:severity ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ( "red" "orange" "yellow" ) ;
+    sh:name "Severity" ;
+    sh:description "red (blocking admission), orange (requires resolution), yellow (advisory)." ;
+  ] ;
+
+  # Defect description should be provided
+  sh:property [
+    sh:path tm:defectDescription ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:name "Defect Description" ;
+    sh:description "Narrative explanation of the defect and remediation guidance." ;
+  ] .
+
+# ============================================================================
+# Thesis Chapter Shape
+# ============================================================================
+
+tm:ChapterShape
+  a sh:NodeShape ;
+  sh:name "Thesis Chapter Shape" ;
+  sh:description "Validates structure of a chapter. Required fields: tm:researchQuestion, tm:claimCoverage. When admitted, no unsupported claims are allowed." ;
+  sh:targetClass tm:Chapter ;
+
+  # Required class membership
+  sh:property [
+    sh:path rdf:type ;
+    sh:hasValue tm:Chapter ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Type: tm:Chapter" ;
+  ] ;
+
+  # Research question is required
+  sh:property [
+    sh:path tm:hasResearchQuestion ;
+    sh:minCount 1 ;
+    sh:class tm:ResearchQuestion ;
+    sh:name "Research Question" ;
+    sh:description "The research question that frames the chapter." ;
+  ] ;
+
+  # Claim coverage should be specified
+  sh:property [
+    sh:path tm:claimCoverage ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:name "Claim Coverage" ;
+    sh:description "Number of admitted claims in the chapter." ;
+  ] .
+
+# ============================================================================
+# Thesis Projection Shape
+# ============================================================================
+
+tm:ProjectionShape
+  a sh:NodeShape ;
+  sh:name "Thesis Projection Shape" ;
+  sh:description "Validates structure of projections. For admitted projections, unsupportedClaimCount must be 0." ;
+  sh:targetClass tm:Projection ;
+
+  # Required class membership
+  sh:property [
+    sh:path rdf:type ;
+    sh:hasValue tm:Projection ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Type: tm:Projection" ;
+  ] ;
+
+  # Projection boundary should be documented
+  sh:property [
+    sh:path tm:projectionBoundary ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:name "Projection Boundary" ;
+    sh:description "Description of what admitted claims and evidence the projection cites." ;
+  ] ;
+
+  # Unsupported claim count (for admitted projections: must be 0)
+  sh:property [
+    sh:path tm:unsupportedClaimCount ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:name "Unsupported Claim Count" ;
+    sh:description "Number of unproven or projection-only claims. Must be 0 for admitted projections." ;
+  ] .
+
+# ============================================================================
+# Thesis Artifact Reference Shape
+# ============================================================================
+
+tm:ArtifactRefShape
+  a sh:NodeShape ;
+  sh:name "Thesis Artifact Reference Shape" ;
+  sh:description "Validates structure of artifact references. Required fields: tm:artifactLocator, tm:accessedAt." ;
+  sh:targetClass tm:ArtifactRef ;
+
+  # Required class membership
+  sh:property [
+    sh:path rdf:type ;
+    sh:hasValue tm:ArtifactRef ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Type: tm:ArtifactRef" ;
+  ] ;
+
+  # Artifact locator is required
+  sh:property [
+    sh:path tm:artifactLocator ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:name "Artifact Locator" ;
+    sh:description "URL, DOI, file path, or other locator for the artifact." ;
+  ] ;
+
+  # Access timestamp is required
+  sh:property [
+    sh:path tm:accessedAt ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+    sh:name "Accessed At" ;
+    sh:description "Timestamp when the artifact was last accessed/verified." ;
+  ] ;
+
+  # Checksum is optional but recommended for reproducibility
+  sh:property [
+    sh:path tm:artifactChecksum ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:name "Artifact Checksum" ;
+    sh:description "BLAKE3 or SHA256 hash of the artifact for integrity verification." ;
+  ] .
+
+# ============================================================================
+# Thesis Research Question Shape
+# ============================================================================
+
+tm:ResearchQuestionShape
+  a sh:NodeShape ;
+  sh:name "Thesis Research Question Shape" ;
+  sh:description "Validates structure of research questions. Required field: tm:researchQuestionText." ;
+  sh:targetClass tm:ResearchQuestion ;
+
+  # Required class membership
+  sh:property [
+    sh:path rdf:type ;
+    sh:hasValue tm:ResearchQuestion ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:name "Type: tm:ResearchQuestion" ;
+  ] ;
+
+  # Research question text is required
+  sh:property [
+    sh:path tm:researchQuestionText ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:name "Research Question Text" ;
+    sh:description "The textual statement of the research question." ;
+  ] .
+
+# ============================================================================
+# END OF THESIS SHACL SHAPES
+# ============================================================================
+# These shapes validate the RDF STRUCTURE of thesis artifacts.
+# Admission semantics (support status interpretation, defect rules, evidence
+# binding) are enforced by the ThesisMaker workflow, not by SHACL alone.
+# ============================================================================

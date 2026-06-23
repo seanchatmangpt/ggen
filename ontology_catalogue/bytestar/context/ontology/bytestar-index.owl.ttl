@@ -1,0 +1,119 @@
+@prefix bstar_idx: <https://bytestar.org/ontology/bytestar-index#> .
+@prefix :        <https://bytestar.org/ontology/bytestar-index#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+<https://bytestar.org/ontology/bytestar-index>
+  a owl:Ontology ;
+  rdfs:label "ByteStar Ecosystem Index Ontology" ;
+  rdfs:comment """The canonical, top-level index for the entire ByteStar ecosystem.
+    This ontology is a pure manifest. Its sole purpose is to compose the foundational subprojects 
+    (ByteCore, ByteActor, ByteFlow, ByteEthos) by importing their respective index ontologies.
+    It includes the physical file path for each imported index and formally links the ecosystem to its governing doctrines, 
+    providing a complete and verifiable map for fabrication.""" ;
+  owl:versionInfo "3.0.0" ;
+
+  # I. Import the index ontology for each foundational subproject.
+  owl:imports <https://bytestar.org/ontology/bytecore-index> ;
+  owl:imports <https://bytestar.org/ontology/byteactor-index> ;
+  owl:imports <https://bytestar.org/ontology/byteflow-index> ;
+  owl:imports <https://bytestar.org/ontology/byteethos-index> .
+
+#################################################################
+# 1. Formal Definitions
+#################################################################
+
+bstar_idx:BytestarEcosystem a owl:Class ;
+  rdfs:label "The ByteStar Ecosystem" .
+
+bstar_idx:GoverningDoctrine a owl:Class ;
+    rdfs:label "Governing Doctrine" ;
+    rdfs:comment "A core, non-negotiable principle or law that governs the entire ecosystem. These doctrines represent the 'Dark 80/20'." .
+
+#################################################################
+# 2. Core Properties
+#################################################################
+
+bstar_idx:isComposedOf a owl:ObjectProperty ;
+    rdfs:label "is composed of" ;
+    rdfs:comment "Links the ecosystem to its foundational subproject canons." .
+
+bstar_idx:isGovernedBy a owl:ObjectProperty ;
+    rdfs:label "is governed by" ;
+    rdfs:comment "Links the ecosystem to its foundational doctrines." ;
+    rdfs:domain bstar_idx:BytestarEcosystem ;
+    rdfs:range bstar_idx:GoverningDoctrine .
+
+bstar_idx:sourceLocation a owl:DatatypeProperty ;
+    rdfs:label "sourceLocation" ;
+    rdfs:comment "The relative file path to the canonical source file for an ontology." ;
+    rdfs:range xsd:anyURI .
+
+#################################################################
+# 3. The ByteStar Ecosystem Individual
+#################################################################
+
+:ByteStar_v3 a bstar_idx:BytestarEcosystem ;
+  rdfs:label "ByteStar Ecosystem v3" ;
+  rdfs:comment "The specific v3 release of the complete ByteStar ecosystem." ;
+  bstar_idx:hasCanonicalVersion "3.0.0"^^xsd:string ;
+  
+  bstar_idx:isComposedOf :ByteCoreIndex,
+                         :ByteActorIndex,
+                         :ByteFlowIndex,
+                         :ByteEthosIndex ;
+
+  bstar_idx:isGovernedBy :DoctrineOf8,
+                         :OntologyAsAlgorithm,
+                         :ZeroTickRejection,
+                         :DriverParity,
+                         :ScheduleInvariance .
+
+#################################################################
+# 4. Subproject Index Individuals with File Paths
+#################################################################
+
+:ByteCoreIndex a owl:Ontology ;
+  rdfs:label "ByteCore Index" ;
+  owl:imports <https://bytestar.org/ontology/bytecore-index> ;
+  bstar_idx:sourceLocation "./bytecore/context/ontology/bytecore-index.owl.ttl"^^xsd:anyURI .
+
+:ByteActorIndex a owl:Ontology ;
+  rdfs:label "ByteActor Index" ;
+  owl:imports <https://bytestar.org/ontology/byteactor-index> ;
+  bstar_idx:sourceLocation "./byteactor/context/ontology/byteactor-index.owl.ttl"^^xsd:anyURI .
+
+:ByteFlowIndex a owl:Ontology ;
+  rdfs:label "ByteFlow Index" ;
+  owl:imports <https://bytestar.org/ontology/byteflow-index> ;
+  bstar_idx:sourceLocation "./byteflow/context/ontology/byteflow-index.owl.ttl"^^xsd:anyURI .
+
+:ByteEthosIndex a owl:Ontology ;
+  rdfs:label "ByteEthos Index" ;
+  owl:imports <https://bytestar.org/ontology/byteethos-index> ;
+  bstar_idx:sourceLocation "./byteethos/context/ontology/byteethos-index.owl.ttl"^^xsd:anyURI .
+
+#################################################################
+# 5. Governing Doctrine Individuals (The "Dark 80/20")
+#################################################################
+
+:DoctrineOf8 a bstar_idx:GoverningDoctrine ;
+  rdfs:label "The Doctrine of 8" ;
+  rdfs:comment "The non-negotiable physical law that all hot-path kernels execute in <= 8 ticks and all end-to-end workflows complete in <= 8 hops." .
+
+:OntologyAsAlgorithm a bstar_idx:GoverningDoctrine ;
+  rdfs:label "Ontology-as-Algorithm (OAA)" ;
+  rdfs:comment "The core philosophy that ontologies are not descriptive documents but are the generative blueprints from which the entire system is fabricated." .
+
+:ZeroTickRejection a bstar_idx:GoverningDoctrine ;
+  rdfs:label "Zero-Tick Rejection" ;
+  rdfs:comment "The safety principle wherein any crystal that fails the admission predicate (Θ) is rejected without consuming any hot-path execution ticks." .
+
+:DriverParity a bstar_idx:GoverningDoctrine ;
+  rdfs:label "Driver Parity" ;
+  rdfs:comment "The law that AOT fabrication must produce byte-identical artifacts regardless of the backend (CPU or GPU), enforced by a manifest digest (δ)." .
+
+:ScheduleInvariance a bstar_idx:GoverningDoctrine ;
+  rdfs:label "Schedule Invariance" ;
+  rdfs:comment "The requirement that all hot-path operations must have a fixed address/branch trace, ensuring their execution time is a constant, independent of input data." .

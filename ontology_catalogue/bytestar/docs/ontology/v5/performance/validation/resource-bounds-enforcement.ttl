@@ -1,0 +1,699 @@
+@prefix : <http://bytestar.org/ontology/resource-bounds#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix doctrine: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix perf: <http://bytestar.org/ontology/performance-measurement#> .
+@prefix res: <http://bytestar.org/ontology/resource-allocation#> .
+@prefix benchmark: <http://bytestar.org/ontology/performance-benchmark#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+<http://bytestar.org/ontology/resource-bounds> rdf:type owl:Ontology ;
+    dct:title "Resource Consumption Bounds Enforcement"@en ;
+    dct:description """Comprehensive resource bounds enforcement system ensuring all
+    crystal operations stay within predefined resource limits under Doctrine of 8.
+    Includes real-time monitoring, enforcement mechanisms, and adaptive management."""@en ;
+    dct:creator "ByteStar Resource Management Team"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-resource-bounds"@en ;
+    owl:imports <http://bytestar.org/ontology/doctrine-of-8> ,
+                <http://bytestar.org/ontology/performance-measurement> ,
+                <http://bytestar.org/ontology/resource-allocation> ,
+                <http://bytestar.org/ontology/performance-benchmark> .
+
+#################################################################
+#    Resource Bounds Enforcement Core Classes
+#################################################################
+
+###  http://bytestar.org/ontology/resource-bounds#ResourceBoundsEnforcer
+:ResourceBoundsEnforcer rdf:type owl:Class ;
+                       rdfs:subClassOf res:ResourceAllocator ;
+                       rdfs:label "Resource Bounds Enforcer"@en ;
+                       rdfs:comment """Core enforcement engine ensuring all operations
+                       respect predefined resource consumption bounds."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#BoundsMonitor
+:BoundsMonitor rdf:type owl:Class ;
+              rdfs:subClassOf perf:ResourceTracker ;
+              rdfs:label "Bounds Monitor"@en ;
+              rdfs:comment """Real-time monitor tracking resource usage against
+              established bounds with immediate violation detection."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#BoundsViolationHandler
+:BoundsViolationHandler rdf:type owl:Class ;
+                       rdfs:subClassOf doctrine:ViolationHandler ;
+                       rdfs:label "Bounds Violation Handler"@en ;
+                       rdfs:comment """Handler for resource bounds violations with
+                       immediate containment and remediation actions."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#ResourceQuotaManager
+:ResourceQuotaManager rdf:type owl:Class ;
+                     rdfs:subClassOf res:ResourceAllocator ;
+                     rdfs:label "Resource Quota Manager"@en ;
+                     rdfs:comment """Manager for resource quotas ensuring fair
+                     allocation while enforcing bounds."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#AdaptiveBoundsController
+:AdaptiveBoundsController rdf:type owl:Class ;
+                         rdfs:subClassOf :ResourceBoundsEnforcer ;
+                         rdfs:label "Adaptive Bounds Controller"@en ;
+                         rdfs:comment """Adaptive controller adjusting resource bounds
+                         based on system conditions and workload patterns."""@en .
+
+#################################################################
+#    Resource Bound Types
+#################################################################
+
+###  http://bytestar.org/ontology/resource-bounds#ResourceBound
+:ResourceBound rdf:type owl:Class ;
+              rdfs:subClassOf res:ResourceQuota ;
+              rdfs:label "Resource Bound"@en ;
+              rdfs:comment """Specific bound on resource consumption with
+              enforcement mechanisms and violation actions."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#CpuBound
+:CpuBound rdf:type owl:Class ;
+         rdfs:subClassOf :ResourceBound ;
+         rdfs:label "CPU Bound"@en ;
+         rdfs:comment """Bound on CPU utilization ensuring operations
+         stay within processing limits."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#MemoryBound
+:MemoryBound rdf:type owl:Class ;
+            rdfs:subClassOf :ResourceBound ;
+            rdfs:label "Memory Bound"@en ;
+            rdfs:comment """Bound on memory consumption preventing
+            excessive memory usage."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#CacheBound
+:CacheBound rdf:type owl:Class ;
+           rdfs:subClassOf :ResourceBound ;
+           rdfs:label "Cache Bound"@en ;
+           rdfs:comment """Bound on cache utilization maintaining
+           cache efficiency and preventing thrashing."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#NetworkBound
+:NetworkBound rdf:type owl:Class ;
+             rdfs:subClassOf :ResourceBound ;
+             rdfs:label "Network Bound"@en ;
+             rdfs:comment """Bound on network bandwidth usage ensuring
+             fair sharing and preventing congestion."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#StorageBound
+:StorageBound rdf:type owl:Class ;
+             rdfs:subClassOf :ResourceBound ;
+             rdfs:label "Storage Bound"@en ;
+             rdfs:comment """Bound on storage I/O operations preventing
+             storage bottlenecks and maintaining performance."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#EnergyBound
+:EnergyBound rdf:type owl:Class ;
+            rdfs:subClassOf :ResourceBound ;
+            rdfs:label "Energy Bound"@en ;
+            rdfs:comment """Bound on energy consumption ensuring
+            sustainable operation within power limits."""@en .
+
+#################################################################
+#    Enforcement Mechanisms
+#################################################################
+
+###  http://bytestar.org/ontology/resource-bounds#EnforcementMechanism
+:EnforcementMechanism rdf:type owl:Class ;
+                     rdfs:subClassOf ba:SystemComponent ;
+                     rdfs:label "Enforcement Mechanism"@en ;
+                     rdfs:comment """Mechanism for enforcing resource bounds
+                     through various control strategies."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#ThrottlingMechanism
+:ThrottlingMechanism rdf:type owl:Class ;
+                    rdfs:subClassOf :EnforcementMechanism ;
+                    rdfs:label "Throttling Mechanism"@en ;
+                    rdfs:comment """Mechanism reducing resource usage by
+                    throttling operation execution rate."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#QueuingMechanism
+:QueuingMechanism rdf:type owl:Class ;
+                 rdfs:subClassOf :EnforcementMechanism ;
+                 rdfs:label "Queuing Mechanism"@en ;
+                 rdfs:comment """Mechanism using queues to control resource
+                 access and maintain bounds compliance."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#PreemptionMechanism
+:PreemptionMechanism rdf:type owl:Class ;
+                    rdfs:subClassOf :EnforcementMechanism ;
+                    rdfs:label "Preemption Mechanism"@en ;
+                    rdfs:comment """Mechanism preempting operations that
+                    exceed resource bounds."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#IsolationMechanism
+:IsolationMechanism rdf:type owl:Class ;
+                   rdfs:subClassOf :EnforcementMechanism ;
+                   rdfs:label "Isolation Mechanism"@en ;
+                   rdfs:comment """Mechanism providing resource isolation
+                   to prevent bound violations."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#TerminationMechanism
+:TerminationMechanism rdf:type owl:Class ;
+                     rdfs:subClassOf :EnforcementMechanism ;
+                     rdfs:label "Termination Mechanism"@en ;
+                     rdfs:comment """Mechanism terminating operations that
+                     severely violate resource bounds."""@en .
+
+#################################################################
+#    Bounds Violation Types
+#################################################################
+
+###  http://bytestar.org/ontology/resource-bounds#BoundsViolation
+:BoundsViolation rdf:type owl:Class ;
+                rdfs:subClassOf doctrine:OperationTermination ;
+                rdfs:label "Bounds Violation"@en ;
+                rdfs:comment """Violation of established resource bounds
+                with severity classification and remediation."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#SoftViolation
+:SoftViolation rdf:type owl:Class ;
+              rdfs:subClassOf :BoundsViolation ;
+              rdfs:label "Soft Violation"@en ;
+              rdfs:comment """Minor violation allowing graceful degradation
+              without immediate termination."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#HardViolation
+:HardViolation rdf:type owl:Class ;
+              rdfs:subClassOf :BoundsViolation ;
+              rdfs:label "Hard Violation"@en ;
+              rdfs:comment """Critical violation requiring immediate
+              action to prevent system instability."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#CascadingViolation
+:CascadingViolation rdf:type owl:Class ;
+                   rdfs:subClassOf :HardViolation ;
+                   rdfs:label "Cascading Violation"@en ;
+                   rdfs:comment """Violation that can cause cascading
+                   failures across multiple operations."""@en .
+
+#################################################################
+#    Monitoring & Measurement
+#################################################################
+
+###  http://bytestar.org/ontology/resource-bounds#BoundsMetric
+:BoundsMetric rdf:type owl:Class ;
+             rdfs:subClassOf perf:ResourceUtilizationMetric ;
+             rdfs:label "Bounds Metric"@en ;
+             rdfs:comment """Metric tracking resource usage relative
+             to established bounds."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#UtilizationRatio
+:UtilizationRatio rdf:type owl:Class ;
+                 rdfs:subClassOf :BoundsMetric ;
+                 rdfs:label "Utilization Ratio"@en ;
+                 rdfs:comment """Ratio of current resource usage to
+                 established bound (0.0-1.0)."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#ProximityWarning
+:ProximityWarning rdf:type owl:Class ;
+                 rdfs:subClassOf perf:WarningPerformanceAlert ;
+                 rdfs:label "Proximity Warning"@en ;
+                 rdfs:comment """Warning issued when resource usage
+                 approaches but hasn't exceeded bounds."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#BoundsAlert
+:BoundsAlert rdf:type owl:Class ;
+            rdfs:subClassOf perf:CriticalPerformanceAlert ;
+            rdfs:label "Bounds Alert"@en ;
+            rdfs:comment """Critical alert issued when resource bounds
+            are violated or about to be exceeded."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#ResourceTrend
+:ResourceTrend rdf:type owl:Class ;
+              rdfs:subClassOf perf:PerformanceTimeSeries ;
+              rdfs:label "Resource Trend"@en ;
+              rdfs:comment """Trend analysis of resource usage patterns
+              for predictive bounds management."""@en .
+
+#################################################################
+#    Adaptive Management
+#################################################################
+
+###  http://bytestar.org/ontology/resource-bounds#AdaptiveBoundsPolicy
+:AdaptiveBoundsPolicy rdf:type owl:Class ;
+                     rdfs:subClassOf res:AdaptationPolicy ;
+                     rdfs:label "Adaptive Bounds Policy"@en ;
+                     rdfs:comment """Policy governing adaptive adjustment
+                     of resource bounds based on conditions."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#BoundsScaler
+:BoundsScaler rdf:type owl:Class ;
+             rdfs:subClassOf res:DynamicScaling ;
+             rdfs:label "Bounds Scaler"@en ;
+             rdfs:comment """Component scaling resource bounds up or down
+             based on demand and availability."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#LoadBasedAdjustment
+:LoadBasedAdjustment rdf:type owl:Class ;
+                    rdfs:subClassOf :AdaptiveBoundsPolicy ;
+                    rdfs:label "Load-Based Adjustment"@en ;
+                    rdfs:comment """Adjustment policy based on current
+                    system load and utilization patterns."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#PredictiveAdjustment
+:PredictiveAdjustment rdf:type owl:Class ;
+                     rdfs:subClassOf :AdaptiveBoundsPolicy ;
+                     rdfs:label "Predictive Adjustment"@en ;
+                     rdfs:comment """Adjustment policy based on predicted
+                     future resource demand."""@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://bytestar.org/ontology/resource-bounds#enforcesBound
+:enforcesBound rdf:type owl:ObjectProperty ;
+              rdfs:domain :ResourceBoundsEnforcer ;
+              rdfs:range :ResourceBound ;
+              rdfs:label "enforces bound"@en ;
+              rdfs:comment "Relates enforcer to bounds being enforced."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#monitorsUsage
+:monitorsUsage rdf:type owl:ObjectProperty ;
+              rdfs:domain :BoundsMonitor ;
+              rdfs:range res:Resource ;
+              rdfs:label "monitors usage"@en ;
+              rdfs:comment "Relates monitor to resources being monitored."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#handlesViolation
+:handlesViolation rdf:type owl:ObjectProperty ;
+                 rdfs:domain :BoundsViolationHandler ;
+                 rdfs:range :BoundsViolation ;
+                 rdfs:label "handles violation"@en ;
+                 rdfs:comment "Relates handler to violations being handled."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#appliesMechanism
+:appliesMechanism rdf:type owl:ObjectProperty ;
+                 rdfs:domain :ResourceBoundsEnforcer ;
+                 rdfs:range :EnforcementMechanism ;
+                 rdfs:label "applies mechanism"@en ;
+                 rdfs:comment "Relates enforcer to mechanisms applied."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#triggersByViolation
+:triggersByViolation rdf:type owl:ObjectProperty ;
+                    rdfs:domain :BoundsViolation ;
+                    rdfs:range :EnforcementMechanism ;
+                    rdfs:label "triggers by violation"@en ;
+                    rdfs:comment "Relates violation to mechanisms triggered."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#measuresUtilization
+:measuresUtilization rdf:type owl:ObjectProperty ;
+                    rdfs:domain :BoundsMetric ;
+                    rdfs:range :ResourceBound ;
+                    rdfs:label "measures utilization"@en ;
+                    rdfs:comment "Relates metric to bounds being measured."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#adjustsBounds
+:adjustsBounds rdf:type owl:ObjectProperty ;
+              rdfs:domain :AdaptiveBoundsController ;
+              rdfs:range :ResourceBound ;
+              rdfs:label "adjusts bounds"@en ;
+              rdfs:comment "Relates controller to bounds being adjusted."@en .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+###  http://bytestar.org/ontology/resource-bounds#boundValue
+:boundValue rdf:type owl:DatatypeProperty ,
+                     owl:FunctionalProperty ;
+           rdfs:domain :ResourceBound ;
+           rdfs:range xsd:double ;
+           rdfs:label "bound value"@en ;
+           rdfs:comment "Numerical value of the resource bound."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#currentUsage
+:currentUsage rdf:type owl:DatatypeProperty ,
+                       owl:FunctionalProperty ;
+             rdfs:domain :BoundsMetric ;
+             rdfs:range xsd:double ;
+             rdfs:label "current usage"@en ;
+             rdfs:comment "Current resource usage value."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#utilizationPercentage
+:utilizationPercentage rdf:type owl:DatatypeProperty ,
+                                owl:FunctionalProperty ;
+                      rdfs:domain :UtilizationRatio ;
+                      rdfs:range xsd:double ;
+                      rdfs:label "utilization percentage"@en ;
+                      rdfs:comment "Resource utilization as percentage of bound."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#violationSeverity
+:violationSeverity rdf:type owl:DatatypeProperty ,
+                            owl:FunctionalProperty ;
+                  rdfs:domain :BoundsViolation ;
+                  rdfs:range xsd:string ;
+                  rdfs:label "violation severity"@en ;
+                  rdfs:comment "Severity level of bounds violation."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#violationMagnitude
+:violationMagnitude rdf:type owl:DatatypeProperty ,
+                             owl:FunctionalProperty ;
+                   rdfs:domain :BoundsViolation ;
+                   rdfs:range xsd:double ;
+                   rdfs:label "violation magnitude"@en ;
+                   rdfs:comment "Magnitude of bounds violation as ratio."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#warningThreshold
+:warningThreshold rdf:type owl:DatatypeProperty ,
+                           owl:FunctionalProperty ;
+                 rdfs:domain :ProximityWarning ;
+                 rdfs:range xsd:double ;
+                 rdfs:label "warning threshold"@en ;
+                 rdfs:comment "Threshold for issuing proximity warnings."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#enforcementAction
+:enforcementAction rdf:type owl:DatatypeProperty ,
+                            owl:FunctionalProperty ;
+                  rdfs:domain :EnforcementMechanism ;
+                  rdfs:range xsd:string ;
+                  rdfs:label "enforcement action"@en ;
+                  rdfs:comment "Type of action taken by enforcement mechanism."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#throttleRate
+:throttleRate rdf:type owl:DatatypeProperty ,
+                       owl:FunctionalProperty ;
+             rdfs:domain :ThrottlingMechanism ;
+             rdfs:range xsd:double ;
+             rdfs:label "throttle rate"@en ;
+             rdfs:comment "Rate reduction applied by throttling (0.0-1.0)."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#queueCapacity
+:queueCapacity rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+              rdfs:domain :QueuingMechanism ;
+              rdfs:range xsd:positiveInteger ;
+              rdfs:label "queue capacity"@en ;
+              rdfs:comment "Maximum capacity of the enforcement queue."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#preemptionDelay
+:preemptionDelay rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :PreemptionMechanism ;
+                rdfs:range xsd:nonNegativeInteger ;
+                rdfs:label "preemption delay"@en ;
+                rdfs:comment "Delay before preemption action in ticks."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#isolationStrength
+:isolationStrength rdf:type owl:DatatypeProperty ,
+                            owl:FunctionalProperty ;
+                  rdfs:domain :IsolationMechanism ;
+                  rdfs:range xsd:double ;
+                  rdfs:label "isolation strength"@en ;
+                  rdfs:comment "Strength of resource isolation (0.0-1.0)."@en .
+
+###  http://bytestar.org/ontology/resource-bounds#adjustmentFactor
+:adjustmentFactor rdf:type owl:DatatypeProperty ,
+                           owl:FunctionalProperty ;
+                 rdfs:domain :AdaptiveBoundsController ;
+                 rdfs:range xsd:double ;
+                 rdfs:label "adjustment factor"@en ;
+                 rdfs:comment "Factor for adaptive bounds adjustment."@en .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+###  http://bytestar.org/ontology/resource-bounds#ResourceBoundShape
+:ResourceBoundShape rdf:type sh:NodeShape ;
+                   sh:targetClass :ResourceBound ;
+                   rdfs:label "Resource Bound Shape"@en ;
+                   rdfs:comment "Validates resource bound configuration."@en ;
+                   sh:property [
+                       sh:path :boundValue ;
+                       sh:datatype xsd:double ;
+                       sh:minExclusive 0.0 ;
+                       sh:minCount 1 ;
+                       sh:maxCount 1 ;
+                       sh:message "Resource bound value must be positive."@en
+                   ] .
+
+###  http://bytestar.org/ontology/resource-bounds#UtilizationRatioShape
+:UtilizationRatioShape rdf:type sh:NodeShape ;
+                      sh:targetClass :UtilizationRatio ;
+                      rdfs:label "Utilization Ratio Shape"@en ;
+                      rdfs:comment "Validates utilization ratio measurements."@en ;
+                      sh:property [
+                          sh:path :utilizationPercentage ;
+                          sh:datatype xsd:double ;
+                          sh:minInclusive 0.0 ;
+                          sh:maxInclusive 150.0 ; # Allow 50% over-utilization for detection
+                          sh:minCount 1 ;
+                          sh:maxCount 1 ;
+                          sh:message "Utilization percentage must be between 0.0% and 150.0%."@en
+                      ] .
+
+###  http://bytestar.org/ontology/resource-bounds#BoundsViolationShape
+:BoundsViolationShape rdf:type sh:NodeShape ;
+                     sh:targetClass :BoundsViolation ;
+                     rdfs:label "Bounds Violation Shape"@en ;
+                     rdfs:comment "Validates bounds violation properties."@en ;
+                     sh:property [
+                         sh:path :violationSeverity ;
+                         sh:datatype xsd:string ;
+                         sh:in ("LOW" "MEDIUM" "HIGH" "CRITICAL") ;
+                         sh:minCount 1 ;
+                         sh:maxCount 1 ;
+                         sh:message "Violation severity must be LOW, MEDIUM, HIGH, or CRITICAL."@en
+                     ] ;
+                     sh:property [
+                         sh:path :violationMagnitude ;
+                         sh:datatype xsd:double ;
+                         sh:minExclusive 1.0 ; # Must be over-bound to be violation
+                         sh:message "Violation magnitude must be greater than 1.0."@en
+                     ] .
+
+###  http://bytestar.org/ontology/resource-bounds#ThrottlingMechanismShape
+:ThrottlingMechanismShape rdf:type sh:NodeShape ;
+                         sh:targetClass :ThrottlingMechanism ;
+                         rdfs:label "Throttling Mechanism Shape"@en ;
+                         rdfs:comment "Validates throttling mechanism configuration."@en ;
+                         sh:property [
+                             sh:path :throttleRate ;
+                             sh:datatype xsd:double ;
+                             sh:minInclusive 0.0 ;
+                             sh:maxInclusive 1.0 ;
+                             sh:minCount 1 ;
+                             sh:maxCount 1 ;
+                             sh:message "Throttle rate must be between 0.0 and 1.0."@en
+                         ] .
+
+###  http://bytestar.org/ontology/resource-bounds#QueuingMechanismShape
+:QueuingMechanismShape rdf:type sh:NodeShape ;
+                      sh:targetClass :QueuingMechanism ;
+                      rdfs:label "Queuing Mechanism Shape"@en ;
+                      rdfs:comment "Validates queuing mechanism configuration."@en ;
+                      sh:property [
+                          sh:path :queueCapacity ;
+                          sh:datatype xsd:positiveInteger ;
+                          sh:minInclusive 1 ;
+                          sh:maxInclusive 10000 ; # Reasonable queue limits
+                          sh:minCount 1 ;
+                          sh:maxCount 1 ;
+                          sh:message "Queue capacity must be between 1 and 10000."@en
+                      ] .
+
+###  http://bytestar.org/ontology/resource-bounds#PreemptionMechanismShape
+:PreemptionMechanismShape rdf:type sh:NodeShape ;
+                         sh:targetClass :PreemptionMechanism ;
+                         rdfs:label "Preemption Mechanism Shape"@en ;
+                         rdfs:comment "Validates preemption mechanism configuration."@en ;
+                         sh:property [
+                             sh:path :preemptionDelay ;
+                             sh:datatype xsd:nonNegativeInteger ;
+                             sh:maxInclusive 8 ; # Must be within Doctrine of 8
+                             sh:minCount 1 ;
+                             sh:maxCount 1 ;
+                             sh:message "Preemption delay must not exceed 8 ticks."@en
+                         ] .
+
+###  http://bytestar.org/ontology/resource-bounds#IsolationMechanismShape
+:IsolationMechanismShape rdf:type sh:NodeShape ;
+                        sh:targetClass :IsolationMechanism ;
+                        rdfs:label "Isolation Mechanism Shape"@en ;
+                        rdfs:comment "Validates isolation mechanism configuration."@en ;
+                        sh:property [
+                            sh:path :isolationStrength ;
+                            sh:datatype xsd:double ;
+                            sh:minInclusive 0.0 ;
+                            sh:maxInclusive 1.0 ;
+                            sh:minCount 1 ;
+                            sh:maxCount 1 ;
+                            sh:message "Isolation strength must be between 0.0 and 1.0."@en
+                        ] .
+
+###  http://bytestar.org/ontology/resource-bounds#ProximityWarningShape
+:ProximityWarningShape rdf:type sh:NodeShape ;
+                      sh:targetClass :ProximityWarning ;
+                      rdfs:label "Proximity Warning Shape"@en ;
+                      rdfs:comment "Validates proximity warning configuration."@en ;
+                      sh:property [
+                          sh:path :warningThreshold ;
+                          sh:datatype xsd:double ;
+                          sh:minInclusive 0.5 ; # Warn at 50% utilization minimum
+                          sh:maxInclusive 0.95 ; # Warn before 95% utilization
+                          sh:minCount 1 ;
+                          sh:maxCount 1 ;
+                          sh:message "Warning threshold must be between 0.5 and 0.95."@en
+                      ] .
+
+#################################################################
+#    Bounds Enforcement Axioms
+#################################################################
+
+# Axiom: All crystal operations must have resource bounds
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           ba:CrystalOperation
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :enforcesBound ;
+               owl:someValuesFrom :ResourceBound
+           ]
+       )
+   ] .
+
+# Axiom: Hard violations must trigger immediate enforcement
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :HardViolation
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :triggersByViolation ;
+               owl:someValuesFrom :EnforcementMechanism
+           ]
+       )
+   ] .
+
+# Axiom: CPU bounds must respect Doctrine of 8 tick limits
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :CpuBound
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :boundValue ;
+               owl:someValuesFrom [
+                   rdf:type rdfs:Datatype ;
+                   owl:onDatatype xsd:double ;
+                   owl:withRestrictions (
+                       [ xsd:maxInclusive "8.0"^^xsd:double ] # 8 ticks maximum
+                   )
+               ]
+           ]
+       )
+   ] .
+
+#################################################################
+#    Predefined Resource Bounds
+#################################################################
+
+###  http://bytestar.org/ontology/resource-bounds#GlobalCpuBound
+:GlobalCpuBound rdf:type owl:NamedIndividual ,
+                         :CpuBound ;
+               rdfs:label "Global CPU Bound"@en ;
+               rdfs:comment """Global CPU utilization bound ensuring no operation
+               exceeds 8 ticks of CPU time."""@en ;
+               :boundValue "8.0"^^xsd:double . # 8 ticks maximum
+
+###  http://bytestar.org/ontology/resource-bounds#GlobalMemoryBound
+:GlobalMemoryBound rdf:type owl:NamedIndividual ,
+                            :MemoryBound ;
+                  rdfs:label "Global Memory Bound"@en ;
+                  rdfs:comment """Global memory bound limiting per-operation
+                  memory consumption."""@en ;
+                  :boundValue "1073741824.0"^^xsd:double . # 1GB maximum
+
+###  http://bytestar.org/ontology/resource-bounds#L1CacheBound
+:L1CacheBound rdf:type owl:NamedIndividual ,
+                       :CacheBound ;
+             rdfs:label "L1 Cache Bound"@en ;
+             rdfs:comment """L1 cache utilization bound maintaining cache
+             efficiency for hot operations."""@en ;
+             :boundValue "32768.0"^^xsd:double . # 32KB typical L1 size
+
+###  http://bytestar.org/ontology/resource-bounds#NetworkBandwidthBound
+:NetworkBandwidthBound rdf:type owl:NamedIndividual ,
+                                :NetworkBound ;
+                      rdfs:label "Network Bandwidth Bound"@en ;
+                      rdfs:comment """Network bandwidth bound preventing
+                      congestion and ensuring fair sharing."""@en ;
+                      :boundValue "1000000000.0"^^xsd:double . # 1Gbps
+
+###  http://bytestar.org/ontology/resource-bounds#GlobalResourceBoundsEnforcer
+:GlobalResourceBoundsEnforcer rdf:type owl:NamedIndividual ,
+                                       :ResourceBoundsEnforcer ;
+                             rdfs:label "Global Resource Bounds Enforcer"@en ;
+                             rdfs:comment """Primary enforcer for all resource bounds
+                             across the ByteStar system."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#RealtimeBoundsMonitor
+:RealtimeBoundsMonitor rdf:type owl:NamedIndividual ,
+                                :BoundsMonitor ;
+                      rdfs:label "Realtime Bounds Monitor"@en ;
+                      rdfs:comment """High-frequency monitor tracking resource
+                      usage in real-time."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#CriticalViolationHandler
+:CriticalViolationHandler rdf:type owl:NamedIndividual ,
+                                   :BoundsViolationHandler ;
+                         rdfs:label "Critical Violation Handler"@en ;
+                         rdfs:comment """Handler for critical resource bounds
+                         violations requiring immediate action."""@en .
+
+###  http://bytestar.org/ontology/resource-bounds#AdaptiveController
+:AdaptiveController rdf:type owl:NamedIndividual ,
+                             :AdaptiveBoundsController ;
+                   rdfs:label "Adaptive Bounds Controller"@en ;
+                   rdfs:comment """Adaptive controller dynamically adjusting
+                   bounds based on system conditions."""@en ;
+                   :adjustmentFactor "0.1"^^xsd:double . # 10% adjustment increments
+
+#################################################################
+#    Example Enforcement Scenarios
+#################################################################
+
+# Example CPU utilization measurement
+:ExampleCpuUtilization rdf:type owl:NamedIndividual ,
+                                :UtilizationRatio ;
+                      rdfs:label "Example CPU Utilization"@en ;
+                      :utilizationPercentage "75.0"^^xsd:double ;
+                      :currentUsage "6.0"^^xsd:double ; # 6 ticks out of 8
+                      dct:created "2025-08-23T12:00:00Z"^^xsd:dateTime .
+
+# Example proximity warning
+:ExampleProximityWarning rdf:type owl:NamedIndividual ,
+                                  :ProximityWarning ;
+                        rdfs:label "Example CPU Proximity Warning"@en ;
+                        :warningThreshold "0.80"^^xsd:double ; # Warn at 80%
+                        dct:created "2025-08-23T12:00:01Z"^^xsd:dateTime .
+
+# Example bounds violation
+:ExampleBoundsViolation rdf:type owl:NamedIndividual ,
+                                 :HardViolation ;
+                       rdfs:label "Example Hard CPU Violation"@en ;
+                       :violationSeverity "HIGH" ;
+                       :violationMagnitude "1.25"^^xsd:double ; # 125% of bound
+                       dct:created "2025-08-23T12:00:02Z"^^xsd:dateTime .
+
+# Example throttling mechanism
+:ExampleThrottling rdf:type owl:NamedIndividual ,
+                            :ThrottlingMechanism ;
+                  rdfs:label "Example CPU Throttling"@en ;
+                  :throttleRate "0.5"^^xsd:double ; # Reduce to 50% rate
+                  :enforcementAction "THROTTLE" ;
+                  dct:created "2025-08-23T12:00:03Z"^^xsd:dateTime .

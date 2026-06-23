@@ -1,0 +1,120 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+
+# ============================================================================
+# GitVan Core Ontology SHACL Shapes
+# ============================================================================
+
+# Shape for Workflow definitions
+gv:WorkflowShape a sh:NodeShape ;
+    sh:targetClass gv:Workflow ;
+    sh:name "GitVan Workflow Shape" ;
+    sh:description "Validates that workflows have required properties and valid structure" ;
+    sh:property [
+        sh:path dct:identifier ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Workflow must have a unique identifier" ;
+    ] ;
+    sh:property [
+        sh:path dct:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Workflow must have a title" ;
+    ] ;
+    sh:property [
+        sh:path gv:hasPredicate ;
+        sh:minCount 1 ;
+        sh:message "Workflow must define at least one predicate" ;
+    ] ;
+    sh:property [
+        sh:path dct:created ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Workflow creation timestamp must be in ISO 8601 format" ;
+    ] .
+
+# Shape for Predicate definitions
+gv:PredicateShape a sh:NodeShape ;
+    sh:targetClass gv:Predicate ;
+    sh:name "GitVan Predicate Shape" ;
+    sh:description "Validates that predicates have required type and definition" ;
+    sh:property [
+        sh:path dct:identifier ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Predicate must have a unique identifier" ;
+    ] ;
+    sh:property [
+        sh:path gv:predicateType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:pattern "(ask|selectThreshold|resultDelta|shaclAllConform|construct|describe|federated|temporal|n3Rule|composite)" ;
+        sh:message "Predicate must have a valid type (ask, selectThreshold, resultDelta, shaclAllConform, construct, describe, federated, temporal, n3Rule, or composite)" ;
+    ] ;
+    sh:property [
+        sh:path gv:hasDefinition ;
+        sh:minCount 1 ;
+        sh:message "Predicate must have a definition" ;
+    ] .
+
+# Shape for Action definitions
+gv:ActionShape a sh:NodeShape ;
+    sh:targetClass gv:Action ;
+    sh:name "GitVan Action Shape" ;
+    sh:description "Validates that actions have required properties and valid execution context" ;
+    sh:property [
+        sh:path dct:identifier ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Action must have a unique identifier" ;
+    ] ;
+    sh:property [
+        sh:path dct:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Action must have a title" ;
+    ] ;
+    sh:property [
+        sh:path gv:actionType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:pattern "(exec|script|workflow|query|construct)" ;
+        sh:message "Action must have a valid type" ;
+    ] ;
+    sh:property [
+        sh:path gv:hasActionDefinition ;
+        sh:minCount 1 ;
+        sh:message "Action must have a definition" ;
+    ] .
+
+# Shape for Graph Hook definitions
+gh:HookShape a sh:NodeShape ;
+    sh:targetClass gh:Hook ;
+    sh:name "GitVan Graph Hook Shape" ;
+    sh:description "Validates that hooks have required trigger and action properties" ;
+    sh:property [
+        sh:path dct:identifier ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Hook must have a unique identifier" ;
+    ] ;
+    sh:property [
+        sh:path gh:hasPredicate ;
+        sh:minCount 1 ;
+        sh:message "Hook must define a trigger predicate" ;
+    ] ;
+    sh:property [
+        sh:path gh:hasAction ;
+        sh:minCount 1 ;
+        sh:message "Hook must define at least one action to execute" ;
+    ] ;
+    sh:property [
+        sh:path dct:created ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Hook creation timestamp must be in ISO 8601 format if present" ;
+    ] .

@@ -1,0 +1,103 @@
+@prefix proj: <https://ggen.io/ontology/projects#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Classes
+proj:RustProject a rdfs:Class ;
+    rdfs:label "RustProject" ;
+    rdfs:comment "A Rust project specification" .
+
+proj:Dependency a rdfs:Class ;
+    rdfs:label "Dependency" ;
+    rdfs:comment "A project dependency" .
+
+proj:Directory a rdfs:Class ;
+    rdfs:label "Directory" ;
+    rdfs:comment "Project directory structure" .
+
+proj:TestPattern a rdfs:Class ;
+    rdfs:label "TestPattern" ;
+    rdfs:comment "Testing pattern" .
+
+proj:GitignoreEntry a rdfs:Class ;
+    rdfs:label "GitignoreEntry" ;
+    rdfs:comment "Gitignore pattern entry" .
+
+# Properties
+proj:name a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name" .
+
+proj:version a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Version" .
+
+proj:description a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description" .
+
+proj:documentation a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Documentation" .
+
+proj:purpose a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Purpose" .
+
+proj:pattern a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Pattern" .
+
+# SHACL Validation
+proj:RustProjectShape a sh:NodeShape ;
+    sh:targetClass proj:RustProject ;
+    sh:property [
+        sh:path proj:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path proj:version ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] .
+
+# Instances
+proj:example-project a proj:RustProject ;
+    proj:name "example-app" ;
+    proj:version "0.1.0" ;
+    proj:description "An example Rust project" ;
+    proj:documentation "This is a basic Rust project" .
+
+proj:dep-serde a proj:Dependency ;
+    proj:name "serde" ;
+    proj:version "1.0" .
+
+proj:dep-tokio a proj:Dependency ;
+    proj:name "tokio" ;
+    proj:version "1.0" .
+
+proj:dir-src a proj:Directory ;
+    proj:name "src" ;
+    proj:purpose "Source code" .
+
+proj:dir-tests a proj:Directory ;
+    proj:name "tests" ;
+    proj:purpose "Integration tests" .
+
+proj:test-unit a proj:TestPattern ;
+    proj:name "unit tests" ;
+    proj:description "Test individual functions" .
+
+proj:test-integration a proj:TestPattern ;
+    proj:name "integration tests" ;
+    proj:description "Test module interactions" .
+
+proj:ignore-target a proj:GitignoreEntry ;
+    proj:pattern "/target" .
+
+proj:ignore-lock a proj:GitignoreEntry ;
+    proj:pattern "Cargo.lock" .

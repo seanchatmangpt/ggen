@@ -1,0 +1,14 @@
+PREFIX cap:  <https://chatmangpt.com/ontologies/o-star/cap:>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# For a given domain capability, return the classification criteria for each
+# SurfaceKind so O* can evaluate which kind is correct.
+# Bind ?candidateKind externally or leave unbound to see all classification rules.
+
+SELECT ?kind ?kindLabel ?effectRequired ?scopeNote WHERE {
+  ?kind a cap:SurfaceKind ;
+        rdfs:label   ?kindLabel ;
+        skos:scopeNote ?scopeNote .
+  OPTIONAL { ?kind cap:requiresEffectClass ?effectRequired }
+} ORDER BY ?kindLabel

@@ -1,0 +1,95 @@
+@prefix test: <http://test.example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ddd: <http://ggen-mcp.dev/ontology/ddd#> .
+
+# User Aggregate Root
+test:User a owl:Class ;
+    rdfs:subClassOf ddd:AggregateRoot ;
+    rdfs:label "User"@en ;
+    rdfs:comment "User aggregate root for managing user lifecycle"@en ;
+    ddd:hasProperty test:userId, test:userName, test:userEmail, test:userCreatedAt .
+
+# User ID Value Object
+test:userId a owl:ObjectProperty ;
+    rdfs:domain test:User ;
+    rdfs:range test:UserId ;
+    rdfs:label "User ID"@en ;
+    ddd:required true .
+
+test:UserId a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "User ID"@en ;
+    ddd:hasProperty test:userIdValue .
+
+test:userIdValue a owl:DatatypeProperty ;
+    rdfs:domain test:UserId ;
+    rdfs:range xsd:string .
+
+# User Name
+test:userName a owl:DatatypeProperty ;
+    rdfs:domain test:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "User Name"@en ;
+    ddd:required true ;
+    ddd:maxLength 255 .
+
+# User Email Value Object
+test:userEmail a owl:ObjectProperty ;
+    rdfs:domain test:User ;
+    rdfs:range test:Email ;
+    rdfs:label "User Email"@en ;
+    ddd:required true .
+
+test:Email a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Email"@en ;
+    ddd:hasProperty test:emailValue .
+
+test:emailValue a owl:DatatypeProperty ;
+    rdfs:domain test:Email ;
+    rdfs:range xsd:string ;
+    ddd:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" .
+
+# User Created Timestamp
+test:userCreatedAt a owl:DatatypeProperty ;
+    rdfs:domain test:User ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Created At"@en ;
+    ddd:required true .
+
+# User Commands
+test:CreateUser a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Create User Command"@en ;
+    ddd:hasProperty test:createUserName, test:createUserEmail .
+
+test:createUserName a owl:DatatypeProperty ;
+    rdfs:domain test:CreateUser ;
+    rdfs:range xsd:string .
+
+test:createUserEmail a owl:DatatypeProperty ;
+    rdfs:domain test:CreateUser ;
+    rdfs:range xsd:string .
+
+# User Events
+test:UserCreated a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "User Created Event"@en ;
+    ddd:hasProperty test:userCreatedUserId, test:userCreatedTimestamp .
+
+test:userCreatedUserId a owl:DatatypeProperty ;
+    rdfs:domain test:UserCreated ;
+    rdfs:range xsd:string .
+
+test:userCreatedTimestamp a owl:DatatypeProperty ;
+    rdfs:domain test:UserCreated ;
+    rdfs:range xsd:dateTime .
+
+# User Repository
+test:UserRepository a owl:Class ;
+    rdfs:subClassOf ddd:Repository ;
+    rdfs:label "User Repository"@en ;
+    ddd:forAggregate test:User .

@@ -1,0 +1,71 @@
+@prefix : <https://bytestar.org/ontology/ahi-fabrication-calculus#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+: a owl:Ontology ;
+  rdfs:label "AHI Fabrication Calculus - A Dark 80/20 Ontology" ;
+  rdfs:comment "This ontology defines validity not by origin, but by structure and causality. An artifact is valid only if it has a perfect, unbroken chain of cryptographic provenance and its very structure constitutes a proof of its integrity." .
+
+### --- Core Entities ---
+
+:Artifact a owl:Class ;
+  rdfs:comment "The set of all things that exist in the system." .
+
+:ValidArtifact a owl:Class ;
+  rdfs:comment "A physically and logically sound artifact." .
+
+:AnomalousArtifact a owl:Class ;
+  rdfs:comment "An artifact that is structurally or causally flawed. An error state." .
+
+:GenesisArtifact a owl:Class ;
+    rdfs:subClassOf :ValidArtifact ;
+    rdfs:comment "The first artifact, the only one that requires no prior cause." .
+
+### --- Core Properties ---
+
+:precedesInCausalChain a owl:ObjectProperty, owl:AsymmetricProperty, owl:IrreflexiveProperty ;
+    rdfs:label "precedes in causal chain" .
+
+:hasProof a owl:DatatypeProperty .
+
+### --- Axiom 1: The Law of Excluded Anomaly (using owl:disjointUnionOf) ---
+# This axiom states that the universe of Artifacts is composed of the DISJOINT sets
+# of ValidArtifacts and AnomalousArtifacts. A thing is either valid or an anomaly.
+# There is no third state. This creates a binary, provable reality.
+:Artifact owl:disjointUnionOf ( :ValidArtifact :AnomalousArtifact ) .
+
+### --- Axiom 2: The Law of Causal Integrity (using owl:cardinality) ---
+# This axiom defines time and cause. Every valid artifact that is NOT the first artifact
+# must be preceded by exactly one other valid artifact. This makes forks, uncaused events,
+# or merged histories a logical impossibility.
+[ a owl:Class ;
+  owl:intersectionOf (
+    :ValidArtifact
+    [ a owl:Class ; owl:complementOf :GenesisArtifact ]
+  ) ]
+  rdfs:subClassOf [ 
+    a owl:Restriction ;
+    owl:onProperty :precedesInCausalChain ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger 
+  ] .
+
+### --- Axiom 3: The Law of Structural Proof (using custom xsd:pattern) ---
+# This axiom defines a valid artifact's structure. It MUST contain a proof in a specific,
+# verifiable format. Validity is not an external label; it is an intrinsic, structural property.
+
+# 1. Define a new datatype for a PQC-sealed cryptographic receipt.
+:PQCSealedReceipt a rdfs:Datatype ;
+  owl:onDatatype xsd:string ;
+  owl:withRestrictions ([
+    xsd:pattern "blake3-256:[a-f0-9]{64}:pqc-sig:[a-f0-9]{50,}"
+  ]) .
+
+# 2. State that all ValidArtifacts must have exactly one such proof.
+:ValidArtifact rdfs:subClassOf [ 
+    a owl:Restriction ;
+    owl:onProperty :hasProof ;
+    owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+    owl:onDataRange :PQCSealedReceipt
+] .

@@ -1,0 +1,187 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix security: <http://example.org/security/mfa#> .
+
+# ============================================================================
+# Security MFA (Multi-Factor Authentication) Ontology
+# ============================================================================
+
+<http://example.org/security/mfa> a owl:Ontology ;
+    rdfs:label "Security Multi-Factor Authentication Ontology" ;
+    rdfs:comment "Ontology for defining multi-factor authentication controls" ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# CORE CLASSES
+# ============================================================================
+
+security:SecurityControl a owl:Class ;
+    rdfs:label "Security Control" ;
+    rdfs:comment "Base security control" ;
+    rdfs:subClassOf owl:Thing .
+
+security:AuthenticationControl a owl:Class ;
+    rdfs:label "Authentication Control" ;
+    rdfs:comment "Authentication and verification controls" ;
+    rdfs:subClassOf security:SecurityControl .
+
+security:MultiFactorAuthentication a owl:Class ;
+    rdfs:label "Multi-Factor Authentication (MFA)" ;
+    rdfs:comment "Requires multiple verification methods" ;
+    rdfs:subClassOf security:AuthenticationControl .
+
+security:AuthenticationFactor a owl:Class ;
+    rdfs:label "Authentication Factor" ;
+    rdfs:comment "Single authentication method" ;
+    rdfs:subClassOf owl:Thing .
+
+security:KnowledgeFactor a owl:Class ;
+    rdfs:label "Knowledge Factor" ;
+    rdfs:comment "Something you know (password, PIN)" ;
+    rdfs:subClassOf security:AuthenticationFactor .
+
+security:PossessionFactor a owl:Class ;
+    rdfs:label "Possession Factor" ;
+    rdfs:comment "Something you have (token, phone)" ;
+    rdfs:subClassOf security:AuthenticationFactor .
+
+security:BiometricFactor a owl:Class ;
+    rdfs:label "Biometric Factor" ;
+    rdfs:comment "Something you are (fingerprint, face)" ;
+    rdfs:subClassOf security:AuthenticationFactor .
+
+security:Role a owl:Class ;
+    rdfs:label "Role" ;
+    rdfs:comment "User or system role" ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# OBJECT PROPERTIES
+# ============================================================================
+
+security:requiresMFA a owl:ObjectProperty ;
+    rdfs:label "requires MFA" ;
+    rdfs:comment "Role or resource requires MFA" ;
+    rdfs:domain security:Role ;
+    rdfs:range security:MultiFactorAuthentication .
+
+security:usesFactor a owl:ObjectProperty ;
+    rdfs:label "uses Factor" ;
+    rdfs:comment "MFA uses this authentication factor" ;
+    rdfs:domain security:MultiFactorAuthentication ;
+    rdfs:range security:AuthenticationFactor .
+
+security:appliesTo a owl:ObjectProperty ;
+    rdfs:label "applies To" ;
+    rdfs:comment "Security control applies to this role" ;
+    rdfs:domain security:SecurityControl ;
+    rdfs:range security:Role .
+
+# ============================================================================
+# DATATYPE PROPERTIES
+# ============================================================================
+
+security:controlId a owl:DatatypeProperty ;
+    rdfs:label "control ID" ;
+    rdfs:comment "Unique identifier for security control" ;
+    rdfs:domain security:SecurityControl ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+security:controlName a owl:DatatypeProperty ;
+    rdfs:label "control Name" ;
+    rdfs:comment "Name of the security control" ;
+    rdfs:domain security:SecurityControl ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+security:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:comment "Description of the control requirement" ;
+    rdfs:domain security:SecurityControl ;
+    rdfs:range xsd:string .
+
+security:mfaId a owl:DatatypeProperty ;
+    rdfs:label "MFA ID" ;
+    rdfs:comment "Unique identifier for MFA configuration" ;
+    rdfs:domain security:MultiFactorAuthentication ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+security:requiredFactorCount a owl:DatatypeProperty ;
+    rdfs:label "required Factor Count" ;
+    rdfs:comment "Number of factors required (2 or 3)" ;
+    rdfs:domain security:MultiFactorAuthentication ;
+    rdfs:range xsd:integer ;
+    a owl:FunctionalProperty .
+
+security:factorName a owl:DatatypeProperty ;
+    rdfs:label "factor Name" ;
+    rdfs:comment "Name of the authentication factor" ;
+    rdfs:domain security:AuthenticationFactor ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+security:factorType a owl:DatatypeProperty ;
+    rdfs:label "factor Type" ;
+    rdfs:comment "Type of factor (password, TOTP, SMS, biometric)" ;
+    rdfs:domain security:AuthenticationFactor ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+security:roleName a owl:DatatypeProperty ;
+    rdfs:label "role Name" ;
+    rdfs:comment "Name of the role" ;
+    rdfs:domain security:Role ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+security:roleLevel a owl:DatatypeProperty ;
+    rdfs:label "role Level" ;
+    rdfs:comment "Role privilege level (user, admin, super-admin)" ;
+    rdfs:domain security:Role ;
+    rdfs:range xsd:string .
+
+security:sessionTimeout a owl:DatatypeProperty ;
+    rdfs:label "session Timeout" ;
+    rdfs:comment "Session timeout in minutes" ;
+    rdfs:domain security:MultiFactorAuthentication ;
+    rdfs:range xsd:integer .
+
+security:requiresHardwareToken a owl:DatatypeProperty ;
+    rdfs:label "requires Hardware Token" ;
+    rdfs:comment "Whether hardware token is required" ;
+    rdfs:domain security:MultiFactorAuthentication ;
+    rdfs:range xsd:boolean .
+
+security:allowedProtocol a owl:DatatypeProperty ;
+    rdfs:label "allowed Protocol" ;
+    rdfs:comment "Allowed authentication protocol (SAML, OAuth2, OIDC)" ;
+    rdfs:domain security:AuthenticationControl ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# CARDINALITY CONSTRAINTS
+# ============================================================================
+
+security:MFAConstraint1 a owl:Restriction ;
+    owl:onClass security:MultiFactorAuthentication ;
+    owl:onProperty security:usesFactor ;
+    owl:minCardinality 2 .
+
+security:MFAConstraint2 a owl:Restriction ;
+    owl:onClass security:MultiFactorAuthentication ;
+    owl:onProperty security:requiredFactorCount ;
+    owl:cardinality 1 .
+
+security:RoleConstraint1 a owl:Restriction ;
+    owl:onClass security:Role ;
+    owl:onProperty security:roleName ;
+    owl:cardinality 1 .
+
+security:ControlConstraint1 a owl:Restriction ;
+    owl:onClass security:SecurityControl ;
+    owl:onProperty security:controlId ;
+    owl:cardinality 1 .

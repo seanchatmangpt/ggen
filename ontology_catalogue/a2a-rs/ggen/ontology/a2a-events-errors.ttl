@@ -1,0 +1,270 @@
+@prefix a2a:  <https://ggen.io/ontology/a2a/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+
+# =============================================================================
+# A2A Protocol v0.3.0 - Events, Errors, Notifications, and Security Instances
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Events
+# -----------------------------------------------------------------------------
+
+a2a:TaskStatusUpdateEvent
+    a                   a2a:Event ;
+    rdfs:label          "TaskStatusUpdateEvent" ;
+    rdfs:comment        "Sent by server during sendStream or subscribe requests to report task status changes." ;
+    a2a:kind            "status-update" ;
+    a2a:requiredField   "contextId" , "final" , "kind" , "status" , "taskId" ;
+    a2a:optionalField   "metadata" ;
+    a2a:statusRef       "task.json#/definitions/TaskStatus" .
+
+a2a:TaskArtifactUpdateEvent
+    a                   a2a:Event ;
+    rdfs:label          "TaskArtifactUpdateEvent" ;
+    rdfs:comment        "Sent by server during sendStream or subscribe requests to deliver generated artifacts." ;
+    a2a:kind            "artifact-update" ;
+    a2a:requiredField   "artifact" , "contextId" , "kind" , "taskId" ;
+    a2a:optionalField   "append" , "lastChunk" , "metadata" ;
+    a2a:artifactRef     "task.json#/definitions/Artifact" .
+
+# -----------------------------------------------------------------------------
+# Error Codes - JSON-RPC Standard Errors
+# -----------------------------------------------------------------------------
+
+a2a:JSONParseError
+    a                   a2a:ErrorCode ;
+    rdfs:label          "JSONParseError" ;
+    a2a:code            "-32700"^^xsd:integer ;
+    a2a:message         "Invalid JSON payload" ;
+    rdfs:comment        "JSON-RPC error indicating invalid JSON was received by the server." .
+
+a2a:InvalidRequest
+    a                   a2a:ErrorCode ;
+    rdfs:label          "InvalidRequest" ;
+    a2a:code            "-32600"^^xsd:integer ;
+    a2a:message         "Request payload validation error" ;
+    rdfs:comment        "JSON-RPC error indicating the JSON sent is not a valid Request object." .
+
+a2a:MethodNotFound
+    a                   a2a:ErrorCode ;
+    rdfs:label          "MethodNotFound" ;
+    a2a:code            "-32601"^^xsd:integer ;
+    a2a:message         "Method not found" ;
+    rdfs:comment        "JSON-RPC error indicating the method does not exist or is not available." .
+
+a2a:InvalidParams
+    a                   a2a:ErrorCode ;
+    rdfs:label          "InvalidParams" ;
+    a2a:code            "-32602"^^xsd:integer ;
+    a2a:message         "Invalid parameters" ;
+    rdfs:comment        "JSON-RPC error indicating invalid method parameter(s)." .
+
+a2a:InternalError
+    a                   a2a:ErrorCode ;
+    rdfs:label          "InternalError" ;
+    a2a:code            "-32603"^^xsd:integer ;
+    a2a:message         "Internal error" ;
+    rdfs:comment        "JSON-RPC error indicating an internal JSON-RPC error on the server." .
+
+# -----------------------------------------------------------------------------
+# Error Codes - A2A Protocol-Specific Errors
+# -----------------------------------------------------------------------------
+
+a2a:TaskNotFound
+    a                   a2a:ErrorCode ;
+    rdfs:label          "TaskNotFound" ;
+    a2a:code            "-32001"^^xsd:integer ;
+    a2a:message         "Task not found" ;
+    rdfs:comment        "A2A specific error indicating the requested task ID was not found." .
+
+a2a:TaskNotCancelable
+    a                   a2a:ErrorCode ;
+    rdfs:label          "TaskNotCancelable" ;
+    a2a:code            "-32002"^^xsd:integer ;
+    a2a:message         "Task cannot be canceled" ;
+    rdfs:comment        "A2A specific error indicating the task is in a state where it cannot be canceled." .
+
+a2a:PushNotificationNotSupported
+    a                   a2a:ErrorCode ;
+    rdfs:label          "PushNotificationNotSupported" ;
+    a2a:code            "-32003"^^xsd:integer ;
+    a2a:message         "Push Notification is not supported" ;
+    rdfs:comment        "A2A specific error indicating the agent does not support push notifications." .
+
+a2a:UnsupportedOperation
+    a                   a2a:ErrorCode ;
+    rdfs:label          "UnsupportedOperation" ;
+    a2a:code            "-32004"^^xsd:integer ;
+    a2a:message         "This operation is not supported" ;
+    rdfs:comment        "A2A specific error indicating the requested operation is not supported by the agent." .
+
+a2a:ContentTypeNotSupported
+    a                   a2a:ErrorCode ;
+    rdfs:label          "ContentTypeNotSupported" ;
+    a2a:code            "-32005"^^xsd:integer ;
+    a2a:message         "Incompatible content types" ;
+    rdfs:comment        "A2A specific error indicating incompatible content types between request and agent capabilities." .
+
+a2a:Unauthorized
+    a                   a2a:ErrorCode ;
+    rdfs:label          "Unauthorized" ;
+    a2a:code            "-32006"^^xsd:integer ;
+    a2a:message         "Unauthorized request" ;
+    rdfs:comment        "A2A specific error indicating the request lacks valid authentication credentials." .
+
+# -----------------------------------------------------------------------------
+# Notifications - PushNotificationConfig
+# -----------------------------------------------------------------------------
+
+a2a:PushNotificationConfig
+    a                   a2a:NotificationConfig ;
+    rdfs:label          "PushNotificationConfig" ;
+    rdfs:comment        "Defines the configuration for setting up push notifications for task updates." ;
+    a2a:requiredField   "url" ;
+    a2a:optionalField   "id" , "token" , "authentication" .
+
+a2a:PushNotificationConfig_url
+    a                   a2a:ConfigProperty ;
+    rdfs:label          "url" ;
+    rdfs:comment        "The callback URL where the agent should send push notifications." ;
+    a2a:propertyOf      a2a:PushNotificationConfig ;
+    a2a:datatype        xsd:string ;
+    a2a:required        "true"^^xsd:boolean .
+
+a2a:PushNotificationConfig_token
+    a                   a2a:ConfigProperty ;
+    rdfs:label          "token" ;
+    rdfs:comment        "A unique token for this task or session to validate incoming push notifications." ;
+    a2a:propertyOf      a2a:PushNotificationConfig ;
+    a2a:datatype        xsd:string ;
+    a2a:required        "false"^^xsd:boolean .
+
+a2a:PushNotificationConfig_authentication
+    a                   a2a:ConfigProperty ;
+    rdfs:label          "authentication" ;
+    rdfs:comment        "Optional authentication details for the agent to use when calling the notification URL." ;
+    a2a:propertyOf      a2a:PushNotificationConfig ;
+    a2a:rangeRef        a2a:PushNotificationAuthenticationInfo ;
+    a2a:required        "false"^^xsd:boolean .
+
+a2a:PushNotificationAuthenticationInfo
+    a                   a2a:AuthenticationInfo ;
+    rdfs:label          "PushNotificationAuthenticationInfo" ;
+    rdfs:comment        "Defines authentication details for a push notification endpoint." ;
+    a2a:requiredField   "schemes" ;
+    a2a:optionalField   "credentials" .
+
+a2a:PushNotificationAuthenticationInfo_schemes
+    a                   a2a:ConfigProperty ;
+    rdfs:label          "schemes" ;
+    rdfs:comment        "A list of supported authentication schemes (e.g., 'Basic', 'Bearer')." ;
+    a2a:propertyOf      a2a:PushNotificationAuthenticationInfo ;
+    a2a:datatype        xsd:string ;
+    a2a:isList          "true"^^xsd:boolean ;
+    a2a:required        "true"^^xsd:boolean .
+
+a2a:PushNotificationAuthenticationInfo_credentials
+    a                   a2a:ConfigProperty ;
+    rdfs:label          "credentials" ;
+    rdfs:comment        "Optional credentials required by the push notification endpoint." ;
+    a2a:propertyOf      a2a:PushNotificationAuthenticationInfo ;
+    a2a:datatype        xsd:string ;
+    a2a:required        "false"^^xsd:boolean .
+
+# -----------------------------------------------------------------------------
+# Security - SecurityScheme Instances
+# -----------------------------------------------------------------------------
+
+a2a:APIKeySecurityScheme
+    a                   a2a:SecurityScheme ;
+    rdfs:label          "APIKeySecurityScheme" ;
+    rdfs:comment        "API Key security scheme. The key can be located in a query parameter, header, or cookie." ;
+    a2a:schemeType       "apiKey" ;
+    a2a:requiredField   "type" , "name" , "in" ;
+    a2a:optionalField   "description" .
+
+a2a:APIKeySecurityScheme_in
+    a                   a2a:SchemeProperty ;
+    rdfs:label          "in" ;
+    rdfs:comment        "The location of the API key. Valid values are \"query\", \"header\", or \"cookie\"." ;
+    a2a:propertyOf      a2a:APIKeySecurityScheme ;
+    a2a:allowedValue    "query" , "header" , "cookie" .
+
+a2a:APIKeySecurityScheme_name
+    a                   a2a:SchemeProperty ;
+    rdfs:label          "name" ;
+    rdfs:comment        "The name of the header, query or cookie parameter to be used." ;
+    a2a:propertyOf      a2a:APIKeySecurityScheme ;
+    a2a:datatype        xsd:string .
+
+a2a:HTTPAuthSecurityScheme
+    a                   a2a:SecurityScheme ;
+    rdfs:label          "HTTPAuthSecurityScheme" ;
+    rdfs:comment        "HTTP Authentication security scheme using the Authorization header as defined in RFC7235." ;
+    a2a:schemeType       "http" ;
+    a2a:requiredField   "type" , "scheme" ;
+    a2a:optionalField   "description" , "bearerFormat" .
+
+a2a:HTTPAuthSecurityScheme_scheme
+    a                   a2a:SchemeProperty ;
+    rdfs:label          "scheme" ;
+    rdfs:comment        "The name of the HTTP Authentication scheme to be used in the Authorization header as defined in RFC7235." ;
+    a2a:propertyOf      a2a:HTTPAuthSecurityScheme ;
+    a2a:datatype        xsd:string .
+
+a2a:HTTPAuthSecurityScheme_bearerFormat
+    a                   a2a:SchemeProperty ;
+    rdfs:label          "bearerFormat" ;
+    rdfs:comment        "A hint to the client to identify how the bearer token is formatted, primarily for documentation purposes." ;
+    a2a:propertyOf      a2a:HTTPAuthSecurityScheme ;
+    a2a:datatype        xsd:string .
+
+a2a:OpenIdConnectSecurityScheme
+    a                   a2a:SecurityScheme ;
+    rdfs:label          "OpenIdConnectSecurityScheme" ;
+    rdfs:comment        "OpenID Connect security scheme configuration using a well-known discovery URL." ;
+    a2a:schemeType       "openIdConnect" ;
+    a2a:requiredField   "type" , "openIdConnectUrl" ;
+    a2a:optionalField   "description" .
+
+a2a:OpenIdConnectSecurityScheme_openIdConnectUrl
+    a                   a2a:SchemeProperty ;
+    rdfs:label          "openIdConnectUrl" ;
+    rdfs:comment        "Well-known URL to discover the OpenID Connect provider metadata." ;
+    a2a:propertyOf      a2a:OpenIdConnectSecurityScheme ;
+    a2a:datatype        xsd:string .
+
+a2a:OAuth2SecurityScheme
+    a                   a2a:SecurityScheme ;
+    rdfs:label          "OAuth2SecurityScheme" ;
+    rdfs:comment        "Defines a security scheme using OAuth 2.0 with configurable flows." ;
+    a2a:schemeType       "oauth2" ;
+    a2a:requiredField   "type" , "flows" ;
+    a2a:optionalField   "description" , "oauth2MetadataUrl" .
+
+a2a:OAuth2SecurityScheme_flows
+    a                   a2a:SchemeProperty ;
+    rdfs:label          "flows" ;
+    rdfs:comment        "An object containing configuration information for the supported OAuth 2.0 flows." ;
+    a2a:propertyOf      a2a:OAuth2SecurityScheme ;
+    a2a:rangeRef        a2a:OAuthFlows .
+
+a2a:OAuthFlows
+    a                   a2a:FlowConfig ;
+    rdfs:label          "OAuthFlows" ;
+    rdfs:comment        "Allows configuration of the supported OAuth 2.0 flows." ;
+    a2a:optionalField   "authorizationCode" , "clientCredentials" , "implicit" , "password" .
+
+# -----------------------------------------------------------------------------
+# Security - AuthenticationInfo
+# -----------------------------------------------------------------------------
+
+a2a:AuthenticationInfo
+    a                   a2a:SecurityConcept ;
+    rdfs:label          "AuthenticationInfo" ;
+    rdfs:comment        "Represents authentication information associated with an agent or notification endpoint. Contains scheme references and optional credentials." ;
+    a2a:requiredField   "schemes" ;
+    a2a:optionalField   "credentials" .

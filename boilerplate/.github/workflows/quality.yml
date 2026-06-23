@@ -1,0 +1,68 @@
+name: Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"
+
+jobs:
+  coverage:
+    name: Coverage (tarpaulin)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@cargo-tarpaulin
+      - run: cargo tarpaulin --workspace --out Xml --output-dir target/coverage
+      - uses: codecov/codecov-action@v4
+        with:
+          files: target/coverage/cobertura.xml
+          fail_ci_if_error: false
+      - name: Enforce 60% threshold
+        run: |
+          PCT=$(grep -oP 'line-rate="\K[^"]+' target/coverage/cobertura.xml | head -1)
+          PCTINT=$(echo "$PCT * 100 / 1" | bc)
+          echo "Coverage: ${PCTINT}%"
+          [ "$PCTINT" -ge 60 ] || (echo "Coverage below 60%" && exit 1)
+
+  semver:
+    name: semver-checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: obi1kenobi/cargo-semver-checks-action@v2
+
+  doc-test:
+    name: Doc tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --workspace --doc
+
+  typos:
+    name: Typos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: crate-ci/typos@master
+
+  build-time:
+    name: Build timing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Time release build
+        run: |
+          START=$(date +%s)
+          cargo build --release --workspace
+          END=$(date +%s)
+          echo "Release build: $((END-START))s"

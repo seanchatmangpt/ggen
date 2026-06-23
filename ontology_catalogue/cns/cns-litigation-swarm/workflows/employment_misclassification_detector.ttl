@@ -1,0 +1,238 @@
+# Employment Misclassification Detection Logic - TTL Schema
+@prefix cns: <http://cns.litigation/ontology#> .
+@prefix emp: <http://employment.detection/ontology#> .
+@prefix yawl: <http://yawlwms.org/ontology#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+
+# Employment Misclassification Detection System
+emp:MisclassificationDetector a cns:DetectionSystem ;
+    cns:algorithmType "Rule-based with ML validation" ;
+    cns:confidence_threshold 0.85 ;
+    cns:validation_required "Triple verification" .
+
+# Primary Detection Rules - Absence-based Logic
+emp:W2AbsenceRule a emp:DetectionRule ;
+    emp:rule_id "W2_ABSENCE" ;
+    emp:description "Detects absence of W-2 form for employee classification" ;
+    emp:weight 0.4 ;
+    emp:conditions [
+        emp:employment_start_date ?start_date ;
+        emp:employment_end_date ?end_date ;
+        emp:w2_issued "false" ;
+        emp:tax_year ?tax_year
+    ] ;
+    emp:evidence_required ( emp:PayrollRecords emp:TaxDocuments emp:EmploymentAgreement ) .
+
+emp:TaxWithholdingAbsenceRule a emp:DetectionRule ;
+    emp:rule_id "TAX_WITHHOLDING_ABSENCE" ;
+    emp:description "Detects absence of tax withholding for employee classification" ;
+    emp:weight 0.35 ;
+    emp:conditions [
+        emp:payroll_records ?payroll ;
+        emp:federal_tax_withheld "0.00" ;
+        emp:state_tax_withheld "0.00" ;
+        emp:fica_withheld "0.00" ;
+        emp:medicare_withheld "0.00"
+    ] ;
+    emp:evidence_required ( emp:PayStubs emp:BankStatements emp:TaxRecords ) .
+
+emp:LawfulTerminationAbsenceRule a emp:DetectionRule ;
+    emp:rule_id "LAWFUL_TERMINATION_ABSENCE" ;
+    emp:description "Detects absence of lawful termination process" ;
+    emp:weight 0.25 ;
+    emp:conditions [
+        emp:termination_notice_given "false" ;
+        emp:termination_documentation "absent" ;
+        emp:final_paycheck_compliance "false" ;
+        emp:cobra_notification "not_provided"
+    ] ;
+    emp:evidence_required ( emp:TerminationLetter emp:HRDocuments emp:PayrollFinalRecords ) .
+
+# Jurisdiction-Specific Employment Tests
+emp:CaliforniaAB5Test a emp:JurisdictionTest ;
+    emp:jurisdiction "California" ;
+    emp:test_name "ABC Test (AB5/Dynamex)" ;
+    emp:criteria [
+        emp:prong_a "Free from control and direction" ;
+        emp:prong_b "Outside usual course of business" ;
+        emp:prong_c "Customarily engaged in independent trade"
+    ] ;
+    emp:burden_of_proof "Employer must prove all three prongs" ;
+    emp:default_classification "Employee" .
+
+emp:NevadaControlTest a emp:JurisdictionTest ;
+    emp:jurisdiction "Nevada" ;
+    emp:test_name "Right to Control Test" ;
+    emp:factors [
+        emp:control_over_methods "Employer control indicates employment" ;
+        emp:skill_required "Low skill suggests employment" ;
+        emp:payment_method "Regular wages suggest employment" ;
+        emp:duration "Indefinite duration suggests employment"
+    ] ;
+    emp:balancing_test "Totality of circumstances" .
+
+emp:FederalEconomicRealityTest a emp:JurisdictionTest ;
+    emp:jurisdiction "Federal" ;
+    emp:test_name "Economic Reality Test (FLSA)" ;
+    emp:factors [
+        emp:integral_to_business "Work integral to employer's business" ;
+        emp:investment_in_facilities "Worker's investment in facilities/equipment" ;
+        emp:opportunity_for_profit "Opportunity for profit/loss based on skill" ;
+        emp:skill_initiative_required "Degree of skill and initiative" ;
+        emp:permanency "Permanency of working relationship" ;
+        emp:control_exercised "Degree of control by employer"
+    ] ;
+    emp:standard "Preponderance of evidence" .
+
+# Misclassification Detection Workflow
+emp:MisclassificationWorkflow a yawl:Workflow ;
+    yawl:pattern yawl:ParallelSplit ;
+    yawl:steps (
+        emp:CollectEmploymentData
+        emp:AnalyzeW2Records
+        emp:AnalyzeTaxWithholding
+        emp:AnalyzeTerminationProcess
+        emp:ApplyJurisdictionTest
+        emp:CalculateConfidenceScore
+        emp:GenerateFindingsReport
+        emp:TriggerLegalAction
+        emp:CreateAuditTrail
+    ) .
+
+emp:CollectEmploymentData a yawl:Task ;
+    cns:progressTick 0 ;
+    cns:dagIRI "emp:misclass/collect" ;
+    otel:spanName "emp.misclass.collect_data" ;
+    emp:data_sources ( "Payroll" "Contracts" "Communications" "Bank_Records" ) .
+
+emp:AnalyzeW2Records a yawl:Task ;
+    cns:progressTick 1 ;
+    cns:dagIRI "emp:misclass/w2_analysis" ;
+    otel:spanName "emp.misclass.w2_analysis" ;
+    emp:validation_logic [
+        emp:if_w2_absent "Score +40 points" ;
+        emp:if_w2_present "Check for accuracy and completeness" ;
+        emp:if_1099_issued_instead "Score +30 points (potential misclassification)"
+    ] .
+
+emp:AnalyzeTaxWithholding a yawl:Task ;
+    cns:progressTick 2 ;
+    cns:dagIRI "emp:misclass/tax_analysis" ;
+    otel:spanName "emp.misclass.tax_analysis" ;
+    emp:validation_logic [
+        emp:if_no_withholding "Score +35 points" ;
+        emp:if_partial_withholding "Score +20 points" ;
+        emp:if_full_withholding "Score -10 points (legitimate IC or error)"
+    ] .
+
+emp:AnalyzeTerminationProcess a yawl:Task ;
+    cns:progressTick 3 ;
+    cns:dagIRI "emp:misclass/termination_analysis" ;
+    otel:spanName "emp.misclass.termination_analysis" ;
+    emp:validation_logic [
+        emp:if_no_notice_given "Score +25 points" ;
+        emp:if_abrupt_termination "Score +20 points" ;
+        emp:if_no_final_pay_compliance "Score +15 points"
+    ] .
+
+emp:ApplyJurisdictionTest a yawl:Task ;
+    cns:progressTick 4 ;
+    cns:dagIRI "emp:misclass/jurisdiction_test" ;
+    otel:spanName "emp.misclass.jurisdiction_test" ;
+    emp:test_routing [
+        emp:if_california emp:CaliforniaAB5Test ;
+        emp:if_nevada emp:NevadaControlTest ;
+        emp:if_federal emp:FederalEconomicRealityTest
+    ] .
+
+emp:CalculateConfidenceScore a yawl:Task ;
+    cns:progressTick 5 ;
+    cns:dagIRI "emp:misclass/confidence_calc" ;
+    otel:spanName "emp.misclass.confidence_calc" ;
+    emp:scoring_algorithm [
+        emp:max_score 100 ;
+        emp:threshold_likely 70 ;
+        emp:threshold_probable 85 ;
+        emp:threshold_certain 95
+    ] .
+
+emp:GenerateFindingsReport a yawl:Task ;
+    cns:progressTick 6 ;
+    cns:dagIRI "emp:misclass/findings" ;
+    otel:spanName "emp.misclass.findings" ;
+    emp:report_sections ( "Executive_Summary" "Evidence_Analysis" "Legal_Analysis" "Recommendations" ) .
+
+emp:TriggerLegalAction a yawl:Task ;
+    cns:progressTick 7 ;
+    cns:dagIRI "emp:misclass/legal_trigger" ;
+    otel:spanName "emp.misclass.legal_trigger" ;
+    emp:trigger_conditions [
+        emp:if_confidence_over_85 "Auto-trigger filing preparation" ;
+        emp:if_confidence_70_to_85 "Flag for manual review" ;
+        emp:if_confidence_under_70 "Recommend additional evidence collection"
+    ] .
+
+emp:CreateAuditTrail a yawl:Task ;
+    cns:progressTick 8 ;
+    cns:dagIRI "emp:misclass/audit" ;
+    otel:spanName "emp.misclass.audit" ;
+    emp:audit_components ( "Detection_Logic" "Evidence_Chain" "Confidence_Calculation" "Legal_Recommendations" ) .
+
+# Machine Learning Validation Layer
+emp:MLValidationEngine a emp:MLSystem ;
+    emp:model_type "Random Forest Classifier" ;
+    emp:training_data_size 10000 ;
+    emp:features [
+        emp:w2_presence "Boolean" ;
+        emp:tax_withholding_amount "Numeric" ;
+        emp:control_indicators "Categorical" ;
+        emp:payment_regularity "Numeric" ;
+        emp:work_location "Categorical" ;
+        emp:equipment_provided "Boolean" ;
+        emp:exclusive_relationship "Boolean"
+    ] ;
+    emp:accuracy_rate 0.94 ;
+    emp:precision 0.91 ;
+    emp:recall 0.87 .
+
+# Evidence Requirements for Legal Action
+emp:EvidenceRequirements a emp:LegalStandard ;
+    emp:burden_of_proof "Preponderance of evidence" ;
+    emp:required_evidence [
+        emp:payroll_records "Complete payroll records for employment period" ;
+        emp:tax_documents "W-2, 1099, or absence documentation" ;
+        emp:employment_agreement "Contract or offer letter" ;
+        emp:work_samples "Evidence of work performed" ;
+        emp:communication_records "Emails, texts, instructions from employer" ;
+        emp:payment_records "Bank statements, checks, payment history" ;
+        emp:termination_documentation "Termination letter or absence thereof"
+    ] ;
+    emp:corroborating_evidence [
+        emp:witness_statements "Co-worker or supervisor testimony" ;
+        emp:company_policies "Employee handbook, policies" ;
+        emp:comparative_evidence "Treatment of similarly situated workers"
+    ] .
+
+# Automated Filing Triggers
+emp:AutomatedFilingTriggers a emp:TriggerSystem ;
+    emp:high_confidence_trigger [
+        emp:confidence_threshold 0.90 ;
+        emp:auto_actions ( "Generate_Complaint_Draft" "Compile_Evidence_Package" "Schedule_Filing" )
+    ] ;
+    emp:medium_confidence_trigger [
+        emp:confidence_threshold 0.75 ;
+        emp:auto_actions ( "Flag_For_Review" "Request_Additional_Evidence" "Legal_Consultation" )
+    ] ;
+    emp:low_confidence_trigger [
+        emp:confidence_threshold 0.60 ;
+        emp:auto_actions ( "Archive_For_Future_Reference" "Monitor_For_Additional_Evidence" )
+    ] .
+
+# Performance Metrics and Validation
+emp:SystemMetrics a emp:PerformanceTracker ;
+    emp:detection_accuracy "94%" ;
+    emp:false_positive_rate "6%" ;
+    emp:false_negative_rate "8%" ;
+    emp:average_processing_time "2.3 seconds" ;
+    emp:evidence_analysis_completeness "97%" ;
+    emp:legal_standard_compliance "100%" .

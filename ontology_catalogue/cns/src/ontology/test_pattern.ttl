@@ -1,0 +1,81 @@
+@prefix : <http://example.org/bitactor#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# BitActor Signal Processing Ontology
+:Signal a rdfs:Class ;
+    rdfs:label "Signal Processing Unit" ;
+    rdfs:comment "High-performance signal processing with SIMD optimization" .
+
+:FastSignal a :Signal ;
+    :frequency 1000.0 ;
+    :amplitude 0.8 ;
+    :phase 0.0 ;
+    :constraint [ 
+        :type :range ; 
+        :min 0.0 ; 
+        :max 1.0 ;
+        :optimization :pareto_80_20
+    ] .
+
+:ProcessingNode a rdfs:Class ;
+    rdfs:label "SIMD Processing Node" ;
+    rdfs:comment "Vectorized computation node with 80/20 optimization" .
+
+:SIMDProcessor a :ProcessingNode ;
+    :vectorWidth 8 ;
+    :operation :multiply ;
+    :optimization_level :ultra ;
+    :constraint [ 
+        :type :comparison ; 
+        :operator :gt ; 
+        :value 0.5 ;
+        :pareto_weight 0.8
+    ] .
+
+:QuantumPattern a rdfs:Class ;
+    rdfs:label "Quantum-Inspired Pattern" ;
+    rdfs:comment "Dark pattern with quantum entanglement" .
+
+:DarkEntanglement a :QuantumPattern ;
+    :entanglement_strength 0.707 ;
+    :coherence_time 1000 ;
+    :fidelity 0.95 ;
+    :bell_state [ 
+        :amplitude_00 0.707 ;
+        :amplitude_11 0.707 ;
+        :phase_difference 0
+    ] .
+
+:WorkflowNode a rdfs:Class ;
+    rdfs:label "Workflow Processing Node" ;
+    rdfs:comment "DAG node for parallel execution" .
+
+:CriticalPath a :WorkflowNode ;
+    :execution_time 5.0 ;
+    :memory_requirement 1024 ;
+    :critical_weight 0.8 ;
+    :parallelizable true ;
+    :constraint [
+        :type :resource ;
+        :cpu_cores 4 ;
+        :memory_mb 2048 ;
+        :pareto_priority 0.9
+    ] .
+
+:SwarmAgent a rdfs:Class ;
+    rdfs:label "Bit Agent for Swarm Coordination" ;
+    rdfs:comment "Autonomous agent with 80/20 coordination" .
+
+:CoordinatorAgent a :SwarmAgent ;
+    :role :coordinator ;
+    :substrate :compute ;
+    :efficiency_target 0.8 ;
+    :coordination_strategy :hierarchical ;
+    :constraint [
+        :type :coordination ;
+        :max_agents 100 ;
+        :consensus_timeout 1000 ;
+        :pareto_distribution true
+    ] .

@@ -1,0 +1,4 @@
+
+@prefix invalid syntax here
+:Person a owl:Class
+  missing semicolon and periods

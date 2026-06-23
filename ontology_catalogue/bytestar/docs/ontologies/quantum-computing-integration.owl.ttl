@@ -1,0 +1,1057 @@
+@prefix : <https://bytestar.org/ontology/quantum-computing#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix pqc: <https://bytestar.org/ontology/post-quantum-crypto#> .
+@prefix pg: <https://bytestar.org/ontology/performance-guarantees#> .
+@prefix mac: <https://bytestar.org/ontology/multi-agent-coordination#> .
+
+@base <https://bytestar.org/ontology/quantum-computing> .
+
+<https://bytestar.org/ontology/quantum-computing> rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/quantum-computing/1.0> ;
+    rdfs:label "Quantum Computing Integration Ontology" ;
+    rdfs:comment """
+    The Quantum Computing Integration Ontology defines the framework for integrating
+    quantum computing capabilities with ByteStar fabric while maintaining post-quantum
+    security and deterministic performance guarantees.
+    
+    This ontology enables ByteStar to leverage quantum advantages for specific computational
+    domains while protecting against quantum threats through PQC integration and
+    quantum-classical hybrid architectures.
+    
+    Quantum Integration Domains:
+    - Quantum Circuit Design: Gate-based and adiabatic quantum circuits
+    - Quantum Algorithm Implementation: Shor's, Grover's, VQE, QAOA
+    - Quantum Error Correction: Surface codes, stabilizer codes
+    - Quantum-Classical Hybrid: Variational algorithms and optimization
+    - Quantum Networking: Quantum key distribution and entanglement
+    - Quantum Simulation: Materials science and chemistry applications
+    
+    Key Features:
+    - Quantum Advantage Detection: Identifying quantum speedup opportunities
+    - Error Mitigation: Noise-aware computation and error correction
+    - Quantum Resource Management: Qubit allocation and circuit optimization
+    - Hybrid Orchestration: Coordinating quantum and classical computations
+    - Quantum Security: Post-quantum cryptography and quantum-safe protocols
+    """ ;
+    owl:imports <https://bytestar.org/ontology/post-quantum-crypto> ,
+                <https://bytestar.org/ontology/performance-guarantees> ,
+                <https://bytestar.org/ontology/multi-agent-coordination> .
+
+#################################################################
+#    Core Quantum Computing Classes
+#################################################################
+
+:QuantumComputer a owl:Class ;
+    rdfs:label "Quantum Computer" ;
+    rdfs:comment """
+    Physical quantum computing system capable of performing
+    quantum computations through controlled manipulation of qubits.
+    """ .
+
+:GateBasedQuantumComputer a owl:Class ;
+    rdfs:subClassOf :QuantumComputer ;
+    rdfs:label "Gate-Based Quantum Computer" ;
+    rdfs:comment """
+    Quantum computer that performs computation through
+    sequential application of quantum gates to qubits.
+    """ .
+
+:AnnealingQuantumComputer a owl:Class ;
+    rdfs:subClassOf :QuantumComputer ;
+    rdfs:label "Annealing Quantum Computer" ;
+    rdfs:comment """
+    Quantum computer that solves optimization problems
+    through quantum annealing processes.
+    """ .
+
+:PhotonicQuantumComputer a owl:Class ;
+    rdfs:subClassOf :QuantumComputer ;
+    rdfs:label "Photonic Quantum Computer" ;
+    rdfs:comment """
+    Quantum computer using photons as qubits for
+    fault-tolerant quantum computation.
+    """ .
+
+:TopologicalQuantumComputer a owl:Class ;
+    rdfs:subClassOf :QuantumComputer ;
+    rdfs:label "Topological Quantum Computer" ;
+    rdfs:comment """
+    Quantum computer using topological qubits for
+    inherently error-resistant computation.
+    """ .
+
+:Qubit a owl:Class ;
+    rdfs:label "Qubit" ;
+    rdfs:comment """
+    Basic unit of quantum information that can exist
+    in superposition of 0 and 1 states.
+    """ .
+
+:PhysicalQubit a owl:Class ;
+    rdfs:subClassOf :Qubit ;
+    rdfs:label "Physical Qubit" ;
+    rdfs:comment """
+    Individual physical quantum system used to
+    store and manipulate quantum information.
+    """ .
+
+:LogicalQubit a owl:Class ;
+    rdfs:subClassOf :Qubit ;
+    rdfs:label "Logical Qubit" ;
+    rdfs:comment """
+    Error-corrected qubit constructed from multiple
+    physical qubits for fault-tolerant computation.
+    """ .
+
+#################################################################
+#    Quantum Circuit Classes
+#################################################################
+
+:QuantumCircuit a owl:Class ;
+    rdfs:label "Quantum Circuit" ;
+    rdfs:comment """
+    Sequence of quantum gates and measurements that
+    implements a quantum algorithm or computation.
+    """ .
+
+:QuantumGate a owl:Class ;
+    rdfs:label "Quantum Gate" ;
+    rdfs:comment """
+    Unitary operation that manipulates qubit states
+    in quantum computation.
+    """ .
+
+:SingleQubitGate a owl:Class ;
+    rdfs:subClassOf :QuantumGate ;
+    rdfs:label "Single Qubit Gate" ;
+    rdfs:comment """
+    Quantum gate that operates on a single qubit
+    such as Pauli gates or rotation gates.
+    """ .
+
+:TwoQubitGate a owl:Class ;
+    rdfs:subClassOf :QuantumGate ;
+    rdfs:label "Two Qubit Gate" ;
+    rdfs:comment """
+    Quantum gate that operates on two qubits
+    such as CNOT or CZ gates.
+    """ .
+
+:MultiQubitGate a owl:Class ;
+    rdfs:subClassOf :QuantumGate ;
+    rdfs:label "Multi Qubit Gate" ;
+    rdfs:comment """
+    Quantum gate that operates on multiple qubits
+    simultaneously for complex operations.
+    """ .
+
+:PauliX a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :SingleQubitGate ;
+    rdfs:label "Pauli-X Gate" ;
+    rdfs:comment """
+    Bit-flip gate equivalent to NOT gate in classical computing.
+    """ .
+
+:PauliY a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :SingleQubitGate ;
+    rdfs:label "Pauli-Y Gate" ;
+    rdfs:comment """
+    Combined bit and phase flip gate.
+    """ .
+
+:PauliZ a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :SingleQubitGate ;
+    rdfs:label "Pauli-Z Gate" ;
+    rdfs:comment """
+    Phase-flip gate that applies conditional phase.
+    """ .
+
+:Hadamard a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :SingleQubitGate ;
+    rdfs:label "Hadamard Gate" ;
+    rdfs:comment """
+    Gate that creates superposition by rotating
+    qubit state between computational bases.
+    """ .
+
+:CNOT a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :TwoQubitGate ;
+    rdfs:label "CNOT Gate" ;
+    rdfs:comment """
+    Controlled-NOT gate that flips target qubit
+    conditioned on control qubit state.
+    """ .
+
+:QuantumMeasurement a owl:Class ;
+    rdfs:label "Quantum Measurement" ;
+    rdfs:comment """
+    Process of extracting classical information
+    from quantum states through observation.
+    """ .
+
+#################################################################
+#    Quantum Algorithm Classes
+#################################################################
+
+:QuantumAlgorithm a owl:Class ;
+    rdfs:label "Quantum Algorithm" ;
+    rdfs:comment """
+    Computational procedure designed to run on
+    quantum computers for specific problem solving.
+    """ .
+
+:ShorsAlgorithm a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :QuantumAlgorithm ;
+    rdfs:label "Shor's Algorithm" ;
+    rdfs:comment """
+    Quantum algorithm for efficiently factoring
+    large integers, threatening RSA encryption.
+    """ .
+
+:GroversAlgorithm a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :QuantumAlgorithm ;
+    rdfs:label "Grover's Algorithm" ;
+    rdfs:comment """
+    Quantum search algorithm providing quadratic
+    speedup for unstructured search problems.
+    """ .
+
+:VariationalQuantumEigensolver a owl:Class ;
+    rdfs:subClassOf :QuantumAlgorithm ;
+    rdfs:label "Variational Quantum Eigensolver" ;
+    rdfs:comment """
+    Hybrid quantum-classical algorithm for finding
+    ground states of quantum systems.
+    """ .
+
+:QuantumApproximateOptimization a owl:Class ;
+    rdfs:subClassOf :QuantumAlgorithm ;
+    rdfs:label "Quantum Approximate Optimization Algorithm" ;
+    rdfs:comment """
+    Variational algorithm for solving combinatorial
+    optimization problems on NISQ devices.
+    """ .
+
+:QuantumFourierTransform a owl:Class ;
+    rdfs:subClassOf :QuantumAlgorithm ;
+    rdfs:label "Quantum Fourier Transform" ;
+    rdfs:comment """
+    Quantum version of discrete Fourier transform
+    used in many quantum algorithms.
+    """ .
+
+:QuantumSimulation a owl:Class ;
+    rdfs:subClassOf :QuantumAlgorithm ;
+    rdfs:label "Quantum Simulation" ;
+    rdfs:comment """
+    Algorithm for simulating quantum systems that
+    are intractable on classical computers.
+    """ .
+
+:HybridQuantumAlgorithm a owl:Class ;
+    rdfs:subClassOf :QuantumAlgorithm ;
+    rdfs:label "Hybrid Quantum Algorithm" ;
+    rdfs:comment """
+    Algorithm combining quantum and classical
+    processing for enhanced computational capability.
+    """ .
+
+#################################################################
+#    Quantum Error Correction Classes
+#################################################################
+
+:QuantumErrorCorrection a owl:Class ;
+    rdfs:label "Quantum Error Correction" ;
+    rdfs:comment """
+    Framework for protecting quantum information
+    from decoherence and operational errors.
+    """ .
+
+:QuantumErrorCorrectionCode a owl:Class ;
+    rdfs:label "Quantum Error Correction Code" ;
+    rdfs:comment """
+    Specific encoding scheme for protecting
+    quantum information from errors.
+    """ .
+
+:SurfaceCode a owl:Class ;
+    rdfs:subClassOf :QuantumErrorCorrectionCode ;
+    rdfs:label "Surface Code" ;
+    rdfs:comment """
+    Topological quantum error correction code
+    with high error threshold and 2D layout.
+    """ .
+
+:StabilizerCode a owl:Class ;
+    rdfs:subClassOf :QuantumErrorCorrectionCode ;
+    rdfs:label "Stabilizer Code" ;
+    rdfs:comment """
+    Quantum error correction code based on
+    stabilizer formalism and Pauli operators.
+    """ .
+
+:ColorCode a owl:Class ;
+    rdfs:subClassOf :QuantumErrorCorrectionCode ;
+    rdfs:label "Color Code" ;
+    rdfs:comment """
+    Topological code with transversal implementation
+    of Clifford gates for fault-tolerant computation.
+    """ .
+
+:ErrorSyndrome a owl:Class ;
+    rdfs:label "Error Syndrome" ;
+    rdfs:comment """
+    Pattern of measurement outcomes that indicates
+    the type and location of quantum errors.
+    """ .
+
+:ErrorDecoder a owl:Class ;
+    rdfs:label "Error Decoder" ;
+    rdfs:comment """
+    Classical algorithm that interprets error syndromes
+    and determines appropriate error corrections.
+    """ .
+
+#################################################################
+#    Quantum-Classical Hybrid Classes
+#################################################################
+
+:QuantumClassicalHybrid a owl:Class ;
+    rdfs:label "Quantum-Classical Hybrid System" ;
+    rdfs:comment """
+    Integrated computing system combining quantum
+    and classical processors for enhanced capability.
+    """ .
+
+:QuantumProcessor a owl:Class ;
+    rdfs:label "Quantum Processor" ;
+    rdfs:comment """
+    Quantum computing unit within hybrid system
+    responsible for quantum computations.
+    """ .
+
+:ClassicalController a owl:Class ;
+    rdfs:label "Classical Controller" ;
+    rdfs:comment """
+    Classical computing unit that controls quantum
+    operations and processes measurement results.
+    """ .
+
+:QuantumClassicalInterface a owl:Class ;
+    rdfs:label "Quantum-Classical Interface" ;
+    rdfs:comment """
+    Communication bridge between quantum and classical
+    components of hybrid computing system.
+    """ .
+
+:VariationalOptimizer a owl:Class ;
+    rdfs:label "Variational Optimizer" ;
+    rdfs:comment """
+    Classical optimization component that adjusts
+    quantum circuit parameters in hybrid algorithms.
+    """ .
+
+:QuantumDataFeed a owl:Class ;
+    rdfs:label "Quantum Data Feed" ;
+    rdfs:comment """
+    Stream of measurement results from quantum
+    processor to classical controller.
+    """ .
+
+:ClassicalPreprocessor a owl:Class ;
+    rdfs:label "Classical Preprocessor" ;
+    rdfs:comment """
+    Classical component that prepares data and
+    parameters for quantum processing.
+    """ .
+
+:QuantumPostprocessor a owl:Class ;
+    rdfs:label "Quantum Postprocessor" ;
+    rdfs:comment """
+    Component that processes quantum measurement
+    results for final output generation.
+    """ .
+
+#################################################################
+#    Quantum Networking Classes
+#################################################################
+
+:QuantumNetwork a owl:Class ;
+    rdfs:label "Quantum Network" ;
+    rdfs:comment """
+    Network infrastructure for distributing quantum
+    information and establishing quantum communication.
+    """ .
+
+:QuantumKeyDistribution a owl:Class ;
+    rdfs:label "Quantum Key Distribution" ;
+    rdfs:comment """
+    Protocol for secure key exchange using
+    quantum mechanical properties.
+    """ .
+
+:BB84Protocol a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :QuantumKeyDistribution ;
+    rdfs:label "BB84 Protocol" ;
+    rdfs:comment """
+    First quantum key distribution protocol using
+    photon polarization states.
+    """ .
+
+:E91Protocol a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :QuantumKeyDistribution ;
+    rdfs:label "E91 Protocol" ;
+    rdfs:comment """
+    Entanglement-based quantum key distribution
+    protocol with built-in security verification.
+    """ .
+
+:QuantumRepeater a owl:Class ;
+    rdfs:label "Quantum Repeater" ;
+    rdfs:comment """
+    Device for extending quantum communication
+    range through entanglement swapping.
+    """ .
+
+:QuantumMemory a owl:Class ;
+    rdfs:label "Quantum Memory" ;
+    rdfs:comment """
+    Device for storing quantum states for
+    quantum networking and computation.
+    """ .
+
+:EntangledPhotonSource a owl:Class ;
+    rdfs:label "Entangled Photon Source" ;
+    rdfs:comment """
+    Device generating entangled photon pairs
+    for quantum networking applications.
+    """ .
+
+:QuantumChannel a owl:Class ;
+    rdfs:label "Quantum Channel" ;
+    rdfs:comment """
+    Physical medium for transmitting quantum
+    information between network nodes.
+    """ .
+
+#################################################################
+#    Quantum Resource Management Classes
+#################################################################
+
+:QuantumResourceManager a owl:Class ;
+    rdfs:label "Quantum Resource Manager" ;
+    rdfs:comment """
+    System for allocating and managing quantum
+    computing resources and qubit assignments.
+    """ .
+
+:QubitAllocator a owl:Class ;
+    rdfs:subClassOf :QuantumResourceManager ;
+    rdfs:label "Qubit Allocator" ;
+    rdfs:comment """
+    Component responsible for assigning physical
+    qubits to logical quantum operations.
+    """ .
+
+:CircuitOptimizer a owl:Class ;
+    rdfs:subClassOf :QuantumResourceManager ;
+    rdfs:label "Circuit Optimizer" ;
+    rdfs:comment """
+    System that optimizes quantum circuits for
+    specific hardware constraints and error rates.
+    """ .
+
+:NoiseCharacterizer a owl:Class ;
+    rdfs:label "Noise Characterizer" ;
+    rdfs:comment """
+    System for measuring and modeling noise
+    characteristics of quantum hardware.
+    """ .
+
+:ErrorMitigator a owl:Class ;
+    rdfs:label "Error Mitigator" ;
+    rdfs:comment """
+    System implementing error mitigation techniques
+    to improve quantum computation fidelity.
+    """ .
+
+:QuantumScheduler a owl:Class ;
+    rdfs:label "Quantum Scheduler" ;
+    rdfs:comment """
+    System for scheduling quantum jobs and
+    managing quantum processor utilization.
+    """ .
+
+#################################################################
+#    Quantum Properties
+#################################################################
+
+:hasQubitCount a owl:DatatypeProperty ;
+    rdfs:label "has qubit count" ;
+    rdfs:domain :QuantumComputer ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Number of qubits in the quantum computer." .
+
+:hasCoherenceTime a owl:DatatypeProperty ;
+    rdfs:label "has coherence time" ;
+    rdfs:domain :Qubit ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Coherence time of the qubit in microseconds." .
+
+:hasGateTime a owl:DatatypeProperty ;
+    rdfs:label "has gate time" ;
+    rdfs:domain :QuantumGate ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Execution time of the quantum gate in nanoseconds." .
+
+:hasFidelity a owl:DatatypeProperty ;
+    rdfs:label "has fidelity" ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Fidelity measure (0.0-1.0) of quantum operation." .
+
+:hasErrorRate a owl:DatatypeProperty ;
+    rdfs:label "has error rate" ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Error rate of quantum operation or qubit." .
+
+:hasConnectivity a owl:ObjectProperty ;
+    rdfs:label "has connectivity" ;
+    rdfs:domain :Qubit ;
+    rdfs:range :Qubit ;
+    rdfs:comment "Physical connectivity between qubits." .
+
+:implementsGate a owl:ObjectProperty ;
+    rdfs:label "implements gate" ;
+    rdfs:domain :QuantumCircuit ;
+    rdfs:range :QuantumGate ;
+    rdfs:comment "Quantum gate implemented in the circuit." .
+
+:operatesOnQubit a owl:ObjectProperty ;
+    rdfs:label "operates on qubit" ;
+    rdfs:domain :QuantumGate ;
+    rdfs:range :Qubit ;
+    rdfs:comment "Qubit that the gate operates on." .
+
+:usesAlgorithm a owl:ObjectProperty ;
+    rdfs:label "uses algorithm" ;
+    rdfs:range :QuantumAlgorithm ;
+    rdfs:comment "Quantum algorithm being used." .
+
+#################################################################
+#    Circuit Properties
+#################################################################
+
+:hasCircuitDepth a owl:DatatypeProperty ;
+    rdfs:label "has circuit depth" ;
+    rdfs:domain :QuantumCircuit ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Number of sequential quantum gate layers in circuit." .
+
+:hasCircuitWidth a owl:DatatypeProperty ;
+    rdfs:label "has circuit width" ;
+    rdfs:domain :QuantumCircuit ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Number of qubits used in the quantum circuit." .
+
+:hasGateCount a owl:DatatypeProperty ;
+    rdfs:label "has gate count" ;
+    rdfs:domain :QuantumCircuit ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Total number of quantum gates in the circuit." .
+
+:requiresQubit a owl:ObjectProperty ;
+    rdfs:label "requires qubit" ;
+    rdfs:domain :QuantumCircuit ;
+    rdfs:range :Qubit ;
+    rdfs:comment "Qubit required by the quantum circuit." .
+
+:producesMeasurement a owl:ObjectProperty ;
+    rdfs:label "produces measurement" ;
+    rdfs:domain :QuantumCircuit ;
+    rdfs:range :QuantumMeasurement ;
+    rdfs:comment "Measurement produced by the circuit." .
+
+:hasExecutionTime a owl:DatatypeProperty ;
+    rdfs:label "has execution time" ;
+    rdfs:domain :QuantumCircuit ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Total execution time of the circuit in microseconds." .
+
+#################################################################
+#    Error Correction Properties
+#################################################################
+
+:correctsErrors a owl:ObjectProperty ;
+    rdfs:label "corrects errors" ;
+    rdfs:domain :QuantumErrorCorrectionCode ;
+    rdfs:comment "Type of errors corrected by the code." .
+
+:hasErrorThreshold a owl:DatatypeProperty ;
+    rdfs:label "has error threshold" ;
+    rdfs:domain :QuantumErrorCorrectionCode ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Maximum error rate below which error correction works." .
+
+:hasCodeDistance a owl:DatatypeProperty ;
+    rdfs:label "has code distance" ;
+    rdfs:domain :QuantumErrorCorrectionCode ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Minimum number of single qubit errors that cause logical error." .
+
+:encodesLogicalQubit a owl:ObjectProperty ;
+    rdfs:label "encodes logical qubit" ;
+    rdfs:domain :QuantumErrorCorrectionCode ;
+    rdfs:range :LogicalQubit ;
+    rdfs:comment "Logical qubit encoded by the error correction code." .
+
+:usesPhysicalQubits a owl:ObjectProperty ;
+    rdfs:label "uses physical qubits" ;
+    rdfs:domain :LogicalQubit ;
+    rdfs:range :PhysicalQubit ;
+    rdfs:comment "Physical qubits used to encode the logical qubit." .
+
+:detectsErrorSyndrome a owl:ObjectProperty ;
+    rdfs:label "detects error syndrome" ;
+    rdfs:domain :QuantumErrorCorrection ;
+    rdfs:range :ErrorSyndrome ;
+    rdfs:comment "Error syndrome detected by the correction system." .
+
+:decodesError a owl:ObjectProperty ;
+    rdfs:label "decodes error" ;
+    rdfs:domain :ErrorDecoder ;
+    rdfs:range :ErrorSyndrome ;
+    rdfs:comment "Error syndrome decoded by the decoder." .
+
+#################################################################
+#    Hybrid System Properties
+#################################################################
+
+:hasQuantumProcessor a owl:ObjectProperty ;
+    rdfs:label "has quantum processor" ;
+    rdfs:domain :QuantumClassicalHybrid ;
+    rdfs:range :QuantumProcessor ;
+    rdfs:comment "Quantum processor component of hybrid system." .
+
+:hasClassicalController a owl:ObjectProperty ;
+    rdfs:label "has classical controller" ;
+    rdfs:domain :QuantumClassicalHybrid ;
+    rdfs:range :ClassicalController ;
+    rdfs:comment "Classical controller component of hybrid system." .
+
+:connectsComponents a owl:ObjectProperty ;
+    rdfs:label "connects components" ;
+    rdfs:domain :QuantumClassicalInterface ;
+    rdfs:comment "Components connected by the interface." .
+
+:optimizesParameters a owl:ObjectProperty ;
+    rdfs:label "optimizes parameters" ;
+    rdfs:domain :VariationalOptimizer ;
+    rdfs:comment "Parameters being optimized." .
+
+:feedsData a owl:ObjectProperty ;
+    rdfs:label "feeds data" ;
+    rdfs:domain :QuantumDataFeed ;
+    rdfs:comment "Data being fed from quantum to classical processor." .
+
+:preprocessesData a owl:ObjectProperty ;
+    rdfs:label "preprocesses data" ;
+    rdfs:domain :ClassicalPreprocessor ;
+    rdfs:comment "Data being preprocessed for quantum processing." .
+
+:postprocessesResults a owl:ObjectProperty ;
+    rdfs:label "postprocesses results" ;
+    rdfs:domain :QuantumPostprocessor ;
+    rdfs:comment "Results being postprocessed from quantum computation." .
+
+#################################################################
+#    Networking Properties
+#################################################################
+
+:establishesChannel a owl:ObjectProperty ;
+    rdfs:label "establishes channel" ;
+    rdfs:domain :QuantumKeyDistribution ;
+    rdfs:range :QuantumChannel ;
+    rdfs:comment "Quantum channel established by QKD protocol." .
+
+:repeatsEntanglement a owl:ObjectProperty ;
+    rdfs:label "repeats entanglement" ;
+    rdfs:domain :QuantumRepeater ;
+    rdfs:comment "Entanglement being repeated/extended." .
+
+:storesQuantumState a owl:ObjectProperty ;
+    rdfs:label "stores quantum state" ;
+    rdfs:domain :QuantumMemory ;
+    rdfs:comment "Quantum state stored in memory." .
+
+:generatesentangledPairs a owl:ObjectProperty ;
+    rdfs:label "generates entangled pairs" ;
+    rdfs:domain :EntangledPhotonSource ;
+    rdfs:comment "Entangled photon pairs generated by source." .
+
+:hasChannelCapacity a owl:DatatypeProperty ;
+    rdfs:label "has channel capacity" ;
+    rdfs:domain :QuantumChannel ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Information capacity of quantum channel in qubits per second." .
+
+:hasTransmissionDistance a owl:DatatypeProperty ;
+    rdfs:label "has transmission distance" ;
+    rdfs:domain :QuantumChannel ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Maximum transmission distance in kilometers." .
+
+:hasMemoryTime a owl:DatatypeProperty ;
+    rdfs:label "has memory time" ;
+    rdfs:domain :QuantumMemory ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantum state storage time in milliseconds." .
+
+#################################################################
+#    Resource Management Properties
+#################################################################
+
+:allocatesQubit a owl:ObjectProperty ;
+    rdfs:label "allocates qubit" ;
+    rdfs:domain :QubitAllocator ;
+    rdfs:range :Qubit ;
+    rdfs:comment "Qubit allocated by the allocator." .
+
+:optimizesCircuit a owl:ObjectProperty ;
+    rdfs:label "optimizes circuit" ;
+    rdfs:domain :CircuitOptimizer ;
+    rdfs:range :QuantumCircuit ;
+    rdfs:comment "Circuit being optimized." .
+
+:characterizesNoise a owl:ObjectProperty ;
+    rdfs:label "characterizes noise" ;
+    rdfs:domain :NoiseCharacterizer ;
+    rdfs:comment "Noise being characterized." .
+
+:mitigatesError a owl:ObjectProperty ;
+    rdfs:label "mitigates error" ;
+    rdfs:domain :ErrorMitigator ;
+    rdfs:comment "Error being mitigated." .
+
+:schedulesJob a owl:ObjectProperty ;
+    rdfs:label "schedules job" ;
+    rdfs:domain :QuantumScheduler ;
+    rdfs:comment "Quantum job being scheduled." .
+
+:hasResourceUtilization a owl:DatatypeProperty ;
+    rdfs:label "has resource utilization" ;
+    rdfs:domain :QuantumComputer ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Current resource utilization (0.0-1.0)." .
+
+:hasQueueLength a owl:DatatypeProperty ;
+    rdfs:label "has queue length" ;
+    rdfs:domain :QuantumScheduler ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:comment "Number of jobs in execution queue." .
+
+:hasOptimizationLevel a owl:DatatypeProperty ;
+    rdfs:label "has optimization level" ;
+    rdfs:domain :CircuitOptimizer ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Level of circuit optimization (0-10)." .
+
+#################################################################
+#    ByteStar Integration Properties
+#################################################################
+
+:integratesWithByteStarFabric a owl:ObjectProperty ;
+    rdfs:label "integrates with ByteStar fabric" ;
+    rdfs:comment "Integration relationship with ByteStar components." .
+
+:maintainsQuantumSecurity a owl:DatatypeProperty ;
+    rdfs:label "maintains quantum security" ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Boolean indicating quantum security maintenance." .
+
+:providesQuantumAdvantage a owl:ObjectProperty ;
+    rdfs:label "provides quantum advantage" ;
+    rdfs:comment "Computational advantage provided by quantum processing." .
+
+:usesPostQuantumCrypto a owl:ObjectProperty ;
+    rdfs:label "uses post-quantum crypto" ;
+    rdfs:range pqc:PostQuantumAlgorithm ;
+    rdfs:comment "Post-quantum cryptographic algorithm used." .
+
+:respectsPerformanceGuarantees a owl:ObjectProperty ;
+    rdfs:label "respects performance guarantees" ;
+    rdfs:range pg:PerformanceGuarantee ;
+    rdfs:comment "Performance guarantee maintained in quantum integration." .
+
+:coordinatesWithAgents a owl:ObjectProperty ;
+    rdfs:label "coordinates with agents" ;
+    rdfs:range mac:Agent ;
+    rdfs:comment "Agent coordination for quantum task management." .
+
+#################################################################
+#    Mathematical Constraints and Axioms
+#################################################################
+
+# Qubit Coherence Time Positive Constraint
+:Qubit rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasCoherenceTime ;
+    owl:minExclusive 0.0
+] .
+
+# Fidelity Range Constraint
+owl:Thing rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasFidelity ;
+    owl:minInclusive 0.0
+] .
+
+owl:Thing rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasFidelity ;
+    owl:maxInclusive 1.0
+] .
+
+# Error Rate Range Constraint
+owl:Thing rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasErrorRate ;
+    owl:minInclusive 0.0
+] .
+
+owl:Thing rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasErrorRate ;
+    owl:maxInclusive 1.0
+] .
+
+# Quantum Computer Minimum Qubits
+:QuantumComputer rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasQubitCount ;
+    owl:minInclusive 1
+] .
+
+# Circuit Depth Positive Constraint
+:QuantumCircuit rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasCircuitDepth ;
+    owl:minInclusive 1
+] .
+
+# Error Threshold Upper Bound
+:QuantumErrorCorrectionCode rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasErrorThreshold ;
+    owl:maxExclusive 0.5
+] .
+
+# Logical Qubit Requires Multiple Physical Qubits
+:LogicalQubit rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :usesPhysicalQubits ;
+    owl:minCardinality 3
+] .
+
+# Hybrid System Components
+:QuantumClassicalHybrid rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasQuantumProcessor ;
+    owl:minCardinality 1
+] .
+
+:QuantumClassicalHybrid rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasClassicalController ;
+    owl:minCardinality 1
+] .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+:QuantumComputerShape a shacl:NodeShape ;
+    shacl:targetClass :QuantumComputer ;
+    shacl:property [
+        shacl:path :hasQubitCount ;
+        shacl:datatype xsd:positiveInteger ;
+        shacl:minInclusive 1 ;
+        shacl:message "Quantum computer must have at least 1 qubit"
+    ] ;
+    shacl:property [
+        shacl:path :hasResourceUtilization ;
+        shacl:datatype xsd:decimal ;
+        shacl:minInclusive 0.0 ;
+        shacl:maxInclusive 1.0 ;
+        shacl:message "Resource utilization must be between 0.0 and 1.0"
+    ] .
+
+:QuantumCircuitShape a shacl:NodeShape ;
+    shacl:targetClass :QuantumCircuit ;
+    shacl:property [
+        shacl:path :hasCircuitDepth ;
+        shacl:datatype xsd:positiveInteger ;
+        shacl:minInclusive 1 ;
+        shacl:message "Circuit depth must be at least 1"
+    ] ;
+    shacl:property [
+        shacl:path :implementsGate ;
+        shacl:class :QuantumGate ;
+        shacl:minCount 1 ;
+        shacl:message "Circuit must implement at least one quantum gate"
+    ] .
+
+:QubitShape a shacl:NodeShape ;
+    shacl:targetClass :Qubit ;
+    shacl:property [
+        shacl:path :hasCoherenceTime ;
+        shacl:datatype xsd:decimal ;
+        shacl:minExclusive 0.0 ;
+        shacl:message "Coherence time must be positive"
+    ] ;
+    shacl:property [
+        shacl:path :hasErrorRate ;
+        shacl:datatype xsd:decimal ;
+        shacl:minInclusive 0.0 ;
+        shacl:maxInclusive 1.0 ;
+        shacl:message "Error rate must be between 0.0 and 1.0"
+    ] .
+
+:QuantumErrorCorrectionCodeShape a shacl:NodeShape ;
+    shacl:targetClass :QuantumErrorCorrectionCode ;
+    shacl:property [
+        shacl:path :hasErrorThreshold ;
+        shacl:datatype xsd:decimal ;
+        shacl:minInclusive 0.0 ;
+        shacl:maxExclusive 0.5 ;
+        shacl:message "Error threshold must be between 0.0 and 0.5"
+    ] ;
+    shacl:property [
+        shacl:path :hasCodeDistance ;
+        shacl:datatype xsd:positiveInteger ;
+        shacl:minInclusive 3 ;
+        shacl:message "Code distance must be at least 3"
+    ] .
+
+#################################################################
+#    Individual Instances
+#################################################################
+
+# Quantum Computer Instances
+:PrimaryQuantumProcessor a :GateBasedQuantumComputer ;
+    rdfs:label "Primary Quantum Processor" ;
+    rdfs:comment "Main gate-based quantum processor for ByteStar integration." ;
+    :hasQubitCount 1000 ;
+    :hasResourceUtilization 0.75 ;
+    :integratesWithByteStarFabric "Primary fabric integration point" ;
+    :maintainsQuantumSecurity true .
+
+:OptimizationQuantumAnnealer a :AnnealingQuantumComputer ;
+    rdfs:label "Optimization Quantum Annealer" ;
+    rdfs:comment "Quantum annealer for optimization problems." ;
+    :hasQubitCount 5000 ;
+    :hasResourceUtilization 0.60 ;
+    :providesQuantumAdvantage "Optimization speedup for NP-hard problems" .
+
+# Qubit Instances
+:LogicalQubit001 a :LogicalQubit ;
+    rdfs:label "Logical Qubit 001" ;
+    rdfs:comment "First logical qubit in error correction system." ;
+    :hasCoherenceTime 100000.0 ;
+    :hasErrorRate 0.0001 ;
+    :hasFidelity 0.9999 .
+
+:PhysicalQubit001 a :PhysicalQubit ;
+    rdfs:label "Physical Qubit 001" ;
+    rdfs:comment "First physical qubit in quantum processor." ;
+    :hasCoherenceTime 100.0 ;
+    :hasErrorRate 0.001 ;
+    :hasFidelity 0.995 .
+
+# Quantum Gates
+:StandardHadamard a :Hadamard ;
+    rdfs:label "Standard Hadamard Gate" ;
+    rdfs:comment "Standard superposition-creating Hadamard gate." ;
+    :hasGateTime 20.0 ;
+    :hasFidelity 0.999 .
+
+:StandardCNOT a :CNOT ;
+    rdfs:label "Standard CNOT Gate" ;
+    rdfs:comment "Standard controlled-NOT entangling gate." ;
+    :hasGateTime 40.0 ;
+    :hasFidelity 0.995 .
+
+# Quantum Algorithms
+:PrimaryShorsImplementation a :ShorsAlgorithm ;
+    rdfs:label "Primary Shor's Algorithm Implementation" ;
+    rdfs:comment "Implementation of Shor's factoring algorithm." ;
+    :usesPostQuantumCrypto pqc:Dilithium3 ;
+    :providesQuantumAdvantage "Exponential speedup for integer factorization" .
+
+:VQEForChemistry a :VariationalQuantumEigensolver ;
+    rdfs:label "VQE for Chemistry" ;
+    rdfs:comment "VQE implementation for molecular chemistry problems." ;
+    :providesQuantumAdvantage "Quantum advantage for molecular simulation" .
+
+# Quantum Circuits
+:BellStateCircuit a :QuantumCircuit ;
+    rdfs:label "Bell State Preparation Circuit" ;
+    rdfs:comment "Circuit for preparing maximally entangled Bell states." ;
+    :hasCircuitDepth 2 ;
+    :hasCircuitWidth 2 ;
+    :hasGateCount 2 ;
+    :implementsGate :StandardHadamard , :StandardCNOT ;
+    :hasExecutionTime 60.0 .
+
+# Error Correction
+:PrimarySurfaceCode a :SurfaceCode ;
+    rdfs:label "Primary Surface Code" ;
+    rdfs:comment "Main surface code for error correction." ;
+    :hasErrorThreshold 0.01 ;
+    :hasCodeDistance 9 ;
+    :encodesLogicalQubit :LogicalQubit001 .
+
+:MainErrorDecoder a :ErrorDecoder ;
+    rdfs:label "Main Error Decoder" ;
+    rdfs:comment "Primary decoder for surface code error correction." ;
+    :decodesError "Surface code error syndromes" .
+
+# Hybrid System
+:PrimaryHybridSystem a :QuantumClassicalHybrid ;
+    rdfs:label "Primary Quantum-Classical Hybrid System" ;
+    rdfs:comment "Main hybrid system integrating quantum and classical processing." ;
+    :hasQuantumProcessor :PrimaryQuantumProcessor ;
+    :hasClassicalController "Classical controller for hybrid operations" ;
+    :integratesWithByteStarFabric "Hybrid fabric integration" .
+
+# Quantum Networking
+:PrimaryQKDSystem a :BB84Protocol ;
+    rdfs:label "Primary QKD System" ;
+    rdfs:comment "Primary quantum key distribution system using BB84 protocol." ;
+    :establishsChannel "Secure quantum communication channel" ;
+    :maintainsQuantumSecurity true .
+
+:MainQuantumMemory a :QuantumMemory ;
+    rdfs:label "Main Quantum Memory" ;
+    rdfs:comment "Primary quantum memory for state storage." ;
+    :hasMemoryTime 1000.0 ;
+    :storesQuantumState "Entangled quantum states for networking" .
+
+# Resource Management
+:PrimaryQuantumScheduler a :QuantumScheduler ;
+    rdfs:label "Primary Quantum Scheduler" ;
+    rdfs:comment "Main scheduler for quantum job management." ;
+    :hasQueueLength 25 ;
+    :coordinatesWithAgents mac:SystemCoordinator ;
+    :schedulesJob "Quantum computing jobs for ByteStar integration" .
+
+:MainCircuitOptimizer a :CircuitOptimizer ;
+    rdfs:label "Main Circuit Optimizer" ;
+    rdfs:comment "Primary optimizer for quantum circuit optimization." ;
+    :hasOptimizationLevel 8 ;
+    :optimizesCircuit :BellStateCircuit ;
+    :respectsPerformanceGuarantees pg:Primary8TickGuarantee .

@@ -1,0 +1,46 @@
+@prefix : <http://example.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Ontology declaration
+: a owl:Ontology ;
+    rdfs:label "Test Ontology" ;
+    rdfs:comment "Basic test ontology for compiler testing" .
+
+# Classes
+:Person a owl:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "Represents a person entity" .
+
+:Organization a owl:Class ;
+    rdfs:label "Organization" ;
+    rdfs:comment "Represents an organization" .
+
+:Employee a owl:Class ;
+    rdfs:subClassOf :Person ;
+    rdfs:label "Employee" ;
+    rdfs:comment "A person who works for an organization" .
+
+# Properties
+:hasName a owl:DatatypeProperty ;
+    rdfs:label "has name" ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string .
+
+:hasAge a owl:DatatypeProperty ;
+    rdfs:label "has age" ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:integer .
+
+:worksFor a owl:ObjectProperty ;
+    rdfs:label "works for" ;
+    rdfs:domain :Employee ;
+    rdfs:range :Organization .
+
+:employs a owl:ObjectProperty ;
+    rdfs:label "employs" ;
+    owl:inverseOf :worksFor ;
+    rdfs:domain :Organization ;
+    rdfs:range :Employee .

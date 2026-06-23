@@ -1,0 +1,245 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix micro: <http://example.org/ontology/micro-benchmark#> .
+@prefix otel: <http://example.org/ontology/opentelemetry#> .
+
+# =============================================================================
+# Micro-Operation Benchmark Ontology
+# =============================================================================
+#
+# Defines ultra-low-level telemetry operations for performance validation.
+# Target SLOs: <1µs for attribute ops, <10µs for span emission, <100µs for ingestion.
+#
+# =============================================================================
+
+# Benchmark Classes
+micro:MicroBenchmark rdf:type rdfs:Class ;
+    rdfs:label "Micro-Benchmark" ;
+    rdfs:comment "Ultra-low-level operation benchmark (<1ms target latency)" .
+
+micro:OTELOperation rdf:type rdfs:Class ;
+    rdfs:label "OpenTelemetry Operation" ;
+    rdfs:comment "Individual OTEL telemetry operation to benchmark" .
+
+# Properties
+micro:hasOperation rdf:type rdf:Property ;
+    rdfs:label "has operation" ;
+    rdfs:domain micro:MicroBenchmark ;
+    rdfs:range micro:OTELOperation .
+
+micro:targetLatencyNs rdf:type rdf:Property ;
+    rdfs:label "target latency nanoseconds" ;
+    rdfs:domain micro:MicroBenchmark ;
+    rdfs:range xsd:integer .
+
+micro:targetThroughput rdf:type rdf:Property ;
+    rdfs:label "target throughput ops/sec" ;
+    rdfs:domain micro:MicroBenchmark ;
+    rdfs:range xsd:integer .
+
+micro:complexity rdf:type rdf:Property ;
+    rdfs:label "time complexity" ;
+    rdfs:domain micro:OTELOperation ;
+    rdfs:range xsd:string .
+
+micro:memoryBudget rdf:type rdf:Property ;
+    rdfs:label "memory budget bytes" ;
+    rdfs:domain micro:MicroBenchmark ;
+    rdfs:range xsd:integer .
+
+micro:iterations rdf:type rdf:Property ;
+    rdfs:label "iterations" ;
+    rdfs:domain micro:MicroBenchmark ;
+    rdfs:range xsd:integer .
+
+micro:warmupIterations rdf:type rdf:Property ;
+    rdfs:label "warmup iterations" ;
+    rdfs:domain micro:MicroBenchmark ;
+    rdfs:range xsd:integer .
+
+# =============================================================================
+# Micro-Operation Definitions
+# =============================================================================
+
+# Operation 1: Trace Ingestion
+otel:TraceIngestion rdf:type micro:OTELOperation ;
+    rdfs:label "Trace Ingestion" ;
+    rdfs:comment "Parse OTEL trace JSON + validate + store in EventStream" ;
+    micro:complexity "O(n)" ;
+    rdfs:subClassOf micro:OTELOperation .
+
+# Operation 2: Span Emission
+otel:SpanEmission rdf:type micro:OTELOperation ;
+    rdfs:label "Span Emission" ;
+    rdfs:comment "Create single span + start + end + export to collector" ;
+    micro:complexity "O(1)" ;
+    rdfs:subClassOf micro:OTELOperation .
+
+# Operation 3: Metric Aggregation
+otel:MetricAggregation rdf:type micro:OTELOperation ;
+    rdfs:label "Metric Aggregation" ;
+    rdfs:comment "Merge histogram buckets + sum counters + aggregate gauges (O(k) where k=buckets)" ;
+    micro:complexity "O(k)" ;
+    rdfs:subClassOf micro:OTELOperation .
+
+# Operation 4: Attribute Processing
+otel:AttributeProcessing rdf:type micro:OTELOperation ;
+    rdfs:label "Attribute Processing" ;
+    rdfs:comment "Parse KeyValue list + validate types + encode to protobuf" ;
+    micro:complexity "O(n)" ;
+    rdfs:subClassOf micro:OTELOperation .
+
+# Operation 5: Batch Serialization
+otel:BatchSerialization rdf:type micro:OTELOperation ;
+    rdfs:label "Batch Serialization" ;
+    rdfs:comment "Encode 100 spans to protobuf binary + compress" ;
+    micro:complexity "O(n)" ;
+    rdfs:subClassOf micro:OTELOperation .
+
+# Operation 6: Context Propagation
+otel:ContextPropagation rdf:type micro:OTELOperation ;
+    rdfs:label "Context Propagation" ;
+    rdfs:comment "Parse W3C traceparent + extract trace_id + extract span_id" ;
+    micro:complexity "O(1)" ;
+    rdfs:subClassOf micro:OTELOperation .
+
+# =============================================================================
+# Benchmark Definitions with Aggressive SLOs
+# =============================================================================
+
+# Benchmark 1: Trace Ingestion (100µs target)
+micro:TraceIngestionBenchmark rdf:type micro:MicroBenchmark ;
+    rdfs:label "Trace Ingestion Benchmark" ;
+    micro:hasOperation otel:TraceIngestion ;
+    micro:targetLatencyNs 100000 ;           # 100µs = 100,000ns
+    micro:targetThroughput 10000 ;           # 10K traces/sec
+    micro:iterations 10000 ;
+    micro:warmupIterations 1000 ;
+    micro:memoryBudget 1048576 ;             # 1MB max
+    rdfs:comment "Parse + validate + store 10-span trace" .
+
+# Benchmark 2: Span Emission (10µs target)
+micro:SpanEmissionBenchmark rdf:type micro:MicroBenchmark ;
+    rdfs:label "Span Emission Benchmark" ;
+    micro:hasOperation otel:SpanEmission ;
+    micro:targetLatencyNs 10000 ;            # 10µs = 10,000ns
+    micro:targetThroughput 100000 ;          # 100K spans/sec
+    micro:iterations 100000 ;
+    micro:warmupIterations 10000 ;
+    micro:memoryBudget 4096 ;                # 4KB max
+    rdfs:comment "Create + export single span with 5 attributes" .
+
+# Benchmark 3: Metric Aggregation (50µs target)
+micro:MetricAggregationBenchmark rdf:type micro:MicroBenchmark ;
+    rdfs:label "Metric Aggregation Benchmark" ;
+    micro:hasOperation otel:MetricAggregation ;
+    micro:targetLatencyNs 50000 ;            # 50µs = 50,000ns
+    micro:targetThroughput 20000 ;           # 20K aggregations/sec
+    micro:iterations 10000 ;
+    micro:warmupIterations 1000 ;
+    micro:memoryBudget 8192 ;                # 8KB max
+    rdfs:comment "Merge histogram with 10 buckets + update counter" .
+
+# Benchmark 4: Attribute Processing (1µs target)
+micro:AttributeProcessingBenchmark rdf:type micro:MicroBenchmark ;
+    rdfs:label "Attribute Processing Benchmark" ;
+    micro:hasOperation otel:AttributeProcessing ;
+    micro:targetLatencyNs 1000 ;             # 1µs = 1,000ns
+    micro:targetThroughput 1000000 ;         # 1M ops/sec
+    micro:iterations 1000000 ;
+    micro:warmupIterations 100000 ;
+    micro:memoryBudget 1024 ;                # 1KB max
+    rdfs:comment "Parse + validate 5 attributes (string, int, float, bool, array)" .
+
+# Benchmark 5: Batch Serialization (25µs target)
+micro:BatchSerializationBenchmark rdf:type micro:MicroBenchmark ;
+    rdfs:label "Batch Serialization Benchmark" ;
+    micro:hasOperation otel:BatchSerialization ;
+    micro:targetLatencyNs 25000 ;            # 25µs = 25,000ns
+    micro:targetThroughput 40000 ;           # 40K batches/sec
+    micro:iterations 10000 ;
+    micro:warmupIterations 1000 ;
+    micro:memoryBudget 524288 ;              # 512KB max
+    rdfs:comment "Encode 100 spans to protobuf + gzip compress" .
+
+# Benchmark 6: Context Propagation (500ns target)
+micro:ContextPropagationBenchmark rdf:type micro:MicroBenchmark ;
+    rdfs:label "Context Propagation Benchmark" ;
+    micro:hasOperation otel:ContextPropagation ;
+    micro:targetLatencyNs 500 ;              # 500ns = 0.5µs
+    micro:targetThroughput 2000000 ;         # 2M ops/sec
+    micro:iterations 1000000 ;
+    micro:warmupIterations 100000 ;
+    micro:memoryBudget 256 ;                 # 256B max
+    rdfs:comment "Parse W3C traceparent header (16-byte hex)" .
+
+# =============================================================================
+# Test Data Sizes for Scaling Tests
+# =============================================================================
+
+micro:TestDataset rdf:type rdfs:Class ;
+    rdfs:label "Test Dataset" ;
+    rdfs:comment "Dataset size configuration for scaling benchmarks" .
+
+micro:SmallDataset rdf:type micro:TestDataset ;
+    rdfs:label "Small Dataset" ;
+    micro:traceCount 1 ;
+    micro:spansPerTrace 10 ;
+    micro:attributesPerSpan 5 ;
+    micro:metricCount 1 ;
+    micro:histogramBuckets 10 .
+
+micro:MediumDataset rdf:type micro:TestDataset ;
+    rdfs:label "Medium Dataset" ;
+    micro:traceCount 10 ;
+    micro:spansPerTrace 50 ;
+    micro:attributesPerSpan 10 ;
+    micro:metricCount 10 ;
+    micro:histogramBuckets 50 .
+
+micro:LargeDataset rdf:type micro:TestDataset ;
+    rdfs:label "Large Dataset" ;
+    micro:traceCount 100 ;
+    micro:spansPerTrace 100 ;
+    micro:attributesPerSpan 20 ;
+    micro:metricCount 100 ;
+    micro:histogramBuckets 100 .
+
+# =============================================================================
+# Performance Metrics Captured
+# =============================================================================
+
+micro:PerformanceMetric rdf:type rdfs:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Captured metrics from micro-benchmark execution" .
+
+micro:latencyNs rdf:type rdf:Property ;
+    rdfs:label "Latency (nanoseconds)" ;
+    rdfs:domain micro:PerformanceMetric ;
+    rdfs:range xsd:decimal .
+
+micro:throughputOpsPerSec rdf:type rdf:Property ;
+    rdfs:label "Throughput (ops/sec)" ;
+    rdfs:domain micro:PerformanceMetric ;
+    rdfs:range xsd:decimal .
+
+micro:memoryBytes rdf:type rdf:Property ;
+    rdfs:label "Memory Usage (bytes)" ;
+    rdfs:domain micro:PerformanceMetric ;
+    rdfs:range xsd:integer .
+
+micro:allocsPerOp rdf:type rdf:Property ;
+    rdfs:label "Allocations Per Operation" ;
+    rdfs:domain micro:PerformanceMetric ;
+    rdfs:range xsd:decimal .
+
+micro:cacheMissRate rdf:type rdf:Property ;
+    rdfs:label "Cache Miss Rate" ;
+    rdfs:domain micro:PerformanceMetric ;
+    rdfs:range xsd:decimal .
+
+micro:branchMispredictRate rdf:type rdf:Property ;
+    rdfs:label "Branch Mispredict Rate" ;
+    rdfs:domain micro:PerformanceMetric ;
+    rdfs:range xsd:decimal .

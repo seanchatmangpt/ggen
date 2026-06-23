@@ -1,0 +1,321 @@
+@prefix ex: <https://coach.local/#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Frontend Algorithms
+
+ex:Algo_BFS a ex:Algorithm ;
+  rdfs:label "Breadth-First Search" ;
+  ex:topic "graph-traversal" ;
+  ex:snippet """function bfs(graph, start) {
+  const visited = new Set();
+  const queue = [start];
+
+  while (queue.length) {
+    const node = queue.shift();
+    if (visited.has(node)) continue;
+
+    visited.add(node);
+    queue.push(...graph[node]);
+  }
+
+  return visited;
+}""" ;
+  ex:description "Breadth-First Search for graph traversal in React component trees" ;
+  ex:targets ex:Frontend .
+
+ex:Algo_DFS a ex:Algorithm ;
+  rdfs:label "Depth-First Search" ;
+  ex:topic "graph-traversal" ;
+  ex:snippet """function dfs(graph, node, visited = new Set()) {
+  if (visited.has(node)) return;
+
+  visited.add(node);
+  graph[node].forEach(neighbor => dfs(graph, neighbor, visited));
+
+  return visited;
+}""" ;
+  ex:description "Depth-First Search for tree/graph traversal" ;
+  ex:targets ex:Frontend .
+
+ex:Algo_Debounce a ex:Algorithm ;
+  rdfs:label "Debounce Function" ;
+  ex:topic "performance" ;
+  ex:snippet """function debounce(func, delay) {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+}
+
+// Usage in React
+const debouncedSearch = useMemo(
+  () => debounce((query) => fetchResults(query), 300),
+  []
+);""" ;
+  ex:description "Debounce pattern for optimizing user input handlers" ;
+  ex:targets ex:Frontend .
+
+# Backend Algorithms
+
+ex:Algo_RateLimiter a ex:Algorithm ;
+  rdfs:label "Token Bucket Rate Limiter" ;
+  ex:topic "api-design" ;
+  ex:snippet """class TokenBucket {
+  constructor(capacity, refillRate) {
+    this.capacity = capacity;
+    this.tokens = capacity;
+    this.refillRate = refillRate;
+    this.lastRefill = Date.now();
+  }
+
+  consume(tokens = 1) {
+    this.refill();
+    if (this.tokens >= tokens) {
+      this.tokens -= tokens;
+      return true;
+    }
+    return false;
+  }
+
+  refill() {
+    const now = Date.now();
+    const elapsed = (now - this.lastRefill) / 1000;
+    this.tokens = Math.min(
+      this.capacity,
+      this.tokens + elapsed * this.refillRate
+    );
+    this.lastRefill = now;
+  }
+}""" ;
+  ex:description "Token bucket algorithm for API rate limiting" ;
+  ex:targets ex:Backend .
+
+ex:Algo_CacheLRU a ex:Algorithm ;
+  rdfs:label "LRU Cache" ;
+  ex:topic "caching" ;
+  ex:snippet """class LRUCache {
+  constructor(capacity) {
+    this.capacity = capacity;
+    this.cache = new Map();
+  }
+
+  get(key) {
+    if (!this.cache.has(key)) return -1;
+    const value = this.cache.get(key);
+    this.cache.delete(key);
+    this.cache.set(key, value);
+    return value;
+  }
+
+  put(key, value) {
+    if (this.cache.has(key)) this.cache.delete(key);
+    this.cache.set(key, value);
+    if (this.cache.size > this.capacity) {
+      this.cache.delete(this.cache.keys().next().value);
+    }
+  }
+}""" ;
+  ex:description "Least Recently Used cache implementation" ;
+  ex:targets ex:Backend .
+
+# System Design Patterns
+
+ex:Pattern_LoadBalancing a ex:Pattern ;
+  rdfs:label "Load Balancing" ;
+  ex:description "Distribute load across multiple servers" ;
+  ex:snippet """Load Balancer Strategies:
+
+1. Round Robin
+   - Distribute requests sequentially
+   - Simple, no server state needed
+   - May overload slower servers
+
+2. Least Connections
+   - Route to server with fewest active connections
+   - Better for long-lived connections
+   - Requires connection tracking
+
+3. IP Hash
+   - Hash client IP to select server
+   - Session affinity
+   - Uneven distribution if clients concentrated
+
+4. Weighted Round Robin
+   - Assign weights based on server capacity
+   - More requests to powerful servers
+
+Implementation:
+- Health checks (remove unhealthy nodes)
+- SSL termination at load balancer
+- Session persistence (sticky sessions)
+- Horizontal scaling trigger""" ;
+  ex:targets ex:SystemDesign .
+
+ex:Pattern_CQRS a ex:Pattern ;
+  rdfs:label "CQRS Pattern" ;
+  ex:description "Command Query Responsibility Segregation" ;
+  ex:snippet """CQRS Architecture:
+
+Commands (Write Model):
+- CreateUser, UpdateProfile, DeleteAccount
+- Optimized for writes
+- Event sourcing
+- Validation rules
+
+Queries (Read Model):
+- GetUserProfile, ListUsers, SearchUsers
+- Optimized for reads
+- Denormalized views
+- Materialized views
+- Caching layer
+
+Benefits:
+- Independent scaling (read vs write)
+- Optimized data models
+- Event-driven architecture
+- Better performance
+
+Tradeoffs:
+- Eventual consistency
+- Increased complexity
+- Data synchronization""" ;
+  ex:targets ex:SystemDesign .
+
+ex:Pattern_CircuitBreaker a ex:Pattern ;
+  rdfs:label "Circuit Breaker Pattern" ;
+  ex:description "Prevent cascading failures in distributed systems" ;
+  ex:snippet """Circuit Breaker States:
+
+1. CLOSED (Normal)
+   - Requests flow through
+   - Monitor failure rate
+   - Increment failure counter
+
+2. OPEN (Failing)
+   - Reject requests immediately
+   - Return fallback/error
+   - Start timeout timer
+
+3. HALF_OPEN (Testing)
+   - Allow limited requests
+   - Test if service recovered
+   - Reset to CLOSED or OPEN
+
+Implementation:
+class CircuitBreaker {
+  constructor(threshold, timeout) {
+    this.failureThreshold = threshold;
+    this.timeout = timeout;
+    this.state = 'CLOSED';
+    this.failures = 0;
+  }
+
+  async call(fn) {
+    if (this.state === 'OPEN') {
+      if (Date.now() > this.nextAttempt) {
+        this.state = 'HALF_OPEN';
+      } else {
+        throw new Error('Circuit breaker OPEN');
+      }
+    }
+
+    try {
+      const result = await fn();
+      this.onSuccess();
+      return result;
+    } catch (error) {
+      this.onFailure();
+      throw error;
+    }
+  }
+}""" ;
+  ex:targets ex:SystemDesign .
+
+# DevOps Patterns
+
+ex:Pattern_BlueGreenDeployment a ex:Pattern ;
+  rdfs:label "Blue-Green Deployment" ;
+  ex:description "Zero-downtime deployment strategy" ;
+  ex:snippet """Blue-Green Deployment:
+
+Setup:
+- Blue: Current production (v1.0)
+- Green: New version (v2.0)
+- Load balancer routing
+
+Steps:
+1. Deploy v2.0 to Green environment
+2. Run smoke tests on Green
+3. Switch load balancer to Green
+4. Monitor metrics and errors
+5. Rollback to Blue if issues
+6. Keep Blue for quick rollback
+
+Benefits:
+- Zero downtime
+- Instant rollback
+- Testing in production-like env
+
+Tradeoffs:
+- 2x infrastructure cost
+- Database migrations tricky
+- Stateful services complex
+
+Implementation:
+# Kubernetes
+kubectl apply -f deployment-green.yaml
+kubectl set image deployment/green app=v2.0
+# Test green
+kubectl patch service/app -p '{"spec":{"selector":{"version":"green"}}}'
+# Rollback if needed
+kubectl patch service/app -p '{"spec":{"selector":{"version":"blue"}}}'""" ;
+  ex:targets ex:DevOps .
+
+ex:Pattern_CanaryRelease a ex:Pattern ;
+  rdfs:label "Canary Release" ;
+  ex:description "Gradual rollout with traffic splitting" ;
+  ex:snippet """Canary Release Strategy:
+
+Phases:
+1. 5% traffic to canary
+2. Monitor metrics (15-30 min)
+3. 25% traffic if stable
+4. 50% traffic if stable
+5. 100% traffic (full rollout)
+
+Metrics to Monitor:
+- Error rate
+- Response time (p50, p95, p99)
+- CPU/Memory usage
+- Business metrics
+
+Implementation:
+# Istio VirtualService
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+spec:
+  http:
+  - match:
+    - headers:
+        user-type:
+          exact: beta
+    route:
+    - destination:
+        host: app
+        subset: canary
+  - route:
+    - destination:
+        host: app
+        subset: stable
+      weight: 95
+    - destination:
+        host: app
+        subset: canary
+      weight: 5
+
+Rollback:
+- Automated on metric thresholds
+- Manual on critical errors""" ;
+  ex:targets ex:DevOps .

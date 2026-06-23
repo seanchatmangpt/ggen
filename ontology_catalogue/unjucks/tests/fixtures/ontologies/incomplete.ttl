@@ -1,0 +1,22 @@
+@prefix : <http://example.org/incomplete/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# This ontology is intentionally incomplete - missing class definitions
+# Only properties defined, no rdfs:Class declarations
+
+:name a rdf:Property ;
+  rdfs:range xsd:string ;
+  rdfs:comment "A name property without domain" .
+
+:email a rdf:Property ;
+  rdfs:range xsd:string ;
+  rdfs:comment "An email property without domain" .
+
+:age a rdf:Property ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "An age property without domain" .
+
+# These properties have no class to attach to
+# Generator should fail with "No classes found" error

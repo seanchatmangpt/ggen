@@ -1,0 +1,467 @@
+# Project Governor Military Battlespace Ontology
+# Live TTL/RDF Model for Autonomous Military C2 Systems
+# Built on TTL Weaver Framework for Real-time Evolution
+
+@prefix gov: <https://governor.mil/ontology/> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix threat: <https://governor.mil/threat/> .
+@prefix asset: <https://governor.mil/asset/> .
+@prefix mission: <https://governor.mil/mission/> .
+@prefix command: <https://governor.mil/command/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#####################################################################
+# CORE BATTLESPACE CLASSES
+#####################################################################
+
+gov:BattlespaceEntity a owl:Class ;
+    rdfs:label "Battlespace Entity" ;
+    rdfs:comment "Any entity present in the battlespace with position and time" .
+
+gov:Unit a owl:Class ;
+    rdfs:subClassOf gov:BattlespaceEntity ;
+    rdfs:label "Military Unit" ;
+    rdfs:comment "Any military unit from individual soldier to division" .
+
+gov:AutonomousAsset a owl:Class ;
+    rdfs:subClassOf gov:Unit ;
+    rdfs:label "Autonomous Asset" ;
+    rdfs:comment "AI-driven autonomous military assets" .
+
+gov:Terrain a owl:Class ;
+    rdfs:subClassOf gov:BattlespaceEntity ;
+    rdfs:label "Terrain Feature" ;
+    rdfs:comment "Geographic and man-made terrain features" .
+
+gov:ThreatEntity a owl:Class ;
+    rdfs:subClassOf gov:BattlespaceEntity ;
+    rdfs:label "Threat Entity" ;
+    rdfs:comment "Hostile forces and potential threats" .
+
+gov:MissionElement a owl:Class ;
+    rdfs:label "Mission Element" ;
+    rdfs:comment "Components of military missions and operations" .
+
+gov:Objective a owl:Class ;
+    rdfs:subClassOf gov:MissionElement ;
+    rdfs:label "Mission Objective" ;
+    rdfs:comment "Specific mission goals and targets" .
+
+#####################################################################
+# AUTONOMOUS ASSET TYPES (C Enum Mapping)
+#####################################################################
+
+asset:UGV_Logistics a owl:Class ;
+    rdfs:subClassOf gov:AutonomousAsset ;
+    rdfs:label "UGV Logistics Support" ;
+    gov:assetTypeId "1"^^xsd:integer ;
+    gov:primaryCapability "Supply transport and maintenance" .
+
+asset:UAV_Reconnaissance a owl:Class ;
+    rdfs:subClassOf gov:AutonomousAsset ;
+    rdfs:label "UAV Reconnaissance" ;
+    gov:assetTypeId "2"^^xsd:integer ;
+    gov:primaryCapability "Aerial surveillance and intelligence" .
+
+asset:EW_Suppression a owl:Class ;
+    rdfs:subClassOf gov:AutonomousAsset ;
+    rdfs:label "Electronic Warfare Suppression" ;
+    gov:assetTypeId "3"^^xsd:integer ;
+    gov:primaryCapability "Electronic countermeasures" .
+
+asset:Cyber_Operations a owl:Class ;
+    rdfs:subClassOf gov:AutonomousAsset ;
+    rdfs:label "Cyber Operations" ;
+    gov:assetTypeId "4"^^xsd:integer ;
+    gov:primaryCapability "Cyber warfare and defense" .
+
+asset:Command_Control a owl:Class ;
+    rdfs:subClassOf gov:AutonomousAsset ;
+    rdfs:label "Command and Control" ;
+    gov:assetTypeId "5"^^xsd:integer ;
+    gov:primaryCapability "Mission coordination" .
+
+asset:Medical_Support a owl:Class ;
+    rdfs:subClassOf gov:AutonomousAsset ;
+    rdfs:label "Autonomous Medical Support" ;
+    gov:assetTypeId "6"^^xsd:integer ;
+    gov:primaryCapability "Combat casualty care" .
+
+asset:Fire_Support a owl:Class ;
+    rdfs:subClassOf gov:AutonomousAsset ;
+    rdfs:label "Fire Support Coordination" ;
+    gov:assetTypeId "7"^^xsd:integer ;
+    gov:primaryCapability "Artillery and fire coordination" .
+
+asset:Intelligence a owl:Class ;
+    rdfs:subClassOf gov:AutonomousAsset ;
+    rdfs:label "Intelligence Gathering" ;
+    gov:assetTypeId "8"^^xsd:integer ;
+    gov:primaryCapability "Intelligence collection and analysis" .
+
+#####################################################################
+# SPATIAL AND TEMPORAL PROPERTIES
+#####################################################################
+
+gov:hasPosition a owl:ObjectProperty ;
+    rdfs:domain gov:BattlespaceEntity ;
+    rdfs:range geo:Point ;
+    rdfs:label "Has Position" ;
+    rdfs:comment "Current geographic position of entity" .
+
+gov:hasVelocity a owl:DatatypeProperty ;
+    rdfs:domain gov:Unit ;
+    rdfs:range xsd:float ;
+    rdfs:label "Has Velocity" ;
+    rdfs:comment "Current speed in m/s" .
+
+gov:hasHeading a owl:DatatypeProperty ;
+    rdfs:domain gov:Unit ;
+    rdfs:range xsd:float ;
+    rdfs:label "Has Heading" ;
+    rdfs:comment "Current heading in degrees (0-359)" .
+
+gov:lastUpdateTime a owl:DatatypeProperty ;
+    rdfs:domain gov:BattlespaceEntity ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Last Update Time" ;
+    rdfs:comment "Timestamp of last position/status update" .
+
+#####################################################################
+# THREAT ASSESSMENT PROPERTIES
+#####################################################################
+
+threat:threatLevel a owl:DatatypeProperty ;
+    rdfs:domain threat:ThreatEntity ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Threat Level" ;
+    rdfs:comment "Threat assessment level (0-255)" .
+
+threat:hostileIntent a owl:DatatypeProperty ;
+    rdfs:domain threat:ThreatEntity ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Hostile Intent" ;
+    rdfs:comment "Assessed hostile intent indicator" .
+
+threat:weaponCapability a owl:DatatypeProperty ;
+    rdfs:domain threat:ThreatEntity ;
+    rdfs:range xsd:string ;
+    rdfs:label "Weapon Capability" ;
+    rdfs:comment "Assessed weapon systems and capabilities" .
+
+threat:detectionConfidence a owl:DatatypeProperty ;
+    rdfs:domain threat:ThreatEntity ;
+    rdfs:range xsd:float ;
+    rdfs:label "Detection Confidence" ;
+    rdfs:comment "Confidence in threat identification (0.0-1.0)" .
+
+#####################################################################
+# MISSION PROPERTIES
+#####################################################################
+
+mission:priority a owl:DatatypeProperty ;
+    rdfs:domain gov:Objective ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Mission Priority" ;
+    rdfs:comment "Mission priority level (0-255)" .
+
+mission:requiredCapabilities a owl:DatatypeProperty ;
+    rdfs:domain gov:Objective ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Required Capabilities" ;
+    rdfs:comment "Bitmask of required asset capabilities" .
+
+mission:estimatedDuration a owl:DatatypeProperty ;
+    rdfs:domain gov:Objective ;
+    rdfs:range xsd:float ;
+    rdfs:label "Estimated Duration" ;
+    rdfs:comment "Estimated mission duration in hours" .
+
+mission:riskAssessment a owl:DatatypeProperty ;
+    rdfs:domain gov:Objective ;
+    rdfs:range xsd:float ;
+    rdfs:label "Risk Assessment" ;
+    rdfs:comment "Mission risk level (0.0-1.0)" .
+
+mission:resourceRequirements a owl:DatatypeProperty ;
+    rdfs:domain gov:Objective ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Resource Requirements" ;
+    rdfs:comment "Required resource allocation units" .
+
+mission:deadline a owl:DatatypeProperty ;
+    rdfs:domain gov:Objective ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Mission Deadline" ;
+    rdfs:comment "Mission completion deadline" .
+
+mission:classificationLevel a owl:DatatypeProperty ;
+    rdfs:domain gov:Objective ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Classification Level" ;
+    rdfs:comment "Security classification level (0-5)" .
+
+#####################################################################
+# ASSET CAPABILITIES
+#####################################################################
+
+asset:mobilityRange a owl:DatatypeProperty ;
+    rdfs:domain gov:AutonomousAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Mobility Range" ;
+    rdfs:comment "Maximum operational range in kilometers" .
+
+asset:sensorCapability a owl:DatatypeProperty ;
+    rdfs:domain gov:AutonomousAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Sensor Capability" ;
+    rdfs:comment "Sensor suite capability rating" .
+
+asset:communicationRange a owl:DatatypeProperty ;
+    rdfs:domain gov:AutonomousAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Communication Range" ;
+    rdfs:comment "Radio communication range in kilometers" .
+
+asset:payloadCapacity a owl:DatatypeProperty ;
+    rdfs:domain gov:AutonomousAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Payload Capacity" ;
+    rdfs:comment "Maximum payload weight in kilograms" .
+
+asset:operationalEndurance a owl:DatatypeProperty ;
+    rdfs:domain gov:AutonomousAsset ;
+    rdfs:range xsd:float ;
+    rdfs:label "Operational Endurance" ;
+    rdfs:comment "Operational endurance in hours" .
+
+asset:classificationClearance a owl:DatatypeProperty ;
+    rdfs:domain gov:AutonomousAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Classification Clearance" ;
+    rdfs:comment "Security clearance level (0-5)" .
+
+asset:missionSpecialization a owl:DatatypeProperty ;
+    rdfs:domain gov:AutonomousAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Mission Specialization" ;
+    rdfs:comment "Specialized mission capability bitmask" .
+
+asset:coalitionCapable a owl:DatatypeProperty ;
+    rdfs:domain gov:AutonomousAsset ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Coalition Capable" ;
+    rdfs:comment "Can participate in coalition operations" .
+
+#####################################################################
+# OPERATIONAL STATUS
+#####################################################################
+
+asset:readinessLevel a owl:DatatypeProperty ;
+    rdfs:domain gov:AutonomousAsset ;
+    rdfs:range xsd:float ;
+    rdfs:label "Readiness Level" ;
+    rdfs:comment "Current operational readiness (0.0-1.0)" .
+
+asset:currentMissionLoad a owl:DatatypeProperty ;
+    rdfs:domain gov:AutonomousAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Current Mission Load" ;
+    rdfs:comment "Number of concurrent missions assigned" .
+
+asset:operationalStatus a owl:DatatypeProperty ;
+    rdfs:domain gov:AutonomousAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Operational Status" ;
+    rdfs:comment "Current operational status code" .
+
+asset:maintenanceStatus a owl:DatatypeProperty ;
+    rdfs:domain gov:AutonomousAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "Maintenance Status" ;
+    rdfs:comment "Current maintenance and health status" .
+
+#####################################################################
+# COMMAND AUTHORITY
+#####################################################################
+
+command:commanderId a owl:DatatypeProperty ;
+    rdfs:domain command:CommandAuthority ;
+    rdfs:range xsd:string ;
+    rdfs:label "Commander ID" ;
+    rdfs:comment "Unique commander identification" .
+
+command:authorityLevel a owl:DatatypeProperty ;
+    rdfs:domain command:CommandAuthority ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Authority Level" ;
+    rdfs:comment "Command authority level (0-5)" .
+
+command:publicKey a owl:DatatypeProperty ;
+    rdfs:domain command:CommandAuthority ;
+    rdfs:range xsd:string ;
+    rdfs:label "Public Key" ;
+    rdfs:comment "Ed25519 public key for signature verification" .
+
+command:validFrom a owl:DatatypeProperty ;
+    rdfs:domain command:CommandAuthority ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Valid From" ;
+    rdfs:comment "Command authority valid from timestamp" .
+
+command:validUntil a owl:DatatypeProperty ;
+    rdfs:domain command:CommandAuthority ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Valid Until" ;
+    rdfs:comment "Command authority expiration timestamp" .
+
+#####################################################################
+# COALITION AND COORDINATION
+#####################################################################
+
+gov:Coalition a owl:Class ;
+    rdfs:label "Asset Coalition" ;
+    rdfs:comment "Temporary grouping of assets for specific missions" .
+
+gov:partOfCoalition a owl:ObjectProperty ;
+    rdfs:domain gov:AutonomousAsset ;
+    rdfs:range gov:Coalition ;
+    rdfs:label "Part of Coalition" .
+
+gov:coalitionLeader a owl:ObjectProperty ;
+    rdfs:domain gov:Coalition ;
+    rdfs:range gov:AutonomousAsset ;
+    rdfs:label "Coalition Leader" .
+
+gov:collectiveCapability a owl:DatatypeProperty ;
+    rdfs:domain gov:Coalition ;
+    rdfs:range xsd:float ;
+    rdfs:label "Collective Capability" ;
+    rdfs:comment "Combined capability rating of coalition" .
+
+gov:missionSuccessProbability a owl:DatatypeProperty ;
+    rdfs:domain gov:Coalition ;
+    rdfs:range xsd:float ;
+    rdfs:label "Mission Success Probability" ;
+    rdfs:comment "Assessed probability of mission success (0.0-1.0)" .
+
+#####################################################################
+# MULTI-DOMAIN OPERATIONS
+#####################################################################
+
+gov:OperationalDomain a owl:Class ;
+    rdfs:label "Operational Domain" ;
+    rdfs:comment "Military operational domains" .
+
+gov:LandDomain a owl:Class ;
+    rdfs:subClassOf gov:OperationalDomain ;
+    rdfs:label "Land Domain" .
+
+gov:AirDomain a owl:Class ;
+    rdfs:subClassOf gov:OperationalDomain ;
+    rdfs:label "Air Domain" .
+
+gov:MaritimeDomain a owl:Class ;
+    rdfs:subClassOf gov:OperationalDomain ;
+    rdfs:label "Maritime Domain" .
+
+gov:SpaceDomain a owl:Class ;
+    rdfs:subClassOf gov:OperationalDomain ;
+    rdfs:label "Space Domain" .
+
+gov:CyberDomain a owl:Class ;
+    rdfs:subClassOf gov:OperationalDomain ;
+    rdfs:label "Cyber Domain" .
+
+gov:InformationDomain a owl:Class ;
+    rdfs:subClassOf gov:OperationalDomain ;
+    rdfs:label "Information Domain" .
+
+gov:operatesInDomain a owl:ObjectProperty ;
+    rdfs:domain gov:AutonomousAsset ;
+    rdfs:range gov:OperationalDomain ;
+    rdfs:label "Operates in Domain" .
+
+#####################################################################
+# SEMANTIC EVOLUTION METADATA
+#####################################################################
+
+gov:semanticVersion a owl:DatatypeProperty ;
+    rdfs:domain gov:BattlespaceEntity ;
+    rdfs:range xsd:string ;
+    rdfs:label "Semantic Version" ;
+    rdfs:comment "Version of semantic model evolution" .
+
+gov:lastEvolutionUpdate a owl:DatatypeProperty ;
+    rdfs:domain gov:BattlespaceEntity ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Last Evolution Update" ;
+    rdfs:comment "Timestamp of last semantic evolution" .
+
+gov:performanceMetric a owl:DatatypeProperty ;
+    rdfs:domain gov:AutonomousAsset ;
+    rdfs:range xsd:float ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Current performance assessment" .
+
+#####################################################################
+# SAMPLE INSTANCES FOR TESTING
+#####################################################################
+
+# Sample UGV Asset
+asset:UGV_001 a asset:UGV_Logistics ;
+    rdfs:label "Logistics UGV Alpha-001" ;
+    gov:hasPosition [ geo:lat "34.0522"^^xsd:float ; geo:long "-118.2437"^^xsd:float ] ;
+    gov:hasVelocity "0.0"^^xsd:float ;
+    gov:hasHeading "90.0"^^xsd:float ;
+    asset:mobilityRange "50"^^xsd:integer ;
+    asset:payloadCapacity "500"^^xsd:integer ;
+    asset:operationalEndurance "8.0"^^xsd:float ;
+    asset:readinessLevel "0.95"^^xsd:float ;
+    asset:operationalStatus "1"^^xsd:integer ;
+    asset:coalitionCapable "true"^^xsd:boolean .
+
+# Sample UAV Asset  
+asset:UAV_101 a asset:UAV_Reconnaissance ;
+    rdfs:label "Recon UAV Bravo-101" ;
+    gov:hasPosition [ geo:lat "34.0622"^^xsd:float ; geo:long "-118.2337"^^xsd:float ] ;
+    gov:hasVelocity "25.0"^^xsd:float ;
+    gov:hasHeading "270.0"^^xsd:float ;
+    asset:mobilityRange "100"^^xsd:integer ;
+    asset:sensorCapability "8"^^xsd:integer ;
+    asset:operationalEndurance "6.0"^^xsd:float ;
+    asset:readinessLevel "0.98"^^xsd:float ;
+    asset:operationalStatus "1"^^xsd:integer ;
+    asset:coalitionCapable "true"^^xsd:boolean .
+
+# Sample Mission Objective
+mission:OBJ_ALPHA a gov:Objective ;
+    rdfs:label "Secure Route Alpha" ;
+    mission:priority "200"^^xsd:integer ;
+    mission:requiredCapabilities "15"^^xsd:integer ;
+    mission:estimatedDuration "4.0"^^xsd:float ;
+    mission:riskAssessment "0.3"^^xsd:float ;
+    mission:classificationLevel "3"^^xsd:integer .
+
+# Sample Threat Entity
+threat:THREAT_001 a gov:ThreatEntity ;
+    rdfs:label "Hostile Vehicle Charlie-001" ;
+    gov:hasPosition [ geo:lat "34.0422"^^xsd:float ; geo:long "-118.2537"^^xsd:float ] ;
+    threat:threatLevel "150"^^xsd:integer ;
+    threat:hostileIntent "true"^^xsd:boolean ;
+    threat:detectionConfidence "0.85"^^xsd:float ;
+    threat:weaponCapability "Small arms, possible RPG"^^xsd:string .
+
+# Sample Coalition
+gov:COALITION_ALPHA a gov:Coalition ;
+    rdfs:label "Alpha Strike Coalition" ;
+    gov:collectiveCapability "0.92"^^xsd:float ;
+    gov:missionSuccessProbability "0.88"^^xsd:float .
+
+asset:UGV_001 gov:partOfCoalition gov:COALITION_ALPHA .
+asset:UAV_101 gov:partOfCoalition gov:COALITION_ALPHA .
+gov:COALITION_ALPHA gov:coalitionLeader asset:UAV_101 .

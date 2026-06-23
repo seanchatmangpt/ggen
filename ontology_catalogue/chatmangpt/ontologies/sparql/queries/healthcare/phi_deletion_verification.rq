@@ -1,0 +1,129 @@
+# @name: phi_deletion_verification
+# @category: healthcare/compliance
+# @description: SPARQL ASK verifying GDPR/CCPA deletion completion and right-to-be-forgotten compliance
+# @params: ?patient_uri
+# @returns: ASK result (true if all PHI triples deleted, false if any triples remain with warning count)
+# @version: 1.0
+# @stability: stable
+# @compliance: GDPR Article 17 (Right to be Forgotten), CCPA § 1798.105 (Deletion Requests)
+# @timeout_ms: 15000
+#
+# Use Case: Verify deletion request has been fully executed
+# "Confirm that ALL of Jane Doe's PHI has been deleted from the system"
+#
+# Example binding:
+#   ?patient_uri = <http://businessos.dev/id/patients/MRN-12345>
+#
+# Returns:
+#   - ASK true: All PHI for patient has been successfully deleted (compliance verified)
+#   - ASK false: Remaining PHI triples found (detailed count provided separately)
+#
+# Verification Steps:
+#   1. Check no PHI records still reference patient
+#   2. Check no access events reference patient
+#   3. Check no consent records for patient
+#   4. Check no audit entries for patient
+#   5. Check no derived data (lineage) references patient
+#   6. Verify deletion timestamps recorded (audit trail of deletion itself)
+#
+# GDPR Compliance:
+#   - Deletion must be complete (all references removed)
+#   - Deletion audit trail must be retained (proof of compliance)
+#   - Exceptions: legal hold, regulatory retention (marked separately)
+#   - Must include linked data: derived records, shared copies, exports
+#
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX chatman_health: <https://ontology.chatmangpt.com/healthcare#>
+PREFIX schema: <http://schema.org/>
+PREFIX gdprov: <https://www.w3.org/ns/gdprov#>
+
+ASK {
+  {
+    # CHECK 1: No medical records reference patient
+    ?medicalRecord a chatman_health:MedicalRecord ;
+      chatman_health:belongsToPatient ?patient_uri .
+  }
+  UNION
+  {
+    # CHECK 2: No PHI records reference patient
+    ?phi_record a chatman_health:PHICategory ;
+      chatman_health:belongsToPatient ?patient_uri .
+  }
+  UNION
+  {
+    # CHECK 3: No access events reference patient
+    ?access_event a chatman_health:PHIAccessEvent ;
+      chatman_health:hasGDPRDataSubject ?patient_uri .
+  }
+  UNION
+  {
+    # CHECK 4: No consent records for patient
+    ?consent a chatman_health:ConsentRecord ;
+      chatman_health:dataSubject ?patient_uri .
+  }
+  UNION
+  {
+    # CHECK 5: No lineage/provenance records reference patient
+    ?entity prov:wasAttributedTo ?patient_uri .
+  }
+  UNION
+  {
+    # CHECK 6: No prov:Entity references patient as subject
+    ?entity dcterms:subject ?patient_uri .
+  }
+  UNION
+  {
+    # CHECK 7: No audit trail entries reference patient
+    ?audit_trail a chatman_health:HIPAAauditTrail ;
+      dcterms:subject ?patient_uri .
+  }
+  UNION
+  {
+    # CHECK 8: No patient identifier records remain
+    ?identifier a chatman_health:Identifier ;
+      chatman_health:identifiesPatient ?patient_uri .
+  }
+  UNION
+  {
+    # CHECK 9: No contact information references patient
+    ?contact a chatman_health:ContactInformation ;
+      chatman_health:belongsToPatient ?patient_uri .
+  }
+  UNION
+  {
+    # CHECK 10: No payment data references patient
+    ?payment a chatman_health:PaymentData ;
+      chatman_health:belongsToPatient ?patient_uri .
+  }
+  UNION
+  {
+    # CHECK 11: No clinical data references patient
+    ?clinical a chatman_health:ClinicalData ;
+      chatman_health:belongsToPatient ?patient_uri .
+  }
+  UNION
+  {
+    # CHECK 12: No biometric data references patient
+    ?biometric a chatman_health:BiometricData ;
+      chatman_health:belongsToPatient ?patient_uri .
+  }
+  UNION
+  {
+    # CHECK 13: No derived PHI references patient through prov:wasDerivedFrom chain
+    ?derived prov:wasDerivedFrom ?source .
+    ?source chatman_health:belongsToPatient ?patient_uri .
+  }
+  UNION
+  {
+    # CHECK 14: No GDPR deletion records marked as "incomplete"
+    ?deletion_record a gdprov:DeletionRecord ;
+      dcterms:subject ?patient_uri ;
+      gdprov:deletionStatus ?status .
+    FILTER(?status != "completed")
+  }
+}

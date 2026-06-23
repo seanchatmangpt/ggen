@@ -1,0 +1,410 @@
+# API Generation Ontology for Automatic Code Generation
+# Namespace: http://bytepqc.org/ontology/api#
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix api: <http://bytepqc.org/ontology/api#> .
+@prefix tpl: <http://bytepqc.org/ontology/templates#> .
+
+# ===== ONTOLOGY DECLARATION =====
+<http://bytepqc.org/ontology/api> a owl:Ontology ;
+    rdfs:label "API Generation Ontology" ;
+    rdfs:comment "Ontology for automatic generation of function signatures and error handling" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://bytepqc.org/ontology/templates> .
+
+# ===== CORE API CLASSES =====
+
+api:APIInterface a owl:Class ;
+    rdfs:label "API Interface" ;
+    rdfs:comment "Complete API interface specification" .
+
+api:Function a owl:Class ;
+    rdfs:label "Function" ;
+    rdfs:comment "Function specification with signature and behavior" .
+
+api:Parameter a owl:Class ;
+    rdfs:label "Parameter" ;
+    rdfs:comment "Function parameter specification" .
+
+api:ReturnValue a owl:Class ;
+    rdfs:label "Return Value" ;
+    rdfs:comment "Function return value specification" .
+
+api:ErrorCode a owl:Class ;
+    rdfs:label "Error Code" ;
+    rdfs:comment "API error code definition" .
+
+api:ErrorHandler a owl:Class ;
+    rdfs:label "Error Handler" ;
+    rdfs:comment "Error handling mechanism" .
+
+# ===== CRYPTOGRAPHIC API SPECIALIZATIONS =====
+
+api:CryptographicAPI a owl:Class ;
+    rdfs:subClassOf api:APIInterface ;
+    rdfs:label "Cryptographic API" ;
+    rdfs:comment "API specifically for cryptographic operations" .
+
+api:KeyManagementAPI a owl:Class ;
+    rdfs:subClassOf api:CryptographicAPI ;
+    rdfs:label "Key Management API" ;
+    rdfs:comment "API for cryptographic key operations" .
+
+api:EncryptionAPI a owl:Class ;
+    rdfs:subClassOf api:CryptographicAPI ;
+    rdfs:label "Encryption API" ;
+    rdfs:comment "API for encryption/decryption operations" .
+
+api:HashingAPI a owl:Class ;
+    rdfs:subClassOf api:CryptographicAPI ;
+    rdfs:label "Hashing API" ;
+    rdfs:comment "API for hash function operations" .
+
+api:SignatureAPI a owl:Class ;
+    rdfs:subClassOf api:CryptographicAPI ;
+    rdfs:label "Signature API" ;
+    rdfs:comment "API for digital signature operations" .
+
+# ===== FUNCTION TYPES =====
+
+api:InitFunction a owl:Class ;
+    rdfs:subClassOf api:Function ;
+    rdfs:label "Initialization Function" ;
+    rdfs:comment "Function for initializing cryptographic contexts" .
+
+api:ProcessFunction a owl:Class ;
+    rdfs:subClassOf api:Function ;
+    rdfs:label "Process Function" ;
+    rdfs:comment "Function for processing cryptographic operations" .
+
+api:FinalizeFunction a owl:Class ;
+    rdfs:subClassOf api:Function ;
+    rdfs:label "Finalize Function" ;
+    rdfs:comment "Function for finalizing cryptographic operations" .
+
+api:UtilityFunction a owl:Class ;
+    rdfs:subClassOf api:Function ;
+    rdfs:label "Utility Function" ;
+    rdfs:comment "Utility function for API support" .
+
+# ===== PARAMETER TYPES =====
+
+api:InputParameter a owl:Class ;
+    rdfs:subClassOf api:Parameter ;
+    rdfs:label "Input Parameter" ;
+    rdfs:comment "Input parameter to function" .
+
+api:OutputParameter a owl:Class ;
+    rdfs:subClassOf api:Parameter ;
+    rdfs:label "Output Parameter" ;
+    rdfs:comment "Output parameter from function" .
+
+api:InOutParameter a owl:Class ;
+    rdfs:subClassOf api:Parameter ;
+    rdfs:label "Input-Output Parameter" ;
+    rdfs:comment "Parameter used for both input and output" .
+
+api:ContextParameter a owl:Class ;
+    rdfs:subClassOf api:Parameter ;
+    rdfs:label "Context Parameter" ;
+    rdfs:comment "Cryptographic context parameter" .
+
+api:BufferParameter a owl:Class ;
+    rdfs:subClassOf api:Parameter ;
+    rdfs:label "Buffer Parameter" ;
+    rdfs:comment "Buffer parameter with size information" .
+
+api:SizeParameter a owl:Class ;
+    rdfs:subClassOf api:Parameter ;
+    rdfs:label "Size Parameter" ;
+    rdfs:comment "Parameter specifying buffer size" .
+
+# ===== PROPERTIES =====
+
+api:hasFunction a owl:ObjectProperty ;
+    rdfs:label "has function" ;
+    rdfs:comment "API interface has function" ;
+    rdfs:domain api:APIInterface ;
+    rdfs:range api:Function .
+
+api:hasParameter a owl:ObjectProperty ;
+    rdfs:label "has parameter" ;
+    rdfs:comment "Function has parameter" ;
+    rdfs:domain api:Function ;
+    rdfs:range api:Parameter .
+
+api:hasReturnValue a owl:ObjectProperty ;
+    rdfs:label "has return value" ;
+    rdfs:comment "Function has return value" ;
+    rdfs:domain api:Function ;
+    rdfs:range api:ReturnValue .
+
+api:hasErrorHandler a owl:ObjectProperty ;
+    rdfs:label "has error handler" ;
+    rdfs:comment "API has error handling mechanism" ;
+    rdfs:domain api:APIInterface ;
+    rdfs:range api:ErrorHandler .
+
+api:canReturnError a owl:ObjectProperty ;
+    rdfs:label "can return error" ;
+    rdfs:comment "Function can return specific error" ;
+    rdfs:domain api:Function ;
+    rdfs:range api:ErrorCode .
+
+# ===== DATA TYPE PROPERTIES =====
+
+api:functionName a owl:DatatypeProperty ;
+    rdfs:label "function name" ;
+    rdfs:comment "Name of the function" ;
+    rdfs:domain api:Function ;
+    rdfs:range xsd:string .
+
+api:parameterName a owl:DatatypeProperty ;
+    rdfs:label "parameter name" ;
+    rdfs:comment "Name of the parameter" ;
+    rdfs:domain api:Parameter ;
+    rdfs:range xsd:string .
+
+api:parameterType a owl:DatatypeProperty ;
+    rdfs:label "parameter type" ;
+    rdfs:comment "C data type of the parameter" ;
+    rdfs:domain api:Parameter ;
+    rdfs:range xsd:string .
+
+api:isPointer a owl:DatatypeProperty ;
+    rdfs:label "is pointer" ;
+    rdfs:comment "Whether parameter is a pointer" ;
+    rdfs:domain api:Parameter ;
+    rdfs:range xsd:boolean .
+
+api:isConst a owl:DatatypeProperty ;
+    rdfs:label "is const" ;
+    rdfs:comment "Whether parameter is const" ;
+    rdfs:domain api:Parameter ;
+    rdfs:range xsd:boolean .
+
+api:bufferSize a owl:DatatypeProperty ;
+    rdfs:label "buffer size" ;
+    rdfs:comment "Size of buffer parameter in bytes" ;
+    rdfs:domain api:BufferParameter ;
+    rdfs:range xsd:int .
+
+api:isNullable a owl:DatatypeProperty ;
+    rdfs:label "is nullable" ;
+    rdfs:comment "Whether parameter can be NULL" ;
+    rdfs:domain api:Parameter ;
+    rdfs:range xsd:boolean .
+
+api:returnType a owl:DatatypeProperty ;
+    rdfs:label "return type" ;
+    rdfs:comment "C data type of return value" ;
+    rdfs:domain api:ReturnValue ;
+    rdfs:range xsd:string .
+
+api:errorValue a owl:DatatypeProperty ;
+    rdfs:label "error value" ;
+    rdfs:comment "Numeric value of error code" ;
+    rdfs:domain api:ErrorCode ;
+    rdfs:range xsd:int .
+
+api:errorMessage a owl:DatatypeProperty ;
+    rdfs:label "error message" ;
+    rdfs:comment "Human-readable error message" ;
+    rdfs:domain api:ErrorCode ;
+    rdfs:range xsd:string .
+
+# ===== VALIDATION PROPERTIES =====
+
+api:validationRule a owl:DatatypeProperty ;
+    rdfs:label "validation rule" ;
+    rdfs:comment "Validation rule for parameter" ;
+    rdfs:domain api:Parameter ;
+    rdfs:range xsd:string .
+
+api:precondition a owl:DatatypeProperty ;
+    rdfs:label "precondition" ;
+    rdfs:comment "Function precondition" ;
+    rdfs:domain api:Function ;
+    rdfs:range xsd:string .
+
+api:postcondition a owl:DatatypeProperty ;
+    rdfs:label "postcondition" ;
+    rdfs:comment "Function postcondition" ;
+    rdfs:domain api:Function ;
+    rdfs:range xsd:string .
+
+# ===== ERROR HANDLING CLASSES =====
+
+api:ErrorHandlingStrategy a owl:Class ;
+    rdfs:label "Error Handling Strategy" ;
+    rdfs:comment "Strategy for handling errors" .
+
+api:ReturnCodeStrategy a owl:Class ;
+    rdfs:subClassOf api:ErrorHandlingStrategy ;
+    rdfs:label "Return Code Strategy" ;
+    rdfs:comment "Error handling via return codes" .
+
+api:ExceptionStrategy a owl:Class ;
+    rdfs:subClassOf api:ErrorHandlingStrategy ;
+    rdfs:label "Exception Strategy" ;
+    rdfs:comment "Error handling via exceptions" .
+
+api:CallbackStrategy a owl:Class ;
+    rdfs:subClassOf api:ErrorHandlingStrategy ;
+    rdfs:label "Callback Strategy" ;
+    rdfs:comment "Error handling via callback functions" .
+
+# ===== COMMON ERROR CODES =====
+
+api:SUCCESS a api:ErrorCode ;
+    rdfs:label "Success" ;
+    api:errorValue 0 ;
+    api:errorMessage "Operation completed successfully" .
+
+api:INVALID_PARAMETER a api:ErrorCode ;
+    rdfs:label "Invalid Parameter" ;
+    api:errorValue -1 ;
+    api:errorMessage "Invalid parameter provided" .
+
+api:BUFFER_TOO_SMALL a api:ErrorCode ;
+    rdfs:label "Buffer Too Small" ;
+    api:errorValue -2 ;
+    api:errorMessage "Output buffer is too small" .
+
+api:OUT_OF_MEMORY a api:ErrorCode ;
+    rdfs:label "Out of Memory" ;
+    api:errorValue -3 ;
+    api:errorMessage "Memory allocation failed" .
+
+api:INTERNAL_ERROR a api:ErrorCode ;
+    rdfs:label "Internal Error" ;
+    api:errorValue -4 ;
+    api:errorMessage "Internal cryptographic error" .
+
+api:NOT_INITIALIZED a api:ErrorCode ;
+    rdfs:label "Not Initialized" ;
+    api:errorValue -5 ;
+    api:errorMessage "Cryptographic context not initialized" .
+
+# ===== FUNCTION SIGNATURE GENERATION TEMPLATES =====
+
+api:StandardSignature a tpl:CodeTemplate ;
+    rdfs:label "Standard Function Signature Template" ;
+    tpl:templateContent """
+/**
+ * {{FUNCTION_DESCRIPTION}}
+ * 
+{{#PARAMETERS}}
+ * @param {{PARAM_NAME}} {{PARAM_DESCRIPTION}}
+{{/PARAMETERS}}
+ * @return {{RETURN_DESCRIPTION}}
+ */
+{{RETURN_TYPE}} {{FUNCTION_NAME}}({{#PARAMETERS}}{{#CONST}}const {{/CONST}}{{TYPE}}{{#POINTER}}*{{/POINTER}} {{NAME}}{{#HAS_NEXT}}, {{/HAS_NEXT}}{{/PARAMETERS}});""" .
+
+api:ErrorCheckingWrapper a tpl:CodeTemplate ;
+    rdfs:label "Error Checking Wrapper Template" ;
+    tpl:templateContent """
+static inline int {{FUNCTION_NAME}}_safe({{PARAMETER_LIST}}) {
+    // Input validation
+{{#VALIDATION_RULES}}
+    if ({{CONDITION}}) {
+        return {{ERROR_CODE}};
+    }
+{{/VALIDATION_RULES}}
+    
+    // Call actual function
+    int result = {{FUNCTION_NAME}}({{PARAMETER_NAMES}});
+    
+    // Error handling
+    if (result != 0) {
+        // Log error or cleanup
+        {{ERROR_CLEANUP}}
+    }
+    
+    return result;
+}""" .
+
+# ===== EXAMPLE API SPECIFICATIONS =====
+
+api:kyber_api a api:CryptographicAPI ;
+    rdfs:label "Kyber API" ;
+    rdfs:comment "Complete API for Kyber post-quantum cryptography" .
+
+api:kyber_keypair a api:Function ;
+    rdfs:label "Kyber Key Pair Generation" ;
+    api:functionName "pqc_kyber_keypair" ;
+    api:hasParameter [
+        a api:OutputParameter ;
+        api:parameterName "pk" ;
+        api:parameterType "uint8_t" ;
+        api:isPointer true ;
+        api:bufferSize 1568
+    ] ;
+    api:hasParameter [
+        a api:OutputParameter ;
+        api:parameterName "sk" ;
+        api:parameterType "uint8_t" ;
+        api:isPointer true ;
+        api:bufferSize 3168
+    ] ;
+    api:hasReturnValue [
+        a api:ReturnValue ;
+        api:returnType "int" ;
+        rdfs:comment "0 on success, negative on error"
+    ] ;
+    api:canReturnError api:SUCCESS ;
+    api:canReturnError api:OUT_OF_MEMORY ;
+    api:canReturnError api:INTERNAL_ERROR .
+
+api:kyber_encrypt a api:Function ;
+    rdfs:label "Kyber Encryption" ;
+    api:functionName "pqc_kyber_encrypt" ;
+    api:hasParameter [
+        a api:OutputParameter ;
+        api:parameterName "ct" ;
+        api:parameterType "uint8_t" ;
+        api:isPointer true ;
+        api:bufferSize 1568
+    ] ;
+    api:hasParameter [
+        a api:OutputParameter ;
+        api:parameterName "ss" ;
+        api:parameterType "uint8_t" ;
+        api:isPointer true ;
+        api:bufferSize 32
+    ] ;
+    api:hasParameter [
+        a api:InputParameter ;
+        api:parameterName "pk" ;
+        api:parameterType "uint8_t" ;
+        api:isPointer true ;
+        api:isConst true ;
+        api:bufferSize 1568
+    ] ;
+    api:hasReturnValue [
+        a api:ReturnValue ;
+        api:returnType "int"
+    ] ;
+    api:precondition "pk != NULL && ct != NULL && ss != NULL" ;
+    api:postcondition "ct and ss contain valid encrypted data on success" .
+
+# ===== GENERATION RULES =====
+
+api:ParameterValidationRule a owl:Class ;
+    rdfs:label "Parameter Validation Rule" ;
+    rdfs:comment "Rule for generating parameter validation code" .
+
+api:NullCheckRule a api:ParameterValidationRule ;
+    rdfs:label "NULL Check Rule" ;
+    rdfs:comment "Generate NULL pointer checks for pointer parameters" .
+
+api:BufferSizeRule a api:ParameterValidationRule ;
+    rdfs:label "Buffer Size Rule" ;
+    rdfs:comment "Generate buffer size validation" .
+
+api:AlignmentRule a api:ParameterValidationRule ;
+    rdfs:label "Alignment Rule" ;
+    rdfs:comment "Generate memory alignment checks" .

@@ -1,0 +1,394 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix a2a: <https://a2a.com/schema/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# SHACL Validation Profile
+sh:NodeShape ;
+    sh:targetClass a2a:cloud_infrastructure ;
+    sh:property [
+        sh:path a2a:app_label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Application label is required" ;
+    ] ;
+    sh:property [
+        sh:path a2a:managed_by ;
+        sh:hasValue "a2a" ;
+        sh:message "Infrastructure must be managed by A2A" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type rdfs:label rdfs:comment) .
+
+# Docker Configuration SHACL Profile
+sh:NodeShape ;
+    sh:targetClass a2a:docker_config ;
+    sh:property [
+        sh:path a2a:base_image ;
+        sh:minCount 1 ;
+        sh:message "Base image is required" ;
+        sh:datatype xsd:string ;
+        sh:pattern "^.*:.+$" ;
+    ] ;
+    sh:property [
+        sh:path a2a:expose_port ;
+        sh:node [
+            sh:or (
+                [ sh:datatype xsd:integer ]
+                [ sh:datatype xsd:string ]
+            )
+        ] ;
+    ] ;
+    sh:property [
+        sh:path a2a:health_check ;
+        sh:or (
+            [ sh:datatype xsd:string ]
+            [ sh:hasValue "http://localhost:8080/health" ]
+            [ sh:hasValue "tcp://localhost:8080" ]
+            [ sh:hasValue "exec:/bin/health-check" ]
+        ) ;
+    ] ;
+    sh:property [
+        sh:path a2a:multi_stage_build ;
+        sh:datatype xsd:boolean ;
+        sh:defaultValue "false" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type rdfs:label rdfs:comment) .
+
+# Kubernetes Configuration SHACL Profile
+sh:NodeShape ;
+    sh:targetClass a2a:kubernetes_config ;
+    sh:property [
+        sh:path a2a:namespace ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("default" "kube-system" "production" "staging" "development") ;
+        sh:message "Namespace must be specified and valid" ;
+    ] ;
+    sh:property [
+        sh:path a2a:resource_request_cpu ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+(m)?$" ;
+        sh:message "CPU request must be in format like '100m' or '1'" ;
+    ] ;
+    sh:property [
+        sh:path a2a:resource_request_memory ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+(Mi|Gi)?$" ;
+        sh:message "Memory request must be in format like '128Mi' or '1Gi'" ;
+    ] ;
+    sh:property [
+        sh:path a2a:resource_limit_cpu ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+(m)?$" ;
+        sh:message "CPU limit must be in format like '100m' or '1'" ;
+    ] ;
+    sh:property [
+        sh:path a2a:resource_limit_memory ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+(Mi|Gi)?$" ;
+        sh:message "Memory limit must be in format like '128Mi' or '1Gi'" ;
+    ] ;
+    sh:property [
+        sh:path a2a:replicas ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Replicas must be between 1 and 10" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type rdfs:label rdfs:comment) .
+
+# Helm Chart SHACL Profile
+sh:NodeShape ;
+    sh:targetClass a2a:helm_chart ;
+    sh:property [
+        sh:path a2a:helm_chart_version ;
+        sh:datatype xsd:string ;
+        sh:pattern "^v?[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9]+)?$" ;
+        sh:message "Chart version must follow semantic versioning (e.g., 1.2.3 or v1.2.3)" ;
+    ] ;
+    sh:property [
+        sh:path a2a:helm_app_version ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9]+)?$" ;
+        sh:message "App version must follow semantic versioning" ;
+    ] ;
+    sh:property [
+        sh:path a2a:helm_dependencies ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+    ] ;
+    sh:property [
+        sh:path a2a:helm_values ;
+        sh:datatype xsd:string ;
+        sh:nodeKind sh:Literal ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type rdfs:label rdfs:comment) .
+
+# CI/CD Pipeline SHACL Profile
+sh:NodeShape ;
+    sh:targetClass a2a:cicd_pipeline ;
+    sh:property [
+        sh:path a2a:trigger_event ;
+        sh:datatype xsd:string ;
+        sh:in ("push" "pull_request" "schedule" "workflow_dispatch") ;
+        sh:minCount 1 ;
+        sh:message "At least one trigger event is required" ;
+    ] ;
+    sh:property [
+        sh:path a2a:branch_filter ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+    ] ;
+    sh:property [
+        sh:path a2a:environment ;
+        sh:datatype xsd:string ;
+        sh:in ("development" "staging" "production") ;
+    ] ;
+    sh:property [
+        sh:path a2a:approval_required ;
+        sh:datatype xsd:boolean ;
+        sh:defaultValue "false" ;
+    ] ;
+    sh:property [
+        sh:path a2a:build_matrix ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+    ] ;
+    sh:property [
+        sh:path a2a:artifacts ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type rdfs:label rdfs:comment) .
+
+# Terraform Configuration SHACL Profile
+sh:NodeShape ;
+    sh:targetClass a2a:terraform_config ;
+    sh:property [
+        sh:path a2a:terraform_provider ;
+        sh:datatype xsd:string ;
+        sh:in ("aws" "gcp" "azure" "kubernetes") ;
+        sh:minCount 1 ;
+        sh:message "At least one provider is required" ;
+    ] ;
+    sh:property [
+        sh:path a2a:terraform_resource ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "At least one resource is required" ;
+    ] ;
+    sh:property [
+        sh:path a2a:terraform_variable ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+    ] ;
+    sh:property [
+        sh:path a2a:terraform_output ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type rdfs:label rdfs:comment) .
+
+# Configuration Management SHACL Profile
+sh:NodeShape ;
+    sh:targetClass a2a:config_management ;
+    sh:property [
+        sh:path a2a:config_template ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Configuration template is required" ;
+    ] ;
+    sh:property [
+        sh:path a2a:config_file_path ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Configuration file path is required" ;
+    ] ;
+    sh:property [
+        sh:path a2a:annotations ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type rdfs:label rdfs:comment) .
+
+# Kubernetes Deployment SHACL Profile
+sh:NodeShape ;
+    sh:targetClass a2a:deployment ;
+    sh:property [
+        sh:path a2a:replicas ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Replicas must be between 1 and 10" ;
+    ] ;
+    sh:property [
+        sh:path a2a:container_port ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 65535 ;
+        sh:message "Container port must be between 1 and 65535" ;
+    ] ;
+    sh:property [
+        sh:path a2a:liveness_probe_path ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+    ] ;
+    sh:property [
+        sh:path a2a:readiness_probe_path ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+    ] ;
+    sh:property [
+        sh:path a2a:health_check_port ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 65535 ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type rdfs:label rdfs:comment) .
+
+# Kubernetes Service SHACL Profile
+sh:NodeShape ;
+    sh:targetClass a2a:service ;
+    sh:property [
+        sh:path a2a:service_type ;
+        sh:datatype xsd:string ;
+        sh:in ("ClusterIP" "NodePort" "LoadBalancer" "ExternalName") ;
+        sh:message "Service type must be one of: ClusterIP, NodePort, LoadBalancer, ExternalName" ;
+    ] ;
+    sh:property [
+        sh:path a2a:port ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 65535 ;
+        sh:message "Service port must be between 1 and 65535" ;
+    ] ;
+    sh:property [
+        sh:path a2a:target_port ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 65535 ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type rdfs:label rdfs:comment) .
+
+# Kubernetes Secret SHACL Profile
+sh:NodeShape ;
+    sh:targetClass a2a:secret ;
+    sh:property [
+        sh:path a2a:type ;
+        sh:datatype xsd:string ;
+        sh:in ("Opaque" "kubernetes.io/tls" "kubernetes.io/dockerconfigjson") ;
+        sh:defaultValue "Opaque" ;
+    ] ;
+    sh:property [
+        sh:path a2a:data ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Secret data is required" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type rdfs:label rdfs:comment) .
+
+# Kubernetes ConfigMap SHACL Profile
+sh:NodeShape ;
+    sh:targetClass a2a:configmap ;
+    sh:property [
+        sh:path a2a:data ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "ConfigMap data is required" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type rdfs:label rdfs:comment) .
+
+# Kubernetes Ingress SHACL Profile
+sh:NodeShape ;
+    sh:targetClass a2a:ingress ;
+    sh:property [
+        sh:path a2a:ingress_class ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+    ] ;
+    sh:property [
+        sh:path a2a:backend_service ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Backend service is required" ;
+    ] ;
+    sh:property [
+        sh:path a2a:hosts ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "At least one host is required" ;
+    ] ;
+    sh:property [
+        sh:path a2a:paths ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "At least one path is required" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type rdfs:label rdfs:comment) .
+
+# Validation Constraints for Critical Properties
+a2a:critical_property_constraints a sh:NodeShape ;
+    sh:targetNode [
+        sh:hasValue a2a:resource_request_cpu ;
+        sh:hasValue a2a:resource_request_memory ;
+        sh:hasValue a2a:resource_limit_cpu ;
+        sh:hasValue a2a:resource_limit_memory ;
+    ] ;
+    sh:property [
+        sh:path sh:minCount ;
+        sh:hasValue 0 ;
+    ] ;
+    sh:property [
+        sh:path sh:maxCount ;
+        sh:hasValue 1 ;
+    ] ;
+    sh:severity sh:Warning ;
+    sh:message "Resource specifications should be carefully configured to avoid over-provisioning" .
+
+# Validation Constraints for Security Properties
+a2a:security_property_constraints a sh:NodeShape ;
+    sh:targetNode [
+        sh:hasValue a2a:pod_security_policy ;
+        sh:hasValue a2a:network_policy ;
+        sh:hasValue a2a:service_account_name ;
+    ] ;
+    sh:property [
+        sh:path sh:minCount ;
+        sh:hasValue 0 ;
+    ] ;
+    sh:severity sh:Warning ;
+    sh:message "Security properties should be configured based on security requirements" .
+
+# Validation Constraints for Performance Properties
+a2a:performance_property_constraints a sh:NodeShape ;
+    sh:targetNode [
+        sh:hasValue a2a:replicas ;
+        sh:hasValue a2a:resource_request_cpu ;
+        sh:hasValue a2a:resource_request_memory ;
+    ] ;
+    sh:property [
+        sh:path sh:minInclusive ;
+        sh:hasValue 1 ;
+    ] ;
+    sh:property [
+        sh:path sh:maxInclusive ;
+        sh:hasValue 10 ;
+    ] ;
+    sh:severity sh:Warning ;
+    sh:message "Performance properties should be optimized for cost and availability" .

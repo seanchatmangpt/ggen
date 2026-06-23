@@ -1,0 +1,97 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix test: <http://test.example.com/> .
+
+# Test ontology for TTL2JS Fabricator unit tests
+
+# User class definition
+test:User rdf:type rdfs:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "A user entity for testing" .
+
+# User properties
+test:name rdf:type owl:DatatypeProperty ;
+    rdfs:domain test:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "Full Name" ;
+    rdfs:comment "The user's full name" .
+
+test:email rdf:type owl:DatatypeProperty ;
+    rdfs:domain test:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "Email Address" ;
+    rdfs:comment "The user's email address" .
+
+test:age rdf:type owl:DatatypeProperty ;
+    rdfs:domain test:User ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Age" ;
+    rdfs:comment "The user's age in years" .
+
+test:isActive rdf:type owl:DatatypeProperty ;
+    rdfs:domain test:User ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Active" ;
+    rdfs:comment "Whether the user account is active" .
+
+test:birthDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain test:User ;
+    rdfs:range xsd:date ;
+    rdfs:label "Birth Date" ;
+    rdfs:comment "The user's date of birth" .
+
+# Organization class definition
+test:Organization rdf:type rdfs:Class ;
+    rdfs:label "Organization" ;
+    rdfs:comment "An organization entity for testing" .
+
+# Organization properties
+test:organizationName rdf:type owl:DatatypeProperty ;
+    rdfs:domain test:Organization ;
+    rdfs:range xsd:string ;
+    rdfs:label "Organization Name" ;
+    rdfs:comment "The name of the organization" .
+
+test:foundedDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain test:Organization ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Founded Date" ;
+    rdfs:comment "When the organization was founded" .
+
+# Relationship between User and Organization
+test:worksFor rdf:type owl:ObjectProperty ;
+    rdfs:domain test:User ;
+    rdfs:range test:Organization ;
+    rdfs:label "Works For" ;
+    rdfs:comment "The organization a user works for" .
+
+# Complex class with multiple relationships
+test:Project rdf:type rdfs:Class ;
+    rdfs:label "Project" ;
+    rdfs:comment "A project entity for testing relationships" .
+
+test:projectTitle rdf:type owl:DatatypeProperty ;
+    rdfs:domain test:Project ;
+    rdfs:range xsd:string ;
+    rdfs:label "Project Title" ;
+    rdfs:comment "The title of the project" .
+
+test:budget rdf:type owl:DatatypeProperty ;
+    rdfs:domain test:Project ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Budget" ;
+    rdfs:comment "The project budget" .
+
+test:assignedTo rdf:type owl:ObjectProperty ;
+    rdfs:domain test:Project ;
+    rdfs:range test:User ;
+    rdfs:label "Assigned To" ;
+    rdfs:comment "The user assigned to the project" .
+
+test:ownedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain test:Project ;
+    rdfs:range test:Organization ;
+    rdfs:label "Owned By" ;
+    rdfs:comment "The organization that owns the project" .

@@ -1,0 +1,91 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fin: <https://kgen.dev/ontologies/finance#> .
+@prefix org: <https://kgen.dev/ontologies/organization#> .
+
+fin: a owl:Ontology ;
+    rdfs:label "Global Widgets Finance Ontology" ;
+    rdfs:comment "Multi-entity, multi-currency financial ontology with consolidation support" .
+
+# Core Classes
+fin:Transaction a rdfs:Class ;
+    rdfs:label "Financial Transaction" ;
+    rdfs:comment "A financial transaction across entities" .
+
+fin:Account a rdfs:Class ;
+    rdfs:label "Account" ;
+    rdfs:comment "Chart of accounts entry" .
+
+org:Entity a rdfs:Class ;
+    rdfs:label "Legal Entity" ;
+    rdfs:comment "A legal entity in the organization structure" .
+
+# Properties
+fin:hasAccount a rdf:Property ;
+    rdfs:domain fin:Transaction ;
+    rdfs:range fin:Account .
+
+fin:hasEntity a rdf:Property ;
+    rdfs:domain fin:Transaction ;
+    rdfs:range org:Entity .
+
+fin:hasDate a rdf:Property ;
+    rdfs:domain fin:Transaction ;
+    rdfs:range xsd:date .
+
+fin:hasAmount a rdf:Property ;
+    rdfs:domain fin:Transaction ;
+    rdfs:range xsd:decimal .
+
+fin:hasCurrency a rdf:Property ;
+    rdfs:domain fin:Transaction ;
+    rdfs:range xsd:string .
+
+fin:isIntercompany a rdf:Property ;
+    rdfs:domain fin:Transaction ;
+    rdfs:range xsd:boolean .
+
+# Account Hierarchy
+fin:Revenue a fin:Account ;
+    rdfs:label "Revenue Account" .
+
+fin:Expense a fin:Account ;
+    rdfs:label "Expense Account" .
+
+fin:SalesRevenue a fin:Account ;
+    rdfs:subClassOf fin:Revenue ;
+    rdfs:label "Sales Revenue" .
+
+fin:IntercompanyRevenue a fin:Account ;
+    rdfs:subClassOf fin:Revenue ;
+    rdfs:label "Intercompany Revenue" .
+
+fin:CostOfGoodsSold a fin:Account ;
+    rdfs:subClassOf fin:Expense ;
+    rdfs:label "Cost of Goods Sold" .
+
+fin:IntercompanyCOGS a fin:Account ;
+    rdfs:subClassOf fin:Expense ;
+    rdfs:label "Intercompany COGS" .
+
+fin:OperatingExpenses a fin:Account ;
+    rdfs:subClassOf fin:Expense ;
+    rdfs:label "Operating Expenses" .
+
+fin:InterestExpense a fin:Account ;
+    rdfs:subClassOf fin:Expense ;
+    rdfs:label "Interest Expense" .
+
+fin:TaxExpense a fin:Account ;
+    rdfs:subClassOf fin:Expense ;
+    rdfs:label "Tax Expense" .
+
+fin:Depreciation a fin:Account ;
+    rdfs:subClassOf fin:Expense ;
+    rdfs:label "Depreciation" .
+
+fin:Amortization a fin:Account ;
+    rdfs:subClassOf fin:Expense ;
+    rdfs:label "Amortization" .

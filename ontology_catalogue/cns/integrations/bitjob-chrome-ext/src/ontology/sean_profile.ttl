@@ -1,0 +1,220 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix foaf: <http://www.w3.org/xmlns/foaf/0.1/> .
+@prefix job: <http://bitjob.io/ontology#> .
+@prefix profile: <http://bitjob.io/profile#> .
+@prefix skill: <http://bitjob.io/skills#> .
+
+# BitJob Chrome Extension - Sean Chatman Professional Profile Ontology
+# 80/20 Innovation: Complete professional identity in declarative TTL format
+
+<http://bitjob.io/profile/sean-chatman> 
+    rdf:type owl:Ontology ;
+    rdfs:comment "Sean Chatman's professional profile for intelligent job matching" ;
+    owl:versionInfo "2025.1.0" .
+
+# Professional Identity
+profile:SeanChatman rdf:type foaf:Person ;
+    foaf:name "Sean Chatman" ;
+    foaf:email "xpointsh@gmail.com" ;
+    foaf:homepage <http://www.linkedin.com/in/seanchatman> ;
+    profile:location "Pasadena, California, United States" ;
+    profile:availability "Available for Front-End Staff Engineer: React, Typescript, Generative AI" ;
+    profile:experience_years 25 ;
+    rdfs:comment "Generative AI Front-End Staff Engineer with 25+ years in web development, full-stack architecture, and intelligent systems design" .
+
+# Core Skills with Expertise Levels
+skill:OpenAI rdf:type job:Skill ;
+    rdfs:label "OpenAI" ;
+    job:expertise_level 10 ;
+    job:years_experience 3 ;
+    job:skill_category "AI/ML" ;
+    rdfs:comment "Expert in GPT-3.5, GPT-4, and OpenAI API integration" .
+
+skill:GenerativeAI rdf:type job:Skill ;
+    rdfs:label "Generative AI" ;
+    job:expertise_level 10 ;
+    job:years_experience 3 ;
+    job:skill_category "AI/ML" ;
+    rdfs:comment "Cutting-edge expertise in AI-driven UI generation and intelligent prototyping" .
+
+skill:ReactJS rdf:type job:Skill ;
+    rdfs:label "React.js" ;
+    job:expertise_level 10 ;
+    job:years_experience 15 ;
+    job:skill_category "Frontend" ;
+    rdfs:comment "Expert React developer with modern hooks, context, and performance optimization" .
+
+skill:TypeScript rdf:type job:Skill ;
+    rdfs:label "TypeScript" ;
+    job:expertise_level 9 ;
+    job:years_experience 8 ;
+    job:skill_category "Programming" ;
+    rdfs:comment "Advanced TypeScript for type-safe, scalable applications" .
+
+skill:JavaScript rdf:type job:Skill ;
+    rdfs:label "JavaScript" ;
+    job:expertise_level 10 ;
+    job:years_experience 25 ;
+    job:skill_category "Programming" ;
+    rdfs:comment "Master-level JavaScript across all environments" .
+
+skill:HTML5 rdf:type job:Skill ;
+    rdfs:label "HTML5" ;
+    job:expertise_level 10 ;
+    job:years_experience 25 ;
+    job:skill_category "Frontend" .
+
+skill:CSS rdf:type job:Skill ;
+    rdfs:label "CSS" ;
+    job:expertise_level 10 ;
+    job:years_experience 25 ;
+    job:skill_category "Frontend" .
+
+skill:Angular rdf:type job:Skill ;
+    rdfs:label "Angular" ;
+    job:expertise_level 9 ;
+    job:years_experience 8 ;
+    job:skill_category "Frontend" .
+
+skill:VueJS rdf:type job:Skill ;
+    rdfs:label "Vue.js" ;
+    job:expertise_level 8 ;
+    job:years_experience 5 ;
+    job:skill_category "Frontend" .
+
+skill:NodeJS rdf:type job:Skill ;
+    rdfs:label "Node.js" ;
+    job:expertise_level 9 ;
+    job:years_experience 12 ;
+    job:skill_category "Backend" .
+
+skill:MongoDB rdf:type job:Skill ;
+    rdfs:label "MongoDB" ;
+    job:expertise_level 8 ;
+    job:years_experience 10 ;
+    job:skill_category "Database" .
+
+skill:MySQL rdf:type job:Skill ;
+    rdfs:label "MySQL" ;
+    job:expertise_level 8 ;
+    job:years_experience 15 ;
+    job:skill_category "Database" .
+
+skill:Docker rdf:type job:Skill ;
+    rdfs:label "Docker" ;
+    job:expertise_level 8 ;
+    job:years_experience 6 ;
+    job:skill_category "DevOps" .
+
+skill:Kubernetes rdf:type job:Skill ;
+    rdfs:label "Kubernetes" ;
+    job:expertise_level 7 ;
+    job:years_experience 4 ;
+    job:skill_category "DevOps" .
+
+skill:GraphQL rdf:type job:Skill ;
+    rdfs:label "GraphQL" ;
+    job:expertise_level 8 ;
+    job:years_experience 5 ;
+    job:skill_category "API" .
+
+# Position Preferences
+profile:PreferredPosition rdf:type job:PositionPreference ;
+    job:title "Front-End Staff Engineer" ;
+    job:alternative_titles ("Principal Front-End Engineer" "Senior Front-End Architect" "Staff Software Engineer - Frontend") ;
+    job:seniority_level "Staff" ;
+    job:focus_areas ("React" "TypeScript" "Generative AI" "Performance" "Architecture") ;
+    job:preferred_company_size "Large" ;
+    job:industry_preferences ("Technology" "AI/ML" "SaaS" "Fintech" "Gaming") .
+
+# Experience History (Recent Key Roles)
+job:ConsultantRole rdf:type job:WorkExperience ;
+    job:title "Generative AI Front-End Staff Engineer" ;
+    job:company "Consultant / Self-Employed" ;
+    job:start_date "2023-05-01"^^xsd:date ;
+    job:end_date "2025-06-01"^^xsd:date ;
+    job:duration_years 2.1 ;
+    job:role_type "Consultant" ;
+    job:key_achievements (
+        "Built production-grade UI prototypes powered by LLMs"
+        "Developed autonomous agents with real-time telemetry"
+        "Created AI-driven scaffolding and self-assembling workflows"
+        "Implemented zero-conflict agent coordination with nanosecond precision"
+        "Specialized in Phoenix + LiveView + Ash intelligent backends"
+    ) ;
+    job:technologies ("GPT-4" "Claude" "LiveView" "Elixir" "React" "OpenTelemetry") .
+
+job:IntuitStaffRole rdf:type job:WorkExperience ;
+    job:title "Staff Software Engineer - Artificial Intelligence, Analytics, and Data" ;
+    job:company "Intuit" ;
+    job:start_date "2021-12-01"^^xsd:date ;
+    job:end_date "2023-06-01"^^xsd:date ;
+    job:duration_years 1.6 ;
+    job:role_type "Full-time" ;
+    job:key_achievements (
+        "Integrated AI and analytics into business applications"
+        "Led architectural design for scalable applications"
+        "Mentored team members in AI and full-stack development"
+        "Delivered innovative software solutions exceeding project goals"
+    ) ;
+    job:technologies ("React" "Node.js" "MongoDB" "MySQL" "OpenAI API" "GPT-3.5" "GPT-4") .
+
+job:MethodStudiosRole rdf:type job:WorkExperience ;
+    job:title "Principal Engineer (Web)" ;
+    job:company "Method Studios" ;
+    job:start_date "2018-02-01"^^xsd:date ;
+    job:end_date "2020-06-01"^^xsd:date ;
+    job:duration_years 2.4 ;
+    job:role_type "Full-time" ;
+    job:key_achievements (
+        "Led architectural design of sophisticated business applications"
+        "Managed full-stack infrastructure with modern technologies"
+        "Mentored junior engineers and fostered collaborative culture"
+    ) ;
+    job:technologies ("React" "Angular" "Vue" "Node.js" "MongoDB" "Docker" "Kubernetes") .
+
+# Salary Expectations and Preferences
+profile:SalaryExpectation rdf:type job:CompensationPreference ;
+    job:target_base_salary 200000 ;
+    job:minimum_base_salary 180000 ;
+    job:currency "USD" ;
+    job:equity_important true ;
+    job:benefits_important true ;
+    job:remote_preference "Hybrid" ;
+    job:location_preference "Los Angeles Metro" .
+
+# Job Search Criteria for Automation
+profile:JobSearchCriteria rdf:type job:SearchCriteria ;
+    job:keywords ("Staff Engineer" "Principal Engineer" "React" "Frontend" "Generative AI" "TypeScript") ;
+    job:negative_keywords ("Junior" "Entry Level" "Intern") ;
+    job:company_size_min 500 ;
+    job:funding_stage_min "Series B" ;
+    job:exclude_agencies true ;
+    job:require_tech_stack ("React" "TypeScript" "JavaScript") ;
+    job:preferred_tech_stack ("Node.js" "GraphQL" "Docker" "AI/ML") .
+
+# Automation Preferences
+profile:AutomationSettings rdf:type job:AutomationPreference ;
+    job:auto_apply false ;
+    job:auto_generate_cover_letter true ;
+    job:auto_customize_resume true ;
+    job:send_daily_digest true ;
+    job:linkedin_outreach_enabled true ;
+    job:recruiter_response_templates true ;
+    job:interview_scheduling_automation true ;
+    job:performance_tracking_enabled true .
+
+# BitJob Extension Configuration
+profile:ExtensionConfig rdf:type job:ExtensionSettings ;
+    job:8space_performance_enabled true ;
+    job:real_time_matching true ;
+    job:wasm_acceleration true ;
+    job:ai_powered_insights true ;
+    job:linkedin_integration true ;
+    job:indeed_integration true ;
+    job:glassdoor_integration true ;
+    job:stackoverflow_integration true .

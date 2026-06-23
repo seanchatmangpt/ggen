@@ -1,0 +1,110 @@
+@prefix fibo-fnd-rel-rel: <https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/> .
+@prefix fibo-sec-sec-bsk: <https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/Baskets/> .
+@prefix fibo-der-drc-bsc: <https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/DerivativesBasics/> .
+@prefix fibo-be-le-lp: <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/> .
+@prefix basel: <http://www.bis.org/basel3/ontology/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# FIBO-compliant Financial Instruments for Basel III Testing
+# Based on real trading patterns, anonymized for security
+
+<instrument/corporate-bond-001> a fibo-sec-sec-bsk:CorporateBond ;
+    dcterms:identifier "CORP-BOND-001" ;
+    fibo-fnd-rel-rel:hasName "Anonymous Corp 5.25% Bond 2030" ;
+    fibo-sec-sec-bsk:hasMaturityDate "2030-12-15"^^xsd:date ;
+    fibo-sec-sec-bsk:hasCouponRate "5.25"^^xsd:decimal ;
+    fibo-sec-sec-bsk:hasFaceValue [
+        fibo-sec-sec-bsk:hasAmount "1000000"^^xsd:decimal ;
+        fibo-sec-sec-bsk:hasCurrency "USD"
+    ] ;
+    basel:hasRiskWeight "0.02"^^xsd:decimal ;
+    basel:hasCapitalRequirement "20000"^^xsd:decimal ;
+    fibo-sec-sec-bsk:hasIssuer <entity/anonymous-corp-001> .
+
+<entity/anonymous-corp-001> a fibo-be-le-lp:Corporation ;
+    fibo-fnd-rel-rel:hasName "Anonymous Corporation Ltd" ;
+    fibo-be-le-lp:hasCreditRating "A+" ;
+    fibo-be-le-lp:hasJurisdiction "US" .
+
+<instrument/interest-rate-swap-001> a fibo-der-drc-bsc:InterestRateSwap ;
+    dcterms:identifier "IRS-001" ;
+    fibo-fnd-rel-rel:hasName "5Y USD Interest Rate Swap" ;
+    fibo-der-drc-bsc:hasNotionalAmount [
+        fibo-der-drc-bsc:hasAmount "10000000"^^xsd:decimal ;
+        fibo-der-drc-bsc:hasCurrency "USD"
+    ] ;
+    fibo-der-drc-bsc:hasMaturityDate "2029-09-06"^^xsd:date ;
+    fibo-der-drc-bsc:hasFixedRate "4.75"^^xsd:decimal ;
+    fibo-der-drc-bsc:hasFloatingRateIndex "USD-LIBOR-3M" ;
+    basel:hasRiskWeight "0.05"^^xsd:decimal ;
+    basel:hasCapitalRequirement "500000"^^xsd:decimal ;
+    basel:hasCounterpartyRisk "0.03"^^xsd:decimal .
+
+<instrument/credit-default-swap-001> a fibo-der-drc-bsc:CreditDefaultSwap ;
+    dcterms:identifier "CDS-001" ;
+    fibo-fnd-rel-rel:hasName "Corporate Credit Default Swap" ;
+    fibo-der-drc-bsc:hasNotionalAmount [
+        fibo-der-drc-bsc:hasAmount "5000000"^^xsd:decimal ;
+        fibo-der-drc-bsc:hasCurrency "USD"
+    ] ;
+    fibo-der-drc-bsc:hasMaturityDate "2028-09-06"^^xsd:date ;
+    fibo-der-drc-bsc:hasReferenceEntity <entity/anonymous-corp-001> ;
+    fibo-der-drc-bsc:hasSpread "150"^^xsd:int ; # basis points
+    basel:hasRiskWeight "0.12"^^xsd:decimal ;
+    basel:hasCapitalRequirement "600000"^^xsd:decimal ;
+    basel:hasCounterpartyRisk "0.08"^^xsd:decimal .
+
+<portfolio/trading-book-001> a fibo-sec-sec-bsk:TradingPortfolio ;
+    dcterms:identifier "TRADING-BOOK-001" ;
+    fibo-fnd-rel-rel:hasName "Anonymous Bank Trading Book" ;
+    fibo-sec-sec-bsk:containsInstrument <instrument/corporate-bond-001> ;
+    fibo-sec-sec-bsk:containsInstrument <instrument/interest-rate-swap-001> ;
+    fibo-sec-sec-bsk:containsInstrument <instrument/credit-default-swap-001> ;
+    basel:hasTotalRiskWeightedAssets "1120000"^^xsd:decimal ;
+    basel:hasRequiredCapital "134400"^^xsd:decimal ; # 12% of RWA
+    basel:hasLeverageRatio "0.045"^^xsd:decimal .
+
+# Basel III Risk Calculations
+<risk-calculation/var-001> a basel:ValueAtRisk ;
+    basel:appliesToPortfolio <portfolio/trading-book-001> ;
+    basel:hasConfidenceLevel "99"^^xsd:int ;
+    basel:hasTimeHorizon "1"^^xsd:int ; # days
+    basel:hasVaRAmount "450000"^^xsd:decimal ;
+    basel:calculationDate "2024-09-06"^^xsd:date .
+
+<stress-test/adverse-scenario-001> a basel:StressTest ;
+    basel:appliesToPortfolio <portfolio/trading-book-001> ;
+    basel:hasScenarioName "Adverse Economic Scenario 2024" ;
+    basel:hasInterestRateShock "200"^^xsd:int ; # basis points
+    basel:hasCreditSpreadShock "300"^^xsd:int ; # basis points
+    basel:hasProjectedLoss "850000"^^xsd:decimal ;
+    basel:hasCapitalShortfall "125000"^^xsd:decimal .
+
+# Additional instruments for performance testing
+<instrument/equity-001> a fibo-sec-sec-bsk:CommonShare ;
+    dcterms:identifier "EQUITY-001" ;
+    fibo-fnd-rel-rel:hasName "Anonymous Tech Corp Common Stock" ;
+    fibo-sec-sec-bsk:hasMarketValue [
+        fibo-sec-sec-bsk:hasAmount "150.75"^^xsd:decimal ;
+        fibo-sec-sec-bsk:hasCurrency "USD"
+    ] ;
+    fibo-sec-sec-bsk:hasIssuer <entity/anonymous-tech-corp-001> ;
+    basel:hasRiskWeight "1.0"^^xsd:decimal .
+
+<entity/anonymous-tech-corp-001> a fibo-be-le-lp:Corporation ;
+    fibo-fnd-rel-rel:hasName "Anonymous Technology Corporation" ;
+    fibo-be-le-lp:hasCreditRating "AA" ;
+    fibo-be-le-lp:hasMarketCapitalization "50000000000"^^xsd:decimal .
+
+# Complex derivative for stress testing
+<instrument/exotic-option-001> a fibo-der-drc-bsc:BarrierOption ;
+    dcterms:identifier "BARRIER-OPT-001" ;
+    fibo-fnd-rel-rel:hasName "Knock-In Barrier Option" ;
+    fibo-der-drc-bsc:hasUnderlyingAsset <instrument/equity-001> ;
+    fibo-der-drc-bsc:hasStrikePrice "160.00"^^xsd:decimal ;
+    fibo-der-drc-bsc:hasBarrierLevel "140.00"^^xsd:decimal ;
+    fibo-der-drc-bsc:hasMaturityDate "2025-03-15"^^xsd:date ;
+    basel:hasRiskWeight "0.15"^^xsd:decimal ;
+    basel:hasModelRisk "high" .

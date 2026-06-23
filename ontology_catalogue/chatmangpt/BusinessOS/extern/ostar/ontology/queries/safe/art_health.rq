@@ -1,0 +1,55 @@
+# ART Health Query
+# Returns health metrics for an Agile Release Train: velocity, predictability, dependency count, team count
+
+PREFIX safe: <https://chatmangpt.com/ontologies/safe/pm#>
+PREFIX pm: <https://chatmangpt.com/ontologies/powl/pm#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?art ?artLabel ?teamCount (SUM(?velocity) AS ?totalVelocity) (AVG(?predictability) AS ?avgPredictability) (COUNT(?dep) AS ?dependencyCount)
+WHERE {
+  # Find the ART
+  ?art a safe:AgileReleaseTrain .
+  OPTIONAL { ?art rdfs:label ?artLabel }
+
+  # Count teams in ART
+  ?art safe:hasTeam ?team .
+
+  # Get team velocity (last 3 PIs)
+  {
+    SELECT ?team (AVG(?points) AS ?velocity)
+    WHERE {
+      ?team pm:hasSprint ?pi .
+      ?pi a safe:ProgramIncrement .
+      ?pi pm:inSprint ?story .
+      ?story a pm:Story .
+      ?story pm:column ?doneCol .
+      ?doneCol rdfs:label "Done" .
+      ?story pm:storyPoints ?points .
+    }
+    GROUP BY ?team
+    ORDER BY DESC(?pi)
+    LIMIT 3
+  }
+
+  # Get predictability (objectives achieved / committed)
+  {
+    SELECT ?team (ROUND(AVG(?achievementRate) * 100) AS ?predictability)
+    WHERE {
+      ?team pm:hasSprint ?pi .
+      ?pi a safe:ProgramIncrement .
+      ?pi safe:hasPIObjective ?obj .
+      ?obj safe:objectiveStatus ?status .
+      BIND(IF(?status = "achieved", 1.0, IF(?status IN ("committed", "at-risk"), 0.0, 0.5)) AS ?achievementRate)
+    }
+    GROUP BY ?team
+  }
+
+  # Count dependencies
+  OPTIONAL {
+    ?dep a safe:Dependency .
+    ?dep safe:blocks ?workItem .
+    ?workItem pm:inSprint ?sprint .
+    ?sprint safe:inArt ?art .
+  }
+}
+GROUP BY ?art ?artLabel ?teamCount

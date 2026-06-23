@@ -1,0 +1,57 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Fountain Gate = relation evidence gate.
+# The Fountain Gate is where cross-references are grounded: the pool of Siloah
+# and the king's garden are cited as landmarks. Relation evidence must be traceable
+# to a source, not asserted by inference alone.
+# Shallun son of Col-Hozeh repaired the Fountain Gate — and the Wall of the Pool of Siloah.
+# Cross-reference records must name both endpoints and cite the source.
+
+bos:ShallunSonOfColHozeh a bos:Builder ;
+    rdfs:label "Shallun son of Col-Hozeh" ;
+    bos:hasCanonicalReference "Neh.3.15"^^xsd:string ;
+    bos:assignedToGate bos:FountainGate ;
+    rdfs:comment "Ruler of the district of Mizpah. Repaired the Fountain Gate section and the Wall of the Pool of Siloah. Extended scope: stairs down from the City of David." ;
+    bos:hasSource "Neh.3.15" ;
+    dcterms:created "2026-06-02"^^xsd:date .
+
+bos:FountainGateSection a bos:WallSection ;
+    rdfs:label "Fountain Gate Section" ;
+    bos:hasCanonicalReference "Neh.3.15"^^xsd:string ;
+    rdfs:comment "The wall section including the Fountain Gate. Repaired and roofed by Shallun son of Col-Hozeh. Includes the Wall of the Pool of Siloah and the stairs descending from the City of David." ;
+    bos:assignedToGate bos:FountainGate ;
+    bos:hasBuilder bos:ShallunSonOfColHozeh ;
+    bos:hasSource "Neh.3.15" ;
+    bos:hasReceipt bos:FountainGateSectionReceipt .
+
+bos:FountainGateCrossReferenceRecord a bos:InspectionReceipt ;
+    rdfs:label "Fountain Gate Cross-Reference Record" ;
+    bos:hasCanonicalReference "Neh.3.15"^^xsd:string ;
+    rdfs:comment "Relation evidence record: Fountain Gate section repaired by Shallun son of Col-Hozeh. Cross-reference: Pool of Siloah (Neh.3.15), King's Garden (Neh.3.15), stairs from City of David (Neh.3.15). Three distinct landmarks ground the single repair record. Relation evidence must cite all endpoints." ;
+    bos:hasBuilder bos:ShallunSonOfColHozeh ;
+    bos:hasSource "Neh.3.15" ;
+    bos:assignedToGate bos:FountainGate ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasReceipt bos:FountainGateSectionReceipt .
+
+bos:PoolOfSiloahRelationEvidence a bos:Receipt ;
+    rdfs:label "Pool of Siloah — Relation Evidence Source" ;
+    rdfs:comment "Cross-reference endpoint: Pool of Siloah, cited in Neh.3.15. The pool is the source landmark that grounds the Fountain Gate relation evidence." ;
+    bos:hasSource "Neh.3.15" ;
+    bos:assignedToGate bos:FountainGate .
+
+bos:FountainGateSectionReceipt a bos:InspectionReceipt ;
+    rdfs:label "Fountain Gate Section Receipt" ;
+    bos:hasCanonicalReference "Neh.3.15"^^xsd:string ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasSource "Neh.3.15" ;
+    rdfs:comment "Section complete: Fountain Gate repaired and roofed. Wall of Pool of Siloah included. Stairs from City of David in scope. Named builder: Shallun son of Col-Hozeh, ruler of Mizpah." .
+
+bos:VerdictAlive a bos:Verdict ;
+    rdfs:label "ALIVE" ;
+    rdfs:comment "Section validated: structure is sound, receipt is grounded, builder is named." .

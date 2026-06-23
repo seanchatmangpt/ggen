@@ -1,0 +1,789 @@
+@prefix ba: <http://bytestar.ai/ontology/> .
+@prefix dr: <http://bytestar.ai/ontology/disaster-recovery/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix doe: <http://bytestar.ai/ontology/doctrine-of-8/> .
+
+# ============================================
+# ByteStar Disaster Recovery Ontology
+# ============================================
+# Comprehensive disaster recovery framework with RTO/RPO guarantees,
+# multi-region failover, automated recovery, and business continuity
+# Reuses and extends ba-deployment-pipeline.ttl patterns
+
+dr:disaster-recovery-ontology a owl:Ontology ;
+    dct:title "ByteStar Disaster Recovery Ontology" ;
+    dct:description "Comprehensive disaster recovery framework with automated failover, business continuity, and operational resilience across ByteStar infrastructure" ;
+    dct:version "5.0.0" ;
+    dct:created "2025-01-XX"^^xsd:date ;
+    dct:creator "ByteStar Operations Team" ;
+    owl:versionInfo "Phase 5 - Operations Framework" ;
+    dct:subject "Disaster Recovery, Business Continuity, Failover, RTO/RPO" ;
+    owl:imports ba:deployment-pipeline-ontology ,
+                ba:bytecore-hardware ,
+                ba:performance-measurement ,
+                ba:audit-system .
+
+# ============================================
+# CORE DISASTER RECOVERY CLASSES
+# ============================================
+
+# Main DR Architecture
+dr:DisasterRecoverySystem a owl:Class ;
+    rdfs:label "Disaster Recovery System" ;
+    rdfs:comment "Comprehensive disaster recovery system providing automated failover and business continuity" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    skos:definition "A disaster recovery system ensures business continuity through automated failover, data replication, and recovery orchestration" .
+
+dr:RecoveryObjective a owl:Class ;
+    rdfs:label "Recovery Objective" ;
+    rdfs:comment "Measurable targets for disaster recovery performance" ;
+    rdfs:subClassOf ba:PerformanceObjective ;
+    skos:definition "Recovery objectives define measurable targets for recovery time and data loss tolerance" .
+
+dr:RecoveryTimeObjective a owl:Class ;
+    rdfs:label "Recovery Time Objective (RTO)" ;
+    rdfs:comment "Maximum acceptable time to restore service after disaster" ;
+    rdfs:subClassOf dr:RecoveryObjective ;
+    skos:definition "RTO defines the maximum acceptable downtime before significant business impact occurs" .
+
+dr:RecoveryPointObjective a owl:Class ;
+    rdfs:label "Recovery Point Objective (RPO)" ;
+    rdfs:comment "Maximum acceptable data loss measured in time" ;
+    rdfs:subClassOf dr:RecoveryObjective ;
+    skos:definition "RPO defines the maximum amount of data loss acceptable before business impact becomes unacceptable" .
+
+dr:BusinessContinuityPlan a owl:Class ;
+    rdfs:label "Business Continuity Plan" ;
+    rdfs:comment "Comprehensive plan ensuring business operations continue during disasters" ;
+    rdfs:subClassOf ba:Plan ;
+    skos:definition "Business continuity plan defines procedures, systems, and resources needed to maintain critical operations during disruptions" .
+
+# ============================================
+# FAILURE TYPES AND DISASTER SCENARIOS
+# ============================================
+
+dr:DisasterScenario a owl:Class ;
+    rdfs:label "Disaster Scenario" ;
+    rdfs:comment "Specific disaster scenario requiring recovery procedures" ;
+    rdfs:subClassOf ba:Scenario ;
+    skos:definition "A disaster scenario describes a specific failure condition and its impact on system operations" .
+
+dr:HardwareFailure a owl:Class ;
+    rdfs:label "Hardware Failure" ;
+    rdfs:comment "Physical hardware component failures" ;
+    rdfs:subClassOf dr:DisasterScenario ;
+    skos:definition "Hardware failure includes server crashes, disk failures, network equipment failures, and data center outages" .
+
+dr:NetworkPartition a owl:Class ;
+    rdfs:label "Network Partition" ;
+    rdfs:comment "Network connectivity failures causing system partition" ;
+    rdfs:subClassOf dr:DisasterScenario ;
+    skos:definition "Network partition occurs when network failures prevent communication between system components" .
+
+dr:DataCorruption a owl:Class ;
+    rdfs:label "Data Corruption" ;
+    rdfs:comment "Data integrity failures requiring restoration" ;
+    rdfs:subClassOf dr:DisasterScenario ;
+    skos:definition "Data corruption includes logical errors, bit rot, database corruption, and accidental data deletion" .
+
+dr:SoftwareFailure a owl:Class ;
+    rdfs:label "Software Failure" ;
+    rdfs:comment "Application or system software failures" ;
+    rdfs:subClassOf dr:DisasterScenario ;
+    skos:definition "Software failure includes application bugs, operating system crashes, and configuration errors" .
+
+dr:SecurityBreach a owl:Class ;
+    rdfs:label "Security Breach" ;
+    rdfs:comment "Security incidents requiring system isolation and recovery" ;
+    rdfs:subClassOf dr:DisasterScenario ;
+    skos:definition "Security breach includes unauthorized access, malware infections, and data exfiltration attempts" .
+
+dr:NaturalDisaster a owl:Class ;
+    rdfs:label "Natural Disaster" ;
+    rdfs:comment "Environmental disasters affecting infrastructure" ;
+    rdfs:subClassOf dr:DisasterScenario ;
+    skos:definition "Natural disasters include earthquakes, floods, fires, storms, and other environmental threats to infrastructure" .
+
+dr:HumanError a owl:Class ;
+    rdfs:label "Human Error" ;
+    rdfs:comment "Operational errors requiring recovery procedures" ;
+    rdfs:subClassOf dr:DisasterScenario ;
+    skos:definition "Human error includes accidental configuration changes, operational mistakes, and procedural violations" .
+
+# ============================================
+# MULTI-REGION FAILOVER ARCHITECTURE
+# ============================================
+
+dr:MultiRegionArchitecture a owl:Class ;
+    rdfs:label "Multi-Region Architecture" ;
+    rdfs:comment "Geographically distributed architecture for disaster resilience" ;
+    rdfs:subClassOf ba:Architecture ;
+    skos:definition "Multi-region architecture provides geographic redundancy through distributed deployment across multiple regions" .
+
+dr:PrimaryRegion a owl:Class ;
+    rdfs:label "Primary Region" ;
+    rdfs:comment "Main operational region under normal conditions" ;
+    rdfs:subClassOf ba:Region ;
+    skos:definition "Primary region hosts the main production workload under normal operating conditions" .
+
+dr:SecondaryRegion a owl:Class ;
+    rdfs:label "Secondary Region" ;
+    rdfs:comment "Backup region for disaster recovery failover" ;
+    rdfs:subClassOf ba:Region ;
+    skos:definition "Secondary region provides standby capacity and serves as failover destination during primary region failures" .
+
+dr:RegionPair a owl:Class ;
+    rdfs:label "Region Pair" ;
+    rdfs:comment "Paired regions for disaster recovery failover" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    skos:definition "Region pair defines the relationship between primary and secondary regions for coordinated failover" .
+
+dr:FailoverController a owl:Class ;
+    rdfs:label "Failover Controller" ;
+    rdfs:comment "System controlling automated failover between regions" ;
+    rdfs:subClassOf ba:ControlSystem ;
+    skos:definition "Failover controller orchestrates the automated transfer of operations from failed to healthy regions" .
+
+dr:CrossRegionReplication a owl:Class ;
+    rdfs:label "Cross-Region Replication" ;
+    rdfs:comment "Data replication across geographic regions" ;
+    rdfs:subClassOf ba:ReplicationSystem ;
+    skos:definition "Cross-region replication maintains synchronized data copies across geographically separated regions" .
+
+dr:RegionHealthMonitor a owl:Class ;
+    rdfs:label "Region Health Monitor" ;
+    rdfs:comment "Monitoring system for regional health and availability" ;
+    rdfs:subClassOf ba:MonitoringSystem ;
+    skos:definition "Region health monitor continuously assesses regional system health and triggers failover when necessary" .
+
+# ============================================
+# AUTOMATED RECOVERY PROCEDURES
+# ============================================
+
+dr:RecoveryProcedure a owl:Class ;
+    rdfs:label "Recovery Procedure" ;
+    rdfs:comment "Automated procedure for system recovery" ;
+    rdfs:subClassOf ba:Procedure ;
+    skos:definition "Recovery procedure defines the step-by-step process for restoring system functionality after failure" .
+
+dr:AutomatedFailover a owl:Class ;
+    rdfs:label "Automated Failover" ;
+    rdfs:comment "Fully automated failover without human intervention" ;
+    rdfs:subClassOf dr:RecoveryProcedure ;
+    skos:definition "Automated failover executes recovery procedures without human intervention to minimize downtime" .
+
+dr:ManualFailover a owl:Class ;
+    rdfs:label "Manual Failover" ;
+    rdfs:comment "Human-initiated failover procedure" ;
+    rdfs:subClassOf dr:RecoveryProcedure ;
+    skos:definition "Manual failover requires human decision and intervention to initiate recovery procedures" .
+
+dr:GracefulFailover a owl:Class ;
+    rdfs:label "Graceful Failover" ;
+    rdfs:comment "Coordinated failover minimizing service disruption" ;
+    rdfs:subClassOf dr:AutomatedFailover ;
+    skos:definition "Graceful failover coordinates the orderly transfer of operations to minimize service disruption" .
+
+dr:EmergencyFailover a owl:Class ;
+    rdfs:label "Emergency Failover" ;
+    rdfs:comment "Immediate failover during critical failures" ;
+    rdfs:subClassOf dr:AutomatedFailover ;
+    skos:definition "Emergency failover provides immediate service restoration when primary systems fail completely" .
+
+dr:Failback a owl:Class ;
+    rdfs:label "Failback" ;
+    rdfs:comment "Return to primary system after recovery" ;
+    rdfs:subClassOf dr:RecoveryProcedure ;
+    skos:definition "Failback restores operations to the primary system after the original failure has been resolved" .
+
+dr:RecoveryOrchestrator a owl:Class ;
+    rdfs:label "Recovery Orchestrator" ;
+    rdfs:comment "System orchestrating complex recovery procedures" ;
+    rdfs:subClassOf ba:OrchestrationEngine ;
+    skos:definition "Recovery orchestrator manages the coordination of multiple recovery procedures across distributed systems" .
+
+# ============================================
+# DATA PROTECTION AND BACKUP
+# ============================================
+
+dr:BackupStrategy a owl:Class ;
+    rdfs:label "Backup Strategy" ;
+    rdfs:comment "Comprehensive backup strategy for data protection" ;
+    rdfs:subClassOf ba:DataStrategy ;
+    skos:definition "Backup strategy defines policies and procedures for creating, maintaining, and restoring data backups" .
+
+dr:ContinuousBackup a owl:Class ;
+    rdfs:label "Continuous Backup" ;
+    rdfs:comment "Real-time continuous backup system" ;
+    rdfs:subClassOf dr:BackupStrategy ;
+    skos:definition "Continuous backup maintains real-time synchronized copies of data with minimal RPO" .
+
+dr:SnapshotBackup a owl:Class ;
+    rdfs:label "Snapshot Backup" ;
+    rdfs:comment "Point-in-time snapshot backup system" ;
+    rdfs:subClassOf dr:BackupStrategy ;
+    skos:definition "Snapshot backup creates point-in-time copies of data and system state for recovery purposes" .
+
+dr:IncrementalBackup a owl:Class ;
+    rdfs:label "Incremental Backup" ;
+    rdfs:comment "Incremental backup of changed data only" ;
+    rdfs:subClassOf dr:BackupStrategy ;
+    skos:definition "Incremental backup captures only data changes since the last backup to optimize storage and transfer" .
+
+dr:GeographicBackup a owl:Class ;
+    rdfs:label "Geographic Backup" ;
+    rdfs:comment "Geographically distributed backup storage" ;
+    rdfs:subClassOf dr:BackupStrategy ;
+    skos:definition "Geographic backup stores data copies in multiple geographic locations to protect against regional disasters" .
+
+dr:BackupRetentionPolicy a owl:Class ;
+    rdfs:label "Backup Retention Policy" ;
+    rdfs:comment "Policy governing backup retention and lifecycle" ;
+    rdfs:subClassOf ba:Policy ;
+    skos:definition "Backup retention policy defines how long backups are kept and when they can be safely deleted" .
+
+dr:BackupValidation a owl:Class ;
+    rdfs:label "Backup Validation" ;
+    rdfs:comment "Process for validating backup integrity and recoverability" ;
+    rdfs:subClassOf ba:ValidationProcess ;
+    skos:definition "Backup validation ensures backup integrity and verifies that data can be successfully restored" .
+
+# ============================================
+# BUSINESS CONTINUITY COMPONENTS
+# ============================================
+
+dr:CriticalBusinessFunction a owl:Class ;
+    rdfs:label "Critical Business Function" ;
+    rdfs:comment "Essential business function requiring continuity protection" ;
+    rdfs:subClassOf ba:BusinessFunction ;
+    skos:definition "Critical business function is essential for business operations and requires protection during disasters" .
+
+dr:BusinessImpactAnalysis a owl:Class ;
+    rdfs:label "Business Impact Analysis" ;
+    rdfs:comment "Analysis of business impact from system failures" ;
+    rdfs:subClassOf ba:Analysis ;
+    skos:definition "Business impact analysis identifies critical business functions and quantifies the impact of disruptions" .
+
+dr:ServiceLevelAgreement a owl:Class ;
+    rdfs:label "Service Level Agreement" ;
+    rdfs:comment "SLA defining availability and recovery commitments" ;
+    rdfs:subClassOf ba:Agreement ;
+    skos:definition "Service level agreement defines the availability and recovery commitments for business services" .
+
+dr:ContinuityStrategy a owl:Class ;
+    rdfs:label "Continuity Strategy" ;
+    rdfs:comment "Strategy for maintaining business continuity" ;
+    rdfs:subClassOf ba:Strategy ;
+    skos:definition "Continuity strategy defines the approach for maintaining critical business functions during disruptions" .
+
+dr:EmergencyResponse a owl:Class ;
+    rdfs:label "Emergency Response" ;
+    rdfs:comment "Emergency response procedures for disaster situations" ;
+    rdfs:subClassOf ba:ResponseProcedure ;
+    skos:definition "Emergency response defines immediate actions taken when disaster conditions are detected" .
+
+dr:CommunicationPlan a owl:Class ;
+    rdfs:label "Communication Plan" ;
+    rdfs:comment "Plan for stakeholder communication during disasters" ;
+    rdfs:subClassOf ba:Plan ;
+    skos:definition "Communication plan ensures stakeholders receive timely and accurate information during disaster events" .
+
+# ============================================
+# RECOVERY TESTING AND VALIDATION
+# ============================================
+
+dr:DisasterRecoveryTest a owl:Class ;
+    rdfs:label "Disaster Recovery Test" ;
+    rdfs:comment "Structured test of disaster recovery procedures" ;
+    rdfs:subClassOf ba:Test ;
+    skos:definition "Disaster recovery test validates the effectiveness of recovery procedures through simulated disaster scenarios" .
+
+dr:FailoverTest a owl:Class ;
+    rdfs:label "Failover Test" ;
+    rdfs:comment "Test of failover procedures and timing" ;
+    rdfs:subClassOf dr:DisasterRecoveryTest ;
+    skos:definition "Failover test validates that failover procedures execute correctly within RTO requirements" .
+
+dr:BackupRestoreTest a owl:Class ;
+    rdfs:label "Backup Restore Test" ;
+    rdfs:comment "Test of backup restoration procedures" ;
+    rdfs:subClassOf dr:DisasterRecoveryTest ;
+    skos:definition "Backup restore test verifies that backup data can be successfully restored within RPO requirements" .
+
+dr:ChaosEngineering a owl:Class ;
+    rdfs:label "Chaos Engineering" ;
+    rdfs:comment "Controlled failure injection to test resilience" ;
+    rdfs:subClassOf ba:TestingFramework ;
+    skos:definition "Chaos engineering intentionally introduces failures to test system resilience and recovery capabilities" .
+
+dr:RecoveryDrill a owl:Class ;
+    rdfs:label "Recovery Drill" ;
+    rdfs:comment "Periodic drill of recovery procedures" ;
+    rdfs:subClassOf dr:DisasterRecoveryTest ;
+    skos:definition "Recovery drill is a scheduled practice exercise to maintain readiness and validate recovery procedures" .
+
+dr:TestAutomation a owl:Class ;
+    rdfs:label "Test Automation" ;
+    rdfs:comment "Automated testing of recovery procedures" ;
+    rdfs:subClassOf ba:AutomationSystem ;
+    skos:definition "Test automation enables frequent and consistent testing of disaster recovery procedures" .
+
+# ============================================
+# MONITORING AND ALERTING
+# ============================================
+
+dr:RecoveryMonitoring a owl:Class ;
+    rdfs:label "Recovery Monitoring" ;
+    rdfs:comment "Specialized monitoring for disaster recovery readiness" ;
+    rdfs:subClassOf ba:MonitoringSystem ;
+    skos:definition "Recovery monitoring tracks the health and readiness of disaster recovery systems and procedures" .
+
+dr:FailureDetection a owl:Class ;
+    rdfs:label "Failure Detection" ;
+    rdfs:comment "System for detecting failure conditions" ;
+    rdfs:subClassOf ba:DetectionSystem ;
+    skos:definition "Failure detection identifies system failures and triggers appropriate recovery procedures" .
+
+dr:EarlyWarningSystem a owl:Class ;
+    rdfs:label "Early Warning System" ;
+    rdfs:comment "System providing advance warning of potential failures" ;
+    rdfs:subClassOf ba:AlertingSystem ;
+    skos:definition "Early warning system identifies conditions that may lead to failures, enabling proactive response" .
+
+dr:RecoveryDashboard a owl:Class ;
+    rdfs:label "Recovery Dashboard" ;
+    rdfs:comment "Dashboard for monitoring recovery status and metrics" ;
+    rdfs:subClassOf ba:Dashboard ;
+    skos:definition "Recovery dashboard provides real-time visibility into disaster recovery system status and performance" .
+
+dr:AlertEscalation a owl:Class ;
+    rdfs:label "Alert Escalation" ;
+    rdfs:comment "Escalation procedures for critical alerts" ;
+    rdfs:subClassOf ba:EscalationProcedure ;
+    skos:definition "Alert escalation ensures critical disaster recovery alerts reach appropriate personnel within required timeframes" .
+
+# ============================================
+# CORE PROPERTIES
+# ============================================
+
+# Recovery Objective Properties
+dr:rtoTarget a owl:DatatypeProperty ;
+    rdfs:label "RTO target" ;
+    rdfs:comment "Recovery time objective target in minutes" ;
+    rdfs:domain dr:RecoveryTimeObjective ;
+    rdfs:range xsd:decimal .
+
+dr:rpoTarget a owl:DatatypeProperty ;
+    rdfs:label "RPO target" ;
+    rdfs:comment "Recovery point objective target in minutes" ;
+    rdfs:domain dr:RecoveryPointObjective ;
+    rdfs:range xsd:decimal .
+
+dr:actualRTO a owl:DatatypeProperty ;
+    rdfs:label "actual RTO" ;
+    rdfs:comment "Actual measured recovery time" ;
+    rdfs:domain dr:DisasterRecoveryTest ;
+    rdfs:range xsd:decimal .
+
+dr:actualRPO a owl:DatatypeProperty ;
+    rdfs:label "actual RPO" ;
+    rdfs:comment "Actual measured data loss window" ;
+    rdfs:domain dr:DisasterRecoveryTest ;
+    rdfs:range xsd:decimal .
+
+# Disaster Scenario Properties
+dr:impactLevel a owl:DatatypeProperty ;
+    rdfs:label "impact level" ;
+    rdfs:comment "Business impact level of disaster scenario" ;
+    rdfs:domain dr:DisasterScenario ;
+    rdfs:range xsd:string .
+
+dr:probability a owl:DatatypeProperty ;
+    rdfs:label "probability" ;
+    rdfs:comment "Probability of disaster scenario occurrence" ;
+    rdfs:domain dr:DisasterScenario ;
+    rdfs:range xsd:decimal .
+
+dr:estimatedDowntime a owl:DatatypeProperty ;
+    rdfs:label "estimated downtime" ;
+    rdfs:comment "Estimated system downtime for disaster scenario" ;
+    rdfs:domain dr:DisasterScenario ;
+    rdfs:range xsd:duration .
+
+# Failover Properties
+dr:failoverType a owl:DatatypeProperty ;
+    rdfs:label "failover type" ;
+    rdfs:comment "Type of failover procedure" ;
+    rdfs:domain dr:RecoveryProcedure ;
+    rdfs:range xsd:string .
+
+dr:failoverTrigger a owl:DatatypeProperty ;
+    rdfs:label "failover trigger" ;
+    rdfs:comment "Condition that triggers failover" ;
+    rdfs:domain dr:AutomatedFailover ;
+    rdfs:range xsd:string .
+
+dr:failoverLatency a owl:DatatypeProperty ;
+    rdfs:label "failover latency" ;
+    rdfs:comment "Time to complete failover procedure" ;
+    rdfs:domain dr:RecoveryProcedure ;
+    rdfs:range xsd:duration .
+
+# Region Properties
+dr:regionDistance a owl:DatatypeProperty ;
+    rdfs:label "region distance" ;
+    rdfs:comment "Geographic distance between regions in kilometers" ;
+    rdfs:domain dr:RegionPair ;
+    rdfs:range xsd:decimal .
+
+dr:replicationLag a owl:DatatypeProperty ;
+    rdfs:label "replication lag" ;
+    rdfs:comment "Data replication lag between regions" ;
+    rdfs:domain dr:CrossRegionReplication ;
+    rdfs:range xsd:duration .
+
+dr:networkLatency a owl:DatatypeProperty ;
+    rdfs:label "network latency" ;
+    rdfs:comment "Network latency between regions" ;
+    rdfs:domain dr:RegionPair ;
+    rdfs:range xsd:duration .
+
+# Backup Properties
+dr:backupFrequency a owl:DatatypeProperty ;
+    rdfs:label "backup frequency" ;
+    rdfs:comment "Frequency of backup operations" ;
+    rdfs:domain dr:BackupStrategy ;
+    rdfs:range xsd:duration .
+
+dr:retentionPeriod a owl:DatatypeProperty ;
+    rdfs:label "retention period" ;
+    rdfs:comment "How long backups are retained" ;
+    rdfs:domain dr:BackupRetentionPolicy ;
+    rdfs:range xsd:duration .
+
+dr:backupSize a owl:DatatypeProperty ;
+    rdfs:label "backup size" ;
+    rdfs:comment "Size of backup in bytes" ;
+    rdfs:domain dr:BackupStrategy ;
+    rdfs:range xsd:long .
+
+dr:compressionRatio a owl:DatatypeProperty ;
+    rdfs:label "compression ratio" ;
+    rdfs:comment "Backup compression ratio achieved" ;
+    rdfs:domain dr:BackupStrategy ;
+    rdfs:range xsd:decimal .
+
+# Test Properties
+dr:testFrequency a owl:DatatypeProperty ;
+    rdfs:label "test frequency" ;
+    rdfs:comment "Frequency of disaster recovery testing" ;
+    rdfs:domain dr:DisasterRecoveryTest ;
+    rdfs:range xsd:duration .
+
+dr:testSuccess a owl:DatatypeProperty ;
+    rdfs:label "test success" ;
+    rdfs:comment "Whether the test was successful" ;
+    rdfs:domain dr:DisasterRecoveryTest ;
+    rdfs:range xsd:boolean .
+
+dr:testDuration a owl:DatatypeProperty ;
+    rdfs:label "test duration" ;
+    rdfs:comment "Duration of disaster recovery test" ;
+    rdfs:domain dr:DisasterRecoveryTest ;
+    rdfs:range xsd:duration .
+
+# Monitoring Properties
+dr:healthScore a owl:DatatypeProperty ;
+    rdfs:label "health score" ;
+    rdfs:comment "Overall health score of disaster recovery system" ;
+    rdfs:domain dr:DisasterRecoverySystem ;
+    rdfs:range xsd:decimal .
+
+dr:availabilityTarget a owl:DatatypeProperty ;
+    rdfs:label "availability target" ;
+    rdfs:comment "Target availability percentage" ;
+    rdfs:domain dr:ServiceLevelAgreement ;
+    rdfs:range xsd:decimal .
+
+dr:actualAvailability a owl:DatatypeProperty ;
+    rdfs:label "actual availability" ;
+    rdfs:comment "Actual measured availability percentage" ;
+    rdfs:domain dr:ServiceLevelAgreement ;
+    rdfs:range xsd:decimal .
+
+# ============================================
+# OBJECT PROPERTIES
+# ============================================
+
+# Recovery Relationships
+dr:hasRecoveryObjective a owl:ObjectProperty ;
+    rdfs:label "has recovery objective" ;
+    rdfs:comment "Associates system with recovery objectives" ;
+    rdfs:domain ba:SystemComponent ;
+    rdfs:range dr:RecoveryObjective .
+
+dr:implementsStrategy a owl:ObjectProperty ;
+    rdfs:label "implements strategy" ;
+    rdfs:comment "Strategy implemented by recovery procedure" ;
+    rdfs:domain dr:RecoveryProcedure ;
+    rdfs:range dr:ContinuityStrategy .
+
+dr:protects a owl:ObjectProperty ;
+    rdfs:label "protects" ;
+    rdfs:comment "Business function protected by continuity plan" ;
+    rdfs:domain dr:BusinessContinuityPlan ;
+    rdfs:range dr:CriticalBusinessFunction .
+
+# Regional Relationships
+dr:primaryRegion a owl:ObjectProperty ;
+    rdfs:label "primary region" ;
+    rdfs:comment "Primary region in region pair" ;
+    rdfs:domain dr:RegionPair ;
+    rdfs:range dr:PrimaryRegion .
+
+dr:secondaryRegion a owl:ObjectProperty ;
+    rdfs:label "secondary region" ;
+    rdfs:comment "Secondary region in region pair" ;
+    rdfs:domain dr:RegionPair ;
+    rdfs:range dr:SecondaryRegion .
+
+dr:replicatesTo a owl:ObjectProperty ;
+    rdfs:label "replicates to" ;
+    rdfs:comment "Destination for data replication" ;
+    rdfs:domain dr:CrossRegionReplication ;
+    rdfs:range dr:SecondaryRegion .
+
+# Failover Relationships
+dr:failsOverTo a owl:ObjectProperty ;
+    rdfs:label "fails over to" ;
+    rdfs:comment "Destination for failover operation" ;
+    rdfs:domain dr:PrimaryRegion ;
+    rdfs:range dr:SecondaryRegion .
+
+dr:controls a owl:ObjectProperty ;
+    rdfs:label "controls" ;
+    rdfs:comment "Failover procedure controlled by controller" ;
+    rdfs:domain dr:FailoverController ;
+    rdfs:range dr:RecoveryProcedure .
+
+# Backup Relationships
+dr:hasBackupStrategy a owl:ObjectProperty ;
+    rdfs:label "has backup strategy" ;
+    rdfs:comment "Backup strategy used for data protection" ;
+    rdfs:domain ba:SystemComponent ;
+    rdfs:range dr:BackupStrategy .
+
+dr:validatedBy a owl:ObjectProperty ;
+    rdfs:label "validated by" ;
+    rdfs:comment "Backup validation process used" ;
+    rdfs:domain dr:BackupStrategy ;
+    rdfs:range dr:BackupValidation .
+
+# Testing Relationships
+dr:tests a owl:ObjectProperty ;
+    rdfs:label "tests" ;
+    rdfs:comment "Recovery procedure tested" ;
+    rdfs:domain dr:DisasterRecoveryTest ;
+    rdfs:range dr:RecoveryProcedure .
+
+dr:validatesReadiness a owl:ObjectProperty ;
+    rdfs:label "validates readiness" ;
+    rdfs:comment "System readiness validated by test" ;
+    rdfs:domain dr:DisasterRecoveryTest ;
+    rdfs:range dr:DisasterRecoverySystem .
+
+# Monitoring Relationships
+dr:monitors a owl:ObjectProperty ;
+    rdfs:label "monitors" ;
+    rdfs:comment "Component monitored for failure" ;
+    rdfs:domain dr:FailureDetection ;
+    rdfs:range ba:SystemComponent .
+
+dr:triggers a owl:ObjectProperty ;
+    rdfs:label "triggers" ;
+    rdfs:comment "Recovery procedure triggered by failure detection" ;
+    rdfs:domain dr:FailureDetection ;
+    rdfs:range dr:RecoveryProcedure .
+
+# ============================================
+# SHACL VALIDATION SHAPES
+# ============================================
+
+dr:RecoveryTimeObjectiveShape a sh:NodeShape ;
+    sh:targetClass dr:RecoveryTimeObjective ;
+    rdfs:label "RTO Validation" ;
+    rdfs:comment "Validates RTO targets and measurements" ;
+    sh:property [
+        sh:path dr:rtoTarget ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 480.0 ; # 8 hours max
+        sh:message "RTO target must be between 0 and 480 minutes"
+    ] .
+
+dr:RecoveryPointObjectiveShape a sh:NodeShape ;
+    sh:targetClass dr:RecoveryPointObjective ;
+    rdfs:label "RPO Validation" ;
+    rdfs:comment "Validates RPO targets and measurements" ;
+    sh:property [
+        sh:path dr:rpoTarget ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1440.0 ; # 24 hours max
+        sh:message "RPO target must be between 0 and 1440 minutes"
+    ] .
+
+dr:RegionPairShape a sh:NodeShape ;
+    sh:targetClass dr:RegionPair ;
+    rdfs:label "Region Pair Validation" ;
+    rdfs:comment "Validates region pair configuration" ;
+    sh:property [
+        sh:path dr:primaryRegion ;
+        sh:class dr:PrimaryRegion ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Region pair must have exactly one primary region"
+    ] ;
+    sh:property [
+        sh:path dr:secondaryRegion ;
+        sh:class dr:SecondaryRegion ;
+        sh:minCount 1 ;
+        sh:message "Region pair must have at least one secondary region"
+    ] ;
+    sh:property [
+        sh:path dr:regionDistance ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 100.0 ; # Minimum 100km separation
+        sh:message "Regions must be at least 100km apart for disaster protection"
+    ] .
+
+dr:BackupStrategyShape a sh:NodeShape ;
+    sh:targetClass dr:BackupStrategy ;
+    rdfs:label "Backup Strategy Validation" ;
+    rdfs:comment "Validates backup strategy configuration" ;
+    sh:property [
+        sh:path dr:backupFrequency ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Backup strategy must specify backup frequency"
+    ] ;
+    sh:property [
+        sh:path dr:validatedBy ;
+        sh:class dr:BackupValidation ;
+        sh:minCount 1 ;
+        sh:message "Backup strategy must include validation process"
+    ] .
+
+dr:DisasterRecoveryTestShape a sh:NodeShape ;
+    sh:targetClass dr:DisasterRecoveryTest ;
+    rdfs:label "DR Test Validation" ;
+    rdfs:comment "Validates disaster recovery test configuration" ;
+    sh:property [
+        sh:path dr:testFrequency ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxInclusive "P6M"^^xsd:duration ; # Maximum 6 months between tests
+        sh:message "DR tests must occur at least every 6 months"
+    ] ;
+    sh:property [
+        sh:path dr:tests ;
+        sh:class dr:RecoveryProcedure ;
+        sh:minCount 1 ;
+        sh:message "DR test must test at least one recovery procedure"
+    ] .
+
+dr:FailoverLatencyShape a sh:NodeShape ;
+    sh:targetClass dr:AutomatedFailover ;
+    rdfs:label "Failover Latency Validation" ;
+    rdfs:comment "Validates failover meets Doctrine of 8 constraints" ;
+    sh:property [
+        sh:path dr:failoverLatency ;
+        sh:datatype xsd:duration ;
+        sh:maxInclusive "PT8M"^^xsd:duration ; # 8 minutes max under Doctrine of 8
+        sh:message "Automated failover must complete within 8 minutes (Doctrine of 8)"
+    ] .
+
+# ============================================
+# INSTANCES AND EXAMPLES
+# ============================================
+
+# ByteStar Main DR System
+dr:ByteStarDisasterRecovery a dr:DisasterRecoverySystem ;
+    rdfs:label "ByteStar Disaster Recovery System" ;
+    rdfs:comment "Main disaster recovery system for ByteStar platform" ;
+    dr:healthScore 0.98 ;
+    dr:hasRecoveryObjective dr:ByteStarRTO, dr:ByteStarRPO ;
+    ba:operationalStatus "ACTIVE" .
+
+# Recovery Objectives
+dr:ByteStarRTO a dr:RecoveryTimeObjective ;
+    rdfs:label "ByteStar RTO" ;
+    dr:rtoTarget 5.0 ; # 5 minutes
+    rdfs:comment "Recovery time objective for ByteStar critical services" .
+
+dr:ByteStarRPO a dr:RecoveryPointObjective ;
+    rdfs:label "ByteStar RPO" ;
+    dr:rpoTarget 1.0 ; # 1 minute
+    rdfs:comment "Recovery point objective for ByteStar data protection" .
+
+# Region Configuration
+dr:ByteStarRegionPair a dr:RegionPair ;
+    rdfs:label "ByteStar Primary Region Pair" ;
+    rdfs:comment "Primary region pair for ByteStar operations" ;
+    dr:primaryRegion dr:USEast1 ;
+    dr:secondaryRegion dr:USWest2 ;
+    dr:regionDistance 3500.0 ; # ~3500km
+    dr:networkLatency "PT85MS"^^xsd:duration .
+
+dr:USEast1 a dr:PrimaryRegion ;
+    rdfs:label "US East 1 Primary Region" ;
+    rdfs:comment "Primary operational region" .
+
+dr:USWest2 a dr:SecondaryRegion ;
+    rdfs:label "US West 2 Secondary Region" ;
+    rdfs:comment "Disaster recovery region" .
+
+# Backup Strategy
+dr:ByteStarContinuousBackup a dr:ContinuousBackup ;
+    rdfs:label "ByteStar Continuous Backup" ;
+    rdfs:comment "Real-time backup for critical ByteStar data" ;
+    dr:backupFrequency "PT1M"^^xsd:duration ;
+    dr:compressionRatio 0.7 ;
+    dr:validatedBy dr:ByteStarBackupValidation .
+
+dr:ByteStarBackupValidation a dr:BackupValidation ;
+    rdfs:label "ByteStar Backup Validation" ;
+    rdfs:comment "Automated validation of backup integrity" .
+
+# Failover Controller
+dr:ByteStarFailoverController a dr:FailoverController ;
+    rdfs:label "ByteStar Failover Controller" ;
+    rdfs:comment "Automated failover control for ByteStar" ;
+    dr:controls dr:ByteStarAutomatedFailover .
+
+dr:ByteStarAutomatedFailover a dr:AutomatedFailover ;
+    rdfs:label "ByteStar Automated Failover" ;
+    dr:failoverType "automated" ;
+    dr:failoverTrigger "primary_region_unavailable" ;
+    dr:failoverLatency "PT3M"^^xsd:duration .
+
+# Testing Schedule
+dr:ByteStarQuarterlyDRTest a dr:RecoveryDrill ;
+    rdfs:label "ByteStar Quarterly DR Test" ;
+    rdfs:comment "Quarterly disaster recovery drill" ;
+    dr:testFrequency "P3M"^^xsd:duration ;
+    dr:tests dr:ByteStarAutomatedFailover ;
+    dr:validatesReadiness dr:ByteStarDisasterRecovery .

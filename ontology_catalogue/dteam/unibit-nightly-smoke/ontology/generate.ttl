@@ -1,0 +1,15 @@
+@prefix code: <https://chatmangpt.com/ontology/codegen#> .
+@prefix rust: <https://chatmangpt.com/ontology/rust#> .
+@prefix ub: <https://chatmangpt.com/ontology/unibit#> .
+
+code:CrateSmoke a code:RustCrate ;
+  code:name "unibit-smoke" ;
+  code:path "crates/unibit-smoke" ;
+  rust:toolchain rust:Nightly ;
+  code:generates code:SmokeMain .
+
+code:SmokeMain a code:RustModule ;
+  code:crate code:CrateSmoke ;
+  code:path "crates/unibit-smoke/src/main.rs" ;
+  code:template "smoke_main.rs.njk" ;
+  code:defines ub:L1Region .

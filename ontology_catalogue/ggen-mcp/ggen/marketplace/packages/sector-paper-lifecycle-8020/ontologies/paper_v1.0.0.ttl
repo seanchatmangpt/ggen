@@ -1,0 +1,217 @@
+@prefix : <http://ggen.io/ontology/paper/v1.0.0#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<http://ggen.io/ontology/paper/v1.0.0>
+    a owl:Ontology ;
+    dcterms:title "Academic Paper Lifecycle Ontology" ;
+    dcterms:description "Ontology for describing academic paper submission and publication lifecycle" ;
+    dcterms:version "1.0.0" ;
+    dcterms:created "2025-11-16"^^xsd:date .
+
+# Core Classes
+
+:Paper a owl:Class ;
+    rdfs:label "Paper" ;
+    rdfs:comment "Academic research paper submitted to conference or journal" .
+
+:Author a owl:Class ;
+    rdfs:label "Author" ;
+    rdfs:comment "Researcher who contributed to the paper" .
+
+:Review a owl:Class ;
+    rdfs:label "Review" ;
+    rdfs:comment "Peer review evaluation of a paper" .
+
+:Submission a owl:Class ;
+    rdfs:label "Submission" ;
+    rdfs:comment "Formal submission of a paper to a venue" .
+
+:Conference a owl:Class ;
+    rdfs:label "Conference" ;
+    rdfs:comment "Academic conference that accepts paper submissions" .
+
+:Journal a owl:Class ;
+    rdfs:label "Journal" ;
+    rdfs:comment "Academic journal that publishes peer-reviewed papers" .
+
+:Section a owl:Class ;
+    rdfs:label "Section" ;
+    rdfs:comment "Structural section of a paper (abstract, intro, methods, etc.)" .
+
+:Citation a owl:Class ;
+    rdfs:label "Citation" ;
+    rdfs:comment "Bibliographic reference to another work" .
+
+:Revision a owl:Class ;
+    rdfs:label "Revision" ;
+    rdfs:comment "Updated version of a paper addressing review feedback" .
+
+:CameraReady a owl:Class ;
+    rdfs:label "CameraReady" ;
+    rdfs:comment "Final accepted version formatted for publication" .
+
+:Supplementary a owl:Class ;
+    rdfs:label "Supplementary" ;
+    rdfs:comment "Additional materials accompanying the main paper" .
+
+:Template a owl:Class ;
+    rdfs:label "Template" ;
+    rdfs:comment "LaTeX or formatting template for a specific venue" .
+
+# Properties
+
+:hasAuthor a owl:ObjectProperty ;
+    rdfs:label "hasAuthor" ;
+    rdfs:domain :Paper ;
+    rdfs:range :Author ;
+    rdfs:comment "Paper was written by this author" .
+
+:hasReview a owl:ObjectProperty ;
+    rdfs:label "hasReview" ;
+    rdfs:domain :Paper ;
+    rdfs:range :Review ;
+    rdfs:comment "Paper received this review" .
+
+:submittedTo a owl:ObjectProperty ;
+    rdfs:label "submittedTo" ;
+    rdfs:domain :Submission ;
+    rdfs:range :Conference, :Journal ;
+    rdfs:comment "Submission was made to this venue" .
+
+:hasSubmission a owl:ObjectProperty ;
+    rdfs:label "hasSubmission" ;
+    rdfs:domain :Paper ;
+    rdfs:range :Submission ;
+    rdfs:comment "Paper has this submission record" .
+
+:hasSection a owl:ObjectProperty ;
+    rdfs:label "hasSection" ;
+    rdfs:domain :Paper ;
+    rdfs:range :Section ;
+    rdfs:comment "Paper contains this section" .
+
+:cites a owl:ObjectProperty ;
+    rdfs:label "cites" ;
+    rdfs:domain :Paper ;
+    rdfs:range :Citation ;
+    rdfs:comment "Paper includes this citation" .
+
+:hasRevision a owl:ObjectProperty ;
+    rdfs:label "hasRevision" ;
+    rdfs:domain :Paper ;
+    rdfs:range :Revision ;
+    rdfs:comment "Paper has this revised version" .
+
+:hasCameraReady a owl:ObjectProperty ;
+    rdfs:label "hasCameraReady" ;
+    rdfs:domain :Paper ;
+    rdfs:range :CameraReady ;
+    rdfs:comment "Paper has this final camera-ready version" .
+
+:hasSupplementary a owl:ObjectProperty ;
+    rdfs:label "hasSupplementary" ;
+    rdfs:domain :Paper ;
+    rdfs:range :Supplementary ;
+    rdfs:comment "Paper includes this supplementary material" .
+
+:usesTemplate a owl:ObjectProperty ;
+    rdfs:label "usesTemplate" ;
+    rdfs:domain :Paper ;
+    rdfs:range :Template ;
+    rdfs:comment "Paper is formatted using this template" .
+
+:writtenBy a owl:ObjectProperty ;
+    rdfs:label "writtenBy" ;
+    rdfs:domain :Review ;
+    rdfs:range :Author ;
+    rdfs:comment "Review was written by this reviewer" .
+
+# Data Properties
+
+:paperTitle a owl:DatatypeProperty ;
+    rdfs:label "paperTitle" ;
+    rdfs:domain :Paper ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Title of the research paper" .
+
+:abstract a owl:DatatypeProperty ;
+    rdfs:label "abstract" ;
+    rdfs:domain :Paper ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Abstract summarizing the paper" .
+
+:authorName a owl:DatatypeProperty ;
+    rdfs:label "authorName" ;
+    rdfs:domain :Author ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Full name of the author" .
+
+:authorEmail a owl:DatatypeProperty ;
+    rdfs:label "authorEmail" ;
+    rdfs:domain :Author ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Email address of the author" .
+
+:affiliation a owl:DatatypeProperty ;
+    rdfs:label "affiliation" ;
+    rdfs:domain :Author ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Institutional affiliation of the author" .
+
+:reviewScore a owl:DatatypeProperty ;
+    rdfs:label "reviewScore" ;
+    rdfs:domain :Review ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Numerical score assigned by reviewer" .
+
+:reviewComments a owl:DatatypeProperty ;
+    rdfs:label "reviewComments" ;
+    rdfs:domain :Review ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Textual feedback from reviewer" .
+
+:submissionDate a owl:DatatypeProperty ;
+    rdfs:label "submissionDate" ;
+    rdfs:domain :Submission ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Date the paper was submitted" .
+
+:deadline a owl:DatatypeProperty ;
+    rdfs:label "deadline" ;
+    rdfs:domain :Conference, :Journal ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Submission deadline for the venue" .
+
+:acceptanceRate a owl:DatatypeProperty ;
+    rdfs:label "acceptanceRate" ;
+    rdfs:domain :Conference, :Journal ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Historical acceptance rate (0.0-1.0)" .
+
+:pageLimit a owl:DatatypeProperty ;
+    rdfs:label "pageLimit" ;
+    rdfs:domain :Conference, :Journal ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum number of pages allowed" .
+
+:isDoubleBlind a owl:DatatypeProperty ;
+    rdfs:label "isDoubleBlind" ;
+    rdfs:domain :Conference, :Journal ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether venue requires double-blind review" .
+
+:sectionType a owl:DatatypeProperty ;
+    rdfs:label "sectionType" ;
+    rdfs:domain :Section ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of section (abstract, introduction, methods, results, etc.)" .
+
+:wordCount a owl:DatatypeProperty ;
+    rdfs:label "wordCount" ;
+    rdfs:domain :Paper ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Total word count of the paper" .

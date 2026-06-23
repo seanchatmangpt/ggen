@@ -1,0 +1,311 @@
+@prefix snap: <https://gitvan.dev/snapshot#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# ============================================================================
+# GitVan Snapshot Ontology
+# ============================================================================
+# Defines semantic representation of state snapshots with full provenance.
+# Enables snapshot lineage tracking, history queries, and audit trails.
+# Version: 1.0.0
+# Date: January 9, 2026
+# ============================================================================
+
+# Classes
+# ============================================================================
+
+snap:Snapshot a owl:Class ;
+  rdfs:label "Snapshot" ;
+  rdfs:comment "Immutable snapshot of system state at a point in time" ;
+  rdfs:isDefinedBy <https://gitvan.dev/snapshot-ontology> .
+
+snap:SnapshotSeries a owl:Class ;
+  rdfs:label "Snapshot Series" ;
+  rdfs:comment "Related group of snapshots (e.g., workflow state history)" ;
+  rdfs:isDefinedBy <https://gitvan.dev/snapshot-ontology> .
+
+snap:SnapshotMetadata a owl:Class ;
+  rdfs:label "Snapshot Metadata" ;
+  rdfs:comment "Additional context associated with a snapshot" ;
+  rdfs:isDefinedBy <https://gitvan.dev/snapshot-ontology> .
+
+# Core Properties
+# ============================================================================
+
+snap:key a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:string ;
+  rdfs:label "Key" ;
+  rdfs:comment "Identifier for the snapshot (e.g., 'workflow-state', 'cache-backup')" ;
+  owl:cardinality 1 .
+
+snap:contentHash a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:string ;
+  rdfs:label "Content Hash" ;
+  rdfs:comment "SHA-256 hash of snapshot content for integrity verification" ;
+  owl:cardinality 1 .
+
+snap:timestamp a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Timestamp" ;
+  rdfs:comment "ISO 8601 timestamp when snapshot was created" ;
+  owl:cardinality 1 .
+
+snap:size a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Size" ;
+  rdfs:comment "Size of snapshot content in bytes" .
+
+snap:description a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:string ;
+  rdfs:label "Description" ;
+  rdfs:comment "Human-readable description of snapshot contents" .
+
+snap:tags a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:string ;
+  rdfs:label "Tags" ;
+  rdfs:comment "Searchable tags for snapshot (comma-separated)" .
+
+# Relationship Properties
+# ============================================================================
+
+snap:previousSnapshot a owl:ObjectProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range snap:Snapshot ;
+  rdfs:label "Previous Snapshot" ;
+  rdfs:comment "Linked list of snapshots for immutable history" ;
+  owl:maxCardinality 1 .
+
+snap:nextSnapshot a owl:ObjectProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range snap:Snapshot ;
+  rdfs:label "Next Snapshot" ;
+  rdfs:comment "Forward reference to next snapshot in chain" ;
+  owl:inverseOf snap:previousSnapshot ;
+  owl:maxCardinality 1 .
+
+snap:partOfSeries a owl:ObjectProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range snap:SnapshotSeries ;
+  rdfs:label "Part Of Series" ;
+  rdfs:comment "Series this snapshot belongs to" ;
+  owl:maxCardinality 1 .
+
+snap:relatedSnapshot a owl:ObjectProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range snap:Snapshot ;
+  rdfs:label "Related Snapshot" ;
+  rdfs:comment "Other snapshots that depend on or relate to this one" .
+
+# Git Integration Properties
+# ============================================================================
+
+snap:commit a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:string ;
+  rdfs:label "Commit" ;
+  rdfs:comment "Git commit SHA at time of snapshot" .
+
+snap:branch a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:string ;
+  rdfs:label "Branch" ;
+  rdfs:comment "Git branch name at time of snapshot" .
+
+snap:gitRef a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:string ;
+  rdfs:label "Git Ref" ;
+  rdfs:comment "Git reference where snapshot is stored (e.g., refs/gitvan/snapshots/...)" .
+
+snap:gitOid a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:string ;
+  rdfs:label "Git OID" ;
+  rdfs:comment "Git object ID of snapshot content blob" .
+
+# Provenance Properties (PROV-O Integration)
+# ============================================================================
+
+snap:wasGeneratedBy a owl:ObjectProperty ;
+  rdfs:subPropertyOf prov:wasGeneratedBy ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range prov:Activity ;
+  rdfs:label "Generated By" ;
+  rdfs:comment "Activity (workflow, operation, hook) that created snapshot" ;
+  owl:maxCardinality 1 .
+
+snap:wasAttributedTo a owl:ObjectProperty ;
+  rdfs:subPropertyOf prov:wasAttributedTo ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range prov:Agent ;
+  rdfs:label "Attributed To" ;
+  rdfs:comment "Agent (user, service) responsible for snapshot" .
+
+snap:wasDerivedFrom a owl:ObjectProperty ;
+  rdfs:subPropertyOf prov:wasDerivedFrom ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range snap:Snapshot ;
+  rdfs:label "Derived From" ;
+  rdfs:comment "Snapshot(s) that this snapshot is derived from or based on" .
+
+snap:generationTime a owl:DatatypeProperty ;
+  rdfs:subPropertyOf prov:generatedAtTime ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Generation Time" ;
+  rdfs:comment "Exact time snapshot was generated" ;
+  owl:cardinality 1 .
+
+snap:invalidationTime a owl:DatatypeProperty ;
+  rdfs:subPropertyOf prov:invalidatedAtTime ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Invalidation Time" ;
+  rdfs:comment "Time snapshot became invalid or superseded" .
+
+# Metadata Properties
+# ============================================================================
+
+snap:hasMetadata a owl:ObjectProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range snap:SnapshotMetadata ;
+  rdfs:label "Has Metadata" ;
+  rdfs:comment "Additional metadata about snapshot" .
+
+snap:metadataKey a owl:DatatypeProperty ;
+  rdfs:domain snap:SnapshotMetadata ;
+  rdfs:range xsd:string ;
+  rdfs:label "Metadata Key" ;
+  rdfs:comment "Key for metadata entry" .
+
+snap:metadataValue a owl:DatatypeProperty ;
+  rdfs:domain snap:SnapshotMetadata ;
+  rdfs:range xsd:string ;
+  rdfs:label "Metadata Value" ;
+  rdfs:comment "Value for metadata entry" .
+
+# Lifecycle Properties
+# ============================================================================
+
+snap:status a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range [ owl:oneOf (snap:Active snap:Archived snap:Deleted) ] ;
+  rdfs:label "Status" ;
+  rdfs:comment "Lifecycle status of snapshot" .
+
+snap:archived a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Archived" ;
+  rdfs:comment "Whether snapshot has been archived (moved to cold storage)" .
+
+snap:archivedAt a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Archived At" ;
+  rdfs:comment "Time snapshot was archived" .
+
+snap:retentionDays a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Retention Days" ;
+  rdfs:comment "Days to retain this snapshot before cleanup" .
+
+snap:expiresAt a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Expires At" ;
+  rdfs:comment "Timestamp when snapshot will be eligible for cleanup" .
+
+# Series Properties
+# ============================================================================
+
+snap:seriesName a owl:DatatypeProperty ;
+  rdfs:domain snap:SnapshotSeries ;
+  rdfs:range xsd:string ;
+  rdfs:label "Series Name" ;
+  rdfs:comment "Name of snapshot series (e.g., 'workflow-execution-1234')" ;
+  owl:cardinality 1 .
+
+snap:seriesStart a owl:DatatypeProperty ;
+  rdfs:domain snap:SnapshotSeries ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Series Start" ;
+  rdfs:comment "When snapshot series started" .
+
+snap:seriesEnd a owl:DatatypeProperty ;
+  rdfs:domain snap:SnapshotSeries ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Series End" ;
+  rdfs:comment "When snapshot series ended" .
+
+snap:seriesCount a owl:DatatypeProperty ;
+  rdfs:domain snap:SnapshotSeries ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Series Count" ;
+  rdfs:comment "Total number of snapshots in series" .
+
+snap:firstSnapshot a owl:ObjectProperty ;
+  rdfs:domain snap:SnapshotSeries ;
+  rdfs:range snap:Snapshot ;
+  rdfs:label "First Snapshot" ;
+  rdfs:comment "First snapshot in series" ;
+  owl:maxCardinality 1 .
+
+snap:lastSnapshot a owl:ObjectProperty ;
+  rdfs:domain snap:SnapshotSeries ;
+  rdfs:range snap:Snapshot ;
+  rdfs:label "Last Snapshot" ;
+  rdfs:comment "Most recent snapshot in series" ;
+  owl:maxCardinality 1 .
+
+# Integrity Properties
+# ============================================================================
+
+snap:checksumAlgorithm a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range [ owl:oneOf ("SHA-256" "SHA-512" "BLAKE3") ] ;
+  rdfs:label "Checksum Algorithm" ;
+  rdfs:comment "Algorithm used for content hash" ;
+  owl:cardinality 1 .
+
+snap:verified a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Verified" ;
+  rdfs:comment "Whether snapshot integrity has been verified" .
+
+snap:verifiedAt a owl:DatatypeProperty ;
+  rdfs:domain snap:Snapshot ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Verified At" ;
+  rdfs:comment "Time snapshot integrity was last verified" .
+
+# Status Individuals
+# ============================================================================
+
+snap:Active a owl:Thing ;
+  rdfs:label "Active" ;
+  rdfs:comment "Snapshot is currently active and accessible" .
+
+snap:Archived a owl:Thing ;
+  rdfs:label "Archived" ;
+  rdfs:comment "Snapshot has been archived (moved to cold storage)" .
+
+snap:Deleted a owl:Thing ;
+  rdfs:label "Deleted" ;
+  rdfs:comment "Snapshot has been deleted" .
+
+# ============================================================================
+# End of Snapshot Ontology
+# ============================================================================

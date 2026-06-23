@@ -1,0 +1,297 @@
+@prefix epcis: <http://gs1.org/epcis/> .
+@prefix cbv: <http://gs1.org/cbv/> .
+@prefix gs1: <http://gs1.org/voc/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# EPCIS Supply Chain Events for Walmart Traceability
+# Comprehensive event history for product lifecycle tracking
+
+# Commission Events - Product Creation
+<Event/COMM-BANANA-001> a epcis:ObjectEvent ;
+    epcis:eventTime "2024-09-01T05:30:00Z"^^xsd:dateTime ;
+    epcis:eventTimeZoneOffset "-06:00"^^xsd:string ;
+    epcis:action cbv:add ;
+    epcis:bizStep cbv:commissioning ;
+    epcis:disposition cbv:active ;
+    epcis:readPoint <Location/GUATEMALA-FARM-001> ;
+    epcis:bizLocation <Location/GUATEMALA-FARM-001> ;
+    epcis:epcList [
+        epcis:epc "urn:epc:id:sgtin:012345.678905.BATCH-2024-001"^^xsd:anyURI
+    ] ;
+    epcis:bizTransactionList [
+        epcis:bizTransaction <Transaction/HARVEST-ORDER-001>
+    ] ;
+    epcis:quantityList [
+        epcis:quantityElement [
+            epcis:epcClass "urn:epc:class:lgtin:012345.678905"^^xsd:anyURI ;
+            epcis:quantity "50000"^^xsd:decimal ;
+            epcis:uom "KGM"^^xsd:string
+        ]
+    ] .
+
+# Aggregation Events - Packaging
+<Event/AGG-BANANA-001> a epcis:AggregationEvent ;
+    epcis:eventTime "2024-09-02T08:15:00Z"^^xsd:dateTime ;
+    epcis:eventTimeZoneOffset "-06:00"^^xsd:string ;
+    epcis:action cbv:add ;
+    epcis:parentID "urn:epc:id:sscc:012345.0000000001"^^xsd:anyURI ;
+    epcis:childEPCs [
+        epcis:epc "urn:epc:id:sgtin:012345.678905.BATCH-2024-001"^^xsd:anyURI
+    ] ;
+    epcis:bizStep cbv:packing ;
+    epcis:disposition cbv:active ;
+    epcis:readPoint <Location/DOLE-PACK-FACILITY-001> ;
+    epcis:bizLocation <Location/DOLE-PACK-FACILITY-001> .
+
+# Shipping Events
+<Event/SHIP-BANANA-001> a epcis:ObjectEvent ;
+    epcis:eventTime "2024-09-03T10:00:00Z"^^xsd:dateTime ;
+    epcis:eventTimeZoneOffset "-06:00"^^xsd:string ;
+    epcis:action cbv:observe ;
+    epcis:bizStep cbv:shipping ;
+    epcis:disposition cbv:in_transit ;
+    epcis:readPoint <Location/DOLE-PACK-FACILITY-001> ;
+    epcis:bizLocation <Location/PORT-GUATEMALA-001> ;
+    epcis:epcList [
+        epcis:epc "urn:epc:id:sscc:012345.0000000001"^^xsd:anyURI
+    ] ;
+    epcis:bizTransactionList [
+        epcis:bizTransaction <Transaction/SHIPPING-MANIFEST-001>
+    ] .
+
+# Receiving Events - Distribution Center
+<Event/RECV-BANANA-001> a epcis:ObjectEvent ;
+    epcis:eventTime "2024-09-08T14:30:00Z"^^xsd:dateTime ;
+    epcis:eventTimeZoneOffset "-05:00"^^xsd:string ;
+    epcis:action cbv:observe ;
+    epcis:bizStep cbv:receiving ;
+    epcis:disposition cbv:active ;
+    epcis:readPoint <Location/WALMART-DC-001> ;
+    epcis:bizLocation <Location/WALMART-DC-001> ;
+    epcis:epcList [
+        epcis:epc "urn:epc:id:sscc:012345.0000000001"^^xsd:anyURI
+    ] ;
+    epcis:bizTransactionList [
+        epcis:bizTransaction <Transaction/PO-WMT-2024-001>
+    ] .
+
+# Quality Inspection Events
+<Event/INSPECT-BANANA-001> a epcis:ObjectEvent ;
+    epcis:eventTime "2024-09-08T16:00:00Z"^^xsd:dateTime ;
+    epcis:eventTimeZoneOffset "-05:00"^^xsd:string ;
+    epcis:action cbv:observe ;
+    epcis:bizStep cbv:inspecting ;
+    epcis:disposition cbv:active ;
+    epcis:readPoint <Location/WALMART-DC-001> ;
+    epcis:bizLocation <Location/WALMART-DC-001> ;
+    epcis:epcList [
+        epcis:epc "urn:epc:id:sscc:012345.0000000001"^^xsd:anyURI
+    ] ;
+    epcis:extension [
+        epcis:qualityCheck [
+            epcis:temperature "13.5"^^xsd:decimal ;
+            epcis:humidity "85"^^xsd:decimal ;
+            epcis:qualityScore "9.2"^^xsd:decimal ;
+            epcis:inspector "QC-TEAM-001"^^xsd:string
+        ]
+    ] .
+
+# Storage Events
+<Event/STORE-BANANA-001> a epcis:ObjectEvent ;
+    epcis:eventTime "2024-09-09T07:00:00Z"^^xsd:dateTime ;
+    epcis:eventTimeZoneOffset "-05:00"^^xsd:string ;
+    epcis:action cbv:observe ;
+    epcis:bizStep cbv:storing ;
+    epcis:disposition cbv:active ;
+    epcis:readPoint <Location/WALMART-DC-COOLER-A> ;
+    epcis:bizLocation <Location/WALMART-DC-001> ;
+    epcis:epcList [
+        epcis:epc "urn:epc:id:sscc:012345.0000000001"^^xsd:anyURI
+    ] ;
+    epcis:extension [
+        epcis:storageConditions [
+            epcis:temperature "13.0"^^xsd:decimal ;
+            epcis:humidity "90"^^xsd:decimal ;
+            epcis:storageZone "COOLER-A"^^xsd:string
+        ]
+    ] .
+
+# Disaggregation Events - Breaking down pallets
+<Event/DISAGG-BANANA-001> a epcis:AggregationEvent ;
+    epcis:eventTime "2024-09-10T09:00:00Z"^^xsd:dateTime ;
+    epcis:eventTimeZoneOffset "-05:00"^^xsd:string ;
+    epcis:action cbv:delete ;
+    epcis:parentID "urn:epc:id:sscc:012345.0000000001"^^xsd:anyURI ;
+    epcis:childEPCs [
+        epcis:epc "urn:epc:id:sgtin:012345.678905.CASE-001"^^xsd:anyURI ;
+        epcis:epc "urn:epc:id:sgtin:012345.678905.CASE-002"^^xsd:anyURI ;
+        epcis:epc "urn:epc:id:sgtin:012345.678905.CASE-003"^^xsd:anyURI
+    ] ;
+    epcis:bizStep cbv:unpacking ;
+    epcis:disposition cbv:active ;
+    epcis:readPoint <Location/WALMART-DC-001> ;
+    epcis:bizLocation <Location/WALMART-DC-001> .
+
+# Distribution to Stores
+<Event/DIST-BANANA-001> a epcis:ObjectEvent ;
+    epcis:eventTime "2024-09-11T06:00:00Z"^^xsd:dateTime ;
+    epcis:eventTimeZoneOffset "-05:00"^^xsd:string ;
+    epcis:action cbv:observe ;
+    epcis:bizStep cbv:shipping ;
+    epcis:disposition cbv:in_transit ;
+    epcis:readPoint <Location/WALMART-DC-001> ;
+    epcis:bizLocation <Location/WALMART-STORE-001> ;
+    epcis:epcList [
+        epcis:epc "urn:epc:id:sgtin:012345.678905.CASE-001"^^xsd:anyURI ;
+        epcis:epc "urn:epc:id:sgtin:012345.678905.CASE-002"^^xsd:anyURI
+    ] ;
+    epcis:bizTransactionList [
+        epcis:bizTransaction <Transaction/STORE-DELIVERY-001>
+    ] .
+
+# Store Receiving
+<Event/STORE-RECV-001> a epcis:ObjectEvent ;
+    epcis:eventTime "2024-09-11T10:30:00Z"^^xsd:dateTime ;
+    epcis:eventTimeZoneOffset "-05:00"^^xsd:string ;
+    epcis:action cbv:observe ;
+    epcis:bizStep cbv:receiving ;
+    epcis:disposition cbv:active ;
+    epcis:readPoint <Location/WALMART-STORE-001-RECEIVING> ;
+    epcis:bizLocation <Location/WALMART-STORE-001> ;
+    epcis:epcList [
+        epcis:epc "urn:epc:id:sgtin:012345.678905.CASE-001"^^xsd:anyURI ;
+        epcis:epc "urn:epc:id:sgtin:012345.678905.CASE-002"^^xsd:anyURI
+    ] .
+
+# Retail Display
+<Event/DISPLAY-001> a epcis:ObjectEvent ;
+    epcis:eventTime "2024-09-11T14:00:00Z"^^xsd:dateTime ;
+    epcis:eventTimeZoneOffset "-05:00"^^xsd:string ;
+    epcis:action cbv:observe ;
+    epcis:bizStep cbv:retail_selling ;
+    epcis:disposition cbv:sellable_accessible ;
+    epcis:readPoint <Location/WALMART-STORE-001-PRODUCE> ;
+    epcis:bizLocation <Location/WALMART-STORE-001> ;
+    epcis:epcList [
+        epcis:epc "urn:epc:id:sgtin:012345.678905.CASE-001"^^xsd:anyURI ;
+        epcis:epc "urn:epc:id:sgtin:012345.678905.CASE-002"^^xsd:anyURI
+    ] .
+
+# Point of Sale Events
+<Event/POS-001> a epcis:TransactionEvent ;
+    epcis:eventTime "2024-09-12T15:45:00Z"^^xsd:dateTime ;
+    epcis:eventTimeZoneOffset "-05:00"^^xsd:string ;
+    epcis:action cbv:observe ;
+    epcis:bizStep cbv:retail_selling ;
+    epcis:disposition cbv:sold ;
+    epcis:readPoint <Location/WALMART-STORE-001-POS-03> ;
+    epcis:bizLocation <Location/WALMART-STORE-001> ;
+    epcis:epcList [
+        epcis:epc "urn:epc:id:sgtin:012345.678905.ITEM-001"^^xsd:anyURI
+    ] ;
+    epcis:bizTransactionList [
+        epcis:bizTransaction <Transaction/SALE-2024-001>
+    ] ;
+    epcis:extension [
+        epcis:saleDetails [
+            epcis:cashier "EMP-12345"^^xsd:string ;
+            epcis:register "POS-03"^^xsd:string ;
+            epcis:amount "3.48"^^xsd:decimal ;
+            epcis:currency "USD"^^xsd:string
+        ]
+    ] .
+
+# Environmental Monitoring Events
+<Event/TEMP-MONITOR-001> a epcis:ObjectEvent ;
+    epcis:eventTime "2024-09-10T12:00:00Z"^^xsd:dateTime ;
+    epcis:eventTimeZoneOffset "-05:00"^^xsd:string ;
+    epcis:action cbv:observe ;
+    epcis:bizStep cbv:sensor_reporting ;
+    epcis:disposition cbv:active ;
+    epcis:readPoint <Location/WALMART-DC-COOLER-A> ;
+    epcis:bizLocation <Location/WALMART-DC-001> ;
+    epcis:extension [
+        epcis:sensorData [
+            epcis:temperature "12.8"^^xsd:decimal ;
+            epcis:humidity "88"^^xsd:decimal ;
+            epcis:sensorId "TEMP-SENSOR-001"^^xsd:string ;
+            epcis:alertStatus "normal"^^xsd:string
+        ]
+    ] .
+
+# Recall Simulation Event
+<Event/RECALL-SIM-001> a epcis:ObjectEvent ;
+    epcis:eventTime "2024-09-13T08:00:00Z"^^xsd:dateTime ;
+    epcis:eventTimeZoneOffset "-05:00"^^xsd:string ;
+    epcis:action cbv:observe ;
+    epcis:bizStep cbv:withdrawing ;
+    epcis:disposition cbv:recalled ;
+    epcis:readPoint <Location/WALMART-STORE-001> ;
+    epcis:bizLocation <Location/WALMART-STORE-001> ;
+    epcis:epcList [
+        epcis:epc "urn:epc:id:sgtin:012345.678905.LOT-RECALL-TEST"^^xsd:anyURI
+    ] ;
+    epcis:bizTransactionList [
+        epcis:bizTransaction <Transaction/RECALL-ORDER-001>
+    ] ;
+    epcis:extension [
+        epcis:recallInfo [
+            epcis:recallReason "Quality Control - Simulation"^^xsd:string ;
+            epcis:recallType "voluntary"^^xsd:string ;
+            epcis:affectedLots "LOT-RECALL-TEST"^^xsd:string
+        ]
+    ] .
+
+# Business Transactions
+<Transaction/HARVEST-ORDER-001> a epcis:BusinessTransaction ;
+    epcis:bizTransactionType cbv:prodorder ;
+    epcis:bizTransactionID "HO-2024-001"^^xsd:string .
+
+<Transaction/SHIPPING-MANIFEST-001> a epcis:BusinessTransaction ;
+    epcis:bizTransactionType cbv:bol ;
+    epcis:bizTransactionID "SM-2024-001"^^xsd:string .
+
+<Transaction/PO-WMT-2024-001> a epcis:BusinessTransaction ;
+    epcis:bizTransactionType cbv:po ;
+    epcis:bizTransactionID "PO-WMT-2024-001"^^xsd:string .
+
+<Transaction/STORE-DELIVERY-001> a epcis:BusinessTransaction ;
+    epcis:bizTransactionType cbv:desadv ;
+    epcis:bizTransactionID "SD-2024-001"^^xsd:string .
+
+<Transaction/SALE-2024-001> a epcis:BusinessTransaction ;
+    epcis:bizTransactionType cbv:inv ;
+    epcis:bizTransactionID "SALE-2024-001"^^xsd:string .
+
+<Transaction/RECALL-ORDER-001> a epcis:BusinessTransaction ;
+    epcis:bizTransactionType cbv:recall ;
+    epcis:bizTransactionID "RECALL-2024-001"^^xsd:string .
+
+# Additional Locations
+<Location/GUATEMALA-FARM-001> a gs1:Location ;
+    gs1:locationName "Dole Guatemala Farm #1"^^xsd:string ;
+    gs1:gln "0123456789043"^^xsd:string ;
+    gs1:coordinates [
+        gs1:latitude "14.6349"^^xsd:decimal ;
+        gs1:longitude "-90.5069"^^xsd:decimal
+    ] .
+
+<Location/PORT-GUATEMALA-001> a gs1:Location ;
+    gs1:locationName "Puerto Quetzal"^^xsd:string ;
+    gs1:gln "0123456789050"^^xsd:string .
+
+<Location/WALMART-DC-COOLER-A> a gs1:Location ;
+    gs1:locationName "DC Cooler Zone A"^^xsd:string ;
+    gs1:gln "0614141000002"^^xsd:string .
+
+<Location/WALMART-STORE-001-RECEIVING> a gs1:Location ;
+    gs1:locationName "Store #1 Receiving Dock"^^xsd:string ;
+    gs1:gln "0614141000019"^^xsd:string .
+
+<Location/WALMART-STORE-001-PRODUCE> a gs1:Location ;
+    gs1:locationName "Store #1 Produce Section"^^xsd:string ;
+    gs1:gln "0614141000020"^^xsd:string .
+
+<Location/WALMART-STORE-001-POS-03> a gs1:Location ;
+    gs1:locationName "Store #1 POS Terminal 03"^^xsd:string ;
+    gs1:gln "0614141000023"^^xsd:string .

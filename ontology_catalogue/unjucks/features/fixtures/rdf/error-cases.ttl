@@ -1,0 +1,244 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix api: <http://api.example.org/> .
+@prefix ex: <http://example.org/> .
+@prefix error: <http://error.example.org/> .
+
+# Error Cases and Edge Scenarios for Testing
+
+# Circular Reference Error Case
+error:circular-user-org a api:User ;
+    api:id "user-circular-1" ;
+    api:name "Circular User" ;
+    api:email "circular@example.com" ;
+    api:organization error:circular-org .
+
+error:circular-org a api:Organization ;
+    api:id "org-circular-1" ;
+    api:name "Circular Organization" ;
+    api:members error:circular-user-org .
+
+# This creates a circular dependency that should be caught by validation
+
+# Invalid Email Formats
+error:invalid-email-1 a api:User ;
+    api:id "user-invalid-email-1" ;
+    api:name "Invalid Email User 1" ;
+    api:email "not-an-email" .
+
+error:invalid-email-2 a api:User ;
+    api:id "user-invalid-email-2" ;
+    api:name "Invalid Email User 2" ;
+    api:email "missing@domain" .
+
+error:invalid-email-3 a api:User ;
+    api:id "user-invalid-email-3" ;
+    api:name "Invalid Email User 3" ;
+    api:email "@missing-user.com" .
+
+# Missing Required Properties
+error:missing-required-id a api:User ;
+    api:name "User Missing ID" ;
+    api:email "missing-id@example.com" .
+
+error:missing-required-email a api:User ;
+    api:id "user-missing-email" ;
+    api:name "User Missing Email" .
+
+error:missing-required-name a api:User ;
+    api:id "user-missing-name" ;
+    api:email "missing-name@example.com" .
+
+# Invalid Property Types (should be caught by SHACL validation)
+error:invalid-role a api:User ;
+    api:id "user-invalid-role" ;
+    api:name "Invalid Role User" ;
+    api:email "invalid-role@example.com" ;
+    api:role "invalid-role-value" .
+
+# Invalid Organization ID Format
+error:invalid-org-id a api:Organization ;
+    api:id "invalid-id-format" ;  # Should start with 'org_'
+    api:name "Invalid ID Organization" .
+
+# Non-existent Organization Reference
+error:orphan-user a api:User ;
+    api:id "user-orphan" ;
+    api:name "Orphan User" ;
+    api:email "orphan@example.com" ;
+    api:organization error:non-existent-org .
+
+# error:non-existent-org is not defined, creating a broken reference
+
+# Expired Session
+error:expired-session a api:Session ;
+    api:token "expired-token-12345" ;
+    api:user ex:alice-smith ;
+    api:expiresAt "2023-01-01T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+
+# Session with Invalid User Reference
+error:session-invalid-user a api:Session ;
+    api:token "invalid-user-token-12345" ;
+    api:user error:non-existent-user ;
+    api:expiresAt "2025-12-31T23:59:59Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+
+# Duplicate Email Addresses (should fail uniqueness constraint)
+error:duplicate-email-1 a api:User ;
+    api:id "user-duplicate-1" ;
+    api:name "Duplicate Email User 1" ;
+    api:email "duplicate@example.com" .
+
+error:duplicate-email-2 a api:User ;
+    api:id "user-duplicate-2" ;
+    api:name "Duplicate Email User 2" ;
+    api:email "duplicate@example.com" .
+
+# Invalid Domain Format
+error:invalid-domain-org a api:Organization ;
+    api:id "org_invalid_domain" ;
+    api:name "Invalid Domain Organization" ;
+    api:domain "invalid..domain..com" .
+
+# Organization with Excessive Members (performance test case)
+error:large-org a api:Organization ;
+    api:id "org_large_member_count" ;
+    api:name "Organization with Too Many Members" ;
+    api:members error:user-1, error:user-2, error:user-3, error:user-4, error:user-5,
+               error:user-6, error:user-7, error:user-8, error:user-9, error:user-10 .
+
+# Generate some users for the large organization
+error:user-1 a api:User ; api:id "bulk-user-1" ; api:name "Bulk User 1" ; api:email "bulk1@example.com" .
+error:user-2 a api:User ; api:id "bulk-user-2" ; api:name "Bulk User 2" ; api:email "bulk2@example.com" .
+error:user-3 a api:User ; api:id "bulk-user-3" ; api:name "Bulk User 3" ; api:email "bulk3@example.com" .
+error:user-4 a api:User ; api:id "bulk-user-4" ; api:name "Bulk User 4" ; api:email "bulk4@example.com" .
+error:user-5 a api:User ; api:id "bulk-user-5" ; api:name "Bulk User 5" ; api:email "bulk5@example.com" .
+error:user-6 a api:User ; api:id "bulk-user-6" ; api:name "Bulk User 6" ; api:email "bulk6@example.com" .
+error:user-7 a api:User ; api:id "bulk-user-7" ; api:name "Bulk User 7" ; api:email "bulk7@example.com" .
+error:user-8 a api:User ; api:id "bulk-user-8" ; api:name "Bulk User 8" ; api:email "bulk8@example.com" .
+error:user-9 a api:User ; api:id "bulk-user-9" ; api:name "Bulk User 9" ; api:email "bulk9@example.com" .
+error:user-10 a api:User ; api:id "bulk-user-10" ; api:name "Bulk User 10" ; api:email "bulk10@example.com" .
+
+# Missing Context Declaration (for ontology validation)
+error:no-context-user a api:User ;
+    api:id "user-no-context" ;
+    api:name "No Context User" ;
+    api:email "no-context@example.com" .
+# This user lacks schema:additionalType for context validation
+
+# Invalid Property Length
+error:name-too-long a api:User ;
+    api:id "user-name-too-long" ;
+    api:name "This is an extremely long name that exceeds the maximum allowed length for user names in the system and should trigger a validation error when processed by the SHACL validator" ;
+    api:email "long-name@example.com" .
+
+error:name-too-short a api:User ;
+    api:id "user-name-too-short" ;
+    api:name "A" ;
+    api:email "short-name@example.com" .
+
+# Invalid Age Property Type (for testing property validation)
+error:invalid-age-string a api:User ;
+    api:id "user-invalid-age" ;
+    api:name "Invalid Age User" ;
+    api:email "invalid-age@example.com" ;
+    api:age "twenty-five" .  # Should be integer
+
+error:invalid-age-negative a api:User ;
+    api:id "user-negative-age" ;
+    api:name "Negative Age User" ;
+    api:email "negative-age@example.com" ;
+    api:age -5 .
+
+error:invalid-age-excessive a api:User ;
+    api:id "user-excessive-age" ;
+    api:name "Excessive Age User" ;
+    api:email "excessive-age@example.com" ;
+    api:age 999 .
+
+# Malformed URIs and References
+error:malformed-uri-user a api:User ;
+    api:id "user-malformed-uri" ;
+    api:name "Malformed URI User" ;
+    api:email "malformed@example.com" ;
+    foaf:homepage "not-a-valid-uri" .
+
+# Blank Node Edge Cases
+error:user-with-complex-address a api:User ;
+    api:id "user-blank-node" ;
+    api:name "User with Blank Node Address" ;
+    api:email "blank-node@example.com" ;
+    api:address [
+        api:street "" ;  # Empty street
+        api:city "Boston" ;
+        api:nestedAddress [
+            api:building "Building A" ;
+            api:floor "Floor 5" ;
+            api:invalidProperty "This property doesn't exist in schema"
+        ]
+    ] .
+
+# Session Token Validation Errors
+error:short-token a api:Session ;
+    api:token "short" ;  # Token too short
+    api:user ex:alice-smith ;
+    api:expiresAt "2025-12-31T23:59:59Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+
+error:empty-token a api:Session ;
+    api:token "" ;  # Empty token
+    api:user ex:alice-smith ;
+    api:expiresAt "2025-12-31T23:59:59Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+
+# Multiple Organization Memberships (potential conflict)
+error:multi-org-user a api:User ;
+    api:id "user-multi-org" ;
+    api:name "Multi-Organization User" ;
+    api:email "multi-org@example.com" ;
+    api:organization error:org-a, error:org-b .
+
+error:org-a a api:Organization ;
+    api:id "org_a" ;
+    api:name "Organization A" ;
+    api:members error:multi-org-user .
+
+error:org-b a api:Organization ;
+    api:id "org_b" ;
+    api:name "Organization B" ;
+    api:members error:multi-org-user .
+
+# Special Characters and Encoding Issues
+error:unicode-user a api:User ;
+    api:id "user-unicode-🚀" ;
+    api:name "用户名称 Unicode User 🌟" ;
+    api:email "unicode@exämple.com" .
+
+# SQL Injection Attempt in Data (for security testing)
+error:sql-injection-user a api:User ;
+    api:id "user-sql-injection" ;
+    api:name "Robert'; DROP TABLE users; --" ;
+    api:email "sql-injection@example.com" .
+
+# XSS Attempt in Data
+error:xss-user a api:User ;
+    api:id "user-xss" ;
+    api:name "<script>alert('XSS')</script>" ;
+    api:email "xss@example.com" .
+
+# Performance Edge Case: Deep Nested Relationships
+error:deep-nested-org a api:Organization ;
+    api:id "org_deep_nested" ;
+    api:name "Deep Nested Organization" ;
+    api:parentOrganization error:level-1-org .
+
+error:level-1-org a api:Organization ;
+    api:id "org_level_1" ;
+    api:name "Level 1 Organization" ;
+    api:parentOrganization error:level-2-org .
+
+error:level-2-org a api:Organization ;
+    api:id "org_level_2" ;
+    api:name "Level 2 Organization" ;
+    api:parentOrganization error:level-3-org .
+
+error:level-3-org a api:Organization ;
+    api:id "org_level_3" ;
+    api:name "Level 3 Organization" .

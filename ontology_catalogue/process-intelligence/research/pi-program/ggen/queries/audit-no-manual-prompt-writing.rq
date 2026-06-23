@@ -1,0 +1,16 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# AUDIT: No Manual Prompt Writing
+# ASK query: Verifies prompt artifacts claimed as law were generated, not hand-authored
+# Passes if: All prompts/ .md files marked as "current law" have prov:wasGeneratedBy
+# Date: 2026-06-01
+
+ASK {
+    FILTER NOT EXISTS {
+        ?prompt a pi:PromptArtifact .
+        ?prompt dcterms:type "current-law" .
+        FILTER NOT EXISTS { ?prompt prov:wasGeneratedBy ?generator }
+    }
+}

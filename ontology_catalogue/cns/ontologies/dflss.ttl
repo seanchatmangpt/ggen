@@ -1,0 +1,183 @@
+@prefix :       <http://bitbizeco.dev/ontology/v1/dflss#> .
+@prefix dflss:  <http://bitbizeco.dev/ontology/v1/dflss#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bitbizeco.dev/ontology/v1/dflss>
+  a owl:Ontology ;
+  rdfs:label "Design for Lean Six Sigma (DMEDI) - AHI Canon" ;
+  rdfs:comment "Generative, self-validating ontology that forges the DMEDI methodology into an AOT-compiled runtime blueprint." ;
+  owl:imports <http://bitbizeco.dev/ontology/v1> , <http://bitbizeco.dev/ontology/v1/governance> .
+
+#################################################################
+# Axiomatic primitives
+#################################################################
+
+dflss:Project            a owl:Class ; rdfs:label "DfLSS Project" .
+dflss:PhaseInstance      a owl:Class ; rdfs:label "Phase Instance" .
+dflss:PhaseType          a owl:Class ; rdfs:label "Phase Type" .
+dflss:Tool               a owl:Class ; rdfs:label "DfLSS Tool" .
+dflss:Metric             a owl:Class ; rdfs:label "Metric" .
+dflss:Requirement        a owl:Class ; rdfs:subClassOf dflss:Metric ; rdfs:label "CTQ" .
+dflss:Risk               a owl:Class ; rdfs:label "Failure Mode" .
+dflss:Concept            a owl:Class ; rdfs:label "Concept" .
+dflss:Design             a owl:Class ; rdfs:label "Design" .
+
+#################################################################
+# Core properties (causal structure)
+#################################################################
+
+dflss:hasPhase           a owl:ObjectProperty ; rdfs:domain dflss:Project ; rdfs:range dflss:PhaseInstance .
+dflss:phaseType          a owl:ObjectProperty ; rdfs:domain dflss:PhaseInstance ; rdfs:range dflss:PhaseType .
+dflss:precedes           a owl:ObjectProperty , owl:TransitiveProperty ; rdfs:domain dflss:PhaseType ; rdfs:range dflss:PhaseType .
+
+dflss:utilizesTool       a owl:ObjectProperty ; rdfs:domain dflss:PhaseInstance ; rdfs:range dflss:Tool .
+dflss:allowedInPhaseType a owl:ObjectProperty ; rdfs:domain dflss:Tool ; rdfs:range dflss:PhaseType .
+
+dflss:identifies         a owl:ObjectProperty ; rdfs:domain dflss:Tool ; rdfs:range dflss:Metric .
+dflss:generates          a owl:ObjectProperty ; rdfs:domain dflss:Tool ; rdfs:range rdfs:Resource .
+dflss:selects            a owl:ObjectProperty ; rdfs:domain dflss:Tool ; rdfs:range rdfs:Resource .
+dflss:mitigates          a owl:ObjectProperty ; rdfs:domain dflss:Tool ; rdfs:range dflss:Risk .
+dflss:optimizes          a owl:ObjectProperty ; rdfs:domain dflss:Tool ; rdfs:range dflss:Metric .
+
+#################################################################
+# Data properties
+#################################################################
+
+dflss:projectName        a owl:DatatypeProperty ; rdfs:domain dflss:Project ; rdfs:range xsd:string .
+dflss:problemStatement   a owl:DatatypeProperty ; rdfs:domain dflss:Project ; rdfs:range xsd:string .
+dflss:goalStatement      a owl:DatatypeProperty ; rdfs:domain dflss:Project ; rdfs:range xsd:string .
+dflss:phaseName          a owl:DatatypeProperty ; rdfs:domain dflss:PhaseType ; rdfs:range xsd:string .
+dflss:toolName           a owl:DatatypeProperty ; rdfs:domain dflss:Tool ; rdfs:range xsd:string .
+
+#################################################################
+# DMEDI phase types (canonical order)
+#################################################################
+
+dflss:Define     a dflss:PhaseType ; dflss:phaseName "Define" .
+dflss:Measure    a dflss:PhaseType ; dflss:phaseName "Measure" .
+dflss:Explore    a dflss:PhaseType ; dflss:phaseName "Explore" .
+dflss:Develop    a dflss:PhaseType ; dflss:phaseName "Develop" .
+dflss:Implement  a dflss:PhaseType ; dflss:phaseName "Implement" .
+
+dflss:Define    dflss:precedes dflss:Measure .
+dflss:Measure   dflss:precedes dflss:Explore .
+dflss:Explore   dflss:precedes dflss:Develop .
+dflss:Develop   dflss:precedes dflss:Implement .
+
+#################################################################
+# Toolbox (canonical tools and their functions)
+#################################################################
+
+# Define
+dflss:ProjectCharter        a dflss:Tool ; dflss:toolName "Project Charter" ; dflss:allowedInPhaseType dflss:Define .
+dflss:MGPP                  a dflss:Tool ; dflss:toolName "Multi-Generational Project Plan" ; dflss:allowedInPhaseType dflss:Define .
+dflss:RiskManagementPlan    a dflss:Tool ; dflss:toolName "Risk Management Plan" ; dflss:allowedInPhaseType dflss:Define .
+dflss:CommunicationPlan     a dflss:Tool ; dflss:toolName "Communication Plan" ; dflss:allowedInPhaseType dflss:Define .
+
+# Measure
+dflss:VOC                   a dflss:Tool ; dflss:toolName "Voice of the Customer (VOC)" ; dflss:allowedInPhaseType dflss:Measure ; dflss:identifies dflss:Requirement .
+dflss:QFD                   a dflss:Tool ; dflss:toolName "Quality Function Deployment (QFD)" ; dflss:allowedInPhaseType dflss:Measure ; dflss:identifies dflss:Requirement .
+dflss:MSA                   a dflss:Tool ; dflss:toolName "Measurement Systems Analysis (MSA)" ; dflss:allowedInPhaseType dflss:Measure .
+dflss:ProcessCapability     a dflss:Tool ; dflss:toolName "Process Capability Analysis" ; dflss:allowedInPhaseType dflss:Measure .
+
+# Explore
+dflss:ConceptGeneration     a dflss:Tool ; dflss:toolName "Concept Generation" ; dflss:allowedInPhaseType dflss:Explore ; dflss:generates dflss:Concept .
+dflss:TRIZ                  a dflss:Tool ; dflss:toolName "TRIZ" ; dflss:allowedInPhaseType dflss:Explore ; dflss:generates dflss:Concept .
+dflss:PughSelection         a dflss:Tool ; dflss:toolName "Pugh Matrix" ; dflss:allowedInPhaseType dflss:Explore ; dflss:selects dflss:Concept .
+dflss:AHPSelection          a dflss:Tool ; dflss:toolName "AHP" ; dflss:allowedInPhaseType dflss:Explore ; dflss:selects dflss:Concept .
+dflss:DesignFMEA            a dflss:Tool ; dflss:toolName "Design FMEA" ; dflss:allowedInPhaseType dflss:Explore ; dflss:identifies dflss:Risk ; dflss:mitigates dflss:Risk .
+
+# Develop
+dflss:DetailedDesign        a dflss:Tool ; dflss:toolName "Detailed Design" ; dflss:allowedInPhaseType dflss:Develop ; dflss:generates dflss:Design .
+dflss:DOE                   a dflss:Tool ; dflss:toolName "Design of Experiments (DOE)" ; dflss:allowedInPhaseType dflss:Develop ; dflss:optimizes dflss:Metric .
+dflss:RSM                   a dflss:Tool ; dflss:toolName "Response Surface Methodology (RSM)" ; dflss:allowedInPhaseType dflss:Develop ; dflss:optimizes dflss:Metric .
+dflss:ReliabilityAnalysis   a dflss:Tool ; dflss:toolName "Reliability Analysis" ; dflss:allowedInPhaseType dflss:Develop .
+
+# Implement
+dflss:PrototypePilot        a dflss:Tool ; dflss:toolName "Prototype/Pilot" ; dflss:allowedInPhaseType dflss:Implement .
+dflss:ProcessControlPlan    a dflss:Tool ; dflss:toolName "Process Control Plan" ; dflss:allowedInPhaseType dflss:Implement .
+
+#################################################################
+# SHACL: Generative governance
+#################################################################
+
+:ProjectIntegrityShape a sh:NodeShape ;
+  sh:targetClass dflss:Project ;
+  sh:property [ sh:path dflss:problemStatement ; sh:minCount 1 ; sh:datatype xsd:string ;
+                sh:message "DfLSS: Project MUST have a Problem Statement." ] ;
+  sh:property [ sh:path dflss:goalStatement ; sh:minCount 1 ; sh:datatype xsd:string ;
+                sh:message "DfLSS: Project MUST have a SMART Goal Statement." ] ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        FILTER NOT EXISTS {
+          VALUES ?ptype { dflss:Define dflss:Measure dflss:Explore dflss:Develop dflss:Implement }
+          $this dflss:hasPhase ?pi .
+          ?pi dflss:phaseType ?ptype .
+        }
+      }
+    """ ;
+    sh:message "DfLSS: Project MUST contain all DMEDI phases."
+  ] .
+
+:ToolPhaseCompatibility a sh:NodeShape ;
+  sh:targetClass dflss:PhaseInstance ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this dflss:phaseType ?ptype ; dflss:utilizesTool ?t .
+        FILTER NOT EXISTS { ?t dflss:allowedInPhaseType ?ptype }
+      }
+    """ ;
+    sh:message "DfLSS: Phase is using a tool not allowed for its type."
+  ] .
+
+:Gate_ExploreReqCTQ a sh:NodeShape ;
+  sh:targetClass dflss:Project ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this dflss:hasPhase ?expl .
+        ?expl dflss:phaseType dflss:Explore .
+        FILTER NOT EXISTS {
+          $this dflss:hasPhase ?meas .
+          ?meas dflss:phaseType dflss:Measure ; dflss:utilizesTool ?t .
+          ?t dflss:identifies dflss:Requirement .
+        }
+      }
+    """ ;
+    sh:message "DfLSS Gate: Cannot Explore without CTQs identified in Measure (VOC/QFD)."
+  ] .
+
+:Invariant_CTQOptimized a sh:NodeShape ;
+  sh:targetClass dflss:Project ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this dflss:hasPhase ?meas .
+        ?meas dflss:phaseType dflss:Measure ; dflss:utilizesTool ?tId .
+        ?tId dflss:identifies dflss:Requirement .
+        FILTER NOT EXISTS {
+          $this dflss:hasPhase ?dev .
+          ?dev dflss:phaseType dflss:Develop ; dflss:utilizesTool ?tOpt .
+          ?tOpt dflss:optimizes dflss:Metric .
+        }
+      }
+    """ ;
+    sh:message "DfLSS Invariant: CTQs identified in Measure must be optimized in Develop (DOE/RSM)."
+  ] .
+
+#################################################################
+# Minimal exemplar
+#################################################################
+
+dflss:ExampleProject a dflss:Project ;
+  dflss:projectName "Sample DMEDI Project" ;
+  dflss:problemStatement "Late deliveries increase customer churn." ;
+  dflss:goalStatement "Reduce late deliveries from 12% to 2% within 2 quarters." .
+
+

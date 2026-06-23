@@ -1,0 +1,8 @@
+@prefix : <https://bytestar.org/ontology/byteethos/dflss-plan#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/byteethos/dflss-plan>
+  a owl:Ontology ;
+  rdfs:label "ByteEthos DfLSS Project Plan" ;
+  rdfs:comment "The formal Design for Lean Six Sigma project plan for fabricating the ByteEthos governance and finality fabric." .

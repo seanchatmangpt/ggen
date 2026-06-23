@@ -1,0 +1,6 @@
+@prefix schema: <http://schema.org/> .
+@prefix ex: <http://example.org/> .
+
+# This person is missing a required name property
+ex:invalid-person a schema:Person ;
+    schema:email "invalid@example.com" .

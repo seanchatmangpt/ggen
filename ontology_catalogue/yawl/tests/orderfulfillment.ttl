@@ -1,0 +1,369 @@
+@prefix : <http://example.org/orderfulfillment/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix yawl: <http://yawl.org/yawl-specification/> .
+@prefix schema: <https://schema.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Order Fulfillment Workflow Specification
+# ─────────────────────────────────────────────────────────────────────────────
+# Process:
+#   1. Order Received (input)
+#   2. Check Inventory (XOR split: in stock vs out of stock)
+#   3a. Process Payment (for in-stock orders)
+#   3b. Backorder Processing (for out-of-stock orders)
+#   4. Ship Order / Create Backorder (AND join from both paths)
+#   5. Notify Customer (final task)
+#   6. Order Complete (output)
+# ─────────────────────────────────────────────────────────────────────────────
+
+:OrderFulfillmentSpecification a yawl:Specification, schema:CreativeWork ;
+    yawl:specificationID "OrderFulfillment"^^xsd:string ;
+    yawl:specificationVersion "1.0"^^xsd:string ;
+    yawl:specificationURI "http://example.org/orderfulfillment/spec"^^xsd:anyURI ;
+    yawl:isNetType false ;
+    yawl:hasNet :OrderFulfillmentNet ;
+    rdfs:comment "Complete order fulfillment workflow with inventory checking and payment processing"^^xsd:string ;
+    schema:about "Order Fulfillment Process" ;
+    schema:inLanguage "en" ;
+    rdfs:comment "Specification extending schema:CreativeWork — YAWL adds temporal, control-flow, and data-flow semantics to Schema.org's generic creative work model"^^xsd:string .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Main Net Definition
+# ─────────────────────────────────────────────────────────────────────────────
+
+:OrderFulfillmentNet a yawl:Net, schema:DataFeed ;
+    yawl:netID "OrderFulfillmentNet"^^xsd:string ;
+    yawl:netName "Order Fulfillment Process"^^xsd:string ;
+    yawl:hasElement :OrderReceivedCondition ;
+    yawl:hasElement :CheckInventoryTask ;
+    yawl:hasElement :ProcessPaymentTask ;
+    yawl:hasElement :BackorderProcessingTask ;
+    yawl:hasElement :ShipOrderTask ;
+    yawl:hasElement :NotifyCustomerTask ;
+    yawl:hasElement :OrderCompleteCondition ;
+    yawl:hasFlow :Flow_OrderReceived_to_CheckInventory ;
+    yawl:hasFlow :Flow_CheckInventory_to_ProcessPayment ;
+    yawl:hasFlow :Flow_CheckInventory_to_Backorder ;
+    yawl:hasFlow :Flow_ProcessPayment_to_ShipOrder ;
+    yawl:hasFlow :Flow_Backorder_to_ShipOrder ;
+    yawl:hasFlow :Flow_ShipOrder_to_NotifyCustomer ;
+    yawl:hasFlow :Flow_NotifyCustomer_to_OrderComplete ;
+    rdfs:comment "Net containing all tasks and flows for order fulfillment"^^xsd:string ;
+    schema:dateModified "2026-02-23"^^xsd:date ;
+    rdfs:comment "Net extending schema:DataFeed — YAWL provides ordered, directed task sequencing where Schema.org provides generic data feed semantics"^^xsd:string .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Input/Output Conditions
+# ─────────────────────────────────────────────────────────────────────────────
+
+:OrderReceivedCondition a yawl:Condition, schema:OrderStatus ;
+    yawl:elementID "order_received"^^xsd:string ;
+    yawl:elementName "Order Received"^^xsd:string ;
+    yawl:isInputCondition true ;
+    yawl:isOutputCondition false ;
+    rdfs:comment "Start condition: order received from customer"^^xsd:string ;
+    schema:name "Order Received" ;
+    rdfs:comment "Condition extending schema:OrderStatus — YAWL adds entry-point semantics and token-flow semantics to Schema.org's order status vocabulary"^^xsd:string .
+
+:OrderCompleteCondition a yawl:Condition, schema:OrderStatus ;
+    yawl:elementID "order_complete"^^xsd:string ;
+    yawl:elementName "Order Complete"^^xsd:string ;
+    yawl:isInputCondition false ;
+    yawl:isOutputCondition true ;
+    rdfs:comment "End condition: order processing complete"^^xsd:string ;
+    schema:name "Order Complete" ;
+    rdfs:comment "Condition extending schema:OrderStatus — YAWL adds exit-point semantics and completion state tracking to Schema.org's order status model"^^xsd:string .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Core Tasks
+# ─────────────────────────────────────────────────────────────────────────────
+
+:CheckInventoryTask a yawl:Task, schema:CheckAction ;
+    yawl:taskID "check_inventory"^^xsd:string ;
+    yawl:taskName "Check Inventory"^^xsd:string ;
+    yawl:isMultiInstance false ;
+    yawl:joinType "XOR"^^xsd:string ;
+    yawl:splitType "XOR"^^xsd:string ;
+    rdfs:comment "Verify product availability in inventory system. XOR split routes to either payment processing or backorder handling."^^xsd:string ;
+    yawl:hasInputSet :CheckInventoryInputSet ;
+    yawl:hasOutputSet :CheckInventoryOutputSet ;
+    schema:object :ProductIDVariable ;
+    rdfs:comment "Task extending schema:CheckAction — YAWL adds XOR-split branching logic and multi-path routing to Schema.org's generic check action semantics"^^xsd:string .
+
+:ProcessPaymentTask a yawl:Task, schema:PayAction ;
+    yawl:taskID "process_payment"^^xsd:string ;
+    yawl:taskName "Process Payment"^^xsd:string ;
+    yawl:isMultiInstance false ;
+    yawl:joinType "XOR"^^xsd:string ;
+    yawl:splitType "XOR"^^xsd:string ;
+    rdfs:comment "Charge customer payment method for in-stock orders. XOR split determines if payment succeeds or requires retry."^^xsd:string ;
+    yawl:hasInputSet :ProcessPaymentInputSet ;
+    yawl:hasOutputSet :ProcessPaymentOutputSet ;
+    schema:instrument :CustomerIDVariable ;
+    schema:object :OrderAmountVariable ;
+    rdfs:comment "Task extending schema:PayAction — YAWL adds transactional semantics, retry logic, and payment status tracking to Schema.org's payment action model"^^xsd:string .
+
+:BackorderProcessingTask a yawl:Task, schema:OrderAction ;
+    yawl:taskID "backorder_processing"^^xsd:string ;
+    yawl:taskName "Backorder Processing"^^xsd:string ;
+    yawl:isMultiInstance false ;
+    yawl:joinType "XOR"^^xsd:string ;
+    yawl:splitType "XOR"^^xsd:string ;
+    rdfs:comment "Process out-of-stock order for future fulfillment. XOR split handles backorder creation or customer notification."^^xsd:string ;
+    yawl:hasInputSet :BackorderInputSet ;
+    yawl:hasOutputSet :BackorderOutputSet ;
+    schema:object :ProductIDVariable ;
+    rdfs:comment "Task extending schema:OrderAction — YAWL adds backorder-specific control flow (deferred fulfillment) to Schema.org's generic order action semantics"^^xsd:string .
+
+:ShipOrderTask a yawl:Task, schema:DeliveryEvent ;
+    yawl:taskID "ship_order"^^xsd:string ;
+    yawl:taskName "Ship Order"^^xsd:string ;
+    yawl:isMultiInstance false ;
+    yawl:joinType "AND"^^xsd:string ;
+    yawl:splitType "XOR"^^xsd:string ;
+    rdfs:comment "Synchronize paid orders and backorder processing, then ship available inventory. AND join waits for both payment and backorder paths."^^xsd:string ;
+    yawl:hasInputSet :ShipOrderInputSet ;
+    yawl:hasOutputSet :ShipOrderOutputSet ;
+    schema:hasDeliveryMethod "Carrier" ;
+    schema:date :ShipDateVariable ;
+    rdfs:comment "Task extending schema:DeliveryEvent — YAWL adds AND-join synchronization (awaits both payment and backorder completion) to Schema.org's delivery semantics"^^xsd:string .
+
+:NotifyCustomerTask a yawl:Task, schema:CommunicateAction ;
+    yawl:taskID "notify_customer"^^xsd:string ;
+    yawl:taskName "Notify Customer"^^xsd:string ;
+    yawl:isMultiInstance false ;
+    yawl:joinType "XOR"^^xsd:string ;
+    yawl:splitType "XOR"^^xsd:string ;
+    rdfs:comment "Send shipment confirmation or backorder notification to customer. XOR split handles different notification types."^^xsd:string ;
+    yawl:hasInputSet :NotifyCustomerInputSet ;
+    yawl:hasOutputSet :NotifyCustomerOutputSet ;
+    schema:object :CustomerIDVariable ;
+    schema:about "Order Status Update" ;
+    rdfs:comment "Task extending schema:CommunicateAction — YAWL adds multi-path conditional routing (XOR split) for different notification types to Schema.org's generic communication model"^^xsd:string .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Input/Output Sets (Data Flow)
+# ─────────────────────────────────────────────────────────────────────────────
+
+:CheckInventoryInputSet a yawl:InputSet ;
+    yawl:hasDataElement :ProductIDVariable ;
+    yawl:hasDataElement :OrderIDVariable ;
+    yawl:hasDataElement :QuantityVariable .
+
+:CheckInventoryOutputSet a yawl:OutputSet ;
+    yawl:hasDataElement :InventoryStatusVariable ;
+    yawl:hasDataElement :AvailableQuantityVariable .
+
+:ProcessPaymentInputSet a yawl:InputSet ;
+    yawl:hasDataElement :OrderIDVariable ;
+    yawl:hasDataElement :CustomerIDVariable ;
+    yawl:hasDataElement :OrderAmountVariable .
+
+:ProcessPaymentOutputSet a yawl:OutputSet ;
+    yawl:hasDataElement :PaymentStatusVariable ;
+    yawl:hasDataElement :TransactionIDVariable .
+
+:BackorderInputSet a yawl:InputSet ;
+    yawl:hasDataElement :ProductIDVariable ;
+    yawl:hasDataElement :OrderIDVariable ;
+    yawl:hasDataElement :QuantityVariable .
+
+:BackorderOutputSet a yawl:OutputSet ;
+    yawl:hasDataElement :BackorderIDVariable ;
+    yawl:hasDataElement :ExpectedShipDateVariable .
+
+:ShipOrderInputSet a yawl:InputSet ;
+    yawl:hasDataElement :PaymentStatusVariable ;
+    yawl:hasDataElement :BackorderIDVariable .
+
+:ShipOrderOutputSet a yawl:OutputSet ;
+    yawl:hasDataElement :TrackingNumberVariable ;
+    yawl:hasDataElement :ShipDateVariable .
+
+:NotifyCustomerInputSet a yawl:InputSet ;
+    yawl:hasDataElement :TrackingNumberVariable ;
+    yawl:hasDataElement :BackorderIDVariable ;
+    yawl:hasDataElement :CustomerIDVariable .
+
+:NotifyCustomerOutputSet a yawl:OutputSet ;
+    yawl:hasDataElement :NotificationStatusVariable .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Data Variables
+# ─────────────────────────────────────────────────────────────────────────────
+
+:OrderIDVariable a yawl:DataVariable ;
+    yawl:variableName "OrderID"^^xsd:string ;
+    yawl:variableType "String"^^xsd:string ;
+    rdfs:comment "Unique identifier for the order"^^xsd:string .
+
+:ProductIDVariable a yawl:DataVariable ;
+    yawl:variableName "ProductID"^^xsd:string ;
+    yawl:variableType "String"^^xsd:string ;
+    rdfs:comment "Unique identifier for the product"^^xsd:string .
+
+:QuantityVariable a yawl:DataVariable ;
+    yawl:variableName "Quantity"^^xsd:string ;
+    yawl:variableType "Integer"^^xsd:string ;
+    rdfs:comment "Quantity ordered by customer"^^xsd:string .
+
+:CustomerIDVariable a yawl:DataVariable ;
+    yawl:variableName "CustomerID"^^xsd:string ;
+    yawl:variableType "String"^^xsd:string ;
+    rdfs:comment "Unique identifier for the customer"^^xsd:string .
+
+:OrderAmountVariable a yawl:DataVariable ;
+    yawl:variableName "OrderAmount"^^xsd:string ;
+    yawl:variableType "Decimal"^^xsd:string ;
+    rdfs:comment "Total order amount for payment processing"^^xsd:string .
+
+:InventoryStatusVariable a yawl:DataVariable ;
+    yawl:variableName "InventoryStatus"^^xsd:string ;
+    yawl:variableType "String"^^xsd:string ;
+    rdfs:comment "Status of inventory check (InStock or OutOfStock)"^^xsd:string .
+
+:AvailableQuantityVariable a yawl:DataVariable ;
+    yawl:variableName "AvailableQuantity"^^xsd:string ;
+    yawl:variableType "Integer"^^xsd:string ;
+    rdfs:comment "Actual quantity available in inventory"^^xsd:string .
+
+:PaymentStatusVariable a yawl:DataVariable ;
+    yawl:variableName "PaymentStatus"^^xsd:string ;
+    yawl:variableType "String"^^xsd:string ;
+    rdfs:comment "Status of payment processing (Approved, Declined, Pending)"^^xsd:string .
+
+:TransactionIDVariable a yawl:DataVariable ;
+    yawl:variableName "TransactionID"^^xsd:string ;
+    yawl:variableType "String"^^xsd:string ;
+    rdfs:comment "Payment transaction identifier from payment gateway"^^xsd:string .
+
+:BackorderIDVariable a yawl:DataVariable ;
+    yawl:variableName "BackorderID"^^xsd:string ;
+    yawl:variableType "String"^^xsd:string ;
+    rdfs:comment "Unique identifier for backorder if needed"^^xsd:string .
+
+:ExpectedShipDateVariable a yawl:DataVariable ;
+    yawl:variableName "ExpectedShipDate"^^xsd:string ;
+    yawl:variableType "Date"^^xsd:string ;
+    rdfs:comment "Expected ship date for backordered items"^^xsd:string .
+
+:TrackingNumberVariable a yawl:DataVariable ;
+    yawl:variableName "TrackingNumber"^^xsd:string ;
+    yawl:variableType "String"^^xsd:string ;
+    rdfs:comment "Shipping tracking number from carrier"^^xsd:string .
+
+:ShipDateVariable a yawl:DataVariable ;
+    yawl:variableName "ShipDate"^^xsd:string ;
+    yawl:variableType "Date"^^xsd:string ;
+    rdfs:comment "Actual date order was shipped"^^xsd:string .
+
+:NotificationStatusVariable a yawl:DataVariable ;
+    yawl:variableName "NotificationStatus"^^xsd:string ;
+    yawl:variableType "String"^^xsd:string ;
+    rdfs:comment "Status of customer notification (Sent, Failed, Pending)"^^xsd:string .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Control Flows
+# ─────────────────────────────────────────────────────────────────────────────
+
+:Flow_OrderReceived_to_CheckInventory a yawl:Flow ;
+    yawl:flowID "flow_1"^^xsd:string ;
+    yawl:fromElement :OrderReceivedCondition ;
+    yawl:toElement :CheckInventoryTask ;
+    rdfs:comment "Route order from input condition to inventory check"^^xsd:string .
+
+:Flow_CheckInventory_to_ProcessPayment a yawl:Flow ;
+    yawl:flowID "flow_2"^^xsd:string ;
+    yawl:fromElement :CheckInventoryTask ;
+    yawl:toElement :ProcessPaymentTask ;
+    yawl:predicate "inventory_status == 'InStock'"^^xsd:string ;
+    rdfs:comment "Route in-stock orders to payment processing"^^xsd:string .
+
+:Flow_CheckInventory_to_Backorder a yawl:Flow ;
+    yawl:flowID "flow_3"^^xsd:string ;
+    yawl:fromElement :CheckInventoryTask ;
+    yawl:toElement :BackorderProcessingTask ;
+    yawl:predicate "inventory_status == 'OutOfStock'"^^xsd:string ;
+    rdfs:comment "Route out-of-stock orders to backorder processing"^^xsd:string .
+
+:Flow_ProcessPayment_to_ShipOrder a yawl:Flow ;
+    yawl:flowID "flow_4"^^xsd:string ;
+    yawl:fromElement :ProcessPaymentTask ;
+    yawl:toElement :ShipOrderTask ;
+    rdfs:comment "Route paid orders to shipping task"^^xsd:string .
+
+:Flow_Backorder_to_ShipOrder a yawl:Flow ;
+    yawl:flowID "flow_5"^^xsd:string ;
+    yawl:fromElement :BackorderProcessingTask ;
+    yawl:toElement :ShipOrderTask ;
+    rdfs:comment "Route backorder processing to shipping task (AND join waits for both)"^^xsd:string .
+
+:Flow_ShipOrder_to_NotifyCustomer a yawl:Flow ;
+    yawl:flowID "flow_6"^^xsd:string ;
+    yawl:fromElement :ShipOrderTask ;
+    yawl:toElement :NotifyCustomerTask ;
+    rdfs:comment "Route shipped orders to customer notification"^^xsd:string .
+
+:Flow_NotifyCustomer_to_OrderComplete a yawl:Flow ;
+    yawl:flowID "flow_7"^^xsd:string ;
+    yawl:fromElement :NotifyCustomerTask ;
+    yawl:toElement :OrderCompleteCondition ;
+    rdfs:comment "Route completion notification to output condition"^^xsd:string .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Metadata and Documentation
+# ─────────────────────────────────────────────────────────────────────────────
+
+:OrderFulfillmentSpecification rdfs:comment
+    """
+    Order Fulfillment Workflow - Enterprise B2C E-Commerce
+
+    This specification models the complete order fulfillment process for an
+    e-commerce platform. It handles both in-stock immediate fulfillment and
+    out-of-stock backorder scenarios.
+
+    Key Process Features:
+
+    1. Inventory Checking (XOR split)
+       - Validates product availability
+       - Routes to appropriate handler based on stock status
+
+    2. Dual Processing Paths
+       - In-Stock Path: Immediate payment processing
+       - Out-of-Stock Path: Backorder creation and scheduling
+
+    3. Synchronization (AND join)
+       - Waits for both payment and backorder paths to complete
+       - Ensures consistent order state before shipping
+
+    4. Final Steps
+       - Unified shipping task handles all fulfillment
+       - Customer notification for all order types
+
+    Join/Split Types:
+    - XOR (Exclusive): Routes based on conditions
+    - AND (Parallel): Waits for all inputs before proceeding
+
+    Data Flow:
+    - Order metadata flows through entire process
+    - Inventory and payment data merge at shipping
+    - Final notification includes tracking and status
+
+    Performance Characteristics:
+    - Typical execution time: 2-5 minutes for in-stock orders
+    - Backorder orders: 7-30 days (async continuation)
+    - Supports concurrent order processing: 1000s per minute
+
+    Error Handling:
+    - Payment failures trigger retry logic within ProcessPayment
+    - Inventory updates handled atomically
+    - Backorder creation fails gracefully to customer notification
+
+    Compliance:
+    - PCI-DSS: Payment data isolated in ProcessPayment task
+    - GDPR: Customer data flow tracked through NotifyCustomer
+    - SOX: All financial transactions logged and audited
+    """^^xsd:string .

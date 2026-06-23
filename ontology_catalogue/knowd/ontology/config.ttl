@@ -1,0 +1,204 @@
+@prefix config: <http://knowd.io/config#> .
+@prefix knowd: <http://knowd.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# KnowD Configuration Ontology
+# ============================================================================
+# This ontology defines the structure for storing KnowD server configuration
+# as RDF triples, enabling "dogfooding" - using KnowD to configure itself.
+
+# Configuration Classes
+
+config:ServerSetting a owl:Class ;
+    rdfs:label "Server Setting" ;
+    rdfs:comment "A server configuration parameter" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty config:key ;
+        owl:cardinality 1
+    ] .
+
+# Configuration Properties
+
+config:key a owl:DatatypeProperty ;
+    rdfs:label "Configuration Key" ;
+    rdfs:comment "The unique key identifier for a configuration setting" ;
+    rdfs:domain config:ServerSetting ;
+    rdfs:range xsd:string .
+
+config:value a owl:DatatypeProperty ;
+    rdfs:label "Configuration Value" ;
+    rdfs:comment "The value of a configuration setting" ;
+    rdfs:domain config:ServerSetting ;
+    rdfs:range xsd:string .
+
+config:description a owl:DatatypeProperty ;
+    rdfs:label "Description" ;
+    rdfs:comment "Human-readable description of the setting" ;
+    rdfs:domain config:ServerSetting ;
+    rdfs:range xsd:string .
+
+config:modifiedAt a owl:DatatypeProperty ;
+    rdfs:label "Modified At" ;
+    rdfs:comment "Timestamp when the setting was last modified" ;
+    rdfs:domain config:ServerSetting ;
+    rdfs:range xsd:dateTime .
+
+config:modifiedBy a owl:ObjectProperty ;
+    rdfs:label "Modified By" ;
+    rdfs:comment "Actor who last modified the setting" ;
+    rdfs:domain config:ServerSetting .
+
+# ============================================================================
+# Default Configuration Settings
+# ============================================================================
+
+# HTTP Server Configuration
+
+config:http-addr a config:ServerSetting ;
+    config:key "http.addr" ;
+    config:value "localhost:8090" ;
+    config:description "HTTP server listen address" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+# Storage Configuration
+
+config:data-dir a config:ServerSetting ;
+    config:key "data.dir" ;
+    config:value "./data" ;
+    config:description "Data directory path" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+config:store-type a config:ServerSetting ;
+    config:key "store.type" ;
+    config:value "mem" ;
+    config:description "Storage backend type (mem|disk)" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+config:store-packs a config:ServerSetting ;
+    config:key "store.packs" ;
+    config:value "" ;
+    config:description "Path to RDF pack files" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+config:store-watch-packs a config:ServerSetting ;
+    config:key "store.watch_packs" ;
+    config:value "false" ;
+    config:description "Watch pack files for changes" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+# Query Planner Configuration
+
+config:planner-cbo a config:ServerSetting ;
+    config:key "planner.cbo" ;
+    config:value "true" ;
+    config:description "Enable cost-based query optimizer" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+config:planner-analyze-sample a config:ServerSetting ;
+    config:key "planner.analyze_sample" ;
+    config:value "1000" ;
+    config:description "Sample size for statistics analysis" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+config:planner-analyze-ttl a config:ServerSetting ;
+    config:key "planner.analyze_ttl" ;
+    config:value "3600" ;
+    config:description "TTL for cached statistics (seconds)" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+# SHACL Validation Configuration
+
+config:shacl-enabled a config:ServerSetting ;
+    config:key "shacl.enabled" ;
+    config:value "true" ;
+    config:description "Enable SHACL validation" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+# Query Configuration
+
+config:query-stream-max-bytes a config:ServerSetting ;
+    config:key "query.stream_max_bytes" ;
+    config:value "10485760" ;
+    config:description "Maximum bytes for streaming query results (10MB)" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+config:query-plan-cache-size a config:ServerSetting ;
+    config:key "query.plan_cache_size" ;
+    config:value "256" ;
+    config:description "Number of query plans to cache" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+config:query-plan-cache-persist a config:ServerSetting ;
+    config:key "query.plan_cache_persist" ;
+    config:value "false" ;
+    config:description "Persist query plan cache to disk" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+# Namespace Configuration
+
+config:namespace-default a config:ServerSetting ;
+    config:key "namespace.default" ;
+    config:value "default" ;
+    config:description "Default namespace for multi-tenancy" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+# Cluster Configuration
+
+config:cluster-mode a config:ServerSetting ;
+    config:key "cluster.mode" ;
+    config:value "" ;
+    config:description "Cluster mode (leader|follower|standalone)" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+config:cluster-peers a config:ServerSetting ;
+    config:key "cluster.peers" ;
+    config:value "" ;
+    config:description "Comma-separated list of peer addresses" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+# Receipts Configuration
+
+config:receipts-dir a config:ServerSetting ;
+    config:key "receipts.dir" ;
+    config:value "./receipts" ;
+    config:description "Directory for transaction receipts" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+# Vector and WASM Configuration
+
+config:vector-enabled a config:ServerSetting ;
+    config:key "vector.enabled" ;
+    config:value "false" ;
+    config:description "Enable vector similarity search" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+config:wasm-enabled a config:ServerSetting ;
+    config:key "wasm.enabled" ;
+    config:value "false" ;
+    config:description "Enable WASM hook execution" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+# Encryption Configuration
+
+config:encryption-enabled a config:ServerSetting ;
+    config:key "encryption.enabled" ;
+    config:value "false" ;
+    config:description "Enable data encryption at rest" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+config:encryption-key-source a config:ServerSetting ;
+    config:key "encryption.key_source" ;
+    config:value "env" ;
+    config:description "Encryption key source (env|file|inline)" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .
+
+config:gdpr-enabled a config:ServerSetting ;
+    config:key "gdpr.enabled" ;
+    config:value "false" ;
+    config:description "Enable GDPR compliance features" ;
+    config:modifiedAt "2025-10-03T00:00:00Z"^^xsd:dateTime .

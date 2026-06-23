@@ -1,0 +1,308 @@
+@prefix zoe: <https://zoela.org/ontology/> .
+@prefix schema: <https://schema.org/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# =============================================================================
+# ZOE LA — Leadership College Ontology
+# Models ZOE Leadership College (leadership formation program)
+# =============================================================================
+
+<https://zoela.org/ontology/leadership-college>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA Leadership College Ontology"@en ;
+    rdfs:comment "Models ZOE Leadership College cohorts, modules, enrollments, and credentials for the leadership formation program."@en ;
+    dcterms:created "2026-05-17"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# Classes
+# =============================================================================
+
+zoe:LeadershipCollegeCohort
+    a owl:Class ;
+    rdfs:subClassOf schema:EducationalOccupationalProgram ;
+    rdfs:subClassOf org:OrganizationalUnit ;
+    rdfs:label "Leadership College Cohort"@en ;
+    rdfs:comment "A named cohort of students enrolled in a specific semester of ZOE Leadership College."@en .
+
+zoe:LCModule
+    a owl:Class ;
+    rdfs:subClassOf schema:Course ;
+    rdfs:label "Leadership College Module"@en ;
+    rdfs:comment "A discrete curriculum module within a ZOE Leadership College cohort covering a specific leadership topic."@en .
+
+zoe:LCEnrollment
+    a owl:Class ;
+    rdfs:subClassOf schema:RegisterAction ;
+    rdfs:label "Leadership College Enrollment"@en ;
+    rdfs:comment "A record of a person's enrollment in a ZOE Leadership College cohort, including completion tracking."@en .
+
+zoe:LCCredential
+    a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Leadership College Credential"@en ;
+    rdfs:comment "A cryptographically signed credential issued to a person upon successful completion of a ZOE Leadership College cohort."@en .
+
+# =============================================================================
+# Properties — LeadershipCollegeCohort
+# =============================================================================
+
+zoe:cohortCode
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LeadershipCollegeCohort ;
+    rdfs:range xsd:string ;
+    rdfs:label "cohort code"@en ;
+    rdfs:comment "Unique code identifying this cohort (e.g. LC-2026-SPRING, LC-2026-FALL)."@en ;
+    skos:notation "cohortCode" .
+
+zoe:cohortYear
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LeadershipCollegeCohort ;
+    rdfs:range xsd:integer ;
+    rdfs:label "cohort year"@en ;
+    rdfs:comment "The calendar year in which this Leadership College cohort runs."@en ;
+    skos:notation "cohortYear" .
+
+zoe:cohortSeason
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LeadershipCollegeCohort ;
+    rdfs:range xsd:string ;
+    rdfs:label "cohort season"@en ;
+    rdfs:comment "The academic season of this cohort: 'Spring' or 'Fall'."@en ;
+    skos:notation "cohortSeason" .
+
+zoe:startDate
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LeadershipCollegeCohort ;
+    rdfs:range xsd:date ;
+    rdfs:label "start date"@en ;
+    rdfs:comment "The date on which this cohort's program begins."@en ;
+    skos:notation "startDate" .
+
+zoe:endDate
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LeadershipCollegeCohort ;
+    rdfs:range xsd:date ;
+    rdfs:label "end date"@en ;
+    rdfs:comment "The date on which this cohort's program concludes."@en ;
+    skos:notation "endDate" .
+
+zoe:maxEnrollment
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LeadershipCollegeCohort ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max enrollment"@en ;
+    rdfs:comment "Maximum number of students permitted to enroll in this Leadership College cohort."@en ;
+    skos:notation "maxEnrollment" .
+
+zoe:leadFacilitatorId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LeadershipCollegeCohort ;
+    rdfs:range xsd:string ;
+    rdfs:label "lead facilitator ID"@en ;
+    rdfs:comment "Profile identifier of the lead facilitator responsible for this Leadership College cohort."@en ;
+    skos:notation "leadFacilitatorId" .
+
+# =============================================================================
+# Properties — LCModule
+# =============================================================================
+
+zoe:moduleCode
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LCModule ;
+    rdfs:range xsd:string ;
+    rdfs:label "module code"@en ;
+    rdfs:comment "Unique code identifying this curriculum module (e.g. LC-MOD-01-IDENTITY)."@en ;
+    skos:notation "moduleCode" .
+
+zoe:moduleTitle
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LCModule ;
+    rdfs:range xsd:string ;
+    rdfs:label "module title"@en ;
+    rdfs:comment "Human-readable title of this curriculum module (e.g. 'Identity in Christ')."@en ;
+    skos:notation "moduleTitle" .
+
+zoe:moduleSequence
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LCModule ;
+    rdfs:range xsd:integer ;
+    rdfs:label "module sequence"@en ;
+    rdfs:comment "Ordinal position of this module within the cohort curriculum (1 = first module)."@en ;
+    skos:notation "moduleSequence" .
+
+zoe:durationWeeks
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LCModule ;
+    rdfs:range xsd:integer ;
+    rdfs:label "duration weeks"@en ;
+    rdfs:comment "Number of weeks this module spans within the cohort schedule."@en ;
+    skos:notation "durationWeeks" .
+
+zoe:hasCohort
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:LCModule ;
+    rdfs:range zoe:LeadershipCollegeCohort ;
+    rdfs:label "has cohort"@en ;
+    rdfs:comment "Links this curriculum module to the Leadership College cohort in which it is taught."@en ;
+    skos:notation "hasCohort" .
+
+# =============================================================================
+# Properties — LCEnrollment
+# =============================================================================
+
+zoe:enrollmentId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LCEnrollment ;
+    rdfs:range xsd:string ;
+    rdfs:label "enrollment ID"@en ;
+    rdfs:comment "Unique identifier for this Leadership College enrollment record."@en ;
+    skos:notation "enrollmentId" .
+
+zoe:personId
+    a owl:DatatypeProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:string ;
+    rdfs:label "person ID"@en ;
+    rdfs:comment "Foreign key referencing the person's profile in the ZOE LA person registry."@en ;
+    skos:notation "personId" .
+
+zoe:cohortId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LCEnrollment ;
+    rdfs:range xsd:string ;
+    rdfs:label "cohort ID"@en ;
+    rdfs:comment "Foreign key referencing the LeadershipCollegeCohort this enrollment is for."@en ;
+    skos:notation "cohortId" .
+
+zoe:enrolledAt
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LCEnrollment ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "enrolled at"@en ;
+    rdfs:comment "ISO 8601 timestamp recording when this person enrolled in the cohort."@en ;
+    skos:notation "enrolledAt" .
+
+zoe:completedAt
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LCEnrollment ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "completed at"@en ;
+    rdfs:comment "ISO 8601 timestamp recording when this person completed the cohort program."@en ;
+    skos:notation "completedAt" .
+
+zoe:completionStatus
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:LCEnrollment ;
+    rdfs:range skos:Concept ;
+    rdfs:label "completion status"@en ;
+    rdfs:comment "Current completion status of this enrollment as a SKOS concept from LCCompletionScheme."@en ;
+    skos:notation "completionStatus" .
+
+zoe:completionReceiptId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LCEnrollment ;
+    rdfs:range xsd:string ;
+    rdfs:label "completion receipt ID"@en ;
+    rdfs:comment "Foreign key referencing the receipt issued upon successful completion of the cohort."@en ;
+    skos:notation "completionReceiptId" .
+
+# =============================================================================
+# Properties — LCCredential
+# =============================================================================
+
+zoe:credentialId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LCCredential ;
+    rdfs:range xsd:string ;
+    rdfs:label "credential ID"@en ;
+    rdfs:comment "Unique identifier for this Leadership College credential."@en ;
+    skos:notation "credentialId" .
+
+zoe:cohortCodeRef
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LCCredential ;
+    rdfs:range xsd:string ;
+    rdfs:label "cohort code reference"@en ;
+    rdfs:comment "The cohort code of the cohort for which this credential was issued (e.g. LC-2026-SPRING)."@en ;
+    skos:notation "cohortCodeRef" .
+
+zoe:issuedAt
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LCCredential ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "issued at"@en ;
+    rdfs:comment "ISO 8601 timestamp recording when this credential was issued."@en ;
+    skos:notation "issuedAt" .
+
+zoe:credentialType
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LCCredential ;
+    rdfs:range xsd:string ;
+    rdfs:label "credential type"@en ;
+    rdfs:comment "Type of credential issued (e.g. COMPLETION-CERT, LEADERSHIP-CERT, MINISTRY-CERT)."@en ;
+    skos:notation "credentialType" .
+
+zoe:blake3Hash
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:LCCredential ;
+    rdfs:range xsd:string ;
+    rdfs:label "BLAKE3 hash"@en ;
+    rdfs:comment "BLAKE3 cryptographic hash of this credential's canonical data, providing tamper-evident integrity."@en ;
+    skos:notation "blake3Hash" .
+
+# =============================================================================
+# SKOS ConceptScheme — LCCompletionScheme
+# =============================================================================
+
+zoe:LCCompletionScheme
+    a skos:ConceptScheme ;
+    rdfs:label "Leadership College Completion Scheme"@en ;
+    rdfs:comment "Controlled vocabulary for the completion status of a ZOE Leadership College enrollment."@en ;
+    skos:prefLabel "Leadership College Enrollment Statuses"@en .
+
+zoe:LCStatusInProgress
+    a skos:Concept ;
+    skos:inScheme zoe:LCCompletionScheme ;
+    skos:topConceptOf zoe:LCCompletionScheme ;
+    rdfs:label "In Progress"@en ;
+    skos:prefLabel "In Progress"@en ;
+    rdfs:comment "Student is currently enrolled and actively participating in the cohort."@en ;
+    skos:definition "Active enrollment status indicating the student is attending sessions and has not yet completed or withdrawn."@en ;
+    skos:notation "IN-PROGRESS" .
+
+zoe:LCStatusCompleted
+    a skos:Concept ;
+    skos:inScheme zoe:LCCompletionScheme ;
+    skos:topConceptOf zoe:LCCompletionScheme ;
+    rdfs:label "Completed"@en ;
+    skos:prefLabel "Completed"@en ;
+    rdfs:comment "Student has successfully completed all cohort requirements and received a credential."@en ;
+    skos:definition "Final status assigned when all modules are completed and attendance requirements are met; credential is issued."@en ;
+    skos:notation "COMPLETED" .
+
+zoe:LCStatusDeferred
+    a skos:Concept ;
+    skos:inScheme zoe:LCCompletionScheme ;
+    skos:topConceptOf zoe:LCCompletionScheme ;
+    rdfs:label "Deferred"@en ;
+    skos:prefLabel "Deferred"@en ;
+    rdfs:comment "Student has temporarily paused participation and will resume in a future cohort."@en ;
+    skos:definition "Enrollment is paused by mutual agreement; the student retains credit for completed modules and may re-enroll."@en ;
+    skos:notation "DEFERRED" .
+
+zoe:LCStatusWithdrawn
+    a skos:Concept ;
+    skos:inScheme zoe:LCCompletionScheme ;
+    skos:topConceptOf zoe:LCCompletionScheme ;
+    rdfs:label "Withdrawn"@en ;
+    skos:prefLabel "Withdrawn"@en ;
+    rdfs:comment "Student has voluntarily or administratively withdrawn from the cohort."@en ;
+    skos:definition "Enrollment has ended without completion; the student is no longer participating and no credential is issued."@en ;
+    skos:notation "WITHDRAWN" .

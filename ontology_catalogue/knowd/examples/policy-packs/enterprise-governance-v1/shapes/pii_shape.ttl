@@ -1,0 +1,55 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+
+# SHACL Shape for PII Data with Consent Requirements
+
+ex:PersonShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Person ;
+    sh:property [
+        sh:path schema:email ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:severity sh:Violation ;
+        sh:message "Email must be a valid email address" ;
+    ] ;
+    sh:property [
+        sh:path ex:hasConsent ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "PII data requires explicit consent" ;
+    ] ;
+    sh:property [
+        sh:path schema:birthDate ;
+        sh:datatype xsd:date ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:consentType ;
+        sh:in ( "gdpr" "ccpa" "explicit" ) ;
+        sh:severity sh:Warning ;
+        sh:message "Consent type should be one of: gdpr, ccpa, explicit" ;
+    ] .
+
+ex:ConsentShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Consent ;
+    sh:property [
+        sh:path ex:grantedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:purpose ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Consent must specify purpose" ;
+    ] ;
+    sh:property [
+        sh:path ex:expiresAt ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+    ] .

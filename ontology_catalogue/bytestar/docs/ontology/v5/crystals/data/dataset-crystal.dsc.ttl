@@ -1,0 +1,653 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix bac: <http://bytestar.org/ontology/compliance/> .
+@prefix baac: <http://bytestar.org/ontology/access-control/> .
+@prefix baa: <http://bytestar.org/ontology/audit/> .
+@prefix dsc: <http://bytestar.org/ontology/crystals/dataset/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# =============================================================================
+# ByteStar Dataset Crystal Ontology (.dsc)
+# Version: 5.0.0 - Data/Privacy Domain
+# =============================================================================
+
+<http://bytestar.org/ontology/crystals/dataset> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/crystals/dataset/5.0.0> ;
+    dct:title "ByteStar Dataset Crystal Ontology" ;
+    dct:description "Dataset crystal with comprehensive lineage tracking, privacy-preserving transformations, and GDPR/HIPAA compliance for data governance in ByteStar ecosystem" ;
+    dct:creator "ByteStar Architecture Team" ;
+    dct:created "2025-01-23"^^xsd:date ;
+    dct:modified "2025-01-23"^^xsd:date ;
+    owl:imports <http://bytestar.org/ontology/compliance-framework>,
+                <http://bytestar.org/ontology/access-control>,
+                <http://bytestar.org/ontology/audit-system>,
+                <http://bytestar.org/ontology/core>,
+                <http://www.w3.org/ns/prov#> ;
+    ba:crystalType "Dataset Crystal" ;
+    ba:privacyCompliant true ;
+    ba:performanceTarget "< 8ms lineage queries" .
+
+# =============================================================================
+# CORE DATASET CRYSTAL CLASSES
+# =============================================================================
+
+dsc:DatasetCrystal a owl:Class ;
+    rdfs:label "Dataset Crystal"@en ;
+    rdfs:comment "Immutable data crystal with complete lineage tracking and privacy-preserving capabilities"@en ;
+    rdfs:subClassOf ba:Crystal ;
+    ba:immutable true ;
+    ba:lineageTracking true ;
+    ba:privacyPreserving true ;
+    ba:auditCompliant true .
+
+dsc:DataLineage a owl:Class ;
+    rdfs:label "Data Lineage"@en ;
+    rdfs:comment "Complete provenance tracking from data source through all transformations"@en ;
+    rdfs:subClassOf prov:Entity ;
+    ba:immutable true ;
+    ba:cryptographicallySecured true .
+
+dsc:LineageNode a owl:Class ;
+    rdfs:label "Lineage Node"@en ;
+    rdfs:comment "Individual node in the data lineage graph representing data state"@en ;
+    rdfs:subClassOf prov:Entity ;
+    ba:timestamped true ;
+    ba:hashVerified true .
+
+dsc:LineageEdge a owl:Class ;
+    rdfs:label "Lineage Edge"@en ;
+    rdfs:comment "Transformation relationship between lineage nodes"@en ;
+    rdfs:subClassOf prov:Activity ;
+    ba:transformationType xsd:string ;
+    ba:privacyImpact xsd:string .
+
+dsc:DataTransformation a owl:Class ;
+    rdfs:label "Data Transformation"@en ;
+    rdfs:comment "Privacy-aware data transformation with lineage tracking"@en ;
+    rdfs:subClassOf prov:Activity ;
+    ba:privacyPreserving true ;
+    ba:reversibilityLevel xsd:string .
+
+dsc:DataSchema a owl:Class ;
+    rdfs:label "Data Schema"@en ;
+    rdfs:comment "Schema definition with privacy annotations and sensitivity markers"@en ;
+    rdfs:subClassOf ba:Schema ;
+    ba:privacyAnnotated true ;
+    ba:sensitivityClassified true .
+
+dsc:SensitivityAnnotation a owl:Class ;
+    rdfs:label "Sensitivity Annotation"@en ;
+    rdfs:comment "Privacy sensitivity classification for data fields"@en ;
+    rdfs:subClassOf ba:Annotation ;
+    ba:sensitivityLevel xsd:string ;
+    ba:regulatoryRequirement xsd:string .
+
+# =============================================================================
+# PRIVACY-PRESERVING DATA CLASSES
+# =============================================================================
+
+dsc:PrivacyPreservingDataset a owl:Class ;
+    rdfs:label "Privacy-Preserving Dataset"@en ;
+    rdfs:comment "Dataset with built-in privacy protection mechanisms"@en ;
+    rdfs:subClassOf dsc:DatasetCrystal ;
+    ba:differentialPrivacy true ;
+    ba:kAnonymity true ;
+    ba:lDiversity true .
+
+dsc:PersonalDataField a owl:Class ;
+    rdfs:label "Personal Data Field"@en ;
+    rdfs:comment "Data field containing personal information under GDPR/HIPAA"@en ;
+    rdfs:subClassOf ba:DataField ;
+    ba:gdprProtected true ;
+    ba:hipaaProtected true ;
+    ba:piiClassification xsd:string .
+
+dsc:AnonymizedDataField a owl:Class ;
+    rdfs:label "Anonymized Data Field"@en ;
+    rdfs:comment "Data field that has been anonymized for privacy protection"@en ;
+    rdfs:subClassOf ba:DataField ;
+    ba:anonymizationMethod xsd:string ;
+    ba:reidentificationRisk xsd:double .
+
+dsc:PseudonymizedDataField a owl:Class ;
+    rdfs:label "Pseudonymized Data Field"@en ;
+    rdfs:comment "Data field with pseudonymization for privacy protection"@en ;
+    rdfs:subClassOf ba:DataField ;
+    ba:pseudonymizationKey xsd:string ;
+    ba:reversible true .
+
+dsc:SyntheticDataField a owl:Class ;
+    rdfs:label "Synthetic Data Field"@en ;
+    rdfs:comment "Artificially generated data field preserving statistical properties"@en ;
+    rdfs:subClassOf ba:DataField ;
+    ba:generationModel xsd:string ;
+    ba:statisticalFidelity xsd:double .
+
+# =============================================================================
+# DIFFERENTIAL PRIVACY INTEGRATION
+# =============================================================================
+
+dsc:DifferentiallyPrivateView a owl:Class ;
+    rdfs:label "Differentially Private View"@en ;
+    rdfs:comment "Data view with differential privacy guarantees"@en ;
+    rdfs:subClassOf ba:DataView ;
+    ba:epsilonValue xsd:double ;
+    ba:deltaValue xsd:double ;
+    ba:privacyBudget xsd:double .
+
+dsc:PrivacyMechanism a owl:Class ;
+    rdfs:label "Privacy Mechanism"@en ;
+    rdfs:comment "Mechanism for adding noise while preserving privacy"@en ;
+    rdfs:subClassOf ba:SecurityMechanism ;
+    ba:mechanismType xsd:string ;
+    ba:noiseDistribution xsd:string .
+
+dsc:LaplaceMechanism a owl:Class ;
+    rdfs:label "Laplace Mechanism"@en ;
+    rdfs:comment "Laplace noise addition for differential privacy"@en ;
+    rdfs:subClassOf dsc:PrivacyMechanism ;
+    ba:sensitivity xsd:double ;
+    ba:scale xsd:double .
+
+dsc:GaussianMechanism a owl:Class ;
+    rdfs:label "Gaussian Mechanism"@en ;
+    rdfs:comment "Gaussian noise addition for differential privacy"@en ;
+    rdfs:subClassOf dsc:PrivacyMechanism ;
+    ba:variance xsd:double ;
+    ba:delta xsd:double .
+
+dsc:ExponentialMechanism a owl:Class ;
+    rdfs:label "Exponential Mechanism"@en ;
+    rdfs:comment "Exponential mechanism for non-numeric outputs"@en ;
+    rdfs:subClassOf dsc:PrivacyMechanism ;
+    ba:utility xsd:double ;
+    ba:sensitivity xsd:double .
+
+# =============================================================================
+# GDPR/HIPAA COMPLIANCE CLASSES
+# =============================================================================
+
+dsc:GDPRCompliantDataset a owl:Class ;
+    rdfs:label "GDPR Compliant Dataset"@en ;
+    rdfs:comment "Dataset fully compliant with GDPR requirements"@en ;
+    rdfs:subClassOf dsc:DatasetCrystal ;
+    bac:requiresCompliance bac:GDPR ;
+    ba:lawfulBasis xsd:string ;
+    ba:dataSubjectRights true .
+
+dsc:HIPAACompliantDataset a owl:Class ;
+    rdfs:label "HIPAA Compliant Dataset"@en ;
+    rdfs:comment "Dataset compliant with HIPAA healthcare privacy rules"@en ;
+    rdfs:subClassOf dsc:DatasetCrystal ;
+    bac:requiresCompliance bac:HIPAA ;
+    ba:phi true ;
+    ba:businessAssociate true .
+
+dsc:DataSubjectConsent a owl:Class ;
+    rdfs:label "Data Subject Consent"@en ;
+    rdfs:comment "GDPR consent record for data processing"@en ;
+    rdfs:subClassOf bac:ConsentManagement ;
+    ba:consentType xsd:string ;
+    ba:withdrawable true ;
+    ba:granular true .
+
+dsc:RightToErasure a owl:Class ;
+    rdfs:label "Right to Erasure"@en ;
+    rdfs:comment "GDPR right to be forgotten implementation"@en ;
+    rdfs:subClassOf bac:DataSubjectRights ;
+    ba:erasureRequest xsd:string ;
+    ba:verificationRequired true ;
+    ba:cascadingDeletion true .
+
+dsc:DataPortability a owl:Class ;
+    rdfs:label "Data Portability"@en ;
+    rdfs:comment "GDPR right to data portability"@en ;
+    rdfs:subClassOf bac:DataSubjectRights ;
+    ba:structuredFormat true ;
+    ba:machineReadable true ;
+    ba:transmissible true .
+
+# =============================================================================
+# LINEAGE TRACKING AND PROVENANCE
+# =============================================================================
+
+dsc:ProvenanceGraph a owl:Class ;
+    rdfs:label "Provenance Graph"@en ;
+    rdfs:comment "Complete graph of data provenance and lineage"@en ;
+    rdfs:subClassOf ba:Graph ;
+    ba:immutable true ;
+    ba:cryptographicallyVerified true .
+
+dsc:DataSource a owl:Class ;
+    rdfs:label "Data Source"@en ;
+    rdfs:comment "Original source of data in the lineage graph"@en ;
+    rdfs:subClassOf dsc:LineageNode ;
+    ba:authoritative true ;
+    ba:qualityScore xsd:double .
+
+dsc:DataSink a owl:Class ;
+    rdfs:label "Data Sink"@en ;
+    rdfs:comment "Final destination of data in the lineage graph"@en ;
+    rdfs:subClassOf dsc:LineageNode ;
+    ba:consumerType xsd:string ;
+    ba:accessPattern xsd:string .
+
+dsc:TransformationChain a owl:Class ;
+    rdfs:label "Transformation Chain"@en ;
+    rdfs:comment "Sequence of data transformations with impact analysis"@en ;
+    rdfs:subClassOf ba:ProcessChain ;
+    ba:privacyImpact xsd:string ;
+    ba:qualityDegradation xsd:double .
+
+dsc:ImpactAnalysis a owl:Class ;
+    rdfs:label "Impact Analysis"@en ;
+    rdfs:comment "Analysis of downstream impact of data changes"@en ;
+    rdfs:subClassOf ba:Analysis ;
+    ba:affectedDownstream xsd:int ;
+    ba:qualityImpact xsd:double ;
+    ba:privacyImplications xsd:string .
+
+# =============================================================================
+# QUALITY AND VALIDATION
+# =============================================================================
+
+dsc:DataQualityMetrics a owl:Class ;
+    rdfs:label "Data Quality Metrics"@en ;
+    rdfs:comment "Comprehensive data quality measurement framework"@en ;
+    rdfs:subClassOf ba:QualityMetrics ;
+    ba:completeness xsd:double ;
+    ba:accuracy xsd:double ;
+    ba:consistency xsd:double ;
+    ba:timeliness xsd:double .
+
+dsc:PrivacyValidation a owl:Class ;
+    rdfs:label "Privacy Validation"@en ;
+    rdfs:comment "Automated validation of privacy preservation requirements"@en ;
+    rdfs:subClassOf ba:Validation ;
+    ba:privacyTests xsd:string ;
+    ba:complianceVerification true .
+
+dsc:LineageValidation a owl:Class ;
+    rdfs:label "Lineage Validation"@en ;
+    rdfs:comment "Validation of lineage graph integrity and completeness"@en ;
+    rdfs:subClassOf ba:Validation ;
+    ba:graphIntegrity true ;
+    ba:completenessCheck true .
+
+# =============================================================================
+# HAM RULES HOPS 4,5,6,7 IMPLEMENTATION
+# =============================================================================
+
+dsc:HAMPrivacyConstraint a owl:Class ;
+    rdfs:label "HAM Privacy Constraint"@en ;
+    rdfs:comment "Hardware Abstraction Model privacy constraints for Hops 4-7"@en ;
+    rdfs:subClassOf ba:Constraint ;
+    ba:hopLevel xsd:int ;
+    ba:privacyEnforcement true .
+
+dsc:Hop4DataAccess a owl:Class ;
+    rdfs:label "Hop 4 Data Access"@en ;
+    rdfs:comment "Application-level data access with privacy controls"@en ;
+    rdfs:subClassOf dsc:HAMPrivacyConstraint ;
+    ba:hopLevel "4"^^xsd:int ;
+    ba:accessControl baac:ZeroTrustArchitecture ;
+    ba:auditRequired true .
+
+dsc:Hop5DataTransformation a owl:Class ;
+    rdfs:label "Hop 5 Data Transformation"@en ;
+    rdfs:comment "Framework-level data transformation with privacy preservation"@en ;
+    rdfs:subClassOf dsc:HAMPrivacyConstraint ;
+    ba:hopLevel "5"^^xsd:int ;
+    ba:privacyPreserving true ;
+    ba:lineageTracked true .
+
+dsc:Hop6DataStorage a owl:Class ;
+    rdfs:label "Hop 6 Data Storage"@en ;
+    rdfs:comment "Runtime-level data storage with encryption and access control"@en ;
+    rdfs:subClassOf dsc:HAMPrivacyConstraint ;
+    ba:hopLevel "6"^^xsd:int ;
+    ba:encryptedAtRest true ;
+    ba:accessLogged true .
+
+dsc:Hop7DataTransport a owl:Class ;
+    rdfs:label "Hop 7 Data Transport"@en ;
+    rdfs:comment "Hardware-level data transport with end-to-end encryption"@en ;
+    rdfs:subClassOf dsc:HAMPrivacyConstraint ;
+    ba:hopLevel "7"^^xsd:int ;
+    ba:endToEndEncryption true ;
+    ba:tamperProof true .
+
+# =============================================================================
+# DATA PROPERTIES
+# =============================================================================
+
+# Lineage Properties
+dsc:lineageVersion a owl:DatatypeProperty ;
+    rdfs:label "lineage version"@en ;
+    rdfs:domain dsc:DataLineage ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Version identifier for lineage tracking" .
+
+dsc:sourceTimestamp a owl:DatatypeProperty ;
+    rdfs:label "source timestamp"@en ;
+    rdfs:domain dsc:LineageNode ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when data entered this node" .
+
+dsc:transformationHash a owl:DatatypeProperty ;
+    rdfs:label "transformation hash"@en ;
+    rdfs:domain dsc:LineageEdge ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cryptographic hash of transformation" .
+
+# Privacy Properties
+dsc:sensitivityLevel a owl:DatatypeProperty ;
+    rdfs:label "sensitivity level"@en ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Privacy sensitivity: PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED" .
+
+dsc:piiType a owl:DatatypeProperty ;
+    rdfs:label "PII type"@en ;
+    rdfs:domain dsc:PersonalDataField ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of personally identifiable information" .
+
+dsc:anonymizationStrength a owl:DatatypeProperty ;
+    rdfs:label "anonymization strength"@en ;
+    rdfs:domain dsc:AnonymizedDataField ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Strength of anonymization (0-1)" .
+
+dsc:kValue a owl:DatatypeProperty ;
+    rdfs:label "k-value"@en ;
+    rdfs:range xsd:int ;
+    rdfs:comment "K-anonymity parameter" .
+
+dsc:lValue a owl:DatatypeProperty ;
+    rdfs:label "l-value"@en ;
+    rdfs:range xsd:int ;
+    rdfs:comment "L-diversity parameter" .
+
+# Differential Privacy Properties
+dsc:epsilon a owl:DatatypeProperty ;
+    rdfs:label "epsilon"@en ;
+    rdfs:domain dsc:DifferentiallyPrivateView ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Privacy parameter epsilon for differential privacy" .
+
+dsc:delta a owl:DatatypeProperty ;
+    rdfs:label "delta"@en ;
+    rdfs:domain dsc:DifferentiallyPrivateView ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Privacy parameter delta for differential privacy" .
+
+dsc:globalSensitivity a owl:DatatypeProperty ;
+    rdfs:label "global sensitivity"@en ;
+    rdfs:domain dsc:PrivacyMechanism ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Global sensitivity of the query/function" .
+
+# Quality Properties
+dsc:completenessScore a owl:DatatypeProperty ;
+    rdfs:label "completeness score"@en ;
+    rdfs:domain dsc:DataQualityMetrics ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Data completeness score (0-1)" .
+
+dsc:accuracyScore a owl:DatatypeProperty ;
+    rdfs:label "accuracy score"@en ;
+    rdfs:domain dsc:DataQualityMetrics ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Data accuracy score (0-1)" .
+
+dsc:freshness a owl:DatatypeProperty ;
+    rdfs:label "freshness"@en ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Age of data since last update" .
+
+# Compliance Properties
+dsc:lawfulBasis a owl:DatatypeProperty ;
+    rdfs:label "lawful basis"@en ;
+    rdfs:domain dsc:GDPRCompliantDataset ;
+    rdfs:range xsd:string ;
+    rdfs:comment "GDPR Article 6 lawful basis for processing" .
+
+dsc:consentId a owl:DatatypeProperty ;
+    rdfs:label "consent ID"@en ;
+    rdfs:domain dsc:DataSubjectConsent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for consent record" .
+
+dsc:retentionPeriod a owl:DatatypeProperty ;
+    rdfs:label "retention period"@en ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Maximum data retention period" .
+
+# =============================================================================
+# OBJECT PROPERTIES
+# =============================================================================
+
+# Lineage Relationships
+dsc:hasLineage a owl:ObjectProperty ;
+    rdfs:label "has lineage"@en ;
+    rdfs:domain dsc:DatasetCrystal ;
+    rdfs:range dsc:DataLineage ;
+    rdfs:comment "Associates dataset with its lineage" .
+
+dsc:derivedFrom a owl:ObjectProperty ;
+    rdfs:label "derived from"@en ;
+    rdfs:domain dsc:LineageNode ;
+    rdfs:range dsc:LineageNode ;
+    rdfs:comment "Lineage derivation relationship" .
+
+dsc:transformedBy a owl:ObjectProperty ;
+    rdfs:label "transformed by"@en ;
+    rdfs:domain dsc:LineageNode ;
+    rdfs:range dsc:DataTransformation ;
+    rdfs:comment "Transformation that created this node" .
+
+# Privacy Relationships
+dsc:anonymizedFrom a owl:ObjectProperty ;
+    rdfs:label "anonymized from"@en ;
+    rdfs:domain dsc:AnonymizedDataField ;
+    rdfs:range dsc:PersonalDataField ;
+    rdfs:comment "Original personal data field before anonymization" .
+
+dsc:appliesPrivacyMechanism a owl:ObjectProperty ;
+    rdfs:label "applies privacy mechanism"@en ;
+    rdfs:domain dsc:DifferentiallyPrivateView ;
+    rdfs:range dsc:PrivacyMechanism ;
+    rdfs:comment "Privacy mechanism applied to create view" .
+
+dsc:subjectToConsent a owl:ObjectProperty ;
+    rdfs:label "subject to consent"@en ;
+    rdfs:domain dsc:PersonalDataField ;
+    rdfs:range dsc:DataSubjectConsent ;
+    rdfs:comment "Consent governing this personal data" .
+
+# Quality Relationships
+dsc:hasQualityMetrics a owl:ObjectProperty ;
+    rdfs:label "has quality metrics"@en ;
+    rdfs:domain dsc:DatasetCrystal ;
+    rdfs:range dsc:DataQualityMetrics ;
+    rdfs:comment "Quality metrics for this dataset" .
+
+dsc:validatedBy a owl:ObjectProperty ;
+    rdfs:label "validated by"@en ;
+    rdfs:range dsc:PrivacyValidation ;
+    rdfs:comment "Privacy validation applied" .
+
+# Compliance Integration
+dsc:implementsControl a owl:ObjectProperty ;
+    rdfs:label "implements control"@en ;
+    rdfs:domain dsc:DatasetCrystal ;
+    rdfs:range bac:ComplianceControl ;
+    rdfs:comment "Compliance control implemented by dataset" .
+
+dsc:auditedBy a owl:ObjectProperty ;
+    rdfs:label "audited by"@en ;
+    rdfs:domain dsc:DatasetCrystal ;
+    rdfs:range baa:AuditSystem ;
+    rdfs:comment "Audit system monitoring this dataset" .
+
+dsc:governedBy a owl:ObjectProperty ;
+    rdfs:label "governed by"@en ;
+    rdfs:domain dsc:DatasetCrystal ;
+    rdfs:range baac:AccessPolicy ;
+    rdfs:comment "Access policy governing dataset" .
+
+# =============================================================================
+# SHACL VALIDATION SHAPES
+# =============================================================================
+
+dsc:DatasetCrystalShape a sh:NodeShape ;
+    sh:targetClass dsc:DatasetCrystal ;
+    sh:property [
+        sh:path dsc:hasLineage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Dataset crystal must have exactly one lineage" ;
+    ] ;
+    sh:property [
+        sh:path dsc:hasQualityMetrics ;
+        sh:minCount 1 ;
+        sh:message "Dataset crystal must have quality metrics" ;
+    ] ;
+    sh:property [
+        sh:path dsc:sensitivityLevel ;
+        sh:in ("PUBLIC" "INTERNAL" "CONFIDENTIAL" "RESTRICTED") ;
+        sh:message "Must specify valid sensitivity level" ;
+    ] .
+
+dsc:PersonalDataFieldShape a sh:NodeShape ;
+    sh:targetClass dsc:PersonalDataField ;
+    sh:property [
+        sh:path dsc:piiType ;
+        sh:minCount 1 ;
+        sh:message "Personal data field must specify PII type" ;
+    ] ;
+    sh:property [
+        sh:path dsc:subjectToConsent ;
+        sh:minCount 1 ;
+        sh:message "Personal data must have consent record" ;
+    ] ;
+    sh:property [
+        sh:path dsc:sensitivityLevel ;
+        sh:in ("CONFIDENTIAL" "RESTRICTED") ;
+        sh:message "Personal data must be CONFIDENTIAL or RESTRICTED" ;
+    ] .
+
+dsc:DifferentialPrivacyShape a sh:NodeShape ;
+    sh:targetClass dsc:DifferentiallyPrivateView ;
+    sh:property [
+        sh:path dsc:epsilon ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Epsilon must be between 0 and 10" ;
+    ] ;
+    sh:property [
+        sh:path dsc:delta ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Delta must be between 0 and 1" ;
+    ] ;
+    sh:property [
+        sh:path dsc:appliesPrivacyMechanism ;
+        sh:minCount 1 ;
+        sh:message "Must specify privacy mechanism" ;
+    ] .
+
+dsc:LineageIntegrityShape a sh:NodeShape ;
+    sh:targetClass dsc:LineageNode ;
+    sh:property [
+        sh:path dsc:sourceTimestamp ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Lineage node must have source timestamp" ;
+    ] ;
+    sh:property [
+        sh:path dsc:transformationHash ;
+        sh:pattern "^[a-fA-F0-9]{64}$" ;
+        sh:message "Transformation hash must be valid SHA-256" ;
+    ] .
+
+dsc:PrivacyComplianceShape a sh:NodeShape ;
+    sh:targetClass dsc:GDPRCompliantDataset ;
+    sh:property [
+        sh:path dsc:lawfulBasis ;
+        sh:in ("consent" "contract" "legal_obligation" "vital_interests" "public_task" "legitimate_interests") ;
+        sh:message "Must specify valid GDPR lawful basis" ;
+    ] ;
+    sh:property [
+        sh:path dsc:retentionPeriod ;
+        sh:minCount 1 ;
+        sh:message "Must specify data retention period" ;
+    ] .
+
+dsc:HAMConstraintShape a sh:NodeShape ;
+    sh:targetClass dsc:HAMPrivacyConstraint ;
+    sh:property [
+        sh:path ba:hopLevel ;
+        sh:in (4 5 6 7) ;
+        sh:message "HAM privacy constraint must target hops 4-7" ;
+    ] ;
+    sh:property [
+        sh:path ba:privacyEnforcement ;
+        sh:hasValue true ;
+        sh:message "HAM constraint must enforce privacy" ;
+    ] .
+
+# =============================================================================
+# PERFORMANCE REQUIREMENTS (DOCTRINE OF 8)
+# =============================================================================
+
+dsc:DatasetCrystalPerformance a ba:PerformanceSpecification ;
+    rdfs:label "Dataset Crystal Performance Requirements" ;
+    rdfs:comment "Performance requirements under Doctrine of 8" ;
+    ba:lineageQueryLatency "< 8ms"^^xsd:duration ;
+    ba:privacyCheckLatency "< 5ms"^^xsd:duration ;
+    ba:qualityAssessmentTime "< 3ms"^^xsd:duration ;
+    ba:complianceValidationTime "< 2ms"^^xsd:duration ;
+    ba:throughputTarget "10K lineage queries/sec"^^xsd:string .
+
+# =============================================================================
+# INTEGRATION INSTANCES
+# =============================================================================
+
+# GDPR Controls Integration
+dsc:GDPRDatasetControl a bac:GDPR_Art6 ;
+    rdfs:label "GDPR Dataset Control" ;
+    bac:implementationGuidance "Ensure lawful basis before dataset creation" ;
+    dsc:appliesToDataset dsc:GDPRCompliantDataset .
+
+dsc:RightToErasureControl a bac:GDPR_Art17 ;
+    rdfs:label "Right to Erasure Control" ;
+    bac:implementationGuidance "Implement cascading deletion across lineage" ;
+    dsc:appliesToDataset dsc:GDPRCompliantDataset .
+
+# HIPAA Controls Integration  
+dsc:HIPAADatasetControl a bac:ComplianceControl ;
+    rdfs:label "HIPAA Dataset Control" ;
+    bac:mappedToFramework bac:HIPAA ;
+    bac:implementationGuidance "Protect PHI in all dataset operations" ;
+    dsc:appliesToDataset dsc:HIPAACompliantDataset .
+
+# Audit Integration
+dsc:DatasetAuditEvent a baa:DataAuditEvent ;
+    rdfs:label "Dataset Crystal Audit Event" ;
+    baa:eventCategory "DATASET_OPERATION" ;
+    baa:eventSeverity "MEDIUM" ;
+    dsc:auditTarget dsc:DatasetCrystal .
+
+# =============================================================================
+# End of Dataset Crystal Ontology
+# =============================================================================

@@ -1,0 +1,18 @@
+
+@prefix ex: <http://example.org/stub#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+ex:stub_1777876334618_105 a ex:Stub ;
+    ex:type "TODO" ;
+    ex:description "Handle recurrence patterns (daily, weekly, cron)" ;
+    ex:file "/Users/sac/chatmangpt/unrdf/research/prototypes/temporal-policy-engine.mjs" ;
+    ex:line 106 .
+
+
+ex:stub_1777876334618_277 a ex:Stub ;
+    ex:type "TODO" ;
+    ex:description "Integrate with KGC-4D to fetch policy state at atTime" ;
+    ex:file "/Users/sac/chatmangpt/unrdf/research/prototypes/temporal-policy-engine.mjs" ;
+    ex:line 278 .
+

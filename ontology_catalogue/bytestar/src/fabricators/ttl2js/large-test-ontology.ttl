@@ -1,0 +1,605 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+ex:Class0 a rdfs:Class ;
+    rdfs:label "Class 0" ;
+    rdfs:comment "Generated class 0 for performance testing" .
+
+ex:property0 a rdf:Property ;
+    rdfs:domain ex:Class0 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 0" .
+
+ex:instance0 a ex:Class0 ;
+    ex:property0 "Value 0" .
+
+ex:Class1 a rdfs:Class ;
+    rdfs:label "Class 1" ;
+    rdfs:comment "Generated class 1 for performance testing" .
+
+ex:property1 a rdf:Property ;
+    rdfs:domain ex:Class1 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 1" .
+
+ex:instance1 a ex:Class1 ;
+    ex:property1 "Value 1" .
+
+ex:Class2 a rdfs:Class ;
+    rdfs:label "Class 2" ;
+    rdfs:comment "Generated class 2 for performance testing" .
+
+ex:property2 a rdf:Property ;
+    rdfs:domain ex:Class2 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 2" .
+
+ex:instance2 a ex:Class2 ;
+    ex:property2 "Value 2" .
+
+ex:Class3 a rdfs:Class ;
+    rdfs:label "Class 3" ;
+    rdfs:comment "Generated class 3 for performance testing" .
+
+ex:property3 a rdf:Property ;
+    rdfs:domain ex:Class3 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 3" .
+
+ex:instance3 a ex:Class3 ;
+    ex:property3 "Value 3" .
+
+ex:Class4 a rdfs:Class ;
+    rdfs:label "Class 4" ;
+    rdfs:comment "Generated class 4 for performance testing" .
+
+ex:property4 a rdf:Property ;
+    rdfs:domain ex:Class4 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 4" .
+
+ex:instance4 a ex:Class4 ;
+    ex:property4 "Value 4" .
+
+ex:Class5 a rdfs:Class ;
+    rdfs:label "Class 5" ;
+    rdfs:comment "Generated class 5 for performance testing" .
+
+ex:property5 a rdf:Property ;
+    rdfs:domain ex:Class5 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 5" .
+
+ex:instance5 a ex:Class5 ;
+    ex:property5 "Value 5" .
+
+ex:Class6 a rdfs:Class ;
+    rdfs:label "Class 6" ;
+    rdfs:comment "Generated class 6 for performance testing" .
+
+ex:property6 a rdf:Property ;
+    rdfs:domain ex:Class6 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 6" .
+
+ex:instance6 a ex:Class6 ;
+    ex:property6 "Value 6" .
+
+ex:Class7 a rdfs:Class ;
+    rdfs:label "Class 7" ;
+    rdfs:comment "Generated class 7 for performance testing" .
+
+ex:property7 a rdf:Property ;
+    rdfs:domain ex:Class7 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 7" .
+
+ex:instance7 a ex:Class7 ;
+    ex:property7 "Value 7" .
+
+ex:Class8 a rdfs:Class ;
+    rdfs:label "Class 8" ;
+    rdfs:comment "Generated class 8 for performance testing" .
+
+ex:property8 a rdf:Property ;
+    rdfs:domain ex:Class8 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 8" .
+
+ex:instance8 a ex:Class8 ;
+    ex:property8 "Value 8" .
+
+ex:Class9 a rdfs:Class ;
+    rdfs:label "Class 9" ;
+    rdfs:comment "Generated class 9 for performance testing" .
+
+ex:property9 a rdf:Property ;
+    rdfs:domain ex:Class9 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 9" .
+
+ex:instance9 a ex:Class9 ;
+    ex:property9 "Value 9" .
+
+ex:Class10 a rdfs:Class ;
+    rdfs:label "Class 10" ;
+    rdfs:comment "Generated class 10 for performance testing" .
+
+ex:property10 a rdf:Property ;
+    rdfs:domain ex:Class10 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 10" .
+
+ex:instance10 a ex:Class10 ;
+    ex:property10 "Value 10" .
+
+ex:Class11 a rdfs:Class ;
+    rdfs:label "Class 11" ;
+    rdfs:comment "Generated class 11 for performance testing" .
+
+ex:property11 a rdf:Property ;
+    rdfs:domain ex:Class11 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 11" .
+
+ex:instance11 a ex:Class11 ;
+    ex:property11 "Value 11" .
+
+ex:Class12 a rdfs:Class ;
+    rdfs:label "Class 12" ;
+    rdfs:comment "Generated class 12 for performance testing" .
+
+ex:property12 a rdf:Property ;
+    rdfs:domain ex:Class12 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 12" .
+
+ex:instance12 a ex:Class12 ;
+    ex:property12 "Value 12" .
+
+ex:Class13 a rdfs:Class ;
+    rdfs:label "Class 13" ;
+    rdfs:comment "Generated class 13 for performance testing" .
+
+ex:property13 a rdf:Property ;
+    rdfs:domain ex:Class13 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 13" .
+
+ex:instance13 a ex:Class13 ;
+    ex:property13 "Value 13" .
+
+ex:Class14 a rdfs:Class ;
+    rdfs:label "Class 14" ;
+    rdfs:comment "Generated class 14 for performance testing" .
+
+ex:property14 a rdf:Property ;
+    rdfs:domain ex:Class14 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 14" .
+
+ex:instance14 a ex:Class14 ;
+    ex:property14 "Value 14" .
+
+ex:Class15 a rdfs:Class ;
+    rdfs:label "Class 15" ;
+    rdfs:comment "Generated class 15 for performance testing" .
+
+ex:property15 a rdf:Property ;
+    rdfs:domain ex:Class15 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 15" .
+
+ex:instance15 a ex:Class15 ;
+    ex:property15 "Value 15" .
+
+ex:Class16 a rdfs:Class ;
+    rdfs:label "Class 16" ;
+    rdfs:comment "Generated class 16 for performance testing" .
+
+ex:property16 a rdf:Property ;
+    rdfs:domain ex:Class16 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 16" .
+
+ex:instance16 a ex:Class16 ;
+    ex:property16 "Value 16" .
+
+ex:Class17 a rdfs:Class ;
+    rdfs:label "Class 17" ;
+    rdfs:comment "Generated class 17 for performance testing" .
+
+ex:property17 a rdf:Property ;
+    rdfs:domain ex:Class17 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 17" .
+
+ex:instance17 a ex:Class17 ;
+    ex:property17 "Value 17" .
+
+ex:Class18 a rdfs:Class ;
+    rdfs:label "Class 18" ;
+    rdfs:comment "Generated class 18 for performance testing" .
+
+ex:property18 a rdf:Property ;
+    rdfs:domain ex:Class18 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 18" .
+
+ex:instance18 a ex:Class18 ;
+    ex:property18 "Value 18" .
+
+ex:Class19 a rdfs:Class ;
+    rdfs:label "Class 19" ;
+    rdfs:comment "Generated class 19 for performance testing" .
+
+ex:property19 a rdf:Property ;
+    rdfs:domain ex:Class19 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 19" .
+
+ex:instance19 a ex:Class19 ;
+    ex:property19 "Value 19" .
+
+ex:Class20 a rdfs:Class ;
+    rdfs:label "Class 20" ;
+    rdfs:comment "Generated class 20 for performance testing" .
+
+ex:property20 a rdf:Property ;
+    rdfs:domain ex:Class20 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 20" .
+
+ex:instance20 a ex:Class20 ;
+    ex:property20 "Value 20" .
+
+ex:Class21 a rdfs:Class ;
+    rdfs:label "Class 21" ;
+    rdfs:comment "Generated class 21 for performance testing" .
+
+ex:property21 a rdf:Property ;
+    rdfs:domain ex:Class21 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 21" .
+
+ex:instance21 a ex:Class21 ;
+    ex:property21 "Value 21" .
+
+ex:Class22 a rdfs:Class ;
+    rdfs:label "Class 22" ;
+    rdfs:comment "Generated class 22 for performance testing" .
+
+ex:property22 a rdf:Property ;
+    rdfs:domain ex:Class22 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 22" .
+
+ex:instance22 a ex:Class22 ;
+    ex:property22 "Value 22" .
+
+ex:Class23 a rdfs:Class ;
+    rdfs:label "Class 23" ;
+    rdfs:comment "Generated class 23 for performance testing" .
+
+ex:property23 a rdf:Property ;
+    rdfs:domain ex:Class23 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 23" .
+
+ex:instance23 a ex:Class23 ;
+    ex:property23 "Value 23" .
+
+ex:Class24 a rdfs:Class ;
+    rdfs:label "Class 24" ;
+    rdfs:comment "Generated class 24 for performance testing" .
+
+ex:property24 a rdf:Property ;
+    rdfs:domain ex:Class24 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 24" .
+
+ex:instance24 a ex:Class24 ;
+    ex:property24 "Value 24" .
+
+ex:Class25 a rdfs:Class ;
+    rdfs:label "Class 25" ;
+    rdfs:comment "Generated class 25 for performance testing" .
+
+ex:property25 a rdf:Property ;
+    rdfs:domain ex:Class25 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 25" .
+
+ex:instance25 a ex:Class25 ;
+    ex:property25 "Value 25" .
+
+ex:Class26 a rdfs:Class ;
+    rdfs:label "Class 26" ;
+    rdfs:comment "Generated class 26 for performance testing" .
+
+ex:property26 a rdf:Property ;
+    rdfs:domain ex:Class26 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 26" .
+
+ex:instance26 a ex:Class26 ;
+    ex:property26 "Value 26" .
+
+ex:Class27 a rdfs:Class ;
+    rdfs:label "Class 27" ;
+    rdfs:comment "Generated class 27 for performance testing" .
+
+ex:property27 a rdf:Property ;
+    rdfs:domain ex:Class27 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 27" .
+
+ex:instance27 a ex:Class27 ;
+    ex:property27 "Value 27" .
+
+ex:Class28 a rdfs:Class ;
+    rdfs:label "Class 28" ;
+    rdfs:comment "Generated class 28 for performance testing" .
+
+ex:property28 a rdf:Property ;
+    rdfs:domain ex:Class28 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 28" .
+
+ex:instance28 a ex:Class28 ;
+    ex:property28 "Value 28" .
+
+ex:Class29 a rdfs:Class ;
+    rdfs:label "Class 29" ;
+    rdfs:comment "Generated class 29 for performance testing" .
+
+ex:property29 a rdf:Property ;
+    rdfs:domain ex:Class29 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 29" .
+
+ex:instance29 a ex:Class29 ;
+    ex:property29 "Value 29" .
+
+ex:Class30 a rdfs:Class ;
+    rdfs:label "Class 30" ;
+    rdfs:comment "Generated class 30 for performance testing" .
+
+ex:property30 a rdf:Property ;
+    rdfs:domain ex:Class30 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 30" .
+
+ex:instance30 a ex:Class30 ;
+    ex:property30 "Value 30" .
+
+ex:Class31 a rdfs:Class ;
+    rdfs:label "Class 31" ;
+    rdfs:comment "Generated class 31 for performance testing" .
+
+ex:property31 a rdf:Property ;
+    rdfs:domain ex:Class31 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 31" .
+
+ex:instance31 a ex:Class31 ;
+    ex:property31 "Value 31" .
+
+ex:Class32 a rdfs:Class ;
+    rdfs:label "Class 32" ;
+    rdfs:comment "Generated class 32 for performance testing" .
+
+ex:property32 a rdf:Property ;
+    rdfs:domain ex:Class32 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 32" .
+
+ex:instance32 a ex:Class32 ;
+    ex:property32 "Value 32" .
+
+ex:Class33 a rdfs:Class ;
+    rdfs:label "Class 33" ;
+    rdfs:comment "Generated class 33 for performance testing" .
+
+ex:property33 a rdf:Property ;
+    rdfs:domain ex:Class33 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 33" .
+
+ex:instance33 a ex:Class33 ;
+    ex:property33 "Value 33" .
+
+ex:Class34 a rdfs:Class ;
+    rdfs:label "Class 34" ;
+    rdfs:comment "Generated class 34 for performance testing" .
+
+ex:property34 a rdf:Property ;
+    rdfs:domain ex:Class34 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 34" .
+
+ex:instance34 a ex:Class34 ;
+    ex:property34 "Value 34" .
+
+ex:Class35 a rdfs:Class ;
+    rdfs:label "Class 35" ;
+    rdfs:comment "Generated class 35 for performance testing" .
+
+ex:property35 a rdf:Property ;
+    rdfs:domain ex:Class35 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 35" .
+
+ex:instance35 a ex:Class35 ;
+    ex:property35 "Value 35" .
+
+ex:Class36 a rdfs:Class ;
+    rdfs:label "Class 36" ;
+    rdfs:comment "Generated class 36 for performance testing" .
+
+ex:property36 a rdf:Property ;
+    rdfs:domain ex:Class36 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 36" .
+
+ex:instance36 a ex:Class36 ;
+    ex:property36 "Value 36" .
+
+ex:Class37 a rdfs:Class ;
+    rdfs:label "Class 37" ;
+    rdfs:comment "Generated class 37 for performance testing" .
+
+ex:property37 a rdf:Property ;
+    rdfs:domain ex:Class37 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 37" .
+
+ex:instance37 a ex:Class37 ;
+    ex:property37 "Value 37" .
+
+ex:Class38 a rdfs:Class ;
+    rdfs:label "Class 38" ;
+    rdfs:comment "Generated class 38 for performance testing" .
+
+ex:property38 a rdf:Property ;
+    rdfs:domain ex:Class38 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 38" .
+
+ex:instance38 a ex:Class38 ;
+    ex:property38 "Value 38" .
+
+ex:Class39 a rdfs:Class ;
+    rdfs:label "Class 39" ;
+    rdfs:comment "Generated class 39 for performance testing" .
+
+ex:property39 a rdf:Property ;
+    rdfs:domain ex:Class39 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 39" .
+
+ex:instance39 a ex:Class39 ;
+    ex:property39 "Value 39" .
+
+ex:Class40 a rdfs:Class ;
+    rdfs:label "Class 40" ;
+    rdfs:comment "Generated class 40 for performance testing" .
+
+ex:property40 a rdf:Property ;
+    rdfs:domain ex:Class40 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 40" .
+
+ex:instance40 a ex:Class40 ;
+    ex:property40 "Value 40" .
+
+ex:Class41 a rdfs:Class ;
+    rdfs:label "Class 41" ;
+    rdfs:comment "Generated class 41 for performance testing" .
+
+ex:property41 a rdf:Property ;
+    rdfs:domain ex:Class41 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 41" .
+
+ex:instance41 a ex:Class41 ;
+    ex:property41 "Value 41" .
+
+ex:Class42 a rdfs:Class ;
+    rdfs:label "Class 42" ;
+    rdfs:comment "Generated class 42 for performance testing" .
+
+ex:property42 a rdf:Property ;
+    rdfs:domain ex:Class42 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 42" .
+
+ex:instance42 a ex:Class42 ;
+    ex:property42 "Value 42" .
+
+ex:Class43 a rdfs:Class ;
+    rdfs:label "Class 43" ;
+    rdfs:comment "Generated class 43 for performance testing" .
+
+ex:property43 a rdf:Property ;
+    rdfs:domain ex:Class43 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 43" .
+
+ex:instance43 a ex:Class43 ;
+    ex:property43 "Value 43" .
+
+ex:Class44 a rdfs:Class ;
+    rdfs:label "Class 44" ;
+    rdfs:comment "Generated class 44 for performance testing" .
+
+ex:property44 a rdf:Property ;
+    rdfs:domain ex:Class44 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 44" .
+
+ex:instance44 a ex:Class44 ;
+    ex:property44 "Value 44" .
+
+ex:Class45 a rdfs:Class ;
+    rdfs:label "Class 45" ;
+    rdfs:comment "Generated class 45 for performance testing" .
+
+ex:property45 a rdf:Property ;
+    rdfs:domain ex:Class45 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 45" .
+
+ex:instance45 a ex:Class45 ;
+    ex:property45 "Value 45" .
+
+ex:Class46 a rdfs:Class ;
+    rdfs:label "Class 46" ;
+    rdfs:comment "Generated class 46 for performance testing" .
+
+ex:property46 a rdf:Property ;
+    rdfs:domain ex:Class46 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 46" .
+
+ex:instance46 a ex:Class46 ;
+    ex:property46 "Value 46" .
+
+ex:Class47 a rdfs:Class ;
+    rdfs:label "Class 47" ;
+    rdfs:comment "Generated class 47 for performance testing" .
+
+ex:property47 a rdf:Property ;
+    rdfs:domain ex:Class47 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 47" .
+
+ex:instance47 a ex:Class47 ;
+    ex:property47 "Value 47" .
+
+ex:Class48 a rdfs:Class ;
+    rdfs:label "Class 48" ;
+    rdfs:comment "Generated class 48 for performance testing" .
+
+ex:property48 a rdf:Property ;
+    rdfs:domain ex:Class48 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 48" .
+
+ex:instance48 a ex:Class48 ;
+    ex:property48 "Value 48" .
+
+ex:Class49 a rdfs:Class ;
+    rdfs:label "Class 49" ;
+    rdfs:comment "Generated class 49 for performance testing" .
+
+ex:property49 a rdf:Property ;
+    rdfs:domain ex:Class49 ;
+    rdfs:range xsd:string ;
+    rdfs:label "property 49" .
+
+ex:instance49 a ex:Class49 ;
+    ex:property49 "Value 49" .

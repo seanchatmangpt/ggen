@@ -1,0 +1,119 @@
+# ============================================================================
+# REMEDIATION STEPS LOOKUP
+# ============================================================================
+# SPARQL SELECT query finding remediation procedures for specific violations.
+#
+# Purpose: Given a violation ID, retrieve the required remediation steps
+# from ODRL (Open Digital Rights Language) policy definitions and internal
+# procedure documents.
+#
+# Maps:
+#   - Violation → Compliance Rule → ODRL Policy → Remediation Steps
+#
+# Input parameters:
+#   - violationId: unique violation identifier (e.g., "vio-12345-2026-03-26")
+#   - ruleId: compliance rule ID (e.g., "soc2.cc6.1")
+#
+# Output columns:
+#   - stepNumber: order in remediation sequence (1, 2, 3, ...)
+#   - stepTitle: brief remediation action title
+#   - stepDescription: detailed instructions
+#   - estimatedHours: effort estimate in hours
+#   - responsible: who should execute (role or team)
+#   - dueDate: when remediation should be completed
+#   - relatedResources: links to documentation, tools, scripts
+#   - prerequisiteSteps: step numbers that must complete first
+#   - successCriteria: how to verify remediation is complete
+#
+# Timeout: 10 seconds max
+# ============================================================================
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+PREFIX bos: <https://chatmangpt.com/ontology/businessos/>
+PREFIX comp: <https://chatmangpt.com/ontology/compliance/>
+
+SELECT ?stepNumber ?stepTitle ?stepDescription ?estimatedHours ?responsible ?dueDate ?relatedResources ?prerequisiteSteps ?successCriteria
+WHERE {
+  # Input: violation or rule ID
+  BIND("vio-12345-2026-03-26" AS ?violationId)
+  BIND("soc2.cc6.1" AS ?ruleId)
+
+  # Find the violation or rule
+  {
+    SELECT ?ruleId
+    WHERE {
+      # Option A: Lookup violation to find rule
+      OPTIONAL {
+        ?violation a bos:Violation ;
+          bos:violationId ?violationId ;
+          bos:ruleId ?ruleId .
+      }
+      # Option B: Use ruleId directly
+      OPTIONAL {
+        ?rule a bos:ComplianceRule ;
+          bos:ruleId ?ruleId .
+      }
+    }
+    LIMIT 1
+  }
+
+  # Find ODRL policy associated with this rule
+  ?rule a bos:ComplianceRule ;
+    bos:ruleId ?ruleId ;
+    rdfs:label ?ruleName ;
+    odrl:hasPolicy ?policy .
+
+  # Extract remediation steps from policy
+  ?policy a odrl:Policy ;
+    odrl:hasPermission ?permission ;
+    comp:remediationPlan ?remediationPlan .
+
+  ?remediationPlan a comp:RemediationPlan ;
+    dcterms:issued ?createdDate ;
+    comp:targetDate ?targetDate ;
+    comp:priority ?priority ;
+    comp:hasStep ?step .
+
+  # Step details
+  ?step a comp:RemediationStep ;
+    comp:stepNumber ?stepNumber ;
+    dcterms:title ?stepTitle ;
+    rdfs:comment ?stepDescription ;
+    comp:estimatedEffortHours ?estimatedHours ;
+    comp:assignedTo ?responsible ;
+    comp:dueDate ?dueDate ;
+    comp:relatesTo ?resource ;
+    comp:requires ?prereq ;
+    comp:successCriteria ?successCriteria .
+
+  # Collect related resources (documentation, scripts, tools)
+  OPTIONAL {
+    ?step comp:relatesTo ?resource .
+    BIND(GROUP_CONCAT(STR(?resource); separator=", ") AS ?relatedResources)
+  }
+
+  # Collect prerequisite steps (steps that must complete first)
+  OPTIONAL {
+    ?step comp:requires ?prereq .
+    ?prereq comp:stepNumber ?prereqNumber .
+    BIND(GROUP_CONCAT(STR(?prereqNumber); separator=", ") AS ?prerequisiteSteps)
+  }
+
+  # Calculate due date based on severity and target date
+  OPTIONAL {
+    ?rule bos:severity ?severity .
+  }
+  BIND(
+    IF(?severity = "critical", NOW() + xsd:dayTimeDuration("P1D"),
+      IF(?severity = "high", NOW() + xsd:dayTimeDuration("P3D"),
+        IF(?severity = "medium", NOW() + xsd:dayTimeDuration("P7D"),
+          NOW() + xsd:dayTimeDuration("P14D"))))
+    AS ?calculatedDue
+  )
+  BIND(IF(BOUND(?dueDate), ?dueDate, ?calculatedDue) AS ?finalDueDate)
+}
+ORDER BY ?stepNumber

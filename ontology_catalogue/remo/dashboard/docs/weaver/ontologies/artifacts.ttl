@@ -1,0 +1,393 @@
+# Weaver Artifact Ontology
+# Defines artifact types, templates, and generation patterns for code generation
+
+@prefix weaver: <https://weaver.dev/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Artifact Base Classes
+
+weaver:Artifact
+    a rdfs:Class ;
+    rdfs:comment "Base class for all code generation artifacts" ;
+    rdfs:subClassOf rdfs:Resource ;
+    weaver:hasProperty weaver:artifactType, weaver:template, weaver:outputPath, weaver:dependsOn .
+
+weaver:ComponentArtifact
+    a rdfs:Class ;
+    rdfs:comment "Base class for UI component artifacts" ;
+    rdfs:subClassOf weaver:Artifact ;
+    weaver:technology "Vue", "Nuxt", "TypeScript" ;
+    weaver:pattern "Single File Component" .
+
+weaver:APIArtifact
+    a rdfs:Class ;
+    rdfs:comment "Base class for API endpoint artifacts" ;
+    rdfs:subClassOf weaver:Artifact ;
+    weaver:technology "TypeScript", "Nitro", "H3" ;
+    weaver:pattern "RESTful API" .
+
+weaver:ComposableArtifact
+    a rdfs:Class ;
+    rdfs:comment "Base class for Nuxt composable artifacts" ;
+    rdfs:subClassOf weaver:Artifact ;
+    weaver:technology "Vue Composition API", "TypeScript" ;
+    weaver:pattern "Composable Function" .
+
+weaver:TypeDefinitionArtifact
+    a rdfs:Class ;
+    rdfs:comment "Base class for TypeScript type definition artifacts" ;
+    rdfs:subClassOf weaver:Artifact ;
+    weaver:technology "TypeScript" ;
+    weaver:pattern "Interface Definition" .
+
+weaver:TestArtifact
+    a rdfs:Class ;
+    rdfs:comment "Base class for test artifacts" ;
+    rdfs:subClassOf weaver:Artifact ;
+    weaver:technology "Vitest", "TypeScript" ;
+    weaver:pattern "Test Suite" .
+
+# Vue Component Artifacts
+
+weaver:VueComponentArtifact
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:ComponentArtifact ;
+    rdfs:comment "Vue.js single file component artifact" ;
+    weaver:fileExtension ".vue" ;
+    weaver:structure "template", "script", "style" ;
+    weaver:features "reactive_data", "computed_properties", "watchers", "lifecycle_hooks" ;
+    weaver:styling "Tailwind CSS", "CSS Modules", "Scoped CSS" .
+
+weaver:SecurityDashboardArtifact
+    a weaver:VueComponentArtifact ;
+    weaver:artifactType "security-dashboard-component" ;
+    weaver:template "vue/security-dashboard.go.tmpl" ;
+    weaver:outputPath "app/components/security/SecurityIncidentDashboard.vue" ;
+    weaver:dependsOn "security-api", "security-composable" ;
+    weaver:hasVariable weaver:ComponentNameVar, weaver:EntityVar ;
+    weaver:features "real_time_updates", "filtering", "sorting", "pagination", "export" ;
+    weaver:dataBinding "security_incidents", "threat_intelligence", "response_actions" ;
+    weaver:permissions "security_analyst", "incident_responder" .
+
+weaver:MLDashboardArtifact
+    a weaver:VueComponentArtifact ;
+    weaver:artifactType "ml-pipeline-dashboard" ;
+    weaver:template "vue/ml-pipeline-dashboard.go.tmpl" ;
+    weaver:outputPath "app/components/ml/MLPipelineDashboard.vue" ;
+    weaver:dependsOn "ml-api", "ml-composable" ;
+    weaver:hasVariable weaver:ComponentNameVar, weaver:EntityVar ;
+    weaver:features "pipeline_visualization", "metrics_display", "model_comparison", "deployment_status" ;
+    weaver:dataBinding "ml_pipelines", "model_metrics", "training_jobs" ;
+    weaver:visualizations "charts", "graphs", "progress_bars", "status_indicators" .
+
+weaver:PQCDashboardArtifact
+    a weaver:VueComponentArtifact ;
+    weaver:artifactType "pqc-evidence-dashboard" ;
+    weaver:template "vue/pqc-evidence-dashboard.go.tmpl" ;
+    weaver:outputPath "app/components/pqc/PqcEvidenceDashboard.vue" ;
+    weaver:dependsOn "pqc-api", "crypto-composable" ;
+    weaver:hasVariable weaver:ComponentNameVar, weaver:EntityVar ;
+    weaver:features "compliance_status", "certificate_management", "key_rotation", "audit_trail" ;
+    weaver:dataBinding "pqc_evidence", "cryptographic_keys", "compliance_records" ;
+    weaver:security "quantum_resistant", "access_controlled" .
+
+weaver:GovernanceDashboardArtifact
+    a weaver:VueComponentArtifact ;
+    weaver:artifactType "governance-workflow-dashboard" ;
+    weaver:template "vue/governance-dashboard.go.tmpl" ;
+    weaver:outputPath "app/components/governance/GovernanceDashboard.vue" ;
+    weaver:dependsOn "governance-api", "governance-composable" ;
+    weaver:hasVariable weaver:ComponentNameVar, weaver:EntityVar ;
+    weaver:features "approval_workflow", "policy_management", "compliance_tracking", "audit_reports" ;
+    weaver:dataBinding "governance_requests", "approval_workflows", "compliance_metrics" ;
+    weaver:workflow "request_submission", "review_process", "approval_chain", "implementation" .
+
+weaver:AnalyticsDashboardArtifact
+    a weaver:VueComponentArtifact ;
+    weaver:artifactType "analytics-dashboard" ;
+    weaver:template "vue/analytics-dashboard.go.tmpl" ;
+    weaver:outputPath "app/components/analytics/AnalyticsDashboard.vue" ;
+    weaver:dependsOn "analytics-api", "analytics-composable" ;
+    weaver:hasVariable weaver:ComponentNameVar, weaver:EntityVar ;
+    weaver:features "real_time_metrics", "interactive_charts", "drill_down", "time_series" ;
+    weaver:dataBinding "dashboard_metrics", "user_interactions", "performance_data" ;
+    weaver:visualizations "line_charts", "bar_charts", "pie_charts", "heatmaps", "gauges" .
+
+# API Endpoint Artifacts
+
+weaver:APIEndpointArtifact
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:APIArtifact ;
+    rdfs:comment "RESTful API endpoint artifact with CRUD operations" ;
+    weaver:fileExtension ".ts" ;
+    weaver:methods "GET", "POST", "PUT", "DELETE" ;
+    weaver:features "validation", "authentication", "authorization", "error_handling", "logging" ;
+    weaver:patterns "resource_oriented", "status_codes", "content_negotiation" .
+
+weaver:SecurityAPIArtifact
+    a weaver:APIEndpointArtifact ;
+    weaver:artifactType "security-incident-api" ;
+    weaver:template "api/security-endpoint.go.tmpl" ;
+    weaver:outputPath "server/api/security/incidents.ts" ;
+    weaver:dependsOn "database-schema", "auth-middleware" ;
+    weaver:hasVariable weaver:EntityNameVar, weaver:EndpointVar ;
+    weaver:endpoints "/incidents", "/incidents/:id", "/incidents/:id/actions", "/incidents/search" ;
+    weaver:permissions "security_analyst", "incident_responder", "security_manager" ;
+    weaver:validation "incident_severity", "status_transitions", "assignment_rules" .
+
+weaver:MLAPIArtifact
+    a weaver:APIEndpointArtifact ;
+    weaver:artifactType "ml-pipeline-api" ;
+    weaver:template "api/ml-endpoint.go.tmpl" ;
+    weaver:outputPath "server/api/ml/pipelines.ts" ;
+    weaver:dependsOn "database-schema", "ml-engine" ;
+    weaver:hasVariable weaver:EntityNameVar, weaver:EndpointVar ;
+    weaver:endpoints "/pipelines", "/pipelines/:id", "/pipelines/:id/run", "/pipelines/:id/metrics" ;
+    weaver:operations "create_pipeline", "execute_pipeline", "monitor_pipeline", "evaluate_model" ;
+    weaver:validation "pipeline_config", "data_schema", "model_parameters" .
+
+weaver:PQCAPIArtifact
+    a weaver:APIEndpointArtifact ;
+    weaver:artifactType "pqc-evidence-api" ;
+    weaver:template "api/pqc-endpoint.go.tmpl" ;
+    weaver:outputPath "server/api/pqc/evidence.ts" ;
+    weaver:dependsOn "database-schema", "crypto-engine" ;
+    weaver:hasVariable weaver:EntityNameVar, weaver:EndpointVar ;
+    weaver:endpoints "/evidence", "/evidence/:id", "/evidence/:id/validate", "/keys/generate" ;
+    weaver:crypto "dilithium", "kyber", "falcon", "sphincs_plus" ;
+    weaver:validation "algorithm_compliance", "key_strength", "certificate_validity" .
+
+weaver:GovernanceAPIArtifact
+    a weaver:APIEndpointArtifact ;
+    weaver:artifactType "governance-request-api" ;
+    weaver:template "api/governance-endpoint.go.tmpl" ;
+    weaver:outputPath "server/api/governance/requests.ts" ;
+    weaver:dependsOn "database-schema", "workflow-engine" ;
+    weaver:hasVariable weaver:EntityNameVar, weaver:EndpointVar ;
+    weaver:endpoints "/requests", "/requests/:id", "/requests/:id/approve", "/requests/:id/reject" ;
+    weaver:workflow "submit", "review", "approve", "implement" ;
+    weaver:validation "approval_hierarchy", "policy_impact", "compliance_check" .
+
+weaver:AnalyticsAPIArtifact
+    a weaver:APIEndpointArtifact ;
+    weaver:artifactType "analytics-metrics-api" ;
+    weaver:template "api/analytics-endpoint.go.tmpl" ;
+    weaver:outputPath "server/api/analytics/metrics.ts" ;
+    weaver:dependsOn "database-schema", "telemetry-collector" ;
+    weaver:hasVariable weaver:EntityNameVar, weaver:EndpointVar ;
+    weaver:endpoints "/metrics", "/metrics/real-time", "/interactions", "/performance" ;
+    weaver:aggregations "sum", "average", "count", "percentile" ;
+    weaver:timeframes "real_time", "hourly", "daily", "weekly", "monthly" .
+
+# Composable Artifacts
+
+weaver:NuxtComposableArtifact
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:ComposableArtifact ;
+    rdfs:comment "Nuxt composable function artifact" ;
+    weaver:fileExtension ".ts" ;
+    weaver:features "reactivity", "state_management", "side_effects", "lifecycle" ;
+    weaver:patterns "use_prefix", "reactive_state", "computed_properties", "async_operations" .
+
+weaver:SecurityComposableArtifact
+    a weaver:NuxtComposableArtifact ;
+    weaver:artifactType "security-incident-composable" ;
+    weaver:template "composable/useSecurity.go.tmpl" ;
+    weaver:outputPath "app/composables/useSecurityIncidents.ts" ;
+    weaver:dependsOn "security-api", "auth-composable" ;
+    weaver:hasVariable weaver:ComposableNameVar, weaver:EntityVar ;
+    weaver:functions "fetchIncidents", "createIncident", "updateIncident", "deleteIncident", "searchIncidents" ;
+    weaver:state "incidents", "loading", "error", "filters" ;
+    weaver:permissions "security_analyst", "incident_responder" .
+
+weaver:MLComposableArtifact
+    a weaver:NuxtComposableArtifact ;
+    weaver:artifactType "ml-pipeline-composable" ;
+    weaver:template "composable/useMLPipeline.go.tmpl" ;
+    weaver:outputPath "app/composables/useMLPipeline.ts" ;
+    weaver:dependsOn "ml-api", "model-store" ;
+    weaver:hasVariable weaver:ComposableNameVar, weaver:EntityVar ;
+    weaver:functions "fetchPipelines", "executePipeline", "getPipelineMetrics", "deployModel" ;
+    weaver:state "pipelines", "models", "metrics", "training_status" ;
+    weaver:features "real_time_monitoring", "model_versioning", "experiment_tracking" .
+
+weaver:CryptoComposableArtifact
+    a weaver:NuxtComposableArtifact ;
+    weaver:artifactType "pqc-evidence-composable" ;
+    weaver:template "composable/usePqcEvidence.go.tmpl" ;
+    weaver:outputPath "app/composables/usePqcEvidence.ts" ;
+    weaver:dependsOn "pqc-api", "crypto-utilities" ;
+    weaver:hasVariable weaver:ComposableNameVar, weaver:EntityVar ;
+    weaver:functions "fetchEvidence", "validateEvidence", "generateKeys", "rotateKeys" ;
+    weaver:state "evidence", "keys", "compliance_status", "certificates" ;
+    weaver:crypto "quantum_resistant", "post_quantum_algorithms" .
+
+weaver:GovernanceComposableArtifact
+    a weaver:NuxtComposableArtifact ;
+    weaver:artifactType "governance-workflow-composable" ;
+    weaver:template "composable/useGovernance.go.tmpl" ;
+    weaver:outputPath "app/composables/useGovernanceRequests.ts" ;
+    weaver:dependsOn "governance-api", "workflow-engine" ;
+    weaver:hasVariable weaver:ComposableNameVar, weaver:EntityVar ;
+    weaver:functions "submitRequest", "approveRequest", "rejectRequest", "getApprovalHistory" ;
+    weaver:state "requests", "workflows", "approvals", "compliance_metrics" ;
+    weaver:workflow "automated_routing", "escalation_handling", "deadline_tracking" .
+
+weaver:AnalyticsComposableArtifact
+    a weaver:NuxtComposableArtifact ;
+    weaver:artifactType "analytics-metrics-composable" ;
+    weaver:template "composable/useAnalytics.go.tmpl" ;
+    weaver:outputPath "app/composables/useAnalytics.ts" ;
+    weaver:dependsOn "analytics-api", "telemetry-client" ;
+    weaver:hasVariable weaver:ComposableNameVar, weaver:EntityVar ;
+    weaver:functions "trackEvent", "getMetrics", "getRealTimeData", "generateReport" ;
+    weaver:state "metrics", "events", "real_time_data", "reports" ;
+    weaver:features "event_tracking", "metric_aggregation", "real_time_updates" .
+
+# Type Definition Artifacts
+
+weaver:TypeScriptTypeArtifact
+    a weaver:TypeDefinitionArtifact ;
+    weaver:artifactType "typescript-interface" ;
+    weaver:template "types/interfaces.go.tmpl" ;
+    weaver:outputPath "app/types/{entity}.d.ts" ;
+    weaver:dependsOn "entity-schema" ;
+    weaver:hasVariable weaver:EntityNameVar, weaver:AttributesVar ;
+    weaver:features "strict_typing", "optional_properties", "union_types", "generic_types" .
+
+weaver:SecurityTypesArtifact
+    a weaver:TypeScriptTypeArtifact ;
+    weaver:outputPath "app/types/security.d.ts" ;
+    weaver:interfaces "SecurityIncident", "ThreatIntelligence", "IncidentResponse" ;
+    weaver:enums "Severity", "IncidentStatus", "ThreatType" ;
+    weaver:utilities "SecurityGuards", "ValidationHelpers" .
+
+weaver:MLTypesArtifact
+    a weaver:TypeScriptTypeArtifact ;
+    weaver:outputPath "app/types/ml.d.ts" ;
+    weaver:interfaces "MLPipeline", "MLModel", "TrainingJob", "ModelMetrics" ;
+    weaver:enums "PipelineStatus", "ModelType", "OptimizationType" ;
+    weaver:utilities "MetricCalculators", "ValidationFunctions" .
+
+weaver:CryptoTypesArtifact
+    a weaver:TypeScriptTypeArtifact ;
+    weaver:outputPath "app/types/crypto.d.ts" ;
+    weaver:interfaces "PQCEvidence", "CryptographicKey", "ComplianceRecord" ;
+    weaver:enums "Algorithm", "KeyType", "ComplianceStatus" ;
+    weaver:utilities "CryptoHelpers", "ValidationFunctions" .
+
+weaver:GovernanceTypesArtifact
+    a weaver:TypeScriptTypeArtifact ;
+    weaver:outputPath "app/types/governance.d.ts" ;
+    weaver:interfaces "GovernanceRequest", "ApprovalWorkflow", "ComplianceMetric" ;
+    weaver:enums "RequestStatus", "Priority", "ApprovalLevel" ;
+    weaver:utilities "WorkflowHelpers", "ComplianceCalculators" .
+
+# Test Artifacts
+
+weaver:VitestTestArtifact
+    a weaver:TestArtifact ;
+    weaver:artifactType "vitest-test-suite" ;
+    weaver:template "test/vitest.go.tmpl" ;
+    weaver:outputPath "tests/{component}.test.ts" ;
+    weaver:dependsOn "test-utilities", "mock-data" ;
+    weaver:hasVariable weaver:ComponentNameVar, weaver:TestSuiteVar ;
+    weaver:features "unit_testing", "integration_testing", "mocking", "coverage" ;
+    weaver:patterns "describe_blocks", "test_cases", "beforeEach_setup", "assertions" .
+
+weaver:ComponentTestArtifact
+    a weaver:VitestTestArtifact ;
+    weaver:outputPath "tests/components/{component}.test.ts" ;
+    weaver:testTypes "rendering", "props", "events", "slots", "computed" ;
+    weaver:utilities "@vue/test-utils", "vitest", "jsdom" ;
+    weaver:coverage "statements", "branches", "functions", "lines" .
+
+weaver:ComposableTestArtifact
+    a weaver:VitestTestArtifact ;
+    weaver:outputPath "tests/composables/{composable}.test.ts" ;
+    weaver:testTypes "state_management", "side_effects", "async_operations", "reactivity" ;
+    weaver:utilities "vitest", "mock_api", "test_state" ;
+    weaver:patterns "setup_composition", "state_assertions", "effect_verification" .
+
+weaver:APITestArtifact
+    a weaver:VitestTestArtifact ;
+    weaver:outputPath "tests/api/{endpoint}.test.ts" ;
+    weaver:testTypes "request_validation", "response_format", "error_handling", "authentication" ;
+    weaver:utilities "supertest", "mock_database", "jwt_tokens" ;
+    weaver:scenarios "success_cases", "error_cases", "edge_cases", "security_tests" .
+
+# Artifact Properties and Variables
+
+weaver:ComponentNameVar
+    a weaver:Variable ;
+    weaver:key "component_name" ;
+    weaver:valueType "PascalCase" ;
+    weaver:example "SecurityIncidentDashboard" ;
+    rdfs:comment "Vue component name in PascalCase format" .
+
+weaver:EntityVar
+    a weaver:Variable ;
+    weaver:key "entity" ;
+    weaver:valueType "PascalCase" ;
+    weaver:example "SecurityIncident" ;
+    rdfs:comment "Entity class name in PascalCase format" .
+
+weaver:EntityNameVar
+    a weaver:Variable ;
+    weaver:key "entity_name" ;
+    weaver:valueType "snake_case" ;
+    weaver:example "security_incident" ;
+    rdfs:comment "Entity name in snake_case for database and API paths" .
+
+weaver:EndpointVar
+    a weaver:Variable ;
+    weaver:key "endpoint" ;
+    weaver:valueType "kebab-case" ;
+    weaver:example "incidents" ;
+    rdfs:comment "API endpoint path in kebab-case format" .
+
+weaver:ComposableNameVar
+    a weaver:Variable ;
+    weaver:key "composable_name" ;
+    weaver:valueType "camelCase" ;
+    weaver:example "useSecurityIncidents" ;
+    rdfs:comment "Composable function name with 'use' prefix in camelCase" .
+
+weaver:AttributesVar
+    a weaver:Variable ;
+    weaver:key "attributes" ;
+    weaver:valueType "array" ;
+    weaver:example "[\"id\", \"title\", \"severity\", \"status\"]" ;
+    rdfs:comment "Array of entity attribute names" .
+
+weaver:TestSuiteVar
+    a weaver:Variable ;
+    weaver:key "test_suite" ;
+    weaver:valueType "string" ;
+    weaver:example "SecurityIncidentDashboard Tests" ;
+    rdfs:comment "Test suite description for test file" .
+
+# Artifact Dependencies and Relationships
+
+weaver:ArtifactDependency
+    a rdfs:Class ;
+    rdfs:comment "Dependency relationship between artifacts" ;
+    weaver:dependencyTypes "compilation", "runtime", "testing", "deployment" .
+
+weaver:TemplateReference
+    a rdfs:Class ;
+    rdfs:comment "Reference to code generation template" ;
+    weaver:templateEngine "Go Templates" ;
+    weaver:templateSyntax "{{ }}" ;
+    weaver:templateFeatures "conditionals", "loops", "functions", "variables" .
+
+weaver:OutputConfiguration
+    a rdfs:Class ;
+    rdfs:comment "Configuration for artifact output generation" ;
+    weaver:outputFormats "vue", "ts", "js", "json", "yaml" ;
+    weaver:outputValidation "syntax", "types", "lint", "format" ;
+    weaver:outputProcessing "minification", "tree_shaking", "bundling" .

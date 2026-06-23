@@ -1,0 +1,494 @@
+@prefix obs: <https://ggen.ai/ontology/observability#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Ontology Definition
+obs: a owl:Ontology ;
+    dcterms:title "Observability Platform Ontology" ;
+    dcterms:description "Comprehensive observability with metrics, tracing, logging, dashboards, and alerting" ;
+    dcterms:created "2025-01-08"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# CORE CLASSES - Metrics
+# ============================================================================
+
+obs:MetricsSystem a owl:Class ;
+    rdfs:label "Metrics System" ;
+    rdfs:comment "Metrics collection system (Prometheus, InfluxDB, Datadog)" .
+
+obs:Metric a owl:Class ;
+    rdfs:label "Metric" ;
+    rdfs:comment "Time series metric measurement" .
+
+obs:Counter a owl:Class ;
+    rdfs:subClassOf obs:Metric ;
+    rdfs:label "Counter" ;
+    rdfs:comment "Monotonically increasing counter metric" .
+
+obs:Gauge a owl:Class ;
+    rdfs:subClassOf obs:Metric ;
+    rdfs:label "Gauge" ;
+    rdfs:comment "Gauge metric that can increase or decrease" .
+
+obs:Histogram a owl:Class ;
+    rdfs:subClassOf obs:Metric ;
+    rdfs:label "Histogram" ;
+    rdfs:comment "Histogram for distribution of values" .
+
+obs:Summary a owl:Class ;
+    rdfs:subClassOf obs:Metric ;
+    rdfs:label "Summary" ;
+    rdfs:comment "Summary metric with quantiles" .
+
+obs:TimeSeries a owl:Class ;
+    rdfs:label "Time Series" ;
+    rdfs:comment "Time series data points" .
+
+obs:MetricLabel a owl:Class ;
+    rdfs:label "Metric Label" ;
+    rdfs:comment "Label for metric dimensions" .
+
+# ============================================================================
+# DISTRIBUTED TRACING CLASSES
+# ============================================================================
+
+obs:TracingSystem a owl:Class ;
+    rdfs:label "Tracing System" ;
+    rdfs:comment "Distributed tracing system (Jaeger, Zipkin, Tempo)" .
+
+obs:Trace a owl:Class ;
+    rdfs:label "Trace" ;
+    rdfs:comment "Distributed trace across services" .
+
+obs:Span a owl:Class ;
+    rdfs:label "Span" ;
+    rdfs:comment "Trace span representing an operation" .
+
+obs:SpanContext a owl:Class ;
+    rdfs:label "Span Context" ;
+    rdfs:comment "Context for trace propagation" .
+
+obs:SpanEvent a owl:Class ;
+    rdfs:label "Span Event" ;
+    rdfs:comment "Event within a span" .
+
+obs:SpanLink a owl:Class ;
+    rdfs:label "Span Link" ;
+    rdfs:comment "Link between spans" .
+
+obs:TraceAttribute a owl:Class ;
+    rdfs:label "Trace Attribute" ;
+    rdfs:comment "Attribute attached to span" .
+
+obs:Baggage a owl:Class ;
+    rdfs:label "Baggage" ;
+    rdfs:comment "Cross-cutting trace context data" .
+
+# ============================================================================
+# LOGGING CLASSES
+# ============================================================================
+
+obs:LoggingSystem a owl:Class ;
+    rdfs:label "Logging System" ;
+    rdfs:comment "Log aggregation system (ELK, Loki, Splunk)" .
+
+obs:Log a owl:Class ;
+    rdfs:label "Log" ;
+    rdfs:comment "Log entry" .
+
+obs:LogLevel a owl:Class ;
+    rdfs:label "Log Level" ;
+    rdfs:comment "Log severity level (DEBUG, INFO, WARN, ERROR)" .
+
+obs:StructuredLog a owl:Class ;
+    rdfs:subClassOf obs:Log ;
+    rdfs:label "Structured Log" ;
+    rdfs:comment "Structured JSON log entry" .
+
+obs:LogStream a owl:Class ;
+    rdfs:label "Log Stream" ;
+    rdfs:comment "Stream of logs from a source" .
+
+obs:LogShipper a owl:Class ;
+    rdfs:label "Log Shipper" ;
+    rdfs:comment "Log forwarding agent (Filebeat, Fluentd)" .
+
+obs:LogParser a owl:Class ;
+    rdfs:label "Log Parser" ;
+    rdfs:comment "Parser for log formats (grok, regex)" .
+
+obs:LogIndex a owl:Class ;
+    rdfs:label "Log Index" ;
+    rdfs:comment "Elasticsearch index for logs" .
+
+# ============================================================================
+# DASHBOARD & VISUALIZATION CLASSES
+# ============================================================================
+
+obs:Dashboard a owl:Class ;
+    rdfs:label "Dashboard" ;
+    rdfs:comment "Visualization dashboard (Grafana, Kibana)" .
+
+obs:Panel a owl:Class ;
+    rdfs:label "Panel" ;
+    rdfs:comment "Dashboard panel/widget" .
+
+obs:Graph a owl:Class ;
+    rdfs:subClassOf obs:Panel ;
+    rdfs:label "Graph" ;
+    rdfs:comment "Time series graph panel" .
+
+obs:Table a owl:Class ;
+    rdfs:subClassOf obs:Panel ;
+    rdfs:label "Table" ;
+    rdfs:comment "Table visualization panel" .
+
+obs:Heatmap a owl:Class ;
+    rdfs:subClassOf obs:Panel ;
+    rdfs:label "Heatmap" ;
+    rdfs:comment "Heatmap visualization" .
+
+obs:Gauge a owl:Class ;
+    rdfs:subClassOf obs:Panel ;
+    rdfs:label "Gauge Panel" ;
+    rdfs:comment "Gauge visualization" .
+
+obs:Query a owl:Class ;
+    rdfs:label "Query" ;
+    rdfs:comment "Data source query (PromQL, LogQL)" .
+
+obs:Variable a owl:Class ;
+    rdfs:label "Variable" ;
+    rdfs:comment "Dashboard template variable" .
+
+# ============================================================================
+# ALERTING & INCIDENT CLASSES
+# ============================================================================
+
+obs:Alert a owl:Class ;
+    rdfs:label "Alert" ;
+    rdfs:comment "Alert rule and configuration" .
+
+obs:AlertRule a owl:Class ;
+    rdfs:label "Alert Rule" ;
+    rdfs:comment "Alert rule definition" .
+
+obs:AlertCondition a owl:Class ;
+    rdfs:label "Alert Condition" ;
+    rdfs:comment "Condition that triggers alert" .
+
+obs:AlertSeverity a owl:Class ;
+    rdfs:label "Alert Severity" ;
+    rdfs:comment "Alert severity (Critical, Warning, Info)" .
+
+obs:Notification a owl:Class ;
+    rdfs:label "Notification" ;
+    rdfs:comment "Alert notification delivery" .
+
+obs:NotificationChannel a owl:Class ;
+    rdfs:label "Notification Channel" ;
+    rdfs:comment "Channel for alerts (Slack, PagerDuty, email)" .
+
+obs:Incident a owl:Class ;
+    rdfs:label "Incident" ;
+    rdfs:comment "Active incident from alert" .
+
+obs:IncidentResponse a owl:Class ;
+    rdfs:label "Incident Response" ;
+    rdfs:comment "Incident response and resolution" .
+
+obs:OnCallSchedule a owl:Class ;
+    rdfs:label "On-Call Schedule" ;
+    rdfs:comment "On-call rotation schedule" .
+
+obs:Escalation a owl:Class ;
+    rdfs:label "Escalation" ;
+    rdfs:comment "Alert escalation policy" .
+
+# ============================================================================
+# SLO/SLA CLASSES
+# ============================================================================
+
+obs:ServiceLevelObjective a owl:Class ;
+    rdfs:label "Service Level Objective (SLO)" ;
+    rdfs:comment "SLO target for service reliability" .
+
+obs:ServiceLevelIndicator a owl:Class ;
+    rdfs:label "Service Level Indicator (SLI)" ;
+    rdfs:comment "SLI metric for measuring SLO" .
+
+obs:ServiceLevelAgreement a owl:Class ;
+    rdfs:label "Service Level Agreement (SLA)" ;
+    rdfs:comment "SLA contractual commitment" .
+
+obs:ErrorBudget a owl:Class ;
+    rdfs:label "Error Budget" ;
+    rdfs:comment "Remaining error budget for SLO" .
+
+obs:BurnRate a owl:Class ;
+    rdfs:label "Burn Rate" ;
+    rdfs:comment "Rate of error budget consumption" .
+
+# ============================================================================
+# PERFORMANCE PROFILING CLASSES
+# ============================================================================
+
+obs:Profiler a owl:Class ;
+    rdfs:label "Profiler" ;
+    rdfs:comment "Performance profiling tool" .
+
+obs:CpuProfile a owl:Class ;
+    rdfs:label "CPU Profile" ;
+    rdfs:comment "CPU profiling data" .
+
+obs:MemoryProfile a owl:Class ;
+    rdfs:label "Memory Profile" ;
+    rdfs:comment "Memory allocation profiling" .
+
+obs:FlameGraph a owl:Class ;
+    rdfs:label "Flame Graph" ;
+    rdfs:comment "Flame graph visualization" .
+
+obs:Hotspot a owl:Class ;
+    rdfs:label "Hotspot" ;
+    rdfs:comment "Performance hotspot in code" .
+
+# ============================================================================
+# ANOMALY DETECTION CLASSES
+# ============================================================================
+
+obs:AnomalyDetection a owl:Class ;
+    rdfs:label "Anomaly Detection" ;
+    rdfs:comment "Automated anomaly detection" .
+
+obs:Anomaly a owl:Class ;
+    rdfs:label "Anomaly" ;
+    rdfs:comment "Detected anomaly in metrics" .
+
+obs:Baseline a owl:Class ;
+    rdfs:label "Baseline" ;
+    rdfs:comment "Normal behavior baseline" .
+
+obs:MachineLearningModel a owl:Class ;
+    rdfs:label "Machine Learning Model" ;
+    rdfs:comment "ML model for anomaly detection" .
+
+# ============================================================================
+# PROPERTIES - Metrics
+# ============================================================================
+
+obs:metricName a owl:DatatypeProperty ;
+    rdfs:domain obs:Metric ;
+    rdfs:range xsd:string ;
+    rdfs:label "metric name" ;
+    rdfs:comment "Name of the metric" .
+
+obs:metricValue a owl:DatatypeProperty ;
+    rdfs:domain obs:Metric ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "metric value" ;
+    rdfs:comment "Numeric value of metric" .
+
+obs:timestamp a owl:DatatypeProperty ;
+    rdfs:domain obs:Metric ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "timestamp" ;
+    rdfs:comment "Metric timestamp" .
+
+obs:unit a owl:DatatypeProperty ;
+    rdfs:domain obs:Metric ;
+    rdfs:range xsd:string ;
+    rdfs:label "unit" ;
+    rdfs:comment "Unit of measurement (bytes, seconds, count)" .
+
+obs:labelName a owl:DatatypeProperty ;
+    rdfs:domain obs:MetricLabel ;
+    rdfs:range xsd:string ;
+    rdfs:label "label name" ;
+    rdfs:comment "Label dimension name" .
+
+obs:labelValue a owl:DatatypeProperty ;
+    rdfs:domain obs:MetricLabel ;
+    rdfs:range xsd:string ;
+    rdfs:label "label value" ;
+    rdfs:comment "Label dimension value" .
+
+# ============================================================================
+# PROPERTIES - Tracing
+# ============================================================================
+
+obs:traceId a owl:DatatypeProperty ;
+    rdfs:domain obs:Trace ;
+    rdfs:range xsd:string ;
+    rdfs:label "trace ID" ;
+    rdfs:comment "Unique trace identifier" .
+
+obs:spanId a owl:DatatypeProperty ;
+    rdfs:domain obs:Span ;
+    rdfs:range xsd:string ;
+    rdfs:label "span ID" ;
+    rdfs:comment "Unique span identifier" .
+
+obs:parentSpanId a owl:DatatypeProperty ;
+    rdfs:domain obs:Span ;
+    rdfs:range xsd:string ;
+    rdfs:label "parent span ID" ;
+    rdfs:comment "Parent span identifier" .
+
+obs:operationName a owl:DatatypeProperty ;
+    rdfs:domain obs:Span ;
+    rdfs:range xsd:string ;
+    rdfs:label "operation name" ;
+    rdfs:comment "Name of the operation" .
+
+obs:startTime a owl:DatatypeProperty ;
+    rdfs:domain obs:Span ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "start time" ;
+    rdfs:comment "Span start timestamp" .
+
+obs:duration a owl:DatatypeProperty ;
+    rdfs:domain obs:Span ;
+    rdfs:range xsd:duration ;
+    rdfs:label "duration" ;
+    rdfs:comment "Span duration" .
+
+obs:samplingPriority a owl:DatatypeProperty ;
+    rdfs:domain obs:Trace ;
+    rdfs:range xsd:integer ;
+    rdfs:label "sampling priority" ;
+    rdfs:comment "Trace sampling priority (0-1)" .
+
+# ============================================================================
+# PROPERTIES - Logging
+# ============================================================================
+
+obs:logMessage a owl:DatatypeProperty ;
+    rdfs:domain obs:Log ;
+    rdfs:range xsd:string ;
+    rdfs:label "log message" ;
+    rdfs:comment "Log message text" .
+
+obs:logTimestamp a owl:DatatypeProperty ;
+    rdfs:domain obs:Log ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "log timestamp" ;
+    rdfs:comment "Log entry timestamp" .
+
+obs:logSeverity a owl:DatatypeProperty ;
+    rdfs:domain obs:Log ;
+    rdfs:range xsd:string ;
+    rdfs:label "log severity" ;
+    rdfs:comment "Log severity level" .
+
+obs:source a owl:DatatypeProperty ;
+    rdfs:domain obs:Log ;
+    rdfs:range xsd:string ;
+    rdfs:label "source" ;
+    rdfs:comment "Log source (service, file, pod)" .
+
+# ============================================================================
+# PROPERTIES - Alerting
+# ============================================================================
+
+obs:alertThreshold a owl:DatatypeProperty ;
+    rdfs:domain obs:AlertCondition ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "alert threshold" ;
+    rdfs:comment "Threshold value for alert" .
+
+obs:evaluationInterval a owl:DatatypeProperty ;
+    rdfs:domain obs:AlertRule ;
+    rdfs:range xsd:duration ;
+    rdfs:label "evaluation interval" ;
+    rdfs:comment "How often to evaluate alert" .
+
+obs:alertDuration a owl:DatatypeProperty ;
+    rdfs:domain obs:AlertRule ;
+    rdfs:range xsd:duration ;
+    rdfs:label "alert duration" ;
+    rdfs:comment "Duration before firing alert" .
+
+obs:severity a owl:DatatypeProperty ;
+    rdfs:domain obs:Alert ;
+    rdfs:range xsd:string ;
+    rdfs:label "severity" ;
+    rdfs:comment "Alert severity (critical, warning, info)" .
+
+# ============================================================================
+# PROPERTIES - SLO/SLA
+# ============================================================================
+
+obs:targetPercentage a owl:DatatypeProperty ;
+    rdfs:domain obs:ServiceLevelObjective ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "target percentage" ;
+    rdfs:comment "SLO target percentage (99.9%)" .
+
+obs:timeWindow a owl:DatatypeProperty ;
+    rdfs:domain obs:ServiceLevelObjective ;
+    rdfs:range xsd:duration ;
+    rdfs:label "time window" ;
+    rdfs:comment "SLO evaluation window (30 days)" .
+
+obs:errorBudgetRemaining a owl:DatatypeProperty ;
+    rdfs:domain obs:ErrorBudget ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "error budget remaining" ;
+    rdfs:comment "Remaining error budget percentage" .
+
+# ============================================================================
+# OBJECT PROPERTIES - Relationships
+# ============================================================================
+
+obs:hasMetric a owl:ObjectProperty ;
+    rdfs:domain obs:Dashboard ;
+    rdfs:range obs:Metric ;
+    rdfs:label "has metric" ;
+    rdfs:comment "Dashboard displays metric" .
+
+obs:hasPanel a owl:ObjectProperty ;
+    rdfs:domain obs:Dashboard ;
+    rdfs:range obs:Panel ;
+    rdfs:label "has panel" ;
+    rdfs:comment "Dashboard contains panel" .
+
+obs:hasQuery a owl:ObjectProperty ;
+    rdfs:domain obs:Panel ;
+    rdfs:range obs:Query ;
+    rdfs:label "has query" ;
+    rdfs:comment "Panel executes query" .
+
+obs:hasSpan a owl:ObjectProperty ;
+    rdfs:domain obs:Trace ;
+    rdfs:range obs:Span ;
+    rdfs:label "has span" ;
+    rdfs:comment "Trace contains span" .
+
+obs:hasAlert a owl:ObjectProperty ;
+    rdfs:domain obs:Metric ;
+    rdfs:range obs:Alert ;
+    rdfs:label "has alert" ;
+    rdfs:comment "Metric has alert rule" .
+
+obs:hasNotificationChannel a owl:ObjectProperty ;
+    rdfs:domain obs:Alert ;
+    rdfs:range obs:NotificationChannel ;
+    rdfs:label "has notification channel" ;
+    rdfs:comment "Alert sends to channel" .
+
+obs:hasSLO a owl:ObjectProperty ;
+    rdfs:domain obs:ServiceLevelIndicator ;
+    rdfs:range obs:ServiceLevelObjective ;
+    rdfs:label "has SLO" ;
+    rdfs:comment "SLI measures SLO" .
+
+obs:hasIncident a owl:ObjectProperty ;
+    rdfs:domain obs:Alert ;
+    rdfs:range obs:Incident ;
+    rdfs:label "has incident" ;
+    rdfs:comment "Alert creates incident" .

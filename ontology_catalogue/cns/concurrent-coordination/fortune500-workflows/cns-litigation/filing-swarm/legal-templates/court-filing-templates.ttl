@@ -1,0 +1,405 @@
+@prefix lct: <http://cns-litigation.com/legal-copy-templates#> .
+@prefix iri: <http://cns-litigation.com/iri-mappings#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix legal: <http://cns-litigation.com/legal-templates#> .
+
+# Legal Copy Blocks for Court Filings with IRI Mappings
+# Standardized legal language templates with semantic annotations
+
+# Motion Templates
+lct:MotionToCompel a legal:DocumentTemplate ;
+    rdfs:label "Motion to Compel Discovery" ;
+    iri:templateId "MTN-COMPEL-001" ;
+    legal:jurisdiction legal:Federal, legal:State ;
+    legal:copyBlocks [
+        lct:MotionHeader,
+        lct:CompelIntroduction,
+        lct:DiscoveryBackground,
+        lct:MeetAndConferStatement,
+        lct:LegalStandard,
+        lct:ArgumentSection,
+        lct:ReliefRequested,
+        lct:Conclusion
+    ] .
+
+lct:MotionHeader a legal:CopyBlock ;
+    rdfs:label "Motion Header Template" ;
+    iri:blockId "HDR-MTN-001" ;
+    legal:content """
+IN THE {{COURT_NAME}}
+{{COURT_DISTRICT}}
+
+{{CASE_CAPTION}}
+
+Case No. {{CASE_NUMBER}}
+
+MOTION TO COMPEL DISCOVERY
+
+TO THE HONORABLE {{JUDGE_NAME}}:
+
+    """ ;
+    legal:variables [
+        legal:var "COURT_NAME" ;
+        legal:var "COURT_DISTRICT" ;
+        legal:var "CASE_CAPTION" ;
+        legal:var "CASE_NUMBER" ;
+        legal:var "JUDGE_NAME"
+    ] ;
+    iri:semanticMapping [
+        iri:maps "COURT_NAME" iri:CourtEntity ;
+        iri:maps "CASE_NUMBER" iri:CaseIdentifier ;
+        iri:maps "JUDGE_NAME" iri:JudicialOfficer
+    ] .
+
+lct:CompelIntroduction a legal:CopyBlock ;
+    rdfs:label "Motion to Compel Introduction" ;
+    iri:blockId "INTRO-COMPEL-001" ;
+    legal:content """
+    {{MOVING_PARTY}}, by and through undersigned counsel, respectfully moves this Court for an Order compelling {{OPPOSING_PARTY}} to provide complete and adequate responses to {{DISCOVERY_TYPE}} served on {{SERVICE_DATE}}. As grounds for this Motion, {{MOVING_PARTY}} states as follows:
+    """ ;
+    legal:variables [
+        legal:var "MOVING_PARTY" ;
+        legal:var "OPPOSING_PARTY" ;
+        legal:var "DISCOVERY_TYPE" ;
+        legal:var "SERVICE_DATE"
+    ] ;
+    iri:semanticMapping [
+        iri:maps "MOVING_PARTY" iri:LitigantEntity ;
+        iri:maps "OPPOSING_PARTY" iri:LitigantEntity ;
+        iri:maps "DISCOVERY_TYPE" iri:DiscoveryInstrument
+    ] .
+
+lct:MeetAndConferStatement a legal:CopyBlock ;
+    rdfs:label "Meet and Confer Statement" ;
+    iri:blockId "MEET-CONFER-001" ;
+    legal:content """
+MEET AND CONFER STATEMENT
+
+    Pursuant to {{RULE_CITATION}}, undersigned counsel attempted in good faith to resolve this discovery dispute without Court intervention. On {{CONFER_DATE}}, counsel for {{MOVING_PARTY}} {{CONFER_METHOD}} with counsel for {{OPPOSING_PARTY}} regarding the deficiencies in the discovery responses. Despite these efforts, the parties were unable to resolve the dispute. {{CONFER_DETAILS}}
+    """ ;
+    legal:variables [
+        legal:var "RULE_CITATION" ;
+        legal:var "CONFER_DATE" ;
+        legal:var "CONFER_METHOD" ;
+        legal:var "CONFER_DETAILS"
+    ] ;
+    iri:semanticMapping [
+        iri:maps "RULE_CITATION" iri:LegalRule ;
+        iri:maps "CONFER_DATE" iri:ProceduralEvent
+    ] .
+
+# Summary Judgment Templates
+lct:SummaryJudgmentMotion a legal:DocumentTemplate ;
+    rdfs:label "Motion for Summary Judgment" ;
+    iri:templateId "MSJ-001" ;
+    legal:copyBlocks [
+        lct:SJMotionHeader,
+        lct:SJIntroduction,
+        lct:SJFactualBackground,
+        lct:SJLegalStandard,
+        lct:SJArgument,
+        lct:SJConclusion
+    ] .
+
+lct:SJLegalStandard a legal:CopyBlock ;
+    rdfs:label "Summary Judgment Legal Standard" ;
+    iri:blockId "LEGAL-STD-SJ-001" ;
+    legal:content """
+LEGAL STANDARD
+
+    Summary judgment is appropriate when "there is no genuine dispute as to any material fact and the movant is entitled to judgment as a matter of law." Fed. R. Civ. P. 56(a). The movant bears the initial burden of demonstrating the absence of a genuine issue of material fact. Celotex Corp. v. Catrett, 477 U.S. 317, 323 (1986). Once this burden is met, the non-movant must present specific facts showing a genuine issue for trial. Anderson v. Liberty Lobby, Inc., 477 U.S. 242, 248 (1986).
+
+    In determining whether a genuine issue of material fact exists, the Court must view the evidence in the light most favorable to the non-moving party and draw all reasonable inferences in favor of that party. Matsushita Elec. Indus. Co. v. Zenith Radio Corp., 475 U.S. 574, 587 (1986).
+    """ ;
+    iri:semanticMapping [
+        iri:maps "Fed. R. Civ. P. 56(a)" iri:FederalRule ;
+        iri:maps "Celotex Corp. v. Catrett" iri:CaseAuthority ;
+        iri:maps "Anderson v. Liberty Lobby" iri:CaseAuthority
+    ] .
+
+# Pleading Templates
+lct:ComplaintTemplate a legal:DocumentTemplate ;
+    rdfs:label "Civil Complaint Template" ;
+    iri:templateId "COMPLAINT-001" ;
+    legal:copyBlocks [
+        lct:ComplaintHeader,
+        lct:JurisdictionVenue,
+        lct:PartiesSection,
+        lct:FactualAllegations,
+        lct:CausesOfAction,
+        lct:PrayerForRelief,
+        lct:JuryDemand
+    ] .
+
+lct:JurisdictionVenue a legal:CopyBlock ;
+    rdfs:label "Jurisdiction and Venue Statement" ;
+    iri:blockId "JURIS-VENUE-001" ;
+    legal:content """
+JURISDICTION AND VENUE
+
+    1. This Court has subject matter jurisdiction over this action pursuant to {{JURISDICTION_BASIS}}.
+
+    2. This Court has personal jurisdiction over Defendants because {{PERSONAL_JURISDICTION_BASIS}}.
+
+    3. Venue is proper in this District pursuant to {{VENUE_STATUTE}} because {{VENUE_BASIS}}.
+    """ ;
+    legal:variables [
+        legal:var "JURISDICTION_BASIS" ;
+        legal:var "PERSONAL_JURISDICTION_BASIS" ;
+        legal:var "VENUE_STATUTE" ;
+        legal:var "VENUE_BASIS"
+    ] ;
+    iri:semanticMapping [
+        iri:maps "JURISDICTION_BASIS" iri:JurisdictionalGround ;
+        iri:maps "VENUE_STATUTE" iri:VenueRule
+    ] .
+
+# Discovery Templates
+lct:InterrogatoriesTemplate a legal:DocumentTemplate ;
+    rdfs:label "Interrogatories Template" ;
+    iri:templateId "INTERROG-001" ;
+    legal:copyBlocks [
+        lct:InterrogatoriesHeader,
+        lct:InterrogatoriesInstructions,
+        lct:InterrogatoriesDefinitions,
+        lct:InterrogatoriesQuestions
+    ] .
+
+lct:InterrogatoriesInstructions a legal:CopyBlock ;
+    rdfs:label "Standard Interrogatories Instructions" ;
+    iri:blockId "INTERROG-INST-001" ;
+    legal:content """
+INSTRUCTIONS
+
+    1. These Interrogatories are served pursuant to {{RULE_CITATION}}. You are required to answer each Interrogatory separately and fully in writing under oath.
+
+    2. Your answers must be based on your personal knowledge, information, and belief, and you must state the source of your information and the grounds for any belief.
+
+    3. If you cannot answer any Interrogatory in full, answer to the extent possible and explain why you cannot provide a complete answer.
+
+    4. These Interrogatories are continuing in nature. If you obtain additional information after serving your answers, you must supplement your responses as required by {{SUPPLEMENTATION_RULE}}.
+
+    5. In answering these Interrogatories, you are required to furnish all information available to you, including information in the possession of your attorneys, agents, representatives, and other persons acting on your behalf.
+    """ ;
+    legal:variables [
+        legal:var "RULE_CITATION" ;
+        legal:var "SUPPLEMENTATION_RULE"
+    ] ;
+    iri:semanticMapping [
+        iri:maps "RULE_CITATION" iri:DiscoveryRule ;
+        iri:maps "SUPPLEMENTATION_RULE" iri:SupplementationObligation
+    ] .
+
+# Brief Templates
+lct:AppellateBrief a legal:DocumentTemplate ;
+    rdfs:label "Appellate Brief Template" ;
+    iri:templateId "APP-BRIEF-001" ;
+    legal:copyBlocks [
+        lct:AppellateHeader,
+        lct:TableOfContents,
+        lct:TableOfAuthorities,
+        lct:JurisdictionalStatement,
+        lct:StatementOfIssues,
+        lct:StatementOfCase,
+        lct:SummaryOfArgument,
+        lct:ArgumentSection,
+        lct:AppellateConclusion
+    ] .
+
+lct:StatementOfIssues a legal:CopyBlock ;
+    rdfs:label "Statement of Issues Presented" ;
+    iri:blockId "ISSUES-STMT-001" ;
+    legal:content """
+STATEMENT OF ISSUES PRESENTED FOR REVIEW
+
+    {{#ISSUES}}
+    {{ISSUE_NUMBER}}. {{ISSUE_STATEMENT}}
+
+    Standard of Review: {{STANDARD_OF_REVIEW}}
+
+    {{/ISSUES}}
+    """ ;
+    legal:variables [
+        legal:var "ISSUES" ;
+        legal:var "ISSUE_NUMBER" ;
+        legal:var "ISSUE_STATEMENT" ;
+        legal:var "STANDARD_OF_REVIEW"
+    ] ;
+    iri:semanticMapping [
+        iri:maps "STANDARD_OF_REVIEW" iri:AppellateStandard ;
+        iri:maps "ISSUE_STATEMENT" iri:LegalIssue
+    ] .
+
+# Contract Dispute Templates
+lct:ContractDispute a legal:DocumentTemplate ;
+    rdfs:label "Contract Dispute Complaint" ;
+    iri:templateId "CONTRACT-DISPUTE-001" ;
+    legal:copyBlocks [
+        lct:ContractBackground,
+        lct:BreachAllegations,
+        lct:DamagesStatement
+    ] .
+
+lct:BreachAllegations a legal:CopyBlock ;
+    rdfs:label "Breach of Contract Allegations" ;
+    iri:blockId "BREACH-ALLEGE-001" ;
+    legal:content """
+BREACH OF CONTRACT
+
+    {{COUNT_NUMBER}}. Plaintiff incorporates by reference the allegations contained in paragraphs {{INCORPORATION_REFERENCE}}.
+
+    {{COUNT_NUMBER+1}}. The {{CONTRACT_TYPE}} constitutes a valid and enforceable contract between Plaintiff and Defendant.
+
+    {{COUNT_NUMBER+2}}. Plaintiff has performed all conditions, covenants, and promises required to be performed by Plaintiff under the {{CONTRACT_TYPE}}, except those conditions, covenants, and promises that have been waived, excused, or prevented by Defendant.
+
+    {{COUNT_NUMBER+3}}. Defendant has breached the {{CONTRACT_TYPE}} by {{BREACH_SPECIFICS}}.
+
+    {{COUNT_NUMBER+4}}. As a direct and proximate result of Defendant's breach, Plaintiff has suffered damages in an amount to be proven at trial, but not less than {{MINIMUM_DAMAGES}}.
+    """ ;
+    legal:variables [
+        legal:var "COUNT_NUMBER" ;
+        legal:var "INCORPORATION_REFERENCE" ;
+        legal:var "CONTRACT_TYPE" ;
+        legal:var "BREACH_SPECIFICS" ;
+        legal:var "MINIMUM_DAMAGES"
+    ] ;
+    iri:semanticMapping [
+        iri:maps "CONTRACT_TYPE" iri:ContractualInstrument ;
+        iri:maps "BREACH_SPECIFICS" iri:ContractViolation ;
+        iri:maps "MINIMUM_DAMAGES" iri:MonetaryDamages
+    ] .
+
+# Employment Law Templates
+lct:EmploymentComplaint a legal:DocumentTemplate ;
+    rdfs:label "Employment Law Complaint" ;
+    iri:templateId "EMPLOY-COMPLAINT-001" ;
+    legal:copyBlocks [
+        lct:EmploymentBackground,
+        lct:DiscriminationAllegations,
+        lct:RetaliationAllegations,
+        lct:WrongfulTermination
+    ] .
+
+lct:DiscriminationAllegations a legal:CopyBlock ;
+    rdfs:label "Employment Discrimination Allegations" ;
+    iri:blockId "DISCRIM-ALLEGE-001" ;
+    legal:content """
+DISCRIMINATION IN VIOLATION OF {{STATUTE_CITATION}}
+
+    {{COUNT_NUMBER}}. Plaintiff incorporates by reference all preceding allegations.
+
+    {{COUNT_NUMBER+1}}. At all times relevant to this action, Plaintiff was a member of a protected class under {{STATUTE_CITATION}} based on {{PROTECTED_CHARACTERISTIC}}.
+
+    {{COUNT_NUMBER+2}}. Plaintiff was qualified for {{POSITION_TITLE}} and was performing the job satisfactorily.
+
+    {{COUNT_NUMBER+3}}. Despite Plaintiff's qualifications and satisfactory performance, Defendant subjected Plaintiff to adverse employment actions including {{ADVERSE_ACTIONS}}.
+
+    {{COUNT_NUMBER+4}}. Defendant's actions were motivated by Plaintiff's {{PROTECTED_CHARACTERISTIC}} and constitute unlawful discrimination.
+
+    {{COUNT_NUMBER+5}}. As a direct and proximate result of Defendant's discriminatory conduct, Plaintiff has suffered economic and non-economic damages including {{DAMAGES_TYPES}}.
+    """ ;
+    legal:variables [
+        legal:var "STATUTE_CITATION" ;
+        legal:var "PROTECTED_CHARACTERISTIC" ;
+        legal:var "POSITION_TITLE" ;
+        legal:var "ADVERSE_ACTIONS" ;
+        legal:var "DAMAGES_TYPES"
+    ] ;
+    iri:semanticMapping [
+        iri:maps "STATUTE_CITATION" iri:EmploymentLaw ;
+        iri:maps "PROTECTED_CHARACTERISTIC" iri:ProtectedClass ;
+        iri:maps "ADVERSE_ACTIONS" iri:EmploymentAction
+    ] .
+
+# Intellectual Property Templates
+lct:TrademarkInfringement a legal:DocumentTemplate ;
+    rdfs:label "Trademark Infringement Complaint" ;
+    iri:templateId "TM-INFRING-001" ;
+    legal:copyBlocks [
+        lct:TrademarkOwnership,
+        lct:InfringementAllegations,
+        lct:LikelihoodOfConfusion,
+        lct:InjunctiveRelief
+    ] .
+
+lct:LikelihoodOfConfusion a legal:CopyBlock ;
+    rdfs:label "Likelihood of Confusion Analysis" ;
+    iri:blockId "CONFUSION-ANAL-001" ;
+    legal:content """
+LIKELIHOOD OF CONFUSION
+
+    {{COUNT_NUMBER}}. Defendant's use of {{INFRINGING_MARK}} in connection with {{DEFENDANT_GOODS_SERVICES}} is likely to cause confusion, mistake, or deception among consumers as to the source, origin, sponsorship, or approval of Defendant's goods and services.
+
+    {{COUNT_NUMBER+1}}. The likelihood of confusion is evidenced by the following factors:
+
+        a. The similarity between Plaintiff's {{PLAINTIFF_MARK}} and Defendant's {{INFRINGING_MARK}};
+        
+        b. The relatedness of the goods and services offered under the respective marks;
+        
+        c. The similarity of the trade channels and classes of purchasers;
+        
+        d. The strength and distinctiveness of Plaintiff's mark;
+        
+        e. {{ADDITIONAL_FACTORS}}.
+
+    {{COUNT_NUMBER+2}}. The likelihood of confusion has resulted in actual confusion among consumers, as evidenced by {{CONFUSION_EVIDENCE}}.
+    """ ;
+    legal:variables [
+        legal:var "INFRINGING_MARK" ;
+        legal:var "DEFENDANT_GOODS_SERVICES" ;
+        legal:var "PLAINTIFF_MARK" ;
+        legal:var "ADDITIONAL_FACTORS" ;
+        legal:var "CONFUSION_EVIDENCE"
+    ] ;
+    iri:semanticMapping [
+        iri:maps "PLAINTIFF_MARK" iri:TrademarkAsset ;
+        iri:maps "INFRINGING_MARK" iri:AllegedInfringement ;
+        iri:maps "CONFUSION_EVIDENCE" iri:ConsumerConfusion
+    ] .
+
+# IRI Mapping Definitions
+iri:LegalEntity a rdfs:Class ;
+    rdfs:label "Legal Entity" ;
+    rdfs:comment "Any person or organization with legal standing" .
+
+iri:CourtEntity a rdfs:Class ;
+    rdfs:subClassOf iri:LegalEntity ;
+    rdfs:label "Court Entity" ;
+    rdfs:comment "Judicial institution with jurisdiction" .
+
+iri:CaseIdentifier a rdfs:Class ;
+    rdfs:label "Case Identifier" ;
+    rdfs:comment "Unique identifier for legal proceedings" .
+
+iri:LegalRule a rdfs:Class ;
+    rdfs:label "Legal Rule" ;
+    rdfs:comment "Codified legal principle or procedure" .
+
+iri:CaseAuthority a rdfs:Class ;
+    rdfs:label "Case Authority" ;
+    rdfs:comment "Judicial precedent or opinion" .
+
+iri:ContractualInstrument a rdfs:Class ;
+    rdfs:label "Contractual Instrument" ;
+    rdfs:comment "Legal agreement between parties" .
+
+iri:MonetaryDamages a rdfs:Class ;
+    rdfs:label "Monetary Damages" ;
+    rdfs:comment "Financial compensation for harm" .
+
+iri:ProtectedClass a rdfs:Class ;
+    rdfs:label "Protected Class" ;
+    rdfs:comment "Group protected by anti-discrimination laws" .
+
+iri:TrademarkAsset a rdfs:Class ;
+    rdfs:label "Trademark Asset" ;
+    rdfs:comment "Protected intellectual property mark" .
+
+# Template Validation Rules
+legal:TemplateValidation a rdfs:Class ;
+    legal:requiredFields rdf:List ;
+    legal:optionalFields rdf:List ;
+    legal:validationRules rdf:List ;
+    legal:jurisdictionalVariations rdf:List .

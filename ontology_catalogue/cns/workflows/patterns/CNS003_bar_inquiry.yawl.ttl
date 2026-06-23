@@ -1,0 +1,133 @@
+# YAWL Pattern: Bar Inquiry Response (Van der Aalst #46)
+# Pattern ID: CNS003  
+# Trinity Framework Compliant
+# TTL2DSpy Explorable
+# Generated: 2025-08-09T16:36:28.082001
+
+@prefix cns: <http://cns-litigation.org/ontology#> .
+@prefix yawl: <http://www.yawlsystem.com/yawlschema#> .
+@prefix dag: <http://directed-acyclic-graph.org/ontology#> .
+@prefix trinity: <http://cns.ultrathink/trinity#> .
+@prefix bitagent: <http://cns.ultrathink/bitagent#> .
+@prefix disc: <http://cns.ultrathink/disc#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+
+cns:CNS003 a yawl:YAWLSpecification ;
+    rdfs:label "Bar Inquiry Response" ;
+    yawl:specVersion "4.0" ;
+    trinity:vanDerAalstIndex "46"^^xsd:integer ;
+    trinity:maxTicks "8"^^xsd:integer ;
+    trinity:deterministicState "true"^^xsd:boolean ;
+    trinity:complianceValidated "true"^^xsd:boolean ;
+    yawl:decomposesTo cns:CNS003_net .
+
+
+cns:CNS003_net a yawl:Net ;
+    rdfs:label "Bar Inquiry Response Net" ;
+    yawl:inputCondition cns:CNS003_start ;
+    yawl:outputCondition cns:CNS003_end .
+
+cns:CNS003_BI_START a cns:FlowNode, yawl:StartNode ;
+    cns:hasNodeID "BI_START" ;
+    cns:hasNodeType cns:start ;
+    trinity:progressTick "0"^^xsd:integer ;
+    cns:hasProcessingTimeUs "0"^^xsd:integer ;
+    cns:hasPosition "0,0"  ;
+    dag:successors (cns:CNS003_BI_ANALYZE) .
+
+cns:CNS003_BI_ANALYZE a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "BI_ANALYZE" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "1"^^xsd:integer ;
+    cns:hasProcessingTimeUs "3600000000"^^xsd:integer ;
+    cns:hasPosition "1,0"  ;
+    dag:predecessors (cns:CNS003_BI_START) ;
+    dag:successors (cns:CNS003_BI_RESPOND) .
+
+cns:CNS003_BI_RESPOND a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "BI_RESPOND" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "3"^^xsd:integer ;
+    cns:hasProcessingTimeUs "7200000000"^^xsd:integer ;
+    cns:hasPosition "2,0"  ;
+    dag:predecessors (cns:CNS003_BI_ANALYZE) ;
+    dag:successors (cns:CNS003_BI_REVIEW) .
+
+cns:CNS003_BI_REVIEW a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "BI_REVIEW" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "5"^^xsd:integer ;
+    cns:hasProcessingTimeUs "3600000000"^^xsd:integer ;
+    cns:hasPosition "3,0"  ;
+    dag:predecessors (cns:CNS003_BI_RESPOND) ;
+    dag:successors (cns:CNS003_BI_SUBMIT) .
+
+cns:CNS003_BI_SUBMIT a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "BI_SUBMIT" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "7"^^xsd:integer ;
+    cns:hasProcessingTimeUs "1800000000"^^xsd:integer ;
+    cns:hasPosition "4,0"  ;
+    dag:predecessors (cns:CNS003_BI_REVIEW) ;
+    dag:successors (cns:CNS003_BI_END) .
+
+cns:CNS003_BI_END a cns:FlowNode, yawl:EndNode ;
+    cns:hasNodeID "BI_END" ;
+    cns:hasNodeType cns:end ;
+    trinity:progressTick "7"^^xsd:integer ;
+    cns:hasProcessingTimeUs "0"^^xsd:integer ;
+    cns:hasPosition "5,0"  ;
+    dag:predecessors (cns:CNS003_BI_SUBMIT) .
+
+# DAG Edge Definitions
+
+cns:edge_001 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:BI_START ;
+    dag:hasTarget cns:BI_ANALYZE ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_002 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:BI_ANALYZE ;
+    dag:hasTarget cns:BI_RESPOND ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_003 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:BI_RESPOND ;
+    dag:hasTarget cns:BI_REVIEW ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_004 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:BI_REVIEW ;
+    dag:hasTarget cns:BI_SUBMIT ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_005 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:BI_SUBMIT ;
+    dag:hasTarget cns:BI_END ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+# Trinity Framework Compliance Metadata
+cns:CNS003_compliance a trinity:ComplianceValidation ;
+    trinity:patternId "CNS003" ;
+    trinity:tickCompliance "true"^^xsd:boolean ;
+    trinity:hopCompliance "true"^^xsd:boolean ;
+    trinity:bitCompliance "true"^^xsd:boolean ;
+    trinity:deterministicCompliance "true"^^xsd:boolean ;
+    trinity:validatedAt "2025-08-09T16:36:28.082018"^^xsd:dateTime .
+
+
+# TTL2DSpy Exploration Metadata
+cns:CNS003_exploration a dag:ExplorationGraph ;
+    dag:graphType "directed_acyclic" ;
+    dag:nodeCount "6"^^xsd:integer ;
+    dag:explorable "true"^^xsd:boolean ;
+    dag:ttl2dspyCompatible "true"^^xsd:boolean .

@@ -1,0 +1,22 @@
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX eip:    <https://jgen.dev/ontology/java/messaging#>
+PREFIX jpat:   <https://jgen.dev/ontology/java/patterns#>
+
+# =============================================================================
+# Pattern Dependency Resolution Query
+# Resolves transitive dependencies between messaging patterns
+# =============================================================================
+
+SELECT ?pattern ?patternName ?requiredPattern ?requiredName ?template
+WHERE {
+    ?pattern a/rdfs:subClassOf* eip:MessagingPattern .
+    ?pattern rdfs:label ?patternName .
+    ?pattern jpat:hasTemplate ?template .
+
+    OPTIONAL {
+        ?pattern eip:requiresPattern ?requiredPattern .
+        ?requiredPattern rdfs:label ?requiredName .
+    }
+}
+ORDER BY ?patternName ?requiredName

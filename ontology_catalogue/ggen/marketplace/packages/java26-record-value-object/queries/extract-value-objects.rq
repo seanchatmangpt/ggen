@@ -1,0 +1,15 @@
+PREFIX java26: <http://ggen.io/java26#>
+
+SELECT ?className ?javaPackage
+       (GROUP_CONCAT(CONCAT(?fieldName, "|", ?fieldType, "|", STR(COALESCE(?nullable, true))); separator=",") AS ?fields)
+WHERE {
+    ?vo a java26:ValueObject ;
+        java26:name ?className ;
+        java26:javaPackage ?javaPackage ;
+        java26:field ?f .
+    ?f java26:fieldName ?fieldName ;
+       java26:fieldType ?fieldType .
+    OPTIONAL { ?f java26:nullable ?nullable . }
+}
+GROUP BY ?className ?javaPackage
+ORDER BY ?className

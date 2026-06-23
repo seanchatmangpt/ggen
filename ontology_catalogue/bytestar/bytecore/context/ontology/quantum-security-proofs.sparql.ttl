@@ -1,0 +1,409 @@
+# SPARQL Queries for Quantum Security Formal Verification
+# Mathematical proofs for quantum attack resistance using ontological reasoning
+PREFIX : <https://bytestar.org/ontology/bytecore/pqc-verification#>
+PREFIX bcore: <https://bytestar.org/ontology/bytestar-core#>
+PREFIX bpqc: <https://bytestar.org/ontology/bytestar-pqc#>
+PREFIX sc: <https://bytestar.org/ontology/bytecore/side-channel-verification#>
+PREFIX atp: <https://bytestar.org/ontology/bytecore/automated-theorem-proving#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX math: <http://www.w3.org/2000/10/swap/math#>
+
+#################################################################
+# I. QUANTUM ADVERSARY MODEL VALIDATION
+#################################################################
+
+# Query 1: Verify quantum adversary capabilities are properly modeled
+# THEOREM: Quantum adversary model encompasses known quantum algorithms
+ASK {
+  ?quantumAdv a :QuantumAdversary .
+  
+  # Must have access to Shor's algorithm for integer factorization
+  ?quantumAdv :hasCapability :ShorsAlgorithm .
+  :ShorsAlgorithm :solves :IntegerFactorization ;
+                  :quantumComplexity "O(n³)" ;
+                  :classicalComplexity "sub-exponential" .
+  
+  # Must have access to Grover's algorithm for search
+  ?quantumAdv :hasCapability :GroversAlgorithm .
+  :GroversAlgorithm :solves :UnstructuredSearch ;
+                    :quantumComplexity "O(√n)" ;
+                    :classicalComplexity "O(n)" .
+  
+  # Must have access to quantum period finding
+  ?quantumAdv :hasCapability :QuantumPeriodFinding .
+  :QuantumPeriodFinding :solves :DiscreteLogarithm ;
+                        :quantumComplexity "O(n³)" ;
+                        :classicalComplexity "exponential" .
+  
+  # Must have access to Quantum Fourier Transform
+  ?quantumAdv :hasCapability :QuantumFourierTransform .
+  :QuantumFourierTransform :enablesAlgorithm :ShorsAlgorithm, :QuantumPeriodFinding .
+}
+
+# Query 2: Validate quantum security reductions
+# Find algorithms with incomplete quantum security proofs
+SELECT ?algorithm ?missingReduction WHERE {
+  ?algorithm a :PQCAlgorithm ;
+             :quantumSecurityBits ?bits .
+  FILTER (?bits >= 128)
+  
+  {
+    # Missing reduction to lattice problems
+    ?algorithm a :LatticeBasedAlgorithm .
+    FILTER NOT EXISTS {
+      ?algorithm :provenBy ?proof .
+      ?proof bcore:reducesTo :LatticeProblems .
+    }
+    BIND("lattice_reduction_missing" AS ?missingReduction)
+  } UNION {
+    # Missing reduction to code problems
+    ?algorithm a :CodeBasedAlgorithm .
+    FILTER NOT EXISTS {
+      ?algorithm :provenBy ?proof .
+      ?proof bcore:reducesTo :CodeProblems .
+    }
+    BIND("code_reduction_missing" AS ?missingReduction)
+  } UNION {
+    # Missing reduction to multivariate problems
+    ?algorithm a :MultivariateAlgorithm .
+    FILTER NOT EXISTS {
+      ?algorithm :provenBy ?proof .
+      ?proof bcore:reducesTo :MultivariateProblems .
+    }
+    BIND("multivariate_reduction_missing" AS ?missingReduction)
+  } UNION {
+    # Missing hash function security analysis
+    ?algorithm a :HashBasedAlgorithm .
+    FILTER NOT EXISTS {
+      ?algorithm :provenBy ?proof .
+      ?proof bcore:reducesTo :HashFunctionSecurity .
+    }
+    BIND("hash_security_missing" AS ?missingReduction)
+  }
+}
+
+#################################################################
+# II. LATTICE-BASED QUANTUM SECURITY PROOFS
+#################################################################
+
+# Query 3: Verify LWE hardness assumption against quantum attacks
+# THEOREM: Learning With Errors (LWE) is hard for quantum computers
+ASK {
+  :LWE a bcore:HardProblem ;
+       :resistantTo :QuantumAdversary ;
+       :provenBy ?lweProof .
+  
+  ?lweProof :usesProofMethod :ReductionProof ;
+            bcore:reducesTo :GapSVP .
+  
+  # Gap Shortest Vector Problem (GapSVP) hardness
+  :GapSVP a bcore:LatticeProblems ;
+          :resistantTo :QuantumAdversary ;
+          :approximationFactor ?gamma .
+  
+  # Best known quantum attack complexity
+  :QuantumSievingAlgorithm :solves :GapSVP ;
+                           :quantumComplexity "2^(0.2075n + o(n))" .
+  
+  # Security requirement: exponential quantum complexity
+  FILTER (?gamma >= 2)
+}
+
+# Query 4: Verify NTRU quantum security
+# THEOREM: NTRU is secure against quantum attacks under lattice assumptions
+ASK {
+  :NTRU a :LatticeBasedAlgorithm ;
+        :quantumSecurityBits ?bits ;
+        :provenBy ?ntruProof .
+  
+  ?ntruProof bcore:reducesTo :NTRULattice .
+  :NTRULattice rdfs:subClassOf bcore:LatticeProblems ;
+               :resistantTo :QuantumAdversary .
+  
+  # NTRU lattice dimension and modulus parameters
+  :NTRU :latticeDimension ?n ;
+        :modulus ?q .
+  
+  # Security bound: bits ≥ 0.2075 * n - log₂(q) - security_margin
+  FILTER (?bits >= (0.2075 * ?n - 5))
+}
+
+# Query 5: Kyber quantum security validation
+# THEOREM: CRYSTALS-Kyber achieves stated quantum security levels
+SELECT ?kyberVariant ?declaredBits ?actualBits ?securityMargin WHERE {
+  ?kyberVariant rdfs:subClassOf :Kyber ;
+                :hasSecurityLevel ?level ;
+                :quantumSecurityBits ?declaredBits ;
+                :latticeDimension ?n ;
+                :moduleRank ?k ;
+                :modulus ?q ;
+                :errorDistribution ?chi .
+  
+  # Calculate actual security based on best known quantum attacks
+  # BKZ reduction + Grover's algorithm complexity
+  BIND((0.2075 * ?k * ?n - 0.5 * log(?q)/log(2)) AS ?actualBits)
+  BIND((?actualBits - ?declaredBits) AS ?securityMargin)
+  
+  # Verify security margin is positive
+  FILTER (?securityMargin >= 0)
+}
+
+#################################################################
+# III. HASH-BASED QUANTUM SECURITY PROOFS
+#################################################################
+
+# Query 6: Verify SPHINCS+ quantum security
+# THEOREM: SPHINCS+ is secure against quantum attacks under hash function assumptions
+ASK {
+  :SPHINCS_Plus a :HashBasedAlgorithm ;
+                :quantumSecurityBits ?bits ;
+                :provenBy ?sphincsProof .
+  
+  ?sphincsProof bcore:reducesTo :HashFunctionSecurity .
+  
+  # Security reduction to underlying hash function
+  :HashFunctionSecurity :assumesHashFunction ?hashFunction ;
+                        :quantumSecurityBits ?hashBits .
+  
+  # SPHINCS+ uses collision-resistant hash functions
+  ?hashFunction :hasProperty :CollisionResistance ;
+                :hasProperty :PreimageResistance ;
+                :hasProperty :SecondPreimageResistance .
+  
+  # Quantum attack on hash functions: Grover's algorithm
+  # Reduces effective security by factor of 2
+  ?hashFunction :quantumAttackComplexity "2^(n/2)" ;
+                :classicalAttackComplexity "2^n" .
+  
+  # SPHINCS+ security: min(hashBits/2, structuralSecurity)
+  FILTER (?bits <= ?hashBits / 2)
+}
+
+# Query 7: Merkle signature quantum resistance
+# THEOREM: Merkle signature schemes are quantum-secure
+ASK {
+  ?merkleScheme a :HashBasedAlgorithm ;
+                rdfs:subClassOf :MerkleSignature ;
+                :quantumSecurityBits ?bits .
+  
+  # Merkle signatures based on one-time signatures
+  ?merkleScheme bcore:uses :LamportSignature .
+  :LamportSignature :quantumSecurityBits ?otsSecurityBits .
+  
+  # One-time signature security = hash function security / 2 (Grover)
+  :LamportSignature bcore:uses ?hashFunction .
+  ?hashFunction :quantumSecurityBits ?hashBits .
+  
+  # Merkle tree height and signature count
+  ?merkleScheme :merkleHeight ?h ;
+                :maxSignatures ?maxSigs .
+  
+  # Security verification: 2^h ≥ maxSigs and bits ≥ hashBits/2
+  FILTER (math:pow(2, ?h) >= ?maxSigs && ?bits >= ?hashBits / 2)
+}
+
+#################################################################
+# IV. CODE-BASED QUANTUM SECURITY PROOFS
+#################################################################
+
+# Query 8: Verify McEliece quantum security
+# THEOREM: McEliece cryptosystem is secure against quantum attacks
+ASK {
+  :McEliece a :CodeBasedAlgorithm ;
+            :quantumSecurityBits ?bits ;
+            :provenBy ?mcelieceProof .
+  
+  ?mcelieceProof bcore:reducesTo :CodewordFinding .
+  :CodewordFinding a bcore:CodeProblems ;
+                   :resistantTo :QuantumAdversary .
+  
+  # McEliece parameters
+  :McEliece :codeLength ?n ;
+            :codeDimension ?k ;
+            :errorCapability ?t .
+  
+  # Best known quantum attack: Information Set Decoding with Grover
+  # Complexity: 2^(0.5 * (n-k-log₂(binomial(n,t))))
+  BIND((0.5 * (?n - ?k - log(math:factorial(?n)/(math:factorial(?t) * math:factorial(?n - ?t)))/log(2))) AS ?quantumComplexity)
+  
+  FILTER (?bits <= ?quantumComplexity)
+}
+
+# Query 9: Verify syndrome decoding hardness
+# THEOREM: Syndrome decoding remains hard for quantum computers
+ASK {
+  :SyndromeDecoding a bcore:CodeProblems ;
+                    :resistantTo :QuantumAdversary ;
+                    :quantumComplexity ?qComplexity .
+  
+  # Best known quantum algorithms for syndrome decoding
+  :QuantumISD :solves :SyndromeDecoding ;
+              :quantumComplexity "2^(0.5 * classical_complexity)" .
+  
+  # Verify exponential quantum complexity
+  ?qComplexity bcore:complexityClass "exponential" .
+  
+  # No polynomial-time quantum algorithm known
+  FILTER NOT EXISTS {
+    ?quantumAlg :solves :SyndromeDecoding ;
+                :quantumComplexity ?poly .
+    ?poly bcore:complexityClass "polynomial" .
+  }
+}
+
+#################################################################
+# V. MULTIVARIATE QUANTUM SECURITY PROOFS
+#################################################################
+
+# Query 10: Verify multivariate quadratic systems hardness
+# THEOREM: Solving multivariate quadratic systems is hard for quantum computers
+ASK {
+  :MQ a bcore:MultivariateProblems ;
+     :resistantTo :QuantumAdversary ;
+     :quantumComplexity ?mqComplexity .
+  
+  # Grover's algorithm application to exhaustive search
+  :QuantumMQSolver :solves :MQ ;
+                   :quantumComplexity "2^(n/2)" ;
+                   :classicalComplexity "2^n" .
+  
+  # Verify no better quantum algorithm exists
+  FILTER NOT EXISTS {
+    ?betterQuantumAlg :solves :MQ ;
+                      :quantumComplexity ?betterComplexity .
+    ?betterComplexity bcore:lessThan "2^(n/2)" .
+  }
+}
+
+#################################################################
+# VI. ISOGENY-BASED QUANTUM SECURITY (BROKEN SCHEMES)
+#################################################################
+
+# Query 11: Identify broken isogeny-based schemes
+# FACT: SIKE was broken by classical attacks, not just quantum
+SELECT ?isogenyScheme ?breakingAttack ?complexity WHERE {
+  ?isogenyScheme a :IsogenyBasedAlgorithm .
+  
+  # SIKE broken by classical attack
+  ?isogenyScheme rdfs:label "SIKE" .
+  ?breakingAttack :breaks ?isogenyScheme ;
+                  :attackType "classical" ;
+                  :complexity ?complexity .
+  
+  # Mark as insecure
+  ?isogenyScheme :securityStatus "BROKEN" ;
+                 :brokenBy ?breakingAttack .
+}
+
+#################################################################
+# VII. QUANTUM SECURITY PARAMETER VALIDATION
+#################################################################
+
+# Query 12: Validate NIST security levels against quantum attacks
+# Verify algorithms meet quantum security requirements for each level
+SELECT ?algorithm ?level ?requiredBits ?actualBits ?status WHERE {
+  ?algorithm a :PQCAlgorithm ;
+             :hasSecurityLevel ?level ;
+             :quantumSecurityBits ?actualBits .
+  
+  # NIST PQC security level requirements
+  VALUES (?level ?requiredBits) {
+    (:Level1 128)  # AES-128 equivalent
+    (:Level2 128)  # SHA-256 collision resistance equivalent  
+    (:Level3 192)  # AES-192 equivalent
+    (:Level4 192)  # SHA-384 collision resistance equivalent
+    (:Level5 256)  # AES-256 equivalent
+  }
+  
+  BIND(IF(?actualBits >= ?requiredBits, "SECURE", "INSECURE") AS ?status)
+}
+
+# Query 13: Cross-validate quantum security with classical security
+# Ensure quantum security doesn't exceed classical security
+SELECT ?algorithm ?classicalBits ?quantumBits ?issue WHERE {
+  ?algorithm a :PQCAlgorithm ;
+             :securityBits ?classicalBits ;
+             :quantumSecurityBits ?quantumBits .
+  
+  # Quantum security should not exceed classical security
+  FILTER (?quantumBits > ?classicalBits)
+  BIND("quantum_security_exceeds_classical" AS ?issue)
+}
+
+#################################################################
+# VIII. HYBRID ATTACK MODELS
+#################################################################
+
+# Query 14: Verify security against hybrid classical-quantum attacks
+# THEOREM: PQC algorithms resist combined classical preprocessing + quantum attack
+ASK {
+  ?algorithm a :PQCAlgorithm ;
+             :resistantTo :HybridQuantumAttack .
+  
+  :HybridQuantumAttack a :QuantumAdversary ;
+                       :hasPhase :ClassicalPreprocessing ;
+                       :hasPhase :QuantumAttack .
+  
+  # Classical preprocessing cannot significantly reduce quantum complexity
+  :ClassicalPreprocessing :outputSize ?preprocessSize ;
+                          :runningTime ?preprocessTime .
+  :QuantumAttack :inputSize ?preprocessSize ;
+                 :quantumComplexity ?finalComplexity .
+  
+  # Total attack complexity should remain exponential
+  BIND(?preprocessTime + ?finalComplexity AS ?totalComplexity)
+  ?totalComplexity bcore:complexityClass "exponential" .
+}
+
+#################################################################
+# IX. INTEGRATION WITH BYTECORE VERIFICATION
+#################################################################
+
+# Query 15: Verify quantum security integrates with ByteCore pulse system
+# Ensure quantum security verification runs within ByteCore constraints
+ASK {
+  ?algorithm a :PQCAlgorithm ;
+             :implementedAs ?kernel ;
+             :quantumSecurityBits ?bits .
+  
+  ?kernel a bcore:Kernel ;
+          bcore:emitsPulse ?pulse .
+  
+  ?pulse :verificationPulse ?quantumVerification .
+  ?quantumVerification a :QuantumSecurityVerification ;
+                       :verifies :QuantumResistance .
+  
+  # Verification must complete within Doctrine of 8
+  ?quantumVerification bcore:hasTickCost ?ticks .
+  FILTER (?ticks <= 8)
+}
+
+# Query 16: Comprehensive quantum security compliance report
+# Generate complete report on quantum security status across all PQC algorithms
+SELECT ?algorithm ?type ?level ?quantumBits ?status ?proof ?issues WHERE {
+  ?algorithm a :PQCAlgorithm ;
+             a ?type ;
+             :hasSecurityLevel ?level ;
+             :quantumSecurityBits ?quantumBits .
+  
+  # Determine overall security status
+  OPTIONAL { ?algorithm :provenBy ?proof }
+  
+  # Collect any issues
+  OPTIONAL {
+    {
+      FILTER NOT EXISTS { ?algorithm :provenBy ?anyProof }
+      BIND("no_quantum_security_proof" AS ?issues)
+    } UNION {
+      ?algorithm :vulnerableTo :QuantumAdversary .
+      BIND("vulnerable_to_quantum_attack" AS ?issues)
+    } UNION {
+      ?algorithm :quantumSecurityBits ?bits .
+      FILTER (?bits < 128)
+      BIND("insufficient_quantum_security" AS ?issues)
+    }
+  }
+  
+  BIND(IF(BOUND(?issues), "INSECURE", "SECURE") AS ?status)
+} ORDER BY ?type ?level ?algorithm

@@ -1,0 +1,51 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# InspectionReceipt: a grounded record of a completed wall section verdict.
+# Verdict is one of: ALIVE (complete, sound), PARTIAL (incomplete), BLOCKED (refused).
+# A receipt without a named verdict is not a receipt — it is noise.
+
+bos:VerdictAlive a bos:Verdict ;
+    rdfs:label "ALIVE" ;
+    rdfs:comment "Complete: the section is structurally sound, the builder is named, the source is cited." .
+
+bos:VerdictPartial a bos:Verdict ;
+    rdfs:label "PARTIAL" ;
+    rdfs:comment "Incomplete: work has begun and is traceable but has open gaps." .
+
+bos:VerdictBlocked a bos:Verdict ;
+    rdfs:label "BLOCKED" ;
+    rdfs:comment "Refused: the section fails inspection and cannot proceed without remediation." .
+
+bos:TheInspectionGate a owl:NamedIndividual ;
+    rdfs:label "Inspection Gate" ;
+    bos:hasCanonicalReference "Neh.3.31"^^xsd:string ;
+    bos:hasCanonicalNehRef "Neh.3.31"^^xsd:string ;
+    rdfs:comment "The final validation boundary. Evaluates wall integrity and issues ALIVE, PARTIAL, or BLOCKED verdicts." ;
+    dcterms:created "2026-06-02"^^xsd:date .
+
+bos:NehemiahBuilder a bos:Builder ;
+    rdfs:label "Nehemiah son of Hacaliah" ;
+    bos:hasCanonicalReference "Neh.1.1"^^xsd:string ;
+    bos:assignedToGate bos:TheInspectionGate ;
+    bos:buildsWallSection bos:WallSection52Days .
+
+bos:WallSection52Days a bos:WallSection ;
+    rdfs:label "Jerusalem Wall — 52-Day Completion Section" ;
+    bos:hasCanonicalReference "Neh.6.15"^^xsd:string ;
+    bos:hasSource "Neh.6.15" ;
+    bos:hasBuilder bos:NehemiahBuilder ;
+    bos:assignedToGate bos:TheInspectionGate ;
+    bos:hasReceipt bos:InspectionReceipt52Days .
+
+bos:InspectionReceipt52Days a bos:InspectionReceipt ;
+    rdfs:label "Inspection Receipt — Jerusalem Wall Complete" ;
+    bos:hasCanonicalReference "Neh.6.15"^^xsd:string ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasSource "Neh.6.15" ;
+    bos:hasTimestamp "445-09-25"^^xsd:string ;
+    rdfs:comment "Wall completed in 52 days on the 25th of Elul (Neh. 6:15). Surrounding nations acknowledged the work was of God — the highest external witness signal. Self-referential hasReceipt removed: a receipt does not ground itself." .

@@ -1,0 +1,77 @@
+# validate-cli-structure.rq
+# Validate that a CLI definition conforms to the noun-verb pattern
+# Checks:
+#   1. Every verb belongs to exactly one noun
+#   2. Every verb has at least one verb name
+#   3. Every noun has at least one noun name
+#   4. No orphaned verbs (verbs without parent noun)
+#   5. Trait bounds are properly defined
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX cnv: <http://clap-noun-verb.io/ontology#>
+PREFIX ex: <http://clap-noun-verb.io/examples#>
+
+SELECT
+  ?issue
+  ?affectedResource
+  ?description
+WHERE {
+  {
+    # Check 1: Verbs without a parent noun
+    ?verb a cnv:Verb .
+    FILTER NOT EXISTS { ?verb cnv:belongsToNoun ?noun . }
+    BIND(CONCAT("Orphaned verb: ", STR(?verb)) AS ?issue)
+    BIND(?verb AS ?affectedResource)
+    BIND("Verb does not belong to any noun" AS ?description)
+  } UNION {
+    # Check 2: Verbs without a verb name
+    ?verb a cnv:Verb .
+    FILTER NOT EXISTS { ?verb cnv:hasVerbName ?name . }
+    BIND(CONCAT("Unnamed verb: ", STR(?verb)) AS ?issue)
+    BIND(?verb AS ?affectedResource)
+    BIND("Verb must have a name via cnv:hasVerbName" AS ?description)
+  } UNION {
+    # Check 3: Nouns without a noun name
+    ?noun a cnv:Noun .
+    FILTER NOT EXISTS { ?noun cnv:hasNounName ?name . }
+    BIND(CONCAT("Unnamed noun: ", STR(?noun)) AS ?issue)
+    BIND(?noun AS ?affectedResource)
+    BIND("Noun must have a name via cnv:hasNounName" AS ?description)
+  } UNION {
+    # Check 4: Verbs with multiple parent nouns (should have exactly one)
+    ?verb a cnv:Verb .
+    ?verb cnv:belongsToNoun ?noun1 .
+    ?verb cnv:belongsToNoun ?noun2 .
+    FILTER (?noun1 != ?noun2)
+    BIND(CONCAT("Ambiguous verb parent: ", STR(?verb)) AS ?issue)
+    BIND(?verb AS ?affectedResource)
+    BIND("Verb has multiple parent nouns (exactly one expected)" AS ?description)
+  } UNION {
+    # Check 5: Required arguments without valueType
+    ?verb a cnv:Verb .
+    ?verb cnv:hasArguments ?arg .
+    ?arg cnv:required true .
+    FILTER NOT EXISTS { ?arg cnv:valueType ?type . }
+    BIND(CONCAT("Argument without type: ", STR(?arg)) AS ?issue)
+    BIND(?arg AS ?affectedResource)
+    BIND("Required argument must specify cnv:valueType" AS ?description)
+  } UNION {
+    # Check 6: Verb missing trait bounds (Send, Sync, Serialize)
+    ?verb a cnv:Verb .
+    FILTER NOT EXISTS { ?verb cnv:HasTraitBound cnv:Send . }
+    BIND(CONCAT("Missing Send trait: ", STR(?verb)) AS ?issue)
+    BIND(?verb AS ?affectedResource)
+    BIND("Verb should implement Send trait" AS ?description)
+  } UNION {
+    # Check 7: Verb missing Sync trait bound
+    ?verb a cnv:Verb .
+    FILTER NOT EXISTS { ?verb cnv:HasTraitBound cnv:Sync . }
+    BIND(CONCAT("Missing Sync trait: ", STR(?verb)) AS ?issue)
+    BIND(?verb AS ?affectedResource)
+    BIND("Verb should implement Sync trait" AS ?description)
+  }
+}
+ORDER BY ?affectedResource ?issue

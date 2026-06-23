@@ -1,0 +1,327 @@
+@prefix forex: <https://dflss.trading/ontology/forex#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix core:    <https://core.bitstar.dev/ontology/core#> .
+
+# =============================================================================
+# DFLSS Forex Trading Ontology - 8-Tick/8-Hop/8-Bit Compliant
+# Six-Sigma Quality Control for 50x Leveraged Micro-Impulse Trading
+# =============================================================================
+
+# Core Components
+forex:DFLSSPlanner a rdfs:Class ;
+    rdfs:label "DFLSS Planner" ;
+    rdfs:comment "Pre-snap play-caller with 8-tick lens fusion" .
+
+forex:QuantumSolver a rdfs:Class ;
+    rdfs:label "Quantum Solver" ;
+    rdfs:comment "On-field execution with hard constraints" .
+
+forex:MonteCarloRiskEnvelope a rdfs:Class ;
+    rdfs:label "Monte Carlo Risk Envelope" ;
+    rdfs:comment "Referee and scorekeeper with tail risk nowcast" .
+
+# Lens System (5 Independent Lenses)
+forex:Lens a rdfs:Class ;
+    rdfs:label "Trading Lens" ;
+    rdfs:comment "Independent fast signal source" .
+
+forex:OrderBookLens a forex:Lens ;
+    rdfs:label "Order Book Micro-Pressure" ;
+    rdfs:comment "Imbalance detection in microsecond tape" .
+
+forex:MacroLens a forex:Lens ;
+    rdfs:label "Macro Headline Delta" ;
+    rdfs:comment "Non-LLM news sentiment quantification" .
+
+forex:CrossAssetLens a forex:Lens ;
+    rdfs:label "Cross-Asset Co-Motion" ;
+    rdfs:comment "DXY, ES, bonds correlation signals" .
+
+forex:VolatilityLens a forex:Lens ;
+    rdfs:label "Volatility Regime" ;
+    rdfs:comment "Intraday vol percentile and spread analysis" .
+
+forex:LiquidityLens a forex:Lens ;
+    rdfs:label "Liquidity State" ;
+    rdfs:comment "Market depth and transaction cost analysis" .
+
+# Trading Patterns (Minimal Viable Set)
+forex:TradingPattern a rdfs:Class ;
+    rdfs:label "Trading Pattern" ;
+    rdfs:comment "Complete trade specification with TTL ontology" .
+
+forex:MicroImpulseLong a forex:TradingPattern ;
+    rdfs:label "USD/JPY Micro-Impulse Long" ;
+    forex:hasLeverage 50 ;
+    forex:hasMaxHops 8 ;
+    forex:hasMaxTicks 8 ;
+    forex:requiresLenses ( forex:OrderBookLens forex:CrossAssetLens forex:MacroLens forex:VolatilityLens forex:LiquidityLens ) .
+
+forex:MicroImpulseShort a forex:TradingPattern ;
+    rdfs:label "USD/JPY Micro-Impulse Short" ;
+    forex:hasLeverage 50 ;
+    forex:hasMaxHops 8 ;
+    forex:hasMaxTicks 8 ;
+    forex:requiresLenses ( forex:OrderBookLens forex:CrossAssetLens forex:MacroLens forex:VolatilityLens forex:LiquidityLens ) .
+
+# DFLSS Quality Metrics (CTQs)
+forex:CTQ a rdfs:Class ;
+    rdfs:label "Critical To Quality Metric" ;
+    rdfs:comment "Six-Sigma quality control parameter" .
+
+forex:MaxAdverseExcursion a forex:CTQ ;
+    rdfs:label "Max Adverse Excursion" ;
+    forex:hasLimit "15"^^xsd:float ;
+    forex:hasUnit "basis_points" .
+
+forex:RealizedSlippage a forex:CTQ ;
+    rdfs:label "Realized Slippage" ;
+    forex:hasLimit "1.2"^^xsd:float ;
+    forex:hasUnit "basis_points" .
+
+forex:TimeInMarket a forex:CTQ ;
+    rdfs:label "Time In Market" ;
+    forex:hasLimit "300"^^xsd:float ;
+    forex:hasUnit "seconds" .
+
+forex:ExitLatency a forex:CTQ ;
+    rdfs:label "Exit Latency" ;
+    forex:hasLimit "2"^^xsd:float ;
+    forex:hasUnit "hops" .
+
+forex:TailRiskBps a forex:CTQ ;
+    rdfs:label "95% Drawdown Risk" ;
+    forex:hasLimit "9"^^xsd:float ;
+    forex:hasUnit "basis_points" .
+
+# Lens Thresholds and Gates
+forex:hasThreshold a rdf:Property ;
+    rdfs:domain forex:Lens ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Signal threshold for lens activation" .
+
+forex:hasTimeWindow a rdf:Property ;
+    rdfs:domain forex:Lens ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Time window for signal validity (milliseconds)" .
+
+forex:hasReliability a rdf:Property ;
+    rdfs:domain forex:Lens ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Historical reliability score (0-1)" .
+
+# Order Book Lens Configuration
+forex:OrderBookLens 
+    forex:hasThreshold "1.8"^^xsd:float ;
+    forex:hasTimeWindow "400"^^xsd:integer ;
+    forex:hasReliability "0.847"^^xsd:float ;
+    forex:detectsPattern "imbalance_sigma" .
+
+# Cross-Asset Lens Configuration  
+forex:CrossAssetLens
+    forex:hasThreshold "0.75"^^xsd:float ;
+    forex:hasTimeWindow "250"^^xsd:integer ;
+    forex:hasReliability "0.723"^^xsd:float ;
+    forex:detectsPattern "dxy_es_concurrence" .
+
+# Macro Lens Configuration
+forex:MacroLens
+    forex:hasThreshold "0.3"^^xsd:float ;
+    forex:hasTimeWindow "2000"^^xsd:integer ;
+    forex:hasReliability "0.681"^^xsd:float ;
+    forex:detectsPattern "news_delta_benign" .
+
+# Volatility Lens Configuration
+forex:VolatilityLens
+    forex:hasThreshold "40"^^xsd:float ;
+    forex:hasTimeWindow "1000"^^xsd:integer ;
+    forex:hasReliability "0.792"^^xsd:float ;
+    forex:detectsPattern "vol_percentile_low" .
+
+# Liquidity Lens Configuration
+forex:LiquidityLens
+    forex:hasThreshold "3.0"^^xsd:float ;
+    forex:hasTimeWindow "500"^^xsd:integer ;
+    forex:hasReliability "0.856"^^xsd:float ;
+    forex:detectsPattern "spread_tight" .
+
+# Circuit Breakers and Kill Switches
+forex:CircuitBreaker a rdfs:Class ;
+    rdfs:label "Circuit Breaker" ;
+    rdfs:comment "Automated risk control mechanism" .
+
+forex:GlobalKillSwitch a forex:CircuitBreaker ;
+    rdfs:label "Global News Shock Kill Switch" ;
+    forex:triggersOn "major_news_event" ;
+    forex:actionType "flatten_all_positions" .
+
+forex:LensKillSwitch a forex:CircuitBreaker ;
+    rdfs:label "Per-Lens Fault Kill Switch" ;
+    forex:triggersOn "lens_sensor_fault" ;
+    forex:actionType "disable_lens_dependent_patterns" .
+
+forex:PatternKillSwitch a forex:CircuitBreaker ;
+    rdfs:label "Per-Pattern Drift Kill Switch" ;
+    forex:triggersOn "pattern_performance_drift" ;
+    forex:actionType "pause_pattern" .
+
+# Monte Carlo Gates
+forex:MonteCarloGate a rdfs:Class ;
+    rdfs:label "Monte Carlo Gate" ;
+    rdfs:comment "Pre-trade simulation gate" .
+
+forex:PreTradeGate a forex:MonteCarloGate ;
+    rdfs:label "Pre-Trade Risk Gate" ;
+    forex:requiresPass "breach_probability_lt_1_5_percent" ;
+    forex:requiresPass "expected_slippage_lt_1_2_bps" ;
+    forex:requiresPass "drawdown_95_lt_9_bps" .
+
+forex:DuringTradeGate a forex:MonteCarloGate ;
+    rdfs:label "During-Trade Nowcast Gate" ;
+    forex:monitorsRealtime "tail_risk_jump" ;
+    forex:monitorsRealtime "lens_status_change" ;
+    forex:actionOnBreach "instant_flatten" .
+
+# Trade Execution Templates
+forex:ExecutionTemplate a rdfs:Class ;
+    rdfs:label "Execution Template" ;
+    rdfs:comment "Standardized order template" .
+
+forex:MicroImpulseTemplate a forex:ExecutionTemplate ;
+    rdfs:label "Micro-Impulse Execution" ;
+    forex:hasClipCount 3 ;
+    forex:hasHardStop "10"^^xsd:float ;
+    forex:hasFirstTP "8"^^xsd:float ;
+    forex:hasSecondTP "14"^^xsd:float ;
+    forex:hasTrailingStop "1"^^xsd:float ;
+    forex:hasBreacherAction "instant_flat_2_hops" .
+
+# 8-Space Compliance Constraints
+forex:EightSpaceConstraint a sh:NodeShape ;
+    sh:targetClass forex:TradingPattern ;
+    sh:property [
+        sh:path forex:hasMaxTicks ;
+        sh:equals 8 ;
+        sh:message "All patterns must complete in ≤8 ticks"
+    ] ;
+    sh:property [
+        sh:path forex:hasMaxHops ;
+        sh:maxInclusive 8 ;
+        sh:message "All execution paths must be ≤8 hops"
+    ] .
+
+# Six-Sigma Quality Constraints
+forex:SixSigmaConstraint a sh:NodeShape ;
+    sh:targetClass forex:CTQ ;
+    sh:property [
+        sh:path forex:hasLimit ;
+        sh:datatype xsd:float ;
+        sh:message "All CTQs must have numeric limits"
+    ] .
+
+# Performance Metrics
+forex:PerformanceMetric a rdfs:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Trading performance indicator" .
+
+forex:WinRate a forex:PerformanceMetric ;
+    rdfs:label "Win Rate" ;
+    forex:targetValue "65"^^xsd:float ;
+    forex:hasUnit "percent" .
+
+forex:ProfitFactor a forex:PerformanceMetric ;
+    rdfs:label "Profit Factor" ;
+    forex:targetValue "2.1"^^xsd:float ;
+    forex:hasUnit "ratio" .
+
+forex:SharpeRatio a forex:PerformanceMetric ;
+    rdfs:label "Sharpe Ratio" ;
+    forex:targetValue "3.5"^^xsd:float ;
+    forex:hasUnit "ratio" .
+
+forex:MaxDrawdown a forex:PerformanceMetric ;
+    rdfs:label "Maximum Drawdown" ;
+    forex:targetValue "2.5"^^xsd:float ;
+    forex:hasUnit "percent" .
+
+# DMAIC Process Integration
+forex:DMAICProcess a rdfs:Class ;
+    rdfs:label "DMAIC Quality Process" ;
+    rdfs:comment "Define-Measure-Analyze-Improve-Control" .
+
+forex:DefinePhase a forex:DMAICProcess ;
+    rdfs:label "Define Quality Goals" ;
+    forex:definesGoal "minimize_envelope_breaches" .
+
+forex:MeasurePhase a forex:DMAICProcess ;
+    rdfs:label "Measure CTQs" ;
+    forex:measuresCTQ forex:MaxAdverseExcursion ;
+    forex:measuresCTQ forex:RealizedSlippage ;
+    forex:measuresCTQ forex:TailRiskBps .
+
+forex:AnalyzePhase a forex:DMAICProcess ;
+    rdfs:label "Analyze Defects" ;
+    forex:analyzesPattern "envelope_breach_root_cause" .
+
+forex:ImprovePhase a forex:DMAICProcess ;
+    rdfs:label "Improve Thresholds" ;
+    forex:improvesParameter "lens_threshold_adjustment" .
+
+forex:ControlPhase a forex:DMAICProcess ;
+    rdfs:label "Control Quality" ;
+    forex:controlsProcess "statistical_process_control" .
+
+# Statistical Process Control
+forex:ControlChart a rdfs:Class ;
+    rdfs:label "Statistical Control Chart" ;
+    rdfs:comment "Real-time quality monitoring" .
+
+forex:XBarChart a forex:ControlChart ;
+    rdfs:label "X-Bar Control Chart" ;
+    forex:monitorsMetric forex:RealizedSlippage ;
+    forex:hasControlLimit "3_sigma" .
+
+forex:RChart a forex:ControlChart ;
+    rdfs:label "R Control Chart" ;
+    forex:monitorsMetric forex:MaxAdverseExcursion ;
+    forex:hasControlLimit "3_sigma" .
+
+# System State Machine
+forex:SystemState a rdfs:Class ;
+    rdfs:label "System State" ;
+    rdfs:comment "8-bit state flags" .
+
+forex:IdleState a forex:SystemState ;
+    rdfs:label "Idle State" ;
+    forex:stateCode "00000001"^^xsd:string .
+
+forex:ScanningState a forex:SystemState ;
+    rdfs:label "Scanning State" ;
+    forex:stateCode "00000010"^^xsd:string .
+
+forex:ValidatingState a forex:SystemState ;
+    rdfs:label "Validating State" ;
+    forex:stateCode "00000100"^^xsd:string .
+
+forex:ExecutingState a forex:SystemState ;
+    rdfs:label "Executing State" ;
+    forex:stateCode "00001000"^^xsd:string .
+
+forex:MonitoringState a forex:SystemState ;
+    rdfs:label "Monitoring State" ;
+    forex:stateCode "00010000"^^xsd:string .
+
+forex:ExitingState a forex:SystemState ;
+    rdfs:label "Exiting State" ;
+    forex:stateCode "00100000"^^xsd:string .
+
+forex:ErrorState a forex:SystemState ;
+    rdfs:label "Error State" ;
+    forex:stateCode "01000000"^^xsd:string .
+
+forex:KillState a forex:SystemState ;
+    rdfs:label "Kill State" ;
+    forex:stateCode "10000000"^^xsd:string .

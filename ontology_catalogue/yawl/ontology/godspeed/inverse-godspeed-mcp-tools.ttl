@@ -1,0 +1,806 @@
+@prefix godspeed: <http://yawl.io/godspeed#> .
+@prefix inverse: <http://yawl.io/godspeed/inverse#> .
+@prefix mcp: <http://yawl.io/mcp#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+
+# ============================================================================
+# INVERSE MCP TOOLS FOR BACKWARD GODSPEED PROTOCOL
+# 5 Agents × 3 Tools per agent = 15 total inverse tools
+# ============================================================================
+
+# --------------------------------------------------------------------------
+# OMEGA INVERSE AGENT TOOLS (Git Archaeology)
+# --------------------------------------------------------------------------
+
+mcp:omega_inv_analyze_history a mcp:Tool ;
+  rdfs:label "Ω⁻¹ Analyze History" ;
+  rdfs:comment "Analyze git history for unsafe operations, force pushes, amends" ;
+  mcp:server mcp:OmegaInverseMCPServer ;
+  inverse:phase inverse:OmegaInversePhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "commit_range" ;
+      schema:description "Commit range to analyze (default: all)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "depth" ;
+      schema:description "Analysis depth (shallow, medium, deep)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "look_for_unsafe" ;
+      schema:description "Specifically search for unsafe operations?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "commits_analyzed" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "unsafe_operations_found" ;
+      schema:description "Force pushes, amends, resets (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "audit_trail" ;
+      schema:description "Complete audit trail" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "risk_level" ;
+      schema:description "LOW, MEDIUM, HIGH, CRITICAL" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 1 ] ;
+  inverse:forensic true ;
+  inverse:comprehensive true .
+
+mcp:omega_inv_detect_unsafe_ops a mcp:Tool ;
+  rdfs:label "Ω⁻¹ Detect Unsafe Operations" ;
+  rdfs:comment "Scan history for force-push, amend, rebase operations" ;
+  mcp:server mcp:OmegaInverseMCPServer ;
+  inverse:phase inverse:OmegaInversePhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "operation_types" ;
+      schema:description "Types to search (force_push, amend, reset, rebase)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "time_range" ;
+      schema:description "Time window (default: all history)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "unsafe_ops_found" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "operations" ;
+      schema:description "List of unsafe operations with details" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "affected_commits" ;
+      schema:description "Commits potentially affected" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 10 ] ;
+  inverse:failureMode "REPORT_FOUND_NOT_FAIL" .
+
+mcp:omega_inv_rollback_analysis a mcp:Tool ;
+  rdfs:label "Ω⁻¹ Rollback Analysis" ;
+  rdfs:comment "Analyze rollback risk and provide safe rollback paths" ;
+  mcp:server mcp:OmegaInverseMCPServer ;
+  inverse:phase inverse:OmegaInversePhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "target_state" ;
+      schema:description "Target commit or branch to rollback to" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "analyze_impact" ;
+      schema:description "Analyze impact of rollback?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "rollback_risk" ;
+      schema:description "LOW, MEDIUM, HIGH" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "affected_branches" ;
+      schema:description "Branches that would be affected" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "safe_rollback_command" ;
+      schema:description "Safe command to execute rollback" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "side_effects" ;
+      schema:description "Potential side effects" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 5 ] .
+
+# --------------------------------------------------------------------------
+# THETA INVERSE AGENT TOOLS (Invariant Repair)
+# --------------------------------------------------------------------------
+
+mcp:theta_inv_detect_broken a mcp:Tool ;
+  rdfs:label "Q⁻¹ Detect Broken Invariants" ;
+  rdfs:comment "Detect invariants that are currently broken (real impl check failed, mocks found, etc.)" ;
+  mcp:server mcp:ThetaInverseMCPServer ;
+  inverse:phase inverse:ThetaInversePhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "artifacts" ;
+      schema:description "Code artifacts to scan (files or module)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "invariant_types" ;
+      schema:description "Invariants to check (real_impl, no_mocks, etc.)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "broken_count" ;
+      schema:description "Number of broken invariants" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "broken_invariants" ;
+      schema:description "List of broken invariants (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "severity" ;
+      schema:description "CRITICAL, HIGH, MEDIUM, LOW" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 20 ] ;
+  inverse:forensic true .
+
+mcp:theta_inv_suggest_repairs a mcp:Tool ;
+  rdfs:label "Q⁻¹ Suggest Repairs" ;
+  rdfs:comment "Suggest automated repairs for broken invariants" ;
+  mcp:server mcp:ThetaInverseMCPServer ;
+  inverse:phase inverse:ThetaInversePhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "broken_invariant" ;
+      schema:description "Broken invariant to suggest fix for" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "context" ;
+      schema:description "Code context (file, class, method)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "repair_strategy" ;
+      schema:description "Strategy (minimal, moderate, comprehensive)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "repair_suggestions" ;
+      schema:description "List of suggested repairs (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "repair_diffs" ;
+      schema:description "Unified diffs for each suggestion" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "confidence" ;
+      schema:description "Confidence level for each suggestion (%)" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 10 ] ;
+  inverse:automated true .
+
+mcp:theta_inv_validate_fix a mcp:Tool ;
+  rdfs:label "Q⁻¹ Validate Fix" ;
+  rdfs:comment "Validate that a proposed fix actually resolves the broken invariant" ;
+  mcp:server mcp:ThetaInverseMCPServer ;
+  inverse:phase inverse:ThetaInversePhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "fix_diff" ;
+      schema:description "Unified diff of proposed fix" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "invariant" ;
+      schema:description "Invariant to validate fix against" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "fix_valid" ;
+      schema:description "Is fix valid?" ;
+      schema:valueType xsd:boolean
+    ] ;
+    schema:property [
+      schema:name "validation_report" ;
+      schema:description "Validation details (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "issues_remaining" ;
+      schema:description "Any issues that remain after fix" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 20 ] ;
+  inverse:validated true .
+
+# --------------------------------------------------------------------------
+# ETA INVERSE AGENT TOOLS (Guard Audit)
+# --------------------------------------------------------------------------
+
+mcp:eta_inv_audit_all a mcp:Tool ;
+  rdfs:label "H⁻¹ Audit All" ;
+  rdfs:comment "Comprehensive audit of codebase for ALL forbidden patterns" ;
+  mcp:server mcp:EtaInverseMCPServer ;
+  inverse:phase inverse:EtaInversePhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "path" ;
+      schema:description "Path to audit (default: entire codebase)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "patterns" ;
+      schema:description "Patterns to check (all or specific)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "include_history" ;
+      schema:description "Include git history in audit?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "violations_found" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "violations_by_pattern" ;
+      schema:description "Violations grouped by pattern (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "severity_distribution" ;
+      schema:description "Distribution of severity levels" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "audit_timestamp" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 5 ] ;
+  inverse:comprehensive true .
+
+mcp:eta_inv_forensic_receipt a mcp:Tool ;
+  rdfs:label "H⁻¹ Forensic Receipt" ;
+  rdfs:comment "Generate forensic guard violation receipt with detailed metadata" ;
+  mcp:server mcp:EtaInverseMCPServer ;
+  inverse:phase inverse:EtaInversePhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "violations" ;
+      schema:description "Violations to include in receipt" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "include_remediation" ;
+      schema:description "Include remediation guidance?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "receipt" ;
+      schema:description "Forensic receipt (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "receipt_path" ;
+      schema:description "Path to saved receipt" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "violations_by_severity" ;
+      schema:description "Violations grouped by severity" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 50 ] ;
+  inverse:forensic true .
+
+mcp:eta_inv_violation_timeline a mcp:Tool ;
+  rdfs:label "H⁻¹ Violation Timeline" ;
+  rdfs:comment "Generate timeline of when guard violations were introduced" ;
+  mcp:server mcp:EtaInverseMCPServer ;
+  inverse:phase inverse:EtaInversePhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "patterns" ;
+      schema:description "Patterns to trace (or 'all')" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "time_window" ;
+      schema:description "Time window to analyze (or 'all')" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "timeline" ;
+      schema:description "Violation introduction timeline (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "violation_velocity" ;
+      schema:description "Rate of violation introduction (per day/week)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "pattern_trends" ;
+      schema:description "Trends for each pattern over time" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 5 ] .
+
+# --------------------------------------------------------------------------
+# LAMBDA INVERSE AGENT TOOLS (Build Validation)
+# --------------------------------------------------------------------------
+
+mcp:lambda_inv_validate_state a mcp:Tool ;
+  rdfs:label "Λ⁻¹ Validate State" ;
+  rdfs:comment "Validate current build state: check artifact checksums, timestamps, versions" ;
+  mcp:server mcp:LambdaInverseMCPServer ;
+  inverse:phase inverse:LambdaInversePhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "artifacts" ;
+      schema:description "Build artifacts to validate (JARs, WARs, etc.)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "reference_state" ;
+      schema:description "Reference state to compare against (commit hash or tag)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "validation_status" ;
+      schema:description "VALID, STALE, CORRUPTED" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "artifacts_checked" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "mismatches" ;
+      schema:description "Artifact mismatches found (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "recommendation" ;
+      schema:description "Rebuild or clean?" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 10 ] ;
+  inverse:validated true .
+
+mcp:lambda_inv_detect_stale a mcp:Tool ;
+  rdfs:label "Λ⁻¹ Detect Stale Artifacts" ;
+  rdfs:comment "Detect stale build artifacts that don't match source code" ;
+  mcp:server mcp:LambdaInverseMCPServer ;
+  inverse:phase inverse:LambdaInversePhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "max_age_minutes" ;
+      schema:description "Max age threshold (default: 60)" ;
+      schema:valueType xsd:integer ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "check_dependencies" ;
+      schema:description "Check if dependencies changed?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "stale_artifacts" ;
+      schema:description "List of stale artifacts" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "stale_count" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "recomm_action" ;
+      schema:description "Recommended action (rebuild, clean, etc.)" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 10 ] .
+
+mcp:lambda_inv_reproducibility a mcp:Tool ;
+  rdfs:label "Λ⁻¹ Reproducibility Check" ;
+  rdfs:comment "Can we rebuild from scratch and get identical results?" ;
+  mcp:server mcp:LambdaInverseMCPServer ;
+  inverse:phase inverse:LambdaInversePhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "modules" ;
+      schema:description "Modules to test (default: all)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "clean_rebuild" ;
+      schema:description "Do full clean rebuild for testing?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "reproducible" ;
+      schema:description "Is build reproducible?" ;
+      schema:valueType xsd:boolean
+    ] ;
+    schema:property [
+      schema:name "reproducibility_score" ;
+      schema:description "Score 0-100 (%)" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "differences_found" ;
+      schema:description "Differences between builds (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "non_deterministic_factors" ;
+      schema:description "Sources of non-determinism" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 1 ] ;
+  inverse:comprehensive true .
+
+# --------------------------------------------------------------------------
+# PSI INVERSE AGENT TOOLS (Fact Validation)
+# --------------------------------------------------------------------------
+
+mcp:psi_inv_validate_facts a mcp:Tool ;
+  rdfs:label "Ψ⁻¹ Validate Facts" ;
+  rdfs:comment "Validate that facts match the actual codebase state (via checksum validation)" ;
+  mcp:server mcp:PsiInverseMCPServer ;
+  inverse:phase inverse:PsiInversePhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "fact_types" ;
+      schema:description "Fact types to validate (or 'all')" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "validate_checksums" ;
+      schema:description "Validate via SHA256 checksums?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "validation_status" ;
+      schema:description "GREEN or RED" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "fresh_facts" ;
+      schema:description "Number of fresh facts" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "stale_facts" ;
+      schema:description "List of stale facts" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "reconciliation_needed" ;
+      schema:description "Are facts out of sync with codebase?" ;
+      schema:valueType xsd:boolean
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 50 ] ;
+  inverse:validated true .
+
+mcp:psi_inv_detect_drift a mcp:Tool ;
+  rdfs:label "Ψ⁻¹ Detect Drift" ;
+  rdfs:comment "Detect fact drift: where codebase reality diverges from fact state" ;
+  mcp:server mcp:PsiInverseMCPServer ;
+  inverse:phase inverse:PsiInversePhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "fact_type" ;
+      schema:description "Fact type to analyze (modules, gates, reactor, etc.)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "sensitivity" ;
+      schema:description "Detection sensitivity (low, medium, high)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "drift_detected" ;
+      schema:description "Is drift detected?" ;
+      schema:valueType xsd:boolean
+    ] ;
+    schema:property [
+      schema:name "drift_score" ;
+      schema:description "Drift magnitude (0-100)" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "divergences" ;
+      schema:description "Specific divergences from expected state" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "must_rebuild" ;
+      schema:description "Must run observatory to refresh?" ;
+      schema:valueType xsd:boolean
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 50 ] .
+
+mcp:psi_inv_rebuild_facts a mcp:Tool ;
+  rdfs:label "Ψ⁻¹ Rebuild Facts" ;
+  rdfs:comment "Rebuild facts from scratch to reconcile with codebase reality" ;
+  mcp:server mcp:PsiInverseMCPServer ;
+  inverse:phase inverse:PsiInversePhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "fact_types" ;
+      schema:description "Fact types to rebuild (or 'all')" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "parallel" ;
+      schema:description "Run discovery in parallel?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "rebuild_status" ;
+      schema:description "GREEN (success) or RED (failed)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "facts_rebuilt" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "changes_from_previous" ;
+      schema:description "What changed from old facts to new facts" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "duration_ms" ;
+      schema:valueType xsd:long
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 1 ] ;
+  inverse:comprehensive true .
+
+# --------------------------------------------------------------------------
+# ORCHESTRATOR TOOLS (Inverse)
+# --------------------------------------------------------------------------
+
+mcp:inverse_audit_sequence a mcp:Tool ;
+  rdfs:label "Inverse GODSPEED Audit Sequence" ;
+  rdfs:comment "Execute full backward audit sequence: Ω⁻¹→Q⁻¹→H⁻¹→Λ⁻¹→Ψ⁻¹" ;
+  mcp:server mcp:InverseGodspeedOrchestratorMCPServer ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "audit_scope" ;
+      schema:description "Scope (git_only, invariants_only, guards_only, build_only, facts_only, all)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "include_remediation" ;
+      schema:description "Include repair suggestions?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "audit_report" ;
+      schema:description "Complete audit report (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "violations_found" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "severity_summary" ;
+      schema:description "CRITICAL, HIGH, MEDIUM, LOW counts" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 1 ] .
+
+mcp:inverse_detect_violations a mcp:Tool ;
+  rdfs:label "Inverse GODSPEED Detect Violations" ;
+  rdfs:comment "Detect all violations: git unsafe ops, broken invariants, guard violations, stale builds, stale facts" ;
+  mcp:server mcp:InverseGodspeedOrchestratorMCPServer ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "detection_level" ;
+      schema:description "Level (quick, standard, comprehensive)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "violations_summary" ;
+      schema:description "Summary of all violations (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "total_violations" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "critical_issues" ;
+      schema:description "Issues requiring immediate action" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 10 ] .
+
+mcp:inverse_report a mcp:Tool ;
+  rdfs:label "Inverse GODSPEED Report" ;
+  rdfs:comment "Generate comprehensive inverse audit report with remediation guidance" ;
+  mcp:server mcp:InverseGodspeedOrchestratorMCPServer ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "audit_id" ;
+      schema:description "Audit ID to report on" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "include_remediation" ;
+      schema:description "Include remediation suggestions?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "report" ;
+      schema:description "Comprehensive audit report (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "state_corruption_risk" ;
+      schema:description "Risk assessment (LOW, MEDIUM, HIGH, CRITICAL)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "remediation_plan" ;
+      schema:description "Suggested remediation steps (JSON)" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 20 ] .

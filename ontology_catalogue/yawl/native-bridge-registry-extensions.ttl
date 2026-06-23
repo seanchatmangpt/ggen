@@ -1,0 +1,39 @@
+# =============================================================================
+# Registry Pattern Extensions for Native Bridge
+# Added to support CapabilityRegistry validation in YAWL Self-Play Loop v3.0
+# =============================================================================
+
+@prefix owl:         <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:        <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl-bridge: <http://yawlfoundation.org/yawl/bridge#> .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Registry Pattern Properties (WCP-CR-02: CapabilityRegistry Pattern)
+# ─────────────────────────────────────────────────────────────────────────────
+
+yawl-bridge:registryKind a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:BridgeCapability ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "registryKind" ;
+    rdfs:comment "Registry entry type: CAPABILITY, PARAMETER, or HANDLE." .
+
+yawl-bridge:returnRegistryKind a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:BridgeCapability ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "returnRegistryKind" ;
+    rdfs:comment "Return registry type: CAPABILITY, PARAMETER, or HANDLE." .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Registry Kind Constants
+# ─────────────────────────────────────────────────────────────────────────────
+
+yawl-bridge:CATEGORY_CAPABILITY a owl:DatatypeProperty ;
+    rdfs:comment "Category: Registry entries that are callable capabilities" .
+
+yawl-bridge:CATEGORY_PARAMETER a owl:DatatypeProperty ;
+    rdfs:comment "Category: Registry entries that are function parameters" .
+
+yawl-bridge:CATEGORY_HANDLE a owl:DatatypeProperty ;
+    rdfs:comment "Category: Registry entries that are memory handles" .

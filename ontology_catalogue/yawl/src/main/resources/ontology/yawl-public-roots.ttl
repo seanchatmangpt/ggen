@@ -1,0 +1,533 @@
+@prefix :       <http://yawlfoundation.org/yawl#> .
+@prefix yawl:   <http://yawlfoundation.org/yawl#> .
+@prefix mcp:    <http://yawlfoundation.org/mcp#> .
+@prefix a2a:    <http://yawlfoundation.org/a2a#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <https://schema.org/> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# YAWL Public Root Extension Ontology (yawl-public-roots.ttl)
+#
+# Every enterprise software company in history built private roots.
+# SAP encoded business operations in ABAP objects. Salesforce encoded
+# customer relationships in their object model. Epic encoded healthcare
+# in Chronicles. Every one built private root levels as a rent mechanism.
+#
+# This ontology structurally prohibits that strategy.
+#
+# Extension-only constraint: every YAWL class rdfs:subClassOf a public root.
+# No private roots introduced. No proprietary ontological commitments.
+# The entire LOD ecosystem (Schema.org, PROV-O, FOAF, Dublin Core) becomes
+# the ground YAWL extends over, not competes with.
+#
+# From this ontology, SPARQL CONSTRUCT queries derive:
+#   1. MCP tool descriptors (mcp:Tool instances) — tools ARE derived from
+#      public roots, not hand-coded
+#   2. A2A skill descriptors (a2a:Skill instances) — skills extend public
+#      root semantics into autonomous agent capabilities
+#
+# The Chatman Equation: A = μ(O) | μ = Ω ∘ Q ∘ H ∘ Λ ∘ Ψ
+# Here O = this ontology. μ is the CONSTRUCT pipeline.
+# ============================================================================
+
+<http://yawlfoundation.org/yawl> a owl:Ontology ;
+    rdfs:label "YAWL Public Root Extension Ontology" ;
+    rdfs:comment """Extension-only ontology for YAWL v6.0.0. Every class extends a
+      public root: Schema.org, W3C PROV-O, FOAF, or Dublin Core.
+      SPARQL CONSTRUCT queries over this ontology generate the complete
+      MCP tool layer and A2A skill layer. The architecture is self-describing.""" ;
+    dcterms:created "2026-02-23"^^xsd:date ;
+    owl:versionIRI <http://yawlfoundation.org/yawl/6.0.0> .
+
+# ============================================================================
+# SECTION 1: MCP Tool Descriptor Vocabulary
+#
+# Classes and properties used in CONSTRUCT output graphs.
+# The CONSTRUCT query produces instances of these classes from
+# WorkflowOperation declarations in Section 5 below.
+# ============================================================================
+
+mcp:Tool a rdfs:Class ;
+    rdfs:label "MCP Tool" ;
+    rdfs:comment "An MCP tool descriptor derived from a YAWL workflow operation via CONSTRUCT" ;
+    rdfs:isDefinedBy <http://yawlfoundation.org/mcp> .
+
+mcp:Parameter a rdfs:Class ;
+    rdfs:label "MCP Parameter" ;
+    rdfs:comment "A parameter of an MCP tool, derived from yawl:Parameter via CONSTRUCT" ;
+    rdfs:isDefinedBy <http://yawlfoundation.org/mcp> .
+
+mcp:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:comment "The MCP tool name (e.g. yawl_launch_case)" ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range xsd:string .
+
+mcp:description a rdf:Property ;
+    rdfs:label "description" ;
+    rdfs:comment "Tool description composed from operation semantics + public root grounding" ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range xsd:string .
+
+mcp:epistemicRoot a rdf:Property ;
+    rdfs:label "epistemicRoot" ;
+    rdfs:comment "The public root ontology class this tool extends (e.g. schema:Action)" ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range rdfs:Class .
+
+mcp:rootDescription a rdf:Property ;
+    rdfs:label "rootDescription" ;
+    rdfs:comment "Human-readable description of the public root being extended" ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range xsd:string .
+
+mcp:permission a rdf:Property ;
+    rdfs:label "permission" ;
+    rdfs:comment "Required permission string (e.g. workflow:write)" ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range xsd:string .
+
+mcp:hasParameter a rdf:Property ;
+    rdfs:label "hasParameter" ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range mcp:Parameter .
+
+mcp:paramName a rdf:Property ;
+    rdfs:label "paramName" ;
+    rdfs:domain mcp:Parameter ;
+    rdfs:range xsd:string .
+
+mcp:paramType a rdf:Property ;
+    rdfs:label "paramType" ;
+    rdfs:domain mcp:Parameter ;
+    rdfs:range xsd:string .
+
+mcp:required a rdf:Property ;
+    rdfs:label "required" ;
+    rdfs:domain mcp:Parameter ;
+    rdfs:range xsd:boolean .
+
+mcp:paramDescription a rdf:Property ;
+    rdfs:label "paramDescription" ;
+    rdfs:domain mcp:Parameter ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# SECTION 2: A2A Skill Descriptor Vocabulary
+#
+# Classes and properties used in CONSTRUCT output graphs.
+# The CONSTRUCT query produces instances of these classes from
+# WorkflowPattern declarations in Section 6 below.
+# ============================================================================
+
+a2a:Skill a rdfs:Class ;
+    rdfs:label "A2A Skill" ;
+    rdfs:comment "An A2A skill descriptor derived from a YAWL workflow pattern via CONSTRUCT" ;
+    rdfs:isDefinedBy <http://yawlfoundation.org/a2a> .
+
+a2a:skillId a rdf:Property ;
+    rdfs:label "skillId" ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+a2a:skillName a rdf:Property ;
+    rdfs:label "skillName" ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+a2a:skillDescription a rdf:Property ;
+    rdfs:label "skillDescription" ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+a2a:capability a rdf:Property ;
+    rdfs:label "capability" ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+a2a:permission a rdf:Property ;
+    rdfs:label "permission" ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+a2a:extendsRoot a rdf:Property ;
+    rdfs:label "extendsRoot" ;
+    rdfs:comment "The public root ontology IRI this skill's pattern extends" ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range rdfs:Class .
+
+a2a:rootLabel a rdf:Property ;
+    rdfs:label "rootLabel" ;
+    rdfs:comment "Human-readable label of the public root being extended" ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+a2a:tag a rdf:Property ;
+    rdfs:label "tag" ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+a2a:example a rdf:Property ;
+    rdfs:label "example" ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# SECTION 3: YAWL Operation and Pattern Vocabulary
+#
+# Metaclasses for declaring workflow operations and patterns.
+# Operations → MCP tools. Patterns → A2A skills.
+# Both declare their public root via rdfs:subClassOf.
+# ============================================================================
+
+yawl:WorkflowOperation a rdfs:Class ;
+    rdfs:label "Workflow Operation" ;
+    rdfs:comment """A YAWL workflow operation that becomes an MCP tool via CONSTRUCT.
+      Declares its epistemic root via rdfs:subClassOf a public root class.""" ;
+    rdfs:isDefinedBy <http://yawlfoundation.org/yawl> .
+
+yawl:WorkflowPattern a rdfs:Class ;
+    rdfs:label "Workflow Pattern" ;
+    rdfs:comment """A YAWL workflow pattern that becomes an A2A skill via CONSTRUCT.
+      Declares its epistemic root via rdfs:subClassOf a public root class.""" ;
+    rdfs:isDefinedBy <http://yawlfoundation.org/yawl> .
+
+yawl:Parameter a rdfs:Class ;
+    rdfs:label "Parameter" ;
+    rdfs:comment "A parameter to a workflow operation, transferred to mcp:Parameter via CONSTRUCT" ;
+    rdfs:isDefinedBy <http://yawlfoundation.org/yawl> .
+
+yawl:toolName a rdf:Property ;
+    rdfs:label "toolName" ;
+    rdfs:comment "The MCP tool name to emit for this operation" ;
+    rdfs:domain yawl:WorkflowOperation ;
+    rdfs:range xsd:string .
+
+yawl:permission a rdf:Property ;
+    rdfs:label "permission" ;
+    rdfs:domain yawl:WorkflowOperation ;
+    rdfs:range xsd:string .
+
+yawl:hasParameter a rdf:Property ;
+    rdfs:label "hasParameter" ;
+    rdfs:domain yawl:WorkflowOperation ;
+    rdfs:range yawl:Parameter .
+
+yawl:paramName a rdf:Property ;
+    rdfs:label "paramName" ;
+    rdfs:domain yawl:Parameter ;
+    rdfs:range xsd:string .
+
+yawl:paramType a rdf:Property ;
+    rdfs:label "paramType" ;
+    rdfs:domain yawl:Parameter ;
+    rdfs:range xsd:string .
+
+yawl:required a rdf:Property ;
+    rdfs:label "required" ;
+    rdfs:domain yawl:Parameter ;
+    rdfs:range xsd:boolean .
+
+# ============================================================================
+# SECTION 4: Core YAWL Concept Declarations (extending public roots)
+#
+# This section is the architectural proof. Every YAWL class extends a
+# public root. No private root is introduced. Semantic legibility to the
+# entire LOD ecosystem is guaranteed by construction.
+# ============================================================================
+
+# WorkflowCase: a process being executed is an Action being performed (Schema.org)
+# and a provenance-trackable Activity (PROV-O)
+yawl:WorkflowCase a rdfs:Class, owl:Class ;
+    rdfs:label "Workflow Case" ;
+    rdfs:comment "A running instance of a workflow specification. Extends schema:Action (a composable unit of work) and prov:Activity (a provenance-trackable execution)." ;
+    rdfs:subClassOf schema:Action ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:isDefinedBy <http://yawlfoundation.org/yawl> .
+
+# Task: a specific action within a case
+yawl:Task a rdfs:Class, owl:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "An atomic unit of work within a workflow case. Extends schema:Action (it is an action) and prov:Activity (it is provenance-trackable)." ;
+    rdfs:subClassOf schema:Action ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:isDefinedBy <http://yawlfoundation.org/yawl> .
+
+# WorkItem: an enabled task instance, assignable to a participant
+yawl:WorkItem a rdfs:Class, owl:Class ;
+    rdfs:label "Work Item" ;
+    rdfs:comment "An instance of a task enabled for execution. Extends prov:Activity (the agent who executes it is prov:wasAssociatedWith this activity)." ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:isDefinedBy <http://yawlfoundation.org/yawl> .
+
+# CaseData: workflow variables with provenance
+yawl:CaseData a rdfs:Class, owl:Class ;
+    rdfs:label "Case Data" ;
+    rdfs:comment "Data carried by a workflow case. Extends prov:Entity — data has provenance (which activity generated it, which agent acted on it)." ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:isDefinedBy <http://yawlfoundation.org/yawl> .
+
+# Participant: a human or automated agent
+yawl:Participant a rdfs:Class, owl:Class ;
+    rdfs:label "Participant" ;
+    rdfs:comment "A human or automated agent capable of executing work items. Extends foaf:Agent — participants are agents in the FOAF sense." ;
+    rdfs:subClassOf foaf:Agent ;
+    rdfs:isDefinedBy <http://yawlfoundation.org/yawl> .
+
+# Specification: a workflow definition document
+yawl:Specification a rdfs:Class, owl:Class ;
+    rdfs:label "Specification" ;
+    rdfs:comment "A workflow specification defining case structure. Extends dcterms:Standard (formal specification) and prov:Plan (a plan that guides execution)." ;
+    rdfs:subClassOf dcterms:Standard ;
+    rdfs:subClassOf prov:Plan ;
+    rdfs:isDefinedBy <http://yawlfoundation.org/yawl> .
+
+# EventLog: a bundle of execution events with provenance
+yawl:EventLog a rdfs:Class, owl:Class ;
+    rdfs:label "Event Log" ;
+    rdfs:comment "A bundle of workflow execution events. Extends prov:Bundle — the log is a named provenance graph containing the complete execution history." ;
+    rdfs:subClassOf prov:Bundle ;
+    rdfs:isDefinedBy <http://yawlfoundation.org/yawl> .
+
+# ============================================================================
+# SECTION 5: WorkflowOperation Instances
+#
+# Each instance becomes an mcp:Tool via construct-mcp-from-workflow-ontology.sparql.
+# The CONSTRUCT produces tool name, description, parameters, and epistemic root
+# automatically from these declarations. No Java code needed for the schema layer.
+# ============================================================================
+
+# --- Launch case: starting a schema:Action ---
+yawl:LaunchCaseOperation a yawl:WorkflowOperation ;
+    rdfs:label "Launch Case" ;
+    rdfs:comment "Launch a new workflow case from a specification. Initiates a schema:Action in the YAWL engine, creating a prov:Activity with full provenance from the first step." ;
+    rdfs:subClassOf schema:Action ;
+    yawl:toolName "yawl_launch_case" ;
+    yawl:permission "workflow:write" ;
+    yawl:hasParameter yawl:LaunchCase_specIdentifier ;
+    yawl:hasParameter yawl:LaunchCase_specVersion ;
+    yawl:hasParameter yawl:LaunchCase_caseData .
+
+yawl:LaunchCase_specIdentifier a yawl:Parameter ;
+    rdfs:comment "Workflow specification identifier (URI or name)" ;
+    yawl:paramName "specIdentifier" ;
+    yawl:paramType "string" ;
+    yawl:required true .
+
+yawl:LaunchCase_specVersion a yawl:Parameter ;
+    rdfs:comment "Specification version (default: 0.1)" ;
+    yawl:paramName "specVersion" ;
+    yawl:paramType "string" ;
+    yawl:required false .
+
+yawl:LaunchCase_caseData a yawl:Parameter ;
+    rdfs:comment "Initial case data as XML string (e.g. <data><field>value</field></data>)" ;
+    yawl:paramName "caseData" ;
+    yawl:paramType "string" ;
+    yawl:required false .
+
+# --- Get case status: querying a prov:Activity's lifecycle state ---
+yawl:GetCaseStatusOperation a yawl:WorkflowOperation ;
+    rdfs:label "Get Case Status" ;
+    rdfs:comment "Query the current execution state of a workflow case. Reads the prov:Activity lifecycle: which tasks are executing, enabled, completed, or cancelled." ;
+    rdfs:subClassOf prov:Activity ;
+    yawl:toolName "yawl_get_case_status" ;
+    yawl:permission "workflow:read" ;
+    yawl:hasParameter yawl:GetCaseStatus_caseId .
+
+yawl:GetCaseStatus_caseId a yawl:Parameter ;
+    rdfs:comment "Case identifier returned by yawl_launch_case" ;
+    yawl:paramName "caseId" ;
+    yawl:paramType "string" ;
+    yawl:required true .
+
+# --- Checkout work item: foaf:Agent claims a prov:Activity ---
+yawl:CheckoutWorkItemOperation a yawl:WorkflowOperation ;
+    rdfs:label "Checkout Work Item" ;
+    rdfs:comment "Claim a work item for execution. A foaf:Agent (participant) assumes responsibility for a prov:Activity (work item), establishing the prov:wasAssociatedWith relationship." ;
+    rdfs:subClassOf prov:Activity ;
+    yawl:toolName "yawl_checkout_work_item" ;
+    yawl:permission "workflow:write" ;
+    yawl:hasParameter yawl:Checkout_workItemId .
+
+yawl:Checkout_workItemId a yawl:Parameter ;
+    rdfs:comment "Work item identifier to check out" ;
+    yawl:paramName "workItemId" ;
+    yawl:paramType "string" ;
+    yawl:required true .
+
+# --- Checkin work item: completing a prov:Activity ---
+yawl:CheckinWorkItemOperation a yawl:WorkflowOperation ;
+    rdfs:label "Checkin Work Item" ;
+    rdfs:comment "Complete a work item and return output data. Marks the prov:Activity as ended, records prov:wasEndedBy the participant, and persists output as a new prov:Entity." ;
+    rdfs:subClassOf prov:Activity ;
+    yawl:toolName "yawl_checkin_work_item" ;
+    yawl:permission "workflow:write" ;
+    yawl:hasParameter yawl:Checkin_workItemId ;
+    yawl:hasParameter yawl:Checkin_outputData .
+
+yawl:Checkin_workItemId a yawl:Parameter ;
+    rdfs:comment "Work item identifier to complete" ;
+    yawl:paramName "workItemId" ;
+    yawl:paramType "string" ;
+    yawl:required true .
+
+yawl:Checkin_outputData a yawl:Parameter ;
+    rdfs:comment "Output data XML produced by task execution" ;
+    yawl:paramName "outputData" ;
+    yawl:paramType "string" ;
+    yawl:required false .
+
+# --- List specifications: query the dcterms:Standard catalogue ---
+yawl:ListSpecificationsOperation a yawl:WorkflowOperation ;
+    rdfs:label "List Specifications" ;
+    rdfs:comment "List all workflow specifications loaded in the engine. Returns the catalogue of dcterms:Standard instances (workflow definitions) available for instantiation." ;
+    rdfs:subClassOf schema:SearchAction ;
+    yawl:toolName "yawl_list_specifications" ;
+    yawl:permission "workflow:read" .
+
+# --- Get running cases: list active prov:Activity instances ---
+yawl:GetRunningCasesOperation a yawl:WorkflowOperation ;
+    rdfs:label "Get Running Cases" ;
+    rdfs:comment "List all currently executing workflow cases. Returns active prov:Activity instances with their current execution states." ;
+    rdfs:subClassOf prov:Activity ;
+    yawl:toolName "yawl_get_running_cases" ;
+    yawl:permission "workflow:read" .
+
+# --- Discover public roots: meta-tool over this ontology ---
+yawl:DiscoverPublicRootsOperation a yawl:WorkflowOperation ;
+    rdfs:label "Discover Public Roots" ;
+    rdfs:comment "Discover which public root ontologies (Schema.org, PROV-O, FOAF, Dublin Core) are applicable to a given workflow domain. Returns the extension bindings declared in this ontology and their epistemic alignment with the domain." ;
+    rdfs:subClassOf schema:SearchAction ;
+    yawl:toolName "yawl_discover_public_roots" ;
+    yawl:permission "workflow:read" ;
+    yawl:hasParameter yawl:DiscoverRoots_domain .
+
+yawl:DiscoverRoots_domain a yawl:Parameter ;
+    rdfs:comment "Domain name to discover applicable roots for (e.g. 'finance', 'healthcare', 'logistics', 'general')" ;
+    yawl:paramName "domain" ;
+    yawl:paramType "string" ;
+    yawl:required true .
+
+# --- Validate extension: enforce extension-only constraint ---
+yawl:ValidateExtensionOperation a yawl:WorkflowOperation ;
+    rdfs:label "Validate Ontology Extension" ;
+    rdfs:comment "Validate that a workflow specification correctly extends its declared public root ontology. Enforces the extension-only constraint: every concept must be rdfs:subClassOf a known public root. Returns violations where private roots have been introduced." ;
+    rdfs:subClassOf schema:CheckAction ;
+    yawl:toolName "yawl_validate_extension" ;
+    yawl:permission "workflow:read" ;
+    yawl:hasParameter yawl:ValidateExt_specIdentifier ;
+    yawl:hasParameter yawl:ValidateExt_rootIri .
+
+yawl:ValidateExt_specIdentifier a yawl:Parameter ;
+    rdfs:comment "Specification identifier to validate against its declared public root" ;
+    yawl:paramName "specIdentifier" ;
+    yawl:paramType "string" ;
+    yawl:required true .
+
+yawl:ValidateExt_rootIri a yawl:Parameter ;
+    rdfs:comment "Public root IRI to validate against (default: validates all declared roots)" ;
+    yawl:paramName "rootIri" ;
+    yawl:paramType "string" ;
+    yawl:required false .
+
+# --- Case as Linked Data: export YAWL case state as LOD ---
+yawl:ExportCaseAsLinkedDataOperation a yawl:WorkflowOperation ;
+    rdfs:label "Export Case as Linked Data" ;
+    rdfs:comment "Export a running workflow case as RDF/Turtle expressed over its public root ontology. Because YAWL cases extend schema:Action and prov:Activity, their state is natively expressible as LOD. The output is semantically legible to any system that understands Schema.org or PROV-O." ;
+    rdfs:subClassOf schema:DownloadAction ;
+    yawl:toolName "yawl_case_as_linked_data" ;
+    yawl:permission "workflow:read" ;
+    yawl:hasParameter yawl:ExportLD_caseId ;
+    yawl:hasParameter yawl:ExportLD_format .
+
+yawl:ExportLD_caseId a yawl:Parameter ;
+    rdfs:comment "Case identifier to export as Linked Data" ;
+    yawl:paramName "caseId" ;
+    yawl:paramType "string" ;
+    yawl:required true .
+
+yawl:ExportLD_format a yawl:Parameter ;
+    rdfs:comment "Output format: turtle (default), jsonld, n3" ;
+    yawl:paramName "format" ;
+    yawl:paramType "string" ;
+    yawl:required false .
+
+# ============================================================================
+# SECTION 6: WorkflowPattern Instances
+#
+# Each instance becomes an a2a:Skill via construct-a2a-from-workflow-ontology.sparql.
+# The CONSTRUCT produces skill ID, name, description, capabilities, tags, and
+# examples automatically from these declarations.
+# ============================================================================
+
+yawl:CaseOrchestrationPattern a yawl:WorkflowPattern ;
+    rdfs:label "Case Orchestration" ;
+    rdfs:comment "Orchestrate workflow case lifecycle: launch, monitor, complete, cancel. Extends schema:Action — the workflow case is a composable action an autonomous agent can manage end to end." ;
+    rdfs:subClassOf schema:Action ;
+    a2a:skillId "orchestrate_workflow_case" ;
+    a2a:skillName "Orchestrate Workflow Case" ;
+    a2a:capability "Launch, monitor, and complete YAWL workflow cases as autonomous schema:Action executions" ;
+    a2a:permission "workflow:write" ;
+    a2a:tag "workflow" ;
+    a2a:tag "orchestration" ;
+    a2a:tag "bpm" ;
+    a2a:example "Orchestrate the LoanApproval workflow end to end for applicant 12345" .
+
+yawl:ProvenanceTrackingPattern a yawl:WorkflowPattern ;
+    rdfs:label "Provenance Tracking" ;
+    rdfs:comment "Track complete workflow execution provenance using W3C PROV-O. Every prov:Activity (work item), prov:Entity (case data), and prov:Agent (participant) is recorded in a prov:Bundle (event log). Full compliance audit chain from specification to completion." ;
+    rdfs:subClassOf prov:Activity ;
+    a2a:skillId "track_workflow_provenance" ;
+    a2a:skillName "Track Workflow Provenance" ;
+    a2a:capability "Record and query full execution provenance for compliance and audit using PROV-O" ;
+    a2a:permission "workflow:read" ;
+    a2a:tag "provenance" ;
+    a2a:tag "audit" ;
+    a2a:tag "compliance" ;
+    a2a:example "Show me the complete provenance chain for case 12345 as PROV-O Turtle" .
+
+yawl:ParticipantCoordinationPattern a yawl:WorkflowPattern ;
+    rdfs:label "Participant Coordination" ;
+    rdfs:comment "Coordinate workflow participants (human or autonomous agents) as foaf:Agents. Assign work items, track availability, handle agent-to-agent handoffs. Every participant is a foaf:Agent — their identity, capabilities, and workload are expressible in standard FOAF vocabulary." ;
+    rdfs:subClassOf foaf:Agent ;
+    a2a:skillId "coordinate_workflow_participants" ;
+    a2a:skillName "Coordinate Workflow Participants" ;
+    a2a:capability "Assign work items to foaf:Agent participants and coordinate inter-agent handoffs" ;
+    a2a:permission "workflow:write" ;
+    a2a:tag "participants" ;
+    a2a:tag "coordination" ;
+    a2a:tag "handoff" ;
+    a2a:example "Assign all pending work items in the CreditApproval workflow to available agents" .
+
+yawl:OntologyExtensionPattern a yawl:WorkflowPattern ;
+    rdfs:label "Ontology Extension Validation" ;
+    rdfs:comment "Validate that workflow specifications extend public root ontologies rather than introducing private roots. Enforces the extension-only constraint that gives YAWL semantic legibility across the LOD ecosystem." ;
+    rdfs:subClassOf schema:CheckAction ;
+    a2a:skillId "validate_ontology_extension" ;
+    a2a:skillName "Validate Ontology Extension" ;
+    a2a:capability "Verify workflow specifications extend public roots and enforce extension-only constraint" ;
+    a2a:permission "workflow:read" ;
+    a2a:tag "ontology" ;
+    a2a:tag "validation" ;
+    a2a:tag "extension-only" ;
+    a2a:example "Validate that the TradeSettlement workflow correctly extends its declared public root" .
+
+yawl:LinkedDataExportPattern a yawl:WorkflowPattern ;
+    rdfs:label "Linked Data Export" ;
+    rdfs:comment "Export workflow state as Linked Open Data. Because YAWL cases extend schema:Action and prov:Activity, their state is natively expressible as LOD over those public roots. The output is semantically legible to every system that understands Schema.org or PROV-O — no translation layer required." ;
+    rdfs:subClassOf prov:Bundle ;
+    a2a:skillId "export_workflow_as_linked_data" ;
+    a2a:skillName "Export Workflow as Linked Data" ;
+    a2a:capability "Export running workflow state as RDF/Turtle over public root ontologies for LOD consumption" ;
+    a2a:permission "workflow:read" ;
+    a2a:tag "linked-data" ;
+    a2a:tag "rdf" ;
+    a2a:tag "export" ;
+    a2a:example "Export all running LoanApproval cases as Turtle over schema:Action and prov:Activity" .

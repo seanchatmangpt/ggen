@@ -1,0 +1,139 @@
+# YAWL Pattern: Parallel Split (Van der Aalst #2)
+# Pattern ID: P002  
+# Trinity Framework Compliant
+# TTL2DSpy Explorable
+# Generated: 2025-08-09T16:36:28.072682
+
+@prefix cns: <http://cns-litigation.org/ontology#> .
+@prefix yawl: <http://www.yawlsystem.com/yawlschema#> .
+@prefix dag: <http://directed-acyclic-graph.org/ontology#> .
+@prefix trinity: <http://cns.ultrathink/trinity#> .
+@prefix bitagent: <http://cns.ultrathink/bitagent#> .
+@prefix disc: <http://cns.ultrathink/disc#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+
+cns:P002 a yawl:YAWLSpecification ;
+    rdfs:label "Parallel Split" ;
+    yawl:specVersion "4.0" ;
+    trinity:vanDerAalstIndex "2"^^xsd:integer ;
+    trinity:maxTicks "8"^^xsd:integer ;
+    trinity:deterministicState "true"^^xsd:boolean ;
+    trinity:complianceValidated "true"^^xsd:boolean ;
+    yawl:decomposesTo cns:P002_net .
+
+
+cns:P002_net a yawl:Net ;
+    rdfs:label "Parallel Split Net" ;
+    yawl:inputCondition cns:P002_start ;
+    yawl:outputCondition cns:P002_end .
+
+cns:P002_START a cns:FlowNode, yawl:StartNode ;
+    cns:hasNodeID "START" ;
+    cns:hasNodeType cns:start ;
+    trinity:progressTick "0"^^xsd:integer ;
+    cns:hasProcessingTimeUs "0"^^xsd:integer ;
+    cns:hasPosition "0,0"  ;
+    dag:successors (cns:P002_SPLIT) .
+
+cns:P002_SPLIT a cns:FlowNode, yawl:GatewayNode ;
+    cns:hasNodeID "SPLIT" ;
+    cns:hasNodeType cns:gateway ;
+    trinity:progressTick "1"^^xsd:integer ;
+    cns:hasProcessingTimeUs "500000"^^xsd:integer ;
+    cns:hasPosition "1,0"  ;
+    dag:predecessors (cns:P002_START) ;
+    dag:successors (cns:P002_TASK1, cns:P002_TASK2) .
+
+cns:P002_TASK1 a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "TASK1" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "2"^^xsd:integer ;
+    cns:hasProcessingTimeUs "2000000"^^xsd:integer ;
+    cns:hasPosition "2,-1"  ;
+    dag:predecessors (cns:P002_SPLIT) ;
+    dag:successors (cns:P002_JOIN) .
+
+cns:P002_TASK2 a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "TASK2" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "2"^^xsd:integer ;
+    cns:hasProcessingTimeUs "2000000"^^xsd:integer ;
+    cns:hasPosition "2,1"  ;
+    dag:predecessors (cns:P002_SPLIT) ;
+    dag:successors (cns:P002_JOIN) .
+
+cns:P002_JOIN a cns:FlowNode, yawl:GatewayNode ;
+    cns:hasNodeID "JOIN" ;
+    cns:hasNodeType cns:gateway ;
+    trinity:progressTick "3"^^xsd:integer ;
+    cns:hasProcessingTimeUs "500000"^^xsd:integer ;
+    cns:hasPosition "3,0"  ;
+    dag:predecessors (cns:P002_TASK1, cns:P002_TASK2) ;
+    dag:successors (cns:P002_END) .
+
+cns:P002_END a cns:FlowNode, yawl:EndNode ;
+    cns:hasNodeID "END" ;
+    cns:hasNodeType cns:end ;
+    trinity:progressTick "3"^^xsd:integer ;
+    cns:hasProcessingTimeUs "0"^^xsd:integer ;
+    cns:hasPosition "4,0"  ;
+    dag:predecessors (cns:P002_JOIN) .
+
+# DAG Edge Definitions
+
+cns:edge_001 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:START ;
+    dag:hasTarget cns:SPLIT ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_002 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:SPLIT ;
+    dag:hasTarget cns:TASK1 ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_003 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:SPLIT ;
+    dag:hasTarget cns:TASK2 ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_004 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:TASK1 ;
+    dag:hasTarget cns:JOIN ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_005 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:TASK2 ;
+    dag:hasTarget cns:JOIN ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_006 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:JOIN ;
+    dag:hasTarget cns:END ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+# Trinity Framework Compliance Metadata
+cns:P002_compliance a trinity:ComplianceValidation ;
+    trinity:patternId "P002" ;
+    trinity:tickCompliance "true"^^xsd:boolean ;
+    trinity:hopCompliance "true"^^xsd:boolean ;
+    trinity:bitCompliance "true"^^xsd:boolean ;
+    trinity:deterministicCompliance "true"^^xsd:boolean ;
+    trinity:validatedAt "2025-08-09T16:36:28.072721"^^xsd:dateTime .
+
+
+# TTL2DSpy Exploration Metadata
+cns:P002_exploration a dag:ExplorationGraph ;
+    dag:graphType "directed_acyclic" ;
+    dag:nodeCount "6"^^xsd:integer ;
+    dag:explorable "true"^^xsd:boolean ;
+    dag:ttl2dspyCompatible "true"^^xsd:boolean .

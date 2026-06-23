@@ -1,0 +1,1518 @@
+# wasm4pm-compat canonical type-law ontology
+# Generated from: src/witness.rs, src/state.rs, src/evidence.rs, src/admission.rs
+# and all src/*.rs modules.
+#
+# This ontology maps the Rust type-law surfaces of wasm4pm-compat to RDF triples.
+# It is the machine-readable index of:
+#   - WitnessMarker instances (every witness from src/witness.rs)
+#   - EvidenceState instances (every lifecycle stage from src/state.rs)
+#   - ProcessForm instances (every module's primary type)
+#   - TypeConstraint instances (compile-time law shapes from src/law.rs)
+#   - CompileFailLaw instances (laws that must be unbreakable, each backed by a trybuild fixture)
+#   - SourceModule instances (one per src/*.rs file)
+#
+# Structure only — this ontology does NOT run engines, compute conformance, or
+# replay tokens. Graduate those concerns to wasm4pm.
+
+@prefix compat: <https://wasm4pm-compat.rs/ontology#> .
+@prefix paper:  <https://wasm4pm-compat.rs/paper#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+
+# ============================================================================
+# ONTOLOGY HEADER
+# ============================================================================
+
+<https://wasm4pm-compat.rs/ontology>
+    a owl:Ontology ;
+    rdfs:label "wasm4pm-compat type-law ontology" ;
+    rdfs:comment "Machine-readable index of the Rust type-law surfaces in the wasm4pm-compat nightly crate." ;
+    owl:versionInfo "26.6.9" .
+
+# ============================================================================
+# CLASSES
+# ============================================================================
+
+compat:WitnessMarker
+    a rdfs:Class ;
+    rdfs:label "WitnessMarker" ;
+    rdfs:comment "A zero-sized marker type (empty Rust enum) that names which standard, paper, API grammar, Rust law, or internal bridge a piece of evidence is admitted against. Witnesses are compile-time tags only — they carry no data and run nothing." .
+
+compat:WitnessFamily
+    a rdfs:Class ;
+    rdfs:label "WitnessFamily" ;
+    rdfs:comment "The family (provenance kind) a WitnessMarker belongs to: Standard, Paper, ApiGrammar, RustLaw, or InternalBridge." .
+
+compat:EvidenceState
+    a rdfs:Class ;
+    rdfs:label "EvidenceState" ;
+    rdfs:comment "A sealed lifecycle stage token used as a PhantomData tag inside Evidence<T, State, W>. The seven canonical stages are Raw, Parsed, Admitted, Refused, Projected, Exportable, Receipted. Only these stages implement the sealed EvidenceState trait." .
+
+compat:StateTransition
+    a rdfs:Class ;
+    rdfs:label "StateTransition" ;
+    rdfs:comment "A zero-sized struct type-level marker asserting which lifecycle crossing is at hand (e.g. RawToParsed, ParsedToAdmitted). Structure-only — names a transition, does not execute it." .
+
+compat:ProcessForm
+    a rdfs:Class ;
+    rdfs:label "ProcessForm" ;
+    rdfs:comment "A primary process-evidence shape defined in a src module: an event log, OCEL log, Petri net, WF-net, process tree, DFG, OCPQ query, etc. Structure-only carriers — they hold data shapes and never execute discovery, conformance, or replay." .
+
+compat:TypeConstraint
+    a rdfs:Class ;
+    rdfs:label "TypeConstraint" ;
+    rdfs:comment "A compile-time type-level invariant enforced by the nightly law kernel (src/law.rs): Between01, WfNetSoundness tokens, ConditionCell<BITS>, Require<{EXPR}>: IsTrue bounds." .
+
+compat:CompileFailLaw
+    a rdfs:Class ;
+    rdfs:label "CompileFailLaw" ;
+    rdfs:comment "A law that must be unbreakable at compile time, backed by a trybuild compile-fail fixture in tests/ui/compile_fail/. Each instance names the law, the expected rustc error code, and the fixture file." .
+
+compat:CompilePassSurface
+    a rdfs:Class ;
+    rdfs:label "CompilePassSurface" ;
+    rdfs:comment "A lawful path that must compile successfully, backed by a trybuild compile-pass fixture in tests/ui/compile_pass/. Each instance names the law and the fixture file." .
+
+compat:SourceModule
+    a rdfs:Class ;
+    rdfs:label "SourceModule" ;
+    rdfs:comment "A Rust source file in src/*.rs. Each instance records the file path, primary type(s) defined, and whether engine logic graduates to wasm4pm." .
+
+compat:PaperCoverage
+    a rdfs:Class ;
+    rdfs:label "PaperCoverage" ;
+    rdfs:comment "A coverage record linking a published paper to its Rust type surface in this crate. See also ggen/ontology/papers.ttl for the full paper inventory." .
+
+compat:GraduationBoundary
+    a rdfs:Class ;
+    rdfs:label "GraduationBoundary" ;
+    rdfs:comment "A named boundary where wasm4pm-compat structure ends and wasm4pm engine logic begins. Corresponds to GraduationReason enum variants in src/graduation.rs." .
+
+compat:GraduationSurface
+    a rdfs:Class ;
+    rdfs:label "GraduationSurface" ;
+    rdfs:comment "A wasm4pm module surface where compat structure graduates to engine logic. Named graduation surfaces (mining, conformance, replay, lifecycle) render Evidence carriers and witness markers." .
+
+compat:MiningAuthority
+    a rdfs:Class ;
+    rdfs:label "MiningAuthority" ;
+    rdfs:comment "Process discovery graduation surface in wasm4pm. Handles discovery algorithms, variant analysis, and trace abstraction." .
+
+compat:ConformanceAuthority
+    a rdfs:Class ;
+    rdfs:label "ConformanceAuthority" ;
+    rdfs:comment "Conformance checking graduation surface in wasm4pm. Handles fitness calculation, model-to-log alignment, and declarative checking." .
+
+compat:ReplayAuthority
+    a rdfs:Class ;
+    rdfs:label "ReplayAuthority" ;
+    rdfs:comment "Token replay and simulation graduation surface in wasm4pm. Handles step-wise execution, path finding, and execution profiling." .
+
+compat:LifecycleAuthority
+    a rdfs:Class ;
+    rdfs:label "LifecycleAuthority" ;
+    rdfs:comment "Object-centric lifecycle graduation surface in wasm4pm. Handles object lifecycle tracking, state transitions, and artifact provenance." .
+
+# ============================================================================
+# PROPERTIES
+# ============================================================================
+
+compat:rustType
+    a rdf:Property ;
+    rdfs:label "rustType" ;
+    rdfs:comment "The Rust type name (as a string literal) of this entity in the wasm4pm-compat crate." ;
+    rdfs:range xsd:string .
+
+compat:sourceFile
+    a rdf:Property ;
+    rdfs:label "sourceFile" ;
+    rdfs:comment "The src/*.rs file path (relative to crate root) where this entity is defined." ;
+    rdfs:range xsd:string .
+
+compat:moduleName
+    a rdf:Property ;
+    rdfs:label "moduleName" ;
+    rdfs:comment "The snake_case module name of a SourceModule (e.g. 'ocel'), matching the `mod <name>` declaration in src/lib.rs and the audit script basename." ;
+    rdfs:range xsd:string .
+
+compat:satisfiesLaw
+    a rdf:Property ;
+    rdfs:label "satisfiesLaw" ;
+    rdfs:comment "Links a SourceModule to a named-law node (carrying compat:lawName) that the module must have at least one compile-fail fixture for." ;
+    rdfs:range compat:NamedLaw .
+
+compat:paperCategory
+    a rdf:Property ;
+    rdfs:label "paperCategory" ;
+    rdfs:comment "The source-directory category of a WitnessMarker, matching the ~/Documents/Papers subdirectory it was sourced from. Used to route the marker to the correct per-category generated module. Values: 'cognition', 'rdf', 'ai-llm', 'domain', 'workflow'." ;
+    rdfs:range xsd:string .
+
+compat:witnessKey
+    a rdf:Property ;
+    rdfs:label "witnessKey" ;
+    rdfs:comment "The stable lowercase machine-facing KEY const of a WitnessMarker (e.g. 'ocel-2.0')." ;
+    rdfs:range xsd:string .
+
+compat:witnessTitle
+    a rdf:Property ;
+    rdfs:label "witnessTitle" ;
+    rdfs:comment "The human-facing TITLE const of a WitnessMarker (e.g. 'OCEL 2.0')." ;
+    rdfs:range xsd:string .
+
+compat:witnessYear
+    a rdf:Property ;
+    rdfs:label "witnessYear" ;
+    rdfs:comment "The publication year (YEAR const) of a WitnessMarker, if the authority has a dated edition." ;
+    rdfs:range xsd:integer .
+
+compat:witnessFamily
+    a rdf:Property ;
+    rdfs:label "witnessFamily" ;
+    rdfs:comment "The WitnessFamily (FAMILY const) of a WitnessMarker: one of Standard, Paper, ApiGrammar, RustLaw, InternalBridge." ;
+    rdfs:range compat:WitnessFamily .
+
+compat:paperReference
+    a rdf:Property ;
+    rdfs:label "paperReference" ;
+    rdfs:comment "Cite key for the originating paper (links into ggen/ontology/papers.ttl paper: namespace)." ;
+    rdfs:range xsd:string .
+
+compat:coverageStatus
+    a rdf:Property ;
+    rdfs:label "coverageStatus" ;
+    rdfs:comment "Paper coverage verdict: COVERED_BY_TYPE, COVERED_BY_FIXTURE, COVERED_BY_GRADUATION_BOUNDARY, PARTIAL_WITH_REASON, MISSING_TYPE_LAW, OUT_OF_SCOPE_WITH_REASON, DUPLICATE_OR_BACKGROUND." ;
+    rdfs:range xsd:string .
+
+compat:lawName
+    a rdf:Property ;
+    rdfs:label "lawName" ;
+    rdfs:comment "The named law a compile-fail fixture enforces (e.g. DanglingEventObjectLink, MissingFinalMarking, WitnessDiscrimination)." ;
+    rdfs:range xsd:string .
+
+compat:errorCode
+    a rdf:Property ;
+    rdfs:label "errorCode" ;
+    rdfs:comment "The expected rustc error code for a compile-fail fixture (e.g. E0308, E0277, E0080)." ;
+    rdfs:range xsd:string .
+
+compat:fixtureFile
+    a rdf:Property ;
+    rdfs:label "fixtureFile" ;
+    rdfs:comment "Path to the trybuild fixture file (relative to crate root)." ;
+    rdfs:range xsd:string .
+
+compat:stderrFile
+    a rdf:Property ;
+    rdfs:label "stderrFile" ;
+    rdfs:comment "Path to the expected .stderr file paired with a compile-fail fixture." ;
+    rdfs:range xsd:string .
+
+compat:successorState
+    a rdf:Property ;
+    rdfs:label "successorState" ;
+    rdfs:comment "The EvidenceState(s) that may legally follow this state in the one-way-door lifecycle." ;
+    rdfs:domain compat:EvidenceState ;
+    rdfs:range compat:EvidenceState .
+
+compat:graduatesToWasm4pm
+    a rdf:Property ;
+    rdfs:label "graduatesToWasm4pm" ;
+    rdfs:comment "Whether engine logic for this form/module graduates to the wasm4pm execution engine (true) or is fully expressible as structure-only (false)." ;
+    rdfs:range xsd:boolean .
+
+compat:graduationReason
+    a rdf:Property ;
+    rdfs:label "graduationReason" ;
+    rdfs:comment "The named GraduationReason variant explaining why this surface graduates to wasm4pm." ;
+    rdfs:range xsd:string .
+
+compat:graduatesTo
+    a rdf:Property ;
+    rdfs:label "graduatesTo" ;
+    rdfs:comment "The wasm4pm module surface this authority graduates to (mining, conformance, replay, or lifecycle)." ;
+    rdfs:range xsd:string .
+
+compat:requiresWitness
+    a rdf:Property ;
+    rdfs:label "requiresWitness" ;
+    rdfs:comment "The witness marker that must be admitted against this graduation surface." ;
+    rdfs:range compat:WitnessMarker .
+
+compat:evidenceCarrier
+    a rdf:Property ;
+    rdfs:label "evidenceCarrier" ;
+    rdfs:comment "The Evidence<T, State, Witness> carrier type rendered by this graduation surface." ;
+    rdfs:range xsd:string .
+
+compat:coveringModule
+    a rdf:Property ;
+    rdfs:label "coveringModule" ;
+    rdfs:comment "The src/*.rs module that provides the Rust type surface for a paper or law." ;
+    rdfs:range xsd:string .
+
+compat:description
+    a rdf:Property ;
+    rdfs:label "description" ;
+    rdfs:comment "Human-readable description of the law, form, or constraint." ;
+    rdfs:range xsd:string .
+
+compat:isTerminal
+    a rdf:Property ;
+    rdfs:label "isTerminal" ;
+    rdfs:comment "Whether this EvidenceState is a terminal state (no lawful successor). True for Refused and Receipted." ;
+    rdfs:range xsd:boolean .
+
+compat:isProjectible
+    a rdf:Property ;
+    rdfs:label "isProjectible" ;
+    rdfs:comment "Whether this EvidenceState implements the sealed Projectible trait (only Admitted and Projected do)." ;
+    rdfs:range xsd:boolean .
+
+# ============================================================================
+# WITNESS FAMILY INSTANCES
+# ============================================================================
+
+compat:Standard
+    a compat:WitnessFamily ;
+    rdfs:label "Standard" ;
+    rdfs:comment "A published interchange/data standard (e.g. OCEL 2.0, XES 1849-2016)." .
+
+compat:Paper
+    a compat:WitnessFamily ;
+    rdfs:label "Paper" ;
+    rdfs:comment "An academic paper defining a model or model family (e.g. POWL, WF-net soundness, OC-Petri-nets, OCPQ)." .
+
+compat:ApiGrammar
+    a compat:WitnessFamily ;
+    rdfs:label "ApiGrammar" ;
+    rdfs:comment "An API grammar a consumer must speak to interoperate (e.g. the pm4py call shape, or a pmax consumer grammar)." .
+
+compat:RustLaw
+    a compat:WitnessFamily ;
+    rdfs:label "RustLaw" ;
+    rdfs:comment "A Rust-language law this crate enforces structurally (e.g. typestate admission, forbid(unsafe_code))." .
+
+compat:InternalBridge
+    a compat:WitnessFamily ;
+    rdfs:label "InternalBridge" ;
+    rdfs:comment "An internal bridge toward graduation (e.g. the wasm4pm engine bridge)." .
+
+# ============================================================================
+# WITNESS MARKER INSTANCES
+# All 37 witnesses from src/witness.rs
+# ============================================================================
+
+compat:Ocel20
+    a compat:WitnessMarker ;
+    rdfs:label "Ocel20" ;
+    compat:rustType "Ocel20" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "ocel-2.0" ;
+    compat:witnessTitle "OCEL 2.0" ;
+    compat:witnessYear 2023 ;
+    compat:witnessFamily compat:Standard ;
+    compat:description "OCEL 2.0 — the object-centric event log standard." .
+
+compat:Xes1849
+    a compat:WitnessMarker ;
+    rdfs:label "Xes1849" ;
+    compat:rustType "Xes1849" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "xes-1849-2016" ;
+    compat:witnessTitle "XES (IEEE 1849-2016)" ;
+    compat:witnessYear 2016 ;
+    compat:witnessFamily compat:Standard ;
+    compat:description "IEEE 1849-2016 (XES) — the eXtensible Event Stream interchange standard." .
+
+compat:Pm4pyApiGrammar
+    a compat:WitnessMarker ;
+    rdfs:label "Pm4pyApiGrammar" ;
+    compat:rustType "Pm4pyApiGrammar" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "pm4py-api-grammar" ;
+    compat:witnessTitle "pm4py API grammar" ;
+    compat:witnessFamily compat:ApiGrammar ;
+    compat:description "The pm4py API call grammar a consumer must speak to interoperate." .
+
+compat:PmaxConsumerGrammar
+    a compat:WitnessMarker ;
+    rdfs:label "PmaxConsumerGrammar" ;
+    compat:rustType "PmaxConsumerGrammar" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "pmax-consumer-grammar" ;
+    compat:witnessTitle "pmax consumer grammar" ;
+    compat:witnessFamily compat:ApiGrammar ;
+    compat:description "A pmax-style consumer grammar a downstream caller must satisfy." .
+
+compat:PowlPaper
+    a compat:WitnessMarker ;
+    rdfs:label "PowlPaper" ;
+    compat:rustType "PowlPaper" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "powl-paper" ;
+    compat:witnessTitle "POWL: Partially Ordered Workflow Language" ;
+    compat:witnessYear 2023 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "POWL — Partially Ordered Workflow Language (Kourani and van Zelst)." .
+
+compat:ObjectCentricPetriNetPaper
+    a compat:WitnessMarker ;
+    rdfs:label "ObjectCentricPetriNetPaper" ;
+    compat:rustType "ObjectCentricPetriNetPaper" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "oc-petri-net-paper" ;
+    compat:witnessTitle "Discovering Object-Centric Petri Nets" ;
+    compat:witnessYear 2020 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Object-centric Petri nets (van der Aalst and Berti)." .
+
+compat:WfNetSoundnessPaper
+    a compat:WitnessMarker ;
+    rdfs:label "WfNetSoundnessPaper" ;
+    compat:rustType "WfNetSoundnessPaper" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "wfnet-soundness-paper" ;
+    compat:witnessTitle "The Application of Petri Nets to Workflow Management (soundness)" ;
+    compat:witnessYear 1998 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "WF-net soundness (van der Aalst) — the soundness criterion for workflow nets." .
+
+compat:OcpqPaper
+    a compat:WitnessMarker ;
+    rdfs:label "OcpqPaper" ;
+    compat:rustType "OcpqPaper" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "ocpq-paper" ;
+    compat:witnessTitle "Object-Centric Process Querying" ;
+    compat:witnessYear 2024 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "OCPQ — Object-Centric Process Querying." .
+
+compat:DeclareFamily
+    a compat:WitnessMarker ;
+    rdfs:label "DeclareFamily" ;
+    compat:rustType "DeclareFamily" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "declare-family" ;
+    compat:witnessTitle "Declare constraint family" ;
+    compat:witnessYear 2007 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "The Declare constraint-template family (declarative process modeling)." .
+
+compat:PredictiveMonitoringFamily
+    a compat:WitnessMarker ;
+    rdfs:label "PredictiveMonitoringFamily" ;
+    compat:rustType "PredictiveMonitoringFamily" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "predictive-monitoring-family" ;
+    compat:witnessTitle "Predictive Process Monitoring family" ;
+    compat:witnessYear 2018 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "The predictive (business) process monitoring problem family." .
+
+compat:ReceiptFamily
+    a compat:WitnessMarker ;
+    rdfs:label "ReceiptFamily" ;
+    compat:rustType "ReceiptFamily" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "receipt-family" ;
+    compat:witnessTitle "Receipt-shaped evidence family" ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Receipt-shaped, provenance-bearing evidence (the receipt family)." .
+
+compat:RustTypestateLaw
+    a compat:WitnessMarker ;
+    rdfs:label "RustTypestateLaw" ;
+    compat:rustType "RustTypestateLaw" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "rust-typestate-law" ;
+    compat:witnessTitle "Rust typestate law" ;
+    compat:witnessFamily compat:RustLaw ;
+    compat:description "The Rust typestate law: states are tracked at the type level and illegal transitions are unrepresentable." .
+
+compat:Wasm4pmBridge
+    a compat:WitnessMarker ;
+    rdfs:label "Wasm4pmBridge" ;
+    compat:rustType "Wasm4pmBridge" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "wasm4pm-bridge" ;
+    compat:witnessTitle "wasm4pm graduation bridge" ;
+    compat:witnessFamily compat:InternalBridge ;
+    compat:description "The internal bridge toward the wasm4pm execution engine (graduation)." .
+
+compat:YawlPaper
+    a compat:WitnessMarker ;
+    rdfs:label "YawlPaper" ;
+    compat:rustType "YawlPaper" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "yawl-paper" ;
+    compat:witnessTitle "YAWL: Yet Another Workflow Language" ;
+    compat:witnessYear 2004 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "YAWL — Yet Another Workflow Language (van der Aalst and ter Hofstede, 2004). Typed routing constructs, cancellation regions, multiple-instance tasks." .
+
+compat:SeparableWfNetPaper
+    a compat:WitnessMarker ;
+    rdfs:label "SeparableWfNetPaper" ;
+    compat:rustType "SeparableWfNetPaper" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "separable-wfnet-paper" ;
+    compat:witnessTitle "Hierarchical Decomposition of Separable Workflow-Nets" ;
+    compat:witnessYear 2026 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Hierarchical Decomposition of Separable WF-nets (Kourani et al., 2026). Separable WF-net subclass and WF-net to POWL 2.0 transformation theorem." .
+
+compat:WorkflowPatternsPaper
+    a compat:WitnessMarker ;
+    rdfs:label "WorkflowPatternsPaper" ;
+    compat:rustType "WorkflowPatternsPaper" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "workflow-patterns-paper" ;
+    compat:witnessTitle "Workflow Patterns: The Definitive Guide" ;
+    compat:witnessYear 2016 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Workflow Patterns: The Definitive Guide (Russell, van der Aalst and ter Hofstede, 2016). Canonical set of named workflow patterns WP-1 through WP-43+." .
+
+compat:InductiveMiner
+    a compat:WitnessMarker ;
+    rdfs:label "InductiveMiner" ;
+    compat:rustType "InductiveMiner" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "inductive-miner" ;
+    compat:witnessTitle "Inductive Miner (Leemans, Fahland and van der Aalst)" ;
+    compat:witnessYear 2013 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Inductive Miner family of process discovery algorithms (Leemans, Fahland and van der Aalst, 2013). Graduate to wasm4pm when the miner must actually execute." .
+
+compat:DeclareConstraints
+    a compat:WitnessMarker ;
+    rdfs:label "DeclareConstraints" ;
+    compat:rustType "DeclareConstraints" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "declare-constraints" ;
+    compat:witnessTitle "Declare constraint-template language" ;
+    compat:witnessYear 2006 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Declare constraint-template language (Pesic and van der Aalst, 2006). Individual constraint surface: Response, Precedence, Chain-Succession templates and LTL semantics. Distinct from DeclareFamily (whole model)." .
+
+compat:AlignmentPaper
+    a compat:WitnessMarker ;
+    rdfs:label "AlignmentPaper" ;
+    compat:rustType "AlignmentPaper" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "alignment-paper" ;
+    compat:witnessTitle "Alignment-Based Conformance Checking" ;
+    compat:witnessYear 2008 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Alignment-based conformance checking (van Dongen, de Medeiros and Wen, 2008). Optimal and heuristic alignments between event log and process model. Graduate to wasm4pm for actual alignment computation." .
+
+compat:OcPetriNets
+    a compat:WitnessMarker ;
+    rdfs:label "OcPetriNets" ;
+    compat:rustType "OcPetriNets" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "oc-petri-nets" ;
+    compat:witnessTitle "Object-Centric Petri Nets (notation)" ;
+    compat:witnessYear 2020 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Object-centric Petri nets notation authority — model structure (object types, variable arcs, binding elements). Distinct from ObjectCentricPetriNetPaper (discovery algorithm)." .
+
+compat:LogSkeleton
+    a compat:WitnessMarker ;
+    rdfs:label "LogSkeleton" ;
+    compat:rustType "LogSkeleton" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "log-skeleton" ;
+    compat:witnessTitle "Log Skeleton (Verbeek and Leemans)" ;
+    compat:witnessYear 2018 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Log Skeleton declarative model (Verbeek and Leemans, 2018). Six relations: always-before, always-after, never-together, etc. Distinct from DeclareConstraints." .
+
+compat:AlphaMiner
+    a compat:WitnessMarker ;
+    rdfs:label "AlphaMiner" ;
+    compat:rustType "AlphaMiner" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "alpha-miner" ;
+    compat:witnessTitle "Alpha Algorithm (van der Aalst, Weijters and Maruster)" ;
+    compat:witnessYear 2004 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Alpha Algorithm (van der Aalst, Weijters and Maruster, 2004). Causal-matrix based process discovery producing a WF-net from an event log. Distinct from InductiveMiner." .
+
+compat:XesLifecycleExt
+    a compat:WitnessMarker ;
+    rdfs:label "XesLifecycleExt" ;
+    compat:rustType "XesLifecycleExt" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "xes-lifecycle-extension" ;
+    compat:witnessTitle "XES lifecycle extension (IEEE 1849-2016)" ;
+    compat:witnessYear 2016 ;
+    compat:witnessFamily compat:Standard ;
+    compat:description "XES lifecycle extension authority (IEEE 1849-2016, lifecycle section). Tags admissions checking only lifecycle:transition values, not the full XES shape." .
+
+compat:XesConceptExt
+    a compat:WitnessMarker ;
+    rdfs:label "XesConceptExt" ;
+    compat:rustType "XesConceptExt" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "xes-concept-extension" ;
+    compat:witnessTitle "XES concept extension (IEEE 1849-2016)" ;
+    compat:witnessYear 2016 ;
+    compat:witnessFamily compat:Standard ;
+    compat:description "XES concept extension authority (IEEE 1849-2016, concept section). Tags admissions checking concept:name key specifically." .
+
+compat:OcelObjectType
+    a compat:WitnessMarker ;
+    rdfs:label "OcelObjectType" ;
+    compat:rustType "OcelObjectType" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "ocel-object-type" ;
+    compat:witnessTitle "OCEL 2.0 object-type namespace" ;
+    compat:witnessYear 2023 ;
+    compat:witnessFamily compat:Standard ;
+    compat:description "OCEL 2.0 object-type namespace witness. Sub-authority governing individual object-type declarations. Distinct from Ocel20 (the overall standard)." .
+
+compat:OcelEventType
+    a compat:WitnessMarker ;
+    rdfs:label "OcelEventType" ;
+    compat:rustType "OcelEventType" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "ocel-event-type" ;
+    compat:witnessTitle "OCEL 2.0 event-type (activity) namespace" ;
+    compat:witnessYear 2023 ;
+    compat:witnessFamily compat:Standard ;
+    compat:description "OCEL 2.0 event-type (activity) namespace witness. Sub-authority governing individual activity declarations. Distinct from Ocel20." .
+
+compat:OcelAttributeType
+    a compat:WitnessMarker ;
+    rdfs:label "OcelAttributeType" ;
+    compat:rustType "OcelAttributeType" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "ocel-attribute-type" ;
+    compat:witnessTitle "OCEL 2.0 attribute-type namespace" ;
+    compat:witnessYear 2023 ;
+    compat:witnessFamily compat:Standard ;
+    compat:description "OCEL 2.0 attribute-type namespace witness. Governs individual attribute-domain declarations. Distinct from Ocel20 and OcelObjectType." .
+
+compat:WfNet2Powl
+    a compat:WitnessMarker ;
+    rdfs:label "WfNet2Powl" ;
+    compat:rustType "WfNet2Powl" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "wfnet-to-powl" ;
+    compat:witnessTitle "WF-net to POWL 2.0 conversion (Kourani, Park and van der Aalst)" ;
+    compat:witnessYear 2026 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "WF-net to POWL 2.0 conversion authority (Kourani, Park and van der Aalst, 2026). Definition 4.1 and Theorem 4.3 of the 2026 paper. Distinct from SeparableWfNetPaper (separability subclass) and PowlPaper (language authority)." .
+
+compat:DivergenceWitness
+    a compat:WitnessMarker ;
+    rdfs:label "DivergenceWitness" ;
+    compat:rustType "DivergenceWitness" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "oc-pm-divergence" ;
+    compat:witnessTitle "OC-PM divergence detection (paper #49)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "OC-PM divergence detection authority (paper #49). Divergence: object type participates in mutually exclusive execution paths that cannot be merged without information loss." .
+
+compat:ConvergenceWitness
+    a compat:WitnessMarker ;
+    rdfs:label "ConvergenceWitness" ;
+    compat:rustType "ConvergenceWitness" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "oc-pm-convergence" ;
+    compat:witnessTitle "OC-PM convergence detection (paper #49)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "OC-PM convergence detection authority (paper #49). Convergence: divergent execution paths reconverge at a synchronisation point." .
+
+compat:ProcessCubePaper
+    a compat:WitnessMarker ;
+    rdfs:label "ProcessCubePaper" ;
+    compat:rustType "ProcessCubePaper" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "process-cube-paper" ;
+    compat:witnessTitle "Process Cubes (van der Aalst, 2013)" ;
+    compat:witnessYear 2013 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Process Cube framework (van der Aalst, 2013). Slicing, dicing, rolling up, drilling down event data for process mining." .
+
+compat:OperationalView
+    a compat:WitnessMarker ;
+    rdfs:label "OperationalView" ;
+    compat:rustType "OperationalView" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "process-cube-operational-view" ;
+    compat:witnessTitle "Process Cube operational view" ;
+    compat:witnessYear 2013 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Operational view witness — process cube projection to the operational (execution-level) perspective: concrete execution traces for a sub-population." .
+
+compat:AnalyticalView
+    a compat:WitnessMarker ;
+    rdfs:label "AnalyticalView" ;
+    compat:rustType "AnalyticalView" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "process-cube-analytical-view" ;
+    compat:witnessTitle "Process Cube analytical view" ;
+    compat:witnessYear 2013 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Analytical view witness — process cube projection to the analytical (model-level) perspective: discovered process model for a sub-population." .
+
+compat:AggregationView
+    a compat:WitnessMarker ;
+    rdfs:label "AggregationView" ;
+    compat:rustType "AggregationView" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "process-cube-aggregation-view" ;
+    compat:witnessTitle "Process Cube aggregation view" ;
+    compat:witnessYear 2013 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Aggregation view witness — process cube projection to the aggregated (statistical/summary) perspective: summary metrics or aggregate results over a cell." .
+
+compat:StreamingEvidenceWitness
+    a compat:WitnessMarker ;
+    rdfs:label "StreamingEvidenceWitness" ;
+    compat:rustType "StreamingEvidenceWitness" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "streaming-evidence" ;
+    compat:witnessTitle "Streaming evidence (online collection context)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Streaming evidence authority — evidence collected from a live event stream. Distinct from CausalConsistencyWitness (causal ordering) and CrossLogCorrelationWitness (multi-log provenance)." .
+
+compat:CausalConsistencyWitness
+    a compat:WitnessMarker ;
+    rdfs:label "CausalConsistencyWitness" ;
+    compat:rustType "CausalConsistencyWitness" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "causal-consistency" ;
+    compat:witnessTitle "Causal consistency (cross-object causal ordering verified)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Causal consistency authority — cross-object causal links are mutually consistent. Per the process-mining Chicago TDD doctrine: if the event log cannot prove a lawful causal process happened, then it did not happen." .
+
+compat:CrossLogCorrelationWitness
+    a compat:WitnessMarker ;
+    rdfs:label "CrossLogCorrelationWitness" ;
+    compat:rustType "CrossLogCorrelationWitness" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "cross-log-correlation" ;
+    compat:witnessTitle "Cross-log correlation (multi-log provenance)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Cross-log correlation authority — events from two or more logs have been correlated under a named schema. Provenance spans multiple logs." .
+
+compat:TimeAwareWitness
+    a compat:WitnessMarker ;
+    rdfs:label "TimeAwareWitness" ;
+    compat:rustType "TimeAwareWitness" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "time-aware-witness" ;
+    compat:witnessTitle "Time-aware evidence (temporal ordering established)" ;
+    compat:witnessYear 2020 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Time-aware evidence authority — temporal ordering relations between events have been derived. Distinct from TemporalProfileWitness (full statistical profile computed)." .
+
+compat:TemporalProfileWitness
+    a compat:WitnessMarker ;
+    rdfs:label "TemporalProfileWitness" ;
+    compat:rustType "TemporalProfileWitness" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "temporal-profile-witness" ;
+    compat:witnessTitle "Temporal profile (AVG/STD per activity-pair — Stertz et al. 2020)" ;
+    compat:witnessYear 2020 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Temporal profile authority — full temporal profile (statistical distribution of time distances between activity pairs) computed and attached. Grounded in Stertz, Rinderle-Ma and Rinderle (2020)." .
+
+compat:ControlFlowPerspectiveWitness
+    a compat:WitnessMarker ;
+    rdfs:label "ControlFlowPerspectiveWitness" ;
+    compat:rustType "ControlFlowPerspectiveWitness" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "cf-perspective" ;
+    compat:witnessTitle "Control-Flow Perspective (Mannhardt et al. 2016)" ;
+    compat:witnessYear 2016 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Control-flow perspective authority (Mannhardt et al., 2016). Covers activity ordering and routing in the balanced multi-perspective conformance framework." .
+
+compat:DataPerspectiveWitness
+    a compat:WitnessMarker ;
+    rdfs:label "DataPerspectiveWitness" ;
+    compat:rustType "DataPerspectiveWitness" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "data-perspective" ;
+    compat:witnessTitle "Data Perspective (Mannhardt et al. 2016)" ;
+    compat:witnessYear 2016 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Data perspective authority (Mannhardt et al., 2016). Covers event and object attribute values in the balanced multi-perspective conformance framework." .
+
+compat:ResourcePerspectiveWitness
+    a compat:WitnessMarker ;
+    rdfs:label "ResourcePerspectiveWitness" ;
+    compat:rustType "ResourcePerspectiveWitness" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "resource-perspective" ;
+    compat:witnessTitle "Resource Perspective (Mannhardt et al. 2016)" ;
+    compat:witnessYear 2016 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Resource perspective authority (Mannhardt et al., 2016). Covers who performs each activity (org:resource) in the balanced multi-perspective conformance framework." .
+
+compat:TimePerspectiveWitness
+    a compat:WitnessMarker ;
+    rdfs:label "TimePerspectiveWitness" ;
+    compat:rustType "TimePerspectiveWitness" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "time-perspective" ;
+    compat:witnessTitle "Time Perspective (Mannhardt et al. 2016)" ;
+    compat:witnessYear 2016 ;
+    compat:witnessFamily compat:Paper ;
+    compat:description "Time perspective authority (Mannhardt et al., 2016). Covers timestamps, durations, and sojourn times in the balanced multi-perspective conformance framework." .
+
+compat:MiningWitness
+    a compat:WitnessMarker ;
+    rdfs:label "MiningWitness" ;
+    compat:rustType "MiningWitness" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "wasm4pm-mining" ;
+    compat:witnessTitle "wasm4pm Mining Authority" ;
+    compat:witnessFamily compat:InternalBridge ;
+    compat:description "wasm4pm mining authority witness. Bridge marker for process discovery algorithms (inductive, heuristic, alpha mining, variant analysis, trace abstraction)." .
+
+compat:ConformanceWitness
+    a compat:WitnessMarker ;
+    rdfs:label "ConformanceWitness" ;
+    compat:rustType "ConformanceWitness" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "wasm4pm-conformance" ;
+    compat:witnessTitle "wasm4pm Conformance Authority" ;
+    compat:witnessFamily compat:InternalBridge ;
+    compat:description "wasm4pm conformance authority witness. Bridge marker for model-to-log alignment, fitness calculation, and conformance checking." .
+
+compat:ReplayWitness
+    a compat:WitnessMarker ;
+    rdfs:label "ReplayWitness" ;
+    compat:rustType "ReplayWitness" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "wasm4pm-replay" ;
+    compat:witnessTitle "wasm4pm Replay Authority" ;
+    compat:witnessFamily compat:InternalBridge ;
+    compat:description "wasm4pm replay authority witness. Bridge marker for token-based replay, simulation, and path finding." .
+
+compat:LifecycleWitness
+    a compat:WitnessMarker ;
+    rdfs:label "LifecycleWitness" ;
+    compat:rustType "LifecycleWitness" ;
+    compat:sourceFile "src/witness.rs" ;
+    compat:witnessKey "wasm4pm-lifecycle" ;
+    compat:witnessTitle "wasm4pm Lifecycle Authority" ;
+    compat:witnessFamily compat:InternalBridge ;
+    compat:description "wasm4pm lifecycle authority witness. Bridge marker for object-centric lifecycle tracking, state transitions, and artifact provenance." .
+
+# ============================================================================
+# EVIDENCE STATE INSTANCES (from src/state.rs — 7 canonical stages)
+# ============================================================================
+
+compat:Raw
+    a compat:EvidenceState ;
+    rdfs:label "Raw" ;
+    compat:rustType "Raw" ;
+    compat:sourceFile "src/state.rs" ;
+    compat:isTerminal false ;
+    compat:isProjectible false ;
+    compat:successorState compat:Parsed, compat:Refused ;
+    compat:description "Untrusted input as it arrives from the outside world. Entry stage: bytes/values parsed off an external format, not yet judged against any Witness. Must never be exported as if admitted." .
+
+compat:Parsed
+    a compat:EvidenceState ;
+    rdfs:label "Parsed" ;
+    compat:rustType "Parsed" ;
+    compat:sourceFile "src/state.rs" ;
+    compat:isTerminal false ;
+    compat:isProjectible false ;
+    compat:successorState compat:Admitted, compat:Refused ;
+    compat:description "Structurally parsed but not yet judged at the boundary. Well-formed shape accepted by the format decoder but not yet put through admission against a named authority." .
+
+compat:Admitted
+    a compat:EvidenceState ;
+    rdfs:label "Admitted" ;
+    compat:rustType "Admitted" ;
+    compat:sourceFile "src/state.rs" ;
+    compat:isTerminal false ;
+    compat:isProjectible true ;
+    compat:successorState compat:Projected, compat:Exportable, compat:Receipted ;
+    compat:description "Admitted across the boundary against a named Witness. Reaching Admitted means an Admit impl returned Admission rather than Refusal. Only Admitted evidence is eligible to be projected, exported, or receipted." .
+
+compat:Refused
+    a compat:EvidenceState ;
+    rdfs:label "Refused" ;
+    compat:rustType "Refused" ;
+    compat:sourceFile "src/state.rs" ;
+    compat:isTerminal true ;
+    compat:isProjectible false ;
+    compat:description "Terminal refusal: a specific named law was broken at the boundary. Carries the named reason (e.g. DanglingEventObjectLink, FlatteningLoss). Cannot be coerced back to Admitted." .
+
+compat:Projected
+    a compat:EvidenceState ;
+    rdfs:label "Projected" ;
+    compat:rustType "Projected" ;
+    compat:sourceFile "src/state.rs" ;
+    compat:isTerminal false ;
+    compat:isProjectible true ;
+    compat:successorState compat:Exportable, compat:Receipted ;
+    compat:description "Result of a named, accounted lossy projection produced by a Project impl under an explicit LossPolicy, accompanied by a LossReport. The projection is on the record." .
+
+compat:Exportable
+    a compat:EvidenceState ;
+    rdfs:label "Exportable" ;
+    compat:rustType "Exportable" ;
+    compat:sourceFile "src/state.rs" ;
+    compat:isTerminal false ;
+    compat:isProjectible false ;
+    compat:successorState compat:Receipted ;
+    compat:description "Cleared to leave the crate as an external/wasm4pm value. Marks evidence that has been admitted (and possibly projected) and is now allowed to cross back out through an export contract." .
+
+compat:Receipted
+    a compat:EvidenceState ;
+    rdfs:label "Receipted" ;
+    compat:rustType "Receipted" ;
+    compat:sourceFile "src/state.rs" ;
+    compat:isTerminal true ;
+    compat:isProjectible false ;
+    compat:description "Sealed inside a provenance-bearing receipt shape. Records provenance and the witness it answered to. Strongest structural stage — the natural hand-off point when graduating to a wasm4pm engine that will verify the receipt." .
+
+# ============================================================================
+# STATE TRANSITION MARKERS (from src/state.rs)
+# ============================================================================
+
+compat:RawToParsed
+    a compat:StateTransition ;
+    rdfs:label "RawToParsed" ;
+    compat:rustType "RawToParsed" ;
+    compat:sourceFile "src/state.rs" .
+
+compat:ParsedToAdmitted
+    a compat:StateTransition ;
+    rdfs:label "ParsedToAdmitted" ;
+    compat:rustType "ParsedToAdmitted" ;
+    compat:sourceFile "src/state.rs" .
+
+compat:ParsedToRefused
+    a compat:StateTransition ;
+    rdfs:label "ParsedToRefused" ;
+    compat:rustType "ParsedToRefused" ;
+    compat:sourceFile "src/state.rs" .
+
+compat:AdmittedToProjected
+    a compat:StateTransition ;
+    rdfs:label "AdmittedToProjected" ;
+    compat:rustType "AdmittedToProjected" ;
+    compat:sourceFile "src/state.rs" .
+
+compat:AdmittedToExportable
+    a compat:StateTransition ;
+    rdfs:label "AdmittedToExportable" ;
+    compat:rustType "AdmittedToExportable" ;
+    compat:sourceFile "src/state.rs" .
+
+compat:AdmittedToReceipted
+    a compat:StateTransition ;
+    rdfs:label "AdmittedToReceipted" ;
+    compat:rustType "AdmittedToReceipted" ;
+    compat:sourceFile "src/state.rs" .
+
+compat:ProjectedToExportable
+    a compat:StateTransition ;
+    rdfs:label "ProjectedToExportable" ;
+    compat:rustType "ProjectedToExportable" ;
+    compat:sourceFile "src/state.rs" .
+
+compat:ProjectedToReceipted
+    a compat:StateTransition ;
+    rdfs:label "ProjectedToReceipted" ;
+    compat:rustType "ProjectedToReceipted" ;
+    compat:sourceFile "src/state.rs" .
+
+compat:ExportableToReceipted
+    a compat:StateTransition ;
+    rdfs:label "ExportableToReceipted" ;
+    compat:rustType "ExportableToReceipted" ;
+    compat:sourceFile "src/state.rs" .
+
+# ============================================================================
+# PROCESS FORM INSTANCES (one per primary module/type)
+# ============================================================================
+
+compat:EventLog
+    a compat:ProcessForm ;
+    rdfs:label "EventLog" ;
+    compat:rustType "EventLog" ;
+    compat:sourceFile "src/eventlog.rs" ;
+    compat:graduatesToWasm4pm false ;
+    compat:description "Classic flat event log shape: EventLog, Trace, Event. Builder API: Event::new().at_ns().by().with_lifecycle(). Structure only." .
+
+compat:OcelLog
+    a compat:ProcessForm ;
+    rdfs:label "OcelLog" ;
+    compat:rustType "OcelLog" ;
+    compat:sourceFile "src/ocel.rs" ;
+    compat:graduatesToWasm4pm false ;
+    compat:description "OCEL 2.0 object-centric event log shape: OcelLog, OcelEvent, EventObjectLink, ObjectObjectLink, ObjectChange. Builder chains on all link/change types. Structure only." .
+
+compat:XesLog
+    a compat:ProcessForm ;
+    rdfs:label "XesLog" ;
+    compat:rustType "XesLog" ;
+    compat:sourceFile "src/xes.rs" ;
+    compat:graduatesToWasm4pm false ;
+    compat:description "XES (IEEE 1849-2016) event log shape. Import/export contracts, round-trip claims, loss surfaces. Feature: formats." .
+
+compat:PetriNet
+    a compat:ProcessForm ;
+    rdfs:label "PetriNet" ;
+    compat:rustType "PetriNet" ;
+    compat:sourceFile "src/petri.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsConformanceExecution" ;
+    compat:description "Petri net shape: PetriNet, Place, Transition, Arc, Marking. Structural validate only. Soundness, reachability, and token-game replay graduate to wasm4pm." .
+
+compat:WfNetConst
+    a compat:ProcessForm ;
+    rdfs:label "WfNetConst" ;
+    compat:rustType "WfNetConst<SOUNDNESS>" ;
+    compat:sourceFile "src/petri.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsConformanceExecution" ;
+    compat:description "Typed workflow net with const-generic soundness token: SoundnessUnknown (default), SoundnessClaimed, SoundnessWitnessed. Non-forgeable witness path. Soundness verification graduates to wasm4pm." .
+
+compat:SeparableWfNet
+    a compat:ProcessForm ;
+    rdfs:label "SeparableWfNet" ;
+    compat:rustType "SeparableWfNet<SOUNDNESS>" ;
+    compat:sourceFile "src/petri.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsConformanceExecution" ;
+    compat:description "The separable WF-net subclass (Kourani et al., 2026). Separability is a structural law; conversion to POWL 2.0 preserves language." .
+
+compat:ObjectCentricPetriNet
+    a compat:ProcessForm ;
+    rdfs:label "ObjectCentricPetriNet" ;
+    compat:rustType "ObjectCentricPetriNet" ;
+    compat:sourceFile "src/petri.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsDiscovery" ;
+    compat:description "OC-Petri net shape: typed arcs by object type, variable arcs. Structure only; discovery and replay graduate to wasm4pm." .
+
+compat:PowlNode
+    a compat:ProcessForm ;
+    rdfs:label "PowlNode" ;
+    compat:rustType "PowlNode" ;
+    compat:sourceFile "src/powl.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsDiscovery" ;
+    compat:description "POWL (Partially Ordered Workflow Language) shape: PowlNode, PowlNodeKind (StrictOrder, Loop, XorGateway, SilentTransition, ChoiceGraph). TreeProjectable sealed trait. Structure only." .
+
+compat:ProcessTree
+    a compat:ProcessForm ;
+    rdfs:label "ProcessTree" ;
+    compat:rustType "ProcessTree" ;
+    compat:sourceFile "src/process_tree.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsDiscovery" ;
+    compat:description "Block-structured process tree shape: ProcessTree, ProcessTreeNode, ProcessTreeOperator (sequence, exclusive choice, parallel, loop, silent). TypedLoopNode<ARITY> with Require<{ARITY==2}>: IsTrue. Structure only." .
+
+compat:DeclareModel
+    a compat:ProcessForm ;
+    rdfs:label "DeclareModel" ;
+    compat:rustType "DeclareModel" ;
+    compat:sourceFile "src/declare.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsConformanceExecution" ;
+    compat:description "Declare constraint model shape: named constraint templates (Response, Precedence, ChainSuccession, etc.) with LTL semantics. Structure only; LTL checking graduates to wasm4pm." .
+
+compat:DfgShape
+    a compat:ProcessForm ;
+    rdfs:label "DfgShape" ;
+    compat:rustType "DirectlyFollowsGraph" ;
+    compat:sourceFile "src/dfg.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsDiscovery" ;
+    compat:description "Directly-Follows Graph shape (including OC-DFG). Structure only; DFG mining and filtering graduate to wasm4pm." .
+
+compat:OcpqQuery
+    a compat:ProcessForm ;
+    rdfs:label "OcpqQuery" ;
+    compat:rustType "OcpqQuery" ;
+    compat:sourceFile "src/ocpq.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsConformanceExecution" ;
+    compat:description "OCPQ query and result shape: OcpqQuery, OcpqResult, predicate witness markers (EventPredicate, ObjectPredicate, RelationPredicate, TemporalPredicate, CardinalityPredicate, NestedQuery, Constraint), OcpqRefusal. Query execution graduates to wasm4pm." .
+
+compat:BpmnModel
+    a compat:ProcessForm ;
+    rdfs:label "BpmnModel" ;
+    compat:rustType "BpmnModel" ;
+    compat:sourceFile "src/bpmn.rs" ;
+    compat:graduatesToWasm4pm false ;
+    compat:description "BPMN 2.0 shape: task, gateway (XOR/AND/OR), event, pool, lane, subprocess, message flow. Gateway type as PhantomData witness. Structure only." .
+
+compat:ConformanceVerdict
+    a compat:ProcessForm ;
+    rdfs:label "ConformanceVerdict" ;
+    compat:rustType "ConformanceVerdict" ;
+    compat:sourceFile "src/conformance.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsConformanceExecution" ;
+    compat:description "Conformance verdict carrier shape: Fitness, Precision, F1 (bounded [0,1] newtypes), Deviation, SyncMove, LogOnlyMove, ModelOnlyMove, ConformanceRefusal. Values computed by wasm4pm engine; this crate holds the shape." .
+
+compat:PredictionTarget
+    a compat:ProcessForm ;
+    rdfs:label "PredictionTarget" ;
+    compat:rustType "PredictionTarget" ;
+    compat:sourceFile "src/prediction.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsDiscovery" ;
+    compat:description "Predictive process monitoring shape: PredictionTarget structure. Prediction execution and compliance-constraint binding graduate to wasm4pm." .
+
+compat:Receipt
+    a compat:ProcessForm ;
+    rdfs:label "Receipt" ;
+    compat:rustType "Receipt" ;
+    compat:sourceFile "src/receipt.rs" ;
+    compat:graduatesToWasm4pm false ;
+    compat:description "Provenance-bearing receipt envelope. Records provenance and the witness a value answered to. Structure only — the natural hand-off shape for graduation." .
+
+compat:GraduationCandidate
+    a compat:ProcessForm ;
+    rdfs:label "GraduationCandidate" ;
+    compat:rustType "GraduationCandidate" ;
+    compat:sourceFile "src/graduation.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "RebuildingProcessMiningLocally" ;
+    compat:description "Graduation bridge toward the wasm4pm execution engine. GraduationCandidate, GraduationReason (NeedsDiscovery, NeedsConformanceExecution, NeedsReplay, NeedsBenchmarkGating, NeedsObjectCentricQuery, RebuildingProcessMiningLocally), GraduateToWasm4pm trait." .
+
+compat:Evidence
+    a compat:ProcessForm ;
+    rdfs:label "Evidence" ;
+    compat:rustType "Evidence<T, State, W>" ;
+    compat:sourceFile "src/evidence.rs" ;
+    compat:graduatesToWasm4pm false ;
+    compat:description "Universal carrier: Evidence<T, State, W> bundles a value T with lifecycle stage State and witness W as PhantomData tags. Zero runtime cost. Raw constructor is free; Admitted path requires Admit impl." .
+
+compat:Admission
+    a compat:ProcessForm ;
+    rdfs:label "Admission" ;
+    compat:rustType "Admission<T, W>" ;
+    compat:sourceFile "src/admission.rs" ;
+    compat:graduatesToWasm4pm false ;
+    compat:description "First-class admission verdict: Admission<T, W> proves at the type level that an Admit impl accepted the value against witness W. Only sanctioned Raw-to-Admitted path." .
+
+compat:Refusal
+    a compat:ProcessForm ;
+    rdfs:label "Refusal" ;
+    compat:rustType "Refusal<R, W>" ;
+    compat:sourceFile "src/admission.rs" ;
+    compat:graduatesToWasm4pm false ;
+    compat:description "First-class refusal verdict: Refusal<R, W> carries a specific named reason R (e.g. DanglingEventObjectLink) and witness W. Bare InvalidInput is forbidden as a reason." .
+
+compat:LossReport
+    a compat:ProcessForm ;
+    rdfs:label "LossReport" ;
+    compat:rustType "LossReport<From, To, Items>" ;
+    compat:sourceFile "src/loss.rs" ;
+    compat:graduatesToWasm4pm false ;
+    compat:description "Loss accounting shape: LossReport<From, To, Items>, ProjectionName, LossPolicy (RefuseLoss | AllowNamedProjection | AllowLossWithReport). Every non-refusing projection emits a LossReport. Silent structure loss is a defect." .
+
+compat:CompatDiagnostic
+    a compat:ProcessForm ;
+    rdfs:label "CompatDiagnostic" ;
+    compat:rustType "CompatDiagnostic" ;
+    compat:sourceFile "src/diagnostic.rs" ;
+    compat:graduatesToWasm4pm false ;
+    compat:description "Named laws of a well-formed compat surface. Each variant is a specific auditable accusation with a remedy: RawEvidenceExportedAsAdmitted, SilentStructureLoss, BareInvalidInputRefusal, etc." .
+
+compat:StrictBoundary
+    a compat:ProcessForm ;
+    rdfs:label "StrictBoundary" ;
+    compat:rustType "ExportBoundaryConst<HAS_WITNESS, HAS_ROUND_TRIP>" ;
+    compat:sourceFile "src/strict.rs" ;
+    compat:graduatesToWasm4pm false ;
+    compat:description "Strict boundary judgment surface (feature: strict). ExportBoundaryConst<HAS_WITNESS, HAS_ROUND_TRIP> const-generic type, ProcessBoundary, StrictViolation (MissingLossPolicy, MissingRefusalPath, HiddenProcessMiningGrowth). Opt-in strict admission/refusal surfaces." .
+
+compat:ProcessCube
+    a compat:ProcessForm ;
+    rdfs:label "ProcessCube" ;
+    compat:rustType "ProcessCube" ;
+    compat:sourceFile "src/process_cube.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsConformanceExecution" ;
+    compat:description "Process cube framework shape: ProcessCube, CubeDimension, CubeSlice, CubeCell, CubeProjectionWitness, CellComparison. Cube computation graduates to wasm4pm." .
+
+compat:CausalNet
+    a compat:ProcessForm ;
+    rdfs:label "CausalNet" ;
+    compat:rustType "CausalNet" ;
+    compat:sourceFile "src/causal_net.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsDiscovery" ;
+    compat:description "Causal net shape. Structure only; Heuristics Miner-style discovery and causal dependency computation graduate to wasm4pm." .
+
+compat:ObjectLifecycle
+    a compat:ProcessForm ;
+    rdfs:label "ObjectLifecycle" ;
+    compat:rustType "ObjectLifecycle" ;
+    compat:sourceFile "src/object_lifecycle.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsConformanceExecution" ;
+    compat:description "Object lifecycle shape for object-centric process analysis. Structure only." .
+
+compat:TemporalConstraint
+    a compat:ProcessForm ;
+    rdfs:label "TemporalConstraint" ;
+    compat:rustType "TemporalConstraint" ;
+    compat:sourceFile "src/temporal.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsConformanceExecution" ;
+    compat:description "Temporal constraint shape for temporal profile conformance checking. Structure only; zeta-value computation graduates to wasm4pm." .
+
+compat:MultiPerspective
+    a compat:ProcessForm ;
+    rdfs:label "MultiPerspective" ;
+    compat:rustType "MultiPerspectiveLog" ;
+    compat:sourceFile "src/multiperspective.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsConformanceExecution" ;
+    compat:description "Multi-perspective process log shape (Mannhardt et al., 2016): control-flow, data, resource, time perspectives. Structure only; alignment cost computation graduates to wasm4pm." .
+
+compat:CorrelationSchema
+    a compat:ProcessForm ;
+    rdfs:label "CorrelationSchema" ;
+    compat:rustType "CorrelationSchema" ;
+    compat:sourceFile "src/correlation.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "RebuildingProcessMiningLocally" ;
+    compat:description "Cross-log correlation schema shape. Multi-log merging and join execution graduate to wasm4pm." .
+
+compat:CausalityGraph
+    a compat:ProcessForm ;
+    rdfs:label "CausalityGraph" ;
+    compat:rustType "CausalityGraph" ;
+    compat:sourceFile "src/causality.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsConformanceExecution" ;
+    compat:description "Causality graph shape for cross-object causal ordering. Cycle detection and consistency checking graduate to wasm4pm." .
+
+compat:WorkflowNet
+    a compat:ProcessForm ;
+    rdfs:label "WorkflowNet" ;
+    compat:rustType "WorkflowNet" ;
+    compat:sourceFile "src/workflow.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsConformanceExecution" ;
+    compat:description "Workflow net shape. Structural only; YAWL-style routing constructs, multiple-instance tasks. Engine logic graduates to wasm4pm." .
+
+compat:StreamingLog
+    a compat:ProcessForm ;
+    rdfs:label "StreamingLog" ;
+    compat:rustType "EventStream" ;
+    compat:sourceFile "src/streaming.rs" ;
+    compat:graduatesToWasm4pm true ;
+    compat:graduationReason "NeedsDiscovery" ;
+    compat:description "EventStream append-only buffer for streaming process evidence. Online monitoring and windowed conformance checking graduate to wasm4pm." .
+
+compat:InteropBridge
+    a compat:ProcessForm ;
+    rdfs:label "InteropBridge" ;
+    compat:rustType "InteropBridge" ;
+    compat:sourceFile "src/interop.rs" ;
+    compat:graduatesToWasm4pm false ;
+    compat:description "Format interop bridge: bridges OCEL, XES, BPMN shapes via named loss surfaces. No route from external format directly to another — must go through admitted compat." .
+
+compat:Identifiers
+    a compat:ProcessForm ;
+    rdfs:label "Identifiers" ;
+    compat:rustType "CaseId, ActivityId, ObjectId, EventId" ;
+    compat:sourceFile "src/ids.rs" ;
+    compat:graduatesToWasm4pm false ;
+    compat:description "Zero-cost #[repr(transparent)] newtype wrappers for all identifier types. From<&str>, From<String>, and Display for all. Structure only." .
+
+# ============================================================================
+# TYPE CONSTRAINT INSTANCES (from src/law.rs and src/conformance.rs)
+# ============================================================================
+
+compat:Between01Constraint
+    a compat:TypeConstraint ;
+    rdfs:label "Between01" ;
+    compat:rustType "Between01<NUM, DEN>" ;
+    compat:sourceFile "src/law.rs" ;
+    compat:description "Metrics provably in [0, 1] at the type level. Between01<2, 1> does not compile. Used by Fitness, Precision, F1 in src/conformance.rs and Metric<KIND, NUM, DEN>." .
+
+compat:ConditionCellConstraint
+    a compat:TypeConstraint ;
+    rdfs:label "ConditionCell<BITS>" ;
+    compat:rustType "ConditionCell<BITS>" ;
+    compat:sourceFile "src/law.rs" ;
+    compat:description "The Need9-means-split law: at most 8 primary condition bits. ConditionCell<9> does not compile. Enforces the Blue River Dam covenant." .
+
+compat:RequireIsTrueConstraint
+    a compat:TypeConstraint ;
+    rdfs:label "Require<{EXPR}>: IsTrue" ;
+    compat:rustType "Require<{ EXPR }>" ;
+    compat:sourceFile "src/law.rs" ;
+    compat:description "Compile-time must-be-true gate. Any where-bound Require<{EXPR}>: IsTrue becomes a compile error when EXPR evaluates to false. Requires generic_const_exprs." .
+
+compat:SoundnessUnknownToken
+    a compat:TypeConstraint ;
+    rdfs:label "SoundnessUnknown" ;
+    compat:rustType "SoundnessUnknown" ;
+    compat:sourceFile "src/law.rs" ;
+    compat:description "WF-net soundness token: soundness not yet claimed. Default for newly constructed WfNetConst." .
+
+compat:SoundnessClaimedToken
+    a compat:TypeConstraint ;
+    rdfs:label "SoundnessClaimed" ;
+    compat:rustType "SoundnessClaimed" ;
+    compat:sourceFile "src/law.rs" ;
+    compat:description "WF-net soundness token: soundness asserted by a human/upstream, unproven by this crate." .
+
+compat:SoundnessWitnessedToken
+    a compat:TypeConstraint ;
+    rdfs:label "SoundnessWitnessed" ;
+    compat:rustType "SoundnessWitnessed" ;
+    compat:sourceFile "src/law.rs" ;
+    compat:description "WF-net soundness token: carrying a witness obtained from wasm4pm and re-attached here. Strongest soundness claim representable in this crate." .
+
+compat:TypedLoopNodeArityConstraint
+    a compat:TypeConstraint ;
+    rdfs:label "TypedLoopNode<ARITY>" ;
+    compat:rustType "TypedLoopNode<ARITY>" ;
+    compat:sourceFile "src/process_tree.rs" ;
+    compat:description "Loop node in process tree with Require<{ARITY == 2}>: IsTrue constraint. A TypedLoopNode<3> does not compile." .
+
+compat:WorkflowPatternConstParam
+    a compat:TypeConstraint ;
+    rdfs:label "WorkflowPattern" ;
+    compat:rustType "WorkflowPattern" ;
+    compat:sourceFile "src/law.rs" ;
+    compat:description "ConstParamTy enum covering 17 of 20 canonical workflow patterns (WP-1 through WP-17). PatternNet<{WorkflowPattern::ParallelSplit}> is a distinct type from PatternNet<{WorkflowPattern::ExclusiveChoice}>." .
+
+# ============================================================================
+# COMPILE-FAIL LAW INSTANCES (from tests/ui/compile_fail/)
+# ============================================================================
+
+compat:WitnessDiscriminationLaw
+    a compat:CompileFailLaw ;
+    rdfs:label "WitnessDiscriminationLaw" ;
+    compat:lawName "WitnessDiscrimination" ;
+    compat:errorCode "E0308" ;
+    compat:description "Admission<T, W1> cannot be used as Admission<T, W2>. An Ocel20-admitted value is not an Xes1849-admitted value at the type level." .
+
+compat:RawExportedAsAdmittedLaw
+    a compat:CompileFailLaw ;
+    rdfs:label "RawExportedAsAdmittedLaw" ;
+    compat:lawName "RawEvidenceExportedAsAdmitted" ;
+    compat:errorCode "E0308" ;
+    compat:description "Evidence<T, Raw, W> cannot be used where Evidence<T, Admitted, W> is required. The one-way door is enforced by the type system." .
+
+compat:ConditionCellOverflowLaw
+    a compat:CompileFailLaw ;
+    rdfs:label "ConditionCellOverflowLaw" ;
+    compat:lawName "ConditionCellOverflow" ;
+    compat:errorCode "E0080" ;
+    compat:description "ConditionCell<9> does not compile — the Need9-means-split law enforced at the type level via generic_const_exprs." .
+
+compat:Between01ViolationLaw
+    a compat:CompileFailLaw ;
+    rdfs:label "Between01ViolationLaw" ;
+    compat:lawName "Between01Violation" ;
+    compat:errorCode "E0080" ;
+    compat:description "Between01<2, 1> does not compile — a metric greater than 1 is inadmissible at the type level." .
+
+compat:MissingFinalMarkingLaw
+    a compat:CompileFailLaw ;
+    rdfs:label "MissingFinalMarkingLaw" ;
+    compat:lawName "MissingFinalMarking" ;
+    compat:errorCode "E0277" ;
+    compat:description "Refusal reason for a WF-net that lacks a proper final marking. Named law must appear in the Refusal<MissingFinalMarking, W> type; bare InvalidInput is forbidden." .
+
+compat:DanglingEventObjectLinkLaw
+    a compat:CompileFailLaw ;
+    rdfs:label "DanglingEventObjectLinkLaw" ;
+    compat:lawName "DanglingEventObjectLink" ;
+    compat:errorCode "E0277" ;
+    compat:description "OCEL event references an object that does not exist in the log. Named refusal law for the OCEL admission boundary." .
+
+compat:WorkflowPatternWrongKindLaw
+    a compat:CompileFailLaw ;
+    rdfs:label "WorkflowPatternWrongKindLaw" ;
+    compat:lawName "WorkflowPatternWrongKind" ;
+    compat:errorCode "E0308" ;
+    compat:fixtureFile "tests/ui/compile_fail/workflow_pattern_wrong_kind.rs" ;
+    compat:stderrFile "tests/ui/compile_fail/workflow_pattern_wrong_kind.stderr" ;
+    compat:description "A PatternNet<{WorkflowPattern::ParallelSplit}> cannot be used as a PatternNet<{WorkflowPattern::ExclusiveChoice}>. Pattern kind is a sealed type-level law." .
+
+compat:SoundnessForgedLaw
+    a compat:CompileFailLaw ;
+    rdfs:label "SoundnessForgedLaw" ;
+    compat:lawName "SoundnessForged" ;
+    compat:errorCode "E0277" ;
+    compat:description "A SoundnessWitnessed token cannot be forged outside wasm4pm. The non-forgeable witness path on WfNetConst<SOUNDNESS> is enforced structurally." .
+
+compat:SealedEvidenceStateLaw
+    a compat:CompileFailLaw ;
+    rdfs:label "SealedEvidenceStateLaw" ;
+    compat:lawName "SealedEvidenceState" ;
+    compat:errorCode "E0277" ;
+    compat:description "A downstream crate cannot implement EvidenceState for a foreign type. The sealed trait enforces that only the seven canonical stages are valid State arguments for Evidence<T, State, W>." .
+
+# ============================================================================
+# COMPILE-PASS SURFACE INSTANCES (from tests/ui/compile_pass/)
+# ============================================================================
+
+compat:SeparableWfNetMarkerPass
+    a compat:CompilePassSurface ;
+    rdfs:label "SeparableWfNetMarkerPass" ;
+    compat:fixtureFile "tests/ui/compile_pass/separable_wfnet_marker.rs" ;
+    compat:description "Proves SeparableWfNet<SOUNDNESS> is constructible. The separability subclass is a lawful structural position." .
+
+compat:WfNet2PowlWitnessPass
+    a compat:CompilePassSurface ;
+    rdfs:label "WfNet2PowlWitnessPass" ;
+    compat:fixtureFile "tests/ui/compile_pass/wfnet2powl_witness.rs" ;
+    compat:description "Proves WfNet2Powl witness is taggable on evidence. The conversion authority is a lawful witness." .
+
+compat:WorkflowPatternConstParamPass
+    a compat:CompilePassSurface ;
+    rdfs:label "WorkflowPatternConstParamPass" ;
+    compat:fixtureFile "tests/ui/compile_pass/workflow_pattern_const_param.rs" ;
+    compat:description "Proves WorkflowPattern ConstParamTy variants compile as distinct const generic arguments." .
+
+# ============================================================================
+# SOURCE MODULE INSTANCES (all src/*.rs files)
+# ============================================================================
+
+compat:ModuleAdmission     a compat:SourceModule ; compat:moduleName "admission" ; compat:sourceFile "src/admission.rs" ; compat:description "Admission and refusal — the first-class boundary verdict surface." .
+compat:ModuleBpmn          a compat:SourceModule ; compat:moduleName "bpmn" ; compat:sourceFile "src/bpmn.rs" ; compat:description "BPMN 2.0 element shapes." .
+compat:ModuleCausalNet     a compat:SourceModule ; compat:moduleName "causal_net" ; compat:sourceFile "src/causal_net.rs" ; compat:description "Causal net (Heuristics Miner output) shape." .
+compat:ModuleCausality     a compat:SourceModule ; compat:moduleName "causality" ; compat:sourceFile "src/causality.rs" ; compat:description "Causality graph for cross-object causal ordering." .
+compat:ModuleConformance   a compat:SourceModule ; compat:moduleName "conformance" ; compat:sourceFile "src/conformance.rs" ; compat:description "Conformance verdict carrier (Fitness, Precision, F1, Metric<KIND, NUM, DEN>)." .
+compat:ModuleCorrelation   a compat:SourceModule ; compat:moduleName "correlation" ; compat:sourceFile "src/correlation.rs" ; compat:description "Cross-log correlation schema." .
+compat:ModuleDeclare       a compat:SourceModule ; compat:moduleName "declare" ; compat:sourceFile "src/declare.rs" ; compat:description "Declare constraint model shapes." .
+compat:ModuleDfg           a compat:SourceModule ; compat:moduleName "dfg" ; compat:sourceFile "src/dfg.rs" ; compat:description "Directly-Follows Graph and OC-DFG shapes." .
+compat:ModuleDiagnostic    a compat:SourceModule ; compat:moduleName "diagnostic" ; compat:sourceFile "src/diagnostic.rs" ; compat:description "CompatDiagnostic named laws." .
+compat:ModuleEventlog      a compat:SourceModule ; compat:moduleName "eventlog" ; compat:sourceFile "src/eventlog.rs" ; compat:description "Classic flat event log: EventLog, Trace, Event with builder chains." .
+compat:ModuleEvidence      a compat:SourceModule ; compat:moduleName "evidence" ; compat:sourceFile "src/evidence.rs" ; compat:description "Evidence<T, State, W> universal carrier." .
+compat:ModuleFormats       a compat:SourceModule ; compat:moduleName "formats" ; compat:sourceFile "src/formats.rs" ; compat:description "Import/export contracts, round-trip claims, LossyFormatExport requiring non-optional loss report. Feature: formats." .
+compat:ModuleGraduation    a compat:SourceModule ; compat:moduleName "graduation" ; compat:graduatesToWasm4pm true ; compat:sourceFile "src/graduation.rs" ; compat:description "Graduation bridge: GraduationCandidate, GraduationReason, GraduateToWasm4pm trait. Feature: wasm4pm." .
+compat:ModuleIds           a compat:SourceModule ; compat:moduleName "ids" ; compat:sourceFile "src/ids.rs" ; compat:description "Zero-cost identifier newtypes." .
+compat:ModuleInterop       a compat:SourceModule ; compat:moduleName "interop" ; compat:sourceFile "src/interop.rs" ; compat:description "Format interop bridge via named loss surfaces." .
+compat:ModuleLaw           a compat:SourceModule ; compat:moduleName "law" ; compat:sourceFile "src/law.rs" ; compat:description "Compile-time law kernel: Assert/IsTrue/Require, ConditionCell<BITS>, Between01<NUM, DEN>, ConstParamTy enum set, SoundnessState." .
+compat:ModuleLib           a compat:SourceModule ; compat:moduleName "lib" ; compat:sourceFile "src/lib.rs" ; compat:description "Crate root with nightly feature declarations and module re-exports." .
+compat:ModuleLoss          a compat:SourceModule ; compat:moduleName "loss" ; compat:sourceFile "src/loss.rs" ; compat:description "Loss accounting: Project trait, ProjectionName, LossPolicy, LossReport<From, To, Items>." .
+compat:ModuleMultiperspective a compat:SourceModule ; compat:moduleName "multiperspective" ; compat:sourceFile "src/multiperspective.rs" ; compat:description "Multi-perspective process log shape." .
+compat:ModuleNightlyFoundry a compat:SourceModule ; compat:moduleName "nightly_foundry" ; compat:sourceFile "src/nightly_foundry.rs" ; compat:description "Staging/experimental module hosting four paper-derived law surfaces: petri_law, powl_law, evidence_law, token_law. No cfg gate." .
+compat:ModuleObjectLifecycle a compat:SourceModule ; compat:moduleName "object_lifecycle" ; compat:sourceFile "src/object_lifecycle.rs" ; compat:description "Object lifecycle shape for OC-PM analysis." .
+compat:ModuleOcel          a compat:SourceModule ; compat:moduleName "ocel" ; compat:sourceFile "src/ocel.rs" ; compat:description "OCEL 2.0 object-centric event log with builder chains." .
+compat:ModuleOcpq          a compat:SourceModule ; compat:moduleName "ocpq" ; compat:sourceFile "src/ocpq.rs" ; compat:description "OCPQ query and result shapes." .
+compat:ModulePetri         a compat:SourceModule ; compat:moduleName "petri" ; compat:sourceFile "src/petri.rs" ; compat:description "Petri net, WF-net (WfNetConst<SOUNDNESS>), SeparableWfNet, OC-Petri-net shapes." .
+compat:ModulePowl          a compat:SourceModule ; compat:moduleName "powl" ; compat:sourceFile "src/powl.rs" ; compat:description "POWL shapes: PowlNode, PowlNodeKind (StrictOrder, Loop, XorGateway, SilentTransition, ChoiceGraph), TreeProjectable sealed trait." .
+compat:ModulePrediction    a compat:SourceModule ; compat:moduleName "prediction" ; compat:sourceFile "src/prediction.rs" ; compat:description "Predictive process monitoring shape." .
+compat:ModulePrelude       a compat:SourceModule ; compat:moduleName "prelude" ; compat:sourceFile "src/prelude.rs" ; compat:description "Crate-wide prelude re-exports." .
+compat:ModuleProcessCube   a compat:SourceModule ; compat:moduleName "process_cube" ; compat:sourceFile "src/process_cube.rs" ; compat:description "Process cube framework shapes." .
+compat:ModuleProcessTree   a compat:SourceModule ; compat:moduleName "process_tree" ; compat:sourceFile "src/process_tree.rs" ; compat:description "Block-structured process tree: ProcessTree, ProcessTreeNode, ProcessTreeOperator, TypedLoopNode<ARITY>." .
+compat:ModuleReceipt       a compat:SourceModule ; compat:moduleName "receipt" ; compat:sourceFile "src/receipt.rs" ; compat:description "Provenance-bearing receipt envelope." .
+compat:ModuleState         a compat:SourceModule ; compat:moduleName "state" ; compat:sourceFile "src/state.rs" ; compat:description "Seven lifecycle stage tokens (Raw, Parsed, Admitted, Refused, Projected, Exportable, Receipted) and nine state-transition markers." .
+compat:ModuleStreaming      a compat:SourceModule ; compat:moduleName "streaming" ; compat:sourceFile "src/streaming.rs" ; compat:description "EventStream append-only buffer for streaming evidence." .
+compat:ModuleStrict        a compat:SourceModule ; compat:moduleName "strict" ; compat:sourceFile "src/strict.rs" ; compat:description "Strict boundary judgment: ExportBoundaryConst<HAS_WITNESS, HAS_ROUND_TRIP>, ProcessBoundary, StrictViolation. Feature: strict." .
+compat:ModuleTemporal      a compat:SourceModule ; compat:moduleName "temporal" ; compat:sourceFile "src/temporal.rs" ; compat:description "Temporal constraint shape." .
+compat:ModuleTestUtils     a compat:SourceModule ; compat:moduleName "test_utils" ; compat:sourceFile "src/test_utils.rs" ; compat:description "Test utilities (not part of the public API)." .
+compat:ModuleWitness       a compat:SourceModule ; compat:moduleName "witness" ; compat:sourceFile "src/witness.rs" ; compat:description "WitnessFamily enum, Witness trait, and 37 witness marker types declared via witness_marker! macro." .
+compat:ModuleWorkflow      a compat:SourceModule ; compat:moduleName "workflow" ; compat:sourceFile "src/workflow.rs" ; compat:description "Workflow net shape (YAWL-style)." .
+compat:ModuleXes           a compat:SourceModule ; compat:moduleName "xes" ; compat:sourceFile "src/xes.rs" ; compat:description "XES (IEEE 1849-2016) event log shape." .
+
+# ============================================================================
+# GRADUATION BOUNDARY INSTANCES (from src/graduation.rs GraduationReason)
+# ============================================================================
+
+compat:GradNeedsDiscovery
+    a compat:GraduationBoundary ;
+    rdfs:label "NeedsDiscovery" ;
+    compat:rustType "GraduationReason::NeedsDiscovery" ;
+    compat:description "Surface hits a wall requiring process discovery execution (Alpha Miner, Inductive Miner, Heuristics Miner, DFG mining). Graduate to wasm4pm." .
+
+compat:GradNeedsConformanceExecution
+    a compat:GraduationBoundary ;
+    rdfs:label "NeedsConformanceExecution" ;
+    compat:rustType "GraduationReason::NeedsConformanceExecution" ;
+    compat:description "Surface requires token-replay, alignment, or conformance scoring execution. Graduate to wasm4pm." .
+
+compat:GradNeedsReplay
+    a compat:GraduationBoundary ;
+    rdfs:label "NeedsReplay" ;
+    compat:rustType "GraduationReason::NeedsReplay" ;
+    compat:description "Surface requires a token-replay or language-inclusion check. Graduate to wasm4pm." .
+
+compat:GradNeedsBenchmarkGating
+    a compat:GraduationBoundary ;
+    rdfs:label "NeedsBenchmarkGating" ;
+    compat:rustType "GraduationReason::NeedsBenchmarkGating" ;
+    compat:description "Surface requires a benchmark gate (throughput, latency, scalability measurement). Graduate to wasm4pm." .
+
+compat:GradNeedsObjectCentricQuery
+    a compat:GraduationBoundary ;
+    rdfs:label "NeedsObjectCentricQuery" ;
+    compat:rustType "GraduationReason::NeedsObjectCentricQuery" ;
+    compat:description "Surface requires OCPQ query execution over an OCED log. Graduate to wasm4pm." .
+
+compat:GradRebuildingProcessMiningLocally
+    a compat:GraduationBoundary ;
+    rdfs:label "RebuildingProcessMiningLocally" ;
+    compat:rustType "GraduationReason::RebuildingProcessMiningLocally" ;
+    compat:description "Consumer is rebuilding process mining logic inside the compat layer — the clearest signal to graduate the entire surface to wasm4pm." .
+
+# ============================================================================
+# WASM4PM GRADUATION SURFACES
+# ============================================================================
+
+compat:mining_authority
+    a compat:GraduationSurface ;
+    a compat:MiningAuthority ;
+    rdfs:label "Mining Authority" ;
+    compat:rustType "MiningAuthority" ;
+    compat:graduatesTo "wasm4pm::mining" ;
+    compat:requiresWitness compat:MiningWitness ;
+    compat:evidenceCarrier "Evidence<T, Admitted|Projected, MiningWitness>" ;
+    compat:description "Process discovery graduation surface. Handles inductive mining, heuristic mining, alpha mining, variant analysis, and trace abstraction." .
+
+compat:conformance_authority
+    a compat:GraduationSurface ;
+    a compat:ConformanceAuthority ;
+    rdfs:label "Conformance Authority" ;
+    compat:rustType "ConformanceAuthority" ;
+    compat:graduatesTo "wasm4pm::conformance" ;
+    compat:requiresWitness compat:ConformanceWitness ;
+    compat:evidenceCarrier "Evidence<T, Admitted|Projected, ConformanceWitness>" ;
+    compat:description "Conformance checking graduation surface. Handles model-to-log alignment, fitness calculation, precision/recall/generalization metrics, and declarative constraint checking." .
+
+compat:replay_authority
+    a compat:GraduationSurface ;
+    a compat:ReplayAuthority ;
+    rdfs:label "Replay Authority" ;
+    compat:rustType "ReplayAuthority" ;
+    compat:graduatesTo "wasm4pm::replay" ;
+    compat:requiresWitness compat:ReplayWitness ;
+    compat:evidenceCarrier "Evidence<T, Admitted|Projected, ReplayWitness>" ;
+    compat:description "Token replay and simulation graduation surface. Handles token-based replay, parallel path execution, path finding, and execution profiling." .
+
+compat:lifecycle_authority
+    a compat:GraduationSurface ;
+    a compat:LifecycleAuthority ;
+    rdfs:label "Lifecycle Authority" ;
+    compat:rustType "LifecycleAuthority" ;
+    compat:graduatesTo "wasm4pm::lifecycle" ;
+    compat:requiresWitness compat:LifecycleWitness ;
+    compat:evidenceCarrier "Evidence<T, Admitted|Projected, LifecycleWitness>" ;
+    compat:description "Object-centric lifecycle graduation surface. Handles OCEL object tracking, state machine execution, artifact provenance, and object lifecycle states." .
+
+# ============================================================================
+# END OF ONTOLOGY
+# ============================================================================

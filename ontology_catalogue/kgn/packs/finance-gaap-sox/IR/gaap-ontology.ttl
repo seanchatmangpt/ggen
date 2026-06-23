@@ -1,0 +1,218 @@
+@prefix gaap: <https://kgen.dev/ontology/gaap#> .
+@prefix sox: <https://kgen.dev/ontology/sox#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+# GAAP Financial Accounting Ontology
+# Implements US Generally Accepted Accounting Principles
+
+gaap: a owl:Ontology ;
+    dc:title "GAAP Financial Accounting Ontology" ;
+    dc:description "Ontology for US GAAP compliant financial reporting" ;
+    owl:versionInfo "1.0.0" .
+
+# Core Financial Statement Classes
+
+gaap:FinancialStatement a owl:Class ;
+    rdfs:label "Financial Statement" ;
+    rdfs:comment "Base class for all financial statements" .
+
+gaap:IncomeStatement a owl:Class ;
+    rdfs:subClassOf gaap:FinancialStatement ;
+    rdfs:label "Income Statement" ;
+    rdfs:comment "Statement of revenues, expenses, and profit/loss (P&L)" .
+
+gaap:BalanceSheet a owl:Class ;
+    rdfs:subClassOf gaap:FinancialStatement ;
+    rdfs:label "Balance Sheet" ;
+    rdfs:comment "Statement of assets, liabilities, and equity" .
+
+gaap:CashFlowStatement a owl:Class ;
+    rdfs:subClassOf gaap:FinancialStatement ;
+    rdfs:label "Cash Flow Statement" ;
+    rdfs:comment "Statement of cash inflows and outflows" .
+
+# Income Statement Components
+
+gaap:Revenue a owl:Class ;
+    rdfs:label "Revenue" ;
+    rdfs:comment "Income from sales of goods or services" .
+
+gaap:GrossRevenue a owl:Class ;
+    rdfs:subClassOf gaap:Revenue ;
+    rdfs:label "Gross Revenue" .
+
+gaap:NetRevenue a owl:Class ;
+    rdfs:subClassOf gaap:Revenue ;
+    rdfs:label "Net Revenue" .
+
+gaap:Expense a owl:Class ;
+    rdfs:label "Expense" ;
+    rdfs:comment "Cost incurred in operations" .
+
+gaap:COGS a owl:Class ;
+    rdfs:subClassOf gaap:Expense ;
+    rdfs:label "Cost of Goods Sold" .
+
+gaap:OperatingExpense a owl:Class ;
+    rdfs:subClassOf gaap:Expense ;
+    rdfs:label "Operating Expense" .
+
+gaap:SGA a owl:Class ;
+    rdfs:subClassOf gaap:OperatingExpense ;
+    rdfs:label "Selling, General & Administrative" .
+
+gaap:EBITDA a owl:Class ;
+    rdfs:label "EBITDA" ;
+    rdfs:comment "Earnings Before Interest, Taxes, Depreciation, and Amortization" .
+
+gaap:NetIncome a owl:Class ;
+    rdfs:label "Net Income" ;
+    rdfs:comment "Bottom line profit after all expenses" .
+
+# Balance Sheet Components
+
+gaap:Asset a owl:Class ;
+    rdfs:label "Asset" ;
+    rdfs:comment "Economic resource owned or controlled" .
+
+gaap:CurrentAsset a owl:Class ;
+    rdfs:subClassOf gaap:Asset ;
+    rdfs:label "Current Asset" ;
+    rdfs:comment "Asset expected to be converted within one year" .
+
+gaap:Cash a owl:Class ;
+    rdfs:subClassOf gaap:CurrentAsset ;
+    rdfs:label "Cash and Cash Equivalents" .
+
+gaap:AccountsReceivable a owl:Class ;
+    rdfs:subClassOf gaap:CurrentAsset ;
+    rdfs:label "Accounts Receivable" .
+
+gaap:Inventory a owl:Class ;
+    rdfs:subClassOf gaap:CurrentAsset ;
+    rdfs:label "Inventory" .
+
+gaap:NonCurrentAsset a owl:Class ;
+    rdfs:subClassOf gaap:Asset ;
+    rdfs:label "Non-Current Asset" ;
+    rdfs:comment "Long-term asset" .
+
+gaap:PPE a owl:Class ;
+    rdfs:subClassOf gaap:NonCurrentAsset ;
+    rdfs:label "Property, Plant & Equipment" .
+
+gaap:Liability a owl:Class ;
+    rdfs:label "Liability" ;
+    rdfs:comment "Financial obligation or debt" .
+
+gaap:CurrentLiability a owl:Class ;
+    rdfs:subClassOf gaap:Liability ;
+    rdfs:label "Current Liability" ;
+    rdfs:comment "Liability due within one year" .
+
+gaap:AccountsPayable a owl:Class ;
+    rdfs:subClassOf gaap:CurrentLiability ;
+    rdfs:label "Accounts Payable" .
+
+gaap:NonCurrentLiability a owl:Class ;
+    rdfs:subClassOf gaap:Liability ;
+    rdfs:label "Non-Current Liability" ;
+    rdfs:comment "Long-term liability" .
+
+gaap:Equity a owl:Class ;
+    rdfs:label "Shareholders' Equity" ;
+    rdfs:comment "Residual interest in assets after liabilities" .
+
+gaap:CommonStock a owl:Class ;
+    rdfs:subClassOf gaap:Equity ;
+    rdfs:label "Common Stock" .
+
+gaap:RetainedEarnings a owl:Class ;
+    rdfs:subClassOf gaap:Equity ;
+    rdfs:label "Retained Earnings" .
+
+# Properties
+
+gaap:hasAmount a owl:DatatypeProperty ;
+    rdfs:domain gaap:FinancialStatement ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has amount" .
+
+gaap:hasCurrency a owl:DatatypeProperty ;
+    rdfs:domain gaap:FinancialStatement ;
+    rdfs:range xsd:string ;
+    rdfs:label "has currency" .
+
+gaap:hasPeriod a owl:ObjectProperty ;
+    rdfs:domain gaap:FinancialStatement ;
+    rdfs:range gaap:ReportingPeriod ;
+    rdfs:label "has reporting period" .
+
+gaap:hasDate a owl:DatatypeProperty ;
+    rdfs:range xsd:date ;
+    rdfs:label "has date" .
+
+# Reporting Periods
+
+gaap:ReportingPeriod a owl:Class ;
+    rdfs:label "Reporting Period" .
+
+gaap:FiscalYear a owl:Class ;
+    rdfs:subClassOf gaap:ReportingPeriod ;
+    rdfs:label "Fiscal Year" .
+
+gaap:Quarter a owl:Class ;
+    rdfs:subClassOf gaap:ReportingPeriod ;
+    rdfs:label "Quarter" .
+
+gaap:Month a owl:Class ;
+    rdfs:subClassOf gaap:ReportingPeriod ;
+    rdfs:label "Month" .
+
+# Accounting Principles
+
+gaap:AccountingPrinciple a owl:Class ;
+    rdfs:label "Accounting Principle" .
+
+gaap:AccrualBasis a owl:Class ;
+    rdfs:subClassOf gaap:AccountingPrinciple ;
+    rdfs:label "Accrual Basis" ;
+    rdfs:comment "Revenue/expenses recorded when earned/incurred" .
+
+gaap:GoingConcern a owl:Class ;
+    rdfs:subClassOf gaap:AccountingPrinciple ;
+    rdfs:label "Going Concern" ;
+    rdfs:comment "Assumption that entity will continue operating" .
+
+gaap:Consistency a owl:Class ;
+    rdfs:subClassOf gaap:AccountingPrinciple ;
+    rdfs:label "Consistency" ;
+    rdfs:comment "Same methods used period to period" .
+
+gaap:Materiality a owl:Class ;
+    rdfs:subClassOf gaap:AccountingPrinciple ;
+    rdfs:label "Materiality" ;
+    rdfs:comment "Significance threshold for disclosure" .
+
+# Compliance Assertions
+
+gaap:isGAAPCompliant a owl:DatatypeProperty ;
+    rdfs:domain gaap:FinancialStatement ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is GAAP compliant" .
+
+gaap:hasAuditorOpinion a owl:ObjectProperty ;
+    rdfs:domain gaap:FinancialStatement ;
+    rdfs:range gaap:AuditorOpinion ;
+    rdfs:label "has auditor opinion" .
+
+gaap:AuditorOpinion a owl:Class ;
+    rdfs:label "Auditor Opinion" .
+
+gaap:UnqualifiedOpinion a owl:Class ;
+    rdfs:subClassOf gaap:AuditorOpinion ;
+    rdfs:label "Unqualified/Clean Opinion" .

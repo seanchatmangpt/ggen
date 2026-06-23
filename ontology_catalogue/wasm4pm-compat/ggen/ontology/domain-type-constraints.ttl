@@ -1,0 +1,379 @@
+# Domain Ontology: Type Constraints
+# Defines compile-time type laws, unbreakable constraints, and nightly Rust feature laws.
+# Includes constraint families (Between01, ConditionCell, WorkflowPattern, etc.) and
+# compile-fail/compile-pass fixtures that serve as proof gates (ALIVE gates).
+#
+# Companion to wasm4pm-compat-integrated.ttl
+
+@prefix compat: <https://wasm4pm-compat.rs/ontology#> .
+@prefix domain: <https://wasm4pm-compat.rs/domain#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+
+<https://wasm4pm-compat.rs/domain/type-constraints>
+    a owl:Ontology ;
+    rdfs:label "Type Constraints Domain Ontology" ;
+    rdfs:comment "Domain-specific definitions for compile-time type constraints, unbreakable laws, and the nightly Rust feature law kernel. Includes constraint families and fixture-backed proof gates." ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# TYPE CONSTRAINT CLASSES
+# ============================================================================
+
+domain:TypeConstraint
+    a rdfs:Class ;
+    rdfs:label "Type Constraint" ;
+    rdfs:comment "A compile-time type-level invariant enforced by the nightly law kernel (src/law.rs) or through generic_const_exprs bounds." ;
+    owl:equivalentClass compat:TypeConstraint .
+
+domain:CompileTimeConstant
+    a rdfs:Class ;
+    rdfs:label "Compile-Time Constant" ;
+    rdfs:subClassOf domain:TypeConstraint ;
+    rdfs:comment "A constraint enforced via Rust const generics and const_expr evaluation at compile time." .
+
+domain:UnbreakableLaw
+    a rdfs:Class ;
+    rdfs:label "Unbreakable Law" ;
+    rdfs:subClassOf domain:TypeConstraint ;
+    rdfs:comment "A law that is mathematically or structurally impossible to violate within the type system. Backed by compile-fail fixtures (proof gates)." .
+
+# ============================================================================
+# CONSTRAINT FAMILY: Between01
+# ============================================================================
+
+domain:Between01Constraint
+    a domain:CompileTimeConstant ;
+    rdfs:label "Between01<NUM, DEN>" ;
+    compat:rustType "Between01<NUM, DEN>" ;
+    compat:sourceFile "src/law.rs" ;
+    skos:definition "Metrics provably in [0, 1] at the type level. NUM <= DEN must hold at compile time. Between01<2, 1> does not compile." ;
+    rdfs:comment "A newtype wrapper for a rational number with a compile-time proof that the value lies in [0, 1]. Used for Fitness, Precision, F1 scores in conformance verdicts." ;
+    domain:hasCompileFailLaw domain:Between01ViolationLaw .
+
+domain:FitnessMetric
+    a rdfs:Class ;
+    rdfs:label "Fitness Metric" ;
+    rdfs:subClassOf domain:Between01Constraint ;
+    rdfs:comment "Conformance fitness score bounded to [0, 1]. Records the fraction of log traces that can be replayed by the model." .
+
+domain:PrecisionMetric
+    a rdfs:Class ;
+    rdfs:label "Precision Metric" ;
+    rdfs:subClassOf domain:Between01Constraint ;
+    rdfs:comment "Conformance precision score bounded to [0, 1]. Records the fraction of model traces that occur in the log." .
+
+domain:F1Metric
+    a rdfs:Class ;
+    rdfs:label "F1 Metric" ;
+    rdfs:subClassOf domain:Between01Constraint ;
+    rdfs:comment "Harmonic mean of fitness and precision, bounded to [0, 1]. Balances false positives and false negatives." .
+
+domain:Between01ViolationLaw
+    a compat:CompileFailLaw ;
+    rdfs:label "Between01 Violation Law" ;
+    compat:lawName "Between01Violation" ;
+    compat:errorCode "E0080" ;
+    skos:definition "Between01<2, 1> does not compile — a metric greater than 1 is inadmissible at the type level." ;
+    compat:fixtureFile "tests/ui/compile_fail/between01_violation.rs" ;
+    compat:stderrFile "tests/ui/compile_fail/between01_violation.stderr" ;
+    domain:proofGateType "ALIVE" ;
+    rdfs:comment "Enforces the mathematical law that a metric value cannot exceed 1 (when expressed as NUM <= DEN)." .
+
+# ============================================================================
+# CONSTRAINT FAMILY: ConditionCell<BITS>
+# ============================================================================
+
+domain:ConditionCellConstraint
+    a domain:CompileTimeConstant ;
+    rdfs:label "ConditionCell<BITS>" ;
+    compat:rustType "ConditionCell<BITS>" ;
+    compat:sourceFile "src/law.rs" ;
+    skos:definition "The Need9-means-split law: at most 8 primary condition bits. ConditionCell<9> does not compile. Enforces the Blue River Dam covenant." ;
+    rdfs:comment "A constraint-bit container with a maximum of 8 condition bits. Exceeding this limit forces architectural refactoring (the 'Blue River Dam' decision point)." ;
+    domain:hasCompileFailLaw domain:ConditionCellOverflowLaw ;
+    domain:citesLaw "Blue River Dam covenant" ;
+    domain:architecturalImpact "HIGH" .
+
+domain:ConditionCellOverflowLaw
+    a compat:CompileFailLaw ;
+    rdfs:label "ConditionCell Overflow Law" ;
+    compat:lawName "ConditionCellOverflow" ;
+    compat:errorCode "E0080" ;
+    skos:definition "ConditionCell<9> does not compile — the Need9-means-split law enforced at the type level via generic_const_exprs." ;
+    compat:fixtureFile "tests/ui/compile_fail/condition_cell_overflow.rs" ;
+    compat:stderrFile "tests/ui/compile_fail/condition_cell_overflow.stderr" ;
+    domain:proofGateType "ALIVE" ;
+    domain:citedBy domain:ConditionCellConstraint ;
+    rdfs:comment "Enforces the architectural decision that more than 8 condition dimensions triggers a process cube split." .
+
+# ============================================================================
+# CONSTRAINT FAMILY: Require<{EXPR}>: IsTrue
+# ============================================================================
+
+domain:RequireIsTrueConstraint
+    a domain:CompileTimeConstant ;
+    rdfs:label "Require<{EXPR}>: IsTrue" ;
+    compat:rustType "Require<{ EXPR }>" ;
+    compat:sourceFile "src/law.rs" ;
+    skos:definition "Compile-time must-be-true gate. Any where-bound Require<{EXPR}>: IsTrue becomes a compile error when EXPR evaluates to false. Requires generic_const_exprs." ;
+    rdfs:comment "A universal constraint mechanism for encoding compile-time assertions via the generic_const_exprs nightly feature." ;
+    domain:requiresNightlyFeature "generic_const_exprs" .
+
+domain:TypedLoopNodeArityConstraint
+    a domain:RequireIsTrueConstraint ;
+    rdfs:label "TypedLoopNode<ARITY>" ;
+    compat:rustType "TypedLoopNode<ARITY>" ;
+    compat:sourceFile "src/process_tree.rs" ;
+    skos:definition "Loop node in process tree with Require<{ARITY == 2}>: IsTrue constraint. A TypedLoopNode<3> does not compile." ;
+    rdfs:comment "Process tree loop nodes must have exactly 2 children (redo body and exit condition). TypedLoopNode<ARITY ≠ 2> is a compile error." .
+
+# ============================================================================
+# CONSTRAINT FAMILY: WorkflowPattern (ConstParamTy Enum)
+# ============================================================================
+
+domain:WorkflowPatternConstraint
+    a domain:CompileTimeConstant ;
+    rdfs:label "WorkflowPattern" ;
+    compat:rustType "WorkflowPattern" ;
+    compat:sourceFile "src/law.rs" ;
+    skos:definition "ConstParamTy enum covering 17 of 20 canonical workflow patterns (WP-1 through WP-17). PatternNet<{WorkflowPattern::ParallelSplit}> is a distinct type from PatternNet<{WorkflowPattern::ExclusiveChoice}>." ;
+    rdfs:comment "A const-generic type family where each workflow pattern variant produces a different, incompatible type. Prevents pattern-kind confusion at the type level." ;
+    domain:coverageCount 17 ;
+    domain:coverageOf "Workflow Patterns: The Definitive Guide (Russell, van der Aalst and ter Hofstede, 2016)" .
+
+domain:WorkflowPatternWrongKindLaw
+    a compat:CompileFailLaw ;
+    rdfs:label "WorkflowPatternWrongKind Law" ;
+    compat:lawName "WorkflowPatternWrongKind" ;
+    compat:errorCode "E0308" ;
+    compat:fixtureFile "tests/ui/compile_fail/workflow_pattern_wrong_kind.rs" ;
+    compat:stderrFile "tests/ui/compile_fail/workflow_pattern_wrong_kind.stderr" ;
+    skos:definition "A PatternNet<{WorkflowPattern::ParallelSplit}> cannot be used as a PatternNet<{WorkflowPattern::ExclusiveChoice}>. Pattern kind is a sealed type-level law." ;
+    domain:proofGateType "ALIVE" ;
+    rdfs:comment "Enforces that workflow pattern types are distinct and incompatible, preventing accidental pattern-kind misuse." .
+
+# ============================================================================
+# CONSTRAINT FAMILY: Soundness Tokens (WF-Net)
+# ============================================================================
+
+domain:SoundnessTokenConstraint
+    a domain:CompileTimeConstant ;
+    rdfs:label "WF-Net Soundness Token" ;
+    compat:sourceFile "src/law.rs" ;
+    rdfs:comment "The WfNetConst<SOUNDNESS> type parameter gates the soundness state of a workflow net." .
+
+domain:SoundnessUnknownToken
+    a domain:SoundnessTokenConstraint ;
+    rdfs:label "SoundnessUnknown" ;
+    compat:rustType "SoundnessUnknown" ;
+    skos:definition "WF-net soundness token: soundness not yet claimed. Default for newly constructed WfNetConst." ;
+    rdfs:comment "Initial soundness state. The WF-net has not been claimed or proven sound." .
+
+domain:SoundnessClaimedToken
+    a domain:SoundnessTokenConstraint ;
+    rdfs:label "SoundnessClaimed" ;
+    compat:rustType "SoundnessClaimed" ;
+    skos:definition "WF-net soundness token: soundness asserted by a human/upstream, unproven by this crate." ;
+    rdfs:comment "Asserted soundness without proof. Used when soundness is claimed by an external process or domain expert." .
+
+domain:SoundnessWitnessedToken
+    a domain:SoundnessTokenConstraint ;
+    rdfs:label "SoundnessWitnessed" ;
+    compat:rustType "SoundnessWitnessed" ;
+    skos:definition "WF-net soundness token: carrying a witness obtained from wasm4pm and re-attached here. Strongest soundness claim representable in this crate." ;
+    rdfs:comment "Proven soundness via wasm4pm engine verification. The non-forgeable witness path ensures only wasm4pm can issue this token." .
+
+domain:SoundnessForgedLaw
+    a compat:CompileFailLaw ;
+    rdfs:label "Soundness Forged Law" ;
+    compat:lawName "SoundnessForged" ;
+    compat:errorCode "E0277" ;
+    compat:sourceFile "src/law.rs" ;
+    skos:definition "A SoundnessWitnessed token cannot be forged outside wasm4pm. The non-forgeable witness path on WfNetConst<SOUNDNESS> is enforced structurally." ;
+    domain:proofGateType "ALIVE" ;
+    rdfs:comment "Ensures that only the wasm4pm engine can issue soundness proofs. Direct construction of SoundnessWitnessed is a compile error." .
+
+# ============================================================================
+# UNBREAKABLE LAWS (Compile-Fail Fixtures)
+# ============================================================================
+
+domain:UnbreakableLawClass
+    a rdfs:Class ;
+    rdfs:label "Unbreakable Law" ;
+    rdfs:comment "A law backed by a compile-fail fixture (tests/ui/compile_fail/). Violating the law is a compile error." ;
+    owl:equivalentClass compat:CompileFailLaw .
+
+domain:WitnessDiscriminationLaw
+    a domain:UnbreakableLawClass ;
+    rdfs:label "Witness Discrimination Law" ;
+    compat:lawName "WitnessDiscrimination" ;
+    compat:errorCode "E0308" ;
+    skos:definition "Admission<T, W1> cannot be used as Admission<T, W2>. An Ocel20-admitted value is not an Xes1849-admitted value at the type level." ;
+    domain:proofGateType "ALIVE" ;
+    rdfs:comment "Witnesses are type-level discriminators. Evidence admitted under one witness cannot be coerced to satisfy a different witness." .
+
+domain:RawExportedAsAdmittedLaw
+    a domain:UnbreakableLawClass ;
+    rdfs:label "Raw Exported As Admitted Law" ;
+    compat:lawName "RawEvidenceExportedAsAdmitted" ;
+    compat:errorCode "E0308" ;
+    skos:definition "Evidence<T, Raw, W> cannot be used where Evidence<T, Admitted, W> is required. The one-way door is enforced by the type system." ;
+    domain:proofGateType "ALIVE" ;
+    rdfs:comment "Untrusted raw evidence cannot be exported as admitted evidence. The lifecycle state is part of the type signature." .
+
+domain:MissingFinalMarkingLaw
+    a domain:UnbreakableLawClass ;
+    rdfs:label "Missing Final Marking Law" ;
+    compat:lawName "MissingFinalMarking" ;
+    compat:errorCode "E0277" ;
+    skos:definition "Refusal reason for a WF-net that lacks a proper final marking. Named law must appear in the Refusal<MissingFinalMarking, W> type; bare InvalidInput is forbidden." ;
+    domain:proofGateType "ALIVE" ;
+    rdfs:comment "Every WF-net refusal must name a specific structural reason. MissingFinalMarking is one canonical reason." .
+
+domain:DanglingEventObjectLinkLaw
+    a domain:UnbreakableLawClass ;
+    rdfs:label "Dangling Event-Object Link Law" ;
+    compat:lawName "DanglingEventObjectLink" ;
+    compat:errorCode "E0277" ;
+    skos:definition "OCEL event references an object that does not exist in the log. Named refusal law for the OCEL admission boundary." ;
+    domain:proofGateType "ALIVE" ;
+    rdfs:comment "OCEL structural law: every event-to-object link must reference an object declared in the log. Missing objects trigger named refusal." .
+
+domain:SealedEvidenceStateLaw
+    a domain:UnbreakableLawClass ;
+    rdfs:label "Sealed EvidenceState Law" ;
+    compat:lawName "SealedEvidenceState" ;
+    compat:errorCode "E0277" ;
+    skos:definition "A downstream crate cannot implement EvidenceState for a foreign type. The sealed trait enforces that only the seven canonical stages are valid State arguments for Evidence<T, State, W>." ;
+    domain:proofGateType "ALIVE" ;
+    rdfs:comment "The lifecycle state trait is sealed. Only the canonical 7 stages (Raw, Parsed, Admitted, Refused, Projected, Exportable, Receipted) implement it." .
+
+# ============================================================================
+# COMPILE-PASS SURFACES (Proof Gates for Lawful Paths)
+# ============================================================================
+
+domain:CompilePassSurfaceClass
+    a rdfs:Class ;
+    rdfs:label "Compile-Pass Surface" ;
+    rdfs:comment "A lawful path that must compile successfully, backed by a trybuild compile-pass fixture (tests/ui/compile_pass/). Proof gates for open, legal behavior." ;
+    owl:equivalentClass compat:CompilePassSurface .
+
+domain:SeparableWfNetMarkerPass
+    a domain:CompilePassSurfaceClass ;
+    rdfs:label "Separable WF-Net Marker Pass" ;
+    compat:fixtureFile "tests/ui/compile_pass/separable_wfnet_marker.rs" ;
+    skos:definition "Proves SeparableWfNet<SOUNDNESS> is constructible. The separability subclass is a lawful structural position." ;
+    domain:proofGateType "ALIVE" ;
+    rdfs:comment "Demonstrates that WF-nets can be marked as separable and successfully used in type-safe process analysis." .
+
+domain:WfNet2PowlWitnessPass
+    a domain:CompilePassSurfaceClass ;
+    rdfs:label "WF-Net to POWL Witness Pass" ;
+    compat:fixtureFile "tests/ui/compile_pass/wfnet2powl_witness.rs" ;
+    skos:definition "Proves WfNet2Powl witness is taggable on evidence. The conversion authority is a lawful witness." ;
+    domain:proofGateType "ALIVE" ;
+    rdfs:comment "Demonstrates that WF-net to POWL conversion can be witnessed and tracked through the evidence system." .
+
+domain:WorkflowPatternConstParamPass
+    a domain:CompilePassSurfaceClass ;
+    rdfs:label "Workflow Pattern ConstParam Pass" ;
+    compat:fixtureFile "tests/ui/compile_pass/workflow_pattern_const_param.rs" ;
+    skos:definition "Proves WorkflowPattern ConstParamTy variants compile as distinct const generic arguments." ;
+    domain:proofGateType "ALIVE" ;
+    rdfs:comment "Demonstrates that workflow pattern discrimination works correctly at the type level." .
+
+# ============================================================================
+# PROOF GATE (ALIVE GATE) PROPERTIES
+# ============================================================================
+
+domain:proofGateType
+    a rdf:Property ;
+    rdfs:label "proof gate type" ;
+    rdfs:comment "The certification gate this law/surface belongs to: ALIVE (type-law receipt), DEPRECATED, EXPERIMENTAL, or BASELINE." ;
+    rdfs:domain [ owl:unionOf ( domain:UnbreakableLawClass domain:CompilePassSurfaceClass ) ] ;
+    rdfs:range xsd:string .
+
+domain:hasCompileFailLaw
+    a rdf:Property ;
+    rdfs:label "has compile-fail law" ;
+    rdfs:comment "A specific unbreakable law backed by a compile-fail fixture." ;
+    rdfs:domain domain:TypeConstraint ;
+    rdfs:range domain:UnbreakableLawClass .
+
+domain:hasCompilePassSurface
+    a rdf:Property ;
+    rdfs:label "has compile-pass surface" ;
+    rdfs:comment "A lawful path backed by a compile-pass fixture." ;
+    rdfs:domain domain:TypeConstraint ;
+    rdfs:range domain:CompilePassSurfaceClass .
+
+domain:requiresNightlyFeature
+    a rdf:Property ;
+    rdfs:label "requires nightly feature" ;
+    rdfs:comment "The nightly Rust feature required to enforce this constraint (e.g., 'generic_const_exprs', 'adt_const_params')." ;
+    rdfs:domain domain:CompileTimeConstant ;
+    rdfs:range xsd:string .
+
+domain:citesLaw
+    a rdf:Property ;
+    rdfs:label "cites law" ;
+    rdfs:comment "A named law or covenant this constraint enforces (e.g., 'Blue River Dam covenant')." ;
+    rdfs:domain domain:TypeConstraint ;
+    rdfs:range xsd:string .
+
+domain:architecturalImpact
+    a rdf:Property ;
+    rdfs:label "architectural impact" ;
+    rdfs:comment "The severity of violating this constraint: LOW, MEDIUM, HIGH, or CRITICAL." ;
+    rdfs:domain domain:TypeConstraint ;
+    rdfs:range xsd:string .
+
+domain:coverageCount
+    a rdf:Property ;
+    rdfs:label "coverage count" ;
+    rdfs:comment "The number of entities covered by this constraint family." ;
+    rdfs:domain domain:TypeConstraint ;
+    rdfs:range xsd:integer .
+
+domain:coverageOf
+    a rdf:Property ;
+    rdfs:label "coverage of" ;
+    rdfs:comment "The paper, standard, or authority this constraint covers." ;
+    rdfs:domain domain:TypeConstraint ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# NIGHTLY FEATURE DECLARATIONS
+# ============================================================================
+
+domain:NightlyFeatureSet
+    a rdfs:Class ;
+    rdfs:label "Nightly Feature Set" ;
+    rdfs:comment "The set of nightly Rust features required by wasm4pm-compat." .
+
+domain:RequiredNightlyFeatures
+    a domain:NightlyFeatureSet ;
+    rdfs:label "Required Nightly Features" ;
+    rdfs:comment "The mandatory nightly features declared unconditionally in src/lib.rs" ;
+    skos:definition "generic_const_exprs, adt_const_params, const_trait_impl, min_specialization, portable_simd" ;
+    rdf:value
+        "generic_const_exprs",
+        "adt_const_params",
+        "const_trait_impl",
+        "min_specialization",
+        "portable_simd" .
+
+# ============================================================================
+# CLOSED-WORLD STATEMENT
+# ============================================================================
+
+<https://wasm4pm-compat.rs/domain/type-constraints>
+    skos:note "All compile-time type constraints enumerated here are exhaustive in wasm4pm-compat. No constraint exists outside this ontology that is enforceable at the type level. Each constraint is backed by one or more proof gates (compile-fail or compile-pass fixtures) that serve as the ALIVE certification gate." .
+
+# ============================================================================
+# END OF DOMAIN ONTOLOGY: TYPE CONSTRAINTS
+# ============================================================================

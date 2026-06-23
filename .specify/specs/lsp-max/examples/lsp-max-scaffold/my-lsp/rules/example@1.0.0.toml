@@ -1,0 +1,10 @@
+[[rules]]
+id         = "EXAMPLE-001"
+name       = "no-unwrap"
+severity   = "error"
+pattern    = '\\.(unwrap|expect)\\(\\)'
+message    = "Replace unwrap()/expect() with ? or map_err"
+rationale  = "Panics abort async tasks; use Result propagation"
+eval_budget = "sync"
+path_globs   = []
+exclude_globs = []

@@ -1,0 +1,78 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# PersonShape - Core business rules for person validation
+ex:PersonShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Person ;
+    sh:property [
+        sh:path ex:worksAt ;
+        sh:class ex:Company ;
+        sh:message "Person must work at a valid company" ;
+    ] ;
+    sh:property [
+        sh:path ex:hasEmail ;
+        sh:minCount 1 ;
+        sh:maxCount 5 ;
+        sh:datatype xsd:string ;
+        sh:message "Person must have 1-5 email addresses" ;
+    ] ;
+    sh:property [
+        sh:path ex:phoneNumber ;
+        sh:pattern "^\\(\\d{3}\\) \\d{3}-\\d{4}$" ;
+        sh:datatype xsd:string ;
+        sh:message "Phone number must be in format (123) 456-7890" ;
+    ] ;
+    sh:property [
+        sh:path ex:hasName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Person must have exactly one name" ;
+    ] .
+
+# CompanyShape - Business rules for company validation  
+ex:CompanyShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Company ;
+    sh:property [
+        sh:path ex:hasName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Company must have exactly one name" ;
+    ] ;
+    sh:property [
+        sh:path ex:hasEmployeeCount ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Company employee count must be positive integer" ;
+    ] .
+
+# ProjectShape - Business rules for project validation
+ex:ProjectShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Project ;
+    sh:property [
+        sh:path ex:hasName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path ex:assignedTo ;
+        sh:class ex:Person ;
+        sh:minCount 1 ;
+        sh:message "Project must be assigned to at least one person" ;
+    ] ;
+    sh:property [
+        sh:path ex:belongsToCompany ;
+        sh:class ex:Company ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Project must belong to exactly one company" ;
+    ] .

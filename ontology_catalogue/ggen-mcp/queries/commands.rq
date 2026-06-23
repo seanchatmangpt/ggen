@@ -1,0 +1,16 @@
+PREFIX ggen: <https://ggen-mcp.dev/domain#>
+PREFIX ddd: <https://ddd-patterns.dev/schema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?command ?label ?comment ?parameterName
+WHERE {
+  ?command a ddd:Command ;
+           rdfs:label ?label .
+  OPTIONAL { ?command rdfs:comment ?comment }
+  OPTIONAL {
+    ?command ddd:hasParameter ?param .
+    ?param rdfs:label ?parameterName .
+  }
+}
+ORDER BY ?command ?parameterName
+LIMIT 10000

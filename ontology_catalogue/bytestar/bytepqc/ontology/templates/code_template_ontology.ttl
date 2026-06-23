@@ -1,0 +1,283 @@
+# Code Template Ontology for Automatic Code Generation
+# Namespace: http://bytepqc.org/ontology/templates#
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix tpl: <http://bytepqc.org/ontology/templates#> .
+
+# ===== ONTOLOGY DECLARATION =====
+<http://bytepqc.org/ontology/templates> a owl:Ontology ;
+    rdfs:label "Code Template Ontology" ;
+    rdfs:comment "Ontology for automatic generation of C, assembly, and SIMD code templates" ;
+    owl:versionInfo "1.0.0" .
+
+# ===== CORE CLASSES =====
+
+tpl:CodeTemplate a owl:Class ;
+    rdfs:label "Code Template" ;
+    rdfs:comment "Abstract base class for all code templates" .
+
+tpl:CTemplate a owl:Class ;
+    rdfs:subClassOf tpl:CodeTemplate ;
+    rdfs:label "C Template" ;
+    rdfs:comment "Template for C language code generation" .
+
+tpl:AssemblyTemplate a owl:Class ;
+    rdfs:subClassOf tpl:CodeTemplate ;
+    rdfs:label "Assembly Template" ;
+    rdfs:comment "Template for assembly language code generation" .
+
+tpl:SIMDTemplate a owl:Class ;
+    rdfs:subClassOf tpl:CodeTemplate ;
+    rdfs:label "SIMD Template" ;
+    rdfs:comment "Template for SIMD intrinsics code generation" .
+
+# ===== TEMPLATE TYPES =====
+
+tpl:FunctionTemplate a owl:Class ;
+    rdfs:subClassOf tpl:CodeTemplate ;
+    rdfs:label "Function Template" ;
+    rdfs:comment "Template for function definitions" .
+
+tpl:StructTemplate a owl:Class ;
+    rdfs:subClassOf tpl:CTemplate ;
+    rdfs:label "Struct Template" ;
+    rdfs:comment "Template for C structure definitions" .
+
+tpl:MacroTemplate a owl:Class ;
+    rdfs:subClassOf tpl:CTemplate ;
+    rdfs:label "Macro Template" ;
+    rdfs:comment "Template for C preprocessor macros" .
+
+tpl:LoopTemplate a owl:Class ;
+    rdfs:subClassOf tpl:CodeTemplate ;
+    rdfs:label "Loop Template" ;
+    rdfs:comment "Template for loop constructs" .
+
+tpl:VectorizationTemplate a owl:Class ;
+    rdfs:subClassOf tpl:SIMDTemplate ;
+    rdfs:label "Vectorization Template" ;
+    rdfs:comment "Template for automatic vectorization patterns" .
+
+# ===== CRYPTOGRAPHIC SPECIFIC TEMPLATES =====
+
+tpl:CryptographicFunction a owl:Class ;
+    rdfs:subClassOf tpl:FunctionTemplate ;
+    rdfs:label "Cryptographic Function" ;
+    rdfs:comment "Template for cryptographic function implementations" .
+
+tpl:KeyGenTemplate a owl:Class ;
+    rdfs:subClassOf tpl:CryptographicFunction ;
+    rdfs:label "Key Generation Template" ;
+    rdfs:comment "Template for key generation functions" .
+
+tpl:EncryptTemplate a owl:Class ;
+    rdfs:subClassOf tpl:CryptographicFunction ;
+    rdfs:label "Encryption Template" ;
+    rdfs:comment "Template for encryption functions" .
+
+tpl:DecryptTemplate a owl:Class ;
+    rdfs:subClassOf tpl:CryptographicFunction ;
+    rdfs:label "Decryption Template" ;
+    rdfs:comment "Template for decryption functions" .
+
+tpl:HashTemplate a owl:Class ;
+    rdfs:subClassOf tpl:CryptographicFunction ;
+    rdfs:label "Hash Template" ;
+    rdfs:comment "Template for hash function implementations" .
+
+# ===== PROPERTIES =====
+
+tpl:hasTemplate a owl:ObjectProperty ;
+    rdfs:label "has template" ;
+    rdfs:comment "Associates a specification with its code template" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range tpl:CodeTemplate .
+
+tpl:templateContent a owl:DatatypeProperty ;
+    rdfs:label "template content" ;
+    rdfs:comment "The actual template content with placeholders" ;
+    rdfs:domain tpl:CodeTemplate ;
+    rdfs:range xsd:string .
+
+tpl:targetLanguage a owl:DatatypeProperty ;
+    rdfs:label "target language" ;
+    rdfs:comment "Programming language for code generation" ;
+    rdfs:domain tpl:CodeTemplate ;
+    rdfs:range xsd:string .
+
+tpl:optimizationLevel a owl:DatatypeProperty ;
+    rdfs:label "optimization level" ;
+    rdfs:comment "Compiler optimization level (O0, O1, O2, O3, Ofast)" ;
+    rdfs:domain tpl:CodeTemplate ;
+    rdfs:range xsd:string .
+
+tpl:targetArchitecture a owl:DatatypeProperty ;
+    rdfs:label "target architecture" ;
+    rdfs:comment "Target CPU architecture (x86_64, ARM, etc.)" ;
+    rdfs:domain tpl:CodeTemplate ;
+    rdfs:range xsd:string .
+
+tpl:simdExtension a owl:DatatypeProperty ;
+    rdfs:label "SIMD extension" ;
+    rdfs:comment "SIMD instruction set (SSE, AVX, AVX2, AVX-512, NEON)" ;
+    rdfs:domain tpl:SIMDTemplate ;
+    rdfs:range xsd:string .
+
+tpl:vectorWidth a owl:DatatypeProperty ;
+    rdfs:label "vector width" ;
+    rdfs:comment "SIMD vector width in bits" ;
+    rdfs:domain tpl:SIMDTemplate ;
+    rdfs:range xsd:int .
+
+tpl:memoryAlignment a owl:DatatypeProperty ;
+    rdfs:label "memory alignment" ;
+    rdfs:comment "Required memory alignment in bytes" ;
+    rdfs:domain tpl:CodeTemplate ;
+    rdfs:range xsd:int .
+
+tpl:constantTime a owl:DatatypeProperty ;
+    rdfs:label "constant time" ;
+    rdfs:comment "Whether the template ensures constant-time execution" ;
+    rdfs:domain tpl:CryptographicFunction ;
+    rdfs:range xsd:boolean .
+
+tpl:placeholder a owl:ObjectProperty ;
+    rdfs:label "placeholder" ;
+    rdfs:comment "Template placeholders for code generation" ;
+    rdfs:domain tpl:CodeTemplate ;
+    rdfs:range tpl:Placeholder .
+
+# ===== PLACEHOLDER SYSTEM =====
+
+tpl:Placeholder a owl:Class ;
+    rdfs:label "Placeholder" ;
+    rdfs:comment "Template placeholder for dynamic content" .
+
+tpl:VariablePlaceholder a owl:Class ;
+    rdfs:subClassOf tpl:Placeholder ;
+    rdfs:label "Variable Placeholder" ;
+    rdfs:comment "Placeholder for variable names" .
+
+tpl:TypePlaceholder a owl:Class ;
+    rdfs:subClassOf tpl:Placeholder ;
+    rdfs:label "Type Placeholder" ;
+    rdfs:comment "Placeholder for data types" .
+
+tpl:SizePlaceholder a owl:Class ;
+    rdfs:subClassOf tpl:Placeholder ;
+    rdfs:label "Size Placeholder" ;
+    rdfs:comment "Placeholder for array sizes or buffer lengths" .
+
+tpl:ParameterPlaceholder a owl:Class ;
+    rdfs:subClassOf tpl:Placeholder ;
+    rdfs:comment "Placeholder for function parameters" .
+
+# ===== TEMPLATE PATTERNS =====
+
+tpl:Pattern a owl:Class ;
+    rdfs:label "Pattern" ;
+    rdfs:comment "Reusable code pattern" .
+
+tpl:MemoryPattern a owl:Class ;
+    rdfs:subClassOf tpl:Pattern ;
+    rdfs:label "Memory Pattern" ;
+    rdfs:comment "Memory management patterns" .
+
+tpl:SecurityPattern a owl:Class ;
+    rdfs:subClassOf tpl:Pattern ;
+    rdfs:label "Security Pattern" ;
+    rdfs:comment "Security-focused code patterns" .
+
+tpl:PerformancePattern a owl:Class ;
+    rdfs:subClassOf tpl:Pattern ;
+    rdfs:label "Performance Pattern" ;
+    rdfs:comment "Performance optimization patterns" .
+
+# ===== EXAMPLE TEMPLATE INSTANCES =====
+
+tpl:kyber_keygen_template a tpl:KeyGenTemplate ;
+    rdfs:label "Kyber Key Generation Template" ;
+    tpl:templateContent """
+void {{FUNCTION_NAME}}({{KEY_TYPE}} *pk, {{KEY_TYPE}} *sk) {
+    // Key generation for {{ALGORITHM_NAME}}
+    {{#CONSTANT_TIME}}
+    // Constant-time implementation
+    {{/CONSTANT_TIME}}
+    
+    {{#SIMD_OPTIMIZATION}}
+    // SIMD-optimized operations
+    {{SIMD_INTRINSICS}}
+    {{/SIMD_OPTIMIZATION}}
+    
+    // Security clearing
+    {{SECURITY_CLEAR_VARIABLES}}
+}""" ;
+    tpl:targetLanguage "C" ;
+    tpl:constantTime true .
+
+tpl:aes_encrypt_simd a tpl:SIMDTemplate ;
+    rdfs:label "AES SIMD Encryption Template" ;
+    tpl:templateContent """
+__m256i aes_encrypt_{{ROUNDS}}_avx2(const __m256i plaintext, const __m256i *round_keys) {
+    __m256i state = plaintext;
+    
+    // Initial round key addition
+    state = _mm256_xor_si256(state, round_keys[0]);
+    
+    // Main rounds
+    for (int round = 1; round < {{ROUNDS}}; round++) {
+        state = _mm256_aesenc_epi128(state, round_keys[round]);
+    }
+    
+    // Final round
+    state = _mm256_aesenclast_epi128(state, round_keys[{{ROUNDS}}]);
+    
+    return state;
+}""" ;
+    tpl:simdExtension "AVX2" ;
+    tpl:vectorWidth 256 .
+
+# ===== GENERATION RULES =====
+
+tpl:GenerationRule a owl:Class ;
+    rdfs:label "Generation Rule" ;
+    rdfs:comment "Rules for template instantiation" .
+
+tpl:SecurityRule a owl:Class ;
+    rdfs:subClassOf tpl:GenerationRule ;
+    rdfs:label "Security Rule" ;
+    rdfs:comment "Security-specific generation rules" .
+
+tpl:PerformanceRule a owl:Class ;
+    rdfs:subClassOf tpl:GenerationRule ;
+    rdfs:label "Performance Rule" ;
+    rdfs:comment "Performance optimization rules" .
+
+tpl:hasRule a owl:ObjectProperty ;
+    rdfs:label "has rule" ;
+    rdfs:comment "Associates template with generation rule" ;
+    rdfs:domain tpl:CodeTemplate ;
+    rdfs:range tpl:GenerationRule .
+
+# ===== CONSTRAINTS =====
+
+# Security constraints
+tpl:requires_constant_time a tpl:SecurityRule ;
+    rdfs:label "Requires Constant Time" ;
+    rdfs:comment "Template must generate constant-time code" .
+
+tpl:requires_memory_clear a tpl:SecurityRule ;
+    rdfs:label "Requires Memory Clear" ;
+    rdfs:comment "Template must clear sensitive memory" .
+
+# Performance constraints
+tpl:vectorizable a tpl:PerformanceRule ;
+    rdfs:label "Vectorizable" ;
+    rdfs:comment "Template can be vectorized with SIMD" .
+
+tpl:cache_friendly a tpl:PerformanceRule ;
+    rdfs:label "Cache Friendly" ;
+    rdfs:comment "Template generates cache-friendly code" .

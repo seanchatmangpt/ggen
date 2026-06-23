@@ -1,0 +1,295 @@
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sr:     <urn:ontostar:shared-receipt:> .
+
+# ============================================================================
+# SharedReceiptV1 — SHACL Validation Shapes
+# ============================================================================
+#
+# Formally validates the SharedReceiptV1 canonical receipt format exchanged
+# between wasm4pm and mcpp.  Mirrors the TypeScript interface defined in
+# wasm4pm/packages/contracts/src/shared-schema/adapter.ts.
+#
+# Three type-drift risks this shapes file protects against:
+#   Risk 1: OTel run ID attribute name (run.id vs mcpp.run_id)
+#   Risk 2: Timing asymmetry (start_time+end_time vs started_at+duration_ms)
+#   Risk 3: Hash scheme prefix (bare 64-char hex, no 'blake3:' prefix)
+#
+# Shape hierarchy:
+#   sr:SharedReceiptV1Shape        — top-level receipt object (16 properties)
+#   sr:HashesShape                 — nested hashes sub-object (5 properties)
+#   sr:ConformanceDimensionsShape  — optional conformance sub-object (5 properties)
+#
+# ============================================================================
+
+# ── sr:SharedReceiptV1Shape — top-level required fields ──────────────────────
+
+sr:SharedReceiptV1Shape
+    a sh:NodeShape ;
+    sh:name "SharedReceiptV1Shape" ;
+    rdfs:label "SharedReceiptV1 shape" ;
+    sh:description "Validates the canonical SharedReceiptV1 receipt exchanged between wasm4pm and mcpp." ;
+    sh:targetClass sr:SharedReceiptV1 ;
+
+    # run_id: UUID v4 pattern
+    sh:property [
+        sh:path sr:run_id ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$" ;
+        sh:name "run_id" ;
+        sh:message "run_id must be a valid UUID v4 string (8-4-4-4-12 hex groups, version digit 4, variant bits 8/9/a/b)." ;
+    ] ;
+
+    # schema_version: fixed sentinel 'shared/v1'
+    sh:property [
+        sh:path sr:schema_version ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue "shared/v1" ;
+        sh:name "schema_version" ;
+        sh:message "schema_version must be the literal string 'shared/v1'." ;
+    ] ;
+
+    # start_time: ISO-8601 datetime string
+    sh:property [
+        sh:path sr:start_time ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:pattern "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}" ;
+        sh:name "start_time" ;
+        sh:message "start_time must be an ISO-8601 datetime string (Risk 2: timing field)." ;
+    ] ;
+
+    # end_time: ISO-8601 datetime string (derived for mcpp if absent from wire)
+    sh:property [
+        sh:path sr:end_time ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:pattern "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}" ;
+        sh:name "end_time" ;
+        sh:message "end_time must be an ISO-8601 datetime string (Risk 2: derived for mcpp via started_at + duration_ms)." ;
+    ] ;
+
+    # duration_ms: non-negative integer (wall-clock milliseconds)
+    sh:property [
+        sh:path sr:duration_ms ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:name "duration_ms" ;
+        sh:message "duration_ms must be a non-negative integer representing wall-clock milliseconds." ;
+    ] ;
+
+    # status: enumerated execution outcome values from both systems
+    sh:property [
+        sh:path sr:status ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "success" "partial" "failed" "accepted" "refused" "admitted" ) ;
+        sh:name "status" ;
+        sh:message "status must be one of: success, partial, failed, accepted, refused, admitted." ;
+    ] ;
+
+    # hash_format: fixed sentinel 'blake3-hex-64'
+    sh:property [
+        sh:path sr:hash_format ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue "blake3-hex-64" ;
+        sh:name "hash_format" ;
+        sh:message "hash_format must be the literal string 'blake3-hex-64' (Risk 3: declares all hashes are bare 64-char hex, no 'blake3:' prefix)." ;
+    ] ;
+
+    # hashes: required nested object — validated by sr:HashesShape
+    sh:property [
+        sh:path sr:hashes ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:node sr:HashesShape ;
+        sh:name "hashes" ;
+        sh:message "hashes must be present and satisfy sr:HashesShape (config, input, plan, output, proof_pack — all bare 64-char hex)." ;
+    ] ;
+
+    # otel_run_id_attribute: Risk 1 — records which OTel attribute name the origin used
+    sh:property [
+        sh:path sr:otel_run_id_attribute ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "run.id" "mcpp.run_id" ) ;
+        sh:name "otel_run_id_attribute" ;
+        sh:message "otel_run_id_attribute must be 'run.id' (wasm4pm) or 'mcpp.run_id' (mcpp) — Risk 1: OTel attribute name drift." ;
+    ] ;
+
+    # source: optional — which system produced the receipt
+    sh:property [
+        sh:path sr:source ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:in ( "wasm4pm" "mcpp" ) ;
+        sh:name "source" ;
+        sh:message "source, when present, must be 'wasm4pm' or 'mcpp'." ;
+    ] ;
+
+    # chain_predecessor: optional — 'genesis' or bare 64-char hex (blake3: prefix stripped)
+    sh:property [
+        sh:path sr:chain_predecessor ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^(genesis|[0-9a-f]{64})$" ;
+        sh:name "chain_predecessor" ;
+        sh:message "chain_predecessor must be 'genesis' or a bare 64-char lowercase hex string (Risk 3: blake3: prefix must be stripped on ingestion)." ;
+    ] ;
+
+    # conformance: optional — validated by sr:ConformanceDimensionsShape when present
+    sh:property [
+        sh:path sr:conformance ;
+        sh:maxCount 1 ;
+        sh:node sr:ConformanceDimensionsShape ;
+        sh:name "conformance" ;
+        sh:message "conformance, when present, must satisfy sr:ConformanceDimensionsShape (fitness, precision, lifecycle, cardinality, receipt — all 0.0–1.0)." ;
+    ] .
+
+# ── sr:HashesShape — nested hashes sub-object ────────────────────────────────
+#
+# All five hash fields are required and must be bare 64-char lowercase hex
+# strings.  The 'blake3:' prefix is stripped by the adapter before ingestion
+# (Risk 3 mitigation in adapter.ts stripBlake3Prefix).
+
+sr:HashesShape
+    a sh:NodeShape ;
+    sh:name "HashesShape" ;
+    rdfs:label "SharedReceiptV1 hashes shape" ;
+    sh:description "Validates the hashes sub-object: all five hash fields are required bare 64-char lowercase hex strings." ;
+
+    # hashes.config
+    sh:property [
+        sh:path sr:config ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9a-f]{64}$" ;
+        sh:name "hashes.config" ;
+        sh:message "hashes.config must be a bare 64-char lowercase hex string (no 'blake3:' prefix — Risk 3)." ;
+    ] ;
+
+    # hashes.input
+    sh:property [
+        sh:path sr:input ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9a-f]{64}$" ;
+        sh:name "hashes.input" ;
+        sh:message "hashes.input must be a bare 64-char lowercase hex string (no 'blake3:' prefix — Risk 3)." ;
+    ] ;
+
+    # hashes.plan
+    sh:property [
+        sh:path sr:plan ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9a-f]{64}$" ;
+        sh:name "hashes.plan" ;
+        sh:message "hashes.plan must be a bare 64-char lowercase hex string (no 'blake3:' prefix — Risk 3)." ;
+    ] ;
+
+    # hashes.output
+    sh:property [
+        sh:path sr:output ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9a-f]{64}$" ;
+        sh:name "hashes.output" ;
+        sh:message "hashes.output must be a bare 64-char lowercase hex string (no 'blake3:' prefix — Risk 3)." ;
+    ] ;
+
+    # hashes.proof_pack
+    sh:property [
+        sh:path sr:proof_pack ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9a-f]{64}$" ;
+        sh:name "hashes.proof_pack" ;
+        sh:message "hashes.proof_pack must be a bare 64-char lowercase hex string (no 'blake3:' prefix — Risk 3)." ;
+    ] .
+
+# ── sr:ConformanceDimensionsShape — optional conformance sub-object ───────────
+#
+# All five dimensions are individually optional (mcpp may supply a subset).
+# When present, each must be a decimal in [0.0, 1.0].
+
+sr:ConformanceDimensionsShape
+    a sh:NodeShape ;
+    sh:name "ConformanceDimensionsShape" ;
+    rdfs:label "SharedReceiptV1 conformance dimensions shape" ;
+    sh:description "Validates the optional conformance sub-object: each dimension score, when present, must be a decimal in [0.0, 1.0]." ;
+
+    # conformance.fitness
+    sh:property [
+        sh:path sr:fitness ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1 ;
+        sh:name "conformance.fitness" ;
+        sh:message "conformance.fitness must be a decimal in [0.0, 1.0]." ;
+    ] ;
+
+    # conformance.precision
+    sh:property [
+        sh:path sr:precision ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1 ;
+        sh:name "conformance.precision" ;
+        sh:message "conformance.precision must be a decimal in [0.0, 1.0]." ;
+    ] ;
+
+    # conformance.lifecycle
+    sh:property [
+        sh:path sr:lifecycle ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1 ;
+        sh:name "conformance.lifecycle" ;
+        sh:message "conformance.lifecycle must be a decimal in [0.0, 1.0]." ;
+    ] ;
+
+    # conformance.cardinality
+    sh:property [
+        sh:path sr:cardinality ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1 ;
+        sh:name "conformance.cardinality" ;
+        sh:message "conformance.cardinality must be a decimal in [0.0, 1.0]." ;
+    ] ;
+
+    # conformance.receipt
+    sh:property [
+        sh:path sr:receipt ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1 ;
+        sh:name "conformance.receipt" ;
+        sh:message "conformance.receipt must be a decimal in [0.0, 1.0]." ;
+    ] .

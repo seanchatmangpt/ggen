@@ -1,0 +1,362 @@
+# BitStar Federated SPARQL Queries
+# Comprehensive query patterns for cross-ontology integration
+
+PREFIX master: <http://bitstar.dev/ontology/master#>
+PREFIX dflss:  <http://bitbizeco.dev/ontology/v1/dflss#>
+PREFIX bpo:    <http://bitstar.dev/ontology/dflss/process#>
+PREFIX qa:     <http://bitstar.dev/ontology/dflss/quality#>
+PREFIX innov:  <http://bitstar.dev/ontology/dflss/innovation#>
+PREFIX eco:    <http://bitstar.dev/ontology/dflss/ecosystem#>
+PREFIX perf:   <http://bitstar.dev/ontology/dflss/metrics#>
+PREFIX ahi:    <http://bitactor.dev/ahi#>
+PREFIX gov:    <http://bitbizeco.dev/ontology/v1/governance#>
+PREFIX cli8:   <http://bitstar.dev/ontology/8space/cli#>
+PREFIX e8:     <http://bitstar.dev/ontology/8space#>
+PREFIX dark:   <http://bitstar.dev/ontology/dark#>
+PREFIX lewrick: <http://bitstar.dev/ontology/lewrick#>
+PREFIX pareto: <http://bitstar.dev/ontology/pareto#>
+PREFIX sh:     <http://www.w3.org/ns/shacl#>
+PREFIX owl:    <http://www.w3.org/2002/07/owl#>
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+
+#################################################################
+# Query 1: Find all high-performing integrated systems
+#################################################################
+
+# This query identifies systems achieving excellence across all ontologies
+SELECT ?system ?sigmaLevel ?improvement ?networkDensity ?globalScore
+WHERE {
+  ?system a master:IntegratedSystem .
+  
+  # Quality metrics from QA ontology
+  ?system qa:sigmaLevel ?sigmaLevel .
+  FILTER(?sigmaLevel >= qa:FourSigma)
+  
+  # Performance metrics from Performance ontology
+  ?system perf:improvement ?improvement .
+  FILTER(?improvement >= 2.0)
+  
+  # Ecosystem metrics from Ecosystem ontology
+  ?system eco:networkDensity ?networkDensity .
+  FILTER(?networkDensity >= 0.70)
+  
+  # Master integration score
+  ?system master:globalPerformanceScore ?globalScore .
+  FILTER(?globalScore >= 0.80)
+}
+ORDER BY DESC(?globalScore)
+
+#################################################################
+# Query 2: Cross-industry innovation opportunities
+#################################################################
+
+# Find innovation patterns spanning multiple industries with high value
+SELECT ?innovation ?industry1 ?industry2 ?timeReduction ?valueCreated ?pattern
+WHERE {
+  ?innovation a innov:CrossIndustryInnovation .
+  
+  # Get industries involved
+  ?innovation innov:collaboratesWith ?industry1, ?industry2 .
+  FILTER(?industry1 != ?industry2)
+  
+  # Innovation metrics
+  ?innovation innov:timeReduction ?timeReduction .
+  ?innovation innov:crossIndustryValue ?valueCreated .
+  
+  # Find matching ecosystem patterns
+  OPTIONAL {
+    ?pattern a eco:CollaborationPattern ;
+             eco:industry1 ?industry1 ;
+             eco:industry2 ?industry2 .
+  }
+  
+  FILTER(?timeReduction >= 0.40)  # At least 40% time reduction
+  FILTER(?valueCreated >= 100000000)  # At least $100M value
+}
+ORDER BY DESC(?valueCreated)
+
+#################################################################
+# Query 3: 80/20 Pareto optimization analysis
+#################################################################
+
+# Identify processes achieving 80/20 optimization with vital metrics
+SELECT ?process ?effortReduction ?valueConcentration 
+       (COUNT(?metric) AS ?metricCount) ?bottleneck
+WHERE {
+  ?process a bpo:OptimizedProcess .
+  
+  # Pareto metrics
+  ?process bpo:effortReduction ?effortReduction .
+  ?process bpo:valueConcentration ?valueConcentration .
+  
+  # Count vital few metrics (should be <= 5)
+  ?process bpo:measuresVitalFew ?metric .
+  
+  # Identify bottlenecks
+  OPTIONAL {
+    ?process bpo:hasBottleneck ?bottleneck .
+  }
+  
+  FILTER(?effortReduction >= 0.60)
+  FILTER(?valueConcentration >= 0.70)
+}
+GROUP BY ?process ?effortReduction ?valueConcentration ?bottleneck
+HAVING (COUNT(?metric) <= 5)  # Vital few principle
+ORDER BY DESC(?valueConcentration)
+
+#################################################################
+# Query 4: Dark pattern innovations (Level 10)
+#################################################################
+
+# Find AI-only comprehensible innovations
+SELECT ?darkInnovation ?darknessLevel ?humanComprehension ?aiComprehension ?capability
+WHERE {
+  ?darkInnovation a innov:DarkInnovation .
+  
+  # Dark pattern characteristics
+  ?darkInnovation dark:darknessLevel ?darknessLevel .
+  ?darkInnovation dark:humanComprehension ?humanComprehension .
+  ?darkInnovation dark:aiComprehension ?aiComprehension .
+  
+  # Special capabilities
+  OPTIONAL {
+    ?darkInnovation innov:optimizationDimensions ?dimensions .
+    BIND(CONCAT("Dimensions: ", STR(?dimensions)) AS ?capability)
+  }
+  
+  FILTER(?darknessLevel = 10)
+  FILTER(?humanComprehension = 0.0)
+  FILTER(?aiComprehension = 1.0)
+}
+
+#################################################################
+# Query 5: Network effects and ecosystem value
+#################################################################
+
+# Calculate ecosystem value using network effects
+SELECT ?ecosystem ?participantCount ?networkDensity ?viralCoefficient
+       (?participantCount * (?participantCount - 1) / 2 AS ?metcalfeValue)
+       ?revenueProjection
+WHERE {
+  ?ecosystem a eco:BusinessEcosystem .
+  
+  # Network metrics
+  ?ecosystem eco:participantCount ?participantCount .
+  ?ecosystem eco:networkDensity ?networkDensity .
+  ?ecosystem eco:viralCoefficient ?viralCoefficient .
+  ?ecosystem eco:revenueProjection ?revenueProjection .
+  
+  # Has network effects
+  ?ecosystem eco:hasNetworkEffect ?networkEffect .
+  
+  FILTER(?participantCount >= 1000)
+  FILTER(?viralCoefficient >= 1.0)  # Growing ecosystem
+}
+ORDER BY DESC(?metcalfeValue)
+
+#################################################################
+# Query 6: Quality gates and DMEDI phase compliance
+#################################################################
+
+# Check DMEDI phase compliance with quality gates
+SELECT ?project ?phase ?gate ?criteria ?threshold ?achieved
+WHERE {
+  ?project a dflss:Project .
+  ?project dflss:hasPhase ?phaseInstance .
+  ?phaseInstance dflss:phaseType ?phase .
+  
+  # Quality gates for each phase
+  ?gate a qa:QualityGate ;
+        dflss:allowedInPhaseType ?phase ;
+        qa:criteria ?criteria ;
+        qa:threshold ?threshold .
+  
+  # Check if gate passed
+  OPTIONAL {
+    ?project qa:passesGate ?gate .
+    BIND(true AS ?achieved)
+  }
+}
+ORDER BY ?project ?phase
+
+#################################################################
+# Query 7: Technical performance benchmarks
+#################################################################
+
+# Compare actual performance against baselines and targets
+SELECT ?metric ?baseline ?actual ?target 
+       (?actual / ?baseline AS ?improvement)
+       (?actual >= ?target AS ?targetMet)
+WHERE {
+  ?metric a perf:TechnicalMetric .
+  
+  ?metric perf:baseline ?baseline .
+  ?metric perf:actual ?actual .
+  ?metric perf:target ?target .
+  
+  FILTER(?improvement >= 2.0)  # At least 2x improvement
+}
+ORDER BY DESC(?improvement)
+
+#################################################################
+# Query 8: 8-Space constraint compliance
+#################################################################
+
+# Check 8-Space constraint compliance across systems
+SELECT ?entity ?cycles ?memory ?files ?performance ?compliant
+WHERE {
+  ?entity master:constrainedBy ?constraint .
+  ?constraint a master:GlobalConstraint .
+  
+  # 8-Space constraints
+  ?entity e8:maxCycles ?cycles .
+  ?entity e8:maxMemoryMB ?memory .
+  ?entity e8:maxFiles ?files .
+  ?entity e8:performanceTarget ?performance .
+  
+  # Check compliance
+  BIND(
+    ?cycles <= 8 && 
+    ?memory <= 8 && 
+    ?files <= 8 && 
+    ?performance >= 0.80 
+    AS ?compliant
+  )
+}
+ORDER BY DESC(?compliant) ?entity
+
+#################################################################
+# Query 9: Business ecosystem monetization analysis
+#################################################################
+
+# Analyze monetization across BitStar components
+SELECT ?component ?ecosystem ?revenue ?users ?transactions
+       (?revenue / ?users AS ?revenuePerUser)
+WHERE {
+  {
+    # BitJob ecosystem
+    ?component eco:BitJobEcosystem ?ecosystem .
+    ?ecosystem eco:revenueProjection ?revenue ;
+               eco:monthlyActiveUsers ?users ;
+               eco:crossIndustryPlacements ?transactions .
+  } UNION {
+    # BitMarket ecosystem
+    ?component eco:BitMarketEcosystem ?ecosystem .
+    ?ecosystem eco:revenueProjection ?revenue ;
+               eco:participantCount ?users ;
+               eco:transactionVolume ?transactions .
+  } UNION {
+    # BitFlow ecosystem
+    ?component eco:BitFlowEcosystem ?ecosystem .
+    ?ecosystem eco:revenueProjection ?revenue ;
+               eco:workflowsAutomated ?transactions .
+    BIND(1000 AS ?users)  # Estimated enterprise users
+  } UNION {
+    # BitActor ecosystem
+    ?component eco:BitActorEcosystem ?ecosystem .
+    ?ecosystem eco:revenueProjection ?revenue ;
+               eco:messageVolume ?transactions .
+    BIND(10000 AS ?users)  # Estimated users
+  }
+}
+ORDER BY DESC(?revenue)
+
+#################################################################
+# Query 10: Federated validation across SHACL shapes
+#################################################################
+
+# Find entities validated by multiple SHACL shapes
+SELECT ?entity (COUNT(DISTINCT ?shape) AS ?shapeCount) 
+       (GROUP_CONCAT(DISTINCT ?shapeName; SEPARATOR=", ") AS ?shapes)
+WHERE {
+  ?entity master:validatedBy ?shape .
+  ?shape a sh:NodeShape ;
+         rdfs:label ?shapeName .
+  
+  # Entity must pass validation
+  NOT EXISTS {
+    ?shape sh:message ?error .
+    ?entity sh:result [
+      sh:sourceShape ?shape ;
+      sh:resultMessage ?error
+    ]
+  }
+}
+GROUP BY ?entity
+HAVING (COUNT(DISTINCT ?shape) >= 2)  # Validated by multiple shapes
+ORDER BY DESC(?shapeCount)
+
+#################################################################
+# Query 11: Integrated performance dashboard
+#################################################################
+
+# Comprehensive performance metrics across all ontologies
+SELECT ?system 
+       ?sigmaLevel ?dpmo
+       ?throughput ?latency 
+       ?networkDensity ?viralCoefficient
+       ?revenue ?marketPenetration
+       ?innovationVelocity ?timeReduction
+       ?globalScore
+WHERE {
+  ?system a master:IntegratedSystem .
+  
+  # Quality metrics
+  OPTIONAL { ?system qa:sigmaLevel ?sigmaLevel }
+  OPTIONAL { ?system qa:dpmo ?dpmo }
+  
+  # Technical metrics
+  OPTIONAL { ?system perf:APIThroughput/perf:actual ?throughput }
+  OPTIONAL { ?system perf:DatabaseLatency/perf:actual ?latency }
+  
+  # Ecosystem metrics
+  OPTIONAL { ?system eco:networkDensity ?networkDensity }
+  OPTIONAL { ?system eco:viralCoefficient ?viralCoefficient }
+  
+  # Business metrics
+  OPTIONAL { ?system eco:revenueProjection ?revenue }
+  OPTIONAL { ?system perf:MarketPenetration/perf:year5 ?marketPenetration }
+  
+  # Innovation metrics
+  OPTIONAL { ?system innov:innovationVelocity ?innovationVelocity }
+  OPTIONAL { ?system innov:timeReduction ?timeReduction }
+  
+  # Master score
+  ?system master:globalPerformanceScore ?globalScore .
+}
+ORDER BY DESC(?globalScore)
+
+#################################################################
+# Query 12: Ontology alignment and semantic similarity
+#################################################################
+
+# Find semantically aligned concepts across ontologies
+SELECT ?concept1 ?ontology1 ?concept2 ?ontology2 ?relation
+WHERE {
+  {
+    # Equivalent classes
+    ?concept1 owl:equivalentClass ?concept2 .
+    BIND("equivalent" AS ?relation)
+  } UNION {
+    # Subclass relationships
+    ?concept1 rdfs:subClassOf ?concept2 .
+    BIND("subclass" AS ?relation)
+  } UNION {
+    # Same individuals
+    ?concept1 owl:sameAs ?concept2 .
+    BIND("same" AS ?relation)
+  } UNION {
+    # Custom alignments
+    ?concept1 master:alignsWith ?concept2 .
+    BIND("aligns" AS ?relation)
+  }
+  
+  # Get ontology namespaces
+  BIND(REPLACE(STR(?concept1), "(.*[/#])[^/#]*$", "$1") AS ?ontology1)
+  BIND(REPLACE(STR(?concept2), "(.*[/#])[^/#]*$", "$1") AS ?ontology2)
+  
+  FILTER(?ontology1 != ?ontology2)  # Cross-ontology only
+}
+ORDER BY ?ontology1 ?concept1

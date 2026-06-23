@@ -1,0 +1,267 @@
+@prefix : <http://dark-matter.ai/ontology/> .
+@prefix priv: <http://dark-matter.ai/ontology/privacy/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Privacy Ontology - Privacy, data protection, and GDPR compliance
+
+priv:PrivacyOntology a owl:Ontology ;
+  rdfs:label "Dark Matter 2026 Privacy Ontology" ;
+  owl:versionInfo "1.0.0" .
+
+# === PRIVACY CLASSES ===
+
+priv:PersonalData a rdfs:Class ;
+  rdfs:subClassOf :DataEntity ;
+  rdfs:label "Personal Data" ;
+  rdfs:comment "Data that can identify a natural person" .
+
+priv:SensitiveData a rdfs:Class ;
+  rdfs:subClassOf priv:PersonalData ;
+  rdfs:label "Sensitive Personal Data" ;
+  rdfs:comment "Special categories of personal data requiring extra protection" .
+
+priv:DataSubject a rdfs:Class ;
+  rdfs:subClassOf :Human ;
+  rdfs:label "Data Subject" ;
+  rdfs:comment "Individual whose personal data is processed" .
+
+priv:DataController a rdfs:Class ;
+  rdfs:label "Data Controller" ;
+  rdfs:comment "Entity that determines purposes and means of processing" .
+
+priv:DataProcessor a rdfs:Class ;
+  rdfs:label "Data Processor" ;
+  rdfs:comment "Entity that processes personal data on behalf of controller" .
+
+priv:ProcessingPurpose a rdfs:Class ;
+  rdfs:label "Processing Purpose" ;
+  rdfs:comment "Purpose for which personal data is processed" .
+
+priv:LegalBasis a rdfs:Class ;
+  rdfs:label "Legal Basis" ;
+  rdfs:comment "Legal basis for processing personal data" .
+
+priv:DataSubjectRequest a rdfs:Class ;
+  rdfs:label "Data Subject Request" ;
+  rdfs:comment "Request from data subject regarding their data" .
+
+priv:RetentionPolicy a rdfs:Class ;
+  rdfs:label "Retention Policy" ;
+  rdfs:comment "Policy defining how long data should be retained" .
+
+priv:ConsentRecord a rdfs:Class ;
+  rdfs:label "Consent Record" ;
+  rdfs:comment "Record of consent given by data subject" .
+
+# === PRIVACY PROPERTIES ===
+
+priv:hasDataSubject a owl:ObjectProperty ;
+  rdfs:domain priv:PersonalData ;
+  rdfs:range priv:DataSubject ;
+  rdfs:label "has data subject" .
+
+priv:hasController a owl:ObjectProperty ;
+  rdfs:domain priv:PersonalData ;
+  rdfs:range priv:DataController ;
+  rdfs:label "has controller" .
+
+priv:hasProcessor a owl:ObjectProperty ;
+  rdfs:domain priv:PersonalData ;
+  rdfs:range priv:DataProcessor ;
+  rdfs:label "has processor" .
+
+priv:hasPurpose a owl:ObjectProperty ;
+  rdfs:domain priv:PersonalData ;
+  rdfs:range priv:ProcessingPurpose ;
+  rdfs:label "has purpose" .
+
+priv:hasLegalBasis a owl:ObjectProperty ;
+  rdfs:domain priv:PersonalData ;
+  rdfs:range priv:LegalBasis ;
+  rdfs:label "has legal basis" .
+
+priv:hasRetentionPolicy a owl:ObjectProperty ;
+  rdfs:domain priv:PersonalData ;
+  rdfs:range priv:RetentionPolicy ;
+  rdfs:label "has retention policy" .
+
+priv:hasConsent a owl:ObjectProperty ;
+  rdfs:domain priv:DataSubject ;
+  rdfs:range priv:ConsentRecord ;
+  rdfs:label "has consent" .
+
+priv:dataCategory a owl:DatatypeProperty ;
+  rdfs:domain priv:PersonalData ;
+  rdfs:range xsd:string ;
+  rdfs:label "data category" .
+
+priv:sensitivityLevel a owl:DatatypeProperty ;
+  rdfs:domain priv:PersonalData ;
+  rdfs:range xsd:string ;
+  rdfs:label "sensitivity level" .
+
+priv:retentionPeriod a owl:DatatypeProperty ;
+  rdfs:domain priv:RetentionPolicy ;
+  rdfs:range xsd:duration ;
+  rdfs:label "retention period" .
+
+priv:consentGiven a owl:DatatypeProperty ;
+  rdfs:domain priv:ConsentRecord ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "consent given" .
+
+priv:consentDate a owl:DatatypeProperty ;
+  rdfs:domain priv:ConsentRecord ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "consent date" .
+
+priv:isAnonymized a owl:DatatypeProperty ;
+  rdfs:domain priv:PersonalData ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "is anonymized" .
+
+priv:isPseudonymized a owl:DatatypeProperty ;
+  rdfs:domain priv:PersonalData ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "is pseudonymized" .
+
+priv:dataResidency a owl:DatatypeProperty ;
+  rdfs:domain priv:PersonalData ;
+  rdfs:range xsd:string ;
+  rdfs:label "data residency" .
+
+# === DATA CATEGORY INSTANCES ===
+
+priv:IdentityData a priv:PersonalData ;
+  priv:dataCategory "identity" ;
+  priv:sensitivityLevel "high" ;
+  :name "Identity Data" ;
+  :description "Data used to identify individuals" .
+
+priv:ContactData a priv:PersonalData ;
+  priv:dataCategory "contact" ;
+  priv:sensitivityLevel "medium" ;
+  :name "Contact Data" ;
+  :description "Contact information like email, phone" .
+
+priv:BehavioralData a priv:PersonalData ;
+  priv:dataCategory "behavioral" ;
+  priv:sensitivityLevel "medium" ;
+  :name "Behavioral Data" ;
+  :description "Data about user behavior and interactions" .
+
+priv:FinancialData a priv:SensitiveData ;
+  priv:dataCategory "financial" ;
+  priv:sensitivityLevel "critical" ;
+  :name "Financial Data" ;
+  :description "Financial and payment information" .
+
+priv:HealthData a priv:SensitiveData ;
+  priv:dataCategory "health" ;
+  priv:sensitivityLevel "critical" ;
+  :name "Health Data" ;
+  :description "Health and medical information" .
+
+# === PROCESSING PURPOSE INSTANCES ===
+
+priv:ServiceProvision a priv:ProcessingPurpose ;
+  :identifier "service-provision" ;
+  :name "Service Provision" ;
+  :description "Processing necessary to provide the service" .
+
+priv:SystemMaintenance a priv:ProcessingPurpose ;
+  :identifier "system-maintenance" ;
+  :name "System Maintenance" ;
+  :description "Processing for system maintenance and security" .
+
+priv:LegalCompliance a priv:ProcessingPurpose ;
+  :identifier "legal-compliance" ;
+  :name "Legal Compliance" ;
+  :description "Processing required for legal compliance" .
+
+priv:MarketingAnalytics a priv:ProcessingPurpose ;
+  :identifier "marketing-analytics" ;
+  :name "Marketing Analytics" ;
+  :description "Processing for marketing and analytics purposes" .
+
+# === LEGAL BASIS INSTANCES ===
+
+priv:Consent a priv:LegalBasis ;
+  :identifier "consent" ;
+  :name "Consent" ;
+  :description "Processing based on data subject consent" .
+
+priv:Contract a priv:LegalBasis ;
+  :identifier "contract" ;
+  :name "Contract" ;
+  :description "Processing necessary for contract performance" .
+
+priv:LegalObligation a priv:LegalBasis ;
+  :identifier "legal-obligation" ;
+  :name "Legal Obligation" ;
+  :description "Processing required by legal obligation" .
+
+priv:LegitimateInterest a priv:LegalBasis ;
+  :identifier "legitimate-interest" ;
+  :name "Legitimate Interest" ;
+  :description "Processing based on legitimate interests" .
+
+# === RETENTION POLICIES ===
+
+priv:ShortTermRetention a priv:RetentionPolicy ;
+  :identifier "short-term" ;
+  :name "Short Term Retention" ;
+  priv:retentionPeriod "P1Y"^^xsd:duration ;
+  :description "Data retained for 1 year" .
+
+priv:MediumTermRetention a priv:RetentionPolicy ;
+  :identifier "medium-term" ;
+  :name "Medium Term Retention" ;
+  priv:retentionPeriod "P3Y"^^xsd:duration ;
+  :description "Data retained for 3 years" .
+
+priv:LongTermRetention a priv:RetentionPolicy ;
+  :identifier "long-term" ;
+  :name "Long Term Retention" ;
+  priv:retentionPeriod "P7Y"^^xsd:duration ;
+  :description "Data retained for 7 years" .
+
+priv:NoRetention a priv:RetentionPolicy ;
+  :identifier "no-retention" ;
+  :name "No Retention" ;
+  priv:retentionPeriod "P0D"^^xsd:duration ;
+  :description "Data not retained after processing" .
+
+# === DATA SUBJECT REQUEST TYPES ===
+
+priv:AccessRequest a priv:DataSubjectRequest ;
+  :identifier "access" ;
+  :name "Data Access Request" ;
+  :description "Request to access personal data" .
+
+priv:RectificationRequest a priv:DataSubjectRequest ;
+  :identifier "rectification" ;
+  :name "Data Rectification Request" ;
+  :description "Request to correct personal data" .
+
+priv:ErasureRequest a priv:DataSubjectRequest ;
+  :identifier "erasure" ;
+  :name "Data Erasure Request" ;
+  :description "Request to delete personal data" .
+
+priv:PortabilityRequest a priv:DataSubjectRequest ;
+  :identifier "portability" ;
+  :name "Data Portability Request" ;
+  :description "Request to export personal data" .
+
+priv:RestrictionRequest a priv:DataSubjectRequest ;
+  :identifier "restriction" ;
+  :name "Processing Restriction Request" ;
+  :description "Request to restrict data processing" .
+
+priv:ObjectionRequest a priv:DataSubjectRequest ;
+  :identifier "objection" ;
+  :name "Processing Objection Request" ;
+  :description "Request to object to data processing" .

@@ -1,0 +1,13 @@
+PREFIX togaf: <https://ggen.dev/ontology/togaf#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?node ?node_label ?owner ?status ?comp_label
+WHERE {
+    ?node a togaf:Node ;
+          rdfs:label ?node_label ;
+          togaf:owner ?owner .
+    OPTIONAL { ?node togaf:status ?raw_status . }
+    OPTIONAL { ?component togaf:realizedBy ?node . ?component rdfs:label ?comp_label . }
+    BIND(COALESCE(?raw_status, "unknown") AS ?status)
+}
+ORDER BY ?node_label ?comp_label

@@ -1,0 +1,344 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix kgen: <https://kgen.io/ontology#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# SHACL Shapes for KGEN Artifacts
+# Validates generated artifacts, attestations, and provenance
+
+# ===== ARTIFACT SHAPES =====
+
+kgen:ArtifactShape a sh:NodeShape ;
+    sh:targetClass kgen:Artifact ;
+    sh:message "KGEN Artifact validation" ;
+    
+    # Content hash is required and must follow SHA-256 format
+    sh:property [
+        sh:path kgen:contentHash ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^sha256:[a-f0-9]{64}$" ;
+        sh:message "Artifact must have valid SHA-256 content hash in format 'sha256:hex'"
+    ] ;
+    
+    # File path is required
+    sh:property [
+        sh:path kgen:filePath ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:message "Artifact must have a file path"
+    ] ;
+    
+    # Creation timestamp is required
+    sh:property [
+        sh:path kgen:createdAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Artifact must have creation timestamp"
+    ] ;
+    
+    # Size must be non-negative
+    sh:property [
+        sh:path kgen:fileSize ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:message "Artifact file size must be non-negative integer"
+    ] ;
+    
+    # MIME type is required
+    sh:property [
+        sh:path kgen:mimeType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z]+/[a-z0-9][a-z0-9!#$&\\-\\^_]*$" ;
+        sh:message "Artifact must have valid MIME type"
+    ] .
+
+# ===== ATTESTATION SHAPES =====
+
+kgen:AttestationShape a sh:NodeShape ;
+    sh:targetClass kgen:Attestation ;
+    sh:message "KGEN Attestation validation" ;
+    
+    # Subject (what is being attested)
+    sh:property [
+        sh:path kgen:subject ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Attestation must have a subject IRI"
+    ] ;
+    
+    # Predicate (type of attestation)
+    sh:property [
+        sh:path kgen:predicate ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Attestation must have a predicate IRI"
+    ] ;
+    
+    # Signature is required for cryptographic verification
+    sh:property [
+        sh:path kgen:signature ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 64 ;
+        sh:message "Attestation must have cryptographic signature (min 64 chars)"
+    ] ;
+    
+    # Timestamp when attestation was made
+    sh:property [
+        sh:path kgen:attestedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Attestation must have timestamp"
+    ] ;
+    
+    # Attester identity
+    sh:property [
+        sh:path kgen:attester ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Attestation must identify the attester"
+    ] .
+
+# ===== PROVENANCE SHAPES =====
+
+kgen:ProvenanceShape a sh:NodeShape ;
+    sh:targetClass kgen:Provenance ;
+    sh:message "KGEN Provenance validation" ;
+    
+    # Generated entity
+    sh:property [
+        sh:path kgen:generated ;
+        sh:class kgen:Artifact ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Provenance must reference generated artifact"
+    ] ;
+    
+    # Generation activity
+    sh:property [
+        sh:path kgen:activity ;
+        sh:class kgen:GenerationActivity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Provenance must reference generation activity"
+    ] ;
+    
+    # Source data used
+    sh:property [
+        sh:path kgen:usedSource ;
+        sh:minCount 1 ;
+        sh:message "Provenance must identify at least one source"
+    ] ;
+    
+    # Timestamp
+    sh:property [
+        sh:path kgen:generatedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Provenance must have generation timestamp"
+    ] .
+
+# ===== GENERATION ACTIVITY SHAPES =====
+
+kgen:GenerationActivityShape a sh:NodeShape ;
+    sh:targetClass kgen:GenerationActivity ;
+    sh:message "KGEN Generation Activity validation" ;
+    
+    # Activity type
+    sh:property [
+        sh:path kgen:activityType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "template_render" "code_generation" "file_transformation" "data_compilation" ) ;
+        sh:message "Activity type must be from approved list"
+    ] ;
+    
+    # Template used (if applicable)
+    sh:property [
+        sh:path kgen:usedTemplate ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:message "Template reference if template was used"
+    ] ;
+    
+    # Configuration used
+    sh:property [
+        sh:path kgen:usedConfig ;
+        sh:maxCount 1 ;
+        sh:message "Configuration used during generation"
+    ] ;
+    
+    # Start and end time
+    sh:property [
+        sh:path kgen:startedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Activity must have start time"
+    ] ;
+    
+    sh:property [
+        sh:path kgen:endedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Activity must have end time"
+    ] .
+
+# ===== TEMPLATE SHAPES =====
+
+kgen:TemplateShape a sh:NodeShape ;
+    sh:targetClass kgen:Template ;
+    sh:message "KGEN Template validation" ;
+    
+    # Template name
+    sh:property [
+        sh:path dct:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:message "Template must have a title (min 3 chars)"
+    ] ;
+    
+    # Template version
+    sh:property [
+        sh:path kgen:version ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+$" ;
+        sh:message "Template version must follow semantic versioning (x.y.z)"
+    ] ;
+    
+    # Template engine
+    sh:property [
+        sh:path kgen:engine ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "nunjucks" "handlebars" "mustache" "liquid" ) ;
+        sh:message "Template engine must be from supported list"
+    ] ;
+    
+    # Content type it generates
+    sh:property [
+        sh:path kgen:generates ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Template must specify what content types it generates"
+    ] .
+
+# ===== CONFIGURATION SHAPES =====
+
+kgen:ConfigurationShape a sh:NodeShape ;
+    sh:targetClass kgen:Configuration ;
+    sh:message "KGEN Configuration validation" ;
+    
+    # Config name
+    sh:property [
+        sh:path dct:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Configuration must have a title"
+    ] ;
+    
+    # Output directory
+    sh:property [
+        sh:path kgen:outputDir ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Configuration must specify output directory"
+    ] ;
+    
+    # Template directories
+    sh:property [
+        sh:path kgen:templateDir ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Configuration must specify at least one template directory"
+    ] .
+
+# ===== QUALITY GATES =====
+
+# Artifact Quality Gate - ensures artifacts meet minimum standards
+kgen:ArtifactQualityGate a sh:NodeShape ;
+    sh:message "Artifact quality gate validation" ;
+    sh:and (
+        [ sh:property [
+            sh:path kgen:contentHash ;
+            sh:minCount 1 ;
+            sh:message "Must have content hash for integrity"
+        ] ]
+        [ sh:property [
+            sh:path kgen:fileSize ;
+            sh:minInclusive 0 ;
+            sh:message "Must have valid file size"
+        ] ]
+        [ sh:property [
+            sh:path kgen:createdAt ;
+            sh:minCount 1 ;
+            sh:message "Must have creation timestamp"
+        ] ]
+    ) .
+
+# Attestation Quality Gate - ensures attestations are cryptographically valid
+kgen:AttestationQualityGate a sh:NodeShape ;
+    sh:message "Attestation quality gate validation" ;
+    sh:and (
+        [ sh:property [
+            sh:path kgen:signature ;
+            sh:minLength 64 ;
+            sh:message "Must have cryptographic signature"
+        ] ]
+        [ sh:property [
+            sh:path kgen:attester ;
+            sh:nodeKind sh:IRI ;
+            sh:message "Must identify attester"
+        ] ]
+        [ sh:property [
+            sh:path kgen:subject ;
+            sh:nodeKind sh:IRI ;
+            sh:message "Must have attestation subject"
+        ] ]
+    ) .
+
+# Provenance Quality Gate - ensures complete provenance chain
+kgen:ProvenanceQualityGate a sh:NodeShape ;
+    sh:message "Provenance quality gate validation" ;
+    sh:and (
+        [ sh:property [
+            sh:path kgen:generated ;
+            sh:minCount 1 ;
+            sh:message "Must reference generated artifact"
+        ] ]
+        [ sh:property [
+            sh:path kgen:activity ;
+            sh:minCount 1 ;
+            sh:message "Must reference generation activity"
+        ] ]
+        [ sh:property [
+            sh:path kgen:usedSource ;
+            sh:minCount 1 ;
+            sh:message "Must reference at least one source"
+        ] ]
+    ) .

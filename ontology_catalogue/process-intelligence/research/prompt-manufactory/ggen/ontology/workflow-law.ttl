@@ -1,0 +1,109 @@
+@prefix pm:   <https://pi-research.dev/ontology/prompt-manufactory#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# WORKFLOW LAW — Phase and Subagent Topology
+# ============================================================================
+# Defines the phase structure for each program type.
+# Maps phases to required subagent roles.
+# ============================================================================
+
+# --- INTEL Workflow Structure (used by PI_RESEARCH_PROGRAM_INTEL_001, etc.) ---
+
+<https://pi-research.dev/workflows#INTEL_WORKFLOW>
+  a pm:Workflow ;
+  rdfs:label "INTEL Workflow" ;
+  dct:description "8 phases: Census, Classify, Manifest, Queries, Templates, Conformance, Reconciliation, Checkpoint" ;
+  pm:hasPhase <https://pi-research.dev/phases#INTEL_Phase_1_Census> ;
+  pm:hasPhase <https://pi-research.dev/phases#INTEL_Phase_2_Classify> ;
+  pm:hasPhase <https://pi-research.dev/phases#INTEL_Phase_3_Manifest> ;
+  pm:hasPhase <https://pi-research.dev/phases#INTEL_Phase_4_Queries> ;
+  pm:hasPhase <https://pi-research.dev/phases#INTEL_Phase_5_Templates> ;
+  pm:hasPhase <https://pi-research.dev/phases#INTEL_Phase_6_Conformance> ;
+  pm:hasPhase <https://pi-research.dev/phases#INTEL_Phase_7_Reconciliation> ;
+  pm:hasPhase <https://pi-research.dev/phases#INTEL_Phase_8_Checkpoint> .
+
+# --- Phase 1: Census ---
+
+<https://pi-research.dev/phases#INTEL_Phase_1_Census>
+  a pm:Phase ;
+  rdfs:label "Phase 1: Census" ;
+  pm:mission "Comprehensive inventory of all surfaces in referenced projects" ;
+  pm:hasSubagentRole <https://pi-research.dev/roles#role_engine_census> ;
+  pm:hasSubagentRole <https://pi-research.dev/roles#role_compat_census> ;
+  pm:hasSubagentRole <https://pi-research.dev/roles#role_ggen_census> ;
+  pm:hasSubagentRole <https://pi-research.dev/roles#role_proof_cell_census> ;
+  pm:hasSubagentRole <https://pi-research.dev/roles#role_feedstock_census> ;
+  pm:hasSubagentRole <https://pi-research.dev/roles#role_framework_census> ;
+  pm:hasSubagentRole <https://pi-research.dev/roles#role_orchestration_census> .
+
+# --- Phase 2: Classify ---
+
+<https://pi-research.dev/phases#INTEL_Phase_2_Classify>
+  a pm:Phase ;
+  rdfs:label "Phase 2: Classify" ;
+  pm:mission "Map each surface to program ontology categories" ;
+  pm:hasSubagentRole <https://pi-research.dev/roles#role_classification_agent> .
+
+# --- Phase 3: Manifest ---
+
+<https://pi-research.dev/phases#INTEL_Phase_3_Manifest>
+  a pm:Phase ;
+  rdfs:label "Phase 3: Manifest" ;
+  pm:mission "Create projection manifests and program declarations" ;
+  pm:hasSubagentRole <https://pi-research.dev/roles#role_manifest_agent> .
+
+# --- Phase 4: Queries ---
+
+<https://pi-research.dev/phases#INTEL_Phase_4_Queries>
+  a pm:Phase ;
+  rdfs:label "Phase 4: Queries" ;
+  pm:mission "Emit SPARQL selection and audit queries" ;
+  pm:hasSubagentRole <https://pi-research.dev/roles#role_query_agent> .
+
+# --- Phase 5: Templates ---
+
+<https://pi-research.dev/phases#INTEL_Phase_5_Templates>
+  a pm:Phase ;
+  rdfs:label "Phase 5: Templates" ;
+  pm:mission "Emit Tera templates for artifact rendering" ;
+  pm:hasSubagentRole <https://pi-research.dev/roles#role_template_agent> .
+
+# --- Phase 6: Conformance ---
+
+<https://pi-research.dev/phases#INTEL_Phase_6_Conformance>
+  a pm:Phase ;
+  rdfs:label "Phase 6: Conformance" ;
+  pm:mission "Van der Aalst audit: verify program structure against declared law" ;
+  pm:hasSubagentRole <https://pi-research.dev/roles#role_audit_agent> .
+
+# --- Phase 7: Reconciliation ---
+
+<https://pi-research.dev/phases#INTEL_Phase_7_Reconciliation>
+  a pm:Phase ;
+  rdfs:label "Phase 7: Reconciliation" ;
+  pm:mission "Emit unified program map outputs" ;
+  pm:hasSubagentRole <https://pi-research.dev/roles#role_reconciliation_agent> .
+
+# --- Phase 8: Checkpoint ---
+
+<https://pi-research.dev/phases#INTEL_Phase_8_Checkpoint>
+  a pm:Phase ;
+  rdfs:label "Phase 8: Checkpoint" ;
+  pm:mission "Emit ALIVE/PARTIAL verdict" ;
+  pm:hasSubagentRole <https://pi-research.dev/roles#role_checkpoint_agent> .
+
+# --- REMEDIATE Workflow Structure (simpler: 1 phase) ---
+
+<https://pi-research.dev/workflows#REMEDIATE_WORKFLOW>
+  a pm:Workflow ;
+  rdfs:label "REMEDIATE Workflow" ;
+  dct:description "Single phase: fix failed gates" ;
+  pm:hasPhase <https://pi-research.dev/phases#REMEDIATE_Phase_1> .
+
+<https://pi-research.dev/phases#REMEDIATE_Phase_1>
+  a pm:Phase ;
+  rdfs:label "Phase 1: Remediation" ;
+  pm:mission "Route failed gates and implement fixes" ;
+  pm:hasSubagentRole <https://pi-research.dev/roles#role_remediation_agent> .

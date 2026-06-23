@@ -1,0 +1,257 @@
+# YAWL Element Shapes
+# Defines SHACL constraints for YAWL data and routing elements
+
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix yawl:    <http://www.yawlfoundation.org/yawl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:      <http://example.org/yawl-shapes#> .
+
+# Shape for YAWL Variables
+ex:VariableShape a sh:NodeShape ;
+    rdfs:comment "YAWL workflow variable" ;
+    sh:targetClass yawl:Variable ;
+    sh:property [
+        sh:path yawl:hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z_][a-zA-Z0-9_]*$" ;
+        sh:message "Variable names must be valid identifiers" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:hasValue "String" ;
+        sh:message "Variable type must be defined (default: String)" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasDefaultValue ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "Variable can have a default value" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasScope ;
+        sh:datatype xsd:string ;
+        sh:hasValue "workflow" ;
+        sh:message "Variable scope must be 'workflow'" ;
+    ] .
+
+# Shape for YAWL Data Types
+ex:DataTypeShape a sh:NodeShape ;
+    rdfs:comment "YAWL data type definition" ;
+    sh:targetClass yawl:DataType ;
+    sh:property [
+        sh:path yawl:hasTypeName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Z][a-zA-Z0-9]*$" ;
+        sh:message "Data type names must start with uppercase letter" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasBaseType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:hasValue "String" ;
+        sh:message "Data type must have a base type" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasFields ;
+        sh:node ex:FieldsShape ;
+        sh:minCount 0 ;
+        sh:message "Data type can have fields" ;
+    ] .
+
+# Shape for Data Type Fields
+ex:FieldsShape a sh:NodeShape ;
+    rdfs:comment "Fields for a data type" ;
+    sh:targetClass yawl:Fields ;
+    sh:property [
+        sh:path yawl:hasField ;
+        sh:node ex:FieldShape ;
+        sh:minCount 1 ;
+        sh:message "Fields must have at least one field" ;
+    ] .
+
+# Shape for Individual Field
+ex:FieldShape a sh:NodeShape ;
+    rdfs:comment "Individual data field" ;
+    sh:targetClass yawl:Field ;
+    sh:property [
+        sh:path yawl:hasFieldName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:pattern "^[a-z][a-zA-Z0-9]*$" ;
+        sh:message "Field names must start with lowercase letter" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasFieldType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Field must have a type" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasDefaultValue ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "Field can have a default value" ;
+    ] ;
+    sh:property [
+        sh:path yawl:isNullable ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue false ;
+        sh:message "Fields are not nullable by default" ;
+    ] .
+
+# Shape for YAWL Ports
+ex:PortShape a sh:NodeShape ;
+    rdfs:comment "YAWL task port" ;
+    sh:targetClass yawl:Port ;
+    sh:property [
+        sh:path yawl:hasPortName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^(input|output)[0-9]*$" ;
+        sh:message "Port names must be 'input' or 'output' followed by optional numbers" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasPortType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:hasValue "data" ;
+        sh:message "Port type must be 'data'" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasVariableMapping ;
+        sh:node ex:VariableMappingShape ;
+        sh:minCount 0 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "Port can have variable mapping" ;
+    ] .
+
+# Shape for Variable Mapping
+ex:VariableMappingShape a sh:NodeShape ;
+    rdfs:comment "Variable mapping between ports" ;
+    sh:targetClass yawl:VariableMapping ;
+    sh:property [
+        sh:path yawl:hasFromPort ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Variable mapping must specify source port" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasToPort ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Variable mapping must specify target port" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasMappingExpression ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Variable mapping must have an expression" ;
+    ] .
+
+# Shape for YAWL Delegation Rules
+ex:DelegationRuleShape a sh:NodeShape ;
+    rdfs:comment "Delegation rule for task assignment" ;
+    sh:targetClass yawl:DelegationRule ;
+    sh:property [
+        sh:path yawl:hasRuleName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^(rule-.*|rule[0-9]+)$" ;
+        sh:message "Rule names must follow pattern: rule-* or rule[0-9]+" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasCondition ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Delegation rule must have a condition" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasAction ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:hasValue "delegate" ;
+        sh:message "Delegation rule action must be 'delegate'" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasTargetRole ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Delegation rule must specify target role" ;
+    ] .
+
+# Shape for YAWL Routing Constraints
+ex:RoutingConstraintShape a sh:NodeShape ;
+    rdfs:comment "Constraint on workflow routing" ;
+    sh:targetClass yawl:RoutingConstraint ;
+    sh:property [
+        sh:path yawl:hasConstraintName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^(constraint-.*|constraint[0-9]+)$" ;
+        sh:message "Constraint names must follow pattern: constraint-* or constraint[0-9]+" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasConstraintExpression ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Constraint must have an expression" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasConstraintType ;
+        sh:datatype xsd:string ;
+        sh:hasValue "flow" ;
+        sh:message "Constraint type must be 'flow'" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasAffectedElements ;
+        sh:node ex:AffectedElementsShape ;
+        sh:minCount 1 ;
+        sh:message "Constraint must affect at least one element" ;
+    ] .
+
+# Shape for Affected Elements
+ex:AffectedElementsShape a sh:NodeShape ;
+    rdfs:comment "Elements affected by a constraint" ;
+    sh:targetClass yawl:AffectedElements ;
+    sh:property [
+        sh:path yawl:hasElement ;
+        sh:datatype xsd:anyURI ;
+        sh:minCount 1 ;
+        sh:message "Affected elements must specify at least one element" ;
+    ] .
+
+# Shape for YAWL Annotations
+ex:AnnotationShape a sh:NodeShape ;
+    rdfs:comment "Annotation for YAWL elements" ;
+    sh:targetClass yawl:Annotation ;
+    sh:property [
+        sh:path yawl:hasAnnotationText ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Annotation must have text" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasAnnotationType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:hasValue "comment" ;
+        sh:message "Annotation type must be 'comment'" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasAnnotationTarget ;
+        sh:datatype xsd:anyURI ;
+        sh:minCount 1 ;
+        sh:message "Annotation must have a target" ;
+    ] .

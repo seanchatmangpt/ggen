@@ -1,0 +1,112 @@
+@prefix bc: <http://bytestar.org/bytecore#> .
+@prefix fk: <http://bytestar.org/failure-kernels#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Failure Kernel Ontology - Computing Through Strategic Failure
+# Success is the elimination of all possible failure modes
+
+fk:FailureKernel a owl:Class ;
+    rdfs:label "Failure Kernel" ;
+    rdfs:comment "Computational unit that succeeds by failing in precise ways" ;
+    bc:hasProperty [
+        bc:property "failure_rate" ;
+        bc:type "controlled_probability" ;
+        bc:range "0.0001 to 0.9999"
+    ] ;
+    bc:hasProperty [
+        bc:property "failure_mode" ;
+        bc:type "enumerated" ;
+        bc:values "graceful, catastrophic, oscillating, cascading"
+    ] .
+
+fk:AntiPattern a owl:Class ;
+    rdfs:label "Anti-Pattern" ;
+    rdfs:comment "Pattern that succeeds by doing the opposite of best practices" ;
+    bc:inherits fk:FailureKernel .
+
+fk:ChaosOrchestrator a owl:Class ;
+    rdfs:label "Chaos Orchestrator" ;
+    rdfs:comment "System component that introduces controlled chaos for stability" ;
+    bc:hasProperty [
+        bc:property "chaos_intensity" ;
+        bc:type "percentage" ;
+        bc:range "1 to 15"
+    ] .
+
+fk:FailureContract a owl:Class ;
+    rdfs:label "Failure Contract" ;
+    rdfs:comment "Formal specification of how a component should fail" ;
+    bc:hasProperty [
+        bc:property "failure_conditions" ;
+        bc:type "predicate_list"
+    ] ;
+    bc:hasProperty [
+        bc:property "recovery_strategy" ;
+        bc:type "algorithm_reference"
+    ] .
+
+fk:ErrorDrivenConsensus a owl:Class ;
+    rdfs:label "Error-Driven Consensus" ;
+    rdfs:comment "Consensus mechanism that uses disagreement to reach agreement" ;
+    bc:hasProperty [
+        bc:property "error_threshold" ;
+        bc:type "count" ;
+        bc:minimum "3"
+    ] ;
+    bc:hasProperty [
+        bc:property "disagreement_amplifier" ;
+        bc:type "multiplier" ;
+        bc:range "1.1 to 3.0"
+    ] .
+
+fk:AntiTest a owl:Class ;
+    rdfs:label "Anti-Test" ;
+    rdfs:comment "Test that must fail to prove the system works correctly" ;
+    bc:hasProperty [
+        bc:property "expected_failure_type" ;
+        bc:type "error_class"
+    ] ;
+    bc:hasProperty [
+        bc:property "failure_timeout" ;
+        bc:type "milliseconds" ;
+        bc:maximum "1000"
+    ] .
+
+# Failure Modes as First-Class Citizens
+fk:has_failure_mode a owl:ObjectProperty ;
+    rdfs:domain fk:FailureKernel ;
+    rdfs:range fk:FailureMode .
+
+fk:triggers_cascade a owl:ObjectProperty ;
+    rdfs:domain fk:FailureKernel ;
+    rdfs:range fk:FailureKernel ;
+    rdfs:comment "One failure kernel can trigger another in a controlled cascade" .
+
+fk:recovers_through a owl:ObjectProperty ;
+    rdfs:domain fk:FailureKernel ;
+    rdfs:range fk:RecoveryStrategy ;
+    rdfs:comment "How a failure kernel returns to operational state" .
+
+# Strategic Failure Patterns
+fk:fail_fast a fk:FailureMode ;
+    rdfs:label "Fail Fast" ;
+    fk:execution_time "< 1ms" ;
+    fk:resource_consumption "minimal" .
+
+fk:fail_loud a fk:FailureMode ;
+    rdfs:label "Fail Loud" ;
+    fk:notification_level "maximum" ;
+    fk:propagation_scope "system_wide" .
+
+fk:fail_graceful a fk:FailureMode ;
+    rdfs:label "Fail Graceful" ;
+    fk:degradation_rate "exponential" ;
+    fk:service_level "reduced_but_functional" .
+
+fk:fail_oscillating a fk:FailureMode ;
+    rdfs:label "Fail Oscillating" ;
+    fk:pattern "sine_wave" ;
+    fk:frequency "0.1 to 10 Hz" ;
+    fk:amplitude "10% to 90%" .

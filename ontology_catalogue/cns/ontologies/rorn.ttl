@@ -1,0 +1,193 @@
+@prefix rorn:  <http://bitbizeco.dev/ontology/v1/rorn#> .
+@prefix :      <http://bitbizeco.dev/ontology/v1/rorn#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+
+<http://bitbizeco.dev/ontology/v1/rorn>
+  a owl:Ontology ;
+  rdfs:label "Robert's Rules of Order – Generative Canon (RONR)" ;
+  rdfs:comment "AHI-level, self-validating ontology of parliamentary law. Defines procedural physics, precedence, and generative governance via SHACL." ;
+  owl:imports <http://bitbizeco.dev/ontology/v1> , <http://bitbizeco.dev/ontology/v1/governance> .
+
+#################################################################
+# Axiomatic primitives
+#################################################################
+
+rorn:Assembly          a owl:Class ; rdfs:label "Assembly" .
+rorn:Member            a owl:Class ; rdfs:label "Member" .
+rorn:Rule              a owl:Class ; rdfs:label "Rule" .
+rorn:OfficialInterp    a owl:Class ; rdfs:label "Official Interpretation" .
+rorn:Event             a owl:Class ; rdfs:label "Event" .
+rorn:DebateEvent       a owl:Class ; rdfs:subClassOf rorn:Event ; rdfs:label "Debate Event" .
+rorn:VoteEvent         a owl:Class ; rdfs:subClassOf rorn:Event ; rdfs:label "Vote Event" .
+
+rorn:Motion            a owl:Class ; rdfs:label "Motion" .
+rorn:MainMotion        a owl:Class ; rdfs:subClassOf rorn:Motion .
+rorn:SecondaryMotion   a owl:Class ; rdfs:subClassOf rorn:Motion .
+rorn:PrivilegedMotion  a owl:Class ; rdfs:subClassOf rorn:SecondaryMotion .
+rorn:IncidentalMotion  a owl:Class ; rdfs:subClassOf rorn:SecondaryMotion .
+rorn:SubsidiaryMotion  a owl:Class ; rdfs:subClassOf rorn:SecondaryMotion .
+rorn:Amendment         a owl:Class ; rdfs:subClassOf rorn:SubsidiaryMotion .
+rorn:PointOfOrder      a owl:Class ; rdfs:subClassOf rorn:IncidentalMotion .
+rorn:Appeal            a owl:Class ; rdfs:subClassOf rorn:IncidentalMotion .
+
+# Vote mechanics
+rorn:VoteRecord        a owl:Class ; rdfs:label "Vote Record" .
+rorn:VoteRequirement   a owl:Class ; rdfs:label "Vote Requirement" .
+rorn:Majority          a rorn:VoteRequirement .
+rorn:TwoThirds         a rorn:VoteRequirement .
+
+#################################################################
+# Object properties
+#################################################################
+
+rorn:hasChair          a owl:ObjectProperty ; rdfs:domain rorn:Assembly ; rdfs:range rorn:Member .
+rorn:hasPendingMotion  a owl:ObjectProperty ; rdfs:domain rorn:Assembly ; rdfs:range rorn:Motion .
+rorn:hasHistoryEvent   a owl:ObjectProperty ; rdfs:domain rorn:Assembly ; rdfs:range rorn:Event .
+
+rorn:proposes          a owl:ObjectProperty ; rdfs:domain rorn:Member ; rdfs:range rorn:Motion .
+rorn:seconds           a owl:ObjectProperty ; rdfs:domain rorn:Member ; rdfs:range rorn:Motion .
+rorn:amends            a owl:ObjectProperty ; rdfs:domain rorn:Amendment ; rdfs:range rorn:Motion .
+
+rorn:precedes          a owl:ObjectProperty , owl:TransitiveProperty ;
+  rdfs:domain rorn:Motion ; rdfs:range rorn:Motion ;
+  rdfs:comment "Strict precedence: higher precedence motion prevails over any lower pending motion." .
+
+rorn:appliesTo         a owl:ObjectProperty ; rdfs:domain rorn:Rule ; rdfs:range rorn:Motion .
+rorn:clarifies         a owl:ObjectProperty ; rdfs:domain rorn:OfficialInterp ; rdfs:range rorn:Rule .
+
+rorn:voteRecord        a owl:ObjectProperty ; rdfs:domain rorn:Motion ; rdfs:range rorn:VoteRecord .
+rorn:voteOn            a owl:ObjectProperty ; rdfs:domain rorn:VoteEvent ; rdfs:range rorn:Motion .
+
+#################################################################
+# Data properties
+#################################################################
+
+rorn:quorumCount       a owl:DatatypeProperty ; rdfs:domain rorn:Assembly ; rdfs:range xsd:nonNegativeInteger .
+rorn:presentCount      a owl:DatatypeProperty ; rdfs:domain rorn:Assembly ; rdfs:range xsd:nonNegativeInteger .
+
+rorn:motionText        a owl:DatatypeProperty ; rdfs:domain rorn:Motion ; rdfs:range xsd:string .
+rorn:isDebatable       a owl:DatatypeProperty ; rdfs:domain rorn:Motion ; rdfs:range xsd:boolean .
+rorn:isAmendable       a owl:DatatypeProperty ; rdfs:domain rorn:Motion ; rdfs:range xsd:boolean .
+rorn:requiresSecond    a owl:DatatypeProperty ; rdfs:domain rorn:Motion ; rdfs:range xsd:boolean .
+rorn:voteRequirement   a owl:ObjectProperty   ; rdfs:domain rorn:Motion ; rdfs:range rorn:VoteRequirement .
+rorn:status            a owl:DatatypeProperty ; rdfs:domain rorn:Motion ; rdfs:range xsd:string .
+
+rorn:yea               a owl:DatatypeProperty ; rdfs:domain rorn:VoteRecord ; rdfs:range xsd:nonNegativeInteger .
+rorn:nay               a owl:DatatypeProperty ; rdfs:domain rorn:VoteRecord ; rdfs:range xsd:nonNegativeInteger .
+rorn:abstain           a owl:DatatypeProperty ; rdfs:domain rorn:VoteRecord ; rdfs:range xsd:nonNegativeInteger .
+rorn:adopted           a owl:DatatypeProperty ; rdfs:domain rorn:Motion ; rdfs:range xsd:boolean .
+
+rorn:raisedAt          a owl:DatatypeProperty ; rdfs:domain rorn:PointOfOrder ; rdfs:range xsd:dateTime .
+rorn:resultAnnouncedAt a owl:DatatypeProperty ; rdfs:domain rorn:VoteEvent ; rdfs:range xsd:dateTime .
+
+#################################################################
+# Canonical precedence chain
+#################################################################
+
+# Privileged (highest)
+:FixTimeToAdjourn      a rorn:PrivilegedMotion ; rorn:isDebatable false ; rorn:requiresSecond true ; rorn:isAmendable true ;  rorn:voteRequirement rorn:Majority .
+:Adjourn               a rorn:PrivilegedMotion ; rorn:isDebatable false ; rorn:requiresSecond true ; rorn:isAmendable false ; rorn:voteRequirement rorn:Majority .
+:Recess                a rorn:PrivilegedMotion ; rorn:isDebatable false ; rorn:requiresSecond true ; rorn:isAmendable true ;  rorn:voteRequirement rorn:Majority .
+:QuestionOfPrivilege   a rorn:PrivilegedMotion ; rorn:isDebatable false ; rorn:requiresSecond false ; rorn:isAmendable false .
+:CallForOrdersOfTheDay a rorn:PrivilegedMotion ; rorn:isDebatable false ; rorn:requiresSecond false ; rorn:isAmendable false .
+
+# Subsidiary
+:LayOnTheTable         a rorn:SubsidiaryMotion ; rorn:isDebatable false ; rorn:requiresSecond true ; rorn:isAmendable false ; rorn:voteRequirement rorn:Majority .
+:PreviousQuestion      a rorn:SubsidiaryMotion ; rorn:isDebatable false ; rorn:requiresSecond true ; rorn:isAmendable false ; rorn:voteRequirement rorn:TwoThirds .
+:LimitDebate           a rorn:SubsidiaryMotion ; rorn:isDebatable false ; rorn:requiresSecond true ; rorn:isAmendable true ;  rorn:voteRequirement rorn:TwoThirds .
+:PostponeToCertainTime a rorn:SubsidiaryMotion ; rorn:isDebatable true  ; rorn:requiresSecond true ; rorn:isAmendable true ;  rorn:voteRequirement rorn:Majority .
+:CommitOrRefer         a rorn:SubsidiaryMotion ; rorn:isDebatable true  ; rorn:requiresSecond true ; rorn:isAmendable true ;  rorn:voteRequirement rorn:Majority .
+:Amend                 a rorn:Amendment        ; rorn:isDebatable true  ; rorn:requiresSecond true ; rorn:isAmendable true ;  rorn:voteRequirement rorn:Majority .
+:PostponeIndefinitely  a rorn:SubsidiaryMotion ; rorn:isDebatable true  ; rorn:requiresSecond true ; rorn:isAmendable false ; rorn:voteRequirement rorn:Majority .
+
+# Main motion (lowest)
+:MainMotionInstance    a rorn:MainMotion       ; rorn:isDebatable true  ; rorn:requiresSecond true ; rorn:isAmendable true ;  rorn:voteRequirement rorn:Majority .
+
+# Precedence edges
+:FixTimeToAdjourn rorn:precedes :Adjourn .
+:Adjourn          rorn:precedes :Recess .
+:Recess           rorn:precedes :QuestionOfPrivilege .
+:QuestionOfPrivilege rorn:precedes :CallForOrdersOfTheDay .
+:CallForOrdersOfTheDay rorn:precedes :LayOnTheTable .
+:LayOnTheTable    rorn:precedes :PreviousQuestion .
+:PreviousQuestion rorn:precedes :LimitDebate .
+:LimitDebate      rorn:precedes :PostponeToCertainTime .
+:PostponeToCertainTime rorn:precedes :CommitOrRefer .
+:CommitOrRefer    rorn:precedes :Amend .
+:Amend            rorn:precedes :PostponeIndefinitely .
+:PostponeIndefinitely rorn:precedes :MainMotionInstance .
+
+#################################################################
+# SHACL – governance
+#################################################################
+
+:AssemblyQuorumShape a sh:NodeShape ;
+  sh:targetClass rorn:Assembly ;
+  sh:property [ sh:path rorn:quorumCount ;  sh:datatype xsd:nonNegativeInteger ; sh:minCount 1 ] ;
+  sh:property [ sh:path rorn:presentCount ; sh:datatype xsd:nonNegativeInteger ; sh:minCount 1 ] ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this rorn:presentCount ?p ; rorn:quorumCount ?q .
+        $this rorn:hasPendingMotion ?m .
+        FILTER(?p < ?q)
+      }
+    """ ;
+    sh:message "RONR: Business cannot proceed while presentCount < quorumCount."
+  ] .
+
+:SecondRequiredShape a sh:NodeShape ;
+  sh:targetClass rorn:Motion ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this rorn:requiresSecond true .
+        FILTER NOT EXISTS { ?s a rorn:Member ; rorn:seconds $this . }
+      }
+    """ ;
+    sh:message "RONR: Motion requires a second before consideration."
+  ] .
+
+:PrecedenceBlockingShape a sh:NodeShape ;
+  sh:targetClass rorn:Assembly ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this rorn:hasPendingMotion ?low , ?high .
+        ?high rorn:precedes ?low .
+      }
+    """ ;
+    sh:message "RONR: Lower-precedence motion cannot be pending while a higher-precedence motion is pending."
+  ] .
+
+:MajorityThresholdShape a sh:NodeShape ;
+  sh:targetClass rorn:Motion ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this rorn:adopted true ; rorn:voteRequirement rorn:Majority ; rorn:voteRecord ?vr .
+        ?vr rorn:yea ?y ; rorn:nay ?n .
+        FILTER(?y <= ?n)
+      }
+    """ ;
+    sh:message "RONR: Majority not achieved for a motion marked adopted."
+  ] .
+
+:TwoThirdsThresholdShape a sh:NodeShape ;
+  sh:targetClass rorn:Motion ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this rorn:adopted true ; rorn:voteRequirement rorn:TwoThirds ; rorn:voteRecord ?vr .
+        ?vr rorn:yea ?y ; rorn:nay ?n .
+        FILTER( (3 * ?y) < (2 * (?y + ?n)) )
+      }
+    """ ;
+    sh:message "RONR: Two-thirds not achieved for a motion marked adopted."
+  ] .
+
+

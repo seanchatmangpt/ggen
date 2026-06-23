@@ -1,0 +1,423 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix time:     <http://www.w3.org/2006/time#> .
+
+# ============================================================================
+# ZOE LA Mobile — Connect Group Schedules Ontology
+# ============================================================================
+# Models the scheduling dimension of Connect Groups: when, where, how often,
+# and what format.  Three primary classes:
+#   zoe:GroupSeason   — a group's active season (semester / annual / ongoing)
+#   zoe:GroupSchedule — recurring meeting schedule (day, time, frequency)
+#   zoe:GroupMeeting  — individual meeting instance
+#
+# Three SKOS schemes + 15 concepts, five named GroupSchedule individuals
+# covering common ZOE LA patterns.
+# ============================================================================
+
+<https://zoela.org/ontology/connect-group-schedules>
+    a owl:Ontology ;
+    rdfs:label   "ZOE LA Connect Group Schedules"@en ;
+    rdfs:comment "Schedule, location, and format dimension of Connect Groups."@en ;
+    dcterms:creator  "Sean Chatman" ;
+    dcterms:created  "2026-05-17"^^xsd:date ;
+    dcterms:license  <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo  "1.0.0" ;
+    owl:imports      <https://zoela.org/ontology/connect-groups> .
+
+# ============================================================================
+# § 1  Classes
+# ============================================================================
+
+zoe:GroupSeason a owl:Class ;
+    rdfs:label   "Group Season"@en ;
+    rdfs:comment "A bounded active season for a Connect Group — semester, annual cycle, or ongoing. Seasons control the time window in which GroupSchedules and GroupMeetings are valid."@en ;
+    skos:notation "group_season" ;
+    rdfs:subClassOf time:TemporalEntity .
+
+zoe:GroupSchedule a owl:Class ;
+    rdfs:label   "Group Schedule"@en ;
+    rdfs:comment "The recurring meeting schedule for a Connect Group, declaring the day of week, start time, frequency, and location mode. A single group may have multiple schedules across seasons."@en ;
+    skos:notation "group_schedule" ;
+    rdfs:subClassOf schema:Schedule .
+
+zoe:GroupMeeting a owl:Class ;
+    rdfs:label   "Group Meeting"@en ;
+    rdfs:comment "An individual meeting instance of a Connect Group, derived from the GroupSchedule. Records the actual meeting date, start time, physical location, and cancellation status."@en ;
+    rdfs:subClassOf schema:Event ;
+    skos:notation "group_meeting" .
+
+# ============================================================================
+# § 2  Datatype properties — GroupSeason
+# ============================================================================
+
+zoe:seasonLabel a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupSeason ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Season Label"@en ;
+    rdfs:comment "Human-readable name for the season, e.g. 'Spring 2026' or 'Fall Semester 2026'."@en ;
+    skos:notation "season_label" .
+
+zoe:seasonStartDate a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupSeason ;
+    rdfs:range   xsd:date ;
+    rdfs:label   "Season Start Date"@en ;
+    rdfs:comment "ISO-8601 date on which the season becomes active. GroupMeetings scheduled before this date are outside the season window."@en ;
+    skos:notation "season_start_date" .
+
+zoe:seasonEndDate a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupSeason ;
+    rdfs:range   xsd:date ;
+    rdfs:label   "Season End Date"@en ;
+    rdfs:comment "ISO-8601 date on which the season closes. GroupMeetings scheduled after this date are outside the season window. May be absent for ongoing seasons."@en ;
+    skos:notation "season_end_date" .
+
+zoe:seasonIsActive a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupSeason ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Season Is Active"@en ;
+    rdfs:comment "True when the season is currently open. Controls whether new GroupMeetings may be generated from the associated GroupSchedule."@en ;
+    skos:notation "season_is_active" .
+
+# ============================================================================
+# § 3  Object properties — GroupSeason
+# ============================================================================
+
+zoe:seasonForGroup a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupSeason ;
+    rdfs:range   zoe:ConnectGroup ;
+    rdfs:label   "Season For Group"@en ;
+    rdfs:comment "Associates the GroupSeason with the Connect Group it governs."@en ;
+    skos:notation "season_for_group" .
+
+# ============================================================================
+# § 4  Datatype properties — GroupSchedule
+# ============================================================================
+
+zoe:scheduleDayOfWeek a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupSchedule ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Schedule Day Of Week"@en ;
+    rdfs:comment "Day of the week the group meets, as a string matching a DayOfWeekScheme notation (Sun, Mon, Tue, Wed, Thu, Fri, Sat)."@en ;
+    skos:notation "schedule_day_of_week" .
+
+zoe:scheduleTime a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupSchedule ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Schedule Time"@en ;
+    rdfs:comment "Start time of the recurring meeting in local 24-hour format (HH:MM), e.g. '19:00'."@en ;
+    skos:notation "schedule_time" .
+
+zoe:scheduleFrequency a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupSchedule ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Schedule Frequency"@en ;
+    rdfs:comment "Recurrence cadence for the group meeting. Allowed values: 'weekly', 'biweekly', 'monthly', 'irregular'. Should match a ScheduleFrequencyScheme notation."@en ;
+    skos:notation "schedule_frequency" .
+
+zoe:scheduleLocationMode a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupSchedule ;
+    rdfs:range   skos:Concept ;
+    rdfs:label   "Schedule Location Mode"@en ;
+    rdfs:comment "SKOS concept from zoe:LocationModeScheme indicating whether this group meets in-person, online, hybrid, or at-home only."@en ;
+    skos:notation "schedule_location_mode" .
+
+# ============================================================================
+# § 5  Object properties — GroupSchedule
+# ============================================================================
+
+zoe:scheduleForGroup a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupSchedule ;
+    rdfs:range   zoe:ConnectGroup ;
+    rdfs:label   "Schedule For Group"@en ;
+    rdfs:comment "Associates the GroupSchedule with its Connect Group."@en ;
+    skos:notation "schedule_for_group" .
+
+zoe:scheduleDayTerm a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupSchedule ;
+    rdfs:range   skos:Concept ;
+    rdfs:label   "Schedule Day Term"@en ;
+    rdfs:comment "SKOS concept from zoe:DayOfWeekScheme for the meeting day, enabling vocabulary-driven filtering."@en ;
+    skos:notation "schedule_day_term" .
+
+# ============================================================================
+# § 6  Datatype properties — GroupMeeting
+# ============================================================================
+
+zoe:meetingDate a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupMeeting ;
+    rdfs:range   xsd:date ;
+    rdfs:label   "Meeting Date"@en ;
+    rdfs:comment "ISO-8601 calendar date of the individual meeting instance."@en ;
+    skos:notation "meeting_date" .
+
+zoe:meetingStartTime a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupMeeting ;
+    rdfs:range   xsd:time ;
+    rdfs:label   "Meeting Start Time"@en ;
+    rdfs:comment "ISO-8601 time-of-day at which this specific meeting instance begins."@en ;
+    skos:notation "meeting_start_time" .
+
+zoe:meetingLocation a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupMeeting ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Meeting Location"@en ;
+    rdfs:comment "Human-readable address or platform description for this meeting instance, e.g. '123 Main St, Room 4' or 'Zoom link in group chat'."@en ;
+    skos:notation "meeting_location" .
+
+zoe:meetingIsCancelled a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupMeeting ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Meeting Is Cancelled"@en ;
+    rdfs:comment "True when this specific meeting instance has been cancelled. Cancelled meetings are retained in the event log for process-mining completeness."@en ;
+    skos:notation "meeting_is_cancelled" .
+
+# ============================================================================
+# § 7  Object properties — GroupMeeting
+# ============================================================================
+
+zoe:meetingForGroup a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupMeeting ;
+    rdfs:range   zoe:ConnectGroup ;
+    rdfs:label   "Meeting For Group"@en ;
+    rdfs:comment "Associates the GroupMeeting with its Connect Group."@en ;
+    skos:notation "meeting_for_group" .
+
+zoe:meetingDerivedFromSchedule a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupMeeting ;
+    rdfs:range   zoe:GroupSchedule ;
+    rdfs:label   "Meeting Derived From Schedule"@en ;
+    rdfs:comment "Links the meeting instance back to the GroupSchedule from which it was generated."@en ;
+    skos:notation "meeting_derived_from_schedule" .
+
+# ============================================================================
+# § 8  SKOS ConceptScheme: LocationModeScheme
+# ============================================================================
+
+zoe:LocationModeScheme a skos:ConceptScheme ;
+    rdfs:label      "Location Mode Scheme"@en ;
+    rdfs:comment    "Controlled vocabulary for the physical/digital modality of a Connect Group meeting."@en ;
+    skos:prefLabel  "ZOE LA Location Mode Scheme"@en .
+
+zoe:InPersonMode a skos:Concept ;
+    skos:inScheme   zoe:LocationModeScheme ;
+    skos:notation   "IN_PERSON" ;
+    rdfs:label      "In Person"@en ;
+    skos:prefLabel  "In-Person Meeting"@en ;
+    skos:definition "Group meets entirely in a physical location. All members are expected to attend on-site."@en ;
+    rdfs:comment    "Location mode: all members attend physically."@en .
+
+zoe:OnlineMode a skos:Concept ;
+    skos:inScheme   zoe:LocationModeScheme ;
+    skos:notation   "ONLINE" ;
+    rdfs:label      "Online"@en ;
+    skos:prefLabel  "Online Meeting"@en ;
+    skos:definition "Group meets entirely via a digital video platform (Zoom, Google Meet, etc.). No physical gathering occurs."@en ;
+    rdfs:comment    "Location mode: fully virtual meeting."@en .
+
+zoe:HybridMode a skos:Concept ;
+    skos:inScheme   zoe:LocationModeScheme ;
+    skos:notation   "HYBRID" ;
+    rdfs:label      "Hybrid"@en ;
+    skos:prefLabel  "Hybrid Meeting"@en ;
+    skos:definition "Group meets with some members in-person at a physical location and others joining remotely via a digital platform simultaneously."@en ;
+    rdfs:comment    "Location mode: concurrent in-person and remote attendance."@en .
+
+zoe:AtHomeModeOnly a skos:Concept ;
+    skos:inScheme   zoe:LocationModeScheme ;
+    skos:notation   "AT_HOME" ;
+    rdfs:label      "At Home Only"@en ;
+    skos:prefLabel  "At-Home Meeting"@en ;
+    skos:definition "Group rotates meeting location among members' homes. No central or campus-based meeting site."@en ;
+    rdfs:comment    "Location mode: rotating home gathering, no fixed venue."@en .
+
+zoe:LocationModeScheme skos:hasTopConcept
+    zoe:InPersonMode ,
+    zoe:OnlineMode ,
+    zoe:HybridMode ,
+    zoe:AtHomeModeOnly .
+
+# ============================================================================
+# § 9  SKOS ConceptScheme: DayOfWeekScheme
+# ============================================================================
+
+zoe:DayOfWeekScheme a skos:ConceptScheme ;
+    rdfs:label      "Day Of Week Scheme"@en ;
+    rdfs:comment    "Controlled vocabulary of days of the week for scheduling Connect Group meetings."@en ;
+    skos:prefLabel  "ZOE LA Day Of Week Scheme"@en .
+
+zoe:DaySunday a skos:Concept ;
+    skos:inScheme   zoe:DayOfWeekScheme ;
+    skos:notation   "Sun" ;
+    rdfs:label      "Sunday"@en ;
+    skos:prefLabel  "Sunday"@en ;
+    skos:definition "Sunday — the first day of the week in ISO-8601 week numbering."@en ;
+    rdfs:comment    "Day of week: Sunday."@en .
+
+zoe:DayMonday a skos:Concept ;
+    skos:inScheme   zoe:DayOfWeekScheme ;
+    skos:notation   "Mon" ;
+    rdfs:label      "Monday"@en ;
+    skos:prefLabel  "Monday"@en ;
+    skos:definition "Monday — the second day of the week."@en ;
+    rdfs:comment    "Day of week: Monday."@en .
+
+zoe:DayTuesday a skos:Concept ;
+    skos:inScheme   zoe:DayOfWeekScheme ;
+    skos:notation   "Tue" ;
+    rdfs:label      "Tuesday"@en ;
+    skos:prefLabel  "Tuesday"@en ;
+    skos:definition "Tuesday — the third day of the week."@en ;
+    rdfs:comment    "Day of week: Tuesday."@en .
+
+zoe:DayWednesday a skos:Concept ;
+    skos:inScheme   zoe:DayOfWeekScheme ;
+    skos:notation   "Wed" ;
+    rdfs:label      "Wednesday"@en ;
+    skos:prefLabel  "Wednesday"@en ;
+    skos:definition "Wednesday — the fourth day of the week."@en ;
+    rdfs:comment    "Day of week: Wednesday."@en .
+
+zoe:DayThursday a skos:Concept ;
+    skos:inScheme   zoe:DayOfWeekScheme ;
+    skos:notation   "Thu" ;
+    rdfs:label      "Thursday"@en ;
+    skos:prefLabel  "Thursday"@en ;
+    skos:definition "Thursday — the fifth day of the week."@en ;
+    rdfs:comment    "Day of week: Thursday."@en .
+
+zoe:DayFriday a skos:Concept ;
+    skos:inScheme   zoe:DayOfWeekScheme ;
+    skos:notation   "Fri" ;
+    rdfs:label      "Friday"@en ;
+    skos:prefLabel  "Friday"@en ;
+    skos:definition "Friday — the sixth day of the week."@en ;
+    rdfs:comment    "Day of week: Friday."@en .
+
+zoe:DaySaturday a skos:Concept ;
+    skos:inScheme   zoe:DayOfWeekScheme ;
+    skos:notation   "Sat" ;
+    rdfs:label      "Saturday"@en ;
+    skos:prefLabel  "Saturday"@en ;
+    skos:definition "Saturday — the seventh day of the week."@en ;
+    rdfs:comment    "Day of week: Saturday."@en .
+
+zoe:DayOfWeekScheme skos:hasTopConcept
+    zoe:DaySunday ,
+    zoe:DayMonday ,
+    zoe:DayTuesday ,
+    zoe:DayWednesday ,
+    zoe:DayThursday ,
+    zoe:DayFriday ,
+    zoe:DaySaturday .
+
+# ============================================================================
+# § 10  SKOS ConceptScheme: ScheduleFrequencyScheme
+# ============================================================================
+
+zoe:ScheduleFrequencyScheme a skos:ConceptScheme ;
+    rdfs:label      "Schedule Frequency Scheme"@en ;
+    rdfs:comment    "Controlled vocabulary of meeting recurrence frequencies for Connect Group schedules."@en ;
+    skos:prefLabel  "ZOE LA Schedule Frequency Scheme"@en .
+
+zoe:FrequencyWeekly a skos:Concept ;
+    skos:inScheme   zoe:ScheduleFrequencyScheme ;
+    skos:notation   "WEEKLY" ;
+    rdfs:label      "Weekly"@en ;
+    skos:prefLabel  "Weekly"@en ;
+    skos:definition "Group meets every week on the declared day and time."@en ;
+    rdfs:comment    "Frequency: once per week."@en .
+
+zoe:FrequencyBiWeekly a skos:Concept ;
+    skos:inScheme   zoe:ScheduleFrequencyScheme ;
+    skos:notation   "BIWEEKLY" ;
+    rdfs:label      "Bi-Weekly"@en ;
+    skos:prefLabel  "Bi-Weekly"@en ;
+    skos:definition "Group meets every two weeks (alternating weeks) on the declared day and time."@en ;
+    rdfs:comment    "Frequency: once every two weeks."@en .
+
+zoe:FrequencyMonthly a skos:Concept ;
+    skos:inScheme   zoe:ScheduleFrequencyScheme ;
+    skos:notation   "MONTHLY" ;
+    rdfs:label      "Monthly"@en ;
+    skos:prefLabel  "Monthly"@en ;
+    skos:definition "Group meets once per month, typically on the same week-of-month and day."@en ;
+    rdfs:comment    "Frequency: once per month."@en .
+
+zoe:FrequencyIrregular a skos:Concept ;
+    skos:inScheme   zoe:ScheduleFrequencyScheme ;
+    skos:notation   "IRREGULAR" ;
+    rdfs:label      "Irregular"@en ;
+    skos:prefLabel  "Irregular"@en ;
+    skos:definition "Group does not meet on a fixed recurring cadence; meeting dates are arranged ad hoc by the group leader."@en ;
+    rdfs:comment    "Frequency: no fixed recurrence pattern."@en .
+
+zoe:ScheduleFrequencyScheme skos:hasTopConcept
+    zoe:FrequencyWeekly ,
+    zoe:FrequencyBiWeekly ,
+    zoe:FrequencyMonthly ,
+    zoe:FrequencyIrregular .
+
+# ============================================================================
+# § 11  Named GroupSchedule individuals — five common ZOE LA patterns
+# ============================================================================
+
+zoe:SundayEveningGroupSchedule a zoe:GroupSchedule ;
+    rdfs:label              "Sunday Evening Group Schedule"@en ;
+    rdfs:comment            "Weekly Sunday evening in-person Connect Group. Meets every Sunday at 18:00."@en ;
+    zoe:scheduleDayOfWeek   "Sun" ;
+    zoe:scheduleTime        "18:00" ;
+    zoe:scheduleFrequency   "weekly" ;
+    zoe:scheduleLocationMode zoe:InPersonMode ;
+    zoe:scheduleDayTerm     zoe:DaySunday ;
+    skos:notation           "SCHED-SUN-EVE-WKL-IP" .
+
+zoe:WednesdayMorningWomensGroupSchedule a zoe:GroupSchedule ;
+    rdfs:label              "Wednesday Morning Women's Group Schedule"@en ;
+    rdfs:comment            "Weekly Wednesday morning hybrid women's Connect Group. Meets every Wednesday at 09:00 in hybrid format."@en ;
+    zoe:scheduleDayOfWeek   "Wed" ;
+    zoe:scheduleTime        "09:00" ;
+    zoe:scheduleFrequency   "weekly" ;
+    zoe:scheduleLocationMode zoe:HybridMode ;
+    zoe:scheduleDayTerm     zoe:DayWednesday ;
+    skos:notation           "SCHED-WED-MORN-WKL-HYB" .
+
+zoe:SaturdayMensGroupSchedule a zoe:GroupSchedule ;
+    rdfs:label              "Saturday Men's Group Schedule"@en ;
+    rdfs:comment            "Bi-weekly Saturday in-person men's Connect Group. Meets every other Saturday at 07:30."@en ;
+    zoe:scheduleDayOfWeek   "Sat" ;
+    zoe:scheduleTime        "07:30" ;
+    zoe:scheduleFrequency   "biweekly" ;
+    zoe:scheduleLocationMode zoe:InPersonMode ;
+    zoe:scheduleDayTerm     zoe:DaySaturday ;
+    skos:notation           "SCHED-SAT-MORN-BWK-IP" .
+
+zoe:ThursdayYoungAdultsGroupSchedule a zoe:GroupSchedule ;
+    rdfs:label              "Thursday Young Adults Group Schedule"@en ;
+    rdfs:comment            "Weekly Thursday evening online young adults Connect Group. Meets every Thursday at 20:00 via video platform."@en ;
+    zoe:scheduleDayOfWeek   "Thu" ;
+    zoe:scheduleTime        "20:00" ;
+    zoe:scheduleFrequency   "weekly" ;
+    zoe:scheduleLocationMode zoe:OnlineMode ;
+    zoe:scheduleDayTerm     zoe:DayThursday ;
+    skos:notation           "SCHED-THU-EVE-WKL-ONL" .
+
+zoe:FridayCouplesGroupSchedule a zoe:GroupSchedule ;
+    rdfs:label              "Friday Couples Group Schedule"@en ;
+    rdfs:comment            "Bi-weekly Friday evening in-person couples Connect Group. Meets every other Friday at 19:00."@en ;
+    zoe:scheduleDayOfWeek   "Fri" ;
+    zoe:scheduleTime        "19:00" ;
+    zoe:scheduleFrequency   "biweekly" ;
+    zoe:scheduleLocationMode zoe:InPersonMode ;
+    zoe:scheduleDayTerm     zoe:DayFriday ;
+    skos:notation           "SCHED-FRI-EVE-BWK-IP" .
+
+# ============================================================================
+# End of ontology/zoela/connect-group-schedules.ttl
+# ============================================================================

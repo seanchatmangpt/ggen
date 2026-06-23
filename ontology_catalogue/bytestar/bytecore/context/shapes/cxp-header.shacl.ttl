@@ -1,0 +1,7 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/bytecore/governance/cxp-header>
+  a sh:NodeShape ;
+  sh:targetClass bcore:DataArtifact ; # In a real scenario, a more specific :CXPHeader class would be the target.
+  sh:message "SHACL shapes for the Crystal Exchange Protocol (CXP) header for marketplace interactions." .

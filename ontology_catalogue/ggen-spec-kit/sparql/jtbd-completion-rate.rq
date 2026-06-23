@@ -1,0 +1,100 @@
+# ============================================================================
+# JTBD Query: Job Completion Rate by Persona
+# ============================================================================
+# Purpose: Calculate completion rates for jobs across different personas,
+#          measuring how effectively current solutions enable job completion.
+#          Identifies underperforming jobs and personas needing support.
+#
+# Output: Persona, job, completion metrics, success rate, bottlenecks
+# Use: Success tracking, workflow optimization, support prioritization
+#
+# Example Output:
+# Persona      | Job                  | Attempts | Completed | Rate  | Avg Time | Bottleneck
+# Dev Lead     | Manage dependencies  | 450      | 423       | 94%   | 4.2 min  | None
+# Backend Dev  | Configure OTEL       | 230      | 138       | 60%   | 15.3 min | Setup complexity
+# QA Engineer  | Run test suite       | 890      | 801       | 90%   | 8.1 min  | Flaky tests
+# Ops Engineer | Deploy to prod       | 120      | 96        | 80%   | 22.5 min | Manual approvals
+# ============================================================================
+
+PREFIX jtbd: <http://github.com/github/spec-kit/jtbd#>
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?personaName
+  ?personaRole
+  ?jobTitle
+  ?jobDescription
+  ?jobType
+  ?attemptCount
+  ?completedCount
+  (ROUND((?completedCount * 100.0 / NULLIF(?attemptCount, 0))) AS ?completionRatePercent)
+  ?avgCompletionTime
+  ?medianCompletionTime
+  ?successCriteriaMet
+  ?totalSuccessCriteria
+  (ROUND((?successCriteriaMet * 100.0 / NULLIF(?totalSuccessCriteria, 0))) AS ?criteriaMetPercent)
+  ?primaryBottleneck
+  ?bottleneckSeverity
+  (IF(?completionRatePercent >= 90, "Excellent",
+      IF(?completionRatePercent >= 75, "Good",
+         IF(?completionRatePercent >= 50, "Needs Improvement",
+            "Critical - Priority"))) AS ?performanceRating)
+  ?dateRangeStart
+  ?dateRangeEnd
+WHERE {
+  # Persona performing jobs
+  ?persona a jtbd:Persona ;
+           jtbd:personaName ?personaName ;
+           jtbd:personaRole ?personaRole .
+
+  # Customer segment for persona
+  ?segment jtbd:hasPersona ?persona .
+
+  # Jobs performed by segment
+  ?job jtbd:performedBy ?segment ;
+       jtbd:jobTitle ?jobTitle .
+
+  OPTIONAL { ?job jtbd:jobDescription ?jobDescription }
+  OPTIONAL { ?job jtbd:jobType ?jobType }
+
+  # Job execution metrics
+  OPTIONAL { ?job sk:attemptCount ?attemptCount }
+  OPTIONAL { ?job sk:completedCount ?completedCount }
+  OPTIONAL { ?job sk:avgCompletionTime ?avgCompletionTime }
+  OPTIONAL { ?job sk:medianCompletionTime ?medianCompletionTime }
+
+  # Success criteria tracking
+  OPTIONAL {
+    SELECT ?job
+           (COUNT(?criteria) AS ?totalSuccessCriteria)
+           (SUM(IF(?criteriaMet = true, 1, 0)) AS ?successCriteriaMet)
+    WHERE {
+      ?job jtbd:hasSuccessCriteria ?criteria .
+      OPTIONAL { ?criteria sk:criteriaMet ?criteriaMet }
+    }
+    GROUP BY ?job
+  }
+
+  # Primary bottleneck identification
+  OPTIONAL {
+    ?job sk:hasPrimaryBottleneck ?bottleneck .
+    ?bottleneck sk:bottleneckDescription ?primaryBottleneck ;
+                sk:bottleneckSeverity ?bottleneckSeverity .
+  }
+
+  # Date range filtering (optional - supports time-based analysis)
+  OPTIONAL { ?job sk:metricsDateStart ?dateRangeStart }
+  OPTIONAL { ?job sk:metricsDateEnd ?dateRangeEnd }
+
+  # Default values for missing metrics
+  BIND(COALESCE(?attemptCount, 0) AS ?attemptCount)
+  BIND(COALESCE(?completedCount, 0) AS ?completedCount)
+  BIND(COALESCE(?successCriteriaMet, 0) AS ?successCriteriaMet)
+  BIND(COALESCE(?totalSuccessCriteria, 0) AS ?totalSuccessCriteria)
+}
+GROUP BY ?personaName ?personaRole ?jobTitle ?jobDescription ?jobType
+         ?attemptCount ?completedCount ?avgCompletionTime ?medianCompletionTime
+         ?successCriteriaMet ?totalSuccessCriteria ?primaryBottleneck
+         ?bottleneckSeverity ?dateRangeStart ?dateRangeEnd
+ORDER BY ?completionRatePercent ASC ?personaName ?jobTitle

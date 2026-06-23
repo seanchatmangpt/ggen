@@ -1,0 +1,203 @@
+@prefix : <http://yawl.org/ontology#> .
+@prefix yawl: <http://yawl.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bflow: <https://bytestar.org/ontology/byteflow/patterns-specification#> .
+
+<http://yawl.org/ontology/patterns>
+  a owl:Ontology ;
+  rdfs:label "YAWL Patterns Ontology" ;
+  rdfs:comment "Defines the 20 core workflow patterns supported by YAWL as individuals." ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports
+    yawl: ,
+    bcore: ,
+    bflow: .
+
+#################################################################
+# Pattern Classes and Properties
+#################################################################
+
+:Pattern a owl:Class ;
+  rdfs:label "Workflow Pattern" ;
+  rdfs:comment "A canonical workflow pattern supported by YAWL." .
+
+:PatternCategory a owl:Class ;
+  rdfs:label "Pattern Category" ;
+  rdfs:comment "A categorization of YAWL workflow patterns." .
+
+:patternId a owl:DatatypeProperty ;
+  rdfs:label "pattern ID" ;
+  rdfs:domain :Pattern ;
+  rdfs:range rdfs:Literal ;
+  rdfs:comment "The unique identifier for a workflow pattern (e.g., P1, P7)." .
+
+:category a owl:ObjectProperty ;
+  rdfs:label "has category" ;
+  rdfs:domain :Pattern ;
+  rdfs:range :PatternCategory ;
+  rdfs:comment "Links a workflow pattern to its classification category." .
+
+#################################################################
+# Pattern Categories (Individuals)
+#################################################################
+
+:BasicControlFlow a :PatternCategory ;
+  rdfs:label "Basic Control Flow Patterns" .
+
+:AdvancedBranchingSynchronization a :PatternCategory ;
+  rdfs:label "Advanced Branching and Synchronization Patterns" .
+
+:Structural a :PatternCategory ;
+  rdfs:label "Structural Patterns" .
+
+:MultipleInstances a :PatternCategory ;
+  rdfs:label "Patterns involving Multiple Instances" .
+
+:StateBased a :PatternCategory ;
+  rdfs:label "State-based Patterns" .
+
+:Cancellation a :PatternCategory ;
+  rdfs:label "Cancellation Patterns" .
+
+#################################################################
+# YAWL Workflow Patterns (Individuals P1-P20)
+#################################################################
+
+# Basic Control Flow Patterns
+:P1_Sequence a :Pattern ;
+  rdfs:label "P1: Sequence" ;
+  :patternId "P1" ;
+  :category :BasicControlFlow ;
+  yawl:correspondsToByteStarPattern bflow:P01 .
+
+:P2_ParallelSplit a :Pattern ;
+  rdfs:label "P2: Parallel Split" ;
+  :patternId "P2" ;
+  :category :BasicControlFlow ;
+  yawl:correspondsToByteStarPattern bflow:P02 .
+
+:P3_Synchronization a :Pattern ;
+  rdfs:label "P3: Synchronization" ;
+  :patternId "P3" ;
+  :category :BasicControlFlow ;
+  yawl:correspondsToByteStarPattern bflow:P03 .
+
+:P4_ExclusiveChoice a :Pattern ;
+  rdfs:label "P4: Exclusive Choice" ;
+  :patternId "P4" ;
+  :category :BasicControlFlow ;
+  yawl:correspondsToByteStarPattern bflow:P04 .
+
+:P5_SimpleMerge a :Pattern ;
+  rdfs:label "P5: Simple Merge" ;
+  :patternId "P5" ;
+  :category :BasicControlFlow ;
+  yawl:correspondsToByteStarPattern bflow:P05 .
+
+# Advanced Branching and Synchronization Patterns
+:P6_MultiChoice a :Pattern ;
+  rdfs:label "P6: Multi-Choice" ;
+  :patternId "P6" ;
+  :category :AdvancedBranchingSynchronization ;
+  yawl:correspondsToByteStarPattern bflow:P06 .
+
+:P7_SynchronizingMerge a :Pattern ;
+  rdfs:label "P7: Synchronizing Merge" ;
+  :patternId "P7" ;
+  :category :AdvancedBranchingSynchronization ;
+  yawl:correspondsToByteStarPattern bflow:P07 .
+
+:P8_MultiMerge a :Pattern ;
+  rdfs:label "P8: Multi-Merge" ;
+  :patternId "P8" ;
+  :category :AdvancedBranchingSynchronization ;
+  yawl:correspondsToByteStarPattern bflow:P08 .
+
+:P9_Discriminator a :Pattern ;
+  rdfs:label "P9: Discriminator" ;
+  :patternId "P9" ;
+  :category :AdvancedBranchingSynchronization ;
+  yawl:correspondsToByteStarPattern bflow:P09 .
+
+# Structural Patterns
+:P10_ArbitraryCycles a :Pattern ;
+  rdfs:label "P10: Arbitrary Cycles" ;
+  :patternId "P10" ;
+  :category :Structural ;
+  yawl:correspondsToByteStarPattern bflow:P10 .
+
+:P11_ImplicitTermination a :Pattern ;
+  rdfs:label "P11: Implicit Termination" ;
+  :patternId "P11" ;
+  :category :Structural ;
+  yawl:correspondsToByteStarPattern bflow:P11 .
+
+# Patterns involving Multiple Instances
+:P12_MultipleInstancesWithoutSynchronization a :Pattern ;
+  rdfs:label "P12: Multiple Instances Without Synchronization" ;
+  :patternId "P12" ;
+  :category :MultipleInstances ;
+  yawl:correspondsToByteStarPattern bflow:P12 .
+
+:P13_MultipleInstancesWithAPrioriDesignTimeKnowledge a :Pattern ;
+  rdfs:label "P13: Multiple Instances With a Priori Design Time Knowledge" ;
+  :patternId "P13" ;
+  :category :MultipleInstances ;
+  yawl:correspondsToByteStarPattern bflow:P13 .
+
+:P14_MultipleInstancesWithAPrioriRuntimeKnowledge a :Pattern ;
+  rdfs:label "P14: Multiple Instances With a Priori Runtime Knowledge" ;
+  :patternId "P14" ;
+  :category :MultipleInstances ;
+  yawl:correspondsToByteStarPattern bflow:P14 .
+
+:P15_MultipleInstancesWithoutAPrioriRuntimeKnowledge a :Pattern ;
+  rdfs:label "P15: Multiple Instances Without a Priori Runtime Knowledge" ;
+  :patternId "P15" ;
+  :category :MultipleInstances ;
+  yawl:correspondsToByteStarPattern bflow:P15 .
+
+# State-based Patterns
+:P16_DeferredChoice a :Pattern ;
+  rdfs:label "P16: Deferred Choice" ;
+  :patternId "P16" ;
+  :category :StateBased ;
+  yawl:correspondsToByteStarPattern bflow:P16 .
+
+:P17_InterleavedParallelRouting a :Pattern ;
+  rdfs:label "P17: Interleaved Parallel Routing" ;
+  :patternId "P17" ;
+  :category :StateBased ;
+  yawl:correspondsToByteStarPattern bflow:P17 .
+
+:P18_Milestone a :Pattern ;
+  rdfs:label "P18: Milestone" ;
+  :patternId "P18" ;
+  :category :StateBased ;
+  yawl:correspondsToByteStarPattern bflow:P18 .
+
+# Cancellation Patterns
+:P19_CancelActivity a :Pattern ;
+  rdfs:label "P19: Cancel Activity" ;
+  :patternId "P19" ;
+  :category :Cancellation ;
+  yawl:correspondsToByteStarPattern bflow:P19 .
+
+:P20_CancelCase a :Pattern ;
+  rdfs:label "P20: Cancel Case" ;
+  :patternId "P20" ;
+  :category :Cancellation ;
+  yawl:correspondsToByteStarPattern bflow:P20 .
+
+#################################################################
+# YAWL to ByteStar Pattern Mapping Property
+#################################################################
+
+yawl:correspondsToByteStarPattern a owl:ObjectProperty ;
+  rdfs:label "corresponds to ByteStar Pattern" ;
+  rdfs:domain :Pattern ;
+  rdfs:range bcore:Pattern ; # Range is the general ByteStar Pattern class
+  rdfs:comment "Links a YAWL pattern to its corresponding canonical ByteStar workflow pattern." .

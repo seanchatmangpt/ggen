@@ -1,0 +1,449 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix ui: <http://ui.example.org/> .
+@prefix design: <http://design-system.example.org/> .
+@prefix css: <http://www.w3.org/Style/CSS/> .
+@prefix schema: <http://schema.org/> .
+@prefix ex: <http://example.org/> .
+
+# Component Library RDF Graph
+ui:componentLibrary a design:DesignSystem ;
+    dct:title "Aurora UI Component Library" ;
+    dct:description "Modern React component library with TypeScript support" ;
+    dct:version "3.2.1" ;
+    dct:creator ex:design-team ;
+    design:framework "React" ;
+    design:language "TypeScript" ;
+    design:styleSystem "Styled Components" .
+
+# Core Components
+ui:Button a ui:Component ;
+    dct:title "Button" ;
+    dct:description "Interactive button component with multiple variants" ;
+    ui:category "Form Controls" ;
+    ui:variants "primary", "secondary", "tertiary", "danger" ;
+    ui:sizes "small", "medium", "large" ;
+    ui:states "default", "hover", "active", "disabled", "loading" ;
+    ui:props [
+        ui:propName "variant" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDefault "primary" ;
+        ui:propDescription "Visual style variant"
+    ], [
+        ui:propName "size" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDefault "medium" ;
+        ui:propDescription "Button size"
+    ], [
+        ui:propName "disabled" ;
+        ui:propType "boolean" ;
+        ui:propRequired false ;
+        ui:propDefault false ;
+        ui:propDescription "Disable button interaction"
+    ], [
+        ui:propName "loading" ;
+        ui:propType "boolean" ;
+        ui:propRequired false ;
+        ui:propDefault false ;
+        ui:propDescription "Show loading spinner"
+    ], [
+        ui:propName "onClick" ;
+        ui:propType "function" ;
+        ui:propRequired false ;
+        ui:propDescription "Click event handler"
+    ] ;
+    ui:dependencies ui:Icon, ui:Spinner ;
+    ui:accessibility "WCAG 2.1 AA compliant" ;
+    ui:testCoverage "95%" .
+
+ui:Input a ui:Component ;
+    dct:title "Input" ;
+    dct:description "Text input component with validation support" ;
+    ui:category "Form Controls" ;
+    ui:variants "text", "email", "password", "number", "search" ;
+    ui:sizes "small", "medium", "large" ;
+    ui:states "default", "focus", "error", "disabled" ;
+    ui:props [
+        ui:propName "type" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDefault "text" ;
+        ui:propDescription "Input type"
+    ], [
+        ui:propName "placeholder" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDescription "Placeholder text"
+    ], [
+        ui:propName "value" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDescription "Input value"
+    ], [
+        ui:propName "error" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDescription "Error message"
+    ], [
+        ui:propName "onChange" ;
+        ui:propType "function" ;
+        ui:propRequired false ;
+        ui:propDescription "Change event handler"
+    ] ;
+    ui:dependencies ui:Icon, ui:Tooltip ;
+    ui:accessibility "WCAG 2.1 AA compliant" ;
+    ui:testCoverage "92%" .
+
+ui:Modal a ui:Component ;
+    dct:title "Modal" ;
+    dct:description "Overlay modal component for dialogs and confirmations" ;
+    ui:category "Layout" ;
+    ui:variants "default", "confirmation", "form" ;
+    ui:sizes "small", "medium", "large", "fullscreen" ;
+    ui:states "closed", "opening", "open", "closing" ;
+    ui:props [
+        ui:propName "isOpen" ;
+        ui:propType "boolean" ;
+        ui:propRequired true ;
+        ui:propDescription "Control modal visibility"
+    ], [
+        ui:propName "title" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDescription "Modal title"
+    ], [
+        ui:propName "size" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDefault "medium" ;
+        ui:propDescription "Modal size"
+    ], [
+        ui:propName "onClose" ;
+        ui:propType "function" ;
+        ui:propRequired true ;
+        ui:propDescription "Close event handler"
+    ], [
+        ui:propName "closeOnEscape" ;
+        ui:propType "boolean" ;
+        ui:propRequired false ;
+        ui:propDefault true ;
+        ui:propDescription "Close on escape key press"
+    ] ;
+    ui:dependencies ui:Overlay, ui:Button, ui:Icon ;
+    ui:accessibility "Focus trap, ARIA modal, keyboard navigation" ;
+    ui:testCoverage "88%" .
+
+ui:Card a ui:Component ;
+    dct:title "Card" ;
+    dct:description "Flexible content container component" ;
+    ui:category "Layout" ;
+    ui:variants "default", "outlined", "elevated", "flat" ;
+    ui:props [
+        ui:propName "variant" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDefault "default" ;
+        ui:propDescription "Card visual style"
+    ], [
+        ui:propName "padding" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDefault "medium" ;
+        ui:propDescription "Internal padding"
+    ], [
+        ui:propName "clickable" ;
+        ui:propType "boolean" ;
+        ui:propRequired false ;
+        ui:propDefault false ;
+        ui:propDescription "Make card interactive"
+    ], [
+        ui:propName "onClick" ;
+        ui:propType "function" ;
+        ui:propRequired false ;
+        ui:propDescription "Click event handler"
+    ] ;
+    ui:dependencies "none" ;
+    ui:accessibility "WCAG 2.1 AA compliant" ;
+    ui:testCoverage "90%" .
+
+ui:Table a ui:Component ;
+    dct:title "Table" ;
+    dct:description "Data table component with sorting and pagination" ;
+    ui:category "Data Display" ;
+    ui:variants "default", "striped", "bordered", "compact" ;
+    ui:features "sorting", "pagination", "row-selection", "column-resizing" ;
+    ui:props [
+        ui:propName "data" ;
+        ui:propType "array" ;
+        ui:propRequired true ;
+        ui:propDescription "Table data array"
+    ], [
+        ui:propName "columns" ;
+        ui:propType "array" ;
+        ui:propRequired true ;
+        ui:propDescription "Column definitions"
+    ], [
+        ui:propName "sortable" ;
+        ui:propType "boolean" ;
+        ui:propRequired false ;
+        ui:propDefault false ;
+        ui:propDescription "Enable column sorting"
+    ], [
+        ui:propName "selectable" ;
+        ui:propType "boolean" ;
+        ui:propRequired false ;
+        ui:propDefault false ;
+        ui:propDescription "Enable row selection"
+    ], [
+        ui:propName "pagination" ;
+        ui:propType "object" ;
+        ui:propRequired false ;
+        ui:propDescription "Pagination configuration"
+    ] ;
+    ui:dependencies ui:Checkbox, ui:Icon, ui:Button ;
+    ui:accessibility "Screen reader support, keyboard navigation" ;
+    ui:testCoverage "85%" .
+
+# Utility Components
+ui:Icon a ui:Component ;
+    dct:title "Icon" ;
+    dct:description "SVG icon component with multiple icon sets" ;
+    ui:category "Display" ;
+    ui:iconSets "heroicons", "feather", "phosphor" ;
+    ui:sizes "xs", "sm", "md", "lg", "xl" ;
+    ui:props [
+        ui:propName "name" ;
+        ui:propType "string" ;
+        ui:propRequired true ;
+        ui:propDescription "Icon name from icon set"
+    ], [
+        ui:propName "size" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDefault "md" ;
+        ui:propDescription "Icon size"
+    ], [
+        ui:propName "color" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDescription "Icon color"
+    ] ;
+    ui:testCoverage "98%" .
+
+ui:Spinner a ui:Component ;
+    dct:title "Spinner" ;
+    dct:description "Loading spinner component" ;
+    ui:category "Feedback" ;
+    ui:variants "default", "dots", "bars", "ring" ;
+    ui:sizes "small", "medium", "large" ;
+    ui:props [
+        ui:propName "variant" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDefault "default" ;
+        ui:propDescription "Spinner animation style"
+    ], [
+        ui:propName "size" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDefault "medium" ;
+        ui:propDescription "Spinner size"
+    ], [
+        ui:propName "color" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDescription "Spinner color"
+    ] ;
+    ui:testCoverage "85%" .
+
+ui:Tooltip a ui:Component ;
+    dct:title "Tooltip" ;
+    dct:description "Contextual tooltip component" ;
+    ui:category "Overlay" ;
+    ui:variants "default", "arrow", "card" ;
+    ui:positions "top", "bottom", "left", "right" ;
+    ui:props [
+        ui:propName "content" ;
+        ui:propType "string" ;
+        ui:propRequired true ;
+        ui:propDescription "Tooltip content"
+    ], [
+        ui:propName "position" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDefault "top" ;
+        ui:propDescription "Tooltip position"
+    ], [
+        ui:propName "delay" ;
+        ui:propType "number" ;
+        ui:propRequired false ;
+        ui:propDefault 200 ;
+        ui:propDescription "Show delay in ms"
+    ] ;
+    ui:testCoverage "87%" .
+
+# Layout Components
+ui:Container a ui:Component ;
+    dct:title "Container" ;
+    dct:description "Main content container with responsive breakpoints" ;
+    ui:category "Layout" ;
+    ui:breakpoints "sm", "md", "lg", "xl", "2xl" ;
+    ui:props [
+        ui:propName "maxWidth" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDefault "lg" ;
+        ui:propDescription "Maximum container width"
+    ], [
+        ui:propName "fluid" ;
+        ui:propType "boolean" ;
+        ui:propRequired false ;
+        ui:propDefault false ;
+        ui:propDescription "Full width container"
+    ] ;
+    ui:testCoverage "93%" .
+
+ui:Grid a ui:Component ;
+    dct:title "Grid" ;
+    dct:description "Flexible CSS Grid layout component" ;
+    ui:category "Layout" ;
+    ui:props [
+        ui:propName "columns" ;
+        ui:propType "number" ;
+        ui:propRequired false ;
+        ui:propDefault 12 ;
+        ui:propDescription "Number of grid columns"
+    ], [
+        ui:propName "gap" ;
+        ui:propType "string" ;
+        ui:propRequired false ;
+        ui:propDefault "md" ;
+        ui:propDescription "Grid gap size"
+    ], [
+        ui:propName "responsive" ;
+        ui:propType "object" ;
+        ui:propRequired false ;
+        ui:propDescription "Responsive grid configuration"
+    ] ;
+    ui:testCoverage "91%" .
+
+# Design Tokens
+design:colorPalette a design:TokenSet ;
+    design:category "Colors" ;
+    design:tokens [
+        design:tokenName "primary-50" ;
+        design:tokenValue "#eff6ff" ;
+        design:tokenType "color"
+    ], [
+        design:tokenName "primary-500" ;
+        design:tokenValue "#3b82f6" ;
+        design:tokenType "color"
+    ], [
+        design:tokenName "primary-900" ;
+        design:tokenValue "#1e3a8a" ;
+        design:tokenType "color"
+    ], [
+        design:tokenName "gray-50" ;
+        design:tokenValue "#f9fafb" ;
+        design:tokenType "color"
+    ], [
+        design:tokenName "gray-500" ;
+        design:tokenValue "#6b7280" ;
+        design:tokenType "color"
+    ], [
+        design:tokenName "gray-900" ;
+        design:tokenValue "#111827" ;
+        design:tokenType "color"
+    ] .
+
+design:spacing a design:TokenSet ;
+    design:category "Spacing" ;
+    design:tokens [
+        design:tokenName "xs" ;
+        design:tokenValue "0.5rem" ;
+        design:tokenType "dimension"
+    ], [
+        design:tokenName "sm" ;
+        design:tokenValue "0.75rem" ;
+        design:tokenType "dimension"
+    ], [
+        design:tokenName "md" ;
+        design:tokenValue "1rem" ;
+        design:tokenType "dimension"
+    ], [
+        design:tokenName "lg" ;
+        design:tokenValue "1.5rem" ;
+        design:tokenType "dimension"
+    ], [
+        design:tokenName "xl" ;
+        design:tokenValue "2rem" ;
+        design:tokenType "dimension"
+    ] .
+
+design:typography a design:TokenSet ;
+    design:category "Typography" ;
+    design:tokens [
+        design:tokenName "font-family-sans" ;
+        design:tokenValue "system-ui, sans-serif" ;
+        design:tokenType "fontFamily"
+    ], [
+        design:tokenName "font-family-mono" ;
+        design:tokenValue "ui-monospace, monospace" ;
+        design:tokenType "fontFamily"
+    ], [
+        design:tokenName "font-size-xs" ;
+        design:tokenValue "0.75rem" ;
+        design:tokenType "dimension"
+    ], [
+        design:tokenName "font-size-sm" ;
+        design:tokenValue "0.875rem" ;
+        design:tokenType "dimension"
+    ], [
+        design:tokenName "font-size-base" ;
+        design:tokenValue "1rem" ;
+        design:tokenType "dimension"
+    ] .
+
+# Component Categories
+ui:formControls a ui:ComponentCategory ;
+    dct:title "Form Controls" ;
+    dct:description "Interactive form input components" ;
+    ui:components ui:Button, ui:Input, ui:Checkbox, ui:Radio, ui:Select .
+
+ui:layout a ui:ComponentCategory ;
+    dct:title "Layout" ;
+    dct:description "Layout and structure components" ;
+    ui:components ui:Container, ui:Grid, ui:Card, ui:Modal .
+
+ui:dataDisplay a ui:ComponentCategory ;
+    dct:title "Data Display" ;
+    dct:description "Components for displaying data" ;
+    ui:components ui:Table, ui:List, ui:Badge, ui:Avatar .
+
+ui:feedback a ui:ComponentCategory ;
+    dct:title "Feedback" ;
+    dct:description "User feedback and status components" ;
+    ui:components ui:Spinner, ui:Alert, ui:Toast, ui:ProgressBar .
+
+# Team Information
+ex:design-team a foaf:Group ;
+    foaf:name "Aurora Design Team" ;
+    dct:description "Team responsible for the Aurora UI component library" ;
+    foaf:member ex:sarah-designer, ex:mike-frontend, ex:lisa-ux .
+
+ex:sarah-designer a foaf:Person ;
+    foaf:name "Sarah Johnson" ;
+    foaf:title "Lead Designer" ;
+    foaf:mbox <mailto:sarah.johnson@company.com> .
+
+ex:mike-frontend a foaf:Person ;
+    foaf:name "Mike Chen" ;
+    foaf:title "Frontend Developer" ;
+    foaf:mbox <mailto:mike.chen@company.com> .
+
+ex:lisa-ux a foaf:Person ;
+    foaf:name "Lisa Rodriguez" ;
+    foaf:title "UX Researcher" ;
+    foaf:mbox <mailto:lisa.rodriguez@company.com> .

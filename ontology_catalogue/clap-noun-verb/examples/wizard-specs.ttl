@@ -1,0 +1,246 @@
+@prefix cli: <http://clap-noun-verb.io/ontology#> .
+@prefix wiz: <http://clap-noun-verb.io/wizard#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# Example 1: Simple Project Setup Wizard
+# ============================================================================
+
+cli:ProjectSetup a cli:Noun ;
+    cli:description "Project management commands" ;
+    cli:hasVerb cli:CreateProject .
+
+cli:CreateProject a cli:Verb ;
+    cli:description "Create a new project with wizard guidance" ;
+    wiz:hasWizard true ;
+    wiz:mode wiz:Interactive ;
+    wiz:systemPrompt "You are a helpful project generator. Guide the user through creating a new project with thoughtful questions and suggestions." ;
+    wiz:temperature 0.7 ;
+    wiz:maxTokens 500 ;
+    wiz:primaryModel wiz:Claude3Opus ;
+    wiz:fallbackModels ( wiz:Claude3Sonnet wiz:Gpt4Turbo wiz:GeminiPro ) ;
+    wiz:fallbackStrategy wiz:CostOptimized ;
+    wiz:onRateLimit wiz:RetryWithBackoff ;
+    wiz:maxRetries 3 ;
+    wiz:retryBackoff wiz:Exponential ;
+    wiz:jitterFactor 0.2 ;
+    wiz:timeout 30 ;
+    wiz:hasPromptSequence wiz:ProjectSetupSequence .
+
+wiz:ProjectSetupSequence a rdf:Seq ;
+    rdf:_1 wiz:Step_ProjectName ;
+    rdf:_2 wiz:Step_Description ;
+    rdf:_3 wiz:Step_Features ;
+    rdf:_4 wiz:Step_Language ;
+    rdf:_5 wiz:Step_Confirmation .
+
+wiz:Step_ProjectName a wiz:PromptStep ;
+    wiz:stepNumber 1 ;
+    wiz:prompt "What is the name of your project?" ;
+    wiz:description "Captured as project_name variable" ;
+    wiz:validator wiz:NonEmpty ;
+    wiz:storesVariable "project_name" ;
+    wiz:followUp "Great! I'll create a project called {project_name}." .
+
+wiz:Step_Description a wiz:PromptStep ;
+    wiz:stepNumber 2 ;
+    wiz:prompt "Describe your project in 1-2 sentences." ;
+    wiz:description "What will this project do?" ;
+    wiz:validator wiz:MinLength ;
+    wiz:validatorParam 10 ;
+    wiz:storesVariable "description" ;
+    wiz:contextVariable wiz:ProjectSetup ;
+    wiz:useHistory true .
+
+wiz:Step_Features a wiz:PromptStep ;
+    wiz:stepNumber 3 ;
+    wiz:prompt "What are the main features? (list 3-5)" ;
+    wiz:validator wiz:NotEmpty ;
+    wiz:storesVariable "features" ;
+    wiz:parser wiz:SplitByNewline ;
+    wiz:useHistory true .
+
+wiz:Step_Language a wiz:PromptStep ;
+    wiz:stepNumber 4 ;
+    wiz:prompt "What programming language? (rust, python, javascript, go)" ;
+    wiz:validator wiz:Choice ;
+    wiz:validatorOptions ( "rust" "python" "javascript" "go" ) ;
+    wiz:storesVariable "language" ;
+    wiz:useHistory true .
+
+wiz:Step_Confirmation a wiz:PromptStep ;
+    wiz:stepNumber 5 ;
+    wiz:prompt "Ready to create {project_name}? Generate the project structure." ;
+    wiz:validator wiz:Boolean ;
+    wiz:storesVariable "confirmed" ;
+    wiz:useHistory true ;
+    wiz:isFinal true .
+
+# ============================================================================
+# Example 2: Database Configuration Wizard
+# ============================================================================
+
+cli:Database a cli:Noun ;
+    cli:description "Database management" ;
+    cli:hasVerb cli:Configure .
+
+cli:Configure a cli:Verb ;
+    cli:description "Configure database connection with AI assistance" ;
+    wiz:hasWizard true ;
+    wiz:mode wiz:Interactive ;
+    wiz:systemPrompt "You are a database configuration expert. Help the user select and configure the right database for their needs." ;
+    wiz:temperature 0.5 ;
+    wiz:primaryModel wiz:Claude3Opus ;
+    wiz:fallbackModels ( wiz:Claude3Sonnet ) ;
+    wiz:hasPromptSequence wiz:DatabaseSetupSequence .
+
+wiz:DatabaseSetupSequence a rdf:Seq ;
+    rdf:_1 wiz:Step_DBType ;
+    rdf:_2 wiz:Step_ConnectionString ;
+    rdf:_3 wiz:Step_Credentials ;
+    rdf:_4 wiz:Step_TestConnection .
+
+wiz:Step_DBType a wiz:PromptStep ;
+    wiz:stepNumber 1 ;
+    wiz:prompt "What database system? (PostgreSQL, MySQL, MongoDB, DynamoDB)" ;
+    wiz:validator wiz:Choice ;
+    wiz:validatorOptions ( "PostgreSQL" "MySQL" "MongoDB" "DynamoDB" ) ;
+    wiz:storesVariable "db_type" .
+
+wiz:Step_ConnectionString a wiz:PromptStep ;
+    wiz:stepNumber 2 ;
+    wiz:prompt "Connection string or host:port?" ;
+    wiz:validator wiz:NotEmpty ;
+    wiz:storesVariable "connection_string" ;
+    wiz:useHistory true .
+
+wiz:Step_Credentials a wiz:PromptStep ;
+    wiz:stepNumber 3 ;
+    wiz:prompt "Username and password? (format: user:password)" ;
+    wiz:validator wiz:ContainsColon ;
+    wiz:storesVariable "credentials" ;
+    wiz:isSensitive true ;
+    wiz:useHistory true .
+
+wiz:Step_TestConnection a wiz:PromptStep ;
+    wiz:stepNumber 4 ;
+    wiz:prompt "Test the connection now? (yes/no)" ;
+    wiz:validator wiz:Boolean ;
+    wiz:storesVariable "test_connection" ;
+    wiz:isFinal true .
+
+# ============================================================================
+# Example 3: Multi-turn Conversation Wizard
+# ============================================================================
+
+cli:Assistant a cli:Noun ;
+    cli:description "AI assistant commands" ;
+    cli:hasVerb cli:Chat .
+
+cli:Chat a cli:Verb ;
+    cli:description "Interactive multi-turn conversation" ;
+    wiz:hasWizard true ;
+    wiz:mode wiz:Conversation ;
+    wiz:systemPrompt "You are a helpful, knowledgeable assistant. Provide clear, concise, and helpful responses." ;
+    wiz:temperature 0.8 ;
+    wiz:primaryModel wiz:Claude3Opus ;
+    wiz:fallbackModels ( wiz:Claude3Sonnet wiz:Gpt4Turbo wiz:GeminiPro ) ;
+    wiz:fallbackStrategy wiz:LatencyOptimized ;
+    wiz:maintainHistory true ;
+    wiz:maxHistoryMessages 20 ;
+    wiz:allowUserInterruption true ;
+    wiz:streamingEnabled true ;
+    wiz:streamingBufferSize 64 ;
+    wiz:onRateLimit wiz:RetryWithBackoff ;
+    wiz:maxRetries 5 ;
+    wiz:cacheResponses true ;
+    wiz:cacheSize 1000 ;
+    wiz:cacheTTL 3600 .
+
+# ============================================================================
+# Validators and Parsers
+# ============================================================================
+
+wiz:NonEmpty a wiz:Validator ;
+    wiz:description "Ensure input is not empty" ;
+    wiz:errorMessage "Please provide a non-empty value" .
+
+wiz:NotEmpty a wiz:Validator ;
+    wiz:description "Ensure input is not empty or whitespace" .
+
+wiz:MinLength a wiz:Validator ;
+    wiz:description "Ensure minimum length" ;
+    wiz:paramType xsd:integer .
+
+wiz:Choice a wiz:Validator ;
+    wiz:description "Ensure value is in allowed set" ;
+    wiz:paramType rdf:Seq .
+
+wiz:Boolean a wiz:Validator ;
+    wiz:description "Parse as boolean (yes/no, true/false)" .
+
+wiz:ContainsColon a wiz:Validator ;
+    wiz:description "Ensure format contains colon separator" .
+
+wiz:SplitByNewline a wiz:Parser ;
+    wiz:description "Split input by newlines into array" ;
+    wiz:outputType rdf:Seq .
+
+# ============================================================================
+# Models
+# ============================================================================
+
+wiz:Claude3Opus a wiz:Model ;
+    wiz:provider "Anthropic" ;
+    wiz:modelId "claude-3-opus-20240229" ;
+    wiz:costPer1k 0.015 ;
+    wiz:speedMs 500 .
+
+wiz:Claude3Sonnet a wiz:Model ;
+    wiz:provider "Anthropic" ;
+    wiz:modelId "claude-3-sonnet-20240229" ;
+    wiz:costPer1k 0.003 ;
+    wiz:speedMs 800 .
+
+wiz:Gpt4Turbo a wiz:Model ;
+    wiz:provider "OpenAI" ;
+    wiz:modelId "gpt-4-turbo-preview" ;
+    wiz:costPer1k 0.01 ;
+    wiz:speedMs 600 .
+
+wiz:GeminiPro a wiz:Model ;
+    wiz:provider "Google" ;
+    wiz:modelId "gemini-pro" ;
+    wiz:costPer1k 0.0005 ;
+    wiz:speedMs 1200 .
+
+# ============================================================================
+# Fallback Strategies
+# ============================================================================
+
+wiz:CostOptimized a wiz:FallbackStrategy ;
+    wiz:description "Select cheapest model that can handle request" ;
+    wiz:selectionCriteria wiz:Cost .
+
+wiz:LatencyOptimized a wiz:FallbackStrategy ;
+    wiz:description "Select fastest model" ;
+    wiz:selectionCriteria wiz:Speed .
+
+wiz:QualityOptimized a wiz:FallbackStrategy ;
+    wiz:description "Select best quality model, then fastest" ;
+    wiz:selectionCriteria ( wiz:Quality wiz:Speed ) .
+
+# ============================================================================
+# Error Handling Strategies
+# ============================================================================
+
+wiz:RetryWithBackoff a wiz:ErrorStrategy ;
+    wiz:description "Retry with exponential backoff and jitter" ;
+    wiz:applicableTo wiz:RateLimit ;
+    wiz:maxAttempts 3 ;
+    wiz:backoffType wiz:Exponential .
+
+wiz:FailOver a wiz:ErrorStrategy ;
+    wiz:description "Try next model in fallback chain" ;
+    wiz:applicableTo wiz:NetworkError ;
+    wiz:maxAttempts 1 .

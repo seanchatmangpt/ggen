@@ -1,0 +1,83 @@
+# Pipeline Stage Order Conformance Check
+# Van der Aalst conformance checking: detects pipeline runs where stages
+# executed out of order relative to the normative μ₁–μ₅ sequence.
+#
+# Normative model:
+#   μ₁ Load → μ₂ Extract → μ₃ Generate → μ₄ Validate → μ₅ Emit
+#
+# Violations detected:
+#   - Any stage N that starts before stage N-1 has ended
+#   - μ₅ Emit runs that do not produce a receipt
+#
+# OCEL object types involved: pipe:PipelineRun, pipe:Stage, ggen:Receipt
+#
+# Usage:
+#   Feed the OCEL event log as the default graph and execute this SELECT.
+#   Each row in the result is a conformance deviation to be investigated.
+
+PREFIX ocel: <https://www.ocel-standard.org/2.0/>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pipe: <https://ggen.io/ontology/pipeline#>
+PREFIX ggen: <https://ggen.io/ontology/core#>
+
+# ── Violation 1: stage executed before its predecessor finished ──────────────
+SELECT ?pipelineRun ?violatingStage ?problem WHERE {
+
+  # Both stages belong to the same pipeline run
+  ?pipelineRun a pipe:PipelineRun ;
+               pipe:stageOrder ?stage1 ;
+               pipe:stageOrder ?stage2 .
+
+  ?stage1 pipe:stageIndex ?idx1 ;
+          prov:startedAtTime ?start1 ;
+          prov:endedAtTime   ?end1 .
+
+  ?stage2 pipe:stageIndex ?idx2 ;
+          prov:startedAtTime ?start2 .
+
+  # stage2 comes after stage1 in the normative order …
+  FILTER(?idx2 > ?idx1)
+  # … but started before stage1 finished → out-of-order violation
+  FILTER(?start2 < ?end1)
+
+  BIND(?stage2 AS ?violatingStage)
+  BIND(
+    CONCAT(
+      "Stage ", STR(?idx2),
+      " started at ", STR(?start2),
+      " before stage ", STR(?idx1),
+      " completed at ", STR(?end1)
+    ) AS ?problem
+  )
+}
+
+UNION
+
+# ── Violation 2: μ₅ Emit completed but no receipt was produced ──────────────
+{
+  ?pipelineRun a pipe:PipelineRun ;
+               pipe:stageOrder ?emitStage .
+
+  ?emitStage pipe:stageIndex 5 ;
+             prov:endedAtTime ?emitEnd .
+
+  FILTER NOT EXISTS {
+    ?receipt a ggen:Receipt ;
+             ggen:producedByRun ?pipelineRun ;
+             ggen:issuedAt ?receiptTs .
+    FILTER(?receiptTs >= ?emitEnd)
+  }
+
+  BIND(?emitStage AS ?violatingStage)
+  BIND(
+    CONCAT(
+      "μ₅ Emit finished at ", STR(?emitEnd),
+      " but no Receipt was emitted for run ", STR(?pipelineRun)
+    ) AS ?problem
+  )
+}
+
+ORDER BY ?pipelineRun ?violatingStage

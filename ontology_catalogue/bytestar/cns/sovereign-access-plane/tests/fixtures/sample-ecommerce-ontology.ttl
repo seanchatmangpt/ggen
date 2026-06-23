@@ -1,0 +1,639 @@
+# Sovereign Access Plane Phase 2 - Sample E-commerce Ontology
+# Generated at: 2025-08-24T04:32:00.000Z
+# Test Ontology Version: 2.0.0
+
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Custom prefixes for extended metadata
+@prefix ui: <http://example.org/ui#> .
+@prefix security: <http://example.org/security#> .
+@prefix supabase: <http://example.org/supabase#> .
+@prefix validation: <http://example.org/validation#> .
+@prefix bytegen: <http://bytestar.ai/bytegen#> .
+@prefix nuxt: <http://example.org/nuxt#> .
+
+# Base namespace
+@prefix ecom: <http://example.org/ecommerce#> .
+
+# Ontology metadata
+<http://example.org/ecommerce#> a owl:Ontology ;
+    rdfs:label "E-commerce Domain Ontology" ;
+    rdfs:comment "Comprehensive ontology for e-commerce system with users, products, orders, and payments" ;
+    owl:versionInfo "2.0.0" ;
+    bytegen:targetVersion "2.0.0" ;
+    bytegen:pattern "entity-controller-service" .
+
+#=============================================================================
+# CORE ENTITIES
+#=============================================================================
+
+# User Entity
+ecom:User a owl:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "Represents a user in the e-commerce system" ;
+    ui:displayName "User" ;
+    ui:icon "user" ;
+    ui:listView true ;
+    ui:formView true ;
+    ui:detailView true ;
+    security:requiresAuth true ;
+    security:accessLevel "user" ;
+    supabase:table "users" ;
+    supabase:rls true ;
+    supabase:realtime true .
+
+# Product Entity
+ecom:Product a owl:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "Represents a product in the catalog" ;
+    ui:displayName "Product" ;
+    ui:icon "package" ;
+    ui:listView true ;
+    ui:formView true ;
+    ui:detailView true ;
+    ui:searchable true ;
+    security:accessLevel "public" ;
+    supabase:table "products" ;
+    supabase:rls false ;
+    supabase:realtime true .
+
+# Category Entity
+ecom:Category a owl:Class ;
+    rdfs:label "Category" ;
+    rdfs:comment "Product category for organization" ;
+    ui:displayName "Category" ;
+    ui:icon "folder" ;
+    ui:treeView true ;
+    security:accessLevel "admin" ;
+    supabase:table "categories" ;
+    supabase:rls false .
+
+# Order Entity
+ecom:Order a owl:Class ;
+    rdfs:label "Order" ;
+    rdfs:comment "Customer order containing multiple items" ;
+    ui:displayName "Order" ;
+    ui:icon "shopping-cart" ;
+    ui:listView true ;
+    ui:detailView true ;
+    ui:statusTracking true ;
+    security:requiresAuth true ;
+    security:accessLevel "user" ;
+    supabase:table "orders" ;
+    supabase:rls true ;
+    supabase:realtime true .
+
+# OrderItem Entity
+ecom:OrderItem a owl:Class ;
+    rdfs:label "Order Item" ;
+    rdfs:comment "Individual item within an order" ;
+    ui:displayName "Order Item" ;
+    ui:icon "list" ;
+    security:requiresAuth true ;
+    supabase:table "order_items" ;
+    supabase:rls true .
+
+# Payment Entity
+ecom:Payment a owl:Class ;
+    rdfs:label "Payment" ;
+    rdfs:comment "Payment transaction for an order" ;
+    ui:displayName "Payment" ;
+    ui:icon "credit-card" ;
+    ui:sensitive true ;
+    security:requiresAuth true ;
+    security:accessLevel "user" ;
+    security:encryption true ;
+    supabase:table "payments" ;
+    supabase:rls true .
+
+#=============================================================================
+# USER PROPERTIES
+#=============================================================================
+
+ecom:hasEmail a owl:DatatypeProperty ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "email address" ;
+    rdfs:comment "User's email address for login and communication" ;
+    ui:inputType "email" ;
+    ui:required true ;
+    ui:unique true ;
+    validation:pattern "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$" ;
+    validation:maxLength 255 ;
+    supabase:indexed true ;
+    security:sensitive true .
+
+ecom:hasFirstName a owl:DatatypeProperty ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "first name" ;
+    ui:inputType "text" ;
+    ui:required true ;
+    validation:minLength 2 ;
+    validation:maxLength 50 .
+
+ecom:hasLastName a owl:DatatypeProperty ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "last name" ;
+    ui:inputType "text" ;
+    ui:required true ;
+    validation:minLength 2 ;
+    validation:maxLength 50 .
+
+ecom:hasPhoneNumber a owl:DatatypeProperty ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "phone number" ;
+    ui:inputType "tel" ;
+    validation:pattern "^\\+?[1-9]\\d{1,14}$" ;
+    security:sensitive true .
+
+ecom:hasDateOfBirth a owl:DatatypeProperty ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:date ;
+    rdfs:label "date of birth" ;
+    ui:inputType "date" ;
+    security:sensitive true .
+
+ecom:isActive a owl:DatatypeProperty ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is active" ;
+    ui:inputType "checkbox" ;
+    ui:defaultValue true .
+
+ecom:hasCreatedAt a owl:DatatypeProperty ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "created at" ;
+    ui:readonly true ;
+    supabase:defaultValue "CURRENT_TIMESTAMP" .
+
+#=============================================================================
+# PRODUCT PROPERTIES
+#=============================================================================
+
+ecom:hasProductName a owl:DatatypeProperty ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:string ;
+    rdfs:label "product name" ;
+    ui:inputType "text" ;
+    ui:required true ;
+    validation:minLength 3 ;
+    validation:maxLength 200 ;
+    supabase:indexed true .
+
+ecom:hasDescription a owl:DatatypeProperty ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:string ;
+    rdfs:label "description" ;
+    ui:inputType "textarea" ;
+    validation:maxLength 2000 .
+
+ecom:hasPrice a owl:DatatypeProperty ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "price" ;
+    ui:inputType "number" ;
+    ui:required true ;
+    ui:currency true ;
+    validation:min 0 ;
+    validation:precision 10 ;
+    validation:scale 2 .
+
+ecom:hasSKU a owl:DatatypeProperty ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:string ;
+    rdfs:label "SKU" ;
+    ui:inputType "text" ;
+    ui:required true ;
+    ui:unique true ;
+    validation:pattern "^[A-Z0-9-]+$" ;
+    validation:maxLength 50 ;
+    supabase:indexed true .
+
+ecom:hasStockQuantity a owl:DatatypeProperty ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:int ;
+    rdfs:label "stock quantity" ;
+    ui:inputType "number" ;
+    ui:required true ;
+    validation:min 0 ;
+    supabase:indexed true .
+
+ecom:hasImageUrl a owl:DatatypeProperty ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "image URL" ;
+    ui:inputType "url" ;
+    ui:imagePreview true .
+
+ecom:isProductActive a owl:DatatypeProperty ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is active" ;
+    ui:inputType "checkbox" ;
+    ui:defaultValue true .
+
+#=============================================================================
+# CATEGORY PROPERTIES
+#=============================================================================
+
+ecom:hasCategoryName a owl:DatatypeProperty ;
+    rdfs:domain ecom:Category ;
+    rdfs:range xsd:string ;
+    rdfs:label "category name" ;
+    ui:inputType "text" ;
+    ui:required true ;
+    validation:minLength 2 ;
+    validation:maxLength 100 .
+
+ecom:hasCategorySlug a owl:DatatypeProperty ;
+    rdfs:domain ecom:Category ;
+    rdfs:range xsd:string ;
+    rdfs:label "category slug" ;
+    ui:inputType "text" ;
+    ui:required true ;
+    ui:unique true ;
+    validation:pattern "^[a-z0-9-]+$" .
+
+#=============================================================================
+# ORDER PROPERTIES
+#=============================================================================
+
+ecom:hasOrderNumber a owl:DatatypeProperty ;
+    rdfs:domain ecom:Order ;
+    rdfs:range xsd:string ;
+    rdfs:label "order number" ;
+    ui:inputType "text" ;
+    ui:readonly true ;
+    ui:unique true ;
+    supabase:indexed true .
+
+ecom:hasOrderStatus a owl:DatatypeProperty ;
+    rdfs:domain ecom:Order ;
+    rdfs:range xsd:string ;
+    rdfs:label "order status" ;
+    ui:inputType "select" ;
+    ui:options "pending,processing,shipped,delivered,cancelled,refunded" ;
+    ui:required true ;
+    ui:defaultValue "pending" ;
+    supabase:indexed true .
+
+ecom:hasOrderTotal a owl:DatatypeProperty ;
+    rdfs:domain ecom:Order ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "order total" ;
+    ui:inputType "number" ;
+    ui:readonly true ;
+    ui:currency true ;
+    validation:min 0 ;
+    validation:precision 10 ;
+    validation:scale 2 .
+
+ecom:hasOrderDate a owl:DatatypeProperty ;
+    rdfs:domain ecom:Order ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "order date" ;
+    ui:readonly true ;
+    supabase:defaultValue "CURRENT_TIMESTAMP" .
+
+ecom:hasShippingAddress a owl:DatatypeProperty ;
+    rdfs:domain ecom:Order ;
+    rdfs:range xsd:string ;
+    rdfs:label "shipping address" ;
+    ui:inputType "textarea" ;
+    ui:required true ;
+    validation:maxLength 500 .
+
+#=============================================================================
+# ORDER ITEM PROPERTIES
+#=============================================================================
+
+ecom:hasQuantity a owl:DatatypeProperty ;
+    rdfs:domain ecom:OrderItem ;
+    rdfs:range xsd:int ;
+    rdfs:label "quantity" ;
+    ui:inputType "number" ;
+    ui:required true ;
+    validation:min 1 .
+
+ecom:hasUnitPrice a owl:DatatypeProperty ;
+    rdfs:domain ecom:OrderItem ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "unit price" ;
+    ui:inputType "number" ;
+    ui:readonly true ;
+    ui:currency true ;
+    validation:min 0 ;
+    validation:precision 10 ;
+    validation:scale 2 .
+
+ecom:hasLineTotal a owl:DatatypeProperty ;
+    rdfs:domain ecom:OrderItem ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "line total" ;
+    ui:inputType "number" ;
+    ui:readonly true ;
+    ui:currency true ;
+    validation:min 0 ;
+    validation:precision 10 ;
+    validation:scale 2 .
+
+#=============================================================================
+# PAYMENT PROPERTIES
+#=============================================================================
+
+ecom:hasPaymentMethod a owl:DatatypeProperty ;
+    rdfs:domain ecom:Payment ;
+    rdfs:range xsd:string ;
+    rdfs:label "payment method" ;
+    ui:inputType "select" ;
+    ui:options "credit_card,debit_card,paypal,stripe,apple_pay,google_pay" ;
+    ui:required true .
+
+ecom:hasPaymentStatus a owl:DatatypeProperty ;
+    rdfs:domain ecom:Payment ;
+    rdfs:range xsd:string ;
+    rdfs:label "payment status" ;
+    ui:inputType "select" ;
+    ui:options "pending,processing,completed,failed,refunded" ;
+    ui:required true ;
+    ui:defaultValue "pending" .
+
+ecom:hasPaymentAmount a owl:DatatypeProperty ;
+    rdfs:domain ecom:Payment ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "payment amount" ;
+    ui:inputType "number" ;
+    ui:readonly true ;
+    ui:currency true ;
+    validation:min 0 ;
+    validation:precision 10 ;
+    validation:scale 2 .
+
+ecom:hasTransactionId a owl:DatatypeProperty ;
+    rdfs:domain ecom:Payment ;
+    rdfs:range xsd:string ;
+    rdfs:label "transaction ID" ;
+    ui:readonly true ;
+    security:sensitive true ;
+    supabase:indexed true .
+
+#=============================================================================
+# OBJECT PROPERTIES (RELATIONSHIPS)
+#=============================================================================
+
+# User relationships
+ecom:placedOrder a owl:ObjectProperty ;
+    rdfs:domain ecom:User ;
+    rdfs:range ecom:Order ;
+    rdfs:label "placed order" ;
+    ui:relationship "one-to-many" ;
+    ui:cascadeDelete false .
+
+# Product relationships
+ecom:belongsToCategory a owl:ObjectProperty ;
+    rdfs:domain ecom:Product ;
+    rdfs:range ecom:Category ;
+    rdfs:label "belongs to category" ;
+    ui:relationship "many-to-one" ;
+    ui:required false .
+
+# Category relationships
+ecom:hasParentCategory a owl:ObjectProperty ;
+    rdfs:domain ecom:Category ;
+    rdfs:range ecom:Category ;
+    rdfs:label "has parent category" ;
+    ui:relationship "many-to-one" ;
+    ui:selfReference true .
+
+ecom:hasSubcategory a owl:ObjectProperty ;
+    rdfs:domain ecom:Category ;
+    rdfs:range ecom:Category ;
+    rdfs:label "has subcategory" ;
+    ui:relationship "one-to-many" ;
+    ui:selfReference true ;
+    owl:inverseOf ecom:hasParentCategory .
+
+# Order relationships
+ecom:orderBelongsToUser a owl:ObjectProperty ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:User ;
+    rdfs:label "order belongs to user" ;
+    ui:relationship "many-to-one" ;
+    ui:required true ;
+    owl:inverseOf ecom:placedOrder .
+
+ecom:hasOrderItem a owl:ObjectProperty ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:OrderItem ;
+    rdfs:label "has order item" ;
+    ui:relationship "one-to-many" ;
+    ui:cascadeDelete true .
+
+ecom:hasPayment a owl:ObjectProperty ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:Payment ;
+    rdfs:label "has payment" ;
+    ui:relationship "one-to-many" .
+
+# Order Item relationships
+ecom:orderItemForProduct a owl:ObjectProperty ;
+    rdfs:domain ecom:OrderItem ;
+    rdfs:range ecom:Product ;
+    rdfs:label "order item for product" ;
+    ui:relationship "many-to-one" ;
+    ui:required true .
+
+ecom:itemBelongsToOrder a owl:ObjectProperty ;
+    rdfs:domain ecom:OrderItem ;
+    rdfs:range ecom:Order ;
+    rdfs:label "item belongs to order" ;
+    ui:relationship "many-to-one" ;
+    ui:required true ;
+    owl:inverseOf ecom:hasOrderItem .
+
+# Payment relationships
+ecom:paymentForOrder a owl:ObjectProperty ;
+    rdfs:domain ecom:Payment ;
+    rdfs:range ecom:Order ;
+    rdfs:label "payment for order" ;
+    ui:relationship "many-to-one" ;
+    ui:required true ;
+    owl:inverseOf ecom:hasPayment .
+
+#=============================================================================
+# UI AND FRONTEND CONFIGURATION
+#=============================================================================
+
+# Nuxt configuration
+ecom:AppConfig a owl:Class ;
+    rdfs:label "App Configuration" ;
+    nuxt:ssr true ;
+    nuxt:typescript true ;
+    nuxt:modules "supabase,tailwindcss,ui,content,image" ;
+    nuxt:devtools true ;
+    ui:theme "modern" ;
+    ui:darkMode true .
+
+# Page configurations
+ecom:UserManagement a owl:Class ;
+    rdfs:label "User Management" ;
+    ui:routePath "/admin/users" ;
+    ui:layout "admin" ;
+    ui:middleware "auth,admin" ;
+    ui:icon "users" ;
+    ui:permissions "user.read,user.write" .
+
+ecom:ProductCatalog a owl:Class ;
+    rdfs:label "Product Catalog" ;
+    ui:routePath "/products" ;
+    ui:layout "default" ;
+    ui:icon "package" ;
+    ui:searchable true ;
+    ui:filterable true ;
+    ui:sortable true .
+
+ecom:OrderManagement a owl:Class ;
+    rdfs:label "Order Management" ;
+    ui:routePath "/orders" ;
+    ui:layout "dashboard" ;
+    ui:middleware "auth" ;
+    ui:icon "shopping-cart" ;
+    ui:realtime true ;
+    ui:permissions "order.read" .
+
+#=============================================================================
+# SECURITY AND VALIDATION RULES
+#=============================================================================
+
+# RLS Policy definitions
+ecom:UserDataPolicy a owl:Class ;
+    rdfs:label "User Data Policy" ;
+    security:table "users" ;
+    security:policy "users_own_data" ;
+    security:operation "ALL" ;
+    security:using "auth.uid() = id OR auth.jwt()->>'role' = 'admin'" .
+
+ecom:OrderPolicy a owl:Class ;
+    rdfs:label "Order Policy" ;
+    security:table "orders" ;
+    security:policy "users_own_orders" ;
+    security:operation "SELECT,UPDATE" ;
+    security:using "auth.uid() = user_id OR auth.jwt()->>'role' = 'admin'" .
+
+ecom:PaymentPolicy a owl:Class ;
+    rdfs:label "Payment Policy" ;
+    security:table "payments" ;
+    security:policy "strict_payment_access" ;
+    security:operation "SELECT" ;
+    security:using "auth.uid() IN (SELECT user_id FROM orders WHERE id = order_id) OR auth.jwt()->>'role' = 'admin'" .
+
+#=============================================================================
+# PERFORMANCE AND INDEXING
+#=============================================================================
+
+# Index definitions
+ecom:UserEmailIndex a owl:Class ;
+    rdfs:label "User Email Index" ;
+    supabase:table "users" ;
+    supabase:columns "email" ;
+    supabase:unique true .
+
+ecom:ProductSKUIndex a owl:Class ;
+    rdfs:label "Product SKU Index" ;
+    supabase:table "products" ;
+    supabase:columns "sku" ;
+    supabase:unique true .
+
+ecom:OrderDateIndex a owl:Class ;
+    rdfs:label "Order Date Index" ;
+    supabase:table "orders" ;
+    supabase:columns "order_date DESC" .
+
+ecom:ProductCategoryIndex a owl:Class ;
+    rdfs:label "Product Category Index" ;
+    supabase:table "products" ;
+    supabase:columns "category_id,is_active" .
+
+#=============================================================================
+# BUSINESS RULES AND CONSTRAINTS
+#=============================================================================
+
+# Validation rules
+ecom:StockValidation a owl:Class ;
+    rdfs:label "Stock Validation" ;
+    validation:rule "stock_check" ;
+    validation:table "order_items" ;
+    validation:constraint "quantity <= (SELECT stock_quantity FROM products WHERE id = product_id)" .
+
+ecom:PriceValidation a owl:Class ;
+    rdfs:label "Price Validation" ;
+    validation:rule "positive_price" ;
+    validation:constraint "price > 0" .
+
+ecom:EmailUniqueness a owl:Class ;
+    rdfs:label "Email Uniqueness" ;
+    validation:rule "unique_email" ;
+    validation:table "users" ;
+    validation:constraint "UNIQUE(email)" .
+
+#=============================================================================
+# AUDIT AND TRACKING
+#=============================================================================
+
+# Audit configuration
+ecom:AuditConfig a owl:Class ;
+    rdfs:label "Audit Configuration" ;
+    supabase:auditEnabled true ;
+    supabase:auditTables "users,orders,payments,products" ;
+    supabase:retentionDays 2555 . # 7 years
+
+#=============================================================================
+# REAL-TIME SUBSCRIPTIONS
+#=============================================================================
+
+ecom:OrderStatusUpdates a owl:Class ;
+    rdfs:label "Order Status Updates" ;
+    supabase:realtime true ;
+    supabase:table "orders" ;
+    supabase:events "UPDATE" ;
+    supabase:filter "status" .
+
+ecom:StockLevelUpdates a owl:Class ;
+    rdfs:label "Stock Level Updates" ;
+    supabase:realtime true ;
+    supabase:table "products" ;
+    supabase:events "UPDATE" ;
+    supabase:filter "stock_quantity" .
+
+#=============================================================================
+# API ENDPOINTS CONFIGURATION
+#=============================================================================
+
+ecom:UserAPI a owl:Class ;
+    rdfs:label "User API" ;
+    supabase:edgeFunction "user-management" ;
+    supabase:methods "GET,POST,PUT,DELETE" ;
+    supabase:auth true .
+
+ecom:ProductAPI a owl:Class ;
+    rdfs:label "Product API" ;
+    supabase:edgeFunction "product-catalog" ;
+    supabase:methods "GET,POST,PUT,DELETE" ;
+    supabase:auth false .
+
+ecom:OrderAPI a owl:Class ;
+    rdfs:label "Order API" ;
+    supabase:edgeFunction "order-management" ;
+    supabase:methods "GET,POST,PUT,PATCH" ;
+    supabase:auth true .
+
+#=============================================================================
+# END OF ONTOLOGY
+#=============================================================================

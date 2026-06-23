@@ -1,0 +1,42 @@
+@prefix : <http://bitactor.org/ontology#> .
+@prefix inst: <http://bitactor.org/instance#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Import the core ontology
+owl:imports <http://bitactor.org/ontology> .
+
+# Define a specific Actor instance
+inst:MyActor a :Actor ;
+    rdfs:label "My First BitActor" ;
+    :hasBehavior inst:MyActorBehavior .
+
+# Define the Behavior for MyActor
+inst:MyActorBehavior a :Behavior ;
+    rdfs:label "MyActor's Primary Behavior" ;
+    :hasSpecHash "0x123456789ABCDEF0"^^xsd:hexBinary ; # Matches conductor_manifest.c dummy
+    :hasBytecode "0x01020304"^^xsd:hexBinary ; # Matches conductor_manifest.c dummy
+    :executesOpcode :BA_OP_MOV, :BA_OP_ADD ; # Opcodes used in fiber_engine.c simulation
+    # Define a contract that dispatches to this behavior
+    inst:MyActorContract a :Contract ;
+        :hasPredicate "predicate:message_type_A"^^xsd:string ;
+        :dispatchesTo inst:MyActorBehavior .
+
+# Define an entanglement for MyActor
+inst:MyActorEntanglement a :Entanglement ;
+    :entanglesWith inst:AnotherActor ; # Assuming AnotherActor is defined elsewhere
+    :hasTriggerMask "0xAA"^^xsd:hexBinary ;
+    :hasMaxHops 3 ;
+    :isDarkTriple "false"^^xsd:boolean .
+
+# Define a Telemetry Span for this behavior
+inst:MyActorTelemetrySpan a :TelemetrySpan ;
+    :monitorsSpan inst:MyActorBehavior ;
+    :hasMaxCycles 7 ; # Strict 7-tick limit
+    rdfs:comment "Telemetry span for MyActor's primary behavior, enforcing 7-tick limit." .
+
+# Example of another actor for entanglement
+inst:AnotherActor a :Actor ;
+    rdfs:label "Another BitActor" .

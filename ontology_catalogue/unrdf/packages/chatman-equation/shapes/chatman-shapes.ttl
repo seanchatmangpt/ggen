@@ -1,0 +1,358 @@
+# SHACL Shapes for Chatman Lineage and Achievements
+# Validates the structure and content of the Chatman knowledge graph
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix chatman: <http://unrdf.org/chatman/> .
+
+# =============================================================================
+# Person Shape
+# =============================================================================
+
+chatman:PersonShape
+    a sh:NodeShape ;
+    sh:targetClass foaf:Person ;
+    sh:property [
+        sh:path foaf:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Person must have exactly one name" ;
+    ] ;
+    sh:property [
+        sh:path schema:birthDate ;
+        sh:or (
+            [ sh:datatype xsd:gYear ]
+            [ sh:datatype xsd:date ]
+        ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Person must have a birth date" ;
+    ] ;
+    sh:property [
+        sh:path schema:jobTitle ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Person must have at least one job title" ;
+    ] ;
+    sh:property [
+        sh:path chatman:activePeriod ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Person must have an active period" ;
+    ] .
+
+# =============================================================================
+# Achievement Shape
+# =============================================================================
+
+chatman:AchievementShape
+    a sh:NodeShape ;
+    sh:targetClass chatman:Achievement ;
+    sh:property [
+        sh:path dcterms:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Achievement must have exactly one title" ;
+    ] ;
+    sh:property [
+        sh:path dcterms:description ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Achievement must have a description" ;
+    ] ;
+    sh:property [
+        sh:path prov:wasAttributedTo ;
+        sh:class foaf:Person ;
+        sh:minCount 1 ;
+        sh:message "Achievement must be attributed to at least one person" ;
+    ] ;
+    sh:property [
+        sh:path prov:generatedAtTime ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Achievement must have a generation timestamp" ;
+    ] .
+
+# =============================================================================
+# Scientific Equation Shape
+# =============================================================================
+
+chatman:ScientificEquationShape
+    a sh:NodeShape ;
+    sh:targetClass chatman:ScientificEquation ;
+    sh:property [
+        sh:path dcterms:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Equation must have a title" ;
+    ] ;
+    sh:property [
+        sh:path dcterms:date ;
+        sh:or (
+            [ sh:datatype xsd:gYear ]
+            [ sh:datatype xsd:date ]
+        ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Equation must have a date" ;
+    ] ;
+    sh:property [
+        sh:path dcterms:creator ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:message "Equation must have a creator" ;
+    ] ;
+    sh:property [
+        sh:path chatman:primaryConstant ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Equation must have a primary constant" ;
+    ] ;
+    sh:property [
+        sh:path chatman:fullExpression ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Equation must have a full expression" ;
+    ] .
+
+# =============================================================================
+# Scientific Comparison Shape
+# =============================================================================
+
+chatman:ScientificComparisonShape
+    a sh:NodeShape ;
+    sh:targetClass chatman:ScientificComparison ;
+    sh:property [
+        sh:path dcterms:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Comparison must have a title" ;
+    ] ;
+    sh:property [
+        sh:path chatman:historicalWork ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Comparison must reference a historical work" ;
+    ] ;
+    sh:property [
+        sh:path chatman:historicalAuthor ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Comparison must have a historical author" ;
+    ] ;
+    sh:property [
+        sh:path chatman:chatmanParallel ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Comparison must describe the Chatman parallel" ;
+    ] ;
+    sh:property [
+        sh:path chatman:evidence ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Comparison must have at least one evidence item" ;
+    ] .
+
+# =============================================================================
+# Family Relationship Shape
+# =============================================================================
+
+chatman:FamilyRelationshipShape
+    a sh:NodeShape ;
+    sh:targetClass chatman:FamilyRelationship ;
+    sh:property [
+        sh:path chatman:parent ;
+        sh:class foaf:Person ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Family relationship must have exactly one parent" ;
+    ] ;
+    sh:property [
+        sh:path chatman:child ;
+        sh:class foaf:Person ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Family relationship must have exactly one child" ;
+    ] ;
+    sh:property [
+        sh:path chatman:relationshipType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Family relationship must have a relationship type" ;
+    ] .
+
+# =============================================================================
+# Timeline Event Shape
+# =============================================================================
+
+chatman:TimelineEventShape
+    a sh:NodeShape ;
+    sh:targetClass chatman:TimelineEvent ;
+    sh:property [
+        sh:path dcterms:date ;
+        sh:or (
+            [ sh:datatype xsd:gYear ]
+            [ sh:datatype xsd:date ]
+        ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Timeline event must have a date" ;
+    ] ;
+    sh:property [
+        sh:path dcterms:description ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Timeline event must have a description" ;
+    ] ;
+    sh:property [
+        sh:path prov:wasAssociatedWith ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:message "Timeline event must be associated with at least one person" ;
+    ] ;
+    sh:property [
+        sh:path prov:generatedAtTime ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Timeline event must have a generation timestamp" ;
+    ] .
+
+# =============================================================================
+# Provenance Shape
+# =============================================================================
+
+chatman:ProvenanceShape
+    a sh:NodeShape ;
+    sh:targetClass prov:Entity ;
+    sh:property [
+        sh:path prov:wasGeneratedBy ;
+        sh:class prov:Activity ;
+        sh:minCount 1 ;
+        sh:message "Provenance entity must be generated by an activity" ;
+    ] ;
+    sh:property [
+        sh:path dcterms:created ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Provenance entity must have a creation timestamp" ;
+    ] ;
+    sh:property [
+        sh:path prov:wasAttributedTo ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:message "Provenance entity must be attributed to someone" ;
+    ] .
+
+# =============================================================================
+# Mathematical Constant Shape
+# =============================================================================
+
+chatman:MathematicalConstantShape
+    a sh:NodeShape ;
+    sh:targetClass chatman:MathematicalConstant ;
+    sh:property [
+        sh:path dcterms:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Mathematical constant must have a title" ;
+    ] ;
+    sh:property [
+        sh:path chatman:significance ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Mathematical constant must have significance described" ;
+    ] ;
+    sh:property [
+        sh:path chatman:evidence ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Mathematical constant must have evidence" ;
+    ] .
+
+# =============================================================================
+# Software Project Shape
+# =============================================================================
+
+chatman:SoftwareProjectShape
+    a sh:NodeShape ;
+    sh:targetClass chatman:SoftwareProject ;
+    sh:property [
+        sh:path dcterms:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Software project must have a title" ;
+    ] ;
+    sh:property [
+        sh:path dcterms:date ;
+        sh:or (
+            [ sh:datatype xsd:gYear ]
+            [ sh:datatype xsd:date ]
+        ) ;
+        sh:minCount 1 ;
+        sh:message "Software project must have a date" ;
+    ] ;
+    sh:property [
+        sh:path chatman:evidence ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Software project must have evidence" ;
+    ] .
+
+# =============================================================================
+# Intellectual Lineage Shape
+# =============================================================================
+
+chatman:IntellectualLineageShape
+    a sh:NodeShape ;
+    sh:targetClass chatman:IntellectualLineage ;
+    sh:property [
+        sh:path prov:wasDerivedFrom ;
+        sh:class foaf:Person ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Intellectual lineage must derive from a person" ;
+    ] ;
+    sh:property [
+        sh:path chatman:inheritedBy ;
+        sh:class foaf:Person ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Intellectual lineage must be inherited by a person" ;
+    ] ;
+    sh:property [
+        sh:path chatman:inheritedConcept ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Intellectual lineage must include at least one inherited concept" ;
+    ] ;
+    sh:property [
+        sh:path chatman:transformation ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Intellectual lineage must describe the transformation" ;
+    ] .

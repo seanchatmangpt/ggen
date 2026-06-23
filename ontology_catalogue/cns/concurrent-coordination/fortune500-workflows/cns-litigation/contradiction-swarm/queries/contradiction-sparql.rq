@@ -1,0 +1,405 @@
+# SPARQL Queries for Contradiction Verification
+# ContradictionSwarm System - Legal Filing Inconsistency Detection
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX time: <http://www.w3.org/2006/time#>
+PREFIX legal: <http://cns-litigation.org/legal/>
+PREFIX contradiction: <http://cns-litigation.org/contradiction/>
+PREFIX filing: <http://cns-litigation.org/filing/>
+PREFIX evidence: <http://cns-litigation.org/evidence/>
+PREFIX jurisdiction: <http://cns-litigation.org/jurisdiction/>
+
+# Query 1: Cross-Filing Inconsistency Detection
+# Identifies contradictory statements across different legal filings
+SELECT DISTINCT ?filing1 ?filing2 ?statement1 ?statement2 ?claim1 ?claim2 
+                ?contradiction_id ?confidence_score ?detected_timestamp
+WHERE {
+    # Primary filing and its claims
+    ?filing1 a filing:LegalFiling ;
+             filing:filingId ?filing1_id ;
+             filing:contains ?statement1 ;
+             filing:filedDate ?date1 .
+    
+    ?statement1 legal:claims ?claim1 ;
+                legal:hasConfidence ?conf1 ;
+                legal:concernsSubject ?subject .
+    
+    # Secondary filing and its claims
+    ?filing2 a filing:LegalFiling ;
+             filing:filingId ?filing2_id ;
+             filing:contains ?statement2 ;
+             filing:filedDate ?date2 .
+    
+    ?statement2 legal:claims ?claim2 ;
+                legal:hasConfidence ?conf2 ;
+                legal:concernsSubject ?subject .
+    
+    # Contradiction detection logic
+    FILTER(
+        ?filing1_id != ?filing2_id &&
+        (
+            # Direct logical contradiction
+            (?claim1 legal:contradicts ?claim2) ||
+            # Negation relationship
+            (?claim1 legal:negates ?claim2) ||
+            # Mutual exclusivity
+            (?claim1 legal:mutuallyExclusiveWith ?claim2) ||
+            # Factual contradiction with same subject
+            (EXISTS { 
+                ?claim1 legal:assertsFact ?fact1 .
+                ?claim2 legal:assertsFact ?fact2 .
+                ?fact1 legal:contradicts ?fact2 .
+                ?fact1 legal:concernsSubject ?fact_subject .
+                ?fact2 legal:concernsSubject ?fact_subject .
+            })
+        )
+    )
+    
+    # Calculate confidence score based on multiple factors
+    BIND(((?conf1 + ?conf2) / 2 * 
+          IF(?claim1 legal:contradicts ?claim2, 1.0, 0.85) *
+          IF(?date1 > ?date2, 1.1, IF(?date2 > ?date1, 0.9, 1.0))) AS ?confidence_score)
+    
+    # Generate unique contradiction identifier
+    BIND(IRI(CONCAT("http://cns-litigation.org/contradiction/cross-filing-", 
+                    MD5(CONCAT(STR(?filing1_id), "-", STR(?filing2_id), "-", 
+                              STR(?statement1), "-", STR(?statement2))))) AS ?contradiction_id)
+    
+    # Timestamp of detection
+    BIND(NOW() AS ?detected_timestamp)
+    
+    # Filter for high-confidence contradictions only
+    FILTER(?confidence_score >= 0.75)
+}
+ORDER BY DESC(?confidence_score) ?filing1_id ?filing2_id
+LIMIT 1000
+
+# Query 2: Timeline Contradiction Analysis
+# Detects temporal inconsistencies in event sequences
+SELECT DISTINCT ?event1 ?event2 ?timeline ?start1 ?end1 ?start2 ?end2 
+                ?contradiction_type ?severity ?overlap_duration
+WHERE {
+    ?timeline a legal:Timeline ;
+              legal:containsEvent ?event1, ?event2 .
+    
+    ?event1 a legal:Event ;
+            legal:eventId ?event1_id ;
+            time:hasBeginning ?start1 ;
+            time:hasEnd ?end1 ;
+            legal:eventType ?type1 ;
+            legal:involvedParties ?parties1 .
+    
+    ?event2 a legal:Event ;
+            legal:eventId ?event2_id ;
+            time:hasBeginning ?start2 ;
+            time:hasEnd ?end2 ;
+            legal:eventType ?type2 ;
+            legal:involvedParties ?parties2 .
+    
+    # Detect different types of temporal contradictions
+    FILTER(?event1_id != ?event2_id)
+    
+    # Calculate overlap
+    BIND(IF(?start1 < ?end2 && ?start2 < ?end1, 
+            (MIN(?end1, ?end2) - MAX(?start1, ?start2)), 
+            0) AS ?overlap_duration)
+    
+    # Contradiction type classification
+    BIND(
+        IF(?overlap_duration > 0 && ?event1 legal:mutuallyExclusiveWith ?event2, 
+           "EXCLUSIVE_OVERLAP",
+        IF(?start1 > ?start2 && ?event1 legal:prerequisiteFor ?event2,
+           "PREREQUISITE_VIOLATION", 
+        IF(?end1 > ?start2 && ?event1 legal:mustPrecede ?event2,
+           "SEQUENCE_VIOLATION",
+        IF(EXISTS { ?parties1 legal:intersects ?parties2 } && 
+           ?event1 legal:requiresExclusiveParticipation ?parties1,
+           "PARTICIPATION_CONFLICT",
+           "OTHER"))))
+    AS ?contradiction_type)
+    
+    # Severity assessment
+    BIND(
+        IF(?contradiction_type = "EXCLUSIVE_OVERLAP", "CRITICAL",
+        IF(?contradiction_type = "PREREQUISITE_VIOLATION", "HIGH",
+        IF(?contradiction_type = "SEQUENCE_VIOLATION", "MEDIUM", "LOW")))
+    AS ?severity)
+    
+    FILTER(?contradiction_type != "OTHER")
+}
+ORDER BY ?severity DESC(?overlap_duration)
+
+# Query 3: Jurisdictional Conflict Identification
+# Identifies conflicts in jurisdictional claims and authority
+SELECT DISTINCT ?case ?jurisdiction1 ?jurisdiction2 ?conflict_type ?authority_level
+                ?filing1 ?filing2 ?resolution_suggestion
+WHERE {
+    ?case a legal:LegalCase ;
+          legal:hasSubject ?subject .
+    
+    # First jurisdictional claim
+    ?filing1 a filing:LegalFiling ;
+             filing:relatedToCase ?case ;
+             filing:assertsJurisdiction ?jurisdiction1 .
+    
+    ?jurisdiction1 jurisdiction:hasAuthority ?authority1 ;
+                   jurisdiction:appliesTo ?subject ;
+                   jurisdiction:geographicScope ?geo1 ;
+                   jurisdiction:subjectMatterScope ?matter1 .
+    
+    # Second jurisdictional claim
+    ?filing2 a filing:LegalFiling ;
+             filing:relatedToCase ?case ;
+             filing:assertsJurisdiction ?jurisdiction2 .
+    
+    ?jurisdiction2 jurisdiction:hasAuthority ?authority2 ;
+                   jurisdiction:appliesTo ?subject ;
+                   jurisdiction:geographicScope ?geo2 ;
+                   jurisdiction:subjectMatterScope ?matter2 .
+    
+    # Conflict detection
+    FILTER(?jurisdiction1 != ?jurisdiction2)
+    
+    # Determine conflict type
+    BIND(
+        IF(?geo1 jurisdiction:overlaps ?geo2 && ?matter1 = ?matter2, "GEOGRAPHIC_OVERLAP",
+        IF(?geo1 = ?geo2 && ?matter1 jurisdiction:overlaps ?matter2, "SUBJECT_MATTER_OVERLAP",
+        IF(?authority1 jurisdiction:conflictsWith ?authority2, "AUTHORITY_CONFLICT",
+        IF(?jurisdiction1 jurisdiction:exclusiveWith ?jurisdiction2, "EXCLUSIVE_JURISDICTION",
+           "GENERAL_CONFLICT"))))
+    AS ?conflict_type)
+    
+    # Authority level comparison
+    BIND(
+        IF(?authority1 jurisdiction:superiorTo ?authority2, "AUTHORITY1_SUPERIOR",
+        IF(?authority2 jurisdiction:superiorTo ?authority1, "AUTHORITY2_SUPERIOR", 
+           "EQUAL_AUTHORITY"))
+    AS ?authority_level)
+    
+    # Resolution suggestions based on conflict type and authority
+    BIND(
+        IF(?authority_level = "AUTHORITY1_SUPERIOR", ?jurisdiction1,
+        IF(?authority_level = "AUTHORITY2_SUPERIOR", ?jurisdiction2,
+        IF(?conflict_type = "GEOGRAPHIC_OVERLAP", 
+           "REQUIRE_FORUM_SELECTION",
+           "REQUIRE_JURISDICTIONAL_ANALYSIS")))
+    AS ?resolution_suggestion)
+    
+    FILTER(?conflict_type != "GENERAL_CONFLICT" || ?authority_level != "EQUAL_AUTHORITY")
+}
+ORDER BY ?case ?conflict_type
+
+# Query 4: Evidence Contradiction Mapping
+# Detects inconsistencies in evidence claims and presentation
+SELECT DISTINCT ?evidence1 ?evidence2 ?source_document ?contradiction_nature
+                ?credibility_impact ?affected_claims ?recommendation
+WHERE {
+    # First evidence item
+    ?evidence1 a evidence:Evidence ;
+               evidence:evidenceId ?ev1_id ;
+               evidence:sourceDocument ?source_document ;
+               evidence:supports ?claim1 ;
+               evidence:hasCredibility ?cred1 ;
+               evidence:quotesText ?text1 ;
+               evidence:referenceLocation ?loc1 .
+    
+    # Second evidence item
+    ?evidence2 a evidence:Evidence ;
+               evidence:evidenceId ?ev2_id ;
+               evidence:sourceDocument ?source_document ;
+               evidence:supports ?claim2 ;
+               evidence:hasCredibility ?cred2 ;
+               evidence:quotesText ?text2 ;
+               evidence:referenceLocation ?loc2 .
+    
+    FILTER(?ev1_id != ?ev2_id)
+    
+    # Detect contradiction patterns
+    BIND(
+        IF(?text1 != ?text2 && ?loc1 = ?loc2, "SAME_SOURCE_DIFFERENT_QUOTES",
+        IF(?text1 = ?text2 && ?claim1 legal:contradicts ?claim2, "SAME_EVIDENCE_CONFLICTING_CLAIMS",
+        IF(?evidence1 evidence:contradictsEvidence ?evidence2, "DIRECT_EVIDENCE_CONTRADICTION",
+        IF(?claim1 legal:concernsSubject ?subj && ?claim2 legal:concernsSubject ?subj && 
+           ?claim1 legal:contradicts ?claim2, "SUBJECT_CONTRADICTION",
+           "NO_CONTRADICTION"))))
+    AS ?contradiction_nature)
+    
+    FILTER(?contradiction_nature != "NO_CONTRADICTION")
+    
+    # Calculate credibility impact
+    BIND(ABS(?cred1 - ?cred2) * 
+         IF(?contradiction_nature = "SAME_SOURCE_DIFFERENT_QUOTES", 2.0,
+         IF(?contradiction_nature = "DIRECT_EVIDENCE_CONTRADICTION", 1.8,
+            1.2)) AS ?credibility_impact)
+    
+    # Identify affected claims
+    {
+        SELECT ?contradiction_nature (GROUP_CONCAT(?claim; separator=", ") AS ?affected_claims)
+        WHERE {
+            VALUES ?claim { ?claim1 ?claim2 }
+        }
+        GROUP BY ?contradiction_nature
+    }
+    
+    # Generate recommendations
+    BIND(
+        IF(?contradiction_nature = "SAME_SOURCE_DIFFERENT_QUOTES", 
+           "VERIFY_ORIGINAL_DOCUMENT",
+        IF(?contradiction_nature = "SAME_EVIDENCE_CONFLICTING_CLAIMS",
+           "CLARIFY_INTERPRETATION",
+        IF(?credibility_impact > 1.5, "INVESTIGATE_CREDIBILITY", "STANDARD_REVIEW")))
+    AS ?recommendation)
+}
+ORDER BY DESC(?credibility_impact)
+
+# Query 5: Comprehensive Contradiction Summary
+# Provides an executive summary of all detected contradictions
+SELECT ?contradiction_type ?total_count ?high_severity_count ?avg_confidence 
+       ?most_affected_case ?resolution_urgency
+WHERE {
+    {
+        SELECT ?contradiction_type 
+               (COUNT(?contradiction) AS ?total_count)
+               (COUNT(?high_sev) AS ?high_severity_count)
+               (AVG(?confidence) AS ?avg_confidence)
+        WHERE {
+            ?contradiction a contradiction:Contradiction ;
+                           contradiction:hasType ?contradiction_type ;
+                           contradiction:confidence ?confidence .
+            
+            OPTIONAL {
+                ?contradiction contradiction:hasSeverity ?severity .
+                FILTER(?severity IN (contradiction:High, contradiction:Critical))
+                BIND(?contradiction AS ?high_sev)
+            }
+        }
+        GROUP BY ?contradiction_type
+    }
+    
+    # Find most affected case for each contradiction type
+    OPTIONAL {
+        {
+            SELECT ?contradiction_type ?case (COUNT(?contradiction) AS ?case_count)
+            WHERE {
+                ?contradiction contradiction:hasType ?contradiction_type ;
+                               contradiction:affectsCase ?case .
+            }
+            GROUP BY ?contradiction_type ?case
+            ORDER BY DESC(?case_count)
+        }
+        {
+            SELECT ?contradiction_type (MAX(?case_count) AS ?max_count)
+            WHERE {
+                {
+                    SELECT ?contradiction_type ?case (COUNT(?contradiction) AS ?case_count)
+                    WHERE {
+                        ?contradiction contradiction:hasType ?contradiction_type ;
+                                       contradiction:affectsCase ?case .
+                    }
+                    GROUP BY ?contradiction_type ?case
+                }
+            }
+            GROUP BY ?contradiction_type
+        }
+        FILTER(?case_count = ?max_count)
+        BIND(?case AS ?most_affected_case)
+    }
+    
+    # Determine resolution urgency
+    BIND(
+        IF(?high_severity_count > 5, "IMMEDIATE",
+        IF(?high_severity_count > 0, "HIGH_PRIORITY",
+        IF(?total_count > 10, "MEDIUM_PRIORITY", "LOW_PRIORITY")))
+    AS ?resolution_urgency)
+}
+ORDER BY DESC(?high_severity_count) DESC(?total_count)
+
+# Query 6: Real-time Contradiction Monitoring
+# Monitors for new contradictions as filings are submitted
+SELECT ?new_filing ?existing_filing ?contradiction_type ?immediate_action_required
+WHERE {
+    # New filing (submitted in last 24 hours)
+    ?new_filing a filing:LegalFiling ;
+                filing:filedDate ?new_date ;
+                filing:contains ?new_statement .
+    
+    FILTER(?new_date > (NOW() - "P1D"^^xsd:duration))
+    
+    # Existing filings
+    ?existing_filing a filing:LegalFiling ;
+                     filing:filedDate ?existing_date ;
+                     filing:contains ?existing_statement .
+    
+    FILTER(?new_filing != ?existing_filing && ?existing_date < ?new_date)
+    
+    # Detect potential contradictions
+    {
+        ?new_statement legal:contradicts ?existing_statement .
+        BIND("DIRECT_CONTRADICTION" AS ?contradiction_type)
+        BIND(true AS ?immediate_action_required)
+    } UNION {
+        ?new_statement legal:claims ?new_claim .
+        ?existing_statement legal:claims ?existing_claim .
+        ?new_claim legal:concernsSubject ?subject .
+        ?existing_claim legal:concernsSubject ?subject .
+        ?new_claim legal:contradicts ?existing_claim .
+        BIND("CLAIM_CONTRADICTION" AS ?contradiction_type)
+        BIND(true AS ?immediate_action_required)
+    } UNION {
+        # Timeline contradiction
+        ?new_statement legal:assertsEvent ?new_event .
+        ?existing_statement legal:assertsEvent ?existing_event .
+        ?new_event time:hasBeginning ?new_start .
+        ?existing_event time:hasBeginning ?existing_start .
+        FILTER(?new_start < ?existing_start && ?new_event legal:mustPrecede ?existing_event)
+        BIND("TIMELINE_CONTRADICTION" AS ?contradiction_type)
+        BIND(false AS ?immediate_action_required)
+    }
+}
+ORDER BY DESC(?immediate_action_required) ?new_date
+
+# Query 7: Performance Metrics for Contradiction Detection
+# Analyzes the performance and accuracy of the contradiction detection system
+SELECT ?detection_method ?total_detected ?confirmed_contradictions ?false_positives
+       ?precision ?recall ?f1_score ?avg_processing_time
+WHERE {
+    {
+        SELECT ?detection_method 
+               (COUNT(?detected) AS ?total_detected)
+               (COUNT(?confirmed) AS ?confirmed_contradictions)
+               ((?total_detected - ?confirmed_contradictions) AS ?false_positives)
+        WHERE {
+            ?detected a contradiction:DetectedContradiction ;
+                      contradiction:detectionMethod ?detection_method .
+            
+            OPTIONAL {
+                ?detected contradiction:confirmedBy ?confirmation .
+                BIND(?detected AS ?confirmed)
+            }
+        }
+        GROUP BY ?detection_method
+    }
+    
+    # Calculate performance metrics
+    BIND(IF(?total_detected > 0, ?confirmed_contradictions / ?total_detected, 0) AS ?precision)
+    BIND(IF(?confirmed_contradictions > 0, ?confirmed_contradictions / 
+            (?confirmed_contradictions + ?false_positives), 0) AS ?recall)
+    BIND(IF(?precision + ?recall > 0, 2 * (?precision * ?recall) / (?precision + ?recall), 0) AS ?f1_score)
+    
+    # Average processing time per detection method
+    {
+        SELECT ?detection_method (AVG(?processing_time) AS ?avg_processing_time)
+        WHERE {
+            ?detection a contradiction:DetectionRun ;
+                       contradiction:method ?detection_method ;
+                       contradiction:processingTime ?processing_time .
+        }
+        GROUP BY ?detection_method
+    }
+}
+ORDER BY DESC(?f1_score)
+
+# End of SPARQL Queries for Contradiction Verification

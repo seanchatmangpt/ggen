@@ -1,0 +1,75 @@
+# ============================================================================
+# queries/extract-operators.rq  —  the full operator catalog (all 60)
+# ============================================================================
+# One row per tpot:Operator (derived by inference/derive-operators.rq), joined
+# back to its tpot:Stage and to its wrapped pi: algorithm for human-facing
+# fields (label, cliAlias, inputFormat, outputType). This is the complete
+# search space the TPOT2 config_dict template renders.
+#
+# ?is_elite is TRUE for the per-stage argmax-fitness operator (the one the
+# chosen pipeline picks), FALSE otherwise. "Elite" is defined exactly as in
+# CONTRACT.md §5: max tpot:fitnessScore within the stage; tie-break = lower
+# opSpeedTier, then operatorId ascending. We express argmax as "no OTHER
+# operator in the same stage out-ranks me", where out-rank uses the same
+# lexicographic order:
+#   other beats me  <=>  other.fitness > my.fitness
+#                        OR (== fitness AND other.speed < my.speed)
+#                        OR (== fitness AND == speed AND other.id < my.id)
+# If no such operator exists (NOT EXISTS), I am the stage elite.
+#
+# Strict-mode discipline: explicit projection (no SELECT * — BUG-007) and an
+# explicit ORDER BY (BUG-006 / E0011 / E0013). ORDER BY is by stage, then
+# fitness DESC (best first within each stage), then operatorId for determinism.
+# ----------------------------------------------------------------------------
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX pi:     <https://wasm4pm.dev/pi#>
+PREFIX compat: <https://wasm4pm.dev/ns#>
+PREFIX tpot:   <https://wasm4pm.dev/tpot#>
+
+SELECT ?stage_order ?stage_id ?operator_id ?algorithm_label ?op_category
+       ?output_type ?input_format ?speed_tier ?quality_tier ?fitness_score
+       ?wasm_export ?cli_alias ?is_elite
+WHERE {
+  # --- the derived operator ------------------------------------------------
+  ?op a tpot:Operator ;
+      tpot:operatorId    ?operator_id ;
+      tpot:wrapsAlgorithm ?a ;
+      tpot:atStage       ?stage ;
+      tpot:opCategory    ?op_category ;
+      tpot:opSpeedTier   ?speed_tier ;
+      tpot:opQualityTier ?quality_tier ;
+      tpot:fitnessScore  ?fitness_score ;
+      tpot:wasmExport    ?wasm_export .
+
+  # --- its stage -----------------------------------------------------------
+  ?stage a tpot:PipelineStage ;
+         tpot:stageId    ?stage_id ;
+         tpot:stageOrder ?stage_order .
+
+  # --- human-facing fields from the wrapped pi: algorithm ------------------
+  ?a pi:algorithmLabel ?algorithm_label ;
+     pi:outputType     ?output_type ;
+     pi:inputFormat    ?input_format .
+  OPTIONAL { ?a pi:cliAlias ?cli_alias_opt }
+  BIND(COALESCE(?cli_alias_opt, "") AS ?cli_alias)
+
+  # --- elite flag: TRUE unless another operator in this stage out-ranks me --
+  BIND(EXISTS {
+    ?other a tpot:Operator ;
+           tpot:atStage      ?stage ;
+           tpot:operatorId   ?other_id ;
+           tpot:opSpeedTier  ?other_speed ;
+           tpot:fitnessScore ?other_fit .
+    FILTER(?other_id != ?operator_id)
+    FILTER(
+         ?other_fit > ?fitness_score
+      || (?other_fit = ?fitness_score && ?other_speed < ?speed_tier)
+      || (?other_fit = ?fitness_score && ?other_speed = ?speed_tier && ?other_id < ?operator_id)
+    )
+  } AS ?beaten)
+  BIND(IF(?beaten, false, true) AS ?is_elite)
+}
+ORDER BY ?stage_order DESC(?fitness_score) ?operator_id

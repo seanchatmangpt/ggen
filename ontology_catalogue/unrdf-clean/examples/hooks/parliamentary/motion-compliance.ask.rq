@@ -1,0 +1,29 @@
+# Motion Compliance Check - SPARQL ASK Query
+# This query checks if a motion follows Robert's Rules of Order
+# by ensuring it has been properly introduced, seconded, and voted upon
+
+PREFIX parliamentary: <urn:parliamentary:>
+PREFIX ex: <http://example.org/>
+
+ASK WHERE {
+  # Check that the motion has been introduced
+  ?motion parliamentary:introducedBy ?introducer .
+  
+  # Check that the motion has been seconded
+  ?motion parliamentary:secondedBy ?seconder .
+  
+  # Check that the motion has been voted upon
+  ?motion parliamentary:votedBy ?voter .
+  
+  # Ensure the introducer and seconder are different people
+  FILTER(?introducer != ?seconder)
+  
+  # Ensure there is at least one vote
+  FILTER(BOUND(?voter))
+  
+  # Optional: Check that the motion has a valid subject/topic
+  OPTIONAL {
+    ?motion parliamentary:hasSubject ?subject .
+    FILTER(BOUND(?subject))
+  }
+}

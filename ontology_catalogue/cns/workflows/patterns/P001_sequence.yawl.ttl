@@ -1,0 +1,88 @@
+# YAWL Pattern: Sequence (Van der Aalst #1)
+# Pattern ID: P001  
+# Trinity Framework Compliant
+# TTL2DSpy Explorable
+# Generated: 2025-08-09T16:36:28.068996
+
+@prefix cns: <http://cns-litigation.org/ontology#> .
+@prefix yawl: <http://www.yawlsystem.com/yawlschema#> .
+@prefix dag: <http://directed-acyclic-graph.org/ontology#> .
+@prefix trinity: <http://cns.ultrathink/trinity#> .
+@prefix bitagent: <http://cns.ultrathink/bitagent#> .
+@prefix disc: <http://cns.ultrathink/disc#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+
+cns:P001 a yawl:YAWLSpecification ;
+    rdfs:label "Sequence" ;
+    yawl:specVersion "4.0" ;
+    trinity:vanDerAalstIndex "1"^^xsd:integer ;
+    trinity:maxTicks "8"^^xsd:integer ;
+    trinity:deterministicState "true"^^xsd:boolean ;
+    trinity:complianceValidated "true"^^xsd:boolean ;
+    yawl:decomposesTo cns:P001_net .
+
+
+cns:P001_net a yawl:Net ;
+    rdfs:label "Sequence Net" ;
+    yawl:inputCondition cns:P001_start ;
+    yawl:outputCondition cns:P001_end .
+
+cns:P001_START a cns:FlowNode, yawl:StartNode ;
+    cns:hasNodeID "START" ;
+    cns:hasNodeType cns:start ;
+    trinity:progressTick "0"^^xsd:integer ;
+    cns:hasProcessingTimeUs "0"^^xsd:integer ;
+    cns:hasPosition "0,0"  ;
+    dag:successors (cns:P001_TASK1) .
+
+cns:P001_TASK1 a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "TASK1" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "1"^^xsd:integer ;
+    cns:hasProcessingTimeUs "1000000"^^xsd:integer ;
+    cns:hasPosition "1,0"  ;
+    dag:predecessors (cns:P001_START) ;
+    dag:successors (cns:P001_END) .
+
+cns:P001_END a cns:FlowNode, yawl:EndNode ;
+    cns:hasNodeID "END" ;
+    cns:hasNodeType cns:end ;
+    trinity:progressTick "2"^^xsd:integer ;
+    cns:hasProcessingTimeUs "0"^^xsd:integer ;
+    cns:hasPosition "2,0"  ;
+    dag:predecessors (cns:P001_TASK1) .
+
+# DAG Edge Definitions
+
+cns:edge_001 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:START ;
+    dag:hasTarget cns:TASK1 ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_002 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:TASK1 ;
+    dag:hasTarget cns:END ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+# Trinity Framework Compliance Metadata
+cns:P001_compliance a trinity:ComplianceValidation ;
+    trinity:patternId "P001" ;
+    trinity:tickCompliance "true"^^xsd:boolean ;
+    trinity:hopCompliance "true"^^xsd:boolean ;
+    trinity:bitCompliance "true"^^xsd:boolean ;
+    trinity:deterministicCompliance "true"^^xsd:boolean ;
+    trinity:validatedAt "2025-08-09T16:36:28.069042"^^xsd:dateTime .
+
+
+# TTL2DSpy Exploration Metadata
+cns:P001_exploration a dag:ExplorationGraph ;
+    dag:graphType "directed_acyclic" ;
+    dag:nodeCount "3"^^xsd:integer ;
+    dag:explorable "true"^^xsd:boolean ;
+    dag:ttl2dspyCompatible "true"^^xsd:boolean .

@@ -1,0 +1,186 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Payroll Processing - Multi-Instance Pattern
+# Patterns: Multiple Instances (12-14), Cancellation (19), Milestone (18)
+
+<http://bitflow.ai/workflows/payroll/monthly> a yawl:Specification ;
+    yawl:specName "Monthly Payroll Processing" ;
+    yawl:version "1.0" ;
+    yawl:hasInputCondition <http://bitflow.ai/workflows/payroll/monthly/start> ;
+    yawl:hasOutputCondition <http://bitflow.ai/workflows/payroll/monthly/end> ;
+
+    # Tasks
+    yawl:hasTask <http://bitflow.ai/workflows/payroll/monthly/load_employees> ;
+    yawl:hasTask <http://bitflow.ai/workflows/payroll/monthly/calculate_salary> ;
+    yawl:hasTask <http://bitflow.ai/workflows/payroll/monthly/calculate_taxes> ;
+    yawl:hasTask <http://bitflow.ai/workflows/payroll/monthly/calculate_benefits> ;
+    yawl:hasTask <http://bitflow.ai/workflows/payroll/monthly/approve_payroll> ;
+    yawl:hasTask <http://bitflow.ai/workflows/payroll/monthly/process_payment> ;
+    yawl:hasTask <http://bitflow.ai/workflows/payroll/monthly/generate_reports> ;
+
+    # Flows
+    yawl:hasFlow <http://bitflow.ai/workflows/payroll/monthly/flow_1> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/payroll/monthly/flow_2> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/payroll/monthly/flow_3> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/payroll/monthly/flow_4> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/payroll/monthly/flow_5> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/payroll/monthly/flow_6> .
+
+# Input Condition
+<http://bitflow.ai/workflows/payroll/monthly/start> a yawl:InputCondition ;
+    yawl:conditionName "Payroll Period Ended" .
+
+# Output Condition
+<http://bitflow.ai/workflows/payroll/monthly/end> a yawl:OutputCondition ;
+    yawl:conditionName "Payroll Complete" .
+
+# Task 1: Load Employees
+<http://bitflow.ai/workflows/payroll/monthly/load_employees> a yawl:AtomicTask ;
+    yawl:taskName "Load Employee List" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:hasOutputParameter [
+        yawl:paramName "employeeCount" ;
+        yawl:paramType "integer"
+    ] .
+
+# Task 2: Calculate Salary (Pattern 12: Multiple Instances Without Synchronization)
+<http://bitflow.ai/workflows/payroll/monthly/calculate_salary> a yawl:MultipleInstanceTask ;
+    yawl:taskName "Calculate Employee Salary" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:multipleInstanceType "dynamic" ;
+    yawl:minInstances 1 ;
+    yawl:maxInstances 10000 ;
+    yawl:threshold 0 ;  # No synchronization required
+    yawl:creationMode "static" ;
+    yawl:hasInputParameter [
+        yawl:paramName "employeeId" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "hoursWorked" ;
+        yawl:paramType "decimal"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "hourlyRate" ;
+        yawl:paramType "decimal"
+    ] ;
+    yawl:hasOutputParameter [
+        yawl:paramName "grossSalary" ;
+        yawl:paramType "decimal"
+    ] .
+
+# Task 3: Calculate Taxes (per employee)
+<http://bitflow.ai/workflows/payroll/monthly/calculate_taxes> a yawl:MultipleInstanceTask ;
+    yawl:taskName "Calculate Taxes" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:multipleInstanceType "dynamic" ;
+    yawl:hasInputParameter [
+        yawl:paramName "grossSalary" ;
+        yawl:paramType "decimal"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "taxBracket" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasOutputParameter [
+        yawl:paramName "taxAmount" ;
+        yawl:paramType "decimal"
+    ] ;
+    yawl:hasOutputParameter [
+        yawl:paramName "netSalary" ;
+        yawl:paramType "decimal"
+    ] .
+
+# Task 4: Calculate Benefits
+<http://bitflow.ai/workflows/payroll/monthly/calculate_benefits> a yawl:MultipleInstanceTask ;
+    yawl:taskName "Calculate Benefits Deductions" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:multipleInstanceType "dynamic" ;
+    yawl:hasInputParameter [
+        yawl:paramName "employeeId" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "benefitsPlan" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasOutputParameter [
+        yawl:paramName "benefitsDeduction" ;
+        yawl:paramType "decimal"
+    ] .
+
+# Task 5: Approve Payroll (Pattern 18: Milestone)
+<http://bitflow.ai/workflows/payroll/monthly/approve_payroll> a yawl:AtomicTask ;
+    yawl:taskName "Manager Approval" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:hasInputParameter [
+        yawl:paramName "totalPayroll" ;
+        yawl:paramType "decimal"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "employeeCount" ;
+        yawl:paramType "integer"
+    ] ;
+    yawl:milestone true .
+
+# Task 6: Process Payment (Pattern 13: Multiple Instances with A Priori Knowledge)
+<http://bitflow.ai/workflows/payroll/monthly/process_payment> a yawl:MultipleInstanceTask ;
+    yawl:taskName "Process ACH Payment" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:multipleInstanceType "static" ;  # Known employee count
+    yawl:creationMode "static" ;
+    yawl:hasInputParameter [
+        yawl:paramName "employeeId" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "bankAccount" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "netAmount" ;
+        yawl:paramType "decimal"
+    ] .
+
+# Task 7: Generate Reports
+<http://bitflow.ai/workflows/payroll/monthly/generate_reports> a yawl:AtomicTask ;
+    yawl:taskName "Generate Payroll Reports" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:hasInputParameter [
+        yawl:paramName "payrollPeriod" ;
+        yawl:paramType "string"
+    ] .
+
+# Flows
+<http://bitflow.ai/workflows/payroll/monthly/flow_1> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/payroll/monthly/start> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/payroll/monthly/load_employees> .
+
+<http://bitflow.ai/workflows/payroll/monthly/flow_2> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/payroll/monthly/load_employees> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/payroll/monthly/calculate_salary> .
+
+<http://bitflow.ai/workflows/payroll/monthly/flow_3> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/payroll/monthly/calculate_salary> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/payroll/monthly/calculate_taxes> .
+
+<http://bitflow.ai/workflows/payroll/monthly/flow_4> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/payroll/monthly/calculate_taxes> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/payroll/monthly/approve_payroll> .
+
+<http://bitflow.ai/workflows/payroll/monthly/flow_5> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/payroll/monthly/approve_payroll> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/payroll/monthly/process_payment> ;
+    yawl:predicate "approved == true" .
+
+<http://bitflow.ai/workflows/payroll/monthly/flow_6> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/payroll/monthly/process_payment> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/payroll/monthly/end> .

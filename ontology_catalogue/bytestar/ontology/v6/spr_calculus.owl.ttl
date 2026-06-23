@@ -1,0 +1,361 @@
+#################################################################
+#    Individuals
+#################################################################
+
+###  http://bytestar.net/ontology/spr_calculus#v6exec_01
+:v6exec_01 rdf:type :SPR ;
+          :hasId "b3:v6exec..01" ;
+          :hasTimestamp "2025-08-23T17:00:00Z"^^xsd:dateTime ;
+          :hasOrganization "b3:bytestar..00" ;
+          :hasRoot "b3:root..f4a" ;
+          :hasSignal :ackRealizationSignal_v6ackA2 ,
+                     :attestationQuorumSignal ;
+          :hasPivot :v6exec_pivot ;
+          :hasRealization :v6exec_realization ;
+          :hasGuard :p99LatencyGuard ,
+                     :canaryDriftGuard ,
+                     :soDGuard ,
+                     :epsilonBudgetGuard ,
+                     :cdcExactlyOnceGuard ,
+                     :mphfCollisionRateGuard ,
+                     :attestationFreshnessGuard ,
+                     :revocationWindowGuard ,
+                     :marketNoArbitrageGuard ,
+                     :settlementFloatGuard .
+
+###  Signals
+:ackRealizationSignal_v6ackA2 rdf:type :Signal ;
+                               :hasId "AckRealization" ;
+                               :hasBooleanValue "true"^^xsd:boolean ;
+                               :acknowledgesRealization :v6ack_A2_realization ;
+                               :hasSourceReceipt "b3:rct..e1" .
+
+:attestationQuorumSignal rdf:type :Signal ;
+                          :hasId "AttestationQuorum" ;
+                          :hasBooleanValue "true"^^xsd:boolean ;
+                          :hasSourceReceipt "b3:attest..q7" .
+
+###  Pivot
+:v6exec_pivot rdf:type :Pivot ;
+             :hasObjective :maximizeMRR_Shadows ,
+                           :standUpN_DimMarketplace ,
+                           :fortune5Ready ,
+                           :sourceFreeAudit ;
+             :hasPolicy :residencyPolicy ,
+                        :dpBudgetPolicy ,
+                        :pubLogPolicy ,
+                        :cdcPolicy ,
+                        :orgSupabasePolicy .
+
+###  Objectives (locked)
+:maximizeMRR_Shadows rdf:type :Objective ;
+                     :hasId "Maximize_MRR_from_Shadows" ;
+                     :isLocked "true"^^xsd:boolean .
+
+:standUpN_DimMarketplace rdf:type :Objective ;
+                         :hasId "Stand-up_N-Dim_Marketplace" ;
+                         :isLocked "true"^^xsd:boolean .
+
+:fortune5Ready rdf:type :Objective ;
+              :hasId "Fortune5_Ready" ;
+              :isLocked "true"^^xsd:boolean .
+
+:sourceFreeAudit rdf:type :Objective ;
+                 :hasId "Source-Free_Audit" ;
+                 :isLocked "true"^^xsd:boolean .
+
+###  Policies (locked)
+:residencyPolicy rdf:type :Policy ;
+                :hasId "Residency" ;
+                :hasDescription "US_EAST||EU_CENTRAL" ;
+                :isLocked "true"^^xsd:boolean .
+
+:dpBudgetPolicy rdf:type :Policy ;
+               :hasId "DP_Budget" ;
+               :hasDescription "ε_budget≤0.6(zCDP)" ;
+               :isLocked "true"^^xsd:boolean .
+
+:pubLogPolicy rdf:type :Policy ;
+             :hasId "PubLog" ;
+             :hasDescription "partner+public" ;
+             :isLocked "true"^^xsd:boolean .
+
+:cdcPolicy rdf:type :Policy ;
+           :hasId "CDC" ;
+           :hasDescription "exactly-once" ;
+           :isLocked "true"^^xsd:boolean .
+
+:orgSupabasePolicy rdf:type :Policy ;
+                  :hasId "Org-Supabase" ;
+                  :hasDescription "required" ;
+                  :isLocked "true"^^xsd:boolean .
+
+###  Realization
+:v6exec_realization rdf:type :Realization ;
+                   :hasId "b3:v6ack..A2" ;
+                   :hasHopsCount 8 ;
+                   :hasHop :hop1_admission ,
+                           :hop2_attestation ,
+                           :hop3_canonConformance ,
+                           :hop4_sovereigntyBudget ,
+                           :hop5_executionOrchestration ,
+                           :hop6_consensusCommit ,
+                           :hop7_publicationFederation ,
+                           :hop8_auditFeedback .
+
+###  Hops
+:hop1_admission rdf:type :Hop ;
+               :hasHopNumber 1 ;
+               :hasPurpose "Admission & Typing" ;
+               :usesPattern :P01_Sequence ,
+                            :P04_Exclusive_Choice ;
+               :generatesReceipt :admit_rct ,
+                                 :deny_rct ,
+                                 :zerotick_null_rct ;
+               :hasActionDescription "Ingesting SPR payloads; cryptographic hash verification and schema validation; market dimension parsing." ;
+               :hasGuardCheckDescription "Continuous monitoring of all runtime guards." .
+
+:hop2_attestation rdf:type :Hop ;
+                 :hasHopNumber 2 ;
+                 :hasPurpose "Identity & Attestation" ;
+                 :usesPattern :P02_Parallel_Split ,
+                              :P03_Synchronization ;
+                 :generatesReceipt :attest_rct ;
+                 :hasActionDescription "Parallel verification of IdentityCrystals; RemoteAttestationQuotes validation." ;
+                 :hasGuardCheckDescription "All runtime guards remain active." .
+
+:hop3_canonConformance rdf:type :Hop ;
+                      :hasHopNumber 3 ;
+                      :hasPurpose "Canon Conformance" ;
+                      :usesPattern :P10_Arbitrary_Cycles ,
+                                   :P25_General_Synchronizing_Merge ;
+                      :generatesReceipt :canon_ok_rct ,
+                                        :canon_coverage_rct ;
+                      :hasActionDescription "Rigorous SHACL validation against FullerV2 and dark-canon.owl.ttl; OntologySeal root verification." ;
+                      :hasGuardCheckDescription "All runtime guards remain active." .
+
+:hop4_sovereigntyBudget rdf:type :Hop ;
+                       :hasHopNumber 4 ;
+                       :hasPurpose "Sovereignty & Budget" ;
+                       :usesPattern :P17_Interleaved_Parallel_Routing ,
+                                    :P20_Cancel_Region ;
+                       :generatesReceipt :residency_rct ,
+                                         :dp_reserve_rct ;
+                       :hasActionDescription "Enforcing residency policy; allocating and accounting for Differential Privacy budget; minting and assigning capability sets." ;
+                       :hasGuardCheckDescription "All runtime guards remain active." .
+
+:hop5_executionOrchestration rdf:type :Hop ;
+                            :hasHopNumber 5 ;
+                            :hasPurpose "Execution (sealed)" ;
+                            :usesPattern :P12_MI_NoSync ,
+                                         :P28_N_out_of_M_Join ,
+                                         :P36_Critical_Section ,
+                                         :P31_Multiple_Merge ;
+                            :generatesReceipt :transform_rct ,
+                                              :mphf_ceiling_rct ,
+                                              :nif_ct_rct ;
+                            :hasActionDescription "Fabricating cognitive kernels, Shadow SKUs, emitting PredictiveSignals, opening MicroTx lanes, exclusive capability minting." ;
+                            :hasGuardCheckDescription "All runtime guards remain active." .
+
+:hop6_consensusCommit rdf:type :Hop ;
+                     :hasHopNumber 6 ;
+                     :hasPurpose "Consensus & Commit" ;
+                     :usesPattern :P33_Generalized_AND_Join ;
+                     :generatesReceipt :commit_rct ;
+                     :hasActionDescription "Validator committee reaching consensus on genesis block and new state root; final artifact sealing." ;
+                     :hasGuardCheckDescription "All runtime guards remain active." .
+
+:hop7_publicationFederation rdf:type :Hop ;
+                           :hasHopNumber 7 ;
+                           :hasPurpose "Publication/Federation" ;
+                           :usesPattern :P04_Exclusive_Choice ,
+                                        :P18_Milestone ;
+                           :generatesReceipt :mirror_public_rct ,
+                                             :cdc_e1_rct ,
+                                             :rls_coverage_rct ,
+                                             :schema_migrate_rct ;
+                           :hasActionDescription "Publishing public proofs, pushing partner mirrors, anchoring to transparency log, pushing CDC streams to Supabase." ;
+                           :hasGuardCheckDescription "All runtime guards remain active." .
+
+:hop8_auditFeedback rdf:type :Hop ;
+                   :hasHopNumber 8 ;
+                   :hasPurpose "Audit/Feedback" ;
+                   :usesPattern :P43_Case_Handling ,
+                                :P21_Cancel_Case ;
+                   :generatesReceipt :tbundle_rct ,
+                                     :anomaly_rct ,
+                                     :price_noarb_rct ,
+                                     :channel_safety_rct ,
+                                     :pii_fn_beta_rct ,
+                                     :shadow_lift_rct ,
+                                     :repr_acyclic_rct ,
+                                     :revocation_window_rct ;
+                   :hasActionDescription "Bundling all preceding receipts; performing anomaly detection, market pricing verification, channel safety confirmation, PII FN bound evidencing, SKU lift proving, acyclic delegation confirmation, revocation window verification." ;
+                   :hasGuardCheckDescription "All runtime guards remain active." .
+
+###  Patterns
+:P01_Sequence rdf:type :Pattern ;
+             :hasPatternId "P01_Sequence" .
+
+:P04_Exclusive_Choice rdf:type :Pattern ;
+                     :hasPatternId "P04_Exclusive_Choice" .
+
+:P02_Parallel_Split rdf:type :Pattern ;
+                   :hasPatternId "P02_Parallel_Split" .
+
+:P03_Synchronization rdf:type :Pattern ;
+                    :hasPatternId "P03_Synchronization" .
+
+:P10_Arbitrary_Cycles rdf:type :Pattern ;
+                     :hasPatternId "P10_Arbitrary_Cycles" .
+
+:P25_General_Synchronizing_Merge rdf:type :Pattern ;
+                                :hasPatternId "P25_General_Synchronizing_Merge" .
+
+:P17_Interleaved_Parallel_Routing rdf:type :Pattern ;
+                                 :hasPatternId "P17_Interleaved_Parallel_Routing" .
+
+:P20_Cancel_Region rdf:type :Pattern ;
+                  :hasPatternId "P20_Cancel_Region" .
+
+:P12_MI_NoSync rdf:type :Pattern ;
+              :hasPatternId "P12_MI_NoSync" .
+
+:P28_N_out_of_M_Join rdf:type :Pattern ;
+                    :hasPatternId "P28_N_out_of_M_Join" .
+
+:P36_Critical_Section rdf:type :Pattern ;
+                     :hasPatternId "P36_Critical_Section" .
+
+:P31_Multiple_Merge rdf:type :Pattern ;
+                   :hasPatternId "P31_Multiple_Merge" .
+
+:P33_Generalized_AND_Join rdf:type :Pattern ;
+                         :hasPatternId "P33_Generalized_AND_AND_Join" .
+
+:P18_Milestone rdf:type :Pattern ;
+              :hasPatternId "P18_Milestone" .
+
+:P43_Case_Handling rdf:type :Pattern ;
+                  :hasPatternId "P43_Case_Handling" .
+
+:P21_Cancel_Case rdf:type :Pattern ;
+                :hasPatternId "P21_Cancel_Case" .
+
+###  Receipts (as individuals)
+:admit_rct rdf:type :Receipt ;
+          :hasId "admit.rct" .
+
+:deny_rct rdf:type :Receipt ;
+         :hasId "deny.rct" .
+
+:zerotick_null_rct rdf:type :Receipt ;
+                  :hasId "zerotick.null.rct" .
+
+:attest_rct rdf:type :Receipt ;
+           :hasId "attest.rct" .
+
+:canon_ok_rct rdf:type :Receipt ;
+             :hasId "canon.ok.rct" .
+
+:canon_coverage_rct rdf:type :Receipt ;
+                    :hasId "canon.coverage.rct" .
+
+:residency_rct rdf:type :Receipt ;
+              :hasId "residency.rct" .
+
+:dp_reserve_rct rdf:type :Receipt ;
+               :hasId "dp.reserve.rct" .
+
+:transform_rct rdf:type :Receipt ;
+              :hasId "transform.rct*" .
+
+:mphf_ceiling_rct rdf:type :Receipt ;
+                 :hasId "mphf.ceiling.rct" .
+
+:nif_ct_rct rdf:type :Receipt ;
+           :hasId "nif.ct.rct" .
+
+:commit_rct rdf:type :Receipt ;
+           :hasId "commit.rct" .
+
+:mirror_public_rct rdf:type :Receipt ;
+                   :hasId "mirror.public.rct" .
+
+:cdc_e1_rct rdf:type :Receipt ;
+           :hasId "cdc.e1.rct" .
+
+:rls_coverage_rct rdf:type :Receipt ;
+                  :hasId "rls.coverage.rct" .
+
+:schema_migrate_rct rdf:type :Receipt ;
+                   :hasId "schema.migrate.rct" .
+
+:tbundle_rct rdf:type :Receipt ;
+            :hasId "tbundle.rct" .
+
+:anomaly_rct rdf:type :Receipt ;
+            :hasId "anomaly.rct" .
+
+:price_noarb_rct rdf:type :Receipt ;
+                :hasId "price.noarb.rct" .
+
+:channel_safety_rct rdf:type :Receipt ;
+                   :hasId "channel.safety.rct" .
+
+:pii_fn_beta_rct rdf:type :Receipt ;
+                :hasId "pii.fnβ.rct" .
+
+:shadow_lift_rct rdf:type :Receipt ;
+                :hasId "shadow.lift.rct" .
+
+:repr_acyclic_rct rdf:type :Receipt ;
+                 :hasId "repr.acyclic.rct" .
+
+:revocation_window_rct rdf:type :Receipt ;
+                      :hasId "revocation.window.rct" .
+
+###  Guards
+:p99LatencyGuard rdf:type :Guard ;
+                 :hasId "p99_end_to_end" ;
+                 :hasGuardCondition "p99_end_to_end ≤ 50µs" .
+
+:canaryDriftGuard rdf:type :Guard ;
+                  :hasId "Canary_Drift" ;
+                  :hasGuardCondition "Canary_Drift < 0.05 (KS-stat on receipts timing)" .
+
+:soDGuard rdf:type :Guard ;
+         :hasId "SoD" ;
+         :hasGuardCondition "SoD == 0 (segregation-of-duties violation count)" .
+
+:epsilonBudgetGuard rdf:type :Guard ;
+                   :hasId "ε_used" ;
+                   :hasGuardCondition "ε_used ≤ ε_budget (zCDP running)" .
+
+:cdcExactlyOnceGuard rdf:type :Guard ;
+                    :hasId "CDC_exactly_once" ;
+                    :hasGuardCondition "CDC_exactly_once == true (table/view)" .
+
+:mphfCollisionRateGuard rdf:type :Guard ;
+                       :hasId "MPHF_collision_rate" ;
+                       :hasGuardCondition "MPHF_collision_rate ≤ 10⁻¹²" .
+
+:attestationFreshnessGuard rdf:type :Guard ;
+                          :hasId "Attestation.freshness" ;
+                          :hasGuardCondition "Attestation.freshness ≤ 15m" .
+
+:revocationWindowGuard rdf:type :Guard ;
+                      :hasId "Revocation.window" ;
+                      :hasGuardCondition "Revocation.window ≤ 1s (deny-before-use)" .
+
+:marketNoArbitrageGuard rdf:type :Guard ;
+                       :hasId "Market.no_arbitrage" ;
+                       :hasGuardCondition "Market.no_arbitrage == true (price curve monotone)" .
+
+:settlementFloatGuard rdf:type :Guard ;
+                     :hasId "Settlement.float" ;
+                     :hasGuardCondition "Settlement.float ≥ 0 (micro-channel insolvency bound)" .
+
+###  Realization A2 (referenced by v6exec_01)
+:v6ack_A2_realization rdf:type :Realization ;
+                      :hasId "b3:v6ack..A2" .

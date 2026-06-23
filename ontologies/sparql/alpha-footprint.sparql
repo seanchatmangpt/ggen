@@ -1,0 +1,119 @@
+# =============================================================================
+# Alpha Algorithm Footprint Matrix — OCEL 2.0
+# =============================================================================
+#
+# Computes the footprint matrix required by the Alpha Miner (α-algorithm) of
+# Van der Aalst, Weijters & Maruster (2002): "Workflow Mining: Discovering
+# Process Models from Event Logs", IEEE TKDE 16(9).
+#
+# The footprint matrix Φ: A × A → {→, ←, ||, #} encodes four relations:
+#
+#   Given activity pair (a, b):
+#     a →L b  iff  a directly precedes b in at least one trace (cntAB > 0)
+#     b →L a  iff  b directly precedes a in at least one trace (cntBA > 0)
+#
+#   Derived relations:
+#     a >L b  (causal dependency)  iff  a →L b  ∧  ¬(b →L a)
+#     a ||L b (parallel)           iff  a →L b  ∧   b →L a
+#     a #L b  (choice / unrelated) iff  ¬(a →L b) ∧ ¬(b →L a)
+#
+# This query returns the raw ?aFollowsB / ?bFollowsA boolean flags.
+# The calling layer derives the Φ-relation symbol from those two booleans:
+#   aFollowsB=true,  bFollowsA=false  →  ">"   (a causes b)
+#   aFollowsB=false, bFollowsA=true   →  "<"   (b causes a)
+#   aFollowsB=true,  bFollowsA=true   →  "||"  (parallel)
+#   aFollowsB=false, bFollowsA=false  →  "#"   (unrelated / choice)
+#
+# Output columns:
+#   ?actA        — First activity name
+#   ?actB        — Second activity name (actA ≠ actB)
+#   ?cntAB       — Number of directly-follows occurrences of (actA → actB)
+#   ?cntBA       — Number of directly-follows occurrences of (actB → actA)
+#   ?aFollowsB   — xsd:boolean: actA is directly followed by actB somewhere
+#   ?bFollowsA   — xsd:boolean: actB is directly followed by actA somewhere
+#
+# Note on SPARQL 1.1 scoping: OPTIONAL sub-SELECTs with GROUP BY are used to
+# count directy-follows pairs independently for both orderings.  COALESCE
+# handles the case where a pair never appears in a given order (count = 0).
+#
+# Prefixes:
+#   ocel: <https://www.ocel-standard.org/2.0/>
+# =============================================================================
+
+PREFIX ocel:  <https://www.ocel-standard.org/2.0/>
+PREFIX xsd:   <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dfg:   <https://ggen.io/ontology/dfg#>
+
+SELECT ?actA ?actB
+       ?cntAB ?cntBA
+       (IF(?cntAB > 0, true, false) AS ?aFollowsB)
+       (IF(?cntBA > 0, true, false) AS ?bFollowsA)
+WHERE {
+
+  # ── Step 1: Enumerate all distinct ordered activity pairs in the log ────────
+  {
+    SELECT DISTINCT ?actA ?actB WHERE {
+      ?e1 ocel:activityName ?actA .
+      ?e2 ocel:activityName ?actB .
+      FILTER(?actA != ?actB)
+    }
+  }
+
+  # ── Step 2: Count directly-follows occurrences of (actA → actB) ────────────
+  # Sub-query counts pairs where actA immediately precedes actB for the same obj.
+  OPTIONAL {
+    SELECT ?actA ?actB (COUNT(*) AS ?rawCntAB) WHERE {
+      ?e1 ocel:activityName ?actA .
+      ?e2 ocel:activityName ?actB .
+
+      # Both events share the same object
+      ?e1 ocel:hasRelationship ?r1 . ?r1 ocel:relationshipObject ?o .
+      ?e2 ocel:hasRelationship ?r2 . ?r2 ocel:relationshipObject ?o .
+
+      # Ordering: e1 before e2
+      ?e1 ocel:timestamp ?t1 .
+      ?e2 ocel:timestamp ?t2 .
+      FILTER(?t2 > ?t1)
+
+      # Direct following: no intervening event for ?o between t1 and t2
+      FILTER NOT EXISTS {
+        ?ec ocel:hasRelationship ?rc . ?rc ocel:relationshipObject ?o .
+        ?ec ocel:timestamp ?tc .
+        FILTER(?tc > ?t1 && ?tc < ?t2)
+        FILTER(?ec != ?e1 && ?ec != ?e2)
+      }
+    }
+    GROUP BY ?actA ?actB
+  }
+
+  # ── Step 3: Count directly-follows occurrences of (actB → actA) ────────────
+  # Same structure but with actB as the predecessor and actA as the successor.
+  OPTIONAL {
+    SELECT ?actA ?actB (COUNT(*) AS ?rawCntBA) WHERE {
+      ?e1 ocel:activityName ?actB .   # note: actB precedes here
+      ?e2 ocel:activityName ?actA .   # note: actA follows here
+
+      ?e1 ocel:hasRelationship ?r1 . ?r1 ocel:relationshipObject ?o .
+      ?e2 ocel:hasRelationship ?r2 . ?r2 ocel:relationshipObject ?o .
+
+      ?e1 ocel:timestamp ?t1 .
+      ?e2 ocel:timestamp ?t2 .
+      FILTER(?t2 > ?t1)
+
+      FILTER NOT EXISTS {
+        ?ec ocel:hasRelationship ?rc . ?rc ocel:relationshipObject ?o .
+        ?ec ocel:timestamp ?tc .
+        FILTER(?tc > ?t1 && ?tc < ?t2)
+        FILTER(?ec != ?e1 && ?ec != ?e2)
+      }
+    }
+    GROUP BY ?actA ?actB
+  }
+
+  # ── Step 4: Default missing counts to zero ─────────────────────────────────
+  BIND(COALESCE(?rawCntAB, 0) AS ?cntAB)
+  BIND(COALESCE(?rawCntBA, 0) AS ?cntBA)
+}
+ORDER BY ?actA ?actB

@@ -1,0 +1,272 @@
+# Erlang MCP (Model Context Protocol) Ontology
+# Extends Erlang OTP with MCP server and client capabilities
+
+@prefix : <https://github.com/a2a/ontology/erlang-mcp#> .
+@prefix erl: <https://github.com/a2a/ontology/erlang-otp#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# MCP Server Classes
+:ErlangMCPServer a rdfs:Class ;
+    rdfs:subClassOf erl:Application ;
+    rdfs:label "Erlang MCP Server" ;
+    rdfs:comment "Erlang application implementing MCP server functionality" ;
+    erl:hasBehaviour :MCPServerBehaviour .
+
+:MCPServerBehaviour a rdfs:Class ;
+    rdfs:label "MCP Server Behaviour" ;
+    rdfs:comment "OTP behaviour for MCP server implementation" ;
+    erl:requiresSupervisor true ;
+    erl:hasHotCISupport true .
+
+# MCP Client Classes
+:ErlangMCPClient a rdfs:Class ;
+    rdfs:subClassOf erl:Application ;
+    rdfs:label "Erlang MCP Client" ;
+    rdfs:comment "Erlang application implementing MCP client functionality" ;
+    erl:hasBehaviour :MCPClientBehaviour .
+
+:MCPClientBehaviour a rdfs:Class ;
+    rdfs:label "MCP Client Behaviour" ;
+    rdfs:comment "OTP behaviour for MCP client implementation" ;
+    erl:requiresSupervisor true ;
+    erl:hasHotCISupport true .
+
+# MCP Tool Classes
+:MCPTool a rdfs:Class ;
+    rdfs:label "MCP Tool" ;
+    rdfs:comment "A tool that can be exposed through MCP" ;
+    erl:hasType "tool" ;
+    erl:hasHotCISupport true .
+
+:MCPToolHandler a rdfs:Class ;
+    rdfs:subClassOf erl:GenServer ;
+    rdfs:label "MCP Tool Handler" ;
+    rls:comment "GenServer that handles individual MCP tool execution" ;
+    erl:requiresHotCIMonitor true .
+
+# MCP Communication Classes
+:MCPProtocol a rdfs:Class ;
+    rdfs:label "MCP Protocol" ;
+    rdfs:comment "MCP communication protocol implementation" ;
+    erl:hasBehaviour :MCPProtocolBehaviour .
+
+:MCPProtocolBehaviour a rdfs:Class ;
+    rdfs:label "MCP Protocol Behaviour" ;
+    rdfs:comment "Behaviour for implementing MCP protocol handlers" ;
+    erl:requiresHotCIMonitor true .
+
+# MCP Configuration Classes
+:MCPConfig a rdfs:Class ;
+    rdfs:label "MCP Configuration" ;
+    rdfs:comment "Configuration for MCP servers and clients" ;
+    erl:hasType "config" ;
+    erl:hasHotCISupport true .
+
+:MCPConnectionConfig a rdfs:Class ;
+    rdfs:subClassOf :MCPConfig ;
+    rdfs:label "MCP Connection Configuration" ;
+    rdfs:comment "Configuration for MCP server connections" .
+
+:MCPToolConfig a rdfs:Class ;
+    rdfs:subClassOf :MCPConfig ;
+    rdfs:label "MCP Tool Configuration" ;
+    rdfs:comment "Configuration for MCP tools" .
+
+# MCP Server Properties
+:mcpServerName a rdfs:Property ;
+    rdfs:domain :ErlangMCPServer ;
+    rdfs:range xsd:string ;
+    rdfs:label "MCP Server Name" ;
+    erl:isRequired true .
+
+:mcpServerPort a rdfs:Property ;
+    rdfs:domain :ErlangMCPServer ;
+    rdfs:range xsd:integer ;
+    rdfs:label "MCP Server Port" .
+
+:mcpServerHost a rdfs:Property ;
+    rdfs:domain :ErlangMCPServer ;
+    rdfs:range xsd:string ;
+    rdfs:label "MCP Server Host" ;
+    erl:defaultValue "localhost" .
+
+:mcpProtocolVersion a rdfs:Property ;
+    rdfs:domain :ErlangMCPServer ;
+    rdfs:range xsd:string ;
+    rdfs:label "MCP Protocol Version" ;
+    erl:defaultValue "2024-11-05" .
+
+:mcpMaxConnections a rdfs:Property ;
+    rdfs:domain :ErlangMCPServer ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Maximum Connections" ;
+    erl:defaultValue 100 .
+
+:mcpHeartbeatInterval a rdfs:Property ;
+    rdfs:domain :ErlangMCPServer ;
+    rdfs:range xsd:duration ;
+    rdfs:label "Heartbeat Interval" ;
+    erl:defaultValue "30s" .
+
+# MCP Client Properties
+:mcpClientName a rdfs:Property ;
+    rdfs:domain :ErlangMCPClient ;
+    rdfs:range xsd:string ;
+    rdfs:label "MCP Client Name" ;
+    erl:isRequired true .
+
+:mcpServerURI a rdfs:Property ;
+    rdfs:domain :ErlangMCPClient ;
+    rdfs:range xsd:string ;
+    rdfs:label "MCP Server URI" ;
+    erl:isRequired true .
+
+:mcpReconnectInterval a rdfs:Property ;
+    rdfs:domain :ErlangMCPClient ;
+    rdfs:range xsd:duration ;
+    rdfs:label "Reconnect Interval" ;
+    erl:defaultValue "5s" .
+
+:mcpMaxReconnectAttempts a rdfs:Property ;
+    rdfs:domain :ErlangMCPClient ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Max Reconnect Attempts" ;
+    erl:defaultValue 10 .
+
+# MCP Tool Properties
+:mcpToolName a rdfs:Property ;
+    rdfs:domain :MCPTool ;
+    rdfs:range xsd:string ;
+    rdfs:label "Tool Name" ;
+    erl:isRequired true .
+
+:mcpToolDescription a rdfs:Property ;
+    rdfs:domain :MCPTool ;
+    rdfs:range xsd:string ;
+    rdfs:label "Tool Description" ;
+    erl:isRequired true .
+
+:mcpToolInputSchema a rdfs:Property ;
+    rdfs:domain :MCPTool ;
+    rdfs:range xsd:string ;
+    rdfs:label "Tool Input Schema" ;
+    erl:defaultValue "{}" .
+
+:mcpToolOutputSchema a rdfs:Property ;
+    rdfs:domain :MCPTool ;
+    rdfs:range xsd:string ;
+    rdfs:label "Tool Output Schema" ;
+    erl:defaultValue "{}" .
+
+:mcpToolTimeout a rdfs:Property ;
+    rdfs:domain :MCPTool ;
+    rdfs:range xsd:duration ;
+    rdfs:label "Tool Timeout" ;
+    erl:defaultValue "30s" .
+
+:mcpToolMaxRetries a rdfs:Property ;
+    rdfs:domain :MCPTool ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Tool Max Retries" ;
+    erl:defaultValue 3 .
+
+:mcpToolEnabled a rdfs:Property ;
+    rdfs:domain :MCPTool ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Tool Enabled" ;
+    erl:defaultValue true .
+
+# MCP Protocol Properties
+:mcpTransportProtocol a rdfs:Property ;
+    rdfs:domain :MCPProtocol ;
+    rdfs:range xsd:string ;
+    rdfs:label "Transport Protocol" ;
+    erl:defaultValue "http" ;
+    erl:allowedValues ["http", "websocket", "tcp"] .
+
+:mcpMessageFormat a rdfs:Property ;
+    rdfs:domain :MCPProtocol ;
+    rdfs:range xsd:string ;
+    rdfs:label "Message Format" ;
+    erl:defaultValue "json" ;
+    erl:allowedValues ["json", "msgpack"] .
+
+:mcpCompressionEnabled a rdfs:Property ;
+    rdfs:domain :MCPProtocol ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Compression Enabled" ;
+    erl:defaultValue true .
+
+:mcpAuthenticationEnabled a rdfs:Property ;
+    rdfs:domain :MCPProtocol ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Authentication Enabled" ;
+    erl:defaultValue false .
+
+# MCP HotCI Properties
+:mcpHotCIEnabled a rdfs:Property ;
+    rdfs:domain :ErlangMCPServer, :ErlangMCPClient, :MCPTool ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "HotCI Enabled" ;
+    erl:defaultValue true .
+
+:mcpHotCIMonitorInterval a rdfs:Property ;
+    rdfs:domain :ErlangMCPServer, :ErlangMCPClient ;
+    rdfs:range xsd:duration ;
+    rdfs:label "HotCI Monitor Interval" ;
+    erl:defaultValue "60s" .
+
+:mcpHotCIUpgradeMonitor a rdfs:Property ;
+    rdfs:domain :ErlangMCPServer, :ErlangMCPClient ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "HotCI Upgrade Monitor" ;
+    erl:defaultValue true .
+
+:mcpHotCIRollbackTimeout a rdfs:Property ;
+    rdfs:domain :ErlangMCPServer, :ErlangMCPClient ;
+    rdfs:range xsd:duration ;
+    rdfs:label "HotCI Rollback Timeout" ;
+    erl:defaultValue "5m" .
+
+# Example MCP Server Instance
+mcp_server_example a :ErlangMCPServer ;
+    :mcpServerName "a2a-mcp-server" ;
+    :mcpServerPort 8090 ;
+    :mcpServerHost "localhost" ;
+    :mcpProtocolVersion "2024-11-05" ;
+    :mcpMaxConnections 50 ;
+    :mcpHeartbeatInterval "30s" ;
+    :mcpHotCIEnabled true ;
+    :mcpHotCIMonitorInterval "60s" ;
+    :mcpHotCIUpgradeMonitor true ;
+    :mcpHotCIRollbackTimeout "5m" ;
+    erl:applicationName "a2a_mcp_server" ;
+    erl:releaseName "a2a_mcp_server" ;
+    erl:hasDependencies ["cowboy", "jiffy", "jsx"] ;
+    erl:hasOTPBehaviour "application" .
+
+# Example MCP Tool Instance
+mcp_tool_example a :MCPTool ;
+    :mcpToolName "file_system" ;
+    :mcpToolDescription "File system operations" ;
+    :mcpToolInputSchema '{"type": "object", "properties": {"operation": {"type": "string"}, "path": {"type": "string"}}}' ;
+    :mcpToolOutputSchema '{"type": "object", "properties": {"result": {"type": "object"}}}' ;
+    :mcpToolTimeout "30s" ;
+    :mcpToolMaxRetries 3 ;
+    :mcpToolEnabled true ;
+    erl:hasModule "mcp_file_system_handler" ;
+    erl:hasOTPBehaviour "gen_server" .
+
+# Example MCP Client Instance
+mcp_client_example a :ErlangMCPClient ;
+    :mcpClientName "a2a-mcp-client" ;
+    :mcpServerURI "http://localhost:8090" ;
+    :mcpReconnectInterval "5s" ;
+    :mcpMaxReconnectAttempts 10 ;
+    :mcpHotCIEnabled true ;
+    :mcpHotCIMonitorInterval "60s" ;
+    erl:applicationName "a2a_mcp_client" ;
+    erl:releaseName "a2a_mcp_client" ;
+    erl:hasDependencies ["httpc", "jiffy", "jsx"] ;
+    erl:hasOTPBehaviour "application" .

@@ -1,0 +1,816 @@
+@prefix : <http://bytestar.org/ontology/security/pqc-test-suite#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix be: <http://bytestar.org/ontology/byteethos#> .
+@prefix bf: <http://bytestar.org/ontology/byteflow#> .
+@prefix bc: <http://bytestar.org/ontology/bytecore#> .
+@prefix bp: <http://bytestar.org/ontology/bytepqc#> .
+@prefix doe: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix det: <http://bytestar.org/ontology/deterministic-execution#> .
+@prefix ztr: <http://bytestar.org/ontology/zero-tick-rejection#> .
+@prefix sp: <http://bytestar.org/ontology/security-policy#> .
+@prefix pqcval: <http://bytestar.org/ontology/security/pqc-validation#> .
+@prefix sidech: <http://bytestar.org/ontology/security/sidechannel#> .
+@prefix constime: <http://bytestar.org/ontology/security/constant-time#> .
+@prefix hsmtee: <http://bytestar.org/ontology/security/hsm-tee#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix crypto: <https://w3id.org/security#> .
+@prefix nist: <https://csrc.nist.gov/schema#> .
+@prefix ieee: <https://standards.ieee.org/> .
+
+<http://bytestar.org/ontology/security/pqc-test-suite> rdf:type owl:Ontology ;
+    dct:title "ByteStar Post-Quantum Cryptographic Validation Test Suite"@en ;
+    dct:description """Comprehensive test suite for validating post-quantum cryptographic implementations
+    with known-answer tests, statistical validation, side-channel analysis, and compliance verification.
+    
+    This ontology establishes:
+    1. Comprehensive PQC algorithm test suites for all NIST-approved algorithms
+    2. Known Answer Test (KAT) frameworks with official test vectors
+    3. Statistical randomness and distribution testing protocols
+    4. Side-channel leakage detection and measurement systems
+    5. Fault injection and error handling validation frameworks
+    6. Performance benchmarking and optimization validation
+    7. Memory safety and constant-time execution verification
+    8. Cross-platform compatibility and portability testing
+    9. Compliance validation for FIPS 140-3 and Common Criteria
+    10. Interoperability testing between different implementations
+    11. Hardware acceleration validation and verification
+    12. Real-time security monitoring and threat detection testing
+    
+    Supported PQC Algorithm Test Suites:
+    - Kyber KEM (Key Encapsulation Mechanism) testing
+    - Dilithium digital signature scheme testing
+    - Falcon compact signature testing
+    - SPHINCS+ stateless signature testing
+    - Classic McEliece code-based cryptography testing
+    - BIKE (Bit Flipping Key Encapsulation) testing
+    - HQC (Hamming Quasi-Cyclic) testing
+    - SIKE (Supersingular Isogeny Key Encapsulation) testing
+    - FrodoKEM learning-with-errors testing
+    - NTRU lattice-based cryptography testing
+    - SABER module learning-with-errors testing
+    - Rainbow multivariate signature testing
+    
+    Advanced Testing Capabilities:
+    - Monte Carlo cryptographic testing with statistical validation
+    - Differential and correlation power analysis testing
+    - Timing attack resistance validation with nanosecond precision
+    - Cache access pattern analysis and validation
+    - Hardware security module integration testing
+    - Trusted execution environment validation
+    - Formal verification integration and proof checking
+    - Automated test generation and regression testing
+    - Continuous integration and deployment validation
+    - Cross-crystal interoperability and compatibility testing
+    
+    Testing Methodologies:
+    - NIST SP 800-22 statistical test suite integration
+    - DIEHARD and TestU01 randomness testing
+    - FIPS 140-3 Implementation Guidance compliance
+    - Common Criteria vulnerability assessment methodology
+    - Side-channel analysis methodology from academia
+    - Fault injection testing with controlled error introduction
+    - Performance benchmarking with standardized metrics
+    - Memory analysis with leak detection and validation
+    - Code coverage analysis with 100% requirement
+    - Regression testing with automated validation"""@en ;
+    dct:creator "ByteStar PQC Testing Foundation"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-security"@en ;
+    dct:license <https://opensource.org/licenses/MIT> ;
+    rdfs:seeAlso <http://bytestar.org/docs/pqc-test-suite> ;
+    owl:imports <http://bytestar.org/ontology/byteactor> ,
+                <http://bytestar.org/ontology/byteethos> ,
+                <http://bytestar.org/ontology/byteflow> ,
+                <http://bytestar.org/ontology/bytecore> ,
+                <http://bytestar.org/ontology/bytepqc> ,
+                <http://bytestar.org/ontology/doctrine-of-8> ,
+                <http://bytestar.org/ontology/deterministic-execution> ,
+                <http://bytestar.org/ontology/zero-tick-rejection> ,
+                <http://bytestar.org/ontology/security-policy> ,
+                <http://bytestar.org/ontology/security/pqc-validation> ,
+                <http://bytestar.org/ontology/security/sidechannel> ,
+                <http://bytestar.org/ontology/security/constant-time> ,
+                <http://bytestar.org/ontology/security/hsm-tee> .
+
+#################################################################
+#    Core PQC Test Suite Framework Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#PQCTestSuite
+:PQCTestSuite rdf:type owl:Class ;
+              rdfs:subClassOf pqcval:PQCTestSuite ,
+                            sp:DetectiveControl ;
+              rdfs:label "PQC Test Suite"@en ;
+              rdfs:comment """Comprehensive test suite for validating post-quantum cryptographic
+              implementations with multiple testing methodologies and validation frameworks."""@en ;
+              :hasTestingMethodology :KnownAnswerTesting , :StatisticalTesting , :SideChannelTesting ,
+                                   :FaultInjectionTesting , :PerformanceTesting , :ComplianceTesting ;
+              :hasCoverageRequirement "100.0"^^xsd:decimal ;
+              :operatesWithinConstraint doe:EightTickConstraint ;
+              :integratesZeroTickRejection ztr:InstantRejection ;
+              :providesRealTimeValidation "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#KnownAnswerTest
+:KnownAnswerTest rdf:type owl:Class ;
+                 rdfs:subClassOf :PQCTestSuite ;
+                 rdfs:label "Known Answer Test"@en ;
+                 rdfs:comment """Test that validates cryptographic implementations against
+                 known test vectors with predetermined expected results."""@en ;
+                 :usesOfficialTestVectors "true"^^xsd:boolean ;
+                 :hasTestVectorSource :NIST , :IETF , :ISO , :Academic ;
+                 :validatesDeterministicOutput "true"^^xsd:boolean ;
+                 :ensuresImplementationCorrectness "true"^^xsd:boolean ;
+                 :hasTestType :Encryption , :Decryption , :KeyGeneration , :Signature , :Verification .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#StatisticalTest
+:StatisticalTest rdf:type owl:Class ;
+                 rdfs:subClassOf :PQCTestSuite ;
+                 rdfs:label "Statistical Test"@en ;
+                 rdfs:comment """Test that validates cryptographic implementations using
+                 statistical analysis of randomness and distribution properties."""@en ;
+                 :usesStatisticalFramework :NIST_SP800_22 , :DIEHARD , :TestU01 ;
+                 :hasSignificanceLevel "0.001"^^xsd:decimal ;
+                 :hasStatisticalPower "99.9"^^xsd:decimal ;
+                 :validatesRandomness "true"^^xsd:boolean ;
+                 :validatesPseudorandomness "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#SideChannelTest
+:SideChannelTest rdf:type owl:Class ;
+                 rdfs:subClassOf :PQCTestSuite ,
+                               sidech:SideChannelTestFramework ;
+                 rdfs:label "Side-Channel Test"@en ;
+                 rdfs:comment """Test that validates cryptographic implementations against
+                 side-channel attacks through leakage analysis and measurement."""@en ;
+                 :detectsLeakage sidech:TimingLeakage , sidech:PowerLeakage , sidech:CacheLeakage ;
+                 :hasLeakageThreshold "0.001"^^xsd:decimal ;
+                 :usesStatisticalAnalysis :TTest , :CorrelationAnalysis , :MutualInformationTest ;
+                 :hasLeakageModel :HammingWeight , :HammingDistance , :IdentityModel .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#FaultInjectionTest
+:FaultInjectionTest rdf:type owl:Class ;
+                    rdfs:subClassOf :PQCTestSuite ;
+                    rdfs:label "Fault Injection Test"@en ;
+                    rdfs:comment """Test that validates cryptographic implementations against
+                    fault injection attacks by introducing controlled errors."""@en ;
+                    :introducesFaults :BitFlip , :WordCorruption , :MemoryFault , :InstructionSkip ;
+                    :hasInjectionMethod :SoftwareFault , :HardwareFault , :VoltageGlitch , :ClockGlitch ;
+                    :validatesFaultTolerance "true"^^xsd:boolean ;
+                    :detectsVulnerabilities sp:FaultInjectionVulnerability .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#PerformanceTest
+:PerformanceTest rdf:type owl:Class ;
+                 rdfs:subClassOf :PQCTestSuite ;
+                 rdfs:label "Performance Test"@en ;
+                 rdfs:comment """Test that validates performance characteristics of
+                 cryptographic implementations against specified requirements."""@en ;
+                 :measuresPerformance :ExecutionTime , :MemoryUsage , :Throughput , :Latency ;
+                 :hasPerformanceTarget doe:EightTickConstraint ;
+                 :usesBenchmarkingSuite :PQCBench , :SUPERCOP , :eBACS ;
+                 :validatesPlatformOptimization "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#ComplianceTest
+:ComplianceTest rdf:type owl:Class ;
+                rdfs:subClassOf :PQCTestSuite ;
+                rdfs:label "Compliance Test"@en ;
+                rdfs:comment """Test that validates cryptographic implementations against
+                regulatory and industry compliance requirements."""@en ;
+                :validatesFIPS140_3 "true"^^xsd:boolean ;
+                :validatesCommonCriteria "true"^^xsd:boolean ;
+                :validatesISO_IEC_18033 "true"^^xsd:boolean ;
+                :validatesNISTStandards "true"^^xsd:boolean ;
+                :ensuresRegulatoryCompliance "true"^^xsd:boolean .
+
+#################################################################
+#    Algorithm-Specific Test Suite Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#KyberTestSuite
+:KyberTestSuite rdf:type owl:Class ;
+                rdfs:subClassOf :PQCTestSuite ;
+                rdfs:label "Kyber Test Suite"@en ;
+                rdfs:comment """Specialized test suite for Kyber KEM implementations
+                covering all parameter sets and security levels."""@en ;
+                :testsAlgorithm bp:KyberKEM ;
+                :testsParameterSet :Kyber512 , :Kyber768 , :Kyber1024 ;
+                :hasSecurityLevel 1 , 3 , 5 ;
+                :validatesIND_CCA2_Security "true"^^xsd:boolean ;
+                :testsFunctionalCorrectness "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#DilithiumTestSuite
+:DilithiumTestSuite rdf:type owl:Class ;
+                    rdfs:subClassOf :PQCTestSuite ;
+                    rdfs:label "Dilithium Test Suite"@en ;
+                    rdfs:comment """Specialized test suite for Dilithium signature implementations
+                    covering all parameter sets and security levels."""@en ;
+                    :testsAlgorithm bp:DilithiumSignature ;
+                    :testsParameterSet :Dilithium2 , :Dilithium3 , :Dilithium5 ;
+                    :hasSecurityLevel 2 , 3 , 5 ;
+                    :validatesEUF_CMA_Security "true"^^xsd:boolean ;
+                    :testsSignatureGeneration "true"^^xsd:boolean ;
+                    :testsSignatureVerification "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#FalconTestSuite
+:FalconTestSuite rdf:type owl:Class ;
+                 rdfs:subClassOf :PQCTestSuite ;
+                 rdfs:label "Falcon Test Suite"@en ;
+                 rdfs:comment """Specialized test suite for Falcon signature implementations
+                 with compact signature validation."""@en ;
+                 :testsAlgorithm :FalconSignature ;
+                 :testsParameterSet :Falcon512 , :Falcon1024 ;
+                 :hasSecurityLevel 1 , 5 ;
+                 :validatesCompactSignatures "true"^^xsd:boolean ;
+                 :testsFastVerification "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#SPHINCSTestSuite
+:SPHINCSTestSuite rdf:type owl:Class ;
+                  rdfs:subClassOf :PQCTestSuite ;
+                  rdfs:label "SPHINCS+ Test Suite"@en ;
+                  rdfs:comment """Specialized test suite for SPHINCS+ stateless signature
+                  implementations with hash-based validation."""@en ;
+                  :testsAlgorithm :SPHINCSPlusSignature ;
+                  :testsParameterSet :SPHINCS_128f , :SPHINCS_128s , :SPHINCS_192f , :SPHINCS_192s , :SPHINCS_256f , :SPHINCS_256s ;
+                  :hasSecurityLevel 1 , 3 , 5 ;
+                  :validatesStatelessSignatures "true"^^xsd:boolean ;
+                  :testsHashBasedSecurity "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#ClassicMcElieceTestSuite
+:ClassicMcElieceTestSuite rdf:type owl:Class ;
+                          rdfs:subClassOf :PQCTestSuite ;
+                          rdfs:label "Classic McEliece Test Suite"@en ;
+                          rdfs:comment """Specialized test suite for Classic McEliece KEM
+                          implementations based on error-correcting codes."""@en ;
+                          :testsAlgorithm :ClassicMcElieceKEM ;
+                          :testsParameterSet :mceliece348864 , :mceliece460896 , :mceliece6688128 , :mceliece6960119 , :mceliece8192128 ;
+                          :hasSecurityLevel 1 , 3 , 5 ;
+                          :validatesCodeBasedSecurity "true"^^xsd:boolean ;
+                          :testsErrorCorrection "true"^^xsd:boolean .
+
+#################################################################
+#    Test Vector and Data Management Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#TestVector
+:TestVector rdf:type owl:Class ;
+            rdfs:subClassOf :PQCTestSuite ;
+            rdfs:label "Test Vector"@en ;
+            rdfs:comment """Standardized test input and expected output data
+            for validating cryptographic implementations."""@en ;
+            :hasTestInput :InputData ;
+            :hasExpectedOutput :ExpectedResult ;
+            :hasTestMetadata :ParameterSet , :SecurityLevel , :TestType ;
+            :isOfficialTestVector "true"^^xsd:boolean ;
+            :hasTestVectorSource nist:NIST .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#TestVectorDatabase
+:TestVectorDatabase rdf:type owl:Class ;
+                    rdfs:subClassOf :PQCTestSuite ;
+                    rdfs:label "Test Vector Database"@en ;
+                    rdfs:comment """Comprehensive database of test vectors for all
+                    supported post-quantum cryptographic algorithms."""@en ;
+                    :containsTestVectors :TestVector ;
+                    :hasAlgorithmCoverage :KyberKEM , :DilithiumSignature , :FalconSignature ;
+                    :hasVersionControl "true"^^xsd:boolean ;
+                    :isImmutable "true"^^xsd:boolean ;
+                    :hasIntegrityVerification "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#TestResult
+:TestResult rdf:type owl:Class ;
+            rdfs:subClassOf :PQCTestSuite ;
+            rdfs:label "Test Result"@en ;
+            rdfs:comment """Result data from executing cryptographic test cases
+            with validation status and metrics."""@en ;
+            :hasTestStatus :Pass , :Fail , :Error , :Skip ;
+            :hasExecutionTime xsd:duration ;
+            :hasMetrics :PerformanceMetrics , :SecurityMetrics ;
+            :hasTimestamp xsd:dateTime ;
+            :isReproducible "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#TestReport
+:TestReport rdf:type owl:Class ;
+            rdfs:subClassOf :PQCTestSuite ;
+            rdfs:label "Test Report"@en ;
+            rdfs:comment """Comprehensive report summarizing test execution
+            results with analysis and recommendations."""@en ;
+            :containsTestResults :TestResult ;
+            :hasTestCoverage xsd:decimal ;
+            :hasPassRate xsd:decimal ;
+            :hasComplianceStatus :Compliant , :NonCompliant ;
+            :hasRecommendations xsd:string .
+
+#################################################################
+#    Statistical and Randomness Testing Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#RandomnessTest
+:RandomnessTest rdf:type owl:Class ;
+                rdfs:subClassOf :StatisticalTest ;
+                rdfs:label "Randomness Test"@en ;
+                rdfs:comment """Test that validates the quality of randomness
+                in cryptographic key generation and random number usage."""@en ;
+                :usesTestSuite :NIST_SP800_22 ;
+                :hasRandomnessTests :FrequencyTest , :BlockFrequencyTest , :RunsTest , :LongestRunTest ,
+                                  :RankTest , :DFTTest , :NonOverlappingTemplateTest , :OverlappingTemplateTest ,
+                                  :UniversalStatisticalTest , :LinearComplexityTest , :SerialTest , :ApproximateEntropyTest ,
+                                  :CumulativeSumTest , :RandomExcursionsTest , :RandomExcursionsVariantTest ;
+                :hasSignificanceLevel "0.01"^^xsd:decimal ;
+                :requiresPassRateThreshold "98.0"^^xsd:decimal .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#EntropyTest
+:EntropyTest rdf:type owl:Class ;
+             rdfs:subClassOf :StatisticalTest ;
+             rdfs:label "Entropy Test"@en ;
+             rdfs:comment """Test that measures and validates entropy quality
+             in cryptographic random number generation."""@en ;
+             :measuresEntropy :ShannonEntropy , :MinEntropy , :CollisionEntropy , :RenyiEntropy ;
+             :hasEntropyThreshold "7.9"^^xsd:decimal ;
+             :validatesCryptographicQuality "true"^^xsd:boolean ;
+             :detectsEntropyDeficiency "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#DistributionTest
+:DistributionTest rdf:type owl:Class ;
+                  rdfs:subClassOf :StatisticalTest ;
+                  rdfs:label "Distribution Test"@en ;
+                  rdfs:comment """Test that validates statistical distribution properties
+                  of cryptographic outputs and intermediate values."""@en ;
+                  :testsDistribution :UniformDistribution , :GaussianDistribution , :BinomialDistribution ;
+                  :usesGoodnessOfFit :ChiSquareTest , :KolmogorovSmirnovTest , :AndersonDarlingTest ;
+                  :hasDistributionAccuracy "99.9"^^xsd:decimal ;
+                  :detectsBias "true"^^xsd:boolean .
+
+#################################################################
+#    Performance and Benchmarking Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#PerformanceBenchmark
+:PerformanceBenchmark rdf:type owl:Class ;
+                      rdfs:subClassOf :PerformanceTest ;
+                      rdfs:label "Performance Benchmark"@en ;
+                      rdfs:comment """Standardized benchmark for measuring and comparing
+                      cryptographic implementation performance."""@en ;
+                      :measuresCycleCount "true"^^xsd:boolean ;
+                      :measuresMemoryUsage "true"^^xsd:boolean ;
+                      :measuresThroughput "true"^^xsd:boolean ;
+                      :measuresLatency "true"^^xsd:boolean ;
+                      :hasTargetConstraint doe:EightTickConstraint .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#OptimizationValidation
+:OptimizationValidation rdf:type owl:Class ;
+                        rdfs:subClassOf :PerformanceTest ;
+                        rdfs:label "Optimization Validation"@en ;
+                        rdfs:comment """Validation that ensures performance optimizations
+                        do not compromise security or correctness."""@en ;
+                        :validatesOptimizations "true"^^xsd:boolean ;
+                        :ensuresCorrectnessPreservation "true"^^xsd:boolean ;
+                        :validatesSecurity "true"^^xsd:boolean ;
+                        :hasOptimizationTypes :SIMD , :Vectorization , :Parallelization , :CacheOptimization .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#ScalabilityTest
+:ScalabilityTest rdf:type owl:Class ;
+                 rdfs:subClassOf :PerformanceTest ;
+                 rdfs:label "Scalability Test"@en ;
+                 rdfs:comment """Test that validates performance scalability
+                 across different workloads and system configurations."""@en ;
+                 :testsWorkloadScaling "true"^^xsd:boolean ;
+                 :testsMultithreading "true"^^xsd:boolean ;
+                 :testsMemoryScaling "true"^^xsd:boolean ;
+                 :hasScalabilityMetrics :ThroughputScaling , :LatencyScaling , :ResourceScaling .
+
+#################################################################
+#    Continuous Integration and Automation Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#ContinuousIntegration
+:ContinuousIntegration rdf:type owl:Class ;
+                       rdfs:subClassOf :PQCTestSuite ;
+                       rdfs:label "Continuous Integration"@en ;
+                       rdfs:comment """Automated testing framework that continuously
+                       validates cryptographic implementations during development."""@en ;
+                       :hasAutomatedTesting "true"^^xsd:boolean ;
+                       :hasRegressionTesting "true"^^xsd:boolean ;
+                       :hasContinuousDeployment "true"^^xsd:boolean ;
+                       :providesRealTimeFeedback "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#TestAutomation
+:TestAutomation rdf:type owl:Class ;
+                rdfs:subClassOf :PQCTestSuite ;
+                rdfs:label "Test Automation"@en ;
+                rdfs:comment """Automated test execution and management framework
+                with intelligent test generation and validation."""@en ;
+                :hasTestGeneration :AutomaticTestGeneration ;
+                :hasTestExecution :ParallelExecution ;
+                :hasTestScheduling :PriorityScheduling ;
+                :providesTestOrchestration "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#RegressionTesting
+:RegressionTesting rdf:type owl:Class ;
+                   rdfs:subClassOf :PQCTestSuite ;
+                   rdfs:label "Regression Testing"@en ;
+                   rdfs:comment """Testing framework that ensures new changes do not
+                   break existing functionality or introduce security issues."""@en ;
+                   :detectsRegressions "true"^^xsd:boolean ;
+                   :maintainsTestHistory "true"^^xsd:boolean ;
+                   :hasBisectionTesting "true"^^xsd:boolean ;
+                   :providesChangeImpactAnalysis "true"^^xsd:boolean .
+
+#################################################################
+#    Object Properties for PQC Test Suite
+#################################################################
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#testsAlgorithm
+:testsAlgorithm rdf:type owl:ObjectProperty ;
+                rdfs:domain :PQCTestSuite ;
+                rdfs:range bp:PostQuantumAlgorithm ;
+                rdfs:label "tests algorithm"@en ;
+                rdfs:comment "Indicates algorithm tested by test suite."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#usesTestVector
+:usesTestVector rdf:type owl:ObjectProperty ;
+                rdfs:domain :KnownAnswerTest ;
+                rdfs:range :TestVector ;
+                rdfs:label "uses test vector"@en ;
+                rdfs:comment "Indicates test vector used by test."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#producesResult
+:producesResult rdf:type owl:ObjectProperty ;
+                rdfs:domain :PQCTestSuite ;
+                rdfs:range :TestResult ;
+                rdfs:label "produces result"@en ;
+                rdfs:comment "Indicates test result produced by test."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#detectsVulnerability
+:detectsVulnerability rdf:type owl:ObjectProperty ;
+                      rdfs:domain :PQCTestSuite ;
+                      rdfs:range sp:Vulnerability ;
+                      rdfs:label "detects vulnerability"@en ;
+                      rdfs:comment "Indicates vulnerability detected by test."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#validatesCompliance
+:validatesCompliance rdf:type owl:ObjectProperty ;
+                     rdfs:domain :ComplianceTest ;
+                     rdfs:range sp:ComplianceFramework ;
+                     rdfs:label "validates compliance"@en ;
+                     rdfs:comment "Indicates compliance framework validated."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#measuresPerformance
+:measuresPerformance rdf:type owl:ObjectProperty ;
+                     rdfs:domain :PerformanceTest ;
+                     rdfs:range :PerformanceMetric ;
+                     rdfs:label "measures performance"@en ;
+                     rdfs:comment "Indicates performance metric measured."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#generatesReport
+:generatesReport rdf:type owl:ObjectProperty ;
+                 rdfs:domain :PQCTestSuite ;
+                 rdfs:range :TestReport ;
+                 rdfs:label "generates report"@en ;
+                 rdfs:comment "Indicates test report generated."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#executesInEnvironment
+:executesInEnvironment rdf:type owl:ObjectProperty ;
+                       rdfs:domain :PQCTestSuite ;
+                       rdfs:range :TestEnvironment ;
+                       rdfs:label "executes in environment"@en ;
+                       rdfs:comment "Indicates test execution environment."@en .
+
+#################################################################
+#    Data Properties for PQC Test Suite
+#################################################################
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#hasTestCoverage
+:hasTestCoverage rdf:type owl:DatatypeProperty ;
+                 rdfs:domain :PQCTestSuite ;
+                 rdfs:range xsd:decimal ;
+                 rdfs:label "has test coverage"@en ;
+                 rdfs:comment "Test coverage percentage (0.0-100.0)."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#hasPassRate
+:hasPassRate rdf:type owl:DatatypeProperty ;
+             rdfs:domain :TestResult ;
+             rdfs:range xsd:decimal ;
+             rdfs:label "has pass rate"@en ;
+             rdfs:comment "Test pass rate percentage (0.0-100.0)."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#hasExecutionTime
+:hasExecutionTime rdf:type owl:DatatypeProperty ;
+                  rdfs:domain :TestResult ;
+                  rdfs:range xsd:duration ;
+                  rdfs:label "has execution time"@en ;
+                  rdfs:comment "Test execution time."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#hasSecurityLevel
+:hasSecurityLevel rdf:type owl:DatatypeProperty ;
+                  rdfs:domain :PQCTestSuite ;
+                  rdfs:range xsd:nonNegativeInteger ;
+                  rdfs:label "has security level"@en ;
+                  rdfs:comment "NIST security level (1-5)."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#hasSignificanceLevel
+:hasSignificanceLevel rdf:type owl:DatatypeProperty ;
+                      rdfs:domain :StatisticalTest ;
+                      rdfs:range xsd:decimal ;
+                      rdfs:label "has significance level"@en ;
+                      rdfs:comment "Statistical significance level (p-value)."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#hasStatisticalPower
+:hasStatisticalPower rdf:type owl:DatatypeProperty ;
+                     rdfs:domain :StatisticalTest ;
+                     rdfs:range xsd:decimal ;
+                     rdfs:label "has statistical power"@en ;
+                     rdfs:comment "Statistical power of tests (0.0-100.0)."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#hasLeakageThreshold
+:hasLeakageThreshold rdf:type owl:DatatypeProperty ;
+                     rdfs:domain :SideChannelTest ;
+                     rdfs:range xsd:decimal ;
+                     rdfs:label "has leakage threshold"@en ;
+                     rdfs:comment "Maximum allowed information leakage."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#hasPerformanceTicks
+:hasPerformanceTicks rdf:type owl:DatatypeProperty ;
+                     rdfs:domain :PerformanceTest ;
+                     rdfs:range xsd:nonNegativeInteger ;
+                     rdfs:label "has performance ticks"@en ;
+                     rdfs:comment "Performance constraint in ticks (≤8)."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#isAutomated
+:isAutomated rdf:type owl:DatatypeProperty ;
+             rdfs:domain :PQCTestSuite ;
+             rdfs:range xsd:boolean ;
+             rdfs:label "is automated"@en ;
+             rdfs:comment "Boolean indicating test automation."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#hasTestVectorCount
+:hasTestVectorCount rdf:type owl:DatatypeProperty ;
+                    rdfs:domain :TestVectorDatabase ;
+                    rdfs:range xsd:nonNegativeInteger ;
+                    rdfs:label "has test vector count"@en ;
+                    rdfs:comment "Number of test vectors in database."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#hasTimestamp
+:hasTimestamp rdf:type owl:DatatypeProperty ;
+              rdfs:domain :TestResult ;
+              rdfs:range xsd:dateTime ;
+              rdfs:label "has timestamp"@en ;
+              rdfs:comment "Timestamp of test execution."@en .
+
+###  http://bytestar.org/ontology/security/pqc-test-suite#isReproducible
+:isReproducible rdf:type owl:DatatypeProperty ;
+                rdfs:domain :TestResult ;
+                rdfs:range xsd:boolean ;
+                rdfs:label "is reproducible"@en ;
+                rdfs:comment "Boolean indicating test reproducibility."@en .
+
+#################################################################
+#    Comprehensive Test Suite Instances
+#################################################################
+
+###  Master PQC Test Suite
+:MasterPQCTestSuite rdf:type :PQCTestSuite ;
+                    rdfs:label "Master PQC Test Suite"@en ;
+                    rdfs:comment "Comprehensive test suite for all PQC algorithms in ByteStar."@en ;
+                    :hasTestingMethodology :KnownAnswerTesting , :StatisticalTesting , :SideChannelTesting ,
+                                         :FaultInjectionTesting , :PerformanceTesting , :ComplianceTesting ;
+                    :hasCoverageRequirement "100.0"^^xsd:decimal ;
+                    :operatesWithinConstraint doe:EightTickConstraint ;
+                    :integratesZeroTickRejection ztr:InstantRejection ;
+                    :providesRealTimeValidation "true"^^xsd:boolean ;
+                    :isAutomated "true"^^xsd:boolean .
+
+###  Kyber KEM Test Suite Instance
+:ByteStarKyberTestSuite rdf:type :KyberTestSuite ;
+                        rdfs:label "ByteStar Kyber Test Suite"@en ;
+                        rdfs:comment "Comprehensive test suite for Kyber KEM implementations."@en ;
+                        :testsAlgorithm bp:KyberKEM ;
+                        :testsParameterSet :Kyber512 , :Kyber768 , :Kyber1024 ;
+                        :hasSecurityLevel 1 , 3 , 5 ;
+                        :validatesIND_CCA2_Security "true"^^xsd:boolean ;
+                        :testsFunctionalCorrectness "true"^^xsd:boolean ;
+                        :hasTestCoverage "100.0"^^xsd:decimal ;
+                        :hasPerformanceTicks 8 .
+
+###  Dilithium Signature Test Suite Instance
+:ByteStarDilithiumTestSuite rdf:type :DilithiumTestSuite ;
+                            rdfs:label "ByteStar Dilithium Test Suite"@en ;
+                            rdfs:comment "Comprehensive test suite for Dilithium signature implementations."@en ;
+                            :testsAlgorithm bp:DilithiumSignature ;
+                            :testsParameterSet :Dilithium2 , :Dilithium3 , :Dilithium5 ;
+                            :hasSecurityLevel 2 , 3 , 5 ;
+                            :validatesEUF_CMA_Security "true"^^xsd:boolean ;
+                            :testsSignatureGeneration "true"^^xsd:boolean ;
+                            :testsSignatureVerification "true"^^xsd:boolean ;
+                            :hasTestCoverage "100.0"^^xsd:decimal ;
+                            :hasPerformanceTicks 8 .
+
+###  Statistical Testing Instances
+:NIST_RandomnessTestSuite rdf:type :RandomnessTest ;
+                          rdfs:label "NIST Randomness Test Suite"@en ;
+                          rdfs:comment "NIST SP 800-22 statistical randomness test implementation."@en ;
+                          :usesTestSuite :NIST_SP800_22 ;
+                          :hasSignificanceLevel "0.01"^^xsd:decimal ;
+                          :hasStatisticalPower "99.0"^^xsd:decimal ;
+                          :requiresPassRateThreshold "98.0"^^xsd:decimal ;
+                          :isAutomated "true"^^xsd:boolean .
+
+:EntropyQualityTester rdf:type :EntropyTest ;
+                      rdfs:label "Entropy Quality Tester"@en ;
+                      rdfs:comment "Comprehensive entropy quality validation system."@en ;
+                      :measuresEntropy :ShannonEntropy , :MinEntropy , :CollisionEntropy ;
+                      :hasEntropyThreshold "7.9"^^xsd:decimal ;
+                      :validatesCryptographicQuality "true"^^xsd:boolean ;
+                      :detectsEntropyDeficiency "true"^^xsd:boolean ;
+                      :isAutomated "true"^^xsd:boolean .
+
+###  Side-Channel Testing Instances
+:ComprehensiveSideChannelTester rdf:type :SideChannelTest ;
+                               rdfs:label "Comprehensive Side-Channel Tester"@en ;
+                               rdfs:comment "Advanced side-channel analysis and testing system."@en ;
+                               :detectsLeakage sidech:TimingLeakage , sidech:PowerLeakage , sidech:CacheLeakage ;
+                               :hasLeakageThreshold "0.001"^^xsd:decimal ;
+                               :usesStatisticalAnalysis :TTest , :CorrelationAnalysis , :MutualInformationTest ;
+                               :hasLeakageModel :HammingWeight , :HammingDistance ;
+                               :isAutomated "true"^^xsd:boolean .
+
+###  Performance Testing Instances
+:PQCPerformanceBenchmark rdf:type :PerformanceBenchmark ;
+                         rdfs:label "PQC Performance Benchmark"@en ;
+                         rdfs:comment "Standardized performance benchmark for PQC algorithms."@en ;
+                         :measuresCycleCount "true"^^xsd:boolean ;
+                         :measuresMemoryUsage "true"^^xsd:boolean ;
+                         :measuresThroughput "true"^^xsd:boolean ;
+                         :measuresLatency "true"^^xsd:boolean ;
+                         :hasTargetConstraint doe:EightTickConstraint ;
+                         :hasPerformanceTicks 8 .
+
+###  Test Vector Database Instance
+:NISTTestVectorDatabase rdf:type :TestVectorDatabase ;
+                        rdfs:label "NIST Test Vector Database"@en ;
+                        rdfs:comment "Official NIST test vectors for PQC algorithms."@en ;
+                        :hasAlgorithmCoverage :KyberKEM , :DilithiumSignature , :FalconSignature ;
+                        :hasVersionControl "true"^^xsd:boolean ;
+                        :isImmutable "true"^^xsd:boolean ;
+                        :hasIntegrityVerification "true"^^xsd:boolean ;
+                        :hasTestVectorCount 50000 .
+
+###  Continuous Integration Instance
+:PQCContinuousIntegration rdf:type :ContinuousIntegration ;
+                          rdfs:label "PQC Continuous Integration"@en ;
+                          rdfs:comment "Automated CI/CD system for PQC implementations."@en ;
+                          :hasAutomatedTesting "true"^^xsd:boolean ;
+                          :hasRegressionTesting "true"^^xsd:boolean ;
+                          :hasContinuousDeployment "true"^^xsd:boolean ;
+                          :providesRealTimeFeedback "true"^^xsd:boolean ;
+                          :isAutomated "true"^^xsd:boolean .
+
+#################################################################
+#    SHACL Validation Shapes for Test Suite
+#################################################################
+
+###  Test Coverage Shape
+:TestCoverageShape rdf:type sh:NodeShape ;
+                   sh:targetClass :PQCTestSuite ;
+                   rdfs:label "Test Coverage Shape"@en ;
+                   rdfs:comment "Validation shape for test coverage requirements."@en ;
+                   sh:property [
+                       sh:path :hasTestCoverage ;
+                       sh:datatype xsd:decimal ;
+                       sh:minInclusive "95.0"^^xsd:decimal ;
+                       sh:maxInclusive "100.0"^^xsd:decimal ;
+                       sh:minCount 1 ;
+                       sh:message "Test coverage must be at least 95%"@en ;
+                       sh:severity sh:Violation
+                   ] .
+
+###  Performance Constraint Shape
+:PerformanceConstraintShape rdf:type sh:NodeShape ;
+                           sh:targetClass :PerformanceTest ;
+                           rdfs:label "Performance Constraint Shape"@en ;
+                           rdfs:comment "Validation shape for performance constraints."@en ;
+                           sh:property [
+                               sh:path :hasPerformanceTicks ;
+                               sh:datatype xsd:nonNegativeInteger ;
+                               sh:maxInclusive 8 ;
+                               sh:minCount 1 ;
+                               sh:message "Performance tests must complete within 8 ticks"@en ;
+                               sh:severity sh:Violation
+                           ] .
+
+###  Statistical Power Shape
+:StatisticalPowerShape rdf:type sh:NodeShape ;
+                      sh:targetClass :StatisticalTest ;
+                      rdfs:label "Statistical Power Shape"@en ;
+                      rdfs:comment "Validation shape for statistical power requirements."@en ;
+                      sh:property [
+                          sh:path :hasStatisticalPower ;
+                          sh:datatype xsd:decimal ;
+                          sh:minInclusive "95.0"^^xsd:decimal ;
+                          sh:maxInclusive "100.0"^^xsd:decimal ;
+                          sh:minCount 1 ;
+                          sh:message "Statistical tests must have at least 95% power"@en
+                      ] .
+
+###  Side-Channel Leakage Shape
+:SideChannelLeakageShape rdf:type sh:NodeShape ;
+                        sh:targetClass :SideChannelTest ;
+                        rdfs:label "Side-Channel Leakage Shape"@en ;
+                        rdfs:comment "Validation shape for side-channel leakage limits."@en ;
+                        sh:property [
+                            sh:path :hasLeakageThreshold ;
+                            sh:datatype xsd:decimal ;
+                            sh:maxInclusive "0.001"^^xsd:decimal ;
+                            sh:minCount 1 ;
+                            sh:message "Side-channel leakage must be below 0.001"@en ;
+                            sh:severity sh:Violation
+                        ] .
+
+###  Test Reproducibility Shape
+:TestReproducibilityShape rdf:type sh:NodeShape ;
+                         sh:targetClass :TestResult ;
+                         rdfs:label "Test Reproducibility Shape"@en ;
+                         rdfs:comment "Validation shape for test reproducibility requirements."@en ;
+                         sh:property [
+                             sh:path :isReproducible ;
+                             sh:datatype xsd:boolean ;
+                             sh:hasValue "true"^^xsd:boolean ;
+                             sh:minCount 1 ;
+                             sh:message "Test results must be reproducible"@en
+                         ] .
+
+#################################################################
+#    Integration Axioms and Constraints
+#################################################################
+
+# Axiom: All PQC test suites must have 100% test coverage
+:PQCTestSuite rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasTestCoverage ;
+    owl:allValuesFrom [
+        rdf:type rdfs:Datatype ;
+        owl:withRestrictions ( [ xsd:minInclusive "100.0"^^xsd:decimal ] )
+    ]
+] .
+
+# Axiom: All performance tests must complete within 8 ticks
+:PerformanceTest rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasPerformanceTicks ;
+    owl:allValuesFrom [
+        rdf:type rdfs:Datatype ;
+        owl:withRestrictions ( [ xsd:maxInclusive 8 ] )
+    ]
+] .
+
+# Axiom: All test results must be reproducible
+:TestResult rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :isReproducible ;
+    owl:hasValue "true"^^xsd:boolean
+] .
+
+# Axiom: Statistical tests must have sufficient statistical power
+:StatisticalTest rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasStatisticalPower ;
+    owl:allValuesFrom [
+        rdf:type rdfs:Datatype ;
+        owl:withRestrictions ( [ xsd:minInclusive "95.0"^^xsd:decimal ] )
+    ]
+] .
+
+#################################################################
+#    Documentation and Metadata
+#################################################################
+
+:PQCTestSuiteDocumentation rdf:type owl:Class ;
+    rdfs:label "PQC Test Suite Documentation"@en ;
+    rdfs:comment """Documentation for the PQC test suite framework
+    covering testing methodologies, validation procedures, and compliance requirements."""@en ;
+    dct:creator "ByteStar PQC Testing Team"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    prov:wasGeneratedBy :PQCTestSuiteDevelopment .
+
+:PQCTestSuiteDevelopment rdf:type prov:Activity ;
+    rdfs:label "PQC Test Suite Development"@en ;
+    rdfs:comment "Development activity for creating the PQC test suite framework."@en ;
+    prov:startedAtTime "2025-02-01T00:00:00Z"^^xsd:dateTime ;
+    prov:endedAtTime "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    prov:wasAssociatedWith :ByteStarPQCTestingTeam .
+
+:ByteStarPQCTestingTeam rdf:type prov:Agent ,
+                                foaf:Organization ;
+    rdfs:label "ByteStar PQC Testing Team"@en ;
+    foaf:name "ByteStar PQC Testing Team"@en .
+
+#################################################################
+#    End of PQC Test Suite Ontology
+#################################################################

@@ -1,0 +1,36 @@
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Modified RDF graph with semantic changes
+ex:Person1 a ex:Person ;
+    ex:name "John Doe" ;
+    ex:age 31 ;    # Age changed (semantic change)
+    ex:email "john.doe@example.com" ;  # Email changed (semantic change)
+    ex:department ex:Engineering .
+
+ex:Person2 a ex:Person ;
+    ex:name "Jane Smith" ;
+    ex:age 25 ;
+    ex:email "jane@example.com" ;
+    ex:department ex:Marketing .
+
+# New person added (semantic addition)
+ex:Person3 a ex:Person ;
+    ex:name "Bob Wilson" ;
+    ex:age 28 ;
+    ex:email "bob@example.com" ;
+    ex:department ex:Engineering .
+
+ex:Engineering a ex:Department ;
+    ex:code "ENG" ;
+    ex:budget 1200000 .  # Budget changed (semantic change)
+
+ex:Marketing a ex:Department ;
+    ex:code "MKT" ;
+    ex:budget 500000 .
+
+# New department added (semantic addition)
+ex:Sales a ex:Department ;
+    ex:code "SAL" ;
+    ex:budget 800000 .

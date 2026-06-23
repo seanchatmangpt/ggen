@@ -1,0 +1,40 @@
+@prefix sas:  <http://bitbizeco.dev/ontology/v1/sas#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+
+<http://bitbizeco.dev/ontology/v1/sas>
+  a owl:Ontology ;
+  rdfs:label "Scrum@Scale Canon" ;
+  rdfs:comment "Immutable team structures and event cadences for Scrum@Scale." ;
+  owl:imports <http://bitbizeco.dev/ontology/v1> , <http://bitbizeco.dev/ontology/v1/governance> .
+
+# Core structures
+sas:ScrumTeam a owl:Class ; rdfs:label "Scrum Team" .
+sas:ProductOwner a owl:Class .
+sas:ScrumMaster  a owl:Class .
+sas:Developer    a owl:Class .
+
+sas:hasProductOwner a owl:ObjectProperty ; rdfs:domain sas:ScrumTeam ; rdfs:range sas:ProductOwner .
+sas:hasScrumMaster  a owl:ObjectProperty ; rdfs:domain sas:ScrumTeam ; rdfs:range sas:ScrumMaster .
+sas:hasDeveloper    a owl:ObjectProperty ; rdfs:domain sas:ScrumTeam ; rdfs:range sas:Developer .
+
+# Events
+sas:SprintEvent a owl:Class .
+sas:SprintPlanning a sas:SprintEvent .
+sas:DailyScrum     a sas:SprintEvent .
+sas:SprintReview   a sas:SprintEvent .
+sas:SprintRetrospective a sas:SprintEvent .
+
+# Composition rules
+:ScrumTeamShape a sh:NodeShape ;
+  sh:targetClass sas:ScrumTeam ;
+  sh:property [ sh:path sas:hasProductOwner ; sh:minCount 1 ; sh:maxCount 1 ;
+                sh:message "S@S: ScrumTeam must have exactly one Product Owner" ] ;
+  sh:property [ sh:path sas:hasScrumMaster  ; sh:minCount 1 ; sh:maxCount 1 ;
+                sh:message "S@S: ScrumTeam must have exactly one Scrum Master" ] ;
+  sh:property [ sh:path sas:hasDeveloper    ; sh:minCount 3 ; sh:maxCount 9 ;
+                sh:message "S@S: ScrumTeam must have 3–9 Developers" ] .
+
+

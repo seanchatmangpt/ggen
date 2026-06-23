@@ -1,0 +1,27 @@
+# SPARQL ASK query to check if a URI is defined as an owl:Class
+#
+# Args:
+#   ?uri: The class URI to check
+#
+# Returns:
+#   true if ?uri is an instance of owl:Class or rdfs:Class in any public ontology graph
+#
+
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+ASK {
+    GRAPH ?g {
+        {
+            ?uri a owl:Class .
+        } UNION {
+            ?uri a rdfs:Class .
+        } UNION {
+            ?uri rdf:type owl:Class .
+        } UNION {
+            ?uri rdf:type rdfs:Class .
+        }
+        FILTER STRSTARTS(STR(?g), "urn:public:")
+    }
+}

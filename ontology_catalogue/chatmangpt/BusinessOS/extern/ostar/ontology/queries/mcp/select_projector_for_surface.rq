@@ -1,0 +1,26 @@
+PREFIX cap:  <https://chatmangpt.com/ontologies/o-star/cap:>
+PREFIX proj: <https://chatmangpt.com/ontologies/o-star/proj:>
+PREFIX rt:   <https://chatmangpt.com/ontologies/o-star/runtime:>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# For each admitted capability, resolve its projector family, projection mode,
+# artifact kind, binding query path, and all emission constraints that must hold.
+# mu uses this to build the compile plan before any emission begins.
+
+SELECT ?capability ?capLabel ?family ?familyLabel ?mode ?kind ?bindingQuery ?constraint WHERE {
+  ?capability a cap:PublicSurface ;
+              cap:admissionStatus "admitted" ;
+              cap:projectorFamily ?family .
+  OPTIONAL { ?capability rdfs:label ?capLabel }
+
+  ?family rdfs:label       ?familyLabel ;
+          proj:projectionMode ?mode ;
+          proj:producesKind   ?kind .
+
+  OPTIONAL {
+    ?bq proj:boundToFamily ?family ;
+        proj:queryPath     ?bindingQuery .
+  }
+  OPTIONAL { ?family proj:constrainedBy ?constraint }
+
+} ORDER BY ?family ?capability

@@ -37,3 +37,6 @@ framework = "chicago-tdd"
 [documentation]
 readme = "README.md"
 guides = ["docs/USER_GUIDE.md", "docs/INTEGRATION.md", "docs/COMPLIANCE.md", "docs/PRIVACY.md"]
+
+[marketplace]
+production_ready = false

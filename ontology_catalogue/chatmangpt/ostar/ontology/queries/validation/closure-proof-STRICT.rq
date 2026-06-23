@@ -1,0 +1,85 @@
+# Closure Proof: Every trust-relevant term must be in Cl(P_std + C_pub + S_pub + M_pub)
+#
+# STRICT VERSION: No ostar.org exclusions — this reveals what the validator would catch
+# if the legacy namespace wasn't masked.
+#
+# Strategy: Find all classes and properties that are NOT:
+# - Standard public (prov, skos, odrl, vc, dcat, sh, time, foaf, org, rdf, rdfs, owl, xsd)
+# - Published public concept schemes (https://chatmangpt.com/ontologies/skos/*)
+# - SHACL constraint definitions
+# - ODRL policy definitions
+#
+# Any remaining terms are "undeclared remainder" — either document or eliminate.
+#
+# Expected: Empty (all custom terms are documented in the closure) or a short list of known terms.
+
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX time: <http://www.w3.org/2006/time#>
+PREFIX vc: <https://www.w3.org/2018/credentials#>
+
+SELECT ?term ?term_type ?label
+WHERE {
+  {
+    ?term a owl:Class .
+    BIND("Class" AS ?term_type)
+    FILTER NOT EXISTS { ?term rdfs:subClassOf prov:Activity }
+    FILTER NOT EXISTS { ?term rdfs:subClassOf prov:Entity }
+    FILTER NOT EXISTS { ?term rdfs:subClassOf prov:Agent }
+    FILTER NOT EXISTS { ?term rdfs:subClassOf prov:Bundle }
+    FILTER NOT EXISTS { ?term rdfs:subClassOf skos:Concept }
+    FILTER NOT EXISTS { ?term rdfs:subClassOf skos:ConceptScheme }
+    FILTER NOT EXISTS { ?term rdfs:subClassOf odrl:Policy }
+    FILTER NOT EXISTS { ?term rdfs:subClassOf odrl:Rule }
+    FILTER NOT EXISTS { ?term rdfs:subClassOf vc:VerifiableCredential }
+    FILTER NOT EXISTS { ?term rdfs:subClassOf sh:NodeShape }
+    FILTER NOT EXISTS { ?term rdfs:subClassOf sh:PropertyShape }
+    FILTER NOT EXISTS { ?term rdfs:subClassOf time:TemporalEntity }
+    FILTER NOT EXISTS { ?term rdfs:subClassOf dcat:Dataset }
+    # Exclude declared closure terms (all sub-ontologies are part of the closure)
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/o-star/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/governance/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/odrl/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/pictl/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/process-intelligence/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/vc/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/mappings/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/shapes/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/validation/"))
+    # STRICT: NO ostar.org EXCLUSION — this reveals legacy terms
+  } UNION {
+    ?term a rdf:Property .
+    BIND("Property" AS ?term_type)
+    FILTER NOT EXISTS { ?term rdfs:subPropertyOf prov:used }
+    FILTER NOT EXISTS { ?term rdfs:subPropertyOf prov:generated }
+    FILTER NOT EXISTS { ?term rdfs:subPropertyOf prov:wasAssociatedWith }
+    FILTER NOT EXISTS { ?term rdfs:subPropertyOf prov:startedAtTime }
+    FILTER NOT EXISTS { ?term rdfs:subPropertyOf prov:endedAtTime }
+    FILTER NOT EXISTS { ?term rdfs:subPropertyOf skos:prefLabel }
+    FILTER NOT EXISTS { ?term rdfs:subPropertyOf skos:related }
+    FILTER NOT EXISTS { ?term rdfs:subPropertyOf odrl:target }
+    FILTER NOT EXISTS { ?term rdfs:subPropertyOf odrl:action }
+    FILTER NOT EXISTS { ?term rdfs:subPropertyOf vc:issuer }
+    FILTER NOT EXISTS { ?term rdfs:subPropertyOf sh:path }
+    # Exclude declared closure terms (all sub-ontologies are part of the closure)
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/o-star/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/governance/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/odrl/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/pictl/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/process-intelligence/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/vc/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/mappings/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/shapes/"))
+    FILTER(!STRSTARTS(STR(?term), "https://chatmangpt.com/ontologies/validation/"))
+    # STRICT: NO ostar.org EXCLUSION — this reveals legacy terms
+  }
+  OPTIONAL { ?term rdfs:label ?label }
+}
+ORDER BY ?term_type ?term

@@ -1,0 +1,19 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:Person a rdfs:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "A person entity" .
+
+ex:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:comment "Person's name" ;
+    rdfs:domain ex:Person ;
+    rdfs:range rdfs:Literal .
+
+ex:age a rdf:Property ;  # Added line to create drift
+    rdfs:label "age" ;
+    rdfs:comment "Person's age" ;
+    rdfs:domain ex:Person ;
+    rdfs:range rdfs:Literal .

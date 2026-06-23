@@ -1,0 +1,19 @@
+# SPARQL Query: Extract Process Forms from wasm4pm-compat ontology
+# Purpose: Enumerate all process form types, their source files, and graduation status
+# Usage: ggen query extract-process-forms.rq --format json
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+
+SELECT ?form ?rustType ?sourceFile (SAMPLE(?grad) AS ?graduatesToWasm4pm)
+WHERE {
+  ?form a compat:ProcessForm ;
+        compat:rustType   ?rustType ;
+        compat:sourceFile ?sourceFile .
+
+  OPTIONAL { ?form compat:graduatesToWasm4pm ?grad . }
+}
+GROUP BY ?form ?rustType ?sourceFile
+ORDER BY ?rustType

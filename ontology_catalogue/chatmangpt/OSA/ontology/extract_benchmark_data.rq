@@ -1,0 +1,44 @@
+# SPARQL Query to Extract Benchmark Data from RDF Schema
+# This query extracts operations and categories for template rendering
+
+PREFIX benchmark: <http://example.com/benchmark/>
+PREFIX osa: <http://example.com/osa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Extract all operations with their properties
+SELECT ?operation_uri
+       ?operation_name
+       ?snake_name
+       ?query_text
+       ?operation_type
+       ?slo_threshold
+       ?complexity
+WHERE {
+  ?operation_uri a benchmark:SPARQLOperation ;
+                 benchmark:operationName ?operation_name ;
+                 benchmark:queryText ?query_text ;
+                 benchmark:sloThresholdMs ?slo_threshold ;
+                 benchmark:complexity ?complexity .
+
+  OPTIONAL { ?operation_uri benchmark:operationType ?operation_type }
+
+  # Convert camelCase to snake_case for variable names
+  BIND(REPLACE(STR(?operation_name), "([a-z])([A-Z])", "$1_$2") AS ?snake_name)
+}
+ORDER BY ?complexity ?operation_name
+
+# Extract test categories
+SELECT ?category_uri
+       ?test_name
+       ?test_description
+       (GROUP_CONCAT(?op_name; separator=", ") AS ?operations)
+WHERE {
+  ?category_uri a benchmark:TestCategory ;
+                 benchmark:testName ?test_name ;
+                 benchmark:testDescription ?test_description ;
+                 benchmark:testsOperation ?op_uri .
+
+  ?op_uri benchmark:operationName ?op_name .
+}
+GROUP BY ?category_uri ?test_name ?test_description
+ORDER BY ?test_name

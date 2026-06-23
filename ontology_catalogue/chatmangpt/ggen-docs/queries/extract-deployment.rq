@@ -1,0 +1,47 @@
+# Extract deployment configuration across all platforms
+PREFIX osa: <https://chatmangpt.com/osa#>
+PREFIX bos: <https://chatmangpt.com/businessos#>
+PREFIX canopy: <https://chatmangpt.com/canopy#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?platform ?containerPort ?replicas ?cpu ?memory ?healthCheck ?envName ?envValue
+WHERE {
+  {
+    ?dep a osa:Deployment ;
+         osa:containerPort ?containerPort .
+    BIND("OSA" AS ?platform)
+    OPTIONAL { ?dep osa:replicas ?replicas }
+    OPTIONAL {
+      ?dep osa:resources ?res .
+      ?res osa:cpu ?cpu .
+      ?res osa:memory ?memory .
+    }
+    BIND("" AS ?healthCheck)
+    BIND("" AS ?envName)
+    BIND("" AS ?envValue)
+  } UNION {
+    ?dep a bos:Deployment ;
+         bos:containerPort ?containerPort .
+    BIND("BusinessOS" AS ?platform)
+    OPTIONAL { ?dep bos:healthCheck ?healthCheck }
+    BIND("" AS ?replicas)
+    BIND("" AS ?cpu)
+    BIND("" AS ?memory)
+    BIND("" AS ?envName)
+    BIND("" AS ?envValue)
+  } UNION {
+    ?dep a canopy:Deployment ;
+         canopy:containerPort ?containerPort .
+    BIND("Canopy" AS ?platform)
+    OPTIONAL { ?dep canopy:replicas ?replicas }
+    OPTIONAL {
+      ?dep canopy:resources ?res .
+      ?res canopy:cpu ?cpu .
+      ?res canopy:memory ?memory .
+    }
+    BIND("" AS ?healthCheck)
+    BIND("" AS ?envName)
+    BIND("" AS ?envValue)
+  }
+}
+ORDER BY ?platform ?containerPort

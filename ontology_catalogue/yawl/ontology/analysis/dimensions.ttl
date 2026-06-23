@@ -1,0 +1,27 @@
+@prefix dim: <http://yawl.org/dimension/>.
+@prefix ex: <http://yawl.org/agent/>.
+
+dim:SecurityDimension a dim:Dimension ;
+  dim:name "Security" ;
+  dim:agent ex:QueryEngineer ;
+  dim:aspects ("injection" "compliance" "crypto" "validation") .
+
+dim:PerformanceDimension a dim:Dimension ;
+  dim:name "Performance" ;
+  dim:agent ex:TemplateEngineer ;
+  dim:aspects ("throughput" "latency" "memory" "scalability") .
+
+dim:ArchitectureDimension a dim:Dimension ;
+  dim:name "Architecture" ;
+  dim:agent ex:Validator ;
+  dim:aspects ("layers" "components" "patterns" "extensibility") .
+
+dim:BusinessDimension a dim:Dimension ;
+  dim:name "Business" ;
+  dim:agent ex:ScriptAuthor ;
+  dim:aspects ("roi" "stakeholders" "value" "time-to-market") .
+
+dim:TechnicalDepthDimension a dim:Dimension ;
+  dim:name "Technical" ;
+  dim:agent ex:Tester ;
+  dim:aspects ("code-quality" "debt" "refactoring" "optimization") .

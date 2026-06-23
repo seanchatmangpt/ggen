@@ -1,0 +1,1070 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ================================================================
+# ByteStar Optimization Engine Ontology
+# Defines adaptive performance optimization across ByteStar
+# Version: 5.0.0
+# Phase: 3 - Performance & Optimization Infrastructure
+# ================================================================
+
+<http://bytestar.org/ontology/optimization-engine> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/v5/optimization-engine> ;
+    owl:versionInfo "5.0.0" ;
+    dcterms:title "ByteStar Optimization Engine Ontology" ;
+    dcterms:description "Comprehensive ontology defining adaptive performance optimization, multi-objective optimization, real-time adaptation, and continuous improvement across ByteStar systems" ;
+    dcterms:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    dcterms:creator "ByteStar Development Team" ;
+    owl:imports <http://bytestar.org/ontology/performance-measurement> ,
+                <http://bytestar.org/ontology/resource-management> ,
+                <http://bytestar.org/ontology/security-framework> ,
+                <http://bytestar.org/ontology/doctrine-8> .
+
+# ================================================================
+# CORE OPTIMIZATION CLASSES
+# ================================================================
+
+## Primary Optimization Engine
+ba:OptimizationEngine a owl:Class ;
+    rdfs:label "Optimization Engine" ;
+    rdfs:comment "Central optimization engine that coordinates all optimization activities across ByteStar" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasOptimizationStrategy ;
+        owl:minCardinality 1
+    ] .
+
+ba:OptimizationStrategy a owl:Class ;
+    rdfs:label "Optimization Strategy" ;
+    rdfs:comment "Abstract base class for all optimization strategies and algorithms" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasObjective ;
+        owl:minCardinality 1
+    ] .
+
+ba:OptimizationObjective a owl:Class ;
+    rdfs:label "Optimization Objective" ;
+    rdfs:comment "Specific goal or metric to be optimized" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasTargetMetric ;
+        owl:cardinality 1
+    ] .
+
+ba:OptimizationConstraint a owl:Class ;
+    rdfs:label "Optimization Constraint" ;
+    rdfs:comment "Constraint that must be respected during optimization under Doctrine of 8" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:constraintType ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# OPTIMIZATION ALGORITHMS & STRATEGIES
+# ================================================================
+
+## Genetic Algorithm
+ba:GeneticAlgorithm a owl:Class ;
+    rdfs:label "Genetic Algorithm" ;
+    rdfs:comment "Evolutionary optimization algorithm inspired by natural selection" ;
+    rdfs:subClassOf ba:OptimizationStrategy ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:populationSize ;
+        owl:cardinality 1
+    ] .
+
+ba:SimulatedAnnealing a owl:Class ;
+    rdfs:label "Simulated Annealing" ;
+    rdfs:comment "Probabilistic optimization algorithm inspired by metallurgy annealing" ;
+    rdfs:subClassOf ba:OptimizationStrategy ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:coolingSchedule ;
+        owl:cardinality 1
+    ] .
+
+ba:MachineLearningOptimization a owl:Class ;
+    rdfs:label "Machine Learning Optimization" ;
+    rdfs:comment "ML-based optimization using neural networks, reinforcement learning, etc." ;
+    rdfs:subClassOf ba:OptimizationStrategy ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:learningAlgorithm ;
+        owl:cardinality 1
+    ] .
+
+ba:GradientDescent a owl:Class ;
+    rdfs:label "Gradient Descent" ;
+    rdfs:comment "First-order iterative optimization algorithm" ;
+    rdfs:subClassOf ba:OptimizationStrategy ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:learningRate ;
+        owl:cardinality 1
+    ] .
+
+ba:ParticleSwarmOptimization a owl:Class ;
+    rdfs:label "Particle Swarm Optimization" ;
+    rdfs:comment "Swarm intelligence optimization algorithm" ;
+    rdfs:subClassOf ba:OptimizationStrategy .
+
+ba:BayesianOptimization a owl:Class ;
+    rdfs:label "Bayesian Optimization" ;
+    rdfs:comment "Sequential optimization using Bayesian inference" ;
+    rdfs:subClassOf ba:OptimizationStrategy .
+
+# ================================================================
+# MULTI-OBJECTIVE OPTIMIZATION
+# ================================================================
+
+ba:MultiObjectiveOptimization a owl:Class ;
+    rdfs:label "Multi-Objective Optimization" ;
+    rdfs:comment "Optimization involving multiple conflicting objectives" ;
+    rdfs:subClassOf ba:OptimizationStrategy ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasObjective ;
+        owl:minCardinality 2
+    ] .
+
+ba:ParetoOptimization a owl:Class ;
+    rdfs:label "Pareto Optimization" ;
+    rdfs:comment "Multi-objective optimization seeking Pareto-efficient solutions" ;
+    rdfs:subClassOf ba:MultiObjectiveOptimization .
+
+ba:ParetoFrontier a owl:Class ;
+    rdfs:label "Pareto Frontier" ;
+    rdfs:comment "Set of all Pareto-efficient solutions" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:containsSolution ;
+        owl:minCardinality 1
+    ] .
+
+ba:ParetoSolution a owl:Class ;
+    rdfs:label "Pareto Solution" ;
+    rdfs:comment "Solution that is Pareto-efficient (cannot be improved in one objective without degrading another)" ;
+    rdfs:subClassOf ba:OptimizationSolution .
+
+ba:DominanceRelation a owl:Class ;
+    rdfs:label "Dominance Relation" ;
+    rdfs:comment "Relation indicating one solution dominates another in multi-objective space" .
+
+# ================================================================
+# REAL-TIME ADAPTATION & FEEDBACK CONTROL
+# ================================================================
+
+ba:AdaptiveOptimization a owl:Class ;
+    rdfs:label "Adaptive Optimization" ;
+    rdfs:comment "Optimization that adapts in real-time based on changing conditions" ;
+    rdfs:subClassOf ba:OptimizationStrategy ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:adaptationRate ;
+        owl:cardinality 1
+    ] .
+
+ba:FeedbackController a owl:Class ;
+    rdfs:label "Feedback Controller" ;
+    rdfs:comment "Control system that uses feedback to maintain desired performance" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:controlLoop ;
+        owl:cardinality 1
+    ] .
+
+ba:PIDController a owl:Class ;
+    rdfs:label "PID Controller" ;
+    rdfs:comment "Proportional-Integral-Derivative controller for continuous feedback" ;
+    rdfs:subClassOf ba:FeedbackController .
+
+ba:AdaptiveController a owl:Class ;
+    rdfs:label "Adaptive Controller" ;
+    rdfs:comment "Controller that adapts its parameters based on system behavior" ;
+    rdfs:subClassOf ba:FeedbackController .
+
+ba:OnlineOptimization a owl:Class ;
+    rdfs:label "Online Optimization" ;
+    rdfs:comment "Optimization performed in real-time on live systems" ;
+    rdfs:subClassOf ba:AdaptiveOptimization .
+
+# ================================================================
+# PERFORMANCE PROFILING & BOTTLENECK IDENTIFICATION
+# ================================================================
+
+ba:PerformanceProfiler a owl:Class ;
+    rdfs:label "Performance Profiler" ;
+    rdfs:comment "Tool for analyzing system performance and identifying bottlenecks" ;
+    rdfs:subClassOf ba:AnalysisTool ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:profilesComponent ;
+        owl:minCardinality 1
+    ] .
+
+ba:BottleneckAnalyzer a owl:Class ;
+    rdfs:label "Bottleneck Analyzer" ;
+    rdfs:comment "Specialized analyzer for identifying performance bottlenecks" ;
+    rdfs:subClassOf ba:PerformanceProfiler .
+
+ba:Bottleneck a owl:Class ;
+    rdfs:label "Bottleneck" ;
+    rdfs:comment "System component or process that limits overall performance" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:bottleneckType ;
+        owl:cardinality 1
+    ] .
+
+ba:HotSpot a owl:Class ;
+    rdfs:label "Hot Spot" ;
+    rdfs:comment "Code region with high execution frequency or resource consumption" ;
+    rdfs:subClassOf ba:Bottleneck .
+
+ba:PerformanceAnomaly a owl:Class ;
+    rdfs:label "Performance Anomaly" ;
+    rdfs:comment "Unexpected deviation from normal performance patterns" ;
+    rdfs:subClassOf ba:Bottleneck .
+
+# ================================================================
+# CODE OPTIMIZATION & COMPILER TRANSFORMATIONS
+# ================================================================
+
+ba:CodeOptimizer a owl:Class ;
+    rdfs:label "Code Optimizer" ;
+    rdfs:comment "System for optimizing code at various levels (source, IR, binary)" ;
+    rdfs:subClassOf ba:OptimizationEngine .
+
+ba:CompilerOptimization a owl:Class ;
+    rdfs:label "Compiler Optimization" ;
+    rdfs:comment "Optimization performed during compilation" ;
+    rdfs:subClassOf ba:CodeOptimization .
+
+ba:LoopOptimization a owl:Class ;
+    rdfs:label "Loop Optimization" ;
+    rdfs:comment "Optimization focused on loop structures" ;
+    rdfs:subClassOf ba:CompilerOptimization .
+
+ba:VectorizationOptimization a owl:Class ;
+    rdfs:label "Vectorization Optimization" ;
+    rdfs:comment "Optimization using SIMD instructions for parallel processing" ;
+    rdfs:subClassOf ba:CompilerOptimization .
+
+ba:InliningOptimization a owl:Class ;
+    rdfs:label "Inlining Optimization" ;
+    rdfs:comment "Optimization by replacing function calls with function body" ;
+    rdfs:subClassOf ba:CompilerOptimization .
+
+ba:DeadCodeElimination a owl:Class ;
+    rdfs:label "Dead Code Elimination" ;
+    rdfs:comment "Removal of unused or unreachable code" ;
+    rdfs:subClassOf ba:CompilerOptimization .
+
+# ================================================================
+# RESOURCE USAGE OPTIMIZATION
+# ================================================================
+
+ba:ResourceOptimizer a owl:Class ;
+    rdfs:label "Resource Optimizer" ;
+    rdfs:comment "System for optimizing resource usage and eliminating waste" ;
+    rdfs:subClassOf ba:OptimizationEngine .
+
+ba:MemoryOptimizer a owl:Class ;
+    rdfs:label "Memory Optimizer" ;
+    rdfs:comment "Optimizer focused on memory usage patterns" ;
+    rdfs:subClassOf ba:ResourceOptimizer .
+
+ba:CPUOptimizer a owl:Class ;
+    rdfs:label "CPU Optimizer" ;
+    rdfs:comment "Optimizer focused on CPU utilization" ;
+    rdfs:subClassOf ba:ResourceOptimizer .
+
+ba:EnergyOptimizer a owl:Class ;
+    rdfs:label "Energy Optimizer" ;
+    rdfs:comment "Optimizer focused on energy consumption" ;
+    rdfs:subClassOf ba:ResourceOptimizer .
+
+ba:WasteElimination a owl:Class ;
+    rdfs:label "Waste Elimination" ;
+    rdfs:comment "Process of identifying and eliminating resource waste" ;
+    rdfs:subClassOf ba:OptimizationProcess .
+
+# ================================================================
+# CACHE OPTIMIZATION & MEMORY ACCESS PATTERNS
+# ================================================================
+
+ba:CacheOptimizer a owl:Class ;
+    rdfs:label "Cache Optimizer" ;
+    rdfs:comment "System for optimizing cache usage and memory access patterns" ;
+    rdfs:subClassOf ba:MemoryOptimizer .
+
+ba:CacheStrategy a owl:Class ;
+    rdfs:label "Cache Strategy" ;
+    rdfs:comment "Strategy for cache management and optimization" ;
+    rdfs:subClassOf ba:OptimizationStrategy .
+
+ba:LocalityOptimization a owl:Class ;
+    rdfs:label "Locality Optimization" ;
+    rdfs:comment "Optimization focusing on temporal and spatial locality" ;
+    rdfs:subClassOf ba:CacheOptimization .
+
+ba:PrefetchingStrategy a owl:Class ;
+    rdfs:label "Prefetching Strategy" ;
+    rdfs:comment "Strategy for predicting and prefetching data" ;
+    rdfs:subClassOf ba:CacheStrategy .
+
+ba:MemoryAccessPattern a owl:Class ;
+    rdfs:label "Memory Access Pattern" ;
+    rdfs:comment "Pattern of memory accesses that can be optimized" .
+
+# ================================================================
+# NETWORK OPTIMIZATION & PROTOCOL TUNING
+# ================================================================
+
+ba:NetworkOptimizer a owl:Class ;
+    rdfs:label "Network Optimizer" ;
+    rdfs:comment "System for optimizing network performance and protocols" ;
+    rdfs:subClassOf ba:OptimizationEngine .
+
+ba:ProtocolOptimization a owl:Class ;
+    rdfs:label "Protocol Optimization" ;
+    rdfs:comment "Optimization of network protocols and communication patterns" ;
+    rdfs:subClassOf ba:NetworkOptimization .
+
+ba:BandwidthOptimization a owl:Class ;
+    rdfs:label "Bandwidth Optimization" ;
+    rdfs:comment "Optimization focused on bandwidth utilization" ;
+    rdfs:subClassOf ba:NetworkOptimization .
+
+ba:LatencyOptimization a owl:Class ;
+    rdfs:label "Latency Optimization" ;
+    rdfs:comment "Optimization focused on reducing network latency" ;
+    rdfs:subClassOf ba:NetworkOptimization .
+
+ba:CompressionOptimization a owl:Class ;
+    rdfs:label "Compression Optimization" ;
+    rdfs:comment "Optimization using data compression techniques" ;
+    rdfs:subClassOf ba:NetworkOptimization .
+
+# ================================================================
+# AUTO-TUNING & SELF-ADAPTIVE SYSTEMS
+# ================================================================
+
+ba:AutoTuningSystem a owl:Class ;
+    rdfs:label "Auto-Tuning System" ;
+    rdfs:comment "System that automatically tunes its parameters for optimal performance" ;
+    rdfs:subClassOf ba:AdaptiveOptimization ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasTunableParameter ;
+        owl:minCardinality 1
+    ] .
+
+ba:SelfAdaptiveSystem a owl:Class ;
+    rdfs:label "Self-Adaptive System" ;
+    rdfs:comment "System that adapts its behavior based on environmental changes" ;
+    rdfs:subClassOf ba:AutoTuningSystem .
+
+ba:TunableParameter a owl:Class ;
+    rdfs:label "Tunable Parameter" ;
+    rdfs:comment "Parameter that can be automatically adjusted for optimization" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:parameterRange ;
+        owl:cardinality 1
+    ] .
+
+ba:AdaptationTrigger a owl:Class ;
+    rdfs:label "Adaptation Trigger" ;
+    rdfs:comment "Event or condition that triggers system adaptation" .
+
+ba:AdaptationPolicy a owl:Class ;
+    rdfs:label "Adaptation Policy" ;
+    rdfs:comment "Policy governing when and how adaptations are made" .
+
+# ================================================================
+# OPTIMIZATION PROCESSES & WORKFLOWS
+# ================================================================
+
+ba:OptimizationProcess a owl:Class ;
+    rdfs:label "Optimization Process" ;
+    rdfs:comment "Process for executing optimization activities" ;
+    rdfs:subClassOf ba:SystemProcess .
+
+ba:OptimizationPhase a owl:Class ;
+    rdfs:label "Optimization Phase" ;
+    rdfs:comment "Distinct phase in an optimization process" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:phaseOrder ;
+        owl:cardinality 1
+    ] .
+
+ba:OptimizationSolution a owl:Class ;
+    rdfs:label "Optimization Solution" ;
+    rdfs:comment "Solution produced by an optimization process" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:solutionQuality ;
+        owl:cardinality 1
+    ] .
+
+ba:OptimizationResult a owl:Class ;
+    rdfs:label "Optimization Result" ;
+    rdfs:comment "Result of an optimization process including metrics and improvements" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:improvementMetric ;
+        owl:minCardinality 1
+    ] .
+
+# ================================================================
+# OPTIMIZATION PROPERTIES
+# ================================================================
+
+## Algorithm Properties
+ba:hasOptimizationStrategy a owl:ObjectProperty ;
+    rdfs:label "has optimization strategy" ;
+    rdfs:domain ba:OptimizationEngine ;
+    rdfs:range ba:OptimizationStrategy .
+
+ba:hasObjective a owl:ObjectProperty ;
+    rdfs:label "has objective" ;
+    rdfs:domain ba:OptimizationStrategy ;
+    rdfs:range ba:OptimizationObjective .
+
+ba:hasConstraint a owl:ObjectProperty ;
+    rdfs:label "has constraint" ;
+    rdfs:domain ba:OptimizationStrategy ;
+    rdfs:range ba:OptimizationConstraint .
+
+ba:optimizes a owl:ObjectProperty ;
+    rdfs:label "optimizes" ;
+    rdfs:domain ba:OptimizationStrategy ;
+    rdfs:range ba:SystemComponent .
+
+## Genetic Algorithm Properties
+ba:populationSize a owl:DatatypeProperty ;
+    rdfs:label "population size" ;
+    rdfs:domain ba:GeneticAlgorithm ;
+    rdfs:range xsd:positiveInteger .
+
+ba:mutationRate a owl:DatatypeProperty ;
+    rdfs:label "mutation rate" ;
+    rdfs:domain ba:GeneticAlgorithm ;
+    rdfs:range xsd:double .
+
+ba:crossoverRate a owl:DatatypeProperty ;
+    rdfs:label "crossover rate" ;
+    rdfs:domain ba:GeneticAlgorithm ;
+    rdfs:range xsd:double .
+
+ba:selectionMethod a owl:DatatypeProperty ;
+    rdfs:label "selection method" ;
+    rdfs:domain ba:GeneticAlgorithm ;
+    rdfs:range xsd:string .
+
+## Simulated Annealing Properties
+ba:coolingSchedule a owl:ObjectProperty ;
+    rdfs:label "cooling schedule" ;
+    rdfs:domain ba:SimulatedAnnealing ;
+    rdfs:range ba:CoolingSchedule .
+
+ba:initialTemperature a owl:DatatypeProperty ;
+    rdfs:label "initial temperature" ;
+    rdfs:domain ba:SimulatedAnnealing ;
+    rdfs:range xsd:double .
+
+ba:finalTemperature a owl:DatatypeProperty ;
+    rdfs:label "final temperature" ;
+    rdfs:domain ba:SimulatedAnnealing ;
+    rdfs:range xsd:double .
+
+## Machine Learning Properties
+ba:learningAlgorithm a owl:DatatypeProperty ;
+    rdfs:label "learning algorithm" ;
+    rdfs:domain ba:MachineLearningOptimization ;
+    rdfs:range xsd:string .
+
+ba:learningRate a owl:DatatypeProperty ;
+    rdfs:label "learning rate" ;
+    rdfs:domain ba:GradientDescent ;
+    rdfs:range xsd:double .
+
+## Pareto Optimization Properties
+ba:dominates a owl:ObjectProperty ;
+    rdfs:label "dominates" ;
+    rdfs:domain ba:ParetoSolution ;
+    rdfs:range ba:ParetoSolution .
+
+ba:containsSolution a owl:ObjectProperty ;
+    rdfs:label "contains solution" ;
+    rdfs:domain ba:ParetoFrontier ;
+    rdfs:range ba:ParetoSolution .
+
+## Adaptation Properties
+ba:adaptationRate a owl:DatatypeProperty ;
+    rdfs:label "adaptation rate" ;
+    rdfs:domain ba:AdaptiveOptimization ;
+    rdfs:range xsd:double .
+
+ba:adaptationThreshold a owl:DatatypeProperty ;
+    rdfs:label "adaptation threshold" ;
+    rdfs:domain ba:AdaptiveOptimization ;
+    rdfs:range xsd:double .
+
+ba:triggersAdaptation a owl:ObjectProperty ;
+    rdfs:label "triggers adaptation" ;
+    rdfs:domain ba:AdaptationTrigger ;
+    rdfs:range ba:AdaptiveOptimization .
+
+## Control Properties
+ba:controlLoop a owl:ObjectProperty ;
+    rdfs:label "control loop" ;
+    rdfs:domain ba:FeedbackController ;
+    rdfs:range ba:ControlLoop .
+
+ba:setpoint a owl:DatatypeProperty ;
+    rdfs:label "setpoint" ;
+    rdfs:domain ba:FeedbackController ;
+    rdfs:range xsd:double .
+
+ba:proportionalGain a owl:DatatypeProperty ;
+    rdfs:label "proportional gain" ;
+    rdfs:domain ba:PIDController ;
+    rdfs:range xsd:double .
+
+ba:integralGain a owl:DatatypeProperty ;
+    rdfs:label "integral gain" ;
+    rdfs:domain ba:PIDController ;
+    rdfs:range xsd:double .
+
+ba:derivativeGain a owl:DatatypeProperty ;
+    rdfs:label "derivative gain" ;
+    rdfs:domain ba:PIDController ;
+    rdfs:range xsd:double .
+
+## Profiling Properties
+ba:profilesComponent a owl:ObjectProperty ;
+    rdfs:label "profiles component" ;
+    rdfs:domain ba:PerformanceProfiler ;
+    rdfs:range ba:SystemComponent .
+
+ba:identifiesBottleneck a owl:ObjectProperty ;
+    rdfs:label "identifies bottleneck" ;
+    rdfs:domain ba:BottleneckAnalyzer ;
+    rdfs:range ba:Bottleneck .
+
+ba:bottleneckType a owl:DatatypeProperty ;
+    rdfs:label "bottleneck type" ;
+    rdfs:domain ba:Bottleneck ;
+    rdfs:range xsd:string .
+
+ba:bottleneckSeverity a owl:DatatypeProperty ;
+    rdfs:label "bottleneck severity" ;
+    rdfs:domain ba:Bottleneck ;
+    rdfs:range xsd:double .
+
+## Resource Optimization Properties
+ba:optimizesResource a owl:ObjectProperty ;
+    rdfs:label "optimizes resource" ;
+    rdfs:domain ba:ResourceOptimizer ;
+    rdfs:range ba:Resource .
+
+ba:eliminatesWaste a owl:ObjectProperty ;
+    rdfs:label "eliminates waste" ;
+    rdfs:domain ba:WasteElimination ;
+    rdfs:range ba:ResourceWaste .
+
+ba:wasteReduction a owl:DatatypeProperty ;
+    rdfs:label "waste reduction" ;
+    rdfs:domain ba:WasteElimination ;
+    rdfs:range xsd:double .
+
+## Cache Properties
+ba:cacheHitRate a owl:DatatypeProperty ;
+    rdfs:label "cache hit rate" ;
+    rdfs:domain ba:CacheOptimizer ;
+    rdfs:range xsd:double .
+
+ba:cacheMissRate a owl:DatatypeProperty ;
+    rdfs:label "cache miss rate" ;
+    rdfs:domain ba:CacheOptimizer ;
+    rdfs:range xsd:double .
+
+ba:localityFactor a owl:DatatypeProperty ;
+    rdfs:label "locality factor" ;
+    rdfs:domain ba:LocalityOptimization ;
+    rdfs:range xsd:double .
+
+## Network Properties
+ba:bandwidthUtilization a owl:DatatypeProperty ;
+    rdfs:label "bandwidth utilization" ;
+    rdfs:domain ba:BandwidthOptimization ;
+    rdfs:range xsd:double .
+
+ba:networkLatency a owl:DatatypeProperty ;
+    rdfs:label "network latency" ;
+    rdfs:domain ba:LatencyOptimization ;
+    rdfs:range xsd:double .
+
+ba:compressionRatio a owl:DatatypeProperty ;
+    rdfs:label "compression ratio" ;
+    rdfs:domain ba:CompressionOptimization ;
+    rdfs:range xsd:double .
+
+## Auto-Tuning Properties
+ba:hasTunableParameter a owl:ObjectProperty ;
+    rdfs:label "has tunable parameter" ;
+    rdfs:domain ba:AutoTuningSystem ;
+    rdfs:range ba:TunableParameter .
+
+ba:parameterRange a owl:ObjectProperty ;
+    rdfs:label "parameter range" ;
+    rdfs:domain ba:TunableParameter ;
+    rdfs:range ba:ParameterRange .
+
+ba:currentValue a owl:DatatypeProperty ;
+    rdfs:label "current value" ;
+    rdfs:domain ba:TunableParameter ;
+    rdfs:range xsd:double .
+
+ba:optimalValue a owl:DatatypeProperty ;
+    rdfs:label "optimal value" ;
+    rdfs:domain ba:TunableParameter ;
+    rdfs:range xsd:double .
+
+## Process Properties
+ba:hasPhase a owl:ObjectProperty ;
+    rdfs:label "has phase" ;
+    rdfs:domain ba:OptimizationProcess ;
+    rdfs:range ba:OptimizationPhase .
+
+ba:phaseOrder a owl:DatatypeProperty ;
+    rdfs:label "phase order" ;
+    rdfs:domain ba:OptimizationPhase ;
+    rdfs:range xsd:positiveInteger .
+
+ba:produces a owl:ObjectProperty ;
+    rdfs:label "produces" ;
+    rdfs:domain ba:OptimizationProcess ;
+    rdfs:range ba:OptimizationResult .
+
+ba:solutionQuality a owl:DatatypeProperty ;
+    rdfs:label "solution quality" ;
+    rdfs:domain ba:OptimizationSolution ;
+    rdfs:range xsd:double .
+
+ba:improvementMetric a owl:ObjectProperty ;
+    rdfs:label "improvement metric" ;
+    rdfs:domain ba:OptimizationResult ;
+    rdfs:range ba:PerformanceMetric .
+
+ba:improvementPercentage a owl:DatatypeProperty ;
+    rdfs:label "improvement percentage" ;
+    rdfs:domain ba:OptimizationResult ;
+    rdfs:range xsd:double .
+
+## Integration Properties
+ba:integratesWithProfiler a owl:ObjectProperty ;
+    rdfs:label "integrates with profiler" ;
+    rdfs:domain ba:OptimizationEngine ;
+    rdfs:range ba:PerformanceProfiler .
+
+ba:usesFeedback a owl:ObjectProperty ;
+    rdfs:label "uses feedback" ;
+    rdfs:domain ba:OptimizationEngine ;
+    rdfs:range ba:PerformanceFeedback .
+
+ba:respondsToConstraint a owl:ObjectProperty ;
+    rdfs:label "responds to constraint" ;
+    rdfs:domain ba:OptimizationEngine ;
+    rdfs:range ba:DoctrineConstraint .
+
+# ================================================================
+# SUPPORTING CLASSES
+# ================================================================
+
+ba:CoolingSchedule a owl:Class ;
+    rdfs:label "Cooling Schedule" ;
+    rdfs:comment "Schedule for temperature reduction in simulated annealing" .
+
+ba:ControlLoop a owl:Class ;
+    rdfs:label "Control Loop" ;
+    rdfs:comment "Feedback control loop for maintaining system behavior" .
+
+ba:ParameterRange a owl:Class ;
+    rdfs:label "Parameter Range" ;
+    rdfs:comment "Valid range for a tunable parameter" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:minValue ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:maxValue ;
+        owl:cardinality 1
+    ] .
+
+ba:ResourceWaste a owl:Class ;
+    rdfs:label "Resource Waste" ;
+    rdfs:comment "Inefficient or unnecessary resource usage" .
+
+ba:CodeOptimization a owl:Class ;
+    rdfs:label "Code Optimization" ;
+    rdfs:comment "Optimization applied to source code or compiled code" .
+
+ba:CacheOptimization a owl:Class ;
+    rdfs:label "Cache Optimization" ;
+    rdfs:comment "Optimization applied to caching systems" .
+
+ba:NetworkOptimization a owl:Class ;
+    rdfs:label "Network Optimization" ;
+    rdfs:comment "Optimization applied to network systems" .
+
+# Range Properties
+ba:minValue a owl:DatatypeProperty ;
+    rdfs:label "minimum value" ;
+    rdfs:domain ba:ParameterRange ;
+    rdfs:range xsd:double .
+
+ba:maxValue a owl:DatatypeProperty ;
+    rdfs:label "maximum value" ;
+    rdfs:domain ba:ParameterRange ;
+    rdfs:range xsd:double .
+
+# ================================================================
+# SHACL VALIDATION SHAPES
+# ================================================================
+
+ba:OptimizationEngineShape a sh:NodeShape ;
+    sh:targetClass ba:OptimizationEngine ;
+    sh:property [
+        sh:path ba:hasOptimizationStrategy ;
+        sh:minCount 1 ;
+        sh:class ba:OptimizationStrategy ;
+        sh:message "OptimizationEngine must have at least one optimization strategy"
+    ] ;
+    sh:property [
+        sh:path ba:hasConstraint ;
+        sh:minCount 1 ;
+        sh:class ba:DoctrineConstraint ;
+        sh:message "OptimizationEngine must respect Doctrine of 8 constraints"
+    ] .
+
+ba:OptimizationStrategyShape a sh:NodeShape ;
+    sh:targetClass ba:OptimizationStrategy ;
+    sh:property [
+        sh:path ba:hasObjective ;
+        sh:minCount 1 ;
+        sh:class ba:OptimizationObjective ;
+        sh:message "OptimizationStrategy must have at least one objective"
+    ] .
+
+ba:MultiObjectiveOptimizationShape a sh:NodeShape ;
+    sh:targetClass ba:MultiObjectiveOptimization ;
+    sh:property [
+        sh:path ba:hasObjective ;
+        sh:minCount 2 ;
+        sh:class ba:OptimizationObjective ;
+        sh:message "MultiObjectiveOptimization must have at least two objectives"
+    ] .
+
+ba:GeneticAlgorithmShape a sh:NodeShape ;
+    sh:targetClass ba:GeneticAlgorithm ;
+    sh:property [
+        sh:path ba:populationSize ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minInclusive 10 ;
+        sh:maxInclusive 10000 ;
+        sh:message "Population size must be between 10 and 10000"
+    ] ;
+    sh:property [
+        sh:path ba:mutationRate ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Mutation rate must be between 0.0 and 1.0"
+    ] ;
+    sh:property [
+        sh:path ba:crossoverRate ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Crossover rate must be between 0.0 and 1.0"
+    ] .
+
+ba:AdaptiveOptimizationShape a sh:NodeShape ;
+    sh:targetClass ba:AdaptiveOptimization ;
+    sh:property [
+        sh:path ba:adaptationRate ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Adaptation rate must be between 0.0 and 1.0"
+    ] .
+
+ba:PIDControllerShape a sh:NodeShape ;
+    sh:targetClass ba:PIDController ;
+    sh:property [
+        sh:path ba:proportionalGain ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:message "Proportional gain must be non-negative"
+    ] ;
+    sh:property [
+        sh:path ba:integralGain ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:message "Integral gain must be non-negative"
+    ] ;
+    sh:property [
+        sh:path ba:derivativeGain ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:message "Derivative gain must be non-negative"
+    ] .
+
+ba:AutoTuningSystemShape a sh:NodeShape ;
+    sh:targetClass ba:AutoTuningSystem ;
+    sh:property [
+        sh:path ba:hasTunableParameter ;
+        sh:minCount 1 ;
+        sh:class ba:TunableParameter ;
+        sh:message "AutoTuningSystem must have at least one tunable parameter"
+    ] .
+
+ba:TunableParameterShape a sh:NodeShape ;
+    sh:targetClass ba:TunableParameter ;
+    sh:property [
+        sh:path ba:parameterRange ;
+        sh:minCount 1 ;
+        sh:class ba:ParameterRange ;
+        sh:message "TunableParameter must have a parameter range"
+    ] .
+
+ba:ParameterRangeShape a sh:NodeShape ;
+    sh:targetClass ba:ParameterRange ;
+    sh:property [
+        sh:path ba:minValue ;
+        sh:datatype xsd:double ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "ParameterRange must have exactly one minimum value"
+    ] ;
+    sh:property [
+        sh:path ba:maxValue ;
+        sh:datatype xsd:double ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "ParameterRange must have exactly one maximum value"
+    ] .
+
+ba:OptimizationResultShape a sh:NodeShape ;
+    sh:targetClass ba:OptimizationResult ;
+    sh:property [
+        sh:path ba:improvementMetric ;
+        sh:minCount 1 ;
+        sh:class ba:PerformanceMetric ;
+        sh:message "OptimizationResult must include improvement metrics"
+    ] ;
+    sh:property [
+        sh:path ba:improvementPercentage ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:message "Improvement percentage must be non-negative"
+    ] .
+
+ba:PerformanceProfilerShape a sh:NodeShape ;
+    sh:targetClass ba:PerformanceProfiler ;
+    sh:property [
+        sh:path ba:profilesComponent ;
+        sh:minCount 1 ;
+        sh:class ba:SystemComponent ;
+        sh:message "PerformanceProfiler must profile at least one component"
+    ] .
+
+ba:DoctrineComplianceShape a sh:NodeShape ;
+    sh:targetClass ba:OptimizationEngine ;
+    sh:property [
+        sh:path ba:respondsToConstraint ;
+        sh:class ba:DoctrineConstraint ;
+        sh:minCount 8 ;
+        sh:message "Optimization must respect all 8 Doctrine constraints"
+    ] .
+
+# ================================================================
+# OPTIMIZATION ALGORITHM INSTANCES
+# ================================================================
+
+## Predefined Optimization Strategies
+ba:DefaultGeneticAlgorithm a ba:GeneticAlgorithm ;
+    rdfs:label "Default Genetic Algorithm" ;
+    ba:populationSize 100 ;
+    ba:mutationRate 0.01 ;
+    ba:crossoverRate 0.8 ;
+    ba:selectionMethod "tournament" .
+
+ba:DefaultSimulatedAnnealing a ba:SimulatedAnnealing ;
+    rdfs:label "Default Simulated Annealing" ;
+    ba:initialTemperature 100.0 ;
+    ba:finalTemperature 0.01 .
+
+ba:DefaultPIDController a ba:PIDController ;
+    rdfs:label "Default PID Controller" ;
+    ba:proportionalGain 1.0 ;
+    ba:integralGain 0.1 ;
+    ba:derivativeGain 0.01 .
+
+# ================================================================
+# OPTIMIZATION OBJECTIVE TYPES
+# ================================================================
+
+ba:PerformanceObjective a ba:OptimizationObjective ;
+    rdfs:label "Performance Objective" ;
+    rdfs:comment "Objective focused on improving system performance" .
+
+ba:EfficiencyObjective a ba:OptimizationObjective ;
+    rdfs:label "Efficiency Objective" ;
+    rdfs:comment "Objective focused on improving resource efficiency" .
+
+ba:ThroughputObjective a ba:OptimizationObjective ;
+    rdfs:label "Throughput Objective" ;
+    rdfs:comment "Objective focused on maximizing system throughput" .
+
+ba:LatencyObjective a ba:OptimizationObjective ;
+    rdfs:label "Latency Objective" ;
+    rdfs:comment "Objective focused on minimizing system latency" .
+
+ba:EnergyObjective a ba:OptimizationObjective ;
+    rdfs:label "Energy Objective" ;
+    rdfs:comment "Objective focused on minimizing energy consumption" .
+
+ba:QualityObjective a ba:OptimizationObjective ;
+    rdfs:label "Quality Objective" ;
+    rdfs:comment "Objective focused on improving output quality" .
+
+# ================================================================
+# CONSTRAINT TYPES
+# ================================================================
+
+ba:ResourceConstraint a ba:OptimizationConstraint ;
+    rdfs:label "Resource Constraint" ;
+    rdfs:comment "Constraint limiting available resources" .
+
+ba:TimingConstraint a ba:OptimizationConstraint ;
+    rdfs:label "Timing Constraint" ;
+    rdfs:comment "Constraint specifying timing requirements" .
+
+ba:QualityConstraint a ba:OptimizationConstraint ;
+    rdfs:label "Quality Constraint" ;
+    rdfs:comment "Constraint specifying minimum quality levels" .
+
+ba:SecurityConstraint a ba:OptimizationConstraint ;
+    rdfs:label "Security Constraint" ;
+    rdfs:comment "Constraint ensuring security requirements are met" .
+
+ba:DoctrineConstraint a ba:OptimizationConstraint ;
+    rdfs:label "Doctrine Constraint" ;
+    rdfs:comment "Constraint enforcing Doctrine of 8 principles" .
+
+# ================================================================
+# BOTTLENECK TYPES
+# ================================================================
+
+ba:CPUBottleneck a ba:Bottleneck ;
+    rdfs:label "CPU Bottleneck" ;
+    rdfs:comment "Bottleneck caused by CPU limitations" ;
+    ba:bottleneckType "CPU" .
+
+ba:MemoryBottleneck a ba:Bottleneck ;
+    rdfs:label "Memory Bottleneck" ;
+    rdfs:comment "Bottleneck caused by memory limitations" ;
+    ba:bottleneckType "Memory" .
+
+ba:IOBottleneck a ba:Bottleneck ;
+    rdfs:label "I/O Bottleneck" ;
+    rdfs:comment "Bottleneck caused by I/O limitations" ;
+    ba:bottleneckType "IO" .
+
+ba:NetworkBottleneck a ba:Bottleneck ;
+    rdfs:label "Network Bottleneck" ;
+    rdfs:comment "Bottleneck caused by network limitations" ;
+    ba:bottleneckType "Network" .
+
+ba:DatabaseBottleneck a ba:Bottleneck ;
+    rdfs:label "Database Bottleneck" ;
+    rdfs:comment "Bottleneck caused by database limitations" ;
+    ba:bottleneckType "Database" .
+
+# ================================================================
+# ONTOLOGY ANNOTATIONS & METADATA
+# ================================================================
+
+ba:OptimizationEngine rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty prov:wasGeneratedBy ;
+    owl:someValuesFrom ba:OptimizationProcess
+] .
+
+ba:OptimizationResult rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty dcterms:created ;
+    owl:cardinality 1
+] .
+
+ba:PerformanceProfiler rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:integratesWithProfiler ;
+    owl:someValuesFrom ba:OptimizationEngine
+] .
+
+# ================================================================
+# INTEGRATION WITH OTHER ONTOLOGIES
+# ================================================================
+
+## Link with Performance Measurement Ontology
+ba:OptimizationEngine rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:usesFeedback ;
+    owl:someValuesFrom ba:PerformanceFeedback
+] .
+
+## Link with Resource Management Ontology  
+ba:ResourceOptimizer rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:optimizesResource ;
+    owl:someValuesFrom ba:SystemResource
+] .
+
+## Link with Security Framework Ontology
+ba:OptimizationEngine rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasConstraint ;
+    owl:someValuesFrom ba:SecurityConstraint
+] .
+
+## Link with Doctrine of 8 Ontology
+ba:OptimizationEngine rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:respondsToConstraint ;
+    owl:allValuesFrom ba:DoctrineConstraint
+] .
+
+# ================================================================
+# END OF ONTOLOGY
+# ================================================================

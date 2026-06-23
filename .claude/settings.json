@@ -20,12 +20,18 @@
   "permissions": {
     "mode": "acceptEdits"
   },
-  "model": "claude-haiku-4-5",
+  "model": "claude-sonnet-4-6",
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
       "source": {
         "source": "github",
         "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "ggen": {
+      "source": {
+        "source": "directory",
+        "path": "plugins"
       }
     }
   },
@@ -684,7 +690,8 @@
     ]
   },
   "enabledPlugins": {
-    "rust-analyzer-lsp@claude-plugins-official": true
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "ggen-lsp@ggen": true
   },
   "hooks": {
     "SessionStart": [
@@ -731,11 +738,6 @@
             "type": "command",
             "command": ".claude/hooks/pre_tool_use_guard.sh",
             "timeout": 10
-          },
-          {
-            "type": "command",
-            "command": "./tools/truth-gate/target/release/truth-gate",
-            "timeout": 10
           }
         ]
       }
@@ -747,22 +749,6 @@
           {
             "type": "command",
             "command": ".claude/hooks/post_tool_use_emitter.sh",
-            "timeout": 10
-          },
-          {
-            "type": "command",
-            "command": "./tools/truth-gate/target/release/truth-gate",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "ConfigChange": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./tools/truth-gate/target/release/truth-gate",
             "timeout": 10
           }
         ]

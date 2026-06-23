@@ -1,0 +1,28 @@
+@prefix : <https://bytestar.org/ontology/byteflow-planner#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/byteflow-planner>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core#> ;
+  rdfs:label "ByteFlow Planner Ontology" ;
+  rdfs:comment "Models the workload planner, resource allocation, and load balancing strategies." .
+
+:Planner a owl:Class .
+:consumesPolicy a owl:ObjectProperty ; rdfs:domain :Planner ; rdfs:range bytestar:GovernancePolicy .
+:consumesLoadReport a owl:ObjectProperty ; rdfs:domain :Planner ; rdfs:range :LoadReport .
+:selectsTarget a owl:ObjectProperty ; rdfs:domain :Planner ; rdfs:range bytestar:ByteActor .
+
+:LoadReport a owl:Class .
+:coreID a owl:DatatypeProperty ; rdfs:domain :LoadReport ; rdfs:range xsd:integer .
+:utilization a owl:DatatypeProperty ; rdfs:domain :LoadReport ; rdfs:range xsd:decimal .
+
+:LoadBalancingStrategy a owl:Class .
+:RoundRobin a owl:Class ; rdfs:subClassOf :LoadBalancingStrategy .
+:LeastLoaded a owl:Class ; rdfs:subClassOf :LoadBalancingStrategy .
+:PatternAffinity a owl:Class ; rdfs:subClassOf :LoadBalancingStrategy .
+:NUMAAware a owl:Class ; rdfs:subClassOf :LoadBalancingStrategy .
+
+:usesStrategy a owl:ObjectProperty ; rdfs:domain :Planner ; rdfs:range :LoadBalancingStrategy .

@@ -1,0 +1,280 @@
+@prefix ggen:    <https://open-ontologies.org/ggen#> .
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# ZOE LA Supabase Legacy-Coverage Profile
+# ============================================================================
+#
+# Source-law for the previously-hand-written tables that haven't yet been
+# brought through the public-vocab admission chain. Declares each table with
+# its column DDL and policies inline. Once the admission census grows to
+# cover a class, its row here is removed.
+#
+# Doctrine: this is a *transitional* profile. The doctrinally pure home for
+# every table is the public-vocab admission chain (one MaterializationKind
+# per public anchor). This profile exists because:
+#   - Some tables (group_memberships, group_invites, ocel_events) are
+#     operational substrates without obvious public-vocab anchors
+#   - Some tables (campuses, consent_records, group_interests) have anchors
+#     in public vocab but adding them to the admission census requires
+#     ontology refactors blocked by the ggen pre-flight scaling cliff
+#   - Two tables (persons, connect_groups) are partially admitted and need
+#     extra columns + custom RLS the admission chain doesn't yet produce
+#
+# Every entry here is one ggen receipt away from being deletable.
+# ============================================================================
+
+<https://open-ontologies.org/ggen/profiles/zoela-legacy-coverage>
+    a owl:Ontology ;
+    rdfs:label   "ZOE LA Supabase Legacy-Coverage Profile"@en ;
+    rdfs:comment "Transitional declarative source for tables not yet covered by the public-vocab admission chain."@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-05-19"^^xsd:date ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo "P0-B.10" .
+
+# ============================================================================
+# § 1  Profile vocabulary
+# ============================================================================
+
+ggen:LegacyTableSpec a owl:Class ;
+    rdfs:label "Legacy Table Spec"@en ;
+    rdfs:comment "A table declared inline (column DDL strings) because it isn't yet reachable from the public-vocab admission chain."@en .
+
+ggen:LegacyAlterSpec a owl:Class ;
+    rdfs:label "Legacy Alter Spec"@en ;
+    rdfs:comment "An ALTER TABLE ADD COLUMN spec that augments a table the admission chain only partially covers."@en .
+
+ggen:LegacyPolicySpec a owl:Class ;
+    rdfs:label "Legacy Policy Spec"@en ;
+    rdfs:comment "A CREATE POLICY spec for tables (or refinements on admitted tables) not yet driven by the ODRL pipeline."@en .
+
+ggen:legacyTableName  a owl:DatatypeProperty ; rdfs:domain ggen:LegacyTableSpec ; rdfs:range xsd:string .
+ggen:legacyTableOrder a owl:DatatypeProperty ; rdfs:domain ggen:LegacyTableSpec ; rdfs:range xsd:integer ;
+    rdfs:comment "Integer ordering for emission. FK-referenced tables must have a LOWER order than referring tables."@en .
+ggen:hasLegacyColumn  a owl:DatatypeProperty ; rdfs:domain ggen:LegacyTableSpec ; rdfs:range xsd:string ;
+    rdfs:comment "Full column DDL fragment, e.g. 'name TEXT NOT NULL UNIQUE'."@en .
+ggen:hasLegacyIndex   a owl:DatatypeProperty ; rdfs:domain ggen:LegacyTableSpec ; rdfs:range xsd:string ;
+    rdfs:comment "Index DDL fragment without trailing semicolon, e.g. 'CREATE INDEX IF NOT EXISTS idx_x ON t(c)'."@en .
+
+ggen:legacyAlterTable a owl:DatatypeProperty ; rdfs:domain ggen:LegacyAlterSpec ; rdfs:range xsd:string .
+ggen:hasAddColumn     a owl:DatatypeProperty ; rdfs:domain ggen:LegacyAlterSpec ; rdfs:range xsd:string .
+ggen:legacyAlterOrder a owl:DatatypeProperty ; rdfs:domain ggen:LegacyAlterSpec ; rdfs:range xsd:integer .
+
+ggen:legacyPolicyName a owl:DatatypeProperty ; rdfs:domain ggen:LegacyPolicySpec ; rdfs:range xsd:string .
+ggen:legacyPolicyTable a owl:DatatypeProperty ; rdfs:domain ggen:LegacyPolicySpec ; rdfs:range xsd:string .
+ggen:legacyPolicyOp   a owl:DatatypeProperty ; rdfs:domain ggen:LegacyPolicySpec ; rdfs:range xsd:string .
+ggen:legacyPolicyUsing a owl:DatatypeProperty ; rdfs:domain ggen:LegacyPolicySpec ; rdfs:range xsd:string .
+ggen:legacyPolicyCheck a owl:DatatypeProperty ; rdfs:domain ggen:LegacyPolicySpec ; rdfs:range xsd:string .
+ggen:legacyPolicyOrder a owl:DatatypeProperty ; rdfs:domain ggen:LegacyPolicySpec ; rdfs:range xsd:integer .
+
+# ============================================================================
+# § 2  Table specs (in FK-order)
+# ============================================================================
+
+# ── campuses (no FK) ─────────────────────────────────────────────────────────
+
+zoe:campusesTable a ggen:LegacyTableSpec ;
+    ggen:legacyTableName  "campuses" ;
+    ggen:legacyTableOrder 10 ;
+    ggen:hasLegacyColumn "name            TEXT        NOT NULL" ,
+                         "slug            TEXT        NOT NULL UNIQUE" ,
+                         "campus_code     TEXT" ,
+                         "campus_city     TEXT" ,
+                         "location_mode   TEXT        NOT NULL DEFAULT 'in-person'" ,
+                         "campus_timezone TEXT        DEFAULT 'America/Los_Angeles'" ,
+                         "is_active       BOOLEAN     NOT NULL DEFAULT true" .
+
+# ── consent_records (FK to persons) ──────────────────────────────────────────
+
+zoe:consentRecordsTable a ggen:LegacyTableSpec ;
+    ggen:legacyTableName  "consent_records" ;
+    ggen:legacyTableOrder 50 ;
+    ggen:hasLegacyColumn "person_id           UUID        NOT NULL REFERENCES persons(id)" ,
+                         "consent_type        TEXT        NOT NULL" ,
+                         "granted             BOOLEAN     NOT NULL DEFAULT false" ,
+                         "granted_at          TIMESTAMPTZ" ,
+                         "revoked_at          TIMESTAMPTZ" ,
+                         "granted_by          TEXT" ,
+                         "is_guardian_consent BOOLEAN     DEFAULT false" .
+
+# ── group_interests (FK to persons, campuses, connect_groups) ────────────────
+
+zoe:groupInterestsTable a ggen:LegacyTableSpec ;
+    ggen:legacyTableName  "group_interests" ;
+    ggen:legacyTableOrder 60 ;
+    ggen:hasLegacyColumn "person_id           UUID        NOT NULL REFERENCES persons(id)" ,
+                         "campus_id           UUID        REFERENCES campuses(id)" ,
+                         "schedule_preference TEXT" ,
+                         "location_preference TEXT        DEFAULT 'in-person'" ,
+                         "submitted_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()" ,
+                         "matched_group_id    UUID        REFERENCES connect_groups(id)" ,
+                         "match_status        TEXT        NOT NULL DEFAULT 'pending'" .
+
+# ── group_memberships (FK to persons, connect_groups) ────────────────────────
+
+zoe:groupMembershipsTable a ggen:LegacyTableSpec ;
+    ggen:legacyTableName  "group_memberships" ;
+    ggen:legacyTableOrder 70 ;
+    ggen:hasLegacyColumn "person_id   UUID        NOT NULL REFERENCES persons(id)" ,
+                         "group_id    UUID        NOT NULL REFERENCES connect_groups(id)" ,
+                         "member_role TEXT        NOT NULL DEFAULT 'member'" ,
+                         "joined_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()" ,
+                         "is_active   BOOLEAN     NOT NULL DEFAULT true" ,
+                         "UNIQUE (person_id, group_id)" .
+
+# ── group_invites (FK to persons, connect_groups) ────────────────────────────
+
+zoe:groupInvitesTable a ggen:LegacyTableSpec ;
+    ggen:legacyTableName  "group_invites" ;
+    ggen:legacyTableOrder 71 ;
+    ggen:hasLegacyColumn "person_id    UUID        NOT NULL REFERENCES persons(id)" ,
+                         "group_id     UUID        NOT NULL REFERENCES connect_groups(id)" ,
+                         "invited_by   UUID        REFERENCES persons(id)" ,
+                         "status       TEXT        NOT NULL DEFAULT 'pending'" ,
+                         "sent_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()" ,
+                         "responded_at TIMESTAMPTZ" ,
+                         "UNIQUE (person_id, group_id)" .
+
+# ── ocel_events (no FK; needs indexes) ───────────────────────────────────────
+
+zoe:ocelEventsTable a ggen:LegacyTableSpec ;
+    ggen:legacyTableName  "ocel_events" ;
+    ggen:legacyTableOrder 80 ;
+    ggen:hasLegacyColumn "event_type   TEXT        NOT NULL" ,
+                         "object_id    TEXT        NOT NULL" ,
+                         "object_type  TEXT        NOT NULL" ,
+                         "route_id     TEXT        NOT NULL" ,
+                         "stage_code   TEXT        NOT NULL" ,
+                         "action_class TEXT        NOT NULL" ,
+                         "run_id       UUID        NOT NULL" ,
+                         "ts_ns        BIGINT      NOT NULL" ,
+                         "fields       JSONB       DEFAULT '{}'::jsonb" ,
+                         "receipt_hash TEXT" ;
+    ggen:hasLegacyIndex "CREATE INDEX IF NOT EXISTS idx_ocel_events_run_id    ON ocel_events(run_id)" ,
+                        "CREATE INDEX IF NOT EXISTS idx_ocel_events_route_id  ON ocel_events(route_id)" ,
+                        "CREATE INDEX IF NOT EXISTS idx_ocel_events_object_id ON ocel_events(object_id)" .
+
+# ============================================================================
+# § 3  ALTER specs (extra columns on admitted tables)
+# ============================================================================
+
+# persons needs full_name + campus_id beyond the admission chain's output.
+zoe:personsExtra a ggen:LegacyAlterSpec ;
+    ggen:legacyAlterTable "persons" ;
+    ggen:legacyAlterOrder 20 ;
+    ggen:hasAddColumn "full_name   TEXT" ,
+                      "campus_id   UUID REFERENCES campuses(id)" .
+
+# connect_groups needs the full connect-group schema beyond admission's id+audit.
+zoe:connectGroupsExtra a ggen:LegacyAlterSpec ;
+    ggen:legacyAlterTable "connect_groups" ;
+    ggen:legacyAlterOrder 40 ;
+    ggen:hasAddColumn "name            TEXT" ,
+                      "campus_id       UUID REFERENCES campuses(id)" ,
+                      "leader_id       UUID REFERENCES persons(id)" ,
+                      "host_id         UUID REFERENCES persons(id)" ,
+                      "group_code      TEXT" ,
+                      "max_capacity    INTEGER     NOT NULL DEFAULT 12" ,
+                      "current_count   INTEGER     NOT NULL DEFAULT 0" ,
+                      "is_private      BOOLEAN     NOT NULL DEFAULT false" ,
+                      "location_mode   TEXT        NOT NULL DEFAULT 'in-person'" ,
+                      "meeting_day     TEXT" ,
+                      "meeting_time    TEXT" ,
+                      "group_frequency TEXT        DEFAULT 'weekly'" ,
+                      "is_open         BOOLEAN     NOT NULL DEFAULT true" .
+
+# households needs no extras under the connect-group route MVP scope.
+
+# ============================================================================
+# § 4  Policy specs (legacy RLS that the ODRL chain doesn't yet drive)
+# ============================================================================
+# Naming convention: legacyPolicyName must stay under 50 chars when combined
+# with op + table suffix (Postgres 63-char identifier cap).
+# ============================================================================
+
+# Generic authenticated_* policies for legacy tables ─────────────────────────
+
+zoe:campusesPolicyRead a ggen:LegacyPolicySpec ;
+    ggen:legacyPolicyName  "auth_read" ;
+    ggen:legacyPolicyTable "campuses" ;
+    ggen:legacyPolicyOp    "SELECT" ;
+    ggen:legacyPolicyUsing "true" ;
+    ggen:legacyPolicyOrder 10 .
+
+zoe:consentRecordsPolicyRead a ggen:LegacyPolicySpec ;
+    ggen:legacyPolicyName  "person_read_own" ;
+    ggen:legacyPolicyTable "consent_records" ;
+    ggen:legacyPolicyOp    "SELECT" ;
+    ggen:legacyPolicyUsing "person_id = auth.uid()" ;
+    ggen:legacyPolicyOrder 50 .
+
+zoe:consentRecordsPolicyInsert a ggen:LegacyPolicySpec ;
+    ggen:legacyPolicyName  "person_insert_own" ;
+    ggen:legacyPolicyTable "consent_records" ;
+    ggen:legacyPolicyOp    "INSERT" ;
+    ggen:legacyPolicyCheck "person_id = auth.uid()" ;
+    ggen:legacyPolicyOrder 51 .
+
+zoe:groupInterestsPolicyRead a ggen:LegacyPolicySpec ;
+    ggen:legacyPolicyName  "person_or_leader_read" ;
+    ggen:legacyPolicyTable "group_interests" ;
+    ggen:legacyPolicyOp    "SELECT" ;
+    ggen:legacyPolicyUsing "person_id = auth.uid() OR EXISTS (SELECT 1 FROM connect_groups cg WHERE cg.leader_id = auth.uid())" ;
+    ggen:legacyPolicyOrder 60 .
+
+zoe:groupInterestsPolicyInsert a ggen:LegacyPolicySpec ;
+    ggen:legacyPolicyName  "auth_insert" ;
+    ggen:legacyPolicyTable "group_interests" ;
+    ggen:legacyPolicyOp    "INSERT" ;
+    ggen:legacyPolicyCheck "true" ;
+    ggen:legacyPolicyOrder 61 .
+
+zoe:groupMembershipsPolicyRead a ggen:LegacyPolicySpec ;
+    ggen:legacyPolicyName  "auth_read" ;
+    ggen:legacyPolicyTable "group_memberships" ;
+    ggen:legacyPolicyOp    "SELECT" ;
+    ggen:legacyPolicyUsing "true" ;
+    ggen:legacyPolicyOrder 70 .
+
+zoe:groupMembershipsPolicyInsert a ggen:LegacyPolicySpec ;
+    ggen:legacyPolicyName  "auth_insert" ;
+    ggen:legacyPolicyTable "group_memberships" ;
+    ggen:legacyPolicyOp    "INSERT" ;
+    ggen:legacyPolicyCheck "true" ;
+    ggen:legacyPolicyOrder 71 .
+
+zoe:groupInvitesPolicyRead a ggen:LegacyPolicySpec ;
+    ggen:legacyPolicyName  "auth_read" ;
+    ggen:legacyPolicyTable "group_invites" ;
+    ggen:legacyPolicyOp    "SELECT" ;
+    ggen:legacyPolicyUsing "true" ;
+    ggen:legacyPolicyOrder 80 .
+
+zoe:groupInvitesPolicyInsert a ggen:LegacyPolicySpec ;
+    ggen:legacyPolicyName  "auth_insert" ;
+    ggen:legacyPolicyTable "group_invites" ;
+    ggen:legacyPolicyOp    "INSERT" ;
+    ggen:legacyPolicyCheck "true" ;
+    ggen:legacyPolicyOrder 81 .
+
+zoe:ocelEventsPolicyRead a ggen:LegacyPolicySpec ;
+    ggen:legacyPolicyName  "auth_read" ;
+    ggen:legacyPolicyTable "ocel_events" ;
+    ggen:legacyPolicyOp    "SELECT" ;
+    ggen:legacyPolicyUsing "true" ;
+    ggen:legacyPolicyOrder 90 .
+
+# Refinement policies on admitted tables that ODRL chain doesn't drive.
+zoe:connectGroupsPolicyLeaderUpdate a ggen:LegacyPolicySpec ;
+    ggen:legacyPolicyName  "leader_update" ;
+    ggen:legacyPolicyTable "connect_groups" ;
+    ggen:legacyPolicyOp    "UPDATE" ;
+    ggen:legacyPolicyUsing "leader_id = auth.uid() OR host_id = auth.uid()" ;
+    ggen:legacyPolicyOrder 41 .

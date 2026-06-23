@@ -1,0 +1,183 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix a2a: <http://a2a.io/schema/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+a2a:Component rdf:type owl:Class ;
+    rdfs:label "A2A Component" ;
+    rdfs:comment "Base class for all A2A components" .
+
+a2a:Behaviour rdf:type owl:Class ;
+    rdfs:label "Behaviour" ;
+    rdfs:comment "Base class for component behaviours" .
+
+a2a:GenServerBehaviour rdf:type owl:Class ;
+    rdfs:subClassOf a2a:Behaviour ;
+    rdfs:label "Gen Server Behaviour" ;
+    rdfs:comment "Erlang gen_server behaviour" .
+
+a2a:GenStatemBehaviour rdf:type owl:Class ;
+    rdfs:subClassOf a2a:Behaviour ;
+    rdfs:label "Gen State Machine Behaviour" ;
+    rdfs:comment "Erlang gen_statem behaviour" .
+
+a2a:SupervisorBehaviour rdf:type owl:Class ;
+    rdfs:subClassOf a2a:Behaviour ;
+    rdfs:label "Supervisor Behaviour" ;
+    rdfs:comment "Erlang supervisor behaviour" .
+
+a2a:hasBehaviour rdf:type owl:ObjectProperty ;
+    rdfs:domain a2a:Component ;
+    rdfs:range a2a:Behaviour ;
+    rdfs:label "has behaviour" ;
+    rdfs:comment "Relationship between component and its behaviour" .
+
+a2a:hasProperty rdf:type owl:ObjectProperty ;
+    rdfs:domain a2a:Component ;
+    rdfs:range a2a:Property ;
+    rdfs:label "has property" ;
+    rdfs:comment "Relationship between component and its properties" .
+
+a2a:component_name rdf:type owl:DatatypeProperty ;
+    rdfs:domain a2a:Component ;
+    rdfs:range xsd:string ;
+    rdfs:label "component name" ;
+    rdfs:comment "Name of the component" .
+
+a2a:Behaviour rdf:type owl:Class ;
+    rdfs:label "Behaviour" ;
+    rdfs:comment "Base class for all behaviours" .
+
+a2a:Property rdf:type owl:Class ;
+    rdfs:label "Property" ;
+    rdfs:comment "Property of a component" .
+
+a2a:propertyName rdf:type owl:DatatypeProperty ;
+    rdfs:domain a2a:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "property name" ;
+    rdfs:comment "Name of the property" .
+
+a2a:propertyType rdf:type owl:DatatypeProperty ;
+    rdfs:domain a2a:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "property type" ;
+    rdfs:comment "Type of the property" .
+
+a2a:defaultValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain a2a:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "default value" ;
+    rdfs:comment "Default value for the property" .
+
+a2a:isOptional rdf:type owl:DatatypeProperty ;
+    rdfs:domain a2a:Property ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is optional" ;
+    rdfs:comment "Whether the property is optional" .
+
+a2a:TaskStore rdf:type owl:Class ;
+    rdfs:subClassOf a2a:Component ;
+    rdfs:label "Task Store" ;
+    rdfs:comment "Component for storing and managing tasks" ;
+    a2a:component_name "task_store" ;
+    a2a:hasBehaviour a2a:GenServerBehaviour ;
+    a2a:hasProperty [
+        rdf:type a2a:Property ;
+        a2a:propertyName "task_queue" ;
+        a2a:propertyType "queue()" ;
+        a2a:defaultValue "#{}" ;
+        a2a:isOptional false
+    ] ;
+    a2a:hasProperty [
+        rdf:type a2a:Property ;
+        a2a:propertyName "max_tasks" ;
+        a2a:propertyType "integer()" ;
+        a2a:defaultValue "1000" ;
+        a2a:isOptional false
+    ] .
+
+a2a:MetricsCollector rdf:type owl:Class ;
+    rdfs:subClassOf a2a:Component ;
+    rdfs:label "Metrics Collector" ;
+    rdfs:comment "Component for collecting and reporting metrics" ;
+    a2a:component_name "metrics_collector" ;
+    a2a:hasBehaviour a2a:GenStatemBehaviour ;
+    a2a:hasProperty [
+        rdf:type a2a:Property ;
+        a2a:propertyName "metrics_data" ;
+        a2a:propertyType "map()" ;
+        a2a:defaultValue "#{}" ;
+        a2a:isOptional false
+    ] ;
+    a2a:hasProperty [
+        rdf:type a2a:Property ;
+        a2a:propertyName "metrics_interval" ;
+        a2a:propertyType "integer()" ;
+        a2a:defaultValue "1000" ;
+        a2a:isOptional false
+    ] .
+
+a2a:CacheManager rdf:type owl:Class ;
+    rdfs:subClassOf a2a:Component ;
+    rdfs:label "Cache Manager" ;
+    rdfs:comment "Component for managing application cache" ;
+    a2a:component_name "cache_manager" ;
+    a2a:hasBehaviour a2a:GenServerBehaviour ;
+    a2a:hasProperty [
+        rdf:type a2a:Property ;
+        a2a:propertyName "cache_size" ;
+        a2a:propertyType "integer()" ;
+        a2a:defaultValue "1000" ;
+        a2a:isOptional false
+    ] ;
+    a2a:hasProperty [
+        rdf:type a2a:Property ;
+        a2a:propertyName "cache_ttl" ;
+        a2a:propertyType "integer()" ;
+        a2a:defaultValue "3600" ;
+        a2a:isOptional false
+    ] .
+
+a2a:NotificationService rdf:type owl:Class ;
+    rdfs:subClassOf a2a:Component ;
+    rdfs:label "Notification Service" ;
+    rdfs:comment "Service for sending notifications" ;
+    a2a:component_name "notification_service" ;
+    a2a:hasBehaviour a2a:SupervisorBehaviour ;
+    a2a:hasProperty [
+        rdf:type a2a:Property ;
+        a2a:propertyName "notification_channels" ;
+        a2a:propertyType "list()" ;
+        a2a:defaultValue "[]" ;
+        a2a:isOptional false
+    ] ;
+    a2a:hasProperty [
+        rdf:type a2a:Property ;
+        a2a:propertyName "max_retries" ;
+        a2a:propertyType "integer()" ;
+        a2a:defaultValue "3" ;
+        a2a:isOptional false
+    ] .
+
+a2a:DatabasePool rdf:type owl:Class ;
+    rdfs:subClassOf a2a:Component ;
+    rdfs:label "Database Pool" ;
+    rdfs:comment "Connection pool for database operations" ;
+    a2a:component_name "database_pool" ;
+    a2a:hasBehaviour a2a:SupervisorBehaviour ;
+    a2a:hasProperty [
+        rdf:type a2a:Property ;
+        a2a:propertyName "pool_size" ;
+        a2a:propertyType "integer()" ;
+        a2a:defaultValue "10" ;
+        a2a:isOptional false
+    ] ;
+    a2a:hasProperty [
+        rdf:type a2a:Property ;
+        a2a:propertyName "max_wait_time" ;
+        a2a:propertyType "integer()" ;
+        a2a:defaultValue "30000" ;
+        a2a:isOptional false
+    ] .

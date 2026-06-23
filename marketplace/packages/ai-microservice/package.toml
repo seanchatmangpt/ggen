@@ -60,3 +60,6 @@ ggen ai refactor src/services/product.rs
 quick_start = "AI-powered microservice generation and refactoring"
 caching = "Built-in LRU caching for improved performance"
 streaming = "Real-time streaming support for AI responses"
+
+[marketplace]
+production_ready = false

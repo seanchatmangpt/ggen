@@ -1,0 +1,18 @@
+# SPARQL Query: Extract Paper Coverage from wasm4pm-compat ontology
+# Purpose: Report which papers are covered, partially covered, or pending module implementation
+# Usage: ggen query extract-paper-coverage.rq --format json
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+
+SELECT ?paper ?citeKey ?status ?module
+WHERE {
+  ?paper a compat:PaperCoverage ;
+         compat:citeKey        ?citeKey ;
+         compat:coverageStatus ?status .
+
+  OPTIONAL { ?paper compat:coveringModule ?module . }
+}
+ORDER BY ?status ?citeKey

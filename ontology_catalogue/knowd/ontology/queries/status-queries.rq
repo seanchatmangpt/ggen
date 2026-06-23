@@ -1,0 +1,134 @@
+# ============================================================================
+# Implementation Status Queries
+# ============================================================================
+
+# Query 1: List all P0 features with their current status
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?feature ?name ?status ?completeness ?coverage
+WHERE {
+  ?feature a knowd:ProductionFeature ;
+           rdfs:label ?name ;
+           knowd:priority "P0" ;
+           knowd:status ?status ;
+           knowd:completeness ?completeness .
+  OPTIONAL { ?feature knowd:coverage ?coverage }
+}
+ORDER BY DESC(?completeness) ?name
+
+# Query 2: Find incomplete P0 features
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?feature ?name ?completeness ?status
+WHERE {
+  ?feature a knowd:ProductionFeature ;
+           rdfs:label ?name ;
+           knowd:priority "P0" ;
+           knowd:completeness ?completeness ;
+           knowd:status ?status .
+  FILTER (?completeness < 1.0)
+}
+ORDER BY ?completeness
+
+# Query 3: Count features by status
+PREFIX knowd: <http://knowd.io/ontology#>
+
+SELECT ?status (COUNT(?feature) AS ?count)
+WHERE {
+  ?feature a knowd:ProductionFeature ;
+           knowd:status ?status .
+}
+GROUP BY ?status
+ORDER BY DESC(?count)
+
+# Query 4: Calculate overall P0 readiness percentage
+PREFIX knowd: <http://knowd.io/ontology#>
+
+SELECT
+  (AVG(?completeness) AS ?avgCompleteness)
+  (MIN(?completeness) AS ?minCompleteness)
+  (MAX(?completeness) AS ?maxCompleteness)
+  (COUNT(?feature) AS ?totalP0Features)
+WHERE {
+  ?feature a knowd:ProductionFeature ;
+           knowd:priority "P0" ;
+           knowd:completeness ?completeness .
+}
+
+# Query 5: List features by implementation file
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?file (GROUP_CONCAT(?name; separator=", ") AS ?features)
+WHERE {
+  ?feature a knowd:ProductionFeature ;
+           rdfs:label ?name ;
+           knowd:implementedIn ?file .
+}
+GROUP BY ?file
+ORDER BY ?file
+
+# Query 6: Find features without test files
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?feature ?name ?priority
+WHERE {
+  ?feature a knowd:ProductionFeature ;
+           rdfs:label ?name ;
+           knowd:priority ?priority .
+  FILTER NOT EXISTS { ?feature knowd:testedBy ?test }
+}
+ORDER BY ?priority ?name
+
+# Query 7: List security features with coverage below 85%
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?feature ?name ?coverage
+WHERE {
+  ?feature a knowd:SecurityFeature ;
+           rdfs:label ?name ;
+           knowd:coverage ?coverage .
+  FILTER (?coverage < 0.85)
+}
+ORDER BY ?coverage
+
+# Query 8: ASK if system is production ready (all P0 complete)
+PREFIX knowd: <http://knowd.io/ontology#>
+
+ASK {
+  FILTER NOT EXISTS {
+    ?feature a knowd:ProductionFeature ;
+             knowd:priority "P0" ;
+             knowd:completeness ?c .
+    FILTER (?c < 1.0)
+  }
+}
+
+# Query 9: List features modified in last week
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?feature ?name ?lastModified
+WHERE {
+  ?feature a knowd:ProductionFeature ;
+           rdfs:label ?name ;
+           knowd:lastModified ?lastModified .
+  FILTER (?lastModified > "2025-01-08T00:00:00Z"^^xsd:dateTime)
+}
+ORDER BY DESC(?lastModified)
+
+# Query 10: Feature distribution by type
+PREFIX knowd: <http://knowd.io/ontology#>
+
+SELECT ?type (COUNT(?feature) AS ?count)
+WHERE {
+  ?feature a ?type .
+  ?type rdfs:subClassOf* knowd:ProductionFeature .
+}
+GROUP BY ?type
+ORDER BY DESC(?count)

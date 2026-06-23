@@ -1,0 +1,13 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# AUDIT: Verify PARTIAL_CLAIM always links to blocking gaps
+# Returns any PARTIAL_CLAIM without a documented gap (violation if results non-empty)
+SELECT ?checkpoint ?label
+WHERE {
+  ?checkpoint a pi:PARTIAL_CLAIM ;
+              rdfs:label ?label .
+  FILTER (!BOUND(?gap))
+  OPTIONAL { ?checkpoint pi:blockingGap ?gap }
+  FILTER (!BOUND(?gap))
+}

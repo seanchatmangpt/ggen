@@ -1,0 +1,40 @@
+PREFIX bos: <http://businessos.dev/id/>
+PREFIX bpmn: <http://www.omg.org/spec/BPMN/20100524/MODEL#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?tasks_uri a <http://www.omg.org/spec/BPMN/20100524/MODEL#Task> ;
+    <http://www.omg.org/spec/BPMN/20100524/MODEL#id> ?id ;
+    <http://www.omg.org/spec/BPMN/20100524/MODEL#name> ?title ;
+    <http://schema.org/description> ?description ;
+    <http://www.omg.org/spec/BPMN/20100524/MODEL#state> ?status_mapped ;
+    <http://www.omg.org/spec/BPMN/20100524/MODEL#priority> ?priority ;
+    <http://www.omg.org/spec/BPMN/20100524/MODEL#processRef> ?project_id_uri ;
+    <http://www.omg.org/spec/BPMN/20100524/MODEL#performerRef> ?assignee_id_uri ;
+    <http://www.omg.org/spec/BPMN/20100524/MODEL#dueDate> ?due_date ;
+    <http://schema.org/dateCreated> ?created_at ;
+    <http://www.w3.org/ns/prov#wasGeneratedBy> ?activity_uri .
+}
+
+WHERE {
+  # Variables bound from data source
+  BIND(IRI(CONCAT("http://businessos.dev/id/tasks/{id}", STR(?id))) AS ?tasks_uri)
+  BIND(IF(BOUND(?project_id) && ?project_id != "",
+    IRI(CONCAT("http://businessos.dev/id/projects/", STR(?project_id))),
+    UNDEF) AS ?project_id_uri)
+  BIND(IF(BOUND(?assignee_id) && ?assignee_id != "",
+    IRI(CONCAT("http://businessos.dev/id/team_members/", STR(?assignee_id))),
+    UNDEF) AS ?assignee_id_uri)
+  BIND(IF(?status = "TODO", IRI("http://www.omg.org/spec/BPMN/20100524/MODEL#Inactive")),
+    IF(?status = "DONE", IRI("http://www.omg.org/spec/BPMN/20100524/MODEL#Completed")),
+    IF(?status = "IN_PROGRESS", IRI("http://www.omg.org/spec/BPMN/20100524/MODEL#Active")),
+    ?status) AS ?status_mapped)
+  BIND(IRI(CONCAT("http://businessos.dev/activity/tasks/", STR(?id))) AS ?activity_uri)
+}

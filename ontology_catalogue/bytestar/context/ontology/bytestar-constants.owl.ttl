@@ -1,0 +1,36 @@
+@prefix : <https://bytestar.org/ontology/bytestar-constants#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-constants>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  rdfs:label "ByteStar Doctrinal Constants" ;
+  rdfs:comment "Named individuals encoding 8/8 law, 64 kernels, 43 patterns, zero-tick reject, let-it-crash." .
+
+:DoctrineOf8 a owl:NamedIndividual ;
+  rdfs:comment "Hard bounds: ≤8 ticks per kernel; ≤8 hops end-to-end." .
+
+:KernelSet64 a owl:NamedIndividual , bytestar:KernelSet ;
+  rdfs:comment "The fixed instruction set size." .
+
+:PatternCatalog43 a owl:NamedIndividual , bytestar:PatternRegistry ;
+  rdfs:comment "The fixed workflow pattern catalog size." .
+
+:ZeroTickReject a owl:NamedIndividual ;
+  rdfs:comment "Admission failures consume 0 hot ticks (A is untouched)." .
+
+:LetItCrash a owl:NamedIndividual ;
+  rdfs:comment "No runtime guards in ByteActor; defenses live in SHACL/PB/PQC." .
+
+# Convenience numeric constants (for SHACL or tools)
+:maxTicks a owl:DatatypeProperty ; rdfs:domain :DoctrineOf8 ; rdfs:range xsd:integer .
+:maxHops  a owl:DatatypeProperty ; rdfs:domain :DoctrineOf8 ; rdfs:range xsd:integer .
+:instructionCount a owl:DatatypeProperty ; rdfs:domain :KernelSet64 ; rdfs:range xsd:integer .
+:patternCount     a owl:DatatypeProperty ; rdfs:domain :PatternCatalog43 ; rdfs:range xsd:integer .
+
+:DoctrineOf8 :maxTicks "8"^^xsd:integer ; :maxHops "8"^^xsd:integer .
+:KernelSet64 :instructionCount "64"^^xsd:integer .
+:PatternCatalog43 :patternCount "43"^^xsd:integer .

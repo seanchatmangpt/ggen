@@ -37,6 +37,30 @@
 
 use ggen_core::registry::{RegistryClient, SearchParams};
 use ggen_core::telemetry::{init_telemetry, shutdown_telemetry, TelemetryConfig};
+use serial_test::serial;
+
+/// Saves the prior value of an env var and restores it (or removes it) on Drop.
+struct EnvVarGuard {
+    key: &'static str,
+    previous: Option<std::ffi::OsString>,
+}
+
+impl EnvVarGuard {
+    fn set(key: &'static str, value: &str) -> Self {
+        let previous = std::env::var_os(key);
+        std::env::set_var(key, value);
+        Self { key, previous }
+    }
+}
+
+impl Drop for EnvVarGuard {
+    fn drop(&mut self) {
+        match &self.previous {
+            None => std::env::remove_var(self.key),
+            Some(v) => std::env::set_var(self.key, v),
+        }
+    }
+}
 
 #[tokio::test]
 async fn test_telemetry_initialization() {
@@ -126,14 +150,13 @@ async fn test_advanced_search_generates_spans() {
 // endpoint (see `impl Default for TelemetryConfig` in src/telemetry.rs).
 #[cfg(feature = "otel")]
 #[test]
+#[serial(OTEL_EXPORTER_OTLP_ENDPOINT)]
 fn test_telemetry_config_from_env() {
     // Test that endpoint can be read from environment
-    std::env::set_var("OTEL_EXPORTER_OTLP_ENDPOINT", "http://custom:4318");
+    let _guard = EnvVarGuard::set("OTEL_EXPORTER_OTLP_ENDPOINT", "http://custom:4318");
 
     let config = TelemetryConfig::default();
     assert_eq!(config.endpoint, "http://custom:4318");
-
-    std::env::remove_var("OTEL_EXPORTER_OTLP_ENDPOINT");
 }
 
 #[test]

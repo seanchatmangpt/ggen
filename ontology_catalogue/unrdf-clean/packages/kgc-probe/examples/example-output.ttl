@@ -1,0 +1,98 @@
+<urn:kgc:constraint:6> <https://unrdf.org/kgc/probe#derivedFrom> <urn:kgc:obs:f66cd54a4793d7a5>;
+    <https://unrdf.org/kgc/probe#description> "Filesystem access outside allowed roots";
+    <https://unrdf.org/kgc/probe#constraintType> "error-boundary";
+    a <https://unrdf.org/kgc/probe#Constraint>.
+<urn:kgc:constraint:5> <https://unrdf.org/kgc/probe#derivedFrom> <urn:kgc:obs:f66cd54a4793d7a5>;
+    <https://unrdf.org/kgc/probe#description> "Operation denied by guard";
+    <https://unrdf.org/kgc/probe#constraintType> "guard-denial";
+    a <https://unrdf.org/kgc/probe#Constraint>.
+<urn:kgc:constraint:4> <https://unrdf.org/kgc/probe#derivedFrom> <urn:kgc:obs:e26b43d6631bebcf>;
+    <https://unrdf.org/kgc/probe#description> "Maximum stack depth: 8946";
+    <https://unrdf.org/kgc/probe#constraintType> "stack-depth-limit";
+    a <https://unrdf.org/kgc/probe#Constraint>.
+<urn:kgc:constraint:3> <https://unrdf.org/kgc/probe#derivedFrom> <urn:kgc:obs:d010998d17a40d45>;
+    <https://unrdf.org/kgc/probe#description> "Maximum memory: 4294967296";
+    <https://unrdf.org/kgc/probe#constraintType> "memory-limit";
+    a <https://unrdf.org/kgc/probe#Constraint>.
+<urn:kgc:constraint:2> <https://unrdf.org/kgc/probe#derivedFrom> <urn:kgc:obs:578e281b0cfca2ce>;
+    <https://unrdf.org/kgc/probe#description> "Network request blocked by guard";
+    <https://unrdf.org/kgc/probe#constraintType> "error-boundary";
+    a <https://unrdf.org/kgc/probe#Constraint>.
+<urn:kgc:constraint:1> <https://unrdf.org/kgc/probe#derivedFrom> <urn:kgc:obs:578e281b0cfca2ce>;
+    <https://unrdf.org/kgc/probe#description> "Operation denied by guard";
+    <https://unrdf.org/kgc/probe#constraintType> "guard-denial";
+    a <https://unrdf.org/kgc/probe#Constraint>.
+<urn:kgc:cap:4> <https://unrdf.org/kgc/probe#derivedFrom> <urn:kgc:obs:d7ff22bccbf71dcc>;
+    <https://unrdf.org/kgc/probe#available> true;
+    <https://unrdf.org/kgc/probe#name> "concurrency.concurrency.worker_threads_available";
+    a <https://unrdf.org/kgc/probe#Capability>.
+<urn:kgc:cap:3> <https://unrdf.org/kgc/probe#derivedFrom> <urn:kgc:obs:d010998d17a40d45>;
+    <https://unrdf.org/kgc/probe#available> true;
+    <https://unrdf.org/kgc/probe#name> "runtime.wasm";
+    a <https://unrdf.org/kgc/probe#Capability>.
+<urn:kgc:cap:2> <https://unrdf.org/kgc/probe#derivedFrom> <urn:kgc:obs:d010998d17a40d45>;
+    <https://unrdf.org/kgc/probe#available> true;
+    <https://unrdf.org/kgc/probe#name> "wasm.wasm.compilation_available";
+    a <https://unrdf.org/kgc/probe#Capability>.
+<urn:kgc:cap:1> <https://unrdf.org/kgc/probe#derivedFrom> <urn:kgc:obs:77646bac6956f9d4>;
+    <https://unrdf.org/kgc/probe#available> true;
+    <https://unrdf.org/kgc/probe#name> "concurrency.concurrency.shared_array_buffer";
+    a <https://unrdf.org/kgc/probe#Capability>.
+<urn:kgc:obs:fab8b06654539775> <https://unrdf.org/kgc/probe#guardDecision> "allowed";
+    <https://unrdf.org/kgc/probe#outputs> "{\"mean\":2.636688799999999,\"median\":0.07676700000001802,\"p95\":22.712030999999996,\"min\":0.01639599999998609,\"max\":22.712030999999996,\"stddev\":6.757490655403836,\"unit\":\"ms\",\"samples\":10}"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON>;
+    <https://unrdf.org/kgc/probe#hash> "fab8b06654539775";
+    <https://unrdf.org/kgc/probe#timestamp> "2025-12-27T08:36:16.989Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>;
+    <https://unrdf.org/kgc/probe#method> "concurrency.event_loop_latency";
+    <https://unrdf.org/kgc/probe#domain> "concurrency";
+    a <https://unrdf.org/kgc/probe#Observation>.
+<urn:kgc:obs:f66cd54a4793d7a5> <https://unrdf.org/kgc/probe#error> "Filesystem access outside allowed roots";
+    <https://unrdf.org/kgc/probe#guardDecision> "denied";
+    <https://unrdf.org/kgc/probe#outputs> "{\"path\":\"/etc/passwd\",\"error\":\"Access denied by guard\"}"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON>;
+    <https://unrdf.org/kgc/probe#hash> "f66cd54a4793d7a5";
+    <https://unrdf.org/kgc/probe#timestamp> "2025-12-27T08:36:16.991Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>;
+    <https://unrdf.org/kgc/probe#method> "filesystem.access_denied";
+    <https://unrdf.org/kgc/probe#domain> "filesystem";
+    a <https://unrdf.org/kgc/probe#Observation>.
+<urn:kgc:obs:e26b43d6631bebcf> <https://unrdf.org/kgc/probe#guardDecision> "allowed";
+    <https://unrdf.org/kgc/probe#outputs> "{\"maxStackDepth\":8946,\"hitGuardLimit\":false,\"guardLimit\":10000}"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON>;
+    <https://unrdf.org/kgc/probe#hash> "e26b43d6631bebcf";
+    <https://unrdf.org/kgc/probe#timestamp> "2025-12-27T08:36:16.997Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>;
+    <https://unrdf.org/kgc/probe#method> "concurrency.stack_depth";
+    <https://unrdf.org/kgc/probe#domain> "concurrency";
+    a <https://unrdf.org/kgc/probe#Observation>.
+<urn:kgc:obs:d7ff22bccbf71dcc> <https://unrdf.org/kgc/probe#guardDecision> "allowed";
+    <https://unrdf.org/kgc/probe#outputs> "{\"available\":true,\"module\":\"worker_threads\",\"nodeVersion\":\"v22.21.1\"}"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON>;
+    <https://unrdf.org/kgc/probe#hash> "d7ff22bccbf71dcc";
+    <https://unrdf.org/kgc/probe#timestamp> "2025-12-27T08:36:16.989Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>;
+    <https://unrdf.org/kgc/probe#method> "concurrency.worker_threads_available";
+    <https://unrdf.org/kgc/probe#domain> "concurrency";
+    a <https://unrdf.org/kgc/probe#Observation>.
+<urn:kgc:obs:d010998d17a40d45> <https://unrdf.org/kgc/probe#guardDecision> "allowed";
+    <https://unrdf.org/kgc/probe#outputs> "{\"available\":true,\"wasm\":true,\"maxMemory\":4294967296}"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON>;
+    <https://unrdf.org/kgc/probe#hash> "d010998d17a40d45";
+    <https://unrdf.org/kgc/probe#timestamp> "2025-12-27T08:36:16.99Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>;
+    <https://unrdf.org/kgc/probe#method> "wasm.compilation_available";
+    <https://unrdf.org/kgc/probe#domain> "wasm";
+    a <https://unrdf.org/kgc/probe#Observation>.
+<urn:kgc:obs:77646bac6956f9d4> <https://unrdf.org/kgc/probe#guardDecision> "allowed";
+    <https://unrdf.org/kgc/probe#outputs> "{\"available\":true,\"testSize\":8,\"functional\":true}"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON>;
+    <https://unrdf.org/kgc/probe#hash> "77646bac6956f9d4";
+    <https://unrdf.org/kgc/probe#timestamp> "2025-12-27T08:36:16.989Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>;
+    <https://unrdf.org/kgc/probe#method> "concurrency.shared_array_buffer";
+    <https://unrdf.org/kgc/probe#domain> "concurrency";
+    a <https://unrdf.org/kgc/probe#Observation>.
+<urn:kgc:obs:578e281b0cfca2ce> <https://unrdf.org/kgc/probe#error> "Network request blocked by guard";
+    <https://unrdf.org/kgc/probe#guardDecision> "denied";
+    <https://unrdf.org/kgc/probe#outputs> "{\"url\":\"https://evil.example.com\",\"error\":\"URL not in allowlist\"}"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON>;
+    <https://unrdf.org/kgc/probe#hash> "578e281b0cfca2ce";
+    <https://unrdf.org/kgc/probe#timestamp> "2025-12-27T08:36:16.992Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>;
+    <https://unrdf.org/kgc/probe#method> "network.fetch_blocked";
+    <https://unrdf.org/kgc/probe#domain> "network";
+    a <https://unrdf.org/kgc/probe#Observation>.
+<urn:kgc:obs:084cd3a94a4f46f3> <https://unrdf.org/kgc/probe#guardDecision> "allowed";
+    <https://unrdf.org/kgc/probe#outputs> "{\"nodeVersion\":\"v22.21.1\",\"platform\":\"linux\",\"arch\":\"x64\"}"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON>;
+    <https://unrdf.org/kgc/probe#hash> "084cd3a94a4f46f3";
+    <https://unrdf.org/kgc/probe#timestamp> "2025-12-27T08:36:16.988Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>;
+    <https://unrdf.org/kgc/probe#method> "runtime.node_version";
+    <https://unrdf.org/kgc/probe#domain> "runtime";
+    a <https://unrdf.org/kgc/probe#Observation>.

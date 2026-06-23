@@ -1,0 +1,470 @@
+@prefix enterprise: <http://example.org/enterprise#> .
+@prefix api: <http://example.org/api#> .
+@prefix security: <http://example.org/security#> .
+@prefix compliance: <http://example.org/compliance#> .
+@prefix governance: <http://example.org/governance#> .
+@prefix team: <http://example.org/team#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+# Enterprise Architecture Ontology
+# This ontology defines the core concepts, relationships, and constraints
+# for Fortune 5 enterprise API governance and compliance
+
+# ============================
+# CLASS DEFINITIONS
+# ============================
+
+# Core Enterprise Classes
+enterprise:Organization a owl:Class ;
+    rdfs:label "Enterprise Organization" ;
+    rdfs:comment "Top-level organizational entity with governance authority" .
+
+enterprise:BusinessUnit rdfs:subClassOf enterprise:Organization ;
+    rdfs:label "Business Unit" ;
+    rdfs:comment "Autonomous business division with P&L responsibility" .
+
+enterprise:Department rdfs:subClassOf enterprise:Organization ;
+    rdfs:label "Department" ;
+    rdfs:comment "Functional organizational unit within a business unit" .
+
+# Service Architecture Classes
+api:Service a owl:Class ;
+    rdfs:label "Enterprise Service" ;
+    rdfs:comment "Reusable business capability exposed through well-defined interfaces" .
+
+api:APIService rdfs:subClassOf api:Service ;
+    rdfs:label "API Service" ;
+    rdfs:comment "Service exposed through Application Programming Interface" .
+
+api:RESTService rdfs:subClassOf api:APIService ;
+    rdfs:label "REST API Service" ;
+    rdfs:comment "RESTful web service following REST architectural constraints" .
+
+api:GraphQLService rdfs:subClassOf api:APIService ;
+    rdfs:label "GraphQL API Service" ;
+    rdfs:comment "GraphQL-based service with flexible query capabilities" .
+
+api:MicroService rdfs:subClassOf api:Service ;
+    rdfs:label "Microservice" ;
+    rdfs:comment "Small, autonomous service with single business responsibility" .
+
+# Security Classifications
+security:SecurityLevel a owl:Class ;
+    rdfs:label "Security Level" ;
+    rdfs:comment "Classification level for security requirements" .
+
+security:Public rdfs:subClassOf security:SecurityLevel ;
+    rdfs:label "Public Security Level" ;
+    rdfs:comment "Information available to general public" .
+
+security:Internal rdfs:subClassOf security:SecurityLevel ;
+    rdfs:label "Internal Security Level" ;
+    rdfs:comment "Information restricted to organization employees" .
+
+security:Confidential rdfs:subClassOf security:SecurityLevel ;
+    rdfs:label "Confidential Security Level" ;
+    rdfs:comment "Sensitive information requiring special handling" .
+
+security:Restricted rdfs:subClassOf security:SecurityLevel ;
+    rdfs:label "Restricted Security Level" ;
+    rdfs:comment "Highly sensitive information with strict access controls" .
+
+# Compliance Framework Classes
+compliance:ComplianceFramework a owl:Class ;
+    rdfs:label "Compliance Framework" ;
+    rdfs:comment "Regulatory or policy framework requiring adherence" .
+
+compliance:SOX rdfs:subClassOf compliance:ComplianceFramework ;
+    rdfs:label "Sarbanes-Oxley Act" ;
+    rdfs:comment "Financial reporting and corporate governance compliance" ;
+    compliance:jurisdiction "United States" ;
+    compliance:scope "Financial Reporting" .
+
+compliance:GDPR rdfs:subClassOf compliance:ComplianceFramework ;
+    rdfs:label "General Data Protection Regulation" ;
+    rdfs:comment "European Union data protection and privacy regulation" ;
+    compliance:jurisdiction "European Union" ;
+    compliance:scope "Personal Data Protection" .
+
+compliance:HIPAA rdfs:subClassOf compliance:ComplianceFramework ;
+    rdfs:label "Health Insurance Portability and Accountability Act" ;
+    rdfs:comment "Healthcare data protection regulation" ;
+    compliance:jurisdiction "United States" ;
+    compliance:scope "Protected Health Information" .
+
+compliance:PCI_DSS rdfs:subClassOf compliance:ComplianceFramework ;
+    rdfs:label "Payment Card Industry Data Security Standard" ;
+    rdfs:comment "Credit card data protection requirements" ;
+    compliance:jurisdiction "Global" ;
+    compliance:scope "Payment Card Data" .
+
+# Governance Classes
+governance:Policy a owl:Class ;
+    rdfs:label "Governance Policy" ;
+    rdfs:comment "Organizational rule or guideline for behavior and decisions" .
+
+governance:SecurityPolicy rdfs:subClassOf governance:Policy ;
+    rdfs:label "Security Policy" ;
+    rdfs:comment "Policy governing security practices and requirements" .
+
+governance:DataGovernancePolicy rdfs:subClassOf governance:Policy ;
+    rdfs:label "Data Governance Policy" ;
+    rdfs:comment "Policy governing data management and protection" .
+
+governance:APIGovernancePolicy rdfs:subClassOf governance:Policy ;
+    rdfs:label "API Governance Policy" ;
+    rdfs:comment "Policy governing API design, development, and lifecycle" .
+
+# Team and Ownership Classes
+team:Team a owl:Class ;
+    rdfs:label "Development Team" ;
+    rdfs:comment "Group of individuals responsible for service development" .
+
+team:ProductTeam rdfs:subClassOf team:Team ;
+    rdfs:label "Product Team" ;
+    rdfs:comment "Cross-functional team responsible for product development" .
+
+team:PlatformTeam rdfs:subClassOf team:Team ;
+    rdfs:label "Platform Team" ;
+    rdfs:comment "Team providing shared platform capabilities" .
+
+# ============================
+# PROPERTY DEFINITIONS  
+# ============================
+
+# Service Properties
+api:serviceName a owl:DatatypeProperty ;
+    rdfs:label "Service Name" ;
+    rdfs:comment "Human-readable name of the service" ;
+    rdfs:domain api:Service ;
+    rdfs:range xsd:string .
+
+api:serviceDescription a owl:DatatypeProperty ;
+    rdfs:label "Service Description" ;
+    rdfs:comment "Detailed description of service purpose and functionality" ;
+    rdfs:domain api:Service ;
+    rdfs:range xsd:string .
+
+api:version a owl:DatatypeProperty ;
+    rdfs:label "Service Version" ;
+    rdfs:comment "Version identifier for the service" ;
+    rdfs:domain api:Service ;
+    rdfs:range xsd:string .
+
+api:endpoint a owl:DatatypeProperty ;
+    rdfs:label "Service Endpoint" ;
+    rdfs:comment "Network location where service can be accessed" ;
+    rdfs:domain api:APIService ;
+    rdfs:range xsd:anyURI .
+
+api:basePath a owl:DatatypeProperty ;
+    rdfs:label "Base Path" ;
+    rdfs:comment "Base URL path for API endpoints" ;
+    rdfs:domain api:APIService ;
+    rdfs:range xsd:string .
+
+# Security Properties
+security:securityLevel a owl:ObjectProperty ;
+    rdfs:label "Security Level" ;
+    rdfs:comment "Classification level for security requirements" ;
+    rdfs:domain api:Service ;
+    rdfs:range security:SecurityLevel .
+
+security:requiresAuthentication a owl:DatatypeProperty ;
+    rdfs:label "Requires Authentication" ;
+    rdfs:comment "Indicates whether service requires user authentication" ;
+    rdfs:domain api:Service ;
+    rdfs:range xsd:boolean .
+
+security:requiresAuthorization a owl:DatatypeProperty ;
+    rdfs:label "Requires Authorization" ;
+    rdfs:comment "Indicates whether service requires user authorization" ;
+    rdfs:domain api:Service ;
+    rdfs:range xsd:boolean .
+
+security:encryptionRequired a owl:DatatypeProperty ;
+    rdfs:label "Encryption Required" ;
+    rdfs:comment "Indicates whether data must be encrypted" ;
+    rdfs:domain api:Service ;
+    rdfs:range xsd:boolean .
+
+# Compliance Properties
+compliance:applicableFrameworks a owl:ObjectProperty ;
+    rdfs:label "Applicable Compliance Frameworks" ;
+    rdfs:comment "Compliance frameworks that apply to this service" ;
+    rdfs:domain api:Service ;
+    rdfs:range compliance:ComplianceFramework .
+
+compliance:auditRequired a owl:DatatypeProperty ;
+    rdfs:label "Audit Required" ;
+    rdfs:comment "Indicates whether service activities must be audited" ;
+    rdfs:domain api:Service ;
+    rdfs:range xsd:boolean .
+
+compliance:dataClassification a owl:DatatypeProperty ;
+    rdfs:label "Data Classification" ;
+    rdfs:comment "Classification of data handled by the service" ;
+    rdfs:domain api:Service ;
+    rdfs:range xsd:string .
+
+compliance:retentionPeriod a owl:DatatypeProperty ;
+    rdfs:label "Data Retention Period" ;
+    rdfs:comment "Period for which data must be retained" ;
+    rdfs:domain api:Service ;
+    rdfs:range xsd:duration .
+
+# Governance Properties
+governance:owner a owl:ObjectProperty ;
+    rdfs:label "Service Owner" ;
+    rdfs:comment "Team or individual responsible for service governance" ;
+    rdfs:domain api:Service ;
+    rdfs:range team:Team .
+
+governance:approvalRequired a owl:DatatypeProperty ;
+    rdfs:label "Approval Required" ;
+    rdfs:comment "Indicates whether changes require formal approval" ;
+    rdfs:domain api:Service ;
+    rdfs:range xsd:boolean .
+
+governance:reviewCycle a owl:DatatypeProperty ;
+    rdfs:label "Review Cycle" ;
+    rdfs:comment "Frequency of mandatory governance reviews" ;
+    rdfs:domain api:Service ;
+    rdfs:range xsd:duration .
+
+# Team Properties
+team:teamName a owl:DatatypeProperty ;
+    rdfs:label "Team Name" ;
+    rdfs:comment "Name of the development team" ;
+    rdfs:domain team:Team ;
+    rdfs:range xsd:string .
+
+team:teamLead a owl:DatatypeProperty ;
+    rdfs:label "Team Lead" ;
+    rdfs:comment "Individual leading the team" ;
+    rdfs:domain team:Team ;
+    rdfs:range xsd:string .
+
+team:contactEmail a owl:DatatypeProperty ;
+    rdfs:label "Contact Email" ;
+    rdfs:comment "Primary contact email for the team" ;
+    rdfs:domain team:Team ;
+    rdfs:range xsd:string .
+
+# ============================
+# ENTERPRISE INSTANCES
+# ============================
+
+# Fortune 5 Company Structure
+enterprise:FortuneCorpGlobal a enterprise:Organization ;
+    rdfs:label "Fortune Corp Global" ;
+    dc:description "Global Fortune 5 technology corporation" ;
+    enterprise:revenue "500000000000"^^xsd:decimal ;
+    enterprise:employeeCount "300000"^^xsd:integer ;
+    enterprise:headquartersLocation "United States" ;
+    enterprise:operatingRegions ("North America" "Europe" "Asia Pacific" "Latin America") .
+
+# Business Units
+enterprise:TechnologyDivision a enterprise:BusinessUnit ;
+    rdfs:label "Technology Division" ;
+    dc:description "Core technology products and platforms" ;
+    enterprise:parentOrganization enterprise:FortuneCorpGlobal ;
+    enterprise:revenue "200000000000"^^xsd:decimal .
+
+enterprise:FinancialServicesDivision a enterprise:BusinessUnit ;
+    rdfs:label "Financial Services Division" ;
+    dc:description "Banking, payments, and financial products" ;
+    enterprise:parentOrganization enterprise:FortuneCorpGlobal ;
+    enterprise:revenue "150000000000"^^xsd:decimal .
+
+# Key Departments
+enterprise:PlatformEngineering a enterprise:Department ;
+    rdfs:label "Platform Engineering" ;
+    dc:description "Shared platform services and infrastructure" ;
+    enterprise:parentOrganization enterprise:TechnologyDivision .
+
+enterprise:ProductEngineering a enterprise:Department ;
+    rdfs:label "Product Engineering" ;
+    dc:description "Customer-facing product development" ;
+    enterprise:parentOrganization enterprise:TechnologyDivision .
+
+enterprise:SecurityEngineering a enterprise:Department ;
+    rdfs:label "Security Engineering" ;
+    dc:description "Enterprise security and compliance" ;
+    enterprise:parentOrganization enterprise:TechnologyDivision .
+
+# Development Teams
+team:UserPlatformTeam a team:PlatformTeam ;
+    team:teamName "User Platform Team" ;
+    team:teamLead "Sarah Johnson" ;
+    team:contactEmail "user-platform@fortunecorp.com" ;
+    team:parentDepartment enterprise:PlatformEngineering ;
+    team:teamSize "12"^^xsd:integer ;
+    team:primaryTechnology ("Node.js" "TypeScript" "GraphQL" "PostgreSQL") .
+
+team:PaymentPlatformTeam a team:PlatformTeam ;
+    team:teamName "Payment Platform Team" ;
+    team:teamLead "Michael Chen" ;
+    team:contactEmail "payments@fortunecorp.com" ;
+    team:parentDepartment enterprise:PlatformEngineering ;
+    team:teamSize "15"^^xsd:integer ;
+    team:primaryTechnology ("Java" "Spring Boot" "Kafka" "MySQL") .
+
+team:SecurityTeam a team:Team ;
+    team:teamName "Enterprise Security Team" ;
+    team:teamLead "Jennifer Martinez" ;
+    team:contactEmail "security@fortunecorp.com" ;
+    team:parentDepartment enterprise:SecurityEngineering ;
+    team:teamSize "8"^^xsd:integer ;
+    team:primaryTechnology ("Python" "Go" "Kubernetes" "Vault") .
+
+# ============================
+# CRITICAL ENTERPRISE SERVICES
+# ============================
+
+# User Management Service
+api:UserManagementService a api:RESTService ;
+    api:serviceName "User Management Service" ;
+    api:serviceDescription "Central service for user identity, authentication, and profile management" ;
+    api:version "2.1.0" ;
+    api:endpoint <https://api.fortunecorp.com/users/v2> ;
+    api:basePath "/users/v2" ;
+    governance:owner team:UserPlatformTeam ;
+    security:securityLevel security:Confidential ;
+    security:requiresAuthentication true ;
+    security:requiresAuthorization true ;
+    security:encryptionRequired true ;
+    compliance:applicableFrameworks compliance:GDPR, compliance:SOX ;
+    compliance:auditRequired true ;
+    compliance:dataClassification "Personal Identifiable Information" ;
+    compliance:retentionPeriod "P7Y"^^xsd:duration ;
+    governance:approvalRequired true ;
+    governance:reviewCycle "P3M"^^xsd:duration ;
+    api:rateLimit "1000"^^xsd:integer ;
+    api:availabilitySLA "99.9"^^xsd:decimal .
+
+# Payment Processing Service
+api:PaymentProcessingService a api:RESTService ;
+    api:serviceName "Payment Processing Service" ;
+    api:serviceDescription "Secure payment processing with multi-provider support" ;
+    api:version "3.2.1" ;
+    api:endpoint <https://api.fortunecorp.com/payments/v3> ;
+    api:basePath "/payments/v3" ;
+    governance:owner team:PaymentPlatformTeam ;
+    security:securityLevel security:Restricted ;
+    security:requiresAuthentication true ;
+    security:requiresAuthorization true ;
+    security:encryptionRequired true ;
+    compliance:applicableFrameworks compliance:PCI_DSS, compliance:SOX ;
+    compliance:auditRequired true ;
+    compliance:dataClassification "Financial Data" ;
+    compliance:retentionPeriod "P10Y"^^xsd:duration ;
+    governance:approvalRequired true ;
+    governance:reviewCycle "P1M"^^xsd:duration ;
+    api:rateLimit "500"^^xsd:integer ;
+    api:availabilitySLA "99.99"^^xsd:decimal .
+
+# Analytics Data Service
+api:AnalyticsDataService a api:GraphQLService ;
+    api:serviceName "Analytics Data Service" ;
+    api:serviceDescription "Flexible analytics data access with GraphQL queries" ;
+    api:version "1.5.0" ;
+    api:endpoint <https://api.fortunecorp.com/analytics/graphql> ;
+    api:basePath "/analytics/graphql" ;
+    governance:owner team:UserPlatformTeam ;
+    security:securityLevel security:Internal ;
+    security:requiresAuthentication true ;
+    security:requiresAuthorization true ;
+    security:encryptionRequired true ;
+    compliance:applicableFrameworks compliance:GDPR ;
+    compliance:auditRequired false ;
+    compliance:dataClassification "Aggregated Analytics Data" ;
+    compliance:retentionPeriod "P5Y"^^xsd:duration ;
+    governance:approvalRequired false ;
+    governance:reviewCycle "P6M"^^xsd:duration ;
+    api:rateLimit "2000"^^xsd:integer ;
+    api:availabilitySLA "99.5"^^xsd:decimal .
+
+# ============================
+# GOVERNANCE POLICIES
+# ============================
+
+governance:EnterpriseAPIPolicy a governance:APIGovernancePolicy ;
+    rdfs:label "Enterprise API Governance Policy" ;
+    dc:description "Comprehensive policy governing all API development and lifecycle" ;
+    governance:version "2.0" ;
+    governance:effectiveDate "2024-01-01"^^xsd:date ;
+    governance:mandatoryCompliance true ;
+    governance:applicableServices api:Service .
+
+governance:SecurityByDesignPolicy a governance:SecurityPolicy ;
+    rdfs:label "Security by Design Policy" ;
+    dc:description "Security requirements must be integrated from design phase" ;
+    governance:version "1.3" ;
+    governance:effectiveDate "2023-06-01"^^xsd:date ;
+    governance:mandatoryCompliance true ;
+    governance:requires security:requiresAuthentication, 
+                        security:requiresAuthorization,
+                        security:encryptionRequired .
+
+governance:DataGovernancePolicy a governance:DataGovernancePolicy ;
+    rdfs:label "Enterprise Data Governance Policy" ;
+    dc:description "Policy governing data classification, handling, and protection" ;
+    governance:version "1.8" ;
+    governance:effectiveDate "2023-09-01"^^xsd:date ;
+    governance:mandatoryCompliance true ;
+    governance:requires compliance:dataClassification,
+                        compliance:retentionPeriod,
+                        compliance:auditRequired .
+
+# ============================
+# COMPLIANCE CONSTRAINTS
+# ============================
+
+# SOX Compliance Constraints
+compliance:SOXConstraints a owl:Class ;
+    rdfs:label "SOX Compliance Constraints" ;
+    rdfs:comment "Constraints required for SOX compliance" .
+
+compliance:SOXFinancialService owl:equivalentClass [
+    a owl:Class ;
+    owl:intersectionOf (
+        api:Service
+        [a owl:Restriction ;
+         owl:onProperty compliance:dataClassification ;
+         owl:hasValue "Financial Data"]
+    )
+] .
+
+# GDPR Compliance Constraints  
+compliance:GDPRConstraints a owl:Class ;
+    rdfs:label "GDPR Compliance Constraints" ;
+    rdfs:comment "Constraints required for GDPR compliance" .
+
+compliance:GDPRPersonalDataService owl:equivalentClass [
+    a owl:Class ;
+    owl:intersectionOf (
+        api:Service
+        [a owl:Restriction ;
+         owl:onProperty compliance:dataClassification ;
+         owl:hasValue "Personal Identifiable Information"]
+    )
+] .
+
+# PCI-DSS Compliance Constraints
+compliance:PCIConstraints a owl:Class ;
+    rdfs:label "PCI-DSS Compliance Constraints" ;
+    rdfs:comment "Constraints required for PCI-DSS compliance" .
+
+compliance:PCIPaymentService owl:equivalentClass [
+    a owl:Class ;
+    owl:intersectionOf (
+        api:Service
+        [a owl:Restriction ;
+         owl:onProperty compliance:dataClassification ;
+         owl:hasValue "Payment Card Data"]
+    )
+] .

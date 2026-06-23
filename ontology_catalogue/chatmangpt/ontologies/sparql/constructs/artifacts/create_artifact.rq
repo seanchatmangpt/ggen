@@ -1,0 +1,60 @@
+# @name: create_artifact
+# @category: artifacts
+# @description: Create a new artifact entity with full provenance metadata
+# @params: ?artifactId, ?title, ?content, ?format, ?language, ?created_at, ?creator_id, ?project_id
+# @returns: prov:Entity with prov:wasGeneratedBy, prov:value, schema:dateCreated
+# @version: 1.0
+# @stability: stable
+# @requires_parameters: true
+#
+# Usage:
+#   registry.lookup("create_artifact")
+#     .bind({
+#       artifactId: "art-123",
+#       title: "API Specification",
+#       content: "openapi: 3.0.0\n...",
+#       format: "openapi",
+#       language: "yaml",
+#       created_at: "2026-03-25T10:00:00Z",
+#       creator_id: "user-456",
+#       project_id: "proj-789"
+#     })
+#     .execute()
+
+PREFIX bos: <http://businessos.dev/id/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?artifact a prov:Entity ;
+    schema:identifier ?artifactId ;
+    rdfs:label ?title ;
+    prov:value ?content ;
+    schema:fileFormat ?format ;
+    schema:programmingLanguage ?language ;
+    schema:dateCreated ?created_at ;
+    prov:wasGeneratedBy ?activity ;
+    prov:wasAttributedTo ?creator .
+
+  ?activity a prov:Activity ;
+    rdfs:label "Artifact Creation" ;
+    prov:startedAtTime ?created_at ;
+    prov:wasAssociatedWith ?creator .
+
+  ?creator a prov:Agent ;
+    schema:identifier ?creator_id .
+
+  ?project a prov:Collection ;
+    schema:identifier ?project_id ;
+    prov:hadMember ?artifact .
+}
+
+WHERE {
+  # Variables must be bound by the registry before execution
+  BIND(IRI(CONCAT("http://businessos.dev/id/artifacts/", STR(?artifactId))) AS ?artifact)
+  BIND(IRI(CONCAT("http://businessos.dev/id/users/", STR(?creator_id))) AS ?creator)
+  BIND(IRI(CONCAT("http://businessos.dev/id/projects/", STR(?project_id))) AS ?project)
+  BIND(IRI(CONCAT("http://businessos.dev/activity/artifacts/create/", STR(?artifactId))) AS ?activity)
+}

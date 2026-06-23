@@ -1,0 +1,52 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Water Gate = proclamation/reading gate.
+# The Water Gate is unique: it is never said to have been repaired.
+# It appears in Neh.8.1,3,16 as the location where Ezra read the Law before all the people.
+# The Water Gate needs no repair — it stands as the gate of public proclamation,
+# the place where the whole assembly gathered to hear.
+# Nethinim (temple servants) lived near the Water Gate (Neh.3.26) and did repair adjacent wall.
+# The gate itself is the reading gate; the record is a proclamation record.
+
+bos:Nethinim a bos:Builder ;
+    rdfs:label "Nethinim (Temple Servants)" ;
+    rdfs:comment "Temple servants who lived on Ophel and repaired the wall opposite the Water Gate. They are the proximate builders — the Water Gate itself required no repair and stands as a law." ;
+    bos:hasCanonicalReference "Neh.3.26"^^xsd:string ;
+    bos:assignedToGate bos:WaterGate ;
+    bos:hasSource "Neh.3.26" ;
+    dcterms:created "2026-06-02"^^xsd:date .
+
+bos:WaterGateSection a bos:WallSection ;
+    rdfs:label "Water Gate Section — Adjacent Wall" ;
+    rdfs:comment "The wall section repaired by the Nethinim near the Water Gate. The Water Gate itself was not repaired — it stood. The adjacent wall section is the work record. The gate is the proclamation site." ;
+    bos:assignedToGate bos:WaterGate ;
+    bos:hasCanonicalReference "Neh.3.26"^^xsd:string ;
+    bos:hasBuilder bos:Nethinim ;
+    bos:hasSource "Neh.3.26" ;
+    bos:hasReceipt bos:WaterGateSectionReceipt .
+
+bos:WaterGateProclamationRecord a bos:InspectionReceipt ;
+    rdfs:label "Water Gate Proclamation Record" ;
+    rdfs:comment "Proclamation record: the Water Gate stands without repair — a gate that does not require restoration because it has not fallen. In Neh.8.1 the whole assembly gathered before the Water Gate and Ezra read the Law. Nethinim repaired adjacent wall (Neh.3.26). Source: Neh.3.26 and Neh.8.1-3. Relation evidence: Ophel district, public assembly, Law reading." ;
+    bos:hasCanonicalReference "Neh.3.26"^^xsd:string ;
+    bos:hasBuilder bos:Nethinim ;
+    bos:hasSource "Neh.3.26" ;
+    bos:assignedToGate bos:WaterGate ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasReceipt bos:WaterGateSectionReceipt .
+
+bos:WaterGateSectionReceipt a bos:InspectionReceipt ;
+    rdfs:label "Water Gate Section Receipt" ;
+    bos:hasCanonicalReference "Neh.3.26"^^xsd:string ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasSource "Neh.3.26" ;
+    rdfs:comment "Section complete: Water Gate stood without repair. Adjacent wall repaired by Nethinim on Ophel. Gate stands as public proclamation boundary. Neh.8 confirms: the whole assembly gathered here to hear Ezra read the Law." .
+
+bos:VerdictAlive a bos:Verdict ;
+    rdfs:label "ALIVE" ;
+    rdfs:comment "Section validated: structure is sound, receipt is grounded, builder is named." .

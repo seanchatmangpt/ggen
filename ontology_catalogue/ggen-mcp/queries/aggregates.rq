@@ -1,0 +1,12 @@
+PREFIX ggen: <https://ggen-mcp.dev/domain#>
+PREFIX ddd: <https://ddd-patterns.dev/schema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?aggregate ?label ?comment
+WHERE {
+  ?aggregate a ddd:AggregateRoot ;
+             rdfs:label ?label .
+  OPTIONAL { ?aggregate rdfs:comment ?comment }
+}
+ORDER BY ?label
+LIMIT 10000

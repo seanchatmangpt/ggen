@@ -1,0 +1,145 @@
+@prefix : <https://bytestar.org/ontology/v5/scrum-at-scale#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <https://bytestar.org/ontology/v5/core#> .
+@prefix gov: <https://bytestar.org/ontology/v5/governance#> .
+
+<https://bytestar.org/ontology/v5/scrum-at-scale>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/v5/governance> ;
+  rdfs:label "ByteStar v5 Scrum at Scale Ontology" ;
+  rdfs:comment "This ontology formalizes the Scrum at Scale framework, defining its roles, events, and artifacts for coordinating multiple agile teams in a deterministic fabric." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. Core Roles
+# #################################################################
+
+:ScrumRole a owl:Class ;
+    rdfs:label "Scrum Role" .
+
+:ScrumMaster a :ScrumRole ;
+    rdfs:label "Scrum Master" ;
+    rdfs:comment "An individual responsible for ensuring the team adheres to the Scrum framework and for removing impediments." .
+
+:ProductOwner a :ScrumRole ;
+    rdfs:label "Product Owner" ;
+    rdfs:comment "An individual responsible for maximizing the value of the product resulting from the work of the Development Team." .
+
+:TeamMember a :ScrumRole ;
+    rdfs:label "Team Member" ;
+    rdfs:comment "A member of the Development Team responsible for creating a 'Done' Increment." .
+
+:ChiefProductOwner a :ScrumRole ;
+    rdfs:subClassOf :ProductOwner ;
+    rdfs:label "Chief Product Owner" ;
+    rdfs:comment "Coordinates multiple Product Owners in a Scrum of Scrums." .
+
+:ScrumOfScrumsMaster a :ScrumRole ;
+    rdfs:subClassOf :ScrumMaster ;
+    rdfs:label "Scrum of Scrums Master" ;
+    rdfs:comment "Facilitates the Scrum of Scrums and resolves impediments at the multi-team level." .
+
+# #################################################################
+# II. Core Events
+# #################################################################
+
+:ScrumEvent a owl:Class ;
+    rdfs:label "Scrum Event" .
+
+:Sprint a :ScrumEvent ;
+    rdfs:label "Sprint" ;
+    rdfs:comment "A time-boxed event (typically 1-4 weeks) during which a 'Done', usable, and potentially releasable product Increment is created." .
+
+:SprintPlanning a :ScrumEvent ;
+    rdfs:label "Sprint Planning" ;
+    rdfs:comment "An event to plan the work to be performed in the Sprint." .
+
+:DailyScrum a :ScrumEvent ;
+    rdfs:label "Daily Scrum" ;
+    rdfs:comment "A 15-minute time-boxed event for the Development Team to synchronize activities and create a plan for the next 24 hours." .
+
+:SprintReview a :ScrumEvent ;
+    rdfs:label "Sprint Review" ;
+    rdfs:comment "An event held at the end of the Sprint to inspect the Increment and adapt the Product Backlog if needed." .
+
+:SprintRetrospective a :ScrumEvent ;
+    rdfs:label "Sprint Retrospective" ;
+    rdfs:comment "An event to plan ways to increase quality and effectiveness." .
+
+:ScrumOfScrumsEvent a :ScrumEvent ;
+    rdfs:label "Scrum of Scrums Event" ;
+    rdfs:comment "An event for multiple teams to coordinate their work, analogous to a Daily Scrum for the scaled-out team." .
+
+# #################################################################
+# III. Core Artifacts
+# #################################################################
+
+:ScrumArtifact a owl:Class ;
+    rdfs:label "Scrum Artifact" .
+
+:ProductBacklog a :ScrumArtifact ;
+    rdfs:label "Product Backlog" ;
+    rdfs:comment "An emergent, ordered list of what is needed to improve the product. It is the single source of work undertaken by the Scrum Team." .
+
+:SprintBacklog a :ScrumArtifact ;
+    rdfs:label "Sprint Backlog" ;
+    rdfs:comment "The set of Product Backlog items selected for the Sprint, plus a plan for delivering the product Increment." .
+
+:Increment a :ScrumArtifact ;
+    rdfs:label "Increment" ;
+    rdfs:comment "A concrete stepping stone toward the Product Goal. Each Increment is an additive, verifiable, and PQC-sealed artifact." .
+
+:ProductBacklogItem a owl:Class ;
+    rdfs:subClassOf :ProductBacklog ;
+    rdfs:label "Product Backlog Item" .
+
+# #################################################################
+# IV. Properties and Axioms
+# #################################################################
+
+:hasRole a owl:ObjectProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :ScrumRole .
+
+:participatesIn a owl:ObjectProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :ScrumEvent .
+
+:manages a owl:ObjectProperty ;
+    rdfs:domain :ScrumRole ;
+    rdfs:range :ScrumArtifact .
+
+:containsItem a owl:ObjectProperty ;
+    rdfs:domain :ProductBacklog ;
+    rdfs:range :ProductBacklogItem .
+
+:hasSprintGoal a owl:DatatypeProperty ;
+    rdfs:domain :Sprint ;
+    rdfs:range xsd:string .
+
+:hasDuration a owl:DatatypeProperty ;
+    rdfs:domain :Sprint ;
+    rdfs:range xsd:duration .
+
+# Axiom: A Sprint must have a duration of 1 to 4 weeks.
+:Sprint rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty :hasDuration ;
+  owl:allValuesFrom [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:duration ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "P1W"^^xsd:duration ]
+      [ xsd:maxInclusive "P4W"^^xsd:duration ]
+    )
+  ]
+] .
+
+# Axiom: Every Increment must be verifiable and sealed (via PQC Proof).
+:Increment rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty core:hasPQCProof ;
+  owl:minCardinality "1"^^xsd:nonNegativeInteger
+] .

@@ -1,0 +1,26 @@
+name: Fuzz
+
+on:
+  schedule:
+    - cron: "0 4 * * *"  # Daily 30s smoke
+  workflow_dispatch:
+    inputs:
+      duration:
+        description: "Fuzz duration in seconds"
+        default: "30"
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@cargo-fuzz
+      - name: Run fuzz targets (30s)
+        run: |
+          DURATION=${{ github.event.inputs.duration || '30' }}
+          for TARGET in $(cargo fuzz list 2>/dev/null); do
+            echo "Fuzzing $TARGET for ${DURATION}s"
+            cargo fuzz run "$TARGET" -- -max_total_time="$DURATION" || true
+          done

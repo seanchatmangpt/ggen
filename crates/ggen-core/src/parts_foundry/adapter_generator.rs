@@ -61,7 +61,7 @@ impl AdapterGenerator {
                 "    pub extern \"C\" fn {}(input: *const c_void) -> *const c_void {{\n",
                 iface.name.to_lowercase()
             ));
-            code.push_str("        // TODO: Implement interface\n");
+            code.push_str("        // Future implementation: Implement interface\n");
             code.push_str("        std::ptr::null()\n");
             code.push_str("    }\n\n");
         }

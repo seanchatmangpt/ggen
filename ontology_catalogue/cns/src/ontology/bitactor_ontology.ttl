@@ -1,0 +1,331 @@
+@prefix bitactor: <http://bitactor.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+
+# Ontology Declaration
+bitactor: a owl:Ontology ;
+    rdfs:label "BitActor Ontology" ;
+    rdfs:comment "Ontology for BitActor system with TTL constraints and signal processing" ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# Classes
+# =============================================================================
+
+# Core Actor Classes
+bitactor:BitActor a owl:Class ;
+    rdfs:label "BitActor" ;
+    rdfs:comment "A computational actor with TTL constraints and signal processing capabilities" .
+
+bitactor:Signal a owl:Class ;
+    rdfs:label "Signal" ;
+    rdfs:comment "A message or event processed by BitActors" .
+
+bitactor:TelemetryFrame a owl:Class ;
+    rdfs:label "Telemetry Frame" ;
+    rdfs:comment "Monitoring data frame containing metrics from BitActors" .
+
+bitactor:TTLConstraint a owl:Class ;
+    rdfs:label "TTL Constraint" ;
+    rdfs:comment "Time-to-live constraint with nanosecond precision" .
+
+bitactor:SwarmConfiguration a owl:Class ;
+    rdfs:label "Swarm Configuration" ;
+    rdfs:comment "Configuration for BitActor swarm deployment" .
+
+bitactor:TTLViolation a owl:Class ;
+    rdfs:label "TTL Violation" ;
+    rdfs:comment "Record of TTL constraint violation" .
+
+# Status Enumeration Classes
+bitactor:ActorStatus a owl:Class ;
+    rdfs:label "Actor Status" ;
+    rdfs:comment "Operational status of a BitActor" ;
+    owl:oneOf (
+        bitactor:StatusInactive
+        bitactor:StatusActive
+        bitactor:StatusProcessing
+        bitactor:StatusSuspended
+        bitactor:StatusError
+        bitactor:StatusTerminated
+    ) .
+
+# Signal Type Classes
+bitactor:SignalType a owl:Class ;
+    rdfs:label "Signal Type" ;
+    rdfs:comment "Classification of signal types" ;
+    owl:oneOf (
+        bitactor:DataSignal
+        bitactor:ControlSignal
+        bitactor:TelemetrySignal
+        bitactor:HeartbeatSignal
+        bitactor:ErrorSignal
+    ) .
+
+# Priority Classes
+bitactor:SignalPriority a owl:Class ;
+    rdfs:label "Signal Priority" ;
+    rdfs:comment "Priority level for signal processing" ;
+    owl:oneOf (
+        bitactor:LowPriority
+        bitactor:MediumPriority
+        bitactor:HighPriority
+        bitactor:CriticalPriority
+        bitactor:EmergencyPriority
+    ) .
+
+# Topology Classes
+bitactor:SwarmTopology a owl:Class ;
+    rdfs:label "Swarm Topology" ;
+    rdfs:comment "Network topology for swarm deployment" ;
+    owl:oneOf (
+        bitactor:HierarchicalTopology
+        bitactor:MeshTopology
+        bitactor:RingTopology
+        bitactor:StarTopology
+    ) .
+
+# =============================================================================
+# Object Properties
+# =============================================================================
+
+# Actor Relationships
+bitactor:hasParentActor a owl:ObjectProperty ;
+    rdfs:domain bitactor:BitActor ;
+    rdfs:range bitactor:BitActor ;
+    rdfs:label "has parent actor" ;
+    rdfs:comment "Links a BitActor to its parent in the hierarchy" ;
+    a owl:FunctionalProperty .
+
+bitactor:hasChildActor a owl:ObjectProperty ;
+    rdfs:domain bitactor:BitActor ;
+    rdfs:range bitactor:BitActor ;
+    rdfs:label "has child actor" ;
+    rdfs:comment "Links a BitActor to its children" ;
+    owl:inverseOf bitactor:hasParentActor .
+
+# Signal Relationships
+bitactor:processesSignal a owl:ObjectProperty ;
+    rdfs:domain bitactor:BitActor ;
+    rdfs:range bitactor:Signal ;
+    rdfs:label "processes signal" ;
+    rdfs:comment "Links a BitActor to signals it processes" .
+
+bitactor:hasSourceActor a owl:ObjectProperty ;
+    rdfs:domain bitactor:Signal ;
+    rdfs:range bitactor:BitActor ;
+    rdfs:label "has source actor" ;
+    rdfs:comment "Links a signal to its source BitActor" ;
+    a owl:FunctionalProperty .
+
+bitactor:hasTargetActor a owl:ObjectProperty ;
+    rdfs:domain bitactor:Signal ;
+    rdfs:range bitactor:BitActor ;
+    rdfs:label "has target actor" ;
+    rdfs:comment "Links a signal to its target BitActor" ;
+    a owl:FunctionalProperty .
+
+# TTL Relationships
+bitactor:hasTTLConstraint a owl:ObjectProperty ;
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf (bitactor:BitActor bitactor:Signal)
+    ] ;
+    rdfs:range bitactor:TTLConstraint ;
+    rdfs:label "has TTL constraint" ;
+    rdfs:comment "Links an entity to its TTL constraint" ;
+    a owl:FunctionalProperty .
+
+# Telemetry Relationships
+bitactor:emitsTelemetry a owl:ObjectProperty ;
+    rdfs:domain bitactor:BitActor ;
+    rdfs:range bitactor:TelemetryFrame ;
+    rdfs:label "emits telemetry" ;
+    rdfs:comment "Links a BitActor to its telemetry data" .
+
+# Violation Relationships
+bitactor:hasViolation a owl:ObjectProperty ;
+    rdfs:domain bitactor:BitActor ;
+    rdfs:range bitactor:TTLViolation ;
+    rdfs:label "has violation" ;
+    rdfs:comment "Links a BitActor to TTL violations" .
+
+bitactor:violatedBySignal a owl:ObjectProperty ;
+    rdfs:domain bitactor:TTLViolation ;
+    rdfs:range bitactor:Signal ;
+    rdfs:label "violated by signal" ;
+    rdfs:comment "Links a violation to the signal that caused it" ;
+    a owl:FunctionalProperty .
+
+# Swarm Relationships
+bitactor:belongsToSwarm a owl:ObjectProperty ;
+    rdfs:domain bitactor:BitActor ;
+    rdfs:range bitactor:SwarmConfiguration ;
+    rdfs:label "belongs to swarm" ;
+    rdfs:comment "Links a BitActor to its swarm configuration" .
+
+# =============================================================================
+# Data Properties
+# =============================================================================
+
+# BitActor Properties
+bitactor:actorId a owl:DatatypeProperty ;
+    rdfs:domain bitactor:BitActor ;
+    rdfs:range xsd:string ;
+    rdfs:label "actor ID" ;
+    rdfs:comment "Unique identifier for the BitActor" ;
+    a owl:FunctionalProperty .
+
+bitactor:actorName a owl:DatatypeProperty ;
+    rdfs:domain bitactor:BitActor ;
+    rdfs:range xsd:string ;
+    rdfs:label "actor name" ;
+    rdfs:comment "Human-readable name of the BitActor" ;
+    a owl:FunctionalProperty .
+
+bitactor:ttlBudgetMs a owl:DatatypeProperty ;
+    rdfs:domain bitactor:BitActor ;
+    rdfs:range xsd:integer ;
+    rdfs:label "TTL budget (ms)" ;
+    rdfs:comment "Time-to-live budget in milliseconds" ;
+    owl:minInclusive 1 ;
+    owl:maxInclusive 100 .
+
+bitactor:signalsProcessed a owl:DatatypeProperty ;
+    rdfs:domain bitactor:BitActor ;
+    rdfs:range xsd:integer ;
+    rdfs:label "signals processed" ;
+    rdfs:comment "Total number of signals processed" ;
+    a owl:FunctionalProperty .
+
+bitactor:signalsFailed a owl:DatatypeProperty ;
+    rdfs:domain bitactor:BitActor ;
+    rdfs:range xsd:integer ;
+    rdfs:label "signals failed" ;
+    rdfs:comment "Total number of failed signal processings" ;
+    a owl:FunctionalProperty .
+
+bitactor:processingTimeNs a owl:DatatypeProperty ;
+    rdfs:domain bitactor:BitActor ;
+    rdfs:range xsd:long ;
+    rdfs:label "processing time (ns)" ;
+    rdfs:comment "Last signal processing time in nanoseconds" .
+
+# Signal Properties
+bitactor:signalId a owl:DatatypeProperty ;
+    rdfs:domain bitactor:Signal ;
+    rdfs:range xsd:string ;
+    rdfs:label "signal ID" ;
+    rdfs:comment "Unique identifier for the signal" ;
+    a owl:FunctionalProperty .
+
+bitactor:signalPayload a owl:DatatypeProperty ;
+    rdfs:domain bitactor:Signal ;
+    rdfs:range xsd:string ;
+    rdfs:label "signal payload" ;
+    rdfs:comment "JSON-encoded payload data" .
+
+bitactor:createdAt a owl:DatatypeProperty ;
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf (bitactor:BitActor bitactor:Signal bitactor:TelemetryFrame)
+    ] ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "created at" ;
+    rdfs:comment "Timestamp of creation" .
+
+# TTL Constraint Properties
+bitactor:budgetNs a owl:DatatypeProperty ;
+    rdfs:domain bitactor:TTLConstraint ;
+    rdfs:range xsd:long ;
+    rdfs:label "budget (nanoseconds)" ;
+    rdfs:comment "TTL budget in nanoseconds" ;
+    a owl:FunctionalProperty ;
+    owl:minInclusive 1 .
+
+bitactor:maxBudgetMs a owl:DatatypeProperty ;
+    rdfs:domain bitactor:TTLConstraint ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max budget (ms)" ;
+    rdfs:comment "Maximum allowed budget in milliseconds" ;
+    a owl:FunctionalProperty .
+
+# Telemetry Properties
+bitactor:metricName a owl:DatatypeProperty ;
+    rdfs:domain bitactor:TelemetryFrame ;
+    rdfs:range xsd:string ;
+    rdfs:label "metric name" ;
+    rdfs:comment "Name of the telemetry metric" ;
+    a owl:FunctionalProperty .
+
+bitactor:metricValue a owl:DatatypeProperty ;
+    rdfs:domain bitactor:TelemetryFrame ;
+    rdfs:range xsd:float ;
+    rdfs:label "metric value" ;
+    rdfs:comment "Numeric value of the metric" ;
+    a owl:FunctionalProperty .
+
+bitactor:metricUnit a owl:DatatypeProperty ;
+    rdfs:domain bitactor:TelemetryFrame ;
+    rdfs:range xsd:string ;
+    rdfs:label "metric unit" ;
+    rdfs:comment "Unit of measurement" ;
+    owl:oneOf ("count" "ms" "ns" "bytes" "percent" "rate") .
+
+# Swarm Configuration Properties
+bitactor:swarmId a owl:DatatypeProperty ;
+    rdfs:domain bitactor:SwarmConfiguration ;
+    rdfs:range xsd:string ;
+    rdfs:label "swarm ID" ;
+    rdfs:comment "Unique identifier for the swarm" ;
+    a owl:FunctionalProperty .
+
+bitactor:maxActors a owl:DatatypeProperty ;
+    rdfs:domain bitactor:SwarmConfiguration ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max actors" ;
+    rdfs:comment "Maximum number of actors in the swarm" ;
+    owl:minInclusive 1 ;
+    owl:maxInclusive 1000 .
+
+bitactor:globalTTLBudgetMs a owl:DatatypeProperty ;
+    rdfs:domain bitactor:SwarmConfiguration ;
+    rdfs:range xsd:integer ;
+    rdfs:label "global TTL budget (ms)" ;
+    rdfs:comment "Global TTL budget for the swarm in milliseconds" .
+
+# =============================================================================
+# Constraints and Rules
+# =============================================================================
+
+# TTL Budget Constraint
+[ a owl:Restriction ;
+  owl:onProperty bitactor:ttlBudgetMs ;
+  owl:minInclusive 1 ;
+  owl:maxInclusive 100
+] .
+
+# Processing Time Must Not Exceed TTL Budget
+[ a owl:Class ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty bitactor:processingTimeNs ;
+    owl:allValuesFrom [
+      a rdfs:Datatype ;
+      owl:onDatatype xsd:long ;
+      owl:withRestrictions (
+        [ xsd:maxInclusive "8000000"^^xsd:long ]
+      )
+    ]
+  ]
+] .
+
+# Signal Priority Ordering
+bitactor:LowPriority bitactor:priorityValue 1 .
+bitactor:MediumPriority bitactor:priorityValue 2 .
+bitactor:HighPriority bitactor:priorityValue 3 .
+bitactor:CriticalPriority bitactor:priorityValue 4 .
+bitactor:EmergencyPriority bitactor:priorityValue 5 .

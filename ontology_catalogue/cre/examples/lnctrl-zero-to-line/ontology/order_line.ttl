@@ -1,0 +1,195 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ln: <http://linecontroller.factory/ontology/ln#> .
+@prefix order: <http://linecontroller.factory/examples/order#> .
+
+# ============================================================================
+# LineController Ontology - Order Fulfillment Line Example
+# ============================================================================
+# This ontology defines a simple order fulfillment workflow demonstrating
+# the core ln_ctrl primitives: tasks, scopes, and plan composition.
+#
+# Manufacturing Model: This spec generates Erlang/OTP modules deterministically.
+# Companies adapt to THIS standard; we do not customize per company.
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Line Definition
+# ----------------------------------------------------------------------------
+
+order:OrderFulfillmentLine a ln:Line ;
+    ln:lineName "order_fulfillment_line" ;
+    ln:lineDescription "Standard order fulfillment workflow with payment and shipping" ;
+    ln:planRoot order:RootPlan .
+
+# ----------------------------------------------------------------------------
+# Tasks (Work Units)
+# ----------------------------------------------------------------------------
+
+order:ValidateOrderTask a ln:Task ;
+    ln:taskId "validate_order" ;
+    ln:taskDescription "Validate order data and customer eligibility" ;
+    ln:hasEffect order:ValidateOrderEffect .
+
+order:ReserveInventoryTask a ln:Task ;
+    ln:taskId "reserve_inventory" ;
+    ln:taskDescription "Reserve inventory for order items" ;
+    ln:hasEffect order:ReserveInventoryEffect .
+
+order:ProcessPaymentTask a ln:Task ;
+    ln:taskId "process_payment" ;
+    ln:taskDescription "Process payment via payment gateway" ;
+    ln:hasEffect order:ProcessPaymentEffect .
+
+order:ShipOrderTask a ln:Task ;
+    ln:taskId "ship_order" ;
+    ln:taskDescription "Ship order to customer" ;
+    ln:hasEffect order:ShipOrderEffect .
+
+order:NotifyCustomerTask a ln:Task ;
+    ln:taskId "notify_customer" ;
+    ln:taskDescription "Send order confirmation to customer" ;
+    ln:hasEffect order:NotifyCustomerEffect .
+
+order:ReleaseInventoryTask a ln:Task ;
+    ln:taskId "release_inventory" ;
+    ln:taskDescription "Release reserved inventory on cancellation" ;
+    ln:hasEffect order:ReleaseInventoryEffect .
+
+order:RefundPaymentTask a ln:Task ;
+    ln:taskId "refund_payment" ;
+    ln:taskDescription "Refund payment if order cancelled" ;
+    ln:hasEffect order:RefundPaymentEffect .
+
+# ----------------------------------------------------------------------------
+# Effects (External System Calls)
+# ----------------------------------------------------------------------------
+
+order:ValidateOrderEffect a ln:Effect ;
+    ln:effectType "http_post" ;
+    ln:effectEndpoint "/api/orders/validate" .
+
+order:ReserveInventoryEffect a ln:Effect ;
+    ln:effectType "http_post" ;
+    ln:effectEndpoint "/api/inventory/reserve" .
+
+order:ProcessPaymentEffect a ln:Effect ;
+    ln:effectType "http_post" ;
+    ln:effectEndpoint "/api/payments/process" .
+
+order:ShipOrderEffect a ln:Effect ;
+    ln:effectType "http_post" ;
+    ln:effectEndpoint "/api/shipping/create" .
+
+order:NotifyCustomerEffect a ln:Effect ;
+    ln:effectType "http_post" ;
+    ln:effectEndpoint "/api/notifications/send" .
+
+order:ReleaseInventoryEffect a ln:Effect ;
+    ln:effectType "http_post" ;
+    ln:effectEndpoint "/api/inventory/release" .
+
+order:RefundPaymentEffect a ln:Effect ;
+    ln:effectType "http_post" ;
+    ln:effectEndpoint "/api/payments/refund" .
+
+# ----------------------------------------------------------------------------
+# Scopes (Cancellation Boundaries)
+# ----------------------------------------------------------------------------
+
+order:PaymentScope a ln:Scope ;
+    ln:scopeId "payment_scope" ;
+    ln:scopeDescription "Scope for payment processing with rollback capability" .
+
+order:FulfillmentScope a ln:Scope ;
+    ln:scopeId "fulfillment_scope" ;
+    ln:scopeDescription "Scope for fulfillment operations" .
+
+# ----------------------------------------------------------------------------
+# Plan (Workflow Structure)
+# ----------------------------------------------------------------------------
+# Plan composition using seq/par/xor/scope primitives.
+# This generates the ln_ctrl plan term structure.
+
+order:RootPlan a ln:Plan ;
+    ln:planKind "seq" ;
+    ln:planChildren (
+        order:ValidatePlan
+        order:FulfillmentPlan
+        order:NotifyPlan
+    ) .
+
+order:ValidatePlan a ln:Plan ;
+    ln:planKind "task" ;
+    ln:refTask order:ValidateOrderTask .
+
+order:FulfillmentPlan a ln:Plan ;
+    ln:planKind "scope" ;
+    ln:refScope order:FulfillmentScope ;
+    ln:scopeBody order:FulfillmentBody .
+
+order:FulfillmentBody a ln:Plan ;
+    ln:planKind "seq" ;
+    ln:planChildren (
+        order:ParallelReservePlan
+        order:PaymentPlan
+        order:ShipPlan
+    ) .
+
+order:ParallelReservePlan a ln:Plan ;
+    ln:planKind "par" ;
+    ln:planChildren (
+        order:ReservePlan
+        order:CheckStockPlan
+    ) .
+
+order:ReservePlan a ln:Plan ;
+    ln:planKind "task" ;
+    ln:refTask order:ReserveInventoryTask .
+
+# Placeholder task for parallel demo
+order:CheckStockPlan a ln:Plan ;
+    ln:planKind "task" ;
+    ln:refTask order:CheckStockTask .
+
+order:CheckStockTask a ln:Task ;
+    ln:taskId "check_stock" ;
+    ln:taskDescription "Check stock levels" .
+
+order:PaymentPlan a ln:Plan ;
+    ln:planKind "scope" ;
+    ln:refScope order:PaymentScope ;
+    ln:scopeBody order:PaymentBody .
+
+order:PaymentBody a ln:Plan ;
+    ln:planKind "task" ;
+    ln:refTask order:ProcessPaymentTask .
+
+order:ShipPlan a ln:Plan ;
+    ln:planKind "task" ;
+    ln:refTask order:ShipOrderTask .
+
+order:NotifyPlan a ln:Plan ;
+    ln:planKind "task" ;
+    ln:refTask order:NotifyCustomerTask .
+
+# ----------------------------------------------------------------------------
+# Cancellation Handlers (Optional)
+# ----------------------------------------------------------------------------
+
+order:FulfillmentScope ln:onCancel order:FulfillmentCancelPlan .
+
+order:FulfillmentCancelPlan a ln:Plan ;
+    ln:planKind "seq" ;
+    ln:planChildren (
+        order:ReleaseInventoryPlan
+        order:RefundPlan
+    ) .
+
+order:ReleaseInventoryPlan a ln:Plan ;
+    ln:planKind "task" ;
+    ln:refTask order:ReleaseInventoryTask .
+
+order:RefundPlan a ln:Plan ;
+    ln:planKind "task" ;
+    ln:refTask order:RefundPaymentTask .

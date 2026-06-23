@@ -1,0 +1,1086 @@
+@prefix interview: <http://optimus.dev/interview/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ========================================
+# ONTOLOGY DEFINITIONS
+# ========================================
+
+## Core Classes
+interview:Domain a rdfs:Class ;
+    rdfs:label "Interview Domain" ;
+    rdfs:comment "A category or domain of interview questions" .
+
+interview:Question a rdfs:Class ;
+    rdfs:label "Interview Question" ;
+    rdfs:comment "An interview question with associated metadata and answers" .
+
+interview:Answer a rdfs:Class ;
+    rdfs:label "Suggested Answer" ;
+    rdfs:comment "A suggested answer or answer pattern for a question" .
+
+interview:Accommodation a rdfs:Class ;
+    rdfs:label "Neurodivergent Accommodation" ;
+    rdfs:comment "Accommodations for neurodivergent candidates" .
+
+## Properties
+interview:domain a rdf:Property ;
+    rdfs:domain interview:Question ;
+    rdfs:range interview:Domain .
+
+interview:difficulty a rdf:Property ;
+    rdfs:domain interview:Question ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Difficulty level: easy, medium, hard, expert" .
+
+interview:suggestedAnswer a rdf:Property ;
+    rdfs:domain interview:Question ;
+    rdfs:range interview:Answer .
+
+interview:followUp a rdf:Property ;
+    rdfs:domain interview:Question ;
+    rdfs:range interview:Question ;
+    rdfs:comment "Related follow-up questions" .
+
+interview:tags a rdf:Property ;
+    rdfs:domain interview:Question ;
+    rdfs:range xsd:string .
+
+interview:framework a rdf:Property ;
+    rdfs:domain interview:Question ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Framework for answering (e.g., STAR, CAR)" .
+
+interview:timeEstimate a rdf:Property ;
+    rdfs:domain interview:Question ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Estimated time to answer" .
+
+interview:accommodation a rdf:Property ;
+    rdfs:domain interview:Question ;
+    rdfs:range interview:Accommodation .
+
+interview:keyPoints a rdf:Property ;
+    rdfs:domain interview:Answer ;
+    rdfs:range xsd:string .
+
+interview:example a rdf:Property ;
+    rdfs:domain interview:Answer ;
+    rdfs:range xsd:string .
+
+interview:pitfalls a rdf:Property ;
+    rdfs:domain interview:Answer ;
+    rdfs:range xsd:string .
+
+# ========================================
+# DOMAINS
+# ========================================
+
+interview:technical a interview:Domain ;
+    rdfs:label "Technical" ;
+    rdfs:comment "Technical coding and implementation questions" .
+
+interview:behavioral a interview:Domain ;
+    rdfs:label "Behavioral" ;
+    rdfs:comment "Behavioral and soft skills questions" .
+
+interview:systemDesign a interview:Domain ;
+    rdfs:label "System Design" ;
+    rdfs:comment "System architecture and design questions" .
+
+interview:algorithms a interview:Domain ;
+    rdfs:label "Algorithms" ;
+    rdfs:comment "Algorithmic problem-solving questions" .
+
+# ========================================
+# ACCOMMODATIONS
+# ========================================
+
+interview:accommodation001 a interview:Accommodation ;
+    schema:name "Extended Think Time" ;
+    schema:description "Provide 30-60 seconds of think time before answering" .
+
+interview:accommodation002 a interview:Accommodation ;
+    schema:name "Written Option" ;
+    schema:description "Allow written response or diagram before verbal explanation" .
+
+interview:accommodation003 a interview:Accommodation ;
+    schema:name "Step-by-Step Breakdown" ;
+    schema:description "Break complex questions into smaller, sequential steps" .
+
+interview:accommodation004 a interview:Accommodation ;
+    schema:name "Clarifying Prompts" ;
+    schema:description "Offer clarifying questions or hints if candidate seems stuck" .
+
+interview:accommodation005 a interview:Accommodation ;
+    schema:name "Time Management Hints" ;
+    schema:description "Provide time check-ins and pacing suggestions" .
+
+# ========================================
+# REACT/FRONTEND TECHNICAL QUESTIONS (10)
+# ========================================
+
+interview:q001 a interview:Question ;
+    schema:name "Explain React hooks and when to use them vs class components" ;
+    interview:domain interview:technical ;
+    interview:difficulty "medium" ;
+    interview:tags "react, hooks, frontend, state-management" ;
+    interview:timeEstimate "5-7 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation004 ;
+    interview:followUp interview:q002 ;
+    interview:suggestedAnswer interview:a001 .
+
+interview:a001 a interview:Answer ;
+    interview:keyPoints "Hooks enable state and lifecycle in function components; useState for state, useEffect for side effects, useContext for context; benefits include simpler code, better code reuse, no this binding" ;
+    interview:example "const [count, setCount] = useState(0); useEffect(() => { document.title = count; }, [count]);" ;
+    interview:pitfalls "Don't call hooks conditionally, don't call in loops, must call at top level" .
+
+interview:q002 a interview:Question ;
+    schema:name "What are the rules of hooks and why do they exist?" ;
+    interview:domain interview:technical ;
+    interview:difficulty "medium" ;
+    interview:tags "react, hooks, best-practices" ;
+    interview:timeEstimate "4-5 minutes" ;
+    interview:accommodation interview:accommodation003 ;
+    interview:suggestedAnswer interview:a002 .
+
+interview:a002 a interview:Answer ;
+    interview:keyPoints "Only call hooks at top level, only call from React functions, ensures consistent hook order across renders, enables React to preserve state" ;
+    interview:example "ESLint plugin eslint-plugin-react-hooks enforces these rules" ;
+    interview:pitfalls "Breaking rules causes state mismatches and bugs" .
+
+interview:q003 a interview:Question ;
+    schema:name "Explain useMemo and useCallback. When should you use them?" ;
+    interview:domain interview:technical ;
+    interview:difficulty "medium" ;
+    interview:tags "react, hooks, performance, optimization" ;
+    interview:timeEstimate "6-8 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation003 ;
+    interview:followUp interview:q004 ;
+    interview:suggestedAnswer interview:a003 .
+
+interview:a003 a interview:Answer ;
+    interview:keyPoints "useMemo memoizes computed values, useCallback memoizes functions; use when expensive computations or preventing unnecessary child re-renders; don't overuse - premature optimization" ;
+    interview:example "const memoizedValue = useMemo(() => expensiveCalc(a, b), [a, b]); const memoizedCallback = useCallback(() => doSomething(a), [a]);" ;
+    interview:pitfalls "Overuse adds complexity, incorrect dependencies cause stale closures" .
+
+interview:q004 a interview:Question ;
+    schema:name "How does React's virtual DOM work and why is it beneficial?" ;
+    interview:domain interview:technical ;
+    interview:difficulty "hard" ;
+    interview:tags "react, virtual-dom, performance, rendering" ;
+    interview:timeEstimate "7-10 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation003 ;
+    interview:suggestedAnswer interview:a004 .
+
+interview:a004 a interview:Answer ;
+    interview:keyPoints "Virtual DOM is in-memory representation; React compares (diff) old and new virtual DOM; reconciliation identifies minimal real DOM changes; batches updates for performance" ;
+    interview:example "When state changes, React creates new virtual DOM tree, diffs with previous, applies only changes to real DOM" ;
+    interview:pitfalls "Not a silver bullet - still need to optimize renders with keys, memo, etc." .
+
+interview:q005 a interview:Question ;
+    schema:name "Explain controlled vs uncontrolled components in React" ;
+    interview:domain interview:technical ;
+    interview:difficulty "easy" ;
+    interview:tags "react, forms, state-management" ;
+    interview:timeEstimate "4-5 minutes" ;
+    interview:accommodation interview:accommodation003 ;
+    interview:suggestedAnswer interview:a005 .
+
+interview:a005 a interview:Answer ;
+    interview:keyPoints "Controlled: React state is source of truth, onChange updates state; Uncontrolled: DOM is source of truth, use refs to access values; Controlled preferred for validation and dynamic UIs" ;
+    interview:example "Controlled: <input value={name} onChange={e => setName(e.target.value)} />; Uncontrolled: <input ref={inputRef} />" ;
+    interview:pitfalls "Mixing controlled/uncontrolled causes warnings and bugs" .
+
+interview:q006 a interview:Question ;
+    schema:name "What is React Context and when should you use it instead of props drilling?" ;
+    interview:domain interview:technical ;
+    interview:difficulty "medium" ;
+    interview:tags "react, context, state-management, architecture" ;
+    interview:timeEstimate "6-7 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation004 ;
+    interview:followUp interview:q007 ;
+    interview:suggestedAnswer interview:a006 .
+
+interview:a006 a interview:Answer ;
+    interview:keyPoints "Context provides global state without passing props through every level; use for themes, auth, language; createContext, Provider, useContext; avoid overuse - causes re-renders" ;
+    interview:example "const ThemeContext = createContext('light'); const theme = useContext(ThemeContext);" ;
+    interview:pitfalls "All consumers re-render when context changes; not a full state management solution" .
+
+interview:q007 a interview:Question ;
+    schema:name "Compare React Context, Redux, and Zustand for state management" ;
+    interview:domain interview:technical ;
+    interview:difficulty "hard" ;
+    interview:tags "react, state-management, redux, zustand, architecture" ;
+    interview:timeEstimate "8-10 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a007 .
+
+interview:a007 a interview:Answer ;
+    interview:keyPoints "Context: built-in, simple, re-renders all consumers; Redux: predictable, middleware, DevTools, boilerplate; Zustand: minimal, hooks-based, selective subscriptions; choose based on app complexity" ;
+    interview:example "Context for simple global state, Redux for complex apps with time-travel debugging, Zustand for lightweight global state" ;
+    interview:pitfalls "Context performance issues at scale, Redux boilerplate overhead, Zustand less ecosystem support" .
+
+interview:q008 a interview:Question ;
+    schema:name "How would you optimize a React app with performance issues?" ;
+    interview:domain interview:technical ;
+    interview:difficulty "hard" ;
+    interview:tags "react, performance, optimization, profiling" ;
+    interview:timeEstimate "8-12 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a008 .
+
+interview:a008 a interview:Answer ;
+    interview:keyPoints "Profile with React DevTools Profiler; use React.memo for expensive components; optimize re-renders with useMemo/useCallback; code splitting with lazy/Suspense; virtualize long lists; optimize images; reduce bundle size" ;
+    interview:example "const MemoizedComponent = React.memo(ExpensiveComponent); const LazyComponent = lazy(() => import('./Heavy'));" ;
+    interview:pitfalls "Premature optimization; not measuring before optimizing; over-memoization" .
+
+interview:q009 a interview:Question ;
+    schema:name "Explain React's useEffect hook and its cleanup function" ;
+    interview:domain interview:technical ;
+    interview:difficulty "medium" ;
+    interview:tags "react, hooks, lifecycle, side-effects" ;
+    interview:timeEstimate "6-7 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation003 ;
+    interview:followUp interview:q010 ;
+    interview:suggestedAnswer interview:a009 .
+
+interview:a009 a interview:Answer ;
+    interview:keyPoints "useEffect runs side effects after render; dependency array controls when it runs; cleanup function prevents memory leaks; runs before next effect and unmount" ;
+    interview:example "useEffect(() => { const subscription = api.subscribe(); return () => subscription.unsubscribe(); }, [id]);" ;
+    interview:pitfalls "Missing dependencies, infinite loops, not cleaning up subscriptions/timers" .
+
+interview:q010 a interview:Question ;
+    schema:name "What is the difference between useEffect and useLayoutEffect?" ;
+    interview:domain interview:technical ;
+    interview:difficulty "medium" ;
+    interview:tags "react, hooks, lifecycle, rendering" ;
+    interview:timeEstimate "5-6 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation004 ;
+    interview:suggestedAnswer interview:a010 .
+
+interview:a010 a interview:Answer ;
+    interview:keyPoints "useEffect runs after paint (asynchronous); useLayoutEffect runs before paint (synchronous); use useLayoutEffect for DOM measurements or preventing visual flicker; prefer useEffect for most cases" ;
+    interview:example "useLayoutEffect(() => { const height = ref.current.offsetHeight; setHeight(height); });" ;
+    interview:pitfalls "useLayoutEffect blocks visual updates - can cause performance issues if slow" .
+
+# ========================================
+# NODE/BACKEND TECHNICAL QUESTIONS (10)
+# ========================================
+
+interview:q011 a interview:Question ;
+    schema:name "Explain how Node.js event loop works" ;
+    interview:domain interview:technical ;
+    interview:difficulty "hard" ;
+    interview:tags "nodejs, event-loop, async, architecture" ;
+    interview:timeEstimate "8-10 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation003 ;
+    interview:followUp interview:q012 ;
+    interview:suggestedAnswer interview:a011 .
+
+interview:a011 a interview:Answer ;
+    interview:keyPoints "Single-threaded, non-blocking I/O; phases: timers, pending callbacks, idle, poll, check, close; processes callbacks from event queue; libuv handles async operations; microtasks (promises) have priority" ;
+    interview:example "setTimeout in timers phase, setImmediate in check phase, Promise.then as microtask" ;
+    interview:pitfalls "Blocking event loop with CPU-intensive tasks causes poor performance" .
+
+interview:q012 a interview:Question ;
+    schema:name "How would you handle CPU-intensive tasks in Node.js?" ;
+    interview:domain interview:technical ;
+    interview:difficulty "hard" ;
+    interview:tags "nodejs, performance, worker-threads, optimization" ;
+    interview:timeEstimate "7-9 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation003 ;
+    interview:suggestedAnswer interview:a012 .
+
+interview:a012 a interview:Answer ;
+    interview:keyPoints "Use Worker Threads for parallel processing; offload to child processes; use job queues (Bull, BullMQ); cluster mode for multiple processes; consider microservices for heavy computation" ;
+    interview:example "const { Worker } = require('worker_threads'); const worker = new Worker('./heavy-task.js');" ;
+    interview:pitfalls "Workers have overhead; shared memory complexity; debugging harder" .
+
+interview:q013 a interview:Question ;
+    schema:name "Design a REST API authentication system with JWT" ;
+    interview:domain interview:technical ;
+    interview:difficulty "medium" ;
+    interview:tags "nodejs, authentication, jwt, security, api" ;
+    interview:timeEstimate "10-12 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation005 ;
+    interview:followUp interview:q014 ;
+    interview:suggestedAnswer interview:a013 .
+
+interview:a013 a interview:Answer ;
+    interview:keyPoints "JWT contains user claims, signed with secret; login endpoint returns access + refresh tokens; middleware verifies tokens; access token short-lived, refresh token for renewal; store refresh token securely (httpOnly cookie or secure storage)" ;
+    interview:example "POST /login returns tokens; GET /protected uses Authorization: Bearer <token>; POST /refresh renews tokens" ;
+    interview:pitfalls "Storing JWT in localStorage (XSS risk); not validating token expiry; weak secrets; no token rotation" .
+
+interview:q014 a interview:Question ;
+    schema:name "How do you prevent common API security vulnerabilities?" ;
+    interview:domain interview:technical ;
+    interview:difficulty "hard" ;
+    interview:tags "nodejs, security, api, best-practices" ;
+    interview:timeEstimate "8-10 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a014 .
+
+interview:a014 a interview:Answer ;
+    interview:keyPoints "Rate limiting (express-rate-limit); input validation (Joi, Zod); SQL injection prevention (parameterized queries, ORM); XSS prevention (sanitize input); CSRF tokens; helmet.js for security headers; HTTPS only; dependency scanning" ;
+    interview:example "app.use(helmet()); app.use(rateLimit({ windowMs: 15*60*1000, max: 100 }));" ;
+    interview:pitfalls "Trusting user input; exposing sensitive errors; not updating dependencies; weak CORS config" .
+
+interview:q015 a interview:Question ;
+    schema:name "Explain database connection pooling and why it matters" ;
+    interview:domain interview:technical ;
+    interview:difficulty "medium" ;
+    interview:tags "nodejs, database, performance, postgresql, optimization" ;
+    interview:timeEstimate "6-7 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation003 ;
+    interview:suggestedAnswer interview:a015 .
+
+interview:a015 a interview:Answer ;
+    interview:keyPoints "Pool maintains reusable connections; avoids overhead of creating new connections; configurable min/max size; handles connection lifecycle; prevents exhausting database connections; improves performance and scalability" ;
+    interview:example "const pool = new Pool({ max: 20, idleTimeoutMillis: 30000 }); pool.query('SELECT * FROM users');" ;
+    interview:pitfalls "Pool too small causes queuing; too large exhausts database resources; not handling connection errors; connection leaks" .
+
+interview:q016 a interview:Question ;
+    schema:name "How would you implement caching in a Node.js API?" ;
+    interview:domain interview:technical ;
+    interview:difficulty "medium" ;
+    interview:tags "nodejs, caching, redis, performance, api" ;
+    interview:timeEstimate "8-10 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation003 ;
+    interview:followUp interview:q017 ;
+    interview:suggestedAnswer interview:a016 .
+
+interview:a016 a interview:Answer ;
+    interview:keyPoints "Redis for distributed caching; in-memory cache for single instance; cache-aside pattern; TTL for expiration; cache invalidation on updates; HTTP caching headers (ETag, Cache-Control); CDN for static assets" ;
+    interview:example "const cached = await redis.get(key); if (!cached) { const data = await db.query(); await redis.set(key, data, 'EX', 3600); }" ;
+    interview:pitfalls "Stale data; cache stampede; memory limits; not handling cache failures; over-caching" .
+
+interview:q017 a interview:Question ;
+    schema:name "What strategies would you use to handle cache invalidation?" ;
+    interview:domain interview:technical ;
+    interview:difficulty "hard" ;
+    interview:tags "caching, architecture, distributed-systems, redis" ;
+    interview:timeEstimate "7-9 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a017 .
+
+interview:a017 a interview:Answer ;
+    interview:keyPoints "TTL-based expiration; event-driven invalidation; write-through cache; cache tagging; pub/sub for distributed invalidation; versioning; LRU eviction; manual purge endpoints" ;
+    interview:example "On user update: await redis.del('user:123'); await pubsub.publish('cache-invalidate', {key: 'user:123'});" ;
+    interview:pitfalls "Race conditions; cascading invalidations; over-invalidation; inconsistent state" .
+
+interview:q018 a interview:Question ;
+    schema:name "Design error handling middleware for Express.js" ;
+    interview:domain interview:technical ;
+    interview:difficulty "medium" ;
+    interview:tags "nodejs, express, error-handling, api, best-practices" ;
+    interview:timeEstimate "7-8 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation003 ;
+    interview:suggestedAnswer interview:a018 .
+
+interview:a018 a interview:Answer ;
+    interview:keyPoints "Centralized error handler with 4 parameters; custom error classes; async error wrapper; log errors; return appropriate status codes; don't expose internal errors to clients; handle unhandled rejections" ;
+    interview:example "app.use((err, req, res, next) => { logger.error(err); res.status(err.statusCode || 500).json({ error: err.message }); });" ;
+    interview:pitfalls "Exposing stack traces; not logging errors; inconsistent error formats; not handling async errors" .
+
+interview:q019 a interview:Question ;
+    schema:name "Explain stream processing in Node.js and when to use it" ;
+    interview:domain interview:technical ;
+    interview:difficulty "hard" ;
+    interview:tags "nodejs, streams, performance, memory" ;
+    interview:timeEstimate "8-10 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation003 ;
+    interview:suggestedAnswer interview:a019 .
+
+interview:a019 a interview:Answer ;
+    interview:keyPoints "Process data chunk by chunk; Readable, Writable, Transform, Duplex streams; backpressure handling; use for large files, real-time data, CSV processing; pipe() chains streams; reduces memory footprint" ;
+    interview:example "fs.createReadStream('large.csv').pipe(csvParser()).pipe(transform()).pipe(fs.createWriteStream('out.json'));" ;
+    interview:pitfalls "Not handling errors on each stream; ignoring backpressure; memory leaks from unclosed streams" .
+
+interview:q020 a interview:Question ;
+    schema:name "How would you design a microservices communication pattern?" ;
+    interview:domain interview:technical ;
+    interview:difficulty "hard" ;
+    interview:tags "nodejs, microservices, architecture, distributed-systems" ;
+    interview:timeEstimate "10-12 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a020 .
+
+interview:a020 a interview:Answer ;
+    interview:keyPoints "Synchronous: REST, gRPC; Asynchronous: message queues (RabbitMQ, Kafka), events; API gateway for routing; service discovery; circuit breakers; idempotency; saga pattern for distributed transactions; observability with tracing" ;
+    interview:example "API Gateway -> Auth Service (gRPC) -> User Service (REST); Events via Kafka for async updates" ;
+    interview:pitfalls "Network failures; cascading failures; data consistency; debugging complexity; latency overhead" .
+
+# ========================================
+# ALGORITHMS TECHNICAL QUESTIONS (10)
+# ========================================
+
+interview:q021 a interview:Question ;
+    schema:name "Implement a function to find the longest substring without repeating characters" ;
+    interview:domain interview:algorithms ;
+    interview:difficulty "medium" ;
+    interview:tags "algorithms, strings, sliding-window, hash-map" ;
+    interview:timeEstimate "15-20 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a021 .
+
+interview:a021 a interview:Answer ;
+    interview:keyPoints "Sliding window approach; hash map to track character positions; expand window until duplicate found; contract from left; track max length; O(n) time, O(min(m,n)) space where m is charset size" ;
+    interview:example "function lengthOfLongestSubstring(s) { const seen = new Map(); let max = 0, left = 0; for (let right = 0; right < s.length; right++) { if (seen.has(s[right])) left = Math.max(left, seen.get(s[right]) + 1); seen.set(s[right], right); max = Math.max(max, right - left + 1); } return max; }" ;
+    interview:pitfalls "Not handling edge cases (empty string); incorrect window contraction; off-by-one errors" .
+
+interview:q022 a interview:Question ;
+    schema:name "Reverse a linked list iteratively and recursively" ;
+    interview:domain interview:algorithms ;
+    interview:difficulty "medium" ;
+    interview:tags "algorithms, linked-list, recursion, iteration" ;
+    interview:timeEstimate "12-15 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation004 ;
+    interview:followUp interview:q023 ;
+    interview:suggestedAnswer interview:a022 .
+
+interview:a022 a interview:Answer ;
+    interview:keyPoints "Iterative: three pointers (prev, curr, next); reverse links while traversing; O(n) time, O(1) space; Recursive: reverse rest, fix links; O(n) time, O(n) space for call stack" ;
+    interview:example "Iterative: let prev = null, curr = head; while (curr) { const next = curr.next; curr.next = prev; prev = curr; curr = next; } return prev; Recursive: if (!head || !head.next) return head; const newHead = reverse(head.next); head.next.next = head; head.next = null; return newHead;" ;
+    interview:pitfalls "Losing reference to rest of list; not handling null/single node; stack overflow in recursive" .
+
+interview:q023 a interview:Question ;
+    schema:name "Detect if a linked list has a cycle and find the cycle start" ;
+    interview:domain interview:algorithms ;
+    interview:difficulty "medium" ;
+    interview:tags "algorithms, linked-list, two-pointers, floyd-cycle" ;
+    interview:timeEstimate "15-18 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation003 ;
+    interview:suggestedAnswer interview:a023 .
+
+interview:a023 a interview:Answer ;
+    interview:keyPoints "Floyd's cycle detection (tortoise and hare); slow moves 1, fast moves 2; if they meet, cycle exists; reset one pointer to head, move both 1 step until they meet - that's cycle start; O(n) time, O(1) space" ;
+    interview:example "let slow = head, fast = head; while (fast && fast.next) { slow = slow.next; fast = fast.next.next; if (slow === fast) { slow = head; while (slow !== fast) { slow = slow.next; fast = fast.next; } return slow; } } return null;" ;
+    interview:pitfalls "Not checking for null; incorrect logic for finding start; infinite loop" .
+
+interview:q024 a interview:Question ;
+    schema:name "Implement binary search and explain its time complexity" ;
+    interview:domain interview:algorithms ;
+    interview:difficulty "easy" ;
+    interview:tags "algorithms, binary-search, arrays, complexity" ;
+    interview:timeEstimate "10-12 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation004 ;
+    interview:suggestedAnswer interview:a024 .
+
+interview:a024 a interview:Answer ;
+    interview:keyPoints "Requires sorted array; divide and conquer; compare middle element; eliminate half each iteration; O(log n) time, O(1) space iterative, O(log n) space recursive; base case: low > high" ;
+    interview:example "function binarySearch(arr, target) { let low = 0, high = arr.length - 1; while (low <= high) { const mid = Math.floor((low + high) / 2); if (arr[mid] === target) return mid; if (arr[mid] < target) low = mid + 1; else high = mid - 1; } return -1; }" ;
+    interview:pitfalls "Integer overflow in (low+high)/2; off-by-one errors; not handling duplicates if required" .
+
+interview:q025 a interview:Question ;
+    schema:name "Find the kth largest element in an unsorted array" ;
+    interview:domain interview:algorithms ;
+    interview:difficulty "medium" ;
+    interview:tags "algorithms, arrays, quickselect, heap, sorting" ;
+    interview:timeEstimate "15-20 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation005 ;
+    interview:followUp interview:q026 ;
+    interview:suggestedAnswer interview:a025 .
+
+interview:a025 a interview:Answer ;
+    interview:keyPoints "Three approaches: 1) Sort and return arr[n-k] - O(n log n); 2) Min-heap of size k - O(n log k); 3) Quickselect - O(n) average, O(n²) worst; quickselect is optimal on average" ;
+    interview:example "function findKthLargest(nums, k) { const minHeap = new MinPriorityQueue(); for (const num of nums) { minHeap.enqueue(num); if (minHeap.size() > k) minHeap.dequeue(); } return minHeap.front(); }" ;
+    interview:pitfalls "Confusing kth largest with kth smallest; not handling edge cases; inefficient sorting when quickselect is better" .
+
+interview:q026 a interview:Question ;
+    schema:name "Implement a LRU (Least Recently Used) cache" ;
+    interview:domain interview:algorithms ;
+    interview:difficulty "hard" ;
+    interview:tags "algorithms, data-structures, hash-map, doubly-linked-list, design" ;
+    interview:timeEstimate "20-25 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a026 .
+
+interview:a026 a interview:Answer ;
+    interview:keyPoints "Hash map + doubly linked list; map for O(1) lookup; list for O(1) add/remove; most recent at head, least at tail; get() moves to head; put() adds to head, evicts tail if full; both O(1) time" ;
+    interview:example "class LRUCache { constructor(capacity) { this.capacity = capacity; this.map = new Map(); this.head = {}; this.tail = {}; this.head.next = this.tail; this.tail.prev = this.head; } get(key) { if (!this.map.has(key)) return -1; const node = this.map.get(key); this.remove(node); this.addToHead(node); return node.value; } }" ;
+    interview:pitfalls "Not maintaining both head and tail; incorrect pointer updates; not handling capacity properly" .
+
+interview:q027 a interview:Question ;
+    schema:name "Find all permutations of a string" ;
+    interview:domain interview:algorithms ;
+    interview:difficulty "medium" ;
+    interview:tags "algorithms, backtracking, recursion, strings" ;
+    interview:timeEstimate "15-18 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a027 .
+
+interview:a027 a interview:Answer ;
+    interview:keyPoints "Backtracking approach; swap each character with every other; recurse on remaining; backtrack by swapping back; O(n! * n) time complexity; handle duplicates with set if needed" ;
+    interview:example "function permute(str, l = 0, result = []) { if (l === str.length - 1) { result.push(str); return; } for (let i = l; i < str.length; i++) { str = swap(str, l, i); permute(str, l + 1, result); str = swap(str, l, i); // backtrack } return result; }" ;
+    interview:pitfalls "Not backtracking properly; string immutability issues; not handling duplicates; exponential time complexity" .
+
+interview:q028 a interview:Question ;
+    schema:name "Implement merge sort and explain its stability" ;
+    interview:domain interview:algorithms ;
+    interview:difficulty "medium" ;
+    interview:tags "algorithms, sorting, divide-conquer, recursion" ;
+    interview:timeEstimate "15-20 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation003 ;
+    interview:suggestedAnswer interview:a028 .
+
+interview:a028 a interview:Answer ;
+    interview:keyPoints "Divide and conquer; split array in half recursively; merge sorted halves; stable (maintains relative order of equal elements); O(n log n) time always; O(n) space for auxiliary array; predictable performance" ;
+    interview:example "function mergeSort(arr) { if (arr.length <= 1) return arr; const mid = Math.floor(arr.length / 2); const left = mergeSort(arr.slice(0, mid)); const right = mergeSort(arr.slice(mid)); return merge(left, right); } function merge(left, right) { const result = []; let i = 0, j = 0; while (i < left.length && j < right.length) { if (left[i] <= right[j]) result.push(left[i++]); else result.push(right[j++]); } return result.concat(left.slice(i)).concat(right.slice(j)); }" ;
+    interview:pitfalls "Not using <= for stability; inefficient space usage; not handling empty arrays" .
+
+interview:q029 a interview:Question ;
+    schema:name "Find the diameter of a binary tree" ;
+    interview:domain interview:algorithms ;
+    interview:difficulty "medium" ;
+    interview:tags "algorithms, binary-tree, dfs, recursion" ;
+    interview:timeEstimate "15-18 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation003 ;
+    interview:followUp interview:q030 ;
+    interview:suggestedAnswer interview:a029 .
+
+interview:a029 a interview:Answer ;
+    interview:keyPoints "Diameter is longest path between any two nodes; may or may not pass through root; use DFS to calculate height; at each node, diameter = left height + right height; track global max; O(n) time, O(h) space for recursion" ;
+    interview:example "function diameterOfBinaryTree(root) { let maxDiameter = 0; function height(node) { if (!node) return 0; const left = height(node.left); const right = height(node.right); maxDiameter = Math.max(maxDiameter, left + right); return 1 + Math.max(left, right); } height(root); return maxDiameter; }" ;
+    interview:pitfalls "Confusing diameter with height; not tracking global maximum; counting nodes instead of edges" .
+
+interview:q030 a interview:Question ;
+    schema:name "Validate if a binary tree is a valid binary search tree" ;
+    interview:domain interview:algorithms ;
+    interview:difficulty "medium" ;
+    interview:tags "algorithms, binary-tree, bst, recursion, validation" ;
+    interview:timeEstimate "12-15 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation004 ;
+    interview:suggestedAnswer interview:a030 .
+
+interview:a030 a interview:Answer ;
+    interview:keyPoints "Pass valid range (min, max) down recursively; left subtree must be < node < right subtree; not just node.left < node < node.right (common mistake); O(n) time, O(h) space; alternative: in-order traversal should be sorted" ;
+    interview:example "function isValidBST(root, min = -Infinity, max = Infinity) { if (!root) return true; if (root.val <= min || root.val >= max) return false; return isValidBST(root.left, min, root.val) && isValidBST(root.right, root.val, max); }" ;
+    interview:pitfalls "Only checking immediate children; not handling duplicate values; integer overflow with min/max" .
+
+# ========================================
+# BEHAVIORAL QUESTIONS (20)
+# ========================================
+
+interview:q031 a interview:Question ;
+    schema:name "Tell me about a time you handled a difficult bug that took days to solve" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "medium" ;
+    interview:tags "problem-solving, debugging, persistence, technical" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "4-6 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation002 ;
+    interview:suggestedAnswer interview:a031 .
+
+interview:a031 a interview:Answer ;
+    interview:keyPoints "Situation: Describe the bug and impact; Task: Your responsibility to fix it; Action: Debugging steps, tools used, collaboration; Result: Resolution, what you learned, prevention measures" ;
+    interview:example "S: Production memory leak affecting 10k users; T: Owned backend service; A: Profiled with heap snapshots, isolated to event listener leak, collaborated with team; R: Fixed in 3 days, added monitoring, documented pattern" ;
+    interview:pitfalls "Being too technical without showing problem-solving process; not showing learning; blaming others" .
+
+interview:q032 a interview:Question ;
+    schema:name "Describe a time you had to learn a new technology quickly for a project" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "easy" ;
+    interview:tags "learning, adaptability, growth-mindset" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "4-5 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation004 ;
+    interview:suggestedAnswer interview:a032 .
+
+interview:a032 a interview:Answer ;
+    interview:keyPoints "Situation: Project requirement for unfamiliar tech; Task: Your learning goals and timeline; Action: Learning resources, practice, asking for help; Result: Successfully delivered, competency gained" ;
+    interview:example "S: Needed GraphQL for new API; T: Become proficient in 2 weeks; A: Official docs, tutorial projects, pair programming with expert; R: Delivered on time, now team's GraphQL advocate" ;
+    interview:pitfalls "Not showing structured learning approach; claiming expertise without depth; not mentioning ongoing learning" .
+
+interview:q033 a interview:Question ;
+    schema:name "Tell me about a conflict you had with a team member and how you resolved it" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "hard" ;
+    interview:tags "conflict-resolution, teamwork, communication, emotional-intelligence" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "5-7 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation002 ;
+    interview:suggestedAnswer interview:a033 .
+
+interview:a033 a interview:Answer ;
+    interview:keyPoints "Situation: Describe conflict objectively; Task: Need to resolve while maintaining relationship; Action: Private conversation, active listening, finding common ground, compromise; Result: Resolved conflict, improved relationship" ;
+    interview:example "S: Disagreed on architecture approach; T: Align on solution; A: Scheduled 1:1, listened to concerns, presented data, found hybrid approach; R: Implemented better solution, strengthened working relationship" ;
+    interview:pitfalls "Blaming the other person; not showing empathy; avoiding conflict; not demonstrating resolution" .
+
+interview:q034 a interview:Question ;
+    schema:name "Describe a time you had to make a decision without complete information" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "medium" ;
+    interview:tags "decision-making, ambiguity, risk-management, leadership" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "5-6 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a034 .
+
+interview:a034 a interview:Answer ;
+    interview:keyPoints "Situation: Time-sensitive decision with incomplete data; Task: Make informed choice; Action: Gathered available info, assessed risks, consulted stakeholders, made decision; Result: Outcome and learnings" ;
+    interview:example "S: Production outage, unclear root cause; T: Decide rollback vs investigate; A: Analyzed recent changes, assessed user impact, consulted on-call; R: Rolled back, minimized downtime, improved runbooks" ;
+    interview:pitfalls "Analysis paralysis; reckless decisions; not showing risk assessment; not learning from outcome" .
+
+interview:q035 a interview:Question ;
+    schema:name "Tell me about a time you failed and what you learned from it" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "medium" ;
+    interview:tags "failure, learning, growth-mindset, resilience" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "5-7 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation002 ;
+    interview:suggestedAnswer interview:a035 .
+
+interview:a035 a interview:Answer ;
+    interview:keyPoints "Situation: Describe failure honestly; Task: What you were trying to achieve; Action: What went wrong and why; Result: Key learnings, changes made, how you grew; show vulnerability and growth" ;
+    interview:example "S: Led feature that missed deadline by 3 weeks; T: Deliver on time; A: Underestimated complexity, poor communication; R: Learned to break down tasks better, daily standups, now buffer estimates by 20%" ;
+    interview:pitfalls "Choosing trivial failure; blaming others; not showing learning; being defensive" .
+
+interview:q036 a interview:Question ;
+    schema:name "Describe a time you improved a process or system on your team" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "medium" ;
+    interview:tags "initiative, process-improvement, leadership, impact" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "5-6 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation004 ;
+    interview:suggestedAnswer interview:a036 .
+
+interview:a036 a interview:Answer ;
+    interview:keyPoints "Situation: Inefficient process causing problems; Task: Improve it; Action: Identified pain points, proposed solution, got buy-in, implemented; Result: Measurable improvements, team adoption" ;
+    interview:example "S: Code reviews taking 3+ days; T: Reduce to 1 day; A: Analyzed bottlenecks, introduced review rotation, size guidelines, automation; R: Reduced to 1 day avg, 40% faster cycle time" ;
+    interview:pitfalls "Taking all credit; not showing collaboration; vague improvements without metrics; forced change without buy-in" .
+
+interview:q037 a interview:Question ;
+    schema:name "Tell me about a time you had to give constructive feedback to a peer" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "hard" ;
+    interview:tags "feedback, communication, empathy, leadership" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "5-6 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation002 ;
+    interview:suggestedAnswer interview:a037 .
+
+interview:a037 a interview:Answer ;
+    interview:keyPoints "Situation: Issue with peer's work/behavior; Task: Provide helpful feedback; Action: Private setting, specific examples, focused on behavior not person, collaborative solutions; Result: Improvement and maintained relationship" ;
+    interview:example "S: Peer's PRs had frequent bugs; T: Help improve quality; A: 1:1 conversation, shared specific examples, offered to pair program, suggested testing checklist; R: Bug rate dropped 60%, better relationship" ;
+    interview:pitfalls "Public criticism; vague feedback; being judgmental; not following up; avoiding difficult conversations" .
+
+interview:q038 a interview:Question ;
+    schema:name "Describe a time you worked under a tight deadline" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "easy" ;
+    interview:tags "time-management, pressure, prioritization, delivery" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "4-5 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a038 .
+
+interview:a038 a interview:Answer ;
+    interview:keyPoints "Situation: Urgent deadline and why; Task: What needed to be delivered; Action: Prioritization, time management, communication, trade-offs; Result: Met deadline, quality maintained, lessons learned" ;
+    interview:example "S: Critical client feature due in 1 week; T: Full-stack implementation; A: Broke into MVPs, focused on core features, daily check-ins, deferred nice-to-haves; R: Delivered on time, 95% of requirements, client satisfied" ;
+    interview:pitfalls "Sacrificing all quality for speed; working unsustainable hours; not communicating risks; poor prioritization" .
+
+interview:q039 a interview:Question ;
+    schema:name "Tell me about a time you had to collaborate with a difficult stakeholder" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "hard" ;
+    interview:tags "stakeholder-management, communication, diplomacy, conflict-resolution" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "5-7 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation002 ;
+    interview:suggestedAnswer interview:a039 .
+
+interview:a039 a interview:Answer ;
+    interview:keyPoints "Situation: Challenging stakeholder relationship; Task: Achieve alignment; Action: Understood their perspective, regular communication, managed expectations, found win-win; Result: Successful collaboration" ;
+    interview:example "S: PM wanted unrealistic timeline; T: Deliver quality product; A: Data-driven estimate, broke into phases, weekly demos, involved in prioritization; R: Delivered phase 1 on time, gained trust, realistic planning" ;
+    interview:pitfalls "Labeling stakeholder as 'difficult'; not showing empathy; avoiding communication; being combative" .
+
+interview:q040 a interview:Question ;
+    schema:name "Describe a time you mentored or helped a junior developer" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "medium" ;
+    interview:tags "mentorship, leadership, teaching, communication" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "4-6 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation004 ;
+    interview:suggestedAnswer interview:a040 .
+
+interview:a040 a interview:Answer ;
+    interview:keyPoints "Situation: Junior dev needed help; Task: Support their growth; Action: Paired programming, code reviews, answered questions, shared resources; Result: Their improvement, your growth as mentor" ;
+    interview:example "S: New grad struggling with React; T: Get them productive; A: Weekly pairing sessions, incremental tasks, code review feedback, recommended resources; R: Independently shipped feature in 6 weeks, I improved teaching skills" ;
+    interview:pitfalls "Doing work for them; not showing patience; taking too much credit; not measuring their growth" .
+
+interview:q041 a interview:Question ;
+    schema:name "Tell me about a time you had to prioritize competing tasks" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "medium" ;
+    interview:tags "prioritization, time-management, decision-making, communication" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "4-5 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a041 .
+
+interview:a041 a interview:Answer ;
+    interview:keyPoints "Situation: Multiple urgent tasks; Task: Determine priority; Action: Assessed impact/urgency, communicated with stakeholders, delegated if possible, focused on highest value; Result: Successful outcomes" ;
+    interview:example "S: Bug fix vs new feature vs tech debt; T: Deliver maximum value; A: Evaluated user impact, business value, complexity; prioritized security bug, delegated tech debt; R: Prevented outage, feature shipped next sprint" ;
+    interview:pitfalls "Not involving stakeholders; arbitrary prioritization; saying yes to everything; not communicating trade-offs" .
+
+interview:q042 a interview:Question ;
+    schema:name "Describe a time you disagreed with a technical decision and how you handled it" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "hard" ;
+    interview:tags "technical-debate, communication, influence, collaboration" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "5-7 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation002 ;
+    interview:suggestedAnswer interview:a042 .
+
+interview:a042 a interview:Answer ;
+    interview:keyPoints "Situation: Disagreement on technical approach; Task: Advocate for better solution; Action: Presented data/trade-offs, listened to other perspectives, proposed alternatives; Result: Decision made, committed to it" ;
+    interview:example "S: Team chose MongoDB, I preferred PostgreSQL; T: Ensure right choice; A: Wrote RFC with pros/cons, benchmarked both, presented findings; R: Team chose Postgres, avoided future migration, improved my advocacy skills" ;
+    interview:pitfalls "Being stubborn; not listening; passive-aggressive behavior; not committing to final decision; ego-driven arguments" .
+
+interview:q043 a interview:Question ;
+    schema:name "Tell me about a time you had to adapt to significant change" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "medium" ;
+    interview:tags "adaptability, change-management, resilience, growth-mindset" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "4-6 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation004 ;
+    interview:suggestedAnswer interview:a043 .
+
+interview:a043 a interview:Answer ;
+    interview:keyPoints "Situation: Major change (reorg, tech shift, process change); Task: Adapt effectively; Action: Embraced change, learned quickly, supported team, stayed positive; Result: Successful transition, new opportunities" ;
+    interview:example "S: Company switched from waterfall to agile; T: Adopt new methodology; A: Took Scrum training, volunteered for pilot team, helped others transition; R: Velocity increased 30%, became Scrum Master" ;
+    interview:pitfalls "Resisting change; complaining; not showing proactive adaptation; being passive" .
+
+interview:q044 a interview:Question ;
+    schema:name "Describe a time you took initiative on a project outside your core responsibilities" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "medium" ;
+    interview:tags "initiative, ownership, leadership, impact" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "5-6 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a044 .
+
+interview:a044 a interview:Answer ;
+    interview:keyPoints "Situation: Opportunity or problem outside your role; Task: Take ownership; Action: Proposed solution, got support, executed; Result: Positive impact, recognition or growth" ;
+    interview:example "S: Noticed poor documentation hurting onboarding; T: Improve docs; A: Created doc framework, wrote guides, organized doc-a-thon; R: Onboarding time reduced from 3 weeks to 1 week, became doc lead" ;
+    interview:pitfalls "Overstepping boundaries; not getting buy-in; taking credit from others; abandoning core work" .
+
+interview:q045 a interview:Question ;
+    schema:name "Tell me about a time you had to handle multiple projects simultaneously" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "medium" ;
+    interview:tags "multitasking, organization, time-management, prioritization" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "4-6 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a045 .
+
+interview:a045 a interview:Answer ;
+    interview:keyPoints "Situation: Multiple concurrent projects; Task: Deliver all successfully; Action: Time blocking, prioritization matrix, clear communication, status updates; Result: All delivered, lessons on capacity planning" ;
+    interview:example "S: Led 3 projects simultaneously; T: Deliver all on time; A: Created shared calendar, daily priorities, weekly syncs, delegated where possible; R: All delivered, learned to say no to new commitments" ;
+    interview:pitfalls "Spreading too thin; dropping balls; not communicating status; not learning from experience" .
+
+interview:q046 a interview:Question ;
+    schema:name "Describe a time you received critical feedback and how you responded" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "medium" ;
+    interview:tags "feedback, growth-mindset, self-awareness, improvement" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "5-6 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation002 ;
+    interview:suggestedAnswer interview:a046 .
+
+interview:a046 a interview:Answer ;
+    interview:keyPoints "Situation: Specific critical feedback; Task: Respond constructively; Action: Listened without defensiveness, asked clarifying questions, created improvement plan; Result: Measurable improvement, growth" ;
+    interview:example "S: Manager said my code reviews were too nitpicky; T: Improve review style; A: Reflected on feedback, studied effective reviews, focused on high-impact issues; R: Reviews became more valued, improved team velocity" ;
+    interview:pitfalls "Being defensive; dismissing feedback; not showing action taken; choosing trivial feedback" .
+
+interview:q047 a interview:Question ;
+    schema:name "Tell me about a time you had to explain a complex technical concept to a non-technical audience" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "medium" ;
+    interview:tags "communication, technical-writing, teaching, stakeholder-management" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "4-6 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation004 ;
+    interview:suggestedAnswer interview:a047 .
+
+interview:a047 a interview:Answer ;
+    interview:keyPoints "Situation: Need to communicate technical topic; Task: Make it understandable; Action: Used analogies, visuals, avoided jargon, checked understanding; Result: Successful communication, decision made" ;
+    interview:example "S: Explaining microservices to executives; T: Get budget approval; A: Used restaurant analogy (kitchen stations), diagram, business benefits; R: Approved $500k investment, improved my communication skills" ;
+    interview:pitfalls "Using jargon; condescending tone; too much detail; not checking understanding; boring presentation" .
+
+interview:q048 a interview:Question ;
+    schema:name "Describe a time you had to work with ambiguous requirements" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "hard" ;
+    interview:tags "ambiguity, problem-solving, communication, initiative" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "5-7 minutes" ;
+    interview:accommodation interview:accommodation001, interview:accommodation003 ;
+    interview:suggestedAnswer interview:a048 .
+
+interview:a048 a interview:Answer ;
+    interview:keyPoints "Situation: Unclear or incomplete requirements; Task: Deliver working solution; Action: Asked clarifying questions, created prototypes, iterated with stakeholders, documented assumptions; Result: Successful delivery" ;
+    interview:example "S: 'Make the app faster' request; T: Define and improve performance; A: Identified metrics (load time), measured baseline, prioritized improvements, showed data; R: 50% load time reduction, clear success criteria" ;
+    interview:pitfalls "Making assumptions without validation; not communicating; building wrong thing; analysis paralysis" .
+
+interview:q049 a interview:Question ;
+    schema:name "Tell me about a time you championed quality or best practices" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "medium" ;
+    interview:tags "quality, best-practices, leadership, influence" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "5-6 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation004 ;
+    interview:suggestedAnswer interview:a049 .
+
+interview:a049 a interview:Answer ;
+    interview:keyPoints "Situation: Quality issue or lack of standards; Task: Improve practices; Action: Proposed standards, got buy-in, led implementation, measured results; Result: Improved quality metrics, team adoption" ;
+    interview:example "S: 30% of releases had bugs; T: Improve quality; A: Introduced pre-commit hooks, test coverage requirements, review checklist; R: Bug rate dropped to 5%, faster releases, team culture shift" ;
+    interview:pitfalls "Being dogmatic; not showing ROI; forcing practices without buy-in; not measuring impact" .
+
+interview:q050 a interview:Question ;
+    schema:name "Describe a time you had to balance technical debt with feature delivery" ;
+    interview:domain interview:behavioral ;
+    interview:difficulty "hard" ;
+    interview:tags "technical-debt, prioritization, stakeholder-management, decision-making" ;
+    interview:framework "STAR" ;
+    interview:timeEstimate "6-8 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a050 .
+
+interview:a050 a interview:Answer ;
+    interview:keyPoints "Situation: Growing tech debt vs feature pressure; Task: Find balance; Action: Quantified debt impact, negotiated with stakeholders, allocated percentage of sprints, tracked metrics; Result: Sustainable pace" ;
+    interview:example "S: Legacy code slowing development 40%; T: Address debt while delivering; A: Presented data to leadership, got 20% sprint capacity for debt, prioritized highest impact; R: Velocity increased 25% in 3 months" ;
+    interview:pitfalls "Ignoring tech debt; only focusing on debt; not quantifying impact; poor stakeholder communication" .
+
+# ========================================
+# SYSTEM DESIGN QUESTIONS (15)
+# ========================================
+
+interview:q051 a interview:Question ;
+    schema:name "Design a URL shortening service like bit.ly" ;
+    interview:domain interview:systemDesign ;
+    interview:difficulty "medium" ;
+    interview:tags "system-design, distributed-systems, databases, caching, scalability" ;
+    interview:timeEstimate "35-45 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation003, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a051 .
+
+interview:a051 a interview:Answer ;
+    interview:keyPoints "Requirements: shorten URL, redirect, analytics; Components: API gateway, short code generator (base62), KV store (Redis/DynamoDB), analytics DB; Scale: distributed ID generation (snowflake), CDN for redirects, read-heavy caching; Consider: collision handling, expiration, custom URLs" ;
+    interview:example "POST /shorten {url} -> base62(hash(url+counter)) -> store mapping -> return short URL; GET /{code} -> cache lookup -> DB lookup -> 301 redirect; Analytics: async event stream to analytics DB" ;
+    interview:pitfalls "Not discussing scale numbers; ignoring analytics; no caching strategy; not handling collisions; single point of failure" .
+
+interview:q052 a interview:Question ;
+    schema:name "Design a social media news feed like Twitter/X" ;
+    interview:domain interview:systemDesign ;
+    interview:difficulty "hard" ;
+    interview:tags "system-design, distributed-systems, caching, fanout, real-time" ;
+    interview:timeEstimate "40-50 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation005 ;
+    interview:followUp interview:q053 ;
+    interview:suggestedAnswer interview:a052 .
+
+interview:a052 a interview:Answer ;
+    interview:keyPoints "Requirements: post tweets, follow users, view feed; Components: tweet service, timeline service, user graph service; Fanout approaches: push (precompute feeds), pull (query on read), hybrid (celebrities pull, others push); Storage: tweets in DB, timelines in Redis; Consider: ranking algorithm, pagination, media storage (S3), notifications" ;
+    interview:example "Post tweet -> fanout service -> push to followers' timelines (Redis lists) -> CDN for media; Load feed -> read from Redis timeline -> fetch tweet details -> rank; Hybrid: celebrities skip fanout, query on-demand" ;
+    interview:pitfalls "Not discussing fanout trade-offs; ignoring celebrity problem; no caching; not considering real-time updates; missing media handling" .
+
+interview:q053 a interview:Question ;
+    schema:name "How would you design the notification system for a social media platform?" ;
+    interview:domain interview:systemDesign ;
+    interview:difficulty "hard" ;
+    interview:tags "system-design, real-time, messaging, scalability, reliability" ;
+    interview:timeEstimate "35-45 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation003 ;
+    interview:suggestedAnswer interview:a053 .
+
+interview:a053 a interview:Answer ;
+    interview:keyPoints "Types: push, email, SMS, in-app; Components: notification service, message queue (Kafka), user preferences service, delivery workers, WebSocket for real-time; Challenges: deduplication, rate limiting, user preferences, delivery guarantees; Scale: fan-out queues, worker pools, retry logic; Consider: template service, analytics, A/B testing" ;
+    interview:example "Event (like, comment) -> notification service -> check preferences -> queue by channel -> workers send (push via FCM, email via SES) -> track delivery -> retry failures; WebSocket for online users" ;
+    interview:pitfalls "Not handling user preferences; no deduplication; missing retry logic; ignoring rate limits; single notification type only" .
+
+interview:q054 a interview:Question ;
+    schema:name "Design a real-time chat application like WhatsApp" ;
+    interview:domain interview:systemDesign ;
+    interview:difficulty "hard" ;
+    interview:tags "system-design, real-time, websocket, distributed-systems, messaging" ;
+    interview:timeEstimate "40-50 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a054 .
+
+interview:a054 a interview:Answer ;
+    interview:keyPoints "Requirements: 1:1 and group chat, real-time delivery, offline support, read receipts; Components: WebSocket servers, message queue (Kafka), message DB (Cassandra), presence service, media storage (S3); Features: end-to-end encryption, message ordering, delivery acknowledgments; Scale: consistent hashing for WebSocket routing, message sharding by conversation ID" ;
+    interview:example "Send message -> WebSocket -> queue -> persist to DB -> route to recipient's WS connection -> send delivery ack; Offline: store in user inbox, deliver when online; Group: fanout to all members; Media: upload to S3, send URL" ;
+    interview:pitfalls "Not considering offline users; ignoring encryption; no message ordering; missing read receipts; single server architecture" .
+
+interview:q055 a interview:Question ;
+    schema:name "Design a video streaming service like YouTube" ;
+    interview:domain interview:systemDesign ;
+    interview:difficulty "hard" ;
+    interview:tags "system-design, video, cdn, storage, scalability, encoding" ;
+    interview:timeEstimate "40-50 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation003, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a055 .
+
+interview:a055 a interview:Answer ;
+    interview:keyPoints "Requirements: upload, transcode, stream, recommendations; Components: upload service -> S3, transcoding workers (FFmpeg), CDN (CloudFront), metadata DB, search (Elasticsearch), recommendation engine; Video processing: multiple resolutions/bitrates, adaptive streaming (HLS/DASH); Scale: distributed transcoding, CDN for global delivery, blob storage; Consider: thumbnail generation, subtitles, analytics, DRM" ;
+    interview:example "Upload -> S3 -> trigger transcode job -> workers create multiple formats -> store in CDN -> metadata to DB; Stream -> CDN serves chunks -> adaptive bitrate based on bandwidth; Search -> Elasticsearch for videos; Recommendations -> collaborative filtering" ;
+    interview:pitfalls "Not discussing transcoding; ignoring CDN; no adaptive streaming; missing search; single region only; not considering costs" .
+
+interview:q056 a interview:Question ;
+    schema:name "Design an e-commerce checkout and payment system" ;
+    interview:domain interview:systemDesign ;
+    interview:difficulty "hard" ;
+    interview:tags "system-design, transactions, payments, reliability, security" ;
+    interview:timeEstimate "40-45 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a056 .
+
+interview:a056 a interview:Answer ;
+    interview:keyPoints "Requirements: shopping cart, checkout, payment processing, order management; Components: cart service (Redis), inventory service, payment gateway (Stripe), order service, fraud detection; Challenges: inventory reservation, payment idempotency, distributed transactions (Saga pattern), eventual consistency; Security: PCI compliance, tokenization, 3DS; Consider: multiple currencies, tax calculation, shipping" ;
+    interview:example "Add to cart -> Redis; Checkout -> reserve inventory -> create order (pending) -> payment gateway -> webhook for success/failure -> update order status -> release/confirm inventory; Saga pattern for rollback; Idempotency keys for retries" ;
+    interview:pitfalls "Not handling race conditions on inventory; no idempotency; ignoring payment failures; missing fraud detection; ACID assumptions in distributed system; not considering refunds" .
+
+interview:q057 a interview:Question ;
+    schema:name "Design a distributed rate limiting system" ;
+    interview:domain interview:systemDesign ;
+    interview:difficulty "hard" ;
+    interview:tags "system-design, rate-limiting, distributed-systems, redis, algorithms" ;
+    interview:timeEstimate "30-40 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation003 ;
+    interview:suggestedAnswer interview:a057 .
+
+interview:a057 a interview:Answer ;
+    interview:keyPoints "Algorithms: token bucket, leaky bucket, fixed window, sliding window; Distributed: Redis with Lua scripts for atomicity, or local rate limiter with sync; Storage: Redis for counters, TTL for expiration; Scale: sharding by user ID, local caches with eventual consistency; Consider: different limits per tier, burst handling, graceful degradation" ;
+    interview:example "Token bucket in Redis: EVAL script checks tokens, decrements if available; Sliding window: sorted set with timestamps, count in window; Per-user: key = user:{id}:minute; Multi-tier: different counters for different resources" ;
+    interview:pitfalls "Not handling distributed race conditions; single Redis instance; no burst allowance; missing different limit types; not considering costs" .
+
+interview:q058 a interview:Question ;
+    schema:name "Design a distributed cache system" ;
+    interview:domain interview:systemDesign ;
+    interview:difficulty "hard" ;
+    interview:tags "system-design, caching, distributed-systems, consistency, redis" ;
+    interview:timeEstimate "35-45 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation003 ;
+    interview:followUp interview:q059 ;
+    interview:suggestedAnswer interview:a058 .
+
+interview:a058 a interview:Answer ;
+    interview:keyPoints "Components: cache cluster (Redis Cluster), consistent hashing for sharding, replication for HA, client-side routing; Eviction: LRU, LFU, TTL; Consistency: write-through, write-back, cache-aside; Scale: horizontal sharding, read replicas; Challenges: cache warming, thundering herd, cache penetration; Consider: multi-level caching (L1 in-memory, L2 Redis), CDN" ;
+    interview:example "Read: client -> hash key -> find shard -> read from cache or DB; Write: update DB -> invalidate cache; Consistent hashing: virtual nodes for even distribution; Replication: master-slave for reads; Cache warming: background job populates hot data" ;
+    interview:pitfalls "Single point of failure; no eviction strategy; ignoring cache stampede; not considering memory limits; missing monitoring" .
+
+interview:q059 a interview:Question ;
+    schema:name "How would you handle cache invalidation in a distributed system?" ;
+    interview:domain interview:systemDesign ;
+    interview:difficulty "hard" ;
+    interview:tags "system-design, caching, distributed-systems, consistency, patterns" ;
+    interview:timeEstimate "25-35 minutes" ;
+    interview:accommodation interview:accommodation003, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a059 .
+
+interview:a059 a interview:Answer ;
+    interview:keyPoints "Strategies: TTL-based, event-driven (CDC, pub/sub), versioning, write-through invalidation; Patterns: cache-aside with invalidate on write, write-through, write-behind; Distributed: pub/sub (Redis Pub/Sub, Kafka) for invalidation events, versioned keys; Challenges: race conditions, partial failures, thundering herd; Consider: lazy invalidation, stale reads acceptance, refresh-ahead" ;
+    interview:example "Write: update DB -> publish invalidation event -> all cache nodes invalidate; Version-based: cache key includes version, increment on update; TTL: expire after time, refresh on read; CDC: database change log triggers cache updates" ;
+    interview:pitfalls "No strategy for race conditions; assuming immediate consistency; cache stampede on invalidation; not handling partial failures; overly aggressive invalidation" .
+
+interview:q060 a interview:Question ;
+    schema:name "Design a search autocomplete/typeahead system" ;
+    interview:domain interview:systemDesign ;
+    interview:difficulty "medium" ;
+    interview:tags "system-design, search, trie, caching, real-time" ;
+    interview:timeEstimate "30-40 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation003 ;
+    interview:suggestedAnswer interview:a060 .
+
+interview:a060 a interview:Answer ;
+    interview:keyPoints "Data structure: Trie for prefix matching; Storage: precomputed top suggestions per prefix in cache/DB; Real-time: aggregate query logs, rank by frequency/recency; Components: query service, data aggregation pipeline, Trie/cache (Redis), analytics; Scale: CDN for static suggestions, sharding by prefix; Consider: personalization, trending queries, fuzzy matching" ;
+    interview:example "User types 'fac' -> lookup trie node for 'fac' -> return top 10 children by score; Background: aggregate logs -> update trie with popular queries; Cache: Redis stores prefix -> suggestions mapping; Ranking: frequency * recency * personalization score" ;
+    interview:pitfalls "Not discussing ranking; ignoring cache; no data pipeline for updates; missing fuzzy matching; not considering latency requirements" .
+
+interview:q061 a interview:Question ;
+    schema:name "Design a ride-sharing service like Uber" ;
+    interview:domain interview:systemDesign ;
+    interview:difficulty "hard" ;
+    interview:tags "system-design, geospatial, matching, real-time, distributed-systems" ;
+    interview:timeEstimate "45-55 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a061 .
+
+interview:a061 a interview:Answer ;
+    interview:keyPoints "Requirements: match riders with drivers, real-time location, pricing, payments; Components: location service (WebSocket, geohash), matching service (quadtree/geohash for spatial queries), trip service, pricing engine, payment integration; Geospatial: geohash for indexing, Redis Geo for queries; Matching: find nearby drivers, score by distance/rating, assign; Scale: partition by city, WebSocket servers, event-driven; Consider: surge pricing, ETA calculation, driver dispatch" ;
+    interview:example "Rider requests -> geohash location -> query drivers in nearby cells -> rank by distance/rating -> send request to top drivers -> first accept wins; Location updates -> WebSocket -> update Redis Geo; Pricing: base + distance + time + surge multiplier; Trip: state machine (requested -> matched -> in-progress -> completed)" ;
+    interview:pitfalls "Not using geospatial indexing; ignoring real-time location; no matching algorithm; missing surge pricing; single region design; not considering driver acceptance" .
+
+interview:q062 a interview:Question ;
+    schema:name "Design a distributed task scheduler" ;
+    interview:domain interview:systemDesign ;
+    interview:difficulty "hard" ;
+    interview:tags "system-design, distributed-systems, scheduling, reliability, queues" ;
+    interview:timeEstimate "35-45 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation003 ;
+    interview:suggestedAnswer interview:a062 .
+
+interview:a062 a interview:Answer ;
+    interview:keyPoints "Requirements: schedule tasks, execute at specific time, retry failures, horizontal scaling; Components: task queue (Redis/RabbitMQ), scheduler service, worker pool, task registry, monitoring; Patterns: delayed queues, cron expressions, priority queues; Distributed: leader election for scheduler (Raft/ZooKeeper), worker pool for execution, task sharding; Reliability: at-least-once delivery, idempotency, retry with backoff; Consider: task dependencies, recurring tasks, SLA monitoring" ;
+    interview:example "Schedule task -> store in DB with execution time -> scheduler polls for due tasks -> publish to queue -> workers consume -> execute -> update status -> retry on failure; Distributed: partition tasks by hash, leader coordinates; Recurring: cron parser determines next run; Priority: separate queues per priority" ;
+    interview:pitfalls "Single scheduler (SPOF); no idempotency; missing retry logic; not handling time zones; ignoring task dependencies; no monitoring" .
+
+interview:q063 a interview:Question ;
+    schema:name "Design a metrics and monitoring system like Datadog" ;
+    interview:domain interview:systemDesign ;
+    interview:difficulty "hard" ;
+    interview:tags "system-design, monitoring, timeseries, aggregation, alerting" ;
+    interview:timeEstimate "40-50 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a063 .
+
+interview:a063 a interview:Answer ;
+    interview:keyPoints "Requirements: collect metrics, store timeseries data, query/visualize, alerting; Components: collection agents, ingestion API, timeseries DB (Prometheus, InfluxDB), aggregation service, query API, visualization, alerting engine; Data model: metric name + labels + timestamp + value; Scale: pre-aggregation, downsampling, retention policies, sharding by metric; Alerting: rule engine, notification channels; Consider: high cardinality, compression, retention tiers" ;
+    interview:example "Agent -> push metrics -> ingestion -> write to timeseries DB -> aggregation (1m, 5m, 1h rollups) -> query API -> visualization; Alerts: rule engine evaluates queries -> trigger on threshold -> notify (email, Slack); Storage: hot (recent, full resolution) + warm (aggregated) + cold (compressed)" ;
+    interview:pitfalls "Not handling high throughput; ignoring cardinality explosion; no aggregation strategy; missing retention policies; single DB instance; not considering query performance" .
+
+interview:q064 a interview:Question ;
+    schema:name "Design a collaborative document editing system like Google Docs" ;
+    interview:domain interview:systemDesign ;
+    interview:difficulty "expert" ;
+    interview:tags "system-design, real-time, crdt, collaboration, operational-transform" ;
+    interview:timeEstimate "45-55 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation005 ;
+    interview:suggestedAnswer interview:a064 .
+
+interview:a064 a interview:Answer ;
+    interview:keyPoints "Requirements: real-time collaboration, conflict resolution, presence, version history; Algorithms: Operational Transform (OT) or CRDT for conflict-free merges; Components: WebSocket servers, document service, operation log, storage (S3 for snapshots), presence service; Sync: broadcast operations to all clients, transform concurrent ops, apply locally; Scale: partition by document, snapshot + operation log, eventual consistency; Consider: cursors, comments, offline editing" ;
+    interview:example "User types -> generate operation -> send via WebSocket -> server transforms against concurrent ops -> broadcast to other clients -> apply locally; OT: transform operations based on prior ops; CRDT: commutative operations; Snapshots: periodic full doc save + operation log; Presence: WebSocket heartbeat, shared cursor positions" ;
+    interview:pitfalls "Not discussing OT/CRDT; ignoring conflict resolution; no offline support; missing presence; not considering version history; single server architecture" .
+
+interview:q065 a interview:Question ;
+    schema:name "Design a content delivery network (CDN)" ;
+    interview:domain interview:systemDesign ;
+    interview:difficulty "expert" ;
+    interview:tags "system-design, cdn, caching, networking, global-scale" ;
+    interview:timeEstimate "40-50 minutes" ;
+    interview:accommodation interview:accommodation002, interview:accommodation003 ;
+    interview:suggestedAnswer interview:a065 .
+
+interview:a065 a interview:Answer ;
+    interview:keyPoints "Requirements: cache and serve static content globally, low latency, high availability; Components: edge servers (globally distributed), origin servers, DNS for routing (GeoDNS), cache invalidation system; Routing: anycast or GeoDNS routes to nearest edge; Caching: LRU eviction, cache-control headers, purge API; Features: SSL termination, DDoS protection, compression; Scale: pop distribution, tiered caching (edge -> regional -> origin); Consider: cache warming, failover, cost optimization" ;
+    interview:example "Request -> GeoDNS resolves to nearest edge -> edge checks cache -> hit: return, miss: fetch from origin -> cache -> return; Invalidation: purge API -> propagate to all edges; SSL: terminate at edge; DDoS: rate limiting, IP blocking at edge; Tiered: edge -> regional cache -> origin" ;
+    interview:pitfalls "Not discussing global distribution; ignoring cache invalidation; no SSL; missing DDoS protection; not considering costs; single tier caching only" .
+
+# ========================================
+# END OF KNOWLEDGE GRAPH
+# ========================================

@@ -1,0 +1,4 @@
+@prefix cfg: <https://cns.dev/config#> .
+@prefix core: <https://cns.dev/core#> .
+
+[] a core:TestSpec ; core:targets cfg:Config .

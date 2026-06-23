@@ -1,0 +1,24 @@
+@prefix : <https://bytestar.org/ontology/bytestar-marketplace#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-marketplace>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  rdfs:label "ByteStar Marketplace Ontology" ;
+  rdfs:comment "CXP headers, SHACL+PQC admission, private settlement via KEM." .
+
+:CXPHeader a owl:Class .
+:Offer, :Demand a owl:Class .
+:privateCell a owl:Class .
+:agora a owl:Class .
+
+:hasHeader a owl:ObjectProperty ; rdfs:domain [
+  a owl:Class ; owl:unionOf ( :Offer :Demand ) ] ; rdfs:range :CXPHeader .
+
+:kemEncap a owl:ObjectProperty ; rdfs:domain :CXPHeader ; rdfs:range bytestar:PQCKey .
+:kemDecap a owl:ObjectProperty ; rdfs:domain :CXPHeader ; rdfs:range bytestar:PQCKey .
+
+:admissible a owl:DatatypeProperty ; rdfs:domain :CXPHeader ; rdfs:range xsd:boolean .

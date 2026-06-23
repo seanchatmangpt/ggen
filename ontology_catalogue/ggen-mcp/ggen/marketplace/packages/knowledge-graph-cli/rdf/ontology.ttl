@@ -1,0 +1,299 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix kg: <http://ggen.io/ontology/knowledge-graph-cli#> .
+@prefix clap: <http://ggen.io/ontology/clap-noun-verb#> .
+
+# Ontology definition
+kg:KnowledgeGraphCLIOntology a owl:Ontology ;
+    rdfs:label "Knowledge Graph CLI Ontology" ;
+    dc:description "RDF ontology for knowledge-graph-cli tool using clap-noun-verb pattern" ;
+    dc:creator "ggen-team" ;
+    owl:versionInfo "1.0.0" .
+
+# ===== Noun Classes =====
+
+kg:Entity a clap:Noun, owl:Class ;
+    rdfs:label "Entity" ;
+    rdfs:comment "Knowledge graph entity operations" ;
+    clap:hasVerb kg:create, kg:list, kg:show, kg:update, kg:delete .
+
+kg:Relation a clap:Noun, owl:Class ;
+    rdfs:label "Relation" ;
+    rdfs:comment "Entity relationship operations" ;
+    clap:hasVerb kg:add, kg:list, kg:remove, kg:query .
+
+kg:Inference a clap:Noun, owl:Class ;
+    rdfs:label "Inference" ;
+    rdfs:comment "Inference and reasoning operations" ;
+    clap:hasVerb kg:rules, kg:apply, kg:validate .
+
+kg:Graph a clap:Noun, owl:Class ;
+    rdfs:label "Graph" ;
+    rdfs:comment "Graph-level operations" ;
+    clap:hasVerb kg:load, kg:export, kg:stats, kg:visualize .
+
+# ===== Verb Classes =====
+
+# Entity verbs
+kg:create a clap:Verb, owl:Class ;
+    rdfs:label "create" ;
+    rdfs:comment "Create new entity with properties" ;
+    clap:belongsToNoun kg:Entity ;
+    clap:hasArgument kg:nameArg, kg:typeArg, kg:propertiesArg ;
+    clap:returns kg:EntityResult .
+
+kg:list a clap:Verb, owl:Class ;
+    rdfs:label "list" ;
+    rdfs:comment "List entities" ;
+    clap:belongsToNoun kg:Entity ;
+    clap:hasArgument kg:typeFilterArg, kg:limitArg ;
+    clap:returns kg:EntityList .
+
+kg:show a clap:Verb, owl:Class ;
+    rdfs:label "show" ;
+    rdfs:comment "Show entity details" ;
+    clap:belongsToNoun kg:Entity ;
+    clap:hasArgument kg:idArg ;
+    clap:returns kg:EntityDetails .
+
+kg:update a clap:Verb, owl:Class ;
+    rdfs:label "update" ;
+    rdfs:comment "Update entity properties" ;
+    clap:belongsToNoun kg:Entity ;
+    clap:hasArgument kg:idArg, kg:propertiesArg ;
+    clap:returns kg:EntityResult .
+
+kg:delete a clap:Verb, owl:Class ;
+    rdfs:label "delete" ;
+    rdfs:comment "Delete entity" ;
+    clap:belongsToNoun kg:Entity ;
+    clap:hasArgument kg:idArg ;
+    clap:returns kg:DeleteResult .
+
+# Relation verbs
+kg:add a clap:Verb, owl:Class ;
+    rdfs:label "add" ;
+    rdfs:comment "Add relation between entities" ;
+    clap:belongsToNoun kg:Relation ;
+    clap:hasArgument kg:fromArg, kg:toArg, kg:typeArg, kg:propertiesArg ;
+    clap:returns kg:RelationResult .
+
+kg:remove a clap:Verb, owl:Class ;
+    rdfs:label "remove" ;
+    rdfs:comment "Remove relation" ;
+    clap:belongsToNoun kg:Relation ;
+    clap:hasArgument kg:relationIdArg ;
+    clap:returns kg:DeleteResult .
+
+kg:query a clap:Verb, owl:Class ;
+    rdfs:label "query" ;
+    rdfs:comment "Query relations" ;
+    clap:belongsToNoun kg:Relation ;
+    clap:hasArgument kg:patternArg ;
+    clap:returns kg:RelationList .
+
+# Inference verbs
+kg:rules a clap:Verb, owl:Class ;
+    rdfs:label "rules" ;
+    rdfs:comment "List inference rules" ;
+    clap:belongsToNoun kg:Inference ;
+    clap:returns kg:RuleList .
+
+kg:apply a clap:Verb, owl:Class ;
+    rdfs:label "apply" ;
+    rdfs:comment "Apply inference to graph" ;
+    clap:belongsToNoun kg:Inference ;
+    clap:hasArgument kg:ruleSetArg ;
+    clap:returns kg:InferenceResult .
+
+kg:validate a clap:Verb, owl:Class ;
+    rdfs:label "validate" ;
+    rdfs:comment "Validate graph consistency" ;
+    clap:belongsToNoun kg:Inference ;
+    clap:returns kg:ValidationResult .
+
+# Graph verbs
+kg:load a clap:Verb, owl:Class ;
+    rdfs:label "load" ;
+    rdfs:comment "Load graph from file" ;
+    clap:belongsToNoun kg:Graph ;
+    clap:hasArgument kg:fileArg, kg:formatArg ;
+    clap:returns kg:LoadResult .
+
+kg:export a clap:Verb, owl:Class ;
+    rdfs:label "export" ;
+    rdfs:comment "Export graph to file" ;
+    clap:belongsToNoun kg:Graph ;
+    clap:hasArgument kg:fileArg, kg:formatArg ;
+    clap:returns kg:ExportResult .
+
+kg:stats a clap:Verb, owl:Class ;
+    rdfs:label "stats" ;
+    rdfs:comment "Show graph statistics" ;
+    clap:belongsToNoun kg:Graph ;
+    clap:returns kg:GraphStats .
+
+kg:visualize a clap:Verb, owl:Class ;
+    rdfs:label "visualize" ;
+    rdfs:comment "Generate graph visualization" ;
+    clap:belongsToNoun kg:Graph ;
+    clap:hasArgument kg:outputArg, kg:formatArg ;
+    clap:returns kg:VisualizeResult .
+
+# ===== Argument Definitions =====
+
+kg:nameArg a clap:Argument ;
+    clap:name "name" ;
+    clap:type xsd:string ;
+    clap:required true ;
+    clap:help "Entity name" .
+
+kg:typeArg a clap:Argument ;
+    clap:name "type" ;
+    clap:short "t" ;
+    clap:type xsd:string ;
+    clap:required true ;
+    clap:help "Entity type" .
+
+kg:propertiesArg a clap:Argument ;
+    clap:name "properties" ;
+    clap:short "p" ;
+    clap:type xsd:string ;
+    clap:required false ;
+    clap:help "JSON properties" .
+
+kg:typeFilterArg a clap:Argument ;
+    clap:name "type" ;
+    clap:short "t" ;
+    clap:type xsd:string ;
+    clap:required false ;
+    clap:help "Filter by type" .
+
+kg:limitArg a clap:Argument ;
+    clap:name "limit" ;
+    clap:short "l" ;
+    clap:type xsd:integer ;
+    clap:default 10 ;
+    clap:help "Result limit" .
+
+kg:idArg a clap:Argument ;
+    clap:name "id" ;
+    clap:type xsd:string ;
+    clap:required true ;
+    clap:help "Entity ID" .
+
+kg:fromArg a clap:Argument ;
+    clap:name "from" ;
+    clap:type xsd:string ;
+    clap:required true ;
+    clap:help "Source entity ID" .
+
+kg:toArg a clap:Argument ;
+    clap:name "to" ;
+    clap:type xsd:string ;
+    clap:required true ;
+    clap:help "Target entity ID" .
+
+kg:relationIdArg a clap:Argument ;
+    clap:name "id" ;
+    clap:type xsd:string ;
+    clap:required true ;
+    clap:help "Relation ID" .
+
+kg:patternArg a clap:Argument ;
+    clap:name "pattern" ;
+    clap:short "p" ;
+    clap:type xsd:string ;
+    clap:required false ;
+    clap:help "Query pattern" .
+
+kg:ruleSetArg a clap:Argument ;
+    clap:name "ruleset" ;
+    clap:short "r" ;
+    clap:type xsd:string ;
+    clap:default "default" ;
+    clap:help "Inference rule set" .
+
+kg:fileArg a clap:Argument ;
+    clap:name "file" ;
+    clap:type xsd:string ;
+    clap:required true ;
+    clap:help "File path" .
+
+kg:formatArg a clap:Argument ;
+    clap:name "format" ;
+    clap:short "f" ;
+    clap:type xsd:string ;
+    clap:default "turtle" ;
+    clap:help "File format" .
+
+kg:outputArg a clap:Argument ;
+    clap:name "output" ;
+    clap:short "o" ;
+    clap:type xsd:string ;
+    clap:required true ;
+    clap:help "Output file path" .
+
+# ===== Return Types =====
+
+kg:EntityResult a owl:Class ;
+    clap:hasField kg:idField, kg:nameField, kg:typeField, kg:propertiesField .
+
+kg:EntityList a owl:Class ;
+    clap:hasField kg:entitiesField, kg:countField .
+
+kg:EntityDetails a owl:Class ;
+    clap:hasField kg:idField, kg:nameField, kg:typeField, kg:propertiesField, kg:relationsField .
+
+kg:DeleteResult a owl:Class ;
+    clap:hasField kg:successField, kg:idField .
+
+kg:RelationResult a owl:Class ;
+    clap:hasField kg:idField, kg:fromField, kg:toField, kg:typeField .
+
+kg:RelationList a owl:Class ;
+    clap:hasField kg:relationsField, kg:countField .
+
+kg:RuleList a owl:Class ;
+    clap:hasField kg:rulesField, kg:countField .
+
+kg:InferenceResult a owl:Class ;
+    clap:hasField kg:inferredField, kg:countField .
+
+kg:ValidationResult a owl:Class ;
+    clap:hasField kg:validField, kg:violationsField .
+
+kg:LoadResult a owl:Class ;
+    clap:hasField kg:successField, kg:entitiesField, kg:relationsField .
+
+kg:ExportResult a owl:Class ;
+    clap:hasField kg:successField, kg:formatField, kg:pathField .
+
+kg:GraphStats a owl:Class ;
+    clap:hasField kg:entitiesField, kg:relationsField, kg:typesField .
+
+kg:VisualizeResult a owl:Class ;
+    clap:hasField kg:successField, kg:pathField .
+
+# ===== Field Definitions =====
+
+kg:idField a clap:Field ; clap:name "id" ; clap:type xsd:string .
+kg:nameField a clap:Field ; clap:name "name" ; clap:type xsd:string .
+kg:typeField a clap:Field ; clap:name "type" ; clap:type xsd:string .
+kg:propertiesField a clap:Field ; clap:name "properties" ; clap:type "HashMap<String, Value>" .
+kg:entitiesField a clap:Field ; clap:name "entities" ; clap:type "Vec<Entity>" .
+kg:countField a clap:Field ; clap:name "count" ; clap:type xsd:integer .
+kg:relationsField a clap:Field ; clap:name "relations" ; clap:type "Vec<Relation>" .
+kg:successField a clap:Field ; clap:name "success" ; clap:type xsd:boolean .
+kg:fromField a clap:Field ; clap:name "from" ; clap:type xsd:string .
+kg:toField a clap:Field ; clap:name "to" ; clap:type xsd:string .
+kg:rulesField a clap:Field ; clap:name "rules" ; clap:type "Vec<Rule>" .
+kg:inferredField a clap:Field ; clap:name "inferred" ; clap:type "Vec<Triple>" .
+kg:validField a clap:Field ; clap:name "valid" ; clap:type xsd:boolean .
+kg:violationsField a clap:Field ; clap:name "violations" ; clap:type "Vec<Violation>" .
+kg:formatField a clap:Field ; clap:name "format" ; clap:type xsd:string .
+kg:pathField a clap:Field ; clap:name "path" ; clap:type xsd:string .
+kg:typesField a clap:Field ; clap:name "types" ; clap:type "Vec<String>" .

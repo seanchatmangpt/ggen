@@ -1,0 +1,479 @@
+# Test Generation Ontology for Automatic Code Generation
+# Namespace: http://bytepqc.org/ontology/testing#
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix test: <http://bytepqc.org/ontology/testing#> .
+@prefix api: <http://bytepqc.org/ontology/api#> .
+@prefix tpl: <http://bytepqc.org/ontology/templates#> .
+
+# ===== ONTOLOGY DECLARATION =====
+<http://bytepqc.org/ontology/testing> a owl:Ontology ;
+    rdfs:label "Test Generation Ontology" ;
+    rdfs:comment "Ontology for automatic generation of unit tests and property-based tests" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://bytepqc.org/ontology/api> ,
+                <http://bytepqc.org/ontology/templates> .
+
+# ===== CORE TEST CLASSES =====
+
+test:TestSuite a owl:Class ;
+    rdfs:label "Test Suite" ;
+    rdfs:comment "Collection of related test cases" .
+
+test:TestCase a owl:Class ;
+    rdfs:label "Test Case" ;
+    rdfs:comment "Individual test case" .
+
+test:TestAssertion a owl:Class ;
+    rdfs:label "Test Assertion" ;
+    rdfs:comment "Assertion within a test case" .
+
+test:TestFixture a owl:Class ;
+    rdfs:label "Test Fixture" ;
+    rdfs:comment "Test setup and teardown code" .
+
+test:TestData a owl:Class ;
+    rdfs:label "Test Data" ;
+    rdfs:comment "Data used in tests" .
+
+# ===== TEST TYPES =====
+
+test:UnitTest a owl:Class ;
+    rdfs:subClassOf test:TestCase ;
+    rdfs:label "Unit Test" ;
+    rdfs:comment "Test for individual functions or components" .
+
+test:IntegrationTest a owl:Class ;
+    rdfs:subClassOf test:TestCase ;
+    rdfs:label "Integration Test" ;
+    rdfs:comment "Test for interaction between components" .
+
+test:PropertyTest a owl:Class ;
+    rdfs:subClassOf test:TestCase ;
+    rdfs:label "Property-Based Test" ;
+    rdfs:comment "Test based on mathematical properties" .
+
+test:FuzzTest a owl:Class ;
+    rdfs:subClassOf test:TestCase ;
+    rdfs:label "Fuzz Test" ;
+    rdfs:comment "Test with random or malformed inputs" .
+
+test:RegressionTest a owl:Class ;
+    rdfs:subClassOf test:TestCase ;
+    rdfs:label "Regression Test" ;
+    rdfs:comment "Test to prevent regression of fixed bugs" .
+
+test:PerformanceTest a owl:Class ;
+    rdfs:subClassOf test:TestCase ;
+    rdfs:label "Performance Test" ;
+    rdfs:comment "Test for performance characteristics" .
+
+test:SecurityTest a owl:Class ;
+    rdfs:subClassOf test:TestCase ;
+    rdfs:label "Security Test" ;
+    rdfs:comment "Test for security properties" .
+
+# ===== CRYPTOGRAPHIC TEST SPECIALIZATIONS =====
+
+test:CryptographicTest a owl:Class ;
+    rdfs:subClassOf test:TestCase ;
+    rdfs:label "Cryptographic Test" ;
+    rdfs:comment "Test for cryptographic functions" .
+
+test:CorrectnessTest a owl:Class ;
+    rdfs:subClassOf test:CryptographicTest ;
+    rdfs:label "Correctness Test" ;
+    rdfs:comment "Test for cryptographic correctness" .
+
+test:KnownAnswerTest a owl:Class ;
+    rdfs:subClassOf test:CryptographicTest ;
+    rdfs:label "Known Answer Test" ;
+    rdfs:comment "Test against known cryptographic test vectors" .
+
+test:RandomnessTest a owl:Class ;
+    rdfs:subClassOf test:CryptographicTest ;
+    rdfs:label "Randomness Test" ;
+    rdfs:comment "Test for randomness quality" .
+
+test:SideChannelTest a owl:Class ;
+    rdfs:subClassOf test:SecurityTest ;
+    rdfs:label "Side Channel Test" ;
+    rdfs:comment "Test for side-channel resistance" .
+
+test:ConstantTimeTest a owl:Class ;
+    rdfs:subClassOf test:SideChannelTest ;
+    rdfs:label "Constant Time Test" ;
+    rdfs:comment "Test for constant-time execution" .
+
+# ===== ASSERTION TYPES =====
+
+test:EqualityAssertion a owl:Class ;
+    rdfs:subClassOf test:TestAssertion ;
+    rdfs:label "Equality Assertion" ;
+    rdfs:comment "Assert two values are equal" .
+
+test:InequalityAssertion a owl:Class ;
+    rdfs:subClassOf test:TestAssertion ;
+    rdfs:label "Inequality Assertion" ;
+    rdfs:comment "Assert two values are not equal" .
+
+test:NullAssertion a owl:Class ;
+    rdfs:subClassOf test:TestAssertion ;
+    rdfs:label "Null Assertion" ;
+    rdfs:comment "Assert value is NULL or not NULL" .
+
+test:RangeAssertion a owl:Class ;
+    rdfs:subClassOf test:TestAssertion ;
+    rdfs:label "Range Assertion" ;
+    rdfs:comment "Assert value is within range" .
+
+test:PropertyAssertion a owl:Class ;
+    rdfs:subClassOf test:TestAssertion ;
+    rdfs:label "Property Assertion" ;
+    rdfs:comment "Assert mathematical property holds" .
+
+test:ExceptionAssertion a owl:Class ;
+    rdfs:subClassOf test:TestAssertion ;
+    rdfs:label "Exception Assertion" ;
+    rdfs:comment "Assert exception is thrown" .
+
+# ===== PROPERTIES =====
+
+test:hasTestCase a owl:ObjectProperty ;
+    rdfs:label "has test case" ;
+    rdfs:comment "Test suite has test case" ;
+    rdfs:domain test:TestSuite ;
+    rdfs:range test:TestCase .
+
+test:hasAssertion a owl:ObjectProperty ;
+    rdfs:label "has assertion" ;
+    rdfs:comment "Test case has assertion" ;
+    rdfs:domain test:TestCase ;
+    rdfs:range test:TestAssertion .
+
+test:hasFixture a owl:ObjectProperty ;
+    rdfs:label "has fixture" ;
+    rdfs:comment "Test case has fixture" ;
+    rdfs:domain test:TestCase ;
+    rdfs:range test:TestFixture .
+
+test:usesTestData a owl:ObjectProperty ;
+    rdfs:label "uses test data" ;
+    rdfs:comment "Test case uses test data" ;
+    rdfs:domain test:TestCase ;
+    rdfs:range test:TestData .
+
+test:testsFunction a owl:ObjectProperty ;
+    rdfs:label "tests function" ;
+    rdfs:comment "Test case tests specific function" ;
+    rdfs:domain test:TestCase ;
+    rdfs:range api:Function .
+
+# ===== DATA TYPE PROPERTIES =====
+
+test:testName a owl:DatatypeProperty ;
+    rdfs:label "test name" ;
+    rdfs:comment "Name of the test" ;
+    rdfs:domain test:TestCase ;
+    rdfs:range xsd:string .
+
+test:testDescription a owl:DatatypeProperty ;
+    rdfs:label "test description" ;
+    rdfs:comment "Description of what the test validates" ;
+    rdfs:domain test:TestCase ;
+    rdfs:range xsd:string .
+
+test:expectedValue a owl:DatatypeProperty ;
+    rdfs:label "expected value" ;
+    rdfs:comment "Expected value for assertion" ;
+    rdfs:domain test:TestAssertion ;
+    rdfs:range xsd:string .
+
+test:actualValue a owl:DatatypeProperty ;
+    rdfs:label "actual value" ;
+    rdfs:comment "Actual value for assertion" ;
+    rdfs:domain test:TestAssertion ;
+    rdfs:range xsd:string .
+
+test:tolerance a owl:DatatypeProperty ;
+    rdfs:label "tolerance" ;
+    rdfs:comment "Tolerance for floating-point comparisons" ;
+    rdfs:domain test:EqualityAssertion ;
+    rdfs:range xsd:double .
+
+test:iterationCount a owl:DatatypeProperty ;
+    rdfs:label "iteration count" ;
+    rdfs:comment "Number of iterations for property-based test" ;
+    rdfs:domain test:PropertyTest ;
+    rdfs:range xsd:int .
+
+test:timeout a owl:DatatypeProperty ;
+    rdfs:label "timeout" ;
+    rdfs:comment "Test timeout in milliseconds" ;
+    rdfs:domain test:TestCase ;
+    rdfs:range xsd:int .
+
+test:priority a owl:DatatypeProperty ;
+    rdfs:label "priority" ;
+    rdfs:comment "Test priority (high, medium, low)" ;
+    rdfs:domain test:TestCase ;
+    rdfs:range xsd:string .
+
+# ===== TEST DATA CLASSES =====
+
+test:StaticTestData a owl:Class ;
+    rdfs:subClassOf test:TestData ;
+    rdfs:label "Static Test Data" ;
+    rdfs:comment "Pre-defined static test data" .
+
+test:GeneratedTestData a owl:Class ;
+    rdfs:subClassOf test:TestData ;
+    rdfs:comment "Dynamically generated test data" .
+
+test:RandomTestData a owl:Class ;
+    rdfs:subClassOf test:GeneratedTestData ;
+    rdfs:label "Random Test Data" ;
+    rdfs:comment "Randomly generated test data" .
+
+test:StructuredTestData a owl:Class ;
+    rdfs:subClassOf test:GeneratedTestData ;
+    rdfs:label "Structured Test Data" ;
+    rdfs:comment "Structured test data following patterns" .
+
+test:TestVector a owl:Class ;
+    rdfs:subClassOf test:StaticTestData ;
+    rdfs:label "Test Vector" ;
+    rdfs:comment "Official test vector from standards" .
+
+# ===== PROPERTY-BASED TEST PROPERTIES =====
+
+test:MathematicalProperty a owl:Class ;
+    rdfs:label "Mathematical Property" ;
+    rdfs:comment "Mathematical property to test" .
+
+test:Associativity a owl:Class ;
+    rdfs:subClassOf test:MathematicalProperty ;
+    rdfs:label "Associativity" ;
+    rdfs:comment "Associativity property: (a op b) op c = a op (b op c)" .
+
+test:Commutativity a owl:Class ;
+    rdfs:subClassOf test:MathematicalProperty ;
+    rdfs:label "Commutativity" ;
+    rdfs:comment "Commutativity property: a op b = b op a" .
+
+test:Identity a owl:Class ;
+    rdfs:subClassOf test:MathematicalProperty ;
+    rdfs:label "Identity" ;
+    rdfs:comment "Identity property: a op identity = a" .
+
+test:Inverse a owl:Class ;
+    rdfs:subClassOf test:MathematicalProperty ;
+    rdfs:label "Inverse" ;
+    rdfs:comment "Inverse property: a op inverse(a) = identity" .
+
+test:Idempotence a owl:Class ;
+    rdfs:subClassOf test:MathematicalProperty ;
+    rdfs:label "Idempotence" ;
+    rdfs:comment "Idempotence property: f(f(x)) = f(x)" .
+
+# ===== CRYPTOGRAPHIC PROPERTIES =====
+
+test:CryptographicProperty a owl:Class ;
+    rdfs:subClassOf test:MathematicalProperty ;
+    rdfs:label "Cryptographic Property" ;
+    rdfs:comment "Cryptographic-specific property" .
+
+test:RoundTripProperty a owl:Class ;
+    rdfs:subClassOf test:CryptographicProperty ;
+    rdfs:label "Round Trip Property" ;
+    rdfs:comment "encrypt(decrypt(x)) = x or sign(verify(x)) = valid" .
+
+test:DeterministicProperty a owl:Class ;
+    rdfs:subClassOf test:CryptographicProperty ;
+    rdfs:label "Deterministic Property" ;
+    rdfs:comment "Same input produces same output" .
+
+test:BijectiveProperty a owl:Class ;
+    rdfs:subClassOf test:CryptographicProperty ;
+    rdfs:label "Bijective Property" ;
+    rdfs:comment "Function is one-to-one and onto" .
+
+test:UniformDistribution a owl:Class ;
+    rdfs:subClassOf test:CryptographicProperty ;
+    rdfs:label "Uniform Distribution" ;
+    rdfs:comment "Output has uniform distribution" .
+
+# ===== TEST GENERATION TEMPLATES =====
+
+test:UnitTestTemplate a tpl:CodeTemplate ;
+    rdfs:label "Unit Test Template" ;
+    tpl:templateContent """
+// Test: {{TEST_NAME}}
+void test_{{FUNCTION_NAME}}_{{TEST_VARIANT}}(void) {
+    // Setup
+    {{SETUP_CODE}}
+    
+    // Test data
+    {{TEST_DATA_DECLARATIONS}}
+    
+    // Execute
+    {{FUNCTION_CALL}}
+    
+    // Assertions
+    {{#ASSERTIONS}}
+    assert_{{ASSERTION_TYPE}}({{EXPECTED}}, {{ACTUAL}});
+    {{/ASSERTIONS}}
+    
+    // Cleanup
+    {{CLEANUP_CODE}}
+}""" .
+
+test:PropertyTestTemplate a tpl:CodeTemplate ;
+    rdfs:label "Property-Based Test Template" ;
+    tpl:templateContent """
+// Property Test: {{PROPERTY_NAME}}
+void test_property_{{PROPERTY_NAME}}(void) {
+    for (int i = 0; i < {{ITERATION_COUNT}}; i++) {
+        // Generate test data
+        {{GENERATE_TEST_DATA}}
+        
+        // Test property: {{PROPERTY_DESCRIPTION}}
+        {{PROPERTY_ASSERTION}}
+    }
+}""" .
+
+test:KnownAnswerTestTemplate a tpl:CodeTemplate ;
+    rdfs:label "Known Answer Test Template" ;
+    tpl:templateContent """
+// Known Answer Test for {{ALGORITHM_NAME}}
+void test_{{ALGORITHM_NAME}}_known_answers(void) {
+    const struct {
+        {{INPUT_TYPE}} input;
+        {{OUTPUT_TYPE}} expected;
+    } test_vectors[] = {
+        {{TEST_VECTORS}}
+    };
+    
+    size_t num_vectors = sizeof(test_vectors) / sizeof(test_vectors[0]);
+    
+    for (size_t i = 0; i < num_vectors; i++) {
+        {{OUTPUT_TYPE}} actual;
+        int result = {{FUNCTION_NAME}}(&actual, &test_vectors[i].input);
+        
+        assert_int_equal(0, result);
+        assert_memory_equal(&test_vectors[i].expected, &actual, sizeof({{OUTPUT_TYPE}}));
+    }
+}""" .
+
+test:FuzzTestTemplate a tpl:CodeTemplate ;
+    rdfs:label "Fuzz Test Template" ;
+    tpl:templateContent """
+// Fuzz Test for {{FUNCTION_NAME}}
+void test_{{FUNCTION_NAME}}_fuzz(void) {
+    for (int i = 0; i < {{FUZZ_ITERATIONS}}; i++) {
+        // Generate random input
+        {{GENERATE_RANDOM_INPUT}}
+        
+        // Function should not crash with any input
+        {{OUTPUT_TYPE}} output;
+        int result = {{FUNCTION_NAME}}(&output, &input);
+        
+        // Basic sanity checks
+        assert_true(result >= 0 || result == expected_error_code);
+        {{SANITY_CHECKS}}
+    }
+}""" .
+
+# ===== EXAMPLE TEST SPECIFICATIONS =====
+
+test:kyber_test_suite a test:TestSuite ;
+    rdfs:label "Kyber Test Suite" ;
+    rdfs:comment "Complete test suite for Kyber implementation" .
+
+test:kyber_keypair_unit_test a test:UnitTest ;
+    rdfs:label "Kyber Key Pair Generation Unit Test" ;
+    test:testName "test_kyber_keypair_generation" ;
+    test:testDescription "Test basic key pair generation functionality" ;
+    test:testsFunction api:kyber_keypair ;
+    test:hasAssertion [
+        a test:EqualityAssertion ;
+        test:expectedValue "0" ;
+        test:actualValue "result" ;
+        rdfs:comment "Function should return success"
+    ] ;
+    test:hasAssertion [
+        a test:InequalityAssertion ;
+        test:expectedValue "NULL" ;
+        test:actualValue "pk" ;
+        rdfs:comment "Public key should not be NULL"
+    ] .
+
+test:kyber_roundtrip_property a test:PropertyTest ;
+    rdfs:label "Kyber Round Trip Property" ;
+    test:testName "test_kyber_roundtrip_property" ;
+    test:testDescription "Test that decrypt(encrypt(message)) = message" ;
+    test:iterationCount 1000 ;
+    test:hasAssertion [
+        a test:PropertyAssertion ;
+        rdfs:comment "Round trip property must hold for all messages"
+    ] .
+
+test:kyber_known_answer_test a test:KnownAnswerTest ;
+    rdfs:label "Kyber Known Answer Test" ;
+    test:testName "test_kyber_known_answers" ;
+    test:testDescription "Test against NIST reference test vectors" ;
+    test:usesTestData [
+        a test:TestVector ;
+        rdfs:comment "NIST KAT test vectors for Kyber-512"
+    ] .
+
+# ===== TEST FRAMEWORK INTEGRATION =====
+
+test:TestFramework a owl:Class ;
+    rdfs:label "Test Framework" ;
+    rdfs:comment "Testing framework integration" .
+
+test:CMockaFramework a owl:Class ;
+    rdfs:subClassOf test:TestFramework ;
+    rdfs:label "CMocka Framework" ;
+    rdfs:comment "CMocka testing framework" .
+
+test:UnityFramework a owl:Class ;
+    rdfs:subClassOf test:TestFramework ;
+    rdfs:label "Unity Framework" ;
+    rdfs:comment "Unity testing framework" .
+
+test:CriterionFramework a owl:Class ;
+    rdfs:subClassOf test:TestFramework ;
+    rdfs:label "Criterion Framework" ;
+    rdfs:comment "Criterion testing framework" .
+
+# ===== COVERAGE AND METRICS =====
+
+test:CoverageMetric a owl:Class ;
+    rdfs:label "Coverage Metric" ;
+    rdfs:comment "Code coverage metric" .
+
+test:LineCoverage a owl:Class ;
+    rdfs:subClassOf test:CoverageMetric ;
+    rdfs:label "Line Coverage" ;
+    rdfs:comment "Line coverage percentage" .
+
+test:BranchCoverage a owl:Class ;
+    rdfs:subClassOf test:CoverageMetric ;
+    rdfs:label "Branch Coverage" ;
+    rdfs:comment "Branch coverage percentage" .
+
+test:FunctionCoverage a owl:Class ;
+    rdfs:subClassOf test:CoverageMetric ;
+    rdfs:label "Function Coverage" ;
+    rdfs:comment "Function coverage percentage" .
+
+test:targetCoverage a owl:DatatypeProperty ;
+    rdfs:label "target coverage" ;
+    rdfs:comment "Target coverage percentage" ;
+    rdfs:domain test:CoverageMetric ;
+    rdfs:range xsd:double .

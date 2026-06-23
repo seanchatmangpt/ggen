@@ -1,0 +1,77 @@
+# calculate_friction.rq -- Compute friction scores per agent from deviation records
+#
+# Aggregates deviation severity counts within a configurable time window,
+# derives a friction score (critical=4, high=3, medium=2, low=1),
+# and joins to the agent's current FrictionTier.
+#
+# Parameterize by replacing ?windowStart before execution.
+#
+# Public ontology terms:
+#   BehavioralTrace -> prov:Activity
+#   DeviationRecord -> prov:Activity with skos:Concept type
+#   producedBy -> prov:wasAssociatedWith
+#   startedAt -> prov:startedAtTime
+#   severity -> dct:type (severity level concept)
+#   deviationType -> skos:prefLabel
+#   CommunityFrictionScore -> prov:Entity
+#   frictionScore -> dct:extent
+#   currentTier -> skos:related friction tier concept
+#   FrictionTier -> skos:Concept in friction-tiers scheme
+#   tierLevel -> skos:notation
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?agent
+       (SUM(?weight) AS ?frictionScore)
+       (COUNT(DISTINCT ?deviation) AS ?totalDeviations)
+       (SUM(IF(?severity = "critical", 1, 0)) AS ?criticalCount)
+       (SUM(IF(?severity = "high", 1, 0))     AS ?highCount)
+       (SUM(IF(?severity = "medium", 1, 0))   AS ?mediumCount)
+       (SUM(IF(?severity = "low", 1, 0))      AS ?lowCount)
+       ?currentTier
+       ?tierLevel
+WHERE {
+  # --- Deviation records (prov:Activity with deviation type) within the time window ---
+  ?deviation a prov:Activity ;
+             dct:type ?severityType ;
+             skos:related ?deviationTypeConcept .
+  ?severityType skos:prefLabel ?severity .
+  ?deviationTypeConcept skos:prefLabel ?deviationType .
+
+  # --- Link deviation to trace, then to producing agent ---
+  ?trace a prov:Activity ;
+         prov:wasAssociatedWith ?agent ;
+         prov:startedAtTime      ?traceStartedAt .
+
+  # --- Time window filter (parameterize ?windowStart) ---
+  # Example: BIND(NOW() - xsd:dayTimeDuration("P30D") AS ?windowStart)
+  BIND("2026-01-01T00:00:00Z"^^xsd:dateTime AS ?windowStart)
+  FILTER(?traceStartedAt >= ?windowStart)
+
+  # --- Severity weight for friction score ---
+  BIND(CASE
+         WHEN ?severity = "critical" THEN 4
+         WHEN ?severity = "high"     THEN 3
+         WHEN ?severity = "medium"   THEN 2
+         WHEN ?severity = "low"      THEN 1
+         ELSE 0
+       END AS ?weight)
+
+  # --- Optional: join to CommunityFrictionScore (prov:Entity) for current tier ---
+  OPTIONAL {
+    ?frictionRecord a prov:Entity ;
+                    dct:extent          ?recordedScore ;
+                    skos:related        ?tierRef ;
+                    dct:frequency       ?devFreq .
+    ?tierRef a skos:Concept ;
+             skos:inScheme <https://chatmangpt.com/ontologies/skos/friction-tiers> ;
+             skos:notation ?tierLevel .
+    BIND(?tierRef AS ?currentTier)
+  }
+}
+GROUP BY ?agent ?currentTier ?tierLevel
+ORDER BY DESC(?frictionScore)

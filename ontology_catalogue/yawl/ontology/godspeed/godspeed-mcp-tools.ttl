@@ -1,0 +1,779 @@
+@prefix godspeed: <http://yawl.io/godspeed#> .
+@prefix mcp: <http://yawl.io/mcp#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+
+# ============================================================================
+# MCP TOOLS FOR GODSPEED PROTOCOL
+# 5 Agents × 3 Tools per agent = 15 total specialized tools
+# ============================================================================
+
+# --------------------------------------------------------------------------
+# PSI AGENT TOOLS (Observatory)
+# --------------------------------------------------------------------------
+
+mcp:psi_observatory_run a mcp:Tool ;
+  rdfs:label "Ψ Observatory Run" ;
+  rdfs:comment "Execute full observatory pipeline: gather facts, validate checksums, cache results" ;
+  mcp:server mcp:PsiMCPServer ;
+  godspeed:phase godspeed:PsiPhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "fact_types" ;
+      schema:description "Fact types to gather (modules, gates, coverage, etc.)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "parallel" ;
+      schema:description "Run discovery in parallel?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "cache_policy" ;
+      schema:description "Cache policy (FORCE_REFRESH, USE_CACHE, VALIDATE)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "output_dir" ;
+      schema:description "Output directory for facts (default: docs/v6/latest/facts/)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "facts_emitted" ;
+      schema:description "Number of fact files generated" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "fact_files" ;
+      schema:description "List of fact file paths (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "cache_stats" ;
+      schema:description "Cache hit/miss statistics" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "duration_ms" ;
+      schema:valueType xsd:long
+    ] ;
+    schema:property [
+      schema:name "status" ;
+      schema:description "GREEN, YELLOW, or RED" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 1 ] ;
+  godspeed:checksum true ;
+  godspeed:cacheExpiry 300 .
+
+mcp:psi_facts_query a mcp:Tool ;
+  rdfs:label "Ψ Facts Query" ;
+  rdfs:comment "Query already-generated facts (modules.json, gates.json, etc.)" ;
+  mcp:server mcp:PsiMCPServer ;
+  godspeed:phase godspeed:PsiPhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "fact_type" ;
+      schema:description "Fact type (modules, gates, reactor, coverage, tests, etc.)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "query" ;
+      schema:description "Query filter (e.g., 'module=yawl-engine')" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "result" ;
+      schema:description "Query result (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "fact_file" ;
+      schema:description "Source fact file" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 100 ] .
+
+mcp:psi_facts_validate a mcp:Tool ;
+  rdfs:label "Ψ Facts Validate" ;
+  rdfs:comment "Validate fact freshness: compare SHA256 checksums vs codebase state" ;
+  mcp:server mcp:PsiMCPServer ;
+  godspeed:phase godspeed:PsiPhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "fact_types" ;
+      schema:description "Fact types to validate" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "stale_facts" ;
+      schema:description "List of stale fact files (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "fresh_count" ;
+      schema:description "Number of fresh facts" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "must_refresh" ;
+      schema:description "Must run observatory?" ;
+      schema:valueType xsd:boolean
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 50 ] .
+
+# --------------------------------------------------------------------------
+# LAMBDA AGENT TOOLS (Build)
+# --------------------------------------------------------------------------
+
+mcp:lambda_compile a mcp:Tool ;
+  rdfs:label "Λ Compile" ;
+  rdfs:comment "Compile Java code: run dx.sh compile or full dx.sh all" ;
+  mcp:server mcp:LambdaMCPServer ;
+  godspeed:phase godspeed:LambdaPhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "scope" ;
+      schema:description "Scope (compile, module, all)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "module" ;
+      schema:description "Module name (if scope=module)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "fast" ;
+      schema:description "Fast mode (skip tests)?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "status" ;
+      schema:description "GREEN or RED" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "duration_ms" ;
+      schema:valueType xsd:long
+    ] ;
+    schema:property [
+      schema:name "errors" ;
+      schema:description "Compilation errors (if RED)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "warnings" ;
+      schema:description "Compilation warnings" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 10 ] ;
+  godspeed:gatingRule "Compile must be GREEN before proceeding to test" .
+
+mcp:lambda_test a mcp:Tool ;
+  rdfs:label "Λ Test" ;
+  rdfs:comment "Run test suite: unit tests, integration tests, coverage analysis" ;
+  mcp:server mcp:LambdaMCPServer ;
+  godspeed:phase godspeed:LambdaPhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "scope" ;
+      schema:description "Scope (unit, integration, all)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "module" ;
+      schema:description "Module name (if specific)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "coverage_threshold" ;
+      schema:description "Required coverage % (default: 80)" ;
+      schema:valueType xsd:integer ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "status" ;
+      schema:description "GREEN or RED" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "tests_run" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "tests_passed" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "tests_failed" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "coverage_percent" ;
+      schema:valueType xsd:decimal
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 5 ] ;
+  godspeed:gatingRule "Tests must be GREEN before proceeding to validate" .
+
+mcp:lambda_validate a mcp:Tool ;
+  rdfs:label "Λ Validate" ;
+  rdfs:comment "Validate schema, static analysis (SpotBugs, PMD, Checkstyle)" ;
+  mcp:server mcp:LambdaMCPServer ;
+  godspeed:phase godspeed:LambdaPhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "analysis_type" ;
+      schema:description "Type (spotbugs, pmd, checkstyle, schema, all)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "fail_on_warning" ;
+      schema:description "Fail if warnings found?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "status" ;
+      schema:description "GREEN or RED" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "violations_found" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "violations" ;
+      schema:description "Detailed violations (JSON)" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 5 ] ;
+  godspeed:gatingRule "Validation must be GREEN before proceeding to guards" .
+
+# --------------------------------------------------------------------------
+# ETA AGENT TOOLS (Guards)
+# --------------------------------------------------------------------------
+
+mcp:eta_scan_guards a mcp:Tool ;
+  rdfs:label "H Scan Guards" ;
+  rdfs:comment "Scan code for forbidden patterns: TODO, FIXME, mock, stub, fake, empty, lie, silent" ;
+  mcp:server mcp:EtaMCPServer ;
+  godspeed:phase godspeed:EtaPhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "path" ;
+      schema:description "Path to scan (default: emit/)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "patterns" ;
+      schema:description "Patterns to check (all or specific)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ] ;
+    schema:property [
+      schema:name "fail_fast" ;
+      schema:description "Fail on first violation?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "status" ;
+      schema:description "GREEN or RED" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "violations_found" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "violations" ;
+      schema:description "List of violations with locations (JSON)" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 20 ] ;
+  godspeed:failureMode "FAIL_FAST: EXIT 2 on any violation" ;
+  godspeed:nonNegotiable true .
+
+mcp:eta_check_patterns a mcp:Tool ;
+  rdfs:label "H Check Patterns" ;
+  rdfs:comment "Check specific guard patterns (regex + SPARQL-based analysis)" ;
+  mcp:server mcp:EtaMCPServer ;
+  godspeed:phase godspeed:EtaPhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "pattern" ;
+      schema:description "Pattern to check (TODO, MOCK, STUB, etc.)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "files" ;
+      schema:description "Files to check (glob pattern)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "pattern" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "matches" ;
+      schema:description "Matched violations (JSON array)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "count" ;
+      schema:valueType xsd:integer
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 50 ] .
+
+mcp:eta_generate_receipt a mcp:Tool ;
+  rdfs:label "H Generate Receipt" ;
+  rdfs:comment "Generate guard-receipt.json: complete report of all violations" ;
+  mcp:server mcp:EtaMCPServer ;
+  godspeed:phase godspeed:EtaPhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "violations" ;
+      schema:description "Violations to include (JSON array)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "output_path" ;
+      schema:description "Path for receipt file" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "receipt_path" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "receipt_content" ;
+      schema:description "Receipt JSON" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "violations_count" ;
+      schema:valueType xsd:integer
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 50 ] .
+
+# --------------------------------------------------------------------------
+# THETA AGENT TOOLS (Invariants)
+# --------------------------------------------------------------------------
+
+mcp:theta_check_impl a mcp:Tool ;
+  rdfs:label "Q Check Implementation" ;
+  rdfs:comment "Verify methods are real implementation or throw UnsupportedOperationException" ;
+  mcp:server mcp:ThetaMCPServer ;
+  godspeed:phase godspeed:ThetaPhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "artifact" ;
+      schema:description "Code artifact to check (file or class)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "check_stubs" ;
+      schema:description "Check for stubs (empty returns, mock objects)?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "status" ;
+      schema:description "GREEN or RED" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "violations" ;
+      schema:description "Invariant violations found (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "methods_checked" ;
+      schema:valueType xsd:integer
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 20 ] ;
+  godspeed:invariantRule "real ∨ throw: no negotiation" .
+
+mcp:theta_verify_invariants a mcp:Tool ;
+  rdfs:label "Q Verify Invariants" ;
+  rdfs:comment "Deep semantic check: no mocks, no silent fallbacks, code matches documentation" ;
+  mcp:server mcp:ThetaMCPServer ;
+  godspeed:phase godspeed:ThetaPhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "codebase_path" ;
+      schema:description "Codebase root to analyze" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "invariants" ;
+      schema:description "Invariants to check (real_impl, no_mocks, no_fallbacks, etc.)" ;
+      schema:valueType xsd:string ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "status" ;
+      schema:description "GREEN or RED" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "report" ;
+      schema:description "Detailed invariant analysis (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "severity" ;
+      schema:description "Highest severity found (ERROR, WARNING, INFO)" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 5 ] ;
+  godspeed:contextRequired true ;
+  godspeed:contextTokens 120000 .
+
+mcp:theta_report_compliance a mcp:Tool ;
+  rdfs:label "Q Report Compliance" ;
+  rdfs:comment "Generate compliance report: Q-phase gate status, invariant coverage" ;
+  mcp:server mcp:ThetaMCPServer ;
+  godspeed:phase godspeed:ThetaPhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "case_id" ;
+      schema:description "Case ID to report on" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "include_audit" ;
+      schema:description "Include full audit trail?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "compliance_report" ;
+      schema:description "Compliance report (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "score" ;
+      schema:description "Compliance score (0-100)" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "gate_status" ;
+      schema:description "Q-phase gate status (GREEN, RED)" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 10 ] .
+
+# --------------------------------------------------------------------------
+# OMEGA AGENT TOOLS (Git)
+# --------------------------------------------------------------------------
+
+mcp:omega_stage a mcp:Tool ;
+  rdfs:label "Ω Stage" ;
+  rdfs:comment "Stage specific files for commit (git add <files>, never git add .)" ;
+  mcp:server mcp:OmegaMCPServer ;
+  godspeed:phase godspeed:OmegaPhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "files" ;
+      schema:description "Files to stage (array or glob pattern)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "check_status" ;
+      schema:description "Check git status first?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "status" ;
+      schema:description "GREEN (ready to commit)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "staged_count" ;
+      schema:description "Number of files staged" ;
+      schema:valueType xsd:integer
+    ] ;
+    schema:property [
+      schema:name "git_status" ;
+      schema:description "Git status output" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 50 ] ;
+  godspeed:safetyRule "NEVER: git add . | DO: git add <specific-files>" .
+
+mcp:omega_commit a mcp:Tool ;
+  rdfs:label "Ω Commit" ;
+  rdfs:comment "Create atomic commit with session ID in message (never amend)" ;
+  mcp:server mcp:OmegaMCPServer ;
+  godspeed:phase godspeed:OmegaPhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "message" ;
+      schema:description "Commit message (will append session ID)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "session_id" ;
+      schema:description "Session ID (auto-appended to message)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "status" ;
+      schema:description "GREEN (committed)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "commit_hash" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "commit_message" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 10 ] ;
+  godspeed:safetyRule "NEVER: amend | DO: new commit. One logical change per commit." ;
+  godspeed:atomicity true .
+
+mcp:omega_push a mcp:Tool ;
+  rdfs:label "Ω Push" ;
+  rdfs:comment "Push to remote with -u flag (git push -u origin <branch>)" ;
+  mcp:server mcp:OmegaMCPServer ;
+  godspeed:phase godspeed:OmegaPhase ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "branch" ;
+      schema:description "Branch to push (must start with 'claude/' + session ID)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "session_id" ;
+      schema:description "Session ID (must match branch suffix)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "retry_count" ;
+      schema:description "Retry on network failure (max 4)" ;
+      schema:valueType xsd:integer ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "status" ;
+      schema:description "GREEN (pushed)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "remote_branch" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "commit_count" ;
+      schema:description "Number of commits pushed" ;
+      schema:valueType xsd:integer
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 5 ] ;
+  godspeed:safetyRule "NEVER: --force | DO: git push -u origin <branch>" ;
+  godspeed:sessionIDRequired true ;
+  godspeed:retryPolicy [ godspeed:maxRetries 4 ; godspeed:backoffMs "2000,4000,8000,16000" ] .
+
+# --------------------------------------------------------------------------
+# ORCHESTRATOR TOOLS
+# --------------------------------------------------------------------------
+
+mcp:godspeed_phase_gate a mcp:Tool ;
+  rdfs:label "GODSPEED Phase Gate" ;
+  rdfs:comment "Check if all prerequisites for next phase are satisfied" ;
+  mcp:server mcp:GodspeedOrchestratorMCPServer ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "from_phase" ;
+      schema:description "Current phase (Ψ, Λ, H, Q, Ω)" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ] ;
+    schema:property [
+      schema:name "to_phase" ;
+      schema:description "Next phase" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "gate_status" ;
+      schema:description "GREEN (can proceed)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "blocking_issues" ;
+      schema:description "Any blocking issues (if RED)" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 100 ] .
+
+mcp:godspeed_phase_sequence a mcp:Tool ;
+  rdfs:label "GODSPEED Phase Sequence" ;
+  rdfs:comment "Sequence the 5 phases in order: Ψ→Λ→H→Q→Ω" ;
+  mcp:server mcp:GodspeedOrchestratorMCPServer ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "task_description" ;
+      schema:description "Task to execute through phases" ;
+      schema:valueType xsd:string ;
+      schema:required true
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "sequence_id" ;
+      schema:description "Sequence tracking ID" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "phases" ;
+      schema:description "Phase sequence (JSON array)" ;
+      schema:valueType xsd:string
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 50 ] .
+
+mcp:godspeed_report a mcp:Tool ;
+  rdfs:label "GODSPEED Report" ;
+  rdfs:comment "Generate GODSPEED execution report: all phases status, drift metrics" ;
+  mcp:server mcp:GodspeedOrchestratorMCPServer ;
+  mcp:inputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "include_timeline" ;
+      schema:description "Include phase execution timeline?" ;
+      schema:valueType xsd:boolean ;
+      schema:required false
+    ]
+  ] ;
+  mcp:outputSchema [
+    a schema:Thing ;
+    schema:property [
+      schema:name "report" ;
+      schema:description "GODSPEED execution report (JSON)" ;
+      schema:valueType xsd:string
+    ] ;
+    schema:property [
+      schema:name "drift_score" ;
+      schema:description "Drift score (0.0 = no drift)" ;
+      schema:valueType xsd:decimal
+    ] ;
+    schema:property [
+      schema:name "invariant_breakage_count" ;
+      schema:description "Number of invariant breakages (target: 0)" ;
+      schema:valueType xsd:integer
+    ]
+  ] ;
+  mcp:rateLimit [ mcp:requestsPerSecond 20 ] .

@@ -1,0 +1,34 @@
+@prefix : <https://bytestar.org/ontology/byteflow-admission#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/byteflow-admission>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core#> ;
+  rdfs:label "ByteFlow Admission Ontology" ;
+  rdfs:comment "Defines the multi-stage admission process, validation checks, and the Theta decision gate." .
+
+:AdmissionRequest a owl:Class .
+:hasCrystal a owl:ObjectProperty ; rdfs:domain :AdmissionRequest ; rdfs:range bytestar:Crystal .
+:hasProofs a owl:ObjectProperty ; rdfs:domain :AdmissionRequest ; rdfs:range :ProofSet .
+
+:ProofSet a owl:Class .
+:hasSHACLProof a owl:ObjectProperty ; rdfs:domain :ProofSet .
+:hasPQCProof a owl:ObjectProperty ; rdfs:domain :ProofSet .
+
+:ValidationStage a owl:Class .
+:SHACLValidation a owl:Class ; rdfs:subClassOf :ValidationStage .
+:PBCongruenceValidation a owl:Class ; rdfs:subClassOf :ValidationStage .
+:PQCValidation a owl:Class ; rdfs:subClassOf :ValidationStage .
+
+:passesStage a owl:ObjectProperty ; rdfs:domain :AdmissionRequest ; rdfs:range :ValidationStage .
+
+:ThetaDecision a owl:Class .
+:isAdmitted a owl:DatatypeProperty ; rdfs:domain :ThetaDecision ; rdfs:range xsd:boolean .
+:hasRejectionReason a owl:ObjectProperty ; rdfs:domain :ThetaDecision ; rdfs:range :RejectionReason .
+
+:RejectionReason a owl:Class .
+:reasonCode a owl:DatatypeProperty ; rdfs:domain :RejectionReason ; rdfs:range xsd:string .
+:reasonMessage a owl:DatatypeProperty ; rdfs:domain :RejectionReason ; rdfs:range xsd:string .

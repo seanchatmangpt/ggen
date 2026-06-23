@@ -1,0 +1,218 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix unrdf: <https://unrdf.io/ns#> .
+
+# UNRDF Project Structure Ontology
+# Defines project layout, documentation, and build artifacts
+
+<https://unrdf.io/project-structure> a owl:Ontology ;
+    rdfs:label "UNRDF Project Structure Ontology" ;
+    dcterms:title "Project Layout and Documentation Structure" ;
+    dcterms:description "Ontology for UNRDF project organization and documentation" ;
+    dcterms:version "6.0.0-rc.1" .
+
+# Directory Structures
+
+unrdf:Directory a rdfs:Class ;
+    rdfs:label "Directory" ;
+    rdfs:comment "A directory in the project structure" ;
+    rdfs:isDefinedBy <https://unrdf.io/project-structure> .
+
+unrdf:DocumentationFile a rdfs:Class ;
+    rdfs:label "Documentation File" ;
+    rdfs:comment "A markdown documentation file" ;
+    rdfs:isDefinedBy <https://unrdf.io/project-structure> .
+
+unrdf:ConfigurationFile a rdfs:Class ;
+    rdfs:label "Configuration File" ;
+    rdfs:comment "A project configuration file (TOML, JSON, YAML)" ;
+    rdfs:isDefinedBy <https://unrdf.io/project-structure> .
+
+unrdf:BuildArtifact a rdfs:Class ;
+    rdfs:label "Build Artifact" ;
+    rdfs:comment "Output from the build process" ;
+    rdfs:isDefinedBy <https://unrdf.io/project-structure> .
+
+# Properties
+
+unrdf:directoryName a rdf:Property ;
+    rdfs:label "directory name" ;
+    rdfs:domain unrdf:Directory ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the directory" ;
+    rdfs:isDefinedBy <https://unrdf.io/project-structure> .
+
+unrdf:directoryPath a rdf:Property ;
+    rdfs:label "directory path" ;
+    rdfs:domain unrdf:Directory ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Relative path from project root" ;
+    rdfs:isDefinedBy <https://unrdf.io/project-structure> .
+
+unrdf:directoryPurpose a rdf:Property ;
+    rdfs:label "directory purpose" ;
+    rdfs:domain unrdf:Directory ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of directory purpose" ;
+    rdfs:isDefinedBy <https://unrdf.io/project-structure> .
+
+unrdf:fileName a rdf:Property ;
+    rdfs:label "file name" ;
+    rdfs:domain unrdf:DocumentationFile ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the documentation file" ;
+    rdfs:isDefinedBy <https://unrdf.io/project-structure> .
+
+unrdf:fileTitle a rdf:Property ;
+    rdfs:label "file title" ;
+    rdfs:domain unrdf:DocumentationFile ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable title of the documentation" ;
+    rdfs:isDefinedBy <https://unrdf.io/project-structure> .
+
+unrdf:fileCategory a rdf:Property ;
+    rdfs:label "file category" ;
+    rdfs:domain unrdf:DocumentationFile ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Category: tutorial, how-to, reference, explanation" ;
+    rdfs:isDefinedBy <https://unrdf.io/project-structure> .
+
+unrdf:filePurpose a rdf:Property ;
+    rdfs:label "file purpose" ;
+    rdfs:domain unrdf:DocumentationFile ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of the documentation file's purpose" ;
+    rdfs:isDefinedBy <https://unrdf.io/project-structure> .
+
+unrdf:configFormat a rdf:Property ;
+    rdfs:label "config format" ;
+    rdfs:domain unrdf:ConfigurationFile ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Format of the configuration file" ;
+    rdfs:isDefinedBy <https://unrdf.io/project-structure> .
+
+# Project Directories
+
+unrdf:PackagesDir a unrdf:Directory ;
+    unrdf:directoryName "packages" ;
+    unrdf:directoryPath "packages/" ;
+    unrdf:directoryPurpose "All UNRDF packages in the monorepo (56 packages)" .
+
+unrdf:SchemaDir a unrdf:Directory ;
+    unrdf:directoryName "schema" ;
+    unrdf:directoryPath "schema/" ;
+    unrdf:directoryPurpose "RDF ontologies for ontology-driven code generation" .
+
+unrdf:TemplatesDir a unrdf:Directory ;
+    unrdf:directoryName "templates" ;
+    unrdf:directoryPath "templates/" ;
+    unrdf:directoryPurpose "Tera templates for code generation" .
+
+unrdf:GeneratedDir a unrdf:Directory ;
+    unrdf:directoryName "generated" ;
+    unrdf:directoryPath "src/generated/" ;
+    unrdf:directoryPurpose "Output directory for generated package metadata and docs" .
+
+unrdf:DocsDir a unrdf:Directory ;
+    unrdf:directoryName "docs" ;
+    unrdf:directoryPath "docs/" ;
+    unrdf:directoryPurpose "Documentation files organized by Diataxis framework" .
+
+unrdf:ExamplesDir a unrdf:Directory ;
+    unrdf:directoryName "examples" ;
+    unrdf:directoryPath "examples/" ;
+    unrdf:directoryPurpose "Example files demonstrating UNRDF capabilities" .
+
+unrdf:TestDir a unrdf:Directory ;
+    unrdf:directoryName "test" ;
+    unrdf:directoryPath "test/" ;
+    unrdf:directoryPurpose "Test files and test utilities" .
+
+unrdf:BenchmarksDir a unrdf:Directory ;
+    unrdf:directoryName "benchmarks" ;
+    unrdf:directoryPath "benchmarks/" ;
+    unrdf:directoryPurpose "Performance benchmarks and baseline measurements" .
+
+# Documentation Files (Diataxis Framework)
+
+unrdf:GettingStartedDoc a unrdf:DocumentationFile ;
+    unrdf:fileName "GETTING_STARTED.md" ;
+    unrdf:fileTitle "Getting Started with UNRDF" ;
+    unrdf:fileCategory "tutorial" ;
+    unrdf:filePurpose "Step-by-step guide to installing and using UNRDF for the first time" .
+
+unrdf:PackageReferenceDoc a unrdf:DocumentationFile ;
+    unrdf:fileName "PACKAGE_REFERENCE.md" ;
+    unrdf:fileTitle "Package Reference" ;
+    unrdf:fileCategory "reference" ;
+    unrdf:filePurpose "Comprehensive reference for all 56 UNRDF packages and their APIs" .
+
+unrdf:APIReferenceDoc a unrdf:DocumentationFile ;
+    unrdf:fileName "API_REFERENCE.md" ;
+    unrdf:fileTitle "API Reference" ;
+    unrdf:fileCategory "reference" ;
+    unrdf:filePurpose "Complete API documentation with code examples" .
+
+unrdf:ArchitectureDoc a unrdf:DocumentationFile ;
+    unrdf:fileName "ARCHITECTURE.md" ;
+    unrdf:fileTitle "Architecture Overview" ;
+    unrdf:fileCategory "explanation" ;
+    unrdf:filePurpose "Deep explanation of the 5-layer UNRDF architecture" .
+
+unrdf:HowToGuideDoc a unrdf:DocumentationFile ;
+    unrdf:fileName "HOW_TO_GUIDE.md" ;
+    unrdf:fileTitle "How-To Guides" ;
+    unrdf:fileCategory "how-to" ;
+    unrdf:filePurpose "Practical task-oriented guides for common use cases" .
+
+unrdf:ConceptsExplanationDoc a unrdf:DocumentationFile ;
+    unrdf:fileName "CONCEPTS.md" ;
+    unrdf:fileTitle "Core Concepts" ;
+    unrdf:fileCategory "explanation" ;
+    unrdf:filePurpose "Conceptual deep-dives into RDF, SPARQL, and knowledge graphs" .
+
+unrdf:BestPracticesDoc a unrdf:DocumentationFile ;
+    unrdf:fileName "BEST_PRACTICES.md" ;
+    unrdf:fileTitle "Best Practices" ;
+    unrdf:fileCategory "explanation" ;
+    unrdf:filePurpose "Best practices for using UNRDF in production" .
+
+# Configuration Files
+
+unrdf:UnrdfSyncConfig a unrdf:ConfigurationFile ;
+    unrdf:fileName ".unrdf.toml" ;
+    unrdf:configFormat "TOML" ;
+    unrdf:filePurpose "unrdf sync configuration for ontology-driven code generation" .
+
+unrdf:CodegenTomlConfig a unrdf:ConfigurationFile ;
+    unrdf:fileName "codegen.toml" ;
+    unrdf:configFormat "TOML" ;
+    unrdf:filePurpose "Legacy ontology/codegen project metadata (optional)" .
+
+unrdf:PackageJsonConfig a unrdf:ConfigurationFile ;
+    unrdf:fileName "package.json" ;
+    unrdf:configFormat "JSON" ;
+    unrdf:filePurpose "Node.js package manifest with dependencies and scripts" .
+
+unrdf:PnpmWorkspaceConfig a unrdf:ConfigurationFile ;
+    unrdf:fileName "pnpm-workspace.yaml" ;
+    unrdf:configFormat "YAML" ;
+    unrdf:filePurpose "pnpm monorepo workspace configuration" .
+
+unrdf:TsConfigConfig a unrdf:ConfigurationFile ;
+    unrdf:fileName "tsconfig.json" ;
+    unrdf:configFormat "JSON" ;
+    unrdf:filePurpose "TypeScript configuration (if used)" .
+
+unrdf:EsLintConfig a unrdf:ConfigurationFile ;
+    unrdf:fileName ".eslintrc.json" ;
+    unrdf:configFormat "JSON" ;
+    unrdf:filePurpose "ESLint configuration for code quality" .
+
+unrdf:VitestConfig a unrdf:ConfigurationFile ;
+    unrdf:fileName "vitest.config.mjs" ;
+    unrdf:configFormat "JavaScript" ;
+    unrdf:filePurpose "Vitest configuration for unit and integration tests" .

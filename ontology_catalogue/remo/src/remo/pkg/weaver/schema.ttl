@@ -1,0 +1,357 @@
+# Remo CLI Ontology Schema
+# This file defines the semantic structure for the Remo CLI system
+
+@prefix remo: <http://remo.cli/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+# Ontology Declaration
+remo: a owl:Ontology ;
+    dc:title "Remo CLI Ontology" ;
+    dc:description "Semantic knowledge representation for the Remo CLI system" ;
+    dc:version "1.0.0" ;
+    dc:creator "Remo System" .
+
+# Core Classes
+
+## System Component Classes
+remo:Component a owl:Class ;
+    rdfs:label "Component" ;
+    rdfs:comment "A software component in the Remo ecosystem" .
+
+remo:Service a owl:Class ;
+    rdfs:subClassOf remo:Component ;
+    rdfs:label "Service" ;
+    rdfs:comment "A service component that provides functionality" .
+
+remo:Library a owl:Class ;
+    rdfs:subClassOf remo:Component ;
+    rdfs:label "Library" ;
+    rdfs:comment "A library component that provides reusable code" .
+
+remo:Extension a owl:Class ;
+    rdfs:subClassOf remo:Component ;
+    rdfs:label "Extension" ;
+    rdfs:comment "An extension component that enhances system functionality" .
+
+remo:Interface a owl:Class ;
+    rdfs:subClassOf remo:Component ;
+    rdfs:label "Interface" ;
+    rdfs:comment "An interface component that defines contracts" .
+
+## Operation Classes
+remo:Operation a owl:Class ;
+    rdfs:label "Operation" ;
+    rdfs:comment "A system operation that can be executed" .
+
+remo:CommandOperation a owl:Class ;
+    rdfs:subClassOf remo:Operation ;
+    rdfs:label "Command Operation" ;
+    rdfs:comment "An operation that executes a command" .
+
+remo:QueryOperation a owl:Class ;
+    rdfs:subClassOf remo:Operation ;
+    rdfs:label "Query Operation" ;
+    rdfs:comment "An operation that queries data" .
+
+remo:MutationOperation a owl:Class ;
+    rdfs:subClassOf remo:Operation ;
+    rdfs:label "Mutation Operation" ;
+    rdfs:comment "An operation that modifies data" .
+
+remo:SystemOperation a owl:Class ;
+    rdfs:subClassOf remo:Operation ;
+    rdfs:label "System Operation" ;
+    rdfs:comment "A system-level operation" .
+
+## Runtime Classes
+remo:Runtime a owl:Class ;
+    rdfs:label "Runtime" ;
+    rdfs:comment "The runtime environment for executing operations" .
+
+remo:SideEffect a owl:Class ;
+    rdfs:label "Side Effect" ;
+    rdfs:comment "A side effect that can be executed by the runtime" .
+
+remo:FileSystemEffect a owl:Class ;
+    rdfs:subClassOf remo:SideEffect ;
+    rdfs:label "File System Effect" ;
+    rdfs:comment "A side effect that interacts with the file system" .
+
+remo:NetworkEffect a owl:Class ;
+    rdfs:subClassOf remo:SideEffect ;
+    rdfs:label "Network Effect" ;
+    rdfs:comment "A side effect that performs network operations" .
+
+remo:ProcessEffect a owl:Class ;
+    rdfs:subClassOf remo:SideEffect ;
+    rdfs:label "Process Effect" ;
+    rdfs:comment "A side effect that manages processes" .
+
+remo:DatabaseEffect a owl:Class ;
+    rdfs:subClassOf remo:SideEffect ;
+    rdfs:label "Database Effect" ;
+    rdfs:comment "A side effect that interacts with databases" .
+
+## Feedback Classes
+remo:FeedbackLoop a owl:Class ;
+    rdfs:label "Feedback Loop" ;
+    rdfs:comment "A self-hosting feedback mechanism" .
+
+remo:Pattern a owl:Class ;
+    rdfs:label "Pattern" ;
+    rdfs:comment "A detected system pattern" .
+
+remo:Anomaly a owl:Class ;
+    rdfs:label "Anomaly" ;
+    rdfs:comment "A detected system anomaly" .
+
+remo:Recommendation a owl:Class ;
+    rdfs:label "Recommendation" ;
+    rdfs:comment "A system improvement recommendation" .
+
+remo:Metric a owl:Class ;
+    rdfs:label "Metric" ;
+    rdfs:comment "A system performance metric" .
+
+## Registry Classes
+remo:Registry a owl:Class ;
+    rdfs:label "Registry" ;
+    rdfs:comment "The Weaver component registry" .
+
+remo:ComponentEntry a owl:Class ;
+    rdfs:label "Component Entry" ;
+    rdfs:comment "An entry in the component registry" .
+
+## Ontology Classes
+remo:OntologyService a owl:Class ;
+    rdfs:label "Ontology Service" ;
+    rdfs:comment "Service for managing semantic knowledge" .
+
+remo:Triple a owl:Class ;
+    rdfs:label "Triple" ;
+    rdfs:comment "An RDF triple in the knowledge base" .
+
+remo:Inference a owl:Class ;
+    rdfs:label "Inference" ;
+    rdfs:comment "An inferred knowledge statement" .
+
+# Properties
+
+## Component Properties
+remo:hasID a owl:DatatypeProperty ;
+    rdfs:domain remo:Component ;
+    rdfs:range xsd:string ;
+    rdfs:label "has ID" ;
+    rdfs:comment "The unique identifier of a component" .
+
+remo:hasName a owl:DatatypeProperty ;
+    rdfs:domain remo:Component ;
+    rdfs:range xsd:string ;
+    rdfs:label "has name" ;
+    rdfs:comment "The name of a component" .
+
+remo:hasVersion a owl:DatatypeProperty ;
+    rdfs:domain remo:Component ;
+    rdfs:range xsd:string ;
+    rdfs:label "has version" ;
+    rdfs:comment "The version of a component" .
+
+remo:hasEndpoint a owl:DatatypeProperty ;
+    rdfs:domain remo:Component ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "has endpoint" ;
+    rdfs:comment "The endpoint URL of a component" .
+
+remo:hasHealthStatus a owl:ObjectProperty ;
+    rdfs:domain remo:Component ;
+    rdfs:range remo:HealthStatus ;
+    rdfs:label "has health status" ;
+    rdfs:comment "The health status of a component" .
+
+remo:dependsOn a owl:ObjectProperty ;
+    rdfs:domain remo:Component ;
+    rdfs:range remo:Component ;
+    rdfs:label "depends on" ;
+    rdfs:comment "Indicates that one component depends on another" .
+
+## Operation Properties
+remo:hasOperationType a owl:DatatypeProperty ;
+    rdfs:domain remo:Operation ;
+    rdfs:range xsd:string ;
+    rdfs:label "has operation type" ;
+    rdfs:comment "The type of operation" .
+
+remo:hasTimeout a owl:DatatypeProperty ;
+    rdfs:domain remo:Operation ;
+    rdfs:range xsd:duration ;
+    rdfs:label "has timeout" ;
+    rdfs:comment "The timeout duration for an operation" .
+
+remo:hasParameter a owl:ObjectProperty ;
+    rdfs:domain remo:Operation ;
+    rdfs:range remo:Parameter ;
+    rdfs:label "has parameter" ;
+    rdfs:comment "A parameter of an operation" .
+
+remo:executedBy a owl:ObjectProperty ;
+    rdfs:domain remo:Operation ;
+    rdfs:range remo:Runtime ;
+    rdfs:label "executed by" ;
+    rdfs:comment "Indicates which runtime executes an operation" .
+
+## Runtime Properties
+remo:canExecute a owl:ObjectProperty ;
+    rdfs:domain remo:Runtime ;
+    rdfs:range remo:SideEffect ;
+    rdfs:label "can execute" ;
+    rdfs:comment "Indicates which side effects a runtime can execute" .
+
+remo:hasCapability a owl:ObjectProperty ;
+    rdfs:domain remo:Runtime ;
+    rdfs:range remo:Capability ;
+    rdfs:label "has capability" ;
+    rdfs:comment "A capability of the runtime" .
+
+## Feedback Properties
+remo:detectedPattern a owl:ObjectProperty ;
+    rdfs:domain remo:FeedbackLoop ;
+    rdfs:range remo:Pattern ;
+    rdfs:label "detected pattern" ;
+    rdfs:comment "A pattern detected by the feedback loop" .
+
+remo:detectedAnomaly a owl:ObjectProperty ;
+    rdfs:domain remo:FeedbackLoop ;
+    rdfs:range remo:Anomaly ;
+    rdfs:label "detected anomaly" ;
+    rdfs:comment "An anomaly detected by the feedback loop" .
+
+remo:generatedRecommendation a owl:ObjectProperty ;
+    rdfs:domain remo:FeedbackLoop ;
+    rdfs:range remo:Recommendation ;
+    rdfs:label "generated recommendation" ;
+    rdfs:comment "A recommendation generated by the feedback loop" .
+
+remo:hasConfidence a owl:DatatypeProperty ;
+    rdfs:domain [ owl:unionOf ( remo:Pattern remo:Inference ) ] ;
+    rdfs:range xsd:float ;
+    rdfs:label "has confidence" ;
+    rdfs:comment "The confidence score of a pattern or inference" .
+
+## Registry Properties
+remo:registeredComponent a owl:ObjectProperty ;
+    rdfs:domain remo:Registry ;
+    rdfs:range remo:Component ;
+    rdfs:label "registered component" ;
+    rdfs:comment "A component registered in the registry" .
+
+remo:registeredAt a owl:DatatypeProperty ;
+    rdfs:domain remo:ComponentEntry ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "registered at" ;
+    rdfs:comment "The timestamp when a component was registered" .
+
+## Ontology Properties
+remo:hasSubject a owl:DatatypeProperty ;
+    rdfs:domain remo:Triple ;
+    rdfs:range xsd:string ;
+    rdfs:label "has subject" ;
+    rdfs:comment "The subject of an RDF triple" .
+
+remo:hasPredicate a owl:DatatypeProperty ;
+    rdfs:domain remo:Triple ;
+    rdfs:range xsd:string ;
+    rdfs:label "has predicate" ;
+    rdfs:comment "The predicate of an RDF triple" .
+
+remo:hasObject a owl:DatatypeProperty ;
+    rdfs:domain remo:Triple ;
+    rdfs:range xsd:string ;
+    rdfs:label "has object" ;
+    rdfs:comment "The object of an RDF triple" .
+
+# Individuals and Enumerations
+
+## Health Status Enumeration
+remo:HealthStatus a owl:Class ;
+    rdfs:label "Health Status" ;
+    rdfs:comment "Enumeration of possible health statuses" .
+
+remo:Healthy a remo:HealthStatus ;
+    rdfs:label "Healthy" .
+
+remo:Degraded a remo:HealthStatus ;
+    rdfs:label "Degraded" .
+
+remo:Unhealthy a remo:HealthStatus ;
+    rdfs:label "Unhealthy" .
+
+remo:Unknown a remo:HealthStatus ;
+    rdfs:label "Unknown" .
+
+## Operation Status Enumeration
+remo:OperationStatus a owl:Class ;
+    rdfs:label "Operation Status" ;
+    rdfs:comment "Enumeration of possible operation statuses" .
+
+remo:Pending a remo:OperationStatus ;
+    rdfs:label "Pending" .
+
+remo:Running a remo:OperationStatus ;
+    rdfs:label "Running" .
+
+remo:Completed a remo:OperationStatus ;
+    rdfs:label "Completed" .
+
+remo:Failed a remo:OperationStatus ;
+    rdfs:label "Failed" .
+
+remo:Cancelled a remo:OperationStatus ;
+    rdfs:label "Cancelled" .
+
+# Inference Rules (expressed as SWRL-like rules in comments)
+
+# Rule 1: If a component depends on another component, and that component is unhealthy, 
+# then the first component may be at risk
+# remo:Component(?c1) ∧ remo:dependsOn(?c1, ?c2) ∧ remo:hasHealthStatus(?c2, remo:Unhealthy) 
+# → remo:atRisk(?c1, true)
+
+# Rule 2: If multiple operations of the same type are failing, there may be a system issue
+# remo:Operation(?o1) ∧ remo:Operation(?o2) ∧ remo:hasOperationType(?o1, ?type) ∧ 
+# remo:hasOperationType(?o2, ?type) ∧ remo:hasStatus(?o1, remo:Failed) ∧ remo:hasStatus(?o2, remo:Failed)
+# → remo:systemIssue(?type, true)
+
+# Rule 3: If a component has been healthy for a long time, it's considered stable
+# remo:Component(?c) ∧ remo:hasHealthStatus(?c, remo:Healthy) ∧ remo:uptimeGreaterThan(?c, "30d")
+# → remo:stable(?c, true)
+
+# Constraints
+
+## Functional Properties
+remo:hasID a owl:FunctionalProperty .
+remo:hasName a owl:FunctionalProperty .
+remo:hasHealthStatus a owl:FunctionalProperty .
+
+## Cardinality Restrictions
+remo:Component rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty remo:hasID ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+] .
+
+remo:Component rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty remo:hasName ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+] .
+
+## Disjoint Classes
+remo:Service owl:disjointWith remo:Library .
+remo:Service owl:disjointWith remo:Extension .
+remo:Library owl:disjointWith remo:Extension .
+
+remo:CommandOperation owl:disjointWith remo:QueryOperation .
+remo:CommandOperation owl:disjointWith remo:MutationOperation .
+remo:QueryOperation owl:disjointWith remo:MutationOperation .

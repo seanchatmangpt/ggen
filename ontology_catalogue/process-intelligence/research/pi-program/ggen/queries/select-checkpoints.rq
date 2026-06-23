@@ -1,0 +1,15 @@
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX chk: <https://process.intelligence/checkpoint/>
+
+# SELECT all checkpoints (ALIVE, PARTIAL, FAILED, OPEN, RESOLVED)
+SELECT ?checkpoint ?label ?verdictType ?created
+WHERE {
+  ?checkpoint a pi:CHECKPOINT ;
+              rdfs:label ?label ;
+              pi:verdictType ?verdictType ;
+              dcterms:created ?created .
+}
+ORDER BY DESC(?created)

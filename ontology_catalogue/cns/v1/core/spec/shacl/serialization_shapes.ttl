@@ -1,0 +1,6 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ser: <https://cns.dev/serialization#> .
+
+ser:JSONShape a sh:NodeShape ; sh:targetClass ser:JSON .
+ser:YAMLShape a sh:NodeShape ; sh:targetClass ser:YAML .
+ser:TTLShape a sh:NodeShape ; sh:targetClass ser:TTL .

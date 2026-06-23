@@ -1,0 +1,20 @@
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat: <https://wasm4pm.dev/ns#>
+
+SELECT ?breed_id ?pointer_kind ?pointer_value ?pointer_locus ?pointer_derivation ?decoy_reason ?output_json_path ?module_file ?hardcode_lockable
+WHERE {
+  ?pp a compat:PaperPointer ;
+      compat:forBreed ?b ;
+      compat:pointerKind  ?pointer_kind ;
+      compat:pointerValue ?pointer_value ;
+      compat:pointerLocus ?pointer_locus .
+  ?b compat:breedId ?breed_id .
+  OPTIONAL { ?b  compat:modulePath        ?module_path        }
+  OPTIONAL { ?pp compat:pointerDerivation ?pointer_derivation }
+  OPTIONAL { ?pp compat:decoyReason       ?decoy_reason       }
+  OPTIONAL { ?pp compat:outputJsonPath    ?output_json_path   }
+  OPTIONAL { ?pp compat:hardcodeLockable  ?hardcode_lockable  }
+  BIND(COALESCE(?module_path, ?breed_id) AS ?module_file)
+}
+ORDER BY ?breed_id ?pointer_kind ?pointer_value

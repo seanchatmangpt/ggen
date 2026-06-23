@@ -1,0 +1,70 @@
+@prefix prd: <http://example.org/prd#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Document metadata
+prd:doc a prd:ProductRequirementsDocument ;
+    prd:title "Sample Product Requirements Document" ;
+    prd:status "In Progress" .
+
+# Features
+prd:feature1 a prd:Feature ;
+    prd:name "User Authentication" ;
+    prd:priority "High" ;
+    prd:status "In Progress" ;
+    prd:owner "Engineering Team" ;
+    prd:description "Users should be able to authenticate using email/password or OAuth providers." .
+
+prd:feature2 a prd:Feature ;
+    prd:name "Dashboard Analytics" ;
+    prd:priority "Medium" ;
+    prd:status "Planned" ;
+    prd:owner "Data Team" ;
+    prd:description "Provide real-time analytics and insights for executive decision-making." .
+
+prd:feature3 a prd:Feature ;
+    prd:name "Knowledge Graph Integration" ;
+    prd:priority "High" ;
+    prd:status "In Progress" ;
+    prd:owner "AI Team" ;
+    prd:description "Integrate semantic knowledge graphs for enhanced data relationships." .
+
+# Stakeholders
+prd:stakeholder1 a foaf:Organization ;
+    foaf:name "Engineering Team" ;
+    prd:role "Implementation" .
+
+prd:stakeholder2 a foaf:Organization ;
+    foaf:name "Product Team" ;
+    prd:role "Requirements" .
+
+prd:stakeholder3 a foaf:Organization ;
+    foaf:name "Executive Team" ;
+    prd:role "Strategic direction" .
+
+prd:stakeholder4 a foaf:Organization ;
+    foaf:name "Data Team" ;
+    prd:role "Analytics" .
+
+# Success Metrics
+prd:metric1 a prd:SuccessMetric ;
+    prd:name "Uptime" ;
+    prd:target "95%" ;
+    prd:unit "percentage" .
+
+prd:metric2 a prd:SuccessMetric ;
+    prd:name "API Response Time" ;
+    prd:target "<100ms" ;
+    prd:unit "milliseconds" .
+
+prd:metric3 a prd:SuccessMetric ;
+    prd:name "Test Coverage" ;
+    prd:target "85%" ;
+    prd:unit "percentage" .
+
+prd:metric4 a prd:SuccessMetric ;
+    prd:name "Security Vulnerabilities" ;
+    prd:target "Zero critical" ;
+    prd:unit "count" .

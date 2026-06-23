@@ -1,0 +1,50 @@
+# Invalid TTL - Type Mismatches
+# Tests SHACL constraint violations
+
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Define constraints
+ex:UserShape a sh:NodeShape ;
+    sh:targetClass ex:User ;
+    sh:property [
+        sh:path ex:email ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    ] ;
+    sh:property [
+        sh:path ex:age ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 150
+    ] .
+
+ex:User a owl:Class .
+
+# Violations
+ex:user1 a ex:User .
+# Missing required email - minCount violation
+
+ex:user2 a ex:User ;
+    ex:email "invalid-email-format" .
+# Email doesn't match pattern
+
+ex:user3 a ex:User ;
+    ex:email "valid@example.com" ;
+    ex:age "not-a-number" .
+# Age is not an integer
+
+ex:user4 a ex:User ;
+    ex:email "valid@example.com" ;
+    ex:age 200 .
+# Age exceeds maximum
+
+ex:user5 a ex:User ;
+    ex:email "email1@example.com" ;
+    ex:email "email2@example.com" .
+# Multiple emails - maxCount violation

@@ -1,0 +1,330 @@
+@prefix ct: <http://example.org/clinical-trials#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+
+# Ontology Definition
+ct:ClinicalTrialsOntology a owl:Ontology ;
+    rdfs:label "Clinical Trials Management Ontology" ;
+    rdfs:comment "Comprehensive ontology for clinical trials including protocols, recruitment, and data collection" ;
+    owl:versionInfo "1.0.0" .
+
+# Trial Classes
+ct:ClinicalTrial a owl:Class ;
+    rdfs:label "Clinical Trial" ;
+    rdfs:comment "Clinical research trial" .
+
+ct:TrialPhase a owl:Class ;
+    rdfs:label "Trial Phase" ;
+    rdfs:comment "Phase of clinical trial (I, II, III, IV)" .
+
+ct:TrialSite a owl:Class ;
+    rdfs:label "Trial Site" ;
+    rdfs:comment "Location where trial is conducted" .
+
+ct:TrialArm a owl:Class ;
+    rdfs:label "Trial Arm" ;
+    rdfs:comment "Treatment arm in trial" .
+
+# Protocol Management
+ct:Protocol a owl:Class ;
+    rdfs:label "Protocol" ;
+    rdfs:comment "Clinical trial protocol document" .
+
+ct:ProtocolVersion a owl:Class ;
+    rdfs:label "Protocol Version" ;
+    rdfs:comment "Version of trial protocol" .
+
+ct:Amendment a owl:Class ;
+    rdfs:label "Amendment" ;
+    rdfs:comment "Protocol amendment" .
+
+ct:InclusionCriteria a owl:Class ;
+    rdfs:label "Inclusion Criteria" ;
+    rdfs:comment "Criteria for patient inclusion" .
+
+ct:ExclusionCriteria a owl:Class ;
+    rdfs:label "Exclusion Criteria" ;
+    rdfs:comment "Criteria for patient exclusion" .
+
+# Patient Management
+ct:Participant a owl:Class ;
+    rdfs:label "Participant" ;
+    rdfs:comment "Trial participant/patient" .
+
+ct:Enrollment a owl:Class ;
+    rdfs:label "Enrollment" ;
+    rdfs:comment "Patient enrollment in trial" .
+
+ct:Screening a owl:Class ;
+    rdfs:label "Screening" ;
+    rdfs:comment "Patient screening visit" .
+
+ct:Randomization a owl:Class ;
+    rdfs:label "Randomization" ;
+    rdfs:comment "Patient randomization to treatment arm" .
+
+ct:Withdrawal a owl:Class ;
+    rdfs:label "Withdrawal" ;
+    rdfs:comment "Patient withdrawal from trial" .
+
+# Data Collection
+ct:CaseReportForm a owl:Class ;
+    rdfs:label "Case Report Form" ;
+    rdfs:comment "CRF for data collection" .
+
+ct:VisitSchedule a owl:Class ;
+    rdfs:label "Visit Schedule" ;
+    rdfs:comment "Schedule of study visits" .
+
+ct:StudyVisit a owl:Class ;
+    rdfs:label "Study Visit" ;
+    rdfs:comment "Individual study visit" .
+
+ct:Assessment a owl:Class ;
+    rdfs:label "Assessment" ;
+    rdfs:comment "Clinical assessment or measurement" .
+
+ct:SourceDocument a owl:Class ;
+    rdfs:label "Source Document" ;
+    rdfs:comment "Original source documentation" .
+
+# Safety Monitoring
+ct:AdverseEvent a owl:Class ;
+    rdfs:label "Adverse Event" ;
+    rdfs:comment "Adverse event during trial" .
+
+ct:SeriousAdverseEvent a owl:Class ;
+    rdfs:subClassOf ct:AdverseEvent ;
+    rdfs:label "Serious Adverse Event" ;
+    rdfs:comment "SAE requiring immediate reporting" .
+
+ct:SafetyReport a owl:Class ;
+    rdfs:label "Safety Report" ;
+    rdfs:comment "Safety monitoring report" .
+
+ct:DSMB a owl:Class ;
+    rdfs:label "Data Safety Monitoring Board" ;
+    rdfs:comment "Independent safety monitoring board" .
+
+# Personnel
+ct:PrincipalInvestigator a owl:Class ;
+    rdfs:label "Principal Investigator" ;
+    rdfs:comment "PI responsible for trial site" .
+
+ct:ClinicalResearchCoordinator a owl:Class ;
+    rdfs:label "Clinical Research Coordinator" ;
+    rdfs:comment "CRC managing trial operations" .
+
+ct:DataManager a owl:Class ;
+    rdfs:label "Data Manager" ;
+    rdfs:comment "Person managing trial data" .
+
+ct:Monitor a owl:Class ;
+    rdfs:label "Monitor" ;
+    rdfs:comment "Clinical research monitor" .
+
+# Regulatory
+ct:IRBApproval a owl:Class ;
+    rdfs:label "IRB Approval" ;
+    rdfs:comment "Institutional Review Board approval" .
+
+ct:InformedConsent a owl:Class ;
+    rdfs:label "Informed Consent" ;
+    rdfs:comment "Patient informed consent" .
+
+ct:RegulatorySubmission a owl:Class ;
+    rdfs:label "Regulatory Submission" ;
+    rdfs:comment "Submission to regulatory authority" .
+
+# Properties - Trial
+ct:hasTrial a owl:ObjectProperty ;
+    rdfs:domain ct:TrialSite ;
+    rdfs:range ct:ClinicalTrial ;
+    rdfs:label "has trial" .
+
+ct:hasPhase a owl:ObjectProperty ;
+    rdfs:domain ct:ClinicalTrial ;
+    rdfs:range ct:TrialPhase ;
+    rdfs:label "has phase" .
+
+ct:hasTrialID a owl:DatatypeProperty ;
+    rdfs:domain ct:ClinicalTrial ;
+    rdfs:range xsd:string ;
+    rdfs:label "has trial ID" ;
+    rdfs:comment "NCT number or other ID" .
+
+ct:hasTitle a owl:DatatypeProperty ;
+    rdfs:domain ct:ClinicalTrial ;
+    rdfs:range xsd:string ;
+    rdfs:label "has title" .
+
+ct:hasStartDate a owl:DatatypeProperty ;
+    rdfs:domain ct:ClinicalTrial ;
+    rdfs:range xsd:date ;
+    rdfs:label "has start date" .
+
+ct:hasEndDate a owl:DatatypeProperty ;
+    rdfs:domain ct:ClinicalTrial ;
+    rdfs:range xsd:date ;
+    rdfs:label "has end date" .
+
+# Protocol Properties
+ct:hasProtocol a owl:ObjectProperty ;
+    rdfs:domain ct:ClinicalTrial ;
+    rdfs:range ct:Protocol ;
+    rdfs:label "has protocol" .
+
+ct:hasVersion a owl:ObjectProperty ;
+    rdfs:domain ct:Protocol ;
+    rdfs:range ct:ProtocolVersion ;
+    rdfs:label "has version" .
+
+ct:hasAmendment a owl:ObjectProperty ;
+    rdfs:domain ct:Protocol ;
+    rdfs:range ct:Amendment ;
+    rdfs:label "has amendment" .
+
+ct:hasInclusionCriteria a owl:ObjectProperty ;
+    rdfs:domain ct:Protocol ;
+    rdfs:range ct:InclusionCriteria ;
+    rdfs:label "has inclusion criteria" .
+
+ct:hasExclusionCriteria a owl:ObjectProperty ;
+    rdfs:domain ct:Protocol ;
+    rdfs:range ct:ExclusionCriteria ;
+    rdfs:label "has exclusion criteria" .
+
+# Participant Properties
+ct:hasParticipant a owl:ObjectProperty ;
+    rdfs:domain ct:ClinicalTrial ;
+    rdfs:range ct:Participant ;
+    rdfs:label "has participant" .
+
+ct:hasEnrollment a owl:ObjectProperty ;
+    rdfs:domain ct:Participant ;
+    rdfs:range ct:Enrollment ;
+    rdfs:label "has enrollment" .
+
+ct:hasScreening a owl:ObjectProperty ;
+    rdfs:domain ct:Participant ;
+    rdfs:range ct:Screening ;
+    rdfs:label "has screening" .
+
+ct:hasRandomization a owl:ObjectProperty ;
+    rdfs:domain ct:Participant ;
+    rdfs:range ct:Randomization ;
+    rdfs:label "has randomization" .
+
+ct:assignedToArm a owl:ObjectProperty ;
+    rdfs:domain ct:Randomization ;
+    rdfs:range ct:TrialArm ;
+    rdfs:label "assigned to arm" .
+
+ct:enrollmentDate a owl:DatatypeProperty ;
+    rdfs:domain ct:Enrollment ;
+    rdfs:range xsd:date ;
+    rdfs:label "enrollment date" .
+
+# Data Collection Properties
+ct:hasCRF a owl:ObjectProperty ;
+    rdfs:domain ct:ClinicalTrial ;
+    rdfs:range ct:CaseReportForm ;
+    rdfs:label "has CRF" .
+
+ct:hasVisitSchedule a owl:ObjectProperty ;
+    rdfs:domain ct:Protocol ;
+    rdfs:range ct:VisitSchedule ;
+    rdfs:label "has visit schedule" .
+
+ct:hasStudyVisit a owl:ObjectProperty ;
+    rdfs:domain ct:Participant ;
+    rdfs:range ct:StudyVisit ;
+    rdfs:label "has study visit" .
+
+ct:hasAssessment a owl:ObjectProperty ;
+    rdfs:domain ct:StudyVisit ;
+    rdfs:range ct:Assessment ;
+    rdfs:label "has assessment" .
+
+ct:visitDate a owl:DatatypeProperty ;
+    rdfs:domain ct:StudyVisit ;
+    rdfs:range xsd:date ;
+    rdfs:label "visit date" .
+
+# Safety Properties
+ct:hasAdverseEvent a owl:ObjectProperty ;
+    rdfs:domain ct:Participant ;
+    rdfs:range ct:AdverseEvent ;
+    rdfs:label "has adverse event" .
+
+ct:hasSeverity a owl:DatatypeProperty ;
+    rdfs:domain ct:AdverseEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "has severity" ;
+    rdfs:comment "mild, moderate, severe" .
+
+ct:hasOnsetDate a owl:DatatypeProperty ;
+    rdfs:domain ct:AdverseEvent ;
+    rdfs:range xsd:date ;
+    rdfs:label "has onset date" .
+
+ct:isRelatedToStudyDrug a owl:DatatypeProperty ;
+    rdfs:domain ct:AdverseEvent ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is related to study drug" .
+
+# Personnel Properties
+ct:hasPrincipalInvestigator a owl:ObjectProperty ;
+    rdfs:domain ct:TrialSite ;
+    rdfs:range ct:PrincipalInvestigator ;
+    rdfs:label "has principal investigator" .
+
+ct:hasCoordinator a owl:ObjectProperty ;
+    rdfs:domain ct:TrialSite ;
+    rdfs:range ct:ClinicalResearchCoordinator ;
+    rdfs:label "has coordinator" .
+
+ct:hasMonitor a owl:ObjectProperty ;
+    rdfs:domain ct:ClinicalTrial ;
+    rdfs:range ct:Monitor ;
+    rdfs:label "has monitor" .
+
+# Regulatory Properties
+ct:hasIRBApproval a owl:ObjectProperty ;
+    rdfs:domain ct:TrialSite ;
+    rdfs:range ct:IRBApproval ;
+    rdfs:label "has IRB approval" .
+
+ct:hasInformedConsent a owl:ObjectProperty ;
+    rdfs:domain ct:Participant ;
+    rdfs:range ct:InformedConsent ;
+    rdfs:label "has informed consent" .
+
+ct:consentDate a owl:DatatypeProperty ;
+    rdfs:domain ct:InformedConsent ;
+    rdfs:range xsd:date ;
+    rdfs:label "consent date" .
+
+# Example Instances
+ct:trial_001 a ct:ClinicalTrial ;
+    ct:hasTrialID "NCT12345678" ;
+    ct:hasTitle "Phase III Study of Drug X for Condition Y" ;
+    ct:hasPhase ct:phase_iii ;
+    ct:hasStartDate "2025-01-01"^^xsd:date .
+
+ct:phase_iii a ct:TrialPhase ;
+    schema:name "Phase III" ;
+    schema:description "Large-scale efficacy study" .
+
+ct:protocol_v1 a ct:Protocol ;
+    schema:version "1.0" ;
+    ct:hasInclusionCriteria ct:criteria_age ;
+    ct:hasExclusionCriteria ct:criteria_pregnancy .
+
+ct:participant_001 a ct:Participant ;
+    schema:identifier "001-001" ;
+    ct:hasEnrollment ct:enrollment_001 ;
+    ct:assignedToArm ct:arm_treatment .

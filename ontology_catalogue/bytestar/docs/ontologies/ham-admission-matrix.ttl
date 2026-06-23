@@ -1,0 +1,315 @@
+@prefix ham: <http://bytestar.ai/ham#> .
+@prefix crystal: <http://bytestar.ai/crystal#> .
+@prefix hop: <http://bytestar.ai/hop#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Hop×Type Admission Matrix (HAM) v5
+# Enforces crystal type allow-lists per hop
+# No-Blob rule: reject unknown types with zero ticks
+
+ham:Matrix a sh:NodeShape ;
+    rdfs:label "ByteStar v5 Hop×Type Admission Matrix" ;
+    rdfs:comment "Closed-world enforcement of crystal types per hop" ;
+    ham:version "5.0.0" ;
+    ham:enforcement "STRICT" ;
+    ham:noBlobRule true .
+
+# Hop 1: Admission (Governance & Blueprints)
+hop:Hop1 a sh:NodeShape ;
+    sh:targetClass hop:AdmissionHop ;
+    sh:property [
+        sh:path crystal:type ;
+        sh:in (
+            crystal:OntologyPackage      # .opc
+            crystal:SHACLPackage         # .spc
+            crystal:CanonCrystal         # .canon
+            crystal:PatternRegistry      # .prc
+            crystal:MissionBlueprint     # .mbp
+            crystal:PatternByte          # .pb
+            crystal:ABISpec              # .abi
+            crystal:AssetDescriptor      # .asset (marketplace definition)
+            crystal:SLA                  # .sla (service agreements)
+            crystal:EvidenceCrystal      # .evd (external evidence)
+        ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Hop-1 only admits governance and blueprint crystals"
+    ] ;
+    ham:rejectUnknown true ;
+    ham:zeroTickReject true .
+
+# Hop 2: Attestation (Identity & Platform)
+hop:Hop2 a sh:NodeShape ;
+    sh:targetClass hop:AttestationHop ;
+    sh:property [
+        sh:path crystal:type ;
+        sh:in (
+            crystal:IdentityCrystal      # .idc
+            crystal:CapabilityCrystal    # .cap
+            crystal:OrgBinding           # .orgbind
+        ) ;
+        sh:minCount 1 ;
+        sh:message "Hop-2 only admits identity and capability crystals"
+    ] ;
+    ham:platformAttestation true .
+
+# Hop 3: Canon Validation (Rules & Patterns)
+hop:Hop3 a sh:NodeShape ;
+    sh:targetClass hop:CanonHop ;
+    sh:property [
+        sh:path crystal:type ;
+        sh:in (
+            crystal:OntologyPackage      # .opc
+            crystal:SHACLPackage         # .spc
+            crystal:CanonCrystal         # .canon
+            crystal:PatternRegistry      # .prc
+            crystal:MissionBlueprint     # .mbp
+            crystal:PatternByte          # .pb
+            crystal:ABISpec              # .abi
+            crystal:OracleSet            # .oracle (test vectors)
+            crystal:FuzzCorpus           # .fuzz (edge cases)
+            crystal:FixtureBundle        # .fixture (e2e tests)
+        ) ;
+        sh:message "Hop-3 validates against canon and patterns"
+    ] ;
+    ham:fullerCompliance true .
+
+# Hop 4: Sovereignty (Residency & Resources)
+hop:Hop4 a sh:NodeShape ;
+    sh:targetClass hop:SovereigntyHop ;
+    sh:property [
+        sh:path crystal:type ;
+        sh:in (
+            crystal:IdentityCrystal      # .idc
+            crystal:CapabilityCrystal    # .cap
+            crystal:OrgBinding           # .orgbind
+            crystal:DPBudgetToken        # .dpb (privacy budgets)
+            crystal:DatasetCrystal       # .dsc (data lineage)
+            crystal:AssetDescriptor      # .asset (resource allocation)
+            crystal:SLA                  # .sla (service levels)
+        ) ;
+        sh:message "Hop-4 enforces sovereignty and resource checks"
+    ] ;
+    ham:residencyCheck true ;
+    ham:resourceQuota true .
+
+# Hop 5: Transformation (Execution)
+hop:Hop5 a sh:NodeShape ;
+    sh:targetClass hop:TransformHop ;
+    sh:property [
+        sh:path crystal:type ;
+        sh:in (
+            crystal:PolycrystalLattice   # .pcl (execution plan)
+            crystal:PatternRegistry      # .prc (workflow patterns)
+            crystal:DatasetCrystal       # .dsc (input data)
+            crystal:ViewCrystal          # .view (materialized views)
+            crystal:DPBudgetToken        # .dpb (privacy spend)
+            crystal:StreamSegment        # .seg (streaming data)
+            crystal:Offer                # .offer (marketplace)
+            crystal:Order                # .order (marketplace)
+            crystal:PriceFeed            # .px (pricing)
+            crystal:UsageMetering        # .usage (metering)
+            crystal:OracleSet            # .oracle (test data)
+            crystal:FuzzCorpus           # .fuzz (test generation)
+            crystal:FixtureBundle        # .fixture (test scenarios)
+            crystal:NIFSecurityReceipt   # .nif.sec.rct (constant-time)
+        ) ;
+        sh:message "Hop-5 executes transformations"
+    ] ;
+    ham:deterministicExecution true ;
+    ham:constantTime true .
+
+# Hop 6: Commitment (Finalization)
+hop:Hop6 a sh:NodeShape ;
+    sh:targetClass hop:CommitHop ;
+    sh:property [
+        sh:path crystal:type ;
+        sh:in (
+            crystal:OntologyPackage      # .opc (governance updates)
+            crystal:SHACLPackage         # .spc (rule updates)
+            crystal:CanonCrystal         # .canon (canon updates)
+            crystal:PatternRegistry      # .prc (pattern updates)
+            crystal:IdentityCrystal      # .idc (identity commits)
+            crystal:CapabilityCrystal    # .cap (capability grants)
+            crystal:OrgBinding           # .orgbind (org updates)
+            crystal:Revocation           # .revoke (revocations)
+            crystal:PolycrystalLattice   # .pcl (execution records)
+            crystal:BuildProvenance      # .prov (build provenance)
+            crystal:BinaryTransparencyEntry # .bte (transparency log)
+            crystal:DatasetCrystal       # .dsc (data commits)
+            crystal:ViewCrystal          # .view (view commits)
+            crystal:DPBudgetToken        # .dpb (budget updates)
+            crystal:AssetDescriptor      # .asset (asset registry)
+            crystal:Settlement           # .settle (settlements)
+            crystal:UsageMetering        # .usage (usage records)
+            crystal:SLA                  # .sla (SLA updates)
+            crystal:BridgeProof          # .bridge.rct (cross-org)
+            crystal:StreamSegment        # .seg (stream commits)
+            crystal:Alert                # .alert (incidents)
+            crystal:EvidenceCrystal      # .evd (evidence chain)
+            crystal:ABISpec              # .abi (ABI updates)
+            crystal:ABIOKReceipt         # .abi.ok.rct (ABI validation)
+            crystal:NIFSecurityReceipt   # .nif.sec.rct (security proofs)
+            crystal:OracleSet            # .oracle (test updates)
+            crystal:FixtureBundle        # .fixture (test commits)
+        ) ;
+        sh:message "Hop-6 commits finalized state"
+    ] ;
+    ham:requireProvenance true ;
+    ham:requireTransparency true .
+
+# Hop 7: Publication (Public Mirror)
+hop:Hop7 a sh:NodeShape ;
+    sh:targetClass hop:PublicationHop ;
+    sh:property [
+        sh:path crystal:type ;
+        sh:in (
+            crystal:CanonCrystal         # .canon (public canon)
+            crystal:Revocation           # .revoke (public revocations)
+            crystal:BinaryTransparencyEntry # .bte (transparency anchors)
+            crystal:DatasetCrystal       # .dsc (public datasets)
+            crystal:ViewCrystal          # .view (public views)
+            crystal:PublicMirror         # .pmc (sanitized projections)
+            crystal:RedactionProof       # .redact.rct (privacy proofs)
+            crystal:Settlement           # .settle (public settlements)
+            crystal:PriceFeed            # .px (public prices)
+            crystal:UsageMetering        # .usage (public usage)
+            crystal:BridgeProof          # .bridge.rct (bridge proofs)
+            crystal:Alert                # .alert (public alerts)
+            crystal:HealthCapsule        # .health (system health)
+        ) ;
+        sh:message "Hop-7 publishes sanitized mirrors"
+    ] ;
+    ham:requireRedaction true ;
+    ham:requireDPBudget true .
+
+# Hop 8: Audit (Transparency Bundle)
+hop:Hop8 a sh:NodeShape ;
+    sh:targetClass hop:AuditHop ;
+    sh:property [
+        sh:path crystal:type ;
+        sh:in (
+            crystal:OntologyPackage      # .opc (audit trail)
+            crystal:SHACLPackage         # .spc (rule audit)
+            crystal:RedactionProof       # .redact.rct (privacy audit)
+            crystal:UsageMetering        # .usage (usage audit)
+            crystal:Alert                # .alert (incident audit)
+            crystal:EvidenceCrystal      # .evd (evidence audit)
+            crystal:HealthCapsule        # .health (health metrics)
+            crystal:TransparencyBundle   # .tbundle.rct (full audit)
+        ) ;
+        sh:message "Hop-8 generates audit bundles"
+    ] ;
+    ham:completeAuditTrail true .
+
+# No-Blob Rule: Reject Unknown Types
+ham:NoBlobShape a sh:NodeShape ;
+    sh:targetClass crystal:UnknownType ;
+    sh:property [
+        sh:path crystal:type ;
+        sh:maxCount 0 ;
+        sh:severity sh:Violation ;
+        sh:message "Unknown crystal type rejected with zero ticks"
+    ] ;
+    ham:zeroTickReject true ;
+    ham:immediateReject true .
+
+# Cross-Hop Constraints
+ham:PrivacyConstraint a sh:PropertyShape ;
+    rdfs:comment "PublicMirror requires RedactionProof and DPBudget" ;
+    sh:path hop:publication ;
+    sh:node [
+        sh:property [
+            sh:path crystal:PublicMirror ;
+            sh:property [
+                sh:path crystal:requires ;
+                sh:hasValue crystal:RedactionProof ;
+                sh:hasValue crystal:DPBudgetToken
+            ]
+        ]
+    ] .
+
+ham:ProvenanceConstraint a sh:PropertyShape ;
+    rdfs:comment "Commit requires BuildProvenance and BinaryTransparencyEntry" ;
+    sh:path hop:commitment ;
+    sh:node [
+        sh:property [
+            sh:path hop:commit ;
+            sh:property [
+                sh:path crystal:requires ;
+                sh:hasValue crystal:BuildProvenance ;
+                sh:hasValue crystal:BinaryTransparencyEntry
+            ]
+        ]
+    ] .
+
+ham:MarketplaceConstraint a sh:PropertyShape ;
+    rdfs:comment "Settlement requires matching Offer/Order dimensions" ;
+    sh:path crystal:Settlement ;
+    sh:node [
+        sh:property [
+            sh:path crystal:dimensions ;
+            sh:equals crystal:AssetDescriptor/crystal:dimensions
+        ]
+    ] .
+
+# Lifecycle Constraints
+ham:ImmutabilityConstraint a sh:PropertyShape ;
+    rdfs:comment "Immutable crystals cannot be updated" ;
+    sh:path crystal:immutable ;
+    sh:hasValue true ;
+    sh:property [
+        sh:path crystal:updates ;
+        sh:maxCount 0
+    ] .
+
+# Hop Transition Rules
+ham:TransitionRules a sh:NodeShape ;
+    rdfs:comment "Valid hop transitions and dependencies" ;
+    ham:rule [
+        ham:from hop:Hop1 ;
+        ham:to hop:Hop2 ;
+        ham:requires crystal:AdmissionReceipt
+    ] ;
+    ham:rule [
+        ham:from hop:Hop2 ;
+        ham:to hop:Hop3 ;
+        ham:requires crystal:AttestationReceipt
+    ] ;
+    ham:rule [
+        ham:from hop:Hop3 ;
+        ham:to hop:Hop4 ;
+        ham:requires crystal:CanonReceipt
+    ] ;
+    ham:rule [
+        ham:from hop:Hop4 ;
+        ham:to hop:Hop5 ;
+        ham:requires crystal:SovereigntyReceipt
+    ] ;
+    ham:rule [
+        ham:from hop:Hop5 ;
+        ham:to hop:Hop6 ;
+        ham:requires crystal:TransformReceipt
+    ] ;
+    ham:rule [
+        ham:from hop:Hop6 ;
+        ham:to hop:Hop7 ;
+        ham:requires crystal:CommitReceipt
+    ] ;
+    ham:rule [
+        ham:from hop:Hop7 ;
+        ham:to hop:Hop8 ;
+        ham:requires crystal:PublicationReceipt
+    ] .
+
+# Matrix Statistics
+ham:Matrix ham:totalHops 8 ;
+    ham:totalTypes 44 ;
+    ham:averageTypesPerHop 11 ;
+    ham:maxTypesPerHop 26 ;  # Hop-6
+    ham:minTypesPerHop 3 ;   # Hop-2
+    ham:closureProven true ;
+    ham:disjointnessProven true ;
+    ham:noBlobEnforced true .

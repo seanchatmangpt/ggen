@@ -1,0 +1,149 @@
+@prefix : <http://example.com/api#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# API Definition
+:UserAPI a :RestAPI ;
+    :name "User Management API" ;
+    :version "1.0.0" ;
+    :baseUrl "https://api.example.com/v1" ;
+    :hasEndpoint :GetUsers, :GetUser, :CreateUser, :UpdateUser, :DeleteUser .
+
+# Endpoints
+:GetUsers a :RestEndpoint ;
+    :method "GET" ;
+    :path "/users" ;
+    :description "Retrieve all users" ;
+    :returns :UserList ;
+    :hasParameter :PageParam, :LimitParam .
+
+:GetUser a :RestEndpoint ;
+    :method "GET" ;
+    :path "/users/{id}" ;
+    :description "Retrieve a specific user" ;
+    :returns :User ;
+    :hasPathParameter :UserIdParam .
+
+:CreateUser a :RestEndpoint ;
+    :method "POST" ;
+    :path "/users" ;
+    :description "Create a new user" ;
+    :accepts :UserInput ;
+    :returns :User .
+
+:UpdateUser a :RestEndpoint ;
+    :method "PUT" ;
+    :path "/users/{id}" ;
+    :description "Update an existing user" ;
+    :accepts :UserInput ;
+    :returns :User ;
+    :hasPathParameter :UserIdParam .
+
+:DeleteUser a :RestEndpoint ;
+    :method "DELETE" ;
+    :path "/users/{id}" ;
+    :description "Delete a user" ;
+    :returns :DeleteResponse ;
+    :hasPathParameter :UserIdParam .
+
+# Data Models
+:User a :DataModel ;
+    :hasField :UserId, :UserName, :UserEmail, :UserCreatedAt, :UserUpdatedAt .
+
+:UserInput a :DataModel ;
+    :hasField :UserName, :UserEmail .
+
+:UserList a :DataModel ;
+    :hasField :UsersArray, :TotalCount, :PageInfo .
+
+:DeleteResponse a :DataModel ;
+    :hasField :Success, :Message .
+
+# Fields
+:UserId a :Field ;
+    :name "id" ;
+    :type xsd:string ;
+    :description "Unique user identifier" ;
+    :required true .
+
+:UserName a :Field ;
+    :name "name" ;
+    :type xsd:string ;
+    :description "User's full name" ;
+    :required true ;
+    :minLength 1 ;
+    :maxLength 255 .
+
+:UserEmail a :Field ;
+    :name "email" ;
+    :type xsd:string ;
+    :description "User's email address" ;
+    :required true ;
+    :format "email" .
+
+:UserCreatedAt a :Field ;
+    :name "createdAt" ;
+    :type xsd:dateTime ;
+    :description "When the user was created" ;
+    :required true .
+
+:UserUpdatedAt a :Field ;
+    :name "updatedAt" ;
+    :type xsd:dateTime ;
+    :description "When the user was last updated" ;
+    :required true .
+
+:UsersArray a :Field ;
+    :name "users" ;
+    :type :ArrayOf ;
+    :itemType :User ;
+    :description "Array of user objects" ;
+    :required true .
+
+:TotalCount a :Field ;
+    :name "total" ;
+    :type xsd:integer ;
+    :description "Total number of users" ;
+    :required true .
+
+:PageInfo a :Field ;
+    :name "pagination" ;
+    :type :PaginationInfo ;
+    :description "Pagination information" ;
+    :required true .
+
+:Success a :Field ;
+    :name "success" ;
+    :type xsd:boolean ;
+    :description "Whether the operation succeeded" ;
+    :required true .
+
+:Message a :Field ;
+    :name "message" ;
+    :type xsd:string ;
+    :description "Operation result message" ;
+    :required false .
+
+# Parameters
+:PageParam a :QueryParameter ;
+    :name "page" ;
+    :type xsd:integer ;
+    :description "Page number for pagination" ;
+    :required false ;
+    :defaultValue "1" .
+
+:LimitParam a :QueryParameter ;
+    :name "limit" ;
+    :type xsd:integer ;
+    :description "Number of items per page" ;
+    :required false ;
+    :defaultValue "10" ;
+    :minimum 1 ;
+    :maximum 100 .
+
+:UserIdParam a :PathParameter ;
+    :name "id" ;
+    :type xsd:string ;
+    :description "User ID" ;
+    :required true .

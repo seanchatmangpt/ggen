@@ -1,0 +1,211 @@
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix gv:   <https://gitvan.dev/ontology#> .
+@prefix gh:   <https://gitvan.dev/graph-hook#> .
+@prefix op:   <https://gitvan.dev/op#> .
+@prefix scr:  <https://gitvan.dev/scrum#> .
+@prefix sas:  <https://gitvan.dev/scrum-at-scale#> .
+@prefix ex:   <http://example.org/> .
+
+##########
+# Minimal Scrum@Scale vocabulary (project-local)
+##########
+
+scr:Team           a rdfs:Class .
+scr:Sprint         a rdfs:Class .
+scr:BacklogItem    a rdfs:Class .
+scr:Impediment     a rdfs:Class .
+scr:Meeting        a rdfs:Class .
+
+sas:SoS            a rdfs:Class ; rdfs:subClassOf scr:Meeting .
+sas:MetaScrum      a rdfs:Class ; rdfs:subClassOf scr:Meeting .
+sas:EAT            a rdfs:Class ; rdfs:subClassOf scr:Team .
+
+scr:team           a rdf:Property ; rdfs:domain scr:BacklogItem ; rdfs:range scr:Team .
+scr:dependsOn      a rdf:Property ; rdfs:domain scr:BacklogItem ; rdfs:range scr:BacklogItem .
+scr:status         a rdf:Property .
+scr:priority       a rdf:Property .
+scr:sprint         a rdf:Property ; rdfs:domain scr:BacklogItem ; rdfs:range scr:Sprint .
+scr:startAt        a rdf:Property ; rdfs:range xsd:dateTime .
+scr:endAt          a rdf:Property ; rdfs:range xsd:dateTime .
+scr:owner          a rdf:Property .
+scr:openedAt       a rdf:Property ; rdfs:range xsd:dateTime .
+scr:ageHours       a rdf:Property ; rdfs:range xsd:decimal .
+scr:severity       a rdf:Property .
+scr:name           a rdf:Property .
+scr:forRelease     a rdf:Property .
+
+##########
+# SHACL (lightweight) to keep data sane (optional but helpful)
+##########
+
+ex:SprintShape a sh:NodeShape ;
+  sh:targetClass scr:Sprint ;
+  sh:property [ sh:path scr:startAt ; sh:datatype xsd:dateTime ; sh:minCount 1 ] ;
+  sh:property [ sh:path scr:endAt   ; sh:datatype xsd:dateTime ; sh:minCount 1 ] .
+
+ex:BIShape a sh:NodeShape ;
+  sh:targetClass scr:BacklogItem ;
+  sh:property [ sh:path scr:team   ; sh:minCount 1 ] ;
+  sh:property [ sh:path scr:status ; sh:minCount 1 ] .
+
+##########
+# Hook 1: Scrum of Scrums (SoS) – meeting prep N minutes before start
+# Triggers when NOW is within a pre-window for any sas:SoS meeting today.
+##########
+
+ex:hook-sos-prep a gh:Hook ;
+  gv:title "Scrum of Scrums Prep" ;
+  gh:hasPredicate ex:pred-sos-window ;
+  gh:orderedPipelines ex:pipe-sos-prep .
+
+# ASK predicate: requires engine to bind NOW() and compare with meeting start
+ex:pred-sos-window a gh:ASKPredicate ;
+  gh:queryText """
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+    PREFIX scr: <https://gitvan.dev/scrum#>
+    PREFIX sas: <https://gitvan.dev/scrum-at-scale#>
+    ASK WHERE {
+      ?m a sas:SoS ; scr:startAt ?start .
+      BIND(NOW() AS ?now)
+      # window: 15 minutes before start
+      FILTER(?now >= (?start - "PT15M"^^xsd:dayTimeDuration) && ?now < ?start)
+    }
+  """ .
+
+ex:pipe-sos-prep a op:Pipeline ;
+  op:steps ( ex:step-sos-agenda ex:step-sos-report ) .
+
+ex:step-sos-agenda a gv:TemplateStep ;
+  gv:text "## SoS Agenda ({{ 'now' | date('YYYY-MM-DD') }})\n- Cross-team blockers\n- Dependencies due this sprint\n- Release readiness\n" ;
+  gv:filePath "./.gitvan/artifacts/sos/agenda-{{ 'now' | date('YYYYMMDD') }}.md" .
+
+ex:step-sos-report a gv:SparqlToTemplateStep ;
+  gv:text """
+    PREFIX scr: <https://gitvan.dev/scrum#>
+    SELECT ?team (COUNT(?b) AS ?openDeps)
+    WHERE {
+      ?b a scr:BacklogItem ; scr:team ?team ; scr:dependsOn ?d .
+      FILTER NOT EXISTS { ?d scr:status "done" }
+    } GROUP BY ?team
+  """ ;
+  gv:template """
+    ## Dependency Heatmap
+    {% for row in results -%}
+    - {{ row.team.value }}: {{ row.openDeps.value }} open dependencies
+    {%- endfor %}
+  """ ;
+  gv:filePath "./.gitvan/artifacts/sos/dependency-heatmap-{{ 'now' | date('YYYYMMDD') }}.md" .
+
+##########
+# Hook 2: Cross-team dependency risk – threshold trigger
+##########
+
+ex:hook-dep-risk a gh:Hook ;
+  gv:title "Cross-team Dependency Risk" ;
+  gh:hasPredicate ex:pred-dep-threshold ;
+  gh:orderedPipelines ex:pipe-dep-risk .
+
+ex:pred-dep-threshold a gh:SELECTThreshold ;
+  gh:queryText """
+    PREFIX scr: <https://gitvan.dev/scrum#>
+    SELECT (COUNT(*) AS ?risk) WHERE {
+      ?b a scr:BacklogItem ; scr:team ?t1 ; scr:dependsOn ?d .
+      ?d a scr:BacklogItem ; scr:team ?t2 .
+      FILTER(?t1 != ?t2)
+      FILTER(NOT EXISTS { ?d scr:status "done" })
+    }
+  """ ;
+  gh:threshold "5"^^xsd:integer ;
+  gh:operator ">" .
+
+ex:pipe-dep-risk a op:Pipeline ;
+  op:steps ( ex:step-dep-report ) .
+
+ex:step-dep-report a gv:SparqlToTemplateStep ;
+  gv:text """
+    PREFIX scr: <https://gitvan.dev/scrum#>
+    SELECT ?t1 ?t2 (COUNT(*) AS ?edges) WHERE {
+      ?b a scr:BacklogItem ; scr:team ?t1 ; scr:dependsOn ?d .
+      ?d a scr:BacklogItem ; scr:team ?t2 .
+      FILTER(?t1 != ?t2)
+      FILTER(NOT EXISTS { ?d scr:status "done" })
+    } GROUP BY ?t1 ?t2 ORDER BY DESC(?edges)
+  """ ;
+  gv:template """
+    ## Cross-team Dependency Graph (Top edges)
+    {% for r in results -%}
+    - {{ r.t1.value }} → {{ r.t2.value }} : {{ r.edges.value }}
+    {%- endfor %}
+  """ ;
+  gv:filePath "./.gitvan/artifacts/risks/dependencies-{{ 'now' | date('YYYYMMDDHHmm') }}.md" .
+
+##########
+# Hook 3: Cadence misalignment – detect teams not sharing sprint dates
+##########
+
+ex:hook-cadence-drift a gh:Hook ;
+  gv:title "Sprint Cadence Misalignment" ;
+  gh:hasPredicate ex:pred-cadence-delta ;
+  gh:orderedPipelines ex:pipe-cadence-note .
+
+# ResultDelta: if the set of unique (start,end) pairs across teams changes or >1 distinct pair exists
+ex:pred-cadence-delta a gh:ResultDelta ;
+  gh:queryText """
+    PREFIX scr: <https://gitvan.dev/scrum#>
+    SELECT ?start ?end WHERE {
+      ?s a scr:Sprint ; scr:startAt ?start ; scr:endAt ?end .
+    }
+  """ .
+
+ex:pipe-cadence-note a op:Pipeline ;
+  op:steps ( ex:step-cadence-summary ) .
+
+ex:step-cadence-summary a gv:SparqlToTemplateStep ;
+  gv:text """
+    PREFIX scr: <https://gitvan.dev/scrum#>
+    SELECT ?team ?start ?end WHERE {
+      ?s a scr:Sprint ; scr:startAt ?start ; scr:endAt ?end .
+      OPTIONAL { ?b a scr:BacklogItem ; scr:sprint ?s ; scr:team ?team }
+    } GROUP BY ?team ?start ?end ORDER BY ?team
+  """ ;
+  gv:template """
+    ## Cadence Alignment Snapshot
+    {% for r in results -%}
+    - {{ r.team.value | default('UNKNOWN') }}: {{ r.start.value }} → {{ r.end.value }}
+    {%- endfor %}
+  """ ;
+  gv:filePath "./.gitvan/artifacts/cadence/alignment-{{ 'now' | date('YYYYMMDD') }}.md" .
+
+##########
+# Hook 4: Impediment aging – escalate to SoS (>24h) and EAT (>48h)
+##########
+
+ex:hook-impediments a gh:Hook ;
+  gv:title "Impediment Aging Escalation" ;
+  gh:hasPredicate ex:pred-imp-aging ;
+  gh:orderedPipelines ex:pipe-imp-route .
+
+ex:pred-imp-aging a gh:SELECTThreshold ;
+  gh:queryText """
+    PREFIX scr: <https://gitvan.dev/scrum#>
+    SELECT (MAX(?age) AS ?maxAge) WHERE {
+      ?i a scr:Impediment ; scr:status "open" ; scr:ageHours ?age .
+    }
+  """ ;
+  gh:threshold "24"^^xsd:decimal ;
+  gh:operator ">=" .
+
+ex:pipe-imp-route a op:Pipeline ;
+  # Split into two template reports; the runner can decide which to write based on maxAge
+  op:steps ( ex:step-imp-sos ex:step-imp-eat ) .
+
+ex:step-imp-sos a gv:TemplateStep ;
+  gv:text "Open impediments >24h require SoS review.\nGenerated: {{ 'now' | date('YYYY-MM-DD HH:mm') }}\n" ;
+  gv:filePath "./.gitvan/artifacts/impediments/sos-{{ 'now' | date('YYYYMMDDHHmm') }}.md" .
+
+ex:step-imp-eat a gv:TemplateStep ;
+  gv:text "Open impediments >48h escalated to EAT.\nGenerated: {{ 'now' | date('YYYY-MM-DD HH:mm') }}\n" ;
+  gv:filePath "./.gitvan/artifacts/impediments/eat-{{ 'now' | date('YYYYMMDDHHmm') }}.md" .

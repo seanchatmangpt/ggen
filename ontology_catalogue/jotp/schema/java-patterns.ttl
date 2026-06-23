@@ -1,0 +1,233 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix java:  <https://jgen.dev/ontology/java#> .
+@prefix jpat:  <https://jgen.dev/ontology/java/patterns#> .
+
+# =============================================================================
+# Java Design Patterns Ontology
+# Modern Java 26 implementations of classic and modern patterns
+# =============================================================================
+
+jpat:Ontology a owl:Ontology ;
+    rdfs:label "Java Design Patterns" ;
+    rdfs:comment "Ontology of design patterns implemented with modern Java 26 idioms" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <https://jgen.dev/ontology/java#> .
+
+# =============================================================================
+# Pattern Classification
+# =============================================================================
+
+jpat:Pattern a owl:Class ;
+    rdfs:label "Design Pattern" ;
+    rdfs:comment "A reusable solution to a commonly occurring design problem" .
+
+jpat:CreationalPattern a owl:Class ;
+    rdfs:subClassOf jpat:Pattern ;
+    rdfs:label "Creational Pattern" .
+
+jpat:StructuralPattern a owl:Class ;
+    rdfs:subClassOf jpat:Pattern ;
+    rdfs:label "Structural Pattern" .
+
+jpat:BehavioralPattern a owl:Class ;
+    rdfs:subClassOf jpat:Pattern ;
+    rdfs:label "Behavioral Pattern" .
+
+jpat:DataPattern a owl:Class ;
+    rdfs:subClassOf jpat:Pattern ;
+    rdfs:label "Data Pattern" ;
+    rdfs:comment "Patterns for data modeling and transfer" .
+
+jpat:ErrorPattern a owl:Class ;
+    rdfs:subClassOf jpat:Pattern ;
+    rdfs:label "Error Handling Pattern" .
+
+jpat:ArchitecturalPattern a owl:Class ;
+    rdfs:subClassOf jpat:Pattern ;
+    rdfs:label "Architectural Pattern" .
+
+# =============================================================================
+# Pattern Properties
+# =============================================================================
+
+jpat:hasTemplate a owl:DatatypeProperty ;
+    rdfs:domain jpat:Pattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "has template" ;
+    rdfs:comment "Path to the Tera template implementing this pattern" .
+
+jpat:usesFeature a owl:ObjectProperty ;
+    rdfs:domain jpat:Pattern ;
+    rdfs:range java:Feature ;
+    rdfs:label "uses Java feature" .
+
+jpat:replacesLegacy a owl:DatatypeProperty ;
+    rdfs:domain jpat:Pattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "replaces legacy pattern" ;
+    rdfs:comment "Description of the legacy pattern this replaces" .
+
+jpat:hasParticipant a owl:ObjectProperty ;
+    rdfs:domain jpat:Pattern ;
+    rdfs:range java:Type ;
+    rdfs:label "has participant type" .
+
+jpat:hasIntent a owl:DatatypeProperty ;
+    rdfs:domain jpat:Pattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "intent" .
+
+# =============================================================================
+# Creational Patterns
+# =============================================================================
+
+jpat:SingletonEnum a jpat:CreationalPattern ;
+    rdfs:label "Singleton (Enum)" ;
+    jpat:hasTemplate "patterns/singleton-enum.tera" ;
+    jpat:hasIntent "Ensure a class has exactly one instance with global access point" ;
+    jpat:replacesLegacy "Double-checked locking singleton, static holder singleton" .
+
+jpat:BuilderRecord a jpat:CreationalPattern ;
+    rdfs:label "Builder (Record-Based)" ;
+    jpat:hasTemplate "patterns/builder-record.tera" ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#RecordsFeature> ;
+    jpat:hasIntent "Construct complex objects step by step using records as immutable result" ;
+    jpat:replacesLegacy "Telescoping constructors, JavaBeans setters, traditional builder" .
+
+jpat:FactorySealed a jpat:CreationalPattern ;
+    rdfs:label "Factory (Sealed Interface)" ;
+    jpat:hasTemplate "patterns/factory-sealed.tera" ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#SealedTypesFeature> ;
+    jpat:hasIntent "Create objects without exposing creation logic using sealed type hierarchy" ;
+    jpat:replacesLegacy "Abstract factory with open hierarchies, reflection-based factories" .
+
+# =============================================================================
+# Behavioral Patterns
+# =============================================================================
+
+jpat:StrategyFunctional a jpat:BehavioralPattern ;
+    rdfs:label "Strategy (Functional)" ;
+    jpat:hasTemplate "patterns/strategy-functional.tera" ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#LambdaExpressions> ;
+    jpat:hasIntent "Define interchangeable algorithms using functional interfaces and lambdas" ;
+    jpat:replacesLegacy "Strategy with concrete implementation classes" .
+
+jpat:CommandRecord a jpat:BehavioralPattern ;
+    rdfs:label "Command (Record)" ;
+    jpat:hasTemplate "patterns/command-record.tera" ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#RecordsFeature> ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#SealedTypesFeature> ;
+    jpat:hasIntent "Encapsulate requests as immutable record objects in a sealed hierarchy" ;
+    jpat:replacesLegacy "Mutable command objects with execute methods" .
+
+jpat:StateMachineSealed a jpat:BehavioralPattern ;
+    rdfs:label "State Machine (Sealed)" ;
+    jpat:hasTemplate "patterns/state-machine-sealed.tera" ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#SealedTypesFeature> ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#PatternMatchingSwitch> ;
+    jpat:hasIntent "Model finite state machines with sealed classes and exhaustive switch" ;
+    jpat:replacesLegacy "State pattern with open class hierarchies, enum-based state machines" .
+
+jpat:ObserverFlow a jpat:BehavioralPattern ;
+    rdfs:label "Observer (Flow API)" ;
+    jpat:hasTemplate "patterns/observer-flow.tera" ;
+    jpat:hasIntent "Implement reactive event subscription using Flow API" ;
+    jpat:replacesLegacy "java.util.Observable (deprecated), custom listener interfaces" .
+
+jpat:ChainOfResponsibilitySealed a jpat:BehavioralPattern ;
+    rdfs:label "Chain of Responsibility (Sealed)" ;
+    jpat:hasTemplate "patterns/chain-of-responsibility-sealed.tera" ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#SealedTypesFeature> ;
+    jpat:hasIntent "Pass requests along a chain of handlers using sealed interface dispatch" ;
+    jpat:replacesLegacy "Linked list of handler objects" .
+
+jpat:VisitorExhaustiveSwitch a jpat:BehavioralPattern ;
+    rdfs:label "Visitor (Exhaustive Switch)" ;
+    jpat:hasTemplate "patterns/visitor-exhaustive-switch.tera" ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#SealedTypesFeature> ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#PatternMatchingSwitch> ;
+    jpat:hasIntent "Perform operations on sealed type hierarchies via exhaustive switch" ;
+    jpat:replacesLegacy "Double-dispatch visitor pattern with accept/visit methods" .
+
+jpat:SpecificationFunctional a jpat:BehavioralPattern ;
+    rdfs:label "Specification (Functional Predicates)" ;
+    jpat:hasTemplate "patterns/specification-functional.tera" ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#LambdaExpressions> ;
+    jpat:hasIntent "Compose business rules as combinable predicates" ;
+    jpat:replacesLegacy "Abstract specification classes with isSatisfiedBy" .
+
+# =============================================================================
+# Structural Patterns
+# =============================================================================
+
+jpat:DecoratorDefaultMethod a jpat:StructuralPattern ;
+    rdfs:label "Decorator (Default Methods)" ;
+    jpat:hasTemplate "patterns/decorator-default-method.tera" ;
+    jpat:hasIntent "Add behavior to objects dynamically using interface default methods" ;
+    jpat:replacesLegacy "Abstract decorator classes wrapping concrete components" .
+
+jpat:AdapterRecord a jpat:StructuralPattern ;
+    rdfs:label "Adapter (Record + Default Methods)" ;
+    jpat:hasTemplate "patterns/adapter-record.tera" ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#RecordsFeature> ;
+    jpat:hasIntent "Convert one interface to another using records and default methods" ;
+    jpat:replacesLegacy "Adapter classes with manual delegation" .
+
+# =============================================================================
+# Data Patterns
+# =============================================================================
+
+jpat:DTORecord a jpat:DataPattern ;
+    rdfs:label "DTO (Record)" ;
+    jpat:hasTemplate "patterns/dto-record.tera" ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#RecordsFeature> ;
+    jpat:hasIntent "Transfer data between layers using immutable records" ;
+    jpat:replacesLegacy "POJO with getters/setters, Lombok @Data" .
+
+jpat:ValueObjectRecord a jpat:DataPattern ;
+    rdfs:label "Value Object (Record)" ;
+    jpat:hasTemplate "patterns/value-object-record.tera" ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#RecordsFeature> ;
+    jpat:hasIntent "Model domain values with validated, immutable records" ;
+    jpat:replacesLegacy "Mutable value classes, manually overridden equals/hashCode" .
+
+jpat:DomainEventRecord a jpat:DataPattern ;
+    rdfs:label "Domain Event (Record + Sealed)" ;
+    jpat:hasTemplate "patterns/domain-event-record.tera" ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#RecordsFeature> ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#SealedTypesFeature> ;
+    jpat:hasIntent "Model domain events as immutable records in a sealed hierarchy" ;
+    jpat:replacesLegacy "Mutable event objects, generic event bus payloads" .
+
+# =============================================================================
+# Error Handling Patterns
+# =============================================================================
+
+jpat:ResultRailway a jpat:ErrorPattern ;
+    rdfs:label "Result (Railway-Oriented)" ;
+    jpat:hasTemplate "error-handling/result-railway.tera" ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#SealedTypesFeature> ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#RecordsFeature> ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#PatternMatchingSwitch> ;
+    jpat:hasIntent "Handle success/failure paths functionally without exceptions" ;
+    jpat:replacesLegacy "Checked exception chains, null returns, error codes" .
+
+# =============================================================================
+# Architectural Patterns
+# =============================================================================
+
+jpat:RepositoryGeneric a jpat:ArchitecturalPattern ;
+    rdfs:label "Repository (Generic)" ;
+    jpat:hasTemplate "patterns/repository-generic.tera" ;
+    jpat:hasIntent "Abstract data access behind a generic interface" ;
+    jpat:replacesLegacy "DAO pattern with concrete per-entity implementations" .
+
+jpat:ServiceLayer a jpat:ArchitecturalPattern ;
+    rdfs:label "Service Layer" ;
+    jpat:hasTemplate "patterns/service-layer.tera" ;
+    jpat:usesFeature <https://jgen.dev/ontology/java/core#ModuleSystem> ;
+    jpat:hasIntent "Organize business logic in module-scoped service interfaces" ;
+    jpat:replacesLegacy "Monolithic service classes, static utility methods" .

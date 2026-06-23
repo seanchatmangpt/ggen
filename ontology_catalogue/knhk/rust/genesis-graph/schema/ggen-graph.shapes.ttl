@@ -1,0 +1,49 @@
+@prefix ggen: <https://ggen.ai/graph/v1#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ggen:HookShape a sh:NodeShape ;
+    sh:targetClass ggen:Hook ;
+    sh:property [
+        sh:path ggen:hookId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:phase ;
+        sh:minCount 1 ;
+    ] .
+
+ggen:KnowledgeHookShape a sh:NodeShape ;
+    sh:targetClass ggen:KnowledgeHook ;
+    sh:property [
+        sh:path ggen:trigger ;
+        sh:node ggen:TriggerShape ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:action ;
+        sh:node ggen:ActionShape ;
+        sh:minCount 1 ;
+    ] .
+
+ggen:TriggerShape a sh:NodeShape ;
+    sh:targetClass ggen:SparqlTrigger ;
+    sh:property [
+        sh:path ggen:askQuery ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+ggen:ActionShape a sh:NodeShape ;
+    sh:targetClass ggen:SparqlConstructAction ;
+    sh:property [
+        sh:path ggen:constructQuery ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .

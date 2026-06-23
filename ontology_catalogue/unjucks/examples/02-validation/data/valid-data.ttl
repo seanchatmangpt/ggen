@@ -1,0 +1,121 @@
+@prefix : <http://example.com/api#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Valid API Definition - Passes all validation rules
+:ValidAPI a :RestAPI ;
+    :name "User Management API" ;
+    :version "1.0.0" ;
+    :baseUrl "https://api.example.com/v1" ;
+    :hasEndpoint :ValidGetEndpoint, :ValidPostEndpoint, :ValidDeleteEndpoint .
+
+# Valid GET Endpoint
+:ValidGetEndpoint a :RestEndpoint ;
+    :method "GET" ;
+    :path "/users" ;
+    :description "Retrieve all users from the system with pagination support" ;
+    :returns :UserList ;
+    :hasParameter :PageParam .
+
+# Valid POST Endpoint - Has required accepts property
+:ValidPostEndpoint a :RestEndpoint ;
+    :method "POST" ;
+    :path "/users" ;
+    :description "Create a new user account in the system" ;
+    :accepts :UserInput ;
+    :returns :User .
+
+# Valid DELETE Endpoint - Has required returns property
+:ValidDeleteEndpoint a :RestEndpoint ;
+    :method "DELETE" ;
+    :path "/users/{id}" ;
+    :description "Remove a user account from the system permanently" ;
+    :returns :DeleteResponse ;
+    :hasPathParameter :UserIdParam .
+
+# Valid Data Models
+:User a :DataModel ;
+    :hasField :ValidUserId, :ValidUserName, :ValidUserEmail, :ValidCreatedAt .
+
+:UserInput a :DataModel ;
+    :hasField :ValidUserName, :ValidUserEmail .
+
+:UserList a :DataModel ;
+    :hasField :UsersArray, :TotalCount .
+
+:DeleteResponse a :DataModel ;
+    :hasField :Success, :Message .
+
+# Valid Fields
+:ValidUserId a :Field ;
+    :name "id" ;
+    :type xsd:string ;
+    :description "Unique user identifier" ;
+    :required true .
+
+:ValidUserName a :Field ;
+    :name "name" ;
+    :type xsd:string ;
+    :description "User's full name" ;
+    :required true ;
+    :minLength 1 ;
+    :maxLength 255 .
+
+:ValidUserEmail a :Field ;
+    :name "email" ;
+    :type xsd:string ;
+    :description "User's email address" ;
+    :required true ;
+    :format "email" .
+
+:ValidCreatedAt a :Field ;
+    :name "createdAt" ;
+    :type xsd:dateTime ;
+    :description "When the user was created" ;
+    :required true .
+
+:UsersArray a :Field ;
+    :name "users" ;
+    :type :ArrayOf ;
+    :itemType :User ;
+    :description "Array of user objects" ;
+    :required true .
+
+:TotalCount a :Field ;
+    :name "total" ;
+    :type xsd:integer ;
+    :description "Total number of users" ;
+    :required true .
+
+:Success a :Field ;
+    :name "success" ;
+    :type xsd:boolean ;
+    :description "Whether the operation succeeded" ;
+    :required true .
+
+:Message a :Field ;
+    :name "message" ;
+    :type xsd:string ;
+    :description "Operation result message" ;
+    :required false .
+
+# Valid Parameters
+:PageParam a :QueryParameter ;
+    :name "page" ;
+    :type xsd:integer ;
+    :description "Page number for pagination" ;
+    :required false ;
+    :defaultValue "1" .
+
+:UserIdParam a :PathParameter ;
+    :name "id" ;
+    :type xsd:string ;
+    :description "User ID for operations" ;
+    :required true .
+
+# Valid User Instance (for testing User shape validation)
+:user123 a :User ;
+    :id "user-123" ;
+    :name "Alice Johnson" ;
+    :email "alice.johnson@example.com" ;
+    :createdAt "2024-01-15T10:30:00Z"^^xsd:dateTime .

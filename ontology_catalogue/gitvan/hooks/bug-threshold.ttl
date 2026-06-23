@@ -1,0 +1,160 @@
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Bug Threshold Monitor Hook
+# Demonstrates SELECTThreshold predicate - numerical threshold monitoring
+
+ex:bug-threshold-hook rdf:type gh:Hook ;
+    gv:title "Bug Threshold Monitor" ;
+    gh:hasPredicate ex:bug-threshold-predicate ;
+    gh:orderedPipelines ex:bug-threshold-pipeline .
+
+# SELECTThreshold Predicate - "Threshold" Sensor
+ex:bug-threshold-predicate rdf:type gh:SELECTThreshold ;
+    gh:queryText """
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        
+        SELECT (COUNT(?bug) AS ?bugCount) WHERE {
+            ?bug rdf:type gv:Bug .
+            ?bug gv:status "open" .
+            ?bug gv:priority ?priority .
+            FILTER(?priority IN ("high", "critical"))
+        }
+    """ ;
+    gh:threshold 10 ;
+    gh:operator ">" ;
+    gh:description "Triggers when high/critical priority bugs exceed 10" .
+
+# Workflow Pipeline
+ex:bug-threshold-pipeline rdf:type op:Pipeline ;
+    op:steps ex:analyze-bugs, ex:notify-team, ex:create-sprint, ex:update-metrics .
+
+# Step 1: Analyze Bug Details
+ex:analyze-bugs rdf:type gv:SparqlStep ;
+    gv:text """
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        
+        SELECT ?bug ?title ?priority ?assignee ?daysOpen WHERE {
+            ?bug rdf:type gv:Bug .
+            ?bug gv:status "open" .
+            ?bug gv:priority ?priority .
+            ?bug gv:title ?title .
+            OPTIONAL { ?bug gv:assignee ?assignee }
+            OPTIONAL { 
+                ?bug gv:createdDate ?createdDate .
+                BIND((NOW() - ?createdDate) AS ?daysOpen)
+            }
+            FILTER(?priority IN ("high", "critical"))
+        } ORDER BY ?priority DESC, ?daysOpen DESC
+    """ ;
+    gv:outputMapping '{"bugs": "results", "bugCount": "results.length"}' .
+
+# Step 2: Notify Team
+ex:notify-team rdf:type gv:HttpStep ;
+    gv:httpUrl "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK" ;
+    gv:httpMethod "POST" ;
+    gv:headers '{"Content-Type": "application/json"}' ;
+    gv:body """
+        {
+            "text": "⚠️ Bug Threshold Exceeded",
+            "attachments": [
+                {
+                    "color": "warning",
+                    "title": "Bug Threshold Alert",
+                    "text": "High/Critical priority bugs have exceeded the threshold of 10. Current count: {{ bugCount }}",
+                    "fields": [
+                        {
+                            "title": "Bug Count",
+                            "value": "{{ bugCount }}",
+                            "short": true
+                        },
+                        {
+                            "title": "Threshold",
+                            "value": "10",
+                            "short": true
+                        },
+                        {
+                            "title": "Status",
+                            "value": "Action Required",
+                            "short": true
+                        }
+                    ],
+                    "footer": "GitVan Knowledge Hook Engine",
+                    "ts": {{ "now" | date("X") }}
+                }
+            ]
+        }
+    """ ;
+    gv:dependsOn ex:analyze-bugs ;
+    gv:timeout 10000 .
+
+# Step 3: Create Bug Sprint
+ex:create-sprint rdf:type gv:HttpStep ;
+    gv:httpUrl "https://api.example.com/sprints" ;
+    gv:httpMethod "POST" ;
+    gv:headers '{"Content-Type": "application/json", "Authorization": "Bearer YOUR_API_TOKEN"}' ;
+    gv:body """
+        {
+            "name": "Bug Fix Sprint - {{ "now" | date("YYYY-MM-DD") }}",
+            "description": "Emergency sprint to address {{ bugCount }} high/critical priority bugs",
+            "startDate": "{{ "now" | date("YYYY-MM-DD") }}",
+            "endDate": "{{ "now" | date("YYYY-MM-DD", "+7 days") }}",
+            "goal": "Reduce high/critical bugs below threshold",
+            "bugs": [
+                {% for bug in bugs %}
+                {
+                    "id": "{{ bug.bug.value | split('/') | last }}",
+                    "title": "{{ bug.title.value }}",
+                    "priority": "{{ bug.priority.value }}",
+                    "assignee": "{{ bug.assignee.value | default('unassigned') }}"
+                }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]
+        }
+    """ ;
+    gv:dependsOn ex:notify-team ;
+    gv:timeout 15000 .
+
+# Step 4: Update Metrics Dashboard
+ex:update-metrics rdf:type gv:TemplateStep ;
+    gv:text """
+        # Bug Metrics Dashboard
+        
+        **Last Updated:** {{ "now" | date("YYYY-MM-DD HH:mm:ss") }}  
+        **Status:** ⚠️ THRESHOLD EXCEEDED  
+        **Current Count:** {{ bugCount }}  
+        **Threshold:** 10  
+        **Variance:** +{{ bugCount - 10 }}
+        
+        ## Bug Breakdown
+        
+        {% for bug in bugs %}
+        ### {{ bug.title.value }}
+        - **Priority:** {{ bug.priority.value | upper }}
+        - **Assignee:** {{ bug.assignee.value | default('Unassigned') }}
+        - **Days Open:** {{ bug.daysOpen.value | default('Unknown') }}
+        - **Status:** Open
+        
+        {% endfor %}
+        
+        ## Actions Taken
+        - ✅ Team notification sent
+        - ✅ Emergency sprint created
+        - ✅ Metrics dashboard updated
+        
+        ## Recommendations
+        1. Review bug assignment and prioritization
+        2. Focus sprint efforts on critical bugs first
+        3. Consider additional resources for bug fixing
+        4. Implement preventive measures
+        
+        ---
+        *This dashboard is automatically updated by the Bug Threshold Monitor Hook*
+    """ ;
+    gv:filePath "./dashboards/bug-metrics.md" ;
+    gv:dependsOn ex:create-sprint .

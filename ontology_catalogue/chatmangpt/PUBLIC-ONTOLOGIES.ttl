@@ -1,0 +1,116 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix cgpt: <https://chatmangpt.com/ns/v2#> .
+
+#
+# Ontology header
+#
+
+<https://chatmangpt.com/ns/v2>
+    a owl:Ontology ;
+    dcterms:title "ChatmanGPT v2 Public Ontology Composition"@en ;
+    dcterms:description "Public ontology composition for the ChatmanGPT v2 production cell. Private cgpt: terms exist only when public composition cannot express the required distinction; each carries a gap-proof rdfs:comment."@en ;
+    dcterms:license "MIT OR Apache-2.0" ;
+    owl:imports prov: , dcterms: , odrl: , skos: , time: , foaf: , org: , dcat: , spdx: ;
+    rdfs:comment "Truth hierarchy root for the v2 line. Higher than .specify/memory/constitution.md."@en .
+
+#
+# Private (cgpt:) classes — each carries a gap-proof rdfs:comment
+# explaining why no public composition suffices.
+#
+
+cgpt:AcceptedDelta
+    a owl:Class ;
+    rdfs:subClassOf prov:Plan , prov:Entity ;
+    rdfs:label "Accepted Delta"@en ;
+    rdfs:comment "A pull-authorized kanban work-packet bounded by allowed_files, forbidden_files, required_gates, and expected_receipt. No selected public ontology expresses pull-authorized active implementation deltas with embedded receipt obligations; PROV Plan is the closest public anchor but does not encode WIP authorization."@en .
+
+cgpt:Receipt
+    a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Receipt"@en ;
+    rdfs:comment "Multi-surface evidence-backed completion proof. Carries blake3 hashes for accepted_delta, spec, plan, tasks, test_result, verify_report, state_before, state_after. PROV Entity provides identity but not the multi-surface corroboration policy required for ChatmanGPT completion."@en .
+
+cgpt:LineState
+    a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Line State"@en ;
+    rdfs:comment "Runtime state of the production cell: target, phase, line_status, wip, active_delta, expected_receipt. No public ontology models this cell-level runtime aggregation."@en .
+
+cgpt:AndonEvent
+    a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "Andon Event"@en ;
+    rdfs:comment "Abnormality event that stops the line. Each event carries a class (RECEIPT_DEFECT, INVOCATION_DEFECT, AGENT_ROUTING_DEFECT, ...), a trigger, and a required-response routing path. PROV Activity captures temporal occurrence but not the production-line andon stop-and-route semantics."@en .
+
+cgpt:MotionObligation
+    a owl:Class ;
+    rdfs:subClassOf prov:Plan ;
+    rdfs:label "Motion Obligation"@en ;
+    rdfs:comment "Deferred in v2; reserved for the MuStar runtime judgment layer. Represents a runtime-decided next admissible motion (CreatePlan, RepairSemanticClosure, ImplementAcceptedDelta, EmitReceipt, StopLine, etc.). Currently unused; v2 ships only the AcceptedDelta path."@en .
+
+cgpt:Gate
+    a owl:Class ;
+    rdfs:subClassOf odrl:Constraint ;
+    rdfs:label "Gate"@en ;
+    rdfs:comment "A control-pack.yaml gate. Each gate has an enforced_by station list, a failure_class, and a blocks_completion flag. ODRL Constraint is the closest public concept but does not encode the production-line gate semantics (enforcement station list, failure-class taxonomy, blocking authority)."@en .
+
+#
+# Private (cgpt:) properties — each with rdfs:domain and rdfs:range.
+#
+
+cgpt:hasGate
+    a owl:ObjectProperty ;
+    rdfs:domain cgpt:AcceptedDelta ;
+    rdfs:range cgpt:Gate ;
+    rdfs:label "has gate"@en ;
+    rdfs:comment "Associates an AcceptedDelta with a required Gate it must clear."@en .
+
+cgpt:expectsReceipt
+    a owl:ObjectProperty ;
+    rdfs:domain cgpt:AcceptedDelta ;
+    rdfs:range cgpt:Receipt ;
+    rdfs:label "expects receipt"@en ;
+    rdfs:comment "Binds an AcceptedDelta to the Receipt that completion will produce."@en .
+
+cgpt:lineStatus
+    a owl:DatatypeProperty ;
+    rdfs:domain cgpt:LineState ;
+    rdfs:range xsd:string ;
+    rdfs:label "line status"@en ;
+    rdfs:comment "Either 'running' or 'stopped'."@en .
+
+cgpt:failureClass
+    a owl:DatatypeProperty ;
+    rdfs:domain cgpt:AndonEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "failure class"@en ;
+    rdfs:comment "Andon failure classification: one of RECEIPT_DEFECT, INVOCATION_DEFECT, AGENT_ROUTING_DEFECT, ONTOLOGY_DEFECT, GATE_DEFECT, WIP_DEFECT."@en .
+
+#
+# Individuals — anchor instances for the v2 line.
+#
+
+<https://chatmangpt.com/ns/v2/instance/mcpp-first-control-loop>
+    a cgpt:AcceptedDelta ;
+    dcterms:identifier "mcpp-first-control-loop" ;
+    dcterms:title "MCPP First Control Loop"@en ;
+    cgpt:expectsReceipt <https://chatmangpt.com/ns/v2/instance/receipt-mcpp-first-control-loop> ;
+    rdfs:comment "The first AcceptedDelta in the v2 line; subject of feature 001-mcpp-control-surface."@en .
+
+<https://chatmangpt.com/ns/v2/instance/receipt-mcpp-first-control-loop>
+    a cgpt:Receipt ;
+    dcterms:identifier "receipt-mcpp-first-control-loop" ;
+    dcterms:title "Receipt for MCPP First Control Loop"@en ;
+    rdfs:comment "Pending Receipt to be emitted upon completion of the mcpp-first-control-loop AcceptedDelta."@en .

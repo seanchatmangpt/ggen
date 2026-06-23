@@ -1,0 +1,17 @@
+@base <http://example.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<#doctest_run> a prov:Activity ;
+    dcterms:identifier "run_doctests"
+.
+
+<#doctest_results> a sh:ValidationReport , prov:Entity ;
+    dcterms:identifier "doctest_results" ;
+    sh:conforms true ;
+    prov:value 0 ;
+    prov:wasGeneratedBy <#doctest_run>
+    ; sh:resultMessage "Passed: 10, Failed: 0" ;
+dcterms:description "Passed: 10, Failed: 0" .

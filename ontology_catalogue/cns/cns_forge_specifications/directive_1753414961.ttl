@@ -1,0 +1,14 @@
+
+@prefix cns: <http://cns.io/forge#> .
+@prefix bitactor: <http://cns.io/bitactor#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+cns:directive_1753414961 a bitactor:ThroughputRequirement ;
+    bitactor:minOpsPerSecond "1000000"^^xsd:long ;
+    bitactor:scalingTrigger "0.8"^^xsd:decimal ;
+    cns:generatedFrom "handle 1M operations per second with auto-scaling" ;
+    cns:requiresComponents (
+        bitactor:Engine
+        cns:AutoScaler
+        cns:LoadDistributor
+    ) .

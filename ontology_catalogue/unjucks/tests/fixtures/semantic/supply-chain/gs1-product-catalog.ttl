@@ -1,0 +1,180 @@
+@prefix gs1: <http://gs1.org/voc/> .
+@prefix blockchain: <http://blockchain.org/voc/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+
+# GS1-compliant Product Catalog with Blockchain Integration
+# Based on real pharmaceutical supply chain patterns
+
+<product/pharmaceutical-001> a gs1:TradeItem ;
+    gs1:gtin "00012345678905" ;
+    dcterms:title "Anonymous Pharmaceutical Product - 100mg Tablets" ;
+    dcterms:description "High-quality pharmaceutical product for testing traceability" ;
+    gs1:brandName "TestPharma Inc." ;
+    gs1:netWeight [
+        gs1:value "50.0"^^xsd:decimal ;
+        gs1:unitCode "GRM"
+    ] ;
+    gs1:productCategory "pharmaceutical" ;
+    gs1:expirationDate "2026-12-31"^^xsd:date ;
+    gs1:batchNumber "BATCH-2024-001" ;
+    gs1:serialNumber "SN-001-789456123" ;
+    blockchain:hashValue "0xa1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456" ;
+    blockchain:blockchainType "ethereum" ;
+    blockchain:smartContract "0x1234567890abcdef1234567890abcdef12345678" .
+
+<location/manufacturing-facility-001> a gs1:Location ;
+    gs1:gln "1234567890123" ;
+    dcterms:title "Anonymous Manufacturing Facility" ;
+    schema:address [
+        schema:addressCountry "US" ;
+        schema:addressRegion "NJ" ;
+        schema:addressLocality "Newark" ;
+        schema:postalCode "07101" ;
+        schema:streetAddress "123 Industrial Blvd"
+    ] ;
+    gs1:locationRole "manufacturing" .
+
+<location/distribution-center-001> a gs1:Location ;
+    gs1:gln "2345678901234" ;
+    dcterms:title "Regional Distribution Center" ;
+    schema:address [
+        schema:addressCountry "US" ;
+        schema:addressRegion "IL" ;
+        schema:addressLocality "Chicago" ;
+        schema:postalCode "60601" ;
+        schema:streetAddress "456 Warehouse Row"
+    ] ;
+    gs1:locationRole "distribution" .
+
+<location/pharmacy-001> a gs1:Location ;
+    gs1:gln "3456789012345" ;
+    dcterms:title "Local Community Pharmacy" ;
+    schema:address [
+        schema:addressCountry "US" ;
+        schema:addressRegion "NY" ;
+        schema:addressLocality "New York" ;
+        schema:postalCode "10001" ;
+        schema:streetAddress "789 Main Street"
+    ] ;
+    gs1:locationRole "retail" .
+
+# Traceability Events
+<event/manufacturing-001> a gs1:TransformationEvent ;
+    gs1:eventTime "2024-01-15T08:30:00Z"^^xsd:dateTime ;
+    gs1:eventLocation <location/manufacturing-facility-001> ;
+    gs1:inputQuantityList [
+        gs1:quantityElement [
+            gs1:epcClass <raw-material/api-001> ;
+            gs1:quantity "10.5"^^xsd:decimal ;
+            gs1:uom "KGM"
+        ]
+    ] ;
+    gs1:outputQuantityList [
+        gs1:quantityElement [
+            gs1:epcClass <product/pharmaceutical-001> ;
+            gs1:quantity "1000"^^xsd:int ;
+            gs1:uom "EA"
+        ]
+    ] ;
+    blockchain:transactionHash "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" ;
+    blockchain:blockNumber "12345678"^^xsd:int .
+
+<event/shipment-001> a gs1:ShippingEvent ;
+    gs1:eventTime "2024-02-01T14:20:00Z"^^xsd:dateTime ;
+    gs1:sourceLocation <location/manufacturing-facility-001> ;
+    gs1:destinationLocation <location/distribution-center-001> ;
+    gs1:transportationMethod "truck" ;
+    gs1:sscc "123456789012345678" ;
+    gs1:temperatureMin "2.0"^^xsd:decimal ;
+    gs1:temperatureMax "8.0"^^xsd:decimal ;
+    gs1:temperatureUnit "CEL" ;
+    blockchain:transactionHash "0xdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abc" ;
+    blockchain:blockNumber "12345789"^^xsd:int .
+
+<event/retail-delivery-001> a gs1:ShippingEvent ;
+    gs1:eventTime "2024-02-15T11:45:00Z"^^xsd:dateTime ;
+    gs1:sourceLocation <location/distribution-center-001> ;
+    gs1:destinationLocation <location/pharmacy-001> ;
+    gs1:transportationMethod "van" ;
+    gs1:sscc "234567890123456789" ;
+    blockchain:transactionHash "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" ;
+    blockchain:blockNumber "12346000"^^xsd:int .
+
+# Raw Materials Traceability
+<raw-material/api-001> a gs1:TradeItem ;
+    gs1:gtin "00087654321098" ;
+    dcterms:title "Active Pharmaceutical Ingredient" ;
+    dcterms:description "API for pharmaceutical manufacturing" ;
+    gs1:lotNumber "API-LOT-2024-001" ;
+    gs1:supplierGLN "4567890123456" ;
+    gs1:countryOfOrigin "IN" ;
+    gs1:certificationStandard "GMP" ;
+    blockchain:hashValue "0x987654321098765432109876543210987654321098765432109876543210" ;
+    blockchain:blockchainType "hyperledger" .
+
+# Anti-counterfeiting Features
+<authentication/security-001> a gs1:SecurityFeature ;
+    gs1:relatedProduct <product/pharmaceutical-001> ;
+    gs1:securityFeatureType "hologram" ;
+    gs1:securityFeatureCode "HOL-2024-001" ;
+    gs1:verificationURL "https://verify.testpharma.com/verify" ;
+    blockchain:digitalSignature "0x1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890" ;
+    blockchain:publicKey "0x04abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" .
+
+# Supply Chain Partners
+<partner/manufacturer-001> a gs1:Organization ;
+    gs1:gln "5678901234567" ;
+    dcterms:title "TestPharma Manufacturing Inc." ;
+    gs1:organizationRole "manufacturer" ;
+    schema:address [
+        schema:addressCountry "US" ;
+        schema:addressRegion "NJ"
+    ] ;
+    gs1:licenseNumber "FDA-123456789" ;
+    gs1:certificationStandard "ISO 9001" .
+
+<partner/distributor-001> a gs1:Organization ;
+    gs1:gln "6789012345678" ;
+    dcterms:title "Regional Healthcare Distribution" ;
+    gs1:organizationRole "distributor" ;
+    gs1:serviceArea "midwest-usa" ;
+    gs1:certificationStandard "GDP" .
+
+# Temperature Monitoring for Cold Chain
+<monitoring/temperature-001> a gs1:TemperatureReading ;
+    gs1:eventTime "2024-02-01T16:00:00Z"^^xsd:dateTime ;
+    gs1:relatedShipment <event/shipment-001> ;
+    gs1:temperature "5.2"^^xsd:decimal ;
+    gs1:temperatureUnit "CEL" ;
+    gs1:sensorId "TEMP-SENSOR-001" ;
+    blockchain:sensorData "0x789abc123def456789abc123def456789abc123def456789abc123def45678" .
+
+# Recall Information (for testing recall scenarios)
+<recall/recall-001> a gs1:RecallEvent ;
+    gs1:eventTime "2024-03-01T09:00:00Z"^^xsd:dateTime ;
+    gs1:recallReason "precautionary-quality-issue" ;
+    gs1:recallLevel "consumer" ;
+    gs1:affectedProducts <product/pharmaceutical-001> ;
+    gs1:recallNumber "REC-2024-001" ;
+    gs1:recallInitiator <partner/manufacturer-001> ;
+    blockchain:immutableRecord "0xrecall123456789abcdef123456789abcdef123456789abcdef123456789abcdef" .
+
+# Performance test data (additional products for scale testing)
+<product/pharmaceutical-002> a gs1:TradeItem ;
+    gs1:gtin "00012345678906" ;
+    dcterms:title "Another Test Pharmaceutical - 200mg Capsules" ;
+    gs1:batchNumber "BATCH-2024-002" ;
+    gs1:serialNumber "SN-002-789456124" ;
+    blockchain:hashValue "0xb1c2d3e4f5a6789012345678901234567890abcdef1234567890abcdef234567" ;
+    blockchain:blockchainType "ethereum" .
+
+<product/pharmaceutical-003> a gs1:TradeItem ;
+    gs1:gtin "00012345678907" ;
+    dcterms:title "Third Test Pharmaceutical - 50mg Liquid" ;
+    gs1:batchNumber "BATCH-2024-003" ;
+    gs1:serialNumber "SN-003-789456125" ;
+    blockchain:hashValue "0xc1d2e3f4a5b6789012345678901234567890abcdef1234567890abcdef345678" ;
+    blockchain:blockchainType "hyperledger" .

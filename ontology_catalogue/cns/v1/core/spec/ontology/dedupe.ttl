@@ -1,0 +1,5 @@
+@prefix core: <https://cns.dev/core#> .
+@prefix dd: <https://cns.dev/dedupe#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+dd:Dedupe a rdfs:Class ; rdfs:subClassOf core:Primitive .

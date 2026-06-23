@@ -1,0 +1,24 @@
+@prefix lex: <https://chatmangpt.com/ontology/lexicon#> .
+@prefix code: <https://chatmangpt.com/ontology/codegen#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+lex:UnibitLexicon a lex:Lexicon ;
+  lex:allows "8^n" ;
+  lex:allows "64^n" ;
+  lex:allows "U_{1,n}" ;
+  lex:allows "bits" ;
+  lex:allows "truth" ;
+  lex:allows "scratch" ;
+  lex:allows "motion" ;
+  lex:allows "delta" ;
+  lex:allows "receipt" .
+
+lex:ForbiddenStorageNoun a lex:ForbiddenToken ;
+  lex:encodedToken "98,121,116,101" ;
+  lex:reason "Substrate docs must remain bit-native." ;
+  lex:severity "error" .
+
+code:LexiconCheck a code:GeneratedScript ;
+  code:path "bin/check-lexicon.mjs" ;
+  code:template "check-lexicon.mjs.njk" ;
+  code:enforces lex:UnibitLexicon .

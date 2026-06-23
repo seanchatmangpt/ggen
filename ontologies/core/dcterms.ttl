@@ -1,0 +1,115 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://purl.org/dc/terms/>
+    a owl:Ontology ;
+    dcterms:title "Dublin Core Metadata Terms" ;
+    dcterms:description "DCMI Metadata Terms — the complete set of Dublin Core metadata terms (DCMI Recommendation 2020)" ;
+    owl:versionInfo "2020-01-20" .
+
+# --- Classes ---
+
+dcterms:AgentClass a owl:Class ; rdfs:label "AgentClass" .
+dcterms:Agent a owl:Class ; rdfs:subClassOf dcterms:AgentClass ; rdfs:label "Agent" .
+dcterms:BibliographicResource a owl:Class ; rdfs:label "BibliographicResource" .
+dcterms:FileFormat a owl:Class ; rdfs:label "FileFormat" .
+dcterms:Frequency a owl:Class ; rdfs:label "Frequency" .
+dcterms:Identifier a owl:Class ; rdfs:label "Identifier" .
+dcterms:LinguisticSystem a owl:Class ; rdfs:label "LinguisticSystem" .
+dcterms:Location a owl:Class ; rdfs:label "Location" .
+dcterms:LocationPeriodOrJurisdiction a owl:Class ; rdfs:label "LocationPeriodOrJurisdiction" .
+dcterms:MediaType a owl:Class ; rdfs:label "MediaType" .
+dcterms:MediaTypeOrExtent a owl:Class ; rdfs:label "MediaTypeOrExtent" .
+dcterms:MethodOfAccrual a owl:Class ; rdfs:label "MethodOfAccrual" .
+dcterms:MethodOfInstruction a owl:Class ; rdfs:label "MethodOfInstruction" .
+dcterms:PeriodOfTime a owl:Class ; rdfs:label "PeriodOfTime" .
+dcterms:PhysicalMedium a owl:Class ; rdfs:label "PhysicalMedium" .
+dcterms:PhysicalResource a owl:Class ; rdfs:label "PhysicalResource" .
+dcterms:Policy a owl:Class ; rdfs:label "Policy" .
+dcterms:ProvenanceStatement a owl:Class ; rdfs:label "ProvenanceStatement" .
+dcterms:RightsStatement a owl:Class ; rdfs:label "RightsStatement" .
+dcterms:SizeOrDuration a owl:Class ; rdfs:label "SizeOrDuration" .
+dcterms:Standard a owl:Class ; rdfs:label "Standard" .
+
+# --- Descriptive Properties ---
+
+dcterms:title a owl:AnnotationProperty ; rdfs:label "title" .
+dcterms:description a owl:AnnotationProperty ; rdfs:label "description" .
+dcterms:alternative a owl:AnnotationProperty ; rdfs:label "alternative" .
+dcterms:tableOfContents a rdf:Property ; rdfs:label "tableOfContents" .
+dcterms:abstract a rdf:Property ; rdfs:label "abstract" .
+
+# --- Agents / Responsibility ---
+
+dcterms:creator a owl:ObjectProperty ; rdfs:label "creator" ; rdfs:range dcterms:Agent .
+dcterms:contributor a owl:ObjectProperty ; rdfs:label "contributor" ; rdfs:range dcterms:Agent .
+dcterms:publisher a owl:ObjectProperty ; rdfs:label "publisher" ; rdfs:range dcterms:Agent .
+dcterms:rightsHolder a rdf:Property ; rdfs:label "rightsHolder" .
+dcterms:mediator a rdf:Property ; rdfs:label "mediator" .
+dcterms:instructionalMethod a rdf:Property ; rdfs:label "instructionalMethod" .
+dcterms:educationLevel a rdf:Property ; rdfs:label "educationLevel" .
+
+# --- Dates ---
+
+dcterms:date a owl:DatatypeProperty ; rdfs:label "date" .
+dcterms:created a owl:DatatypeProperty ; rdfs:label "created" ; rdfs:range xsd:dateTime .
+dcterms:modified a owl:DatatypeProperty ; rdfs:label "modified" ; rdfs:range xsd:dateTime .
+dcterms:issued a owl:DatatypeProperty ; rdfs:label "issued" ; rdfs:range xsd:dateTime .
+dcterms:valid a rdf:Property ; rdfs:label "valid" .
+dcterms:available a rdf:Property ; rdfs:label "available" .
+dcterms:dateCopyrighted a rdf:Property ; rdfs:label "dateCopyrighted" .
+dcterms:dateAccepted a rdf:Property ; rdfs:label "dateAccepted" .
+dcterms:dateSubmitted a rdf:Property ; rdfs:label "dateSubmitted" .
+
+# --- Subject / Classification ---
+
+dcterms:type a rdf:Property ; rdfs:label "type" .
+dcterms:subject a rdf:Property ; rdfs:label "subject" .
+dcterms:identifier a rdf:Property ; rdfs:label "identifier" .
+dcterms:language a rdf:Property ; rdfs:label "language" .
+dcterms:audience a rdf:Property ; rdfs:label "audience" .
+
+# --- Format / Size ---
+
+dcterms:format a rdf:Property ; rdfs:label "format" .
+dcterms:medium a rdf:Property ; rdfs:label "medium" .
+dcterms:extent a rdf:Property ; rdfs:label "extent" .
+
+# --- Provenance / Rights ---
+
+dcterms:source a rdf:Property ; rdfs:label "source" .
+dcterms:rights a rdf:Property ; rdfs:label "rights" .
+dcterms:license a rdf:Property ; rdfs:label "license" .
+dcterms:accessRights a rdf:Property ; rdfs:label "accessRights" .
+dcterms:provenance a rdf:Property ; rdfs:label "provenance" .
+dcterms:bibliographicCitation a rdf:Property ; rdfs:label "bibliographicCitation" .
+
+# --- Versioning / Relations ---
+
+dcterms:version a rdf:Property ; rdfs:label "version" .
+dcterms:hasVersion a rdf:Property ; rdfs:label "hasVersion" .
+dcterms:isVersionOf a rdf:Property ; rdfs:label "isVersionOf" .
+dcterms:conformsTo a rdf:Property ; rdfs:label "conformsTo" .
+dcterms:relation a rdf:Property ; rdfs:label "relation" .
+dcterms:isPartOf a rdf:Property ; rdfs:label "isPartOf" .
+dcterms:hasPart a rdf:Property ; rdfs:label "hasPart" .
+dcterms:isReplacedBy a rdf:Property ; rdfs:label "isReplacedBy" .
+dcterms:replaces a rdf:Property ; rdfs:label "replaces" .
+dcterms:isReferencedBy a rdf:Property ; rdfs:label "isReferencedBy" .
+dcterms:references a rdf:Property ; rdfs:label "references" .
+dcterms:isFormatOf a rdf:Property ; rdfs:label "isFormatOf" .
+dcterms:hasFormat a rdf:Property ; rdfs:label "hasFormat" .
+dcterms:isRequiredBy a rdf:Property ; rdfs:label "isRequiredBy" .
+dcterms:requires a rdf:Property ; rdfs:label "requires" .
+dcterms:coverage a rdf:Property ; rdfs:label "coverage" .
+dcterms:spatial a rdf:Property ; rdfs:label "spatial" .
+dcterms:temporal a rdf:Property ; rdfs:label "temporal" .
+
+# --- Accrual ---
+
+dcterms:accrualMethod a rdf:Property ; rdfs:label "accrualMethod" .
+dcterms:accrualPeriodicity a rdf:Property ; rdfs:label "accrualPeriodicity" .
+dcterms:accrualPolicy a rdf:Property ; rdfs:label "accrualPolicy" .

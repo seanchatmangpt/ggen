@@ -85,3 +85,6 @@ ggen lifecycle run deploy --env production
 quick_start = "Complete ggen showcase with all advanced features"
 features = "Lifecycle, AI, SPARQL, templates, security, testing, deployment"
 use_cases = "Enterprise microservices, AI-powered development, semantic code generation"
+
+[marketplace]
+production_ready = false

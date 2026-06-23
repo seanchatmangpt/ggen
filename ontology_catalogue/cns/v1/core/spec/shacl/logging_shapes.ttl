@@ -1,0 +1,30 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix log: <http://bitstar.ai/core/log#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+log:EventShape a sh:NodeShape ;
+  sh:targetClass log:Event ;
+  sh:property [
+    sh:path log:level ;
+    sh:in ("DEBUG" "INFO" "WARN" "ERROR" "FATAL") ;
+    sh:minCount 1 ;
+  ] ;
+  sh:property [
+    sh:path log:timestamp ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+  ] ;
+  sh:property [
+    sh:path log:message ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+  ] ;
+  sh:property [
+    sh:path log:trace_id ;
+    sh:datatype xsd:string ;
+    sh:minCount 0 ;
+  ] .
+
+
+
+

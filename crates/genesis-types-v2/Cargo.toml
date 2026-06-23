@@ -4,6 +4,7 @@ version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
+description = "KNHK V2 type system — foundational data structures for workflow engine (workflow/pattern defs, execution state, errors, config)."
 
 [dependencies]
 serde.workspace = true
@@ -11,6 +12,7 @@ serde_json.workspace = true
 uuid.workspace = true
 chrono.workspace = true
 thiserror.workspace = true
+blake3 = "1.5"
 
 [lints]
 workspace = true

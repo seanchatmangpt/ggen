@@ -1,0 +1,8 @@
+@prefix core: <https://cns.dev/core#> .
+@prefix fsm: <https://cns.dev/fsm#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+fsm:State a rdfs:Class ; rdfs:subClassOf core:Primitive .
+fsm:Transition a rdfs:Class ; rdfs:subClassOf core:Primitive .
+fsm:from a rdfs:Property ; rdfs:domain fsm:Transition ; rdfs:range fsm:State .
+fsm:to a rdfs:Property ; rdfs:domain fsm:Transition ; rdfs:range fsm:State .

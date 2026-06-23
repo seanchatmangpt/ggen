@@ -1,0 +1,421 @@
+@prefix mcp: <http://erlmcp.org/schema/mcp/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+mcp:Request a rdfs:Class, owl:Class ;
+    rdfs:label "Request" ;
+    rdfs:comment "JSON-RPC 2.0 request message" ;
+    mcp:hasJsonrpc "2.0"^^xsd:string ;
+    mcp:hasId mcp:RequestId ;
+    mcp:hasMethod mcp:MethodName ;
+    mcp:hasParams mcp:Params .
+
+mcp:Response a rdfs:Class, owl:Class ;
+    rdfs:label "Response" ;
+    rdfs:comment "JSON-RPC 2.0 response message" ;
+    mcp:hasJsonrpc "2.0"^^xsd:string ;
+    mcp:hasId mcp:RequestId ;
+    mcp:hasResult mcp:Result ;
+    mcp:hasError mcp:Error .
+
+mcp:Notification a rdfs:Class, owl:Class ;
+    rdfs:label "Notification" ;
+    rdfs:comment "JSON-RPC 2.0 notification message" ;
+    mcp:hasJsonrpc "2.0"^^xsd:string ;
+    mcp:hasMethod mcp:MethodName ;
+    mcp:hasParams mcp:Params .
+
+mcp:Error a rdfs:Class, owl:Class ;
+    rdfs:label "Error" ;
+    rdfs:comment "JSON-RPC 2.0 error object" ;
+    mcp:hasCode mcp:ErrorCode ;
+    mcp:hasMessage xsd:string ;
+    mcp:hasData rdfs:Literal .
+
+mcp:RequestId a rdfs:Class, owl:Class ;
+    rdfs:label "Request ID" ;
+    rdfs:comment "Request identifier" ;
+    owl:unionOf (xsd:string xsd:integer) .
+
+mcp:MethodName a rdfs:Class, owl:Class ;
+    rdfs:label "Method Name" ;
+    rdfs:comment "RPC method name" ;
+    rdfs:subClassOf xsd:string .
+
+mcp:Params a rdfs:Class, owl:Class ;
+    rdfs:label "Params" ;
+    rdfs:comment "Method parameters" ;
+    owl:unionOf (mcp:NamedParams mcp:PositionalParams) .
+
+mcp:NamedParams a rdfs:Class, owl:Class ;
+    rdfs:label "NamedParams" ;
+    rdfs:comment "Named parameters object" ;
+    rdfs:subClassOf rdf:JSON .
+
+mcp:PositionalParams a rdfs:Class, owl:Class ;
+    rdfs:label "PositionalParams" ;
+    rdfs:comment "Positional parameters array" ;
+    rdfs:subClassOf rdf:List .
+
+mcp:Result a rdfs:Class, owl:Class ;
+    rdfs:label "Result" ;
+    rdfs:comment "Result data" ;
+    rdfs:subClassOf rdfs:Resource .
+
+mcp:ErrorCode a rdfs:Class, owl:Class ;
+    rdfs:label "Error Code" ;
+    rdfs:comment "Standard JSON-RPC error codes" ;
+    rdfs:subClassOf xsd:integer ;
+    owl:oneOf (
+        mcp:ParseError
+        mcp:InvalidRequest
+        mcp:MethodNotFound
+        mcp:InvalidParams
+        mcp:InternalError
+    ) .
+
+mcp:ParseError a mcp:ErrorCode ;
+    rdfs:label "ParseError" ;
+    mcp:codeValue -32700 ;
+    rdfs:comment "Invalid JSON was received" .
+
+mcp:InvalidRequest a mcp:ErrorCode ;
+    rdfs:label "InvalidRequest" ;
+    mcp:codeValue -32600 ;
+    rdfs:comment "The JSON sent is not a valid Request object" .
+
+mcp:MethodNotFound a mcp:ErrorCode ;
+    rdfs:label "MethodNotFound" ;
+    mcp:codeValue -32601 ;
+    rdfs:comment "The method does not exist" .
+
+mcp:InvalidParams a mcp:ErrorCode ;
+    rdfs:label "InvalidParams" ;
+    mcp:codeValue -32602 ;
+    rdfs:comment "Invalid method parameters" .
+
+mcp:InternalError a mcp:ErrorCode ;
+    rdfs:label "InternalError" ;
+    mcp:codeValue -32603 ;
+    rdfs:comment "Internal JSON-RPC error" .
+
+mcp:InitializeParams a rdfs:Class, owl:Class ;
+    rdfs:label "InitializeParams" ;
+    rdfs:comment "Parameters for initialize request" ;
+    mcp:protocolVersion xsd:string ;
+    mcp:capabilities mcp:ClientCapabilities ;
+    mcp:clientInfo mcp:ClientInfo .
+
+mcp:InitializeResult a rdfs:Class, owl:Class ;
+    rdfs:label "InitializeResult" ;
+    rdfs:comment "Result of initialize request" ;
+    mcp:protocolVersion xsd:string ;
+    mcp:capabilities mcp:ServerCapabilities ;
+    mcp:serverInfo mcp:ServerInfo .
+
+mcp:ClientInfo a rdfs:Class, owl:Class ;
+    rdfs:label "ClientInfo" ;
+    rdfs:comment "Client identification" ;
+    mcp:name xsd:string ;
+    mcp:version xsd:string .
+
+mcp:ServerInfo a rdfs:Class, owl:Class ;
+    rdfs:label "ServerInfo" ;
+    rdfs:comment "Server identification" ;
+    mcp:name xsd:string ;
+    mcp:version xsd:string .
+
+mcp:ClientCapabilities a rdfs:Class, owl:Class ;
+    rdfs:label "ClientCapabilities" ;
+    rdfs:comment "Client capabilities" ;
+    mcp:sampling mcp:SamplingCapability ;
+    mcp:roots mcp:RootsCapability .
+
+mcp:ServerCapabilities a rdfs:Class, owl:Class ;
+    rdfs:label "ServerCapabilities" ;
+    rdfs:comment "Server capabilities" ;
+    mcp:tools mcp:ToolsCapability ;
+    mcp:resources mcp:ResourcesCapability ;
+    mcp:prompts mcp:PromptsCapability .
+
+mcp:Capability a rdfs:Class, owl:Class ;
+    rdfs:label "Capability" ;
+    rdfs:comment "Base class for capabilities" .
+
+mcp:ToolsCapability a mcp:Capability ;
+    rdfs:label "ToolsCapability" ;
+    rdfs:comment "Tool support capability" ;
+    mcp:listChanged true .
+
+mcp:ResourcesCapability a mcp:Capability ;
+    rdfs:label "ResourcesCapability" ;
+    rdfs:comment "Resource support capability" ;
+    mcp:subscribe true ;
+    mcp:listChanged true .
+
+mcp:PromptsCapability a mcp:Capability ;
+    rdfs:label "PromptsCapability" ;
+    rdfs:comment "Prompt support capability" ;
+    mcp:listChanged true .
+
+mcp:SamplingCapability a mcp:Capability ;
+    rdfs:label "SamplingCapability" ;
+    rdfs:comment "Sampling capability" .
+
+mcp:RootsCapability a mcp:Capability ;
+    rdfs:label "RootsCapability" ;
+    rdfs:comment "Roots capability" .
+
+mcp:Tool a rdfs:Class, owl:Class ;
+    rdfs:label "Tool" ;
+    rdfs:comment "MCP Tool definition" ;
+    mcp:name xsd:string ;
+    mcp:description xsd:string ;
+    mcp:inputSchema mcp:JSONSchema .
+
+mcp:CallToolRequest a rdfs:Class, owl:Class ;
+    rdfs:label "CallToolRequest" ;
+    rdfs:comment "Request to call a tool" ;
+    mcp:name xsd:string ;
+    mcp:arguments mcp:Arguments .
+
+mcp:CallToolResult a rdfs:Class, owl:Class ;
+    rdfs:label "CallToolResult" ;
+    rdfs:comment "Result of tool call" ;
+    mcp:content mcp:Content ;
+    mcp:isError xsd:boolean .
+
+mcp:Resource a rdfs:Class, owl:Class ;
+    rdfs:label "Resource" ;
+    rdfs:comment "MCP Resource definition" ;
+    mcp:uri xsd:anyURI ;
+    mcp:name xsd:string ;
+    mcp:description xsd:string ;
+    mcp:mimeType xsd:string .
+
+mcp:ReadResourceRequest a rdfs:Class, owl:Class ;
+    rdfs:label "ReadResourceRequest" ;
+    rdfs:comment "Request to read a resource" ;
+    mcp:uri xsd:anyURI .
+
+mcp:ReadResourceResult a rdfs:Class, owl:Class ;
+    rdfs:label "ReadResourceResult" ;
+    rdfs:comment "Result of reading a resource" ;
+    mcp:content mcp:ResourceContent .
+
+mcp:ResourceContent a rdfs:Class, owl:Class ;
+    rdfs:label "ResourceContent" ;
+    rdfs:comment "Resource content" ;
+    mcp:uri xsd:anyURI ;
+    mcp:mimeType xsd:string ;
+    mcp:text xsd:string ;
+    mcp:blob xsd:base64Binary .
+
+mcp:Prompt a rdfs:Class, owl:Class ;
+    rdfs:label "Prompt" ;
+    rdfs:comment "MCP Prompt definition" ;
+    mcp:name xsd:string ;
+    mcp:description xsd:string ;
+    mcp:arguments mcp:PromptArgument .
+
+mcp:PromptArgument a rdfs:Class, owl:Class ;
+    rdfs:label "PromptArgument" ;
+    rdfs:comment "Prompt argument" ;
+    mcp:name xsd:string ;
+    mcp:description xsd:string ;
+    mcp:required xsd:boolean .
+
+mcp:Content a rdfs:Class, owl:Class ;
+    rdfs:label "Content" ;
+    rdfs:comment "Content block" ;
+    owl:unionOf (
+        mcp:TextContent
+        mcp:ImageContent
+        mcp:ResourceContent
+    ) .
+
+mcp:TextContent a mcp:Content ;
+    rdfs:label "TextContent" ;
+    mcp:type "text" ;
+    mcp:text xsd:string .
+
+mcp:ImageContent a mcp:Content ;
+    rdfs:label "ImageContent" ;
+    mcp:type "image" ;
+    mcp:data xsd:string ;
+    mcp:mimeType xsd:string .
+
+mcp:JSONSchema a rdfs:Class, owl:Class ;
+    rdfs:label "JSONSchema" ;
+    rdfs:comment "JSON Schema definition" ;
+    rdfs:subClassOf rdf:JSON .
+
+mcp:Arguments a rdfs:Class, owl:Class ;
+    rdfs:label "Arguments" ;
+    rdfs:comment "Tool arguments" ;
+    rdfs:subClassOf rdf:JSON .
+
+mcp:ResourceList a rdfs:Class, owl:Class ;
+    rdfs:label "ResourceList" ;
+    rdfs:comment "List of resources" ;
+    mcp:resources mcp:Resource .
+
+mcp:PromptList a rdfs:Class, owl:Class ;
+    rdfs:label "PromptList" ;
+    rdfs:comment "List of prompts" ;
+    mcp:prompts mcp:Prompt .
+
+mcp:hasJsonrpc a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain mcp:Request ;
+    rdfs:range xsd:string ;
+    rdfs:label "has jsonrpc" .
+
+mcp:hasId a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain mcp:Request ;
+    rdfs:range mcp:RequestId ;
+    rdfs:label "has ID" .
+
+mcp:hasMethod a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain mcp:Request ;
+    rdfs:range mcp:MethodName ;
+    rdfs:label "has method" .
+
+mcp:hasParams a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain mcp:Request ;
+    rdfs:range mcp:Params ;
+    rdfs:label "has params" .
+
+mcp:hasResult a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain mcp:Response ;
+    rdfs:range mcp:Result ;
+    rdfs:label "has result" .
+
+mcp:hasError a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain mcp:Response ;
+    rdfs:range mcp:Error ;
+    rdfs:label "has error" .
+
+mcp:hasCode a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain mcp:Error ;
+    rdfs:range mcp:ErrorCode ;
+    rdfs:label "has code" .
+
+mcp:hasMessage a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain mcp:Error ;
+    rdfs:range xsd:string ;
+    rdfs:label "has message" .
+
+mcp:hasData a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain mcp:Error ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "has data" .
+
+mcp:codeValue a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain mcp:ErrorCode ;
+    rdfs:range xsd:integer ;
+    rdfs:label "code value" .
+
+mcp:protocolVersion a rdf:Property, owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "protocol version" .
+
+mcp:capabilities a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "capabilities" .
+
+mcp:clientInfo a rdf:Property, owl:ObjectProperty ;
+    rdfs:range mcp:ClientInfo ;
+    rdfs:label "client info" .
+
+mcp:serverInfo a rdf:Property, owl:ObjectProperty ;
+    rdfs:range mcp:ServerInfo ;
+    rdfs:label "server info" .
+
+mcp:name a rdf:Property, owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "name" .
+
+mcp:version a rdf:Property, owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "version" .
+
+mcp:description a rdf:Property, owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "description" .
+
+mcp:inputSchema a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range mcp:JSONSchema ;
+    rdfs:label "input schema" .
+
+mcp:arguments a rdf:Property, owl:ObjectProperty ;
+    rdfs:range mcp:Arguments ;
+    rdfs:label "arguments" .
+
+mcp:content a rdf:Property, owl:ObjectProperty ;
+    rdfs:range mcp:Content ;
+    rdfs:label "content" .
+
+mcp:isError a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain mcp:CallToolResult ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is error" .
+
+mcp:uri a rdf:Property, owl:DatatypeProperty ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "URI" .
+
+mcp:mimeType a rdf:Property, owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "MIME type" .
+
+mcp:text a rdf:Property, owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "text" .
+
+mcp:blob a rdf:Property, owl:DatatypeProperty ;
+    rdfs:range xsd:base64Binary ;
+    rdfs:label "blob" .
+
+mcp:required a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain mcp:PromptArgument ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "required" .
+
+mcp:type a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain mcp:Content ;
+    rdfs:range xsd:string ;
+    rdfs:label "type" .
+
+mcp:data a rdf:Property, owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "data" .
+
+mcp:resources a rdf:Property, owl:ObjectProperty ;
+    rdfs:range mcp:Resource ;
+    rdfs:label "resources" .
+
+mcp:prompts a rdf:Property, owl:ObjectProperty ;
+    rdfs:range mcp:Prompt ;
+    rdfs:label "prompts" .
+
+mcp:sampling a rdf:Property, owl:ObjectProperty ;
+    rdfs:range mcp:SamplingCapability ;
+    rdfs:label "sampling" .
+
+mcp:roots a rdf:Property, owl:ObjectProperty ;
+    rdfs:range mcp:RootsCapability ;
+    rdfs:label "roots" .
+
+mcp:tools a rdf:Property, owl:ObjectProperty ;
+    rdfs:range mcp:ToolsCapability ;
+    rdfs:label "tools" .
+
+mcp:subscribe a rdf:Property, owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "subscribe" .
+
+mcp:listChanged a rdf:Property, owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "list changed" .

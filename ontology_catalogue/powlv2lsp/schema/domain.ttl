@@ -1,0 +1,199 @@
+##############################################################################
+# domain.ttl  —  AGI Semantic Laws + Storehouse Domain Ontology
+#
+# Triptych Framing
+# ─────────────────
+# Genesis   : Creation foundation / base O*  — every entity originates with
+#             purpose; the ontology root reflects that original mandate.
+# Malachi 3:10 : Canonical source_id for Storehouse provision/receipt motion
+#             — "Bring the whole tithe into the storehouse … and see if I will
+#             not throw open the floodgates of heaven and pour out so much
+#             blessing that there will not be room enough to store it."
+#             This verse is the semantic anchor for every storehouse:Increase,
+#             storehouse:StewardshipReceipt, and storehouse:OverflowRail term.
+# Acts      : Spirit-led expansion without source-loss — every overflow and
+#             re-distribution in this ontology is modelled as faithful
+#             multiplication, not subtraction from the original provision.
+#
+# Namespaces
+# ─────────────────
+# Real public ontology URIs are used throughout. No example.org prefixes remain.
+##############################################################################
+
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms:    <http://purl.org/dc/terms/> .
+@prefix prov:       <http://www.w3.org/ns/prov#> .
+@prefix schema:     <https://schema.org/> .
+@prefix org:        <http://www.w3.org/ns/org#> .
+@prefix agi:        <https://truex.io/ontology/agi#> .
+@prefix ostar:      <https://truex.io/ontology/ostar#> .
+@prefix storehouse: <https://truex.io/ontology/storehouse#> .
+
+##############################################################################
+# Ontology Declaration
+##############################################################################
+
+<https://truex.io/ontology/domain>
+    a owl:Ontology ;
+    rdfs:label "AGI Semantic Laws and Storehouse Domain Ontology" ;
+    dcterms:title "AGI Semantic Laws and Storehouse Domain Ontology" ;
+    dcterms:description """Unified ontology defining:
+  (1) The Semantic Laws governing AGI capabilities under the ostar-governor skill.
+  (2) The Storehouse domain vocabulary anchored to Malachi 3:10 — modelling
+      provision, receipt, overflow, and faithful redistribution of resources.
+  Prefixes bind to real public ontology namespaces (PROV-O, Schema.org, W3C Org,
+  Dublin Core Terms). AGI and ostar terms are published under the truex.io
+  namespace.""" ;
+    dcterms:creator <https://truex.io/> ;
+    owl:imports <http://www.w3.org/ns/prov-o#> ;
+    rdfs:seeAlso <https://www.w3.org/TR/prov-o/> ,
+                 <https://schema.org/> ,
+                 <http://www.w3.org/TR/vocab-org/> .
+
+##############################################################################
+# ── AGI Domain ─────────────────────────────────────────────────────────────
+##############################################################################
+
+###  Classes
+
+agi:Capability a owl:Class ;
+    rdfs:label "AGI Capability" ;
+    rdfs:comment "A capability possessed or executed by the AGI." .
+
+agi:SemanticLaw a owl:Class ;
+    rdfs:label "Semantic Law" ;
+    rdfs:comment "A fundamental rule or law governing AGI capabilities and logic generation." .
+
+agi:HardGate a owl:Class ;
+    rdfs:subClassOf agi:SemanticLaw ;
+    rdfs:label "Hard Gate" ;
+    rdfs:comment "A semantic law that acts as an absolute prerequisite or barrier for executing or accepting logic." .
+
+agi:AgenticLogic a owl:Class ;
+    rdfs:label "Agentic Logic" ;
+    rdfs:comment "Generated logic or behavior intended for agentic execution." .
+
+###  Object Properties
+
+agi:governs a owl:ObjectProperty ;
+    rdfs:domain agi:SemanticLaw ;
+    rdfs:range  agi:Capability ;
+    rdfs:label  "governs" ;
+    rdfs:comment "Indicates which capability is governed by a semantic law." .
+
+agi:evaluates a owl:ObjectProperty ;
+    rdfs:domain agi:HardGate ;
+    rdfs:range  agi:AgenticLogic ;
+    rdfs:label  "evaluates" ;
+    rdfs:comment "Indicates the agentic logic evaluated by a hard gate." .
+
+agi:requiresAdherenceTo a owl:ObjectProperty ;
+    rdfs:domain agi:AgenticLogic ;
+    rdfs:range  agi:SemanticLaw ;
+    rdfs:label  "requires adherence to" ;
+    rdfs:comment "Specifies the semantic laws that the logic must satisfy." .
+
+###  Individuals & Specific Laws
+
+ostar:AutonomicCognitiveTraceSimulation a agi:Capability ;
+    rdfs:label   "ACTS (Autonomic Cognitive Trace Simulation)" ;
+    rdfs:comment "The capability to autonomically trace, simulate, and verify cognitive logic chains." .
+
+ostar:AccessAdmissionLaw a agi:HardGate ;
+    rdfs:label   "Access Admission Law" ;
+    rdfs:comment "A hard gate semantic law that evaluates and admits or rejects any generated agentic logic before execution. Ensures all generated agentic logic adheres to universal safety, structural completeness, and verification standards." ;
+    agi:governs  ostar:AutonomicCognitiveTraceSimulation .
+
+##############################################################################
+# ── Storehouse Domain ───────────────────────────────────────────────────────
+# Malachi 3:10 semantic anchor — all resource motion terms are modelled here.
+##############################################################################
+
+###  Classes
+
+storehouse:Field a owl:Class ;
+    rdfs:label   "Field" ;
+    rdfs:comment "A productive domain or territory from which provision originates (Genesis mandate). Aligns to schema:Place as a spatial/contextual locus and to prov:Entity as a trackable provenance entity." ;
+    rdfs:subClassOf prov:Entity ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf ( prov:Entity schema:Place )
+    ] .
+
+storehouse:Increase a owl:Class ;
+    rdfs:label   "Increase" ;
+    rdfs:comment "The act of bringing forth yield or provision from a Field (Malachi 3:10 — the tithe-motion event). Aligns to prov:Activity as a provenance-tracked action." ;
+    rdfs:subClassOf prov:Activity .
+
+storehouse:FirstPortion a owl:Class ;
+    rdfs:label   "First Portion" ;
+    rdfs:comment "The first-fruits or primary allocation extracted from an Increase before any secondary distribution. Subclass of prov:Entity." ;
+    rdfs:subClassOf prov:Entity .
+
+storehouse:Storehouse a owl:Class ;
+    rdfs:label   "Storehouse" ;
+    rdfs:comment "The central repository that receives provision (Malachi 3:10 — 'bring the whole tithe into the storehouse'). Aligns to org:Site as an organisational facility." ;
+    rdfs:subClassOf org:Site .
+
+storehouse:Receiver a owl:Class ;
+    rdfs:label   "Receiver" ;
+    rdfs:comment "An agent or person who receives provision from the Storehouse (Acts — faithful distribution). Aligns to both org:Person and schema:Person." ;
+    rdfs:subClassOf org:Person ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf ( org:Person schema:Person )
+    ] .
+
+storehouse:StewardshipReceipt a owl:Class ;
+    rdfs:label   "Stewardship Receipt" ;
+    rdfs:comment "A recorded acknowledgement of provision received and stewarded (Malachi 3:10 — the 'blessings poured out' record). Subclass of prov:Entity; aligns to schema:Invoice as a structured transactional document." ;
+    rdfs:subClassOf prov:Entity ;
+    owl:equivalentClass schema:Invoice .
+
+storehouse:OverflowRail a owl:Class ;
+    rdfs:label   "Overflow Rail" ;
+    rdfs:comment "The channel or mechanism through which surplus provision is redirected to additional Storehouses (Acts — Spirit-led expansion). Aligns to prov:Activity." ;
+    rdfs:subClassOf prov:Activity .
+
+storehouse:NewField a owl:Class ;
+    rdfs:label   "New Field" ;
+    rdfs:comment "A newly opened productive domain promoted from an existing Field (Genesis expansion principle). Subclass of storehouse:Field." ;
+    rdfs:subClassOf storehouse:Field .
+
+##############################################################################
+# ── Storehouse Object Properties ────────────────────────────────────────────
+##############################################################################
+
+storehouse:hasReceiver a owl:ObjectProperty ;
+    rdfs:domain  storehouse:Field ;
+    rdfs:range   storehouse:Receiver ;
+    rdfs:label   "has receiver" ;
+    rdfs:comment "Relates a Field to the Receiver designated to receive its provision." .
+
+storehouse:emitsReceipt a owl:ObjectProperty ;
+    rdfs:domain  storehouse:Increase ;
+    rdfs:range   storehouse:StewardshipReceipt ;
+    rdfs:label   "emits receipt" ;
+    rdfs:comment "Relates an Increase activity to the StewardshipReceipt that documents the provision event (Malachi 3:10 — the recorded blessing)." .
+
+storehouse:routesTo a owl:ObjectProperty ;
+    rdfs:domain  storehouse:OverflowRail ;
+    rdfs:range   storehouse:Storehouse ;
+    rdfs:label   "routes to" ;
+    rdfs:comment "Indicates the Storehouse to which an OverflowRail redirects surplus provision (Acts — without loss from the original source)." .
+
+storehouse:promotesTo a owl:ObjectProperty ;
+    rdfs:domain  storehouse:Field ;
+    rdfs:range   storehouse:NewField ;
+    rdfs:label   "promotes to" ;
+    rdfs:comment "Relates an existing Field to a NewField that has been opened through its overflow or expansion." .
+
+storehouse:provenBy a owl:ObjectProperty ;
+    rdfs:domain  storehouse:StewardshipReceipt ;
+    rdfs:range   prov:Activity ;
+    rdfs:label   "proven by" ;
+    rdfs:comment "Links a StewardshipReceipt to the prov:Activity (typically a storehouse:Increase or storehouse:OverflowRail) that produced it, establishing full provenance lineage." ;
+    rdfs:subPropertyOf prov:wasGeneratedBy .

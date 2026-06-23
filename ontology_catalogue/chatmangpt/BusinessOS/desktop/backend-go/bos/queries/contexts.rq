@@ -1,0 +1,31 @@
+PREFIX bos: <http://businessos.dev/id/>
+PREFIX bpmn: <http://www.omg.org/spec/BPMN/20100524/MODEL#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?contexts_uri a <http://www.w3.org/2004/02/skos/core#Concept> ;
+    <skos:notation> ?id ;
+    <skos:prefLabel> ?name ;
+    <skos:definition> ?description ;
+    <skos:inScheme> ?type ;
+    <skos:broader> ?parent_id_uri ;
+    <http://schema.org/text> ?content ;
+    <http://schema.org/dateCreated> ?created_at ;
+    <http://www.w3.org/ns/prov#wasGeneratedBy> ?activity_uri .
+}
+
+WHERE {
+  # Variables bound from data source
+  BIND(IRI(CONCAT("http://businessos.dev/id/contexts/{id}", STR(?id))) AS ?contexts_uri)
+  BIND(IF(BOUND(?parent_id) && ?parent_id != "",
+    IRI(CONCAT("http://businessos.dev/id/contexts/", STR(?parent_id))),
+    UNDEF) AS ?parent_id_uri)
+  BIND(IRI(CONCAT("http://businessos.dev/activity/contexts/", STR(?id))) AS ?activity_uri)
+}

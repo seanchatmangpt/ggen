@@ -1,0 +1,157 @@
+# @name: domain_join_sales_finance
+# @category: federation
+# @description: SPARQL SELECT joining Sales + Finance datasets via deal ID
+# @join_key: deal_id (Sales.deal_id = Finance.contract_id)
+# @output_type: merged rows with deal info + finance terms side-by-side
+# @join_type: INNER (both sides required)
+# @timeout_ms: 20000
+# @version: 1.0
+# @stability: stable
+#
+# Purpose:
+#   Cross-domain federation query joining Sales and Finance datasets.
+#   Sales domain: deal info, pipeline stage, probability, customer, amount
+#   Finance domain: contract terms, payment schedule, revenue recognition, compliance
+#
+# Use Cases:
+#   1. "Show all deals with their contract terms and payment schedules"
+#   2. "Find deals in 'Negotiating' stage with high financial risk (deferred revenue)"
+#   3. "Calculate weighted ACV (Annual Contract Value) by payment schedule"
+#   4. "Identify deals where sales forecasted > 90% probability but finance marked high-risk"
+#
+# Input Parameters: None (all data from triple store)
+# Output Columns:
+#   ?deal_id - Unique deal identifier (shared key)
+#   ?deal_name - Deal/opportunity name
+#   ?customer_name - Customer/account name
+#   ?sales_amount - Sales forecasted deal amount (USD)
+#   ?sales_stage - Current pipeline stage (Prospecting, Qualifying, Negotiating, Closed Won, etc.)
+#   ?sales_probability - Probability of close (0.0 to 1.0)
+#   ?sales_forecast_date - Expected close date
+#   ?finance_contract_value - Finance recorded contract value (may differ from sales forecast)
+#   ?finance_acv - Annual Contract Value (for multi-year deals)
+#   ?finance_payment_schedule - Payment term description (e.g., "50% upfront, 50% net 30")
+#   ?finance_revenue_recognition - Revenue recognition method (ASAP, straight-line, milestone-based)
+#   ?finance_risk_level - Finance assessment of risk (low, medium, high)
+#
+# Example:
+#   curl -H "Accept: application/sparql-results+json" \
+#     -G "http://localhost:7878/query" \
+#     --data-urlencode "query@-" < domain_join_sales_finance.rq
+
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dqv: <http://www.w3.org/ns/dqv#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX sales: <https://ontology.chatmangpt.com/sales#>
+PREFIX finance: <https://ontology.chatmangpt.com/finance#>
+
+SELECT
+  ?deal_id
+  ?deal_name
+  ?customer_name
+  ?sales_amount
+  ?sales_stage
+  ?sales_probability
+  ?sales_forecast_date
+  ?finance_contract_value
+  ?finance_acv
+  ?finance_payment_schedule
+  ?finance_revenue_recognition
+  ?finance_risk_level
+
+WHERE {
+  # ========================================================================
+  # SALES DATASET (inner join — all rows must have sales data)
+  # ========================================================================
+
+  ?sales_record
+    a sales:SalesDataset ;
+    sales:deal_id ?deal_id ;
+    sales:deal_name ?deal_name ;
+    sales:customer_name ?customer_name ;
+    sales:amount ?sales_amount ;
+    sales:stage ?sales_stage ;
+    sales:probability ?sales_probability ;
+    sales:forecast_close_date ?sales_forecast_date ;
+    prov:generatedAtTime ?sales_timestamp .
+
+  # Ensure sales probability is in valid range [0, 1]
+  FILTER(
+    xsd:double(?sales_probability) >= 0.0 &&
+    xsd:double(?sales_probability) <= 1.0
+  )
+
+  # ========================================================================
+  # FINANCE DATASET (inner join — both sides required)
+  # Finance matches via deal_id = contract_id relationship
+  # ========================================================================
+
+  ?finance_record
+    a finance:FinanceDataset ;
+    finance:contract_id ?deal_id ;           # Join key: sales:deal_id = finance:contract_id
+    finance:contract_value ?finance_contract_value ;
+    prov:generatedAtTime ?finance_timestamp .
+
+  # Get optional finance fields with defaults
+  OPTIONAL {
+    ?finance_record finance:acv ?finance_acv .
+  }
+  BIND(COALESCE(?finance_acv, 0) AS ?finance_acv)
+
+  OPTIONAL {
+    ?finance_record finance:payment_schedule ?finance_payment_schedule .
+  }
+  BIND(COALESCE(?finance_payment_schedule, "Not specified") AS ?finance_payment_schedule)
+
+  OPTIONAL {
+    ?finance_record finance:revenue_recognition_method ?finance_revenue_recognition .
+  }
+  BIND(COALESCE(?finance_revenue_recognition, "Not specified") AS ?finance_revenue_recognition)
+
+  OPTIONAL {
+    ?finance_record finance:risk_level ?finance_risk_level .
+  }
+  BIND(COALESCE(?finance_risk_level, "unassessed") AS ?finance_risk_level)
+
+  # ========================================================================
+  # JOIN QUALITY CHECKS
+  # ========================================================================
+
+  # Ensure both datasets are recent (within 60 days for deals)
+  BIND(NOW() AS ?now)
+  BIND(?now - "P60D"^^xsd:duration AS ?sixty_days_ago)
+  FILTER(?sales_timestamp >= ?sixty_days_ago)
+  FILTER(?finance_timestamp >= ?sixty_days_ago)
+
+  # Sanity check: finance contract value should be non-negative
+  FILTER(xsd:decimal(?finance_contract_value) >= 0)
+
+  # Sanity check: sales amount should be non-negative
+  FILTER(xsd:decimal(?sales_amount) >= 0)
+
+  # Variance check: log if sales forecast > 30% different from finance recorded value
+  # (Indicates potential data sync issues between domains)
+  BIND(
+    IF(
+      xsd:decimal(?sales_amount) > 0,
+      ABS(
+        (xsd:decimal(?finance_contract_value) - xsd:decimal(?sales_amount)) /
+        xsd:decimal(?sales_amount)
+      ),
+      0.0
+    ) AS ?value_variance
+  )
+
+  # Only include deals where variance is reasonable (< 50%)
+  FILTER(?value_variance < 0.5)
+}
+
+# ============================================================================
+# RESULT ORDERING & LIMITS
+# ============================================================================
+
+ORDER BY DESC(?sales_amount), ?deal_name
+LIMIT 10000

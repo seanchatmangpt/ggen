@@ -1,0 +1,50 @@
+# Agent Capability Discovery Query
+#
+# Returns all capabilities that a specific agent can perform.
+# Filters to only admitted (validated) capabilities.
+# Ordered by surface kind (API, CLI, Library, etc.) then label.
+#
+# Public ontology terms:
+#   Agent -> prov:Agent
+#   hasCapability -> skos:related
+#   admissionStatus -> skos:prefLabel filter on "admitted"
+#   surfaceKind -> skos:Concept in capabilities scheme
+#   trustScore -> prov:Entity with dct:hasVersion or numeric annotation
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+
+SELECT ?agent ?capability ?label ?surfaceKind ?trustScore
+WHERE {
+  # Get the agent (prov:Agent)
+  ?agent a prov:Agent .
+
+  # Agent has a capability (skos:Concept in the capabilities scheme)
+  ?agent skos:related ?capability .
+  ?capability a skos:Concept ;
+              skos:inScheme <https://chatmangpt.com/ontologies/skos/capabilities> .
+
+  # Only admitted capabilities (prefLabel = "admitted" on the status concept)
+  ?capability skos:related ?statusConcept .
+  ?statusConcept skos:prefLabel "admitted" .
+
+  # Get human-readable label
+  ?capability rdfs:label ?label .
+
+  # Get surface kind (API, CLI, Library, MCP, etc.) via related SKOS concept
+  OPTIONAL {
+    ?capability skos:related ?surfaceConcept .
+    ?surfaceConcept skos:prefLabel ?surfaceKind .
+  }
+
+  # Get trust score (0.0 to 1.0) via dct qualifier
+  OPTIONAL { ?capability dct:hasFormat ?trustScore }
+
+  # Optional: Filter by specific agent
+  # FILTER (?agent = <http://agents.example.com/agent1>)
+}
+ORDER BY ?surfaceKind ?label
+LIMIT 100

@@ -1,0 +1,749 @@
+@prefix bs: <http://bytestar.org/ontology#> .
+@prefix bst: <http://bytestar.org/testing#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sparql: <http://www.w3.org/ns/sparql-service-description#> .
+
+#################################################################
+# ByteStar Ontology Testing Framework
+# Comprehensive test specifications for ByteStar ecosystem
+#################################################################
+
+# ============================================================================
+# 1. UNIT TESTS - Individual ontology class and property validation
+# ============================================================================
+
+# Base Unit Test Framework
+bst:UnitTestFramework a rdfs:Class ;
+    rdfs:label "ByteStar Unit Test Framework" ;
+    rdfs:comment "Framework for validating individual ontology classes and properties" .
+
+# Unit Test Types
+bst:ByteEthosUnitTest a bst:UnitTestFramework ;
+    rdfs:label "ByteEthos Unit Test" ;
+    bst:targetClass bs:ByteEthos ;
+    bst:testScope "individual" ;
+    bst:validationLevel "strict" .
+
+bst:ByteActorUnitTest a bst:UnitTestFramework ;
+    rdfs:label "ByteActor Unit Test" ;
+    bst:targetClass bs:ByteActor ;
+    bst:testScope "individual" ;
+    bst:validationLevel "strict" .
+
+bst:ByteStarUnitTest a bst:UnitTestFramework ;
+    rdfs:label "ByteStar Unit Test" ;
+    bst:targetClass bs:ByteStar ;
+    bst:testScope "individual" ;
+    bst:validationLevel "strict" .
+
+# SHACL Shapes for Unit Tests
+bst:ByteEthosUnitShape a sh:NodeShape ;
+    sh:targetClass bs:ByteEthos ;
+    sh:property [
+        sh:path bs:hasIntent ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "ByteEthos must have at least one intent"
+    ] ;
+    sh:property [
+        sh:path bs:hasEthicalConstraint ;
+        sh:class bs:EthicalConstraint ;
+        sh:minCount 1 ;
+        sh:message "ByteEthos must have ethical constraints"
+    ] ;
+    sh:property [
+        sh:path bs:hasValidityPeriod ;
+        sh:datatype xsd:duration ;
+        sh:maxCount 1 ;
+        sh:message "ByteEthos may have one validity period"
+    ] .
+
+bst:ByteActorUnitShape a sh:NodeShape ;
+    sh:targetClass bs:ByteActor ;
+    sh:property [
+        sh:path bs:executesFrom ;
+        sh:class bs:ByteEthos ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "ByteActor must execute from exactly one ByteEthos"
+    ] ;
+    sh:property [
+        sh:path bs:hasCapability ;
+        sh:class bs:ActorCapability ;
+        sh:minCount 1 ;
+        sh:message "ByteActor must have at least one capability"
+    ] ;
+    sh:property [
+        sh:path bs:hasExecutionContext ;
+        sh:class bs:ExecutionContext ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "ByteActor must have exactly one execution context"
+    ] .
+
+bst:ByteStarUnitShape a sh:NodeShape ;
+    sh:targetClass bs:ByteStar ;
+    sh:property [
+        sh:path bs:orchestrates ;
+        sh:class bs:ByteActor ;
+        sh:minCount 1 ;
+        sh:message "ByteStar must orchestrate at least one ByteActor"
+    ] ;
+    sh:property [
+        sh:path bs:hasOntologyRegistry ;
+        sh:class bs:OntologyRegistry ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "ByteStar must have exactly one ontology registry"
+    ] .
+
+# ============================================================================
+# 2. PROPERTY TESTS - Invariant checking across all ontologies
+# ============================================================================
+
+bst:PropertyTestFramework a rdfs:Class ;
+    rdfs:label "ByteStar Property Test Framework" ;
+    rdfs:comment "Framework for validating invariants across ByteStar ontologies" .
+
+# Property Test Invariants
+bst:CausalConsistencyInvariant a bst:PropertyTestFramework ;
+    rdfs:label "Causal Consistency Invariant" ;
+    bst:invariantType "causal" ;
+    bst:description "Ensures causal ordering of ByteEthos → ByteActor → Execution" .
+
+bst:IntentPreservationInvariant a bst:PropertyTestFramework ;
+    rdfs:label "Intent Preservation Invariant" ;
+    bst:invariantType "semantic" ;
+    bst:description "Ensures ByteEthos intent is preserved through ByteActor execution" .
+
+bst:ResourceBoundInvariant a bst:PropertyTestFramework ;
+    rdfs:label "Resource Bound Invariant" ;
+    bst:invariantType "resource" ;
+    bst:description "Ensures execution remains within specified resource bounds" .
+
+# SPARQL Queries for Property Tests
+bst:causalConsistencyQuery a sparql:Query ;
+    rdfs:label "Causal Consistency Check" ;
+    sparql:text """
+        PREFIX bs: <http://bytestar.org/ontology#>
+        ASK {
+            ?ethos a bs:ByteEthos .
+            ?actor a bs:ByteActor .
+            ?actor bs:executesFrom ?ethos .
+            ?execution bs:executedBy ?actor .
+            FILTER NOT EXISTS {
+                ?ethos bs:hasTimestamp ?ethosTime .
+                ?actor bs:hasTimestamp ?actorTime .
+                ?execution bs:hasTimestamp ?execTime .
+                FILTER (?ethosTime > ?actorTime || ?actorTime > ?execTime)
+            }
+        }
+    """ .
+
+bst:intentPreservationQuery a sparql:Query ;
+    rdfs:label "Intent Preservation Check" ;
+    sparql:text """
+        PREFIX bs: <http://bytestar.org/ontology#>
+        ASK {
+            ?ethos a bs:ByteEthos .
+            ?ethos bs:hasIntent ?intent .
+            ?actor bs:executesFrom ?ethos .
+            ?execution bs:executedBy ?actor .
+            FILTER NOT EXISTS {
+                ?execution bs:violatesIntent ?intent
+            }
+        }
+    """ .
+
+# SHACL Shape for Property Test Validation
+bst:PropertyTestValidationShape a sh:NodeShape ;
+    sh:targetClass bst:PropertyTestFramework ;
+    sh:property [
+        sh:path bst:invariantType ;
+        sh:in ("causal" "semantic" "resource" "temporal" "security") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Property test must specify invariant type"
+    ] ;
+    sh:property [
+        sh:path bst:hasValidationQuery ;
+        sh:class sparql:Query ;
+        sh:minCount 1 ;
+        sh:message "Property test must have validation query"
+    ] .
+
+# ============================================================================
+# 3. PERMUTATION TESTS - All valid configuration combinations
+# ============================================================================
+
+bst:PermutationTestFramework a rdfs:Class ;
+    rdfs:label "ByteStar Permutation Test Framework" ;
+    rdfs:comment "Framework for testing all valid ontology configuration combinations" .
+
+# Permutation Test Generators
+bst:EthosActorPermutationTest a bst:PermutationTestFramework ;
+    rdfs:label "ByteEthos-ByteActor Permutation Test" ;
+    bst:permutationSpace [
+        bst:ethosTypes ("research" "production" "experimental" "diagnostic") ;
+        bst:actorTypes ("computational" "reasoning" "reactive" "proactive") ;
+        bst:executionModes ("synchronous" "asynchronous" "batch" "streaming")
+    ] ;
+    bst:expectedCombinations 64 .
+
+bst:CapabilityPermutationTest a bst:PermutationTestFramework ;
+    rdfs:label "Actor Capability Permutation Test" ;
+    bst:permutationSpace [
+        bst:capabilities ("inference" "validation" "transformation" "persistence") ;
+        bst:resourceLimits ("low" "medium" "high" "unlimited") ;
+        bst:securityLevels ("public" "restricted" "confidential" "secret")
+    ] ;
+    bst:expectedCombinations 256 .
+
+# SHACL Shape for Permutation Configuration Validation
+bst:PermutationConfigurationShape a sh:NodeShape ;
+    sh:targetNode bst:ValidPermutationConfiguration ;
+    sh:property [
+        sh:path bst:hasEthosType ;
+        sh:in ("research" "production" "experimental" "diagnostic") ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path bst:hasActorType ;
+        sh:in ("computational" "reasoning" "reactive" "proactive") ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path bst:hasExecutionMode ;
+        sh:in ("synchronous" "asynchronous" "batch" "streaming") ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .
+
+# ============================================================================
+# 4. COMBINATION TESTS - Integration between subsystems
+# ============================================================================
+
+bst:CombinationTestFramework a rdfs:Class ;
+    rdfs:label "ByteStar Combination Test Framework" ;
+    rdfs:comment "Framework for testing integration between ByteStar subsystems" .
+
+# Combination Test Scenarios
+bst:EthosToActorIntegrationTest a bst:CombinationTestFramework ;
+    rdfs:label "ByteEthos to ByteActor Integration Test" ;
+    bst:integrationPath "ethos→actor" ;
+    bst:testScenarios [
+        bst:scenario1 "intent_translation" ;
+        bst:scenario2 "constraint_propagation" ;
+        bst:scenario3 "resource_allocation" ;
+        bst:scenario4 "error_handling"
+    ] .
+
+bst:ActorToStarIntegrationTest a bst:CombinationTestFramework ;
+    rdfs:label "ByteActor to ByteStar Integration Test" ;
+    bst:integrationPath "actor→star" ;
+    bst:testScenarios [
+        bst:scenario1 "orchestration_registration" ;
+        bst:scenario2 "execution_coordination" ;
+        bst:scenario3 "result_aggregation" ;
+        bst:scenario4 "failure_recovery"
+    ] .
+
+bst:EndToEndIntegrationTest a bst:CombinationTestFramework ;
+    rdfs:label "End-to-End Integration Test" ;
+    bst:integrationPath "ethos→actor→star→execution" ;
+    bst:testScenarios [
+        bst:scenario1 "complete_workflow" ;
+        bst:scenario2 "concurrent_execution" ;
+        bst:scenario3 "cascading_effects" ;
+        bst:scenario4 "system_recovery"
+    ] .
+
+# Integration Validation SPARQL Query
+bst:integrationValidationQuery a sparql:Query ;
+    rdfs:label "Integration Validation Query" ;
+    sparql:text """
+        PREFIX bs: <http://bytestar.org/ontology#>
+        PREFIX bst: <http://bytestar.org/testing#>
+        
+        SELECT ?ethos ?actor ?star ?execution ?integrationStatus WHERE {
+            ?ethos a bs:ByteEthos .
+            ?actor a bs:ByteActor .
+            ?star a bs:ByteStar .
+            ?execution a bs:Execution .
+            
+            ?actor bs:executesFrom ?ethos .
+            ?star bs:orchestrates ?actor .
+            ?execution bs:executedBy ?actor .
+            ?execution bs:managedBy ?star .
+            
+            BIND(
+                IF(
+                    EXISTS { ?execution bs:hasStatus "completed" } &&
+                    EXISTS { ?execution bs:preservesIntent ?intent } &&
+                    EXISTS { ?ethos bs:hasIntent ?intent },
+                    "valid_integration",
+                    "invalid_integration"
+                ) AS ?integrationStatus
+            )
+        }
+    """ .
+
+# ============================================================================
+# 5. STRESS TESTS - Large-scale ontology reasoning performance
+# ============================================================================
+
+bst:StressTestFramework a rdfs:Class ;
+    rdfs:label "ByteStar Stress Test Framework" ;
+    rdfs:comment "Framework for testing large-scale ontology reasoning performance" .
+
+# Stress Test Configurations
+bst:ScalabilityStressTest a bst:StressTestFramework ;
+    rdfs:label "Scalability Stress Test" ;
+    bst:stressParameters [
+        bst:maxEthosInstances 10000 ;
+        bst:maxActorInstances 100000 ;
+        bst:maxStarInstances 1000 ;
+        bst:maxConcurrentExecutions 50000
+    ] ;
+    bst:performanceThresholds [
+        bst:maxQueryResponseTime "100ms" ;
+        bst:maxMemoryUsage "8GB" ;
+        bst:maxCPUUtilization "80%" ;
+        bst:minThroughput "1000 ops/sec"
+    ] .
+
+bst:MemoryStressTest a bst:StressTestFramework ;
+    rdfs:label "Memory Stress Test" ;
+    bst:stressParameters [
+        bst:ontologySize "1GB" ;
+        bst:maxInferences 1000000 ;
+        bst:maxTripleCount 10000000
+    ] ;
+    bst:performanceThresholds [
+        bst:maxHeapSize "4GB" ;
+        bst:maxGCPauseTime "50ms" ;
+        bst:minReasoningSpeed "10000 inferences/sec"
+    ] .
+
+bst:ConcurrencyStressTest a bst:StressTestFramework ;
+    rdfs:label "Concurrency Stress Test" ;
+    bst:stressParameters [
+        bst:maxConcurrentThreads 1000 ;
+        bst:maxConcurrentQueries 500 ;
+        bst:maxConcurrentUpdates 100
+    ] ;
+    bst:performanceThresholds [
+        bst:maxDeadlockRate "0.01%" ;
+        bst:maxLockContentionTime "10ms" ;
+        bst:minTransactionThroughput "500 tx/sec"
+    ] .
+
+# SHACL Shape for Stress Test Performance Validation
+bst:StressTestPerformanceShape a sh:NodeShape ;
+    sh:targetClass bst:StressTestFramework ;
+    sh:property [
+        sh:path bst:hasPerformanceMetrics ;
+        sh:class bst:PerformanceMetrics ;
+        sh:minCount 1 ;
+        sh:message "Stress test must define performance metrics"
+    ] ;
+    sh:property [
+        sh:path bst:hasStressParameters ;
+        sh:class bst:StressParameters ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Stress test must have stress parameters"
+    ] .
+
+# ============================================================================
+# 6. ADVERSARIAL TESTS - Invalid/malicious ontology detection
+# ============================================================================
+
+bst:AdversarialTestFramework a rdfs:Class ;
+    rdfs:label "ByteStar Adversarial Test Framework" ;
+    rdfs:comment "Framework for detecting invalid or malicious ontology patterns" .
+
+# Adversarial Test Categories
+bst:MaliciousOntologyTest a bst:AdversarialTestFramework ;
+    rdfs:label "Malicious Ontology Test" ;
+    bst:adversarialCategory "malicious" ;
+    bst:detectionPatterns [
+        bst:pattern1 "recursive_intent_loops" ;
+        bst:pattern2 "resource_exhaustion_attacks" ;
+        bst:pattern3 "privilege_escalation_attempts" ;
+        bst:pattern4 "data_exfiltration_patterns"
+    ] .
+
+bst:InvalidOntologyTest a bst:AdversarialTestFramework ;
+    rdfs:label "Invalid Ontology Test" ;
+    bst:adversarialCategory "invalid" ;
+    bst:detectionPatterns [
+        bst:pattern1 "circular_dependencies" ;
+        bst:pattern2 "undefined_references" ;
+        bst:pattern3 "type_inconsistencies" ;
+        bst:pattern4 "constraint_violations"
+    ] .
+
+bst:CorruptedOntologyTest a bst:AdversarialTestFramework ;
+    rdfs:label "Corrupted Ontology Test" ;
+    bst:adversarialCategory "corrupted" ;
+    bst:detectionPatterns [
+        bst:pattern1 "syntax_errors" ;
+        bst:pattern2 "semantic_inconsistencies" ;
+        bst:pattern3 "incomplete_definitions" ;
+        bst:pattern4 "version_conflicts"
+    ] .
+
+# Adversarial Detection SPARQL Queries
+bst:recursiveIntentDetectionQuery a sparql:Query ;
+    rdfs:label "Recursive Intent Loop Detection" ;
+    sparql:text """
+        PREFIX bs: <http://bytestar.org/ontology#>
+        
+        ASK {
+            ?ethos1 a bs:ByteEthos .
+            ?ethos2 a bs:ByteEthos .
+            ?ethos1 bs:dependsOn ?ethos2 .
+            ?ethos2 bs:dependsOn+ ?ethos1 .
+        }
+    """ .
+
+bst:privilegeEscalationDetectionQuery a sparql:Query ;
+    rdfs:label "Privilege Escalation Detection" ;
+    sparql:text """
+        PREFIX bs: <http://bytestar.org/ontology#>
+        
+        SELECT ?actor ?unauthorizedCapability WHERE {
+            ?actor a bs:ByteActor .
+            ?actor bs:hasCapability ?capability .
+            ?capability bs:requiresPrivilege ?privilege .
+            ?actor bs:hasSecurityLevel ?level .
+            
+            FILTER NOT EXISTS {
+                ?level bs:authorizes ?privilege
+            }
+            
+            BIND(?capability AS ?unauthorizedCapability)
+        }
+    """ .
+
+# SHACL Shape for Adversarial Pattern Detection
+bst:AdversarialPatternShape a sh:NodeShape ;
+    sh:targetClass bst:AdversarialTestFramework ;
+    sh:property [
+        sh:path bst:adversarialCategory ;
+        sh:in ("malicious" "invalid" "corrupted" "suspicious") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Adversarial test must specify category"
+    ] ;
+    sh:property [
+        sh:path bst:hasDetectionQuery ;
+        sh:class sparql:Query ;
+        sh:minCount 1 ;
+        sh:message "Adversarial test must have detection queries"
+    ] .
+
+# ============================================================================
+# 7. BENCHMARK TESTS - Query performance metrics
+# ============================================================================
+
+bst:BenchmarkTestFramework a rdfs:Class ;
+    rdfs:label "ByteStar Benchmark Test Framework" ;
+    rdfs:comment "Framework for measuring query performance metrics across ByteStar ontologies" .
+
+# Benchmark Test Categories
+bst:QueryPerformanceBenchmark a bst:BenchmarkTestFramework ;
+    rdfs:label "Query Performance Benchmark" ;
+    bst:benchmarkType "query_performance" ;
+    bst:metrics [
+        bst:metric1 "query_execution_time" ;
+        bst:metric2 "result_set_size" ;
+        bst:metric3 "memory_consumption" ;
+        bst:metric4 "cpu_utilization"
+    ] .
+
+bst:ReasoningPerformanceBenchmark a bst:BenchmarkTestFramework ;
+    rdfs:label "Reasoning Performance Benchmark" ;
+    bst:benchmarkType "reasoning_performance" ;
+    bst:metrics [
+        bst:metric1 "inference_time" ;
+        bst:metric2 "inference_count" ;
+        bst:metric3 "consistency_check_time" ;
+        bst:metric4 "classification_time"
+    ] .
+
+bst:UpdatePerformanceBenchmark a bst:BenchmarkTestFramework ;
+    rdfs:label "Update Performance Benchmark" ;
+    bst:benchmarkType "update_performance" ;
+    bst:metrics [
+        bst:metric1 "insert_throughput" ;
+        bst:metric2 "update_latency" ;
+        bst:metric3 "delete_performance" ;
+        bst:metric4 "transaction_time"
+    ] .
+
+# Benchmark Query Examples
+bst:complexReasoningBenchmarkQuery a sparql:Query ;
+    rdfs:label "Complex Reasoning Benchmark Query" ;
+    sparql:text """
+        PREFIX bs: <http://bytestar.org/ontology#>
+        
+        SELECT ?ethos ?actor ?inferencePath ?complexity WHERE {
+            ?ethos a bs:ByteEthos .
+            ?actor a bs:ByteActor .
+            ?actor bs:executesFrom ?ethos .
+            
+            ?ethos bs:hasComplexity ?ethosComplexity .
+            ?actor bs:hasComplexity ?actorComplexity .
+            
+            ?ethos bs:inferenceRule+ ?rule .
+            ?rule bs:appliesTo ?actor .
+            
+            BIND(CONCAT(STR(?ethos), "→", STR(?actor)) AS ?inferencePath)
+            BIND((?ethosComplexity * ?actorComplexity) AS ?complexity)
+        }
+        ORDER BY DESC(?complexity)
+        LIMIT 1000
+    """ .
+
+# SHACL Shape for Benchmark Configuration
+bst:BenchmarkConfigurationShape a sh:NodeShape ;
+    sh:targetClass bst:BenchmarkTestFramework ;
+    sh:property [
+        sh:path bst:benchmarkType ;
+        sh:in ("query_performance" "reasoning_performance" "update_performance" "scalability") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Benchmark must specify type"
+    ] ;
+    sh:property [
+        sh:path bst:hasPerformanceBaseline ;
+        sh:class bst:PerformanceBaseline ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Benchmark must have performance baseline"
+    ] .
+
+# ============================================================================
+# 8. E2E TESTS - Full chain from ByteEthos intent to ByteActor execution
+# ============================================================================
+
+bst:EndToEndTestFramework a rdfs:Class ;
+    rdfs:label "ByteStar End-to-End Test Framework" ;
+    rdfs:comment "Framework for testing complete workflow from ByteEthos intent to ByteActor execution" .
+
+# E2E Test Scenarios
+bst:CompleteWorkflowTest a bst:EndToEndTestFramework ;
+    rdfs:label "Complete Workflow Test" ;
+    bst:workflowSteps [
+        bst:step1 "intent_specification" ;
+        bst:step2 "ethos_creation" ;
+        bst:step3 "actor_instantiation" ;
+        bst:step4 "star_orchestration" ;
+        bst:step5 "execution_monitoring" ;
+        bst:step6 "result_validation"
+    ] ;
+    bst:expectedDuration "5 minutes" ;
+    bst:successCriteria [
+        bst:criterion1 "intent_preserved" ;
+        bst:criterion2 "constraints_satisfied" ;
+        bst:criterion3 "performance_acceptable" ;
+        bst:criterion4 "resources_released"
+    ] .
+
+bst:ReliabilityWorkflowTest a bst:EndToEndTestFramework ;
+    rdfs:label "Reliability Workflow Test" ;
+    bst:workflowSteps [
+        bst:step1 "normal_execution" ;
+        bst:step2 "failure_injection" ;
+        bst:step3 "recovery_mechanism" ;
+        bst:step4 "state_restoration" ;
+        bst:step5 "execution_continuation"
+    ] ;
+    bst:failureTypes [
+        bst:failure1 "network_partition" ;
+        bst:failure2 "resource_exhaustion" ;
+        bst:failure3 "actor_failure" ;
+        bst:failure4 "ontology_corruption"
+    ] .
+
+# E2E Validation SPARQL Query
+bst:endToEndValidationQuery a sparql:Query ;
+    rdfs:label "End-to-End Validation Query" ;
+    sparql:text """
+        PREFIX bs: <http://bytestar.org/ontology#>
+        PREFIX bst: <http://bytestar.org/testing#>
+        
+        SELECT ?testRun ?status ?duration ?successRate WHERE {
+            ?testRun a bst:EndToEndTestRun .
+            ?testRun bst:hasStatus ?status .
+            ?testRun bst:hasDuration ?duration .
+            
+            {
+                SELECT ?testRun (COUNT(?step) AS ?totalSteps) (COUNT(?successfulStep) AS ?successfulSteps) WHERE {
+                    ?testRun bst:hasWorkflowStep ?step .
+                    OPTIONAL {
+                        ?step bst:hasStatus "successful" .
+                        BIND(?step AS ?successfulStep)
+                    }
+                }
+                GROUP BY ?testRun
+            }
+            
+            BIND((?successfulSteps / ?totalSteps) AS ?successRate)
+            
+            FILTER(?successRate >= 0.95)
+        }
+        ORDER BY DESC(?successRate) DESC(?duration)
+    """ .
+
+# ============================================================================
+# 9. DEPLOYMENT TESTS - Multi-environment ontology deployment
+# ============================================================================
+
+bst:DeploymentTestFramework a rdfs:Class ;
+    rdfs:label "ByteStar Deployment Test Framework" ;
+    rdfs:comment "Framework for testing ontology deployment across multiple environments" .
+
+# Deployment Environment Tests
+bst:DevelopmentDeploymentTest a bst:DeploymentTestFramework ;
+    rdfs:label "Development Environment Deployment Test" ;
+    bst:targetEnvironment "development" ;
+    bst:deploymentChecks [
+        bst:check1 "ontology_loading" ;
+        bst:check2 "schema_validation" ;
+        bst:check3 "basic_functionality" ;
+        bst:check4 "development_tools_integration"
+    ] .
+
+bst:StagingDeploymentTest a bst:DeploymentTestFramework ;
+    rdfs:label "Staging Environment Deployment Test" ;
+    bst:targetEnvironment "staging" ;
+    bst:deploymentChecks [
+        bst:check1 "production_like_configuration" ;
+        bst:check2 "performance_validation" ;
+        bst:check3 "security_compliance" ;
+        bst:check4 "integration_testing"
+    ] .
+
+bst:ProductionDeploymentTest a bst:DeploymentTestFramework ;
+    rdfs:label "Production Environment Deployment Test" ;
+    bst:targetEnvironment "production" ;
+    bst:deploymentChecks [
+        bst:check1 "zero_downtime_deployment" ;
+        bst:check2 "rollback_capability" ;
+        bst:check3 "monitoring_integration" ;
+        bst:check4 "disaster_recovery"
+    ] .
+
+# Deployment Validation SPARQL Query
+bst:deploymentValidationQuery a sparql:Query ;
+    rdfs:label "Deployment Validation Query" ;
+    sparql:text """
+        PREFIX bs: <http://bytestar.org/ontology#>
+        PREFIX bst: <http://bytestar.org/testing#>
+        
+        SELECT ?environment ?deployment ?status ?healthScore WHERE {
+            ?deployment a bst:DeploymentInstance .
+            ?deployment bst:targetEnvironment ?environment .
+            ?deployment bst:hasStatus ?status .
+            
+            {
+                SELECT ?deployment (AVG(?checkScore) AS ?healthScore) WHERE {
+                    ?deployment bst:hasHealthCheck ?check .
+                    ?check bst:hasScore ?checkScore .
+                }
+                GROUP BY ?deployment
+            }
+            
+            FILTER(?healthScore >= 0.9)
+            FILTER(?status IN ("deployed", "running", "stable"))
+        }
+        ORDER BY DESC(?healthScore)
+    """ .
+
+# SHACL Shape for Deployment Validation
+bst:DeploymentValidationShape a sh:NodeShape ;
+    sh:targetClass bst:DeploymentTestFramework ;
+    sh:property [
+        sh:path bst:targetEnvironment ;
+        sh:in ("development" "testing" "staging" "production") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Deployment test must specify target environment"
+    ] ;
+    sh:property [
+        sh:path bst:hasDeploymentChecks ;
+        sh:minCount 1 ;
+        sh:message "Deployment test must have deployment checks"
+    ] ;
+    sh:property [
+        sh:path bst:hasRollbackStrategy ;
+        sh:class bst:RollbackStrategy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Deployment test must have rollback strategy"
+    ] .
+
+# ============================================================================
+# TESTING ORCHESTRATION AND EXECUTION
+# ============================================================================
+
+# Test Suite Orchestrator
+bst:TestSuiteOrchestrator a rdfs:Class ;
+    rdfs:label "ByteStar Test Suite Orchestrator" ;
+    rdfs:comment "Orchestrates execution of all test suites in proper sequence" ;
+    bst:executionOrder [
+        bst:phase1 bst:UnitTestFramework ;
+        bst:phase2 bst:PropertyTestFramework ;
+        bst:phase3 bst:PermutationTestFramework ;
+        bst:phase4 bst:CombinationTestFramework ;
+        bst:phase5 bst:BenchmarkTestFramework ;
+        bst:phase6 bst:AdversarialTestFramework ;
+        bst:phase7 bst:StressTestFramework ;
+        bst:phase8 bst:EndToEndTestFramework ;
+        bst:phase9 bst:DeploymentTestFramework
+    ] .
+
+# Test Execution Monitoring
+bst:TestExecutionMonitor a rdfs:Class ;
+    rdfs:label "ByteStar Test Execution Monitor" ;
+    rdfs:comment "Monitors test execution and provides real-time feedback" ;
+    bst:monitoredMetrics [
+        bst:metric1 "test_coverage" ;
+        bst:metric2 "execution_time" ;
+        bst:metric3 "resource_usage" ;
+        bst:metric4 "failure_rate" ;
+        bst:metric5 "performance_regression"
+    ] .
+
+# Master Test Validation Shape
+bst:MasterTestValidationShape a sh:NodeShape ;
+    sh:targetNode bst:ByteStarTestSuite ;
+    sh:property [
+        sh:path bst:hasAllTestFrameworks ;
+        sh:class bst:TestFramework ;
+        sh:minCount 9 ;
+        sh:message "ByteStar test suite must include all 9 test framework types"
+    ] ;
+    sh:property [
+        sh:path bst:hasTestOrchestrator ;
+        sh:class bst:TestSuiteOrchestrator ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Test suite must have exactly one orchestrator"
+    ] ;
+    sh:property [
+        sh:path bst:hasExecutionMonitor ;
+        sh:class bst:TestExecutionMonitor ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Test suite must have execution monitoring"
+    ] .

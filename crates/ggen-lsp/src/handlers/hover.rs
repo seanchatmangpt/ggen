@@ -1,12 +1,12 @@
-use lsp_max::lsp_types_max::*;
-use lsp_max::jsonrpc::Result;
 use crate::server::GgenLanguageServer;
+use lsp_max::jsonrpc::Result;
+use lsp_max::lsp_types_max::*;
 
 pub async fn handle(server: &GgenLanguageServer, params: HoverParams) -> Result<Option<Hover>> {
     let uri = &params.text_document_position_params.text_document.uri;
     let position = params.text_document_position_params.position;
     let analyzer = server.state.get_analyzer(uri).await;
-    
+
     // Semantic hover (e.g. SHACL shape, term kind) takes priority.
     if let Some(h) = analyzer
         .as_ref()
@@ -14,7 +14,7 @@ pub async fn handle(server: &GgenLanguageServer, params: HoverParams) -> Result<
     {
         return Ok(Some(h));
     }
-    
+
     // Otherwise, if a diagnostic covers the cursor, show its OCEL-TON card.
     let (Some(analyzer), Some(content)) = (analyzer, server.state.get_document(uri).await) else {
         return Ok(None);
@@ -24,7 +24,8 @@ pub async fn handle(server: &GgenLanguageServer, params: HoverParams) -> Result<
         if crate::server::range_contains(&d.lsp.range, position) {
             if let Some(plan) = crate::route::route_plan_for_diagnostic(&registry, &d.lsp, &content)
             {
-                let view = crate::route::CompactTraceView::from_route_plan(&plan, uri.path().as_str());
+                let view =
+                    crate::route::CompactTraceView::from_route_plan(&plan, uri.path().as_str());
                 return Ok(Some(Hover {
                     contents: HoverContents::Markup(MarkupContent {
                         kind: MarkupKind::Markdown,

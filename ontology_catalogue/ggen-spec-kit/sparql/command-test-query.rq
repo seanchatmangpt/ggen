@@ -1,0 +1,135 @@
+# ============================================================================
+# command-test-query.rq - Extract CLI command metadata for test generation
+# ============================================================================
+# Purpose: Query RDF command specifications to generate pytest test files
+# Template: templates/command-test.tera
+# Output: tests/e2e/test_commands_*.py
+# ============================================================================
+
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Query to extract command metadata, arguments, options, and error cases
+SELECT DISTINCT
+    # Command metadata
+    ?command_name
+    ?command_group
+    ?command_description
+
+    # Argument details
+    ?arg_name
+    ?arg_type
+    ?arg_required
+    ?arg_description
+    ?arg_position
+    ?arg_default_test_value
+
+    # Option details
+    ?opt_name
+    ?opt_type
+    ?opt_default
+    ?opt_description
+    ?opt_short_flag
+    ?opt_test_value
+    ?opt_expected_behavior
+
+    # Error case details
+    ?error_id
+    ?error_scenario
+    ?error_trigger
+    ?error_expected_behavior
+    ?error_expected_exit_code
+    ?error_exception
+    ?error_exception_module
+    ?error_message
+    ?error_command_args
+    ?error_expected_output
+    ?error_mock_setup
+
+    # Output field expectations
+    ?output_field_name
+    ?output_field_test_value
+
+WHERE {
+    # ========================================================================
+    # Core Command Data
+    # ========================================================================
+
+    ?command a sk:CLICommand ;
+        sk:commandName ?command_name ;
+        sk:commandDescription ?command_description .
+
+    OPTIONAL { ?command sk:commandGroup ?command_group }
+
+    # ========================================================================
+    # Arguments (positional parameters)
+    # ========================================================================
+
+    OPTIONAL {
+        ?command sk:hasArgument ?argument .
+
+        ?argument a sk:CommandArgument ;
+            sk:argumentName ?arg_name ;
+            sk:argumentType ?arg_type ;
+            sk:argumentRequired ?arg_required .
+
+        OPTIONAL { ?argument sk:argumentDescription ?arg_description }
+        OPTIONAL { ?argument sk:argumentPosition ?arg_position }
+        OPTIONAL { ?argument sk:argumentDefaultTestValue ?arg_default_test_value }
+    }
+
+    # ========================================================================
+    # Options (flags and named parameters)
+    # ========================================================================
+
+    OPTIONAL {
+        ?command sk:hasOption ?option .
+
+        ?option a sk:CommandOption ;
+            sk:optionName ?opt_name .
+
+        OPTIONAL { ?option sk:optionType ?opt_type }
+        OPTIONAL { ?option sk:optionDefault ?opt_default }
+        OPTIONAL { ?option sk:optionDescription ?opt_description }
+        OPTIONAL { ?option sk:optionShortFlag ?opt_short_flag }
+        OPTIONAL { ?option sk:optionTestValue ?opt_test_value }
+        OPTIONAL { ?option sk:optionExpectedBehavior ?opt_expected_behavior }
+    }
+
+    # ========================================================================
+    # Error Cases (known error scenarios to test)
+    # ========================================================================
+
+    OPTIONAL {
+        ?command sk:hasErrorCase ?error_case .
+
+        ?error_case a sk:CommandErrorCase ;
+            sk:errorId ?error_id ;
+            sk:errorScenario ?error_scenario ;
+            sk:errorExpectedBehavior ?error_expected_behavior .
+
+        OPTIONAL { ?error_case sk:errorTrigger ?error_trigger }
+        OPTIONAL { ?error_case sk:errorExpectedExitCode ?error_expected_exit_code }
+        OPTIONAL { ?error_case sk:errorException ?error_exception }
+        OPTIONAL { ?error_case sk:errorExceptionModule ?error_exception_module }
+        OPTIONAL { ?error_case sk:errorMessage ?error_message }
+        OPTIONAL { ?error_case sk:errorCommandArgs ?error_command_args }
+        OPTIONAL { ?error_case sk:errorExpectedOutput ?error_expected_output }
+        OPTIONAL { ?error_case sk:errorMockSetup ?error_mock_setup }
+    }
+
+    # ========================================================================
+    # Expected Output Fields (for success cases)
+    # ========================================================================
+
+    OPTIONAL {
+        ?command sk:hasExpectedOutputField ?output_field .
+
+        ?output_field a sk:OutputField ;
+            sk:fieldName ?output_field_name ;
+            sk:fieldTestValue ?output_field_test_value .
+    }
+}
+ORDER BY ?command_name ?arg_position ?opt_name ?error_id

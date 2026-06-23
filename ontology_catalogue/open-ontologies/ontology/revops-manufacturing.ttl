@@ -1,0 +1,89 @@
+@prefix revops: <https://ggen.io/onto/cli/revops/> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+#################################################################
+# Ontology header
+#################################################################
+
+revops:Ontology a owl:Ontology ;
+    dcterms:title "CodeManufactory RevOps Manufacturing Profile" ;
+    dcterms:description """Models the CodeManufactory test case: RevOps (Revenue Operations).
+The product is CodeManufactory; RevOps is merely proof that CodeManufactory works.
+This ontology declares the manufacturing stages that every RevOps artifact must
+pass through before it is admitted as a certified Cell8 object.""" ;
+    owl:versionInfo "1.0.0" ;
+    dcterms:created "2026-05-12"^^xsd:date .
+
+#################################################################
+# Manufacturing Stage class
+#################################################################
+
+revops:ManufacturingStage a owl:Class ;
+    rdfs:label "Manufacturing Stage"@en ;
+    rdfs:comment "A discrete gate in the CodeManufactory RevOps pipeline."@en .
+
+#################################################################
+# Manufacturing Profile
+#################################################################
+
+revops:RevOpsManufacturingProfile a owl:NamedIndividual ;
+    rdfs:label "RevOps Manufacturing Profile"@en ;
+    rdfs:comment "Four-stage Cell8 manufacturing profile for the RevOps test case."@en ;
+    revops:hasStage revops:SeedStage,
+                   revops:QualifyStage,
+                   revops:ManufactureStage,
+                   revops:CertifyStage .
+
+#################################################################
+# Properties
+#################################################################
+
+revops:hasStage a owl:ObjectProperty ;
+    rdfs:label "has stage"@en ;
+    rdfs:domain revops:RevOpsManufacturingProfile ;
+    rdfs:range  revops:ManufacturingStage ;
+    rdfs:comment "Links a manufacturing profile to its constituent stages."@en .
+
+revops:stageName a owl:DatatypeProperty ;
+    rdfs:label "stage name"@en ;
+    rdfs:domain revops:ManufacturingStage ;
+    rdfs:range  xsd:string ;
+    rdfs:comment "Machine-readable stage identifier used in OCEL event log emissions."@en .
+
+revops:stageOrder a owl:DatatypeProperty ;
+    rdfs:label "stage order"@en ;
+    rdfs:domain revops:ManufacturingStage ;
+    rdfs:range  xsd:integer ;
+    rdfs:comment "Monotonic execution order (1-indexed). Stages must execute in ascending order."@en .
+
+#################################################################
+# Stage individuals (Cell8 A1-A13 lifecycle)
+#################################################################
+
+revops:SeedStage a revops:ManufacturingStage ;
+    rdfs:label "seed"@en ;
+    rdfs:comment "Artifact enters the pipeline; metadata recorded, identity hash computed."@en ;
+    revops:stageName "seed"^^xsd:string ;
+    revops:stageOrder 1 .
+
+revops:QualifyStage a revops:ManufacturingStage ;
+    rdfs:label "qualify"@en ;
+    rdfs:comment "CTQ admission gate; POWL replay must pass fitness >= 0.95."@en ;
+    revops:stageName "qualify"^^xsd:string ;
+    revops:stageOrder 2 .
+
+revops:ManufactureStage a revops:ManufacturingStage ;
+    rdfs:label "manufacture"@en ;
+    rdfs:comment "9-breed swarm manufactures the artifact; Ed25519 receipt emitted."@en ;
+    revops:stageName "manufacture"^^xsd:string ;
+    revops:stageOrder 3 .
+
+revops:CertifyStage a revops:ManufacturingStage ;
+    rdfs:label "certify"@en ;
+    rdfs:comment "Cell8 A1-A13 gate audit; EARL certification report emitted."@en ;
+    revops:stageName "certify"^^xsd:string ;
+    revops:stageOrder 4 .

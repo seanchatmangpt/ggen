@@ -1,0 +1,55 @@
+@prefix o-star-tier: <https://chatmangpt.com/ontologies/o-star-tier#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Test separation of LawDimension and ProofFeature
+
+o-star-tier:LawDimensionType a owl:Class ;
+    rdfs:label "Law Dimension Type"@en ;
+    rdfs:comment "A type of law dimension (closure, authority, admission, remainder, ocel, governance)."@en .
+
+o-star-tier:ProofFeatureType a owl:Class ;
+    rdfs:label "Proof Feature Type"@en ;
+    rdfs:comment "A type of proof feature (validation capabilities, verifiers, sync)."@en .
+
+o-star-tier:ProofFeature a owl:Class ;
+    rdfs:label "Proof Feature"@en ;
+    rdfs:comment "A proof feature instance available in a tier's envelope."@en .
+
+# LawDimensionType instances (6 types)
+o-star-tier:dimension-type-closure a o-star-tier:LawDimensionType ;
+    rdfs:label "Closure Dimension Type"@en ;
+    rdfs:comment "The closure law dimension type."@en .
+
+o-star-tier:dimension-type-authority a o-star-tier:LawDimensionType ;
+    rdfs:label "Authority Dimension Type"@en ;
+    rdfs:comment "The authority law dimension type."@en .
+
+o-star-tier:dimension-type-admission a o-star-tier:LawDimensionType ;
+    rdfs:label "Admission Dimension Type"@en ;
+    rdfs:comment "The admission law dimension type."@en .
+
+o-star-tier:dimension-type-remainder a o-star-tier:LawDimensionType ;
+    rdfs:label "Remainder Dimension Type"@en ;
+    rdfs:comment "The remainder law dimension type."@en .
+
+o-star-tier:dimension-type-ocel a o-star-tier:LawDimensionType ;
+    rdfs:label "OCEL Dimension Type"@en ;
+    rdfs:comment "The OCEL law dimension type."@en .
+
+o-star-tier:dimension-type-governance a o-star-tier:LawDimensionType ;
+    rdfs:label "Governance Dimension Type"@en ;
+    rdfs:comment "The governance law dimension type."@en .
+
+# Properties
+o-star-tier:hasProofFeature a owl:ObjectProperty ;
+    rdfs:label "has proof feature"@en ;
+    rdfs:domain o-star-tier:ProofEnvelope ;
+    rdfs:range o-star-tier:ProofFeature .
+
+o-star-tier:proofFeatureType a owl:ObjectProperty ;
+    rdfs:label "proof feature type"@en ;
+    rdfs:domain o-star-tier:ProofFeature ;
+    rdfs:range <http://www.w3.org/2004/02/skos/core#Concept> .

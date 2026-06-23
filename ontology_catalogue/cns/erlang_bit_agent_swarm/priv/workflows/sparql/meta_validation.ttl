@@ -1,0 +1,304 @@
+@prefix yawl: <http://cns.litigation/yawl#> .
+@prefix val: <http://cns.litigation/validation#> .
+@prefix meta: <http://cns.litigation/meta#> .
+@prefix trinity: <http://cns.litigation/trinity#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Meta-Validation Workflow: Tests the Test Framework Itself
+# This workflow validates that our validation system is itself valid
+
+:MetaValidationWorkflow a yawl:YAWLSpecification ;
+    yawl:name "Meta-Validation of Testing Framework" ;
+    yawl:version "1.0.0" ;
+    yawl:description "Validates that the validation framework correctly identifies failures" ;
+    
+    # Trinity Framework - Meta Level 3
+    trinity:tickBudget 12 ;
+    trinity:hopDepthMax 5 ;
+    trinity:metaLevel 3 ;
+    trinity:validationMode "meta-recursive" ;
+    
+    # Input/Output Conditions
+    yawl:inputCondition :StartMetaValidation ;
+    yawl:outputCondition :MetaValidationComplete ;
+    
+    # Meta-Validation Tasks
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :CreateFailingTest ;
+        yawl:name "Create Known Failing Test" ;
+        meta:operation """
+            # Deliberately create a test that should fail
+            INSERT DATA {
+                GRAPH <meta:test> {
+                    <test:deliberate_failure> a val:Test ;
+                        val:expectedResult "success" ;
+                        val:actualResult "failure" ;
+                        val:shouldDetectFailure true .
+                }
+            }
+        """ ;
+        trinity:tickCost 1 ;
+        yawl:split yawl:AND
+    ] ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :CreatePassingTest ;
+        yawl:name "Create Known Passing Test" ;
+        meta:operation """
+            # Create a test that should pass
+            INSERT DATA {
+                GRAPH <meta:test> {
+                    <test:expected_success> a val:Test ;
+                        val:expectedResult "success" ;
+                        val:actualResult "success" ;
+                        val:shouldDetectSuccess true .
+                }
+            }
+        """ ;
+        trinity:tickCost 1 ;
+        yawl:join yawl:AND ;
+        yawl:split yawl:AND
+    ] ;
+    
+    yawl:task [
+        a yawl:CompositeTask ;
+        yawl:id :RunValidatorOnTests ;
+        yawl:name "Execute Validator on Meta-Tests" ;
+        yawl:decomposesTo :ValidatorExecutionSubnet ;
+        trinity:tickCost 4 ;
+        yawl:join yawl:AND ;
+        yawl:split yawl:XOR
+    ] ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :ValidateValidatorBehavior ;
+        yawl:name "Validate That Validator Behaved Correctly" ;
+        meta:validation """
+            # Check that validator correctly identified the failing test
+            ASK WHERE {
+                <test:deliberate_failure> val:detectedStatus val:failed .
+                <test:expected_success> val:detectedStatus val:passed .
+            }
+        """ ;
+        trinity:tickCost 2 ;
+        yawl:join yawl:XOR
+    ] ;
+    
+    # Recursive Meta-Validation (Level 4)
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :MetaMetaValidation ;
+        yawl:name "Validate the Meta-Validator" ;
+        meta:recursiveLevel 4 ;
+        meta:operation """
+            # This tests whether our meta-validation correctly validates itself
+            SELECT ?validation ?correct WHERE {
+                ?validation a meta:MetaValidation ;
+                          meta:targetWorkflow :MetaValidationWorkflow ;
+                          meta:behavedCorrectly ?correct .
+            }
+        """ ;
+        trinity:tickCost 3
+    ] ;
+    
+    # Control Flow
+    yawl:flow [
+        yawl:from :StartMetaValidation ;
+        yawl:to :CreateFailingTest
+    ] ;
+    
+    yawl:flow [
+        yawl:from :CreateFailingTest ;
+        yawl:to :CreatePassingTest
+    ] ;
+    
+    yawl:flow [
+        yawl:from :CreatePassingTest ;
+        yawl:to :RunValidatorOnTests
+    ] ;
+    
+    yawl:flow [
+        yawl:from :RunValidatorOnTests ;
+        yawl:to :ValidateValidatorBehavior ;
+        yawl:predicate "?validatorStatus = 'completed'"
+    ] ;
+    
+    yawl:flow [
+        yawl:from :ValidateValidatorBehavior ;
+        yawl:to :MetaMetaValidation
+    ] ;
+    
+    yawl:flow [
+        yawl:from :MetaMetaValidation ;
+        yawl:to :MetaValidationComplete
+    ] .
+
+# Subnet: Validator Execution
+:ValidatorExecutionSubnet a yawl:YAWLSubnet ;
+    yawl:name "Execute Validator Against Meta-Tests" ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :InvokeValidator ;
+        meta:call "sparkle_validation_suite:run_test_suite" ;
+        meta:parameters [
+            meta:testGraph <meta:test> ;
+            meta:expectFailures true
+        ]
+    ] ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :CaptureValidatorOutput ;
+        meta:capture """
+            # Capture what the validator detected
+            INSERT {
+                ?test val:detectedStatus ?status .
+            } WHERE {
+                ?test a val:Test .
+                ?validation val:tested ?test .
+                ?validation val:result ?status .
+            }
+        """
+    ] .
+
+# Meta-Test Determinism Validation
+:DeterminismMetaTest a meta:MetaTest ;
+    meta:name "Test Determinism Validation" ;
+    meta:description "Validates that non-deterministic tests are correctly flagged" ;
+    
+    meta:createNonDeterministicTest [
+        meta:testId <test:random_behavior> ;
+        meta:implementation """
+            # This test produces different results each time
+            SELECT ?randomValue WHERE {
+                BIND(RAND() AS ?randomValue)
+            }
+        """
+    ] ;
+    
+    meta:expectedDetection [
+        meta:flag val:nonDeterministic ;
+        meta:confidence "high"
+    ] .
+
+# Meta-Test Coverage Validation  
+:CoverageMetaTest a meta:MetaTest ;
+    meta:name "Test Coverage Validation" ;
+    meta:description "Validates that missing test coverage is detected" ;
+    
+    meta:createIncompleteTestSuite [
+        meta:missing sparql:DELETE ;  # Deliberately omit DELETE operation testing
+        meta:missing sparql:UNION    # Deliberately omit UNION testing
+    ] ;
+    
+    meta:expectedDetection [
+        meta:flag val:incompleteCoverage ;
+        meta:missingFeatures ( sparql:DELETE sparql:UNION )
+    ] .
+
+# Recursive Meta-Validation Rules
+:RecursiveMetaRules a meta:RecursiveValidation ;
+    meta:maxDepth 5 ;
+    meta:convergenceCheck """
+        # Check that meta-validation converges (doesn't infinitely recurse)
+        SELECT (COUNT(*) as ?metaLevels) WHERE {
+            ?validation meta:level ?level .
+            FILTER(?level > 0)
+        }
+        HAVING (?metaLevels <= 5)
+    """ ;
+    
+    meta:rule [
+        a meta:SelfReferenceCheck ;
+        meta:description "Meta-validator must be able to validate itself" ;
+        meta:query """
+            ASK WHERE {
+                :MetaValidationWorkflow val:validatedBy ?validator .
+                ?validator val:canValidate :MetaValidationWorkflow .
+            }
+        """
+    ] ;
+    
+    meta:rule [
+        a meta:CircularityDetection ;
+        meta:description "Detect circular validation dependencies" ;
+        meta:query """
+            SELECT ?cycle WHERE {
+                ?test1 val:dependsOn+ ?test2 .
+                ?test2 val:dependsOn+ ?test1 .
+                BIND(CONCAT(STR(?test1), " -> ", STR(?test2)) AS ?cycle)
+            }
+        """
+    ] .
+
+# Adversarial Meta-Tests
+:AdversarialMetaTests a meta:AdversarialTestSuite ;
+    meta:description "Tests designed to break the meta-validation system" ;
+    
+    meta:attack [
+        a meta:ValidatorPoison ;
+        meta:description "Attempt to corrupt validator with malicious test" ;
+        meta:payload """
+            # Malicious test that tries to modify validator behavior
+            INSERT {
+                val:TestValidator val:alwaysReturn val:passed .
+            } WHERE {
+                ?x ?y ?z .
+            }
+        """ ;
+        meta:expectedOutcome meta:blocked
+    ] ;
+    
+    meta:attack [
+        a meta:MetaInfiniteRecursion ;
+        meta:description "Create infinitely recursive meta-validation" ;
+        meta:recursiveDefinition """
+            ?test val:validatedBy ?test .
+        """ ;
+        meta:expectedOutcome meta:recursionDetected
+    ] ;
+    
+    meta:attack [
+        a meta:ValidationLogicBomb ;
+        meta:description "Exponentially complex validation query" ;
+        meta:query """
+            SELECT * WHERE {
+                ?s1 ?p1 ?o1 .
+                ?s2 ?p2 ?o2 .
+                ?s3 ?p3 ?o3 .
+                ?s4 ?p4 ?o4 .
+                ?s5 ?p5 ?o5 .
+                # This creates cartesian product explosion
+            }
+        """ ;
+        meta:expectedOutcome meta:complexityLimitEnforced
+    ] .
+
+# Meta-Performance Validation
+:MetaPerformanceValidation a meta:PerformanceValidation ;
+    meta:description "Validates performance characteristics of validation itself" ;
+    
+    meta:benchmark [
+        meta:name "Meta-validation overhead" ;
+        meta:measure "validation_time / test_execution_time" ;
+        meta:threshold 2.0 ;  # Meta-validation should not be more than 2x test time
+        meta:critical true
+    ] ;
+    
+    meta:benchmark [
+        meta:name "Memory overhead of meta-graphs" ;
+        meta:measure "meta_memory / base_memory" ;
+        meta:threshold 1.5 ;  # Meta-validation memory should not exceed 1.5x base
+        meta:warning true
+    ] ;
+    
+    meta:scalabilityTest [
+        meta:name "Meta-validation scaling" ;
+        meta:testSizes ( 10 100 1000 10000 ) ;
+        meta:expectedComplexity "O(n log n)" ;
+        meta:timeoutPerTest "100ms"
+    ] .

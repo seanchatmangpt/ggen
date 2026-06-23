@@ -1,0 +1,10 @@
+@prefix trinity: <http://cns.litigation/trinity#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<validation:trinity> a trinity:ValidationReport ;
+    trinity:successRate "1.00"^^xsd:decimal ;
+    trinity:constraints [
+        trinity:maxTicks 8 ;
+        trinity:maxHops 8 ;
+        trinity:maxBits 8
+    ] .

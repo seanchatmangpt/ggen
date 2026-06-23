@@ -1,0 +1,36 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://example.org/workflow/simple-sequence> a yawl:WorkflowSpecification ;
+    rdfs:label "Simple Sequence Workflow" ;
+    yawl:hasStartCondition <http://example.org/condition/start> ;
+    yawl:hasEndCondition <http://example.org/condition/end> ;
+    yawl:hasTask <http://example.org/task/task1>, <http://example.org/task/task2> ;
+    yawl:hasCondition <http://example.org/condition/start>, <http://example.org/condition/intermediate>, <http://example.org/condition/end> .
+
+<http://example.org/task/task1> a yawl:Task ;
+    rdfs:label "Task 1" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasOutgoingFlow <http://example.org/condition/intermediate> .
+
+<http://example.org/task/task2> a yawl:Task ;
+    rdfs:label "Task 2" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/condition/intermediate> .
+
+<http://example.org/condition/start> a yawl:Condition ;
+    rdfs:label "Start" ;
+    yawl:hasOutgoingFlow <http://example.org/task/task1> .
+
+<http://example.org/condition/intermediate> a yawl:Condition ;
+    rdfs:label "Intermediate" ;
+    yawl:hasIncomingFlow <http://example.org/task/task1> ;
+    yawl:hasOutgoingFlow <http://example.org/task/task2> .
+
+<http://example.org/condition/end> a yawl:Condition ;
+    rdfs:label "End" ;
+    yawl:hasIncomingFlow <http://example.org/task/task2> .
+

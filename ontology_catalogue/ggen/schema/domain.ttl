@@ -1,0 +1,27 @@
+# ggen v26_5_19: Example Ontology using standard Base Namespace
+# Uses standard base namespace instead of non-whitelisted custom namespace.
+
+@base <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Example: Using standard base Person and properties
+<#Person> a rdfs:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "Standard vocabulary for person data" .
+
+# Properties
+<#name> a rdf:Property ;
+    rdfs:domain <#Person> ;
+    rdfs:label "name" ;
+    rdfs:comment "The name of the person" .
+
+<#email> a rdf:Property ;
+    rdfs:domain <#Person> ;
+    rdfs:label "email" ;
+    rdfs:comment "The email address" .
+
+<#age> a rdf:Property ;
+    rdfs:domain <#Person> ;
+    rdfs:label "age" ;
+    rdfs:comment "The age of the person" .

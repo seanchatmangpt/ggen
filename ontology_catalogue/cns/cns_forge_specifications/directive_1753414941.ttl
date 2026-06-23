@@ -1,0 +1,16 @@
+
+@prefix cns: <http://cns.io/forge#> .
+@prefix bitactor: <http://cns.io/bitactor#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+cns:directive_1753414941 a bitactor:LatencyConstraint ;
+    bitactor:maxLatencyNs "50000000"^^xsd:long ;
+    bitactor:percentile "99.9" ;
+    bitactor:measurementInterval "1s" ;
+    cns:generatedFrom "maintain market latency below 50ms" ;
+    cns:requiresOptimization bitactor:AOTCompilation ;
+    cns:requiresComponents (
+        bitactor:Engine
+        cns:PerformanceMonitor
+        cns:LoadBalancer
+    ) .

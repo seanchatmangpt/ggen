@@ -1,0 +1,268 @@
+# ============================================================================
+# Product Recommendations SPARQL Queries
+# ============================================================================
+# Collection of SPARQL queries for recommendation engine operations
+# Version: 1.0.0
+# ============================================================================
+
+PREFIX rec: <http://example.org/recommendations#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+# ============================================================================
+# Query 1: Extract User Behavior Preferences
+# ============================================================================
+# Returns: User interaction history with products
+
+SELECT ?userId ?productId ?behaviorType ?eventTimestamp ?eventValue
+WHERE {
+    ?user foaf:accountName ?userId ;
+          rec:hasBehavior ?behavior .
+
+    ?behavior a ?behaviorType ;
+              rec:onProduct ?product ;
+              rec:eventTimestamp ?eventTimestamp .
+
+    ?product rec:productId ?productId .
+
+    OPTIONAL { ?behavior rec:eventValue ?eventValue }
+}
+ORDER BY ?userId DESC(?eventTimestamp)
+
+# ============================================================================
+# Query 2: Generate Collaborative Filter (User-Based Similarity)
+# ============================================================================
+# Returns: Users with similar purchase patterns for collaborative filtering
+
+SELECT ?userId1 ?userId2 ?commonProducts ?similarityScore
+WHERE {
+    # Find users who purchased same products
+    ?user1 foaf:accountName ?userId1 .
+    ?user2 foaf:accountName ?userId2 .
+
+    ?user1 rec:hasBehavior ?b1 .
+    ?user2 rec:hasBehavior ?b2 .
+
+    ?b1 a rec:PurchaseEvent ; rec:onProduct ?product .
+    ?b2 a rec:PurchaseEvent ; rec:onProduct ?product .
+
+    FILTER(?userId1 < ?userId2)  # Avoid duplicates
+}
+GROUP BY ?userId1 ?userId2
+HAVING (COUNT(?product) AS ?commonProducts)
+BIND(?commonProducts / 10.0 AS ?similarityScore)  # Simplified Jaccard
+ORDER BY DESC(?similarityScore)
+LIMIT 100
+
+# ============================================================================
+# Query 3: Calculate Item Similarity (Content-Based Filtering)
+# ============================================================================
+# Returns: Products similar based on attributes (category, tags, price range)
+
+SELECT ?productId1 ?productId2 ?sharedAttributes ?similarityScore
+WHERE {
+    ?product1 rec:productId ?productId1 ;
+              rec:hasCategory ?category ;
+              rec:hasTag ?tag .
+
+    ?product2 rec:productId ?productId2 ;
+              rec:hasCategory ?category ;
+              rec:hasTag ?tag .
+
+    FILTER(?productId1 < ?productId2)
+}
+GROUP BY ?productId1 ?productId2
+HAVING (COUNT(?tag) AS ?sharedAttributes)
+BIND(?sharedAttributes / 5.0 AS ?similarityScore)
+ORDER BY DESC(?similarityScore)
+LIMIT 100
+
+# ============================================================================
+# Query 4: Extract Top Rated Products by Category
+# ============================================================================
+# Returns: Highest rated products for content-based recommendations
+
+SELECT ?categoryName ?productId ?productName ?averageRating ?reviewCount
+WHERE {
+    ?product rec:productId ?productId ;
+             rec:productName ?productName ;
+             rec:averageRating ?averageRating ;
+             rec:reviewCount ?reviewCount ;
+             rec:hasCategory ?category .
+
+    ?category rec:categoryName ?categoryName .
+
+    FILTER(?reviewCount >= 10)  # Minimum reviews for reliability
+}
+ORDER BY ?categoryName DESC(?averageRating) DESC(?reviewCount)
+
+# ============================================================================
+# Query 5: Generate Market Basket Association Rules
+# ============================================================================
+# Returns: Frequently purchased product pairs (association rules)
+
+SELECT ?productId1 ?productId2 ?coOccurrence ?confidence
+WHERE {
+    ?user rec:hasBehavior ?b1, ?b2 .
+
+    ?b1 a rec:PurchaseEvent ; rec:onProduct ?p1 .
+    ?b2 a rec:PurchaseEvent ; rec:onProduct ?p2 .
+
+    ?p1 rec:productId ?productId1 .
+    ?p2 rec:productId ?productId2 .
+
+    FILTER(?productId1 < ?productId2)
+}
+GROUP BY ?productId1 ?productId2
+HAVING (COUNT(*) AS ?coOccurrence)
+FILTER(?coOccurrence >= 5)
+BIND(?coOccurrence / 10.0 AS ?confidence)
+ORDER BY DESC(?coOccurrence)
+
+# ============================================================================
+# Query 6: Extract User Segment Preferences
+# ============================================================================
+# Returns: Popular products within user segments
+
+SELECT ?segmentName ?productId ?productName ?purchaseCount
+WHERE {
+    ?user rec:belongsToSegment ?segment ;
+          rec:hasBehavior ?behavior .
+
+    ?segment rec:segmentName ?segmentName .
+
+    ?behavior a rec:PurchaseEvent ;
+              rec:onProduct ?product .
+
+    ?product rec:productId ?productId ;
+             rec:productName ?productName .
+}
+GROUP BY ?segmentName ?productId ?productName
+HAVING (COUNT(?behavior) AS ?purchaseCount)
+ORDER BY ?segmentName DESC(?purchaseCount)
+
+# ============================================================================
+# Query 7: A/B Test Variant Assignment
+# ============================================================================
+# Returns: Users assigned to experiment variants for recommendation testing
+
+SELECT ?userId ?testName ?variantName ?algorithmType
+WHERE {
+    ?user foaf:accountName ?userId ;
+          rec:assignedVariant ?variant .
+
+    ?test rec:testName ?testName ;
+          rec:hasVariant ?variant .
+
+    ?variant rdfs:label ?variantName ;
+             rec:usesAlgorithm ?algorithm .
+
+    ?algorithm a ?algorithmType .
+}
+
+# ============================================================================
+# Query 8: Calculate Click-Through Rate (CTR) by Algorithm
+# ============================================================================
+# Returns: Performance metrics for A/B test evaluation
+
+SELECT ?algorithmType
+       (COUNT(?clickEvent) AS ?clicks)
+       (COUNT(?viewEvent) AS ?views)
+       (?clicks * 100.0 / ?views AS ?ctr)
+WHERE {
+    ?recommendation rec:usesAlgorithm ?algorithm .
+    ?algorithm a ?algorithmType .
+
+    ?user rec:hasBehavior ?behavior .
+    ?behavior rec:inSession ?session .
+
+    OPTIONAL {
+        ?behavior a rec:ViewEvent .
+        BIND(?behavior AS ?viewEvent)
+    }
+    OPTIONAL {
+        ?behavior a rec:ClickEvent .
+        BIND(?behavior AS ?clickEvent)
+    }
+}
+GROUP BY ?algorithmType
+ORDER BY DESC(?ctr)
+
+# ============================================================================
+# Query 9: Extract Trending Products (Real-Time Popularity)
+# ============================================================================
+# Returns: Products with increasing interaction rates in last 24 hours
+
+SELECT ?productId ?productName ?viewCount ?clickCount ?purchaseCount
+WHERE {
+    ?product rec:productId ?productId ;
+             rec:productName ?productName .
+
+    ?behavior rec:onProduct ?product ;
+              rec:eventTimestamp ?timestamp .
+
+    FILTER(?timestamp >= NOW() - (24 * 60 * 60))
+
+    OPTIONAL {
+        ?behavior a rec:ViewEvent .
+        BIND(1 AS ?view)
+    }
+    OPTIONAL {
+        ?behavior a rec:ClickEvent .
+        BIND(1 AS ?click)
+    }
+    OPTIONAL {
+        ?behavior a rec:PurchaseEvent .
+        BIND(1 AS ?purchase)
+    }
+}
+GROUP BY ?productId ?productName
+HAVING (SUM(?view) AS ?viewCount)
+       (SUM(?click) AS ?clickCount)
+       (SUM(?purchase) AS ?purchaseCount)
+ORDER BY DESC(?purchaseCount) DESC(?clickCount)
+LIMIT 50
+
+# ============================================================================
+# Query 10: Generate Personalized Recommendations (Hybrid Approach)
+# ============================================================================
+# Returns: Recommendations combining collaborative and content-based signals
+
+SELECT ?userId ?recommendedProductId ?productName
+       ?collaborativeScore ?contentScore ?hybridScore
+WHERE {
+    # Collaborative signal: Similar users liked this
+    ?user foaf:accountName ?userId .
+    ?similarUser rec:hasBehavior ?b1 .
+    ?b1 a rec:PurchaseEvent ; rec:onProduct ?p1 .
+    ?p1 rec:productId ?recommendedProductId ;
+        rec:productName ?productName .
+
+    BIND(0.6 AS ?collaborativeScore)  # Weight for collaborative
+
+    # Content signal: Similar to user's preferences
+    ?user rec:hasBehavior ?b2 .
+    ?b2 rec:onProduct ?p2 .
+    ?p2 rec:hasCategory ?category .
+    ?p1 rec:hasCategory ?category .
+
+    BIND(0.4 AS ?contentScore)  # Weight for content-based
+
+    # Hybrid score
+    BIND(?collaborativeScore + ?contentScore AS ?hybridScore)
+
+    # Exclude already purchased
+    FILTER NOT EXISTS {
+        ?user rec:hasBehavior ?userPurchase .
+        ?userPurchase a rec:PurchaseEvent ;
+                      rec:onProduct ?p1 .
+    }
+}
+ORDER BY DESC(?hybridScore)
+LIMIT 10
+
+# ============================================================================
+# End of Product Recommendations SPARQL Queries
+# ============================================================================

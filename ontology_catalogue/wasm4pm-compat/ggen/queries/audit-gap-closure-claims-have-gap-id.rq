@@ -1,0 +1,30 @@
+# SPARQL Query: Every Gap Closure Claim Must Reference a Gap ID
+# Purpose: SELECT/ASK validation that every ClosureClaim names a specific Gap via audit:closesGap.
+# Rationale: Undocumented gap closures are hostile assumptions. Every closure must be traceable
+#           to a documented gap. This query finds orphaned closure claims (missing gap reference).
+# Returns: SELECT listing all closure claims WITHOUT a gap reference; empty result = pass.
+# Usage: ggen query audit-gap-closure-claims-have-gap-id.rq --format sparql-results
+
+PREFIX audit:   <https://wasm4pm-compat.rs/audit#>
+PREFIX compat:  <https://wasm4pm-compat.rs/ontology#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?closureClaim ?closingCommit ?closureMethod
+WHERE {
+  # Find every closure claim in the audit graph
+  ?closureClaim a audit:ClosureClaim ;
+                audit:closingCommit ?closingCommit ;
+                audit:closureMethod ?closureMethod .
+
+  # Filter: keep only those that do NOT reference a gap
+  FILTER NOT EXISTS {
+    ?closureClaim audit:closesGap ?gapReference .
+    ?gapReference a audit:Gap ;
+                  audit:gapId ?gapId .
+  }
+}
+ORDER BY ?closingCommit
+# Validation Rule: Result set must be empty.
+# Any row returned here indicates an orphaned closure claim (no gap_id linkage).
+# Remediation: Add audit:closesGap property linking to an audit:Gap instance.

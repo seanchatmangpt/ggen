@@ -1,0 +1,13 @@
+@prefix mex-perf: <http://mex.aksw.org/mex-perf#> .
+@prefix mex-core: <http://mex.aksw.org/mex-core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://mex.aksw.org/mex-perf> rdf:type owl:Ontology ;
+    rdfs:label "The MEX Vocabulary (mex-perf)"@en ;
+    dct:title "MEX Performance (mex-perf) describes performance values"@en .
+
+mex-perf:ExecutionPerformance rdf:type owl:Class ;
+    rdfs:label "Execution Performance"@en ;
+    rdfs:subClassOf mex-core:Execution .

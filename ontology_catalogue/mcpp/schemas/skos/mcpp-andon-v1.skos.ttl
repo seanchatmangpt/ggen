@@ -1,0 +1,216 @@
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix mcpp:    <https://w3id.org/mcpp#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# ──────────────────────────────────────────────────────────────────────────────
+# MCP+ Andon Reason Scheme v1 — closed SKOS vocabulary
+#
+# This file is the authoritative SKOS bridge for `AndonReasonCode` in
+# `crates/mcpp-core/src/protocol/andon.rs`. The Rust enum and this scheme
+# are in 1:1 correspondence (19 variants ↔ 19 skos:Concepts) as of v26.5.16.
+# Original 16 V1 codes + 3 gap-closure codes added in v26.5.16 Slice B.
+#
+# Adding a refusal class requires:
+#   1. New variant in `AndonReasonCode`
+#   2. Matching `skos:Concept` in this file
+#   3. Updated exhaustive match in `crates/mcpp-server/src/passport/skos.rs`
+#
+# A refusal class not in this scheme is *unmappable*, which is the
+# correct K-P09 behaviour: closed vocabulary, no silent fallback.
+# ──────────────────────────────────────────────────────────────────────────────
+
+mcpp:AndonReasonScheme a skos:ConceptScheme ;
+    skos:prefLabel  "MCP+ Andon Reason Scheme v1"@en ;
+    skos:notation   "mcpp-andon-v1" ;
+    skos:definition "Closed set of refusal classes the MCP+ Verdict::Refuse may carry."@en .
+
+# ── Conformance refusals (11) ────────────────────────────────────────────────
+
+mcpp:ActivityOnlyFakeRoute a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Activity-Only Fake Route"@en ;
+    skos:notation     "ActivityOnlyFakeRoute" ;
+    skos:definition   "Submitted route consisted of bare activity labels with no operator/object lifecycle structure — not an admissible POWL graph."@en .
+
+mcpp:RouteConformanceGap a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Route Conformance Gap"@en ;
+    skos:notation     "RouteConformanceGap" ;
+    skos:definition   "Live trace did not satisfy all 5 conformance dimensions == 1.0 (fitness, precision, receipt coverage, required-stage coverage, object-lifecycle validity)."@en .
+
+mcpp:MissingRequiredStages a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Missing Required Stages"@en ;
+    skos:notation     "MissingRequiredStages" ;
+    skos:definition   "Observed trace omitted one or more stages the declared route marks as required."@en .
+
+mcpp:RouteSequenceMismatch a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Route Sequence Mismatch"@en ;
+    skos:notation     "RouteSequenceMismatch" ;
+    skos:definition   "Observed events occurred in an order incompatible with the declared sequence operator of the route."@en .
+
+mcpp:PartialOrderViolation a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Partial Order Violation"@en ;
+    skos:notation     "PartialOrderViolation" ;
+    skos:definition   "Observed event order violates a partial-order constraint declared by the POWL route model."@en .
+
+mcpp:LifecycleNotTerminated a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Lifecycle Not Terminated"@en ;
+    skos:notation     "LifecycleNotTerminated" ;
+    skos:definition   "An object instance reached the trace end without firing one of its declared `terminated_by` activities."@en .
+
+mcpp:CardinalityViolation a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Cardinality Violation"@en ;
+    skos:notation     "CardinalityViolation" ;
+    skos:definition   "Object-type instance count fell outside the declared `min_count` / `max_count` window."@en .
+
+mcpp:ObjectLifecycleViolation a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Object Lifecycle Violation"@en ;
+    skos:notation     "ObjectLifecycleViolation" ;
+    skos:definition   "Object-type lifecycle (created_by/terminated_by) was violated — object referenced before creation, or events fired against a terminated object."@en .
+
+mcpp:ReceiptSchemaViolation a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Receipt Schema Violation"@en ;
+    skos:notation     "ReceiptSchemaViolation" ;
+    skos:definition   "Emitted receipt failed JSON-Schema validation against the declared `schemas/receipts/*.schema.json` shape."@en .
+
+mcpp:InsufficientReceiptCoverage a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Insufficient Receipt Coverage"@en ;
+    skos:notation     "InsufficientReceiptCoverage" ;
+    skos:definition   "Not every declared route stage produced its required receipt — receipt coverage < 1.0."@en .
+
+mcpp:TestRouteIncomplete a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Test Route Incomplete"@en ;
+    skos:notation     "TestRouteIncomplete" ;
+    skos:definition   "Adversarial / test route fixture was not fully exercised — missing stages or missing receipts in a route declared `kind: test-case`."@en .
+
+# ── Envelope refusals (5) ────────────────────────────────────────────────────
+
+mcpp:VersionMismatch a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Version Mismatch"@en ;
+    skos:notation     "VersionMismatch" ;
+    skos:definition   "Request envelope's `mcpp_version` field did not equal the server's frozen MCPP_VERSION constant."@en .
+
+mcpp:PartNotFound a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Part Not Found"@en ;
+    skos:notation     "PartNotFound" ;
+    skos:definition   "Requested part_id has no resolvable manifest entry in the registry."@en .
+
+mcpp:PolicyDowngradeRejected a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Policy Downgrade Rejected"@en ;
+    skos:notation     "PolicyDowngradeRejected" ;
+    skos:definition   "Request attempted to weaken policy below the part manifest's declared minimum (e.g. relax conformance threshold from 1.0)."@en .
+
+mcpp:InputHashMismatch a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Input Hash Mismatch"@en ;
+    skos:notation     "InputHashMismatch" ;
+    skos:definition   "Computed BLAKE3 of submitted input did not match the hash declared in the request envelope."@en .
+
+mcpp:ManifestUnsigned a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Manifest Unsigned"@en ;
+    skos:notation     "ManifestUnsigned" ;
+    skos:definition   "Part manifest lacked a valid Ed25519 signature, or the signature failed verification under the declared verifier DID."@en .
+
+# ── Gap-closure refusals (3) — v26.5.16 Slice B ──────────────────────────────
+
+mcpp:EvidenceContinuityGap a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Evidence Continuity Gap"@en ;
+    skos:notation     "EvidenceContinuityGap" ;
+    skos:definition   "A gap was detected in the evidence chain for an activity and all alternate-evidence attempts were exhausted with no resolution. Route cannot be admitted."@en ;
+    skos:related      mcpp:RouteConformanceGap ;
+    skos:note         "Emitted by route_coordinator when pending_gaps is non-empty at join and gap_closure_exhausted is true."@en .
+
+mcpp:GapClosureUnauthorized a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Gap Closure Unauthorized"@en ;
+    skos:notation     "GapClosureUnauthorized" ;
+    skos:definition   "A gap-closure attempt was received from an alternate-evidence source not present in the gap_closure_authority permit-list for that activity."@en ;
+    skos:related      mcpp:EvidenceContinuityGap ;
+    skos:note         "LIVE-09 GapClosureLawful fires on this code: the closing source must be in the route permit-list."@en .
+
+mcpp:GapClosureExhausted a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonScheme ;
+    skos:inScheme     mcpp:AndonReasonScheme ;
+    skos:prefLabel    "Gap Closure Exhausted"@en ;
+    skos:notation     "GapClosureExhausted" ;
+    skos:definition   "The maximum retry count (max_retries) for alternate-evidence requests was reached for an activity without a successful gap closure."@en ;
+    skos:related      mcpp:EvidenceContinuityGap ;
+    skos:note         "route_coordinator propagates this code to andon_supervisor when retry_counts[ActivityId] >= gap_authority[ActivityId].max_retries."@en .
+
+# ──────────────────────────────────────────────────────────────────────────────
+# v26.5.16 Slice E.5 — Cross-Enterprise ConceptScheme (extension namespace).
+#
+# These four codes are NOT members of mcpp:AndonReasonScheme. They live in
+# the separate scheme at <https://w3id.org/mcpp/skos/cross-enterprise-v1>
+# so the v1 mcpp: scheme stays closed at exactly 16 concepts.
+#
+# Wire-format namespace: "extension/cross-enterprise".
+# Rust type: mcpp_cross_enterprise::refusal::CrossEnterpriseRefusalCode.
+# ──────────────────────────────────────────────────────────────────────────────
+
+@prefix mcppce:  <https://w3id.org/mcpp/skos/cross-enterprise-v1#> .
+
+<https://w3id.org/mcpp/skos/cross-enterprise-v1> a skos:ConceptScheme ;
+    skos:prefLabel  "MCP+ Cross-Enterprise Refusal Scheme v1"@en ;
+    skos:notation   "mcpp-cross-enterprise-v1" ;
+    skos:definition "Closed set of cross-enterprise refusal classes used by the Port-of-LA settlement reference case."@en .
+
+mcppce:CrossEnterpriseRelaySignatureInvalid a skos:Concept ;
+    skos:topConceptOf <https://w3id.org/mcpp/skos/cross-enterprise-v1> ;
+    skos:inScheme     <https://w3id.org/mcpp/skos/cross-enterprise-v1> ;
+    skos:prefLabel    "Cross-Enterprise Relay Signature Invalid"@en ;
+    skos:notation     "CrossEnterpriseRelaySignatureInvalid" ;
+    skos:definition   "Ed25519 signature on a cross-enterprise RelayMessage did not verify against the trust-list public key for the declared issuer DID."@en .
+
+mcppce:CrossEnterpriseApprovalDenied a skos:Concept ;
+    skos:topConceptOf <https://w3id.org/mcpp/skos/cross-enterprise-v1> ;
+    skos:inScheme     <https://w3id.org/mcpp/skos/cross-enterprise-v1> ;
+    skos:prefLabel    "Cross-Enterprise Approval Denied"@en ;
+    skos:notation     "CrossEnterpriseApprovalDenied" ;
+    skos:definition   "An authority enterprise (e.g. customs broker) emitted an ApprovalDenied relay payload; the local proof_aggregator surfaces this as a typed Refused verdict."@en .
+
+mcppce:CrossEnterpriseRelayStale a skos:Concept ;
+    skos:topConceptOf <https://w3id.org/mcpp/skos/cross-enterprise-v1> ;
+    skos:inScheme     <https://w3id.org/mcpp/skos/cross-enterprise-v1> ;
+    skos:prefLabel    "Cross-Enterprise Relay Stale"@en ;
+    skos:notation     "CrossEnterpriseRelayStale" ;
+    skos:definition   "Verification timestamp fell outside the issued_at / valid_until window declared on the cross-enterprise RelayMessage."@en .
+
+mcppce:CrossEnterpriseIssuerNotTrusted a skos:Concept ;
+    skos:topConceptOf <https://w3id.org/mcpp/skos/cross-enterprise-v1> ;
+    skos:inScheme     <https://w3id.org/mcpp/skos/cross-enterprise-v1> ;
+    skos:prefLabel    "Cross-Enterprise Issuer Not Trusted"@en ;
+    skos:notation     "CrossEnterpriseIssuerNotTrusted" ;
+    skos:definition   "The issuer DID on the RelayMessage was not present in trust-list.json; mcpp refuses to use the payload as evidence."@en .

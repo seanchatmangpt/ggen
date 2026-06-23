@@ -1,0 +1,187 @@
+# SHACL Shapes for Git Event Validation
+# Validates git event data, metadata, and event-specific properties
+# Version: 1.0.0
+# Date: January 10, 2026
+
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gitv: <https://gitvan.dev/ontology/git#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# BASE GIT EVENT SHAPES
+# ============================================================================
+
+# Base Git event constraints
+gitv:GitEventShape a sh:NodeShape ;
+  sh:targetClass gitv:GitEvent ;
+  rdfs:label "Git Event Shape" ;
+  rdfs:comment "Validates git event has required metadata" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gitv:eventType ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ("pre-commit" "post-commit" "pre-push" "post-push" "post-checkout" "post-merge") ;
+    sh:message "Git event must specify valid event type" ;
+  ] ;
+
+  sh:property [
+    sh:path gitv:timestamp ;
+    sh:minCount 1 ;
+    sh:datatype xsd:dateTime ;
+    sh:message "Git event must have valid ISO 8601 timestamp" ;
+  ] ;
+
+  sh:property [
+    sh:path gitv:exitCode ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:message "Exit code must be non-negative integer" ;
+  ] ;
+
+  sh:property [
+    sh:path gitv:duration ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:message "Duration must be non-negative integer (milliseconds)" ;
+  ] .
+
+# ============================================================================
+# EVENT-SPECIFIC SHAPES
+# ============================================================================
+
+# Pre-commit event must list staged files
+gitv:PreCommitEventShape a sh:NodeShape ;
+  sh:targetClass gitv:PreCommitEvent ;
+  rdfs:label "Pre-Commit Event Shape" ;
+  rdfs:comment "Validates pre-commit event has staged files" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gitv:stagedFiles ;
+    sh:minCount 1 ;
+    sh:message "Pre-commit event must list staged files" ;
+  ] ;
+
+  sh:property [
+    sh:path gitv:branch ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Pre-commit branch should be a string" ;
+  ] .
+
+# Post-commit event must have commit reference
+gitv:PostCommitEventShape a sh:NodeShape ;
+  sh:targetClass gitv:PostCommitEvent ;
+  rdfs:label "Post-Commit Event Shape" ;
+  rdfs:comment "Validates post-commit event has commit info" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gitv:commitRef ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Post-commit event must specify commit reference" ;
+  ] ;
+
+  sh:property [
+    sh:path gitv:commitMessage ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Post-commit message should be a string" ;
+  ] .
+
+# Post-push event must list pushed references
+gitv:PostPushEventShape a sh:NodeShape ;
+  sh:targetClass gitv:PostPushEvent ;
+  rdfs:label "Post-Push Event Shape" ;
+  rdfs:comment "Validates post-push event lists pushed references" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gitv:pushedRefs ;
+    sh:minCount 1 ;
+    sh:message "Post-push event must list pushed references" ;
+  ] ;
+
+  sh:property [
+    sh:path gitv:remote ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Post-push event must specify remote name" ;
+  ] .
+
+# Post-checkout event must have branch information
+gitv:PostCheckoutEventShape a sh:NodeShape ;
+  sh:targetClass gitv:PostCheckoutEvent ;
+  rdfs:label "Post-Checkout Event Shape" ;
+  rdfs:comment "Validates post-checkout event has branch info" ;
+  sh:severity sh:Warning ;
+
+  sh:property [
+    sh:path gitv:previousRef ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Post-checkout should indicate previous ref" ;
+  ] ;
+
+  sh:property [
+    sh:path gitv:newRef ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Post-checkout should indicate new ref" ;
+  ] ;
+
+  sh:property [
+    sh:path gitv:isCheckout ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "Checkout flag should be boolean" ;
+  ] .
+
+# Post-merge event must have merge reference
+gitv:PostMergeEventShape a sh:NodeShape ;
+  sh:targetClass gitv:PostMergeEvent ;
+  rdfs:label "Post-Merge Event Shape" ;
+  rdfs:comment "Validates post-merge event has merge info" ;
+  sh:severity sh:Warning ;
+
+  sh:property [
+    sh:path gitv:mergedBranch ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Merged branch should be specified" ;
+  ] ;
+
+  sh:property [
+    sh:path gitv:isSqMerge ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "Squash merge flag should be boolean" ;
+  ] .
+
+# ============================================================================
+# TIMING AND DURATION CONSTRAINTS
+# ============================================================================
+
+# Event duration must be within reasonable bounds
+gitv:ReasonableDurationShape a sh:NodeShape ;
+  sh:targetClass gitv:GitEvent ;
+  rdfs:label "Reasonable Duration Shape" ;
+  rdfs:comment "Event duration should be within reasonable bounds" ;
+  sh:severity sh:Warning ;
+
+  sh:property [
+    sh:path gitv:duration ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 3600000 ;
+    sh:message "Duration should be between 0ms and 1 hour (3600000ms)" ;
+  ] .

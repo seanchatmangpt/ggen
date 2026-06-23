@@ -1,0 +1,289 @@
+# SHACL shapes for process tree type-law validation
+# Part of wasm4pm-compat type-law covenant: arity constraints on ProcessTreeOperator
+#
+# These shapes validate:
+# - Loop operator has exactly 2 children (do-body + redo, per Leemans 2013)
+# - Silent operator has 0 children
+# - Sequence, Xor, Parallel, Or have ≥2 children (1 child is trivial)
+# - All children are valid ProcessTreeNode instances
+# - Projections preserve block structure (no orphaned operators, no cycles)
+# - ProcessTreeRefusal carries a named reason (not bare string)
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix compat: <https://wasm4pm-compat.rs/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# ProcessTreeOperator_Loop Node Shape
+# ============================================================================
+# Leemans (2013) defines loop as: do-body + redo branch = exactly 2 children.
+# This is the only operator with fixed arity (all others allow unbounded).
+
+compat:ProcessTreeOperator_LoopShape
+    a sh:NodeShape ;
+    sh:targetNode compat:ProcessTreeOperator_Loop ;
+    rdfs:label "Loop Operator Shape" ;
+    rdfs:comment "Loop operator (do-body + redo branch) must have exactly 2 children per Leemans 2013." ;
+    sh:property compat:ProcessTreeLoop_hasChildProp .
+
+compat:ProcessTreeLoop_hasChildProp
+    a sh:PropertyShape ;
+    sh:path compat:hasChild ;
+    sh:minCount 2 ;
+    sh:maxCount 2 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Loop operator must have exactly 2 children (do-body + redo branch). This is a non-negotiable invariant." .
+
+# ============================================================================
+# ProcessTreeOperator_Silent Node Shape
+# ============================================================================
+# Silent (tau) carries no children; it is a leaf node.
+
+compat:ProcessTreeOperator_SilentShape
+    a sh:NodeShape ;
+    sh:targetNode compat:ProcessTreeOperator_Silent ;
+    rdfs:label "Silent Operator Shape" ;
+    rdfs:comment "Silent operator (tau) must have 0 children; it is always a leaf." ;
+    sh:property compat:ProcessTreeSilent_hasChildProp .
+
+compat:ProcessTreeSilent_hasChildProp
+    a sh:PropertyShape ;
+    sh:path compat:hasChild ;
+    sh:maxCount 0 ;
+    sh:message "Silent operator (tau) must have 0 children. It is a leaf node." .
+
+# ============================================================================
+# ProcessTreeOperator_Sequence Node Shape
+# ============================================================================
+# Sequence: ordering over one element is trivial; minimum 2 children, unbounded max.
+
+compat:ProcessTreeOperator_SequenceShape
+    a sh:NodeShape ;
+    sh:targetNode compat:ProcessTreeOperator_Sequence ;
+    rdfs:label "Sequence Operator Shape" ;
+    rdfs:comment "Sequence operator must have at least 2 children; ordering one element is trivial." ;
+    sh:property compat:ProcessTreeSequence_hasChildProp .
+
+compat:ProcessTreeSequence_hasChildProp
+    a sh:PropertyShape ;
+    sh:path compat:hasChild ;
+    sh:minCount 2 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Sequence operator must have at least 2 children. Single-element sequences are not allowed." .
+
+# ============================================================================
+# ProcessTreeOperator_Xor Node Shape
+# ============================================================================
+# Xor: choice between one is trivial; minimum 2 children, unbounded max.
+
+compat:ProcessTreeOperator_XorShape
+    a sh:NodeShape ;
+    sh:targetNode compat:ProcessTreeOperator_Xor ;
+    rdfs:label "Xor Operator Shape" ;
+    rdfs:comment "Xor operator must have at least 2 children; choice between one is trivial." ;
+    sh:property compat:ProcessTreeXor_hasChildProp .
+
+compat:ProcessTreeXor_hasChildProp
+    a sh:PropertyShape ;
+    sh:path compat:hasChild ;
+    sh:minCount 2 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Xor operator must have at least 2 children. Single-choice gates are not allowed." .
+
+# ============================================================================
+# ProcessTreeOperator_Parallel Node Shape
+# ============================================================================
+# Parallel: concurrency of one is trivial; minimum 2 children, unbounded max.
+
+compat:ProcessTreeOperator_ParallelShape
+    a sh:NodeShape ;
+    sh:targetNode compat:ProcessTreeOperator_Parallel ;
+    rdfs:label "Parallel Operator Shape" ;
+    rdfs:comment "Parallel operator must have at least 2 children; concurrency of one is trivial." ;
+    sh:property compat:ProcessTreeParallel_hasChildProp .
+
+compat:ProcessTreeParallel_hasChildProp
+    a sh:PropertyShape ;
+    sh:path compat:hasChild ;
+    sh:minCount 2 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Parallel operator must have at least 2 children. Single-branch parallelism is not allowed." .
+
+# ============================================================================
+# ProcessTreeOperator_Or Node Shape
+# ============================================================================
+# Or: inclusive choice of one is trivial; minimum 2 children, unbounded max.
+
+compat:ProcessTreeOperator_OrShape
+    a sh:NodeShape ;
+    sh:targetNode compat:ProcessTreeOperator_Or ;
+    rdfs:label "Or Operator Shape" ;
+    rdfs:comment "Or (inclusive choice) operator must have at least 2 children; choice between one is trivial." ;
+    sh:property compat:ProcessTreeOr_hasChildProp .
+
+compat:ProcessTreeOr_hasChildProp
+    a sh:PropertyShape ;
+    sh:path compat:hasChild ;
+    sh:minCount 2 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Or (inclusive choice) operator must have at least 2 children. Single-branch inclusion is not allowed." .
+
+# ============================================================================
+# TreeProjectable Node Shape
+# ============================================================================
+# Ensures projections from POWL to ProcessTree preserve block structure.
+# Uses SPARQL constraint to detect:
+#   - Orphaned operators (disconnected from root)
+#   - Cycles (operator appears as both ancestor and descendant of itself)
+#   - Non-block-structured result
+
+compat:TreeProjectableShape
+    a sh:NodeShape ;
+    sh:targetClass compat:TreeProjectable ;
+    rdfs:label "TreeProjectable Shape" ;
+    rdfs:comment "TreeProjectable (sealed trait) ensures projections preserve block structure: no orphaned operators, no cycles, no non-block-structured results." ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Projection to process tree must preserve block structure: no orphaned operators, no cycles." ;
+        sh:select """
+            PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+            SELECT ?this
+            WHERE {
+                ?this a compat:TreeProjectable .
+                OPTIONAL { ?this compat:hasOrphanedOperator ?orphan }
+                OPTIONAL { ?this compat:hasCycle ?cycle }
+                FILTER (BOUND(?orphan) || BOUND(?cycle))
+            }
+        """ ;
+    ] .
+
+# ============================================================================
+# ProcessTreeRefusal Node Shape
+# ============================================================================
+# Refusals must carry a specific named reason, not a bare string.
+# Authorized reasons:
+#   - InvalidArity (child count violates operator law)
+#   - NonBlockStructured (result is not a block-structured tree)
+#   - UnprojectableFromPowl (POWL shape cannot map to tree semantics)
+#   - NonMonotonicReduction (tree reduction violates Parikh monotonicity)
+
+compat:ProcessTreeRefusalShape
+    a sh:NodeShape ;
+    sh:targetClass compat:ProcessTreeRefusal ;
+    rdfs:label "ProcessTreeRefusal Shape" ;
+    rdfs:comment "ProcessTreeRefusal must have exactly one named reason from the authorized set." ;
+    sh:property compat:ProcessTreeRefusal_hasRefusalReasonProp .
+
+compat:ProcessTreeRefusal_hasRefusalReasonProp
+    a sh:PropertyShape ;
+    sh:path compat:hasRefusalReason ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+        compat:ProcessTreeRefusal_InvalidArity
+        compat:ProcessTreeRefusal_NonBlockStructured
+        compat:ProcessTreeRefusal_UnprojectableFromPowl
+        compat:ProcessTreeRefusal_NonMonotonicReduction
+    ) ;
+    sh:message "ProcessTreeRefusal must have exactly one named reason from the authorized set (InvalidArity, NonBlockStructured, UnprojectableFromPowl, NonMonotonicReduction)." .
+
+# ============================================================================
+# ProcessTree Structure Shape
+# ============================================================================
+# A ProcessTree has a root, and all operators are reachable from root.
+
+compat:ProcessTreeStructureShape
+    a sh:NodeShape ;
+    sh:targetClass compat:ProcessTree ;
+    rdfs:label "ProcessTree Structure Shape" ;
+    rdfs:comment "A ProcessTree must have exactly one root node, and all operators must be reachable." ;
+    sh:property compat:ProcessTree_hasRootProp .
+
+compat:ProcessTree_hasRootProp
+    a sh:PropertyShape ;
+    sh:path compat:hasRoot ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "ProcessTree must have exactly one root operator." .
+
+# ============================================================================
+# TypedLoopNode Const Generic Shape
+# ============================================================================
+# TypedLoopNode<ARITY> at compile-time enforces ARITY == 2.
+# This shape records the intent in RDF; the Rust type system enforces it.
+
+compat:TypedLoopNodeShape
+    a sh:NodeShape ;
+    sh:targetClass compat:TypedLoopNode ;
+    rdfs:label "TypedLoopNode Shape" ;
+    rdfs:comment "TypedLoopNode<ARITY> must have ARITY == 2 (enforced at compile-time via Require<{ARITY==2}>: IsTrue)." ;
+    sh:property compat:TypedLoopNode_arityProp .
+
+compat:TypedLoopNode_arityProp
+    a sh:PropertyShape ;
+    sh:path compat:constArity ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:hasValue 2 ;
+    sh:message "TypedLoopNode must have const arity == 2 (do-body + redo branch)." .
+
+# ============================================================================
+# ProcessTree Property Definitions
+# ============================================================================
+
+compat:hasChild
+    a rdf:Property ;
+    rdfs:label "has child" ;
+    rdfs:range compat:ProcessTreeNode .
+
+compat:hasRoot
+    a rdf:Property ;
+    rdfs:label "has root" ;
+    rdfs:range compat:ProcessTreeOperator .
+
+compat:hasOrphanedOperator
+    a rdf:Property ;
+    rdfs:label "has orphaned operator" ;
+    rdfs:comment "An operator that is not reachable from root." .
+
+compat:hasCycle
+    a rdf:Property ;
+    rdfs:label "has cycle" ;
+    rdfs:comment "A cycle in the operator graph (operator is both ancestor and descendant of itself)." .
+
+compat:hasRefusalReason
+    a rdf:Property ;
+    rdfs:label "has refusal reason" ;
+    rdfs:range compat:ProcessTreeRefusalReason .
+
+compat:constArity
+    a rdf:Property ;
+    rdfs:label "const arity" ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# ProcessTreeRefusal Reason Instances
+# ============================================================================
+
+compat:ProcessTreeRefusal_InvalidArity
+    a compat:ProcessTreeRefusalReason ;
+    rdfs:label "InvalidArity" ;
+    rdfs:comment "Child count violates the operator's arity constraint." .
+
+compat:ProcessTreeRefusal_NonBlockStructured
+    a compat:ProcessTreeRefusalReason ;
+    rdfs:label "NonBlockStructured" ;
+    rdfs:comment "The result is not a valid block-structured process tree." .
+
+compat:ProcessTreeRefusal_UnprojectableFromPowl
+    a compat:ProcessTreeRefusalReason ;
+    rdfs:label "UnprojectableFromPowl" ;
+    rdfs:comment "The POWL shape cannot be mapped to tree semantics (e.g., unstructured loops)." .
+
+compat:ProcessTreeRefusal_NonMonotonicReduction
+    a compat:ProcessTreeRefusalReason ;
+    rdfs:label "NonMonotonicReduction" ;
+    rdfs:comment "The tree reduction violates Parikh monotonicity: a task appears in the tree more times than in the original log." .

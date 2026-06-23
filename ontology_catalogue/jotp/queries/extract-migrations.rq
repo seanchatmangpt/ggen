@@ -1,0 +1,21 @@
+PREFIX jmig: <https://jgen.dev/ontology/java/migration#>
+PREFIX java: <https://jgen.dev/ontology/java#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Extract all migration rules ordered by priority
+SELECT ?rule ?label ?source ?target ?category ?priority ?isBreaking ?targetVersion ?versionName
+WHERE {
+    ?rule a jmig:MigrationRule .
+    ?rule rdfs:label ?label .
+
+    OPTIONAL { ?rule jmig:hasSource ?source }
+    OPTIONAL { ?rule jmig:hasTarget ?target }
+    OPTIONAL { ?rule jmig:hasCategory ?category }
+    OPTIONAL { ?rule jmig:hasPriority ?priority }
+    OPTIONAL { ?rule jmig:isBreaking ?isBreaking }
+    OPTIONAL {
+        ?rule jmig:hasTargetVersion ?targetVersion .
+        ?targetVersion java:hasName ?versionName .
+    }
+}
+ORDER BY ?priority ?category ?label

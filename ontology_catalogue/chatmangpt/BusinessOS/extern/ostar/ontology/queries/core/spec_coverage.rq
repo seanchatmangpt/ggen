@@ -1,0 +1,36 @@
+# O* Specification Coverage Query
+#
+# Counts surfaces with and without ontology backing.
+# coverage_pct = (backed / total) × 100
+#
+# Usage:
+#   node src/index.mjs query --file ontology/queries/core/spec_coverage.rq
+
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX xsd:   <http://www.w3.org/2001/XMLSchema#>
+
+SELECT
+  (COUNT(DISTINCT ?surface) AS ?total_surfaces)
+  (COUNT(DISTINCT ?backed)  AS ?backed_surfaces)
+  (
+    IF(
+      COUNT(DISTINCT ?surface) > 0,
+      ROUND(
+        (xsd:decimal(COUNT(DISTINCT ?backed)) /
+         xsd:decimal(COUNT(DISTINCT ?surface))) * 100
+      ),
+      0
+    ) AS ?coverage_pct
+  )
+WHERE {
+  GRAPH <http://kgc.io/Universe> {
+    {
+      # All plugin versions are surfaces
+      ?surface ostar:pluginName ?name .
+    }
+    OPTIONAL {
+      # Backed surfaces have explicit ontology backing
+      ?backed ostar:hasOntologyBacking "true"^^xsd:boolean .
+    }
+  }
+}

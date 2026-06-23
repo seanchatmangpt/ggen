@@ -1,0 +1,165 @@
+@prefix : <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Classes
+:Person a rdfs:Class ;
+  rdfs:label "Person" ;
+  rdfs:comment "Represents a person in the system" .
+
+:Organization a rdfs:Class ;
+  rdfs:label "Organization" ;
+  rdfs:comment "Represents an organization" .
+
+:Project a rdfs:Class ;
+  rdfs:label "Project" ;
+  rdfs:comment "Represents a project" .
+
+:Address a rdfs:Class ;
+  rdfs:label "Address" ;
+  rdfs:comment "Physical or mailing address" .
+
+:ContactInfo a rdfs:Class ;
+  rdfs:label "ContactInfo" ;
+  rdfs:comment "Contact information" .
+
+# Properties for Person
+:name a rdf:Property ;
+  rdfs:label "name" ;
+  rdfs:domain :Person ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Full name of the person" .
+
+:email a rdf:Property ;
+  rdfs:label "email" ;
+  rdfs:domain :Person ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Email address" .
+
+:age a rdf:Property ;
+  rdfs:label "age" ;
+  rdfs:domain :Person ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Age in years" .
+
+:phone a rdf:Property ;
+  rdfs:label "phone" ;
+  rdfs:domain :Person ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Phone number" .
+
+:dateOfBirth a rdf:Property ;
+  rdfs:label "dateOfBirth" ;
+  rdfs:domain :Person ;
+  rdfs:range xsd:date ;
+  rdfs:comment "Date of birth" .
+
+# Properties for Organization
+:organizationName a rdf:Property ;
+  rdfs:label "organizationName" ;
+  rdfs:domain :Organization ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Name of the organization" .
+
+:website a rdf:Property ;
+  rdfs:label "website" ;
+  rdfs:domain :Organization ;
+  rdfs:range xsd:anyURI ;
+  rdfs:comment "Organization website URL" .
+
+:foundedDate a rdf:Property ;
+  rdfs:label "foundedDate" ;
+  rdfs:domain :Organization ;
+  rdfs:range xsd:date ;
+  rdfs:comment "Date organization was founded" .
+
+# Properties for Project
+:projectName a rdf:Property ;
+  rdfs:label "projectName" ;
+  rdfs:domain :Project ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Name of the project" .
+
+:startDate a rdf:Property ;
+  rdfs:label "startDate" ;
+  rdfs:domain :Project ;
+  rdfs:range xsd:date ;
+  rdfs:comment "Project start date" .
+
+:budget a rdf:Property ;
+  rdfs:label "budget" ;
+  rdfs:domain :Project ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Project budget" .
+
+# Properties for Address
+:street a rdf:Property ;
+  rdfs:label "street" ;
+  rdfs:domain :Address ;
+  rdfs:range xsd:string .
+
+:city a rdf:Property ;
+  rdfs:label "city" ;
+  rdfs:domain :Address ;
+  rdfs:range xsd:string .
+
+:country a rdf:Property ;
+  rdfs:label "country" ;
+  rdfs:domain :Address ;
+  rdfs:range xsd:string .
+
+:postalCode a rdf:Property ;
+  rdfs:label "postalCode" ;
+  rdfs:domain :Address ;
+  rdfs:range xsd:string .
+
+# Relationships
+:worksFor a rdf:Property ;
+  rdfs:label "worksFor" ;
+  rdfs:domain :Person ;
+  rdfs:range :Organization ;
+  rdfs:comment "Person works for organization" .
+
+:hasAddress a rdf:Property ;
+  rdfs:label "hasAddress" ;
+  rdfs:domain :Person ;
+  rdfs:range :Address ;
+  rdfs:comment "Person has address" .
+
+:manages a rdf:Property ;
+  rdfs:label "manages" ;
+  rdfs:domain :Person ;
+  rdfs:range :Project ;
+  rdfs:comment "Person manages project" .
+
+:sponsors a rdf:Property ;
+  rdfs:label "sponsors" ;
+  rdfs:domain :Organization ;
+  rdfs:range :Project ;
+  rdfs:comment "Organization sponsors project" .
+
+:collaboratesWith a rdf:Property ;
+  rdfs:label "collaboratesWith" ;
+  rdfs:domain :Person ;
+  rdfs:range :Person ;
+  rdfs:comment "Person collaborates with another person" .
+
+:partnerOf a rdf:Property ;
+  rdfs:label "partnerOf" ;
+  rdfs:domain :Organization ;
+  rdfs:range :Organization ;
+  rdfs:comment "Organization is partner of another" .
+
+:contributes a rdf:Property ;
+  rdfs:label "contributes" ;
+  rdfs:domain :Person ;
+  rdfs:range :Project ;
+  rdfs:comment "Person contributes to project" .
+
+:locatedAt a rdf:Property ;
+  rdfs:label "locatedAt" ;
+  rdfs:domain :Organization ;
+  rdfs:range :Address ;
+  rdfs:comment "Organization located at address" .

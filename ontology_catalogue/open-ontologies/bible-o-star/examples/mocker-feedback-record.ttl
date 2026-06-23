@@ -1,0 +1,42 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# MockerFeedback: adversarial signal recorded, not absorbed.
+# The mocker's claim is preserved as evidence — it is not treated as a valid process input.
+# hasSource grounds the record. routesToGate assigns it for downstream handling.
+
+bos:MockerSanballat a bos:Mocker ;
+    rdfs:label "Sanballat" ;
+    rdfs:comment "Chief adversary. Employed mockery, false report, and attempted conference as disruption instruments." ;
+    bos:hasSource "Neh.4.1-3" ;
+    dcterms:created "2026-06-02"^^xsd:date .
+
+bos:MockerTobiah a bos:Mocker ;
+    rdfs:label "Tobiah the Ammonite" ;
+    rdfs:comment "Associated adversary. Added secondary mockery: 'Even what they build, if a fox goes up on it he will break down their stone wall.'" ;
+    bos:hasSource "Neh.4.3" .
+
+bos:MockerFeedback001 a bos:MockerFeedback ;
+    rdfs:label "Mocker Feedback 001 — Sanballat's Contempt" ;
+    bos:hasCanonicalReference "Neh.4.2"^^xsd:string ;
+    rdfs:comment "Adversarial claim: 'What are these feeble Jews doing? Will they restore it themselves? Will they sacrifice? Will they finish up in a day? Will they revive the stones out of the heaps of rubbish?' — Neh.4.2. Recorded as adversarial evidence; signal extracted; not processed as valid feedback." ;
+    bos:hasSource "Neh.4.2" ;
+    bos:routesToGate bos:TheInspectionGate ;
+    bos:assignedToGate bos:TheInspectionGate .
+
+bos:MockerFeedback002 a bos:MockerFeedback ;
+    rdfs:label "Mocker Feedback 002 — Tobiah's Fox Claim" ;
+    bos:hasCanonicalReference "Neh.4.3"^^xsd:string ;
+    rdfs:comment "Adversarial claim: 'Yes, what they are building — if a fox goes up on it he will break down their stone wall.' — Neh.4.3. Recorded. Signal: structural doubt injection via animal metaphor." ;
+    bos:hasSource "Neh.4.3" ;
+    bos:routesToGate bos:TheInspectionGate ;
+    bos:assignedToGate bos:TheInspectionGate .
+
+bos:TheInspectionGate a owl:NamedIndividual ;
+    rdfs:label "Inspection Gate" ;
+    bos:hasCanonicalReference "Neh.3.31"^^xsd:string ;
+    bos:hasCanonicalNehRef "Neh.3.31"^^xsd:string .

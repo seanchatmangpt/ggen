@@ -1,0 +1,638 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix iiot: <http://cns.ai/ontology/industrial-iot#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+# Industrial IoT Optimization and Predictive Maintenance Ontology
+# Ultra-fast manufacturing optimization and real-time quality control
+# Target: Sub-millisecond response times with BitActor integration
+
+iiot:IndustrialIoTOntology rdf:type owl:Ontology ;
+    rdfs:label "Industrial IoT Optimization System"@en ;
+    rdfs:comment "Semantic model for ultra-fast manufacturing optimization and predictive maintenance"@en ;
+    owl:versionInfo "1.0" .
+
+#####################################################################
+# Core Manufacturing Classes
+#####################################################################
+
+iiot:ManufacturingAsset rdf:type owl:Class ;
+    rdfs:label "Manufacturing Asset"@en ;
+    rdfs:comment "Any industrial equipment, machinery, or system involved in production"@en .
+
+iiot:ProductionLine rdf:type owl:Class ;
+    rdfs:subClassOf iiot:ManufacturingAsset ;
+    rdfs:label "Production Line"@en ;
+    rdfs:comment "Integrated manufacturing process with multiple stations"@en .
+
+iiot:ManufacturingCell rdf:type owl:Class ;
+    rdfs:subClassOf iiot:ManufacturingAsset ;
+    rdfs:label "Manufacturing Cell"@en ;
+    rdfs:comment "Self-contained manufacturing unit with integrated equipment"@en .
+
+iiot:Machine rdf:type owl:Class ;
+    rdfs:subClassOf iiot:ManufacturingAsset ;
+    rdfs:label "Industrial Machine"@en ;
+    rdfs:comment "Individual piece of manufacturing equipment"@en .
+
+iiot:Robot rdf:type owl:Class ;
+    rdfs:subClassOf iiot:Machine ;
+    rdfs:label "Industrial Robot"@en ;
+    rdfs:comment "Automated robotic system for manufacturing tasks"@en .
+
+iiot:CNCMachine rdf:type owl:Class ;
+    rdfs:subClassOf iiot:Machine ;
+    rdfs:label "CNC Machine"@en ;
+    rdfs:comment "Computer Numerical Control manufacturing machine"@en .
+
+iiot:AssemblyStation rdf:type owl:Class ;
+    rdfs:subClassOf iiot:Machine ;
+    rdfs:label "Assembly Station"@en ;
+    rdfs:comment "Workstation for product assembly operations"@en .
+
+iiot:QualityControlStation rdf:type owl:Class ;
+    rdfs:subClassOf iiot:Machine ;
+    rdfs:label "Quality Control Station"@en ;
+    rdfs:comment "Inspection and testing equipment for quality assurance"@en .
+
+#####################################################################
+# Sensor and Monitoring Classes
+#####################################################################
+
+iiot:Sensor rdf:type owl:Class ;
+    rdfs:label "Industrial Sensor"@en ;
+    rdfs:comment "Measurement device for monitoring industrial processes"@en .
+
+iiot:TemperatureSensor rdf:type owl:Class ;
+    rdfs:subClassOf iiot:Sensor ;
+    rdfs:label "Temperature Sensor"@en .
+
+iiot:PressureSensor rdf:type owl:Class ;
+    rdfs:subClassOf iiot:Sensor ;
+    rdfs:label "Pressure Sensor"@en .
+
+iiot:VibrationSensor rdf:type owl:Class ;
+    rdfs:subClassOf iiot:Sensor ;
+    rdfs:label "Vibration Sensor"@en .
+
+iiot:FlowSensor rdf:type owl:Class ;
+    rdfs:subClassOf iiot:Sensor ;
+    rdfs:label "Flow Rate Sensor"@en .
+
+iiot:ProximitySensor rdf:type owl:Class ;
+    rdfs:subClassOf iiot:Sensor ;
+    rdfs:label "Proximity Sensor"@en .
+
+iiot:VisionSensor rdf:type owl:Class ;
+    rdfs:subClassOf iiot:Sensor ;
+    rdfs:label "Machine Vision Sensor"@en .
+
+iiot:ForceToruqeSensor rdf:type owl:Class ;
+    rdfs:subClassOf iiot:Sensor ;
+    rdfs:label "Force/Torque Sensor"@en .
+
+iiot:EnergyMeter rdf:type owl:Class ;
+    rdfs:subClassOf iiot:Sensor ;
+    rdfs:label "Energy Consumption Meter"@en .
+
+#####################################################################
+# Process and Production Classes
+#####################################################################
+
+iiot:ManufacturingProcess rdf:type owl:Class ;
+    rdfs:label "Manufacturing Process"@en ;
+    rdfs:comment "Sequence of operations to transform materials into products"@en .
+
+iiot:MachiningProcess rdf:type owl:Class ;
+    rdfs:subClassOf iiot:ManufacturingProcess ;
+    rdfs:label "Machining Process"@en .
+
+iiot:AssemblyProcess rdf:type owl:Class ;
+    rdfs:subClassOf iiot:ManufacturingProcess ;
+    rdfs:label "Assembly Process"@en .
+
+iiot:WeldingProcess rdf:type owl:Class ;
+    rdfs:subClassOf iiot:ManufacturingProcess ;
+    rdfs:label "Welding Process"@en .
+
+iiot:PaintingProcess rdf:type owl:Class ;
+    rdfs:subClassOf iiot:ManufacturingProcess ;
+    rdfs:label "Painting Process"@en .
+
+iiot:QualityInspectionProcess rdf:type owl:Class ;
+    rdfs:subClassOf iiot:ManufacturingProcess ;
+    rdfs:label "Quality Inspection Process"@en .
+
+iiot:Product rdf:type owl:Class ;
+    rdfs:label "Manufactured Product"@en ;
+    rdfs:comment "Item being manufactured or assembled"@en .
+
+iiot:Component rdf:type owl:Class ;
+    rdfs:label "Manufacturing Component"@en ;
+    rdfs:comment "Part or subassembly used in manufacturing"@en .
+
+iiot:RawMaterial rdf:type owl:Class ;
+    rdfs:label "Raw Material"@en ;
+    rdfs:comment "Base material input to manufacturing process"@en .
+
+#####################################################################
+# Maintenance and Reliability Classes
+#####################################################################
+
+iiot:MaintenanceEvent rdf:type owl:Class ;
+    rdfs:label "Maintenance Event"@en ;
+    rdfs:comment "Scheduled or unscheduled maintenance activity"@en .
+
+iiot:PreventiveMaintenance rdf:type owl:Class ;
+    rdfs:subClassOf iiot:MaintenanceEvent ;
+    rdfs:label "Preventive Maintenance"@en .
+
+iiot:PredictiveMaintenance rdf:type owl:Class ;
+    rdfs:subClassOf iiot:MaintenanceEvent ;
+    rdfs:label "Predictive Maintenance"@en .
+
+iiot:CorrectiveMaintenance rdf:type owl:Class ;
+    rdfs:subClassOf iiot:MaintenanceEvent ;
+    rdfs:label "Corrective Maintenance"@en .
+
+iiot:Failure rdf:type owl:Class ;
+    rdfs:label "Equipment Failure"@en ;
+    rdfs:comment "Breakdown or malfunction of manufacturing equipment"@en .
+
+iiot:Anomaly rdf:type owl:Class ;
+    rdfs:label "Process Anomaly"@en ;
+    rdfs:comment "Deviation from normal operating conditions"@en .
+
+iiot:PerformanceDegradation rdf:type owl:Class ;
+    rdfs:label "Performance Degradation"@en ;
+    rdfs:comment "Gradual decline in equipment or process performance"@en .
+
+#####################################################################
+# Quality and Control Classes
+#####################################################################
+
+iiot:QualityMeasurement rdf:type owl:Class ;
+    rdfs:label "Quality Measurement"@en ;
+    rdfs:comment "Quantitative assessment of product or process quality"@en .
+
+iiot:DefectDetection rdf:type owl:Class ;
+    rdfs:label "Defect Detection"@en ;
+    rdfs:comment "Identification of product or process defects"@en .
+
+iiot:StatisticalProcessControl rdf:type owl:Class ;
+    rdfs:label "Statistical Process Control"@en ;
+    rdfs:comment "Statistical monitoring and control of manufacturing processes"@en .
+
+iiot:ControlSystem rdf:type owl:Class ;
+    rdfs:label "Industrial Control System"@en ;
+    rdfs:comment "Automated system for process control and optimization"@en .
+
+iiot:PLC rdf:type owl:Class ;
+    rdfs:subClassOf iiot:ControlSystem ;
+    rdfs:label "Programmable Logic Controller"@en .
+
+iiot:SCADA rdf:type owl:Class ;
+    rdfs:subClassOf iiot:ControlSystem ;
+    rdfs:label "SCADA System"@en ;
+    rdfs:comment "Supervisory Control and Data Acquisition system"@en .
+
+iiot:MES rdf:type owl:Class ;
+    rdfs:subClassOf iiot:ControlSystem ;
+    rdfs:label "Manufacturing Execution System"@en .
+
+#####################################################################
+# Supply Chain and Logistics Classes
+#####################################################################
+
+iiot:SupplyChainNode rdf:type owl:Class ;
+    rdfs:label "Supply Chain Node"@en ;
+    rdfs:comment "Point in the supply chain network"@en .
+
+iiot:Supplier rdf:type owl:Class ;
+    rdfs:subClassOf iiot:SupplyChainNode ;
+    rdfs:label "Supplier"@en .
+
+iiot:Warehouse rdf:type owl:Class ;
+    rdfs:subClassOf iiot:SupplyChainNode ;
+    rdfs:label "Warehouse"@en .
+
+iiot:DistributionCenter rdf:type owl:Class ;
+    rdfs:subClassOf iiot:SupplyChainNode ;
+    rdfs:label "Distribution Center"@en .
+
+iiot:Inventory rdf:type owl:Class ;
+    rdfs:label "Inventory"@en ;
+    rdfs:comment "Stock of materials, components, or finished products"@en .
+
+iiot:Order rdf:type owl:Class ;
+    rdfs:label "Manufacturing Order"@en ;
+    rdfs:comment "Request for production of specific quantities and specifications"@en .
+
+#####################################################################
+# Core Properties - Asset Identification
+#####################################################################
+
+iiot:assetID rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "Asset Identifier"@en .
+
+iiot:assetType rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "Asset Type"@en .
+
+iiot:manufacturer rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "Equipment Manufacturer"@en .
+
+iiot:model rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "Equipment Model"@en .
+
+iiot:serialNumber rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "Serial Number"@en .
+
+iiot:installationDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingAsset ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Installation Date"@en .
+
+iiot:operationalStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "Operational Status"@en .
+
+iiot:criticality rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Asset Criticality (1-10)"@en .
+
+#####################################################################
+# Sensor Properties
+#####################################################################
+
+iiot:sensorID rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Sensor ;
+    rdfs:range xsd:string ;
+    rdfs:label "Sensor Identifier"@en .
+
+iiot:measurementValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Sensor ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Current Measurement Value"@en .
+
+iiot:measurementUnit rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Sensor ;
+    rdfs:range xsd:string ;
+    rdfs:label "Measurement Unit"@en .
+
+iiot:measurementTimestamp rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Sensor ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Measurement Timestamp"@en .
+
+iiot:samplingRate rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Sensor ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Sampling Rate (Hz)"@en .
+
+iiot:accuracy rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Sensor ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Measurement Accuracy (%)"@en .
+
+iiot:calibrationDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Sensor ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Last Calibration Date"@en .
+
+iiot:alarmThresholdHigh rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Sensor ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "High Alarm Threshold"@en .
+
+iiot:alarmThresholdLow rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Sensor ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Low Alarm Threshold"@en .
+
+#####################################################################
+# Process Properties
+#####################################################################
+
+iiot:processID rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingProcess ;
+    rdfs:range xsd:string ;
+    rdfs:label "Process Identifier"@en .
+
+iiot:cycleTime rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingProcess ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Process Cycle Time (seconds)"@en .
+
+iiot:throughput rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingProcess ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Process Throughput (units/hour)"@en .
+
+iiot:efficiency rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingProcess ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Process Efficiency (%)"@en .
+
+iiot:yieldRate rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingProcess ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Process Yield Rate (%)"@en .
+
+iiot:setupTime rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingProcess ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Process Setup Time (minutes)"@en .
+
+iiot:energyConsumption rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingProcess ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Energy Consumption (kWh)"@en .
+
+#####################################################################
+# Machine Properties
+#####################################################################
+
+iiot:operatingHours rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Machine ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Total Operating Hours"@en .
+
+iiot:utilizationRate rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Machine ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Machine Utilization Rate (%)"@en .
+
+iiot:availabilityRate rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Machine ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Machine Availability Rate (%)"@en .
+
+iiot:performanceRate rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Machine ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Machine Performance Rate (%)"@en .
+
+iiot:oeeScore rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Machine ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Overall Equipment Effectiveness (%)"@en .
+
+iiot:mtbf rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Machine ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Mean Time Between Failures (hours)"@en .
+
+iiot:mttr rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Machine ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Mean Time To Repair (hours)"@en .
+
+#####################################################################
+# Quality Properties
+#####################################################################
+
+iiot:qualityScore rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:QualityMeasurement ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Quality Score (0.0-10.0)"@en .
+
+iiot:defectRate rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:QualityMeasurement ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Defect Rate (%)"@en .
+
+iiot:toleranceLevel rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:QualityMeasurement ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Tolerance Level"@en .
+
+iiot:inspectionResult rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:QualityMeasurement ;
+    rdfs:range xsd:string ;
+    rdfs:label "Inspection Result"@en .
+
+iiot:cpkValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:StatisticalProcessControl ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Process Capability Index (Cpk)"@en .
+
+#####################################################################
+# Maintenance Properties
+#####################################################################
+
+iiot:maintenanceType rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:MaintenanceEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "Maintenance Type"@en .
+
+iiot:scheduledDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:MaintenanceEvent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Scheduled Maintenance Date"@en .
+
+iiot:completionDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:MaintenanceEvent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Maintenance Completion Date"@en .
+
+iiot:maintenanceDuration rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:MaintenanceEvent ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Maintenance Duration (hours)"@en .
+
+iiot:maintenanceCost rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:MaintenanceEvent ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Maintenance Cost"@en .
+
+iiot:failureProbability rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Failure ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Failure Probability (0.0-1.0)"@en .
+
+iiot:remainingUsefulLife rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Machine ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Remaining Useful Life (hours)"@en .
+
+#####################################################################
+# BitActor Integration Properties
+#####################################################################
+
+iiot:bitactorID rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "BitActor Instance ID"@en .
+
+iiot:processingLatency rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Sensor ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Processing Latency (nanoseconds)"@en .
+
+iiot:ticksUsed rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:Sensor ;
+    rdfs:range xsd:integer ;
+    rdfs:label "CPU Ticks Used"@en .
+
+iiot:simdOptimized rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ManufacturingProcess ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "SIMD Optimized Processing"@en .
+
+iiot:realTimeOptimization rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ControlSystem ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Real-time Optimization Enabled"@en .
+
+iiot:controlAccuracy rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ControlSystem ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Control Accuracy (%)"@en .
+
+iiot:responseTime rdf:type owl:DatatypeProperty ;
+    rdfs:domain iiot:ControlSystem ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Control Response Time (milliseconds)"@en .
+
+#####################################################################
+# Relationship Properties
+#####################################################################
+
+iiot:partOf rdf:type owl:ObjectProperty ;
+    rdfs:domain iiot:ManufacturingAsset ;
+    rdfs:range iiot:ManufacturingAsset ;
+    rdfs:label "Part Of"@en .
+
+iiot:connectedTo rdf:type owl:ObjectProperty ;
+    rdfs:domain iiot:ManufacturingAsset ;
+    rdfs:range iiot:ManufacturingAsset ;
+    rdfs:label "Connected To"@en .
+
+iiot:monitors rdf:type owl:ObjectProperty ;
+    rdfs:domain iiot:Sensor ;
+    rdfs:range iiot:ManufacturingAsset ;
+    rdfs:label "Monitors Asset"@en .
+
+iiot:controlledBy rdf:type owl:ObjectProperty ;
+    rdfs:domain iiot:ManufacturingAsset ;
+    rdfs:range iiot:ControlSystem ;
+    rdfs:label "Controlled By"@en .
+
+iiot:executes rdf:type owl:ObjectProperty ;
+    rdfs:domain iiot:Machine ;
+    rdfs:range iiot:ManufacturingProcess ;
+    rdfs:label "Executes Process"@en .
+
+iiot:produces rdf:type owl:ObjectProperty ;
+    rdfs:domain iiot:ManufacturingProcess ;
+    rdfs:range iiot:Product ;
+    rdfs:label "Produces Product"@en .
+
+iiot:consumes rdf:type owl:ObjectProperty ;
+    rdfs:domain iiot:ManufacturingProcess ;
+    rdfs:range iiot:RawMaterial ;
+    rdfs:label "Consumes Material"@en .
+
+iiot:requiresMaintenance rdf:type owl:ObjectProperty ;
+    rdfs:domain iiot:Machine ;
+    rdfs:range iiot:MaintenanceEvent ;
+    rdfs:label "Requires Maintenance"@en .
+
+iiot:hasQualityMeasurement rdf:type owl:ObjectProperty ;
+    rdfs:domain iiot:Product ;
+    rdfs:range iiot:QualityMeasurement ;
+    rdfs:label "Has Quality Measurement"@en .
+
+iiot:suppliedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain iiot:RawMaterial ;
+    rdfs:range iiot:Supplier ;
+    rdfs:label "Supplied By"@en .
+
+#####################################################################
+# Instances - Common Manufacturing Equipment
+#####################################################################
+
+iiot:CNCMillingMachine rdf:type iiot:CNCMachine ;
+    iiot:assetType "cnc_milling_machine" ;
+    iiot:criticality 9 ;
+    iiot:manufacturer "Haas Automation" ;
+    iiot:model "VF-2" .
+
+iiot:IndustrialRobot6DOF rdf:type iiot:Robot ;
+    iiot:assetType "6dof_robot" ;
+    iiot:criticality 8 ;
+    iiot:manufacturer "KUKA" ;
+    iiot:model "KR 10 R1100" .
+
+iiot:QualityVisionSystem rdf:type iiot:QualityControlStation ;
+    iiot:assetType "vision_inspection" ;
+    iiot:criticality 7 ;
+    iiot:manufacturer "Cognex" ;
+    iiot:model "In-Sight 9000" .
+
+iiot:PneumaticPress rdf:type iiot:Machine ;
+    iiot:assetType "hydraulic_press" ;
+    iiot:criticality 8 ;
+    iiot:manufacturer "Schuler" ;
+    iiot:model "MSP 630" .
+
+#####################################################################
+# Instances - Common Sensors
+#####################################################################
+
+iiot:TemperatureSensorThermocouple rdf:type iiot:TemperatureSensor ;
+    iiot:measurementUnit "°C" ;
+    iiot:accuracy 0.1 ;
+    iiot:samplingRate 10.0 ;
+    iiot:alarmThresholdHigh 150.0 ;
+    iiot:alarmThresholdLow -10.0 .
+
+iiot:VibrationAccelerometer rdf:type iiot:VibrationSensor ;
+    iiot:measurementUnit "m/s²" ;
+    iiot:accuracy 0.01 ;
+    iiot:samplingRate 1000.0 ;
+    iiot:alarmThresholdHigh 50.0 .
+
+iiot:PressureTransmitter rdf:type iiot:PressureSensor ;
+    iiot:measurementUnit "bar" ;
+    iiot:accuracy 0.05 ;
+    iiot:samplingRate 100.0 ;
+    iiot:alarmThresholdHigh 10.0 ;
+    iiot:alarmThresholdLow 0.5 .
+
+#####################################################################
+# Instances - Common Processes
+#####################################################################
+
+iiot:AutomatedAssembly rdf:type iiot:AssemblyProcess ;
+    iiot:cycleTime 45.0 ;
+    iiot:throughput 80.0 ;
+    iiot:efficiency 92.5 ;
+    iiot:yieldRate 98.2 .
+
+iiot:PrecisionMachining rdf:type iiot:MachiningProcess ;
+    iiot:cycleTime 120.0 ;
+    iiot:throughput 30.0 ;
+    iiot:efficiency 88.7 ;
+    iiot:yieldRate 99.1 .
+
+iiot:QualityInspection rdf:type iiot:QualityInspectionProcess ;
+    iiot:cycleTime 15.0 ;
+    iiot:throughput 240.0 ;
+    iiot:efficiency 95.3 ;
+    iiot:yieldRate 99.8 .

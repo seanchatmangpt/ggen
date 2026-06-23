@@ -1,0 +1,454 @@
+@prefix : <http://www.example.org/yawl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dash: <http://datashapes.org/dash#> .
+
+#################################################################
+#    Advanced SHACL Validation Rules for YAWL
+#################################################################
+
+### Process Integrity Validation
+:ProcessIntegrityShape rdf:type sh:NodeShape ;
+    sh:targetClass :Process ;
+    sh:property [
+        sh:path :hasNode ;
+        sh:minCount 2 ;
+        sh:message "Process must have at least start and end nodes."
+    ],
+    [
+        sh:path :hasNode ;
+        sh:class :Task ;
+        sh:minCount 1 ;
+        sh:message "Process must contain at least one task."
+    ],
+    [
+        sh:path :hasNode ;
+        sh:class :Condition ;
+        sh:minCount 2 ;
+        sh:message "Process must have at least start and end conditions."
+    ] .
+
+### Workflow Connectivity Validation
+:WorkflowConnectivityShape rdf:type sh:NodeShape ;
+    sh:targetClass :Process ;
+    sh:sparql [
+        sh:select """
+            SELECT $this (?node AS ?disconnectedNode)
+            WHERE {
+                $this :hasNode ?node .
+                FILTER NOT EXISTS {
+                    { ?node :flowsTo ?other }
+                    UNION
+                    { ?other :flowsTo ?node }
+                }
+            }
+        """ ;
+        sh:message "All nodes must be connected in the workflow graph."
+    ] .
+
+### Task Validation Rules
+:AdvancedTaskShape rdf:type sh:NodeShape ;
+    sh:targetClass :Task ;
+    sh:property [
+        sh:path :taskName ;
+        sh:pattern "^[A-Za-z0-9\\s_-]+$" ;
+        sh:message "Task name must contain only alphanumeric characters, spaces, hyphens, and underscores."
+    ],
+    [
+        sh:path :priority ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Priority must be between 1 (lowest) and 10 (highest)."
+    ],
+    [
+        sh:path :estimatedDuration ;
+        sh:datatype xsd:duration ;
+        sh:minInclusive "PT1M"^^xsd:duration ;
+        sh:message "Estimated duration must be at least 1 minute."
+    ] .
+
+### Role Assignment Validation
+:RoleAssignmentShape rdf:type sh:NodeShape ;
+    sh:targetClass :Task ;
+    sh:sparql [
+        sh:select """
+            SELECT $this (?role AS ?unassignedRole)
+            WHERE {
+                $this :isOfferedTo ?role .
+                FILTER NOT EXISTS {
+                    ?role :hasParticipant ?participant
+                }
+            }
+        """ ;
+        sh:message "All roles assigned to tasks must have at least one participant."
+    ] .
+
+### Data Flow Validation
+:DataFlowShape rdf:type sh:NodeShape ;
+    sh:targetClass :Task ;
+    sh:sparql [
+        sh:select """
+            SELECT $this (?var AS ?unmappedVariable)
+            WHERE {
+                $this :hasTaskVariable ?var .
+                FILTER NOT EXISTS {
+                    ?var :mapsTo ?processVar
+                }
+            }
+        """ ;
+        sh:message "All task variables must be mapped to process variables."
+    ] .
+
+### Variable Type Validation
+:VariableTypeShape rdf:type sh:NodeShape ;
+    sh:targetClass :Variable ;
+    sh:property [
+        sh:path :variableType ;
+        sh:in ( "string" "integer" "float" "boolean" "date" "datetime" "json" "xml" ) ;
+        sh:message "Variable type must be one of: string, integer, float, boolean, date, datetime, json, xml."
+    ] .
+
+### Mapping Direction Validation
+:MappingDirectionShape rdf:type sh:NodeShape ;
+    sh:targetClass :TaskVariable ;
+    sh:property [
+        sh:path :mappingDirection ;
+        sh:in ( "input" "output" "inout" ) ;
+        sh:message "Mapping direction must be 'input', 'output', or 'inout'."
+    ] .
+
+### Timeout Validation
+:TimeoutValidationShape rdf:type sh:NodeShape ;
+    sh:targetClass :TimeoutSpecification ;
+    sh:property [
+        sh:path :timeoutValue ;
+        sh:datatype xsd:duration ;
+        sh:minInclusive "PT1M"^^xsd:duration ;
+        sh:maxInclusive "P30D"^^xsd:duration ;
+        sh:message "Timeout must be between 1 minute and 30 days."
+    ] .
+
+### Retry Policy Validation
+:RetryPolicyValidationShape rdf:type sh:NodeShape ;
+    sh:targetClass :RetryPolicy ;
+    sh:property [
+        sh:path :maxRetries ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 10 ;
+        sh:message "Maximum retries must be between 0 and 10."
+    ] .
+
+### Workflow Cycle Detection
+:CycleDetectionShape rdf:type sh:NodeShape ;
+    sh:targetClass :Process ;
+    sh:sparql [
+        sh:select """
+            SELECT $this (?node AS ?cycleNode)
+            WHERE {
+                $this :hasNode ?node .
+                ?node :flowsTo+ ?node .
+            }
+        """ ;
+        sh:message "Workflow contains cycles which may cause infinite loops."
+    ] .
+
+### Deadlock Detection
+:DeadlockDetectionShape rdf:type sh:NodeShape ;
+    sh:targetClass :Process ;
+    sh:sparql [
+        sh:select """
+            SELECT $this (?node AS ?deadlockNode)
+            WHERE {
+                $this :hasNode ?node .
+                FILTER NOT EXISTS {
+                    ?node :flowsTo ?other
+                }
+                FILTER NOT EXISTS {
+                    ?other :flowsTo ?node
+                }
+                FILTER(?node != ?endNode)
+                $this :hasNode ?endNode .
+                ?endNode rdf:type :Condition .
+            }
+        """ ;
+        sh:message "Workflow contains deadlock nodes that cannot be reached or exited."
+    ] .
+
+### Resource Availability Validation
+:ResourceAvailabilityShape rdf:type sh:NodeShape ;
+    sh:targetClass :Task ;
+    sh:sparql [
+        sh:select """
+            SELECT $this (?role AS ?overloadedRole)
+            WHERE {
+                $this :isOfferedTo ?role .
+                {
+                    SELECT ?role (COUNT(?task) AS ?taskCount)
+                    WHERE {
+                        ?task :isOfferedTo ?role .
+                    }
+                    GROUP BY ?role
+                    HAVING(?taskCount > 5)
+                }
+            }
+        """ ;
+        sh:message "Role is assigned to more than 5 tasks, consider workload distribution."
+    ] .
+
+### Data Consistency Validation
+:DataConsistencyShape rdf:type sh:NodeShape ;
+    sh:targetClass :Process ;
+    sh:sparql [
+        sh:select """
+            SELECT $this (?var AS ?unusedVariable)
+            WHERE {
+                $this :hasVariable ?var .
+                FILTER NOT EXISTS {
+                    ?task :hasTaskVariable ?taskVar .
+                    ?taskVar :mapsTo ?var .
+                    $this :hasNode ?task .
+                    ?task rdf:type :Task .
+                }
+            }
+        """ ;
+        sh:message "Process contains variables that are not used by any task."
+    ] .
+
+### SLA Validation
+:SLAValidationShape rdf:type sh:NodeShape ;
+    sh:targetClass :ServiceLevelAgreement ;
+    sh:property [
+        sh:path :estimatedDuration ;
+        sh:datatype xsd:duration ;
+        sh:minInclusive "PT5M"^^xsd:duration ;
+        sh:message "SLA estimated duration must be at least 5 minutes."
+    ] .
+
+### Exception Handler Validation
+:ExceptionHandlerShape rdf:type sh:NodeShape ;
+    sh:targetClass :Task ;
+    sh:sparql [
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this :hasExceptionHandler ?handler .
+                FILTER NOT EXISTS {
+                    ?handler rdf:type :ExceptionHandler
+                }
+            }
+        """ ;
+        sh:message "Exception handler must be properly defined."
+    ] .
+
+### Work Queue Validation
+:WorkQueueValidationShape rdf:type sh:NodeShape ;
+    sh:targetClass :WorkQueue ;
+    sh:property [
+        sh:path :queueName ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 50 ;
+        sh:pattern "^[A-Za-z0-9_-]+$" ;
+        sh:message "Queue name must be 1-50 characters, alphanumeric with hyphens and underscores only."
+    ] .
+
+### Escalation Policy Validation
+:EscalationPolicyValidationShape rdf:type sh:NodeShape ;
+    sh:targetClass :EscalationPolicy ;
+    sh:property [
+        sh:path :escalationDelay ;
+        sh:datatype xsd:duration ;
+        sh:minInclusive "PT15M"^^xsd:duration ;
+        sh:message "Escalation delay must be at least 15 minutes."
+    ] .
+
+### Metric Validation
+:MetricValidationShape rdf:type sh:NodeShape ;
+    sh:targetClass :Metric ;
+    sh:property [
+        sh:path :metricName ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:message "Metric name must be 1-100 characters."
+    ],
+    [
+        sh:path :metricType ;
+        sh:in ( "counter" "gauge" "histogram" "summary" ) ;
+        sh:message "Metric type must be one of: counter, gauge, histogram, summary."
+    ] .
+
+### Audit Event Validation
+:AuditEventValidationShape rdf:type sh:NodeShape ;
+    sh:targetClass :AuditEvent ;
+    sh:property [
+        sh:path :eventTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Audit event must have a timestamp."
+    ],
+    [
+        sh:path :eventType ;
+        sh:in ( "task_started" "task_completed" "task_failed" "task_cancelled" "data_modified" "role_assigned" ) ;
+        sh:message "Event type must be one of the predefined types."
+    ] .
+
+### Composite Task Validation
+:CompositeTaskValidationShape rdf:type sh:NodeShape ;
+    sh:targetClass :CompositeTask ;
+    sh:property [
+        sh:path :hasDecomposition ;
+        sh:class :Process ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Composite task must have exactly one decomposition process."
+    ] .
+
+### Event Validation
+:EventValidationShape rdf:type sh:NodeShape ;
+    sh:targetClass :Event ;
+    sh:property [
+        sh:path :eventName ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:message "Event name must be 1-100 characters."
+    ],
+    [
+        sh:path :eventType ;
+        sh:in ( "timer" "message" "signal" "error" "compensation" ) ;
+        sh:message "Event type must be one of: timer, message, signal, error, compensation."
+    ] .
+
+### Data Transformation Validation
+:DataTransformationValidationShape rdf:type sh:NodeShape ;
+    sh:targetClass :DataTransformation ;
+    sh:property [
+        sh:path :transformationRule ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Data transformation must have a transformation rule."
+    ] .
+
+### Validation Rule Validation
+:ValidationRuleValidationShape rdf:type sh:NodeShape ;
+    sh:targetClass :ValidationRule ;
+    sh:property [
+        sh:path :ruleExpression ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Validation rule must have an expression."
+    ],
+    [
+        sh:path :ruleType ;
+        sh:in ( "regex" "range" "enum" "custom" ) ;
+        sh:message "Rule type must be one of: regex, range, enum, custom."
+    ] .
+
+#################################################################
+#    Business Rule Validation
+#################################################################
+
+### Loan Approval Business Rules
+:LoanApprovalBusinessRules rdf:type sh:NodeShape ;
+    sh:targetClass :Process ;
+    sh:sparql [
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this :hasNode ?task .
+                ?task rdf:type :Task .
+                ?task :taskName "Approval Decision" .
+                FILTER NOT EXISTS {
+                    ?task :isOfferedTo ?managerRole .
+                    ?managerRole :roleName "Manager" .
+                }
+            }
+        """ ;
+        sh:message "Approval decisions must be assigned to Manager role."
+    ] .
+
+### Credit Check Business Rules
+:CreditCheckBusinessRules rdf:type sh:NodeShape ;
+    sh:targetClass :Process ;
+    sh:sparql [
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this :hasNode ?creditTask .
+                ?creditTask :taskName "Credit Check" .
+                FILTER NOT EXISTS {
+                    ?creditTask :hasTaskVariable ?var .
+                    ?var :variableName "credit_score_out" .
+                    ?var :mapsTo ?processVar .
+                    ?processVar :variableName "credit_score" .
+                }
+            }
+        """ ;
+        sh:message "Credit check task must output credit score variable."
+    ] .
+
+### Risk Assessment Business Rules
+:RiskAssessmentBusinessRules rdf:type sh:NodeShape ;
+    sh:targetClass :Process ;
+    sh:sparql [
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this :hasNode ?riskTask .
+                ?riskTask :taskName "Risk Assessment" .
+                FILTER NOT EXISTS {
+                    ?riskTask :isOfferedTo ?riskRole .
+                    ?riskRole :roleName "Risk Analyst" .
+                }
+            }
+        """ ;
+        sh:message "Risk assessment must be assigned to Risk Analyst role."
+    ] .
+
+#################################################################
+#    Performance Optimization Validation
+#################################################################
+
+### Task Distribution Validation
+:TaskDistributionValidation rdf:type sh:NodeShape ;
+    sh:targetClass :Process ;
+    sh:sparql [
+        sh:select """
+            SELECT $this (?role AS ?overloadedRole) (?taskCount AS ?taskCount)
+            WHERE {
+                {
+                    SELECT ?role (COUNT(?task) AS ?taskCount)
+                    WHERE {
+                        $this :hasNode ?task .
+                        ?task :isOfferedTo ?role .
+                    }
+                    GROUP BY ?role
+                    HAVING(?taskCount > 3)
+                }
+            }
+        """ ;
+        sh:message "Role is overloaded with more than 3 tasks. Consider task redistribution."
+    ] .
+
+### Critical Path Validation
+:CriticalPathValidation rdf:type sh:NodeShape ;
+    sh:targetClass :Process ;
+    sh:sparql [
+        sh:select """
+            SELECT $this (?task AS ?criticalTask)
+            WHERE {
+                $this :hasNode ?task .
+                ?task rdf:type :Task .
+                ?task :priority 9 .
+                FILTER NOT EXISTS {
+                    ?task :hasTimeout ?timeout .
+                }
+            }
+        """ ;
+        sh:message "High priority tasks should have timeout specifications."
+    ] . 

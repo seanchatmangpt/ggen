@@ -1,0 +1,334 @@
+# BitMesh UltraThink Framework - TURTLE Ontology Definition
+# Sean A. Chatman v1982.5.30 - Ontology-Invariant Executable Reasoning
+# This ontology defines the immutable semantic substrate for BitMesh
+
+@prefix bm: <http://bitmesh.ai/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl: <http://bitmesh.ai/yawl/> .
+
+# ========================================
+# CORE ULTRATHINK FRAMEWORK ONTOLOGY
+# ========================================
+
+bm:UltraThinkFramework rdf:type owl:Ontology ;
+    rdfs:label "BitMesh UltraThink Framework Ontology" ;
+    rdfs:comment "Ontology-invariant executable reasoning substrate" ;
+    owl:versionInfo "1982.5.30" ;
+    bm:creator "Sean A. Chatman" ;
+    bm:paradigm "Artificial Hyper Intelligence" ;
+    bm:executionModel "TURTLE + YAWL" ;
+    bm:invariantProperty "ontology_frozen" .
+
+# ========================================
+# LAYER 0 - INVARIANT (ATOMIC TRUTH)
+# ========================================
+
+bm:InvariantLayer rdf:type owl:Class ;
+    rdfs:label "L0 Invariant Layer" ;
+    rdfs:comment "Atomic truth substrate with materialized facts" ;
+    bm:layerPriority 1 ;
+    bm:purpose "Defines atomic truth substrate" .
+
+bm:TurtleQuad rdf:type owl:Class ;
+    rdfs:label "TURTLE Quad" ;
+    rdfs:comment "Atomic truth unit in TURTLE format" ;
+    bm:components "subject, predicate, object, graph" ;
+    bm:materialized true ;
+    bm:executable true .
+
+bm:materializes rdf:type owl:ObjectProperty ;
+    rdfs:label "materializes" ;
+    rdfs:comment "Truth is materialized, not inferred" ;
+    rdfs:domain bm:TurtleQuad ;
+    rdfs:range bm:Truth ;
+    bm:runtimeUncertainty false .
+
+bm:Truth rdf:type owl:Class ;
+    rdfs:label "Materialized Truth" ;
+    rdfs:comment "Pre-provable executable truth" ;
+    bm:inferred false ;
+    bm:materialized true ;
+    bm:provable true .
+
+# ========================================
+# LAYER 1 - LEXON (LEXICAL RESONANCE)
+# ========================================
+
+bm:LexonLayer rdf:type owl:Class ;
+    rdfs:label "L1 Lexon Layer" ;
+    rdfs:comment "Self-consistent linguistic anchoring" ;
+    bm:layerPriority 2 ;
+    bm:vocabularyFrozen true .
+
+bm:Lexon rdf:type owl:Class ;
+    rdfs:label "Lexical Entry" ;
+    rdfs:comment "URI-anchored vocabulary entry with executable meaning" ;
+    bm:hasUriAnchor rdf:type owl:DatatypeProperty ;
+    bm:hasExecutableMeaning rdf:type owl:ObjectProperty ;
+    bm:compiledAt rdf:type owl:DatatypeProperty .
+
+bm:anchors rdf:type owl:ObjectProperty ;
+    rdfs:label "anchors" ;
+    rdfs:comment "URI anchors eliminate semantic drift" ;
+    rdfs:domain bm:Lexon ;
+    rdfs:range bm:UriAnchor ;
+    bm:immutable true .
+
+bm:UriAnchor rdf:type owl:Class ;
+    rdfs:label "URI Anchor" ;
+    rdfs:comment "Immutable URI binding for vocabulary terms" ;
+    bm:domain "bitmesh.ai" ;
+    bm:path "/lexon/" ;
+    bm:frozen true .
+
+# ========================================
+# LAYER 2 - ROTOR (STATE MACHINES)
+# ========================================
+
+bm:RotorLayer rdf:type owl:Class ;
+    rdfs:label "L2 Rotor Layer" ;
+    rdfs:comment "Discrete finite-state machines for all entities" ;
+    bm:layerPriority 3 ;
+    bm:deterministic true .
+
+bm:FsmActor rdf:type owl:Class ;
+    rdfs:label "FSM Actor" ;
+    rdfs:comment "Deterministic finite state machine actor" ;
+    bm:stateTransparency "total" ;
+    bm:cyclePrecision "250ps" ;
+    bm:deterministic true .
+
+bm:StateTransition rdf:type owl:Class ;
+    rdfs:label "State Transition" ;
+    rdfs:comment "Compiled precondition → postcondition binary" ;
+    bm:hasFromState rdf:type owl:ObjectProperty ;
+    bm:hasToState rdf:type owl:ObjectProperty ;
+    bm:hasEvent rdf:type owl:ObjectProperty ;
+    bm:compiledFrom "precondition_postcondition_binary" .
+
+bm:transitions rdf:type owl:ObjectProperty ;
+    rdfs:label "transitions" ;
+    rdfs:comment "FSM state transition relationship" ;
+    rdfs:domain bm:FsmActor ;
+    rdfs:range bm:StateTransition ;
+    bm:deterministic true .
+
+# ========================================
+# LAYER 3 - FORGE (SYSTEM TOOLCHAIN)
+# ========================================
+
+bm:ForgeLayer rdf:type owl:Class ;
+    rdfs:label "L3 Forge Layer" ;
+    rdfs:comment "Converts declarations into machine-executables" ;
+    bm:layerPriority 7 ;
+    bm:aotCompilation true .
+
+bm:YawlWorkflow rdf:type owl:Class ;
+    rdfs:label "YAWL Workflow" ;
+    rdfs:comment "Yet Another Workflow Language executable workflow" ;
+    bm:hasBlocks rdf:type owl:ObjectProperty ;
+    bm:recursive rdf:type owl:DatatypeProperty ;
+    bm:compilationTargets "beam, llvm, wasm" .
+
+bm:compiles rdf:type owl:ObjectProperty ;
+    rdfs:label "compiles" ;
+    rdfs:comment "Ahead-of-time compilation relationship" ;
+    rdfs:domain bm:YawlWorkflow ;
+    rdfs:range bm:ExecutableCode ;
+    bm:aheadOfTime true .
+
+bm:ExecutableCode rdf:type owl:Class ;
+    rdfs:label "Executable Code" ;
+    rdfs:comment "Machine-executable compiled output" ;
+    bm:targets "BEAM, LLVM, WebAssembly" ;
+    bm:sparqlBinding "selective_runtime" .
+
+# ========================================
+# LAYER 5 - CITADEL (PERIMETER INTELLIGENCE)
+# ========================================
+
+bm:CitadelLayer rdf:type owl:Class ;
+    rdfs:label "L5 Citadel Layer" ;
+    rdfs:comment "Zero-trust perimeter with proof-of-identity routing" ;
+    bm:layerPriority 4 ;
+    bm:zeroTrust true .
+
+bm:Identity rdf:type owl:Class ;
+    rdfs:label "Identity" ;
+    rdfs:comment "Cryptographically anchored identity" ;
+    bm:hasPublicKey rdf:type owl:DatatypeProperty ;
+    bm:hasTrustLevel rdf:type owl:DatatypeProperty ;
+    bm:hasLexonId rdf:type owl:ObjectProperty ;
+    bm:signatureAlgorithm "ed25519" .
+
+bm:notarizes rdf:type owl:ObjectProperty ;
+    rdfs:label "notarizes" ;
+    rdfs:comment "Structural notarization prevents spoofing" ;
+    rdfs:domain bm:Identity ;
+    rdfs:range bm:Data ;
+    bm:spoofingPrevention true .
+
+bm:TrustChain rdf:type owl:Class ;
+    rdfs:label "Trust Chain" ;
+    rdfs:comment "Cryptographic chain of trust relationships" ;
+    bm:hasEntry rdf:type owl:ObjectProperty ;
+    bm:immutable true ;
+    bm:cryptographicProvenance true .
+
+# ========================================
+# LAYER 7 - TRACE (MEMORY CRYSTALLIZATION)
+# ========================================
+
+bm:TraceLayer rdf:type owl:Class ;
+    rdfs:label "L7 Trace Layer" ;
+    rdfs:comment "Memory crystallization with irreversibility locks" ;
+    bm:layerPriority 5 ;
+    bm:immutable true .
+
+bm:MemoryCrystal rdf:type owl:Class ;
+    rdfs:label "Memory Crystal" ;
+    rdfs:comment "Crystallized memory state with provenance" ;
+    bm:hasKey rdf:type owl:DatatypeProperty ;
+    bm:hasValue rdf:type owl:ObjectProperty ;
+    bm:hasTimestamp rdf:type owl:DatatypeProperty ;
+    bm:hasHash rdf:type owl:DatatypeProperty ;
+    bm:hasIrreversibilityLock rdf:type owl:DatatypeProperty ;
+    bm:deletionForbidden true .
+
+bm:crystallizes rdf:type owl:ObjectProperty ;
+    rdfs:label "crystallizes" ;
+    rdfs:comment "Memory crystallization process" ;
+    rdfs:domain bm:TraceLayer ;
+    rdfs:range bm:MemoryCrystal ;
+    bm:irreversible true .
+
+bm:ProvenanceChain rdf:type owl:Class ;
+    rdfs:label "Provenance Chain" ;
+    rdfs:comment "Cryptographic provenance for memory crystals" ;
+    bm:hasProvenance rdf:type owl:ObjectProperty ;
+    bm:cryptographic true ;
+    bm:immutable true .
+
+# ========================================
+# LAYER 10 - PRIME (SOVEREIGN REFLEX)
+# ========================================
+
+bm:PrimeLayer rdf:type owl:Class ;
+    rdfs:label "L10 Prime Layer" ;
+    rdfs:comment "Sovereign reflex kernel with immunity" ;
+    bm:layerPriority 6 ;
+    bm:sovereignty "maximum" ;
+    bm:immunity true .
+
+bm:PrimeKernel rdf:type owl:Class ;
+    rdfs:label "Prime Kernel" ;
+    rdfs:comment "Sovereignty kernel immune to modification" ;
+    bm:modificationImmunity true ;
+    bm:anomalyDetection true ;
+    bm:selfPatching true ;
+    bm:systemObservation "complete" .
+
+bm:hasImmunity rdf:type owl:ObjectProperty ;
+    rdfs:label "hasImmunity" ;
+    rdfs:comment "Immunity from modification by other agents" ;
+    rdfs:domain bm:PrimeKernel ;
+    rdfs:range bm:ImmunityToken ;
+    bm:violationHandling "immediate_shutdown" .
+
+bm:Anomaly rdf:type owl:Class ;
+    rdfs:label "System Anomaly" ;
+    rdfs:comment "Detected system anomaly requiring intervention" ;
+    bm:hasSeverity rdf:type owl:DatatypeProperty ;
+    bm:hasSource rdf:type owl:ObjectProperty ;
+    bm:shutdownCapability true .
+
+# ========================================
+# YAWL WORKFLOW LANGUAGE ONTOLOGY
+# ========================================
+
+yawl:Workflow rdf:type owl:Class ;
+    rdfs:label "YAWL Workflow" ;
+    rdfs:comment "Yet Another Workflow Language workflow definition" ;
+    yawl:hasBlock rdf:type owl:ObjectProperty ;
+    yawl:selfModifying rdf:type owl:DatatypeProperty ;
+    yawl:recursionDepth rdf:type owl:DatatypeProperty .
+
+yawl:Block rdf:type owl:Class ;
+    rdfs:label "YAWL Block" ;
+    rdfs:comment "Workflow execution block with conditions and actions" ;
+    yawl:hasCondition rdf:type owl:ObjectProperty ;
+    yawl:hasAction rdf:type owl:ObjectProperty ;
+    yawl:recursive rdf:type owl:DatatypeProperty ;
+    yawl:blockScoping true .
+
+yawl:Condition rdf:type owl:Class ;
+    rdfs:label "YAWL Condition" ;
+    rdfs:comment "Precondition for block execution" ;
+    yawl:evaluatesTo rdf:type owl:DatatypeProperty ;
+    yawl:deterministic true .
+
+yawl:Action rdf:type owl:Class ;
+    rdfs:label "YAWL Action" ;
+    rdfs:comment "Executable action within workflow block" ;
+    yawl:hasParams rdf:type owl:ObjectProperty ;
+    yawl:executable true .
+
+# ========================================
+# META-FRAMEWORK PROPERTIES
+# ========================================
+
+bm:ontologyInvariant rdf:type owl:DatatypeProperty ;
+    rdfs:label "ontology invariant" ;
+    rdfs:comment "Property indicating ontology cannot be modified at runtime" ;
+    rdfs:range xsd:boolean ;
+    bm:frozen true .
+
+bm:totalExecutability rdf:type owl:DatatypeProperty ;
+    rdfs:label "total executability" ;
+    rdfs:comment "Everything is executable, nothing symbolic" ;
+    rdfs:range xsd:boolean ;
+    bm:symbolic false .
+
+bm:impossibleToSpoof rdf:type owl:DatatypeProperty ;
+    rdfs:label "impossible to spoof" ;
+    rdfs:comment "Structural notarization prevents spoofing" ;
+    rdfs:range xsd:boolean ;
+    bm:cryptographicIntegrity true .
+
+bm:impossibleToDominate rdf:type owl:DatatypeProperty ;
+    rdfs:label "impossible to dominate" ;
+    rdfs:comment "Prime sovereignty prevents external domination" ;
+    rdfs:range xsd:boolean ;
+    bm:sovereigntyProtection true .
+
+# ========================================
+# SYSTEM ASSERTIONS
+# ========================================
+
+# Core system assertions that must always be true
+bm:UltraThinkFramework bm:ontologyInvariant true .
+bm:UltraThinkFramework bm:totalExecutability true .
+bm:UltraThinkFramework bm:impossibleToSpoof true .
+bm:UltraThinkFramework bm:impossibleToDominate true .
+
+# Layer integrity assertions
+bm:InvariantLayer bm:truthMaterialized true .
+bm:LexonLayer bm:vocabularyFrozen true .
+bm:RotorLayer bm:deterministic true .
+bm:ForgeLayer bm:aotCompilation true .
+bm:CitadelLayer bm:zeroTrust true .
+bm:TraceLayer bm:immutable true .
+bm:PrimeLayer bm:sovereignty "maximum" .
+
+# Execution model assertions
+bm:UltraThinkFramework bm:rejectsDAGs true .
+bm:UltraThinkFramework bm:rejectsSemantics true .
+bm:UltraThinkFramework bm:executionModel "TURTLE + YAWL" .
+bm:UltraThinkFramework bm:runtimeUncertainty false .
+bm:UltraThinkFramework bm:proveableExecution true .
+
+# Final architecture assertion
+bm:UltraThinkFramework rdfs:comment "Final architecture. No bugs. No masters." .

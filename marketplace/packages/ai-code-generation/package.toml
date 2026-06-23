@@ -74,3 +74,6 @@ ggen ai generate "Create production-ready API gateway" --validate --quality-thre
 quick_start = "AI-powered code generation with validation"
 providers = "Supports Ollama, OpenAI, Anthropic, and more"
 features = "Template generation, code analysis, optimization, testing"
+
+[marketplace]
+production_ready = true

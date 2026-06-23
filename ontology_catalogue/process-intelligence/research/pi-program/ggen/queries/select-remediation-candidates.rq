@@ -1,0 +1,22 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX gen: <https://process.intelligence/generation-rule/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# SELECT: Remediation Candidates
+# Returns blocked and deactivated rules requiring remediation (missing templates/queries)
+# Date: 2026-06-01
+
+SELECT ?rule ?title ?program ?status ?blockingIssue ?query ?template
+WHERE {
+    ?rule a pi:GenerationRule .
+    ?rule pi:program ?program .
+    ?rule dcterms:title ?title .
+    ?rule pi:status ?status .
+
+    FILTER (?status IN ("BLOCKED", "DEACTIVATED"))
+
+    OPTIONAL { ?rule pi:blockingIssue ?blockingIssue }
+    OPTIONAL { ?rule pi:query ?query }
+    OPTIONAL { ?rule pi:template ?template }
+}
+ORDER BY ?program ?status ?title

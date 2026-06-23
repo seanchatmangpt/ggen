@@ -1,0 +1,85 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Simple Sequence Pattern (Task1 -> Task2 -> Task3)
+# One of the most basic workflow patterns
+# YAWL Pattern: Basic Sequence
+
+<http://example.org/workflow/simple-sequence> a yawl:WorkflowSpecification ;
+    rdfs:label "Simple Sequence Workflow" ;
+    rdfs:comment "A basic sequence of three tasks executed in order" ;
+    dcterms:created "2024-11-16T00:00:00Z"^^xsd:dateTime ;
+    yawl:hasStartCondition <http://example.org/cond/start> ;
+    yawl:hasEndCondition <http://example.org/cond/end> ;
+    yawl:hasTask <http://example.org/task/task1>,
+                  <http://example.org/task/task2>,
+                  <http://example.org/task/task3> ;
+    yawl:hasCondition <http://example.org/cond/start>,
+                      <http://example.org/cond/c1>,
+                      <http://example.org/cond/c2>,
+                      <http://example.org/cond/end> .
+
+# === TASKS (Transitions) ===
+
+<http://example.org/task/task1> a yawl:Task ;
+    rdfs:label "Task 1" ;
+    rdfs:comment "First task in sequence" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasOutgoingFlow <http://example.org/cond/c1> .
+
+<http://example.org/task/task2> a yawl:Task ;
+    rdfs:label "Task 2" ;
+    rdfs:comment "Second task in sequence" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/cond/c1> ;
+    yawl:hasOutgoingFlow <http://example.org/cond/c2> .
+
+<http://example.org/task/task3> a yawl:Task ;
+    rdfs:label "Task 3" ;
+    rdfs:comment "Third task in sequence" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/cond/c2> ;
+    yawl:hasOutgoingFlow <http://example.org/cond/end> .
+
+# === CONDITIONS (Places) ===
+
+<http://example.org/cond/start> a yawl:StartCondition ;
+    rdfs:label "Start" ;
+    rdfs:comment "Workflow start condition" ;
+    yawl:hasOutgoingFlow <http://example.org/task/task1> ;
+    yawl:initialMarking 1 .
+
+<http://example.org/cond/c1> a yawl:Condition ;
+    rdfs:label "After Task 1" ;
+    rdfs:comment "Intermediate condition between task1 and task2" ;
+    yawl:hasIncomingFlow <http://example.org/task/task1> ;
+    yawl:hasOutgoingFlow <http://example.org/task/task2> ;
+    yawl:initialMarking 0 .
+
+<http://example.org/cond/c2> a yawl:Condition ;
+    rdfs:label "After Task 2" ;
+    rdfs:comment "Intermediate condition between task2 and task3" ;
+    yawl:hasIncomingFlow <http://example.org/task/task2> ;
+    yawl:hasOutgoingFlow <http://example.org/task/task3> ;
+    yawl:initialMarking 0 .
+
+<http://example.org/cond/end> a yawl:EndCondition ;
+    rdfs:label "End" ;
+    rdfs:comment "Workflow end condition" ;
+    yawl:hasIncomingFlow <http://example.org/task/task3> ;
+    yawl:initialMarking 0 .
+
+# === FLOW CONNECTIONS (Arcs) ===
+# These are defined via yawl:hasIncomingFlow and yawl:hasOutgoingFlow
+# above, so no separate flow declarations needed.
+
+# Pattern Metadata
+<http://example.org/workflow/simple-sequence> yawl:patternName "BasicSequence" ;
+    yawl:patternCategory "ControlFlow" ;
+    yawl:complexity "LOW" ;
+    yawl:estimatedDuration "PT1H"^^xsd:duration .

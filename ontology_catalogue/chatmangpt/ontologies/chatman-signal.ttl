@@ -1,0 +1,769 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcterms_type: <http://purl.org/dc/dcmitype/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dqv: <http://www.w3.org/ns/dqv#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix bfo: <http://purl.obolibrary.org/obo/BFO_> .
+@prefix iao: <http://purl.obolibrary.org/obo/IAO_> .
+@prefix dul: <http://www.loa.istc.cnr.it/ontologies/DUL.owl#> .
+@prefix chatman: <https://ontology.chatmangpt.com/core#> .
+
+###############################################################################
+# CHATMANGPT SIGNAL THEORY ONTOLOGY
+#
+# Signal Theory: S = (Mode, Genre, Type, Format, Structure)
+#
+# IRI: https://ontology.chatmangpt.com/signal
+# Module: chatman-signal.ttl
+#
+# This ontology formalizes Signal Theory as the universal quality layer
+# across all ChatmanGPT systems (BusinessOS, Canopy, OSA, pm4py-rust).
+#
+# Every output an agent produces is a Signal. High-quality outputs have
+# all 5 dimensions resolved:
+# - M (Mode): How is this perceived? (linguistic, visual, code, data, mixed)
+# - G (Genre): What conventionalized form? (spec, brief, report, plan, email, etc.)
+# - T (Type): What does this DO? (direct, inform, commit, decide, express)
+# - F (Format): What container? (markdown, code, json, yaml, html, pdf)
+# - W (Structure/Skeleton): What internal template? (adr-template, checklist, etc.)
+###############################################################################
+
+<https://ontology.chatmangpt.com/signal>
+  a owl:Ontology ;
+  dcterms:title "ChatmanGPT Signal Theory Ontology"@en ;
+  dcterms:description "Formal ontology for Signal Theory S=(M,G,T,F,W). Defines all 5 dimensions of high-quality output encoding, quality measurement (S/N ratio), and semantic mapping to standard ontologies (IAO information artifacts, DUL information objects, DQV quality measurements). Used to measure and enforce output quality across BusinessOS, Canopy, OSA, and pm4py-rust."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:created "2026-03-25T00:00:00Z"^^xsd:dateTime ;
+  dcterms:creator "Sean Chatman"@en ;
+  dcterms:contributor "MIOSA (miosa.ai)"@en ;
+  dcterms:license <https://creativecommons.org/licenses/by-sa/4.0/> ;
+  dcterms:isPartOf <https://ontology.chatmangpt.com/> ;
+  owl:versionIRI <https://ontology.chatmangpt.com/signal/1.0> ;
+  owl:versionInfo "1.0"^^xsd:string ;
+  dcterms:language "en"@en ;
+  owl:imports <https://ontology.chatmangpt.com/core> ;
+  rdfs:comment "Signal Theory formalizes the encoding of high-quality output. Every signal (artifact, message, response) must resolve 5 dimensions: Mode (perception), Genre (conventional form), Type (action), Format (container), and Structure (template). This ontology maps these to standard ontologies (IAO for information artifacts, DUL for information objects, DQV for quality metrics) to enable machine-verifiable quality gates."@en ;
+  .
+
+###############################################################################
+# DIMENSION 1: MODE (M) — HOW IS THIS PERCEIVED?
+#
+# The perceptual mode in which a signal is encoded and received.
+# Five mutually exclusive modes: linguistic, visual, code, data, mixed.
+###############################################################################
+
+# Top-level Signal class
+chatman:Signal
+  a owl:Class ;
+  rdfs:label "Signal"@en ;
+  rdfs:comment "A signal is any output from an agent, spanning communication to humans (emails, specs), machine-to-machine (API responses), or human-to-machine (instructions). A high-quality signal has all 5 dimensions resolved: Mode (M), Genre (G), Type (T), Format (F), Structure (W)."@en ;
+  rdfs:subClassOf iao:0000030 ;  # IAO "Information Content Entity"
+  rdfs:subClassOf dul:InformationObject ;
+  .
+
+# Mode classes
+chatman:Mode
+  a owl:Class ;
+  rdfs:label "Mode"@en ;
+  rdfs:comment "The perceptual mode in which a signal is encoded and perceived. All signals must have exactly one mode."@en ;
+  .
+
+chatman:LinguisticSignal
+  a owl:Class ;
+  rdfs:label "Linguistic Signal"@en ;
+  rdfs:comment "Signal perceived as natural language text. Examples: emails, specifications, reports, decision records, narratives."@en ;
+  rdfs:subClassOf chatman:Signal ;
+  rdfs:subClassOf chatman:Mode ;
+  owl:disjointWith chatman:VisualSignal ;
+  owl:disjointWith chatman:CodeSignal ;
+  owl:disjointWith chatman:DataSignal ;
+  .
+
+chatman:VisualSignal
+  a owl:Class ;
+  rdfs:label "Visual Signal"@en ;
+  rdfs:comment "Signal perceived as images, diagrams, or visual presentations. Examples: dashboards, architecture diagrams, mockups, charts, infographics."@en ;
+  rdfs:subClassOf chatman:Signal ;
+  rdfs:subClassOf chatman:Mode ;
+  owl:disjointWith chatman:LinguisticSignal ;
+  owl:disjointWith chatman:CodeSignal ;
+  owl:disjointWith chatman:DataSignal ;
+  .
+
+chatman:CodeSignal
+  a owl:Class ;
+  rdfs:label "Code Signal"@en ;
+  rdfs:comment "Signal perceived as executable source code or scripts. Examples: implementations, test suites, configuration scripts, SQL queries, API endpoints."@en ;
+  rdfs:subClassOf chatman:Signal ;
+  rdfs:subClassOf chatman:Mode ;
+  owl:disjointWith chatman:LinguisticSignal ;
+  owl:disjointWith chatman:VisualSignal ;
+  owl:disjointWith chatman:DataSignal ;
+  .
+
+chatman:DataSignal
+  a owl:Class ;
+  rdfs:label "Data Signal"@en ;
+  rdfs:comment "Signal perceived as structured data, metrics, or analytics. Examples: JSON responses, CSV tables, analytics reports, time series, quantitative measurements."@en ;
+  rdfs:subClassOf chatman:Signal ;
+  rdfs:subClassOf chatman:Mode ;
+  owl:disjointWith chatman:LinguisticSignal ;
+  owl:disjointWith chatman:VisualSignal ;
+  owl:disjointWith chatman:CodeSignal ;
+  .
+
+chatman:MixedSignal
+  a owl:Class ;
+  rdfs:label "Mixed Signal"@en ;
+  rdfs:comment "Signal perceived as multiple modes combined. Examples: reports with embedded text, tables, and charts; documentation with code examples and explanations; dashboards with narrative context."@en ;
+  rdfs:subClassOf chatman:Signal ;
+  rdfs:subClassOf chatman:Mode ;
+  .
+
+###############################################################################
+# DIMENSION 2: GENRE (G) — WHAT CONVENTIONALIZED FORM?
+#
+# Genre is a SKOS ConceptScheme defining conventionalized forms of output.
+# Each genre has receiver expectations about structure, content, and purpose.
+###############################################################################
+
+chatman:GenreScheme
+  a skos:ConceptScheme ;
+  rdfs:label "Signal Genre Scheme"@en ;
+  rdfs:comment "SKOS concept scheme defining all signal genres. Genre is the conventionalized form that sets receiver expectations about structure, content, and purpose."@en ;
+  skos:hasTopConcept chatman:Spec ;
+  skos:hasTopConcept chatman:Brief ;
+  skos:hasTopConcept chatman:Report ;
+  skos:hasTopConcept chatman:Plan ;
+  skos:hasTopConcept chatman:Email ;
+  skos:hasTopConcept chatman:ADR ;
+  skos:hasTopConcept chatman:Pitch ;
+  skos:hasTopConcept chatman:Note ;
+  skos:hasTopConcept chatman:Transcript ;
+  skos:hasTopConcept chatman:Proposal ;
+  skos:hasTopConcept chatman:Battlecard ;
+  .
+
+chatman:Spec
+  a skos:Concept ;
+  rdfs:label "Specification"@en ;
+  skos:prefLabel "spec"@en ;
+  skos:definition "Defining what to build. Receiver expects requirements, constraints, acceptance criteria."@en ;
+  skos:inScheme chatman:GenreScheme ;
+  .
+
+chatman:Brief
+  a skos:Concept ;
+  rdfs:label "Brief"@en ;
+  skos:prefLabel "brief"@en ;
+  skos:definition "Compelling action from non-technical people. Receiver expects objective, key messages, call-to-action."@en ;
+  skos:inScheme chatman:GenreScheme ;
+  .
+
+chatman:Report
+  a skos:Concept ;
+  rdfs:label "Report"@en ;
+  skos:prefLabel "report"@en ;
+  skos:definition "Surfacing information for review. Receiver expects data, analysis, and recommendations."@en ;
+  skos:inScheme chatman:GenreScheme ;
+  .
+
+chatman:Plan
+  a skos:Concept ;
+  rdfs:label "Plan"@en ;
+  skos:prefLabel "plan"@en ;
+  skos:definition "Structuring future work. Receiver expects objectives, time blocks, and dependencies."@en ;
+  skos:inScheme chatman:GenreScheme ;
+  .
+
+chatman:Email
+  a skos:Concept ;
+  rdfs:label "Email"@en ;
+  skos:prefLabel "email"@en ;
+  skos:definition "Direct communication to a person. Receiver expects subject, body, and call-to-action."@en ;
+  skos:inScheme chatman:GenreScheme ;
+  .
+
+chatman:ADR
+  a skos:Concept ;
+  rdfs:label "Architecture Decision Record"@en ;
+  skos:prefLabel "adr"@en ;
+  skos:definition "Recording a technical decision. Receiver expects context, decision statement, and consequences."@en ;
+  skos:inScheme chatman:GenreScheme ;
+  .
+
+chatman:Pitch
+  a skos:Concept ;
+  rdfs:label "Pitch"@en ;
+  skos:prefLabel "pitch"@en ;
+  skos:definition "Selling an idea or product. Receiver expects hook, value proposition, proof, and ask."@en ;
+  skos:inScheme chatman:GenreScheme ;
+  .
+
+chatman:Note
+  a skos:Concept ;
+  rdfs:label "Note"@en ;
+  skos:prefLabel "note"@en ;
+  skos:definition "Quick capture for later processing. Receiver expects context, content, and routing suggestion."@en ;
+  skos:inScheme chatman:GenreScheme ;
+  .
+
+chatman:Transcript
+  a skos:Concept ;
+  rdfs:label "Transcript"@en ;
+  skos:prefLabel "transcript"@en ;
+  skos:definition "Processing a meeting or call. Receiver expects participants, decisions, and action items."@en ;
+  skos:inScheme chatman:GenreScheme ;
+  .
+
+chatman:Proposal
+  a skos:Concept ;
+  rdfs:label "Proposal"@en ;
+  skos:prefLabel "proposal"@en ;
+  skos:definition "Requesting approval or buy-in. Receiver expects problem statement, solution, cost, and timeline."@en ;
+  skos:inScheme chatman:GenreScheme ;
+  .
+
+chatman:Battlecard
+  a skos:Concept ;
+  rdfs:label "Battlecard"@en ;
+  skos:prefLabel "battlecard"@en ;
+  skos:definition "Competitive positioning. Receiver expects strengths, weaknesses, and talk tracks."@en ;
+  skos:inScheme chatman:GenreScheme ;
+  .
+
+###############################################################################
+# DIMENSION 3: TYPE (T) — WHAT DOES THIS DO?
+#
+# Type defines the action or purpose of the signal.
+# Five mutually exclusive types: direct, inform, commit, decide, express.
+###############################################################################
+
+chatman:Type
+  a owl:Class ;
+  rdfs:label "Type"@en ;
+  rdfs:comment "The action or purpose of a signal. What does this signal DO? Five types: direct (compel action), inform (surface information), commit (commit to a decision), decide (make judgment), express (convey state)."@en ;
+  .
+
+chatman:DirectSignal
+  a owl:Class ;
+  rdfs:label "Direct Signal"@en ;
+  rdfs:comment "Signal that compels action. Examples: 'Deploy this,' 'Review this,' 'Fix this.'"@en ;
+  rdfs:subClassOf chatman:Signal ;
+  rdfs:subClassOf chatman:Type ;
+  owl:disjointWith chatman:InformSignal ;
+  owl:disjointWith chatman:CommitSignal ;
+  owl:disjointWith chatman:DecideSignal ;
+  owl:disjointWith chatman:ExpressSignal ;
+  .
+
+chatman:InformSignal
+  a owl:Class ;
+  rdfs:label "Inform Signal"@en ;
+  rdfs:comment "Signal that surfaces information. Examples: 'Here is the status,' 'This is what I found.'"@en ;
+  rdfs:subClassOf chatman:Signal ;
+  rdfs:subClassOf chatman:Type ;
+  owl:disjointWith chatman:DirectSignal ;
+  owl:disjointWith chatman:CommitSignal ;
+  owl:disjointWith chatman:DecideSignal ;
+  owl:disjointWith chatman:ExpressSignal ;
+  .
+
+chatman:CommitSignal
+  a owl:Class ;
+  rdfs:label "Commit Signal"@en ;
+  rdfs:comment "Signal that commits to a decision. Examples: approved specification, signed contract, published ADR."@en ;
+  rdfs:subClassOf chatman:Signal ;
+  rdfs:subClassOf chatman:Type ;
+  owl:disjointWith chatman:DirectSignal ;
+  owl:disjointWith chatman:InformSignal ;
+  owl:disjointWith chatman:DecideSignal ;
+  owl:disjointWith chatman:ExpressSignal ;
+  .
+
+chatman:DecideSignal
+  a owl:Class ;
+  rdfs:label "Decide Signal"@en ;
+  rdfs:comment "Signal that makes a judgment. Examples: 'Approved,' 'Rejected,' 'Go with option B.'"@en ;
+  rdfs:subClassOf chatman:Signal ;
+  rdfs:subClassOf chatman:Type ;
+  owl:disjointWith chatman:DirectSignal ;
+  owl:disjointWith chatman:InformSignal ;
+  owl:disjointWith chatman:CommitSignal ;
+  owl:disjointWith chatman:ExpressSignal ;
+  .
+
+chatman:ExpressSignal
+  a owl:Class ;
+  rdfs:label "Express Signal"@en ;
+  rdfs:comment "Signal that conveys state or feeling. Examples: 'I am working on X,' 'This is how I feel about this.'"@en ;
+  rdfs:subClassOf chatman:Signal ;
+  rdfs:subClassOf chatman:Type ;
+  owl:disjointWith chatman:DirectSignal ;
+  owl:disjointWith chatman:InformSignal ;
+  owl:disjointWith chatman:CommitSignal ;
+  owl:disjointWith chatman:DecideSignal ;
+  .
+
+###############################################################################
+# DIMENSION 4: FORMAT (F) — WHAT CONTAINER?
+#
+# Format defines the data format or media type of the signal.
+# Examples: markdown, code, json, yaml, html, pdf.
+###############################################################################
+
+chatman:Format
+  a owl:Class ;
+  rdfs:label "Format"@en ;
+  rdfs:comment "The data format or media type container for a signal. Maps to dcat:mediaType (IANA media types)."@en ;
+  rdfs:subClassOf iao:0000098 ;  # IAO "Data Set"
+  .
+
+chatman:MarkdownFormat
+  a owl:Class ;
+  rdfs:label "Markdown Format"@en ;
+  rdfs:comment "Signal container in Markdown text format. IANA media type: text/markdown."@en ;
+  rdfs:subClassOf chatman:Format ;
+  owl:equivalentClass [ a owl:Restriction ;
+    owl:onProperty dcat:mediaType ;
+    owl:hasValue "text/markdown" ] ;
+  .
+
+chatman:CodeFormat
+  a owl:Class ;
+  rdfs:label "Code Format"@en ;
+  rdfs:comment "Signal container in source code format. IANA media type: text/x-<language> (e.g., text/x-go, text/x-python, text/x-java)."@en ;
+  rdfs:subClassOf chatman:Format ;
+  .
+
+chatman:JSONFormat
+  a owl:Class ;
+  rdfs:label "JSON Format"@en ;
+  rdfs:comment "Signal container in JSON data format. IANA media type: application/json."@en ;
+  rdfs:subClassOf chatman:Format ;
+  owl:equivalentClass [ a owl:Restriction ;
+    owl:onProperty dcat:mediaType ;
+    owl:hasValue "application/json" ] ;
+  .
+
+chatman:YAMLFormat
+  a owl:Class ;
+  rdfs:label "YAML Format"@en ;
+  rdfs:comment "Signal container in YAML data format. IANA media type: application/x-yaml."@en ;
+  rdfs:subClassOf chatman:Format ;
+  owl:equivalentClass [ a owl:Restriction ;
+    owl:onProperty dcat:mediaType ;
+    owl:hasValue "application/x-yaml" ] ;
+  .
+
+chatman:HTMLFormat
+  a owl:Class ;
+  rdfs:label "HTML Format"@en ;
+  rdfs:comment "Signal container in HTML markup. IANA media type: text/html."@en ;
+  rdfs:subClassOf chatman:Format ;
+  owl:equivalentClass [ a owl:Restriction ;
+    owl:onProperty dcat:mediaType ;
+    owl:hasValue "text/html" ] ;
+  .
+
+chatman:PDFFormat
+  a owl:Class ;
+  rdfs:label "PDF Format"@en ;
+  rdfs:comment "Signal container in PDF document format. IANA media type: application/pdf."@en ;
+  rdfs:subClassOf chatman:Format ;
+  owl:equivalentClass [ a owl:Restriction ;
+    owl:onProperty dcat:mediaType ;
+    owl:hasValue "application/pdf" ] ;
+  .
+
+###############################################################################
+# DIMENSION 5: STRUCTURE (W) — WHAT INTERNAL SKELETON/TEMPLATE?
+#
+# Structure defines the template or skeleton that organizes signal content.
+# SKOS ConceptScheme for common templates.
+###############################################################################
+
+chatman:StructureScheme
+  a skos:ConceptScheme ;
+  rdfs:label "Signal Structure/Template Scheme"@en ;
+  rdfs:comment "SKOS concept scheme defining signal templates and internal skeletons. Each structure guides the receiver on how to parse and interpret the signal content."@en ;
+  skos:hasTopConcept chatman:ADRTemplate ;
+  skos:hasTopConcept chatman:ReviewChecklist ;
+  skos:hasTopConcept chatman:ColdEmailAnatomy ;
+  skos:hasTopConcept chatman:DIATAXISExplanation ;
+  skos:hasTopConcept chatman:DIATAXISReference ;
+  skos:hasTopConcept chatman:DIATAXISTutorial ;
+  skos:hasTopConcept chatman:DIATAXISHowTo ;
+  skos:hasTopConcept chatman:PipelineMetrics ;
+  skos:hasTopConcept chatman:MEDDPICCScorecard ;
+  skos:hasTopConcept chatman:ProgressiveDisclosureL0 ;
+  skos:hasTopConcept chatman:ProgressiveDisclosureL1 ;
+  skos:hasTopConcept chatman:ProgressiveDisclosureL2 ;
+  .
+
+chatman:ADRTemplate
+  a skos:Concept ;
+  rdfs:label "ADR Template"@en ;
+  skos:prefLabel "adr-template"@en ;
+  skos:definition "Architecture Decision Record structure: Context, Decision, Consequences. Standard format for recording technical decisions."@en ;
+  skos:inScheme chatman:StructureScheme ;
+  .
+
+chatman:ReviewChecklist
+  a skos:Concept ;
+  rdfs:label "Review Checklist"@en ;
+  skos:prefLabel "review-checklist"@en ;
+  skos:definition "Checklist structure with criteria and pass/fail status. Used for code reviews, design reviews, audit trails."@en ;
+  skos:inScheme chatman:StructureScheme ;
+  .
+
+chatman:ColdEmailAnatomy
+  a skos:Concept ;
+  rdfs:label "Cold Email Anatomy"@en ;
+  skos:prefLabel "cold-email-anatomy"@en ;
+  skos:definition "Email structure: Hook (attention), Value (benefit), Call-to-action (ask). Used for outreach and persuasion."@en ;
+  skos:inScheme chatman:StructureScheme ;
+  .
+
+chatman:DIATAXISExplanation
+  a skos:Concept ;
+  rdfs:label "Diátaxis Explanation"@en ;
+  skos:prefLabel "diataxis-explanation"@en ;
+  skos:definition "Diátaxis genre for conceptual understanding. Structure: Concept overview, theory, examples, relationships to other concepts."@en ;
+  skos:inScheme chatman:StructureScheme ;
+  skos:broader chatman:DIATAXISStructure ;
+  .
+
+chatman:DIATAXISReference
+  a skos:Concept ;
+  rdfs:label "Diátaxis Reference"@en ;
+  skos:prefLabel "diataxis-reference"@en ;
+  skos:definition "Diátaxis genre for technical reference. Structure: API docs, parameter lists, examples, edge cases."@en ;
+  skos:inScheme chatman:StructureScheme ;
+  skos:broader chatman:DIATAXISStructure ;
+  .
+
+chatman:DIATAXISTutorial
+  a skos:Concept ;
+  rdfs:label "Diátaxis Tutorial"@en ;
+  skos:prefLabel "diataxis-tutorial"@en ;
+  skos:definition "Diátaxis genre for learning by doing. Structure: Goal, prerequisites, step-by-step instructions, success criteria."@en ;
+  skos:inScheme chatman:StructureScheme ;
+  skos:broader chatman:DIATAXISStructure ;
+  .
+
+chatman:DIATAXISHowTo
+  a skos:Concept ;
+  rdfs:label "Diátaxis How-To"@en ;
+  skos:prefLabel "diataxis-how-to"@en ;
+  skos:definition "Diátaxis genre for task-focused guidance. Structure: Task, preconditions, steps, verification, troubleshooting."@en ;
+  skos:inScheme chatman:StructureScheme ;
+  skos:broader chatman:DIATAXISStructure ;
+  .
+
+chatman:DIATAXISStructure
+  a skos:Concept ;
+  rdfs:label "Diátaxis Structure"@en ;
+  skos:prefLabel "diataxis"@en ;
+  skos:definition "Meta-structure organizing documentation into four orthogonal genres (explanation, reference, tutorial, how-to) for maximal clarity."@en ;
+  skos:inScheme chatman:StructureScheme ;
+  .
+
+chatman:PipelineMetrics
+  a skos:Concept ;
+  rdfs:label "Pipeline Metrics"@en ;
+  skos:prefLabel "pipeline-metrics"@en ;
+  skos:definition "Dashboard structure showing pipeline stage counts, velocity, and key metrics. Used for visual reporting."@en ;
+  skos:inScheme chatman:StructureScheme ;
+  .
+
+chatman:MEDDPICCScorecard
+  a skos:Concept ;
+  rdfs:label "MEDDPICC Scorecard"@en ;
+  skos:prefLabel "meddpicc-scorecard"@en ;
+  skos:definition "Sales evaluation structure using MEDDPICC framework: Metrics, Economic buyer, Decision criteria, Decision process, Pain, Identify power, Champion, Close plan."@en ;
+  skos:inScheme chatman:StructureScheme ;
+  .
+
+chatman:ProgressiveDisclosureL0
+  a skos:Concept ;
+  rdfs:label "Progressive Disclosure L0"@en ;
+  skos:prefLabel "progressive-disclosure-l0"@en ;
+  skos:definition "Token-efficient abstract summary (~100 tokens). Entry point for all users, loaded automatically."@en ;
+  skos:inScheme chatman:StructureScheme ;
+  skos:broader chatman:ProgressiveDisclosureStructure ;
+  .
+
+chatman:ProgressiveDisclosureL1
+  a skos:Concept ;
+  rdfs:label "Progressive Disclosure L1"@en ;
+  skos:prefLabel "progressive-disclosure-l1"@en ;
+  skos:definition "Detailed overview (~2K tokens). Loaded on phase entry or specific questions."@en ;
+  skos:inScheme chatman:StructureScheme ;
+  skos:broader chatman:ProgressiveDisclosureStructure ;
+  .
+
+chatman:ProgressiveDisclosureL2
+  a skos:Concept ;
+  rdfs:label "Progressive Disclosure L2"@en ;
+  skos:prefLabel "progressive-disclosure-l2"@en ;
+  skos:definition "Complete information (unlimited tokens). Loaded for deep analysis or editing."@en ;
+  skos:inScheme chatman:StructureScheme ;
+  skos:broader chatman:ProgressiveDisclosureStructure ;
+  .
+
+chatman:ProgressiveDisclosureStructure
+  a skos:Concept ;
+  rdfs:label "Progressive Disclosure"@en ;
+  skos:prefLabel "progressive-disclosure"@en ;
+  skos:definition "Meta-structure organizing information into three tiers (L0/L1/L2) for token-efficient context loading with 60x-120x compression ratio."@en ;
+  skos:inScheme chatman:StructureScheme ;
+  .
+
+###############################################################################
+# SIGNAL PROPERTIES: Linking Signals to S=(M,G,T,F,W) Dimensions
+###############################################################################
+
+chatman:hasMode
+  a owl:ObjectProperty ;
+  rdfs:label "has mode"@en ;
+  rdfs:comment "Links a Signal to its Mode (M). Every signal has exactly one mode from: LinguisticSignal, VisualSignal, CodeSignal, DataSignal, MixedSignal."@en ;
+  rdfs:domain chatman:Signal ;
+  rdfs:range chatman:Mode ;
+  owl:cardinality 1 ;
+  .
+
+chatman:hasGenre
+  a owl:ObjectProperty ;
+  rdfs:label "has genre"@en ;
+  rdfs:comment "Links a Signal to its Genre (G). Genre is a SKOS Concept from chatman:GenreScheme."@en ;
+  rdfs:domain chatman:Signal ;
+  rdfs:range skos:Concept ;
+  .
+
+chatman:hasType
+  a owl:ObjectProperty ;
+  rdfs:label "has type"@en ;
+  rdfs:comment "Links a Signal to its Type (T). Every signal has exactly one type from: DirectSignal, InformSignal, CommitSignal, DecideSignal, ExpressSignal."@en ;
+  rdfs:domain chatman:Signal ;
+  rdfs:range chatman:Type ;
+  owl:cardinality 1 ;
+  .
+
+chatman:hasFormat
+  a owl:ObjectProperty ;
+  rdfs:label "has format"@en ;
+  rdfs:comment "Links a Signal to its Format (F). Format is a container (MarkdownFormat, CodeFormat, JSONFormat, etc.) with associated IANA mediaType."@en ;
+  rdfs:domain chatman:Signal ;
+  rdfs:range chatman:Format ;
+  owl:cardinality 1 ;
+  .
+
+chatman:hasStructure
+  a owl:ObjectProperty ;
+  rdfs:label "has structure"@en ;
+  rdfs:comment "Links a Signal to its Structure/Template (W). Structure is a SKOS Concept from chatman:StructureScheme."@en ;
+  rdfs:domain chatman:Signal ;
+  rdfs:range skos:Concept ;
+  .
+
+###############################################################################
+# QUALITY MEASUREMENT: S/N Ratio (Signal-to-Noise)
+#
+# Every signal has a quality score measuring the ratio of signal (useful information)
+# to noise (ambiguity, incorrect format, missing dimensions).
+#
+# Range: [0, 1] where:
+#   1.0 = perfect signal (all 5 dimensions resolved, clear intent, no ambiguity)
+#   0.7 = acceptable signal (minimal noise, mostly clear intent)
+#   <0.7 = noisy signal (high ambiguity, incorrect form, not transmittable)
+###############################################################################
+
+chatman:QualityScore
+  a owl:Class ;
+  rdfs:label "Quality Score"@en ;
+  rdfs:comment "Measurement of signal quality using S/N (signal-to-noise) ratio. Extends dqv:QualityMeasurement to quantify output quality across Signal Theory dimensions."@en ;
+  rdfs:subClassOf dqv:QualityMeasurement ;
+  .
+
+chatman:hasS_N_Ratio
+  a owl:DatatypeProperty ;
+  rdfs:label "has signal-to-noise ratio"@en ;
+  rdfs:comment "The numeric S/N ratio of a signal, ranging from 0 (noise) to 1 (pure signal). Minimum transmittable threshold: 0.7. Computed from Mode coherence, Genre appropriateness, Type clarity, Format validity, and Structure completeness."@en ;
+  rdfs:domain chatman:Signal ;
+  rdfs:range xsd:decimal ;
+  owl:minInclusive 0.0 ;
+  owl:maxInclusive 1.0 ;
+  .
+
+chatman:qualityBreakdown
+  a owl:ObjectProperty ;
+  rdfs:label "quality breakdown"@en ;
+  rdfs:comment "Links a Signal to detailed quality assessment (chatman:QualityBreakdown) showing dimension-by-dimension scores."@en ;
+  rdfs:domain chatman:Signal ;
+  rdfs:range chatman:QualityBreakdown ;
+  .
+
+chatman:QualityBreakdown
+  a owl:Class ;
+  rdfs:label "Quality Breakdown"@en ;
+  rdfs:comment "Detailed quality assessment of all 5 Signal Theory dimensions. Provides diagnostic info on why S/N ratio is high or low."@en ;
+  rdfs:subClassOf dqv:QualityMeasurement ;
+  .
+
+chatman:modeCoherence
+  a owl:DatatypeProperty ;
+  rdfs:label "mode coherence score"@en ;
+  rdfs:comment "Quality score [0,1] for Mode dimension. 1.0 = mode is well-chosen for content, 0 = mode mismatch."@en ;
+  rdfs:domain chatman:QualityBreakdown ;
+  rdfs:range xsd:decimal ;
+  owl:minInclusive 0.0 ;
+  owl:maxInclusive 1.0 ;
+  .
+
+chatman:genreAppropriates
+  a owl:DatatypeProperty ;
+  rdfs:label "genre appropriateness score"@en ;
+  rdfs:comment "Quality score [0,1] for Genre dimension. 1.0 = genre matches receiver expectations, 0 = genre completely wrong."@en ;
+  rdfs:domain chatman:QualityBreakdown ;
+  rdfs:range xsd:decimal ;
+  owl:minInclusive 0.0 ;
+  owl:maxInclusive 1.0 ;
+  .
+
+chatman:typeClarity
+  a owl:DatatypeProperty ;
+  rdfs:label "type clarity score"@en ;
+  rdfs:comment "Quality score [0,1] for Type dimension. 1.0 = intent (direct/inform/commit/decide/express) is unambiguous, 0 = intent is unclear."@en ;
+  rdfs:domain chatman:QualityBreakdown ;
+  rdfs:range xsd:decimal ;
+  owl:minInclusive 0.0 ;
+  owl:maxInclusive 1.0 ;
+  .
+
+chatman:formatValidity
+  a owl:DatatypeProperty ;
+  rdfs:label "format validity score"@en ;
+  rdfs:comment "Quality score [0,1] for Format dimension. 1.0 = format is valid and properly used (valid JSON, markdown, etc.), 0 = format is malformed."@en ;
+  rdfs:domain chatman:QualityBreakdown ;
+  rdfs:range xsd:decimal ;
+  owl:minInclusive 0.0 ;
+  owl:maxInclusive 1.0 ;
+  .
+
+chatman:structureCompleteness
+  a owl:DatatypeProperty ;
+  rdfs:label "structure completeness score"@en ;
+  rdfs:comment "Quality score [0,1] for Structure dimension. 1.0 = all sections of template are present, 0 = template sections missing."@en ;
+  rdfs:domain chatman:QualityBreakdown ;
+  rdfs:range xsd:decimal ;
+  owl:minInclusive 0.0 ;
+  owl:maxInclusive 1.0 ;
+  .
+
+###############################################################################
+# SIGNAL CONSTRAINTS (Based on Information Theory)
+#
+# Four governing constraints from information theory that define what makes
+# a signal transmittable and high-quality.
+###############################################################################
+
+chatman:SignalConstraint
+  a owl:Class ;
+  rdfs:label "Signal Constraint"@en ;
+  rdfs:comment "Theoretical constraint from information theory that governs signal quality. Every signal must satisfy all four constraints or it fails."@en ;
+  .
+
+chatman:ShannonConstraint
+  a owl:Class ;
+  rdfs:label "Shannon Constraint (Bandwidth)"@en ;
+  rdfs:comment "Do not exceed the receiver's bandwidth. Every channel has limited capacity. Violating this = signal loss due to overflow. Maps to Shannon's channel capacity theorem."@en ;
+  rdfs:subClassOf chatman:SignalConstraint ;
+  .
+
+chatman:AshbyConstraint
+  a owl:Class ;
+  rdfs:label "Ashby Constraint (Requisite Variety)"@en ;
+  rdfs:comment "The signal must have sufficient variety to convey the message. If signal variety is less than message complexity, information is lost. Maps to Ashby's Law of Requisite Variety."@en ;
+  rdfs:subClassOf chatman:SignalConstraint ;
+  .
+
+chatman:BeerConstraint
+  a owl:Class ;
+  rdfs:label "Beer Constraint (Coherence)"@en ;
+  rdfs:comment "The signal structure must be coherent with the message intent. Structural inconsistency = receiver confusion. Maps to Beer's Viable System Model (coherence requirement)."@en ;
+  rdfs:subClassOf chatman:SignalConstraint ;
+  .
+
+chatman:WienerConstraint
+  a owl:Class ;
+  rdfs:label "Wiener Constraint (Feedback)"@en ;
+  rdfs:comment "The receiver must be able to confirm receipt and understanding. No feedback = no way to detect signal loss. Maps to Wiener's cybernetic feedback principle."@en ;
+  rdfs:subClassOf chatman:SignalConstraint ;
+  .
+
+###############################################################################
+# ALIGNMENT WITH STANDARD ONTOLOGIES
+#
+# Signal Theory classes map to established ontologies:
+# - IAO (Information Artifacts Ontology): Information Content Entity, Data Set
+# - DUL (Description Logic Upper Level): InformationObject, Description
+# - DQV (Data Quality Vocabulary): QualityMeasurement
+# - SKOS (Simple Knowledge Organization System): ConceptScheme, Concept
+# - DCAT (Data Catalog Vocabulary): mediaType (format mapping)
+###############################################################################
+
+chatman:OntologyAlignment
+  a owl:Class ;
+  rdfs:label "Ontology Alignment Documentation"@en ;
+  rdfs:comment """
+Signal Theory class mappings to standard ontologies:
+
+1. chatman:Signal
+   - rdfs:subClassOf iao:0000030 (IAO Information Content Entity)
+   - rdfs:subClassOf dul:InformationObject (DUL information object)
+   Definition: Any artifact, message, or response produced by an agent.
+
+2. chatman:Mode (Perception)
+   - Maps informally to iao:0000033 (Figure) and iao:0000030 (Information Content Entity)
+   - Different modes (linguistic, visual, code, data) are different representations (dul:hasRepresentation-like)
+
+3. chatman:Genre (Conventional Form)
+   - Implemented as skos:ConceptScheme + skos:Concept (SKOS)
+   - Each genre is a skos:Concept with skos:prefLabel and skos:definition
+
+4. chatman:Type (Action/Purpose)
+   - Maps informally to prov:type (PROV-O activity type)
+   - Different types (direct, inform, commit, decide, express) classify the signal's action
+
+5. chatman:Format (Container)
+   - rdfs:subClassOf iao:0000098 (IAO Data Set)
+   - Uses dcat:mediaType (DCAT 3) to link to IANA media types (text/markdown, application/json, etc.)
+
+6. chatman:Structure (Template)
+   - Implemented as skos:ConceptScheme + skos:Concept (SKOS)
+   - Each structure is a skos:Concept defining a template or skeleton
+
+7. chatman:QualityScore
+   - rdfs:subClassOf dqv:QualityMeasurement (DQV)
+   - Uses dqv properties to measure quality dimensions
+
+This multi-ontology approach provides interoperability:
+- Chat with external systems using W3C standards (SKOS, DCAT, DQV)
+- Classify internal operations using domain semantics (IAO, DUL)
+- Track provenance using standard protocols (PROV-O)
+  """@en ;
+  .
+
+###############################################################################
+# END OF CHATMANGPT SIGNAL THEORY ONTOLOGY
+###############################################################################

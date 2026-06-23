@@ -1,0 +1,79 @@
+# Query: Active Andon Quality Alert Events
+#
+# Business Logic:
+# - Lists all currently open Andon (quality alert) events
+# - Andon = Toyota Production System term for "stop and fix" quality signals
+# - Orders by severity (critical issues first) and elapsed time (oldest first)
+# - Used to prioritize quality interventions and root cause analysis
+#
+# Parameters:
+# - ?min_severity: Optional minimum severity filter ("low", "medium", "high", "critical")
+# - ?sku_filter: Optional SKU ID to filter alerts for specific product
+#
+# Returns:
+# - andon_id: Unique alert identifier
+# - sku_id: Affected SKU/product
+# - failure_reason: Description of quality issue
+# - severity: Impact level (critical/high/medium/low)
+# - triggered_timestamp: When alert was raised
+# - elapsed_hours: Hours since alert triggered
+# - work_order_id: Associated work order (if any)
+# - stage: Production stage where issue occurred
+#
+# Usage Example:
+# BIND("high" AS ?min_severity)  # Only show high/critical
+# BIND("SKU-12345" AS ?sku_filter)  # Filter to specific SKU
+
+PREFIX tcps: <http://example.org/tcps#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?andon_id ?sku_id ?failure_reason ?severity
+       ?triggered_timestamp ?elapsed_hours
+       ?work_order_id ?stage
+WHERE {
+  # Get all open Andon events
+  ?andon rdf:type tcps:AndonEvent ;
+         tcps:andonId ?andon_id ;
+         tcps:skuId ?sku_id ;
+         tcps:failureReason ?failure_reason ;
+         tcps:severity ?severity ;
+         tcps:triggeredTimestamp ?triggered_timestamp ;
+         tcps:status "OPEN" .
+
+  # Optional: Associated work order
+  OPTIONAL {
+    ?andon tcps:workOrderId ?work_order_id .
+  }
+
+  # Optional: Production stage where issue occurred
+  OPTIONAL {
+    ?andon tcps:stage ?stage .
+  }
+
+  # Calculate elapsed time since alert triggered
+  BIND(NOW() AS ?current_time)
+  BIND((xsd:decimal(?current_time) - xsd:decimal(?triggered_timestamp)) / 3600 AS ?elapsed_hours)
+
+  # Optional: Filter by minimum severity
+  # Severity hierarchy: critical > high > medium > low
+  # VALUES ?min_severity { "critical" "high" "medium" "low" }
+  FILTER(
+    !BOUND(?min_severity) ||
+    (?min_severity = "low") ||
+    (?min_severity = "medium" && ?severity IN ("medium", "high", "critical")) ||
+    (?min_severity = "high" && ?severity IN ("high", "critical")) ||
+    (?min_severity = "critical" && ?severity = "critical")
+  )
+
+  # Optional: Filter by SKU
+  # BIND("SKU-12345" AS ?sku_filter)
+  FILTER(!BOUND(?sku_filter) || ?sku_id = ?sku_filter)
+}
+ORDER BY
+  # Primary sort: Severity (critical first)
+  (IF(?severity = "critical", 1,
+      IF(?severity = "high", 2,
+         IF(?severity = "medium", 3, 4))))
+  # Secondary sort: Elapsed time (oldest first - needs attention)
+  DESC(?elapsed_hours)

@@ -1,0 +1,54 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/ontology#> .
+
+# Classes
+ex:Person rdf:type owl:Class ;
+    rdfs:label "Person"@en ;
+    rdfs:comment "A human being"@en .
+
+ex:Organization rdf:type owl:Class ;
+    rdfs:label "Organization"@en ;
+    rdfs:comment "An organized body of people"@en .
+
+ex:Project rdf:type owl:Class ;
+    rdfs:label "Project"@en ;
+    rdfs:comment "A planned undertaking"@en .
+
+# Properties
+ex:name rdf:type owl:DatatypeProperty ;
+    rdfs:label "name"@en ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string .
+
+ex:email rdf:type owl:DatatypeProperty ;
+    rdfs:label "email"@en ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string .
+
+ex:worksFor rdf:type owl:ObjectProperty ;
+    rdfs:label "works for"@en ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Organization .
+
+ex:manages rdf:type owl:ObjectProperty ;
+    rdfs:label "manages"@en ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Project .
+
+# Individuals
+ex:john rdf:type ex:Person ;
+    ex:name "John Doe" ;
+    ex:email "john.doe@example.com" ;
+    ex:worksFor ex:acmeCorp .
+
+ex:acmeCorp rdf:type ex:Organization ;
+    ex:name "ACME Corporation" .
+
+ex:projectAlpha rdf:type ex:Project ;
+    ex:name "Project Alpha" .
+
+# Relationships
+ex:john ex:manages ex:projectAlpha .

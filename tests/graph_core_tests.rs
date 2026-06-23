@@ -14,6 +14,7 @@
 
 use ggen_core::graph::{build_prolog, Graph, GraphStore};
 use oxigraph::model::{GraphName, NamedNode, Quad};
+use serial_test::serial;
 use std::collections::BTreeMap;
 use tempfile::TempDir;
 
@@ -1013,6 +1014,7 @@ fn test_store_new() {
 }
 
 #[test]
+#[serial]
 fn test_store_open() {
     let temp_dir = TempDir::new().unwrap();
     let store_path = temp_dir.path().join("test_store");
@@ -1023,6 +1025,7 @@ fn test_store_open() {
 }
 
 #[test]
+#[serial]
 fn test_store_persistence() {
     let temp_dir = TempDir::new().unwrap();
     let store_path = temp_dir.path().join("persistent");
@@ -1063,6 +1066,7 @@ fn test_store_inner_access() {
 }
 
 #[test]
+#[serial]
 fn test_store_reopen_after_modifications() {
     let temp_dir = TempDir::new().unwrap();
     let store_path = temp_dir.path().join("modify");
@@ -1084,6 +1088,7 @@ fn test_store_reopen_after_modifications() {
 }
 
 #[test]
+#[serial]
 fn test_store_large_dataset_persistence() {
     let temp_dir = TempDir::new().unwrap();
     let store_path = temp_dir.path().join("large");
@@ -1122,6 +1127,7 @@ fn test_store_concurrent_access() {
 }
 
 #[test]
+#[serial]
 fn test_store_query_after_reopen() {
     let temp_dir = TempDir::new().unwrap();
     let store_path = temp_dir.path().join("query");
@@ -1141,6 +1147,7 @@ fn test_store_query_after_reopen() {
 }
 
 #[test]
+#[serial]
 fn test_store_deletion_persistence() {
     let temp_dir = TempDir::new().unwrap();
     let store_path = temp_dir.path().join("delete");
@@ -1170,6 +1177,7 @@ fn test_store_deletion_persistence() {
 }
 
 #[test]
+#[serial]
 fn test_store_clear_persistence() {
     let temp_dir = TempDir::new().unwrap();
     let store_path = temp_dir.path().join("clear");
@@ -1189,6 +1197,7 @@ fn test_store_clear_persistence() {
 }
 
 #[test]
+#[serial]
 fn test_store_named_graphs_persistence() {
     let temp_dir = TempDir::new().unwrap();
     let store_path = temp_dir.path().join("named");
@@ -1212,6 +1221,7 @@ fn test_store_named_graphs_persistence() {
 }
 
 #[test]
+#[serial]
 fn test_store_incremental_updates() {
     let temp_dir = TempDir::new().unwrap();
     let store_path = temp_dir.path().join("incremental");
@@ -1261,6 +1271,7 @@ fn test_store_load_path() {
 }
 
 #[test]
+#[serial]
 fn test_store_resource_cleanup() {
     let temp_dir = TempDir::new().unwrap();
     let store_path = temp_dir.path().join("cleanup");
@@ -1281,6 +1292,7 @@ fn test_store_resource_cleanup() {
 }
 
 #[test]
+#[serial]
 fn test_store_empty_persistence() {
     let temp_dir = TempDir::new().unwrap();
     let store_path = temp_dir.path().join("empty");
@@ -1297,6 +1309,7 @@ fn test_store_empty_persistence() {
 }
 
 #[test]
+#[serial]
 fn test_store_multiple_sessions() {
     let temp_dir = TempDir::new().unwrap();
     let store_path = temp_dir.path().join("sessions");
@@ -1321,6 +1334,7 @@ fn test_store_multiple_sessions() {
 }
 
 #[test]
+#[serial]
 fn test_store_query_caching_across_sessions() {
     let temp_dir = TempDir::new().unwrap();
     let store_path = temp_dir.path().join("cache");
@@ -1344,6 +1358,7 @@ fn test_store_query_caching_across_sessions() {
 }
 
 #[test]
+#[serial]
 fn test_store_batch_persistence() {
     let temp_dir = TempDir::new().unwrap();
     let store_path = temp_dir.path().join("batch");

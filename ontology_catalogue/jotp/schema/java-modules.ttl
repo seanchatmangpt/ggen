@@ -1,0 +1,146 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix java:  <https://jgen.dev/ontology/java#> .
+@prefix jmod:  <https://jgen.dev/ontology/java/modules#> .
+
+# =============================================================================
+# Java Platform Module System (JPMS) Ontology
+# =============================================================================
+
+jmod:Ontology a owl:Ontology ;
+    rdfs:label "Java Modules" ;
+    rdfs:comment "Ontology for JPMS module declarations and multi-module project layouts" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <https://jgen.dev/ontology/java#> .
+
+# =============================================================================
+# Module Types
+# =============================================================================
+
+jmod:Module a owl:Class ;
+    rdfs:label "Module" ;
+    rdfs:comment "A named Java module declared in module-info.java" .
+
+jmod:OpenModule a owl:Class ;
+    rdfs:subClassOf jmod:Module ;
+    rdfs:label "Open Module" ;
+    rdfs:comment "A module that opens all its packages for deep reflection (open module)" .
+
+jmod:AutomaticModule a owl:Class ;
+    rdfs:subClassOf jmod:Module ;
+    rdfs:label "Automatic Module" ;
+    rdfs:comment "A module derived from a JAR on the module path without module-info" .
+
+# =============================================================================
+# Module Directives
+# =============================================================================
+
+jmod:Directive a owl:Class ;
+    rdfs:label "Module Directive" .
+
+jmod:RequiresDirective a owl:Class ;
+    rdfs:subClassOf jmod:Directive ;
+    rdfs:label "Requires" ;
+    rdfs:comment "requires [transitive|static] <module>" .
+
+jmod:ExportsDirective a owl:Class ;
+    rdfs:subClassOf jmod:Directive ;
+    rdfs:label "Exports" ;
+    rdfs:comment "exports <package> [to <module>, ...]" .
+
+jmod:OpensDirective a owl:Class ;
+    rdfs:subClassOf jmod:Directive ;
+    rdfs:label "Opens" ;
+    rdfs:comment "opens <package> [to <module>, ...]" .
+
+jmod:ProvidesDirective a owl:Class ;
+    rdfs:subClassOf jmod:Directive ;
+    rdfs:label "Provides" ;
+    rdfs:comment "provides <service> with <implementation>, ..." .
+
+jmod:UsesDirective a owl:Class ;
+    rdfs:subClassOf jmod:Directive ;
+    rdfs:label "Uses" ;
+    rdfs:comment "uses <service>" .
+
+# =============================================================================
+# Module Properties
+# =============================================================================
+
+jmod:hasName a owl:DatatypeProperty ;
+    rdfs:domain jmod:Module ;
+    rdfs:range xsd:string .
+
+jmod:hasDirective a owl:ObjectProperty ;
+    rdfs:domain jmod:Module ;
+    rdfs:range jmod:Directive .
+
+jmod:requiresModule a owl:DatatypeProperty ;
+    rdfs:domain jmod:RequiresDirective ;
+    rdfs:range xsd:string .
+
+jmod:isTransitive a owl:DatatypeProperty ;
+    rdfs:domain jmod:RequiresDirective ;
+    rdfs:range xsd:boolean .
+
+jmod:isStatic a owl:DatatypeProperty ;
+    rdfs:domain jmod:RequiresDirective ;
+    rdfs:range xsd:boolean .
+
+jmod:exportsPackage a owl:DatatypeProperty ;
+    rdfs:domain jmod:ExportsDirective ;
+    rdfs:range xsd:string .
+
+jmod:exportsTo a owl:DatatypeProperty ;
+    rdfs:domain jmod:ExportsDirective ;
+    rdfs:range xsd:string .
+
+jmod:opensPackage a owl:DatatypeProperty ;
+    rdfs:domain jmod:OpensDirective ;
+    rdfs:range xsd:string .
+
+jmod:opensTo a owl:DatatypeProperty ;
+    rdfs:domain jmod:OpensDirective ;
+    rdfs:range xsd:string .
+
+jmod:providesService a owl:DatatypeProperty ;
+    rdfs:domain jmod:ProvidesDirective ;
+    rdfs:range xsd:string .
+
+jmod:providesWith a owl:DatatypeProperty ;
+    rdfs:domain jmod:ProvidesDirective ;
+    rdfs:range xsd:string .
+
+jmod:usesService a owl:DatatypeProperty ;
+    rdfs:domain jmod:UsesDirective ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# Module Templates
+# =============================================================================
+
+jmod:ModuleInfoTemplate a owl:Class ;
+    rdfs:label "Module Template" ;
+    rdfs:comment "Template mapping for module-info.java generation" .
+
+jmod:BasicModule a jmod:ModuleInfoTemplate ;
+    rdfs:label "Basic module-info" ;
+    rdfs:comment "Simple module with requires and exports" .
+
+jmod:ServiceProviderModule a jmod:ModuleInfoTemplate ;
+    rdfs:label "Service Provider Module" ;
+    rdfs:comment "Module that provides service implementations via SPI" .
+
+jmod:OpenReflectionModule a jmod:ModuleInfoTemplate ;
+    rdfs:label "Open Reflection Module" ;
+    rdfs:comment "Module opened for reflection frameworks (Spring, Hibernate, etc.)" .
+
+jmod:QualifiedExportsModule a jmod:ModuleInfoTemplate ;
+    rdfs:label "Qualified Exports Module" ;
+    rdfs:comment "Module with packages exported only to specific friend modules" .
+
+jmod:MultiModuleProject a jmod:ModuleInfoTemplate ;
+    rdfs:label "Multi-Module Project" ;
+    rdfs:comment "Maven reactor with multiple interdependent JPMS modules" .

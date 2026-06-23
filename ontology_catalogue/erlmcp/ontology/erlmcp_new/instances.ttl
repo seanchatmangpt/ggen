@@ -1,0 +1,134 @@
+# =============================================================================
+# Instance Data for New Features
+# Defines concrete instances for generating erlmcp_new_features
+# =============================================================================
+
+@prefix : <http://erlmcp.org/schema/instance/> .
+@prefix proxy: <http://erlmcp.org/schema/proxy/> .
+@prefix sandbox: <http://erlmcp.org/schema/sandbox/> .
+@prefix wf: <http://erlmcp.org/schema/workflow/> .
+@prefix dlock: <http://erlmcp.org/schema/dlock/> .
+@prefix queue: <http://erlmcp.org/schema/queue/> .
+@prefix events: <http://erlmcp.org/schema/events/> .
+@prefix watcher: <http://erlmcp.org/schema/watcher/> .
+@prefix mt: <http://erlmcp.org/schema/multitenant/> .
+
+# -----------------------------------------------------------------------------
+# Proxy Instance
+# -----------------------------------------------------------------------------
+
+:DefaultRelay a proxy:MCPRelay ;
+    proxy:hasLoadBalancer proxy:RoundRobin ;
+    proxy:retryPolicy :DefaultRetryPolicy .
+
+:Backend1 a proxy:Backend ;
+    proxy:backendUrl "http://localhost:9001" ;
+    proxy:backendWeight 10 ;
+    proxy:maxConnections 100 ;
+    proxy:circuitBreakerThreshold 5 .
+
+:Backend2 a proxy:Backend ;
+    proxy:backendUrl "http://localhost:9002" ;
+    proxy:backendWeight 10 ;
+    proxy:maxConnections 100 ;
+    proxy:circuitBreakerThreshold 5 .
+
+:DefaultRetryPolicy a proxy:RetryPolicy ;
+    proxy:maxRetries 3 ;
+    proxy:backoffMs 100 .
+
+# -----------------------------------------------------------------------------
+# Sandbox Instance
+# -----------------------------------------------------------------------------
+
+:DevelopmentSandbox a sandbox:SandboxConfig ;
+    sandbox:hasPermission sandbox:ReadFile ;
+    sandbox:hasPermission sandbox:ExecuteCommand ;
+    sandbox:hasResourceLimit :DefaultLimits ;
+    sandbox:auditEnabled true .
+
+:DefaultLimits a sandbox:ResourceLimit ;
+    sandbox:maxCpuPercent 50 ;
+    sandbox:maxMemoryMb 256 ;
+    sandbox:maxTimeoutSec 30 ;
+    sandbox:maxFileSizeMb 10 .
+
+# -----------------------------------------------------------------------------
+# Workflow Instance
+# -----------------------------------------------------------------------------
+
+:ExampleWorkflow a wf:Workflow ;
+    wf:hasStep :Step1, :Step2, :Step3 .
+
+:Step1 a wf:ToolStep ;
+    wf:stepId "step1" ;
+    wf:toolName "calculator" ;
+    wf:toolArguments "{\"operation\": \"add\", \"a\": 1, \"b\": 2}" .
+
+:Step2 a wf:ToolStep ;
+    wf:stepId "step2" ;
+    wf:toolName "weather" ;
+    wf:toolArguments "{\"location\": \"San Francisco\"}" .
+
+:Step3 a wf:ToolStep ;
+    wf:stepId "step3" ;
+    wf:toolName "search" ;
+    wf:toolArguments "{\"query\": \"erlang otp\"}" .
+
+# -----------------------------------------------------------------------------
+# Queue Instance
+# -----------------------------------------------------------------------------
+
+:DefaultQueue a queue:MessageQueue ;
+    queue:hasConfig :QueueConfig ;
+    queue:hasWorkerPool :WorkerPool .
+
+:QueueConfig a queue:QueueConfig ;
+    queue:maxSize 10000 ;
+    queue:storageBackend "ets" ;
+    queue:ackTimeoutMs 30000 ;
+    queue:retryBackoffMs 1000 ;
+    queue:deadLetterThreshold 5 .
+
+:WorkerPool a queue:WorkerPool ;
+    queue:workerCount 10 ;
+    queue:minWorkers 5 ;
+    queue:maxWorkers 20 .
+
+# -----------------------------------------------------------------------------
+# Event Store Instance
+# -----------------------------------------------------------------------------
+
+:DefaultEventStore a events:EventStore ;
+    events:storageBackend events:ETSStore .
+
+:DefaultSnapshot a events:Snapshot ;
+    events:snapshotVersion 100 .
+
+# -----------------------------------------------------------------------------
+# Watcher Instance
+# -----------------------------------------------------------------------------
+
+:DefaultWatcher a watcher:ResourceWatcher ;
+    watcher:hasConfig :WatcherConfig .
+
+:WatcherConfig a watcher:WatchConfig ;
+    watcher:debounceMs 100 ;
+    watcher:throttleMs 1000 ;
+    watcher:notifySubscribers true .
+
+# -----------------------------------------------------------------------------
+# Multi-Tenant Instance
+# -----------------------------------------------------------------------------
+
+:TrialTenant a mt:Tenant ;
+    mt:tenantId "trial_001" ;
+    mt:tenantStatus mt:Trial ;
+    mt:hasQuota mt:TrialQuota ;
+    mt:hasRateLimit mt:TrialRateLimit .
+
+:StandardTenant a mt:Tenant ;
+    mt:tenantId "standard_001" ;
+    mt:tenantStatus mt:Active ;
+    mt:hasQuota mt:StandardQuota ;
+    mt:hasRateLimit mt:StandardRateLimit .

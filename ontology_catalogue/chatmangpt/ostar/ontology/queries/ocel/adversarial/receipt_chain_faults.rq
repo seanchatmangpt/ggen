@@ -1,0 +1,17 @@
+PREFIX ocel: <http://www.ocel-standard.org/ocel/2.0/>
+PREFIX ostar: <http://ostar.manufactory/schema/>
+
+# Detect broken receipt chains in OCEL events
+# Receipts must have proper temporal ordering and linkage
+
+ASK {
+  # Check if any event has a receipt hash that doesn't match previous event
+  ?event1 ocel:timestamp ?ts1 .
+  ?event2 ocel:timestamp ?ts2 .
+  ?event1 ostar:receipt_hash ?hash1 .
+  ?event2 ostar:previous_receipt_hash ?prev_hash .
+
+  # Receipt chain is broken if previous_hash doesn't match
+  FILTER (?prev_hash != ?hash1)
+  FILTER (?ts2 > ?ts1)  # Ensure temporal ordering
+}

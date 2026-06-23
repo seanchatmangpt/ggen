@@ -1,0 +1,365 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bree: <http://example.org/bree/> .
+@prefix citty: <http://example.org/citty/> .
+@prefix jobs: <http://example.org/jobs/> .
+
+# ============================================================================
+# BREE SCHEDULER INSTANCE
+# ============================================================================
+
+jobs:scheduler
+  a bree:BreeInstance ;
+  rdfs:label "Production Job Scheduler" ;
+  bree:jobRoot "/opt/app/jobs" ;
+  bree:removeCompleted false ;
+  bree:defaultTimeout 0 ;
+  bree:defaultInterval 0 ;
+  bree:hasSeconds false ;
+  # Link to jobs
+  bree:hasJob jobs:emailNotifications ;
+  bree:hasJob jobs:databaseBackup ;
+  bree:hasJob jobs:cacheWarmer ;
+  bree:hasJob jobs:reportGenerator ;
+  bree:hasJob jobs:dataCleanup ;
+  bree:hasJob jobs:healthCheck .
+
+# ============================================================================
+# JOB 1: Email Notifications (Every 5 minutes)
+# ============================================================================
+
+jobs:emailNotifications
+  a bree:Job ;
+  rdfs:label "Email Notifications Worker" ;
+  bree:jobName "send-emails" ;
+  bree:jobPath "/opt/app/jobs/send-emails.js" ;
+  bree:runOnStart false ;
+  bree:outputWorkerMetadata true ;
+
+  # Recurring: Every 5 minutes
+  bree:hasInterval jobs:emailInterval ;
+
+  # Worker options with data
+  bree:hasWorkerOptions jobs:emailWorkerOpts ;
+
+  # Timeout after 30 seconds of inactivity
+  bree:closeWorkerAfterMs 30000 ;
+
+  # Citty CLI exposure
+  bree:hasCittyCommand jobs:cmd_sendEmails ;
+
+  # Metadata
+  rdfs:comment "Sends pending email notifications every 5 minutes; processes batch of up to 100 emails per run" .
+
+jobs:emailInterval
+  a bree:HumanInterval ;
+  bree:humanExpression "every 5 minutes" ;
+  bree:milliseconds 300000 ;
+  rdfs:comment "Human-friendly: every 5 minutes; Numeric: 300,000 ms" .
+
+jobs:emailWorkerOpts
+  a bree:WorkerOptions ;
+  rdfs:comment "Custom worker options for email sending" .
+
+jobs:cmd_sendEmails
+  a citty:CliCommand ;
+  citty:commandName "email" ;
+  citty:commandDescription "Manage email notifications queue" ;
+  citty:hasArgument jobs:arg_email_action ;
+  citty:hasArgument jobs:arg_email_limit .
+
+jobs:arg_email_action
+  a citty:Argument ;
+  citty:argumentName "action" ;
+  citty:argumentType "positional" ;
+  rdfs:comment "send|list|retry" .
+
+jobs:arg_email_limit
+  a citty:Argument ;
+  citty:argumentName "limit" ;
+  citty:argumentType "number" ;
+  rdfs:comment "Max emails to process" .
+
+# ============================================================================
+# JOB 2: Database Backup (Daily at 2:00 AM)
+# ============================================================================
+
+jobs:databaseBackup
+  a bree:Job ;
+  rdfs:label "Database Backup Job" ;
+  bree:jobName "db-backup" ;
+  bree:jobPath "/opt/app/jobs/db-backup.js" ;
+  bree:runOnStart false ;
+
+  # Daily at 2:00 AM
+  bree:hasCron jobs:backupCron ;
+
+  # Long-running: Allow 60 seconds
+  bree:closeWorkerAfterMs 60000 ;
+
+  bree:hasCittyCommand jobs:cmd_backup ;
+
+  rdfs:comment "Automated PostgreSQL backup executed daily at 2:00 AM; compresses and stores in S3" .
+
+jobs:backupCron
+  a bree:CronExpression ;
+  bree:cronExpression "0 2 * * *" ;
+  bree:hasSeconds false ;
+  rdfs:comment "Cron: 0 2 * * * = 2:00 AM every day" .
+
+jobs:cmd_backup
+  a citty:CliCommand ;
+  citty:commandName "backup" ;
+  citty:commandDescription "Manage database backups" ;
+  citty:hasArgument jobs:arg_backup_action ;
+  citty:hasArgument jobs:arg_backup_database .
+
+jobs:arg_backup_action
+  a citty:Argument ;
+  citty:argumentName "action" ;
+  citty:argumentType "positional" ;
+  rdfs:comment "backup|restore|list|prune" .
+
+jobs:arg_backup_database
+  a citty:Argument ;
+  citty:argumentName "database" ;
+  citty:argumentType "string" ;
+  rdfs:comment "Database name" .
+
+# ============================================================================
+# JOB 3: Cache Warmer (Delayed: 10 minutes after start)
+# ============================================================================
+
+jobs:cacheWarmer
+  a bree:Job ;
+  rdfs:label "Cache Warming Job" ;
+  bree:jobName "warm-cache" ;
+  bree:jobPath "/opt/app/jobs/warm-cache.js" ;
+  bree:runOnStart false ;
+
+  # Delayed start: 10 minutes
+  bree:hasTimeout jobs:cacheTimeout ;
+
+  # Then recurring every 1 hour
+  bree:hasInterval jobs:cacheInterval ;
+
+  bree:hasCittyCommand jobs:cmd_cache ;
+
+  rdfs:comment "Populates Redis cache with frequently accessed data; runs after 10 min, then hourly" .
+
+jobs:cacheTimeout
+  a bree:MSInterval ;
+  bree:milliseconds 600000 ;
+  rdfs:comment "Wait 10 minutes before first run" .
+
+jobs:cacheInterval
+  a bree:HumanInterval ;
+  bree:humanExpression "every 1 hour" ;
+  bree:milliseconds 3600000 .
+
+jobs:cmd_cache
+  a citty:CliCommand ;
+  citty:commandName "cache" ;
+  citty:commandDescription "Manage application cache" ;
+  citty:hasArgument jobs:arg_cache_action ;
+  citty:hasArgument jobs:arg_cache_ttl .
+
+jobs:arg_cache_action
+  a citty:Argument ;
+  citty:argumentName "action" ;
+  citty:argumentType "positional" ;
+  rdfs:comment "warm|flush|stats|validate" .
+
+jobs:arg_cache_ttl
+  a citty:Argument ;
+  citty:argumentName "ttl" ;
+  citty:argumentType "number" ;
+  rdfs:comment "TTL in seconds" .
+
+# ============================================================================
+# JOB 4: Report Generator (Specific date: Jan 1st at midnight)
+# ============================================================================
+
+jobs:reportGenerator
+  a bree:Job ;
+  rdfs:label "Report Generation Job" ;
+  bree:jobName "generate-reports" ;
+  bree:jobPath "/opt/app/jobs/generate-reports.js" ;
+  bree:runOnStart false ;
+
+  # Run on Jan 1st, then yearly
+  bree:hasDate jobs:reportDate ;
+  bree:hasCron jobs:reportCron ;
+
+  # Allow 5 minutes for report generation
+  bree:closeWorkerAfterMs 300000 ;
+
+  bree:hasCittyCommand jobs:cmd_reports ;
+
+  rdfs:comment "Generates annual reports; scheduled for Jan 1st at midnight every year" .
+
+jobs:reportDate
+  a bree:DateSchedule ;
+  bree:scheduleDate "2025-01-01T00:00:00Z"^^xsd:dateTime ;
+  rdfs:comment "Initial schedule: Jan 1, 2025" .
+
+jobs:reportCron
+  a bree:CronExpression ;
+  bree:cronExpression "0 0 1 1 *" ;
+  rdfs:comment "Cron: 0 0 1 1 * = Jan 1st at midnight every year" .
+
+jobs:cmd_reports
+  a citty:CliCommand ;
+  citty:commandName "reports" ;
+  citty:commandDescription "Manage report generation" ;
+  citty:hasArgument jobs:arg_report_type ;
+  citty:hasArgument jobs:arg_report_format .
+
+jobs:arg_report_type
+  a citty:Argument ;
+  citty:argumentName "type" ;
+  citty:argumentType "positional" ;
+  rdfs:comment "annual|quarterly|monthly" .
+
+jobs:arg_report_format
+  a citty:Argument ;
+  citty:argumentName "format" ;
+  citty:argumentType "string" ;
+  rdfs:comment "pdf|json|csv|html" .
+
+# ============================================================================
+# JOB 5: Data Cleanup (Every 3 days at 3:00 AM)
+# ============================================================================
+
+jobs:dataCleanup
+  a bree:Job ;
+  rdfs:label "Data Cleanup Job" ;
+  bree:jobName "cleanup-data" ;
+  bree:jobPath "/opt/app/jobs/cleanup-data.js" ;
+  bree:runOnStart false ;
+
+  # Every 3 days at 3:00 AM
+  bree:hasCron jobs:cleanupCron ;
+
+  # Can run for up to 2 minutes
+  bree:closeWorkerAfterMs 120000 ;
+
+  bree:hasCittyCommand jobs:cmd_cleanup ;
+
+  rdfs:comment "Removes expired sessions, old logs, temporary files; runs every 3 days at 3:00 AM" .
+
+jobs:cleanupCron
+  a bree:CronExpression ;
+  bree:cronExpression "0 3 */3 * *" ;
+  rdfs:comment "Cron: 0 3 */3 * * = 3:00 AM every 3rd day" .
+
+jobs:cmd_cleanup
+  a citty:CliCommand ;
+  citty:commandName "cleanup" ;
+  citty:commandDescription "Manage data cleanup operations" ;
+  citty:hasArgument jobs:arg_cleanup_type ;
+  citty:hasArgument jobs:arg_cleanup_dryrun .
+
+jobs:arg_cleanup_type
+  a citty:Argument ;
+  citty:argumentName "type" ;
+  citty:argumentType "positional" ;
+  rdfs:comment "sessions|logs|temp|all" .
+
+jobs:arg_cleanup_dryrun
+  a citty:Argument ;
+  citty:argumentName "dryrun" ;
+  citty:argumentType "boolean" ;
+  rdfs:comment "Show what would be deleted without deleting" .
+
+# ============================================================================
+# JOB 6: Health Check (Every 30 seconds - High frequency)
+# ============================================================================
+
+jobs:healthCheck
+  a bree:Job ;
+  rdfs:label "Health Check Job" ;
+  bree:jobName "health-check" ;
+  bree:jobPath "/opt/app/jobs/health-check.js" ;
+  bree:runOnStart true ;
+
+  # Every 30 seconds
+  bree:hasInterval jobs:healthInterval ;
+
+  # Must complete within 5 seconds
+  bree:closeWorkerAfterMs 5000 ;
+
+  # Output metadata for monitoring
+  bree:outputWorkerMetadata true ;
+
+  bree:hasCittyCommand jobs:cmd_health ;
+
+  rdfs:comment "Monitors service health; checks DB, Redis, API endpoints every 30 seconds" .
+
+jobs:healthInterval
+  a bree:MSInterval ;
+  bree:milliseconds 30000 ;
+  rdfs:comment "Every 30 seconds = 30,000 ms" .
+
+jobs:cmd_health
+  a citty:CliCommand ;
+  citty:commandName "health" ;
+  citty:commandDescription "Check and report system health" ;
+  citty:hasArgument jobs:arg_health_verbose .
+
+jobs:arg_health_verbose
+  a citty:Argument ;
+  citty:argumentName "verbose" ;
+  citty:argumentType "boolean" ;
+  rdfs:comment "Show detailed component status" .
+
+# ============================================================================
+# EXECUTION HISTORY (Examples)
+# ============================================================================
+
+jobs:emailRun1
+  a bree:JobExecution ;
+  bree:startedAt "2025-01-07T18:00:00Z"^^xsd:dateTime ;
+  bree:completedAt "2025-01-07T18:00:02Z"^^xsd:dateTime ;
+  bree:duration 2000 ;
+  bree:exitCode 0 ;
+  rdfs:comment "Successfully sent 15 emails in 2 seconds" .
+
+jobs:backupRun1
+  a bree:JobExecution ;
+  bree:startedAt "2025-01-07T02:00:00Z"^^xsd:dateTime ;
+  bree:completedAt "2025-01-07T02:03:45Z"^^xsd:dateTime ;
+  bree:duration 225000 ;
+  bree:exitCode 0 ;
+  rdfs:comment "Database backup completed successfully" .
+
+jobs:backupRun2
+  a bree:JobExecution ;
+  bree:startedAt "2025-01-06T02:00:00Z"^^xsd:dateTime ;
+  bree:completedAt "2025-01-06T02:03:30Z"^^xsd:dateTime ;
+  bree:duration 210000 ;
+  bree:exitCode 0 ;
+  rdfs:comment "Previous backup also successful" .
+
+jobs:healthRun1
+  a bree:JobExecution ;
+  bree:startedAt "2025-01-07T18:00:30Z"^^xsd:dateTime ;
+  bree:completedAt "2025-01-07T18:00:31Z"^^xsd:dateTime ;
+  bree:duration 1000 ;
+  bree:exitCode 0 ;
+  rdfs:comment "All health checks passed" .
+
+# ============================================================================
+# LINKING EXECUTIONS TO JOBS
+# ============================================================================
+
+jobs:emailNotifications
+  bree:hasExecution jobs:emailRun1 .
+
+jobs:databaseBackup
+  bree:hasExecution jobs:backupRun1 ;
+  bree:hasExecution jobs:backupRun2 .
+
+jobs:healthCheck
+  bree:hasExecution jobs:healthRun1 .

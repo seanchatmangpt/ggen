@@ -1,0 +1,476 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix cnv: <http://clap-noun-verb.io/ontology#> .
+@prefix ex: <http://clap-noun-verb.io/examples#> .
+
+# CLI Pattern Examples: Real-world noun-verb patterns
+# Demonstrates composition of the core ontology with concrete command examples
+
+ex: a owl:Ontology ;
+    rdfs:label "CLAP Noun-Verb CLI Examples"@en ;
+    rdfs:comment "Concrete examples of noun-verb command patterns: services, users, database, network operations"@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    owl:imports cnv: ;
+    owl:versionInfo "5.6.0" .
+
+# ============================================================================
+# SERVICES NOUN PATTERN
+# Example: myapp services [status|start|stop|restart|logs]
+# ============================================================================
+
+ex:ServicesNoun a cnv:Noun ;
+    cnv:hasNounName "services"@en ;
+    cnv:nounAbout "Manage application services and daemons"@en ;
+    cnv:hasVerbs (ex:StatusVerb ex:StartVerb ex:StopVerb ex:RestartVerb ex:LogsVerb) ;
+    rdfs:comment "Parent noun for service management verbs"@en .
+
+# Verb: status
+ex:StatusVerb a cnv:Verb ;
+    cnv:hasVerbName "status"@en ;
+    cnv:verbAbout "Show current status of all services"@en ;
+    cnv:belongsToNoun ex:ServicesNoun ;
+    cnv:hasArguments (ex:ServiceNameArg ex:VerboseFlag) ;
+    cnv:returnType "ServiceStatus (JSON)" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync ;
+    cnv:HasTraitBound cnv:Serialize ;
+    rdfs:comment "Queries and returns status of running services"@en .
+
+ex:ServiceNameArg a cnv:Argument ;
+    cnv:hasArgumentName "service"@en ;
+    cnv:argumentAbout "Optional service name to filter status"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "String" ;
+    cnv:required false .
+
+ex:VerboseFlag a cnv:Argument ;
+    cnv:hasArgumentName "verbose"@en ;
+    cnv:shortName "v"@en ;
+    cnv:argumentAbout "Show detailed status information"@en ;
+    cnv:argumentType cnv:ArgumentType_Flag ;
+    cnv:valueType "bool" ;
+    cnv:required false .
+
+# Verb: start
+ex:StartVerb a cnv:Verb ;
+    cnv:hasVerbName "start"@en ;
+    cnv:verbAbout "Start one or more services"@en ;
+    cnv:belongsToNoun ex:ServicesNoun ;
+    cnv:hasArguments (ex:ServiceNamesMulti ex:TimeoutArg) ;
+    cnv:returnType "Result<()>" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync .
+
+ex:ServiceNamesMulti a cnv:Argument ;
+    cnv:hasArgumentName "names"@en ;
+    cnv:argumentAbout "Service names to start (can specify multiple)"@en ;
+    cnv:argumentType cnv:ArgumentType_Repeating ;
+    cnv:valueType "Vec<String>" ;
+    cnv:required true .
+
+ex:TimeoutArg a cnv:Argument ;
+    cnv:hasArgumentName "timeout"@en ;
+    cnv:shortName "t"@en ;
+    cnv:argumentAbout "Timeout in seconds"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "u16" ;
+    cnv:defaultValue "30" ;
+    cnv:required false .
+
+# Verb: stop
+ex:StopVerb a cnv:Verb ;
+    cnv:hasVerbName "stop"@en ;
+    cnv:verbAbout "Stop one or more services"@en ;
+    cnv:belongsToNoun ex:ServicesNoun ;
+    cnv:hasArguments (ex:ServiceNamesMulti ex:ForceFlag) ;
+    cnv:returnType "Result<()>" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync .
+
+ex:ForceFlag a cnv:Argument ;
+    cnv:hasArgumentName "force"@en ;
+    cnv:shortName "f"@en ;
+    cnv:argumentAbout "Force stop without graceful shutdown"@en ;
+    cnv:argumentType cnv:ArgumentType_Flag ;
+    cnv:valueType "bool" ;
+    cnv:required false .
+
+# Verb: restart
+ex:RestartVerb a cnv:Verb ;
+    cnv:hasVerbName "restart"@en ;
+    cnv:verbAbout "Restart one or more services"@en ;
+    cnv:belongsToNoun ex:ServicesNoun ;
+    cnv:hasArguments (ex:ServiceNamesMulti ex:TimeoutArg) ;
+    cnv:returnType "Result<()>" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync .
+
+# Verb: logs
+ex:LogsVerb a cnv:Verb ;
+    cnv:hasVerbName "logs"@en ;
+    cnv:verbAbout "Show service logs"@en ;
+    cnv:belongsToNoun ex:ServicesNoun ;
+    cnv:hasArguments (ex:ServiceNameArg ex:TailFlag ex:FollowFlag) ;
+    cnv:returnType "LogOutput (streamed)" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync .
+
+ex:TailFlag a cnv:Argument ;
+    cnv:hasArgumentName "tail"@en ;
+    cnv:argumentAbout "Number of lines to show"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "usize" ;
+    cnv:defaultValue "100" ;
+    cnv:required false .
+
+ex:FollowFlag a cnv:Argument ;
+    cnv:hasArgumentName "follow"@en ;
+    cnv:shortName "f"@en ;
+    cnv:argumentAbout "Follow log output in real-time"@en ;
+    cnv:argumentType cnv:ArgumentType_Flag ;
+    cnv:valueType "bool" ;
+    cnv:required false .
+
+# ============================================================================
+# USERS NOUN PATTERN
+# Example: myapp users [create|delete|list|update]
+# ============================================================================
+
+ex:UsersNoun a cnv:Noun ;
+    cnv:hasNounName "users"@en ;
+    cnv:nounAbout "Manage user accounts and permissions"@en ;
+    cnv:hasVerbs (ex:CreateUserVerb ex:DeleteUserVerb ex:ListUserVerb ex:UpdateUserVerb) ;
+    rdfs:comment "Parent noun for user management verbs"@en .
+
+# Verb: create
+ex:CreateUserVerb a cnv:Verb ;
+    cnv:hasVerbName "create"@en ;
+    cnv:verbAbout "Create a new user account"@en ;
+    cnv:belongsToNoun ex:UsersNoun ;
+    cnv:hasArguments (ex:UsernameArg ex:EmailArg ex:RoleArg) ;
+    cnv:returnType "UserInfo (JSON)" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync ;
+    cnv:HasTraitBound cnv:Serialize .
+
+ex:UsernameArg a cnv:Argument ;
+    cnv:hasArgumentName "username"@en ;
+    cnv:shortName "u"@en ;
+    cnv:argumentAbout "Username for the new account"@en ;
+    cnv:argumentType cnv:ArgumentType_Required ;
+    cnv:valueType "String" ;
+    cnv:required true ;
+    cnv:cliPosition 1 .
+
+ex:EmailArg a cnv:Argument ;
+    cnv:hasArgumentName "email"@en ;
+    cnv:shortName "e"@en ;
+    cnv:argumentAbout "Email address for the user"@en ;
+    cnv:argumentType cnv:ArgumentType_Required ;
+    cnv:valueType "String" ;
+    cnv:required true ;
+    cnv:cliPosition 2 .
+
+ex:RoleArg a cnv:Argument ;
+    cnv:hasArgumentName "role"@en ;
+    cnv:shortName "r"@en ;
+    cnv:argumentAbout "User role (admin, user, guest)"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "String" ;
+    cnv:defaultValue "user" ;
+    cnv:required false .
+
+# Verb: delete
+ex:DeleteUserVerb a cnv:Verb ;
+    cnv:hasVerbName "delete"@en ;
+    cnv:verbAbout "Delete a user account"@en ;
+    cnv:belongsToNoun ex:UsersNoun ;
+    cnv:hasArguments (ex:UsernameArg ex:ConfirmFlag) ;
+    cnv:returnType "Result<()>" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync .
+
+ex:ConfirmFlag a cnv:Argument ;
+    cnv:hasArgumentName "confirm"@en ;
+    cnv:argumentAbout "Confirm deletion without prompting"@en ;
+    cnv:argumentType cnv:ArgumentType_Flag ;
+    cnv:valueType "bool" ;
+    cnv:required false .
+
+# Verb: list
+ex:ListUserVerb a cnv:Verb ;
+    cnv:hasVerbName "list"@en ;
+    cnv:verbAbout "List all user accounts"@en ;
+    cnv:belongsToNoun ex:UsersNoun ;
+    cnv:hasArguments (ex:FilterArg ex:FormatArg) ;
+    cnv:returnType "Vec<UserInfo> (JSON)" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync ;
+    cnv:HasTraitBound cnv:Serialize .
+
+ex:FilterArg a cnv:Argument ;
+    cnv:hasArgumentName "filter"@en ;
+    cnv:argumentAbout "Filter by role or status"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "String" ;
+    cnv:required false .
+
+ex:FormatArg a cnv:Argument ;
+    cnv:hasArgumentName "format"@en ;
+    cnv:argumentAbout "Output format (json, table, csv)"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "String" ;
+    cnv:defaultValue "json" ;
+    cnv:required false .
+
+# Verb: update
+ex:UpdateUserVerb a cnv:Verb ;
+    cnv:hasVerbName "update"@en ;
+    cnv:verbAbout "Update user account properties"@en ;
+    cnv:belongsToNoun ex:UsersNoun ;
+    cnv:hasArguments (ex:UsernameArg ex:UpdateEmailArg ex:UpdateRoleArg) ;
+    cnv:returnType "UserInfo (JSON)" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync ;
+    cnv:HasTraitBound cnv:Serialize .
+
+ex:UpdateEmailArg a cnv:Argument ;
+    cnv:hasArgumentName "email"@en ;
+    cnv:shortName "e"@en ;
+    cnv:argumentAbout "New email address"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "String" ;
+    cnv:required false .
+
+ex:UpdateRoleArg a cnv:Argument ;
+    cnv:hasArgumentName "role"@en ;
+    cnv:shortName "r"@en ;
+    cnv:argumentAbout "New user role"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "String" ;
+    cnv:required false .
+
+# ============================================================================
+# DATABASE NOUN PATTERN
+# Example: myapp database [init|migrate|backup|restore]
+# ============================================================================
+
+ex:DatabaseNoun a cnv:Noun ;
+    cnv:hasNounName "database"@en ;
+    cnv:nounAbout "Manage database schemas, migrations, and backups"@en ;
+    cnv:hasVerbs (ex:InitDBVerb ex:MigrateVerb ex:BackupVerb ex:RestoreVerb) ;
+    rdfs:comment "Parent noun for database operations"@en .
+
+# Verb: init
+ex:InitDBVerb a cnv:Verb ;
+    cnv:hasVerbName "init"@en ;
+    cnv:verbAbout "Initialize database schema"@en ;
+    cnv:belongsToNoun ex:DatabaseNoun ;
+    cnv:hasArguments (ex:DbUrlArg ex:SeedFlag) ;
+    cnv:returnType "InitResult (JSON)" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync ;
+    cnv:HasTraitBound cnv:Serialize .
+
+ex:DbUrlArg a cnv:Argument ;
+    cnv:hasArgumentName "url"@en ;
+    cnv:argumentAbout "Database connection URL"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "String" ;
+    cnv:required false .
+
+ex:SeedFlag a cnv:Argument ;
+    cnv:hasArgumentName "seed"@en ;
+    cnv:shortName "s"@en ;
+    cnv:argumentAbout "Seed with initial data"@en ;
+    cnv:argumentType cnv:ArgumentType_Flag ;
+    cnv:valueType "bool" ;
+    cnv:required false .
+
+# Verb: migrate
+ex:MigrateVerb a cnv:Verb ;
+    cnv:hasVerbName "migrate"@en ;
+    cnv:verbAbout "Run pending database migrations"@en ;
+    cnv:belongsToNoun ex:DatabaseNoun ;
+    cnv:hasArguments (ex:TargetVersionArg ex:DryRunFlag) ;
+    cnv:returnType "MigrationResult (JSON)" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync ;
+    cnv:HasTraitBound cnv:Serialize .
+
+ex:TargetVersionArg a cnv:Argument ;
+    cnv:hasArgumentName "target"@en ;
+    cnv:argumentAbout "Target migration version"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "String" ;
+    cnv:required false .
+
+ex:DryRunFlag a cnv:Argument ;
+    cnv:hasArgumentName "dry-run"@en ;
+    cnv:argumentAbout "Preview migrations without applying"@en ;
+    cnv:argumentType cnv:ArgumentType_Flag ;
+    cnv:valueType "bool" ;
+    cnv:required false .
+
+# Verb: backup
+ex:BackupVerb a cnv:Verb ;
+    cnv:hasVerbName "backup"@en ;
+    cnv:verbAbout "Create database backup"@en ;
+    cnv:belongsToNoun ex:DatabaseNoun ;
+    cnv:hasArguments (ex:OutputPathArg ex:CompressionArg) ;
+    cnv:returnType "BackupResult (JSON)" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync ;
+    cnv:HasTraitBound cnv:Serialize .
+
+ex:OutputPathArg a cnv:Argument ;
+    cnv:hasArgumentName "output"@en ;
+    cnv:shortName "o"@en ;
+    cnv:argumentAbout "Output path for backup file"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "PathBuf" ;
+    cnv:required false .
+
+ex:CompressionArg a cnv:Argument ;
+    cnv:hasArgumentName "compression"@en ;
+    cnv:argumentAbout "Compression method (gzip, bzip2, none)"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "String" ;
+    cnv:defaultValue "gzip" ;
+    cnv:required false .
+
+# Verb: restore
+ex:RestoreVerb a cnv:Verb ;
+    cnv:hasVerbName "restore"@en ;
+    cnv:verbAbout "Restore database from backup"@en ;
+    cnv:belongsToNoun ex:DatabaseNoun ;
+    cnv:hasArguments (ex:InputPathArg ex:ConfirmFlag) ;
+    cnv:returnType "RestoreResult (JSON)" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync ;
+    cnv:HasTraitBound cnv:Serialize .
+
+ex:InputPathArg a cnv:Argument ;
+    cnv:hasArgumentName "input"@en ;
+    cnv:shortName "i"@en ;
+    cnv:argumentAbout "Input backup file path"@en ;
+    cnv:argumentType cnv:ArgumentType_Required ;
+    cnv:valueType "PathBuf" ;
+    cnv:required true ;
+    cnv:cliPosition 1 .
+
+# ============================================================================
+# NETWORK NOUN PATTERN
+# Example: myapp network [ping|configure|diagnostics]
+# ============================================================================
+
+ex:NetworkNoun a cnv:Noun ;
+    cnv:hasNounName "network"@en ;
+    cnv:nounAbout "Configure and diagnose network connectivity"@en ;
+    cnv:hasVerbs (ex:PingVerb ex:ConfigureVerb ex:DiagnosticsVerb) ;
+    rdfs:comment "Parent noun for network operations"@en .
+
+# Verb: ping
+ex:PingVerb a cnv:Verb ;
+    cnv:hasVerbName "ping"@en ;
+    cnv:verbAbout "Test connectivity to a host"@en ;
+    cnv:belongsToNoun ex:NetworkNoun ;
+    cnv:hasArguments (ex:HostArg ex:CountArg ex:TimeoutPingArg) ;
+    cnv:returnType "PingResult (JSON)" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync ;
+    cnv:HasTraitBound cnv:Serialize .
+
+ex:HostArg a cnv:Argument ;
+    cnv:hasArgumentName "host"@en ;
+    cnv:argumentAbout "Hostname or IP address to ping"@en ;
+    cnv:argumentType cnv:ArgumentType_Required ;
+    cnv:valueType "String" ;
+    cnv:required true ;
+    cnv:cliPosition 1 .
+
+ex:CountArg a cnv:Argument ;
+    cnv:hasArgumentName "count"@en ;
+    cnv:shortName "c"@en ;
+    cnv:argumentAbout "Number of ping attempts"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "u32" ;
+    cnv:defaultValue "4" ;
+    cnv:required false .
+
+ex:TimeoutPingArg a cnv:Argument ;
+    cnv:hasArgumentName "timeout"@en ;
+    cnv:argumentAbout "Timeout per ping in seconds"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "u32" ;
+    cnv:defaultValue "5" ;
+    cnv:required false .
+
+# Verb: configure
+ex:ConfigureVerb a cnv:Verb ;
+    cnv:hasVerbName "configure"@en ;
+    cnv:verbAbout "Configure network settings"@en ;
+    cnv:belongsToNoun ex:NetworkNoun ;
+    cnv:hasArguments (ex:InterfaceArg ex:IpArg ex:GatewayArg) ;
+    cnv:returnType "Result<()>" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync .
+
+ex:InterfaceArg a cnv:Argument ;
+    cnv:hasArgumentName "interface"@en ;
+    cnv:shortName "i"@en ;
+    cnv:argumentAbout "Network interface name"@en ;
+    cnv:argumentType cnv:ArgumentType_Required ;
+    cnv:valueType "String" ;
+    cnv:required true ;
+    cnv:cliPosition 1 .
+
+ex:IpArg a cnv:Argument ;
+    cnv:hasArgumentName "ip"@en ;
+    cnv:argumentAbout "IP address to assign"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "String" ;
+    cnv:required false .
+
+ex:GatewayArg a cnv:Argument ;
+    cnv:hasArgumentName "gateway"@en ;
+    cnv:argumentAbout "Default gateway address"@en ;
+    cnv:argumentType cnv:ArgumentType_Optional ;
+    cnv:valueType "String" ;
+    cnv:required false .
+
+# Verb: diagnostics
+ex:DiagnosticsVerb a cnv:Verb ;
+    cnv:hasVerbName "diagnostics"@en ;
+    cnv:verbAbout "Run full network diagnostics"@en ;
+    cnv:belongsToNoun ex:NetworkNoun ;
+    cnv:hasArguments (ex:VerboseFlag ex:DetailedFlag) ;
+    cnv:returnType "DiagnosticsReport (JSON)" ;
+    cnv:HasTraitBound cnv:Send ;
+    cnv:HasTraitBound cnv:Sync ;
+    cnv:HasTraitBound cnv:Serialize .
+
+ex:DetailedFlag a cnv:Argument ;
+    cnv:hasArgumentName "detailed"@en ;
+    cnv:shortName "d"@en ;
+    cnv:argumentAbout "Include detailed network statistics"@en ;
+    cnv:argumentType cnv:ArgumentType_Flag ;
+    cnv:valueType "bool" ;
+    cnv:required false .
+
+# ============================================================================
+# PATTERN AGGREGATION
+# ============================================================================
+
+ex:StandardCLIApplication a cnv:CommandRegistry ;
+    cnv:registryName "myapp"@en ;
+    cnv:registryVersion "1.0.0"@en ;
+    cnv:hasRegisteredCommand ex:ServicesNoun ;
+    cnv:hasRegisteredCommand ex:UsersNoun ;
+    cnv:hasRegisteredCommand ex:DatabaseNoun ;
+    cnv:hasRegisteredCommand ex:NetworkNoun ;
+    rdfs:comment "Example CLI application with four noun domains"@en .

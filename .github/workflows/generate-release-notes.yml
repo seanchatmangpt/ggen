@@ -10,6 +10,11 @@ on:
         required: true
         type: string
 
+# Updates release notes and pushes a changelog commit; do not interrupt.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   generate-notes:
     name: Generate Release Notes from Commits
@@ -21,7 +26,7 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
 
@@ -131,7 +136,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Update release notes
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@62c96d0c4e8a889135c1f3a25910db8dbe0e85f7 # v2.3.4
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           body: ${{ steps.changelog.outputs.changelog }}
@@ -172,7 +177,7 @@ jobs:
           cat RELEASE_NOTES.md >> $GITHUB_STEP_SUMMARY
 
       - name: Upload release notes artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: release-notes-${{ steps.tag.outputs.tag }}
           path: RELEASE_NOTES.md

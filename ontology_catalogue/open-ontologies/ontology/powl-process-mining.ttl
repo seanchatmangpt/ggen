@@ -1,0 +1,133 @@
+@prefix powl:  <urn:ontostar:powl:> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+
+# ---------------------------------------------------------------------------
+# Ontology declaration
+# ---------------------------------------------------------------------------
+
+<urn:ontostar:powl:ontology>
+    a owl:Ontology ;
+    rdfs:label "POWL Process Mining Ontology"@en ;
+    rdfs:comment "Formal model of Partially-Ordered Workflow Language (POWL) discovery variants and OCEL 2.0 object types used by wasm4pm and referenced in the mcpp manufacturing pipeline."@en ;
+    dct:created "2026-05-17"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+# ---------------------------------------------------------------------------
+# 1. DiscoveryVariant — OWL class
+# ---------------------------------------------------------------------------
+
+powl:DiscoveryVariant
+    a owl:Class ;
+    rdfs:label "Discovery Variant"@en ;
+    rdfs:comment "An inductive-miner algorithm variant used to discover a POWL model from an event log. Each variant defines a CutFilter — the ordered sequence of cut types attempted during model discovery. Mirrors pm4py's CutFactory and wasm4pm's DiscoveryVariant enum."@en .
+
+# --- 1.1 Named individuals (8 variants) ---
+
+powl:DecisionGraphCyclic
+    a owl:NamedIndividual, powl:DiscoveryVariant ;
+    rdfs:label "Decision Graph Cyclic"@en ;
+    skos:notation "decision_graph_cyclic" ;
+    rdfs:comment "Default variant. Cut order: XOR → Sequence → Concurrency → Loop, with Decision Graph (DG) fall-through. Balances expressiveness and robustness for real-world cyclic processes. Corresponds to pm4py's IMf Decision Graph (Cyclic) factory."@en .
+
+powl:DecisionGraphCyclicStrict
+    a owl:NamedIndividual, powl:DiscoveryVariant ;
+    rdfs:label "Decision Graph Cyclic Strict"@en ;
+    skos:notation "decision_graph_cyclic_strict" ;
+    rdfs:comment "Identical cut order to DecisionGraphCyclic (XOR → Sequence → Concurrency → Loop + DG fall-through) but applies strict validation at each step, rejecting candidate cuts that do not meet tighter conformance thresholds. Produces fewer but higher-fidelity model fragments."@en .
+
+powl:DecisionGraphMax
+    a owl:NamedIndividual, powl:DiscoveryVariant ;
+    rdfs:label "Decision Graph Max"@en ;
+    skos:notation "decision_graph_max" ;
+    rdfs:comment "Cut order: XOR → Sequence → Concurrency → Loop → MaximalPO, with Decision Graph fall-through. Extends DecisionGraphCyclic with a Maximal Partial Order cut, enabling richer concurrency structure. Best suited for logs with complex parallel behaviour."@en .
+
+powl:DecisionGraphClustering
+    a owl:NamedIndividual, powl:DiscoveryVariant ;
+    rdfs:label "Decision Graph Clustering"@en ;
+    skos:notation "decision_graph_clustering" ;
+    rdfs:comment "Cut order: Sequence → XOR → Loop → DynamicClusteringPO, with Decision Graph fall-through. Uses dynamic clustering for partial-order cuts instead of maximal enumeration. Designed for logs with high activity diversity where clustering reduces model complexity."@en .
+
+powl:DynamicClustering
+    a owl:NamedIndividual, powl:DiscoveryVariant ;
+    rdfs:label "Dynamic Clustering"@en ;
+    skos:notation "dynamic_clustering" ;
+    rdfs:comment "Cut order: XOR → Loop → DynamicClusteringPO. Omits standard Sequence and Concurrency cuts, relying entirely on dynamic clustering for partial orders. Trades coverage of sequential patterns for conciseness on highly concurrent or heterogeneous logs."@en .
+
+powl:Maximal
+    a owl:NamedIndividual, powl:DiscoveryVariant ;
+    rdfs:label "Maximal"@en ;
+    skos:notation "maximal" ;
+    rdfs:comment "Cut order: XOR → Sequence → Concurrency → Loop → MaximalPO. Enumerates the maximal partial-order cut without Decision Graph fall-through. Produces the most expressive POWL model for logs where concurrency patterns are dominant and precision is prioritised over generalization."@en .
+
+powl:Tree
+    a owl:NamedIndividual, powl:DiscoveryVariant ;
+    rdfs:label "Tree"@en ;
+    skos:notation "tree" ;
+    rdfs:comment "Cut order: XOR → Sequence only. Produces a simple process tree with no concurrency, no loop, and no partial-order cuts. Yields the most compact and readable model but may underfit logs containing concurrent or looping behaviour. Suitable as a baseline or for strictly sequential processes."@en .
+
+powl:BruteForce
+    a owl:NamedIndividual, powl:DiscoveryVariant ;
+    rdfs:label "Brute Force"@en ;
+    skos:notation "brute_force" ;
+    rdfs:comment "Cut order: XOR → Sequence → Concurrency → Loop → BruteForcePO. Exhaustively enumerates all valid partial-order cuts without heuristic pruning. Guarantees the most fitting model at the cost of exponential runtime. Use only on small logs or offline batch discovery pipelines."@en .
+
+# ---------------------------------------------------------------------------
+# 2. ConformanceDimension — OWL class (Van der Aalst quality framework)
+# ---------------------------------------------------------------------------
+
+powl:ConformanceDimension
+    a owl:Class ;
+    rdfs:label "Conformance Dimension"@en ;
+    rdfs:comment "One of the four quality dimensions defined by Wil van der Aalst for evaluating how well a discovered process model represents an event log. A perfect model scores 1.0 on all four dimensions simultaneously."@en .
+
+powl:Fitness
+    a owl:NamedIndividual, powl:ConformanceDimension ;
+    rdfs:label "Fitness"@en ;
+    rdfs:comment "The fraction of observed traces in the event log that can be replayed by the model without deviation. A fitness of 1.0 means every recorded trace is fully allowed by the model. Low fitness indicates the model forbids behaviour that actually occurred (underfitting on the log)."@en .
+
+powl:Precision
+    a owl:NamedIndividual, powl:ConformanceDimension ;
+    rdfs:label "Precision"@en ;
+    rdfs:comment "The fraction of model-allowed behaviour that is also observed in the log. A precision of 1.0 means the model permits no traces beyond those seen. Low precision (overfitting the log) means the model allows many traces that never occurred, reducing its discriminative power."@en .
+
+powl:Generalization
+    a owl:NamedIndividual, powl:ConformanceDimension ;
+    rdfs:label "Generalization"@en ;
+    rdfs:comment "The degree to which the model generalises beyond the specific traces in the training log to unseen but valid process behaviour. High generalization means the model is not overfit to idiosyncratic traces; low generalization means it memorises the log rather than capturing the underlying process."@en .
+
+powl:Simplicity
+    a owl:NamedIndividual, powl:ConformanceDimension ;
+    rdfs:label "Simplicity"@en ;
+    rdfs:comment "A measure of model parsimony, often operationalised as the inverse of model size (number of nodes, arcs, or operators). A simpler model is easier for humans to understand and audit. The Van der Aalst razor: prefer the simplest model that still achieves acceptable fitness, precision, and generalization."@en .
+
+# ---------------------------------------------------------------------------
+# 3. OcelObjectType — OWL class (OCEL 2.0)
+# ---------------------------------------------------------------------------
+
+powl:OcelObjectType
+    a owl:Class ;
+    rdfs:label "OCEL Object Type"@en ;
+    rdfs:comment "A typed category of business object in an Object-Centric Event Log (OCEL 2.0). Each event in the log is associated with one or more objects of different types (e.g. Order, Item, Package), enabling object-centric process discovery and conformance checking as opposed to flat case-based XES logs."@en .
+
+# ---------------------------------------------------------------------------
+# 4. Data properties
+# ---------------------------------------------------------------------------
+
+powl:hasMinFitness
+    a owl:DatatypeProperty ;
+    rdfs:label "has minimum fitness"@en ;
+    rdfs:comment "The minimum acceptable Fitness score (in [0.0, 1.0]) for a discovered POWL model to be admitted to the manufacturing pipeline. Per mcpp Doctrine, 0.999 is an Andon pull — only 1.0 is fully conformant."@en ;
+    rdfs:domain powl:DiscoveryVariant ;
+    rdfs:range  xsd:decimal .
+
+powl:hasMinPrecision
+    a owl:DatatypeProperty ;
+    rdfs:label "has minimum precision"@en ;
+    rdfs:comment "The minimum acceptable Precision score (in [0.0, 1.0]) for a discovered POWL model to be admitted to the manufacturing pipeline. Precision below threshold indicates the model permits too much behaviour not observed in the log."@en ;
+    rdfs:domain powl:DiscoveryVariant ;
+    rdfs:range  xsd:decimal .

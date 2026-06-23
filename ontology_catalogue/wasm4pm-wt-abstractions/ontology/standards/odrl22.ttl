@@ -1,0 +1,58 @@
+@prefix : <http://www.w3.org/ns/odrl/2/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@base <http://www.w3.org/ns/odrl/2/> .
+
+<http://www.w3.org/ns/odrl/2/> rdf:type owl:Ontology ;
+                               owl:versionIRI <http://www.w3.org/ns/odrl/2/ODRL22> ;
+                               dct:title "ODRL Version 2.2 Ontology"@en ;
+                               dct:creator "Renato Iannella", "Michael Steidl", "Stuart Myles", "Víctor Rodríguez-Doncel" ;
+                               dct:description "The Open Digital Rights Language (ODRL) is a policy expression language that provides a flexible and interoperable information model, vocabulary, and encoding mechanisms for representing statements about the usage of content and services."@en ;
+                               dct:license <https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document> ;
+                               dct:issued "2017-09-16"^^xsd:date ;
+                               rdfs:label "ODRL Version 2.2 Ontology"@en .
+
+odrl:Policy rdf:type owl:Class ;
+            rdfs:label "Policy"@en ;
+            skos:definition "A non-empty set of Permissions and/or Prohibitions and/or Duties."@en .
+
+odrl:Permission rdf:type owl:Class ;
+                rdfs:subClassOf odrl:Rule ;
+                rdfs:label "Permission"@en ;
+                skos:definition "The ability to exercise an Action over an Asset."@en .
+
+odrl:Prohibition rdf:type owl:Class ;
+                 rdfs:subClassOf odrl:Rule ;
+                 rdfs:label "Prohibition"@en ;
+                 skos:definition "The inability to exercise an Action over an Asset."@en .
+
+odrl:Duty rdf:type owl:Class ;
+          rdfs:subClassOf odrl:Rule ;
+          rdfs:label "Duty"@en ;
+          skos:definition "The obligation to exercise an Action."@en .
+
+odrl:Action rdf:type owl:Class ;
+            rdfs:label "Action"@en ;
+            skos:definition "An operation on an Asset."@en .
+
+odrl:Asset rdf:type owl:Class ;
+           rdfs:label "Asset"@en ;
+           skos:definition "A resource or a collection of resources that are the subject of a Rule."@en .
+
+odrl:Party rdf:type owl:Class ;
+           rdfs:label "Party"@en ;
+           skos:definition "An entity or a collection of entities that undertake Roles in a Rule."@en .
+
+odrl:Constraint rdf:type owl:Class ;
+                rdfs:label "Constraint"@en ;
+                skos:definition "A boolean expression that refines the applicability of a Rule or its components."@en .
+
+odrl:Rule rdf:type owl:Class ;
+          rdfs:label "Rule"@en ;
+          skos:definition "An abstract concept that represents the common characteristics of Permissions, Prohibitions, and Duties."@en .

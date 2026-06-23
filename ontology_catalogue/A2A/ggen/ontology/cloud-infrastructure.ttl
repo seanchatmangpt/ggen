@@ -1,0 +1,815 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix k8s: <https://kubernetes.io/schema/> .
+@prefix docker: <https://docker.io/schema/> .
+@prefix helm: <https://helm.io/schema/> .
+@prefix a2a: <https://a2a.com/schema/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rfc: <https://www.w3.org/2001/XMLSchema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+
+# Cloud Infrastructure Types
+a2a:cloud_infrastructure a owl:Class ;
+    rdfs:label "Cloud Infrastructure" ;
+    rdfs:comment "Cloud deployment configuration" ;
+    rdfs:subClassOf owl:Thing .
+
+# Root Infrastructure Types
+a2a:infrastructure_pattern a owl:Class ;
+    rdfs:label "Infrastructure Pattern" ;
+    rdfs:comment "Base class for infrastructure patterns" ;
+    rdfs:subClassOf owl:Thing .
+
+a2a:docker_config a owl:Class ;
+    rdfs:label "Docker Configuration" ;
+    rdfs:comment "Docker container configuration" ;
+    rdfs:subClassOf a2a:cloud_infrastructure, a2a:infrastructure_pattern .
+
+a2a:kubernetes_config a owl:Class ;
+    rdfs:label "Kubernetes Configuration" ;
+    rdfs:comment "Kubernetes resource configuration" ;
+    rdfs:subClassOf a2a:cloud_infrastructure, a2a:infrastructure_pattern .
+
+a2a:helm_chart a owl:Class ;
+    rdfs:label "Helm Chart" ;
+    rdfs:comment "Helm chart configuration" ;
+    rdfs:subClassOf a2a:cloud_infrastructure, a2a:infrastructure_pattern .
+
+a2a:cicd_pipeline a owl:Class ;
+    rdfs:label "CI/CD Pipeline" ;
+    rdfs:comment "Continuous integration/continuous deployment pipeline" ;
+    rdfs:subClassOf a2a:infrastructure_pattern .
+
+a2a:terraform_config a owl:Class ;
+    rdfs:label "Terraform Configuration" ;
+    rdfs:comment "Infrastructure as code using Terraform" ;
+    rdfs:subClassOf a2a:infrastructure_pattern .
+
+a2a:config_management a owl:Class ;
+    rdfs:label "Configuration Management" ;
+    rdfs:comment "Configuration management pattern" ;
+    rdfs:subClassOf a2a:infrastructure_pattern .
+
+# Docker Container Patterns
+a2a:base_image a owl:DatatypeProperty ;
+    rdfs:label "Base Image" ;
+    rdfs:comment "Base image for Docker container" ;
+    rdfs:domain a2a:docker_config ;
+    rdfs:range xsd:string .
+
+a2a:dockerfile_template a owl:DatatypeProperty ;
+    rdfs:label "Dockerfile Template" ;
+    rdfs:comment "Multi-stage Dockerfile template" ;
+    rdfs:domain a2a:docker_config ;
+    rdfs:range xsd:string .
+
+a2a:expose_port a owl:DatatypeProperty ;
+    rdfs:label "Expose Port" ;
+    rdfs:comment "Port exposed by the container" ;
+    rdfs:domain a2a:docker_config ;
+    rdfs:range xsd:integer .
+
+a2a:volume_mount a owl:DatatypeProperty ;
+    rdfs:label "Volume Mount" ;
+    rdfs:comment "Volume mount configuration" ;
+    rdfs:domain a2a:docker_config ;
+    rdfs:range xsd:string .
+
+a2a:environment_variable a owl:DatatypeProperty ;
+    rdfs:label "Environment Variable" ;
+    rdfs:comment "Environment variable configuration" ;
+    rdfs:domain a2a:docker_config ;
+    rdfs:range xsd:string .
+
+a2a:multi_stage_build a owl:DatatypeProperty ;
+    rdfs:label "Multi-Stage Build" ;
+    rdfs:comment "Enable multi-stage builds for optimized images" ;
+    rdfs:domain a2a:docker_config ;
+    rdfs:range xsd:boolean .
+
+a2a:health_check a owl:DatatypeProperty ;
+    rdfs:label "Health Check" ;
+    rdfs:comment "Health check configuration" ;
+    rdfs:domain a2a:docker_config ;
+    rdfs:range xsd:string .
+
+a2a:liveness_probe a owl:DatatypeProperty ;
+    rdfs:label "Liveness Probe" ;
+    rdfs:comment "Liveness probe configuration" ;
+    rdfs:domain a2a:docker_config ;
+    rdfs:range xsd:string .
+
+a2a:readiness_probe a owl:DatatypeProperty ;
+    rdfs:label "Readiness Probe" ;
+    rdfs:comment "Readiness probe configuration" ;
+    rdfs:domain a2a:docker_config ;
+    rdfs:range xsd:string .
+
+a2a:build_arg a owl:DatatypeProperty ;
+    rdfs:label "Build Argument" ;
+    rdfs:comment "Build argument for Docker image" ;
+    rdfs:domain a2a:docker_config ;
+    rdfs:range xsd:string .
+
+a2a:network_mode a owl:DatatypeProperty ;
+    rdfs:label "Network Mode" ;
+    rdfs:comment "Container network mode" ;
+    rdfs:domain a2a:docker_config ;
+    rdfs:range ( "bridge" "host" "none" "overlay" ) .
+
+a2a:user a owl:DatatypeProperty ;
+    rdfs:label "User" ;
+    rdfs:comment "User to run container as" ;
+    rdfs:domain a2a:docker_config ;
+    rdfs:range xsd:string .
+
+a2a:working_dir a owl:DatatypeProperty ;
+    rdfs:label "Working Directory" ;
+    rdfs:comment "Working directory inside container" ;
+    rdfs:domain a2a:docker_config ;
+    rdfs:range xsd:string .
+
+a2a:command a owl:DatatypeProperty ;
+    rdfs:label "Command" ;
+    rdfs:comment "Command to run in container" ;
+    rdfs:domain a2a:docker_config ;
+    rdfs:range xsd:string .
+
+a2a:entrypoint a owl:DatatypeProperty ;
+    rdfs:label "Entrypoint" ;
+    rdfs:comment "Container entrypoint" ;
+    rdfs:domain a2a:docker_config ;
+    rdfs:range xsd:string .
+
+# Kubernetes Resource Types
+a2a:deployment a owl:Class ;
+    rdfs:label "Kubernetes Deployment" ;
+    rdfs:comment "Kubernetes deployment configuration" ;
+    rdfs:subClassOf a2a:kubernetes_config .
+
+a2a:service a owl:Class ;
+    rdfs:label "Kubernetes Service" ;
+    rdfs:comment "Kubernetes service configuration" ;
+    rdfs:subClassOf a2a:kubernetes_config .
+
+a2a:configmap a owl:Class ;
+    rdfs:label "Kubernetes ConfigMap" ;
+    rdfs:comment "Kubernetes ConfigMap configuration" ;
+    rdfs:subClassOf a2a:kubernetes_config .
+
+a2a:secret a owl:Class ;
+    rdfs:label "Kubernetes Secret" ;
+    rdfs:comment "Kubernetes Secret configuration" ;
+    rdfs:subClassOf a2a:kubernetes_config .
+
+a2a:ingress a owl:Class ;
+    rdfs:label "Kubernetes Ingress" ;
+    rdfs:comment "Kubernetes Ingress configuration" ;
+    rdfs:subClassOf a2a:kubernetes_config .
+
+a2a:persistent_volume_claim a owl:Class ;
+    rdfs:label "Persistent Volume Claim" ;
+    rdfs:comment "Kubernetes Persistent Volume Claim configuration" ;
+    rdfs:subClassOf a2a:kubernetes_config .
+
+a2a:statefulset a owl:Class ;
+    rdfs:label "Kubernetes StatefulSet" ;
+    rdfs:comment "Kubernetes StatefulSet configuration" ;
+    rdfs:subClassOf a2a:kubernetes_config .
+
+a2a:daemonset a owl:Class ;
+    rdfs:label "Kubernetes DaemonSet" ;
+    rdfs:comment "Kubernetes DaemonSet configuration" ;
+    rdfs:subClassOf a2a:kubernetes_config .
+
+a2a:job a owl:Class ;
+    rdfs:label "Kubernetes Job" ;
+    rdfs:comment "Kubernetes Job configuration" ;
+    rdfs:subClassOf a2a:kubernetes_config .
+
+a2a:cronjob a owl:Class ;
+    rdfs:label "Kubernetes CronJob" ;
+    rdfs:comment "Kubernetes CronJob configuration" ;
+    rdfs:subClassOf a2a:kubernetes_config .
+
+# Kubernetes Properties
+a2a:replicas a owl:DatatypeProperty ;
+    rdfs:label "Replicas" ;
+    rdfs:comment "Number of replicas for deployment" ;
+    rdfs:domain a2a:kubernetes_config, a2a:deployment, a2a:statefulset ;
+    rdfs:range xsd:integer .
+
+a2a:namespace a owl:DatatypeProperty ;
+    rdfs:label "Namespace" ;
+    rdfs:comment "Kubernetes namespace" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:string .
+
+a2a:resource_request_cpu a owl:DatatypeProperty ;
+    rdfs:label "CPU Request" ;
+    rdfs:comment "CPU resource request" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:string .
+
+a2a:resource_request_memory a owl:DatatypeProperty ;
+    rdfs:label "Memory Request" ;
+    rdfs:comment "Memory resource request" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:string .
+
+a2a:resource_limit_cpu a owl:DatatypeProperty ;
+    rdfs:label "CPU Limit" ;
+    rdfs:comment "CPU resource limit" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:string .
+
+a2a:resource_limit_memory a owl:DatatypeProperty ;
+    rdfs:label "Memory Limit" ;
+    rdfs:comment "Memory resource limit" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:string .
+
+a2a:service_type a owl:DatatypeProperty ;
+    rdfs:label "Service Type" ;
+    rdfs:comment "Kubernetes service type" ;
+    rdfs:domain a2a:service ;
+    rdfs:range ( "ClusterIP" "NodePort" "LoadBalancer" "ExternalName" ) .
+
+a2a:ingress_class a owl:DatatypeProperty ;
+    rdfs:label "Ingress Class" ;
+    rdfs:comment "Ingress class name" ;
+    rdfs:domain a2a:ingress ;
+    rdfs:range xsd:string .
+
+a2a:container_port a owl:DatatypeProperty ;
+    rdfs:label "Container Port" ;
+    rdfs:comment "Container port configuration" ;
+    rdfs:domain a2a:deployment ;
+    rdfs:range xsd:integer .
+
+a2a:image_pull_policy a owl:DatatypeProperty ;
+    rdfs:label "Image Pull Policy" ;
+    rdfs:comment "Image pull policy for containers" ;
+    rdfs:domain a2a:deployment ;
+    rdfs:range ( "Always" "Never" "IfNotPresent" ) .
+
+a2a:image_pull_secrets a owl:DatatypeProperty ;
+    rdfs:label "Image Pull Secrets" ;
+    rdfs:comment "Image pull secrets for private registries" ;
+    rdfs:domain a2a:deployment ;
+    rdfs:range [a rdf:List] .
+
+a2a:service_account_name a owl:DatatypeProperty ;
+    rdfs:label "Service Account Name" ;
+    rdfs:comment "Service account name" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:string .
+
+a2a:tolerations a owl:DatatypeProperty ;
+    rdfs:label "Tolerations" ;
+    rdfs:comment "Kubernetes tolerations" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range [a rdf:List] .
+
+a2a:node_selector a owl:DatatypeProperty ;
+    rdfs:label "Node Selector" ;
+    rdfs:comment "Node selector labels" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range [a rdf:List] .
+
+a2a:affinity a owl:DatatypeProperty ;
+    rdfs:label "Affinity" ;
+    rdfs:comment "Pod affinity rules" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:string .
+
+# Helm Chart Properties and Types
+a2a:helm_chart_version a owl:DatatypeProperty ;
+    rdfs:label "Chart Version" ;
+    rdfs:comment "Helm chart version" ;
+    rdfs:domain a2a:helm_chart ;
+    rdfs:range xsd:string .
+
+a2a:helm_app_version a owl:DatatypeProperty ;
+    rdfs:label "App Version" ;
+    rdfs:comment "Application version" ;
+    rdfs:domain a2a:helm_chart ;
+    rdfs:range xsd:string .
+
+a2a:helm_values_schema a owl:DatatypeProperty ;
+    rdfs:label "Values Schema" ;
+    rdfs:comment "Helm values schema" ;
+    rdfs:domain a2a:helm_chart ;
+    rdfs:range xsd:string .
+
+a2a:helm_values a owl:DatatypeProperty ;
+    rdfs:label "Helm Values" ;
+    rdfs:comment "Helm values configuration" ;
+    rdfs:domain a2a:helm_chart ;
+    rdfs:range xsd:string .
+
+a2a:helm_dependencies a owl:DatatypeProperty ;
+    rdfs:label "Helm Dependencies" ;
+    rdfs:comment "Helm chart dependencies" ;
+    rdfs:domain a2a:helm_chart ;
+    rdfs:range [a rdf:List] .
+
+a2a:helm_template a owl:DatatypeProperty ;
+    rdfs:label "Helm Template" ;
+    rdfs:comment "Helm template configuration" ;
+    rdfs:domain a2a:helm_chart ;
+    rdfs:range xsd:string .
+
+# Helm Template Types
+a2a:deployment_template a owl:Class ;
+    rdfs:label "Deployment Template" ;
+    rdfs:comment "Kubernetes deployment template for Helm" ;
+    rdfs:subClassOf a2a:helm_chart .
+
+a2a:service_template a owl:Class ;
+    rdfs:label "Service Template" ;
+    rdfs:comment "Kubernetes service template for Helm" ;
+    rdfs:subClassOf a2a:helm_chart .
+
+a2a:configmap_template a owl:Class ;
+    rdfs:label "ConfigMap Template" ;
+    rdfs:comment "Kubernetes ConfigMap template for Helm" ;
+    rdfs:subClassOf a2a:helm_chart .
+
+a2a:secret_template a owl:Class ;
+    rdfs:label "Secret Template" ;
+    rdfs:comment "Kubernetes Secret template for Helm" ;
+    rdfs:subClassOf a2a:helm_chart .
+
+# CI/CD Pipeline Properties and Types
+a2a:cicd_pipeline a owl:Class ;
+    rdfs:label "CI/CD Pipeline" ;
+    rdfs:comment "Continuous integration/continuous deployment pipeline" ;
+    rdfs:subClassOf a2a:infrastructure_pattern .
+
+a2a:ci_pipeline a owl:Class ;
+    rdfs:label "CI Pipeline" ;
+    rdfs:comment "Continuous integration pipeline" ;
+    rdfs:subClassOf a2a:cicd_pipeline .
+
+a2a:cd_pipeline a owl:Class ;
+    rdfs:label "CD Pipeline" ;
+    rdfs:comment "Continuous deployment pipeline" ;
+    rdfs:subClassOf a2a:cicd_pipeline .
+
+a2a:github_actions_workflow a owl:Class ;
+    rdfs:label "GitHub Actions Workflow" ;
+    rdfs:comment "GitHub Actions workflow configuration" ;
+    rdfs:subClassOf a2a:cicd_pipeline .
+
+a2a:gitlab_ci a owl:Class ;
+    rdfs:label "GitLab CI" ;
+    rdfs:comment "GitLab CI configuration" ;
+    rdfs:subClassOf a2a:cicd_pipeline .
+
+a2a:jenkins_pipeline a owl:Class ;
+    rdfs:label "Jenkins Pipeline" ;
+    rdfs:comment "Jenkins pipeline configuration" ;
+    rdfs:subClassOf a2a:cicd_pipeline .
+
+# CI/CD Properties
+a2a:trigger_event a owl:DatatypeProperty ;
+    rdfs:label "Trigger Event" ;
+    rdfs:comment "Event that triggers the pipeline" ;
+    rdfs:domain a2a:cicd_pipeline ;
+    rdfs:range ( "push" "pull_request" "schedule" "workflow_dispatch" ) .
+
+a2a:branch_filter a owl:DatatypeProperty ;
+    rdfs:label "Branch Filter" ;
+    rdfs:comment "Branch filter for pipeline triggers" ;
+    rdfs:domain a2a:cicd_pipeline ;
+    rdfs:range xsd:string .
+
+a2a:environment a owl:DatatypeProperty ;
+    rdfs:label "Environment" ;
+    rdfs:comment "Target environment for deployment" ;
+    rdfs:domain a2a:cd_pipeline ;
+    rdfs:range ( "development" "staging" "production" ) .
+
+a2a:approval_required a owl:DatatypeProperty ;
+    rdfs:label "Approval Required" ;
+    rdfs:comment "Manual approval required for deployment" ;
+    rdfs:domain a2a:cd_pipeline ;
+    rdfs:range xsd:boolean .
+
+a2a:build_matrix a owl:DatatypeProperty ;
+    rdfs:label "Build Matrix" ;
+    rdfs:comment "Build matrix configuration" ;
+    rdfs:domain a2a:ci_pipeline ;
+    rdfs:range [a rdf:List] .
+
+a2a:artifacts a owl:DatatypeProperty ;
+    rdfs:label "Artifacts" ;
+    rdfs:comment "Build artifacts" ;
+    rdfs:domain a2a:ci_pipeline ;
+    rdfs:range [a rdf:List] .
+
+# Infrastructure as Code Properties and Types
+a2a:terraform_config a owl:Class ;
+    rdfs:label "Terraform Configuration" ;
+    rdfs:comment "Infrastructure as code using Terraform" ;
+    rdfs:subClassOf a2a:infrastructure_pattern .
+
+a2a:aws_vpc a owl:Class ;
+    rdfs:label "AWS VPC" ;
+    rdfs:comment "AWS Virtual Private Cloud configuration" ;
+    rdfs:subClassOf a2a:terraform_config .
+
+a2a:aws_ecs a owl:Class ;
+    rdfs:label "AWS ECS" ;
+    rdfs:comment "AWS Elastic Container Service configuration" ;
+    rdfs:subClassOf a2a:terraform_config .
+
+a2a:aws_elb a owl:Class ;
+    rdfs:label "AWS Elastic Load Balancer" ;
+    rdfs:comment "AWS Elastic Load Balancer configuration" ;
+    rdfs:subClassOf a2a:terraform_config .
+
+a2a:aws_rds a owl:Class ;
+    rdfs:label "AWS RDS" ;
+    rdfs:comment "AWS Relational Database Service configuration" ;
+    rdfs:subClassOf a2a:terraform_config .
+
+a2a:terraform_provider a owl:DatatypeProperty ;
+    rdfs:label "Terraform Provider" ;
+    rdfs:comment "Terraform provider configuration" ;
+    rdfs:domain a2a:terraform_config ;
+    rdfs:range ( "aws" "gcp" "azure" "kubernetes" ) .
+
+a2a:terraform_resource a owl:DatatypeProperty ;
+    rdfs:label "Terraform Resource" ;
+    rdfs:comment "Terraform resource configuration" ;
+    rdfs:domain a2a:terraform_config ;
+    rdfs:range xsd:string .
+
+a2a:terraform_variable a owl:DatatypeProperty ;
+    rdfs:label "Terraform Variable" ;
+    rdfs:comment "Terraform variable definition" ;
+    rdfs:domain a2a:terraform_config ;
+    rdfs:range xsd:string .
+
+a2a:terraform_output a owl:DatatypeProperty ;
+    rdfs:label "Terraform Output" ;
+    rdfs:comment "Terraform output definition" ;
+    rdfs:domain a2a:terraform_config ;
+    rdfs:range xsd:string .
+
+# Configuration Management Properties and Types
+a2a:config_management a owl:Class ;
+    rdfs:label "Configuration Management" ;
+    rdfs:comment "Configuration management pattern" ;
+    rdfs:subClassOf a2a:infrastructure_pattern .
+
+a2a:ansible_playbook a owl:Class ;
+    rdfs:label "Ansible Playbook" ;
+    rdfs:comment "Ansible playbook configuration" ;
+    rdfs:subClassOf a2a:config_management .
+
+a2a:puppet_manifest a owl:Class ;
+    rdfs:label "Puppet Manifest" ;
+    rdfs:comment "Puppet manifest configuration" ;
+    rdfs:subClassOf a2a:config_management .
+
+a2a:chef_cookbook a owl:Class ;
+    rdfs:label "Chef Cookbook" ;
+    rdfs:comment "Chef cookbook configuration" ;
+    rdfs:subClassOf a2a:config_management .
+
+a2a:config_template a owl:DatatypeProperty ;
+    rdfs:label "Config Template" ;
+    rdfs:comment "Configuration template" ;
+    rdfs:domain a2a:config_management ;
+    rdfs:range xsd:string .
+
+a2a:config_file_path a owl:DatatypeProperty ;
+    rdfs:label "Config File Path" ;
+    rdfs:comment "Path to configuration file" ;
+    rdfs:domain a2a:config_management ;
+    rdfs:range xsd:string .
+
+# Common Labels and Annotations
+a2a:app_label a owl:DatatypeProperty ;
+    rdfs:label "Application Label" ;
+    rdfs:comment "Kubernetes label for application" ;
+    rdfs:domain a2a:cloud_infrastructure ;
+    rdfs:range xsd:string .
+
+a2a:component_label a owl:DatatypeProperty ;
+    rdfs:label "Component Label" ;
+    rdfs:comment "Kubernetes label for component" ;
+    rdfs:domain a2a:cloud_infrastructure ;
+    rdfs:range xsd:string .
+
+a2a:version_label a owl:DatatypeProperty ;
+    rdfs:label "Version Label" ;
+    rdfs:comment "Kubernetes label for version" ;
+    rdfs:domain a2a:cloud_infrastructure ;
+    rdfs:range xsd:string .
+
+a2a:managed_by a owl:DatatypeProperty ;
+    rdfs:label "Managed By" ;
+    rdfs:comment "Managed by annotation" ;
+    rdfs:domain a2a:cloud_infrastructure ;
+    rdfs:range xsd:string .
+
+a2a:annotations a owl:DatatypeProperty ;
+    rdfs:label "Annotations" ;
+    rdfs:comment "Resource annotations" ;
+    rdfs:domain a2a:cloud_infrastructure ;
+    rdfs:range [a rdf:List] .
+
+# Health Check Properties
+a2a:liveness_probe_path a owl:DatatypeProperty ;
+    rdfs:label "Liveness Probe Path" ;
+    rdfs:comment "HTTP path for liveness probe" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:string .
+
+a2a:readiness_probe_path a owl:DatatypeProperty ;
+    rdfs:label "Readiness Probe Path" ;
+    rdfs:comment "HTTP path for readiness probe" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:string .
+
+a2a:health_check_port a owl:DatatypeProperty ;
+    rdfs:label "Health Check Port" ;
+    rdfs:comment "Port for health checks" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:integer .
+
+a2a:health_check_interval a owl:DatatypeProperty ;
+    rdfs:label "Health Check Interval" ;
+    rdfs:comment "Health check interval in seconds" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:integer .
+
+a2a:health_check_timeout a owl:DatatypeProperty ;
+    rdfs:label "Health Check Timeout" ;
+    rdfs:comment "Health check timeout in seconds" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:integer .
+
+# Security Properties
+a2a:service_account_name a owl:DatatypeProperty ;
+    rdfs:label "Service Account Name" ;
+    rdfs:comment "Service account name" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:string .
+
+a2a:role_name a owl:DatatypeProperty ;
+    rdfs:label "Role Name" ;
+    rdfs:comment "Kubernetes role name" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:string .
+
+a2a:role_binding_name a owl:DatatypeProperty ;
+    rdfs:label "Role Binding Name" ;
+    rdfs:comment "Kubernetes role binding name" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:string .
+
+a2a:pod_security_policy a owl:DatatypeProperty ;
+    rdfs:label "Pod Security Policy" ;
+    rdfs:comment "Pod security policy" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:string .
+
+a2a:network_policy a owl:DatatypeProperty ;
+    rdfs:label "Network Policy" ;
+    rdfs:comment "Network policy configuration" ;
+    rdfs:domain a2a:kubernetes_config ;
+    rdfs:range xsd:string .
+
+# SHACL Validation Constraints
+a2a:cloud_infrastructure_shape a sh:NodeShape ;
+    sh:targetClass a2a:cloud_infrastructure ;
+    sh:property [
+        sh:path a2a:app_label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Application label is required" ;
+    ] ;
+    sh:property [
+        sh:path a2a:managed_by ;
+        sh:hasValue "a2a" ;
+        sh:message "Infrastructure must be managed by A2A" ;
+    ] .
+
+a2a:docker_config_shape a sh:NodeShape ;
+    sh:targetClass a2a:docker_config ;
+    sh:property [
+        sh:path a2a:base_image ;
+        sh:minCount 1 ;
+        sh:message "Base image is required" ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path a2a:expose_port ;
+        sh:node [
+            sh:or (
+                [ sh:datatype xsd:integer ]
+                [ sh:datatype xsd:string ]
+            )
+        ] ;
+    ] ;
+    sh:property [
+        sh:path a2a:health_check ;
+        sh:or (
+            [ sh:datatype xsd:string ]
+            [ sh:hasValue "http://localhost:8080/health" ]
+            [ sh:hasValue "tcp://localhost:8080" ]
+            [ sh:hasValue "exec:/bin/health-check" ]
+        ) ;
+    ] .
+
+a2a:kubernetes_config_shape a sh:NodeShape ;
+    sh:targetClass a2a:kubernetes_config ;
+    sh:property [
+        sh:path a2a:namespace ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "default" "kube-system" "production" "staging" ) ;
+        sh:message "Namespace must be specified" ;
+    ] ;
+    sh:property [
+        sh:path a2a:resource_request_cpu ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+(m)?$" ;
+        sh:message "CPU request must be in format like '100m' or '1'" ;
+    ] ;
+    sh:property [
+        sh:path a2a:resource_request_memory ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+(Mi|Gi)?$" ;
+        sh:message "Memory request must be in format like '128Mi' or '1Gi'" ;
+    ] .
+
+a2a:helm_chart_shape a sh:NodeShape ;
+    sh:targetClass a2a:helm_chart ;
+    sh:property [
+        sh:path a2a:helm_chart_version ;
+        sh:datatype xsd:string ;
+        sh:pattern "^v?[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9]+)?$" ;
+        sh:message "Chart version must follow semantic versioning" ;
+    ] ;
+    sh:property [
+        sh:path a2a:helm_values ;
+        sh:datatype xsd:string ;
+        sh:nodeKind sh:Literal ;
+    ] .
+
+a2a:deployment_shape a sh:NodeShape ;
+    sh:targetClass a2a:deployment ;
+    sh:property [
+        sh:path a2a:replicas ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Replicas must be between 1 and 10" ;
+    ] ;
+    sh:property [
+        sh:path a2a:container_port ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 65535 ;
+        sh:message "Container port must be between 1 and 65535" ;
+    ] .
+
+# Example Instances
+# Docker Configuration Example
+:nginx_web_server a a2a:docker_config ;
+    a2a:app_label "nginx" ;
+    a2a:version_label "1.21" ;
+    a2a:managed_by "a2a" ;
+    a2a:base_image "nginx:1.21-alpine" ;
+    a2a:expose_port 80 ;
+    a2a:expose_port 443 ;
+    a2a:volume_mount "/etc/nginx/nginx.conf" ;
+    a2a:volume_mount "/var/www/html" ;
+    a2a:environment_variable "NGINX_PORT" "80" ;
+    a2a:environment_variable "ENVIRONMENT" "production" ;
+    a2a:multi_stage_build true ;
+    a2a:health_check "http://localhost:80/health" ;
+    a2a:liveness_probe "http://localhost:80/health" ;
+    a2a:readiness_probe "http://localhost:80/ready" ;
+    a2a:build_arg "VERSION=1.21" ;
+    a2a:network_mode "bridge" ;
+    a2a:entrypoint "/docker-entrypoint.sh" .
+
+:python_app a a2a:docker_config ;
+    a2a:app_label "python-app" ;
+    a2a:version_label "0.1.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:base_image "python:3.9-slim" ;
+    a2a:expose_port 8000 ;
+    a2a:working_dir "/app" ;
+    a2a:command "python app.py" ;
+    a2a:environment_variable "PYTHONPATH" "/app" ;
+    a2a:environment_variable "DEBUG" "false" ;
+    a2a:health_check "http://localhost:8000/health" ;
+    a2a:build_arg "PIP_NO_CACHE_DIR=1" .
+
+# Kubernetes Configuration Examples
+:web_deployment a a2a:deployment ;
+    a2a:app_label "web-app" ;
+    a2a:version_label "1.0.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "production" ;
+    a2a:replicas 3 ;
+    a2a:container_port 8080 ;
+    a2a:resource_request_cpu "100m" ;
+    a2a:resource_request_memory "256Mi" ;
+    a2a:resource_limit_cpu "500m" ;
+    a2a:resource_limit_memory "512Mi" ;
+    a2a:liveness_probe_path "/health" ;
+    a2a:readiness_probe_path "/ready" ;
+    a2a:health_check_port 8080 ;
+    a2a:service_account_name "web-app-sa" ;
+    a2a:tolerations "env=staging:NoExecute" ;
+    a2a:tolerations "env=production:NoExecute" ;
+    a2a:node_selector "tier=web" .
+
+:api_service a a2a:service ;
+    a2a:app_label "api-service" ;
+    a2a:component_label "api" ;
+    a2a:version_label "2.1.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "staging" ;
+    a2a:service_type "LoadBalancer" .
+
+:database_configmap a a2a:configmap ;
+    a2a:app_label "database" ;
+    a2a:component_label "config" ;
+    a2a:version_label "1.0.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "production" .
+
+:database_secret a a2a:secret ;
+    a2a:app_label "database" ;
+    a2a:component_label "credentials" ;
+    a2a:version_label "1.0.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "production" .
+
+# Helm Chart Examples
+:web_app_helm a a2a:helm_chart ;
+    a2a:app_label "web-app" ;
+    a2a:version_label "1.2.3" ;
+    a2a:managed_by "a2a" ;
+    a2a:helm_chart_version "1.2.3" ;
+    a2a:helm_app_version "1.0.0" ;
+    a2a:helm_dependencies "nginx-ingress", "prometheus" ;
+    a2a:helm_values "replicaCount: 3\nimage:\n  repository: myapp/web\n  tag: v1.0.0" .
+
+# CI/CD Pipeline Examples
+:github_web_deploy a a2a:github_actions_workflow ;
+    a2a:app_label "web-app-cd" ;
+    a2a:version_label "1.0.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:trigger_event "push" ;
+    a2a:trigger_event "workflow_dispatch" ;
+    a2a:branch_filter "main" ;
+    a2a:environment "production" ;
+    a2a:approval_required true ;
+    a2a:build_matrix "python-version: 3.8, 3.9, 3.10" ;
+    a2a:artifacts "dist/*.zip", "test-results.xml" .
+
+:gitlab_ci_build a a2a:gitlab_ci ;
+    a2a:app_label "build-pipeline" ;
+    a2a:version_label "2.1.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:trigger_event "push" ;
+    a2a:branch_filter "develop" ;
+    a2a:build_matrix "os: ubuntu-latest, macos-latest" ;
+    a2a:artifacts "*.jar", "*.tar.gz" .
+
+# Terraform Configuration Examples
+:aws_infrastructure a a2a:terraform_config ;
+    a2a:app_label "aws-infra" ;
+    a2a:version_label "3.0.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:terraform_provider "aws" ;
+    a2a:terraform_resource "aws_vpc.main.id" ;
+    a2a:terraform_resource "aws_subnet.public.id" ;
+    a2a:terraform_variable "region" "us-west-2" ;
+    a2a:terraform_variable "environment" "production" ;
+    a2a:terraform_output "vpc_id" ;
+    a2a:terraform_output "subnet_id" .
+
+# Configuration Management Examples
+:ansible_web_config a a2a:ansible_playbook ;
+    a2a:app_label "ansible-config" ;
+    a2a:version_label "1.5.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:config_template "nginx.conf.j2" ;
+    a2a:config_file_path "/etc/nginx/nginx.conf" ;
+    a2a:annotations "owner=devops", "environment=production" .

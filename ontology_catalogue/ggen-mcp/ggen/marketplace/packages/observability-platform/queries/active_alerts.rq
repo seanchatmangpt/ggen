@@ -1,0 +1,9 @@
+PREFIX obs: <https://ggen.ai/ontology/observability#>
+SELECT ?alert ?severity ?metric ?threshold WHERE {
+  ?alert a obs:Alert ;
+         obs:severity ?severity ;
+         obs:alertThreshold ?threshold .
+  ?metric obs:hasAlert ?alert .
+  FILTER(?severity IN ("critical", "warning"))
+}
+ORDER BY DESC(?severity)

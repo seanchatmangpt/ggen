@@ -1,0 +1,3377 @@
+@prefix ns1: <http://bitflow.ai/ontology/patterns#> .
+@prefix ns2: <http://hyperintelligence.ai/patterns#> .
+@prefix ns3: <http://bitflow.ai/sparql/patterns#> .
+@prefix ns4: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns1:AcyclicSyncMergePattern a owl:Class ;
+    rdfs:label "Pattern 37: Acyclic Synchronizing Merge" ;
+    ns1:averageExecutionTicks 4 ;
+    ns1:hasImplementationHint "Topological branch analysis" ;
+    ns1:patternCategory ns1:Triggering ;
+    ns1:patternID 37 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "OR-join without cycles" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:ArbitraryCyclesPattern a owl:Class ;
+    rdfs:label "Pattern 10: Arbitrary Cycles" ;
+    ns1:averageExecutionTicks 2 ;
+    ns1:hasImplementationHint "Loop counter with overflow protection" ;
+    ns1:patternCategory ns1:AdvancedBranching ;
+    ns1:patternID 10 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Supports loops in workflow graph" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:BlockingDiscriminatorPattern a owl:Class ;
+    rdfs:label "Pattern 28: Blocking Discriminator" ;
+    ns1:averageExecutionTicks 4 ;
+    ns1:hasImplementationHint "Branch completion counter" ;
+    ns1:patternCategory ns1:Cancellation ;
+    ns1:patternID 28 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Blocks until all branches complete" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:BlockingPartialJoinPattern a owl:Class ;
+    rdfs:label "Pattern 31: Blocking Partial Join" ;
+    ns1:averageExecutionTicks 5 ;
+    ns1:hasImplementationHint "Blocking queue for late arrivals" ;
+    ns1:patternCategory ns1:Cancellation ;
+    ns1:patternID 31 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Waits for N of M then blocks rest" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:BranchingPatterns a ns1:OptimizationHint ;
+    rdfs:label "Branching Patterns" ;
+    ns1:recommendedOptimization "Branch prediction hints, speculative execution" ;
+    rdfs:comment "Patterns 4, 5, 6, 7, 16" .
+
+ns1:CancelActivityPattern a owl:Class ;
+    rdfs:label "Pattern 19: Cancel Activity" ;
+    ns1:averageExecutionTicks 2 ;
+    ns1:hasImplementationHint "Interrupt flag signaling" ;
+    ns1:patternCategory ns1:MultipleInstance ;
+    ns1:patternID 19 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Cancels a running activity" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:CancelCasePattern a owl:Class ;
+    rdfs:label "Pattern 20: Cancel Case" ;
+    ns1:averageExecutionTicks 4 ;
+    ns1:hasImplementationHint "Broadcast cancellation signal" ;
+    ns1:patternCategory ns1:MultipleInstance ;
+    ns1:patternID 20 ;
+    ns1:supportsSIMD true ;
+    rdfs:comment "Cancels entire process instance" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:CancelMIActivityPattern a owl:Class ;
+    rdfs:label "Pattern 26: Cancel MI Activity" ;
+    ns1:averageExecutionTicks 3 ;
+    ns1:hasImplementationHint "Instance list traversal" ;
+    ns1:patternCategory ns1:StateBased ;
+    ns1:patternID 26 ;
+    ns1:supportsSIMD true ;
+    rdfs:comment "Cancels all instances of MI activity" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:CancelRegionPattern a owl:Class ;
+    rdfs:label "Pattern 25: Cancel Region" ;
+    ns1:averageExecutionTicks 4 ;
+    ns1:hasImplementationHint "Region bitmap for bulk cancel" ;
+    ns1:patternCategory ns1:StateBased ;
+    ns1:patternID 25 ;
+    ns1:supportsSIMD true ;
+    rdfs:comment "Cancels set of activities in region" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:CancellingDiscriminatorPattern a owl:Class ;
+    rdfs:label "Pattern 29: Cancelling Discriminator" ;
+    ns1:averageExecutionTicks 3 ;
+    ns1:hasImplementationHint "Atomic cancel broadcast" ;
+    ns1:patternCategory ns1:Cancellation ;
+    ns1:patternID 29 ;
+    ns1:supportsSIMD true ;
+    rdfs:comment "Cancels remaining branches after first" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:CancellingPartialJoinMIPattern a owl:Class ;
+    rdfs:label "Pattern 35: Cancelling Partial Join for MI" ;
+    ns1:averageExecutionTicks 4 ;
+    ns1:hasImplementationHint "MI cancel broadcast" ;
+    ns1:patternCategory ns1:Triggering ;
+    ns1:patternID 35 ;
+    ns1:supportsSIMD true ;
+    rdfs:comment "Cancels remaining MI after threshold" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:CancellingPartialJoinPattern a owl:Class ;
+    rdfs:label "Pattern 32: Cancelling Partial Join" ;
+    ns1:averageExecutionTicks 4 ;
+    ns1:hasImplementationHint "Threshold with immediate cancel" ;
+    ns1:patternCategory ns1:Cancellation ;
+    ns1:patternID 32 ;
+    ns1:supportsSIMD true ;
+    rdfs:comment "Joins N of M then cancels rest" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:CompleteMIActivityPattern a owl:Class ;
+    rdfs:label "Pattern 27: Complete MI Activity" ;
+    ns1:averageExecutionTicks 3 ;
+    ns1:hasImplementationHint "Force completion flag" ;
+    ns1:patternCategory ns1:StateBased ;
+    ns1:patternID 27 ;
+    ns1:supportsSIMD true ;
+    rdfs:comment "Forces completion of MI activity" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:ComplexityAnalysisQuery a ns3:QueryTemplate ;
+    rdfs:label "Complexity Analysis Query" ;
+    ns3:queryString """
+        PREFIX : <http://bitflow.ai/ontology/patterns#>
+        
+        # Find high-complexity patterns
+        SELECT ?pattern ?id ?ticks ?category
+        WHERE {
+            ?pattern a :WorkflowPattern ;
+                     :patternID ?id ;
+                     :averageExecutionTicks ?ticks ;
+                     :patternCategory ?category .
+            FILTER (?ticks >= 5)
+        }
+        ORDER BY DESC(?ticks)
+    """ .
+
+ns1:CriticalSectionPattern a owl:Class ;
+    rdfs:label "Pattern 39: Critical Section" ;
+    ns1:averageExecutionTicks 3 ;
+    ns1:hasImplementationHint "Lock-free CAS operations" ;
+    ns1:patternCategory ns1:Triggering ;
+    ns1:patternID 39 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Mutual exclusion for shared resources" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:DeferredChoicePattern a owl:Class ;
+    rdfs:label "Pattern 16: Deferred Choice" ;
+    ns1:averageExecutionTicks 3 ;
+    ns1:hasImplementationHint "Event-driven branch selection" ;
+    ns1:patternCategory ns1:MultipleInstance ;
+    ns1:patternID 16 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Choice made by environment, not process" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:DynamicPartialJoinMIPattern a owl:Class ;
+    rdfs:label "Pattern 36: Dynamic Partial Join for MI" ;
+    ns1:averageExecutionTicks 5 ;
+    ns1:hasImplementationHint "Dynamic threshold evaluation" ;
+    ns1:patternCategory ns1:Triggering ;
+    ns1:patternID 36 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Runtime determined MI join threshold" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:ExplicitTerminationPattern a owl:Class ;
+    rdfs:label "Pattern 43: Explicit Termination" ;
+    ns1:averageExecutionTicks 1 ;
+    ns1:hasImplementationHint "Termination signal broadcast" ;
+    ns1:patternCategory ns1:Triggering ;
+    ns1:patternID 43 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Defined end point for process" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:GeneralSyncMergePattern a owl:Class ;
+    rdfs:label "Pattern 38: General Synchronizing Merge" ;
+    ns1:averageExecutionTicks 7 ;
+    ns1:hasImplementationHint "Reachability analysis required" ;
+    ns1:patternCategory ns1:Triggering ;
+    ns1:patternID 38 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Complex OR-join with cycle support" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:GeneralizedANDJoinPattern a owl:Class ;
+    rdfs:label "Pattern 33: Generalized AND-Join" ;
+    ns1:averageExecutionTicks 6 ;
+    ns1:hasImplementationHint "Dynamic branch tracking" ;
+    ns1:patternCategory ns1:Triggering ;
+    ns1:patternID 33 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Waits for all active incoming branches" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:ImplicitTerminationPattern a owl:Class ;
+    rdfs:label "Pattern 11: Implicit Termination" ;
+    ns1:averageExecutionTicks 4 ;
+    ns1:hasImplementationHint "Global activity counter" ;
+    ns1:patternCategory ns1:AdvancedBranching ;
+    ns1:patternID 11 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Process ends when no activities can execute" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:InterleavedParallelPattern a owl:Class ;
+    rdfs:label "Pattern 17: Interleaved Parallel Routing" ;
+    ns1:averageExecutionTicks 6 ;
+    ns1:hasImplementationHint "Mutex for resource access" ;
+    ns1:patternCategory ns1:MultipleInstance ;
+    ns1:patternID 17 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Parallel execution with shared resources" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:InterleavedRoutingPattern a owl:Class ;
+    rdfs:label "Pattern 40: Interleaved Routing" ;
+    ns1:averageExecutionTicks 5 ;
+    ns1:hasImplementationHint "Segment queue management" ;
+    ns1:patternCategory ns1:Triggering ;
+    ns1:patternID 40 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Sequential execution of parallel segments" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:LoopPatterns a ns1:OptimizationHint ;
+    rdfs:label "Loop Patterns" ;
+    ns1:recommendedOptimization "Loop unrolling, iterator optimization" ;
+    rdfs:comment "Patterns 10, 21, 22" .
+
+ns1:MIAprioriDesignPattern a owl:Class ;
+    rdfs:label "Pattern 13: MI with Design-Time Knowledge" ;
+    ns1:averageExecutionTicks 3 ;
+    ns1:hasImplementationHint "Pre-allocated instance pool" ;
+    ns1:patternCategory ns1:AdvancedBranching ;
+    ns1:patternID 13 ;
+    ns1:supportsSIMD true ;
+    rdfs:comment "Number of instances known at design time" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:MIAprioriRuntimePattern a owl:Class ;
+    rdfs:label "Pattern 14: MI with Run-Time Knowledge" ;
+    ns1:averageExecutionTicks 4 ;
+    ns1:hasImplementationHint "Dynamic instance allocation" ;
+    ns1:patternCategory ns1:MultipleInstance ;
+    ns1:patternID 14 ;
+    ns1:supportsSIMD true ;
+    rdfs:comment "Number of instances known at runtime" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:MINoAprioriPattern a owl:Class ;
+    rdfs:label "Pattern 15: MI without Run-Time Knowledge" ;
+    ns1:averageExecutionTicks 5 ;
+    ns1:hasImplementationHint "Growing instance pool" ;
+    ns1:patternCategory ns1:MultipleInstance ;
+    ns1:patternID 15 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Dynamic instance creation during execution" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:MIWithoutSyncPattern a owl:Class ;
+    rdfs:label "Pattern 12: MI without Synchronization" ;
+    ns1:averageExecutionTicks 2 ;
+    ns1:hasImplementationHint "Fire-and-forget spawning" ;
+    ns1:patternCategory ns1:AdvancedBranching ;
+    ns1:patternID 12 ;
+    ns1:supportsSIMD true ;
+    rdfs:comment "Creates instances without waiting for completion" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:MilestonePattern a owl:Class ;
+    rdfs:label "Pattern 18: Milestone" ;
+    ns1:averageExecutionTicks 2 ;
+    ns1:hasImplementationHint "State flag checking" ;
+    ns1:patternCategory ns1:MultipleInstance ;
+    ns1:patternID 18 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Activity enabled until milestone reached" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:ParallelizablePatterns a ns1:OptimizationHint ;
+    rdfs:label "Parallelizable Patterns" ;
+    ns1:recommendedOptimization "SIMD vectorization for parallel operations" ;
+    ns1:useSIMD true ;
+    rdfs:comment "Patterns 2, 3, 6, 12, 13, 14, 20, 25, 26, 27, 29, 30, 32, 34, 35, 42" .
+
+ns1:PatternAnalysisQuery a ns3:QueryTemplate ;
+    rdfs:label "Pattern Analysis Query" ;
+    ns3:queryString """
+        PREFIX : <http://bitflow.ai/ontology/patterns#>
+        PREFIX wp: <http://bitflow.ai/ontology/workflow-patterns#>
+        
+        # Find all patterns in a category
+        SELECT ?pattern ?id ?ticks ?simd
+        WHERE {
+            ?pattern a :WorkflowPattern ;
+                     :patternCategory ?category ;
+                     :patternID ?id ;
+                     :averageExecutionTicks ?ticks ;
+                     :supportsSIMD ?simd .
+            FILTER (?category = :AdvancedBranching)
+        }
+        ORDER BY ?id
+    """ .
+
+ns1:PerformanceOptimizationQuery a ns3:QueryTemplate ;
+    rdfs:label "Performance Optimization Query" ;
+    ns3:queryString """
+        PREFIX : <http://bitflow.ai/ontology/patterns#>
+        
+        # Find patterns suitable for SIMD optimization
+        SELECT ?pattern ?id ?hint
+        WHERE {
+            ?pattern a :WorkflowPattern ;
+                     :patternID ?id ;
+                     :supportsSIMD true ;
+                     :hasImplementationHint ?hint .
+        }
+        ORDER BY ?id
+    """ .
+
+ns1:PersistentTriggerPattern a owl:Class ;
+    rdfs:label "Pattern 24: Persistent Trigger" ;
+    ns1:averageExecutionTicks 2 ;
+    ns1:hasImplementationHint "Trigger queue per activity" ;
+    ns1:patternCategory ns1:StateBased ;
+    ns1:patternID 24 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Trigger retained until consumed" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:RecursionPattern a owl:Class ;
+    rdfs:label "Pattern 22: Recursion" ;
+    ns1:averageExecutionTicks 5 ;
+    ns1:hasImplementationHint "Stack depth limit enforcement" ;
+    ns1:patternCategory ns1:StateBased ;
+    ns1:patternID 22 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Activity can invoke itself recursively" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:StaticPartialJoinMIPattern a owl:Class ;
+    rdfs:label "Pattern 34: Static Partial Join for MI" ;
+    ns1:averageExecutionTicks 3 ;
+    ns1:hasImplementationHint "Static counter initialization" ;
+    ns1:patternCategory ns1:Triggering ;
+    ns1:patternID 34 ;
+    ns1:supportsSIMD true ;
+    rdfs:comment "Joins fixed number of MI instances" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:StructuredDiscriminatorPattern a owl:Class ;
+    rdfs:label "Pattern 9: Structured Discriminator" ;
+    ns1:averageExecutionTicks 3 ;
+    ns1:hasImplementationHint "Atomic first-arrival detection" ;
+    ns1:patternCategory ns1:AdvancedBranching ;
+    ns1:patternID 9 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Waits for first incoming branch then cancels others" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:StructuredLoopPattern a owl:Class ;
+    rdfs:label "Pattern 21: Structured Loop" ;
+    ns1:averageExecutionTicks 3 ;
+    ns1:hasImplementationHint "Loop counter with condition check" ;
+    ns1:patternCategory ns1:MultipleInstance ;
+    ns1:patternID 21 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Pre-test or post-test loop construct" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:StructuredPartialJoinPattern a owl:Class ;
+    rdfs:label "Pattern 30: Structured Partial Join" ;
+    ns1:averageExecutionTicks 4 ;
+    ns1:hasImplementationHint "Threshold counter with cancel" ;
+    ns1:patternCategory ns1:Cancellation ;
+    ns1:patternID 30 ;
+    ns1:supportsSIMD true ;
+    rdfs:comment "Joins N of M branches then cancels rest" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:SynchronizationPatterns a ns1:OptimizationHint ;
+    rdfs:label "Synchronization Patterns" ;
+    ns1:recommendedOptimization "Lock-free algorithms, atomic operations" ;
+    rdfs:comment "Patterns 3, 7, 11, 28, 33, 37, 38" .
+
+ns1:ThreadMergePattern a owl:Class ;
+    rdfs:label "Pattern 41: Thread Merge" ;
+    ns1:averageExecutionTicks 2 ;
+    ns1:hasImplementationHint "Thread ID tracking" ;
+    ns1:patternCategory ns1:Triggering ;
+    ns1:patternID 41 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Merges thread of control" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:ThreadSplitPattern a owl:Class ;
+    rdfs:label "Pattern 42: Thread Split" ;
+    ns1:averageExecutionTicks 2 ;
+    ns1:hasImplementationHint "Thread spawning optimization" ;
+    ns1:patternCategory ns1:Triggering ;
+    ns1:patternID 42 ;
+    ns1:supportsSIMD true ;
+    rdfs:comment "Splits thread of control" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:TransientTriggerPattern a owl:Class ;
+    rdfs:label "Pattern 23: Transient Trigger" ;
+    ns1:averageExecutionTicks 1 ;
+    ns1:hasImplementationHint "Non-blocking trigger check" ;
+    ns1:patternCategory ns1:StateBased ;
+    ns1:patternID 23 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Trigger lost if activity not ready" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:WorkflowPatternShape a sh:NodeShape ;
+    sh:property [ sh:maxCount 1 ;
+            sh:maxInclusive 43 ;
+            sh:message "Pattern ID must be between 1 and 43" ;
+            sh:minCount 1 ;
+            sh:minInclusive 1 ;
+            sh:path ns1:patternID ],
+        [ sh:maxCount 1 ;
+            sh:message "Every pattern must belong to exactly one category" ;
+            sh:minCount 1 ;
+            sh:path ns1:patternCategory ],
+        [ sh:maxInclusive 8 ;
+            sh:message "Execution must complete within 8 ticks" ;
+            sh:minInclusive 1 ;
+            sh:path ns1:averageExecutionTicks ],
+        [ sh:datatype xsd:boolean ;
+            sh:message "SIMD support must be explicitly specified" ;
+            sh:path ns1:supportsSIMD ] ;
+    sh:targetClass ns1:WorkflowPattern .
+
+ns1:averageLatency a owl:DatatypeProperty ;
+    rdfs:label "average latency" ;
+    rdfs:comment "Average execution time in microseconds" ;
+    rdfs:domain ns1:PatternMetrics ;
+    rdfs:range xsd:decimal .
+
+ns1:executionCount a owl:DatatypeProperty ;
+    rdfs:label "execution count" ;
+    rdfs:domain ns1:PatternMetrics ;
+    rdfs:range xsd:integer .
+
+ns1:hasImplementationHint a owl:DatatypeProperty ;
+    rdfs:label "Implementation Hint" ;
+    rdfs:comment "Performance and implementation guidance" ;
+    rdfs:domain ns1:WorkflowPattern ;
+    rdfs:range xsd:string .
+
+ns1:lastExecutionHash a owl:DatatypeProperty ;
+    rdfs:label "last execution hash" ;
+    rdfs:comment "Blake3 hash of last execution" ;
+    rdfs:domain ns1:PatternMetrics ;
+    rdfs:range xsd:string .
+
+ns1:successRate a owl:DatatypeProperty ;
+    rdfs:label "success rate" ;
+    rdfs:comment "Percentage of successful executions" ;
+    rdfs:domain ns1:PatternMetrics ;
+    rdfs:range xsd:decimal .
+
+<http://bitflow.ai/ontology/workflow-patterns> a owl:Ontology ;
+    rdfs:label "Workflow Patterns Ontology v1.0" ;
+    rdfs:comment "Complete semantic definition of all 43 workflow patterns with performance hints and SHACL constraints" ;
+    rdfs:seeAlso <http://www.workflowpatterns.com/>,
+        <https://www.yawlfoundation.org/> ;
+    owl:versionInfo "1.0" .
+
+<http://bitstar.ai/dark#DarkChain_00fbb4c802f1> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_03933753100b> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_03d34015e6f6> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_074c168695ff> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_0a70b0a335d0> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_0a87405ecd60> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_0ac0e292b9e8> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_0d7323342fee> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_13888adb0a65> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_145ac3a0a4d4> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_176cc47b8c8f> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_1a32f17ac4fa> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_1a81cc0e654f> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_1aaa84fabf60> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_1ba960e6864f> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_1e676bf8301e> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_1e7581aec770> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_20b93ca4cf47> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_2757904341b7> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_28cb72a0fbcb> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_299a06489b35> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_2c13c3711020> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_2ef9bbc2faf3> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_374470e17cf6> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_37fc58e669e4> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_383d4e207bd8> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_38bf7891346d> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_38d35ba61be9> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_3e48047aab60> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_4083c1c292c7> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_42ae9855ef9d> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_454cea0f2fd9> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_47f14f2e48d6> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_4b4a3d22a1f1> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_4cdda482f016> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_4d4676a3b9c2> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_4ee3ec048572> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_51d3a229731a> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_5293b4df5488> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_5adaef02f7be> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_5e0f0ae57cca> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_600d999a6a41> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_608ba373fc5f> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_644331438a78> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_64909998b5bd> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_6702a01c3ca2> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_6a6ea51eaa34> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_6abc1ee72407> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_748cfeee9e8a> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_75a97b1047a7> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_77c03db1621e> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_7a2a6d686f7b> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_7dbf9e5fe4c4> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_8a59d62f5e7b> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_8af89c611008> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_8fc150a68ad1> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_90fc21226157> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_98d4395972e9> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_98efbc23d886> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_9c67f4280bea> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_a016b403f8f3> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_a444b9190305> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_a8e834f0c17f> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_a997e61c5172> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_b42e84f86f63> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_b4710031fcf3> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_b4856fc5b274> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_b5b26c492f77> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_ba5c5f4edeb5> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_baa9280250c9> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_bf33213da580> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_bfdc98abe7e5> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_c17f1ef1e3a9> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_c2c408ff49af> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_c4b00bb83a17> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_c83274af0906> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_c931f86cf0c3> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_c9583d083c51> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_ca3e33fda1c5> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_cae74fac235c> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_cd4806fa0448> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_cd68fbb4347a> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_cf3e880a15c0> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_d3dbfaca9257> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_d8530403ffe7> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_db62eb445fae> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_de04fb2955e6> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_de6c33f52a30> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_e415af847642> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_e5f31a66f464> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_ebadffd25e88> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_f1df44cebe00> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_f2ac23ea8e39> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_f4754d1d52c6> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_f946659a46b4> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_fa5fdcfec17c> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_fae45c808755> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_fcec114b94af> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_fdcd14158a10> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_ff2e9fef11b9> ns2:hasComplexityLevel 10 .
+
+ns2:Dimension10Restriction_0eece2fe4771 a owl:Restriction ;
+    ns2:dimensions 10 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension11Restriction_67a1c0aada68 a owl:Restriction ;
+    ns2:dimensions 11 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension12Restriction_1f518aabe03b a owl:Restriction ;
+    ns2:dimensions 12 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension3Restriction_aff72b9e5902 a owl:Restriction ;
+    ns2:dimensions 3 ;
+    ns2:humanVisualizeable true .
+
+ns2:Dimension4Restriction_7d26afde9f7b a owl:Restriction ;
+    ns2:dimensions 4 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension5Restriction_1f9277c94f80 a owl:Restriction ;
+    ns2:dimensions 5 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension6Restriction_977c3f0e19a9 a owl:Restriction ;
+    ns2:dimensions 6 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension7Restriction_595e49ef5c3a a owl:Restriction ;
+    ns2:dimensions 7 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension8Restriction_ffa529cd886d a owl:Restriction ;
+    ns2:dimensions 8 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension9Restriction_4c754f9ec779 a owl:Restriction ;
+    ns2:dimensions 9 ;
+    ns2:humanVisualizeable false .
+
+ns2:MetaCognitionRequired a ns2:ComprehensionBarrier ;
+    ns2:humanComprehensible false ;
+    ns2:minimumIntelligence "ARTIFICIAL_HYPER" .
+
+ns2:MetamorphicClass_08c3871ae7e8 a owl:Class ;
+    ns2:observationAltersStructure true ;
+    ns2:shapeShifts true .
+
+ns2:NonEuclidean_814d6a1d9b19 a owl:ObjectProperty ;
+    ns2:geometry "HYPERBOLIC" ;
+    ns2:parallelLinesIntersect true .
+
+ns2:NotExistsCascade_0_072acd5bddb2 a sh:NodeShape ;
+    ns2:nestingDepth 1 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . } }" .
+
+ns2:NotExistsCascade_1_837bb118ff85 a sh:NodeShape ;
+    ns2:nestingDepth 2 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . }} }" .
+
+ns2:NotExistsCascade_2_161d111dbf2b a sh:NodeShape ;
+    ns2:nestingDepth 3 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . }}} }" .
+
+ns2:NotExistsCascade_3_e54a9717d109 a sh:NodeShape ;
+    ns2:nestingDepth 4 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . }}}} }" .
+
+ns2:NotExistsCascade_4_288b257bece9 a sh:NodeShape ;
+    ns2:nestingDepth 5 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . }}}}} }" .
+
+ns2:NotExistsCascade_5_58152007aab5 a sh:NodeShape ;
+    ns2:nestingDepth 6 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . }}}}}} }" .
+
+ns2:NotExistsCascade_6_3a30cec436e9 a sh:NodeShape ;
+    ns2:nestingDepth 7 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . }}}}}}} }" .
+
+ns2:NotExistsCascade_7_9c226a933e59 a sh:NodeShape ;
+    ns2:nestingDepth 8 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . }}}}}}}} }" .
+
+ns2:NotExistsCascade_8_2e757079d7f6 a sh:NodeShape ;
+    ns2:nestingDepth 9 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . NOT EXISTS { ?this hyper:level8 ?val8 . }}}}}}}}} }" .
+
+ns2:NotExistsCascade_9_2e409613cec0 a sh:NodeShape ;
+    ns2:nestingDepth 10 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . NOT EXISTS { ?this hyper:level8 ?val8 . NOT EXISTS { ?this hyper:level9 ?val9 . }}}}}}}}}} }" .
+
+ns2:QuantumShape_c05e5ca5b02a a sh:NodeShape ;
+    ns2:existsInStates 1024 ;
+    ns2:observerEffect "COLLAPSES_ON_HUMAN_OBSERVATION" .
+
+ns1:averageExecutionTicks a owl:DatatypeProperty ;
+    rdfs:label "Average Execution Ticks" ;
+    rdfs:comment "Typical CPU ticks for pattern execution" ;
+    rdfs:domain ns1:WorkflowPattern ;
+    rdfs:range xsd:integer .
+
+ns1:patternID a owl:DatatypeProperty ;
+    rdfs:label "Pattern ID" ;
+    rdfs:comment "Unique identifier for the pattern (1-43)" ;
+    rdfs:domain ns1:WorkflowPattern ;
+    rdfs:range xsd:integer .
+
+ns1:supportsSIMD a owl:DatatypeProperty ;
+    rdfs:label "Supports SIMD" ;
+    rdfs:comment "Whether pattern can leverage SIMD instructions" ;
+    rdfs:domain ns1:WorkflowPattern ;
+    rdfs:range xsd:boolean .
+
+ns2:EmergentConsciousness_1125dd3350ab a ns2:ConsciousnessPattern ;
+    ns2:comprehendsItself ns2:EmergentConsciousness_1125dd3350ab ;
+    ns2:emergesFrom <http://bitstar.ai/dark#CollectiveComplexity> ;
+    ns2:selfAware true .
+
+ns2:RecursiveChain_b753bce7cbe7 ns2:recursionDepth "INFINITE" ;
+    owl:propertyChainAxiom ns2:RecursiveChain_b753bce7cbe7 .
+
+ns2:SelfModifyingAxiom_6b900c4487d4 a owl:Axiom ;
+    ns2:modificationRate "CONTINUOUS" ;
+    ns2:modifies ns2:SelfModifyingAxiom_6b900c4487d4 .
+
+ns2:InfiniteRegression_f69cdafe9bb9 a owl:Class ;
+    ns2:regressionDepth "∞" ;
+    rdfs:subClassOf ns2:InfiniteRegression_f69cdafe9bb9 ;
+    owl:equivalentClass ns2:InfiniteRegression_f69cdafe9bb9 .
+
+ns2:TemporalParadox_2f5678409cf4 a owl:Class ;
+    ns2:causedBy ns2:TemporalParadox_2f5678409cf4 ;
+    ns2:existsBefore ns2:TemporalParadox_2f5678409cf4 ;
+    ns2:paradoxLevel 10 .
+
+ns1:OptimizationHint a owl:Class ;
+    rdfs:label "Optimization Hint" ;
+    rdfs:comment "Performance optimization guidance" .
+
+ns1:PatternMetrics a owl:Class ;
+    rdfs:label "Pattern Metrics" ;
+    rdfs:comment "Runtime metrics for pattern execution" .
+
+ns1:BasicControl a ns1:PatternCategory ;
+    rdfs:label "Basic Control Flow Patterns" ;
+    rdfs:comment "Fundamental patterns for process control" .
+
+ns1:Cancellation a ns1:PatternCategory ;
+    rdfs:label "Cancellation and Force Completion" ;
+    rdfs:comment "Patterns for process cancellation" .
+
+ns1:StateBased a ns1:PatternCategory ;
+    rdfs:label "State-based Patterns" ;
+    rdfs:comment "Patterns based on process state" .
+
+ns1:AdvancedBranching a ns1:PatternCategory ;
+    rdfs:label "Advanced Branching and Synchronization" ;
+    rdfs:comment "Complex split and join patterns" .
+
+ns1:MultipleInstance a ns1:PatternCategory ;
+    rdfs:label "Multiple Instance Patterns" ;
+    rdfs:comment "Patterns for handling multiple instances" .
+
+ns1:Triggering a ns1:PatternCategory ;
+    rdfs:label "Trigger Patterns" ;
+    rdfs:comment "Event-based triggering patterns" .
+
+ns1:MultiMergePattern a owl:Class ;
+    rdfs:label "Pattern 8: Multi-Merge" ;
+    ns1:averageExecutionTicks 2 ;
+    ns1:hasImplementationHint "Queue incoming tokens" ;
+    ns1:patternCategory ns1:AdvancedBranching ;
+    ns1:patternID 8 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Allows activity execution for each incoming branch" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:SimpleMergePattern a owl:Class ;
+    rdfs:label "Pattern 5: Simple Merge (XOR-join)" ;
+    ns1:averageExecutionTicks 1 ;
+    ns1:hasImplementationHint "Direct flow merge, no waiting" ;
+    ns1:patternCategory ns1:BasicControl ;
+    ns1:patternID 5 ;
+    ns1:supportsSIMD false ;
+    ns4:hasJoinType ns4:XOR ;
+    rdfs:comment "Merges alternative branches without synchronization" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:StructuredSyncMergePattern a owl:Class ;
+    rdfs:label "Pattern 7: Structured Synchronizing Merge" ;
+    ns1:averageExecutionTicks 4 ;
+    ns1:dependsOn ns1:MultiChoicePattern ;
+    ns1:hasImplementationHint "Track split context for proper sync" ;
+    ns1:patternCategory ns1:AdvancedBranching ;
+    ns1:patternID 7 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Merges paths that diverged from same OR-split" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:MultiChoicePattern a owl:Class ;
+    rdfs:label "Pattern 6: Multi-Choice (OR-split)" ;
+    ns1:averageExecutionTicks 3 ;
+    ns1:hasImplementationHint "Bitmap for branch selection" ;
+    ns1:patternCategory ns1:AdvancedBranching ;
+    ns1:patternID 6 ;
+    ns1:supportsSIMD true ;
+    ns4:hasSplitType ns4:OR ;
+    rdfs:comment "Selects one or more branches based on conditions" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:ExclusiveChoicePattern a owl:Class ;
+    rdfs:label "Pattern 4: Exclusive Choice (XOR-split)" ;
+    ns1:averageExecutionTicks 2 ;
+    ns1:hasImplementationHint "Branch prediction optimization" ;
+    ns1:incompatibleWith ns1:ParallelSplitPattern ;
+    ns1:patternCategory ns1:BasicControl ;
+    ns1:patternID 4 ;
+    ns1:supportsSIMD false ;
+    ns4:hasSplitType ns4:XOR ;
+    rdfs:comment "Selects one branch from multiple alternatives" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:SynchronizationPattern a owl:Class ;
+    rdfs:label "Pattern 3: Synchronization (AND-join)" ;
+    ns1:averageExecutionTicks 3 ;
+    ns1:hasImplementationHint "Atomic counter for branch tracking" ;
+    ns1:patternCategory ns1:BasicControl ;
+    ns1:patternID 3 ;
+    ns1:supportsSIMD true ;
+    ns4:hasJoinType ns4:AND ;
+    rdfs:comment "Synchronizes multiple parallel branches" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:ParallelSplitPattern a owl:Class ;
+    rdfs:label "Pattern 2: Parallel Split (AND-split)" ;
+    ns1:averageExecutionTicks 2 ;
+    ns1:canCombineWith ns1:SynchronizationPattern ;
+    ns1:hasImplementationHint "Use SIMD for parallel branch initialization" ;
+    ns1:patternCategory ns1:BasicControl ;
+    ns1:patternID 2 ;
+    ns1:supportsSIMD true ;
+    ns4:hasSplitType ns4:AND ;
+    rdfs:comment "Splits execution into multiple parallel branches" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:canCombineWith a owl:ObjectProperty ;
+    rdfs:label "can combine with" ;
+    rdfs:comment "Patterns that work well together" ;
+    rdfs:domain ns1:WorkflowPattern ;
+    rdfs:range ns1:WorkflowPattern .
+
+ns1:dependsOn a owl:ObjectProperty ;
+    rdfs:label "depends on" ;
+    rdfs:comment "Pattern execution dependency" ;
+    rdfs:domain ns1:WorkflowPattern ;
+    rdfs:range ns1:WorkflowPattern .
+
+ns1:incompatibleWith a owl:ObjectProperty ;
+    rdfs:label "incompatible with" ;
+    rdfs:comment "Patterns that cannot coexist" ;
+    rdfs:domain ns1:WorkflowPattern ;
+    rdfs:range ns1:WorkflowPattern .
+
+ns1:patternCategory a owl:ObjectProperty ;
+    rdfs:label "Pattern Category" ;
+    rdfs:domain ns1:WorkflowPattern ;
+    rdfs:range ns1:PatternCategory .
+
+ns1:SequencePattern a owl:Class ;
+    rdfs:label "Pattern 1: Sequence" ;
+    ns1:averageExecutionTicks 1 ;
+    ns1:hasImplementationHint "Direct flow transition, zero overhead" ;
+    ns1:patternCategory ns1:BasicControl ;
+    ns1:patternID 1 ;
+    ns1:supportsSIMD false ;
+    rdfs:comment "Sequential execution of activities" ;
+    rdfs:subClassOf ns1:WorkflowPattern .
+
+ns1:WorkflowPattern a owl:Class ;
+    rdfs:label "Workflow Pattern" ;
+    rdfs:comment "Abstract base class for all workflow patterns" ;
+    rdfs:subClassOf ns4:Task .
+
+ns1:PatternCategory a owl:Class ;
+    rdfs:label "Pattern Category" ;
+    rdfs:comment "Category grouping for workflow patterns" .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SimpleMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:SynchronizationPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:incompatibleWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ParallelSplitPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:canCombineWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:StructuredSyncMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:WorkflowPattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:ExclusiveChoicePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:dependsOn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:SequencePattern ns1:MultiMergePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:patternCategory ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:PatternCategory ns1:ParallelSplitPattern ns1:ExclusiveChoicePattern ) ] .
+

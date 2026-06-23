@@ -1,0 +1,29 @@
+@prefix bos: <http://bible.o.star/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<urn:ostar:muster-ledger-entry> a bos:WallSection ;
+    bos:gateAssignment bos:EastGate ;
+    bos:builderName bos:Shemaiah ;
+    bos:provenance bos:Nehemiah_7_47 ;
+    bos:verdict bos:Verdict_Verified ;
+    bos:receiptRelation <urn:ostar:receipt:census-001> .
+
+bos:EastGate a bos:Gate ;
+    rdfs:label "East Gate" .
+
+bos:Shemaiah a bos:Builder ;
+    rdfs:label "Shemaiah son of Shecaniah" .
+
+bos:Nehemiah_7_47 a bos:NationsLedger ;
+    rdfs:label "Nehemiah 7:47" .
+
+bos:Verdict_Verified a bos:InspectionVerdict ;
+    rdfs:label "Builder Identity Verified" .
+
+<urn:ostar:receipt:census-001> a bos:Receipt ;
+    rdfs:label "Muster Census Receipt #001" .
+
+<urn:ostar:muster-ledger> a bos:MusterLedger ;
+    bos:registeredBuilder bos:Shemaiah ;
+    bos:familyLine "Keros" .

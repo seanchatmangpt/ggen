@@ -1,0 +1,474 @@
+# Governor Battlespace SHACL Constraints
+# Validation rules for military ontology with 8-space compliance
+# Compatible with TTL Weaver framework
+
+@prefix gov: <https://governor.mil/ontology/battlespace#> .
+@prefix unit: <https://governor.mil/ontology/units#> .
+@prefix terrain: <https://governor.mil/ontology/terrain#> .
+@prefix mission: <https://governor.mil/ontology/mission#> .
+@prefix intent: <https://governor.mil/ontology/commander-intent#> .
+@prefix coalition: <https://governor.mil/ontology/coalition#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# 8-SPACE COMPLIANCE CONSTRAINTS
+
+## Tactical Procedure 8-Space Constraints
+gov:TacticalProcedureShape a sh:NodeShape ;
+    sh:targetClass gov:TacticalProcedure ;
+    sh:name "Tactical Procedure 8-Space Validation" ;
+    
+    # Time constraint must be <= 8 time units (mapped to 8 hours = 28800 seconds)
+    sh:property [
+        sh:path gov:maxTimeUnits ;
+        sh:maxInclusive 8 ;
+        sh:message "Tactical procedures must complete within 8 time units" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # Processing ticks constraint (8-space compliance)
+    sh:property [
+        sh:path gov:maxProcessingTicks ;
+        sh:maxInclusive 8 ;
+        sh:message "Processing must complete within 8 ticks" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # Time constraint reasonable bounds
+    sh:property [
+        sh:path gov:timeConstraint ;
+        sh:minInclusive 60 ;    # At least 1 minute
+        sh:maxInclusive 28800 ; # At most 8 hours (8-space)
+        sh:message "Time constraint must be between 1 minute and 8 hours" ;
+        sh:severity sh:Warning
+    ] ;
+    
+    # Signal strength validation (0-255 range from forex patterns)
+    sh:property [
+        sh:path gov:minSignalStrength ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 255 ;
+        sh:message "Signal strength must be between 0 and 255" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # Combat power multiplier reasonable bounds
+    sh:property [
+        sh:path gov:combatPowerMultiplier ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Combat power multiplier must be between 1 and 10" ;
+        sh:severity sh:Warning
+    ] ;
+    
+    # Required sensors must be valid hex string
+    sh:property [
+        sh:path gov:requiredSensors ;
+        sh:pattern "^0x[0-9A-Fa-f]+$" ;
+        sh:message "Required sensors must be a valid hexadecimal string" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # 8-space compliance is mandatory
+    sh:property [
+        sh:path gov:eightSpaceCompliant ;
+        sh:hasValue true ;
+        sh:message "All tactical procedures must be 8-space compliant" ;
+        sh:severity sh:Violation
+    ] .
+
+## Military Unit 8-Space Constraints  
+gov:MilitaryUnitShape a sh:NodeShape ;
+    sh:targetClass unit:MilitaryUnit ;
+    sh:name "Military Unit 8-Space Validation" ;
+    
+    # Command hops constraint (8-space compliance)
+    sh:property [
+        sh:path gov:maxCommandHops ;
+        sh:maxInclusive 8 ;
+        sh:message "Command relationships must not exceed 8 hops" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # Unit must have valid location
+    sh:property [
+        sh:path gov:locatedAt ;
+        sh:class terrain:TerrainFeature ;
+        sh:minCount 1 ;
+        sh:message "Military unit must have a valid terrain location" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # Unit must have at least one objective or support role
+    sh:or (
+        [
+            sh:property [
+                sh:path gov:hasObjective ;
+                sh:minCount 1
+            ]
+        ]
+        [
+            sh:property [
+                sh:path gov:supports ;
+                sh:minCount 1
+            ]
+        ]
+    ) ;
+    sh:message "Military unit must have objectives or support other units" ;
+    sh:severity sh:Warning .
+
+## Sensor Lens 8-Space Constraints
+gov:SensorLensShape a sh:NodeShape ;
+    sh:targetClass gov:SensorLens ;
+    sh:name "Sensor Lens 8-Space Validation" ;
+    
+    # Processing ticks constraint
+    sh:property [
+        sh:path gov:maxProcessingTicks ;
+        sh:maxInclusive 8 ;
+        sh:message "Sensor processing must complete within 8 ticks" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # Strength range validation (0-255 from forex patterns)
+    sh:property [
+        sh:path gov:minStrength ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 255 ;
+        sh:message "Minimum strength must be between 0 and 255" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    sh:property [
+        sh:path gov:maxStrength ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 255 ;
+        sh:message "Maximum strength must be between 0 and 255" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # Confidence range validation
+    sh:property [
+        sh:path gov:minConfidence ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 255 ;
+        sh:message "Minimum confidence must be between 0 and 255" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    sh:property [
+        sh:path gov:maxConfidence ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 255 ;
+        sh:message "Maximum confidence must be between 0 and 255" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # Min values must be less than max values
+    sh:sparql [
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this gov:minStrength ?minStr ;
+                      gov:maxStrength ?maxStr .
+                FILTER (?minStr >= ?maxStr)
+            }
+        """ ;
+        sh:message "Minimum strength must be less than maximum strength" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    sh:sparql [
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this gov:minConfidence ?minConf ;
+                      gov:maxConfidence ?maxConf .
+                FILTER (?minConf >= ?maxConf)
+            }
+        """ ;
+        sh:message "Minimum confidence must be less than maximum confidence" ;
+        sh:severity sh:Violation
+    ] .
+
+## Threat Scenario Constraints
+gov:ThreatScenarioShape a sh:NodeShape ;
+    sh:targetClass gov:ThreatScenario ;
+    sh:name "Threat Scenario Validation" ;
+    
+    # Probability must be between 0 and 1
+    sh:property [
+        sh:path gov:probability ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Probability must be between 0.0 and 1.0" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # Severity must be between 1 and 10
+    sh:property [
+        sh:path gov:severity ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Severity must be between 1 and 10" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # Must have at least one battle condition
+    sh:property [
+        sh:path gov:hasCondition ;
+        sh:class gov:BattleCondition ;
+        sh:minCount 1 ;
+        sh:message "Threat scenario must have at least one battle condition" ;
+        sh:severity sh:Warning
+    ] .
+
+## Mission Objective Constraints
+gov:MissionObjectiveShape a sh:NodeShape ;
+    sh:targetClass mission:Objective ;
+    sh:name "Mission Objective Validation" ;
+    
+    # Must have success criteria defined
+    sh:property [
+        sh:path gov:successCriteria ;
+        sh:minCount 1 ;
+        sh:message "Mission objective must have success criteria defined" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # Must be guided by commander's intent
+    sh:property [
+        sh:path gov:guidedBy ;
+        sh:class intent:CommanderIntent ;
+        sh:minCount 1 ;
+        sh:message "Mission objective should be guided by commander's intent" ;
+        sh:severity sh:Warning
+    ] ;
+    
+    # Must have at least one assigned unit
+    sh:sparql [
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this rdf:type mission:Objective .
+                FILTER NOT EXISTS {
+                    ?unit gov:hasObjective $this .
+                }
+            }
+        """ ;
+        sh:message "Mission objective must have at least one assigned unit" ;
+        sh:severity sh:Warning
+    ] .
+
+## Commander's Intent Constraints
+gov:CommanderIntentShape a sh:NodeShape ;
+    sh:targetClass intent:CommanderIntent ;
+    sh:name "Commander's Intent Validation" ;
+    
+    # Must have purpose defined
+    sh:property [
+        sh:path intent:purpose ;
+        sh:minCount 1 ;
+        sh:message "Commander's intent must have a defined purpose" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # Must have at least one key task
+    sh:property [
+        sh:path intent:keyTask ;
+        sh:minCount 1 ;
+        sh:message "Commander's intent must have at least one key task" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # Must have end state defined
+    sh:property [
+        sh:path intent:endState ;
+        sh:minCount 1 ;
+        sh:message "Commander's intent must have a defined end state" ;
+        sh:severity sh:Violation
+    ] .
+
+## Coalition Bidding Constraints
+gov:ResourceBidShape a sh:NodeShape ;
+    sh:targetClass coalition:ResourceBid ;
+    sh:name "Resource Bid Validation" ;
+    
+    # Bid amount must be positive
+    sh:property [
+        sh:path coalition:bidAmount ;
+        sh:minExclusive 0 ;
+        sh:message "Bid amount must be positive" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # Priority must be between 1 and 10
+    sh:property [
+        sh:path coalition:priority ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Priority must be between 1 and 10" ;
+        sh:severity sh:Violation
+    ] ;
+    
+    # Duration must be reasonable (max 24 hours)
+    sh:property [
+        sh:path coalition:duration ;
+        sh:minInclusive 300 ;    # At least 5 minutes
+        sh:maxInclusive 86400 ;  # At most 24 hours
+        sh:message "Duration must be between 5 minutes and 24 hours" ;
+        sh:severity sh:Warning
+    ] ;
+    
+    # Must be requested by a valid nation
+    sh:property [
+        sh:path coalition:requestedBy ;
+        sh:class coalition:Nation ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Resource bid must be requested by exactly one nation" ;
+        sh:severity sh:Violation
+    ] .
+
+## Real-Time Update Constraints
+gov:RealTimeUpdateShape a sh:NodeShape ;
+    sh:targetClass gov:BattlespaceEntity ;
+    sh:name "Real-Time Update Validation" ;
+    
+    # Last updated timestamp must be reasonable (within last 24 hours)
+    sh:sparql [
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this gov:lastUpdated ?timestamp .
+                BIND (NOW() - ?timestamp AS ?age)
+                FILTER (?age > 86400)  # Older than 24 hours
+            }
+        """ ;
+        sh:message "Battlespace entity data is stale (older than 24 hours)" ;
+        sh:severity sh:Warning
+    ] ;
+    
+    # Reliability score must be between 0 and 1
+    sh:property [
+        sh:path gov:reliability ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Reliability score must be between 0.0 and 1.0" ;
+        sh:severity sh:Violation
+    ] .
+
+# FOREX-DERIVED VALIDATION RULES
+
+## Intelligence Confidence Validation (derived from forex signal strength)
+gov:IntelligenceConfidenceShape a sh:NodeShape ;
+    sh:name "Intelligence Confidence Validation" ;
+    
+    sh:sparql [
+        sh:select """
+            SELECT $this ?confidence
+            WHERE {
+                $this gov:intelligenceConfidence ?confidence .
+                FILTER (?confidence < 50)
+            }
+        """ ;
+        sh:message "Intelligence confidence is very low (< 50)" ;
+        sh:severity sh:Warning
+    ] .
+
+## Combat Power Multiplier Validation (derived from forex leverage)
+gov:CombatPowerMultiplierShape a sh:NodeShape ;
+    sh:name "Combat Power Multiplier Validation" ;
+    
+    sh:sparql [
+        sh:select """
+            SELECT $this ?multiplier
+            WHERE {
+                $this gov:combatPowerMultiplier ?multiplier .
+                FILTER (?multiplier > 8)  # High risk like high leverage
+            }
+        """ ;
+        sh:message "Combat power multiplier is very high (> 8), consider risk" ;
+        sh:severity sh:Warning
+    ] .
+
+# CROSS-ENTITY VALIDATION RULES
+
+## Unit-Objective Consistency
+gov:UnitObjectiveConsistencyShape a sh:NodeShape ;
+    sh:name "Unit-Objective Consistency Validation" ;
+    
+    # Infantry units should not be assigned air objectives
+    sh:sparql [
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this rdf:type unit:Infantry ;
+                      gov:hasObjective ?obj .
+                ?obj rdf:type mission:AirDefenseObjective .
+            }
+        """ ;
+        sh:message "Infantry unit assigned to air defense objective (consider specialized unit)" ;
+        sh:severity sh:Info
+    ] .
+
+## Terrain-Unit Compatibility  
+gov:TerrainUnitCompatibilityShape a sh:NodeShape ;
+    sh:name "Terrain-Unit Compatibility Validation" ;
+    
+    # Armor units in forest terrain warning
+    sh:sparql [
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this rdf:type unit:Armor ;
+                      gov:locatedAt ?terrain .
+                ?terrain rdf:type terrain:Forest .
+            }
+        """ ;
+        sh:message "Armor unit in forest terrain (mobility may be limited)" ;
+        sh:severity sh:Info
+    ] .
+
+# PERFORMANCE OPTIMIZATION SHAPES (8-Space Compliance)
+
+## Resource Utilization Validation
+gov:ResourceUtilizationShape a sh:NodeShape ;
+    sh:name "Resource Utilization 8-Space Validation" ;
+    
+    # No unit should support more than 8 other units (8-space constraint)
+    sh:sparql [
+        sh:select """
+            SELECT $this (COUNT(?supported) AS ?supportCount)
+            WHERE {
+                $this gov:supports ?supported .
+            }
+            GROUP BY $this
+            HAVING (?supportCount > 8)
+        """ ;
+        sh:message "Unit supports too many other units (> 8), violates 8-space constraint" ;
+        sh:severity sh:Violation
+    ] .
+
+## Coalition Bidding Optimization
+gov:CoalitionBiddingOptimizationShape a sh:NodeShape ;
+    sh:name "Coalition Bidding Optimization Validation" ;
+    
+    # Detect bid conflicts (same resource, overlapping time)
+    sh:sparql [
+        sh:select """
+            SELECT $this ?other
+            WHERE {
+                $this coalition:resourceType ?type ;
+                      coalition:duration ?dur1 .
+                ?other coalition:resourceType ?type ;
+                       coalition:duration ?dur2 .
+                FILTER ($this != ?other)
+                FILTER (?dur1 = ?dur2)  # Simplified overlap check
+            }
+        """ ;
+        sh:message "Potential resource bid conflict detected" ;
+        sh:severity sh:Warning
+    ] .

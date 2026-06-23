@@ -1,0 +1,260 @@
+@prefix zoe: <https://zoela.org/ontology/> .
+@prefix schema: <https://schema.org/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# =============================================================================
+# ZOE LA — Youth (YTH) Ministry Ontology
+# Models ZOE Youth ministry (ages 12-17, requires guardian consent)
+# =============================================================================
+
+<https://zoela.org/ontology/yth>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA Youth Ministry Ontology"@en ;
+    rdfs:comment "Models ZOE Youth (YTH) ministry events, connect groups, and camp registrations for youth ages 12–17."@en ;
+    dcterms:created "2026-05-17"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# Classes
+# =============================================================================
+
+zoe:YthNight
+    a owl:Class ;
+    rdfs:subClassOf schema:Event ;
+    rdfs:label "YTH Night"@en ;
+    rdfs:comment "A scheduled ZOE Youth ministry gathering event (weekly or special) for middle school or high school students."@en .
+
+zoe:YthConnectGroup
+    a owl:Class ;
+    rdfs:subClassOf schema:Event ;
+    rdfs:label "YTH Connect Group"@en ;
+    rdfs:comment "A recurring small-group meeting for ZOE Youth, organized by grade range and campus."@en .
+
+zoe:YthCampRegistration
+    a owl:Class ;
+    rdfs:subClassOf schema:RegisterAction ;
+    rdfs:label "YTH Camp Registration"@en ;
+    rdfs:comment "A formal registration of a youth for a ZOE Youth camp event, requiring guardian and medical consent."@en .
+
+# =============================================================================
+# Properties — YthNight
+# =============================================================================
+
+zoe:ythNightCode
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthNight ;
+    rdfs:range xsd:string ;
+    rdfs:label "YTH night code"@en ;
+    rdfs:comment "Unique alphanumeric code identifying this YTH Night event (e.g. YTH-NIGHT-2026-05-17)."@en ;
+    skos:notation "ythNightCode" .
+
+zoe:eventDate
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthNight ;
+    rdfs:range xsd:date ;
+    rdfs:label "event date"@en ;
+    rdfs:comment "The calendar date on which this YTH Night event is scheduled."@en ;
+    skos:notation "eventDate" .
+
+zoe:targetSegment
+    a owl:ObjectProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range skos:Concept ;
+    rdfs:label "target segment"@en ;
+    rdfs:comment "The generation segment concept (e.g. MiddleSchoolSegment, HighSchoolSegment) this resource targets."@en ;
+    skos:notation "targetSegment" .
+
+zoe:speakerName
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthNight ;
+    rdfs:range xsd:string ;
+    rdfs:label "speaker name"@en ;
+    rdfs:comment "Full name of the speaker or minister delivering the message at this YTH Night."@en ;
+    skos:notation "speakerName" .
+
+zoe:requiresPreregistration
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthNight ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "requires pre-registration"@en ;
+    rdfs:comment "True when youth must pre-register to attend this YTH Night event."@en ;
+    skos:notation "requiresPreregistration" .
+
+zoe:maxAttendees
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthNight ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max attendees"@en ;
+    rdfs:comment "Maximum number of youth permitted to attend this YTH Night event."@en ;
+    skos:notation "maxAttendees" .
+
+# =============================================================================
+# Properties — YthConnectGroup (campus reuse from kids.ttl via shared domain owl:Thing)
+# Note: zoe:campusId is declared in kids.ttl with domain owl:Thing so it applies here.
+# =============================================================================
+
+zoe:ythGroupCode
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthConnectGroup ;
+    rdfs:range xsd:string ;
+    rdfs:label "YTH group code"@en ;
+    rdfs:comment "Unique code identifying this YTH Connect Group (e.g. YTH-CG-HS-EAST-MON)."@en ;
+    skos:notation "ythGroupCode" .
+
+zoe:targetGrade
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthConnectGroup ;
+    rdfs:range xsd:string ;
+    rdfs:label "target grade"@en ;
+    rdfs:comment "Grade range served by this connect group: '6-8' for middle school or '9-12' for high school."@en ;
+    skos:notation "targetGrade" .
+
+zoe:leaderId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthConnectGroup ;
+    rdfs:range xsd:string ;
+    rdfs:label "leader ID"@en ;
+    rdfs:comment "Profile identifier of the volunteer or staff leader facilitating this connect group."@en ;
+    skos:notation "leaderId" .
+
+zoe:meetingDay
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthConnectGroup ;
+    rdfs:range xsd:string ;
+    rdfs:label "meeting day"@en ;
+    rdfs:comment "Day of the week on which this connect group meets (e.g. Monday, Wednesday, Friday)."@en ;
+    skos:notation "meetingDay" .
+
+zoe:meetingTime
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthConnectGroup ;
+    rdfs:range xsd:string ;
+    rdfs:label "meeting time"@en ;
+    rdfs:comment "Scheduled start time for this connect group in HH:MM format (24-hour)."@en ;
+    skos:notation "meetingTime" .
+
+zoe:requiresGuardianConsent
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthConnectGroup ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "requires guardian consent"@en ;
+    rdfs:comment "Always true for ZOE Youth connect groups; guardian consent is required for youth to participate."@en ;
+    skos:notation "requiresGuardianConsent" .
+
+zoe:isActive
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthConnectGroup ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is active"@en ;
+    rdfs:comment "True when this connect group is currently active and accepting new members."@en ;
+    skos:notation "isActive" .
+
+# =============================================================================
+# Properties — YthCampRegistration
+# =============================================================================
+
+zoe:ythCampRegId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthCampRegistration ;
+    rdfs:range xsd:string ;
+    rdfs:label "YTH camp registration ID"@en ;
+    rdfs:comment "Unique identifier for this youth camp registration record."@en ;
+    skos:notation "ythCampRegId" .
+
+zoe:youthId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthCampRegistration ;
+    rdfs:range xsd:string ;
+    rdfs:label "youth ID"@en ;
+    rdfs:comment "Foreign key referencing the youth's person profile in the ZOE LA person registry."@en ;
+    skos:notation "youthId" .
+
+zoe:roomingPreference
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthCampRegistration ;
+    rdfs:range xsd:string ;
+    rdfs:label "rooming preference"@en ;
+    rdfs:comment "Optional preference for cabin or room assignments (e.g. a preferred roommate name)."@en ;
+    skos:notation "roomingPreference" .
+
+zoe:paymentStatus
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthCampRegistration ;
+    rdfs:range xsd:string ;
+    rdfs:label "payment status"@en ;
+    rdfs:comment "Current payment status for this camp registration (e.g. PAID, PARTIAL, UNPAID)."@en ;
+    skos:notation "paymentStatus" .
+
+zoe:scholarshipApplied
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:YthCampRegistration ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "scholarship applied"@en ;
+    rdfs:comment "True when a financial assistance scholarship has been applied to this camp registration."@en ;
+    skos:notation "scholarshipApplied" .
+
+# =============================================================================
+# SKOS ConceptScheme — YthCampStatusScheme
+# =============================================================================
+
+zoe:YthCampStatusScheme
+    a skos:ConceptScheme ;
+    rdfs:label "ZOE Youth Camp Status Scheme"@en ;
+    rdfs:comment "Controlled vocabulary for the lifecycle status of a ZOE Youth camp registration."@en ;
+    skos:prefLabel "YTH Camp Registration Statuses"@en .
+
+zoe:YthCampStatusPending
+    a skos:Concept ;
+    skos:inScheme zoe:YthCampStatusScheme ;
+    skos:topConceptOf zoe:YthCampStatusScheme ;
+    rdfs:label "Pending"@en ;
+    skos:prefLabel "Pending"@en ;
+    rdfs:comment "Youth camp registration has been submitted but not yet confirmed."@en ;
+    skos:definition "Initial status assigned when a youth camp registration is first submitted; awaiting staff review and payment."@en ;
+    skos:notation "PENDING" .
+
+zoe:YthCampStatusConfirmed
+    a skos:Concept ;
+    skos:inScheme zoe:YthCampStatusScheme ;
+    skos:topConceptOf zoe:YthCampStatusScheme ;
+    rdfs:label "Confirmed"@en ;
+    skos:prefLabel "Confirmed"@en ;
+    rdfs:comment "Youth camp registration is confirmed; the youth has a reserved spot."@en ;
+    skos:definition "Registration confirmed with full payment and all required guardian and medical consents on file."@en ;
+    skos:notation "CONFIRMED" .
+
+zoe:YthCampStatusWaitListed
+    a skos:Concept ;
+    skos:inScheme zoe:YthCampStatusScheme ;
+    skos:topConceptOf zoe:YthCampStatusScheme ;
+    rdfs:label "Wait Listed"@en ;
+    skos:prefLabel "Wait Listed"@en ;
+    rdfs:comment "Camp is at capacity; youth is on the waitlist for an opening."@en ;
+    skos:definition "Camp has reached maximum enrollment; youth is queued on the waitlist."@en ;
+    skos:notation "WAITLISTED" .
+
+zoe:YthCampStatusScholarship
+    a skos:Concept ;
+    skos:inScheme zoe:YthCampStatusScheme ;
+    skos:topConceptOf zoe:YthCampStatusScheme ;
+    rdfs:label "Scholarship"@en ;
+    skos:prefLabel "Scholarship"@en ;
+    rdfs:comment "Youth has been awarded a scholarship; registration is confirmed with financial assistance applied."@en ;
+    skos:definition "Confirmed registration with an approved financial scholarship reducing or eliminating the camp fee."@en ;
+    skos:notation "SCHOLARSHIP" .
+
+zoe:YthCampStatusCancelled
+    a skos:Concept ;
+    skos:inScheme zoe:YthCampStatusScheme ;
+    skos:topConceptOf zoe:YthCampStatusScheme ;
+    rdfs:label "Cancelled"@en ;
+    skos:prefLabel "Cancelled"@en ;
+    rdfs:comment "Youth camp registration has been cancelled by the family or staff."@en ;
+    skos:definition "Registration was cancelled and the youth's spot has been released; refund policy applies."@en ;
+    skos:notation "CANCELLED" .

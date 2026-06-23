@@ -1,0 +1,16 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Project metadata for KGEN testing
+ex:project a ex:Project ;
+  ex:name "MyTestProject" ;
+  ex:version "1.0.0" ;
+  ex:description "A test project for KGEN BDD scenarios" ;
+  ex:author "Test Author" ;
+  ex:license "MIT" ;
+  ex:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+ex:dependencies ex:hasFramework "React" ;
+  ex:hasLibrary "TypeScript" ;
+  ex:hasTestFramework "Jest" .

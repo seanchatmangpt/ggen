@@ -1,0 +1,72 @@
+@prefix java26: <http://ggen.io/java26#> .
+@prefix my:     <http://example.com/my-domain#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Aggregate Root ────────────────────────────────────────────────────────────
+
+my:Order a java26:AggregateRoot ;
+    java26:name "Order" ;
+    java26:javaPackage "com.example.orders" ;
+    java26:field my:orderId, my:status .
+
+# ── Fields ────────────────────────────────────────────────────────────────────
+
+my:orderId a java26:Field ;
+    java26:fieldName "id" ;
+    java26:fieldType "UUID" ;
+    java26:id true .
+
+my:status a java26:Field ;
+    java26:fieldName "status" ;
+    java26:fieldType "OrderStatus" ;
+    java26:id false .
+
+# ── Sealed Status Hierarchy ───────────────────────────────────────────────────
+# Java 26 sealed interfaces enable exhaustive pattern matching in switch expressions.
+# The compiler enforces that every permitted subtype is handled — no default needed.
+
+my:OrderStatus a java26:SealedInterface ;
+    java26:name "OrderStatus" ;
+    java26:javaPackage "com.example.orders" .
+
+my:PendingOrder a java26:SealedRecord ;
+    java26:name "PendingOrder" ;
+    java26:javaPackage "com.example.orders" ;
+    java26:implements my:OrderStatus ;
+    java26:field my:placedAt .
+
+my:ShippedOrder a java26:SealedRecord ;
+    java26:name "ShippedOrder" ;
+    java26:javaPackage "com.example.orders" ;
+    java26:implements my:OrderStatus ;
+    java26:field my:trackingId .
+
+my:DeliveredOrder a java26:SealedRecord ;
+    java26:name "DeliveredOrder" ;
+    java26:javaPackage "com.example.orders" ;
+    java26:implements my:OrderStatus ;
+    java26:field my:deliveredAt .
+
+my:CancelledOrder a java26:SealedRecord ;
+    java26:name "CancelledOrder" ;
+    java26:javaPackage "com.example.orders" ;
+    java26:implements my:OrderStatus ;
+    java26:field my:cancelReason .
+
+# ── Status Record Fields ──────────────────────────────────────────────────────
+
+my:placedAt a java26:Field ;
+    java26:fieldName "placedAt" ;
+    java26:fieldType "Instant" .
+
+my:trackingId a java26:Field ;
+    java26:fieldName "trackingId" ;
+    java26:fieldType "String" .
+
+my:deliveredAt a java26:Field ;
+    java26:fieldName "deliveredAt" ;
+    java26:fieldType "Instant" .
+
+my:cancelReason a java26:Field ;
+    java26:fieldName "cancelReason" ;
+    java26:fieldType "String" .

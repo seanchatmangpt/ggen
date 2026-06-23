@@ -1,0 +1,93 @@
+# SPARQL Query: Extract Blocking Audit Specifications
+# Purpose: Extract all audit gates with "fatal" severity (blocking gates) from
+#          audit-machinery.ttl. Returns structured bindings for Tera template
+#          rendering, including gate identity, enforcement condition, and
+#          related audit specs that must pass this gate for release certification.
+#
+# Blocking gates are proof gates that fail audit and prevent release. They are
+# marked with gateSeverity="fatal" and must pass for ALIVE certification.
+#
+# Output bindings support rendering:
+#  - Gate description and enforcement logic (gateCondition: SPARQL ASK or text)
+#  - Related audit specs backed by this gate
+#  - Gate failure consequences (audit failure, release block)
+#
+# Usage: ggen query extract-blocking-audits.rq --format json
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+PREFIX audit:  <https://wasm4pm-compat.rs/audit#>
+
+SELECT DISTINCT
+  ?gate
+  ?gateName
+  ?gateLabel
+  ?gateDescription
+  ?gateSeverity
+  ?gateCondition
+  ?gateComment
+  ?relatedSpecName
+  ?relatedLawName
+  ?relatedSpecScope
+  ?relatedCarrierType
+
+WHERE {
+  # Core blocking gate with fatal severity
+  ?gate a audit:AuditGate ;
+        audit:gateName       ?gateName ;
+        audit:gateSeverity   "fatal" ;
+        audit:gateDescription ?gateDescription .
+
+  # Optional: rdfs:label and rdfs:comment for documentation
+  OPTIONAL { ?gate rdfs:label ?gateLabel . }
+  OPTIONAL { ?gate rdfs:comment ?gateComment . }
+
+  # Optional: gateCondition (SPARQL ASK query or prose logic)
+  OPTIONAL { ?gate audit:gateCondition ?gateCondition . }
+
+  # Find related AuditSpec instances that this gate enforces.
+  # Relationship: Gate checks whether an AuditSpec passes.
+  # This is inferred by matching spec laws to gate requirements:
+  # - AllLawsHaveFixtures gate relates to all compile-fail AuditSpec instances
+  # - NoSilentLossInProjections gate relates to all projection-bearing AuditSpec
+  # - AllGapsClosedOrAccepted gate relates to all Gap-bearing AuditSpec
+  # - AllReceiptsValidate gate relates to all receipt-bearing AuditSpec
+  # - etc.
+  #
+  # Strategy: Discover related specs by matching gate name pattern to spec scope
+  # or by explicit linkage if defined in the ontology.
+  OPTIONAL {
+    ?relatedSpec a audit:AuditSpec ;
+                 audit:specName  ?relatedSpecName ;
+                 audit:lawName   ?relatedLawName ;
+                 audit:auditScope ?relatedSpecScope ;
+                 audit:carrierType ?relatedCarrierType .
+
+    # Filter: Relate specs to gates by name matching and semantic coupling
+    # Example patterns:
+    # - "all-laws-have-fixtures" gate relates to compile-fail specs
+    # - "all-fixtures-have-expected-stderr" gate relates to trybuild specs
+    # - "all-gaps-closed-or-accepted" gate relates to Gap audits
+    # - "all-receipts-validate" gate relates to Receipt audits
+    # - "no-silent-loss-in-projections" gate relates to loss/projection specs
+    # - "all-commits-conventional-format" gate relates to CommitEvidence audits
+
+    FILTER (
+      (STRSTARTS(?gateName, "all-laws") &&
+       (?relatedSpecScope = "crate" || ?relatedSpecScope = "module")) ||
+      (STRSTARTS(?gateName, "all-fixtures") &&
+       CONTAINS(?relatedSpecName, "fixture|trybuild")) ||
+      (STRSTARTS(?gateName, "all-gaps") &&
+       ?relatedLawName = "Gap") ||
+      (STRSTARTS(?gateName, "all-receipts") &&
+       ?relatedCarrierType = "Receipt") ||
+      (STRSTARTS(?gateName, "no-silent-loss") &&
+       CONTAINS(?relatedCarrierType, "Projected")) ||
+      (STRSTARTS(?gateName, "all-commits") &&
+       CONTAINS(?relatedSpecName, "commit|message"))
+    )
+  }
+}
+ORDER BY ?gateName ?relatedSpecName

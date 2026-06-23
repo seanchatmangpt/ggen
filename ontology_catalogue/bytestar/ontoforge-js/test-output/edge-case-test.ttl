@@ -1,0 +1,16 @@
+
+@prefix ex: <http://example.com#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:EdgeCase a owl:Class ;
+    rdfs:label "Edge Case Class" .
+    
+ex:customType a owl:DatatypeProperty ;
+    rdfs:domain ex:EdgeCase ;
+    rdfs:range <http://custom.type/undefined> .
+    
+ex:veryLongPropertyNameThatExceedsNormalLimits a owl:DatatypeProperty ;
+    rdfs:domain ex:EdgeCase ;
+    rdfs:range xsd:string .

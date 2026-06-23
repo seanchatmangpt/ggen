@@ -1,0 +1,168 @@
+@prefix req:    <https://ggen.io/onto/requirements/> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms:<http://purl.org/dc/terms/> .
+
+# ============================================================================
+# Requirements Andon / CTQ Forge Ontology
+# ============================================================================
+#
+# Domain ontology for the upstream Requirements layer of the OntoStar
+# manufacturing line. Mirrors the recursive admission pattern: every object
+# in the chain has a *proposer* (LLM / human / defect signal), a deterministic
+# *admission gate*, and a *receipt-bearing artifact*.
+#
+#   SourceSignal -> CandidateRequirement -> CandidateCtq -> AdmittedCtq
+#                -> WorkOrder -> ImplementationScope -> AdmissionReceipt
+#                -> Artifact
+#
+# This ontology is the schema for the OCEL events emitted by the
+# RequirementsManufacturing workflow (see src/workflows/builtin.rs) and
+# the RDF projection of the receipt chain.
+#
+# Source of truth: the Rust admission gate (src/admission.rs) and the
+# DefectClass taxonomy (src/defects.rs). This file documents the *types*
+# carried in the event log; admission semantics live in code.
+# ============================================================================
+
+req:Ontology a owl:Ontology ;
+  rdfs:label    "Requirements Andon / CTQ Forge"@en ;
+  rdfs:comment  "Domain ontology for the Requirements layer of OntoStar."@en ;
+  dcterms:creator "Sean Chatman" ;
+  dcterms:license <https://opensource.org/licenses/MIT> ;
+  owl:versionInfo "1.0.0" .
+
+# ── Core classes ────────────────────────────────────────────────────────────
+
+req:SourceSignal a owl:Class ;
+  rdfs:label   "Source Signal"@en ;
+  rdfs:comment "An origin of requirement-relevant evidence: customer voice, operator complaint, defect log, control-plan gap, runtime abnormality, counterfactual waste, business or policy constraint."@en .
+
+req:CandidateRequirement a owl:Class ;
+  rdfs:label   "Candidate Requirement"@en ;
+  rdfs:comment "A provisional requirement proposed from a source signal. Not authoritative until admitted."@en .
+
+req:CandidateCtq a owl:Class ;
+  rdfs:label   "Candidate CTQ"@en ;
+  rdfs:comment "An LLM-translated provisional Critical-To-Quality structure with the 5 mandatory fields. Authority is not granted by the LLM."@en ;
+  rdfs:subClassOf req:CandidateRequirement .
+
+req:AdmittedCtq a owl:Class ;
+  rdfs:label   "Admitted CTQ"@en ;
+  rdfs:comment "A CTQ that passed the deterministic admission gate. Carries a Receipt and is bound to all 5 mandatory fields (source, measure, verification, negative case, control plan)."@en .
+
+req:WorkOrder a owl:Class ;
+  rdfs:label   "Work Order"@en ;
+  rdfs:comment "An admitted unit of work. Bound to an admitted CTQ AND to a counterfactual delta. Implementation workers receive only admitted work orders."@en .
+
+req:VerificationMethod a owl:Class ;
+  rdfs:label   "Verification Method"@en ;
+  rdfs:comment "How the CTQ is checked: positive case, missing-evidence case, replay test, etc."@en .
+
+req:NegativeCase a owl:Class ;
+  rdfs:label   "Negative Case"@en ;
+  rdfs:comment "What the gate must refuse. Required for CTQ admission."@en .
+
+req:ControlPlan a owl:Class ;
+  rdfs:label   "Control Plan"@en ;
+  rdfs:comment "Regression-prevention plan. Required for CTQ admission."@en .
+
+req:Counterfactual a owl:Class ;
+  rdfs:label   "Counterfactual Delta"@en ;
+  rdfs:comment "What naked-craft (unadmitted prompt-to-code) would have allowed vs what the manufacturing path enforces. Required for work-order admission."@en .
+
+req:ExecutiveProjection a owl:Class ;
+  rdfs:label   "Executive Projection"@en ;
+  rdfs:comment "An LLM-projected summary of admitted evidence. Bound by a token-overlap check: the summary may only cite tokens already in admitted evidence."@en .
+
+# ── Voice categories ────────────────────────────────────────────────────────
+
+req:VoiceOfCustomer    a owl:Class ; rdfs:subClassOf req:SourceSignal ; rdfs:label "Voice of Customer"@en .
+req:VoiceOfOperator    a owl:Class ; rdfs:subClassOf req:SourceSignal ; rdfs:label "Voice of Operator"@en .
+req:VoiceOfProcess     a owl:Class ; rdfs:subClassOf req:SourceSignal ; rdfs:label "Voice of Process"@en .
+req:VoiceOfDefect      a owl:Class ; rdfs:subClassOf req:SourceSignal ; rdfs:label "Voice of Defect"@en .
+req:VoiceOfControlPlan a owl:Class ; rdfs:subClassOf req:SourceSignal ; rdfs:label "Voice of Control Plan"@en .
+req:VoiceOfCounterfactual a owl:Class ; rdfs:subClassOf req:SourceSignal ; rdfs:label "Voice of Counterfactual Waste"@en .
+req:VoiceOfBusiness    a owl:Class ; rdfs:subClassOf req:SourceSignal ; rdfs:label "Voice of Business"@en .
+req:VoiceOfPolicy      a owl:Class ; rdfs:subClassOf req:SourceSignal ; rdfs:label "Voice of Policy"@en .
+
+# ── Properties ──────────────────────────────────────────────────────────────
+
+req:hasSourceVoice a owl:DatatypeProperty ;
+  rdfs:label "has source voice"@en ;
+  rdfs:domain req:CandidateRequirement ;
+  rdfs:range xsd:string ;
+  rdfs:comment "The verbatim source-voice text. Required and non-empty for proposal admission."@en .
+
+req:voiceKind a owl:DatatypeProperty ;
+  rdfs:label "voice kind"@en ;
+  rdfs:domain req:SourceSignal ;
+  rdfs:range xsd:string ;
+  rdfs:comment "One of: customer, operator, process, defect, control_plan, counterfactual, business, policy."@en .
+
+req:hasCtqText a owl:DatatypeProperty ;
+  rdfs:label "has CTQ text"@en ;
+  rdfs:domain req:CandidateCtq ;
+  rdfs:range xsd:string .
+
+req:hasMeasure a owl:DatatypeProperty ;
+  rdfs:label "has measure"@en ;
+  rdfs:domain req:CandidateCtq ;
+  rdfs:range xsd:string .
+
+req:hasVerification a owl:DatatypeProperty ;
+  rdfs:label "has verification"@en ;
+  rdfs:domain req:CandidateCtq ;
+  rdfs:range xsd:string .
+
+req:hasNegativeCase a owl:DatatypeProperty ;
+  rdfs:label "has negative case"@en ;
+  rdfs:domain req:CandidateCtq ;
+  rdfs:range xsd:string .
+
+req:hasControlPlan a owl:DatatypeProperty ;
+  rdfs:label "has control plan"@en ;
+  rdfs:domain req:CandidateCtq ;
+  rdfs:range xsd:string .
+
+req:hasCounterfactual a owl:ObjectProperty ;
+  rdfs:label "has counterfactual"@en ;
+  rdfs:domain req:WorkOrder ;
+  rdfs:range req:Counterfactual .
+
+req:nakedCraftPath a owl:DatatypeProperty ;
+  rdfs:label "naked craft path"@en ;
+  rdfs:domain req:Counterfactual ;
+  rdfs:range xsd:string ;
+  rdfs:comment "What unadmitted prompt-to-code would have allowed."@en .
+
+req:manufacturingPath a owl:DatatypeProperty ;
+  rdfs:label "manufacturing path"@en ;
+  rdfs:domain req:Counterfactual ;
+  rdfs:range xsd:string ;
+  rdfs:comment "What OntoStar admission/replay enforces."@en .
+
+req:counterfactualDelta a owl:DatatypeProperty ;
+  rdfs:label "counterfactual delta"@en ;
+  rdfs:domain req:Counterfactual ;
+  rdfs:range xsd:string ;
+  rdfs:comment "The defect or risk this work order prevents — what makes the manufacturing path materially different from naked craft."@en .
+
+req:derivesFromCtq a owl:ObjectProperty ;
+  rdfs:label "derives from CTQ"@en ;
+  rdfs:domain req:WorkOrder ;
+  rdfs:range req:AdmittedCtq .
+
+req:bindsToWorkflow a owl:ObjectProperty ;
+  rdfs:label "binds to workflow"@en ;
+  rdfs:domain req:CandidateRequirement ;
+  rdfs:range owl:Thing ;
+  rdfs:comment "Reference to the declared POWL workflow that this requirement is bound to (typically RequirementsManufacturing)."@en .
+
+req:isProvisional a owl:DatatypeProperty ;
+  rdfs:label "is provisional"@en ;
+  rdfs:domain req:CandidateRequirement ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "True until the deterministic admission gate produces a receipt. Set by the system, not the LLM."@en .

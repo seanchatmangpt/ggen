@@ -1,0 +1,566 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema:  <https://schema.org/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+
+# ============================================================================
+# ZOE LA Mobile — Service Route Ontology
+# ============================================================================
+# This is the architecturally central ontology for ZOE LA Mobile.
+# ServiceRoute is the TOGAF Combinatorial-Maximalist central data object:
+#   - A Need activates a route.
+#   - A VolunteerAssignment satisfies a route-stage role requirement.
+#   - A Consent unlocks a route transition.
+#   - A Receipt proves route-stage completion.
+#   - A Follow-up extends or closes the route.
+#
+# POWL partial-order stage semantics (via zoe:predecessorStage) enable
+# wasm4pm to mine actual routes for conformance checking.
+#
+# Design alignment:
+#   zoe:ServiceRoute  → schema:Action + prov:Activity
+#   zoe:RouteStage    → schema:Action + prov:Activity
+#   zoe:RouteInstance → prov:Activity
+# ============================================================================
+
+zoe:RouteOntology a owl:Ontology ;
+    rdfs:label   "ZOE LA Mobile — Service Route Ontology"@en ;
+    rdfs:comment "Architecturally central ontology modeling ServiceRoute as the primary data object in the ZOE LA Mobile manufacturing pipeline. Defines routes, stages with POWL partial-order semantics, live route instances, and all controlled vocabularies required for process mining and OCEL event emission."@en ;
+    dcterms:creator  "Sean Chatman" ;
+    dcterms:created  "2026-05-17"^^xsd:date ;
+    dcterms:license  <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo  "1.0.0" .
+
+# ============================================================================
+# Core Route Classes
+# ============================================================================
+
+zoe:ServiceRoute a owl:Class ;
+    rdfs:label      "Service Route"@en ;
+    rdfs:comment    "The central organizing object for ministry service delivery. Every app action—need activation, volunteer assignment, consent, receipt, follow-up—attaches to a ServiceRoute. A route declares its expected stages, role requirements, consent gates, and OCEL event types, enabling wasm4pm conformance mining."@en ;
+    rdfs:subClassOf schema:Action ;
+    rdfs:subClassOf prov:Activity .
+
+zoe:RouteStage a owl:Class ;
+    rdfs:label      "Route Stage"@en ;
+    rdfs:comment    "A named, ordered step within a ServiceRoute. Stages carry POWL partial-order edges via zoe:predecessorStage, enabling representation of sequential, parallel, and choice patterns. Each stage declares its required role, consent, evidence, and the OCEL event type emitted upon completion."@en ;
+    rdfs:subClassOf schema:Action ;
+    rdfs:subClassOf prov:Activity .
+
+zoe:RouteInstance a owl:Class ;
+    rdfs:label      "Route Instance"@en ;
+    rdfs:comment    "A live execution of a ServiceRoute for a specific subject (person, household, youth, etc.). Tracks current stage, start and completion timestamps, and the final outcome state. Each instance corresponds to one case in the OCEL event log."@en ;
+    rdfs:subClassOf prov:Activity .
+
+# ============================================================================
+# ServiceRoute — Datatype Properties
+# ============================================================================
+
+zoe:routeCode a owl:DatatypeProperty ;
+    rdfs:domain  zoe:ServiceRoute ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Route Code"@en ;
+    rdfs:comment "Machine-readable identifier key for this route definition, e.g. 'NEED_SUPPORT_V1'. Used as the case classifier in OCEL event logs and process-mining corpora."@en ;
+    skos:notation "route_code" .
+
+zoe:routeLabel a owl:DatatypeProperty ;
+    rdfs:domain  zoe:ServiceRoute ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Route Label"@en ;
+    rdfs:comment "Human-readable display name for this service route, shown in the ZOE LA Mobile UI route catalogue."@en ;
+    skos:notation "route_label" .
+
+zoe:routeObjectType a owl:DatatypeProperty ;
+    rdfs:domain  zoe:ServiceRoute ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Route Object Type"@en ;
+    rdfs:comment "The type of subject this route acts upon: 'person', 'household', 'youth', 'family', 'group', etc. Determines which OCEL object type the route instance maps to."@en ;
+    skos:notation "route_object_type" .
+
+zoe:isActive a owl:DatatypeProperty ;
+    rdfs:domain  zoe:ServiceRoute ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Is Active"@en ;
+    rdfs:comment "Whether this route definition is currently enabled for new instance creation. Inactive routes may still have open instances from prior activations."@en ;
+    skos:notation "is_active" .
+
+zoe:requiresEvidence a owl:DatatypeProperty ;
+    rdfs:domain  zoe:ServiceRoute ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Requires Evidence"@en ;
+    rdfs:comment "If true, at least one stage in this route demands physical or digital evidence (photo, document, inventory check) before the stage may be completed."@en ;
+    skos:notation "requires_evidence" .
+
+zoe:emitsOcelEvents a owl:DatatypeProperty ;
+    rdfs:domain  zoe:ServiceRoute ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Emits OCEL Events"@en ;
+    rdfs:comment "If true, route stage completions emit OCEL-2.0 event records for downstream process mining via wasm4pm. Should be true for all routes in the manufacturing pipeline."@en ;
+    skos:notation "emits_ocel_events" .
+
+# ============================================================================
+# ServiceRoute — Object Properties
+# ============================================================================
+
+zoe:routeCategory a owl:ObjectProperty ;
+    rdfs:domain  zoe:ServiceRoute ;
+    rdfs:range   skos:Concept ;
+    rdfs:label   "Route Category"@en ;
+    rdfs:comment "SKOS concept from zoe:RouteCategoryScheme classifying the type of service this route delivers, e.g. Care, Food, Clothing, Volunteer Assignment."@en ;
+    skos:notation "route_category" .
+
+zoe:routeMinistry a owl:ObjectProperty ;
+    rdfs:domain  zoe:ServiceRoute ;
+    rdfs:range   org:Organization ;
+    rdfs:label   "Route Ministry"@en ;
+    rdfs:comment "The ministry organizational unit responsible for executing this route. Links to ministry objects defined in the ZOE LA campus/ministry ontology."@en ;
+    skos:notation "route_ministry" .
+
+# ============================================================================
+# RouteStage — Datatype Properties
+# ============================================================================
+
+zoe:stageCode a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Stage Code"@en ;
+    rdfs:comment "Machine-readable identifier for this stage within its route, e.g. 'received', 'assigned', 'delivered', 'closed'. Used as the activity identifier in OCEL event logs."@en ;
+    skos:notation "stage_code" .
+
+zoe:stageLabel a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Stage Label"@en ;
+    rdfs:comment "Human-readable display name for this route stage, shown in the ZOE LA Mobile UI workflow view."@en ;
+    skos:notation "stage_label" .
+
+zoe:stageOrder a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   xsd:integer ;
+    rdfs:label   "Stage Order"@en ;
+    rdfs:comment "Integer position in the linear ordering of stages within the route. 0 for the entry stage. Used alongside predecessorStage to reconstruct the full POWL partial-order model."@en ;
+    skos:notation "stage_order" .
+
+zoe:isEntryStage a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Is Entry Stage"@en ;
+    rdfs:comment "True if this stage is the initial entry point for the route. An entry stage has no predecessors in the POWL graph. Exactly one stage per route should have this value as true."@en ;
+    skos:notation "is_entry_stage" .
+
+zoe:isTerminalStage a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Is Terminal Stage"@en ;
+    rdfs:comment "True if this stage represents a route completion point. Completing a terminal stage transitions the RouteInstance to a closed or delivered outcome state."@en ;
+    skos:notation "is_terminal_stage" .
+
+zoe:requiredEvidenceType a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Required Evidence Type"@en ;
+    rdfs:comment "String identifier for the type of evidence that must be attached before this stage can be completed, e.g. 'InventoryCheck', 'PhotoVerification', 'FormSigned'."@en ;
+    skos:notation "required_evidence_type" .
+
+zoe:completionReceiptType a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Completion Receipt Type"@en ;
+    rdfs:comment "Identifier for the ServiceReceipt subtype that is emitted when this stage is completed successfully, e.g. 'ResourceDistributedReceipt', 'CareRouteClosedReceipt'."@en ;
+    skos:notation "completion_receipt_type" .
+
+zoe:refusalReason a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Refusal Reason"@en ;
+    rdfs:comment "Human-readable explanation emitted if this stage is a gate that refuses the transition due to missing consent, role, or evidence. Stored in the route instance audit log."@en ;
+    skos:notation "refusal_reason" .
+
+zoe:ocelEventType a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "OCEL Event Type"@en ;
+    rdfs:comment "The OCEL-2.0 activity name emitted when this stage completes, e.g. 'food.delivered', 'care_route.closed'. Used as the activity column in the wasm4pm OCEL log."@en ;
+    skos:notation "ocel_event_type" .
+
+zoe:timeoutHours a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   xsd:decimal ;
+    rdfs:label   "Timeout Hours"@en ;
+    rdfs:comment "Service Level Agreement (SLA) deadline for this stage in decimal hours. A route instance that has not advanced past this stage within the timeout is flagged for escalation. Null value indicates no deadline constraint."@en ;
+    skos:notation "timeout_hours" .
+
+# ============================================================================
+# RouteStage — Object Properties
+# ============================================================================
+
+zoe:hasRoute a owl:ObjectProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   zoe:ServiceRoute ;
+    rdfs:label   "Has Route"@en ;
+    rdfs:comment "Links a RouteStage to the ServiceRoute it belongs to. Every stage must belong to exactly one route."@en ;
+    skos:notation "has_route" .
+
+zoe:predecessorStage a owl:ObjectProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   zoe:RouteStage ;
+    rdfs:label   "Predecessor Stage"@en ;
+    rdfs:comment "POWL partial-order edge declaring that this stage may only be entered after the referenced predecessor stage has completed. A stage with no predecessors is an entry stage. Multiple predecessors denote an AND-join in the POWL model."@en ;
+    skos:notation "predecessor_stage" .
+
+zoe:requiredRole a owl:ObjectProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   skos:Concept ;
+    rdfs:label   "Required Role"@en ;
+    rdfs:comment "SKOS concept identifying the organizational role (e.g. VolunteerRole, PastorRole, MemberRole) that must be held by the agent executing this stage. Gate blocks execution if the executing user does not hold this role."@en ;
+    skos:notation "required_role" .
+
+zoe:requiredConsentType a owl:ObjectProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   skos:Concept ;
+    rdfs:label   "Required Consent Type"@en ;
+    rdfs:comment "SKOS concept identifying the consent classification that the subject must have granted before this stage can execute. Used for GDPR/CCPA and ministry data policy compliance gates."@en ;
+    skos:notation "required_consent_type" .
+
+# ============================================================================
+# RouteInstance — Datatype Properties
+# ============================================================================
+
+zoe:instanceRouteId a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteInstance ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Instance Route ID"@en ;
+    rdfs:comment "UUID identifying this specific execution of a route. Used as the case ID in the OCEL event log for process-mining replay."@en ;
+    skos:notation "instance_route_id" .
+
+zoe:instanceSubjectId a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteInstance ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Instance Subject ID"@en ;
+    rdfs:comment "Identifier of the person, household, or other entity that is the subject of this route instance. Foreign key into the appropriate subject table."@en ;
+    skos:notation "instance_subject_id" .
+
+zoe:instanceSubjectType a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteInstance ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Instance Subject Type"@en ;
+    rdfs:comment "The type of the route subject: 'person', 'household', 'youth', 'group', etc. Determines the OCEL object type mapping for this instance."@en ;
+    skos:notation "instance_subject_type" .
+
+zoe:currentStageCode a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteInstance ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Current Stage Code"@en ;
+    rdfs:comment "Stage code of the active RouteStage for this instance. Updated each time the route instance advances to the next stage. Used for real-time dashboard display."@en ;
+    skos:notation "current_stage_code" .
+
+zoe:startedAt a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteInstance ;
+    rdfs:range   xsd:dateTime ;
+    rdfs:label   "Started At"@en ;
+    rdfs:comment "ISO-8601 timestamp when this route instance was created and the first stage entered. Maps to prov:startedAtTime on the prov:Activity."@en ;
+    skos:notation "started_at" .
+
+zoe:completedAt a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteInstance ;
+    rdfs:range   xsd:dateTime ;
+    rdfs:label   "Completed At"@en ;
+    rdfs:comment "ISO-8601 timestamp when the terminal stage of this route instance was completed. Null if the instance is still open. Maps to prov:endedAtTime."@en ;
+    skos:notation "completed_at" .
+
+# ============================================================================
+# RouteInstance — Object Properties
+# ============================================================================
+
+zoe:outcomeState a owl:ObjectProperty ;
+    rdfs:domain  zoe:RouteInstance ;
+    rdfs:range   skos:Concept ;
+    rdfs:label   "Outcome State"@en ;
+    rdfs:comment "SKOS concept from zoe:OutcomeStateScheme representing the current or final state of this route instance, e.g. OutcomeOpen, OutcomeDelivered, OutcomeClosed."@en ;
+    skos:notation "outcome_state" .
+
+zoe:hasReceipt a owl:ObjectProperty ;
+    rdfs:domain  zoe:RouteInstance ;
+    rdfs:range   owl:Thing ;
+    rdfs:label   "Has Receipt"@en ;
+    rdfs:comment "Links this route instance to a ServiceReceipt (defined in receipt.ttl) that proves delivery of service at one or more stages. A single instance may accumulate multiple receipts across its stage lifecycle."@en ;
+    skos:notation "has_receipt" .
+
+# ============================================================================
+# SKOS ConceptScheme: RouteCategoryScheme
+# ============================================================================
+
+zoe:RouteCategoryScheme a skos:ConceptScheme ;
+    rdfs:label   "Route Category Scheme"@en ;
+    rdfs:comment "Controlled vocabulary of service route categories in ZOE LA Mobile. Each concept maps to one or more ServiceRoute definitions in the manufacturing pipeline."@en ;
+    skos:prefLabel "ZOE LA Route Category Scheme"@en .
+
+zoe:CareRoute a skos:Concept ;
+    skos:inScheme    zoe:RouteCategoryScheme ;
+    skos:notation    "CARE" ;
+    rdfs:label       "Care and Pastoral Route"@en ;
+    skos:prefLabel   "Care and Pastoral Route"@en ;
+    skos:definition  "Route for pastoral care delivery, prayer support, hospital visits, and personal crisis response."@en ;
+    rdfs:comment     "Route category for care and pastoral ministry delivery."@en .
+
+zoe:FoodDistributionRoute a skos:Concept ;
+    skos:inScheme    zoe:RouteCategoryScheme ;
+    skos:notation    "FOOD" ;
+    rdfs:label       "Food Distribution Route"@en ;
+    skos:prefLabel   "Food Distribution Route"@en ;
+    skos:definition  "Route for distributing food pantry items, groceries, or meal kits to community members in need."@en ;
+    rdfs:comment     "Route category for food pantry and meal distribution services."@en .
+
+zoe:ClothingDistributionRoute a skos:Concept ;
+    skos:inScheme    zoe:RouteCategoryScheme ;
+    skos:notation    "CLOTH" ;
+    rdfs:label       "Clothing Distribution Route"@en ;
+    skos:prefLabel   "Clothing Distribution Route"@en ;
+    skos:definition  "Route for distributing donated clothing, shoes, and household goods to community members."@en ;
+    rdfs:comment     "Route category for clothing and goods distribution services."@en .
+
+zoe:VolunteerAssignmentRoute a skos:Concept ;
+    skos:inScheme    zoe:RouteCategoryScheme ;
+    skos:notation    "VOL-ASSIGN" ;
+    rdfs:label       "Volunteer Assignment Route"@en ;
+    skos:prefLabel   "Volunteer Assignment Route"@en ;
+    skos:definition  "Route for onboarding, training, and assigning volunteers to ministry service roles."@en ;
+    rdfs:comment     "Route category for volunteer recruitment and role assignment."@en .
+
+zoe:EventRegistrationRoute a skos:Concept ;
+    skos:inScheme    zoe:RouteCategoryScheme ;
+    skos:notation    "EVENT-REG" ;
+    rdfs:label       "Event Registration Route"@en ;
+    skos:prefLabel   "Event Registration Route"@en ;
+    skos:definition  "Route for registering attendees for church services, special events, conferences, and outreach activities."@en ;
+    rdfs:comment     "Route category for event attendance registration."@en .
+
+zoe:KidsCheckInRoute a skos:Concept ;
+    skos:inScheme    zoe:RouteCategoryScheme ;
+    skos:notation    "KIDS-CI" ;
+    rdfs:label       "Kids Check-In Route"@en ;
+    skos:prefLabel   "Kids Check-In Route"@en ;
+    skos:definition  "Route for safely checking children in and out of kids ministry programs, including guardian authorization and allergy/medical disclosure."@en ;
+    rdfs:comment     "Route category for kids ministry secure check-in and checkout."@en .
+
+zoe:YouthEventRoute a skos:Concept ;
+    skos:inScheme    zoe:RouteCategoryScheme ;
+    skos:notation    "YTH-EVENT" ;
+    rdfs:label       "Youth Event Participation Route"@en ;
+    skos:prefLabel   "Youth Event Participation Route"@en ;
+    skos:definition  "Route for registering youth participants in youth ministry events, retreats, and service projects."@en ;
+    rdfs:comment     "Route category for youth ministry event participation."@en .
+
+zoe:CampConsentRoute a skos:Concept ;
+    skos:inScheme    zoe:RouteCategoryScheme ;
+    skos:notation    "CAMP-CONSENT" ;
+    rdfs:label       "Camp Consent and Registration Route"@en ;
+    skos:prefLabel   "Camp Consent and Registration Route"@en ;
+    skos:definition  "Route for collecting parental consent forms, medical disclosures, and registration details for overnight camps and off-site retreats."@en ;
+    rdfs:comment     "Route category for camp and retreat consent collection."@en .
+
+zoe:BaptismRoute a skos:Concept ;
+    skos:inScheme    zoe:RouteCategoryScheme ;
+    skos:notation    "BAPTISM" ;
+    rdfs:label       "Baptism Registration Route"@en ;
+    skos:prefLabel   "Baptism Registration Route"@en ;
+    skos:definition  "Route for registering candidates for baptism, collecting testimony, scheduling, and emitting a baptism record receipt."@en ;
+    rdfs:comment     "Route category for baptism candidate registration and scheduling."@en .
+
+zoe:ConnectGroupJoinRoute a skos:Concept ;
+    skos:inScheme    zoe:RouteCategoryScheme ;
+    skos:notation    "CG-JOIN" ;
+    rdfs:label       "Connect Group Join Route"@en ;
+    skos:prefLabel   "Connect Group Join Route"@en ;
+    skos:definition  "Route for matching community members to connect groups, collecting interest information, and confirming group placement."@en ;
+    rdfs:comment     "Route category for connect group discovery and placement."@en .
+
+zoe:PartnerReferralRoute a skos:Concept ;
+    skos:inScheme    zoe:RouteCategoryScheme ;
+    skos:notation    "PART-REF" ;
+    rdfs:label       "Partner Organization Referral Route"@en ;
+    skos:prefLabel   "Partner Organization Referral Route"@en ;
+    skos:definition  "Route for referring community members to external partner organizations (social services, housing, legal aid) with consent and handoff documentation."@en ;
+    rdfs:comment     "Route category for community referrals to partner organizations."@en .
+
+zoe:FollowUpRoute a skos:Concept ;
+    skos:inScheme    zoe:RouteCategoryScheme ;
+    skos:notation    "FOLLOWUP" ;
+    rdfs:label       "Care Follow-Up Route"@en ;
+    skos:prefLabel   "Care Follow-Up Route"@en ;
+    skos:definition  "Route for pastoral follow-up after a care need or service delivery, confirming wellbeing and identifying any ongoing needs."@en ;
+    rdfs:comment     "Route category for post-delivery pastoral follow-up."@en .
+
+zoe:MissionTripRoute a skos:Concept ;
+    skos:inScheme    zoe:RouteCategoryScheme ;
+    skos:notation    "MISS-TRIP" ;
+    rdfs:label       "Mission Trip Participation Route"@en ;
+    skos:prefLabel   "Mission Trip Participation Route"@en ;
+    skos:definition  "Route for registering participants in domestic or international mission trips, including application, consent, health clearance, and fundraising stages."@en ;
+    rdfs:comment     "Route category for mission trip participant registration and preparation."@en .
+
+# ============================================================================
+# SKOS ConceptScheme: OutcomeStateScheme
+# ============================================================================
+
+zoe:OutcomeStateScheme a skos:ConceptScheme ;
+    rdfs:label   "Outcome State Scheme"@en ;
+    rdfs:comment "Controlled vocabulary of lifecycle outcome states for RouteInstance objects. States follow the route progression from creation through completion or closure."@en ;
+    skos:prefLabel "ZOE LA Route Outcome State Scheme"@en .
+
+zoe:OutcomeOpen a skos:Concept ;
+    skos:inScheme    zoe:OutcomeStateScheme ;
+    skos:notation    "OPEN" ;
+    rdfs:label       "Open"@en ;
+    skos:prefLabel   "Open — route not yet complete"@en ;
+    skos:definition  "The route instance has been created and is in progress. The subject has not yet received the service and no terminal stage has been reached."@en ;
+    rdfs:comment     "Initial state for all new route instances."@en .
+
+zoe:OutcomeAssigned a skos:Concept ;
+    skos:inScheme    zoe:OutcomeStateScheme ;
+    skos:notation    "ASSIGNED" ;
+    rdfs:label       "Assigned"@en ;
+    skos:prefLabel   "Assigned — resource or volunteer assigned"@en ;
+    skos:definition  "A volunteer or resource has been matched and assigned to this route instance. The route is active but service delivery has not yet begun."@en ;
+    rdfs:comment     "Intermediate state indicating a volunteer or resource has been assigned."@en .
+
+zoe:OutcomeDelivered a skos:Concept ;
+    skos:inScheme    zoe:OutcomeStateScheme ;
+    skos:notation    "DELIVERED" ;
+    rdfs:label       "Delivered"@en ;
+    skos:prefLabel   "Delivered — service delivered"@en ;
+    skos:definition  "The primary service delivery stage has been completed. The subject has received the intended service, and a delivery receipt has been emitted."@en ;
+    rdfs:comment     "State indicating the primary service has been delivered."@en .
+
+zoe:OutcomeFollowedUp a skos:Concept ;
+    skos:inScheme    zoe:OutcomeStateScheme ;
+    skos:notation    "FOLLOWED_UP" ;
+    rdfs:label       "Followed Up"@en ;
+    skos:prefLabel   "Follow-up completed"@en ;
+    skos:definition  "A pastoral follow-up contact has been completed after primary service delivery, confirming the subject's ongoing wellbeing."@en ;
+    rdfs:comment     "State indicating post-delivery pastoral follow-up has been completed."@en .
+
+zoe:OutcomeEscalated a skos:Concept ;
+    skos:inScheme    zoe:OutcomeStateScheme ;
+    skos:notation    "ESCALATED" ;
+    rdfs:label       "Escalated"@en ;
+    skos:prefLabel   "Escalated to pastor or care team"@en ;
+    skos:definition  "The route instance has been escalated to pastoral leadership or a dedicated care team due to complexity, urgency, or SLA timeout."@en ;
+    rdfs:comment     "State indicating escalation to pastor or care team."@en .
+
+zoe:OutcomeRefused a skos:Concept ;
+    skos:inScheme    zoe:OutcomeStateScheme ;
+    skos:notation    "REFUSED" ;
+    rdfs:label       "Refused"@en ;
+    skos:prefLabel   "Refused — route gate blocked by missing consent/role/evidence"@en ;
+    skos:definition  "A stage gate has refused the route transition because a required consent, role authorization, or evidence was absent. The instance is blocked until the gate condition is satisfied."@en ;
+    rdfs:comment     "State indicating a route stage gate refused the transition."@en .
+
+zoe:OutcomeReceiptEmitted a skos:Concept ;
+    skos:inScheme    zoe:OutcomeStateScheme ;
+    skos:notation    "RECEIPTED" ;
+    rdfs:label       "Receipted"@en ;
+    skos:prefLabel   "Receipted — service delivery proved"@en ;
+    skos:definition  "A cryptographically-signed ServiceReceipt has been emitted for this route instance, providing tamper-evident proof of service delivery in the audit chain."@en ;
+    rdfs:comment     "State indicating a service receipt has been emitted and the delivery is cryptographically proved."@en .
+
+zoe:OutcomeClosed a skos:Concept ;
+    skos:inScheme    zoe:OutcomeStateScheme ;
+    skos:notation    "CLOSED" ;
+    rdfs:label       "Closed"@en ;
+    skos:prefLabel   "Closed — route fully completed"@en ;
+    skos:definition  "All stages of the route have been completed, receipts emitted, and any follow-up confirmed. The route instance is archived and available for process-mining replay."@en ;
+    rdfs:comment     "Terminal state: route fully completed and archived."@en .
+
+# ============================================================================
+# Example Route Stage Instances: Food Distribution Route (5 stages)
+# ============================================================================
+# These concrete individuals define the POWL partial-order model for
+# FoodDistributionRoute (code: FOOD). They serve as reference instances
+# for wasm4pm conformance mining and as documentation of expected stage
+# semantics.
+# ============================================================================
+
+zoe:FoodRoute a zoe:ServiceRoute ;
+    rdfs:label           "Food Distribution Route Instance"@en ;
+    rdfs:comment         "The declared Food Distribution ServiceRoute. All five stages must complete in sequence for a conforming food distribution case."@en ;
+    zoe:routeCode        "FOOD_DIST_V1" ;
+    zoe:routeLabel       "Food Distribution Route" ;
+    zoe:routeCategory    zoe:FoodDistributionRoute ;
+    zoe:routeObjectType  "person" ;
+    zoe:isActive         true ;
+    zoe:requiresEvidence true ;
+    zoe:emitsOcelEvents  true .
+
+zoe:FoodRouteReceived a zoe:RouteStage ;
+    rdfs:label              "Food Route: Received"@en ;
+    rdfs:comment            "Entry stage: a member's food need has been received and logged. The requesting member or pastoral contact must hold MemberRole."@en ;
+    zoe:hasRoute            zoe:FoodRoute ;
+    zoe:stageCode           "received" ;
+    zoe:stageLabel          "Received" ;
+    zoe:stageOrder          0 ;
+    zoe:isEntryStage        true ;
+    zoe:isTerminalStage     false ;
+    zoe:requiredRole        <https://zoela.org/ontology/role/MemberRole> ;
+    zoe:ocelEventType       "food_route.received" .
+
+zoe:FoodRouteVerified a zoe:RouteStage ;
+    rdfs:label              "Food Route: Verified"@en ;
+    rdfs:comment            "Verification stage: a volunteer confirms the need details and eligibility before allocating inventory. Requires VolunteerRole."@en ;
+    zoe:hasRoute            zoe:FoodRoute ;
+    zoe:stageCode           "verified" ;
+    zoe:stageLabel          "Verified" ;
+    zoe:stageOrder          1 ;
+    zoe:isEntryStage        false ;
+    zoe:isTerminalStage     false ;
+    zoe:predecessorStage    zoe:FoodRouteReceived ;
+    zoe:requiredRole        <https://zoela.org/ontology/role/VolunteerRole> ;
+    zoe:ocelEventType       "food_route.verified" .
+
+zoe:FoodRouteAssigned a zoe:RouteStage ;
+    rdfs:label              "Food Route: Assigned"@en ;
+    rdfs:comment            "Assignment stage: a volunteer is matched to the delivery and an inventory check is completed before items are reserved. Requires VolunteerRole and InventoryCheck evidence."@en ;
+    zoe:hasRoute            zoe:FoodRoute ;
+    zoe:stageCode           "assigned" ;
+    zoe:stageLabel          "Assigned" ;
+    zoe:stageOrder          2 ;
+    zoe:isEntryStage        false ;
+    zoe:isTerminalStage     false ;
+    zoe:predecessorStage    zoe:FoodRouteVerified ;
+    zoe:requiredRole        <https://zoela.org/ontology/role/VolunteerRole> ;
+    zoe:requiredEvidenceType "InventoryCheck" ;
+    zoe:ocelEventType       "food_route.assigned" .
+
+zoe:FoodRouteDelivered a zoe:RouteStage ;
+    rdfs:label              "Food Route: Delivered"@en ;
+    rdfs:comment            "Delivery stage: the volunteer delivers food items to the recipient. Completion emits a ResourceDistributedReceipt and the food.delivered OCEL event."@en ;
+    zoe:hasRoute            zoe:FoodRoute ;
+    zoe:stageCode           "delivered" ;
+    zoe:stageLabel          "Delivered" ;
+    zoe:stageOrder          3 ;
+    zoe:isEntryStage        false ;
+    zoe:isTerminalStage     false ;
+    zoe:predecessorStage    zoe:FoodRouteAssigned ;
+    zoe:requiredRole        <https://zoela.org/ontology/role/VolunteerRole> ;
+    zoe:completionReceiptType "ResourceDistributedReceipt" ;
+    zoe:ocelEventType       "food.delivered" .
+
+zoe:FoodRouteClosed a zoe:RouteStage ;
+    rdfs:label              "Food Route: Closed"@en ;
+    rdfs:comment            "Terminal stage: the food distribution case is closed after delivery is confirmed. Emits a CareRouteClosedReceipt and the care_route.closed OCEL event. No further stage transitions are possible."@en ;
+    zoe:hasRoute            zoe:FoodRoute ;
+    zoe:stageCode           "closed" ;
+    zoe:stageLabel          "Closed" ;
+    zoe:stageOrder          4 ;
+    zoe:isEntryStage        false ;
+    zoe:isTerminalStage     true ;
+    zoe:predecessorStage    zoe:FoodRouteDelivered ;
+    zoe:completionReceiptType "CareRouteClosedReceipt" ;
+    zoe:ocelEventType       "care_route.closed" .

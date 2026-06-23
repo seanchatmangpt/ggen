@@ -1,0 +1,108 @@
+# SPARQL CONSTRUCT Query: Merge open-ontologies with wasm4pm-compat
+# Purpose: Create integrated ontology with bidirectional mappings
+# Output: RDF/Turtle (.ttl) — unified process-evidence knowledge graph
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+PREFIX open:   <https://open-ontologies.github.io/>
+
+CONSTRUCT {
+  # Preserve all wasm4pm-compat canon definitions
+  ?compat_s ?compat_p ?compat_o .
+
+  # Preserve all open-ontologies definitions
+  ?open_s ?open_p ?open_o .
+
+  # Add explicit bidirectional mappings
+  ?compat_class compat:mapsToOpenOntologies ?open_class .
+  ?open_class open:mapsToCompat ?compat_class .
+
+  # Mark mapped entities with provenance
+  ?mapping a compat:OntologyMapping ;
+           compat:source ?open_standard ;
+           compat:target compat:CanonicalForm ;
+           compat:compatClass ?compat_class ;
+           compat:openOntologiesClass ?open_class ;
+           compat:roundTripSupported true ;
+           compat:lossReportRequired true ;
+           rdfs:comment ?mapping_comment .
+}
+WHERE {
+  # Include all wasm4pm-compat base ontology
+  {
+    GRAPH compat:wasm4pm-compat {
+      ?compat_s ?compat_p ?compat_o .
+    }
+  }
+  UNION
+  # Include all open-ontologies entities
+  {
+    GRAPH open:ontologies {
+      ?open_s ?open_p ?open_o .
+    }
+  }
+  UNION
+  # Create mapping triples for OCEL
+  {
+    ?open_class a open:OcelEntity ;
+                rdfs:label ?open_label .
+    BIND(IF(?open_label = "Event", compat:OcelEvent,
+        IF(?open_label = "Object", compat:OcelObject,
+        IF(?open_label = "EventObjectLink", compat:EventObjectLink,
+        IF(?open_label = "ObjectObjectLink", compat:ObjectObjectLink,
+        IF(?open_label = "ObjectChange", compat:ObjectChange, ?open_class))))) AS ?compat_class)
+    BIND("ocel" AS ?open_standard)
+    BIND(IRI(CONCAT("https://wasm4pm-compat.rs/ontology#OntologyMapping_OCEL_", STR(?open_label))) AS ?mapping)
+    BIND(CONCAT("OCEL ", ?open_label, " → wasm4pm-compat canon") AS ?mapping_comment)
+  }
+  UNION
+  # Create mapping triples for XES
+  {
+    ?open_class a open:XesEntity ;
+                rdfs:label ?open_label .
+    BIND(IF(?open_label = "Trace", compat:Trace,
+        IF(?open_label = "Event", compat:Event,
+        IF(?open_label = "Attribute", compat:Attribute, ?open_class))) AS ?compat_class)
+    BIND("xes" AS ?open_standard)
+    BIND(IRI(CONCAT("https://wasm4pm-compat.rs/ontology#OntologyMapping_XES_", STR(?open_label))) AS ?mapping)
+    BIND(CONCAT("XES ", ?open_label, " → wasm4pm-compat canon") AS ?mapping_comment)
+  }
+  UNION
+  # Create mapping triples for BPMN
+  {
+    ?open_class a open:BpmnEntity ;
+                rdfs:label ?open_label .
+    BIND(IF(?open_label = "Process", compat:BpmnProcess,
+        IF(?open_label = "Task", compat:BpmnTask,
+        IF(?open_label = "Gateway", compat:BpmnGateway,
+        IF(?open_label = "Event", compat:BpmnEvent, ?open_class)))) AS ?compat_class)
+    BIND("bpmn" AS ?open_standard)
+    BIND(IRI(CONCAT("https://wasm4pm-compat.rs/ontology#OntologyMapping_BPMN_", STR(?open_label))) AS ?mapping)
+    BIND(CONCAT("BPMN ", ?open_label, " → wasm4pm-compat canon") AS ?mapping_comment)
+  }
+  UNION
+  # Create mapping triples for Petri Nets
+  {
+    ?open_class a open:PetriEntity ;
+                rdfs:label ?open_label .
+    BIND(IF(?open_label = "Place", compat:PetriPlace,
+        IF(?open_label = "Transition", compat:PetriTransition,
+        IF(?open_label = "Arc", compat:PetriArc, ?open_class))) AS ?compat_class)
+    BIND("petri" AS ?open_standard)
+    BIND(IRI(CONCAT("https://wasm4pm-compat.rs/ontology#OntologyMapping_Petri_", STR(?open_label))) AS ?mapping)
+    BIND(CONCAT("Petri Net ", ?open_label, " → wasm4pm-compat canon") AS ?mapping_comment)
+  }
+  UNION
+  # Create mapping triples for DFG
+  {
+    ?open_class a open:DfgEntity ;
+                rdfs:label ?open_label .
+    BIND(IF(?open_label = "Activity", compat:DfgActivity,
+        IF(?open_label = "Edge", compat:DfgEdge, ?open_class))) AS ?compat_class)
+    BIND("dfg" AS ?open_standard)
+    BIND(IRI(CONCAT("https://wasm4pm-compat.rs/ontology#OntologyMapping_DFG_", STR(?open_label))) AS ?mapping)
+    BIND(CONCAT("DFG ", ?open_label, " → wasm4pm-compat canon") AS ?mapping_comment)
+  }
+}

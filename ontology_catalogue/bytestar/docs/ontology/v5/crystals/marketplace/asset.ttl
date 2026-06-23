@@ -1,0 +1,882 @@
+@prefix ba: <https://bytestar.org/ontology/> .
+@prefix mp: <https://bytestar.org/ontology/marketplace/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# ================================================================
+# ByteStar N-Dimensional Marketplace Asset Descriptor Ontology (.asset)
+# Defines comprehensive asset modeling for cross-organizational exchange
+# Version: 5.0.0 - Marketplace Crystals
+# Domain: N-dimensional asset trading with vector mathematics
+# ================================================================
+
+<https://bytestar.org/ontology/marketplace/asset> a owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/v5/marketplace/asset> ;
+    owl:versionInfo "5.0.0" ;
+    dcterms:title "ByteStar N-Dimensional Asset Descriptor Ontology" ;
+    dcterms:description "Comprehensive N-dimensional asset modeling with vector mathematics, conservation laws, and cross-organizational exchange capabilities" ;
+    dcterms:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    dcterms:creator "ByteStar Development Team" ;
+    owl:imports <https://bytestar.org/ontology/resource-allocation> ,
+                <https://bytestar.org/ontology/performance-measurement> ,
+                <https://bytestar.org/ontology/optimization-engine> .
+
+# ================================================================
+# CORE ASSET CLASSES (80% REUSE FROM EXISTING ONTOLOGIES)
+# ================================================================
+
+## Primary Asset Descriptor
+mp:Asset a owl:Class ;
+    rdfs:label "Asset" ;
+    rdfs:comment "N-dimensional tradeable asset with vector properties and conservation laws" ;
+    rdfs:subClassOf ba:Resource ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAssetVector ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAssetType ;
+        owl:cardinality 1
+    ] .
+
+mp:AssetDescriptor a owl:Class ;
+    rdfs:label "Asset Descriptor" ;
+    rdfs:comment "Complete descriptor containing all asset metadata and properties" ;
+    rdfs:subClassOf mp:Asset ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasDescriptorVersion ;
+        owl:cardinality 1
+    ] .
+
+mp:AssetVector a owl:Class ;
+    rdfs:label "Asset Vector" ;
+    rdfs:comment "N-dimensional vector representing asset characteristics in trading space" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasDimension ;
+        owl:minCardinality 8  # 8 core dimensions
+    ] .
+
+# ================================================================
+# N-DIMENSIONAL ASSET CHARACTERISTICS (20% NEW)
+# ================================================================
+
+## Core Trading Dimensions
+mp:AssetType a owl:Class ;
+    rdfs:label "Asset Type" ;
+    rdfs:comment "Fundamental classification of asset (compute, storage, network, data, etc.)" ;
+    rdfs:subClassOf skos:Concept .
+
+mp:QuantityMinor a owl:Class ;
+    rdfs:label "Quantity Minor" ;
+    rdfs:comment "Smallest divisible unit of asset quantity with precision handling" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasMinorUnit ;
+        owl:cardinality 1
+    ] .
+
+mp:Currency a owl:Class ;
+    rdfs:label "Currency" ;
+    rdfs:comment "Pricing currency with conversion factors and stability metrics" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasCurrencyCode ;
+        owl:cardinality 1
+    ] .
+
+mp:Region a owl:Class ;
+    rdfs:label "Region" ;
+    rdfs:comment "Geographical or logical region with compliance and latency characteristics" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasRegionCode ;
+        owl:cardinality 1
+    ] .
+
+mp:PrivacyLevel a owl:Class ;
+    rdfs:label "Privacy Level" ;
+    rdfs:comment "Data privacy classification with encryption and access control requirements" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasPrivacyRating ;
+        owl:cardinality 1
+    ] .
+
+mp:LatencySLO a owl:Class ;
+    rdfs:label "Latency SLO" ;
+    rdfs:comment "Service Level Objective for latency performance" ;
+    rdfs:subClassOf ba:ServiceLevelAgreement ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasMaxLatency ;
+        owl:cardinality 1
+    ] .
+
+mp:CarbonKg a owl:Class ;
+    rdfs:label "Carbon Footprint" ;
+    rdfs:comment "Carbon footprint measurement in kilograms CO2 equivalent" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasCarbonValue ;
+        owl:cardinality 1
+    ] .
+
+mp:LicenseTier a owl:Class ;
+    rdfs:label "License Tier" ;
+    rdfs:comment "Licensing tier with usage rights and restrictions" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasLicenseLevel ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# ASSET TYPE HIERARCHY
+# ================================================================
+
+## Compute Assets
+mp:ComputeAsset a mp:AssetType ;
+    rdfs:label "Compute Asset" ;
+    rdfs:comment "Computational processing capabilities" ;
+    skos:prefLabel "compute" .
+
+mp:CPUAsset a mp:ComputeAsset ;
+    rdfs:label "CPU Asset" ;
+    rdfs:comment "CPU processing cycles and cores" ;
+    skos:prefLabel "cpu" .
+
+mp:GPUAsset a mp:ComputeAsset ;
+    rdfs:label "GPU Asset" ;
+    rdfs:comment "GPU processing capabilities for parallel computation" ;
+    skos:prefLabel "gpu" .
+
+mp:TPUAsset a mp:ComputeAsset ;
+    rdfs:label "TPU Asset" ;
+    rdfs:comment "Tensor Processing Unit for AI/ML workloads" ;
+    skos:prefLabel "tpu" .
+
+## Storage Assets
+mp:StorageAsset a mp:AssetType ;
+    rdfs:label "Storage Asset" ;
+    rdfs:comment "Data storage capabilities" ;
+    skos:prefLabel "storage" .
+
+mp:BlockStorageAsset a mp:StorageAsset ;
+    rdfs:label "Block Storage Asset" ;
+    rdfs:comment "Block-level storage with high performance" ;
+    skos:prefLabel "block-storage" .
+
+mp:ObjectStorageAsset a mp:StorageAsset ;
+    rdfs:label "Object Storage Asset" ;
+    rdfs:comment "Object storage for unstructured data" ;
+    skos:prefLabel "object-storage" .
+
+mp:DatabaseStorageAsset a mp:StorageAsset ;
+    rdfs:label "Database Storage Asset" ;
+    rdfs:comment "Database storage with ACID properties" ;
+    skos:prefLabel "database-storage" .
+
+## Network Assets
+mp:NetworkAsset a mp:AssetType ;
+    rdfs:label "Network Asset" ;
+    rdfs:comment "Network connectivity and bandwidth" ;
+    skos:prefLabel "network" .
+
+mp:BandwidthAsset a mp:NetworkAsset ;
+    rdfs:label "Bandwidth Asset" ;
+    rdfs:comment "Network bandwidth allocation" ;
+    skos:prefLabel "bandwidth" .
+
+mp:CDNAsset a mp:NetworkAsset ;
+    rdfs:label "CDN Asset" ;
+    rdfs:comment "Content Delivery Network capabilities" ;
+    skos:prefLabel "cdn" .
+
+## Data Assets
+mp:DataAsset a mp:AssetType ;
+    rdfs:label "Data Asset" ;
+    rdfs:comment "Data sets and information resources" ;
+    skos:prefLabel "data" .
+
+mp:StreamingDataAsset a mp:DataAsset ;
+    rdfs:label "Streaming Data Asset" ;
+    rdfs:comment "Real-time streaming data feeds" ;
+    skos:prefLabel "streaming-data" .
+
+mp:HistoricalDataAsset a mp:DataAsset ;
+    rdfs:label "Historical Data Asset" ;
+    rdfs:comment "Historical data for analysis" ;
+    skos:prefLabel "historical-data" .
+
+## Software Assets
+mp:SoftwareAsset a mp:AssetType ;
+    rdfs:label "Software Asset" ;
+    rdfs:comment "Software services and applications" ;
+    skos:prefLabel "software" .
+
+mp:APIAsset a mp:SoftwareAsset ;
+    rdfs:label "API Asset" ;
+    rdfs:comment "API access and service calls" ;
+    skos:prefLabel "api" .
+
+mp:ContainerAsset a mp:SoftwareAsset ;
+    rdfs:label "Container Asset" ;
+    rdfs:comment "Containerized application instances" ;
+    skos:prefLabel "container" .
+
+# ================================================================
+# VECTOR DIMENSION CLASSES
+# ================================================================
+
+mp:VectorDimension a owl:Class ;
+    rdfs:label "Vector Dimension" ;
+    rdfs:comment "Single dimension in the N-dimensional asset trading space" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasDimensionName ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasDimensionValue ;
+        owl:cardinality 1
+    ] .
+
+mp:AssetTypeDimension a mp:VectorDimension ;
+    rdfs:label "Asset Type Dimension" ;
+    rdfs:comment "Dimension representing asset type classification" .
+
+mp:QuantityDimension a mp:VectorDimension ;
+    rdfs:label "Quantity Dimension" ;
+    rdfs:comment "Dimension representing asset quantity in minor units" .
+
+mp:CurrencyDimension a mp:VectorDimension ;
+    rdfs:label "Currency Dimension" ;
+    rdfs:comment "Dimension representing pricing currency" .
+
+mp:RegionDimension a mp:VectorDimension ;
+    rdfs:label "Region Dimension" ;
+    rdfs:comment "Dimension representing geographical/logical region" .
+
+mp:PrivacyDimension a mp:VectorDimension ;
+    rdfs:label "Privacy Dimension" ;
+    rdfs:comment "Dimension representing privacy level requirements" .
+
+mp:LatencyDimension a mp:VectorDimension ;
+    rdfs:label "Latency Dimension" ;
+    rdfs:comment "Dimension representing latency SLO requirements" .
+
+mp:CarbonDimension a mp:VectorDimension ;
+    rdfs:label "Carbon Dimension" ;
+    rdfs:comment "Dimension representing carbon footprint in kg CO2" .
+
+mp:LicenseDimension a mp:VectorDimension ;
+    rdfs:label "License Dimension" ;
+    rdfs:comment "Dimension representing license tier and usage rights" .
+
+# ================================================================
+# ASSET METADATA & PROVENANCE
+# ================================================================
+
+mp:AssetMetadata a owl:Class ;
+    rdfs:label "Asset Metadata" ;
+    rdfs:comment "Comprehensive metadata describing asset properties and history" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty dcterms:created ;
+        owl:cardinality 1
+    ] .
+
+mp:AssetProvenance a owl:Class ;
+    rdfs:label "Asset Provenance" ;
+    rdfs:comment "Provenance tracking for asset creation and ownership history" ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty prov:wasGeneratedBy ;
+        owl:minCardinality 1
+    ] .
+
+mp:AssetOwnership a owl:Class ;
+    rdfs:label "Asset Ownership" ;
+    rdfs:comment "Ownership information with organization and access controls" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasOwner ;
+        owl:cardinality 1
+    ] .
+
+mp:AssetRegistry a owl:Class ;
+    rdfs:label "Asset Registry" ;
+    rdfs:comment "Registry maintaining asset descriptors and trading history" ;
+    rdfs:subClassOf ba:ResourceAllocator ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:registersAsset ;
+        owl:minCardinality 1
+    ] .
+
+# ================================================================
+# QUALITY & PERFORMANCE CHARACTERISTICS
+# ================================================================
+
+mp:AssetQuality a owl:Class ;
+    rdfs:label "Asset Quality" ;
+    rdfs:comment "Quality metrics and guarantees for asset performance" ;
+    rdfs:subClassOf ba:QualityOfService ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasQualityScore ;
+        owl:cardinality 1
+    ] .
+
+mp:AssetAvailability a owl:Class ;
+    rdfs:label "Asset Availability" ;
+    rdfs:comment "Availability guarantees and uptime commitments" ;
+    rdfs:subClassOf mp:AssetQuality ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAvailabilityPercentage ;
+        owl:cardinality 1
+    ] .
+
+mp:AssetReliability a owl:Class ;
+    rdfs:label "Asset Reliability" ;
+    rdfs:comment "Reliability metrics and failure recovery guarantees" ;
+    rdfs:subClassOf mp:AssetQuality .
+
+mp:AssetPerformance a owl:Class ;
+    rdfs:label "Asset Performance" ;
+    rdfs:comment "Performance characteristics and benchmarks" ;
+    rdfs:subClassOf ba:PerformanceMeasurement ;  # Reuse from performance-measurement
+    rdfs:subClassOf mp:AssetQuality .
+
+# ================================================================
+# CROSS-ORGANIZATIONAL EXCHANGE
+# ================================================================
+
+mp:Organization a owl:Class ;
+    rdfs:label "Organization" ;
+    rdfs:comment "Entity that owns and trades assets in the marketplace" ;
+    rdfs:subClassOf foaf:Organization ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasOrganizationId ;
+        owl:cardinality 1
+    ] .
+
+mp:AssetExchange a owl:Class ;
+    rdfs:label "Asset Exchange" ;
+    rdfs:comment "Cross-organizational asset exchange platform" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:facilitatesExchange ;
+        owl:minCardinality 2  # At least 2 organizations
+    ] .
+
+mp:TradingPartner a owl:Class ;
+    rdfs:label "Trading Partner" ;
+    rdfs:comment "Organization participating in asset trading" ;
+    rdfs:subClassOf mp:Organization ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTradingAgreement ;
+        owl:minCardinality 1
+    ] .
+
+mp:TradingAgreement a owl:Class ;
+    rdfs:label "Trading Agreement" ;
+    rdfs:comment "Legal and technical agreement for asset exchange" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAgreementTerms ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# SECURITY & ACCESS CONTROL
+# ================================================================
+
+mp:AssetAccess a owl:Class ;
+    rdfs:label "Asset Access" ;
+    rdfs:comment "Access control and security policies for assets" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAccessPolicy ;
+        owl:cardinality 1
+    ] .
+
+mp:AssetEncryption a owl:Class ;
+    rdfs:label "Asset Encryption" ;
+    rdfs:comment "Encryption requirements and key management" ;
+    rdfs:subClassOf mp:AssetAccess ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasEncryptionAlgorithm ;
+        owl:cardinality 1
+    ] .
+
+mp:AssetAudit a owl:Class ;
+    rdfs:label "Asset Audit" ;
+    rdfs:comment "Audit trail for asset access and modifications" ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAuditTimestamp ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# OBJECT PROPERTIES
+# ================================================================
+
+## Core Asset Properties
+mp:hasAssetVector a owl:ObjectProperty ;
+    rdfs:label "has asset vector" ;
+    rdfs:comment "N-dimensional vector representing asset in trading space" ;
+    rdfs:domain mp:Asset ;
+    rdfs:range mp:AssetVector .
+
+mp:hasAssetType a owl:ObjectProperty ;
+    rdfs:label "has asset type" ;
+    rdfs:comment "Classification type of the asset" ;
+    rdfs:domain mp:Asset ;
+    rdfs:range mp:AssetType .
+
+mp:hasDimension a owl:ObjectProperty ;
+    rdfs:label "has dimension" ;
+    rdfs:comment "Vector dimension in the asset trading space" ;
+    rdfs:domain mp:AssetVector ;
+    rdfs:range mp:VectorDimension .
+
+## Quality Properties
+mp:hasQuality a owl:ObjectProperty ;
+    rdfs:label "has quality" ;
+    rdfs:comment "Quality characteristics of the asset" ;
+    rdfs:domain mp:Asset ;
+    rdfs:range mp:AssetQuality .
+
+mp:hasAvailability a owl:ObjectProperty ;
+    rdfs:label "has availability" ;
+    rdfs:comment "Availability guarantees for the asset" ;
+    rdfs:domain mp:Asset ;
+    rdfs:range mp:AssetAvailability .
+
+## Ownership Properties
+mp:hasOwner a owl:ObjectProperty ;
+    rdfs:label "has owner" ;
+    rdfs:comment "Organization that owns the asset" ;
+    rdfs:domain mp:AssetOwnership ;
+    rdfs:range mp:Organization .
+
+mp:ownedBy a owl:ObjectProperty ;
+    rdfs:label "owned by" ;
+    rdfs:comment "Asset ownership relationship" ;
+    rdfs:domain mp:Asset ;
+    rdfs:range mp:Organization .
+
+## Registry Properties
+mp:registersAsset a owl:ObjectProperty ;
+    rdfs:label "registers asset" ;
+    rdfs:comment "Asset registered in the registry" ;
+    rdfs:domain mp:AssetRegistry ;
+    rdfs:range mp:Asset .
+
+mp:registeredIn a owl:ObjectProperty ;
+    rdfs:label "registered in" ;
+    rdfs:comment "Registry where asset is registered" ;
+    rdfs:domain mp:Asset ;
+    rdfs:range mp:AssetRegistry .
+
+## Exchange Properties
+mp:facilitatesExchange a owl:ObjectProperty ;
+    rdfs:label "facilitates exchange" ;
+    rdfs:comment "Organization participating in asset exchange" ;
+    rdfs:domain mp:AssetExchange ;
+    rdfs:range mp:Organization .
+
+mp:hasTradingAgreement a owl:ObjectProperty ;
+    rdfs:label "has trading agreement" ;
+    rdfs:comment "Trading agreement with another organization" ;
+    rdfs:domain mp:TradingPartner ;
+    rdfs:range mp:TradingAgreement .
+
+## Security Properties
+mp:hasAccessPolicy a owl:ObjectProperty ;
+    rdfs:label "has access policy" ;
+    rdfs:comment "Access control policy for the asset" ;
+    rdfs:domain mp:AssetAccess ;
+    rdfs:range mp:AccessPolicy .
+
+mp:hasEncryption a owl:ObjectProperty ;
+    rdfs:label "has encryption" ;
+    rdfs:comment "Encryption configuration for the asset" ;
+    rdfs:domain mp:Asset ;
+    rdfs:range mp:AssetEncryption .
+
+# ================================================================
+# DATA PROPERTIES
+# ================================================================
+
+## Core Asset Data Properties
+mp:hasDescriptorVersion a owl:DatatypeProperty ;
+    rdfs:label "has descriptor version" ;
+    rdfs:comment "Version of the asset descriptor schema" ;
+    rdfs:domain mp:AssetDescriptor ;
+    rdfs:range xsd:string .
+
+mp:hasAssetId a owl:DatatypeProperty ;
+    rdfs:label "has asset ID" ;
+    rdfs:comment "Unique identifier for the asset" ;
+    rdfs:domain mp:Asset ;
+    rdfs:range xsd:string .
+
+## Dimension Properties
+mp:hasDimensionName a owl:DatatypeProperty ;
+    rdfs:label "has dimension name" ;
+    rdfs:comment "Name of the vector dimension" ;
+    rdfs:domain mp:VectorDimension ;
+    rdfs:range xsd:string .
+
+mp:hasDimensionValue a owl:DatatypeProperty ;
+    rdfs:label "has dimension value" ;
+    rdfs:comment "Numerical value of the vector dimension" ;
+    rdfs:domain mp:VectorDimension ;
+    rdfs:range xsd:decimal .
+
+## Quantity Properties
+mp:hasMinorUnit a owl:DatatypeProperty ;
+    rdfs:label "has minor unit" ;
+    rdfs:comment "Minor unit denomination for precise quantity measurement" ;
+    rdfs:domain mp:QuantityMinor ;
+    rdfs:range xsd:decimal .
+
+mp:hasQuantityValue a owl:DatatypeProperty ;
+    rdfs:label "has quantity value" ;
+    rdfs:comment "Total quantity in minor units" ;
+    rdfs:domain mp:Asset ;
+    rdfs:range xsd:decimal .
+
+## Currency Properties
+mp:hasCurrencyCode a owl:DatatypeProperty ;
+    rdfs:label "has currency code" ;
+    rdfs:comment "ISO currency code (USD, EUR, BTC, etc.)" ;
+    rdfs:domain mp:Currency ;
+    rdfs:range xsd:string .
+
+mp:hasExchangeRate a owl:DatatypeProperty ;
+    rdfs:label "has exchange rate" ;
+    rdfs:comment "Exchange rate to base currency" ;
+    rdfs:domain mp:Currency ;
+    rdfs:range xsd:decimal .
+
+## Region Properties
+mp:hasRegionCode a owl:DatatypeProperty ;
+    rdfs:label "has region code" ;
+    rdfs:comment "Geographic region code (US-EAST-1, EU-WEST-1, etc.)" ;
+    rdfs:domain mp:Region ;
+    rdfs:range xsd:string .
+
+mp:hasComplianceRequirement a owl:DatatypeProperty ;
+    rdfs:label "has compliance requirement" ;
+    rdfs:comment "Regulatory compliance requirements for the region" ;
+    rdfs:domain mp:Region ;
+    rdfs:range xsd:string .
+
+## Privacy Properties
+mp:hasPrivacyRating a owl:DatatypeProperty ;
+    rdfs:label "has privacy rating" ;
+    rdfs:comment "Privacy level rating (1-10, 10 being highest)" ;
+    rdfs:domain mp:PrivacyLevel ;
+    rdfs:range xsd:integer .
+
+mp:hasDataClassification a owl:DatatypeProperty ;
+    rdfs:label "has data classification" ;
+    rdfs:comment "Data classification level (PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED)" ;
+    rdfs:domain mp:PrivacyLevel ;
+    rdfs:range xsd:string .
+
+## Latency Properties
+mp:hasMaxLatency a owl:DatatypeProperty ;
+    rdfs:label "has max latency" ;
+    rdfs:comment "Maximum allowed latency in ticks (per Doctrine of 8)" ;
+    rdfs:domain mp:LatencySLO ;
+    rdfs:range xsd:decimal .
+
+mp:hasLatencyUnit a owl:DatatypeProperty ;
+    rdfs:label "has latency unit" ;
+    rdfs:comment "Unit of latency measurement (ticks, milliseconds, etc.)" ;
+    rdfs:domain mp:LatencySLO ;
+    rdfs:range xsd:string .
+
+## Carbon Properties
+mp:hasCarbonValue a owl:DatatypeProperty ;
+    rdfs:label "has carbon value" ;
+    rdfs:comment "Carbon footprint in kilograms CO2 equivalent" ;
+    rdfs:domain mp:CarbonKg ;
+    rdfs:range xsd:decimal .
+
+mp:hasCarbonCalculationMethod a owl:DatatypeProperty ;
+    rdfs:label "has carbon calculation method" ;
+    rdfs:comment "Method used to calculate carbon footprint" ;
+    rdfs:domain mp:CarbonKg ;
+    rdfs:range xsd:string .
+
+## License Properties
+mp:hasLicenseLevel a owl:DatatypeProperty ;
+    rdfs:label "has license level" ;
+    rdfs:comment "License tier level (BASIC, STANDARD, PREMIUM, ENTERPRISE)" ;
+    rdfs:domain mp:LicenseTier ;
+    rdfs:range xsd:string .
+
+mp:hasUsageRights a owl:DatatypeProperty ;
+    rdfs:label "has usage rights" ;
+    rdfs:comment "Specific usage rights granted by the license" ;
+    rdfs:domain mp:LicenseTier ;
+    rdfs:range xsd:string .
+
+## Quality Properties
+mp:hasQualityScore a owl:DatatypeProperty ;
+    rdfs:label "has quality score" ;
+    rdfs:comment "Overall quality score (0.0-1.0)" ;
+    rdfs:domain mp:AssetQuality ;
+    rdfs:range xsd:decimal .
+
+mp:hasAvailabilityPercentage a owl:DatatypeProperty ;
+    rdfs:label "has availability percentage" ;
+    rdfs:comment "Availability guarantee as percentage (0.0-100.0)" ;
+    rdfs:domain mp:AssetAvailability ;
+    rdfs:range xsd:decimal .
+
+## Organization Properties
+mp:hasOrganizationId a owl:DatatypeProperty ;
+    rdfs:label "has organization ID" ;
+    rdfs:comment "Unique identifier for the organization" ;
+    rdfs:domain mp:Organization ;
+    rdfs:range xsd:string .
+
+mp:hasOrganizationName a owl:DatatypeProperty ;
+    rdfs:label "has organization name" ;
+    rdfs:comment "Legal name of the organization" ;
+    rdfs:domain mp:Organization ;
+    rdfs:range xsd:string .
+
+## Security Properties
+mp:hasEncryptionAlgorithm a owl:DatatypeProperty ;
+    rdfs:label "has encryption algorithm" ;
+    rdfs:comment "Encryption algorithm used (AES-256, ChaCha20-Poly1305, etc.)" ;
+    rdfs:domain mp:AssetEncryption ;
+    rdfs:range xsd:string .
+
+mp:hasKeyLength a owl:DatatypeProperty ;
+    rdfs:label "has key length" ;
+    rdfs:comment "Encryption key length in bits" ;
+    rdfs:domain mp:AssetEncryption ;
+    rdfs:range xsd:integer .
+
+## Audit Properties
+mp:hasAuditTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has audit timestamp" ;
+    rdfs:comment "Timestamp of the audit event" ;
+    rdfs:domain mp:AssetAudit ;
+    rdfs:range xsd:dateTime .
+
+mp:hasAuditAction a owl:DatatypeProperty ;
+    rdfs:label "has audit action" ;
+    rdfs:comment "Action performed (CREATE, READ, UPDATE, DELETE, TRANSFER)" ;
+    rdfs:domain mp:AssetAudit ;
+    rdfs:range xsd:string .
+
+# ================================================================
+# SHACL VALIDATION SHAPES
+# ================================================================
+
+mp:AssetValidationShape a sh:NodeShape ;
+    sh:targetClass mp:Asset ;
+    rdfs:label "Asset Validation" ;
+    rdfs:comment "Validates asset descriptor completeness and correctness" ;
+    sh:property [
+        sh:path mp:hasAssetVector ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:AssetVector ;
+        sh:message "Asset must have exactly one asset vector"
+    ] ;
+    sh:property [
+        sh:path mp:hasAssetType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:AssetType ;
+        sh:message "Asset must have exactly one asset type"
+    ] ;
+    sh:property [
+        sh:path mp:hasAssetId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}$" ;
+        sh:message "Asset must have a valid UUID identifier"
+    ] .
+
+mp:AssetVectorValidationShape a sh:NodeShape ;
+    sh:targetClass mp:AssetVector ;
+    rdfs:label "Asset Vector Validation" ;
+    rdfs:comment "Validates N-dimensional asset vector completeness" ;
+    sh:property [
+        sh:path mp:hasDimension ;
+        sh:minCount 8 ;
+        sh:class mp:VectorDimension ;
+        sh:message "Asset vector must have at least 8 dimensions (asset_type, qty_minor, currency, region, privacy_level, latency_slo, carbon_kg, license_tier)"
+    ] .
+
+mp:VectorDimensionValidationShape a sh:NodeShape ;
+    sh:targetClass mp:VectorDimension ;
+    rdfs:label "Vector Dimension Validation" ;
+    rdfs:comment "Validates individual vector dimension properties" ;
+    sh:property [
+        sh:path mp:hasDimensionName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Vector dimension must have a non-empty name"
+    ] ;
+    sh:property [
+        sh:path mp:hasDimensionValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:message "Vector dimension must have a numerical value"
+    ] .
+
+mp:QuantityMinorValidationShape a sh:NodeShape ;
+    sh:targetClass mp:QuantityMinor ;
+    rdfs:label "Quantity Minor Validation" ;
+    rdfs:comment "Validates quantity minor unit precision" ;
+    sh:property [
+        sh:path mp:hasMinorUnit ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:message "Minor unit must be positive"
+    ] .
+
+mp:LatencySLOValidationShape a sh:NodeShape ;
+    sh:targetClass mp:LatencySLO ;
+    rdfs:label "Latency SLO Validation" ;
+    rdfs:comment "Validates latency SLO compliance with Doctrine of 8" ;
+    sh:property [
+        sh:path mp:hasMaxLatency ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Maximum latency must not exceed 8 ticks per Doctrine of 8"
+    ] .
+
+mp:PrivacyLevelValidationShape a sh:NodeShape ;
+    sh:targetClass mp:PrivacyLevel ;
+    rdfs:label "Privacy Level Validation" ;
+    rdfs:comment "Validates privacy level rating range" ;
+    sh:property [
+        sh:path mp:hasPrivacyRating ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Privacy rating must be between 1 and 10"
+    ] .
+
+mp:CarbonKgValidationShape a sh:NodeShape ;
+    sh:targetClass mp:CarbonKg ;
+    rdfs:label "Carbon Footprint Validation" ;
+    rdfs:comment "Validates carbon footprint measurement" ;
+    sh:property [
+        sh:path mp:hasCarbonValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Carbon value must be non-negative"
+    ] .
+
+mp:AssetQualityValidationShape a sh:NodeShape ;
+    sh:targetClass mp:AssetQuality ;
+    rdfs:label "Asset Quality Validation" ;
+    rdfs:comment "Validates asset quality metrics" ;
+    sh:property [
+        sh:path mp:hasQualityScore ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Quality score must be between 0.0 and 1.0"
+    ] .
+
+mp:AssetAvailabilityValidationShape a sh:NodeShape ;
+    sh:targetClass mp:AssetAvailability ;
+    rdfs:label "Asset Availability Validation" ;
+    rdfs:comment "Validates availability percentage guarantees" ;
+    sh:property [
+        sh:path mp:hasAvailabilityPercentage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Availability percentage must be between 0.0 and 100.0"
+    ] .
+
+# ================================================================
+# SUPPORTING CLASSES FOR FUTURE EXTENSION
+# ================================================================
+
+mp:AccessPolicy a owl:Class ;
+    rdfs:label "Access Policy" ;
+    rdfs:comment "Policy defining access control rules" .
+
+# ================================================================
+# INTEGRATION WITH BYTESTAR ECOSYSTEM
+# ================================================================
+
+## Asset integrates with Resource Allocation
+mp:Asset rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasCapacity ;
+    owl:someValuesFrom xsd:decimal
+] .
+
+## Asset integrates with Performance Measurement
+mp:AssetPerformance rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasMeasuredValue ;
+    owl:someValuesFrom xsd:decimal
+] .
+
+## Asset integrates with Optimization Engine
+mp:Asset rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:optimizesResource ;
+    owl:someValuesFrom ba:Resource
+] .
+
+# ================================================================
+# END OF ASSET DESCRIPTOR ONTOLOGY
+# ================================================================

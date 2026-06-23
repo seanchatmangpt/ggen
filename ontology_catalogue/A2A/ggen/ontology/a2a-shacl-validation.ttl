@@ -1,0 +1,536 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix a2a: <https://a2a.com/schema/> .
+@prefix eg: <https://example.org/a2a#> .
+
+# Extended SHACL Validation Rules for A2A Protocol
+
+# =================================================================================
+# Enhanced Task Validation
+# =================================================================================
+
+a2a:AdvancedTaskShape a sh:NodeShape ;
+    sh:targetClass a2a:Task ;
+    sh:or (
+        [ sh:property [
+            sh:path a2a:task_state ;
+            sh:hasValue a2a:pending ;
+          ] ;
+          sh:property [
+            sh:path a2a:task_created ;
+            sh:datatype xsd:dateTime ;
+          ] ;
+        ]
+        [ sh:property [
+            sh:path a2a:task_state ;
+            sh:hasValue a2a:queued ;
+          ] ;
+          sh:property [
+            sh:path a2a:scheduling_strategy ;
+            sh:not ( sh:hasValue a2a: ) ;
+          ] ;
+        ]
+        [ sh:property [
+            sh:path a2a:task_state ;
+            sh:hasValue a2a:running ;
+          ] ;
+          sh:property [
+            sh:path a2a:task_started ;
+            sh:datatype xsd:dateTime ;
+          ] ;
+          sh:constraint [
+            sh:sparql """
+              SELECT $this WHERE {
+                $this a2a:task_started ?start .
+                $this a2a:task_created ?created .
+                FILTER (?start >= ?created)
+              }
+            """ ;
+          ] ;
+        ]
+        [ sh:property [
+            sh:path a2a:task_state ;
+            sh:hasValue a2a:completed ;
+          ] ;
+          sh:property [
+            sh:path a2a:task_completed ;
+            sh:datatype xsd:dateTime ;
+          ] ;
+          sh:constraint [
+            sh:sparql """
+              SELECT $this WHERE {
+                $this a2a:task_completed ?completed .
+                $this a2a:task_started ?started .
+                FILTER (?completed >= ?started)
+              }
+            """ ;
+          ] ;
+        ]
+    ) .
+
+# =================================================================================
+# State Machine Validation
+# =================================================================================
+
+a2a:StateMachineShape a sh:NodeShape ;
+    sh:targetClass a2a:StateMachine ;
+    sh:property [
+        sh:path a2a:initial_state ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path a2a:current_state ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path a2a:transition ;
+        sh:minCount 1 ;
+    ] ;
+    sh:constraint [
+        sh:sparql """
+          SELECT $this WHERE {
+            $this a2a:current_state ?current .
+            $this a2a:initial_state ?initial .
+
+            # Check that current state is reachable from initial state
+            {
+              $this a2a:transition ?trans .
+              ?trans a2a:from_state ?initial .
+              ?trans a2a:to_state ?current .
+            } UNION {
+              # Check transitive reachability
+              ?trans1 a2a:from_state ?initial .
+              ?trans1 a2a:to_state ?intermediate .
+              $this a2a:transition ?trans2 .
+              ?trans2 a2a:from_state ?intermediate .
+              ?trans2 a2a:to_state ?current .
+            }
+          }
+        """ ;
+    ] .
+
+a2a:TransitionShape a sh:NodeShape ;
+    sh:targetClass a2a:Transition ;
+    sh:property [
+        sh:path a2a:from_state ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path a2a:to_state ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path a2a:condition ;
+        sh:minCount 1 ;
+    ] ;
+    sh:constraint [
+        sh:property a2a:from_state ;
+        sh:not ( sh:hasValue a2a:completed ) ;
+    ] ;
+    sh:constraint [
+        sh:property a2a:to_state ;
+        sh:not ( sh:hasValue a2a:pending ) ;
+    ] .
+
+# =================================================================================
+# Communication Validation
+# =================================================================================
+
+a2a:CommunicationValidationShape a sh:NodeShape ;
+    sh:targetClass a2a:Message ;
+    sh:property [
+        sh:path a2a:communication_pattern ;
+        sh:qualifiedValueShape [
+            sh:property [
+                sh:path a2a:recipient ;
+                sh:qualifiedCardinality sh:QualifiedCardinality ;
+                    sh:onClass a2a:Agent ;
+                    sh:cardinality "1" ;
+            ] ;
+        ] ;
+        sh:qualifiedMinCount 0 ;
+    ] ;
+    sh:constraint [
+        sh:sparql """
+          SELECT $this WHERE {
+            $this a2a:communication_pattern ?pattern .
+            $this a2a:message_type ?type .
+
+            # Validate message types per pattern
+            FILTER (
+              (?pattern = a2a:request && ?type = a2a:request) ||
+              (?pattern = a2a:response && ?type = a2a:response) ||
+              (?pattern = a2a:acknowledgment && ?type = a2a:acknowledgment) ||
+              (?pattern = a2a:heartbeat && ?type = a2a:heartbeat) ||
+              (?pattern = a2a:broadcast || ?pattern = a2a:multicast)
+            )
+          }
+        """ ;
+    ] .
+
+# =================================================================================
+# Error Recovery Validation
+# =================================================================================
+
+a2a:ErrorRecoveryShape a sh:NodeShape ;
+    sh:targetClass a2a:Error ;
+    sh:property [
+        sh:path a2a:error_cause ;
+        sh:optional true ;
+    ] ;
+    sh:property [
+        sh:path a2a:recovery_strategy ;
+        sh:minCount 1 ;
+    ] ;
+    sh:constraint [
+        sh:sparql """
+          SELECT $this WHERE {
+            $this a2a:error_type ?error_type .
+            $this a2a:recovery_strategy ?strategy .
+
+            # Validate recovery strategies per error type
+            FILTER (
+              (?error_type = a2a:timeout_error && ?strategy = a2a:retry_strategy) ||
+              (?error_type = a2a:network_error && ?strategy = a2a:retry_strategy) ||
+              (?error_type = a2a:protocol_error && ?strategy = a2a:escalate_strategy) ||
+              (?error_type = a2a:authorization_error && ?strategy = a2a:compensate_strategy) ||
+              (?error_type = a2a:resource_error && ?strategy = a2a:fallback_strategy)
+            )
+          }
+        """ ;
+    ] .
+
+# =================================================================================
+# Agent Capability Validation
+# =================================================================================
+
+a2a:AgentCapabilityShape a sh:NodeShape ;
+    sh:targetClass a2a:Agent ;
+    sh:property [
+        sh:path a2a:agent_capabilities ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:qualifiedValueShape [
+            sh:or (
+                [ sh:hasValue a2a:data_processing ]
+                [ sh:hasValue a2a:user_authentication ]
+                [ sh:hasValue a2a:file_upload ]
+                [ sh:hasValue a2a:report_generation ]
+                [ sh:hasValue a2a:cloud_storage ]
+                [ sh:hasValue a2a:progress_tracking ]
+                [ sh:hasValue a2a:jwt_generation ]
+                [ sh:hasValue a2a:password_hashing ]
+            ) ;
+        ] ;
+    ] ;
+    sh:property [
+        sh:path a2a:agent_current_load ;
+        sh:datatype xsd:integer ;
+        sh:maxInclusive a2a:agent_capacity ;
+    ] .
+
+# =================================================================================
+# Protocol Compliance Validation
+# =================================================================================
+
+a2a:ProtocolComplianceShape a sh:NodeShape ;
+    sh:targetClass a2a:Protocol ;
+    sh:property [
+        sh:path a2a:protocol_version ;
+        sh:pattern "^1\\.[0-9]+(\\.[0-9]+)?$" ;
+        sh:nodeKind sh:Literal ;
+    ] ;
+    sh:constraint [
+        sh:sparql """
+          SELECT $this WHERE {
+            $this a2a:supported_patterns ?pattern .
+
+            # Validate supported patterns
+            FILTER (
+              ?pattern IN (a2a:request_response, a2a:point_to_point,
+                          a2a:broadcast, a2a:multicast, a2a:publish_subscribe, a2a:federated)
+            )
+          }
+        """ ;
+    ] .
+
+# =================================================================================
+# Temporal Validation
+# =================================================================================
+
+a2a:TemporalValidationShape a sh:NodeShape ;
+    sh:targetClass a2a:Task ;
+    sh:constraint [
+        sh:sparql """
+          SELECT $this WHERE {
+            OPTIONAL { $this a2a:task_created ?created }
+            OPTIONAL { $this a2a:task_started ?started }
+            OPTIONAL { $this a2a:task_completed ?completed }
+
+            # Validate temporal ordering
+            FILTER (
+              (!BOUND(?started) || BOUND(?created)) &&
+              (!BOUND(?completed) || (!BOUND(?started) || ?completed >= ?started)) &&
+              (!BOUND(?completed) || !BOUND(?created) || ?completed >= ?created)
+            )
+          }
+        """ ;
+    ] .
+
+# =================================================================================
+# Unique Constraint Validation
+# =================================================================================
+
+a2a:UniqueTaskIdShape a sh:NodeShape ;
+    sh:targetSubjectsOf a2a:task_id ;
+    sh:property [
+        sh:path a2a:task_id ;
+        sh:uniqueLang true ;
+    ] .
+
+a2a:UniqueAgentIdShape a sh:NodeShape ;
+    sh:targetSubjectsOf a2a:agent_id ;
+    sh:property [
+        sh:path a2a:agent_id ;
+        sh:uniqueLang true ;
+    ] .
+
+a2a:UniqueMessageIdShape a sh:NodeShape ;
+    sh:targetSubjectsOf a2a:message_id ;
+    sh:property [
+        sh:path a2a:message_id ;
+        sh:uniqueLang true ;
+    ] .
+
+# =================================================================================
+# Context-Aware Validation
+# =================================================================================
+
+a2a:ContextValidationShape a sh:NodeShape ;
+    sh:targetClass a2a:Message ;
+    sh:and (
+        [ sh:property [
+            sh:path a2a:sender ;
+            sh:nodeKind sh:BlankOrIRI ;
+          ] ;
+        ]
+        [ sh:property [
+            sh:path a2a:recipient ;
+            sh:nodeKind sh:BlankOrIRI ;
+            sh:minCount 0 ;
+          ] ;
+        ]
+        [ sh:property [
+            sh:path a2a:timestamp ;
+            sh:datatype xsd:dateTime ;
+            sh:maxInclusive "NOW"^^xsd:dateTime ;
+          ] ;
+        ]
+    ) .
+
+# =================================================================================
+# Performance Constraint Validation
+# =================================================================================
+
+a2a:PerformanceConstraintShape a sh:NodeShape ;
+    sh:targetClass a2a:Task ;
+    sh:constraint [
+        sh:sparql """
+          SELECT $this WHERE {
+            $this a2a:task_priority ?priority .
+            $this a2a:task_timeout ?timeout .
+
+            # Validate performance constraints
+            FILTER (
+              ?priority <= 100 &&
+              xsd:duration(?timeout) <= xsd:duration("PT1H")
+            )
+          }
+        """ ;
+    ] .
+
+# =================================================================================
+# Security Constraint Validation
+# =================================================================================
+
+a2a:SecurityConstraintShape a sh:NodeShape ;
+    sh:targetClass a2a:Message ;
+    sh:property [
+        sh:path a2a:sender ;
+        sh:not [
+            sh:hasValue eg: ;
+        ] ;
+    ] ;
+    sh:property [
+        sh:path a2a:recipient ;
+        sh:not [
+            sh:hasValue eg: ;
+        ] ;
+    ] ;
+    sh:constraint [
+        sh:sparql """
+          SELECT $this WHERE {
+            $this a2a:communication_pattern ?pattern .
+            $this a2a:sender ?sender .
+
+            # Validate security constraints
+            FILTER (
+              ?pattern != a2a:broadcast ||
+              EXISTS { ?sender a2a:agent_state a2a:active }
+            )
+          }
+        """ ;
+    ] .
+
+# =================================================================================
+# Business Rule Validation
+# =================================================================================
+
+a2a:BusinessRuleShape a sh:NodeShape ;
+    sh:targetClass a2a:Task ;
+    sh:and (
+        [ sh:property [
+            sh:path a2a:task_name ;
+            sh:pattern "^[A-Za-z0-9_\\-\\s]+$" ;
+            sh:nodeKind sh:Literal ;
+          ] ;
+        ]
+        [ sh:property [
+            sh:path a2a:task_description ;
+            sh:minLength 10 ;
+            sh:maxLength 2000 ;
+            sh:nodeKind sh:Literal ;
+          ] ;
+        ]
+        [ sh:property [
+            sh:path a2a:task_priority ;
+            sh:in (1 2 3 4 5 6 7 8 9 10) ;
+          ] ;
+        ]
+    ) .
+
+# =================================================================================
+# Data Quality Validation
+# =================================================================================
+
+a2a:DataQualityShape a sh:NodeShape ;
+    sh:targetClass a2a:Message ;
+    sh:and (
+        [ sh:property [
+            sh:path a2a:message_content ;
+            sh:minLength 1 ;
+            sh:maxLength 10000 ;
+            sh:nodeKind sh:Literal ;
+          ] ;
+        ]
+        [ sh:property [
+            sh:path a2a:correlation_id ;
+            sh:pattern "^[a-zA-Z0-9_\\-]+$" ;
+            sh:nodeKind sh:Literal ;
+          ] ;
+        ]
+        [ sh:property [
+            sh:path a2a:timestamp ;
+            sh:datatype xsd:dateTime ;
+          ] ;
+        ]
+    ) .
+
+# =================================================================================
+# Instance Validation Templates
+# =================================================================================
+
+# Template for creating new task instances
+a2a:TaskTemplate sh:prefixes ( a2a xsd ) ;
+    sh:declare [
+        sh:prefix "a2a" ;
+        sh:namespace "https://a2a.com/schema/"^^xsd:anyURI ;
+    ] ;
+    sh:declare [
+        sh:prefix "xsd" ;
+        sh:namespace "http://www.w3.org/2001/XMLSchema"^^xsd:anyURI ;
+    ] ;
+    sh:targetClass a2a:Task ;
+    sh:parameter [
+        sh:name "task_id" ;
+        sh:defaultValue "auto-generated" ;
+    ] ;
+    sh:parameter [
+        sh:name "task_name" ;
+        sh:defaultValue "Unnamed Task" ;
+    ] ;
+    sh:parameter [
+        sh:name "task_description" ;
+        sh:defaultValue "No description provided" ;
+    ] ;
+    sh:parameter [
+        sh:name "task_state" ;
+        sh:defaultValue a2a:pending ;
+    ] ;
+    sh:parameter [
+        sh:name "task_priority" ;
+        sh:defaultValue 5 ;
+    ] ;
+    sh:parameter [
+        sh:name "task_timeout" ;
+        sh:defaultValue "PT30M"^^xsd:duration ;
+    ] ;
+    sh:parameter [
+        sh:name "scheduling_strategy" ;
+        sh:defaultValue a2a:skill_based ;
+    ] .
+
+# Template for creating new agent instances
+a2a:AgentTemplate sh:prefixes ( a2a xsd ) ;
+    sh:targetClass a2a:Agent ;
+    sh:parameter [
+        sh:name "agent_id" ;
+        sh:defaultValue "auto-generated" ;
+    ] ;
+    sh:parameter [
+        sh:name "agent_name" ;
+        sh:defaultValue "Unnamed Agent" ;
+    ] ;
+    sh:parameter [
+        sh:name "agent_type" ;
+        sh:defaultValue "general" ;
+    ] ;
+    sh:parameter [
+        sh:name "agent_capacity" ;
+        sh:defaultValue 1 ;
+    ] ;
+    sh:parameter [
+        sh:name "agent_capabilities" ;
+        sh:defaultValue () ;
+    ] .
+
+# Template for creating new message instances
+a2a:MessageTemplate sh:prefixes ( a2a xsd ) ;
+    sh:targetClass a2a:Message ;
+    sh:parameter [
+        sh:name "message_id" ;
+        sh:defaultValue "auto-generated" ;
+    ] ;
+    sh:parameter [
+        sh:name "message_type" ;
+        sh:defaultValue a2a:request ;
+    ] ;
+    sh:parameter [
+        sh:name "message_content" ;
+        sh:defaultValue "{}" ;
+    ] ;
+    sh:parameter [
+        sh:name "sender" ;
+        sh:defaultValue eg:agent_001 ;
+    ] ;
+    sh:parameter [
+        sh:name "recipient" ;
+        sh:defaultValue eg:agent_002 ;
+    ] ;
+    sh:parameter [
+        sh:name "communication_pattern" ;
+        sh:defaultValue a2a:point_to_point ;
+    ] .

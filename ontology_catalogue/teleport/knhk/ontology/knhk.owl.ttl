@@ -1,0 +1,1001 @@
+@prefix knhk: <urn:knhk:ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# KNHK Operational Ontology
+# This ontology defines the operational implementation of KNHK as a Fortune 5 enterprise system
+# Focus: 80/20 practical concepts implemented in code, not theoretical abstractions
+# Core: knhk-workflow-engine is the truest manifestation of KGC (Knowledge Graph Computing)
+#       where RDF workflows (O) are source of truth, patterns execute deterministically (A = μ(O)),
+#       and Van der Aalst's 43 workflow patterns provide the operational vocabulary
+
+knhk:Ontology a owl:Ontology ;
+    rdfs:label "KNHK Operational Ontology" ;
+    rdfs:comment "Operational implementation ontology for KNHK enterprise system - KGC made operational" ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# Pipeline Stages (ETL Implementation)
+# ============================================================================
+
+knhk:IngestStage a rdfs:Class ;
+    rdfs:label "Ingest Stage" ;
+    rdfs:comment "RDF/Turtle parsing, connector polling" .
+
+knhk:TransformStage a rdfs:Class ;
+    rdfs:label "Transform Stage" ;
+    rdfs:comment "Schema validation (O ⊨ Σ), IRI hashing, typed triples" .
+
+knhk:LoadStage a rdfs:Class ;
+    rdfs:label "Load Stage" ;
+    rdfs:comment "SoA array construction, predicate run grouping, guard validation (max_run_len ≤ 8)" .
+
+knhk:ReflexStage a rdfs:Class ;
+    rdfs:label "Reflex Stage" ;
+    rdfs:comment "Hot path execution (≤8 ticks), receipt generation, schema/invariant checking" .
+
+knhk:EmitStage a rdfs:Class ;
+    rdfs:label "Emit Stage" ;
+    rdfs:comment "Lockchain writing, downstream APIs (webhooks, Kafka, gRPC)" .
+
+# ============================================================================
+# Data Structures (Actual Implementation)
+# ============================================================================
+
+knhk:SoAArrays a rdfs:Class ;
+    rdfs:label "Structure-of-Arrays" ;
+    rdfs:comment "S[], P[], O[] arrays, 64-byte aligned for SIMD operations" .
+
+knhk:PredRun a rdfs:Class ;
+    rdfs:label "Predicate Run" ;
+    rdfs:comment "Predicate run metadata (predicate, offset, length)" .
+
+knhk:Receipt a rdfs:Class ;
+    rdfs:label "Receipt" ;
+    rdfs:comment "Provenance record with ticks, span_id, a_hash, timestamp" .
+
+knhk:Action a rdfs:Class ;
+    rdfs:label "Action" ;
+    rdfs:comment "Result of reflex stage execution" .
+
+knhk:Triple a rdfs:Class ;
+    rdfs:label "Triple" ;
+    rdfs:comment "Subject-Predicate-Object triple" .
+
+knhk:TypedTriple a rdfs:Class ;
+    rdfs:label "Typed Triple" ;
+    rdfs:comment "Triple with typed object (IRI, literal, blank)" ;
+    rdfs:subClassOf knhk:Triple .
+
+knhk:RawTriple a rdfs:Class ;
+    rdfs:label "Raw Triple" ;
+    rdfs:comment "Unparsed triple from ingestion" ;
+    rdfs:subClassOf knhk:Triple .
+
+# ============================================================================
+# Execution Paths (Three-Tier Architecture)
+# ============================================================================
+
+knhk:HotPath a rdfs:Class ;
+    rdfs:label "Hot Path" ;
+    rdfs:comment "≤8 tick operations (ASK, COUNT, COMPARE, VALIDATE, CONSTRUCT8)" .
+
+knhk:WarmPath a rdfs:Class ;
+    rdfs:label "Warm Path" ;
+    rdfs:comment "≤500ms operations (CONSTRUCT8, batch operations)" .
+
+knhk:ColdPath a rdfs:Class ;
+    rdfs:label "Cold Path" ;
+    rdfs:comment "Full SPARQL engine (complex queries, JOINs, OPTIONAL)" .
+
+# ============================================================================
+# Operations (Actual Query Types)
+# ============================================================================
+
+knhk:AskOperation a rdfs:Class ;
+    rdfs:label "ASK Operation" ;
+    rdfs:comment "Existence checks (ASK_SP, ASK_SPO, ASK_OP)" .
+
+knhk:CountOperation a rdfs:Class ;
+    rdfs:label "COUNT Operation" ;
+    rdfs:comment "Cardinality validation (COUNT_SP_GE/LE/EQ, COUNT_OP variants)" .
+
+knhk:CompareOperation a rdfs:Class ;
+    rdfs:label "COMPARE Operation" ;
+    rdfs:comment "Value comparisons (COMPARE_O_EQ/GT/LT/GE/LE)" .
+
+knhk:ValidateOperation a rdfs:Class ;
+    rdfs:label "VALIDATE Operation" ;
+    rdfs:comment "Property validation (UNIQUE_SP, VALIDATE_DATATYPE_SP/SPO)" .
+
+knhk:Construct8Operation a rdfs:Class ;
+    rdfs:label "CONSTRUCT8 Operation" ;
+    rdfs:comment "Triple construction (≤8 triples)" .
+
+# ============================================================================
+# Enterprise Components (Fortune 5)
+# ============================================================================
+
+knhk:Connector a rdfs:Class ;
+    rdfs:label "Connector" ;
+    rdfs:comment "Data source integration (Kafka, Salesforce, HTTP, File, SAP)" .
+
+knhk:KafkaConnector a knhk:Connector ;
+    rdfs:label "Kafka Connector" ;
+    rdfs:comment "Kafka message queue connector" .
+
+knhk:SalesforceConnector a knhk:Connector ;
+    rdfs:label "Salesforce Connector" ;
+    rdfs:comment "Salesforce CRM connector" .
+
+knhk:HttpConnector a knhk:Connector ;
+    rdfs:label "HTTP Connector" ;
+    rdfs:comment "HTTP/REST API connector" .
+
+knhk:FileConnector a knhk:Connector ;
+    rdfs:label "File Connector" ;
+    rdfs:comment "File system connector" .
+
+knhk:SapConnector a knhk:Connector ;
+    rdfs:label "SAP Connector" ;
+    rdfs:comment "SAP ERP connector" .
+
+knhk:Lockchain a rdfs:Class ;
+    rdfs:label "Lockchain" ;
+    rdfs:comment "Merkle-linked provenance storage (URDNA2015 + SHA-256)" .
+
+knhk:SLO a rdfs:Class ;
+    rdfs:label "Service Level Objective" ;
+    rdfs:comment "SLO tracking (R1 ≤2ns, W1 ≤1ms, C1 ≤500ms)" .
+
+knhk:R1SLO a knhk:SLO ;
+    rdfs:label "R1 SLO" ;
+    rdfs:comment "Hot path SLO: ≤2ns P99" .
+
+knhk:W1SLO a knhk:SLO ;
+    rdfs:label "W1 SLO" ;
+    rdfs:comment "Warm path SLO: ≤1ms P99" .
+
+knhk:C1SLO a knhk:SLO ;
+    rdfs:label "C1 SLO" ;
+    rdfs:comment "Cold path SLO: ≤500ms P99" .
+
+knhk:PromotionGate a rdfs:Class ;
+    rdfs:label "Promotion Gate" ;
+    rdfs:comment "Deployment promotion control with auto-rollback" .
+
+knhk:MultiRegion a rdfs:Class ;
+    rdfs:label "Multi-Region" ;
+    rdfs:comment "Cross-region replication and failover" .
+
+knhk:KMSIntegration a rdfs:Class ;
+    rdfs:label "KMS Integration" ;
+    rdfs:comment "Key management (AWS, Azure, GCP, Vault)" .
+
+knhk:AwsKMS a knhk:KMSIntegration ;
+    rdfs:label "AWS KMS" ;
+    rdfs:comment "AWS Key Management Service" .
+
+knhk:AzureKMS a knhk:KMSIntegration ;
+    rdfs:label "Azure KMS" ;
+    rdfs:comment "Azure Key Vault" .
+
+knhk:GcpKMS a knhk:KMSIntegration ;
+    rdfs:label "GCP KMS" ;
+    rdfs:comment "Google Cloud KMS" .
+
+knhk:VaultKMS a knhk:KMSIntegration ;
+    rdfs:label "Vault KMS" ;
+    rdfs:comment "HashiCorp Vault" .
+
+knhk:SPIFFEIntegration a rdfs:Class ;
+    rdfs:label "SPIFFE Integration" ;
+    rdfs:comment "Service identity (SPIFFE/SPIRE)" .
+
+# ============================================================================
+# Workflow Engine (KGC Manifestation - Van der Aalst Patterns)
+# ============================================================================
+# The workflow engine is the truest manifestation of KGC (Knowledge Graph Computing)
+# where RDF workflows (O) are the source of truth, patterns execute deterministically (A = μ(O)),
+# and Van der Aalst's 43 workflow patterns provide the operational vocabulary
+
+knhk:WorkflowEngine a rdfs:Class ;
+    rdfs:label "Workflow Engine" ;
+    rdfs:comment "Core KGC manifestation - executes RDF workflows via Van der Aalst patterns" .
+
+knhk:Workflow a rdfs:Class ;
+    rdfs:label "Workflow" ;
+    rdfs:comment "RDF workflow specification (O - source of truth)" .
+
+knhk:Case a rdfs:Class ;
+    rdfs:label "Case" ;
+    rdfs:comment "Workflow case instance (execution of workflow)" .
+
+knhk:Pattern a rdfs:Class ;
+    rdfs:label "Pattern" ;
+    rdfs:comment "Van der Aalst workflow pattern (43 patterns total)" .
+
+# Pattern Categories (Van der Aalst Classification)
+knhk:BasicControlFlowPattern a rdfs:Class ;
+    rdfs:label "Basic Control Flow Pattern" ;
+    rdfs:comment "Patterns 1-5: Sequence, ParallelSplit, Synchronization, ExclusiveChoice, SimpleMerge" ;
+    rdfs:subClassOf knhk:Pattern .
+
+knhk:AdvancedBranchingPattern a rdfs:Class ;
+    rdfs:label "Advanced Branching Pattern" ;
+    rdfs:comment "Patterns 6-11: MultiChoice, StructuredSynchronizingMerge, MultiMerge, Discriminator, ArbitraryCycles, ImplicitTermination" ;
+    rdfs:subClassOf knhk:Pattern .
+
+knhk:MultipleInstancePattern a rdfs:Class ;
+    rdfs:label "Multiple Instance Pattern" ;
+    rdfs:comment "Patterns 12-15: MI Without Sync, MI With Design-Time Knowledge, MI With Runtime Knowledge, MI Without Runtime Knowledge" ;
+    rdfs:subClassOf knhk:Pattern .
+
+knhk:StateBasedPattern a rdfs:Class ;
+    rdfs:label "State-Based Pattern" ;
+    rdfs:comment "Patterns 16-18: DeferredChoice, InterleavedParallelRouting, Milestone" ;
+    rdfs:subClassOf knhk:Pattern .
+
+knhk:CancellationPattern a rdfs:Class ;
+    rdfs:label "Cancellation Pattern" ;
+    rdfs:comment "Patterns 19-25: Cancel Activity, Cancel Case, Cancel Region, Cancel MI, Complete MI, etc." ;
+    rdfs:subClassOf knhk:Pattern .
+
+knhk:AdvancedControlPattern a rdfs:Class ;
+    rdfs:label "Advanced Control Pattern" ;
+    rdfs:comment "Patterns 26-39: Blocking Discriminator, Cancelling Discriminator, Structured Loop, Recursion, etc." ;
+    rdfs:subClassOf knhk:Pattern .
+
+knhk:TriggerPattern a rdfs:Class ;
+    rdfs:label "Trigger Pattern" ;
+    rdfs:comment "Patterns 40-43: Event-driven patterns" ;
+    rdfs:subClassOf knhk:Pattern .
+
+# Individual Van der Aalst Patterns (Key Patterns)
+knhk:PatternSequence a knhk:BasicControlFlowPattern ;
+    rdfs:label "Pattern 1: Sequence" ;
+    rdfs:comment "Sequential execution of tasks" ;
+    knhk:hasPatternNumber 1 ;
+    knhk:hasSplitType "AND" ;
+    knhk:hasJoinType "AND" .
+
+knhk:PatternParallelSplit a knhk:BasicControlFlowPattern ;
+    rdfs:label "Pattern 2: Parallel Split" ;
+    rdfs:comment "AND-split: all branches execute" ;
+    knhk:hasPatternNumber 2 ;
+    knhk:hasSplitType "AND" ;
+    knhk:hasJoinType "AND" .
+
+knhk:PatternSynchronization a knhk:BasicControlFlowPattern ;
+    rdfs:label "Pattern 3: Synchronization" ;
+    rdfs:comment "AND-join: wait for all branches" ;
+    knhk:hasPatternNumber 3 ;
+    knhk:hasSplitType "AND" ;
+    knhk:hasJoinType "AND" .
+
+knhk:PatternExclusiveChoice a knhk:BasicControlFlowPattern ;
+    rdfs:label "Pattern 4: Exclusive Choice" ;
+    rdfs:comment "XOR-split: exactly one branch executes" ;
+    knhk:hasPatternNumber 4 ;
+    knhk:hasSplitType "XOR" ;
+    knhk:hasJoinType "XOR" .
+
+knhk:PatternSimpleMerge a knhk:BasicControlFlowPattern ;
+    rdfs:label "Pattern 5: Simple Merge" ;
+    rdfs:comment "XOR-join: wait for one branch" ;
+    knhk:hasPatternNumber 5 ;
+    knhk:hasSplitType "XOR" ;
+    knhk:hasJoinType "XOR" .
+
+knhk:PatternMultiChoice a knhk:AdvancedBranchingPattern ;
+    rdfs:label "Pattern 6: Multi-Choice" ;
+    rdfs:comment "OR-split: one or more branches execute" ;
+    knhk:hasPatternNumber 6 ;
+    knhk:hasSplitType "OR" ;
+    knhk:hasJoinType "OR" .
+
+knhk:PatternDiscriminator a knhk:AdvancedBranchingPattern ;
+    rdfs:label "Pattern 9: Discriminator" ;
+    rdfs:comment "First-complete wins" ;
+    knhk:hasPatternNumber 9 ;
+    knhk:hasSplitType "OR" ;
+    knhk:hasJoinType "OR" .
+
+knhk:PatternDeferredChoice a knhk:StateBasedPattern ;
+    rdfs:label "Pattern 16: Deferred Choice" ;
+    rdfs:comment "Event-driven choice" ;
+    knhk:hasPatternNumber 16 ;
+    knhk:hasSplitType "XOR" ;
+    knhk:hasJoinType "XOR" .
+
+knhk:PatternMultipleInstance a knhk:MultipleInstancePattern ;
+    rdfs:label "Pattern 12-15: Multiple Instance" ;
+    rdfs:comment "Multiple instance patterns with various synchronization modes" ;
+    knhk:hasPatternNumber 12 .
+
+# Pattern Registry and Execution
+knhk:PatternRegistry a rdfs:Class ;
+    rdfs:label "Pattern Registry" ;
+    rdfs:comment "Registry of all 43 Van der Aalst patterns (KGC pattern vocabulary)" .
+
+knhk:PatternExecutor a rdfs:Class ;
+    rdfs:label "Pattern Executor" ;
+    rdfs:comment "Executes patterns deterministically (A = μ(O))" .
+
+knhk:PatternExecutionContext a rdfs:Class ;
+    rdfs:label "Pattern Execution Context" ;
+    rdfs:comment "Context for pattern execution (case_id, workflow_id, variables)" .
+
+knhk:PatternExecutionResult a rdfs:Class ;
+    rdfs:label "Pattern Execution Result" ;
+    rdfs:comment "Result of pattern execution (next_activities, updates, cancellations)" .
+
+knhk:Task a rdfs:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "Workflow task (executed via patterns)" .
+
+knhk:Resource a rdfs:Class ;
+    rdfs:label "Resource" ;
+    rdfs:comment "Resource allocation (Four-eyes, Round-robin, Role-based)" .
+
+knhk:FourEyesResource a knhk:Resource ;
+    rdfs:label "Four-Eyes Resource" ;
+    rdfs:comment "Dual approval resource allocation" .
+
+knhk:RoundRobinResource a knhk:Resource ;
+    rdfs:label "Round-Robin Resource" ;
+    rdfs:comment "Round-robin resource allocation" .
+
+knhk:RoleBasedResource a knhk:Resource ;
+    rdfs:label "Role-Based Resource" ;
+    rdfs:comment "Role-based resource allocation" .
+
+knhk:Worklet a rdfs:Class ;
+    rdfs:label "Worklet" ;
+    rdfs:comment "Reusable workflow fragment" .
+
+# ============================================================================
+# Observability (OTEL)
+# ============================================================================
+
+knhk:Span a rdfs:Class ;
+    rdfs:label "Span" ;
+    rdfs:comment "OTEL trace span" .
+
+knhk:Metric a rdfs:Class ;
+    rdfs:label "Metric" ;
+    rdfs:comment "Performance metric (latency, throughput, error rate)" .
+
+knhk:Trace a rdfs:Class ;
+    rdfs:label "Trace" ;
+    rdfs:comment "Distributed trace context" .
+
+# ============================================================================
+# Guards and Validation
+# ============================================================================
+
+knhk:Guard a rdfs:Class ;
+    rdfs:label "Guard" ;
+    rdfs:comment "Constraint enforcement (max_run_len ≤ 8, max_batch_size, max_lag_ms)" .
+
+knhk:Schema a rdfs:Class ;
+    rdfs:label "Schema" ;
+    rdfs:comment "Schema validation (O ⊨ Σ)" .
+
+knhk:Invariant a rdfs:Class ;
+    rdfs:label "Invariant" ;
+    rdfs:comment "Invariant constraint (preserve(Q))" .
+
+# ============================================================================
+# Object Properties (Operational Relationships)
+# ============================================================================
+
+# Pipeline Flow
+knhk:ingestsFrom a owl:ObjectProperty ;
+    rdfs:label "ingests from" ;
+    rdfs:comment "IngestStage ingests data from Connector" ;
+    rdfs:domain knhk:IngestStage ;
+    rdfs:range knhk:Connector .
+
+knhk:transformsTo a owl:ObjectProperty ;
+    rdfs:label "transforms to" ;
+    rdfs:comment "TransformStage transforms to TypedTriple" ;
+    rdfs:domain knhk:TransformStage ;
+    rdfs:range knhk:TypedTriple .
+
+knhk:loadsInto a owl:ObjectProperty ;
+    rdfs:label "loads into" ;
+    rdfs:comment "LoadStage loads into SoAArrays" ;
+    rdfs:domain knhk:LoadStage ;
+    rdfs:range knhk:SoAArrays .
+
+knhk:executesOn a owl:ObjectProperty ;
+    rdfs:label "executes on" ;
+    rdfs:comment "ReflexStage executes on HotPath/WarmPath/ColdPath" ;
+    rdfs:domain knhk:ReflexStage ;
+    rdfs:range [ a owl:Class ;
+        owl:unionOf ( knhk:HotPath knhk:WarmPath knhk:ColdPath ) ] .
+
+knhk:emitsTo a owl:ObjectProperty ;
+    rdfs:label "emits to" ;
+    rdfs:comment "EmitStage emits to Lockchain/Connector/API" ;
+    rdfs:domain knhk:EmitStage ;
+    rdfs:range [ a owl:Class ;
+        owl:unionOf ( knhk:Lockchain knhk:Connector ) ] .
+
+# Data Relationships
+knhk:hasPredRun a owl:ObjectProperty ;
+    rdfs:label "has predicate run" ;
+    rdfs:comment "SoAArrays has PredRun" ;
+    rdfs:domain knhk:SoAArrays ;
+    rdfs:range knhk:PredRun .
+
+knhk:hasReceipt a owl:ObjectProperty ;
+    rdfs:label "has receipt" ;
+    rdfs:comment "Action has Receipt" ;
+    rdfs:domain knhk:Action ;
+    rdfs:range knhk:Receipt .
+
+knhk:hasTriple a owl:ObjectProperty ;
+    rdfs:label "has triple" ;
+    rdfs:comment "SoAArrays has Triple" ;
+    rdfs:domain knhk:SoAArrays ;
+    rdfs:range knhk:Triple .
+
+knhk:executesOperation a owl:ObjectProperty ;
+    rdfs:label "executes operation" ;
+    rdfs:comment "HotPath executes AskOperation/CountOperation/etc" ;
+    rdfs:domain knhk:HotPath ;
+    rdfs:range [ a owl:Class ;
+        owl:unionOf ( knhk:AskOperation knhk:CountOperation knhk:CompareOperation knhk:ValidateOperation knhk:Construct8Operation ) ] .
+
+knhk:routesTo a owl:ObjectProperty ;
+    rdfs:label "routes to" ;
+    rdfs:comment "Query routes to HotPath/WarmPath/ColdPath" ;
+    rdfs:range [ a owl:Class ;
+        owl:unionOf ( knhk:HotPath knhk:WarmPath knhk:ColdPath ) ] .
+
+# Enterprise Relationships
+knhk:tracksSLO a owl:ObjectProperty ;
+    rdfs:label "tracks SLO" ;
+    rdfs:comment "Workflow tracks SLO" ;
+    rdfs:domain knhk:Workflow ;
+    rdfs:range knhk:SLO .
+
+knhk:checksPromotionGate a owl:ObjectProperty ;
+    rdfs:label "checks promotion gate" ;
+    rdfs:comment "Workflow checks PromotionGate" ;
+    rdfs:domain knhk:Workflow ;
+    rdfs:range knhk:PromotionGate .
+
+knhk:replicatesTo a owl:ObjectProperty ;
+    rdfs:label "replicates to" ;
+    rdfs:comment "MultiRegion replicates to Region" ;
+    rdfs:domain knhk:MultiRegion ;
+    rdfs:range xsd:string .
+
+knhk:managesKeys a owl:ObjectProperty ;
+    rdfs:label "manages keys" ;
+    rdfs:comment "KMSIntegration manages keys" ;
+    rdfs:domain knhk:KMSIntegration .
+
+knhk:identifiesAs a owl:ObjectProperty ;
+    rdfs:label "identifies as" ;
+    rdfs:comment "SPIFFEIntegration identifies service" ;
+    rdfs:domain knhk:SPIFFEIntegration ;
+    rdfs:range xsd:string .
+
+# KGC Manifestation Relationships (Workflow Engine)
+knhk:manifestsKGC a owl:DatatypeProperty ;
+    rdfs:label "manifests KGC" ;
+    rdfs:comment "WorkflowEngine is the truest manifestation of Knowledge Graph Computing" ;
+    rdfs:domain knhk:WorkflowEngine ;
+    rdfs:range xsd:boolean .
+
+knhk:executesPattern a owl:ObjectProperty ;
+    rdfs:label "executes pattern" ;
+    rdfs:comment "WorkflowEngine executes Van der Aalst patterns" ;
+    rdfs:domain knhk:WorkflowEngine ;
+    rdfs:range knhk:Pattern .
+
+knhk:registersPattern a owl:ObjectProperty ;
+    rdfs:label "registers pattern" ;
+    rdfs:comment "PatternRegistry contains all 43 patterns" ;
+    rdfs:domain knhk:PatternRegistry ;
+    rdfs:range knhk:Pattern .
+
+knhk:executesViaPattern a owl:ObjectProperty ;
+    rdfs:label "executes via pattern" ;
+    rdfs:comment "Tasks execute via Van der Aalst patterns" ;
+    rdfs:domain knhk:Task ;
+    rdfs:range knhk:Pattern .
+
+knhk:hasPatternCategory a owl:ObjectProperty ;
+    rdfs:label "has pattern category" ;
+    rdfs:comment "Pattern belongs to category (BasicControlFlow, AdvancedBranching, etc.)" ;
+    rdfs:domain knhk:Pattern ;
+    rdfs:range rdfs:Class .
+
+knhk:derivesFromRDF a owl:ObjectProperty ;
+    rdfs:label "derives from RDF" ;
+    rdfs:comment "Workflow derives from RDF source of truth (O)" ;
+    rdfs:domain knhk:Workflow ;
+    rdfs:range xsd:string .
+
+knhk:compilesToIR a owl:ObjectProperty ;
+    rdfs:label "compiles to IR" ;
+    rdfs:comment "Workflow compiles to intermediate representation for execution" ;
+    rdfs:domain knhk:Workflow ;
+    rdfs:range xsd:string .
+
+knhk:executesDeterministically a owl:ObjectProperty ;
+    rdfs:label "executes deterministically" ;
+    rdfs:comment "Pattern execution is deterministic (A = μ(O))" ;
+    rdfs:domain knhk:Pattern ;
+    rdfs:range knhk:Action .
+
+knhk:enforcesAtIngress a owl:ObjectProperty ;
+    rdfs:label "enforces at ingress" ;
+    rdfs:comment "WorkflowEngine enforces guards at ingress (knowledge hooks)" ;
+    rdfs:domain knhk:WorkflowEngine ;
+    rdfs:range knhk:Guard .
+
+knhk:preservesInvariant a owl:ObjectProperty ;
+    rdfs:label "preserves invariant" ;
+    rdfs:comment "Patterns preserve invariants (preserve(Q))" ;
+    rdfs:domain knhk:Pattern ;
+    rdfs:range knhk:Invariant .
+
+# Observability Relationships
+knhk:hasSpan a owl:ObjectProperty ;
+    rdfs:label "has span" ;
+    rdfs:comment "Receipt has Span" ;
+    rdfs:domain knhk:Receipt ;
+    rdfs:range knhk:Span .
+
+knhk:recordsMetric a owl:ObjectProperty ;
+    rdfs:label "records metric" ;
+    rdfs:comment "Operation records Metric" ;
+    rdfs:range knhk:Metric .
+
+knhk:tracesTo a owl:ObjectProperty ;
+    rdfs:label "traces to" ;
+    rdfs:comment "Span traces to Trace" ;
+    rdfs:domain knhk:Span ;
+    rdfs:range knhk:Trace .
+
+# ============================================================================
+# Datatype Properties (Operational Metrics)
+# ============================================================================
+
+# Performance Metrics
+knhk:hasTicks a owl:DatatypeProperty ;
+    rdfs:label "has ticks" ;
+    rdfs:comment "Receipt execution time in ticks (≤8 for hot path)" ;
+    rdfs:domain knhk:Receipt ;
+    rdfs:range xsd:integer .
+
+knhk:hasLatencyNs a owl:DatatypeProperty ;
+    rdfs:label "has latency nanoseconds" ;
+    rdfs:comment "Operation latency in nanoseconds" ;
+    rdfs:range xsd:integer .
+
+knhk:hasLatencyMs a owl:DatatypeProperty ;
+    rdfs:label "has latency milliseconds" ;
+    rdfs:comment "Operation latency in milliseconds" ;
+    rdfs:range xsd:integer .
+
+knhk:hasMaxRunLen a owl:DatatypeProperty ;
+    rdfs:label "has max run length" ;
+    rdfs:comment "Guard constraint: max_run_len ≤ 8" ;
+    rdfs:domain knhk:Guard ;
+    rdfs:range xsd:integer .
+
+knhk:hasBatchSize a owl:DatatypeProperty ;
+    rdfs:label "has batch size" ;
+    rdfs:comment "Connector batch size" ;
+    rdfs:domain knhk:Connector ;
+    rdfs:range xsd:integer .
+
+knhk:hasLagMs a owl:DatatypeProperty ;
+    rdfs:label "has lag milliseconds" ;
+    rdfs:comment "Connector lag in milliseconds" ;
+    rdfs:domain knhk:Connector ;
+    rdfs:range xsd:integer .
+
+# Provenance Properties
+knhk:hasAHash a owl:DatatypeProperty ;
+    rdfs:label "has action hash" ;
+    rdfs:comment "Receipt SHA-256 hash (hash(A) = hash(μ(O)))" ;
+    rdfs:domain knhk:Receipt ;
+    rdfs:range xsd:string .
+
+knhk:hasSpanId a owl:DatatypeProperty ;
+    rdfs:label "has span ID" ;
+    rdfs:comment "Receipt OTEL span ID" ;
+    rdfs:domain knhk:Receipt ;
+    rdfs:range xsd:string .
+
+knhk:hasTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has timestamp" ;
+    rdfs:comment "Receipt Unix timestamp" ;
+    rdfs:domain knhk:Receipt ;
+    rdfs:range xsd:integer .
+
+knhk:hasCycleId a owl:DatatypeProperty ;
+    rdfs:label "has cycle ID" ;
+    rdfs:comment "Receipt 8-beat cycle ID" ;
+    rdfs:domain knhk:Receipt ;
+    rdfs:range xsd:integer .
+
+knhk:hasShardId a owl:DatatypeProperty ;
+    rdfs:label "has shard ID" ;
+    rdfs:comment "Receipt shard identifier" ;
+    rdfs:domain knhk:Receipt ;
+    rdfs:range xsd:string .
+
+# Enterprise Properties
+knhk:hasSloTarget a owl:DatatypeProperty ;
+    rdfs:label "has SLO target" ;
+    rdfs:comment "SLO target class (R1/W1/C1)" ;
+    rdfs:domain knhk:SLO ;
+    rdfs:range xsd:string .
+
+knhk:hasP99Latency a owl:DatatypeProperty ;
+    rdfs:label "has P99 latency" ;
+    rdfs:comment "SLO P99 latency in nanoseconds" ;
+    rdfs:domain knhk:SLO ;
+    rdfs:range xsd:integer .
+
+knhk:hasComplianceRate a owl:DatatypeProperty ;
+    rdfs:label "has compliance rate" ;
+    rdfs:comment "SLO compliance rate (0.0-1.0)" ;
+    rdfs:domain knhk:SLO ;
+    rdfs:range xsd:decimal .
+
+knhk:hasEnvironment a owl:DatatypeProperty ;
+    rdfs:label "has environment" ;
+    rdfs:comment "PromotionGate environment (Dev/Staging/Production)" ;
+    rdfs:domain knhk:PromotionGate ;
+    rdfs:range xsd:string .
+
+knhk:hasRegion a owl:DatatypeProperty ;
+    rdfs:label "has region" ;
+    rdfs:comment "MultiRegion region identifier (us-east-1, etc.)" ;
+    rdfs:domain knhk:MultiRegion ;
+    rdfs:range xsd:string .
+
+knhk:hasReplicationStrategy a owl:DatatypeProperty ;
+    rdfs:label "has replication strategy" ;
+    rdfs:comment "MultiRegion replication strategy (Sync/Async)" ;
+    rdfs:domain knhk:MultiRegion ;
+    rdfs:range xsd:string .
+
+# Workflow Properties
+knhk:hasPatternId a owl:DatatypeProperty ;
+    rdfs:label "has pattern ID" ;
+    rdfs:comment "Pattern identifier (1-43)" ;
+    rdfs:domain knhk:Pattern ;
+    rdfs:range xsd:integer .
+
+knhk:hasCaseId a owl:DatatypeProperty ;
+    rdfs:label "has case ID" ;
+    rdfs:comment "Case identifier" ;
+    rdfs:domain knhk:Case ;
+    rdfs:range xsd:string .
+
+knhk:hasWorkflowId a owl:DatatypeProperty ;
+    rdfs:label "has workflow ID" ;
+    rdfs:comment "Workflow identifier" ;
+    rdfs:domain knhk:Workflow ;
+    rdfs:range xsd:string .
+
+knhk:hasTaskId a owl:DatatypeProperty ;
+    rdfs:label "has task ID" ;
+    rdfs:comment "Task identifier" ;
+    rdfs:domain knhk:Task ;
+    rdfs:range xsd:string .
+
+knhk:hasResourcePolicy a owl:DatatypeProperty ;
+    rdfs:label "has resource policy" ;
+    rdfs:comment "Resource allocation policy (Four-eyes, Round-robin, etc.)" ;
+    rdfs:domain knhk:Resource ;
+    rdfs:range xsd:string .
+
+# KGC Pattern Properties (Van der Aalst)
+knhk:hasPatternNumber a owl:DatatypeProperty ;
+    rdfs:label "has pattern number" ;
+    rdfs:comment "Van der Aalst pattern number (1-43)" ;
+    rdfs:domain knhk:Pattern ;
+    rdfs:range xsd:integer .
+
+knhk:hasPatternName a owl:DatatypeProperty ;
+    rdfs:label "has pattern name" ;
+    rdfs:comment "Pattern name (Sequence, ParallelSplit, etc.)" ;
+    rdfs:domain knhk:Pattern ;
+    rdfs:range xsd:string .
+
+knhk:hasPatternCategory a owl:DatatypeProperty ;
+    rdfs:label "has pattern category" ;
+    rdfs:comment "Pattern category (BasicControlFlow, AdvancedBranching, etc.)" ;
+    rdfs:domain knhk:Pattern ;
+    rdfs:range xsd:string .
+
+knhk:hasSplitType a owl:DatatypeProperty ;
+    rdfs:label "has split type" ;
+    rdfs:comment "Van der Aalst split semantics (AND, OR, XOR)" ;
+    rdfs:domain knhk:Pattern ;
+    rdfs:range xsd:string .
+
+knhk:hasJoinType a owl:DatatypeProperty ;
+    rdfs:label "has join type" ;
+    rdfs:comment "Van der Aalst join semantics (AND, OR, XOR)" ;
+    rdfs:domain knhk:Pattern ;
+    rdfs:range xsd:string .
+
+knhk:hasExecutionTicks a owl:DatatypeProperty ;
+    rdfs:label "has execution ticks" ;
+    rdfs:comment "Ticks required for pattern execution" ;
+    rdfs:domain knhk:Pattern ;
+    rdfs:range xsd:integer .
+
+knhk:isDeterministic a owl:DatatypeProperty ;
+    rdfs:label "is deterministic" ;
+    rdfs:comment "Pattern execution is deterministic (A = μ(O))" ;
+    rdfs:domain knhk:Pattern ;
+    rdfs:range xsd:boolean .
+
+knhk:preservesKGC a owl:DatatypeProperty ;
+    rdfs:label "preserves KGC" ;
+    rdfs:comment "Pattern preserves KGC principles" ;
+    rdfs:domain knhk:Pattern ;
+    rdfs:range xsd:boolean .
+
+knhk:hasRDFSource a owl:DatatypeProperty ;
+    rdfs:label "has RDF source" ;
+    rdfs:comment "RDF source IRI (O - source of truth)" ;
+    rdfs:domain knhk:Workflow ;
+    rdfs:range xsd:string .
+
+knhk:hasIRCompiled a owl:DatatypeProperty ;
+    rdfs:label "has IR compiled" ;
+    rdfs:comment "Compiled IR representation for execution" ;
+    rdfs:domain knhk:Workflow ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# Constraints and Axioms (Operational Rules)
+# ============================================================================
+
+# Performance Constraints
+knhk:HotPathConstraint a owl:Class ;
+    rdfs:label "Hot Path Constraint" ;
+    rdfs:comment "Hot path operations must have ticks ≤ 8" ;
+    rdfs:subClassOf knhk:HotPath ;
+    rdfs:subClassOf [ a owl:Restriction ;
+        owl:onProperty knhk:hasTicks ;
+        owl:maxCardinality 8 ] .
+
+knhk:WarmPathConstraint a owl:Class ;
+    rdfs:label "Warm Path Constraint" ;
+    rdfs:comment "Warm path operations must have latency ≤ 500ms" ;
+    rdfs:subClassOf knhk:WarmPath ;
+    rdfs:subClassOf [ a owl:Restriction ;
+        owl:onProperty knhk:hasLatencyMs ;
+        owl:maxInclusive 500 ] .
+
+knhk:GuardConstraint a owl:Class ;
+    rdfs:label "Guard Constraint" ;
+    rdfs:comment "Guard must enforce max_run_len ≤ 8" ;
+    rdfs:subClassOf knhk:Guard ;
+    rdfs:subClassOf [ a owl:Restriction ;
+        owl:onProperty knhk:hasMaxRunLen ;
+        owl:maxInclusive 8 ] .
+
+knhk:SLOConstraint a owl:Class ;
+    rdfs:label "SLO Constraint" ;
+    rdfs:comment "SLO compliance: R1 ≤2ns P99, W1 ≤1ms P99, C1 ≤500ms P99" ;
+    rdfs:subClassOf knhk:SLO .
+
+# Data Constraints
+knhk:SoAAlignmentConstraint a owl:Class ;
+    rdfs:label "SoA Alignment Constraint" ;
+    rdfs:comment "SoA arrays must be 64-byte aligned" ;
+    rdfs:subClassOf knhk:SoAArrays .
+
+knhk:PredRunConstraint a owl:Class ;
+    rdfs:label "Predicate Run Constraint" ;
+    rdfs:comment "Predicate runs must have length ≤ 8 for hot path" ;
+    rdfs:subClassOf knhk:PredRun .
+
+knhk:Construct8Constraint a owl:Class ;
+    rdfs:label "CONSTRUCT8 Constraint" ;
+    rdfs:comment "CONSTRUCT8 operations must produce ≤8 triples" ;
+    rdfs:subClassOf knhk:Construct8Operation .
+
+# Enterprise Constraints
+knhk:ProductionConstraint a owl:Class ;
+    rdfs:label "Production Constraint" ;
+    rdfs:comment "Production environment requires SLO compliance" ;
+    rdfs:subClassOf knhk:PromotionGate ;
+    rdfs:subClassOf [ a owl:Restriction ;
+        owl:onProperty knhk:hasEnvironment ;
+        owl:hasValue "Production" ] .
+
+knhk:MultiRegionConstraint a owl:Class ;
+    rdfs:label "Multi-Region Constraint" ;
+    rdfs:comment "Multi-region replication required for production" ;
+    rdfs:subClassOf knhk:MultiRegion .
+
+# ============================================================================
+# Example Instances (Fortune 5 Use Cases)
+# ============================================================================
+
+# SWIFT Payment Processing (KGC Manifestation)
+knhk:swift_workflow_engine a knhk:WorkflowEngine ;
+    knhk:manifestsKGC true ;
+    knhk:executesPattern knhk:swift_pattern_parallel_split ;
+    knhk:executesPattern knhk:swift_pattern_synchronization ;
+    knhk:enforcesAtIngress knhk:swift_guard .
+
+knhk:swift_payment_workflow a knhk:Workflow ;
+    knhk:hasWorkflowId "swift-payment-v1" ;
+    knhk:derivesFromRDF "urn:knhk:workflow:swift-payment-rdf" ;
+    knhk:compilesToIR "urn:knhk:ir:swift-payment-compiled" ;
+    knhk:tracksSLO knhk:swift_payment_slo ;
+    knhk:checksPromotionGate knhk:swift_payment_gate .
+
+knhk:swift_pattern_parallel_split a knhk:PatternParallelSplit ;
+    knhk:hasPatternNumber 2 ;
+    knhk:hasPatternName "ParallelSplit" ;
+    knhk:hasPatternCategory "BasicControlFlow" ;
+    knhk:hasSplitType "AND" ;
+    knhk:hasJoinType "AND" ;
+    knhk:hasExecutionTicks 2 ;
+    knhk:isDeterministic true ;
+    knhk:preservesKGC true ;
+    knhk:preservesInvariant knhk:swift_invariant .
+
+knhk:swift_pattern_synchronization a knhk:PatternSynchronization ;
+    knhk:hasPatternNumber 3 ;
+    knhk:hasPatternName "Synchronization" ;
+    knhk:hasPatternCategory "BasicControlFlow" ;
+    knhk:hasSplitType "AND" ;
+    knhk:hasJoinType "AND" ;
+    knhk:hasExecutionTicks 3 ;
+    knhk:isDeterministic true ;
+    knhk:preservesKGC true .
+
+knhk:swift_payment_slo a knhk:R1SLO ;
+    knhk:hasSloTarget "R1" ;
+    knhk:hasP99Latency 2 ;
+    knhk:hasComplianceRate 0.99 .
+
+knhk:swift_payment_gate a knhk:PromotionGate ;
+    knhk:hasEnvironment "Production" .
+
+knhk:swift_guard a knhk:Guard ;
+    knhk:hasMaxRunLen 8 .
+
+knhk:swift_invariant a knhk:Invariant ;
+    rdfs:comment "SWIFT payment invariants preserved" .
+
+knhk:swift_kafka_connector a knhk:KafkaConnector ;
+    knhk:hasBatchSize 8 ;
+    knhk:hasLagMs 0 .
+
+knhk:swift_payment_receipt a knhk:Receipt ;
+    knhk:hasTicks 6 ;
+    knhk:hasAHash "sha256:abc123..." ;
+    knhk:hasSpanId "span-001" ;
+    knhk:hasTimestamp 1704067200 ;
+    knhk:hasCycleId 42 ;
+    knhk:hasShardId "shard-001" .
+
+# ATM Transaction Validation (KGC Manifestation)
+knhk:atm_workflow_engine a knhk:WorkflowEngine ;
+    knhk:manifestsKGC true ;
+    knhk:executesPattern knhk:atm_pattern_sequence ;
+    knhk:executesPattern knhk:atm_pattern_exclusive_choice ;
+    knhk:enforcesAtIngress knhk:atm_max_run_len_guard .
+
+knhk:atm_transaction_workflow a knhk:Workflow ;
+    knhk:hasWorkflowId "atm-transaction-v1" ;
+    knhk:derivesFromRDF "urn:knhk:workflow:atm-transaction-rdf" ;
+    knhk:compilesToIR "urn:knhk:ir:atm-transaction-compiled" ;
+    knhk:tracksSLO knhk:atm_transaction_slo ;
+    knhk:checksPromotionGate knhk:atm_transaction_gate .
+
+knhk:atm_pattern_sequence a knhk:PatternSequence ;
+    knhk:hasPatternNumber 1 ;
+    knhk:hasPatternName "Sequence" ;
+    knhk:hasPatternCategory "BasicControlFlow" ;
+    knhk:hasSplitType "AND" ;
+    knhk:hasJoinType "AND" ;
+    knhk:hasExecutionTicks 1 ;
+    knhk:isDeterministic true ;
+    knhk:preservesKGC true .
+
+knhk:atm_pattern_exclusive_choice a knhk:PatternExclusiveChoice ;
+    knhk:hasPatternNumber 4 ;
+    knhk:hasPatternName "ExclusiveChoice" ;
+    knhk:hasPatternCategory "BasicControlFlow" ;
+    knhk:hasSplitType "XOR" ;
+    knhk:hasJoinType "XOR" ;
+    knhk:hasExecutionTicks 2 ;
+    knhk:isDeterministic true ;
+    knhk:preservesKGC true .
+
+knhk:atm_transaction_slo a knhk:R1SLO ;
+    knhk:hasSloTarget "R1" ;
+    knhk:hasP99Latency 2 ;
+    knhk:hasComplianceRate 0.99 .
+
+knhk:atm_transaction_gate a knhk:PromotionGate ;
+    knhk:hasEnvironment "Production" .
+
+knhk:atm_max_run_len_guard a knhk:Guard ;
+    knhk:hasMaxRunLen 8 .
+
+knhk:atm_kafka_connector a knhk:KafkaConnector ;
+    knhk:hasBatchSize 8 ;
+    knhk:hasLagMs 0 .
+
+# Payroll Processing (KGC Manifestation)
+knhk:payroll_workflow_engine a knhk:WorkflowEngine ;
+    knhk:manifestsKGC true ;
+    knhk:executesPattern knhk:payroll_pattern_multiple_instance ;
+    knhk:executesPattern knhk:payroll_pattern_synchronization ;
+    knhk:enforcesAtIngress knhk:payroll_guard .
+
+knhk:payroll_workflow a knhk:Workflow ;
+    knhk:hasWorkflowId "payroll-v1" ;
+    knhk:derivesFromRDF "urn:knhk:workflow:payroll-rdf" ;
+    knhk:compilesToIR "urn:knhk:ir:payroll-compiled" ;
+    knhk:tracksSLO knhk:payroll_slo ;
+    knhk:checksPromotionGate knhk:payroll_gate .
+
+knhk:payroll_pattern_multiple_instance a knhk:PatternMultipleInstance ;
+    knhk:hasPatternNumber 12 ;
+    knhk:hasPatternName "MultipleInstance" ;
+    knhk:hasPatternCategory "MultipleInstance" ;
+    knhk:hasExecutionTicks 4 ;
+    knhk:isDeterministic true ;
+    knhk:preservesKGC true ;
+    knhk:preservesInvariant knhk:payroll_invariant .
+
+knhk:payroll_pattern_synchronization a knhk:PatternSynchronization ;
+    knhk:hasPatternNumber 3 ;
+    knhk:hasPatternName "Synchronization" ;
+    knhk:hasPatternCategory "BasicControlFlow" ;
+    knhk:hasSplitType "AND" ;
+    knhk:hasJoinType "AND" ;
+    knhk:hasExecutionTicks 3 ;
+    knhk:isDeterministic true ;
+    knhk:preservesKGC true .
+
+knhk:payroll_guard a knhk:Guard ;
+    knhk:hasMaxRunLen 8 .
+
+knhk:payroll_invariant a knhk:Invariant ;
+    rdfs:comment "Payroll processing invariants preserved" .
+
+knhk:payroll_slo a knhk:W1SLO ;
+    knhk:hasSloTarget "W1" ;
+    knhk:hasP99Latency 1000000 ;
+    knhk:hasComplianceRate 0.99 .
+
+knhk:payroll_gate a knhk:PromotionGate ;
+    knhk:hasEnvironment "Production" .
+
+knhk:payroll_salesforce_connector a knhk:SalesforceConnector ;
+    knhk:hasBatchSize 100 ;
+    knhk:hasLagMs 100 .
+
+knhk:payroll_multi_region a knhk:MultiRegion ;
+    knhk:hasRegion "us-east-1" ;
+    knhk:hasReplicationStrategy "Sync" ;
+    knhk:replicatesTo "us-west-2" .
+

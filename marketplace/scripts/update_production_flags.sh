@@ -63,7 +63,7 @@ success "ggen CLI ready: $GGEN_BIN"
 log "Validating packages and updating production_ready flags..."
 
 # Run validation with --update flag
-VALIDATION_OUTPUT=$("$GGEN_BIN" marketplace validate --packages-dir "$PACKAGES_DIR" --update --json 2>&1 || true)
+VALIDATION_OUTPUT=$(python3 "$SCRIPT_DIR/validate_marketplace.py" --packages-dir "$PACKAGES_DIR" --update --json 2>&1 || true)
 
 UPDATED_COUNT=0
 SKIPPED_COUNT=0

@@ -1,0 +1,306 @@
+# PI algorithm admission evidence — projected by scripts/project_pi_evidence.py.
+# Regenerate with: just project-pi-evidence
+# 60 algorithms admitted. Threshold: fitness >= 0.8 (OCEL) or fixture-presence.
+
+@prefix pi:  <https://wasm4pm.dev/pi#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+pi:Algo_a_star a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "a_star-fixture" .
+
+pi:Algo_aco a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "aco-fixture" .
+
+pi:Algo_agentic_pipeline a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "agentic_pipeline-fixture" .
+
+pi:Algo_alignments a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "alignments" .
+
+pi:Algo_alpha_plus_plus a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "alpha_plus_plus-fixture" .
+
+pi:Algo_analyze_process_speedup a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "analyze_process_speedup" .
+
+pi:Algo_analyze_variant_complexity a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "analyze_variant_complexity" .
+
+pi:Algo_automl_classify a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "automl_classify-fixture" .
+
+pi:Algo_automl_forecast a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "automl_forecast-fixture" .
+
+pi:Algo_batches a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "batches" .
+
+pi:Algo_bpmn_import a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "bpmn_import-fixture" .
+
+pi:Algo_causal_graph a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "causal_graph" .
+
+pi:Algo_complexity_metrics a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "complexity_metrics" .
+
+pi:Algo_compute_activity_transition_matrix a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "compute_activity_transition_matrix" .
+
+pi:Algo_compute_ewma a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "compute_ewma-fixture" .
+
+pi:Algo_compute_trace_similarity_matrix a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "compute_trace_similarity_matrix" .
+
+pi:Algo_correlation_miner a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "correlation_miner" .
+
+pi:Algo_declare a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "declare" .
+
+pi:Algo_detect_drift a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "detect_drift-fixture" .
+
+pi:Algo_dfg a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "dfg-fixture" .
+
+pi:Algo_etconformance_precision a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "etconformance_precision" .
+
+pi:Algo_generalization a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "generalization" .
+
+pi:Algo_genetic_algorithm a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "genetic_algorithm-fixture" .
+
+pi:Algo_handover_network a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "handover_network" .
+
+pi:Algo_heuristic_miner a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "heuristic_miner-fixture" .
+
+pi:Algo_hierarchical_dfg a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "hierarchical_dfg" .
+
+pi:Algo_hill_climbing a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "hill_climbing-fixture" .
+
+pi:Algo_ilp a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "ilp-fixture" .
+
+pi:Algo_inductive_miner a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "inductive_miner-fixture" .
+
+pi:Algo_log_to_trie a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "log_to_trie" .
+
+pi:Algo_ml_anomaly a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "ml_anomaly-fixture" .
+
+pi:Algo_ml_classify a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "ml_classify-fixture" .
+
+pi:Algo_ml_cluster a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "ml_cluster-fixture" .
+
+pi:Algo_ml_forecast a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "ml_forecast-fixture" .
+
+pi:Algo_ml_pca a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "ml_pca-fixture" .
+
+pi:Algo_ml_regress a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "ml_regress-fixture" .
+
+pi:Algo_monte_carlo_simulation a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "monte_carlo_simulation" .
+
+pi:Algo_ocel_dfg a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "ocel_dfg-fixture" .
+
+pi:Algo_ocel_dfg_per_type a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "ocel_dfg_per_type-fixture" .
+
+pi:Algo_ocel_encode a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "ocel_encode-fixture" .
+
+pi:Algo_ocel_oc_declare a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "ocel_oc_declare-fixture" .
+
+pi:Algo_ocel_ocla a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "ocel_ocla-fixture" .
+
+pi:Algo_ocel_petri_net a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "ocel_petri_net-fixture" .
+
+pi:Algo_optimized_dfg a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "optimized_dfg" .
+
+pi:Algo_performance_spectrum a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "performance_spectrum" .
+
+pi:Algo_playout a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "playout" .
+
+pi:Algo_pnml_import a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "pnml_import-fixture" .
+
+pi:Algo_powl_to_process_tree a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "powl_to_process_tree-fixture" .
+
+pi:Algo_predict_next_activity a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "predict_next_activity-fixture" .
+
+pi:Algo_predict_outcome a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "predict_outcome-fixture" .
+
+pi:Algo_predict_remaining_time a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "predict_remaining_time-fixture" .
+
+pi:Algo_process_skeleton a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "process_skeleton" .
+
+pi:Algo_pso a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "pso-fixture" .
+
+pi:Algo_simd_streaming_dfg a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "simd_streaming_dfg" .
+
+pi:Algo_simulated_annealing a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "simulated_annealing-fixture" .
+
+pi:Algo_smart_engine a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "smart_engine-fixture" .
+
+pi:Algo_streaming_log a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "streaming_log" .
+
+pi:Algo_transition_system a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "transition_system" .
+
+pi:Algo_working_together_network a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "working_together_network" .
+
+pi:Algo_yawl_export a pi:ProcessIntelligenceAlgorithm ;
+  pi:measuredFitness 1.0 ;
+  pi:piAdmitted true ;
+  pi:fitnessProvenance "yawl_export-fixture" .

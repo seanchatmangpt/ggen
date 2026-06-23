@@ -1,0 +1,10 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT {
+  ?s ?p ?o .
+}
+WHERE {
+  ?s ?p ?o .
+  FILTER (datatype(?o) != <http://www.w3.org/2001/XMLSchema#dateTime>)
+}
+LIMIT 1

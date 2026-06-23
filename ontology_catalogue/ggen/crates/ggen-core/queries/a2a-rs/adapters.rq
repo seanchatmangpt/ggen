@@ -1,0 +1,81 @@
+# SPARQL Query to extract adapter implementations from A2A ontology
+# This query extracts adapter patterns and implementation strategies
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+
+# Query to extract adapter patterns and implementations
+SELECT DISTINCT ?adapter ?adapterLabel ?adapterComment ?trait ?traitLabel ?implementation ?implLabel ?implComment ?communicationType ?dataType WHERE {
+    # Extract adapters
+    ?adapter a owl:Class .
+    ?adapter rdfs:label ?adapterLabel .
+    OPTIONAL { ?adapter rdfs:comment ?adapterComment }
+
+    # Link adapters to traits they implement
+    OPTIONAL {
+        ?adapter rdfs:subClassOf ?implementation .
+        ?implementation a owl:Restriction .
+        ?implementation rdfs:comment ?implComment .
+        ?implementation rdfs:label ?implLabel .
+
+        # Extract the trait being implemented
+        ?implementation rdfs:subClassOf ?trait .
+        ?trait rdfs:label ?traitLabel .
+    }
+
+    # Extract communication types for adapters
+    OPTIONAL {
+        ?adapter a2a:hasCommunicationType ?commType .
+        ?commType rdfs:label ?communicationType .
+    }
+
+    # Extract supported data types
+    OPTIONAL {
+        ?adapter a2a:supportsDataType ?dataType .
+        ?dataType rdfs:label ?dataTypeLabel .
+        BIND(?dataTypeLabel AS ?dataType)
+    }
+
+    # Extract HTTP-related properties for HTTP adapters
+    OPTIONAL {
+        ?adapter a2a:hasBaseUrl ?baseUrl .
+        ?adapter a2a:hasAuthMethod ?authMethod .
+    }
+
+    # Extract WebSocket-related properties for WebSocket adapters
+    OPTIONAL {
+        ?adapter a2a:hasWebSocketUrl ?wsUrl .
+        ?adapter a2a:hasConnectionType ?connType .
+    }
+
+    # Extract Memory-based properties for memory adapters
+    OPTIONAL {
+        ?adapter a2a:usesInMemoryStorage ?useMemory .
+        FILTER(?useMemory = true || ?useMemory = "true"^^xsd:boolean)
+    }
+
+    # Extract File-based properties for file adapters
+    OPTIONAL {
+        ?adapter a2a:hasStoragePath ?storagePath .
+        ?adapter a2a:hasFileFormat ?fileFormat .
+    }
+
+    # Extract Database-related properties for database adapters
+    OPTIONAL {
+        ?adapter a2a:hasDatabaseUrl ?dbUrl .
+        ?adapter a2a:hasDatabaseType ?dbType .
+        ?adapter a2a:hasTablePrefix ?tablePrefix .
+    }
+
+    # Extract configuration properties
+    OPTIONAL {
+        ?adapter a2a:hasConfigProperty ?configProp .
+        ?configProp rdfs:label ?configLabel .
+        ?configProp a2a:hasConfigValue ?configValue .
+    }
+}
+ORDER BY ?adapter ?adapterLabel ?trait ?traitLabel

@@ -1,0 +1,16 @@
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# AUDIT: FAIL if dashboard/report classified as AUTHORIZATION_COURT (decision authority)
+# Valid: Dashboard displays outcomes from real courts. Invalid: Dashboard as the decision court.
+SELECT ?violation ?label
+WHERE {
+  ?entity a prov:Entity ;
+          rdfs:label ?label ;
+          dcterms:description ?desc .
+  BIND ("DashboardAsTruth" AS ?violation)
+  FILTER (REGEX(?label, "dashboard|report|analytics|UI", "i") &&
+          REGEX(?desc, "court|authority|decision|truth", "i"))
+}

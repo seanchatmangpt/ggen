@@ -1,0 +1,158 @@
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# --- Provenance graph for Bible O* Cell8 manufacturing run ---
+# Temporal window: 2026-06-02T00:01:00Z – 2026-06-02T00:20:00Z
+# Agents: Nehemiah 52-builder roster (E1–E10)
+
+<https://open-ontologies.org/bible-o-star/provenance>
+    a owl:Ontology ;
+    rdfs:label "Bible O* Provenance Graph" ;
+    dcterms:created "2026-06-02"^^xsd:date .
+
+# ===== E1: Eliashib / Sheep Gate / bible-o-star.ttl =====
+
+bos:BibleOStarOntology prov:wasGeneratedBy bos:EliashibActivity .
+
+bos:EliashibActivity a prov:Activity ;
+    rdfs:label "Compose Bible O* Ontology (Sheep Gate)" ;
+    prov:wasAssociatedWith bos:Eliashib ;
+    prov:startedAtTime "2026-06-02T00:01:00Z"^^xsd:dateTime ;
+    prov:endedAtTime   "2026-06-02T00:02:00Z"^^xsd:dateTime .
+
+bos:Eliashib a prov:Agent ;
+    rdfs:label "Eliashib, builder at Sheep Gate" .
+
+# ===== E2: Meremoth / Fish Gate / source-ledger.ttl =====
+
+bos:SourceLedger prov:wasGeneratedBy bos:MeremothActivity .
+
+bos:MeremothActivity a prov:Activity ;
+    rdfs:label "Compose Source Ledger OSHB section (Fish Gate)" ;
+    prov:wasAssociatedWith bos:Meremoth ;
+    prov:startedAtTime "2026-06-02T00:03:00Z"^^xsd:dateTime ;
+    prov:endedAtTime   "2026-06-02T00:04:00Z"^^xsd:dateTime .
+
+bos:Meremoth a prov:Agent ;
+    rdfs:label "Meremoth, builder at Fish Gate" .
+
+# ===== E3: Meshullam / Old Gate / CrossRefLayer =====
+
+bos:CrossRefLayer prov:wasGeneratedBy bos:MeshullamActivity .
+
+bos:MeshullamActivity a prov:Activity ;
+    rdfs:label "Compose cross-reference terms (Old Gate)" ;
+    prov:wasAssociatedWith bos:Meshullam ;
+    prov:startedAtTime "2026-06-02T00:05:00Z"^^xsd:dateTime ;
+    prov:endedAtTime   "2026-06-02T00:06:00Z"^^xsd:dateTime .
+
+bos:Meshullam a prov:Agent ;
+    rdfs:label "Meshullam, builder at Old Gate" .
+
+# ===== E4: Zadok / Valley Gate / PericopsLayer =====
+
+bos:PericopsLayer prov:wasGeneratedBy bos:ZadokActivity .
+
+bos:ZadokActivity a prov:Activity ;
+    rdfs:label "Compose Pericope terms (Valley Gate)" ;
+    prov:wasAssociatedWith bos:Zadok ;
+    prov:startedAtTime "2026-06-02T00:07:00Z"^^xsd:dateTime ;
+    prov:endedAtTime   "2026-06-02T00:08:00Z"^^xsd:dateTime .
+
+bos:Zadok a prov:Agent ;
+    rdfs:label "Zadok, builder at Valley Gate" .
+
+# ===== E5: Hanun / Dung Gate / nehemiah-52.ttl =====
+
+bos:Nehemiah52Ontology prov:wasGeneratedBy bos:HanunActivity .
+bos:Nehemiah52Ontology prov:used bos:BibleOStarOntology .
+
+bos:HanunActivity a prov:Activity ;
+    rdfs:label "Compose Nehemiah 52 domain ontology (Dung Gate)" ;
+    prov:wasAssociatedWith bos:Hanun ;
+    prov:startedAtTime "2026-06-02T00:09:00Z"^^xsd:dateTime ;
+    prov:endedAtTime   "2026-06-02T00:10:00Z"^^xsd:dateTime .
+
+bos:Hanun a prov:Agent ;
+    rdfs:label "Hanun, builder at Dung Gate" .
+
+# ===== E6: Shallun / Fountain Gate / TOGAF_MAPPING.md =====
+
+bos:TOGAFMapping prov:wasGeneratedBy bos:ShallunActivity .
+
+bos:ShallunActivity a prov:Activity ;
+    rdfs:label "Compose TOGAF architecture mapping (Fountain Gate)" ;
+    prov:wasAssociatedWith bos:Shallun ;
+    prov:startedAtTime "2026-06-02T00:11:00Z"^^xsd:dateTime ;
+    prov:endedAtTime   "2026-06-02T00:12:00Z"^^xsd:dateTime .
+
+bos:Shallun a prov:Agent ;
+    rdfs:label "Shallun, builder at Fountain Gate" .
+
+# ===== E7: Malkijah / Water Gate / nehemiah-52-shapes.ttl =====
+
+bos:SHACLShapes prov:wasGeneratedBy bos:MalkijahActivity .
+bos:SHACLShapes prov:used bos:Nehemiah52Ontology .
+
+bos:MalkijahActivity a prov:Activity ;
+    rdfs:label "Compose SHACL shape constraints (Water Gate)" ;
+    prov:wasAssociatedWith bos:Malkijah ;
+    prov:startedAtTime "2026-06-02T00:13:00Z"^^xsd:dateTime ;
+    prov:endedAtTime   "2026-06-02T00:14:00Z"^^xsd:dateTime .
+
+bos:Malkijah a prov:Agent ;
+    rdfs:label "Malkijah, builder at Water Gate" .
+
+# ===== E8: Hassenaah / Horse Gate / examples/ =====
+
+bos:ExampleSet prov:wasGeneratedBy bos:HassenaahActivity .
+bos:ExampleSet prov:used bos:BibleOStarOntology .
+bos:ExampleSet prov:used bos:SHACLShapes .
+
+bos:HassenaahActivity a prov:Activity ;
+    rdfs:label "Compose runnable usage examples (Horse Gate)" ;
+    prov:wasAssociatedWith bos:Hassenaah ;
+    prov:startedAtTime "2026-06-02T00:15:00Z"^^xsd:dateTime ;
+    prov:endedAtTime   "2026-06-02T00:16:00Z"^^xsd:dateTime .
+
+bos:Hassenaah a prov:Agent ;
+    rdfs:label "Hassenaah, builder at Horse Gate" .
+
+# ===== E9: Joiada / East Gate / LICENSE_AND_USAGE_BOUNDARY.md =====
+
+bos:LicenseBoundary prov:wasGeneratedBy bos:JoiadaActivity .
+
+bos:JoiadaActivity a prov:Activity ;
+    rdfs:label "Compose license and usage boundary (East Gate)" ;
+    prov:wasAssociatedWith bos:Joiada ;
+    prov:startedAtTime "2026-06-02T00:17:00Z"^^xsd:dateTime ;
+    prov:endedAtTime   "2026-06-02T00:18:00Z"^^xsd:dateTime .
+
+bos:Joiada a prov:Agent ;
+    rdfs:label "Joiada, builder at East Gate" .
+
+# ===== E10: Nehemiah / Inspection Round / BIBLE_O_STAR_001_VALIDATION_RECEIPT.md =====
+
+bos:ValidationReceipt prov:wasGeneratedBy bos:NehemiahActivity .
+bos:ValidationReceipt prov:used bos:BibleOStarOntology .
+bos:ValidationReceipt prov:used bos:SourceLedger .
+bos:ValidationReceipt prov:used bos:CrossRefLayer .
+bos:ValidationReceipt prov:used bos:PericopsLayer .
+bos:ValidationReceipt prov:used bos:Nehemiah52Ontology .
+bos:ValidationReceipt prov:used bos:TOGAFMapping .
+bos:ValidationReceipt prov:used bos:SHACLShapes .
+bos:ValidationReceipt prov:used bos:ExampleSet .
+bos:ValidationReceipt prov:used bos:LicenseBoundary .
+
+bos:NehemiahActivity a prov:Activity ;
+    rdfs:label "Emit BIBLE_O_STAR_001 validation receipt (Inspection Round)" ;
+    prov:wasAssociatedWith bos:Nehemiah ;
+    prov:startedAtTime "2026-06-02T00:19:00Z"^^xsd:dateTime ;
+    prov:endedAtTime   "2026-06-02T00:20:00Z"^^xsd:dateTime .
+
+bos:Nehemiah a prov:Agent ;
+    rdfs:label "Nehemiah, governor and wall inspector" .

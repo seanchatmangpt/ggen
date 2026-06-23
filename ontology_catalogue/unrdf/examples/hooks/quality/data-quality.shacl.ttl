@@ -1,0 +1,66 @@
+# Data Quality Validation - SHACL Shapes
+# This SHACL shape validates data quality requirements
+# for knowledge graphs and RDF datasets
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix quality: <urn:quality:> .
+@prefix ex: <http://example.org/> .
+
+# Shape for validating entities have required properties
+quality:EntityShape a sh:NodeShape ;
+    sh:targetClass rdfs:Resource ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every entity must have exactly one type" ;
+    ] ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Every entity must have a non-empty label" ;
+    ] .
+
+# Shape for validating string literals
+quality:StringLiteralShape a sh:NodeShape ;
+    sh:targetObjectsOf rdfs:label ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:maxLength 255 ;
+    sh:message "String literals must be between 1 and 255 characters" .
+
+# Shape for validating date/time values
+quality:DateTimeShape a sh:NodeShape ;
+    sh:targetObjectsOf ex:timestamp ;
+    sh:datatype xsd:dateTime ;
+    sh:message "Timestamp values must be valid dateTime literals" .
+
+# Shape for validating numeric values
+quality:NumericShape a sh:NodeShape ;
+    sh:targetObjectsOf ex:amount ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:message "Amount values must be non-negative decimals" .
+
+# Shape for validating URI references
+quality:URIShape a sh:NodeShape ;
+    sh:targetObjectsOf ex:references ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Reference values must be valid URIs" .
+
+# Shape for ensuring no orphaned blank nodes
+quality:NoOrphanedBlankNodesShape a sh:NodeShape ;
+    sh:targetNode sh:BlankNode ;
+    sh:not [
+        sh:property [
+            sh:path rdf:type ;
+            sh:minCount 1
+        ]
+    ] ;
+    sh:message "Blank nodes must have at least one type" .

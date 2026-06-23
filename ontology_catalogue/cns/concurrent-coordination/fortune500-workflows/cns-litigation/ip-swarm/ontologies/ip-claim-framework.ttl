@@ -1,0 +1,425 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ip: <http://cns-litigation.org/ip-ontology#> .
+@prefix emp: <http://cns-litigation.org/employment-ontology#> .
+@prefix legal: <http://cns-litigation.org/legal-ontology#> .
+@prefix claim: <http://cns-litigation.org/claim-framework#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# IP Claim Analysis Framework in RDF
+
+<http://cns-litigation.org/claim-framework> a owl:Ontology ;
+    rdfs:label "IP Claim Analysis Framework" ;
+    rdfs:comment "Comprehensive framework for analyzing intellectual property claims, ownership disputes, and employment-related IP issues" ;
+    owl:versionInfo "1.0.0" ;
+    legal:jurisdiction "US Federal and State IP Law" ;
+    legal:applicableLaw "Patent Act, Copyright Act, Trade Secret Law, Employment Law" .
+
+# Core Classes
+
+claim:IPClaim a owl:Class ;
+    rdfs:label "Intellectual Property Claim" ;
+    rdfs:comment "A claim regarding intellectual property rights, ownership, or infringement" ;
+    rdfs:subClassOf legal:LegalClaim .
+
+claim:OwnershipClaim a owl:Class ;
+    rdfs:label "Ownership Claim" ;
+    rdfs:comment "Claim asserting ownership rights in intellectual property" ;
+    rdfs:subClassOf claim:IPClaim .
+
+claim:InventorshipClaim a owl:Class ;
+    rdfs:label "Inventorship Claim" ;
+    rdfs:comment "Claim regarding who should be named as inventor" ;
+    rdfs:subClassOf claim:IPClaim .
+
+claim:AssignmentClaim a owl:Class ;
+    rdfs:label "Assignment Claim" ;
+    rdfs:comment "Claim regarding the validity or scope of IP assignments" ;
+    rdfs:subClassOf claim:IPClaim .
+
+claim:InfringementClaim a owl:Class ;
+    rdfs:label "Infringement Claim" ;
+    rdfs:comment "Claim alleging unauthorized use of intellectual property" ;
+    rdfs:subClassOf claim:IPClaim .
+
+claim:EmploymentRelatedClaim a owl:Class ;
+    rdfs:label "Employment Related IP Claim" ;
+    rdfs:comment "IP claim arising from employment relationship" ;
+    rdfs:subClassOf claim:IPClaim .
+
+# IP Subject Matter Classes
+
+ip:IntellectualProperty a owl:Class ;
+    rdfs:label "Intellectual Property" ;
+    rdfs:comment "Abstract or tangible property created by intellectual effort" .
+
+ip:Patent a owl:Class ;
+    rdfs:label "Patent" ;
+    rdfs:comment "Government-granted exclusive right to invention" ;
+    rdfs:subClassOf ip:IntellectualProperty .
+
+ip:Trademark a owl:Class ;
+    rdfs:label "Trademark" ;
+    rdfs:comment "Distinctive sign used to identify products or services" ;
+    rdfs:subClassOf ip:IntellectualProperty .
+
+ip:Copyright a owl:Class ;
+    rdfs:label "Copyright" ;
+    rdfs:comment "Exclusive right to reproduce, distribute, and display creative works" ;
+    rdfs:subClassOf ip:IntellectualProperty .
+
+ip:TradeSecret a owl:Class ;
+    rdfs:label "Trade Secret" ;
+    rdfs:comment "Confidential business information providing competitive advantage" ;
+    rdfs:subClassOf ip:IntellectualProperty .
+
+ip:KnowHow a owl:Class ;
+    rdfs:label "Know-How" ;
+    rdfs:comment "Practical knowledge and expertise" ;
+    rdfs:subClassOf ip:IntellectualProperty .
+
+# Employment Context Classes
+
+emp:EmploymentAgreement a owl:Class ;
+    rdfs:label "Employment Agreement" ;
+    rdfs:comment "Contract governing employment relationship" ;
+    rdfs:subClassOf legal:Contract .
+
+emp:IPAssignmentClause a owl:Class ;
+    rdfs:label "IP Assignment Clause" ;
+    rdfs:comment "Contract provision assigning IP rights to employer" ;
+    rdfs:subClassOf legal:ContractClause .
+
+emp:WorkForHireProvision a owl:Class ;
+    rdfs:label "Work for Hire Provision" ;
+    rdfs:comment "Contract provision establishing work-for-hire relationship" ;
+    rdfs:subClassOf legal:ContractClause .
+
+emp:InventionDisclosureRequirement a owl:Class ;
+    rdfs:label "Invention Disclosure Requirement" ;
+    rdfs:comment "Obligation to disclose inventions to employer" ;
+    rdfs:subClassOf legal:ContractObligation .
+
+emp:NonCompeteClause a owl:Class ;
+    rdfs:label "Non-Compete Clause" ;
+    rdfs:comment "Restriction on competing activities" ;
+    rdfs:subClassOf legal:ContractClause .
+
+# Legal Relationship Properties
+
+claim:assertsOwnership a owl:ObjectProperty ;
+    rdfs:label "asserts ownership" ;
+    rdfs:domain claim:OwnershipClaim ;
+    rdfs:range ip:IntellectualProperty .
+
+claim:challengesOwnership a owl:ObjectProperty ;
+    rdfs:label "challenges ownership" ;
+    rdfs:domain claim:OwnershipClaim ;
+    rdfs:range claim:OwnershipClaim .
+
+claim:basedOnAgreement a owl:ObjectProperty ;
+    rdfs:label "based on agreement" ;
+    rdfs:domain claim:IPClaim ;
+    rdfs:range legal:Contract .
+
+claim:arisesFromEmployment a owl:ObjectProperty ;
+    rdfs:label "arises from employment" ;
+    rdfs:domain claim:EmploymentRelatedClaim ;
+    rdfs:range emp:EmploymentAgreement .
+
+ip:createdBy a owl:ObjectProperty ;
+    rdfs:label "created by" ;
+    rdfs:domain ip:IntellectualProperty ;
+    rdfs:range legal:Person .
+
+ip:ownedBy a owl:ObjectProperty ;
+    rdfs:label "owned by" ;
+    rdfs:domain ip:IntellectualProperty ;
+    rdfs:range legal:LegalEntity .
+
+ip:assignedTo a owl:ObjectProperty ;
+    rdfs:label "assigned to" ;
+    rdfs:domain ip:IntellectualProperty ;
+    rdfs:range legal:LegalEntity .
+
+ip:inventedDuring a owl:ObjectProperty ;
+    rdfs:label "invented during" ;
+    rdfs:domain ip:IntellectualProperty ;
+    rdfs:range emp:EmploymentPeriod .
+
+# Temporal Properties
+
+time:EmploymentPeriod a owl:Class ;
+    rdfs:label "Employment Period" ;
+    rdfs:comment "Time period of employment relationship" ;
+    rdfs:subClassOf time:Interval .
+
+time:CreationDate a owl:Class ;
+    rdfs:label "Creation Date" ;
+    rdfs:comment "Date when IP was created" ;
+    rdfs:subClassOf time:Instant .
+
+time:AssignmentDate a owl:Class ;
+    rdfs:label "Assignment Date" ;
+    rdfs:comment "Date when IP was assigned" ;
+    rdfs:subClassOf time:Instant .
+
+# Data Properties
+
+claim:claimStrength a owl:DatatypeProperty ;
+    rdfs:label "claim strength" ;
+    rdfs:domain claim:IPClaim ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Numerical assessment of claim strength (0.0-1.0)" .
+
+claim:evidenceQuality a owl:DatatypeProperty ;
+    rdfs:label "evidence quality" ;
+    rdfs:domain claim:IPClaim ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Assessment of supporting evidence quality" .
+
+claim:legalRisk a owl:DatatypeProperty ;
+    rdfs:label "legal risk" ;
+    rdfs:domain claim:IPClaim ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Risk level: LOW, MEDIUM, HIGH, CRITICAL" .
+
+ip:commercialValue a owl:DatatypeProperty ;
+    rdfs:label "commercial value" ;
+    rdfs:domain ip:IntellectualProperty ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Estimated commercial value in USD" .
+
+# Claim Analysis Classes
+
+claim:ClaimAnalysis a owl:Class ;
+    rdfs:label "Claim Analysis" ;
+    rdfs:comment "Analysis of IP claim validity and strength" .
+
+claim:OwnershipAnalysis a owl:Class ;
+    rdfs:label "Ownership Analysis" ;
+    rdfs:comment "Analysis of IP ownership rights and disputes" ;
+    rdfs:subClassOf claim:ClaimAnalysis .
+
+claim:InventorshipAnalysis a owl:Class ;
+    rdfs:label "Inventorship Analysis" ;
+    rdfs:comment "Analysis of inventor identification and rights" ;
+    rdfs:subClassOf claim:ClaimAnalysis .
+
+claim:AssignmentAnalysis a owl:Class ;
+    rdfs:label "Assignment Analysis" ;
+    rdfs:comment "Analysis of IP assignment validity and scope" ;
+    rdfs:subClassOf claim:ClaimAnalysis .
+
+claim:ContradictionAnalysis a owl:Class ;
+    rdfs:label "Contradiction Analysis" ;
+    rdfs:comment "Analysis of contradictory claims or agreements" ;
+    rdfs:subClassOf claim:ClaimAnalysis .
+
+# Evidence Classes
+
+legal:Evidence a owl:Class ;
+    rdfs:label "Evidence" ;
+    rdfs:comment "Information supporting or refuting a claim" .
+
+legal:DocumentaryEvidence a owl:Class ;
+    rdfs:label "Documentary Evidence" ;
+    rdfs:comment "Written documents as evidence" ;
+    rdfs:subClassOf legal:Evidence .
+
+legal:TestimonyEvidence a owl:Class ;
+    rdfs:label "Testimony Evidence" ;
+    rdfs:comment "Witness testimony as evidence" ;
+    rdfs:subClassOf legal:Evidence .
+
+legal:TechnicalEvidence a owl:Class ;
+    rdfs:label "Technical Evidence" ;
+    rdfs:comment "Technical analysis and expert opinions" ;
+    rdfs:subClassOf legal:Evidence .
+
+# Specific Document Types
+
+legal:EmploymentContract a owl:Class ;
+    rdfs:label "Employment Contract" ;
+    rdfs:comment "Contract establishing employment relationship" ;
+    rdfs:subClassOf legal:DocumentaryEvidence .
+
+legal:IPAssignment a owl:Class ;
+    rdfs:label "IP Assignment Document" ;
+    rdfs:comment "Document assigning IP rights" ;
+    rdfs:subClassOf legal:DocumentaryEvidence .
+
+legal:InventionDisclosure a owl:Class ;
+    rdfs:label "Invention Disclosure" ;
+    rdfs:comment "Document disclosing invention details" ;
+    rdfs:subClassOf legal:DocumentaryEvidence .
+
+legal:WorkRecord a owl:Class ;
+    rdfs:label "Work Record" ;
+    rdfs:comment "Documentation of work performed" ;
+    rdfs:subClassOf legal:DocumentaryEvidence .
+
+legal:EmailCorrespondence a owl:Class ;
+    rdfs:label "Email Correspondence" ;
+    rdfs:comment "Email communications as evidence" ;
+    rdfs:subClassOf legal:DocumentaryEvidence .
+
+# Analysis Framework Properties
+
+claim:supportedBy a owl:ObjectProperty ;
+    rdfs:label "supported by" ;
+    rdfs:domain claim:IPClaim ;
+    rdfs:range legal:Evidence .
+
+claim:contradictedBy a owl:ObjectProperty ;
+    rdfs:label "contradicted by" ;
+    rdfs:domain claim:IPClaim ;
+    rdfs:range legal:Evidence .
+
+claim:analyzedIn a owl:ObjectProperty ;
+    rdfs:label "analyzed in" ;
+    rdfs:domain claim:IPClaim ;
+    rdfs:range claim:ClaimAnalysis .
+
+# Specific Claim Types
+
+claim:EmployerOwnershipClaim a owl:Class ;
+    rdfs:label "Employer Ownership Claim" ;
+    rdfs:comment "Claim that employer owns IP created by employee" ;
+    rdfs:subClassOf claim:EmploymentRelatedClaim .
+
+claim:EmployeeRetentionClaim a owl:Class ;
+    rdfs:label "Employee Retention Claim" ;
+    rdfs:comment "Claim that employee retains rights to IP" ;
+    rdfs:subClassOf claim:EmploymentRelatedClaim .
+
+claim:JointOwnershipClaim a owl:Class ;
+    rdfs:label "Joint Ownership Claim" ;
+    rdfs:comment "Claim of joint ownership in IP" ;
+    rdfs:subClassOf claim:OwnershipClaim .
+
+claim:PreexistingRightsClaim a owl:Class ;
+    rdfs:label "Preexisting Rights Claim" ;
+    rdfs:comment "Claim to rights predating employment" ;
+    rdfs:subClassOf claim:EmploymentRelatedClaim .
+
+# Legal Standards and Tests
+
+legal:LegalStandard a owl:Class ;
+    rdfs:label "Legal Standard" ;
+    rdfs:comment "Legal test or standard for evaluation" .
+
+legal:WorkForHireTest a owl:Class ;
+    rdfs:label "Work for Hire Test" ;
+    rdfs:comment "Legal test for work-for-hire determination" ;
+    rdfs:subClassOf legal:LegalStandard .
+
+legal:AssignmentValidityTest a owl:Class ;
+    rdfs:label "Assignment Validity Test" ;
+    rdfs:comment "Test for valid IP assignment" ;
+    rdfs:subClassOf legal:LegalStandard .
+
+legal:InventorshipTest a owl:Class ;
+    rdfs:label "Inventorship Test" ;
+    rdfs:comment "Test for determining true inventorship" ;
+    rdfs:subClassOf legal:LegalStandard .
+
+# Analysis Results
+
+claim:AnalysisResult a owl:Class ;
+    rdfs:label "Analysis Result" ;
+    rdfs:comment "Result of claim analysis" .
+
+claim:ClaimValidity a owl:Class ;
+    rdfs:label "Claim Validity" ;
+    rdfs:comment "Assessment of claim validity" ;
+    rdfs:subClassOf claim:AnalysisResult .
+
+claim:OwnershipDetermination a owl:Class ;
+    rdfs:label "Ownership Determination" ;
+    rdfs:comment "Determination of IP ownership" ;
+    rdfs:subClassOf claim:AnalysisResult .
+
+claim:RiskAssessment a owl:Class ;
+    rdfs:label "Risk Assessment" ;
+    rdfs:comment "Assessment of legal and business risks" ;
+    rdfs:subClassOf claim:AnalysisResult .
+
+# Risk Categories
+
+claim:LegalRisk a owl:Class ;
+    rdfs:label "Legal Risk" ;
+    rdfs:comment "Risk of adverse legal outcomes" ;
+    rdfs:subClassOf claim:RiskAssessment .
+
+claim:FinancialRisk a owl:Class ;
+    rdfs:label "Financial Risk" ;
+    rdfs:comment "Risk of financial losses" ;
+    rdfs:subClassOf claim:RiskAssessment .
+
+claim:OperationalRisk a owl:Class ;
+    rdfs:label "Operational Risk" ;
+    rdfs:comment "Risk to business operations" ;
+    rdfs:subClassOf claim:RiskAssessment .
+
+claim:ReputationalRisk a owl:Class ;
+    rdfs:label "Reputational Risk" ;
+    rdfs:comment "Risk to business reputation" ;
+    rdfs:subClassOf claim:RiskAssessment .
+
+# Remediation Classes
+
+claim:Remediation a owl:Class ;
+    rdfs:label "Remediation" ;
+    rdfs:comment "Action to address identified issues" .
+
+claim:ContractAmendment a owl:Class ;
+    rdfs:label "Contract Amendment" ;
+    rdfs:comment "Amendment to clarify or modify contract terms" ;
+    rdfs:subClassOf claim:Remediation .
+
+claim:SupplementalAgreement a owl:Class ;
+    rdfs:label "Supplemental Agreement" ;
+    rdfs:comment "Additional agreement to resolve conflicts" ;
+    rdfs:subClassOf claim:Remediation .
+
+claim:LegalAction a owl:Class ;
+    rdfs:label "Legal Action" ;
+    rdfs:comment "Litigation or other legal proceedings" ;
+    rdfs:subClassOf claim:Remediation .
+
+claim:Settlement a owl:Class ;
+    rdfs:label "Settlement" ;
+    rdfs:comment "Negotiated resolution of disputes" ;
+    rdfs:subClassOf claim:Remediation .
+
+# Framework Rules and Constraints
+
+# Rule: Employment-created IP is presumptively employer-owned
+[ rdf:type owl:Restriction ;
+  owl:onProperty ip:createdBy ;
+  owl:someValuesFrom emp:Employee ;
+  rdfs:subClassOf [ rdf:type owl:Restriction ;
+                   owl:onProperty ip:ownedBy ;
+                   owl:someValuesFrom emp:Employer ] ] .
+
+# Rule: Explicit assignment overrides default ownership
+[ rdf:type owl:Restriction ;
+  owl:onProperty ip:assignedTo ;
+  owl:someValuesFrom legal:LegalEntity ;
+  rdfs:subClassOf [ rdf:type owl:Restriction ;
+                   owl:onProperty ip:ownedBy ;
+                   owl:someValuesFrom legal:LegalEntity ] ] .
+
+# Framework Metrics
+
+claim:FrameworkMetrics a owl:Class ;
+    rdfs:label "Framework Metrics" ;
+    rdfs:comment "Performance metrics for claim analysis framework" ;
+    claim:analysisAccuracy "0.94"^^xsd:decimal ;
+    claim:processingTime "45.2"^^xsd:decimal ;
+    claim:confidenceLevel "0.89"^^xsd:decimal ;
+    claim:coverageRate "0.97"^^xsd:decimal .

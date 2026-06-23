@@ -1,0 +1,20 @@
+# Extract BusinessOS data models and their fields
+PREFIX bos: <https://chatmangpt.com/businessos#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?entity ?entityLabel ?fieldName ?fieldType ?required ?primaryKey ?unique ?validation ?foreignKey ?enumValues
+WHERE {
+  ?entity a bos:Entity ;
+          rdfs:label ?entityLabel ;
+          bos:field ?field .
+  ?field a bos:Field ;
+         bos:name ?fieldName ;
+         bos:type ?fieldType .
+  OPTIONAL { ?field bos:required ?required }
+  OPTIONAL { ?field bos:primaryKey ?primaryKey }
+  OPTIONAL { ?field bos:unique ?unique }
+  OPTIONAL { ?field bos:validation ?validation }
+  OPTIONAL { ?field bos:foreignKey ?foreignKey }
+  OPTIONAL { ?field bos:enum ?enumValues }
+}
+ORDER BY ?entityLabel ?fieldName

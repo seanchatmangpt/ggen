@@ -1,0 +1,26 @@
+PREFIX test: <http://test.example.org/>
+PREFIX ddd: <http://ggen-mcp.dev/ontology/ddd#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+# Query to extract all aggregate roots with their properties
+SELECT ?aggregate ?label ?comment ?property ?propertyLabel ?propertyType ?propertyRange
+WHERE {
+    # Find aggregate roots
+    ?aggregate rdfs:subClassOf ddd:AggregateRoot ;
+               rdfs:label ?label .
+
+    # Optional comment
+    OPTIONAL { ?aggregate rdfs:comment ?comment }
+
+    # Get properties
+    OPTIONAL {
+        ?aggregate ddd:hasProperty ?property .
+        ?property rdfs:label ?propertyLabel .
+        ?property a ?propertyType .
+        OPTIONAL { ?property rdfs:range ?propertyRange }
+    }
+
+    FILTER(?propertyType = owl:DatatypeProperty || ?propertyType = owl:ObjectProperty)
+}
+ORDER BY ?aggregate ?property

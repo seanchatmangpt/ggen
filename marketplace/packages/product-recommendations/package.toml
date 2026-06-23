@@ -47,3 +47,6 @@ languages = ["rust", "typescript", "python"]
 algorithms = ["collaborative-filtering", "content-based", "hybrid", "matrix-factorization", "association-rules"]
 behavior_types = ["view", "click", "purchase", "rating", "add-to-cart", "wishlist"]
 context_features = ["page-type", "device-type", "time-context", "user-segment"]
+
+[marketplace]
+production_ready = false

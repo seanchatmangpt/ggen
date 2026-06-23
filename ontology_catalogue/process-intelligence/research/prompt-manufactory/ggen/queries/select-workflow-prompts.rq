@@ -1,0 +1,28 @@
+PREFIX pm:   <https://pi-research.dev/ontology/prompt-manufactory#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Select workflow details for a given program
+# Used by workflow-prompt.md.tera to render the workflow warrant
+
+SELECT ?programId ?mission ?workflow ?phase ?phaseLabel ?phaseMission ?agent ?agentLabel ?agentMission ?ownedSurface ?forbiddenSurface ?outputContract
+WHERE {
+  ?program a pm:ResearchProgram ;
+    pm:programId ?programId ;
+    pm:mission ?mission ;
+    pm:hasWorkflow ?workflow .
+
+  ?workflow pm:hasPhase ?phase .
+
+  ?phase rdfs:label ?phaseLabel ;
+    pm:mission ?phaseMission ;
+    pm:hasSubagentRole ?agent .
+
+  ?agent rdfs:label ?agentLabel ;
+    pm:mission ?agentMission ;
+    pm:hasOutputContract ?outputContract .
+
+  OPTIONAL { ?agent pm:ownsSurface ?ownedSurface . }
+  OPTIONAL { ?agent pm:forbidsSurface ?forbiddenSurface . }
+}
+ORDER BY ?phase ?agent

@@ -49,3 +49,6 @@ memory_types = ["episodic", "semantic", "procedural", "working"]
 storage_engines = ["rdf-triplestore", "vector-database", "relational-db"]
 retrieval_methods = ["sparql", "similarity-search", "temporal", "importance"]
 consolidation = ["importance-scoring", "decay-curves", "clustering", "summarization"]
+
+[marketplace]
+production_ready = false

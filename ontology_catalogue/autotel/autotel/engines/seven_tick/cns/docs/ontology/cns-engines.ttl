@@ -1,0 +1,520 @@
+@prefix cns: <https://schema.chatman.ai/cns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# CNS Engines Ontology - All Engine Components and Functions
+#################################################################
+
+# ============================================================================
+# ENGINE CLASSES
+# ============================================================================
+
+cns:Engine a rdfs:Class ;
+    rdfs:label "CNS Engine" ;
+    rdfs:comment "A core CNS engine that provides specific functionality" .
+
+cns:Function a rdfs:Class ;
+    rdfs:label "C Function" ;
+    rdfs:comment "A C function that implements engine functionality" .
+
+cns:TelemetrySpan a rdfs:Class ;
+    rdfs:label "Telemetry Span" ;
+    rdfs:comment "A span for OpenTelemetry instrumentation" .
+
+# ============================================================================
+# ENGINE PROPERTIES
+# ============================================================================
+
+cns:implementsEngine a rdf:Property ;
+    rdfs:label "implements engine" ;
+    rdfs:domain cns:Function ;
+    rdfs:range cns:Engine .
+
+cns:providesFunction a rdf:Property ;
+    rdfs:label "provides function" ;
+    rdfs:domain cns:TelemetrySpan ;
+    rdfs:range cns:Function .
+
+cns:providesAPI a rdf:Property ;
+    rdfs:label "provides API" ;
+    rdfs:domain cns:Function ;
+    rdfs:range rdfs:Literal .
+
+cns:cycleCost a rdf:Property ;
+    rdfs:label "cycle cost" ;
+    rdfs:domain cns:Function ;
+    rdfs:range xsd:integer .
+
+cns:filePath a rdf:Property ;
+    rdfs:label "file path" ;
+    rdfs:domain cns:Function ;
+    rdfs:range rdfs:Literal .
+
+cns:lineNumber a rdf:Property ;
+    rdfs:label "line number" ;
+    rdfs:domain cns:Function ;
+    rdfs:range xsd:integer .
+
+cns:sevenTickCompliant a rdf:Property ;
+    rdfs:label "7T compliant" ;
+    rdfs:domain cns:Function ;
+    rdfs:range xsd:boolean .
+
+cns:cycleBudget a rdf:Property ;
+    rdfs:label "cycle budget" ;
+    rdfs:domain cns:Function ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# OWL ENGINE
+# ============================================================================
+
+cns:OWLEngine a cns:Engine ;
+    rdfs:label "OWL Engine" ;
+    rdfs:comment "7T compliant OWL reasoning engine with 80/20 optimization" .
+
+# OWL Engine Functions
+cns:owlCreate a cns:Function ;
+    cns:providesAPI "CNSOWLEngine* cns_owl_create(size_t initial_capacity)" ;
+    cns:cycleCost 7 ;
+    cns:implementsEngine cns:OWLEngine ;
+    cns:filePath "cns/src/owl.c" ;
+    cns:lineNumber 15 ;
+    cns:sevenTickCompliant true ;
+    cns:cycleBudget 7 ;
+    rdfs:label "OWL Engine Create Function" .
+
+cns:owlDestroy a cns:Function ;
+    cns:providesAPI "void cns_owl_destroy(CNSOWLEngine *engine)" ;
+    cns:cycleCost 3 ;
+    cns:implementsEngine cns:OWLEngine ;
+    cns:filePath "cns/src/owl.c" ;
+    cns:lineNumber 35 ;
+    cns:sevenTickCompliant true ;
+    cns:cycleBudget 7 ;
+    rdfs:label "OWL Engine Destroy Function" .
+
+cns:owlAddSubclass a cns:Function ;
+    cns:providesAPI "int cns_owl_add_subclass(CNSOWLEngine *engine, uint32_t child, uint32_t parent)" ;
+    cns:cycleCost 5 ;
+    cns:implementsEngine cns:OWLEngine ;
+    cns:filePath "cns/src/owl.c" ;
+    cns:lineNumber 75 ;
+    cns:sevenTickCompliant true ;
+    cns:cycleBudget 7 ;
+    rdfs:label "OWL Add Subclass Function" .
+
+cns:owlIsSubclassOf a cns:Function ;
+    cns:providesAPI "bool cns_owl_is_subclass_of(CNSOWLEngine *engine, uint32_t child, uint32_t parent)" ;
+    cns:cycleCost 3 ;
+    cns:implementsEngine cns:OWLEngine ;
+    cns:filePath "cns/src/owl.c" ;
+    cns:lineNumber 120 ;
+    cns:sevenTickCompliant true ;
+    cns:cycleBudget 7 ;
+    rdfs:label "OWL Subclass Check Function" .
+
+cns:owlAddEquivalentClass a cns:Function ;
+    cns:providesAPI "int cns_owl_add_equivalent_class(CNSOWLEngine *engine, uint32_t class1, uint32_t class2)" ;
+    cns:cycleCost 5 ;
+    cns:implementsEngine cns:OWLEngine ;
+    cns:filePath "cns/src/owl.c" ;
+    cns:lineNumber 150 ;
+    cns:sevenTickCompliant true ;
+    cns:cycleBudget 7 ;
+    rdfs:label "OWL Add Equivalent Class Function" .
+
+cns:owlIsEquivalentClass a cns:Function ;
+    cns:providesAPI "bool cns_owl_is_equivalent_class(CNSOWLEngine *engine, uint32_t class1, uint32_t class2)" ;
+    cns:cycleCost 5 ;
+    cns:implementsEngine cns:OWLEngine ;
+    cns:filePath "cns/src/owl.c" ;
+    cns:lineNumber 180 ;
+    cns:sevenTickCompliant true ;
+    cns:cycleBudget 7 ;
+    rdfs:label "OWL Equivalent Class Check Function" .
+
+cns:owlAddTransitiveProperty a cns:Function ;
+    cns:providesAPI "int cns_owl_add_transitive_property(CNSOWLEngine *engine, uint32_t property_id)" ;
+    cns:cycleCost 4 ;
+    cns:implementsEngine cns:OWLEngine ;
+    cns:filePath "cns/src/owl.c" ;
+    cns:lineNumber 210 ;
+    cns:sevenTickCompliant true ;
+    cns:cycleBudget 7 ;
+    rdfs:label "OWL Add Transitive Property Function" .
+
+cns:owlIsTransitiveProperty a cns:Function ;
+    cns:providesAPI "bool cns_owl_is_transitive_property(CNSOWLEngine *engine, uint32_t property_id)" ;
+    cns:cycleCost 3 ;
+    cns:implementsEngine cns:OWLEngine ;
+    cns:filePath "cns/src/owl.c" ;
+    cns:lineNumber 240 ;
+    cns:sevenTickCompliant true ;
+    cns:cycleBudget 7 ;
+    rdfs:label "OWL Transitive Property Check Function" .
+
+cns:owlMaterialize80_20 a cns:Function ;
+    cns:providesAPI "int cns_owl_materialize_inferences_80_20(CNSOWLEngine *engine)" ;
+    cns:cycleCost 100 ;
+    cns:implementsEngine cns:OWLEngine ;
+    cns:filePath "cns/src/owl.c" ;
+    cns:lineNumber 350 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 100 ;
+    rdfs:label "OWL 80/20 Materialization Function" .
+
+cns:owlComputeTransitiveClosure a cns:Function ;
+    cns:providesAPI "int cns_owl_compute_transitive_closure(CNSOWLEngine *engine)" ;
+    cns:cycleCost 200 ;
+    cns:implementsEngine cns:OWLEngine ;
+    cns:filePath "cns/src/owl.c" ;
+    cns:lineNumber 400 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 200 ;
+    rdfs:label "OWL Transitive Closure Computation Function" .
+
+# OWL Telemetry Spans
+cns:owlCreateSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:owlCreate ;
+    rdfs:label "OWL Create Span" .
+
+cns:owlSubclassSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:owlIsSubclassOf ;
+    rdfs:label "OWL Subclass Check Span" .
+
+cns:owlEquivalentSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:owlIsEquivalentClass ;
+    rdfs:label "OWL Equivalent Class Span" .
+
+cns:owlTransitiveSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:owlIsTransitiveProperty ;
+    rdfs:label "OWL Transitive Property Span" .
+
+cns:owlMaterializeSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:owlMaterialize80_20 ;
+    rdfs:label "OWL Materialization Span" .
+
+# ============================================================================
+# GATEKEEPER ENGINE
+# ============================================================================
+
+cns:GatekeeperEngine a cns:Engine ;
+    rdfs:label "Gatekeeper Engine" ;
+    rdfs:comment "Quality gate and validation system for CNS" .
+
+# Gatekeeper Functions
+cns:gatekeeperGetCycles a cns:Function ;
+    cns:providesAPI "uint64_t gatekeeper_get_cycles(void)" ;
+    cns:cycleCost 25 ;
+    cns:implementsEngine cns:GatekeeperEngine ;
+    cns:filePath "cns/src/gatekeeper_test.c" ;
+    cns:lineNumber 45 ;
+    cns:sevenTickCompliant true ;
+    cns:cycleBudget 25 ;
+    rdfs:label "Gatekeeper Get Cycles Function" .
+
+cns:gatekeeperSigma a cns:Function ;
+    cns:providesAPI "double gatekeeper_sigma(double target, double mean, double std_dev)" ;
+    cns:cycleCost 8 ;
+    cns:implementsEngine cns:GatekeeperEngine ;
+    cns:filePath "cns/src/gatekeeper_test.c" ;
+    cns:lineNumber 65 ;
+    cns:sevenTickCompliant true ;
+    cns:cycleBudget 7 ;
+    rdfs:label "Gatekeeper Sigma Calculation Function" .
+
+cns:gatekeeperCalculateMetrics a cns:Function ;
+    cns:providesAPI "void gatekeeper_calculate_metrics(GatekeeperMetrics *metrics)" ;
+    cns:cycleCost 100 ;
+    cns:implementsEngine cns:GatekeeperEngine ;
+    cns:filePath "cns/src/gatekeeper_test.c" ;
+    cns:lineNumber 95 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 100 ;
+    rdfs:label "Gatekeeper Calculate Metrics Function" .
+
+cns:gatekeeperValidateCorrectness a cns:Function ;
+    cns:providesAPI "int gatekeeper_validate_correctness(void)" ;
+    cns:cycleCost 500 ;
+    cns:implementsEngine cns:GatekeeperEngine ;
+    cns:filePath "cns/src/gatekeeper_test.c" ;
+    cns:lineNumber 125 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 500 ;
+    rdfs:label "Gatekeeper Correctness Validation Function" .
+
+cns:gatekeeperValidateCycleBudget a cns:Function ;
+    cns:providesAPI "int gatekeeper_validate_cycle_budget(void)" ;
+    cns:cycleCost 300 ;
+    cns:implementsEngine cns:GatekeeperEngine ;
+    cns:filePath "cns/src/gatekeeper_test.c" ;
+    cns:lineNumber 155 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 300 ;
+    rdfs:label "Gatekeeper Cycle Budget Validation Function" .
+
+cns:gatekeeperValidateThroughput a cns:Function ;
+    cns:providesAPI "int gatekeeper_validate_throughput(void)" ;
+    cns:cycleCost 400 ;
+    cns:implementsEngine cns:GatekeeperEngine ;
+    cns:filePath "cns/src/gatekeeper_test.c" ;
+    cns:lineNumber 185 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 400 ;
+    rdfs:label "Gatekeeper Throughput Validation Function" .
+
+# Gatekeeper Telemetry Spans
+cns:gatekeeperCyclesSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperGetCycles ;
+    rdfs:label "Gatekeeper Cycles Span" .
+
+cns:gatekeeperSigmaSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperSigma ;
+    rdfs:label "Gatekeeper Sigma Span" .
+
+cns:gatekeeperMetricsSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperCalculateMetrics ;
+    rdfs:label "Gatekeeper Metrics Span" .
+
+cns:gatekeeperCorrectnessSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperValidateCorrectness ;
+    rdfs:label "Gatekeeper Correctness Span" .
+
+cns:gatekeeperCycleBudgetSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperValidateCycleBudget ;
+    rdfs:label "Gatekeeper Cycle Budget Span" .
+
+cns:gatekeeperThroughputSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperValidateThroughput ;
+    rdfs:label "Gatekeeper Throughput Span" .
+
+# ============================================================================
+# SQL AOT ENGINE
+# ============================================================================
+
+cns:SQLAOTEngine a cns:Engine ;
+    rdfs:label "SQL AOT Engine" ;
+    rdfs:comment "Ahead-of-time SQL compilation engine" .
+
+# SQL AOT Functions
+cns:sqlAOTCompile a cns:Function ;
+    cns:providesAPI "int cns_sql_aot_compile(const char* query, CnsSQLAOTResult* result)" ;
+    cns:cycleCost 50 ;
+    cns:implementsEngine cns:SQLAOTEngine ;
+    cns:filePath "cns/src/domains/sql/sql_aot_domain.c" ;
+    cns:lineNumber 25 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 50 ;
+    rdfs:label "SQL AOT Compile Function" .
+
+cns:sqlAOTExecute a cns:Function ;
+    cns:providesAPI "int cns_sql_aot_execute(CnsSQLAOTResult* compiled, void* data)" ;
+    cns:cycleCost 15 ;
+    cns:implementsEngine cns:SQLAOTEngine ;
+    cns:filePath "cns/src/domains/sql/sql_aot_domain.c" ;
+    cns:lineNumber 45 ;
+    cns:sevenTickCompliant true ;
+    cns:cycleBudget 15 ;
+    rdfs:label "SQL AOT Execute Function" .
+
+cns:sqlAOTParse a cns:Function ;
+    cns:providesAPI "int cns_sql_aot_parse(const char* query, CnsSQLAST* ast)" ;
+    cns:cycleCost 30 ;
+    cns:implementsEngine cns:SQLAOTEngine ;
+    cns:filePath "cns/src/domains/sql/sql_aot_domain.c" ;
+    cns:lineNumber 65 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 30 ;
+    rdfs:label "SQL AOT Parse Function" .
+
+cns:sqlAOTOptimize a cns:Function ;
+    cns:providesAPI "int cns_sql_aot_optimize(CnsSQLAST* ast, CnsSQLAOTResult* result)" ;
+    cns:cycleCost 40 ;
+    cns:implementsEngine cns:SQLAOTEngine ;
+    cns:filePath "cns/src/domains/sql/sql_aot_domain.c" ;
+    cns:lineNumber 85 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 40 ;
+    rdfs:label "SQL AOT Optimize Function" .
+
+cns:sqlAOTGenerate a cns:Function ;
+    cns:providesAPI "int cns_sql_aot_generate(CnsSQLAOTResult* result, void* code)" ;
+    cns:cycleCost 25 ;
+    cns:implementsEngine cns:SQLAOTEngine ;
+    cns:filePath "cns/src/domains/sql/sql_aot_domain.c" ;
+    cns:lineNumber 105 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 25 ;
+    rdfs:label "SQL AOT Generate Function" .
+
+# SQL AOT Telemetry Spans
+cns:sqlAOTCompileSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:sqlAOTCompile ;
+    rdfs:label "SQL AOT Compile Span" .
+
+cns:sqlAOTExecuteSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:sqlAOTExecute ;
+    rdfs:label "SQL AOT Execute Span" .
+
+cns:sqlAOTParseSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:sqlAOTParse ;
+    rdfs:label "SQL AOT Parse Span" .
+
+cns:sqlAOTOptimizeSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:sqlAOTOptimize ;
+    rdfs:label "SQL AOT Optimize Span" .
+
+cns:sqlAOTGenerateSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:sqlAOTGenerate ;
+    rdfs:label "SQL AOT Generate Span" .
+
+# ============================================================================
+# WEAVER ENGINE
+# ============================================================================
+
+cns:WeaverEngine a cns:Engine ;
+    rdfs:label "Weaver Engine" ;
+    rdfs:comment "Code weaver for telemetry instrumentation" .
+
+# Weaver Functions
+cns:weaverInstrument a cns:Function ;
+    cns:providesAPI "int cns_weaver_instrument(const char* source, const char* output)" ;
+    cns:cycleCost 200 ;
+    cns:implementsEngine cns:WeaverEngine ;
+    cns:filePath "cns/weaver_80_20_simple_final.cpp" ;
+    cns:lineNumber 25 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 200 ;
+    rdfs:label "Weaver Instrument Function" .
+
+cns:weaverExtractSpans a cns:Function ;
+    cns:providesAPI "int cns_weaver_extract_spans(const char* source, CnsSpanList* spans)" ;
+    cns:cycleCost 150 ;
+    cns:implementsEngine cns:WeaverEngine ;
+    cns:filePath "cns/weaver_80_20_simple_final.cpp" ;
+    cns:lineNumber 45 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 150 ;
+    rdfs:label "Weaver Extract Spans Function" .
+
+cns:weaverGenerateCode a cns:Function ;
+    cns:providesAPI "int cns_weaver_generate_code(CnsSpanList* spans, const char* template, const char* output)" ;
+    cns:cycleCost 300 ;
+    cns:implementsEngine cns:WeaverEngine ;
+    cns:filePath "cns/weaver_80_20_simple_final.cpp" ;
+    cns:lineNumber 65 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 300 ;
+    rdfs:label "Weaver Generate Code Function" .
+
+cns:weaverValidate a cns:Function ;
+    cns:providesAPI "int cns_weaver_validate(const char* source)" ;
+    cns:cycleCost 100 ;
+    cns:implementsEngine cns:WeaverEngine ;
+    cns:filePath "cns/weaver_80_20_simple_final.cpp" ;
+    cns:lineNumber 85 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 100 ;
+    rdfs:label "Weaver Validate Function" .
+
+# Weaver Telemetry Spans
+cns:weaverInstrumentSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:weaverInstrument ;
+    rdfs:label "Weaver Instrument Span" .
+
+cns:weaverExtractSpansSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:weaverExtractSpans ;
+    rdfs:label "Weaver Extract Spans Span" .
+
+cns:weaverGenerateCodeSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:weaverGenerateCode ;
+    rdfs:label "Weaver Generate Code Span" .
+
+cns:weaverValidateSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:weaverValidate ;
+    rdfs:label "Weaver Validate Span" .
+
+# ============================================================================
+# BENCHMARK ENGINE
+# ============================================================================
+
+cns:BenchmarkEngine a cns:Engine ;
+    rdfs:label "Benchmark Engine" ;
+    rdfs:comment "Performance benchmarking system" .
+
+# Benchmark Functions
+cns:benchmarkRun a cns:Function ;
+    cns:providesAPI "int cns_benchmark_run(const char* test_name, CnsBenchmarkResult* result)" ;
+    cns:cycleCost 1000 ;
+    cns:implementsEngine cns:BenchmarkEngine ;
+    cns:filePath "cns/src/cmd_benchmark.c" ;
+    cns:lineNumber 25 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 1000 ;
+    rdfs:label "Benchmark Run Function" .
+
+cns:benchmarkMeasure a cns:Function ;
+    cns:providesAPI "uint64_t cns_benchmark_measure_cycles(void (*func)(void))" ;
+    cns:cycleCost 50 ;
+    cns:implementsEngine cns:BenchmarkEngine ;
+    cns:filePath "cns/src/cmd_benchmark.c" ;
+    cns:lineNumber 45 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 50 ;
+    rdfs:label "Benchmark Measure Function" .
+
+cns:benchmarkStart a cns:Function ;
+    cns:providesAPI "void cns_benchmark_start(CnsBenchmarkTimer* timer)" ;
+    cns:cycleCost 10 ;
+    cns:implementsEngine cns:BenchmarkEngine ;
+    cns:filePath "cns/src/cmd_benchmark.c" ;
+    cns:lineNumber 65 ;
+    cns:sevenTickCompliant true ;
+    cns:cycleBudget 10 ;
+    rdfs:label "Benchmark Start Function" .
+
+cns:benchmarkEnd a cns:Function ;
+    cns:providesAPI "uint64_t cns_benchmark_end(CnsBenchmarkTimer* timer)" ;
+    cns:cycleCost 10 ;
+    cns:implementsEngine cns:BenchmarkEngine ;
+    cns:filePath "cns/src/cmd_benchmark.c" ;
+    cns:lineNumber 85 ;
+    cns:sevenTickCompliant true ;
+    cns:cycleBudget 10 ;
+    rdfs:label "Benchmark End Function" .
+
+cns:benchmarkReport a cns:Function ;
+    cns:providesAPI "int cns_benchmark_report(CnsBenchmarkResult* result, const char* format)" ;
+    cns:cycleCost 200 ;
+    cns:implementsEngine cns:BenchmarkEngine ;
+    cns:filePath "cns/src/cmd_benchmark.c" ;
+    cns:lineNumber 105 ;
+    cns:sevenTickCompliant false ;
+    cns:cycleBudget 200 ;
+    rdfs:label "Benchmark Report Function" .
+
+# Benchmark Telemetry Spans
+cns:benchmarkRunSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:benchmarkRun ;
+    rdfs:label "Benchmark Run Span" .
+
+cns:benchmarkMeasureSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:benchmarkMeasure ;
+    rdfs:label "Benchmark Measure Span" .
+
+cns:benchmarkStartSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:benchmarkStart ;
+    rdfs:label "Benchmark Start Span" .
+
+cns:benchmarkEndSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:benchmarkEnd ;
+    rdfs:label "Benchmark End Span" .
+
+cns:benchmarkReportSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:benchmarkReport ;
+    rdfs:label "Benchmark Report Span" . 

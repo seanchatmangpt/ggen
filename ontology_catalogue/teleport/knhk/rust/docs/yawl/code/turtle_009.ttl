@@ -1,0 +1,17 @@
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema#> .
+
+<workflow:parallel> a yawl:WorkflowSpec ;
+    yawl:startCondition <condition:start> ;
+    yawl:task <task:process1>, <task:process2>, <task:merge> .
+
+<task:process1> a yawl:Task ;
+    yawl:splitType yawl:AND ;
+    yawl:joinType yawl:AND .
+
+<task:process2> a yawl:Task ;
+    yawl:splitType yawl:AND ;
+    yawl:joinType yawl:AND .
+
+<task:merge> a yawl:Task ;
+    yawl:splitType yawl:AND ;
+    yawl:joinType yawl:AND .

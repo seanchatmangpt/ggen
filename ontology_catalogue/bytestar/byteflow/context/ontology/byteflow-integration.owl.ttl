@@ -1,0 +1,20 @@
+@prefix : <https://bytestar.org/ontology/byteflow-integration#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/byteflow-integration>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core#> ;
+  rdfs:label "ByteFlow Integration Ontology" .
+
+:APIInterface a owl:Class .
+:acceptsCrystalSubmission a owl:ObjectProperty ; rdfs:domain :APIInterface ; rdfs:range bytestar:Crystal .
+:returnsRejectionReason a owl:ObjectProperty ; rdfs:domain :APIInterface .
+
+:ByteActorInterface a owl:Class .
+:enqueuesToRingBuffer a owl:ObjectProperty ; rdfs:domain :ByteActorInterface ; rdfs:range bytestar:RingBuffer .
+
+:ByteEthosInterface a owl:Class .
+:queriesForPolicy a owl:ObjectProperty ; rdfs:domain :ByteEthosInterface ; rdfs:range bytestar:GovernancePolicy .

@@ -1,0 +1,42 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix mls: <http://www.w3.org/ns/mls#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ---------------------------------------------------------------------------
+# wasm4pm Public Shapes (SHACL)
+# ---------------------------------------------------------------------------
+
+<urn:uuid:ProvEntityEvidenceShape>
+  a sh:NodeShape ;
+  sh:targetClass prov:Entity ;
+  sh:property [
+    sh:path dcterms:identifier ;
+    sh:minCount 1 ;
+  ] .
+
+<urn:uuid:DcatDatasetEvidenceShape>
+  a sh:NodeShape ;
+  sh:targetClass dcat:Dataset ;
+  sh:property [
+    sh:path dcterms:identifier ;
+    sh:minCount 1 ;
+  ] ;
+  sh:property [
+    sh:path prov:wasGeneratedBy ;
+    sh:minCount 1 ;
+  ] .
+
+<urn:uuid:MlsRunShape>
+  a sh:NodeShape ;
+  sh:targetClass mls:Run ;
+  sh:property [
+    sh:path prov:used ;
+    sh:minCount 1 ;
+  ] ;
+  sh:property [
+    sh:path prov:generated ;
+    sh:minCount 1 ;
+  ] .

@@ -1,0 +1,65 @@
+# Cross-Agent Capability Comparison Query
+#
+# Compares two agents to find:
+# - Shared capabilities (both agents can do it)
+# - Unique capabilities (only one agent can do it)
+# Useful for agent selection, redundancy detection, and specialization analysis.
+#
+# Public ontology terms:
+#   hasCapability -> skos:related
+#   admissionStatus -> skos:prefLabel filter on "admitted"
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT
+  ?agent1
+  ?agent2
+  ?sharedCapability
+  (GROUP_CONCAT(DISTINCT ?uniqueToAgent1; separator=", ") AS ?uniqueToAgent1List)
+  (GROUP_CONCAT(DISTINCT ?uniqueToAgent2; separator=", ") AS ?uniqueToAgent2List)
+WHERE {
+  # Get both agents (filter by specific agent IRIs)
+  VALUES ?agent1 { <http://agents.example.com/agent1> }
+  VALUES ?agent2 { <http://agents.example.com/agent2> }
+
+  # Find shared capabilities (both agents have them via skos:related)
+  OPTIONAL {
+    ?agent1 skos:related ?sharedCapability .
+    ?agent2 skos:related ?sharedCapability .
+    ?sharedCapability a skos:Concept ;
+                    skos:inScheme <https://chatmangpt.com/ontologies/skos/capabilities> .
+    # Only admitted capabilities
+    ?sharedCapability skos:related ?sharedStatus .
+    ?sharedStatus skos:prefLabel "admitted" .
+    ?sharedCapability rdfs:label ?sharedLabel .
+  }
+
+  # Find capabilities unique to agent1
+  OPTIONAL {
+    ?agent1 skos:related ?uniqueToAgent1 .
+    ?uniqueToAgent1 a skos:Concept ;
+                    skos:inScheme <https://chatmangpt.com/ontologies/skos/capabilities> .
+    ?uniqueToAgent1 skos:related ?status1 .
+    ?status1 skos:prefLabel "admitted" .
+    FILTER NOT EXISTS {
+      ?agent2 skos:related ?uniqueToAgent1 .
+    }
+    ?uniqueToAgent1 rdfs:label ?uniqueLabel1 .
+  }
+
+  # Find capabilities unique to agent2
+  OPTIONAL {
+    ?agent2 skos:related ?uniqueToAgent2 .
+    ?uniqueToAgent2 a skos:Concept ;
+                    skos:inScheme <https://chatmangpt.com/ontologies/skos/capabilities> .
+    ?uniqueToAgent2 skos:related ?status2 .
+    ?status2 skos:prefLabel "admitted" .
+    FILTER NOT EXISTS {
+      ?agent1 skos:related ?uniqueToAgent2 .
+    }
+    ?uniqueToAgent2 rdfs:label ?uniqueLabel2 .
+  }
+}
+GROUP BY ?agent1 ?agent2 ?sharedCapability ?sharedLabel

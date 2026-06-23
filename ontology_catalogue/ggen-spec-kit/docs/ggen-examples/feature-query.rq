@@ -1,0 +1,24 @@
+PREFIX : <http://spec-kit.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?feature ?name ?description ?priority ?status ?dueDate
+       (GROUP_CONCAT(?reqText; separator="\n") AS ?requirements)
+WHERE {
+  # Get feature details
+  ?feature a :Feature ;
+           :featureName ?name ;
+           :description ?description ;
+           :priority ?priority ;
+           :status ?status ;
+           :dueDate ?dueDate .
+
+  # Get associated requirements
+  OPTIONAL {
+    ?feature :hasRequirement ?req .
+    ?req :requirementText ?reqText ;
+         :priority ?reqPriority .
+  }
+}
+GROUP BY ?feature ?name ?description ?priority ?status ?dueDate
+ORDER BY ?priority ?dueDate

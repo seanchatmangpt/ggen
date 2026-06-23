@@ -1,0 +1,57 @@
+
+        @prefix uni: <http://university.example.com/> .
+        @prefix owl: <http://www.w3.org/2002/07/owl#> .
+        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+        @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+        
+        # Classes
+        uni:Person a owl:Class ;
+          rdfs:label "Person" .
+          
+        uni:Student a owl:Class ;
+          rdfs:label "Student" ;
+          rdfs:subClassOf uni:Person .
+          
+        uni:Faculty a owl:Class ;
+          rdfs:label "Faculty" ;
+          rdfs:subClassOf uni:Person .
+          
+        uni:Course a owl:Class ;
+          rdfs:label "Course" .
+          
+        uni:Department a owl:Class ;
+          rdfs:label "Department" .
+          
+        uni:Enrollment a owl:Class ;
+          rdfs:label "Enrollment" .
+          
+        # Properties
+        uni:name a owl:DatatypeProperty ;
+          rdfs:domain uni:Person ;
+          rdfs:range xsd:string .
+          
+        uni:studentId a owl:DatatypeProperty ;
+          rdfs:domain uni:Student ;
+          rdfs:range xsd:string .
+          
+        uni:courseName a owl:DatatypeProperty ;
+          rdfs:domain uni:Course ;
+          rdfs:range xsd:string .
+          
+        uni:credits a owl:DatatypeProperty ;
+          rdfs:domain uni:Course ;
+          rdfs:range xsd:integer .
+          
+        # Object Properties
+        uni:enrolledIn a owl:ObjectProperty ;
+          rdfs:domain uni:Student ;
+          rdfs:range uni:Course .
+          
+        uni:teaches a owl:ObjectProperty ;
+          rdfs:domain uni:Faculty ;
+          rdfs:range uni:Course .
+          
+        uni:belongsToDepartment a owl:ObjectProperty ;
+          rdfs:domain uni:Course ;
+          rdfs:range uni:Department .
+      

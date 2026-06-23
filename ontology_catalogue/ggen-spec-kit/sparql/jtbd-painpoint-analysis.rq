@@ -1,0 +1,117 @@
+# ============================================================================
+# JTBD Query: Painpoint Resolution Analysis
+# ============================================================================
+# Purpose: Analyze painpoint patterns across jobs and personas, track
+#          resolution effectiveness, identify recurring painpoints,
+#          and measure feature impact on reducing friction.
+#
+# Output: Painpoints with severity, frequency, resolution status, features
+# Use: Support prioritization, feature planning, friction reduction roadmap
+#
+# Example Output:
+# Painpoint               | Severity | Frequency | Personas | Jobs | Features | Resolution | Workaround
+# Complex dependency cfg  | Critical | 450/mo    | 3        | 2    | 1        | Partial    | Manual TOML
+# Missing OTEL docs       | Moderate | 230/mo    | 2        | 1    | 0        | None       | StackOverflow
+# Flaky test detection    | Moderate | 890/mo    | 2        | 1    | 2        | Resolved   | None needed
+# Manual approval delays  | Critical | 120/mo    | 1        | 1    | 1        | In Progress| Slack pings
+# ============================================================================
+
+PREFIX jtbd: <http://github.com/github/spec-kit/jtbd#>
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?painpointDescription
+  ?painpointSeverity
+  ?painpointCategory
+  ?occurrenceFrequency
+  ?occurrenceFrequencyUnit
+  (COUNT(DISTINCT ?persona) AS ?personasAffected)
+  (COUNT(DISTINCT ?job) AS ?jobsImpacted)
+  (COUNT(DISTINCT ?feature) AS ?featuresAddressing)
+  (COUNT(DISTINCT ?outcome) AS ?outcomesBlocked)
+  ?resolutionStatus
+  ?resolutionEffectiveness
+  ?timeToResolve
+  ?workaround
+  ?workaroundEffort
+  (IF(?painpointSeverity = "Critical" && ?featuresAddressing = 0, "Urgent - No Solution",
+      IF(?painpointSeverity = "Critical" && ?resolutionStatus != "Resolved", "High Priority",
+         IF(?painpointSeverity = "Moderate" && ?featuresAddressing = 0, "Medium Priority",
+            IF(?painpointSeverity = "Minor", "Low Priority",
+               "Resolved - Monitor")))) AS ?priorityLevel)
+  (IF(?workaroundEffort = "High" || ?workaroundEffort = "Very High", "Yes",
+      "No") AS ?isBlocker)
+  ?impactOnCompletion
+  ?businessImpact
+  ?estimatedCost
+  ?dateFirstReported
+  ?dateLastOccurred
+WHERE {
+  # All painpoints
+  ?painpoint a jtbd:Painpoint ;
+             jtbd:painpointDescription ?painpointDescription ;
+             jtbd:painpointSeverity ?painpointSeverity .
+
+  OPTIONAL { ?painpoint sk:painpointCategory ?painpointCategory }
+  OPTIONAL { ?painpoint sk:occurrenceFrequency ?occurrenceFrequency }
+  OPTIONAL { ?painpoint sk:occurrenceFrequencyUnit ?occurrenceFrequencyUnit }
+
+  # Jobs experiencing this painpoint
+  OPTIONAL {
+    ?job jtbd:hasPainpoint ?painpoint .
+
+    # Personas affected by job painpoint
+    OPTIONAL {
+      ?job jtbd:performedBy ?segment .
+      ?segment jtbd:hasPersona ?persona .
+    }
+
+    # Outcomes blocked by painpoint
+    OPTIONAL {
+      ?job jtbd:hasDesiredOutcome ?outcome .
+      ?outcome sk:blockedByPainpoint ?painpoint .
+    }
+  }
+
+  # Features addressing this painpoint
+  OPTIONAL {
+    ?feature jtbd:addressesPainpoint ?painpoint .
+  }
+
+  # Resolution tracking
+  OPTIONAL { ?painpoint sk:resolutionStatus ?resolutionStatus }
+  OPTIONAL { ?painpoint sk:resolutionEffectiveness ?resolutionEffectiveness }
+  OPTIONAL { ?painpoint sk:timeToResolve ?timeToResolve }
+
+  # Workaround information
+  OPTIONAL { ?painpoint jtbd:workaround ?workaround }
+  OPTIONAL { ?painpoint sk:workaroundEffort ?workaroundEffort }
+
+  # Impact metrics
+  OPTIONAL { ?painpoint sk:impactOnCompletion ?impactOnCompletion }
+  OPTIONAL { ?painpoint sk:businessImpact ?businessImpact }
+  OPTIONAL { ?painpoint sk:estimatedCost ?estimatedCost }
+
+  # Temporal tracking
+  OPTIONAL { ?painpoint sk:dateFirstReported ?dateFirstReported }
+  OPTIONAL { ?painpoint sk:dateLastOccurred ?dateLastOccurred }
+
+  # Default values
+  BIND(COALESCE(?resolutionStatus, "Unresolved") AS ?resolutionStatus)
+  BIND(COALESCE(?painpointCategory, "Uncategorized") AS ?painpointCategory)
+  BIND(COALESCE(?occurrenceFrequencyUnit, "per month") AS ?occurrenceFrequencyUnit)
+}
+GROUP BY ?painpointDescription ?painpointSeverity ?painpointCategory
+         ?occurrenceFrequency ?occurrenceFrequencyUnit ?resolutionStatus
+         ?resolutionEffectiveness ?timeToResolve ?workaround ?workaroundEffort
+         ?impactOnCompletion ?businessImpact ?estimatedCost
+         ?dateFirstReported ?dateLastOccurred
+ORDER BY
+  (CASE ?painpointSeverity
+    WHEN "Critical" THEN 1
+    WHEN "Moderate" THEN 2
+    WHEN "Minor" THEN 3
+    ELSE 4 END)
+  DESC(?occurrenceFrequency)
+  ?painpointDescription

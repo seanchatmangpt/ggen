@@ -1,0 +1,39 @@
+@prefix pm:   <https://pi-research.dev/ontology/prompt-manufactory#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# SKILL LAW — Reusable Standard-Work Capabilities
+# ============================================================================
+# Skills are reusable research doctrine packaged as Claude Code skills.
+# Each skill has a mission, invariants, and refusal gates.
+# ============================================================================
+
+pm:SKILL_no_hand_coding a pm:Skill ;
+  rdfs:label "No Hand Coding" ;
+  pm:mission "Ensure all artifacts are rendered from templates, not hand-written" ;
+  rdfs:comment "Refusal: hand-coded artifact found where template should be used" .
+
+pm:SKILL_pi_research_census a pm:Skill ;
+  rdfs:label "PI Research Census" ;
+  pm:mission "Comprehensive inventory of all surfaces in referenced projects" ;
+  rdfs:comment "Standard census pattern: find all files/dirs, document counts and paths" .
+
+pm:SKILL_checkpoint_ledger a pm:Skill ;
+  rdfs:label "Checkpoint Ledger" ;
+  pm:mission "Track ALIVE/PARTIAL verdicts across the program" ;
+  rdfs:comment "Refusal: claiming ALIVE from file count alone" .
+
+pm:SKILL_no_forced_alive a pm:Skill ;
+  rdfs:label "No Forced ALIVE" ;
+  pm:mission "Emit PARTIAL if any critical gate fails" ;
+  rdfs:comment "Refusal: ALIVE verdict with unresolved blockers" .
+
+pm:SKILL_van_der_aalst_audit a pm:Skill ;
+  rdfs:label "Van der Aalst Conformance Audit" ;
+  pm:mission "Verify actual process structure matches declared law" ;
+  rdfs:comment "Process mining conformance checking applied to program artifacts" .
+
+pm:SKILL_receipt_manufacturing a pm:Skill ;
+  rdfs:label "Receipt Manufacturing" ;
+  pm:mission "Emit receipts for all manufactured artifacts with proof chain" ;
+  rdfs:comment "BLAKE3-sealed provenance tracking for all outputs" .

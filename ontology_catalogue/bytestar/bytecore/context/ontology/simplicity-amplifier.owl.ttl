@@ -1,0 +1,225 @@
+# Simplicity Amplifier Ontology - Maximum Complexity from Minimal Components
+# Core principle: Single instructions that compute everything, one-bit crystals encoding infinity
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix bs: <urn:bs:> .
+@prefix amp: <urn:bs:amp:> .
+
+amp:SimplicityAmplifier a owl:Ontology ;
+    rdfs:label "ByteStar Simplicity Amplifier" ;
+    rdfs:comment "Emergent intelligence from trivial rules. Maximum complexity from minimum components." .
+
+# === CORE AMPLIFICATION CLASSES ===
+
+amp:TuringAtom a owl:Class ;
+    rdfs:label "Turing-Complete Atom" ;
+    rdfs:comment "Single instruction that computes universal Turing machine" .
+
+amp:InfiniteBit a owl:Class ;
+    rdfs:label "Infinite Information Bit" ;
+    rdfs:comment "One bit that encodes unbounded information through fractal recursion" .
+
+amp:EmergentKernel a owl:Class ;
+    rdfs:label "Emergent Kernel" ;
+    rdfs:comment "Trivial rule that generates complex behavior through iteration" .
+
+amp:ZeroInstructionCompute a owl:Class ;
+    rdfs:label "Zero-Instruction Computation" ;
+    rdfs:comment "Computation via memory arrangement patterns - no opcodes needed" .
+
+# === CELLULAR AUTOMATA PRIMITIVES ===
+
+amp:Rule110Variant a owl:Class ;
+    rdfs:subClassOf amp:EmergentKernel ;
+    rdfs:label "Rule 110 Computational Variant" ;
+    rdfs:comment "Modified Rule 110 that maintains Turing completeness in 8 ticks" .
+
+amp:CellularAutomaton a owl:Class ;
+    rdfs:label "Cellular Automaton Engine" ;
+    rdfs:comment "Self-organizing computation from local neighbor rules" .
+
+amp:rule110_transition a owl:DatatypeProperty ;
+    rdfs:domain amp:Rule110Variant ;
+    rdfs:range rdfs:Literal ;
+    rdfs:comment "111→0, 110→1, 101→1, 100→0, 011→1, 010→1, 001→1, 000→0" .
+
+# === FRACTAL ENCODING ===
+
+amp:FractalCrystal a owl:Class ;
+    rdfs:subClassOf amp:InfiniteBit ;
+    rdfs:label "Fractal Information Crystal" ;
+    rdfs:comment "Self-similar data structure encoding infinite information" .
+
+amp:HilbertCurve a owl:Class ;
+    rdfs:subClassOf amp:FractalCrystal ;
+    rdfs:comment "Space-filling curve for one-dimensional infinite data encoding" .
+
+amp:fractal_depth a owl:DatatypeProperty ;
+    rdfs:domain amp:FractalCrystal ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Current recursion depth for fractal unfolding" .
+
+amp:information_density a owl:DatatypeProperty ;
+    rdfs:domain amp:InfiniteBit ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Bits of information per physical bit (can exceed 1.0 via compression)" .
+
+# === SINGLE-INSTRUCTION UNIVERSALITY ===
+
+amp:UniversalInstruction a owl:Class ;
+    rdfs:subClassOf amp:TuringAtom ;
+    rdfs:label "Single Universal Instruction" ;
+    rdfs:comment "One instruction type that can compute anything computable" .
+
+amp:SubtractAndBranchIfNegative a owl:Class ;
+    rdfs:subClassOf amp:UniversalInstruction ;
+    rdfs:comment "SUBLEQ - subtract and branch if ≤ 0. Turing complete." .
+
+amp:NorGate a owl:Class ;
+    rdfs:subClassOf amp:UniversalInstruction ;
+    rdfs:comment "Single NOR gate can implement any boolean function" .
+
+amp:instruction_encoding a owl:DatatypeProperty ;
+    rdfs:domain amp:UniversalInstruction ;
+    rdfs:range xsd:hexBinary ;
+    rdfs:comment "Minimal bit encoding for universal instruction" .
+
+# === PATTERN EMERGENCE ===
+
+amp:EmergentPattern a owl:Class ;
+    rdfs:label "Emergent Computational Pattern" ;
+    rdfs:comment "Complex behavior arising from simple rule iteration" .
+
+amp:ConwayGlider a owl:Class ;
+    rdfs:subClassOf amp:EmergentPattern ;
+    rdfs:comment "Self-propagating pattern in cellular automaton" .
+
+amp:LangtonAnt a owl:Class ;
+    rdfs:subClassOf amp:EmergentPattern ;
+    rdfs:comment "Simple rules producing complex, apparently random behavior" .
+
+amp:emergence_steps a owl:DatatypeProperty ;
+    rdfs:domain amp:EmergentPattern ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Number of iterations before complex behavior emerges" .
+
+# === MEMORY AS COMPUTATION ===
+
+amp:MemoryComputation a owl:Class ;
+    rdfs:subClassOf amp:ZeroInstructionCompute ;
+    rdfs:label "Memory-Pattern Computation" ;
+    rdfs:comment "Computation via spatial arrangement of data - no execution needed" .
+
+amp:LookupTableCompute a owl:Class ;
+    rdfs:subClassOf amp:MemoryComputation ;
+    rdfs:comment "Pre-computed results accessed by pattern matching" .
+
+amp:SpatialAlgorithm a owl:Class ;
+    rdfs:subClassOf amp:MemoryComputation ;
+    rdfs:comment "Algorithm encoded in memory layout rather than instructions" .
+
+# === RECURSIVE COMPRESSION ===
+
+amp:RecursiveVocabulary a owl:Class ;
+    rdfs:label "Self-Referential Vocabulary" ;
+    rdfs:comment "Minimal vocabulary that can define itself and expand infinitely" .
+
+amp:MetaOntology a owl:Class ;
+    rdfs:subClassOf amp:RecursiveVocabulary ;
+    rdfs:comment "Ontology that defines ontology construction" .
+
+amp:vocabulary_size a owl:DatatypeProperty ;
+    rdfs:domain amp:RecursiveVocabulary ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Number of base terms in minimal vocabulary" .
+
+amp:expansion_ratio a owl:DatatypeProperty ;
+    rdfs:domain amp:RecursiveVocabulary ;
+    rdfs:range xsd:float ;
+    rdfs:comment "How many concepts can be expressed per base term" .
+
+# === AMPLIFICATION PROPERTIES ===
+
+amp:amplifies a owl:ObjectProperty ;
+    rdfs:domain amp:SimplicityAmplifier ;
+    rdfs:range owl:Thing ;
+    rdfs:comment "Relationship: simple thing amplifies into complex thing" .
+
+amp:emerges_from a owl:ObjectProperty ;
+    rdfs:domain amp:EmergentPattern ;
+    rdfs:range amp:EmergentKernel ;
+    rdfs:comment "Complex pattern emerges from simple kernel" .
+
+amp:encodes_infinite a owl:ObjectProperty ;
+    rdfs:domain amp:InfiniteBit ;
+    rdfs:range owl:Thing ;
+    rdfs:comment "Finite structure encodes infinite information" .
+
+amp:complexity_factor a owl:DatatypeProperty ;
+    rdfs:domain amp:SimplicityAmplifier ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Ratio of output complexity to input simplicity" .
+
+# === BYTESTAR INTEGRATION ===
+
+amp:ByteStarAmplifier a owl:Class ;
+    rdfs:subClassOf amp:SimplicityAmplifier ;
+    rdfs:label "ByteStar Complexity Amplifier" ;
+    rdfs:comment "Amplifier integrated into ByteStar ecosystem" .
+
+# Cellular automaton kernel
+amp:K65_CellularAutomaton a amp:Rule110Variant ;
+    rdfs:label "K65: Cellular Automaton Kernel" ;
+    amp:rule110_transition "111→0, 110→1, 101→1, 100→0, 011→1, 010→1, 001→1, 000→0" ;
+    amp:complexity_factor 1000000.0 ;
+    rdfs:comment "Single kernel implementing Rule 110 in 8 ticks" .
+
+# One-bit infinite encoding
+amp:InfiniteCrystal a amp:FractalCrystal ;
+    rdfs:label "Infinite Information Crystal" ;
+    amp:fractal_depth 1 ;
+    amp:information_density 3.14159 ;
+    rdfs:comment "Single bit encoded as Hilbert curve spiral" .
+
+# Universal instruction
+amp:ByteStarSUBLEQ a amp:SubtractAndBranchIfNegative ;
+    rdfs:label "ByteStar Universal Instruction" ;
+    amp:instruction_encoding "F0"^^xsd:hexBinary ;
+    amp:complexity_factor 999999.0 ;
+    rdfs:comment "Single instruction type for all ByteStar kernels" .
+
+# Memory computation
+amp:DispatchViaMemory a amp:LookupTableCompute ;
+    rdfs:label "Dispatch via Memory Patterns" ;
+    rdfs:comment "MPHF dispatch using only memory layout - no computation" .
+
+# Minimal vocabulary
+amp:ByteStarMetaVocab a amp:MetaOntology ;
+    rdfs:label "ByteStar Meta-Vocabulary" ;
+    amp:vocabulary_size 8 ;
+    amp:expansion_ratio 8000.0 ;
+    rdfs:comment "8 terms that define entire ByteStar ecosystem" .
+
+# === COMPLEXITY EMERGENCE RULES ===
+
+# Axiom: Simplicity amplifies exponentially
+[] a owl:Axiom ;
+    owl:annotatedSource amp:SimplicityAmplifier ;
+    owl:annotatedProperty amp:complexity_factor ;
+    owl:annotatedTarget "∞" ;
+    rdfs:comment "True sophistication is invisible simplicity" .
+
+# Axiom: One bit encodes infinite information
+[] a owl:Axiom ;
+    owl:annotatedSource amp:InfiniteBit ;
+    owl:annotatedProperty amp:information_density ;
+    owl:annotatedTarget "∞" ;
+    rdfs:comment "Via fractal self-similarity and recursive compression" .
+
+# Axiom: Zero instructions compute everything  
+[] a owl:Axiom ;
+    owl:annotatedSource amp:ZeroInstructionCompute ;
+    owl:annotatedProperty rdfs:comment ;
+    owl:annotatedTarget "Computation via spatial memory arrangement" .

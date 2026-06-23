@@ -1,0 +1,223 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bible: <http://purl.org/ontology/bible/> .
+@prefix cnv: <http://example.org/clap-noun-verb/> .
+
+# Gospel Passage & Pericope Pattern Ontology
+# Reusable public RDF patterns for modeling biblical texts
+# Based on: DCTERMS, BIBO, OWL, RDF Schema, PROV-O
+# NOT derived from proprietary vocabularies
+
+bible: a owl:Ontology ;
+    rdfs:label "Bible Ontology - Public Passage Patterns"@en ;
+    rdfs:comment "RDF patterns for gospel structure, pericopes, passages, verses, and synoptic relationships"@en ;
+    dct:creator "Linked Data Community" ;
+    dct:created "2026-06-01"^^xsd:date ;
+    dct:license <https://creativecommons.org/licenses/by/4.0/> ;
+    owl:versionInfo "1.0" ;
+    dct:isPartOf cnv:PublicLanguageResources .
+
+# Core Classes for Biblical Structure
+
+bible:Gospel a owl:Class ;
+    rdfs:subClassOf bibo:Book ;
+    rdfs:label "Gospel"@en ;
+    rdfs:comment "A canonical Gospel account (Matthew, Mark, Luke, John)" ;
+    rdfs:seeAlso bibo:Book .
+
+bible:Chapter a owl:Class ;
+    rdfs:subClassOf bibo:Chapter ;
+    rdfs:label "Chapter"@en ;
+    rdfs:comment "A numbered chapter division within a Gospel or biblical book" .
+
+bible:Verse a owl:Class ;
+    rdfs:label "Verse"@en ;
+    rdfs:comment "An atomic verse unit within a chapter, identifiable by book:chapter:verse" ;
+    owl:sameAs bibo:Verse .
+
+bible:Pericope a owl:Class ;
+    rdfs:label "Pericope"@en ;
+    rdfs:comment "A passage or thematic unit, typically composed of multiple verses, representing a logical textual division (e.g., a teaching, miracle, narrative episode)" ;
+    owl:comment "Pericope structure is semantically determined, not purely structural; it reflects theological or narrative units." .
+
+bible:AuthorialSource a owl:Class ;
+    rdfs:label "Authorial Source"@en ;
+    rdfs:comment "The traditional or historical source/tradition of a Gospel account (e.g., Markan tradition, Matthean community)" ;
+    owl:equivalentClass [ a owl:Class ; owl:unionOf ( prov:Agent dct:Agent ) ] .
+
+# Properties for Biblical Structure
+
+bible:hasChapter a owl:ObjectProperty ;
+    rdfs:label "has chapter"@en ;
+    rdfs:domain bible:Gospel ;
+    rdfs:range bible:Chapter ;
+    owl:inverseOf bible:chapterOf .
+
+bible:chapterOf a owl:ObjectProperty ;
+    rdfs:label "chapter of"@en ;
+    rdfs:domain bible:Chapter ;
+    rdfs:range bible:Gospel .
+
+bible:hasVerse a owl:ObjectProperty ;
+    rdfs:label "has verse"@en ;
+    rdfs:domain bible:Chapter ;
+    rdfs:range bible:Verse ;
+    owl:inverseOf bible:verseOf .
+
+bible:verseOf a owl:ObjectProperty ;
+    rdfs:label "verse of"@en ;
+    rdfs:domain bible:Verse ;
+    rdfs:range bible:Chapter .
+
+bible:startVerse a owl:ObjectProperty ;
+    rdfs:label "start verse"@en ;
+    rdfs:domain bible:Pericope ;
+    rdfs:range bible:Verse ;
+    rdfs:comment "The opening verse of a pericope" .
+
+bible:endVerse a owl:ObjectProperty ;
+    rdfs:label "end verse"@en ;
+    rdfs:domain bible:Pericope ;
+    rdfs:range bible:Verse ;
+    rdfs:comment "The closing verse of a pericope" .
+
+bible:content a owl:DatatypeProperty ;
+    rdfs:label "content"@en ;
+    rdfs:domain [ owl:unionOf ( bible:Verse bible:Pericope ) ] ;
+    rdfs:range rdfs:Literal ;
+    rdfs:comment "The textual content of a verse or passage (can be multi-lingual via language tags)" .
+
+bible:synoticParallel a owl:ObjectProperty ;
+    rdfs:label "synoptic parallel"@en ;
+    rdfs:domain [ owl:unionOf ( bible:Verse bible:Pericope ) ] ;
+    rdfs:range [ owl:unionOf ( bible:Verse bible:Pericope ) ] ;
+    rdfs:comment "A related passage in another Gospel account representing the same event or teaching" ;
+    owl:sameAs owl:sameAs .
+
+# Numeric Properties for Verses
+
+bibo:numericVerseStart a owl:DatatypeProperty ;
+    rdfs:label "numeric verse start"@en ;
+    rdfs:domain bible:Verse ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Verse number at the start of a passage" .
+
+bibo:numericVerseEnd a owl:DatatypeProperty ;
+    rdfs:label "numeric verse end"@en ;
+    rdfs:domain bible:Verse ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Verse number at the end of a passage (if spanning multiple verses)" .
+
+bibo:numChapters a owl:DatatypeProperty ;
+    rdfs:label "number of chapters"@en ;
+    rdfs:domain bible:Gospel ;
+    rdfs:range xsd:integer .
+
+# Provenance & Attribution (DCTERMS + PROV-O)
+
+dct:creator a owl:ObjectProperty ;
+    rdfs:label "creator"@en ;
+    rdfs:domain [ owl:unionOf ( bible:Gospel bible:AuthorialSource ) ] ;
+    rdfs:range prov:Agent ;
+    owl:sameAs prov:wasAttributedTo .
+
+dct:source a owl:ObjectProperty ;
+    rdfs:label "source"@en ;
+    rdfs:domain [ owl:unionOf ( bible:Verse bible:Pericope ) ] ;
+    rdfs:range bible:AuthorialSource ;
+    rdfs:comment "The traditional or historical source of a passage" .
+
+dct:isPartOf a owl:ObjectProperty ;
+    rdfs:label "is part of"@en ;
+    rdfs:domain [ owl:unionOf ( bible:Verse bible:Chapter ) ] ;
+    rdfs:range [ owl:unionOf ( bible:Chapter bible:Gospel ) ] ;
+    rdfs:comment "Hierarchical containment relationship" ;
+    owl:inverseOf dct:hasPart .
+
+dct:hasPart a owl:ObjectProperty ;
+    rdfs:label "has part"@en ;
+    rdfs:range [ owl:unionOf ( bible:Verse bible:Chapter ) ] ;
+    rdfs:domain [ owl:unionOf ( bible:Chapter bible:Gospel ) ] .
+
+dct:relation a owl:ObjectProperty ;
+    rdfs:label "relation"@en ;
+    rdfs:domain [ owl:unionOf ( bible:Verse bible:Pericope ) ] ;
+    rdfs:range [ owl:unionOf ( bible:Verse bible:Pericope ) ] ;
+    rdfs:comment "General relationship to another passage (parallel, allusion, quotation)" .
+
+prov:wasDerivedFrom a owl:ObjectProperty ;
+    rdfs:label "was derived from"@en ;
+    rdfs:domain bible:AuthorialSource ;
+    rdfs:range [ owl:unionOf ( bible:AuthorialSource prov:Entity ) ] ;
+    rdfs:comment "Derivation chain, e.g., from oral tradition to written gospel" .
+
+dct:date a owl:DatatypeProperty ;
+    rdfs:label "date"@en ;
+    rdfs:domain [ owl:unionOf ( bible:Gospel bible:AuthorialSource ) ] ;
+    rdfs:range [ owl:unionOf ( xsd:date xsd:gYear xsd:string ) ] ;
+    rdfs:comment "Dating of composition, e.g., 'ca. 65-70 CE'" .
+
+dct:language a owl:DatatypeProperty ;
+    rdfs:label "language"@en ;
+    rdfs:domain [ owl:unionOf ( bible:Gospel bible:Verse ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Language of original text, e.g., 'Koine Greek', 'Hebrew'" .
+
+# Example Instances (for illustration, not production data)
+
+cnv:GospelOfMark a bible:Gospel ;
+    rdfs:label "Gospel of Mark"@en ;
+    dct:creator cnv:MarkCommunity ;
+    dct:date "ca. 65-70 CE"@en ;
+    dct:language "Koine Greek" ;
+    bibo:numChapters 16 ;
+    dct:description "Earliest canonical gospel narrative"@en .
+
+cnv:Mark_1 a bible:Chapter ;
+    rdfs:label "Mark 1"@en ;
+    dct:isPartOf cnv:GospelOfMark ;
+    bibo:numVerses 45 .
+
+cnv:Mark_1_1 a bible:Verse ;
+    rdfs:label "Mark 1:1"@en ;
+    dct:isPartOf cnv:Mark_1 ;
+    bibo:numericVerseStart 1 ;
+    bibo:numericVerseEnd 1 ;
+    rdfs:comment "Opening of the gospel narrative"@en ;
+    bible:content "Ἀρχὴ τοῦ εὐαγγελίου Ἰησοῦ Χριστοῦ"@el ;
+    owl:sameAs cnv:Matthew_1_1 ;
+    owl:sameAs cnv:Luke_3_1 .
+
+cnv:Mark_BeginningNarrative a bible:Pericope ;
+    rdfs:label "Beginning of Gospel Narrative"@en ;
+    dct:description "The opening proclamation and context of Jesus' ministry"@en ;
+    bible:startVerse cnv:Mark_1_1 ;
+    bible:endVerse cnv:Mark_1_8 ;
+    dct:relation cnv:Matthew_1_1 ;
+    dct:relation cnv:Luke_3_1 ;
+    dct:subject "Gospel opening"@en .
+
+cnv:MarkanTradition a bible:AuthorialSource ;
+    rdfs:label "Markan Tradition"@en ;
+    dct:description "The Gospel tradition attributed to Mark"@en ;
+    dct:creator cnv:MarkCommunity ;
+    dct:issued "ca. 65-70 CE"^^xsd:gYear ;
+    prov:wasDerivedFrom cnv:OralTradition ;
+    dct:license <https://creativecommons.org/licenses/by/4.0/> .
+
+# Public Source Attribution
+
+cnv:GospelPassagePattern a rdf:Resource ;
+    rdfs:label "Gospel Passage & Pericope Ontology Pattern"@en ;
+    dct:description "Reusable RDF patterns for biblical text structure derived from standard Linked Data vocabularies (DCTERMS, BIBO, OWL, RDFS, PROV-O)"@en ;
+    dct:isPartOf cnv:PublicLanguageResources ;
+    dct:source <https://www.w3.org/TR/vocab-dcat-2/> ;
+    dct:source <https://www.w3.org/TR/prov-o/> ;
+    dct:source <http://purl.org/ontology/bibo/> ;
+    dct:license <https://creativecommons.org/licenses/by/4.0/> ;
+    rdfs:comment "No proprietary vocabulary. All patterns are public and reusable." .

@@ -1,0 +1,54 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix op: <https://gitvan.dev/op#> .
+
+# Test Hook
+<https://example.org/hook1> a gh:Hook ;
+    dct:title "Test Hook" ;
+    gh:hasPredicate <https://example.org/predicate1> ;
+    gh:orderedPipelines _:pipelineList1 .
+
+# Pipeline list
+_:pipelineList1 rdf:first <https://example.org/pipeline1> ;
+    rdf:rest rdf:nil .
+
+# Pipeline
+<https://example.org/pipeline1> a op:Pipeline ;
+    op:steps _:stepsList1 .
+
+# Steps list
+_:stepsList1 rdf:first <https://example.org/step1> ;
+    rdf:rest _:stepsList2 .
+
+_:stepsList2 rdf:first <https://example.org/step2> ;
+    rdf:rest rdf:nil .
+
+# Query with inline text
+<https://example.org/query1> a gv:Query ;
+    gv:text "SELECT ?s ?p ?o WHERE { ?s ?p ?o }" .
+
+# Query with path
+<https://example.org/query2> a gv:Query ;
+    gv:path "/Users/sac/gitvan/tests/turtle-test-data/queries/test.sparql" .
+
+# Template with inline text
+<https://example.org/template1> a gv:Template ;
+    gv:text "Hello {{ name }}!" .
+
+# Template with path
+<https://example.org/template2> a gv:Template ;
+    gv:path "/Users/sac/gitvan/tests/turtle-test-data/templates/test.njk" .
+
+# Simple subject with properties
+<https://example.org/subject1> a gv:Record ;
+    dct:title "Test Subject" ;
+    gv:value "test value" ;
+    gv:number 42 .
+
+# Subject with multiple values
+<https://example.org/subject2> a gv:Record ;
+    gv:tag "tag1" ;
+    gv:tag "tag2" ;
+    gv:tag "tag3" .

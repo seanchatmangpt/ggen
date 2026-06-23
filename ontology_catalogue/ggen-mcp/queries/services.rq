@@ -1,0 +1,14 @@
+PREFIX ddd: <https://ddd-patterns.dev/schema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?service_name ?method_name
+WHERE {
+  ?svc a ddd:Service .
+  ?svc rdfs:label ?service_name .
+  OPTIONAL {
+    ?svc ddd:hasMethod ?method .
+    ?method rdfs:label ?method_name .
+  }
+}
+ORDER BY ?service_name
+LIMIT 10000

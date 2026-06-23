@@ -1,0 +1,80 @@
+# Nevada Employment Classification - TTL Schema
+@prefix cns: <http://cns.litigation/ontology#> .
+@prefix nv: <http://labor.nv.gov/ontology#> .
+@prefix yawl: <http://yawlwms.org/ontology#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+
+# Nevada Labor Commissioner
+nv:NevadaLaborCommissioner a cns:JurisdictionEntity ;
+    cns:address "3300 W. Sahara Ave., Suite 225, Las Vegas, NV 89102" ;
+    cns:filingMethods ( cns:OnlineForm cns:InPersonSubmission ) ;
+    cns:requiredForms ( nv:WageClaimForm nv:SupportingDocuments ) ;
+    cns:filingFees "0" ;
+    cns:processingTime "30-60 days" .
+
+# Employment Misclassification Detection Logic
+nv:EmploymentMisclassificationDetection a cns:DetectionLogic ;
+    cns:algorithm [
+        cns:check "W-2 absence" ;
+        cns:check "Tax withholding absence" ;
+        cns:check "Unlawful termination process" ;
+        cns:check "Independent contractor classification abuse"
+    ] ;
+    cns:evidence ( nv:PayrollRecords nv:TaxDocuments nv:ContractTerms ) .
+
+# Post-Employment Coercion
+nv:PostEmploymentCoercion a cns:FilingType ;
+    cns:jurisdiction "Nevada" ;
+    cns:coercionTypes ( "Non-compete enforcement" "Confidentiality abuse" "Retaliation threats" ) ;
+    cns:requiredEvidence ( cns:ThreatDocumentation cns:TimestampedCommunications ) .
+
+# Workflow Pattern - Van der Aalst Pattern 5: Exclusive Choice
+nv:EmploymentClassificationWorkflow a yawl:Workflow ;
+    yawl:pattern yawl:ExclusiveChoice ;
+    yawl:steps (
+        nv:ClassifyEmploymentType
+        nv:W2ValidationBranch
+        nv:IndependentContractorBranch
+        nv:MisclassificationDetected
+        nv:GenerateComplaint
+        nv:SubmitToLabor
+        nv:AuditDecision
+    ) .
+
+nv:ClassifyEmploymentType a yawl:Task ;
+    cns:progressTick 0 ;
+    cns:dagIRI "nv:employment/classify" ;
+    otel:spanName "nv.employment.classify" .
+
+nv:W2ValidationBranch a yawl:Task ;
+    cns:progressTick 1 ;
+    cns:dagIRI "nv:employment/w2_validate" ;
+    cns:condition "W-2 issued AND taxes withheld" ;
+    otel:spanName "nv.employment.w2_validate" .
+
+nv:IndependentContractorBranch a yawl:Task ;
+    cns:progressTick 1 ;
+    cns:dagIRI "nv:employment/ic_validate" ;
+    cns:condition "1099 issued AND no control exercised" ;
+    otel:spanName "nv.employment.ic_validate" .
+
+nv:MisclassificationDetected a yawl:Task ;
+    cns:progressTick 2 ;
+    cns:dagIRI "nv:employment/misclassified" ;
+    cns:condition "No W-2 AND no 1099 AND control exercised" ;
+    otel:spanName "nv.employment.misclassified" .
+
+nv:GenerateComplaint a yawl:Task ;
+    cns:progressTick 3 ;
+    cns:dagIRI "nv:employment/complaint" ;
+    otel:spanName "nv.employment.complaint" .
+
+nv:SubmitToLabor a yawl:Task ;
+    cns:progressTick 4 ;
+    cns:dagIRI "nv:employment/submit" ;
+    otel:spanName "nv.employment.submit" .
+
+nv:AuditDecision a yawl:Task ;
+    cns:progressTick 5 ;
+    cns:dagIRI "nv:employment/audit" ;
+    otel:spanName "nv.employment.audit" .

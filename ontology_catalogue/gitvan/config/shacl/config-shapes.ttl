@@ -1,0 +1,188 @@
+# SHACL Shapes for Configuration Validation
+# Validates configuration objects and their properties
+# Version: 1.0.0
+# Date: January 10, 2026
+
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix cfg: <https://gitvan.dev/config#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# HOOKS CONFIGURATION SHAPES
+# ============================================================================
+
+# Global hooks configuration constraints
+cfg:HooksConfigShape a sh:NodeShape ;
+  sh:targetClass cfg:HooksConfig ;
+  rdfs:label "Hooks Configuration Shape" ;
+  rdfs:comment "Validates hooks configuration values" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path cfg:auditRetentionDays ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 3650 ;
+    sh:message "Audit retention must be between 1 and 3650 days (10 years)" ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:maxConcurrency ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 256 ;
+    sh:message "Max concurrency must be between 1 and 256" ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:enableMetrics ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "Metrics flag should be boolean" ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:enableTracing ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "Tracing flag should be boolean" ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:enableAudit ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "Audit flag should be boolean" ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:logLevel ;
+    sh:maxCount 1 ;
+    sh:in ("debug" "info" "warn" "error") ;
+    sh:message "Log level must be one of: debug, info, warn, error" ;
+  ] .
+
+# ============================================================================
+# WORKFLOW ENGINE CONFIGURATION
+# ============================================================================
+
+# Workflow engine configuration constraints
+cfg:WorkflowEngineConfigShape a sh:NodeShape ;
+  sh:targetClass cfg:WorkflowEngineConfig ;
+  rdfs:label "Workflow Engine Configuration Shape" ;
+  rdfs:comment "Validates workflow execution configuration" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path cfg:defaultTimeout ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 100 ;
+    sh:maxInclusive 3600000 ;
+    sh:message "Default timeout must be between 100ms and 1 hour" ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:maxParallelSteps ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 256 ;
+    sh:message "Max parallel steps must be between 1 and 256" ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:retryAttempts ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 10 ;
+    sh:message "Retry attempts must be between 0 and 10" ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:failureMode ;
+    sh:maxCount 1 ;
+    sh:in ("fail-fast" "fail-safe" "continue") ;
+    sh:message "Failure mode must be one of: fail-fast, fail-safe, continue" ;
+  ] .
+
+# ============================================================================
+# STORAGE CONFIGURATION
+# ============================================================================
+
+# Git storage configuration
+cfg:GitStorageConfigShape a sh:NodeShape ;
+  sh:targetClass cfg:GitStorageConfig ;
+  rdfs:label "Git Storage Configuration Shape" ;
+  rdfs:comment "Validates Git storage configuration" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path cfg:repositoryPath ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Repository path must be specified" ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:autoCommit ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "Auto-commit flag should be boolean" ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:committerName ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Committer name should be a string" ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:committerEmail ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+    sh:message "Committer email must be a valid email address" ;
+  ] .
+
+# ============================================================================
+# RDF STORE CONFIGURATION
+# ============================================================================
+
+# RDF store configuration
+cfg:RdfStoreConfigShape a sh:NodeShape ;
+  sh:targetClass cfg:RdfStoreConfig ;
+  rdfs:label "RDF Store Configuration Shape" ;
+  rdfs:comment "Validates RDF store configuration" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path cfg:storeType ;
+    sh:minCount 1 ;
+    sh:in ("memory" "leveldb" "file") ;
+    sh:message "Store type must be one of: memory, leveldb, file" ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:cacheSizeMb ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 1024 ;
+    sh:message "Cache size must be between 1 and 1024 MB" ;
+  ] ;
+
+  sh:property [
+    sh:path cfg:storagePath ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Storage path should be specified for persistent stores" ;
+  ] .

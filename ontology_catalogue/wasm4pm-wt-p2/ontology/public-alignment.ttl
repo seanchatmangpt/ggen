@@ -1,0 +1,35 @@
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema: <https://schema.org/> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix mls: <http://www.w3.org/ns/mls#> .
+
+# ---------------------------------------------------------------------------
+# wasm4pm Public Ontology Alignment
+# ---------------------------------------------------------------------------
+# This file provides a 10-triple sample proving public-only typing for the
+# release artifacts and evidence processes. No private classes or predicates
+# are used.
+# ---------------------------------------------------------------------------
+
+<urn:uuid:release-certificate-v26-5-19>
+  a prov:Entity ;
+  dcterms:identifier "RELEASE_CERTIFICATE.v26.5.21.json" ;
+  dcterms:title "Release certificate for wasm4pm v26.5.21" ;
+  prov:wasGeneratedBy <urn:uuid:release-gauntlet-run-v26-5-19> .
+
+<urn:uuid:algorithm-behavior-evidence-v26-5-19>
+  a prov:Entity, dcat:Dataset ;
+  dcterms:identifier "ALGORITHM_BEHAVIOR_EVIDENCE.v26.5.21.json" ;
+  prov:wasGeneratedBy <urn:uuid:algorithm-behavior-run-v26-5-19> .
+
+<urn:uuid:algorithm-behavior-run-v26-5-19>
+  a prov:Activity, mls:Run ;
+  prov:used <urn:uuid:fixture-valid-minimal-log> ;
+  prov:generated <urn:uuid:algorithm-behavior-evidence-v26-5-19> .
+
+<urn:uuid:failure-empty-event-log>
+  a skos:Concept ;
+  skos:prefLabel "EMPTY_EVENT_LOG" .

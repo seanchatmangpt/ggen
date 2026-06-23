@@ -1,0 +1,31 @@
+# find-all-verbs.rq
+# Find all verb definitions in the ontology
+# Returns: verbName, verbAbout, belongsToNoun, returnType, argumentCount
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX cnv: <http://clap-noun-verb.io/ontology#>
+PREFIX ex: <http://clap-noun-verb.io/examples#>
+
+SELECT DISTINCT
+  ?verb
+  ?verbName
+  ?verbAbout
+  ?nounName
+  ?returnType
+  (COUNT(?arg) AS ?argumentCount)
+WHERE {
+  ?verb a cnv:Verb .
+  ?verb cnv:hasVerbName ?verbName .
+  OPTIONAL { ?verb cnv:verbAbout ?verbAbout . }
+  OPTIONAL {
+    ?verb cnv:belongsToNoun ?noun .
+    ?noun cnv:hasNounName ?nounName .
+  }
+  OPTIONAL { ?verb cnv:returnType ?returnType . }
+  OPTIONAL { ?verb cnv:hasArguments ?arg . }
+}
+GROUP BY ?verb ?verbName ?verbAbout ?nounName ?returnType
+ORDER BY ?nounName ?verbName

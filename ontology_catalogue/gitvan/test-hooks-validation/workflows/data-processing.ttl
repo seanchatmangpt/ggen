@@ -1,0 +1,43 @@
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Data Processing Workflow
+ex:data-processing-workflow rdf:type gh:Hook ;
+    gv:title "Data Processing Workflow" ;
+    gh:hasPredicate ex:data-processing-predicate ;
+    gh:orderedPipelines ex:data-processing-pipeline .
+
+# Predicate - Process when data changes
+ex:data-processing-predicate rdf:type gh:ResultDelta ;
+    gh:queryText """
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        SELECT ?item ?name ?status WHERE {
+            ?item rdf:type gv:TestItem .
+            ?item gv:name ?name .
+            ?item gv:status ?status .
+        }
+    """ .
+
+# Workflow Pipeline
+ex:data-processing-pipeline rdf:type op:Pipeline ;
+    op:steps ex:analyze-data, ex:generate-report .
+
+# Step 1: Analyze Data
+ex:analyze-data rdf:type gv:SparqlStep ;
+    gv:text """
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        SELECT (COUNT(?item) AS ?total) (COUNT(?active) AS ?active) WHERE {
+            ?item rdf:type gv:TestItem .
+            OPTIONAL { ?active rdf:type gv:TestItem ; gv:status "active" }
+        }
+    """ ;
+    gv:outputMapping '{"total": "total", "active": "active"}' .
+
+# Step 2: Generate Report
+ex:generate-report rdf:type gv:TemplateStep ;
+    gv:text "Data Processing Report\n\nTotal Items: {{ total }}\nActive Items: {{ active }}\nGenerated: {{ 'now' | date('YYYY-MM-DD HH:mm:ss') }}\n" ;
+    gv:filePath "./reports/data-processing.txt" ;
+    gv:dependsOn ex:analyze-data .

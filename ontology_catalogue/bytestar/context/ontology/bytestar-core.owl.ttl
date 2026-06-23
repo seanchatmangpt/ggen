@@ -1,0 +1,105 @@
+@prefix : <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-core>
+  a owl:Ontology ;
+  owl:versionInfo "0.1.0" ;
+  rdfs:label "ByteStar Core Ontology" ;
+  rdfs:comment "Foundational classes, properties, and invariants for Byte* ecosystem." .
+
+### Core classes
+System, Subsystem, ByteActor, ByteFlow, ByteEthos, Fabricator, CPUFabricator, GPUFabricator,
+Crystal, Envelope, Kernel, KernelSet, Pattern, PatternRegistry, Graph, Workflow, Admission, Acceptance, Rejection,
+Receipt, LedgerSegment, Validator, Observer, RingBuffer, Pulse, DeterminismStamp, MPHFTable, LOUDSTrie, XORFilter, Bitset
+  a owl:Class .
+
+### Subsystem taxonomy
+ByteActor rdfs:subClassOf Subsystem .
+ByteFlow  rdfs:subClassOf Subsystem .
+ByteEthos rdfs:subClassOf Subsystem .
+CPUFabricator rdfs:subClassOf Fabricator .
+GPUFabricator rdfs:subClassOf Fabricator .
+
+### Doctrine (8/8) — datatype constraints
+:hasTickCost a owl:DatatypeProperty ; rdfs:domain Kernel ; rdfs:range xsd:integer .
+:hasHopCount a owl:DatatypeProperty ; rdfs:domain Workflow ; rdfs:range xsd:integer .
+
+# Tick ≤ 8 for all kernels
+Kernel rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :hasTickCost ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions ( [ xsd:minInclusive "0"^^xsd:integer ]
+                            [ xsd:maxInclusive "8"^^xsd:integer ] ) ] ] .
+
+# Hop ≤ 8 for all workflows that run hot
+Workflow rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :hasHopCount ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions ( [ xsd:minInclusive "0"^^xsd:integer ]
+                            [ xsd:maxInclusive "8"^^xsd:integer ] ) ] ] .
+
+### Pattern Byte & congruence
+:patternByte a owl:DatatypeProperty ; rdfs:domain Crystal ;
+  rdfs:range [ a rdfs:Datatype ; owl:onDatatype xsd:unsignedByte ;
+               owl:withRestrictions ( [ xsd:minInclusive "0"^^xsd:unsignedByte ]
+                                      [ xsd:maxInclusive "255"^^xsd:unsignedByte ] ) ] .
+
+:declaresPattern a owl:ObjectProperty ; rdfs:domain Crystal ; rdfs:range Pattern .
+:congruentWith    a owl:ObjectProperty ; rdfs:domain Graph   ; rdfs:range Pattern .
+
+### Admission
+:hasDecision a owl:DatatypeProperty ; rdfs:domain Admission ; rdfs:range xsd:boolean .
+:decidesFor  a owl:ObjectProperty   ; rdfs:domain Admission ; rdfs:range Crystal .
+:consumesHotTicks a owl:DatatypeProperty ; rdfs:domain Admission ; rdfs:range xsd:integer .
+
+# Zero-tick rejection
+Rejection owl:equivalentClass [ a owl:Class ;
+  owl:intersectionOf ( Admission [ a owl:Restriction ; owl:onProperty :hasDecision ;
+                                   owl:hasValue "false"^^xsd:boolean ] ) ] .
+Rejection rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :consumesHotTicks ;
+                            owl:hasValue "0"^^xsd:integer ] .
+
+Acceptance owl:equivalentClass [ a owl:Class ;
+  owl:intersectionOf ( Admission [ a owl:Restriction ; owl:onProperty :hasDecision ;
+                                   owl:hasValue "true"^^xsd:boolean ] ) ] .
+
+### Determinism & provenance
+:deterministic a owl:DatatypeProperty ; rdfs:domain System ; rdfs:range xsd:boolean .
+:determinismDigest a owl:DatatypeProperty ; rdfs:domain DeterminismStamp ; rdfs:range xsd:hexBinary .
+:hasStamp a owl:ObjectProperty ; rdfs:domain (System) ; rdfs:range DeterminismStamp .
+
+### L1 residency set
+:l1Resident a owl:DatatypeProperty ; rdfs:domain Subsystem ; rdfs:range xsd:boolean .
+:l1Holds    a owl:ObjectProperty   ; rdfs:domain ByteActor ;
+            rdfs:range [ a owl:Class ; owl:unionOf ( KernelSet MPHFTable Envelope ) ] .
+
+### Execution & queues
+:executes a owl:ObjectProperty ; rdfs:domain ByteActor ; rdfs:range Kernel .
+:enqueues a owl:ObjectProperty ; rdfs:domain ByteFlow  ; rdfs:range Crystal .
+:connectsTo a owl:ObjectProperty ; rdfs:domain RingBuffer ; rdfs:range Subsystem .
+:isSPSC a owl:DatatypeProperty ; rdfs:domain RingBuffer ; rdfs:range xsd:boolean .
+
+### Pulse/Observers
+:emitsPulse a owl:ObjectProperty ; rdfs:domain ByteActor ; rdfs:range Pulse .
+:observes   a owl:ObjectProperty ; rdfs:domain Observer  ; rdfs:range Pulse .
+:offPath    a owl:DatatypeProperty ; rdfs:domain Observer ; rdfs:range xsd:boolean .
+
+### Crypto/PQC
+:PQCKey, :PQCSignature, :PQCOperation a owl:Class .
+:verifies a owl:ObjectProperty ; rdfs:domain Subsystem ; rdfs:range PQCSignature .
+:signs    a owl:ObjectProperty ; rdfs:domain Subsystem ; rdfs:range PQCSignature .
+:keygens  a owl:ObjectProperty ; rdfs:domain Subsystem ; rdfs:range PQCKey .
+
+### Governance
+:finalizes a owl:ObjectProperty ; rdfs:domain ByteEthos ; rdfs:range LedgerSegment .
+:approvedBy a owl:ObjectProperty ; rdfs:domain LedgerSegment ; rdfs:range Validator .
+:weight    a owl:DatatypeProperty ; rdfs:domain Validator ; rdfs:range xsd:decimal .
+:threshold a owl:DatatypeProperty ; rdfs:domain ByteEthos ; rdfs:range xsd:decimal .
+
+### Annotations for doctrine
+ByteActor rdfs:comment "Let-it-crash: no runtime tick guards; hot-path constant-schedule." .

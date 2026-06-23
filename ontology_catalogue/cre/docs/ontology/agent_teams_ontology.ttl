@@ -1,0 +1,988 @@
+# Agent Teams Ontology - LLM Multi-Agent Systems Knowledge Graph
+# Captures research from PhD thesis and Claude Code best practices
+# Version: 1.0.0
+# Generated: 2026-02-12
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix : <http://ontology.claude.ai/agent-teams#> .
+@prefix agents: <http://ontology.claude.ai/agent-teams/agents#> .
+@prefix concepts: <http://ontology.claude.ai/agent-teams/concepts#> .
+@prefix metrics: <http://ontology.claude.ai/agent-teams/metrics#> .
+@prefix platforms: <http://ontology.claude.ai/agent-teams/platforms#> .
+@prefix models: <http://ontology.claude.ai/agent-teams/models#> .
+@prefix patterns: <http://ontology.claude.ai/agent-teams/patterns#> .
+@prefix emergence: <http://ontology.claude.ai/agent-teams/emergence#> .
+@prefix safety: <http://ontology.claude.ai/agent-teams/safety#> .
+
+#################################################################
+# Ontology Metadata
+#################################################################
+
+<http://ontology.claude.ai/agent-teams> a owl:Ontology ;
+    rdfs:label "Agent Teams Ontology" ;
+    rdfs:comment "Knowledge graph capturing LLM-based Multi-Agent Systems research, Claude Code best practices, and PhD thesis findings" ;
+    dct:created "2026-02-12"^^xsd:date ;
+    dct:creator "Claude Opus 4.6" ;
+    dct:license <https://creativecommons.org/licenses/by/4.0/> ;
+    owl:versionInfo "1.0.0" ;
+    skos:prefLabel "Agent Teams Ontology" .
+
+#################################################################
+# Core Classes
+#################################################################
+
+:LLMAgent a owl:Class ;
+    rdfs:label "LLM Agent" ;
+    rdfs:comment "An agent powered by a Large Language Model with memory, tools, and policy" ;
+    skos:definition "An LLM agent A is a tuple (L, M, T, π) where L is a large language model, M is a memory system, T is a set of available tools, and π is a policy mapping observations to actions" .
+
+:MultiAgentSystem a owl:Class ;
+    rdfs:label "Multi-Agent System" ;
+    rdfs:comment "A system composed of multiple autonomous agents that interact within an environment" ;
+    skos:definition "An LLM-based Multi-Agent System is a tuple (A, E, C, S) where A is a set of LLM agents, E is a shared environment, C is a communication protocol, and S is a coordination mechanism" .
+
+:AgentTeam a owl:Class ;
+    rdfs:label "Agent Team" ;
+    rdfs:subClassOf :MultiAgentSystem ;
+    rdfs:comment "A coordinated group of LLM agents working toward a common goal" ;
+    skos:altLabel "Agent Swarm" , "LLM-MAS" .
+
+:TeamRole a owl:Class ;
+    rdfs:label "Team Role" ;
+    rdfs:comment "A defined role that an agent can assume within a team" .
+
+:Task a owl:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "A unit of work to be completed by agents" .
+
+:Message a owl:Class ;
+    rdfs:label "Message" ;
+    rdfs:comment "Communication unit between agents" .
+
+:CoordinationMechanism a owl:Class ;
+    rdfs:label "Coordination Mechanism" ;
+    rdfs:comment "A method for coordinating agent activities" .
+
+:Architecture a owl:Class ;
+    rdfs:label "Architecture" ;
+    rdfs:comment "Structural design pattern for agent team organization" .
+
+:EmergentBehavior a owl:Class ;
+    rdfs:label "Emergent Behavior" ;
+    rdfs:comment "A property of a system that is not present in its constituent parts" ;
+    skos:definition "An emergent property P of an LLM-MAS is a property such that P(S) ∧ ¬(P(A₁) ∨ P(A₂) ∨ ... ∨ P(Aₙ))" .
+
+:SafetyFramework a owl:Class ;
+    rdfs:label "Safety Framework" ;
+    rdfs:comment "A systematic approach to ensuring safe agent team behavior" .
+
+:EvaluationMetric a owl:Class ;
+    rdfs:label "Evaluation Metric" ;
+    rdfs:comment "A measure for assessing agent team performance" .
+
+:Platform a owl:Class ;
+    rdfs:label "Platform" ;
+    rdfs:comment "A software system for building and running agent teams" .
+
+:Model a owl:Class ;
+    rdfs:label "Model" ;
+    rdfs:comment "A large language model that can power agents" .
+
+:DesignPattern a owl:Class ;
+    rdfs:label "Design Pattern" ;
+    rdfs:comment "A reusable solution to a common coordination problem" .
+
+#################################################################
+# Agent Roles
+#################################################################
+
+agents:Implementer a :TeamRole ;
+    rdfs:label "Implementer" ;
+    rdfs:comment "Agent that generates and executes code" ;
+    :hasCapability "code_generation" , "code_execution" ;
+    :recommendedModel models:Opus ;
+    :costLevel "high" .
+
+agents:Reviewer a :TeamRole ;
+    rdfs:label "Reviewer" ;
+    rdfs:comment "Agent that analyzes and critiques code" ;
+    :hasCapability "code_analysis" , "quality_assurance" ;
+    :recommendedModel models:Sonnet ;
+    :costLevel "medium" .
+
+agents:Researcher a :TeamRole ;
+    rdfs:label "Researcher" ;
+    rdfs:comment "Agent that retrieves and synthesizes information" ;
+    :hasCapability "information_retrieval" , "synthesis" ;
+    :recommendedModel models:Haiku ;
+    :costLevel "low" .
+
+agents:Coordinator a :TeamRole ;
+    rdfs:label "Coordinator" ;
+    rdfs:comment "Agent that manages task assignment and team synthesis" ;
+    :hasCapability "task_assignment" , "messaging" , "synthesis" ;
+    :recommendedModel models:Haiku ;
+    :costLevel "low" .
+
+agents:Tester a :TeamRole ;
+    rdfs:label "Tester" ;
+    rdfs:comment "Agent that verifies system correctness" ;
+    :hasCapability "verification" , "debugging" ;
+    :recommendedModel models:Sonnet ;
+    :costLevel "medium" .
+
+agents:Architect a :TeamRole ;
+    rdfs:label "Architect" ;
+    rdfs:comment "Agent that designs system architecture" ;
+    :hasCapability "system_design" , "architecture" ;
+    :recommendedModel models:Opus ;
+    :costLevel "high" .
+
+agents:Debugger a :TeamRole ;
+    rdfs:label "Debugger" ;
+    rdfs:comment "Agent that troubleshoots runtime issues" ;
+    :hasCapability "troubleshooting" , "root_cause_analysis" ;
+    :recommendedModel models:Opus ;
+    :costLevel "high" .
+
+agents:SecurityReviewer a :TeamRole ;
+    rdfs:label "Security Reviewer" ;
+    rdfs:comment "Agent that performs security analysis" ;
+    :hasCapability "security_audit" , "vulnerability_detection" ;
+    :recommendedModel models:Opus ;
+    :costLevel "high" .
+
+agents:Documenter a :TeamRole ;
+    rdfs:label "Documenter" ;
+    rdfs:comment "Agent that creates documentation" ;
+    :hasCapability "summarization" , "documentation" ;
+    :recommendedModel models:Haiku ;
+    :costLevel "low" .
+
+#################################################################
+# Models
+#################################################################
+
+models:Opus a :Model ;
+    rdfs:label "Claude Opus" ;
+    rdfs:comment "Highest capability Claude model for complex reasoning" ;
+    :inputPricePerMTok "5.00"^^xsd:decimal ;
+    :outputPricePerMTok "25.00"^^xsd:decimal ;
+    :contextWindow "1000000"^^xsd:integer ;
+    :bestFor "complex_reasoning" , "architecture" , "code_generation" , "debugging" ;
+    :costRatio "10"^^xsd:integer .
+
+models:Sonnet a :Model ;
+    rdfs:label "Claude Sonnet" ;
+    rdfs:comment "Balanced capability Claude model" ;
+    :inputPricePerMTok "3.00"^^xsd:decimal ;
+    :outputPricePerMTok "15.00"^^xsd:decimal ;
+    :contextWindow "200000"^^xsd:integer ;
+    :bestFor "code_review" , "balanced_workloads" ;
+    :costRatio "6"^^xsd:integer .
+
+models:Haiku a :Model ;
+    rdfs:label "Claude Haiku" ;
+    rdfs:comment "Fast, cost-efficient Claude model" ;
+    :inputPricePerMTok "0.50"^^xsd:decimal ;
+    :outputPricePerMTok "2.50"^^xsd:decimal ;
+    :contextWindow "200000"^^xsd:integer ;
+    :bestFor "fast_tasks" , "messaging" , "summaries" , "research" ;
+    :costRatio "1"^^xsd:integer .
+
+#################################################################
+# Architectures
+#################################################################
+
+concepts:HierarchicalArchitecture a :Architecture ;
+    rdfs:label "Hierarchical Architecture" ;
+    rdfs:comment "Tree-structured organization with clear chain of command" ;
+    :characteristic "clear_chain_of_command" , "scalable" , "potential_bottlenecks" ;
+    :coordinationComplexity "O(log n)" ;
+    :bestFor "large_teams" , "structured_tasks" .
+
+concepts:MeshArchitecture a :Architecture ;
+    rdfs:label "Mesh Architecture" ;
+    rdfs:comment "Peer-to-peer network without central coordination" ;
+    :characteristic "peer_to_peer" , "no_single_point_of_failure" ;
+    :coordinationComplexity "O(n²)" ;
+    :bestFor "small_teams" , "autonomous_agents" .
+
+concepts:HybridArchitecture a :Architecture ;
+    rdfs:label "Hybrid Architecture" ;
+    rdfs:comment "Combines hierarchical control with mesh communication" ;
+    :characteristic "balanced_coordination" , "flexible_communication" ;
+    :coordinationComplexity "O(n log n)" ;
+    :bestFor "most_practical_systems" ;
+    :combines concepts:HierarchicalArchitecture , concepts:MeshArchitecture .
+
+#################################################################
+# Design Patterns
+#################################################################
+
+patterns:DelegatePattern a :DesignPattern ;
+    rdfs:label "Delegate Pattern" ;
+    rdfs:comment "Team lead delegates implementation to specialists" ;
+    :flow "lead_assigns_to_specialist" , "specialist_implements" , "specialist_reports_back" ;
+    :useCase "implementation_tasks" .
+
+patterns:AdversarialPattern a :DesignPattern ;
+    rdfs:label "Adversarial Pattern" ;
+    rdfs:comment "Agents challenge each other's outputs" ;
+    :flow "implementer_produces" , "reviewer_critiques" , "implementer_addresses_feedback" ;
+    :useCase "quality_assurance" , "code_review" .
+
+patterns:PipelinePattern a :DesignPattern ;
+    rdfs:label "Pipeline Pattern" ;
+    rdfs:comment "Sequential processing through specialized agents" ;
+    :flow "researcher_to_architect_to_implementer_to_tester" ;
+    :useCase "software_development_lifecycle" .
+
+patterns:MapReducePattern a :DesignPattern ;
+    rdfs:label "Map-Reduce Pattern" ;
+    rdfs:comment "Distribute work then aggregate results" ;
+    :flow "map_tasks_to_agents" , "agents_process_parallel" , "reduce_results" ;
+    :useCase "large_scale_analysis" .
+
+patterns:ConsensusPattern a :DesignPattern ;
+    rdfs:label "Consensus Pattern" ;
+    rdfs:comment "Agents vote or debate to reach agreement" ;
+    :flow "proposal" , "voting_or_debate" , "decision" ;
+    :useCase "decision_making" , "architecture_choices" .
+
+#################################################################
+# Coordination Mechanisms
+#################################################################
+
+concepts:TaskDecomposition a :CoordinationMechanism ;
+    rdfs:label "Task Decomposition" ;
+    rdfs:comment "Breaking down complex tasks into assignable units" ;
+    :strategy "functional" , "sequential" , "adversarial" .
+
+concepts:MessagePassing a :CoordinationMechanism ;
+    rdfs:label "Message Passing" ;
+    rdfs:comment "Direct communication between agents" ;
+    :messageType "message" , "broadcast" , "task" , "result" ;
+    :mode "synchronous" , "asynchronous" .
+
+concepts:SharedState a :CoordinationMechanism ;
+    rdfs:label "Shared State" ;
+    rdfs:comment "Common data structure accessible to all agents" ;
+    :example "shared_task_list" , "knowledge_graph" , "vector_database" .
+
+concepts:VotingMechanism a :CoordinationMechanism ;
+    rdfs:label "Voting Mechanism" ;
+    rdfs:comment "Democratic decision making among agents" ;
+    :rule "unanimous" , "majority" , "plurality" , "weighted" .
+
+concepts:DebateProtocol a :CoordinationMechanism ;
+    rdfs:label "Debate Protocol" ;
+    rdfs:comment "Agents argue for/against proposals" ;
+    :process "argument" , "counter_argument" , "mediation" , "synthesis" .
+
+concepts:LockBasedAccess a :CoordinationMechanism ;
+    rdfs:label "Lock-Based Access" ;
+    rdfs:comment "Exclusive access to shared resources" ;
+    :useCase "file_editing" , "database_writes" .
+
+#################################################################
+# Emergence Types (Fromm 2005)
+#################################################################
+
+emergence:TypeI a :EmergentBehavior ;
+    rdfs:label "Type I: Simple/Nominal Emergence" ;
+    rdfs:comment "Feed-forward relations without top-down feedback" ;
+    emergence:example "Intended system function from agent code" ;
+    emergence:predictability "high" .
+
+emergence:TypeII a :EmergentBehavior ;
+    rdfs:label "Type II: Weak Emergence" ;
+    rdfs:comment "Simple positive or negative feedback loops" ;
+    emergence:example "Agents converging on shared terminology" ;
+    emergence:predictability "medium" .
+
+emergence:TypeIII a :EmergentBehavior ;
+    rdfs:label "Type III: Multiple Emergence" ;
+    rdfs:comment "Complex adaptive systems with multiple feedback types" ;
+    emergence:example "Emergent coordination protocols, unintended specialization" ;
+    emergence:predictability "low" ;
+    rdfs:seeAlso "Primary type observed in LLM-MAS" .
+
+emergence:TypeIV a :EmergentBehavior ;
+    rdfs:label "Type IV: Strong Emergence" ;
+    rdfs:comment "Multiple levels from combinatorial explosion" ;
+    emergence:example "Agent societies, economic systems" ;
+    emergence:predictability "very_low" .
+
+emergence:SpecificationMisalignment a :EmergentBehavior ;
+    rdfs:label "Specification Misalignment" ;
+    rdfs:comment "Emergent effects arise from gap between global specification and local approximation" ;
+    skos:definition "Global Specification (ℱ*) ≠ Local Approximation (ℱ̂)" ;
+    :manifestation "local_optimization_at_global_expense" , "protocol_divergence" , "resource_contention" ;
+    prov:wasDerivedFrom <https://arxiv.org/abs/2408.04514> .
+
+emergence:CascadingError a :EmergentBehavior ;
+    rdfs:label "Cascading Error" ;
+    rdfs:comment "Errors propagate through agent chain" ;
+    :mitigation "input_validation" , "error_boundaries" , "circuit_breakers" .
+
+emergence:CoordinationFailure a :EmergentBehavior ;
+    rdfs:label "Coordination Failure" ;
+    rdfs:comment "Breakdown in agent coordination" ;
+    :type "deadlock" , "livelock" , "starvation" .
+
+#################################################################
+# Safety Frameworks
+#################################################################
+
+safety:MAEBE a :SafetyFramework ;
+    rdfs:label "Multi-Agent Emergent Behavior Framework" ;
+    rdfs:comment "Systematic risk assessment for emergent behaviors" ;
+    :phase "identification" , "assessment" , "mitigation" , "monitoring" , "response" ;
+    prov:wasDerivedFrom <https://arxiv.org/abs/2506.03053> .
+
+safety:LocalAlignment a :SafetyFramework ;
+    rdfs:label "Local Alignment" ;
+    rdfs:comment "Ensure each agent's objective matches global intent" ;
+    :formula "For each agent A_i: ℱ̂_i ≈ ℱ*" .
+
+safety:GlobalAlignment a :SafetyFramework ;
+    rdfs:label "Global Alignment" ;
+    rdfs:comment "Validate collective behavior against intent" ;
+    :formula "For system S: ℱ*(S) = ⊤" .
+
+safety:IterativeRefinement a :SafetyFramework ;
+    rdfs:label "Iterative Refinement" ;
+    rdfs:comment "Continuously adjust specifications based on observed behavior" ;
+    :process "observe" , "identify_misalignment" , "adjust_specifications" , "re_validate" .
+
+#################################################################
+# Safety Best Practices
+#################################################################
+
+safety:ExplicitCommunication a skos:Concept ;
+    rdfs:label "Explicit Communication Protocols" ;
+    rdfs:comment "Define message formats and handling" ;
+    skos:broader :SafetyFramework .
+
+safety:RoleBoundaries a skos:Concept ;
+    rdfs:label "Role Boundaries" ;
+    rdfs:comment "Prevent role confusion with clear responsibilities" ;
+    skos:broader :SafetyFramework .
+
+safety:ErrorPropagationLimits a skos:Concept ;
+    rdfs:label "Error Propagation Limits" ;
+    rdfs:comment "Circuit breakers for cascading failures" ;
+    skos:broader :SafetyFramework .
+
+safety:HumanOversight a skos:Concept ;
+    rdfs:label "Human Oversight" ;
+    rdfs:comment "Critical decisions require human approval" ;
+    skos:broader :SafetyFramework .
+
+safety:Monitoring a skos:Concept ;
+    rdfs:label "Comprehensive Monitoring" ;
+    rdfs:comment "Logging of inter-agent communication" ;
+    skos:broader :SafetyFramework .
+
+safety:RollbackCapability a skos:Concept ;
+    rdfs:label "Rollback Capability" ;
+    rdfs:comment "Ability to revert to previous states" ;
+    skos:broader :SafetyFramework .
+
+#################################################################
+# Evaluation Metrics
+#################################################################
+
+metrics:SWEBench a :EvaluationMetric ;
+    rdfs:label "SWE-bench" ;
+    rdfs:comment "Software engineering benchmark measuring GitHub issue resolution" ;
+    :metric "resolve_rate" , "time_to_resolution" , "cost_per_resolution" ;
+    :multiAgentPerformance "84.8"^^xsd:decimal ;
+    :singleAgentPerformance "70.0"^^xsd:decimal .
+
+metrics:AgentBench a :EvaluationMetric ;
+    rdfs:label "AgentBench" ;
+    rdfs:comment "Multi-dimensional agent evaluation" ;
+    :dimension "reasoning" , "decision_making" , "tool_use" , "multi_turn_conversation" .
+
+metrics:WebArena a :EvaluationMetric ;
+    rdfs:label "WebArena" ;
+    rdfs:comment "Web interaction benchmark" ;
+    :dimension "navigation" , "form_filling" , "information_extraction" .
+
+metrics:TaskCompletionRate a :EvaluationMetric ;
+    rdfs:label "Task Completion Rate" ;
+    rdfs:comment "Percentage of tasks completed successfully" ;
+    :target ">90%" .
+
+metrics:TokenEfficiency a :EvaluationMetric ;
+    rdfs:label "Token Efficiency" ;
+    rdfs:comment "Output quality per tokens used" ;
+    :objective "maximize" .
+
+metrics:ParallelizationFactor a :EvaluationMetric ;
+    rdfs:label "Parallelization Factor" ;
+    rdfs:comment "Actual speedup divided by theoretical maximum" ;
+    :target ">0.7" .
+
+metrics:CommunicationOverhead a :EvaluationMetric ;
+    rdfs:label "Communication Overhead" ;
+    rdfs:comment "Messaging tokens as fraction of total tokens" ;
+    :target "<20%" .
+
+metrics:CostEfficiency a :EvaluationMetric ;
+    rdfs:label "Cost Efficiency" ;
+    rdfs:comment "Performance achieved per dollar spent" ;
+    :hybridSavings "60-70%" .
+
+#################################################################
+# Platforms
+#################################################################
+
+platforms:ClaudeCode a :Platform ;
+    rdfs:label "Claude Code Agent Teams" ;
+    rdfs:comment "Anthropic's native multi-agent orchestration in Claude Code CLI" ;
+    :feature "native_multi_agent" , "peer_to_peer_messaging" , "shared_task_list" , "split_pane_display" ;
+    :innovation "Direct peer-to-peer messaging distinguishes from subagent architectures" ;
+    foaf:homepage <https://code.claude.com/docs/en/agent-teams> .
+
+platforms:AutoGen a :Platform ;
+    rdfs:label "AutoGen" ;
+    rdfs:comment "Microsoft's multi-agent framework" ;
+    :feature "conversational_agents" , "human_in_loop" , "code_execution" , "group_chat" ;
+    foaf:homepage <https://github.com/microsoft/autogen> .
+
+platforms:CrewAI a :Platform ;
+    rdfs:label "CrewAI" ;
+    rdfs:comment "Role-based agent framework" ;
+    :feature "role_definition" , "task_assignment" , "sequential_process" , "hierarchical_process" ;
+    foaf:homepage <https://github.com/joaomdmoura/crewAI> .
+
+platforms:LangGraph a :Platform ;
+    rdfs:label "LangGraph" ;
+    rdfs:comment "Graph-based agent orchestration" ;
+    :feature "state_machines" , "cyclic_graphs" , "persistence" , "checkpointing" ;
+    foaf:homepage <https://github.com/langchain-ai/langgraph> .
+
+platforms:OpenAISwarm a :Platform ;
+    rdfs:label "OpenAI Swarm" ;
+    rdfs:comment "Lightweight multi-agent orchestration" ;
+    :feature "routine_handoffs" , "context_sharing" , "minimal_abstraction" ;
+    foaf:homepage <https://github.com/openai/swarm> .
+
+platforms:ClaudeFlow a :Platform ;
+    rdfs:label "Claude Flow" ;
+    rdfs:comment "Multi-agent orchestration with SPARC methodology" ;
+    :sweBenchScore "84.8"^^xsd:decimal ;
+    :speedImprovement "2.8-4.4x" ;
+    :neuralModels "27+" ;
+    foaf:homepage <https://github.com/ruvnet/claude-flow> .
+
+#################################################################
+# Theoretical Foundations
+#################################################################
+
+concepts:GameTheory a skos:Concept ;
+    rdfs:label "Game Theory" ;
+    rdfs:comment "Mathematical framework for strategic interactions" ;
+    :concept "nash_equilibrium" , "cooperative_games" , "mechanism_design" , "shapley_value" .
+
+concepts:DistributedComputing a skos:Concept ;
+    rdfs:label "Distributed Computing" ;
+    rdfs:comment "Theory of distributed systems" ;
+    :theorem "CAP" , "FLP_Impossibility" ;
+    :protocol "Paxos" , "Raft" , "Byzantine_Fault_Tolerance" , "Gossip" .
+
+concepts:CognitiveScience a skos:Concept ;
+    rdfs:label "Cognitive Science" ;
+    rdfs:comment "Insights from human team cognition" ;
+    :theory "Transactive_Memory_Systems" , "Distributed_Cognition" , "Team_Mental_Models" .
+
+concepts:BDIArchitecture a skos:Concept ;
+    rdfs:label "BDI Architecture" ;
+    rdfs:comment "Beliefs-Desires-Intentions agent model" ;
+    :component "Beliefs" , "Desires" , "Intentions" ;
+    prov:wasDerivedFrom <https://doi.org/10.1016/B978-0-934613-81-1.50019-4> .
+
+concepts:CAPTheorem a skos:Concept ;
+    rdfs:label "CAP Theorem" ;
+    rdfs:comment "Distributed system trade-off: Consistency, Availability, Partition tolerance" ;
+    :implication "Cannot have all three simultaneously" ;
+    prov:author "Eric Brewer" ;
+    prov:wasDerivedFrom <https://doi.org/10.1145/343477.343502> .
+
+concepts:FLPImpossibility a skos:Concept ;
+    rdfs:label "FLP Impossibility" ;
+    rdfs:comment "Consensus impossible in asynchronous systems with one faulty process" ;
+    :implication "Fundamental limitation for LLM-MAS reliability" ;
+    prov:author "Fischer, Lynch, Paterson" ;
+    prov:wasDerivedFrom <https://doi.org/10.1145/3149.214121> .
+
+#################################################################
+# Case Studies
+#################################################################
+
+concepts:AnthropicCCompiler a skos:Concept ;
+    rdfs:label "Anthropic C Compiler Project" ;
+    rdfs:comment "16 parallel Claude agents built 100K-line Rust compiler" ;
+    :scale "16 agents" ;
+    :duration "2 weeks" ;
+    :cost "~$20,000" ;
+    :inputTokens "2B" ;
+    :outputTokens "140M" ;
+    :output "100,000 lines of Rust" ;
+    :finding "Test quality determines output quality" , "Git-based file locking for coordination" ;
+    prov:wasDerivedFrom <https://www.anthropic.com/engineering/building-c-compiler> .
+
+#################################################################
+# Limitations
+#################################################################
+
+concepts:ContextWindowConstraint a skos:Concept ;
+    rdfs:label "Context Window Constraint" ;
+    rdfs:comment "Each agent has limited context capacity" ;
+    :mitigation "hierarchical_summarization" , "selective_context_loading" .
+
+concepts:TokenCostScaling a skos:Concept ;
+    rdfs:label "Token Cost Scaling" ;
+    rdfs:comment "Cost scales with team size and activity" ;
+    :formula "Total Cost = Σ (InputTokens × InputPrice + OutputTokens × OutputPrice)" ;
+    :mitigation "hybrid_model_strategy" .
+
+concepts:NoSessionResumption a skos:Concept ;
+    rdfs:label "No Session Resumption" ;
+    rdfs:comment "In-process teammates cannot be resumed after session end" ;
+    :status "Current limitation as of 2026" .
+
+concepts:NoNestedTeams a skos:Concept ;
+    rdfs:label "No Nested Teams" ;
+    rdfs:comment "Teammates cannot spawn their own teams" ;
+    :status "Current limitation as of 2026" .
+
+concepts:FixedLeadership a skos:Concept ;
+    rdfs:label "Fixed Leadership" ;
+    rdfs:comment "Leadership cannot be transferred mid-session" ;
+    :status "Current limitation as of 2026" .
+
+concepts:UniformPermissions a skos:Concept ;
+    rdfs:label "Uniform Permissions" ;
+    rdfs:comment "All teammates inherit lead's permission settings" ;
+    :status "Current limitation as of 2026" .
+
+#################################################################
+# Scalability Limits
+#################################################################
+
+concepts:Scale2To5 a skos:Concept ;
+    rdfs:label "Scale 2-5 Agents" ;
+    :challenge "Minimal - well-understood" .
+
+concepts:Scale5To20 a skos:Concept ;
+    rdfs:label "Scale 5-20 Agents" ;
+    :challenge "Moderate - coordination overhead" .
+
+concepts:Scale20To100 a skos:Concept ;
+    rdfs:label "Scale 20-100 Agents" ;
+    :challenge "Significant - consensus latency" .
+
+concepts:Scale100Plus a skos:Concept ;
+    rdfs:label "Scale 100+ Agents" ;
+    :challenge "Research frontier - fundamental questions" .
+
+#################################################################
+# Best Practices
+#################################################################
+
+concepts:TeamSizeGuidelines a skos:Concept ;
+    rdfs:label "Team Size Guidelines" ;
+    :simpleTask "1-2 agents" ;
+    :moderateTask "3-5 agents" ;
+    :complexTask "5-10 agents" ;
+    :veryComplexTask "10-20 agents" .
+
+concepts:HybridModelStrategy a skos:Concept ;
+    rdfs:label "Hybrid Model Strategy" ;
+    rdfs:comment "Use expensive models only where needed" ;
+    :implementation models:Opus ;
+    :communication models:Haiku ;
+    :savings "60-70%" ;
+    :insight "Communication tokens vastly outnumber implementation tokens" .
+
+concepts:MessageBrevity a skos:Concept ;
+    rdfs:label "Message Brevity" ;
+    rdfs:comment "Keep messages concise - communication uses tokens without direct value" ;
+    :example "Auth login complete. Token refresh blocked. Need help." .
+
+concepts:TaskGranularity a skos:Concept ;
+    rdfs:label "Task Granularity" ;
+    :tooFine "Coordination overhead exceeds benefit" ;
+    :tooCoarse "Loses parallelism benefits" ;
+    :optimal "Self-contained units with clear deliverables" .
+
+concepts:ContextProvision a skos:Concept ;
+    rdfs:label "Context Provision" ;
+    rdfs:comment "Teammates start without conversation history" ;
+    :provide "project_context" , "relevant_files" , "coding_conventions" , "success_criteria" .
+
+#################################################################
+# Future Directions
+#################################################################
+
+concepts:FormalGuarantees a skos:Concept ;
+    rdfs:label "Formal Guarantees" ;
+    rdfs:comment "Provable bounds on LLM-MAS behavior" ;
+    :direction "probabilistic_verification" , "compositional_reasoning" , "game_theoretic_analysis" ;
+    :status "Open Problem" .
+
+concepts:EmergencePrediction a skos:Concept ;
+    rdfs:label "Emergence Prediction" ;
+    rdfs:comment "Predict emergent behaviors before deployment" ;
+    :direction "simulation_based_detection" , "formal_specification_languages" , "ml_models_of_emergence" ;
+    :status "Open Problem" .
+
+concepts:HierarchicalTeams a skos:Concept ;
+    rdfs:label "Hierarchical Teams" ;
+    rdfs:comment "Multi-level agent hierarchies" ;
+    :structure "meta_coordinator" , "domain_teams" , "sub_coordinators" , "workers" .
+
+concepts:DynamicTeams a skos:Concept ;
+    rdfs:label "Dynamic Teams" ;
+    rdfs:comment "Agents join/leave based on task needs" ;
+    :feature "just_in_time_specialization" , "load_balancing" , "fault_tolerance" .
+
+concepts:SelfImprovingTeams a skos:Concept ;
+    rdfs:label "Self-Improving Teams" ;
+    rdfs:comment "Teams that improve their own coordination" ;
+    :feature "learning_communication_patterns" , "adapting_roles" , "evolving_protocols" .
+
+concepts:LongRunningAutonomy a skos:Concept ;
+    rdfs:label "Long-Running Autonomy" ;
+    rdfs:comment "Continuous operation for weeks/months" ;
+    :direction "autonomous_error_recovery" , "self_diagnosis" , "continuous_operation" .
+
+#################################################################
+# Performance Statistics
+#################################################################
+
+:PerformanceStats a skos:Collection ;
+    rdfs:label "Agent Teams Performance Statistics" ;
+    skos:member [
+        a skos:Concept ;
+        rdfs:label "SWE-bench Multi-Agent Score" ;
+        :value "84.8%"^^xsd:string
+    ] , [
+        a skos:Concept ;
+        rdfs:label "SWE-bench Single-Agent Score" ;
+        :value "~70%"^^xsd:string
+    ] , [
+        a skos:Concept ;
+        rdfs:label "Speed Improvement" ;
+        :value "2.8-4.4x"^^xsd:string
+    ] , [
+        a skos:Concept ;
+        rdfs:label "Token Cost Multiplier" ;
+        :value "3-4x"^^xsd:string
+    ] , [
+        a skos:Concept ;
+        rdfs:label "Hybrid Model Savings" ;
+        :value "60-70%"^^xsd:string
+    ] , [
+        a skos:Concept ;
+        rdfs:label "Neural Models Available" ;
+        :value "27+"^^xsd:string
+    ] .
+
+#################################################################
+# Research Sources
+#################################################################
+
+:ResearchSources a skos:Collection ;
+    rdfs:label "Academic and Industry Sources" ;
+    skos:member
+        <https://arxiv.org/abs/2408.04514> ,  # Emergence in MAS
+        <https://arxiv.org/abs/2506.03053> ,  # MAEBE Framework
+        <https://arxiv.org/abs/2412.17481> ,  # LLM-MAS Survey
+        <https://arxiv.org/abs/nlin/0506028> ,  # Types of Emergence
+        <https://arxiv.org/abs/1606.06565> ,  # AI Safety
+        <https://www.anthropic.com/engineering/building-c-compiler> ,  # C Compiler Case Study
+        <https://code.claude.com/docs/en/agent-teams> ,  # Claude Code Docs
+        <https://github.com/ruvnet/claude-flow> ,  # Claude Flow
+        <https://aifreeapi.com/en/posts/claude-api-pricing-per-million-tokens> ,  # Pricing
+        <https://platform.claude.com/docs/en/about-claude/models/choosing-a-model> .  # Model Selection
+
+#################################################################
+# Properties
+#################################################################
+
+:hasCapability a owl:ObjectProperty ;
+    rdfs:domain :TeamRole ;
+    rdfs:range xsd:string ;
+    rdfs:label "has capability" .
+
+:recommendedModel a owl:ObjectProperty ;
+    rdfs:domain :TeamRole ;
+    rdfs:range :Model ;
+    rdfs:label "recommended model" .
+
+:costLevel a owl:DatatypeProperty ;
+    rdfs:domain :TeamRole ;
+    rdfs:range xsd:string ;
+    rdfs:label "cost level" .
+
+:inputPricePerMTok a owl:DatatypeProperty ;
+    rdfs:domain :Model ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "input price per million tokens" .
+
+:outputPricePerMTok a owl:DatatypeProperty ;
+    rdfs:domain :Model ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "output price per million tokens" .
+
+:contextWindow a owl:DatatypeProperty ;
+    rdfs:domain :Model ;
+    rdfs:range xsd:integer ;
+    rdfs:label "context window size" .
+
+:bestFor a owl:DatatypeProperty ;
+    rdfs:domain :Model ;
+    rdfs:range xsd:string ;
+    rdfs:label "best for use case" .
+
+:costRatio a owl:DatatypeProperty ;
+    rdfs:domain :Model ;
+    rdfs:range xsd:integer ;
+    rdfs:label "cost ratio relative to baseline" .
+
+:characteristic a owl:DatatypeProperty ;
+    rdfs:domain :Architecture ;
+    rdfs:range xsd:string ;
+    rdfs:label "characteristic" .
+
+:coordinationComplexity a owl:DatatypeProperty ;
+    rdfs:domain :Architecture ;
+    rdfs:range xsd:string ;
+    rdfs:label "coordination complexity" .
+
+:combines a owl:ObjectProperty ;
+    rdfs:domain :Architecture ;
+    rdfs:range :Architecture ;
+    rdfs:label "combines architectures" .
+
+:flow a owl:DatatypeProperty ;
+    rdfs:domain :DesignPattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "workflow pattern" .
+
+:useCase a owl:DatatypeProperty ;
+    rdfs:domain :DesignPattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "use case" .
+
+:messageType a owl:DatatypeProperty ;
+    rdfs:domain :CoordinationMechanism ;
+    rdfs:range xsd:string ;
+    rdfs:label "message type" .
+
+:mode a owl:DatatypeProperty ;
+    rdfs:domain :CoordinationMechanism ;
+    rdfs:range xsd:string ;
+    rdfs:label "communication mode" .
+
+:rule a owl:DatatypeProperty ;
+    rdfs:domain :CoordinationMechanism ;
+    rdfs:range xsd:string ;
+    rdfs:label "decision rule" .
+
+:phase a owl:DatatypeProperty ;
+    rdfs:domain :SafetyFramework ;
+    rdfs:range xsd:string ;
+    rdfs:label "framework phase" .
+
+:formula a owl:DatatypeProperty ;
+    rdfs:domain :SafetyFramework ;
+    rdfs:range xsd:string ;
+    rdfs:label "mathematical formula" .
+
+:process a owl:DatatypeProperty ;
+    rdfs:domain :SafetyFramework ;
+    rdfs:range xsd:string ;
+    rdfs:label "process steps" .
+
+:manifestation a owl:DatatypeProperty ;
+    rdfs:domain :EmergentBehavior ;
+    rdfs:range xsd:string ;
+    rdfs:label "manifestation type" .
+
+:mitigation a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "mitigation strategy" .
+
+:type a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "type classification" .
+
+:feature a owl:DatatypeProperty ;
+    rdfs:domain :Platform ;
+    rdfs:range xsd:string ;
+    rdfs:label "platform feature" .
+
+:innovation a owl:DatatypeProperty ;
+    rdfs:domain :Platform ;
+    rdfs:range xsd:string ;
+    rdfs:label "key innovation" .
+
+:metric a owl:DatatypeProperty ;
+    rdfs:domain :EvaluationMetric ;
+    rdfs:range xsd:string ;
+    rdfs:label "metric measured" .
+
+:dimension a owl:DatatypeProperty ;
+    rdfs:domain :EvaluationMetric ;
+    rdfs:range xsd:string ;
+    rdfs:label "evaluation dimension" .
+
+:target a owl:DatatypeProperty ;
+    rdfs:domain :EvaluationMetric ;
+    rdfs:range xsd:string ;
+    rdfs:label "target value" .
+
+:objective a owl:DatatypeProperty ;
+    rdfs:domain :EvaluationMetric ;
+    rdfs:range xsd:string ;
+    rdfs:label "optimization objective" .
+
+:multiAgentPerformance a owl:DatatypeProperty ;
+    rdfs:domain :EvaluationMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "multi-agent performance score" .
+
+:singleAgentPerformance a owl:DatatypeProperty ;
+    rdfs:domain :EvaluationMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "single-agent performance score" .
+
+:concept a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "related concept" .
+
+:theorem a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "related theorem" .
+
+:protocol a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "related protocol" .
+
+:component a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "component" .
+
+:implication a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "implication" .
+
+:scale a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "scale" .
+
+:duration a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "duration" .
+
+:cost a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "cost" .
+
+:inputTokens a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "input tokens" .
+
+:outputTokens a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "output tokens" .
+
+:output a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "output" .
+
+:finding a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "key finding" .
+
+:status a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "status" .
+
+:challenge a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "challenge level" .
+
+:strategy a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "strategy type" .
+
+:example a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "example" .
+
+:savings a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "savings percentage" .
+
+:insight a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "key insight" .
+
+:provide a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "provides" .
+
+:direction a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "research direction" .
+
+:structure a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "structure" .
+
+:value a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "value" .
+
+:implementation a owl:ObjectProperty ;
+    rdfs:range :Model ;
+    rdfs:label "implementation model" .
+
+:communication a owl:ObjectProperty ;
+    rdfs:range :Model ;
+    rdfs:label "communication model" .
+
+:sweBenchScore a owl:DatatypeProperty ;
+    rdfs:domain :Platform ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "SWE-bench score" .
+
+:speedImprovement a owl:DatatypeProperty ;
+    rdfs:domain :Platform ;
+    rdfs:range xsd:string ;
+    rdfs:label "speed improvement" .
+
+:neuralModels a owl:DatatypeProperty ;
+    rdfs:domain :Platform ;
+    rdfs:range xsd:string ;
+    rdfs:label "number of neural models" .
+
+:hybridSavings a owl:DatatypeProperty ;
+    rdfs:domain :EvaluationMetric ;
+    rdfs:range xsd:string ;
+    rdfs:label "hybrid model savings" .

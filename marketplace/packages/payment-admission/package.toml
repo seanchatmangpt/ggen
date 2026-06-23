@@ -14,3 +14,6 @@ quick_start = "Install and manufacture to generate high-performance payment admi
 [generation]
 type = "semantic_os"
 ontology = "ontology/payment.ttl"
+
+[marketplace]
+production_ready = false

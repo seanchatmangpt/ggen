@@ -1,0 +1,236 @@
+@prefix : <https://bytestar.org/ontology/bytestar-byteactor-memory#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix byteactor: <https://bytestar.org/ontology/bytestar-byteactor#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-byteactor-memory>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  owl:imports <https://bytestar.org/ontology/bytestar-byteactor> ;
+  rdfs:label "ByteStar ByteActor Memory Ontology" ;
+  rdfs:comment "Memory layout, cache behavior, and residency constraints for ByteActor." .
+
+### Memory Classes
+:MemoryLayout, :CacheHierarchy, :L1Residency, :MemoryDiscipline a owl:Class .
+:HotSet, :ColdSet, :SpillBuffer, :MemoryPool a owl:Class .
+
+### L1 Cache Residency
+:L1Residency a owl:Class .
+:l1InstructionCache a owl:DatatypeProperty ; rdfs:domain :L1Residency ; rdfs:range xsd:integer .
+:l1DataCache a owl:DatatypeProperty ; rdfs:domain :L1Residency ; rdfs:range xsd:integer .
+:totalL1Size a owl:DatatypeProperty ; rdfs:domain :L1Residency ; rdfs:range xsd:integer .
+:alwaysResident a owl:DatatypeProperty ; rdfs:domain :L1Residency ; rdfs:range xsd:boolean .
+
+# L1 residency must be always resident
+:L1Residency rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :alwaysResident ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Total L1 size must not exceed 32KB
+:L1Residency rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :totalL1Size ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions ( [ xsd:maxInclusive "32768"^^xsd:integer ] ) ] ] .
+
+### Hot Set Composition
+:HotSet a owl:Class .
+:kernelsK1ToK64 a owl:DatatypeProperty ; rdfs:domain :HotSet ; rdfs:range xsd:integer .
+:mphfTable a owl:DatatypeProperty ; rdfs:domain :HotSet ; rdfs:range xsd:integer .
+:crystalEnvelope a owl:DatatypeProperty ; rdfs:domain :HotSet ; rdfs:range xsd:integer .
+:ringBufferHeaders a owl:DatatypeProperty ; rdfs:domain :HotSet ; rdfs:range xsd:integer .
+
+# Hot set must include K1..K64 kernels
+:HotSet rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :kernelsK1ToK64 ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions ( [ xsd:minInclusive "8192"^^xsd:integer ]
+                            [ xsd:maxInclusive "16384"^^xsd:integer ] ) ] ] .
+
+# Hot set must include MPHF table
+:HotSet rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :mphfTable ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions ( [ xsd:minInclusive "2048"^^xsd:integer ]
+                            [ xsd:maxInclusive "4096"^^xsd:integer ] ) ] ] .
+
+# Hot set must include crystal envelope
+:HotSet rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :crystalEnvelope ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions ( [ xsd:minInclusive "4096"^^xsd:integer ]
+                            [ xsd:maxInclusive "8192"^^xsd:integer ] ) ] ] .
+
+### Cache Hierarchy
+:CacheHierarchy a owl:Class .
+:l1Cache a owl:DatatypeProperty ; rdfs:domain :CacheHierarchy ; rdfs:range xsd:integer .
+:l2Cache a owl:DatatypeProperty ; rdfs:domain :CacheHierarchy ; rdfs:range xsd:integer .
+:l3Cache a owl:DatatypeProperty ; rdfs:domain :CacheHierarchy ; rdfs:range xsd:integer .
+:mainMemory a owl:DatatypeProperty ; rdfs:domain :CacheHierarchy ; rdfs:range xsd:integer .
+
+# L1 cache must be 32KB
+:CacheHierarchy rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :l1Cache ; owl:hasValue "32768"^^xsd:integer
+] .
+
+# L2 cache must be 256KB
+:CacheHierarchy rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :l2Cache ; owl:hasValue "262144"^^xsd:integer
+] .
+
+# L3 cache must be 8MB
+:CacheHierarchy rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :l3Cache ; owl:hasValue "8388608"^^xsd:integer
+] .
+
+### Cache Line Alignment
+:CacheLineAlignment a owl:Class .
+:lineSize a owl:DatatypeProperty ; rdfs:domain :CacheLineAlignment ; rdfs:range xsd:integer .
+:alignedStructures a owl:DatatypeProperty ; rdfs:domain :CacheLineAlignment ; rdfs:range xsd:boolean .
+:noStraddling a owl:DatatypeProperty ; rdfs:domain :CacheLineAlignment ; rdfs:range xsd:boolean .
+:prefetchFriendly a owl:DatatypeProperty ; rdfs:domain :CacheLineAlignment ; rdfs:range xsd:boolean .
+
+# Cache line size must be 64 bytes
+:CacheLineAlignment rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :lineSize ; owl:hasValue "64"^^xsd:integer
+] .
+
+# All structures must be aligned
+:CacheLineAlignment rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :alignedStructures ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# No structures must straddle cache lines
+:CacheLineAlignment rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :noStraddling ; owl:hasValue "true"^^xsd:boolean
+] .
+
+### Memory Pools
+:MemoryPool a owl:Class .
+:preAllocated a owl:DatatypeProperty ; rdfs:domain :MemoryPool ; rdfs:range xsd:boolean .
+:fixedSize a owl:DatatypeProperty ; rdfs:domain :MemoryPool ; rdfs:range xsd:boolean .
+:noDynamicAllocation a owl:DatatypeProperty ; rdfs:domain :MemoryPool ; rdfs:range xsd:boolean .
+:poolSize a owl:DatatypeProperty ; rdfs:domain :MemoryPool ; rdfs:range xsd:integer .
+
+# Memory pools must be pre-allocated
+:MemoryPool rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :preAllocated ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Memory pools must be fixed size
+:MemoryPool rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :fixedSize ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Memory pools must not use dynamic allocation
+:MemoryPool rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :noDynamicAllocation ; owl:hasValue "true"^^xsd:boolean
+] .
+
+### Spill Buffers
+:SpillBuffer a owl:Class .
+:overflowHandling a owl:DatatypeProperty ; rdfs:domain :SpillBuffer ; rdfs:range xsd:boolean .
+:neverAccessedHot a owl:DatatypeProperty ; rdfs:domain :SpillBuffer ; rdfs:range xsd:boolean .
+:emergencyUse a owl:DatatypeProperty ; rdfs:domain :SpillBuffer ; rdfs:range xsd:boolean .
+
+# Spill buffers must never be accessed on hot path
+:SpillBuffer rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :neverAccessedHot ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Spill buffers must be for emergency use only
+:SpillBuffer rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :emergencyUse ; owl:hasValue "true"^^xsd:boolean
+] .
+
+### Cold Data
+:ColdData a owl:Class .
+:initializationData a owl:DatatypeProperty ; rdfs:domain :ColdData ; rdfs:range xsd:boolean .
+:configurationData a owl:DatatypeProperty ; rdfs:domain :ColdData ; rdfs:range xsd:boolean .
+:neverAccessedByByteActor a owl:DatatypeProperty ; rdfs:domain :ColdData ; rdfs:range xsd:boolean .
+
+# Cold data must never be accessed by ByteActor
+:ColdData rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :neverAccessedByByteActor ; owl:hasValue "true"^^xsd:boolean
+] .
+
+### Memory Discipline
+:MemoryDiscipline a owl:Class .
+:noMalloc a owl:DatatypeProperty ; rdfs:domain :MemoryDiscipline ; rdfs:range xsd:boolean .
+:noFree a owl:DatatypeProperty ; rdfs:domain :MemoryDiscipline ; rdfs:range xsd:boolean .
+:noRealloc a owl:DatatypeProperty ; rdfs:domain :MemoryDiscipline ; rdfs:range xsd:boolean .
+:poolBased a owl:DatatypeProperty ; rdfs:domain :MemoryDiscipline ; rdfs:range xsd:boolean .
+
+# Memory discipline must not use malloc
+:MemoryDiscipline rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :noMalloc ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Memory discipline must not use free
+:MemoryDiscipline rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :noFree ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Memory discipline must not use realloc
+:MemoryDiscipline rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :noRealloc ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Memory discipline must be pool-based
+:MemoryDiscipline rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :poolBased ; owl:hasValue "true"^^xsd:boolean
+] .
+
+### NUMA Awareness
+:NUMAwareness a owl:Class .
+:localMemory a owl:DatatypeProperty ; rdfs:domain :NUMAwareness ; rdfs:range xsd:boolean .
+:remoteMemory a owl:DatatypeProperty ; rdfs:domain :NUMAwareness ; rdfs:range xsd:boolean .
+:minimizeCrossNode a owl:DatatypeProperty ; rdfs:domain :NUMAwareness ; rdfs:range xsd:boolean .
+
+# NUMA awareness must minimize cross-node access
+:NUMAwareness rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :minimizeCrossNode ; owl:hasValue "true"^^xsd:boolean
+] .
+
+### Memory Properties
+:hasL1Residency a owl:ObjectProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range :L1Residency .
+:hasHotSet a owl:ObjectProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range :HotSet .
+:hasCacheHierarchy a owl:ObjectProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range :CacheHierarchy .
+:hasMemoryDiscipline a owl:ObjectProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range :MemoryDiscipline .
+
+### ByteActor Memory Constraints
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :hasL1Residency ;
+  owl:allValuesFrom :L1Residency
+] .
+
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :hasHotSet ;
+  owl:allValuesFrom :HotSet
+] .
+
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :hasCacheHierarchy ;
+  owl:allValuesFrom :CacheHierarchy
+] .
+
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :hasMemoryDiscipline ;
+  owl:allValuesFrom :MemoryDiscipline
+] .
+
+### Annotations for Memory
+:L1Residency rdfs:comment "L1 cache residency guarantees for hot path execution." .
+:HotSet rdfs:comment "Composition of L1-resident data: kernels, MPHF table, envelopes, ring headers." .
+:CacheHierarchy rdfs:comment "Cache hierarchy with L1 (32KB), L2 (256KB), L3 (8MB) specifications." .
+:CacheLineAlignment rdfs:comment "64-byte cache line alignment with no straddling." .
+:MemoryPool rdfs:comment "Pre-allocated fixed-size memory pools for ByteActor operations." .
+:SpillBuffer rdfs:comment "Emergency overflow buffers that are never accessed on hot path." .
+:MemoryDiscipline rdfs:comment "Strict memory management: no malloc/free/realloc, pool-based only." .
+:NUMAwareness rdfs:comment "NUMA-aware memory placement to minimize cross-node access." .
+

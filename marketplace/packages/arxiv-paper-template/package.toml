@@ -89,3 +89,6 @@ use_cases = "Preprints, open-access publishing, rapid research dissemination, cr
 [validation]
 requires = ["paper.rdf", "references.bib"]
 arxiv_categories = ["cs.AI", "cs.CL", "cs.LG", "math.AT", "physics.quant-ph"]
+
+[marketplace]
+production_ready = false

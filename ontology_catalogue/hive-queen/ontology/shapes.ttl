@@ -1,0 +1,631 @@
+@prefix hqsh: <https://hive-queen.ai/ontology/shapes#> .
+@prefix hq: <https://hive-queen.ai/ontology/core#> .
+@prefix hqs: <https://hive-queen.ai/ontology/security#> .
+@prefix hqp: <https://hive-queen.ai/ontology/privacy#> .
+@prefix hqt: <https://hive-queen.ai/ontology/telemetry#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# ==========================================
+# HIVE QUEEN SHACL Shapes
+# Validation shapes for ontology compliance
+# ==========================================
+
+<https://hive-queen.ai/ontology/shapes#>
+  a owl:Ontology ;
+  dct:title "HIVE QUEEN SHACL Shapes" ;
+  dct:description "SHACL validation shapes for HIVE QUEEN ontologies" ;
+  dct:version "1.0.0" ;
+  dct:created "2025-09-03"^^xsd:date ;
+  owl:imports <https://hive-queen.ai/ontology/core#> ;
+  owl:imports <https://hive-queen.ai/ontology/security#> ;
+  owl:imports <https://hive-queen.ai/ontology/privacy#> ;
+  owl:imports <https://hive-queen.ai/ontology/telemetry#> ;
+  owl:versionIRI <https://hive-queen.ai/ontology/shapes/1.0.0#> .
+
+# ==========================================
+# Core Entity Shapes
+# ==========================================
+
+hqsh:AgentShape
+  a sh:NodeShape ;
+  sh:targetClass hq:Agent ;
+  sh:property [
+    sh:path hq:agentId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-zA-Z0-9_-]+$" ;
+    sh:message "Agent must have exactly one valid agentId" ;
+  ] ;
+  sh:property [
+    sh:path hq:hasCapability ;
+    sh:class hq:Capability ;
+    sh:minCount 1 ;
+    sh:message "Agent must have at least one capability" ;
+  ] ;
+  sh:property [
+    sh:path hq:status ;
+    sh:datatype xsd:string ;
+    sh:in (hq:idle hq:busy hq:offline hq:error) ;
+    sh:maxCount 1 ;
+    sh:message "Agent status must be one of: idle, busy, offline, error" ;
+  ] ;
+  sh:property [
+    sh:path hqs:hasRole ;
+    sh:class hqs:Role ;
+    sh:minCount 1 ;
+    sh:message "Agent must have at least one role" ;
+  ] ;
+  sh:property [
+    sh:path hq:createdAt ;
+    sh:datatype xsd:dateTime ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path hq:updatedAt ;
+    sh:datatype xsd:dateTime ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path hqt:agentLoad ;
+    sh:datatype xsd:double ;
+    sh:minInclusive 0.0 ;
+    sh:maxInclusive 1.0 ;
+    sh:maxCount 1 ;
+    sh:message "Agent load must be between 0.0 and 1.0" ;
+  ] .
+
+hqsh:TaskShape
+  a sh:NodeShape ;
+  sh:targetClass hq:Task ;
+  sh:property [
+    sh:path hq:taskId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-zA-Z0-9_-]+$" ;
+    sh:message "Task must have exactly one valid taskId" ;
+  ] ;
+  sh:property [
+    sh:path hq:priority ;
+    sh:datatype xsd:int ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 10 ;
+    sh:maxCount 1 ;
+    sh:message "Task priority must be between 1 and 10" ;
+  ] ;
+  sh:property [
+    sh:path hq:status ;
+    sh:datatype xsd:string ;
+    sh:in (hq:pending hq:in_progress hq:completed hq:failed hq:cancelled hq:blocked) ;
+    sh:maxCount 1 ;
+    sh:message "Task status must be valid" ;
+  ] ;
+  sh:property [
+    sh:path hq:requiresCapability ;
+    sh:class hq:Capability ;
+    sh:message "Required capabilities must be valid Capability instances" ;
+  ] ;
+  sh:property [
+    sh:path hq:assignedTo ;
+    sh:class hq:Agent ;
+    sh:maxCount 1 ;
+    sh:message "Task can be assigned to at most one agent" ;
+  ] ;
+  sh:property [
+    sh:path hq:estimatedDuration ;
+    sh:datatype xsd:duration ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path hq:actualDuration ;
+    sh:datatype xsd:duration ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path hq:createdAt ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Task must have exactly one creation timestamp" ;
+  ] .
+
+hqsh:CapabilityShape
+  a sh:NodeShape ;
+  sh:targetClass hq:Capability ;
+  sh:property [
+    sh:path rdfs:label ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 3 ;
+    sh:maxLength 100 ;
+    sh:message "Capability must have a label between 3 and 100 characters" ;
+  ] ;
+  sh:property [
+    sh:path rdfs:comment ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 500 ;
+    sh:message "Capability description must not exceed 500 characters" ;
+  ] ;
+  sh:property [
+    sh:path hq:version ;
+    sh:datatype xsd:string ;
+    sh:pattern "^\\d+\\.\\d+\\.\\d+$" ;
+    sh:maxCount 1 ;
+    sh:message "Version must follow semantic versioning (x.y.z)" ;
+  ] .
+
+# ==========================================
+# Security Shapes
+# ==========================================
+
+hqsh:SecurityPolicyShape
+  a sh:NodeShape ;
+  sh:targetClass hqs:SecurityPolicy ;
+  sh:property [
+    sh:path rdfs:label ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Security policy must have a label" ;
+  ] ;
+  sh:property [
+    sh:path hqs:hasSecurityLevel ;
+    sh:class hqs:SecurityLevel ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Security policy must have exactly one security level" ;
+  ] ;
+  sh:property [
+    sh:path hqs:appliesTo ;
+    sh:message "Security policy must specify what it applies to" ;
+  ] .
+
+hqsh:RoleShape
+  a sh:NodeShape ;
+  sh:targetClass hqs:Role ;
+  sh:property [
+    sh:path rdfs:label ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Role must have a label" ;
+  ] ;
+  sh:property [
+    sh:path hqs:hasPermission ;
+    sh:class hqs:Permission ;
+    sh:minCount 1 ;
+    sh:message "Role must have at least one permission" ;
+  ] .
+
+hqsh:RLSPolicyShape
+  a sh:NodeShape ;
+  sh:targetClass hqs:RLSPolicy ;
+  sh:property [
+    sh:path hqs:rlsCondition ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 10 ;
+    sh:message "RLS policy must have a valid condition" ;
+  ] ;
+  sh:property [
+    sh:path hqs:appliesTo ;
+    sh:minCount 1 ;
+    sh:message "RLS policy must specify what it applies to" ;
+  ] .
+
+hqsh:CredentialShape
+  a sh:NodeShape ;
+  sh:targetClass hqs:Credential ;
+  sh:property [
+    sh:path hqs:issuedAt ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Credential must have issue timestamp" ;
+  ] ;
+  sh:property [
+    sh:path hqs:expirationTime ;
+    sh:datatype xsd:dateTime ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:sparql [
+    sh:message "Credential expiration must be after issue time" ;
+    sh:prefixes hqs: ;
+    sh:select """
+      SELECT $this WHERE {
+        $this hqs:issuedAt ?issued ;
+              hqs:expirationTime ?expires .
+        FILTER(?expires <= ?issued)
+      }
+    """ ;
+  ] .
+
+# ==========================================
+# Privacy Shapes
+# ==========================================
+
+hqsh:PersonalDataShape
+  a sh:NodeShape ;
+  sh:targetClass hqp:PersonalData ;
+  sh:property [
+    sh:path hqp:hasDataController ;
+    sh:class hqp:DataController ;
+    sh:minCount 1 ;
+    sh:message "Personal data must have at least one data controller" ;
+  ] ;
+  sh:property [
+    sh:path hqp:concernsDataSubject ;
+    sh:class hqp:DataSubject ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Personal data must concern exactly one data subject" ;
+  ] ;
+  sh:property [
+    sh:path hqp:retentionPeriod ;
+    sh:datatype xsd:duration ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path hqs:hasSecurityLevel ;
+    sh:class hqs:SecurityLevel ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Personal data must have security classification" ;
+  ] .
+
+hqsh:ProcessingActivityShape
+  a sh:NodeShape ;
+  sh:targetClass hqp:ProcessingActivity ;
+  sh:property [
+    sh:path hqp:hasLegalBasis ;
+    sh:class hqp:LegalBasis ;
+    sh:minCount 1 ;
+    sh:message "Processing activity must have legal basis" ;
+  ] ;
+  sh:property [
+    sh:path hqp:hasProcessingPurpose ;
+    sh:class hqp:ProcessingPurpose ;
+    sh:minCount 1 ;
+    sh:message "Processing activity must have purpose" ;
+  ] ;
+  sh:property [
+    sh:path hqp:processesPersonalData ;
+    sh:class hqp:PersonalData ;
+    sh:minCount 1 ;
+    sh:message "Processing activity must process personal data" ;
+  ] ;
+  sh:property [
+    sh:path hqp:highRisk ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:sparql [
+    sh:message "High risk processing must have DPIA" ;
+    sh:prefixes hqp: ;
+    sh:select """
+      SELECT $this WHERE {
+        $this hqp:highRisk true .
+        FILTER NOT EXISTS { $this hqp:requiresDPIA ?dpia }
+      }
+    """ ;
+  ] .
+
+hqsh:ConsentShape
+  a sh:NodeShape ;
+  sh:targetClass hqp:Consent ;
+  sh:property [
+    sh:path hqp:consentGiven ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Consent must specify if given" ;
+  ] ;
+  sh:property [
+    sh:path hqp:consentDate ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Consent must have date" ;
+  ] ;
+  sh:sparql [
+    sh:message "Withdrawn consent must have withdrawal date" ;
+    sh:prefixes hqp: ;
+    sh:select """
+      SELECT $this WHERE {
+        $this hqp:consentWithdrawn true .
+        FILTER NOT EXISTS { $this hqp:withdrawalDate ?date }
+      }
+    """ ;
+  ] .
+
+hqsh:SensitiveDataShape
+  a sh:NodeShape ;
+  sh:targetClass hqp:SensitiveData ;
+  sh:property [
+    sh:path hqs:hasSecurityLevel ;
+    sh:in (hqs:confidential hqs:restricted hqs:top_secret) ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Sensitive data must have high security classification" ;
+  ] ;
+  sh:property [
+    sh:path hqp:encrypted ;
+    sh:datatype xsd:boolean ;
+    sh:hasValue true ;
+    sh:message "Sensitive data must be encrypted" ;
+  ] .
+
+# ==========================================
+# Telemetry Shapes
+# ==========================================
+
+hqsh:MetricShape
+  a sh:NodeShape ;
+  sh:targetClass hqt:Metric ;
+  sh:property [
+    sh:path hqt:timestamp ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Metric must have exactly one timestamp" ;
+  ] ;
+  sh:property [
+    sh:path hqt:metricValue ;
+    sh:datatype xsd:double ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Metric must have exactly one numeric value" ;
+  ] ;
+  sh:property [
+    sh:path hqt:unit ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minLength 1 ;
+    sh:message "Metric unit must be non-empty if specified" ;
+  ] ;
+  sh:property [
+    sh:path hqt:samplingRate ;
+    sh:datatype xsd:double ;
+    sh:minExclusive 0.0 ;
+    sh:maxCount 1 ;
+    sh:message "Sampling rate must be positive" ;
+  ] .
+
+hqsh:LogShape
+  a sh:NodeShape ;
+  sh:targetClass hqt:Log ;
+  sh:property [
+    sh:path hqt:timestamp ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Log must have timestamp" ;
+  ] ;
+  sh:property [
+    sh:path hqt:logLevel ;
+    sh:class hqt:LogLevel ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Log must have exactly one log level" ;
+  ] ;
+  sh:property [
+    sh:path hqt:logMessage ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 1 ;
+    sh:maxLength 10000 ;
+    sh:message "Log message must be between 1 and 10000 characters" ;
+  ] .
+
+hqsh:TraceShape
+  a sh:NodeShape ;
+  sh:targetClass hqt:Trace ;
+  sh:property [
+    sh:path hqt:traceId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-fA-F0-9]{32}$" ;
+    sh:message "Trace ID must be a 32-character hex string" ;
+  ] ;
+  sh:property [
+    sh:path hqt:hasSpan ;
+    sh:class hqt:Span ;
+    sh:minCount 1 ;
+    sh:message "Trace must have at least one span" ;
+  ] .
+
+hqsh:SpanShape
+  a sh:NodeShape ;
+  sh:targetClass hqt:Span ;
+  sh:property [
+    sh:path hqt:spanId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-fA-F0-9]{16}$" ;
+    sh:message "Span ID must be a 16-character hex string" ;
+  ] ;
+  sh:property [
+    sh:path hqt:operationName ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 1 ;
+    sh:message "Span must have operation name" ;
+  ] ;
+  sh:property [
+    sh:path hqt:startTime ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Span must have start time" ;
+  ] ;
+  sh:property [
+    sh:path hqt:endTime ;
+    sh:datatype xsd:dateTime ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:sparql [
+    sh:message "Span end time must be after start time" ;
+    sh:prefixes hqt: ;
+    sh:select """
+      SELECT $this WHERE {
+        $this hqt:startTime ?start ;
+              hqt:endTime ?end .
+        FILTER(?end <= ?start)
+      }
+    """ ;
+  ] .
+
+hqsh:AlertShape
+  a sh:NodeShape ;
+  sh:targetClass hqt:Alert ;
+  sh:property [
+    sh:path hqt:alertSeverity ;
+    sh:class hqt:AlertSeverity ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Alert must have exactly one severity level" ;
+  ] ;
+  sh:property [
+    sh:path hqt:alertMessage ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 10 ;
+    sh:maxLength 1000 ;
+    sh:message "Alert message must be between 10 and 1000 characters" ;
+  ] ;
+  sh:property [
+    sh:path hqt:timestamp ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Alert must have timestamp" ;
+  ] .
+
+# ==========================================
+# Cross-Domain Validation Shapes
+# ==========================================
+
+hqsh:AgentTaskAssignmentShape
+  a sh:NodeShape ;
+  sh:targetNode hq:Agent ;
+  sh:sparql [
+    sh:message "Agent must have required capabilities for assigned tasks" ;
+    sh:prefixes hq: ;
+    sh:select """
+      SELECT $this ?task ?capability WHERE {
+        ?task hq:assignedTo $this ;
+              hq:requiresCapability ?capability .
+        FILTER NOT EXISTS { $this hq:hasCapability ?capability }
+      }
+    """ ;
+  ] .
+
+hqsh:PersonalDataSecurityShape
+  a sh:NodeShape ;
+  sh:targetClass hqp:PersonalData ;
+  sh:sparql [
+    sh:message "Personal data with high security level must be encrypted" ;
+    sh:prefixes hqp:, hqs: ;
+    sh:select """
+      SELECT $this WHERE {
+        $this hqs:hasSecurityLevel ?level .
+        FILTER(?level IN (hqs:confidential, hqs:restricted, hqs:top_secret))
+        FILTER NOT EXISTS { $this hqp:encrypted true }
+      }
+    """ ;
+  ] .
+
+hqsh:TaskMetricCorrelationShape
+  a sh:NodeShape ;
+  sh:targetClass hq:Task ;
+  sh:sparql [
+    sh:message "Completed tasks should have associated completion metrics" ;
+    sh:prefixes hq:, hqt: ;
+    sh:select """
+      SELECT $this WHERE {
+        $this hq:status hq:completed .
+        FILTER NOT EXISTS { 
+          ?metric hqt:relatedTo $this ;
+                  a hqt:TaskCompletionMetric .
+        }
+      }
+    """ ;
+  ] .
+
+# ==========================================
+# Data Quality Shapes
+# ==========================================
+
+hqsh:TimestampConsistencyShape
+  a sh:NodeShape ;
+  sh:targetNode hq:Task ;
+  sh:sparql [
+    sh:message "Task updated timestamp must be after created timestamp" ;
+    sh:prefixes hq: ;
+    sh:select """
+      SELECT $this WHERE {
+        $this hq:createdAt ?created ;
+              hq:updatedAt ?updated .
+        FILTER(?updated < ?created)
+      }
+    """ ;
+  ] .
+
+hqsh:MetricValueRangeShape
+  a sh:NodeShape ;
+  sh:targetClass hqt:PerformanceMetric ;
+  sh:property [
+    sh:path hqt:metricValue ;
+    sh:minInclusive 0.0 ;
+    sh:message "Performance metrics must have non-negative values" ;
+  ] .
+
+# ==========================================
+# Business Rule Shapes
+# ==========================================
+
+hqsh:AgentLoadLimitShape
+  a sh:NodeShape ;
+  sh:targetClass hq:Agent ;
+  sh:sparql [
+    sh:message "Agent with load > 0.9 should not accept new tasks" ;
+    sh:prefixes hq:, hqt: ;
+    sh:select """
+      SELECT $this ?load WHERE {
+        $this hqt:agentLoad ?load .
+        ?task hq:assignedTo $this ;
+              hq:status hq:pending .
+        FILTER(?load > 0.9)
+      }
+    """ ;
+  ] .
+
+hqsh:CriticalTaskTimeoutShape
+  a sh:NodeShape ;
+  sh:targetClass hq:Task ;
+  sh:sparql [
+    sh:message "Critical priority tasks should not remain in progress > 1 hour" ;
+    sh:prefixes hq: ;
+    sh:select """
+      SELECT $this WHERE {
+        $this hq:priority 10 ;
+              hq:status hq:in_progress ;
+              hq:updatedAt ?updated .
+        FILTER(NOW() - ?updated > "PT1H"^^xsd:duration)
+      }
+    """ ;
+  ] .

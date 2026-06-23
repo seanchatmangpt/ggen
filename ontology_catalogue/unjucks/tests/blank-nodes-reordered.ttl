@@ -1,0 +1,39 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Same content as blank-nodes-graph.ttl but reordered and with different blank node IDs
+# Should produce same canonical hash if normalization works correctly
+
+_:x ex:street "789 Pine Dr" ;
+    ex:city "Elsewhere" ;
+    ex:zipCode "54321" .
+
+ex:Person3 ex:hasContact _:y ;
+    rdfs:label "Bob Johnson" .
+
+_:y ex:email "bob@example.com" ;
+    ex:phone "+1122334455" ;
+    ex:address _:x .
+
+_:b ex:street "456 Oak Ave" ;
+    ex:city "Somewhere" ;
+    ex:zipCode "67890" .
+
+ex:Person2 ex:hasContact _:z ;
+    rdfs:label "Jane Smith" .
+
+_:z ex:email "jane@example.com" ;
+    ex:phone "+0987654321" ;
+    ex:address _:b .
+
+_:m ex:street "123 Main St" ;
+    ex:city "Anytown" ;
+    ex:zipCode "12345" .
+
+ex:Person1 ex:hasContact _:n ;
+    rdfs:label "John Doe" .
+
+_:n ex:email "john@example.com" ;
+    ex:phone "+1234567890" ;
+    ex:address _:m .

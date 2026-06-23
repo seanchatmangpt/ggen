@@ -1,0 +1,25 @@
+# =============================================================================
+# SPARQL Query: Extract Event Sourcing Configuration
+# =============================================================================
+# Purpose: Extract event store configuration for code generation
+# =============================================================================
+
+PREFIX events: <http://erlmcp.org/schema/events/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT {
+    ?store a events:EventStore ;
+        events:storageBackend ?backend .
+
+    ?snapshot a events:Snapshot ;
+        events:snapshotVersion ?version .
+}
+WHERE {
+    {
+        ?store a events:EventStore .
+        OPTIONAL { ?store events:storageBackend ?backend . }
+    } UNION {
+        ?snapshot a events:Snapshot .
+        OPTIONAL { ?snapshot events:snapshotVersion ?version . }
+    }
+}

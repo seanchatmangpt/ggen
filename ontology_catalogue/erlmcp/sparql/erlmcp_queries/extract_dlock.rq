@@ -1,0 +1,22 @@
+# =============================================================================
+# SPARQL Query: Extract Distributed Lock Configuration
+# =============================================================================
+# Purpose: Extract distributed lock configuration for code generation
+# =============================================================================
+
+PREFIX dlock: <http://erlmcp.org/schema/dlock/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT {
+    ?options a dlock:LockOptions ;
+        dlock:waitTimeoutMs ?waitTimeout ;
+        dlock:retryIntervalMs ?retryInterval ;
+        dlock:autoExtend ?autoExtend .
+}
+WHERE {
+    ?options a dlock:LockOptions .
+
+    OPTIONAL { ?options dlock:waitTimeoutMs ?waitTimeout . }
+    OPTIONAL { ?options dlock:retryIntervalMs ?retryInterval . }
+    OPTIONAL { ?options dlock:autoExtend ?autoExtend . }
+}

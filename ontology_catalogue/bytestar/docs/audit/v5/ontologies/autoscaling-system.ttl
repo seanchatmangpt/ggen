@@ -1,0 +1,352 @@
+@prefix : <https://bytestar.org/ontology/v5/autoscaling#> .
+@prefix auto: <https://bytestar.org/ontology/v5/autoscaling#> .
+@prefix erlang: <https://bytestar.org/ontology/v5/erlang#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/v5/autoscaling>
+  a owl:Ontology ;
+  owl:versionInfo "5.0.0" ;
+  rdfs:label "ByteStar v5 Autoscaling System Ontology" ;
+  rdfs:comment "Complete specification of Erlang/OTP autoscaling components" .
+
+#################################################################
+# Core Autoscaling Classes
+#################################################################
+
+:AutoscalingCoordinator a owl:Class ;
+  rdfs:label "Autoscaling Coordinator" ;
+  rdfs:comment "Central coordinator for autoscaling decisions (as_coordinator.erl)" .
+
+:WorkerPoolManager a owl:Class ;
+  rdfs:label "Worker Pool Manager" ;
+  rdfs:comment "Manages pools of worker processes (as_worker_pool_manager.erl)" .
+
+:CacheManager a owl:Class ;
+  rdfs:label "Cache Manager" ;
+  rdfs:comment "Manages distributed cache scaling (as_cache_manager.erl)" .
+
+:MemoryCoordinator a owl:Class ;
+  rdfs:label "Memory Coordinator" ;
+  rdfs:comment "Coordinates memory allocation and scaling (as_memory_coordinator.erl)" .
+
+:LoadBalancer a owl:Class ;
+  rdfs:label "Load Balancer" ;
+  rdfs:comment "Distributes work across scaled resources" .
+
+#################################################################
+# Erlang/OTP Components
+#################################################################
+
+erlang:GenServer a owl:Class ;
+  rdfs:label "Gen Server" ;
+  rdfs:comment "OTP generic server behavior" .
+
+erlang:Supervisor a owl:Class ;
+  rdfs:label "Supervisor" ;
+  rdfs:comment "OTP supervisor for fault tolerance" .
+
+erlang:Application a owl:Class ;
+  rdfs:label "Application" ;
+  rdfs:comment "OTP application structure" .
+
+erlang:ProcessPool a owl:Class ;
+  rdfs:label "Process Pool" ;
+  rdfs:comment "Pool of Erlang processes" .
+
+#################################################################
+# Scaling Strategies
+#################################################################
+
+:ScalingStrategy a owl:Class ;
+  rdfs:label "Scaling Strategy" ;
+  rdfs:comment "Abstract scaling strategy" .
+
+:HorizontalScaling a owl:Class ;
+  rdfs:subClassOf :ScalingStrategy ;
+  rdfs:label "Horizontal Scaling" ;
+  rdfs:comment "Scale by adding/removing nodes" .
+
+:VerticalScaling a owl:Class ;
+  rdfs:subClassOf :ScalingStrategy ;
+  rdfs:label "Vertical Scaling" ;
+  rdfs:comment "Scale by increasing/decreasing resources" .
+
+:PredictiveScaling a owl:Class ;
+  rdfs:subClassOf :ScalingStrategy ;
+  rdfs:label "Predictive Scaling" ;
+  rdfs:comment "ML-based predictive scaling" .
+
+:ReactiveScaling a owl:Class ;
+  rdfs:subClassOf :ScalingStrategy ;
+  rdfs:label "Reactive Scaling" ;
+  rdfs:comment "React to current load metrics" .
+
+#################################################################
+# Metrics and Thresholds
+#################################################################
+
+:ScalingMetric a owl:Class ;
+  rdfs:label "Scaling Metric" ;
+  rdfs:comment "Metric used for scaling decisions" .
+
+:CPUUtilization a owl:Class ;
+  rdfs:subClassOf :ScalingMetric ;
+  rdfs:label "CPU Utilization" ;
+  rdfs:comment "CPU usage percentage" .
+
+:MemoryUtilization a owl:Class ;
+  rdfs:subClassOf :ScalingMetric ;
+  rdfs:label "Memory Utilization" ;
+  rdfs:comment "Memory usage percentage" .
+
+:QueueDepth a owl:Class ;
+  rdfs:subClassOf :ScalingMetric ;
+  rdfs:label "Queue Depth" ;
+  rdfs:comment "Message queue depth" .
+
+:ResponseTime a owl:Class ;
+  rdfs:subClassOf :ScalingMetric ;
+  rdfs:label "Response Time" ;
+  rdfs:comment "Average response time" .
+
+:Throughput a owl:Class ;
+  rdfs:subClassOf :ScalingMetric ;
+  rdfs:label "Throughput" ;
+  rdfs:comment "Operations per second" .
+
+#################################################################
+# Properties
+#################################################################
+
+# Configuration Properties
+:minWorkers a owl:DatatypeProperty ;
+  rdfs:domain :WorkerPoolManager ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Minimum number of workers" .
+
+:maxWorkers a owl:DatatypeProperty ;
+  rdfs:domain :WorkerPoolManager ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Maximum number of workers" .
+
+:currentWorkers a owl:DatatypeProperty ;
+  rdfs:domain :WorkerPoolManager ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Current number of active workers" .
+
+:scaleUpThreshold a owl:DatatypeProperty ;
+  rdfs:domain :ScalingMetric ;
+  rdfs:range xsd:float ;
+  rdfs:comment "Threshold to trigger scale up" .
+
+:scaleDownThreshold a owl:DatatypeProperty ;
+  rdfs:domain :ScalingMetric ;
+  rdfs:range xsd:float ;
+  rdfs:comment "Threshold to trigger scale down" .
+
+:cooldownPeriod a owl:DatatypeProperty ;
+  rdfs:domain :AutoscalingCoordinator ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Cooldown period in seconds between scaling events" .
+
+# Relationships
+:hasStrategy a owl:ObjectProperty ;
+  rdfs:domain :AutoscalingCoordinator ;
+  rdfs:range :ScalingStrategy .
+
+:monitors a owl:ObjectProperty ;
+  rdfs:domain :AutoscalingCoordinator ;
+  rdfs:range :ScalingMetric .
+
+:manages a owl:ObjectProperty ;
+  rdfs:domain :WorkerPoolManager ;
+  rdfs:range erlang:ProcessPool .
+
+:supervises a owl:ObjectProperty ;
+  rdfs:domain erlang:Supervisor ;
+  rdfs:range erlang:GenServer .
+
+# Memory Properties
+:memoryLimit a owl:DatatypeProperty ;
+  rdfs:domain :MemoryCoordinator ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Memory limit in bytes" .
+
+:memoryUsage a owl:DatatypeProperty ;
+  rdfs:domain :MemoryCoordinator ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Current memory usage in bytes" .
+
+:cacheSize a owl:DatatypeProperty ;
+  rdfs:domain :CacheManager ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Cache size in bytes" .
+
+:cacheHitRate a owl:DatatypeProperty ;
+  rdfs:domain :CacheManager ;
+  rdfs:range xsd:float ;
+  rdfs:comment "Cache hit rate (0.0 to 1.0)" .
+
+# Performance Properties
+:targetLatency a owl:DatatypeProperty ;
+  rdfs:domain :AutoscalingCoordinator ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Target P99 latency in microseconds" .
+
+:actualLatency a owl:DatatypeProperty ;
+  rdfs:domain :AutoscalingCoordinator ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Actual P99 latency in microseconds" .
+
+:targetThroughput a owl:DatatypeProperty ;
+  rdfs:domain :AutoscalingCoordinator ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Target throughput in ops/sec" .
+
+#################################################################
+# Erlang Implementation Specifications
+#################################################################
+
+:ErlangModule a owl:Class ;
+  rdfs:label "Erlang Module" ;
+  rdfs:comment "Erlang module implementation" .
+
+:moduleName a owl:DatatypeProperty ;
+  rdfs:domain :ErlangModule ;
+  rdfs:range xsd:string .
+
+:moduleFile a owl:DatatypeProperty ;
+  rdfs:domain :ErlangModule ;
+  rdfs:range xsd:string .
+
+:exportedFunctions a owl:DatatypeProperty ;
+  rdfs:domain :ErlangModule ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Comma-separated list of exported functions" .
+
+# Module Specifications
+:AsCoordinatorModule a :ErlangModule ;
+  :moduleName "as_coordinator" ;
+  :moduleFile "autoscaling/src/as_coordinator.erl" ;
+  :exportedFunctions "start_link/0, scale_up/1, scale_down/1, get_metrics/0" .
+
+:AsWorkerPoolModule a :ErlangModule ;
+  :moduleName "as_worker_pool_manager" ;
+  :moduleFile "autoscaling/src/as_worker_pool_manager.erl" ;
+  :exportedFunctions "start_link/1, add_worker/0, remove_worker/1, get_pool_status/0" .
+
+:AsCacheModule a :ErlangModule ;
+  :moduleName "as_cache_manager" ;
+  :moduleFile "autoscaling/src/as_cache_manager.erl" ;
+  :exportedFunctions "start_link/1, resize_cache/1, get_hit_rate/0, clear_cache/0" .
+
+:AsMemoryModule a :ErlangModule ;
+  :moduleName "as_memory_coordinator" ;
+  :moduleFile "autoscaling/src/as_memory_coordinator.erl" ;
+  :exportedFunctions "start_link/0, allocate/1, deallocate/1, get_usage/0" .
+
+#################################################################
+# Constraints
+#################################################################
+
+# Worker pool constraints
+:WorkerPoolManager rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty :minWorkers ;
+  owl:minCardinality "1"^^xsd:integer
+] .
+
+:WorkerPoolManager rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty :maxWorkers ;
+  owl:allValuesFrom [ 
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "1"^^xsd:integer ]
+      [ xsd:maxInclusive "10000"^^xsd:integer ]
+    )
+  ]
+] .
+
+# Current workers must be between min and max
+:WorkerPoolManager rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty :currentWorkers ;
+  owl:allValuesFrom [ 
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "1"^^xsd:integer ]
+      [ xsd:maxInclusive "10000"^^xsd:integer ]
+    )
+  ]
+] .
+
+# Cooldown period must be positive
+:AutoscalingCoordinator rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty :cooldownPeriod ;
+  owl:allValuesFrom [ 
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "1"^^xsd:integer ]
+      [ xsd:maxInclusive "300"^^xsd:integer ]  # Max 5 minutes
+    )
+  ]
+] .
+
+#################################################################
+# Configuration Instances
+#################################################################
+
+:ProductionAutoscaler a :AutoscalingCoordinator ;
+  :cooldownPeriod "30"^^xsd:integer ;
+  :targetLatency "50"^^xsd:integer ;  # 50 microseconds
+  :targetThroughput "100000"^^xsd:integer ;  # 100k ops/sec
+  :hasStrategy :PredictiveScaling ;
+  :monitors :CPUMetric, :MemoryMetric, :QueueMetric ;
+  rdfs:comment "Production autoscaling configuration" .
+
+:ProductionWorkerPool a :WorkerPoolManager ;
+  :minWorkers "3"^^xsd:integer ;
+  :maxWorkers "100"^^xsd:integer ;
+  :currentWorkers "10"^^xsd:integer ;
+  rdfs:comment "Production worker pool configuration" .
+
+:CPUMetric a :CPUUtilization ;
+  :scaleUpThreshold "0.8"^^xsd:float ;
+  :scaleDownThreshold "0.3"^^xsd:float .
+
+:MemoryMetric a :MemoryUtilization ;
+  :scaleUpThreshold "0.85"^^xsd:float ;
+  :scaleDownThreshold "0.4"^^xsd:float .
+
+:QueueMetric a :QueueDepth ;
+  :scaleUpThreshold "1000"^^xsd:float ;
+  :scaleDownThreshold "100"^^xsd:float .
+
+#################################################################
+# SPARQL Query Examples
+#################################################################
+
+# Get current autoscaling status
+# SELECT ?workers ?cpu ?memory WHERE {
+#   ?pool a :WorkerPoolManager ;
+#         :currentWorkers ?workers .
+#   ?cpu a :CPUUtilization ;
+#        :scaleUpThreshold ?cpuThreshold .
+#   ?memory a :MemoryUtilization ;
+#           :scaleUpThreshold ?memThreshold .
+# }
+
+# Check if scaling is needed
+# SELECT ?metric ?threshold WHERE {
+#   ?metric a :ScalingMetric ;
+#           :scaleUpThreshold ?threshold .
+#   FILTER(?threshold < 0.9)
+# }

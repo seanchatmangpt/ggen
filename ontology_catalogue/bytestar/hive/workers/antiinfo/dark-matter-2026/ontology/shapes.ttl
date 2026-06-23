@@ -1,0 +1,575 @@
+@prefix : <http://dark-matter.ai/ontology/> .
+@prefix shapes: <http://dark-matter.ai/ontology/shapes/> .
+@prefix sec: <http://dark-matter.ai/ontology/security/> .
+@prefix priv: <http://dark-matter.ai/ontology/privacy/> .
+@prefix tel: <http://dark-matter.ai/ontology/telemetry/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# SHACL Shapes - Validation constraints for the ontology
+
+shapes:ShapesOntology a owl:Ontology ;
+  rdfs:label "Dark Matter 2026 SHACL Shapes" ;
+  owl:versionInfo "1.0.0" .
+
+# === CORE SHAPES ===
+
+shapes:CapabilityShape a sh:NodeShape ;
+  sh:targetClass :Capability ;
+  sh:property [
+    sh:path :identifier ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-z][a-z0-9-]*$" ;
+  ] ;
+  sh:property [
+    sh:path :name ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 1 ;
+    sh:maxLength 100 ;
+  ] ;
+  sh:property [
+    sh:path :description ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 500 ;
+  ] .
+
+shapes:ActorShape a sh:NodeShape ;
+  sh:targetClass :Actor ;
+  sh:property [
+    sh:path :identifier ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-z][a-z0-9-]*$" ;
+  ] ;
+  sh:property [
+    sh:path :name ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 1 ;
+    sh:maxLength 100 ;
+  ] ;
+  sh:property [
+    sh:path :hasCapability ;
+    sh:class :Capability ;
+    sh:minCount 1 ;
+  ] .
+
+shapes:ServiceShape a sh:NodeShape ;
+  sh:targetClass :Service ;
+  sh:property [
+    sh:path :identifier ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-z][a-z0-9-]*$" ;
+  ] ;
+  sh:property [
+    sh:path :name ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path :version ;
+    sh:datatype xsd:string ;
+    sh:pattern "^\\d+\\.\\d+\\.\\d+$" ;
+  ] ;
+  sh:property [
+    sh:path :provides ;
+    sh:class :Capability ;
+    sh:minCount 1 ;
+  ] .
+
+shapes:DataEntityShape a sh:NodeShape ;
+  sh:targetClass :DataEntity ;
+  sh:property [
+    sh:path :identifier ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path :createdAt ;
+    sh:datatype xsd:dateTime ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path :updatedAt ;
+    sh:datatype xsd:dateTime ;
+    sh:maxCount 1 ;
+  ] .
+
+# === SECURITY SHAPES ===
+
+shapes:SecurityPolicyShape a sh:NodeShape ;
+  sh:targetClass sec:SecurityPolicy ;
+  sh:property [
+    sh:path :identifier ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-z][a-z0-9-]*$" ;
+  ] ;
+  sh:property [
+    sh:path :name ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path sec:appliesTo ;
+    sh:class :DataEntity ;
+    sh:minCount 1 ;
+  ] .
+
+shapes:RoleShape a sh:NodeShape ;
+  sh:targetClass sec:Role ;
+  sh:property [
+    sh:path :identifier ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-z][a-z0-9-]*$" ;
+  ] ;
+  sh:property [
+    sh:path :name ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path sec:hasPermission ;
+    sh:class sec:Permission ;
+    sh:minCount 1 ;
+  ] .
+
+shapes:PermissionShape a sh:NodeShape ;
+  sh:targetClass sec:Permission ;
+  sh:property [
+    sh:path :identifier ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ("read" "write" "delete" "execute" "admin") ;
+  ] ;
+  sh:property [
+    sh:path :name ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] .
+
+shapes:ThreatShape a sh:NodeShape ;
+  sh:targetClass sec:Threat ;
+  sh:property [
+    sh:path sec:threatLevel ;
+    sh:datatype xsd:string ;
+    sh:in ("low" "medium" "high" "critical") ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path :description ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+  ] .
+
+shapes:IncidentShape a sh:NodeShape ;
+  sh:targetClass sec:Incident ;
+  sh:property [
+    sh:path sec:status ;
+    sh:datatype xsd:string ;
+    sh:in ("open" "investigating" "contained" "resolved" "closed") ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path :createdAt ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] .
+
+# === PRIVACY SHAPES ===
+
+shapes:PersonalDataShape a sh:NodeShape ;
+  sh:targetClass priv:PersonalData ;
+  sh:property [
+    sh:path priv:dataCategory ;
+    sh:datatype xsd:string ;
+    sh:in ("identity" "contact" "behavioral" "financial" "health" "biometric" "location") ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path priv:sensitivityLevel ;
+    sh:datatype xsd:string ;
+    sh:in ("low" "medium" "high" "critical") ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path priv:hasDataSubject ;
+    sh:class priv:DataSubject ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path priv:hasLegalBasis ;
+    sh:class priv:LegalBasis ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path priv:hasRetentionPolicy ;
+    sh:class priv:RetentionPolicy ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path priv:dataResidency ;
+    sh:datatype xsd:string ;
+    sh:in ("EU" "US" "UK" "CA" "AU" "JP" "global") ;
+    sh:maxCount 1 ;
+  ] .
+
+shapes:SensitiveDataShape a sh:NodeShape ;
+  sh:targetClass priv:SensitiveData ;
+  sh:property [
+    sh:path priv:sensitivityLevel ;
+    sh:datatype xsd:string ;
+    sh:in ("critical") ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path priv:hasConsent ;
+    sh:class priv:ConsentRecord ;
+    sh:minCount 1 ;
+  ] .
+
+shapes:RetentionPolicyShape a sh:NodeShape ;
+  sh:targetClass priv:RetentionPolicy ;
+  sh:property [
+    sh:path :identifier ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path priv:retentionPeriod ;
+    sh:datatype xsd:duration ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] .
+
+shapes:ConsentRecordShape a sh:NodeShape ;
+  sh:targetClass priv:ConsentRecord ;
+  sh:property [
+    sh:path priv:consentGiven ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path priv:consentDate ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] .
+
+shapes:DataSubjectRequestShape a sh:NodeShape ;
+  sh:targetClass priv:DataSubjectRequest ;
+  sh:property [
+    sh:path :identifier ;
+    sh:datatype xsd:string ;
+    sh:in ("access" "rectification" "erasure" "portability" "restriction" "objection") ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path sec:status ;
+    sh:datatype xsd:string ;
+    sh:in ("pending" "processing" "completed" "rejected") ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path :createdAt ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] .
+
+# === TELEMETRY SHAPES ===
+
+shapes:MetricShape a sh:NodeShape ;
+  sh:targetClass tel:Metric ;
+  sh:property [
+    sh:path tel:metricName ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-z][a-z0-9_]*$" ;
+  ] ;
+  sh:property [
+    sh:path tel:metricType ;
+    sh:datatype xsd:string ;
+    sh:in ("counter" "gauge" "histogram" "summary") ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path tel:metricUnit ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] .
+
+shapes:CounterShape a sh:NodeShape ;
+  sh:targetClass tel:Counter ;
+  sh:property [
+    sh:path tel:metricType ;
+    sh:hasValue "counter" ;
+  ] ;
+  sh:property [
+    sh:path tel:value ;
+    sh:datatype xsd:double ;
+    sh:minInclusive 0.0 ;
+  ] .
+
+shapes:GaugeShape a sh:NodeShape ;
+  sh:targetClass tel:Gauge ;
+  sh:property [
+    sh:path tel:metricType ;
+    sh:hasValue "gauge" ;
+  ] ;
+  sh:property [
+    sh:path tel:value ;
+    sh:datatype xsd:double ;
+  ] .
+
+shapes:LogEventShape a sh:NodeShape ;
+  sh:targetClass tel:LogEvent ;
+  sh:property [
+    sh:path tel:logLevel ;
+    sh:datatype xsd:string ;
+    sh:in ("trace" "debug" "info" "warn" "error" "fatal") ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path tel:logMessage ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 1000 ;
+  ] ;
+  sh:property [
+    sh:path tel:timestamp ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] .
+
+shapes:TraceSpanShape a sh:NodeShape ;
+  sh:targetClass tel:TraceSpan ;
+  sh:property [
+    sh:path tel:spanName ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 100 ;
+  ] ;
+  sh:property [
+    sh:path tel:spanKind ;
+    sh:datatype xsd:string ;
+    sh:in ("internal" "server" "client" "producer" "consumer") ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path tel:spanId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[0-9a-f]{16}$" ;
+  ] ;
+  sh:property [
+    sh:path tel:duration ;
+    sh:datatype xsd:duration ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path tel:belongsToTrace ;
+    sh:class tel:Trace ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] .
+
+shapes:TraceShape a sh:NodeShape ;
+  sh:targetClass tel:Trace ;
+  sh:property [
+    sh:path tel:traceId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[0-9a-f]{32}$" ;
+  ] .
+
+shapes:AlertShape a sh:NodeShape ;
+  sh:targetClass tel:Alert ;
+  sh:property [
+    sh:path :name ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path tel:severity ;
+    sh:datatype xsd:string ;
+    sh:in ("info" "warning" "critical") ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path tel:threshold ;
+    sh:datatype xsd:double ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minInclusive 0.0 ;
+  ] .
+
+# === CROSS-CUTTING CONSTRAINTS ===
+
+shapes:IdentifierConstraint a sh:NodeShape ;
+  sh:targetNode :identifier ;
+  sh:property [
+    sh:path :identifier ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[a-z][a-z0-9-]*$" ;
+    sh:minLength 2 ;
+    sh:maxLength 50 ;
+  ] .
+
+shapes:NameConstraint a sh:NodeShape ;
+  sh:targetNode :name ;
+  sh:property [
+    sh:path :name ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:maxLength 100 ;
+  ] .
+
+shapes:DescriptionConstraint a sh:NodeShape ;
+  sh:targetNode :description ;
+  sh:property [
+    sh:path :description ;
+    sh:datatype xsd:string ;
+    sh:maxLength 1000 ;
+  ] .
+
+shapes:TimestampConstraint a sh:NodeShape ;
+  sh:targetNode :createdAt, :updatedAt, tel:timestamp, priv:consentDate ;
+  sh:property [
+    sh:path [sh:alternativePath (:createdAt :updatedAt tel:timestamp priv:consentDate)] ;
+    sh:datatype xsd:dateTime ;
+    sh:lessThanOrEquals "2030-12-31T23:59:59Z"^^xsd:dateTime ;
+    sh:minInclusive "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+  ] .
+
+# === BUSINESS RULES ===
+
+shapes:SensitiveDataMustHaveConsent a sh:NodeShape ;
+  sh:targetClass priv:SensitiveData ;
+  sh:sparql [
+    sh:message "Sensitive data must have valid consent" ;
+    sh:prefixes [
+      sh:declare [
+        sh:prefix "priv" ;
+        sh:namespace "http://dark-matter.ai/ontology/privacy/"^^xsd:anyURI ;
+      ]
+    ] ;
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a priv:SensitiveData .
+        FILTER NOT EXISTS {
+          ?this priv:hasConsent ?consent .
+          ?consent priv:consentGiven true .
+          ?consent priv:consentDate ?date .
+          FILTER (?date > "2024-01-01T00:00:00Z"^^xsd:dateTime)
+        }
+      }
+    """ ;
+  ] .
+
+shapes:PersonalDataMustHaveRetention a sh:NodeShape ;
+  sh:targetClass priv:PersonalData ;
+  sh:sparql [
+    sh:message "Personal data must have retention policy" ;
+    sh:prefixes [
+      sh:declare [
+        sh:prefix "priv" ;
+        sh:namespace "http://dark-matter.ai/ontology/privacy/"^^xsd:anyURI ;
+      ]
+    ] ;
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a priv:PersonalData .
+        FILTER NOT EXISTS {
+          ?this priv:hasRetentionPolicy ?policy .
+          ?policy priv:retentionPeriod ?period .
+        }
+      }
+    """ ;
+  ] .
+
+shapes:ActorMustHaveRole a sh:NodeShape ;
+  sh:targetClass :Actor ;
+  sh:sparql [
+    sh:message "Actor must have at least one role" ;
+    sh:prefixes [
+      sh:declare [
+        sh:prefix "sec" ;
+        sh:namespace "http://dark-matter.ai/ontology/security/"^^xsd:anyURI ;
+      ]
+    ] ;
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a :Actor .
+        FILTER NOT EXISTS {
+          ?this sec:hasRole ?role .
+        }
+      }
+    """ ;
+  ] .
+
+shapes:ServiceMustHaveMetrics a sh:NodeShape ;
+  sh:targetClass :Service ;
+  sh:sparql [
+    sh:message "Service must have at least one metric" ;
+    sh:prefixes [
+      sh:declare [
+        sh:prefix "tel" ;
+        sh:namespace "http://dark-matter.ai/ontology/telemetry/"^^xsd:anyURI ;
+      ]
+    ] ;
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a :Service .
+        FILTER NOT EXISTS {
+          ?this tel:hasMetric ?metric .
+        }
+      }
+    """ ;
+  ] .

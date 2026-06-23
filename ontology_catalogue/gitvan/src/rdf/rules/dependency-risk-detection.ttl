@@ -1,0 +1,18 @@
+# Dependency Risk Detection Rule
+# Identifies missing peer dependencies that could cause runtime failures
+# Helps prevent production incidents
+
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# RULE: {"id": "dependency-risk-detection", "name": "Dependency Risk Detection", "description": "Identifies missing peer dependencies in package manifests", "antecedent": "?package gv:dependency ?dep . ?package gv:hasPeerDep ?peerDep . FILTER(?dep != ?peerDep)", "consequent": "?package gv:hasDependencyRisk true", "priority": 95}
+
+# Example data structure
+ex:package1 gv:dependency "express" .
+ex:package1 gv:dependency "react" .
+ex:package1 gv:hasPeerDep "react" .
+
+ex:package2 gv:dependency "lodash" .
+ex:package2 gv:hasPeerDep "express" .

@@ -1,0 +1,35 @@
+@prefix zoe: <http://zoeapp.church/ontology#> .
+@prefix schema: <http://schema.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+zoe:MobileMinistrySurface a rdfs:Class ;
+    rdfs:label "Mobile Ministry Surface" ;
+    rdfs:comment "The primary digital interface for church community engagement workflows." .
+
+zoe:ChurchWorkflow a rdfs:Class ;
+    rdfs:label "Church Workflow" .
+
+zoe:Connect a zoe:ChurchWorkflow ;
+    rdfs:label "Connect" ;
+    rdfs:comment "Workflow for joining, networking, and community building." .
+
+zoe:Give a zoe:ChurchWorkflow ;
+    rdfs:label "Give" ;
+    rdfs:comment "Workflow for financial contributions and stewardship." .
+
+zoe:Watch a zoe:ChurchWorkflow ;
+    rdfs:label "Watch" ;
+    rdfs:comment "Workflow for media consumption, livestreams, and sermons." .
+
+zoe:Serve a zoe:ChurchWorkflow ;
+    rdfs:label "Serve" ;
+    rdfs:comment "Workflow for volunteering and community participation." .
+
+zoe:Pray a zoe:ChurchWorkflow ;
+    rdfs:label "Pray" ;
+    rdfs:comment "Workflow for prayer requests, intercession, and devotionals." .
+
+zoe:hasWorkflow a rdf:Property ;
+    rdfs:domain zoe:MobileMinistrySurface ;
+    rdfs:range zoe:ChurchWorkflow .

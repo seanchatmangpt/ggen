@@ -1,0 +1,11 @@
+PREFIX sos: <https://ggen.io/semantic-os/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+    ?law a sos:NormalizedLaw ;
+         sos:normalizedId ?law_id .
+} WHERE {
+    ?law a sos:Law ;
+         sos:lawId ?law_id .
+}

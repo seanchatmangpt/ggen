@@ -1,0 +1,6 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix m: <https://cns.dev/metrics#> .
+
+m:CounterShape a sh:NodeShape ; sh:targetClass m:Counter .
+m:GaugeShape a sh:NodeShape ; sh:targetClass m:Gauge .
+m:HistogramShape a sh:NodeShape ; sh:targetClass m:Histogram .

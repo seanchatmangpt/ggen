@@ -25,9 +25,16 @@ env:
   HEALTH_CHECK_TIMEOUT: 300  # 5 minutes
   HEALTH_CHECK_INTERVAL: 10  # Check every 10 seconds
 
+# contents: write is required because execute-rollback commits an incident
+# record and pushes it; deployments: write records the rollback deployment.
 permissions:
-  contents: read
+  contents: write
   deployments: write
+
+# Deploy/rollback workflow: never cancel a rollback mid-flight.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   # ============================================================================
@@ -44,10 +51,10 @@ jobs:
       failing-services: ${{ steps.health.outputs.failing-services }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
+        uses: azure/setup-kubectl@776406bce94f63e41d621b960d78ee25c8b76ede # v4.0.1
 
       - name: Configure kubeconfig (Production)
         run: |
@@ -115,8 +122,12 @@ jobs:
   auto-rollback-on-failure:
     name: Auto-rollback on Health Failure
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: health-check
     if: needs.health-check.outputs.health-status == 'unhealthy'
+    permissions:
+      contents: read
+      actions: write  # dispatches the rollback workflow via github-script
 
     steps:
       - name: Log health failure
@@ -125,7 +136,7 @@ jobs:
           echo "${{ needs.health-check.outputs.failing-services }}"
 
       - name: Trigger rollback workflow
-        uses: actions/github-script@v7
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
             github.rest.actions.createWorkflowDispatch({
@@ -154,7 +165,7 @@ jobs:
       current-release: ${{ steps.get-current.outputs.release }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
 
@@ -202,13 +213,13 @@ jobs:
       name: ${{ github.event.inputs.environment }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
           ref: ${{ needs.prepare-rollback.outputs.previous-release }}
 
       - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
+        uses: azure/setup-kubectl@776406bce94f63e41d621b960d78ee25c8b76ede # v4.0.1
 
       - name: Configure kubeconfig
         run: |
@@ -308,10 +319,10 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
+        uses: azure/setup-kubectl@776406bce94f63e41d621b960d78ee25c8b76ede # v4.0.1
 
       - name: Configure kubeconfig
         run: |

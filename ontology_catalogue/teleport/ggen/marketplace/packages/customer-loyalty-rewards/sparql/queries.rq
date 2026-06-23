@@ -1,0 +1,204 @@
+# ============================================================================
+# Customer Loyalty & Rewards SPARQL Queries
+# ============================================================================
+# 10+ production-ready queries for loyalty program management
+# ============================================================================
+
+PREFIX lr: <http://ggen.io/ontology/loyalty-rewards#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# ============================================================================
+# Query 1: Calculate Points Earned from Purchase
+# ============================================================================
+# Calculate loyalty points for a purchase transaction
+# Parameters: ?purchaseAmount, ?tier
+# ============================================================================
+
+SELECT ?member ?currentPoints ?pointsEarned
+       (?currentPoints + ?pointsEarned AS ?newBalance)
+WHERE {
+    ?member a lr:Member ;
+            lr:hasPointsBalance ?currentPoints ;
+            lr:hasTier ?tier .
+
+    ?tier lr:hasMultiplier ?multiplier .
+
+    ?program lr:hasEarningRule ?earningRule .
+    ?earningRule a lr:PurchaseEarning ;
+                 lr:hasPointsPerDollar ?pointsPerDollar .
+
+    BIND(?purchaseAmount * ?pointsPerDollar * ?multiplier AS ?pointsEarned)
+}
+
+# ============================================================================
+# Query 2: Extract Available Rewards for Member
+# ============================================================================
+# Get rewards member can afford with current points
+# Parameters: ?memberId
+# ============================================================================
+
+SELECT ?reward ?rewardName ?pointsCost ?discountAmount
+WHERE {
+    ?member lr:hasMemberId ?memberId ;
+            lr:hasPointsBalance ?pointsBalance .
+
+    ?catalog lr:hasReward ?reward .
+
+    ?reward lr:hasRewardName ?rewardName ;
+            lr:hasPointsCost ?pointsCost .
+
+    OPTIONAL { ?reward lr:hasDiscountAmount ?discountAmount }
+
+    FILTER(?pointsCost <= ?pointsBalance)
+}
+ORDER BY ?pointsCost
+
+# ============================================================================
+# Query 3: Tier Upgrade/Downgrade Logic
+# ============================================================================
+# Determine member's appropriate tier based on points
+# ============================================================================
+
+SELECT ?member ?currentTier ?recommendedTier ?pointsBalance
+WHERE {
+    ?member a lr:Member ;
+            lr:hasTier ?currentTier ;
+            lr:hasPointsBalance ?pointsBalance .
+
+    ?recommendedTier a lr:Tier ;
+                     lr:hasMinimumPoints ?minPoints .
+
+    FILTER(?pointsBalance >= ?minPoints)
+}
+ORDER BY DESC(?minPoints)
+LIMIT 1
+
+# ============================================================================
+# Query 4: Track Expiring Points
+# ============================================================================
+# Identify points expiring within 30 days
+# ============================================================================
+
+SELECT ?member ?pointsBalance ?expirationDate
+       (xsd:integer((?expirationDate - NOW()) / 86400) AS ?daysUntilExpiry)
+WHERE {
+    ?member a lr:Member ;
+            lr:hasPoints ?points .
+
+    ?points lr:hasPointsBalance ?pointsBalance ;
+            lr:hasExpirationDate ?expirationDate .
+
+    FILTER(?expirationDate > NOW() && ?expirationDate <= (NOW() + 2592000))
+}
+ORDER BY ?expirationDate
+
+# ============================================================================
+# Query 5: Referral Tracking
+# ============================================================================
+# Track successful referrals and rewards
+# ============================================================================
+
+SELECT ?referrer ?referralCode (COUNT(?referee) AS ?successfulReferrals)
+       (SUM(?rewardPoints) AS ?totalReferralPoints)
+WHERE {
+    ?referrer a lr:Member ;
+              lr:hasReferralCode ?referralCode ;
+              lr:hasReferral ?referral .
+
+    ?referral lr:hasReferee ?referee .
+
+    ?earningRule a lr:ReferralEarning ;
+                 lr:hasReferralPoints ?rewardPoints .
+}
+GROUP BY ?referrer ?referralCode
+ORDER BY DESC(?successfulReferrals)
+
+# ============================================================================
+# Query 6: Member Tier Distribution
+# ============================================================================
+# Analyze distribution of members across tiers
+# ============================================================================
+
+SELECT ?tier ?tierName (COUNT(?member) AS ?memberCount)
+WHERE {
+    ?member a lr:Member ;
+            lr:hasTier ?tier .
+
+    ?tier lr:hasTierName ?tierName .
+}
+GROUP BY ?tier ?tierName
+ORDER BY ?tierName
+
+# ============================================================================
+# Query 7: Top Point Earners Leaderboard
+# ============================================================================
+# Generate leaderboard of top point earners
+# ============================================================================
+
+SELECT ?member ?memberId ?pointsBalance ?tier
+WHERE {
+    ?member a lr:Member ;
+            lr:hasMemberId ?memberId ;
+            lr:hasPointsBalance ?pointsBalance ;
+            lr:hasTier ?tier .
+}
+ORDER BY DESC(?pointsBalance)
+LIMIT 10
+
+# ============================================================================
+# Query 8: Redemption History
+# ============================================================================
+# Extract member's redemption history
+# Parameters: ?memberId
+# ============================================================================
+
+SELECT ?member ?redemption ?redemptionDate ?reward ?pointsCost ?status
+WHERE {
+    ?member lr:hasMemberId ?memberId ;
+            lr:hasRedemption ?redemption .
+
+    ?redemption lr:hasRedemptionDate ?redemptionDate ;
+                lr:hasRedemptionStatus ?status .
+
+    ?reward lr:hasPointsCost ?pointsCost .
+}
+ORDER BY DESC(?redemptionDate)
+
+# ============================================================================
+# Query 9: Campaign Performance Analytics
+# ============================================================================
+# Analyze bonus points campaign effectiveness
+# ============================================================================
+
+SELECT ?campaign (COUNT(?transaction) AS ?participantCount)
+       (SUM(?pointsEarned) AS ?totalPointsAwarded)
+WHERE {
+    ?campaign a lr:BonusPointsCampaign .
+
+    ?transaction lr:hasPointsEarned ?pointsEarned .
+}
+GROUP BY ?campaign
+
+# ============================================================================
+# Query 10: Member Engagement Metrics
+# ============================================================================
+# Calculate member engagement scores
+# ============================================================================
+
+SELECT ?member
+       (COUNT(?transaction) AS ?transactionCount)
+       (COUNT(?badge) AS ?badgeCount)
+       (COUNT(?referral) AS ?referralCount)
+WHERE {
+    ?member a lr:Member .
+
+    OPTIONAL { ?member lr:hasPoints/lr:hasTransaction ?transaction }
+    OPTIONAL { ?member lr:hasBadge ?badge }
+    OPTIONAL { ?member lr:hasReferral ?referral }
+}
+GROUP BY ?member
+ORDER BY DESC(?transactionCount)
+
+# Total Queries: 10

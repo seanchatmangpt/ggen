@@ -1,0 +1,274 @@
+@prefix ana: <http://example.org/healthcare-analytics#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+
+# Ontology Definition
+ana:HealthcareAnalyticsOntology a owl:Ontology ;
+    rdfs:label "Healthcare Analytics Ontology" ;
+    rdfs:comment "Ontology for healthcare analytics including population health and quality measures" ;
+    owl:versionInfo "1.0.0" .
+
+# Analytics Classes
+ana:AnalyticsDashboard a owl:Class ;
+    rdfs:label "Analytics Dashboard" ;
+    rdfs:comment "Healthcare analytics dashboard" .
+
+ana:Report a owl:Class ;
+    rdfs:label "Report" ;
+    rdfs:comment "Analytics report" .
+
+ana:Metric a owl:Class ;
+    rdfs:label "Metric" ;
+    rdfs:comment "Healthcare metric" .
+
+ana:Indicator a owl:Class ;
+    rdfs:label "Indicator" ;
+    rdfs:comment "Key performance indicator" .
+
+# Population Health
+ana:Population a owl:Class ;
+    rdfs:label "Population" ;
+    rdfs:comment "Patient population" .
+
+ana:Cohort a owl:Class ;
+    rdfs:label "Cohort" ;
+    rdfs:comment "Patient cohort" .
+
+ana:RiskScore a owl:Class ;
+    rdfs:label "Risk Score" ;
+    rdfs:comment "Population risk score" .
+
+ana:HealthStatus a owl:Class ;
+    rdfs:label "Health Status" ;
+    rdfs:comment "Population health status" .
+
+# Quality Measures
+ana:QualityMeasure a owl:Class ;
+    rdfs:label "Quality Measure" ;
+    rdfs:comment "Healthcare quality measure" .
+
+ana:HEDISMeasure a owl:Class ;
+    rdfs:subClassOf ana:QualityMeasure ;
+    rdfs:label "HEDIS Measure" ;
+    rdfs:comment "HEDIS quality measure" .
+
+ana:MIPSMeasure a owl:Class ;
+    rdfs:subClassOf ana:QualityMeasure ;
+    rdfs:label "MIPS Measure" ;
+    rdfs:comment "MIPS quality measure" .
+
+ana:Benchmark a owl:Class ;
+    rdfs:label "Benchmark" ;
+    rdfs:comment "Quality benchmark" .
+
+# Predictive Analytics
+ana:PredictiveModel a owl:Class ;
+    rdfs:label "Predictive Model" ;
+    rdfs:comment "Predictive analytics model" .
+
+ana:RiskPrediction a owl:Class ;
+    rdfs:label "Risk Prediction" ;
+    rdfs:comment "Patient risk prediction" .
+
+ana:ReadmissionRisk a owl:Class ;
+    rdfs:subClassOf ana:RiskPrediction ;
+    rdfs:label "Readmission Risk" .
+
+ana:MortalityRisk a owl:Class ;
+    rdfs:subClassOf ana:RiskPrediction ;
+    rdfs:label "Mortality Risk" .
+
+# Cost Analysis
+ana:CostAnalysis a owl:Class ;
+    rdfs:label "Cost Analysis" ;
+    rdfs:comment "Healthcare cost analysis" .
+
+ana:CostPerPatient a owl:Class ;
+    rdfs:label "Cost Per Patient" .
+
+ana:TotalCostOfCare a owl:Class ;
+    rdfs:label "Total Cost of Care" .
+
+ana:ResourceUtilization a owl:Class ;
+    rdfs:label "Resource Utilization" .
+
+# Clinical Outcomes
+ana:Outcome a owl:Class ;
+    rdfs:label "Outcome" ;
+    rdfs:comment "Clinical outcome" .
+
+ana:MortalityRate a owl:Class ;
+    rdfs:subClassOf ana:Outcome ;
+    rdfs:label "Mortality Rate" .
+
+ana:ReadmissionRate a owl:Class ;
+    rdfs:subClassOf ana:Outcome ;
+    rdfs:label "Readmission Rate" .
+
+ana:ComplicationRate a owl:Class ;
+    rdfs:subClassOf ana:Outcome ;
+    rdfs:label "Complication Rate" .
+
+# Data Sources
+ana:DataSource a owl:Class ;
+    rdfs:label "Data Source" ;
+    rdfs:comment "Healthcare data source" .
+
+ana:EHRData a owl:Class ;
+    rdfs:subClassOf ana:DataSource ;
+    rdfs:label "EHR Data" .
+
+ana:ClaimsData a owl:Class ;
+    rdfs:subClassOf ana:DataSource ;
+    rdfs:label "Claims Data" .
+
+ana:RegistryData a owl:Class ;
+    rdfs:subClassOf ana:DataSource ;
+    rdfs:label "Registry Data" .
+
+# Properties - Metrics
+ana:hasMetric a owl:ObjectProperty ;
+    rdfs:domain ana:AnalyticsDashboard ;
+    rdfs:range ana:Metric ;
+    rdfs:label "has metric" .
+
+ana:hasValue a owl:DatatypeProperty ;
+    rdfs:domain ana:Metric ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has value" .
+
+ana:hasUnit a owl:DatatypeProperty ;
+    rdfs:domain ana:Metric ;
+    rdfs:range xsd:string ;
+    rdfs:label "has unit" .
+
+ana:measurementDate a owl:DatatypeProperty ;
+    rdfs:domain ana:Metric ;
+    rdfs:range xsd:date ;
+    rdfs:label "measurement date" .
+
+# Population Properties
+ana:hasPopulation a owl:ObjectProperty ;
+    rdfs:domain ana:Report ;
+    rdfs:range ana:Population ;
+    rdfs:label "has population" .
+
+ana:hasCohort a owl:ObjectProperty ;
+    rdfs:domain ana:Population ;
+    rdfs:range ana:Cohort ;
+    rdfs:label "has cohort" .
+
+ana:populationSize a owl:DatatypeProperty ;
+    rdfs:domain ana:Population ;
+    rdfs:range xsd:integer ;
+    rdfs:label "population size" .
+
+ana:hasRiskScore a owl:ObjectProperty ;
+    rdfs:domain ana:Population ;
+    rdfs:range ana:RiskScore ;
+    rdfs:label "has risk score" .
+
+ana:averageAge a owl:DatatypeProperty ;
+    rdfs:domain ana:Population ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "average age" .
+
+# Quality Measure Properties
+ana:hasQualityMeasure a owl:ObjectProperty ;
+    rdfs:domain ana:Report ;
+    rdfs:range ana:QualityMeasure ;
+    rdfs:label "has quality measure" .
+
+ana:hasPerformanceRate a owl:DatatypeProperty ;
+    rdfs:domain ana:QualityMeasure ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has performance rate" .
+
+ana:hasBenchmark a owl:ObjectProperty ;
+    rdfs:domain ana:QualityMeasure ;
+    rdfs:range ana:Benchmark ;
+    rdfs:label "has benchmark" .
+
+ana:benchmarkValue a owl:DatatypeProperty ;
+    rdfs:domain ana:Benchmark ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "benchmark value" .
+
+# Predictive Model Properties
+ana:hasPredictiveModel a owl:ObjectProperty ;
+    rdfs:domain ana:AnalyticsDashboard ;
+    rdfs:range ana:PredictiveModel ;
+    rdfs:label "has predictive model" .
+
+ana:hasRiskPrediction a owl:ObjectProperty ;
+    rdfs:domain ana:PredictiveModel ;
+    rdfs:range ana:RiskPrediction ;
+    rdfs:label "has risk prediction" .
+
+ana:hasProbability a owl:DatatypeProperty ;
+    rdfs:domain ana:RiskPrediction ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has probability" .
+
+ana:hasConfidence a owl:DatatypeProperty ;
+    rdfs:domain ana:RiskPrediction ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has confidence" .
+
+# Cost Properties
+ana:hasCostAnalysis a owl:ObjectProperty ;
+    rdfs:domain ana:Report ;
+    rdfs:range ana:CostAnalysis ;
+    rdfs:label "has cost analysis" .
+
+ana:totalCost a owl:DatatypeProperty ;
+    rdfs:domain ana:CostAnalysis ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "total cost" .
+
+ana:costPerMember a owl:DatatypeProperty ;
+    rdfs:domain ana:CostAnalysis ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "cost per member" .
+
+# Outcome Properties
+ana:hasOutcome a owl:ObjectProperty ;
+    rdfs:domain ana:Report ;
+    rdfs:range ana:Outcome ;
+    rdfs:label "has outcome" .
+
+ana:hasRate a owl:DatatypeProperty ;
+    rdfs:domain ana:Outcome ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has rate" .
+
+# Data Source Properties
+ana:hasDataSource a owl:ObjectProperty ;
+    rdfs:domain ana:Report ;
+    rdfs:range ana:DataSource ;
+    rdfs:label "has data source" .
+
+ana:lastUpdated a owl:DatatypeProperty ;
+    rdfs:domain ana:DataSource ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "last updated" .
+
+# Example Instances
+ana:dashboard_001 a ana:AnalyticsDashboard ;
+    schema:name "Population Health Dashboard" ;
+    ana:hasMetric ana:metric_readmission_rate ;
+    ana:hasPredictiveModel ana:model_readmission .
+
+ana:metric_readmission_rate a ana:Metric ;
+    schema:name "30-Day Readmission Rate" ;
+    ana:hasValue 12.5 ;
+    ana:hasUnit "%" ;
+    ana:measurementDate "2025-01-15"^^xsd:date .
+
+ana:population_diabetes a ana:Population ;
+    schema:name "Diabetes Population" ;
+    ana:populationSize 5000 ;
+    ana:averageAge 58.3 .

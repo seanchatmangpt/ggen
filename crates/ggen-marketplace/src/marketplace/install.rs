@@ -215,8 +215,20 @@ impl<R: AsyncRepository> Installer<R> {
             }
         }
 
+        // Deterministic UUID derived from the canonical input set.
+        // Same package_ids + install_path always produce the same manifest ID,
+        // which is required for reproducible receipts.
+        let id_input = format!(
+            "ggen:manifest:{}:{}",
+            {
+                let mut sorted_ids: Vec<_> = package_ids.iter().map(|p| p.to_string()).collect();
+                sorted_ids.sort();
+                sorted_ids.join(",")
+            },
+            install_path
+        );
         let manifest = InstallationManifest {
-            id: Uuid::new_v4(),
+            id: Uuid::new_v5(&Uuid::NAMESPACE_DNS, id_input.as_bytes()),
             packages: package_ids,
             dependencies,
             install_path,
@@ -801,18 +813,47 @@ impl<R: AsyncRepository> Installer<R> {
     ///
     /// # Errors
     ///
-    /// * [`Error::InstallationFailed`] - When extraction fails
+    /// * [`Error::InstallationFailed`] - When extraction fails or path traversal detected
     fn extract_tar_gz(&self, data: &[u8], dest: &Path) -> Result<()> {
+        use std::path::Component;
         use tar::Archive;
 
         let decoder = GzDecoder::new(data);
         let mut archive = Archive::new(decoder);
 
-        archive
-            .unpack(dest)
-            .map_err(|e| Error::InstallationFailed {
-                reason: format!("Failed to extract tar.gz: {}", e),
+        for entry in archive.entries().map_err(|e| Error::InstallationFailed {
+            reason: format!("Failed to read tar.gz entries: {}", e),
+        })? {
+            let mut entry = entry.map_err(|e| Error::InstallationFailed {
+                reason: format!("Failed to read tar.gz entry: {}", e),
             })?;
+
+            let entry_path = entry.path().map_err(|e| Error::InstallationFailed {
+                reason: format!("Invalid path in tar.gz entry: {}", e),
+            })?;
+
+            // Zip Slip prevention: resolve path component-by-component;
+            // reject any ParentDir (..) or absolute components.
+            let mut target = dest.to_path_buf();
+            for component in entry_path.components() {
+                match component {
+                    Component::Normal(c) => target.push(c),
+                    Component::CurDir => {}
+                    Component::ParentDir | Component::RootDir | Component::Prefix(_) => {
+                        return Err(Error::InstallationFailed {
+                            reason: format!(
+                                "Path traversal detected in tar.gz: {}",
+                                entry_path.display()
+                            ),
+                        });
+                    }
+                }
+            }
+
+            entry.unpack(&target).map_err(|e| Error::InstallationFailed {
+                reason: format!("Failed to extract tar.gz entry: {}", e),
+            })?;
+        }
 
         Ok(())
     }
@@ -821,7 +862,7 @@ impl<R: AsyncRepository> Installer<R> {
     ///
     /// # Errors
     ///
-    /// * [`Error::InstallationFailed`] - When extraction fails
+    /// * [`Error::InstallationFailed`] - When extraction fails or path traversal detected
     fn extract_zip(&self, data: &[u8], dest: &Path) -> Result<()> {
         use zip::ZipArchive;
 
@@ -830,11 +871,38 @@ impl<R: AsyncRepository> Installer<R> {
             reason: format!("Failed to open ZIP archive: {}", e),
         })?;
 
-        archive
-            .extract(dest)
-            .map_err(|e| Error::InstallationFailed {
-                reason: format!("Failed to extract ZIP: {}", e),
+        for i in 0..archive.len() {
+            let mut file = archive.by_index(i).map_err(|e| Error::InstallationFailed {
+                reason: format!("Failed to read ZIP entry {}: {}", i, e),
             })?;
+
+            // enclosed_name() rejects path traversal (..) and absolute paths.
+            let entry_name = file
+                .enclosed_name()
+                .ok_or_else(|| Error::InstallationFailed {
+                    reason: format!("Path traversal detected in ZIP entry: {}", file.name()),
+                })?;
+
+            let target = dest.join(entry_name);
+
+            if file.is_dir() {
+                fs::create_dir_all(&target).map_err(|e| Error::InstallationFailed {
+                    reason: format!("Failed to create directory {:?}: {}", target, e),
+                })?;
+            } else {
+                if let Some(parent) = target.parent() {
+                    fs::create_dir_all(parent).map_err(|e| Error::InstallationFailed {
+                        reason: format!("Failed to create parent dir {:?}: {}", parent, e),
+                    })?;
+                }
+                let mut out = fs::File::create(&target).map_err(|e| Error::InstallationFailed {
+                    reason: format!("Failed to create file {:?}: {}", target, e),
+                })?;
+                std::io::copy(&mut file, &mut out).map_err(|e| Error::InstallationFailed {
+                    reason: format!("Failed to write ZIP entry {:?}: {}", target, e),
+                })?;
+            }
+        }
 
         Ok(())
     }

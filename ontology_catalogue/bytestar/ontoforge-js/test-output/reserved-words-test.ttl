@@ -1,0 +1,17 @@
+
+@prefix ex: <http://example.com#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:TestClass a owl:Class ;
+    rdfs:label "Test Class" .
+
+# Property with same name as PostgreSQL reserved word
+ex:select a owl:ObjectProperty ;
+    rdfs:domain ex:TestClass ;
+    rdfs:range ex:TestClass .
+    
+ex:order a owl:ObjectProperty ;
+    rdfs:domain ex:TestClass ;
+    rdfs:range ex:TestClass .

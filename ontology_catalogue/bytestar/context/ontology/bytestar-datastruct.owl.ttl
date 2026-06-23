@@ -1,0 +1,36 @@
+@prefix : <https://bytestar.org/ontology/bytestar-datastruct#> .
+@prefix bs: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-datastruct>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  rdfs:label "ByteStar Data Structures & ABIs" ;
+  rdfs:comment "MPHF/LOUDS/XOR table contracts, cache alignment, ABI versioning." .
+
+### Core data structures
+:MPHFTable a owl:Class .
+:LOUDSTrie a owl:Class .
+:XORFilter a owl:Class .
+:Bitset a owl:Class .
+
+### ABI contracts
+:abiVersion a owl:DatatypeProperty ; rdfs:domain rdfs:Resource ; rdfs:range xsd:string .
+:byteLayout a owl:DatatypeProperty ; rdfs:domain rdfs:Resource ; rdfs:range xsd:string .
+:cacheAligned a owl:DatatypeProperty ; rdfs:domain rdfs:Resource ; rdfs:range xsd:boolean .
+
+### Table specifications
+:lookupComplexity a owl:DatatypeProperty ; rdfs:domain :MPHFTable ; rdfs:range xsd:string .
+:constantTime a owl:DatatypeProperty ; rdfs:domain :MPHFTable ; rdfs:range xsd:boolean .
+:perfectHashing a owl:DatatypeProperty ; rdfs:domain :MPHFTable ; rdfs:range xsd:boolean .
+
+### Memory layout guarantees
+:l1Cacheable a owl:DatatypeProperty ; rdfs:domain rdfs:Resource ; rdfs:range xsd:boolean .
+:fixedSize a owl:DatatypeProperty ; rdfs:domain rdfs:Resource ; rdfs:range xsd:boolean .
+:noMallocOnHotPath a owl:DatatypeProperty ; rdfs:domain rdfs:Resource ; rdfs:range xsd:boolean .
+
+### ByteCore interface compliance
+:implementsABI a owl:ObjectProperty ; rdfs:domain bs:Subsystem ; rdfs:range rdfs:Resource .
+:abiCompliant a owl:DatatypeProperty ; rdfs:domain bs:Subsystem ; rdfs:range xsd:boolean .

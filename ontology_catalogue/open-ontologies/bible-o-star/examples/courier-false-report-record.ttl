@@ -1,0 +1,44 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# CourierRecord: the courier routes payloads to gates for classification.
+# A FalseReport is classified at the gate — it is not allowed to propagate as truth.
+# refusesPoison: the gate does not absorb the false claim as data; it names it and routes it to the record.
+
+bos:SanballatOpenLetter a bos:FalseReport ;
+    rdfs:label "Sanballat's Open Letter" ;
+    bos:hasCanonicalReference "Neh.6.5-7"^^xsd:string ;
+    rdfs:comment "An open letter delivered by Geshem claiming Nehemiah intended to rebel and make himself king. Fabricated. Sent as a destabilization instrument." ;
+    bos:hasSource "Neh.6.5-7" ;
+    dcterms:created "2026-06-02"^^xsd:date .
+
+bos:CourierRecord001 a bos:CourierRecord ;
+    rdfs:label "Courier Record 001 — Open Letter Refused" ;
+    bos:hasCanonicalReference "Neh.6.5-7"^^xsd:string ;
+    bos:classifiesPayload bos:SanballatOpenLetter ;
+    bos:refusesPoison true ;
+    bos:routesToGate bos:TheInspectionGate ;
+    bos:hasSource "Neh.6.5-7" ;
+    bos:hasReceipt bos:CourierRefusalReceipt001 ;
+    rdfs:comment "Payload classified as FalseReport. Routed to InspectionGate for record. Not absorbed into operating state." .
+
+bos:TheInspectionGate a owl:NamedIndividual ;
+    rdfs:label "Inspection Gate" ;
+    bos:hasCanonicalReference "Neh.3.31"^^xsd:string ;
+    bos:hasCanonicalNehRef "Neh.3.31"^^xsd:string ;
+    rdfs:comment "The gate responsible for receiving classified payloads and issuing receipts. Does not emit verdicts on unverified claims." .
+
+bos:CourierRefusalReceipt001 a bos:InspectionReceipt ;
+    rdfs:label "Courier Refusal Receipt 001" ;
+    bos:hasCanonicalReference "Neh.6.8"^^xsd:string ;
+    bos:hasVerdict bos:VerdictBlocked ;
+    bos:hasSource "Neh.6.8" ;
+    rdfs:comment "Nehemiah's response: 'No such things as you say have been done, for you are inventing them out of your own mind.' The false report is named, refused, and sealed." .
+
+bos:VerdictBlocked a bos:Verdict ;
+    rdfs:label "BLOCKED" ;
+    rdfs:comment "Refused: the payload fails the truth gate and is recorded as a FalseReport." .

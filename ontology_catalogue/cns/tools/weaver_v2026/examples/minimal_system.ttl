@@ -1,0 +1,10 @@
+# Minimal declarative model for Weaver v2026
+
+:rb1 a core:RingBus ;
+     sh:maxCount 1 .
+
+:fs1 a core:FiberScheduler ;
+     core:linksTo :rb1 .
+
+
+

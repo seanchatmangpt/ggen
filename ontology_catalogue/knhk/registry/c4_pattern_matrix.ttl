@@ -1,0 +1,7 @@
+@prefix knhk: <https://knhk.io/covenant#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+knhk:C4_PatternMatrixExpressiveness a owl:Class ;
+    rdfs:label "C4 — Pattern Matrix Expressiveness" ;
+    rdfs:comment "All behavioral patterns are expressible via permutations of the pattern matrix. The matrix is the complete basis." .

@@ -1,0 +1,299 @@
+@prefix bc: <http://bytestar.org/bytecore#> .
+@prefix ndd: <http://bytestar.org/non-deterministic-determinism#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Non-Deterministic Determinism Ontology
+# "Randomness is just undiscovered patterns"
+# Creating predictable unpredictability through mathematical chaos
+
+ndd:DeterministicRandomGenerator a owl:Class ;
+    rdfs:label "Deterministic Random Generator" ;
+    rdfs:comment "Generator that produces truly random sequences from deterministic seeds through chaos mathematics" ;
+    bc:hasProperty [
+        bc:property "chaos_seed" ;
+        bc:type "deterministic_value" ;
+        bc:range "any_finite_value"
+    ] ;
+    bc:hasProperty [
+        bc:property "pattern_depth" ;
+        bc:type "non_negative_integer" ;
+        bc:range "1 to infinity"
+    ] ;
+    bc:hasProperty [
+        bc:property "randomness_quality" ;
+        bc:type "percentage" ;
+        bc:range "99.999 to 100.0"
+    ] .
+
+ndd:PredictableUnpredictability a owl:Class ;
+    rdfs:label "Predictable Unpredictability" ;
+    rdfs:comment "System behavior that is simultaneously random AND deterministic through fractal patterns" ;
+    bc:hasProperty [
+        bc:property "fractal_dimension" ;
+        bc:type "real_number" ;
+        bc:range "1.0 to 3.0"
+    ] ;
+    bc:hasProperty [
+        bc:property "prediction_horizon" ;
+        bc:type "time_units" ;
+        bc:range "finite_but_variable"
+    ] .
+
+ndd:QuantumPseudoRandomness a owl:Class ;
+    rdfs:label "Quantum Pseudo-Randomness" ;
+    rdfs:comment "Classical system that mimics quantum uncertainty through mathematical superposition" ;
+    bc:inherits ndd:DeterministicRandomGenerator ;
+    bc:hasProperty [
+        bc:property "superposition_states" ;
+        bc:type "state_vector" ;
+        bc:cardinality "2^n"
+    ] ;
+    bc:hasProperty [
+        bc:property "collapse_probability" ;
+        bc:type "wave_function" ;
+        bc:computational_basis "deterministic"
+    ] .
+
+ndd:TemporalEntropyPool a owl:Class ;
+    rdfs:label "Temporal Entropy Pool" ;
+    rdfs:comment "Entropy source that harvests randomness from time itself while remaining deterministic" ;
+    bc:hasProperty [
+        bc:property "time_sampling_rate" ;
+        bc:type "nanoseconds" ;
+        bc:granularity "system_clock_dependent"
+    ] ;
+    bc:hasProperty [
+        bc:property "entropy_extraction_algorithm" ;
+        bc:type "chaos_function" ;
+        bc:examples "logistic_map, lorenz_attractor, mandelbrot_iteration"
+    ] .
+
+ndd:FractalScheduler a owl:Class ;
+    rdfs:label "Fractal Scheduler" ;
+    rdfs:comment "Scheduler that uses self-similar patterns at all time scales for predictable unpredictability" ;
+    bc:hasProperty [
+        bc:property "self_similarity_ratio" ;
+        bc:type "golden_ratio_multiple" ;
+        bc:default "1.618033988749"
+    ] ;
+    bc:hasProperty [
+        bc:property "time_scale_levels" ;
+        bc:type "count" ;
+        bc:range "3 to 12"
+    ] ;
+    bc:hasProperty [
+        bc:property "chaos_injection_points" ;
+        bc:type "schedule_coordinates" ;
+        bc:distribution "fractal_distributed"
+    ] .
+
+ndd:ControlledSpontaneity a owl:Class ;
+    rdfs:label "Controlled Spontaneity" ;
+    rdfs:comment "Spontaneous behavior that emerges from deterministic rules through emergence" ;
+    bc:hasProperty [
+        bc:property "emergence_threshold" ;
+        bc:type "complexity_measure" ;
+        bc:range "critical_point_dependent"
+    ] ;
+    bc:hasProperty [
+        bc:property "spontaneity_bounds" ;
+        bc:type "constraint_set" ;
+        bc:enforcement "soft_limits"
+    ] .
+
+ndd:ChaosOrderDuality a owl:Class ;
+    rdfs:label "Chaos-Order Duality" ;
+    rdfs:comment "System that exhibits both chaotic and ordered behavior simultaneously" ;
+    bc:hasProperty [
+        bc:property "order_chaos_ratio" ;
+        bc:type "dynamic_ratio" ;
+        bc:oscillation "periodic_chaotic"
+    ] ;
+    bc:hasProperty [
+        bc:property "phase_transition_triggers" ;
+        bc:type "bifurcation_points" ;
+        bc:sensitivity "butterfly_effect_enabled"
+    ] .
+
+ndd:EntropyHarvester a owl:Class ;
+    rdfs:label "Entropy Harvester" ;
+    rdfs:comment "Component that extracts entropy from deterministic chaos sources" ;
+    bc:hasProperty [
+        bc:property "harvest_sources" ;
+        bc:type "chaos_source_list" ;
+        bc:examples "cpu_timing, memory_access_patterns, network_jitter"
+    ] ;
+    bc:hasProperty [
+        bc:property "entropy_quality_filter" ;
+        bc:type "statistical_test_suite" ;
+        bc:tests "chi_square, kolmogorov_smirnov, runs_test"
+    ] .
+
+# Mathematical Chaos Functions as First-Class Citizens
+ndd:LogisticMap a ndd:ChaosFunction ;
+    rdfs:label "Logistic Map" ;
+    ndd:formula "x_{n+1} = r * x_n * (1 - x_n)" ;
+    ndd:parameter_r_range "3.57 to 4.0" ;
+    ndd:chaos_onset "r > 3.544090" ;
+    ndd:maximum_lyapunov_exponent "0.494" .
+
+ndd:LorenzAttractor a ndd:ChaosFunction ;
+    rdfs:label "Lorenz Attractor" ;
+    ndd:equations [
+        "dx/dt = σ(y - x)" ;
+        "dy/dt = x(ρ - z) - y" ;
+        "dz/dt = xy - βz"
+    ] ;
+    ndd:standard_parameters [
+        "σ = 10" ;
+        "ρ = 28" ;
+        "β = 8/3"
+    ] ;
+    ndd:strange_attractor "true" .
+
+ndd:MandelbrotIteration a ndd:ChaosFunction ;
+    rdfs:label "Mandelbrot Iteration" ;
+    ndd:formula "z_{n+1} = z_n^2 + c" ;
+    ndd:fractal_dimension "2.0" ;
+    ndd:escape_radius "2.0" ;
+    ndd:iteration_limit "variable" .
+
+# Properties and Relationships
+ndd:generates_entropy a owl:ObjectProperty ;
+    rdfs:domain ndd:DeterministicRandomGenerator ;
+    rdfs:range ndd:EntropySource ;
+    rdfs:comment "Links generators to their entropy sources" .
+
+ndd:exhibits_pattern a owl:ObjectProperty ;
+    rdfs:domain ndd:PredictableUnpredictability ;
+    rdfs:range ndd:HiddenPattern ;
+    rdfs:comment "Hidden patterns that emerge from apparent randomness" .
+
+ndd:transitions_between a owl:ObjectProperty ;
+    rdfs:domain ndd:ChaosOrderDuality ;
+    rdfs:range ndd:SystemState ;
+    rdfs:comment "Phase transitions between chaos and order" .
+
+ndd:harvests_from a owl:ObjectProperty ;
+    rdfs:domain ndd:EntropyHarvester ;
+    rdfs:range ndd:ChaosSource ;
+    rdfs:comment "Entropy extraction relationships" .
+
+# Algorithmic Patterns
+ndd:GoldenRatioScheduling a ndd:SchedulingPattern ;
+    rdfs:label "Golden Ratio Scheduling" ;
+    ndd:ratio "1.618033988749894848204586834365638" ;
+    ndd:property "optimal_packing" ;
+    ndd:application "time_slot_distribution" .
+
+ndd:FibonacciBackoff a ndd:SchedulingPattern ;
+    rdfs:label "Fibonacci Backoff" ;
+    ndd:sequence "1, 1, 2, 3, 5, 8, 13, 21, 34, ..." ;
+    ndd:growth_rate "golden_ratio" ;
+    ndd:application "retry_intervals" .
+
+ndd:PiModuloScheduling a ndd:SchedulingPattern ;
+    rdfs:label "Pi Modulo Scheduling" ;
+    ndd:constant "3.141592653589793238462643383279502884197" ;
+    ndd:property "irrational_distribution" ;
+    ndd:application "pseudo_random_intervals" .
+
+# Quantum-Inspired Mechanics
+ndd:SuperpositionState a owl:Class ;
+    rdfs:label "Superposition State" ;
+    rdfs:comment "State that exists in multiple possibilities until observation" ;
+    bc:hasProperty [
+        bc:property "state_vector" ;
+        bc:type "complex_vector" ;
+        bc:normalization "unit_magnitude"
+    ] ;
+    bc:hasProperty [
+        bc:property "collapse_function" ;
+        bc:type "observation_operator" ;
+        bc:deterministic "true"
+    ] .
+
+ndd:QuantumEntanglement a owl:Class ;
+    rdfs:label "Quantum Entanglement" ;
+    rdfs:comment "Correlated states that maintain coherence across space" ;
+    bc:hasProperty [
+        bc:property "entanglement_strength" ;
+        bc:type "correlation_coefficient" ;
+        bc:range "-1.0 to 1.0"
+    ] ;
+    bc:hasProperty [
+        bc:property "bell_inequality_violation" ;
+        bc:type "statistical_measure" ;
+        bc:classical_limit "2.0"
+    ] .
+
+# Temporal Mechanics
+ndd:TemporalParadox a owl:Class ;
+    rdfs:label "Temporal Paradox" ;
+    rdfs:comment "Event that appears to violate causality but maintains logical consistency" ;
+    bc:hasProperty [
+        bc:property "causal_loop_detection" ;
+        bc:type "boolean" ;
+        bc:resolution_strategy "stable_time_loop"
+    ] ;
+    bc:hasProperty [
+        bc:property "paradox_resolution_time" ;
+        bc:type "time_units" ;
+        bc:maximum "planning_horizon"
+    ] .
+
+ndd:RetrocausalInfluence a owl:Class ;
+    rdfs:label "Retrocausal Influence" ;
+    rdfs:comment "Future states that influence past decisions through mathematical consistency" ;
+    bc:hasProperty [
+        bc:property "influence_strength" ;
+        bc:type "probability_modifier" ;
+        bc:range "0.0 to 1.0"
+    ] ;
+    bc:hasProperty [
+        bc:property "temporal_range" ;
+        bc:type "time_window" ;
+        bc:direction "backwards"
+    ] .
+
+# Performance Guarantees
+ndd:ChaosPerformanceGuarantee a owl:Class ;
+    rdfs:label "Chaos Performance Guarantee" ;
+    rdfs:comment "Performance bounds that hold even in chaotic conditions" ;
+    bc:hasProperty [
+        bc:property "worst_case_bound" ;
+        bc:type "time_complexity" ;
+        bc:guarantee_level "hard_real_time"
+    ] ;
+    bc:hasProperty [
+        bc:property "entropy_overhead" ;
+        bc:type "percentage" ;
+        bc:maximum "5.0"
+    ] .
+
+# Integration Points
+ndd:integrates_with_byteactor a owl:ObjectProperty ;
+    rdfs:domain ndd:DeterministicRandomGenerator ;
+    rdfs:range bc:ByteActorKernel ;
+    rdfs:comment "Integration with ByteActor kernel execution" .
+
+ndd:orchestrates_via_byteflow a owl:ObjectProperty ;
+    rdfs:domain ndd:FractalScheduler ;
+    rdfs:range bc:ByteFlowOrchestrator ;
+    rdfs:comment "Orchestration through ByteFlow systems" .
+
+ndd:governs_via_byteethos a owl:ObjectProperty ;
+    rdfs:domain ndd:ControlledSpontaneity ;
+    rdfs:range bc:ByteEthosGovernance ;
+    rdfs:comment "Governance through ByteEthos mechanisms" .
+
+# Philosophical Foundations
+ndd:NonDeterministicDeterminismPrinciple a owl:Class ;
+    rdfs:label "Non-Deterministic Determinism Principle" ;
+    rdfs:comment "The fundamental principle that randomness emerges from deterministic rules" ;
+    ndd:core_insight "Chaos is the source of all true randomness in deterministic systems" ;
+    ndd:mathematical_basis "Sensitive dependence on initial conditions" ;
+    ndd:practical_application "Generating unpredictable behavior from predictable rules" ;
+    ndd:paradox_resolution "Deterministic processes can exhibit random behavior" .

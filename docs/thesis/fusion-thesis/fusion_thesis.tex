@@ -1,0 +1,74 @@
+\documentclass[12pt,letterpaper,oneside]{report}
+
+% Packages
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{pgfplots}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+\usepackage{cleveref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{mathtools}
+\usepackage{minted}
+\usepackage{tcolorbox}
+
+% Page geometry
+\geometry{
+    letterpaper,
+    left=1.5in,
+    right=1in,
+    top=1in,
+    bottom=1in,
+    headheight=14pt
+}
+
+% Colors
+\definecolor{fusionblue}{RGB}{0, 51, 102}
+\definecolor{fusiongreen}{RGB}{0, 102, 51}
+\definecolor{codebg}{RGB}{245, 245, 245}
+
+% Title information
+\title{\textbf{Fusion Thesis: Semantic Autonomics and Temporal Knowledge Calculus}\\
+\Large A Unified Theory of Intent-Driven Specification, Autonomous Swarms, and 4D Knowledge Reconstruction}
+\author{Sean Chat Management}
+\date{May 2026}
+
+\begin{document}
+
+\maketitle
+
+\chapter*{Abstract}
+This dissertation presents the Fusion Thesis, a comprehensive synthesis of semantic autonomics, temporal knowledge graphs, and specification-driven code generation. We unify the Chatman Equation $A = \mu(O)$ with the $\mu(O)$ calculus and hyperdimensional semantics to provide a formal framework for intent-to-outcome mapping. The work introduces the 4D Knowledge Graph (KGC-4D), vector clock causality tracking, and the 8-operator cardinality theorem. Crucially, the system is updated with modern best practices including Ontology Packs for modular distribution, the v2 Template Engine for RDF-integrated generation, and the RdfControlPlane for Poka-Yoke safety and FMEA mitigations. We demonstrate sub-microsecond latency and zero-defect quality in Fortune 500 compliance scenarios.
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\include{chapters/ch01_foundations}
+\include{chapters/ch02_theory}
+\include{chapters/ch03_architecture_4d}
+\include{chapters/ch04_methodology_v2}
+\include{chapters/ch05_governance_security}
+\include{chapters/ch06_autonomic_swarms}
+\include{chapters/ch07_evaluation_strategy}
+\include{chapters/ch08_conclusion}
+
+\appendix
+\include{appendices/app_best_practices}
+
+\bibliographystyle{plain}
+\bibliography{bib-data/references}
+
+\end{document}

@@ -1,0 +1,15 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# AUDIT: Compliance surface count — verify admission, refusal, graduation, and receipt surfaces exist
+# Valid program structure requires all 4 surface types distributed across courts
+SELECT ?courtType (COUNT(DISTINCT ?surface) AS ?surfaceCount)
+WHERE {
+  ?entity a prov:Entity ;
+          pi:hasRole ?courtType ;
+          pi:hasRole ?surface .
+  FILTER (?surface IN (pi:ADMISSION_SURFACE, pi:REFUSAL_SURFACE, pi:GRADUATION_SIGNAL, pi:RECEIPT_SURFACE))
+}
+GROUP BY ?courtType

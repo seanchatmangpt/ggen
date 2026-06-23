@@ -1,0 +1,82 @@
+# Edge cases for TTL parser testing
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Empty string
+ex:test1 ex:value "" .
+
+# String with escapes
+ex:test2 ex:value "Line 1\nLine 2\tTabbed\r\n\"Quoted\"\\Backslash" .
+
+# Unicode characters
+ex:test3 ex:value "Hello 世界 🌍 Ωμέγα" .
+
+# Very long string
+ex:test4 ex:value "This is a very long string that goes on and on and on and tests the parser's ability to handle long string literals that might exceed buffer sizes in poorly written parsers and should be handled gracefully without causing memory issues or crashes" .
+
+# Numbers edge cases
+ex:test5 ex:intZero 0 ;
+         ex:intNegative -42 ;
+         ex:intLarge 999999999 ;
+         ex:floatZero 0.0 ;
+         ex:floatNegative -3.14 ;
+         ex:floatSmall 0.0001 ;
+         ex:floatLarge 1.23e10 ;
+         ex:floatScientific 1.23E-5 .
+
+# URI edge cases
+ex:test6 ex:emptyFragment <http://example.org/#> ;
+         ex:emptyQuery <http://example.org/?> ;
+         ex:specialChars <http://example.org/path%20with%20spaces> ;
+         ex:unicode <http://example.org/世界> .
+
+# Blank node variations
+_:blank1 ex:predicate ex:object1 .
+[] ex:predicate ex:object2 .
+[ ex:prop1 ex:val1 ; ex:prop2 ex:val2 ] ex:relation ex:target .
+
+# Collection edge cases
+ex:emptyList rdf:type () .
+ex:singleItem rdf:type ( ex:item1 ) .
+ex:mixedList rdf:type ( ex:item1 "string" 42 _:blank ) .
+
+# Deeply nested structures
+ex:deep ex:level1 [
+    ex:level2 [
+        ex:level3 [
+            ex:level4 [
+                ex:level5 "deep value"
+            ]
+        ]
+    ]
+] .
+
+# Comments in unusual places
+ex:subject1 # comment after subject
+    ex:predicate1 # comment after predicate
+    ex:object1 # comment after object
+    . # comment after dot
+
+# Whitespace variations
+ex:subject2    ex:predicate2    ex:object2    .
+ex:subject3	ex:predicate3	ex:object3	.
+ex:subject4
+
+
+ex:predicate4
+
+
+ex:object4
+
+
+.
+
+# Multiple prefixes with same local name
+@prefix ns1: <http://namespace1.org/> .
+@prefix ns2: <http://namespace2.org/> .
+ns1:same ex:from "namespace1" .
+ns2:same ex:from "namespace2" .
+
+# Base URI interactions
+@base <http://base.example.org/> .
+<relative> ex:resolved "by base" .

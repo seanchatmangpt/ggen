@@ -1,0 +1,1056 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gvc: <https://gitvan.dev/ontology/config#> .
+@prefix ex: <http://example.org/> .
+
+# ============================================================================
+# GitVan Configuration Ontology and SHACL Shapes
+# Version: 4.0.0
+# Description: Complete RDF schema and validation shapes for GitVan config
+# ============================================================================
+
+# Ontology Declaration
+gvc: a owl:Ontology ;
+    dct:title "GitVan Configuration Ontology" ;
+    dct:description "Comprehensive ontology and SHACL shapes for GitVan configuration validation and management" ;
+    dct:version "4.0.0" ;
+    dct:created "2025-01-10"^^xsd:date ;
+    dct:creator "GitVan Team" ;
+    owl:imports sh: ;
+    rdfs:comment "Defines configuration structure, constraints, and validation rules using SHACL" .
+
+# ============================================================================
+# Core Configuration Ontology Classes
+# ============================================================================
+
+gvc:Configuration a owl:Class ;
+    rdfs:label "Configuration" ;
+    rdfs:comment "Root configuration object for GitVan" ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty gvc:hasRootDir ;
+        owl:minCardinality 0
+    ] .
+
+gvc:JobsConfig a owl:Class ;
+    rdfs:label "Jobs Configuration" ;
+    rdfs:comment "Configuration for GitVan job system" ;
+    rdfs:subClassOf gv:ConfigSection .
+
+gvc:TemplateConfig a owl:Class ;
+    rdfs:label "Template Configuration" ;
+    rdfs:comment "Configuration for template engine (Nunjucks)" ;
+    rdfs:subClassOf gv:ConfigSection .
+
+gvc:ReceiptConfig a owl:Class ;
+    rdfs:label "Receipt Configuration" ;
+    rdfs:comment "Configuration for receipt storage in Git notes" ;
+    rdfs:subClassOf gv:ConfigSection .
+
+gvc:LockConfig a owl:Class ;
+    rdfs:label "Lock Configuration" ;
+    rdfs:comment "Configuration for distributed locking mechanism" ;
+    rdfs:subClassOf gv:ConfigSection .
+
+gvc:AIConfig a owl:Class ;
+    rdfs:label "AI Configuration" ;
+    rdfs:comment "Configuration for AI provider integration" ;
+    rdfs:subClassOf gv:ConfigSection .
+
+gvc:RuntimeConfig a owl:Class ;
+    rdfs:label "Runtime Configuration" ;
+    rdfs:comment "Configuration for runtime environment settings" ;
+    rdfs:subClassOf gv:ConfigSection .
+
+gvc:HooksConfig a owl:Class ;
+    rdfs:label "Hooks Configuration" ;
+    rdfs:comment "Configuration for Git lifecycle hooks" ;
+    rdfs:subClassOf gv:ConfigSection .
+
+gvc:DaemonConfig a owl:Class ;
+    rdfs:label "Daemon Configuration" ;
+    rdfs:comment "Configuration for background daemon polling" ;
+    rdfs:subClassOf gv:ConfigSection .
+
+gvc:EventsConfig a owl:Class ;
+    rdfs:label "Events Configuration" ;
+    rdfs:comment "Configuration for event system" ;
+    rdfs:subClassOf gv:ConfigSection .
+
+gvc:GraphConfig a owl:Class ;
+    rdfs:label "Graph Configuration" ;
+    rdfs:comment "Configuration for RDF graph management" ;
+    rdfs:subClassOf gv:ConfigSection .
+
+# ============================================================================
+# Configuration Properties (Ontology)
+# ============================================================================
+
+# Root-level properties
+gvc:hasRootDir a owl:DatatypeProperty ;
+    rdfs:label "has root directory" ;
+    rdfs:comment "Root directory for GitVan operations" ;
+    rdfs:domain gvc:Configuration ;
+    rdfs:range xsd:string ;
+    owl:equivalentProperty gv:rootDirectory .
+
+gvc:hasJobsConfig a owl:ObjectProperty ;
+    rdfs:label "has jobs configuration" ;
+    rdfs:comment "Configuration section for jobs" ;
+    rdfs:domain gvc:Configuration ;
+    rdfs:range gvc:JobsConfig .
+
+gvc:hasTemplateConfig a owl:ObjectProperty ;
+    rdfs:label "has template configuration" ;
+    rdfs:comment "Configuration section for templates" ;
+    rdfs:domain gvc:Configuration ;
+    rdfs:range gvc:TemplateConfig .
+
+gvc:hasReceiptConfig a owl:ObjectProperty ;
+    rdfs:label "has receipt configuration" ;
+    rdfs:comment "Configuration section for receipts" ;
+    rdfs:domain gvc:Configuration ;
+    rdfs:range gvc:ReceiptConfig .
+
+gvc:hasLockConfig a owl:ObjectProperty ;
+    rdfs:label "has lock configuration" ;
+    rdfs:comment "Configuration section for locks" ;
+    rdfs:domain gvc:Configuration ;
+    rdfs:range gvc:LockConfig .
+
+gvc:hasAIConfig a owl:ObjectProperty ;
+    rdfs:label "has AI configuration" ;
+    rdfs:comment "Configuration section for AI providers" ;
+    rdfs:domain gvc:Configuration ;
+    rdfs:range gvc:AIConfig .
+
+gvc:hasRuntimeConfig a owl:ObjectProperty ;
+    rdfs:label "has runtime configuration" ;
+    rdfs:comment "Configuration section for runtime" ;
+    rdfs:domain gvc:Configuration ;
+    rdfs:range gvc:RuntimeConfig .
+
+gvc:hasHooksConfig a owl:ObjectProperty ;
+    rdfs:label "has hooks configuration" ;
+    rdfs:comment "Configuration section for hooks" ;
+    rdfs:domain gvc:Configuration ;
+    rdfs:range gvc:HooksConfig .
+
+gvc:hasDaemonConfig a owl:ObjectProperty ;
+    rdfs:label "has daemon configuration" ;
+    rdfs:comment "Configuration section for daemon" ;
+    rdfs:domain gvc:Configuration ;
+    rdfs:range gvc:DaemonConfig .
+
+gvc:hasEventsConfig a owl:ObjectProperty ;
+    rdfs:label "has events configuration" ;
+    rdfs:comment "Configuration section for events" ;
+    rdfs:domain gvc:Configuration ;
+    rdfs:range gvc:EventsConfig .
+
+gvc:hasGraphConfig a owl:ObjectProperty ;
+    rdfs:label "has graph configuration" ;
+    rdfs:comment "Configuration section for graph" ;
+    rdfs:domain gvc:Configuration ;
+    rdfs:range gvc:GraphConfig .
+
+# Jobs Configuration properties
+gvc:jobsDir a owl:DatatypeProperty ;
+    rdfs:label "jobs directory" ;
+    rdfs:comment "Directory containing job definitions" ;
+    rdfs:domain gvc:JobsConfig ;
+    rdfs:range xsd:string .
+
+gvc:jobScanPatterns a owl:DatatypeProperty ;
+    rdfs:label "job scan patterns" ;
+    rdfs:comment "Glob patterns for discovering job files" ;
+    rdfs:domain gvc:JobsConfig ;
+    rdfs:range rdf:List .
+
+gvc:jobIgnorePatterns a owl:DatatypeProperty ;
+    rdfs:label "job ignore patterns" ;
+    rdfs:comment "Glob patterns to ignore when scanning for jobs" ;
+    rdfs:domain gvc:JobsConfig ;
+    rdfs:range rdf:List .
+
+# Template Configuration properties
+gvc:templateEngine a owl:DatatypeProperty ;
+    rdfs:label "template engine" ;
+    rdfs:comment "Template engine to use (e.g., nunjucks)" ;
+    rdfs:domain gvc:TemplateConfig ;
+    rdfs:range xsd:string .
+
+gvc:templateDirs a owl:DatatypeProperty ;
+    rdfs:label "template directories" ;
+    rdfs:comment "Directories containing template files" ;
+    rdfs:domain gvc:TemplateConfig ;
+    rdfs:range rdf:List .
+
+gvc:templateAutoescape a owl:DatatypeProperty ;
+    rdfs:label "template autoescape" ;
+    rdfs:comment "Enable automatic HTML escaping in templates" ;
+    rdfs:domain gvc:TemplateConfig ;
+    rdfs:range xsd:boolean .
+
+gvc:templateNoCache a owl:DatatypeProperty ;
+    rdfs:label "template no cache" ;
+    rdfs:comment "Disable template caching for development" ;
+    rdfs:domain gvc:TemplateConfig ;
+    rdfs:range xsd:boolean .
+
+gvc:templateFilters a owl:DatatypeProperty ;
+    rdfs:label "template filters" ;
+    rdfs:comment "List of filter names to load in template engine" ;
+    rdfs:domain gvc:TemplateConfig ;
+    rdfs:range rdf:List .
+
+# Receipt Configuration properties
+gvc:receiptRef a owl:DatatypeProperty ;
+    rdfs:label "receipt ref" ;
+    rdfs:comment "Git ref for storing receipt notes" ;
+    rdfs:domain gvc:ReceiptConfig ;
+    rdfs:range xsd:string .
+
+gvc:receiptEnabled a owl:DatatypeProperty ;
+    rdfs:label "receipt enabled" ;
+    rdfs:comment "Enable receipt storage" ;
+    rdfs:domain gvc:ReceiptConfig ;
+    rdfs:range xsd:boolean .
+
+gvc:receiptCompress a owl:DatatypeProperty ;
+    rdfs:label "receipt compress" ;
+    rdfs:comment "Compress receipts in storage" ;
+    rdfs:domain gvc:ReceiptConfig ;
+    rdfs:range xsd:boolean .
+
+# Lock Configuration properties
+gvc:lockRef a owl:DatatypeProperty ;
+    rdfs:label "lock ref" ;
+    rdfs:comment "Git ref for lock storage" ;
+    rdfs:domain gvc:LockConfig ;
+    rdfs:range xsd:string .
+
+gvc:lockTimeout a owl:DatatypeProperty ;
+    rdfs:label "lock timeout" ;
+    rdfs:comment "Lock acquisition timeout in milliseconds" ;
+    rdfs:domain gvc:LockConfig ;
+    rdfs:range xsd:integer .
+
+gvc:lockRetries a owl:DatatypeProperty ;
+    rdfs:label "lock retries" ;
+    rdfs:comment "Number of lock acquisition retry attempts" ;
+    rdfs:domain gvc:LockConfig ;
+    rdfs:range xsd:integer .
+
+# AI Configuration properties
+gvc:aiProvider a owl:DatatypeProperty ;
+    rdfs:label "AI provider" ;
+    rdfs:comment "AI provider name (e.g., ollama, anthropic)" ;
+    rdfs:domain gvc:AIConfig ;
+    rdfs:range xsd:string .
+
+gvc:aiModel a owl:DatatypeProperty ;
+    rdfs:label "AI model" ;
+    rdfs:comment "Model identifier for the AI provider" ;
+    rdfs:domain gvc:AIConfig ;
+    rdfs:range xsd:string .
+
+gvc:aiBaseUrl a owl:DatatypeProperty ;
+    rdfs:label "AI base URL" ;
+    rdfs:comment "Base URL for AI provider API" ;
+    rdfs:domain gvc:AIConfig ;
+    rdfs:range xsd:string .
+
+gvc:aiTemperature a owl:DatatypeProperty ;
+    rdfs:label "AI temperature" ;
+    rdfs:comment "Temperature parameter for AI generation (0.0-1.0)" ;
+    rdfs:domain gvc:AIConfig ;
+    rdfs:range xsd:decimal .
+
+gvc:aiMaxTokens a owl:DatatypeProperty ;
+    rdfs:label "AI max tokens" ;
+    rdfs:comment "Maximum tokens in AI response" ;
+    rdfs:domain gvc:AIConfig ;
+    rdfs:range xsd:integer .
+
+gvc:aiTopP a owl:DatatypeProperty ;
+    rdfs:label "AI top p" ;
+    rdfs:comment "Top-p (nucleus) sampling parameter for AI" ;
+    rdfs:domain gvc:AIConfig ;
+    rdfs:range xsd:decimal .
+
+gvc:aiTopK a owl:DatatypeProperty ;
+    rdfs:label "AI top k" ;
+    rdfs:comment "Top-k sampling parameter for AI" ;
+    rdfs:domain gvc:AIConfig ;
+    rdfs:range xsd:integer .
+
+gvc:aiRepeatPenalty a owl:DatatypeProperty ;
+    rdfs:label "AI repeat penalty" ;
+    rdfs:comment "Repeat penalty parameter for AI generation" ;
+    rdfs:domain gvc:AIConfig ;
+    rdfs:range xsd:decimal .
+
+gvc:aiApiKey a owl:DatatypeProperty ;
+    rdfs:label "AI API key" ;
+    rdfs:comment "API key for AI provider authentication" ;
+    rdfs:domain gvc:AIConfig ;
+    rdfs:range xsd:string .
+
+# Runtime Configuration properties
+gvc:runtimeTimezone a owl:DatatypeProperty ;
+    rdfs:label "runtime timezone" ;
+    rdfs:comment "Timezone for runtime operations (e.g., UTC)" ;
+    rdfs:domain gvc:RuntimeConfig ;
+    rdfs:range xsd:string .
+
+gvc:runtimeLocale a owl:DatatypeProperty ;
+    rdfs:label "runtime locale" ;
+    rdfs:comment "Locale for runtime operations (e.g., en-US)" ;
+    rdfs:domain gvc:RuntimeConfig ;
+    rdfs:range xsd:string .
+
+gvc:runtimeDeterministic a owl:DatatypeProperty ;
+    rdfs:label "runtime deterministic" ;
+    rdfs:comment "Enforce deterministic execution (no randomness)" ;
+    rdfs:domain gvc:RuntimeConfig ;
+    rdfs:range xsd:boolean .
+
+gvc:runtimeSandbox a owl:DatatypeProperty ;
+    rdfs:label "runtime sandbox" ;
+    rdfs:comment "Enable sandboxing for job execution" ;
+    rdfs:domain gvc:RuntimeConfig ;
+    rdfs:range xsd:boolean .
+
+# Daemon Configuration properties
+gvc:daemonPollMs a owl:DatatypeProperty ;
+    rdfs:label "daemon poll interval" ;
+    rdfs:comment "Poll interval for daemon in milliseconds" ;
+    rdfs:domain gvc:DaemonConfig ;
+    rdfs:range xsd:integer .
+
+gvc:daemonLookback a owl:DatatypeProperty ;
+    rdfs:label "daemon lookback" ;
+    rdfs:comment "Lookback window for daemon polling in seconds" ;
+    rdfs:domain gvc:DaemonConfig ;
+    rdfs:range xsd:integer .
+
+gvc:daemonMaxPerTick a owl:DatatypeProperty ;
+    rdfs:label "daemon max per tick" ;
+    rdfs:comment "Maximum jobs to process per daemon tick" ;
+    rdfs:domain gvc:DaemonConfig ;
+    rdfs:range xsd:integer .
+
+# Events Configuration properties
+gvc:eventsDirectory a owl:DatatypeProperty ;
+    rdfs:label "events directory" ;
+    rdfs:comment "Directory for event definitions" ;
+    rdfs:domain gvc:EventsConfig ;
+    rdfs:range xsd:string .
+
+# Graph Configuration properties
+gvc:graphDir a owl:DatatypeProperty ;
+    rdfs:label "graph directory" ;
+    rdfs:comment "Directory for graph files" ;
+    rdfs:domain gvc:GraphConfig ;
+    rdfs:range xsd:string .
+
+gvc:graphSnapshotsDir a owl:DatatypeProperty ;
+    rdfs:label "graph snapshots directory" ;
+    rdfs:comment "Directory for graph snapshots" ;
+    rdfs:domain gvc:GraphConfig ;
+    rdfs:range xsd:string .
+
+gvc:graphUriRoots a owl:DatatypeProperty ;
+    rdfs:label "graph URI roots" ;
+    rdfs:comment "URI root mappings for graph references" ;
+    rdfs:domain gvc:GraphConfig ;
+    rdfs:range rdf:List .
+
+gvc:graphAutoLoad a owl:DatatypeProperty ;
+    rdfs:label "graph auto load" ;
+    rdfs:comment "Automatically load graphs on startup" ;
+    rdfs:domain gvc:GraphConfig ;
+    rdfs:range xsd:boolean .
+
+gvc:graphValidateOnLoad a owl:DatatypeProperty ;
+    rdfs:label "graph validate on load" ;
+    rdfs:comment "Validate graphs on load using SHACL" ;
+    rdfs:domain gvc:GraphConfig ;
+    rdfs:range xsd:boolean .
+
+# ============================================================================
+# SHACL Shape Definitions for Configuration Validation
+# ============================================================================
+
+# Root Configuration Shape
+gvc:ConfigurationShape a sh:NodeShape ;
+    sh:targetClass gvc:Configuration ;
+    sh:closed false ;
+    sh:ignoredProperties ( rdf:type ) ;
+    sh:property gvc:RootDirShape ;
+    sh:property gvc:JobsConfigShape ;
+    sh:property gvc:TemplateConfigShape ;
+    sh:property gvc:ReceiptConfigShape ;
+    sh:property gvc:LockConfigShape ;
+    sh:property gvc:AIConfigShape ;
+    sh:property gvc:RuntimeConfigShape ;
+    sh:property gvc:HooksConfigShape ;
+    sh:property gvc:DaemonConfigShape ;
+    sh:property gvc:EventsConfigShape ;
+    sh:property gvc:GraphConfigShape .
+
+# Root Directory Property Shape
+gvc:RootDirShape a sh:PropertyShape ;
+    sh:path gvc:hasRootDir ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 0 ;
+    sh:message "Root directory must be a string" ;
+    rdfs:label "Root Directory Property Shape" ;
+    rdfs:comment "Validates the root directory path" .
+
+# Jobs Configuration Property Shape
+gvc:JobsConfigShape a sh:PropertyShape ;
+    sh:path gvc:hasJobsConfig ;
+    sh:class gvc:JobsConfig ;
+    sh:maxCount 1 ;
+    sh:message "Jobs configuration must be of type JobsConfig" ;
+    rdfs:label "Jobs Configuration Property Shape" ;
+    rdfs:comment "Validates the jobs configuration section" .
+
+# Template Configuration Property Shape
+gvc:TemplateConfigShape a sh:PropertyShape ;
+    sh:path gvc:hasTemplateConfig ;
+    sh:class gvc:TemplateConfig ;
+    sh:maxCount 1 ;
+    sh:message "Template configuration must be of type TemplateConfig" ;
+    rdfs:label "Template Configuration Property Shape" ;
+    rdfs:comment "Validates the template configuration section" .
+
+# Receipt Configuration Property Shape
+gvc:ReceiptConfigShape a sh:PropertyShape ;
+    sh:path gvc:hasReceiptConfig ;
+    sh:class gvc:ReceiptConfig ;
+    sh:maxCount 1 ;
+    sh:message "Receipt configuration must be of type ReceiptConfig" ;
+    rdfs:label "Receipt Configuration Property Shape" ;
+    rdfs:comment "Validates the receipt configuration section" .
+
+# Lock Configuration Property Shape
+gvc:LockConfigShape a sh:PropertyShape ;
+    sh:path gvc:hasLockConfig ;
+    sh:class gvc:LockConfig ;
+    sh:maxCount 1 ;
+    sh:message "Lock configuration must be of type LockConfig" ;
+    rdfs:label "Lock Configuration Property Shape" ;
+    rdfs:comment "Validates the lock configuration section" .
+
+# AI Configuration Property Shape
+gvc:AIConfigShape a sh:PropertyShape ;
+    sh:path gvc:hasAIConfig ;
+    sh:class gvc:AIConfig ;
+    sh:maxCount 1 ;
+    sh:message "AI configuration must be of type AIConfig" ;
+    rdfs:label "AI Configuration Property Shape" ;
+    rdfs:comment "Validates the AI configuration section" .
+
+# Runtime Configuration Property Shape
+gvc:RuntimeConfigShape a sh:PropertyShape ;
+    sh:path gvc:hasRuntimeConfig ;
+    sh:class gvc:RuntimeConfig ;
+    sh:maxCount 1 ;
+    sh:message "Runtime configuration must be of type RuntimeConfig" ;
+    rdfs:label "Runtime Configuration Property Shape" ;
+    rdfs:comment "Validates the runtime configuration section" .
+
+# Hooks Configuration Property Shape
+gvc:HooksConfigShape a sh:PropertyShape ;
+    sh:path gvc:hasHooksConfig ;
+    sh:class gvc:HooksConfig ;
+    sh:maxCount 1 ;
+    sh:message "Hooks configuration must be of type HooksConfig" ;
+    rdfs:label "Hooks Configuration Property Shape" ;
+    rdfs:comment "Validates the hooks configuration section" .
+
+# Daemon Configuration Property Shape
+gvc:DaemonConfigShape a sh:PropertyShape ;
+    sh:path gvc:hasDaemonConfig ;
+    sh:class gvc:DaemonConfig ;
+    sh:maxCount 1 ;
+    sh:message "Daemon configuration must be of type DaemonConfig" ;
+    rdfs:label "Daemon Configuration Property Shape" ;
+    rdfs:comment "Validates the daemon configuration section" .
+
+# Events Configuration Property Shape
+gvc:EventsConfigShape a sh:PropertyShape ;
+    sh:path gvc:hasEventsConfig ;
+    sh:class gvc:EventsConfig ;
+    sh:maxCount 1 ;
+    sh:message "Events configuration must be of type EventsConfig" ;
+    rdfs:label "Events Configuration Property Shape" ;
+    rdfs:comment "Validates the events configuration section" .
+
+# Graph Configuration Property Shape
+gvc:GraphConfigShape a sh:PropertyShape ;
+    sh:path gvc:hasGraphConfig ;
+    sh:class gvc:GraphConfig ;
+    sh:maxCount 1 ;
+    sh:message "Graph configuration must be of type GraphConfig" ;
+    rdfs:label "Graph Configuration Property Shape" ;
+    rdfs:comment "Validates the graph configuration section" .
+
+# ============================================================================
+# Jobs Configuration Shape
+# ============================================================================
+
+gvc:JobsConfigNodeShape a sh:NodeShape ;
+    sh:targetClass gvc:JobsConfig ;
+    sh:closed false ;
+    sh:ignoredProperties ( rdf:type ) ;
+    sh:property gvc:JobsDirPropertyShape ;
+    sh:property gvc:JobScanPatternsPropertyShape ;
+    sh:property gvc:JobIgnorePatternsPropertyShape ;
+    rdfs:label "Jobs Configuration Node Shape" ;
+    rdfs:comment "Validates complete jobs configuration" .
+
+gvc:JobsDirPropertyShape a sh:PropertyShape ;
+    sh:path gvc:jobsDir ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:message "Jobs directory must be a non-empty string" ;
+    rdfs:label "Jobs Directory Property Shape" ;
+    rdfs:comment "Validates the jobs directory path" .
+
+gvc:JobScanPatternsPropertyShape a sh:PropertyShape ;
+    sh:path gvc:jobScanPatterns ;
+    sh:minCount 1 ;
+    sh:message "Job scan patterns must be provided" ;
+    rdfs:label "Job Scan Patterns Property Shape" ;
+    rdfs:comment "Validates job file scan patterns (glob)" ;
+    sh:nodeKind sh:BlankNodeOrIRI .
+
+gvc:JobIgnorePatternsPropertyShape a sh:PropertyShape ;
+    sh:path gvc:jobIgnorePatterns ;
+    sh:minCount 0 ;
+    sh:message "Job ignore patterns must be valid" ;
+    rdfs:label "Job Ignore Patterns Property Shape" ;
+    rdfs:comment "Validates job file ignore patterns (glob)" ;
+    sh:nodeKind sh:BlankNodeOrIRI .
+
+# ============================================================================
+# Template Configuration Shape
+# ============================================================================
+
+gvc:TemplateConfigNodeShape a sh:NodeShape ;
+    sh:targetClass gvc:TemplateConfig ;
+    sh:closed false ;
+    sh:ignoredProperties ( rdf:type ) ;
+    sh:property gvc:TemplateEnginePropertyShape ;
+    sh:property gvc:TemplateDirsPropertyShape ;
+    sh:property gvc:TemplateAutoescapePropertyShape ;
+    sh:property gvc:TemplateNoCachePropertyShape ;
+    sh:property gvc:TemplateFiltersPropertyShape ;
+    rdfs:label "Template Configuration Node Shape" ;
+    rdfs:comment "Validates complete template configuration" .
+
+gvc:TemplateEnginePropertyShape a sh:PropertyShape ;
+    sh:path gvc:templateEngine ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:in ( "nunjucks" "handlebars" "ejs" ) ;
+    sh:message "Template engine must be one of: nunjucks, handlebars, ejs" ;
+    rdfs:label "Template Engine Property Shape" ;
+    rdfs:comment "Validates template engine selection" .
+
+gvc:TemplateDirsPropertyShape a sh:PropertyShape ;
+    sh:path gvc:templateDirs ;
+    sh:minCount 1 ;
+    sh:message "At least one template directory must be provided" ;
+    rdfs:label "Template Directories Property Shape" ;
+    rdfs:comment "Validates template directory paths" ;
+    sh:nodeKind sh:BlankNodeOrIRI .
+
+gvc:TemplateAutoescapePropertyShape a sh:PropertyShape ;
+    sh:path gvc:templateAutoescape ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+    sh:message "Template autoescape must be a boolean" ;
+    rdfs:label "Template Autoescape Property Shape" ;
+    rdfs:comment "Validates template autoescape setting" .
+
+gvc:TemplateNoCachePropertyShape a sh:PropertyShape ;
+    sh:path gvc:templateNoCache ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+    sh:message "Template no cache must be a boolean" ;
+    rdfs:label "Template No Cache Property Shape" ;
+    rdfs:comment "Validates template cache setting" .
+
+gvc:TemplateFiltersPropertyShape a sh:PropertyShape ;
+    sh:path gvc:templateFilters ;
+    sh:minCount 0 ;
+    sh:message "Template filters must be valid" ;
+    rdfs:label "Template Filters Property Shape" ;
+    rdfs:comment "Validates template filter names" ;
+    sh:nodeKind sh:BlankNodeOrIRI .
+
+# ============================================================================
+# Receipt Configuration Shape
+# ============================================================================
+
+gvc:ReceiptConfigNodeShape a sh:NodeShape ;
+    sh:targetClass gvc:ReceiptConfig ;
+    sh:closed false ;
+    sh:ignoredProperties ( rdf:type ) ;
+    sh:property gvc:ReceiptRefPropertyShape ;
+    sh:property gvc:ReceiptEnabledPropertyShape ;
+    sh:property gvc:ReceiptCompressPropertyShape ;
+    rdfs:label "Receipt Configuration Node Shape" ;
+    rdfs:comment "Validates complete receipt configuration" .
+
+gvc:ReceiptRefPropertyShape a sh:PropertyShape ;
+    sh:path gvc:receiptRef ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:pattern "^refs/" ;
+    sh:message "Receipt ref must be a Git ref starting with 'refs/'" ;
+    rdfs:label "Receipt Ref Property Shape" ;
+    rdfs:comment "Validates Git ref for receipt storage" .
+
+gvc:ReceiptEnabledPropertyShape a sh:PropertyShape ;
+    sh:path gvc:receiptEnabled ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:message "Receipt enabled must be a boolean" ;
+    rdfs:label "Receipt Enabled Property Shape" ;
+    rdfs:comment "Validates receipt enabled setting" .
+
+gvc:ReceiptCompressPropertyShape a sh:PropertyShape ;
+    sh:path gvc:receiptCompress ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:message "Receipt compress must be a boolean" ;
+    rdfs:label "Receipt Compress Property Shape" ;
+    rdfs:comment "Validates receipt compression setting" .
+
+# ============================================================================
+# Lock Configuration Shape
+# ============================================================================
+
+gvc:LockConfigNodeShape a sh:NodeShape ;
+    sh:targetClass gvc:LockConfig ;
+    sh:closed false ;
+    sh:ignoredProperties ( rdf:type ) ;
+    sh:property gvc:LockRefPropertyShape ;
+    sh:property gvc:LockTimeoutPropertyShape ;
+    sh:property gvc:LockRetriesPropertyShape ;
+    rdfs:label "Lock Configuration Node Shape" ;
+    rdfs:comment "Validates complete lock configuration" .
+
+gvc:LockRefPropertyShape a sh:PropertyShape ;
+    sh:path gvc:lockRef ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:pattern "^refs/" ;
+    sh:message "Lock ref must be a Git ref starting with 'refs/'" ;
+    rdfs:label "Lock Ref Property Shape" ;
+    rdfs:comment "Validates Git ref for lock storage" .
+
+gvc:LockTimeoutPropertyShape a sh:PropertyShape ;
+    sh:path gvc:lockTimeout ;
+    sh:datatype xsd:integer ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 300000 ;
+    sh:message "Lock timeout must be an integer between 1 and 300000 milliseconds" ;
+    rdfs:label "Lock Timeout Property Shape" ;
+    rdfs:comment "Validates lock acquisition timeout in milliseconds (1ms to 5min)" .
+
+gvc:LockRetriesPropertyShape a sh:PropertyShape ;
+    sh:path gvc:lockRetries ;
+    sh:datatype xsd:integer ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 100 ;
+    sh:message "Lock retries must be an integer between 0 and 100" ;
+    rdfs:label "Lock Retries Property Shape" ;
+    rdfs:comment "Validates lock retry attempt count" .
+
+# ============================================================================
+# AI Configuration Shape with Provider-Specific Constraints
+# ============================================================================
+
+gvc:AIConfigNodeShape a sh:NodeShape ;
+    sh:targetClass gvc:AIConfig ;
+    sh:closed false ;
+    sh:ignoredProperties ( rdf:type ) ;
+    sh:property gvc:AIProviderPropertyShape ;
+    sh:property gvc:AIModelPropertyShape ;
+    sh:property gvc:AIBaseUrlPropertyShape ;
+    sh:property gvc:AITemperaturePropertyShape ;
+    sh:property gvc:AIMaxTokensPropertyShape ;
+    sh:property gvc:AITopPPropertyShape ;
+    sh:property gvc:AITopKPropertyShape ;
+    sh:property gvc:AIRepeatPenaltyPropertyShape ;
+    sh:property gvc:AIApiKeyPropertyShape ;
+    rdfs:label "AI Configuration Node Shape" ;
+    rdfs:comment "Validates complete AI configuration with provider constraints" ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "If aiProvider is 'anthropic', aiApiKey must be provided" ;
+        sh:prefixes gvc: ;
+        sh:select """
+            PREFIX gvc: <https://gitvan.dev/ontology/config#>
+            SELECT $this
+            WHERE {
+                $this gvc:aiProvider ?provider .
+                FILTER (?provider = "anthropic")
+                FILTER NOT EXISTS { $this gvc:aiApiKey ?key . }
+            }
+        """
+    ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Temperature must be between 0.0 and 2.0" ;
+        sh:prefixes gvc: ;
+        sh:select """
+            PREFIX gvc: <https://gitvan.dev/ontology/config#>
+            SELECT $this
+            WHERE {
+                $this gvc:aiTemperature ?temp .
+                FILTER (?temp < 0.0 || ?temp > 2.0)
+            }
+        """
+    ] .
+
+gvc:AIProviderPropertyShape a sh:PropertyShape ;
+    sh:path gvc:aiProvider ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:in ( "ollama" "anthropic" "openai" "local" ) ;
+    sh:message "AI provider must be one of: ollama, anthropic, openai, local" ;
+    rdfs:label "AI Provider Property Shape" ;
+    rdfs:comment "Validates AI provider selection" .
+
+gvc:AIModelPropertyShape a sh:PropertyShape ;
+    sh:path gvc:aiModel ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:message "AI model must be a non-empty string" ;
+    rdfs:label "AI Model Property Shape" ;
+    rdfs:comment "Validates AI model identifier" .
+
+gvc:AIBaseUrlPropertyShape a sh:PropertyShape ;
+    sh:path gvc:aiBaseUrl ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 0 ;
+    sh:pattern "^(https?://)?" ;
+    sh:message "AI base URL must be a valid HTTP(S) URL" ;
+    rdfs:label "AI Base URL Property Shape" ;
+    rdfs:comment "Validates AI provider base URL" .
+
+gvc:AITemperaturePropertyShape a sh:PropertyShape ;
+    sh:path gvc:aiTemperature ;
+    sh:datatype xsd:decimal ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:minInclusive 0.0 ;
+    sh:maxInclusive 2.0 ;
+    sh:message "AI temperature must be a decimal between 0.0 and 2.0" ;
+    rdfs:label "AI Temperature Property Shape" ;
+    rdfs:comment "Validates AI temperature parameter for sampling" .
+
+gvc:AIMaxTokensPropertyShape a sh:PropertyShape ;
+    sh:path gvc:aiMaxTokens ;
+    sh:datatype xsd:integer ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 1000000 ;
+    sh:message "AI max tokens must be an integer between 1 and 1000000" ;
+    rdfs:label "AI Max Tokens Property Shape" ;
+    rdfs:comment "Validates maximum token count for AI responses" .
+
+gvc:AITopPPropertyShape a sh:PropertyShape ;
+    sh:path gvc:aiTopP ;
+    sh:datatype xsd:decimal ;
+    sh:maxCount 1 ;
+    sh:minCount 0 ;
+    sh:minInclusive 0.0 ;
+    sh:maxInclusive 1.0 ;
+    sh:message "AI top-p must be a decimal between 0.0 and 1.0" ;
+    rdfs:label "AI Top-P Property Shape" ;
+    rdfs:comment "Validates top-p (nucleus) sampling parameter" .
+
+gvc:AITopKPropertyShape a sh:PropertyShape ;
+    sh:path gvc:aiTopK ;
+    sh:datatype xsd:integer ;
+    sh:maxCount 1 ;
+    sh:minCount 0 ;
+    sh:minInclusive 1 ;
+    sh:message "AI top-k must be a positive integer" ;
+    rdfs:label "AI Top-K Property Shape" ;
+    rdfs:comment "Validates top-k sampling parameter" .
+
+gvc:AIRepeatPenaltyPropertyShape a sh:PropertyShape ;
+    sh:path gvc:aiRepeatPenalty ;
+    sh:datatype xsd:decimal ;
+    sh:maxCount 1 ;
+    sh:minCount 0 ;
+    sh:minInclusive 0.0 ;
+    sh:message "AI repeat penalty must be a non-negative decimal" ;
+    rdfs:label "AI Repeat Penalty Property Shape" ;
+    rdfs:comment "Validates repeat penalty parameter" .
+
+gvc:AIApiKeyPropertyShape a sh:PropertyShape ;
+    sh:path gvc:aiApiKey ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 0 ;
+    sh:message "AI API key must be a string" ;
+    rdfs:label "AI API Key Property Shape" ;
+    rdfs:comment "Validates API key for authentication" .
+
+# ============================================================================
+# Runtime Configuration Shape
+# ============================================================================
+
+gvc:RuntimeConfigNodeShape a sh:NodeShape ;
+    sh:targetClass gvc:RuntimeConfig ;
+    sh:closed false ;
+    sh:ignoredProperties ( rdf:type ) ;
+    sh:property gvc:RuntimeTimezonePropertyShape ;
+    sh:property gvc:RuntimeLocalePropertyShape ;
+    sh:property gvc:RuntimeDeterministicPropertyShape ;
+    sh:property gvc:RuntimeSandboxPropertyShape ;
+    rdfs:label "Runtime Configuration Node Shape" ;
+    rdfs:comment "Validates complete runtime configuration" ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Timezone must be a valid IANA timezone (e.g., UTC, America/New_York)" ;
+        sh:prefixes gvc: ;
+        sh:select """
+            PREFIX gvc: <https://gitvan.dev/ontology/config#>
+            SELECT $this
+            WHERE {
+                $this gvc:runtimeTimezone ?tz .
+                FILTER NOT EXISTS {
+                    VALUES ?validTz {
+                        "UTC" "GMT" "America/New_York" "Europe/London"
+                        "Asia/Tokyo" "Australia/Sydney" "America/Los_Angeles"
+                        "America/Chicago" "Europe/Paris" "Europe/Berlin"
+                    }
+                    FILTER (?tz = ?validTz)
+                }
+            }
+        """
+    ] .
+
+gvc:RuntimeTimezonePropertyShape a sh:PropertyShape ;
+    sh:path gvc:runtimeTimezone ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:message "Runtime timezone must be a non-empty string (IANA timezone)" ;
+    rdfs:label "Runtime Timezone Property Shape" ;
+    rdfs:comment "Validates timezone setting (e.g., UTC)" .
+
+gvc:RuntimeLocalePropertyShape a sh:PropertyShape ;
+    sh:path gvc:runtimeLocale ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:pattern "^[a-z]{2}(-[A-Z]{2})?$" ;
+    sh:message "Runtime locale must be a valid BCP 47 language tag (e.g., en-US)" ;
+    rdfs:label "Runtime Locale Property Shape" ;
+    rdfs:comment "Validates locale setting (BCP 47 format)" .
+
+gvc:RuntimeDeterministicPropertyShape a sh:PropertyShape ;
+    sh:path gvc:runtimeDeterministic ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:message "Runtime deterministic must be a boolean" ;
+    rdfs:label "Runtime Deterministic Property Shape" ;
+    rdfs:comment "Validates deterministic execution setting" .
+
+gvc:RuntimeSandboxPropertyShape a sh:PropertyShape ;
+    sh:path gvc:runtimeSandbox ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:message "Runtime sandbox must be a boolean" ;
+    rdfs:label "Runtime Sandbox Property Shape" ;
+    rdfs:comment "Validates sandbox execution setting" .
+
+# ============================================================================
+# Daemon Configuration Shape
+# ============================================================================
+
+gvc:DaemonConfigNodeShape a sh:NodeShape ;
+    sh:targetClass gvc:DaemonConfig ;
+    sh:closed false ;
+    sh:ignoredProperties ( rdf:type ) ;
+    sh:property gvc:DaemonPollMsPropertyShape ;
+    sh:property gvc:DaemonLookbackPropertyShape ;
+    sh:property gvc:DaemonMaxPerTickPropertyShape ;
+    rdfs:label "Daemon Configuration Node Shape" ;
+    rdfs:comment "Validates complete daemon configuration" ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Daemon poll interval should not exceed lookback window (poll < lookback * 1000)" ;
+        sh:prefixes gvc: ;
+        sh:select """
+            PREFIX gvc: <https://gitvan.dev/ontology/config#>
+            SELECT $this
+            WHERE {
+                $this gvc:daemonPollMs ?poll .
+                $this gvc:daemonLookback ?lookback .
+                BIND (?lookback * 1000 AS ?maxPoll)
+                FILTER (?poll > ?maxPoll)
+            }
+        """
+    ] .
+
+gvc:DaemonPollMsPropertyShape a sh:PropertyShape ;
+    sh:path gvc:daemonPollMs ;
+    sh:datatype xsd:integer ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:minInclusive 100 ;
+    sh:maxInclusive 60000 ;
+    sh:message "Daemon poll interval must be between 100 and 60000 milliseconds" ;
+    rdfs:label "Daemon Poll Interval Property Shape" ;
+    rdfs:comment "Validates daemon polling interval in milliseconds" .
+
+gvc:DaemonLookbackPropertyShape a sh:PropertyShape ;
+    sh:path gvc:daemonLookback ;
+    sh:datatype xsd:integer ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 3600 ;
+    sh:message "Daemon lookback must be between 1 and 3600 seconds" ;
+    rdfs:label "Daemon Lookback Property Shape" ;
+    rdfs:comment "Validates daemon lookback window in seconds" .
+
+gvc:DaemonMaxPerTickPropertyShape a sh:PropertyShape ;
+    sh:path gvc:daemonMaxPerTick ;
+    sh:datatype xsd:integer ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 1000 ;
+    sh:message "Daemon max per tick must be between 1 and 1000" ;
+    rdfs:label "Daemon Max Per Tick Property Shape" ;
+    rdfs:comment "Validates maximum jobs per daemon tick" .
+
+# ============================================================================
+# Events Configuration Shape
+# ============================================================================
+
+gvc:EventsConfigNodeShape a sh:NodeShape ;
+    sh:targetClass gvc:EventsConfig ;
+    sh:closed false ;
+    sh:ignoredProperties ( rdf:type ) ;
+    sh:property gvc:EventsDirectoryPropertyShape ;
+    rdfs:label "Events Configuration Node Shape" ;
+    rdfs:comment "Validates complete events configuration" .
+
+gvc:EventsDirectoryPropertyShape a sh:PropertyShape ;
+    sh:path gvc:eventsDirectory ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:message "Events directory must be a non-empty string" ;
+    rdfs:label "Events Directory Property Shape" ;
+    rdfs:comment "Validates events directory path" .
+
+# ============================================================================
+# Graph Configuration Shape
+# ============================================================================
+
+gvc:GraphConfigNodeShape a sh:NodeShape ;
+    sh:targetClass gvc:GraphConfig ;
+    sh:closed false ;
+    sh:ignoredProperties ( rdf:type ) ;
+    sh:property gvc:GraphDirPropertyShape ;
+    sh:property gvc:GraphSnapshotsDirPropertyShape ;
+    sh:property gvc:GraphUriRootsPropertyShape ;
+    sh:property gvc:GraphAutoLoadPropertyShape ;
+    sh:property gvc:GraphValidateOnLoadPropertyShape ;
+    rdfs:label "Graph Configuration Node Shape" ;
+    rdfs:comment "Validates complete graph configuration" .
+
+gvc:GraphDirPropertyShape a sh:PropertyShape ;
+    sh:path gvc:graphDir ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:message "Graph directory must be a non-empty string" ;
+    rdfs:label "Graph Directory Property Shape" ;
+    rdfs:comment "Validates graph directory path" .
+
+gvc:GraphSnapshotsDirPropertyShape a sh:PropertyShape ;
+    sh:path gvc:graphSnapshotsDir ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:message "Graph snapshots directory must be a non-empty string" ;
+    rdfs:label "Graph Snapshots Directory Property Shape" ;
+    rdfs:comment "Validates graph snapshots directory path" .
+
+gvc:GraphUriRootsPropertyShape a sh:PropertyShape ;
+    sh:path gvc:graphUriRoots ;
+    sh:minCount 0 ;
+    sh:message "Graph URI roots must be valid" ;
+    rdfs:label "Graph URI Roots Property Shape" ;
+    rdfs:comment "Validates URI root mappings for graph references" ;
+    sh:nodeKind sh:BlankNodeOrIRI .
+
+gvc:GraphAutoLoadPropertyShape a sh:PropertyShape ;
+    sh:path gvc:graphAutoLoad ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:message "Graph auto load must be a boolean" ;
+    rdfs:label "Graph Auto Load Property Shape" ;
+    rdfs:comment "Validates graph auto-load setting" .
+
+gvc:GraphValidateOnLoadPropertyShape a sh:PropertyShape ;
+    sh:path gvc:graphValidateOnLoad ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:message "Graph validate on load must be a boolean" ;
+    rdfs:label "Graph Validate On Load Property Shape" ;
+    rdfs:comment "Validates graph SHACL validation on load setting" .
+
+# ============================================================================
+# Hooks Configuration Shape
+# ============================================================================
+
+gvc:HooksConfigNodeShape a sh:NodeShape ;
+    sh:targetClass gvc:HooksConfig ;
+    sh:closed false ;
+    sh:ignoredProperties ( rdf:type ) ;
+    rdfs:label "Hooks Configuration Node Shape" ;
+    rdfs:comment "Validates complete hooks configuration (extensible)" .
+

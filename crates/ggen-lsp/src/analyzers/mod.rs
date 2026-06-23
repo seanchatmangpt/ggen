@@ -1,14 +1,16 @@
 pub mod diag;
 pub mod harness_analyzer;
+pub mod mtlx_analyzer;
 pub mod rdf_analyzer;
 pub mod source_law_analyzer;
 pub mod sparql_analyzer;
 pub mod tera_analyzer;
 pub mod toml_analyzer;
+pub mod usd_analyzer;
 
 use lsp_max::lsp_types_max::{
-    CallHierarchyItem, CodeLens, CompletionResponse, DocumentSymbol, FoldingRange,
-    Hover, InlayHint, Location, Position, Range, SemanticTokens, TextEdit, TypeHierarchyItem,
+    CallHierarchyItem, CodeLens, CompletionResponse, DocumentSymbol, FoldingRange, Hover,
+    InlayHint, Location, Position, Range, SemanticTokens, TextEdit, TypeHierarchyItem,
     WorkspaceEdit,
 };
 use lsp_max_protocol::MaxDiagnostic;
@@ -20,14 +22,15 @@ pub use rdf_analyzer::{RdfAnalyzer, RdfFlavor};
 pub use source_law_analyzer::{do_not_edit_diagnostics, GGEN_SRC_002, GGEN_SRC_003};
 pub use sparql_analyzer::SparqlAnalyzer;
 pub use tera_analyzer::{
-    is_select_star, lexical_clean, pack_001_diagnostics, select_star_diagnostics,
-    strip_tera_vars, unbound_output_path_diagnostics, unbound_projection_diagnostics,
-    unbound_rule_file_diagnostics, yield_001_diagnostics, yield_003_diagnostics,
-    yield_004_diagnostics, yield_005_diagnostics, TeraAnalyzer, GGEN_OUT_001,
-    GGEN_PACK_001, GGEN_QUERY_002, GGEN_RULE_001, GGEN_TPL_001, GGEN_YIELD_001,
-    GGEN_YIELD_003, GGEN_YIELD_004, GGEN_YIELD_005,
+    is_select_star, lexical_clean, pack_001_diagnostics, select_star_diagnostics, strip_tera_vars,
+    unbound_output_path_diagnostics, unbound_projection_diagnostics, unbound_rule_file_diagnostics,
+    yield_001_diagnostics, yield_003_diagnostics, yield_004_diagnostics, yield_005_diagnostics,
+    TeraAnalyzer, GGEN_OUT_001, GGEN_PACK_001, GGEN_QUERY_002, GGEN_RULE_001, GGEN_TPL_001,
+    GGEN_YIELD_001, GGEN_YIELD_003, GGEN_YIELD_004, GGEN_YIELD_005,
 };
+pub use mtlx_analyzer::{MtlxAnalyzer, GGEN_MTLX_001};
 pub use toml_analyzer::{source_caste_path_violation, TomlAnalyzer, GGEN_SRC_001};
+pub use usd_analyzer::{UsdAnalyzer, GGEN_USD_001, GGEN_USD_002, GGEN_USD_003};
 
 use crate::state::FileType;
 
@@ -40,7 +43,10 @@ pub fn detect_harness_001(
     if diags.is_empty() {
         return Vec::new();
     }
-    let max_diags = diags.into_iter().map(|d| to_max_diagnostic(d, lsp_max_protocol::LawAxis::Fixture)).collect();
+    let max_diags = diags
+        .into_iter()
+        .map(|d| to_max_diagnostic(d, lsp_max_protocol::LawAxis::Fixture))
+        .collect();
     vec![(index.root.join("Cargo.toml"), max_diags)]
 }
 
@@ -70,7 +76,7 @@ pub fn detect_out_001(
     let mut out = Vec::new();
     for entry in &project.rule_entries {
         if entry.selected_vars.is_empty() {
-            continue; 
+            continue;
         }
         let diags = unbound_output_path_diagnostics(&entry.output_file, &entry.selected_vars);
         if !diags.is_empty() {
@@ -142,7 +148,10 @@ pub fn detect_src_002_003_in_dir(
         };
         let diags = do_not_edit_diagnostics(&content);
         if !diags.is_empty() {
-            let max_diags = diags.into_iter().map(|d| to_max_diagnostic(d, lsp_max_protocol::LawAxis::Autopoiesis)).collect();
+            let max_diags = diags
+                .into_iter()
+                .map(|d| to_max_diagnostic(d, lsp_max_protocol::LawAxis::Autopoiesis))
+                .collect();
             out.push((path, max_diags));
         }
     }
@@ -161,11 +170,7 @@ pub fn detect_yield_001(
 ) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
     let mut out = Vec::new();
     for entry in &project.rule_entries {
-        let diags = yield_001_diagnostics(
-            &entry.output_file,
-            &entry.manifest_path,
-            &project.root,
-        );
+        let diags = yield_001_diagnostics(&entry.output_file, &entry.manifest_path, &project.root);
         if !diags.is_empty() {
             out.push((entry.manifest_path.clone(), diags));
         }
@@ -197,11 +202,7 @@ pub fn detect_yield_004(
                     .filter(|&r| r != &entry.rule_id)
                     .cloned()
                     .collect();
-                let diags = yield_004_diagnostics(
-                    &entry.rule_id,
-                    &entry.output_file,
-                    &competing,
-                );
+                let diags = yield_004_diagnostics(&entry.rule_id, &entry.output_file, &competing);
                 if !diags.is_empty() {
                     out.push((entry.manifest_path.clone(), diags));
                 }
@@ -286,7 +287,9 @@ pub fn detect_pack_001(
     out
 }
 
-fn to_max_diagnostic(d: lsp_max::lsp_types::Diagnostic, axis: lsp_max_protocol::LawAxis) -> lsp_max_protocol::MaxDiagnostic {
+fn to_max_diagnostic(
+    d: lsp_max::lsp_types::Diagnostic, axis: lsp_max_protocol::LawAxis,
+) -> lsp_max_protocol::MaxDiagnostic {
     let code_str = match &d.code {
         Some(lsp_max::lsp_types::NumberOrString::String(s)) => s.clone(),
         Some(lsp_max::lsp_types::NumberOrString::Number(n)) => n.to_string(),
@@ -295,11 +298,10 @@ fn to_max_diagnostic(d: lsp_max::lsp_types::Diagnostic, axis: lsp_max_protocol::
     let mut h = blake3::Hasher::new();
     h.update(d.message.as_bytes());
     let id = format!("{}-{:.8}", code_str, h.finalize().to_hex());
-    
-    let lsp_max_diag: lsp_max::lsp_types_max::Diagnostic = serde_json::from_value(
-        serde_json::to_value(d).unwrap()
-    ).unwrap();
-    
+
+    let lsp_max_diag: lsp_max::lsp_types_max::Diagnostic =
+        serde_json::from_value(serde_json::to_value(d).unwrap()).unwrap();
+
     lsp_max_protocol::MaxDiagnostic {
         lsp: lsp_max_diag.clone(),
         diagnostic_id: id,
@@ -372,6 +374,8 @@ pub fn build_analyzer(path: &str, content: &str) -> Option<DocumentAnalyzer> {
         FileType::Toml => TomlAnalyzer::new_from_content(content)
             .ok()
             .map(DocumentAnalyzer::Toml),
+        FileType::Usd => Some(DocumentAnalyzer::Usd(UsdAnalyzer::new(content))),
+        FileType::Mtlx => Some(DocumentAnalyzer::Mtlx(MtlxAnalyzer::new(content))),
         FileType::Unknown => None,
     }
 }
@@ -400,6 +404,8 @@ pub enum DocumentAnalyzer {
     Sparql(SparqlAnalyzer),
     Tera(TeraAnalyzer),
     Toml(TomlAnalyzer),
+    Usd(UsdAnalyzer),
+    Mtlx(MtlxAnalyzer),
 }
 
 impl fmt::Debug for DocumentAnalyzer {
@@ -409,6 +415,8 @@ impl fmt::Debug for DocumentAnalyzer {
             Self::Sparql(_) => f.write_str("DocumentAnalyzer::Sparql"),
             Self::Tera(_) => f.write_str("DocumentAnalyzer::Tera"),
             Self::Toml(_) => f.write_str("DocumentAnalyzer::Toml"),
+            Self::Usd(_) => f.write_str("DocumentAnalyzer::Usd"),
+            Self::Mtlx(_) => f.write_str("DocumentAnalyzer::Mtlx"),
         }
     }
 }
@@ -421,6 +429,8 @@ impl DocumentAnalyzer {
             Self::Sparql(a) => a.diagnostics(),
             Self::Tera(a) => a.diagnostics(),
             Self::Toml(a) => a.diagnostics(),
+            Self::Usd(a) => a.diagnostics(),
+            Self::Mtlx(a) => a.diagnostics(),
         }
     }
 
@@ -430,6 +440,8 @@ impl DocumentAnalyzer {
             Self::Sparql(a) => a.completion_at(line, character),
             Self::Tera(a) => a.completion_at(line, character),
             Self::Toml(a) => a.completion_at(line, character),
+            Self::Usd(a) => a.completion_at(line, character),
+            Self::Mtlx(a) => a.completion_at(line, character),
         }
     }
 
@@ -439,6 +451,8 @@ impl DocumentAnalyzer {
             Self::Sparql(a) => a.hover_at(line, character),
             Self::Tera(a) => a.hover_at(line, character),
             Self::Toml(a) => a.hover_at(line, character),
+            Self::Usd(a) => a.hover_at(line, character),
+            Self::Mtlx(a) => a.hover_at(line, character),
         }
     }
 
@@ -447,7 +461,7 @@ impl DocumentAnalyzer {
             Self::Rdf(a) => a.definition_at(line, character),
             Self::Sparql(a) => a.definition_at(line, character),
             Self::Tera(a) => a.definition_at(line, character),
-            Self::Toml(_) => None,
+            Self::Toml(_) | Self::Usd(_) | Self::Mtlx(_) => None,
         }
     }
 
@@ -456,7 +470,7 @@ impl DocumentAnalyzer {
             Self::Rdf(a) => a.references_at(line, character),
             Self::Sparql(a) => a.references_at(line, character),
             Self::Tera(a) => a.references_at(line, character),
-            Self::Toml(_) => None,
+            Self::Toml(_) | Self::Usd(_) | Self::Mtlx(_) => None,
         }
     }
 
@@ -466,71 +480,103 @@ impl DocumentAnalyzer {
             Self::Sparql(a) => a.semantic_tokens(),
             Self::Tera(a) => a.semantic_tokens(),
             Self::Toml(a) => a.semantic_tokens(),
+            Self::Usd(a) => a.semantic_tokens(),
+            Self::Mtlx(a) => a.semantic_tokens(),
         }
     }
 
     pub fn document_symbols(&self, range: Option<Range>) -> Vec<DocumentSymbol> {
         match self {
-            Self::Rdf(a) => a.document_symbols(range).into_iter().map(|s| {
-                serde_json::from_value(serde_json::to_value(s).unwrap()).unwrap()
-            }).collect(),
-            Self::Sparql(a) => a.document_symbols(range).into_iter().map(|s| {
-                serde_json::from_value(serde_json::to_value(s).unwrap()).unwrap()
-            }).collect(),
+            Self::Rdf(a) => a
+                .document_symbols(range)
+                .into_iter()
+                .map(|s| serde_json::from_value(serde_json::to_value(s).unwrap()).unwrap())
+                .collect(),
+            Self::Sparql(a) => a
+                .document_symbols(range)
+                .into_iter()
+                .map(|s| serde_json::from_value(serde_json::to_value(s).unwrap()).unwrap())
+                .collect(),
             Self::Tera(a) => a.document_symbols(range),
             Self::Toml(a) => a.document_symbols(range),
+            Self::Usd(a) => a.document_symbols(range),
+            Self::Mtlx(a) => a.document_symbols(range),
         }
     }
 
     pub fn code_lenses(&self) -> Option<Vec<CodeLens>> {
         match self {
-            Self::Rdf(a) => a.code_lenses().map(|v| v.into_iter().map(|l| {
-                serde_json::from_value(serde_json::to_value(l).unwrap()).unwrap()
-            }).collect()),
-            Self::Sparql(a) => a.code_lenses().map(|v| v.into_iter().map(|l| {
-                serde_json::from_value(serde_json::to_value(l).unwrap()).unwrap()
-            }).collect()),
+            Self::Rdf(a) => a.code_lenses().map(|v| {
+                v.into_iter()
+                    .map(|l| serde_json::from_value(serde_json::to_value(l).unwrap()).unwrap())
+                    .collect()
+            }),
+            Self::Sparql(a) => a.code_lenses().map(|v| {
+                v.into_iter()
+                    .map(|l| serde_json::from_value(serde_json::to_value(l).unwrap()).unwrap())
+                    .collect()
+            }),
             Self::Tera(a) => a.code_lenses(),
             Self::Toml(a) => a.code_lenses(),
+            Self::Usd(a) => a.code_lenses(),
+            Self::Mtlx(a) => a.code_lenses(),
         }
     }
 
     pub fn folding_ranges(&self) -> Option<Vec<FoldingRange>> {
         match self {
-            Self::Rdf(a) => a.folding_ranges().map(|v| v.into_iter().map(|r| {
-                serde_json::from_value(serde_json::to_value(r).unwrap()).unwrap()
-            }).collect()),
-            Self::Sparql(a) => a.folding_ranges().map(|v| v.into_iter().map(|r| {
-                serde_json::from_value(serde_json::to_value(r).unwrap()).unwrap()
-            }).collect()),
+            Self::Rdf(a) => a.folding_ranges().map(|v| {
+                v.into_iter()
+                    .map(|r| serde_json::from_value(serde_json::to_value(r).unwrap()).unwrap())
+                    .collect()
+            }),
+            Self::Sparql(a) => a.folding_ranges().map(|v| {
+                v.into_iter()
+                    .map(|r| serde_json::from_value(serde_json::to_value(r).unwrap()).unwrap())
+                    .collect()
+            }),
             Self::Tera(a) => a.folding_ranges(),
             Self::Toml(a) => a.folding_ranges(),
+            Self::Usd(a) => a.folding_ranges(),
+            Self::Mtlx(a) => a.folding_ranges(),
         }
     }
 
     pub fn format_document(&self) -> Option<Vec<TextEdit>> {
         match self {
-            Self::Rdf(a) => a.format_document().map(|v| v.into_iter().map(|e| {
-                serde_json::from_value(serde_json::to_value(e).unwrap()).unwrap()
-            }).collect()),
-            Self::Sparql(a) => a.format_document().map(|v| v.into_iter().map(|e| {
-                serde_json::from_value(serde_json::to_value(e).unwrap()).unwrap()
-            }).collect()),
+            Self::Rdf(a) => a.format_document().map(|v| {
+                v.into_iter()
+                    .map(|e| serde_json::from_value(serde_json::to_value(e).unwrap()).unwrap())
+                    .collect()
+            }),
+            Self::Sparql(a) => a.format_document().map(|v| {
+                v.into_iter()
+                    .map(|e| serde_json::from_value(serde_json::to_value(e).unwrap()).unwrap())
+                    .collect()
+            }),
             Self::Tera(a) => a.format_document(),
             Self::Toml(a) => a.format_document(),
+            Self::Usd(a) => a.format_document(),
+            Self::Mtlx(a) => a.format_document(),
         }
     }
 
     pub fn inlay_hints(&self, range: Option<Range>) -> Vec<InlayHint> {
         match self {
-            Self::Rdf(a) => a.inlay_hints(range).into_iter().map(|h| {
-                serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap()
-            }).collect(),
-            Self::Sparql(a) => a.inlay_hints(range).into_iter().map(|h| {
-                serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap()
-            }).collect(),
+            Self::Rdf(a) => a
+                .inlay_hints(range)
+                .into_iter()
+                .map(|h| serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap())
+                .collect(),
+            Self::Sparql(a) => a
+                .inlay_hints(range)
+                .into_iter()
+                .map(|h| serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap())
+                .collect(),
             Self::Tera(a) => a.inlay_hints(range),
             Self::Toml(a) => a.inlay_hints(range),
+            Self::Usd(a) => a.inlay_hints(range),
+            Self::Mtlx(a) => a.inlay_hints(range),
         }
     }
 
@@ -547,6 +593,8 @@ impl DocumentAnalyzer {
             Self::Sparql(a) => a.rename_symbol(position, new_name),
             Self::Tera(a) => a.rename_symbol(position, new_name),
             Self::Toml(a) => a.rename_symbol(position, new_name),
+            Self::Usd(a) => a.rename_symbol(position, new_name),
+            Self::Mtlx(a) => a.rename_symbol(position, new_name),
         }
     }
 
@@ -555,14 +603,14 @@ impl DocumentAnalyzer {
             Self::Rdf(a) => a.call_hierarchy_items(position),
             Self::Sparql(a) => a.call_hierarchy_items(position),
             Self::Tera(a) => a.call_hierarchy_items(position),
-            Self::Toml(_) => None,
+            Self::Toml(_) | Self::Usd(_) | Self::Mtlx(_) => None,
         }
     }
 
     pub fn type_hierarchy_items(&self, position: Position) -> Option<Vec<TypeHierarchyItem>> {
         match self {
             Self::Rdf(a) => a.type_hierarchy_items(position),
-            Self::Sparql(_) | Self::Tera(_) | Self::Toml(_) => None,
+            Self::Sparql(_) | Self::Tera(_) | Self::Toml(_) | Self::Usd(_) | Self::Mtlx(_) => None,
         }
     }
 }

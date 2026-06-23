@@ -1,0 +1,416 @@
+@prefix dfls: <http://cns.bitactor.io/ontology/dfls#> .
+@prefix otp: <http://cns.bitactor.io/ontology/otp#> .
+@prefix bitactor: <http://cns.bitactor.io/ontology/bitactor#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# DFLS ERLANG/OTP ONTOLOGY
+# Design for Lean Six Sigma semantic definitions for mass production of Erlang/OTP systems
+
+# ============================================================================
+# CORE DFLS ONTOLOGY CLASSES  
+# ============================================================================
+
+dfls:DFLSSystem a owl:Class ;
+    rdfs:label "DFLS System" ;
+    rdfs:comment "A complete Design for Lean Six Sigma system implementation" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty dfls:hasQualityTarget ;
+        owl:someValuesFrom dfls:SixSigmaMetric
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty dfls:hasSupervisionTree ;
+        owl:exactlyCardinality 1
+    ] .
+
+dfls:SixSigmaMetric a owl:Class ;
+    rdfs:label "Six Sigma Quality Metric" ;
+    rdfs:comment "Quality constraint with 99.99966% target (3.4 defects per million)" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty dfls:defectRate ;
+        owl:maxInclusive "0.00034"^^xsd:double
+    ] .
+
+dfls:LeanProcess a owl:Class ;
+    rdfs:label "Lean Manufacturing Process" ;
+    rdfs:comment "Waste-eliminating process with continuous improvement" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty dfls:wastePercentage ;
+        owl:maxInclusive "0.1"^^xsd:double  # <10% waste target
+    ] .
+
+# ============================================================================
+# ERLANG/OTP SEMANTIC CLASSES
+# ============================================================================
+
+otp:GenServer a owl:Class ;
+    rdfs:label "OTP GenServer" ;
+    rdfs:comment "Erlang generic server behavior for DFLS systems" ;
+    rdfs:subClassOf otp:Behaviour ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otp:hasModule ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otp:hasState ;
+        owl:someValuesFrom otp:ServerState
+    ] .
+
+otp:Supervisor a owl:Class ;
+    rdfs:label "OTP Supervisor" ;
+    rdfs:comment "Fault-tolerant supervisor for DFLS quality assurance" ;
+    rdfs:subClassOf otp:Behaviour ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otp:hasRestartStrategy ;
+        owl:allValuesFrom otp:RestartStrategy
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otp:hasChildSpec ;
+        owl:minCardinality 1
+    ] .
+
+otp:ChildSpec a owl:Class ;
+    rdfs:label "OTP Child Specification" ;
+    rdfs:comment "Child process specification with DFLS quality constraints" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otp:restartType ;
+        owl:allValuesFrom otp:RestartType
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty otp:shutdownTimeout ;
+        owl:allValuesFrom xsd:positiveInteger
+    ] .
+
+otp:RestartStrategy a owl:Class ;
+    rdfs:label "Restart Strategy" ;
+    rdfs:comment "Fault tolerance strategy for Six Sigma reliability" .
+
+otp:RestartType a owl:Class ;
+    rdfs:label "Restart Type" ;
+    rdfs:comment "Child restart behavior for DFLS fault tolerance" .
+
+# ============================================================================
+# BITACTOR INTEGRATION CLASSES
+# ============================================================================
+
+bitactor:UltraFastGenServer a owl:Class ;
+    rdfs:label "Ultra-Fast GenServer" ;
+    rdfs:comment "BitActor-optimized GenServer with sub-microsecond messaging" ;
+    rdfs:subClassOf otp:GenServer ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty bitactor:hasNIFModule ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty bitactor:messageLatency ;
+        owl:maxInclusive "0.0005"^^xsd:double  # <500μs target
+    ] .
+
+bitactor:NIFModule a owl:Class ;
+    rdfs:label "Native Implemented Function Module" ;
+    rdfs:comment "C NIF module for ultra-high performance DFLS operations" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty bitactor:hasSourceFile ;
+        owl:cardinality 1
+    ] .
+
+bitactor:MemoryPool a owl:Class ;
+    rdfs:label "BitActor Memory Pool" ;
+    rdfs:comment "Cache-aligned memory allocation for zero-waste operation" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty bitactor:allocationEfficiency ;
+        owl:minInclusive "0.95"^^xsd:double  # >95% efficiency
+    ] .
+
+# ============================================================================
+# DFLS WORKFLOW CLASSES
+# ============================================================================
+
+dfls:QualityGate a owl:Class ;
+    rdfs:label "Quality Gate" ;
+    rdfs:comment "Six Sigma quality checkpoint in the workflow" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty dfls:hasQualityCheck ;
+        owl:minCardinality 1
+    ] .
+
+dfls:ControlChart a owl:Class ;
+    rdfs:label "Statistical Process Control Chart" ;
+    rdfs:comment "Real-time quality monitoring with control limits" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty dfls:upperControlLimit ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty dfls:lowerControlLimit ;
+        owl:cardinality 1
+    ] .
+
+dfls:FMEA a owl:Class ;
+    rdfs:label "Failure Mode and Effects Analysis" ;
+    rdfs:comment "Risk assessment and mitigation for DFLS systems" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty dfls:riskPriorityNumber ;
+        owl:maxInclusive "100"^^xsd:integer  # RPN < 100 target
+    ] .
+
+# ============================================================================
+# CORE PROPERTIES
+# ============================================================================
+
+# DFLS Properties
+dfls:hasQualityTarget a owl:ObjectProperty ;
+    rdfs:label "has quality target" ;
+    rdfs:domain dfls:DFLSSystem ;
+    rdfs:range dfls:SixSigmaMetric .
+
+dfls:hasSupervisionTree a owl:ObjectProperty ;
+    rdfs:label "has supervision tree" ;
+    rdfs:domain dfls:DFLSSystem ;
+    rdfs:range otp:Supervisor .
+
+dfls:defectRate a owl:DatatypeProperty ;
+    rdfs:label "defect rate" ;
+    rdfs:domain dfls:SixSigmaMetric ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Defects per million opportunities (DPMO)" .
+
+dfls:wastePercentage a owl:DatatypeProperty ;
+    rdfs:label "waste percentage" ;
+    rdfs:domain dfls:LeanProcess ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Percentage of non-value-added activities" .
+
+# OTP Properties
+otp:hasModule a owl:DatatypeProperty ;
+    rdfs:label "has module" ;
+    rdfs:domain otp:Behaviour ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Erlang module name" .
+
+otp:hasState a owl:ObjectProperty ;
+    rdfs:label "has state" ;
+    rdfs:domain otp:GenServer ;
+    rdfs:range otp:ServerState .
+
+otp:hasRestartStrategy a owl:ObjectProperty ;
+    rdfs:label "has restart strategy" ;
+    rdfs:domain otp:Supervisor ;
+    rdfs:range otp:RestartStrategy .
+
+otp:hasChildSpec a owl:ObjectProperty ;
+    rdfs:label "has child specification" ;
+    rdfs:domain otp:Supervisor ;
+    rdfs:range otp:ChildSpec .
+
+otp:restartType a owl:ObjectProperty ;
+    rdfs:label "restart type" ;
+    rdfs:domain otp:ChildSpec ;
+    rdfs:range otp:RestartType .
+
+otp:shutdownTimeout a owl:DatatypeProperty ;
+    rdfs:label "shutdown timeout" ;
+    rdfs:domain otp:ChildSpec ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Milliseconds before forced termination" .
+
+# BitActor Properties
+bitactor:hasNIFModule a owl:ObjectProperty ;
+    rdfs:label "has NIF module" ;
+    rdfs:domain bitactor:UltraFastGenServer ;
+    rdfs:range bitactor:NIFModule .
+
+bitactor:messageLatency a owl:DatatypeProperty ;
+    rdfs:label "message latency" ;
+    rdfs:domain bitactor:UltraFastGenServer ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Average message processing latency in milliseconds" .
+
+bitactor:hasSourceFile a owl:DatatypeProperty ;
+    rdfs:label "has source file" ;
+    rdfs:domain bitactor:NIFModule ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Path to C source file" .
+
+bitactor:allocationEfficiency a owl:DatatypeProperty ;
+    rdfs:label "allocation efficiency" ;
+    rdfs:domain bitactor:MemoryPool ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Memory utilization efficiency (0.0-1.0)" .
+
+# Quality Control Properties
+dfls:hasQualityCheck a owl:ObjectProperty ;
+    rdfs:label "has quality check" ;
+    rdfs:domain dfls:QualityGate ;
+    rdfs:range dfls:SixSigmaMetric .
+
+dfls:upperControlLimit a owl:DatatypeProperty ;
+    rdfs:label "upper control limit" ;
+    rdfs:domain dfls:ControlChart ;
+    rdfs:range xsd:double .
+
+dfls:lowerControlLimit a owl:DatatypeProperty ;
+    rdfs:label "lower control limit" ;
+    rdfs:domain dfls:ControlChart ;
+    rdfs:range xsd:double .
+
+dfls:riskPriorityNumber a owl:DatatypeProperty ;
+    rdfs:label "risk priority number" ;
+    rdfs:domain dfls:FMEA ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Severity × Occurrence × Detection" .
+
+# ============================================================================
+# INDIVIDUALS / INSTANCES
+# ============================================================================
+
+# Restart Strategies
+otp:OneForOne a otp:RestartStrategy ;
+    rdfs:label "one_for_one" ;
+    rdfs:comment "Restart only the failed child" .
+
+otp:OneForAll a otp:RestartStrategy ;
+    rdfs:label "one_for_all" ;
+    rdfs:comment "Restart all children when one fails" .
+
+otp:RestForOne a otp:RestartStrategy ;
+    rdfs:label "rest_for_one" ;
+    rdfs:comment "Restart failed child and all started after it" .
+
+# Restart Types
+otp:Permanent a otp:RestartType ;
+    rdfs:label "permanent" ;
+    rdfs:comment "Always restart the child process" .
+
+otp:Temporary a otp:RestartType ;
+    rdfs:label "temporary" ;
+    rdfs:comment "Never restart the child process" .
+
+otp:Transient a otp:RestartType ;
+    rdfs:label "transient" ;
+    rdfs:comment "Restart only if child terminates abnormally" .
+
+# Quality Targets
+dfls:SixSigmaTarget a dfls:SixSigmaMetric ;
+    dfls:defectRate "0.00034"^^xsd:double ;
+    rdfs:label "Six Sigma Quality Target" ;
+    rdfs:comment "99.99966% quality target" .
+
+dfls:ZeroWasteTarget a dfls:LeanProcess ;
+    dfls:wastePercentage "0.05"^^xsd:double ;
+    rdfs:label "Zero Waste Target" ;
+    rdfs:comment "5% maximum waste allowance" .
+
+# ============================================================================
+# SEMANTIC RULES AND CONSTRAINTS
+# ============================================================================
+
+# Rule: DFLS Systems must have sub-microsecond response time
+[] a owl:Class ;
+   owl:intersectionOf (
+       dfls:DFLSSystem
+       [ a owl:Restriction ;
+         owl:onProperty bitactor:messageLatency ;
+         owl:someValuesFrom [ a rdfs:Datatype ;
+           owl:onDatatype xsd:double ;
+           owl:withRestrictions ( [ xsd:maxInclusive "0.001"^^xsd:double ] )
+         ]
+       ]
+   ) ;
+   rdfs:comment "All DFLS systems must achieve sub-millisecond response times" .
+
+# Rule: Supervisors must have quality gates
+[] a owl:Class ;
+   owl:intersectionOf (
+       otp:Supervisor
+       [ a owl:Restriction ;
+         owl:onProperty dfls:hasQualityCheck ;
+         owl:minCardinality 1
+       ]
+   ) ;
+   rdfs:comment "All supervisors must have at least one quality gate" .
+
+# ============================================================================
+# MASS PRODUCTION WORKFLOW ONTOLOGY
+# ============================================================================
+
+dfls:ProductionWorkflow a owl:Class ;
+    rdfs:label "Mass Production Workflow" ;
+    rdfs:comment "Automated workflow for generating DFLS Erlang/OTP systems" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty dfls:hasInputOntology ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty dfls:hasOutputCode ;
+        owl:minCardinality 1
+    ] .
+
+dfls:JinjaTemplate a owl:Class ;
+    rdfs:label "Jinja Code Generation Template" ;
+    rdfs:comment "Template for generating Erlang/OTP code from semantic definitions" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty dfls:templateType ;
+        owl:allValuesFrom dfls:TemplateType
+    ] .
+
+dfls:TemplateType a owl:Class ;
+    rdfs:label "Template Type" ;
+    rdfs:comment "Type of code generation template" .
+
+# Template Types
+dfls:GenServerTemplate a dfls:TemplateType ;
+    rdfs:label "GenServer Template" ;
+    rdfs:comment "Template for generating OTP GenServer modules" .
+
+dfls:SupervisorTemplate a dfls:TemplateType ;
+    rdfs:label "Supervisor Template" ;
+    rdfs:comment "Template for generating OTP Supervisor modules" .
+
+dfls:NIFTemplate a dfls:TemplateType ;
+    rdfs:label "NIF Template" ;
+    rdfs:comment "Template for generating C NIF modules" .
+
+# Workflow Properties
+dfls:hasInputOntology a owl:ObjectProperty ;
+    rdfs:label "has input ontology" ;
+    rdfs:domain dfls:ProductionWorkflow ;
+    rdfs:range owl:Ontology .
+
+dfls:hasOutputCode a owl:DatatypeProperty ;
+    rdfs:label "has output code" ;
+    rdfs:domain dfls:ProductionWorkflow ;
+    rdfs:range xsd:string .
+
+dfls:templateType a owl:ObjectProperty ;
+    rdfs:label "template type" ;
+    rdfs:domain dfls:JinjaTemplate ;
+    rdfs:range dfls:TemplateType .
+
+# ============================================================================
+# END OF ONTOLOGY
+# ============================================================================

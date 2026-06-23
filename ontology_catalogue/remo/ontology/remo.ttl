@@ -1,0 +1,473 @@
+# Remo Platform Ontology
+# This file defines the actions, parameters, and relationships for the Remo platform
+
+@prefix remo: <http://remo.dev/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+@base <http://remo.dev/ontology> .
+
+# Ontology metadata
+<> rdf:type owl:Ontology ;
+   dc:title "Remo Platform Ontology" ;
+   dc:description "Ontology defining actions and capabilities of the Remo platform for observation, planning, and building" ;
+   dc:creator "Remo Platform Team" ;
+   dc:created "2025-08-28T00:00:00Z"^^xsd:dateTime ;
+   dc:modified "2025-08-28T00:00:00Z"^^xsd:dateTime ;
+   owl:versionInfo "1.0.0" ;
+   dc:license "MIT" .
+
+# Core Classes
+remo:Action rdf:type owl:Class ;
+   rdfs:label "Action" ;
+   rdfs:comment "A platform action that can be executed" .
+
+remo:Parameter rdf:type owl:Class ;
+   rdfs:label "Parameter" ;
+   rdfs:comment "A parameter for an action" .
+
+remo:Reference rdf:type owl:Class ;
+   rdfs:label "Reference" ;
+   rdfs:comment "A reference to another action" .
+
+# Properties
+remo:name rdf:type owl:DatatypeProperty ;
+   rdfs:domain remo:Action ;
+   rdfs:range xsd:string .
+
+remo:description rdf:type owl:DatatypeProperty ;
+   rdfs:domain remo:Action ;
+   rdfs:range xsd:string .
+
+remo:package rdf:type owl:DatatypeProperty ;
+   rdfs:domain remo:Action ;
+   rdfs:range xsd:string .
+
+remo:functionName rdf:type owl:DatatypeProperty ;
+   rdfs:domain remo:Action ;
+   rdfs:range xsd:string .
+
+remo:category rdf:type owl:DatatypeProperty ;
+   rdfs:domain remo:Action ;
+   rdfs:range xsd:string .
+
+remo:spanName rdf:type owl:DatatypeProperty ;
+   rdfs:domain remo:Action ;
+   rdfs:range xsd:string .
+
+remo:version rdf:type owl:DatatypeProperty ;
+   rdfs:domain remo:Action ;
+   rdfs:range xsd:string .
+
+remo:deprecated rdf:type owl:DatatypeProperty ;
+   rdfs:domain remo:Action ;
+   rdfs:range xsd:boolean .
+
+remo:exampleUsage rdf:type owl:DatatypeProperty ;
+   rdfs:domain remo:Action ;
+   rdfs:range xsd:string .
+
+remo:hasParameter rdf:type owl:ObjectProperty ;
+   rdfs:domain remo:Action ;
+   rdfs:range remo:Parameter .
+
+remo:references rdf:type owl:ObjectProperty ;
+   rdfs:domain remo:Action ;
+   rdfs:range remo:Action .
+
+# Observation Package Actions
+
+remo:ObsScan rdf:type remo:Action ;
+   remo:name "scan" ;
+   remo:description "Scans a directory or project for files, dependencies, and structure" ;
+   remo:category "observation" ;
+   remo:package "obs" ;
+   remo:functionName "Scan" ;
+   remo:spanName "remo.obs.scan" ;
+   remo:version "1.0.0" ;
+   remo:deprecated false ;
+   remo:exampleUsage "remo obs scan --path ./project --recursive --output-format json" ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "path" ;
+      remo:description "Directory path to scan" ;
+      remo:type "directory" ;
+      remo:required true ;
+      remo:default "." ;
+      remo:example "/path/to/project"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "recursive" ;
+      remo:description "Scan directories recursively" ;
+      remo:type "bool" ;
+      remo:required false ;
+      remo:default true
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "includeHidden" ;
+      remo:description "Include hidden files and directories" ;
+      remo:type "bool" ;
+      remo:required false ;
+      remo:default false
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "extensions" ;
+      remo:description "File extensions to include (comma-separated)" ;
+      remo:type "array" ;
+      remo:required false ;
+      remo:example "js,ts,go,py"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "exclude" ;
+      remo:description "Patterns to exclude" ;
+      remo:type "array" ;
+      remo:required false ;
+      remo:default "node_modules,*.git,build,dist" ;
+      remo:example "node_modules,*.git,build"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "maxDepth" ;
+      remo:description "Maximum directory depth to scan" ;
+      remo:type "int" ;
+      remo:required false ;
+      remo:minValue 1 ;
+      remo:maxValue 50 ;
+      remo:default 10
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "outputFormat" ;
+      remo:description "Output format for scan results" ;
+      remo:type "string" ;
+      remo:required false ;
+      remo:default "table" ;
+      remo:enumValues "json,yaml,table,csv"
+   ] .
+
+remo:ObsAnalyze rdf:type remo:Action ;
+   remo:name "analyze" ;
+   remo:description "Analyzes scanned project data for patterns, dependencies, and insights" ;
+   remo:category "observation" ;
+   remo:package "obs" ;
+   remo:functionName "Analyze" ;
+   remo:spanName "remo.obs.analyze" ;
+   remo:version "1.0.0" ;
+   remo:deprecated false ;
+   remo:exampleUsage "remo obs analyze --input scan-results.json --analysis-type dependencies" ;
+   remo:references remo:ObsScan ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "input" ;
+      remo:description "Input file with scan results" ;
+      remo:type "file" ;
+      remo:required true ;
+      remo:example "scan-results.json"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "analysisType" ;
+      remo:description "Type of analysis to perform" ;
+      remo:type "string" ;
+      remo:required true ;
+      remo:enumValues "dependencies,structure,patterns,security,performance,quality" ;
+      remo:default "dependencies"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "depth" ;
+      remo:description "Analysis depth level" ;
+      remo:type "string" ;
+      remo:required false ;
+      remo:enumValues "shallow,medium,deep" ;
+      remo:default "medium"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "includeMetrics" ;
+      remo:description "Include detailed metrics in analysis" ;
+      remo:type "bool" ;
+      remo:required false ;
+      remo:default true
+   ] .
+
+# Forge Package Actions
+
+remo:ForgePlan rdf:type remo:Action ;
+   remo:name "plan" ;
+   remo:description "Generates a build plan based on project analysis and configuration" ;
+   remo:category "planning" ;
+   remo:package "forge" ;
+   remo:functionName "Plan" ;
+   remo:spanName "remo.forge.plan" ;
+   remo:version "1.0.0" ;
+   remo:deprecated false ;
+   remo:exampleUsage "remo forge plan --project myapp --target production --strategy incremental" ;
+   remo:references remo:ObsAnalyze ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "project" ;
+      remo:description "Project name or path" ;
+      remo:type "string" ;
+      remo:required true ;
+      remo:example "myapp"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "target" ;
+      remo:description "Target environment for the build" ;
+      remo:type "string" ;
+      remo:required false ;
+      remo:enumValues "development,staging,production" ;
+      remo:default "development"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "strategy" ;
+      remo:description "Build strategy to use" ;
+      remo:type "string" ;
+      remo:required false ;
+      remo:enumValues "full,incremental,optimized" ;
+      remo:default "incremental"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "configFile" ;
+      remo:description "Configuration file for build settings" ;
+      remo:type "file" ;
+      remo:required false ;
+      remo:example "remo.yaml"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "parallel" ;
+      remo:description "Enable parallel build steps" ;
+      remo:type "bool" ;
+      remo:required false ;
+      remo:default true
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "skipTests" ;
+      remo:description "Skip test execution in build plan" ;
+      remo:type "bool" ;
+      remo:required false ;
+      remo:default false
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "optimize" ;
+      remo:description "Optimization level for the build" ;
+      remo:type "string" ;
+      remo:required false ;
+      remo:enumValues "none,basic,aggressive" ;
+      remo:default "basic"
+   ] .
+
+remo:ForgeBuild rdf:type remo:Action ;
+   remo:name "build" ;
+   remo:description "Executes the build plan to compile, test, and package the project" ;
+   remo:category "building" ;
+   remo:package "forge" ;
+   remo:functionName "Build" ;
+   remo:spanName "remo.forge.build" ;
+   remo:version "1.0.0" ;
+   remo:deprecated false ;
+   remo:exampleUsage "remo forge build --plan build-plan.json --workers 4 --verbose" ;
+   remo:references remo:ForgePlan ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "plan" ;
+      remo:description "Build plan file to execute" ;
+      remo:type "file" ;
+      remo:required true ;
+      remo:example "build-plan.json"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "workers" ;
+      remo:description "Number of parallel build workers" ;
+      remo:type "int" ;
+      remo:required false ;
+      remo:minValue 1 ;
+      remo:maxValue 16 ;
+      remo:default 2
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "timeout" ;
+      remo:description "Build timeout in minutes" ;
+      remo:type "int" ;
+      remo:required false ;
+      remo:minValue 1 ;
+      remo:maxValue 1440 ;
+      remo:default 30
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "clean" ;
+      remo:description "Clean build artifacts before building" ;
+      remo:type "bool" ;
+      remo:required false ;
+      remo:default false
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "cache" ;
+      remo:description "Use build cache for faster builds" ;
+      remo:type "bool" ;
+      remo:required false ;
+      remo:default true
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "outputDir" ;
+      remo:description "Output directory for build artifacts" ;
+      remo:type "directory" ;
+      remo:required false ;
+      remo:default "build" ;
+      remo:example "dist"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "tags" ;
+      remo:description "Build tags to apply" ;
+      remo:type "array" ;
+      remo:required false ;
+      remo:example "release,optimized"
+   ] .
+
+remo:ForgeDeploy rdf:type remo:Action ;
+   remo:name "deploy" ;
+   remo:description "Deploys built artifacts to target environments" ;
+   remo:category "deployment" ;
+   remo:package "forge" ;
+   remo:functionName "Deploy" ;
+   remo:spanName "remo.forge.deploy" ;
+   remo:version "1.0.0" ;
+   remo:deprecated false ;
+   remo:exampleUsage "remo forge deploy --artifacts build/ --target production --strategy rolling" ;
+   remo:references remo:ForgeBuild ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "artifacts" ;
+      remo:description "Directory containing build artifacts" ;
+      remo:type "directory" ;
+      remo:required true ;
+      remo:example "build"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "target" ;
+      remo:description "Deployment target environment" ;
+      remo:type "string" ;
+      remo:required true ;
+      remo:enumValues "staging,production,development" ;
+      remo:example "production"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "strategy" ;
+      remo:description "Deployment strategy" ;
+      remo:type "string" ;
+      remo:required false ;
+      remo:enumValues "rolling,blue-green,canary,immediate" ;
+      remo:default "rolling"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "dryRun" ;
+      remo:description "Perform a dry run without actual deployment" ;
+      remo:type "bool" ;
+      remo:required false ;
+      remo:default false
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "rollbackOn" ;
+      remo:description "Conditions for automatic rollback" ;
+      remo:type "array" ;
+      remo:required false ;
+      remo:enumValues "error,timeout,health-check-fail" ;
+      remo:example "error,health-check-fail"
+   ] .
+
+# Additional system actions
+
+remo:SystemStatus rdf:type remo:Action ;
+   remo:name "status" ;
+   remo:description "Checks system status and health" ;
+   remo:category "system" ;
+   remo:package "system" ;
+   remo:functionName "Status" ;
+   remo:spanName "remo.system.status" ;
+   remo:version "1.0.0" ;
+   remo:deprecated false ;
+   remo:exampleUsage "remo system status --detailed --format json" ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "detailed" ;
+      remo:description "Show detailed system information" ;
+      remo:type "bool" ;
+      remo:required false ;
+      remo:default false
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "components" ;
+      remo:description "Specific components to check" ;
+      remo:type "array" ;
+      remo:required false ;
+      remo:enumValues "database,cache,storage,network,compute" ;
+      remo:example "database,cache"
+   ] .
+
+remo:SystemConfig rdf:type remo:Action ;
+   remo:name "config" ;
+   remo:description "Manages system configuration" ;
+   remo:category "system" ;
+   remo:package "system" ;
+   remo:functionName "Config" ;
+   remo:spanName "remo.system.config" ;
+   remo:version "1.0.0" ;
+   remo:deprecated false ;
+   remo:exampleUsage "remo system config --set logging.level=debug --validate" ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "set" ;
+      remo:description "Set configuration key-value pairs" ;
+      remo:type "array" ;
+      remo:required false ;
+      remo:example "logging.level=debug,cache.ttl=3600"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "get" ;
+      remo:description "Get configuration values for keys" ;
+      remo:type "array" ;
+      remo:required false ;
+      remo:example "logging.level,cache.ttl"
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "validate" ;
+      remo:description "Validate configuration before applying" ;
+      remo:type "bool" ;
+      remo:required false ;
+      remo:default true
+   ] ;
+   remo:hasParameter [
+      rdf:type remo:Parameter ;
+      remo:name "reset" ;
+      remo:description "Reset configuration to defaults" ;
+      remo:type "bool" ;
+      remo:required false ;
+      remo:default false
+   ] .

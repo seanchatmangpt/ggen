@@ -1,0 +1,368 @@
+@prefix : <https://bytestar.org/ontology/jtbd#> .
+@prefix bs: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bf: <https://bytestar.org/ontology/byteflow/fabrication-specification#> .
+@prefix dflss: <https://bytestar.org/ontology/dflss#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+<https://bytestar.org/ontology/jtbd> a owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/jtbd/1.0.0> ;
+    rdfs:label "Jobs To Be Done (JTBD) Core Ontology"@en ;
+    rdfs:comment "Production-ready JTBD ontology for Fortune 5 enterprise automation leveraging ByteStar ecosystem components. Implements Clayton Christensen's JTBD framework with ByteCore performance guarantees."@en ;
+    owl:imports <https://bytestar.org/ontology/bytestar-core> ,
+                <https://bytestar.org/ontology/byteflow/fabrication-specification> ,
+                <https://bytestar.org/ontology/dflss> ;
+    bs:doctrine8Compliant true ;
+    bs:pqcSecure true ;
+    bs:fabricationReady true .
+
+# ===============================================================================
+# CORE JTBD CLASSES - Foundation Layer
+# ===============================================================================
+
+:Job a owl:Class ;
+    rdfs:label "Job to Be Done"@en ;
+    rdfs:comment "A fundamental unit of customer progress - the core task a customer hires a product or service to accomplish. Aligned with Clayton Christensen's JTBD theory."@en ;
+    bs:performanceTarget [
+        bs:hotPathTicks 8 ;
+        bs:workflowHops 8 ;
+        bs:latencyTarget "50μs" ;
+        bs:throughputTarget "105K ops/sec"
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasJobOutcome ;
+        owl:minCardinality 1
+    ] ,
+    [
+        a owl:Restriction ;
+        owl:onProperty :hasContext ;
+        owl:minCardinality 1
+    ] .
+
+:JobOutcome a owl:Class ;
+    rdfs:label "Job Outcome"@en ;
+    rdfs:comment "Desired end state or result when a job is successfully completed. Measurable and specific."@en ;
+    bs:doctrine8Compliant true .
+
+:Context a owl:Class ;
+    rdfs:label "Context"@en ;
+    rdfs:comment "Situational circumstances under which a job arises. Includes functional, emotional, and social dimensions."@en ;
+    rdfs:subClassOf bs:ContextualFrame .
+
+:Struggle a owl:Class ;
+    rdfs:label "Struggle"@en ;
+    rdfs:comment "Pain points, friction, or obstacles customers encounter when trying to accomplish their job."@en ;
+    bs:optimizationTarget true .
+
+:Solution a owl:Class ;
+    rdfs:label "Solution"@en ;
+    rdfs:comment "Product, service, or system designed to help customers accomplish their job better."@en ;
+    rdfs:subClassOf bs:FabricatedArtifact .
+
+:Outcome a owl:Class ;
+    rdfs:label "Outcome"@en ;
+    rdfs:comment "Measurable result or benefit achieved through solution implementation."@en ;
+    bs:metricsEnabled true .
+
+# ===============================================================================
+# ENTERPRISE FORTUNE 5 EXTENSIONS
+# ===============================================================================
+
+:EnterpriseJob a owl:Class ;
+    rdfs:label "Enterprise Job"@en ;
+    rdfs:comment "Fortune 5 scale jobs involving complex organizational workflows, compliance requirements, and multi-system integration."@en ;
+    rdfs:subClassOf :Job ;
+    bs:enterpriseGrade true ;
+    bs:complianceRequired true .
+
+:StrategicInitiative a owl:Class ;
+    rdfs:label "Strategic Initiative"@en ;
+    rdfs:comment "High-level business transformation jobs that span multiple departments and systems."@en ;
+    rdfs:subClassOf :EnterpriseJob ;
+    bs:boardLevelVisibility true .
+
+:OperationalProcess a owl:Class ;
+    rdfs:label "Operational Process"@en ;
+    rdfs:comment "Day-to-day business operations that can be optimized through automation and intelligence."@en ;
+    rdfs:subClassOf :EnterpriseJob ;
+    bs:automationCandidate true .
+
+:ComplianceRequirement a owl:Class ;
+    rdfs:label "Compliance Requirement"@en ;
+    rdfs:comment "Regulatory, governance, or policy constraints that must be satisfied in job execution."@en ;
+    bs:auditTrailRequired true ;
+    bs:pqcSecurityRequired true .
+
+# ===============================================================================
+# BYTESTAR INTEGRATION CLASSES
+# ===============================================================================
+
+:ByteStarWorkflow a owl:Class ;
+    rdfs:label "ByteStar Workflow"@en ;
+    rdfs:comment "JTBD implementation utilizing ByteStar ecosystem for high-performance execution."@en ;
+    rdfs:subClassOf bf:WorkflowSpecification ,
+                    :Solution ;
+    bs:byteGenFabricated true ;
+    bs:byteFlowOrchestrated true ;
+    bs:byteCoreOptimized true .
+
+:AdmissionGateJob a owl:Class ;
+    rdfs:label "Admission Gate Job"@en ;
+    rdfs:comment "Jobs that require ByteFlow admission control for resource management and validation."@en ;
+    rdfs:subClassOf :ByteStarWorkflow ;
+    bs:admissionRequired true ;
+    bs:thetaValidation true .
+
+:RealTimeJob a owl:Class ;
+    rdfs:label "Real-Time Job"@en ;
+    rdfs:comment "Jobs requiring sub-50μs latency and deterministic execution guarantees."@en ;
+    rdfs:subClassOf :ByteStarWorkflow ;
+    bs:realTimeGuarantee true ;
+    bs:maxLatency "50μs"^^xsd:duration .
+
+:QuantumSecureJob a owl:Class ;
+    rdfs:label "Quantum-Secure Job"@en ;
+    rdfs:comment "Jobs requiring post-quantum cryptographic protection for sensitive operations."@en ;
+    rdfs:subClassOf :ByteStarWorkflow ;
+    bs:pqcProtected true ;
+    bs:dilithium3Signed true ;
+    bs:kyber1024Encrypted true .
+
+# ===============================================================================
+# PERFORMANCE AND OPTIMIZATION CLASSES
+# ===============================================================================
+
+:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Metric"@en ;
+    rdfs:comment "Quantitative measurements for job execution performance and optimization."@en ;
+    bs:realTimeMonitoring true .
+
+:OptimizationTarget a owl:Class ;
+    rdfs:label "Optimization Target"@en ;
+    rdfs:comment "Specific aspects of job execution targeted for improvement through ByteStar optimization."@en ;
+    rdfs:subClassOf bs:OptimizationObjective .
+
+:AutomationLevel a owl:Class ;
+    rdfs:label "Automation Level"@en ;
+    rdfs:comment "Degree of automation applied to job execution, from manual to fully autonomous."@en .
+
+# ===============================================================================
+# PROPERTIES - Functional Relationships
+# ===============================================================================
+
+:hasJobOutcome a owl:ObjectProperty ;
+    rdfs:label "has job outcome"@en ;
+    rdfs:comment "Links a job to its desired outcome or result."@en ;
+    rdfs:domain :Job ;
+    rdfs:range :JobOutcome ;
+    bs:performanceCritical true .
+
+:hasContext a owl:ObjectProperty ;
+    rdfs:label "has context"@en ;
+    rdfs:comment "Specifies the situational context in which a job occurs."@en ;
+    rdfs:domain :Job ;
+    rdfs:range :Context .
+
+:hasStruggle a owl:ObjectProperty ;
+    rdfs:label "has struggle"@en ;
+    rdfs:comment "Identifies pain points or obstacles in job execution."@en ;
+    rdfs:domain :Job ;
+    rdfs:range :Struggle .
+
+:solvedBy a owl:ObjectProperty ;
+    rdfs:label "solved by"@en ;
+    rdfs:comment "Links a job to solutions that can accomplish it."@en ;
+    rdfs:domain :Job ;
+    rdfs:range :Solution .
+
+:achieves a owl:ObjectProperty ;
+    rdfs:label "achieves"@en ;
+    rdfs:comment "Links a solution to the outcomes it produces."@en ;
+    rdfs:domain :Solution ;
+    rdfs:range :Outcome .
+
+:enabledBy a owl:ObjectProperty ;
+    rdfs:label "enabled by"@en ;
+    rdfs:comment "Links a solution to the ByteStar components that enable it."@en ;
+    rdfs:domain :Solution ;
+    rdfs:range bs:ByteStarComponent .
+
+:orchestratedBy a owl:ObjectProperty ;
+    rdfs:label "orchestrated by"@en ;
+    rdfs:comment "Specifies ByteFlow orchestration for workflow execution."@en ;
+    rdfs:domain :ByteStarWorkflow ;
+    rdfs:range bf:OrchestrationService .
+
+:fabricatedBy a owl:ObjectProperty ;
+    rdfs:label "fabricated by"@en ;
+    rdfs:comment "Links workflow to ByteGen fabrication engine."@en ;
+    rdfs:domain :ByteStarWorkflow ;
+    rdfs:range bf:FabricationEngine .
+
+:optimizedBy a owl:ObjectProperty ;
+    rdfs:label "optimized by"@en ;
+    rdfs:comment "Specifies ByteCore optimization applied to job execution."@en ;
+    rdfs:domain :ByteStarWorkflow ;
+    rdfs:range bs:OptimizationKernel .
+
+# ===============================================================================
+# PROPERTIES - Performance and Measurement
+# ===============================================================================
+
+:hasPerformanceMetric a owl:ObjectProperty ;
+    rdfs:label "has performance metric"@en ;
+    rdfs:comment "Associates job with measurable performance indicators."@en ;
+    rdfs:domain :Job ;
+    rdfs:range :PerformanceMetric .
+
+:hasOptimizationTarget a owl:ObjectProperty ;
+    rdfs:label "has optimization target"@en ;
+    rdfs:comment "Specifies what aspect of the job is targeted for optimization."@en ;
+    rdfs:domain :Job ;
+    rdfs:range :OptimizationTarget .
+
+:automationLevel a owl:DatatypeProperty ;
+    rdfs:label "automation level"@en ;
+    rdfs:comment "Percentage of job execution that is automated (0-100)."@en ;
+    rdfs:domain :Solution ;
+    rdfs:range xsd:integer .
+
+:executionLatency a owl:DatatypeProperty ;
+    rdfs:label "execution latency"@en ;
+    rdfs:comment "Time required to complete job execution in microseconds."@en ;
+    rdfs:domain :Solution ;
+    rdfs:range xsd:long ;
+    bs:performanceKPI true .
+
+:throughput a owl:DatatypeProperty ;
+    rdfs:label "throughput"@en ;
+    rdfs:comment "Number of jobs processed per second."@en ;
+    rdfs:domain :Solution ;
+    rdfs:range xsd:long ;
+    bs:performanceKPI true .
+
+:costReduction a owl:DatatypeProperty ;
+    rdfs:label "cost reduction"@en ;
+    rdfs:comment "Percentage reduction in cost compared to baseline solution."@en ;
+    rdfs:domain :Solution ;
+    rdfs:range xsd:decimal .
+
+# ===============================================================================
+# PROPERTIES - Enterprise Metadata
+# ===============================================================================
+
+:businessValue a owl:DatatypeProperty ;
+    rdfs:label "business value"@en ;
+    rdfs:comment "Quantified business value delivered by solving the job."@en ;
+    rdfs:domain :Job ;
+    rdfs:range xsd:decimal .
+
+:priority a owl:DatatypeProperty ;
+    rdfs:label "priority"@en ;
+    rdfs:comment "Business priority level (1=highest, 10=lowest)."@en ;
+    rdfs:domain :Job ;
+    rdfs:range xsd:integer .
+
+:stakeholder a owl:DatatypeProperty ;
+    rdfs:label "stakeholder"@en ;
+    rdfs:comment "Primary stakeholder or department responsible for the job."@en ;
+    rdfs:domain :Job ;
+    rdfs:range xsd:string .
+
+:complianceFramework a owl:DatatypeProperty ;
+    rdfs:label "compliance framework"@en ;
+    rdfs:comment "Regulatory or governance framework that applies to job execution."@en ;
+    rdfs:domain :ComplianceRequirement ;
+    rdfs:range xsd:string .
+
+# ===============================================================================
+# INDIVIDUALS - Example Fortune 5 Jobs
+# ===============================================================================
+
+:CustomerOnboarding a :EnterpriseJob ;
+    rdfs:label "Customer Onboarding"@en ;
+    rdfs:comment "Fortune 5 customer onboarding process requiring identity verification, compliance checks, and system integration."@en ;
+    :hasJobOutcome :OnboardingComplete ;
+    :hasContext :RegulatoryContext ;
+    :businessValue 2500000.00 ;
+    :priority 1 ;
+    :stakeholder "Customer Operations" .
+
+:OnboardingComplete a :JobOutcome ;
+    rdfs:label "Onboarding Complete"@en ;
+    rdfs:comment "Customer successfully onboarded with all compliance requirements satisfied and systems activated."@en .
+
+:RegulatoryContext a :Context ;
+    rdfs:label "Regulatory Context"@en ;
+    rdfs:comment "Heavy regulatory environment requiring KYC, AML, and data protection compliance."@en .
+
+:SupplyChainOptimization a :StrategicInitiative ;
+    rdfs:label "Supply Chain Optimization"@en ;
+    rdfs:comment "Enterprise-wide supply chain optimization leveraging real-time data and predictive analytics."@en ;
+    :hasJobOutcome :OptimizedSupplyChain ;
+    :businessValue 50000000.00 ;
+    :priority 1 .
+
+:OptimizedSupplyChain a :JobOutcome ;
+    rdfs:label "Optimized Supply Chain"@en ;
+    rdfs:comment "Supply chain operating at maximum efficiency with minimized costs and optimized delivery times."@en .
+
+:FraudDetection a :RealTimeJob ;
+    rdfs:label "Fraud Detection"@en ;
+    rdfs:comment "Real-time fraud detection requiring sub-50μs response time for transaction validation."@en ;
+    :hasJobOutcome :FraudPrevented ;
+    :executionLatency 25 ;
+    :throughput 200000 .
+
+:FraudPrevented a :JobOutcome ;
+    rdfs:label "Fraud Prevented"@en ;
+    rdfs:comment "Fraudulent transactions blocked before processing with minimal false positives."@en .
+
+# ===============================================================================
+# BYRON CONSENSUS INTEGRATION
+# ===============================================================================
+
+:DistributedConsensusJob a owl:Class ;
+    rdfs:label "Distributed Consensus Job"@en ;
+    rdfs:comment "Jobs requiring Byzantine fault-tolerant consensus across multiple nodes."@en ;
+    rdfs:subClassOf :QuantumSecureJob ;
+    bs:byzantineConsensus true ;
+    bs:consensusAlgorithm "RAFT" .
+
+:hasConsensusRequirement a owl:ObjectProperty ;
+    rdfs:label "has consensus requirement"@en ;
+    rdfs:comment "Specifies consensus requirements for distributed job execution."@en ;
+    rdfs:domain :DistributedConsensusJob ;
+    rdfs:range bs:ConsensusRequirement .
+
+# ===============================================================================
+# PERFORMANCE CONSTRAINTS AND VALIDATION
+# ===============================================================================
+
+:Doctrine8Constraint a owl:Class ;
+    rdfs:label "Doctrine of 8 Constraint"@en ;
+    rdfs:comment "Performance constraint ensuring ≤8 ticks execution and ≤8 workflow hops."@en ;
+    rdfs:subClassOf bs:PerformanceConstraint .
+
+:hasConstraint a owl:ObjectProperty ;
+    rdfs:label "has constraint"@en ;
+    rdfs:comment "Associates job with performance or business constraints."@en ;
+    rdfs:domain :Job ;
+    rdfs:range :Doctrine8Constraint .
+
+# Constraint validation rules
+[] a owl:Restriction ;
+   owl:onProperty :executionLatency ;
+   owl:onClass :RealTimeJob ;
+   owl:maxInclusive 50 ;
+   rdfs:comment "Real-time jobs must execute within 50 microseconds" .
+
+[] a owl:Restriction ;
+   owl:onProperty :throughput ;
+   owl:onClass :ByteStarWorkflow ;
+   owl:minInclusive 105000 ;
+   rdfs:comment "ByteStar workflows must achieve minimum 105K ops/sec throughput" .

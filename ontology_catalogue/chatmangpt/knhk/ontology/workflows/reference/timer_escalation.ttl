@@ -1,0 +1,87 @@
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Patterns 40-43: Timer Escalation Workflow
+# Demonstrates: Event-driven patterns with timers
+
+<#TimerEscalation> a yawl:Specification ;
+    yawl:uri <http://example.org/workflows/timer-escalation> ;
+    yawl:name "Timer Escalation" ;
+    yawl:documentation "Reference workflow demonstrating timer patterns (40-43)" ;
+    yawl:hasDecomposition <#TimerEscalationNet> .
+
+<#TimerEscalationNet> a yawl:Net ;
+    yawl:id "timer_escalation_net" ;
+    yawl:name "Timer Escalation Net" ;
+    yawl:isRootNet true ;
+    yawl:hasInputCondition <#start> ;
+    yawl:hasOutputCondition <#end> ;
+    yawl:hasTask <#assignTask> ;
+    yawl:hasTask <#processTask> ;
+    yawl:hasTask <#escalateTask> ;
+    yawl:hasTask <#resolveTask> .
+
+<#start> a yawl:InputCondition ;
+    yawl:id "start" ;
+    yawl:name "Start" .
+
+<#assignTask> a yawl:Task ;
+    yawl:id "assign_task" ;
+    yawl:name "Assign Task" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow1> .
+
+# Pattern 40-43: Task with timer
+<#processTask> a yawl:Task ;
+    yawl:id "process_task" ;
+    yawl:name "Process Task" ;
+    yawl:documentation "Pattern 40-43: Task with timer triggers escalation if not completed" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:hasTimer <#timer1> ;
+    yawl:flowsInto <#flow2> .
+
+# Timer configuration
+<#timer1> a yawl:Timer ;
+    yawl:hasTrigger yawl:TimerTriggerOnEnabled ;
+    yawl:hasDurationParams <#timerDuration1> .
+
+<#timerDuration1> a yawl:TimerDuration ;
+    yawl:ticks 3600 ;  # 1 hour
+    yawl:hasInterval yawl:TimerIntervalSec .
+
+# Escalation task (triggered by timer)
+<#escalateTask> a yawl:Task ;
+    yawl:id "escalate_task" ;
+    yawl:name "Escalate Task" ;
+    yawl:documentation "Pattern 40-43: Escalation triggered by timer expiry" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow3> .
+
+# Resolve
+<#resolveTask> a yawl:Task ;
+    yawl:id "resolve_task" ;
+    yawl:name "Resolve Task" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow4> .
+
+<#end> a yawl:OutputCondition ;
+    yawl:id "end" ;
+    yawl:name "End" .
+
+# Flows
+<#flow1> a yawl:FlowsInto ;
+    yawl:nextElementRef <#processTask> .
+
+<#flow2> a yawl:FlowsInto ;
+    yawl:nextElementRef <#resolveTask> .
+
+<#flow3> a yawl:FlowsInto ;
+    yawl:nextElementRef <#resolveTask> .
+
+<#flow4> a yawl:FlowsInto ;
+    yawl:nextElementRef <#end> .

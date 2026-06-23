@@ -1,0 +1,175 @@
+# YAWL Pattern: Multi-Jurisdictional Filing (Van der Aalst #45)
+# Pattern ID: CNS002  
+# Trinity Framework Compliant
+# TTL2DSpy Explorable
+# Generated: 2025-08-09T16:36:28.081064
+
+@prefix cns: <http://cns-litigation.org/ontology#> .
+@prefix yawl: <http://www.yawlsystem.com/yawlschema#> .
+@prefix dag: <http://directed-acyclic-graph.org/ontology#> .
+@prefix trinity: <http://cns.ultrathink/trinity#> .
+@prefix bitagent: <http://cns.ultrathink/bitagent#> .
+@prefix disc: <http://cns.ultrathink/disc#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+
+cns:CNS002 a yawl:YAWLSpecification ;
+    rdfs:label "Multi-Jurisdictional Filing" ;
+    yawl:specVersion "4.0" ;
+    trinity:vanDerAalstIndex "45"^^xsd:integer ;
+    trinity:maxTicks "8"^^xsd:integer ;
+    trinity:deterministicState "true"^^xsd:boolean ;
+    trinity:complianceValidated "true"^^xsd:boolean ;
+    yawl:decomposesTo cns:CNS002_net .
+
+
+cns:CNS002_net a yawl:Net ;
+    rdfs:label "Multi-Jurisdictional Filing Net" ;
+    yawl:inputCondition cns:CNS002_start ;
+    yawl:outputCondition cns:CNS002_end .
+
+cns:CNS002_MJ_START a cns:FlowNode, yawl:StartNode ;
+    cns:hasNodeID "MJ_START" ;
+    cns:hasNodeType cns:start ;
+    trinity:progressTick "0"^^xsd:integer ;
+    cns:hasProcessingTimeUs "0"^^xsd:integer ;
+    cns:hasPosition "0,0"  ;
+    dag:successors (cns:CNS002_MJ_ANALYZE) .
+
+cns:CNS002_MJ_ANALYZE a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "MJ_ANALYZE" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "2"^^xsd:integer ;
+    cns:hasProcessingTimeUs "7200000000"^^xsd:integer ;
+    cns:hasPosition "1,0"  ;
+    dag:predecessors (cns:CNS002_MJ_START) ;
+    dag:successors (cns:CNS002_MJ_CALIFORNIA, cns:CNS002_MJ_NEVADA, cns:CNS002_MJ_FEDERAL) .
+
+cns:CNS002_MJ_CALIFORNIA a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "MJ_CALIFORNIA" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "4"^^xsd:integer ;
+    cns:hasProcessingTimeUs "14400000000"^^xsd:integer ;
+    cns:hasPosition "2,-1"  ;
+    dag:predecessors (cns:CNS002_MJ_ANALYZE) ;
+    dag:successors (cns:CNS002_MJ_CONSOLIDATE) .
+
+cns:CNS002_MJ_NEVADA a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "MJ_NEVADA" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "4"^^xsd:integer ;
+    cns:hasProcessingTimeUs "14400000000"^^xsd:integer ;
+    cns:hasPosition "2,0"  ;
+    dag:predecessors (cns:CNS002_MJ_ANALYZE) ;
+    dag:successors (cns:CNS002_MJ_CONSOLIDATE) .
+
+cns:CNS002_MJ_FEDERAL a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "MJ_FEDERAL" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "4"^^xsd:integer ;
+    cns:hasProcessingTimeUs "14400000000"^^xsd:integer ;
+    cns:hasPosition "2,1"  ;
+    dag:predecessors (cns:CNS002_MJ_ANALYZE) ;
+    dag:successors (cns:CNS002_MJ_CONSOLIDATE) .
+
+cns:CNS002_MJ_CONSOLIDATE a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "MJ_CONSOLIDATE" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "6"^^xsd:integer ;
+    cns:hasProcessingTimeUs "7200000000"^^xsd:integer ;
+    cns:hasPosition "3,0"  ;
+    dag:predecessors (cns:CNS002_MJ_CALIFORNIA, cns:CNS002_MJ_NEVADA, cns:CNS002_MJ_FEDERAL) ;
+    dag:successors (cns:CNS002_MJ_FILE) .
+
+cns:CNS002_MJ_FILE a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "MJ_FILE" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "8"^^xsd:integer ;
+    cns:hasProcessingTimeUs "3600000000"^^xsd:integer ;
+    cns:hasPosition "4,0"  ;
+    dag:predecessors (cns:CNS002_MJ_CONSOLIDATE) ;
+    dag:successors (cns:CNS002_MJ_END) .
+
+cns:CNS002_MJ_END a cns:FlowNode, yawl:EndNode ;
+    cns:hasNodeID "MJ_END" ;
+    cns:hasNodeType cns:end ;
+    trinity:progressTick "8"^^xsd:integer ;
+    cns:hasProcessingTimeUs "0"^^xsd:integer ;
+    cns:hasPosition "5,0"  ;
+    dag:predecessors (cns:CNS002_MJ_FILE) .
+
+# DAG Edge Definitions
+
+cns:edge_001 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:MJ_START ;
+    dag:hasTarget cns:MJ_ANALYZE ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_002 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:MJ_ANALYZE ;
+    dag:hasTarget cns:MJ_CALIFORNIA ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_003 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:MJ_ANALYZE ;
+    dag:hasTarget cns:MJ_NEVADA ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_004 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:MJ_ANALYZE ;
+    dag:hasTarget cns:MJ_FEDERAL ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_005 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:MJ_CALIFORNIA ;
+    dag:hasTarget cns:MJ_CONSOLIDATE ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_006 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:MJ_NEVADA ;
+    dag:hasTarget cns:MJ_CONSOLIDATE ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_007 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:MJ_FEDERAL ;
+    dag:hasTarget cns:MJ_CONSOLIDATE ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_008 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:MJ_CONSOLIDATE ;
+    dag:hasTarget cns:MJ_FILE ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_009 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:MJ_FILE ;
+    dag:hasTarget cns:MJ_END ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+# Trinity Framework Compliance Metadata
+cns:CNS002_compliance a trinity:ComplianceValidation ;
+    trinity:patternId "CNS002" ;
+    trinity:tickCompliance "true"^^xsd:boolean ;
+    trinity:hopCompliance "true"^^xsd:boolean ;
+    trinity:bitCompliance "true"^^xsd:boolean ;
+    trinity:deterministicCompliance "true"^^xsd:boolean ;
+    trinity:validatedAt "2025-08-09T16:36:28.081088"^^xsd:dateTime .
+
+
+# TTL2DSpy Exploration Metadata
+cns:CNS002_exploration a dag:ExplorationGraph ;
+    dag:graphType "directed_acyclic" ;
+    dag:nodeCount "8"^^xsd:integer ;
+    dag:explorable "true"^^xsd:boolean ;
+    dag:ttl2dspyCompatible "true"^^xsd:boolean .

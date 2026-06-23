@@ -1,0 +1,255 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix java26: <http://ggen.io/java26#> .
+@prefix pl:     <https://ggen.dev/pattern-language#> .
+@prefix j26:    <https://ggen.dev/java26-patterns#> .
+
+# =============================================================================
+# JAVA 26 PATTERN LANGUAGE VOCABULARY
+# =============================================================================
+# OWL vocabulary for ggen Java 26 code generation patterns.
+# Formula: A = μ(O) — Java 26 code precipitates from RDF ontology instances.
+#
+# Covers: sealed interfaces/records, virtual threads (Project Loom),
+#         Spring Boot 3.x, JPA repositories, pattern-matched REST APIs,
+#         structured task scopes, aggregate roots, value objects.
+# =============================================================================
+
+<http://ggen.io/java26#> a owl:Ontology ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:label "Java 26 Pattern Language Vocabulary" ;
+    rdfs:comment "OWL vocabulary for ggen Java 26 code generation patterns" .
+
+# =============================================================================
+# SECTION 1: CORE JAVA TYPE CLASSES
+# =============================================================================
+# Each class below corresponds to a named Java 26 construction target.
+# Instances of these classes in a user's .ttl spec drive ggen sync to emit
+# the correct Java source files, annotations, and structural idioms.
+# =============================================================================
+
+java26:AggregateRoot a rdfs:Class ;
+    rdfs:label "Aggregate Root" ;
+    rdfs:comment "Maps to the @Entity + @Service + @RestController trinity: a domain aggregate backed by JPA persistence, a Spring service layer, and a REST controller with pattern-matched dispatch." .
+
+java26:SealedInterface a rdfs:Class ;
+    rdfs:label "Sealed Interface" ;
+    rdfs:comment "Maps to 'sealed interface ... permits' — a closed type hierarchy where all permitted subtypes are declared at compile time, enabling exhaustive pattern matching in switch expressions." .
+
+java26:SealedRecord a rdfs:Class ;
+    rdfs:label "Sealed Record" ;
+    rdfs:comment "Maps to 'public record ... implements <interface>' — an immutable record that is a permitted subtype of a SealedInterface, carrying typed components as its state." .
+
+java26:ValueObject a rdfs:Class ;
+    rdfs:label "Value Object" ;
+    rdfs:comment "Maps to an immutable record with a compact canonical constructor that performs validation. No identity semantics — equality is structural, defined by component values." .
+
+java26:Repository a rdfs:Class ;
+    rdfs:label "Repository" ;
+    rdfs:comment "Maps to '@Repository extends JpaRepository<T, UUID>' — a Spring Data JPA repository interface with derived-query methods, transaction management, and optional custom JPQL." .
+
+java26:DataAccessObject a rdfs:Class ;
+    rdfs:label "Data Access Object" ;
+    rdfs:comment "Maps to a DAO class using Executors.newVirtualThreadPerTaskExecutor() for non-blocking JDBC access. Preferred over JPA for bulk or latency-sensitive read paths (Project Loom pattern)." .
+
+java26:Enum a rdfs:Class ;
+    rdfs:label "Enum" ;
+    rdfs:comment "Maps to a Java enum with getValue() and fromValue(String) factory methods. Suitable for closed sets of domain constants used in JSON serialization and JPA column mappings." .
+
+java26:PatternMatchedAPI a rdfs:Class ;
+    rdfs:label "Pattern Matched API" ;
+    rdfs:comment "Maps to a @RestController whose handler methods use switch expression dispatch over sealed type hierarchies, enabling exhaustive, compiler-verified request routing." .
+
+java26:TaskScope a rdfs:Class ;
+    rdfs:label "Task Scope" ;
+    rdfs:comment "Maps to StructuredTaskScope (Project Loom, java.util.concurrent) — a structured concurrency construct that scopes forked virtual threads to a lexical block, ensuring all subtasks complete or are cancelled before the scope exits." .
+
+java26:Field a rdfs:Class ;
+    rdfs:label "Field" ;
+    rdfs:comment "A field definition within any Java 26 class or record. When applied to a record, maps to a record component. When applied to an @Entity, maps to a JPA-annotated field with optional @Column." .
+
+java26:EnumVariant a rdfs:Class ;
+    rdfs:label "Enum Variant" ;
+    rdfs:comment "A variant (constant) within a Java 26 Enum. Carries a string value used by getValue() and fromValue()." .
+
+java26:Event a rdfs:Class ;
+    rdfs:label "Event" ;
+    rdfs:comment "A domain event record, typically a permitted subtype within a SealedInterface event hierarchy. Immutable, carries timestamp and correlation ID by convention." .
+
+java26:Command a rdfs:Class ;
+    rdfs:label "Command" ;
+    rdfs:comment "A command record representing input to a service method. Immutable, validated via compact canonical constructor. Maps to a record class accepted as a @RequestBody or method argument." .
+
+# =============================================================================
+# SECTION 2: AUXILIARY CLASSIFICATION CLASSES
+# =============================================================================
+# Used as rdfs:range targets for controlled-vocabulary properties.
+# Individuals for these classes are declared in Section 5.
+# =============================================================================
+
+java26:DataAccess a rdfs:Class ;
+    rdfs:label "Data Access Strategy" ;
+    rdfs:comment "Controlled vocabulary for data access strategy: VirtualThreadDAO or SpringDataJPA." .
+
+java26:ScaleLevel a rdfs:Class ;
+    rdfs:label "Scale Level" ;
+    rdfs:comment "Controlled vocabulary for pattern book scale: super (architectural), mid (component), leaf (implementation detail)." .
+
+# =============================================================================
+# SECTION 3: CORE CLASS PROPERTIES
+# =============================================================================
+
+# --- Identity & packaging ---
+
+java26:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:comment "Java simple class name (e.g. 'OrderAggregate', 'PaymentStatus'). Used as the primary class identifier in generated source files." ;
+    rdfs:range xsd:string .
+
+java26:javaPackage a rdf:Property ;
+    rdfs:label "javaPackage" ;
+    rdfs:comment "Java package name (e.g. 'com.example.order.domain'). Combined with java26:name to form the fully-qualified class name." ;
+    rdfs:range xsd:string .
+
+# --- Structural composition ---
+
+java26:field a rdf:Property ;
+    rdfs:label "field" ;
+    rdfs:comment "Links a Java 26 class or record to a Field individual defining one of its fields or record components." ;
+    rdfs:range java26:Field .
+
+# --- Sealed type hierarchy ---
+
+java26:implements a rdf:Property ;
+    rdfs:label "implements" ;
+    rdfs:comment "Declares that a SealedRecord is a permitted implementor of a SealedInterface. Generates 'implements <InterfaceName>' on the record and adds the record to the interface's permits clause." ;
+    rdfs:domain java26:SealedRecord ;
+    rdfs:range java26:SealedInterface .
+
+java26:permits a rdf:Property ;
+    rdfs:label "permits" ;
+    rdfs:comment "Explicitly enumerates the permitted subtypes of a SealedInterface. Generates the 'permits TypeA, TypeB' clause. If omitted, ggen derives it by inverting java26:implements." ;
+    rdfs:domain java26:SealedInterface ;
+    rdfs:range java26:SealedRecord .
+
+# --- Aggregate root data access ---
+
+java26:dataAccess a rdf:Property ;
+    rdfs:label "dataAccess" ;
+    rdfs:comment "Selects the data access strategy for an AggregateRoot: java26:VirtualThreadDAO (Project Loom JDBC) or java26:SpringDataJPA (JpaRepository). Controls which infrastructure layer ggen generates." ;
+    rdfs:domain java26:AggregateRoot ;
+    rdfs:range java26:DataAccess .
+
+# =============================================================================
+# SECTION 4: FIELD PROPERTIES
+# =============================================================================
+
+java26:fieldName a rdf:Property ;
+    rdfs:label "fieldName" ;
+    rdfs:comment "The Java field or record component name (camelCase). Used verbatim in generated source." ;
+    rdfs:domain java26:Field ;
+    rdfs:range xsd:string .
+
+java26:fieldType a rdf:Property ;
+    rdfs:label "fieldType" ;
+    rdfs:comment "The Java type of the field as a string literal: 'String', 'UUID', 'Instant', 'Long', 'BigDecimal', 'LocalDate', etc. Passed directly into the generated source." ;
+    rdfs:domain java26:Field ;
+    rdfs:range xsd:string .
+
+java26:nullable a rdf:Property ;
+    rdfs:label "nullable" ;
+    rdfs:comment "Whether this field permits null values. Generates '@Column(nullable = false)' when false. Defaults to true if absent." ;
+    rdfs:domain java26:Field ;
+    rdfs:range xsd:boolean .
+
+java26:id a rdf:Property ;
+    rdfs:label "id" ;
+    rdfs:comment "Marks this field as the JPA @Id primary key. Only one field per entity should carry this property as true. Triggers '@Id @GeneratedValue(strategy = GenerationType.UUID)' in generated entity." ;
+    rdfs:domain java26:Field ;
+    rdfs:range xsd:boolean .
+
+java26:column a rdf:Property ;
+    rdfs:label "column" ;
+    rdfs:comment "Optional JPA column name override (snake_case, e.g. 'created_at'). Generates '@Column(name = \"...\")'. When absent, JPA default naming applies." ;
+    rdfs:domain java26:Field ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# SECTION 5: PATTERN BOOK EXTENSION PROPERTIES (j26: namespace)
+# =============================================================================
+# These properties extend pl:Pattern instances from the pattern-language
+# ontology with Java 26-specific metadata used by the ggen book renderer
+# and the ggen sync pipeline for generating recipe documentation.
+# =============================================================================
+
+j26:hasTtlSnippet a rdf:Property ;
+    rdfs:label "hasTtlSnippet" ;
+    rdfs:comment "A copy-paste TTL snippet demonstrating how to instantiate this pattern in a user spec .ttl file. Rendered verbatim in pattern book documentation." ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range xsd:string .
+
+j26:hasGgenTomlRule a rdf:Property ;
+    rdfs:label "hasGgenTomlRule" ;
+    rdfs:comment "A complete ggen.toml [[generation.rules]] block for activating this pattern in a project's generation manifest. Enables copy-paste onboarding." ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range xsd:string .
+
+j26:hasGgenSyncInvocation a rdf:Property ;
+    rdfs:label "hasGgenSyncInvocation" ;
+    rdfs:comment "An example 'ggen sync' command invocation (with relevant flags) that exercises this pattern. Used in pattern book quick-start sections." ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range xsd:string .
+
+j26:hasJavaPreview a rdf:Property ;
+    rdfs:label "hasJavaPreview" ;
+    rdfs:comment "A 40-80 line preview of the Java 26 source code that ggen generates when this pattern is applied. Helps authors verify pattern output without running the full pipeline." ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range xsd:string .
+
+j26:hasScaleLevel a rdf:Property ;
+    rdfs:label "hasScaleLevel" ;
+    rdfs:comment "The architectural scale of this pattern: 'super' (system-wide), 'mid' (component/service), or 'leaf' (implementation detail). Used to organize the pattern book hierarchy." ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range xsd:string .
+
+j26:javaVersion a rdf:Property ;
+    rdfs:label "javaVersion" ;
+    rdfs:comment "Minimum Java version required by this pattern: '21' (LTS baseline with sealed types and records GA) or '26' (structured concurrency GA, pattern matching in switch GA)." ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range xsd:string .
+
+j26:springBootVersion a rdf:Property ;
+    rdfs:label "springBootVersion" ;
+    rdfs:comment "Minimum Spring Boot version required by this pattern: '3.x' (requires Jakarta EE 10, Java 17+ baseline). Used for compatibility gating in the ggen marketplace." ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# SECTION 6: CONTROLLED VOCABULARY INDIVIDUALS
+# =============================================================================
+
+# --- Data Access Strategy ---
+
+java26:VirtualThreadDAO a java26:DataAccess ;
+    rdfs:label "Virtual Thread DAO" ;
+    rdfs:comment "Data access via a hand-written DAO class using Executors.newVirtualThreadPerTaskExecutor(). Preferred for bulk reads, streaming queries, and latency-sensitive paths on Java 21+." .
+
+java26:SpringDataJPA a java26:DataAccess ;
+    rdfs:label "Spring Data JPA" ;
+    rdfs:comment "Data access via a Spring Data JpaRepository<T, UUID> interface. Preferred for CRUD-heavy aggregates where derived-query methods and transaction management reduce boilerplate." .
+
+# --- Scale Levels ---
+
+java26:ScaleSuper a java26:ScaleLevel ;
+    rdfs:label "super" ;
+    rdfs:comment "Super-scale pattern: architectural, system-wide decisions. Equivalent to Alexander's largest-scale patterns (city, town, region). In ggen: multi-service topologies." .
+
+java26:ScaleMid a java26:ScaleLevel ;
+    rdfs:label "mid" ;
+    rdfs:comment "Mid-scale pattern: component or service-level design. Equivalent to Alexander's building-scale patterns. In ggen: single-service structure (aggregate + repo + controller)." .
+
+java26:ScaleLeaf a java26:ScaleLevel ;
+    rdfs:label "leaf" ;
+    rdfs:comment "Leaf-scale pattern: implementation detail. Equivalent to Alexander's room or ornament-scale patterns. In ggen: individual class construction (sealed record, value object, enum)." .

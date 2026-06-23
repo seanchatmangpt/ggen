@@ -1,0 +1,1256 @@
+# UNRDF Documentation Ontology - Examples
+# Demonstrates usage of the documentation ontology with:
+# - 3 Example Capabilities (SPARQL Query, SHACL Validation, N3 Reasoning)
+# - 2 Example Protocols (Transaction Commit, Knowledge Hook Execution)
+# - 3 Example Types (KnowledgeHook, TransactionReceipt, ValidationResult)
+# - 2 Example Rules (Transitive Closure, Capability Chaining)
+#
+# Version: 1.0.0
+# Compatible with: N3 reasoning, SPARQL querying
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# Import base ontology
+@prefix doc: <urn:unrdf:doc:> .
+@prefix cap: <urn:unrdf:doc:capability:> .
+@prefix proto: <urn:unrdf:doc:protocol:> .
+@prefix typ: <urn:unrdf:doc:type:> .
+@prefix rsn: <urn:unrdf:doc:reasoning:> .
+@prefix slo: <urn:unrdf:doc:slo:> .
+@prefix auth: <urn:unrdf:doc:auth:> .
+@prefix cost: <urn:unrdf:doc:cost:> .
+
+# Example namespace
+@prefix ex: <urn:unrdf:doc:example:> .
+
+# =============================================================================
+# EXAMPLE CAPABILITIES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Capability 1: SPARQL Query Execution
+# An atomic capability for executing SPARQL queries against the knowledge graph
+# -----------------------------------------------------------------------------
+
+ex:SparqlQueryCapability a cap:AtomicCapability ;
+    rdfs:label "SPARQL Query Execution"@en ;
+    rdfs:comment "Execute a SPARQL SELECT, ASK, or CONSTRUCT query against the RDF store. Returns query results in the requested format."@en ;
+    cap:version "1.0.0" ;
+
+    # Input/Output Types
+    cap:inputType ex:SparqlQueryInput ;
+    cap:outputType ex:SparqlQueryResult ;
+
+    # Preconditions - What must be true before execution
+    cap:hasPrecondition ex:SparqlQueryPrecondition1 ;
+    cap:hasPrecondition ex:SparqlQueryPrecondition2 ;
+
+    # Postconditions - What will be true after execution
+    cap:hasPostcondition ex:SparqlQueryPostcondition ;
+
+    # Invariants - What must remain true during execution
+    cap:hasInvariant ex:SparqlQueryInvariant ;
+
+    # Resource requirements
+    cap:requires ex:RdfStoreResource ;
+    cap:requires ex:QueryEngineResource ;
+
+    # Effects
+    cap:hasEffect ex:QueryMetricsEffect ;
+
+    # Authorization
+    auth:requiresAuth auth:Authenticated ;
+    auth:requiresPermission ex:ReadGraphsPermission ;
+
+    # Cost model
+    cost:hasCostModel ex:SparqlQueryCostModel ;
+    cost:maxBudget 100.0 ;
+
+    # SLO targets
+    slo:hasSLO ex:SparqlQueryLatencySLO ;
+    slo:hasSLO ex:SparqlQueryThroughputSLO ;
+
+    # Implementation reference
+    cap:implementedBy ex:QueryEngineAgent .
+
+# Precondition: Valid SPARQL syntax
+ex:SparqlQueryPrecondition1 a cap:Precondition ;
+    rdfs:label "Valid SPARQL Syntax"@en ;
+    rdfs:comment "The query must be syntactically valid SPARQL 1.1"@en ;
+    cap:conditionSparql """
+        ASK WHERE {
+            ?query a ex:SparqlQuery .
+            ?query ex:syntaxValid true .
+        }
+    """ ;
+    cap:conditionN3 """
+        { ?query a ex:SparqlQuery . ?query ex:syntaxValid true . } => { ?query ex:canExecute true . } .
+    """ .
+
+# Precondition: Graph exists
+ex:SparqlQueryPrecondition2 a cap:Precondition ;
+    rdfs:label "Target Graph Exists"@en ;
+    rdfs:comment "The target graph(s) must exist in the store"@en ;
+    cap:conditionSparql """
+        ASK WHERE {
+            ?request ex:targetGraph ?graph .
+            ?graph a ex:NamedGraph .
+            ?graph ex:exists true .
+        }
+    """ .
+
+# Postcondition: Results returned
+ex:SparqlQueryPostcondition a cap:Postcondition ;
+    rdfs:label "Results Available"@en ;
+    rdfs:comment "Query results are available in the requested format"@en ;
+    cap:conditionSparql """
+        ASK WHERE {
+            ?execution ex:hasResult ?result .
+            ?result ex:format ?format .
+            ?result ex:bindings ?bindings .
+        }
+    """ .
+
+# Invariant: Store consistency
+ex:SparqlQueryInvariant a cap:Invariant ;
+    rdfs:label "Store Consistency"@en ;
+    rdfs:comment "Read operations must not modify the store state"@en ;
+    cap:conditionSparql """
+        ASK WHERE {
+            ?store ex:quadCount ?before .
+            ?store ex:quadCount ?after .
+            FILTER(?before = ?after)
+        }
+    """ .
+
+# Resources
+ex:RdfStoreResource a cap:Resource ;
+    rdfs:label "RDF Store"@en ;
+    rdfs:comment "An N3.js Store instance containing the knowledge graph" .
+
+ex:QueryEngineResource a cap:Resource ;
+    rdfs:label "Query Engine"@en ;
+    rdfs:comment "Comunica or similar SPARQL query engine" .
+
+# Effect: Metrics update
+ex:QueryMetricsEffect a cap:Effect ;
+    rdfs:label "Query Metrics Update"@en ;
+    rdfs:comment "Updates query execution metrics (latency, result count)" .
+
+# Permission
+ex:ReadGraphsPermission a auth:Permission ;
+    auth:permissionName "read:graphs" ;
+    auth:scope "graphs:read" .
+
+# Cost Model
+ex:SparqlQueryCostModel a cost:CostModel ;
+    rdfs:label "SPARQL Query Cost Model"@en ;
+    cost:currency "tokens" ;
+    cost:hasResourceCost ex:QueryCpuCost ;
+    cost:hasResourceCost ex:QueryMemoryCost .
+
+ex:QueryCpuCost a cost:ResourceCost ;
+    cost:resourceType "cpu" ;
+    cost:unitCost 0.001 .
+
+ex:QueryMemoryCost a cost:ResourceCost ;
+    cost:resourceType "memory" ;
+    cost:unitCost 0.0001 .
+
+# SLOs
+ex:SparqlQueryLatencySLO a slo:PerformanceSLO ;
+    rdfs:label "Query Latency SLO"@en ;
+    slo:metric slo:LatencyMetric ;
+    slo:percentile 99 ;
+    slo:latencyMs 100 ;
+    slo:target [
+        a slo:Threshold ;
+        slo:thresholdValue 100.0 ;
+        slo:thresholdUnit "ms" ;
+        slo:comparisonOperator "lessThan"
+    ] ;
+    slo:hasAlert [
+        a slo:Alert ;
+        slo:alertSeverity "warning" ;
+        slo:alertThreshold 0.8
+    ] .
+
+ex:SparqlQueryThroughputSLO a slo:PerformanceSLO ;
+    rdfs:label "Query Throughput SLO"@en ;
+    slo:metric slo:ThroughputMetric ;
+    slo:throughput 1000.0 ;
+    slo:target [
+        a slo:Threshold ;
+        slo:thresholdValue 1000.0 ;
+        slo:thresholdUnit "queries/sec" ;
+        slo:comparisonOperator "greaterThan"
+    ] .
+
+# Implementation agent
+ex:QueryEngineAgent a prov:Agent ;
+    rdfs:label "Query Engine Agent"@en ;
+    rdfs:comment "Agent responsible for SPARQL query execution" .
+
+# -----------------------------------------------------------------------------
+# Capability 2: SHACL Validation
+# An atomic capability for validating RDF data against SHACL shapes
+# -----------------------------------------------------------------------------
+
+ex:ShaclValidationCapability a cap:AtomicCapability ;
+    rdfs:label "SHACL Validation"@en ;
+    rdfs:comment "Validate RDF data against SHACL shapes and return a validation report."@en ;
+    cap:version "1.0.0" ;
+
+    # Input/Output
+    cap:inputType ex:ShaclValidationInput ;
+    cap:outputType ex:ShaclValidationReport ;
+
+    # Preconditions
+    cap:hasPrecondition ex:ShaclValidationPrecondition ;
+
+    # Postconditions
+    cap:hasPostcondition ex:ShaclValidationPostcondition ;
+
+    # Resources
+    cap:requires ex:ShaclShapesResource ;
+    cap:requires ex:DataGraphResource ;
+
+    # Effects
+    cap:hasEffect ex:ValidationReportEffect ;
+    cap:produces ex:ValidationReportResource ;
+
+    # Authorization
+    auth:requiresAuth auth:Authenticated ;
+    auth:requiresPermission ex:ValidatePermission ;
+
+    # Cost
+    cost:hasCostModel ex:ShaclValidationCostModel ;
+    cost:maxBudget 500.0 ;
+
+    # SLO
+    slo:hasSLO ex:ShaclValidationLatencySLO ;
+    slo:hasSLO ex:ShaclValidationQualitySLO ;
+
+    cap:implementedBy ex:ValidationEngineAgent .
+
+ex:ShaclValidationPrecondition a cap:Precondition ;
+    rdfs:label "Valid SHACL Shapes"@en ;
+    rdfs:comment "The shapes graph must contain valid SHACL shapes"@en ;
+    cap:conditionSparql """
+        ASK WHERE {
+            ?shape a sh:NodeShape .
+            ?shape sh:targetClass ?class .
+        }
+    """ .
+
+ex:ShaclValidationPostcondition a cap:Postcondition ;
+    rdfs:label "Validation Report Generated"@en ;
+    rdfs:comment "A conforming validation report is produced"@en ;
+    cap:conditionSparql """
+        ASK WHERE {
+            ?report a sh:ValidationReport .
+            ?report sh:conforms ?conforms .
+        }
+    """ .
+
+ex:ShaclShapesResource a cap:Resource ;
+    rdfs:label "SHACL Shapes Graph"@en .
+
+ex:DataGraphResource a cap:Resource ;
+    rdfs:label "Data Graph"@en .
+
+ex:ValidationReportResource a cap:Resource ;
+    rdfs:label "Validation Report"@en .
+
+ex:ValidationReportEffect a cap:Effect ;
+    rdfs:label "Validation Report Created"@en .
+
+ex:ValidatePermission a auth:Permission ;
+    auth:permissionName "validate:data" ;
+    auth:scope "validation:execute" .
+
+ex:ShaclValidationCostModel a cost:CostModel ;
+    cost:currency "tokens" ;
+    cost:hasResourceCost [
+        a cost:ResourceCost ;
+        cost:resourceType "cpu" ;
+        cost:unitCost 0.01
+    ] .
+
+ex:ShaclValidationLatencySLO a slo:PerformanceSLO ;
+    rdfs:label "Validation Latency SLO"@en ;
+    slo:percentile 95 ;
+    slo:latencyMs 500 ;
+    slo:target [
+        a slo:Threshold ;
+        slo:thresholdValue 500.0 ;
+        slo:thresholdUnit "ms" ;
+        slo:comparisonOperator "lessThan"
+    ] .
+
+ex:ShaclValidationQualitySLO a slo:QualitySLO ;
+    rdfs:label "Validation Accuracy SLO"@en ;
+    slo:accuracy 1.0 ;
+    slo:errorRate 0.0 ;
+    slo:target [
+        a slo:Threshold ;
+        slo:thresholdValue 1.0 ;
+        slo:thresholdUnit "ratio" ;
+        slo:comparisonOperator "equals"
+    ] .
+
+ex:ValidationEngineAgent a prov:Agent ;
+    rdfs:label "Validation Engine Agent"@en .
+
+# -----------------------------------------------------------------------------
+# Capability 3: N3 Reasoning (Composite)
+# A composite capability combining query and inference
+# -----------------------------------------------------------------------------
+
+ex:N3ReasoningCapability a cap:CompositeCapability ;
+    rdfs:label "N3 Reasoning"@en ;
+    rdfs:comment "Execute N3 rules for forward-chaining inference, deriving new facts from existing knowledge."@en ;
+    cap:version "1.0.0" ;
+
+    # Composition
+    cap:composedOf ex:LoadRulesCapability ;
+    cap:composedOf ex:ExecuteReasonerCapability ;
+    cap:composedOf ex:MaterializeResultsCapability ;
+    cap:executionOrder "sequential" ;
+
+    # Input/Output
+    cap:inputType ex:N3ReasoningInput ;
+    cap:outputType ex:N3ReasoningOutput ;
+
+    # Preconditions
+    cap:hasPrecondition ex:N3ReasoningPrecondition ;
+
+    # Postconditions
+    cap:hasPostcondition ex:N3ReasoningPostcondition ;
+
+    # Resources
+    cap:requires ex:N3RulesResource ;
+    cap:requires ex:RdfStoreResource ;
+    cap:produces ex:InferredTriplesResource ;
+
+    # Authorization
+    auth:requiresAuth auth:Authorized ;
+    auth:requiresPermission ex:ReasonPermission ;
+    auth:requiresPermission ex:WriteGraphsPermission ;
+
+    # Cost
+    cost:hasCostModel ex:N3ReasoningCostModel ;
+    cost:maxBudget 1000.0 ;
+
+    # SLO
+    slo:hasSLO ex:N3ReasoningLatencySLO ;
+
+    cap:implementedBy ex:EyeReasonerAgent .
+
+ex:LoadRulesCapability a cap:AtomicCapability ;
+    rdfs:label "Load N3 Rules"@en ;
+    cap:version "1.0.0" .
+
+ex:ExecuteReasonerCapability a cap:AtomicCapability ;
+    rdfs:label "Execute Reasoner"@en ;
+    cap:version "1.0.0" .
+
+ex:MaterializeResultsCapability a cap:AtomicCapability ;
+    rdfs:label "Materialize Results"@en ;
+    cap:version "1.0.0" .
+
+ex:N3ReasoningPrecondition a cap:Precondition ;
+    rdfs:label "Valid N3 Rules"@en ;
+    cap:conditionSparql """
+        ASK WHERE {
+            ?rules a ex:N3RuleSet .
+            ?rules ex:syntaxValid true .
+        }
+    """ ;
+    cap:conditionN3 """
+        { ?rules a ex:N3RuleSet . ?rules ex:syntaxValid true . } => { ?rules ex:canReason true . } .
+    """ .
+
+ex:N3ReasoningPostcondition a cap:Postcondition ;
+    rdfs:label "Inferences Materialized"@en ;
+    cap:conditionSparql """
+        ASK WHERE {
+            ?execution ex:inferredTripleCount ?count .
+            FILTER(?count >= 0)
+        }
+    """ .
+
+ex:N3RulesResource a cap:Resource ;
+    rdfs:label "N3 Rules"@en .
+
+ex:InferredTriplesResource a cap:Resource ;
+    rdfs:label "Inferred Triples"@en .
+
+ex:ReasonPermission a auth:Permission ;
+    auth:permissionName "reason:execute" ;
+    auth:scope "reasoning:forward-chain" .
+
+ex:WriteGraphsPermission a auth:Permission ;
+    auth:permissionName "write:graphs" ;
+    auth:scope "graphs:write" .
+
+ex:N3ReasoningCostModel a cost:CostModel ;
+    cost:currency "tokens" ;
+    cost:hasResourceCost [
+        a cost:ResourceCost ;
+        cost:resourceType "cpu" ;
+        cost:unitCost 0.1
+    ] ;
+    cost:hasResourceCost [
+        a cost:ResourceCost ;
+        cost:resourceType "memory" ;
+        cost:unitCost 0.05
+    ] .
+
+ex:N3ReasoningLatencySLO a slo:PerformanceSLO ;
+    rdfs:label "Reasoning Latency SLO"@en ;
+    slo:percentile 95 ;
+    slo:latencyMs 2000 ;
+    slo:target [
+        a slo:Threshold ;
+        slo:thresholdValue 2000.0 ;
+        slo:thresholdUnit "ms" ;
+        slo:comparisonOperator "lessThan"
+    ] .
+
+ex:EyeReasonerAgent a prov:Agent ;
+    rdfs:label "EYE Reasoner Agent"@en ;
+    rdfs:comment "Euler Yet another proof Engine - N3 reasoner" .
+
+# =============================================================================
+# EXAMPLE PROTOCOLS
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Protocol 1: Transaction Commit Protocol
+# State machine for atomic transaction commits with rollback
+# -----------------------------------------------------------------------------
+
+ex:TransactionCommitProtocol a proto:Protocol ;
+    rdfs:label "Transaction Commit Protocol"@en ;
+    rdfs:comment "Protocol for atomic commit of RDF graph changes with rollback support and knowledge hook execution."@en ;
+
+    # States
+    proto:hasInitialState ex:TxStateIdle ;
+    proto:hasState ex:TxStatePending ;
+    proto:hasState ex:TxStateValidating ;
+    proto:hasState ex:TxStateHooksRunning ;
+    proto:hasState ex:TxStateCommitting ;
+    proto:hasFinalState ex:TxStateCommitted ;
+    proto:hasFinalState ex:TxStateRolledBack ;
+    proto:hasFinalState ex:TxStateFailed ;
+
+    # Transitions
+    proto:hasTransition ex:TxTransitionBegin ;
+    proto:hasTransition ex:TxTransitionValidate ;
+    proto:hasTransition ex:TxTransitionRunHooks ;
+    proto:hasTransition ex:TxTransitionCommit ;
+    proto:hasTransition ex:TxTransitionRollback ;
+    proto:hasTransition ex:TxTransitionFail ;
+
+    # Messages
+    proto:hasMessage ex:TxMsgBegin ;
+    proto:hasMessage ex:TxMsgDelta ;
+    proto:hasMessage ex:TxMsgCommit ;
+    proto:hasMessage ex:TxMsgRollback ;
+    proto:hasMessage ex:TxMsgReceipt ;
+
+    # Error handling
+    proto:hasErrorHandler ex:TxValidationErrorHandler ;
+    proto:hasErrorHandler ex:TxHookErrorHandler ;
+    proto:hasErrorHandler ex:TxTimeoutHandler ;
+
+    # Timeout strategy
+    proto:hasTimeoutStrategy [
+        a proto:TimeoutStrategy ;
+        proto:timeoutMs 30000 ;
+        proto:timeoutAction "rollback"
+    ] ;
+
+    # Retry policy
+    proto:hasRetryPolicy [
+        a proto:RetryPolicy ;
+        proto:maxRetries 3 ;
+        proto:retryBackoff "exponential" ;
+        proto:retryDelayMs 100
+    ] .
+
+# States
+ex:TxStateIdle a proto:InitialState ;
+    rdfs:label "Idle"@en ;
+    rdfs:comment "No active transaction" .
+
+ex:TxStatePending a proto:State ;
+    rdfs:label "Pending"@en ;
+    rdfs:comment "Transaction started, changes accumulated" .
+
+ex:TxStateValidating a proto:State ;
+    rdfs:label "Validating"@en ;
+    rdfs:comment "Running SHACL validation on delta" .
+
+ex:TxStateHooksRunning a proto:State ;
+    rdfs:label "Hooks Running"@en ;
+    rdfs:comment "Executing pre-commit knowledge hooks" .
+
+ex:TxStateCommitting a proto:State ;
+    rdfs:label "Committing"@en ;
+    rdfs:comment "Writing changes to store" .
+
+ex:TxStateCommitted a proto:FinalState ;
+    rdfs:label "Committed"@en ;
+    rdfs:comment "Transaction successfully committed" .
+
+ex:TxStateRolledBack a proto:FinalState ;
+    rdfs:label "Rolled Back"@en ;
+    rdfs:comment "Transaction rolled back" .
+
+ex:TxStateFailed a proto:ErrorState ;
+    rdfs:label "Failed"@en ;
+    rdfs:comment "Transaction failed with error" .
+
+# Transitions
+ex:TxTransitionBegin a proto:Transition ;
+    rdfs:label "Begin Transaction"@en ;
+    proto:fromState ex:TxStateIdle ;
+    proto:toState ex:TxStatePending ;
+    proto:triggeredBy ex:TxMsgBegin ;
+    proto:action ex:CreateTransactionCapability .
+
+ex:TxTransitionValidate a proto:Transition ;
+    rdfs:label "Validate Delta"@en ;
+    proto:fromState ex:TxStatePending ;
+    proto:toState ex:TxStateValidating ;
+    proto:triggeredBy ex:TxMsgCommit ;
+    proto:guard """
+        ASK WHERE {
+            ?tx ex:hasDelta ?delta .
+            ?delta ex:additions ?add .
+            ?delta ex:removals ?rem .
+        }
+    """ ;
+    proto:action ex:ShaclValidationCapability .
+
+ex:TxTransitionRunHooks a proto:Transition ;
+    rdfs:label "Run Pre-Commit Hooks"@en ;
+    proto:fromState ex:TxStateValidating ;
+    proto:toState ex:TxStateHooksRunning ;
+    proto:guard """
+        ASK WHERE {
+            ?validation sh:conforms true .
+        }
+    """ ;
+    proto:action ex:ExecuteHooksCapability .
+
+ex:TxTransitionCommit a proto:Transition ;
+    rdfs:label "Commit Changes"@en ;
+    proto:fromState ex:TxStateHooksRunning ;
+    proto:toState ex:TxStateCommitted ;
+    proto:guard """
+        ASK WHERE {
+            ?hookResult ex:allPassed true .
+        }
+    """ ;
+    proto:action ex:WriteToStoreCapability .
+
+ex:TxTransitionRollback a proto:Transition ;
+    rdfs:label "Rollback Transaction"@en ;
+    proto:fromState ex:TxStatePending ;
+    proto:toState ex:TxStateRolledBack ;
+    proto:triggeredBy ex:TxMsgRollback .
+
+ex:TxTransitionFail a proto:Transition ;
+    rdfs:label "Fail Transaction"@en ;
+    proto:fromState ex:TxStateValidating ;
+    proto:toState ex:TxStateFailed ;
+    proto:guard """
+        ASK WHERE {
+            ?validation sh:conforms false .
+        }
+    """ .
+
+# Messages
+ex:TxMsgBegin a proto:Request ;
+    rdfs:label "Begin Transaction Request"@en .
+
+ex:TxMsgDelta a proto:Event ;
+    rdfs:label "Delta Event"@en ;
+    rdfs:comment "Additions and removals for the transaction" .
+
+ex:TxMsgCommit a proto:Request ;
+    rdfs:label "Commit Request"@en .
+
+ex:TxMsgRollback a proto:Request ;
+    rdfs:label "Rollback Request"@en .
+
+ex:TxMsgReceipt a proto:Response ;
+    rdfs:label "Transaction Receipt"@en .
+
+# Error handlers
+ex:TxValidationErrorHandler a proto:ErrorHandler ;
+    rdfs:label "Validation Error Handler"@en ;
+    proto:handlesError "ValidationError" ;
+    proto:fallbackState ex:TxStateFailed .
+
+ex:TxHookErrorHandler a proto:ErrorHandler ;
+    rdfs:label "Hook Error Handler"@en ;
+    proto:handlesError "HookVetoError" ;
+    proto:fallbackState ex:TxStateRolledBack ;
+    proto:recoveryAction ex:RollbackCapability .
+
+ex:TxTimeoutHandler a proto:ErrorHandler ;
+    rdfs:label "Timeout Error Handler"@en ;
+    proto:handlesError "TimeoutError" ;
+    proto:fallbackState ex:TxStateRolledBack .
+
+# Referenced capabilities
+ex:CreateTransactionCapability a cap:AtomicCapability ;
+    rdfs:label "Create Transaction"@en .
+
+ex:ExecuteHooksCapability a cap:AtomicCapability ;
+    rdfs:label "Execute Knowledge Hooks"@en .
+
+ex:WriteToStoreCapability a cap:AtomicCapability ;
+    rdfs:label "Write to Store"@en .
+
+ex:RollbackCapability a cap:AtomicCapability ;
+    rdfs:label "Rollback Changes"@en .
+
+# -----------------------------------------------------------------------------
+# Protocol 2: Knowledge Hook Execution Protocol
+# Protocol for evaluating and executing knowledge hooks
+# -----------------------------------------------------------------------------
+
+ex:KnowledgeHookProtocol a proto:Protocol ;
+    rdfs:label "Knowledge Hook Execution Protocol"@en ;
+    rdfs:comment "Protocol for evaluating hook conditions and executing hook actions with deterministic ordering."@en ;
+
+    # States
+    proto:hasInitialState ex:HookStateWaiting ;
+    proto:hasState ex:HookStateEvaluating ;
+    proto:hasState ex:HookStateConditionMet ;
+    proto:hasState ex:HookStateExecuting ;
+    proto:hasFinalState ex:HookStateCompleted ;
+    proto:hasFinalState ex:HookStateSkipped ;
+    proto:hasFinalState ex:HookStateVetoed ;
+
+    # Transitions
+    proto:hasTransition ex:HookTransitionEvaluate ;
+    proto:hasTransition ex:HookTransitionConditionTrue ;
+    proto:hasTransition ex:HookTransitionConditionFalse ;
+    proto:hasTransition ex:HookTransitionExecute ;
+    proto:hasTransition ex:HookTransitionVeto ;
+    proto:hasTransition ex:HookTransitionComplete ;
+
+    # Messages
+    proto:hasMessage ex:HookMsgTrigger ;
+    proto:hasMessage ex:HookMsgResult ;
+    proto:hasMessage ex:HookMsgVeto ;
+
+    # Error handling
+    proto:hasErrorHandler ex:HookConditionErrorHandler ;
+    proto:hasErrorHandler ex:HookExecutionErrorHandler ;
+
+    # Timeout
+    proto:hasTimeoutStrategy [
+        a proto:TimeoutStrategy ;
+        proto:timeoutMs 10000 ;
+        proto:timeoutAction "skip"
+    ] .
+
+# States
+ex:HookStateWaiting a proto:InitialState ;
+    rdfs:label "Waiting"@en .
+
+ex:HookStateEvaluating a proto:State ;
+    rdfs:label "Evaluating Condition"@en .
+
+ex:HookStateConditionMet a proto:State ;
+    rdfs:label "Condition Met"@en .
+
+ex:HookStateExecuting a proto:State ;
+    rdfs:label "Executing"@en .
+
+ex:HookStateCompleted a proto:FinalState ;
+    rdfs:label "Completed"@en .
+
+ex:HookStateSkipped a proto:FinalState ;
+    rdfs:label "Skipped"@en .
+
+ex:HookStateVetoed a proto:FinalState ;
+    rdfs:label "Vetoed"@en .
+
+# Transitions
+ex:HookTransitionEvaluate a proto:Transition ;
+    proto:fromState ex:HookStateWaiting ;
+    proto:toState ex:HookStateEvaluating ;
+    proto:triggeredBy ex:HookMsgTrigger .
+
+ex:HookTransitionConditionTrue a proto:Transition ;
+    proto:fromState ex:HookStateEvaluating ;
+    proto:toState ex:HookStateConditionMet ;
+    proto:guard """
+        ASK WHERE {
+            ?condition ex:evaluationResult true .
+        }
+    """ .
+
+ex:HookTransitionConditionFalse a proto:Transition ;
+    proto:fromState ex:HookStateEvaluating ;
+    proto:toState ex:HookStateSkipped ;
+    proto:guard """
+        ASK WHERE {
+            ?condition ex:evaluationResult false .
+        }
+    """ .
+
+ex:HookTransitionExecute a proto:Transition ;
+    proto:fromState ex:HookStateConditionMet ;
+    proto:toState ex:HookStateExecuting .
+
+ex:HookTransitionVeto a proto:Transition ;
+    proto:fromState ex:HookStateExecuting ;
+    proto:toState ex:HookStateVetoed ;
+    proto:triggeredBy ex:HookMsgVeto .
+
+ex:HookTransitionComplete a proto:Transition ;
+    proto:fromState ex:HookStateExecuting ;
+    proto:toState ex:HookStateCompleted ;
+    proto:triggeredBy ex:HookMsgResult .
+
+# Messages
+ex:HookMsgTrigger a proto:Event ;
+    rdfs:label "Hook Trigger"@en .
+
+ex:HookMsgResult a proto:Response ;
+    rdfs:label "Hook Result"@en .
+
+ex:HookMsgVeto a proto:Event ;
+    rdfs:label "Hook Veto"@en .
+
+# Error handlers
+ex:HookConditionErrorHandler a proto:ErrorHandler ;
+    proto:handlesError "ConditionEvaluationError" ;
+    proto:fallbackState ex:HookStateSkipped .
+
+ex:HookExecutionErrorHandler a proto:ErrorHandler ;
+    proto:handlesError "ExecutionError" ;
+    proto:fallbackState ex:HookStateVetoed .
+
+# =============================================================================
+# EXAMPLE TYPES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Type 1: KnowledgeHook
+# Complex type representing a knowledge hook definition
+# -----------------------------------------------------------------------------
+
+ex:KnowledgeHookType a typ:ComplexType ;
+    rdfs:label "Knowledge Hook"@en ;
+    rdfs:comment "A knowledge hook that executes when conditions are met during graph transactions."@en ;
+
+    # Properties
+    typ:hasProperty ex:HookMetaProperty ;
+    typ:hasProperty ex:HookChannelProperty ;
+    typ:hasProperty ex:HookWhenProperty ;
+    typ:hasProperty ex:HookRunProperty ;
+    typ:hasProperty ex:HookPriorityProperty ;
+    typ:hasProperty ex:HookTimeoutProperty ;
+
+    # Constraints
+    typ:hasConstraint ex:HookNameConstraint ;
+
+    # SHACL validation shape
+    typ:shaclShape ex:KnowledgeHookShape ;
+
+    # Zod schema reference
+    typ:zodSchema "KnowledgeHookSchema" .
+
+ex:HookMetaProperty a typ:Property ;
+    typ:propertyName "meta" ;
+    typ:propertyType ex:HookMetaType ;
+    typ:required true .
+
+ex:HookChannelProperty a typ:Property ;
+    typ:propertyName "channel" ;
+    typ:propertyType ex:HookChannelType ;
+    typ:required false .
+
+ex:HookWhenProperty a typ:Property ;
+    typ:propertyName "when" ;
+    typ:propertyType ex:ConditionType ;
+    typ:required true .
+
+ex:HookRunProperty a typ:Property ;
+    typ:propertyName "run" ;
+    typ:propertyType ex:FunctionType ;
+    typ:required true .
+
+ex:HookPriorityProperty a typ:Property ;
+    typ:propertyName "priority" ;
+    typ:propertyType typ:IntegerType ;
+    typ:required false ;
+    typ:defaultValue 50 ;
+    typ:hasConstraint [
+        a typ:TypeConstraint ;
+        typ:minValue 0 ;
+        typ:maxValue 100
+    ] .
+
+ex:HookTimeoutProperty a typ:Property ;
+    typ:propertyName "timeout" ;
+    typ:propertyType typ:IntegerType ;
+    typ:required false ;
+    typ:defaultValue 30000 ;
+    typ:hasConstraint [
+        a typ:TypeConstraint ;
+        typ:minValue 1 ;
+        typ:maxValue 300000
+    ] .
+
+ex:HookNameConstraint a typ:TypeConstraint ;
+    rdfs:label "Hook Name Constraint"@en ;
+    typ:pattern "^[a-zA-Z0-9:_-]+$" ;
+    typ:constraintExpression """
+        sh:pattern "^[a-zA-Z0-9:_-]+$" ;
+        sh:minLength 1 ;
+        sh:maxLength 100 .
+    """ .
+
+ex:HookMetaType a typ:ComplexType ;
+    rdfs:label "Hook Meta"@en ;
+    typ:hasProperty [
+        typ:propertyName "name" ;
+        typ:propertyType typ:StringType ;
+        typ:required true
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "version" ;
+        typ:propertyType typ:StringType ;
+        typ:required false
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "description" ;
+        typ:propertyType typ:StringType ;
+        typ:required false
+    ] .
+
+ex:HookChannelType a typ:ComplexType ;
+    rdfs:label "Hook Channel"@en ;
+    typ:hasProperty [
+        typ:propertyName "graphs" ;
+        typ:propertyType ex:StringArrayType ;
+        typ:required false
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "view" ;
+        typ:propertyType ex:ViewEnumType ;
+        typ:required false
+    ] .
+
+ex:ConditionType a typ:UnionType ;
+    rdfs:label "Condition"@en ;
+    typ:unionOf ( ex:SparqlAskConditionType ex:SparqlSelectConditionType ex:ShaclConditionType ) .
+
+ex:SparqlAskConditionType a typ:ComplexType ;
+    rdfs:label "SPARQL ASK Condition"@en .
+
+ex:SparqlSelectConditionType a typ:ComplexType ;
+    rdfs:label "SPARQL SELECT Condition"@en .
+
+ex:ShaclConditionType a typ:ComplexType ;
+    rdfs:label "SHACL Condition"@en .
+
+ex:FunctionType a typ:PrimitiveType ;
+    rdfs:label "Function"@en ;
+    rdfs:comment "JavaScript function type" .
+
+ex:StringArrayType a typ:CollectionType ;
+    rdfs:label "String Array"@en ;
+    typ:collectionKind "array" ;
+    typ:elementType typ:StringType .
+
+ex:ViewEnumType a typ:PrimitiveType ;
+    rdfs:label "View Enum"@en ;
+    typ:hasConstraint [
+        a typ:TypeConstraint ;
+        typ:enumValues "before,after,delta"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Type 2: TransactionReceipt
+# Complex type for transaction results
+# -----------------------------------------------------------------------------
+
+ex:TransactionReceiptType a typ:ComplexType ;
+    rdfs:label "Transaction Receipt"@en ;
+    rdfs:comment "A receipt containing the outcome of a committed transaction."@en ;
+
+    typ:hasProperty [
+        typ:propertyName "id" ;
+        typ:propertyType ex:UUIDType ;
+        typ:required true
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "committed" ;
+        typ:propertyType typ:BooleanType ;
+        typ:required true
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "delta" ;
+        typ:propertyType ex:DeltaType ;
+        typ:required true
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "timestamp" ;
+        typ:propertyType typ:DateTimeType ;
+        typ:required true
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "duration" ;
+        typ:propertyType typ:IntegerType ;
+        typ:required true ;
+        typ:hasConstraint [
+            a typ:TypeConstraint ;
+            typ:minValue 0
+        ]
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "beforeHash" ;
+        typ:propertyType ex:HashType ;
+        typ:required false
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "afterHash" ;
+        typ:propertyType ex:HashType ;
+        typ:required false
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "hookResults" ;
+        typ:propertyType ex:HookResultArrayType ;
+        typ:required false
+    ] ;
+
+    typ:shaclShape ex:TransactionReceiptShape ;
+    typ:zodSchema "TransactionReceiptSchema" .
+
+ex:UUIDType a typ:PrimitiveType ;
+    rdfs:label "UUID"@en ;
+    typ:hasConstraint [
+        a typ:TypeConstraint ;
+        typ:pattern "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    ] .
+
+ex:DeltaType a typ:ComplexType ;
+    rdfs:label "Delta"@en ;
+    typ:hasProperty [
+        typ:propertyName "additions" ;
+        typ:propertyType ex:QuadArrayType ;
+        typ:required true
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "removals" ;
+        typ:propertyType ex:QuadArrayType ;
+        typ:required true
+    ] .
+
+ex:QuadArrayType a typ:CollectionType ;
+    typ:collectionKind "array" ;
+    typ:elementType ex:QuadType .
+
+ex:QuadType a typ:ComplexType ;
+    rdfs:label "RDF Quad"@en .
+
+ex:HashType a typ:ComplexType ;
+    rdfs:label "Hash"@en ;
+    typ:hasProperty [
+        typ:propertyName "sha3" ;
+        typ:propertyType typ:StringType ;
+        typ:required true
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "blake3" ;
+        typ:propertyType typ:StringType ;
+        typ:required true
+    ] .
+
+ex:HookResultArrayType a typ:CollectionType ;
+    typ:collectionKind "array" ;
+    typ:elementType ex:HookResultType .
+
+ex:HookResultType a typ:ComplexType ;
+    rdfs:label "Hook Result"@en .
+
+# -----------------------------------------------------------------------------
+# Type 3: ValidationResult
+# Generic type with parameterization
+# -----------------------------------------------------------------------------
+
+ex:ValidationResultType a typ:GenericType ;
+    rdfs:label "Validation Result"@en ;
+    rdfs:comment "A generic validation result parameterized by the data type."@en ;
+
+    typ:hasParameter ex:ValidationDataParam ;
+
+    typ:hasProperty [
+        typ:propertyName "success" ;
+        typ:propertyType typ:BooleanType ;
+        typ:required true
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "data" ;
+        typ:propertyType ex:ValidationDataParam ;
+        typ:required false
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "errors" ;
+        typ:propertyType ex:ValidationErrorArrayType ;
+        typ:required false
+    ] ;
+
+    typ:zodSchema "ValidationResultSchema" .
+
+ex:ValidationDataParam a typ:TypeParameter ;
+    rdfs:label "T"@en ;
+    rdfs:comment "The validated data type" ;
+    typ:parameterBound typ:Type .
+
+ex:ValidationErrorArrayType a typ:CollectionType ;
+    typ:collectionKind "array" ;
+    typ:elementType ex:ValidationErrorType .
+
+ex:ValidationErrorType a typ:ComplexType ;
+    rdfs:label "Validation Error"@en ;
+    typ:hasProperty [
+        typ:propertyName "path" ;
+        typ:propertyType typ:StringType ;
+        typ:required true
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "message" ;
+        typ:propertyType typ:StringType ;
+        typ:required true
+    ] ;
+    typ:hasProperty [
+        typ:propertyName "code" ;
+        typ:propertyType typ:StringType ;
+        typ:required false
+    ] .
+
+# =============================================================================
+# EXAMPLE RULES (N3)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Rule 1: Transitive Closure for Capability Dependencies
+# If A requires B and B requires C, then A transitively requires C
+# -----------------------------------------------------------------------------
+
+ex:TransitiveDependencyRule a rsn:Rule ;
+    rdfs:label "Transitive Capability Dependency"@en ;
+    rdfs:comment "Infers transitive dependencies between capabilities."@en ;
+
+    rsn:hasAntecedent ex:TransitiveDependencyAntecedent ;
+    rsn:hasConsequent ex:TransitiveDependencyConsequent .
+
+ex:TransitiveDependencyAntecedent a rsn:Formula ;
+    rdfs:label "Dependency Chain Premise"@en ;
+    rsn:n3Formula """
+        @prefix cap: <urn:unrdf:doc:capability:> .
+
+        {
+            ?capA cap:requires ?capB .
+            ?capB cap:requires ?capC .
+        }
+    """ ;
+    rsn:sparqlQuery """
+        SELECT ?capA ?capC WHERE {
+            ?capA cap:requires ?capB .
+            ?capB cap:requires ?capC .
+            FILTER(?capA != ?capC)
+        }
+    """ .
+
+ex:TransitiveDependencyConsequent a rsn:Formula ;
+    rdfs:label "Transitive Dependency Conclusion"@en ;
+    rsn:n3Formula """
+        @prefix cap: <urn:unrdf:doc:capability:> .
+        @prefix ex: <urn:unrdf:doc:example:> .
+
+        {
+            ?capA cap:requires ?capB .
+            ?capB cap:requires ?capC .
+        } => {
+            ?capA ex:transitivelyRequires ?capC .
+        } .
+    """ .
+
+# Example inference using this rule
+ex:TransitiveDependencyExample a rsn:Inference ;
+    rdfs:label "Example Transitive Inference"@en ;
+    rsn:derivedFrom ex:TransitiveDependencyRule ;
+    rsn:confidence 1.0 ;
+    rsn:inferenceStrategy "forward-chain" ;
+    rdfs:comment """
+        Given:
+            ex:N3ReasoningCapability cap:requires ex:LoadRulesCapability .
+            ex:LoadRulesCapability cap:requires ex:FileReaderCapability .
+
+        Infers:
+            ex:N3ReasoningCapability ex:transitivelyRequires ex:FileReaderCapability .
+    """@en .
+
+# -----------------------------------------------------------------------------
+# Rule 2: Capability Chain Optimization
+# If there's a shorter path through capabilities, recommend it
+# -----------------------------------------------------------------------------
+
+ex:CapabilityChainOptimizationRule a rsn:Rule ;
+    rdfs:label "Capability Chain Optimization"@en ;
+    rdfs:comment "Finds optimal capability chains based on cost."@en ;
+
+    rsn:hasAntecedent ex:ChainOptimizationAntecedent ;
+    rsn:hasConsequent ex:ChainOptimizationConsequent .
+
+ex:ChainOptimizationAntecedent a rsn:Formula ;
+    rdfs:label "Chain Analysis Premise"@en ;
+    rsn:n3Formula """
+        @prefix cap: <urn:unrdf:doc:capability:> .
+        @prefix cost: <urn:unrdf:doc:cost:> .
+
+        {
+            ?cap1 cap:hasPostcondition ?post .
+            ?cap2 cap:hasPrecondition ?pre .
+            ?post rsn:satisfies ?pre .
+            ?cap1 cost:totalCost ?cost1 .
+            ?cap2 cost:totalCost ?cost2 .
+        }
+    """ ;
+    rsn:sparqlQuery """
+        SELECT ?cap1 ?cap2 (?cost1 + ?cost2 AS ?chainCost) WHERE {
+            ?cap1 cap:hasPostcondition ?post .
+            ?cap2 cap:hasPrecondition ?pre .
+            ?post rsn:satisfies ?pre .
+            ?cap1 cost:totalCost ?cost1 .
+            ?cap2 cost:totalCost ?cost2 .
+        }
+        ORDER BY ?chainCost
+    """ .
+
+ex:ChainOptimizationConsequent a rsn:Formula ;
+    rdfs:label "Optimal Chain Recommendation"@en ;
+    rsn:n3Formula """
+        @prefix cap: <urn:unrdf:doc:capability:> .
+        @prefix cost: <urn:unrdf:doc:cost:> .
+        @prefix rsn: <urn:unrdf:doc:reasoning:> .
+
+        {
+            ?cap1 cap:hasPostcondition ?post .
+            ?cap2 cap:hasPrecondition ?pre .
+            ?post rsn:satisfies ?pre .
+            ?cap1 cost:totalCost ?cost1 .
+            ?cap2 cost:totalCost ?cost2 .
+            (?cost1 ?cost2) math:sum ?totalCost .
+        } => {
+            _:chain a rsn:OptimalPath ;
+                rsn:pathFrom ?cap1 ;
+                rsn:pathTo ?cap2 ;
+                rsn:pathCost ?totalCost ;
+                rsn:optimizationCriterion "cost" .
+        } .
+    """ .
+
+# Example optimal path
+ex:QueryThenValidatePath a rsn:OptimalPath ;
+    rdfs:label "Query Then Validate Path"@en ;
+    rsn:pathFrom ex:SparqlQueryCapability ;
+    rsn:pathTo ex:ShaclValidationCapability ;
+    rsn:pathCost 50.5 ;
+    rsn:pathLength 2 ;
+    rsn:optimizationCriterion "cost" .
+
+# Example proof showing rule application
+ex:OptimizationProof a rsn:Proof ;
+    rdfs:label "Optimization Proof"@en ;
+    rsn:proves [
+        a rsn:Formula ;
+        rsn:n3Formula """
+            ex:QueryThenValidatePath a rsn:OptimalPath ;
+                rsn:pathCost 50.5 .
+        """
+    ] ;
+    rsn:hasProofStep [
+        a rsn:ProofStep ;
+        rsn:stepOrder 1 ;
+        rsn:appliedRule ex:CapabilityChainOptimizationRule ;
+        rsn:inputFormula ex:ChainOptimizationAntecedent ;
+        rsn:outputFormula ex:ChainOptimizationConsequent
+    ] .
+
+# =============================================================================
+# ADDITIONAL EXAMPLE: Capability Discovery Query
+# SPARQL query agents can use to find capabilities by requirements
+# =============================================================================
+
+# This SPARQL query finds capabilities matching specific requirements:
+# - Required preconditions
+# - Desired postconditions
+# - Performance requirements
+# - Cost constraints
+# - Authorization levels
+
+ex:CapabilityDiscoveryQueryExample rdfs:comment """
+    # Agent Capability Discovery Query
+    # Find capabilities that:
+    # 1. Have a specific postcondition (desired outcome)
+    # 2. Meet performance SLO (latency < 200ms)
+    # 3. Stay within cost budget (< 100 tokens)
+    # 4. Match authorization level (authenticated)
+
+    PREFIX cap: <urn:unrdf:doc:capability:>
+    PREFIX slo: <urn:unrdf:doc:slo:>
+    PREFIX cost: <urn:unrdf:doc:cost:>
+    PREFIX auth: <urn:unrdf:doc:auth:>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+    SELECT ?capability ?label ?latency ?maxCost ?authLevel
+    WHERE {
+        # Find capabilities with desired postcondition
+        ?capability a cap:Capability ;
+                    rdfs:label ?label ;
+                    cap:hasPostcondition ?post .
+
+        # Match postcondition to desired outcome
+        ?post cap:conditionSparql ?postQuery .
+        FILTER(CONTAINS(?postQuery, 'hasResult'))
+
+        # Check performance SLO
+        ?capability slo:hasSLO ?perfSlo .
+        ?perfSlo a slo:PerformanceSLO ;
+                 slo:latencyMs ?latency .
+        FILTER(?latency < 200)
+
+        # Check cost constraint
+        ?capability cost:maxBudget ?maxCost .
+        FILTER(?maxCost < 100)
+
+        # Check authorization level
+        ?capability auth:requiresAuth ?authReq .
+        ?authReq auth:authLevel ?authLevel .
+        FILTER(?authLevel <= 1)  # Authenticated or below
+    }
+    ORDER BY ?latency ?maxCost
+    LIMIT 10
+"""@en .
+
+# End of Examples

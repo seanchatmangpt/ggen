@@ -1,0 +1,84 @@
+# Commands - Write Operations
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ddd:   <https://ggen.io/ontology/ddd#> .
+@prefix attr:  <https://ggen.io/examples/attribution#> .
+
+# ============================================================================
+# RECORD CLICK COMMAND
+# ============================================================================
+
+attr:RecordClick a ddd:Command ;
+  ddd:name "RecordClick" ;
+  rdfs:comment "Record a click event" ;
+  ddd:aggregate attr:ClickAggregate ;
+  ddd:emitsEvent attr:ClickRecorded ;
+  ddd:hasField attr:RecordClick_publisher_id ;
+  ddd:hasField attr:RecordClick_offer_id ;
+  ddd:hasField attr:RecordClick_ip_hash ;
+  ddd:hasField attr:RecordClick_user_agent .
+
+attr:RecordClick_publisher_id a ddd:Field ;
+  ddd:name "publisher_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:RecordClick_offer_id a ddd:Field ;
+  ddd:name "offer_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:RecordClick_ip_hash a ddd:Field ;
+  ddd:name "ip_hash" ;
+  ddd:type "String" ;
+  ddd:required false .
+
+attr:RecordClick_user_agent a ddd:Field ;
+  ddd:name "user_agent" ;
+  ddd:type "String" ;
+  ddd:required false .
+
+# ============================================================================
+# COMPUTE ATTRIBUTION COMMAND
+# ============================================================================
+
+attr:ComputeAttribution a ddd:Command ;
+  ddd:name "ComputeAttribution" ;
+  rdfs:comment "Compute attribution for clicks" ;
+  ddd:aggregate attr:ClickAggregate ;
+  ddd:emitsEvent attr:AttributionComputed ;
+  ddd:hasField attr:ComputeAttribution_click_id .
+
+attr:ComputeAttribution_click_id a ddd:Field ;
+  ddd:name "click_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+# ============================================================================
+# PROCESS PAYOUT COMMAND
+# ============================================================================
+
+attr:ProcessPayout a ddd:Command ;
+  ddd:name "ProcessPayout" ;
+  rdfs:comment "Calculate payout for publisher" ;
+  ddd:aggregate attr:PublisherAggregate ;
+  ddd:emitsEvent attr:PayoutCalculated ;
+  ddd:hasField attr:ProcessPayout_publisher_id ;
+  ddd:hasField attr:ProcessPayout_period_start ;
+  ddd:hasField attr:ProcessPayout_period_end .
+
+attr:ProcessPayout_publisher_id a ddd:Field ;
+  ddd:name "publisher_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:ProcessPayout_period_start a ddd:Field ;
+  ddd:name "period_start" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+attr:ProcessPayout_period_end a ddd:Field ;
+  ddd:name "period_end" ;
+  ddd:type "DateTime" ;
+  ddd:required true .

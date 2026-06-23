@@ -1,0 +1,270 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ex: <http://example.org/bytestar#> .
+
+# Large Production-Scale Ontology for Performance Testing
+ex:ComprehensiveMarketplaceOntology a owl:Ontology ;
+    rdfs:label "Comprehensive ByteStar Marketplace Ontology" ;
+    rdfs:comment "Large-scale production ontology for performance and stress testing" ;
+    owl:versionInfo "2.0.0" ;
+    dc:creator "ByteStar Testing Framework" ;
+    dc:date "2024-08-24" ;
+    owl:imports <http://xmlns.com/foaf/0.1/> ,
+                <http://purl.org/dc/elements/1.1/> ,
+                <http://www.w3.org/2004/02/skos/core#> .
+
+# Extended Class Hierarchy
+ex:Entity a owl:Class ;
+    rdfs:label "Entity" ;
+    rdfs:comment "Top-level entity in the ByteStar ecosystem" .
+
+ex:Actor a owl:Class ;
+    rdfs:subClassOf ex:Entity ;
+    rdfs:label "Actor" ;
+    rdfs:comment "Active participant in the ecosystem" .
+
+ex:PhysicalActor a owl:Class ;
+    rdfs:subClassOf ex:Actor ;
+    rdfs:label "Physical Actor" ;
+    rdfs:comment "Actor with physical presence" .
+
+ex:VirtualActor a owl:Class ;
+    rdfs:subClassOf ex:Actor ;
+    rdfs:label "Virtual Actor" ;
+    rdfs:comment "Digital-only actor" .
+
+ex:Individual a owl:Class ;
+    rdfs:subClassOf ex:PhysicalActor ;
+    rdfs:label "Individual" ;
+    rdfs:comment "Single person actor" .
+
+ex:Organization a owl:Class ;
+    rdfs:subClassOf ex:PhysicalActor ;
+    rdfs:label "Organization" ;
+    rdfs:comment "Organizational actor" .
+
+ex:SmallBusiness a owl:Class ;
+    rdfs:subClassOf ex:Organization ;
+    rdfs:label "Small Business" ;
+    rdfs:comment "Small business entity" .
+
+ex:Enterprise a owl:Class ;
+    rdfs:subClassOf ex:Organization ;
+    rdfs:label "Enterprise" ;
+    rdfs:comment "Large enterprise entity" .
+
+ex:Government a owl:Class ;
+    rdfs:subClassOf ex:Organization ;
+    rdfs:label "Government" ;
+    rdfs:comment "Government entity" .
+
+ex:AI a owl:Class ;
+    rdfs:subClassOf ex:VirtualActor ;
+    rdfs:label "AI Actor" ;
+    rdfs:comment "Artificial intelligence actor" .
+
+ex:Bot a owl:Class ;
+    rdfs:subClassOf ex:VirtualActor ;
+    rdfs:label "Bot" ;
+    rdfs:comment "Automated bot actor" .
+
+# Transaction Types
+ex:Transaction a owl:Class ;
+    rdfs:subClassOf ex:Entity ;
+    rdfs:label "Transaction" ;
+    rdfs:comment "Base transaction class" .
+
+ex:B2CTransaction a owl:Class ;
+    rdfs:subClassOf ex:Transaction ;
+    rdfs:label "Business to Consumer Transaction" ;
+    rdfs:comment "B2C transaction type" .
+
+ex:B2BTransaction a owl:Class ;
+    rdfs:subClassOf ex:Transaction ;
+    rdfs:label "Business to Business Transaction" ;
+    rdfs:comment "B2B transaction type" .
+
+ex:P2PTransaction a owl:Class ;
+    rdfs:subClassOf ex:Transaction ;
+    rdfs:label "Peer to Peer Transaction" ;
+    rdfs:comment "P2P transaction type" .
+
+ex:G2CTransaction a owl:Class ;
+    rdfs:subClassOf ex:Transaction ;
+    rdfs:label "Government to Citizen Transaction" ;
+    rdfs:comment "G2C transaction type" .
+
+# Crystal Types
+ex:Crystal a owl:Class ;
+    rdfs:subClassOf ex:Entity ;
+    rdfs:label "Mission Crystal" ;
+    rdfs:comment "Fabricated crystal artifact" .
+
+ex:TransactionCrystal a owl:Class ;
+    rdfs:subClassOf ex:Crystal ;
+    rdfs:label "Transaction Crystal" ;
+    rdfs:comment "Crystal for transaction validation" .
+
+ex:GovernanceCrystal a owl:Class ;
+    rdfs:subClassOf ex:Crystal ;
+    rdfs:label "Governance Crystal" ;
+    rdfs:comment "Crystal for governance operations" .
+
+ex:ComplianceCrystal a owl:Class ;
+    rdfs:subClassOf ex:Crystal ;
+    rdfs:label "Compliance Crystal" ;
+    rdfs:comment "Crystal for compliance validation" .
+
+# Extended Properties
+ex:hasBalance a owl:DatatypeProperty ;
+    rdfs:domain ex:Actor ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has balance" ;
+    rdfs:comment "Actor's current balance" .
+
+ex:hasReputation a owl:DatatypeProperty ;
+    rdfs:domain ex:Actor ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has reputation" ;
+    rdfs:comment "Actor's reputation score" .
+
+ex:hasKYCStatus a owl:DatatypeProperty ;
+    rdfs:domain ex:Actor ;
+    rdfs:range xsd:string ;
+    rdfs:label "has KYC status" ;
+    rdfs:comment "Know Your Customer verification status" .
+
+ex:registrationDate a owl:DatatypeProperty ;
+    rdfs:domain ex:Actor ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "registration date" ;
+    rdfs:comment "Date of actor registration" .
+
+ex:lastActiveDate a owl:DatatypeProperty ;
+    rdfs:domain ex:Actor ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "last active date" ;
+    rdfs:comment "Date of last activity" .
+
+ex:transactionAmount a owl:DatatypeProperty ;
+    rdfs:domain ex:Transaction ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "transaction amount" ;
+    rdfs:comment "Amount of the transaction" .
+
+ex:currency a owl:DatatypeProperty ;
+    rdfs:domain ex:Transaction ;
+    rdfs:range xsd:string ;
+    rdfs:label "currency" ;
+    rdfs:comment "Transaction currency" .
+
+ex:transactionDate a owl:DatatypeProperty ;
+    rdfs:domain ex:Transaction ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "transaction date" ;
+    rdfs:comment "Date and time of transaction" .
+
+ex:status a owl:DatatypeProperty ;
+    rdfs:domain ex:Transaction ;
+    rdfs:range xsd:string ;
+    rdfs:label "status" ;
+    rdfs:comment "Current transaction status" .
+
+ex:involves a owl:ObjectProperty ;
+    rdfs:domain ex:Transaction ;
+    rdfs:range ex:Actor ;
+    rdfs:label "involves" ;
+    rdfs:comment "Links transaction to involved actors" .
+
+ex:buyer a owl:ObjectProperty ;
+    rdfs:subPropertyOf ex:involves ;
+    rdfs:domain ex:Transaction ;
+    rdfs:range ex:Actor ;
+    rdfs:label "buyer" ;
+    rdfs:comment "Transaction buyer" .
+
+ex:seller a owl:ObjectProperty ;
+    rdfs:subPropertyOf ex:involves ;
+    rdfs:domain ex:Transaction ;
+    rdfs:range ex:Actor ;
+    rdfs:label "seller" ;
+    rdfs:comment "Transaction seller" .
+
+ex:fabricates a owl:ObjectProperty ;
+    rdfs:domain ex:Transaction ;
+    rdfs:range ex:Crystal ;
+    rdfs:label "fabricates" ;
+    rdfs:comment "Transaction fabricates crystal" .
+
+ex:validates a owl:ObjectProperty ;
+    rdfs:domain ex:Crystal ;
+    rdfs:range ex:Transaction ;
+    rdfs:label "validates" ;
+    rdfs:comment "Crystal validates transaction" .
+
+# Complex SHACL Shapes for validation
+ex:ActorShape a sh:NodeShape ;
+    sh:targetClass ex:Actor ;
+    sh:property [
+        sh:path ex:hasBalance ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1000000 ;
+        rdfs:comment "Balance must be between 0 and 1M"
+    ] ;
+    sh:property [
+        sh:path ex:hasReputation ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 100 ;
+        rdfs:comment "Reputation must be 0-100"
+    ] ;
+    sh:property [
+        sh:path ex:hasKYCStatus ;
+        sh:datatype xsd:string ;
+        sh:in ("pending" "verified" "rejected" "expired") ;
+        rdfs:comment "KYC status must be valid value"
+    ] .
+
+ex:TransactionShape a sh:NodeShape ;
+    sh:targetClass ex:Transaction ;
+    sh:property [
+        sh:path ex:transactionAmount ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.01 ;
+        rdfs:comment "Amount must be positive"
+    ] ;
+    sh:property [
+        sh:path ex:currency ;
+        sh:datatype xsd:string ;
+        sh:in ("USD" "EUR" "BTC" "ETH" "USDT" "USDC") ;
+        rdfs:comment "Must use supported currency"
+    ] ;
+    sh:property [
+        sh:path ex:status ;
+        sh:datatype xsd:string ;
+        sh:in ("pending" "processing" "completed" "failed" "cancelled") ;
+        rdfs:comment "Must have valid status"
+    ] ;
+    sh:property [
+        sh:path ex:buyer ;
+        sh:class ex:Actor ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        rdfs:comment "Must have exactly one buyer"
+    ] ;
+    sh:property [
+        sh:path ex:seller ;
+        sh:class ex:Actor ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        rdfs:comment "Must have exactly one seller"
+    ] .
+
+# Generate 100 test actors for performance testing

@@ -1,0 +1,32 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix fin:  <https://kgen.dev/ontologies/finance#> .
+@prefix org:  <https://kgen.dev/ontologies/organization#> .
+
+fin: a owl:Ontology ;
+  rdfs:label "Finance Canon (Minimal)" .
+
+fin:Transaction a rdfs:Class .
+fin:Account a rdfs:Class .
+org:Entity a rdfs:Class .
+
+fin:Revenue rdfs:subClassOf fin:Account .
+fin:Expense rdfs:subClassOf fin:Account .
+fin:SalesRevenue rdfs:subClassOf fin:Revenue .
+fin:IntercompanyRevenue rdfs:subClassOf fin:Revenue .
+fin:CostOfGoodsSold rdfs:subClassOf fin:Expense .
+fin:IntercompanyCOGS rdfs:subClassOf fin:Expense .
+fin:OperatingExpenses rdfs:subClassOf fin:Expense .
+fin:InterestExpense rdfs:subClassOf fin:Expense .
+fin:TaxExpense rdfs:subClassOf fin:Expense .
+fin:Depreciation rdfs:subClassOf fin:Expense .
+fin:Amortization rdfs:subClassOf fin:Expense .
+
+fin:hasAccount a rdf:Property ; rdfs:domain fin:Transaction ; rdfs:range fin:Account .
+fin:hasEntity a rdf:Property ; rdfs:domain fin:Transaction ; rdfs:range org:Entity .
+fin:hasDate a rdf:Property ; rdfs:domain fin:Transaction ; rdfs:range xsd:date .
+fin:hasAmount a rdf:Property ; rdfs:domain fin:Transaction ; rdfs:range xsd:decimal .
+fin:hasCurrency a rdf:Property ; rdfs:domain fin:Transaction ; rdfs:range xsd:string .
+fin:isIntercompany a rdf:Property ; rdfs:domain fin:Transaction ; rdfs:range xsd:boolean .

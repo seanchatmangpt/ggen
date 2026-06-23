@@ -1,0 +1,35 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix scrum: <http://example.org/scrum#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+
+gh:sprint-progress-hook rdf:type gh:Hook ;
+    dct:title "Sprint Progress Monitor" ;
+    gh:hasPredicate gh:sprint-progress-predicate ;
+    gh:orderedPipelines ( gh:sprint-progress-workflow ) .
+
+gh:sprint-progress-predicate rdf:type gh:SELECTThreshold ;
+    gh:queryText """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX scrum: <http://example.org/scrum#>
+        PREFIX gv: <http://example.org/gitvan#>
+        
+        SELECT ?storyTitle ?storyStatus ?storyPoints
+        WHERE {
+            ?story rdf:type scrum:Story .
+            ?story gv:active true .
+            ?story scrum:storyTitle ?storyTitle .
+            ?story scrum:storyStatus ?storyStatus .
+            ?story scrum:storyPoints ?storyPoints .
+        }
+    """ ;
+    gh:threshold 1 .
+
+gh:sprint-progress-workflow rdf:type gh:Workflow ;
+    op:steps ( gh:log-step ) .
+
+gh:log-step rdf:type gv:FileStep ;
+    gv:filePath "./logs/sprint-progress.log" ;
+    gv:content "Sprint Progress Hook Triggered" .

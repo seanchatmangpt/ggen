@@ -1,0 +1,938 @@
+@prefix a2a: <https://ggen.io/ontology/a2a/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# =============================================================================
+# A2A Protocol v0.3.0 Vocabulary Schema
+# =============================================================================
+#
+# RDF/Turtle ontology defining Agent-to-Agent (A2A) Protocol type system.
+# Covers agent discovery, messaging, task management, streaming events,
+# push notifications, security schemes, JSON-RPC transport, and error types.
+# =============================================================================
+a2a: a owl:Ontology ;
+    rdfs:label "A2A Protocol Ontology" ;
+    rdfs:comment "RDF vocabulary for Agent-to-Agent (A2A) Protocol v0.3.0. Defines classes and properties for agent discovery, inter-agent messaging, task lifecycle management, streaming events, push notifications, security, and JSON-RPC transport." ;
+    owl:versionInfo "0.3.0" .
+
+# =============================================================================
+# SECTION 1: Agent Classes
+# =============================================================================
+
+a2a:AgentCard a rdfs:Class ;
+    rdfs:label "AgentCard" ;
+    rdfs:comment "A self-describing manifest for an agent. Provides essential metadata including the agent's identity, capabilities, skills, supported communication methods, and security requirements." .
+
+a2a:AgentCapabilities a rdfs:Class ;
+    rdfs:label "AgentCapabilities" ;
+    rdfs:comment "Defines optional capabilities supported by an agent, such as streaming, push notifications, and state transition history." .
+
+a2a:AgentProvider a rdfs:Class ;
+    rdfs:label "AgentProvider" ;
+    rdfs:comment "Represents a service provider of an agent, including the organization name and URL." .
+
+a2a:AgentSkill a rdfs:Class ;
+    rdfs:label "AgentSkill" ;
+    rdfs:comment "Represents a distinct capability or function that an agent can perform. Includes metadata such as description, examples, supported input/output modes, and tags." .
+
+a2a:AgentInterface a rdfs:Class ;
+    rdfs:label "AgentInterface" ;
+    rdfs:comment "Declares a combination of a target URL and a transport protocol for interacting with an agent. Allows agents to expose the same functionality over multiple transport mechanisms." .
+
+a2a:AgentExtension a rdfs:Class ;
+    rdfs:label "AgentExtension" ;
+    rdfs:comment "A declaration of a protocol extension supported by an agent. Identified by a URI, with optional description, required flag, and extension-specific parameters." .
+
+a2a:AgentCardSignature a rdfs:Class ;
+    rdfs:label "AgentCardSignature" ;
+    rdfs:comment "Represents a JWS (JSON Web Signature) of an AgentCard, following RFC 7515. Contains a protected header, optional unprotected header, and computed signature." .
+
+# =============================================================================
+# SECTION 2: Message Classes
+# =============================================================================
+
+a2a:Message a rdfs:Class ;
+    rdfs:label "Message" ;
+    rdfs:comment "Represents a single message in a conversation between a user and an agent. Contains an array of content parts, a role identifier, and optional context and task references." .
+
+a2a:Part a rdfs:Class ;
+    rdfs:label "Part" ;
+    rdfs:comment "Abstract base class representing a part of a message. A part can be text, a file, or structured data. Concrete subtypes are TextPart, FilePart, and DataPart." .
+
+a2a:TextPart a rdfs:Class ;
+    rdfs:subClassOf a2a:Part ;
+    rdfs:label "TextPart" ;
+    rdfs:comment "Represents a text segment within a message. Contains a plain text string as content." .
+
+a2a:FilePart a rdfs:Class ;
+    rdfs:subClassOf a2a:Part ;
+    rdfs:label "FilePart" ;
+    rdfs:comment "Represents a file segment within a message. The file content is provided either as inline base64-encoded bytes or as a URI reference." .
+
+a2a:DataPart a rdfs:Class ;
+    rdfs:subClassOf a2a:Part ;
+    rdfs:label "DataPart" ;
+    rdfs:comment "Represents a structured data segment within a message part. Contains arbitrary key-value data as a JSON object." .
+
+a2a:FileContent a rdfs:Class ;
+    rdfs:label "FileContent" ;
+    rdfs:comment "Abstract base class for file content within a FilePart. Concrete types are FileWithBytes and FileWithUri." .
+
+a2a:FileWithBytes a rdfs:Class ;
+    rdfs:subClassOf a2a:FileContent ;
+    rdfs:label "FileWithBytes" ;
+    rdfs:comment "A file variant where content is provided as inline base64-encoded bytes." .
+
+a2a:FileWithUri a rdfs:Class ;
+    rdfs:subClassOf a2a:FileContent ;
+    rdfs:label "FileWithUri" ;
+    rdfs:comment "A file variant where content is referenced by a URI." .
+
+# =============================================================================
+# SECTION 3: Task Classes
+# =============================================================================
+
+a2a:Task a rdfs:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "Represents a single, stateful operation or conversation between a client and an agent. Has a unique ID, context ID, current status, optional history of messages, and optional artifacts." .
+
+a2a:TaskState a rdfs:Class ;
+    rdfs:label "TaskState" ;
+    rdfs:comment "Enumeration class representing possible lifecycle states of a Task. Valid values are: submitted, working, input-required, completed, canceled, failed, rejected, auth-required, unknown." .
+
+a2a:Submitted a2a:TaskState ;
+    rdfs:label "submitted" ;
+    rdfs:comment "The task has been submitted and is awaiting processing." .
+
+a2a:Working a2a:TaskState ;
+    rdfs:label "working" ;
+    rdfs:comment "The agent is actively working on the task." .
+
+a2a:InputRequired a2a:TaskState ;
+    rdfs:label "input-required" ;
+    rdfs:comment "The agent requires additional input from the user to continue." .
+
+a2a:Completed a2a:TaskState ;
+    rdfs:label "completed" ;
+    rdfs:comment "The task has been completed successfully." .
+
+a2a:Canceled a2a:TaskState ;
+    rdfs:label "canceled" ;
+    rdfs:comment "The task has been canceled by client or agent." .
+
+a2a:Failed a2a:TaskState ;
+    rdfs:label "failed" ;
+    rdfs:comment "The task has failed due to an error." .
+
+a2a:Rejected a2a:TaskState ;
+    rdfs:label "rejected" ;
+    rdfs:comment "The task has been rejected by the agent." .
+
+a2a:AuthRequired a2a:TaskState ;
+    rdfs:label "auth-required" ;
+    rdfs:comment "The task requires authentication before it can proceed." .
+
+a2a:Unknown a2a:TaskState ;
+    rdfs:label "unknown" ;
+    rdfs:comment "The task is in an unknown state." .
+
+a2a:TaskStatus a rdfs:Class ;
+    rdfs:label "TaskStatus" ;
+    rdfs:comment "Represents a status of a task at a specific point in time, including its current state, an optional status message, and an ISO 8601 timestamp." .
+
+a2a:Artifact a rdfs:Class ;
+    rdfs:label "Artifact" ;
+    rdfs:comment "Represents a file, data structure, or other resource generated by an agent during a task. Contains a unique artifact ID and an array of content parts." .
+
+# =============================================================================
+# SECTION 4: JSON-RPC Classes
+# =============================================================================
+
+a2a:JSONRPCMessage a rdfs:Class ;
+    rdfs:label "JSONRPCMessage" ;
+    rdfs:comment "Base class for any JSON-RPC 2.0 message, whether request or response. Contains a required jsonrpc version field and an optional id." .
+
+a2a:JSONRPCRequest a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCMessage ;
+    rdfs:label "JSONRPCRequest" ;
+    rdfs:comment "Represents a JSON-RPC 2.0 Request object. Contains a method name and optional structured parameters." .
+
+a2a:JSONRPCResponse a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCMessage ;
+    rdfs:label "JSONRPCResponse" ;
+    rdfs:comment "Represents a JSON-RPC 2.0 Response object. May be either a success response or an error response." .
+
+a2a:JSONRPCSuccessResponse a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCResponse ;
+    rdfs:label "JSONRPCSuccessResponse" ;
+    rdfs:comment "Represents a JSON-RPC 2.0 Success Response object. Contains a result field with a return value." .
+
+a2a:JSONRPCErrorResponse a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCResponse ;
+    rdfs:label "JSONRPCErrorResponse" ;
+    rdfs:comment "Represents a JSON-RPC 2.0 Error Response object. Contains an error field describing the failure." .
+
+a2a:JSONRPCError a rdfs:Class ;
+    rdfs:label "JSONRPCError" ;
+    rdfs:comment "Represents a JSON-RPC 2.0 Error object with an integer error code, a human-readable message, and optional additional data." .
+
+a2a:JSONParseError a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCError ;
+    rdfs:label "JSONParseError" ;
+    rdfs:comment "JSON-RPC error indicating invalid JSON was received by the server. Error code: -32700." .
+
+a2a:InvalidRequestError a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCError ;
+    rdfs:label "InvalidRequestError" ;
+    rdfs:comment "JSON-RPC error indicating the JSON sent is not a valid Request object. Error code: -32600." .
+
+a2a:MethodNotFoundError a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCError ;
+    rdfs:label "MethodNotFoundError" ;
+    rdfs:comment "JSON-RPC error indicating that method does not exist or is not available. Error code: -32601." .
+
+a2a:InvalidParamsError a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCError ;
+    rdfs:label "InvalidParamsError" ;
+    rdfs:comment "JSON-RPC error indicating invalid method parameter(s). Error code: -32602." .
+
+a2a:InternalError a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCError ;
+    rdfs:label "InternalError" ;
+    rdfs:comment "JSON-RPC error indicating an internal server error. Error code: -32603." .
+
+a2a:TaskNotFoundError a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCError ;
+    rdfs:label "TaskNotFoundError" ;
+    rdfs:comment "A2A-specific error indicating the requested task ID was not found. Error code: -32001." .
+
+a2a:TaskNotCancelableError a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCError ;
+    rdfs:label "TaskNotCancelableError" ;
+    rdfs:comment "A2A-specific error indicating a task is in a state where it cannot be canceled. Error code: -32002." .
+
+a2a:PushNotificationNotSupportedError a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCError ;
+    rdfs:label "PushNotificationNotSupportedError" ;
+    rdfs:comment "A2A-specific error indicating that agent does not support push notifications. Error code: -32003." .
+
+a2a:UnsupportedOperationError a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCError ;
+    rdfs:label "UnsupportedOperationError" ;
+    rdfs:comment "A2A-specific error indicating the requested operation is not supported by the agent. Error code: -32004." .
+
+a2a:ContentTypeNotSupportedError a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCError ;
+    rdfs:label "ContentTypeNotSupportedError" ;
+    rdfs:comment "A2A-specific error indicating incompatible content types between request and agent capabilities. Error code: -32005." .
+
+a2a:InvalidAgentResponseError a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCError ;
+    rdfs:label "InvalidAgentResponseError" ;
+    rdfs:comment "A2A-specific error indicating the agent returned an invalid response for the current method. Error code: -32006." .
+
+a2a:AuthenticatedExtendedCardNotConfiguredError a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCError ;
+    rdfs:label "AuthenticatedExtendedCardNotConfiguredError" ;
+    rdfs:comment "A2A-specific error indicating the agent does not have an Authenticated Extended Card configured. Error code: -32007." .
+
+# =============================================================================
+# SECTION 5: A2A Request Classes
+# =============================================================================
+
+a2a:SendMessageRequest a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCRequest ;
+    rdfs:label "SendMessageRequest" ;
+    rdfs:comment "JSON-RPC request for 'message/send' method. Sends a message to an agent, which may create, continue, or restart a task." .
+
+a2a:SendStreamingMessageRequest a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCRequest ;
+    rdfs:label "SendStreamingMessageRequest" ;
+    rdfs:comment "JSON-RPC request for 'message/stream' method. Sends a message and receives a streaming response via Server-Sent Events." .
+
+a2a:GetTaskRequest a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCRequest ;
+    rdfs:label "GetTaskRequest" ;
+    rdfs:comment "JSON-RPC request for 'tasks/get' method. Retrieves a task by its ID with optional history." .
+
+a2a:ListTasksRequest a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCRequest ;
+    rdfs:label "ListTasksRequest" ;
+    rdfs:comment "JSON-RPC request for 'tasks/list' method. Lists tasks with optional filtering and pagination." .
+
+a2a:CancelTaskRequest a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCRequest ;
+    rdfs:label "CancelTaskRequest" ;
+    rdfs:comment "JSON-RPC request for 'tasks/cancel' method. Requests cancellation of a task by its ID." .
+
+a2a:TaskResubscriptionRequest a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCRequest ;
+    rdfs:label "TaskResubscriptionRequest" ;
+    rdfs:comment "JSON-RPC request for 'tasks/resubscribe' method. Used to resume a streaming connection for a task." .
+
+a2a:SetTaskPushNotificationConfigRequest a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCRequest ;
+    rdfs:label "SetTaskPushNotificationConfigRequest" ;
+    rdfs:comment "JSON-RPC request for 'tasks/pushNotificationConfig/set' method. Configures push notifications for a task." .
+
+a2a:GetTaskPushNotificationConfigRequest a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCRequest ;
+    rdfs:label "GetTaskPushNotificationConfigRequest" ;
+    rdfs:comment "JSON-RPC request for 'tasks/pushNotificationConfig/get' method. Retrieves push notification configuration for a task." .
+
+a2a:ListTaskPushNotificationConfigRequest a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCRequest ;
+    rdfs:label "ListTaskPushNotificationConfigRequest" ;
+    rdfs:comment "JSON-RPC request for 'tasks/pushNotificationConfig/list' method. Lists all push notification configurations for a task." .
+
+a2a:DeleteTaskPushNotificationConfigRequest a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCRequest ;
+    rdfs:label "DeleteTaskPushNotificationConfigRequest" ;
+    rdfs:comment "JSON-RPC request for 'tasks/pushNotificationConfig/delete' method. Deletes a push notification configuration for a task." .
+
+a2a:GetAuthenticatedExtendedCardRequest a rdfs:Class ;
+    rdfs:subClassOf a2a:JSONRPCRequest ;
+    rdfs:label "GetAuthenticatedExtendedCardRequest" ;
+    rdfs:comment "JSON-RPC request for 'agent/getAuthenticatedExtendedCard' method. Retrieves an extended Agent card for authenticated users." .
+
+# =============================================================================
+# SECTION 6: Request Parameter Classes
+# =============================================================================
+
+a2a:MessageSendParams a rdfs:Class ;
+    rdfs:label "MessageSendParams" ;
+    rdfs:comment "Parameters sent by a client to an agent as part of a message/send or message/stream request. May create, continue, or restart a task." .
+
+a2a:MessageSendConfiguration a rdfs:Class ;
+    rdfs:label "MessageSendConfiguration" ;
+    rdfs:comment "Configuration options for a message/send or message/stream request, including accepted output modes, blocking behavior, history length, and push notification settings." .
+
+a2a:TaskIdParams a rdfs:Class ;
+    rdfs:label "TaskIdParams" ;
+    rdfs:comment "Parameters containing only a task ID, used for simple Task operations such as cancel or resubscribe." .
+
+a2a:TaskQueryParams a rdfs:Class ;
+    rdfs:label "TaskQueryParams" ;
+    rdfs:comment "Parameters for querying a task, including task ID and an optional history length." .
+
+a2a:ListTasksParams a rdfs:Class ;
+    rdfs:label "ListTasksParams" ;
+    rdfs:comment "Parameters for listing tasks with optional filtering by context ID, status, timestamp, and pagination controls." .
+
+# =============================================================================
+# SECTION 7: Streaming Event Classes
+# =============================================================================
+
+a2a:TaskStatusUpdateEvent a rdfs:Class ;
+    rdfs:label "TaskStatusUpdateEvent" ;
+    rdfs:comment "A streaming event sent by the server during sendStream or subscribe requests to report a change in task status. Contains a Task ID, context ID, current status, and a final flag." .
+
+a2a:TaskArtifactUpdateEvent a rdfs:Class ;
+    rdfs:label "TaskArtifactUpdateEvent" ;
+    rdfs:comment "A streaming event sent by the server during sendStream or subscribe requests to deliver a generated artifact. Supports incremental delivery via append and lastChunk flags." .
+
+# =============================================================================
+# SECTION 8: Push Notification Classes
+# =============================================================================
+
+a2a:PushNotificationConfig a rdfs:Class ;
+    rdfs:label "PushNotificationConfig" ;
+    rdfs:comment "Defines a configuration for setting up push notifications for task updates, including a callback URL, authentication details, and a validation token." .
+
+a2a:PushNotificationAuthenticationInfo a rdfs:Class ;
+    rdfs:label "PushNotificationAuthenticationInfo" ;
+    rdfs:comment "Defines authentication details for a push notification endpoint, including supported authentication schemes and optional credentials." .
+
+# =============================================================================
+# SECTION 9: Security Scheme Classes
+# =============================================================================
+
+a2a:SecurityScheme a rdfs:Class ;
+    rdfs:label "SecurityScheme" ;
+    rdfs:comment "Abstract base class for security schemes used to secure agent endpoints. Follows OpenAPI 3.0 Security Scheme Object pattern." .
+
+a2a:APIKeySecurityScheme a rdfs:Class ;
+    rdfs:subClassOf a2a:SecurityScheme ;
+    rdfs:label "APIKeySecurityScheme" ;
+    rdfs:comment "API Key security scheme. The API key can be located in a query parameter, header, or cookie." .
+
+a2a:HTTPAuthSecurityScheme a rdfs:Class ;
+    rdfs:subClassOf a2a:SecurityScheme ;
+    rdfs:label "HTTPAuthSecurityScheme" ;
+    rdfs:comment "HTTP Authentication security scheme. Uses Authorization header as defined in RFC 7235." .
+
+a2a:OAuth2SecurityScheme a rdfs:Class ;
+    rdfs:subClassOf a2a:SecurityScheme ;
+    rdfs:label "OAuth2SecurityScheme" ;
+    rdfs:comment "OAuth 2.0 security scheme. Supports multiple OAuth 2.0 flows including authorization code, client credentials, implicit, and password." .
+
+a2a:OpenIdConnectSecurityScheme a rdfs:Class ;
+    rdfs:subClassOf a2a:SecurityScheme ;
+    rdfs:label "OpenIdConnectSecurityScheme" ;
+    rdfs:comment "OpenID Connect security scheme. Uses a well-known URL for provider metadata discovery." .
+
+a2a:MutualTLSSecurityScheme a rdfs:Class ;
+    rdfs:subClassOf a2a:SecurityScheme ;
+    rdfs:label "MutualTLSSecurityScheme" ;
+    rdfs:comment "Mutual TLS (mTLS) security scheme for client certificate-based authentication." .
+
+# =============================================================================
+# SECTION 10: Error Classes
+# =============================================================================
+
+a2a:A2AError a rdfs:Class ;
+    rdfs:label "A2AError" ;
+    rdfs:comment "Abstract base class for all standard JSON-RPC and A2A-specific error types." .
+
+a2a:JSONParseError a rdfs:Class ;
+    rdfs:subClassOf a2a:A2AError ;
+    rdfs:label "JSONParseError" ;
+    rdfs:comment "JSON-RPC error indicating invalid JSON was received by the server. Error code: -32700." .
+
+a2a:InvalidRequestError a rdfs:Class ;
+    rdfs:subClassOf a2a:A2AError ;
+    rdfs:label "InvalidRequestError" ;
+    rdfs:comment "JSON-RPC error indicating the JSON sent is not a valid Request object. Error code: -32600." .
+
+a2a:MethodNotFoundError a rdfs:Class ;
+    rdfs:subClassOf a2a:A2AError ;
+    rdfs:label "MethodNotFoundError" ;
+    rdfs:comment "JSON-RPC error indicating that method does not exist or is not available. Error code: -32601." .
+
+a2a:InvalidParamsError a rdfs:Class ;
+    rdfs:subClassOf a2a:A2AError ;
+    rdfs:label "InvalidParamsError" ;
+    rdfs:comment "JSON-RPC error indicating invalid method parameter(s). Error code: -32602." .
+
+a2a:InternalError a rdfs:Class ;
+    rdfs:subClassOf a2a:A2AError ;
+    rdfs:label "InternalError" ;
+    rdfs:comment "JSON-RPC error indicating an internal server error. Error code: -32603." .
+
+a2a:TaskNotFoundError a rdfs:Class ;
+    rdfs:subClassOf a2a:A2AError ;
+    rdfs:label "TaskNotFoundError" ;
+    rdfs:comment "A2A-specific error indicating the requested task ID was not found. Error code: -32001." .
+
+a2a:TaskNotCancelableError a rdfs:Class ;
+    rdfs:subClassOf a2a:A2AError ;
+    rdfs:label "TaskNotCancelableError" ;
+    rdfs:comment "A2A-specific error indicating a task is in a state where it cannot be canceled. Error code: -32002." .
+
+a2a:PushNotificationNotSupportedError a rdfs:Class ;
+    rdfs:subClassOf a2a:A2AError ;
+    rdfs:label "PushNotificationNotSupportedError" ;
+    rdfs:comment "A2A-specific error indicating that agent does not support push notifications. Error code: -32003." .
+
+a2a:UnsupportedOperationError a rdfs:Class ;
+    rdfs:subClassOf a2a:A2AError ;
+    rdfs:label "UnsupportedOperationError" ;
+    rdfs:comment "A2A-specific error indicating the requested operation is not supported by the agent. Error code: -32004." .
+
+a2a:ContentTypeNotSupportedError a rdfs:Class ;
+    rdfs:subClassOf a2a:A2AError ;
+    rdfs:label "ContentTypeNotSupportedError" ;
+    rdfs:comment "A2A-specific error indicating incompatible content types between request and agent capabilities. Error code: -32005." .
+
+a2a:InvalidAgentResponseError a rdfs:Class ;
+    rdfs:subClassOf a2a:A2AError ;
+    rdfs:label "InvalidAgentResponseError" ;
+    rdfs:comment "A2A-specific error indicating the agent returned an invalid response for the current method. Error code: -32006." .
+
+a2a:AuthenticatedExtendedCardNotConfiguredError a rdfs:Class ;
+    rdfs:subClassOf a2a:A2AError ;
+    rdfs:label "AuthenticatedExtendedCardNotConfiguredError" ;
+    rdfs:comment "A2A-specific error indicating the agent does not have an Authenticated Extended Card configured. Error code: -32007." .
+
+# =============================================================================
+# SECTION 11: AgentCard Properties
+# =============================================================================
+
+a2a:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range xsd:string .
+
+a2a:description a rdf:Property ;
+    rdfs:label "description" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range xsd:string .
+
+a2a:url a rdf:Property ;
+    rdfs:label "url" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range xsd:anyURI .
+
+a2a:version a rdf:Property ;
+    rdfs:label "version" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range xsd:string .
+
+a2a:capabilities a rdf:Property ;
+    rdfs:label "capabilities" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range a2a:AgentCapabilities .
+
+a2a:skills a rdf:Property ;
+    rdfs:label "skills" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range a2a:AgentSkill .
+
+a2a:provider a rdf:Property ;
+    rdfs:label "provider" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range a2a:AgentProvider .
+
+a2a:defaultInputModes a rdf:Property ;
+    rdfs:label "defaultInputModes" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range xsd:string .
+
+a2a:defaultOutputModes a rdf:Property ;
+    rdfs:label "defaultOutputModes" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range xsd:string .
+
+a2a:preferredTransport a rdf:Property ;
+    rdfs:label "preferredTransport" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range xsd:string .
+
+a2a:additionalInterfaces a rdf:Property ;
+    rdfs:label "additionalInterfaces" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range a2a:AgentInterface .
+
+a2a:documentationUrl a rdf:Property ;
+    rdfs:label "documentationUrl" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range xsd:anyURI .
+
+a2a:iconUrl a rdf:Property ;
+    rdfs:label "iconUrl" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range xsd:anyURI .
+
+a2a:supportsAuthenticatedExtendedCard a rdf:Property ;
+    rdfs:label "supportsAuthenticatedExtendedCard" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range xsd:boolean .
+
+a2a:security a rdf:Property ;
+    rdfs:label "security" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range a2a:SecurityScheme .
+
+a2a:signatures a rdf:Property ;
+    rdfs:label "signatures" ;
+    rdfs:domain a2a:AgentCard ;
+    rdfs:range a2a:AgentCardSignature .
+
+# =============================================================================
+# SECTION 12: AgentCapabilities Properties
+# =============================================================================
+
+a2a:streaming a rdf:Property ;
+    rdfs:label "streaming" ;
+    rdfs:domain a2a:AgentCapabilities ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the agent supports Server-Sent Events (SSE) for streaming responses." .
+
+a2a:pushNotifications a rdf:Property ;
+    rdfs:label "pushNotifications" ;
+    rdfs:domain a2a:AgentCapabilities ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the agent supports sending push notifications for asynchronous task updates." .
+
+a2a:stateTransitionHistory a rdf:Property ;
+    rdfs:label "stateTransitionHistory" ;
+    rdfs:domain a2a:AgentCapabilities ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the agent provides a history of state transitions for a task." .
+
+a2a:extensions a rdf:Property ;
+    rdfs:label "extensions" ;
+    rdfs:domain a2a:AgentCapabilities ;
+    rdfs:range a2a:AgentExtension ;
+    rdfs:comment "A list of protocol extensions. On AgentCapabilities, extensions supported by the agent. On Message or Artifact, URIs of extensions relevant to that entity." .
+
+# =============================================================================
+# SECTION 13: AgentSkill Properties
+# =============================================================================
+
+a2a:id a rdf:Property ;
+    rdfs:label "id" ;
+    rdfs:domain a2a:AgentSkill ;
+    rdfs:range xsd:string .
+
+a2a:examples a rdf:Property ;
+    rdfs:label "examples" ;
+    rdfs:domain a2a:AgentSkill ;
+    rdfs:range xsd:string .
+
+a2a:inputModes a rdf:Property ;
+    rdfs:label "inputModes" ;
+    rdfs:domain a2a:AgentSkill ;
+    rdfs:range xsd:string .
+
+a2a:outputModes a rdf:Property ;
+    rdfs:label "outputModes" ;
+    rdfs:domain a2a:AgentSkill ;
+    rdfs:range xsd:string .
+
+a2a:tags a rdf:Property ;
+    rdfs:label "tags" ;
+    rdfs:domain a2a:AgentSkill ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# SECTION 14: AgentInterface Properties
+# =============================================================================
+
+a2a:transport a rdf:Property ;
+    rdfs:label "transport" ;
+    rdfs:domain a2a:AgentInterface ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# SECTION 15: AgentExtension Properties
+# =============================================================================
+
+a2a:uri a rdf:Property ;
+    rdfs:label "uri" ;
+    rdfs:domain a2a:AgentExtension ;
+    rdfs:range xsd:anyURI .
+
+a2a:required a rdf:Property ;
+    rdfs:label "required" ;
+    rdfs:domain a2a:AgentExtension ;
+    rdfs:range xsd:boolean .
+
+a2a:params a rdf:Property ;
+    rdfs:label "params" ;
+    rdfs:domain a2a:AgentExtension ;
+    rdfs:comment "Optional, extension-specific configuration parameters. On JSONRPCRequest, structured parameter values for method invocation." .
+
+# =============================================================================
+# SECTION 16: AgentCardSignature Properties
+# =============================================================================
+
+a2a:protected a rdf:Property ;
+    rdfs:label "protected" ;
+    rdfs:domain a2a:AgentCardSignature ;
+    rdfs:range xsd:string .
+
+a2a:header a rdf:Property ;
+    rdfs:label "header" ;
+    rdfs:domain a2a:AgentCardSignature ;
+    rdfs:range xsd:string .
+
+a2a:signature a rdf:Property ;
+    rdfs:label "signature" ;
+    rdfs:domain a2a:AgentCardSignature ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# SECTION 17: Message Properties
+# =============================================================================
+
+a2a:messageId a rdf:Property ;
+    rdfs:label "messageId" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range xsd:string .
+
+a2a:role a rdf:Property ;
+    rdfs:label "role" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range xsd:string .
+
+a2a:parts a rdf:Property ;
+    rdfs:label "parts" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range a2a:Part .
+
+a2a:contextId a rdf:Property ;
+    rdfs:label "contextId" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range xsd:string .
+
+a2a:taskId a rdf:Property ;
+    rdfs:label "taskId" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range xsd:string .
+
+a2a:referenceTaskIds a rdf:Property ;
+    rdfs:label "referenceTaskIds" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range xsd:string .
+
+a2a:kind a rdf:Property ;
+    rdfs:label "kind" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range xsd:string .
+
+a2a:metadata a rdf:Property ;
+    rdfs:label "metadata" ;
+    rdfs:domain a2a:Message ;
+    rdfs:comment "Optional metadata for extensions. The key is an extension-specific identifier. Used on Message, Task, Artifact, Part, streaming events, and request parameters." .
+
+# =============================================================================
+# SECTION 18: Part Properties
+# =============================================================================
+
+a2a:text a rdf:Property ;
+    rdfs:label "text" ;
+    rdfs:domain a2a:TextPart .
+
+a2a:file a rdf:Property ;
+    rdfs:label "file" ;
+    rdfs:domain a2a:FilePart .
+
+a2a:data a rdf:Property ;
+    rdfs:label "data" ;
+    rdfs:domain a2a:DataPart .
+
+# =============================================================================
+# SECTION 19: FileContent Properties
+# =============================================================================
+
+a2a:bytes a rdf:Property ;
+    rdfs:label "bytes" ;
+    rdfs:domain a2a:FileWithBytes ;
+    rdfs:range xsd:base64Binary .
+
+a2a:uri a rdf:Property ;
+    rdfs:label "uri" ;
+    rdfs:domain a2a:FileWithUri ;
+    rdfs:range xsd:anyURI .
+
+a2a:mimeType a rdf:Property ;
+    rdfs:label "mimeType" ;
+    rdfs:domain a2a:FileContent ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# SECTION 20: Task Properties
+# =============================================================================
+
+a2a:id a rdf:Property ;
+    rdfs:label "id" ;
+    rdfs:domain a2a:Task ;
+    rdfs:range xsd:string .
+
+a2a:status a rdf:Property ;
+    rdfs:label "status" ;
+    rdfs:domain a2a:TaskStatus .
+
+a2a:history a rdf:Property ;
+    rdfs:label "history" ;
+    rdfs:domain a2a:Task ;
+    rdfs:range a2a:Message .
+
+a2a:artifacts a rdf:Property ;
+    rdfs:label "artifacts" ;
+    rdfs:domain a2a:Task ;
+    rdfs:range a2a:Artifact .
+
+# =============================================================================
+# SECTION 21: TaskStatus Properties
+# =============================================================================
+
+a2a:state a rdf:Property ;
+    rdfs:label "state" ;
+    rdfs:domain a2a:TaskStatus ;
+    rdfs:range a2a:TaskState .
+
+a2a:message a rdf:Property ;
+    rdfs:label "message" ;
+    rdfs:domain a2a:TaskStatus ;
+    rdfs:range a2a:Message .
+
+a2a:timestamp a rdf:Property ;
+    rdfs:label "timestamp" ;
+    rdfs:domain a2a:TaskStatus ;
+    rdfs:range xsd:dateTime .
+
+# =============================================================================
+# SECTION 22: Artifact Properties
+# =============================================================================
+
+a2a:artifactId a rdf:Property ;
+    rdfs:label "artifactId" ;
+    rdfs:domain a2a:Artifact ;
+    rdfs:range xsd:string .
+
+a2a:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:domain a2a:Artifact .
+
+a2a:createdAt a rdf:Property ;
+    rdfs:label "createdAt" ;
+    rdfs:domain a2a:Artifact ;
+    rdfs:range xsd:dateTime .
+
+a2a:updatedAt a rdf:Property ;
+    rdfs:label "updatedAt" ;
+    rdfs:domain a2a:Artifact ;
+    rdfs:range xsd:dateTime .
+
+a2a:data a rdf:Property ;
+    rdfs:label "data" ;
+    rdfs:domain a2a:Artifact ;
+    rdfs:range a2a:DataPart .
+
+# =============================================================================
+# SECTION 23: JSON-RPC Properties
+# =============================================================================
+
+a2a:jsonrpc a rdf:Property ;
+    rdfs:label "jsonrpc" ;
+    rdfs:domain a2a:JSONRPCMessage ;
+    rdfs:range xsd:string .
+
+a2a:method a rdf:Property ;
+    rdfs:label "method" ;
+    rdfs:domain a2a:JSONRPCRequest ;
+    rdfs:range xsd:string .
+
+a2a:result a rdf:Property ;
+    rdfs:label "result" ;
+    rdfs:domain a2a:JSONRPCSuccessResponse .
+
+a2a:error a rdf:Property ;
+    rdfs:label "error" ;
+    rdfs:domain a2a:JSONRPCErrorResponse .
+
+a2a:errorCode a rdf:Property ;
+    rdfs:label "code" ;
+    rdfs:domain a2a:JSONRPCError .
+
+a2a:errorMessage a rdf:Property ;
+    rdfs:label "message" ;
+    rdfs:domain a2a:JSONRPCError .
+
+a2a:errorData a rdf:Property ;
+    rdfs:label "data" ;
+    rdfs:domain a2a:JSONRPCError ;
+    rdfs:comment "A primitive or structured value that contains additional information about the error. May be omitted." .
+
+# =============================================================================
+# SECTION 24: MessageSendParams Properties
+# =============================================================================
+
+a2a:message a rdf:Property ;
+    rdfs:label "message" ;
+    rdfs:domain a2a:MessageSendParams .
+
+a2a:configuration a rdf:Property ;
+    rdfs:label "configuration" ;
+    rdfs:domain a2a:MessageSendConfiguration ;
+    rdfs:range a2a:MessageSendConfiguration .
+
+# =============================================================================
+# SECTION 25: MessageSendConfiguration Properties
+# =============================================================================
+
+a2a:acceptedOutputModes a rdf:Property ;
+    rdfs:label "acceptedOutputModes" ;
+    rdfs:domain a2a:MessageSendConfiguration ;
+    rdfs:range xsd:string .
+
+a2a:blocking a rdf:Property ;
+    rdfs:label "blocking" ;
+    rdfs:domain a2a:MessageSendConfiguration ;
+    rdfs:range xsd:boolean .
+
+a2a:historyLength a rdf:Property ;
+    rdfs:label "historyLength" ;
+    rdfs:domain a2a:MessageSendConfiguration ;
+    rdfs:range xsd:integer .
+
+a2a:pushNotification a rdf:Property ;
+    rdfs:label "pushNotification" ;
+    rdfs:domain a2a:MessageSendConfiguration ;
+    rdfs:range a2a:TaskPushNotificationConfig .
+
+# =============================================================================
+# SECTION 26: Streaming Event Properties
+# =============================================================================
+
+a2a:final a rdf:Property ;
+    rdfs:label "final" ;
+    rdfs:domain a2a:TaskStatusUpdateEvent ;
+    rdfs:range xsd:boolean .
+
+a2a:artifact a rdf:Property ;
+    rdfs:label "artifact" ;
+    rdfs:domain a2a:TaskArtifactUpdateEvent ;
+    rdfs:range a2a:Artifact .
+
+a2a:append a rdf:Property ;
+    rdfs:label "append" ;
+    rdfs:domain a2a:TaskArtifactUpdateEvent ;
+    rdfs:range xsd:boolean .
+
+a2a:lastChunk a rdf:Property ;
+    rdfs:label "lastChunk" ;
+    rdfs:domain a2a:TaskArtifactUpdateEvent ;
+    rdfs:range xsd:boolean .
+
+# =============================================================================
+# SECTION 27: Push Notification Properties
+# =============================================================================
+
+a2a:notificationUrl a rdf:Property ;
+    rdfs:label "url" ;
+    rdfs:domain a2a:PushNotificationConfig .
+
+a2a:token a rdf:Property ;
+    rdfs:label "token" ;
+    rdfs:domain a2a:PushNotificationConfig ;
+    rdfs:range xsd:string .
+
+a2a:authentication a rdf:Property ;
+    rdfs:label "authentication" ;
+    rdfs:domain a2a:PushNotificationConfig ;
+    rdfs:range a2a:PushNotificationAuthenticationInfo .
+
+# =============================================================================
+# SECTION 28: Security Scheme Properties
+# =============================================================================
+
+a2a:type a rdf:Property ;
+    rdfs:label "type" ;
+    rdfs:domain a2a:SecurityScheme ;
+    rdfs:range xsd:string .
+
+a2a:in a rdf:Property ;
+    rdfs:label "in" ;
+    rdfs:domain a2a:APIKeySecurityScheme ;
+    rdfs:range xsd:string .
+
+a2a:scheme a rdf:Property ;
+    rdfs:label "scheme" ;
+    rdfs:domain a2a:HTTPAuthSecurityScheme ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# SECTION 29: OAuthFlows Properties
+# =============================================================================
+
+a2a:authorizationCode a rdf:Property ;
+    rdfs:label "authorizationCode" ;
+    rdfs:domain a2a:AuthorizationCodeOAuthFlow .
+
+a2a:tokenUrl a rdf:Property ;
+    rdfs:label "tokenUrl" ;
+    rdfs:domain a2a:AuthorizationCodeOAuthFlow .
+
+a2a:refreshTokenUrl a rdf:Property ;
+    rdfs:label "refreshUrl" ;
+    rdfs:domain a2a:AuthorizationCodeOAuthFlow .
+
+a2a:scopes a rdf:Property ;
+    rdfs:label "scopes" ;
+    rdfs:domain a2a:AuthorizationCodeOAuthFlow ;
+    rdfs:comment "The available scopes for the OAuth 2.0 security scheme. A map between scope name and a short description." .

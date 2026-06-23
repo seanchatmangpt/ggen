@@ -1,0 +1,292 @@
+# ggen-substrate.ttl
+# Meta-ontology: the wasm4pm-compat ggen substrate describes itself.
+#
+# This file declares the generation rules, query files, template files,
+# and output artifacts as RDF instances. The substrate is self-documenting:
+# the same ontology layer that drives artifact generation also records
+# exactly how that generation is wired.
+#
+# Structure only. This ontology carries no engine logic.
+
+@prefix substrate: <https://wasm4pm-compat.rs/substrate#> .
+@prefix rdf:       <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:      <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:       <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:       <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# ONTOLOGY HEADER
+# ============================================================================
+
+substrate:GgenSubstrate
+    a owl:Ontology ;
+    rdfs:label "wasm4pm-compat ggen substrate" ;
+    rdfs:comment "Meta-ontology: the ggen generation pipeline described as RDF triples. Every rule wiring a query to a template and an output is an instance of substrate:GenerationRule." ;
+    owl:versionInfo "26.6.9" .
+
+# ============================================================================
+# CLASSES
+# ============================================================================
+
+substrate:GenerationRule
+    a rdfs:Class ;
+    rdfs:label "GenerationRule" ;
+    rdfs:comment "A single rule in the ggen pipeline: one SPARQL query file extracts facts, one Tera template renders artifacts, one output path receives the result." .
+
+substrate:QueryFile
+    a rdfs:Class ;
+    rdfs:label "QueryFile" ;
+    rdfs:comment "A SPARQL SELECT or CONSTRUCT query file (.rq) that extracts structured facts from the type-law ontology." .
+
+substrate:TemplateFile
+    a rdfs:Class ;
+    rdfs:label "TemplateFile" ;
+    rdfs:comment "A Tera template file (.tera) that renders one class of artifact from SPARQL query results." .
+
+substrate:OutputArtifact
+    a rdfs:Class ;
+    rdfs:label "OutputArtifact" ;
+    rdfs:comment "A generated file or directory produced by a GenerationRule. May be a single file or a directory of per-instance files." .
+
+substrate:OntologyFile
+    a rdfs:Class ;
+    rdfs:label "OntologyFile" ;
+    rdfs:comment "An RDF/Turtle ontology file (.ttl) that is part of the substrate graph." .
+
+# ============================================================================
+# PROPERTIES
+# ============================================================================
+
+substrate:query
+    a rdf:Property ;
+    rdfs:label "query" ;
+    rdfs:comment "Path to the SPARQL query file (.rq) used by this GenerationRule, relative to ggen/." ;
+    rdfs:domain substrate:GenerationRule ;
+    rdfs:range xsd:string .
+
+substrate:template
+    a rdf:Property ;
+    rdfs:label "template" ;
+    rdfs:comment "Path to the Tera template file (.tera) used by this GenerationRule, relative to ggen/." ;
+    rdfs:domain substrate:GenerationRule ;
+    rdfs:range xsd:string .
+
+substrate:output
+    a rdf:Property ;
+    rdfs:label "output" ;
+    rdfs:comment "Output path for generated artifacts, relative to the repository root." ;
+    rdfs:domain substrate:GenerationRule ;
+    rdfs:range xsd:string .
+
+substrate:outputIsDirectory
+    a rdf:Property ;
+    rdfs:label "outputIsDirectory" ;
+    rdfs:comment "True if the output path is a directory (one file per result row); false for a single aggregated file." ;
+    rdfs:domain substrate:GenerationRule ;
+    rdfs:range xsd:boolean .
+
+substrate:description
+    a rdf:Property ;
+    rdfs:label "description" ;
+    rdfs:comment "Human-readable description of what this rule generates and why." ;
+    rdfs:domain substrate:GenerationRule ;
+    rdfs:range xsd:string .
+
+substrate:filePath
+    a rdf:Property ;
+    rdfs:label "filePath" ;
+    rdfs:comment "Path to this file, relative to ggen/." ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# ONTOLOGY FILE INSTANCES
+# ============================================================================
+
+substrate:OntologyFile_wasm4pm_compat
+    a substrate:OntologyFile ;
+    substrate:filePath "ontology/wasm4pm-compat.ttl" ;
+    rdfs:label "wasm4pm-compat type-law ontology" ;
+    rdfs:comment "Canonical ontology: WitnessMarker, EvidenceState, ProcessForm, TypeConstraint, CompileFailLaw, SourceModule, PaperCoverage, GraduationBoundary instances." .
+
+substrate:OntologyFile_papers
+    a substrate:OntologyFile ;
+    substrate:filePath "ontology/papers.ttl" ;
+    rdfs:label "papers inventory ontology" ;
+    rdfs:comment "Academic paper inventory with witness markers and coverage claims for all papers mapped into wasm4pm-compat." .
+
+substrate:OntologyFile_substrate
+    a substrate:OntologyFile ;
+    substrate:filePath "ontology/ggen-substrate.ttl" ;
+    rdfs:label "ggen substrate meta-ontology" ;
+    rdfs:comment "This file. Describes the generation rules, query files, template files, and output artifacts as RDF instances." .
+
+# ============================================================================
+# QUERY FILE INSTANCES
+# ============================================================================
+
+substrate:QueryFile_extract_witnesses
+    a substrate:QueryFile ;
+    substrate:filePath "queries/extract-witnesses.rq" ;
+    rdfs:label "extract-witnesses" ;
+    rdfs:comment "SELECT query: extracts all WitnessMarker instances with rustType, key, title, year, and family." .
+
+substrate:QueryFile_extract_compile_fail_laws
+    a substrate:QueryFile ;
+    substrate:filePath "queries/extract-compile-fail-laws.rq" ;
+    rdfs:label "extract-compile-fail-laws" ;
+    rdfs:comment "SELECT query: extracts all CompileFailLaw instances with fixture file path and expected rustc error code." .
+
+substrate:QueryFile_extract_process_forms
+    a substrate:QueryFile ;
+    substrate:filePath "queries/extract-process-forms.rq" ;
+    rdfs:label "extract-process-forms" ;
+    rdfs:comment "SELECT query: extracts ProcessForm and CompilePassSurface instances for compile-pass fixture generation." .
+
+substrate:QueryFile_extract_source_modules
+    a substrate:QueryFile ;
+    substrate:filePath "queries/extract-source-modules.rq" ;
+    rdfs:label "extract-source-modules" ;
+    rdfs:comment "SELECT query: extracts SourceModule instances with file path, primary types, and graduation status." .
+
+substrate:QueryFile_extract_paper_coverage
+    a substrate:QueryFile ;
+    substrate:filePath "queries/extract-paper-coverage.rq" ;
+    rdfs:label "extract-paper-coverage" ;
+    rdfs:comment "SELECT query: extracts PaperCoverage records linking papers to their Rust type surfaces." .
+
+substrate:QueryFile_extract_graduation_candidates
+    a substrate:QueryFile ;
+    substrate:filePath "queries/extract-graduation-candidates.rq" ;
+    rdfs:label "extract-graduation-candidates" ;
+    rdfs:comment "SELECT query: extracts GraduationBoundary instances naming where structure ends and wasm4pm engine logic begins." .
+
+substrate:QueryFile_extract_states
+    a substrate:QueryFile ;
+    substrate:filePath "queries/extract-states.rq" ;
+    rdfs:label "extract-states" ;
+    rdfs:comment "SELECT query: extracts EvidenceState and StateTransition instances for the lifecycle diagram." .
+
+substrate:QueryFile_construct_alive_gate
+    a substrate:QueryFile ;
+    substrate:filePath "queries/construct-alive-gate.rq" ;
+    rdfs:label "construct-alive-gate" ;
+    rdfs:comment "CONSTRUCT query: builds the ALIVE gate subgraph linking CompileFailLaw to CompilePassSurface instances." .
+
+# ============================================================================
+# TEMPLATE FILE INSTANCES
+# ============================================================================
+
+substrate:TemplateFile_witness_marker
+    a substrate:TemplateFile ;
+    substrate:filePath "templates/witness-marker.tera" ;
+    rdfs:label "witness-marker" ;
+    rdfs:comment "Renders src/generated/witnesses.rs: one zero-sized marker enum per WitnessMarker instance." .
+
+substrate:TemplateFile_compile_fail_fixture
+    a substrate:TemplateFile ;
+    substrate:filePath "templates/compile-fail-fixture.tera" ;
+    rdfs:label "compile-fail-fixture" ;
+    rdfs:comment "Renders one trybuild compile-fail fixture .rs file per CompileFailLaw instance." .
+
+substrate:TemplateFile_compile_pass_fixture
+    a substrate:TemplateFile ;
+    substrate:filePath "templates/compile-pass-fixture.tera" ;
+    rdfs:label "compile-pass-fixture" ;
+    rdfs:comment "Renders one trybuild compile-pass fixture .rs file per ProcessForm / CompilePassSurface instance." .
+
+substrate:TemplateFile_audit_script
+    a substrate:TemplateFile ;
+    substrate:filePath "templates/audit-script.tera" ;
+    rdfs:label "audit-script" ;
+    rdfs:comment "Renders one shell audit script per SourceModule instance." .
+
+substrate:TemplateFile_module_docs
+    a substrate:TemplateFile ;
+    substrate:filePath "templates/module-docs.tera" ;
+    rdfs:label "module-docs" ;
+    rdfs:comment "Renders one Markdown doc page per SourceModule instance." .
+
+substrate:TemplateFile_paper_ledger_row
+    a substrate:TemplateFile ;
+    substrate:filePath "templates/paper-ledger-row.tera" ;
+    rdfs:label "paper-ledger-row" ;
+    rdfs:comment "Renders the aggregated PAPER_COVERAGE_LEDGER_GENERATED.md from all PaperCoverage instances." .
+
+substrate:TemplateFile_graduation_boundary_map
+    a substrate:TemplateFile ;
+    substrate:filePath "templates/graduation-boundary-map.tera" ;
+    rdfs:label "graduation-boundary-map" ;
+    rdfs:comment "Renders GRADUATION_BOUNDARIES_GENERATED.md from all GraduationBoundary instances." .
+
+substrate:TemplateFile_gap_register_row
+    a substrate:TemplateFile ;
+    substrate:filePath "templates/gap-register-row.tera" ;
+    rdfs:label "gap-register-row" ;
+    rdfs:comment "Renders gap register entries (coverage gaps between ontology instances and implemented Rust types)." .
+
+# ============================================================================
+# GENERATION RULE INSTANCES
+# ============================================================================
+
+substrate:WitnessGenRule
+    a substrate:GenerationRule ;
+    substrate:query "queries/extract-witnesses.rq" ;
+    substrate:template "templates/witness-marker.tera" ;
+    substrate:output "src/generated/witnesses.rs" ;
+    substrate:outputIsDirectory false ;
+    substrate:description "Generate the witnesses.rs module from all WitnessMarker triples in the ontology." ;
+    rdfs:label "witness-markers" .
+
+substrate:CompileFailGenRule
+    a substrate:GenerationRule ;
+    substrate:query "queries/extract-compile-fail-laws.rq" ;
+    substrate:template "templates/compile-fail-fixture.tera" ;
+    substrate:output "tests/ui/compile_fail/" ;
+    substrate:outputIsDirectory true ;
+    substrate:description "Generate one trybuild compile-fail fixture per CompileFailLaw instance." ;
+    rdfs:label "compile-fail-fixtures" .
+
+substrate:CompilePassGenRule
+    a substrate:GenerationRule ;
+    substrate:query "queries/extract-process-forms.rq" ;
+    substrate:template "templates/compile-pass-fixture.tera" ;
+    substrate:output "tests/ui/compile_pass/" ;
+    substrate:outputIsDirectory true ;
+    substrate:description "Generate one trybuild compile-pass fixture per ProcessForm and CompilePassSurface instance." ;
+    rdfs:label "compile-pass-fixtures" .
+
+substrate:AuditScriptGenRule
+    a substrate:GenerationRule ;
+    substrate:query "queries/extract-source-modules.rq" ;
+    substrate:template "templates/audit-script.tera" ;
+    substrate:output "scripts/audit/" ;
+    substrate:outputIsDirectory true ;
+    substrate:description "Generate one shell audit script per SourceModule that checks invariants (doctest coverage, no unsafe, no engine logic)." ;
+    rdfs:label "audit-scripts" .
+
+substrate:ModuleDocsGenRule
+    a substrate:GenerationRule ;
+    substrate:query "queries/extract-source-modules.rq" ;
+    substrate:template "templates/module-docs.tera" ;
+    substrate:output "docs/generated/" ;
+    substrate:outputIsDirectory true ;
+    substrate:description "Generate one Markdown doc page per SourceModule." ;
+    rdfs:label "module-docs" .
+
+substrate:PaperLedgerGenRule
+    a substrate:GenerationRule ;
+    substrate:query "queries/extract-paper-coverage.rq" ;
+    substrate:template "templates/paper-ledger-row.tera" ;
+    substrate:output "docs/PAPER_COVERAGE_LEDGER_GENERATED.md" ;
+    substrate:outputIsDirectory false ;
+    substrate:description "Generate the paper coverage ledger aggregating all PaperCoverage records." ;
+    rdfs:label "paper-ledger" .
+
+substrate:GraduationMapGenRule
+    a substrate:GenerationRule ;
+    substrate:query "queries/extract-graduation-candidates.rq" ;
+    substrate:template "templates/graduation-boundary-map.tera" ;
+    substrate:output "docs/GRADUATION_BOUNDARIES_GENERATED.md" ;
+    substrate:outputIsDirectory false ;
+    substrate:description "Generate the graduation boundary map from all GraduationBoundary instances." ;
+    rdfs:label "graduation-map" .

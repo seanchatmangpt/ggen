@@ -1,0 +1,278 @@
+# ============================================================================
+# Loan Approval Workflow with Loops (Van der Aalst: Cycle Pattern)
+# ============================================================================
+# This ontology demonstrates loop patterns in workflow:
+# - Short loop: single task with retry (pattern 21)
+# - Long loop: multi-task retry sequence (pattern 22)
+# - Recursion: task can call itself (pattern 23)
+# ============================================================================
+
+@prefix fibo: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialEntities/Loan/> .
+@prefix ex: <http://example.org/bank/loan/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bpmn: <http://www.omg.org/spec/BPMN/20100524/MODEL/> .
+
+# ============================================================================
+# SECTION 1: Workflow Definition
+# ============================================================================
+
+ex:LoanApprovalWithLoops a owl:Class ;
+    rdfs:label "Loan Approval with Loops Process" ;
+    rdfs:comment "Complete loan workflow demonstrating various loop patterns from Van der Aalst" ;
+    ex:stereo "BusinessProcess" ;
+    ex:hasLoopPattern "short-loop,long-loop,recursion" .
+
+# ============================================================================
+# SECTION 2: Process Steps
+# ============================================================================
+
+# Initial submission steps
+ex:ReceiveApplication a owl:Class ;
+    rdfs:label "Receive Application" ;
+    rdfs:subClassOf ex:LoanApprovalWithLoops ;
+    rdfs:comment "Receive and log loan application" ;
+    ex:stereo "ProcessStep" ;
+    ex:canLoop "false" .
+
+ex:ValidateDocuments a owl:Class ;
+    rdfs:label "Validate Documents" ;
+    rdfs:subClassOf ex:LoanApprovalWithLoops ;
+    rdfs:comment "Validate submitted documents for completeness" ;
+    ex:stereo "ProcessStep" ;
+    ex:canLoop "true" ;
+    ex:loopType "short-loop" .
+
+ex:CreditScoreCheck a owl:Class ;
+    rdfs:label "Credit Score Check" ;
+    rdfs:subClassOf ex:LoanApprovalWithLoops ;
+    rdfs:comment "Check credit score and history" ;
+    ex:stereo "ProcessStep" ;
+    ex:canLoop "true" ;
+    ex:loopType "long-loop" .
+
+ex:ManualReview a owl:Class ;
+    rdfs:label "Manual Review" ;
+    rdfs:subClassOf ex:LoanApprovalWithLoops ;
+    rdfs:comment "Manual underwriter review for edge cases" ;
+    ex:stereo "ProcessStep" ;
+    ex:canLoop "false" .
+
+ex:AdditionalDocumentation a owl:Class ;
+    rdfs:label "Request Additional Documentation" ;
+    rdfs:subClassOf ex:LoanApprovalWithLoops ;
+    rdfs:comment "Request more documents from applicant" ;
+    ex:stereo "ProcessStep" ;
+    ex:canLoop "true" ;
+    ex:loopType "long-loop" .
+
+ex:IncomeVerification a owl:Class ;
+    rdfs:label "Income Verification" ;
+    rdfs:subClassOf ex:LoanApprovalWithLoops ;
+    rdfs:comment "Verify employment and income" ;
+    ex:stereo "ProcessStep" ;
+    ex:canLoop "true" ;
+    ex:loopType "long-loop" .
+
+ex:CollateralAssessment a owl:Class ;
+    rdfs:label "Collateral Assessment" ;
+    rdfs:subClassOf ex:LoanApprovalWithLoops ;
+    rdfs:comment "Assess collateral value and condition" ;
+    ex:stereo "ProcessStep" ;
+    ex:canLoop "true" ;
+    ex:loopType "short-loop" .
+
+ex:FinalApproval a owl:Class ;
+    rdfs:label "Final Approval" ;
+    rdfs:subClassOf ex:LoanApprovalWithLoops ;
+    rdfs:comment "Make final approval decision" ;
+    ex:stereo "ProcessStep" ;
+    ex:canLoop "false" .
+
+ex:LoanDisbursement a owl:Class ;
+    rdfs:label "Loan Disbursement" ;
+    rdfs:subClassOf ex:LoanApprovalWithLoops ;
+    rdfs:comment "Disburse approved loan funds" ;
+    ex:stereo "ProcessStep" ;
+    ex:canLoop "false" .
+
+ex:RejectApplication a owl:Class ;
+    rdfs:label "Reject Application" ;
+    rdfs:subClassOf ex:LoanApprovalWithLoops ;
+    rdfs:comment "Reject loan application" ;
+    ex:stereo "ProcessStep" ;
+    ex:canLoop "false" .
+
+# ============================================================================
+# SECTION 3: Flow Relationships
+# ============================================================================
+
+# Primary sequential flow
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:ReceiveApplication ;
+    rdfs:range ex:ValidateDocuments ;
+    rdfs:label "next step" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:ValidateDocuments ;
+    rdfs:range ex:CreditScoreCheck ;
+    rdfs:label "next step" .
+
+# ============================================================================
+# SECTION 4: Loop Patterns
+# ============================================================================
+
+# SHORT LOOP (Pattern 21): Single task with retry
+# Document validation can loop back to itself if documents are incomplete
+ex:hasRetryLoop a owl:ObjectProperty ;
+    rdfs:domain ex:ValidateDocuments ;
+    rdfs:range ex:ValidateDocuments ;
+    rdfs:label "retry loop" ;
+    rdfs:comment "Short loop: re-validate after requesting additional documents" ;
+    ex:maxIterations "3"^^xsd:integer .
+
+ex:hasRetryLoop a owl:ObjectProperty ;
+    rdfs:domain ex:CollateralAssessment ;
+    rdfs:range ex:CollateralAssessment ;
+    rdfs:label "retry loop" ;
+    rdfs:comment "Short loop: reassess collateral if new information received" ;
+    ex:maxIterations "2"^^xsd:integer .
+
+# LONG LOOP (Pattern 22): Multi-task retry sequence
+# Credit check loop: CreditScoreCheck -> IncomeVerification -> CollateralAssessment -> back to CreditScoreCheck
+ex:hasLongLoopPath a owl:ObjectProperty ;
+    rdfs:domain ex:CreditScoreCheck ;
+    rdfs:range ex:IncomeVerification ;
+    rdfs:label "long loop step 1" ;
+    ex:loopType "long-loop" .
+
+ex:hasLongLoopPath a owl:ObjectProperty ;
+    rdfs:domain ex:IncomeVerification ;
+    rdfs:range ex:CollateralAssessment ;
+    rdfs:label "long loop step 2" ;
+    ex:loopType "long-loop" .
+
+ex:hasLongLoopReturn a owl:ObjectProperty ;
+    rdfs:domain ex:CollateralAssessment ;
+    rdfs:range ex:CreditScoreCheck ;
+    rdfs:label "long loop return" ;
+    rdfs:comment "Return to credit check if collateral reassessment affects risk score" ;
+    ex:maxIterations "2"^^xsd:integer .
+
+# Extended long loop with manual review
+ex:hasLongLoopPath a owl:ObjectProperty ;
+    rdfs:domain ex:CreditScoreCheck ;
+    rdfs:range ex:ManualReview ;
+    rdfs:label "to manual review" .
+
+ex:hasLongLoopPath a owl:ObjectProperty ;
+    rdfs:domain ex:ManualReview ;
+    rdfs:range ex:AdditionalDocumentation ;
+    rdfs:label "request more docs" .
+
+ex:hasLongLoopPath a owl:ObjectProperty ;
+    rdfs:domain ex:AdditionalDocumentation ;
+    rdfs:range ex:ValidateDocuments ;
+    rdfs:label "re-validate documents" ;
+    ex:maxIterations "3"^^xsd:integer .
+
+# RECURSION (Pattern 23): Task can invoke itself
+# Escalation loop: underwriter can escalate to senior underwriter
+ex:SeniorUnderwriterReview a owl:Class ;
+    rdfs:label "Senior Underwriter Review" ;
+    rdfs:subClassOf ex:LoanApprovalWithLoops ;
+    rdfs:comment "Senior level review for escalated cases" ;
+    ex:stereo "ProcessStep" ;
+    ex:canLoop "true" ;
+    ex:loopType "recursion" .
+
+ex:canEscalateTo a owl:ObjectProperty ;
+    rdfs:domain ex:ManualReview ;
+    rdfs:range ex:SeniorUnderwriterReview ;
+    rdfs:label "escalate to" .
+
+ex:canEscalateTo a owl:ObjectProperty ;
+    rdfs:domain ex:SeniorUnderwriterReview ;
+    rdfs:range ex:SeniorUnderwriterReview ;
+    rdfs:label "recursively escalate" ;
+    rdfs:comment "Recursion: senior can escalate to committee" ;
+    ex:maxIterations "1"^^xsd:integer .
+
+# ============================================================================
+# SECTION 5: Conditional Branching with Loop Termination
+# ============================================================================
+
+# After credit check, conditions determine next step
+ex:meetsCriteria a owl:ObjectProperty ;
+    rdfs:domain ex:CreditScoreCheck ;
+    rdfs:range ex:IncomeVerification ;
+    rdfs:label "meets criteria" .
+
+ex:belowThreshold a owl:ObjectProperty ;
+    rdfs:domain ex:CreditScoreCheck ;
+    rdfs:range ex:ManualReview ;
+    rdfs:label "below threshold" .
+
+ex:severelyBelowThreshold a owl:ObjectProperty ;
+    rdfs:domain ex:CreditScoreCheck ;
+    rdfs:range ex:RejectApplication ;
+    rdfs:label "severely below threshold" ;
+    ex:terminatesLoop "true" .
+
+# Merge to final approval
+ex:mergesToApproval a owl:ObjectProperty ;
+    rdfs:domain ex:CollateralAssessment ;
+    rdfs:range ex:FinalApproval ;
+    rdfs:label "merges to approval" .
+
+ex:mergesToApproval a owl:ObjectProperty ;
+    rdfs:domain ex:ManualReview ;
+    rdfs:range ex:FinalApproval ;
+    rdfs:label "merges to approval" .
+
+ex:mergesToApproval a owl:ObjectProperty ;
+    rdfs:domain ex:SeniorUnderwriterReview ;
+    rdfs:range ex:FinalApproval ;
+    rdfs:label "merges to approval" .
+
+# Final paths
+ex:approved a owl:ObjectProperty ;
+    rdfs:domain ex:FinalApproval ;
+    rdfs:range ex:LoanDisbursement ;
+    rdfs:label "approved" ;
+    ex:terminatesLoop "true" .
+
+ex:denied a owl:ObjectProperty ;
+    rdfs:domain ex:FinalApproval ;
+    rdfs:range ex:RejectApplication ;
+    rdfs:label "denied" ;
+    ex:terminatesLoop "true" .
+
+# ============================================================================
+# SECTION 6: Loop Metadata
+# ============================================================================
+
+ex:LoopMetadata a owl:Class ;
+    rdfs:label "Loop Metadata" ;
+    rdfs:comment "Metadata for loop execution tracking" .
+
+ex:hasLoopCounter a owl:DatatypeProperty ;
+    rdfs:domain ex:LoopMetadata ;
+    rdfs:range xsd:integer ;
+    rdfs:label "loop counter" .
+
+ex:hasMaxIterations a owl:DatatypeProperty ;
+    rdfs:domain ex:LoopMetadata ;
+    rdfs:range xsd:integer ;
+    rdfs:label "maximum iterations" .
+
+ex:hasLoopCondition a owl:DatatypeProperty ;
+    rdfs:domain ex:LoopMetadata ;
+    rdfs:range xsd:string ;
+    rdfs:label "loop condition" .
+
+ex:hasBreakCondition a owl:DatatypeProperty ;
+    rdfs:domain ex:LoopMetadata ;
+    rdfs:range xsd:string ;
+    rdfs:label "break condition" .

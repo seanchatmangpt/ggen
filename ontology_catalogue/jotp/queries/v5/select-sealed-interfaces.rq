@@ -1,0 +1,11 @@
+PREFIX java: <https://jgen.dev/ontology/java#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?name ?package ?comment
+WHERE {
+    ?type a java:SealedInterface ;
+          java:hasName    ?name ;
+          java:hasPackage ?package .
+    OPTIONAL { ?type rdfs:comment ?comment }
+}
+ORDER BY ?package ?name

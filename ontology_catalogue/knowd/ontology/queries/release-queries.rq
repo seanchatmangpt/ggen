@@ -1,0 +1,165 @@
+# ============================================================================
+# Production Release Readiness Queries
+# ============================================================================
+
+# Query 1: Production release checklist
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT
+  (COUNT(?p0) AS ?totalP0)
+  (SUM(?complete) AS ?completeP0)
+  (AVG(?completeness) AS ?avgCompleteness)
+  (MIN(?completeness) AS ?minCompleteness)
+WHERE {
+  ?p0 a knowd:ProductionFeature ;
+      knowd:priority "P0" ;
+      knowd:completeness ?completeness .
+  BIND(IF(?completeness >= 1.0, 1, 0) AS ?complete)
+}
+
+# Query 2: List all blocking issues for production release
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?feature ?name ?issue
+WHERE {
+  ?feature a knowd:ProductionFeature ;
+           rdfs:label ?name ;
+           knowd:priority "P0" .
+  {
+    # Incomplete features
+    ?feature knowd:completeness ?completeness .
+    FILTER (?completeness < 1.0)
+    BIND(CONCAT("Incomplete: ", STR(?completeness * 100), "%") AS ?issue)
+  } UNION {
+    # Missing test coverage
+    ?feature a knowd:SecurityFeature ;
+             knowd:coverage ?coverage .
+    FILTER (?coverage < 0.85)
+    BIND(CONCAT("Low coverage: ", STR(?coverage * 100), "%") AS ?issue)
+  } UNION {
+    # Missing implementation
+    FILTER NOT EXISTS { ?feature knowd:implementedIn ?file }
+    BIND("No implementation file" AS ?issue)
+  }
+}
+ORDER BY ?name
+
+# Query 3: ASK if ready for production deployment
+PREFIX knowd: <http://knowd.io/ontology#>
+
+ASK {
+  # All P0 features must be complete
+  FILTER NOT EXISTS {
+    ?feature knowd:priority "P0" ;
+             knowd:completeness ?c .
+    FILTER (?c < 1.0)
+  }
+  # All P0 security features must have high coverage
+  FILTER NOT EXISTS {
+    ?security a knowd:SecurityFeature ;
+              knowd:priority "P0" ;
+              knowd:coverage ?cov .
+    FILTER (?cov < 0.80)
+  }
+}
+
+# Query 4: Security audit checklist
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?feature ?name ?coverage ?status
+WHERE {
+  ?feature a knowd:SecurityFeature ;
+           rdfs:label ?name ;
+           knowd:priority "P0" ;
+           knowd:status ?status .
+  OPTIONAL { ?feature knowd:coverage ?coverage }
+}
+ORDER BY ?coverage
+
+# Query 5: Compliance checklist (GDPR, audit, etc.)
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?feature ?name ?completeness ?status
+WHERE {
+  ?feature a knowd:ComplianceFeature ;
+           rdfs:label ?name ;
+           knowd:completeness ?completeness ;
+           knowd:status ?status .
+}
+ORDER BY ?completeness
+
+# Query 6: Observability coverage check
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?feature ?name ?status ?priority
+WHERE {
+  ?feature a knowd:ObservabilityFeature ;
+           rdfs:label ?name ;
+           knowd:status ?status ;
+           knowd:priority ?priority .
+}
+ORDER BY ?priority ?name
+
+# Query 7: Scalability features status
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?feature ?name ?completeness ?priority
+WHERE {
+  ?feature a knowd:ScalabilityFeature ;
+           rdfs:label ?name ;
+           knowd:completeness ?completeness ;
+           knowd:priority ?priority .
+}
+ORDER BY ?priority DESC(?completeness)
+
+# Query 8: Find features with incomplete dependencies
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?feature ?featureName ?dep ?depName ?depCompleteness
+WHERE {
+  ?feature a knowd:ProductionFeature ;
+           rdfs:label ?featureName ;
+           knowd:priority "P0" ;
+           knowd:dependsOn ?dep .
+  ?dep rdfs:label ?depName ;
+       knowd:completeness ?depCompleteness .
+  FILTER (?depCompleteness < 1.0)
+}
+ORDER BY ?featureName ?depCompleteness
+
+# Query 9: Release timeline - features by last modified date
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?feature ?name ?lastModified ?status
+WHERE {
+  ?feature a knowd:ProductionFeature ;
+           rdfs:label ?name ;
+           knowd:priority "P0" ;
+           knowd:status ?status .
+  OPTIONAL { ?feature knowd:lastModified ?lastModified }
+}
+ORDER BY DESC(?lastModified)
+
+# Query 10: Generate release notes from completed features
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?type ?name ?description
+WHERE {
+  ?feature a ?type ;
+           rdfs:label ?name ;
+           knowd:description ?description ;
+           knowd:status "implemented" ;
+           knowd:completeness 1.0 .
+  ?type rdfs:subClassOf knowd:ProductionFeature .
+  FILTER (?type != knowd:ProductionFeature)
+}
+ORDER BY ?type ?name

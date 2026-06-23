@@ -1,0 +1,15 @@
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# AUDIT: FAIL if Supabase Realtime classified as evidence without explicit admission boundary
+# Valid: Realtime CDC → feedstock → Admit → court admission. Invalid: Realtime directly as evidence.
+SELECT ?violation ?label
+WHERE {
+  ?proofCell a pi:PROOF_CELL ;
+             rdfs:label ?label ;
+             dcterms:description ?desc .
+  BIND ("RealtimeAsEvidence" AS ?violation)
+  FILTER (REGEX(?desc, "Realtime|CDC", "i") && !REGEX(?desc, "Admission|feedstock|admits", "i"))
+}

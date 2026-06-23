@@ -1,0 +1,714 @@
+@prefix : <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix be: <http://bytestar.org/ontology/byteethos#> .
+@prefix bf: <http://bytestar.org/ontology/byteflow#> .
+@prefix bc: <http://bytestar.org/ontology/bytecore#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+<http://bytestar.org/ontology/doctrine-of-8> rdf:type owl:Ontology ;
+    dct:title "Doctrine of 8: ByteStar Performance Constraint Ontology"@en ;
+    dct:description """The foundational ontology defining the immutable ≤8 tick constraint that governs
+    all operations within the ByteStar ecosystem. This doctrine establishes the absolute performance
+    law that no operation may exceed 8 clock ticks, with zero-tick rejection for violations."""@en ;
+    dct:creator "ByteStar Ecosystem"@en ;
+    dct:created "2025-01-01T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-phase1"@en ;
+    dct:license <https://opensource.org/licenses/MIT> ;
+    rdfs:seeAlso <http://bytestar.org/docs/doctrine-of-8> ;
+    owl:imports <http://bytestar.org/ontology/byteactor> ,
+                <http://bytestar.org/ontology/byteethos> ,
+                <http://bytestar.org/ontology/byteflow> ,
+                <http://bytestar.org/ontology/bytecore> ;
+    # Immutable law declaration
+    :hasImmutableLaw :DoctrineOfEightLaw .
+
+#################################################################
+#    Core Doctrine Classes
+#################################################################
+
+###  http://bytestar.org/ontology/doctrine-of-8#DoctrineOfEightLaw
+:DoctrineOfEightLaw rdf:type owl:Class ;
+                   rdfs:subClassOf be:GovernanceRule ;
+                   rdfs:label "Doctrine of Eight Law"@en ;
+                   rdfs:comment """The immutable law that no operation in the ByteStar ecosystem
+                   may exceed 8 clock ticks. This is the fundamental performance constraint that
+                   governs all system behavior."""@en ;
+                   :hasConstraintType :PerformanceConstraint ;
+                   :hasViolationConsequence :ZeroTickRejection ;
+                   :isImmutable "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/doctrine-of-8#TickMeasurement
+:TickMeasurement rdf:type owl:Class ;
+                rdfs:subClassOf ba:PerformanceMeasurement ;
+                rdfs:label "Tick Measurement"@en ;
+                rdfs:comment """A precise measurement of execution time in CPU clock ticks.
+                The fundamental unit of performance measurement in the ByteStar ecosystem."""@en ;
+                :hasUnit :ClockTick ;
+                :hasPrecision "nanosecond"@en .
+
+###  http://bytestar.org/ontology/doctrine-of-8#ClockTick
+:ClockTick rdf:type owl:Class ;
+          rdfs:subClassOf ba:TimeUnit ;
+          rdfs:label "Clock Tick"@en ;
+          rdfs:comment """A single CPU clock cycle. The atomic unit of time measurement
+          for the Doctrine of 8 constraint validation."""@en ;
+          :hasBaseUnit "CPU_CYCLE"@en ;
+          :isAtomic "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/doctrine-of-8#PerformanceClassification
+:PerformanceClassification rdf:type owl:Class ;
+                          rdfs:subClassOf ba:Classification ;
+                          rdfs:label "Performance Classification"@en ;
+                          rdfs:comment """Classification system for code paths based on their
+                          performance characteristics and criticality."""@en .
+
+###  http://bytestar.org/ontology/doctrine-of-8#HotPath
+:HotPath rdf:type owl:Class ;
+        rdfs:subClassOf :PerformanceClassification ;
+        rdfs:label "Hot Path"@en ;
+        rdfs:comment """Critical execution paths that must complete in ≤2 ticks.
+        These are the most performance-sensitive operations."""@en ;
+        :hasMaxTicks "2"^^xsd:nonNegativeInteger ;
+        :hasPriority "CRITICAL"@en ;
+        :requiresZeroTickRejection "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/doctrine-of-8#WarmPath
+:WarmPath rdf:type owl:Class ;
+         rdfs:subClassOf :PerformanceClassification ;
+         rdfs:label "Warm Path"@en ;
+         rdfs:comment """Standard execution paths that must complete in ≤5 ticks.
+         Regular operations with moderate performance requirements."""@en ;
+         :hasMaxTicks "5"^^xsd:nonNegativeInteger ;
+         :hasPriority "HIGH"@en ;
+         :requiresZeroTickRejection "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/doctrine-of-8#ColdPath
+:ColdPath rdf:type owl:Class ;
+         rdfs:subClassOf :PerformanceClassification ;
+         rdfs:label "Cold Path"@en ;
+         rdfs:comment """Initialization and setup paths that must complete in ≤8 ticks.
+         Less frequent operations with the maximum allowed execution time."""@en ;
+         :hasMaxTicks "8"^^xsd:nonNegativeInteger ;
+         :hasPriority "MEDIUM"@en ;
+         :requiresZeroTickRejection "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/doctrine-of-8#ViolationHandler
+:ViolationHandler rdf:type owl:Class ;
+                 rdfs:subClassOf be:EnforcementMechanism ;
+                 rdfs:label "Violation Handler"@en ;
+                 rdfs:comment """System component responsible for detecting and handling
+                 violations of the Doctrine of 8 constraint."""@en ;
+                 :implementsZeroTickRejection "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/doctrine-of-8#ZeroTickRejection
+:ZeroTickRejection rdf:type owl:Class ;
+                  rdfs:subClassOf be:GovernanceAction ;
+                  rdfs:label "Zero-Tick Rejection"@en ;
+                  rdfs:comment """The immediate rejection mechanism that terminates any operation
+                  violating the Doctrine of 8 constraint. Operates with zero computational overhead."""@en ;
+                  :hasExecutionTime "0"^^xsd:nonNegativeInteger ;
+                  :isImmediate "true"^^xsd:boolean ;
+                  :hasConsequence :OperationTermination .
+
+###  http://bytestar.org/ontology/doctrine-of-8#OperationTermination
+:OperationTermination rdf:type owl:Class ;
+                     rdfs:subClassOf ba:SystemAction ;
+                     rdfs:label "Operation Termination"@en ;
+                     rdfs:comment """The action of immediately halting an operation that
+                     violates the Doctrine of 8 constraint."""@en ;
+                     :isImmediate "true"^^xsd:boolean ;
+                     :hasRecoveryMechanism :FallbackExecution .
+
+###  http://bytestar.org/ontology/doctrine-of-8#PerformanceValidator
+:PerformanceValidator rdf:type owl:Class ;
+                     rdfs:subClassOf ba:Validator ;
+                     rdfs:label "Performance Validator"@en ;
+                     rdfs:comment """Automated validation system that ensures all operations
+                     comply with the Doctrine of 8 constraint."""@en ;
+                     :validatesConstraint :DoctrineOfEightLaw ;
+                     :operatesInRealTime "true"^^xsd:boolean .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://bytestar.org/ontology/doctrine-of-8#hasTickCount
+:hasTickCount rdf:type owl:ObjectProperty ,
+                       owl:FunctionalProperty ;
+             rdfs:domain ba:Operation ;
+             rdfs:range :TickMeasurement ;
+             rdfs:label "has tick count"@en ;
+             rdfs:comment "Relates an operation to its tick count measurement."@en .
+
+###  http://bytestar.org/ontology/doctrine-of-8#hasPerformanceClass
+:hasPerformanceClass rdf:type owl:ObjectProperty ,
+                              owl:FunctionalProperty ;
+                    rdfs:domain ba:Operation ;
+                    rdfs:range :PerformanceClassification ;
+                    rdfs:label "has performance class"@en ;
+                    rdfs:comment "Relates an operation to its performance classification."@en .
+
+###  http://bytestar.org/ontology/doctrine-of-8#hasViolationHandler
+:hasViolationHandler rdf:type owl:ObjectProperty ;
+                    rdfs:domain ba:System ;
+                    rdfs:range :ViolationHandler ;
+                    rdfs:label "has violation handler"@en ;
+                    rdfs:comment "Relates a system to its violation handler."@en .
+
+###  http://bytestar.org/ontology/doctrine-of-8#violatesConstraint
+:violatesConstraint rdf:type owl:ObjectProperty ;
+                   rdfs:domain ba:Operation ;
+                   rdfs:range :DoctrineOfEightLaw ;
+                   rdfs:label "violates constraint"@en ;
+                   rdfs:comment "Indicates that an operation violates the Doctrine of 8."@en .
+
+###  http://bytestar.org/ontology/doctrine-of-8#triggersRejection
+:triggersRejection rdf:type owl:ObjectProperty ;
+                  rdfs:domain ba:Operation ;
+                  rdfs:range :ZeroTickRejection ;
+                  rdfs:label "triggers rejection"@en ;
+                  rdfs:comment "Indicates that an operation triggers zero-tick rejection."@en .
+
+###  http://bytestar.org/ontology/doctrine-of-8#measuredBy
+:measuredBy rdf:type owl:ObjectProperty ;
+           rdfs:domain ba:Operation ;
+           rdfs:range :PerformanceValidator ;
+           rdfs:label "measured by"@en ;
+           rdfs:comment "Indicates which validator measures an operation's performance."@en .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+###  http://bytestar.org/ontology/doctrine-of-8#tickValue
+:tickValue rdf:type owl:DatatypeProperty ,
+                    owl:FunctionalProperty ;
+          rdfs:domain :TickMeasurement ;
+          rdfs:range xsd:nonNegativeInteger ;
+          rdfs:label "tick value"@en ;
+          rdfs:comment "The numeric value of ticks for a measurement."@en .
+
+###  http://bytestar.org/ontology/doctrine-of-8#maxAllowedTicks
+:maxAllowedTicks rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :PerformanceClassification ;
+                rdfs:range xsd:nonNegativeInteger ;
+                rdfs:label "max allowed ticks"@en ;
+                rdfs:comment "The maximum number of ticks allowed for this classification."@en .
+
+###  http://bytestar.org/ontology/doctrine-of-8#isImmutable
+:isImmutable rdf:type owl:DatatypeProperty ,
+                      owl:FunctionalProperty ;
+            rdfs:domain :DoctrineOfEightLaw ;
+            rdfs:range xsd:boolean ;
+            rdfs:label "is immutable"@en ;
+            rdfs:comment "Indicates whether the law is immutable and cannot be changed."@en .
+
+###  http://bytestar.org/ontology/doctrine-of-8#violationThreshold
+:violationThreshold rdf:type owl:DatatypeProperty ,
+                             owl:FunctionalProperty ;
+                   rdfs:domain ba:Operation ;
+                   rdfs:range xsd:nonNegativeInteger ;
+                   rdfs:label "violation threshold"@en ;
+                   rdfs:comment "The tick count at which an operation violates the constraint."@en .
+
+###  http://bytestar.org/ontology/doctrine-of-8#rejectionTimestamp
+:rejectionTimestamp rdf:type owl:DatatypeProperty ;
+                   rdfs:domain :ZeroTickRejection ;
+                   rdfs:range xsd:dateTime ;
+                   rdfs:label "rejection timestamp"@en ;
+                   rdfs:comment "The timestamp when zero-tick rejection occurred."@en .
+
+###  http://bytestar.org/ontology/doctrine-of-8#operatesInRealTime
+:operatesInRealTime rdf:type owl:DatatypeProperty ,
+                             owl:FunctionalProperty ;
+                   rdfs:domain :PerformanceValidator ;
+                   rdfs:range xsd:boolean ;
+                   rdfs:label "operates in real time"@en ;
+                   rdfs:comment "Indicates whether the validator operates in real-time."@en .
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  http://bytestar.org/ontology/doctrine-of-8#TheDoctrineOfEight
+:TheDoctrineOfEight rdf:type owl:NamedIndividual ,
+                             :DoctrineOfEightLaw ;
+                   rdfs:label "The Doctrine of Eight"@en ;
+                   rdfs:comment """The singular immutable law of the ByteStar ecosystem:
+                   No operation shall exceed 8 clock ticks."""@en ;
+                   :isImmutable "true"^^xsd:boolean ;
+                   :violationThreshold "8"^^xsd:nonNegativeInteger ;
+                   dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+###  http://bytestar.org/ontology/doctrine-of-8#GlobalViolationHandler
+:GlobalViolationHandler rdf:type owl:NamedIndividual ,
+                                 :ViolationHandler ;
+                       rdfs:label "Global Violation Handler"@en ;
+                       rdfs:comment """The system-wide violation handler that enforces
+                       the Doctrine of 8 across all components."""@en ;
+                       :implementsZeroTickRejection "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/doctrine-of-8#RealTimeValidator
+:RealTimeValidator rdf:type owl:NamedIndividual ,
+                            :PerformanceValidator ;
+                  rdfs:label "Real-Time Performance Validator"@en ;
+                  rdfs:comment """The primary validator that monitors all operations
+                  in real-time for Doctrine of 8 compliance."""@en ;
+                  :operatesInRealTime "true"^^xsd:boolean ;
+                  :validatesConstraint :TheDoctrineOfEight .
+
+#################################################################
+#    SHACL Shapes for Validation
+#################################################################
+
+###  http://bytestar.org/ontology/doctrine-of-8#OperationTickConstraintShape
+:OperationTickConstraintShape rdf:type sh:NodeShape ;
+                             sh:targetClass ba:Operation ;
+                             rdfs:label "Operation Tick Constraint Shape"@en ;
+                             rdfs:comment "Validates that all operations comply with the Doctrine of 8."@en ;
+                             sh:property [
+                                 sh:path :hasTickCount ;
+                                 sh:class :TickMeasurement ;
+                                 sh:minCount 1 ;
+                                 sh:maxCount 1 ;
+                                 sh:message "Every operation must have exactly one tick measurement."@en
+                             ] ;
+                             sh:property [
+                                 sh:path [:hasTickCount :tickValue] ;
+                                 sh:datatype xsd:nonNegativeInteger ;
+                                 sh:maxInclusive 8 ;
+                                 sh:message "Operation tick count must not exceed 8 ticks (Doctrine of 8 violation)."@en ;
+                                 sh:severity sh:Violation
+                             ] ;
+                             sh:property [
+                                 sh:path :hasPerformanceClass ;
+                                 sh:class :PerformanceClassification ;
+                                 sh:minCount 1 ;
+                                 sh:maxCount 1 ;
+                                 sh:message "Every operation must have exactly one performance classification."@en
+                             ] .
+
+###  http://bytestar.org/ontology/doctrine-of-8#HotPathConstraintShape
+:HotPathConstraintShape rdf:type sh:NodeShape ;
+                       sh:targetClass :HotPath ;
+                       rdfs:label "Hot Path Constraint Shape"@en ;
+                       rdfs:comment "Validates that hot paths complete in ≤2 ticks."@en ;
+                       sh:property [
+                           sh:path :maxAllowedTicks ;
+                           sh:datatype xsd:nonNegativeInteger ;
+                           sh:hasValue 2 ;
+                           sh:message "Hot paths must have maxAllowedTicks set to 2."@en
+                       ] .
+
+###  http://bytestar.org/ontology/doctrine-of-8#WarmPathConstraintShape
+:WarmPathConstraintShape rdf:type sh:NodeShape ;
+                        sh:targetClass :WarmPath ;
+                        rdfs:label "Warm Path Constraint Shape"@en ;
+                        rdfs:comment "Validates that warm paths complete in ≤5 ticks."@en ;
+                        sh:property [
+                            sh:path :maxAllowedTicks ;
+                            sh:datatype xsd:nonNegativeInteger ;
+                            sh:hasValue 5 ;
+                            sh:message "Warm paths must have maxAllowedTicks set to 5."@en
+                        ] .
+
+###  http://bytestar.org/ontology/doctrine-of-8#ColdPathConstraintShape
+:ColdPathConstraintShape rdf:type sh:NodeShape ;
+                        sh:targetClass :ColdPath ;
+                        rdfs:label "Cold Path Constraint Shape"@en ;
+                        rdfs:comment "Validates that cold paths complete in ≤8 ticks."@en ;
+                        sh:property [
+                            sh:path :maxAllowedTicks ;
+                            sh:datatype xsd:nonNegativeInteger ;
+                            sh:hasValue 8 ;
+                            sh:message "Cold paths must have maxAllowedTicks set to 8."@en
+                        ] .
+
+###  http://bytestar.org/ontology/doctrine-of-8#ImmutableLawShape
+:ImmutableLawShape rdf:type sh:NodeShape ;
+                  sh:targetClass :DoctrineOfEightLaw ;
+                  rdfs:label "Immutable Law Shape"@en ;
+                  rdfs:comment "Ensures the Doctrine of 8 law remains immutable."@en ;
+                  sh:property [
+                      sh:path :isImmutable ;
+                      sh:datatype xsd:boolean ;
+                      sh:hasValue "true"^^xsd:boolean ;
+                      sh:message "The Doctrine of 8 law must be immutable."@en
+                  ] ;
+                  sh:property [
+                      sh:path :violationThreshold ;
+                      sh:datatype xsd:nonNegativeInteger ;
+                      sh:hasValue 8 ;
+                      sh:message "The violation threshold must be exactly 8 ticks."@en
+                  ] .
+
+###  http://bytestar.org/ontology/doctrine-of-8#ZeroTickRejectionShape
+:ZeroTickRejectionShape rdf:type sh:NodeShape ;
+                       sh:targetClass :ZeroTickRejection ;
+                       rdfs:label "Zero-Tick Rejection Shape"@en ;
+                       rdfs:comment "Validates zero-tick rejection properties."@en ;
+                       sh:property [
+                           sh:path :hasExecutionTime ;
+                           sh:datatype xsd:nonNegativeInteger ;
+                           sh:hasValue 0 ;
+                           sh:message "Zero-tick rejection must have execution time of 0."@en
+                       ] ;
+                       sh:property [
+                           sh:path :isImmediate ;
+                           sh:datatype xsd:boolean ;
+                           sh:hasValue "true"^^xsd:boolean ;
+                           sh:message "Zero-tick rejection must be immediate."@en
+                       ] .
+
+#################################################################
+#    Axioms and Rules
+#################################################################
+
+# Axiom: Any operation exceeding 8 ticks violates the Doctrine
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           ba:Operation
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :hasTickCount ;
+               owl:someValuesFrom [
+                   rdf:type owl:Class ;
+                   owl:intersectionOf (
+                       :TickMeasurement
+                       [
+                           rdf:type owl:Restriction ;
+                           owl:onProperty :tickValue ;
+                           owl:someValuesFrom [
+                               rdf:type rdfs:Datatype ;
+                               owl:onDatatype xsd:nonNegativeInteger ;
+                               owl:withRestrictions (
+                                   [ xsd:minExclusive 8 ]
+                               )
+                           ]
+                       ]
+                   )
+               ]
+           ]
+       )
+   ] ;
+   rdfs:subClassOf [
+       rdf:type owl:Restriction ;
+       owl:onProperty :violatesConstraint ;
+       owl:hasValue :TheDoctrineOfEight
+   ] .
+
+# Axiom: Violation triggers zero-tick rejection
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           ba:Operation
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :violatesConstraint ;
+               owl:hasValue :TheDoctrineOfEight
+           ]
+       )
+   ] ;
+   rdfs:subClassOf [
+       rdf:type owl:Restriction ;
+       owl:onProperty :triggersRejection ;
+       owl:someValuesFrom :ZeroTickRejection
+   ] .
+
+#################################################################
+#    SPARQL Queries for Validation and Monitoring
+#################################################################
+
+# Query 1: Find all operations violating the Doctrine of 8
+:findViolatingOperationsQuery rdf:type sp:Query ;
+    rdfs:label "Find Operations Violating Doctrine of 8"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/doctrine-of-8#>
+    PREFIX ba: <http://bytestar.org/ontology/byteactor#>
+    
+    SELECT ?operation ?tickCount ?timestamp WHERE {
+        ?operation a ba:Operation ;
+                   :hasTickCount ?measurement .
+        ?measurement :tickValue ?tickCount .
+        OPTIONAL { ?operation prov:generatedAtTime ?timestamp }
+        FILTER (?tickCount > 8)
+    }
+    ORDER BY DESC(?tickCount)
+    """ .
+
+# Query 2: Performance classification compliance check
+:classificationComplianceQuery rdf:type sp:Query ;
+    rdfs:label "Check Performance Classification Compliance"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/doctrine-of-8#>
+    PREFIX ba: <http://bytestar.org/ontology/byteactor#>
+    
+    SELECT ?operation ?class ?actualTicks ?maxAllowed ?violation WHERE {
+        ?operation a ba:Operation ;
+                   :hasPerformanceClass ?class ;
+                   :hasTickCount ?measurement .
+        ?measurement :tickValue ?actualTicks .
+        ?class :maxAllowedTicks ?maxAllowed .
+        BIND (IF(?actualTicks > ?maxAllowed, "VIOLATION", "COMPLIANT") AS ?violation)
+    }
+    ORDER BY ?violation DESC(?actualTicks)
+    """ .
+
+# Query 3: Real-time violation monitoring
+:realTimeViolationQuery rdf:type sp:Query ;
+    rdfs:label "Real-Time Violation Monitoring"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/doctrine-of-8#>
+    PREFIX ba: <http://bytestar.org/ontology/byteactor#>
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+    
+    SELECT ?operation ?tickCount ?rejectionTime ?handler WHERE {
+        ?operation a ba:Operation ;
+                   :hasTickCount ?measurement ;
+                   :triggersRejection ?rejection .
+        ?measurement :tickValue ?tickCount .
+        ?rejection :rejectionTimestamp ?rejectionTime ;
+                   :handledBy ?handler .
+        FILTER (?rejectionTime > "2025-08-23T00:00:00Z"^^xsd:dateTime)
+    }
+    ORDER BY DESC(?rejectionTime)
+    """ .
+
+# Query 4: Performance statistics by classification
+:performanceStatsByClassQuery rdf:type sp:Query ;
+    rdfs:label "Performance Statistics by Classification"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/doctrine-of-8#>
+    PREFIX ba: <http://bytestar.org/ontology/byteactor#>
+    
+    SELECT ?class (COUNT(?operation) AS ?totalOps) 
+           (AVG(?tickCount) AS ?avgTicks) 
+           (MAX(?tickCount) AS ?maxTicks) 
+           (MIN(?tickCount) AS ?minTicks) WHERE {
+        ?operation a ba:Operation ;
+                   :hasPerformanceClass ?class ;
+                   :hasTickCount ?measurement .
+        ?measurement :tickValue ?tickCount .
+    }
+    GROUP BY ?class
+    ORDER BY ?class
+    """ .
+
+# Query 5: Zero-tick rejection audit trail
+:rejectionAuditQuery rdf:type sp:Query ;
+    rdfs:label "Zero-Tick Rejection Audit Trail"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/doctrine-of-8#>
+    PREFIX ba: <http://bytestar.org/ontology/byteactor#>
+    PREFIX prov: <http://www.w3.org/ns/prov#>
+    
+    SELECT ?operation ?tickCount ?rejectionTime ?cause ?recovery WHERE {
+        ?operation a ba:Operation ;
+                   :hasTickCount ?measurement ;
+                   :triggersRejection ?rejection .
+        ?measurement :tickValue ?tickCount .
+        ?rejection :rejectionTimestamp ?rejectionTime .
+        OPTIONAL { ?rejection prov:wasDerivedFrom ?cause }
+        OPTIONAL { ?rejection :hasRecoveryMechanism ?recovery }
+    }
+    ORDER BY DESC(?rejectionTime)
+    """ .
+
+#################################################################
+#    Documentation and Examples
+#################################################################
+
+:DocumentationExamples rdf:type owl:Class ;
+    rdfs:label "Documentation Examples"@en ;
+    rdfs:comment """Examples demonstrating how the Doctrine of 8 applies
+    to different system components and operations."""@en .
+
+# Example 1: ByteCore Kernel Operation
+:ExampleByteCoreKernel rdf:type owl:NamedIndividual ,
+                               ba:Operation ;
+                      rdfs:label "ByteCore Kernel K01 Example"@en ;
+                      rdfs:comment "Example of a ByteCore kernel operation classified as hot path."@en ;
+                      :hasTickCount :K01TickMeasurement ;
+                      :hasPerformanceClass :HotPath ;
+                      :measuredBy :RealTimeValidator .
+
+:K01TickMeasurement rdf:type owl:NamedIndividual ,
+                             :TickMeasurement ;
+                   rdfs:label "K01 Tick Measurement"@en ;
+                   :tickValue "1"^^xsd:nonNegativeInteger ;
+                   :hasUnit :ClockTick .
+
+# Example 2: ByteFlow Workflow Step
+:ExampleByteFlowStep rdf:type owl:NamedIndividual ,
+                             ba:Operation ;
+                    rdfs:label "ByteFlow Workflow Step Example"@en ;
+                    rdfs:comment "Example of a ByteFlow workflow step classified as warm path."@en ;
+                    :hasTickCount :WorkflowStepTicks ;
+                    :hasPerformanceClass :WarmPath ;
+                    :measuredBy :RealTimeValidator .
+
+:WorkflowStepTicks rdf:type owl:NamedIndividual ,
+                           :TickMeasurement ;
+                  rdfs:label "Workflow Step Tick Measurement"@en ;
+                  :tickValue "4"^^xsd:nonNegativeInteger ;
+                  :hasUnit :ClockTick .
+
+# Example 3: ByteEthos Governance Check
+:ExampleGovernanceCheck rdf:type owl:NamedIndividual ,
+                               ba:Operation ;
+                       rdfs:label "ByteEthos Governance Check Example"@en ;
+                       rdfs:comment "Example of a governance check classified as cold path."@en ;
+                       :hasTickCount :GovernanceCheckTicks ;
+                       :hasPerformanceClass :ColdPath ;
+                       :measuredBy :RealTimeValidator .
+
+:GovernanceCheckTicks rdf:type owl:NamedIndividual ,
+                             :TickMeasurement ;
+                     rdfs:label "Governance Check Tick Measurement"@en ;
+                     :tickValue "7"^^xsd:nonNegativeInteger ;
+                     :hasUnit :ClockTick .
+
+# Example 4: Violating Operation (for demonstration)
+:ExampleViolatingOperation rdf:type owl:NamedIndividual ,
+                                  ba:Operation ;
+                          rdfs:label "Example Violating Operation"@en ;
+                          rdfs:comment "Example of an operation that violates the Doctrine of 8."@en ;
+                          :hasTickCount :ViolatingTicks ;
+                          :hasPerformanceClass :ColdPath ;
+                          :violatesConstraint :TheDoctrineOfEight ;
+                          :triggersRejection :ExampleRejection ;
+                          :measuredBy :RealTimeValidator .
+
+:ViolatingTicks rdf:type owl:NamedIndividual ,
+                        :TickMeasurement ;
+               rdfs:label "Violating Tick Measurement"@en ;
+               :tickValue "12"^^xsd:nonNegativeInteger ;
+               :hasUnit :ClockTick .
+
+:ExampleRejection rdf:type owl:NamedIndividual ,
+                          :ZeroTickRejection ;
+                 rdfs:label "Example Zero-Tick Rejection"@en ;
+                 rdfs:comment "Example of zero-tick rejection for a violating operation."@en ;
+                 :rejectionTimestamp "2025-08-23T12:30:45Z"^^xsd:dateTime ;
+                 :hasExecutionTime "0"^^xsd:nonNegativeInteger ;
+                 :isImmediate "true"^^xsd:boolean ;
+                 :hasConsequence :ExampleTermination .
+
+:ExampleTermination rdf:type owl:NamedIndividual ,
+                            :OperationTermination ;
+                   rdfs:label "Example Operation Termination"@en ;
+                   rdfs:comment "Example of operation termination due to constraint violation."@en ;
+                   :isImmediate "true"^^xsd:boolean ;
+                   :hasRecoveryMechanism :FallbackExecution .
+
+#################################################################
+#    Integration Points with Related Ontologies
+#################################################################
+
+# Link to ByteActor kernel operations
+ba:KernelOperation rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasPerformanceClass ;
+    owl:someValuesFrom :PerformanceClassification
+] .
+
+# Link to ByteEthos governance rules
+be:GovernanceRule rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasViolationHandler ;
+    owl:someValuesFrom :ViolationHandler
+] .
+
+# Link to ByteFlow workflow steps
+bf:WorkflowStep rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasTickCount ;
+    owl:someValuesFrom :TickMeasurement
+] .
+
+# Link to ByteCore performance measurements
+bc:PerformanceMeasurement rdfs:subClassOf :TickMeasurement .
+
+#################################################################
+#    Metadata and Provenance
+#################################################################
+
+:DoctrineOfEightMetadata rdf:type owl:Class ;
+    rdfs:label "Doctrine of Eight Metadata"@en ;
+    rdfs:comment "Metadata about the creation and maintenance of the Doctrine of 8."@en ;
+    dct:creator "ByteStar Architecture Team"@en ;
+    dct:contributor "Performance Engineering Division"@en ,
+                    "Governance Committee"@en ,
+                    "Quality Assurance Team"@en ;
+    prov:wasGeneratedBy :DoctrineCreationActivity ;
+    dct:conformsTo <https://www.w3.org/TR/owl2-syntax/> ,
+                   <https://www.w3.org/TR/shacl/> .
+
+:DoctrineCreationActivity rdf:type prov:Activity ;
+    rdfs:label "Doctrine Creation Activity"@en ;
+    rdfs:comment "The activity that created the Doctrine of 8 ontology."@en ;
+    prov:startedAtTime "2024-12-01T00:00:00Z"^^xsd:dateTime ;
+    prov:endedAtTime "2025-01-01T00:00:00Z"^^xsd:dateTime ;
+    prov:wasAssociatedWith :ByteStarArchitectureTeam .
+
+:ByteStarArchitectureTeam rdf:type prov:Agent ,
+                                  foaf:Organization ;
+    rdfs:label "ByteStar Architecture Team"@en ;
+    rdfs:comment "The team responsible for defining the ByteStar system architecture."@en ;
+    foaf:name "ByteStar Architecture Team"@en .
+
+#################################################################
+#    Version Information
+#################################################################
+
+: rdfs:comment """
+Doctrine of 8 Ontology Version History:
+
+v5.0.0-phase1 (2025-08-23):
+- Initial foundational ontology for ByteStar v5
+- Comprehensive SHACL validation shapes
+- Full SPARQL query suite for monitoring
+- Integration with all ByteStar component ontologies
+- Zero-tick rejection mechanism specification
+- Performance classification system
+- Real-time validation framework
+
+This ontology establishes the immutable performance law that governs
+all operations within the ByteStar ecosystem. No exceptions are permitted
+to the ≤8 tick constraint, ensuring consistent ultra-high performance
+across all system components.
+
+Key Design Principles:
+1. Immutability: The core constraint cannot be modified
+2. Zero-tolerance: Any violation triggers immediate rejection
+3. Real-time validation: All operations monitored continuously
+4. Classification-based limits: Different paths have different limits
+5. Automatic enforcement: No manual intervention required
+6. Comprehensive auditing: Full traceability of all violations
+7. Recovery mechanisms: Fallback execution for failed operations
+
+Application Domains:
+- ByteCore kernel operations (≤2 ticks for hot paths)
+- ByteFlow workflow steps (≤5 ticks for warm paths)
+- ByteEthos governance checks (≤8 ticks for cold paths)
+- ByteActor system operations (classified by criticality)
+
+This ontology serves as the foundational constraint system that ensures
+the ByteStar ecosystem maintains its ultra-high performance characteristics
+while providing deterministic behavior guarantees.
+"""@en .

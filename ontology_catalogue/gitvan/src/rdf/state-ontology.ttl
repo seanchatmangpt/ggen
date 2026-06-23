@@ -1,0 +1,442 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix state: <https://gitvan.dev/state#> .
+
+# ============================================================================
+# GitVan State Ontology
+# Version: 4.0.0
+# Description: RDF ontology for git-native state management with PROV-O
+# Supports: SystemState, Snapshot, StateChange, Transition tracking
+# ============================================================================
+
+# Ontology Declaration
+state: a owl:Ontology ;
+    dct:title "GitVan State Management Ontology" ;
+    dct:description "Complete RDF schema for git-native state management, persistence, and provenance tracking with PROV-O integration" ;
+    dct:version "4.0.0" ;
+    dct:created "2026-01-10"^^xsd:date ;
+    dct:creator "GitVan Phase 2" ;
+    owl:imports prov: ;
+    owl:versionInfo "4.0.0" .
+
+# ============================================================================
+# Core Classes
+# ============================================================================
+
+# SystemState - Top-level state entity
+state:SystemState a owl:Class ;
+    rdfs:label "System State" ;
+    rdfs:comment "Complete system state at a point in time. Represents immutable snapshot of system configuration, data, and context." ;
+    rdfs:subClassOf prov:Entity ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:unionOf (prov:Entity)
+    ] .
+
+# Snapshot - Specific instance of state
+state:Snapshot a owl:Class ;
+    rdfs:label "Snapshot" ;
+    rdfs:comment "An immutable snapshot of SystemState. Each snapshot has unique ID, timestamp, and content hash." ;
+    rdfs:subClassOf state:SystemState ;
+    rdfs:subClassOf prov:Entity .
+
+# StateChange - Represents a single change within state
+state:StateChange a owl:Class ;
+    rdfs:label "State Change" ;
+    rdfs:comment "Atomic change to state: addition, removal, or modification of a property." ;
+    rdfs:subClassOf prov:Activity .
+
+# Transition - Movement between states
+state:Transition a owl:Class ;
+    rdfs:label "State Transition" ;
+    rdfs:comment "Transition from one state to another. Includes delta, causality, and provenance." ;
+    rdfs:subClassOf prov:Activity .
+
+# ============================================================================
+# State Content Classes
+# ============================================================================
+
+state:StateContent a owl:Class ;
+    rdfs:label "State Content" ;
+    rdfs:comment "Actual data/properties stored in a state" ;
+    rdfs:subClassOf prov:Entity .
+
+state:StateProperty a owl:Class ;
+    rdfs:label "State Property" ;
+    rdfs:comment "Individual property within state content" ;
+    rdfs:subClassOf rdf:Property .
+
+state:StateValue a owl:Class ;
+    rdfs:label "State Value" ;
+    rdfs:comment "Value of a state property (primitive or complex)" ;
+    rdfs:subClassOf rdf:Value .
+
+# ============================================================================
+# Core Properties
+# ============================================================================
+
+# Snapshot Properties
+state:snapshotId a owl:DatatypeProperty ;
+    rdfs:domain state:Snapshot ;
+    rdfs:range xsd:string ;
+    rdfs:label "Snapshot ID" ;
+    rdfs:comment "Unique identifier for snapshot" ;
+    owl:cardinality 1 .
+
+state:snapshotContent a owl:ObjectProperty ;
+    rdfs:domain state:Snapshot ;
+    rdfs:range state:StateContent ;
+    rdfs:label "Snapshot Content" ;
+    rdfs:comment "Reference to actual state content" ;
+    owl:cardinality 1 .
+
+state:contentHash a owl:DatatypeProperty ;
+    rdfs:domain state:Snapshot ;
+    rdfs:range xsd:string ;
+    rdfs:label "Content Hash" ;
+    rdfs:comment "SHA-256 hash of state content for integrity verification" ;
+    owl:cardinality 1 .
+
+state:timestamp a owl:DatatypeProperty ;
+    rdfs:domain state:Snapshot ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Timestamp" ;
+    rdfs:comment "When the snapshot was created (ISO 8601 format)" ;
+    owl:cardinality 1 .
+
+# State Content Properties
+state:hasProperty a owl:ObjectProperty ;
+    rdfs:domain state:StateContent ;
+    rdfs:range state:StateProperty ;
+    rdfs:label "Has Property" ;
+    rdfs:comment "State content contains a property" ;
+    rdfs:subPropertyOf rdf:property .
+
+state:propertyName a owl:DatatypeProperty ;
+    rdfs:domain state:StateProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "Property Name" ;
+    rdfs:comment "Name of the property" ;
+    owl:cardinality 1 .
+
+state:propertyValue a owl:ObjectProperty ;
+    rdfs:domain state:StateProperty ;
+    rdfs:range state:StateValue ;
+    rdfs:label "Property Value" ;
+    rdfs:comment "Value assigned to this property" ;
+    owl:cardinality 1 .
+
+state:valueType a owl:DatatypeProperty ;
+    rdfs:domain state:StateValue ;
+    rdfs:range xsd:string ;
+    rdfs:label "Value Type" ;
+    rdfs:comment "Data type of the value (string, number, boolean, date, object, array)" ;
+    owl:cardinality 1 .
+
+state:valueData a owl:DatatypeProperty ;
+    rdfs:domain state:StateValue ;
+    rdfs:range xsd:string ;
+    rdfs:label "Value Data" ;
+    rdfs:comment "Serialized value data (typically JSON or literal)" ;
+    owl:cardinality 1 .
+
+# Transition Properties
+state:previousState a owl:ObjectProperty ;
+    rdfs:domain state:Transition ;
+    rdfs:range state:Snapshot ;
+    rdfs:label "Previous State" ;
+    rdfs:comment "State before the transition" ;
+    owl:cardinality 1 .
+
+state:nextState a owl:ObjectProperty ;
+    rdfs:domain state:Transition ;
+    rdfs:range state:Snapshot ;
+    rdfs:label "Next State" ;
+    rdfs:comment "State after the transition" ;
+    owl:cardinality 1 .
+
+state:transitionType a owl:DatatypeProperty ;
+    rdfs:domain state:Transition ;
+    rdfs:range xsd:string ;
+    rdfs:label "Transition Type" ;
+    rdfs:comment "Type of transition (update, creation, deletion, etc.)" ;
+    owl:cardinality 1 .
+
+# State Change Properties
+state:changeType a owl:DatatypeProperty ;
+    rdfs:domain state:StateChange ;
+    rdfs:range xsd:string ;
+    rdfs:label "Change Type" ;
+    rdfs:comment "Type of change: 'addition', 'removal', or 'modification'" ;
+    owl:cardinality 1 .
+
+state:affectedProperty a owl:DatatypeProperty ;
+    rdfs:domain state:StateChange ;
+    rdfs:range xsd:string ;
+    rdfs:label "Affected Property" ;
+    rdfs:comment "Name of the property affected by this change" ;
+    owl:cardinality 1 .
+
+state:oldValue a owl:ObjectProperty ;
+    rdfs:domain state:StateChange ;
+    rdfs:range state:StateValue ;
+    rdfs:label "Old Value" ;
+    rdfs:comment "Previous value (for modifications and removals)" .
+
+state:newValue a owl:ObjectProperty ;
+    rdfs:domain state:StateChange ;
+    rdfs:range state:StateValue ;
+    rdfs:label "New Value" ;
+    rdfs:comment "New value (for modifications and additions)" .
+
+# ============================================================================
+# PROV-O Integration Properties
+# ============================================================================
+
+state:author a owl:DatatypeProperty ;
+    rdfs:domain state:SystemState ;
+    rdfs:range xsd:string ;
+    rdfs:label "Author" ;
+    rdfs:comment "Person or agent who created/modified the state" ;
+    rdfs:subPropertyOf prov:wasAttributedTo .
+
+state:commitHash a owl:DatatypeProperty ;
+    rdfs:domain state:SystemState ;
+    rdfs:range xsd:string ;
+    rdfs:label "Commit Hash" ;
+    rdfs:comment "Git commit hash where state is stored" ;
+    owl:cardinality 1 .
+
+state:gitRef a owl:DatatypeProperty ;
+    rdfs:domain state:SystemState ;
+    rdfs:range xsd:string ;
+    rdfs:label "Git Reference" ;
+    rdfs:comment "Git reference (branch, tag) containing the state" .
+
+state:description a owl:DatatypeProperty ;
+    rdfs:domain state:SystemState ;
+    rdfs:range xsd:string ;
+    rdfs:label "Description" ;
+    rdfs:comment "Human-readable description of the state or change" ;
+    rdfs:subPropertyOf dct:description .
+
+# ============================================================================
+# Provenance Properties (PROV-O extensions)
+# ============================================================================
+
+state:wasGeneratedBy a owl:ObjectProperty ;
+    rdfs:domain state:Snapshot ;
+    rdfs:range state:Transition ;
+    rdfs:label "Was Generated By" ;
+    rdfs:comment "Activity that generated this snapshot" ;
+    rdfs:subPropertyOf prov:wasGeneratedBy .
+
+state:wasAttributedTo a owl:ObjectProperty ;
+    rdfs:domain state:Snapshot ;
+    rdfs:range foaf:Agent ;
+    rdfs:label "Was Attributed To" ;
+    rdfs:comment "Agent responsible for creating the snapshot" ;
+    rdfs:subPropertyOf prov:wasAttributedTo .
+
+state:atTime a owl:DatatypeProperty ;
+    rdfs:domain state:Snapshot ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "At Time" ;
+    rdfs:comment "Timestamp when snapshot was created" ;
+    rdfs:subPropertyOf prov:atTime .
+
+state:wasDerivedFrom a owl:ObjectProperty ;
+    rdfs:domain state:Snapshot ;
+    rdfs:range state:Snapshot ;
+    rdfs:label "Was Derived From" ;
+    rdfs:comment "Previous snapshot from which this was derived" ;
+    rdfs:subPropertyOf prov:wasDerivedFrom .
+
+# ============================================================================
+# Diff & Delta Properties
+# ============================================================================
+
+state:hasChange a owl:ObjectProperty ;
+    rdfs:domain state:Transition ;
+    rdfs:range state:StateChange ;
+    rdfs:label "Has Change" ;
+    rdfs:comment "Collection of changes that comprise this transition" .
+
+state:changeCount a owl:DatatypeProperty ;
+    rdfs:domain state:Transition ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Change Count" ;
+    rdfs:comment "Total number of changes in this transition" .
+
+state:additionCount a owl:DatatypeProperty ;
+    rdfs:domain state:Transition ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Addition Count" ;
+    rdfs:comment "Number of additions in this transition" .
+
+state:removalCount a owl:DatatypeProperty ;
+    rdfs:domain state:Transition ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Removal Count" ;
+    rdfs:comment "Number of removals in this transition" .
+
+state:modificationCount a owl:DatatypeProperty ;
+    rdfs:domain state:Transition ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Modification Count" ;
+    rdfs:comment "Number of modifications in this transition" .
+
+# ============================================================================
+# Data Type Vocabulary
+# ============================================================================
+
+state:StringValue a owl:Class ;
+    rdfs:label "String Value" ;
+    rdfs:comment "String-typed state value" ;
+    rdfs:subClassOf state:StateValue .
+
+state:NumberValue a owl:Class ;
+    rdfs:label "Number Value" ;
+    rdfs:comment "Numeric state value (integer or float)" ;
+    rdfs:subClassOf state:StateValue .
+
+state:BooleanValue a owl:Class ;
+    rdfs:label "Boolean Value" ;
+    rdfs:comment "Boolean-typed state value (true/false)" ;
+    rdfs:subClassOf state:StateValue .
+
+state:DateValue a owl:Class ;
+    rdfs:label "Date Value" ;
+    rdfs:comment "Date/timestamp state value" ;
+    rdfs:subClassOf state:StateValue .
+
+state:ObjectValue a owl:Class ;
+    rdfs:label "Object Value" ;
+    rdfs:comment "Complex object state value" ;
+    rdfs:subClassOf state:StateValue .
+
+state:ArrayValue a owl:Class ;
+    rdfs:label "Array Value" ;
+    rdfs:comment "Array/list state value" ;
+    rdfs:subClassOf state:StateValue .
+
+# ============================================================================
+# Constraints & Cardinality
+# ============================================================================
+
+# Snapshot must have content hash
+state:Snapshot rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty state:contentHash ;
+    owl:minCardinality 1
+] .
+
+# Snapshot must have timestamp
+state:Snapshot rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty state:timestamp ;
+    owl:minCardinality 1
+] .
+
+# Transition must link two snapshots
+state:Transition rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty state:previousState ;
+    owl:minCardinality 1
+] .
+
+state:Transition rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty state:nextState ;
+    owl:minCardinality 1
+] .
+
+# ============================================================================
+# Metadata & Annotations
+# ============================================================================
+
+state:stateId a owl:DatatypeProperty ;
+    rdfs:label "State ID" ;
+    rdfs:comment "Unique identifier for the state entity" ;
+    rdfs:range xsd:string .
+
+state:version a owl:DatatypeProperty ;
+    rdfs:label "Version" ;
+    rdfs:comment "Version number of the state (for tracking evolution)" ;
+    rdfs:range xsd:integer .
+
+state:metadata a owl:ObjectProperty ;
+    rdfs:label "Metadata" ;
+    rdfs:comment "Additional metadata associated with the state" ;
+    rdfs:domain state:SystemState ;
+    rdfs:range rdf:Property .
+
+state:tags a owl:DatatypeProperty ;
+    rdfs:label "Tags" ;
+    rdfs:comment "Searchable tags for categorizing states" ;
+    rdfs:range xsd:string ;
+    rdf:type rdf:Seq .
+
+# ============================================================================
+# Performance & Indexing Hints
+# ============================================================================
+
+state:indexed a rdf:Property ;
+    rdfs:label "Indexed" ;
+    rdfs:comment "Indicates property is indexed for performance" ;
+    rdfs:range xsd:boolean .
+
+state:compressed a rdf:Property ;
+    rdfs:label "Compressed" ;
+    rdfs:comment "Indicates value is stored compressed" ;
+    rdfs:range xsd:boolean .
+
+state:cached a rdf:Property ;
+    rdfs:label "Cached" ;
+    rdfs:comment "Indicates value should be cached" ;
+    rdfs:range xsd:boolean .
+
+# ============================================================================
+# Usage Examples (Documentation)
+# ============================================================================
+
+# Example 1: Basic snapshot
+# <snap:snapshot-001> a state:Snapshot ;
+#     state:snapshotId "snap-001" ;
+#     state:timestamp "2026-01-10T12:00:00Z"^^xsd:dateTime ;
+#     state:contentHash "abc123def456..." ;
+#     state:author "system" ;
+#     prov:wasAttributedTo <agent:system> ;
+#     prov:atTime "2026-01-10T12:00:00Z"^^xsd:dateTime ;
+#     state:snapshotContent <content:001> .
+
+# Example 2: State with properties
+# <content:001> a state:StateContent ;
+#     state:hasProperty <prop:status>, <prop:count> .
+# <prop:status> a state:StateProperty ;
+#     state:propertyName "status" ;
+#     state:propertyValue <val:running> .
+# <val:running> a state:StringValue ;
+#     state:valueType "string" ;
+#     state:valueData "running" .
+
+# Example 3: State transition
+# <trans:001> a state:Transition ;
+#     state:previousState <snap:001> ;
+#     state:nextState <snap:002> ;
+#     state:transitionType "update" ;
+#     prov:atTime "2026-01-10T12:05:00Z"^^xsd:dateTime ;
+#     state:hasChange <change:001>, <change:002> .
+
+# Example 4: State change (modification)
+# <change:001> a state:StateChange ;
+#     state:changeType "modification" ;
+#     state:affectedProperty "status" ;
+#     state:oldValue <val:initial> ;
+#     state:newValue <val:running> ;
+#     prov:atTime "2026-01-10T12:05:00Z"^^xsd:dateTime .

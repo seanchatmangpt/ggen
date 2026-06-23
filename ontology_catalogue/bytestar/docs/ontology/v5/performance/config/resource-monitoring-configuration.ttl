@@ -1,0 +1,452 @@
+# ByteStar Performance Resource Monitoring Configuration Ontology
+# Defines comprehensive resource monitoring configuration for Doctrine of 8 compliance
+# Version: 5.0.0
+# Integrates with: ba-resource-allocation.ttl, ba-performance-measurement.ttl
+
+@prefix rmc: <http://bytestar.org/ontologies/resource-monitoring-config#> .
+@prefix ba: <http://bytestar.org/ontologies/byteactor#> .
+@prefix bra: <http://bytestar.org/ontologies/resource-allocation#> .
+@prefix bpm: <http://bytestar.org/ontologies/performance-measurement#> .
+@prefix doctrine: <http://bytestar.org/ontologies/doctrine-of-8#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Ontology Declaration
+rmc: a owl:Ontology ;
+    rdfs:label "Resource Monitoring Configuration Ontology"@en ;
+    rdfs:comment "Defines comprehensive resource monitoring configuration for performance validation under Doctrine of 8"@en ;
+    owl:versionInfo "5.0.0" ;
+    owl:imports ba:, bra:, bpm:, doctrine: .
+
+#################################################################
+#    Classes
+#################################################################
+
+# Core Monitoring Configuration
+rmc:ResourceMonitoringConfiguration a owl:Class ;
+    rdfs:label "Resource Monitoring Configuration"@en ;
+    rdfs:comment "Complete configuration for resource monitoring under Doctrine of 8"@en ;
+    rdfs:subClassOf ba:ByteActorConfiguration .
+
+rmc:MonitoringProfile a owl:Class ;
+    rdfs:label "Monitoring Profile"@en ;
+    rdfs:comment "Specific monitoring configuration profile with performance targets"@en ;
+    rdfs:subClassOf rmc:ResourceMonitoringConfiguration .
+
+rmc:RealTimeMonitor a owl:Class ;
+    rdfs:label "Real-Time Monitor"@en ;
+    rdfs:comment "Real-time resource monitoring with sub-tick precision"@en ;
+    rdfs:subClassOf bpm:PerformanceMonitor .
+
+# CPU Monitoring Configuration
+rmc:CpuMonitoringConfig a owl:Class ;
+    rdfs:label "CPU Monitoring Configuration"@en ;
+    rdfs:comment "CPU resource monitoring with tick-level precision"@en ;
+    rdfs:subClassOf rmc:ResourceMonitoringConfiguration ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty rmc:maxCpuTicks ;
+        owl:hasValue "8"^^xsd:nonNegativeInteger
+    ] .
+
+rmc:CpuUsageTracker a owl:Class ;
+    rdfs:label "CPU Usage Tracker"@en ;
+    rdfs:comment "Tracks CPU usage with tick-level granularity"@en ;
+    rdfs:subClassOf rmc:RealTimeMonitor .
+
+rmc:CpuThrottleController a owl:Class ;
+    rdfs:label "CPU Throttle Controller"@en ;
+    rdfs:comment "Controls CPU throttling when approaching Doctrine of 8 limits"@en ;
+    rdfs:subClassOf bra:ResourceController .
+
+# Memory Monitoring Configuration
+rmc:MemoryMonitoringConfig a owl:Class ;
+    rdfs:label "Memory Monitoring Configuration"@en ;
+    rdfs:comment "Memory resource monitoring with bounds enforcement"@en ;
+    rdfs:subClassOf rmc:ResourceMonitoringConfiguration .
+
+rmc:MemoryUsageTracker a owl:Class ;
+    rdfs:label "Memory Usage Tracker"@en ;
+    rdfs:comment "Tracks memory usage across all hierarchy levels"@en ;
+    rdfs:subClassOf rmc:RealTimeMonitor .
+
+rmc:MemoryLeakDetector a owl:Class ;
+    rdfs:label "Memory Leak Detector"@en ;
+    rdfs:comment "Detects potential memory leaks in crystal operations"@en ;
+    rdfs:subClassOf rmc:RealTimeMonitor .
+
+# Network Monitoring Configuration
+rmc:NetworkMonitoringConfig a owl:Class ;
+    rdfs:label "Network Monitoring Configuration"@en ;
+    rdfs:comment "Network resource monitoring for distributed crystal operations"@en ;
+    rdfs:subClassOf rmc:ResourceMonitoringConfiguration .
+
+rmc:NetworkLatencyMonitor a owl:Class ;
+    rdfs:label "Network Latency Monitor"@en ;
+    rdfs:comment "Monitors network latency with microsecond precision"@en ;
+    rdfs:subClassOf rmc:RealTimeMonitor .
+
+rmc:BandwidthUsageTracker a owl:Class ;
+    rdfs:label "Bandwidth Usage Tracker"@en ;
+    rdfs:comment "Tracks network bandwidth consumption"@en ;
+    rdfs:subClassOf rmc:RealTimeMonitor .
+
+# Storage Monitoring Configuration
+rmc:StorageMonitoringConfig a owl:Class ;
+    rdfs:label "Storage Monitoring Configuration"@en ;
+    rdfs:comment "Storage I/O monitoring with performance bounds"@en ;
+    rdfs:subClassOf rmc:ResourceMonitoringConfiguration .
+
+rmc:StorageIoTracker a owl:Class ;
+    rdfs:label "Storage I/O Tracker"@en ;
+    rdfs:comment "Tracks storage I/O operations and latency"@en ;
+    rdfs:subClassOf rmc:RealTimeMonitor .
+
+# Alert and Response Configuration
+rmc:AlertConfiguration a owl:Class ;
+    rdfs:label "Alert Configuration"@en ;
+    rdfs:comment "Configuration for performance alerts and thresholds"@en ;
+    rdfs:subClassOf rmc:ResourceMonitoringConfiguration .
+
+rmc:ThresholdAlert a owl:Class ;
+    rdfs:label "Threshold Alert"@en ;
+    rdfs:comment "Alert triggered when resource usage exceeds thresholds"@en ;
+    rdfs:subClassOf rmc:AlertConfiguration .
+
+rmc:ResponseAction a owl:Class ;
+    rdfs:label "Response Action"@en ;
+    rdfs:comment "Automated response action when thresholds are exceeded"@en ;
+    rdfs:subClassOf ba:ByteActorAction .
+
+# Metrics Collection Configuration
+rmc:MetricsCollectionConfig a owl:Class ;
+    rdfs:label "Metrics Collection Configuration"@en ;
+    rdfs:comment "Configuration for metrics collection and aggregation"@en ;
+    rdfs:subClassOf rmc:ResourceMonitoringConfiguration .
+
+rmc:MetricsAggregator a owl:Class ;
+    rdfs:label "Metrics Aggregator"@en ;
+    rdfs:comment "Aggregates performance metrics for analysis"@en ;
+    rdfs:subClassOf bpm:PerformanceAnalyzer .
+
+rmc:TimeSeriesDatabase a owl:Class ;
+    rdfs:label "Time Series Database"@en ;
+    rdfs:comment "Stores time-series performance data for analysis"@en ;
+    rdfs:subClassOf ba:ByteActorDataStore .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+# Configuration Relationships
+rmc:hasMonitoringProfile a owl:ObjectProperty ;
+    rdfs:label "has monitoring profile"@en ;
+    rdfs:comment "Associates a configuration with a specific monitoring profile"@en ;
+    rdfs:domain rmc:ResourceMonitoringConfiguration ;
+    rdfs:range rmc:MonitoringProfile .
+
+rmc:hasRealTimeMonitor a owl:ObjectProperty ;
+    rdfs:label "has real-time monitor"@en ;
+    rdfs:comment "Associates configuration with a real-time monitor"@en ;
+    rdfs:domain rmc:MonitoringProfile ;
+    rdfs:range rmc:RealTimeMonitor .
+
+rmc:hasAlertConfiguration a owl:ObjectProperty ;
+    rdfs:label "has alert configuration"@en ;
+    rdfs:comment "Associates monitoring with alert configuration"@en ;
+    rdfs:domain rmc:RealTimeMonitor ;
+    rdfs:range rmc:AlertConfiguration .
+
+rmc:triggersResponseAction a owl:ObjectProperty ;
+    rdfs:label "triggers response action"@en ;
+    rdfs:comment "Associates alert with automated response action"@en ;
+    rdfs:domain rmc:ThresholdAlert ;
+    rdfs:range rmc:ResponseAction .
+
+rmc:collectsMetrics a owl:ObjectProperty ;
+    rdfs:label "collects metrics"@en ;
+    rdfs:comment "Associates monitor with metrics collection"@en ;
+    rdfs:domain rmc:RealTimeMonitor ;
+    rdfs:range rmc:MetricsCollectionConfig .
+
+rmc:aggregatesUsing a owl:ObjectProperty ;
+    rdfs:label "aggregates using"@en ;
+    rdfs:comment "Associates metrics collection with aggregation method"@en ;
+    rdfs:domain rmc:MetricsCollectionConfig ;
+    rdfs:range rmc:MetricsAggregator .
+
+rmc:storesIn a owl:ObjectProperty ;
+    rdfs:label "stores in"@en ;
+    rdfs:comment "Associates metrics with storage location"@en ;
+    rdfs:domain rmc:MetricsAggregator ;
+    rdfs:range rmc:TimeSeriesDatabase .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+# CPU Monitoring Properties
+rmc:maxCpuTicks a owl:DatatypeProperty ;
+    rdfs:label "maximum CPU ticks"@en ;
+    rdfs:comment "Maximum allowed CPU ticks per operation"@en ;
+    rdfs:domain rmc:CpuMonitoringConfig ;
+    rdfs:range xsd:nonNegativeInteger .
+
+rmc:cpuSamplingInterval a owl:DatatypeProperty ;
+    rdfs:label "CPU sampling interval"@en ;
+    rdfs:comment "CPU sampling interval in microseconds"@en ;
+    rdfs:domain rmc:CpuUsageTracker ;
+    rdfs:range xsd:decimal .
+
+rmc:cpuThrottleThreshold a owl:DatatypeProperty ;
+    rdfs:label "CPU throttle threshold"@en ;
+    rdfs:comment "CPU usage threshold that triggers throttling (0.0-1.0)"@en ;
+    rdfs:domain rmc:CpuThrottleController ;
+    rdfs:range xsd:decimal .
+
+# Memory Monitoring Properties
+rmc:maxMemoryUsage a owl:DatatypeProperty ;
+    rdfs:label "maximum memory usage"@en ;
+    rdfs:comment "Maximum allowed memory usage in bytes"@en ;
+    rdfs:domain rmc:MemoryMonitoringConfig ;
+    rdfs:range xsd:nonNegativeInteger .
+
+rmc:memoryLeakThreshold a owl:DatatypeProperty ;
+    rdfs:label "memory leak threshold"@en ;
+    rdfs:comment "Memory growth rate threshold for leak detection (bytes/second)"@en ;
+    rdfs:domain rmc:MemoryLeakDetector ;
+    rdfs:range xsd:decimal .
+
+rmc:garbageCollectionImpact a owl:DatatypeProperty ;
+    rdfs:label "garbage collection impact"@en ;
+    rdfs:comment "Maximum allowed GC impact on performance (0.0-1.0)"@en ;
+    rdfs:domain rmc:MemoryUsageTracker ;
+    rdfs:range xsd:decimal .
+
+# Network Monitoring Properties
+rmc:maxNetworkLatency a owl:DatatypeProperty ;
+    rdfs:label "maximum network latency"@en ;
+    rdfs:comment "Maximum allowed network latency in microseconds"@en ;
+    rdfs:domain rmc:NetworkLatencyMonitor ;
+    rdfs:range xsd:decimal .
+
+rmc:bandwidthLimit a owl:DatatypeProperty ;
+    rdfs:label "bandwidth limit"@en ;
+    rdfs:comment "Maximum bandwidth usage in bytes per second"@en ;
+    rdfs:domain rmc:BandwidthUsageTracker ;
+    rdfs:range xsd:nonNegativeInteger .
+
+# Storage Monitoring Properties
+rmc:maxStorageLatency a owl:DatatypeProperty ;
+    rdfs:label "maximum storage latency"@en ;
+    rdfs:comment "Maximum allowed storage I/O latency in microseconds"@en ;
+    rdfs:domain rmc:StorageIoTracker ;
+    rdfs:range xsd:decimal .
+
+rmc:iopsLimit a owl:DatatypeProperty ;
+    rdfs:label "IOPS limit"@en ;
+    rdfs:comment "Maximum I/O operations per second"@en ;
+    rdfs:domain rmc:StorageIoTracker ;
+    rdfs:range xsd:nonNegativeInteger .
+
+# Alert Properties
+rmc:alertThreshold a owl:DatatypeProperty ;
+    rdfs:label "alert threshold"@en ;
+    rdfs:comment "Threshold value that triggers alert"@en ;
+    rdfs:domain rmc:ThresholdAlert ;
+    rdfs:range xsd:decimal .
+
+rmc:alertSeverity a owl:DatatypeProperty ;
+    rdfs:label "alert severity"@en ;
+    rdfs:comment "Severity level of alert (CRITICAL, HIGH, MEDIUM, LOW)"@en ;
+    rdfs:domain rmc:ThresholdAlert ;
+    rdfs:range xsd:string .
+
+rmc:responseTimeLimit a owl:DatatypeProperty ;
+    rdfs:label "response time limit"@en ;
+    rdfs:comment "Maximum time allowed for response action in microseconds"@en ;
+    rdfs:domain rmc:ResponseAction ;
+    rdfs:range xsd:decimal .
+
+# Metrics Properties
+rmc:samplingRate a owl:DatatypeProperty ;
+    rdfs:label "sampling rate"@en ;
+    rdfs:comment "Rate at which metrics are sampled (samples per second)"@en ;
+    rdfs:domain rmc:MetricsCollectionConfig ;
+    rdfs:range xsd:decimal .
+
+rmc:retentionPeriod a owl:DatatypeProperty ;
+    rdfs:label "retention period"@en ;
+    rdfs:comment "How long to retain metrics data (in seconds)"@en ;
+    rdfs:domain rmc:TimeSeriesDatabase ;
+    rdfs:range xsd:nonNegativeInteger .
+
+rmc:aggregationWindow a owl:DatatypeProperty ;
+    rdfs:label "aggregation window"@en ;
+    rdfs:comment "Time window for metrics aggregation in seconds"@en ;
+    rdfs:domain rmc:MetricsAggregator ;
+    rdfs:range xsd:decimal .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+# Resource Monitoring Configuration Shape
+rmc:ResourceMonitoringConfigurationShape a sh:NodeShape ;
+    sh:targetClass rmc:ResourceMonitoringConfiguration ;
+    sh:property [
+        sh:path rmc:hasMonitoringProfile ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class rmc:MonitoringProfile ;
+        sh:message "Resource monitoring configuration must have exactly one monitoring profile"
+    ] .
+
+# CPU Monitoring Validation
+rmc:CpuMonitoringConfigShape a sh:NodeShape ;
+    sh:targetClass rmc:CpuMonitoringConfig ;
+    sh:property [
+        sh:path rmc:maxCpuTicks ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:maxInclusive 8 ;
+        sh:message "Maximum CPU ticks must not exceed 8 (Doctrine of 8)"
+    ] ;
+    sh:property [
+        sh:path rmc:cpuSamplingInterval ;
+        sh:minCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ;
+        sh:maxInclusive 1000.0 ;
+        sh:message "CPU sampling interval must be between 0.1 and 1000 microseconds"
+    ] .
+
+# Memory Monitoring Validation
+rmc:MemoryMonitoringConfigShape a sh:NodeShape ;
+    sh:targetClass rmc:MemoryMonitoringConfig ;
+    sh:property [
+        sh:path rmc:maxMemoryUsage ;
+        sh:minCount 1 ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minInclusive 1024 ;
+        sh:message "Maximum memory usage must be at least 1024 bytes"
+    ] .
+
+# Alert Configuration Validation
+rmc:AlertConfigurationShape a sh:NodeShape ;
+    sh:targetClass rmc:AlertConfiguration ;
+    sh:property [
+        sh:path rmc:alertThreshold ;
+        sh:minCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Alert threshold must be between 0.0 and 1.0"
+    ] ;
+    sh:property [
+        sh:path rmc:alertSeverity ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("CRITICAL" "HIGH" "MEDIUM" "LOW") ;
+        sh:message "Alert severity must be CRITICAL, HIGH, MEDIUM, or LOW"
+    ] .
+
+#################################################################
+#    Axioms
+#################################################################
+
+# CPU monitoring must respect Doctrine of 8
+[ a owl:Class ;
+  owl:intersectionOf (
+    rmc:CpuMonitoringConfig
+    [ a owl:Restriction ;
+      owl:onProperty rmc:maxCpuTicks ;
+      owl:someValuesFrom [ a rdfs:Datatype ;
+                          owl:onDatatype xsd:nonNegativeInteger ;
+                          owl:withRestrictions ( [ xsd:maxInclusive 8 ] ) ] ]
+  )
+] rdfs:subClassOf doctrine:DoctrineOf8Compliant .
+
+# Real-time monitors must have sub-tick response times
+rmc:RealTimeMonitor rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty bpm:responseTime ;
+    owl:someValuesFrom [ a rdfs:Datatype ;
+                        owl:onDatatype xsd:decimal ;
+                        owl:withRestrictions ( [ xsd:maxInclusive 0.125 ] ) ] # 1/8 microsecond
+] .
+
+#################################################################
+#    Example Instances
+#################################################################
+
+# Production Monitoring Configuration
+rmc:ProductionMonitoringConfig a rmc:ResourceMonitoringConfiguration ;
+    rdfs:label "Production Monitoring Configuration"@en ;
+    rmc:hasMonitoringProfile rmc:HighPerformanceProfile ;
+    ba:description "Production-grade monitoring with Doctrine of 8 compliance"@en .
+
+# High Performance Monitoring Profile
+rmc:HighPerformanceProfile a rmc:MonitoringProfile ;
+    rdfs:label "High Performance Monitoring Profile"@en ;
+    rmc:hasRealTimeMonitor rmc:ProductionCpuMonitor ;
+    rmc:hasRealTimeMonitor rmc:ProductionMemoryMonitor ;
+    rmc:hasRealTimeMonitor rmc:ProductionNetworkMonitor ;
+    rmc:hasRealTimeMonitor rmc:ProductionStorageMonitor ;
+    ba:description "High-performance monitoring profile for production environments"@en .
+
+# Production CPU Monitor
+rmc:ProductionCpuMonitor a rmc:CpuUsageTracker ;
+    rdfs:label "Production CPU Monitor"@en ;
+    rmc:cpuSamplingInterval "0.125"^^xsd:decimal ; # 1/8 microsecond
+    rmc:hasAlertConfiguration rmc:CpuCriticalAlert ;
+    rmc:collectsMetrics rmc:CpuMetricsCollection ;
+    ba:description "Real-time CPU monitoring with sub-tick precision"@en .
+
+# CPU Critical Alert
+rmc:CpuCriticalAlert a rmc:ThresholdAlert ;
+    rdfs:label "CPU Critical Alert"@en ;
+    rmc:alertThreshold "0.875"^^xsd:decimal ; # 7/8 of maximum (7 ticks)
+    rmc:alertSeverity "CRITICAL" ;
+    rmc:triggersResponseAction rmc:CpuThrottleResponse ;
+    ba:description "Critical alert when CPU approaches Doctrine of 8 limit"@en .
+
+# CPU Throttle Response
+rmc:CpuThrottleResponse a rmc:ResponseAction ;
+    rdfs:label "CPU Throttle Response"@en ;
+    rmc:responseTimeLimit "0.125"^^xsd:decimal ; # Sub-tick response
+    ba:actionType "THROTTLE" ;
+    ba:description "Immediate CPU throttling to maintain Doctrine of 8 compliance"@en .
+
+# Production Memory Monitor
+rmc:ProductionMemoryMonitor a rmc:MemoryUsageTracker ;
+    rdfs:label "Production Memory Monitor"@en ;
+    rmc:maxMemoryUsage "8589934592"^^xsd:nonNegativeInteger ; # 8GB
+    rmc:garbageCollectionImpact "0.05"^^xsd:decimal ; # 5% maximum GC impact
+    rmc:collectsMetrics rmc:MemoryMetricsCollection ;
+    ba:description "Real-time memory monitoring with leak detection"@en .
+
+# CPU Metrics Collection
+rmc:CpuMetricsCollection a rmc:MetricsCollectionConfig ;
+    rdfs:label "CPU Metrics Collection"@en ;
+    rmc:samplingRate "8000000.0"^^xsd:decimal ; # 8MHz sampling (8GHz / 1000)
+    rmc:aggregatesUsing rmc:CpuMetricsAggregator ;
+    ba:description "High-frequency CPU metrics collection"@en .
+
+# CPU Metrics Aggregator
+rmc:CpuMetricsAggregator a rmc:MetricsAggregator ;
+    rdfs:label "CPU Metrics Aggregator"@en ;
+    rmc:aggregationWindow "1.0"^^xsd:decimal ; # 1 second windows
+    rmc:storesIn rmc:ProductionTimeSeriesDB ;
+    ba:description "CPU metrics aggregation with statistical analysis"@en .
+
+# Production Time Series Database
+rmc:ProductionTimeSeriesDB a rmc:TimeSeriesDatabase ;
+    rdfs:label "Production Time Series Database"@en ;
+    rmc:retentionPeriod "2592000"^^xsd:nonNegativeInteger ; # 30 days
+    ba:storageType "HIGH_PERFORMANCE" ;
+    ba:description "High-performance time-series storage for monitoring data"@en .

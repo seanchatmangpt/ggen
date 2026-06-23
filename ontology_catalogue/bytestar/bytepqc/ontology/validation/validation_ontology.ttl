@@ -1,0 +1,532 @@
+# Validation Ontology for Automatic Code Generation
+# Namespace: http://bytepqc.org/ontology/validation#
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix val: <http://bytepqc.org/ontology/validation#> .
+@prefix api: <http://bytepqc.org/ontology/api#> .
+@prefix tpl: <http://bytepqc.org/ontology/templates#> .
+@prefix test: <http://bytepqc.org/ontology/testing#> .
+
+# ===== ONTOLOGY DECLARATION =====
+<http://bytepqc.org/ontology/validation> a owl:Ontology ;
+    rdfs:label "Validation Ontology" ;
+    rdfs:comment "Ontology for correctness proofs and performance verification" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://bytepqc.org/ontology/api> ,
+                <http://bytepqc.org/ontology/templates> ,
+                <http://bytepqc.org/ontology/testing> .
+
+# ===== CORE VALIDATION CLASSES =====
+
+val:Validation a owl:Class ;
+    rdfs:label "Validation" ;
+    rdfs:comment "Base class for all validation activities" .
+
+val:CorrectnessValidation a owl:Class ;
+    rdfs:subClassOf val:Validation ;
+    rdfs:label "Correctness Validation" ;
+    rdfs:comment "Validation of functional correctness" .
+
+val:PerformanceValidation a owl:Class ;
+    rdfs:subClassOf val:Validation ;
+    rdfs:label "Performance Validation" ;
+    rdfs:comment "Validation of performance characteristics" .
+
+val:SecurityValidation a owl:Class ;
+    rdfs:subClassOf val:Validation ;
+    rdfs:label "Security Validation" ;
+    rdfs:comment "Validation of security properties" .
+
+val:ComplianceValidation a owl:Class ;
+    rdfs:subClassOf val:Validation ;
+    rdfs:label "Compliance Validation" ;
+    rdfs:comment "Validation against standards and specifications" .
+
+# ===== PROOF TYPES =====
+
+val:Proof a owl:Class ;
+    rdfs:label "Proof" ;
+    rdfs:comment "Mathematical or logical proof" .
+
+val:FormalProof a owl:Class ;
+    rdfs:subClassOf val:Proof ;
+    rdfs:label "Formal Proof" ;
+    rdfs:comment "Machine-verifiable formal proof" .
+
+val:InformalProof a owl:Class ;
+    rdfs:subClassOf val:Proof ;
+    rdfs:label "Informal Proof" ;
+    rdfs:comment "Human-readable informal proof" .
+
+val:CorrectnessProof a owl:Class ;
+    rdfs:subClassOf val:Proof ;
+    rdfs:label "Correctness Proof" ;
+    rdfs:comment "Proof of functional correctness" .
+
+val:SecurityProof a owl:Class ;
+    rdfs:subClassOf val:Proof ;
+    rdfs:label "Security Proof" ;
+    rdfs:comment "Proof of security properties" .
+
+val:TerminationProof a owl:Class ;
+    rdfs:subClassOf val:Proof ;
+    rdfs:label "Termination Proof" ;
+    rdfs:comment "Proof that algorithm terminates" .
+
+val:ComplexityProof a owl:Class ;
+    rdfs:subClassOf val:Proof ;
+    rdfs:label "Complexity Proof" ;
+    rdfs:comment "Proof of time/space complexity bounds" .
+
+# ===== VERIFICATION METHODS =====
+
+val:VerificationMethod a owl:Class ;
+    rdfs:label "Verification Method" ;
+    rdfs:comment "Method for verifying properties" .
+
+val:StaticAnalysis a owl:Class ;
+    rdfs:subClassOf val:VerificationMethod ;
+    rdfs:label "Static Analysis" ;
+    rdfs:comment "Static code analysis verification" .
+
+val:DynamicAnalysis a owl:Class ;
+    rdfs:subClassOf val:VerificationMethod ;
+    rdfs:label "Dynamic Analysis" ;
+    rdfs:comment "Runtime analysis verification" .
+
+val:ModelChecking a owl:Class ;
+    rdfs:subClassOf val:VerificationMethod ;
+    rdfs:label "Model Checking" ;
+    rdfs:comment "Model checking verification" .
+
+val:TheoremProving a owl:Class ;
+    rdfs:subClassOf val:VerificationMethod ;
+    rdfs:label "Theorem Proving" ;
+    rdfs:comment "Interactive theorem proving" .
+
+val:SymbolicExecution a owl:Class ;
+    rdfs:subClassOf val:VerificationMethod ;
+    rdfs:label "Symbolic Execution" ;
+    rdfs:comment "Symbolic execution analysis" .
+
+val:AbstractInterpretation a owl:Class ;
+    rdfs:subClassOf val:VerificationMethod ;
+    rdfs:label "Abstract Interpretation" ;
+    rdfs:comment "Abstract interpretation analysis" .
+
+# ===== CRYPTOGRAPHIC VALIDATION =====
+
+val:CryptographicValidation a owl:Class ;
+    rdfs:subClassOf val:Validation ;
+    rdfs:label "Cryptographic Validation" ;
+    rdfs:comment "Validation specific to cryptographic implementations" .
+
+val:AlgorithmCorrectness a owl:Class ;
+    rdfs:subClassOf val:CryptographicValidation ;
+    rdfs:label "Algorithm Correctness" ;
+    rdfs:comment "Validation of cryptographic algorithm correctness" .
+
+val:ImplementationCorrectness a owl:Class ;
+    rdfs:subClassOf val:CryptographicValidation ;
+    rdfs:label "Implementation Correctness" ;
+    rdfs:comment "Validation of implementation against specification" .
+
+val:SideChannelResistance a owl:Class ;
+    rdfs:subClassOf val:SecurityValidation ;
+    rdfs:label "Side Channel Resistance" ;
+    rdfs:comment "Validation of side-channel resistance" .
+
+val:ConstantTimeValidation a owl:Class ;
+    rdfs:subClassOf val:SideChannelResistance ;
+    rdfs:label "Constant Time Validation" ;
+    rdfs:comment "Validation of constant-time execution" .
+
+val:FaultResistance a owl:Class ;
+    rdfs:subClassOf val:SecurityValidation ;
+    rdfs:label "Fault Resistance" ;
+    rdfs:comment "Validation of fault attack resistance" .
+
+# ===== PERFORMANCE METRICS =====
+
+val:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Performance measurement metric" .
+
+val:ExecutionTime a owl:Class ;
+    rdfs:subClassOf val:PerformanceMetric ;
+    rdfs:label "Execution Time" ;
+    rdfs:comment "Algorithm execution time" .
+
+val:MemoryUsage a owl:Class ;
+    rdfs:subClassOf val:PerformanceMetric ;
+    rdfs:label "Memory Usage" ;
+    rdfs:comment "Memory consumption metric" .
+
+val:CacheEfficiency a owl:Class ;
+    rdfs:subClassOf val:PerformanceMetric ;
+    rdfs:label "Cache Efficiency" ;
+    rdfs:comment "CPU cache efficiency metric" .
+
+val:ThroughputMetric a owl:Class ;
+    rdfs:subClassOf val:PerformanceMetric ;
+    rdfs:label "Throughput Metric" ;
+    rdfs:comment "Operations per second metric" .
+
+val:LatencyMetric a owl:Class ;
+    rdfs:subClassOf val:PerformanceMetric ;
+    rdfs:label "Latency Metric" ;
+    rdfs:comment "Response time metric" .
+
+val:EnergyConsumption a owl:Class ;
+    rdfs:subClassOf val:PerformanceMetric ;
+    rdfs:label "Energy Consumption" ;
+    rdfs:comment "Energy consumption metric" .
+
+# ===== COMPLIANCE STANDARDS =====
+
+val:Standard a owl:Class ;
+    rdfs:label "Standard" ;
+    rdfs:comment "Compliance standard specification" .
+
+val:NISTStandard a owl:Class ;
+    rdfs:subClassOf val:Standard ;
+    rdfs:label "NIST Standard" ;
+    rdfs:comment "NIST cryptographic standard" .
+
+val:FIPSStandard a owl:Class ;
+    rdfs:subClassOf val:NISTStandard ;
+    rdfs:label "FIPS Standard" ;
+    rdfs:comment "Federal Information Processing Standard" .
+
+val:ISO27001 a owl:Class ;
+    rdfs:subClassOf val:Standard ;
+    rdfs:label "ISO 27001" ;
+    rdfs:comment "ISO 27001 information security standard" .
+
+val:CommonCriteria a owl:Class ;
+    rdfs:subClassOf val:Standard ;
+    rdfs:label "Common Criteria" ;
+    rdfs:comment "Common Criteria security evaluation standard" .
+
+val:PostQuantumStandard a owl:Class ;
+    rdfs:subClassOf val:NISTStandard ;
+    rdfs:label "Post-Quantum Standard" ;
+    rdfs:comment "NIST post-quantum cryptography standard" .
+
+# ===== PROPERTIES =====
+
+val:validates a owl:ObjectProperty ;
+    rdfs:label "validates" ;
+    rdfs:comment "Validation validates property" ;
+    rdfs:domain val:Validation ;
+    rdfs:range owl:Thing .
+
+val:hasProof a owl:ObjectProperty ;
+    rdfs:label "has proof" ;
+    rdfs:comment "Property has proof" ;
+    rdfs:domain val:Validation ;
+    rdfs:range val:Proof .
+
+val:usesMethod a owl:ObjectProperty ;
+    rdfs:label "uses method" ;
+    rdfs:comment "Validation uses verification method" ;
+    rdfs:domain val:Validation ;
+    rdfs:range val:VerificationMethod .
+
+val:measuresMetric a owl:ObjectProperty ;
+    rdfs:label "measures metric" ;
+    rdfs:comment "Validation measures performance metric" ;
+    rdfs:domain val:PerformanceValidation ;
+    rdfs:range val:PerformanceMetric .
+
+val:conformsTo a owl:ObjectProperty ;
+    rdfs:label "conforms to" ;
+    rdfs:comment "Implementation conforms to standard" ;
+    rdfs:domain val:ComplianceValidation ;
+    rdfs:range val:Standard .
+
+# ===== DATA TYPE PROPERTIES =====
+
+val:validationResult a owl:DatatypeProperty ;
+    rdfs:label "validation result" ;
+    rdfs:comment "Result of validation (pass/fail/unknown)" ;
+    rdfs:domain val:Validation ;
+    rdfs:range xsd:string .
+
+val:confidence a owl:DatatypeProperty ;
+    rdfs:label "confidence" ;
+    rdfs:comment "Confidence level in validation result (0.0-1.0)" ;
+    rdfs:domain val:Validation ;
+    rdfs:range xsd:double .
+
+val:validationDate a owl:DatatypeProperty ;
+    rdfs:label "validation date" ;
+    rdfs:comment "Date validation was performed" ;
+    rdfs:domain val:Validation ;
+    rdfs:range xsd:dateTime .
+
+val:validationTool a owl:DatatypeProperty ;
+    rdfs:label "validation tool" ;
+    rdfs:comment "Tool used for validation" ;
+    rdfs:domain val:Validation ;
+    rdfs:range xsd:string .
+
+val:metricValue a owl:DatatypeProperty ;
+    rdfs:label "metric value" ;
+    rdfs:comment "Measured value of performance metric" ;
+    rdfs:domain val:PerformanceMetric ;
+    rdfs:range xsd:double .
+
+val:metricUnit a owl:DatatypeProperty ;
+    rdfs:label "metric unit" ;
+    rdfs:comment "Unit of measurement for metric" ;
+    rdfs:domain val:PerformanceMetric ;
+    rdfs:range xsd:string .
+
+val:threshold a owl:DatatypeProperty ;
+    rdfs:label "threshold" ;
+    rdfs:comment "Threshold value for pass/fail determination" ;
+    rdfs:domain val:PerformanceMetric ;
+    rdfs:range xsd:double .
+
+val:targetValue a owl:DatatypeProperty ;
+    rdfs:label "target value" ;
+    rdfs:comment "Target value for performance metric" ;
+    rdfs:domain val:PerformanceMetric ;
+    rdfs:range xsd:double .
+
+# ===== FORMAL SPECIFICATION CLASSES =====
+
+val:FormalSpecification a owl:Class ;
+    rdfs:label "Formal Specification" ;
+    rdfs:comment "Machine-readable formal specification" .
+
+val:Precondition a owl:Class ;
+    rdfs:label "Precondition" ;
+    rdfs:comment "Function precondition" .
+
+val:Postcondition a owl:Class ;
+    rdfs:label "Postcondition" ;
+    rdfs:comment "Function postcondition" .
+
+val:Invariant a owl:Class ;
+    rdfs:label "Invariant" ;
+    rdfs:comment "Loop or data structure invariant" .
+
+val:Assertion a owl:Class ;
+    rdfs:label "Assertion" ;
+    rdfs:comment "Code assertion" .
+
+# ===== VALIDATION TEMPLATES =====
+
+val:CorrectnessTestTemplate a tpl:CodeTemplate ;
+    rdfs:label "Correctness Test Template" ;
+    tpl:templateContent """
+/**
+ * Correctness validation for {{FUNCTION_NAME}}
+ * Validates: {{PROPERTY_DESCRIPTION}}
+ */
+void validate_{{FUNCTION_NAME}}_correctness(void) {
+    // Test setup
+    {{SETUP_CODE}}
+    
+    // Precondition check
+    {{#PRECONDITIONS}}
+    assert({{PRECONDITION}});
+    {{/PRECONDITIONS}}
+    
+    // Execute function
+    {{FUNCTION_CALL}}
+    
+    // Postcondition check
+    {{#POSTCONDITIONS}}
+    assert({{POSTCONDITION}});
+    {{/POSTCONDITIONS}}
+    
+    // Invariant check
+    {{#INVARIANTS}}
+    assert({{INVARIANT}});
+    {{/INVARIANTS}}
+    
+    // Cleanup
+    {{CLEANUP_CODE}}
+}""" .
+
+val:PerformanceBenchmarkTemplate a tpl:CodeTemplate ;
+    rdfs:label "Performance Benchmark Template" ;
+    tpl:templateContent """
+/**
+ * Performance benchmark for {{FUNCTION_NAME}}
+ * Measures: {{PERFORMANCE_METRICS}}
+ */
+void benchmark_{{FUNCTION_NAME}}_performance(void) {
+    const int iterations = {{ITERATION_COUNT}};
+    
+    // Warmup
+    for (int i = 0; i < 100; i++) {
+        {{WARMUP_CALL}}
+    }
+    
+    // Benchmark measurement
+    uint64_t start_cycles = rdtsc();
+    double start_time = get_wall_time();
+    
+    for (int i = 0; i < iterations; i++) {
+        {{BENCHMARK_CALL}}
+    }
+    
+    uint64_t end_cycles = rdtsc();
+    double end_time = get_wall_time();
+    
+    // Calculate metrics
+    double avg_time = (end_time - start_time) / iterations;
+    uint64_t avg_cycles = (end_cycles - start_cycles) / iterations;
+    double throughput = iterations / (end_time - start_time);
+    
+    // Validate against thresholds
+    assert(avg_time <= {{TIME_THRESHOLD}});
+    assert(avg_cycles <= {{CYCLE_THRESHOLD}});
+    assert(throughput >= {{THROUGHPUT_THRESHOLD}});
+    
+    // Report results
+    printf("{{FUNCTION_NAME}} Performance:\\n");
+    printf("  Average time: %.2f μs\\n", avg_time * 1e6);
+    printf("  Average cycles: %lu\\n", avg_cycles);
+    printf("  Throughput: %.2f ops/sec\\n", throughput);
+}""" .
+
+val:ConstantTimeTestTemplate a tpl:CodeTemplate ;
+    rdfs:label "Constant Time Test Template" ;
+    tpl:templateContent """
+/**
+ * Constant-time validation for {{FUNCTION_NAME}}
+ * Uses statistical analysis of execution times
+ */
+void validate_{{FUNCTION_NAME}}_constant_time(void) {
+    const int num_samples = {{SAMPLE_COUNT}};
+    const int num_iterations = {{ITERATION_COUNT}};
+    
+    double times[num_samples];
+    
+    // Collect timing samples
+    for (int sample = 0; sample < num_samples; sample++) {
+        // Generate test data
+        {{GENERATE_TEST_DATA}}
+        
+        // Measure execution time
+        uint64_t start = rdtsc();
+        for (int i = 0; i < num_iterations; i++) {
+            {{FUNCTION_CALL}}
+        }
+        uint64_t end = rdtsc();
+        
+        times[sample] = (double)(end - start) / num_iterations;
+    }
+    
+    // Statistical analysis
+    double mean = calculate_mean(times, num_samples);
+    double stddev = calculate_stddev(times, num_samples, mean);
+    double coeff_var = stddev / mean;
+    
+    // Constant-time validation
+    // Coefficient of variation should be low for constant-time code
+    assert(coeff_var <= {{CONSTANT_TIME_THRESHOLD}});
+    
+    printf("Constant-time validation for {{FUNCTION_NAME}}:\\n");
+    printf("  Mean cycles: %.2f\\n", mean);
+    printf("  Std deviation: %.2f\\n", stddev);
+    printf("  Coeff. variation: %.4f\\n", coeff_var);
+    printf("  Result: %s\\n", coeff_var <= {{CONSTANT_TIME_THRESHOLD}} ? "PASS" : "FAIL");
+}""" .
+
+# ===== EXAMPLE VALIDATIONS =====
+
+val:kyber_correctness_validation a val:CorrectnessValidation ;
+    rdfs:label "Kyber Correctness Validation" ;
+    val:validates api:kyber_keypair ;
+    val:usesMethod [
+        a val:StaticAnalysis ;
+        rdfs:comment "Static analysis of key generation correctness"
+    ] ;
+    val:hasProof [
+        a val:CorrectnessProof ;
+        rdfs:comment "Proof that generated keys satisfy Kyber specification"
+    ] .
+
+val:kyber_performance_validation a val:PerformanceValidation ;
+    rdfs:label "Kyber Performance Validation" ;
+    val:validates api:kyber_encrypt ;
+    val:measuresMetric [
+        a val:ExecutionTime ;
+        val:metricValue 1500.0 ;
+        val:metricUnit "cycles" ;
+        val:threshold 2000.0
+    ] ;
+    val:measuresMetric [
+        a val:ThroughputMetric ;
+        val:metricValue 10000.0 ;
+        val:metricUnit "ops/sec" ;
+        val:targetValue 15000.0
+    ] .
+
+val:kyber_constant_time_validation a val:ConstantTimeValidation ;
+    rdfs:label "Kyber Constant Time Validation" ;
+    val:validates api:kyber_decrypt ;
+    val:usesMethod [
+        a val:DynamicAnalysis ;
+        rdfs:comment "Runtime analysis of timing variations"
+    ] ;
+    val:confidence 0.95 .
+
+val:kyber_nist_compliance a val:ComplianceValidation ;
+    rdfs:label "Kyber NIST Compliance" ;
+    val:conformsTo [
+        a val:PostQuantumStandard ;
+        rdfs:comment "NIST Post-Quantum Cryptography Standard"
+    ] ;
+    val:validationResult "pass" .
+
+# ===== VALIDATION TOOLS =====
+
+val:ValidationTool a owl:Class ;
+    rdfs:label "Validation Tool" ;
+    rdfs:comment "Tool for performing validation" .
+
+val:StaticAnalyzer a owl:Class ;
+    rdfs:subClassOf val:ValidationTool ;
+    rdfs:label "Static Analyzer" ;
+    rdfs:comment "Static analysis tool" .
+
+val:ModelChecker a owl:Class ;
+    rdfs:subClassOf val:ValidationTool ;
+    rdfs:label "Model Checker" ;
+    rdfs:comment "Model checking tool" .
+
+val:TheoremProver a owl:Class ;
+    rdfs:subClassOf val:ValidationTool ;
+    rdfs:label "Theorem Prover" ;
+    rdfs:comment "Interactive theorem prover" .
+
+val:PerformanceProfiler a owl:Class ;
+    rdfs:subClassOf val:ValidationTool ;
+    rdfs:label "Performance Profiler" ;
+    rdfs:comment "Performance profiling tool" .
+
+# ===== VALIDATION AUTOMATION =====
+
+val:ValidationPipeline a owl:Class ;
+    rdfs:label "Validation Pipeline" ;
+    rdfs:comment "Automated validation pipeline" .
+
+val:ContinuousValidation a owl:Class ;
+    rdfs:subClassOf val:ValidationPipeline ;
+    rdfs:label "Continuous Validation" ;
+    rdfs:comment "Continuous integration validation" .
+
+val:RegressionValidation a owl:Class ;
+    rdfs:subClassOf val:ValidationPipeline ;
+    rdfs:label "Regression Validation" ;
+    rdfs:comment "Regression validation pipeline" .

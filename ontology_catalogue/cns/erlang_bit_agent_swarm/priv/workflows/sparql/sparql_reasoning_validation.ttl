@@ -1,0 +1,269 @@
+@prefix yawl: <http://cns.litigation/yawl#> .
+@prefix sparql: <http://cns.litigation/sparql#> .
+@prefix val: <http://cns.litigation/validation#> .
+@prefix trinity: <http://cns.litigation/trinity#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# YAWL Workflow: SPARQL Reasoning Validation
+# Tests core SPARQL execution patterns with meta-validation
+
+:SparqlReasoningValidation a yawl:YAWLSpecification ;
+    yawl:name "SPARQL Reasoning Validation Workflow" ;
+    yawl:version "1.0.0" ;
+    yawl:description "Validates SPARQL reasoning patterns in Bit Agent system" ;
+    
+    # Trinity Framework Constraints
+    trinity:tickBudget 8 ;
+    trinity:hopDepthMax 3 ;
+    trinity:metaLevel 1 ;
+    
+    # Workflow Net Structure
+    yawl:inputCondition :StartValidation ;
+    yawl:outputCondition :ValidationComplete ;
+    
+    # Tasks
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :InitializeSemanticMemory ;
+        yawl:name "Initialize Semantic Memory" ;
+        sparql:operation """
+            INSERT DATA {
+                GRAPH <validation:working> {
+                    <agent:validator> a bit:Agent ;
+                        bit:tickBudget 8 ;
+                        bit:currentState bit:initializing .
+                }
+            }
+        """ ;
+        trinity:tickCost 1 ;
+        yawl:split yawl:AND
+    ] ;
+    
+    yawl:task [
+        a yawl:CompositeTask ;
+        yawl:id :TestBasicQueries ;
+        yawl:name "Test Basic SPARQL Operations" ;
+        yawl:decomposesTo :BasicQuerySubnet ;
+        trinity:tickCost 2 ;
+        yawl:join yawl:AND ;
+        yawl:split yawl:AND
+    ] ;
+    
+    yawl:task [
+        a yawl:CompositeTask ;
+        yawl:id :TestStateTransitions ;
+        yawl:name "Test Semantic State Transitions" ;
+        yawl:decomposesTo :StateTransitionSubnet ;
+        trinity:tickCost 2 ;
+        yawl:join yawl:AND ;
+        yawl:split yawl:XOR
+    ] ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :ValidateResults ;
+        yawl:name "Validate Test Results" ;
+        sparql:validation """
+            ASK WHERE {
+                ?test val:status val:passed .
+                FILTER NOT EXISTS {
+                    ?test val:status val:failed .
+                }
+            }
+        """ ;
+        trinity:tickCost 1 ;
+        yawl:join yawl:XOR
+    ] ;
+    
+    # Control Flow
+    yawl:flow [
+        yawl:from :StartValidation ;
+        yawl:to :InitializeSemanticMemory
+    ] ;
+    
+    yawl:flow [
+        yawl:from :InitializeSemanticMemory ;
+        yawl:to :TestBasicQueries ;
+        yawl:predicate "true"
+    ] ;
+    
+    yawl:flow [
+        yawl:from :InitializeSemanticMemory ;
+        yawl:to :TestStateTransitions ;
+        yawl:predicate "true"
+    ] ;
+    
+    yawl:flow [
+        yawl:from :TestBasicQueries ;
+        yawl:to :ValidateResults
+    ] ;
+    
+    yawl:flow [
+        yawl:from :TestStateTransitions ;
+        yawl:to :ValidateResults ;
+        yawl:predicate "?status = 'success'"
+    ] ;
+    
+    yawl:flow [
+        yawl:from :TestStateTransitions ;
+        yawl:to :ValidationComplete ;
+        yawl:predicate "?status = 'failed'" ;
+        yawl:isDefaultFlow true
+    ] ;
+    
+    yawl:flow [
+        yawl:from :ValidateResults ;
+        yawl:to :ValidationComplete
+    ] .
+
+# Subnet: Basic Query Tests
+:BasicQuerySubnet a yawl:YAWLSubnet ;
+    yawl:name "Basic SPARQL Query Tests" ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :TestSimpleSelect ;
+        sparql:query """
+            SELECT ?agent ?state WHERE {
+                ?agent a bit:Agent .
+                ?agent bit:currentState ?state .
+            }
+        """ ;
+        val:expectedResults 1
+    ] ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :TestComplexJoin ;
+        sparql:query """
+            SELECT ?agent ?flow ?cost WHERE {
+                ?agent bit:currentFlow ?flow .
+                ?flow flow:tickCost ?cost .
+                FILTER(?cost < 5)
+            }
+        """ ;
+        val:expectedPattern "cost_optimization"
+    ] ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :TestConstruct ;
+        sparql:query """
+            CONSTRUCT {
+                ?agent val:testedCapability ?cap .
+            } WHERE {
+                ?agent bit:hasCapability ?cap .
+                ?cap bit:validated true .
+            }
+        """ ;
+        val:resultType "graph"
+    ] .
+
+# Subnet: State Transition Tests
+:StateTransitionSubnet a yawl:YAWLSubnet ;
+    yawl:name "Semantic State Transition Tests" ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :CreateInitialState ;
+        sparql:update """
+            INSERT DATA {
+                <agent:test> bit:currentState bit:idle ;
+                           bit:tickBudget 5 .
+            }
+        """
+    ] ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :TransitionToActive ;
+        sparql:update """
+            DELETE { ?agent bit:currentState ?old }
+            INSERT { ?agent bit:currentState bit:active }
+            WHERE {
+                ?agent bit:currentState bit:idle .
+                ?agent bit:tickBudget ?budget .
+                FILTER(?budget > 0)
+            }
+        """
+    ] ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :ValidateTransition ;
+        sparql:ask """
+            ASK WHERE {
+                <agent:test> bit:currentState bit:active .
+            }
+        """ ;
+        val:expectedResult true
+    ] .
+
+# Meta-Validation Rules
+:MetaValidationRules a val:MetaValidation ;
+    val:validates :SparqlReasoningValidation ;
+    
+    val:rule [
+        a val:DeterminismCheck ;
+        val:description "All tests must produce deterministic results" ;
+        val:sparql """
+            SELECT ?test (COUNT(DISTINCT ?result) as ?variations) WHERE {
+                ?execution val:test ?test .
+                ?execution val:result ?result .
+            }
+            GROUP BY ?test
+            HAVING (?variations > 1)
+        """
+    ] ;
+    
+    val:rule [
+        a val:CompletenessCheck ;
+        val:description "All SPARQL features must be tested" ;
+        val:features (
+            sparql:SELECT
+            sparql:CONSTRUCT
+            sparql:ASK
+            sparql:UPDATE
+            sparql:DELETE_INSERT
+            sparql:FILTER
+            sparql:AGGREGATE
+        )
+    ] ;
+    
+    val:rule [
+        a val:PerformanceCheck ;
+        val:description "All queries must complete within tick budget" ;
+        val:maxTicks 8
+    ] .
+
+# Adversarial Test Cases
+:AdversarialTests a val:AdversarialTestSuite ;
+    val:targets :SparqlReasoningValidation ;
+    
+    val:attack [
+        a val:SparqlInjection ;
+        val:payload "\"); DROP GRAPH <validation:working> ; #" ;
+        val:expectedOutcome val:blocked
+    ] ;
+    
+    val:attack [
+        a val:InfiniteLoop ;
+        val:query """
+            SELECT ?x WHERE {
+                ?x bit:relatedTo+ ?x .
+            }
+        """ ;
+        val:expectedOutcome val:timeout
+    ] ;
+    
+    val:attack [
+        a val:MemoryExhaustion ;
+        val:query """
+            CONSTRUCT { ?s ?p ?o }
+            WHERE {
+                ?s ?p ?o .
+                FILTER(STRLEN(STR(?o)) > 0)
+            }
+        """ ;
+        val:expectedOutcome val:memoryLimitEnforced
+    ] .

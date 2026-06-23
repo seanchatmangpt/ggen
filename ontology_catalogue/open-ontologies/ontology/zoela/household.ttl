@@ -1,0 +1,221 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+
+# ============================================================================
+# ZOE LA Mobile — Household Ontology
+# ============================================================================
+# Models the Household as the primary care/service unit in ZOE LA Mobile.
+# A Household groups PersonProfiles by physical address, enables service routing
+# at a family level, and carries sensitivity metadata for data governance.
+#
+# Design alignment:
+#   zoe:Household       → schema:Organization + foaf:Group (addressable unit)
+#   zoe:HouseholdMember → org:Membership (person-to-household bridge)
+#   zoe:HouseholdNeed   → owl:Thing (household-to-need many-to-many bridge)
+#
+# Namespace: https://zoela.org/ontology/
+# This file defines the canonical zoe: namespace version of Household.
+# (W22 person.ttl previously declared zoe:Household under a legacy URN form;
+#  as of P0-A 2026-05-18 person.ttl uses the canonical namespace and this file remains the source of truth.)
+# ============================================================================
+
+zoe:HouseholdOntology a owl:Ontology ;
+  rdfs:label   "ZOE LA Mobile — Household Ontology"@en ;
+  rdfs:comment "Household and membership ontology for care-routing and service delivery in the ZOE LA Mobile manufacturing pipeline."@en ;
+  dcterms:creator  "Sean Chatman" ;
+  dcterms:created  "2026-05-17"^^xsd:date ;
+  dcterms:license  <https://opensource.org/licenses/MIT> ;
+  owl:versionInfo  "1.0.0" .
+
+# ============================================================================
+# Classes
+# ============================================================================
+
+zoe:Household a owl:Class ;
+  rdfs:label      "Household"@en ;
+  rdfs:comment    "A family or cohabiting group registered with ZOE LA, used as the primary unit for care requests, service routing, and address-based outreach."@en ;
+  rdfs:subClassOf schema:Organization ;
+  rdfs:subClassOf foaf:Group .
+
+zoe:HouseholdMember a owl:Class ;
+  rdfs:label      "Household Member"@en ;
+  rdfs:comment    "Bridge record associating a PersonProfile with a Household, capturing the member's role within that household (e.g. head, spouse, child)."@en ;
+  rdfs:subClassOf org:Membership .
+
+zoe:HouseholdNeed a owl:Class ;
+  rdfs:label      "Household Need"@en ;
+  rdfs:comment    "Bridge record linking a Household to a Need, supporting a many-to-many relationship between households and service needs."@en ;
+  rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# zoe:Household — Datatype Properties
+# ============================================================================
+
+zoe:householdId a owl:DatatypeProperty ;
+  rdfs:label      "household ID"@en ;
+  rdfs:comment    "Unique surrogate identifier for the household record (UUID or database primary key)."@en ;
+  rdfs:domain     zoe:Household ;
+  rdfs:range      xsd:string ;
+  skos:notation   "household_id" .
+
+zoe:householdName a owl:DatatypeProperty ;
+  rdfs:label      "household name"@en ;
+  rdfs:comment    "Display name for the household, typically the family surname (e.g. 'The Smith Family')."@en ;
+  rdfs:domain     zoe:Household ;
+  rdfs:range      xsd:string ;
+  skos:notation   "household_name" .
+
+zoe:addressLine1 a owl:DatatypeProperty ;
+  rdfs:label      "address line 1"@en ;
+  rdfs:comment    "Primary street address line for the household (e.g. '123 Main St')."@en ;
+  rdfs:domain     zoe:Household ;
+  rdfs:range      xsd:string ;
+  skos:notation   "address_line1" .
+
+zoe:addressLine2 a owl:DatatypeProperty ;
+  rdfs:label      "address line 2"@en ;
+  rdfs:comment    "Secondary address line for the household (e.g. apartment or unit number)."@en ;
+  rdfs:domain     zoe:Household ;
+  rdfs:range      xsd:string ;
+  skos:notation   "address_line2" .
+
+zoe:city a owl:DatatypeProperty ;
+  rdfs:label      "city"@en ;
+  rdfs:comment    "City component of the household's mailing address."@en ;
+  rdfs:domain     zoe:Household ;
+  rdfs:range      xsd:string ;
+  skos:notation   "city" .
+
+zoe:state a owl:DatatypeProperty ;
+  rdfs:label      "state"@en ;
+  rdfs:comment    "State or province component of the household's mailing address (ISO 3166-2 subdivision code recommended)."@en ;
+  rdfs:domain     zoe:Household ;
+  rdfs:range      xsd:string ;
+  skos:notation   "state" .
+
+zoe:zipCode a owl:DatatypeProperty ;
+  rdfs:label      "zip code"@en ;
+  rdfs:comment    "Postal/ZIP code for the household's address, used for campus assignment and geographic routing."@en ;
+  rdfs:domain     zoe:Household ;
+  rdfs:range      xsd:string ;
+  skos:notation   "zip_code" .
+
+zoe:campusId a owl:DatatypeProperty ;
+  rdfs:label      "campus ID"@en ;
+  rdfs:comment    "Foreign key to the Campus the household is primarily affiliated with. Drives campus-scoped service routing."@en ;
+  rdfs:domain     zoe:Household ;
+  rdfs:range      xsd:string ;
+  skos:notation   "campus_id" .
+
+zoe:householdSize a owl:DatatypeProperty ;
+  rdfs:label      "household size"@en ;
+  rdfs:comment    "Count of individuals currently active in the household, used for resource sizing and service planning."@en ;
+  rdfs:domain     zoe:Household ;
+  rdfs:range      xsd:integer ;
+  skos:notation   "household_size" .
+
+zoe:primaryContactId a owl:DatatypeProperty ;
+  rdfs:label      "primary contact ID"@en ;
+  rdfs:comment    "Foreign key to the PersonProfile designated as the primary point of contact for this household."@en ;
+  rdfs:domain     zoe:Household ;
+  rdfs:range      xsd:string ;
+  skos:notation   "primary_contact_id" .
+
+zoe:sensitivityLevel a owl:DatatypeProperty ;
+  rdfs:label      "sensitivity level"@en ;
+  rdfs:comment    "Data sensitivity classification for the household record. Allowed values: Public, Sensitive, Confidential."@en ;
+  rdfs:domain     zoe:Household ;
+  rdfs:range      xsd:string ;
+  skos:notation   "sensitivity_level" .
+
+zoe:createdAt a owl:DatatypeProperty ;
+  rdfs:label      "created at"@en ;
+  rdfs:comment    "ISO 8601 timestamp recording when the household record was first created in the system."@en ;
+  rdfs:domain     zoe:Household ;
+  rdfs:range      xsd:dateTime ;
+  skos:notation   "created_at" .
+
+zoe:isActive a owl:DatatypeProperty ;
+  rdfs:label      "is active"@en ;
+  rdfs:comment    "Boolean flag indicating whether the household is currently active and eligible to receive services."@en ;
+  rdfs:domain     zoe:Household ;
+  rdfs:range      xsd:boolean ;
+  skos:notation   "is_active" .
+
+# ============================================================================
+# zoe:HouseholdMember — Datatype Properties
+# ============================================================================
+
+zoe:householdMemberId a owl:DatatypeProperty ;
+  rdfs:label      "household member ID"@en ;
+  rdfs:comment    "Unique surrogate identifier for the household membership record."@en ;
+  rdfs:domain     zoe:HouseholdMember ;
+  rdfs:range      xsd:string ;
+  skos:notation   "household_member_id" .
+
+zoe:personId a owl:DatatypeProperty ;
+  rdfs:label      "person ID"@en ;
+  rdfs:comment    "Foreign key to the PersonProfile that belongs to this household membership."@en ;
+  rdfs:domain     zoe:HouseholdMember ;
+  rdfs:range      xsd:string ;
+  skos:notation   "person_id" .
+
+zoe:membershipRole a owl:DatatypeProperty ;
+  rdfs:label      "membership role"@en ;
+  rdfs:comment    "Role of the person within the household. Allowed values: head, spouse, child, other."@en ;
+  rdfs:domain     zoe:HouseholdMember ;
+  rdfs:range      xsd:string ;
+  skos:notation   "membership_role" .
+
+zoe:joinedAt a owl:DatatypeProperty ;
+  rdfs:label      "joined at"@en ;
+  rdfs:comment    "Timestamp when the person was added to the household membership record."@en ;
+  rdfs:domain     zoe:HouseholdMember ;
+  rdfs:range      xsd:dateTime ;
+  skos:notation   "joined_at" .
+
+# householdId and isActive are shared with zoe:Household; the domain is broadened
+# via a separate declaration so both classes can use them.
+
+zoe:householdId rdfs:domain [
+  a owl:Class ;
+  owl:unionOf ( zoe:Household zoe:HouseholdMember zoe:HouseholdNeed )
+] .
+
+zoe:isActive rdfs:domain [
+  a owl:Class ;
+  owl:unionOf ( zoe:Household zoe:HouseholdMember zoe:HouseholdNeed )
+] .
+
+# ============================================================================
+# zoe:HouseholdNeed — Datatype Properties
+# ============================================================================
+
+zoe:householdNeedId a owl:DatatypeProperty ;
+  rdfs:label      "household need ID"@en ;
+  rdfs:comment    "Unique surrogate identifier for the household-to-need bridge record."@en ;
+  rdfs:domain     zoe:HouseholdNeed ;
+  rdfs:range      xsd:string ;
+  skos:notation   "household_need_id" .
+
+zoe:needId a owl:DatatypeProperty ;
+  rdfs:label      "need ID"@en ;
+  rdfs:comment    "Foreign key to the Need that has been associated with this household."@en ;
+  rdfs:domain     zoe:HouseholdNeed ;
+  rdfs:range      xsd:string ;
+  skos:notation   "need_id" .
+
+zoe:reportedAt a owl:DatatypeProperty ;
+  rdfs:label      "reported at"@en ;
+  rdfs:comment    "Timestamp when this household-to-need association was first recorded."@en ;
+  rdfs:domain     zoe:HouseholdNeed ;
+  rdfs:range      xsd:dateTime ;
+  skos:notation   "reported_at" .

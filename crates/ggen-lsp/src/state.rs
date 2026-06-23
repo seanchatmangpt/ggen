@@ -28,6 +28,10 @@ pub enum FileType {
     Tera,
     /// ggen configuration: `ggen.toml` (and `.toml`).
     Toml,
+    /// OpenUSD ASCII scenes: `.usda`, `.usd`, `.usdc`.
+    Usd,
+    /// MaterialX shading graphs: `.mtlx`.
+    Mtlx,
     /// Not a ggen law surface.
     Unknown,
 }
@@ -48,6 +52,10 @@ impl FileType {
             FileType::Tera
         } else if path.ends_with("ggen.toml") || path.ends_with(".toml") {
             FileType::Toml
+        } else if path.ends_with(".usda") || path.ends_with(".usd") || path.ends_with(".usdc") {
+            FileType::Usd
+        } else if path.ends_with(".mtlx") {
+            FileType::Mtlx
         } else {
             FileType::Unknown
         }

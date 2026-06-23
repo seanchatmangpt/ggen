@@ -1,0 +1,95 @@
+@prefix : <https://bytestar.org/ontology/byteflow/production-shapes#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bfpr: <https://bytestar.org/ontology/byteflow/production-readiness#> .
+
+<https://bytestar.org/ontology/byteflow/production-shapes>
+  a owl:Ontology ;
+  rdfs:label "ByteFlow Production Readiness SHACL Shapes" ;
+  rdfs:comment "SHACL shapes for validating ByteFlow deployments against production readiness criteria." ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports
+    bfpr: .
+
+#################################################################
+# ByteFlow Production Readiness Validation
+#################################################################
+
+:FlowProductionDeploymentShape a sh:NodeShape ;
+  sh:targetClass bcore:ByteFlow ;
+  sh:property [
+    sh:path bfpr:hasStatus ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class bfpr:ProductionReadinessStatus ;
+    sh:message "ByteFlow deployment must have a defined production readiness status." ;
+  ] ;
+  sh:property [
+    sh:path bfpr:hasMetric ;
+    sh:minCount 1 ;
+    sh:message "ByteFlow deployment must report at least one production readiness metric." ;
+  ] ;
+  sh:property [
+    sh:path bfpr:meetsPerformanceRequirement ;
+    sh:minCount 1 ;
+    sh:message "ByteFlow deployment must meet at least one performance requirement." ;
+  ] ;
+  sh:property [
+    sh:path bfpr:meetsReliabilityRequirement ;
+    sh:minCount 1 ;
+    sh:message "ByteFlow deployment must meet at least one reliability requirement." ;
+  ] ;
+  sh:property [
+    sh:path bfpr:meetsSecurityRequirement ;
+    sh:minCount 1 ;
+    sh:message "ByteFlow deployment must meet at least one security requirement." ;
+  ] ;
+  sh:property [
+    sh:path bfpr:meetsOperationalRequirement ;
+    sh:minCount 1 ;
+    sh:message "ByteFlow deployment must meet at least one operational requirement." ;
+  ] .
+
+# Example: Metric Value Conformance (e.g., Admission Latency)
+:AdmissionLatencyConformanceShape a sh:NodeShape ;
+  sh:targetClass bfpr:ProductionReadinessMetric ;
+  sh:property [
+    sh:path bfpr:metricName ;
+    sh:hasValue "Admission Latency" ;
+  ] ;
+  sh:property [
+    sh:path bfpr:metricValue ;
+    sh:lessThanOrEquals bfpr:targetValue ;
+    sh:message "Admission Latency metric value must be less than or equal to its target." ;
+    sh:severity sh:Violation ;
+  ] .
+
+# Example: Fabrication Throughput Requirement
+:FabricationThroughputRequirementShape a sh:NodeShape ;
+  sh:targetClass bfpr:PerformanceRequirement ;
+  sh:property [
+    sh:path bfpr:requirementName ;
+    sh:hasValue "Fabrication Throughput" ;
+  ] ;
+  sh:property [
+    sh:path bfpr:targetValue ;
+    sh:minInclusive 1000.0 ;
+    sh:message "Fabrication Throughput target value must be at least 1000 workflows/sec." ;
+  ] .
+
+# Example: Security Requirement - Manifest Signing Integrity
+:ManifestSigningIntegrityShape a sh:NodeShape ;
+  sh:targetClass bfpr:SecurityRequirement ;
+  sh:property [
+    sh:path bfpr:requirementName ;
+    sh:hasValue "Manifest Signing Integrity" ;
+  ] ;
+  sh:property [
+    sh:path bfpr:targetValue ;
+    sh:hasValue 1.0 ;
+    sh:message "Manifest Signing Integrity target value must be 1.0 (100% success)." ;
+  ] .

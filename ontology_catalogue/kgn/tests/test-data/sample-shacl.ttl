@@ -1,0 +1,152 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix kgen: <http://example.org/kgen#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Project validation shapes
+kgen:ProjectShape a sh:NodeShape ;
+    sh:targetClass kgen:Project ;
+    sh:property [
+        sh:path dct:title ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "All projects must have exactly one title" ;
+    ] ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "All projects must have exactly one label" ;
+    ] ;
+    sh:property [
+        sh:path kgen:version ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+$" ;
+        sh:message "Project version must follow semantic versioning (e.g., 1.0.0)" ;
+    ] ;
+    sh:property [
+        sh:path dct:description ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:message "All projects must have a description of at least 10 characters" ;
+    ] ;
+    sh:property [
+        sh:path kgen:hasComponent ;
+        sh:minCount 1 ;
+        sh:class kgen:Component ;
+        sh:message "All projects must have at least one component" ;
+    ] .
+
+# Component validation shapes  
+kgen:ComponentShape a sh:NodeShape ;
+    sh:targetClass kgen:Component ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "All components must have exactly one label" ;
+    ] ;
+    sh:property [
+        sh:path dct:description ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "All components must have a description" ;
+    ] ;
+    sh:property [
+        sh:path kgen:hasMethod ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "All components must have at least one method" ;
+    ] ;
+    sh:property [
+        sh:path kgen:hasInterface ;
+        sh:maxCount 1 ;
+        sh:class kgen:Interface ;
+        sh:message "Components can implement at most one interface" ;
+    ] .
+
+# Module validation shapes
+kgen:ModuleShape a sh:NodeShape ;
+    sh:targetClass kgen:Module ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "All modules must have exactly one label" ;
+    ] ;
+    sh:property [
+        sh:path dct:description ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "All modules must have a description" ;
+    ] .
+
+# Interface validation shapes
+kgen:InterfaceShape a sh:NodeShape ;
+    sh:targetClass kgen:Interface ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "All interfaces must have exactly one label" ;
+    ] ;
+    sh:property [
+        sh:path kgen:hasOperation ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "All interfaces must define at least one operation" ;
+    ] .
+
+# Advanced validation rules
+kgen:CircularDependencyShape a sh:NodeShape ;
+    sh:targetClass kgen:Component ;
+    sh:sparql [
+        sh:message "Components cannot have circular dependencies" ;
+        sh:select """
+            PREFIX kgen: <http://example.org/kgen#>
+            SELECT $this
+            WHERE {
+                $this kgen:dependsOn+ $this .
+            }
+        """ ;
+    ] .
+
+kgen:UnusedComponentShape a sh:NodeShape ;
+    sh:targetClass kgen:Component ;
+    sh:sparql [
+        sh:message "All components should be used by at least one project or other component" ;
+        sh:select """
+            PREFIX kgen: <http://example.org/kgen#>
+            SELECT $this
+            WHERE {
+                $this a kgen:Component .
+                FILTER NOT EXISTS {
+                    ?project kgen:hasComponent $this .
+                }
+                FILTER NOT EXISTS {
+                    ?component kgen:dependsOn $this .
+                }
+            }
+        """ ;
+    ] .
+
+# Naming convention shapes
+kgen:NamingConventionShape a sh:NodeShape ;
+    sh:targetClass kgen:Component ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:pattern "^[A-Z][a-zA-Z\\s]+$" ;
+        sh:message "Component labels must start with a capital letter and contain only letters and spaces" ;
+    ] .

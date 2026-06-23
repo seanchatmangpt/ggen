@@ -1,0 +1,25 @@
+PREFIX : <http://uvmgr.io/cli#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Extract parameters for each command
+# Result: Command parameters with name, type, required flag, and variadic flag
+
+SELECT DISTINCT
+  ?commandName
+  ?paramName
+  ?paramType
+  ?required
+  ?isVariadic
+  ?description
+WHERE {
+  ?command a :Command .
+  ?command :name ?commandName .
+  ?command :hasParameter ?parameter .
+  ?parameter :name ?paramName .
+  ?parameter :parameterType ?paramType .
+  ?parameter :description ?description .
+  OPTIONAL { ?parameter :required ?required . }
+  OPTIONAL { ?parameter :isVariadic ?isVariadic . }
+}
+ORDER BY ?commandName ?paramName

@@ -1,0 +1,281 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix compat: <https://wasm4pm.dev/ns#> .
+
+# Evidence bridge: projected from ocel/reports/*.json by scripts/project_evidence.py.
+# Regenerate with: just project-evidence
+
+compat:Breed_abductive_ibe a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "abductive_ibe-l1-v1" .
+
+compat:Breed_abductive_lp a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "abductive_lp-l1-v1" .
+
+compat:Breed_act_r a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "act_r-l1-v1" .
+
+compat:Breed_allen_temporal a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "allen_temporal-l1-v1" .
+
+compat:Breed_analogy_sme a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "analogy_sme-l1-v1" .
+
+compat:Breed_asp a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "asp-l1-v1" .
+
+compat:Breed_autoinstinct_learning a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "autoinstinct_learning-l1-v1" .
+
+compat:Breed_autoinstinct_neurosis a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "autoinstinct_neurosis-l1-v1" .
+
+compat:Breed_autoinstinct_semantics a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "autoinstinct_semantics-l1-v1" .
+
+compat:Breed_autoinstinct_vision a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "autoinstinct_vision-l1-v1" .
+
+compat:Breed_bayesian_network a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "bayesian_network-l1-v1" .
+
+compat:Breed_belief_merging a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "belief_merging-l1-v1" .
+
+compat:Breed_cbr a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "cbr-l1-v1" .
+
+compat:Breed_circumscription a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "circumscription-l1-v1" .
+
+compat:Breed_clp a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "clp-l1-v1" .
+
+compat:Breed_construction_grammar a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "construction_grammar-l1-v1" .
+
+compat:Breed_contingent_plan a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "contingent_plan-l1-v1" .
+
+compat:Breed_csp_ac3 a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "csp_ac3-l1-v1" .
+
+compat:Breed_ctl_check a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "ctl_check-l1-v1" .
+
+compat:Breed_default_logic a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "default_logic-l1-v1" .
+
+compat:Breed_dempster_shafer a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "dempster_shafer-l1-v1" .
+
+compat:Breed_dendral a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "dendral-l1-v1" .
+
+compat:Breed_description_logic a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "description_logic-l1-v1" .
+
+compat:Breed_ebl a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "ebl-l1-v1" .
+
+compat:Breed_eliza a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "eliza-l1-v1" .
+
+compat:Breed_episodic_memory a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "episodic_memory-l1-v1" .
+
+compat:Breed_event_calculus a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "event_calculus-l1-v1" .
+
+compat:Breed_frames_inheritance a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "frames_inheritance-l1-v1" .
+
+compat:Breed_fuzzy_logic a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "fuzzy_logic-l1-v1" .
+
+compat:Breed_gps a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "gps-l1-v1" .
+
+compat:Breed_hearsay a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "hearsay-l1-v1" .
+
+compat:Breed_htn_planning a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "htn_planning-l1-v1" .
+
+compat:Breed_ilp a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "ilp-l1-v1" .
+
+compat:Breed_ltl_monitor a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "ltl_monitor-l1-v1" .
+
+compat:Breed_markov_logic a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "markov_logic-l1-v1" .
+
+compat:Breed_mdp a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "mdp-l1-v1" .
+
+compat:Breed_meta_reasoning a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "meta_reasoning-l1-v1" .
+
+compat:Breed_morphological a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "morphological-l1-v1" .
+
+compat:Breed_mycin a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "mycin-l1-v1" .
+
+compat:Breed_naive_physics a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "naive_physics-l1-v1" .
+
+compat:Breed_ocpm_route_discoverer a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "ocpm_route_discoverer-l1-v1" .
+
+compat:Breed_partial_order_plan a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "partial_order_plan-l1-v1" .
+
+compat:Breed_pomdp a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "pomdp-l1-v1" .
+
+compat:Breed_problog a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "problog-l1-v1" .
+
+compat:Breed_prolog a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "prolog-l1-v1" .
+
+compat:Breed_qualitative_reason a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "qualitative_reason-l1-v1" .
+
+compat:Breed_rl_symbolic a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "rl_symbolic-l1-v1" .
+
+compat:Breed_sat_cdcl a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "sat_cdcl-l1-v1" .
+
+compat:Breed_script_sam a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "script_sam-l1-v1" .
+
+compat:Breed_situation_calculus a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "situation_calculus-l1-v1" .
+
+compat:Breed_soar a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "soar-l1-v1" .
+
+compat:Breed_strips a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "strips-l1-v1" .
+
+compat:Breed_tableaux a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "tableaux-l1-v1" .
+
+compat:Breed_triz a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "triz-l1-v1" .
+
+compat:Breed_version_space a compat:CognitionBreed ;
+  compat:measuredFitness 1.0 ;
+  compat:ocelAdmitted true ;
+  compat:fitnessProvenance "version_space-l1-v1" .

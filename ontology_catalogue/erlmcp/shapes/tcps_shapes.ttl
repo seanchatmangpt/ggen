@@ -1,0 +1,589 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tcps: <http://taiea.io/ontology/tcps#> .
+@prefix taiea: <http://taiea.io/ontology/taiea#> .
+
+# ============================================================================
+# TCPS SHACL Validation Shapes
+# Toyota Code Production System - Quality Gates
+# ============================================================================
+# Purpose: Enforce zero-defect quality standards for TCPS production pipeline
+# Authority: TCPS Definition of Done (docs/TCPS.md, docs/TCPS-checklist.md)
+# Severity: sh:Violation for all mandatory constraints (stop-the-line)
+# ============================================================================
+
+# ============================================================================
+# 1. SKU COMPLETENESS VALIDATION
+# ============================================================================
+# Rule: Every SKU must be complete, traceable, and quality-gated before shipping
+
+tcps:SKUShape
+    a sh:NodeShape ;
+    sh:targetClass tcps:SKU ;
+    sh:property [
+        sh:path tcps:name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:severity sh:Violation ;
+        sh:message "SKU must have exactly one non-empty name"
+    ] ;
+    sh:property [
+        sh:path tcps:version ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9.]+)?$" ;
+        sh:severity sh:Violation ;
+        sh:message "SKU must have exactly one semantic version (format: X.Y.Z or X.Y.Z-suffix)"
+    ] ;
+    sh:property [
+        sh:path tcps:description ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:severity sh:Violation ;
+        sh:message "SKU must have a description of at least 10 characters"
+    ] ;
+    sh:property [
+        sh:path tcps:workOrderId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:severity sh:Violation ;
+        sh:message "SKU must reference exactly one WorkOrder via tcps:workOrderId"
+    ] ;
+    sh:property [
+        sh:path tcps:hasReceipt ;
+        sh:minCount 1 ;
+        sh:class tcps:Receipt ;
+        sh:severity sh:Violation ;
+        sh:message "SKU must reference at least one Receipt (proof of work)"
+    ] ;
+    sh:property [
+        sh:path tcps:qualityGatesPassed ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:severity sh:Violation ;
+        sh:message "SKU must pass all quality gates (tcps:qualityGatesPassed must be true)"
+    ] ;
+    sh:property [
+        sh:path tcps:shippable ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:severity sh:Violation ;
+        sh:message "SKU must have tcps:shippable status explicitly declared"
+    ] ;
+    sh:property [
+        sh:path tcps:createdAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "SKU must have creation timestamp (tcps:createdAt)"
+    ] .
+
+# Rule: SKUs cannot be shipped with open Andon events
+tcps:SKUNoOpenAndonShape
+    a sh:NodeShape ;
+    sh:targetClass tcps:SKU ;
+    sh:sparql [
+        sh:select """
+            PREFIX tcps: <http://taiea.io/ontology/tcps#>
+            SELECT $this
+            WHERE {
+                $this a tcps:SKU .
+                $this tcps:hasAndonEvent ?andon .
+                ?andon tcps:status "open" .
+            }
+        """ ;
+        sh:severity sh:Violation ;
+        sh:message "SKU cannot be shipped with open Andon events - must resolve failures first"
+    ] .
+
+# ============================================================================
+# 2. WORKORDER VALIDATION
+# ============================================================================
+# Rule: Every WorkOrder must have demand signal, bucket, priority, and valid status
+
+tcps:WorkOrderShape
+    a sh:NodeShape ;
+    sh:targetClass tcps:WorkOrder ;
+    sh:property [
+        sh:path tcps:demandSignal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:severity sh:Violation ;
+        sh:message "WorkOrder must have exactly one non-empty demand signal"
+    ] ;
+    sh:property [
+        sh:path tcps:bucket ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "reliability" "security" "cost" "compliance" ) ;
+        sh:severity sh:Violation ;
+        sh:message "WorkOrder bucket must be one of: reliability, security, cost, compliance"
+    ] ;
+    sh:property [
+        sh:path tcps:priority ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:severity sh:Violation ;
+        sh:message "WorkOrder priority must be an integer between 1 (highest) and 10 (lowest)"
+    ] ;
+    sh:property [
+        sh:path tcps:status ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "pending" "in_progress" "completed" "failed" ) ;
+        sh:severity sh:Violation ;
+        sh:message "WorkOrder status must be one of: pending, in_progress, completed, failed"
+    ] ;
+    sh:property [
+        sh:path tcps:createdAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "WorkOrder must have creation timestamp (tcps:createdAt)"
+    ] ;
+    sh:property [
+        sh:path tcps:assignedTo ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "WorkOrder assignedTo must be a string (agent/team identifier)"
+    ] .
+
+# ============================================================================
+# 3. RECEIPT REQUIREMENTS VALIDATION
+# ============================================================================
+# Rule: Every Receipt must have stage, timestamp, status, and non-empty evidence
+
+tcps:ReceiptShape
+    a sh:NodeShape ;
+    sh:targetClass tcps:Receipt ;
+    sh:property [
+        sh:path tcps:stageName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "pull" "plan" "generate" "template" "compile" "test" "release" "publish" "verify" "andon" ) ;
+        sh:severity sh:Violation ;
+        sh:message "Receipt must have a valid stage name from TCPS pipeline: pull, plan, generate, template, compile, test, release, publish, verify, andon"
+    ] ;
+    sh:property [
+        sh:path tcps:timestamp ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "Receipt must have exactly one valid ISO 8601 timestamp"
+    ] ;
+    sh:property [
+        sh:path tcps:status ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "pass" "fail" ) ;
+        sh:severity sh:Violation ;
+        sh:message "Receipt status must be either 'pass' or 'fail'"
+    ] ;
+    sh:property [
+        sh:path tcps:evidenceData ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Receipt must have non-empty evidence data (proof of work)"
+    ] ;
+    sh:property [
+        sh:path tcps:relatedSKU ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class tcps:SKU ;
+        sh:severity sh:Violation ;
+        sh:message "Receipt must reference exactly one SKU"
+    ] ;
+    sh:property [
+        sh:path tcps:executor ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Receipt executor must be a string (agent/system identifier)"
+    ] .
+
+# ============================================================================
+# 4. PRODUCTION STAGE GATES VALIDATION
+# ============================================================================
+# Rule: Each production stage has specific quality requirements
+
+# 4.1 Compilation Stage Gate
+tcps:CompilationReceiptShape
+    a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX tcps: <http://taiea.io/ontology/tcps#>
+            SELECT ?this
+            WHERE {
+                ?this a tcps:Receipt .
+                ?this tcps:stageName "compile" .
+            }
+        """
+    ] ;
+    sh:property [
+        sh:path tcps:buildOutput ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Compilation receipt must include build output"
+    ] ;
+    sh:property [
+        sh:path tcps:errorCount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:hasValue 0 ;
+        sh:severity sh:Violation ;
+        sh:message "Compilation must have zero errors (tcps:errorCount = 0)"
+    ] ;
+    sh:property [
+        sh:path tcps:warningCount ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:severity sh:Violation ;
+        sh:message "Compilation warning count must be a non-negative integer"
+    ] .
+
+# 4.2 Test Stage Gate
+tcps:TestReceiptShape
+    a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX tcps: <http://taiea.io/ontology/tcps#>
+            SELECT ?this
+            WHERE {
+                ?this a tcps:Receipt .
+                ?this tcps:stageName "test" .
+            }
+        """
+    ] ;
+    sh:property [
+        sh:path tcps:testResults ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Test receipt must include test results data"
+    ] ;
+    sh:property [
+        sh:path tcps:passRate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 80.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Test pass rate must be >= 80% (minimum quality gate)"
+    ] ;
+    sh:property [
+        sh:path tcps:coverage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 80.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Test coverage must be >= 80% (minimum quality gate)"
+    ] ;
+    sh:property [
+        sh:path tcps:totalTests ;
+        sh:minCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Test suite must run at least one test"
+    ] ;
+    sh:property [
+        sh:path tcps:failedTests ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:severity sh:Violation ;
+        sh:message "Failed tests count must be a non-negative integer"
+    ] .
+
+# 4.3 Release Stage Gate
+tcps:ReleaseReceiptShape
+    a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX tcps: <http://taiea.io/ontology/tcps#>
+            SELECT ?this
+            WHERE {
+                ?this a tcps:Receipt .
+                ?this tcps:stageName "release" .
+            }
+        """
+    ] ;
+    sh:property [
+        sh:path tcps:artifactPath ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:pattern "^(file://|https?://|gs://|s3://).+" ;
+        sh:severity sh:Violation ;
+        sh:message "Release must have valid artifact path (file://, http://, https://, gs://, or s3:// URI)"
+    ] ;
+    sh:property [
+        sh:path tcps:deterministicHash ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-f0-9]{64}$" ;
+        sh:severity sh:Violation ;
+        sh:message "Release must have SHA-256 deterministic hash (64 hex characters)"
+    ] ;
+    sh:property [
+        sh:path tcps:artifactSize ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Release artifact size must be a positive integer (bytes)"
+    ] ;
+    sh:property [
+        sh:path tcps:releaseNotes ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Release notes should be provided as string"
+    ] .
+
+# 4.4 Publish Stage Gate
+tcps:PublishReceiptShape
+    a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX tcps: <http://taiea.io/ontology/tcps#>
+            SELECT ?this
+            WHERE {
+                ?this a tcps:Receipt .
+                ?this tcps:stageName "publish" .
+            }
+        """
+    ] ;
+    sh:property [
+        sh:path tcps:marketplaceUrl ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:anyURI ;
+        sh:pattern "^https?://.+" ;
+        sh:severity sh:Violation ;
+        sh:message "Publish receipt must have valid marketplace URL (http/https)"
+    ] ;
+    sh:property [
+        sh:path tcps:smokeTestResult ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue "pass" ;
+        sh:severity sh:Violation ;
+        sh:message "Publish stage requires smoke test to pass (tcps:smokeTestResult = 'pass')"
+    ] ;
+    sh:property [
+        sh:path tcps:entitlementGateActive ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:severity sh:Violation ;
+        sh:message "Entitlement gating must be active before publishing (tcps:entitlementGateActive = true)"
+    ] ;
+    sh:property [
+        sh:path tcps:healthCheckPassed ;
+        sh:datatype xsd:boolean ;
+        sh:severity sh:Violation ;
+        sh:message "Health check status must be boolean"
+    ] ;
+    sh:property [
+        sh:path tcps:pubsubVerified ;
+        sh:datatype xsd:boolean ;
+        sh:severity sh:Violation ;
+        sh:message "Pub/sub verification status must be boolean"
+    ] .
+
+# ============================================================================
+# 5. ANDON EVENTS VALIDATION
+# ============================================================================
+# Rule: Andon events must document failures with actionable root cause analysis
+
+tcps:AndonEventShape
+    a sh:NodeShape ;
+    sh:targetClass tcps:AndonEvent ;
+    sh:property [
+        sh:path tcps:failureReason ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:severity sh:Violation ;
+        sh:message "Andon event must have detailed failure reason (minimum 10 characters)"
+    ] ;
+    sh:property [
+        sh:path tcps:affectedSKU ;
+        sh:minCount 1 ;
+        sh:class tcps:SKU ;
+        sh:severity sh:Violation ;
+        sh:message "Andon event must reference at least one affected SKU"
+    ] ;
+    sh:property [
+        sh:path tcps:rootCauseAnalysis ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 20 ;
+        sh:severity sh:Violation ;
+        sh:message "Andon event must include root cause analysis (5 Whys, minimum 20 characters)"
+    ] ;
+    sh:property [
+        sh:path tcps:status ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "open" "investigating" "resolved" "closed" ) ;
+        sh:severity sh:Violation ;
+        sh:message "Andon event status must be: open, investigating, resolved, or closed"
+    ] ;
+    sh:property [
+        sh:path tcps:createdAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "Andon event must have creation timestamp"
+    ] ;
+    sh:property [
+        sh:path tcps:resolvedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "Andon event resolved timestamp must be valid ISO 8601 dateTime if present"
+    ] ;
+    sh:property [
+        sh:path tcps:preventiveAction ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Andon event preventive action description should be string"
+    ] ;
+    sh:property [
+        sh:path tcps:severity ;
+        sh:datatype xsd:string ;
+        sh:in ( "critical" "high" "medium" "low" ) ;
+        sh:severity sh:Violation ;
+        sh:message "Andon event severity must be: critical, high, medium, or low"
+    ] .
+
+# Rule: Resolved Andon events must have resolution timestamp and preventive actions
+tcps:AndonResolvedRequirementsShape
+    a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX tcps: <http://taiea.io/ontology/tcps#>
+            SELECT ?this
+            WHERE {
+                ?this a tcps:AndonEvent .
+                ?this tcps:status ?status .
+                FILTER(?status IN ("resolved", "closed"))
+            }
+        """
+    ] ;
+    sh:property [
+        sh:path tcps:resolvedAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "Resolved/closed Andon events must have resolution timestamp (tcps:resolvedAt)"
+    ] ;
+    sh:property [
+        sh:path tcps:preventiveAction ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:severity sh:Violation ;
+        sh:message "Resolved/closed Andon events must document preventive actions (minimum 10 characters)"
+    ] .
+
+# ============================================================================
+# CROSS-CUTTING CONSTRAINTS
+# ============================================================================
+
+# Rule: Timestamps must be chronologically consistent
+tcps:ReceiptTimestampOrderShape
+    a sh:NodeShape ;
+    sh:targetClass tcps:SKU ;
+    sh:sparql [
+        sh:select """
+            PREFIX tcps: <http://taiea.io/ontology/tcps#>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT $this
+            WHERE {
+                $this a tcps:SKU .
+                $this tcps:createdAt ?skuTime .
+                $this tcps:hasReceipt ?receipt .
+                ?receipt tcps:timestamp ?receiptTime .
+                FILTER(?receiptTime < ?skuTime)
+            }
+        """ ;
+        sh:severity sh:Violation ;
+        sh:message "Receipt timestamps cannot be earlier than SKU creation time"
+    ] .
+
+# Rule: WorkOrder completion requires all receipts to pass
+tcps:WorkOrderCompletionShape
+    a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX tcps: <http://taiea.io/ontology/tcps#>
+            SELECT ?this
+            WHERE {
+                ?this a tcps:WorkOrder .
+                ?this tcps:status "completed" .
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:select """
+            PREFIX tcps: <http://taiea.io/ontology/tcps#>
+            SELECT $this
+            WHERE {
+                $this a tcps:WorkOrder .
+                $this tcps:status "completed" .
+                ?sku tcps:workOrderId $this .
+                ?sku tcps:hasReceipt ?receipt .
+                ?receipt tcps:status "fail" .
+            }
+        """ ;
+        sh:severity sh:Violation ;
+        sh:message "WorkOrder cannot be marked 'completed' if any associated receipts have status 'fail'"
+    ] .
+
+# ============================================================================
+# END OF TCPS SHACL SHAPES
+# ============================================================================
+# Validation Authority: TCPS Definition of Done
+# Quality Standard: Zero defects (Lean Six Sigma - 99.99966% defect-free)
+# Action on Violation: Stop-the-line (Andon event), quarantine SKU, block publish
+# ============================================================================

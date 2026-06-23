@@ -1,0 +1,512 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gitv: <https://gitvan.dev/ontology/git#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+################################################################################
+# GitVan Ontology SHACL Shapes
+# Validates RDF data conformance to GitVan schemas
+# Supports modular composition and constraint reuse
+################################################################################
+
+# ============================================================================
+# Base Shape Definitions (Reusable Components)
+# ============================================================================
+
+# Standard required metadata shape
+gv:RequiredMetadataShape a sh:PropertyShape ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Resource must have exactly one rdfs:label (string)" ;
+    ] ;
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Resource may have at most one rdfs:comment (string)" ;
+    ] .
+
+# Standard versioning shape
+gv:VersioningShape a sh:PropertyShape ;
+    sh:property [
+        sh:path dct:version ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+$" ;
+        sh:message "Version must be semantic versioning (e.g., 1.0.0)" ;
+    ] ;
+    sh:property [
+        sh:path dct:created ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:message "Created date must be valid xsd:date" ;
+    ] ;
+    sh:property [
+        sh:path dct:modified ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:message "Modified date must be valid xsd:date" ;
+    ] .
+
+# ============================================================================
+# Ontology Shape
+# ============================================================================
+
+gv:OntologyShape a sh:NodeShape ;
+    sh:targetClass owl:Ontology ;
+    sh:name "Ontology Shape" ;
+    sh:description "Validates ontology resource definitions" ;
+    sh:closed false ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue owl:Ontology ;
+        sh:minCount 1 ;
+        sh:message "Ontology must be typed as owl:Ontology" ;
+    ] ;
+    sh:property [
+        sh:path dct:title ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Ontology must have exactly one dct:title" ;
+    ] ;
+    sh:property [
+        sh:path dct:version ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+$" ;
+        sh:message "Ontology version must use semantic versioning" ;
+    ] ;
+    sh:property [
+        sh:path owl:imports ;
+        sh:nodeKind sh:IRI ;
+        sh:message "owl:imports values must be IRIs" ;
+    ] .
+
+# ============================================================================
+# Hook Shape (Hook Definition Validation)
+# ============================================================================
+
+gv:HookShape a sh:NodeShape ;
+    sh:targetClass gh:Hook ;
+    sh:name "Hook Shape" ;
+    sh:description "Validates knowledge hook definitions" ;
+    sh:closed false ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue gh:Hook ;
+        sh:minCount 1 ;
+        sh:message "Hook must be typed as gh:Hook" ;
+    ] ;
+    sh:property [
+        sh:path gv:title ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Hook must have exactly one gv:title (string)" ;
+    ] ;
+    sh:property [
+        sh:path gv:description ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Hook description must be a string" ;
+    ] ;
+    sh:property [
+        sh:path gh:hasPredicate ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Hook must reference at least one predicate (IRI)" ;
+    ] ;
+    sh:property [
+        sh:path gh:orderedPipelines ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Hook must reference at least one pipeline (IRI)" ;
+    ] ;
+    sh:property [
+        sh:path dct:created ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Hook creation timestamp must be xsd:dateTime" ;
+    ] .
+
+# ============================================================================
+# Predicate Shape (Predicate Definition Validation)
+# ============================================================================
+
+gv:PredicateShape a sh:NodeShape ;
+    sh:targetClass gh:Predicate ;
+    sh:name "Predicate Shape" ;
+    sh:description "Validates SPARQL predicate definitions" ;
+    sh:closed false ;
+    sh:property [
+        sh:path gh:queryText ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Predicate must have exactly one SPARQL query (string)" ;
+    ] ;
+    sh:property [
+        sh:path gv:description ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Predicate description must be a string" ;
+    ] ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:in (gh:ASKPredicate gh:SELECTPredicate gh:CONSTRUCTPredicate) ;
+        sh:message "Predicate type must be ASK, SELECT, or CONSTRUCT" ;
+    ] .
+
+# ============================================================================
+# Pipeline Shape (Pipeline Definition Validation)
+# ============================================================================
+
+gv:PipelineShape a sh:NodeShape ;
+    sh:targetClass op:Pipeline ;
+    sh:name "Pipeline Shape" ;
+    sh:description "Validates workflow pipeline definitions" ;
+    sh:closed false ;
+    sh:property [
+        sh:path gv:title ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Pipeline title must be a string" ;
+    ] ;
+    sh:property [
+        sh:path op:steps ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Pipeline must reference at least one step (IRI)" ;
+    ] ;
+    sh:property [
+        sh:path gv:description ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Pipeline description must be a string" ;
+    ] ;
+    sh:property [
+        sh:path dct:isPartOf ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Pipeline can be part of one parent workflow" ;
+    ] .
+
+# ============================================================================
+# Step Shape (Pipeline Step Validation)
+# ============================================================================
+
+gv:StepShape a sh:NodeShape ;
+    sh:targetClass op:Step ;
+    sh:name "Step Shape" ;
+    sh:description "Validates pipeline step definitions" ;
+    sh:closed false ;
+    sh:property [
+        sh:path gv:title ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Step must have exactly one title (string)" ;
+    ] ;
+    sh:property [
+        sh:path op:action ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Step action must be a string" ;
+    ] ;
+    sh:property [
+        sh:path op:order ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "Step order must be an integer" ;
+    ] ;
+    sh:property [
+        sh:path op:dependsOn ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Dependencies must be IRIs" ;
+    ] ;
+    sh:property [
+        sh:path gv:description ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Step description must be a string" ;
+    ] .
+
+# ============================================================================
+# Git Event Shape (Event Data Validation)
+# ============================================================================
+
+gv:GitEventShape a sh:NodeShape ;
+    sh:targetClass gitv:GitEvent ;
+    sh:name "Git Event Shape" ;
+    sh:description "Validates git lifecycle event records" ;
+    sh:closed false ;
+    sh:property [
+        sh:path gitv:eventType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("pre-commit" "post-commit" "pre-push" "post-push"
+               "post-checkout" "post-merge" "post-rewrite" "post-update"
+               "prepare-commit-msg" "commit-msg") ;
+        sh:message "Event type must be a valid git lifecycle event" ;
+    ] ;
+    sh:property [
+        sh:path prov:atTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Event must have exactly one timestamp (xsd:dateTime)" ;
+    ] ;
+    sh:property [
+        sh:path gitv:exitCode ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "Exit code must be an integer" ;
+    ] ;
+    sh:property [
+        sh:path gitv:duration ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:message "Duration must be a decimal number" ;
+    ] ;
+    sh:property [
+        sh:path gitv:executedBy ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Executed by must reference an agent (IRI)" ;
+    ] ;
+    sh:property [
+        sh:path gitv:retentionPolicy ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("detail" "aggregate") ;
+        sh:message "Retention policy must be 'detail' or 'aggregate'" ;
+    ] .
+
+# ============================================================================
+# Commit Event Shape (Specific Event Type)
+# ============================================================================
+
+gv:CommitEventShape a sh:NodeShape ;
+    sh:targetClass gitv:PostCommitEvent ;
+    sh:name "Commit Event Shape" ;
+    sh:description "Validates commit event records" ;
+    sh:closed false ;
+    sh:property [
+        sh:path gitv:commitHash ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-f0-9]{7,40}$" ;
+        sh:message "Commit hash must be a valid git SHA (7-40 hex chars)" ;
+    ] ;
+    sh:property [
+        sh:path gitv:commitMessage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Commit must have a message" ;
+    ] ;
+    sh:property [
+        sh:path gitv:author ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Author must be an IRI reference" ;
+    ] .
+
+# ============================================================================
+# Push Event Shape (Specific Event Type)
+# ============================================================================
+
+gv:PushEventShape a sh:NodeShape ;
+    sh:targetClass gitv:PostPushEvent ;
+    sh:name "Push Event Shape" ;
+    sh:description "Validates push event records" ;
+    sh:closed false ;
+    sh:property [
+        sh:path gitv:remoteName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Push event must have remote name" ;
+    ] ;
+    sh:property [
+        sh:path gitv:pushedRefs ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Push event must have pushed refs (JSON array)" ;
+    ] .
+
+# ============================================================================
+# User/Agent Shape (Agent Definition Validation)
+# ============================================================================
+
+gv:UserShape a sh:NodeShape ;
+    sh:targetClass gitv:GitUser ;
+    sh:name "User Shape" ;
+    sh:description "Validates git user/agent definitions" ;
+    sh:closed false ;
+    sh:property [
+        sh:path prov:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "User must have a label (email or name)" ;
+    ] ;
+    sh:property [
+        sh:path prov:name ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "User name must be a string" ;
+    ] ;
+    sh:property [
+        sh:path prov:email ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "User email must be a string" ;
+    ] .
+
+# ============================================================================
+# Branch Reference Shape
+# ============================================================================
+
+gv:BranchShape a sh:NodeShape ;
+    sh:targetClass gitv:Branch ;
+    sh:name "Branch Shape" ;
+    sh:description "Validates git branch references" ;
+    sh:closed false ;
+    sh:property [
+        sh:path gitv:branchName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Branch must have exactly one name" ;
+    ] ;
+    sh:property [
+        sh:path gitv:refName ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Branch reference must be a string" ;
+    ] .
+
+# ============================================================================
+# Job Queue Shape
+# ============================================================================
+
+gv:JobShape a sh:NodeShape ;
+    sh:targetClass queue:Job ;
+    sh:name "Job Shape" ;
+    sh:description "Validates job queue entries" ;
+    sh:closed false ;
+    sh:property [
+        sh:path gv:title ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Job must have a title" ;
+    ] ;
+    sh:property [
+        sh:path queue:status ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("pending" "running" "completed" "failed" "cancelled") ;
+        sh:message "Job status must be one of: pending, running, completed, failed, cancelled" ;
+    ] ;
+    sh:property [
+        sh:path queue:priority ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "Job priority must be an integer" ;
+    ] ;
+    sh:property [
+        sh:path queue:retries ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "Job retries must be an integer" ;
+    ] .
+
+# ============================================================================
+# Performance Measurement Shape
+# ============================================================================
+
+gv:MeasurementShape a sh:NodeShape ;
+    sh:targetClass perf:Measurement ;
+    sh:name "Measurement Shape" ;
+    sh:description "Validates performance metrics" ;
+    sh:closed false ;
+    sh:property [
+        sh:path gv:title ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Measurement must have a title" ;
+    ] ;
+    sh:property [
+        sh:path perf:value ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:message "Measurement must have a numeric value" ;
+    ] ;
+    sh:property [
+        sh:path perf:unit ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Measurement unit must be a string (e.g., 'ms', 'MB')" ;
+    ] ;
+    sh:property [
+        sh:path prov:atTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Measurement must be timestamped" ;
+    ] .
+
+# ============================================================================
+# Composite Shape Groups (for modularity)
+# ============================================================================
+
+gv:WorkflowShapeGroup a sh:ShapeGroup ;
+    sh:name "Workflow Validation Shapes" ;
+    sh:description "Composite group for hook and pipeline validation" ;
+    sh:shapesGraph gv:HookShape ;
+    sh:shapesGraph gv:PredicateShape ;
+    sh:shapesGraph gv:PipelineShape ;
+    sh:shapesGraph gv:StepShape .
+
+gv:EventShapeGroup a sh:ShapeGroup ;
+    sh:name "Event Validation Shapes" ;
+    sh:description "Composite group for git event validation" ;
+    sh:shapesGraph gv:GitEventShape ;
+    sh:shapesGraph gv:CommitEventShape ;
+    sh:shapesGraph gv:PushEventShape .
+
+gv:SystemShapeGroup a sh:ShapeGroup ;
+    sh:name "System Resource Shapes" ;
+    sh:description "Composite group for system resources" ;
+    sh:shapesGraph gv:JobShape ;
+    sh:shapesGraph gv:MeasurementShape ;
+    sh:shapesGraph gv:UserShape ;
+    sh:shapesGraph gv:BranchShape .
+
+gv:CoreShapeGroup a sh:ShapeGroup ;
+    sh:name "Core Shape Group" ;
+    sh:description "Composite group for all core shapes" ;
+    sh:shapesGraph gv:OntologyShape ;
+    sh:shapesGraph gv:WorkflowShapeGroup ;
+    sh:shapesGraph gv:EventShapeGroup ;
+    sh:shapesGraph gv:SystemShapeGroup .

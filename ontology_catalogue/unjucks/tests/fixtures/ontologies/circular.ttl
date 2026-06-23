@@ -1,0 +1,57 @@
+@prefix : <http://example.org/circular/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Ontology with circular dependencies for testing import resolution
+
+:Person a rdfs:Class ;
+  rdfs:label "Person" ;
+  rdfs:comment "A person who works for an organization" .
+
+:Organization a rdfs:Class ;
+  rdfs:label "Organization" ;
+  rdfs:comment "An organization that employs people" .
+
+# Circular relationship: Person -> Organization
+:worksFor a rdf:Property ;
+  rdfs:label "worksFor" ;
+  rdfs:domain :Person ;
+  rdfs:range :Organization ;
+  rdfs:comment "Person works for organization" .
+
+# Circular relationship: Organization -> Person
+:employs a rdf:Property ;
+  rdfs:label "employs" ;
+  rdfs:domain :Organization ;
+  rdfs:range :Person ;
+  rdfs:comment "Organization employs person" .
+
+# Manager relationship (Person -> Person)
+:reportsTo a rdf:Property ;
+  rdfs:label "reportsTo" ;
+  rdfs:domain :Person ;
+  rdfs:range :Person ;
+  rdfs:comment "Person reports to another person" .
+
+# Additional circular: Organization -> Organization
+:parentCompany a rdf:Property ;
+  rdfs:label "parentCompany" ;
+  rdfs:domain :Organization ;
+  rdfs:range :Organization ;
+  rdfs:comment "Parent company relationship" .
+
+# Properties
+:name a rdf:Property ;
+  rdfs:domain :Person ;
+  rdfs:range xsd:string .
+
+:organizationName a rdf:Property ;
+  rdfs:domain :Organization ;
+  rdfs:range xsd:string .
+
+:position a rdf:Property ;
+  rdfs:label "position" ;
+  rdfs:domain :Person ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Job position/title" .

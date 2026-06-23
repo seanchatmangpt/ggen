@@ -1,0 +1,88 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix yawl-exec: <http://bitflow.ai/ontology/yawl/execution/v1#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://example.org/workflow/invalid-types#> .
+
+# =============================================================================
+# INVALID WORKFLOW - VIOLATES Q2 (TYPE SOUNDNESS)
+# =============================================================================
+#
+# This workflow INTENTIONALLY violates Q2:
+# ❌ Variable type mismatch between tasks
+# ❌ Invalid split-join combination not in permutation matrix
+#
+# Expected SHACL violations:
+# - Q2-VIOLATION: Invalid split-join combination
+# - WS-D4: Variable type inconsistency
+#
+# =============================================================================
+
+:InvalidTypesWorkflow a yawl:WorkflowSpecification ;
+    yawl:id "invalid-types-001" ;
+    yawl:versionNumber "1.0.0" ;
+    rdfs:label "Invalid: Type Mismatch" ;
+    yawl:hasInputCondition :start ;
+    yawl:hasOutputCondition :end ;
+    yawl:hasTask :producer, :consumer ;
+    yawl:hasCondition :start, :end .
+
+:start a yawl:Condition ;
+    yawl:flowsInto :flow1 .
+
+:end a yawl:Condition .
+
+# Producer task outputs integer
+:producer a yawl:Task ;
+    rdfs:label "Produces Integer" ;
+    yawl-exec:executionMode yawl-exec:Synchronous ;
+    yawl-exec:runtimeBehavior <http://example.org/services/producer> ;
+    yawl:expectedDuration "PT0.01S"^^xsd:duration ;
+
+    # ❌ VIOLATION: Invalid AND-Discriminator combination
+    # AND split should not have Discriminator join
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:Discriminator ;
+
+    yawl:flowsInto :flow2 ;
+    yawl:outputVariable :numberOutput .
+
+# Consumer task expects string (TYPE MISMATCH)
+:consumer a yawl:Task ;
+    rdfs:label "Expects String" ;
+    yawl-exec:executionMode yawl-exec:Synchronous ;
+    yawl-exec:runtimeBehavior <http://example.org/services/consumer> ;
+    yawl:expectedDuration "PT0.01S"^^xsd:duration ;
+
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:flowsInto :flow3 ;
+    yawl:inputVariable :textInput .
+
+# Data variables with mismatched types
+:numberOutput a yawl:DataOutput ;
+    yawl:name "data" ;
+    yawl:dataType xsd:integer ;  # ❌ Outputs integer
+    yawl:mandatory true .
+
+:textInput a yawl:DataInput ;
+    yawl:name "data" ;
+    yawl:dataType xsd:string ;  # ❌ Expects string (TYPE MISMATCH)
+    yawl:mandatory true .
+
+:flow1 a yawl:Flow ; yawl:nextElementRef :producer .
+:flow2 a yawl:Flow ; yawl:nextElementRef :consumer .
+:flow3 a yawl:Flow ; yawl:nextElementRef :end .
+
+# =============================================================================
+# EXPECTED VALIDATION RESULTS
+# =============================================================================
+#
+# ❌ Q2-VIOLATION: Invalid AND-Discriminator combination (not in matrix)
+# ❌ WS-D4: Variable type mismatch (integer → string)
+#
+# Expected: FAILURE (exit code 1) with violations
+#
+# This demonstrates Q2: Type Soundness enforcement.
+# All observations must satisfy the ontology (O ⊨ Σ).
+#
+# =============================================================================

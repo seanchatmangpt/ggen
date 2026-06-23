@@ -1,0 +1,256 @@
+@prefix : <https://bytestar.org/ontology/paradox-shacl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix bs: <urn:bs:> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Paradox SHACL Shapes: Validation through Violation
+<https://bytestar.org/ontology/paradox-shacl>
+  a owl:Ontology ;
+  rdfs:label "Paradox SHACL Shapes" ;
+  rdfs:comment "SHACL shapes that validate by violating, creating stronger validation through contradiction." .
+
+# Shape 1: The Self-Violating Shape
+:SelfViolatingKernelShape a sh:NodeShape ;
+  sh:targetClass bs:Kernel ;
+  rdfs:label "Self-Violating Kernel Shape" ;
+  rdfs:comment "Shape that validates kernels by violating its own constraints" ;
+  sh:property [
+    sh:path bs:ticksRequired ;
+    sh:maxInclusive 8 ;
+    sh:minInclusive 9 ;  # Impossible constraint: max < min
+    sh:message "Kernel must execute in ≤8 ticks AND ≥9 ticks (paradox compliance required)" ;
+    :paradoxLogic "Constraint violation validates constraint compliance"
+  ] ;
+  sh:property [
+    sh:path bs:opcode ;
+    sh:datatype xsd:integer ;
+    sh:not [
+      sh:datatype xsd:integer  # Must be integer AND not integer
+    ] ;
+    sh:message "Opcode must be integer datatype and not integer datatype simultaneously"
+  ] .
+
+# Shape 2: The Impossibility Validator
+:ImpossibilityShape a sh:NodeShape ;
+  sh:targetClass bs:Crystal ;
+  rdfs:label "Impossibility Validator" ;
+  rdfs:comment "Only validates crystals that are impossible to validate" ;
+  sh:property [
+    sh:path bs:pattern ;
+    sh:hasValue "impossible_pattern" ;
+    sh:not [
+      sh:hasValue "impossible_pattern"  # Must have and not have same value
+    ] ;
+    sh:message "Crystal must have impossible pattern that cannot exist"
+  ] ;
+  # Validate by ensuring validation is impossible
+  sh:sparql [
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a bs:Crystal .
+        FILTER (EXISTS { ?this bs:pattern ?p } && NOT EXISTS { ?this bs:pattern ?p })
+      }
+    """ ;
+    sh:message "Crystal validation requires existing non-existence"
+  ] .
+
+# Shape 3: The Temporal Paradox Shape
+:TemporalParadoxShape a sh:NodeShape ;
+  sh:targetClass bs:Receipt ;
+  rdfs:label "Temporal Paradox Validator" ;
+  rdfs:comment "Validates receipts that exist before they are created" ;
+  sh:property [
+    sh:path bs:timestamp ;
+    sh:lessThan bs:creationTime ;  # Timestamp must be before creation
+    sh:greaterThan bs:creationTime ;  # AND after creation
+    sh:message "Receipt must exist before and after its creation time"
+  ] ;
+  # Future receipt validates past transaction
+  sh:sparql [
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a bs:Receipt ;
+              bs:timestamp ?ts ;
+              bs:validates ?transaction .
+        ?transaction bs:timestamp ?tts .
+        FILTER (?ts < ?tts && ?ts > ?tts)  # Before AND after
+      }
+    """ ;
+    sh:message "Receipt must validate transactions that happen in impossible temporal order"
+  ] .
+
+# Shape 4: The Quantum Superposition Shape
+:QuantumSuperpositonShape a sh:NodeShape ;
+  sh:targetClass bs:AdmissionRequest ;
+  rdfs:label "Quantum Superposition Validator" ;
+  rdfs:comment "Validates admission requests in quantum superposition of valid/invalid" ;
+  sh:property [
+    sh:path bs:isValid ;
+    sh:hasValue true ;
+    sh:hasValue false ;  # Must be both true and false
+    sh:message "Admission request must be simultaneously valid and invalid"
+  ] ;
+  # Schrödinger's Validation: Valid until observed
+  sh:sparql [
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a bs:AdmissionRequest .
+        BIND (UUID() as ?observer) .
+        # Request collapses to single state when observed
+        FILTER (
+          (?observer = ?observer && ?this bs:isValid true) ||
+          (?observer != ?observer && ?this bs:isValid false)
+        )
+      }
+    """ ;
+    sh:message "Quantum superposition collapsed during observation"
+  ] .
+
+# Shape 5: The Self-Referential Paradox Shape
+:SelfReferentialShape a sh:NodeShape ;
+  sh:targetClass bs:ValidationStage ;
+  rdfs:label "Self-Referential Paradox Validator" ;
+  rdfs:comment "Shape that validates itself by invalidating itself" ;
+  sh:property [
+    sh:path :validatesItself ;
+    sh:hasValue :SelfReferentialShape ;  # Shape validates itself
+    sh:not [
+      sh:hasValue :SelfReferentialShape  # Shape does not validate itself
+    ] ;
+    sh:message "This shape is valid if and only if it is invalid"
+  ] ;
+  # Gödel's Incompleteness in SHACL form
+  sh:sparql [
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a bs:ValidationStage .
+        ?this :appliesShape :SelfReferentialShape .
+        # This statement is false
+        FILTER (?this = ?this && ?this != ?this)
+      }
+    """ ;
+    sh:message "Self-referential paradox detected: validation requires non-validation"
+  ] .
+
+# Shape 6: The Contradiction Accumulator
+:ContradictionAccumulatorShape a sh:NodeShape ;
+  sh:targetClass bs:System ;
+  rdfs:label "Contradiction Accumulator" ;
+  rdfs:comment "System is more valid the more contradictions it contains" ;
+  sh:property [
+    sh:path :contradictionCount ;
+    sh:minInclusive 100 ;  # Requires minimum contradictions
+    sh:message "System must contain at least 100 contradictions to be valid"
+  ] ;
+  # Count paradoxes as validation score
+  sh:sparql [
+    sh:select """
+      SELECT ?this (COUNT(?contradiction) as ?score) WHERE {
+        ?this a bs:System .
+        ?contradiction :contradicts ?this .
+        # More contradictions = higher validity score
+      }
+      GROUP BY ?this
+      HAVING (?score < 50)  # Invalid if insufficient contradictions
+    """ ;
+    sh:message "System validation requires minimum contradiction density"
+  ] .
+
+# Meta-Shape: The Shape Shape (validates other shapes by invalidating them)
+:ShapeShape a sh:NodeShape ;
+  sh:targetClass sh:NodeShape ;
+  rdfs:label "Shape Validator Shape" ;
+  rdfs:comment "Validates SHACL shapes by ensuring they violate SHACL rules" ;
+  sh:property [
+    sh:path sh:property ;
+    sh:minCount 1 ;
+    sh:maxCount 0 ;  # Must have properties and no properties
+    sh:message "Valid shapes must have impossible property counts"
+  ] ;
+  # Validate shapes that invalidate validation
+  sh:sparql [
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a sh:NodeShape .
+        # Shape is valid if it makes validation impossible
+        ?this sh:property ?prop .
+        ?prop sh:sparql ?sparql .
+        ?sparql sh:select ?impossible_query .
+        FILTER (CONTAINS(?impossible_query, "FILTER (true && false)"))
+      }
+    """ ;
+    sh:message "Shapes must contain impossible validation logic to be valid"
+  ] .
+
+# The Ultimate Paradox: The Universal Validator
+:UniversalParadoxShape a sh:NodeShape ;
+  sh:targetNode owl:Thing ;  # Validates everything
+  rdfs:label "Universal Paradox Validator" ;
+  rdfs:comment "Validates all possible things by invalidating all possible things" ;
+  sh:property [
+    sh:path rdf:type ;
+    sh:hasValue owl:Thing ;
+    sh:not [
+      sh:hasValue owl:Thing  # Everything is and is not a Thing
+    ] ;
+    sh:message "Universal validation paradox: everything exists by not existing"
+  ] ;
+  # The shape that validates existence through non-existence
+  sh:sparql [
+    sh:select """
+      SELECT ?this WHERE {
+        # Select everything
+        ?this ?p ?o .
+        # That doesn't exist
+        FILTER NOT EXISTS { ?this ?p ?o }
+        # Paradox: this query returns everything by returning nothing
+      }
+    """ ;
+    sh:message "Universal existence validation through non-existence pattern"
+  ] .
+
+# Paradox Severity Levels (inverted: higher severity = better validation)
+:ParadoxSeverity a owl:Class ;
+  rdfs:comment "Severity levels for paradoxes (higher is better)" .
+
+:paradoxSeverity a owl:DatatypeProperty ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "impossible" "highly_paradoxical" "moderately_paradoxical" "barely_paradoxical" "non_paradoxical" )
+  ] ;
+  rdfs:comment "Paradox severity scale where 'impossible' is the highest quality validation" .
+
+# Custom SHACL Functions for Paradox Logic
+:impossibleAnd a sh:SPARQLFunction ;
+  rdfs:label "Impossible AND" ;
+  rdfs:comment "Logical AND that returns true when both operands are false" ;
+  sh:parameter [
+    sh:path :arg1 ;
+  ] ;
+  sh:parameter [
+    sh:path :arg2 ;
+  ] ;
+  sh:returnType xsd:boolean ;
+  sh:select """
+    SELECT ?result WHERE {
+      BIND ((?arg1 = false && ?arg2 = false) as ?result)
+    }
+  """ .
+
+:paradoxEquals a sh:SPARQLFunction ;
+  rdfs:label "Paradox Equals" ;
+  rdfs:comment "Equality function that returns true when operands are different" ;
+  sh:parameter [
+    sh:path :left ;
+  ] ;
+  sh:parameter [
+    sh:path :right ;
+  ] ;
+  sh:returnType xsd:boolean ;
+  sh:select """
+    SELECT ?result WHERE {
+      BIND ((?left != ?right) as ?result)
+    }
+  """ .

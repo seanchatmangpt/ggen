@@ -1,0 +1,170 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================
+# Sample Turtle Data - 80/20 Pattern Examples
+# ============================================
+# This file demonstrates the four most common
+# RDF patterns that cover ~80% of use cases
+# ============================================
+
+# 1. TYPE DECLARATIONS (30% of typical RDF)
+# ==========================================
+
+# People
+<http://example.org/alice> rdf:type foaf:Person .
+<http://example.org/bob> rdf:type foaf:Person .
+<http://example.org/charlie> rdf:type foaf:Person .
+
+# Organizations
+<http://example.org/acme> rdf:type foaf:Organization .
+<http://example.org/techcorp> rdf:type foaf:Organization .
+
+# Documents
+<http://example.org/doc1> rdf:type foaf:Document .
+<http://example.org/doc2> rdf:type foaf:Document .
+
+# Custom types
+<http://example.org/rex> rdf:type ex:Dog .
+<http://example.org/fluffy> rdf:type ex:Cat .
+<http://example.org/tesla> rdf:type ex:ElectricCar .
+
+# 2. LABEL ANNOTATIONS (20% of typical RDF)
+# =========================================
+
+# Person labels
+<http://example.org/alice> rdfs:label "Alice Smith"@en .
+<http://example.org/alice> rdfs:label "アリス・スミス"@ja .
+<http://example.org/bob> rdfs:label "Bob Jones"@en .
+<http://example.org/charlie> rdfs:label "Charlie Brown"@en .
+
+# Organization labels
+<http://example.org/acme> rdfs:label "ACME Corporation"@en .
+<http://example.org/techcorp> rdfs:label "TechCorp Industries"@en .
+
+# Pet labels
+<http://example.org/rex> rdfs:label "Rex the Dog"@en .
+<http://example.org/fluffy> rdfs:label "Fluffy"@en .
+
+# Document labels
+<http://example.org/doc1> rdfs:label "Quarterly Report Q1 2024"@en .
+<http://example.org/doc2> rdfs:label "Technical Specification v2.0"@en .
+
+# 3. PROPERTY ASSERTIONS (20% of typical RDF)
+# ==========================================
+
+# Social relationships
+<http://example.org/alice> foaf:knows <http://example.org/bob> .
+<http://example.org/alice> foaf:knows <http://example.org/charlie> .
+<http://example.org/bob> foaf:knows <http://example.org/charlie> .
+
+# Employment relationships
+<http://example.org/alice> ex:worksFor <http://example.org/acme> .
+<http://example.org/bob> ex:worksFor <http://example.org/techcorp> .
+<http://example.org/charlie> ex:worksFor <http://example.org/acme> .
+
+# Ownership relationships
+<http://example.org/alice> ex:owns <http://example.org/rex> .
+<http://example.org/bob> ex:owns <http://example.org/fluffy> .
+<http://example.org/charlie> ex:owns <http://example.org/tesla> .
+
+# Document authorship
+<http://example.org/alice> foaf:made <http://example.org/doc1> .
+<http://example.org/bob> foaf:made <http://example.org/doc2> .
+
+# Numeric properties
+<http://example.org/alice> foaf:age "28"^^xsd:integer .
+<http://example.org/bob> foaf:age "42"^^xsd:integer .
+<http://example.org/charlie> foaf:age "35"^^xsd:integer .
+
+# String properties
+<http://example.org/alice> foaf:mbox "alice@example.org" .
+<http://example.org/bob> foaf:mbox "bob@example.org" .
+
+# Date properties
+<http://example.org/doc1> ex:createdDate "2024-01-15"^^xsd:date .
+<http://example.org/doc2> ex:createdDate "2024-02-20"^^xsd:date .
+
+# 4. CLASS HIERARCHY (10% of typical RDF)
+# =======================================
+
+# Animal taxonomy
+ex:Dog rdfs:subClassOf ex:Mammal .
+ex:Cat rdfs:subClassOf ex:Mammal .
+ex:Mammal rdfs:subClassOf ex:Animal .
+ex:Animal rdfs:subClassOf ex:LivingThing .
+
+# Vehicle taxonomy
+ex:ElectricCar rdfs:subClassOf ex:Car .
+ex:Car rdfs:subClassOf ex:Vehicle .
+ex:Vehicle rdfs:subClassOf ex:TransportationDevice .
+
+# Document taxonomy
+ex:TechnicalDocument rdfs:subClassOf foaf:Document .
+ex:Report rdfs:subClassOf foaf:Document .
+ex:Specification rdfs:subClassOf ex:TechnicalDocument .
+
+# ============================================
+# ADDITIONAL PATTERNS (remaining 20%)
+# ============================================
+
+# Blank nodes (anonymous resources)
+_:blank1 rdf:type ex:Address ;
+         ex:street "123 Main St" ;
+         ex:city "Springfield" ;
+         ex:postalCode "12345" .
+
+<http://example.org/alice> ex:hasAddress _:blank1 .
+
+# Collections
+<http://example.org/alice> ex:favoriteColors ( "blue" "green" "purple" ) .
+
+# Reification (statements about statements)
+_:statement1 rdf:type rdf:Statement ;
+             rdf:subject <http://example.org/alice> ;
+             rdf:predicate foaf:knows ;
+             rdf:object <http://example.org/bob> ;
+             ex:certainty "0.95"^^xsd:decimal .
+
+# Language variants
+<http://example.org/acme> ex:description "A leading provider of innovative solutions"@en ;
+                          ex:description "Un proveedor líder de soluciones innovadoras"@es ;
+                          ex:description "Un fournisseur leader de solutions innovantes"@fr .
+
+# Complex datatypes
+<http://example.org/alice> ex:location "POINT(-122.419 37.775)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+
+# ============================================
+# SHACL VALIDATION SHAPES (for testing)
+# ============================================
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+ex:PersonShape a sh:NodeShape ;
+    sh:targetClass foaf:Person ;
+    sh:property [
+        sh:path foaf:age ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 150 ;
+    ] ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype rdf:langString ;
+    ] .
+
+# ============================================
+# END OF SAMPLE DATA
+# ============================================
+# Statistics:
+# - Total triples: ~80
+# - Type declarations: ~11 (≈30%)
+# - Labels: ~10 (≈20%)
+# - Properties: ~20 (≈25%)
+# - Hierarchy: ~9 (≈11%)
+# - Other patterns: ~30 (≈14%)
+# ============================================

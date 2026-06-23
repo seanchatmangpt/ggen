@@ -1,0 +1,232 @@
+@prefix dspy: <http://dspy.ai/ontology#> .
+@prefix ex: <http://example.org/dspy#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# ============================================================================
+# DSPy Ontology Definition
+# ============================================================================
+
+# Core Classes
+dspy:Signature a owl:Class ;
+    rdfs:label "DSPy Signature" ;
+    rdfs:comment "A natural-language typed function declaration for LM tasks" .
+
+dspy:Field a owl:Class ;
+    rdfs:label "Signature Field" ;
+    rdfs:comment "A field within a DSPy signature" .
+
+dspy:InputField rdfs:subClassOf dspy:Field ;
+    rdfs:label "Input Field" ;
+    rdfs:comment "An input parameter to the language model" .
+
+dspy:OutputField rdfs:subClassOf dspy:Field ;
+    rdfs:label "Output Field" ;
+    rdfs:comment "An expected output from the language model" .
+
+dspy:Module a owl:Class ;
+    rdfs:label "DSPy Module" ;
+    rdfs:comment "A component that uses signatures for LM operations" .
+
+# Properties
+dspy:hasInputField a owl:ObjectProperty ;
+    rdfs:domain dspy:Signature ;
+    rdfs:range dspy:InputField ;
+    rdfs:label "has input field" .
+
+dspy:hasOutputField a owl:ObjectProperty ;
+    rdfs:domain dspy:Signature ;
+    rdfs:range dspy:OutputField ;
+    rdfs:label "has output field" .
+
+dspy:hasFieldName a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain dspy:Field ;
+    rdfs:range xsd:string ;
+    rdfs:label "has field name" .
+
+dspy:hasFieldType a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain dspy:Field ;
+    rdfs:range xsd:string ;
+    rdfs:label "has field type" .
+
+dspy:hasDescription a owl:DatatypeProperty ;
+    rdfs:domain dspy:Field ;
+    rdfs:range xsd:string ;
+    rdfs:label "has description" .
+
+dspy:hasInstruction a owl:DatatypeProperty ;
+    rdfs:domain dspy:Signature ;
+    rdfs:range xsd:string ;
+    rdfs:label "has instruction" .
+
+# ============================================================================
+# Example DSPy Signatures
+# ============================================================================
+
+# 1. Question-Answering Signature
+ex:QASignature a dspy:Signature ;
+    rdfs:label "Question Answering Signature" ;
+    dspy:hasInstruction "Answer questions based on provided context." ;
+    dspy:hasInputField ex:qa_context, ex:qa_question ;
+    dspy:hasOutputField ex:qa_answer .
+
+ex:qa_context a dspy:InputField ;
+    dspy:hasFieldName "context" ;
+    dspy:hasFieldType "str" ;
+    dspy:hasDescription "Background context for answering the question" .
+
+ex:qa_question a dspy:InputField ;
+    dspy:hasFieldName "question" ;
+    dspy:hasFieldType "str" ;
+    dspy:hasDescription "The question to be answered" .
+
+ex:qa_answer a dspy:OutputField ;
+    dspy:hasFieldName "answer" ;
+    dspy:hasFieldType "str" ;
+    dspy:hasDescription "The generated answer based on context" .
+
+# 2. Chain-of-Thought Signature
+ex:ChainOfThoughtSignature a dspy:Signature ;
+    rdfs:label "Chain of Thought Signature" ;
+    dspy:hasInstruction "Generate answer with step-by-step reasoning." ;
+    dspy:hasInputField ex:cot_question ;
+    dspy:hasOutputField ex:cot_reasoning, ex:cot_answer .
+
+ex:cot_question a dspy:InputField ;
+    dspy:hasFieldName "question" ;
+    dspy:hasFieldType "str" ;
+    dspy:hasDescription "Complex question requiring reasoning" .
+
+ex:cot_reasoning a dspy:OutputField ;
+    dspy:hasFieldName "reasoning" ;
+    dspy:hasFieldType "str" ;
+    dspy:hasDescription "Step-by-step reasoning process" .
+
+ex:cot_answer a dspy:OutputField ;
+    dspy:hasFieldName "answer" ;
+    dspy:hasFieldType "str" ;
+    dspy:hasDescription "Final answer after reasoning" .
+
+# 3. Retrieval-Augmented Generation (RAG) Signature
+ex:RAGSignature a dspy:Signature ;
+    rdfs:label "RAG Signature" ;
+    dspy:hasInstruction "Retrieve relevant passages and generate comprehensive answer." ;
+    dspy:hasInputField ex:rag_query, ex:rag_passages ;
+    dspy:hasOutputField ex:rag_answer, ex:rag_citations .
+
+ex:rag_query a dspy:InputField ;
+    dspy:hasFieldName "query" ;
+    dspy:hasFieldType "str" ;
+    dspy:hasDescription "User query for retrieval" .
+
+ex:rag_passages a dspy:InputField ;
+    dspy:hasFieldName "passages" ;
+    dspy:hasFieldType "list" ;
+    dspy:hasDescription "Retrieved relevant passages" .
+
+ex:rag_answer a dspy:OutputField ;
+    dspy:hasFieldName "answer" ;
+    dspy:hasFieldType "str" ;
+    dspy:hasDescription "Generated answer using retrieved passages" .
+
+ex:rag_citations a dspy:OutputField ;
+    dspy:hasFieldName "citations" ;
+    dspy:hasFieldType "list" ;
+    dspy:hasDescription "Source citations for the answer" .
+
+# 4. Code Generation Signature
+ex:CodeGenSignature a dspy:Signature ;
+    rdfs:label "Code Generation Signature" ;
+    dspy:hasInstruction "Generate code based on natural language description." ;
+    dspy:hasInputField ex:code_description, ex:code_language ;
+    dspy:hasOutputField ex:generated_code, ex:code_explanation .
+
+ex:code_description a dspy:InputField ;
+    dspy:hasFieldName "description" ;
+    dspy:hasFieldType "str" ;
+    dspy:hasDescription "Natural language description of desired code" .
+
+ex:code_language a dspy:InputField ;
+    dspy:hasFieldName "language" ;
+    dspy:hasFieldType "str" ;
+    dspy:hasDescription "Target programming language" .
+
+ex:generated_code a dspy:OutputField ;
+    dspy:hasFieldName "code" ;
+    dspy:hasFieldType "str" ;
+    dspy:hasDescription "Generated code implementation" .
+
+ex:code_explanation a dspy:OutputField ;
+    dspy:hasFieldName "explanation" ;
+    dspy:hasFieldType "str" ;
+    dspy:hasDescription "Explanation of the generated code" .
+
+# 5. Summarization Signature
+ex:SummarizationSignature a dspy:Signature ;
+    rdfs:label "Summarization Signature" ;
+    dspy:hasInstruction "Generate concise summary of the provided text." ;
+    dspy:hasInputField ex:sum_text, ex:sum_max_length ;
+    dspy:hasOutputField ex:sum_summary .
+
+ex:sum_text a dspy:InputField ;
+    dspy:hasFieldName "text" ;
+    dspy:hasFieldType "str" ;
+    dspy:hasDescription "Text to summarize" .
+
+ex:sum_max_length a dspy:InputField ;
+    dspy:hasFieldName "max_length" ;
+    dspy:hasFieldType "int" ;
+    dspy:hasDescription "Maximum length of summary in words" .
+
+ex:sum_summary a dspy:OutputField ;
+    dspy:hasFieldName "summary" ;
+    dspy:hasFieldType "str" ;
+    dspy:hasDescription "Generated summary" .
+
+# ============================================================================
+# Module Examples
+# ============================================================================
+
+ex:QAModule a dspy:Module ;
+    rdfs:label "Question Answering Module" ;
+    dspy:hasSignature ex:QASignature ;
+    rdfs:comment "Module for answering questions using context" .
+
+ex:ReasoningModule a dspy:Module ;
+    rdfs:label "Reasoning Module" ;
+    dspy:hasSignature ex:ChainOfThoughtSignature ;
+    rdfs:comment "Module for complex reasoning tasks" .
+
+# ============================================================================
+# Signature Composition Example
+# ============================================================================
+
+# Composed signature: Question -> Reasoning -> Answer
+ex:ComposedQASignature a dspy:Signature ;
+    rdfs:label "Composed QA with Reasoning" ;
+    dspy:hasInstruction "Answer questions with explicit reasoning steps." ;
+    dspy:hasInputField ex:comp_context, ex:comp_question ;
+    dspy:hasOutputField ex:comp_reasoning, ex:comp_answer, ex:comp_confidence .
+
+ex:comp_context a dspy:InputField ;
+    dspy:hasFieldName "context" ;
+    dspy:hasFieldType "str" .
+
+ex:comp_question a dspy:InputField ;
+    dspy:hasFieldName "question" ;
+    dspy:hasFieldType "str" .
+
+ex:comp_reasoning a dspy:OutputField ;
+    dspy:hasFieldName "reasoning" ;
+    dspy:hasFieldType "str" .
+
+ex:comp_answer a dspy:OutputField ;
+    dspy:hasFieldName "answer" ;
+    dspy:hasFieldType "str" .
+
+ex:comp_confidence a dspy:OutputField ;
+    dspy:hasFieldName "confidence" ;
+    dspy:hasFieldType "float" ;
+    dspy:hasDescription "Confidence score between 0 and 1" .

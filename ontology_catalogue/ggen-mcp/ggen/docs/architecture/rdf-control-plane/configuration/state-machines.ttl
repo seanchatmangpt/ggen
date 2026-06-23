@@ -1,0 +1,654 @@
+@prefix mp: <https://ggen.io/marketplace/> .
+@prefix ggen: <https://ggen.io/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <https://ggen.io/fsm/> .
+
+# ============================================================================
+# STATE MACHINES - Finite State Automata for Package Lifecycle
+# ============================================================================
+# Version: 3.0.0
+# Description: Type-safe state transitions with compile-time guarantees
+# Architecture: FSM enforces impossible states at type level
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# PACKAGE LIFECYCLE STATE MACHINE
+# ----------------------------------------------------------------------------
+
+:packageLifecycleFSM a mp:StateMachine ;
+    rdfs:label "Package Lifecycle FSM" ;
+    rdfs:comment "Finite state machine for package lifecycle management" ;
+    mp:initialState mp:Draft ;
+    mp:terminalStates ( mp:Archived mp:Withdrawn ) ;
+    mp:states (
+        mp:Draft
+        mp:Published
+        mp:Active
+        mp:Deprecated
+        mp:Archived
+        mp:Withdrawn
+    ) ;
+    mp:transitions :packageTransitions .
+
+# ----------------------------------------------------------------------------
+# STATE DEFINITIONS WITH INVARIANTS
+# ----------------------------------------------------------------------------
+
+# Draft State - Package being prepared
+mp:Draft a mp:PackageState ;
+    rdfs:label "Draft" ;
+    rdfs:comment "Package is being prepared, not yet published" ;
+    mp:stateCode "DRAFT" ;
+    mp:isInitialState true ;
+    mp:isTerminalState false ;
+    mp:allowPublicAccess false ;
+    mp:allowInstallation false ;
+    mp:requiresSignature false ;
+    mp:requiresChecksum true ;
+    mp:requiresLicense true ;
+    mp:requiresAuthor true ;
+    mp:minQualityScore 0.0 ;
+
+    # Allowed transitions from Draft
+    mp:canTransitionTo mp:Published ;
+    mp:canTransitionTo mp:Withdrawn ;
+
+    # Transition guards
+    mp:transitionGuard [
+        mp:targetState mp:Published ;
+        mp:guardType mp:PreCondition ;
+        mp:guardDescription "Package must have all required metadata" ;
+        mp:sparqlGuard """
+            ASK {
+                $pkg mp:packageId ?id ;
+                    mp:packageName ?name ;
+                    mp:version ?version ;
+                    mp:description ?desc ;
+                    mp:author ?author ;
+                    mp:license ?license ;
+                    mp:checksum ?checksum .
+            }
+        """
+    ] .
+
+# Published State - Package published but not verified
+mp:Published a mp:PackageState ;
+    rdfs:label "Published" ;
+    rdfs:comment "Package has been published but not yet verified" ;
+    mp:stateCode "PUBLISHED" ;
+    mp:isInitialState false ;
+    mp:isTerminalState false ;
+    mp:allowPublicAccess true ;
+    mp:allowInstallation false ;
+    mp:requiresSignature true ;
+    mp:requiresChecksum true ;
+    mp:requiresVerification true ;
+    mp:verificationDeadline "P7D" ; # 7 days
+    mp:minQualityScore 20.0 ;
+
+    # Allowed transitions from Published
+    mp:canTransitionTo mp:Active ;
+    mp:canTransitionTo mp:Withdrawn ;
+
+    # Transition guards
+    mp:transitionGuard [
+        mp:targetState mp:Active ;
+        mp:guardType mp:PreCondition ;
+        mp:guardDescription "Signature must be verified" ;
+        mp:sparqlGuard """
+            ASK {
+                $pkg mp:signature ?sig .
+                ?sig mp:signatureVerified true .
+            }
+        """
+    ] ;
+    mp:transitionGuard [
+        mp:targetState mp:Active ;
+        mp:guardType mp:PreCondition ;
+        mp:guardDescription "Checksum must be valid" ;
+        mp:sparqlGuard """
+            ASK {
+                $pkg mp:checksum ?cs .
+                ?cs mp:checksumValid true .
+            }
+        """
+    ] .
+
+# Active State - Package is active and installable
+mp:Active a mp:PackageState ;
+    rdfs:label "Active" ;
+    rdfs:comment "Package is active and available for installation" ;
+    mp:stateCode "ACTIVE" ;
+    mp:isInitialState false ;
+    mp:isTerminalState false ;
+    mp:allowPublicAccess true ;
+    mp:allowInstallation true ;
+    mp:requiresSignature true ;
+    mp:requiresChecksum true ;
+    mp:requiresMaintenance true ;
+    mp:maintenanceInterval "P30D" ; # 30 days
+    mp:minQualityScore 60.0 ;
+
+    # Allowed transitions from Active
+    mp:canTransitionTo mp:Deprecated ;
+    mp:canTransitionTo mp:Withdrawn ;
+
+    # Transition guards
+    mp:transitionGuard [
+        mp:targetState mp:Deprecated ;
+        mp:guardType mp:PreCondition ;
+        mp:guardDescription "Deprecation notice must be provided" ;
+        mp:sparqlGuard """
+            ASK {
+                $pkg mp:deprecationNotice ?notice .
+            }
+        """
+    ] ;
+
+    # State invariants (must hold while in state)
+    mp:stateInvariant [
+        mp:invariantType mp:Assertion ;
+        mp:invariantDescription "Active packages must maintain quality threshold" ;
+        mp:sparqlInvariant """
+            ASK {
+                $pkg mp:hasQualityScore ?qs .
+                ?qs mp:overallScore ?score .
+                FILTER (?score >= 60.0)
+            }
+        """
+    ] ;
+    mp:stateInvariant [
+        mp:invariantType mp:Assertion ;
+        mp:invariantDescription "Active packages must have verified signature" ;
+        mp:sparqlInvariant """
+            ASK {
+                $pkg mp:signature ?sig .
+                ?sig mp:signatureVerified true .
+            }
+        """
+    ] .
+
+# Deprecated State - Package deprecated but still available
+mp:Deprecated a mp:PackageState ;
+    rdfs:label "Deprecated" ;
+    rdfs:comment "Package is deprecated but still available for existing users" ;
+    mp:stateCode "DEPRECATED" ;
+    mp:isInitialState false ;
+    mp:isTerminalState false ;
+    mp:allowPublicAccess true ;
+    mp:allowInstallation true ;
+    mp:showDeprecationWarning true ;
+    mp:requiresReplacement true ;
+    mp:requiresDeprecationNotice true ;
+    mp:gracePeriod "P90D" ; # 90 days before archival
+    mp:minQualityScore 40.0 ;
+
+    # Allowed transitions from Deprecated
+    mp:canTransitionTo mp:Archived ;
+    mp:canTransitionTo mp:Active ;  # Can un-deprecate
+
+    # Transition guards
+    mp:transitionGuard [
+        mp:targetState mp:Archived ;
+        mp:guardType mp:PreCondition ;
+        mp:guardDescription "Grace period must have elapsed" ;
+        mp:sparqlGuard """
+            ASK {
+                $pkg mp:deprecatedAt ?deprecatedTime .
+                BIND(NOW() - ?deprecatedTime AS ?elapsed)
+                FILTER (?elapsed > "P90D"^^xsd:duration)
+            }
+        """
+    ] ;
+    mp:transitionGuard [
+        mp:targetState mp:Active ;
+        mp:guardType mp:PreCondition ;
+        mp:guardDescription "Replacement must be withdrawn or deprecated" ;
+        mp:sparqlGuard """
+            ASK {
+                $pkg mp:replacementPackage ?replacement .
+                ?replacement mp:state ?repState .
+                FILTER (?repState IN (mp:Withdrawn, mp:Deprecated))
+            }
+        """
+    ] .
+
+# Archived State - Package archived (terminal)
+mp:Archived a mp:PackageState ;
+    rdfs:label "Archived" ;
+    rdfs:comment "Package is archived and no longer available for new installations" ;
+    mp:stateCode "ARCHIVED" ;
+    mp:isInitialState false ;
+    mp:isTerminalState true ;
+    mp:allowPublicAccess false ;
+    mp:allowInstallation false ;
+    mp:allowExistingInstalls true ;
+    mp:preserveMetadata true ;
+    mp:archivalReason "End of lifecycle" ;
+
+    # No transitions allowed from terminal state
+    # (Archive is permanent)
+
+    # State invariants
+    mp:stateInvariant [
+        mp:invariantType mp:Assertion ;
+        mp:invariantDescription "Archived packages must reference deprecation" ;
+        mp:sparqlInvariant """
+            ASK {
+                $pkg mp:deprecatedAt ?time .
+            }
+        """
+    ] .
+
+# Withdrawn State - Package withdrawn (terminal)
+mp:Withdrawn a mp:PackageState ;
+    rdfs:label "Withdrawn" ;
+    rdfs:comment "Package withdrawn due to security or legal issues" ;
+    mp:stateCode "WITHDRAWN" ;
+    mp:isInitialState false ;
+    mp:isTerminalState true ;
+    mp:allowPublicAccess false ;
+    mp:allowInstallation false ;
+    mp:allowExistingInstalls false ;
+    mp:requiresReason true ;
+    mp:requiresSecurityAdvisory false ;
+    mp:notifyExistingUsers true ;
+
+    # No transitions allowed from terminal state
+    # (Withdrawal is permanent and severe)
+
+    # State invariants
+    mp:stateInvariant [
+        mp:invariantType mp:Assertion ;
+        mp:invariantDescription "Withdrawn packages must document reason" ;
+        mp:sparqlInvariant """
+            ASK {
+                $pkg mp:withdrawalReason ?reason .
+            }
+        """
+    ] ;
+    mp:stateInvariant [
+        mp:invariantType mp:Assertion ;
+        mp:invariantDescription "Withdrawn packages must have withdrawal timestamp" ;
+        mp:sparqlInvariant """
+            ASK {
+                $pkg mp:withdrawnAt ?time .
+            }
+        """
+    ] .
+
+# ----------------------------------------------------------------------------
+# TRANSITION RULES
+# ----------------------------------------------------------------------------
+
+:packageTransitions a mp:TransitionRuleSet ;
+    rdfs:label "Package Lifecycle Transitions" ;
+
+    # Draft → Published
+    mp:transition [
+        mp:transitionId "draft-to-published" ;
+        mp:fromState mp:Draft ;
+        mp:toState mp:Published ;
+        mp:transitionLabel "publish" ;
+        mp:requiresApproval false ;
+        mp:isReversible false ;
+        mp:preConditions :publishPreConditions ;
+        mp:postActions :publishPostActions ;
+        mp:estimatedDuration "PT5M"  # 5 minutes
+    ] ;
+
+    # Published → Active
+    mp:transition [
+        mp:transitionId "published-to-active" ;
+        mp:fromState mp:Published ;
+        mp:toState mp:Active ;
+        mp:transitionLabel "activate" ;
+        mp:requiresApproval true ;
+        mp:approvalType mp:SignatureVerification ;
+        mp:isReversible false ;
+        mp:preConditions :activatePreConditions ;
+        mp:postActions :activatePostActions ;
+        mp:estimatedDuration "PT1M"
+    ] ;
+
+    # Active → Deprecated
+    mp:transition [
+        mp:transitionId "active-to-deprecated" ;
+        mp:fromState mp:Active ;
+        mp:toState mp:Deprecated ;
+        mp:transitionLabel "deprecate" ;
+        mp:requiresApproval true ;
+        mp:approvalType mp:ManualReview ;
+        mp:isReversible true ;
+        mp:preConditions :deprecatePreConditions ;
+        mp:postActions :deprecatePostActions ;
+        mp:estimatedDuration "PT2M"
+    ] ;
+
+    # Deprecated → Active (Un-deprecate)
+    mp:transition [
+        mp:transitionId "deprecated-to-active" ;
+        mp:fromState mp:Deprecated ;
+        mp:toState mp:Active ;
+        mp:transitionLabel "un-deprecate" ;
+        mp:requiresApproval true ;
+        mp:approvalType mp:ManualReview ;
+        mp:isReversible true ;
+        mp:preConditions :undeprecatePreConditions ;
+        mp:postActions :undeprecatePostActions ;
+        mp:estimatedDuration "PT2M"
+    ] ;
+
+    # Deprecated → Archived
+    mp:transition [
+        mp:transitionId "deprecated-to-archived" ;
+        mp:fromState mp:Deprecated ;
+        mp:toState mp:Archived ;
+        mp:transitionLabel "archive" ;
+        mp:requiresApproval true ;
+        mp:approvalType mp:AutomaticAfterGracePeriod ;
+        mp:isReversible false ;
+        mp:preConditions :archivePreConditions ;
+        mp:postActions :archivePostActions ;
+        mp:estimatedDuration "PT10M"
+    ] ;
+
+    # Any → Withdrawn (Emergency)
+    mp:transition [
+        mp:transitionId "emergency-withdraw" ;
+        mp:fromState ( mp:Draft mp:Published mp:Active mp:Deprecated ) ;
+        mp:toState mp:Withdrawn ;
+        mp:transitionLabel "withdraw" ;
+        mp:requiresApproval true ;
+        mp:approvalType mp:EmergencyReview ;
+        mp:isReversible false ;
+        mp:preConditions :withdrawPreConditions ;
+        mp:postActions :withdrawPostActions ;
+        mp:estimatedDuration "PT1M" ;
+        mp:priority mp:Critical
+    ] .
+
+# ----------------------------------------------------------------------------
+# PRE-CONDITIONS FOR TRANSITIONS
+# ----------------------------------------------------------------------------
+
+:publishPreConditions a mp:PreConditionSet ;
+    mp:condition [
+        mp:conditionType mp:RequiredFields ;
+        mp:sparqlCheck """
+            ASK {
+                $pkg mp:packageId ?id ;
+                    mp:packageName ?name ;
+                    mp:version ?version ;
+                    mp:description ?desc ;
+                    mp:author ?author ;
+                    mp:license ?license ;
+                    mp:checksum ?checksum .
+            }
+        """
+    ] ;
+    mp:condition [
+        mp:conditionType mp:UniqueVersion ;
+        mp:sparqlCheck """
+            ASK {
+                $pkg mp:packageName ?name ;
+                    mp:version ?version .
+                FILTER NOT EXISTS {
+                    ?other mp:packageName ?name ;
+                        mp:version ?version ;
+                        mp:state ?state .
+                    FILTER ($pkg != ?other)
+                    FILTER (?state != mp:Draft)
+                }
+            }
+        """
+    ] .
+
+:activatePreConditions a mp:PreConditionSet ;
+    mp:condition [
+        mp:conditionType mp:SignatureVerified ;
+        mp:sparqlCheck """
+            ASK {
+                $pkg mp:signature ?sig .
+                ?sig mp:signatureVerified true .
+            }
+        """
+    ] ;
+    mp:condition [
+        mp:conditionType mp:ChecksumValid ;
+        mp:sparqlCheck """
+            ASK {
+                $pkg mp:checksum ?cs .
+                ?cs mp:checksumValid true .
+            }
+        """
+    ] ;
+    mp:condition [
+        mp:conditionType mp:QualityThreshold ;
+        mp:sparqlCheck """
+            ASK {
+                $pkg mp:hasQualityScore ?qs .
+                ?qs mp:overallScore ?score .
+                FILTER (?score >= 60.0)
+            }
+        """
+    ] .
+
+:deprecatePreConditions a mp:PreConditionSet ;
+    mp:condition [
+        mp:conditionType mp:DeprecationNotice ;
+        mp:sparqlCheck """
+            ASK {
+                $pkg mp:deprecationNotice ?notice .
+            }
+        """
+    ] ;
+    mp:condition [
+        mp:conditionType mp:ReplacementSpecified ;
+        mp:sparqlCheck """
+            ASK {
+                $pkg mp:replacementPackage ?replacement .
+            }
+        """
+    ] .
+
+:undeprecatePreConditions a mp:PreConditionSet ;
+    mp:condition [
+        mp:conditionType mp:ReplacementUnavailable ;
+        mp:sparqlCheck """
+            ASK {
+                $pkg mp:replacementPackage ?replacement .
+                ?replacement mp:state ?repState .
+                FILTER (?repState IN (mp:Withdrawn, mp:Deprecated))
+            }
+        """
+    ] ;
+    mp:condition [
+        mp:conditionType mp:QualityMaintained ;
+        mp:sparqlCheck """
+            ASK {
+                $pkg mp:hasQualityScore ?qs .
+                ?qs mp:overallScore ?score .
+                FILTER (?score >= 60.0)
+            }
+        """
+    ] .
+
+:archivePreConditions a mp:PreConditionSet ;
+    mp:condition [
+        mp:conditionType mp:GracePeriodElapsed ;
+        mp:sparqlCheck """
+            ASK {
+                $pkg mp:deprecatedAt ?deprecatedTime .
+                BIND(NOW() - ?deprecatedTime AS ?elapsed)
+                FILTER (?elapsed > "P90D"^^xsd:duration)
+            }
+        """
+    ] ;
+    mp:condition [
+        mp:conditionType mp:NoActiveInstalls ;
+        mp:sparqlCheck """
+            ASK {
+                FILTER NOT EXISTS {
+                    ?install mp:installedPackage $pkg ;
+                        mp:installActive true .
+                }
+            }
+        """
+    ] .
+
+:withdrawPreConditions a mp:PreConditionSet ;
+    mp:condition [
+        mp:conditionType mp:WithdrawalReason ;
+        mp:sparqlCheck """
+            ASK {
+                $pkg mp:withdrawalReason ?reason .
+            }
+        """
+    ] .
+
+# ----------------------------------------------------------------------------
+# POST-ACTIONS FOR TRANSITIONS
+# ----------------------------------------------------------------------------
+
+:publishPostActions a mp:PostActionSet ;
+    mp:action [
+        mp:actionType mp:CreateSignature ;
+        mp:priority 1 ;
+        mp:sparqlUpdate """
+            INSERT {
+                $pkg mp:publishedAt ?now .
+            }
+            WHERE {
+                BIND(NOW() AS ?now)
+            }
+        """
+    ] ;
+    mp:action [
+        mp:actionType mp:NotifySubscribers ;
+        mp:priority 2
+    ] ;
+    mp:action [
+        mp:actionType mp:UpdateSearchIndex ;
+        mp:priority 3
+    ] .
+
+:activatePostActions a mp:PostActionSet ;
+    mp:action [
+        mp:actionType mp:UpdateActivatedAt ;
+        mp:priority 1 ;
+        mp:sparqlUpdate """
+            INSERT {
+                $pkg mp:activatedAt ?now .
+            }
+            WHERE {
+                BIND(NOW() AS ?now)
+            }
+        """
+    ] ;
+    mp:action [
+        mp:actionType mp:IncrementUsageCounter ;
+        mp:priority 2
+    ] ;
+    mp:action [
+        mp:actionType mp:NotifyUsers ;
+        mp:priority 3
+    ] .
+
+:deprecatePostActions a mp:PostActionSet ;
+    mp:action [
+        mp:actionType mp:UpdateDeprecatedAt ;
+        mp:priority 1 ;
+        mp:sparqlUpdate """
+            INSERT {
+                $pkg mp:deprecatedAt ?now .
+            }
+            WHERE {
+                BIND(NOW() AS ?now)
+            }
+        """
+    ] ;
+    mp:action [
+        mp:actionType mp:NotifyExistingUsers ;
+        mp:priority 2
+    ] ;
+    mp:action [
+        mp:actionType mp:UpdateDocumentation ;
+        mp:priority 3
+    ] .
+
+:undeprecatePostActions a mp:PostActionSet ;
+    mp:action [
+        mp:actionType mp:ClearDeprecationNotice ;
+        mp:priority 1 ;
+        mp:sparqlUpdate """
+            DELETE {
+                $pkg mp:deprecatedAt ?time ;
+                    mp:deprecationNotice ?notice .
+            }
+            WHERE {
+                $pkg mp:deprecatedAt ?time ;
+                    mp:deprecationNotice ?notice .
+            }
+        """
+    ] ;
+    mp:action [
+        mp:actionType mp:NotifyUsers ;
+        mp:priority 2
+    ] .
+
+:archivePostActions a mp:PostActionSet ;
+    mp:action [
+        mp:actionType mp:UpdateArchivedAt ;
+        mp:priority 1 ;
+        mp:sparqlUpdate """
+            INSERT {
+                $pkg mp:archivedAt ?now .
+            }
+            WHERE {
+                BIND(NOW() AS ?now)
+            }
+        """
+    ] ;
+    mp:action [
+        mp:actionType mp:RemoveFromSearchIndex ;
+        mp:priority 2
+    ] ;
+    mp:action [
+        mp:actionType mp:CreateArchivalRecord ;
+        mp:priority 3
+    ] .
+
+:withdrawPostActions a mp:PostActionSet ;
+    mp:action [
+        mp:actionType mp:UpdateWithdrawnAt ;
+        mp:priority 1 ;
+        mp:sparqlUpdate """
+            INSERT {
+                $pkg mp:withdrawnAt ?now .
+            }
+            WHERE {
+                BIND(NOW() AS ?now)
+            }
+        """
+    ] ;
+    mp:action [
+        mp:actionType mp:NotifyAllUsers ;
+        mp:priority 2
+    ] ;
+    mp:action [
+        mp:actionType mp:RemoveFromAllIndexes ;
+        mp:priority 3
+    ] ;
+    mp:action [
+        mp:actionType mp:CreateSecurityAdvisory ;
+        mp:priority 4 ;
+        mp:conditional true
+    ] .
+
+# ----------------------------------------------------------------------------
+# END OF STATE MACHINES
+# ----------------------------------------------------------------------------

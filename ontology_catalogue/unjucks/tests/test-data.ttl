@@ -1,0 +1,47 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Test data for SPARQL execution validation
+ex:alice a foaf:Person ;
+    foaf:name "Alice Smith" ;
+    foaf:age "28"^^xsd:integer ;
+    foaf:knows ex:bob ;
+    foaf:mbox <mailto:alice@example.org> ;
+    rdfs:label "Alice Smith" .
+
+ex:bob a foaf:Person ;
+    foaf:name "Bob Jones" ;
+    foaf:age "32"^^xsd:integer ;
+    foaf:knows ex:alice, ex:charlie ;
+    foaf:mbox <mailto:bob@example.org> ;
+    rdfs:label "Bob Jones" .
+
+ex:charlie a foaf:Person ;
+    foaf:name "Charlie Brown" ;
+    foaf:age "25"^^xsd:integer ;
+    foaf:knows ex:bob ;
+    foaf:mbox <mailto:charlie@example.org> ;
+    rdfs:label "Charlie Brown" .
+
+ex:diana a foaf:Person ;
+    foaf:name "Diana Prince" ;
+    foaf:age "30"^^xsd:integer ;
+    foaf:mbox <mailto:diana@example.org> ;
+    rdfs:label "Diana Prince" .
+
+# Organizations
+ex:company1 a foaf:Organization ;
+    foaf:name "ACME Corp" ;
+    rdfs:label "ACME Corporation" .
+
+ex:company2 a foaf:Organization ;
+    foaf:name "TechCorp" ;
+    rdfs:label "Technology Corporation" .
+
+# Relationships
+ex:alice foaf:workplaceHomepage ex:company1 .
+ex:bob foaf:workplaceHomepage ex:company1 .
+ex:charlie foaf:workplaceHomepage ex:company2 .
+ex:diana foaf:workplaceHomepage ex:company2 .

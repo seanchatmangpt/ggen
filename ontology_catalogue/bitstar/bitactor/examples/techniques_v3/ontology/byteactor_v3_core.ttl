@@ -1,0 +1,445 @@
+@prefix :       <http://bitbizeco.dev/ontology/v1/byteactor-algos#> .
+@prefix baal:   <http://bitbizeco.dev/ontology/v1/byteactor-algos#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# Ontology header
+#################################################################
+
+<http://bitbizeco.dev/ontology/v1/byteactor-algos>
+  a owl:Ontology ;
+  rdfs:label "ByteActor v3 — Core Algorithm Ontology" ;
+  rdfs:comment "Authoritative OWL catalog of ByteActor v3 core algorithms. Models hot-path vs cold-path, categories, and invariants. SHACL constraints are defined in a separate file." .
+
+#################################################################
+# Core classes
+#################################################################
+
+:Algorithm            a owl:Class ; rdfs:label "Algorithm" .
+
+:HotPathAlgorithm     a owl:Class ;
+  rdfs:subClassOf :Algorithm ,
+    [ a owl:Restriction ; owl:onProperty :hasPathScope ; owl:hasValue :HotPath ] ,
+    [ a owl:Restriction ; owl:onProperty :upholdsInvariant ; owl:hasValue :TickBudgetLeq8 ] ,
+    [ a owl:Restriction ; owl:onProperty :upholdsInvariant ; owl:hasValue :ConstantTimeO1 ] ,
+    [ a owl:Restriction ; owl:onProperty :upholdsInvariant ; owl:hasValue :Branchless ] ,
+    [ a owl:Restriction ; owl:onProperty :upholdsInvariant ; owl:hasValue :SingleCacheLineTouch ] ,
+    [ a owl:Restriction ; owl:onProperty :upholdsInvariant ; owl:hasValue :Deterministic ] ;
+  rdfs:label "Hot-Path Algorithm" .
+
+:ColdPathAlgorithm    a owl:Class ;
+  rdfs:subClassOf :Algorithm ,
+    [ a owl:Restriction ; owl:onProperty :hasPathScope ; owl:hasValue :ColdPath ] ,
+    [ a owl:Restriction ; owl:onProperty :upholdsInvariant ; owl:hasValue :Deterministic ] ;
+  rdfs:label "Cold-Path Algorithm" .
+
+# Categories (each a subclass of Algorithm; individuals will belong to both a category and a path-class)
+:MovementControl         a owl:Class ; rdfs:subClassOf :Algorithm ; rdfs:label "Movement & Flow Control" .
+:DispatchMicroprogram    a owl:Class ; rdfs:subClassOf :Algorithm ; rdfs:label "Dispatch & Microprogram" .
+:GeometryEdgeSemantics   a owl:Class ; rdfs:subClassOf :Algorithm ; rdfs:label "Geometry & Edge Semantics" .
+:TickHopDiscipline       a owl:Class ; rdfs:subClassOf :Algorithm ; rdfs:label "Tick/Hop Discipline" .
+:EnvelopeMemoryTouch     a owl:Class ; rdfs:subClassOf :Algorithm ; rdfs:label "Envelope & Memory Touch" .
+:SchedulingPlacement     a owl:Class ; rdfs:subClassOf :Algorithm ; rdfs:label "Scheduling & Placement" .
+:FaultsCrashOnly         a owl:Class ; rdfs:subClassOf :Algorithm ; rdfs:label "Faults & Crash-Only" .
+:HousekeepingSignals     a owl:Class ; rdfs:subClassOf :Algorithm ; rdfs:label "Housekeeping & Signals" .
+
+# Semantics hooks (for algorithms 17–24)
+:Semantics              a owl:Class ; rdfs:label "Semantics" .
+:Sem_ANDJoinReadiness   a :Semantics ; rdfs:label "AND-Join Readiness" .
+:Sem_XORSplit           a :Semantics ; rdfs:label "XOR-Split Selection" .
+:Sem_NofMDiscriminator  a :Semantics ; rdfs:label "N-of-M Discriminator" .
+:Sem_SyncMerge          a :Semantics ; rdfs:label "Synchronizing Merge" .
+:Sem_CancelRegion       a :Semantics ; rdfs:label "Cancel Region Propagation" .
+:Sem_MIFanOut           a :Semantics ; rdfs:label "Multiple-Instance Fan-Out" .
+:Sem_MIFanIn            a :Semantics ; rdfs:label "Multiple-Instance Fan-In" .
+:Sem_CycleGate          a :Semantics ; rdfs:label "Cycle Gate" .
+
+#################################################################
+# Path scope & invariants
+#################################################################
+
+:PathScope            a owl:Class ; rdfs:label "Path Scope" .
+:HotPath              a :PathScope ; rdfs:label "Hot Path" .
+:ColdPath             a :PathScope ; rdfs:label "Cold Path" .
+
+:Invariant            a owl:Class ; rdfs:label "Invariant" .
+:TickBudgetLeq8       a :Invariant ; rdfs:label "Tick Budget ≤ 8" .
+:HopBudgetLeq8        a :Invariant ; rdfs:label "Hop Budget ≤ 8" .
+:ConstantTimeO1       a :Invariant ; rdfs:label "Constant Time O(1)" .
+:Branchless           a :Invariant ; rdfs:label "Branchless Execution" .
+:SingleCacheLineTouch a :Invariant ; rdfs:label "Single Cache-Line Touch" .
+:Deterministic        a :Invariant ; rdfs:label "Deterministic Behavior" .
+:CrashOnly            a :Invariant ; rdfs:label "Crash-Only Semantics" .
+:NoDynamicAllocation  a :Invariant ; rdfs:label "No Dynamic Allocation" .
+:ImmutableTables      a :Invariant ; rdfs:label "Immutable Read-Only Tables" .
+:L1Resident           a :Invariant ; rdfs:label "L1-Resident Hot Path" .
+
+#################################################################
+# Properties
+#################################################################
+
+:hasPathScope     a owl:ObjectProperty ; rdfs:domain :Algorithm ; rdfs:range :PathScope ; rdfs:label "has path scope" .
+:upholdsInvariant a owl:ObjectProperty ; rdfs:domain :Algorithm ; rdfs:range :Invariant ; rdfs:label "upholds invariant" .
+:realizesSemantics a owl:ObjectProperty ; rdfs:domain :Algorithm ; rdfs:range :Semantics ; rdfs:label "realizes semantics" .
+
+:orderIndex       a owl:DatatypeProperty ; rdfs:domain :Algorithm ; rdfs:range xsd:nonNegativeInteger ; rdfs:label "order index" .
+:mnemonic         a owl:DatatypeProperty ; rdfs:domain :Algorithm ; rdfs:range xsd:string ; rdfs:label "mnemonic" .
+
+#################################################################
+# Algorithm individuals (A01–A64)
+#################################################################
+
+### A. Movement & Flow Control
+:A01_SPSCDequeue a :MovementControl , :HotPathAlgorithm ;
+  rdfs:label "SPSC Crystal Dequeue" ;
+  :orderIndex 1 ; :mnemonic "A01" ;
+  rdfs:comment "O(1) pop from per-core single-producer/single-consumer ring." .
+
+:A02_CreditBackpressure a :MovementControl , :HotPathAlgorithm ;
+  rdfs:label "Credit-Based Backpressure" ;
+  :orderIndex 2 ; :mnemonic "A02" ;
+  rdfs:comment "Saturating producer credits; drop when zero." .
+
+:A03_BurstCoalescer a :MovementControl , :HotPathAlgorithm ;
+  rdfs:label "Burst Coalescer" ;
+  :orderIndex 3 ; :mnemonic "A03" ;
+  rdfs:comment "Group consecutive same-kernel crystals to reduce i-cache churn." .
+
+:A04_L1PrefetchHint a :MovementControl , :HotPathAlgorithm ;
+  rdfs:label "L1 Prefetch Hint" ;
+  :orderIndex 4 ; :mnemonic "A04" ;
+  rdfs:comment "Prefetch next crystal pointer, bounded within tick budget." .
+
+:A05_ProducerMultiplexer a :MovementControl , :ColdPathAlgorithm ;
+  rdfs:label "Producer Multiplexer" ;
+  :orderIndex 5 ; :mnemonic "A05" ;
+  rdfs:comment "MP→SPSC combiner preserving per-producer FIFO." .
+
+:A06_RingHealthScanner a :MovementControl , :ColdPathAlgorithm ;
+  rdfs:label "Ring Health Scanner" ;
+  :orderIndex 6 ; :mnemonic "A06" ;
+  rdfs:comment "Detect wrap/overrun, repair indices off-path." .
+
+:A07_DeterministicLoadShedding a :MovementControl , :HotPathAlgorithm ;
+  rdfs:label "Deterministic Load Shedding" ;
+  :orderIndex 7 ; :mnemonic "A07" ;
+  rdfs:comment "Constant-time drop policy under saturation." .
+
+:A08_ReturnPathRecycler a :MovementControl , :HotPathAlgorithm ;
+  rdfs:label "Return-Path Recycler" ;
+  :orderIndex 8 ; :mnemonic "A08" ;
+  rdfs:comment "O(1) recycle to fixed slab pool; no malloc." ;
+  :upholdsInvariant :NoDynamicAllocation .
+
+### B. Dispatch & Microprogram
+:A09_PatternByteDecoder a :DispatchMicroprogram , :HotPathAlgorithm ;
+  rdfs:label "Pattern-Byte Decoder" ;
+  :orderIndex 9 ; :mnemonic "A09" ;
+  rdfs:comment "Extracts (pattern id, flags) from first crystal byte." .
+
+:A10_MPHFDispatch a :DispatchMicroprogram , :HotPathAlgorithm ;
+  rdfs:label "Minimal-Perfect-Hash Dispatch" ;
+  :orderIndex 10 ; :mnemonic "A10" ;
+  rdfs:comment "Branchless O(1) pattern-id → kernel pointer." .
+
+:A11_PredecodedMicroOpCache a :DispatchMicroprogram , :HotPathAlgorithm ;
+  rdfs:label "Predecoded Micro-Op Cache" ;
+  :orderIndex 11 ; :mnemonic "A11" ;
+  rdfs:comment "Keeps (pid→mask/opcode) within one 64B line." ;
+  :upholdsInvariant :SingleCacheLineTouch , :L1Resident , :ImmutableTables .
+
+:A12_ComputedGotoJumpTable a :DispatchMicroprogram , :HotPathAlgorithm ;
+  rdfs:label "Computed-Goto Jump Table" ;
+  :orderIndex 12 ; :mnemonic "A12" ;
+  rdfs:comment "Direct threaded dispatch without conditional branches." .
+
+:A13_KernelVariantSelector a :DispatchMicroprogram , :HotPathAlgorithm ;
+  rdfs:label "Kernel Variant Selector" ;
+  :orderIndex 13 ; :mnemonic "A13" ;
+  rdfs:comment "Select width/alignment variant via bitmask." .
+
+:A14_WarmlineProtector a :DispatchMicroprogram , :HotPathAlgorithm ;
+  rdfs:label "Warmline Protector" ;
+  :orderIndex 14 ; :mnemonic "A14" ;
+  rdfs:comment "Pins dispatch table to single cache index to avoid conflict." .
+
+:A15_SignatureBitmaskFold a :DispatchMicroprogram , :HotPathAlgorithm ;
+  rdfs:label "Signature Bitmask Fold" ;
+  :orderIndex 15 ; :mnemonic "A15" ;
+  rdfs:comment "Fold 64-bit fields into compact 8-bit edge masks." .
+
+:A16_EndOfFlowSentinel a :DispatchMicroprogram , :HotPathAlgorithm ;
+  rdfs:label "End-of-Flow Sentinel" ;
+  :orderIndex 16 ; :mnemonic "A16" ;
+  rdfs:comment "Branchless terminal predicate on envelope status." .
+
+# Builder for A10 (cold)
+:A10b_CHDMPHFBuilder a :DispatchMicroprogram , :ColdPathAlgorithm ;
+  rdfs:label "CHD MPHF Builder" ;
+  :orderIndex 160 ; :mnemonic "A10b" ;
+  rdfs:comment "Constructs static minimal perfect hash for dispatch off-path." .
+
+### C. Geometry & Edge Semantics
+:A17_ANDJoinReadinessMask a :GeometryEdgeSemantics , :HotPathAlgorithm ;
+  rdfs:label "AND-Join Readiness Mask" ;
+  :orderIndex 17 ; :mnemonic "A17" ;
+  :realizesSemantics :Sem_ANDJoinReadiness ;
+  rdfs:comment "Ready==inbound via equality + popcount check." .
+
+:A18_XORSplitPriorityEncoder a :GeometryEdgeSemantics , :HotPathAlgorithm ;
+  rdfs:label "XOR-Split Priority Encoder" ;
+  :orderIndex 18 ; :mnemonic "A18" ;
+  :realizesSemantics :Sem_XORSplit ;
+  rdfs:comment "First-set-bit select exactly one outgoing branch." .
+
+:A19_NofMDiscriminator a :GeometryEdgeSemantics , :HotPathAlgorithm ;
+  rdfs:label "N-of-M Discriminator" ;
+  :orderIndex 19 ; :mnemonic "A19" ;
+  :realizesSemantics :Sem_NofMDiscriminator ;
+  rdfs:comment "popcount≥N gate for bounded M≤8." .
+
+:A20_SynchronizingMergeArbiter a :GeometryEdgeSemantics , :HotPathAlgorithm ;
+  rdfs:label "Synchronizing Merge Arbiter" ;
+  :orderIndex 20 ; :mnemonic "A20" ;
+  :realizesSemantics :Sem_SyncMerge ;
+  rdfs:comment "Token combiner with fixed-priority map." .
+
+:A21_CancelRegionPropagator a :GeometryEdgeSemantics , :HotPathAlgorithm ;
+  rdfs:label "Cancel-Region Propagator" ;
+  :orderIndex 21 ; :mnemonic "A21" ;
+  :realizesSemantics :Sem_CancelRegion ;
+  rdfs:comment "Mask-kill lanes in constant time." .
+
+:A22_MIFanOutTokenizer a :GeometryEdgeSemantics , :HotPathAlgorithm ;
+  rdfs:label "MI Fan-Out Tokenizer" ;
+  :orderIndex 22 ; :mnemonic "A22" ;
+  :realizesSemantics :Sem_MIFanOut ;
+  rdfs:comment "Replicate (≤8) using static slots." .
+
+:A23_MIFanInCompactor a :GeometryEdgeSemantics , :HotPathAlgorithm ;
+  rdfs:label "MI Fan-In Compactor" ;
+  :orderIndex 23 ; :mnemonic "A23" ;
+  :realizesSemantics :Sem_MIFanIn ;
+  rdfs:comment "Fixed gather; compress lanes by popcount table." .
+
+:A24_CycleGate a :GeometryEdgeSemantics , :HotPathAlgorithm ;
+  rdfs:label "Cycle Gate" ;
+  :orderIndex 24 ; :mnemonic "A24" ;
+  :realizesSemantics :Sem_CycleGate ;
+  rdfs:comment "Bounded loop counter (≤8) with constant-time exit." ;
+  :upholdsInvariant :HopBudgetLeq8 .
+
+### D. Tick/Hop Discipline
+:A25_TickBudgetCounter a :TickHopDiscipline , :HotPathAlgorithm ;
+  rdfs:label "Tick-Budget Counter" ;
+  :orderIndex 25 ; :mnemonic "A25" ;
+  rdfs:comment "3-bit saturating counter; trap if >8." ;
+  :upholdsInvariant :TickBudgetLeq8 .
+
+:A26_HopBudgetDecrementor a :TickHopDiscipline , :HotPathAlgorithm ;
+  rdfs:label "Hop-Budget Decrementor" ;
+  :orderIndex 26 ; :mnemonic "A26" ;
+  rdfs:comment "3-bit saturating hop decrement per transition." ;
+  :upholdsInvariant :HopBudgetLeq8 .
+
+:A27_OvertimeTrap a :TickHopDiscipline , :HotPathAlgorithm ;
+  rdfs:label "Overtime Trap" ;
+  :orderIndex 27 ; :mnemonic "A27" ;
+  rdfs:comment "Branchless set-fault-and-return when tick budget crossed." .
+
+:A28_IdleTickSkipper a :TickHopDiscipline , :HotPathAlgorithm ;
+  rdfs:label "Idle-Tick Skipper" ;
+  :orderIndex 28 ; :mnemonic "A28" ;
+  rdfs:comment "Coalesce no-work cycles to zero cost." .
+
+:A29_TimebaseNormalizer a :TickHopDiscipline , :HotPathAlgorithm ;
+  rdfs:label "Timebase Normalizer" ;
+  :orderIndex 29 ; :mnemonic "A29" ;
+  rdfs:comment "Constant-factor mapping cycles→ticks; no syscalls." .
+
+:A30_PhaseStampWriter a :TickHopDiscipline , :HotPathAlgorithm ;
+  rdfs:label "Phase-Stamp Writer" ;
+  :orderIndex 30 ; :mnemonic "A30" ;
+  rdfs:comment "Write 3-bit phase to envelope atomically." .
+
+:A31_HopFinalizer a :TickHopDiscipline , :HotPathAlgorithm ;
+  rdfs:label "Hop-Finalizer" ;
+  :orderIndex 31 ; :mnemonic "A31" ;
+  rdfs:comment "When hop=0, set done bit and stop." .
+
+:A32_DeterminismGuard a :TickHopDiscipline , :HotPathAlgorithm ;
+  rdfs:label "Determinism Guard" ;
+  :orderIndex 32 ; :mnemonic "A32" ;
+  rdfs:comment "Compile-time predicates compiled to masks (no branches)." .
+
+### E. Envelope & Memory Touch
+:A33_EnvelopePackUnpack a :EnvelopeMemoryTouch , :HotPathAlgorithm ;
+  rdfs:label "64B Envelope Pack/Unpack" ;
+  :orderIndex 33 ; :mnemonic "A33" ;
+  rdfs:comment "Aligned copy; no partial-line spills." ;
+  :upholdsInvariant :SingleCacheLineTouch .
+
+:A34_HazardFreeFieldUpdate a :EnvelopeMemoryTouch , :HotPathAlgorithm ;
+  rdfs:label "Hazard-Free Field Update" ;
+  :orderIndex 34 ; :mnemonic "A34" ;
+  rdfs:comment "RMW via bit-mask; no torn writes." .
+
+:A35_CoalescedStore a :EnvelopeMemoryTouch , :HotPathAlgorithm ;
+  rdfs:label "Coalesced Store" ;
+  :orderIndex 35 ; :mnemonic "A35" ;
+  rdfs:comment "Single 64B store per completion batch." .
+
+:A36_WriteCombiningBatch a :EnvelopeMemoryTouch , :HotPathAlgorithm ;
+  rdfs:label "Write-Combining Batch" ;
+  :orderIndex 36 ; :mnemonic "A36" ;
+  rdfs:comment "Buffer ≤8 completions before store." .
+
+:A37_ReadOnlyTableTouchless a :EnvelopeMemoryTouch , :HotPathAlgorithm ;
+  rdfs:label "Read-Only Table Touchless" ;
+  :orderIndex 37 ; :mnemonic "A37" ;
+  rdfs:comment "Forbid writes to shared tables (const)." ;
+  :upholdsInvariant :ImmutableTables .
+
+:A38_PreTouchFrame a :EnvelopeMemoryTouch , :ColdPathAlgorithm ;
+  rdfs:label "Pre-Touch Frame" ;
+  :orderIndex 38 ; :mnemonic "A38" ;
+  rdfs:comment "Warms cache sets for next window." .
+
+:A39_SlabPoolRotation a :EnvelopeMemoryTouch , :ColdPathAlgorithm ;
+  rdfs:label "Slab Pool Rotation" ;
+  :orderIndex 39 ; :mnemonic "A39" ;
+  rdfs:comment "Deterministic reuse of fixed crystals." ;
+  :upholdsInvariant :NoDynamicAllocation , :Deterministic .
+
+:A40_LayoutConsistencyScanner a :EnvelopeMemoryTouch , :ColdPathAlgorithm ;
+  rdfs:label "Layout Consistency Scanner" ;
+  :orderIndex 40 ; :mnemonic "A40" ;
+  rdfs:comment "Verifies alignment/cache-index invariants." .
+
+### F. Scheduling & Placement
+:A41_ReadyQueueBitsetSelect a :SchedulingPlacement , :HotPathAlgorithm ;
+  rdfs:label "Ready-Queue Bitset Select" ;
+  :orderIndex 41 ; :mnemonic "A41" ;
+  rdfs:comment "Bit-scan on ready bitmap to pick next." .
+
+:A42_KernelCohortifier a :SchedulingPlacement , :HotPathAlgorithm ;
+  rdfs:label "Kernel Cohortifier" ;
+  :orderIndex 42 ; :mnemonic "A42" ;
+  rdfs:comment "Bunch same-kernel items to reduce i-misses." .
+
+:A43_CacheIslandSelector a :SchedulingPlacement , :ColdPathAlgorithm ;
+  rdfs:label "Cache-Island Selector" ;
+  :orderIndex 43 ; :mnemonic "A43" ;
+  rdfs:comment "Bind flows to L1 sets to avoid conflict." .
+
+:A44_DataLocalityHeuristic a :SchedulingPlacement , :ColdPathAlgorithm ;
+  rdfs:label "Data-Locality Heuristic" ;
+  :orderIndex 44 ; :mnemonic "A44" ;
+  rdfs:comment "Place flows near read-mostly tables." .
+
+:A45_HotspotQuencher a :SchedulingPlacement , :ColdPathAlgorithm ;
+  rdfs:label "Hotspot Quencher" ;
+  :orderIndex 45 ; :mnemonic "A45" ;
+  rdfs:comment "Migrate cohorts when set conflicts detected." .
+
+:A46_MicroOpFusionPlanner a :SchedulingPlacement , :ColdPathAlgorithm ;
+  rdfs:label "Micro-Op Fusion Planner" ;
+  :orderIndex 46 ; :mnemonic "A46" ;
+  rdfs:comment "Pre-fuses Cut+Constrain into a single kernel off-path." .
+
+:A47_StaticStallHider a :SchedulingPlacement , :HotPathAlgorithm ;
+  rdfs:label "Static Stall Hider" ;
+  :orderIndex 47 ; :mnemonic "A47" ;
+  rdfs:comment "Reorder loads to hide L1 latency within ≤1 tick." .
+
+:A48_DeterministicFairShare a :SchedulingPlacement , :HotPathAlgorithm ;
+  rdfs:label "Deterministic Fair-Share" ;
+  :orderIndex 48 ; :mnemonic "A48" ;
+  rdfs:comment "Branchless round-robin among ready bitsets." .
+
+### G. Faults & Crash-Only
+:A49_BranchlessFaultFlagger a :FaultsCrashOnly , :HotPathAlgorithm ;
+  rdfs:label "Branchless Fault-Flagger" ;
+  :orderIndex 49 ; :mnemonic "A49" ;
+  rdfs:comment "OR-in fault code to status byte; immediate return." ;
+  :upholdsInvariant :CrashOnly .
+
+:A50_PoisonedCrystalQuarantine a :FaultsCrashOnly , :HotPathAlgorithm ;
+  rdfs:label "Poisoned-Crystal Quarantine" ;
+  :orderIndex 50 ; :mnemonic "A50" ;
+  rdfs:comment "Move to cold queue without touching hot state." ;
+  :upholdsInvariant :CrashOnly .
+
+:A51_DeadActorSentinel a :FaultsCrashOnly , :HotPathAlgorithm ;
+  rdfs:label "Dead-Actor Sentinel" ;
+  :orderIndex 51 ; :mnemonic "A51" ;
+  rdfs:comment "Detect all-lanes-dead; stamp terminal status." .
+
+:A52_InvariantProbePack a :FaultsCrashOnly , :HotPathAlgorithm ;
+  rdfs:label "Invariant Probe Pack" ;
+  :orderIndex 52 ; :mnemonic "A52" ;
+  rdfs:comment "Cheap mask probes; compiled out for production if desired." .
+
+:A53_ConstantTimePadder a :FaultsCrashOnly , :HotPathAlgorithm ;
+  rdfs:label "Constant-Time Padder" ;
+  :orderIndex 53 ; :mnemonic "A53" ;
+  rdfs:comment "Equalize optional/absent fields to same cost." .
+
+:A54_ZeroTickRejectStub a :FaultsCrashOnly , :HotPathAlgorithm ;
+  rdfs:label "Zero-Tick Reject Stub" ;
+  :orderIndex 54 ; :mnemonic "A54" ;
+  rdfs:comment "Hot-path stub when cold-path invalidates later; zero work." .
+
+:A55_ReplayFreeIdempotenceTagger a :FaultsCrashOnly , :HotPathAlgorithm ;
+  rdfs:label "Replay-Free Idempotence Tagger" ;
+  :orderIndex 55 ; :mnemonic "A55" ;
+  rdfs:comment "Monotone tag in header to prevent re-exec." .
+
+:A56_TimeoutTranslator a :FaultsCrashOnly , :HotPathAlgorithm ;
+  rdfs:label "Timeout Translator" ;
+  :orderIndex 56 ; :mnemonic "A56" ;
+  rdfs:comment "Translate elapsed-window events to deterministic status bits." .
+
+### H. Housekeeping & Signals (no telemetry in hot path)
+:A57_PerKernelL1ShadowCounters a :HousekeepingSignals , :HotPathAlgorithm ;
+  rdfs:label "Per-Kernel L1 Shadow Counters" ;
+  :orderIndex 57 ; :mnemonic "A57" ;
+  rdfs:comment "8-bit saturating counters per kernel in L1." .
+
+:A58_ShadowToColdFlush a :HousekeepingSignals , :ColdPathAlgorithm ;
+  rdfs:label "Shadow→Cold Flush" ;
+  :orderIndex 58 ; :mnemonic "A58" ;
+  rdfs:comment "Drain counters/events to observers in batches." .
+
+:A59_CompletionIndexer a :HousekeepingSignals , :HotPathAlgorithm ;
+  rdfs:label "Completion Indexer" ;
+  :orderIndex 59 ; :mnemonic "A59" ;
+  rdfs:comment "Write small index token for cold readers." .
+
+:A60_BatchFenceEmitter a :HousekeepingSignals , :HotPathAlgorithm ;
+  rdfs:label "Batch Fence Emitter" ;
+  :orderIndex 60 ; :mnemonic "A60" ;
+  rdfs:comment "Single fence after N completions; amortized." .
+
+:A61_RingVacuumReclaimer a :HousekeepingSignals , :ColdPathAlgorithm ;
+  rdfs:label "Ring Vacuum (Reclaimer)" ;
+  :orderIndex 61 ; :mnemonic "A61" ;
+  rdfs:comment "Reclaims slots deterministically." .
+
+:A62_MPHFHealthAuditor a :HousekeepingSignals , :ColdPathAlgorithm ;
+  rdfs:label "MPHF Health Auditor" ;
+  :orderIndex 62 ; :mnemonic "A62" ;
+  rdfs:comment "Checks for drift; rebuilds off-path if needed." .
+
+:A63_KernelVariantAutoTuner a :HousekeepingSignals , :ColdPathAlgorithm ;
+  rdfs:label "Kernel Variant Auto-Tuner" ;
+  :orderIndex 63 ; :mnemonic "A63" ;
+  rdfs:comment "Switches variants based on cold stats." .
+
+:A64_PredictivePrefetchMapBuilder a :HousekeepingSignals , :ColdPathAlgorithm ;
+  rdfs:label "Predictive Prefetch Map Builder" ;
+  :orderIndex 64 ; :mnemonic "A64" ;
+  rdfs:comment "Compiles next-touch hints for hot path." .

@@ -1,0 +1,50 @@
+# Governor Battlespace Example for TTL Weaver Framework
+# Minimal example demonstrating military ontology patterns
+# Compatible with Weaver v2026.1.1 code generation
+
+@prefix gov: <https://governor.mil/ontology/battlespace#> .
+@prefix unit: <https://governor.mil/ontology/units#> .
+@prefix mission: <https://governor.mil/ontology/mission#> .
+@prefix core: <http://bitstar.ai/core#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Example Military Units (adapted from core:RingBus pattern)
+:alpha_company a unit:Infantry ;
+    gov:combatPowerMultiplier 2 ;
+    gov:maxCommandHops 2 ;
+    sh:maxCount 1 .
+
+:bravo_company a unit:Infantry ;  
+    gov:combatPowerMultiplier 2 ;
+    gov:maxCommandHops 3 ;
+    sh:maxCount 1 .
+
+:charlie_armor a unit:Armor ;
+    gov:combatPowerMultiplier 4 ;
+    gov:maxCommandHops 2 ;
+    sh:maxCount 1 .
+
+# Command Structure (adapted from core:linksTo pattern)
+:alpha_company gov:commandsUnit :bravo_company .
+:charlie_armor gov:supports :alpha_company .
+
+# Mission Objectives (adapted from core:FiberScheduler pattern)
+:secure_hill a mission:Secure ;
+    gov:successCriteria "Occupy and hold Hill 205" ;
+    gov:timeConstraint 3600 ;  # 1 hour
+    core:linksTo :alpha_company .
+
+:destroy_bunker a mission:Destroy ;
+    gov:successCriteria "Neutralize enemy bunker complex" ;
+    gov:timeConstraint 1800 ;  # 30 minutes  
+    core:linksTo :charlie_armor .
+
+# Tactical Procedures (8-space compliant)
+:rapid_assault a gov:RapidAssault ;
+    gov:patternId 1001 ;
+    gov:minSignalStrength 85 ;
+    gov:combatPowerMultiplier 3 ;
+    gov:requiredSensors "0x0F" ;
+    gov:timeConstraint 1800 ;
+    gov:eightSpaceCompliant true ;
+    sh:maxCount 1 .

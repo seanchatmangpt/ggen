@@ -1,0 +1,6 @@
+
+@prefix ex: <http://example.com#> .
+@prefix malformed syntax here
+ex:Test a owl:Class ; 
+    rdfs:label "Missing semicolon"
+    rdfs:comment "Invalid syntax test" .

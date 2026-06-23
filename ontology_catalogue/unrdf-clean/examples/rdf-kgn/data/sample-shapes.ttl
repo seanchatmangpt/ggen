@@ -1,0 +1,56 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/schema#> .
+
+# Person Shape
+ex:PersonShape a sh:NodeShape ;
+    sh:targetClass ex:Person ;
+    sh:property [
+        sh:path ex:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 2 ;
+        sh:message "Person must have exactly one name (min 2 characters)" ;
+    ] ;
+    sh:property [
+        sh:path ex:email ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Person must have at least one valid email address" ;
+    ] ;
+    sh:property [
+        sh:path ex:worksFor ;
+        sh:class ex:Organization ;
+        sh:minCount 0 ;
+        sh:message "Person may work for an Organization" ;
+    ] .
+
+# Organization Shape
+ex:OrganizationShape a sh:NodeShape ;
+    sh:targetClass ex:Organization ;
+    sh:property [
+        sh:path ex:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Organization must have exactly one name" ;
+    ] .
+
+# Document Shape
+ex:DocumentShape a sh:NodeShape ;
+    sh:targetClass ex:Document ;
+    sh:property [
+        sh:path ex:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Document must have exactly one name" ;
+    ] ;
+    sh:property [
+        sh:path ex:created ;
+        sh:class ex:Person ;
+        sh:minCount 0 ;
+        sh:message "Document may have creators" ;
+    ] .

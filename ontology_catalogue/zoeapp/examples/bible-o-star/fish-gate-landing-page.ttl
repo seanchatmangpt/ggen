@@ -1,0 +1,27 @@
+@prefix bos: <http://bible.o.star/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<urn:ostar:fish-gate-section> a bos:WallSection ;
+    bos:gateAssignment bos:FishGate ;
+    bos:builderName bos:SonsOfHassenaah ;
+    bos:provenance bos:Nehemiah_3_3 ;
+    bos:verdict bos:Verdict_Repaired ;
+    bos:receiptRelation <urn:ostar:receipt:fish-gate-001> .
+
+bos:FishGate a bos:Gate ;
+    rdfs:label "Fish Gate" ;
+    bos:landingPage "https://ostar.bible/gates/fish" ;
+    bos:purpose "Catching the right people by truth" .
+
+bos:SonsOfHassenaah a bos:Builder ;
+    rdfs:label "Sons of Hassenaah" .
+
+bos:Nehemiah_3_3 a bos:NationsLedger ;
+    rdfs:label "Nehemiah 3:3" .
+
+bos:Verdict_Repaired a bos:InspectionVerdict ;
+    rdfs:label "Repaired" .
+
+<urn:ostar:receipt:fish-gate-001> a bos:Receipt ;
+    rdfs:label "Fish Gate Receipt #001" .

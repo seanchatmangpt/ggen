@@ -36,3 +36,6 @@ enable_migrations = true
 enable_triggers = true
 enable_indexes = true
 enable_fulltext = true
+
+[marketplace]
+production_ready = false

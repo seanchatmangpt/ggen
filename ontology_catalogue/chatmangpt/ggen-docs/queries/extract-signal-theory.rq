@@ -1,0 +1,49 @@
+# Extract Signal Theory S=(M,G,T,F,W) dimensions
+PREFIX chatman: <https://ontology.chatmangpt.com/core#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT ?dimension ?element ?label ?definition ?scheme
+WHERE {
+  {
+    # Modes
+    ?element a chatman:Mode ;
+             rdfs:label ?label ;
+             rdfs:comment ?definition .
+    BIND("Mode (M)" AS ?dimension)
+    BIND("" AS ?scheme)
+  } UNION {
+    # Types
+    ?element a chatman:Type ;
+             rdfs:label ?label ;
+             rdfs:comment ?definition .
+    BIND("Type (T)" AS ?dimension)
+    BIND("" AS ?scheme)
+  } UNION {
+    # Formats
+    ?element a chatman:Format ;
+             rdfs:label ?label ;
+             rdfs:comment ?definition .
+    BIND("Format (F)" AS ?dimension)
+    BIND("" AS ?scheme)
+  } UNION {
+    # Genres (SKOS Concepts)
+    ?element a skos:Concept ;
+             skos:prefLabel ?label ;
+             skos:definition ?definition ;
+             skos:inScheme ?schemeNode .
+    ?schemeNode rdfs:label ?scheme .
+    FILTER(?schemeNode = chatman:GenreScheme)
+    BIND("Genre (G)" AS ?dimension)
+  } UNION {
+    # Structures (SKOS Concepts)
+    ?element a skos:Concept ;
+             skos:prefLabel ?label ;
+             skos:definition ?definition ;
+             skos:inScheme ?schemeNode .
+    ?schemeNode rdfs:label ?scheme .
+    FILTER(?schemeNode = chatman:StructureScheme)
+    BIND("Structure (W)" AS ?dimension)
+  }
+}
+ORDER BY ?dimension ?label

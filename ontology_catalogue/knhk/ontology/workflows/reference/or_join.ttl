@@ -1,0 +1,128 @@
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Pattern 7: OR-Join (Van der Aalst's unique pattern)
+# Demonstrates: Structured Synchronizing Merge with dead path elimination
+
+<#OrJoinWorkflow> a yawl:Specification ;
+    yawl:uri <http://example.org/workflows/or-join> ;
+    yawl:name "OR-Join Workflow" ;
+    yawl:documentation "Reference workflow demonstrating OR-join pattern (7) - YAWL's unique contribution" ;
+    yawl:hasDecomposition <#OrJoinNet> .
+
+<#OrJoinNet> a yawl:Net ;
+    yawl:id "or_join_net" ;
+    yawl:name "OR-Join Net" ;
+    yawl:isRootNet true ;
+    yawl:hasInputCondition <#start> ;
+    yawl:hasOutputCondition <#end> ;
+    yawl:hasTask <#taskA> ;
+    yawl:hasTask <#taskB> ;
+    yawl:hasTask <#taskC> ;
+    yawl:hasTask <#taskD> ;
+    yawl:hasTask <#taskE> ;
+    yawl:hasCondition <#c1> ;
+    yawl:hasCondition <#c2> ;
+    yawl:hasCondition <#c3> .
+
+<#start> a yawl:InputCondition ;
+    yawl:id "start" ;
+    yawl:name "Start" .
+
+# Task A: OR-split (choose 1 or more paths)
+<#taskA> a yawl:Task ;
+    yawl:id "task_a" ;
+    yawl:name "Task A" ;
+    yawl:documentation "OR-split: activates 1 or more outgoing branches" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeOr ;  # OR-split: non-deterministic choice
+    yawl:flowsInto <#flow1> ;
+    yawl:flowsInto <#flow2> ;
+    yawl:flowsInto <#flow3> .
+
+# Parallel branches
+<#taskB> a yawl:Task ;
+    yawl:id "task_b" ;
+    yawl:name "Task B" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow4> .
+
+<#taskC> a yawl:Task ;
+    yawl:id "task_c" ;
+    yawl:name "Task C" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow5> .
+
+<#taskD> a yawl:Task ;
+    yawl:id "task_d" ;
+    yawl:name "Task D" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow6> .
+
+# Pattern 7: OR-Join (Structured Synchronizing Merge)
+<#taskE> a yawl:Task ;
+    yawl:id "task_e" ;
+    yawl:name "Task E" ;
+    yawl:documentation "Pattern 7: OR-join - waits for all active branches, ignoring dead paths" ;
+    yawl:hasJoin yawl:ControlTypeOr ;  # OR-join: dead path elimination
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow7> .
+
+<#end> a yawl:OutputCondition ;
+    yawl:id "end" ;
+    yawl:name "End" .
+
+# Conditions
+<#c1> a yawl:Condition ;
+    yawl:id "c1" ;
+    yawl:name "C1" .
+
+<#c2> a yawl:Condition ;
+    yawl:id "c2" ;
+    yawl:name "C2" .
+
+<#c3> a yawl:Condition ;
+    yawl:id "c3" ;
+    yawl:name "C3" .
+
+# Flows
+<#flow1> a yawl:FlowsInto ;
+    yawl:nextElementRef <#taskB> ;
+    yawl:hasPredicate <#pred1> .
+
+<#flow2> a yawl:FlowsInto ;
+    yawl:nextElementRef <#taskC> ;
+    yawl:hasPredicate <#pred2> .
+
+<#flow3> a yawl:FlowsInto ;
+    yawl:nextElementRef <#taskD> ;
+    yawl:hasPredicate <#pred3> .
+
+<#flow4> a yawl:FlowsInto ;
+    yawl:nextElementRef <#taskE> .
+
+<#flow5> a yawl:FlowsInto ;
+    yawl:nextElementRef <#taskE> .
+
+<#flow6> a yawl:FlowsInto ;
+    yawl:nextElementRef <#taskE> .
+
+<#flow7> a yawl:FlowsInto ;
+    yawl:nextElementRef <#end> .
+
+# Predicates for OR-split
+<#pred1> a yawl:Predicate ;
+    yawl:ordering 1 ;
+    yawl:query "condition_b = true()" .
+
+<#pred2> a yawl:Predicate ;
+    yawl:ordering 2 ;
+    yawl:query "condition_c = true()" .
+
+<#pred3> a yawl:Predicate ;
+    yawl:ordering 3 ;
+    yawl:query "condition_d = true()" .

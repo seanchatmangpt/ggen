@@ -1,0 +1,69 @@
+@prefix transport: <http://erlmcp.org/schema/transport/> .
+@prefix otp: <http://erlang.org/otp/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+transport:Transport a rdfs:Class ;
+    rdfs:label "Transport" ;
+    rdfs:comment "Base transport interface" ;
+    rdfs:subClassOf otp:GenServer .
+
+transport:Stdio a transport:Transport ;
+    rdfs:label "Standard I/O Transport" ;
+    rdfs:comment "stdin/stdout transport for CLI tools" ;
+    transport:transportType "stdio" .
+
+transport:TCP a transport:Transport ;
+    rdfs:label "TCP Transport" ;
+    rdfs:comment "TCP socket transport" ;
+    transport:transportType "tcp" ;
+    transport:hasPort 9000 ;
+    transport:defaultHost "localhost" .
+
+transport:HTTP a transport:Transport ;
+    rdfs:label "HTTP Transport" ;
+    rdfs:comment "HTTP/HTTPS transport" ;
+    transport:transportType "http" ;
+    transport:hasPath "/mcp" ;
+    transport:defaultPort 8080 .
+
+transport:WebSocket a transport:Transport ;
+    rdfs:label "WebSocket Transport" ;
+    rdfs:comment "WebSocket transport for real-time" ;
+    transport:transportType "websocket" ;
+    transport:hasPath "/ws" ;
+    transport:defaultPort 8080 .
+
+transport:SSE a transport:Transport ;
+    rdfs:label "Server-Sent Events Transport" ;
+    rdfs:comment "Server-Sent Events transport" ;
+    transport:transportType "sse" ;
+    transport:hasPath "/events" .
+
+transport:transportType a rdf:Property ;
+    rdfs:domain transport:Transport ;
+    rdfs:range xsd:string ;
+    rdfs:label "transport type" .
+
+transport:hasPort a rdf:Property ;
+    rdfs:domain transport:Transport ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has port" .
+
+transport:hasPath a rdf:Property ;
+    rdfs:domain transport:Transport ;
+    rdfs:range xsd:string ;
+    rdfs:label "has path" .
+
+transport:defaultHost a rdf:Property ;
+    rdfs:range xsd:string .
+
+transport:defaultPort a rdf:Property ;
+    rdfs:range xsd:integer .
+
+transport:requiresTLS a rdf:Property ;
+    rdfs:range xsd:boolean .
+
+transport:hasBufferSize a rdf:Property ;
+    rdfs:range xsd:integer .

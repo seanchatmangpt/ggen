@@ -1,0 +1,638 @@
+@prefix pm: <http://cns-litigation.com/performance-monitoring#> .
+@prefix ts: <http://cns-litigation.com/trigger-swarm#> .
+@prefix csm: <http://cns-litigation.com/campaign-state-machine#> .
+@prefix edt: <http://cns-litigation.com/event-driven-triggers#> .
+@prefix spr: <http://cns-litigation.com/state-persistence-recovery#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ba: <http://cns-litigation.com/bitactor#> .
+
+# Performance Monitoring and Alerting System
+# Real-time monitoring with predictive analytics and automated alerting
+# Comprehensive metrics collection for legal campaign optimization
+
+pm:PerformanceMonitoringSystem a owl:Class ;
+    rdfs:label "Performance Monitoring System" ;
+    rdfs:comment "Comprehensive performance monitoring and alerting for legal campaign automation" ;
+    pm:version "2.0" ;
+    pm:monitoringMode pm:RealTime ;
+    pm:dataRetention "P90D"^^xsd:duration ;
+    pm:alertLatency "PT5S"^^xsd:duration ;
+    pm:metricsResolution "PT1S"^^xsd:duration .
+
+# ============================================================================
+# MONITORING ARCHITECTURE
+# ============================================================================
+
+# Metrics Collection Engine
+pm:MetricsCollectionEngine a owl:Class ;
+    rdfs:label "Metrics Collection Engine" ;
+    rdfs:comment "High-performance metrics collection and aggregation engine" ;
+    pm:collectionLatency "PT0.1S"^^xsd:duration ;
+    pm:throughput 100000 ;
+    pm:batchSize 1000 ;
+    pm:compressionEnabled true ;
+    pm:metricsBuffer 50000 .
+
+# Monitoring Agents
+pm:MonitoringAgent a owl:Class ;
+    rdfs:label "Monitoring Agent" ;
+    rdfs:comment "Specialized agent for system monitoring" .
+
+pm:CampaignMonitoringAgent a pm:MonitoringAgent ;
+    rdfs:label "Campaign Monitoring Agent" ;
+    rdfs:comment "Monitors legal campaign execution performance" ;
+    pm:monitoringScope pm:CampaignExecution ;
+    pm:metrics pm:CampaignLatency, pm:SuccessRate, pm:ResourceUtilization,
+               pm:SwarmCoordination, pm:StateTransitionTime ;
+    pm:alertThresholds pm:CampaignAlertThresholds .
+
+pm:SystemMonitoringAgent a pm:MonitoringAgent ;
+    rdfs:label "System Monitoring Agent" ;
+    rdfs:comment "Monitors overall system health and performance" ;
+    pm:monitoringScope pm:SystemHealth ;
+    pm:metrics pm:CPUUtilization, pm:MemoryUsage, pm:DiskIO, pm:NetworkLatency,
+               pm:DatabasePerformance, pm:QueueDepth ;
+    pm:alertThresholds pm:SystemAlertThresholds .
+
+pm:SwarmMonitoringAgent a pm:MonitoringAgent ;
+    rdfs:label "Swarm Monitoring Agent" ;
+    rdfs:comment "Monitors swarm coordination and performance" ;
+    pm:monitoringScope pm:SwarmCoordination ;
+    pm:metrics pm:SwarmLatency, pm:MessageThroughput, pm:CoordinationEfficiency,
+               pm:AgentUtilization, pm:CommunicationOverhead ;
+    pm:alertThresholds pm:SwarmAlertThresholds .
+
+pm:LegalProcessMonitoringAgent a pm:MonitoringAgent ;
+    rdfs:label "Legal Process Monitoring Agent" ;
+    rdfs:comment "Monitors legal process compliance and quality" ;
+    pm:monitoringScope pm:LegalCompliance ;
+    pm:metrics pm:ComplianceScore, pm:FilingAccuracy, pm:DeadlineAdherence,
+               pm:EvidenceIntegrity, pm:ProcessingQuality ;
+    pm:alertThresholds pm:LegalAlertThresholds .
+
+# ============================================================================
+# METRICS DEFINITIONS
+# ============================================================================
+
+# Base Metric Class
+pm:Metric a owl:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Base class for all performance metrics" .
+
+# Campaign Performance Metrics
+pm:CampaignMetric a owl:Class ;
+    rdfs:label "Campaign Metric" ;
+    rdfs:comment "Metrics related to campaign performance" ;
+    rdfs:subClassOf pm:Metric .
+
+pm:CampaignLatency a pm:CampaignMetric ;
+    rdfs:label "Campaign Execution Latency" ;
+    rdfs:comment "Time from campaign trigger to completion" ;
+    pm:metricId "campaign_latency" ;
+    pm:unit pm:Milliseconds ;
+    pm:aggregation pm:Average, pm:Percentile95, pm:Maximum ;
+    pm:target "PT10M"^^xsd:duration ;
+    pm:warningThreshold "PT15M"^^xsd:duration ;
+    pm:criticalThreshold "PT30M"^^xsd:duration .
+
+pm:CampaignSuccessRate a pm:CampaignMetric ;
+    rdfs:label "Campaign Success Rate" ;
+    rdfs:comment "Percentage of campaigns completed successfully" ;
+    pm:metricId "campaign_success_rate" ;
+    pm:unit pm:Percentage ;
+    pm:aggregation pm:Average ;
+    pm:target "98.0"^^xsd:decimal ;
+    pm:warningThreshold "95.0"^^xsd:decimal ;
+    pm:criticalThreshold "90.0"^^xsd:decimal .
+
+pm:CampaignThroughput a pm:CampaignMetric ;
+    rdfs:label "Campaign Throughput" ;
+    rdfs:comment "Number of campaigns processed per hour" ;
+    pm:metricId "campaign_throughput" ;
+    pm:unit pm:CampaignsPerHour ;
+    pm:aggregation pm:Sum, pm:Average ;
+    pm:target "50"^^xsd:integer ;
+    pm:warningThreshold "30"^^xsd:integer ;
+    pm:criticalThreshold "20"^^xsd:integer .
+
+# System Performance Metrics
+pm:SystemMetric a owl:Class ;
+    rdfs:label "System Metric" ;
+    rdfs:comment "Metrics related to system performance" ;
+    rdfs:subClassOf pm:Metric .
+
+pm:CPUUtilization a pm:SystemMetric ;
+    rdfs:label "CPU Utilization" ;
+    rdfs:comment "Percentage of CPU resources used" ;
+    pm:metricId "cpu_utilization" ;
+    pm:unit pm:Percentage ;
+    pm:aggregation pm:Average, pm:Maximum ;
+    pm:target "70.0"^^xsd:decimal ;
+    pm:warningThreshold "80.0"^^xsd:decimal ;
+    pm:criticalThreshold "90.0"^^xsd:decimal .
+
+pm:MemoryUsage a pm:SystemMetric ;
+    rdfs:label "Memory Usage" ;
+    rdfs:comment "Percentage of memory resources used" ;
+    pm:metricId "memory_usage" ;
+    pm:unit pm:Percentage ;
+    pm:aggregation pm:Average, pm:Maximum ;
+    pm:target "70.0"^^xsd:decimal ;
+    pm:warningThreshold "85.0"^^xsd:decimal ;
+    pm:criticalThreshold "95.0"^^xsd:decimal .
+
+pm:DatabaseLatency a pm:SystemMetric ;
+    rdfs:label "Database Query Latency" ;
+    rdfs:comment "Average database query response time" ;
+    pm:metricId "database_latency" ;
+    pm:unit pm:Milliseconds ;
+    pm:aggregation pm:Average, pm:Percentile95 ;
+    pm:target "50"^^xsd:integer ;
+    pm:warningThreshold "100"^^xsd:integer ;
+    pm:criticalThreshold "500"^^xsd:integer .
+
+# Swarm Performance Metrics
+pm:SwarmMetric a owl:Class ;
+    rdfs:label "Swarm Metric" ;
+    rdfs:comment "Metrics related to swarm performance" ;
+    rdfs:subClassOf pm:Metric .
+
+pm:SwarmCoordinationLatency a pm:SwarmMetric ;
+    rdfs:label "Swarm Coordination Latency" ;
+    rdfs:comment "Time for swarm coordination messages" ;
+    pm:metricId "swarm_coordination_latency" ;
+    pm:unit pm:Milliseconds ;
+    pm:aggregation pm:Average, pm:Percentile95 ;
+    pm:target "100"^^xsd:integer ;
+    pm:warningThreshold "500"^^xsd:integer ;
+    pm:criticalThreshold "1000"^^xsd:integer .
+
+pm:MessageThroughput a pm:SwarmMetric ;
+    rdfs:label "Message Throughput" ;
+    rdfs:comment "BitActor messages processed per second" ;
+    pm:metricId "message_throughput" ;
+    pm:unit pm:MessagesPerSecond ;
+    pm:aggregation pm:Sum, pm:Average ;
+    pm:target "10000"^^xsd:integer ;
+    pm:warningThreshold "5000"^^xsd:integer ;
+    pm:criticalThreshold "1000"^^xsd:integer .
+
+pm:AgentUtilization a pm:SwarmMetric ;
+    rdfs:label "Agent Utilization" ;
+    rdfs:comment "Percentage of swarm agents actively working" ;
+    pm:metricId "agent_utilization" ;
+    pm:unit pm:Percentage ;
+    pm:aggregation pm:Average ;
+    pm:target "80.0"^^xsd:decimal ;
+    pm:warningThreshold "60.0"^^xsd:decimal ;
+    pm:criticalThreshold "40.0"^^xsd:decimal .
+
+# Legal Process Metrics
+pm:LegalMetric a owl:Class ;
+    rdfs:label "Legal Process Metric" ;
+    rdfs:comment "Metrics related to legal process quality" ;
+    rdfs:subClassOf pm:Metric .
+
+pm:ComplianceScore a pm:LegalMetric ;
+    rdfs:label "Legal Compliance Score" ;
+    rdfs:comment "Overall legal compliance rating" ;
+    pm:metricId "compliance_score" ;
+    pm:unit pm:Score ;
+    pm:aggregation pm:Average, pm:Minimum ;
+    pm:target "95.0"^^xsd:decimal ;
+    pm:warningThreshold "90.0"^^xsd:decimal ;
+    pm:criticalThreshold "85.0"^^xsd:decimal .
+
+pm:FilingAccuracy a pm:LegalMetric ;
+    rdfs:label "Filing Accuracy Rate" ;
+    rdfs:comment "Percentage of filings accepted without errors" ;
+    pm:metricId "filing_accuracy" ;
+    pm:unit pm:Percentage ;
+    pm:aggregation pm:Average ;
+    pm:target "99.0"^^xsd:decimal ;
+    pm:warningThreshold "95.0"^^xsd:decimal ;
+    pm:criticalThreshold "90.0"^^xsd:decimal .
+
+pm:DeadlineAdherence a pm:LegalMetric ;
+    rdfs:label "Deadline Adherence Rate" ;
+    rdfs:comment "Percentage of deadlines met on time" ;
+    pm:metricId "deadline_adherence" ;
+    pm:unit pm:Percentage ;
+    pm:aggregation pm:Average ;
+    pm:target "100.0"^^xsd:decimal ;
+    pm:warningThreshold "98.0"^^xsd:decimal ;
+    pm:criticalThreshold "95.0"^^xsd:decimal .
+
+pm:ContradictionDetectionRate a pm:LegalMetric ;
+    rdfs:label "Contradiction Detection Rate" ;
+    rdfs:comment "Rate of contradiction detection in evidence" ;
+    pm:metricId "contradiction_detection_rate" ;
+    pm:unit pm:ContradictionsPerHour ;
+    pm:aggregation pm:Sum, pm:Average ;
+    pm:target "5"^^xsd:integer ;
+    pm:warningThreshold "2"^^xsd:integer ;
+    pm:criticalThreshold "1"^^xsd:integer .
+
+# ============================================================================
+# ALERTING SYSTEM
+# ============================================================================
+
+# Alert Manager
+pm:AlertManager a owl:Class ;
+    rdfs:label "Alert Manager" ;
+    rdfs:comment "Manages alert generation, routing, and escalation" ;
+    pm:alertLatency "PT5S"^^xsd:duration ;
+    pm:deduplicationWindow "PT5M"^^xsd:duration ;
+    pm:maxAlertsPerMinute 100 ;
+    pm:escalationEnabled true .
+
+# Alert Severity Levels
+pm:AlertSeverity a owl:Class ;
+    rdfs:label "Alert Severity" ;
+    rdfs:comment "Severity classification for alerts" .
+
+pm:Info a pm:AlertSeverity ;
+    rdfs:label "Informational Alert" ;
+    rdfs:comment "Informational alert for awareness" ;
+    pm:severityLevel 1 ;
+    pm:responseTime "PT1H"^^xsd:duration ;
+    pm:escalationRequired false .
+
+pm:Warning a pm:AlertSeverity ;
+    rdfs:label "Warning Alert" ;
+    rdfs:comment "Warning alert requiring attention" ;
+    pm:severityLevel 2 ;
+    pm:responseTime "PT15M"^^xsd:duration ;
+    pm:escalationRequired false .
+
+pm:Critical a pm:AlertSeverity ;
+    rdfs:label "Critical Alert" ;
+    rdfs:comment "Critical alert requiring immediate action" ;
+    pm:severityLevel 3 ;
+    pm:responseTime "PT5M"^^xsd:duration ;
+    pm:escalationRequired true .
+
+pm:Emergency a pm:AlertSeverity ;
+    rdfs:label "Emergency Alert" ;
+    rdfs:comment "Emergency alert requiring urgent response" ;
+    pm:severityLevel 4 ;
+    pm:responseTime "PT1M"^^xsd:duration ;
+    pm:escalationRequired true ;
+    pm:pageOnCall true .
+
+# Alert Rules
+pm:AlertRule a owl:Class ;
+    rdfs:label "Alert Rule" ;
+    rdfs:comment "Rule for generating alerts based on metrics" .
+
+pm:ThresholdAlert a pm:AlertRule ;
+    rdfs:label "Threshold Alert Rule" ;
+    rdfs:comment "Alert triggered when metric crosses threshold" ;
+    pm:metric pm:Metric ;
+    pm:operator pm:GreaterThan, pm:LessThan, pm:Equals ;
+    pm:threshold xsd:decimal ;
+    pm:duration xsd:duration ;
+    pm:severity pm:AlertSeverity .
+
+pm:AnomalyAlert a pm:AlertRule ;
+    rdfs:label "Anomaly Alert Rule" ;
+    rdfs:comment "Alert triggered by anomaly detection" ;
+    pm:metric pm:Metric ;
+    pm:algorithm pm:StatisticalAnomaly, pm:MachineLearningAnomaly ;
+    pm:sensitivity xsd:decimal ;
+    pm:learningPeriod xsd:duration .
+
+pm:CompoundAlert a pm:AlertRule ;
+    rdfs:label "Compound Alert Rule" ;
+    rdfs:comment "Alert triggered by combination of conditions" ;
+    pm:conditions rdf:List ;
+    pm:logicalOperator pm:AND, pm:OR ;
+    pm:evaluationWindow xsd:duration .
+
+# Alert Channels
+pm:AlertChannel a owl:Class ;
+    rdfs:label "Alert Channel" ;
+    rdfs:comment "Channel for alert delivery" .
+
+pm:EmailChannel a pm:AlertChannel ;
+    rdfs:label "Email Alert Channel" ;
+    rdfs:comment "Email-based alert delivery" ;
+    pm:recipients rdf:List ;
+    pm:template pm:EmailTemplate ;
+    pm:deliveryLatency "PT30S"^^xsd:duration .
+
+pm:SlackChannel a pm:AlertChannel ;
+    rdfs:label "Slack Alert Channel" ;
+    rdfs:comment "Slack-based alert delivery" ;
+    pm:webhookURL xsd:string ;
+    pm:channel xsd:string ;
+    pm:template pm:SlackTemplate ;
+    pm:deliveryLatency "PT5S"^^xsd:duration .
+
+pm:PagerDutyChannel a pm:AlertChannel ;
+    rdfs:label "PagerDuty Alert Channel" ;
+    rdfs:comment "PagerDuty-based alert delivery" ;
+    pm:integrationKey xsd:string ;
+    pm:escalationPolicy xsd:string ;
+    pm:deliveryLatency "PT10S"^^xsd:duration .
+
+pm:WebhookChannel a pm:AlertChannel ;
+    rdfs:label "Webhook Alert Channel" ;
+    rdfs:comment "Webhook-based alert delivery" ;
+    pm:webhookURL xsd:string ;
+    pm:httpMethod pm:POST ;
+    pm:authenticationRequired true ;
+    pm:deliveryLatency "PT5S"^^xsd:duration .
+
+# ============================================================================
+# DASHBOARDS AND VISUALIZATION
+# ============================================================================
+
+# Dashboard System
+pm:DashboardSystem a owl:Class ;
+    rdfs:label "Dashboard System" ;
+    rdfs:comment "Real-time dashboard system for performance visualization" ;
+    pm:refreshRate "PT5S"^^xsd:duration ;
+    pm:dataRetention "P7D"^^xsd:duration ;
+    pm:concurrentUsers 100 ;
+    pm:chartTypes pm:TimeSeries, pm:Histogram, pm:Gauge, pm:HeatMap .
+
+# Dashboard Definitions
+pm:Dashboard a owl:Class ;
+    rdfs:label "Performance Dashboard" ;
+    rdfs:comment "Performance monitoring dashboard" .
+
+pm:CampaignDashboard a pm:Dashboard ;
+    rdfs:label "Campaign Performance Dashboard" ;
+    rdfs:comment "Dashboard for campaign execution monitoring" ;
+    pm:widgets [
+        pm:widget pm:CampaignLatencyChart ;
+        pm:widget pm:CampaignSuccessRateGauge ;
+        pm:widget pm:CampaignThroughputTimeSeries ;
+        pm:widget pm:ActiveCampaignsTable ;
+        pm:widget pm:ContradictionDetectionHeatMap
+    ] ;
+    pm:refreshRate "PT10S"^^xsd:duration .
+
+pm:SystemDashboard a pm:Dashboard ;
+    rdfs:label "System Health Dashboard" ;
+    rdfs:comment "Dashboard for system health monitoring" ;
+    pm:widgets [
+        pm:widget pm:CPUUtilizationGauge ;
+        pm:widget pm:MemoryUsageGauge ;
+        pm:widget pm:DatabaseLatencyChart ;
+        pm:widget pm:DiskIOChart ;
+        pm:widget pm:NetworkLatencyChart
+    ] ;
+    pm:refreshRate "PT5S"^^xsd:duration .
+
+pm:SwarmDashboard a pm:Dashboard ;
+    rdfs:label "Swarm Coordination Dashboard" ;
+    rdfs:comment "Dashboard for swarm performance monitoring" ;
+    pm:widgets [
+        pm:widget pm:SwarmCoordinationLatencyChart ;
+        pm:widget pm:MessageThroughputChart ;
+        pm:widget pm:AgentUtilizationHeatMap ;
+        pm:widget pm:SwarmTopologyVisualization ;
+        pm:widget pm:CommunicationFlowDiagram
+    ] ;
+    pm:refreshRate "PT5S"^^xsd:duration .
+
+pm:LegalDashboard a pm:Dashboard ;
+    rdfs:label "Legal Process Dashboard" ;
+    rdfs:comment "Dashboard for legal process monitoring" ;
+    pm:widgets [
+        pm:widget pm:ComplianceScoreGauge ;
+        pm:widget pm:FilingAccuracyChart ;
+        pm:widget pm:DeadlineAdherenceTimeSeries ;
+        pm:widget pm:UpcomingDeadlinesTable ;
+        pm:widget pm:EvidenceIntegrityStatus
+    ] ;
+    pm:refreshRate "PT30S"^^xsd:duration .
+
+# ============================================================================
+# PREDICTIVE ANALYTICS
+# ============================================================================
+
+# Predictive Analytics Engine
+pm:PredictiveAnalyticsEngine a owl:Class ;
+    rdfs:label "Predictive Analytics Engine" ;
+    rdfs:comment "Machine learning-based predictive analytics for performance optimization" ;
+    pm:algorithms pm:TimeSeriesForecasting, pm:AnomalyDetection, pm:CapacityPlanning ;
+    pm:modelUpdateFrequency "P1D"^^xsd:duration ;
+    pm:predictionHorizon "PT2H"^^xsd:duration ;
+    pm:accuracy "95.0"^^xsd:decimal .
+
+# Predictive Models
+pm:PredictiveModel a owl:Class ;
+    rdfs:label "Predictive Model" ;
+    rdfs:comment "Machine learning model for performance prediction" .
+
+pm:CampaignLatencyPredictor a pm:PredictiveModel ;
+    rdfs:label "Campaign Latency Predictor" ;
+    rdfs:comment "Predicts campaign execution latency" ;
+    pm:algorithm pm:LSTM ;
+    pm:features pm:HistoricalLatency, pm:CampaignComplexity, pm:SystemLoad ;
+    pm:accuracy "92.0"^^xsd:decimal ;
+    pm:updateFrequency "PT6H"^^xsd:duration .
+
+pm:ResourceDemandPredictor a pm:PredictiveModel ;
+    rdfs:label "Resource Demand Predictor" ;
+    rdfs:comment "Predicts system resource demand" ;
+    pm:algorithm pm:RandomForest ;
+    pm:features pm:HistoricalUsage, pm:CampaignSchedule, pm:SeasonalPatterns ;
+    pm:accuracy "88.0"^^xsd:decimal ;
+    pm:updateFrequency "PT12H"^^xsd:duration .
+
+pm:AnomalyDetector a pm:PredictiveModel ;
+    rdfs:label "Performance Anomaly Detector" ;
+    rdfs:comment "Detects performance anomalies" ;
+    pm:algorithm pm:IsolationForest ;
+    pm:features pm:AllSystemMetrics ;
+    pm:falsePositiveRate "5.0"^^xsd:decimal ;
+    pm:detectionLatency "PT30S"^^xsd:duration .
+
+# ============================================================================
+# PERFORMANCE OPTIMIZATION
+# ============================================================================
+
+# Optimization Engine
+pm:OptimizationEngine a owl:Class ;
+    rdfs:label "Performance Optimization Engine" ;
+    rdfs:comment "Automated performance optimization based on monitoring data" ;
+    pm:optimizationStrategies pm:AutoScaling, pm:LoadBalancing, pm:ResourceAllocation ;
+    pm:optimizationFrequency "PT5M"^^xsd:duration ;
+    pm:safetyLimits pm:ConservativeOptimization .
+
+# Optimization Strategies
+pm:OptimizationStrategy a owl:Class ;
+    rdfs:label "Optimization Strategy" ;
+    rdfs:comment "Strategy for performance optimization" .
+
+pm:AutoScaling a pm:OptimizationStrategy ;
+    rdfs:label "Auto Scaling Strategy" ;
+    rdfs:comment "Automatic scaling of resources based on demand" ;
+    pm:scalingMetrics pm:CPUUtilization, pm:MemoryUsage, pm:CampaignThroughput ;
+    pm:scaleUpThreshold "80.0"^^xsd:decimal ;
+    pm:scaleDownThreshold "40.0"^^xsd:decimal ;
+    pm:cooldownPeriod "PT5M"^^xsd:duration .
+
+pm:LoadBalancing a pm:OptimizationStrategy ;
+    rdfs:label "Load Balancing Strategy" ;
+    rdfs:comment "Dynamic load balancing across resources" ;
+    pm:balancingAlgorithm pm:WeightedRoundRobin ;
+    pm:healthChecks pm:Enabled ;
+    pm:failoverTime "PT30S"^^xsd:duration .
+
+pm:CacheOptimization a pm:OptimizationStrategy ;
+    rdfs:label "Cache Optimization Strategy" ;
+    rdfs:comment "Optimization of caching strategies" ;
+    pm:cacheHitRate "90.0"^^xsd:decimal ;
+    pm:evictionPolicy pm:LRU ;
+    pm:cacheSize "10GB"^^xsd:string .
+
+# ============================================================================
+# SLA MONITORING
+# ============================================================================
+
+# SLA Manager
+pm:SLAManager a owl:Class ;
+    rdfs:label "SLA Manager" ;
+    rdfs:comment "Service Level Agreement monitoring and reporting" ;
+    pm:slaMetrics pm:Availability, pm:ResponseTime, pm:ThroughputSLA, pm:ErrorRate ;
+    pm:reportingFrequency "P1D"^^xsd:duration ;
+    pm:breachNotification pm:Immediate .
+
+# SLA Definitions
+pm:ServiceLevelAgreement a owl:Class ;
+    rdfs:label "Service Level Agreement" ;
+    rdfs:comment "Formal SLA definition" .
+
+pm:CampaignExecutionSLA a pm:ServiceLevelAgreement ;
+    rdfs:label "Campaign Execution SLA" ;
+    rdfs:comment "SLA for campaign execution performance" ;
+    pm:availability "99.9"^^xsd:decimal ;
+    pm:responseTime "PT15M"^^xsd:duration ;
+    pm:successRate "98.0"^^xsd:decimal ;
+    pm:penalties pm:ServiceCredits ;
+    pm:measurementPeriod "P1M"^^xsd:duration .
+
+pm:SystemAvailabilitySLA a pm:ServiceLevelAgreement ;
+    rdfs:label "System Availability SLA" ;
+    rdfs:comment "SLA for system availability" ;
+    pm:availability "99.95"^^xsd:decimal ;
+    pm:downtimeAllowance "PT22M"^^xsd:duration ;
+    pm:measurementPeriod "P1M"^^xsd:duration ;
+    pm:excludedDowntime pm:MaintenanceWindows .
+
+# ============================================================================
+# REPORTING SYSTEM
+# ============================================================================
+
+# Report Generator
+pm:ReportGenerator a owl:Class ;
+    rdfs:label "Performance Report Generator" ;
+    rdfs:comment "Automated performance report generation" ;
+    pm:reportTypes pm:DailyReport, pm:WeeklyReport, pm:MonthlyReport, pm:IncidentReport ;
+    pm:reportFormats pm:PDF, pm:HTML, pm:JSON, pm:CSV ;
+    pm:distributionChannels pm:Email, pm:Dashboard, pm:API .
+
+# Report Templates
+pm:ReportTemplate a owl:Class ;
+    rdfs:label "Report Template" ;
+    rdfs:comment "Template for performance reports" .
+
+pm:DailyPerformanceReport a pm:ReportTemplate ;
+    rdfs:label "Daily Performance Report" ;
+    rdfs:comment "Daily performance summary report" ;
+    pm:sections [
+        pm:section "Executive Summary" ;
+        pm:section "Campaign Performance" ;
+        pm:section "System Health" ;
+        pm:section "SLA Compliance" ;
+        pm:section "Issues and Actions"
+    ] ;
+    pm:generationTime "06:00" ;
+    pm:recipients pm:ManagementTeam .
+
+pm:IncidentReport a pm:ReportTemplate ;
+    rdfs:label "Incident Report" ;
+    rdfs:comment "Detailed incident analysis report" ;
+    pm:sections [
+        pm:section "Incident Summary" ;
+        pm:section "Timeline" ;
+        pm:section "Root Cause Analysis" ;
+        pm:section "Impact Assessment" ;
+        pm:section "Remediation Actions" ;
+        pm:section "Prevention Measures"
+    ] ;
+    pm:triggerEvents pm:CriticalAlert, pm:SLABreach ;
+    pm:recipients pm:TechnicalTeam, pm:ManagementTeam .
+
+# ============================================================================
+# PROPERTIES AND RELATIONSHIPS
+# ============================================================================
+
+# Object Properties
+pm:monitors rdf:type owl:ObjectProperty ;
+    rdfs:label "monitors" ;
+    rdfs:comment "System or component being monitored" ;
+    rdfs:domain pm:MonitoringAgent .
+
+pm:hasMetric rdf:type owl:ObjectProperty ;
+    rdfs:label "has metric" ;
+    rdfs:comment "Metric collected by this monitoring agent" ;
+    rdfs:domain pm:MonitoringAgent ;
+    rdfs:range pm:Metric .
+
+pm:hasAlertRule rdf:type owl:ObjectProperty ;
+    rdfs:label "has alert rule" ;
+    rdfs:comment "Alert rule for this metric" ;
+    rdfs:domain pm:Metric ;
+    rdfs:range pm:AlertRule .
+
+pm:usesChannel rdf:type owl:ObjectProperty ;
+    rdfs:label "uses channel" ;
+    rdfs:comment "Alert channel used for notification" ;
+    rdfs:domain pm:AlertRule ;
+    rdfs:range pm:AlertChannel .
+
+# Data Properties
+pm:metricId rdf:type owl:DatatypeProperty ;
+    rdfs:label "metric ID" ;
+    rdfs:comment "Unique identifier for metric" ;
+    rdfs:domain pm:Metric ;
+    rdfs:range xsd:string .
+
+pm:target rdf:type owl:DatatypeProperty ;
+    rdfs:label "target value" ;
+    rdfs:comment "Target value for metric" ;
+    rdfs:domain pm:Metric ;
+    rdfs:range xsd:decimal .
+
+pm:warningThreshold rdf:type owl:DatatypeProperty ;
+    rdfs:label "warning threshold" ;
+    rdfs:comment "Threshold for warning alerts" ;
+    rdfs:domain pm:Metric ;
+    rdfs:range xsd:decimal .
+
+pm:criticalThreshold rdf:type owl:DatatypeProperty ;
+    rdfs:label "critical threshold" ;
+    rdfs:comment "Threshold for critical alerts" ;
+    rdfs:domain pm:Metric ;
+    rdfs:range xsd:decimal .
+
+pm:alertLatency rdf:type owl:DatatypeProperty ;
+    rdfs:label "alert latency" ;
+    rdfs:comment "Maximum time to generate alert" ;
+    rdfs:domain pm:AlertManager ;
+    rdfs:range xsd:duration .
+
+pm:refreshRate rdf:type owl:DatatypeProperty ;
+    rdfs:label "refresh rate" ;
+    rdfs:comment "Dashboard refresh rate" ;
+    rdfs:domain pm:Dashboard ;
+    rdfs:range xsd:duration .

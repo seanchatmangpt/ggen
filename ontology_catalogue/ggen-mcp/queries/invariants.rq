@@ -1,0 +1,14 @@
+PREFIX ggen: <https://ggen-mcp.dev/domain#>
+PREFIX ddd: <https://ddd-patterns.dev/schema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?aggregate ?invariantLabel ?check ?message
+WHERE {
+  ?aggregate a ddd:AggregateRoot .
+  ?aggregate ddd:hasInvariant ?inv .
+  ?inv rdfs:label ?invariantLabel ;
+       ddd:check ?check ;
+       ddd:message ?message .
+}
+ORDER BY ?aggregate ?invariantLabel
+LIMIT 10000

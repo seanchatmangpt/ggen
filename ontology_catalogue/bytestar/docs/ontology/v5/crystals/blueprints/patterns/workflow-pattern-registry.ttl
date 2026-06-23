@@ -1,0 +1,496 @@
+@prefix wpr: <https://bytestar.org/ontology/v5/crystals/blueprints/workflow-pattern-registry#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix yawl: <http://yawl.org/ontology#> .
+@prefix pcl: <https://bytestar.org/ontology/v5/crystals/blueprints/polycrystal-lattice#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+<https://bytestar.org/ontology/v5/crystals/blueprints/workflow-pattern-registry>
+  a owl:Ontology ;
+  rdfs:label "43 Workflow Pattern Registry with Capability Mappings" ;
+  rdfs:comment "Complete registry of 43 canonical workflow patterns with crystal capability mappings, extending YAWL's 20 patterns with ByteStar-specific patterns." ;
+  owl:imports 
+    <https://bytestar.org/ontology/bytestar-core> ,
+    <http://yawl.org/ontology> ,
+    <https://bytestar.org/ontology/v5/crystals/blueprints/polycrystal-lattice> ;
+  owl:versionInfo "5.0.0" ;
+  wpr:patternCount "43"^^xsd:integer ;
+  wpr:yawlExtended "true"^^xsd:boolean .
+
+#################################################################
+# Core Pattern Registry Structure
+#################################################################
+
+wpr:WorkflowPatternRegistry a owl:Class ;
+  rdfs:label "Workflow Pattern Registry" ;
+  rdfs:comment "Central registry containing all 43 canonical workflow patterns with capability mappings." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty wpr:containsPattern ;
+    owl:cardinality "43"^^xsd:nonNegativeInteger
+  ] .
+
+wpr:CrystalWorkflowPattern a owl:Class ;
+  rdfs:label "Crystal Workflow Pattern" ;
+  rdfs:comment "Enhanced workflow pattern with crystal structure integration and capability mappings." ;
+  rdfs:subClassOf bcore:Pattern ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty wpr:hasCapabilityMapping ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty wpr:hasPatternId ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+wpr:CapabilityMapping a owl:Class ;
+  rdfs:label "Capability Mapping" ;
+  rdfs:comment "Maps workflow patterns to required and provided capabilities." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty wpr:requiresCapability ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty wpr:providesCapability ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+#################################################################
+# Pattern Categories (Extended from YAWL)
+#################################################################
+
+wpr:PatternCategory a owl:Class ;
+  rdfs:label "Pattern Category" ;
+  rdfs:comment "Extended categorization including ByteStar-specific pattern types." .
+
+# YAWL-derived categories
+wpr:BasicControlFlow a wpr:PatternCategory ;
+  rdfs:label "Basic Control Flow Patterns" .
+
+wpr:AdvancedBranchingSynchronization a wpr:PatternCategory ;
+  rdfs:label "Advanced Branching and Synchronization Patterns" .
+
+wpr:Structural a wpr:PatternCategory ;
+  rdfs:label "Structural Patterns" .
+
+wpr:MultipleInstances a wpr:PatternCategory ;
+  rdfs:label "Patterns involving Multiple Instances" .
+
+wpr:StateBased a wpr:PatternCategory ;
+  rdfs:label "State-based Patterns" .
+
+wpr:Cancellation a wpr:PatternCategory ;
+  rdfs:label "Cancellation Patterns" .
+
+# ByteStar-specific categories
+wpr:CrystalOrchestration a wpr:PatternCategory ;
+  rdfs:label "Crystal Orchestration Patterns" .
+
+wpr:MemoryResident a wpr:PatternCategory ;
+  rdfs:label "Memory-Resident Patterns" .
+
+wpr:FaultTolerant a wpr:PatternCategory ;
+  rdfs:label "Fault-Tolerant Patterns" .
+
+wpr:PerformanceOptimized a wpr:PatternCategory ;
+  rdfs:label "Performance-Optimized Patterns" .
+
+wpr:SecurityCompliant a wpr:PatternCategory ;
+  rdfs:label "Security-Compliant Patterns" .
+
+#################################################################
+# 43 Canonical Workflow Patterns (P01-P43)
+#################################################################
+
+# YAWL Base Patterns (P01-P20) - Extended with Crystal Capabilities
+wpr:P01_Sequence a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P01: Sequence" ;
+  wpr:patternId "P01" ;
+  wpr:category wpr:BasicControlFlow ;
+  wpr:yawlEquivalent yawl:P1_Sequence ;
+  wpr:crystalComplexity "1"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P02_ParallelSplit a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P02: Parallel Split" ;
+  wpr:patternId "P02" ;
+  wpr:category wpr:BasicControlFlow ;
+  wpr:yawlEquivalent yawl:P2_ParallelSplit ;
+  wpr:crystalComplexity "2"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P03_Synchronization a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P03: Synchronization" ;
+  wpr:patternId "P03" ;
+  wpr:category wpr:BasicControlFlow ;
+  wpr:yawlEquivalent yawl:P3_Synchronization ;
+  wpr:crystalComplexity "3"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P04_ExclusiveChoice a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P04: Exclusive Choice" ;
+  wpr:patternId "P04" ;
+  wpr:category wpr:BasicControlFlow ;
+  wpr:yawlEquivalent yawl:P4_ExclusiveChoice ;
+  wpr:crystalComplexity "2"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P05_SimpleMerge a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P05: Simple Merge" ;
+  wpr:patternId "P05" ;
+  wpr:category wpr:BasicControlFlow ;
+  wpr:yawlEquivalent yawl:P5_SimpleMerge ;
+  wpr:crystalComplexity "2"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P06_MultiChoice a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P06: Multi-Choice" ;
+  wpr:patternId "P06" ;
+  wpr:category wpr:AdvancedBranchingSynchronization ;
+  wpr:yawlEquivalent yawl:P6_MultiChoice ;
+  wpr:crystalComplexity "4"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+wpr:P07_SynchronizingMerge a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P07: Synchronizing Merge" ;
+  wpr:patternId "P07" ;
+  wpr:category wpr:AdvancedBranchingSynchronization ;
+  wpr:yawlEquivalent yawl:P7_SynchronizingMerge ;
+  wpr:crystalComplexity "5"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+wpr:P08_MultiMerge a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P08: Multi-Merge" ;
+  wpr:patternId "P08" ;
+  wpr:category wpr:AdvancedBranchingSynchronization ;
+  wpr:yawlEquivalent yawl:P8_MultiMerge ;
+  wpr:crystalComplexity "6"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+wpr:P09_Discriminator a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P09: Discriminator" ;
+  wpr:patternId "P09" ;
+  wpr:category wpr:AdvancedBranchingSynchronization ;
+  wpr:yawlEquivalent yawl:P9_Discriminator ;
+  wpr:crystalComplexity "4"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+wpr:P10_ArbitraryCycles a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P10: Arbitrary Cycles" ;
+  wpr:patternId "P10" ;
+  wpr:category wpr:Structural ;
+  wpr:yawlEquivalent yawl:P10_ArbitraryCycles ;
+  wpr:crystalComplexity "7"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+wpr:P11_ImplicitTermination a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P11: Implicit Termination" ;
+  wpr:patternId "P11" ;
+  wpr:category wpr:Structural ;
+  wpr:yawlEquivalent yawl:P11_ImplicitTermination ;
+  wpr:crystalComplexity "2"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P12_MultipleInstancesWithoutSync a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P12: Multiple Instances Without Synchronization" ;
+  wpr:patternId "P12" ;
+  wpr:category wpr:MultipleInstances ;
+  wpr:yawlEquivalent yawl:P12_MultipleInstancesWithoutSynchronization ;
+  wpr:crystalComplexity "8"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop5 .
+
+wpr:P13_MultipleInstancesAPrioriDesign a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P13: Multiple Instances A Priori Design" ;
+  wpr:patternId "P13" ;
+  wpr:category wpr:MultipleInstances ;
+  wpr:yawlEquivalent yawl:P13_MultipleInstancesWithAPrioriDesignTimeKnowledge ;
+  wpr:crystalComplexity "6"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+wpr:P14_MultipleInstancesAPrioriRuntime a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P14: Multiple Instances A Priori Runtime" ;
+  wpr:patternId "P14" ;
+  wpr:category wpr:MultipleInstances ;
+  wpr:yawlEquivalent yawl:P14_MultipleInstancesWithAPrioriRuntimeKnowledge ;
+  wpr:crystalComplexity "7"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+wpr:P15_MultipleInstancesWithoutAPriori a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P15: Multiple Instances Without A Priori" ;
+  wpr:patternId "P15" ;
+  wpr:category wpr:MultipleInstances ;
+  wpr:yawlEquivalent yawl:P15_MultipleInstancesWithoutAPrioriRuntimeKnowledge ;
+  wpr:crystalComplexity "8"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop5 .
+
+wpr:P16_DeferredChoice a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P16: Deferred Choice" ;
+  wpr:patternId "P16" ;
+  wpr:category wpr:StateBased ;
+  wpr:yawlEquivalent yawl:P16_DeferredChoice ;
+  wpr:crystalComplexity "5"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+wpr:P17_InterleavedParallelRouting a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P17: Interleaved Parallel Routing" ;
+  wpr:patternId "P17" ;
+  wpr:category wpr:StateBased ;
+  wpr:yawlEquivalent yawl:P17_InterleavedParallelRouting ;
+  wpr:crystalComplexity "8"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop5 .
+
+wpr:P18_Milestone a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P18: Milestone" ;
+  wpr:patternId "P18" ;
+  wpr:category wpr:StateBased ;
+  wpr:yawlEquivalent yawl:P18_Milestone ;
+  wpr:crystalComplexity "4"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+wpr:P19_CancelActivity a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P19: Cancel Activity" ;
+  wpr:patternId "P19" ;
+  wpr:category wpr:Cancellation ;
+  wpr:yawlEquivalent yawl:P19_CancelActivity ;
+  wpr:crystalComplexity "3"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P20_CancelCase a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P20: Cancel Case" ;
+  wpr:patternId "P20" ;
+  wpr:category wpr:Cancellation ;
+  wpr:yawlEquivalent yawl:P20_CancelCase ;
+  wpr:crystalComplexity "5"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+# ByteStar-Specific Patterns (P21-P43)
+wpr:P21_CrystalFormation a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P21: Crystal Formation" ;
+  wpr:patternId "P21" ;
+  wpr:category wpr:CrystalOrchestration ;
+  wpr:crystalComplexity "3"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P22_LatticeBinding a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P22: Lattice Binding" ;
+  wpr:patternId "P22" ;
+  wpr:category wpr:CrystalOrchestration ;
+  wpr:crystalComplexity "4"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P23_MemoryResident a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P23: Memory Resident Execution" ;
+  wpr:patternId "P23" ;
+  wpr:category wpr:MemoryResident ;
+  wpr:crystalComplexity "2"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P24_L1CacheOptimized a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P24: L1 Cache Optimized" ;
+  wpr:patternId "P24" ;
+  wpr:category wpr:MemoryResident ;
+  wpr:crystalComplexity "1"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P25_LetItCrash a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P25: Let It Crash" ;
+  wpr:patternId "P25" ;
+  wpr:category wpr:FaultTolerant ;
+  wpr:crystalComplexity "2"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P26_SupervisorRestart a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P26: Supervisor Restart" ;
+  wpr:patternId "P26" ;
+  wpr:category wpr:FaultTolerant ;
+  wpr:crystalComplexity "5"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+wpr:P27_CircuitBreaker a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P27: Circuit Breaker" ;
+  wpr:patternId "P27" ;
+  wpr:category wpr:FaultTolerant ;
+  wpr:crystalComplexity "4"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+wpr:P28_EightTickBudget a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P28: Eight Tick Budget" ;
+  wpr:patternId "P28" ;
+  wpr:category wpr:PerformanceOptimized ;
+  wpr:crystalComplexity "1"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P29_BranchFreeExecution a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P29: Branch-Free Execution" ;
+  wpr:patternId "P29" ;
+  wpr:category wpr:PerformanceOptimized ;
+  wpr:crystalComplexity "2"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P30_SIMDVectorized a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P30: SIMD Vectorized" ;
+  wpr:patternId "P30" ;
+  wpr:category wpr:PerformanceOptimized ;
+  wpr:crystalComplexity "3"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P31_ConstantTimeExecution a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P31: Constant Time Execution" ;
+  wpr:patternId "P31" ;
+  wpr:category wpr:SecurityCompliant ;
+  wpr:crystalComplexity "4"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P32_SideChannelResistant a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P32: Side Channel Resistant" ;
+  wpr:patternId "P32" ;
+  wpr:category wpr:SecurityCompliant ;
+  wpr:crystalComplexity "6"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P33_PostQuantumSecure a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P33: Post-Quantum Secure" ;
+  wpr:patternId "P33" ;
+  wpr:category wpr:SecurityCompliant ;
+  wpr:crystalComplexity "8"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+wpr:P34_MPHFDispatch a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P34: MPHF Dispatch" ;
+  wpr:patternId "P34" ;
+  wpr:category wpr:PerformanceOptimized ;
+  wpr:crystalComplexity "3"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P35_SPSCQueue a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P35: SPSC Queue" ;
+  wpr:patternId "P35" ;
+  wpr:category wpr:PerformanceOptimized ;
+  wpr:crystalComplexity "2"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P36_ZeroCopyTransfer a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P36: Zero Copy Transfer" ;
+  wpr:patternId "P36" ;
+  wpr:category wpr:MemoryResident ;
+  wpr:crystalComplexity "3"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P37_MemoryPoolAllocation a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P37: Memory Pool Allocation" ;
+  wpr:patternId "P37" ;
+  wpr:category wpr:MemoryResident ;
+  wpr:crystalComplexity "4"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P38_LockFreeDataStructure a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P38: Lock-Free Data Structure" ;
+  wpr:patternId "P38" ;
+  wpr:category wpr:PerformanceOptimized ;
+  wpr:crystalComplexity "7"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P39_AtomicOperations a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P39: Atomic Operations" ;
+  wpr:patternId "P39" ;
+  wpr:category wpr:PerformanceOptimized ;
+  wpr:crystalComplexity "2"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop1 .
+
+wpr:P40_HazardPointerManagement a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P40: Hazard Pointer Management" ;
+  wpr:patternId "P40" ;
+  wpr:category wpr:MemoryResident ;
+  wpr:crystalComplexity "6"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+wpr:P41_EpochBasedReclamation a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P41: Epoch-Based Reclamation" ;
+  wpr:patternId "P41" ;
+  wpr:category wpr:MemoryResident ;
+  wpr:crystalComplexity "7"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+wpr:P42_AdaptiveBackpressure a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P42: Adaptive Backpressure" ;
+  wpr:patternId "P42" ;
+  wpr:category wpr:FaultTolerant ;
+  wpr:crystalComplexity "5"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop3 .
+
+wpr:P43_DegradationGraceful a wpr:CrystalWorkflowPattern ;
+  rdfs:label "P43: Graceful Degradation" ;
+  wpr:patternId "P43" ;
+  wpr:category wpr:FaultTolerant ;
+  wpr:crystalComplexity "8"^^xsd:integer ;
+  wpr:hamHopRequired pcl:Hop5 .
+
+#################################################################
+# Object Properties
+#################################################################
+
+wpr:containsPattern a owl:ObjectProperty ;
+  rdfs:label "contains pattern" ;
+  rdfs:domain wpr:WorkflowPatternRegistry ;
+  rdfs:range wpr:CrystalWorkflowPattern .
+
+wpr:hasCapabilityMapping a owl:ObjectProperty ;
+  rdfs:label "has capability mapping" ;
+  rdfs:domain wpr:CrystalWorkflowPattern ;
+  rdfs:range wpr:CapabilityMapping .
+
+wpr:category a owl:ObjectProperty ;
+  rdfs:label "has category" ;
+  rdfs:domain wpr:CrystalWorkflowPattern ;
+  rdfs:range wpr:PatternCategory .
+
+wpr:yawlEquivalent a owl:ObjectProperty ;
+  rdfs:label "YAWL equivalent" ;
+  rdfs:domain wpr:CrystalWorkflowPattern ;
+  rdfs:range yawl:Pattern .
+
+wpr:hamHopRequired a owl:ObjectProperty ;
+  rdfs:label "HAM hop required" ;
+  rdfs:domain wpr:CrystalWorkflowPattern ;
+  rdfs:range pcl:HAMHop .
+
+wpr:requiresCapability a owl:ObjectProperty ;
+  rdfs:label "requires capability" ;
+  rdfs:domain wpr:CapabilityMapping ;
+  rdfs:range pcl:WorkflowCapability .
+
+wpr:providesCapability a owl:ObjectProperty ;
+  rdfs:label "provides capability" ;
+  rdfs:domain wpr:CapabilityMapping ;
+  rdfs:range pcl:WorkflowCapability .
+
+#################################################################
+# Data Properties
+#################################################################
+
+wpr:patternCount a owl:DatatypeProperty ;
+  rdfs:label "pattern count" ;
+  rdfs:range xsd:integer .
+
+wpr:yawlExtended a owl:DatatypeProperty ;
+  rdfs:label "YAWL extended" ;
+  rdfs:range xsd:boolean .
+
+wpr:patternId a owl:DatatypeProperty ;
+  rdfs:label "pattern ID" ;
+  rdfs:range xsd:string .
+
+wpr:crystalComplexity a owl:DatatypeProperty ;
+  rdfs:label "crystal complexity" ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Complexity rating from 1-8 for crystal formation requirements." .
+
+wpr:hasPatternId a owl:DatatypeProperty ;
+  rdfs:label "has pattern ID" ;
+  rdfs:range xsd:string .

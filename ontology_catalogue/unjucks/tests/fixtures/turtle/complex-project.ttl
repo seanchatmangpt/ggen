@@ -1,0 +1,64 @@
+@prefix proj: <http://example.org/project/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+proj:unjucks
+  a doap:Project ;
+  doap:name "Unjucks" ;
+  doap:description "A Hygen-style CLI generator for creating templates and scaffolding projects" ;
+  doap:programming-language "TypeScript" ;
+  doap:license <https://spdx.org/licenses/MIT> ;
+  doap:repository <https://github.com/unjs/unjucks> ;
+  doap:maintainer <#maintainer1> ;
+  doap:developer <#dev1>, <#dev2> ;
+  proj:version "0.0.0" ;
+  proj:features proj:templating, proj:scaffolding, proj:cli ;
+  proj:dependencies proj:nunjucks, proj:citty, proj:vitest .
+
+<#maintainer1>
+  foaf:name "Pooya Parsa" ;
+  foaf:mbox <mailto:pyapar@gmail.com> ;
+  foaf:homepage <https://github.com/pi0> .
+
+<#dev1>
+  foaf:name "Developer One" ;
+  foaf:mbox <mailto:dev1@example.com> ;
+  proj:role "Frontend Developer" ;
+  proj:skills "React", "Vue", "TypeScript" .
+
+<#dev2>
+  foaf:name "Developer Two" ;
+  foaf:mbox <mailto:dev2@example.com> ;
+  proj:role "Backend Developer" ;
+  proj:skills "Node.js", "Python", "Docker" .
+
+proj:templating
+  proj:name "Template Engine" ;
+  proj:type "Feature" ;
+  proj:status "Active" .
+
+proj:scaffolding
+  proj:name "Project Scaffolding" ;
+  proj:type "Feature" ;
+  proj:status "Active" .
+
+proj:cli
+  proj:name "Command Line Interface" ;
+  proj:type "Feature" ;
+  proj:status "Active" .
+
+proj:nunjucks
+  proj:name "Nunjucks" ;
+  proj:type "Dependency" ;
+  proj:version "^3.2.4" .
+
+proj:citty
+  proj:name "Citty" ;
+  proj:type "Dependency" ;  
+  proj:version "^0.1.6" .
+
+proj:vitest
+  proj:name "Vitest" ;
+  proj:type "DevDependency" ;
+  proj:version "^3.2.4" .

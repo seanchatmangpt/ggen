@@ -1,0 +1,21 @@
+PREFIX ddd: <https://ddd-patterns.dev/schema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?repo_name ?method_name ?method_returns ?method_param
+WHERE {
+  ?repo a ddd:Repository .
+  ?repo rdfs:label ?repo_name .
+  ?repo ddd:forAggregate ?agg .
+  OPTIONAL {
+    ?repo ddd:hasMethod ?method .
+    ?method rdfs:label ?method_name .
+    ?method ddd:returns ?method_returns .
+  }
+  OPTIONAL {
+    ?repo ddd:hasMethod ?method .
+    ?method rdfs:label ?method_name .
+    ?method ddd:param ?method_param .
+  }
+}
+ORDER BY ?repo_name ?method_name
+LIMIT 10000

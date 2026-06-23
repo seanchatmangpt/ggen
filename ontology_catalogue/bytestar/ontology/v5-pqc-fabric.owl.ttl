@@ -1,0 +1,94 @@
+@prefix : <https://bytestar.org/ontology/v5/pqc-fabric#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <https://bytestar.org/ontology/v5/core#> .
+@prefix gov: <https://bytestar.org/ontology/v5/governance#> .
+
+<https://bytestar.org/ontology/v5/pqc-fabric>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/v5/governance> ;
+  rdfs:label "ByteStar v5 PQC Fabric Ontology" ;
+  rdfs:comment "This ontology defines the Post-Quantum Cryptography algorithms, their operations, and their tiered execution model within the ByteStar ecosystem, ensuring quantum resistance by design." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. PQC Algorithms
+# #################################################################
+
+:PQC_Algorithm a owl:Class ;
+    rdfs:label "PQC Algorithm" .
+
+:Dilithium a :PQC_Algorithm ;
+    rdfs:label "CRYSTALS-Dilithium" ;
+    rdfs:comment "A NIST-standardized post-quantum digital signature algorithm." .
+
+:Kyber a :PQC_Algorithm ;
+    rdfs:label "CRYSTALS-Kyber" ;
+    rdfs:comment "A NIST-standardized post-quantum key encapsulation mechanism (KEM)." .
+
+# #################################################################
+# II. PQC Operations
+# #################################################################
+
+:PQC_Operation a owl:Class ;
+    rdfs:label "PQC Operation" .
+
+:KeyGeneration a :PQC_Operation ;
+    rdfs:label "Key Generation" .
+
+:Signing a :PQC_Operation ;
+    rdfs:label "Signing" .
+
+:Verification a :PQC_Operation ;
+    rdfs:label "Verification" .
+
+:Encapsulation a :PQC_Operation ;
+    rdfs:label "Encapsulation" .
+
+:Decapsulation a :PQC_Operation ;
+    rdfs:label "Decapsulation" .
+
+:supportsOperation a owl:ObjectProperty ;
+    rdfs:domain :PQC_Algorithm ;
+    rdfs:range :PQC_Operation .
+
+# Axiom: Dilithium supports Signing and Verification.
+:Dilithium rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :supportsOperation ; owl:hasValue :Signing ] ,
+                           [ a owl:Restriction ; owl:onProperty :supportsOperation ; owl:hasValue :Verification ] .
+
+# Axiom: Kyber supports Key Generation, Encapsulation, and Decapsulation.
+:Kyber rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :supportsOperation ; owl:hasValue :KeyGeneration ] ,
+                       [ a owl:Restriction ; owl:onProperty :supportsOperation ; owl:hasValue :Encapsulation ] ,
+                       [ a owl:Restriction ; owl:onProperty :supportsOperation ; owl:hasValue :Decapsulation ] .
+
+# #################################################################
+# III. Tiered PQC Execution Model
+# #################################################################
+
+:ExecutionTier a owl:Class ;
+    rdfs:label "PQC Execution Tier" .
+
+:HotPathPQC a :ExecutionTier ;
+    rdfs:label "Hot Path PQC" ;
+    rdfs:comment "PQC operations that can be performed on the ByteActor hot path (e.g., BLAKE3 rolling receipts)." .
+
+:WarmPathPQC a :ExecutionTier ;
+    rdfs:label "Warm Path PQC" ;
+    rdfs:comment "PQC operations performed by ByteFlow's admission gate (e.g., signature verification, key decapsulation)." .
+
+:ColdPathPQC a :ExecutionTier ;
+    rdfs:label "Cold Path PQC" ;
+    rdfs:comment "Expensive PQC operations performed off the critical path (e.g., key generation, signing)." .
+
+:isPerformedInTier a owl:ObjectProperty ;
+    rdfs:domain :PQC_Operation ;
+    rdfs:range :ExecutionTier .
+
+# Axiom: Verification and Decapsulation are Warm Path operations.
+:Verification rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :isPerformedInTier ; owl:hasValue :WarmPathPQC ] .
+:Decapsulation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :isPerformedInTier ; owl:hasValue :WarmPathPQC ] .
+
+# Axiom: Key Generation and Signing are Cold Path operations.
+:KeyGeneration rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :isPerformedInTier ; owl:hasValue :ColdPathPQC ] .
+:Signing rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :isPerformedInTier ; owl:hasValue :ColdPathPQC ] .

@@ -1,0 +1,64 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema: <https://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Public Alignment
+# All entities are aligned strictly to public standard vocabularies.
+# No private namespaces are used.
+
+# 1. Action Plans (Requested Actions)
+# Aligned to schema:Action / prov:Entity
+schema:Action a owl:Class ;
+    rdfs:label "Requested Action" ;
+    rdfs:comment "Represents an action plan or an executable tool." .
+
+# 2. Executions
+# Aligned to prov:Activity
+prov:Activity a owl:Class ;
+    rdfs:label "Execution" ;
+    rdfs:comment "Represents the execution of an action or tool." .
+
+# 3. Actuators (Gemini CLI)
+# Aligned to prov:Agent
+prov:Agent a owl:Class ;
+    rdfs:label "Agent" ;
+    rdfs:comment "Represents an actuation agent like Gemini CLI." .
+
+# 4. Command Output, Receipts
+# Aligned to prov:Entity
+prov:Entity a owl:Class ;
+    rdfs:label "Resource / Descriptor / Receipt" ;
+    rdfs:comment "A generic entity representing resources, receipts, command output, or descriptors." .
+
+# 5. Evidence Bundles
+# Aligned to dcat:Dataset
+dcat:Dataset a owl:Class ;
+    rdfs:label "Evidence Bundle" ;
+    rdfs:comment "A dataset representing a collection of actuation evidence." .
+
+# 6. Failure / Refusal Codes
+# Aligned to skos:Concept
+skos:Concept a owl:Class ;
+    rdfs:label "Failure / Refusal Code" ;
+    rdfs:comment "A classification or refusal reason code." .
+
+# 7. Permission Rules / Refusal Policies
+# Aligned to odrl:Policy
+odrl:Policy a owl:Class ;
+    rdfs:label "Permission Rule / Refusal" ;
+    rdfs:comment "A policy describing permissions, allowed roots, and refusal rules." .
+
+# 8. Checksums
+# Aligned to spdx:Checksum
+spdx:Checksum a owl:Class ;
+    rdfs:label "Checksum" ;
+    rdfs:comment "Cryptographic hash (e.g. SHA256) of inputs or outputs." .

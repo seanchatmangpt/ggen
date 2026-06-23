@@ -1,0 +1,14 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ddd: <http://example.org/ddd#> .
+@prefix ggen: <http://example.org/ggen#> .
+
+# Invalid Ontology - Missing required properties
+
+ggen:BrokenAggregate a ddd:AggregateRoot ;
+    rdfs:label "BrokenAggregate" .
+    # Missing properties - should trigger error
+
+ggen:InvalidCommand a ddd:Command ;
+    rdfs:label "InvalidCommand" .
+    # Missing target aggregate - should trigger error

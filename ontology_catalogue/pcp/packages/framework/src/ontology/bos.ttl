@@ -1,0 +1,56 @@
+@prefix bos: <http://bible.o.star/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+### Gospel Pericope Modeling (CGI-derived)
+
+bos:Pericope a owl:Class ;
+    rdfs:label "Pericope" ;
+    rdfs:comment "A cohesive narrative or teaching unit within the Gospels, enabling cross-gospel alignment." .
+
+bos:GospelSource a owl:Class ;
+    rdfs:label "Gospel Source" ;
+    rdfs:comment "A specific textual instance in a Gospel (Matthew, Mark, Luke, or John) corresponding to a Pericope." .
+
+bos:pericopeId a owl:DatatypeProperty ;
+    rdfs:domain bos:Pericope ;
+    rdfs:range xsd:string ;
+    rdfs:comment "A unique identifier for the pericope." .
+
+bos:hasSource a owl:ObjectProperty ;
+    rdfs:domain bos:Pericope ;
+    rdfs:range bos:GospelSource ;
+    rdfs:comment "Links a Pericope to its corresponding textual instances in the Gospels." .
+
+bos:nextPericope a owl:ObjectProperty ;
+    rdfs:domain bos:Pericope ;
+    rdfs:range bos:Pericope ;
+    rdfs:comment "Defines the sequential flow in a unified narrative." .
+
+bos:prevPericope a owl:ObjectProperty ;
+    rdfs:domain bos:Pericope ;
+    rdfs:range bos:Pericope ;
+    rdfs:comment "Defines the preceding pericope in a unified narrative." .
+
+bos:title a owl:DatatypeProperty ;
+    rdfs:domain bos:Pericope ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The descriptive title of the pericope (e.g., 'The Parable of the Sower')." .
+
+bos:osisRef a owl:DatatypeProperty ;
+    rdfs:domain bos:GospelSource ;
+    rdfs:range xsd:string ;
+    rdfs:comment "An OSIS-compliant reference string (e.g., 'Matt.13.1-Matt.13.9')." .
+
+### Author/Source Relations
+
+bos:recordedBy a owl:ObjectProperty ;
+    rdfs:domain bos:GospelSource ;
+    rdfs:comment "The Gospel author/source responsible for this specific account (Matthew, Mark, Luke, or John)." .
+
+bos:parallelTo a owl:ObjectProperty ;
+    rdfs:domain bos:GospelSource ;
+    rdfs:range bos:GospelSource ;
+    rdfs:comment "Identifies parallel accounts of the same pericope in other Gospels." .

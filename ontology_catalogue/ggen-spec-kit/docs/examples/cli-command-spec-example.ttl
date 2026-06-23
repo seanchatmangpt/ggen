@@ -1,0 +1,258 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+
+# ============================================================================
+# Example: CLI Command Specification in RDF
+# ============================================================================
+# Purpose: Demonstrate how to specify CLI commands for automated test generation
+# Template: templates/command-test.tera
+# Query: sparql/command-test-query.rq
+# Output: tests/e2e/test_commands_check.py
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Command Definition: specify check
+# ----------------------------------------------------------------------------
+
+sk:CheckCommand a sk:CLICommand ;
+    sk:commandName "check" ;
+    sk:commandGroup "tools" ;
+    sk:commandDescription "Check for required and optional tools" ;
+    sk:commandPurpose "Validates that all required tools are installed and available in PATH" ;
+
+    # Arguments (none for check command)
+
+    # Options
+    sk:hasOption sk:CheckVerboseOption ;
+    sk:hasOption sk:CheckJsonOption ;
+    sk:hasOption sk:CheckRequiredOnlyOption ;
+
+    # Error Cases
+    sk:hasErrorCase sk:CheckMissingRequiredToolsError ;
+    sk:hasErrorCase sk:CheckKeyboardInterruptError ;
+    sk:hasErrorCase sk:CheckUnexpectedError ;
+
+    # Expected Output Fields
+    sk:hasExpectedOutputField sk:CheckSuccessField ;
+    sk:hasExpectedOutputField sk:CheckAvailableField ;
+    sk:hasExpectedOutputField sk:CheckMissingField ;
+    sk:hasExpectedOutputField sk:CheckDurationField .
+
+
+# ----------------------------------------------------------------------------
+# Options for check command
+# ----------------------------------------------------------------------------
+
+sk:CheckVerboseOption a sk:CommandOption ;
+    sk:optionName "--verbose" ;
+    sk:optionShortFlag "-v" ;
+    sk:optionType "flag" ;
+    sk:optionDefault "false" ;
+    sk:optionDescription "Show detailed information about each tool" ;
+    sk:optionExpectedBehavior "Shows version info and paths" .
+
+sk:CheckJsonOption a sk:CommandOption ;
+    sk:optionName "--json" ;
+    sk:optionType "flag" ;
+    sk:optionDefault "false" ;
+    sk:optionDescription "Output results as JSON" ;
+    sk:optionExpectedBehavior "Produces valid JSON with success, available, missing, duration" .
+
+sk:CheckRequiredOnlyOption a sk:CommandOption ;
+    sk:optionName "--required-only" ;
+    sk:optionType "flag" ;
+    sk:optionDefault "false" ;
+    sk:optionDescription "Only check required tools, skip optional" ;
+    sk:optionExpectedBehavior "Excludes optional tools from check" .
+
+
+# ----------------------------------------------------------------------------
+# Error Cases for check command
+# ----------------------------------------------------------------------------
+
+sk:CheckMissingRequiredToolsError a sk:CommandErrorCase ;
+    sk:errorId "missing-required-tools" ;
+    sk:errorScenario "Required tools are not installed" ;
+    sk:errorTrigger "git is not in PATH" ;
+    sk:errorExpectedBehavior "Exit with code 1 and show installation instructions" ;
+    sk:errorExpectedExitCode 1 ;
+    sk:errorExpectedOutput "required tool(s) missing" ;
+    sk:errorMockSetup """
+with patch('specify_cli.runtime.tools.which_tool') as mock_which:
+    mock_which.return_value = None
+""" .
+
+sk:CheckKeyboardInterruptError a sk:CommandErrorCase ;
+    sk:errorId "keyboard-interrupt" ;
+    sk:errorScenario "User cancels operation with Ctrl+C" ;
+    sk:errorTrigger "KeyboardInterrupt raised during check" ;
+    sk:errorExpectedBehavior "Exit with code 130 and show cancellation message" ;
+    sk:errorExpectedExitCode 130 ;
+    sk:errorException "KeyboardInterrupt" ;
+    sk:errorExpectedOutput "cancelled" .
+
+sk:CheckUnexpectedError a sk:CommandErrorCase ;
+    sk:errorId "unexpected-error" ;
+    sk:errorScenario "Unexpected runtime error occurs" ;
+    sk:errorTrigger "RuntimeError during tool detection" ;
+    sk:errorExpectedBehavior "Exit with code 1 and show error message" ;
+    sk:errorExpectedExitCode 1 ;
+    sk:errorException "RuntimeError" ;
+    sk:errorMessage "Unexpected error occurred" ;
+    sk:errorExpectedOutput "error" .
+
+
+# ----------------------------------------------------------------------------
+# Expected Output Fields
+# ----------------------------------------------------------------------------
+
+sk:CheckSuccessField a sk:OutputField ;
+    sk:fieldName "success" ;
+    sk:fieldTestValue "true" .
+
+sk:CheckAvailableField a sk:OutputField ;
+    sk:fieldName "available" ;
+    sk:fieldTestValue '[]' .
+
+sk:CheckMissingField a sk:OutputField ;
+    sk:fieldName "missing" ;
+    sk:fieldTestValue '[]' .
+
+sk:CheckDurationField a sk:OutputField ;
+    sk:fieldName "duration" ;
+    sk:fieldTestValue "0.5" .
+
+
+# ============================================================================
+# Example: specify init command
+# ============================================================================
+
+sk:InitCommand a sk:CLICommand ;
+    sk:commandName "init" ;
+    sk:commandGroup "project" ;
+    sk:commandDescription "Initialize a new Specify project from template" ;
+
+    # Arguments
+    sk:hasArgument sk:InitProjectNameArg ;
+
+    # Options
+    sk:hasOption sk:InitAiOption ;
+    sk:hasOption sk:InitScriptOption ;
+    sk:hasOption sk:InitHereOption ;
+    sk:hasOption sk:InitNoGitOption ;
+    sk:hasOption sk:InitVerboseOption ;
+
+    # Error Cases
+    sk:hasErrorCase sk:InitMissingProjectNameError ;
+    sk:hasErrorCase sk:InitConflictingArgsError ;
+    sk:hasErrorCase sk:InitDirectoryExistsError .
+
+
+# ----------------------------------------------------------------------------
+# Arguments for init command
+# ----------------------------------------------------------------------------
+
+sk:InitProjectNameArg a sk:CommandArgument ;
+    sk:argumentName "project_name" ;
+    sk:argumentType "string" ;
+    sk:argumentRequired "false" ;
+    sk:argumentPosition 0 ;
+    sk:argumentDescription "Name of the project to create (omit if using --here)" ;
+    sk:argumentDefaultTestValue "test-project" .
+
+
+# ----------------------------------------------------------------------------
+# Options for init command
+# ----------------------------------------------------------------------------
+
+sk:InitAiOption a sk:CommandOption ;
+    sk:optionName "--ai" ;
+    sk:optionShortFlag "-a" ;
+    sk:optionType "string" ;
+    sk:optionDescription "AI assistant type (claude, cursor, copilot)" ;
+    sk:optionTestValue "claude" .
+
+sk:InitScriptOption a sk:CommandOption ;
+    sk:optionName "--script" ;
+    sk:optionShortFlag "-s" ;
+    sk:optionType "string" ;
+    sk:optionDefault "sh" ;
+    sk:optionDescription "Script type for helper scripts (sh or ps1)" ;
+    sk:optionTestValue "sh" .
+
+sk:InitHereOption a sk:CommandOption ;
+    sk:optionName "--here" ;
+    sk:optionShortFlag "-H" ;
+    sk:optionType "flag" ;
+    sk:optionDefault "false" ;
+    sk:optionDescription "Initialize in current directory" ;
+    sk:optionExpectedBehavior "Creates project files in current directory" .
+
+sk:InitNoGitOption a sk:CommandOption ;
+    sk:optionName "--no-git" ;
+    sk:optionType "flag" ;
+    sk:optionDefault "false" ;
+    sk:optionDescription "Skip git repository initialization" ;
+    sk:optionExpectedBehavior "Does not create .git directory" .
+
+sk:InitVerboseOption a sk:CommandOption ;
+    sk:optionName "--verbose" ;
+    sk:optionShortFlag "-v" ;
+    sk:optionType "flag" ;
+    sk:optionDefault "false" ;
+    sk:optionDescription "Enable verbose output" ;
+    sk:optionExpectedBehavior "Shows detailed progress messages" .
+
+
+# ----------------------------------------------------------------------------
+# Error Cases for init command
+# ----------------------------------------------------------------------------
+
+sk:InitMissingProjectNameError a sk:CommandErrorCase ;
+    sk:errorId "missing-project-name" ;
+    sk:errorScenario "No project name provided and --here not used" ;
+    sk:errorTrigger "specify init (no args)" ;
+    sk:errorExpectedBehavior "Exit with code 1 and show usage instructions" ;
+    sk:errorExpectedExitCode 1 ;
+    sk:errorCommandArgs '["init"]' ;
+    sk:errorExpectedOutput "Either provide a project name or use --here" .
+
+sk:InitConflictingArgsError a sk:CommandErrorCase ;
+    sk:errorId "conflicting-args" ;
+    sk:errorScenario "Both project name and --here flag provided" ;
+    sk:errorTrigger "specify init my-project --here" ;
+    sk:errorExpectedBehavior "Exit with code 1 and show error" ;
+    sk:errorExpectedExitCode 1 ;
+    sk:errorCommandArgs '["init", "my-project", "--here"]' ;
+    sk:errorExpectedOutput "Cannot specify both project name and --here" .
+
+sk:InitDirectoryExistsError a sk:CommandErrorCase ;
+    sk:errorId "directory-exists" ;
+    sk:errorScenario "Target directory already exists" ;
+    sk:errorTrigger "specify init existing-project" ;
+    sk:errorExpectedBehavior "Exit with code 1 and show error" ;
+    sk:errorExpectedExitCode 1 ;
+    sk:errorException "InitError" ;
+    sk:errorExceptionModule "specify_cli.ops.init" ;
+    sk:errorMessage "Directory already exists" ;
+    sk:errorExpectedOutput "already exists" .
+
+
+# ============================================================================
+# Constitutional Equation
+# ============================================================================
+# test_commands_*.py = μ(cli-commands.ttl)
+#
+# Where μ is the five-stage transformation:
+#   μ₁: Validate RDF with SHACL shapes
+#   μ₂: Execute SPARQL query (command-test-query.rq)
+#   μ₃: Render Tera template (command-test.tera)
+#   μ₄: Format with Black/Ruff
+#   μ₅: Verify with pytest --collect-only
+#
+# Usage:
+#   ggen sync --config docs/ggen.toml
+#   pytest tests/e2e/test_commands_check.py -v -m e2e
+# ============================================================================

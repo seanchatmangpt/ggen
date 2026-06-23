@@ -1,0 +1,42 @@
+@prefix : <http://example.org/sprint_health#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+:PatientShape a sh:NodeShape ;
+    sh:targetClass :Patient ;
+    sh:property [
+        sh:path :hasName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype rdfs:Literal
+    ] ;
+    sh:property [
+        sh:path :hasAppointment ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:class :Appointment
+    ] .
+
+:AppointmentShape a sh:NodeShape ;
+    sh:targetClass :Appointment ;
+    sh:property [
+        sh:path :attendedBy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class :Doctor
+    ] ;
+    sh:property [
+        sh:path :hasDate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype rdfs:Literal
+    ] .
+
+:DoctorShape a sh:NodeShape ;
+    sh:targetClass :Doctor ;
+    sh:property [
+        sh:path :hasName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype rdfs:Literal
+    ] .

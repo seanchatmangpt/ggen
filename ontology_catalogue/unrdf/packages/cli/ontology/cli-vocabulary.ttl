@@ -1,0 +1,138 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cli: <http://unrdf.dev/cli#> .
+@prefix doc: <http://unrdf.dev/cli/doc#> .
+
+<http://unrdf.dev/cli#> a owl:Ontology ;
+  rdfs:label "UNRDF CLI Vocabulary" ;
+  rdfs:comment "Vocabulary for describing UNRDF CLI commands, arguments, and documentation" .
+
+# Classes
+cli:Command a rdfs:Class ;
+  rdfs:label "Command" ;
+  rdfs:comment "A CLI command" .
+
+cli:Argument a rdfs:Class ;
+  rdfs:label "Argument" ;
+  rdfs:comment "A command argument or option" .
+
+cli:Example a rdfs:Class ;
+  rdfs:label "Example" ;
+  rdfs:comment "A usage example for a command" .
+
+cli:Section a rdfs:Class ;
+  rdfs:label "Section" ;
+  rdfs:comment "A documentation section" .
+
+# Properties
+cli:name a rdf:Property ;
+  rdfs:label "name" ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string ;
+  rdfs:comment "The command name" .
+
+cli:alias a rdf:Property ;
+  rdfs:label "alias" ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Short alias for the command" .
+
+cli:description a rdf:Property ;
+  rdfs:label "description" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Description text" .
+
+cli:longDescription a rdf:Property ;
+  rdfs:label "long description" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Detailed description" .
+
+cli:hasArgument a rdf:Property ;
+  rdfs:label "has argument" ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:Argument ;
+  rdfs:comment "Arguments accepted by the command" .
+
+cli:hasExample a rdf:Property ;
+  rdfs:label "has example" ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:Example ;
+  rdfs:comment "Usage examples" .
+
+cli:hasSection a rdf:Property ;
+  rdfs:label "has section" ;
+  rdfs:range cli:Section ;
+  rdfs:comment "Documentation sections" .
+
+cli:argName a rdf:Property ;
+  rdfs:label "argument name" ;
+  rdfs:domain cli:Argument ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Name of the argument" .
+
+cli:argType a rdf:Property ;
+  rdfs:label "argument type" ;
+  rdfs:domain cli:Argument ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Type of argument (string, boolean, number)" .
+
+cli:argDescription a rdf:Property ;
+  rdfs:label "argument description" ;
+  rdfs:domain cli:Argument ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Description of what the argument does" .
+
+cli:isRequired a rdf:Property ;
+  rdfs:label "is required" ;
+  rdfs:domain cli:Argument ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Whether the argument is required" .
+
+cli:hasDefault a rdf:Property ;
+  rdfs:label "has default" ;
+  rdfs:domain cli:Argument ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Default value for the argument" .
+
+cli:exampleCommand a rdf:Property ;
+  rdfs:label "example command" ;
+  rdfs:domain cli:Example ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Example command string" .
+
+cli:exampleDescription a rdf:Property ;
+  rdfs:label "example description" ;
+  rdfs:domain cli:Example ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Description of what the example does" .
+
+cli:sectionTitle a rdf:Property ;
+  rdfs:label "section title" ;
+  rdfs:domain cli:Section ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Title of the section" .
+
+cli:sectionContent a rdf:Property ;
+  rdfs:label "section content" ;
+  rdfs:domain cli:Section ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Content of the section (Markdown)" .
+
+cli:category a rdf:Property ;
+  rdfs:label "category" ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Category of the command (e.g., 'RDF Operations', 'Code Generation')" .
+
+cli:relatedCommand a rdf:Property ;
+  rdfs:label "related command" ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:Command ;
+  rdfs:comment "Related commands" .
+
+doc:seeAlso a rdf:Property ;
+  rdfs:label "see also" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "External references or related documentation" .

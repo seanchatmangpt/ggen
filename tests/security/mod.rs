@@ -20,9 +20,9 @@
 
 mod path_traversal_tests;
 mod sparql_injection_tests;
-// mod rate_limit_integration_tests; // TODO: Fix testcontainers API compatibility
+// mod rate_limit_integration_tests; // Future integration: Fix testcontainers API compatibility
 mod input_validation_tests;
 mod secrets_protection_tests;
-// mod supply_chain_tests; // TODO: Implement ggen_core::utils::supply_chain module
-// mod e2e_vulnerability_tests; // TODO: Implement ggen_core::utils::supply_chain module
+// mod supply_chain_tests; // Future integration: Implement ggen_core::utils::supply_chain module
+// mod e2e_vulnerability_tests; // Future integration: Implement ggen_core::utils::supply_chain module
 mod comprehensive_security_tests;

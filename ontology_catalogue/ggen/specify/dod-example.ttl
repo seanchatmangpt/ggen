@@ -1,0 +1,275 @@
+# DoD Example Instance: healing-diagnosis project
+# Demonstrates how to model a real project with features and DoD checks
+# Usage: Load this + dod-ontology.ttl into Oxigraph, then run dod-extract.rq
+
+@prefix dod: <http://ggen.chatmangpt.com/dod#> .
+@prefix ex: <http://ggen.chatmangpt.com/example#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# PROJECT
+# ============================================================================
+
+ex:healing-diagnosis
+  a dod:Project ;
+  dod:projectName "Healing Diagnosis" ;
+  dod:projectVersion "1.0.0" ;
+  dod:hasFeature ex:healing-deadlock-detection ;
+  dod:hasFeature ex:healing-confidence-scoring ;
+  dod:hasFeature ex:healing-reflex-arcs .
+
+# ============================================================================
+# FEATURE 1: Deadlock Detection
+# ============================================================================
+
+ex:healing-deadlock-detection
+  a dod:Feature ;
+  dod:featureName "Deadlock Detection" ;
+  dod:featureStatus "in-progress" ;
+  dod:hasCheck ex:hd-check-1 ;
+  dod:hasCheck ex:hd-check-2 ;
+  dod:hasCheck ex:hd-check-3 ;
+  dod:hasCheck ex:hd-check-4 ;
+  dod:hasCheck ex:hd-check-5 ;
+  dod:hasCheck ex:hd-check-6 ;
+  dod:hasCheck ex:hd-check-7 ;
+  dod:hasCheck ex:hd-check-8 .
+
+# WvdA: Deadlock freedom
+ex:hd-check-1
+  a dod:DoDCheck ;
+  dod:checkType "wvda-deadlock" ;
+  dod:checkDescription "All blocking operations (await, receive, get) have explicit timeout_ms with fallback" ;
+  dod:evidenceRequired "Code review: grep for await/receive/get without timeout parameter" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'await\\(|receive\\(|\\.get\\(' --type rust src/ | grep -v 'timeout'" ;
+  dod:belongsToCategory dod:WvdASoundness .
+
+# WvdA: Liveness
+ex:hd-check-2
+  a dod:DoDCheck ;
+  dod:checkType "wvda-liveness" ;
+  dod:checkDescription "All loops have bounded iteration count or explicit exit condition" ;
+  dod:evidenceRequired "Code review: no while true without sleep and escape condition" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'loop \\{|while true' --type rust src/" ;
+  dod:belongsToCategory dod:WvdASoundness .
+
+# WvdA: Boundedness
+ex:hd-check-3
+  a dod:DoDCheck ;
+  dod:checkType "wvda-boundedness" ;
+  dod:checkDescription "All queues, caches, and in-memory structures have explicit size limits" ;
+  dod:evidenceRequired "Code review: max_size or capacity set on all collections" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'VecDeque|HashMap|BTreeMap' --type rust src/ | grep -v 'capacity\\|with_capacity\\|max'" ;
+  dod:belongsToCategory dod:WvdASoundness .
+
+# Armstrong: Supervision
+ex:hd-check-4
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-supervision" ;
+  dod:checkDescription "Every worker process has explicit supervisor with documented restart strategy" ;
+  dod:evidenceRequired "Supervisor tree diagram or code review showing supervisor::init with children" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'Supervisor|supervisor' --type rust src/" ;
+  dod:belongsToCategory dod:ArmstrongFaultTolerance .
+
+# Chicago TDD: Red phase
+ex:hd-check-5
+  a dod:DoDCheck ;
+  dod:checkType "chicago-tdd-red" ;
+  dod:checkDescription "Failing test written before implementation; test name describes the claim" ;
+  dod:evidenceRequired "Test file with _test.rs extension, test name matching claim, assertion on exact behavior" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "cargo test --no-run 2>&1 | head -20" ;
+  dod:belongsToCategory dod:ChicagoTDD .
+
+# Chicago TDD: Green phase
+ex:hd-check-6
+  a dod:DoDCheck ;
+  dod:checkType "chicago-tdd-green" ;
+  dod:checkDescription "Minimal implementation makes the Red test pass; no extra features" ;
+  dod:evidenceRequired "Test output shows PASS for the Red test; implementation is minimal" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "cargo test test_deadlock_detection" ;
+  dod:belongsToCategory dod:ChicagoTDD .
+
+# OTEL span exists
+ex:hd-check-7
+  a dod:DoDCheck ;
+  dod:checkType "otel-span-exists" ;
+  dod:checkDescription "Operation emits an OTEL span with service name, span name, status, and attributes" ;
+  dod:evidenceRequired "Jaeger UI trace at localhost:16686 showing healing.diagnosis span with status=ok" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "curl -s http://localhost:16686/api/traces?service=osa | jq '.data[0].spans[].operationName'" ;
+  dod:belongsToCategory dod:Verification .
+
+# Test passing
+ex:hd-check-8
+  a dod:DoDCheck ;
+  dod:checkType "test-passing" ;
+  dod:checkDescription "All tests pass with zero failures; no skipped tests on production code" ;
+  dod:evidenceRequired "cargo test output showing X passed, 0 failed, 0 skipped" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "cargo test 2>&1 | tail -5" ;
+  dod:belongsToCategory dod:Verification .
+
+# ============================================================================
+# FEATURE 2: Confidence Scoring
+# ============================================================================
+
+ex:healing-confidence-scoring
+  a dod:Feature ;
+  dod:featureName "Confidence Scoring" ;
+  dod:featureStatus "review" ;
+  dod:hasCheck ex:cs-check-1 ;
+  dod:hasCheck ex:cs-check-2 ;
+  dod:hasCheck ex:cs-check-3 ;
+  dod:hasCheck ex:cs-check-4 ;
+  dod:hasCheck ex:cs-check-5 ;
+  dod:hasCheck ex:cs-check-6 .
+
+# WvdA: Liveness (scoring terminates)
+ex:cs-check-1
+  a dod:DoDCheck ;
+  dod:checkType "wvda-liveness" ;
+  dod:checkDescription "Scoring algorithm terminates in bounded time for any valid input" ;
+  dod:evidenceRequired "Formal proof or load test showing scoring completes within timeout for all failure modes" ;
+  dod:priority "critical" ;
+  dod:isVerified true ;
+  dod:verificationCommand "cargo test test_scoring_terminates -- --ignored" ;
+  dod:belongsToCategory dod:WvdASoundness .
+
+# WvdA: Boundedness (score range)
+ex:cs-check-2
+  a dod:DoDCheck ;
+  dod:checkType "wvda-boundedness" ;
+  dod:checkDescription "Confidence score is bounded in [0.0, 1.0] for all inputs" ;
+  dod:evidenceRequired "Boundary assertion tests: score >= 0.0 AND score <= 1.0" ;
+  dod:priority "high" ;
+  dod:isVerified true ;
+  dod:verificationCommand "cargo test test_confidence_bounded" ;
+  dod:belongsToCategory dod:WvdASoundness .
+
+# Armstrong: No shared state
+ex:cs-check-3
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-no-shared-state" ;
+  dod:checkDescription "Scoring function is pure: no global mutable state, no shared references" ;
+  dod:evidenceRequired "Code review: scoring function takes input, returns output, no side effects" ;
+  dod:priority "high" ;
+  dod:isVerified true ;
+  dod:verificationCommand "rg 'static|thread_local|unsafe' --type rust src/scoring.rs" ;
+  dod:belongsToCategory dod:ArmstrongFaultTolerance .
+
+# Chicago TDD: Red
+ex:cs-check-4
+  a dod:DoDCheck ;
+  dod:checkType "chicago-tdd-red" ;
+  dod:checkDescription "Failing test written for each scoring rule before implementation" ;
+  dod:evidenceRequired "Test file with boundary tests for each failure mode's confidence mapping" ;
+  dod:priority "critical" ;
+  dod:isVerified true ;
+  dod:verificationCommand "cargo test test_scoring_" ;
+  dod:belongsToCategory dod:ChicagoTDD .
+
+# Weaver registry check
+ex:cs-check-5
+  a dod:DoDCheck ;
+  dod:checkType "weaver-registry-check" ;
+  dod:checkDescription "Span definition exists in semconv/model and weaver registry check exits 0" ;
+  dod:evidenceRequired "weaver registry check -r ./semconv/model -p ./semconv/policies/ exits 0" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "weaver registry check -r ./semconv/model -p ./semconv/policies/ --quiet" ;
+  dod:belongsToCategory dod:Verification .
+
+# Zero warnings
+ex:cs-check-6
+  a dod:DoDCheck ;
+  dod:checkType "zero-warnings" ;
+  dod:checkDescription "cargo clippy produces zero warnings; no compiler warnings" ;
+  dod:evidenceRequired "cargo clippy output shows 0 warnings" ;
+  dod:priority "high" ;
+  dod:isVerified true ;
+  dod:verificationCommand "cargo clippy -- -D warnings 2>&1 | tail -3" ;
+  dod:belongsToCategory dod:CodeQuality .
+
+# ============================================================================
+# FEATURE 3: Reflex Arcs
+# ============================================================================
+
+ex:healing-reflex-arcs
+  a dod:Feature ;
+  dod:featureName "Reflex Arcs" ;
+  dod:featureStatus "blocked" ;
+  dod:hasCheck ex:ra-check-1 ;
+  dod:hasCheck ex:ra-check-2 ;
+  dod:hasCheck ex:ra-check-3 ;
+  dod:hasCheck ex:ra-check-4 ;
+  dod:hasCheck ex:ra-check-5 .
+
+# Armstrong: Let-it-crash
+ex:ra-check-1
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-let-it-crash" ;
+  dod:checkDescription "No bare try/catch blocks swallowing errors; failures propagate to supervisor" ;
+  dod:evidenceRequired "Code review: no unwrap_or_default, no catch-all that hides failures" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'unwrap_or_default|catch|resume' --type rust src/reflex/" ;
+  dod:belongsToCategory dod:ArmstrongFaultTolerance .
+
+# Armstrong: Budget constraints
+ex:ra-check-2
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-budget" ;
+  dod:checkDescription "Every reflex arc execution has max_time_ms budget; exhaustion triggers escalation" ;
+  dod:evidenceRequired "Budget struct with time_ms field; check_budget function in code" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'budget|Budget|max_time|timeout_ms' --type rust src/reflex/" ;
+  dod:belongsToCategory dod:ArmstrongFaultTolerance .
+
+# WvdA: Deadlock freedom (reflex arcs don't deadlock)
+ex:ra-check-3
+  a dod:DoDCheck ;
+  dod:checkType "wvda-deadlock" ;
+  dod:checkDescription "Reflex arc chains cannot form circular wait; acyclic dependency graph verified" ;
+  dod:evidenceRequired "Tarjan's algorithm output showing no cycles in reflex arc dependency graph" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "cargo test test_reflex_no_circular_wait" ;
+  dod:belongsToCategory dod:WvdASoundness .
+
+# Commit message convention
+ex:ra-check-4
+  a dod:DoDCheck ;
+  dod:checkType "commit-message-convention" ;
+  dod:checkDescription "All commits follow conventional commit format: type(scope): description" ;
+  dod:evidenceRequired "git log showing conventional commit format for all commits in branch" ;
+  dod:priority "medium" ;
+  dod:isVerified false ;
+  dod:verificationCommand "git log --oneline -10 | rg '^(feat|fix|docs|refactor|test|chore)\\('" ;
+  dod:belongsToCategory dod:CodeQuality .
+
+# Chicago TDD: Green
+ex:ra-check-5
+  a dod:DoDCheck ;
+  dod:checkType "chicago-tdd-green" ;
+  dod:checkDescription "All reflex arc tests pass; no skipped tests; deterministic results" ;
+  dod:evidenceRequired "cargo test output: N passed, 0 failed, 0 skipped" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "cargo test test_reflex_" ;
+  dod:belongsToCategory dod:ChicagoTDD .

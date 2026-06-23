@@ -1,0 +1,289 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ocel:    <https://www.ocel-standard.org/2.0/> .
+@prefix dfg:     <https://ggen.io/ontology/dfg#> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Ontology header
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<https://ggen.io/ontology/dfg>
+    a owl:Ontology ;
+    dcterms:title "Directly-Follows Graph (DFG) Ontology" ;
+    dcterms:description """OWL ontology for Directly-Follows Graphs (DFGs), the
+most widely used process discovery representation (ProM, Celonis, Disco, PM4Py).
+Given an event log L, there is an arc (a → b) if activity b directly follows
+activity a in at least one trace. Arcs are annotated with frequency and
+performance (time) data. Supports both classical case-centric DFGs and
+object-centric DFGs per Van der Aalst 2022 (OCEL 2.0).""" ;
+    owl:versionInfo "1.0.0" ;
+    dcterms:creator <https://github.com/seanchatmangpt> ;
+    dcterms:license <https://spdx.org/licenses/MIT> ;
+    owl:imports <https://www.ocel-standard.org/2.0/> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 1. Core DFG classes
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dfg:DirectlyFollowsGraph a owl:Class ;
+    rdfs:label "DirectlyFollowsGraph" ;
+    rdfs:comment """A complete Directly-Follows Graph discovered from an event log.
+Contains a set of DFGNode instances (activity types) and DFGEdge instances
+(directed arcs annotated with frequency and performance data). The DFG is the
+most widely deployed abstraction in commercial process mining tools (Celonis,
+Disco, ProM). Van der Aalst defines DFG(L) as the directed graph G = (A, →_L)
+where (a, b) ∈ →_L iff ∃σ ∈ L, ∃i: σ(i) = a ∧ σ(i+1) = b.""" .
+
+dfg:DFGNode a owl:Class ;
+    rdfs:label "DFGNode" ;
+    rdfs:comment """A node in a Directly-Follows Graph representing a distinct
+activity type observed in the event log. Each node aggregates all events of
+the same activity label. Annotated with dfg:caseFrequency (number of cases in
+which the activity occurs) and dfg:activityLabel (the human-readable name).""" .
+
+dfg:DFGEdge a owl:Class ;
+    rdfs:label "DFGEdge" ;
+    rdfs:comment """A directed edge (a → b) in a Directly-Follows Graph.
+The edge exists when activity b directly follows activity a in at least one
+trace of the event log. The edge is annotated with dfg:frequency (raw count
+of directly-follows pairs), dfg:absoluteFrequency, dfg:relativeFrequency,
+and optional performance statistics (min/max/mean/median duration).""" .
+
+dfg:StartNode a owl:Class ;
+    rdfs:subClassOf dfg:DFGNode ;
+    rdfs:label "StartNode" ;
+    rdfs:comment """A pseudo-node representing the artificial START of cases in
+a DFG. Edges from StartNode to a real DFGNode record how many cases begin
+with that activity. Corresponds to the ▶ marker in ProM and Celonis.""" .
+
+dfg:EndNode a owl:Class ;
+    rdfs:subClassOf dfg:DFGNode ;
+    rdfs:label "EndNode" ;
+    rdfs:comment """A pseudo-node representing the artificial END of cases in
+a DFG. Edges from a real DFGNode to EndNode record how many cases end with
+that activity. Corresponds to the ■ marker in ProM and Celonis.""" .
+
+dfg:ObjectCentricDFG a owl:Class ;
+    rdfs:subClassOf dfg:DirectlyFollowsGraph ;
+    rdfs:label "ObjectCentricDFG" ;
+    rdfs:comment """An object-centric Directly-Follows Graph (OC-DFG) as
+defined in Van der Aalst (2022) for object-centric process mining over
+OCEL 2.0 event logs. One OC-DFG is derived per object type: given OCEL log L
+and object type OT, the OC-DFG captures directly-follows relations among
+events that share an object of type OT. Linked to its object type via
+dfg:perObjectType.""" .
+
+dfg:FilteredDFG a owl:Class ;
+    rdfs:subClassOf dfg:DirectlyFollowsGraph ;
+    rdfs:label "FilteredDFG" ;
+    rdfs:comment """A DFG produced by applying a frequency threshold filter to
+a source DirectlyFollowsGraph. Edges (and optionally nodes) whose
+dfg:absoluteFrequency falls below dfg:filterThreshold are removed.
+Filtering is the primary simplification mechanism in tools such as Celonis
+Execution Management System and PM4Py. Linked to its source via
+dfg:filteredFrom.""" .
+
+dfg:PerformanceDFG a owl:Class ;
+    rdfs:subClassOf dfg:DirectlyFollowsGraph ;
+    rdfs:label "PerformanceDFG" ;
+    rdfs:comment """A DFG annotated with timing and performance statistics on
+each edge: dfg:minDuration, dfg:maxDuration, dfg:meanDuration, and
+dfg:medianDuration (all in seconds). Performance DFGs are used for bottleneck
+analysis and throughput-time investigation in process mining.""" .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 2. Datatype properties
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── Node properties ──────────────────────────────────────────────────────────
+
+dfg:activityLabel a owl:DatatypeProperty ;
+    rdfs:label "activityLabel" ;
+    rdfs:comment "Human-readable label of the activity type represented by this DFGNode. Corresponds to ocel:activity values in the source event log." ;
+    rdfs:domain dfg:DFGNode ;
+    rdfs:range  xsd:string .
+
+dfg:caseFrequency a owl:DatatypeProperty ;
+    rdfs:label "caseFrequency" ;
+    rdfs:comment "Number of distinct cases (traces) in the event log in which this activity occurs at least once." ;
+    rdfs:domain dfg:DFGNode ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+# ── Edge frequency properties ─────────────────────────────────────────────────
+
+dfg:frequency a owl:DatatypeProperty ;
+    rdfs:label "frequency" ;
+    rdfs:comment "Raw count of directly-follows pairs (a, b): how many times activity b directly followed activity a across all traces. Alias for dfg:absoluteFrequency; both are provided for compatibility with tooling conventions." ;
+    rdfs:domain dfg:DFGEdge ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+dfg:absoluteFrequency a owl:DatatypeProperty ;
+    rdfs:label "absoluteFrequency" ;
+    rdfs:comment "Absolute count of directly-follows occurrences for this edge (identical semantics to dfg:frequency; provided as the canonical naming used in PM4Py and Celonis exports)." ;
+    rdfs:domain dfg:DFGEdge ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+dfg:relativeFrequency a owl:DatatypeProperty ;
+    rdfs:label "relativeFrequency" ;
+    rdfs:comment "Proportion of this edge's frequency relative to the total number of directly-follows pairs in the DFG. Value in [0.0, 1.0]." ;
+    rdfs:domain dfg:DFGEdge ;
+    rdfs:range  xsd:decimal .
+
+# ── Edge performance (timing) properties ─────────────────────────────────────
+
+dfg:minDuration a owl:DatatypeProperty ;
+    rdfs:label "minDuration" ;
+    rdfs:comment "Minimum elapsed time (in seconds) between completion of the source activity and start of the target activity, measured over all directly-follows pairs that instantiate this edge." ;
+    rdfs:domain dfg:DFGEdge ;
+    rdfs:range  xsd:decimal .
+
+dfg:maxDuration a owl:DatatypeProperty ;
+    rdfs:label "maxDuration" ;
+    rdfs:comment "Maximum elapsed time (in seconds) between completion of the source activity and start of the target activity, measured over all directly-follows pairs that instantiate this edge." ;
+    rdfs:domain dfg:DFGEdge ;
+    rdfs:range  xsd:decimal .
+
+dfg:meanDuration a owl:DatatypeProperty ;
+    rdfs:label "meanDuration" ;
+    rdfs:comment "Arithmetic mean of elapsed times (in seconds) between the source and target activities over all directly-follows pairs that instantiate this edge." ;
+    rdfs:domain dfg:DFGEdge ;
+    rdfs:range  xsd:decimal .
+
+dfg:medianDuration a owl:DatatypeProperty ;
+    rdfs:label "medianDuration" ;
+    rdfs:comment "Median elapsed time (in seconds) between the source and target activities over all directly-follows pairs that instantiate this edge. Robust to outliers; preferred over mean for skewed distributions." ;
+    rdfs:domain dfg:DFGEdge ;
+    rdfs:range  xsd:decimal .
+
+# ── FilteredDFG property ──────────────────────────────────────────────────────
+
+dfg:filterThreshold a owl:DatatypeProperty ;
+    rdfs:label "filterThreshold" ;
+    rdfs:comment "The minimum absolute frequency value below which edges (and possibly isolated nodes) are removed from this FilteredDFG. Value ≥ 0; edges with dfg:absoluteFrequency < filterThreshold are excluded." ;
+    rdfs:domain dfg:FilteredDFG ;
+    rdfs:range  xsd:decimal .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 3. Object properties
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dfg:hasNode a owl:ObjectProperty ;
+    rdfs:label "hasNode" ;
+    rdfs:comment "Associates a DirectlyFollowsGraph with one of its DFGNode instances (including StartNode and EndNode)." ;
+    rdfs:domain dfg:DirectlyFollowsGraph ;
+    rdfs:range  dfg:DFGNode .
+
+dfg:hasEdge a owl:ObjectProperty ;
+    rdfs:label "hasEdge" ;
+    rdfs:comment "Associates a DirectlyFollowsGraph with one of its DFGEdge instances." ;
+    rdfs:domain dfg:DirectlyFollowsGraph ;
+    rdfs:range  dfg:DFGEdge .
+
+dfg:edgeSource a owl:ObjectProperty ;
+    rdfs:label "edgeSource" ;
+    rdfs:comment "The DFGNode from which this DFGEdge originates (the activity that was directly followed)." ;
+    rdfs:domain dfg:DFGEdge ;
+    rdfs:range  dfg:DFGNode .
+
+dfg:edgeTarget a owl:ObjectProperty ;
+    rdfs:label "edgeTarget" ;
+    rdfs:comment "The DFGNode at which this DFGEdge arrives (the activity that directly follows the source)." ;
+    rdfs:domain dfg:DFGEdge ;
+    rdfs:range  dfg:DFGNode .
+
+dfg:hasStartNode a owl:ObjectProperty ;
+    rdfs:subPropertyOf dfg:hasNode ;
+    rdfs:label "hasStartNode" ;
+    rdfs:comment "Associates a DirectlyFollowsGraph with its artificial StartNode pseudo-node." ;
+    rdfs:domain dfg:DirectlyFollowsGraph ;
+    rdfs:range  dfg:StartNode .
+
+dfg:hasEndNode a owl:ObjectProperty ;
+    rdfs:subPropertyOf dfg:hasNode ;
+    rdfs:label "hasEndNode" ;
+    rdfs:comment "Associates a DirectlyFollowsGraph with its artificial EndNode pseudo-node." ;
+    rdfs:domain dfg:DirectlyFollowsGraph ;
+    rdfs:range  dfg:EndNode .
+
+dfg:derivedFrom a owl:ObjectProperty ;
+    rdfs:label "derivedFrom" ;
+    rdfs:comment "Links a DirectlyFollowsGraph to the OCEL 2.0 event log from which it was discovered. Provides provenance: the DFG is a lossful abstraction of this log." ;
+    rdfs:domain dfg:DirectlyFollowsGraph ;
+    rdfs:range  ocel:EventLog .
+
+dfg:perObjectType a owl:ObjectProperty ;
+    rdfs:label "perObjectType" ;
+    rdfs:comment "For an ObjectCentricDFG, links to the OCEL 2.0 ObjectType over whose objects the directly-follows relation was computed." ;
+    rdfs:domain dfg:ObjectCentricDFG ;
+    rdfs:range  ocel:ObjectType .
+
+dfg:filteredFrom a owl:ObjectProperty ;
+    rdfs:label "filteredFrom" ;
+    rdfs:comment "Links a FilteredDFG to the source DirectlyFollowsGraph from which it was derived by applying dfg:filterThreshold." ;
+    rdfs:domain dfg:FilteredDFG ;
+    rdfs:range  dfg:DirectlyFollowsGraph .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 4. Quality metrics (datatype properties on DirectlyFollowsGraph)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dfg:fitness a owl:DatatypeProperty ;
+    rdfs:label "fitness" ;
+    rdfs:comment """Replay fitness: the fraction of behaviour observed in the event log that can be replayed by this DFG. Value in [0.0, 1.0]. A fitness of 1.0 means every trace in the log is representable by the DFG. Low fitness indicates underfitting (missing arcs). Van der Aalst defines fitness as the proportion of events in the log that are 'enabled' when the log is replayed token-by-token on the model.""" ;
+    rdfs:domain dfg:DirectlyFollowsGraph ;
+    rdfs:range  xsd:decimal .
+
+dfg:precision a owl:DatatypeProperty ;
+    rdfs:label "precision" ;
+    rdfs:comment """Precision: the fraction of behaviour allowed by this DFG that is also observed in the event log. Value in [0.0, 1.0]. A precision of 1.0 means the DFG allows no behaviour not seen in the log. Low precision indicates overfitting (too many arcs, flower model). Computed via the ETC (Escaping Edges using Token Counts) measure in PM4Py.""" ;
+    rdfs:domain dfg:DirectlyFollowsGraph ;
+    rdfs:range  xsd:decimal .
+
+dfg:generalization a owl:DatatypeProperty ;
+    rdfs:label "generalization" ;
+    rdfs:comment """Generalization score: a measure of whether the DFG is a good abstract description of unseen traces from the same process. Value in [0.0, 1.0]. Computed as 1 minus the mean inverse-square-root of node execution frequencies; nodes visited very rarely produce low generalization.""" ;
+    rdfs:domain dfg:DirectlyFollowsGraph ;
+    rdfs:range  xsd:decimal .
+
+dfg:simplicity a owl:DatatypeProperty ;
+    rdfs:label "simplicity" ;
+    rdfs:comment """Simplicity score: an inverse measure of model complexity. Value in [0.0, 1.0]. A simpler DFG (fewer nodes and arcs relative to log size) scores closer to 1.0. Computed as 1 / (1 + max(0, |E| - |N|) / |N|) where |E| is the edge count and |N| the node count. Encourages Occam's-razor parsimony in discovered models.""" ;
+    rdfs:domain dfg:DirectlyFollowsGraph ;
+    rdfs:range  xsd:decimal .
+
+dfg:fMeasure a owl:DatatypeProperty ;
+    rdfs:label "fMeasure" ;
+    rdfs:comment """F-measure (F1 score): the harmonic mean of dfg:fitness and dfg:precision, i.e. 2 × (fitness × precision) / (fitness + precision). Balances the underfitting–overfitting trade-off in a single scalar. Value in [0.0, 1.0].""" ;
+    rdfs:domain dfg:DirectlyFollowsGraph ;
+    rdfs:range  xsd:decimal .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 5. Discovery statistics (datatype properties on DirectlyFollowsGraph)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dfg:eventCount a owl:DatatypeProperty ;
+    rdfs:label "eventCount" ;
+    rdfs:comment "Total number of events in the source event log from which this DFG was discovered." ;
+    rdfs:domain dfg:DirectlyFollowsGraph ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+dfg:caseCount a owl:DatatypeProperty ;
+    rdfs:label "caseCount" ;
+    rdfs:comment "Total number of distinct cases (traces) in the source event log from which this DFG was discovered." ;
+    rdfs:domain dfg:DirectlyFollowsGraph ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+dfg:variantCount a owl:DatatypeProperty ;
+    rdfs:label "variantCount" ;
+    rdfs:comment "Number of distinct trace variants (unique ordered sequences of activity labels) observed in the source event log. High variant counts relative to case counts indicate process instability or excessive branching." ;
+    rdfs:domain dfg:DirectlyFollowsGraph ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+dfg:discoveryTimestamp a owl:DatatypeProperty ;
+    rdfs:label "discoveryTimestamp" ;
+    rdfs:comment "The date and time (UTC) at which this DFG was computed from the event log. Enables audit traceability and cache invalidation." ;
+    rdfs:domain dfg:DirectlyFollowsGraph ;
+    rdfs:range  xsd:dateTime .

@@ -1,0 +1,209 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix compat: <https://wasm4pm-compat.rs/ontology#> .
+
+# ── Additional workflow/process-mining witnesses — sourced from ~/Documents/Papers/workflow/ ──
+# Papers not yet in witness.rs (the existing ones like OCEL2.0, YAWL, POWL are already there).
+# paperCategory = "workflow" → rendered into src/witnesses_workflow.rs.
+
+compat:StochasticConformancePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "StochasticConformancePaper" ;
+    compat:witnessKey   "workflow/stochastic-conformance-2020" ;
+    compat:witnessTitle "Stochastic Conformance Checking: Comparing Stochastic Process Models and Event Logs" ;
+    compat:witnessYear  2020 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "Stochastic Conformance — Leemans, Syring & van der Aalst (2020): fitness/precision on stochastic nets." .
+
+compat:ComplianceAwarePredictivePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ComplianceAwarePredictivePaper" ;
+    compat:witnessKey   "workflow/compliance-aware-predictive-2026" ;
+    compat:witnessTitle "Compliance-Aware Predictive Process Monitoring: A Neuro-Symbolic Approach" ;
+    compat:witnessYear  2026 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "Compliance-aware PPM — De Santis, Park, van der Aalst & Zanichelli (2026): neuro-symbolic monitoring." .
+
+compat:HandsonPythonDevopsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "HandsonPythonDevopsPaper" ;
+    compat:witnessKey   "workflow/handson-python-devops" ;
+    compat:witnessTitle "Hands-On Python for DevOps" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "Practical guide: Python automation techniques for DevOps workflows." .
+
+compat:HierarchicalSeparableWfNetPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "HierarchicalSeparableWfNetPaper" ;
+    compat:witnessKey   "workflow/hierarchical-separable-wfnet-2026" ;
+    compat:witnessTitle "Hierarchical Decomposition of Separable Workflow-Nets" ;
+    compat:witnessYear  2026 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "Separable WF-nets (duplicate entry for PDF in workflow/) — Kourani, Park & van der Aalst (2026)." .
+
+compat:HowAnthropicUsesClaudeCodePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "HowAnthropicUsesClaudeCodePaper" ;
+    compat:witnessKey   "workflow/anthropic-claude-code-usage" ;
+    compat:witnessTitle "How Anthropic Teams Use Claude Code" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "Anthropic internal practices for Claude Code in software development workflows." .
+
+compat:XesToOcedIntegrationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "XesToOcedIntegrationPaper" ;
+    compat:witnessKey   "workflow/xes-oced-integration-2025" ;
+    compat:witnessTitle "Object-Centric Analysis of XES Event Logs: Integrating OCED Modeling with SPARQL Queries" ;
+    compat:witnessYear  2025 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "XES→OCED integration — Latif, Latif & Rahman (2025): bridging XES and object-centric modeling." .
+
+compat:Ocel20SpecPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "Ocel20SpecPaper" ;
+    compat:witnessKey   "workflow/ocel-2-0-spec-2024" ;
+    compat:witnessTitle "OCEL 2.0 Specification" ;
+    compat:witnessYear  2024 ;
+    compat:witnessFamily compat:Standard ;
+    compat:paperCategory "workflow" ;
+    compat:description  "OCEL 2.0 specification paper (arXiv:2403.01975) — companion to the compat:Ocel20 standard witness." .
+
+compat:OcpqPaperWorkflow
+    a compat:WitnessMarker ;
+    compat:rustType     "OcpqPaperWorkflow" ;
+    compat:witnessKey   "workflow/ocpq-paper-2025" ;
+    compat:witnessTitle "OCPQ: Object-Centric Process Querying and Constraints" ;
+    compat:witnessYear  2025 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "OCPQ PDF copy in workflow/ — Küsters & van der Aalst (2025)." .
+
+compat:Pm4pySoftwareImpactsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "Pm4pySoftwareImpactsPaper" ;
+    compat:witnessKey   "workflow/pm4py-software-impacts-2023" ;
+    compat:witnessTitle "PM4Py: A Process Mining Library for Python (Software Impacts)" ;
+    compat:witnessYear  2023 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "PM4Py Software Impacts paper — Berti, van Zelst & Schuster (2023): software description." .
+
+compat:Pm4pyLibraryPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "Pm4pyLibraryPaper" ;
+    compat:witnessKey   "workflow/pm4py-library-python" ;
+    compat:witnessTitle "PM4Py: A Process Mining Library for Python" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "PM4Py library paper (main reference) — Berti, van Zelst & Schuster: comprehensive PM4Py description." .
+
+compat:PmaxAgenticFrameworkPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PmaxAgenticFrameworkPaper" ;
+    compat:witnessKey   "workflow/pmax-agentic-process-mining-2026" ;
+    compat:witnessTitle "PMAx: An Agentic Framework for AI-Driven Process Mining" ;
+    compat:witnessYear  2026 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "PMAx — Antonov, Kourani, Berti, Park & van der Aalst (2026): AI-driven process mining agents." .
+
+compat:ProcessMiningHealthcarePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ProcessMiningHealthcarePaper" ;
+    compat:witnessKey   "workflow/process-mining-healthcare-2022" ;
+    compat:witnessTitle "Process Mining for Healthcare: Characteristics and Challenges" ;
+    compat:witnessYear  2022 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "PM in healthcare — Munoz-Gama et al. (2022): survey of process mining applied to clinical workflows." .
+
+compat:RealLifeBpmn4Paper
+    a compat:WitnessMarker ;
+    compat:rustType     "RealLifeBpmn4Paper" ;
+    compat:witnessKey   "workflow/real-life-bpmn-edition-4" ;
+    compat:witnessTitle "Real-Life BPMN (4th edition)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "Real-Life BPMN 4th ed. — Freund & Rücker: practical BPMN guide with real-world examples." .
+
+compat:SAirflowServerlessPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SAirflowServerlessPaper" ;
+    compat:witnessKey   "workflow/sairflow-serverless-scheduler" ;
+    compat:witnessTitle "sAirflow: Adopting Serverless in a Traditional Workflow Scheduler" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "sAirflow: serverless adaptation of Apache Airflow workflow scheduling architecture." .
+
+compat:WhyAutomateThisPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "WhyAutomateThisPaper" ;
+    compat:witnessKey   "workflow/why-automate-time-use-wellbeing" ;
+    compat:witnessTitle "Why Automate This? Exploring the Connection between Time Use, Well-being and Robot Automation" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "Why Automate?: societal implications of robot automation on well-being across social groups." .
+
+compat:WorkflowPatternDefinitiveGuidePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "WorkflowPatternDefinitiveGuidePaper" ;
+    compat:witnessKey   "workflow/workflow-patterns-definitive-guide-2016" ;
+    compat:witnessTitle "Workflow Patterns: The Definitive Guide" ;
+    compat:witnessYear  2016 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "Workflow Patterns Definitive Guide (PDF copy) — Russell, van der Aalst & ter Hofstede (2016)." .
+
+compat:WorkflowsCommunitySubmit2024Paper
+    a compat:WitnessMarker ;
+    compat:rustType     "WorkflowsCommunitySubmit2024Paper" ;
+    compat:witnessKey   "workflow/workflows-community-summit-2024" ;
+    compat:witnessTitle "Workflows Community Summit 2024: Future Trends and Challenges in Scientific Workflows" ;
+    compat:witnessYear  2024 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "Workflows Community Summit 2024: community consensus on scientific workflow challenges." .
+
+compat:YawlOpenSourceBpmsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "YawlOpenSourceBpmsPaper" ;
+    compat:witnessKey   "workflow/yawl-open-source-bpms" ;
+    compat:witnessTitle "YAWL: An Open Source Business Process Management System" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "YAWL open-source BPMS — van der Aalst & ter Hofstede: YAWL system and engine description." .
+
+compat:YawlTechnicalManual50Paper
+    a compat:WitnessMarker ;
+    compat:rustType     "YawlTechnicalManual50Paper" ;
+    compat:witnessKey   "workflow/yawl-technical-manual-5-0" ;
+    compat:witnessTitle "YAWL Technical Manual 5.0" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "YAWL 5.0 Technical Manual: engine internals, deployment, and extension points." .
+
+compat:YawlUserManual51Paper
+    a compat:WitnessMarker ;
+    compat:rustType     "YawlUserManual51Paper" ;
+    compat:witnessKey   "workflow/yawl-user-manual-5-1" ;
+    compat:witnessTitle "YAWL User Manual 5.1" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "YAWL 5.1 User Manual: end-user guide for YAWL workflow authoring and monitoring." .
+
+compat:YawlYetAnotherWorkflowLanguagePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "YawlYetAnotherWorkflowLanguagePaper" ;
+    compat:witnessKey   "workflow/yawl-yet-another-workflow-language-2004" ;
+    compat:witnessTitle "YAWL: Yet Another Workflow Language" ;
+    compat:witnessYear  2004 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "workflow" ;
+    compat:description  "YAWL original paper — van der Aalst & ter Hofstede (2004): YAWL semantics and expressiveness." .

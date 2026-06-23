@@ -1,0 +1,20 @@
+# SPARQL SELECT Query: Extract MCP Server Metadata (one row)
+#
+# Returns exactly one row with server-level fields.
+# Template uses sparql_results for full row access.
+#
+# Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> mcp-rust.tera
+
+PREFIX mcp: <https://ggen.dev/ontology/mcp#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?server_name ?server_version ?server_description ?transport_type
+WHERE {
+  ?server a mcp:McpsServer ;
+    mcp:serverName ?server_name ;
+    mcp:serverVersion ?server_version ;
+    mcp:serverDescription ?server_description ;
+    mcp:hasTransport ?transport .
+  ?transport rdfs:label ?transport_type .
+}
+LIMIT 1

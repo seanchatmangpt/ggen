@@ -71,8 +71,9 @@ pub struct SafeCommand {
 
 impl SafeCommand {
     /// Allowed commands whitelist
-    const ALLOWED_COMMANDS: &'static [&'static str] =
-        &["git", "cargo", "npm", "node", "rustc", "rustup", "ls", "echo"];
+    const ALLOWED_COMMANDS: &'static [&'static str] = &[
+        "git", "cargo", "npm", "node", "rustc", "rustup", "ls", "echo",
+    ];
 
     /// Dangerous shell metacharacters to reject
     const DANGEROUS_CHARS: &'static [char] = &[

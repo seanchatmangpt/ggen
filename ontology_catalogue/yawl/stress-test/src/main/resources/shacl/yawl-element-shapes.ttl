@@ -1,0 +1,267 @@
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix yawl:    <http://yawlfoundation.org/yawl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix :        <http://yawlfoundation.org/shacl/yawl#> .
+
+# Gateway Shape
+:GatewayShape a sh:NodeShape ;
+    rdfs:label "Gateway" ;
+    rdfs:comment "Shape for gateways in YAWL workflows" ;
+    sh:targetClass yawl:Gateway ;
+    sh:property [
+        sh:path yawl:hasType ;
+        sh:datatype xsd:string ;
+        sh:hasValue "AND" ;
+        sh:hasValue "OR" ;
+        sh:hasValue "XOR" ;
+        sh:hasValue "Complex" ;
+        sh:in ("AND" "OR" "XOR" "Complex") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Gateway type must be one of: AND, OR, XOR, Complex" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasInputFlow ;
+        sh:node :FlowShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [: FlowShape ] ;
+        sh:qualifiedValueShapeTypes sh:NodeShape ;
+        sh:message "Gateway must have exactly one input flow" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputFlow ;
+        sh:node :FlowShape ;
+        sh:minCount 2 ;
+        sh:maxCount 5 ;
+        sh:qualifiedMinCount 2 ;
+        sh:qualifiedMaxCount 5 ;
+        sh:qualifiedValueShapes [: FlowShape ] ;
+        sh:qualifiedValueShapeTypes sh:NodeShape ;
+        sh:message "Gateway must have between 2 and 5 output flows" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasJoinType ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:hasValue "AND" ;
+        sh:hasValue "OR" ;
+        sh:hasValue "XOR" ;
+        sh:in ("AND" "OR" "XOR") ;
+        sh:message "Join type must be AND, OR, or XOR" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasSplitType ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:hasValue "AND" ;
+        sh:hasValue "OR" ;
+        sh:hasValue "XOR" ;
+        sh:in ("AND" "OR" "XOR") ;
+        sh:message "Split type must be AND, OR, or XOR" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .
+
+# AND Gateway Shape
+:ANDGatewayShape a sh:NodeShape ;
+    rdfs:label "AND Gateway" ;
+    rdfs:comment "Shape for AND gateways in YAWL workflows" ;
+    sh:targetClass yawl:ANDGateway ;
+    sh:subClassOf :GatewayShape ;
+    sh:property [
+        sh:path yawl:hasJoinType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue "AND" ;
+        sh:in ("AND") ;
+        sh:message "AND gateway must have join type AND" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasSplitType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue "AND" ;
+        sh:in ("AND") ;
+        sh:message "AND gateway must have split type AND" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .
+
+# OR Gateway Shape
+:ORGatewayShape a sh:NodeShape ;
+    rdfs:label "OR Gateway" ;
+    rdfs:comment "Shape for OR gateways in YAWL workflows" ;
+    sh:targetClass yawl:ORGateway ;
+    sh:subClassOf :GatewayShape ;
+    sh:property [
+        sh:path yawl:hasJoinType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue "OR" ;
+        sh:in ("OR") ;
+        sh:message "OR gateway must have join type OR" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasSplitType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue "OR" ;
+        sh:in ("OR") ;
+        sh:message "OR gateway must have split type OR" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .
+
+# XOR Gateway Shape
+:XORGatewayShape a sh:NodeShape ;
+    rdfs:label "XOR Gateway" ;
+    rdfs:comment "Shape for XOR gateways in YAWL workflows" ;
+    sh:targetClass yawl:XORGateway ;
+    sh:subClassOf :GatewayShape ;
+    sh:property [
+        sh:path yawl:hasJoinType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue "XOR" ;
+        sh:in ("XOR") ;
+        sh:message "XOR gateway must have join type XOR" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasSplitType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue "XOR" ;
+        sh:in ("XOR") ;
+        sh:message "XOR gateway must have split type XOR" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .
+
+# Atomic Task Shape
+:AtomicTaskShape a sh:NodeShape ;
+    rdfs:label "Atomic Task" ;
+    rdfs:comment "Shape for atomic tasks in YAWL workflows" ;
+    sh:targetClass yawl:AtomicTask ;
+    sh:subClassOf :YAWLElementShape ;
+    sh:property [
+        sh:path yawl:hasImplementation ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxLength 500 ;
+        sh:message "Atomic task must have an implementation reference" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasInputParameter ;
+        sh:node :ParameterShape ;
+        sh:minCount 0 ;
+        sh:maxCount 10 ;
+        sh:message "Atomic task can have up to 10 input parameters" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputParameter ;
+        sh:node :ParameterShape ;
+        sh:minCount 0 ;
+        sh:maxCount 10 ;
+        sh:message "Atomic task can have up to 10 output parameters" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .
+
+# Cancellation Region Shape
+:CancellationRegionShape a sh:NodeShape ;
+    rdfs:label "Cancellation Region" ;
+    rdfs:comment "Shape for cancellation regions in YAWL workflows" ;
+    sh:targetClass yawl:CancellationRegion ;
+    sh:property [
+        sh:path yawl:contains ;
+        sh:node :YAWLElementShape ;
+        sh:minCount 1 ;
+        sh:maxCount 10 ;
+        sh:message "Cancellation region must contain at least one and at most 10 elements" ;
+    ] ;
+    sh:property [
+        sh:path yawl:isCancelledBy ;
+        sh:node :YAWLElementShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Cancellation region must be cancelled by exactly one element" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .
+
+# Data Shape
+:DataShape a sh:NodeShape ;
+    rdfs:label "Data" ;
+    rdfs:comment "Shape for data elements in YAWL specifications" ;
+    sh:targetClass yawl:Data ;
+    sh:property [
+        sh:path yawl:hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "[A-Za-z][A-Za-z0-9_]*" ;
+        sh:message "Data name must start with a letter and contain only letters, numbers, and underscores" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue "String" ;
+        sh:hasValue "Integer" ;
+        sh:hasValue "Boolean" ;
+        sh:hasValue "DateTime" ;
+        sh:hasValue "XML" ;
+        sh:hasValue "Custom" ;
+        sh:in ("String" "Integer" "Boolean" "DateTime" "XML" "Custom") ;
+        sh:message "Data type must be one of: String, Integer, Boolean, DateTime, XML, Custom" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasDefault ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:maxLength 200 ;
+        sh:message "Default value must be less than 200 characters" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .
+
+# Marking Shape
+:MarkingShape a sh:NodeShape ;
+    rdfs:label "Marking" ;
+    rdfs:comment "Shape for YAWL markings" ;
+    sh:targetClass yawl:Marking ;
+    sh:property [
+        sh:path yawl:hasMarkedNode ;
+        sh:node :YAWLElementShape ;
+        sh:minCount 1 ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShapes [: YAWLElementShape ] ;
+        sh:qualifiedValueShapeTypes sh:NodeShape ;
+        sh:message "Marking must have at least one marked node" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasMarkedElement ;
+        sh:node :YAWLElementShape ;
+        sh:minCount 0 ;
+        sh:qualifiedMinCount 0 ;
+        sh:qualifiedValueShapes [: YAWLElementShape ] ;
+        sh:qualifiedValueShapeTypes sh:NodeShape ;
+        sh:message "Marking can have marked elements" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .

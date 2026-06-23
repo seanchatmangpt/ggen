@@ -1,0 +1,375 @@
+@prefix sh: &lt;http://www.w3.org/ns/shacl#&gt; .
+@prefix rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
+@prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
+@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .
+@prefix pqcs: &lt;http://bytestar.ai/ontology/pqc-scheduler#&gt; .
+@prefix pqcsh: &lt;http://bytestar.ai/shapes/pqc-scheduler#&gt; .
+
+# SHACL Shapes for PQC Scheduler Fortune 5 Compliance Validation
+# Comprehensive validation rules for production deployment
+
+# ===== PQC SCHEDULER CORE SHAPE =====
+
+pqcsh:PQCSchedulerShape a sh:NodeShape ;
+    sh:targetClass pqcs:PQCScheduler ;
+    sh:property [
+        sh:path pqcs:hasPerformanceMetric ;
+        sh:class pqcs:PerformanceMetric ;
+        sh:minCount 4 ;  # Minimum P99, throughput, deadline miss rate, CPU utilization
+        sh:message "PQC Scheduler must have at least 4 performance metrics configured"
+    ] ;
+    sh:property [
+        sh:path pqcs:hasSecurityConfiguration ;
+        sh:class pqcs:SecurityConfiguration ;
+        sh:minCount 3 ;  # Minimum constant-time, side-channel protection, memory isolation
+        sh:message "PQC Scheduler must have at least 3 security configurations"
+    ] ;
+    sh:property [
+        sh:path pqcs:hasHardwareConfiguration ;
+        sh:class pqcs:HardwareConfiguration ;
+        sh:minCount 2 ;  # Minimum CPU allocation and RDT configuration
+        sh:message "PQC Scheduler must have at least 2 hardware configurations"
+    ] ;
+    sh:closed false ;
+    sh:message "PQC Scheduler validation failed" .
+
+# ===== PERFORMANCE VALIDATION SHAPE =====
+
+pqcsh:PerformanceValidationShape a sh:NodeShape ;
+    sh:targetClass pqcs:PerformanceMetric ;
+    sh:or (
+        # P99 Latency Constraints
+        [
+            sh:property [
+                sh:path rdf:type ;
+                sh:hasValue pqcs:P99Latency
+            ] ;
+            sh:property [
+                sh:path pqcs:latencyValue ;
+                sh:datatype xsd:decimal ;
+                sh:maxExclusive 100.0 ;  # Fortune 5 requirement: &lt; 100μs
+                sh:minInclusive 0.0 ;
+                sh:message "P99 latency must be less than 100 microseconds for Fortune 5 compliance"
+            ]
+        ]
+        # Throughput Constraints
+        [
+            sh:property [
+                sh:path rdf:type ;
+                sh:hasValue pqcs:Throughput
+            ] ;
+            sh:property [
+                sh:path pqcs:throughputValue ;
+                sh:datatype xsd:decimal ;
+                sh:minInclusive 10000.0 ;  # Fortune 5 requirement: &gt; 10k ops/sec
+                sh:message "Throughput must be at least 10,000 operations per second"
+            ]
+        ]
+        # Deadline Miss Rate Constraints
+        [
+            sh:property [
+                sh:path rdf:type ;
+                sh:hasValue pqcs:DeadlineMissRate
+            ] ;
+            sh:property [
+                sh:path pqcs:deadlineMissRateValue ;
+                sh:datatype xsd:decimal ;
+                sh:maxInclusive 0.01 ;  # Fortune 5 requirement: &lt; 1% miss rate
+                sh:minInclusive 0.0 ;
+                sh:message "Deadline miss rate must be less than 1% for Fortune 5 compliance"
+            ]
+        ]
+        # CPU Utilization Constraints
+        [
+            sh:property [
+                sh:path rdf:type ;
+                sh:hasValue pqcs:CPUUtilization
+            ] ;
+            sh:property [
+                sh:path pqcs:utilizationValue ;
+                sh:datatype xsd:decimal ;
+                sh:maxInclusive 85.0 ;  # Fortune 5 requirement: &lt; 85% utilization
+                sh:minInclusive 0.0 ;
+                sh:message "CPU utilization must be less than 85% to ensure headroom"
+            ]
+        ]
+    ) ;
+    sh:message "Performance metric validation failed" .
+
+# ===== SECURITY VALIDATION SHAPE =====
+
+pqcsh:SecurityValidationShape a sh:NodeShape ;
+    sh:targetClass pqcs:SecurityConfiguration ;
+    sh:or (
+        # Constant Time Execution
+        [
+            sh:property [
+                sh:path rdf:type ;
+                sh:hasValue pqcs:ConstantTimeExecution
+            ] ;
+            sh:property [
+                sh:path pqcs:isConstantTime ;
+                sh:datatype xsd:boolean ;
+                sh:hasValue true ;
+                sh:message "Constant-time execution must be enabled for Fortune 5 security compliance"
+            ]
+        ]
+        # Side Channel Protection
+        [
+            sh:property [
+                sh:path rdf:type ;
+                sh:hasValue pqcs:SideChannelProtection
+            ] ;
+            sh:property [
+                sh:path pqcs:protectionLevel ;
+                sh:datatype xsd:string ;
+                sh:in ("high" "maximum") ;
+                sh:message "Side-channel protection must be set to 'high' or 'maximum' level"
+            ]
+        ]
+        # Memory Isolation
+        [
+            sh:property [
+                sh:path rdf:type ;
+                sh:hasValue pqcs:MemoryIsolation
+            ] ;
+            sh:property [
+                sh:path pqcs:isolationEnabled ;
+                sh:datatype xsd:boolean ;
+                sh:hasValue true ;
+                sh:message "Memory isolation must be enabled for security compliance"
+            ]
+        ]
+        # Cache Partitioning
+        [
+            sh:property [
+                sh:path rdf:type ;
+                sh:hasValue pqcs:CachePartitioning
+            ] ;
+            sh:property [
+                sh:path pqcs:cacheWays ;
+                sh:datatype xsd:integer ;
+                sh:minInclusive 4 ;  # Minimum 4 cache ways for isolation
+                sh:maxInclusive 20 ; # Maximum 20 ways on typical Intel CPUs
+                sh:message "Cache partitioning must allocate between 4-20 cache ways"
+            ]
+        ]
+    ) ;
+    sh:message "Security configuration validation failed" .
+
+# ===== HARDWARE VALIDATION SHAPE =====
+
+pqcsh:HardwareValidationShape a sh:NodeShape ;
+    sh:targetClass pqcs:HardwareConfiguration ;
+    sh:or (
+        # Intel RDT Configuration
+        [
+            sh:property [
+                sh:path rdf:type ;
+                sh:hasValue pqcs:IntelRDTConfiguration
+            ] ;
+            sh:property [
+                sh:path pqcs:rdtClass ;
+                sh:datatype xsd:string ;
+                sh:pattern "^COS[0-9]+$" ;  # Class of Service pattern
+                sh:message "Intel RDT class must follow COS pattern (e.g., COS0, COS1)"
+            ] ;
+            sh:property [
+                sh:path pqcs:rdtEnabled ;
+                sh:datatype xsd:boolean ;
+                sh:hasValue true ;
+                sh:message "Intel RDT must be enabled for hardware isolation"
+            ]
+        ]
+        # CPU Core Allocation
+        [
+            sh:property [
+                sh:path rdf:type ;
+                sh:hasValue pqcs:CPUCoreAllocation
+            ] ;
+            sh:property [
+                sh:path pqcs:coreCount ;
+                sh:datatype xsd:integer ;
+                sh:minInclusive 4 ;   # Fortune 5 minimum: 4 dedicated cores
+                sh:maxInclusive 128 ; # Practical maximum
+                sh:message "Must allocate between 4-128 CPU cores for Fortune 5 deployment"
+            ] ;
+            sh:property [
+                sh:path pqcs:dedicatedCores ;
+                sh:datatype xsd:boolean ;
+                sh:hasValue true ;
+                sh:message "CPU cores must be dedicated (not shared) for Fortune 5 compliance"
+            ]
+        ]
+        # RT Kernel Configuration
+        [
+            sh:property [
+                sh:path rdf:type ;
+                sh:hasValue pqcs:RTKernelConfiguration
+            ] ;
+            sh:property [
+                sh:path pqcs:kernelVersion ;
+                sh:datatype xsd:string ;
+                sh:pattern "^.*-rt.*$" ;  # RT kernel version pattern
+                sh:message "Must use RT kernel for real-time scheduling guarantees"
+            ] ;
+            sh:property [
+                sh:path pqcs:preemptModel ;
+                sh:datatype xsd:string ;
+                sh:hasValue "PREEMPT_RT" ;
+                sh:message "Kernel must use PREEMPT_RT model for deterministic scheduling"
+            ]
+        ]
+        # Isolated CPU Configuration
+        [
+            sh:property [
+                sh:path rdf:type ;
+                sh:hasValue pqcs:IsolatedCPUConfiguration
+            ] ;
+            sh:property [
+                sh:path pqcs:isolatedCores ;
+                sh:datatype xsd:string ;
+                sh:pattern "^[0-9]+([-,][0-9]+)*$" ;  # Core list pattern (e.g., "4-7,12-15")
+                sh:message "Isolated cores must be specified in valid format (e.g., '4-7,12-15')"
+            ] ;
+            sh:property [
+                sh:path pqcs:nohzFull ;
+                sh:datatype xsd:boolean ;
+                sh:hasValue true ;
+                sh:message "nohz_full must be enabled for isolated cores"
+            ]
+        ]
+    ) ;
+    sh:message "Hardware configuration validation failed" .
+
+# ===== COMPLIANCE CERTIFICATE SHAPE =====
+
+pqcsh:ComplianceCertificateShape a sh:NodeShape ;
+    sh:targetClass pqcs:ComplianceCertificate ;
+    sh:property [
+        sh:path pqcs:certificateHash ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-fA-F0-9]{64}$" ;  # SHA-256 hash pattern
+        sh:message "Certificate hash must be a valid SHA-256 hash"
+    ] ;
+    sh:property [
+        sh:path pqcs:issueDate ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Certificate must have valid issue date"
+    ] ;
+    sh:property [
+        sh:path pqcs:expiryDate ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Certificate must have valid expiry date"
+    ] ;
+    sh:property [
+        sh:path pqcs:validationLevel ;
+        sh:datatype xsd:string ;
+        sh:in ("bronze" "silver" "gold" "platinum") ;
+        sh:message "Certificate must have valid validation level"
+    ] ;
+    sh:sparql [
+        sh:message "Certificate expiry date must be after issue date" ;
+        sh:prefixes pqcs: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this pqcs:issueDate ?issue .
+                $this pqcs:expiryDate ?expiry .
+                FILTER(?expiry &lt;= ?issue)
+            }
+        """
+    ] ;
+    sh:message "Compliance certificate validation failed" .
+
+# ===== AUDIT LOG SHAPE =====
+
+pqcsh:AuditLogShape a sh:NodeShape ;
+    sh:targetClass pqcs:AuditLog ;
+    sh:property [
+        sh:path pqcs:timestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Audit log must have exactly one timestamp"
+    ] ;
+    sh:property [
+        sh:path pqcs:logLevel ;
+        sh:datatype xsd:string ;
+        sh:in ("DEBUG" "INFO" "WARN" "ERROR" "CRITICAL") ;
+        sh:message "Log level must be valid severity level"
+    ] ;
+    sh:property [
+        sh:path pqcs:eventType ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Z_]+$" ;  # Event type pattern
+        sh:message "Event type must be uppercase with underscores"
+    ] ;
+    sh:property [
+        sh:path pqcs:immutableHash ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-fA-F0-9]{64}$" ;  # SHA-256 hash for immutability
+        sh:message "Audit log must have immutable hash for integrity"
+    ] ;
+    sh:message "Audit log validation failed" .
+
+# ===== FORTUNE 5 COMPOSITE VALIDATION =====
+
+pqcsh:Fortune5ComplianceShape a sh:NodeShape ;
+    sh:targetClass pqcs:PQCScheduler ;
+    sh:and (
+        pqcsh:PQCSchedulerShape
+        [
+            sh:property [
+                sh:path pqcs:hasPerformanceMetric ;
+                sh:qualifiedValueShape pqcsh:PerformanceValidationShape ;
+                sh:qualifiedMinCount 4 ;
+                sh:message "Must have all required performance metrics for Fortune 5"
+            ]
+        ]
+        [
+            sh:property [
+                sh:path pqcs:hasSecurityConfiguration ;
+                sh:qualifiedValueShape pqcsh:SecurityValidationShape ;
+                sh:qualifiedMinCount 3 ;
+                sh:message "Must have all required security configurations for Fortune 5"
+            ]
+        ]
+        [
+            sh:property [
+                sh:path pqcs:hasHardwareConfiguration ;
+                sh:qualifiedValueShape pqcsh:HardwareValidationShape ;
+                sh:qualifiedMinCount 2 ;
+                sh:message "Must have all required hardware configurations for Fortune 5"
+            ]
+        ]
+    ) ;
+    sh:message "Fortune 5 compliance validation failed - system does not meet all requirements" .
+
+# ===== EVIDENCE PACKAGE SHAPE =====
+
+pqcsh:EvidencePackageShape a sh:NodeShape ;
+    sh:targetClass pqcs:EvidencePackage ;
+    sh:property [
+        sh:path pqcs:packageId ;
+        sh:datatype xsd:string ;
+        sh:pattern "^EVD-[0-9]{8}-[A-Z0-9]{6}$" ;  # Evidence package ID pattern
+        sh:message "Evidence package ID must follow format EVD-YYYYMMDD-XXXXXX"
+    ] ;
+    sh:property [
+        sh:path pqcs:collectionDate ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Evidence package must have collection date"
+    ] ;
+    sh:property [
+        sh:path pqcs:integrityHash ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-fA-F0-9]{64}$" ;
+        sh:message "Evidence package must have integrity hash"
+    ] ;
+    sh:property [
+        sh:path pqcs:evidenceCount ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Evidence package must contain at least one piece of evidence"
+    ] ;
+    sh:message "Evidence package validation failed" .

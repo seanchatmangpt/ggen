@@ -1,0 +1,68 @@
+# SPARQL CONSTRUCT: Transform Conformance Check JSON to RDF
+# Maps pictl check_conformance MCP tool result into pm:ConformanceReport triples
+# Input: JSON with fitness, precision, generalization, simplicity, deviations[]
+# Output: RDF graph documenting conformance quality and non-conformances
+
+PREFIX pm: <http://purl.org/pm/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+
+CONSTRUCT {
+  # Conformance Report
+  ?report a pm:ConformanceReport ;
+    rdfs:label "Conformance Analysis Report" ;
+    pm:hasFitness ?fitness ;
+    pm:hasPrecision ?precision ;
+    pm:hasGeneralization ?generalization ;
+    pm:hasSimplicity ?simplicity ;
+    prov:wasGeneratedAtTime ?timestamp ;
+    prov:wasGeneratedBy [
+      a prov:Activity ;
+      rdfs:label "Conformance Checking" ;
+      prov:used ?event_log ;
+      prov:used ?model
+    ] ;
+    dcat:landingPage ?report_uri .
+
+  # Overall conformance judgment
+  ?conformance_assertion a rdf:Statement ;
+    rdf:subject ?event_log ;
+    rdf:predicate pm:conformsTo ;
+    rdf:object ?model ;
+    pm:fitness ?fitness ;
+    pm:conformanceQuality ?overall_quality ;
+    rdfs:comment ?conformance_comment .
+
+  # Deviation details (if present)
+  ?deviation a pm:Deviation ;
+    rdfs:label ?deviation_label ;
+    pm:caseId ?case_id ;
+    pm:traceVariant ?trace_variant ;
+    pm:deviationType ?deviation_type ;
+    pm:position ?deviation_position ;
+    rdfs:comment ?deviation_description .
+
+  # Quality metrics aggregation
+  ?metrics a prov:Report ;
+    rdfs:label "Conformance Metrics" ;
+    pm:averageFitness ?avg_fitness ;
+    pm:averagePrecision ?avg_precision ;
+    pm:deviationCount ?deviation_count ;
+    pm:conformingTracePercentage ?conforming_percentage .
+}
+WHERE {
+  # Source bindings (from application layer JSON processing):
+  # $conformance_result = { fitness: 0.85, precision: 0.92, ... }
+
+  # Generate report IRI
+  BIND(IRI(CONCAT("http://pictl.org/conformance/", SUBSTR(STR(NOW()), 1, 10))) AS ?report)
+  BIND(NOW() AS ?timestamp)
+
+  # Placeholder URIs (would be replaced by actual data from application)
+  BIND(IRI("http://pictl.org/log/current") AS ?event_log)
+  BIND(IRI("http://pictl.org/model/current") AS ?model)
+  BIND(IRI("http://pictl.org/conformance/uri") AS ?report_uri)
+}

@@ -1,0 +1,122 @@
+@prefix knhk: <https://ontology.chatmangpt.com/knhk#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# L0 Facts: Workflow Execution
+
+knhk:workflow/wf-deal-approval-001
+  a knhk:Workflow ;
+  knhk:workflow_id "wf-deal-approval-001" ;
+  knhk:descriptor "deal_approval_workflow" ;
+  knhk:status "completed" ;
+  knhk:steps_completed 5 ;
+  knhk:steps_total 5 ;
+  knhk:duration_ms 4500 ;
+  knhk:cpu_time_ms 450 ;
+  knhk:memory_bytes 5242880 ;
+  knhk:io_operations 12 ;
+  rdfs:label "Workflow: deal_approval_workflow (completed)" .
+
+# L0 Facts: Covenant Enforcement
+
+knhk:covenant-enforce/abc125
+  a knhk:CovenantEnforcement ;
+  knhk:covenant_type "q" ;
+  knhk:covenant_operation "validate" ;
+  knhk:enforcement_result "passed" ;
+  knhk:rule_id "rule-deal-amount-bounds" ;
+  knhk:rule_name "Deal amount between 10k and 10M" ;
+  knhk:enforcement_level "strict" ;
+  knhk:quality_check_count 3 ;
+  knhk:quality_violations 0 .
+
+# L0 Facts: Receipt (Proof)
+
+knhk:receipt/r-1645123456789-xyz789
+  a knhk:Receipt ;
+  knhk:receipt_id "r-1645123456789-xyz789" ;
+  knhk:signature_valid true ;
+  knhk:timestamp_unix_ms 1645123456789 ;
+  knhk:payload_size 2048 ;
+  knhk:provenance_hash "sha256:abcd1234567890ef" ;
+  knhk:persistence_stored true ;
+  knhk:persistence_replicas 3 .
+
+# L0 Facts: MAPEK Cycle
+
+knhk:mapek-cycle/mapek-1645123456789-m1
+  a knhk:MAPEKCycle ;
+  knhk:cycle_id "mapek-1645123456789-m1" ;
+  knhk:phase "analyze" ;
+  knhk:health_status "healthy" ;
+  knhk:latency_p50_ms 45.5 ;
+  knhk:latency_p99_ms 250.0 ;
+  knhk:throughput_rps 500.0 ;
+  knhk:error_rate_percent 0.5 ;
+  knhk:resource_cpu_percent 35.0 ;
+  knhk:resource_memory_mb 512 .
+
+# Provenance: OTEL span → RDF ingestion
+
+knhk:span/abc123
+  a prov:Entity ;
+  prov:wasGeneratedBy knhk:activity/trace-001 ;
+  prov:generatedAtTime "2026-03-28T12:00:00Z"^^xsd:dateTime ;
+  rdfs:label "OTEL Span: knhk.workflow.submit" .
+
+knhk:activity/trace-001
+  a prov:Activity ;
+  prov:used knhk:log/trace-001 ;
+  prov:wasAssociatedWith knhk:L0IngestAgent ;
+  rdfs:label "KNHK L0 OTEL Ingest" .
+
+knhk:log/trace-001
+  a prov:Entity ;
+  rdfs:label "OTEL Event Log: trace-001" .
+
+knhk:L0IngestAgent
+  a prov:Agent ;
+  rdfs:label "KNHK L0 Ingest Service" .
+
+# Covenant enforcement provenance
+
+knhk:covenant-enforce/abc125
+  prov:wasGeneratedBy knhk:activity/cov-enforce-001 .
+
+knhk:activity/cov-enforce-001
+  a prov:Activity ;
+  prov:wasAssociatedWith knhk:CovenantEnforcementEngine ;
+  rdfs:label "Covenant Q (Quality) Enforcement" .
+
+knhk:CovenantEnforcementEngine
+  a prov:Agent ;
+  rdfs:label "Covenant Enforcement Engine" .
+
+# Receipt generation provenance
+
+knhk:receipt/r-1645123456789-xyz789
+  prov:wasGeneratedBy knhk:activity/receipt-gen-001 .
+
+knhk:activity/receipt-gen-001
+  a prov:Activity ;
+  prov:wasAssociatedWith knhk:ProofGenerator ;
+  rdfs:label "Cryptographic Proof Generation" .
+
+knhk:ProofGenerator
+  a prov:Agent ;
+  rdfs:label "Proof Generation Service" .
+
+# MAPEK cycle provenance
+
+knhk:mapek-cycle/mapek-1645123456789-m1
+  prov:wasGeneratedBy knhk:activity/mapek-analyze-001 .
+
+knhk:activity/mapek-analyze-001
+  a prov:Activity ;
+  prov:wasAssociatedWith knhk:MAPEKAnalyzeEngine ;
+  rdfs:label "MAPEK Analyze Phase" .
+
+knhk:MAPEKAnalyzeEngine
+  a prov:Agent ;
+  rdfs:label "MAPEK Analyze Engine" .

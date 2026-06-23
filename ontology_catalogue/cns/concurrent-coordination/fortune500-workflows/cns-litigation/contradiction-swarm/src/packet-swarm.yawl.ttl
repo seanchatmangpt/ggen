@@ -1,0 +1,325 @@
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema/> .
+@prefix legal: <http://legal.ai/ontology/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+legal:PacketSwarmWorkflow a yawl:Specification ;
+    dc:title "Legal Document Bundle Assembly Workflow" ;
+    dc:description "YAWL workflow for creating court-admissible document bundles from DAG nodes" ;
+    dc:creator "CNS Legal Swarm System" ;
+    dc:date "2025-07-29" ;
+    yawl:version "1.0" ;
+    legal:security-level "CONFIDENTIAL" ;
+    legal:court-admissible true .
+
+# Root Net Definition
+legal:PacketAssemblyNet a yawl:Net ;
+    yawl:belongsTo legal:PacketSwarmWorkflow ;
+    yawl:isRootNet true ;
+    dc:title "Document Bundle Assembly Process" .
+
+# Input Condition
+legal:BundleRequest a yawl:InputCondition ;
+    yawl:belongsTo legal:PacketAssemblyNet ;
+    dc:title "Bundle Assembly Request" ;
+    legal:requires [
+        legal:bundle-type "court|bar|ip" ;
+        legal:source-nodes "List of DAG node IDs" ;
+        legal:template-spec "Bundle template specification" ;
+        legal:requester-id "Authenticated user ID" ;
+        legal:case-number "Associated case number" ;
+        legal:jurisdiction "Court jurisdiction" ;
+        legal:deadline "Assembly deadline"
+    ] .
+
+# Task: Validate Bundle Request
+legal:ValidateBundleRequest a yawl:AtomicTask ;
+    yawl:belongsTo legal:PacketAssemblyNet ;
+    yawl:flowsFrom legal:BundleRequest ;
+    dc:title "Validate Bundle Assembly Request" ;
+    legal:responsible-role "PacketValidator" ;
+    legal:validation-rules [
+        legal:check-permissions "Verify user can access source nodes" ;
+        legal:verify-template "Ensure template exists and is valid" ;
+        legal:validate-case "Confirm case number and jurisdiction" ;
+        legal:check-deadline "Verify deadline is reasonable" ;
+        legal:audit-trail "Log validation attempt"
+    ] ;
+    legal:outputs [
+        legal:validation-status "VALID|INVALID" ;
+        legal:error-messages "List of validation errors" ;
+        legal:approved-sources "Filtered list of accessible nodes"
+    ] .
+
+# Decision: Validation Result
+legal:ValidationDecision a yawl:ORSplit ;
+    yawl:belongsTo legal:PacketAssemblyNet ;
+    yawl:flowsFrom legal:ValidateBundleRequest ;
+    dc:title "Bundle Request Validation Decision" ;
+    legal:conditions [
+        legal:valid-path "validation-status = 'VALID'" ;
+        legal:invalid-path "validation-status = 'INVALID'"
+    ] .
+
+# Task: Reject Invalid Request
+legal:RejectRequest a yawl:AtomicTask ;
+    yawl:belongsTo legal:PacketAssemblyNet ;
+    yawl:flowsFrom legal:ValidationDecision ;
+    yawl:condition "validation-status = 'INVALID'" ;
+    dc:title "Reject Invalid Bundle Request" ;
+    legal:responsible-role "PacketValidator" ;
+    legal:actions [
+        legal:log-rejection "Record rejection reason" ;
+        legal:notify-requester "Send rejection notification" ;
+        legal:audit-entry "Create audit trail entry"
+    ] .
+
+# Task: Collect Source Documents
+legal:CollectDocuments a yawl:AtomicTask ;
+    yawl:belongsTo legal:PacketAssemblyNet ;
+    yawl:flowsFrom legal:ValidationDecision ;
+    yawl:condition "validation-status = 'VALID'" ;
+    dc:title "Collect Documents from DAG Nodes" ;
+    legal:responsible-role "DocumentCollector" ;
+    legal:collection-process [
+        legal:retrieve-nodes "Fetch approved DAG nodes" ;
+        legal:extract-documents "Extract document content" ;
+        legal:preserve-metadata "Maintain original metadata" ;
+        legal:chain-of-custody "Create custody records" ;
+        legal:virus-scan "Perform security scanning" ;
+        legal:format-validation "Validate document formats"
+    ] ;
+    legal:outputs [
+        legal:document-list "List of collected documents" ;
+        legal:metadata-bundle "Combined metadata package" ;
+        legal:custody-chain "Chain of custody records" ;
+        legal:collection-status "SUCCESS|PARTIAL|FAILED"
+    ] .
+
+# Task: Apply Bundle Template
+legal:ApplyTemplate a yawl:AtomicTask ;
+    yawl:belongsTo legal:PacketAssemblyNet ;
+    yawl:flowsFrom legal:CollectDocuments ;
+    dc:title "Apply Bundle Template and Organization" ;
+    legal:responsible-role "TemplateProcessor" ;
+    legal:template-processing [
+        legal:load-template "Load specified bundle template" ;
+        legal:organize-documents "Sort documents per template" ;
+        legal:generate-index "Create document index" ;
+        legal:add-cover-sheets "Insert required cover pages" ;
+        legal:apply-numbering "Apply Bates numbering" ;
+        legal:create-toc "Generate table of contents" ;
+        legal:validate-completeness "Check template requirements"
+    ] ;
+    legal:outputs [
+        legal:organized-bundle "Template-organized document set" ;
+        legal:bundle-index "Document index and TOC" ;
+        legal:bates-numbers "Applied Bates numbering" ;
+        legal:template-compliance "Compliance verification"
+    ] .
+
+# Task: Generate Digital Signatures
+legal:GenerateSignatures a yawl:AtomicTask ;
+    yawl:belongsTo legal:PacketAssemblyNet ;
+    yawl:flowsFrom legal:ApplyTemplate ;
+    dc:title "Generate Digital Signatures and Timestamps" ;
+    legal:responsible-role "CryptographicProcessor" ;
+    legal:signature-process [
+        legal:hash-documents "Generate document hashes" ;
+        legal:create-manifest "Create signed manifest" ;
+        legal:timestamp-bundle "Apply trusted timestamps" ;
+        legal:sign-metadata "Sign metadata package" ;
+        legal:generate-certificate "Create authenticity certificate" ;
+        legal:audit-signatures "Verify signature integrity"
+    ] ;
+    legal:cryptographic-standards [
+        legal:hash-algorithm "SHA-256" ;
+        legal:signature-algorithm "RSA-2048 or ECDSA-P256" ;
+        legal:timestamp-authority "RFC 3161 compliant TSA" ;
+        legal:certificate-standard "X.509 v3"
+    ] ;
+    legal:outputs [
+        legal:signed-manifest "Cryptographically signed manifest" ;
+        legal:timestamp-certificates "Timestamp authority certificates" ;
+        legal:signature-verification "Signature validation data" ;
+        legal:authenticity-proof "Bundle authenticity proof"
+    ] .
+
+# Task: Create ZIP Bundle
+legal:CreateZipBundle a yawl:AtomicTask ;
+    yawl:belongsTo legal:PacketAssemblyNet ;
+    yawl:flowsFrom legal:GenerateSignatures ;
+    dc:title "Create Final ZIP Bundle Package" ;
+    legal:responsible-role "BundleAssembler" ;
+    legal:zip-creation [
+        legal:compression-level "6 (balanced)" ;
+        legal:encryption-method "AES-256" ;
+        legal:structure-validation "Verify bundle structure" ;
+        legal:size-optimization "Optimize bundle size" ;
+        legal:integrity-check "Generate bundle checksum" ;
+        legal:password-protection "Optional password encryption"
+    ] ;
+    legal:bundle-contents [
+        legal:documents-folder "Organized documents" ;
+        legal:metadata-folder "Metadata and manifests" ;
+        legal:signatures-folder "Digital signatures and certificates" ;
+        legal:index-files "Indexes and TOCs" ;
+        legal:audit-trail "Complete audit trail" ;
+        legal:readme-file "Bundle documentation"
+    ] ;
+    legal:outputs [
+        legal:zip-bundle "Final encrypted ZIP bundle" ;
+        legal:bundle-checksum "SHA-256 bundle checksum" ;
+        legal:bundle-metadata "Bundle creation metadata" ;
+        legal:access-credentials "Bundle access credentials"
+    ] .
+
+# Task: Validate Bundle Integrity
+legal:ValidateBundle a yawl:AtomicTask ;
+    yawl:belongsTo legal:PacketAssemblyNet ;
+    yawl:flowsFrom legal:CreateZipBundle ;
+    dc:title "Validate Bundle Integrity and Completeness" ;
+    legal:responsible-role "BundleValidator" ;
+    legal:validation-checks [
+        legal:structural-integrity "Verify ZIP structure" ;
+        legal:document-completeness "Check all documents included" ;
+        legal:signature-validity "Verify all signatures" ;
+        legal:metadata-consistency "Check metadata consistency" ;
+        legal:template-compliance "Verify template adherence" ;
+        legal:audit-completeness "Ensure complete audit trail"
+    ] ;
+    legal:quality-assurance [
+        legal:readability-test "Test bundle extraction" ;
+        legal:signature-verification "Verify signature chain" ;
+        legal:timestamp-validation "Validate timestamps" ;
+        legal:compliance-check "Check legal requirements"
+    ] ;
+    legal:outputs [
+        legal:validation-report "Comprehensive validation report" ;
+        legal:integrity-status "VALID|INVALID" ;
+        legal:compliance-certificate "Legal compliance certificate" ;
+        legal:error-list "List of any validation errors"
+    ] .
+
+# Decision: Bundle Validation Result
+legal:BundleValidationDecision a yawl:ORSplit ;
+    yawl:belongsTo legal:PacketAssemblyNet ;
+    yawl:flowsFrom legal:ValidateBundle ;
+    dc:title "Bundle Validation Decision" ;
+    legal:conditions [
+        legal:valid-bundle "integrity-status = 'VALID'" ;
+        legal:invalid-bundle "integrity-status = 'INVALID'"
+    ] .
+
+# Task: Fix Bundle Issues
+legal:FixBundleIssues a yawl:AtomicTask ;
+    yawl:belongsTo legal:PacketAssemblyNet ;
+    yawl:flowsFrom legal:BundleValidationDecision ;
+    yawl:condition "integrity-status = 'INVALID'" ;
+    dc:title "Fix Bundle Issues and Retry" ;
+    legal:responsible-role "BundleRepairSpecialist" ;
+    legal:repair-actions [
+        legal:analyze-errors "Analyze validation errors" ;
+        legal:fix-structure "Repair bundle structure" ;
+        legal:regenerate-signatures "Recreate invalid signatures" ;
+        legal:update-metadata "Fix metadata issues" ;
+        legal:retry-validation "Re-run validation process"
+    ] ;
+    legal:max-retry-attempts "3" ;
+    yawl:flowsTo legal:ValidateBundle .
+
+# Task: Deliver Bundle
+legal:DeliverBundle a yawl:AtomicTask ;
+    yawl:belongsTo legal:PacketAssemblyNet ;
+    yawl:flowsFrom legal:BundleValidationDecision ;
+    yawl:condition "integrity-status = 'VALID'" ;
+    dc:title "Deliver Completed Bundle" ;
+    legal:responsible-role "BundleDeliveryAgent" ;
+    legal:delivery-process [
+        legal:generate-receipt "Create delivery receipt" ;
+        legal:secure-transmission "Use encrypted transmission" ;
+        legal:access-logging "Log bundle access" ;
+        legal:notification-system "Notify relevant parties" ;
+        legal:archive-copy "Store archival copy" ;
+        legal:cleanup-temp "Clean temporary files"
+    ] ;
+    legal:delivery-options [
+        legal:secure-download "Encrypted download link" ;
+        legal:email-delivery "Encrypted email attachment" ;
+        legal:portal-access "Secure portal access" ;
+        legal:physical-media "DVD/USB delivery option"
+    ] ;
+    legal:outputs [
+        legal:delivery-confirmation "Delivery confirmation" ;
+        legal:access-instructions "Bundle access instructions" ;
+        legal:expiration-date "Download link expiration" ;
+        legal:tracking-number "Bundle tracking identifier"
+    ] .
+
+# Output Condition
+legal:BundleDelivered a yawl:OutputCondition ;
+    yawl:belongsTo legal:PacketAssemblyNet ;
+    yawl:flowsFrom legal:DeliverBundle ;
+    dc:title "Bundle Successfully Delivered" ;
+    legal:completion-data [
+        legal:bundle-id "Unique bundle identifier" ;
+        legal:delivery-timestamp "Completion timestamp" ;
+        legal:recipient-confirmation "Recipient acknowledgment" ;
+        legal:audit-summary "Complete audit summary" ;
+        legal:compliance-status "Legal compliance status" ;
+        legal:retention-schedule "Document retention requirements"
+    ] .
+
+# Cancellation Flow
+legal:CancelAssembly a yawl:AtomicTask ;
+    yawl:belongsTo legal:PacketAssemblyNet ;
+    yawl:isCancellationTask true ;
+    dc:title "Cancel Bundle Assembly Process" ;
+    legal:responsible-role "ProcessCancellationHandler" ;
+    legal:cancellation-actions [
+        legal:cleanup-resources "Clean up temporary resources" ;
+        legal:audit-cancellation "Log cancellation reason" ;
+        legal:notify-stakeholders "Notify relevant parties" ;
+        legal:secure-disposal "Securely delete partial work"
+    ] .
+
+# Error Handling
+legal:ErrorHandler a yawl:AtomicTask ;
+    yawl:belongsTo legal:PacketAssemblyNet ;
+    yawl:isErrorHandler true ;
+    dc:title "Handle Assembly Errors" ;
+    legal:responsible-role "ErrorHandlingSpecialist" ;
+    legal:error-handling [
+        legal:capture-error "Capture error details" ;
+        legal:assess-recovery "Assess recovery options" ;
+        legal:secure-cleanup "Secure cleanup of partial data" ;
+        legal:escalate-issues "Escalate critical issues" ;
+        legal:audit-error "Create error audit entry"
+    ] .
+
+# Workflow Variables
+legal:WorkflowVariables a yawl:VariableCollection ;
+    yawl:belongsTo legal:PacketSwarmWorkflow ;
+    legal:variables [
+        legal:bundle-type "court|bar|ip" ;
+        legal:source-nodes "xsd:string" ;
+        legal:template-spec "xsd:string" ;
+        legal:requester-id "xsd:string" ;
+        legal:case-number "xsd:string" ;
+        legal:jurisdiction "xsd:string" ;
+        legal:deadline "xsd:dateTime" ;
+        legal:validation-status "xsd:string" ;
+        legal:document-list "xsd:string" ;
+        legal:bundle-id "xsd:string" ;
+        legal:integrity-status "xsd:string" ;
+        legal:delivery-confirmation "xsd:string"
+    ] .
+
+# Security and Compliance
+legal:SecurityRequirements a legal:SecuritySpecification ;
+    legal:applies-to legal:PacketSwarmWorkflow ;
+    legal:encryption-at-rest true ;
+    legal:encryption-in-transit true ;
+    legal:access-control "RBAC with audit trail" ;
+    legal:data-retention "Per legal requirements" ;
+    legal:compliance-standards "Federal Rules of Evidence, State Court Requirements, Bar Association Standards, USPTO Guidelines, GDPR, SOX Compliance, HIPAA" .

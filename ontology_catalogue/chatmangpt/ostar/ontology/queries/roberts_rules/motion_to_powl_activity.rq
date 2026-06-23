@@ -1,0 +1,115 @@
+# Robert's Rules Motion -> POWL Activity Mapping
+# Maps each motion type to a POWL activity node with its governance constraints.
+# Activity labels, lifecycle transitions, and precedence ordering are extracted
+# to drive POWL model synthesis for governance workflows.
+#
+# POWL mapping:
+#   Motion             -> powl:HumanTask (requires assembly participation)
+#   Lifecycle stages   -> powl:Activity sequence (pending -> seconded -> debated -> voted -> resolved)
+#   Precedence level   -> powl:Dependency ordering within a powl:PartialOrder
+#   Voting threshold   -> powl:ExclusiveChoice branch (majority / two-thirds / plurality)
+#   Quorum             -> powl:PartialOrder precondition (Quorum satisfied before vote)
+#
+# Public ontology terms:
+#   Motion -> skos:Concept in governance scheme
+#   PrivilegedMotion -> skos:Concept in governance scheme
+#   IncidentalMotion -> skos:Concept in governance scheme
+#   SubsidiaryMotion -> skos:Concept in governance scheme
+#   hasPrecedence -> dct:coverage
+#   requiresSecond -> dct:requires
+#   isDebatable -> dct:type
+#   isAmendable -> dct:relation
+#   requiresQuorum -> dct:conformsTo
+#   votingThreshold -> dct:extent
+
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX powl: <https://chatmangpt.com/ontologies/powl#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+
+SELECT ?motion
+       ?motionLabel
+       ?motionSubclass
+       ?precedence
+       ?requiresSecond
+       ?isDebatable
+       ?isAmendable
+       ?requiresQuorum
+       ?votingThreshold
+       ?powlActivityType
+       ?lifecycleSequence
+       ?precedenceOrder
+WHERE {
+  # Bind the motion type (skos:Concept in governance scheme)
+  {
+    # Case 1: Named individuals (e.g., MotionToAdjourn, MainMotion)
+    ?motion a skos:Concept ;
+            skos:inScheme <https://chatmangpt.com/ontologies/skos/governance> .
+    ?motion skos:broader* ?motionRoot .
+    ?motionRoot skos:prefLabel "Motion" .
+    FILTER (!isBlank(?motion))
+  }
+
+  # Extract motion label
+  OPTIONAL { ?motion rdfs:label ?motionLabel . }
+
+  # Determine the most specific motion subclass
+  OPTIONAL {
+    ?motion skos:broader ?motionSubclass .
+    ?motionSubclass skos:inScheme <https://chatmangpt.com/ontologies/skos/governance> .
+    FILTER (?motionSubclass != ?motionRoot)
+    FILTER (!isBlank(?motionSubclass))
+  }
+
+  # Governance constraints
+  OPTIONAL { ?motion dct:coverage ?precedence . }
+  OPTIONAL { ?motion dct:requires ?requiresSecond . }
+  OPTIONAL { ?motion dct:type ?isDebatable . }
+  OPTIONAL { ?motion dct:relation ?isAmendable . }
+  OPTIONAL { ?motion dct:conformsTo ?requiresQuorum . }
+  OPTIONAL { ?motion dct:extent ?votingThreshold . }
+
+  # POWL activity type mapping:
+  #   PrivilegedMotion  -> powl:HumanTask (interrupts current business, highest priority)
+  #   IncidentalMotion  -> powl:Activity (procedural, no lifecycle stages)
+  #   SubsidiaryMotion  -> powl:HumanTask (modifies disposition of main motion)
+  #   MainMotion        -> powl:HumanTask (full lifecycle)
+  BIND(
+    IF(EXISTS { ?motion skos:broader* ?pm . ?pm skos:prefLabel "PrivilegedMotion" . },
+      "powl:HumanTask",
+    IF(EXISTS { ?motion skos:broader* ?im . ?im skos:prefLabel "IncidentalMotion" . },
+      "powl:Activity",
+    IF(EXISTS { ?motion skos:broader* ?sm . ?sm skos:prefLabel "SubsidiaryMotion" . },
+      "powl:HumanTask",
+      "powl:HumanTask")))
+    AS ?powlActivityType
+  )
+
+  # Lifecycle sequence for POWL activity chain.
+  # Privileged motions skip the debate stage.
+  # Incidental motions have no lifecycle (instantaneous ruling from chair).
+  BIND(
+    IF(EXISTS { ?motion skos:broader* ?im2 . ?im2 skos:prefLabel "IncidentalMotion" . },
+      "resolved",
+    IF(EXISTS { ?motion skos:broader* ?pm2 . ?pm2 skos:prefLabel "PrivilegedMotion" . },
+      "pending -> seconded -> voted -> resolved",
+      "pending -> seconded -> debated -> voted -> resolved"))
+    AS ?lifecycleSequence
+  )
+
+  # Precedence ordering for POWL Dependency edges.
+  # Lower integer = higher precedence (processed first in PartialOrder).
+  BIND(
+    COALESCE(?precedence,
+      IF(EXISTS { ?motion skos:broader* ?pm3 . ?pm3 skos:prefLabel "PrivilegedMotion" . }, 1,
+      IF(EXISTS { ?motion skos:broader* ?sm3 . ?sm3 skos:prefLabel "SubsidiaryMotion" . }, 2,
+      IF(EXISTS { ?motion skos:broader* ?im3 . ?im3 skos:prefLabel "IncidentalMotion" . }, 3,
+        4))))
+    AS ?precedenceOrder
+  )
+}
+ORDER BY ?precedenceOrder

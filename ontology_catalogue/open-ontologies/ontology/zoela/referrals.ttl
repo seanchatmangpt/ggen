@@ -1,0 +1,337 @@
+@prefix zoe: <https://zoela.org/ontology/> .
+@prefix schema: <https://schema.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# ===========================================================================
+# ZOE LA — Referrals Ontology
+# ===========================================================================
+
+<https://zoela.org/ontology/referrals>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA Referrals Ontology" ;
+    rdfs:comment "Models referrals from ZOE LA to partner organizations. Referrals are service route events that involve consent, evidence, and partner confirmation." ;
+    dcterms:created "2026-05-17"^^xsd:date ;
+    dcterms:creator "ZOE LA" ;
+    owl:versionInfo "1.0.0" .
+
+# ===========================================================================
+# Classes
+# ===========================================================================
+
+zoe:Referral
+    a owl:Class ;
+    rdfs:subClassOf schema:RequestAction, prov:Activity ;
+    rdfs:label "Referral"@en ;
+    rdfs:comment "A formal referral from ZOE LA to a partner organization for a person or household in need. Referrals require consent and are tracked through confirmation and outcome."@en .
+
+# ===========================================================================
+# Properties — zoe:Referral
+# ===========================================================================
+
+zoe:referralId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range xsd:string ;
+    rdfs:label "referral ID" ;
+    rdfs:comment "A unique identifier for this referral record." ;
+    skos:notation "referralId" .
+
+zoe:referralType
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range skos:Concept ;
+    rdfs:label "referral type" ;
+    rdfs:comment "The type of service this referral addresses, drawn from the zoe:ReferralTypeScheme concept scheme." ;
+    skos:notation "referralType" .
+
+zoe:subjectId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range xsd:string ;
+    rdfs:label "subject ID" ;
+    rdfs:comment "The identifier of the person or household being referred to the partner organization." ;
+    skos:notation "subjectId" .
+
+zoe:subjectType
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range xsd:string ;
+    rdfs:label "subject type" ;
+    rdfs:comment "The type of subject being referred, either 'person' or 'household'." ;
+    skos:notation "subjectType" .
+
+zoe:partnerId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range xsd:string ;
+    rdfs:label "partner ID" ;
+    rdfs:comment "The identifier of the partner organization receiving this referral." ;
+    skos:notation "partnerId" .
+
+zoe:initiatedBy
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range xsd:string ;
+    rdfs:label "initiated by" ;
+    rdfs:comment "The user ID of the ZOE LA staff member who initiated this referral." ;
+    skos:notation "initiatedBy" .
+
+zoe:initiatedAt
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "initiated at" ;
+    rdfs:comment "The date and time when this referral was initiated." ;
+    skos:notation "initiatedAt" .
+
+zoe:referralConsentId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range xsd:string ;
+    rdfs:label "referral consent ID" ;
+    rdfs:comment "A required foreign key to the consent record authorizing this referral. Referrals without a consent record are not valid." ;
+    skos:notation "referralConsentId" .
+
+zoe:referralStatus
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range skos:Concept ;
+    rdfs:label "referral status" ;
+    rdfs:comment "The current lifecycle status of this referral, drawn from the zoe:ReferralStatusScheme concept scheme." ;
+    skos:notation "referralStatus" .
+
+zoe:referralNote
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range xsd:string ;
+    rdfs:label "referral note" ;
+    rdfs:comment "Pastoral or care notes associated with this referral. Access is sensitivity-gated based on the sensitivityLevel of the referral." ;
+    skos:notation "referralNote" .
+
+zoe:expectedResponseDays
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range xsd:integer ;
+    rdfs:label "expected response days" ;
+    rdfs:comment "The number of days within which a response from the partner organization is expected for this referral." ;
+    skos:notation "expectedResponseDays" .
+
+zoe:partnerConfirmedAt
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "partner confirmed at" ;
+    rdfs:comment "The date and time when the partner organization confirmed receipt and acceptance of this referral." ;
+    skos:notation "partnerConfirmedAt" .
+
+zoe:outcomeNote
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range xsd:string ;
+    rdfs:label "outcome note" ;
+    rdfs:comment "A note describing the outcome of this referral after it has been completed, refused, or closed." ;
+    skos:notation "outcomeNote" .
+
+zoe:followUpRequired
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "follow-up required" ;
+    rdfs:comment "Indicates whether a follow-up action is required after this referral is completed or resolved." ;
+    skos:notation "followUpRequired" .
+
+zoe:receiptId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range xsd:string ;
+    rdfs:label "receipt ID" ;
+    rdfs:comment "A foreign key to the PartnerReferralReceipt record that provides cryptographic proof of this referral's processing." ;
+    skos:notation "receiptId" .
+
+zoe:sensitivityLevel
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Referral ;
+    rdfs:range xsd:string ;
+    rdfs:label "sensitivity level" ;
+    rdfs:comment "The data sensitivity classification of this referral. Valid values: Public, Sensitive, Confidential, YouthProtected." ;
+    skos:notation "sensitivityLevel" .
+
+# ===========================================================================
+# SKOS Concept Scheme — Referral Types
+# ===========================================================================
+
+zoe:ReferralTypeScheme
+    a skos:ConceptScheme ;
+    rdfs:label "ZOE LA Referral Type Scheme" ;
+    rdfs:comment "A controlled vocabulary of referral types used to classify ZOE LA service referrals to partner organizations." ;
+    skos:prefLabel "Referral Type Scheme" .
+
+zoe:FoodReferral
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralTypeScheme ;
+    skos:topConceptOf zoe:ReferralTypeScheme ;
+    skos:prefLabel "Food Referral" ;
+    skos:notation "REF-FOOD" ;
+    rdfs:label "Food Referral" ;
+    rdfs:comment "A referral to a food bank or food pantry partner for food assistance." .
+
+zoe:ClothingReferral
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralTypeScheme ;
+    skos:topConceptOf zoe:ReferralTypeScheme ;
+    skos:prefLabel "Clothing Referral" ;
+    skos:notation "REF-CLOTH" ;
+    rdfs:label "Clothing Referral" ;
+    rdfs:comment "A referral to a clothing or thrift ministry partner for clothing assistance." .
+
+zoe:HousingReferral
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralTypeScheme ;
+    skos:topConceptOf zoe:ReferralTypeScheme ;
+    skos:prefLabel "Housing Referral" ;
+    skos:notation "REF-HOUSING" ;
+    rdfs:label "Housing Referral" ;
+    rdfs:comment "A referral to a housing or shelter partner for housing assistance or emergency shelter." .
+
+zoe:CounselingReferral
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralTypeScheme ;
+    skos:topConceptOf zoe:ReferralTypeScheme ;
+    skos:prefLabel "Counseling Referral" ;
+    skos:notation "REF-COUNSEL" ;
+    rdfs:label "Counseling Referral" ;
+    rdfs:comment "A referral to a counseling or mental health partner for therapeutic or supportive care." .
+
+zoe:MedicalReferral
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralTypeScheme ;
+    skos:topConceptOf zoe:ReferralTypeScheme ;
+    skos:prefLabel "Medical Referral" ;
+    skos:notation "REF-MEDICAL" ;
+    rdfs:label "Medical Referral" ;
+    rdfs:comment "A referral to a medical or healthcare partner for primary care, specialty care, or preventive services." .
+
+zoe:LegalReferral
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralTypeScheme ;
+    skos:topConceptOf zoe:ReferralTypeScheme ;
+    skos:prefLabel "Legal Referral" ;
+    skos:notation "REF-LEGAL" ;
+    rdfs:label "Legal Referral" ;
+    rdfs:comment "A referral to a legal aid partner for legal assistance, advocacy, or immigration services." .
+
+zoe:EmploymentReferral
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralTypeScheme ;
+    skos:topConceptOf zoe:ReferralTypeScheme ;
+    skos:prefLabel "Employment Referral" ;
+    skos:notation "REF-EMPLOY" ;
+    rdfs:label "Employment Referral" ;
+    rdfs:comment "A referral to an employment or job training partner for workforce development or job placement." .
+
+zoe:ChildcareReferral
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralTypeScheme ;
+    skos:topConceptOf zoe:ReferralTypeScheme ;
+    skos:prefLabel "Childcare Referral" ;
+    skos:notation "REF-CHILD" ;
+    rdfs:label "Childcare Referral" ;
+    rdfs:comment "A referral to a childcare or family services partner for childcare, family support, or early childhood services." .
+
+zoe:SubstanceRecoveryReferral
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralTypeScheme ;
+    skos:topConceptOf zoe:ReferralTypeScheme ;
+    skos:prefLabel "Substance Recovery Referral" ;
+    skos:notation "REF-SUBSTANCE" ;
+    rdfs:label "Substance Recovery Referral" ;
+    rdfs:comment "A referral to a substance recovery partner for addiction treatment, detox, or sober living services." .
+
+zoe:HospitalChaplainReferral
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralTypeScheme ;
+    skos:topConceptOf zoe:ReferralTypeScheme ;
+    skos:prefLabel "Hospital Chaplain Referral" ;
+    skos:notation "REF-HOSP" ;
+    rdfs:label "Hospital Chaplain Referral" ;
+    rdfs:comment "A referral to a hospital chaplain or clinic spiritual care partner for pastoral support in a medical setting." .
+
+# ===========================================================================
+# SKOS Concept Scheme — Referral Status
+# ===========================================================================
+
+zoe:ReferralStatusScheme
+    a skos:ConceptScheme ;
+    rdfs:label "ZOE LA Referral Status Scheme" ;
+    rdfs:comment "A controlled vocabulary of lifecycle statuses for ZOE LA service referrals." ;
+    skos:prefLabel "Referral Status Scheme" .
+
+zoe:ReferralDraft
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralStatusScheme ;
+    skos:topConceptOf zoe:ReferralStatusScheme ;
+    skos:prefLabel "Draft" ;
+    skos:notation "DRAFT" ;
+    rdfs:label "Referral Draft" ;
+    rdfs:comment "The referral has been created but not yet submitted or sent to the partner organization." .
+
+zoe:ReferralPending
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralStatusScheme ;
+    skos:topConceptOf zoe:ReferralStatusScheme ;
+    skos:prefLabel "Pending" ;
+    skos:notation "PENDING" ;
+    rdfs:label "Referral Pending" ;
+    rdfs:comment "The referral has been submitted and is awaiting review or transmission to the partner organization." .
+
+zoe:ReferralSent
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralStatusScheme ;
+    skos:topConceptOf zoe:ReferralStatusScheme ;
+    skos:prefLabel "Sent" ;
+    skos:notation "SENT" ;
+    rdfs:label "Referral Sent" ;
+    rdfs:comment "The referral has been transmitted to the partner organization and is awaiting their confirmation." .
+
+zoe:ReferralConfirmed
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralStatusScheme ;
+    skos:topConceptOf zoe:ReferralStatusScheme ;
+    skos:prefLabel "Confirmed" ;
+    skos:notation "CONFIRMED" ;
+    rdfs:label "Referral Confirmed" ;
+    rdfs:comment "The partner organization has confirmed receipt and acceptance of the referral." .
+
+zoe:ReferralCompleted
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralStatusScheme ;
+    skos:topConceptOf zoe:ReferralStatusScheme ;
+    skos:prefLabel "Completed" ;
+    skos:notation "COMPLETED" ;
+    rdfs:label "Referral Completed" ;
+    rdfs:comment "The referral has been fully completed and the subject has received the service." .
+
+zoe:ReferralRefused
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralStatusScheme ;
+    skos:topConceptOf zoe:ReferralStatusScheme ;
+    skos:prefLabel "Refused" ;
+    skos:notation "REFUSED" ;
+    rdfs:label "Referral Refused" ;
+    rdfs:comment "The partner organization refused the referral, typically because they are at capacity or cannot accommodate the subject." .
+
+zoe:ReferralWithdrawn
+    a skos:Concept ;
+    skos:inScheme zoe:ReferralStatusScheme ;
+    skos:topConceptOf zoe:ReferralStatusScheme ;
+    skos:prefLabel "Withdrawn" ;
+    skos:notation "WITHDRAWN" ;
+    rdfs:label "Referral Withdrawn" ;
+    rdfs:comment "The referral was withdrawn because the subject revoked their consent or requested removal from the referral process." .

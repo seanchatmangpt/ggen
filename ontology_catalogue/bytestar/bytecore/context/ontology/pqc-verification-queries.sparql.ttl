@@ -1,0 +1,349 @@
+# SPARQL Queries for PQC Formal Verification Framework
+# Implements mathematical proofs as executable SPARQL queries
+PREFIX : <https://bytestar.org/ontology/bytecore/pqc-verification#>
+PREFIX bcore: <https://bytestar.org/ontology/bytestar-core#>
+PREFIX bpqc: <https://bytestar.org/ontology/bytestar-pqc#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX math: <http://www.w3.org/2000/10/swap/math#>
+
+#################################################################
+# I. CRYPTOGRAPHIC CORRECTNESS PROOFS
+#################################################################
+
+# Query 1: Verify algorithm correctness (encrypt/decrypt round-trip)
+# THEOREM: ∀kem ∈ KEM, ∀ (pk,sk) ← KeyGen(), ∀ m, 
+#          Decrypt(sk, Encrypt(pk, m)) = m
+ASK {
+  ?kem a bcore:KEM ;
+       :implementedAs ?kernel .
+  ?kernel bcore:hasProperty bcore:Correctness .
+  
+  # Verify key generation produces valid key pair
+  ?kem bcore:hasKeyGen ?keygen .
+  ?keygen bcore:outputType bcore:KeyPair .
+  
+  # Verify encryption/decryption round-trip
+  ?kem bcore:hasEncrypt ?encrypt ;
+       bcore:hasDecrypt ?decrypt .
+  ?encrypt bcore:inputType bcore:PublicKey, bcore:Message ;
+           bcore:outputType bcore:Ciphertext .
+  ?decrypt bcore:inputType bcore:SecretKey, bcore:Ciphertext ;
+           bcore:outputType bcore:Message .
+}
+
+# Query 2: Verify signature correctness (sign/verify round-trip)
+# THEOREM: ∀ sig ∈ DigitalSignature, ∀ (pk,sk) ← KeyGen(), ∀ m,
+#          Verify(pk, m, Sign(sk, m)) = true
+ASK {
+  ?sig a bcore:DigitalSignature ;
+       :implementedAs ?kernel .
+  ?kernel bcore:hasProperty bcore:Correctness .
+  
+  # Verify key generation
+  ?sig bcore:hasKeyGen ?keygen .
+  ?keygen bcore:outputType bcore:KeyPair .
+  
+  # Verify sign/verify round-trip
+  ?sig bcore:hasSign ?sign ;
+       bcore:hasVerify ?verify .
+  ?sign bcore:inputType bcore:SecretKey, bcore:Message ;
+        bcore:outputType bcore:Signature .
+  ?verify bcore:inputType bcore:PublicKey, bcore:Message, bcore:Signature ;
+          bcore:outputType bcore:Boolean .
+}
+
+#################################################################
+# II. QUANTUM SECURITY PROOFS
+#################################################################
+
+# Query 3: Verify quantum resistance properties
+# THEOREM: ∀ alg ∈ PQCAlgorithm, ∃ reduction R s.t.
+#          Breaking alg ⇒ Solving hard lattice problem
+SELECT ?algorithm ?securityBits ?hardProblem WHERE {
+  ?algorithm a :PQCAlgorithm ;
+             :quantumSecurityBits ?securityBits ;
+             :resistantTo :QuantumAdversary .
+  
+  # Verify reduction to hard problem
+  ?algorithm :provenBy ?proof .
+  ?proof :usesProofMethod :ReductionProof ;
+         bcore:reducesTo ?hardProblem .
+  
+  # Verify hard problem is quantum-resistant
+  ?hardProblem a bcore:HardProblem ;
+               :resistantTo :QuantumAdversary .
+  
+  FILTER (?securityBits >= 128)
+}
+
+# Query 4: Validate NIST security levels
+# Ensures algorithms meet NIST PQC security level requirements
+SELECT ?algorithm ?declaredLevel ?actualBits WHERE {
+  ?algorithm a :PQCAlgorithm ;
+             :hasSecurityLevel ?declaredLevel ;
+             :quantumSecurityBits ?actualBits .
+  
+  # Security level bit requirements
+  VALUES (?level ?minBits) {
+    (:Level1 128)
+    (:Level2 128) 
+    (:Level3 192)
+    (:Level4 192)
+    (:Level5 256)
+  }
+  
+  FILTER (?declaredLevel = ?level && ?actualBits < ?minBits)
+}
+
+#################################################################
+# III. SIDE-CHANNEL RESISTANCE PROOFS
+#################################################################
+
+# Query 5: Verify constant-time implementation
+# THEOREM: ∀ alg ∈ HotPath, execution_time(alg, input) is constant
+ASK {
+  ?algorithm bpqc:pathTier bpqc:HOT ;
+             :constantTimeGuarantee true ;
+             :implementedAs ?kernel .
+  
+  # Verify no secret-dependent branches
+  ?kernel bcore:hasProperty bcore:NoSecretBranches .
+  
+  # Verify no secret-dependent memory access
+  ?kernel bcore:hasProperty bcore:ConstantMemoryAccess .
+  
+  # Verify no secret-dependent operations
+  ?kernel bcore:hasProperty bcore:ConstantTimeOps .
+}
+
+# Query 6: Check for timing attack vulnerabilities
+# Find algorithms potentially vulnerable to timing attacks
+SELECT ?algorithm ?vulnerability WHERE {
+  ?algorithm a :PQCAlgorithm ;
+             :implementedAs ?kernel .
+  
+  {
+    # Variable-time conditional operations
+    ?kernel bcore:hasOperation ?op .
+    ?op bcore:executionTime bcore:DataDependent .
+    BIND("variable_time_operation" AS ?vulnerability)
+  } UNION {
+    # Secret-dependent memory access patterns
+    ?kernel :memoryAccessPattern "data-dependent" .
+    BIND("secret_dependent_memory_access" AS ?vulnerability)
+  } UNION {
+    # Cache-timing vulnerabilities
+    ?kernel bcore:usesLookupTable true ;
+            bcore:tableAccessPattern bcore:SecretDependent .
+    BIND("cache_timing_vulnerability" AS ?vulnerability)
+  }
+}
+
+# Query 7: Verify power analysis resistance
+# Check for differential power analysis (DPA) countermeasures
+ASK {
+  ?algorithm :resistantTo :PowerAnalysisAttack ;
+             :implementedAs ?kernel .
+  
+  # Verify masking countermeasures
+  ?kernel bcore:hasCountermeasure bcore:Masking .
+  
+  # Verify randomization techniques
+  ?kernel bcore:hasCountermeasure bcore:Randomization .
+  
+  # Verify balanced operations
+  ?kernel bcore:hasProperty bcore:BalancedOperations .
+}
+
+#################################################################
+# IV. IMPLEMENTATION VERIFICATION
+#################################################################
+
+# Query 8: Verify kernel-algorithm mapping correctness
+# Ensures ByteCore kernels correctly implement PQC algorithms
+SELECT ?kernel ?algorithm ?issue WHERE {
+  ?kernel a :PQCKernel ;
+          :implements ?algorithm .
+  ?algorithm a :PQCAlgorithm .
+  
+  {
+    # Check parameter consistency
+    ?algorithm :keySize ?algKeySize .
+    ?kernel bcore:keySize ?kernelKeySize .
+    FILTER (?algKeySize != ?kernelKeySize)
+    BIND("key_size_mismatch" AS ?issue)
+  } UNION {
+    # Check security level consistency
+    ?algorithm :hasSecurityLevel ?algLevel .
+    ?kernel bcore:securityLevel ?kernelLevel .
+    FILTER (?algLevel != ?kernelLevel)
+    BIND("security_level_mismatch" AS ?issue)
+  } UNION {
+    # Check path tier consistency
+    ?algorithm bpqc:pathTier ?algTier .
+    ?kernel bcore:pathTier ?kernelTier .
+    FILTER (?algTier != ?kernelTier)
+    BIND("path_tier_mismatch" AS ?issue)
+  }
+}
+
+# Query 9: Validate Doctrine of 8 compliance for PQC kernels
+# Ensures PQC operations complete within 8-tick limit
+SELECT ?kernel ?algorithm ?tickCost WHERE {
+  ?kernel a :PQCKernel ;
+          :implements ?algorithm ;
+          bcore:hasTickCost ?tickCost .
+  
+  # HOT path must complete in ≤8 ticks
+  ?algorithm bpqc:pathTier bpqc:HOT .
+  FILTER (?tickCost > 8)
+}
+
+#################################################################
+# V. FORMAL SECURITY MODEL VALIDATION
+#################################################################
+
+# Query 10: IND-CCA2 security verification for KEMs
+# THEOREM: KEM is IND-CCA2 secure under specified assumptions
+ASK {
+  ?kem a bcore:KEM ;
+       :verifies :IND_CCA2 ;
+       :provenBy ?proof .
+  
+  ?proof :usesProofMethod :GameBasedProof ;
+         bcore:assumesProblem ?hardProblem .
+  
+  # Verify standard IND-CCA2 game reduction
+  ?proof bcore:hasReduction ?reduction .
+  ?reduction bcore:fromGame bcore:IND_CCA2_Game ;
+             bcore:toProblem ?hardProblem ;
+             :reductionLoss ?loss .
+  
+  # Acceptable reduction loss (< 2^40)
+  FILTER (?loss < 1099511627776)
+}
+
+# Query 11: EUF-CMA security verification for signatures
+# THEOREM: Signature scheme is EUF-CMA secure
+ASK {
+  ?sig a bcore:DigitalSignature ;
+       :verifies :EUF_CMA ;
+       :provenBy ?proof .
+  
+  ?proof :usesProofMethod :GameBasedProof ;
+         bcore:assumesProblem ?hardProblem .
+  
+  # Verify EUF-CMA game reduction
+  ?proof bcore:hasReduction ?reduction .
+  ?reduction bcore:fromGame bcore:EUF_CMA_Game ;
+             bcore:toProblem ?hardProblem .
+}
+
+#################################################################
+# VI. AUTOMATED PROOF GENERATION
+#################################################################
+
+# Query 12: Generate proof obligations for new algorithms
+# Automatically identifies what needs to be proven
+SELECT ?algorithm ?obligation ?priority WHERE {
+  ?algorithm a :PQCAlgorithm .
+  
+  {
+    # High priority: Correctness
+    FILTER NOT EXISTS { ?algorithm :verifies :CorrectnessProperty }
+    BIND(:CorrectnessProperty AS ?obligation)
+    BIND("HIGH" AS ?priority)
+  } UNION {
+    # High priority: Quantum resistance
+    FILTER NOT EXISTS { ?algorithm :resistantTo :QuantumAdversary }
+    BIND(:QuantumResistance AS ?obligation)
+    BIND("HIGH" AS ?priority)
+  } UNION {
+    # Medium priority: Side-channel resistance for HOT/WARM
+    ?algorithm bpqc:pathTier ?tier .
+    FILTER (?tier = bpqc:HOT || ?tier = bpqc:WARM)
+    FILTER NOT EXISTS { ?algorithm :resistantTo :TimingAttack }
+    BIND(:SideChannelResistance AS ?obligation)
+    BIND("MEDIUM" AS ?priority)
+  } UNION {
+    # Low priority: Performance verification
+    FILTER NOT EXISTS { ?algorithm :verifies :PerformanceProperty }
+    BIND(:PerformanceProperty AS ?obligation)
+    BIND("LOW" AS ?priority)
+  }
+}
+
+#################################################################
+# VII. COMPREHENSIVE VERIFICATION REPORT
+#################################################################
+
+# Query 13: Generate complete verification status report
+SELECT ?algorithm ?property ?status ?proof WHERE {
+  ?algorithm a :PQCAlgorithm .
+  
+  VALUES ?property {
+    :CorrectnessProperty
+    :QuantumResistance  
+    :IND_CCA2
+    :EUF_CMA
+    :SideChannelResistance
+  }
+  
+  OPTIONAL {
+    ?algorithm :verifies ?property ;
+               :provenBy ?proof .
+    BIND("PROVEN" AS ?status)
+  }
+  
+  FILTER (!BOUND(?status))
+  BIND("UNPROVEN" AS ?status)
+} ORDER BY ?algorithm ?property
+
+#################################################################
+# VIII. INTEGRATION WITH BYTECORE VERIFICATION
+#################################################################
+
+# Query 14: Verify PQC-ByteCore integration consistency
+# Ensures PQC proofs align with ByteCore architectural constraints
+ASK {
+  # All PQC kernels follow ByteCore patterns
+  ?pqcKernel a :PQCKernel ;
+             bcore:followsPattern ?pattern .
+  ?pattern a bcore:Pattern ;
+           bcore:hasHopCount ?hops .
+  FILTER (?hops <= 8)
+  
+  # PQC verification integrates with pulse system
+  ?pqcKernel bcore:emitsPulse ?pulse .
+  ?pulse :verificationPulse ?verification .
+  
+  # Verification results stored in crystals
+  ?verification bcore:resultStoredin ?crystal .
+  ?crystal a bcore:Crystal ;
+           :verificationCrystal ?context .
+}
+
+# Query 15: Cross-reference with existing congruence validation
+# Leverages existing SPARQL infrastructure for PQC validation
+SELECT ?entity ?property ?pqcIssue WHERE {
+  # Import existing congruence queries
+  ?entity ?property ?value .
+  
+  # Add PQC-specific validation
+  {
+    ?entity a :PQCAlgorithm ;
+            :quantumSecurityBits ?bits .
+    FILTER (?bits < 128)
+    BIND("insufficient_quantum_security" AS ?pqcIssue)
+  } UNION {
+    ?entity a :PQCKernel ;
+            bpqc:pathTier bpqc:HOT ;
+            :constantTimeGuarantee false .
+    BIND("hot_path_not_constant_time" AS ?pqcIssue)
+  } UNION {
+    ?entity a :PQCAlgorithm .
+    FILTER NOT EXISTS { ?entity :provenBy ?proof }
+    BIND("no_formal_proof" AS ?pqcIssue)
+  }
+} ORDER BY ?pqcIssue ?entity

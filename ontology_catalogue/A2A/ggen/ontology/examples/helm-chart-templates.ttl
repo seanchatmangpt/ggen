@@ -1,0 +1,191 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix a2a: <https://a2a.com/schema/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Helm Chart Template Examples
+
+# Complete Web Application Helm Chart
+# Web App Helm Chart Instance
+:web_app_helm_chart a a2a:helm_chart ;
+    a2a:app_label "web-app" ;
+    a2a:version_label "3.2.1" ;
+    a2a:managed_by "a2a" ;
+    a2a:helm_chart_version "3.2.1" ;
+    a2a:helm_app_version "2.1.0" ;
+    a2a:helm_dependencies "nginx-ingress", "prometheus-community", "grafana" ;
+    a2a:helm_values "replicaCount: 3\nimage:\n  repository: mycompany/web-app\n  tag: 2.1.0\n  pullPolicy: IfNotPresent\nservice:\n  type: LoadBalancer\n  port: 80\n  targetPort: 8080\nresources:\n  requests:\n    cpu: 100m\n    memory: 256Mi\n  limits:\n    cpu: 500m\n    memory: 512Mi\ningress:\n  enabled: true\n  className: nginx\n  annotations:\n    kubernetes.io/ingress.class: nginx\n    cert-manager.io/cluster-issuer: letsencrypt-prod\n  hosts:\n    - host: web-app.example.com\n      paths:\n        - path: /\n          pathType: Prefix" .
+
+# Database Helm Chart Template
+:database_helm_chart a a2a:helm_chart ;
+    a2a:app_label "database" ;
+    a2a:version_label "2.0.5" ;
+    a2a:managed_by "a2a" ;
+    a2a:helm_chart_version "2.0.5" ;
+    a2a:helm_app_version "14.7" ;
+    a2a:helm_dependencies "postgresql" ;
+    a2a:helm_values "postgresql:\n  global:\n    postgresql:\n      auth:\n        postgresPassword: secret123\n        database: mydb\n  primary:\n    persistence:\n      enabled: true\n      size: 8Gi\n      storageClass: fast-ssd" .
+
+# Microservices Helm Chart Template
+:microservices_helm_chart a a2a:helm_chart ;
+    a2a:app_label "microservices" ;
+    a2a:version_label "1.8.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:helm_chart_version "1.8.0" ;
+    a2a:helm_app_version "3.0.0" ;
+    a2a:helm_dependencies "redis", "mongodb", "kafka" ;
+    a2a:helm_values "services:\n  api:\n    replicaCount: 3\n    image: mycompany/api:v3.0.0\n    port: 8080\n  frontend:\n    replicaCount: 2\n    image: mycompany/frontend:v3.0.0\n    port: 3000\n  worker:\n    replicaCount: 1\n    image: mycompany/worker:v3.0.0\n    port: 8081\nnetwork:\n  ingress:\n    enabled: true\n    hosts:\n      - api.microservices.example.com\n      - frontend.microservices.example.com" .
+
+# Helm Template Classes
+:helm_deployment_template a a2a:deployment_template ;
+    rdfs:label "Deployment Template" ;
+    rdfs:comment "Template for Kubernetes deployment resources in Helm charts" ;
+    rdfs:property [
+        rdfs:label "Replica Count" ;
+        rdfs:comment "Number of replicas" ;
+        rdfs:range xsd:integer ;
+        rdfs:minValue 1 ;
+        rdfs:maxValue 10 ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Container Image" ;
+        rdfs:comment "Container image repository and tag" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Resource Requests" ;
+        rdfs:comment "CPU and memory resource requests" ;
+        rdfs:range [a rdf:List] ;
+    ] .
+
+:helm_service_template a a2a:service_template ;
+    rdfs:label "Service Template" ;
+    rdfs:comment "Template for Kubernetes service resources in Helm charts" ;
+    rdfs:property [
+        rdfs:label "Service Type" ;
+        rdfs:comment "Service type (ClusterIP, NodePort, LoadBalancer)" ;
+        rdfs:range ["ClusterIP" "NodePort" "LoadBalancer"] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Service Ports" ;
+        rdfs:comment "Service port configurations" ;
+        rdfs:range [a rdf:List] ;
+    ] .
+
+:helm_configmap_template a a2a:configmap_template ;
+    rdfs:label "ConfigMap Template" ;
+    rdfs:comment "Template for Kubernetes ConfigMap resources in Helm charts" ;
+    rdfs:property [
+        rdfs:label "Config Data" ;
+        rdfs:comment "Configuration data" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Config Files" ;
+        rdfs:comment "Configuration files" ;
+        rdfs:range [a rdf:List] ;
+    ] .
+
+:helm_secret_template a a2a:secret_template ;
+    rdfs:label "Secret Template" ;
+    rdfs:comment "Template for Kubernetes Secret resources in Helm charts" ;
+    rdfs:property [
+        rdfs:label "Secret Type" ;
+        rdfs:comment "Secret type (Opaque, kubernetes.io/tls, etc.)" ;
+        rdfs:range ["Opaque" "kubernetes.io/tls" "kubernetes.io/dockerconfigjson"] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Secret Data" ;
+        rdfs:comment "Secret data (base64 encoded)" ;
+        rdfs:range xsd:string ;
+    ] .
+
+# Helm Values Schema Examples
+:helm_values_schema_example a a2a:helm_values_schema ;
+    rdfs:label "Helm Values Schema Example" ;
+    rdfs:comment "JSON schema for Helm values validation" ;
+    rdfs:domain a2a:helm_chart ;
+    rdfs:range """
+        {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "replicaCount": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10,
+              "default": 1
+            },
+            "image": {
+              "type": "object",
+              "properties": {
+                "repository": {
+                  "type": "string"
+                },
+                "tag": {
+                  "type": "string",
+                  "pattern": "^v?[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9]+)?$"
+                },
+                "pullPolicy": {
+                  "type": "string",
+                  "enum": ["IfNotPresent", "Always", "Never"]
+                }
+              },
+              "required": ["repository", "tag"]
+            },
+            "service": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["ClusterIP", "NodePort", "LoadBalancer"]
+                },
+                "port": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                },
+                "targetPort": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                }
+              }
+            },
+            "resources": {
+              "type": "object",
+              "properties": {
+                "requests": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "string",
+                      "pattern": "^[0-9]+(m)?$"
+                    },
+                    "memory": {
+                      "type": "string",
+                      "pattern": "^[0-9]+(Mi|Gi)?$"
+                    }
+                  }
+                },
+                "limits": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "string",
+                      "pattern": "^[0-9]+(m)?$"
+                    },
+                    "memory": {
+                      "type": "string",
+                      "pattern": "^[0-9]+(Mi|Gi)?$"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": ["replicaCount", "image"]
+        }
+    """ .

@@ -1,0 +1,13 @@
+
+    @prefix compliance: <http://example.org/compliance#> .
+    @prefix api: <http://example.org/api#> .
+    @prefix security: <http://example.org/security#> .
+    
+    compliance:Fortune5Policy a compliance:ComplianceFramework ;
+        compliance:requiresDataGovernance true ;
+        compliance:requiresSecurityReview true ;
+        compliance:auditFrequency "quarterly" .
+    
+    api:CriticalAPI rdfs:subClassOf api:API ;
+        compliance:governedBy compliance:Fortune5Policy .
+  

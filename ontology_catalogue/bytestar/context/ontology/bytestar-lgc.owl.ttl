@@ -1,0 +1,87 @@
+@prefix : <https://bytestar.org/ontology/bytestar-lgc#> .
+@prefix bs: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-lgc>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  rdfs:label "Logic Geometry Calculus (LGC) Primitives" ;
+  rdfs:comment "Machine-parsable axioms, invariants, and bounds for the Byte* ecosystem." .
+
+### Foundational axiom types
+:Axiom a owl:Class .
+:Invariant a owl:Class ; rdfs:subClassOf :Axiom .
+:Bound a owl:Class ; rdfs:subClassOf :Axiom .
+:Law a owl:Class ; rdfs:subClassOf :Axiom .
+
+### Axiom binding & metrics
+:on a owl:ObjectProperty ; rdfs:domain :Axiom ; rdfs:range rdfs:Resource .
+:metric a owl:DatatypeProperty ; rdfs:domain :Axiom ; rdfs:range xsd:string .
+:leq a owl:DatatypeProperty ; rdfs:domain :Bound ; rdfs:range xsd:decimal .
+:eq a owl:DatatypeProperty ; rdfs:domain :Invariant ; rdfs:range xsd:decimal .
+:formula a owl:DatatypeProperty ; rdfs:domain :Axiom ; rdfs:range xsd:string .
+
+### Doctrine of 8 (fundamental law)
+:EightTickLaw a :Law ;
+  :on bs:Kernel ;
+  :metric "ticks" ;
+  :leq 8 ;
+  :formula "∀k∈K: t(k)≤8" ;
+  rdfs:comment "All kernels execute in ≤8 ticks." .
+
+:EightHopLaw a :Law ;
+  :on bs:Workflow ;
+  :metric "hops" ;
+  :leq 8 ;
+  :formula "∀τ: n(τ)≤8" ;
+  rdfs:comment "All workflows complete in ≤8 hops end-to-end." .
+
+### Zero-tick reject invariant
+:ZeroTickReject a :Invariant ;
+  :on bs:Admission ;
+  :metric "hotTicks" ;
+  :eq 0 ;
+  :formula "Θ=0 ⇒ T_A(σ,c)=0" ;
+  rdfs:comment "Admission failures consume zero hot ticks." .
+
+### Capability Algebra Invariant (V6 Doctrine)
+:CapabilityAlgebra a :Invariant ;
+  :on bs:Permission ;
+  :metric "lookupComplexity" ;
+  :eq 0 ;
+  :formula "O(1) capability check via capset_hash" ;
+  rdfs:comment "Permissions are resolved in constant time using capability algebra." .
+
+### Receipts-First Methodology Invariant (V6 Doctrine)
+:ReceiptsFirstMethodology a :Invariant ;
+  :on bs:Verification ;
+  :metric "proofCompleteness" ;
+  :eq 1 ;
+  :formula "All verifiable outcomes produce sealed receipts" ;
+  rdfs:comment "Every verifiable outcome in the system must produce a sealed, auditable receipt." .
+
+### Determinism invariant
+:CompositionDeterminism a :Invariant ;
+  :on bs:System ;
+  :metric "determinism" ;
+  :eq 1 ;
+  :formula "Det_E∘Det_F∘Det_A=Det" ;
+  rdfs:comment "Compositional determinism across ecosystem." .
+
+### L1 residency invariant
+:L1ResidencyGuarantee a :Invariant ;
+  :on bs:ByteActor ;
+  :metric "cacheMiss" ;
+  :eq 0 ;
+  :formula "P[miss_L1(R_L1)=1]=0" ;
+  rdfs:comment "Hot set never misses L1 cache." .
+
+### Schedule invariance
+:ScheduleInvariance a :Invariant ;
+  :on bs:Workflow ;
+  :metric "variance" ;
+  :eq 0 ;
+  :formula "Var[T(τ)]≈0" ;
+  rdfs:comment "Execution time variance approaches zero." .

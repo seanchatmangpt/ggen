@@ -1,0 +1,348 @@
+@prefix zoe: <https://zoela.org/ontology/> .
+@prefix schema: <https://schema.org/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# =============================================================================
+# ZOE LA — Generations Ontology
+# Models ZOE's multi-generational family ministry
+# =============================================================================
+
+<https://zoela.org/ontology/generations>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA Generations Ontology"@en ;
+    rdfs:comment "Models ZOE's multi-generational family ministry segments and faith milestones."@en ;
+    dcterms:created "2026-05-17"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# Classes
+# =============================================================================
+
+zoe:GenerationSegment
+    a owl:Class ;
+    rdfs:subClassOf schema:Audience ;
+    rdfs:label "Generation Segment"@en ;
+    rdfs:comment "A named age-based ministry segment representing a generation cohort within ZOE LA."@en .
+
+zoe:FaithMilestone
+    a owl:Class ;
+    rdfs:subClassOf schema:Action ;
+    rdfs:label "Faith Milestone"@en ;
+    rdfs:comment "A significant faith event or sacramental action in a person's spiritual journey at ZOE LA."@en .
+
+# =============================================================================
+# Properties — GenerationSegment
+# =============================================================================
+
+zoe:segmentCode
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:GenerationSegment ;
+    rdfs:range xsd:string ;
+    rdfs:label "segment code"@en ;
+    rdfs:comment "Short uppercase code identifying this generation segment (e.g. INFANT, PREK, ELEM)."@en ;
+    skos:notation "segmentCode" .
+
+zoe:ageRangeMin
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:GenerationSegment ;
+    rdfs:range xsd:integer ;
+    rdfs:label "age range minimum"@en ;
+    rdfs:comment "Minimum age (inclusive) in years for this generation segment."@en ;
+    skos:notation "ageRangeMin" .
+
+zoe:ageRangeMax
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:GenerationSegment ;
+    rdfs:range xsd:integer ;
+    rdfs:label "age range maximum"@en ;
+    rdfs:comment "Maximum age (inclusive) in years for this generation segment; use 999 to indicate no upper limit."@en ;
+    skos:notation "ageRangeMax" .
+
+zoe:requiresGuardian
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:GenerationSegment ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "requires guardian"@en ;
+    rdfs:comment "True when individuals in this segment must be accompanied or consented to by a legal guardian."@en ;
+    skos:notation "requiresGuardian" .
+
+zoe:defaultConsentRequired
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:GenerationSegment ;
+    rdfs:range xsd:string ;
+    rdfs:label "default consent required"@en ;
+    rdfs:comment "The consent code required by default for individuals in this generation segment (e.g. GUARDIAN-CONSENT, MEDICAL-CONSENT)."@en ;
+    skos:notation "defaultConsentRequired" .
+
+zoe:ministryCode
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:GenerationSegment ;
+    rdfs:range xsd:string ;
+    rdfs:label "ministry code"@en ;
+    rdfs:comment "Identifier of the primary ministry responsible for serving this generation segment (e.g. KIDS, YTH, YOUNG-ADULTS)."@en ;
+    skos:notation "ministryCode" .
+
+# =============================================================================
+# Properties — FaithMilestone
+# =============================================================================
+
+zoe:milestoneCode
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:FaithMilestone ;
+    rdfs:range xsd:string ;
+    rdfs:label "milestone code"@en ;
+    rdfs:comment "Short uppercase code uniquely identifying this faith milestone (e.g. BAPTISM, CONFIRM)."@en ;
+    skos:notation "milestoneCode" .
+
+zoe:milestoneLabel
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:FaithMilestone ;
+    rdfs:range xsd:string ;
+    rdfs:label "milestone label"@en ;
+    rdfs:comment "Human-readable display name for this faith milestone."@en ;
+    skos:notation "milestoneLabel" .
+
+zoe:targetSegment
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:FaithMilestone ;
+    rdfs:range skos:Concept ;
+    rdfs:label "target segment"@en ;
+    rdfs:comment "The primary generation segment for which this faith milestone is intended."@en ;
+    skos:notation "targetSegment" .
+
+zoe:requiresEvent
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:FaithMilestone ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "requires event"@en ;
+    rdfs:comment "True when this faith milestone must be fulfilled in conjunction with a scheduled event."@en ;
+    skos:notation "requiresEvent" .
+
+zoe:requiresRegistration
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:FaithMilestone ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "requires registration"@en ;
+    rdfs:comment "True when formal registration is required before completing this faith milestone."@en ;
+    skos:notation "requiresRegistration" .
+
+zoe:completionReceiptType
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:FaithMilestone ;
+    rdfs:range xsd:string ;
+    rdfs:label "completion receipt type"@en ;
+    rdfs:comment "The receipt type code issued upon completion of this faith milestone (e.g. BaptismRegistrationReceipt)."@en ;
+    skos:notation "completionReceiptType" .
+
+# =============================================================================
+# SKOS ConceptScheme — GenerationSegmentScheme
+# =============================================================================
+
+zoe:GenerationSegmentScheme
+    a skos:ConceptScheme ;
+    rdfs:label "ZOE LA Generation Segment Scheme"@en ;
+    rdfs:comment "The canonical generation taxonomy used across all ZOE LA ministry modules."@en ;
+    skos:prefLabel "ZOE LA Generation Segments"@en .
+
+zoe:InfantSegment
+    a skos:Concept, zoe:GenerationSegment ;
+    skos:inScheme zoe:GenerationSegmentScheme ;
+    skos:topConceptOf zoe:GenerationSegmentScheme ;
+    rdfs:label "Infant Segment"@en ;
+    skos:prefLabel "Infant (0-2)"@en ;
+    rdfs:comment "Ministry segment for infants aged 0 to 2 years."@en ;
+    skos:definition "Covers infants from birth through age 2; served by ZOE Kids nursery ministry."@en ;
+    skos:notation "INFANT" ;
+    zoe:segmentCode "INFANT" ;
+    zoe:ageRangeMin 0 ;
+    zoe:ageRangeMax 2 ;
+    zoe:requiresGuardian true ;
+    zoe:ministryCode "KIDS" .
+
+zoe:PreschoolSegment
+    a skos:Concept, zoe:GenerationSegment ;
+    skos:inScheme zoe:GenerationSegmentScheme ;
+    skos:topConceptOf zoe:GenerationSegmentScheme ;
+    rdfs:label "Preschool Segment"@en ;
+    skos:prefLabel "Preschool (3-5)"@en ;
+    rdfs:comment "Ministry segment for preschool-aged children aged 3 to 5 years."@en ;
+    skos:definition "Covers preschool children aged 3–5; served by ZOE Kids early childhood ministry."@en ;
+    skos:notation "PREK" ;
+    zoe:segmentCode "PREK" ;
+    zoe:ageRangeMin 3 ;
+    zoe:ageRangeMax 5 ;
+    zoe:requiresGuardian true ;
+    zoe:ministryCode "KIDS" .
+
+zoe:ElementarySegment
+    a skos:Concept, zoe:GenerationSegment ;
+    skos:inScheme zoe:GenerationSegmentScheme ;
+    skos:topConceptOf zoe:GenerationSegmentScheme ;
+    rdfs:label "Elementary Segment"@en ;
+    skos:prefLabel "Elementary (6-11)"@en ;
+    rdfs:comment "Ministry segment for elementary-aged children aged 6 to 11 years."@en ;
+    skos:definition "Covers grades K–5, ages 6–11; served by ZOE Kids elementary ministry."@en ;
+    skos:notation "ELEM" ;
+    zoe:segmentCode "ELEM" ;
+    zoe:ageRangeMin 6 ;
+    zoe:ageRangeMax 11 ;
+    zoe:requiresGuardian true ;
+    zoe:ministryCode "KIDS" .
+
+zoe:MiddleSchoolSegment
+    a skos:Concept, zoe:GenerationSegment ;
+    skos:inScheme zoe:GenerationSegmentScheme ;
+    skos:topConceptOf zoe:GenerationSegmentScheme ;
+    rdfs:label "Middle School Segment"@en ;
+    skos:prefLabel "Middle School (12-14)"@en ;
+    rdfs:comment "Ministry segment for middle school youth aged 12 to 14 years."@en ;
+    skos:definition "Covers grades 6–8, ages 12–14; served by ZOE Youth middle school ministry."@en ;
+    skos:notation "MS" ;
+    zoe:segmentCode "MS" ;
+    zoe:ageRangeMin 12 ;
+    zoe:ageRangeMax 14 ;
+    zoe:requiresGuardian true ;
+    zoe:ministryCode "YTH" .
+
+zoe:HighSchoolSegment
+    a skos:Concept, zoe:GenerationSegment ;
+    skos:inScheme zoe:GenerationSegmentScheme ;
+    skos:topConceptOf zoe:GenerationSegmentScheme ;
+    rdfs:label "High School Segment"@en ;
+    skos:prefLabel "High School (15-17)"@en ;
+    rdfs:comment "Ministry segment for high school youth aged 15 to 17 years."@en ;
+    skos:definition "Covers grades 9–12, ages 15–17; served by ZOE Youth high school ministry."@en ;
+    skos:notation "HS" ;
+    zoe:segmentCode "HS" ;
+    zoe:ageRangeMin 15 ;
+    zoe:ageRangeMax 17 ;
+    zoe:requiresGuardian true ;
+    zoe:ministryCode "YTH" .
+
+zoe:YoungAdultSegment
+    a skos:Concept, zoe:GenerationSegment ;
+    skos:inScheme zoe:GenerationSegmentScheme ;
+    skos:topConceptOf zoe:GenerationSegmentScheme ;
+    rdfs:label "Young Adult Segment"@en ;
+    skos:prefLabel "Young Adults (18-25)"@en ;
+    rdfs:comment "Ministry segment for young adults aged 18 to 25 years."@en ;
+    skos:definition "Covers young adults aged 18–25 transitioning into adult ministry contexts."@en ;
+    skos:notation "YA" ;
+    zoe:segmentCode "YA" ;
+    zoe:ageRangeMin 18 ;
+    zoe:ageRangeMax 25 ;
+    zoe:requiresGuardian false ;
+    zoe:ministryCode "YOUNG-ADULTS" .
+
+zoe:AdultSegment
+    a skos:Concept, zoe:GenerationSegment ;
+    skos:inScheme zoe:GenerationSegmentScheme ;
+    skos:topConceptOf zoe:GenerationSegmentScheme ;
+    rdfs:label "Adult Segment"@en ;
+    skos:prefLabel "Adults (26-64)"@en ;
+    rdfs:comment "Ministry segment for adults aged 26 to 64 years."@en ;
+    skos:definition "Covers adults aged 26–64 in the primary adult congregation ministry."@en ;
+    skos:notation "ADULT" ;
+    zoe:segmentCode "ADULT" ;
+    zoe:ageRangeMin 26 ;
+    zoe:ageRangeMax 64 ;
+    zoe:requiresGuardian false ;
+    zoe:ministryCode "ADULTS" .
+
+zoe:SeniorSegment
+    a skos:Concept, zoe:GenerationSegment ;
+    skos:inScheme zoe:GenerationSegmentScheme ;
+    skos:topConceptOf zoe:GenerationSegmentScheme ;
+    rdfs:label "Senior Segment"@en ;
+    skos:prefLabel "Seniors (65+)"@en ;
+    rdfs:comment "Ministry segment for senior adults aged 65 years and above."@en ;
+    skos:definition "Covers seniors aged 65 and older; no upper age limit (encoded as 999)."@en ;
+    skos:notation "SENIOR" ;
+    zoe:segmentCode "SENIOR" ;
+    zoe:ageRangeMin 65 ;
+    zoe:ageRangeMax 999 ;
+    zoe:requiresGuardian false ;
+    zoe:ministryCode "SENIORS" .
+
+zoe:FamilySegment
+    a skos:Concept, zoe:GenerationSegment ;
+    skos:inScheme zoe:GenerationSegmentScheme ;
+    skos:topConceptOf zoe:GenerationSegmentScheme ;
+    rdfs:label "Family Segment"@en ;
+    skos:prefLabel "Families (mixed ages)"@en ;
+    rdfs:comment "Ministry segment for multi-generational family units attending together."@en ;
+    skos:definition "Mixed-age segment for family ministry events and programs spanning multiple generations."@en ;
+    skos:notation "FAMILY" ;
+    zoe:segmentCode "FAMILY" ;
+    zoe:ageRangeMin 0 ;
+    zoe:ageRangeMax 999 ;
+    zoe:requiresGuardian false ;
+    zoe:ministryCode "FAMILY" .
+
+# =============================================================================
+# Faith Milestone Individuals
+# =============================================================================
+
+zoe:BaptismMilestone
+    a zoe:FaithMilestone ;
+    rdfs:label "Baptism"@en ;
+    rdfs:comment "Water baptism as a public declaration of faith."@en ;
+    skos:notation "BAPTISM" ;
+    skos:definition "The sacramental act of water baptism; requires a scheduled event and prior registration."@en ;
+    zoe:milestoneCode "BAPTISM" ;
+    zoe:milestoneLabel "Water Baptism" ;
+    zoe:requiresEvent true ;
+    zoe:requiresRegistration true ;
+    zoe:completionReceiptType "BaptismRegistrationReceipt" .
+
+zoe:ChildDedicationMilestone
+    a zoe:FaithMilestone ;
+    rdfs:label "Child Dedication"@en ;
+    rdfs:comment "Parental dedication of an infant or young child to God."@en ;
+    skos:notation "CHILD-DED" ;
+    skos:definition "A public ceremony in which parents commit to raising their child in the Christian faith."@en ;
+    zoe:milestoneCode "CHILD-DED" ;
+    zoe:milestoneLabel "Child Dedication" ;
+    zoe:targetSegment zoe:InfantSegment ;
+    zoe:requiresEvent true ;
+    zoe:requiresRegistration false .
+
+zoe:FirstCommunionMilestone
+    a zoe:FaithMilestone ;
+    rdfs:label "First Communion"@en ;
+    rdfs:comment "First participation in the Lord's Supper / Communion."@en ;
+    skos:notation "FIRST-COMM" ;
+    skos:definition "A faith milestone marking the first time an individual receives Communion."@en ;
+    zoe:milestoneCode "FIRST-COMM" ;
+    zoe:milestoneLabel "First Communion" ;
+    zoe:requiresEvent false ;
+    zoe:requiresRegistration false .
+
+zoe:ConfirmationMilestone
+    a zoe:FaithMilestone ;
+    rdfs:label "Confirmation"@en ;
+    rdfs:comment "Personal affirmation of baptismal faith for youth completing confirmation preparation."@en ;
+    skos:notation "CONFIRM" ;
+    skos:definition "A milestone for high school youth affirming personal faith after completing a confirmation preparation course."@en ;
+    zoe:milestoneCode "CONFIRM" ;
+    zoe:milestoneLabel "Confirmation" ;
+    zoe:targetSegment zoe:HighSchoolSegment ;
+    zoe:requiresEvent true ;
+    zoe:requiresRegistration false .
+
+zoe:MarriagePrepMilestone
+    a zoe:FaithMilestone ;
+    rdfs:label "Marriage Preparation"@en ;
+    rdfs:comment "Completion of a pre-marriage preparation program."@en ;
+    skos:notation "MARR-PREP" ;
+    skos:definition "A milestone indicating completion of ZOE LA's pre-marital preparation program; requires registration."@en ;
+    zoe:milestoneCode "MARR-PREP" ;
+    zoe:milestoneLabel "Marriage Prep" ;
+    zoe:requiresEvent false ;
+    zoe:requiresRegistration true .

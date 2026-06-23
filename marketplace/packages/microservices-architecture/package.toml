@@ -81,3 +81,6 @@ quick_start = "Complete microservices architecture for e-commerce"
 architecture = "API Gateway + 4 microservices with database and cache"
 deployment = "Docker Compose for dev, Kubernetes for production"
 monitoring = "Prometheus metrics and Grafana dashboards"
+
+[marketplace]
+production_ready = false

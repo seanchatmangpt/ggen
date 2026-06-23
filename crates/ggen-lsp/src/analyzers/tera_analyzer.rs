@@ -195,7 +195,9 @@ impl TeraAnalyzer {
             items.push(CompletionItem {
                 label: format!("row.{var}"),
                 kind: Some(CompletionItemKind::FIELD),
-                detail: Some(format!("SPARQL projection variable `{var}` (via row.{var} — legacy alias)")),
+                detail: Some(format!(
+                    "SPARQL projection variable `{var}` (via row.{var} — legacy alias)"
+                )),
                 ..Default::default()
             });
         }
@@ -218,10 +220,12 @@ impl TeraAnalyzer {
         }
         if KEYWORDS.iter().any(|kw| *kw == token) {
             return Some(Hover {
-                contents: lsp_max::lsp_types::HoverContents::Markup(lsp_max::lsp_types::MarkupContent {
-                    kind: lsp_max::lsp_types::MarkupKind::Markdown,
-                    value: format!("**Tera keyword** `{token}`"),
-                }),
+                contents: lsp_max::lsp_types::HoverContents::Markup(
+                    lsp_max::lsp_types::MarkupContent {
+                        kind: lsp_max::lsp_types::MarkupKind::Markdown,
+                        value: format!("**Tera keyword** `{token}`"),
+                    },
+                ),
                 range: None,
             });
         }
@@ -374,7 +378,9 @@ fn word_at(source: &str, line: u32, character: u32) -> Option<String> {
     }
     let token: String = chars[start..end].iter().collect();
     // Clean up surrounding syntax if needed.
-    let token = token.trim_matches(|c| c == '[' || c == ']' || c == '"' || c == '\'').to_string();
+    let token = token
+        .trim_matches(|c| c == '[' || c == ']' || c == '"' || c == '\'')
+        .to_string();
     if token.is_empty() {
         None
     } else {
@@ -663,9 +669,7 @@ pub fn pack_001_diagnostics(issues: &[String]) -> Vec<lsp_max_protocol::MaxDiagn
 /// Reads no files, writes no files — pure over its inputs.
 #[must_use]
 pub fn yield_001_diagnostics(
-    output_file: &str,
-    manifest_path: &std::path::Path,
-    project_root: &std::path::Path,
+    output_file: &str, manifest_path: &std::path::Path, project_root: &std::path::Path,
 ) -> Vec<lsp_max_protocol::MaxDiagnostic> {
     let skeleton = strip_tera_vars(output_file);
     let manifest_dir = manifest_path.parent().unwrap_or(std::path::Path::new("."));
@@ -736,9 +740,7 @@ pub fn yield_005_diagnostics(output_file: &str) -> Vec<lsp_max_protocol::MaxDiag
 /// Detects multiple rules targeting the same output file.
 #[must_use]
 pub fn yield_004_diagnostics(
-    rule_id: &str,
-    output_file: &str,
-    competing_rules: &[String],
+    rule_id: &str, output_file: &str, competing_rules: &[String],
 ) -> Vec<lsp_max_protocol::MaxDiagnostic> {
     if competing_rules.is_empty() {
         return Vec::new();
@@ -801,7 +803,9 @@ pub fn lexical_clean(path: &std::path::Path) -> std::path::PathBuf {
 /// When a generation rule's query uses `SELECT *` the variable projection set
 /// is unknowable at author time, silently disabling GGEN-TPL-001 / GGEN-OUT-001.
 #[must_use]
-pub fn select_star_diagnostics(rule_id: &str, query_text: &str) -> Vec<lsp_max_protocol::MaxDiagnostic> {
+pub fn select_star_diagnostics(
+    rule_id: &str, query_text: &str,
+) -> Vec<lsp_max_protocol::MaxDiagnostic> {
     if !is_select_star(query_text) {
         return Vec::new();
     }
@@ -1084,7 +1088,10 @@ mod tests {
             Path::new("/project/ggen.toml"),
             Path::new("/project"),
         );
-        assert!(diags.is_empty(), "in-project path must not raise YIELD-001: {diags:?}");
+        assert!(
+            diags.is_empty(),
+            "in-project path must not raise YIELD-001: {diags:?}"
+        );
     }
 
     #[test]
@@ -1122,18 +1129,27 @@ mod tests {
     #[test]
     fn select_distinct_star_emits_query_002() {
         let diags = select_star_diagnostics("r", "SELECT DISTINCT * WHERE { ?s ?p ?o }");
-        assert!(!diags.is_empty(), "SELECT DISTINCT * must also raise QUERY-002: {diags:?}");
+        assert!(
+            !diags.is_empty(),
+            "SELECT DISTINCT * must also raise QUERY-002: {diags:?}"
+        );
     }
 
     #[test]
     fn explicit_select_does_not_emit_query_002() {
         let diags = select_star_diagnostics("r", "SELECT ?name ?label WHERE { ?s :name ?name }");
-        assert!(diags.is_empty(), "explicit projections must not raise QUERY-002: {diags:?}");
+        assert!(
+            diags.is_empty(),
+            "explicit projections must not raise QUERY-002: {diags:?}"
+        );
     }
 
     #[test]
     fn empty_query_does_not_emit_query_002() {
         let diags = select_star_diagnostics("r", "");
-        assert!(diags.is_empty(), "empty query must not raise QUERY-002: {diags:?}");
+        assert!(
+            diags.is_empty(),
+            "empty query must not raise QUERY-002: {diags:?}"
+        );
     }
 }

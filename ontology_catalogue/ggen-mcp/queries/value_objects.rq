@@ -1,0 +1,20 @@
+PREFIX ddd: <https://ddd-patterns.dev/schema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?vo_name ?property_label ?property_type ?invariant_check ?invariant_msg
+WHERE {
+  ?vo a ddd:ValueObject .
+  ?vo rdfs:label ?vo_name .
+  OPTIONAL {
+    ?vo ddd:hasProperty ?prop .
+    ?prop rdfs:label ?property_label .
+    ?prop ddd:type ?property_type .
+  }
+  OPTIONAL {
+    ?vo ddd:hasInvariant ?inv .
+    ?inv ddd:check ?invariant_check .
+    ?inv ddd:message ?invariant_msg .
+  }
+}
+ORDER BY ?vo_name
+LIMIT 10000

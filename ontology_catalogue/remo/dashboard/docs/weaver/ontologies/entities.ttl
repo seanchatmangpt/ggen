@@ -1,0 +1,320 @@
+# Weaver Entity Ontology
+# Defines core entities with their semantic attributes, relationships, and business rules
+
+@prefix weaver: <https://weaver.dev/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Core Entity Classes
+
+weaver:Entity
+    a rdfs:Class ;
+    rdfs:comment "Base class for all business entities in the Weaver ontology" ;
+    rdfs:subClassOf rdfs:Resource .
+
+weaver:SecurityEntity
+    a rdfs:Class ;
+    rdfs:comment "Base class for security-related entities" ;
+    rdfs:subClassOf weaver:Entity .
+
+weaver:MLEntity
+    a rdfs:Class ;
+    rdfs:comment "Base class for machine learning entities" ;
+    rdfs:subClassOf weaver:Entity .
+
+weaver:GovernanceEntity
+    a rdfs:Class ;
+    rdfs:comment "Base class for governance and compliance entities" ;
+    rdfs:subClassOf weaver:Entity .
+
+weaver:CryptoEntity
+    a rdfs:Class ;
+    rdfs:comment "Base class for cryptographic entities" ;
+    rdfs:subClassOf weaver:Entity .
+
+# Security Entities
+
+weaver:SecurityIncident
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:SecurityEntity ;
+    rdfs:comment "A security incident requiring investigation and response" ;
+    weaver:hasAttribute weaver:IncidentId, weaver:Title, weaver:Description, weaver:Severity, weaver:Status, weaver:DetectedAt, weaver:ResolvedAt ;
+    weaver:hasRelationship weaver:AssignedToUser, weaver:RelatedToThreat, weaver:AffectsAsset ;
+    weaver:businessRules "severity_escalation_required", "response_time_sla", "notification_required" ;
+    weaver:lifecycle "detected", "triaged", "investigating", "mitigating", "resolved", "closed" ;
+    weaver:permissions "security_analyst", "incident_responder", "security_manager" .
+
+weaver:ThreatIntelligence
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:SecurityEntity ;
+    rdfs:comment "Threat intelligence data including IOCs and attack patterns" ;
+    weaver:hasAttribute weaver:ThreatId, weaver:ThreatType, weaver:ConfidenceLevel, weaver:IOC, weaver:ThreatActor, weaver:TTPS ;
+    weaver:hasRelationship weaver:RelatedToIncident, weaver:SourcedFrom ;
+    weaver:businessRules "confidence_threshold", "expiration_policy", "sharing_restrictions" ;
+    weaver:dataClassification "restricted", "confidential" .
+
+weaver:IncidentResponse
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:SecurityEntity ;
+    rdfs:comment "Incident response actions and procedures" ;
+    weaver:hasAttribute weaver:ResponseId, weaver:ActionType, weaver:Status, weaver:ExecutedAt, weaver:ExecutedBy ;
+    weaver:hasRelationship weaver:RespondsToIncident, weaver:FollowsPlaybook ;
+    weaver:businessRules "approval_required", "documentation_mandatory", "timeline_tracking" .
+
+# Machine Learning Entities
+
+weaver:MLPipeline
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:MLEntity ;
+    rdfs:comment "Machine learning pipeline with stages and dependencies" ;
+    weaver:hasAttribute weaver:PipelineId, weaver:PipelineName, weaver:PipelineType, weaver:Status, weaver:Version, weaver:CreatedAt, weaver:LastRun ;
+    weaver:hasRelationship weaver:ProducesModel, weaver:ProcessesDataset, weaver:ScheduledBy ;
+    weaver:businessRules "data_validation_required", "model_versioning", "performance_monitoring" ;
+    weaver:lifecycle "draft", "testing", "staging", "production", "retired" ;
+    weaver:stages "data_ingestion", "preprocessing", "training", "validation", "deployment", "monitoring" .
+
+weaver:MLModel
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:MLEntity ;
+    rdfs:comment "Machine learning model with performance metrics and metadata" ;
+    weaver:hasAttribute weaver:ModelId, weaver:ModelName, weaver:ModelType, weaver:Version, weaver:Accuracy, weaver:Precision, weaver:Recall, weaver:TrainedAt ;
+    weaver:hasRelationship weaver:ProducedByPipeline, weaver:DeployedTo, weaver:TrainedOnDataset ;
+    weaver:businessRules "accuracy_threshold", "bias_monitoring", "drift_detection", "explainability_required" ;
+    weaver:metrics "accuracy", "precision", "recall", "f1_score", "auc_roc", "confusion_matrix" .
+
+weaver:AnomalyDetection
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:MLEntity ;
+    rdfs:comment "Anomaly detection results and alerts" ;
+    weaver:hasAttribute weaver:AnomalyId, weaver:AnomalyType, weaver:Confidence, weaver:Severity, weaver:DetectedAt, weaver:AffectedEntity ;
+    weaver:hasRelationship weaver:DetectedByModel, weaver:TriggersAlert ;
+    weaver:businessRules "confidence_threshold", "false_positive_handling", "escalation_criteria" .
+
+# Governance Entities
+
+weaver:GovernanceRequest
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:GovernanceEntity ;
+    rdfs:comment "Governance approval request with workflow state" ;
+    weaver:hasAttribute weaver:RequestId, weaver:Title, weaver:Description, weaver:RequestType, weaver:Status, weaver:Priority, weaver:SubmittedAt, weaver:ApprovedAt ;
+    weaver:hasRelationship weaver:SubmittedByUser, weaver:ApprovedByUser, weaver:RequiresApproval, weaver:AffectsPolicy ;
+    weaver:businessRules "approval_hierarchy", "timeout_escalation", "audit_trail", "delegation_rules" ;
+    weaver:workflow "submitted", "under_review", "pending_approval", "approved", "rejected", "implemented" ;
+    weaver:approvalLevels "manager", "director", "executive", "board" .
+
+weaver:ApprovalWorkflow
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:GovernanceEntity ;
+    rdfs:comment "Approval workflow definition with rules and stages" ;
+    weaver:hasAttribute weaver:WorkflowId, weaver:WorkflowName, weaver:WorkflowType, weaver:RequiredApprovers, weaver:TimeoutDays ;
+    weaver:hasRelationship weaver:AppliesTo, weaver:RequiresRole ;
+    weaver:businessRules "minimum_approvers", "conflict_of_interest", "escalation_path" .
+
+weaver:ComplianceMetric
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:GovernanceEntity ;
+    rdfs:comment "Compliance metrics and KPIs" ;
+    weaver:hasAttribute weaver:MetricId, weaver:MetricName, weaver:MetricType, weaver:Value, weaver:Target, weaver:Status, weaver:MeasuredAt ;
+    weaver:hasRelationship weaver:MeasuresCompliance, weaver:ReportsTo ;
+    weaver:businessRules "threshold_monitoring", "trend_analysis", "reporting_schedule" .
+
+# Cryptographic Entities
+
+weaver:PQCEvidence
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:CryptoEntity ;
+    rdfs:comment "Post-quantum cryptography evidence and compliance records" ;
+    weaver:hasAttribute weaver:EvidenceId, weaver:Algorithm, weaver:KeySize, weaver:ComplianceStatus, weaver:CertificationLevel, weaver:ValidUntil ;
+    weaver:hasRelationship weaver:LinkedToKey, weaver:ValidatedBy, weaver:CertifiedBy ;
+    weaver:businessRules "quantum_resistance_verification", "compliance_validation", "expiration_monitoring" ;
+    weaver:standards "NIST_PQC", "FIPS_140_3", "Common_Criteria" .
+
+weaver:CryptographicKey
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:CryptoEntity ;
+    rdfs:comment "Cryptographic key with quantum-resistant properties" ;
+    weaver:hasAttribute weaver:KeyId, weaver:KeyType, weaver:Algorithm, weaver:KeySize, weaver:Purpose, weaver:GeneratedAt, weaver:ExpiresAt ;
+    weaver:hasRelationship weaver:GeneratedBy, weaver:UsedBy, weaver:ReplacedBy ;
+    weaver:businessRules "rotation_schedule", "backup_required", "access_control", "audit_logging" ;
+    weaver:keyTypes "signing", "encryption", "key_exchange", "authentication" .
+
+weaver:ComplianceRecord
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:CryptoEntity ;
+    rdfs:comment "Compliance record for cryptographic implementations" ;
+    weaver:hasAttribute weaver:RecordId, weaver:ComplianceFramework, weaver:Status, weaver:AssessmentDate, weaver:NextReview ;
+    weaver:hasRelationship weaver:AssessesEvidence, weaver:ConductedBy ;
+    weaver:businessRules "periodic_review", "evidence_retention", "assessor_qualification" .
+
+# Analytics and Monitoring Entities
+
+weaver:DashboardMetric
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:Entity ;
+    rdfs:comment "Real-time dashboard metrics and KPIs" ;
+    weaver:hasAttribute weaver:MetricId, weaver:MetricName, weaver:MetricValue, weaver:Unit, weaver:CollectedAt, weaver:Source ;
+    weaver:hasRelationship weaver:DisplayedOn, weaver:TriggersAlert ;
+    weaver:businessRules "real_time_updates", "threshold_monitoring", "historical_tracking" .
+
+weaver:UserInteraction
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:Entity ;
+    rdfs:comment "User interaction events and analytics" ;
+    weaver:hasAttribute weaver:InteractionId, weaver:UserId, weaver:ActionType, weaver:Component, weaver:Duration, weaver:Timestamp ;
+    weaver:hasRelationship weaver:PerformedBy, weaver:TriggeredBy ;
+    weaver:businessRules "privacy_compliance", "anonymization", "retention_policy" .
+
+weaver:PerformanceMetric
+    a rdfs:Class ;
+    rdfs:subClassOf weaver:Entity ;
+    rdfs:comment "System and application performance metrics" ;
+    weaver:hasAttribute weaver:MetricId, weaver:Component, weaver:MetricType, weaver:Value, weaver:Threshold, weaver:Status, weaver:MeasuredAt ;
+    weaver:hasRelationship weaver:MonitorsComponent, weaver:ReportsTo ;
+    weaver:businessRules "sla_monitoring", "alerting", "capacity_planning" .
+
+# Attribute Definitions
+
+weaver:Title
+    a weaver:Attribute ;
+    weaver:name "title" ;
+    weaver:dataType "string" ;
+    weaver:maxLength 255 ;
+    weaver:required "true" ;
+    rdfs:comment "Human-readable title or name" .
+
+weaver:Description
+    a weaver:Attribute ;
+    weaver:name "description" ;
+    weaver:dataType "text" ;
+    weaver:maxLength 2000 ;
+    weaver:required "false" ;
+    rdfs:comment "Detailed description or notes" .
+
+weaver:ThreatType
+    a weaver:Attribute ;
+    weaver:name "threat_type" ;
+    weaver:dataType "enum" ;
+    weaver:enumValues "malware", "phishing", "ddos", "insider_threat", "apt", "vulnerability" ;
+    weaver:required "true" ;
+    rdfs:comment "Category of security threat" .
+
+weaver:ConfidenceLevel
+    a weaver:Attribute ;
+    weaver:name "confidence_level" ;
+    weaver:dataType "enum" ;
+    weaver:enumValues "low", "medium", "high", "very_high" ;
+    weaver:required "true" ;
+    rdfs:comment "Confidence level of threat intelligence" .
+
+weaver:IOC
+    a weaver:Attribute ;
+    weaver:name "ioc" ;
+    weaver:dataType "string" ;
+    weaver:maxLength 500 ;
+    weaver:required "false" ;
+    rdfs:comment "Indicators of compromise" .
+
+weaver:PipelineType
+    a weaver:Attribute ;
+    weaver:name "pipeline_type" ;
+    weaver:dataType "enum" ;
+    weaver:enumValues "classification", "regression", "clustering", "anomaly_detection", "nlp", "computer_vision" ;
+    weaver:required "true" ;
+    rdfs:comment "Type of machine learning pipeline" .
+
+weaver:ModelType
+    a weaver:Attribute ;
+    weaver:name "model_type" ;
+    weaver:dataType "enum" ;
+    weaver:enumValues "linear_regression", "random_forest", "neural_network", "svm", "xgboost", "transformer" ;
+    weaver:required "true" ;
+    rdfs:comment "Type of machine learning model" .
+
+weaver:Version
+    a weaver:Attribute ;
+    weaver:name "version" ;
+    weaver:dataType "string" ;
+    weaver:pattern "^\\d+\\.\\d+\\.\\d+$" ;
+    weaver:required "true" ;
+    rdfs:comment "Semantic version identifier" .
+
+weaver:ComplianceFramework
+    a weaver:Attribute ;
+    weaver:name "compliance_framework" ;
+    weaver:dataType "enum" ;
+    weaver:enumValues "SOX", "GDPR", "HIPAA", "PCI_DSS", "NIST", "ISO_27001" ;
+    weaver:required "true" ;
+    rdfs:comment "Regulatory compliance framework" .
+
+# Relationship Properties
+
+weaver:AffectsAsset
+    a weaver:Relationship ;
+    weaver:name "affects_asset" ;
+    weaver:target "Asset" ;
+    weaver:cardinality "1:many" ;
+    rdfs:comment "Security incident affects specific assets" .
+
+weaver:FollowsPlaybook
+    a weaver:Relationship ;
+    weaver:name "follows_playbook" ;
+    weaver:target "IncidentPlaybook" ;
+    weaver:cardinality "1:1" ;
+    rdfs:comment "Response follows specific incident playbook" .
+
+weaver:TrainedOnDataset
+    a weaver:Relationship ;
+    weaver:name "trained_on_dataset" ;
+    weaver:target "Dataset" ;
+    weaver:cardinality "1:many" ;
+    rdfs:comment "Model was trained on specific datasets" .
+
+weaver:DeployedTo
+    a weaver:Relationship ;
+    weaver:name "deployed_to" ;
+    weaver:target "Environment" ;
+    weaver:cardinality "1:many" ;
+    rdfs:comment "Model is deployed to specific environments" .
+
+weaver:CertifiedBy
+    a weaver:Relationship ;
+    weaver:name "certified_by" ;
+    weaver:target "CertificationAuthority" ;
+    weaver:cardinality "1:1" ;
+    rdfs:comment "Evidence is certified by authority" .
+
+weaver:AffectsPolicy
+    a weaver:Relationship ;
+    weaver:name "affects_policy" ;
+    weaver:target "Policy" ;
+    weaver:cardinality "1:many" ;
+    rdfs:comment "Request affects specific policies" .
+
+# Entity Constraints and Validation Rules
+
+weaver:EntityConstraint
+    a rdfs:Class ;
+    rdfs:comment "Validation constraints for entities" .
+
+weaver:RequiredFields
+    a weaver:EntityConstraint ;
+    weaver:appliesTo weaver:SecurityIncident ;
+    weaver:constraint "incident_id, severity, status, detected_at must be non-null" .
+
+weaver:DateConsistency
+    a weaver:EntityConstraint ;
+    weaver:appliesTo weaver:SecurityIncident ;
+    weaver:constraint "resolved_at must be greater than detected_at" .
+
+weaver:AccuracyRange
+    a weaver:EntityConstraint ;
+    weaver:appliesTo weaver:MLModel ;
+    weaver:constraint "accuracy must be between 0.0 and 1.0" .
+
+weaver:ExpirationValidation
+    a weaver:EntityConstraint ;
+    weaver:appliesTo weaver:PQCEvidence ;
+    weaver:constraint "valid_until must be in the future" .

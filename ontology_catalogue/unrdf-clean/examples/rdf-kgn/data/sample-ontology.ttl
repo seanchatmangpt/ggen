@@ -1,0 +1,44 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/schema#> .
+
+ex: a owl:Ontology ;
+    rdfs:label "Example Domain Ontology" ;
+    rdfs:comment "A sample ontology for demonstration purposes" ;
+    owl:versionInfo "1.0.0" .
+
+# Classes
+ex:Person a owl:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "A human being" .
+
+ex:Organization a owl:Class ;
+    rdfs:label "Organization" ;
+    rdfs:comment "A structured group of people" .
+
+ex:Document a owl:Class ;
+    rdfs:label "Document" ;
+    rdfs:comment "A written or digital document" .
+
+# Properties
+ex:name a owl:DatatypeProperty ;
+    rdfs:label "name" ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ex:email a owl:DatatypeProperty ;
+    rdfs:label "email" ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string .
+
+ex:worksFor a owl:ObjectProperty ;
+    rdfs:label "works for" ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Organization .
+
+ex:created a owl:ObjectProperty ;
+    rdfs:label "created" ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Document .

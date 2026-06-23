@@ -1,0 +1,136 @@
+# ============================================================================
+# JTBD Query: Feature Effectiveness by Outcome
+# ============================================================================
+# Purpose: Measure how effectively each feature delivers on desired outcomes.
+#          Tracks outcome achievement, adoption rates, user satisfaction,
+#          and ROI for features mapped to JTBD outcomes.
+#
+# Output: Features with outcomes, adoption, satisfaction, effectiveness rating
+# Use: Feature performance review, A/B testing validation, deprecation decisions
+#
+# Example Output:
+# Feature             | Outcome                  | Adoption | Satisfaction | Effectiveness | ROI Score | Status
+# Auto-dependency mgr | Fast resolution          | 87%      | 8.9          | Excellent     | 9.2       | Keep
+# OTEL wizard         | Complete observability   | 45%      | 6.1          | Needs Improve | 5.8       | Iterate
+# Security scanner    | Zero vulnerabilities     | 92%      | 9.1          | Excellent     | 9.5       | Expand
+# Test parallelizer   | Automated testing        | 68%      | 7.5          | Good          | 7.8       | Optimize
+# ============================================================================
+
+PREFIX jtbd: <http://github.com/github/spec-kit/jtbd#>
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?featureName
+  ?featureDescription
+  ?featureStatus
+  ?outcomeStatement
+  ?outcomeDirection
+  ?outcomeMetric
+  ?adoptionRate
+  ?usageFrequency
+  ?userSatisfaction
+  ?outcomeImportance
+  ?outcomeSatisfaction
+  ?outcomeSatisfactionImprovement
+  ?effectivenessScore
+  (IF(?effectivenessScore >= 8.0, "Excellent - High Impact",
+      IF(?effectivenessScore >= 6.5, "Good - Keep Investing",
+         IF(?effectivenessScore >= 5.0, "Needs Improvement",
+            "Poor - Consider Deprecation"))) AS ?effectivenessRating)
+  ?painpointsAddressed
+  ?personasServed
+  ?timeToValue
+  ?roiScore
+  (IF(?roiScore >= 8.0 && ?adoptionRate >= 75, "Expand - High ROI",
+      IF(?roiScore >= 6.0 && ?adoptionRate >= 50, "Optimize - Good ROI",
+         IF(?roiScore >= 4.0, "Iterate - Moderate ROI",
+            "Deprecate - Low ROI"))) AS ?recommendation)
+  ?dateRangeStart
+  ?dateRangeEnd
+WHERE {
+  # All features
+  ?feature a sk:Feature ;
+           sk:featureName ?featureName .
+
+  OPTIONAL { ?feature sk:featureDescription ?featureDescription }
+  OPTIONAL { ?feature sk:featureStatus ?featureStatus }
+
+  # Features enabling outcomes
+  ?feature jtbd:enablesOutcome ?outcome .
+  ?outcome a jtbd:DesiredOutcome ;
+           jtbd:outcomeStatement ?outcomeStatement .
+
+  OPTIONAL { ?outcome jtbd:outcomeDirection ?outcomeDirection }
+  OPTIONAL { ?outcome jtbd:outcomeMetric ?outcomeMetric }
+
+  # Feature adoption metrics
+  OPTIONAL { ?feature sk:adoptionRate ?adoptionRate }
+  OPTIONAL { ?feature sk:usageFrequency ?usageFrequency }
+  OPTIONAL { ?feature sk:userSatisfaction ?userSatisfaction }
+
+  # Outcome importance and satisfaction
+  OPTIONAL {
+    ?outcome jtbd:hasOutcomePriority ?priority .
+    ?priority jtbd:importanceScore ?outcomeImportance ;
+              jtbd:satisfactionScore ?outcomeSatisfaction .
+  }
+
+  # Outcome satisfaction improvement (before/after feature)
+  OPTIONAL {
+    ?feature sk:outcomeSatisfactionBefore ?satisfactionBefore ;
+             sk:outcomeSatisfactionAfter ?satisfactionAfter .
+    BIND((?satisfactionAfter - ?satisfactionBefore) AS ?outcomeSatisfactionImprovement)
+  }
+
+  # Effectiveness score calculation
+  # Formula: (adoptionRate/100 * userSatisfaction + outcomeSatisfactionImprovement * 2) / 2
+  OPTIONAL {
+    BIND(((?adoptionRate / 100.0) * ?userSatisfaction +
+          COALESCE(?outcomeSatisfactionImprovement, 0) * 2.0) / 2.0
+         AS ?effectivenessScore)
+  }
+
+  # Painpoints addressed by this feature
+  OPTIONAL {
+    SELECT ?feature (COUNT(DISTINCT ?pp) AS ?painpointsAddressed)
+    WHERE {
+      ?feature jtbd:addressesPainpoint ?pp .
+    }
+    GROUP BY ?feature
+  }
+
+  # Personas served by this feature
+  OPTIONAL {
+    SELECT ?feature (COUNT(DISTINCT ?persona) AS ?personasServed)
+    WHERE {
+      ?feature jtbd:targetsSegment ?segment .
+      ?segment jtbd:hasPersona ?persona .
+    }
+    GROUP BY ?feature
+  }
+
+  # Time to value metric
+  OPTIONAL { ?feature sk:timeToValue ?timeToValue }
+
+  # ROI score (weighted combination of metrics)
+  OPTIONAL {
+    BIND((COALESCE(?effectivenessScore, 0) * 0.4 +
+          COALESCE(?userSatisfaction, 0) * 0.3 +
+          COALESCE(?adoptionRate / 10.0, 0) * 0.3)
+         AS ?roiScore)
+  }
+
+  # Date range filtering
+  OPTIONAL { ?feature sk:metricsDateStart ?dateRangeStart }
+  OPTIONAL { ?feature sk:metricsDateEnd ?dateRangeEnd }
+
+  # Default values
+  BIND(COALESCE(?adoptionRate, 0.0) AS ?adoptionRate)
+  BIND(COALESCE(?userSatisfaction, 5.0) AS ?userSatisfaction)
+  BIND(COALESCE(?outcomeImportance, 5.0) AS ?outcomeImportance)
+  BIND(COALESCE(?outcomeSatisfaction, 5.0) AS ?outcomeSatisfaction)
+  BIND(COALESCE(?painpointsAddressed, 0) AS ?painpointsAddressed)
+  BIND(COALESCE(?personasServed, 0) AS ?personasServed)
+}
+ORDER BY DESC(?effectivenessScore) DESC(?roiScore) ?featureName

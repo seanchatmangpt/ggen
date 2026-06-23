@@ -1,0 +1,741 @@
+@prefix cli: <http://github.com/github/spec-kit/cli#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# Spec-Kit CLI Extension Ontology
+# ============================================================================
+# This ontology extends the core spec-kit schema to support CLI command
+# specifications in RDF, enabling:
+# - Source-of-truth CLI specifications in Turtle format
+# - Deterministic command documentation generation via ggen v6
+# - Constitutional equation: cli-docs.md = μ(cli-spec.ttl)
+# - SHACL validation of CLI structure and completeness
+# - Type-safe command argument and option definitions
+# ============================================================================
+
+# ============================================================================
+# CLASSES - CLI Command Framework
+# ============================================================================
+
+cli:Command
+  a owl:Class ;
+  rdfs:label "CLI Command" ;
+  rdfs:comment "A CLI command or subcommand with arguments, options, and behavior specification. Represents executable entry points in the command-line interface." ;
+  rdfs:subClassOf owl:Thing .
+
+cli:Argument
+  a owl:Class ;
+  rdfs:label "Positional Argument" ;
+  rdfs:comment "A positional argument for a CLI command. Arguments are ordered and typically required unless marked optional." ;
+  rdfs:subClassOf owl:Thing .
+
+cli:Option
+  a owl:Class ;
+  rdfs:label "Named Option" ;
+  rdfs:comment "A named option or flag for a CLI command. Options can be required or optional, and may have short (-v) and long (--verbose) forms." ;
+  rdfs:subClassOf owl:Thing .
+
+cli:Example
+  a owl:Class ;
+  rdfs:label "Usage Example" ;
+  rdfs:comment "A concrete usage example demonstrating how to invoke a CLI command with specific arguments and options." ;
+  rdfs:subClassOf owl:Thing .
+
+cli:CommandGroup
+  a owl:Class ;
+  rdfs:label "Command Group" ;
+  rdfs:comment "Logical grouping of related commands (e.g., 'ggen', 'pm', 'dspy', 'wf'). Groups organize commands hierarchically." ;
+  rdfs:subClassOf owl:Thing .
+
+cli:TypeEnum
+  a owl:Class ;
+  rdfs:label "Argument Type Enumeration" ;
+  rdfs:comment "Enumeration of supported argument and option types: string, path, int, float, bool, list, choice." ;
+  rdfs:subClassOf owl:Thing .
+
+cli:ValidationRule
+  a owl:Class ;
+  rdfs:label "Validation Rule" ;
+  rdfs:comment "Validation constraint for command arguments or options (e.g., min/max values, regex patterns, file existence)." ;
+  rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# Type Enumeration Instances
+# ============================================================================
+
+cli:StringType
+  a cli:TypeEnum ;
+  rdfs:label "String Type" ;
+  rdfs:comment "Free-form string argument or option value." .
+
+cli:PathType
+  a cli:TypeEnum ;
+  rdfs:label "Path Type" ;
+  rdfs:comment "File system path (file or directory). May validate existence or permissions." .
+
+cli:IntType
+  a cli:TypeEnum ;
+  rdfs:label "Integer Type" ;
+  rdfs:comment "Integer numeric value." .
+
+cli:FloatType
+  a cli:TypeEnum ;
+  rdfs:label "Float Type" ;
+  rdfs:comment "Floating-point numeric value." .
+
+cli:BoolType
+  a cli:TypeEnum ;
+  rdfs:label "Boolean Type" ;
+  rdfs:comment "Boolean flag (true/false). Typically represented as presence/absence of flag." .
+
+cli:ListType
+  a cli:TypeEnum ;
+  rdfs:label "List Type" ;
+  rdfs:comment "Multiple values (repeating argument or comma-separated option)." .
+
+cli:ChoiceType
+  a cli:TypeEnum ;
+  rdfs:label "Choice Type" ;
+  rdfs:comment "One value from a predefined set of choices (enumeration)." .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Command Metadata
+# ============================================================================
+
+cli:commandName
+  a owl:DatatypeProperty ;
+  rdfs:label "Command Name" ;
+  rdfs:comment "The command name as invoked on the command line (e.g., 'init', 'sync', 'check'). Must be lowercase alphanumeric with optional hyphens." ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string .
+
+cli:commandDescription
+  a owl:DatatypeProperty ;
+  rdfs:label "Command Description" ;
+  rdfs:comment "Human-readable description of what the command does. Shown in help text and documentation." ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string .
+
+cli:commandGroup
+  a owl:DatatypeProperty ;
+  rdfs:label "Command Group" ;
+  rdfs:comment "Logical group this command belongs to: 'root', 'ggen', 'pm', 'dspy', 'wf'. Used for organizing help output." ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string .
+
+cli:commandHidden
+  a owl:DatatypeProperty ;
+  rdfs:label "Command Hidden" ;
+  rdfs:comment "Whether this command is hidden from standard help output (for internal/debug commands)." ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:boolean .
+
+cli:commandDeprecated
+  a owl:DatatypeProperty ;
+  rdfs:label "Command Deprecated" ;
+  rdfs:comment "Whether this command is deprecated and will be removed in a future version." ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:boolean .
+
+cli:deprecationMessage
+  a owl:DatatypeProperty ;
+  rdfs:label "Deprecation Message" ;
+  rdfs:comment "Message shown when a deprecated command is used (e.g., 'Use <new-command> instead')." ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string .
+
+cli:delegatesTo
+  a owl:DatatypeProperty ;
+  rdfs:label "Delegates To" ;
+  rdfs:comment "Operations layer function this command delegates to (following three-tier architecture). Format: 'module.function_name'." ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string .
+
+cli:requiresConfirmation
+  a owl:DatatypeProperty ;
+  rdfs:label "Requires Confirmation" ;
+  rdfs:comment "Whether this command requires user confirmation before executing (for destructive operations)." ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:boolean .
+
+cli:epilog
+  a owl:DatatypeProperty ;
+  rdfs:label "Command Epilog" ;
+  rdfs:comment "Additional text shown at the end of help output (after examples)." ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Argument Metadata
+# ============================================================================
+
+cli:argumentName
+  a owl:DatatypeProperty ;
+  rdfs:label "Argument Name" ;
+  rdfs:comment "Name of the positional argument (e.g., 'project-name', 'file-path'). Used in help text and error messages." ;
+  rdfs:domain cli:Argument ;
+  rdfs:range xsd:string .
+
+cli:argumentType
+  a owl:DatatypeProperty ;
+  rdfs:label "Argument Type" ;
+  rdfs:comment "Data type of the argument: 'string', 'path', 'int', 'float', 'bool', 'list', 'choice'." ;
+  rdfs:domain cli:Argument ;
+  rdfs:range xsd:string .
+
+cli:argumentHelp
+  a owl:DatatypeProperty ;
+  rdfs:label "Argument Help" ;
+  rdfs:comment "Help text describing this argument. Shown in command usage." ;
+  rdfs:domain cli:Argument ;
+  rdfs:range xsd:string .
+
+cli:argumentRequired
+  a owl:DatatypeProperty ;
+  rdfs:label "Argument Required" ;
+  rdfs:comment "Whether this positional argument is required (default: true for positional args)." ;
+  rdfs:domain cli:Argument ;
+  rdfs:range xsd:boolean .
+
+cli:argumentDefault
+  a owl:DatatypeProperty ;
+  rdfs:label "Argument Default" ;
+  rdfs:comment "Default value if argument is not provided (for optional arguments)." ;
+  rdfs:domain cli:Argument ;
+  rdfs:range xsd:string .
+
+cli:argumentIndex
+  a owl:DatatypeProperty ;
+  rdfs:label "Argument Index" ;
+  rdfs:comment "Position index of this argument (0-based). Determines order in command signature." ;
+  rdfs:domain cli:Argument ;
+  rdfs:range xsd:integer .
+
+cli:argumentMetavar
+  a owl:DatatypeProperty ;
+  rdfs:label "Argument Metavar" ;
+  rdfs:comment "Placeholder name shown in usage (e.g., 'FILE', 'PATH'). Overrides argumentName in display." ;
+  rdfs:domain cli:Argument ;
+  rdfs:range xsd:string .
+
+cli:argumentNargs
+  a owl:DatatypeProperty ;
+  rdfs:label "Argument Nargs" ;
+  rdfs:comment "Number of values this argument accepts: '1', '+' (one or more), '*' (zero or more), '?' (optional single)." ;
+  rdfs:domain cli:Argument ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Option Metadata
+# ============================================================================
+
+cli:optionName
+  a owl:DatatypeProperty ;
+  rdfs:label "Option Name" ;
+  rdfs:comment "Long-form option name with -- prefix (e.g., '--verbose', '--config-file')." ;
+  rdfs:domain cli:Option ;
+  rdfs:range xsd:string .
+
+cli:optionShort
+  a owl:DatatypeProperty ;
+  rdfs:label "Option Short Form" ;
+  rdfs:comment "Short-form option with - prefix (e.g., '-v', '-c'). Optional single-letter alias." ;
+  rdfs:domain cli:Option ;
+  rdfs:range xsd:string .
+
+cli:optionType
+  a owl:DatatypeProperty ;
+  rdfs:label "Option Type" ;
+  rdfs:comment "Data type of the option value: 'string', 'path', 'int', 'float', 'bool', 'list', 'choice'." ;
+  rdfs:domain cli:Option ;
+  rdfs:range xsd:string .
+
+cli:optionHelp
+  a owl:DatatypeProperty ;
+  rdfs:label "Option Help" ;
+  rdfs:comment "Help text describing this option. Shown in command usage and --help output." ;
+  rdfs:domain cli:Option ;
+  rdfs:range xsd:string .
+
+cli:optionRequired
+  a owl:DatatypeProperty ;
+  rdfs:label "Option Required" ;
+  rdfs:comment "Whether this option is required (most options are optional, but some may be mandatory)." ;
+  rdfs:domain cli:Option ;
+  rdfs:range xsd:boolean .
+
+cli:optionDefault
+  a owl:DatatypeProperty ;
+  rdfs:label "Option Default" ;
+  rdfs:comment "Default value if option is not provided." ;
+  rdfs:domain cli:Option ;
+  rdfs:range xsd:string .
+
+cli:optionEnvVar
+  a owl:DatatypeProperty ;
+  rdfs:label "Option Environment Variable" ;
+  rdfs:comment "Environment variable name that provides fallback value (e.g., 'GGEN_CONFIG', 'OTEL_ENDPOINT')." ;
+  rdfs:domain cli:Option ;
+  rdfs:range xsd:string .
+
+cli:optionMetavar
+  a owl:DatatypeProperty ;
+  rdfs:label "Option Metavar" ;
+  rdfs:comment "Placeholder name for option value in help text (e.g., 'FILE', 'URL')." ;
+  rdfs:domain cli:Option ;
+  rdfs:range xsd:string .
+
+cli:optionIsFlag
+  a owl:DatatypeProperty ;
+  rdfs:label "Option Is Flag" ;
+  rdfs:comment "Whether this is a boolean flag (no value required, presence = true)." ;
+  rdfs:domain cli:Option ;
+  rdfs:range xsd:boolean .
+
+cli:optionCount
+  a owl:DatatypeProperty ;
+  rdfs:label "Option Count" ;
+  rdfs:comment "Whether this option counts occurrences (e.g., -v, -vv, -vvv for verbosity levels)." ;
+  rdfs:domain cli:Option ;
+  rdfs:range xsd:boolean .
+
+cli:optionChoices
+  a owl:DatatypeProperty ;
+  rdfs:label "Option Choices" ;
+  rdfs:comment "Comma-separated list of valid choices for this option (for choice type options)." ;
+  rdfs:domain cli:Option ;
+  rdfs:range xsd:string .
+
+cli:optionHidden
+  a owl:DatatypeProperty ;
+  rdfs:label "Option Hidden" ;
+  rdfs:comment "Whether this option is hidden from help output (for internal/debug options)." ;
+  rdfs:domain cli:Option ;
+  rdfs:range xsd:boolean .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Example Metadata
+# ============================================================================
+
+cli:exampleCommand
+  a owl:DatatypeProperty ;
+  rdfs:label "Example Command" ;
+  rdfs:comment "Full command string showing example usage (e.g., 'specify init my-project --template basic')." ;
+  rdfs:domain cli:Example ;
+  rdfs:range xsd:string .
+
+cli:exampleDescription
+  a owl:DatatypeProperty ;
+  rdfs:label "Example Description" ;
+  rdfs:comment "Description of what this example demonstrates or when to use it." ;
+  rdfs:domain cli:Example ;
+  rdfs:range xsd:string .
+
+cli:exampleIndex
+  a owl:DatatypeProperty ;
+  rdfs:label "Example Index" ;
+  rdfs:comment "Display order for this example (0-based)." ;
+  rdfs:domain cli:Example ;
+  rdfs:range xsd:integer .
+
+cli:exampleOutput
+  a owl:DatatypeProperty ;
+  rdfs:label "Example Expected Output" ;
+  rdfs:comment "Expected output or result from running this example (optional, for documentation)." ;
+  rdfs:domain cli:Example ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Validation Rule Metadata
+# ============================================================================
+
+cli:validationRule
+  a owl:DatatypeProperty ;
+  rdfs:label "Validation Rule" ;
+  rdfs:comment "Type of validation rule: 'regex', 'range', 'file_exists', 'dir_exists', 'custom'." ;
+  rdfs:domain cli:ValidationRule ;
+  rdfs:range xsd:string .
+
+cli:validationPattern
+  a owl:DatatypeProperty ;
+  rdfs:label "Validation Pattern" ;
+  rdfs:comment "Regex pattern for string validation (when validationRule = 'regex')." ;
+  rdfs:domain cli:ValidationRule ;
+  rdfs:range xsd:string .
+
+cli:validationMin
+  a owl:DatatypeProperty ;
+  rdfs:label "Validation Minimum" ;
+  rdfs:comment "Minimum value for numeric range validation (when validationRule = 'range')." ;
+  rdfs:domain cli:ValidationRule ;
+  rdfs:range xsd:string .
+
+cli:validationMax
+  a owl:DatatypeProperty ;
+  rdfs:label "Validation Maximum" ;
+  rdfs:comment "Maximum value for numeric range validation (when validationRule = 'range')." ;
+  rdfs:domain cli:ValidationRule ;
+  rdfs:range xsd:string .
+
+cli:validationMessage
+  a owl:DatatypeProperty ;
+  rdfs:label "Validation Error Message" ;
+  rdfs:comment "Custom error message shown when validation fails." ;
+  rdfs:domain cli:ValidationRule ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Command Group Metadata
+# ============================================================================
+
+cli:groupName
+  a owl:DatatypeProperty ;
+  rdfs:label "Group Name" ;
+  rdfs:comment "Name of the command group (e.g., 'ggen', 'pm', 'dspy')." ;
+  rdfs:domain cli:CommandGroup ;
+  rdfs:range xsd:string .
+
+cli:groupDescription
+  a owl:DatatypeProperty ;
+  rdfs:label "Group Description" ;
+  rdfs:comment "Description of what commands in this group do." ;
+  rdfs:domain cli:CommandGroup ;
+  rdfs:range xsd:string .
+
+cli:groupIndex
+  a owl:DatatypeProperty ;
+  rdfs:label "Group Display Index" ;
+  rdfs:comment "Display order for this group in help output (0-based)." ;
+  rdfs:domain cli:CommandGroup ;
+  rdfs:range xsd:integer .
+
+# ============================================================================
+# OBJECT PROPERTIES - CLI Structure Relationships
+# ============================================================================
+
+cli:hasArgument
+  a owl:ObjectProperty ;
+  rdfs:label "Has Argument" ;
+  rdfs:comment "Command has this positional argument." ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:Argument .
+
+cli:hasOption
+  a owl:ObjectProperty ;
+  rdfs:label "Has Option" ;
+  rdfs:comment "Command has this named option/flag." ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:Option .
+
+cli:hasExample
+  a owl:ObjectProperty ;
+  rdfs:label "Has Example" ;
+  rdfs:comment "Command has this usage example." ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:Example .
+
+cli:hasSubcommand
+  a owl:ObjectProperty ;
+  rdfs:label "Has Subcommand" ;
+  rdfs:comment "Command has this subcommand (for command groups like 'ggen sync', 'pm validate')." ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:Command .
+
+cli:parentCommand
+  a owl:ObjectProperty ;
+  rdfs:label "Parent Command" ;
+  rdfs:comment "This command is a subcommand of the specified parent." ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:Command ;
+  owl:inverseOf cli:hasSubcommand .
+
+cli:hasValidation
+  a owl:ObjectProperty ;
+  rdfs:label "Has Validation" ;
+  rdfs:comment "Argument or option has this validation rule." ;
+  rdfs:domain owl:Thing ;
+  rdfs:range cli:ValidationRule .
+
+cli:inGroup
+  a owl:ObjectProperty ;
+  rdfs:label "In Group" ;
+  rdfs:comment "Command belongs to this command group." ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:CommandGroup .
+
+cli:mutuallyExclusive
+  a owl:ObjectProperty ;
+  rdfs:label "Mutually Exclusive" ;
+  rdfs:comment "This option/argument is mutually exclusive with the referenced option/argument." ;
+  rdfs:domain owl:Thing ;
+  rdfs:range owl:Thing .
+
+cli:requiredWith
+  a owl:ObjectProperty ;
+  rdfs:label "Required With" ;
+  rdfs:comment "This option/argument requires the referenced option/argument to also be present." ;
+  rdfs:domain owl:Thing ;
+  rdfs:range owl:Thing .
+
+# ============================================================================
+# SHACL VALIDATION SHAPES
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Command Shape - Core validation for all CLI commands
+# ----------------------------------------------------------------------------
+
+cli:CommandShape
+  a sh:NodeShape ;
+  sh:targetClass cli:Command ;
+  sh:property [
+    sh:path cli:commandName ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[a-z][a-z0-9-]*$" ;
+    sh:minLength 2 ;
+    sh:maxLength 50 ;
+    sh:message "commandName is required, must be lowercase alphanumeric with hyphens, 2-50 characters (e.g., 'init', 'sync', 'check-deps')"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:commandDescription ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 10 ;
+    sh:message "commandDescription is required and must be at least 10 characters"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:commandGroup ;
+    sh:datatype xsd:string ;
+    sh:in ( "root" "ggen" "pm" "dspy" "wf" ) ;
+    sh:message "commandGroup must be one of: root, ggen, pm, dspy, wf"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:delegatesTo ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[a-z_][a-z0-9_]*\\.[a-z_][a-z0-9_]*$" ;
+    sh:message "delegatesTo must be in format 'module.function_name' (e.g., 'ggen_ops.sync_project')"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:commandHidden ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path cli:commandDeprecated ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path cli:requiresConfirmation ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+  ] .
+
+# ----------------------------------------------------------------------------
+# Argument Shape - Validation for positional arguments
+# ----------------------------------------------------------------------------
+
+cli:ArgumentShape
+  a sh:NodeShape ;
+  sh:targetClass cli:Argument ;
+  sh:property [
+    sh:path cli:argumentName ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[a-z][a-z0-9-]*$" ;
+    sh:message "argumentName is required, must be lowercase alphanumeric with hyphens"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:argumentType ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ( "string" "path" "int" "float" "bool" "list" "choice" ) ;
+    sh:message "argumentType is required, must be one of: string, path, int, float, bool, list, choice"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:argumentHelp ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 5 ;
+    sh:message "argumentHelp is required and must be at least 5 characters"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:argumentRequired ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path cli:argumentIndex ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:message "argumentIndex is required and must be non-negative integer"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:argumentNargs ;
+    sh:datatype xsd:string ;
+    sh:in ( "1" "+" "*" "?" ) ;
+    sh:message "argumentNargs must be one of: '1' (single), '+' (one or more), '*' (zero or more), '?' (optional)"@en ;
+  ] .
+
+# ----------------------------------------------------------------------------
+# Option Shape - Validation for named options/flags
+# ----------------------------------------------------------------------------
+
+cli:OptionShape
+  a sh:NodeShape ;
+  sh:targetClass cli:Option ;
+  sh:property [
+    sh:path cli:optionName ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^--[a-z][a-z0-9-]*$" ;
+    sh:message "optionName is required, must start with -- and be lowercase alphanumeric with hyphens (e.g., '--verbose', '--config-file')"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:optionShort ;
+    sh:datatype xsd:string ;
+    sh:pattern "^-[a-zA-Z]$" ;
+    sh:maxCount 1 ;
+    sh:message "optionShort must be single letter with - prefix (e.g., '-v', '-c')"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:optionType ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ( "string" "path" "int" "float" "bool" "list" "choice" ) ;
+    sh:message "optionType is required, must be one of: string, path, int, float, bool, list, choice"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:optionHelp ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 5 ;
+    sh:message "optionHelp is required and must be at least 5 characters"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:optionRequired ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path cli:optionEnvVar ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[A-Z][A-Z0-9_]*$" ;
+    sh:message "optionEnvVar must be uppercase alphanumeric with underscores (e.g., 'GGEN_CONFIG', 'OTEL_ENDPOINT')"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:optionIsFlag ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path cli:optionCount ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path cli:optionHidden ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+  ] .
+
+# ----------------------------------------------------------------------------
+# Example Shape - Validation for usage examples
+# ----------------------------------------------------------------------------
+
+cli:ExampleShape
+  a sh:NodeShape ;
+  sh:targetClass cli:Example ;
+  sh:property [
+    sh:path cli:exampleCommand ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 5 ;
+    sh:message "exampleCommand is required and must be at least 5 characters"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:exampleDescription ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 10 ;
+    sh:message "exampleDescription is required and must be at least 10 characters"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:exampleIndex ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:message "exampleIndex is required and must be non-negative integer"@en ;
+  ] .
+
+# ----------------------------------------------------------------------------
+# Validation Rule Shape
+# ----------------------------------------------------------------------------
+
+cli:ValidationRuleShape
+  a sh:NodeShape ;
+  sh:targetClass cli:ValidationRule ;
+  sh:property [
+    sh:path cli:validationRule ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ( "regex" "range" "file_exists" "dir_exists" "custom" ) ;
+    sh:message "validationRule is required, must be one of: regex, range, file_exists, dir_exists, custom"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:validationMessage ;
+    sh:datatype xsd:string ;
+    sh:minLength 10 ;
+    sh:message "validationMessage should be at least 10 characters if provided"@en ;
+  ] .
+
+# ----------------------------------------------------------------------------
+# Command Group Shape
+# ----------------------------------------------------------------------------
+
+cli:CommandGroupShape
+  a sh:NodeShape ;
+  sh:targetClass cli:CommandGroup ;
+  sh:property [
+    sh:path cli:groupName ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[a-z][a-z0-9-]*$" ;
+    sh:message "groupName is required, must be lowercase alphanumeric with hyphens"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:groupDescription ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 10 ;
+    sh:message "groupDescription is required and must be at least 10 characters"@en ;
+  ] ;
+  sh:property [
+    sh:path cli:groupIndex ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:message "groupIndex is required and must be non-negative integer"@en ;
+  ] .
+
+# ============================================================================
+# End of Spec-Kit CLI Extension Ontology
+# ============================================================================

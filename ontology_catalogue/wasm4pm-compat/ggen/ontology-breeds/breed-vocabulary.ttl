@@ -1,0 +1,564 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix compat: <https://wasm4pm.dev/ns#> .
+
+# ── CognitionBreed class ────────────────────────────────────────────────────
+compat:CognitionBreed a rdfs:Class ;
+  rdfs:comment "A registered cognition algorithm breed in the wasm4pm platform." .
+
+# Properties
+compat:breedId       a rdf:Property ; rdfs:domain compat:CognitionBreed ; rdfs:range xsd:string .
+compat:breedLabel    a rdf:Property ; rdfs:domain compat:CognitionBreed ; rdfs:range xsd:string .
+compat:breedDoc      a rdf:Property ; rdfs:domain compat:CognitionBreed ; rdfs:range xsd:string .
+compat:citation      a rdf:Property ; rdfs:domain compat:CognitionBreed ; rdfs:range xsd:string .
+compat:breedStanding a rdf:Property ; rdfs:domain compat:CognitionBreed ; rdfs:range xsd:string .
+compat:breedStatus   a rdf:Property ; rdfs:domain compat:CognitionBreed ; rdfs:range xsd:string .
+compat:modulePath    a rdf:Property ; rdfs:domain compat:CognitionBreed ; rdfs:range xsd:string .
+compat:rustVariant   a rdf:Property ; rdfs:domain compat:CognitionBreed ; rdfs:range xsd:string .
+compat:freshName     a rdf:Property ; rdfs:domain compat:CognitionBreed ; rdfs:range xsd:string ;
+  rdfs:comment "A8 hidden-oracle fresh name used in counter-tests. Multiple values per breed." .
+
+# ── CognitionBreed instances (55 breeds from registry.json) ─────────────────
+compat:Breed_abductive_ibe
+  a compat:CognitionBreed ;
+  compat:breedId       "abductive_ibe"^^xsd:string ;
+  compat:breedLabel    "AbductiveIbe"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Harman, G. H. (1965). The Inference to the Best Explanation. The Philosophical Review, 74(1), 88–95. Thagard, P. R. (1978). The Best Explanation: Criteria for Theory Choice. The Journal of Philosophy, 75(2), 76–92."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_abductive_lp
+  a compat:CognitionBreed ;
+  compat:breedId       "abductive_lp"^^xsd:string ;
+  compat:breedLabel    "AbductiveLp"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Kakas, A. C., Kowalski, R. A., & Toni, F. (1992). Abductive Logic Programming. Journal of Logic and Computation, 2(6), 719–770."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "snag"^^xsd:string ;
+  compat:freshName     "blarg"^^xsd:string  .
+
+compat:Breed_act_r
+  a compat:CognitionBreed ;
+  compat:breedId       "act_r"^^xsd:string ;
+  compat:breedLabel    "ActR"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Anderson, J. R., & Lebiere, C. (1998). Lawrence Erlbaum Associates. Chapter 3 (the activation equation A_i = B_i + Σ_j W_j·S_ji) and Chapter 9 (cognitive arithmetic: retrieval of addition facts)."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_allen_temporal
+  a compat:CognitionBreed ;
+  compat:breedId       "allen_temporal"^^xsd:string ;
+  compat:breedLabel    "AllenTemporal"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Allen, J. F. (1983). Maintaining Knowledge about Temporal Intervals. Communications of the ACM, 26(11), 832-843."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "gamma"^^xsd:string ;
+  compat:freshName     "delta"^^xsd:string ;
+  compat:freshName     "eps"^^xsd:string ;
+  compat:freshName     "pi"^^xsd:string  .
+
+compat:Breed_analogy_sme
+  a compat:CognitionBreed ;
+  compat:breedId       "analogy_sme"^^xsd:string ;
+  compat:breedLabel    "AnalogySme"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Falkenhainer, B., Forbus, K. D., & Gentner, D. (1989). Artificial Intelligence, 41(1), 1-63."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "gor"^^xsd:string ;
+  compat:freshName     "lum"^^xsd:string ;
+  compat:freshName     "rix"^^xsd:string  .
+
+compat:Breed_asp
+  a compat:CognitionBreed ;
+  compat:breedId       "asp"^^xsd:string ;
+  compat:breedLabel    "Asp"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Gelfond, M., & Lifschitz, V. (1988). The Stable Model Semantics for Logic Programming. In: Proceedings of the Fifth International Conference and Symposium on Logic Programming (ICLP/SLP 1988), MIT Press, pp. 1070–1080."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "zorp_atom"^^xsd:string ;
+  compat:freshName     "blee_atom"^^xsd:string  .
+
+compat:Breed_autoinstinct_learning
+  a compat:CognitionBreed ;
+  compat:breedId       "autoinstinct_learning"^^xsd:string ;
+  compat:breedLabel    "AutoinstinctLearning"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Sussman, Gerald Jay. \\"^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_autoinstinct_neurosis
+  a compat:CognitionBreed ;
+  compat:breedId       "autoinstinct_neurosis"^^xsd:string ;
+  compat:breedLabel    "AutoinstinctNeurosis"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Boden, M. A. (1977). Artificial Intelligence and Natural Man. New York: Basic Books. Chapter 6: \\"^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_autoinstinct_semantics
+  a compat:CognitionBreed ;
+  compat:breedId       "autoinstinct_semantics"^^xsd:string ;
+  compat:breedLabel    "AutoinstinctSemantics"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Schank, R. C. (1972). Conceptual dependency: A theory of natural language understanding. Cognitive Psychology, 3(4), 552–631. https://doi.org/10.1016/0010-0285(72)90022-9"^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_autoinstinct_vision
+  a compat:CognitionBreed ;
+  compat:breedId       "autoinstinct_vision"^^xsd:string ;
+  compat:breedLabel    "AutoinstinctVision"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Marr, D., & Poggio, T. (1976). Cooperative computation of stereo disparity. Science, 194(4262), 283–287. https://doi.org/10.1126/science.968816"^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_bayesian_network
+  a compat:CognitionBreed ;
+  compat:breedId       "bayesian_network"^^xsd:string ;
+  compat:breedLabel    "BayesianNetwork"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Pearl, J. (1988). Probabilistic Reasoning in Intelligent Systems: Networks of Plausible Inference. Morgan Kaufmann."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "qubit"^^xsd:string ;
+  compat:freshName     "qres"^^xsd:string ;
+  compat:freshName     "qchain"^^xsd:string  .
+
+compat:Breed_belief_merging
+  a compat:CognitionBreed ;
+  compat:breedId       "belief_merging"^^xsd:string ;
+  compat:breedLabel    "BeliefMerging"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Konieczny, S., & Pino Pérez, R. (2002). Merging Information Under Constraints: A Logical Framework. Journal of Logic and Computation, 12(5), 773–808."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_cbr
+  a compat:CognitionBreed ;
+  compat:breedId       "cbr"^^xsd:string ;
+  compat:breedLabel    "Cbr"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "A. Aamodt, E. Plaza (1994). Case-Based Reasoning: Foundational Issues, Methodological Variations, and System Approaches. AI Communications, IOS Press, Vol. 7, No. 1, pp. 39–59."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_circumscription
+  a compat:CognitionBreed ;
+  compat:breedId       "circumscription"^^xsd:string ;
+  compat:breedLabel    "Circumscription"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "McCarthy, J. (1980). Artificial Intelligence, 13(1-2), 27-39."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "korv"^^xsd:string ;
+  compat:freshName     "glows"^^xsd:string  .
+
+compat:Breed_clp
+  a compat:CognitionBreed ;
+  compat:breedId       "clp"^^xsd:string ;
+  compat:breedLabel    "Clp"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Jaffar, J., & Lassez, J.-L. (1987). Constraint Logic Programming. In: Proceedings of the 14th ACM SIGACT-SIGPLAN Symposium on Principles of Programming Languages (POPL 1987), pp. 111–119."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_construction_grammar
+  a compat:CognitionBreed ;
+  compat:breedId       "construction_grammar"^^xsd:string ;
+  compat:breedLabel    "ConstructionGrammar"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Adele E. Goldberg (1995). Constructions: A Construction Grammar Approach to Argument Structure. University of Chicago Press."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_contingent_plan
+  a compat:CognitionBreed ;
+  compat:breedId       "contingent_plan"^^xsd:string ;
+  compat:breedLabel    "ContingentPlan"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Stuart Russell and Peter Norvig (2010). Artificial Intelligence: A Modern Approach (3rd ed.). Pearson."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_csp_ac3
+  a compat:CognitionBreed ;
+  compat:breedId       "csp_ac3"^^xsd:string ;
+  compat:breedLabel    "CspAc3"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Mackworth, A. K. (1977). Consistency in Networks of Relations. Artificial Intelligence, 8(1), 99-118."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "vquux"^^xsd:string ;
+  compat:freshName     "vblee"^^xsd:string ;
+  compat:freshName     "vzorp"^^xsd:string  .
+
+compat:Breed_ctl_check
+  a compat:CognitionBreed ;
+  compat:breedId       "ctl_check"^^xsd:string ;
+  compat:breedLabel    "CtlCheck"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Clarke, E. M., Emerson, E. A., & Sistla, A. P. (1986). ACM Transactions on Programming Languages and Systems, 8(2), 244-263."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_default_logic
+  a compat:CognitionBreed ;
+  compat:breedId       "default_logic"^^xsd:string ;
+  compat:breedLabel    "DefaultLogic"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Reiter, R. (1980). A Logic for Default Reasoning. Artificial Intelligence, 13(1-2), 81-132."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "gronk"^^xsd:string ;
+  compat:freshName     "wibble"^^xsd:string ;
+  compat:freshName     "dark_wibble"^^xsd:string  .
+
+compat:Breed_dempster_shafer
+  a compat:CognitionBreed ;
+  compat:breedId       "dempster_shafer"^^xsd:string ;
+  compat:breedLabel    "DempsterShafer"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Shafer, G. (1976). A Mathematical Theory of Evidence. Princeton University Press."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "flim"^^xsd:string ;
+  compat:freshName     "flam"^^xsd:string  .
+
+compat:Breed_dendral
+  a compat:CognitionBreed ;
+  compat:breedId       "dendral"^^xsd:string ;
+  compat:breedLabel    "Dendral"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Feigenbaum, E. A., Buchanan, B. G., & Lederberg, J. (1971). On generality and problem solving: A case study using the DENDRAL program. Stanford Artificial Intelligence Project Memo AIM-131, Computer Science Department Report CS176. Stanford University."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_description_logic
+  a compat:CognitionBreed ;
+  compat:breedId       "description_logic"^^xsd:string ;
+  compat:breedLabel    "DescriptionLogic"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Baader, F., Brandt, S., & Lutz, C. (2005). Pushing the EL Envelope. In: Proceedings of the 19th International Joint Conference on Artificial Intelligence (IJCAI 2005), pp. 364–369."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "krumm"^^xsd:string ;
+  compat:freshName     "blurp"^^xsd:string  .
+
+compat:Breed_ebl
+  a compat:CognitionBreed ;
+  compat:breedId       "ebl"^^xsd:string ;
+  compat:breedLabel    "Ebl"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Mitchell, T. M., Keller, R. M., & Kedar-Cabelli, S. T. (1986). Explanation-Based Generalization: A Unifying View. Machine Learning, 1(1), 47-80."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "obj2"^^xsd:string ;
+  compat:freshName     "obj9"^^xsd:string  .
+
+compat:Breed_eliza
+  a compat:CognitionBreed ;
+  compat:breedId       "eliza"^^xsd:string ;
+  compat:breedLabel    "Eliza"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Weizenbaum, J. (1966). ELIZA—A computer program for the study of natural language communication between man and machine. Communications of the ACM, 9(1), 36–45. https://doi.org/10.1145/365153.365168"^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:modulePath    "frame"^^xsd:string .
+
+compat:Breed_episodic_memory
+  a compat:CognitionBreed ;
+  compat:breedId       "episodic_memory"^^xsd:string ;
+  compat:breedLabel    "EpisodicMemory"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Tulving, E. (1983). Oxford University Press (Ch. 7: encoding specificity and temporal organisation). Nuxoll, A. M., & Laird, J. E. (2007). Proceedings of AAAI 2007, 1560-1565 (cue-based retrieval of the best partially-matching episode)."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_event_calculus
+  a compat:CognitionBreed ;
+  compat:breedId       "event_calculus"^^xsd:string ;
+  compat:breedLabel    "EventCalculus"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Kowalski, R., & Sergot, M. (1986). A Logic-based Calculus of Events. New Generation Computing, 4(1), 67–95."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_frames_inheritance
+  a compat:CognitionBreed ;
+  compat:breedId       "frames_inheritance"^^xsd:string ;
+  compat:breedLabel    "FramesInheritance"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Minsky, M. (1974). A Framework for Representing Knowledge. MIT AI Laboratory Memo 306. Reprinted in Winston (Ed.), The Psychology of Computer Vision, 1975."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "zilk"^^xsd:string ;
+  compat:freshName     "welp"^^xsd:string ;
+  compat:freshName     "snorf"^^xsd:string  .
+
+compat:Breed_fuzzy_logic
+  a compat:CognitionBreed ;
+  compat:breedId       "fuzzy_logic"^^xsd:string ;
+  compat:breedLabel    "FuzzyLogic"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Mamdani, E. H., & Assilian, S. (1975). An Experiment in Linguistic Synthesis with a Fuzzy Logic Controller. International Journal of Man-Machine Studies, 7(1), 1-13."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "tri_asymmetric"^^xsd:string ;
+  compat:freshName     "flam_var"^^xsd:string  .
+
+compat:Breed_gps
+  a compat:CognitionBreed ;
+  compat:breedId       "gps"^^xsd:string ;
+  compat:breedLabel    "Gps"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "A. Newell and H. A. Simon, \\"^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_hearsay
+  a compat:CognitionBreed ;
+  compat:breedId       "hearsay"^^xsd:string ;
+  compat:breedLabel    "Hearsay"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Erman, L. D., Hayes-Roth, F., Lesser, V. R., and Reddy, D. R. (1980). The Hearsay-II speech-understanding system: Integrating knowledge to resolve uncertainty. ACM Computing Surveys, 12(2), 213–253."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_htn_planning
+  a compat:CognitionBreed ;
+  compat:breedId       "htn_planning"^^xsd:string ;
+  compat:breedLabel    "HtnPlanning"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Nau, D., Au, T.-C., Ilghami, O., Kuter, U., Murdock, J. W., Wu, D., & Yaman, F. (2003). SHOP2: An HTN Planning System. Journal of Artificial Intelligence Research, 20, 379-404."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "coach_task"^^xsd:string ;
+  compat:freshName     "walk_task"^^xsd:string  .
+
+compat:Breed_ilp
+  a compat:CognitionBreed ;
+  compat:breedId       "ilp"^^xsd:string ;
+  compat:breedLabel    "Ilp"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Quinlan, J. R. (1990). Machine Learning, 5(3), 239-266."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_ltl_monitor
+  a compat:CognitionBreed ;
+  compat:breedId       "ltl_monitor"^^xsd:string ;
+  compat:breedLabel    "LtlMonitor"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Havelund, K., & Rosu, G. (2001). Monitoring Programs Using Rewriting. Proceedings of ASE 2001 (16th IEEE International Conference on Automated Software Engineering), 135-143."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "zorp"^^xsd:string ;
+  compat:freshName     "blee"^^xsd:string ;
+  compat:freshName     "quux"^^xsd:string  .
+
+compat:Breed_markov_logic
+  a compat:CognitionBreed ;
+  compat:breedId       "markov_logic"^^xsd:string ;
+  compat:breedLabel    "MarkovLogic"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Matthew Richardson and Pedro Domingos (2006). Markov logic networks. Machine Learning 62(1-2):107-136."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_mdp
+  a compat:CognitionBreed ;
+  compat:breedId       "mdp"^^xsd:string ;
+  compat:breedLabel    "Mdp"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Bellman, R. (1957). Dynamic Programming. Princeton University Press. (Functional equation / principle of optimality, Chapter III; successive-approximation solution, Chapter IV.)"^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_meta_reasoning
+  a compat:CognitionBreed ;
+  compat:breedId       "meta_reasoning"^^xsd:string ;
+  compat:breedLabel    "MetaReasoning"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Michael T. Cox and Anita Raja (eds.) (2011). Metareasoning: Thinking about Thinking. MIT Press."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "breed_zorp"^^xsd:string ;
+  compat:freshName     "breed_blee"^^xsd:string  .
+
+compat:Breed_morphological
+  a compat:CognitionBreed ;
+  compat:breedId       "morphological"^^xsd:string ;
+  compat:breedLabel    "Morphological"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Zwicky, F. (1969). Discovery, Invention, Research Through the Morphological Approach. Macmillan."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_mycin
+  a compat:CognitionBreed ;
+  compat:breedId       "mycin"^^xsd:string ;
+  compat:breedLabel    "Mycin"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Shortliffe, E. H., & Buchanan, B. G. (1975). A model of inexact reasoning in medicine. Mathematical Biosciences, 23(3–4), 351–379. Reprinted as Chapter 11 in: Buchanan, B. G., & Shortliffe, E. H. (Eds.), Rule-Based Expert Systems. Addison-Wesley, 1984."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:modulePath    "production_rules"^^xsd:string .
+
+compat:Breed_naive_physics
+  a compat:CognitionBreed ;
+  compat:breedId       "naive_physics"^^xsd:string ;
+  compat:breedLabel    "NaivePhysics"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Hayes, P. J. (1979). In D. Michie (Ed.), Expert Systems in the Micro-Electronic Age. Edinburgh University Press. Hayes, P. J. (1985). In J. R. Hobbs & R. C. Moore (Eds.), Formal Theories of the Commonsense World (pp. 71-107). Ablex."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "bolv"^^xsd:string ;
+  compat:freshName     "mim"^^xsd:string ;
+  compat:freshName     "pearl"^^xsd:string  .
+
+compat:Breed_ocpm_route_discoverer
+  a compat:CognitionBreed ;
+  compat:breedId       "ocpm_route_discoverer"^^xsd:string ;
+  compat:breedLabel    "OcpmRouteDiscoverer"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "van der Aalst, W.M.P. (2019). Object-Centric Process Mining: Dealing with Divergence and Convergence."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_partial_order_plan
+  a compat:CognitionBreed ;
+  compat:breedId       "partial_order_plan"^^xsd:string ;
+  compat:breedLabel    "PartialOrderPlan"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "McAllester, D., & Rosenblitt, D. (1991). Systematic Nonlinear Planning. In: Proceedings of the Ninth National Conference on Artificial Intelligence (AAAI-91), pp. 634–639."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_pomdp
+  a compat:CognitionBreed ;
+  compat:breedId       "pomdp"^^xsd:string ;
+  compat:breedLabel    "Pomdp"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Leslie Pack Kaelbling, Michael L. Littman and Anthony R. Cassandra (1998). Planning and acting in partially observable stochastic domains. Artificial Intelligence 101(1-2):99-134."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "tampered_o"^^xsd:string  .
+
+compat:Breed_problog
+  a compat:CognitionBreed ;
+  compat:breedId       "problog"^^xsd:string ;
+  compat:breedLabel    "Problog"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "De Raedt, L., Kimmig, A., & Toivonen, H. (2007). Proceedings of IJCAI 2007, 2468-2473."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string ;
+  compat:freshName     "pfact_quux"^^xsd:string ;
+  compat:freshName     "pfact_blee"^^xsd:string  .
+
+compat:Breed_prolog
+  a compat:CognitionBreed ;
+  compat:breedId       "prolog"^^xsd:string ;
+  compat:breedLabel    "Prolog"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Kowalski, R. A. (1974). Predicate logic as programming language. IFIP Congress 74, Stockholm, pp. 569–574."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_qualitative_reason
+  a compat:CognitionBreed ;
+  compat:breedId       "qualitative_reason"^^xsd:string ;
+  compat:breedLabel    "QualitativeReason"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "de Kleer, J., & Brown, J. S. (1984). A Qualitative Physics Based on Confluences. Artificial Intelligence, 24(1–3), 7–83."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_rl_symbolic
+  a compat:CognitionBreed ;
+  compat:breedId       "rl_symbolic"^^xsd:string ;
+  compat:breedLabel    "RlSymbolic"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Watkins, C. J. C. H., & Dayan, P. (1992). Machine Learning, 8(3-4), 279-292."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_sat_cdcl
+  a compat:CognitionBreed ;
+  compat:breedId       "sat_cdcl"^^xsd:string ;
+  compat:breedLabel    "SatCdcl"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Marques-Silva, J. P., & Sakallah, K. A. (1999). IEEE Transactions on Computers, 48(5), 506-521."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_script_sam
+  a compat:CognitionBreed ;
+  compat:breedId       "script_sam"^^xsd:string ;
+  compat:breedLabel    "ScriptSam"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Schank, R. C., & Abelson, R. P. (1977). Scripts, Plans, Goals and Understanding: An Inquiry into Human Knowledge Structures. Lawrence Erlbaum Associates."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_situation_calculus
+  a compat:CognitionBreed ;
+  compat:breedId       "situation_calculus"^^xsd:string ;
+  compat:breedLabel    "SituationCalculus"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Reiter, R. (1991). In V. Lifschitz (Ed.), Artificial Intelligence and Mathematical Theory of Computation: Papers in Honor of John McCarthy (pp. 359-380). Academic Press."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_soar
+  a compat:CognitionBreed ;
+  compat:breedId       "soar"^^xsd:string ;
+  compat:breedLabel    "Soar"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Laird, J. E., Newell, A., & Rosenbloom, P. S. (1987). Soar: An architecture for general intelligence. Artificial Intelligence, 33(1), 1–64. https://doi.org/10.1016/0004-3702(87)90050-6"^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_strips
+  a compat:CognitionBreed ;
+  compat:breedId       "strips"^^xsd:string ;
+  compat:breedLabel    "Strips"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Fikes, R. E., & Nilsson, N. J. (1971). STRIPS: A new approach to the application of theorem proving to problem solving. Artificial Intelligence, 2(3–4), 189–208."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_tableaux
+  a compat:CognitionBreed ;
+  compat:breedId       "tableaux"^^xsd:string ;
+  compat:breedLabel    "Tableaux"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Raymond M. Smullyan (1968). First-Order Logic. Springer-Verlag, Ergebnisse der Mathematik und ihrer Grenzgebiete 43."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_triz
+  a compat:CognitionBreed ;
+  compat:breedId       "triz"^^xsd:string ;
+  compat:breedLabel    "Triz"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Altshuller, G. (1984). Creativity as an Exact Science. Gordon and Breach Science Publishers."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .
+
+compat:Breed_version_space
+  a compat:CognitionBreed ;
+  compat:breedId       "version_space"^^xsd:string ;
+  compat:breedLabel    "VersionSpace"^^xsd:string ;
+  compat:breedDoc      ""^^xsd:string ;
+  compat:citation      "Mitchell, T. M. (1982). Generalization as Search. Artificial Intelligence, 18(2), 203–226."^^xsd:string ;
+  compat:breedStatus   "PARTIAL_ALIVE"^^xsd:string ;
+  compat:breedStanding "DISPATCHABLE"^^xsd:string .

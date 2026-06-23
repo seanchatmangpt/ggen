@@ -1,0 +1,1318 @@
+@prefix cli:  <https://ggen.io/onto/cli/spec/> .
+@prefix onto: <https://ggen.io/onto/cli/open-ontologies/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+#################################################################
+# Ontology header
+# Test modification for roundtrip validation (2026-06-01)
+#################################################################
+
+onto:Ontology a owl:Ontology ;
+    dcterms:title "open-ontologies CLI Surface" ;
+    dcterms:description """CLI surface ontology for the open-ontologies AI-native ontology engine. Models the full noun-verb command surface using the neutral cli: vocabulary.""" ;
+    owl:imports cli:Ontology ;
+    owl:versionInfo "0.1.11" .
+
+#################################################################
+# Interface
+#################################################################
+
+onto:OntoInterface a cli:Interface ;
+    cli:name "open-ontologies" ;
+    cli:summary "AI-native ontology engine CLI" ;
+    cli:description """Command-line interface for open-ontologies: load, query, validate, reason, align, and govern RDF/OWL ontologies.""" ;
+    cli:hasCommand onto:OntologyCommand,
+                   onto:ServerCommand,
+                   onto:DataCommand,
+                   onto:GovernanceCommand,
+                   onto:AlignmentCommand,
+                   onto:ClinicalCommand,
+                   onto:MarketplaceCommand,
+                   onto:ThesisCommand,
+                   onto:DoctorCommand .
+
+#################################################################
+# Top-level noun commands
+#################################################################
+
+onto:OntologyCommand a cli:Command ;
+    cli:name "ontology" ;
+    cli:summary "Core RDF/OWL operations" ;
+    cli:description """Load, save, validate, query, lint, convert, diff, version, and reason over ontologies.""" ;
+    cli:hasSubcommand onto:OntologyLoadCommand,
+                      onto:OntologySaveCommand,
+                      onto:OntologyClearCommand,
+                      onto:OntologyStatsCommand,
+                      onto:OntologyQueryCommand,
+                      onto:OntologyDiffCommand,
+                      onto:OntologyLintCommand,
+                      onto:OntologyConvertCommand,
+                      onto:OntologyValidateCommand,
+                      onto:OntologyStatusCommand,
+                      onto:OntologyVersionCommand,
+                      onto:OntologyHistoryCommand,
+                      onto:OntologyRollbackCommand,
+                      onto:OntologyReasonCommand,
+                      onto:OntologyShaclCommand .
+
+onto:ServerCommand a cli:Command ;
+    cli:name "server" ;
+    cli:summary "Server lifecycle management" ;
+    cli:description """Serve the ontology engine over MCP stdio, HTTP, or Unix socket; initialize the data directory.""" ;
+    cli:hasSubcommand onto:ServerServeCommand,
+                      onto:ServerServeHttpCommand,
+                      onto:ServerServeUnixCommand,
+                      onto:ServerInitCommand .
+
+onto:DataCommand a cli:Command ;
+    cli:name "data" ;
+    cli:summary "Data ingestion and integration" ;
+    cli:description """Ingest structured data, map to ontology classes, pull/push from SPARQL endpoints, import OWL and schemas.""" ;
+    cli:hasSubcommand onto:DataIngestCommand,
+                      onto:DataMapCommand,
+                      onto:DataPullCommand,
+                      onto:DataPushCommand,
+                      onto:DataImportOwlCommand,
+                      onto:DataImportSchemaCommand,
+                      onto:DataSqlIngestCommand,
+                      onto:DataBatchCommand,
+                      onto:DataExtendCommand .
+
+onto:GovernanceCommand a cli:Command ;
+    cli:name "governance" ;
+    cli:summary "Ontology lifecycle governance" ;
+    cli:description """Plan, apply, lock, enforce, monitor, and track lineage for ontology changes.""" ;
+    cli:hasSubcommand onto:GovernancePlanCommand,
+                      onto:GovernanceApplyCommand,
+                      onto:GovernanceLockCommand,
+                      onto:GovernanceEnforceCommand,
+                      onto:GovernanceMonitorCommand,
+                      onto:GovernanceMonitorClearCommand,
+                      onto:GovernanceLineageCommand,
+                      onto:GovernanceDriftCommand,
+                      onto:GovernanceVerifyCommand .
+
+onto:AlignmentCommand a cli:Command ;
+    cli:name "alignment" ;
+    cli:summary "Ontology alignment and feedback" ;
+    cli:description """Align ontologies, provide feedback on alignment candidates, lint rules, and enforce rules.""" ;
+    cli:hasSubcommand onto:AlignmentAlignCommand,
+                      onto:AlignmentAlignFeedbackCommand,
+                      onto:AlignmentLintFeedbackCommand,
+                      onto:AlignmentEnforceFeedbackCommand .
+
+onto:ClinicalCommand a cli:Command ;
+    cli:name "clinical" ;
+    cli:summary "Clinical terminology operations" ;
+    cli:description """Crosswalk, enrich, and validate clinical ontologies against ICD-10/SNOMED/MeSH.""" ;
+    cli:hasSubcommand onto:ClinicalCrosswalkCommand,
+                      onto:ClinicalEnrichCommand,
+                      onto:ClinicalValidateClinicalCommand .
+
+onto:MarketplaceCommand a cli:Command ;
+    cli:name "marketplace" ;
+    cli:summary "Ontology marketplace" ;
+    cli:description """Browse and install standard ontologies from the curated catalogue.""" ;
+    cli:hasSubcommand onto:MarketplaceListCommand,
+                      onto:MarketplaceInstallCommand .
+
+onto:ThesisCommand a cli:Command ;
+    cli:name "thesis" ;
+    cli:summary "Research artifact manufacturing" ;
+    cli:description """Ingest, extract, validate, route and synthesize research claims and evidence into thesis artifacts.""" ;
+    cli:hasSubcommand onto:ThesisIngestCommand,
+                      onto:ThesisExtractCommand,
+                      onto:ThesisBindCommand,
+                      onto:ThesisAuditCommand,
+                      onto:ThesisRouteCommand,
+                      onto:ThesisProjectCommand,
+                      onto:ThesisCertifyCommand,
+                      onto:ThesisDoctorCommand,
+                      onto:ThesisWizardCommand,
+                      onto:ThesisExplainCommand .
+
+onto:DoctorCommand a cli:Command ;
+    cli:name "doctor" ;
+    cli:summary "Health diagnostics" ;
+    cli:description """Check the health of the open-ontologies installation and data directory.""" ;
+    cli:hasSubcommand onto:DoctorFullCommand ,
+                     onto:DoctorRunCommand ,
+                     onto:DoctorCheckCommand ,
+                     onto:DoctorConfigCommand ,
+                     onto:DoctorDataCommand ,
+                     onto:DoctorStoreCommand ,
+                     onto:DoctorGgenCommand ,
+                     onto:DoctorMcpCommand ,
+                     onto:DoctorEnvCommand .
+
+#################################################################
+# ontology subcommands
+#################################################################
+
+onto:OntologyLoadCommand a cli:Command ;
+    cli:name "load" ;
+    cli:summary "Load RDF file into in-memory graph store" ;
+    cli:description """Parse and load a Turtle, N-Triples, RDF/XML or N-Quads file into the active graph store.""" ;
+    cli:hasPositionalArgument onto:PathArg ;
+    cli:hasOption onto:DataDirOption .
+
+onto:OntologySaveCommand a cli:Command ;
+    cli:name "save" ;
+    cli:summary "Save ontology to file" ;
+    cli:description """Serialize the in-memory graph to a file in the requested format.""" ;
+    cli:hasPositionalArgument onto:PathArg ;
+    cli:hasOption onto:FormatOption,
+                  onto:DataDirOption .
+
+onto:OntologyClearCommand a cli:Command ;
+    cli:name "clear" ;
+    cli:summary "Clear in-memory store" ;
+    cli:description """Drop all triples from the active in-memory graph store.""" ;
+    cli:hasOption onto:DataDirOption .
+
+onto:OntologyStatsCommand a cli:Command ;
+    cli:name "stats" ;
+    cli:summary "Show triple count, classes, properties, individuals" ;
+    cli:description """Return a JSON summary of the active graph: total triples, class count, property count, individual count.""" ;
+    cli:hasOption onto:DataDirOption .
+
+onto:OntologyQueryCommand a cli:Command ;
+    cli:name "query" ;
+    cli:summary "Run SPARQL SELECT query" ;
+    cli:description """Execute a SPARQL SELECT against the active store. Pass - to read the query from stdin.""" ;
+    cli:hasPositionalArgument onto:SparqlQueryArg ;
+    cli:hasOption onto:DataDirOption .
+
+onto:OntologyDiffCommand a cli:Command ;
+    cli:name "diff" ;
+    cli:summary "Compare two ontology files" ;
+    cli:description """Compute the added/removed triple diff between two RDF files.""" ;
+    cli:hasOption onto:OldPathOption,
+                  onto:NewPathOption .
+
+onto:OntologyLintCommand a cli:Command ;
+    cli:name "lint" ;
+    cli:summary "Check for missing labels, domains, ranges" ;
+    cli:description """Lint an RDF file or stdin for common ontology quality issues.""" ;
+    cli:hasPositionalArgument onto:InputArg ;
+    cli:hasOption onto:DataDirOption .
+
+onto:OntologyConvertCommand a cli:Command ;
+    cli:name "convert" ;
+    cli:summary "Convert between RDF formats" ;
+    cli:description """Parse an RDF file and re-serialize it in the target format.""" ;
+    cli:hasPositionalArgument onto:PathArg ;
+    cli:hasOption onto:ToFormatOption,
+                  onto:OutputPathOption .
+
+onto:OntologyValidateCommand a cli:Command ;
+    cli:name "validate" ;
+    cli:summary "Validate RDF/OWL syntax" ;
+    cli:description """Parse and validate an RDF file or stdin for syntax correctness.""" ;
+    cli:hasPositionalArgument onto:InputArg .
+
+onto:OntologyStatusCommand a cli:Command ;
+    cli:name "status" ;
+    cli:summary "Server health and loaded triple count" ;
+    cli:description """Return server status, version, and current triple count.""" ;
+    cli:hasOption onto:DataDirOption .
+
+onto:OntologyVersionCommand a cli:Command ;
+    cli:name "version" ;
+    cli:summary "Save a named version snapshot" ;
+    cli:description """Capture the current store state as a named version for later rollback.""" ;
+    cli:hasPositionalArgument onto:LabelArg ;
+    cli:hasOption onto:DataDirOption .
+
+onto:OntologyHistoryCommand a cli:Command ;
+    cli:name "history" ;
+    cli:summary "List saved version snapshots" ;
+    cli:description """List all named version snapshots in chronological order.""" ;
+    cli:hasOption onto:DataDirOption .
+
+onto:OntologyRollbackCommand a cli:Command ;
+    cli:name "rollback" ;
+    cli:summary "Restore a previous version" ;
+    cli:description """Reload the store from a named version snapshot.""" ;
+    cli:hasPositionalArgument onto:LabelArg ;
+    cli:hasOption onto:DataDirOption .
+
+onto:OntologyReasonCommand a cli:Command ;
+    cli:name "reason" ;
+    cli:summary "Run inference (rdfs, owl-rl, owl-rl-ext, owl-dl)" ;
+    cli:description """Apply a reasoning profile to materialize inferred triples.""" ;
+    cli:hasOption onto:ProfileOption,
+                  onto:DataDirOption .
+
+onto:OntologyShaclCommand a cli:Command ;
+    cli:name "shacl" ;
+    cli:summary "Validate against SHACL shapes" ;
+    cli:description """Load SHACL shapes from a file and validate the active graph against them.""" ;
+    cli:hasPositionalArgument onto:ShapesArg ;
+    cli:hasOption onto:DataDirOption .
+
+#################################################################
+# server subcommands
+#################################################################
+
+onto:ServerServeCommand a cli:Command ;
+    cli:name "serve" ;
+    cli:summary "Start MCP stdio server" ;
+    cli:description """Start the open-ontologies MCP server on stdio (for Claude Desktop and other MCP hosts).""" ;
+    cli:hasOption onto:ConfigOption,
+                  onto:GovernanceWebhookOption,
+                  onto:WatchFlag,
+                  onto:WatchIntervalOption .
+
+onto:ServerServeHttpCommand a cli:Command ;
+    cli:name "serve-http" ;
+    cli:summary "Start HTTP MCP server" ;
+    cli:description """Start the open-ontologies MCP server over HTTP/SSE for network-accessible deployment.""" ;
+    cli:hasOption onto:ConfigOption,
+                  onto:HostOption,
+                  onto:PortOption,
+                  onto:TokenOption .
+
+onto:ServerServeUnixCommand a cli:Command ;
+    cli:name "serve-unix" ;
+    cli:summary "Start Unix-socket MCP server" ;
+    cli:description """Start the MCP server on a Unix domain socket for local IPC.""" ;
+    cli:hasOption onto:ConfigOption,
+                  onto:SocketOption,
+                  onto:FilesOption .
+
+onto:ServerInitCommand a cli:Command ;
+    cli:name "init" ;
+    cli:summary "Initialize data directory" ;
+    cli:description """Create and prepare the data directory with required structure.""" ;
+    cli:hasOption onto:DataDirOption .
+
+#################################################################
+# data subcommands
+#################################################################
+
+onto:DataIngestCommand a cli:Command ;
+    cli:name "ingest" ;
+    cli:summary "Ingest structured data (CSV, JSON, YAML, XLSX, Parquet) into RDF" ;
+    cli:description """Parse structured data and load it as RDF triples using an optional mapping configuration.""" ;
+    cli:hasPositionalArgument onto:PathArg ;
+    cli:hasOption onto:IngestFormatOption,
+                  onto:MappingOption,
+                  onto:BaseIriOption .
+
+onto:DataMapCommand a cli:Command ;
+    cli:name "map" ;
+    cli:summary "Generate mapping config from data schema and loaded ontology" ;
+    cli:description """Inspect a data file's schema and suggest an RDF mapping configuration.""" ;
+    cli:hasPositionalArgument onto:DataPathArg ;
+    cli:hasOption onto:IngestFormatOption,
+                  onto:SaveFlag .
+
+onto:DataPullCommand a cli:Command ;
+    cli:name "pull" ;
+    cli:summary "Fetch ontology from URL or SPARQL endpoint" ;
+    cli:description """Download and load an ontology from a remote URL or SPARQL CONSTRUCT endpoint.""" ;
+    cli:hasPositionalArgument onto:UrlArg ;
+    cli:hasOption onto:SparqlOption,
+                  onto:QueryOption .
+
+onto:DataPushCommand a cli:Command ;
+    cli:name "push" ;
+    cli:summary "Push ontology to SPARQL endpoint" ;
+    cli:description """Upload the active graph to a remote SPARQL Update endpoint.""" ;
+    cli:hasPositionalArgument onto:EndpointArg ;
+    cli:hasOption onto:GraphOption .
+
+onto:DataImportOwlCommand a cli:Command ;
+    cli:name "import-owl" ;
+    cli:summary "Resolve and load owl:imports chains" ;
+    cli:description """Follow owl:imports statements recursively up to the configured maximum depth.""" ;
+    cli:hasOption onto:MaxDepthOption .
+
+onto:DataImportSchemaCommand a cli:Command ;
+    cli:name "import-schema" ;
+    cli:summary "Import database schema as OWL ontology" ;
+    cli:description """Connect to PostgreSQL or DuckDB and generate an OWL ontology from the schema.""" ;
+    cli:hasPositionalArgument onto:ConnectionArg ;
+    cli:hasOption onto:BaseIriOption .
+
+onto:DataSqlIngestCommand a cli:Command ;
+    cli:name "sql-ingest" ;
+    cli:summary "Ingest SQL query results into RDF" ;
+    cli:description """Execute a SQL SELECT against PostgreSQL or DuckDB and load the rows as RDF triples.""" ;
+    cli:hasPositionalArgument onto:ConnectionArg ;
+    cli:hasOption onto:SqlOption,
+                  onto:MappingOption .
+
+onto:DataBatchCommand a cli:Command ;
+    cli:name "batch" ;
+    cli:summary "Execute a batch of commands from a file" ;
+    cli:description """Read and execute multiple open-ontologies commands from an input file.""" ;
+    cli:hasPositionalArgument onto:InputArg ;
+    cli:hasOption onto:BailFlag .
+
+onto:DataExtendCommand a cli:Command ;
+    cli:name "extend" ;
+    cli:summary "Run full ingest → SHACL → reason pipeline" ;
+    cli:description """Convenience pipeline: ingest structured data, validate with SHACL, and materialize inferences.""" ;
+    cli:hasPositionalArgument onto:DataPathArg ;
+    cli:hasOption onto:IngestFormatOption,
+                  onto:MappingOption,
+                  onto:ShapesOption,
+                  onto:ProfileOption .
+
+#################################################################
+# governance subcommands
+#################################################################
+
+onto:GovernancePlanCommand a cli:Command ;
+    cli:name "plan" ;
+    cli:summary "Show planned changes before applying" ;
+    cli:description """Perform a dry-run diff of proposed ontology changes, reporting added/removed items and risk score.""" ;
+    cli:hasPositionalArgument onto:FileArg .
+
+onto:GovernanceApplyCommand a cli:Command ;
+    cli:name "apply" ;
+    cli:summary "Apply planned ontology changes" ;
+    cli:description """Apply pending ontology changes in safe or migrate mode.""" ;
+    cli:hasOption onto:ModeOption .
+
+onto:GovernanceLockCommand a cli:Command ;
+    cli:name "lock" ;
+    cli:summary "Lock IRIs against removal" ;
+    cli:description """Protect one or more IRIs so they cannot be removed by future apply operations.""" ;
+    cli:hasOption onto:IrisOption,
+                  onto:ReasonOption .
+
+onto:GovernanceEnforceCommand a cli:Command ;
+    cli:name "enforce" ;
+    cli:summary "Check design pattern compliance" ;
+    cli:description """Run an enforcement rule pack (generic, boro, value_partition, hierarchy) against the active graph.""" ;
+    cli:hasOption onto:PackOption .
+
+onto:GovernanceMonitorCommand a cli:Command ;
+    cli:name "monitor" ;
+    cli:summary "Run SPARQL watchers with threshold alerts" ;
+    cli:description """Execute configured SPARQL monitor watchers and report/alert on threshold breaches.""" .
+
+onto:GovernanceMonitorClearCommand a cli:Command ;
+    cli:name "monitor-clear" ;
+    cli:summary "Clear monitor blocked state" ;
+    cli:description """Reset any blocked monitor alerts so the governance pipeline can proceed.""" .
+
+onto:GovernanceLineageCommand a cli:Command ;
+    cli:name "lineage" ;
+    cli:summary "View session lineage trail" ;
+    cli:description """Show the recorded lineage of plan → enforce → apply → monitor → drift operations.""" ;
+    cli:hasOption onto:SessionOption .
+
+onto:GovernanceDriftCommand a cli:Command ;
+    cli:name "drift" ;
+    cli:summary "Compare two versions for drift" ;
+    cli:description """Compute drift velocity and rename candidates between two ontology versions.""" ;
+    cli:hasOption onto:FileAOption,
+                  onto:FileBOption .
+
+onto:GovernanceVerifyCommand a cli:Command ;
+    cli:name "verify" ;
+    cli:summary "Verify artifact receipt chain" ;
+    cli:description """Strip-and-rehash artifact, walk receipt chain. Non-zero exit on non-Admitted.""" ;
+    cli:hasPositionalArgument onto:PathArg ;
+    cli:hasOption onto:DbOption,
+                  onto:AsciiTreeFlag .
+
+#################################################################
+# alignment subcommands
+#################################################################
+
+onto:AlignmentAlignCommand a cli:Command ;
+    cli:name "align" ;
+    cli:summary "Detect alignment candidates between two ontologies" ;
+    cli:description """Use 7 weighted signals (structural + embedding) to find equivalentClass/exactMatch candidates.""" ;
+    cli:hasOption onto:SourceOption,
+                  onto:TargetOption,
+                  onto:MinConfidenceOption,
+                  onto:DryRunFlag .
+
+onto:AlignmentAlignFeedbackCommand a cli:Command ;
+    cli:name "align-feedback" ;
+    cli:summary "Accept or reject alignment candidates" ;
+    cli:description """Provide accept/reject feedback on alignment candidates to recalibrate confidence weights.""" ;
+    cli:hasOption onto:SourceOption,
+                  onto:TargetOption,
+                  onto:AcceptOption,
+                  onto:RejectOption .
+
+onto:AlignmentLintFeedbackCommand a cli:Command ;
+    cli:name "lint-feedback" ;
+    cli:summary "Accept or dismiss a lint issue" ;
+    cli:description """Mark a lint finding as accepted (needs fixing) or dismissed (suppress future warnings).""" ;
+    cli:hasOption onto:RuleIdOption,
+                  onto:EntityOption,
+                  onto:AcceptFlag,
+                  onto:DismissFlag .
+
+onto:AlignmentEnforceFeedbackCommand a cli:Command ;
+    cli:name "enforce-feedback" ;
+    cli:summary "Accept or dismiss an enforce violation" ;
+    cli:description """Mark an enforce violation as accepted or dismissed to calibrate future rule execution.""" ;
+    cli:hasOption onto:RuleIdOption,
+                  onto:EntityOption,
+                  onto:AcceptFlag,
+                  onto:DismissFlag .
+
+#################################################################
+# clinical subcommands
+#################################################################
+
+onto:ClinicalCrosswalkCommand a cli:Command ;
+    cli:name "crosswalk" ;
+    cli:summary "Look up clinical terminology mappings" ;
+    cli:description """Resolve a clinical code across ICD-10, SNOMED, and MeSH terminology systems.""" ;
+    cli:hasOption onto:CodeOption,
+                  onto:SystemOption .
+
+onto:ClinicalEnrichCommand a cli:Command ;
+    cli:name "enrich" ;
+    cli:summary "Add clinical code links to ontology class" ;
+    cli:description """Add skos:exactMatch triples linking an OWL class to a clinical code.""" ;
+    cli:hasOption onto:ClassIriOption,
+                  onto:CodeOption,
+                  onto:SystemOption .
+
+onto:ClinicalValidateClinicalCommand a cli:Command ;
+    cli:name "validate-clinical" ;
+    cli:summary "Validate class labels against clinical crosswalk" ;
+    cli:description """Check that class labels in the active graph match expected clinical terminology.""" .
+
+#################################################################
+# marketplace subcommands
+#################################################################
+
+onto:MarketplaceListCommand a cli:Command ;
+    cli:name "list" ;
+    cli:summary "List available standard ontologies" ;
+    cli:description """Browse the curated catalogue of 29 W3C/ISO/industry standard ontologies, filtered by domain.""" ;
+    cli:hasOption onto:DomainOption .
+
+onto:MarketplaceInstallCommand a cli:Command ;
+    cli:name "install" ;
+    cli:summary "Install a standard ontology from the marketplace" ;
+    cli:description """Download and load a named ontology from the marketplace catalogue.""" ;
+    cli:hasPositionalArgument onto:IdArg .
+
+#################################################################
+# thesis subcommands
+#################################################################
+
+onto:ThesisIngestCommand a cli:Command ;
+    cli:name "ingest" ;
+    cli:summary "Hash and classify raw research material" ;
+    cli:description """Parse structured data files (Markdown, PDF, JSON) into SourcePacket RDF triples with blake3 hashing and auto-classification.""" ;
+    cli:hasPositionalArgument onto:PathArg .
+
+onto:ThesisExtractCommand a cli:Command ;
+    cli:name "extract" ;
+    cli:summary "LLM-powered claim and evidence extraction" ;
+    cli:description """Use Gemini 3.1 Flash to extract claim IDs and evidence IDs from ingested source material, emit CandidateClaimPacket and CandidateEvidencePacket RDF.""" ;
+    cli:hasOption onto:SourceIdOption .
+
+onto:ThesisBindCommand a cli:Command ;
+    cli:name "bind" ;
+    cli:summary "Link claim to evidence" ;
+    cli:description """Create tm:evidenceLink triples binding claim_id to evidence_id, update support status in RDF.""" ;
+    cli:hasPositionalArgument onto:ClaimIdArg ;
+    cli:hasPositionalArgument onto:EvidenceIdArg .
+
+onto:ThesisAuditCommand a cli:Command ;
+    cli:name "audit" ;
+    cli:summary "SHACL validation and anti-theater check" ;
+    cli:description """Validate thesis RDF against SHACL shapes, emit DefectPacket for each violation, flag unsupported or circular claims.""" ;
+    cli:hasOption onto:DataDirOption .
+
+onto:ThesisRouteCommand a cli:Command ;
+    cli:name "route" ;
+    cli:summary "Update chapter routing" ;
+    cli:description """Execute construct_chapter_routes.rq SPARQL CONSTRUCT, populate tm:Chapter instances with dcat:hasPart references.""" ;
+    cli:hasOption onto:DataDirOption .
+
+onto:ThesisProjectCommand a cli:Command ;
+    cli:name "project" ;
+    cli:summary "Render thesis to Markdown" ;
+    cli:description """Synthesize admitted packets into thesis.md output, with <!-- UNSUPPORTED: claim-id --> markers for rejected claims.""" ;
+    cli:hasOption onto:OutputPathOption .
+
+onto:ThesisCertifyCommand a cli:Command ;
+    cli:name "certify" ;
+    cli:summary "Full manufacturing pipeline" ;
+    cli:description """Complete certification flow: ingest → extract → audit → route → project. Emit EARL receipt. Fail if earl:failed count > 0.""" .
+
+onto:ThesisDoctorCommand a cli:Command ;
+    cli:name "doctor" ;
+    cli:summary "Thesis health check" ;
+    cli:description """Health check for thesis manufacturing: check RDF store, verify shapefile, confirm Gemini connectivity.""" .
+
+onto:ThesisWizardCommand a cli:Command ;
+    cli:name "wizard" ;
+    cli:summary "Interactive thesis setup" ;
+    cli:description """Guided workflow: prompts for input files, source metadata, chapter structure, then runs full certify.""" .
+
+onto:ThesisExplainCommand a cli:Command ;
+    cli:name "explain" ;
+    cli:summary "Trace packet provenance" ;
+    cli:description """Print full lineage of a packet: inbound links (what created it), outbound links (what depends on it), and computed support score.""" ;
+    cli:hasPositionalArgument onto:PacketIdArg .
+
+#################################################################
+# doctor subcommands
+#################################################################
+
+onto:DoctorFullCommand a cli:Command ;
+    cli:name "full" ;
+    cli:summary "Full diagnostic with all checks and environment details" ;
+    cli:description """Comprehensive diagnostic suite: run all health checks plus display resolved environment configuration.""" .
+
+onto:DoctorRunCommand a cli:Command ;
+    cli:name "run" ;
+    cli:summary "Run all health checks" ;
+    cli:description """Full diagnostic suite: config, data directory, triple store, ggen integration, MCP server.""" .
+
+onto:DoctorCheckCommand a cli:Command ;
+    cli:name "check" ;
+    cli:summary "Check health of installation and data directory" ;
+    cli:description """Diagnose the open-ontologies installation: binary, data directory, config file, connectivity.""" ;
+    cli:hasOption onto:TargetOption .
+
+onto:DoctorConfigCommand a cli:Command ;
+    cli:name "config" ;
+    cli:summary "Check configuration file" ;
+    cli:description """Verify config file exists, parses, and ggen_path resolves.""" .
+
+onto:DoctorDataCommand a cli:Command ;
+    cli:name "data" ;
+    cli:summary "Check data directory" ;
+    cli:description """Verify data directory exists, is writable, and SQLite DB is accessible.""" .
+
+onto:DoctorStoreCommand a cli:Command ;
+    cli:name "store" ;
+    cli:summary "Check triple store" ;
+    cli:description """Inspect Oxigraph store: triple count, active ontology slot.""" .
+
+onto:DoctorGgenCommand a cli:Command ;
+    cli:name "ggen" ;
+    cli:summary "Check ggen integration" ;
+    cli:description """Verify ggen binary is found, version extractable, and ggen doctor check runs.""" .
+
+onto:DoctorMcpCommand a cli:Command ;
+    cli:name "mcp" ;
+    cli:summary "Check MCP server" ;
+    cli:description """Verify MCP server binary exists and --help exits cleanly.""" .
+
+onto:DoctorEnvCommand a cli:Command ;
+    cli:name "env" ;
+    cli:summary "Show resolved environment" ;
+    cli:description """Display resolved config path, data dir, ggen path, and environment variable overrides.""" .
+
+#################################################################
+# Shared options
+#################################################################
+
+onto:DataDirOption a cli:ValueOption ;
+    cli:name "data-dir" ;
+    cli:longName "--data-dir" ;
+    cli:summary "Data directory path" ;
+    cli:description """Path to the persistent data directory (SQLite DB, version snapshots). Defaults to ~/.open-ontologies.""" ;
+    cli:required false ;
+    cli:global false .
+
+onto:FormatOption a cli:ValueOption ;
+    cli:name "format" ;
+    cli:longName "--format" ;
+    cli:summary "Output format (turtle, ntriples, rdfxml, nquads)" ;
+    cli:required false .
+
+onto:ConfigOption a cli:ValueOption ;
+    cli:name "config" ;
+    cli:longName "--config" ;
+    cli:summary "Path to config file" ;
+    cli:required false .
+
+onto:GovernanceWebhookOption a cli:ValueOption ;
+    cli:name "governance-webhook" ;
+    cli:longName "--governance-webhook" ;
+    cli:summary "Governance webhook URL" ;
+    cli:required false .
+
+onto:WatchFlag a cli:Flag ;
+    cli:name "watch" ;
+    cli:longName "--watch" ;
+    cli:summary "Watch ontology files for changes" ;
+    cli:required false .
+
+onto:WatchIntervalOption a cli:ValueOption ;
+    cli:name "watch-interval" ;
+    cli:longName "--watch-interval" ;
+    cli:summary "File watch interval in seconds" ;
+    cli:required false .
+
+onto:HostOption a cli:ValueOption ;
+    cli:name "host" ;
+    cli:longName "--host" ;
+    cli:summary "HTTP bind host" ;
+    cli:required false .
+
+onto:PortOption a cli:ValueOption ;
+    cli:name "port" ;
+    cli:longName "--port" ;
+    cli:summary "HTTP bind port" ;
+    cli:required false .
+
+onto:TokenOption a cli:ValueOption ;
+    cli:name "token" ;
+    cli:longName "--token" ;
+    cli:summary "Bearer token for HTTP authentication" ;
+    cli:required false .
+
+onto:SocketOption a cli:ValueOption ;
+    cli:name "socket" ;
+    cli:longName "--socket" ;
+    cli:summary "Unix socket path" ;
+    cli:required false .
+
+onto:FilesOption a cli:ValueOption ;
+    cli:name "files" ;
+    cli:longName "--files" ;
+    cli:summary "Comma-separated list of ontology files to watch" ;
+    cli:required false .
+
+onto:IngestFormatOption a cli:ValueOption ;
+    cli:name "format" ;
+    cli:longName "--format" ;
+    cli:summary "Input data format (csv, json, yaml, xlsx, parquet)" ;
+    cli:required false .
+
+onto:MappingOption a cli:ValueOption ;
+    cli:name "mapping" ;
+    cli:longName "--mapping" ;
+    cli:summary "Path to mapping configuration file" ;
+    cli:required false .
+
+onto:BaseIriOption a cli:ValueOption ;
+    cli:name "base-iri" ;
+    cli:longName "--base-iri" ;
+    cli:summary "Base IRI for generated triples" ;
+    cli:required false .
+
+onto:SaveFlag a cli:Flag ;
+    cli:name "save" ;
+    cli:longName "--save" ;
+    cli:summary "Save generated mapping to file" ;
+    cli:required false .
+
+onto:SparqlOption a cli:ValueOption ;
+    cli:name "sparql" ;
+    cli:longName "--sparql" ;
+    cli:summary "SPARQL CONSTRUCT query for endpoint pull" ;
+    cli:required false .
+
+onto:QueryOption a cli:ValueOption ;
+    cli:name "query" ;
+    cli:longName "--query" ;
+    cli:summary "SPARQL query string or file path" ;
+    cli:required false .
+
+onto:GraphOption a cli:ValueOption ;
+    cli:name "graph" ;
+    cli:longName "--graph" ;
+    cli:summary "Named graph IRI for push target" ;
+    cli:required false .
+
+onto:MaxDepthOption a cli:ValueOption ;
+    cli:name "max-depth" ;
+    cli:longName "--max-depth" ;
+    cli:summary "Maximum owl:imports recursion depth" ;
+    cli:required false .
+
+onto:SqlOption a cli:ValueOption ;
+    cli:name "sql" ;
+    cli:longName "--sql" ;
+    cli:summary "SQL SELECT statement to execute" ;
+    cli:required false .
+
+onto:BailFlag a cli:Flag ;
+    cli:name "bail" ;
+    cli:longName "--bail" ;
+    cli:summary "Stop batch on first error" ;
+    cli:required false .
+
+onto:ShapesOption a cli:ValueOption ;
+    cli:name "shapes" ;
+    cli:longName "--shapes" ;
+    cli:summary "Path to SHACL shapes file" ;
+    cli:required false .
+
+onto:ProfileOption a cli:ValueOption ;
+    cli:name "profile" ;
+    cli:longName "--profile" ;
+    cli:summary "Reasoning or execution profile (rdfs, owl-rl, owl-rl-ext, owl-dl)" ;
+    cli:required false .
+
+onto:ModeOption a cli:ValueOption ;
+    cli:name "mode" ;
+    cli:longName "--mode" ;
+    cli:summary "Apply mode: safe or migrate" ;
+    cli:required false .
+
+onto:IrisOption a cli:ValueOption ;
+    cli:name "iris" ;
+    cli:longName "--iris" ;
+    cli:summary "Space-separated IRIs to lock" ;
+    cli:required true .
+
+onto:ReasonOption a cli:ValueOption ;
+    cli:name "reason" ;
+    cli:longName "--reason" ;
+    cli:summary "Human-readable reason for locking" ;
+    cli:required false .
+
+onto:PackOption a cli:ValueOption ;
+    cli:name "pack" ;
+    cli:longName "--pack" ;
+    cli:summary "Enforcement rule pack name" ;
+    cli:required false .
+
+onto:SessionOption a cli:ValueOption ;
+    cli:name "session" ;
+    cli:longName "--session" ;
+    cli:summary "Session ID to show lineage for" ;
+    cli:required false .
+
+onto:FileAOption a cli:ValueOption ;
+    cli:name "file-a" ;
+    cli:longName "--file-a" ;
+    cli:summary "First ontology file for drift comparison" ;
+    cli:required true .
+
+onto:FileBOption a cli:ValueOption ;
+    cli:name "file-b" ;
+    cli:longName "--file-b" ;
+    cli:summary "Second ontology file for drift comparison" ;
+    cli:required true .
+
+onto:SourceOption a cli:ValueOption ;
+    cli:name "source" ;
+    cli:longName "--source" ;
+    cli:summary "Source ontology file or IRI" ;
+    cli:required true .
+
+onto:TargetOption a cli:ValueOption ;
+    cli:name "target" ;
+    cli:longName "--target" ;
+    cli:summary "Target ontology file or IRI" ;
+    cli:required true .
+
+onto:MinConfidenceOption a cli:ValueOption ;
+    cli:name "min-confidence" ;
+    cli:longName "--min-confidence" ;
+    cli:summary "Minimum alignment confidence threshold (0.0–1.0)" ;
+    cli:required false .
+
+onto:DryRunFlag a cli:Flag ;
+    cli:name "dry-run" ;
+    cli:longName "--dry-run" ;
+    cli:summary "Show alignment candidates without applying" ;
+    cli:required false .
+
+onto:AcceptOption a cli:ValueOption ;
+    cli:name "accept" ;
+    cli:longName "--accept" ;
+    cli:summary "Comma-separated list of candidate IRIs to accept" ;
+    cli:required false .
+
+onto:RejectOption a cli:ValueOption ;
+    cli:name "reject" ;
+    cli:longName "--reject" ;
+    cli:summary "Comma-separated list of candidate IRIs to reject" ;
+    cli:required false .
+
+onto:RuleIdOption a cli:ValueOption ;
+    cli:name "rule-id" ;
+    cli:longName "--rule-id" ;
+    cli:summary "Lint or enforce rule identifier" ;
+    cli:required true .
+
+onto:EntityOption a cli:ValueOption ;
+    cli:name "entity" ;
+    cli:longName "--entity" ;
+    cli:summary "IRI of the entity the feedback applies to" ;
+    cli:required true .
+
+onto:AcceptFlag a cli:Flag ;
+    cli:name "accept" ;
+    cli:longName "--accept" ;
+    cli:summary "Mark the finding as accepted" ;
+    cli:required false .
+
+onto:DismissFlag a cli:Flag ;
+    cli:name "dismiss" ;
+    cli:longName "--dismiss" ;
+    cli:summary "Dismiss and suppress future occurrences" ;
+    cli:required false .
+
+onto:CodeOption a cli:ValueOption ;
+    cli:name "code" ;
+    cli:longName "--code" ;
+    cli:summary "Clinical code (e.g., J18.9)" ;
+    cli:required true .
+
+onto:SystemOption a cli:ValueOption ;
+    cli:name "system" ;
+    cli:longName "--system" ;
+    cli:summary "Terminology system (icd10, snomed, mesh)" ;
+    cli:required true .
+
+onto:ClassIriOption a cli:ValueOption ;
+    cli:name "class-iri" ;
+    cli:longName "--class-iri" ;
+    cli:summary "IRI of the OWL class to enrich" ;
+    cli:required true .
+
+onto:DomainOption a cli:ValueOption ;
+    cli:name "domain" ;
+    cli:longName "--domain" ;
+    cli:summary "Filter marketplace list by domain" ;
+    cli:required false .
+
+onto:TargetCheckOption a cli:ValueOption ;
+    cli:name "target" ;
+    cli:longName "--target" ;
+    cli:summary "Specific check target (binary, data-dir, config, connectivity)" ;
+    cli:required false .
+
+onto:OldPathOption a cli:ValueOption ;
+    cli:name "old-path" ;
+    cli:longName "--old-path" ;
+    cli:summary "Path to the old (baseline) ontology file" ;
+    cli:required true .
+
+onto:NewPathOption a cli:ValueOption ;
+    cli:name "new-path" ;
+    cli:longName "--new-path" ;
+    cli:summary "Path to the new (modified) ontology file" ;
+    cli:required true .
+
+onto:ToFormatOption a cli:ValueOption ;
+    cli:name "to" ;
+    cli:longName "--to" ;
+    cli:summary "Target serialization format (turtle, ntriples, rdfxml, nquads)" ;
+    cli:required true .
+
+onto:OutputPathOption a cli:ValueOption ;
+    cli:name "output" ;
+    cli:longName "--output" ;
+    cli:summary "Path to write the converted output file (stdout if omitted)" ;
+    cli:required false .
+
+#################################################################
+# Shared positional arguments
+#################################################################
+
+onto:PathArg a cli:PositionalArgument ;
+    cli:name "path" ;
+    cli:summary "File system path" ;
+    cli:required true .
+
+onto:InputArg a cli:PositionalArgument ;
+    cli:name "input" ;
+    cli:summary "Input file path or - for stdin" ;
+    cli:required true .
+
+onto:SparqlQueryArg a cli:PositionalArgument ;
+    cli:name "query" ;
+    cli:summary "SPARQL SELECT query string or - for stdin" ;
+    cli:required true .
+
+onto:LabelArg a cli:PositionalArgument ;
+    cli:name "label" ;
+    cli:summary "Version snapshot label" ;
+    cli:required true .
+
+onto:ShapesArg a cli:PositionalArgument ;
+    cli:name "shapes" ;
+    cli:summary "Path to SHACL shapes file" ;
+    cli:required true .
+
+onto:DataPathArg a cli:PositionalArgument ;
+    cli:name "data-path" ;
+    cli:summary "Path to structured data file" ;
+    cli:required true .
+
+onto:UrlArg a cli:PositionalArgument ;
+    cli:name "url" ;
+    cli:summary "Remote URL or SPARQL endpoint" ;
+    cli:required true .
+
+onto:EndpointArg a cli:PositionalArgument ;
+    cli:name "endpoint" ;
+    cli:summary "SPARQL Update endpoint URL" ;
+    cli:required true .
+
+onto:ConnectionArg a cli:PositionalArgument ;
+    cli:name "connection" ;
+    cli:summary "Database connection string (postgres:// or duckdb:///path)" ;
+    cli:required true .
+
+onto:FileArg a cli:PositionalArgument ;
+    cli:name "file" ;
+    cli:summary "Path to ontology file" ;
+    cli:required true .
+
+onto:IdArg a cli:PositionalArgument ;
+    cli:name "id" ;
+    cli:summary "Marketplace ontology identifier" ;
+    cli:required true .
+
+onto:ClaimIdArg a cli:PositionalArgument ;
+    cli:name "claim-id" ;
+    cli:summary "Research claim identifier" ;
+    cli:required true .
+
+onto:EvidenceIdArg a cli:PositionalArgument ;
+    cli:name "evidence-id" ;
+    cli:summary "Evidence packet identifier" ;
+    cli:required true .
+
+onto:PacketIdArg a cli:PositionalArgument ;
+    cli:name "packet-id" ;
+    cli:summary "Thesis packet identifier (source, claim, evidence, or defect)" ;
+    cli:required true .
+
+onto:SourceIdOption a cli:ValueOption ;
+    cli:name "source-id" ;
+    cli:longName "--source-id" ;
+    cli:summary "Filter extraction by source packet ID" ;
+    cli:required false .
+
+#################################################################
+# Outputs
+#################################################################
+
+onto:JsonOutput a cli:OutputSchema ;
+    cli:name "json" ;
+    cli:summary "JSON output" ;
+    cli:description """Structured machine-readable JSON output.""" ;
+    cli:machineReadable true .
+@prefix truex: <https://open-ontologies.org/profile/truex#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+
+# =============================================================================
+# TRUEX ECOSYSTEM: CLOSURE-OBLIGATION LAW SURFACE
+# =============================================================================
+
+# ─── 1. Classes ──────────────────────────────────────────────────────────────
+
+truex:TruexEcosystem a rdfs:Class ;
+    rdfs:label "Truex Ecosystem" ;
+    rdfs:comment "A manufacturing factory for execution-admissibility infrastructure." .
+
+truex:ClosureTheorem a rdfs:Class ;
+    rdfs:label "Closure Theorem" ;
+    rdfs:comment "The root mathematical proof target for the manufacturing pass." .
+
+truex:Obligation a rdfs:Class ;
+    rdfs:label "Closure Obligation" ;
+    rdfs:comment "A non-negotiable requirement that must be discharged for closure." .
+
+truex:Package a rdfs:Class ;
+    rdfs:label "Truex Package" ;
+    rdfs:comment "A modular unit of the Truex ecosystem." .
+
+truex:Artifact a rdfs:Class ;
+    rdfs:label "Manufacturing Artifact" ;
+    rdfs:comment "A physical file emitted during the manufacturing pass." .
+
+truex:Rule a rdfs:Class ;
+    rdfs:label "Admissibility Rule" .
+
+truex:Failure a rdfs:Class ;
+    rdfs:label "Refusal Condition" ;
+    rdfs:comment "A classified failure state that prevents receipt issuance." .
+
+truex:DerivationRule a rdfs:Class ;
+    rdfs:label "Derivation Rule" ;
+    rdfs:comment "A formal logic rule that derives OCEL objects or events from raw boundary evidence." .
+
+# ─── 2. Properties ───────────────────────────────────────────────────────────
+
+truex:hasClosureTheorem a rdf:Property ;
+    rdfs:domain truex:TruexEcosystem ;
+    rdfs:range truex:ClosureTheorem .
+
+truex:requiresObligation a rdf:Property ;
+    rdfs:domain truex:ClosureTheorem ;
+    rdfs:range truex:Obligation .
+
+truex:discharges a rdf:Property ;
+    rdfs:domain [ rdf:type [ rdf:unionOf (truex:Package truex:Artifact) ] ] ;
+    rdfs:range truex:Obligation .
+
+truex:packageName a rdf:Property ;
+    rdfs:domain truex:Package ;
+    rdfs:range xsd:string .
+
+truex:path a rdf:Property ;
+    rdfs:domain truex:Artifact ;
+    rdfs:range xsd:string .
+
+truex:purpose a rdf:Property ;
+    rdfs:domain truex:Package ;
+    rdfs:range xsd:string .
+
+truex:requiresArtifact a rdf:Property ;
+    rdfs:domain truex:Obligation ;
+    rdfs:range truex:Artifact .
+
+truex:NonAdmissibleScaffold a rdfs:Class ;
+    rdfs:label "Non-Admissible Scaffold" ;
+    rdfs:comment "Artifacts or code paths that are not semantically bound to a closure obligation." .
+
+# ─── 3. Ecosystem Instance ───────────────────────────────────────────────────
+
+truex:TheEcosystem a truex:TruexEcosystem ;
+    rdfs:label "The Truex Factory" ;
+    truex:hasClosureTheorem truex:TruexEcosystemClosed .
+
+# ─── 4. Closure Theorem ──────────────────────────────────────────────────────
+
+truex:TruexEcosystemClosed a truex:ClosureTheorem ;
+    rdfs:label "TruexEcosystemClosed" ;
+    truex:requiresObligation truex:AllRequiredPackagesEmitted ;
+    truex:requiresObligation truex:AllSchemasMaterialized ;
+    truex:requiresObligation truex:VerifierIndependent ;
+    truex:requiresObligation truex:RawBoundaryMandatory ;
+    truex:requiresObligation truex:SummaryOnlyProofRefused ;
+    truex:requiresObligation truex:OCELLaunderingRefused ;
+    truex:requiresObligation truex:ValidPathAdmitted ;
+    truex:requiresObligation truex:FraudulentPathRefused ;
+    truex:requiresObligation truex:ReleaseReceiptEmitted .
+
+# ─── 5. Obligations ──────────────────────────────────────────────────────────
+
+truex:AllRequiredPackagesEmitted a truex:Obligation ; rdfs:label "AllRequiredPackagesEmitted" .
+truex:AllSchemasMaterialized    a truex:Obligation ; 
+    rdfs:label "AllSchemasMaterialized" ;
+    truex:requiresArtifact truex:ReceiptSchema, truex:BoundarySchema .
+
+truex:VerifierIndependent       a truex:Obligation ; rdfs:label "VerifierIndependent" .
+truex:RawBoundaryMandatory      a truex:Obligation ; rdfs:label "RawBoundaryMandatory" .
+
+truex:SummaryOnlyProofRefused   a truex:Obligation ; 
+    rdfs:label "SummaryOnlyProofRefused" ;
+    truex:requiresArtifact truex:SummaryOnlyRefusalTest .
+
+truex:OCELLaunderingRefused     a truex:Obligation ; 
+    rdfs:label "OCELLaunderingRefused" ;
+    truex:requiresArtifact truex:OcelLaunderingTest .
+
+truex:ValidPathAdmitted         a truex:Obligation ; 
+    rdfs:label "ValidPathAdmitted" ;
+    truex:requiresArtifact truex:ValidCheckoutExample .
+
+truex:FraudulentPathRefused    a truex:Obligation ; 
+    rdfs:label "FraudulentPathRefused" ;
+    truex:requiresArtifact truex:FraudulentCheckoutExample .
+
+truex:ReleaseReceiptEmitted     a truex:Obligation ; 
+    rdfs:label "ReleaseReceiptEmitted" ;
+    truex:requiresArtifact truex:ManufactureReceipt .
+
+# ─── 6. Packages & Discharge Mappings ────────────────────────────────────────
+
+truex:Ocel2 a truex:Package ;
+    rdfs:label "ocel2" ;
+    truex:packageName "@truex/ocel2" ;
+    truex:purpose "OCEL 2.0 logical model + validators." ;
+    truex:discharges truex:AllRequiredPackagesEmitted .
+
+truex:Canonical a truex:Package ;
+    rdfs:label "canonical" ;
+    truex:packageName "@truex/canonical" ;
+    truex:purpose "Canonical OCEL ordering and stable digest generation." ;
+    truex:discharges truex:AllRequiredPackagesEmitted .
+
+truex:Receipt a truex:Package ;
+    rdfs:label "receipt" ;
+    truex:packageName "@truex/receipt" ;
+    truex:purpose "Truex receipt schema and hash-chain management." ;
+    truex:discharges truex:AllRequiredPackagesEmitted ;
+    truex:discharges truex:ReleaseReceiptEmitted .
+
+truex:Verifier a truex:Package ;
+    rdfs:label "verifier" ;
+    truex:packageName "@truex/verifier" ;
+    truex:purpose "Independent receipt verification and refusal authority." ;
+    truex:discharges truex:AllRequiredPackagesEmitted ;
+    truex:discharges truex:VerifierIndependent ;
+    truex:discharges truex:SummaryOnlyProofRefused ;
+    truex:discharges truex:OCELLaunderingRefused .
+
+truex:Capture a truex:Package ;
+    rdfs:label "capture" ;
+    truex:packageName "@truex/capture" ;
+    truex:purpose "Proxyable state mutation capture and evidence collection." ;
+    truex:discharges truex:AllRequiredPackagesEmitted ;
+    truex:discharges truex:RawBoundaryMandatory ;
+    truex:discharges truex:ValidPathAdmitted ;
+    truex:discharges truex:FraudulentPathRefused .
+
+truex:Otel a truex:Package ;
+    rdfs:label "otel" ;
+    truex:packageName "@truex/otel" ;
+    truex:purpose "OpenTelemetry (OTLP) egress adapter." ;
+    truex:discharges truex:AllRequiredPackagesEmitted .
+
+truex:Replay a truex:Package ;
+    rdfs:label "replay" ;
+    truex:packageName "@truex/replay" ;
+    truex:purpose "Replay artifact generation (Markdown, Mermaid, Audit)." ;
+    truex:discharges truex:AllRequiredPackagesEmitted .
+
+truex:Conformance a truex:Package ;
+    rdfs:label "conformance" ;
+    truex:packageName "@truex/conformance" ;
+    truex:purpose "Golden corpus and adversarial conformance tests." ;
+    truex:discharges truex:AllRequiredPackagesEmitted .
+
+truex:Examples a truex:Package ;
+    rdfs:label "examples" ;
+    truex:packageName "@truex/examples" ;
+    truex:purpose "Valid and fraudulent checkout demonstrations." ;
+    truex:discharges truex:AllRequiredPackagesEmitted .
+
+truex:Cli a truex:Package ;
+    rdfs:label "cli" ;
+    truex:packageName "@truex/cli" ;
+    truex:purpose "Command-line interface for Truex (verify, admit, replay)." ;
+    truex:discharges truex:AllRequiredPackagesEmitted .
+
+# ─── 7. Required Artifacts & discharge ───────────────────────────────────────
+
+truex:ReceiptSchema a truex:Artifact ;
+    rdfs:label "Truex Receipt Schema" ;
+    truex:path "schemas/truex-receipt.v1.schema.json" ;
+    truex:discharges truex:AllSchemasMaterialized .
+
+truex:BoundarySchema a truex:Artifact ;
+    rdfs:label "Truex Boundary Schema" ;
+    truex:path "schemas/truex-boundary.v1.schema.json" ;
+    truex:discharges truex:AllSchemasMaterialized .
+
+truex:EcosystemDoc a truex:Artifact ;
+    rdfs:label "Truex Ecosystem Documentation" ;
+    truex:path "docs/truex-ecosystem.md" ;
+    truex:discharges truex:TruexEcosystemClosed .
+
+truex:SummaryOnlyRefusalTest a truex:Artifact ;
+    rdfs:label "Summary-Only Refusal Test" ;
+    truex:path "tests/truex-summary-only-refusal.test.ts" ;
+    truex:discharges truex:SummaryOnlyProofRefused .
+
+truex:OcelLaunderingTest a truex:Artifact ;
+    rdfs:label "OCEL Laundering Test" ;
+    truex:path "tests/truex-ocel-laundering.test.ts" ;
+    truex:discharges truex:OCELLaunderingRefused .
+
+truex:ValidCheckoutExample a truex:Artifact ;
+    rdfs:label "Valid Checkout Example" ;
+    truex:path "examples/valid-checkout/" ;
+    truex:discharges truex:ValidPathAdmitted .
+
+truex:FraudulentCheckoutExample a truex:Artifact ;
+    rdfs:label "Fraudulent Checkout Example" ;
+    truex:path "examples/fraudulent-checkout/" ;
+    truex:discharges truex:FraudulentPathRefused .
+
+truex:ManufactureReceipt a truex:Artifact ;
+    rdfs:label "Manufacturing Pass Receipt" ;
+    truex:path "receipts/manufacture-receipt.json" ;
+    truex:discharges truex:ReleaseReceiptEmitted .
+
+# ─── 8. Rules ───────────────────────────────────────────────────────────────
+
+truex:NoReceiptNoClosure a truex:Rule ;
+    rdfs:label "No Receipt, No Closure" ;
+    rdfs:comment "Physical invariant: closure is not admitted without a cryptographic receipt." .
+
+truex:VerifierIndependentRule a truex:Rule ;
+    rdfs:label "Independent Verifier" ;
+    rdfs:comment "The verifier must be logically and physically distinct from the producer." .
+
+truex:RawBoundaryEvidenceRule a truex:Rule ;
+    rdfs:label "Raw Boundary Mandatory" ;
+    rdfs:comment "Closure requires raw boundary evidence (stdout/stderr/exit), not summary hashes." .
+
+# ─── 9. Failure Taxonomy (Refusal Conditions) ────────────────────────────────
+
+truex:OCELLaundering a truex:Failure ;
+    rdfs:label "OCELLaundering" ;
+    skos:definition "Formatting OCEL from summary data without raw boundary derivation." .
+
+truex:SummaryOnlyProof a truex:Failure ;
+    rdfs:label "SummaryOnlyProof" ;
+    skos:definition "Attempting closure with only high-level hashes (stdout_hash) without raw evidence." .
+
+truex:CloneTrace a truex:Failure ;
+    rdfs:label "CloneTrace" ;
+    skos:definition "Using expected OCEL as observed evidence (cloning)." .
+
+truex:MissingBoundary a truex:Failure ;
+    rdfs:label "MissingBoundary" ;
+    skos:definition "Absence of required physical execution evidence." .
+
+truex:NonDerivableExecution a truex:Failure ;
+    rdfs:label "NonDerivableExecution" ;
+    skos:definition "The claimed execution path cannot be physically derived from raw boundary evidence." .
+
+truex:StateTransitionMismatch a truex:Failure ;
+    rdfs:label "StateTransitionMismatch" ;
+    skos:definition "Observed object state transitions do not match the expected state graph mutations." .
+
+truex:ArtifactOriginMismatch a truex:Failure ;
+    rdfs:label "ArtifactOriginMismatch" ;
+    skos:definition "Emitted artifact hash or path does not match the derivation origin in the boundary evidence." .
+
+truex:TemporalOrderingViolation a truex:Failure ;
+    rdfs:label "TemporalOrderingViolation" ;
+    skos:definition "Observed event sequence violates the causal/temporal laws defined in the expected path." .
+
+truex:BoundaryProjectionFailure a truex:Failure ;
+    rdfs:label "BoundaryProjectionFailure" ;
+    skos:definition "Failed to project raw boundary evidence into a valid OCEL structure." .
+
+# ─── 10. Derivation Calculus Rules ──────────────────────────────────────────
+
+truex:RawExitCodeDerivesExecutionStatus a truex:DerivationRule ;
+    rdfs:label "RawExitCodeDerivesExecutionStatus" ;
+    rdfs:comment "Physical exit codes (0 vs non-zero) must derive the corresponding OCEL event status." .
+
+truex:StdoutHashDerivesArtifactEmission a truex:DerivationRule ;
+    rdfs:label "StdoutHashDerivesArtifactEmission" ;
+    rdfs:comment "Presence of specific output strings or hashes in stdout derives the creation of artifact objects." .
+
+truex:FilesystemMutationDerivesArtifactObject a truex:DerivationRule ;
+    rdfs:label "FilesystemMutationDerivesArtifactObject" ;
+    rdfs:comment "Observed filesystem mutations in the boundary evidence must derive the lifecycle of artifact objects." .
+
+truex:Verifier truex:enforcesRule truex:RawExitCodeDerivesExecutionStatus, 
+                                  truex:StdoutHashDerivesArtifactEmission,
+                                  truex:FilesystemMutationDerivesArtifactObject .
+
+# Integration test feedback loop - Mon Jun  1 15:49:30 PDT 2026

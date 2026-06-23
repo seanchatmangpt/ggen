@@ -1,0 +1,14 @@
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+
+# Returns the canonical pipeline stage sequence via ostar:nextStage chain.
+# Source of truth: the ontology, not the Makefile.
+# Expected: 5 rows (Psi→Lambda, Lambda→H, H→Repair, Repair→Admit, Admit→Omega)
+
+SELECT ?currentStage ?currentLabel ?nextStage ?nextLabel WHERE {
+  ?currentStage a ostar:PipelineStage ;
+                ostar:nextStage ?nextStage ;
+                rdfs:label ?currentLabel .
+  ?nextStage rdfs:label ?nextLabel .
+}
+ORDER BY ?currentLabel

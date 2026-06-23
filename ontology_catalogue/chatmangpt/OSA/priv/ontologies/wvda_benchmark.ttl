@@ -1,0 +1,278 @@
+# OSA WvdA Soundness Verification Benchmark Ontology
+# Wil van der Aalst soundness properties: deadlock freedom, liveness, boundedness
+
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix bench:  <http://chatmangpt.com/ontology/benchmark#> .
+@prefix osa:    <http://chatmangpt.com/osa/wvda#> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# WVDA SOUNDNESS BENCHMARK DEFINITIONS (ELIXIR/BENCHEE)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Deadlock Detection: 10 States
+osa:deadlock_detection_10_states
+    a bench:Benchmark ;
+    bench:operation_name "deadlock_detection_10_states" ;
+    bench:description "Tarjan SCC cycle detection on 10-state graph (Elixir implementation)" ;
+    bench:complexity_class "O(V+E)" ;
+    bench:operation_category "compute" ;
+    bench:dataset_size "small" ;
+    bench:dataset_cardinality 10 ;
+    bench:slo_ms 2.0 ;
+    bench:warmup_iterations 10 ;
+    bench:measurement_iterations 100 ;
+    bench:memory_profile "linear" ;
+    bench:requires_state true ;
+    bench:state_setup "Generate StateGraph with 10 states" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "osa.wvda.deadlock_detection" ;
+    bench:attributes '{"algorithm": "tarjan_scc", "states": 10}' .
+
+# Deadlock Detection: 50 States
+osa:deadlock_detection_50_states
+    a bench:Benchmark ;
+    bench:operation_name "deadlock_detection_50_states" ;
+    bench:description "Tarjan SCC cycle detection on 50-state graph" ;
+    bench:complexity_class "O(V+E)" ;
+    bench:operation_category "compute" ;
+    bench:dataset_size "medium" ;
+    bench:dataset_cardinality 50 ;
+    bench:slo_ms 5.0 ;
+    bench:warmup_iterations 5 ;
+    bench:measurement_iterations 50 ;
+    bench:memory_profile "linear" ;
+    bench:requires_state true ;
+    bench:state_setup "Generate StateGraph with 50 states" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "osa.wvda.deadlock_detection" ;
+    bench:attributes '{"algorithm": "tarjan_scc", "states": 50}' .
+
+# Deadlock Detection: 100 States
+osa:deadlock_detection_100_states
+    a bench:Benchmark ;
+    bench:operation_name "deadlock_detection_100_states" ;
+    bench:description "Tarjan SCC cycle detection on 100-state graph" ;
+    bench:complexity_class "O(V+E)" ;
+    bench:operation_category "compute" ;
+    bench:dataset_size "medium" ;
+    bench:dataset_cardinality 100 ;
+    bench:slo_ms 10.0 ;
+    bench:warmup_iterations 5 ;
+    bench:measurement_iterations 50 ;
+    bench:memory_profile "linear" ;
+    bench:requires_state true ;
+    bench:state_setup "Generate StateGraph with 100 states" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "osa.wvda.deadlock_detection" ;
+    bench:attributes '{"algorithm": "tarjan_scc", "states": 100}' .
+
+# Deadlock Detection: 250 States
+osa:deadlock_detection_250_states
+    a bench:Benchmark ;
+    bench:operation_name "deadlock_detection_250_states" ;
+    bench:description "Tarjan SCC cycle detection on 250-state graph" ;
+    bench:complexity_class "O(V+E)" ;
+    bench:operation_category "compute" ;
+    bench:dataset_size "large" ;
+    bench:dataset_cardinality 250 ;
+    bench:slo_ms 25.0 ;
+    bench:warmup_iterations 3 ;
+    bench:measurement_iterations 20 ;
+    bench:memory_profile "linear" ;
+    bench:requires_state true ;
+    bench:state_setup "Generate StateGraph with 250 states" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "osa.wvda.deadlock_detection" ;
+    bench:attributes '{"algorithm": "tarjan_scc", "states": 250}' .
+
+# Deadlock Detection: 500 States
+osa:deadlock_detection_500_states
+    a bench:Benchmark ;
+    bench:operation_name "deadlock_detection_500_states" ;
+    bench:description "Tarjan SCC cycle detection on 500-state graph" ;
+    bench:complexity_class "O(V+E)" ;
+    bench:operation_category "compute" ;
+    bench:dataset_size "large" ;
+    bench:dataset_cardinality 500 ;
+    bench:slo_ms 50.0 ;
+    bench:warmup_iterations 3 ;
+    bench:measurement_iterations 20 ;
+    bench:memory_profile "linear" ;
+    bench:requires_state true ;
+    bench:state_setup "Generate StateGraph with 500 states" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "osa.wvda.deadlock_detection" ;
+    bench:attributes '{"algorithm": "tarjan_scc", "states": 500}' .
+
+# Deadlock Detection: 1000 States
+osa:deadlock_detection_1000_states
+    a bench:Benchmark ;
+    bench:operation_name "deadlock_detection_1000_states" ;
+    bench:description "Tarjan SCC cycle detection on 1000-state graph" ;
+    bench:complexity_class "O(V+E)" ;
+    bench:operation_category "compute" ;
+    bench:dataset_size "xlarge" ;
+    bench:dataset_cardinality 1000 ;
+    bench:slo_ms 100.0 ;
+    bench:warmup_iterations 1 ;
+    bench:measurement_iterations 10 ;
+    bench:memory_profile "linear" ;
+    bench:requires_state true ;
+    bench:state_setup "Generate StateGraph with 1000 states" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "osa.wvda.deadlock_detection" ;
+    bench:attributes '{"algorithm": "tarjan_scc", "states": 1000}' .
+
+# Cycle Detection: 10 States + 2 Cycles
+osa:cycle_detection_10_states_with_cycles
+    a bench:Benchmark ;
+    bench:operation_name "cycle_detection_10_states_with_cycles" ;
+    bench:description "Tarjan SCC detection on 10-state graph with 2 cycles" ;
+    bench:complexity_class "O(V+E)" ;
+    bench:operation_category "compute" ;
+    bench:dataset_size "small" ;
+    bench:dataset_cardinality 10 ;
+    bench:slo_ms 2.0 ;
+    bench:warmup_iterations 10 ;
+    bench:measurement_iterations 100 ;
+    bench:memory_profile "linear" ;
+    bench:requires_state true ;
+    bench:state_setup "Generate StateGraph with 10 states, 2 cycles" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "osa.wvda.cycle_detection" ;
+    bench:attributes '{"algorithm": "tarjan_scc", "states": 10, "cycles": 2}' .
+
+# Cycle Detection: 50 States + 2 Cycles
+osa:cycle_detection_50_states_with_cycles
+    a bench:Benchmark ;
+    bench:operation_name "cycle_detection_50_states_with_cycles" ;
+    bench:description "Tarjan SCC detection on 50-state graph with 2 cycles" ;
+    bench:complexity_class "O(V+E)" ;
+    bench:operation_category "compute" ;
+    bench:dataset_size "medium" ;
+    bench:dataset_cardinality 50 ;
+    bench:slo_ms 5.0 ;
+    bench:warmup_iterations 5 ;
+    bench:measurement_iterations 50 ;
+    bench:memory_profile "linear" ;
+    bench:requires_state true ;
+    bench:state_setup "Generate StateGraph with 50 states, 2 cycles" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "osa.wvda.cycle_detection" ;
+    bench:attributes '{"algorithm": "tarjan_scc", "states": 50, "cycles": 2}' .
+
+# Cycle Detection: 100 States + 2 Cycles
+osa:cycle_detection_100_states_with_cycles
+    a bench:Benchmark ;
+    bench:operation_name "cycle_detection_100_states_with_cycles" ;
+    bench:description "Tarjan SCC detection on 100-state graph with 2 cycles" ;
+    bench:complexity_class "O(V+E)" ;
+    bench:operation_category "compute" ;
+    bench:dataset_size "large" ;
+    bench:dataset_cardinality 100 ;
+    bench:slo_ms 10.0 ;
+    bench:warmup_iterations 5 ;
+    bench:measurement_iterations 50 ;
+    bench:memory_profile "linear" ;
+    bench:requires_state true ;
+    bench:state_setup "Generate StateGraph with 100 states, 2 cycles" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "osa.wvda.cycle_detection" ;
+    bench:attributes '{"algorithm": "tarjan_scc", "states": 100, "cycles": 2}' .
+
+# Cycle Detection: 250 States + 2 Cycles
+osa:cycle_detection_250_states_with_cycles
+    a bench:Benchmark ;
+    bench:operation_name "cycle_detection_250_states_with_cycles" ;
+    bench:description "Tarjan SCC detection on 250-state graph with 2 cycles" ;
+    bench:complexity_class "O(V+E)" ;
+    bench:operation_category "compute" ;
+    bench:dataset_size "large" ;
+    bench:dataset_cardinality 250 ;
+    bench:slo_ms 25.0 ;
+    bench:warmup_iterations 3 ;
+    bench:measurement_iterations 20 ;
+    bench:memory_profile "linear" ;
+    bench:requires_state true ;
+    bench:state_setup "Generate StateGraph with 250 states, 2 cycles" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "osa.wvda.cycle_detection" ;
+    bench:attributes '{"algorithm": "tarjan_scc", "states": 250, "cycles": 2}' .
+
+# Cycle Detection: 500 States + 2 Cycles
+osa:cycle_detection_500_states_with_cycles
+    a bench:Benchmark ;
+    bench:operation_name "cycle_detection_500_states_with_cycles" ;
+    bench:description "Tarjan SCC detection on 500-state graph with 2 cycles" ;
+    bench:complexity_class "O(V+E)" ;
+    bench:operation_category "compute" ;
+    bench:dataset_size "xlarge" ;
+    bench:dataset_cardinality 500 ;
+    bench:slo_ms 50.0 ;
+    bench:warmup_iterations 3 ;
+    bench:measurement_iterations 20 ;
+    bench:memory_profile "linear" ;
+    bench:requires_state true ;
+    bench:state_setup "Generate StateGraph with 500 states, 2 cycles" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "osa.wvda.cycle_detection" ;
+    bench:attributes '{"algorithm": "tarjan_scc", "states": 500, "cycles": 2}' .
+
+# Liveness Verification: Timeout Check
+osa:liveness_verification_timeout
+    a bench:Benchmark ;
+    bench:operation_name "liveness_verification_timeout" ;
+    bench:description "Liveness verification with timeout_ms and termination path detection" ;
+    bench:complexity_class "O(n)" ;
+    bench:operation_category "compute" ;
+    bench:dataset_size "medium" ;
+    bench:dataset_cardinality 100 ;
+    bench:slo_ms 20.0 ;
+    bench:warmup_iterations 5 ;
+    bench:measurement_iterations 50 ;
+    bench:memory_profile "linear" ;
+    bench:requires_state true ;
+    bench:state_setup "Generate StateGraph with timeout_ms annotations" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "osa.wvda.liveness_verification" ;
+    bench:attributes '{"check": "timeout_termination", "states": 100}' .
+
+# Boundedness Check: Queue Limits
+osa:boundedness_check_queue_limits
+    a bench:Benchmark ;
+    bench:operation_name "boundedness_check_queue_limits" ;
+    bench:description "Boundedness verification: queue/resource limit detection" ;
+    bench:complexity_class "O(n)" ;
+    bench:operation_category "compute" ;
+    bench:dataset_size "medium" ;
+    bench:dataset_cardinality 100 ;
+    bench:slo_ms 15.0 ;
+    bench:warmup_iterations 5 ;
+    bench:measurement_iterations 50 ;
+    bench:memory_profile "linear" ;
+    bench:requires_state true ;
+    bench:state_setup "Generate StateGraph with queue size limits" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "osa.wvda.boundedness_check" ;
+    bench:attributes '{"check": "queue_limits", "states": 100}' .
+
+# Full Soundness Score: All Three Properties
+osa:soundness_score_full
+    a bench:Benchmark ;
+    bench:operation_name "soundness_score_full" ;
+    bench:description "Complete soundness score (deadlock + liveness + boundedness) on execution trace" ;
+    bench:complexity_class "O(V+E)" ;
+    bench:operation_category "compute" ;
+    bench:dataset_size "medium" ;
+    bench:dataset_cardinality 100 ;
+    bench:slo_ms 50.0 ;
+    bench:warmup_iterations 3 ;
+    bench:measurement_iterations 20 ;
+    bench:memory_profile "linear" ;
+    bench:requires_state true ;
+    bench:state_setup "Generate execution trace with 100 state transitions" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "osa.wvda.soundness_score" ;
+    bench:attributes '{"checks": ["deadlock", "liveness", "boundedness"], "transitions": 100}' .

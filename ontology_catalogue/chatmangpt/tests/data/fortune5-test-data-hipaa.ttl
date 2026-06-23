@@ -1,0 +1,396 @@
+# =============================================================================
+# Fortune 5 Compliance Integration Test Data — HIPAA/Healthcare Domain
+# =============================================================================
+#
+# Scenario: PHI (Protected Health Information) tracking with HIPAA compliance
+# Data: Patient records, lab results, access logs with de-identification rules
+#
+# Ontologies used:
+#   - hipaa: Custom HIPAA ontology (de-identification, access control)
+#   - fhir: FHIR (Fast Healthcare Interoperability Resources) concepts
+#   - dcterms: Dublin Core Terms
+#   - prov: W3C Provenance Ontology
+#   - odrl: Open Digital Rights Language (consent enforcement)
+#
+# CRITICAL: All patient identifiers are de-identified (HIPAA Safe Harbor)
+# De-identification rule: Replace with sequential IDs (ANON-00001, ANON-00002, ...)
+#
+# =============================================================================
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+
+# Custom namespaces
+PREFIX hipaa: <https://chatmangpt.com/ontology/hipaa/>
+PREFIX fhir: <https://hl7.org/fhir/>
+PREFIX gdpr: <https://chatmangpt.com/ontology/compliance/gdpr/>
+PREFIX bos: <https://chatmangpt.com/ontology/businessos/>
+PREFIX tests: <https://chatmangpt.com/tests/fortune5/>
+
+# =============================================================================
+# PATIENT RECORD SCENARIO 1: Type 2 Diabetes Management
+# =============================================================================
+#
+# Patient: ANON-00001 (de-identified)
+# Chief Complaint: Diabetes management follow-up
+# Classification: PHI (Protected Health Information)
+# Access Level: Requires authorization (clinician only)
+#
+
+tests:phi-patient-record-001
+  rdf:type hipaa:PatientRecord ;
+  rdf:type fhir:Patient ;
+
+  # De-identified patient reference
+  hipaa:anonymousPatientId "ANON-00001" ;
+  hipaa:originalPatientIdHash "sha256-4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945" ;
+
+  # Demographics (aggregated, no individually identifiable info)
+  hipaa:ageRange "40-50" ;
+  hipaa:gender "M" ;
+  hipaa:ethnicityCategory "Not Disclosed" ;
+
+  # Clinical data
+  fhir:hasCondition tests:condition-diabetes-type2-001 ;
+  fhir:hasObservation tests:observation-hba1c-001 ;
+  fhir:hasMedication tests:medication-metformin-001 ;
+  fhir:hasAllergyIntolerance tests:allergy-penicillin-001 ;
+
+  # HIPAA designations
+  hipaa:dataClassification hipaa:PHI ;
+  hipaa:minimumAccessLevel hipaa:ClinicalStaff ;
+  hipaa:requiresExplicitConsent true ;
+  hipaa:consentDocumentId tests:consent-001 ;
+  hipaa:breachNotificationRequired true ;
+
+  # Data ownership
+  prov:wasAttributedTo tests:clinician-dr-smith ;
+  prov:wasGeneratedBy tests:activity-patient-intake-001 ;
+
+  # Audit & compliance
+  hipaa:createdAtTime "2026-01-15T09:00:00Z"^^xsd:dateTime ;
+  hipaa:lastAccessTime "2026-03-24T14:30:00Z"^^xsd:dateTime ;
+  hipaa:accessLogId tests:access-log-001 ;
+  hipaa:deidentificationMethod hipaa:SafeHarborMethod ;
+  hipaa:retentionScheduleId tests:retention-schedule-phi ;
+  .
+
+# Condition: Type 2 Diabetes Mellitus
+tests:condition-diabetes-type2-001
+  rdf:type fhir:Condition ;
+  fhir:code "ICD10-E11" ;  # ICD-10 code
+  dcterms:title "Type 2 Diabetes Mellitus" ;
+  fhir:clinicalStatus "active" ;
+  fhir:verificationStatus "confirmed" ;
+  fhir:recordedDate "2024-06-01"^^xsd:date ;
+  hipaa:isClinicallySignificant true ;
+  .
+
+# Observation: HbA1C test (Hemoglobin A1C - diabetes marker)
+tests:observation-hba1c-001
+  rdf:type fhir:Observation ;
+  fhir:code "LOINC-4548-4" ;  # HbA1C
+  dcterms:title "Hemoglobin A1C" ;
+  fhir:status "final" ;
+  fhir:effectiveDateTime "2026-03-20T10:00:00Z"^^xsd:dateTime ;
+  fhir:valueQuantity tests:hba1c-result ;
+  fhir:referenceRange "< 5.7% (normal), 5.7%-6.4% (prediabetic), >= 6.5% (diabetic)" ;
+  hipaa:labIsAnomalous true ;  # 8.2% indicates diabetes
+  hipaa:requiresPhysicianReview true ;
+  prov:wasGeneratedBy tests:activity-lab-test-001 ;
+  .
+
+tests:hba1c-result
+  rdf:type fhir:Quantity ;
+  fhir:value 8.2 ;
+  fhir:unit "%" ;
+  fhir:system "http://unitsofmeasure.org" ;
+  .
+
+# Medication: Metformin (first-line diabetes drug)
+tests:medication-metformin-001
+  rdf:type fhir:Medication ;
+  fhir:code "RxNorm-6809" ;
+  dcterms:title "Metformin HCl 1000mg" ;
+  fhir:dosage "Twice daily with meals" ;
+  fhir:dateStarted "2024-06-15"^^xsd:date ;
+  fhir:status "active" ;
+  hipaa:prescribedBy tests:clinician-dr-smith ;
+  hipaa:pharmacyDispensedBy tests:pharmacy-001 ;
+  .
+
+# Allergy: Penicillin
+tests:allergy-penicillin-001
+  rdf:type fhir:AllergyIntolerance ;
+  fhir:code "RxNorm-7980" ;
+  dcterms:title "Penicillin G" ;
+  fhir:clinicalStatus "active" ;
+  fhir:verificationStatus "confirmed" ;
+  fhir:reaction "Rash, urticaria" ;
+  hipaa:severityLevel "Moderate" ;
+  hipaa:requiresAlertInMedicationOrdering true ;
+  .
+
+# =============================================================================
+# CONSENT MANAGEMENT (GDPR + HIPAA)
+# =============================================================================
+
+tests:consent-001
+  rdf:type hipaa:ConsentDocument ;
+  rdf:type odrl:Policy ;
+
+  # Consent metadata
+  dcterms:identifier "CONSENT-2026-001" ;
+  dcterms:created "2026-01-15"^^xsd:date ;
+  dcterms:title "Patient Consent for Treatment and Data Use" ;
+
+  # ODRL permissions
+  odrl:permission tests:permission-treatment ;
+  odrl:permission tests:permission-care-coordination ;
+  odrl:prohibition tests:prohibition-marketing ;
+
+  # Consent validity
+  hipaa:consentSignedDate "2026-01-15"^^xsd:date ;
+  hipaa:consentSignedBy tests:patient-anon-00001 ;
+  hipaa:consentWitnessedBy tests:patient-advocate-001 ;
+  hipaa:consentExpiryDate "2027-01-15"^^xsd:date ;
+  hipaa:consentIsActive true ;
+
+  # Governance
+  prov:wasAttributedTo tests:consent-manager-001 ;
+  hipaa:consentCanBeRevokedAt "https://chatmangpt.com/api/hipaa/revoke-consent" ;
+  .
+
+tests:permission-treatment
+  rdf:type odrl:Permission ;
+  odrl:action odrl:read ;
+  odrl:action odrl:use ;
+  odrl:target tests:phi-patient-record-001 ;
+  odrl:assignee tests:clinician-dr-smith ;
+  odrl:purpose "treatment" ;
+  odrl:constraint tests:constraint-clinician-only ;
+  .
+
+tests:permission-care-coordination
+  rdf:type odrl:Permission ;
+  odrl:action odrl:read ;
+  odrl:target tests:phi-patient-record-001 ;
+  odrl:assignee tests:care-coordinator-001 ;
+  odrl:purpose "care_coordination" ;
+  odrl:constraint tests:constraint-clinician-team-only ;
+  .
+
+tests:prohibition-marketing
+  rdf:type odrl:Prohibition ;
+  odrl:action odrl:read ;
+  odrl:action odrl:use ;
+  odrl:target tests:phi-patient-record-001 ;
+  odrl:recipient tests:marketing-team ;
+  odrl:purpose "marketing" ;
+  .
+
+tests:constraint-clinician-only
+  rdf:type odrl:Constraint ;
+  odrl:operand odrl:role ;
+  odrl:operator odrl:eq ;
+  odrl:operandValue "clinician" ;
+  .
+
+tests:constraint-clinician-team-only
+  rdf:type odrl:Constraint ;
+  odrl:operand odrl:group ;
+  odrl:operator odrl:memberOf ;
+  odrl:operandValue tests:clinical-staff-group ;
+  .
+
+tests:patient-anon-00001
+  rdf:type hipaa:Patient ;
+  hipaa:anonymousId "ANON-00001" ;
+  hipaa:consentManagementURL "https://chatmangpt.com/api/hipaa/patients/ANON-00001" ;
+  .
+
+# =============================================================================
+# ACCESS CONTROL & AUDIT LOG
+# =============================================================================
+
+tests:access-log-001
+  rdf:type hipaa:AccessLog ;
+  dcterms:identifier "ACCESSLOG-2026-0001" ;
+  dcterms:created "2026-03-24T14:30:00Z"^^xsd:dateTime ;
+
+  # Access details
+  hipaa:accessedRecord tests:phi-patient-record-001 ;
+  hipaa:accessedBy tests:clinician-dr-smith ;
+  hipaa:accessReason "treatment" ;
+  hipaa:accessAction "read" ;
+  hipaa:accessDuration tests:access-duration-5min ;
+
+  # Authorization verification
+  hipaa:authorizationVerified true ;
+  hipaa:roleVerifiedAt "2026-03-24T14:30:00Z"^^xsd:dateTime ;
+  hipaa:consentVerifiedAt "2026-03-24T14:30:00Z"^^xsd:dateTime ;
+
+  # Audit attributes
+  hipaa:auditHashValue "sha256-7a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f" ;
+  hipaa:previousAuditHash "sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" ;
+
+  prov:wasGeneratedBy tests:activity-access-verification-001 ;
+  .
+
+tests:access-duration-5min
+  rdf:type bos:Duration ;
+  bos:durationInMinutes 5 ;
+  .
+
+tests:activity-access-verification-001
+  rdf:type prov:Activity ;
+  dcterms:title "HIPAA Access Authorization & Logging" ;
+  prov:startedAtTime "2026-03-24T14:30:00Z"^^xsd:dateTime ;
+  prov:endedAtTime "2026-03-24T14:30:01Z"^^xsd:dateTime ;
+  prov:wasAssociatedWith tests:access-control-system ;
+  .
+
+# =============================================================================
+# CLINICIANS & HEALTHCARE PROVIDERS
+# =============================================================================
+
+tests:clinician-dr-smith
+  rdf:type hipaa:HealthcareProvider ;
+  rdf:type fhir:Practitioner ;
+
+  dcterms:identifier "CLINICIAN-001" ;
+  dcterms:title "Dr. Robert Smith" ;
+
+  # Professional credentials
+  hipaa:licenseNumber "MD-12345" ;
+  hipaa:licenseState "California" ;
+  hipaa:licenseExpiry "2027-12-31"^^xsd:date ;
+  hipaa:specialty "Endocrinology" ;
+  hipaa:npiNumber "1234567890" ;  # National Provider Identifier
+
+  # HIPAA clearance
+  hipaa:hipaaTrainingCompleted true ;
+  hipaa:hipaaTrainingDate "2026-01-15"^^xsd:date ;
+  hipaa:hipaaTrainingExpiryDate "2027-01-14"^^xsd:date ;
+  hipaa:hipaaAccessApprovalLevel "Level 3" ;
+
+  # Audit reference
+  prov:hadPrimarySource tests:npi-registry ;
+  .
+
+tests:care-coordinator-001
+  rdf:type hipaa:HealthcareProvider ;
+  dcterms:identifier "COORDINATOR-001" ;
+  dcterms:title "Jane Coordinator" ;
+  hipaa:role "Care Coordinator" ;
+  hipaa:hipaaAccessApprovalLevel "Level 2" ;
+  .
+
+tests:patient-advocate-001
+  rdf:type hipaa:HealthcareProvider ;
+  dcterms:identifier "ADVOCATE-001" ;
+  hipaa:role "Patient Advocate" ;
+  .
+
+tests:consent-manager-001
+  rdf:type hipaa:HealthcareProvider ;
+  dcterms:identifier "CONSENTMGR-001" ;
+  hipaa:role "Compliance Officer" ;
+  hipaa:hipaaAccessApprovalLevel "Level 4" ;
+  .
+
+# =============================================================================
+# HEALTHCARE ENTITIES
+# =============================================================================
+
+tests:pharmacy-001
+  rdf:type hipaa:Pharmacy ;
+  dcterms:identifier "PHARMACY-001" ;
+  dcterms:title "Downtown Pharmacy" ;
+  hipaa:npiNumber "9876543210" ;
+  hipaa:hipaaComplianceCertified true ;
+  hipaa:businessAssociateAgreement tests:baa-pharmacy-001 ;
+  .
+
+tests:baa-pharmacy-001
+  rdf:type hipaa:BusinessAssociateAgreement ;
+  dcterms:identifier "BAA-2024-001" ;
+  dcterms:created "2024-01-01"^^xsd:date ;
+  dcterms:expires "2027-01-01"^^xsd:date ;
+  hipaa:baaIsActive true ;
+  .
+
+tests:clinical-staff-group
+  rdf:type hipaa:AccessGroup ;
+  dcterms:title "Clinical Staff" ;
+  hipaa:groupMembers tests:clinician-dr-smith ;
+  hipaa:groupMembers tests:care-coordinator-001 ;
+  hipaa:groupAccessLevel "Level 2+" ;
+  .
+
+tests:marketing-team
+  rdf:type hipaa:AccessGroup ;
+  dcterms:title "Marketing Department" ;
+  hipaa:groupAccessLevel "Level 0" ;  # No access to PHI
+  .
+
+# =============================================================================
+# LABORATORY & DIAGNOSTICS
+# =============================================================================
+
+tests:activity-lab-test-001
+  rdf:type prov:Activity ;
+  dcterms:title "HbA1C Lab Test" ;
+  prov:startedAtTime "2026-03-20T10:00:00Z"^^xsd:dateTime ;
+  prov:endedAtTime "2026-03-20T11:30:00Z"^^xsd:dateTime ;
+  prov:wasAssociatedWith tests:lab-technician-001 ;
+  prov:used tests:lab-equipment-hba1c ;
+  prov:generated tests:observation-hba1c-001 ;
+  .
+
+tests:lab-technician-001
+  rdf:type hipaa:HealthcareProvider ;
+  dcterms:identifier "LABTECH-001" ;
+  dcterms:title "Maria Lab Tech" ;
+  hipaa:role "Laboratory Technician" ;
+  .
+
+tests:lab-equipment-hba1c
+  rdf:type hipaa:MedicalDevice ;
+  dcterms:title "HbA1C Analyzer (Siemens DCA)" ;
+  dcterms:identifier "DEVICE-HBA1C-001" ;
+  hipaa:calibrationStatus "calibrated" ;
+  hipaa:lastCalibrationDate "2026-03-15"^^xsd:date ;
+  .
+
+# =============================================================================
+# DATA RETENTION POLICY
+# =============================================================================
+
+tests:retention-schedule-phi
+  rdf:type hipaa:DataRetentionPolicy ;
+  dcterms:title "PHI Retention Schedule (6 years + 1 year buffer)" ;
+  hipaa:retentionPeriodYears 6 ;
+  hipaa:bufferPeriodYears 1 ;
+  hipaa:disposalMethod "Secure Destruction (NIST SP 800-88)" ;
+  hipaa:disposalMethodDocumentation "Certified shredding or degaussing" ;
+  hipaa:legalHoldExemption "Litigation involving patient" ;
+  .
+
+# =============================================================================
+# EXTERNAL REFERENCES (PROVENANCE)
+# =============================================================================
+
+tests:npi-registry
+  rdf:type prov:Organization ;
+  dcterms:title "National Provider Identifier Registry" ;
+  dcterms:url "https://npiregistry.cms.hhs.gov/" ;
+  .
+
+# =============================================================================
+# END OF HIPAA TEST DATA
+# =============================================================================

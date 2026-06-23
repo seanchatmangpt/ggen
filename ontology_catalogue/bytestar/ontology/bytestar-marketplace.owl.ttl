@@ -1,0 +1,100 @@
+@prefix : <https://bytestar.org/ontology/marketplace#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+@prefix doctrines: <https://bytestar.org/ontology/doctrines#> .
+@prefix tg: <https://bytestar.org/ontology/trojan-gift#> .
+
+<https://bytestar.org/ontology/marketplace>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/marketplace/v1.0> ;
+    rdfs:comment "Ontology modeling the N-dimensional marketplace within the ByteStar ecosystem, including shadow data, value lenses, and monetization." ;
+    owl:imports arch: ,
+                doctrines: ,
+                tg: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:N_DimensionalMarketplace rdf:type owl:Class ;
+    rdfs:comment "A marketplace where privacy-safe, N-dimensional data products are traded." .
+
+:ShadowData rdf:type owl:Class ;
+    rdfs:comment "Privacy-safe, non-PII aggregates and insights derived from raw data." .
+
+:ValueLens rdf:type owl:Class ;
+    rdfs:comment "A mechanism or algorithm for generating a ShadowData product." .
+
+:ShadowProductOffering rdf:type owl:Class ;
+    rdfs:comment "A specific offering of a ShadowData product in the marketplace." .
+
+:PricingMechanism rdf:type owl:Class ;
+    rdfs:comment "A method or model for determining the price of ShadowData products." .
+
+:MonetizationModel rdf:type owl:Class ;
+    rdfs:comment "The strategy for generating revenue from the marketplace." .
+
+:RevenueCapture rdf:type owl:Class ;
+    rdfs:comment "The process of collecting revenue from marketplace transactions." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:offersProduct rdf:type owl:ObjectProperty ;
+    rdfs:domain :N_DimensionalMarketplace ;
+    rdfs:range :ShadowProductOffering ;
+    rdfs:comment "The marketplace offers ShadowData products." .
+
+:generatesData rdf:type owl:ObjectProperty ;
+    rdfs:domain :ValueLens ;
+    rdfs:range :ShadowData ;
+    rdfs:comment "A ValueLens generates ShadowData." .
+
+:hasPricingMechanism rdf:type owl:ObjectProperty ;
+    rdfs:domain :ShadowProductOffering ;
+    rdfs:range :PricingMechanism ;
+    rdfs:comment "A ShadowProductOffering has a specific pricing mechanism." .
+
+:usesMonetizationModel rdf:type owl:ObjectProperty ;
+    rdfs:domain :N_DimensionalMarketplace ;
+    rdfs:range :MonetizationModel ;
+    rdfs:comment "The marketplace uses a specific monetization model." .
+
+:capturesRevenueVia rdf:type owl:ObjectProperty ;
+    rdfs:domain :MonetizationModel ;
+    rdfs:range :RevenueCapture ;
+    rdfs:comment "A monetization model captures revenue via a specific process." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:hasDimensions rdf:type owl:DatatypeProperty ;
+    rdfs:domain :N_DimensionalMarketplace ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The dimensions of the marketplace (e.g., DataClass, Residency, DP-ε)." .
+
+:isPrivacySafe rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ShadowData ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the ShadowData is privacy-safe (non-PII)." .
+
+:hasPrivacyBudget rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ShadowData ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The differential privacy budget (epsilon) associated with the ShadowData." .
+
+:hasPrice rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ShadowProductOffering ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The price of a ShadowProductOffering." .
+
+:hasTakeRate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :MonetizationModel ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The take rate (percentage of transaction value) for the marketplace." .
+

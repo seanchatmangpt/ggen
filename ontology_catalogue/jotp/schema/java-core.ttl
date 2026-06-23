@@ -1,0 +1,425 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix java:  <https://jgen.dev/ontology/java#> .
+@prefix jcore: <https://jgen.dev/ontology/java/core#> .
+
+# =============================================================================
+# Java Core Type System Ontology
+# Defines the fundamental Java type system for code generation targeting Java 26
+# =============================================================================
+
+java:Ontology a owl:Ontology ;
+    rdfs:label "Java Core Type System" ;
+    rdfs:comment "Complete Java type system ontology for deterministic code generation" ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# Top-Level Type Hierarchy
+# =============================================================================
+
+java:Type a owl:Class ;
+    rdfs:label "Type" ;
+    rdfs:comment "Base class for all Java types" .
+
+java:ReferenceType a owl:Class ;
+    rdfs:subClassOf java:Type ;
+    rdfs:label "Reference Type" ;
+    rdfs:comment "Any type that extends Object" .
+
+java:PrimitiveType a owl:Class ;
+    rdfs:subClassOf java:Type ;
+    rdfs:label "Primitive Type" ;
+    rdfs:comment "Primitive value types: int, long, double, boolean, etc." .
+
+java:VoidType a owl:Class ;
+    rdfs:subClassOf java:Type ;
+    rdfs:label "Void Type" .
+
+# =============================================================================
+# Class Types
+# =============================================================================
+
+java:ClassType a owl:Class ;
+    rdfs:subClassOf java:ReferenceType ;
+    rdfs:label "Class" ;
+    rdfs:comment "A standard Java class declaration" .
+
+java:AbstractClass a owl:Class ;
+    rdfs:subClassOf java:ClassType ;
+    rdfs:label "Abstract Class" .
+
+java:FinalClass a owl:Class ;
+    rdfs:subClassOf java:ClassType ;
+    rdfs:label "Final Class" .
+
+java:SealedClass a owl:Class ;
+    rdfs:subClassOf java:ClassType ;
+    rdfs:label "Sealed Class" ;
+    rdfs:comment "A class restricting which other classes can extend it (Java 17+)" .
+
+java:Record a owl:Class ;
+    rdfs:subClassOf java:FinalClass ;
+    rdfs:label "Record" ;
+    rdfs:comment "Immutable data carrier with auto-generated equals/hashCode/toString (Java 16+)" .
+
+java:Enum a owl:Class ;
+    rdfs:subClassOf java:FinalClass ;
+    rdfs:label "Enum" ;
+    rdfs:comment "Enumerated type with fixed set of instances" .
+
+# =============================================================================
+# Interface Types
+# =============================================================================
+
+java:InterfaceType a owl:Class ;
+    rdfs:subClassOf java:ReferenceType ;
+    rdfs:label "Interface" ;
+    rdfs:comment "A Java interface declaration" .
+
+java:SealedInterface a owl:Class ;
+    rdfs:subClassOf java:InterfaceType ;
+    rdfs:label "Sealed Interface" ;
+    rdfs:comment "An interface restricting which types can implement it (Java 17+)" .
+
+java:FunctionalInterface a owl:Class ;
+    rdfs:subClassOf java:InterfaceType ;
+    rdfs:label "Functional Interface" ;
+    rdfs:comment "An interface with exactly one abstract method, usable as lambda target" .
+
+java:AnnotationType a owl:Class ;
+    rdfs:subClassOf java:InterfaceType ;
+    rdfs:label "Annotation" .
+
+# =============================================================================
+# Members
+# =============================================================================
+
+java:Member a owl:Class ;
+    rdfs:label "Member" ;
+    rdfs:comment "A member of a type (field, method, constructor)" .
+
+java:Field a owl:Class ;
+    rdfs:subClassOf java:Member ;
+    rdfs:label "Field" .
+
+java:Method a owl:Class ;
+    rdfs:subClassOf java:Member ;
+    rdfs:label "Method" .
+
+java:Constructor a owl:Class ;
+    rdfs:subClassOf java:Member ;
+    rdfs:label "Constructor" .
+
+java:RecordComponent a owl:Class ;
+    rdfs:subClassOf java:Field ;
+    rdfs:label "Record Component" ;
+    rdfs:comment "A component of a record type" .
+
+java:Parameter a owl:Class ;
+    rdfs:label "Parameter" ;
+    rdfs:comment "A method or constructor parameter" .
+
+# =============================================================================
+# Modifiers
+# =============================================================================
+
+java:Modifier a owl:Class ;
+    rdfs:label "Modifier" .
+
+java:publicMod a java:Modifier ; rdfs:label "public" .
+java:privateMod a java:Modifier ; rdfs:label "private" .
+java:protectedMod a java:Modifier ; rdfs:label "protected" .
+java:staticMod a java:Modifier ; rdfs:label "static" .
+java:finalMod a java:Modifier ; rdfs:label "final" .
+java:abstractMod a java:Modifier ; rdfs:label "abstract" .
+java:sealedMod a java:Modifier ; rdfs:label "sealed" .
+java:nonSealedMod a java:Modifier ; rdfs:label "non-sealed" .
+java:synchronizedMod a java:Modifier ; rdfs:label "synchronized" .
+java:volatileMod a java:Modifier ; rdfs:label "volatile" .
+java:transientMod a java:Modifier ; rdfs:label "transient" .
+java:defaultMod a java:Modifier ; rdfs:label "default" .
+
+# =============================================================================
+# Properties — Type Relationships
+# =============================================================================
+
+java:hasName a owl:DatatypeProperty ;
+    rdfs:domain java:Type ;
+    rdfs:range xsd:string ;
+    rdfs:label "has name" .
+
+java:hasPackage a owl:DatatypeProperty ;
+    rdfs:domain java:Type ;
+    rdfs:range xsd:string ;
+    rdfs:label "has package" .
+
+java:hasModifier a owl:ObjectProperty ;
+    rdfs:domain java:Member ;
+    rdfs:range java:Modifier ;
+    rdfs:label "has modifier" .
+
+java:extendsType a owl:ObjectProperty ;
+    rdfs:domain java:ClassType ;
+    rdfs:range java:ClassType ;
+    rdfs:label "extends" .
+
+java:implementsInterface a owl:ObjectProperty ;
+    rdfs:domain java:ClassType ;
+    rdfs:range java:InterfaceType ;
+    rdfs:label "implements" .
+
+java:extendsInterface a owl:ObjectProperty ;
+    rdfs:domain java:InterfaceType ;
+    rdfs:range java:InterfaceType ;
+    rdfs:label "extends interface" .
+
+java:permits a owl:ObjectProperty ;
+    rdfs:domain [ owl:unionOf (java:SealedClass java:SealedInterface) ] ;
+    rdfs:range java:Type ;
+    rdfs:label "permits" ;
+    rdfs:comment "Declares permitted subtypes of a sealed type" .
+
+# =============================================================================
+# Properties — Members
+# =============================================================================
+
+java:hasMember a owl:ObjectProperty ;
+    rdfs:domain java:Type ;
+    rdfs:range java:Member ;
+    rdfs:label "has member" .
+
+java:hasField a owl:ObjectProperty ;
+    rdfs:subPropertyOf java:hasMember ;
+    rdfs:domain java:Type ;
+    rdfs:range java:Field ;
+    rdfs:label "has field" .
+
+java:hasMethod a owl:ObjectProperty ;
+    rdfs:subPropertyOf java:hasMember ;
+    rdfs:domain java:Type ;
+    rdfs:range java:Method ;
+    rdfs:label "has method" .
+
+java:hasConstructor a owl:ObjectProperty ;
+    rdfs:subPropertyOf java:hasMember ;
+    rdfs:domain java:Type ;
+    rdfs:range java:Constructor ;
+    rdfs:label "has constructor" .
+
+java:hasComponent a owl:ObjectProperty ;
+    rdfs:subPropertyOf java:hasField ;
+    rdfs:domain java:Record ;
+    rdfs:range java:RecordComponent ;
+    rdfs:label "has record component" .
+
+java:hasParameter a owl:ObjectProperty ;
+    rdfs:domain [ owl:unionOf (java:Method java:Constructor) ] ;
+    rdfs:range java:Parameter ;
+    rdfs:label "has parameter" .
+
+java:hasReturnType a owl:ObjectProperty ;
+    rdfs:domain java:Method ;
+    rdfs:range java:Type ;
+    rdfs:label "has return type" .
+
+java:hasType a owl:ObjectProperty ;
+    rdfs:domain [ owl:unionOf (java:Field java:Parameter java:RecordComponent) ] ;
+    rdfs:range java:Type ;
+    rdfs:label "has type" .
+
+java:hasDefault a owl:DatatypeProperty ;
+    rdfs:domain java:Method ;
+    rdfs:range xsd:string ;
+    rdfs:label "has default value" ;
+    rdfs:comment "Default method body or annotation default" .
+
+# =============================================================================
+# Properties — Generics
+# =============================================================================
+
+java:TypeParameter a owl:Class ;
+    rdfs:label "Type Parameter" ;
+    rdfs:comment "A generic type parameter like T, E, K, V" .
+
+java:hasTypeParameter a owl:ObjectProperty ;
+    rdfs:domain java:Type ;
+    rdfs:range java:TypeParameter ;
+    rdfs:label "has type parameter" .
+
+java:hasBound a owl:ObjectProperty ;
+    rdfs:domain java:TypeParameter ;
+    rdfs:range java:Type ;
+    rdfs:label "has upper bound" .
+
+java:hasWildcard a owl:DatatypeProperty ;
+    rdfs:domain java:TypeParameter ;
+    rdfs:range xsd:string ;
+    rdfs:comment "? extends T or ? super T" .
+
+# =============================================================================
+# Properties — Annotations
+# =============================================================================
+
+java:hasAnnotation a owl:ObjectProperty ;
+    rdfs:domain [ owl:unionOf (java:Type java:Member java:Parameter) ] ;
+    rdfs:range java:AnnotationType ;
+    rdfs:label "has annotation" .
+
+# =============================================================================
+# Primitive Type Instances
+# =============================================================================
+
+jcore:int a java:PrimitiveType ; java:hasName "int" .
+jcore:long a java:PrimitiveType ; java:hasName "long" .
+jcore:short a java:PrimitiveType ; java:hasName "short" .
+jcore:byte a java:PrimitiveType ; java:hasName "byte" .
+jcore:float a java:PrimitiveType ; java:hasName "float" .
+jcore:double a java:PrimitiveType ; java:hasName "double" .
+jcore:boolean a java:PrimitiveType ; java:hasName "boolean" .
+jcore:char a java:PrimitiveType ; java:hasName "char" .
+jcore:void a java:VoidType ; java:hasName "void" .
+
+# =============================================================================
+# Common Reference Type Instances
+# =============================================================================
+
+jcore:String a java:FinalClass ; java:hasName "String" ; java:hasPackage "java.lang" .
+jcore:Object a java:ClassType ; java:hasName "Object" ; java:hasPackage "java.lang" .
+jcore:Optional a java:FinalClass ; java:hasName "Optional" ; java:hasPackage "java.util" .
+jcore:List a java:InterfaceType ; java:hasName "List" ; java:hasPackage "java.util" .
+jcore:Set a java:InterfaceType ; java:hasName "Set" ; java:hasPackage "java.util" .
+jcore:Map a java:InterfaceType ; java:hasName "Map" ; java:hasPackage "java.util" .
+jcore:Stream a java:InterfaceType ; java:hasName "Stream" ; java:hasPackage "java.util.stream" .
+jcore:CompletableFuture a java:FinalClass ; java:hasName "CompletableFuture" ; java:hasPackage "java.util.concurrent" .
+
+# =============================================================================
+# Java Version Feature Flags
+# =============================================================================
+
+java:JavaVersion a owl:Class ;
+    rdfs:label "Java Version" ;
+    rdfs:comment "A specific Java platform release" .
+
+java:Feature a owl:Class ;
+    rdfs:label "Feature" ;
+    rdfs:comment "A language or API feature introduced in a specific version" .
+
+java:introducedIn a owl:ObjectProperty ;
+    rdfs:domain java:Feature ;
+    rdfs:range java:JavaVersion ;
+    rdfs:label "introduced in" .
+
+java:finalizedIn a owl:ObjectProperty ;
+    rdfs:domain java:Feature ;
+    rdfs:range java:JavaVersion ;
+    rdfs:label "finalized in" .
+
+java:hasFeature a owl:ObjectProperty ;
+    rdfs:domain java:Type ;
+    rdfs:range java:Feature ;
+    rdfs:label "uses feature" .
+
+# Version instances
+jcore:Java8 a java:JavaVersion ; java:hasName "8" .
+jcore:Java9 a java:JavaVersion ; java:hasName "9" .
+jcore:Java10 a java:JavaVersion ; java:hasName "10" .
+jcore:Java11 a java:JavaVersion ; java:hasName "11" .
+jcore:Java14 a java:JavaVersion ; java:hasName "14" .
+jcore:Java16 a java:JavaVersion ; java:hasName "16" .
+jcore:Java17 a java:JavaVersion ; java:hasName "17" .
+jcore:Java21 a java:JavaVersion ; java:hasName "21" .
+jcore:Java25 a java:JavaVersion ; java:hasName "25" .
+jcore:Java26 a java:JavaVersion ; java:hasName "26" .
+
+# Feature instances
+jcore:RecordsFeature a java:Feature ;
+    rdfs:label "Records" ;
+    java:introducedIn jcore:Java14 ;
+    java:finalizedIn jcore:Java16 .
+
+jcore:SealedTypesFeature a java:Feature ;
+    rdfs:label "Sealed Types" ;
+    java:introducedIn jcore:Java15 ;
+    java:finalizedIn jcore:Java17 .
+
+jcore:PatternMatchingInstanceof a java:Feature ;
+    rdfs:label "Pattern Matching instanceof" ;
+    java:introducedIn jcore:Java14 ;
+    java:finalizedIn jcore:Java16 .
+
+jcore:PatternMatchingSwitch a java:Feature ;
+    rdfs:label "Pattern Matching Switch" ;
+    java:introducedIn jcore:Java17 ;
+    java:finalizedIn jcore:Java21 .
+
+jcore:TextBlocks a java:Feature ;
+    rdfs:label "Text Blocks" ;
+    java:introducedIn jcore:Java13 ;
+    java:finalizedIn jcore:Java15 .
+
+jcore:VirtualThreads a java:Feature ;
+    rdfs:label "Virtual Threads" ;
+    java:introducedIn jcore:Java19 ;
+    java:finalizedIn jcore:Java21 .
+
+jcore:StructuredConcurrency a java:Feature ;
+    rdfs:label "Structured Concurrency" ;
+    java:introducedIn jcore:Java19 ;
+    java:finalizedIn jcore:Java26 .
+
+jcore:ScopedValues a java:Feature ;
+    rdfs:label "Scoped Values" ;
+    java:introducedIn jcore:Java20 ;
+    java:finalizedIn jcore:Java26 .
+
+jcore:Gatherers a java:Feature ;
+    rdfs:label "Gatherers" ;
+    java:introducedIn jcore:Java22 ;
+    java:finalizedIn jcore:Java25 .
+
+jcore:FlexibleConstructors a java:Feature ;
+    rdfs:label "Flexible Constructor Bodies" ;
+    java:introducedIn jcore:Java22 ;
+    java:finalizedIn jcore:Java26 .
+
+jcore:UnnamedPatterns a java:Feature ;
+    rdfs:label "Unnamed Patterns" ;
+    java:introducedIn jcore:Java21 ;
+    java:finalizedIn jcore:Java22 .
+
+jcore:ModuleSystem a java:Feature ;
+    rdfs:label "Java Platform Module System" ;
+    java:introducedIn jcore:Java9 ;
+    java:finalizedIn jcore:Java9 .
+
+jcore:VarInference a java:Feature ;
+    rdfs:label "Local Variable Type Inference" ;
+    java:introducedIn jcore:Java10 ;
+    java:finalizedIn jcore:Java10 .
+
+jcore:LambdaExpressions a java:Feature ;
+    rdfs:label "Lambda Expressions" ;
+    java:introducedIn jcore:Java8 ;
+    java:finalizedIn jcore:Java8 .
+
+jcore:StreamAPI a java:Feature ;
+    rdfs:label "Stream API" ;
+    java:introducedIn jcore:Java8 ;
+    java:finalizedIn jcore:Java8 .
+
+jcore:OptionalAPI a java:Feature ;
+    rdfs:label "Optional API" ;
+    java:introducedIn jcore:Java8 ;
+    java:finalizedIn jcore:Java8 .
+
+jcore:HttpClientAPI a java:Feature ;
+    rdfs:label "HTTP Client API" ;
+    java:introducedIn jcore:Java9 ;
+    java:finalizedIn jcore:Java11 .
+
+jcore:PrimitivePatterns a java:Feature ;
+    rdfs:label "Primitive Types in Patterns" ;
+    java:introducedIn jcore:Java23 ;
+    java:finalizedIn jcore:Java26 .

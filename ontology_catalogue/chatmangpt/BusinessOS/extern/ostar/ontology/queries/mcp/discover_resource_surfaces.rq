@@ -1,0 +1,20 @@
+# discover_resource_surfaces.rq
+# Discovers all admitted MCP resources with their URI patterns and content types.
+# Feeds proj:McpResourceFamily via unrdf sync.
+
+PREFIX ostar:   <https://chatmangpt.com/ontologies/o-star/>
+PREFIX mcp:     <https://chatmangpt.com/ontologies/o-star/mcp:>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?resource ?name ?uriPattern ?contentType
+WHERE {
+  ?resource a ostar:McpResource ;
+            ostar:admissibilityStatus ostar:Admitted ;
+            rdfs:label ?name ;
+            ostar:uriPattern ?uriPattern .
+
+  OPTIONAL { ?resource dcterms:format ?contentType }
+}
+ORDER BY ?uriPattern

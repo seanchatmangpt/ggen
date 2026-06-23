@@ -1,0 +1,441 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sec: <https://w3id.org/security#> .
+@prefix kgen: <http://kgen.ai/ontology/> .
+@prefix kgenattest: <http://kgen.ai/ontology/attest/> .
+@prefix crypto: <http://kgen.ai/ontology/crypto/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# ==============================================================================
+# KGEN Attestation Ontology - Cryptographic Attestation Format
+# ==============================================================================
+
+<http://kgen.ai/ontology/attest> a owl:Ontology ;
+    dcterms:title "KGEN Attestation Ontology"@en ;
+    dcterms:description "Ontology defining cryptographic attestation format for KGEN artifacts"@en ;
+    dcterms:creator "KGEN System"@en ;
+    dcterms:created "2025-09-12"^^xsd:date ;
+    dcterms:modified "2025-09-12"^^xsd:date ;
+    owl:versionInfo "1.0.0"@en ;
+    owl:imports <http://kgen.ai/ontology/>, <http://www.w3.org/ns/prov#> .
+
+# ==============================================================================
+# Core Attestation Classes
+# ==============================================================================
+
+kgenattest:Attestation a owl:Class ;
+    rdfs:label "Attestation"@en ;
+    rdfs:comment "A cryptographic attestation of an artifact or process"@en ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:seeAlso <https://in-toto.io/>, <https://slsa.dev/> .
+
+kgenattest:AttestationBundle a owl:Class ;
+    rdfs:label "Attestation Bundle"@en ;
+    rdfs:comment "A collection of related attestations"@en ;
+    rdfs:subClassOf kgenattest:Attestation .
+
+kgenattest:AttestationStatement a owl:Class ;
+    rdfs:label "Attestation Statement"@en ;
+    rdfs:comment "A structured statement within an attestation"@en ;
+    rdfs:subClassOf owl:Thing .
+
+kgenattest:AttestationSubject a owl:Class ;
+    rdfs:label "Attestation Subject"@en ;
+    rdfs:comment "The subject of an attestation (artifact, process, etc.)"@en ;
+    rdfs:subClassOf owl:Thing .
+
+kgenattest:AttestationPredicate a owl:Class ;
+    rdfs:label "Attestation Predicate"@en ;
+    rdfs:comment "The predicate or claim being made in an attestation"@en ;
+    rdfs:subClassOf owl:Thing .
+
+# ==============================================================================
+# Signature and Cryptographic Classes
+# ==============================================================================
+
+crypto:Signature a owl:Class ;
+    rdfs:label "Digital Signature"@en ;
+    rdfs:comment "A digital signature for attestation verification"@en ;
+    rdfs:subClassOf sec:Signature .
+
+crypto:PublicKey a owl:Class ;
+    rdfs:label "Public Key"@en ;
+    rdfs:comment "A cryptographic public key"@en ;
+    rdfs:subClassOf sec:Key .
+
+crypto:PrivateKey a owl:Class ;
+    rdfs:label "Private Key"@en ;
+    rdfs:comment "A cryptographic private key"@en ;
+    rdfs:subClassOf sec:Key .
+
+crypto:KeyPair a owl:Class ;
+    rdfs:label "Key Pair"@en ;
+    rdfs:comment "A cryptographic key pair (public/private)"@en ;
+    rdfs:subClassOf owl:Thing .
+
+crypto:Certificate a owl:Class ;
+    rdfs:label "Certificate"@en ;
+    rdfs:comment "A digital certificate"@en ;
+    rdfs:subClassOf owl:Thing .
+
+# ==============================================================================
+# Hash and Integrity Classes
+# ==============================================================================
+
+crypto:Hash a owl:Class ;
+    rdfs:label "Cryptographic Hash"@en ;
+    rdfs:comment "A cryptographic hash of data"@en ;
+    rdfs:subClassOf owl:Thing .
+
+crypto:HashAlgorithm a owl:Class ;
+    rdfs:label "Hash Algorithm"@en ;
+    rdfs:comment "A cryptographic hash algorithm"@en ;
+    rdfs:subClassOf owl:Thing .
+
+crypto:Checksum a owl:Class ;
+    rdfs:label "Checksum"@en ;
+    rdfs:comment "A data integrity checksum"@en ;
+    rdfs:subClassOf crypto:Hash .
+
+# ==============================================================================
+# Provenance and Supply Chain Classes
+# ==============================================================================
+
+kgenattest:BuildProvenance a owl:Class ;
+    rdfs:label "Build Provenance"@en ;
+    rdfs:comment "Provenance information about artifact build process"@en ;
+    rdfs:subClassOf kgenattest:AttestationPredicate ;
+    rdfs:seeAlso <https://slsa.dev/spec/v1.0/provenance> .
+
+kgenattest:SoftwareSupplyChain a owl:Class ;
+    rdfs:label "Software Supply Chain"@en ;
+    rdfs:comment "Information about software supply chain"@en ;
+    rdfs:subClassOf kgenattest:AttestationPredicate .
+
+kgenattest:CodeReview a owl:Class ;
+    rdfs:label "Code Review"@en ;
+    rdfs:comment "Attestation of code review process"@en ;
+    rdfs:subClassOf kgenattest:AttestationPredicate .
+
+kgenattest:SecurityScan a owl:Class ;
+    rdfs:label "Security Scan"@en ;
+    rdfs:comment "Results of security scanning"@en ;
+    rdfs:subClassOf kgenattest:AttestationPredicate .
+
+kgenattest:TestResults a owl:Class ;
+    rdfs:label "Test Results"@en ;
+    rdfs:comment "Results of testing processes"@en ;
+    rdfs:subClassOf kgenattest:AttestationPredicate .
+
+# ==============================================================================
+# KGEN Specific Attestation Types
+# ==============================================================================
+
+kgenattest:KnowledgeGraphAttestation a owl:Class ;
+    rdfs:label "Knowledge Graph Attestation"@en ;
+    rdfs:comment "Attestation of RDF knowledge graph integrity"@en ;
+    rdfs:subClassOf kgenattest:Attestation .
+
+kgenattest:ArtifactGenerationAttestation a owl:Class ;
+    rdfs:label "Artifact Generation Attestation"@en ;
+    rdfs:comment "Attestation of artifact generation process"@en ;
+    rdfs:subClassOf kgenattest:Attestation .
+
+kgenattest:TemplateAttestation a owl:Class ;
+    rdfs:label "Template Attestation"@en ;
+    rdfs:comment "Attestation of template integrity and source"@en ;
+    rdfs:subClassOf kgenattest:Attestation .
+
+kgenattest:ConfigurationAttestation a owl:Class ;
+    rdfs:label "Configuration Attestation"@en ;
+    rdfs:comment "Attestation of configuration state"@en ;
+    rdfs:subClassOf kgenattest:Attestation .
+
+kgenattest:DeterministicAttestation a owl:Class ;
+    rdfs:label "Deterministic Attestation"@en ;
+    rdfs:comment "Attestation of deterministic generation process"@en ;
+    rdfs:subClassOf kgenattest:Attestation .
+
+# ==============================================================================
+# Properties - Attestation Structure
+# ==============================================================================
+
+# Core attestation properties
+kgenattest:hasStatement a owl:ObjectProperty ;
+    rdfs:label "has statement"@en ;
+    rdfs:comment "Relates an attestation to its statement"@en ;
+    rdfs:domain kgenattest:Attestation ;
+    rdfs:range kgenattest:AttestationStatement .
+
+kgenattest:hasSubject a owl:ObjectProperty ;
+    rdfs:label "has subject"@en ;
+    rdfs:comment "The subject of the attestation"@en ;
+    rdfs:domain kgenattest:AttestationStatement ;
+    rdfs:range kgenattest:AttestationSubject .
+
+kgenattest:hasPredicate a owl:ObjectProperty ;
+    rdfs:label "has predicate"@en ;
+    rdfs:comment "The predicate or claim being made"@en ;
+    rdfs:domain kgenattest:AttestationStatement ;
+    rdfs:range kgenattest:AttestationPredicate .
+
+kgenattest:hasSignature a owl:ObjectProperty ;
+    rdfs:label "has signature"@en ;
+    rdfs:comment "Digital signature of the attestation"@en ;
+    rdfs:domain kgenattest:Attestation ;
+    rdfs:range crypto:Signature .
+
+kgenattest:signedBy a owl:ObjectProperty ;
+    rdfs:label "signed by"@en ;
+    rdfs:comment "Entity that signed the attestation"@en ;
+    rdfs:domain kgenattest:Attestation ;
+    rdfs:range prov:Agent .
+
+kgenattest:verifiedBy a owl:ObjectProperty ;
+    rdfs:label "verified by"@en ;
+    rdfs:comment "Entity that verified the attestation"@en ;
+    rdfs:domain kgenattest:Attestation ;
+    rdfs:range prov:Agent .
+
+# Timestamp properties
+kgenattest:attestedAt a owl:DatatypeProperty ;
+    rdfs:label "attested at"@en ;
+    rdfs:comment "Timestamp when attestation was created"@en ;
+    rdfs:domain kgenattest:Attestation ;
+    rdfs:range xsd:dateTime .
+
+kgenattest:validFrom a owl:DatatypeProperty ;
+    rdfs:label "valid from"@en ;
+    rdfs:comment "Start of attestation validity period"@en ;
+    rdfs:domain kgenattest:Attestation ;
+    rdfs:range xsd:dateTime .
+
+kgenattest:validUntil a owl:DatatypeProperty ;
+    rdfs:label "valid until"@en ;
+    rdfs:comment "End of attestation validity period"@en ;
+    rdfs:domain kgenattest:Attestation ;
+    rdfs:range xsd:dateTime .
+
+# Subject properties
+kgenattest:subjectName a owl:DatatypeProperty ;
+    rdfs:label "subject name"@en ;
+    rdfs:comment "Name of the attestation subject"@en ;
+    rdfs:domain kgenattest:AttestationSubject ;
+    rdfs:range xsd:string .
+
+kgenattest:subjectURI a owl:DatatypeProperty ;
+    rdfs:label "subject URI"@en ;
+    rdfs:comment "URI identifying the subject"@en ;
+    rdfs:domain kgenattest:AttestationSubject ;
+    rdfs:range xsd:anyURI .
+
+kgenattest:subjectHash a owl:ObjectProperty ;
+    rdfs:label "subject hash"@en ;
+    rdfs:comment "Cryptographic hash of the subject"@en ;
+    rdfs:domain kgenattest:AttestationSubject ;
+    rdfs:range crypto:Hash .
+
+# ==============================================================================
+# Cryptographic Properties
+# ==============================================================================
+
+# Signature properties
+crypto:signatureAlgorithm a owl:DatatypeProperty ;
+    rdfs:label "signature algorithm"@en ;
+    rdfs:comment "Algorithm used for digital signature"@en ;
+    rdfs:domain crypto:Signature ;
+    rdfs:range xsd:string .
+
+crypto:signatureValue a owl:DatatypeProperty ;
+    rdfs:label "signature value"@en ;
+    rdfs:comment "The signature value (base64 encoded)"@en ;
+    rdfs:domain crypto:Signature ;
+    rdfs:range xsd:string .
+
+crypto:hasPublicKey a owl:ObjectProperty ;
+    rdfs:label "has public key"@en ;
+    rdfs:comment "Public key used to verify signature"@en ;
+    rdfs:domain crypto:Signature ;
+    rdfs:range crypto:PublicKey .
+
+# Key properties
+crypto:keyAlgorithm a owl:DatatypeProperty ;
+    rdfs:label "key algorithm"@en ;
+    rdfs:comment "Cryptographic algorithm for the key"@en ;
+    rdfs:domain crypto:PublicKey ;
+    rdfs:range xsd:string .
+
+crypto:keySize a owl:DatatypeProperty ;
+    rdfs:label "key size"@en ;
+    rdfs:comment "Size of the cryptographic key in bits"@en ;
+    rdfs:domain crypto:PublicKey ;
+    rdfs:range xsd:integer .
+
+crypto:keyValue a owl:DatatypeProperty ;
+    rdfs:label "key value"@en ;
+    rdfs:comment "The key value (base64 encoded)"@en ;
+    rdfs:domain crypto:PublicKey ;
+    rdfs:range xsd:string .
+
+crypto:keyFingerprint a owl:DatatypeProperty ;
+    rdfs:label "key fingerprint"@en ;
+    rdfs:comment "Fingerprint of the key"@en ;
+    rdfs:domain crypto:PublicKey ;
+    rdfs:range xsd:string .
+
+# Hash properties
+crypto:hashAlgorithm a owl:DatatypeProperty ;
+    rdfs:label "hash algorithm"@en ;
+    rdfs:comment "Hash algorithm used"@en ;
+    rdfs:domain crypto:Hash ;
+    rdfs:range xsd:string .
+
+crypto:hashValue a owl:DatatypeProperty ;
+    rdfs:label "hash value"@en ;
+    rdfs:comment "The hash value (hex encoded)"@en ;
+    rdfs:domain crypto:Hash ;
+    rdfs:range xsd:string .
+
+# ==============================================================================
+# KGEN Specific Properties
+# ==============================================================================
+
+# Knowledge graph properties
+kgenattest:graphURI a owl:DatatypeProperty ;
+    rdfs:label "graph URI"@en ;
+    rdfs:comment "URI of the RDF graph"@en ;
+    rdfs:domain kgenattest:KnowledgeGraphAttestation ;
+    rdfs:range xsd:anyURI .
+
+kgenattest:graphSize a owl:DatatypeProperty ;
+    rdfs:label "graph size"@en ;
+    rdfs:comment "Number of triples in the graph"@en ;
+    rdfs:domain kgenattest:KnowledgeGraphAttestation ;
+    rdfs:range xsd:integer .
+
+kgenattest:usedOntology a owl:ObjectProperty ;
+    rdfs:label "used ontology"@en ;
+    rdfs:comment "Ontologies used in the knowledge graph"@en ;
+    rdfs:domain kgenattest:KnowledgeGraphAttestation ;
+    rdfs:range owl:Ontology .
+
+# Generation properties
+kgenattest:generationTimestamp a owl:DatatypeProperty ;
+    rdfs:label "generation timestamp"@en ;
+    rdfs:comment "When the artifact was generated"@en ;
+    rdfs:domain kgenattest:ArtifactGenerationAttestation ;
+    rdfs:range xsd:dateTime .
+
+kgenattest:generationTool a owl:DatatypeProperty ;
+    rdfs:label "generation tool"@en ;
+    rdfs:comment "Tool used for generation"@en ;
+    rdfs:domain kgenattest:ArtifactGenerationAttestation ;
+    rdfs:range xsd:string .
+
+kgenattest:generationVersion a owl:DatatypeProperty ;
+    rdfs:label "generation version"@en ;
+    rdfs:comment "Version of generation tool"@en ;
+    rdfs:domain kgenattest:ArtifactGenerationAttestation ;
+    rdfs:range xsd:string .
+
+kgenattest:usedTemplate a owl:ObjectProperty ;
+    rdfs:label "used template"@en ;
+    rdfs:comment "Template used for generation"@en ;
+    rdfs:domain kgenattest:ArtifactGenerationAttestation ;
+    rdfs:range kgen:Template .
+
+# Deterministic properties
+kgenattest:deterministicSeed a owl:DatatypeProperty ;
+    rdfs:label "deterministic seed"@en ;
+    rdfs:comment "Seed used for deterministic generation"@en ;
+    rdfs:domain kgenattest:DeterministicAttestation ;
+    rdfs:range xsd:string .
+
+kgenattest:reproducibilityHash a owl:DatatypeProperty ;
+    rdfs:label "reproducibility hash"@en ;
+    rdfs:comment "Hash ensuring reproducible generation"@en ;
+    rdfs:domain kgenattest:DeterministicAttestation ;
+    rdfs:range xsd:string .
+
+# ==============================================================================
+# JSON-LD Context Mapping
+# ==============================================================================
+
+kgenattest:jsonLDContext a owl:DatatypeProperty ;
+    rdfs:label "JSON-LD context"@en ;
+    rdfs:comment "JSON-LD context for attestation serialization"@en ;
+    rdfs:domain kgenattest:Attestation ;
+    rdfs:range xsd:string .
+
+# ==============================================================================
+# Named Individuals - Standard Algorithms
+# ==============================================================================
+
+# Hash algorithms
+crypto:SHA256 a crypto:HashAlgorithm ;
+    rdfs:label "SHA-256"@en ;
+    crypto:hashAlgorithm "sha256"@en .
+
+crypto:SHA512 a crypto:HashAlgorithm ;
+    rdfs:label "SHA-512"@en ;
+    crypto:hashAlgorithm "sha512"@en .
+
+crypto:BLAKE2b a crypto:HashAlgorithm ;
+    rdfs:label "BLAKE2b"@en ;
+    crypto:hashAlgorithm "blake2b"@en .
+
+# Signature algorithms
+crypto:Ed25519 a owl:NamedIndividual ;
+    rdfs:label "Ed25519"@en ;
+    crypto:keyAlgorithm "ed25519"@en .
+
+crypto:ECDSA_P256 a owl:NamedIndividual ;
+    rdfs:label "ECDSA P-256"@en ;
+    crypto:keyAlgorithm "ecdsa-p256"@en .
+
+crypto:RSA2048 a owl:NamedIndividual ;
+    rdfs:label "RSA 2048"@en ;
+    crypto:keyAlgorithm "rsa"@en ;
+    crypto:keySize 2048 .
+
+# ==============================================================================
+# Attestation Format Examples
+# ==============================================================================
+
+# Example attestation instance
+kgenattest:ExampleAttestation a kgenattest:ArtifactGenerationAttestation ;
+    rdfs:label "Example Artifact Generation Attestation"@en ;
+    kgenattest:attestedAt "2025-09-12T16:00:00Z"^^xsd:dateTime ;
+    kgenattest:generationTool "kgen-cli"@en ;
+    kgenattest:generationVersion "1.0.0"@en ;
+    kgenattest:hasStatement [
+        a kgenattest:AttestationStatement ;
+        kgenattest:hasSubject [
+            a kgenattest:AttestationSubject ;
+            kgenattest:subjectName "example-artifact.js"@en ;
+            kgenattest:subjectHash [
+                a crypto:Hash ;
+                crypto:hashAlgorithm "sha256"@en ;
+                crypto:hashValue "abc123..."@en
+            ]
+        ] ;
+        kgenattest:hasPredicate [
+            a kgenattest:BuildProvenance ;
+            rdfs:comment "This artifact was generated deterministically"@en
+        ]
+    ] ;
+    kgenattest:hasSignature [
+        a crypto:Signature ;
+        crypto:signatureAlgorithm "ed25519"@en ;
+        crypto:signatureValue "def456..."@en ;
+        crypto:hasPublicKey [
+            a crypto:PublicKey ;
+            crypto:keyAlgorithm "ed25519"@en ;
+            crypto:keyValue "789abc..."@en
+        ]
+    ] .

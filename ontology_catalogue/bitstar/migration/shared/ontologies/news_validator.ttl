@@ -1,0 +1,96 @@
+@prefix news: <http://cns.io/news#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# News Validation Ontology - Replaces LLM fact-checking with deterministic rules
+# Target: 8-tick validation of any news claim
+
+# Core News Classes
+news:Article a owl:Class ;
+    rdfs:comment "News article with claims to validate" ;
+    cns:maxLatency "8 cycles" ;
+    cns:validationMode "deterministic" .
+
+news:Claim a owl:Class ;
+    rdfs:comment "Factual claim extracted from news" ;
+    cns:maxLatency "2 cycles" .
+
+news:Source a owl:Class ;
+    rdfs:comment "News source with credibility score" ;
+    cns:cacheAligned true .
+
+news:Evidence a owl:Class ;
+    rdfs:comment "Supporting or refuting evidence" ;
+    cns:bitPacked true .
+
+# Validation Properties
+news:credibilityScore a owl:DatatypeProperty ;
+    rdfs:domain news:Source ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "0-100 credibility score" ;
+    cns:validation "bitwise" .
+
+news:claimType a owl:ObjectProperty ;
+    rdfs:domain news:Claim ;
+    rdfs:range news:ClaimType ;
+    cns:encoding "enum" .
+
+news:verificationStatus a owl:DatatypeProperty ;
+    rdfs:domain news:Claim ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Bit flags: verified|disputed|false|unverifiable" .
+
+# Claim Types (bit-packed)
+news:StatisticalClaim a news:ClaimType ;
+    cns:bitMask "0x01" .
+
+news:QuoteClaim a news:ClaimType ;
+    cns:bitMask "0x02" .
+
+news:EventClaim a news:ClaimType ;
+    cns:bitMask "0x04" .
+
+news:ScientificClaim a news:ClaimType ;
+    cns:bitMask "0x08" .
+
+# Fast Validation Rules
+news:ValidateStatistic a cns:ValidationRule ;
+    cns:priority 1 ;
+    cns:maxCycles 2 ;
+    cns:logic "CHECK_RANGE | CHECK_SOURCE | CHECK_DATE" .
+
+news:ValidateQuote a cns:ValidationRule ;
+    cns:priority 2 ;
+    cns:maxCycles 2 ;
+    cns:logic "VERIFY_SPEAKER | MATCH_CONTEXT | CHECK_DATE" .
+
+news:CrossReference a cns:ValidationRule ;
+    cns:priority 3 ;
+    cns:maxCycles 4 ;
+    cns:logic "HASH_LOOKUP | SIMILARITY_CHECK" .
+
+# Evidence Patterns
+news:hasEvidence a owl:ObjectProperty ;
+    rdfs:domain news:Claim ;
+    rdfs:range news:Evidence ;
+    cns:indexed true ;
+    cns:hashTable true .
+
+news:contradicts a owl:ObjectProperty ;
+    rdfs:domain news:Evidence ;
+    rdfs:range news:Evidence ;
+    cns:symmetric true .
+
+# Source Reputation
+news:SourceTrust a cns:TrustModel ;
+    cns:factors "accuracy_history | correction_rate | transparency" ;
+    cns:calculation "bitwise_weighted" ;
+    cns:updateFrequency "realtime" .
+
+# Real-time Fact Stream
+news:FactStream a cns:DataStream ;
+    cns:throughput "10M facts/second" ;
+    cns:latency "< 8 ticks" ;
+    cns:delivery "zero-copy" .

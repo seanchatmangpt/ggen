@@ -1,0 +1,92 @@
+@prefix : <http://example.org/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix mcp: <http://modelcontextprotocol.io/ontology#> .
+
+# Data Processing Tool Definition
+:ProcessDataTool a mcp:Tool ;
+    mcp:name "process_data" ;
+    mcp:description "Process input data and return results with metadata" ;
+    mcp:version "1.0.0" ;
+    mcp:inputSchema [
+        a mcp:Schema ;
+        mcp:type "object" ;
+        mcp:properties [
+            mcp:input [
+                mcp:type "string" ;
+                mcp:description "Input data to process" ;
+                mcp:required true ;
+                mcp:minLength 1 ;
+                mcp:maxLength 10000
+            ] ;
+            mcp:options [
+                mcp:type "object" ;
+                mcp:properties [
+                    mcp:validate [
+                        mcp:type "boolean" ;
+                        mcp:default true ;
+                        mcp:description "Whether to validate input data"
+                    ] ;
+                    mcp:format [
+                        mcp:type "string" ;
+                        mcp:enum ("json" "text" "xml") ;
+                        mcp:default "text"
+                    ] ;
+                    mcp:async [
+                        mcp:type "boolean" ;
+                        mcp:default false
+                    ]
+                ]
+            ]
+        ]
+    ] ;
+    mcp:outputSchema [
+        a mcp:Schema ;
+        mcp:type "object" ;
+        mcp:properties [
+            mcp:result [
+                mcp:type "string" ;
+                mcp:description "Processed result"
+            ] ;
+            mcp:metadata [
+                mcp:type "object" ;
+                mcp:properties [
+                    mcp:processedAt [ mcp:type "string" ; mcp:format "date-time" ] ;
+                    mcp:inputLength [ mcp:type "integer" ] ;
+                    mcp:processingTime [ mcp:type "number" ] ;
+                    mcp:version [ mcp:type "string" ]
+                ]
+            ]
+        ]
+    ] ;
+    mcp:errorCodes [
+        :ValidationError "Input validation failed" ;
+        :ProcessingError "Data processing failed" ;
+        :TimeoutError "Processing timeout exceeded"
+    ] .
+
+# Handler Configuration
+:ProcessDataHandler a :Handler ;
+    :tool :ProcessDataTool ;
+    :implementation "async" ;
+    :timeout 30000 ;
+    :retryable true ;
+    :maxRetries 3 .
+
+# Validation Rules
+:InputValidation a :ValidationRule ;
+    :appliesTo :ProcessDataTool ;
+    :rules [
+        :notEmpty "Input must not be empty" ;
+        :maxSize "Input must not exceed 10MB" ;
+        :format "Input must match specified format"
+    ] .
+
+# Audit Requirements
+:AuditRequirements a :AuditPolicy ;
+    :tool :ProcessDataTool ;
+    :logRequests true ;
+    :logResponses true ;
+    :logErrors true ;
+    :retentionDays 90 .

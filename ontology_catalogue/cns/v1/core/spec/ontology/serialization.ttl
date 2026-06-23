@@ -1,0 +1,7 @@
+@prefix core: <https://cns.dev/core#> .
+@prefix ser: <https://cns.dev/serialization#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ser:JSON a rdfs:Class ; rdfs:subClassOf core:Primitive .
+ser:YAML a rdfs:Class ; rdfs:subClassOf core:Primitive .
+ser:TTL a rdfs:Class ; rdfs:subClassOf core:Primitive .

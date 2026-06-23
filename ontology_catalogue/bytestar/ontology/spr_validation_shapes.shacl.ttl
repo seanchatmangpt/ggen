@@ -1,0 +1,242 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix spr: <http://bytestar.net/ontology/spr_calculus#> .
+@prefix : <https://bytestar.org/ontology/spr_validation_shapes#> .
+
+<https://bytestar.org/ontology/spr_validation_shapes>
+    rdf:type owl:Ontology ;
+    rdfs:comment "SHACL shapes for validating Sparse Priming Representation (SPR) messages against the spr_calculus ontology." ;
+    owl:imports spr: .
+
+#################################################################
+#    NodeShapes for SPR Components
+#################################################################
+
+:SPR_Shape rdf:type sh:NodeShape ;
+    sh:targetClass spr:SPR ;
+    sh:property [
+        sh:path spr:hasId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^b3:.*" ;
+        rdfs:comment "Every SPR must have a unique ID starting with 'b3:'" ;
+    ], [
+        sh:path spr:hasTimestamp ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        rdfs:comment "Every SPR must have a timestamp." ;
+    ], [
+        sh:path spr:hasOrganization ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        rdfs:comment "Every SPR must have an originating organization." ;
+    ], [
+        sh:path spr:hasRoot ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        rdfs:comment "Every SPR must reference a ledger state root." ;
+    ], [
+        sh:path spr:hasSignal ;
+        sh:minCount 1 ;
+        sh:node :Signal_Shape ;
+        rdfs:comment "Every SPR must have at least one signal." ;
+    ], [
+        sh:path spr:hasPivot ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:node :Pivot_Shape ;
+        rdfs:comment "Every SPR must have exactly one pivot section." ;
+    ], [
+        sh:path spr:hasRealization ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:node :Realization_Shape ;
+        rdfs:comment "Every SPR must have exactly one realization section." ;
+    ], [
+        sh:path spr:hasGuard ;
+        sh:minCount 1 ;
+        sh:node :Guard_Shape ;
+        rdfs:comment "Every SPR must have at least one associated guard." ;
+    ], [
+        sh:path spr:hasStatus ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("SUCCESS" "FAILURE") ;
+        rdfs:comment "Optional status of the SPR execution." ;
+    ] .
+
+:Signal_Shape rdf:type sh:NodeShape ;
+    sh:targetClass spr:Signal ;
+    sh:property [
+        sh:path spr:hasId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        rdfs:comment "Every Signal must have an ID." ;
+    ], [
+        sh:path [ sh:or (spr:hasBooleanValue spr:hasFloatValue spr:hasEnumValue spr:hasBitsetValue) ] ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        rdfs:comment "Every Signal must have exactly one value type." ;
+    ], [
+        sh:path spr:hasSourceReceipt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        rdfs:comment "Every Signal must reference a source receipt." ;
+    ] .
+
+:Pivot_Shape rdf:type sh:NodeShape ;
+    sh:targetClass spr:Pivot ;
+    sh:property [
+        sh:path spr:hasObjective ;
+        sh:minCount 1 ;
+        sh:node :Objective_Shape ;
+        rdfs:comment "Every Pivot must have at least one objective." ;
+    ], [
+        sh:path spr:hasPolicy ;
+        sh:minCount 1 ;
+        sh:node :Policy_Shape ;
+        rdfs:comment "Every Pivot must have at least one policy." ;
+    ], [
+        sh:path spr:hasMarketDimension ;
+        sh:minCount 1 ;
+        sh:node :MarketDimension_Shape ;
+        rdfs:comment "Every Pivot must have at least one market dimension." ;
+    ] .
+
+:Objective_Shape rdf:type sh:NodeShape ;
+    sh:targetClass spr:Objective ;
+    sh:property [
+        sh:path spr:hasId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        rdfs:comment "Every Objective must have an ID." ;
+    ], [
+        sh:path spr:isLocked ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        rdfs:comment "Every Objective must specify if it is locked." ;
+    ] .
+
+:Policy_Shape rdf:type sh:NodeShape ;
+    sh:targetClass spr:Policy ;
+    sh:property [
+        sh:path spr:hasId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        rdfs:comment "Every Policy must have an ID." ;
+    ], [
+        sh:path spr:isLocked ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        rdfs:comment "Every Policy must specify if it is locked." ;
+    ] .
+
+:MarketDimension_Shape rdf:type sh:NodeShape ;
+    sh:targetClass spr:MarketDimension ;
+    sh:property [
+        sh:path spr:hasId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        rdfs:comment "Every Market Dimension must have an ID." ;
+    ] .
+
+:Realization_Shape rdf:type sh:NodeShape ;
+    sh:targetClass spr:Realization ;
+    sh:property [
+        sh:path spr:hasId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        rdfs:comment "Every Realization must have an ID." ;
+    ], [
+        sh:path spr:hasHopsCount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:hasValue 8 ;
+        rdfs:comment "Every Realization must specify its hop count, which must be 8." ;
+    ], [
+        sh:path spr:hasHop ;
+        sh:minCount 8 ;
+        sh:maxCount 8 ;
+        sh:node :Hop_Shape ;
+        rdfs:comment "Every Realization must have exactly 8 hops." ;
+    ] .
+
+:Hop_Shape rdf:type sh:NodeShape ;
+    sh:targetClass spr:Hop ;
+    sh:property [
+        sh:path spr:hasHopNumber ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 8 ;
+        rdfs:comment "Every Hop must have a hop number between 1 and 8." ;
+    ], [
+        sh:path spr:hasPurpose ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        rdfs:comment "Every Hop must have a purpose." ;
+    ], [
+        sh:path spr:usesPattern ;
+        sh:minCount 1 ;
+        sh:node :Pattern_Shape ;
+        rdfs:comment "Every Hop must use at least one pattern." ;
+    ], [
+        sh:path spr:generatesReceipt ;
+        sh:minCount 1 ;
+        sh:node :Receipt_Shape ;
+        rdfs:comment "Every Hop must generate at least one receipt." ;
+    ] .
+
+:Pattern_Shape rdf:type sh:NodeShape ;
+    sh:targetClass spr:Pattern ;
+    sh:property [
+        sh:path spr:hasPatternId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        rdfs:comment "Every Pattern must have a pattern ID." ;
+    ] .
+
+:Receipt_Shape rdf:type sh:NodeShape ;
+    sh:targetClass spr:Receipt ;
+    sh:property [
+        sh:path spr:hasId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        rdfs:comment "Every Receipt must have an ID." ;
+    ] .
+
+:Guard_Shape rdf:type sh:NodeShape ;
+    sh:targetClass spr:Guard ;
+    sh:property [
+        sh:path spr:hasId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        rdfs:comment "Every Guard must have an ID." ;
+    ], [
+        sh:path spr:hasGuardCondition ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        rdfs:comment "Every Guard must have a condition." ;
+    ] .

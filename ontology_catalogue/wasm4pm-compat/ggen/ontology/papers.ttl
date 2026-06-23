@@ -1,0 +1,441 @@
+# wasm4pm-compat paper coverage ledger — RDF/Turtle
+# Companion ontology to wasm4pm-compat.ttl.
+# Sources: docs/PAPER_COVERAGE_LEDGER.md (81 papers as of 2026-05-31)
+#
+# Each paper instance links a published work to its Rust type surface
+# in wasm4pm-compat via coverage verdicts, canon families, and covering modules.
+#
+# Coverage verdicts:
+#   COVERED_BY_TYPE                — Core formal objects reified as Rust types
+#   COVERED_BY_FIXTURE             — Covered by compile-pass/fail UI fixtures
+#   COVERED_BY_GRADUATION_BOUNDARY — Structure defined; engine logic graduates to wasm4pm
+#   PARTIAL_WITH_REASON            — Partially covered; specific gaps noted
+#   MISSING_TYPE_LAW               — Canon family present but no Rust type surface yet
+#   OUT_OF_SCOPE_WITH_REASON       — No process-mining type-law relevance
+#   DUPLICATE_OR_BACKGROUND        — Redundant with another paper
+
+@prefix compat: <https://wasm4pm-compat.rs/ontology#> .
+@prefix paper:  <https://wasm4pm-compat.rs/paper#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+
+<https://wasm4pm-compat.rs/paper>
+    a owl:Ontology ;
+    rdfs:label "wasm4pm-compat paper coverage ontology" ;
+    rdfs:comment "Maps published process-mining papers to their Rust type-law surface coverage in wasm4pm-compat. Derived from docs/PAPER_COVERAGE_LEDGER.md." ;
+    owl:versionInfo "26.6.9" .
+
+# ============================================================================
+# ADDITIONAL PROPERTIES (used only in this file)
+# ============================================================================
+
+paper:ledgerIndex
+    a rdf:Property ;
+    rdfs:label "ledgerIndex" ;
+    rdfs:comment "The 1-based index number in docs/PAPER_COVERAGE_LEDGER.md." ;
+    rdfs:range xsd:integer .
+
+paper:year
+    a rdf:Property ;
+    rdfs:label "year" ;
+    rdfs:comment "Publication year of the paper." ;
+    rdfs:range xsd:integer .
+
+paper:authors
+    a rdf:Property ;
+    rdfs:label "authors" ;
+    rdfs:comment "Author string (abbreviated, as in ledger)." ;
+    rdfs:range xsd:string .
+
+paper:canonFamily
+    a rdf:Property ;
+    rdfs:label "canonFamily" ;
+    rdfs:comment "Canon family classification: OCEL_OBJECT_CENTRIC, XES_EVENT_LOG, PETRI_NETS, WF_NET_SOUNDNESS, OBJECT_CENTRIC_PETRI, PROCESS_TREES_INDUCTIVE, POWL, DECLARE_CONSTRAINTS, LOG_SKELETON, DFG_OBJECT_CENTRIC, CONFORMANCE_ALIGNMENT, PREDICTION_DRIFT, OCPQ_QUERYING, WORKFLOW_PATTERNS_BPMN, SYSTEMS_API, OUT_OF_SCOPE." ;
+    rdfs:range xsd:string .
+
+paper:title
+    a rdf:Property ;
+    rdfs:label "title" ;
+    rdfs:comment "Full paper title." ;
+    rdfs:range xsd:string .
+
+paper:missingWork
+    a rdf:Property ;
+    rdfs:label "missingWork" ;
+    rdfs:comment "Specific remaining work needed to complete coverage." ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# PAPER INSTANCES (selected 30 from the 81-paper ledger)
+# Focus: COVERED_BY_TYPE and COVERED_BY_GRADUATION_BOUNDARY papers with
+# the most substantial Rust type surfaces. OUT_OF_SCOPE papers omitted.
+# ============================================================================
+
+paper:WfNetSoundness1998
+    a compat:PaperCoverage ;
+    rdfs:label "WfNetSoundness1998" ;
+    paper:ledgerIndex 34 ;
+    paper:title "The Application of Petri Nets to Workflow Management" ;
+    paper:year 1998 ;
+    paper:authors "van der Aalst" ;
+    paper:canonFamily "WF_NET_SOUNDNESS" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/petri.rs" ;
+    compat:description "Foundational WF-net soundness paper. Covered by WfNetConst<SOUNDNESS> with SoundnessUnknown/SoundnessClaimed/SoundnessWitnessed tokens and WfNetSoundnessPaper witness." .
+
+paper:YAWL2004
+    a compat:PaperCoverage ;
+    rdfs:label "YAWL2004" ;
+    paper:ledgerIndex 36 ;
+    paper:title "YAWL: Yet Another Workflow Language" ;
+    paper:year 2004 ;
+    paper:authors "van der Aalst, ter Hofstede" ;
+    paper:canonFamily "WORKFLOW_PATTERNS_BPMN" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/workflow.rs" ;
+    compat:description "YAWL routing constructs (AND/XOR/OR split/join), cancellation regions, multiple-instance tasks. Covered by YawlPaper witness and workflow.rs shapes." .
+
+paper:AlphaAlgorithm2004
+    a compat:PaperCoverage ;
+    rdfs:label "AlphaAlgorithm2004" ;
+    paper:ledgerIndex 35 ;
+    paper:title "Workflow Mining: Discovering Process Models from Event Logs (Alpha Algorithm)" ;
+    paper:year 2004 ;
+    paper:authors "van der Aalst, Weijters, Maruster" ;
+    paper:canonFamily "PETRI_NETS" ;
+    compat:coverageStatus "COVERED_BY_GRADUATION_BOUNDARY" ;
+    compat:coveringModule "src/petri.rs" ;
+    compat:graduationReason "NeedsDiscovery" ;
+    compat:description "Alpha Algorithm process discovery. Structural WF-net shape in src/petri.rs; Alpha Miner execution graduates to wasm4pm. AlphaMiner witness." .
+
+paper:OcelStandard2023
+    a compat:PaperCoverage ;
+    rdfs:label "OcelStandard2023" ;
+    paper:ledgerIndex 33 ;
+    paper:title "OCEL 2.0 Standard" ;
+    paper:year 2023 ;
+    paper:authors "Ghahfarokhi, Park, Berti, van der Aalst" ;
+    paper:canonFamily "OCEL_OBJECT_CENTRIC" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/ocel.rs" ;
+    compat:description "OCEL 2.0 standard. Fully covered by OcelLog with E2O/O2O links, OcelObjectType, OcelEventType, OcelAttributeType witnesses, and structural validate()." .
+
+paper:Xes18492016
+    a compat:PaperCoverage ;
+    rdfs:label "Xes18492016" ;
+    paper:ledgerIndex 64 ;
+    paper:title "IEEE 1849-2016 — XES (eXtensible Event Stream)" ;
+    paper:year 2016 ;
+    paper:authors "IEEE Task Force on Process Mining" ;
+    paper:canonFamily "XES_EVENT_LOG" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/xes.rs" ;
+    compat:description "XES standard. Covered by XesLog shape, Xes1849 witness, XesLifecycleExt and XesConceptExt sub-authority witnesses." .
+
+paper:ObjectCentricPetriNets2020
+    a compat:PaperCoverage ;
+    rdfs:label "ObjectCentricPetriNets2020" ;
+    paper:ledgerIndex 37 ;
+    paper:title "Discovering Object-Centric Petri Nets" ;
+    paper:year 2020 ;
+    paper:authors "van der Aalst, Berti" ;
+    paper:canonFamily "OBJECT_CENTRIC_PETRI" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/petri.rs" ;
+    compat:description "OC-Petri net notation (object types, variable arcs, binding elements). Covered by ObjectCentricPetriNet shape and ObjectCentricPetriNetPaper/OcPetriNets witnesses. Discovery graduates to wasm4pm." .
+
+paper:WorkflowPatterns2016
+    a compat:PaperCoverage ;
+    rdfs:label "WorkflowPatterns2016" ;
+    paper:ledgerIndex 14 ;
+    paper:title "Workflow Patterns: The Definitive Guide" ;
+    paper:year 2016 ;
+    paper:authors "Russell, van der Aalst, ter Hofstede" ;
+    paper:canonFamily "WORKFLOW_PATTERNS_BPMN" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/law.rs" ;
+    compat:description "17 of 20 canonical control-flow workflow patterns reified as WorkflowPattern ConstParamTy enum. WorkflowPatternsPaper witness. Compile-fail fixture for wrong-kind pattern." ;
+    paper:missingWork "3 remaining patterns (WCP-14, WCP-15, WCP-18) not yet named; data/resource/exception patterns out of scope." .
+
+paper:SeparableWfNet2026
+    a compat:PaperCoverage ;
+    rdfs:label "SeparableWfNet2026" ;
+    paper:ledgerIndex 3 ;
+    paper:title "Hierarchical Decomposition of Separable Workflow-Nets" ;
+    paper:year 2026 ;
+    paper:authors "Kourani, Park, van der Aalst" ;
+    paper:canonFamily "POWL" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/petri.rs" ;
+    compat:description "Separable WF-net subclass and WF-net to POWL 2.0 transformation. Covered by SeparableWfNet, ChoiceGraph, WfNet2PowlWitness, SeparableWfNetPaper witness, WfNet2Powl witness. Compile-pass fixtures: separable_wfnet_marker.rs, wfnet2powl_witness.rs." .
+
+paper:POWL2023
+    a compat:PaperCoverage ;
+    rdfs:label "POWL2023" ;
+    paper:ledgerIndex 38 ;
+    paper:title "Partially Ordered Workflow Language (POWL)" ;
+    paper:year 2023 ;
+    paper:authors "Kourani, van Zelst" ;
+    paper:canonFamily "POWL" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/powl.rs" ;
+    compat:description "POWL shape: PowlNode, PowlNodeKind (StrictOrder, Loop, XorGateway, SilentTransition, ChoiceGraph), TreeProjectable sealed trait. PowlPaper witness." .
+
+paper:InductiveMiner2013
+    a compat:PaperCoverage ;
+    rdfs:label "InductiveMiner2013" ;
+    paper:ledgerIndex 39 ;
+    paper:title "Discovering Block-Structured Process Models from Event Logs Containing Infrequent Behaviour" ;
+    paper:year 2013 ;
+    paper:authors "Leemans, Fahland, van der Aalst" ;
+    paper:canonFamily "PROCESS_TREES_INDUCTIVE" ;
+    compat:coverageStatus "COVERED_BY_GRADUATION_BOUNDARY" ;
+    compat:coveringModule "src/process_tree.rs" ;
+    compat:graduationReason "NeedsDiscovery" ;
+    compat:description "Inductive Miner discovery algorithm. Process tree structure in src/process_tree.rs with TypedLoopNode<ARITY> constraint. InductiveMiner witness. Miner execution graduates to wasm4pm." .
+
+paper:OCPQ2025
+    a compat:PaperCoverage ;
+    rdfs:label "OCPQ2025" ;
+    paper:ledgerIndex 6 ;
+    paper:title "OCPQ: Object-Centric Process Querying and Constraints" ;
+    paper:year 2025 ;
+    paper:authors "Küsters, van der Aalst" ;
+    paper:canonFamily "OCPQ_QUERYING" ;
+    compat:coverageStatus "PARTIAL_WITH_REASON" ;
+    compat:coveringModule "src/ocpq.rs" ;
+    compat:description "OCPQ query and result shapes implemented in src/ocpq.rs with predicate witness markers and OcpqRefusal. Full const-generic ObjectTypeSet/EventTypeSet type params not yet at surface level." ;
+    paper:missingWork "Typed ObjectTypeSet and EventTypeSet const params; ConstraintViolation<ObjType, EvType> typed result; compile-fail for mixing object types." .
+
+paper:DeclareConstraints2006
+    a compat:PaperCoverage ;
+    rdfs:label "DeclareConstraints2006" ;
+    paper:ledgerIndex 40 ;
+    paper:title "Declare: Full Support for Loosely-Structured Processes" ;
+    paper:year 2006 ;
+    paper:authors "Pesic, van der Aalst" ;
+    paper:canonFamily "DECLARE_CONSTRAINTS" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/declare.rs" ;
+    compat:description "Declare constraint-template language. Covered by DeclareModel shapes in src/declare.rs, DeclareFamily and DeclareConstraints witnesses." .
+
+paper:AlignmentConformance2008
+    a compat:PaperCoverage ;
+    rdfs:label "AlignmentConformance2008" ;
+    paper:ledgerIndex 41 ;
+    paper:title "Alignment-Based Conformance Checking" ;
+    paper:year 2008 ;
+    paper:authors "van Dongen, de Medeiros, Wen" ;
+    paper:canonFamily "CONFORMANCE_ALIGNMENT" ;
+    compat:coverageStatus "COVERED_BY_GRADUATION_BOUNDARY" ;
+    compat:coveringModule "src/conformance.rs" ;
+    compat:graduationReason "NeedsConformanceExecution" ;
+    compat:description "Alignment-based conformance verdict carrier: Fitness, Precision, F1, Deviation, SyncMove, LogOnlyMove, ModelOnlyMove. AlignmentPaper witness. Alignment computation graduates to wasm4pm." .
+
+paper:LogSkeleton2018
+    a compat:PaperCoverage ;
+    rdfs:label "LogSkeleton2018" ;
+    paper:ledgerIndex 62 ;
+    paper:title "Log Skeletons: A Classification Approach to Process Discovery" ;
+    paper:year 2018 ;
+    paper:authors "Verbeek, Leemans" ;
+    paper:canonFamily "LOG_SKELETON" ;
+    compat:coverageStatus "COVERED_BY_GRADUATION_BOUNDARY" ;
+    compat:coveringModule "src/declare.rs" ;
+    compat:graduationReason "NeedsConformanceExecution" ;
+    compat:description "Log Skeleton six-relation declarative model. LogSkeleton witness. Conformance computation graduates to wasm4pm." .
+
+paper:ProcessCube2013
+    a compat:PaperCoverage ;
+    rdfs:label "ProcessCube2013" ;
+    paper:ledgerIndex 80 ;
+    paper:title "Process Cubes: Slicing, Dicing, Rolling Up and Drilling Down Event Data for Process Mining" ;
+    paper:year 2013 ;
+    paper:authors "van der Aalst" ;
+    paper:canonFamily "OCEL_OBJECT_CENTRIC" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/process_cube.rs" ;
+    compat:description "Process cube framework: ProcessCube, CubeDimension, CubeSlice, CubeCell, CubeProjectionWitness, CellComparison. ProcessCubePaper, OperationalView, AnalyticalView, AggregationView witnesses. Cube computation graduates to wasm4pm." .
+
+paper:RealLifeBpmn2019
+    a compat:PaperCoverage ;
+    rdfs:label "RealLifeBpmn2019" ;
+    paper:ledgerIndex 11 ;
+    paper:title "Real-Life BPMN (4th edition)" ;
+    paper:year 2019 ;
+    paper:authors "Freund, Rücker" ;
+    paper:canonFamily "WORKFLOW_PATTERNS_BPMN" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/bpmn.rs" ;
+    compat:description "BPMN 2.0 elements: task, gateway, event, pool, lane, subprocess, message flow. Gateway type as PhantomData witness in src/bpmn.rs." .
+
+paper:Pm4pyLibrary2023
+    a compat:PaperCoverage ;
+    rdfs:label "Pm4pyLibrary2023" ;
+    paper:ledgerIndex 7 ;
+    paper:title "PM4Py: A Process Mining Library for Python (Software Impacts)" ;
+    paper:year 2023 ;
+    paper:authors "Berti, van Zelst, Schuster" ;
+    paper:canonFamily "SYSTEMS_API" ;
+    compat:coverageStatus "COVERED_BY_GRADUATION_BOUNDARY" ;
+    compat:coveringModule "src/" ;
+    compat:graduationReason "NeedsDiscovery" ;
+    compat:description "PM4Py structural API surface. All format/algorithm shapes defined in src/ modules. Token-based replay, alignments, soundness checking, process discovery algorithms graduate to wasm4pm via Pm4pyApiGrammar witness." .
+
+paper:PmaxAgentic2026
+    a compat:PaperCoverage ;
+    rdfs:label "PmaxAgentic2026" ;
+    paper:ledgerIndex 9 ;
+    paper:title "PMAx: An Agentic Framework for AI-Driven Process Mining" ;
+    paper:year 2026 ;
+    paper:authors "Antonov, Kourani, Berti, Park, van der Aalst" ;
+    paper:canonFamily "SYSTEMS_API" ;
+    compat:coverageStatus "COVERED_BY_GRADUATION_BOUNDARY" ;
+    compat:coveringModule "src/" ;
+    compat:graduationReason "RebuildingProcessMiningLocally" ;
+    compat:description "PMAx agentic framework. Schema abstraction layer (event log shape, Petri net shape, OCEL shape) remains in this crate. Engineer agent PM4Py execution and Analyst agent report generation graduate to wasm4pm. PmaxConsumerGrammar witness." .
+
+paper:TemporalProfileConformance2020
+    a compat:PaperCoverage ;
+    rdfs:label "TemporalProfileConformance2020" ;
+    paper:ledgerIndex 65 ;
+    paper:title "Temporal Profile Conformance Checking" ;
+    paper:year 2020 ;
+    paper:authors "Stertz, Rinderle-Ma, Rinderle" ;
+    paper:canonFamily "CONFORMANCE_ALIGNMENT" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/temporal.rs" ;
+    compat:description "Temporal profile conformance shape: AVG/STD per activity-pair. TemporalProfileWitness and TimeAwareWitness. Zeta-value conformance checking graduates to wasm4pm." .
+
+paper:MultiPerspectiveConformance2016
+    a compat:PaperCoverage ;
+    rdfs:label "MultiPerspectiveConformance2016" ;
+    paper:ledgerIndex 71 ;
+    paper:title "Balanced Multi-Perspective Conformance Checking in Process Mining" ;
+    paper:year 2016 ;
+    paper:authors "Mannhardt, de Leoni, Reijers, van der Aalst" ;
+    paper:canonFamily "CONFORMANCE_ALIGNMENT" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/multiperspective.rs" ;
+    compat:description "Multi-perspective conformance: control-flow, data, resource, time perspectives. ControlFlowPerspectiveWitness, DataPerspectiveWitness, ResourcePerspectiveWitness, TimePerspectiveWitness. Alignment cost computation graduates to wasm4pm." .
+
+paper:OcpmDivergence
+    a compat:PaperCoverage ;
+    rdfs:label "OcpmDivergence" ;
+    paper:ledgerIndex 49 ;
+    paper:title "OC-PM Divergence/Convergence Detection" ;
+    paper:year 2023 ;
+    paper:authors "(OC-PM paper #49)" ;
+    paper:canonFamily "OBJECT_CENTRIC_PETRI" ;
+    compat:coverageStatus "PARTIAL_WITH_REASON" ;
+    compat:coveringModule "src/petri.rs" ;
+    compat:description "Divergence and convergence pattern detection in object-centric process models. DivergenceWitness and ConvergenceWitness defined. Detection logic graduates to wasm4pm." ;
+    paper:missingWork "Divergence/convergence structural shape types not yet materialized in src/petri.rs or a dedicated module." .
+
+paper:PredictiveProcessMonitoring2026
+    a compat:PaperCoverage ;
+    rdfs:label "PredictiveProcessMonitoring2026" ;
+    paper:ledgerIndex 1 ;
+    paper:title "Compliance-Aware Predictive Process Monitoring: A Neuro-Symbolic Approach" ;
+    paper:year 2026 ;
+    paper:authors "De Santis, Park, van der Aalst, Zanichelli" ;
+    paper:canonFamily "PREDICTION_DRIFT" ;
+    compat:coverageStatus "PARTIAL_WITH_REASON" ;
+    compat:coveringModule "src/prediction.rs" ;
+    compat:description "Predictive process monitoring with compliance constraint binding. PredictionTarget structure exists; compliance-constraint-as-law binding missing. PredictiveMonitoringFamily witness." ;
+    paper:missingWork "Add ComplianceConstraintWitness<W> binding prediction surface to a named law; Between01 metric for compliance score." .
+
+paper:XesToOcedIntegration2025
+    a compat:PaperCoverage ;
+    rdfs:label "XesToOcedIntegration2025" ;
+    paper:ledgerIndex 5 ;
+    paper:title "Object-Centric Analysis of XES Event Logs: Integrating OCED Modeling with SPARQL Queries" ;
+    paper:year 2025 ;
+    paper:authors "Latif, Latif, Rahman" ;
+    paper:canonFamily "XES_EVENT_LOG" ;
+    compat:coverageStatus "PARTIAL_WITH_REASON" ;
+    compat:coveringModule "src/interop.rs" ;
+    compat:description "XES-to-OCED conversion with SPARQL queryable object graph. XES and OCEL structures exist; explicit XesToOcedProjection with LossPolicy::AllowLossWithReport not yet materialized." ;
+    paper:missingWork "XesToOcedProjection named loss surface; SPARQL-queryable object graph shape." .
+
+paper:StochasticConformance
+    a compat:PaperCoverage ;
+    rdfs:label "StochasticConformance" ;
+    paper:ledgerIndex 57 ;
+    paper:title "Stochastic Conformance Checking" ;
+    paper:year 2020 ;
+    paper:authors "Leemans, Syring, van der Aalst" ;
+    paper:canonFamily "CONFORMANCE_ALIGNMENT" ;
+    compat:coverageStatus "MISSING_TYPE_LAW" ;
+    compat:coveringModule "src/conformance.rs" ;
+    compat:description "Stochastic conformance checking: earthmover distance between log and stochastic Petri net language. No stochastic Petri net or earthmover distance shape yet in crate." ;
+    paper:missingWork "StochasticPetriNet shape; EarthMoverDistance<NUM, DEN> metric bounded by Between01." .
+
+paper:DfgMiningFiltering
+    a compat:PaperCoverage ;
+    rdfs:label "DfgMiningFiltering" ;
+    paper:ledgerIndex 50 ;
+    paper:title "Object-Centric DFG Mining and Filtering" ;
+    paper:year 2022 ;
+    paper:authors "Berti, van der Aalst" ;
+    paper:canonFamily "DFG_OBJECT_CENTRIC" ;
+    compat:coverageStatus "PARTIAL_WITH_REASON" ;
+    compat:coveringModule "src/dfg.rs" ;
+    compat:description "OC-DFG mining and filtering. DirectlyFollowsGraph shape in src/dfg.rs. Filtering and DFG mining logic graduates to wasm4pm." ;
+    paper:missingWork "Explicit OcDfg<ObjectTypes> const-generic shape; ObjectCentricDfgWitness." .
+
+paper:BpmnOmg2011
+    a compat:PaperCoverage ;
+    rdfs:label "BpmnOmg2011" ;
+    paper:ledgerIndex 47 ;
+    paper:title "Business Process Model and Notation (BPMN) 2.0 Specification" ;
+    paper:year 2011 ;
+    paper:authors "OMG" ;
+    paper:canonFamily "WORKFLOW_PATTERNS_BPMN" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/bpmn.rs" ;
+    compat:description "BPMN 2.0 OMG specification. Gateway types (XOR/AND/OR), subprocess, message flow, event types covered in src/bpmn.rs." .
+
+paper:WesbeBpm2019
+    a compat:PaperCoverage ;
+    rdfs:label "WesbeBpm2019" ;
+    paper:ledgerIndex 46 ;
+    paper:title "Business Process Management: Concepts, Languages, Architectures (3rd ed.)" ;
+    paper:year 2019 ;
+    paper:authors "Weske" ;
+    paper:canonFamily "WORKFLOW_PATTERNS_BPMN" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/bpmn.rs" ;
+    compat:description "BPM foundations textbook. BPMN, Petri net, and workflow pattern shapes all present. Background reference confirming canon completeness." .
+
+paper:ProcessMiningBook2016
+    a compat:PaperCoverage ;
+    rdfs:label "ProcessMiningBook2016" ;
+    paper:ledgerIndex 75 ;
+    paper:title "Process Mining: Data Science in Action (2nd edition)" ;
+    paper:year 2016 ;
+    paper:authors "van der Aalst" ;
+    paper:canonFamily "PETRI_NETS" ;
+    compat:coverageStatus "COVERED_BY_TYPE" ;
+    compat:coveringModule "src/" ;
+    compat:description "Process Mining textbook 2nd edition. All structural shapes from the canonical process-mining vocabulary are present in src/ modules. Discovery, conformance, and enhancement algorithms graduate to wasm4pm." .
+
+paper:SchusterOcpa2023
+    a compat:PaperCoverage ;
+    rdfs:label "SchusterOcpa2023" ;
+    paper:ledgerIndex 81 ;
+    paper:title "OCPA: A Python Library for Object-Centric Process Analysis" ;
+    paper:year 2023 ;
+    paper:authors "Schuster, van Zelst, van der Aalst" ;
+    paper:canonFamily "SYSTEMS_API" ;
+    compat:coverageStatus "COVERED_BY_GRADUATION_BOUNDARY" ;
+    compat:coveringModule "src/ocel.rs" ;
+    compat:graduationReason "NeedsDiscovery" ;
+    compat:description "OCPA Python library for object-centric process analysis. OCEL structural shapes in this crate; OC-DFG discovery, OC-Petri net discovery, and process cube analysis graduate to wasm4pm." .
+
+# ============================================================================
+# END OF PAPER COVERAGE ONTOLOGY
+# ============================================================================

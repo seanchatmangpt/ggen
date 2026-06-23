@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+  xmlns:ce="http://chatman-equation.org/core/"
+  xmlns:ac="http://chatman-equation.org/academic/"
+  xmlns:doc="http://chatman-equation.org/documentation/">
+
+  <!--
+    Academic Publishing Lifecycle Ontology
+
+    Models the complete academic paper publishing workflow:
+    Submission → Desk Review → Reviewer Assignment → Review Period →
+    Decision Generation → Notification → Publication
+
+    Each step is a deterministic knowledge hook with defined guards and receipts.
+    Demonstrates the Chatman Equation applied to a real-world publishing system.
+  -->
+
+  <!-- ================================================================= -->
+  <!-- METADATA -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/academic/lifecycle">
+    <rdf:type rdf:resource="http://chatman-equation.org/documentation/Ontology"/>
+    <rdfs:label>Academic Publishing Lifecycle</rdfs:label>
+    <rdfs:comment>Complete RDF model of paper submission, review, and publication workflow</rdfs:comment>
+
+    <ac:version>1.0.0</ac:version>
+    <ac:lastUpdated rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2025-11-16</ac:datatype>
+    <ac:sector>Academic Publishing</ac:sector>
+    <ac:stageCount>6</ac:stageCount>
+    <ac:hookCount>8</ac:hookCount>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- PAPER SUBMISSION STAGE -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/academic/stage/submission">
+    <rdf:type rdf:resource="http://chatman-equation.org/academic/Stage"/>
+    <rdfs:label>Paper Submission</rdfs:label>
+
+    <ac:stageNumber>1</ac:stageNumber>
+    <ac:stageName>Submission</ac:stageName>
+    <ac:description>Author submits paper with metadata and supporting materials</ac:description>
+    <ac:inputFormat>PDF + Metadata (JSON)</ac:inputFormat>
+    <ac:outputFormat>SubmissionReceipt (JSON)</ac:outputFormat>
+    <ac:deterministic>true</ac:deterministic>
+    <ac:maxLatencySeconds>5</ac:maxLatencySeconds>
+    <ac:requiredGuards>
+      <rdf:Description>
+        <ac:guardType>Legality</ac:guardType>
+        <ac:rule>Paper must have title, author list, abstract</ac:rule>
+      </rdf:Description>
+      <rdf:Description>
+        <ac:guardType>Budget</ac:guardType>
+        <ac:rule>File size ≤ 50MB, submission within deadline</ac:rule>
+      </rdf:Description>
+    </ac:requiredGuards>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- DESK REVIEW STAGE -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/academic/stage/desk-review">
+    <rdf:type rdf:resource="http://chatman-equation.org/academic/Stage"/>
+    <rdfs:label>Desk Review</rdfs:label>
+
+    <ac:stageNumber>2</ac:stageNumber>
+    <ac:stageName>Desk Review</ac:stageName>
+    <ac:description>Editor reviews paper for scope, quality, and relevance</ac:description>
+    <ac:deterministic>false</ac:deterministic>
+    <ac:maxLatencySeconds>300</ac:maxLatencySeconds>
+    <ac:outcomes rdf:parseType="Collection">
+      <rdf:Description>
+        <ac:outcome>Accept for Review</ac:outcome>
+        <ac:probability>0.7</ac:probability>
+      </rdf:Description>
+      <rdf:Description>
+        <ac:outcome>Desk Reject</ac:outcome>
+        <ac:probability>0.3</ac:probability>
+      </rdf:Description>
+    </ac:outcomes>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- REVIEWER ASSIGNMENT STAGE -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/academic/stage/reviewer-assignment">
+    <rdf:type rdf:resource="http://chatman-equation.org/academic/Stage"/>
+    <rdfs:label>Reviewer Assignment</rdfs:label>
+
+    <ac:stageNumber>3</ac:stageNumber>
+    <ac:stageName>Reviewer Assignment</ac:stageName>
+    <ac:description>System matches paper to appropriate reviewers based on expertise</ac:description>
+    <ac:deterministic>true</ac:deterministic>
+    <ac:maxLatencySeconds>10</ac:maxLatencySeconds>
+    <ac:requiredGuards>
+      <rdf:Description>
+        <ac:guardType>Legality</ac:guardType>
+        <ac:rule>Assign 3 reviewers, no author conflicts of interest</ac:rule>
+      </rdf:Description>
+      <rdf:Description>
+        <ac:guardType>Causality</ac:guardType>
+        <ac:rule>Only assign after desk review accept</ac:rule>
+      </rdf:Description>
+    </ac:requiredGuards>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- REVIEW COLLECTION STAGE -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/academic/stage/review-collection">
+    <rdf:type rdf:resource="http://chatman-equation.org/academic/Stage"/>
+    <rdfs:label>Review Collection</rdfs:label>
+
+    <ac:stageNumber>4</ac:stageNumber>
+    <ac:stageName>Review Collection</ac:stageName>
+    <ac:description>Collect reviews from assigned reviewers</ac:description>
+    <ac:deterministic>false</ac:deterministic>
+    <ac:maxLatencySeconds>1209600</ac:maxLatencySeconds>
+    <ac:comment>4 weeks in seconds</ac:comment>
+    <ac:requiredGuards>
+      <rdf:Description>
+        <ac:guardType>Chronology</ac:guardType>
+        <ac:rule>Enforce review deadline, send reminders after 2 weeks</ac:rule>
+      </rdf:Description>
+      <rdf:Description>
+        <ac:guardType>Budget</ac:guardType>
+        <ac:rule>Accept at least 2 reviews before proceeding</ac:rule>
+      </rdf:Description>
+    </ac:requiredGuards>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- DECISION GENERATION STAGE -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/academic/stage/decision-generation">
+    <rdf:type rdf:resource="http://chatman-equation.org/academic/Stage"/>
+    <rdfs:label>Decision Generation</rdfs:label>
+
+    <ac:stageNumber>5</ac:stageNumber>
+    <ac:stageName>Decision Generation</ac:stageName>
+    <ac:description>Synthesize reviews and generate editorial decision</ac:description>
+    <ac:deterministic>true</ac:deterministic>
+    <ac:maxLatencySeconds>60</ac:maxLatencySeconds>
+    <ac:decisionRules>
+      <rdf:Description>
+        <ac:rule>Average score ≥ 3.5 and no strong rejects → Accept</ac:rule>
+      </rdf:Description>
+      <rdf:Description>
+        <ac:rule>Average score 2.5-3.5 → Minor Revisions</ac:rule>
+      </rdf:Description>
+      <rdf:Description>
+        <ac:rule>Average score ≤ 2.5 → Reject</ac:rule>
+      </rdf:Description>
+    </ac:decisionRules>
+    <ac:requiresGuards>
+      <rdf:Description>
+        <ac:guardType>Legality</ac:guardType>
+        <ac:rule>Decision must be based only on review content</ac:rule>
+      </rdf:Description>
+    </ac:requiresGuards>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- NOTIFICATION STAGE -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/academic/stage/notification">
+    <rdf:type rdf:resource="http://chatman-equation.org/academic/Stage"/>
+    <rdfs:label>Notification</rdfs:label>
+
+    <ac:stageNumber>6</ac:stageNumber>
+    <ac:stageName>Notification</ac:stageName>
+    <ac:description>Send decision notification to author with review summary</ac:description>
+    <ac:deterministic>true</ac:deterministic>
+    <ac:maxLatencySeconds>5</ac:maxLatencySeconds>
+    <ac:outputFormat>DecisionNotification (JSON + PDF Letter)</ac:outputFormat>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- KNOWLEDGE HOOKS (Operators) -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/academic/hook/validate-submission">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/KnowledgeHook"/>
+    <rdfs:label>Validate Submission</rdfs:label>
+
+    <ac:hookId>validate_submission</ac:hookId>
+    <ac:stage rdf:resource="http://chatman-equation.org/academic/stage/submission"/>
+    <ac:description>Verify paper meets submission requirements</ac:description>
+    <ac:deterministic>true</ac:deterministic>
+    <ac:expectedOutput>SubmissionReceipt with acceptance or rejection reason</ac:expectedOutput>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://chatman-equation.org/academic/hook/desk-review-decision">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/KnowledgeHook"/>
+    <rdfs:label>Desk Review Decision</rdfs:label>
+
+    <ac:hookId>desk_review_decision</ac:hookId>
+    <ac:stage rdf:resource="http://chatman-equation.org/academic/stage/desk-review"/>
+    <ac:description>Editorial decision on paper scope and quality</ac:description>
+    <ac:deterministic>false</ac:deterministic>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://chatman-equation.org/academic/hook/assign-reviewers">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/KnowledgeHook"/>
+    <rdfs:label>Assign Reviewers</rdfs:label>
+
+    <ac:hookId>assign_reviewers</ac:hookId>
+    <ac:stage rdf:resource="http://chatman-equation.org/academic/stage/reviewer-assignment"/>
+    <ac:description>Match paper to expert reviewers</ac:description>
+    <ac:deterministic>true</ac:deterministic>
+    <ac:outputs>
+      <rdf:Description>
+        <ac:output>ReviewerAssignment with 3 reviewers</ac:output>
+      </rdf:Description>
+      <rdf:Description>
+        <ac:output>ReviewerReceipt (audit trail)</ac:output>
+      </rdf:Description>
+    </ac:outputs>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://chatman-equation.org/academic/hook/synthesize-reviews">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/KnowledgeHook"/>
+    <rdfs:label>Synthesize Reviews</rdfs:label>
+
+    <ac:hookId>synthesize_reviews</ac:hookId>
+    <ac:stage rdf:resource="http://chatman-equation.org/academic/stage/decision-generation"/>
+    <ac:description>Analyze reviews and generate decision</ac:description>
+    <ac:deterministic>true</ac:deterministic>
+    <ac:expectedOutput>DecisionRecord with rationale</ac:expectedOutput>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://chatman-equation.org/academic/hook/emit-decision-receipt">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/KnowledgeHook"/>
+    <rdfs:label>Emit Decision Receipt</rdfs:label>
+
+    <ac:hookId>emit_decision_receipt</ac:hookId>
+    <ac:stage rdf:resource="http://chatman-equation.org/academic/stage/notification"/>
+    <ac:description>Generate cryptographic receipt for decision</ac:description>
+    <ac:deterministic>true</ac:deterministic>
+    <ac:outputFormat>DecisionReceipt with SHA256 merkle root</ac:outputFormat>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- THEOREM MAPPING -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/academic/theorems">
+    <rdf:type rdf:resource="http://chatman-equation.org/documentation/TheoremSet"/>
+    <rdfs:label>Academic Publishing Theorems</rdfs:label>
+
+    <ac:theorem>
+      <rdf:Description>
+        <ac:id>Thm-AC-1</ac:id>
+        <ac:name>Reviewer Assignment Fairness</ac:name>
+        <ac:description>All papers are assigned reviewers with matching expertise, no conflicts of interest</ac:description>
+        <ac:testProperty>reviewer_fairness (property-based)</ac:testProperty>
+      </rdf:Description>
+    </ac:theorem>
+
+    <ac:theorem>
+      <rdf:Description>
+        <ac:id>Thm-AC-2</ac:id>
+        <ac:name>Decision Reproducibility</ac:name>
+        <ac:description>Given same set of reviews, decision generation is deterministic</ac:description>
+        <ac:testProperty>decision_reproducibility (property-based)</ac:testProperty>
+      </rdf:Description>
+    </ac:theorem>
+
+    <ac:theorem>
+      <rdf:Description>
+        <ac:id>Thm-AC-3</ac:id>
+        <ac:name>Receipt Immutability</ac:name>
+        <ac:description>Decision receipts are cryptographically signed and cannot be altered</ac:description>
+        <ac:testProperty>receipt_integrity</ac:testProperty>
+      </rdf:Description>
+    </ac:theorem>
+  </rdf:Description>
+
+</rdf:RDF>

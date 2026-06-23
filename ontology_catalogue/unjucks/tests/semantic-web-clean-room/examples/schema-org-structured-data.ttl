@@ -1,0 +1,353 @@
+# Schema.org Structured Data Example
+# Generated using Unjucks semantic web filters for SEO and rich snippets
+
+@prefix schema: <http://schema.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ========================================
+# ORGANIZATION INFORMATION
+# ========================================
+
+<https://techcorp.example.com> rdf:type schema:Organization, schema:Corporation ;
+    schema:name "TechCorp Inc." ;
+    schema:alternateName "TechCorp" ;
+    schema:description "Leading provider of enterprise software solutions and digital transformation services" ;
+    schema:url <https://www.techcorp.example.com> ;
+    schema:logo <https://www.techcorp.example.com/assets/logo-512.png> ;
+    schema:image <https://www.techcorp.example.com/assets/headquarters.jpg> ;
+    schema:foundingDate "2010-01-01"^^xsd:date ;
+    schema:numberOfEmployees "500"^^xsd:integer ;
+    schema:vatID "US123456789" ;
+    schema:taxID "12-3456789" ;
+    schema:duns "123456789" ;
+    schema:legalName "TechCorp Incorporated" ;
+    
+    # Address Information
+    schema:address [
+        rdf:type schema:PostalAddress ;
+        schema:streetAddress "123 Tech Avenue, Suite 100" ;
+        schema:addressLocality "Silicon Valley" ;
+        schema:addressRegion "CA" ;
+        schema:postalCode "94000" ;
+        schema:addressCountry "US" ;
+        schema:addressCountry <https://www.wikidata.org/wiki/Q30>
+    ] ;
+    
+    # Contact Information
+    schema:contactPoint [
+        rdf:type schema:ContactPoint ;
+        schema:telephone "+1-555-TECH-CORP" ;
+        schema:email "info@techcorp.example.com" ;
+        schema:contactType "customer service" ;
+        schema:availableLanguage "en", "es", "fr" ;
+        schema:hoursAvailable [
+            rdf:type schema:OpeningHoursSpecification ;
+            schema:dayOfWeek schema:Monday, schema:Tuesday, schema:Wednesday, schema:Thursday, schema:Friday ;
+            schema:opens "08:00" ;
+            schema:closes "18:00" ;
+            schema:validFrom "2024-01-01"^^xsd:date
+        ]
+    ] ;
+    
+    # Sales Contact
+    schema:contactPoint [
+        rdf:type schema:ContactPoint ;
+        schema:telephone "+1-555-TECH-SALE" ;
+        schema:email "sales@techcorp.example.com" ;
+        schema:contactType "sales" ;
+        schema:availableLanguage "en"
+    ] ;
+    
+    # Social Media Presence
+    schema:sameAs <https://www.linkedin.com/company/techcorp> ,
+                  <https://twitter.com/techcorp> ,
+                  <https://www.facebook.com/techcorp> ,
+                  <https://github.com/techcorp> ,
+                  <https://www.youtube.com/c/techcorp> ;
+    
+    # Industry Classification
+    schema:knowsAbout "Enterprise Software", "Digital Transformation", "Cloud Computing", "Artificial Intelligence" ;
+    schema:naics "541511" ;  # Custom Computer Programming Services
+    schema:isicV4 "6201" .   # Computer programming activities
+
+# ========================================
+# PRODUCTS AND SERVICES
+# ========================================
+
+<https://techcorp.example.com/products/enterprise-suite> rdf:type schema:SoftwareApplication ;
+    schema:name "Enterprise Management Suite" ;
+    schema:description "Comprehensive enterprise resource planning solution with AI-powered analytics" ;
+    schema:applicationCategory "BusinessApplication" ;
+    schema:applicationSubCategory "Enterprise Resource Planning" ;
+    schema:operatingSystem "Web Browser", "Windows", "macOS", "Linux" ;
+    schema:softwareVersion "3.2.1" ;
+    schema:datePublished "2024-01-15"^^xsd:date ;
+    schema:creator <https://techcorp.example.com> ;
+    schema:publisher <https://techcorp.example.com> ;
+    schema:copyrightHolder <https://techcorp.example.com> ;
+    schema:license <https://techcorp.example.com/license> ;
+    schema:softwareRequirements "Modern web browser, 4GB RAM minimum" ;
+    
+    # Pricing Information
+    schema:offers [
+        rdf:type schema:Offer ;
+        schema:name "Professional License" ;
+        schema:description "Full-featured enterprise license with premium support" ;
+        schema:price "999.00" ;
+        schema:priceCurrency "USD" ;
+        schema:priceValidUntil "2024-12-31"^^xsd:date ;
+        schema:availability schema:InStock ;
+        schema:seller <https://techcorp.example.com> ;
+        schema:validFrom "2024-01-01"^^xsd:date ;
+        schema:acceptedPaymentMethod schema:CreditCard, schema:BankTransferInAdvance ;
+        schema:deliveryMethod schema:OnSitePickup ;
+        schema:warranty [
+            rdf:type schema:WarrantyPromise ;
+            schema:durationOfWarranty "P2Y" ;  # 2 years
+            schema:warrantyScope "Full software support and updates"
+        ]
+    ] ;
+    
+    # Technical Features
+    schema:featureList "Real-time Analytics", "Multi-tenant Architecture", "API Integration", "Mobile Access", "Security Compliance" ;
+    schema:screenshot <https://techcorp.example.com/images/suite-dashboard.png> ,
+                      <https://techcorp.example.com/images/suite-reports.png> ;
+    
+    # User Reviews and Ratings
+    schema:aggregateRating [
+        rdf:type schema:AggregateRating ;
+        schema:ratingValue "4.8"^^xsd:decimal ;
+        schema:bestRating "5"^^xsd:integer ;
+        schema:worstRating "1"^^xsd:integer ;
+        schema:ratingCount "127"^^xsd:integer ;
+        schema:reviewCount "89"^^xsd:integer
+    ] .
+
+# ========================================
+# EVENTS AND CONFERENCES
+# ========================================
+
+<https://techcorp.example.com/events/tech-summit-2024> rdf:type schema:BusinessEvent, schema:EducationEvent ;
+    schema:name "TechCorp Annual Summit 2024" ;
+    schema:alternateName "TCS 2024" ;
+    schema:description "Annual conference for enterprise technology leaders featuring keynotes, workshops, and networking" ;
+    schema:startDate "2024-06-15T09:00:00-07:00"^^xsd:dateTime ;
+    schema:endDate "2024-06-16T17:00:00-07:00"^^xsd:dateTime ;
+    schema:eventStatus schema:EventScheduled ;
+    schema:eventAttendanceMode schema:OfflineEventAttendanceMode ;
+    
+    # Location Information
+    schema:location [
+        rdf:type schema:Place, schema:EventVenue ;
+        schema:name "San Francisco Convention Center" ;
+        schema:address [
+            rdf:type schema:PostalAddress ;
+            schema:streetAddress "456 Conference Way" ;
+            schema:addressLocality "San Francisco" ;
+            schema:addressRegion "CA" ;
+            schema:postalCode "94105" ;
+            schema:addressCountry "US"
+        ] ;
+        schema:geo [
+            rdf:type schema:GeoCoordinates ;
+            schema:latitude "37.7849"^^xsd:decimal ;
+            schema:longitude "-122.4194"^^xsd:decimal
+        ] ;
+        schema:maximumAttendeeCapacity "1000"^^xsd:integer
+    ] ;
+    
+    # Organizer Information
+    schema:organizer <https://techcorp.example.com> ;
+    schema:sponsor <https://techcorp.example.com> ;
+    
+    # Ticket Information
+    schema:offers [
+        rdf:type schema:Offer ;
+        schema:name "Early Bird Registration" ;
+        schema:description "Discounted conference registration for early adopters" ;
+        schema:price "299.00" ;
+        schema:priceCurrency "USD" ;
+        schema:validThrough "2024-03-31"^^xsd:date ;
+        schema:availability schema:InStock ;
+        schema:validFrom "2024-01-01"^^xsd:date ;
+        schema:url <https://techcorp.example.com/events/tech-summit-2024/register>
+    ] ,
+    [
+        rdf:type schema:Offer ;
+        schema:name "Standard Registration" ;
+        schema:price "399.00" ;
+        schema:priceCurrency "USD" ;
+        schema:validFrom "2024-04-01"^^xsd:date ;
+        schema:validThrough "2024-06-10"^^xsd:date ;
+        schema:availability schema:InStock
+    ] ;
+    
+    # Event Program
+    schema:subEvent [
+        rdf:type schema:Event ;
+        schema:name "AI in Enterprise: Future Trends" ;
+        schema:description "Keynote presentation on artificial intelligence trends" ;
+        schema:startDate "2024-06-15T10:00:00-07:00"^^xsd:dateTime ;
+        schema:endDate "2024-06-15T11:00:00-07:00"^^xsd:dateTime ;
+        schema:performer [
+            rdf:type schema:Person ;
+            schema:name "Dr. Alice Johnson" ;
+            schema:jobTitle "Chief Technology Officer" ;
+            schema:worksFor <https://techcorp.example.com>
+        ]
+    ] ;
+    
+    # Additional Event Details
+    schema:inLanguage "en" ;
+    schema:audience [
+        rdf:type schema:Audience ;
+        schema:audienceType "Enterprise Technology Leaders" ;
+        schema:geographicArea "North America"
+    ] ;
+    schema:recordedIn [
+        rdf:type schema:CreativeWork ;
+        schema:name "TCS 2024 Conference Proceedings" ;
+        schema:description "Complete recordings and presentations from the summit"
+    ] .
+
+# ========================================
+# LEADERSHIP AND TEAM
+# ========================================
+
+<https://techcorp.example.com/people/ceo> rdf:type schema:Person ;
+    schema:name "Sarah Johnson" ;
+    schema:givenName "Sarah" ;
+    schema:familyName "Johnson" ;
+    schema:jobTitle "Chief Executive Officer" ;
+    schema:worksFor <https://techcorp.example.com> ;
+    schema:email "sarah.johnson@techcorp.example.com" ;
+    schema:telephone "+1-555-TECH-CEO" ;
+    schema:description "Visionary leader with 20+ years in enterprise technology" ;
+    schema:knowsAbout "Digital Transformation", "Strategic Planning", "Enterprise Software" ;
+    schema:alumniOf [
+        rdf:type schema:EducationalOrganization ;
+        schema:name "Stanford University" ;
+        schema:description "MBA, Business Administration"
+    ] ;
+    schema:award "Technology Leader of the Year 2023" ;
+    schema:sameAs <https://www.linkedin.com/in/sarah-johnson-ceo> ,
+                  <https://twitter.com/sarahjohnson_ceo> ;
+    
+    # Professional Image
+    schema:image <https://techcorp.example.com/images/team/sarah-johnson.jpg> ;
+    
+    # Years of Experience
+    schema:hasOccupation [
+        rdf:type schema:Occupation ;
+        schema:name "Chief Executive Officer" ;
+        schema:occupationLocation [
+            rdf:type schema:Place ;
+            schema:name "Silicon Valley, CA"
+        ] ;
+        schema:estimatedSalary [
+            rdf:type schema:MonetaryAmountDistribution ;
+            schema:currency "USD" ;
+            schema:duration "P1Y"  # Per year
+        ]
+    ] .
+
+<https://techcorp.example.com/people/cto> rdf:type schema:Person ;
+    schema:name "Dr. Michael Chen" ;
+    schema:givenName "Michael" ;
+    schema:familyName "Chen" ;
+    schema:honorificPrefix "Dr." ;
+    schema:jobTitle "Chief Technology Officer" ;
+    schema:worksFor <https://techcorp.example.com> ;
+    schema:email "michael.chen@techcorp.example.com" ;
+    schema:description "Technology innovator specializing in AI and cloud architecture" ;
+    schema:knowsAbout "Artificial Intelligence", "Cloud Computing", "Enterprise Architecture", "Machine Learning" ;
+    schema:alumniOf [
+        rdf:type schema:EducationalOrganization ;
+        schema:name "MIT" ;
+        schema:description "PhD in Computer Science"
+    ] ;
+    schema:sameAs <https://www.linkedin.com/in/dr-michael-chen> ;
+    schema:image <https://techcorp.example.com/images/team/michael-chen.jpg> .
+
+# ========================================
+# NEWS AND ARTICLES
+# ========================================
+
+<https://techcorp.example.com/news/q4-results> rdf:type schema:NewsArticle ;
+    schema:headline "TechCorp Reports Record Q4 2024 Results" ;
+    schema:alternativeHeadline "Strong Growth in Enterprise Software Drives Record Quarter" ;
+    schema:description "TechCorp announced record revenue and customer growth in the fourth quarter of 2024" ;
+    schema:articleBody "TechCorp Inc. today announced financial results for its fourth quarter ended December 31, 2024. The company reported record quarterly revenue of $125 million, representing 35% growth year-over-year..." ;
+    
+    # Author and Publisher
+    schema:author [
+        rdf:type schema:Organization ;
+        schema:name "TechCorp Marketing Team"
+    ] ;
+    schema:publisher <https://techcorp.example.com> ;
+    
+    # Publication Details
+    schema:datePublished "2024-01-15T10:00:00-08:00"^^xsd:dateTime ;
+    schema:dateModified "2024-01-15T14:30:00-08:00"^^xsd:dateTime ;
+    schema:inLanguage "en" ;
+    
+    # Media and Images
+    schema:image <https://techcorp.example.com/images/news/q4-results-chart.jpg> ;
+    schema:thumbnailUrl <https://techcorp.example.com/images/news/q4-results-thumb.jpg> ;
+    
+    # Article Classification
+    schema:articleSection "Financial News" ;
+    schema:keywords "earnings", "quarterly results", "enterprise software", "growth" ;
+    schema:about "Financial Performance", "Quarterly Earnings" ;
+    
+    # Engagement Metrics
+    schema:commentCount "23"^^xsd:integer ;
+    schema:interactionStatistic [
+        rdf:type schema:InteractionCounter ;
+        schema:interactionType schema:ShareAction ;
+        schema:userInteractionCount "156"^^xsd:integer
+    ] ,
+    [
+        rdf:type schema:InteractionCounter ;
+        schema:interactionType schema:ViewAction ;
+        schema:userInteractionCount "3421"^^xsd:integer
+    ] .
+
+# ========================================
+# FAQ PAGE
+# ========================================
+
+<https://techcorp.example.com/faq> rdf:type schema:FAQPage ;
+    schema:name "Frequently Asked Questions" ;
+    schema:description "Common questions about TechCorp products and services" ;
+    schema:mainEntity [
+        rdf:type schema:Question ;
+        schema:name "What industries does TechCorp serve?" ;
+        schema:acceptedAnswer [
+            rdf:type schema:Answer ;
+            schema:text "TechCorp serves a wide range of industries including healthcare, finance, manufacturing, retail, and government. Our enterprise solutions are designed to meet the specific compliance and operational requirements of each sector." ;
+            schema:dateCreated "2024-01-01"^^xsd:date ;
+            schema:upvoteCount "45"^^xsd:integer
+        ]
+    ] ,
+    [
+        rdf:type schema:Question ;
+        schema:name "Do you offer cloud-based solutions?" ;
+        schema:acceptedAnswer [
+            rdf:type schema:Answer ;
+            schema:text "Yes, all our enterprise solutions are available as cloud-based SaaS offerings with enterprise-grade security, 99.9% uptime guarantee, and global data center coverage. We also offer hybrid and on-premises deployment options." ;
+            schema:dateCreated "2024-01-01"^^xsd:date ;
+            schema:upvoteCount "38"^^xsd:integer
+        ]
+    ] ,
+    [
+        rdf:type schema:Question ;
+        schema:name "What support options are available?" ;
+        schema:acceptedAnswer [
+            rdf:type schema:Answer ;
+            schema:text "TechCorp provides 24/7 technical support, dedicated customer success managers, comprehensive documentation, video tutorials, and regular webinar training sessions. Premium customers receive priority support with guaranteed response times." ;
+            schema:upvoteCount "29"^^xsd:integer
+        ]
+    ] ;
+    schema:lastReviewed "2024-12-01"^^xsd:date .

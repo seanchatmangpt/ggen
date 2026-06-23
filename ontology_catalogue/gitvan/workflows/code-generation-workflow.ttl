@@ -1,0 +1,96 @@
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Code Generation Workflow
+# Demonstrates automated code generation based on templates and data analysis
+
+ex:code-generation-workflow rdf:type gh:Hook ;
+    gv:title "Code Generation Pipeline" ;
+    gh:hasPredicate ex:generateCode ;
+    gh:orderedPipelines ex:code-pipeline .
+
+ex:code-pipeline rdf:type op:Pipeline ;
+    op:steps ex:analyze-structure, ex:generate-components, ex:validate-code, ex:commit-changes .
+
+# Step 1: Analyze Code Structure
+ex:analyze-structure rdf:type gv:SparqlStep ;
+    gv:text """
+        PREFIX ex: <http://example.org/>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        
+        SELECT ?component ?type ?dependencies WHERE {
+            ?component rdf:type ex:CodeComponent .
+            ?component ex:type ?type .
+            OPTIONAL {
+                ?component ex:dependsOn ?dependencies .
+            }
+        } ORDER BY ?type
+    """ ;
+    gv:outputMapping '{"components": "results", "componentCount": "results.length"}' .
+
+# Step 2: Generate Components
+ex:generate-components rdf:type gv:TemplateStep ;
+    gv:text """
+        // Generated Component: {{ component.value | split('/') | last }}
+        // Generated on: {{ 'now' | date('YYYY-MM-DD HH:mm:ss') }}
+        
+        {% if component.type.value == 'class' %}
+        export class {{ component.value | split('/') | last | capitalize }} {
+            constructor() {
+                this.initialized = true;
+                this.createdAt = new Date();
+            }
+            
+            {% for dep in component.dependencies %}
+            // Dependency: {{ dep.value }}
+            {% endfor %}
+            
+            render() {
+                return {
+                    type: '{{ component.type.value }}',
+                    name: '{{ component.value | split('/') | last }}',
+                    dependencies: [
+                        {% for dep in component.dependencies %}
+                        '{{ dep.value }}'{% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    ]
+                };
+            }
+        }
+        {% elif component.type.value == 'function' %}
+        export function {{ component.value | split('/') | last | camelcase }}() {
+            // Generated function
+            return {
+                type: '{{ component.type.value }}',
+                name: '{{ component.value | split('/') | last }}',
+                timestamp: new Date().toISOString()
+            };
+        }
+        {% else %}
+        // Unknown component type: {{ component.type.value }}
+        export const {{ component.value | split('/') | last | camelcase }} = {
+            type: '{{ component.type.value }}',
+            name: '{{ component.value | split('/') | last }}'
+        };
+        {% endif %}
+    """ ;
+    gv:dependsOn ex:analyze-structure ;
+    gv:filePath "./generated/{{ component.value | split('/') | last }}.js" ;
+    gv:outputMapping '{"generatedFiles": "outputPath"}' .
+
+# Step 3: Validate Generated Code
+ex:validate-code rdf:type gv:FileStep ;
+    gv:filePath "./generated/" ;
+    gv:operation "read" ;
+    gv:dependsOn ex:generate-components ;
+    gv:outputMapping '{"validationResults": "content"}' .
+
+# Step 4: Commit Changes
+ex:commit-changes rdf:type gv:GitStep ;
+    gv:gitCommand "git add ./generated/ && git commit -m 'Auto-generated code components - {{ 'now' | date('YYYY-MM-DD HH:mm:ss') }}'" ;
+    gv:workingDir "." ;
+    gv:dependsOn ex:validate-code ;
+    gv:outputMapping '{"commitHash": "stdout"}' .

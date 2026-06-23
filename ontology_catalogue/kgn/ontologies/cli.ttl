@@ -1,0 +1,196 @@
+@prefix kgen: <http://kgen.dfllss.org/ontology/> .
+@prefix cli: <http://kgen.dfllss.org/ontology/cli/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+<http://kgen.dfllss.org/ontology/cli> a owl:Ontology ;
+    dct:title "KGEN CLI Ontology" ;
+    dct:description "Formal model for KGEN command-line interface components and operations" ;
+    dct:version "1.0.0" ;
+    dct:created "2024-01-01"^^xsd:date ;
+    dct:creator "DfLLSS Project" ;
+    owl:versionIRI <http://kgen.dfllss.org/ontology/cli/1.0.0> .
+
+# Core CLI Classes
+cli:Command a owl:Class ;
+    rdfs:label "Command" ;
+    rdfs:comment "A CLI command that can be executed" ;
+    rdfs:subClassOf owl:Thing .
+
+cli:Option a owl:Class ;
+    rdfs:label "Option" ;
+    rdfs:comment "A command-line option or flag" ;
+    rdfs:subClassOf owl:Thing .
+
+cli:Argument a owl:Class ;
+    rdfs:label "Argument" ;
+    rdfs:comment "A positional command-line argument" ;
+    rdfs:subClassOf owl:Thing .
+
+cli:Template a owl:Class ;
+    rdfs:label "Template" ;
+    rdfs:comment "A code generation template" ;
+    rdfs:subClassOf owl:Thing .
+
+cli:Generator a owl:Class ;
+    rdfs:label "Generator" ;
+    rdfs:comment "A code generation engine" ;
+    rdfs:subClassOf owl:Thing .
+
+# Command Properties
+cli:hasOption a owl:ObjectProperty ;
+    rdfs:label "has option" ;
+    rdfs:comment "Links a command to its available options" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Option .
+
+cli:hasArgument a owl:ObjectProperty ;
+    rdfs:label "has argument" ;
+    rdfs:comment "Links a command to its positional arguments" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Argument .
+
+cli:usesTemplate a owl:ObjectProperty ;
+    rdfs:label "uses template" ;
+    rdfs:comment "Links a command to templates it can process" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Template .
+
+cli:usesGenerator a owl:ObjectProperty ;
+    rdfs:label "uses generator" ;
+    rdfs:comment "Links a command to the generator it employs" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Generator .
+
+# Data Properties
+cli:commandName a owl:DatatypeProperty ;
+    rdfs:label "command name" ;
+    rdfs:comment "The name of a CLI command" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+cli:optionName a owl:DatatypeProperty ;
+    rdfs:label "option name" ;
+    rdfs:comment "The name of a command option" ;
+    rdfs:domain cli:Option ;
+    rdfs:range xsd:string .
+
+cli:shortFlag a owl:DatatypeProperty ;
+    rdfs:label "short flag" ;
+    rdfs:comment "Single character flag for an option" ;
+    rdfs:domain cli:Option ;
+    rdfs:range xsd:string .
+
+cli:longFlag a owl:DatatypeProperty ;
+    rdfs:label "long flag" ;
+    rdfs:comment "Full name flag for an option" ;
+    rdfs:domain cli:Option ;
+    rdfs:range xsd:string .
+
+cli:isRequired a owl:DatatypeProperty ;
+    rdfs:label "is required" ;
+    rdfs:comment "Whether an option or argument is required" ;
+    rdfs:domain [ owl:unionOf ( cli:Option cli:Argument ) ] ;
+    rdfs:range xsd:boolean .
+
+cli:defaultValue a owl:DatatypeProperty ;
+    rdfs:label "default value" ;
+    rdfs:comment "Default value for an option or argument" ;
+    rdfs:domain [ owl:unionOf ( cli:Option cli:Argument ) ] ;
+    rdfs:range xsd:string .
+
+cli:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:comment "Human-readable description" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:string .
+
+cli:templatePath a owl:DatatypeProperty ;
+    rdfs:label "template path" ;
+    rdfs:comment "File system path to a template" ;
+    rdfs:domain cli:Template ;
+    rdfs:range xsd:string .
+
+cli:outputPath a owl:DatatypeProperty ;
+    rdfs:label "output path" ;
+    rdfs:comment "Target path for generated output" ;
+    rdfs:domain cli:Template ;
+    rdfs:range xsd:string .
+
+# Specific Command Instances
+cli:GenerateCommand a cli:Command ;
+    cli:commandName "generate" ;
+    cli:description "Generate code from templates and ontologies" ;
+    cli:hasOption cli:TemplateOption, cli:OutputOption, cli:DryRunOption, cli:ForceOption .
+
+cli:ValidateCommand a cli:Command ;
+    cli:commandName "validate" ;
+    cli:description "Validate generated artifacts against SHACL shapes" ;
+    cli:hasOption cli:ShapesOption, cli:StrictOption .
+
+cli:InitCommand a cli:Command ;
+    cli:commandName "init" ;
+    cli:description "Initialize a new KGEN project" ;
+    cli:hasOption cli:TemplateTypeOption, cli:ProjectNameOption .
+
+# Common Options
+cli:TemplateOption a cli:Option ;
+    cli:optionName "template" ;
+    cli:shortFlag "t" ;
+    cli:longFlag "--template" ;
+    cli:isRequired true ;
+    cli:description "Template to use for generation" .
+
+cli:OutputOption a cli:Option ;
+    cli:optionName "output" ;
+    cli:shortFlag "o" ;
+    cli:longFlag "--output" ;
+    cli:isRequired false ;
+    cli:defaultValue "./generated" ;
+    cli:description "Output directory for generated files" .
+
+cli:DryRunOption a cli:Option ;
+    cli:optionName "dry-run" ;
+    cli:longFlag "--dry-run" ;
+    cli:isRequired false ;
+    cli:defaultValue "false" ;
+    cli:description "Show what would be generated without creating files" .
+
+cli:ForceOption a cli:Option ;
+    cli:optionName "force" ;
+    cli:shortFlag "f" ;
+    cli:longFlag "--force" ;
+    cli:isRequired false ;
+    cli:defaultValue "false" ;
+    cli:description "Overwrite existing files" .
+
+cli:ShapesOption a cli:Option ;
+    cli:optionName "shapes" ;
+    cli:shortFlag "s" ;
+    cli:longFlag "--shapes" ;
+    cli:isRequired false ;
+    cli:defaultValue "./ontologies/shacl" ;
+    cli:description "Directory containing SHACL shapes" .
+
+cli:StrictOption a cli:Option ;
+    cli:optionName "strict" ;
+    cli:longFlag "--strict" ;
+    cli:isRequired false ;
+    cli:defaultValue "false" ;
+    cli:description "Enable strict validation mode" .
+
+cli:TemplateTypeOption a cli:Option ;
+    cli:optionName "type" ;
+    cli:longFlag "--type" ;
+    cli:isRequired false ;
+    cli:defaultValue "basic" ;
+    cli:description "Type of project to initialize" .
+
+cli:ProjectNameOption a cli:Option ;
+    cli:optionName "name" ;
+    cli:shortFlag "n" ;
+    cli:longFlag "--name" ;
+    cli:isRequired true ;
+    cli:description "Name of the project to create" .

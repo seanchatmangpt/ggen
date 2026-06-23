@@ -1,0 +1,24 @@
+@prefix mcpp: <https://w3id.org/mcpp#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix earl: <http://www.w3.org/ns/earl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Well-formed evidence graph — every PassportShape and AdmissionShape
+# constraint is satisfied. SHACL validation MUST report conforms = true.
+
+mcpp:passport/demo a mcpp:Passport ;
+    mcpp:hasManifest "manifest-hash-deadbeef" ;
+    prov:wasGeneratedBy mcpp:admission/01H ;
+    odrl:hasPolicy mcpp:policy/proof-admission-v1 ;
+    earl:Assertion mcpp:assertion/01H ;
+    mcpp:hasScorecard mcpp:scorecard/v26.5.19 .
+
+mcpp:admission/01H a mcpp:Admission ;
+    a prov:Activity ;
+    prov:startedAtTime "2026-05-16T00:00:00Z"^^xsd:dateTime ;
+    prov:endedAtTime "2026-05-16T00:00:01Z"^^xsd:dateTime ;
+    prov:wasAssociatedWith mcpp:agent/verifier ;
+    prov:used mcpp:entity/wasm .
+
+mcpp:agent/verifier a prov:Agent .

@@ -1,0 +1,225 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix affi: <http://affidavit.io/cli#> .
+@prefix upo:  <http://affidavit.io/ontology/upo#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# =============================================================================
+# UNIVERSAL PROVENANCE ONTOLOGY (UPO)
+# =============================================================================
+# Formally maps the Affidavit domain model to W3C PROV-O.
+# Supports multi-agent delegation, OCEL integration, and content-addressed chains.
+# =============================================================================
+
+upo: a owl:Ontology ;
+    rdfs:label "Universal Provenance Ontology (UPO)"@en ;
+    rdfs:comment "A massive extension of the Affidavit CLI ontology that formally maps the domain to W3C PROV-O."@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-06-14"^^xsd:date ;
+    owl:imports <http://www.w3.org/ns/prov#> ;
+    owl:versionInfo "1.0.0-1000X" .
+
+# ============================================================================
+# 1. CORE DOMAIN MAPPING (Affidavit -> PROV-O)
+# ============================================================================
+
+# --- Receipt Mapping ---
+affi:Receipt a owl:Class ;
+    rdfs:subClassOf prov:Entity , prov:Bundle ;
+    rdfs:label "Affidavit Receipt"@en ;
+    rdfs:comment "An immutable, content-addressed chain of operation-events. In PROV-O, this is both an Entity (a thing) and a Bundle (a named set of provenance descriptions)."@en .
+
+# --- OperationEvent Mapping ---
+affi:OperationEvent a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "Operation Event"@en ;
+    rdfs:comment "A discrete step in the provenance chain. Every event is a PROV Activity recording what was done, by whom, and using what."@en .
+
+# --- ObjectRef Mapping ---
+affi:ObjectRef a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Object Reference"@en ;
+    rdfs:comment "A reference to an entity (artifact, file, record) involved in an operation."@en .
+
+# ============================================================================
+# 2. PROVENANCE ATTRIBUTES
+# ============================================================================
+
+upo:hasChainHash a owl:DatatypeProperty ;
+    rdfs:label "Chain Hash"@en ;
+    rdfs:domain affi:Receipt ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The rolling BLAKE3 digest that seals the receipt chain."@en .
+
+upo:hasSequence a owl:DatatypeProperty ;
+    rdfs:label "Sequence Number"@en ;
+    rdfs:domain affi:OperationEvent ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:comment "Monotonic logical sequence number (time-free determinism)."@en .
+
+upo:hasPayloadCommitment a owl:DatatypeProperty ;
+    rdfs:label "Payload Commitment"@en ;
+    rdfs:domain affi:OperationEvent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "BLAKE3 hash of the payload bytes associated with the event."@en .
+
+upo:hasEventType a owl:DatatypeProperty ;
+    rdfs:label "Event Type"@en ;
+    rdfs:domain affi:OperationEvent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The logical kind of operation performed."@en .
+
+# ============================================================================
+# 3. MULTI-AGENT DELEGATION MODEL
+# ============================================================================
+# UPO extends PROV-O to support complex N-tier delegation where users, 
+# services, and organizations form a verifiable authority chain.
+
+upo:Agent a owl:Class ;
+    rdfs:subClassOf prov:Agent ;
+    rdfs:label "Affidavit Agent"@en .
+
+upo:UserAgent a owl:Class ;
+    rdfs:subClassOf upo:Agent , prov:Person ;
+    rdfs:label "User Agent"@en ;
+    rdfs:comment "A human user performing operations."@en .
+
+upo:SoftwareAgent a owl:Class ;
+    rdfs:subClassOf upo:Agent , prov:SoftwareAgent ;
+    rdfs:label "Software Agent"@en ;
+    rdfs:comment "A service, CI bot, or automated tool."@en .
+
+upo:OrgAgent a owl:Class ;
+    rdfs:subClassOf upo:Agent , prov:Organization ;
+    rdfs:label "Organization Agent"@en ;
+    rdfs:comment "An entity representing a legal or logical organization."@en .
+
+# --- Complex Delegation Chains ---
+
+upo:DelegationChain a owl:Class ;
+    rdfs:subClassOf prov:Delegation ;
+    rdfs:label "Multi-Agent Delegation Chain"@en ;
+    rdfs:comment "A formal structure recording a chain of authority (e.g., Service A acting on behalf of User B for Org C)."@en .
+
+upo:hasDelegationStep a owl:ObjectProperty ;
+    rdfs:label "Delegation Step"@en ;
+    rdfs:domain upo:DelegationChain ;
+    rdfs:range prov:Delegation ;
+    rdfs:comment "Links a chain to its component delegation links."@en .
+
+upo:authorizedBy a owl:ObjectProperty ;
+    rdfs:label "Authorized By"@en ;
+    rdfs:domain affi:OperationEvent ;
+    rdfs:range upo:Agent ;
+    rdfs:subPropertyOf prov:wasAssociatedWith ;
+    rdfs:comment "Identifies the agent that authorized the operation."@en .
+
+upo:executedBy a owl:ObjectProperty ;
+    rdfs:label "Executed By"@en ;
+    rdfs:domain affi:OperationEvent ;
+    rdfs:range upo:SoftwareAgent ;
+    rdfs:subPropertyOf prov:wasAssociatedWith ;
+    rdfs:comment "Identifies the software agent that physically performed the operation."@en .
+
+# ============================================================================
+# 4. OCEL (OBJECT-CENTRIC EVENT LOG) INTEGRATION
+# ============================================================================
+
+upo:OcelLog a owl:Class ;
+    rdfs:subClassOf prov:Collection ;
+    rdfs:label "OCEL Log"@en ;
+    rdfs:comment "A collection of events and objects following the OCEL standard."@en .
+
+upo:containsEvent a owl:ObjectProperty ;
+    rdfs:domain upo:OcelLog ;
+    rdfs:range affi:OperationEvent ;
+    rdfs:subPropertyOf prov:hadMember .
+
+upo:containsObject a owl:ObjectProperty ;
+    rdfs:domain upo:OcelLog ;
+    rdfs:range affi:ObjectRef ;
+    rdfs:subPropertyOf prov:hadMember .
+
+upo:hasQualifier a owl:DatatypeProperty ;
+    rdfs:label "Role Qualifier"@en ;
+    rdfs:domain affi:ObjectRef ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The role the object played in the event (e.g., 'input', 'target')."@en .
+
+upo:mapsToRole a owl:ObjectProperty ;
+    rdfs:label "Maps to PROV Role"@en ;
+    rdfs:domain affi:ObjectRef ;
+    rdfs:range prov:Role ;
+    rdfs:comment "Formal mapping of a string qualifier to a PROV-O Role."@en .
+
+# ============================================================================
+# 5. VERIFICATION & VERDICTS
+# ============================================================================
+
+upo:Verdict a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Certification Verdict"@en ;
+    rdfs:comment "The outcome of a verification process."@en .
+
+upo:isAccepted a owl:DatatypeProperty ;
+    rdfs:domain upo:Verdict ;
+    rdfs:range xsd:boolean .
+
+upo:VerificationActivity a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "Verification Activity"@en ;
+    rdfs:comment "The process of verifying a receipt against a profile."@en .
+
+upo:verifiesReceipt a owl:ObjectProperty ;
+    rdfs:domain upo:VerificationActivity ;
+    rdfs:range affi:Receipt ;
+    rdfs:subPropertyOf prov:used .
+
+upo:generatesVerdict a owl:ObjectProperty ;
+    rdfs:domain upo:VerificationActivity ;
+    rdfs:range upo:Verdict ;
+    rdfs:subPropertyOf prov:wasGeneratedBy ;
+    owl:inverseOf upo:wasProducedBy .
+
+upo:wasProducedBy a owl:ObjectProperty ;
+    rdfs:domain upo:Verdict ;
+    rdfs:range upo:VerificationActivity ;
+    rdfs:subPropertyOf prov:wasGeneratedBy .
+
+# ============================================================================
+# 6. GGEN INTEGRATION
+# ============================================================================
+
+upo:GGenOperation a owl:Class ;
+    rdfs:subClassOf affi:OperationEvent ;
+    rdfs:comment "An operation recorded by the ggen synchronizer."@en .
+
+upo:hasOperationId a owl:DatatypeProperty ;
+    rdfs:domain upo:GGenOperation ;
+    rdfs:range xsd:string .
+
+upo:hasSignature a owl:DatatypeProperty ;
+    rdfs:domain upo:GGenOperation ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cryptographic signature of the operation receipt."@en .
+
+# ============================================================================
+# 7. AXIOMS & CONSTRAINTS
+# ============================================================================
+
+# Every Receipt must have exactly one Chain Hash (Functional Property)
+upo:hasChainHash a owl:FunctionalProperty .
+
+# Every OperationEvent must have exactly one Sequence Number
+upo:hasSequence a owl:FunctionalProperty .
+
+# Append-only constraint (logical)
+# If Receipt B is derived from Receipt A, B's events must include all of A's events.
+upo:extendedFrom a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:wasDerivedFrom ;
+    rdfs:domain affi:Receipt ;
+    rdfs:range affi:Receipt ;
+    rdfs:comment "Indicates an append-only extension of a receipt chain."@en .

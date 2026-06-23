@@ -1,0 +1,391 @@
+@prefix ggen:       <https://open-ontologies.org/ggen#> .
+@prefix zoe:        <https://zoela.org/ontology/> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms:    <http://purl.org/dc/terms/> .
+@prefix schema:     <https://schema.org/> .
+@prefix foaf:       <http://xmlns.com/foaf/0.1/> .
+@prefix sioc:       <http://rdfs.org/sioc/ns#> .
+@prefix org:        <http://www.w3.org/ns/org#> .
+@prefix as:         <https://www.w3.org/ns/activitystreams#> .
+@prefix prov:       <http://www.w3.org/ns/prov#> .
+@prefix odrl:       <http://www.w3.org/ns/odrl/2/> .
+@prefix time:       <http://www.w3.org/2006/time#> .
+
+# ============================================================================
+# ZOE LA Supabase Materialization Profile
+# ============================================================================
+#
+# This is an application-profile / generator-metadata file. It is NOT part of
+# the ZOE LA church-service domain ontology. It declares the mapping from
+# public-interoperability vocabulary anchors to local Supabase materialization
+# kinds.
+#
+# Doctrine:
+#   Public ontology decides interoperability role.
+#   ZOE only specializes the local church-service profile.
+#   This profile decides which public roles get materialized in Supabase.
+#
+# Layer position:
+#   ontology/zoela/*.ttl       = what church-service things MEAN
+#   ontology/profiles/*.ttl    = how a target runtime MATERIALIZES public roles  ← this file
+#   .specify/queries/zoela/    = extraction rules (traverse rdfs:subClassOf+)
+#   .specify/templates/zoela/  = rendering mechanics
+#
+# Namespace conventions:
+#   ggen: — generator/profile metadata (NEVER zoe:)
+#   zoe:  — local ZOE class references only (specializes a public anchor)
+#   schema:, foaf:, sioc:, org:, as:, prov:, odrl:, time:, skos: — public anchors
+#
+# ============================================================================
+
+<https://open-ontologies.org/ggen/profiles/zoela-supabase-materialization>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA Supabase Materialization Profile"@en ;
+    rdfs:comment "Application-profile mapping public-vocab anchors to Supabase materialization kinds for the ZOE LA Mobile runtime. Drives extract-public-materializations.rq + supabase-migration.tera + supabase-rls.tera."@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-05-18"^^xsd:date ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo "P0-B.2" .
+
+# ============================================================================
+# § 1  Generator-profile vocabulary
+# ============================================================================
+
+ggen:MaterializationKind a owl:Class ;
+    rdfs:label "Materialization Kind"@en ;
+    rdfs:comment "A category of local persistence projection. Each kind maps a set of public-vocabulary anchor classes to a Supabase table-shape strategy."@en ;
+    rdfs:subClassOf skos:Concept .
+
+ggen:materializesPublicAnchor a owl:ObjectProperty ;
+    rdfs:label "materializes public anchor"@en ;
+    rdfs:comment "Relates a materialization kind to a public-vocabulary class whose rdfs:subClassOf+ closure triggers this materialization. Multiple anchors may trigger the same kind."@en ;
+    rdfs:domain ggen:MaterializationKind ;
+    rdfs:range  owl:Class .
+
+ggen:targetRuntime a owl:DatatypeProperty ;
+    rdfs:label "target runtime"@en ;
+    rdfs:comment "Identifier of the runtime this materialization targets (e.g. 'supabase', 'postgres-bare', 'sqlite')."@en ;
+    rdfs:domain ggen:MaterializationKind ;
+    rdfs:range  xsd:string .
+
+ggen:tableNameStrategy a owl:DatatypeProperty ;
+    rdfs:label "table name strategy"@en ;
+    rdfs:comment "Naming convention applied to the local class's skos:notation when generating the Postgres table name. Allowed values: 'pluralize-snake', 'as-is-snake', 'plural-of-anchor'."@en ;
+    rdfs:domain ggen:MaterializationKind ;
+    rdfs:range  xsd:string .
+
+ggen:emitsSql a owl:DatatypeProperty ;
+    rdfs:label "emits SQL"@en ;
+    rdfs:comment "True when this materialization kind produces a CREATE TABLE. False for kinds that materialize as enums, RLS policy fragments, or generated code without their own table."@en ;
+    rdfs:domain ggen:MaterializationKind ;
+    rdfs:range  xsd:boolean .
+
+ggen:requiresOwner a owl:DatatypeProperty ;
+    rdfs:label "requires owner"@en ;
+    rdfs:comment "True when the materialized row has a created_by owner column tracking the authenticated user who created it (for RLS owner-based policies)."@en ;
+    rdfs:domain ggen:MaterializationKind ;
+    rdfs:range  xsd:boolean .
+
+ggen:requiresAuditTrail a owl:DatatypeProperty ;
+    rdfs:label "requires audit trail"@en ;
+    rdfs:comment "True when the materialized row has created_at + updated_at + set_updated_at trigger."@en ;
+    rdfs:domain ggen:MaterializationKind ;
+    rdfs:range  xsd:boolean .
+
+ggen:requiresShape a owl:ObjectProperty ;
+    rdfs:label "requires shape"@en ;
+    rdfs:comment "Points to the SHACL NodeShape (in ontology/profiles/public-role-shapes.ttl) that defines required properties and cardinalities for instances of this materialization kind."@en ;
+    rdfs:domain ggen:MaterializationKind ;
+    rdfs:range  owl:Class .
+
+ggen:materializationPriority a owl:DatatypeProperty ;
+    rdfs:label "materialization priority"@en ;
+    rdfs:comment "Numeric priority rank (0-100) used to deterministically resolve ambiguous class×kind mappings. When a class specializes multiple public anchors triggering different materialization kinds, the kind with the highest priority is admitted; others are refused with 'refused_ambiguous_materialization_kind'. If no priority is declared, ambiguity is refused. Lower numbers = lower priority; 100 = highest."@en ;
+    rdfs:domain ggen:MaterializationKind ;
+    rdfs:range  xsd:integer .
+
+# ============================================================================
+# § 2  Materialization-kind concept scheme
+# ============================================================================
+
+ggen:ZoelaSupabaseMaterializationScheme a skos:ConceptScheme ;
+    rdfs:label "ZOE LA Supabase Materialization Kinds"@en ;
+    rdfs:comment "SKOS scheme enumerating every materialization kind recognized by the ZOE LA Supabase target. Drives extract-public-materializations.rq dispatch."@en ;
+    skos:prefLabel "ZOE LA Supabase Materialization Kinds"@en ;
+    skos:hasTopConcept
+        ggen:AgentMaterialization ,
+        ggen:OrganizationMaterialization ,
+        ggen:ContainerMaterialization ,
+        ggen:EventMaterialization ,
+        ggen:ActionMaterialization ,
+        ggen:MessageMaterialization ,
+        ggen:ActivityStreamMaterialization ,
+        ggen:EvidenceActivityMaterialization ,
+        ggen:EvidenceEntityMaterialization ,
+        ggen:ConceptSchemeMaterialization ,
+        ggen:ConceptLookupMaterialization ,
+        ggen:PolicyMaterialization ,
+        ggen:TimeWindowMaterialization ,
+        ggen:ReservationMaterialization ,
+        ggen:OcelObjectMaterialization ,
+        ggen:OcelEventMaterialization ,
+        ggen:RouteProjectionMaterialization .
+
+# ── Concept declarations ────────────────────────────────────────────────────
+
+ggen:AgentMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "Agent Materialization"@en ;
+    skos:notation "AgentMaterialization" ;
+    rdfs:comment "Persons / profiles / accounts — anything that has an identity-bearing role in the service graph."@en ;
+    ggen:materializesPublicAnchor schema:Person , foaf:Agent , foaf:Person ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "pluralize-snake" ;
+    ggen:emitsSql true ;
+    ggen:requiresOwner false ;
+    ggen:requiresAuditTrail true ;
+    ggen:requiresShape ggen:AgentMaterializationShape ;
+    ggen:materializationPriority 60 .
+
+ggen:OrganizationMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "Organization Materialization"@en ;
+    skos:notation "OrganizationMaterialization" ;
+    rdfs:comment "Ministries, teams, connect groups, campuses, partner organizations, and any organizational/community-container role."@en ;
+    ggen:materializesPublicAnchor schema:Organization , foaf:Organization , foaf:Group , org:Organization , org:OrganizationalUnit ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "pluralize-snake" ;
+    ggen:emitsSql true ;
+    ggen:requiresOwner false ;
+    ggen:requiresAuditTrail true ;
+    ggen:requiresShape ggen:OrganizationMaterializationShape ;
+    ggen:materializationPriority 65 .  # > 60 wins over EventMaterialization for ConnectGroup-style classes (both an event and an org unit; org identity dominates persistence)
+
+ggen:ContainerMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "Container Materialization"@en ;
+    skos:notation "ContainerMaterialization" ;
+    rdfs:comment "Discussion / community containers — SIOC-style spaces that group posts and members. Distinct from OrganizationMaterialization in that the container is about content + discussion, not organizational identity."@en ;
+    ggen:materializesPublicAnchor sioc:Container ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "pluralize-snake" ;
+    ggen:emitsSql true ;
+    ggen:requiresOwner true ;
+    ggen:requiresAuditTrail true ;
+    ggen:requiresShape ggen:ContainerMaterializationShape ;
+    ggen:materializationPriority 50 .
+
+ggen:EventMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "Event Materialization"@en ;
+    skos:notation "EventMaterialization" ;
+    rdfs:comment "Scheduled occurrences — services, sessions, meetings, camps, youth nights. Anything anchored to schema:Event."@en ;
+    ggen:materializesPublicAnchor schema:Event ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "pluralize-snake" ;
+    ggen:emitsSql true ;
+    ggen:requiresOwner false ;
+    ggen:requiresAuditTrail true ;
+    ggen:requiresShape ggen:EventMaterializationShape ;
+    ggen:materializationPriority 60 .
+
+ggen:ActionMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "Action Materialization"@en ;
+    skos:notation "ActionMaterialization" ;
+    rdfs:comment "Request/Agree/CheckIn/Register/Assign and other schema:Action subclasses — work orders, route actions, registrations, consents."@en ;
+    ggen:materializesPublicAnchor
+        schema:Action ,
+        schema:RequestAction ,
+        schema:AgreeAction ,
+        schema:CheckInAction ,
+        schema:RegisterAction ,
+        schema:AssignAction ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "pluralize-snake" ;
+    ggen:emitsSql true ;
+    ggen:requiresOwner true ;
+    ggen:requiresAuditTrail true ;
+    ggen:requiresShape ggen:ActionMaterializationShape ;
+    ggen:materializationPriority 80 .
+
+ggen:MessageMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "Message Materialization"@en ;
+    skos:notation "MessageMaterialization" ;
+    rdfs:comment "Messages and posts — schema:Message and SIOC posts. Notifications, push cards, group posts."@en ;
+    ggen:materializesPublicAnchor schema:Message , sioc:Post ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "pluralize-snake" ;
+    ggen:emitsSql true ;
+    ggen:requiresOwner true ;
+    ggen:requiresAuditTrail true ;
+    ggen:requiresShape ggen:MessageMaterializationShape ;
+    ggen:materializationPriority 50 .
+
+ggen:ActivityStreamMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "Activity Stream Materialization"@en ;
+    skos:notation "ActivityStreamMaterialization" ;
+    rdfs:comment "ActivityStreams 2.0 activity records — invites, joins, posts as activity-stream events."@en ;
+    ggen:materializesPublicAnchor as:Activity ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "pluralize-snake" ;
+    ggen:emitsSql true ;
+    ggen:requiresOwner true ;
+    ggen:requiresAuditTrail true ;
+    ggen:requiresShape ggen:ActivityStreamMaterializationShape ;
+    ggen:materializationPriority 45 .
+
+ggen:EvidenceActivityMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "PROV Evidence Activity Materialization"@en ;
+    skos:notation "EvidenceActivityMaterialization" ;
+    rdfs:comment "prov:Activity instances — process-evidence records like attendance, follow-up, route stage execution. Object-centric process memory."@en ;
+    ggen:materializesPublicAnchor prov:Activity ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "pluralize-snake" ;
+    ggen:emitsSql true ;
+    ggen:requiresOwner false ;
+    ggen:requiresAuditTrail true ;
+    ggen:requiresShape ggen:EvidenceActivityMaterializationShape ;
+    ggen:materializationPriority 75 .
+
+ggen:EvidenceEntityMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "PROV Evidence Entity Materialization"@en ;
+    skos:notation "EvidenceEntityMaterialization" ;
+    rdfs:comment "prov:Entity instances — receipts, attestations, evidence artifacts, OCEL object references."@en ;
+    ggen:materializesPublicAnchor prov:Entity ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "pluralize-snake" ;
+    ggen:emitsSql true ;
+    ggen:requiresOwner false ;
+    ggen:requiresAuditTrail true ;
+    ggen:requiresShape ggen:EvidenceEntityMaterializationShape ;
+    ggen:materializationPriority 70 .
+
+ggen:ConceptSchemeMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "Concept Scheme Materialization"@en ;
+    skos:notation "ConceptSchemeMaterialization" ;
+    rdfs:comment "skos:ConceptScheme — controlled vocabulary registries (category registries, role schemes, sensitivity levels)."@en ;
+    ggen:materializesPublicAnchor skos:ConceptScheme ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "as-is-snake" ;
+    ggen:emitsSql true ;
+    ggen:requiresOwner false ;
+    ggen:requiresAuditTrail false ;
+    ggen:requiresShape ggen:ConceptSchemeMaterializationShape ;
+    ggen:materializationPriority 25 .
+
+ggen:ConceptLookupMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "Concept Lookup Materialization"@en ;
+    skos:notation "ConceptLookupMaterialization" ;
+    rdfs:comment "skos:Concept — individual controlled-vocabulary values. Materializes as rows in lookup tables tied to the parent scheme."@en ;
+    ggen:materializesPublicAnchor skos:Concept ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "plural-of-anchor" ;
+    ggen:emitsSql false ;
+    ggen:requiresOwner false ;
+    ggen:requiresAuditTrail false ;
+    ggen:requiresShape ggen:ConceptLookupMaterializationShape ;
+    ggen:materializationPriority 20 .
+
+ggen:PolicyMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "ODRL Policy Materialization"@en ;
+    skos:notation "PolicyMaterialization" ;
+    rdfs:comment "ODRL policies, permissions, prohibitions, duties, constraints, rules — drive Supabase RLS policy generation rather than emitting their own tables."@en ;
+    ggen:materializesPublicAnchor
+        odrl:Policy ,
+        odrl:Permission ,
+        odrl:Prohibition ,
+        odrl:Duty ,
+        odrl:Constraint ,
+        odrl:Rule ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "as-is-snake" ;
+    ggen:emitsSql false ;
+    ggen:requiresOwner false ;
+    ggen:requiresAuditTrail false ;
+    ggen:requiresShape ggen:PolicyMaterializationShape ;
+    ggen:materializationPriority 15 .
+
+ggen:TimeWindowMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "Time Window Materialization"@en ;
+    skos:notation "TimeWindowMaterialization" ;
+    rdfs:comment "OWL-Time temporal entities + schema:Schedule — recurring schedules, seasons, capacity windows."@en ;
+    ggen:materializesPublicAnchor time:Interval , time:Instant , time:TemporalEntity , schema:Schedule ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "pluralize-snake" ;
+    ggen:emitsSql true ;
+    ggen:requiresOwner false ;
+    ggen:requiresAuditTrail true ;
+    ggen:requiresShape ggen:TimeWindowMaterializationShape ;
+    ggen:materializationPriority 40 .
+
+ggen:ReservationMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "Reservation Materialization"@en ;
+    skos:notation "ReservationMaterialization" ;
+    rdfs:comment "schema:Reservation — spot reservations, waitlist entries, slot holds. Materializes as tables with reservation lifecycle status."@en ;
+    ggen:materializesPublicAnchor schema:Reservation ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "pluralize-snake" ;
+    ggen:emitsSql true ;
+    ggen:requiresOwner true ;
+    ggen:requiresAuditTrail true ;
+    ggen:requiresShape ggen:ReservationMaterializationShape ;
+    ggen:materializationPriority 40 .
+
+ggen:OcelObjectMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "OCEL Object Materialization"@en ;
+    skos:notation "OcelObjectMaterialization" ;
+    rdfs:comment "OCEL 2.0 object-type references — typed objects participating in process events (people, households, needs, resources, receipts)."@en ;
+    ggen:materializesPublicAnchor prov:Entity ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "as-is-snake" ;
+    ggen:emitsSql true ;
+    ggen:requiresOwner false ;
+    ggen:requiresAuditTrail true ;
+    ggen:requiresShape ggen:OcelObjectMaterializationShape ;
+    ggen:materializationPriority 35 .
+
+ggen:OcelEventMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "OCEL Event Materialization"@en ;
+    skos:notation "OcelEventMaterialization" ;
+    rdfs:comment "OCEL 2.0 event-type records — each route stage transition emits one OCEL event. Materializes as the ocel_events table."@en ;
+    ggen:materializesPublicAnchor prov:Activity ;
+    ggen:targetRuntime "supabase" ;
+    ggen:tableNameStrategy "as-is-snake" ;
+    ggen:emitsSql true ;
+    ggen:requiresOwner false ;
+    ggen:requiresAuditTrail true ;
+    ggen:requiresShape ggen:OcelEventMaterializationShape ;
+    ggen:materializationPriority 35 .
+
+ggen:RouteProjectionMaterialization a ggen:MaterializationKind , skos:Concept ;
+    skos:inScheme ggen:ZoelaSupabaseMaterializationScheme ;
+    skos:prefLabel "Route Projection Materialization"@en ;
+    skos:notation "RouteProjectionMaterialization" ;
+    rdfs:comment "Service-route stage / admission-gate projections — materialized as edge functions (route-gate handlers), not as DDL tables. The 'table' for a route projection is its handler dispatch table in supabase/functions/route-gate/index.ts."@en ;
+    ggen:materializesPublicAnchor prov:Activity ;
+    ggen:targetRuntime "supabase-edge-fn" ;
+    ggen:tableNameStrategy "as-is-snake" ;
+    ggen:emitsSql false ;
+    ggen:requiresOwner false ;
+    ggen:requiresAuditTrail false ;
+    ggen:materializationPriority 30 .
+
+# ============================================================================
+# End of profile
+# ============================================================================

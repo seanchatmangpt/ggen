@@ -1,0 +1,177 @@
+@prefix : <http://dark-matter.ai/ontology/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Core Ontology - Foundation classes and properties for dark-matter-2026 system
+
+:Ontology a owl:Ontology ;
+  rdfs:label "Dark Matter 2026 Core Ontology" ;
+  owl:versionInfo "1.0.0" .
+
+# === CORE CLASSES ===
+
+:Capability a rdfs:Class ;
+  rdfs:label "Capability" ;
+  rdfs:comment "A capability that can be performed by actors in the system" .
+
+:Actor a rdfs:Class ;
+  rdfs:label "Actor" ;
+  rdfs:comment "An entity that can perform capabilities (human, AI agent, service)" .
+
+:Resource a rdfs:Class ;
+  rdfs:label "Resource" ;
+  rdfs:comment "A resource that can be accessed or manipulated" .
+
+:DataEntity a rdfs:Class ;
+  rdfs:subClassOf :Resource ;
+  rdfs:label "Data Entity" ;
+  rdfs:comment "A structured data entity with defined schema" .
+
+:Service a rdfs:Class ;
+  rdfs:label "Service" ;
+  rdfs:comment "A computational service that provides capabilities" .
+
+:Agent a rdfs:Class ;
+  rdfs:subClassOf :Actor ;
+  rdfs:label "Agent" ;
+  rdfs:comment "An AI agent that can perform automated tasks" .
+
+:Human a rdfs:Class ;
+  rdfs:subClassOf :Actor ;
+  rdfs:label "Human" ;
+  rdfs:comment "A human user of the system" .
+
+# === CORE PROPERTIES ===
+
+:hasCapability a owl:ObjectProperty ;
+  rdfs:domain :Actor ;
+  rdfs:range :Capability ;
+  rdfs:label "has capability" .
+
+:canPerform a owl:ObjectProperty ;
+  rdfs:domain :Actor ;
+  rdfs:range :Capability ;
+  rdfs:label "can perform" .
+
+:requiresCapability a owl:ObjectProperty ;
+  rdfs:domain :Resource ;
+  rdfs:range :Capability ;
+  rdfs:label "requires capability" .
+
+:provides a owl:ObjectProperty ;
+  rdfs:domain :Service ;
+  rdfs:range :Capability ;
+  rdfs:label "provides" .
+
+:consumes a owl:ObjectProperty ;
+  rdfs:domain :Service ;
+  rdfs:range :Resource ;
+  rdfs:label "consumes" .
+
+:produces a owl:ObjectProperty ;
+  rdfs:domain :Service ;
+  rdfs:range :Resource ;
+  rdfs:label "produces" .
+
+# === DATA PROPERTIES ===
+
+:identifier a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  rdfs:label "identifier" .
+
+:name a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  rdfs:label "name" .
+
+:description a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  rdfs:label "description" .
+
+:version a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  rdfs:label "version" .
+
+:createdAt a owl:DatatypeProperty ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "created at" .
+
+:updatedAt a owl:DatatypeProperty ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "updated at" .
+
+# === CAPABILITY INSTANCES ===
+
+:Manage a :Capability ;
+  :identifier "manage" ;
+  :name "Manage" ;
+  :description "Capability to manage system resources and entities" .
+
+:Govern a :Capability ;
+  :identifier "govern" ;
+  :name "Govern" ;
+  :description "Capability to govern policies and compliance" .
+
+:Monitor a :Capability ;
+  :identifier "monitor" ;
+  :name "Monitor" ;
+  :description "Capability to monitor system health and performance" .
+
+:Secure a :Capability ;
+  :identifier "secure" ;
+  :name "Secure" ;
+  :description "Capability to secure system resources and data" .
+
+# === SERVICE INSTANCES ===
+
+:WeaveService a :Service ;
+  :identifier "weaver" ;
+  :name "Weaver Service" ;
+  :description "Ontology-driven code generation service" ;
+  :provides :Manage ;
+  :consumes :DataEntity .
+
+:GovernService a :Service ;
+  :identifier "governor" ;
+  :name "Governor Service" ;
+  :description "Policy governance and compliance service" ;
+  :provides :Govern .
+
+:MonitorService a :Service ;
+  :identifier "monitor" ;
+  :name "Monitor Service" ;
+  :description "System monitoring and observability service" ;
+  :provides :Monitor .
+
+# === AGENT INSTANCES ===
+
+:OntologyAgent a :Agent ;
+  :identifier "ontology-agent" ;
+  :name "Ontology Agent" ;
+  :description "Agent specialized in ontology parsing and planning" ;
+  :hasCapability :Manage .
+
+:GeneratorAgent a :Agent ;
+  :identifier "generator-agent" ;
+  :name "Generator Agent" ;
+  :description "Agent specialized in code generation from templates" ;
+  :hasCapability :Manage .
+
+:DatabaseAgent a :Agent ;
+  :identifier "database-agent" ;
+  :name "Database Agent" ;
+  :description "Agent specialized in database operations and migrations" ;
+  :hasCapability :Manage .
+
+:QualityAgent a :Agent ;
+  :identifier "quality-agent" ;
+  :name "Quality Agent" ;
+  :description "Agent specialized in testing and quality assurance" ;
+  :hasCapability :Monitor .
+
+:SecurityAgent a :Agent ;
+  :identifier "security-agent" ;
+  :name "Security Agent" ;
+  :description "Agent specialized in security and compliance" ;
+  :hasCapability :Secure .

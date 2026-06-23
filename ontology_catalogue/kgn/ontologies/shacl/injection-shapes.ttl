@@ -1,0 +1,731 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix kgen: <https://kgen.dev/ontology#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix inject: <https://kgen.dev/inject#> .
+
+# KGEN Injection SHACL Shapes - Validation for Injection Operations
+#
+# This file defines comprehensive SHACL constraints for validating KGEN injection operations including:
+# - Injection target validation
+# - Content validation for injected code
+# - Atomic operation constraints
+# - Semantic consistency preservation
+# - Performance constraints for large files
+
+#######################################
+# Injection Operation Core Constraints
+#######################################
+
+inject:InjectionOperationShape a sh:NodeShape ;
+    rdfs:label "Injection Operation Shape" ;
+    rdfs:comment "Validates the overall injection operation configuration" ;
+    sh:targetClass inject:InjectionOperation ;
+
+    # Every injection must have a unique identifier
+    sh:property [
+        sh:path inject:operationId ;
+        sh:name "operation identifier" ;
+        sh:description "Unique identifier for the injection operation" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^inject-[a-zA-Z0-9_-]+$" ;
+        sh:message "Injection operation must have unique ID with 'inject-' prefix" ;
+    ] ;
+
+    # Target file is required
+    sh:property [
+        sh:path inject:targetFile ;
+        sh:name "target file" ;
+        sh:description "File where content will be injected" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[^<>:\"|*?\\\\]+\\.[a-zA-Z0-9]+$" ;
+        sh:message "Target file must be valid filename with extension" ;
+    ] ;
+
+    # Injection mode is required and must be valid
+    sh:property [
+        sh:path inject:injectionMode ;
+        sh:name "injection mode" ;
+        sh:description "Mode of injection operation" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            inject:before
+            inject:after
+            inject:replace
+            inject:append
+            inject:prepend
+            inject:lineAt
+        ) ;
+        sh:message "Injection mode must be one of the supported modes" ;
+    ] ;
+
+    # Target pattern for before/after/replace modes
+    sh:property [
+        sh:path inject:targetPattern ;
+        sh:name "target pattern" ;
+        sh:description "Pattern to locate injection point" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Target pattern must be non-empty string" ;
+    ] ;
+
+    # Line number for lineAt mode
+    sh:property [
+        sh:path inject:targetLineNumber ;
+        sh:name "target line number" ;
+        sh:description "Line number for lineAt injection mode" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:positiveInteger ;
+        sh:message "Target line number must be positive integer" ;
+    ] ;
+
+    # Content to inject
+    sh:property [
+        sh:path inject:content ;
+        sh:name "injection content" ;
+        sh:description "Content to be injected" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Injection content must be non-empty" ;
+    ] ;
+
+    # Atomicity requirement
+    sh:property [
+        sh:path inject:isAtomic ;
+        sh:name "atomic operation" ;
+        sh:description "Whether the injection is atomic" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Injection operations should be atomic by default" ;
+    ] ;
+
+    # Format preservation
+    sh:property [
+        sh:path inject:preserveFormatting ;
+        sh:name "preserve formatting" ;
+        sh:description "Whether to preserve existing formatting" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Formatting should be preserved during injection" ;
+    ] ;
+
+    # Deterministic behavior
+    sh:property [
+        sh:path inject:deterministic ;
+        sh:name "deterministic operation" ;
+        sh:description "Whether injection produces deterministic results" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Injection operations must be deterministic" ;
+    ] .
+
+#######################################
+# Target Pattern Validation
+#######################################
+
+inject:TargetPatternShape a sh:NodeShape ;
+    rdfs:label "Target Pattern Shape" ;
+    rdfs:comment "Validates injection target patterns" ;
+    sh:targetClass inject:TargetPattern ;
+
+    # Pattern must be valid for target language
+    sh:property [
+        sh:path inject:pattern ;
+        sh:name "pattern string" ;
+        sh:description "The actual pattern string" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 3 ;
+        sh:message "Pattern must be at least 3 characters long" ;
+    ] ;
+
+    # Pattern type (literal, regex, or AST-based)
+    sh:property [
+        sh:path inject:patternType ;
+        sh:name "pattern type" ;
+        sh:description "Type of pattern matching" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            inject:literal
+            inject:regex
+            inject:ast
+            inject:semantic
+        ) ;
+        sh:message "Pattern type must be literal, regex, AST, or semantic" ;
+    ] ;
+
+    # Case sensitivity
+    sh:property [
+        sh:path inject:caseSensitive ;
+        sh:name "case sensitive" ;
+        sh:description "Whether pattern matching is case sensitive" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Pattern matching should be case sensitive by default" ;
+    ] ;
+
+    # Multi-line pattern support
+    sh:property [
+        sh:path inject:multiLine ;
+        sh:name "multi-line pattern" ;
+        sh:description "Whether pattern can span multiple lines" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Multi-line pattern support specification" ;
+    ] .
+
+#######################################
+# Code Structure Constraints
+#######################################
+
+inject:CodeStructureShape a sh:NodeShape ;
+    rdfs:label "Code Structure Shape" ;
+    rdfs:comment "Validates code structure for injection compatibility" ;
+    sh:targetClass inject:CodeStructure ;
+
+    # Language specification
+    sh:property [
+        sh:path inject:language ;
+        sh:name "programming language" ;
+        sh:description "Target programming language" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "javascript"
+            "typescript"
+            "python"
+            "java"
+            "csharp"
+            "go"
+            "rust"
+            "php"
+            "ruby"
+            "kotlin"
+            "swift"
+        ) ;
+        sh:message "Must specify supported programming language" ;
+    ] ;
+
+    # Syntax validation required
+    sh:property [
+        sh:path inject:syntaxValid ;
+        sh:name "syntax validity" ;
+        sh:description "Whether injected content has valid syntax" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Injected content must have valid syntax" ;
+    ] ;
+
+    # Indentation preservation
+    sh:property [
+        sh:path inject:preserveIndentation ;
+        sh:name "preserve indentation" ;
+        sh:description "Whether to preserve existing indentation" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Indentation should be preserved" ;
+    ] ;
+
+    # Import/dependency management
+    sh:property [
+        sh:path inject:manageImports ;
+        sh:name "manage imports" ;
+        sh:description "Whether to automatically manage imports" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Import management specification" ;
+    ] .
+
+#######################################
+# TypeScript-Specific Constraints
+#######################################
+
+inject:TypeScriptInjectionShape a sh:NodeShape ;
+    rdfs:label "TypeScript Injection Shape" ;
+    rdfs:comment "Constraints specific to TypeScript code injection" ;
+    sh:targetClass inject:TypeScriptInjection ;
+
+    # Import statement validation
+    sh:property [
+        sh:path inject:hasImport ;
+        sh:name "import statements" ;
+        sh:nodeKind sh:BlankNode ;
+        sh:node inject:ImportStatementShape ;
+    ] ;
+
+    # Export statement validation
+    sh:property [
+        sh:path inject:hasExport ;
+        sh:name "export statements" ;
+        sh:nodeKind sh:BlankNode ;
+        sh:node inject:ExportStatementShape ;
+    ] ;
+
+    # Type annotation requirements
+    sh:property [
+        sh:path inject:requiresTypes ;
+        sh:name "requires type annotations" ;
+        sh:description "Whether injection requires TypeScript types" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Type annotation requirements" ;
+    ] .
+
+inject:ImportStatementShape a sh:NodeShape ;
+    rdfs:label "Import Statement Shape" ;
+    rdfs:comment "Validates TypeScript import statements" ;
+
+    sh:property [
+        sh:path inject:importPath ;
+        sh:name "import path" ;
+        sh:description "Module path for import" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(\\.|\\.\\.|@|[a-z])" ;
+        sh:message "Import path must be valid relative or package path" ;
+    ] ;
+
+    sh:property [
+        sh:path inject:importSpecifier ;
+        sh:name "import specifier" ;
+        sh:description "Imported identifier name" ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z_$][a-zA-Z0-9_$]*$" ;
+        sh:message "Import specifier must be valid JavaScript identifier" ;
+    ] ;
+
+    sh:property [
+        sh:path inject:isTypeImport ;
+        sh:name "type-only import" ;
+        sh:description "Whether this is a type-only import" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Type-only import specification" ;
+    ] .
+
+inject:ExportStatementShape a sh:NodeShape ;
+    rdfs:label "Export Statement Shape" ;
+    rdfs:comment "Validates TypeScript export statements" ;
+
+    sh:property [
+        sh:path inject:exportName ;
+        sh:name "export name" ;
+        sh:description "Name of exported identifier" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Z][a-zA-Z0-9]*$" ;
+        sh:message "Export name should be PascalCase for classes/types" ;
+    ] ;
+
+    sh:property [
+        sh:path inject:exportType ;
+        sh:name "export type" ;
+        sh:description "Type of exported construct" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "class"
+            "interface"
+            "type"
+            "enum"
+            "function"
+            "const"
+            "default"
+        ) ;
+        sh:message "Export type must be valid TypeScript construct" ;
+    ] ;
+
+    sh:property [
+        sh:path inject:isDefaultExport ;
+        sh:name "default export" ;
+        sh:description "Whether this is a default export" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Default export specification" ;
+    ] .
+
+#######################################
+# Semantic Consistency Constraints
+#######################################
+
+inject:SemanticConsistencyShape a sh:NodeShape ;
+    rdfs:label "Semantic Consistency Shape" ;
+    rdfs:comment "Ensures injection maintains semantic consistency" ;
+    sh:targetClass inject:SemanticContext ;
+
+    # Context preservation
+    sh:property [
+        sh:path inject:contextType ;
+        sh:name "context type" ;
+        sh:description "Type of semantic context" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            inject:globalScope
+            inject:moduleScope
+            inject:classScope
+            inject:functionScope
+            inject:blockScope
+        ) ;
+        sh:message "Context type must be valid semantic scope" ;
+    ] ;
+
+    # Variable scope validation
+    sh:property [
+        sh:path inject:introducesVariable ;
+        sh:name "introduces variables" ;
+        sh:description "Variables introduced by injection" ;
+        sh:nodeKind sh:BlankNode ;
+        sh:node inject:VariableDeclarationShape ;
+    ] ;
+
+    # Dependency consistency
+    sh:property [
+        sh:path inject:maintainsDependencies ;
+        sh:name "maintains dependencies" ;
+        sh:description "Whether injection maintains dependency consistency" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Injection must maintain dependency consistency" ;
+    ] .
+
+inject:VariableDeclarationShape a sh:NodeShape ;
+    rdfs:label "Variable Declaration Shape" ;
+    rdfs:comment "Validates variable declarations in injected code" ;
+
+    sh:property [
+        sh:path inject:variableName ;
+        sh:name "variable name" ;
+        sh:description "Name of declared variable" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z_$][a-zA-Z0-9_$]*$" ;
+        sh:message "Variable name must be valid JavaScript identifier" ;
+    ] ;
+
+    sh:property [
+        sh:path inject:variableScope ;
+        sh:name "variable scope" ;
+        sh:description "Scope of the variable" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            inject:global
+            inject:module
+            inject:function
+            inject:block
+        ) ;
+        sh:message "Variable scope must be valid" ;
+    ] ;
+
+    sh:property [
+        sh:path inject:shadowsExisting ;
+        sh:name "shadows existing variable" ;
+        sh:description "Whether variable shadows existing declaration" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Variable shadowing specification" ;
+    ] .
+
+#######################################
+# Performance Constraints
+#######################################
+
+inject:PerformanceConstraintShape a sh:NodeShape ;
+    rdfs:label "Performance Constraint Shape" ;
+    rdfs:comment "Performance requirements for injection operations" ;
+    sh:targetClass inject:PerformanceMetrics ;
+
+    # Maximum file size for injection
+    sh:property [
+        sh:path inject:maxFileSize ;
+        sh:name "maximum file size" ;
+        sh:description "Maximum target file size in bytes" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:long ;
+        sh:maxInclusive 10485760 ; # 10MB limit
+        sh:message "Target files should not exceed 10MB for performance" ;
+    ] ;
+
+    # Maximum injection time
+    sh:property [
+        sh:path inject:maxExecutionTime ;
+        sh:name "maximum execution time" ;
+        sh:description "Maximum injection time in milliseconds" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 5000.0 ; # 5 seconds
+        sh:message "Injection should complete within 5 seconds" ;
+    ] ;
+
+    # Memory usage constraints
+    sh:property [
+        sh:path inject:maxMemoryUsage ;
+        sh:name "maximum memory usage" ;
+        sh:description "Maximum memory usage in bytes" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:long ;
+        sh:maxInclusive 104857600 ; # 100MB limit
+        sh:message "Memory usage should not exceed 100MB" ;
+    ] ;
+
+    # Line processing rate
+    sh:property [
+        sh:path inject:minLineProcessingRate ;
+        sh:name "minimum line processing rate" ;
+        sh:description "Minimum lines processed per second" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 10000.0 ; # 10k lines/sec
+        sh:message "Should process at least 10,000 lines per second" ;
+    ] .
+
+#######################################
+# Idempotency Constraints
+#######################################
+
+inject:IdempotencyConstraintShape a sh:NodeShape ;
+    rdfs:label "Idempotency Constraint Shape" ;
+    rdfs:comment "Ensures injection operations are idempotent" ;
+    sh:targetClass inject:IdempotencyCheck ;
+
+    # Content hash for duplicate detection
+    sh:property [
+        sh:path inject:contentHash ;
+        sh:name "content hash" ;
+        sh:description "Hash of content to be injected" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-f0-9]{64}$" ;
+        sh:message "Content hash must be valid SHA-256 hash" ;
+    ] ;
+
+    # Duplicate detection enabled
+    sh:property [
+        sh:path inject:detectDuplicates ;
+        sh:name "detect duplicates" ;
+        sh:description "Whether to detect duplicate injections" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Duplicate detection should be enabled" ;
+    ] ;
+
+    # State consistency validation
+    sh:property [
+        sh:path inject:validateState ;
+        sh:name "validate state consistency" ;
+        sh:description "Whether to validate file state consistency" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "State consistency validation should be enabled" ;
+    ] .
+
+#######################################
+# SPARQL-based Advanced Constraints
+#######################################
+
+# Circular dependency detection for imports
+inject:CircularDependencyShape a sh:NodeShape ;
+    rdfs:label "Circular Dependency Detection" ;
+    sh:targetClass inject:ImportStatement ;
+    sh:sparql [
+        sh:message "Circular import dependency detected" ;
+        sh:select '''
+            PREFIX inject: <https://kgen.dev/inject#>
+            SELECT $this ?cycle
+            WHERE {
+                $this inject:importPath ?path1 .
+                ?other inject:importPath ?path2 .
+                ?other inject:importPath $this .
+                FILTER(?path1 != ?path2)
+                BIND(?other as ?cycle)
+            }
+        ''' ;
+    ] .
+
+# Unused import detection
+inject:UnusedImportShape a sh:NodeShape ;
+    rdfs:label "Unused Import Detection" ;
+    sh:targetClass inject:ImportStatement ;
+    sh:sparql [
+        sh:message "Imported identifier is not used in the code" ;
+        sh:severity sh:Warning ;
+        sh:select '''
+            PREFIX inject: <https://kgen.dev/inject#>
+            SELECT $this ?unusedImport
+            WHERE {
+                $this inject:importSpecifier ?specifier .
+                FILTER NOT EXISTS {
+                    ?usage inject:usesIdentifier ?specifier .
+                }
+                BIND(?specifier as ?unusedImport)
+            }
+        ''' ;
+    ] .
+
+# Missing dependency detection
+inject:MissingDependencyShape a sh:NodeShape ;
+    rdfs:label "Missing Dependency Detection" ;
+    sh:targetClass inject:CodeStructure ;
+    sh:sparql [
+        sh:message "Used identifier has no corresponding import" ;
+        sh:select '''
+            PREFIX inject: <https://kgen.dev/inject#>
+            SELECT $this ?missingDependency
+            WHERE {
+                $this inject:usesIdentifier ?identifier .
+                FILTER NOT EXISTS {
+                    ?import inject:importSpecifier ?identifier .
+                }
+                FILTER NOT EXISTS {
+                    $this inject:definesIdentifier ?identifier .
+                }
+                BIND(?identifier as ?missingDependency)
+            }
+        ''' ;
+    ] .
+
+#######################################
+# Atomic Operation Constraints
+#######################################
+
+inject:AtomicOperationShape a sh:NodeShape ;
+    rdfs:label "Atomic Operation Shape" ;
+    rdfs:comment "Ensures atomic injection operations" ;
+    sh:targetClass inject:AtomicInjection ;
+
+    # Rollback capability required
+    sh:property [
+        sh:path inject:supportsRollback ;
+        sh:name "supports rollback" ;
+        sh:description "Whether operation supports rollback on failure" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Atomic operations must support rollback" ;
+    ] ;
+
+    # Backup creation required
+    sh:property [
+        sh:path inject:createsBackup ;
+        sh:name "creates backup" ;
+        sh:description "Whether operation creates backup before modification" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Should create backup before atomic operations" ;
+    ] ;
+
+    # Validation checkpoint
+    sh:property [
+        sh:path inject:hasValidationCheckpoint ;
+        sh:name "validation checkpoint" ;
+        sh:description "Whether operation has validation checkpoints" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Atomic operations should have validation checkpoints" ;
+    ] ;
+
+    # Transaction isolation
+    sh:property [
+        sh:path inject:isolationLevel ;
+        sh:name "isolation level" ;
+        sh:description "Transaction isolation level" ;
+        sh:maxCount 1 ;
+        sh:in (
+            inject:readUncommitted
+            inject:readCommitted
+            inject:repeatableRead
+            inject:serializable
+        ) ;
+        sh:message "Atomic operations should specify isolation level" ;
+    ] .
+
+#######################################
+# Format Preservation Constraints
+#######################################
+
+inject:FormatPreservationShape a sh:NodeShape ;
+    rdfs:label "Format Preservation Shape" ;
+    rdfs:comment "Ensures formatting is preserved during injection" ;
+    sh:targetClass inject:FormatPreservation ;
+
+    # Whitespace preservation
+    sh:property [
+        sh:path inject:preserveWhitespace ;
+        sh:name "preserve whitespace" ;
+        sh:description "Whether to preserve existing whitespace" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Whitespace should be preserved" ;
+    ] ;
+
+    # Line ending consistency
+    sh:property [
+        sh:path inject:lineEndingStyle ;
+        sh:name "line ending style" ;
+        sh:description "Line ending style to maintain" ;
+        sh:maxCount 1 ;
+        sh:in (
+            inject:unix     # LF
+            inject:windows  # CRLF
+            inject:mac      # CR
+            inject:mixed    # Mixed (preserve existing)
+        ) ;
+        sh:message "Line ending style specification" ;
+    ] ;
+
+    # Indentation style
+    sh:property [
+        sh:path inject:indentationStyle ;
+        sh:name "indentation style" ;
+        sh:description "Indentation style to maintain" ;
+        sh:maxCount 1 ;
+        sh:in (
+            inject:spaces
+            inject:tabs
+            inject:mixed
+        ) ;
+        sh:message "Indentation style specification" ;
+    ] ;
+
+    # Indentation size for spaces
+    sh:property [
+        sh:path inject:indentSize ;
+        sh:name "indentation size" ;
+        sh:description "Number of spaces per indentation level" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minInclusive 2 ;
+        sh:maxInclusive 8 ;
+        sh:message "Indentation size should be between 2 and 8 spaces" ;
+    ] .

@@ -1,0 +1,434 @@
+@prefix bos:     <https://open-ontologies.org/bible-o-star#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# =============================================================================
+# Nehemiah 52 Operating Grammar Ontology
+# IRI: <https://open-ontologies.org/ontology/nehemiah-52>
+# License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+# =============================================================================
+
+<https://open-ontologies.org/ontology/nehemiah-52>
+    a owl:Ontology ;
+    rdfs:label "Nehemiah 52 Operating Grammar" ;
+    rdfs:comment "Operating grammar for the Nehemiah 52 solution-architecture pattern. Defines gates, walls, builders, ledgers, false-report interception, and the inspection-gate verdict protocol." ;
+    dcterms:created "2026-06-02"^^xsd:date ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> .
+
+# =============================================================================
+# OWL Classes — Core Operational
+# =============================================================================
+
+bos:Gate a owl:Class ;
+    rdfs:label "Gate" ;
+    rdfs:comment "An admissibility boundary in the Nehemiah 52 operating grammar. Exactly 10 instances are sanctioned. Not a department or metaphor." .
+
+bos:Wall a owl:Class ;
+    rdfs:label "Wall" ;
+    rdfs:comment "The complete perimeter protective structure in the Nehemiah 52 pattern, composed of wall sections, gates, and accountability records." .
+
+bos:WallSection a owl:Class ;
+    rdfs:label "Wall Section" ;
+    rdfs:comment "A discrete bounded segment of the wall assigned to named builders and associated with a sanctioned gate." .
+
+bos:Builder a owl:Class ;
+    rdfs:label "Builder" ;
+    rdfs:comment "A named accountable agent assigned to build or repair a wall section. Anonymity is an anti-pattern; every builder must be in the Muster Ledger." .
+
+bos:GateSwarm a owl:Class ;
+    rdfs:label "Gate Swarm" ;
+    rdfs:comment "A coordinated cohort of builders assigned to a gate boundary. Operates as a unified admissibility unit." .
+
+bos:Courier a owl:Class ;
+    rdfs:label "Courier" ;
+    rdfs:comment "A communication carrier channel that routes payloads to gates for classification. Does not judge payload truth — routes for inspection." .
+
+bos:CourierRecord a owl:Class ;
+    rdfs:label "Courier Record" ;
+    rdfs:comment "A log record of a courier routing action: payload classified, gate routed to, refusal or acceptance recorded." .
+
+bos:FalseReport a owl:Class ;
+    rdfs:label "False Report" ;
+    rdfs:comment "A payload classified as fabricated or destabilising at a truth gate. Named and recorded, never absorbed into operating state." .
+
+bos:Mocker a owl:Class ;
+    rdfs:label "Mocker" ;
+    rdfs:comment "An adversarial feedback agent that emits contempt signals against the building work. Mockers are recorded, not debated." .
+
+bos:MockerFeedback a owl:Class ;
+    rdfs:label "Mocker Feedback" ;
+    rdfs:comment "An adversarial contempt signal emitted by a Mocker. Must carry a canonical reference. Does not enter operating state as data." .
+
+bos:Prayer a owl:Class ;
+    rdfs:label "Prayer" ;
+    rdfs:comment "An upward appeal in the Nehemiah 52 pattern. Converts adversarial signals to appeals; grounds the Prayer Layer. Not a routing event." .
+
+bos:UsuryLedger a owl:Class ;
+    rdfs:label "Usury Ledger" ;
+    rdfs:comment "An internal extraction audit ledger for unjust interest and debt obligations. Economic checks belong here, not in a gate." .
+
+bos:UsuryLedgerRecord a owl:Class ;
+    rdfs:label "Usury Ledger Record" ;
+    rdfs:comment "A single entry in the Usury Ledger: names debtor, creditor, unjust charge, and remediation action." .
+
+bos:MusterLedger a owl:Class ;
+    rdfs:label "Muster Ledger" ;
+    rdfs:comment "The accountable census and builder accountability register: who built what, where, by which canonical reference. Census = muster, not vanity metric." .
+
+bos:MusterLedgerRecord a owl:Class ;
+    rdfs:label "Muster Ledger Record" ;
+    rdfs:comment "A single entry in the Muster Ledger: named builder, assigned gate, wall section, canonical reference." .
+
+bos:ProphetOffice a owl:Class ;
+    rdfs:label "Prophet Office" ;
+    rdfs:comment "The proclamation office in the Nehemiah 52 pattern. A function of proclamation counsel, not a gate. Prophets are not gatekeepers." .
+
+bos:PropheticProclamation a owl:Class ;
+    rdfs:label "Prophetic Proclamation" ;
+    rdfs:comment "A canonical declaration emitted from the ProphetOffice. Must carry a canonical reference." .
+
+bos:NationsLedger a owl:Class ;
+    rdfs:label "Nations Ledger" ;
+    rdfs:comment "External witness observation ledger. Nations observe; they do not admit. External presence is not a gate." .
+
+bos:NationsLedgerRecord a owl:Class ;
+    rdfs:label "Nations Ledger Record" ;
+    rdfs:comment "A single external observation record: which nation, what signal, canonical reference." .
+
+bos:InspectionGate a owl:Class ;
+    rdfs:subClassOf bos:Gate ;
+    rdfs:label "Inspection Gate" ;
+    rdfs:comment "Subclass of Gate that is the final validation boundary. Emits InspectionReceipts bearing ALIVE/PARTIAL/BLOCKED verdicts. Only one instance: bos:InspectionGate (the individual)." .
+
+bos:InspectionReceipt a owl:Class ;
+    rdfs:label "Inspection Receipt" ;
+    rdfs:comment "A grounded record of a completed wall section verdict from the InspectionGate. Must carry a bos:Verdict and a canonical reference." .
+
+bos:Verdict a owl:Class ;
+    rdfs:label "Verdict" ;
+    rdfs:comment "An admissibility verdict issued at the InspectionGate. One of: ALIVE (fully operational), PARTIAL (in progress), BLOCKED (failed, requires remediation)." .
+
+bos:Receipt a owl:Class ;
+    rdfs:label "Receipt" ;
+    rdfs:comment "A durable proof record of a building act or lifecycle transition. InspectionReceipt is the specialised form." .
+
+# =============================================================================
+# OWL Classes — Scripture Structure
+# =============================================================================
+
+bos:ScriptureWork a owl:Class ;
+    rdfs:label "Scripture Work" ;
+    rdfs:comment "A canonical scripture work (OSIS osisIDWork). The top-level scriptural container." .
+
+bos:Book a owl:Class ;
+    rdfs:label "Book" ;
+    rdfs:comment "A canonical book within a ScriptureWork, identified by OSIS three-letter abbreviation (e.g. Neh)." .
+
+bos:Chapter a owl:Class ;
+    rdfs:label "Chapter" ;
+    rdfs:comment "A chapter division within a Book (e.g. Neh.3)." .
+
+bos:Verse a owl:Class ;
+    rdfs:label "Verse" ;
+    rdfs:comment "A verse address within a Chapter (e.g. Neh.3.1)." .
+
+bos:Passage a owl:Class ;
+    rdfs:label "Passage" ;
+    rdfs:comment "A named passage spanning one or more verses within a ScriptureWork." .
+
+bos:Pericope a owl:Class ;
+    rdfs:label "Pericope" ;
+    rdfs:comment "A discrete coherent narrative or teaching unit, typically spanning multiple verses or a chapter section." .
+
+bos:Person a owl:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "A named human or divine agent referenced in scripture." .
+
+bos:PeopleGroup a owl:Class ;
+    rdfs:label "People Group" ;
+    rdfs:comment "A nation, tribe, or named collective referenced in scripture." .
+
+bos:Place a owl:Class ;
+    rdfs:label "Place" ;
+    rdfs:comment "A geographic location or named structure referenced in scripture." .
+
+# =============================================================================
+# Gate Named Individuals — The 10 Sanctioned Gates
+# =============================================================================
+
+bos:SheepGate a owl:NamedIndividual , bos:Gate ;
+    rdfs:label "Sheep Gate" ;
+    rdfs:comment "Consecrated entry point (Neh.3.1). Built and dedicated first by Eliashib the High Priest. No admission without consecration. Public entry category: consecrated dedication precedes all building acts." ;
+    bos:hasCanonicalReference "Neh.3.1"^^xsd:string .
+
+bos:FishGate a owl:NamedIndividual , bos:Gate ;
+    rdfs:label "Fish Gate" ;
+    rdfs:comment "Truth catch and external intake (Neh.3.3). External supply sorting and origin verification. Those drawn by truth enter; unverified external payloads are refused." ;
+    bos:hasCanonicalReference "Neh.3.3"^^xsd:string .
+
+bos:OldGate a owl:NamedIndividual , bos:Gate ;
+    rdfs:label "Old Gate" ;
+    rdfs:comment "Foundational standards preservation (Neh.3.6). Maintains canonical precedents. Change proposals must pass an Old Gate preservation check before East Gate evaluation." ;
+    bos:hasCanonicalReference "Neh.3.6"^^xsd:string .
+
+bos:ValleyGate a owl:NamedIndividual , bos:Gate ;
+    rdfs:label "Valley Gate" ;
+    rdfs:comment "Testing and lower-bound constraint handling (Neh.3.13). Governs minimum viable scope claims. Sits at the lowest elevation; the valley is the starting point, not the problem." ;
+    bos:hasCanonicalReference "Neh.3.13"^^xsd:string .
+
+bos:DungGate a owl:NamedIndividual , bos:Gate ;
+    rdfs:label "Dung Gate" ;
+    rdfs:comment "Purge boundary for validation refutation (Neh.3.14). Removes confirmed unsound artifacts. The only gate whose admission criterion is that the artifact is confirmed unsound." ;
+    bos:hasCanonicalReference "Neh.3.14"^^xsd:string .
+
+bos:FountainGate a owl:NamedIndividual , bos:Gate ;
+    rdfs:label "Fountain Gate" ;
+    rdfs:comment "Relation evidence and cross-reference flow (Neh.3.15). Governs reference resolution and coordination routing. Unresolvable references are refused here." ;
+    bos:hasCanonicalReference "Neh.3.15"^^xsd:string .
+
+bos:WaterGate a owl:NamedIndividual , bos:Gate ;
+    rdfs:label "Water Gate" ;
+    rdfs:comment "Communications and truth distribution (Neh.3.26). Public proclamation coordination. Ezra read the Law here. Only verified-true payloads may broadcast through this gate." ;
+    bos:hasCanonicalReference "Neh.3.26"^^xsd:string .
+
+bos:HorseGate a owl:NamedIndividual , bos:Gate ;
+    rdfs:label "Horse Gate" ;
+    rdfs:comment "Deployment and dynamic defense (Neh.3.28). Rapid response and genuine defense signals. False alarm payloads designed to halt building are refused here." ;
+    bos:hasCanonicalReference "Neh.3.28"^^xsd:string .
+
+bos:EastGate a owl:NamedIndividual , bos:Gate ;
+    rdfs:label "East Gate" ;
+    rdfs:comment "Change management and governance (Neh.3.29). Faces sunrise — the direction of return from exile. All change proposals and transition requests must pass East Gate review." ;
+    bos:hasCanonicalReference "Neh.3.29"^^xsd:string .
+
+bos:TheInspectionGate a owl:NamedIndividual , bos:Gate ;
+    rdfs:label "Inspection Gate" ;
+    rdfs:comment "Certification boundary that issues ALIVE/PARTIAL/BLOCKED verdicts (Neh.3.31). The terminal validation boundary. No wall section may self-certify ALIVE. All ALIVE verdicts originate here." ;
+    bos:hasCanonicalReference "Neh.3.31"^^xsd:string .
+
+# =============================================================================
+# Verdict Named Individuals
+# =============================================================================
+
+bos:VerdictAlive a owl:NamedIndividual , bos:Verdict ;
+    rdfs:label "ALIVE" ;
+    rdfs:comment "Section validated: structure is sound, receipt is grounded, builder is named. All inspection criteria passed." .
+
+bos:VerdictPartial a owl:NamedIndividual , bos:Verdict ;
+    rdfs:label "PARTIAL" ;
+    rdfs:comment "Incomplete: work has begun and is traceable but has open gaps requiring remediation before ALIVE can be issued." .
+
+bos:VerdictBlocked a owl:NamedIndividual , bos:Verdict ;
+    rdfs:label "BLOCKED" ;
+    rdfs:comment "Refused: the section fails inspection and cannot proceed without remediation. All blocking conditions must be named." .
+
+# =============================================================================
+# Refused Fake Gates — explicitly deprecated, NOT valid gates
+# =============================================================================
+
+bos:InterestGate a owl:NamedIndividual ;
+    rdfs:label "Interest Gate" ;
+    rdfs:comment "REFUSED: not a gate. Economic extraction checks belong in the UsuryLedger. A gate premised on interest violates Nehemiah 5." ;
+    owl:deprecated true .
+
+bos:PeopleGate a owl:NamedIndividual ;
+    rdfs:label "People Gate" ;
+    rdfs:comment "REFUSED: not a gate. Human registries belong in the MusterLedger. Admissibility based on people-pleasing is not a lawful boundary." ;
+    owl:deprecated true .
+
+bos:MessengerGate a owl:NamedIndividual ;
+    rdfs:label "Messenger Gate" ;
+    rdfs:comment "REFUSED: not a gate. Communication routing belongs in the CourierLayer. A gate that absorbs messenger payloads without classification is not lawful." ;
+    owl:deprecated true .
+
+bos:NationsGate a owl:NamedIndividual ;
+    rdfs:label "Nations Gate" ;
+    rdfs:comment "REFUSED: not a gate. Nations are external witnesses, not gatekeepers. Nations belong in the NationsLedger." ;
+    owl:deprecated true .
+
+bos:ProphetGate a owl:NamedIndividual ;
+    rdfs:label "Prophet Gate" ;
+    rdfs:comment "REFUSED: not a gate. Prophets are proclamation counsel, not gates. Routing admissibility through hired prophets is the Shemaiah trap (Neh.6.10-14)." ;
+    owl:deprecated true .
+
+bos:RumorGate a owl:NamedIndividual ;
+    rdfs:label "Rumor Gate" ;
+    rdfs:comment "REFUSED: not a gate. Rumors are FalseReports refused at InspectionGate. A boundary that admits unverified rumors corrupts the wall circuit." ;
+    owl:deprecated true .
+
+bos:ReportGate a owl:NamedIndividual ;
+    rdfs:label "Report Gate" ;
+    rdfs:comment "REFUSED: not a gate. Reports are processed at InspectionGate already. An additional report gate duplicates the terminal boundary and breaks the circuit." ;
+    owl:deprecated true .
+
+# =============================================================================
+# Object Properties — Scripture Structure
+# =============================================================================
+
+bos:hasBook a owl:ObjectProperty ;
+    rdfs:label "has book" ;
+    rdfs:comment "Associates a ScriptureWork with a Book." ;
+    rdfs:domain bos:ScriptureWork ;
+    rdfs:range bos:Book .
+
+bos:hasChapter a owl:ObjectProperty ;
+    rdfs:label "has chapter" ;
+    rdfs:comment "Associates a Book with a Chapter." ;
+    rdfs:domain bos:Book ;
+    rdfs:range bos:Chapter .
+
+bos:hasVerse a owl:ObjectProperty ;
+    rdfs:label "has verse" ;
+    rdfs:comment "Associates a Chapter with a Verse." ;
+    rdfs:domain bos:Chapter ;
+    rdfs:range bos:Verse .
+
+bos:hasPassage a owl:ObjectProperty ;
+    rdfs:label "has passage" ;
+    rdfs:comment "Associates a ScriptureWork with a named Passage." ;
+    rdfs:domain bos:ScriptureWork ;
+    rdfs:range bos:Passage .
+
+bos:mentionsPerson a owl:ObjectProperty ;
+    rdfs:label "mentions person" ;
+    rdfs:comment "Associates a Passage or Verse with a Person named in that unit." ;
+    rdfs:range bos:Person .
+
+bos:mentionsPlace a owl:ObjectProperty ;
+    rdfs:label "mentions place" ;
+    rdfs:comment "Associates a Passage or Verse with a Place named in that unit." ;
+    rdfs:range bos:Place .
+
+bos:hasCrossReference a owl:ObjectProperty ;
+    rdfs:label "has cross-reference" ;
+    rdfs:comment "Evidence-level passage link. Requires resolution in the Fountain Gate source ledger." .
+
+# =============================================================================
+# Datatype Properties — Scripture Structure
+# =============================================================================
+
+bos:hasCanonicalReference a owl:DatatypeProperty ;
+    rdfs:label "has canonical reference" ;
+    rdfs:comment "OSIS-formatted canonical reference string (e.g. 'Neh.3.1') anchoring this instance to the scriptural text." ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# Object Properties — Operational
+# =============================================================================
+
+bos:assignedToGate a owl:ObjectProperty ;
+    rdfs:label "assigned to gate" ;
+    rdfs:comment "Associates a Builder, GateSwarm, WallSection, or MusterLedgerRecord with its sanctioned Gate." ;
+    rdfs:range bos:Gate .
+
+bos:buildsWallSection a owl:ObjectProperty ;
+    rdfs:label "builds wall section" ;
+    rdfs:comment "Associates a Builder or GateSwarm with the WallSection they are covenanted to build." ;
+    rdfs:range bos:WallSection .
+
+bos:repairsGate a owl:ObjectProperty ;
+    rdfs:label "repairs gate" ;
+    rdfs:comment "Associates a Builder or GateSwarm with a Gate they are assigned to repair." ;
+    rdfs:range bos:Gate .
+
+bos:hasBuilder a owl:ObjectProperty ;
+    rdfs:label "has builder" ;
+    rdfs:comment "Associates a GateSwarm or WallSection with its named Builder(s)." ;
+    rdfs:range bos:Builder .
+
+bos:hasGateSwarm a owl:ObjectProperty ;
+    rdfs:label "has gate swarm" ;
+    rdfs:comment "Associates a Gate with its GateSwarm." ;
+    rdfs:domain bos:Gate ;
+    rdfs:range bos:GateSwarm .
+
+bos:hasWallSection a owl:ObjectProperty ;
+    rdfs:label "has wall section" ;
+    rdfs:comment "Associates a Gate or Wall with its WallSection(s)." ;
+    rdfs:range bos:WallSection .
+
+bos:hasVerdict a owl:ObjectProperty ;
+    rdfs:label "has verdict" ;
+    rdfs:comment "Associates an InspectionReceipt or Gate with its Verdict (ALIVE, PARTIAL, or BLOCKED)." ;
+    rdfs:range bos:Verdict .
+
+bos:hasReceipt a owl:ObjectProperty ;
+    rdfs:label "has receipt" ;
+    rdfs:comment "Associates an artifact, wall section, or inspection event with its Receipt." ;
+    rdfs:range bos:Receipt .
+
+bos:hasSource a owl:ObjectProperty ;
+    rdfs:label "has source" ;
+    rdfs:comment "Links an instance to its scriptural source reference or provenance record." .
+
+bos:hasPrayer a owl:ObjectProperty ;
+    rdfs:label "has prayer" ;
+    rdfs:comment "Associates an action or context with a specific Prayer instance — the upward appeal record." ;
+    rdfs:range bos:Prayer .
+
+bos:hasProclamation a owl:ObjectProperty ;
+    rdfs:label "has proclamation" ;
+    rdfs:comment "Associates an event or ProphetOffice with a PropheticProclamation." ;
+    rdfs:range bos:PropheticProclamation .
+
+bos:hasMusterRecord a owl:ObjectProperty ;
+    rdfs:label "has muster record" ;
+    rdfs:comment "Links a muster ledger entry to its parent MusterRegistry. Range MUST agree with bible-o-star.ttl (bos:MusterRegistry); a prior conflicting range (bos:MusterLedgerRecord) caused MusterRegistry individuals to be dual-typed and fail the MusterLedgerRecord SHACL shape." ;
+    rdfs:range bos:MusterRegistry .
+
+bos:hasUsuryAudit a owl:ObjectProperty ;
+    rdfs:label "has usury audit" ;
+    rdfs:comment "Associates a community or context with a UsuryLedgerRecord — the extraction audit." ;
+    rdfs:range bos:UsuryLedgerRecord .
+
+bos:hasNationsSignal a owl:ObjectProperty ;
+    rdfs:label "has nations signal" ;
+    rdfs:comment "Associates a timeline or event with a NationsLedgerRecord representing an external witness observation." ;
+    rdfs:range bos:NationsLedgerRecord .
+
+bos:hasCourierRecord a owl:ObjectProperty ;
+    rdfs:label "has courier record" ;
+    rdfs:comment "Associates an event or CourierLayer with a specific CourierRecord." ;
+    rdfs:range bos:CourierRecord .
+
+bos:hasMockerFeedback a owl:ObjectProperty ;
+    rdfs:label "has mocker feedback" ;
+    rdfs:comment "Associates a Builder, Gate, or context with a MockerFeedback adversarial record." ;
+    rdfs:range bos:MockerFeedback .
+
+bos:routesToGate a owl:ObjectProperty ;
+    rdfs:label "routes to gate" ;
+    rdfs:comment "A CourierRecord routes its classified payload to a named sanctioned Gate for inspection." ;
+    rdfs:range bos:Gate .
+
+# =============================================================================
+# Datatype Properties — Operational
+# =============================================================================
+
+bos:classifiesPayload a owl:DatatypeProperty ;
+    rdfs:label "classifies payload" ;
+    rdfs:comment "Payload classification string assigned by a CourierRecord (e.g. 'FalseReport', 'BuilderRequest', 'ProclamationPayload')." ;
+    rdfs:range xsd:string .
+
+bos:extractsSignal a owl:DatatypeProperty ;
+    rdfs:label "extracts signal" ;
+    rdfs:comment "Extracted signal description string from a payload or record for further processing." ;
+    rdfs:range xsd:string .
+
+bos:refusesPoison a owl:DatatypeProperty ;
+    rdfs:label "refuses poison" ;
+    rdfs:comment "xsd:boolean assertion that a poisoned payload (FalseReport) was refused and not absorbed into operating state." ;
+    rdfs:range xsd:boolean .
+
+bos:requiresRepair a owl:DatatypeProperty ;
+    rdfs:label "requires repair" ;
+    rdfs:comment "xsd:boolean assertion that a wall section or gate is in disrepair and must be remediated before ALIVE verdict." ;
+    rdfs:range xsd:boolean .
+
+bos:witnessesCompletion a owl:DatatypeProperty ;
+    rdfs:label "witnesses completion" ;
+    rdfs:comment "xsd:boolean assertion that an external nation or observer has witnessed the completion of wall work (cf. Neh.6.16)." ;
+    rdfs:range xsd:boolean .

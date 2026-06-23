@@ -1,0 +1,37 @@
+@prefix : <https://bytestar.org/ontology/bytestar-runtime#> .
+@prefix bs: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-runtime>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  rdfs:label "ByteStar Runtime Physics" ;
+  rdfs:comment "Core pinning, L1 residency, let-it-crash discipline, SPSC topology." .
+
+### Core pinning & soft silicon
+:Core a owl:Class .
+:hasPinnedCore a owl:ObjectProperty ; rdfs:domain bs:ByteActor ; rdfs:range :Core .
+:coreId a owl:DatatypeProperty ; rdfs:domain :Core ; rdfs:range xsd:nonNegativeInteger .
+:exclusivePinning a owl:DatatypeProperty ; rdfs:domain :Core ; rdfs:range xsd:boolean .
+
+### L1 residency guarantee
+:L1Residency a owl:Class .
+:l1HoldsKernels a owl:DatatypeProperty ; rdfs:domain :L1Residency ; rdfs:range xsd:boolean .
+:l1HoldsMPHF    a owl:DatatypeProperty ; rdfs:domain :L1Residency ; rdfs:range xsd:boolean .
+:l1HoldsEnvelope a owl:DatatypeProperty ; rdfs:domain :L1Residency ; rdfs:range xsd:boolean .
+:hasL1Profile a owl:ObjectProperty ; rdfs:domain bs:ByteActor ; rdfs:range :L1Residency .
+
+### Let-it-crash semantics
+:LetItCrash a owl:Class .
+:hasSemantics a owl:ObjectProperty ; rdfs:domain bs:ByteActor ; rdfs:range :LetItCrash .
+:noRuntimeGuards a owl:DatatypeProperty ; rdfs:domain :LetItCrash ; rdfs:range xsd:boolean .
+:noDefensiveBranching a owl:DatatypeProperty ; rdfs:domain :LetItCrash ; rdfs:range xsd:boolean .
+
+### SPSC ring topology
+:SPSC a owl:Class .
+:connects a owl:ObjectProperty ; rdfs:domain :SPSC ; rdfs:range bs:ByteActor .
+:producer a owl:ObjectProperty ; rdfs:domain :SPSC ; rdfs:range bs:Subsystem .
+:consumer a owl:ObjectProperty ; rdfs:domain :SPSC ; rdfs:range bs:Subsystem .
+:constantTimeOps a owl:DatatypeProperty ; rdfs:domain :SPSC ; rdfs:range xsd:boolean .

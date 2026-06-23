@@ -1,0 +1,465 @@
+@prefix : <https://bytestar.org/ontology/bytecore/side-channel-verification#> .
+@prefix pqcv: <https://bytestar.org/ontology/bytecore/pqc-verification#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://bytestar.org/ontology/bytecore/side-channel-verification>
+  a owl:Ontology ;
+  owl:versionInfo "1.0.0" ;
+  rdfs:label "Side-Channel Attack Resistance Verification" ;
+  rdfs:comment "Formal verification framework for proving side-channel attack resistance in PQC implementations using ontological reasoning and automated analysis." ;
+  owl:imports <https://bytestar.org/ontology/bytecore/pqc-verification> .
+
+#################################################################
+# I. SIDE-CHANNEL ATTACK TAXONOMY
+#################################################################
+
+:SideChannelAttack a owl:Class ;
+  rdfs:label "Side-Channel Attack" ;
+  rdfs:comment "Attack exploiting physical implementation characteristics rather than mathematical weaknesses." .
+
+# Passive attacks (observation-based)
+:PassiveSideChannelAttack a owl:Class ;
+  rdfs:subClassOf :SideChannelAttack ;
+  rdfs:label "Passive Side-Channel Attack" ;
+  rdfs:comment "Attack based on passive observation of physical phenomena." .
+
+:TimingAttack a owl:Class ;
+  rdfs:subClassOf :PassiveSideChannelAttack ;
+  rdfs:label "Timing Attack" ;
+  rdfs:comment "Attack exploiting execution time variations." .
+
+:PowerAnalysisAttack a owl:Class ;
+  rdfs:subClassOf :PassiveSideChannelAttack ;
+  rdfs:label "Power Analysis Attack" ;
+  rdfs:comment "Attack based on power consumption patterns." .
+
+:ElectromagneticAttack a owl:Class ;
+  rdfs:subClassOf :PassiveSideChannelAttack ;
+  rdfs:label "Electromagnetic Attack" ;
+  rdfs:comment "Attack exploiting electromagnetic emanations." .
+
+:CacheAttack a owl:Class ;
+  rdfs:subClassOf :PassiveSideChannelAttack ;
+  rdfs:label "Cache Attack" ;
+  rdfs:comment "Attack exploiting cache access patterns." .
+
+:BranchPredictionAttack a owl:Class ;
+  rdfs:subClassOf :PassiveSideChannelAttack ;
+  rdfs:label "Branch Prediction Attack" ;
+  rdfs:comment "Attack exploiting branch predictor state." .
+
+# Active attacks (fault injection)
+:ActiveSideChannelAttack a owl:Class ;
+  rdfs:subClassOf :SideChannelAttack ;
+  rdfs:label "Active Side-Channel Attack" ;
+  rdfs:comment "Attack involving active manipulation of the system." .
+
+:FaultInjectionAttack a owl:Class ;
+  rdfs:subClassOf :ActiveSideChannelAttack ;
+  rdfs:label "Fault Injection Attack" ;
+  rdfs:comment "Attack introducing faults to extract secrets." .
+
+:GlitchAttack a owl:Class ;
+  rdfs:subClassOf :FaultInjectionAttack ;
+  rdfs:label "Glitch Attack" ;
+  rdfs:comment "Attack using voltage or clock glitches." .
+
+:LaserFaultInjection a owl:Class ;
+  rdfs:subClassOf :FaultInjectionAttack ;
+  rdfs:label "Laser Fault Injection" ;
+  rdfs:comment "Attack using focused laser to induce faults." .
+
+#################################################################
+# II. COUNTERMEASURES AND PROTECTIONS
+#################################################################
+
+:SideChannelCountermeasure a owl:Class ;
+  rdfs:label "Side-Channel Countermeasure" ;
+  rdfs:comment "Protection mechanism against side-channel attacks." .
+
+# Timing attack countermeasures
+:ConstantTimeImplementation a owl:Class ;
+  rdfs:subClassOf :SideChannelCountermeasure ;
+  rdfs:label "Constant-Time Implementation" ;
+  rdfs:comment "Implementation with data-independent execution time." .
+
+:BlindingCountermeasure a owl:Class ;
+  rdfs:subClassOf :SideChannelCountermeasure ;
+  rdfs:label "Blinding Countermeasure" ;
+  rdfs:comment "Randomization technique to hide intermediate values." .
+
+# Power analysis countermeasures
+:MaskingCountermeasure a owl:Class ;
+  rdfs:subClassOf :SideChannelCountermeasure ;
+  rdfs:label "Masking Countermeasure" ;
+  rdfs:comment "Secret sharing to hide power consumption patterns." .
+
+:HidingCountermeasure a owl:Class ;
+  rdfs:subClassOf :SideChannelCountermeasure ;
+  rdfs:label "Hiding Countermeasure" ;
+  rdfs:comment "Technique to reduce signal-to-noise ratio." .
+
+# Cache attack countermeasures
+:ConstantMemoryAccess a owl:Class ;
+  rdfs:subClassOf :SideChannelCountermeasure ;
+  rdfs:label "Constant Memory Access" ;
+  rdfs:comment "Data-independent memory access patterns." .
+
+:CacheLineFlush a owl:Class ;
+  rdfs:subClassOf :SideChannelCountermeasure ;
+  rdfs:label "Cache Line Flush" ;
+  rdfs:comment "Explicit cache management to prevent leakage." .
+
+# Fault injection countermeasures
+:ErrorDetectionCode a owl:Class ;
+  rdfs:subClassOf :SideChannelCountermeasure ;
+  rdfs:label "Error Detection Code" ;
+  rdfs:comment "Redundancy for detecting injected faults." .
+
+:DuplicationCountermeasure a owl:Class ;
+  rdfs:subClassOf :SideChannelCountermeasure ;
+  rdfs:label "Duplication Countermeasure" ;
+  rdfs:comment "Computation duplication for fault detection." .
+
+#################################################################
+# III. VERIFICATION PROPERTIES
+#################################################################
+
+:SideChannelProperty a owl:Class ;
+  rdfs:subClassOf pqcv:SecurityProperty ;
+  rdfs:label "Side-Channel Property" ;
+  rdfs:comment "Security property related to side-channel resistance." .
+
+:ConstantTimeProperty a owl:Class ;
+  rdfs:subClassOf :SideChannelProperty ;
+  rdfs:label "Constant-Time Property" ;
+  rdfs:comment "Property ensuring execution time independence from secrets." .
+
+:ConstantMemoryProperty a owl:Class ;
+  rdfs:subClassOf :SideChannelProperty ;
+  rdfs:label "Constant Memory Property" ;
+  rdfs:comment "Property ensuring memory access independence from secrets." .
+
+:PowerIndependenceProperty a owl:Class ;
+  rdfs:subClassOf :SideChannelProperty ;
+  rdfs:label "Power Independence Property" ;
+  rdfs:comment "Property ensuring power consumption independence from secrets." .
+
+:CacheIndependenceProperty a owl:Class ;
+  rdfs:subClassOf :SideChannelProperty ;
+  rdfs:label "Cache Independence Property" ;
+  rdfs:comment "Property ensuring cache access independence from secrets." .
+
+:FaultResistanceProperty a owl:Class ;
+  rdfs:subClassOf :SideChannelProperty ;
+  rdfs:label "Fault Resistance Property" ;
+  rdfs:comment "Property ensuring resistance to fault injection attacks." .
+
+#################################################################
+# IV. LEAKAGE MODELS
+#################################################################
+
+:LeakageModel a owl:Class ;
+  rdfs:label "Leakage Model" ;
+  rdfs:comment "Mathematical model of information leakage through side channels." .
+
+:HammingWeightModel a owl:Class ;
+  rdfs:subClassOf :LeakageModel ;
+  rdfs:label "Hamming Weight Model" ;
+  rdfs:comment "Leakage proportional to Hamming weight of processed data." .
+
+:HammingDistanceModel a owl:Class ;
+  rdfs:subClassOf :LeakageModel ;
+  rdfs:label "Hamming Distance Model" ;
+  rdfs:comment "Leakage proportional to Hamming distance between values." .
+
+:LinearLeakageModel a owl:Class ;
+  rdfs:subClassOf :LeakageModel ;
+  rdfs:label "Linear Leakage Model" ;
+  rdfs:comment "Linear relationship between data and leakage." .
+
+:NonlinearLeakageModel a owl:Class ;
+  rdfs:subClassOf :LeakageModel ;
+  rdfs:label "Nonlinear Leakage Model" ;
+  rdfs:comment "Nonlinear relationship between data and leakage." .
+
+#################################################################
+# V. FORMAL VERIFICATION METHODS
+#################################################################
+
+:SideChannelVerificationMethod a owl:Class ;
+  rdfs:label "Side-Channel Verification Method" ;
+  rdfs:comment "Formal method for verifying side-channel resistance." .
+
+:StaticAnalysis a owl:Class ;
+  rdfs:subClassOf :SideChannelVerificationMethod ;
+  rdfs:label "Static Analysis" ;
+  rdfs:comment "Compile-time analysis of code for side-channel vulnerabilities." .
+
+:SymbolicExecution a owl:Class ;
+  rdfs:subClassOf :SideChannelVerificationMethod ;
+  rdfs:label "Symbolic Execution" ;
+  rdfs:comment "Symbolic execution to verify constant-time properties." .
+
+:ModelChecking a owl:Class ;
+  rdfs:subClassOf :SideChannelVerificationMethod ;
+  rdfs:label "Model Checking" ;
+  rdfs:comment "Exhaustive verification of finite-state models." .
+
+:TypeSystemVerification a owl:Class ;
+  rdfs:subClassOf :SideChannelVerificationMethod ;
+  rdfs:label "Type System Verification" ;
+  rdfs:comment "Type-based verification of security properties." .
+
+:InformationFlowAnalysis a owl:Class ;
+  rdfs:subClassOf :SideChannelVerificationMethod ;
+  rdfs:label "Information Flow Analysis" ;
+  rdfs:comment "Analysis of information flow from secrets to observables." .
+
+#################################################################
+# VI. VULNERABILITY DETECTION
+#################################################################
+
+:SideChannelVulnerability a owl:Class ;
+  rdfs:label "Side-Channel Vulnerability" ;
+  rdfs:comment "Weakness that enables side-channel attacks." .
+
+:SecretDependentBranch a owl:Class ;
+  rdfs:subClassOf :SideChannelVulnerability ;
+  rdfs:label "Secret-Dependent Branch" ;
+  rdfs:comment "Conditional branch that depends on secret data." .
+
+:SecretDependentMemoryAccess a owl:Class ;
+  rdfs:subClassOf :SideChannelVulnerability ;
+  rdfs:label "Secret-Dependent Memory Access" ;
+  rdfs:comment "Memory access pattern that depends on secret data." .
+
+:SecretDependentLoop a owl:Class ;
+  rdfs:subClassOf :SideChannelVulnerability ;
+  rdfs:label "Secret-Dependent Loop" ;
+  rdfs:comment "Loop iteration count that depends on secret data." .
+
+:VariableTimeOperation a owl:Class ;
+  rdfs:subClassOf :SideChannelVulnerability ;
+  rdfs:label "Variable-Time Operation" ;
+  rdfs:comment "Operation with secret-dependent execution time." .
+
+:UnprotectedIntermediate a owl:Class ;
+  rdfs:subClassOf :SideChannelVulnerability ;
+  rdfs:label "Unprotected Intermediate" ;
+  rdfs:comment "Intermediate value that leaks secret information." .
+
+#################################################################
+# VII. OBJECT PROPERTIES
+#################################################################
+
+:hasCountermeasure a owl:ObjectProperty ;
+  rdfs:domain pqcv:PQCAlgorithm ;
+  rdfs:range :SideChannelCountermeasure ;
+  rdfs:label "has countermeasure" ;
+  rdfs:comment "Algorithm employs side-channel countermeasure." .
+
+:vulnerableTo a owl:ObjectProperty ;
+  rdfs:domain pqcv:PQCAlgorithm ;
+  rdfs:range :SideChannelAttack ;
+  rdfs:label "vulnerable to" ;
+  rdfs:comment "Algorithm is vulnerable to side-channel attack." .
+
+:resistantTo a owl:ObjectProperty ;
+  rdfs:domain pqcv:PQCAlgorithm ;
+  rdfs:range :SideChannelAttack ;
+  rdfs:label "resistant to" ;
+  rdfs:comment "Algorithm is resistant to side-channel attack." .
+
+:protectsAgainst a owl:ObjectProperty ;
+  rdfs:domain :SideChannelCountermeasure ;
+  rdfs:range :SideChannelAttack ;
+  rdfs:label "protects against" ;
+  rdfs:comment "Countermeasure protects against attack type." .
+
+:hasVulnerability a owl:ObjectProperty ;
+  rdfs:domain bcore:Kernel ;
+  rdfs:range :SideChannelVulnerability ;
+  rdfs:label "has vulnerability" ;
+  rdfs:comment "Kernel implementation has side-channel vulnerability." .
+
+:usesLeakageModel a owl:ObjectProperty ;
+  rdfs:domain :SideChannelVerificationMethod ;
+  rdfs:range :LeakageModel ;
+  rdfs:label "uses leakage model" ;
+  rdfs:comment "Verification method assumes leakage model." .
+
+:verifiedBy a owl:ObjectProperty ;
+  rdfs:domain :SideChannelProperty ;
+  rdfs:range :SideChannelVerificationMethod ;
+  rdfs:label "verified by" ;
+  rdfs:comment "Property verified using method." .
+
+:detects a owl:ObjectProperty ;
+  rdfs:domain :SideChannelVerificationMethod ;
+  rdfs:range :SideChannelVulnerability ;
+  rdfs:label "detects" ;
+  rdfs:comment "Method can detect vulnerability type." .
+
+#################################################################
+# VIII. DATA PROPERTIES
+#################################################################
+
+:leakageQuantity a owl:DatatypeProperty ;
+  rdfs:domain :SideChannelVulnerability ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "leakage quantity" ;
+  rdfs:comment "Quantitative measure of information leakage (bits)." .
+
+:attackComplexity a owl:DatatypeProperty ;
+  rdfs:domain :SideChannelAttack ;
+  rdfs:range xsd:string ;
+  rdfs:label "attack complexity" ;
+  rdfs:comment "Complexity level of attack (LOW/MEDIUM/HIGH)." .
+
+:countermeasureOverhead a owl:DatatypeProperty ;
+  rdfs:domain :SideChannelCountermeasure ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "countermeasure overhead" ;
+  rdfs:comment "Performance overhead factor of countermeasure." .
+
+:verificationCompleteness a owl:DatatypeProperty ;
+  rdfs:domain :SideChannelVerificationMethod ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "verification completeness" ;
+  rdfs:comment "Fraction of vulnerabilities detected (0.0-1.0)." .
+
+:falsePositiveRate a owl:DatatypeProperty ;
+  rdfs:domain :SideChannelVerificationMethod ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "false positive rate" ;
+  rdfs:comment "Rate of false vulnerability reports (0.0-1.0)." .
+
+:timingVariance a owl:DatatypeProperty ;
+  rdfs:domain bcore:Kernel ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "timing variance" ;
+  rdfs:comment "Statistical variance in execution time (cycles)." .
+
+:memoryAccessPattern a owl:DatatypeProperty ;
+  rdfs:domain bcore:Kernel ;
+  rdfs:range xsd:string ;
+  rdfs:label "memory access pattern" ;
+  rdfs:comment "Type of memory access pattern (constant/data-dependent)." .
+
+#################################################################
+# IX. FORMAL VERIFICATION RULES
+#################################################################
+
+# Rule: HOT path algorithms must have constant-time implementation
+[] a owl:Restriction ;
+   owl:onProperty bcore:pathTier ;
+   owl:hasValue bcore:HOT ;
+   rdfs:subClassOf [
+     a owl:Restriction ;
+     owl:onProperty :hasCountermeasure ;
+     owl:someValuesFrom :ConstantTimeImplementation
+   ] .
+
+# Rule: Algorithms with timing vulnerabilities must have blinding
+[] a owl:Restriction ;
+   owl:onProperty :hasVulnerability ;
+   owl:someValuesFrom :SecretDependentBranch ;
+   rdfs:subClassOf [
+     a owl:Restriction ;
+     owl:onProperty :hasCountermeasure ;
+     owl:someValuesFrom :BlindingCountermeasure
+   ] .
+
+# Rule: Cache-vulnerable algorithms need constant memory access
+[] a owl:Restriction ;
+   owl:onProperty :vulnerableTo ;
+   owl:someValuesFrom :CacheAttack ;
+   rdfs:subClassOf [
+     a owl:Restriction ;
+     owl:onProperty :hasCountermeasure ;
+     owl:someValuesFrom :ConstantMemoryAccess
+   ] .
+
+#################################################################
+# X. INTEGRATION WITH BYTECORE PULSE SYSTEM
+#################################################################
+
+:SideChannelMonitorPulse a owl:Class ;
+  rdfs:subClassOf bcore:Pulse ;
+  rdfs:label "Side-Channel Monitor Pulse" ;
+  rdfs:comment "Pulse for monitoring side-channel resistance during execution." .
+
+:TimingAnalysisPulse a owl:Class ;
+  rdfs:subClassOf :SideChannelMonitorPulse ;
+  rdfs:label "Timing Analysis Pulse" ;
+  rdfs:comment "Pulse for real-time timing attack detection." .
+
+:CacheAnalysisPulse a owl:Class ;
+  rdfs:subClassOf :SideChannelMonitorPulse ;
+  rdfs:label "Cache Analysis Pulse" ;
+  rdfs:comment "Pulse for cache access pattern monitoring." .
+
+:PowerAnalysisPulse a owl:Class ;
+  rdfs:subClassOf :SideChannelMonitorPulse ;
+  rdfs:label "Power Analysis Pulse" ;
+  rdfs:comment "Pulse for power consumption monitoring." .
+
+# Properties for pulse-based monitoring
+:monitorsTiming a owl:ObjectProperty ;
+  rdfs:domain :TimingAnalysisPulse ;
+  rdfs:range bcore:Kernel ;
+  rdfs:label "monitors timing" ;
+  rdfs:comment "Pulse monitors kernel execution timing." .
+
+:detectsAnomaly a owl:ObjectProperty ;
+  rdfs:domain :SideChannelMonitorPulse ;
+  rdfs:range :SideChannelVulnerability ;
+  rdfs:label "detects anomaly" ;
+  rdfs:comment "Pulse detects side-channel anomaly." .
+
+:triggersCountermeasure a owl:ObjectProperty ;
+  rdfs:domain :SideChannelMonitorPulse ;
+  rdfs:range :SideChannelCountermeasure ;
+  rdfs:label "triggers countermeasure" ;
+  rdfs:comment "Pulse triggers adaptive countermeasure." .
+
+#################################################################
+# XI. CONCRETE VERIFICATION EXAMPLES
+#################################################################
+
+# Dilithium constant-time verification
+:DilithiumConstantTime a :ConstantTimeProperty ;
+  rdfs:label "Dilithium Constant-Time Property" ;
+  rdfs:comment "Proof that Dilithium verification runs in constant time." ;
+  :verifiedBy :SymbolicExecution ;
+  pqcv:provenBy [
+    a pqcv:FormalProof ;
+    rdfs:label "Dilithium Constant-Time Proof" ;
+    pqcv:usesProofMethod pqcv:ModelChecking
+  ] .
+
+# Kyber cache independence verification  
+:KyberCacheIndependence a :CacheIndependenceProperty ;
+  rdfs:label "Kyber Cache Independence Property" ;
+  rdfs:comment "Proof that Kyber KEM has cache-independent implementation." ;
+  :verifiedBy :StaticAnalysis ;
+  pqcv:provenBy [
+    a pqcv:FormalProof ;
+    rdfs:label "Kyber Cache Independence Proof" ;
+    pqcv:usesProofMethod pqcv:InformationFlowAnalysis
+  ] .
+
+# SPHINCS+ fault resistance verification
+:SPHINCSFaultResistance a :FaultResistanceProperty ;
+  rdfs:label "SPHINCS+ Fault Resistance Property" ;
+  rdfs:comment "Proof that SPHINCS+ resists fault injection attacks." ;
+  :verifiedBy :ModelChecking ;
+  pqcv:provenBy [
+    a pqcv:FormalProof ;
+    rdfs:label "SPHINCS+ Fault Resistance Proof" ;
+    pqcv:usesProofMethod pqcv:TypeSystemVerification
+  ] .

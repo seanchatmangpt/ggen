@@ -1,0 +1,86 @@
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix mcpp:  <https://w3id.org/mcpp#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix odrl:  <http://www.w3.org/ns/odrl/2/> .
+@prefix earl:  <http://www.w3.org/ns/earl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+# ──────────────────────────────────────────────────────────────────────────────
+# MCP+ Passport SHACL Shapes
+#
+# A `mcpp:Passport` is the publishable artifact that downstream consumers
+# verify before integrating a part. Each passport MUST cite:
+#   - exactly one manifest (mcpp:hasManifest)
+#   - at least one PROV-O Admission activity (prov:wasGeneratedBy)
+#   - at least one ODRL policy (odrl:hasPolicy)
+#   - at least one EARL assertion (earl:Assertion)
+#   - at most one scorecard (mcpp:hasScorecard, optional)
+#
+# These shapes are evaluated by `mcpp doctor check passport` and by the
+# external verifier in `cmds/passport.rs verify`. Validation must produce
+# exactly zero violations for a passport to be considered admissible.
+# ──────────────────────────────────────────────────────────────────────────────
+
+mcpp:PassportShape a sh:NodeShape ;
+    sh:targetClass mcpp:Passport ;
+    sh:property [
+        sh:path     mcpp:hasManifest ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message  "A passport MUST cite exactly one manifest via mcpp:hasManifest."@en ;
+    ] ;
+    sh:property [
+        sh:path     prov:wasGeneratedBy ;
+        sh:minCount 1 ;
+        sh:class    prov:Activity ;
+        sh:message  "A passport MUST be linked to at least one prov:Activity (Admission)."@en ;
+    ] ;
+    sh:property [
+        sh:path     odrl:hasPolicy ;
+        sh:minCount 1 ;
+        sh:message  "A passport MUST cite at least one ODRL policy."@en ;
+    ] ;
+    sh:property [
+        sh:path     earl:Assertion ;
+        sh:minCount 1 ;
+        sh:message  "A passport MUST cite at least one EARL assertion."@en ;
+    ] ;
+    sh:property [
+        sh:path     mcpp:hasScorecard ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message  "A passport may cite at most one scorecard."@en ;
+    ] .
+
+# ── PROV-O sidecar shape ─────────────────────────────────────────────────────
+# Every Admission activity emitted by `passport::prov::emit_prov_graph`
+# must carry start/end timestamps, a verifier agent, and at least one used
+# entity (the wasm and the route both contribute).
+
+mcpp:AdmissionShape a sh:NodeShape ;
+    sh:targetClass mcpp:Admission ;
+    sh:property [
+        sh:path     prov:startedAtTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message  "Admission MUST declare prov:startedAtTime as xsd:dateTime."@en ;
+    ] ;
+    sh:property [
+        sh:path     prov:endedAtTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message  "Admission MUST declare prov:endedAtTime as xsd:dateTime."@en ;
+    ] ;
+    sh:property [
+        sh:path     prov:wasAssociatedWith ;
+        sh:minCount 1 ;
+        sh:class    prov:Agent ;
+        sh:message  "Admission MUST be associated with at least one prov:Agent (verifier)."@en ;
+    ] ;
+    sh:property [
+        sh:path     prov:used ;
+        sh:minCount 1 ;
+        sh:message  "Admission MUST cite at least one used prov:Entity."@en ;
+    ] .

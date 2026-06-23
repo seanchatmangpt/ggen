@@ -1,0 +1,485 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ggen: <http://ggen.io/ontology/database#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+# ============================================================================
+# DATABASE SCHEMA ONTOLOGY
+# Comprehensive RDF model for relational database schemas
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Core Classes
+# ----------------------------------------------------------------------------
+
+ggen:Database a owl:Class ;
+    rdfs:label "Database" ;
+    rdfs:comment "Represents a complete database with tables, schemas, and configuration" ;
+    rdfs:subClassOf owl:Thing .
+
+ggen:Schema a owl:Class ;
+    rdfs:label "Schema" ;
+    rdfs:comment "Logical grouping of database objects (PostgreSQL/MySQL schemas)" ;
+    rdfs:subClassOf owl:Thing .
+
+ggen:Table a owl:Class ;
+    rdfs:label "Table" ;
+    rdfs:comment "Database table with columns, constraints, and relationships" ;
+    rdfs:subClassOf owl:Thing .
+
+ggen:Column a owl:Class ;
+    rdfs:label "Column" ;
+    rdfs:comment "Table column with data type, constraints, and metadata" ;
+    rdfs:subClassOf owl:Thing .
+
+ggen:DataType a owl:Class ;
+    rdfs:label "DataType" ;
+    rdfs:comment "SQL data type (VARCHAR, INTEGER, JSONB, etc.)" ;
+    rdfs:subClassOf owl:Thing .
+
+# ----------------------------------------------------------------------------
+# Constraint Classes
+# ----------------------------------------------------------------------------
+
+ggen:Constraint a owl:Class ;
+    rdfs:label "Constraint" ;
+    rdfs:comment "Base class for all database constraints" ;
+    rdfs:subClassOf owl:Thing .
+
+ggen:PrimaryKey a owl:Class ;
+    rdfs:label "PrimaryKey" ;
+    rdfs:comment "Primary key constraint (unique, non-null identifier)" ;
+    rdfs:subClassOf ggen:Constraint .
+
+ggen:ForeignKey a owl:Class ;
+    rdfs:label "ForeignKey" ;
+    rdfs:comment "Foreign key constraint (references another table)" ;
+    rdfs:subClassOf ggen:Constraint .
+
+ggen:UniqueConstraint a owl:Class ;
+    rdfs:label "UniqueConstraint" ;
+    rdfs:comment "Unique constraint (enforces uniqueness across columns)" ;
+    rdfs:subClassOf ggen:Constraint .
+
+ggen:CheckConstraint a owl:Class ;
+    rdfs:label "CheckConstraint" ;
+    rdfs:comment "Check constraint (custom validation rule)" ;
+    rdfs:subClassOf ggen:Constraint .
+
+ggen:NotNullConstraint a owl:Class ;
+    rdfs:label "NotNullConstraint" ;
+    rdfs:comment "Not null constraint (column must have a value)" ;
+    rdfs:subClassOf ggen:Constraint .
+
+# ----------------------------------------------------------------------------
+# Index Classes
+# ----------------------------------------------------------------------------
+
+ggen:Index a owl:Class ;
+    rdfs:label "Index" ;
+    rdfs:comment "Database index for query optimization" ;
+    rdfs:subClassOf owl:Thing .
+
+ggen:BTreeIndex a owl:Class ;
+    rdfs:label "BTreeIndex" ;
+    rdfs:comment "B-tree index (default, general-purpose)" ;
+    rdfs:subClassOf ggen:Index .
+
+ggen:HashIndex a owl:Class ;
+    rdfs:label "HashIndex" ;
+    rdfs:comment "Hash index (equality comparisons only)" ;
+    rdfs:subClassOf ggen:Index .
+
+ggen:GINIndex a owl:Class ;
+    rdfs:label "GINIndex" ;
+    rdfs:comment "GIN index (for JSONB, arrays, full-text search)" ;
+    rdfs:subClassOf ggen:Index .
+
+ggen:GiSTIndex a owl:Class ;
+    rdfs:label "GiSTIndex" ;
+    rdfs:comment "GiST index (for geometric, range types)" ;
+    rdfs:subClassOf ggen:Index .
+
+ggen:FullTextIndex a owl:Class ;
+    rdfs:label "FullTextIndex" ;
+    rdfs:comment "Full-text search index" ;
+    rdfs:subClassOf ggen:Index .
+
+# ----------------------------------------------------------------------------
+# Trigger and Procedure Classes
+# ----------------------------------------------------------------------------
+
+ggen:Trigger a owl:Class ;
+    rdfs:label "Trigger" ;
+    rdfs:comment "Database trigger (executes on INSERT/UPDATE/DELETE)" ;
+    rdfs:subClassOf owl:Thing .
+
+ggen:StoredProcedure a owl:Class ;
+    rdfs:label "StoredProcedure" ;
+    rdfs:comment "Stored procedure (reusable SQL function)" ;
+    rdfs:subClassOf owl:Thing .
+
+ggen:Function a owl:Class ;
+    rdfs:label "Function" ;
+    rdfs:comment "Database function" ;
+    rdfs:subClassOf owl:Thing .
+
+# ----------------------------------------------------------------------------
+# Migration Classes
+# ----------------------------------------------------------------------------
+
+ggen:Migration a owl:Class ;
+    rdfs:label "Migration" ;
+    rdfs:comment "Database schema migration (up/down scripts)" ;
+    rdfs:subClassOf owl:Thing .
+
+ggen:MigrationVersion a owl:Class ;
+    rdfs:label "MigrationVersion" ;
+    rdfs:comment "Migration version tracking" ;
+    rdfs:subClassOf owl:Thing .
+
+# ----------------------------------------------------------------------------
+# Properties: Database
+# ----------------------------------------------------------------------------
+
+ggen:hasSchema a owl:ObjectProperty ;
+    rdfs:label "hasSchema" ;
+    rdfs:comment "Database contains schemas" ;
+    rdfs:domain ggen:Database ;
+    rdfs:range ggen:Schema .
+
+ggen:hasTable a owl:ObjectProperty ;
+    rdfs:label "hasTable" ;
+    rdfs:comment "Schema/Database contains tables" ;
+    rdfs:domain [ a owl:Class ; owl:unionOf (ggen:Database ggen:Schema) ] ;
+    rdfs:range ggen:Table .
+
+ggen:databaseName a owl:DatatypeProperty ;
+    rdfs:label "databaseName" ;
+    rdfs:comment "Name of the database" ;
+    rdfs:domain ggen:Database ;
+    rdfs:range xsd:string .
+
+ggen:databaseEngine a owl:DatatypeProperty ;
+    rdfs:label "databaseEngine" ;
+    rdfs:comment "Database engine (postgresql, mysql, sqlite)" ;
+    rdfs:domain ggen:Database ;
+    rdfs:range xsd:string .
+
+ggen:characterSet a owl:DatatypeProperty ;
+    rdfs:label "characterSet" ;
+    rdfs:comment "Character set (UTF8, latin1, etc.)" ;
+    rdfs:domain ggen:Database ;
+    rdfs:range xsd:string .
+
+ggen:collation a owl:DatatypeProperty ;
+    rdfs:label "collation" ;
+    rdfs:comment "Collation for string comparisons" ;
+    rdfs:domain ggen:Database ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Properties: Table
+# ----------------------------------------------------------------------------
+
+ggen:tableName a owl:DatatypeProperty ;
+    rdfs:label "tableName" ;
+    rdfs:comment "Name of the table" ;
+    rdfs:domain ggen:Table ;
+    rdfs:range xsd:string .
+
+ggen:hasColumn a owl:ObjectProperty ;
+    rdfs:label "hasColumn" ;
+    rdfs:comment "Table contains columns" ;
+    rdfs:domain ggen:Table ;
+    rdfs:range ggen:Column .
+
+ggen:hasConstraint a owl:ObjectProperty ;
+    rdfs:label "hasConstraint" ;
+    rdfs:comment "Table has constraints" ;
+    rdfs:domain ggen:Table ;
+    rdfs:range ggen:Constraint .
+
+ggen:hasIndex a owl:ObjectProperty ;
+    rdfs:label "hasIndex" ;
+    rdfs:comment "Table has indexes" ;
+    rdfs:domain ggen:Table ;
+    rdfs:range ggen:Index .
+
+ggen:hasTrigger a owl:ObjectProperty ;
+    rdfs:label "hasTrigger" ;
+    rdfs:comment "Table has triggers" ;
+    rdfs:domain ggen:Table ;
+    rdfs:range ggen:Trigger .
+
+ggen:tableComment a owl:DatatypeProperty ;
+    rdfs:label "tableComment" ;
+    rdfs:comment "Table description/comment" ;
+    rdfs:domain ggen:Table ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Properties: Column
+# ----------------------------------------------------------------------------
+
+ggen:columnName a owl:DatatypeProperty ;
+    rdfs:label "columnName" ;
+    rdfs:comment "Name of the column" ;
+    rdfs:domain ggen:Column ;
+    rdfs:range xsd:string .
+
+ggen:hasDataType a owl:ObjectProperty ;
+    rdfs:label "hasDataType" ;
+    rdfs:comment "Column data type" ;
+    rdfs:domain ggen:Column ;
+    rdfs:range ggen:DataType .
+
+ggen:dataTypeName a owl:DatatypeProperty ;
+    rdfs:label "dataTypeName" ;
+    rdfs:comment "SQL data type name (VARCHAR, INTEGER, etc.)" ;
+    rdfs:domain ggen:DataType ;
+    rdfs:range xsd:string .
+
+ggen:maxLength a owl:DatatypeProperty ;
+    rdfs:label "maxLength" ;
+    rdfs:comment "Maximum length for string types" ;
+    rdfs:domain ggen:Column ;
+    rdfs:range xsd:integer .
+
+ggen:precision a owl:DatatypeProperty ;
+    rdfs:label "precision" ;
+    rdfs:comment "Precision for numeric types" ;
+    rdfs:domain ggen:Column ;
+    rdfs:range xsd:integer .
+
+ggen:scale a owl:DatatypeProperty ;
+    rdfs:label "scale" ;
+    rdfs:comment "Scale for numeric types" ;
+    rdfs:domain ggen:Column ;
+    rdfs:range xsd:integer .
+
+ggen:isNullable a owl:DatatypeProperty ;
+    rdfs:label "isNullable" ;
+    rdfs:comment "Whether column accepts NULL values" ;
+    rdfs:domain ggen:Column ;
+    rdfs:range xsd:boolean .
+
+ggen:defaultValue a owl:DatatypeProperty ;
+    rdfs:label "defaultValue" ;
+    rdfs:comment "Default value for column" ;
+    rdfs:domain ggen:Column ;
+    rdfs:range xsd:string .
+
+ggen:isAutoIncrement a owl:DatatypeProperty ;
+    rdfs:label "isAutoIncrement" ;
+    rdfs:comment "Whether column auto-increments (SERIAL, AUTO_INCREMENT)" ;
+    rdfs:domain ggen:Column ;
+    rdfs:range xsd:boolean .
+
+ggen:columnComment a owl:DatatypeProperty ;
+    rdfs:label "columnComment" ;
+    rdfs:comment "Column description/comment" ;
+    rdfs:domain ggen:Column ;
+    rdfs:range xsd:string .
+
+ggen:columnOrder a owl:DatatypeProperty ;
+    rdfs:label "columnOrder" ;
+    rdfs:comment "Order of column in table (1, 2, 3...)" ;
+    rdfs:domain ggen:Column ;
+    rdfs:range xsd:integer .
+
+# ----------------------------------------------------------------------------
+# Properties: Constraints
+# ----------------------------------------------------------------------------
+
+ggen:constraintName a owl:DatatypeProperty ;
+    rdfs:label "constraintName" ;
+    rdfs:comment "Name of the constraint" ;
+    rdfs:domain ggen:Constraint ;
+    rdfs:range xsd:string .
+
+ggen:constrainsColumn a owl:ObjectProperty ;
+    rdfs:label "constrainsColumn" ;
+    rdfs:comment "Constraint applies to columns" ;
+    rdfs:domain ggen:Constraint ;
+    rdfs:range ggen:Column .
+
+ggen:referencesTable a owl:ObjectProperty ;
+    rdfs:label "referencesTable" ;
+    rdfs:comment "Foreign key references target table" ;
+    rdfs:domain ggen:ForeignKey ;
+    rdfs:range ggen:Table .
+
+ggen:referencesColumn a owl:ObjectProperty ;
+    rdfs:label "referencesColumn" ;
+    rdfs:comment "Foreign key references target columns" ;
+    rdfs:domain ggen:ForeignKey ;
+    rdfs:range ggen:Column .
+
+ggen:onDelete a owl:DatatypeProperty ;
+    rdfs:label "onDelete" ;
+    rdfs:comment "Foreign key ON DELETE action (CASCADE, SET NULL, RESTRICT)" ;
+    rdfs:domain ggen:ForeignKey ;
+    rdfs:range xsd:string .
+
+ggen:onUpdate a owl:DatatypeProperty ;
+    rdfs:label "onUpdate" ;
+    rdfs:comment "Foreign key ON UPDATE action (CASCADE, SET NULL, RESTRICT)" ;
+    rdfs:domain ggen:ForeignKey ;
+    rdfs:range xsd:string .
+
+ggen:checkExpression a owl:DatatypeProperty ;
+    rdfs:label "checkExpression" ;
+    rdfs:comment "SQL expression for CHECK constraint" ;
+    rdfs:domain ggen:CheckConstraint ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Properties: Index
+# ----------------------------------------------------------------------------
+
+ggen:indexName a owl:DatatypeProperty ;
+    rdfs:label "indexName" ;
+    rdfs:comment "Name of the index" ;
+    rdfs:domain ggen:Index ;
+    rdfs:range xsd:string .
+
+ggen:indexesColumn a owl:ObjectProperty ;
+    rdfs:label "indexesColumn" ;
+    rdfs:comment "Index covers columns" ;
+    rdfs:domain ggen:Index ;
+    rdfs:range ggen:Column .
+
+ggen:isUnique a owl:DatatypeProperty ;
+    rdfs:label "isUnique" ;
+    rdfs:comment "Whether index enforces uniqueness" ;
+    rdfs:domain ggen:Index ;
+    rdfs:range xsd:boolean .
+
+ggen:isConcurrent a owl:DatatypeProperty ;
+    rdfs:label "isConcurrent" ;
+    rdfs:comment "Whether index is built concurrently (PostgreSQL)" ;
+    rdfs:domain ggen:Index ;
+    rdfs:range xsd:boolean .
+
+ggen:indexMethod a owl:DatatypeProperty ;
+    rdfs:label "indexMethod" ;
+    rdfs:comment "Index method (btree, hash, gin, gist)" ;
+    rdfs:domain ggen:Index ;
+    rdfs:range xsd:string .
+
+ggen:whereClause a owl:DatatypeProperty ;
+    rdfs:label "whereClause" ;
+    rdfs:comment "Partial index WHERE clause" ;
+    rdfs:domain ggen:Index ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Properties: Triggers
+# ----------------------------------------------------------------------------
+
+ggen:triggerName a owl:DatatypeProperty ;
+    rdfs:label "triggerName" ;
+    rdfs:comment "Name of the trigger" ;
+    rdfs:domain ggen:Trigger ;
+    rdfs:range xsd:string .
+
+ggen:triggerTiming a owl:DatatypeProperty ;
+    rdfs:label "triggerTiming" ;
+    rdfs:comment "Trigger timing (BEFORE, AFTER, INSTEAD OF)" ;
+    rdfs:domain ggen:Trigger ;
+    rdfs:range xsd:string .
+
+ggen:triggerEvent a owl:DatatypeProperty ;
+    rdfs:label "triggerEvent" ;
+    rdfs:comment "Trigger event (INSERT, UPDATE, DELETE)" ;
+    rdfs:domain ggen:Trigger ;
+    rdfs:range xsd:string .
+
+ggen:triggerLevel a owl:DatatypeProperty ;
+    rdfs:label "triggerLevel" ;
+    rdfs:comment "Trigger level (ROW, STATEMENT)" ;
+    rdfs:domain ggen:Trigger ;
+    rdfs:range xsd:string .
+
+ggen:triggerFunction a owl:DatatypeProperty ;
+    rdfs:label "triggerFunction" ;
+    rdfs:comment "Function executed by trigger" ;
+    rdfs:domain ggen:Trigger ;
+    rdfs:range xsd:string .
+
+ggen:triggerCondition a owl:DatatypeProperty ;
+    rdfs:label "triggerCondition" ;
+    rdfs:comment "WHEN condition for trigger" ;
+    rdfs:domain ggen:Trigger ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Properties: Migration
+# ----------------------------------------------------------------------------
+
+ggen:migrationId a owl:DatatypeProperty ;
+    rdfs:label "migrationId" ;
+    rdfs:comment "Unique migration identifier (timestamp or sequence)" ;
+    rdfs:domain ggen:Migration ;
+    rdfs:range xsd:string .
+
+ggen:migrationName a owl:DatatypeProperty ;
+    rdfs:label "migrationName" ;
+    rdfs:comment "Descriptive migration name" ;
+    rdfs:domain ggen:Migration ;
+    rdfs:range xsd:string .
+
+ggen:upScript a owl:DatatypeProperty ;
+    rdfs:label "upScript" ;
+    rdfs:comment "SQL script to apply migration" ;
+    rdfs:domain ggen:Migration ;
+    rdfs:range xsd:string .
+
+ggen:downScript a owl:DatatypeProperty ;
+    rdfs:label "downScript" ;
+    rdfs:comment "SQL script to revert migration" ;
+    rdfs:domain ggen:Migration ;
+    rdfs:range xsd:string .
+
+ggen:migrationTimestamp a owl:DatatypeProperty ;
+    rdfs:label "migrationTimestamp" ;
+    rdfs:comment "When migration was created" ;
+    rdfs:domain ggen:Migration ;
+    rdfs:range xsd:dateTime .
+
+ggen:isApplied a owl:DatatypeProperty ;
+    rdfs:label "isApplied" ;
+    rdfs:comment "Whether migration has been applied" ;
+    rdfs:domain ggen:Migration ;
+    rdfs:range xsd:boolean .
+
+# ----------------------------------------------------------------------------
+# Data Type Mappings
+# ----------------------------------------------------------------------------
+
+ggen:xsdType a owl:DatatypeProperty ;
+    rdfs:label "xsdType" ;
+    rdfs:comment "XSD type mapping (xsd:string → VARCHAR)" ;
+    rdfs:domain ggen:DataType ;
+    rdfs:range xsd:string .
+
+ggen:postgresqlType a owl:DatatypeProperty ;
+    rdfs:label "postgresqlType" ;
+    rdfs:comment "PostgreSQL type mapping" ;
+    rdfs:domain ggen:DataType ;
+    rdfs:range xsd:string .
+
+ggen:mysqlType a owl:DatatypeProperty ;
+    rdfs:label "mysqlType" ;
+    rdfs:comment "MySQL type mapping" ;
+    rdfs:domain ggen:DataType ;
+    rdfs:range xsd:string .
+
+ggen:sqliteType a owl:DatatypeProperty ;
+    rdfs:label "sqliteType" ;
+    rdfs:comment "SQLite type mapping" ;
+    rdfs:domain ggen:DataType ;
+    rdfs:range xsd:string .

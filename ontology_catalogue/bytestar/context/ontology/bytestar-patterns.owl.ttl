@@ -1,0 +1,63 @@
+@prefix : <https://bytestar.org/ontology/bytestar-patterns#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-patterns>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  rdfs:label "ByteStar Pattern Registry" ;
+  rdfs:comment "Enumerates the 43 patterns and links to micro-ops & PB mapping." .
+
+:MicroOp a owl:Class .
+:hasMicroOp a owl:ObjectProperty ; rdfs:domain bytestar:Pattern ; rdfs:range :MicroOp .
+:pbMask a owl:DatatypeProperty ; rdfs:domain bytestar:Pattern ; rdfs:range xsd:unsignedByte .
+
+### Placeholder individuals for the 43 patterns (expand names as you finalize)
+:Pattern01 a bytestar:Pattern ; :pbMask "0"^^xsd:unsignedByte .
+:Pattern02 a bytestar:Pattern ; :pbMask "1"^^xsd:unsignedByte .
+:Pattern03 a bytestar:Pattern ; :pbMask "2"^^xsd:unsignedByte .
+:Pattern04 a bytestar:Pattern ; :pbMask "3"^^xsd:unsignedByte .
+:Pattern05 a bytestar:Pattern ; :pbMask "4"^^xsd:unsignedByte .
+:Pattern06 a bytestar:Pattern ; :pbMask "5"^^xsd:unsignedByte .
+:Pattern07 a bytestar:Pattern ; :pbMask "6"^^xsd:unsignedByte .
+:Pattern08 a bytestar:Pattern ; :pbMask "7"^^xsd:unsignedByte .
+:Pattern09 a bytestar:Pattern ; :pbMask "8"^^xsd:unsignedByte .
+:Pattern10 a bytestar:Pattern ; :pbMask "9"^^xsd:unsignedByte .
+:Pattern11 a bytestar:Pattern ; :pbMask "10"^^xsd:unsignedByte .
+:Pattern12 a bytestar:Pattern ; :pbMask "11"^^xsd:unsignedByte .
+:Pattern13 a bytestar:Pattern ; :pbMask "12"^^xsd:unsignedByte .
+:Pattern14 a bytestar:Pattern ; :pbMask "13"^^xsd:unsignedByte .
+:Pattern15 a bytestar:Pattern ; :pbMask "14"^^xsd:unsignedByte .
+:Pattern16 a bytestar:Pattern ; :pbMask "15"^^xsd:unsignedByte .
+:Pattern17 a bytestar:Pattern ; :pbMask "16"^^xsd:unsignedByte .
+:Pattern18 a bytestar:Pattern ; :pbMask "17"^^xsd:unsignedByte .
+:Pattern19 a bytestar:Pattern ; :pbMask "18"^^xsd:unsignedByte .
+:Pattern20 a bytestar:Pattern ; :pbMask "19"^^xsd:unsignedByte .
+:Pattern21 a bytestar:Pattern ; :pbMask "20"^^xsd:unsignedByte .
+:Pattern22 a bytestar:Pattern ; :pbMask "21"^^xsd:unsignedByte .
+:Pattern23 a bytestar:Pattern ; :pbMask "22"^^xsd:unsignedByte .
+:Pattern24 a bytestar:Pattern ; :pbMask "23"^^xsd:unsignedByte .
+:Pattern25 a bytestar:Pattern ; :pbMask "24"^^xsd:unsignedByte .
+:Pattern26 a bytestar:Pattern ; :pbMask "25"^^xsd:unsignedByte .
+:Pattern27 a bytestar:Pattern ; :pbMask "26"^^xsd:unsignedByte .
+:Pattern28 a bytestar:Pattern ; :pbMask "27"^^xsd:unsignedByte .
+:Pattern29 a bytestar:Pattern ; :pbMask "28"^^xsd:unsignedByte .
+:Pattern30 a bytestar:Pattern ; :pbMask "29"^^xsd:unsignedByte .
+:Pattern31 a bytestar:Pattern ; :pbMask "30"^^xsd:unsignedByte .
+:Pattern32 a bytestar:Pattern ; :pbMask "31"^^xsd:unsignedByte .
+:Pattern33 a bytestar:Pattern ; :pbMask "32"^^xsd:unsignedByte .
+:Pattern34 a bytestar:Pattern ; :pbMask "33"^^xsd:unsignedByte .
+:Pattern35 a bytestar:Pattern ; :pbMask "34"^^xsd:unsignedByte .
+:Pattern36 a bytestar:Pattern ; :pbMask "35"^^xsd:unsignedByte .
+:Pattern37 a bytestar:Pattern ; :pbMask "36"^^xsd:unsignedByte .
+:Pattern38 a bytestar:Pattern ; :pbMask "37"^^xsd:unsignedByte .
+:Pattern39 a bytestar:Pattern ; :pbMask "38"^^xsd:unsignedByte .
+:Pattern40 a bytestar:Pattern ; :pbMask "39"^^xsd:unsignedByte .
+:Pattern41 a bytestar:Pattern ; :pbMask "40"^^xsd:unsignedByte .
+:Pattern42 a bytestar:Pattern ; :pbMask "41"^^xsd:unsignedByte .
+:Pattern43 a bytestar:Pattern ; :pbMask "42"^^xsd:unsignedByte .
+
+# Registry hook
+:Registry a bytestar:PatternRegistry .

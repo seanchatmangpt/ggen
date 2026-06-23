@@ -1,0 +1,21 @@
+# SPARQL Query: Extract Value Object Definitions
+# Used for testing ontology generation harness
+
+PREFIX api: <http://ggen-mcp.dev/test/api#>
+PREFIX ddd: <http://ggen-mcp.dev/ontology/ddd#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?valueObject ?voName ?description ?propertyName ?propertyType ?required
+WHERE {
+    ?valueObject a ddd:ValueObject ;
+                 ddd:valueObjectName ?voName ;
+                 ddd:description ?description .
+
+    OPTIONAL {
+        ?valueObject ddd:hasProperty ?property .
+        ?property ddd:propertyName ?propertyName ;
+                  ddd:propertyType ?propertyType ;
+                  ddd:required ?required .
+    }
+}
+ORDER BY ?voName ?propertyName

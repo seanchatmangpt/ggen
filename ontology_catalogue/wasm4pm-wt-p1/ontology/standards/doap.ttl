@@ -1,0 +1,92 @@
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix vs: <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+<http://usefulinc.com/ns/doap#> a owl:Ontology ;
+    dc:title "Description of a Project (DOAP) vocabulary" ;
+    dc:description "The Description of a Project (DOAP) vocabulary, described using W3C RDF Schema and the Web Ontology Language." ;
+    dc:creator <http://edd.usefulinc.com/foaf.rdf#edd> ;
+    foaf:maker <http://edd.usefulinc.com/foaf.rdf#edd> .
+
+doap:Project a owl:Class ;
+    rdfs:label "Project" ;
+    rdfs:comment "A project." ;
+    rdfs:isDefinedBy <http://usefulinc.com/ns/doap#> .
+
+doap:Version a owl:Class ;
+    rdfs:label "Version" ;
+    rdfs:comment "Version information of a project release." ;
+    rdfs:isDefinedBy <http://usefulinc.com/ns/doap#> .
+
+doap:Repository a owl:Class ;
+    rdfs:label "Repository" ;
+    rdfs:comment "Source code repository." ;
+    rdfs:isDefinedBy <http://usefulinc.com/ns/doap#> .
+
+doap:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:comment "A name of something." ;
+    rdfs:isDefinedBy <http://usefulinc.com/ns/doap#> ;
+    rdfs:range rdfs:Literal .
+
+doap:homepage a rdf:Property ;
+    rdfs:label "homepage" ;
+    rdfs:comment "URL of a project's homepage, associated with exactly one project." ;
+    rdfs:isDefinedBy <http://usefulinc.com/ns/doap#> .
+
+doap:license a rdf:Property ;
+    rdfs:label "license" ;
+    rdfs:comment "The URI of an open source software license." ;
+    rdfs:isDefinedBy <http://usefulinc.com/ns/doap#> .
+
+doap:programming-language a rdf:Property ;
+    rdfs:label "programming language" ;
+    rdfs:comment "Programming language a project is implemented in or intended for use with." ;
+    rdfs:isDefinedBy <http://usefulinc.com/ns/doap#> ;
+    rdfs:range rdfs:Literal .
+
+doap:maintainer a rdf:Property ;
+    rdfs:label "maintainer" ;
+    rdfs:comment "Maintainer of a project, a person or organization." ;
+    rdfs:isDefinedBy <http://usefulinc.com/ns/doap#> ;
+    rdfs:range foaf:Agent .
+
+doap:developer a rdf:Property ;
+    rdfs:label "developer" ;
+    rdfs:comment "Developer of software for the project." ;
+    rdfs:isDefinedBy <http://usefulinc.com/ns/doap#> ;
+    rdfs:range foaf:Agent .
+
+doap:shortdesc a rdf:Property ;
+    rdfs:label "short description" ;
+    rdfs:comment "Short (80 or fewer characters) description of a project." ;
+    rdfs:isDefinedBy <http://usefulinc.com/ns/doap#> ;
+    rdfs:range rdfs:Literal .
+
+doap:description a rdf:Property ;
+    rdfs:label "description" ;
+    rdfs:comment "Plain text description of a project, of 2-4 sentences in length." ;
+    rdfs:isDefinedBy <http://usefulinc.com/ns/doap#> ;
+    rdfs:range rdfs:Literal .
+
+doap:release a rdf:Property ;
+    rdfs:label "release" ;
+    rdfs:comment "A project release." ;
+    rdfs:isDefinedBy <http://usefulinc.com/ns/doap#> ;
+    rdfs:range doap:Version .
+
+doap:repository a rdf:Property ;
+    rdfs:label "repository" ;
+    rdfs:comment "Source code repository." ;
+    rdfs:isDefinedBy <http://usefulinc.com/ns/doap#> ;
+    rdfs:range doap:Repository .
+
+doap:created a rdf:Property ;
+    rdfs:label "created" ;
+    rdfs:comment "Date when something was created, in YYYY-MM-DD format. e.g. 2004-01-30" ;
+    rdfs:isDefinedBy <http://usefulinc.com/ns/doap#> ;
+    rdfs:range rdfs:Literal .

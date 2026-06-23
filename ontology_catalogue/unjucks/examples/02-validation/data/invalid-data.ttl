@@ -1,0 +1,101 @@
+@prefix : <http://example.com/api#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Invalid API Definition - Violates multiple validation rules
+:InvalidAPI a :RestAPI ;
+    # Missing required :name property
+    :version "invalid-version" ;  # Invalid version format (should be x.y.z)
+    :baseUrl "ftp://invalid.com" ; # Invalid protocol (should be http/https)
+    # Missing required :hasEndpoint property (should have at least one)
+    .
+
+# Invalid Endpoints
+:InvalidGetEndpoint a :RestEndpoint ;
+    :method "INVALID" ;  # Invalid HTTP method
+    # Missing required :path property
+    :description "Too short" ;  # Too short (minimum 10 characters)
+    # Missing required :returns property for GET
+    .
+
+:InvalidPostEndpoint a :RestEndpoint ;
+    :method "POST" ;
+    :path "invalid-path" ;  # Doesn't start with /
+    :description "Create a new user" ;  # Valid description
+    # Missing required :accepts property for POST
+    :returns :User .
+
+:InvalidDeleteEndpoint a :RestEndpoint ;
+    :method "DELETE" ;
+    :path "/users/{id}" ;
+    :description "Delete user" ;
+    # Missing required :returns property for DELETE
+    .
+
+# Invalid Data Models
+:InvalidUser a :DataModel ;
+    # Missing required :hasField property (should have at least one)
+    .
+
+:InvalidUserWithBadFields a :DataModel ;
+    :hasField :InvalidField1, :InvalidField2 .
+
+# Invalid Fields
+:InvalidField1 a :Field ;
+    :name "123invalid" ;  # Invalid name (starts with number)
+    # Missing required :type property
+    # Missing required :required property
+    .
+
+:InvalidField2 a :Field ;
+    :name "validName" ;
+    :type xsd:string ;
+    # Missing required :required property
+    .
+
+# Invalid Parameters
+:InvalidQueryParam a :QueryParameter ;
+    :name "invalid-param-name!" ;  # Invalid characters in name
+    :type xsd:string ;
+    :description "x" ;  # Too short (minimum 5 characters)
+    .
+
+:InvalidPathParam a :PathParameter ;
+    # Missing required :name property
+    :type xsd:string ;
+    :description "Valid description but missing name" .
+
+# Invalid User Instances
+:invalidUser1 a :User ;
+    # Missing required :id property
+    :name "" ;  # Empty name (violates minLength)
+    :email "invalid-email" ;  # Invalid email format
+    # Missing required :createdAt property
+    .
+
+:invalidUser2 a :User ;
+    :id "user with spaces and @#$%" ;  # Invalid characters in ID
+    :name "This name is way too long and exceeds the maximum length limit of 255 characters. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit." ;
+    :email "notanemail" ;  # Invalid email format
+    :createdAt "not-a-date" .  # Invalid date format
+
+# Business Rule Violations
+:PostWithoutAccepts a :RestEndpoint ;
+    :method "POST" ;
+    :path "/items" ;
+    :description "Create an item without specifying input data" ;
+    :returns :Item .
+    # Violates business rule: POST should have :accepts
+
+:PutWithoutAccepts a :RestEndpoint ;
+    :method "PUT" ;
+    :path "/items/{id}" ;
+    :description "Update an item without specifying input data" ;
+    :returns :Item .
+    # Violates business rule: PUT should have :accepts
+
+:DeleteWithoutReturns a :RestEndpoint ;
+    :method "DELETE" ;
+    :path "/items/{id}" ;
+    :description "Delete an item without confirmation response" .
+    # Violates business rule: DELETE should have :returns

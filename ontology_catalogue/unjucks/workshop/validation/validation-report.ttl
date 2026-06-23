@@ -1,0 +1,7 @@
+{
+  "timestamp": "2025-09-12T08:53:59.681Z",
+  "dataFile": "/Users/sac/unjucks/workshop/rdf/workshop.ttl",
+  "shapesFile": "/Users/sac/unjucks/workshop/rdf/kgen-shapes.ttl",
+  "violations": [],
+  "passed": true
+}

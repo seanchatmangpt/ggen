@@ -1,0 +1,181 @@
+@prefix schema: <http://schema.org/> .
+@prefix ex: <http://example.org/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Invalid Test RDF Data for SHACL Validation Testing
+# This data is designed to trigger specific SHACL constraint violations
+# =============================================================================
+
+# Violation 1: Person without required name
+ex:personWithoutName
+    a schema:Person ;
+    schema:email "noemail@example.com" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 2: Person with invalid email format
+ex:personWithInvalidEmail
+    a schema:Person ;
+    schema:name "Invalid Email Person" ;
+    schema:email "not-an-email-address" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 3: Person with age out of range
+ex:personWithInvalidAge
+    a schema:Person ;
+    schema:name "Too Old Person" ;
+    schema:age 200 ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 4: Person with negative age
+ex:personWithNegativeAge
+    a schema:Person ;
+    schema:name "Negative Age Person" ;
+    schema:age -5 ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 5: Entity without creation timestamp
+ex:entityWithoutCreationDate
+    a schema:Thing ;
+    schema:name "No Creation Date Entity" .
+
+# Violation 6: Entity with invalid date format
+ex:entityWithInvalidDate
+    a schema:Thing ;
+    schema:name "Invalid Date Entity" ;
+    dct:created "not-a-date" .
+
+# Violation 7: Entity with future creation date
+ex:entityWithFutureDate
+    a schema:Thing ;
+    schema:name "Future Entity" ;
+    dct:created "2099-12-31T23:59:59Z"^^xsd:dateTime .
+
+# Violation 8: Organization without name
+ex:organizationWithoutName
+    a schema:Organization ;
+    schema:url "https://example.com" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 9: Organization without employees
+ex:organizationWithoutEmployees
+    a schema:Organization ;
+    schema:name "No Employees Org" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 10: Organization with invalid URL
+ex:organizationWithInvalidURL
+    a schema:Organization ;
+    schema:name "Invalid URL Org" ;
+    schema:url "ftp://not-http.com" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 11: Event without name
+ex:eventWithoutName
+    a schema:Event ;
+    schema:startDate "2024-06-01"^^xsd:date ;
+    schema:endDate "2024-06-02"^^xsd:date ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 12: Event with end date before start date
+ex:eventWithInvalidDateRange
+    a schema:Event ;
+    schema:name "Invalid Date Range Event" ;
+    schema:startDate "2024-06-10T10:00:00Z"^^xsd:dateTime ;
+    schema:endDate "2024-06-05T10:00:00Z"^^xsd:dateTime ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 13: Person with multiple names (violates maxCount)
+ex:personWithMultipleNames
+    a schema:Person ;
+    schema:name "First Name" ;
+    schema:name "Second Name" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 14: Person with name too short
+ex:personWithShortName
+    a schema:Person ;
+    schema:name "A" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 15: Person with name too long
+ex:personWithLongName
+    a schema:Person ;
+    schema:name "This is an extremely long name that exceeds the maximum allowed length of 100 characters for person names and should trigger a violation" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 16: QuantitativeValue without value
+ex:quantitativeValueWithoutValue
+    a schema:QuantitativeValue ;
+    schema:unitCode "KG" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 17: QuantitativeValue with invalid unit code
+ex:quantitativeValueWithInvalidUnit
+    a schema:QuantitativeValue ;
+    schema:value 10.5 ;
+    schema:unitCode "invalid_unit_code" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 18: Person with homepage as literal (should be IRI)
+ex:personWithLiteralHomepage
+    a schema:Person ;
+    schema:name "Literal Homepage Person" ;
+    foaf:homepage "https://example.com" ;  # Should be <https://example.com>
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 19: Person with description as IRI (should be literal)
+ex:personWithIRIDescription
+    a schema:Person ;
+    schema:name "IRI Description Person" ;
+    schema:description <http://example.com/description> ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 20: Person working for non-organization
+ex:personWorkingForNonOrg
+    a schema:Person ;
+    schema:name "Wrong Employer Person" ;
+    schema:worksFor ex:notAnOrganization ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+ex:notAnOrganization
+    a schema:Thing ;
+    schema:name "Not An Organization" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 21: Person with unauthorized property (closed shape violation)
+ex:personWithExtraProperty
+    a schema:Person ;
+    schema:name "Extra Property Person" ;
+    schema:email "extra@example.com" ;
+    schema:unauthorizedProperty "This should not be allowed" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 22: Entity with empty name
+ex:entityWithEmptyName
+    a schema:Thing ;
+    schema:name "" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 23: Entity with description too long
+ex:entityWithLongDescription
+    a schema:Thing ;
+    schema:name "Long Description Entity" ;
+    schema:description "This is an extremely long description that exceeds the maximum allowed length of 1000 characters. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem." ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Violation 24: Multiple creation timestamps (violates maxCount)
+ex:entityWithMultipleCreationDates
+    a schema:Thing ;
+    schema:name "Multiple Dates Entity" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+    dct:created "2024-01-02T00:00:00Z"^^xsd:dateTime .
+
+# Violation 25: Invalid datatype for numeric value
+ex:quantitativeValueWithStringValue
+    a schema:QuantitativeValue ;
+    schema:value "not-a-number" ;
+    schema:unitCode "KG" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .

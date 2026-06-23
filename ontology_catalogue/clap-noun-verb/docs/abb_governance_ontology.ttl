@@ -1,0 +1,670 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix arch: <http://example.org/architecture/> .
+@prefix nehemiah: <http://example.org/nehemiah/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+# TOGAF ADM <-> Nehemiah Governance Ontology
+# Purpose: Formalize the mapping of TOGAF architecture building blocks to Nehemiah gate/wall sections
+# Date: 2026-06-02
+# Authority: Sean Chatman (ProphetOffice)
+
+# ============================================================================
+# VOCABULARY DEFINITIONS
+# ============================================================================
+
+# Architecture Building Block (ABB) - TOGAF component
+arch:ArchitectureBuildingBlock a rdfs:Class ;
+    rdfs:label "Architecture Building Block (ABB)"@en ;
+    rdfs:comment "Reusable, documented architectural component defined within a TOGAF phase."@en ;
+    rdfs:isDefinedBy arch: .
+
+# Solution Building Block (SBB) - Concrete deployment instance
+arch:SolutionBuildingBlock a rdfs:Class ;
+    rdfs:label "Solution Building Block (SBB)"@en ;
+    rdfs:comment "Concrete, implemented instance of an ABB deployed in a specific solution."@en ;
+    rdfs:isDefinedBy arch: .
+
+# Gate (Nehemiah) - Physical, named admissibility boundary
+nehemiah:Gate a rdfs:Class ;
+    rdfs:label "Gate"@en ;
+    rdfs:comment "Physical, named, bounded admissibility location with assigned builders and wall section."@en ;
+    rdfs:isDefinedBy nehemiah: .
+
+# Wall Section (Nehemiah) - Bounded, measurable artifact
+nehemiah:WallSection a rdfs:Class ;
+    rdfs:label "Wall Section"@en ;
+    rdfs:comment "Measurable, inspectable artifact built between two gates."@en ;
+    rdfs:isDefinedBy nehemiah: .
+
+# Receipt - Immutable completion proof
+nehemiah:Receipt a rdfs:Class ;
+    rdfs:label "Receipt"@en ;
+    rdfs:comment "Immutable attestation minted by InspectionGate authority; cannot be revoked or forged."@en ;
+    rdfs:isDefinedBy nehemiah: .
+
+# Verdict - Formal completion state
+nehemiah:Verdict a rdfs:Class ;
+    rdfs:label "Verdict"@en ;
+    rdfs:comment "Formal state: ALIVE (complete, accepted), PARTIAL (incomplete, under review), or BLOCKED (rejected)."@en ;
+    rdfs:isDefinedBy nehemiah: .
+
+# TOGAF Phase
+arch:TOGAFPhase a rdfs:Class ;
+    rdfs:label "TOGAF ADM Phase"@en ;
+    rdfs:comment "One of eight sequential phases in TOGAF Architecture Development Method."@en ;
+    rdfs:isDefinedBy arch: .
+
+# Builder (Nehemiah) - Accountable agent
+nehemiah:Builder a rdfs:Class ;
+    rdfs:label "Builder"@en ;
+    rdfs:comment "Individually named, accountable agent assigned to a specific gate; responsible for a wall section."@en ;
+    rdfs:isDefinedBy nehemiah: .
+
+# Architecture Board
+arch:ArchitectureBoard a rdfs:Class ;
+    rdfs:label "Architecture Board"@en ;
+    rdfs:comment "Supreme governance body that reviews phase completions and issues binding verdicts."@en ;
+    rdfs:isDefinedBy arch: .
+
+# ProphetOffice (Nehemiah) - Supreme authority
+nehemiah:ProphetOffice a rdfs:Class ;
+    rdfs:label "Prophet Office"@en ;
+    rdfs:comment "Designated authority who keeps master ledgers, issues verdicts, and mints immutable receipts."@en ;
+    rdfs:isDefinedBy nehemiah: .
+
+# ============================================================================
+# PROPERTY DEFINITIONS
+# ============================================================================
+
+# Maps ABB to Gate
+arch:mapsToGate a rdf:Property ;
+    rdfs:label "maps to gate"@en ;
+    rdfs:domain arch:ArchitectureBuildingBlock ;
+    rdfs:range nehemiah:Gate ;
+    rdfs:comment "An ABB is associated with one Nehemiah gate (1–9 working gates; gate 10 is inspection authority)."@en .
+
+# Maps ABB to TOGAF Phase
+arch:mapsToPhase a rdf:Property ;
+    rdfs:label "maps to TOGAF phase"@en ;
+    rdfs:domain arch:ArchitectureBuildingBlock ;
+    rdfs:range arch:TOGAFPhase ;
+    rdfs:comment "Each ABB is produced by one TOGAF ADM phase."@en .
+
+# Gate has ordinal number (1–10)
+nehemiah:gateOrdinal a rdf:Property ;
+    rdfs:label "gate ordinal"@en ;
+    rdfs:domain nehemiah:Gate ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Enumeration of gate (1=Sheep Gate, 2=Fish Gate, ..., 10=Inspection Gate)."@en .
+
+# Gate has assigned builder
+nehemiah:assignedBuilder a rdf:Property ;
+    rdfs:label "assigned builder"@en ;
+    rdfs:domain nehemiah:Gate ;
+    rdfs:range nehemiah:Builder ;
+    rdfs:comment "A gate is assigned to one or more named builders."@en .
+
+# Builder assigned to gate
+nehemiah:assignedToGate a rdf:Property ;
+    rdfs:label "assigned to gate"@en ;
+    rdfs:domain nehemiah:Builder ;
+    rdfs:range nehemiah:Gate ;
+    rdfs:comment "A builder is assigned to exactly one gate."@en .
+
+# Builder builds wall section
+nehemiah:buildsWallSection a rdf:Property ;
+    rdfs:label "builds wall section"@en ;
+    rdfs:domain nehemiah:Builder ;
+    rdfs:range nehemiah:WallSection ;
+    rdfs:comment "A builder (or team of builders) is responsible for building a wall section."@en .
+
+# Wall section has builder(s)
+nehemiah:hasBuilder a rdf:Property ;
+    rdfs:label "has builder"@en ;
+    rdfs:domain nehemiah:WallSection ;
+    rdfs:range nehemiah:Builder ;
+    rdfs:comment "A wall section is built by one or more named builders."@en .
+
+# Entity has verdict
+nehemiah:hasVerdict a rdf:Property ;
+    rdfs:label "has verdict"@en ;
+    rdfs:domain rdf:Resource ;
+    rdfs:range nehemiah:Verdict ;
+    rdfs:comment "An entity (gate, section, builder, phase) has a formal verdict state."@en .
+
+# Entity has receipt
+nehemiah:hasReceipt a rdf:Property ;
+    rdfs:label "has receipt"@en ;
+    rdfs:domain rdf:Resource ;
+    rdfs:range nehemiah:Receipt ;
+    rdfs:comment "An entity with ALIVE verdict receives an immutable receipt."@en .
+
+# Receipt issued by
+nehemiah:issuedBy a rdf:Property ;
+    rdfs:label "issued by"@en ;
+    rdfs:domain nehemiah:Receipt ;
+    rdfs:range rdf:Resource ;
+    rdfs:comment "A receipt is minted by the Inspection Gate authority (ProphetOffice)."@en .
+
+# Receipt is immutable
+nehemiah:isImmutable a rdf:Property ;
+    rdfs:label "is immutable"@en ;
+    rdfs:domain nehemiah:Receipt ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Once issued, a receipt cannot be revoked, modified, or reissued (value = true)."@en .
+
+# SBB deploys ABB
+arch:deploysABB a rdf:Property ;
+    rdfs:label "deploys ABB"@en ;
+    rdfs:domain arch:SolutionBuildingBlock ;
+    rdfs:range arch:ArchitectureBuildingBlock ;
+    rdfs:comment "An SBB is a concrete deployment instance of an ABB."@en .
+
+# Integration point
+arch:integratesWith a rdf:Property ;
+    rdfs:label "integrates with"@en ;
+    rdfs:domain rdf:Resource ;
+    rdfs:range rdf:Resource ;
+    rdfs:comment "An ABB or SBB integrates with adjacent components."@en .
+
+# Gate connects to adjacent gates
+nehemiah:connectsTo a rdf:Property ;
+    rdfs:label "connects to"@en ;
+    rdfs:domain nehemiah:Gate ;
+    rdfs:range nehemiah:Gate ;
+    rdfs:comment "A gate is connected to adjacent gates via wall sections."@en .
+
+# ============================================================================
+# VERDICT ENUMERATION
+# ============================================================================
+
+nehemiah:ALIVE a nehemiah:Verdict ;
+    rdfs:label "ALIVE"@en ;
+    rdfs:comment "Complete, accepted, operational. Work is delivered to specification and approved by authority."@en .
+
+nehemiah:PARTIAL a nehemiah:Verdict ;
+    rdfs:label "PARTIAL"@en ;
+    rdfs:comment "Incomplete, under review. Work is ongoing or pending final inspection/verdict."@en .
+
+nehemiah:BLOCKED a nehemiah:Verdict ;
+    rdfs:label "BLOCKED"@en ;
+    rdfs:comment "Rejected, failed, or impossible. Work does not meet specification or is barred from proceeding."@en .
+
+# ============================================================================
+# TOGAF PHASE ENUMERATION
+# ============================================================================
+
+arch:PreliminaryPhase a arch:TOGAFPhase ;
+    rdfs:label "Preliminary Phase"@en ;
+    arch:phaseOrdinal 0 ;
+    arch:phaseName "Preliminary" ;
+    arch:mapsToGate nehemiah:SheepGate ;
+    rdfs:comment "Readiness assessment, scope definition, stakeholder alignment."@en .
+
+arch:PhaseA a arch:TOGAFPhase ;
+    rdfs:label "Phase A: Architecture Vision"@en ;
+    arch:phaseOrdinal 1 ;
+    arch:phaseName "Architecture Vision" ;
+    arch:mapsToGate nehemiah:FishGate ;
+    rdfs:comment "Market validation, commercial viability, business case definition."@en .
+
+arch:PhaseB a arch:TOGAFPhase ;
+    rdfs:label "Phase B: Business Architecture"@en ;
+    arch:phaseOrdinal 2 ;
+    arch:phaseName "Business Architecture" ;
+    arch:mapsToGate nehemiah:OldGate ;
+    rdfs:comment "Process mapping, role definition, accountability chains."@en .
+
+arch:PhaseC a arch:TOGAFPhase ;
+    rdfs:label "Phase C: Information Systems Architecture"@en ;
+    arch:phaseOrdinal 3 ;
+    arch:phaseName "Information Systems Architecture" ;
+    arch:mapsToGate nehemiah:ValleyGate ;
+    rdfs:comment "Data flows, system interfaces, resilience architecture."@en .
+
+arch:PhaseD a arch:TOGAFPhase ;
+    rdfs:label "Phase D: Technology Architecture"@en ;
+    arch:phaseOrdinal 4 ;
+    arch:phaseName "Technology Architecture" ;
+    arch:mapsToGate nehemiah:DungGate ;
+    rdfs:comment "Platform selection, technical debt disposal, purification."@en .
+
+arch:PhaseE a arch:TOGAFPhase ;
+    rdfs:label "Phase E: Opportunities & Solutions"@en ;
+    arch:phaseOrdinal 5 ;
+    arch:phaseName "Opportunities & Solutions" ;
+    arch:mapsToGate nehemiah:FountainGate ;
+    rdfs:comment "Implementation roadmap, life-support systems, resilience."@en .
+
+arch:PhaseF a arch:TOGAFPhase ;
+    rdfs:label "Phase F: Migration Planning"@en ;
+    arch:phaseOrdinal 6 ;
+    arch:phaseName "Migration Planning" ;
+    arch:mapsToGate nehemiah:WaterGate ;
+    rdfs:comment "Supply chain, distribution, execution sequencing."@en .
+
+arch:PhaseG a arch:TOGAFPhase ;
+    rdfs:label "Phase G: Implementation Governance"@en ;
+    arch:phaseOrdinal 7 ;
+    arch:phaseName "Implementation Governance" ;
+    arch:mapsToGate nehemiah:HorseGate ;
+    rdfs:comment "Deployment, trade & mobility coordination, go-live."@en .
+
+arch:PhaseHI a arch:TOGAFPhase ;
+    rdfs:label "Phase H–I: Continuous Improvement & Renewal"@en ;
+    arch:phaseOrdinal 8 ;
+    arch:phaseName "Continuous Improvement" ;
+    arch:mapsToGate nehemiah:EastGate ;
+    rdfs:comment "Renewal, retrospective, learning cycles, adaptive improvement."@en .
+
+# ============================================================================
+# GATE ENUMERATION (Nehemiah 3–6)
+# ============================================================================
+
+nehemiah:SheepGate a nehemiah:Gate ;
+    rdfs:label "Sheep Gate"@en ;
+    nehemiah:gateOrdinal 1 ;
+    rdfs:comment "Ceremonial entry; rebuilt first as ritual opening (northeastern)."@en .
+
+nehemiah:FishGate a nehemiah:Gate ;
+    rdfs:label "Fish Gate"@en ;
+    nehemiah:gateOrdinal 2 ;
+    rdfs:comment "Market gate; commerce resumption point (northern)."@en .
+
+nehemiah:OldGate a nehemiah:Gate ;
+    rdfs:label "Old Gate"@en ;
+    nehemiah:gateOrdinal 3 ;
+    rdfs:comment "Oldest existing structure; continuity point (northern)."@en .
+
+nehemiah:ValleyGate a nehemiah:Gate ;
+    rdfs:label "Valley Gate"@en ;
+    nehemiah:gateOrdinal 4 ;
+    rdfs:comment "Hinnom Valley oversight; refuge and drainage (western)."@en .
+
+nehemiah:DungGate a nehemiah:Gate ;
+    rdfs:label "Dung Gate"@en ;
+    nehemiah:gateOrdinal 5 ;
+    rdfs:comment "Refuse exit; sanitation and purification (southern)."@en .
+
+nehemiah:FountainGate a nehemiah:Gate ;
+    rdfs:label "Fountain Gate"@en ;
+    nehemiah:gateOrdinal 6 ;
+    rdfs:comment "Water access; life support and resilience (southeastern)."@en .
+
+nehemiah:WaterGate a nehemiah:Gate ;
+    rdfs:label "Water Gate"@en ;
+    nehemiah:gateOrdinal 7 ;
+    rdfs:comment "Primary water intake; supply and distribution (eastern)."@en .
+
+nehemiah:HorseGate a nehemiah:Gate ;
+    rdfs:label "Horse Gate"@en ;
+    nehemiah:gateOrdinal 8 ;
+    rdfs:comment "Military and trade; mobility coordination (eastern)."@en .
+
+nehemiah:EastGate a nehemiah:Gate ;
+    rdfs:label "East Gate"@en ;
+    nehemiah:gateOrdinal 9 ;
+    rdfs:comment "Sunrise orientation; renewal point (far eastern)."@en .
+
+nehemiah:InspectionGate a nehemiah:Gate ;
+    rdfs:label "Inspection Gate"@en ;
+    nehemiah:gateOrdinal 10 ;
+    rdfs:comment "Supreme authority; final verdict and receipt issuance."@en .
+
+# ============================================================================
+# ARCHITECTURE BUILDING BLOCK DEFINITIONS
+# ============================================================================
+
+arch:ABB_Preliminary a arch:ArchitectureBuildingBlock ;
+    rdfs:label "ABB 0: Preliminary Assessment"@en ;
+    arch:mapsToPhase arch:PreliminaryPhase ;
+    arch:mapsToGate nehemiah:SheepGate ;
+    dct:description "Readiness assessment, stakeholder alignment, governance setup"@en ;
+    arch:purpose "Organizational readiness; scoping; stakeholder alignment"@en ;
+    arch:scope "Architecture capability assessment, Statement of Work definition, governance framework"@en ;
+    arch:accountability "Chief Architect / Enterprise Architecture Office"@en ;
+    arch:reviewCriteria "Stakeholders identified, governance established, SoW documented"@en ;
+    arch:receiptCondition "All readiness criteria met; Architecture Board issues ALIVE verdict"@en ;
+    nehemiah:hasVerdict nehemiah:PARTIAL ;
+    rdfs:comment "First phase mapping to Sheep Gate (ceremonial entry, ritual opening)."@en .
+
+arch:ABB_Vision a arch:ArchitectureBuildingBlock ;
+    rdfs:label "ABB 1: Architecture Vision"@en ;
+    arch:mapsToPhase arch:PhaseA ;
+    arch:mapsToGate nehemiah:FishGate ;
+    dct:description "Market validation, commercial viability, business case"@en ;
+    arch:purpose "Define to-be architecture vision; validate market demand; establish success metrics"@en ;
+    arch:scope "Business objectives, vision statement, stakeholder concerns, high-level requirements"@en ;
+    arch:accountability "Business Sponsor + Chief Product Officer"@en ;
+    arch:reviewCriteria "Vision approved, business case validated, stakeholder buy-in confirmed"@en ;
+    arch:receiptCondition "Business case approved by executive steering; ALIVE verdict issued"@en ;
+    nehemiah:hasVerdict nehemiah:PARTIAL ;
+    rdfs:comment "Phase A mapping to Fish Gate (market/commerce resumption, business viability)."@en .
+
+arch:ABB_Business a arch:ArchitectureBuildingBlock ;
+    rdfs:label "ABB 2: Business Architecture"@en ;
+    arch:mapsToPhase arch:PhaseB ;
+    arch:mapsToGate nehemiah:OldGate ;
+    dct:description "Process mapping, role definition, accountability"@en ;
+    arch:purpose "Define and model business processes; establish roles; identify business services"@en ;
+    arch:scope "Business processes, organizational structures, business services, dependencies"@en ;
+    arch:accountability "Business Process Owner + Organizational Design Lead"@en ;
+    arch:reviewCriteria "Processes mapped, roles defined, continuity preserved with innovation"@en ;
+    arch:receiptCondition "Business architecture approved; Old Gate continuity principle honored"@en ;
+    nehemiah:hasVerdict nehemiah:PARTIAL ;
+    rdfs:comment "Phase B mapping to Old Gate (continuity, honor existing structures while innovating)."@en .
+
+arch:ABB_Information a arch:ArchitectureBuildingBlock ;
+    rdfs:label "ABB 3: Information Systems Architecture"@en ;
+    arch:mapsToPhase arch:PhaseC ;
+    arch:mapsToGate nehemiah:ValleyGate ;
+    dct:description "Data flows, system interfaces, resilience"@en ;
+    arch:purpose "Define information architecture; establish system interfaces; design resilience"@en ;
+    arch:scope "Information models, data flows, application architecture, system dependencies"@en ;
+    arch:accountability "Chief Data Officer + Enterprise Systems Architect"@en ;
+    arch:reviewCriteria "Data architecture sound, system interfaces defined, resilience designed"@en ;
+    arch:receiptCondition "Information systems blueprint approved; redundancy and backup pathways confirmed"@en ;
+    nehemiah:hasVerdict nehemiah:PARTIAL ;
+    rdfs:comment "Phase C mapping to Valley Gate (refuge, drainage, resilience, failure management)."@en .
+
+arch:ABB_Technology a arch:ArchitectureBuildingBlock ;
+    rdfs:label "ABB 4: Technology Architecture"@en ;
+    arch:mapsToPhase arch:PhaseD ;
+    arch:mapsToGate nehemiah:DungGate ;
+    dct:description "Platform selection, technical debt disposal"@en ;
+    arch:purpose "Define technology architecture; select platforms; manage technical debt"@en ;
+    arch:scope "Technology standards, platform selection, middleware, infrastructure decisions"@en ;
+    arch:accountability "Chief Technology Officer + Infrastructure Lead"@en ;
+    arch:reviewCriteria "Platforms selected, technical debt assessed, legacy retirement planned"@en ;
+    arch:receiptCondition "Technology stack approved; purification (debt disposal) plan established"@en ;
+    nehemiah:hasVerdict nehemiah:PARTIAL ;
+    rdfs:comment "Phase D mapping to Dung Gate (purification, refuse disposal, technical debt removal)."@en .
+
+arch:ABB_Opportunities a arch:ArchitectureBuildingBlock ;
+    rdfs:label "ABB 5: Opportunities & Solutions"@en ;
+    arch:mapsToPhase arch:PhaseE ;
+    arch:mapsToGate nehemiah:FountainGate ;
+    dct:description "Implementation roadmap, life-support systems"@en ;
+    arch:purpose "Identify solutions; propose roadmap; define implementation projects"@en ;
+    arch:scope "Solution combinations, architecture roadmap, implementation projects, transition architecture"@en ;
+    arch:accountability "Program Director + Solutions Architect"@en ;
+    arch:reviewCriteria "Roadmap sequenced, life-support systems designed, resilience confirmed"@en ;
+    arch:receiptCondition "Implementation roadmap approved; continuous operations assured"@en ;
+    nehemiah:hasVerdict nehemiah:PARTIAL ;
+    rdfs:comment "Phase E mapping to Fountain Gate (life-support, water supply, resilience, continuity)."@en .
+
+arch:ABB_Migration a arch:ArchitectureBuildingBlock ;
+    rdfs:label "ABB 6: Migration Planning"@en ;
+    arch:mapsToPhase arch:PhaseF ;
+    arch:mapsToGate nehemiah:WaterGate ;
+    dct:description "Supply chain, distribution, execution sequencing"@en ;
+    arch:purpose "Finalize roadmap; detail migration stages; plan sequenced deployment"@en ;
+    arch:scope "Detailed migration strategy, project sequencing, resource allocation, transition stages"@en ;
+    arch:accountability "Delivery Lead + Migration Manager"@en ;
+    arch:reviewCriteria "Migration plan sequenced, dependencies identified, resources allocated"@en ;
+    arch:receiptCondition "Migration plan approved; supply chain and distribution pathways confirmed"@en ;
+    nehemiah:hasVerdict nehemiah:PARTIAL ;
+    rdfs:comment "Phase F mapping to Water Gate (supply, distribution, primary delivery channels)."@en .
+
+arch:ABB_Implementation a arch:ArchitectureBuildingBlock ;
+    rdfs:label "ABB 7: Implementation Governance"@en ;
+    arch:mapsToPhase arch:PhaseG ;
+    arch:mapsToGate nehemiah:HorseGate ;
+    dct:description "Deployment, coordination, go-live"@en ;
+    arch:purpose "Establish governance; publish roadmap; ensure stakeholder alignment"@en ;
+    arch:scope "Architecture-based change management, implementation roadmap, governance processes"@en ;
+    arch:accountability "Deployment Lead + Change Manager"@en ;
+    arch:reviewCriteria "Go-live prepared, stakeholders aligned, support teams ready"@en ;
+    arch:receiptCondition "Deployment approved; cutover and external coordination established"@en ;
+    nehemiah:hasVerdict nehemiah:PARTIAL ;
+    rdfs:comment "Phase G mapping to Horse Gate (military/trade coordination, external alignment, mobility)."@en .
+
+arch:ABB_Continuous a arch:ArchitectureBuildingBlock ;
+    rdfs:label "ABB 8: Continuous Improvement & Renewal"@en ;
+    arch:mapsToPhase arch:PhaseHI ;
+    arch:mapsToGate nehemiah:EastGate ;
+    dct:description "Renewal, retrospective, learning cycles"@en ;
+    arch:purpose "Monitor architecture; manage improvements; capture learning; enable renewal"@en ;
+    arch:scope "Operational governance, continuous monitoring, improvement management, learning cycles"@en ;
+    arch:accountability "CIO + Enterprise Lead (renewal authority)"@en ;
+    arch:reviewCriteria "Operations running smoothly, improvements tracked, learning captured"@en ;
+    arch:receiptCondition "Renewal cycle complete; next iteration readiness confirmed"@en ;
+    nehemiah:hasVerdict nehemiah:PARTIAL ;
+    rdfs:comment "Phase H–I mapping to East Gate (sunrise orientation, renewal, retrospective, learning)."@en .
+
+arch:ABB_Inspection a arch:ArchitectureBuildingBlock ;
+    rdfs:label "ABB 9: Inspection Gate (Authority)"@en ;
+    arch:mapsToPhase arch:PhaseHI ;
+    arch:mapsToGate nehemiah:InspectionGate ;
+    dct:description "Final verdict issuance, receipt minting, supreme authority"@en ;
+    arch:purpose "Final review of all phases; issue binding verdicts; mint immutable receipts"@en ;
+    arch:scope "Architecture Board review, verdict issuance, receipt generation, immutable record"@en ;
+    arch:accountability "Architecture Board Chair (ProphetOffice authority)"@en ;
+    arch:reviewCriteria "All phases reviewed, all ABBs deployed, all SBBs operational, all opposition documented"@en ;
+    arch:receiptCondition "All phases ALIVE; Inspection Gate issues final ALIVE verdict and receipt set"@en ;
+    nehemiah:hasVerdict nehemiah:PARTIAL ;
+    rdfs:comment "Gate 10 mapping (supreme authority, verdict issuance, immutable receipt generation)."@en .
+
+# ============================================================================
+# EXAMPLE: COMPLETE MAPPING FOR TOGAF PHASE A → FISH GATE
+# ============================================================================
+
+# Phase A instance
+arch:PhaseA_Example a arch:TOGAFPhase ;
+    rdfs:label "Phase A (Example): Vision Phase for Platform Migration"@en ;
+    arch:phaseOrdinal 1 ;
+    arch:phaseInput "Strategic goals, market analysis, competitive landscape"@en ;
+    arch:phaseOutput "Vision statement, business case, success criteria, stakeholder alignment"@en ;
+    arch:phaseTarget arch:ABB_Vision .
+
+# ABB instance for Phase A
+arch:ABB_Vision_Example a arch:ArchitectureBuildingBlock ;
+    rdfs:label "ABB Example: Vision for Enterprise Platform"@en ;
+    dct:title "Architecture Vision — Cloud Platform Migration"@en ;
+    arch:mapsToPhase arch:PhaseA ;
+    arch:mapsToGate nehemiah:FishGate ;
+    arch:purpose "Validate market demand for new platform; establish business case for migration"@en ;
+    arch:scope "New cloud platform capabilities; cost-benefit analysis; competitive positioning"@en ;
+    arch:reviewCriteria "Business case approved, ROI justified, stakeholder commitment confirmed"@en ;
+    arch:createdBy "VP Business Development + Chief Product Officer"@en ;
+    arch:approvedBy "Chief Architect (ProphetOffice)"@en ;
+    dct:created "2026-06-01"^^xsd:date ;
+    dct:issued "2026-06-02"^^xsd:date .
+
+# SBB instance for Phase A
+arch:SBB_Vision_Example a arch:SolutionBuildingBlock ;
+    rdfs:label "SBB Example: Cloud Migration Business Case"@en ;
+    dct:title "Cloud Platform Deployment — Business Case Document"@en ;
+    arch:deploysABB arch:ABB_Vision_Example ;
+    arch:purpose "Concrete business case for Platform-as-a-Service migration"@en ;
+    arch:implementation "5-year cost model, ROI calculator, competitive analysis, migration timeline"@en ;
+    arch:approval "Executive steering committee approved; Phase A receipt issued"@en ;
+    arch:outcome arch:PhaseA_Verdict ;
+    dct:created "2026-06-02"^^xsd:date .
+
+# Verdict for Phase A
+arch:PhaseA_Verdict a nehemiah:Verdict ;
+    rdfs:label "Phase A Verdict: ALIVE"@en ;
+    nehemiah:verdictValue nehemiah:ALIVE ;
+    nehemiah:issuedBy arch:ArchitectureBoard_Example ;
+    dct:issued "2026-06-02"^^xsd:date ;
+    arch:rationale "Vision phase complete; business case approved; stakeholders aligned; proceed to Phase B"@en .
+
+# Receipt for Phase A
+arch:PhaseA_Receipt a nehemiah:Receipt ;
+    rdfs:label "Phase A Completion Receipt"@en ;
+    dct:title "Phase A: Architecture Vision — Completion Receipt"@en ;
+    nehemiah:issuedFor arch:ABB_Vision_Example ;
+    nehemiah:hasVerdict arch:PhaseA_Verdict ;
+    nehemiah:issuedBy arch:ArchitectureBoard_Example ;
+    nehemiah:isImmutable true ;
+    dct:issued "2026-06-02"^^xsd:date ;
+    arch:binding "This receipt is immutable and binding. Phase A is accepted. Phase B is authorized."@en ;
+    dct:description "Vision phase has been completed, reviewed by Architecture Board, and approved. Receipt cannot be revoked."@en .
+
+# Architecture Board (authority)
+arch:ArchitectureBoard_Example a arch:ArchitectureBoard ;
+    rdfs:label "Architecture Board (Example)"@en ;
+    arch:chair "Chief Architect / CIO"@en ;
+    arch:authority "Issues binding verdicts and mints immutable receipts"@en ;
+    arch:reviewProcess "Phase review → ALIVE/PARTIAL/BLOCKED verdict → Receipt issuance (if ALIVE)"@en ;
+    arch:binding "All verdicts are final and immutable"@en .
+
+# ============================================================================
+# GOVERNANCE PROPERTIES
+# ============================================================================
+
+# Architecture Contract (Gate Covenant)
+arch:ArchitectureContract a rdfs:Class ;
+    rdfs:label "Architecture Contract (Gate Covenant)"@en ;
+    rdfs:comment "Formal, binding agreement between Architecture Authority and Implementing organization."@en ;
+    rdfs:isDefinedBy arch: .
+
+arch:gateContractFor a rdf:Property ;
+    rdfs:label "gate contract for"@en ;
+    rdfs:domain arch:ArchitectureContract ;
+    rdfs:range nehemiah:Gate ;
+    rdfs:comment "A Gate Covenant is a binding contract for a specific gate section."@en .
+
+arch:contractParties a rdf:Property ;
+    rdfs:label "contract parties"@en ;
+    rdfs:domain arch:ArchitectureContract ;
+    rdfs:range rdf:Resource ;
+    rdfs:comment "Architecture Board, implementing builders, stakeholders."@en .
+
+arch:contractResponsibility a rdf:Property ;
+    rdfs:label "contract responsibility"@en ;
+    rdfs:domain arch:ArchitectureContract ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Specific deliverables, quality standards, timeline."@en .
+
+arch:contractBinding a rdf:Property ;
+    rdfs:label "contract binding"@en ;
+    rdfs:domain arch:ArchitectureContract ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Once signed and receipt issued, contract is immutable and binding (true)."@en .
+
+# Muster Ledger (Accountability Record)
+nehemiah:MusterLedger a rdfs:Class ;
+    rdfs:label "Muster Ledger"@en ;
+    rdfs:comment "Master census of all named builders, stakeholders, and their gate assignments."@en ;
+    rdfs:isDefinedBy nehemiah: .
+
+nehemiah:musterRecords a rdf:Property ;
+    rdfs:label "muster records"@en ;
+    rdfs:domain nehemiah:MusterLedger ;
+    rdfs:range nehemiah:Builder ;
+    rdfs:comment "All named builders recorded with gate assignment, completion status, and accountability."@en .
+
+# Courier Record (Opposition & Communication Log)
+nehemiah:CourierRecord a rdfs:Class ;
+    rdfs:label "Courier Record"@en ;
+    rdfs:comment "Immutable ledger of all messages, opposition, and communication verdicts."@en ;
+    rdfs:isDefinedBy nehemiah: .
+
+nehemiah:recordsOpposition a rdf:Property ;
+    rdfs:label "records opposition"@en ;
+    rdfs:domain nehemiah:CourierRecord ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Every adversarial pressure, false claim, and resistance is logged with verdict."@en .
+
+# Usury Ledger (Internal Audit)
+nehemiah:UsuryLedger a rdfs:Class ;
+    rdfs:label "Usury Ledger"@en ;
+    rdfs:comment "Internal audit ledger for detecting and resolving structural flaws, predation, conflicts."@en ;
+    rdfs:isDefinedBy nehemiah: .
+
+nehemiah:auditsInternal a rdf:Property ;
+    rdfs:label "audits internal"@en ;
+    rdfs:domain nehemiah:UsuryLedger ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Wealth extraction, elite resistance, unity threats — all logged and adjudicated."@en .
+
+# ============================================================================
+# CONSTRAINT RULES (RDF/LOGIC)
+# ============================================================================
+
+# Rule 1: Every ABB must map to exactly one TOGAF Phase
+# (Stated informally: arch:mapsToPhase domain/range cardinality constraint)
+
+# Rule 2: Every TOGAF Phase must map to exactly one Gate
+# (Each phase produces one ABB; each ABB maps to one gate)
+
+# Rule 3: No phase progression without ALIVE verdict
+# (Pattern: Phase X ALIVE verdict → Phase X+1 authorized)
+
+# Rule 4: Immutable receipt cannot be revoked
+# (Once nehemiah:Receipt is issued with nehemiah:isImmutable=true,
+#  it cannot be modified or deleted)
+
+# Rule 5: All actors must be named in MusterLedger
+# (Every arch:ArchitectureBuildingBlock has accountable roles;
+#  all roles must be linked to named builders in nehemiah:MusterLedger)
+
+# Rule 6: All opposition must be logged in CourierRecord
+# (Every external pressure, resistance, and false claim is recorded;
+#  verdict is issued by authority; work proceeds regardless)
+
+# ============================================================================
+# DERIVATION RULES (Inferred Properties)
+# ============================================================================
+
+# If an ABB is deployed as an SBB and the SBB has ALIVE verdict,
+# then the ABB has ALIVE verdict (transitivity)
+
+# If a Phase maps to a Gate, and the Gate has ALIVE verdict,
+# then the Phase has ALIVE verdict (inference)
+
+# If all SBBs for a Phase have ALIVE verdict,
+# then the Phase has ALIVE verdict (aggregation)
+
+# If a Phase has ALIVE verdict, the next Phase is authorized (progression)
+
+# ============================================================================
+# EXAMPLE: COMPLETE DEPLOYMENT SCENARIO
+# ============================================================================
+
+# Scenario: Enterprise Platform Migration (52-phase TOGAF cycle)
+arch:Example_PlatformMigration a rdf:Resource ;
+    rdfs:label "Example: Enterprise Platform Migration"@en ;
+    dct:title "Cloud Platform Deployment — Complete TOGAF Cycle"@en ;
+    arch:startDate "2026-06-02"^^xsd:date ;
+    arch:targetEndDate "2026-12-30"^^xsd:date ;
+    arch:timeline "Preliminary (1 week) + Phase A–G (18 weeks) + Phase H–I (2 weeks) + Renewal cycle"@en ;
+    arch:expectedResult "All 9 working gates (1–9) + 1 inspection gate (10) deployed; wall complete"@en ;
+    arch:expectedOutcome "Platform live and operational (ALIVE); all stakeholders accounted for (MusterLedger); all opposition documented (CourierRecord); immutable receipts issued for all phases"@en ;
+    dct:description "Enterprise software platform deployment using TOGAF ADM methodology with Nehemiah governance framework."@en .
+
+# Expected artifacts from deployment
+arch:Example_Artifacts a rdf:Resource ;
+    rdfs:label "Expected Artifacts"@en ;
+    rdfs:comment "9 phase completion receipts + 1 inspection gate verdict = complete accountability chain"@en ;
+    arch:artifact "1. Preliminary Phase Receipt (Sheep Gate) — ALIVE"@en ;
+    arch:artifact "2. Phase A Receipt (Fish Gate) — ALIVE"@en ;
+    arch:artifact "3. Phase B Receipt (Old Gate) — ALIVE"@en ;
+    arch:artifact "4. Phase C Receipt (Valley Gate) — ALIVE"@en ;
+    arch:artifact "5. Phase D Receipt (Dung Gate) — ALIVE"@en ;
+    arch:artifact "6. Phase E Receipt (Fountain Gate) — ALIVE"@en ;
+    arch:artifact "7. Phase F Receipt (Water Gate) — ALIVE"@en ;
+    arch:artifact "8. Phase G Receipt (Horse Gate) — ALIVE"@en ;
+    arch:artifact "9. Phase H–I Receipt (East Gate) — ALIVE"@en ;
+    arch:artifact "10. Inspection Gate Final Verdict — ALIVE (supreme authority review)"@en ;
+    arch:artifact "11. MusterLedger — All builders named and recorded"@en ;
+    arch:artifact "12. CourierRecord — All opposition documented and adjudicated"@en ;
+    arch:artifact "13. UsuryLedger — All internal conflicts resolved"@en .
+
+# ============================================================================
+# BINDING STATEMENT
+# ============================================================================
+
+arch:BindingStatement a rdf:Resource ;
+    rdfs:label "Binding Governance Statement"@en ;
+    dct:issued "2026-06-02"^^xsd:date ;
+    dct:authority "Sean Chatman (Prophet Office / Chief Architect)"@en ;
+    arch:statement "The TOGAF ADM ↔ Nehemiah 3–6 mapping is now formally integrated into enterprise architecture governance. All future initiatives using this framework must follow TOGAF phases with Nehemiah accountability (naming, receipts, immutable logs). The wall stands because every gate is named, every builder is recorded, every section is inspected, and every false claim is logged and rejected. This framework is OPERATIVE and BINDING."@en ;
+    dct:description "This ontology formalizes the complete mapping of TOGAF ADM lifecycle to Nehemiah Operating Grammar. The integration ensures both process discipline (TOGAF) and operational transparency (Nehemiah)."@en ;
+    arch:status "ALIVE"@en .
+
+# End of Ontology

@@ -1,0 +1,266 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix remo: <https://remo.dev/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Remo Ontology Definition
+# This ontology defines the command structure for the Remo CLI
+# Following CLI.md specifications for ontology-driven observability
+
+remo:Action a rdfs:Class ;
+    rdfs:label "Remo Action" ;
+    rdfs:comment "A CLI command or API action in the Remo platform" .
+
+remo:Parameter a rdfs:Class ;
+    rdfs:label "Parameter" ;
+    rdfs:comment "A parameter for a Remo action" .
+
+remo:Group a rdfs:Class ;
+    rdfs:label "Command Group" ;
+    rdfs:comment "A grouping of related commands" .
+
+# Observatory Actions
+remo:obs a remo:Group ;
+    rdfs:label "Observatory" ;
+    rdfs:comment "Observatory commands for code analysis and scanning" .
+
+remo:obsScan a remo:Action ;
+    rdfs:label "Observatory Scan" ;
+    rdfs:comment "Scan repository for code quality issues, security vulnerabilities, and performance problems" ;
+    remo:group remo:obs ;
+    remo:use "scan [repository]" ;
+    remo:short "Scan repository for issues" ;
+    remo:parameters (remo:repo remo:ref remo:depth remo:format) ;
+    remo:references "ObsScan" ;
+    remo:telemetrySpan "ObsScan" .
+
+remo:obsReport a remo:Action ;
+    rdfs:label "Observatory Report" ;
+    rdfs:comment "Generate comprehensive analysis report from scan results" ;
+    remo:group remo:obs ;
+    remo:use "report [scan-id]" ;
+    remo:short "Generate analysis report" ;
+    remo:parameters (remo:scanId remo:format remo:output) ;
+    remo:references "ObsReport" ;
+    remo:telemetrySpan "ObsReport" .
+
+# Foundry Actions
+remo:forge a remo:Group ;
+    rdfs:label "Foundry" ;
+    rdfs:comment "Foundry commands for code generation and project management" .
+
+remo:forgePlan a remo:Action ;
+    rdfs:label "Foundry Plan" ;
+    rdfs:comment "Generate execution plan for code generation or infrastructure changes" ;
+    remo:group remo:forge ;
+    remo:use "plan [target]" ;
+    remo:short "Generate execution plan" ;
+    remo:parameters (remo:target remo:config remo:dryRun) ;
+    remo:references "ForgePlan" ;
+    remo:telemetrySpan "ForgePlan" .
+
+remo:forgeBuild a remo:Action ;
+    rdfs:label "Foundry Build" ;
+    rdfs:comment "Execute the planned changes to generate code or infrastructure" ;
+    remo:group remo:forge ;
+    remo:use "build [plan-file]" ;
+    remo:short "Execute planned changes" ;
+    remo:parameters (remo:planFile remo:force remo:parallel) ;
+    remo:references "ForgeBuild" ;
+    remo:telemetrySpan "ForgeBuild" .
+
+remo:forgeTemplate a remo:Action ;
+    rdfs:label "Foundry Template" ;
+    rdfs:comment "Manage code generation templates and ontology schemas" ;
+    remo:group remo:forge ;
+    remo:use "template [operation]" ;
+    remo:short "Manage templates" ;
+    remo:parameters (remo:operation remo:templatePath remo:name) ;
+    remo:references "ForgeTemplate" ;
+    remo:telemetrySpan "ForgeTemplate" .
+
+# Parameters Definition
+remo:repo a remo:Parameter ;
+    rdfs:label "Repository" ;
+    rdfs:comment "Repository URL or path to analyze" ;
+    remo:type xsd:string ;
+    remo:required true ;
+    remo:position 0 .
+
+remo:ref a remo:Parameter ;
+    rdfs:label "Git Reference" ;
+    rdfs:comment "Git branch, tag, or commit hash to analyze" ;
+    remo:type xsd:string ;
+    remo:required false ;
+    remo:flag "ref" ;
+    remo:shortFlag "r" ;
+    remo:default "main" .
+
+remo:depth a remo:Parameter ;
+    rdfs:label "Analysis Depth" ;
+    rdfs:comment "Depth of analysis (surface, deep, comprehensive)" ;
+    remo:type xsd:string ;
+    remo:required false ;
+    remo:flag "depth" ;
+    remo:shortFlag "d" ;
+    remo:default "surface" ;
+    remo:enum ("surface" "deep" "comprehensive") .
+
+remo:format a remo:Parameter ;
+    rdfs:label "Output Format" ;
+    rdfs:comment "Output format for results" ;
+    remo:type xsd:string ;
+    remo:required false ;
+    remo:flag "format" ;
+    remo:shortFlag "f" ;
+    remo:default "json" ;
+    remo:enum ("json" "yaml" "text" "html") .
+
+remo:scanId a remo:Parameter ;
+    rdfs:label "Scan ID" ;
+    rdfs:comment "Unique identifier for a completed scan" ;
+    remo:type xsd:string ;
+    remo:required true ;
+    remo:position 0 .
+
+remo:output a remo:Parameter ;
+    rdfs:label "Output File" ;
+    rdfs:comment "Path to output file" ;
+    remo:type xsd:string ;
+    remo:required false ;
+    remo:flag "output" ;
+    remo:shortFlag "o" .
+
+remo:target a remo:Parameter ;
+    rdfs:label "Target" ;
+    rdfs:comment "Target for code generation (cli, api, all)" ;
+    remo:type xsd:string ;
+    remo:required true ;
+    remo:position 0 ;
+    remo:enum ("cli" "api" "telemetry" "all") .
+
+remo:config a remo:Parameter ;
+    rdfs:label "Configuration" ;
+    rdfs:comment "Path to configuration file" ;
+    remo:type xsd:string ;
+    remo:required false ;
+    remo:flag "config" ;
+    remo:shortFlag "c" .
+
+remo:dryRun a remo:Parameter ;
+    rdfs:label "Dry Run" ;
+    rdfs:comment "Show what would be done without making changes" ;
+    remo:type xsd:boolean ;
+    remo:required false ;
+    remo:flag "dry-run" ;
+    remo:default false .
+
+remo:planFile a remo:Parameter ;
+    rdfs:label "Plan File" ;
+    rdfs:comment "Path to execution plan file" ;
+    remo:type xsd:string ;
+    remo:required true ;
+    remo:position 0 .
+
+remo:force a remo:Parameter ;
+    rdfs:label "Force" ;
+    rdfs:comment "Force execution even if conflicts detected" ;
+    remo:type xsd:boolean ;
+    remo:required false ;
+    remo:flag "force" ;
+    remo:default false .
+
+remo:parallel a remo:Parameter ;
+    rdfs:label "Parallel Execution" ;
+    rdfs:comment "Number of parallel execution threads" ;
+    remo:type xsd:int ;
+    remo:required false ;
+    remo:flag "parallel" ;
+    remo:shortFlag "j" ;
+    remo:default 1 .
+
+remo:operation a remo:Parameter ;
+    rdfs:label "Template Operation" ;
+    rdfs:comment "Operation to perform on templates (list, add, remove, update)" ;
+    remo:type xsd:string ;
+    remo:required true ;
+    remo:position 0 ;
+    remo:enum ("list" "add" "remove" "update" "validate") .
+
+remo:templatePath a remo:Parameter ;
+    rdfs:label "Template Path" ;
+    rdfs:comment "Path to template file or directory" ;
+    remo:type xsd:string ;
+    remo:required false ;
+    remo:flag "path" ;
+    remo:shortFlag "p" .
+
+remo:name a remo:Parameter ;
+    rdfs:label "Name" ;
+    rdfs:comment "Name identifier" ;
+    remo:type xsd:string ;
+    remo:required false ;
+    remo:flag "name" ;
+    remo:shortFlag "n" .
+
+# Properties
+remo:group a rdf:Property ;
+    rdfs:domain remo:Action ;
+    rdfs:range remo:Group ;
+    rdfs:comment "The command group this action belongs to" .
+
+remo:use a rdf:Property ;
+    rdfs:domain remo:Action ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Usage string for the command" .
+
+remo:short a rdf:Property ;
+    rdfs:domain remo:Action ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Short description for the command" .
+
+remo:parameters a rdf:Property ;
+    rdfs:domain remo:Action ;
+    rdfs:comment "Ordered list of parameters for the action" .
+
+remo:references a rdf:Property ;
+    rdfs:domain remo:Action ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The operations layer function this action references" .
+
+remo:telemetrySpan a rdf:Property ;
+    rdfs:domain remo:Action ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The telemetry span name for OpenTelemetry instrumentation" .
+
+remo:type a rdf:Property ;
+    rdfs:domain remo:Parameter ;
+    rdfs:comment "Data type of the parameter" .
+
+remo:required a rdf:Property ;
+    rdfs:domain remo:Parameter ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether the parameter is required" .
+
+remo:position a rdf:Property ;
+    rdfs:domain remo:Parameter ;
+    rdfs:range xsd:int ;
+    rdfs:comment "Position for positional arguments" .
+
+remo:flag a rdf:Property ;
+    rdfs:domain remo:Parameter ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Long flag name" .
+
+remo:shortFlag a rdf:Property ;
+    rdfs:domain remo:Parameter ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Short flag name" .
+
+remo:default a rdf:Property ;
+    rdfs:domain remo:Parameter ;
+    rdfs:comment "Default value for the parameter" .
+
+remo:enum a rdf:Property ;
+    rdfs:domain remo:Parameter ;
+    rdfs:comment "Enumerated list of allowed values" .

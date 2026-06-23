@@ -1,0 +1,218 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix perf: <https://cns.dev/performance#> .
+@prefix cns: <https://cns.dev/contracts#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# SHACL Shapes for Performance Contract Validation
+# Static Analysis and Compile-time Contract Validation
+
+# Performance Contract Shape
+perf:PerformanceContractShape a sh:NodeShape ;
+    sh:targetClass perf:PerformanceContract ;
+    sh:property [
+        sh:path cns:maxTicks ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 18446744073709551615 ; # uint64 max
+        sh:message "maxTicks must be a non-negative integer within uint64 range" ;
+    ] ;
+    sh:property [
+        sh:path cns:maxMemoryMB ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1048576.0 ; # 1TB in MB
+        sh:message "maxMemoryMB must be between 0.0 and 1048576.0 MB" ;
+    ] ;
+    sh:property [
+        sh:path cns:maxLatencyMs ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 3600000.0 ; # 1 hour in ms
+        sh:message "maxLatencyMs must be between 0.0 and 3600000.0 ms" ;
+    ] ;
+    sh:property [
+        sh:path perf:hasEnforcementLevel ;
+        sh:class perf:EnforcementLevel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Performance contract must have exactly one enforcement level" ;
+    ] ;
+    sh:constraint [
+        sh:sparql [
+            sh:message "At least one performance constraint must be specified" ;
+            sh:select """
+                SELECT $this WHERE {
+                    $this a perf:PerformanceContract .
+                    FILTER NOT EXISTS {
+                        { $this cns:maxTicks ?ticks . FILTER (?ticks > 0) }
+                        UNION
+                        { $this cns:maxMemoryMB ?memory . FILTER (?memory > 0.0) }
+                        UNION
+                        { $this cns:maxLatencyMs ?latency . FILTER (?latency > 0.0) }
+                    }
+                }
+            """ ;
+        ] ;
+    ] .
+
+# Consistency validation for performance measurements
+perf:PerformanceMeasurementShape a sh:NodeShape ;
+    sh:targetClass perf:PerformanceContract ;
+    sh:property [
+        sh:path perf:actualTicks ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:message "actualTicks must be a non-negative integer" ;
+    ] ;
+    sh:property [
+        sh:path perf:actualMemoryMB ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "actualMemoryMB must be non-negative" ;
+    ] ;
+    sh:property [
+        sh:path perf:actualLatencyMs ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "actualLatencyMs must be non-negative" ;
+    ] .
+
+# Contract violation validation
+perf:ViolationConstraintShape a sh:NodeShape ;
+    sh:targetClass perf:PerformanceContract ;
+    sh:constraint [
+        sh:sparql [
+            sh:message "Actual ticks cannot exceed maximum ticks limit" ;
+            sh:select """
+                SELECT $this WHERE {
+                    $this a perf:PerformanceContract .
+                    $this cns:maxTicks ?maxTicks .
+                    $this perf:actualTicks ?actualTicks .
+                    FILTER (?maxTicks > 0 && ?actualTicks > ?maxTicks)
+                }
+            """ ;
+        ] ;
+    ] ;
+    sh:constraint [
+        sh:sparql [
+            sh:message "Actual memory cannot exceed maximum memory limit" ;
+            sh:select """
+                SELECT $this WHERE {
+                    $this a perf:PerformanceContract .
+                    $this cns:maxMemoryMB ?maxMemory .
+                    $this perf:actualMemoryMB ?actualMemory .
+                    FILTER (?maxMemory > 0.0 && ?actualMemory > ?maxMemory)
+                }
+            """ ;
+        ] ;
+    ] ;
+    sh:constraint [
+        sh:sparql [
+            sh:message "Actual latency cannot exceed maximum latency limit" ;
+            sh:select """
+                SELECT $this WHERE {
+                    $this a perf:PerformanceContract .
+                    $this cns:maxLatencyMs ?maxLatency .
+                    $this perf:actualLatencyMs ?actualLatency .
+                    FILTER (?maxLatency > 0.0 && ?actualLatency > ?maxLatency)
+                }
+            """ ;
+        ] ;
+    ] .
+
+# Enforcement level validation
+perf:EnforcementLevelShape a sh:NodeShape ;
+    sh:targetClass perf:EnforcementLevel ;
+    sh:in (
+        perf:StaticOnly
+        perf:RuntimeWarning
+        perf:RuntimeException
+        perf:RuntimeTerminate
+    ) ;
+    sh:message "Enforcement level must be one of: StaticOnly, RuntimeWarning, RuntimeException, RuntimeTerminate" .
+
+# Static analysis result validation
+perf:StaticAnalysisShape a sh:NodeShape ;
+    sh:targetClass perf:PerformanceContract ;
+    sh:property [
+        sh:path perf:staticAnalysisResult ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(PASS|FAIL|WARNING|UNKNOWN):(.*)" ;
+        sh:message "Static analysis result must follow pattern 'STATUS:message'" ;
+    ] ;
+    sh:property [
+        sh:path perf:hasComplexityClass ;
+        sh:datatype xsd:string ;
+        sh:in ("O(1)" "O(log n)" "O(n)" "O(n log n)" "O(n²)" "O(n³)" "O(2^n)" "O(n!)" "UNKNOWN") ;
+        sh:message "Complexity class must be a standard Big-O notation" ;
+    ] .
+
+# Instrumentation validation
+perf:InstrumentationShape a sh:NodeShape ;
+    sh:targetClass perf:PerformanceContract ;
+    sh:property [
+        sh:path perf:hasInstrumentation ;
+        sh:datatype xsd:boolean ;
+        sh:maxCount 1 ;
+        sh:message "Instrumentation flag must be a single boolean value" ;
+    ] ;
+    sh:property [
+        sh:path perf:instrumentationOverhead ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1000.0 ; # 1000% max overhead
+        sh:message "Instrumentation overhead must be between 0% and 1000%" ;
+    ] .
+
+# Realistic performance bounds validation
+perf:RealisticBoundsShape a sh:NodeShape ;
+    sh:targetClass perf:PerformanceContract ;
+    sh:constraint [
+        sh:sparql [
+            sh:message "Latency limit should be realistic for the specified tick limit" ;
+            sh:select """
+                SELECT $this WHERE {
+                    $this a perf:PerformanceContract .
+                    $this cns:maxTicks ?ticks .
+                    $this cns:maxLatencyMs ?latency .
+                    # Assume 3GHz CPU: 3 billion ticks per second
+                    # So 1ms = 3 million ticks approximately
+                    FILTER (?ticks > 0 && ?latency > 0.0 && ?ticks > (?latency * 10000000))
+                }
+            """ ;
+        ] ;
+    ] .
+
+# Contract consistency validation
+perf:ContractConsistencyShape a sh:NodeShape ;
+    sh:targetClass perf:PerformanceContract ;
+    sh:constraint [
+        sh:sparql [
+            sh:message "Runtime enforcement requires instrumentation to be enabled" ;
+            sh:select """
+                SELECT $this WHERE {
+                    $this a perf:PerformanceContract .
+                    $this perf:hasEnforcementLevel ?level .
+                    $this perf:hasInstrumentation false .
+                    FILTER (?level != perf:StaticOnly)
+                }
+            """ ;
+        ] ;
+    ] .
+
+# Performance regression detection
+perf:RegressionDetectionShape a sh:NodeShape ;
+    sh:targetClass perf:PerformanceContract ;
+    sh:constraint [
+        sh:sparql [
+            sh:message "Performance regression detected - actual exceeds expected by more than 10%" ;
+            sh:select """
+                SELECT $this WHERE {
+                    $this a perf:PerformanceContract .
+                    $this cns:maxLatencyMs ?maxLatency .
+                    $this perf:actualLatencyMs ?actualLatency .
+                    FILTER (?maxLatency > 0.0 && ?actualLatency > (?maxLatency * 1.1))
+                }
+            """ ;
+        ] ;
+    ] .

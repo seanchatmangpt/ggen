@@ -1,0 +1,123 @@
+@prefix : <https://bytestar.org/ontology/pqc-fabric/dilithium-verify#> .
+ @prefix owl: <http://www.w3.org/2002/07/owl#> .
+ @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+ @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+ @prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+ @prefix bactor: <https://bytestar.org/ontology/bytestar-byteactor#> .
+ @prefix bflow: <https://bytestar.org/ontology/bytestar-byteflow#> .
+
+<https://bytestar.org/ontology/pqc-fabric/dilithium-verify>
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ,
+              <https://bytestar.org/ontology/bytestar-byteactor> ,
+              <https://bytestar.org/ontology/bytestar-byteflow> .
+
+<https://bytestar.org/ontology/pqc-fabric/dilithium-verify>
+  a owl:Ontology ;
+  rdfs:label "PQC Assimilation Canon: Dilithium Signature Verification Fabric" ;
+  rdfs:comment "The formal blueprint for fabricating the ml-dsa (Dilithium) signature verification workflow as a constellation of deterministic ByteActor kernels orchestrated by ByteFlow." .
+
+### Data Structures (Memory Arena Layout)
+
+# These classes define the data types that will reside in the shared memory arena.
+:SignatureBytes a bcore:MemoryCrystal .
+:PublicKeyBytes a bcore:MemoryCrystal .
+:MessageBytes a bcore:MemoryCrystal .
+:Polyveck a bcore:MemoryCrystal ; rdfs:comment "A vector of polynomials." .
+:NttPolyveck a bcore:MemoryCrystal ; rdfs:comment "A vector of polynomials in the NTT domain." .
+:Seed a bcore:MemoryCrystal .
+:Hash a bcore:MemoryCrystal .
+:Matrix a bcore:MemoryCrystal .
+:VerificationResult a bcore:MemoryCrystal .
+
+### Kernel Definitions
+
+# Each kernel is an individual of the class bcore:Kernel.
+# They are defined with their inputs, outputs, and a hard tick budget.
+
+:k_pqc_unpack_sig a bcore:Kernel ;
+  rdfs:label "k_pqc_unpack_sig" ;
+  bactor:hasTickCost "4"^^xsd:integer ;
+  bflow:readsFrom :SignatureBytes ;
+  bflow:writesTo :Polyveck, :Polyveck, :Hash .
+
+:k_pqc_unpack_pk a bcore:Kernel ;
+  rdfs:label "k_pqc_unpack_pk" ;
+  bactor:hasTickCost "3"^^xsd:integer ;
+  bflow:readsFrom :PublicKeyBytes ;
+  bflow:writesTo :Seed, :Polyveck .
+
+:k_pqc_shake_msg a bcore:Kernel ;
+  rdfs:label "k_pqc_shake_msg" ;
+  bactor:hasTickCost "5"^^xsd:integer ;
+  bflow:readsFrom :MessageBytes ;
+  bflow:writesTo :Hash .
+
+:k_pqc_expand_matrix_A a bcore:Kernel ;
+  rdfs:label "k_pqc_expand_matrix_A" ;
+  bactor:hasTickCost "7"^^xsd:integer ;
+  bflow:readsFrom :Seed ;
+  bflow:writesTo :Matrix .
+
+:k_pqc_ntt_forward_vec a bcore:Kernel ;
+  rdfs:label "k_pqc_ntt_forward_vec" ;
+  bactor:hasTickCost "8"^^xsd:integer ;
+  rdfs:comment "Prime candidate for GPU NTT Fabric offloading." ;
+  bflow:readsFrom :Polyveck ;
+  bflow:writesTo :NttPolyveck .
+
+:k_pqc_matrix_vec_mul a bcore:Kernel ;
+  rdfs:label "k_pqc_matrix_vec_mul" ;
+  bactor:hasTickCost "8"^^xsd:integer ;
+  rdfs:comment "Prime candidate for GPU NTT Fabric offloading." ;
+  bflow:readsFrom :Matrix ;
+  bflow:readsFrom :NttPolyveck ;
+  bflow:writesTo :NttPolyveck .
+
+:k_pqc_ntt_inverse_vec a bcore:Kernel ;
+  rdfs:label "k_pqc_ntt_inverse_vec" ;
+  bactor:hasTickCost "8"^^xsd:integer ;
+  rdfs:comment "Prime candidate for GPU NTT Fabric offloading." ;
+  bflow:readsFrom :NttPolyveck ;
+  bflow:writesTo :Polyveck .
+
+:k_pqc_reconstruct_w1 a bcore:Kernel ;
+  rdfs:label "k_pqc_reconstruct_w1" ;
+  bactor:hasTickCost "6"^^xsd:integer ;
+  bflow:readsFrom :Polyveck ;
+  bflow:readsFrom :Polyveck ;
+  bflow:writesTo :Polyveck .
+
+:k_pqc_compute_c_prime a bcore:Kernel ;
+  rdfs:label "k_pqc_compute_c_prime" ;
+  bactor:hasTickCost "5"^^xsd:integer ;
+  bflow:readsFrom :Hash ;
+  bflow:readsFrom :Polyveck ;
+  bflow:writesTo :Hash .
+
+:k_pqc_const_time_cmp a bcore:Kernel ;
+  rdfs:label "k_pqc_const_time_cmp" ;
+  bactor:hasTickCost "2"^^xsd:integer ;
+  bflow:readsFrom :Hash ;
+  bflow:readsFrom :Hash ;
+  bflow:writesTo :VerificationResult .
+
+### Orchestration Flow (as a formal RDF List)
+
+# The ByteFlow orchestrator will fabricate a workflow that executes this
+# precise sequence of kernels. This RDF list is the formal representation
+# of that workflow pattern.
+:DilithiumVerifyWorkflow a bcore:Pattern ;
+  rdfs:label "PQC Dilithium Signature Verification Workflow" ;
+  bcore:hasHopCount "10"^^xsd:integer ; # This exceeds the Doctrine of 8 and will be addressed.
+  bcore:hasKernelSequence (
+    :k_pqc_unpack_sig
+    :k_pqc_unpack_pk
+    :k_pqc_shake_msg
+    :k_pqc_expand_matrix_A
+    :k_pqc_ntt_forward_vec
+    :k_pqc_matrix_vec_mul
+    :k_pqc_ntt_inverse_vec
+    :k_pqc_reconstruct_w1
+    :k_pqc_compute_c_prime
+    :k_pqc_const_time_cmp
+  ) .

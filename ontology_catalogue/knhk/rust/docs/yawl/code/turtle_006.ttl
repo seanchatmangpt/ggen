@@ -1,0 +1,30 @@
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix knhk: <https://knhk.org/schema#> .
+
+<workflow:simple-sequence> a yawl:WorkflowSpec ;
+    yawl:name "Simple Sequence Workflow" ;
+    yawl:startCondition <condition:start> ;
+    yawl:endCondition <condition:end> ;
+    yawl:task <task:task1>, <task:task2> ;
+    yawl:condition <condition:start>, <condition:end> .
+
+<task:task1> a yawl:Task ;
+    yawl:name "Task 1" ;
+    yawl:splitType yawl:AND ;
+    yawl:joinType yawl:AND ;
+    yawl:outputCondition <condition:intermediate> .
+
+<task:task2> a yawl:Task ;
+    yawl:name "Task 2" ;
+    yawl:splitType yawl:AND ;
+    yawl:joinType yawl:AND ;
+    yawl:inputCondition <condition:intermediate> .
+
+<condition:start> a yawl:Condition ;
+    yawl:name "Start" .
+
+<condition:intermediate> a yawl:Condition ;
+    yawl:name "Intermediate" .
+
+<condition:end> a yawl:Condition ;
+    yawl:name "End" .

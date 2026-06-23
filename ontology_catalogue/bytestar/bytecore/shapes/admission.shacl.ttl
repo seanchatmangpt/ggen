@@ -1,0 +1,254 @@
+# SHACL shapes for the Θ (Theta) admission predicate
+# Implements zero-tick rejection principle and envelope validation
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix bs: <urn:bs:> .
+@prefix bscore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Primary envelope validation shape for admission control
+bs:EnvelopeAdmissionShape
+    a sh:NodeShape ;
+    rdfs:label "Envelope Admission Validation Shape" ;
+    rdfs:comment "Validates envelope structure for Theta (Θ) admission predicate. Implements zero-tick rejection." ;
+    sh:targetClass bscore:Envelope ;
+    
+    # Pattern byte must be valid (0-255)
+    sh:property [
+        sh:path bscore:patternByte ;
+        sh:datatype xsd:unsignedByte ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 255 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Pattern byte must be a single value between 0-255" ;
+    ] ;
+    
+    # Content address must be present and valid BLAKE3 hash
+    sh:property [
+        sh:path bscore:contentAddress ;
+        sh:datatype xsd:hexBinary ;
+        sh:minLength 64 ;  # 32 bytes = 64 hex chars
+        sh:maxLength 64 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9a-fA-F]{64}$" ;
+        sh:message "Content address must be exactly 64 hex characters (BLAKE3 hash)" ;
+    ] ;
+    
+    # Payload size must be within cache line limits
+    sh:property [
+        sh:path bscore:payloadSize ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 48 ;  # 64-byte envelope - 16 bytes header = 48 bytes payload
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Payload size must be 0-48 bytes to fit in 64-byte envelope" ;
+    ] ;
+    
+    # Timestamp must be valid Unix timestamp
+    sh:property [
+        sh:path bscore:timestamp ;
+        sh:datatype xsd:long ;
+        sh:minInclusive 0 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Timestamp must be a valid Unix timestamp" ;
+    ] ;
+    
+    # Priority level for admission queue
+    sh:property [
+        sh:path bscore:priority ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 7 ;  # 3-bit priority (0-7)
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Priority must be 0-7 (3-bit value)" ;
+    ] .
+
+# Crystal admission validation
+bs:CrystalAdmissionShape
+    a sh:NodeShape ;
+    rdfs:label "Crystal Admission Validation Shape" ;
+    rdfs:comment "Validates crystal structure for admission to ByteActor execution" ;
+    sh:targetClass bscore:Crystal ;
+    
+    # Must reference a valid pattern
+    sh:property [
+        sh:path bscore:declaresPattern ;
+        sh:class bscore:Pattern ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Crystal must declare exactly one pattern" ;
+    ] ;
+    
+    # Pattern byte must match declared pattern
+    sh:property [
+        sh:path bscore:patternByte ;
+        sh:datatype xsd:unsignedByte ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Crystal must have pattern byte matching declared pattern" ;
+    ] ;
+    
+    # Must be deterministic
+    sh:property [
+        sh:path bscore:deterministic ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Crystal must be deterministic for ByteActor execution" ;
+    ] .
+
+# Kernel execution validation
+bs:KernelExecutionShape
+    a sh:NodeShape ;
+    rdfs:label "Kernel Execution Validation Shape" ;
+    rdfs:comment "Validates kernel for execution compliance with Doctrine of 8" ;
+    sh:targetClass bscore:Kernel ;
+    
+    # Tick cost must be ≤ 8
+    sh:property [
+        sh:path bscore:hasTickCost ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 8 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Kernel tick cost must be 1-8 (Doctrine of 8)" ;
+    ] ;
+    
+    # Must have unique opcode
+    sh:property [
+        sh:path bscore:hasOpcode ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 63 ;  # 0-63 for 64 kernels
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Kernel must have unique opcode 0-63" ;
+    ] ;
+    
+    # Must have implementation file
+    sh:property [
+        sh:path bscore:implementation ;
+        sh:datatype xsd:string ;
+        sh:pattern "^k\\d{2}_.*\\.c$" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Kernel must reference implementation file matching k##_*.c pattern" ;
+    ] .
+
+# Workflow hop count validation
+bs:WorkflowHopShape
+    a sh:NodeShape ;
+    rdfs:label "Workflow Hop Count Validation Shape" ;
+    rdfs:comment "Validates workflow hop count compliance with Doctrine of 8" ;
+    sh:targetClass bscore:Workflow ;
+    
+    # Hop count must be ≤ 8
+    sh:property [
+        sh:path bscore:hasHopCount ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 8 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Workflow hop count must be 1-8 (Doctrine of 8)" ;
+    ] .
+
+# Pattern hop count validation
+bs:PatternHopShape
+    a sh:NodeShape ;
+    rdfs:label "Pattern Hop Count Validation Shape" ;
+    rdfs:comment "Validates pattern hop count for workflow compliance" ;
+    sh:targetClass bscore:Pattern ;
+    
+    # Hop count must be ≤ 8
+    sh:property [
+        sh:path bscore:hasHopCount ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 8 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Pattern hop count must be 1-8 (Doctrine of 8)" ;
+    ] ;
+    
+    # Pattern type must be from valid vocabulary
+    sh:property [
+        sh:path bscore:patternType ;
+        sh:datatype xsd:string ;
+        sh:in ("sequential" "parallel" "dataflow" "control") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Pattern type must be: sequential, parallel, dataflow, or control" ;
+    ] .
+
+# Admission decision validation
+bs:AdmissionDecisionShape
+    a sh:NodeShape ;
+    rdfs:label "Admission Decision Validation Shape" ;
+    rdfs:comment "Validates admission decisions for zero-tick rejection compliance" ;
+    sh:targetClass bscore:Admission ;
+    
+    # Must have boolean decision
+    sh:property [
+        sh:path bscore:hasDecision ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Admission must have exactly one boolean decision" ;
+    ] ;
+    
+    # Must decide for exactly one crystal
+    sh:property [
+        sh:path bscore:decidesFor ;
+        sh:class bscore:Crystal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Admission must decide for exactly one crystal" ;
+    ] ;
+    
+    # Hot tick consumption must be specified
+    sh:property [
+        sh:path bscore:consumesHotTicks ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Admission must specify hot tick consumption" ;
+    ] .
+
+# Rejection zero-tick validation (implements zero-tick rejection doctrine)
+bs:RejectionZeroTickShape
+    a sh:NodeShape ;
+    rdfs:label "Rejection Zero-Tick Validation Shape" ;
+    rdfs:comment "Enforces zero-tick rejection principle for failed admissions" ;
+    sh:targetClass bscore:Rejection ;
+    
+    # Rejection must consume zero hot ticks
+    sh:property [
+        sh:path bscore:consumesHotTicks ;
+        sh:datatype xsd:integer ;
+        sh:hasValue 0 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Rejection must consume exactly 0 hot ticks (zero-tick rejection doctrine)" ;
+    ] ;
+    
+    # Decision must be false
+    sh:property [
+        sh:path bscore:hasDecision ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue false ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Rejection must have decision = false" ;
+    ] .
+
+
+

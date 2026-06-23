@@ -1,0 +1,31 @@
+@prefix : <https://bytestar.org/ontology/byteethos/identity-specification#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/byteethos/identity-specification>
+  a owl:Ontology ;
+  rdfs:label "ByteEthos Identity Specification" ;
+  rdfs:comment "The formal specification for non-transferable Identity Crystals, which are used to authorize MissionCrystals." ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  owl:versionInfo "4.0.0" .
+
+:IdentityCrystal a owl:Class ;
+    rdfs:subClassOf bcore:DataArtifact ;
+    rdfs:label "Identity Crystal" ;
+    rdfs:comment "A non-transferable digital identity for AI agents, functioning as a Soulbound Token (SBT) and supporting Self-Sovereign Identity (SSI) principles. Used to authorize MissionCrystals and ensure accountability." .
+
+:hasPublicKey a owl:ObjectProperty ;
+    rdfs:domain :IdentityCrystal .
+
+:isNonTransferable a owl:DatatypeProperty ;
+    rdfs:domain :IdentityCrystal ;
+    rdfs:range xsd:boolean .
+
+:hasRiskTier a owl:ObjectProperty ;
+    rdfs:label "has Risk Tier" ;
+    rdfs:domain :IdentityCrystal ;
+    rdfs:range <https://bytestar.org/ontology/byteethos/governance-specification#RiskTier> ;
+    rdfs:comment "Links an Identity Crystal to its assigned risk tier, informing proportional oversight." .
+
+:IdentityCrystal rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :isNonTransferable ; owl:hasValue true ] .

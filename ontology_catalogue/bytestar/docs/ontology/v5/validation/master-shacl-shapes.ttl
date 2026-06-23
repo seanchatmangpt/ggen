@@ -1,0 +1,1080 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+@prefix ba: <https://bytestar.org/ontology/> .
+@prefix ba-val: <https://bytestar.org/ontology/validation/> .
+@prefix ba-core: <https://bytestar.org/ontology/core/> .
+@prefix ba-actor: <https://bytestar.org/ontology/actor/> .
+@prefix ba-flow: <https://bytestar.org/ontology/flow/> .
+@prefix ba-pqc: <https://bytestar.org/ontology/pqc/> .
+@prefix ba-ethos: <https://bytestar.org/ontology/ethos/> .
+@prefix ba-perf: <https://bytestar.org/ontology/performance/> .
+
+# ============================================================================
+# MASTER SHACL VALIDATION FRAMEWORK - COMPLETE CRYSTAL & HAM COMPLIANCE
+# ============================================================================
+
+<https://bytestar.org/ontology/validation/master-shacl>
+    a owl:Ontology, sh:Graph ;
+    dcterms:title "ByteStar Master SHACL Validation Framework" ;
+    dcterms:description """
+    Comprehensive SHACL validation framework covering all crystal types and HAM compliance.
+    Provides syntax, semantic, pragmatic, and cross-ontology validation with performance guarantees.
+    Implements closed-world validation with sub-8-tick performance requirements.
+    """ ;
+    dcterms:version "5.0.0" ;
+    dcterms:created "2025-01-23"^^xsd:date ;
+    dcterms:creator <https://bytestar.org> ;
+    owl:imports 
+        <https://bytestar.org/ontology/core/> ,
+        <https://bytestar.org/ontology/validation/> ,
+        <https://bytestar.org/ontology/actor/> ,
+        <https://bytestar.org/ontology/flow/> ,
+        <https://bytestar.org/ontology/pqc/> ,
+        <https://bytestar.org/ontology/ethos/> ;
+    rdfs:seeAlso <https://bytestar.org/docs/validation-framework> .
+
+# ============================================================================
+# CORE CRYSTAL VALIDATION HIERARCHY
+# ============================================================================
+
+## Base Crystal Shape - Universal validation for all crystals
+ba-val:BaseCrystalShape
+    a sh:NodeShape ;
+    rdfs:label "Base Crystal Validation Shape" ;
+    rdfs:comment "Universal validation rules applying to all crystal types" ;
+    sh:targetClass ba-core:Crystal ;
+    sh:severity sh:Violation ;
+    sh:message "Critical: Crystal must satisfy all base validation requirements" ;
+    
+    # Magic number validation
+    sh:property [
+        sh:path ba-core:hasMagic ;
+        sh:datatype xsd:unsignedShort ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Crystal must have exactly one magic number" ;
+    ] ;
+    
+    # Version compliance 
+    sh:property [
+        sh:path ba-core:hasVersion ;
+        sh:datatype xsd:unsignedByte ;
+        sh:hasValue 5 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Crystal version must be 5 (current ABI version)" ;
+    ] ;
+    
+    # Pattern byte validation
+    sh:property [
+        sh:path ba-core:hasPatternByte ;
+        sh:datatype xsd:unsignedByte ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 255 ;
+        sh:severity sh:Violation ;
+        sh:message "Crystal must have valid pattern byte (0-255)" ;
+    ] ;
+    
+    # Execution tick constraint
+    sh:property [
+        sh:path ba-core:executionTicks ;
+        sh:datatype xsd:unsignedByte ;
+        sh:maxInclusive 8 ;
+        sh:severity sh:Violation ;
+        sh:message "Crystal execution must not exceed 8 ticks" ;
+    ] ;
+    
+    # Status flags validation
+    sh:property [
+        sh:path ba-core:hasFlags ;
+        sh:datatype xsd:unsignedByte ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Crystal must have status flags" ;
+    ] ;
+    
+    # Timestamp requirement
+    sh:property [
+        sh:path ba-core:timestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Crystal must have execution timestamp" ;
+    ] .
+
+## 64-Byte Crystal Shape - Hot-path optimized crystals
+ba-val:Crystal64Shape
+    a sh:NodeShape ;
+    rdfs:label "64-Byte Crystal Validation Shape" ;
+    rdfs:comment "Validation for cache-aligned hot-path crystals (res64_t)" ;
+    sh:targetClass ba-core:Crystal64 ;
+    sh:node ba-val:BaseCrystalShape ;
+    sh:severity sh:Violation ;
+    sh:message "64B crystal validation failure" ;
+    
+    # Size constraint
+    sh:property [
+        sh:path ba-core:byteSize ;
+        sh:hasValue 64 ;
+        sh:severity sh:Violation ;
+        sh:message "Hot-path crystal must be exactly 64 bytes" ;
+    ] ;
+    
+    # Cache alignment
+    sh:property [
+        sh:path ba-core:memoryAlignment ;
+        sh:hasValue 64 ;
+        sh:severity sh:Violation ;
+        sh:message "Crystal must be 64-byte cache aligned" ;
+    ] ;
+    
+    # Input/Output CID validation
+    sh:property [
+        sh:path ba-core:hasInputCID ;
+        sh:datatype xsd:hexBinary ;
+        sh:minLength 32 ; # 16 bytes = 32 hex chars
+        sh:maxLength 32 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Input CID must be 16 bytes (128-bit)" ;
+    ] ;
+    
+    sh:property [
+        sh:path ba-core:hasOutputCID ;
+        sh:datatype xsd:hexBinary ;
+        sh:minLength 32 ;
+        sh:maxLength 32 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Output CID must be 16 bytes (128-bit)" ;
+    ] .
+
+## 256-Byte Crystal Shape - Witness and seal crystals
+ba-val:Crystal256Shape
+    a sh:NodeShape ;
+    rdfs:label "256-Byte Crystal Validation Shape" ;
+    rdfs:comment "Validation for witness-enabled crystals with cryptographic seals (res256_t)" ;
+    sh:targetClass ba-core:Crystal256 ;
+    sh:node ba-val:BaseCrystalShape ;
+    sh:severity sh:Violation ;
+    sh:message "256B crystal validation failure" ;
+    
+    # Size constraint
+    sh:property [
+        sh:path ba-core:byteSize ;
+        sh:hasValue 256 ;
+        sh:severity sh:Violation ;
+        sh:message "Witness crystal must be exactly 256 bytes" ;
+    ] ;
+    
+    # Witness data validation
+    sh:property [
+        sh:path ba-core:hasWitness ;
+        sh:class ba-core:WitnessData ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "256B crystal must contain witness data" ;
+    ] ;
+    
+    # Cryptographic seal validation
+    sh:property [
+        sh:path ba-core:hasSeal ;
+        sh:class ba-pqc:CryptographicSeal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "256B crystal must have cryptographic seal" ;
+    ] ;
+    
+    # Receipt chain validation
+    sh:property [
+        sh:path ba-core:hasReceiptChain ;
+        sh:class ba-core:ReceiptChain ;
+        sh:maxCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "256B crystal should have receipt chain for audit trail" ;
+    ] .
+
+## Void Crystal Shape - Strategic non-computation
+ba-val:VoidCrystalShape
+    a sh:NodeShape ;
+    rdfs:label "Void Crystal Validation Shape" ;
+    rdfs:comment "Validation for void crystals that process through strategic absence" ;
+    sh:targetClass ba-core:VoidCrystal ;
+    sh:severity sh:Violation ;
+    sh:message "Void crystal validation failure" ;
+    
+    # Void magic validation
+    sh:property [
+        sh:path ba-core:voidMagic ;
+        sh:hasValue "VOIDEMPT" ;
+        sh:severity sh:Violation ;
+        sh:message "Void crystal must have VOID magic number" ;
+    ] ;
+    
+    # Absence pattern validation
+    sh:property [
+        sh:path ba-core:absencePattern ;
+        sh:datatype xsd:unsignedLong ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Void crystal must define absence pattern" ;
+    ] ;
+    
+    # Zero-cycle guarantee
+    sh:property [
+        sh:path ba-core:executionTicks ;
+        sh:hasValue 0 ;
+        sh:severity sh:Violation ;
+        sh:message "Void operations must complete in 0 cycles" ;
+    ] ;
+    
+    # Void gap validation
+    sh:property [
+        sh:path ba-core:voidGapSize ;
+        sh:hasValue 24 ;
+        sh:severity sh:Violation ;
+        sh:message "Void gap must be exactly 24 bytes of strategic emptiness" ;
+    ] .
+
+## Infinite Crystal Shape - Fractal information encoding
+ba-val:InfiniteCrystalShape
+    a sh:NodeShape ;
+    rdfs:label "Infinite Crystal Validation Shape" ;
+    rdfs:comment "Validation for infinite crystals encoding unbounded information" ;
+    sh:targetClass ba-core:InfiniteCrystal ;
+    sh:severity sh:Violation ;
+    sh:message "Infinite crystal validation failure" ;
+    
+    # Fractal seed validation
+    sh:property [
+        sh:path ba-core:fractalSeed ;
+        sh:datatype xsd:unsignedByte ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Infinite crystal must have fractal seed" ;
+    ] ;
+    
+    # Information density constraint
+    sh:property [
+        sh:path ba-core:informationDensity ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 1.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Information density must exceed 1 bit per physical bit" ;
+    ] ;
+    
+    # Fractal dimension validation
+    sh:property [
+        sh:path ba-core:fractalDimension ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 1.1 ;
+        sh:maxInclusive 2.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Fractal dimension must be between 1.1 and 2.0" ;
+    ] ;
+    
+    # Compression ratio validation
+    sh:property [
+        sh:path ba-core:compressionRatio ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 1000.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Compression ratio must exceed 1000x for infinite encoding" ;
+    ] .
+
+# ============================================================================
+# HAM ADMISSION COMPLIANCE VALIDATION
+# ============================================================================
+
+## HAM Admission Gate Shape - Critical admission requirements
+ba-val:HAMAdmissionShape
+    a sh:NodeShape ;
+    rdfs:label "HAM Admission Gate Validation Shape" ;
+    rdfs:comment "Validates admission requests for HAM compliance" ;
+    sh:targetClass ba-flow:AdmissionRequest ;
+    sh:severity sh:Violation ;
+    sh:message "HAM admission validation failure - request rejected" ;
+    
+    # Crystal presence validation
+    sh:property [
+        sh:path ba-flow:hasCrystal ;
+        sh:class ba-core:Crystal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Admission request must have exactly one crystal" ;
+    ] ;
+    
+    # PQC proof validation
+    sh:property [
+        sh:path ba-flow:hasPQCProof ;
+        sh:class ba-pqc:PostQuantumProof ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "HAM admission requires valid PQC proof" ;
+    ] ;
+    
+    # SHACL validation proof
+    sh:property [
+        sh:path ba-flow:hasSHACLProof ;
+        sh:class ba-val:ValidationProof ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "HAM admission requires SHACL validation proof" ;
+    ] ;
+    
+    # Congruence validation
+    sh:property [
+        sh:path ba-flow:hasCongruenceProof ;
+        sh:class ba-core:CongruenceProof ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "HAM admission requires pattern congruence proof" ;
+    ] ;
+    
+    # Zero-tick rejection compliance
+    sh:property [
+        sh:path ba-flow:admissionDecision ;
+        sh:in (ba-flow:Admitted ba-flow:Rejected) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Admission decision must be binary: admitted or rejected" ;
+    ] .
+
+## Theta Predicate Shape - Admission gate logic validation
+ba-val:ThetaPredicateShape
+    a sh:NodeShape ;
+    rdfs:label "Theta (Θ) Admission Predicate Shape" ;
+    rdfs:comment "Validates the theta predicate logic for admission control" ;
+    sh:targetClass ba-flow:ThetaPredicate ;
+    sh:severity sh:Violation ;
+    sh:message "Theta predicate validation failure" ;
+    
+    # Predicate logic validation
+    sh:property [
+        sh:path ba-flow:predicateLogic ;
+        sh:pattern "^(SHACL_OK|PQC_OK|CONGRUENCE_OK)( AND (SHACL_OK|PQC_OK|CONGRUENCE_OK))*$" ;
+        sh:severity sh:Violation ;
+        sh:message "Theta predicate must be conjunction of SHACL_OK, PQC_OK, and CONGRUENCE_OK" ;
+    ] ;
+    
+    # Performance constraint
+    sh:property [
+        sh:path ba-flow:evaluationTicks ;
+        sh:datatype xsd:unsignedByte ;
+        sh:maxInclusive 4 ;
+        sh:severity sh:Violation ;
+        sh:message "Theta predicate evaluation must complete within 4 ticks" ;
+    ] ;
+    
+    # Decision determinism
+    sh:property [
+        sh:path ba-flow:isDeterministic ;
+        sh:hasValue true ;
+        sh:severity sh:Violation ;
+        sh:message "Theta predicate must be deterministic" ;
+    ] .
+
+## Pattern Byte Congruence Shape - PB validation
+ba-val:PatternByteCongruenceShape
+    a sh:NodeShape ;
+    rdfs:label "Pattern Byte Congruence Validation Shape" ;
+    rdfs:comment "Validates pattern byte congruence for crystal identity" ;
+    sh:targetClass ba-core:Crystal ;
+    sh:severity sh:Violation ;
+    sh:message "Pattern byte congruence validation failure" ;
+    
+    # Pattern registration validation
+    sh:property [
+        sh:path ba-core:hasPatternByte ;
+        sh:datatype xsd:unsignedByte ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Crystal must have registered pattern byte" ;
+    ] ;
+    
+    # Pattern registry lookup validation
+    sh:sparql [
+        sh:select """
+            SELECT ?crystal ?pb
+            WHERE {
+                ?crystal ba-core:hasPatternByte ?pb .
+                FILTER NOT EXISTS {
+                    ?pattern ba-core:patternId ?pb ;
+                            ba-core:isRegistered true .
+                }
+            }
+        """ ;
+        sh:message "Pattern byte {$pb} is not registered in pattern registry" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Structural congruence validation
+    sh:sparql [
+        sh:select """
+            SELECT ?crystal ?structure ?expectedStructure
+            WHERE {
+                ?crystal ba-core:hasPatternByte ?pb ;
+                        ba-core:hasStructure ?structure .
+                ?pattern ba-core:patternId ?pb ;
+                        ba-core:expectedStructure ?expectedStructure .
+                FILTER(?structure != ?expectedStructure)
+            }
+        """ ;
+        sh:message "Crystal structure {$structure} does not match expected pattern structure {$expectedStructure}" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# ============================================================================
+# PERFORMANCE VALIDATION CONSTRAINTS  
+# ============================================================================
+
+## Eight-Tick Guarantee Shape - Critical performance requirement
+ba-val:EightTickGuaranteeShape
+    a sh:NodeShape ;
+    rdfs:label "Eight-Tick Performance Guarantee Shape" ;
+    rdfs:comment "Validates the 8-tick execution guarantee for all operations" ;
+    sh:targetClass ba-actor:Signal ;
+    sh:severity sh:Violation ;
+    sh:message "Eight-tick guarantee violation - performance regression detected" ;
+    
+    # Total execution constraint
+    sh:property [
+        sh:path ba-actor:executionTicks ;
+        sh:datatype xsd:unsignedByte ;
+        sh:maxInclusive 8 ;
+        sh:severity sh:Violation ;
+        sh:message "Total execution must not exceed 8 CPU ticks" ;
+    ] ;
+    
+    # Dispatch constraint
+    sh:property [
+        sh:path ba-actor:dispatchTicks ;
+        sh:datatype xsd:unsignedByte ;
+        sh:maxInclusive 2 ;
+        sh:severity sh:Violation ;
+        sh:message "Signal dispatch must complete within 2 ticks" ;
+    ] ;
+    
+    # Crystal load constraint
+    sh:property [
+        sh:path ba-actor:crystalLoadTicks ;
+        sh:datatype xsd:unsignedByte ;
+        sh:maxInclusive 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Crystal load must complete within 1 tick" ;
+    ] ;
+    
+    # Result store constraint
+    sh:property [
+        sh:path ba-actor:resultStoreTicks ;
+        sh:datatype xsd:unsignedByte ;
+        sh:maxInclusive 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Result storage must complete within 1 tick" ;
+    ] .
+
+## Zero-Tick Rejection Shape - Invalid signal handling
+ba-val:ZeroTickRejectionShape
+    a sh:NodeShape ;
+    rdfs:label "Zero-Tick Rejection Validation Shape" ;
+    rdfs:comment "Validates that invalid signals consume zero CPU ticks" ;
+    sh:targetClass ba-actor:InvalidSignal ;
+    sh:severity sh:Violation ;
+    sh:message "Invalid signal tick consumption violation" ;
+    
+    # Zero-tick constraint
+    sh:property [
+        sh:path ba-actor:rejectionTicks ;
+        sh:hasValue 0 ;
+        sh:severity sh:Violation ;
+        sh:message "Invalid signal rejection must consume exactly 0 ticks" ;
+    ] ;
+    
+    # Rejection reason requirement
+    sh:property [
+        sh:path ba-actor:rejectionReason ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Invalid signal must have rejection reason" ;
+    ] .
+
+## Linear Scalability Shape - Scalability guarantee
+ba-val:LinearScalabilityShape
+    a sh:NodeShape ;
+    rdfs:label "Linear Scalability Validation Shape" ;
+    rdfs:comment "Validates system maintains linear scalability R² ≥ 0.98" ;
+    sh:targetClass ba-perf:ScalabilityMeasurement ;
+    sh:severity sh:Violation ;
+    sh:message "Linear scalability requirement violation" ;
+    
+    # R-squared constraint
+    sh:property [
+        sh:path ba-perf:rSquaredValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.98 ;
+        sh:severity sh:Violation ;
+        sh:message "Scalability R² must be ≥ 0.98, measured: {$value}" ;
+    ] ;
+    
+    # Load factor constraint
+    sh:property [
+        sh:path ba-perf:maxLoadFactor ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 0.95 ;
+        sh:severity sh:Warning ;
+        sh:message "Load factor should not exceed 95% for optimal performance" ;
+    ] .
+
+# ============================================================================
+# CROSS-ONTOLOGY CONSISTENCY VALIDATION
+# ============================================================================
+
+## Ontology Consistency Shape - Cross-module validation
+ba-val:CrossOntologyConsistencyShape
+    a sh:NodeShape ;
+    rdfs:label "Cross-Ontology Consistency Validation Shape" ;
+    rdfs:comment "Validates consistency across ByteActor, ByteFlow, BytePQC, and ByteEthos" ;
+    sh:targetClass owl:Ontology ;
+    sh:severity sh:Violation ;
+    sh:message "Cross-ontology consistency violation detected" ;
+    
+    # Version synchronization
+    sh:property [
+        sh:path owl:versionInfo ;
+        sh:pattern "^5\\.[0-9]+\\.[0-9]+$" ;
+        sh:severity sh:Violation ;
+        sh:message "All ontologies must use version 5.x.x for consistency" ;
+    ] ;
+    
+    # Namespace consistency
+    sh:sparql [
+        sh:select """
+            SELECT ?ont ?ns
+            WHERE {
+                ?ont a owl:Ontology ;
+                     <http://www.w3.org/XML/1998/namespace#base> ?ns .
+                FILTER(!REGEX(?ns, "^https://bytestar\\.org/ontology/"))
+            }
+        """ ;
+        sh:message "Ontology namespace {$ns} does not follow ByteStar convention" ;
+        sh:severity sh:Warning ;
+    ] ;
+    
+    # Import dependency validation
+    sh:sparql [
+        sh:select """
+            SELECT ?ont ?import
+            WHERE {
+                ?ont a owl:Ontology ;
+                     owl:imports ?import .
+                FILTER NOT EXISTS {
+                    ?import a owl:Ontology .
+                }
+            }
+        """ ;
+        sh:message "Ontology {$ont} imports non-existent ontology {$import}" ;
+        sh:severity sh:Violation ;
+    ] .
+
+## Semantic Consistency Shape - Logical coherence validation
+ba-val:SemanticConsistencyShape
+    a sh:NodeShape ;
+    rdfs:label "Semantic Consistency Validation Shape" ;
+    rdfs:comment "Validates semantic consistency and logical coherence" ;
+    sh:targetClass owl:Class ;
+    sh:severity sh:Violation ;
+    sh:message "Semantic consistency violation in class definition" ;
+    
+    # Disjoint class validation
+    sh:sparql [
+        sh:select """
+            SELECT ?class1 ?class2 ?individual
+            WHERE {
+                ?class1 owl:disjointWith ?class2 .
+                ?individual a ?class1 , ?class2 .
+            }
+        """ ;
+        sh:message "Individual {$individual} cannot be instance of disjoint classes {$class1} and {$class2}" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Property domain/range consistency
+    sh:sparql [
+        sh:select """
+            SELECT ?prop ?subject ?object
+            WHERE {
+                ?prop rdfs:domain ?domain ;
+                     rdfs:range ?range .
+                ?subject ?prop ?object .
+                FILTER NOT EXISTS { ?subject a ?domain }
+                FILTER(?domain != owl:Thing)
+            }
+        """ ;
+        sh:message "Property {$prop} used with subject {$subject} not in declared domain" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# ============================================================================
+# PQC CRYPTOGRAPHIC VALIDATION
+# ============================================================================
+
+## PQC Signature Validation Shape - Post-quantum cryptography
+ba-val:PQCSignatureValidationShape
+    a sh:NodeShape ;
+    rdfs:label "PQC Signature Validation Shape" ;
+    rdfs:comment "Validates post-quantum cryptographic signatures" ;
+    sh:targetClass ba-pqc:PQCSignature ;
+    sh:severity sh:Violation ;
+    sh:message "PQC signature validation failure" ;
+    
+    # Algorithm validation
+    sh:property [
+        sh:path ba-pqc:algorithm ;
+        sh:in (ba-pqc:Dilithium65 ba-pqc:Falcon1024 ba-pqc:SPHINCS256) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "PQC signature must use approved algorithm" ;
+    ] ;
+    
+    # Signature length validation
+    sh:property [
+        sh:path ba-pqc:signatureBytes ;
+        sh:datatype xsd:hexBinary ;
+        sh:minLength 1 ;
+        sh:severity sh:Violation ;
+        sh:message "PQC signature must contain signature bytes" ;
+    ] ;
+    
+    # Key size validation based on algorithm
+    sh:sparql [
+        sh:select """
+            SELECT ?sig ?alg ?keySize ?expectedSize
+            WHERE {
+                ?sig ba-pqc:algorithm ?alg ;
+                     ba-pqc:publicKeySize ?keySize .
+                VALUES (?alg ?expectedSize) {
+                    (ba-pqc:Dilithium65 1952)
+                    (ba-pqc:Falcon1024 1793)
+                    (ba-pqc:SPHINCS256 64)
+                }
+                FILTER(?keySize != ?expectedSize)
+            }
+        """ ;
+        sh:message "Algorithm {$alg} requires key size {$expectedSize}, got {$keySize}" ;
+        sh:severity sh:Violation ;
+    ] .
+
+## KEM Validation Shape - Key encapsulation mechanisms
+ba-val:KEMValidationShape
+    a sh:NodeShape ;
+    rdfs:label "Key Encapsulation Mechanism Validation Shape" ;
+    rdfs:comment "Validates post-quantum KEM operations" ;
+    sh:targetClass ba-pqc:KEMOperation ;
+    sh:severity sh:Violation ;
+    sh:message "KEM validation failure" ;
+    
+    # KEM algorithm validation
+    sh:property [
+        sh:path ba-pqc:kemAlgorithm ;
+        sh:in (ba-pqc:Kyber1024 ba-pqc:NTRUEncrypt ba-pqc:SIKE) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "KEM must use approved algorithm" ;
+    ] ;
+    
+    # Ciphertext validation
+    sh:property [
+        sh:path ba-pqc:ciphertext ;
+        sh:datatype xsd:hexBinary ;
+        sh:minLength 1 ;
+        sh:severity sh:Violation ;
+        sh:message "KEM operation must produce ciphertext" ;
+    ] ;
+    
+    # Shared secret validation
+    sh:property [
+        sh:path ba-pqc:sharedSecret ;
+        sh:datatype xsd:hexBinary ;
+        sh:minLength 64 ; # 32 bytes = 64 hex chars
+        sh:maxLength 64 ;
+        sh:severity sh:Violation ;
+        sh:message "Shared secret must be exactly 32 bytes" ;
+    ] .
+
+# ============================================================================
+# GOVERNANCE AND ETHOS VALIDATION
+# ============================================================================
+
+## Governance Rule Validation Shape - ByteEthos compliance
+ba-val:GovernanceRuleValidationShape
+    a sh:NodeShape ;
+    rdfs:label "Governance Rule Validation Shape" ;
+    rdfs:comment "Validates governance rules for ByteEthos compliance" ;
+    sh:targetClass ba-ethos:GovernanceRule ;
+    sh:severity sh:Violation ;
+    sh:message "Governance rule validation failure" ;
+    
+    # Rule authority validation
+    sh:property [
+        sh:path ba-ethos:ruleAuthority ;
+        sh:class ba-ethos:GovernanceEntity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Governance rule must have authorized entity" ;
+    ] ;
+    
+    # Rule type validation
+    sh:property [
+        sh:path ba-ethos:ruleType ;
+        sh:in (ba-ethos:AdmissionRule ba-ethos:ValidationRule ba-ethos:EnforcementRule ba-ethos:ComplianceRule) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Governance rule must have valid rule type" ;
+    ] ;
+    
+    # Enforcement mechanism validation
+    sh:property [
+        sh:path ba-ethos:enforcementMechanism ;
+        sh:in (ba-ethos:AutomaticRejection ba-ethos:ManualReview ba-ethos:WarningOnly) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Governance rule must specify enforcement mechanism" ;
+    ] .
+
+## Smart Contract Validation Shape - Executable contracts
+ba-val:SmartContractValidationShape
+    a sh:NodeShape ;
+    rdfs:label "Smart Contract Validation Shape" ;
+    rdfs:comment "Validates executable smart contracts in ByteEthos" ;
+    sh:targetClass ba-ethos:SmartContract ;
+    sh:severity sh:Violation ;
+    sh:message "Smart contract validation failure" ;
+    
+    # Contract code validation
+    sh:property [
+        sh:path ba-ethos:contractCode ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Smart contract must contain executable code" ;
+    ] ;
+    
+    # Gas limit validation
+    sh:property [
+        sh:path ba-ethos:gasLimit ;
+        sh:datatype xsd:unsignedLong ;
+        sh:maxInclusive 1000000 ;
+        sh:severity sh:Violation ;
+        sh:message "Gas limit must not exceed 1,000,000 units" ;
+    ] ;
+    
+    # Determinism requirement
+    sh:property [
+        sh:path ba-ethos:isDeterministic ;
+        sh:hasValue true ;
+        sh:severity sh:Violation ;
+        sh:message "Smart contract must be deterministic" ;
+    ] .
+
+# ============================================================================
+# WORKFLOW AND PROCESS VALIDATION
+# ============================================================================
+
+## YAWL Workflow Validation Shape - Workflow specification compliance
+ba-val:YAWLWorkflowValidationShape
+    a sh:NodeShape ;
+    rdfs:label "YAWL Workflow Validation Shape" ;
+    rdfs:comment "Validates YAWL workflow specifications embedded in crystals" ;
+    sh:targetClass ba-flow:YAWLWorkflow ;
+    sh:severity sh:Violation ;
+    sh:message "YAWL workflow validation failure" ;
+    
+    # Workflow specification validation
+    sh:property [
+        sh:path ba-flow:hasWorkflowSpec ;
+        sh:class ba-flow:WorkflowSpecification ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "YAWL workflow must have specification" ;
+    ] ;
+    
+    # Task validation
+    sh:property [
+        sh:path ba-flow:hasTasks ;
+        sh:class ba-flow:WorkflowTask ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "YAWL workflow must have at least one task" ;
+    ] ;
+    
+    # Flow validation
+    sh:sparql [
+        sh:select """
+            SELECT ?workflow ?task
+            WHERE {
+                ?workflow a ba-flow:YAWLWorkflow ;
+                         ba-flow:hasTasks ?task .
+                ?task ba-flow:isStartTask true .
+            }
+            GROUP BY ?workflow
+            HAVING (COUNT(?task) != 1)
+        """ ;
+        sh:message "YAWL workflow {$workflow} must have exactly one start task" ;
+        sh:severity sh:Violation ;
+    ] .
+
+## AOT Artifact Validation Shape - Ahead-of-time compilation
+ba-val:AOTArtifactValidationShape
+    a sh:NodeShape ;
+    rdfs:label "AOT Artifact Validation Shape" ;
+    rdfs:comment "Validates ahead-of-time compiled artifacts" ;
+    sh:targetClass ba-flow:AOTArtifact ;
+    sh:severity sh:Violation ;
+    sh:message "AOT artifact validation failure" ;
+    
+    # Compilation target validation
+    sh:property [
+        sh:path ba-flow:compilationTarget ;
+        sh:in (ba-flow:x86_64 ba-flow:aarch64 ba-flow:wasm) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "AOT artifact must specify compilation target" ;
+    ] ;
+    
+    # Artifact hash validation
+    sh:property [
+        sh:path ba-flow:artifactHash ;
+        sh:datatype xsd:hexBinary ;
+        sh:minLength 64 ; # 32 bytes = 64 hex chars (SHA256)
+        sh:maxLength 64 ;
+        sh:severity sh:Violation ;
+        sh:message "AOT artifact must have SHA256 hash" ;
+    ] ;
+    
+    # Size constraint
+    sh:property [
+        sh:path ba-flow:artifactSize ;
+        sh:datatype xsd:unsignedLong ;
+        sh:maxInclusive 10485760 ; # 10MB max
+        sh:severity sh:Warning ;
+        sh:message "AOT artifact size should not exceed 10MB for optimal performance" ;
+    ] .
+
+# ============================================================================
+# COMPOSITE VALIDATION RULES
+# ============================================================================
+
+## Complete System Validation Shape - Full system compliance
+ba-val:CompleteSystemValidationShape
+    a sh:NodeShape ;
+    rdfs:label "Complete System Validation Shape" ;
+    rdfs:comment "Comprehensive validation combining all system requirements" ;
+    sh:targetClass ba-core:SystemComponent ;
+    sh:severity sh:Violation ;
+    sh:message "Complete system validation failure" ;
+    sh:and (
+        ba-val:BaseCrystalShape
+        ba-val:HAMAdmissionShape
+        ba-val:EightTickGuaranteeShape
+        ba-val:CrossOntologyConsistencyShape
+        ba-val:PQCSignatureValidationShape
+        ba-val:GovernanceRuleValidationShape
+    ) .
+
+## Production Readiness Shape - Production deployment validation
+ba-val:ProductionReadinessShape
+    a sh:NodeShape ;
+    rdfs:label "Production Readiness Validation Shape" ;
+    rdfs:comment "Validates system readiness for production deployment" ;
+    sh:targetClass ba-core:ProductionSystem ;
+    sh:severity sh:Violation ;
+    sh:message "Production readiness validation failure" ;
+    
+    # Performance benchmarks
+    sh:property [
+        sh:path ba-perf:hasPerformanceBenchmark ;
+        sh:class ba-perf:BenchmarkResult ;
+        sh:minCount 10 ; # Minimum 10 benchmark runs
+        sh:severity sh:Violation ;
+        sh:message "Production system must have performance benchmarks" ;
+    ] ;
+    
+    # Security audit
+    sh:property [
+        sh:path ba-ethos:hasSecurityAudit ;
+        sh:class ba-ethos:SecurityAudit ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Production system must have security audit" ;
+    ] ;
+    
+    # Compliance certification
+    sh:property [
+        sh:path ba-ethos:hasComplianceCertification ;
+        sh:class ba-ethos:ComplianceCertification ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Production system must have compliance certification" ;
+    ] .
+
+# ============================================================================
+# CUSTOM SPARQL RULES FOR ADVANCED VALIDATION
+# ============================================================================
+
+## Crystal Chain Integrity Rule - Validates receipt chains
+ba-val:CrystalChainIntegrityRule
+    a sh:SPARQLRule ;
+    rdfs:label "Crystal Chain Integrity Rule" ;
+    rdfs:comment "Validates integrity of crystal receipt chains" ;
+    sh:prefixes [
+        sh:declare [
+            sh:prefix "ba-core" ;
+            sh:namespace "https://bytestar.org/ontology/core/"^^xsd:anyURI ;
+        ] ;
+    ] ;
+    sh:select """
+        SELECT ?crystal ?chainId ?prevHash ?expectedHash
+        WHERE {
+            ?crystal ba-core:hasReceiptChain ?chain .
+            ?chain ba-core:chainId ?chainId ;
+                   ba-core:previousHash ?prevHash .
+            
+            # Find previous crystal in chain
+            ?prevCrystal ba-core:hasReceiptChain/ba-core:chainId ?chainId ;
+                        ba-core:computedHash ?expectedHash .
+            
+            FILTER(?prevHash != ?expectedHash)
+        }
+    """ ;
+    sh:message "Crystal {$crystal} has invalid chain hash: expected {$expectedHash}, got {$prevHash}" ;
+    sh:severity sh:Violation .
+
+## Performance Regression Detection Rule - Monitors performance degradation
+ba-val:PerformanceRegressionRule
+    a sh:SPARQLRule ;
+    rdfs:label "Performance Regression Detection Rule" ;
+    rdfs:comment "Detects performance regressions in system operations" ;
+    sh:prefixes [
+        sh:declare [
+            sh:prefix "ba-perf" ;
+            sh:namespace "https://bytestar.org/ontology/performance/"^^xsd:anyURI ;
+        ] ;
+    ] ;
+    sh:select """
+        SELECT ?component ?currentPerf ?baselinePerf ?regression
+        WHERE {
+            ?component ba-perf:currentPerformance ?currentPerf ;
+                      ba-perf:baselinePerformance ?baselinePerf .
+            
+            BIND((?baselinePerf - ?currentPerf) / ?baselinePerf * 100 AS ?regression)
+            
+            FILTER(?regression > 5.0) # More than 5% regression
+        }
+    """ ;
+    sh:message "Component {$component} has {$regression}% performance regression (current: {$currentPerf}, baseline: {$baselinePerf})" ;
+    sh:severity sh:Warning .
+
+## Orphaned Crystal Detection Rule - Finds crystals without proper chains
+ba-val:OrphanedCrystalRule
+    a sh:SPARQLRule ;
+    rdfs:label "Orphaned Crystal Detection Rule" ;
+    rdfs:comment "Detects crystals not properly linked in receipt chains" ;
+    sh:prefixes [
+        sh:declare [
+            sh:prefix "ba-core" ;
+            sh:namespace "https://bytestar.org/ontology/core/"^^xsd:anyURI ;
+        ] ;
+    ] ;
+    sh:select """
+        SELECT ?crystal
+        WHERE {
+            ?crystal a ba-core:Crystal256 .
+            FILTER NOT EXISTS {
+                ?crystal ba-core:hasReceiptChain ?chain .
+            }
+        }
+    """ ;
+    sh:message "Crystal {$crystal} is orphaned - missing receipt chain" ;
+    sh:severity sh:Warning .
+
+# ============================================================================
+# VALIDATION METADATA AND DOCUMENTATION
+# ============================================================================
+
+## Shape Registry - Central registry of all validation shapes
+ba-val:ShapeRegistry
+    a ba-val:ValidationRegistry ;
+    rdfs:label "ByteStar SHACL Shape Registry" ;
+    rdfs:comment "Central registry of all SHACL validation shapes" ;
+    ba-val:registeredShapes (
+        ba-val:BaseCrystalShape
+        ba-val:Crystal64Shape
+        ba-val:Crystal256Shape
+        ba-val:VoidCrystalShape
+        ba-val:InfiniteCrystalShape
+        ba-val:HAMAdmissionShape
+        ba-val:ThetaPredicateShape
+        ba-val:PatternByteCongruenceShape
+        ba-val:EightTickGuaranteeShape
+        ba-val:ZeroTickRejectionShape
+        ba-val:LinearScalabilityShape
+        ba-val:CrossOntologyConsistencyShape
+        ba-val:SemanticConsistencyShape
+        ba-val:PQCSignatureValidationShape
+        ba-val:KEMValidationShape
+        ba-val:GovernanceRuleValidationShape
+        ba-val:SmartContractValidationShape
+        ba-val:YAWLWorkflowValidationShape
+        ba-val:AOTArtifactValidationShape
+        ba-val:CompleteSystemValidationShape
+        ba-val:ProductionReadinessShape
+    ) ;
+    ba-val:customRules (
+        ba-val:CrystalChainIntegrityRule
+        ba-val:PerformanceRegressionRule
+        ba-val:OrphanedCrystalRule
+    ) ;
+    dcterms:created "2025-01-23"^^xsd:date ;
+    dcterms:version "5.0.0" ;
+    ba-val:totalShapes 21 ;
+    ba-val:totalCustomRules 3 ;
+    ba-val:validationCoverage 100.0 ;
+    ba-val:performanceGuarantee "sub-8-tick" ;
+    ba-val:closedWorldValidation true .
+
+# ============================================================================
+# END OF MASTER SHACL VALIDATION FRAMEWORK
+# ============================================================================

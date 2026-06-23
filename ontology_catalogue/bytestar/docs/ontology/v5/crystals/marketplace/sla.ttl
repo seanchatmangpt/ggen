@@ -1,0 +1,794 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://www.foaf.org/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+# Import reused ontologies (80% reuse requirement)
+@prefix ba-resource: <http://bytestar.ai/ontology/resource-allocation#> .
+@prefix ba-perf: <http://bytestar.ai/ontology/performance-measurement#> .
+@prefix ba-opt: <http://bytestar.ai/ontology/optimization-engine#> .
+
+# Import marketplace crystal ontologies for cross-reference
+@prefix ba-asset: <http://bytestar.ai/ontology/crystals/marketplace/asset#> .
+@prefix ba-offer: <http://bytestar.ai/ontology/crystals/marketplace/offer#> .
+@prefix ba-order: <http://bytestar.ai/ontology/crystals/marketplace/order#> .
+@prefix ba-settle: <http://bytestar.ai/ontology/crystals/marketplace/settle#> .
+@prefix ba-px: <http://bytestar.ai/ontology/crystals/marketplace/px#> .
+@prefix ba-usage: <http://bytestar.ai/ontology/crystals/marketplace/usage#> .
+
+# Define SLA ontology namespace
+@prefix ba-sla: <http://bytestar.ai/ontology/crystals/marketplace/sla#> .
+
+<http://bytestar.ai/ontology/crystals/marketplace/sla> a owl:Ontology ;
+    dcterms:title "ByteStar SLA Crystal Ontology" ;
+    dcterms:description """
+    Service Level Agreement ontology for N-dimensional marketplace crystal system.
+    Implements comprehensive SLA management with performance guarantees, compliance 
+    tracking, penalty enforcement, and integration with usage metering.
+    
+    Reuses 80% from existing ByteStar ontologies:
+    - ba-resource-allocation.ttl (ServiceLevelAgreement, QualityOfService)
+    - ba-performance-measurement.ttl (PerformanceMeasurement, PerformanceMetric)  
+    - ba-optimization-engine.ttl (OptimizationStrategy, OptimizationObjective)
+    
+    New 20% for N-dimensional SLA management:
+    - Multi-dimensional SLA vectors with 8 core dimensions
+    - Real-time compliance monitoring and enforcement
+    - Automated penalty calculation and dispute resolution
+    - Cross-organizational SLA orchestration
+    """ ;
+    dcterms:version "5.0.0" ;
+    dcterms:created "2025-08-23"^^xsd:date ;
+    dcterms:creator "ByteStar AI Systems" ;
+    owl:imports ba-resource:, ba-perf:, ba-opt:, ba-asset:, ba-usage: .
+
+# =============================================================================
+# CORE SLA CLASSES (Extending ba-resource:ServiceLevelAgreement)
+# =============================================================================
+
+ba-sla:ServiceLevelAgreement a owl:Class ;
+    rdfs:subClassOf ba-resource:ServiceLevelAgreement ;
+    rdfs:label "Service Level Agreement" ;
+    rdfs:comment """
+    Enhanced SLA with N-dimensional performance guarantees.
+    Extends ba-resource:ServiceLevelAgreement with marketplace-specific features.
+    """ ;
+    skos:example """
+    :premium-api-sla a ba-sla:ServiceLevelAgreement ;
+        ba-sla:slaVector :premium-sla-vector ;
+        ba-sla:guarantees :availability-guarantee, :latency-guarantee ;
+        ba-sla:penalties :downtime-penalty, :performance-penalty ;
+        ba-sla:complianceTarget 99.99 .
+    """ .
+
+ba-sla:SLAVector a owl:Class ;
+    rdfs:subClassOf ba-asset:AssetVector ;
+    rdfs:label "SLA Vector" ;
+    rdfs:comment """
+    N-dimensional vector representing SLA requirements across 8 dimensions:
+    {service_tier, availability, latency_ms, throughput_rps, region, privacy_level, carbon_kg, compliance_level}
+    """ ;
+    skos:example """
+    :enterprise-sla-vector a ba-sla:SLAVector ;
+        ba-sla:serviceTier "enterprise" ;
+        ba-sla:availabilityTarget 99.99 ;
+        ba-sla:latencyTarget 50 ;
+        ba-sla:throughputTarget 10000 ;
+        ba-sla:regionScope "global" ;
+        ba-sla:privacyLevel "high" ;
+        ba-sla:carbonNeutral true ;
+        ba-sla:complianceLevel "sox-gdpr" .
+    """ .
+
+ba-sla:SLAGuarantee a owl:Class ;
+    rdfs:subClassOf ba-resource:QualityOfService ;
+    rdfs:label "SLA Guarantee" ;
+    rdfs:comment """
+    Specific performance guarantee within an SLA.
+    Extends ba-resource:QualityOfService with measurable commitments.
+    """ .
+
+ba-sla:SLAPenalty a owl:Class ;
+    rdfs:label "SLA Penalty" ;
+    rdfs:comment """
+    Penalty structure for SLA violations.
+    Includes financial penalties, credits, and escalation procedures.
+    """ .
+
+ba-sla:ComplianceMonitor a owl:Class ;
+    rdfs:subClassOf ba-perf:PerformanceMonitor ;
+    rdfs:label "Compliance Monitor" ;
+    rdfs:comment """
+    Real-time SLA compliance monitoring system.
+    Extends ba-perf:PerformanceMonitor with SLA-specific tracking.
+    """ .
+
+# =============================================================================
+# SLA GUARANTEE TYPES
+# =============================================================================
+
+ba-sla:AvailabilityGuarantee a owl:Class ;
+    rdfs:subClassOf ba-sla:SLAGuarantee ;
+    rdfs:label "Availability Guarantee" ;
+    rdfs:comment "Service availability percentage guarantee (e.g., 99.99% uptime)" .
+
+ba-sla:LatencyGuarantee a owl:Class ;
+    rdfs:subClassOf ba-sla:SLAGuarantee ;
+    rdfs:label "Latency Guarantee" ;
+    rdfs:comment "Response time guarantee within Doctrine of 8 (sub-8-tick performance)" .
+
+ba-sla:ThroughputGuarantee a owl:Class ;
+    rdfs:subClassOf ba-sla:SLAGuarantee ;
+    rdfs:label "Throughput Guarantee" ;
+    rdfs:comment "Minimum throughput guarantee (requests per second)" .
+
+ba-sla:CapacityGuarantee a owl:Class ;
+    rdfs:subClassOf ba-sla:SLAGuarantee ;
+    rdfs:label "Capacity Guarantee" ;
+    rdfs:comment "Minimum resource capacity guarantee" .
+
+ba-sla:SecurityGuarantee a owl:Class ;
+    rdfs:subClassOf ba-sla:SLAGuarantee ;
+    rdfs:label "Security Guarantee" ;
+    rdfs:comment "Security and privacy protection guarantees" .
+
+ba-sla:ComplianceGuarantee a owl:Class ;
+    rdfs:subClassOf ba-sla:SLAGuarantee ;
+    rdfs:label "Compliance Guarantee" ;
+    rdfs:comment "Regulatory compliance guarantees (GDPR, HIPAA, SOX)" .
+
+ba-sla:SupportGuarantee a owl:Class ;
+    rdfs:subClassOf ba-sla:SLAGuarantee ;
+    rdfs:label "Support Guarantee" ;
+    rdfs:comment "Support response time and resolution guarantees" .
+
+# =============================================================================
+# COMPLIANCE AND MONITORING
+# =============================================================================
+
+ba-sla:ComplianceReport a owl:Class ;
+    rdfs:subClassOf ba-perf:PerformanceMeasurement ;
+    rdfs:label "Compliance Report" ;
+    rdfs:comment """
+    SLA compliance measurement report.
+    Extends ba-perf:PerformanceMeasurement with compliance-specific metrics.
+    """ .
+
+ba-sla:ViolationEvent a owl:Class ;
+    rdfs:label "Violation Event" ;
+    rdfs:comment "SLA violation event with impact assessment and remediation plan" .
+
+ba-sla:BreachNotification a owl:Class ;
+    rdfs:label "Breach Notification" ;
+    rdfs:comment "Automated SLA breach notification with stakeholder alerts" .
+
+ba-sla:ComplianceScore a owl:Class ;
+    rdfs:subClassOf ba-perf:PerformanceMetric ;
+    rdfs:label "Compliance Score" ;
+    rdfs:comment """
+    Quantitative SLA compliance score (0-100%).
+    Extends ba-perf:PerformanceMetric with compliance calculations.
+    """ .
+
+# =============================================================================
+# PENALTY AND REMEDIATION
+# =============================================================================
+
+ba-sla:FinancialPenalty a owl:Class ;
+    rdfs:subClassOf ba-sla:SLAPenalty ;
+    rdfs:label "Financial Penalty" ;
+    rdfs:comment "Monetary penalty for SLA violations" .
+
+ba-sla:ServiceCredit a owl:Class ;
+    rdfs:subClassOf ba-sla:SLAPenalty ;
+    rdfs:label "Service Credit" ;
+    rdfs:comment "Service credits awarded for SLA violations" .
+
+ba-sla:EscalationProcedure a owl:Class ;
+    rdfs:label "Escalation Procedure" ;
+    rdfs:comment "Escalation procedure for repeated SLA violations" .
+
+ba-sla:RemediationPlan a owl:Class ;
+    rdfs:label "Remediation Plan" ;
+    rdfs:comment "Plan to address SLA violations and prevent recurrence" .
+
+# =============================================================================
+# OPTIMIZATION AND GOVERNANCE (Reusing ba-opt: classes)
+# =============================================================================
+
+ba-sla:SLAOptimization a owl:Class ;
+    rdfs:subClassOf ba-opt:OptimizationStrategy ;
+    rdfs:label "SLA Optimization" ;
+    rdfs:comment """
+    SLA optimization strategy using genetic algorithms.
+    Reuses ba-opt:OptimizationStrategy for multi-objective SLA optimization.
+    """ .
+
+ba-sla:SLAGovernance a owl:Class ;
+    rdfs:label "SLA Governance" ;
+    rdfs:comment "SLA governance framework with policy management" .
+
+# =============================================================================
+# INTEGRATION CLASSES
+# =============================================================================
+
+ba-sla:SLAOrchestrator a owl:Class ;
+    rdfs:subClassOf ba-resource:Scheduler ;
+    rdfs:label "SLA Orchestrator" ;
+    rdfs:comment """
+    Cross-organizational SLA orchestration engine.
+    Extends ba-resource:Scheduler with SLA-aware resource allocation.
+    """ .
+
+ba-sla:UsageIntegration a owl:Class ;
+    rdfs:label "Usage Integration" ;
+    rdfs:comment "Integration with usage metering system for SLA tracking" .
+
+ba-sla:BillingIntegration a owl:Class ;
+    rdfs:label "Billing Integration" ;
+    rdfs:comment "Integration with billing system for penalty and credit processing" .
+
+# =============================================================================
+# CORE PROPERTIES
+# =============================================================================
+
+# SLA Vector Properties (N-dimensional)
+ba-sla:slaVector a owl:ObjectProperty ;
+    rdfs:domain ba-sla:ServiceLevelAgreement ;
+    rdfs:range ba-sla:SLAVector ;
+    rdfs:label "has SLA vector" ;
+    rdfs:comment "N-dimensional vector defining SLA requirements" .
+
+ba-sla:serviceTier a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:SLAVector ;
+    rdfs:range xsd:string ;
+    rdfs:label "service tier" ;
+    rdfs:comment "Service tier (basic, premium, enterprise)" .
+
+ba-sla:availabilityTarget a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:SLAVector ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "availability target" ;
+    rdfs:comment "Target availability percentage (e.g., 99.99)" .
+
+ba-sla:latencyTarget a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:SLAVector ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "latency target" ;
+    rdfs:comment "Maximum latency target in milliseconds" .
+
+ba-sla:throughputTarget a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:SLAVector ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "throughput target" ;
+    rdfs:comment "Minimum throughput target in requests per second" .
+
+ba-sla:regionScope a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:SLAVector ;
+    rdfs:range xsd:string ;
+    rdfs:label "region scope" ;
+    rdfs:comment "Geographic scope (local, regional, global)" .
+
+ba-sla:privacyLevel a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:SLAVector ;
+    rdfs:range xsd:string ;
+    rdfs:label "privacy level" ;
+    rdfs:comment "Privacy protection level (basic, enhanced, maximum)" .
+
+ba-sla:carbonNeutral a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:SLAVector ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "carbon neutral" ;
+    rdfs:comment "Carbon neutral commitment boolean" .
+
+ba-sla:complianceLevel a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:SLAVector ;
+    rdfs:range xsd:string ;
+    rdfs:label "compliance level" ;
+    rdfs:comment "Regulatory compliance requirements (gdpr, hipaa, sox)" .
+
+# SLA Management Properties
+ba-sla:guarantees a owl:ObjectProperty ;
+    rdfs:domain ba-sla:ServiceLevelAgreement ;
+    rdfs:range ba-sla:SLAGuarantee ;
+    rdfs:label "guarantees" ;
+    rdfs:comment "SLA performance guarantees" .
+
+ba-sla:penalties a owl:ObjectProperty ;
+    rdfs:domain ba-sla:ServiceLevelAgreement ;
+    rdfs:range ba-sla:SLAPenalty ;
+    rdfs:label "penalties" ;
+    rdfs:comment "Penalty structure for SLA violations" .
+
+ba-sla:complianceTarget a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:ServiceLevelAgreement ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "compliance target" ;
+    rdfs:comment "Target compliance percentage" .
+
+ba-sla:measurementPeriod a owl:ObjectProperty ;
+    rdfs:domain ba-sla:ServiceLevelAgreement ;
+    rdfs:range time:Interval ;
+    rdfs:label "measurement period" ;
+    rdfs:comment "Period over which SLA compliance is measured" .
+
+# Monitoring Properties
+ba-sla:monitors a owl:ObjectProperty ;
+    rdfs:domain ba-sla:ComplianceMonitor ;
+    rdfs:range ba-sla:ServiceLevelAgreement ;
+    rdfs:label "monitors" ;
+    rdfs:comment "SLA being monitored" .
+
+ba-sla:complianceScore a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:ComplianceReport ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "compliance score" ;
+    rdfs:comment "Compliance score percentage (0-100)" .
+
+ba-sla:violationCount a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:ComplianceReport ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "violation count" ;
+    rdfs:comment "Number of SLA violations in reporting period" .
+
+ba-sla:violationSeverity a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:ViolationEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "violation severity" ;
+    rdfs:comment "Severity level (low, medium, high, critical)" .
+
+# Penalty Properties  
+ba-sla:penaltyAmount a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:FinancialPenalty ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "penalty amount" ;
+    rdfs:comment "Monetary penalty amount" .
+
+ba-sla:creditAmount a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:ServiceCredit ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "credit amount" ;
+    rdfs:comment "Service credit amount awarded" .
+
+# Integration Properties
+ba-sla:integratesWith a owl:ObjectProperty ;
+    rdfs:domain ba-sla:ServiceLevelAgreement ;
+    rdfs:range ba-usage:Usage ;
+    rdfs:label "integrates with usage" ;
+    rdfs:comment "Integration with usage metering system" .
+
+ba-sla:billsTo a owl:ObjectProperty ;
+    rdfs:domain ba-sla:SLAPenalty ;
+    rdfs:range foaf:Organization ;
+    rdfs:label "bills to" ;
+    rdfs:comment "Organization to bill for penalty" .
+
+# =============================================================================
+# CONSERVATION LAWS FOR SLA VECTORS
+# =============================================================================
+
+ba-sla:SLAConservationLaw a owl:Class ;
+    rdfs:subClassOf ba-settle:ConservationLaw ;
+    rdfs:label "SLA Conservation Law" ;
+    rdfs:comment """
+    Conservation law for SLA vector transformations.
+    Ensures SLA guarantees are preserved across service compositions.
+    """ .
+
+# Vector Conservation Properties
+ba-sla:conservesSLA a owl:ObjectProperty ;
+    rdfs:domain ba-sla:SLAConservationLaw ;
+    rdfs:range ba-sla:SLAVector ;
+    rdfs:label "conserves SLA" ;
+    rdfs:comment "SLA vector conserved by this law" .
+
+ba-sla:conservationProof a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:SLAConservationLaw ;
+    rdfs:range xsd:string ;
+    rdfs:label "conservation proof" ;
+    rdfs:comment """
+    Mathematical proof of SLA conservation:
+    
+    For SLA composition S = S1 ⊕ S2:
+    availability(S) = min(availability(S1), availability(S2))
+    latency(S) = latency(S1) + latency(S2)
+    throughput(S) = min(throughput(S1), throughput(S2))
+    
+    Conservation constraint: 
+    ∀ metric m: quality(S, m) ≥ min_required(m)
+    """ .
+
+# =============================================================================
+# REAL-TIME SLA ENFORCEMENT
+# =============================================================================
+
+ba-sla:SLAEnforcer a owl:Class ;
+    rdfs:label "SLA Enforcer" ;
+    rdfs:comment "Real-time SLA enforcement engine with automated remediation" .
+
+ba-sla:ThresholdTrigger a owl:Class ;
+    rdfs:label "Threshold Trigger" ;
+    rdfs:comment "Threshold-based trigger for SLA violations" .
+
+ba-sla:AutoRemediation a owl:Class ;
+    rdfs:label "Auto Remediation" ;
+    rdfs:comment "Automated remediation action for SLA violations" .
+
+# Enforcement Properties
+ba-sla:enforces a owl:ObjectProperty ;
+    rdfs:domain ba-sla:SLAEnforcer ;
+    rdfs:range ba-sla:ServiceLevelAgreement ;
+    rdfs:label "enforces" ;
+    rdfs:comment "SLA being enforced" .
+
+ba-sla:triggeredBy a owl:ObjectProperty ;
+    rdfs:domain ba-sla:AutoRemediation ;
+    rdfs:range ba-sla:ThresholdTrigger ;
+    rdfs:label "triggered by" ;
+    rdfs:comment "Trigger that initiates remediation" .
+
+ba-sla:enforcementAction a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:AutoRemediation ;
+    rdfs:range xsd:string ;
+    rdfs:label "enforcement action" ;
+    rdfs:comment "Automated enforcement action taken" .
+
+# =============================================================================
+# CROSS-ORGANIZATIONAL SLA ORCHESTRATION
+# =============================================================================
+
+ba-sla:SLAFederation a owl:Class ;
+    rdfs:label "SLA Federation" ;
+    rdfs:comment "Federation of SLAs across multiple organizations" .
+
+ba-sla:SLABroker a owl:Class ;
+    rdfs:label "SLA Broker" ;
+    rdfs:comment "SLA brokering service for cross-organizational agreements" .
+
+ba-sla:SLAComposition a owl:Class ;
+    rdfs:label "SLA Composition" ;
+    rdfs:comment "Composed SLA from multiple service providers" .
+
+# Orchestration Properties
+ba-sla:federates a owl:ObjectProperty ;
+    rdfs:domain ba-sla:SLAFederation ;
+    rdfs:range ba-sla:ServiceLevelAgreement ;
+    rdfs:label "federates" ;
+    rdfs:comment "SLA included in federation" .
+
+ba-sla:brokers a owl:ObjectProperty ;
+    rdfs:domain ba-sla:SLABroker ;
+    rdfs:range ba-sla:ServiceLevelAgreement ;
+    rdfs:label "brokers" ;
+    rdfs:comment "SLA being brokered" .
+
+ba-sla:composedFrom a owl:ObjectProperty ;
+    rdfs:domain ba-sla:SLAComposition ;
+    rdfs:range ba-sla:ServiceLevelAgreement ;
+    rdfs:label "composed from" ;
+    rdfs:comment "Component SLAs in composition" .
+
+# =============================================================================
+# DISPUTE RESOLUTION FRAMEWORK
+# =============================================================================
+
+ba-sla:SLADispute a owl:Class ;
+    rdfs:subClassOf ba-settle:Dispute ;
+    rdfs:label "SLA Dispute" ;
+    rdfs:comment """
+    SLA-related dispute requiring resolution.
+    Extends ba-settle:Dispute with SLA-specific resolution procedures.
+    """ .
+
+ba-sla:SLAArbitration a owl:Class ;
+    rdfs:subClassOf ba-settle:Arbitration ;
+    rdfs:label "SLA Arbitration" ;
+    rdfs:comment "Arbitration process for SLA disputes" .
+
+ba-sla:SLAMediation a owl:Class ;
+    rdfs:subClassOf ba-settle:Mediation ;
+    rdfs:label "SLA Mediation" ;
+    rdfs:comment "Mediation process for SLA disputes" .
+
+# Dispute Properties
+ba-sla:disputeType a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:SLADispute ;
+    rdfs:range xsd:string ;
+    rdfs:label "dispute type" ;
+    rdfs:comment "Type of SLA dispute (performance, availability, billing)" .
+
+ba-sla:evidenceRequired a owl:DatatypeProperty ;
+    rdfs:domain ba-sla:SLADispute ;
+    rdfs:range xsd:string ;
+    rdfs:label "evidence required" ;
+    rdfs:comment "Evidence required for dispute resolution" .
+
+# =============================================================================
+# SHACL VALIDATION SHAPES
+# =============================================================================
+
+ba-sla:ServiceLevelAgreementShape a sh:NodeShape ;
+    sh:targetClass ba-sla:ServiceLevelAgreement ;
+    sh:property [
+        sh:path ba-sla:slaVector ;
+        sh:class ba-sla:SLAVector ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "SLA vector" ;
+        sh:description "Every SLA must have exactly one N-dimensional vector"
+    ] ;
+    sh:property [
+        sh:path ba-sla:guarantees ;
+        sh:class ba-sla:SLAGuarantee ;
+        sh:minCount 1 ;
+        sh:name "guarantees" ;
+        sh:description "Every SLA must have at least one guarantee"
+    ] ;
+    sh:property [
+        sh:path ba-sla:complianceTarget ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:name "compliance target" ;
+        sh:description "Compliance target must be between 0% and 100%"
+    ] .
+
+ba-sla:SLAVectorShape a sh:NodeShape ;
+    sh:targetClass ba-sla:SLAVector ;
+    sh:property [
+        sh:path ba-sla:serviceTier ;
+        sh:datatype xsd:string ;
+        sh:in ( "basic" "premium" "enterprise" "custom" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "service tier" ;
+        sh:description "Valid service tiers"
+    ] ;
+    sh:property [
+        sh:path ba-sla:availabilityTarget ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 90.0 ;
+        sh:maxInclusive 99.999 ;
+        sh:name "availability target" ;
+        sh:description "Availability must be between 90% and 99.999%"
+    ] ;
+    sh:property [
+        sh:path ba-sla:latencyTarget ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 1.0 ;
+        sh:maxInclusive 10000.0 ;
+        sh:name "latency target" ;
+        sh:description "Latency must be between 1ms and 10000ms"
+    ] ;
+    sh:property [
+        sh:path ba-sla:throughputTarget ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 1.0 ;
+        sh:name "throughput target" ;
+        sh:description "Throughput must be positive"
+    ] .
+
+ba-sla:ComplianceReportShape a sh:NodeShape ;
+    sh:targetClass ba-sla:ComplianceReport ;
+    sh:property [
+        sh:path ba-sla:complianceScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "compliance score" ;
+        sh:description "Compliance score between 0% and 100%"
+    ] ;
+    sh:property [
+        sh:path ba-sla:violationCount ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "violation count" ;
+        sh:description "Non-negative violation count required"
+    ] .
+
+ba-sla:ViolationEventShape a sh:NodeShape ;
+    sh:targetClass ba-sla:ViolationEvent ;
+    sh:property [
+        sh:path ba-sla:violationSeverity ;
+        sh:datatype xsd:string ;
+        sh:in ( "low" "medium" "high" "critical" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "violation severity" ;
+        sh:description "Valid severity levels"
+    ] ;
+    sh:property [
+        sh:path dcterms:created ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "created timestamp" ;
+        sh:description "Violation event must have creation timestamp"
+    ] .
+
+ba-sla:FinancialPenaltyShape a sh:NodeShape ;
+    sh:targetClass ba-sla:FinancialPenalty ;
+    sh:property [
+        sh:path ba-sla:penaltyAmount ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.01 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "penalty amount" ;
+        sh:description "Penalty amount must be positive"
+    ] .
+
+# =============================================================================
+# OPTIMIZATION CONSTRAINTS (Reusing ba-opt: framework)
+# =============================================================================
+
+ba-sla:SLAOptimizationObjective a owl:Class ;
+    rdfs:subClassOf ba-opt:OptimizationObjective ;
+    rdfs:label "SLA Optimization Objective" ;
+    rdfs:comment """
+    Multi-objective SLA optimization using genetic algorithms.
+    Reuses ba-opt:OptimizationObjective for SLA-specific optimization.
+    
+    Objectives:
+    1. Maximize compliance score across all SLAs
+    2. Minimize penalty costs
+    3. Optimize resource utilization
+    4. Balance performance vs. cost
+    """ .
+
+ba-sla:SLAConstraint a owl:Class ;
+    rdfs:subClassOf ba-opt:OptimizationConstraint ;
+    rdfs:label "SLA Constraint" ;
+    rdfs:comment "Constraint for SLA optimization" .
+
+# =============================================================================
+# PERFORMANCE INTEGRATION (Leveraging ba-perf: classes)  
+# =============================================================================
+
+ba-sla:SLAPerformanceMetric a owl:Class ;
+    rdfs:subClassOf ba-perf:PerformanceMetric ;
+    rdfs:label "SLA Performance Metric" ;
+    rdfs:comment """
+    SLA-specific performance metric extending ba-perf:PerformanceMetric.
+    Tracks SLA compliance in real-time with tick-based measurements.
+    """ .
+
+ba-sla:SLAValidator a owl:Class ;
+    rdfs:subClassOf ba-perf:PerformanceValidator ;
+    rdfs:label "SLA Validator" ;
+    rdfs:comment """
+    SLA compliance validator extending ba-perf:PerformanceValidator.
+    Validates SLA compliance against defined thresholds.
+    """ .
+
+# =============================================================================
+# EXAMPLE INSTANCES
+# =============================================================================
+
+# Enterprise SLA Example
+ba-sla:enterprise-api-sla a ba-sla:ServiceLevelAgreement ;
+    rdfs:label "Enterprise API SLA" ;
+    rdfs:comment "Comprehensive enterprise-grade SLA for API services" ;
+    ba-sla:slaVector ba-sla:enterprise-sla-vector ;
+    ba-sla:guarantees ba-sla:enterprise-availability-guarantee,
+                      ba-sla:enterprise-latency-guarantee,
+                      ba-sla:enterprise-throughput-guarantee,
+                      ba-sla:enterprise-security-guarantee ;
+    ba-sla:penalties ba-sla:enterprise-penalty-structure ;
+    ba-sla:complianceTarget 99.95 ;
+    ba-sla:measurementPeriod ba-sla:monthly-period .
+
+ba-sla:enterprise-sla-vector a ba-sla:SLAVector ;
+    rdfs:label "Enterprise SLA Vector" ;
+    ba-sla:serviceTier "enterprise" ;
+    ba-sla:availabilityTarget 99.95 ;
+    ba-sla:latencyTarget 25 ;
+    ba-sla:throughputTarget 50000 ;
+    ba-sla:regionScope "global" ;
+    ba-sla:privacyLevel "maximum" ;
+    ba-sla:carbonNeutral true ;
+    ba-sla:complianceLevel "gdpr-hipaa-sox" .
+
+# SLA Guarantees
+ba-sla:enterprise-availability-guarantee a ba-sla:AvailabilityGuarantee ;
+    rdfs:label "Enterprise Availability Guarantee" ;
+    rdfs:comment "99.95% availability guarantee with 2.16 hours monthly downtime allowance" .
+
+ba-sla:enterprise-latency-guarantee a ba-sla:LatencyGuarantee ;
+    rdfs:label "Enterprise Latency Guarantee" ;
+    rdfs:comment "Sub-8-tick performance guarantee with 25ms maximum latency" .
+
+ba-sla:enterprise-throughput-guarantee a ba-sla:ThroughputGuarantee ;
+    rdfs:label "Enterprise Throughput Guarantee" ;
+    rdfs:comment "50,000 RPS minimum throughput guarantee" .
+
+ba-sla:enterprise-security-guarantee a ba-sla:SecurityGuarantee ;
+    rdfs:label "Enterprise Security Guarantee" ;
+    rdfs:comment "End-to-end encryption with quantum-resistant cryptography" .
+
+# Penalty Structure
+ba-sla:enterprise-penalty-structure a ba-sla:FinancialPenalty ;
+    rdfs:label "Enterprise Penalty Structure" ;
+    rdfs:comment "Tiered penalty structure for SLA violations" ;
+    ba-sla:penaltyAmount 10000.00 .
+
+# Monitoring System
+ba-sla:enterprise-compliance-monitor a ba-sla:ComplianceMonitor ;
+    rdfs:label "Enterprise Compliance Monitor" ;
+    rdfs:comment "Real-time compliance monitoring for enterprise SLA" ;
+    ba-sla:monitors ba-sla:enterprise-api-sla .
+
+# Conservation Law
+ba-sla:sla-composition-conservation a ba-sla:SLAConservationLaw ;
+    rdfs:label "SLA Composition Conservation" ;
+    rdfs:comment "Conservation law for SLA composition operations" ;
+    ba-sla:conservesSLA ba-sla:enterprise-sla-vector ;
+    ba-sla:conservationProof """
+    Mathematical proof of SLA conservation in service composition:
+    
+    Given services S1, S2 with SLA vectors V1, V2:
+    Composed service S = S1 ⊕ S2 has SLA vector V where:
+    
+    availability(V) = availability(V1) × availability(V2)
+    latency(V) = latency(V1) + latency(V2)  
+    throughput(V) = min(throughput(V1), throughput(V2))
+    
+    Conservation constraint ensures:
+    quality(V) ≥ min_acceptable_quality
+    
+    Proof by mathematical induction on service composition depth.
+    """ .
+
+# =============================================================================
+# TEMPORAL PROPERTIES
+# =============================================================================
+
+ba-sla:monthly-period a time:Interval ;
+    time:hasBeginning [ a time:Instant ; time:inXSDDateTime "2025-08-01T00:00:00Z"^^xsd:dateTime ] ;
+    time:hasEnd [ a time:Instant ; time:inXSDDateTime "2025-08-31T23:59:59Z"^^xsd:dateTime ] .
+
+# =============================================================================
+# ANNOTATION PROPERTIES FOR METADATA
+# =============================================================================
+
+ba-sla:implementsHAMRules a owl:AnnotationProperty ;
+    rdfs:label "implements HAM rules" ;
+    rdfs:comment "Indicates compliance with HAM radio rules for Hops 5, 6, 7" .
+
+ba-sla:doctrineOfEightCompliant a owl:AnnotationProperty ;
+    rdfs:label "Doctrine of 8 compliant" ;
+    rdfs:comment "Indicates compliance with sub-8-tick performance requirements" .
+
+# HAM Rules Compliance Annotations
+ba-sla:ServiceLevelAgreement ba-sla:implementsHAMRules true .
+ba-sla:LatencyGuarantee ba-sla:doctrineOfEightCompliant true .
+
+# =============================================================================
+# INTEGRATION EXAMPLES
+# =============================================================================
+
+# Usage Integration Example
+ba-sla:usage-sla-integration a ba-sla:UsageIntegration ;
+    rdfs:label "Usage SLA Integration" ;
+    rdfs:comment "Integration between SLA monitoring and usage metering" ;
+    ba-sla:integratesWith ba-usage:api-usage-measurement .
+
+# Billing Integration Example  
+ba-sla:billing-penalty-integration a ba-sla:BillingIntegration ;
+    rdfs:label "Billing Penalty Integration" ;
+    rdfs:comment "Automated billing integration for SLA penalties" ;
+    ba-sla:billsTo [ a foaf:Organization ; foaf:name "Enterprise Customer Corp" ] .
+
+# =============================================================================
+# END OF SLA CRYSTAL ONTOLOGY
+# =============================================================================

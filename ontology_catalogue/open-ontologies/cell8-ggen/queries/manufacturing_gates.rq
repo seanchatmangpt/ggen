@@ -1,0 +1,14 @@
+PREFIX earl:   <http://www.w3.org/ns/earl#>
+PREFIX skos:   <http://www.w3.org/2004/02/skos/core#>
+PREFIX schema: <https://schema.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+SELECT ?label ?position ?budget_ns ?doc
+WHERE {
+    ?gate a earl:TestCriterion, skos:Concept ;
+          skos:prefLabel ?label ;
+          schema:position ?position ;
+          schema:execTime ?budget_ns .
+    OPTIONAL { ?gate dcterms:description ?doc . }
+}
+ORDER BY ?position

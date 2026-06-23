@@ -1,0 +1,44 @@
+@prefix : <https://bytestar.org/ontology/byteflow/orchestration-specification#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/byteflow/orchestration-specification>
+  a owl:Ontology ;
+  rdfs:label "ByteFlow Orchestration Specification" ;
+  rdfs:comment "Defines the state machine and logic for orchestrating live workflows based on incoming ResultCrystals and the 43 canonical patterns." ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  owl:versionInfo "4.0.0" .
+
+:OrchestrationEngine a owl:Class ;
+    rdfs:label "Warm-Path Orchestration Engine" .
+
+:manages a owl:ObjectProperty ;
+    rdfs:domain :OrchestrationEngine ;
+    rdfs:range :WorkflowInstance .
+
+:WorkflowInstance a owl:Class .
+
+:hasState a owl:ObjectProperty ;
+    rdfs:domain :WorkflowInstance ;
+    rdfs:range :WorkflowState .
+
+:WorkflowState a owl:Class ;
+    owl:oneOf ( :Running :Suspended :Completed :Faulted ) .
+
+:Running a :WorkflowState .
+:Suspended a :WorkflowState .
+:Completed a :WorkflowState .
+:Faulted a :WorkflowState .
+
+:receives a owl:ObjectProperty ;
+    rdfs:domain :OrchestrationEngine ;
+    rdfs:range bcore:ResultCrystal .
+
+:places a owl:ObjectProperty ;
+    rdfs:domain :OrchestrationEngine ;
+    rdfs:range bcore:IngressEnvelope .
+
+:referencesPattern a owl:ObjectProperty ;
+    rdfs:domain :OrchestrationEngine ;
+    rdfs:range bcore:Pattern .
