@@ -324,4 +324,185 @@ pc:InverseReceiptShape
         sh:datatype xsd:string ;
         sh:minLength 1 ;
         sh:message "InverseReceipt must carry a non-empty signature per the post-Chatman receipt contract. NOTE: not yet emitted by inverse_pipeline.rs — divergence flagged." ;
+    ] ;
+
+    # Constraint: operation_id must be a valid UUID v4 (case-insensitive hex, no braces).
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "InverseReceipt.operation_id must match UUID v4 format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx (where y in [89ab])." ;
+        sh:prefixes <https://ggen.dev/ontology/post-chatman/shapes> ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this pc:receiptOperationId ?opId .
+                FILTER (!regex(?opId, "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$", "i"))
+            }
+        """ ;
+    ] ;
+
+    # Constraint: all input_hash values must be 64-character lowercase hex (SHA-256 format).
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Each InverseReceipt input hash must be a 64-character lowercase hexadecimal string (SHA-256 format)." ;
+        sh:prefixes <https://ggen.dev/ontology/post-chatman/shapes> ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this pc:inputHash ?hash .
+                FILTER (!regex(?hash, "^[a-f0-9]{64}$"))
+            }
+        """ ;
+    ] ;
+
+    # Constraint: signature must be non-empty AND properly formed (base64 or hex pattern).
+    # Accepts base64 (a-zA-Z0-9+/=) or hex (a-f0-9) patterns, min 32 chars for either encoding.
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "InverseReceipt.signature must be non-empty and properly formed as base64 (RFC 4648) or hexadecimal, at least 32 characters." ;
+        sh:prefixes <https://ggen.dev/ontology/post-chatman/shapes> ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this pc:signature ?sig .
+                FILTER (strlen(?sig) < 32 || !(regex(?sig, "^[a-zA-Z0-9+/]+=*$") || regex(?sig, "^[a-f0-9]{64,}$")))
+            }
+        """ ;
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ProvenanceEnvelopeShape
+# Code invariant: ProvenanceEnvelope {
+#     envelope_hash: String (BLAKE3 hex, 64 chars, non-empty),
+#     operation_chain: Vec<String> (UUIDs, at least 1 entry),
+#     has_forward_receipt: Option<Receipt>,
+#     has_inverse_receipt: Option<InverseReceipt>,
+#     linked_at: DateTime<Utc>,
+# }
+# Enforces pc:RoundTripCriterion: an envelope is a complete O→A→O proof
+# binding forward and inverse receipts. At least one of forward or inverse
+# must be present; if inverse is present with an admitted forward report,
+# no coherence drifts may remain.
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:ProvenanceEnvelopeShape
+    a sh:NodeShape ;
+    sh:targetClass pc:ProvenanceEnvelope ;
+    sh:closed false ;
+    rdfs:comment "A ProvenanceEnvelope encapsulates a complete O→A→O round-trip transformation, binding forward and inverse receipts into an auditable proof object that witnesses the post-Chatman isomorphism."@en ;
+
+    sh:property [
+        sh:path pc:envelopeHash ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "ProvenanceEnvelope.envelope_hash must be a non-empty BLAKE3 hex digest (64 hex characters)." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:linkedAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "ProvenanceEnvelope must record when the envelope was assembled (linkedAt timestamp, RFC-3339)." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:operationChain ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        rdfs:comment "operationChain must be an rdf:Seq with at least one UUID v4 operation ID." ;
+    ] ;
+
+    # Constraint: at least one of forward or inverse receipt must be present.
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "ProvenanceEnvelope must have at least one of pc:hasForwardReceipt or pc:hasInverseReceipt (the round trip requires at least one direction)." ;
+        sh:prefixes <https://ggen.dev/ontology/post-chatman/shapes> ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this a pc:ProvenanceEnvelope .
+                FILTER NOT EXISTS { ?this pc:hasForwardReceipt ?fwd }
+                FILTER NOT EXISTS { ?this pc:hasInverseReceipt ?inv }
+            }
+        """ ;
+    ] ;
+
+    # Constraint: all elements in operationChain must be valid UUIDs v4.
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "All operation IDs in ProvenanceEnvelope.operationChain must be valid UUID v4 strings." ;
+        sh:prefixes <https://ggen.dev/ontology/post-chatman/shapes> ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this pc:operationChain ?seq .
+                ?seq rdf:_1 ?member .
+                FILTER (!regex(?member, "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$", "i"))
+            }
+        """ ;
+    ] ;
+
+    # Constraint: envelope_hash must be 64 lowercase hex characters (BLAKE3 format).
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "ProvenanceEnvelope.envelope_hash must be a 64-character lowercase hexadecimal string (BLAKE3 format)." ;
+        sh:prefixes <https://ggen.dev/ontology/post-chatman/shapes> ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this pc:envelopeHash ?hash .
+                FILTER (!regex(?hash, "^[a-f0-9]{64}$"))
+            }
+        """ ;
+    ] ;
+
+    # Constraint: admitted-envelope coherence invariant.
+    # If the envelope has an inverse receipt AND references a CoherenceReport with admitted=true,
+    # then that report must have zero drifts.
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "If a ProvenanceEnvelope with an admitted forward CoherenceReport also has an InverseReceipt, the forward report must carry zero drifts (coherence must be maintained across the round trip)." ;
+        sh:prefixes <https://ggen.dev/ontology/post-chatman/shapes> ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this pc:hasInverseReceipt ?inv .
+                ?this pc:hasForwardReceipt ?fwd .
+                ?fwd a pc:CoherenceReport ;
+                     pc:admitted true ;
+                     pc:hasDrift ?drift .
+            }
+        """ ;
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AdmittedEnvelopeConstraint (SPARQL refinement)
+# Further constraint on ProvenanceEnvelope: if the envelope declares the
+# forward synthesis was admitted (coherent), then the forward report must
+# have zero drifts AND the inverse receipt must have shacl_valid = true.
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:AdmittedEnvelopeConstraint
+    a sh:NodeShape ;
+    rdfs:comment "A ProvenanceEnvelope whose forward CoherenceReport is admitted (admitted=true) must also have an inverse receipt with shacl_valid=true to complete the round-trip proof."@en ;
+
+    # Target: ProvenanceEnvelopes that reference an admitted forward report.
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://ggen.dev/ontology/post-chatman/shapes> ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this a pc:ProvenanceEnvelope ;
+                      pc:hasForwardReceipt ?fwd .
+                ?fwd pc:admitted true .
+            }
+        """ ;
+    ] ;
+
+    # Constraint: if forward is admitted, inverse must be valid (shacl_valid=true).
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "An admitted ProvenanceEnvelope (with admitted forward CoherenceReport) must have an InverseReceipt with shacl_valid=true to prove the round-trip coherence." ;
+        sh:prefixes <https://ggen.dev/ontology/post-chatman/shapes> ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this pc:hasInverseReceipt ?inv .
+                ?inv pc:shaclValid false .
+            }
+        """ ;
     ] .

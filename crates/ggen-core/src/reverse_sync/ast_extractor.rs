@@ -768,9 +768,13 @@ pub fn convert_to_rdf(services: &[ServiceDef]) -> Result<String> {
         if !service.variants.is_empty() {
             for variant in &service.variants {
                 turtle.push_str(&format!(
-                    "    code:hasVariant [ a code:Variant ; code:variantName \"{}\" ] ;\n",
+                    "    code:hasVariant [ a code:Variant ; code:variantName \"{}\"",
                     variant.name
                 ));
+                if let Some(payload) = &variant.payload {
+                    turtle.push_str(&format!("; code:variantPayload \"{}\"", payload));
+                }
+                turtle.push_str(" ] ;\n");
             }
         }
 
@@ -852,6 +856,7 @@ mod tests {
             methods: vec![],
             variants: vec![],
             type_params: vec![],
+            trait_bounds: std::collections::HashMap::new(),
         };
 
         let rdf = convert_to_rdf(&[service]).unwrap();
@@ -876,6 +881,7 @@ mod tests {
             }],
             variants: vec![],
             type_params: vec![],
+            trait_bounds: std::collections::HashMap::new(),
         };
 
         let rdf = convert_to_rdf(&[service]).unwrap();
@@ -934,6 +940,15 @@ mod tests {
         assert!(names.contains(&"Inactive"));
         assert!(names.contains(&"Pending"));
         assert!(names.contains(&"Custom"));
+
+        // Verify payloads are captured
+        let pending = variants.iter().find(|v| v.name == "Pending").expect("Pending variant");
+        assert!(pending.payload.is_some());
+        assert!(pending.payload.as_ref().unwrap().contains("u32"));
+
+        let custom = variants.iter().find(|v| v.name == "Custom").expect("Custom variant");
+        assert!(custom.payload.is_some());
+        assert!(custom.payload.as_ref().unwrap().contains("code"));
     }
 
     #[test]

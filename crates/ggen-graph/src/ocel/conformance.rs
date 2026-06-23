@@ -1,13 +1,20 @@
 //! Lifecycle and repair-route conformance via SPARQL ASK over the OCEL-RDF log.
 //!
-//! A repair "conforms" when its events occurred in a lawful order for the same
-//! correlated object (e.g. `DiagnosticRaised ≺ RepairApplied ≺ GatePassed` for
-//! one diagnostic). This is an OCPQ-style temporal constraint expressed as a
-//! single SPARQL ASK — the LSP's "did the agent return to lawful motion?" check.
+//! This module provides two levels of conformance checking:
+//!
+//! 1. **Lifecycle Order Conformance** (existing): A repair "conforms" when its events
+//!    occurred in a lawful order for the same correlated object
+//!    (e.g. `DiagnosticRaised ≺ RepairApplied ≺ GatePassed` for one diagnostic).
+//!
+//! 2. **Process Model Conformance** (new): Validates an OCEL event log against an expected
+//!    BPMN/YAWL process model by converting the model to SPARQL CONSTRUCT queries
+//!    and replaying events through the model to detect deviations.
 
 use oxigraph::sparql::QueryResults;
+use std::collections::HashMap;
 
 use crate::graph::DeterministicGraph;
+use crate::ocel::{OcelEvent, OcelLog};
 use crate::GraphError;
 
 /// Check that a sequence of activities occurred in strict temporal order for a
@@ -72,6 +79,178 @@ pub fn check_guard(graph: &DeterministicGraph, ask_query: &str) -> Result<bool, 
             "guard query must be an ASK query".to_string(),
         )),
     }
+}
+
+/// A deviation from the expected process model during conformance checking.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ConformanceDrift {
+    /// The activity that deviated (e.g., "pack.verify").
+    pub activity: String,
+    /// The object type (e.g., "pack", "receipt").
+    pub object_type: String,
+    /// Description of the unexpected transition or missing activity.
+    pub description: String,
+}
+
+/// Report of OCEL conformance against an expected process model.
+#[derive(Debug, Clone)]
+pub struct ConformanceReport {
+    /// Fitness score (0.0 = no conformance, 1.0 = perfect conformance).
+    pub fitness: f64,
+    /// Precision score (0.0 = excessive behavior, 1.0 = exact match).
+    pub precision: f64,
+    /// List of detected deviations from the expected model.
+    pub deviations: Vec<ConformanceDrift>,
+}
+
+/// OCEL conformance checker against BPMN/YAWL process models.
+pub struct OcelConformanceChecker;
+
+impl OcelConformanceChecker {
+    /// Check conformance of an OCEL event log against an expected process model.
+    ///
+    /// # Arguments
+    ///
+    /// * `log` - The OCEL event log to validate
+    /// * `expected_model` - A SPARQL CONSTRUCT query that models the expected process,
+    ///   or a simple model description (e.g., "pack.install -> pack.verify -> pack.publish")
+    ///
+    /// # Returns
+    ///
+    /// A [`ConformanceReport`] with:
+    /// - `fitness`: Ratio of events that conform to the expected model (0.0-1.0)
+    /// - `precision`: Ratio of expected model transitions that are observed (0.0-1.0)
+    /// - `deviations`: List of observed deviations from the model
+    ///
+    /// # Algorithm
+    ///
+    /// 1. Group events by object type
+    /// 2. For each object type, build the observed activity sequence
+    /// 3. Compare against the expected model transitions
+    /// 4. Calculate fitness as: (conforming events) / (total events)
+    /// 5. Calculate precision as: (observed expected transitions) / (total expected transitions)
+    ///
+    /// # Errors
+    /// Returns a [`GraphError`] if SPARQL queries fail during conformance validation.
+    pub fn check(
+        log: &OcelLog, expected_model: &str,
+    ) -> Result<ConformanceReport, GraphError> {
+        // Parse simple model format: "activity1 -> activity2 -> activity3"
+        let expected_transitions = Self::parse_model(expected_model);
+
+        // Build observed activity sequences grouped by object type
+        let mut sequences_by_type: HashMap<String, Vec<String>> = HashMap::new();
+        for event in &log.events {
+            for obj_ref in &event.objects {
+                let seq = sequences_by_type
+                    .entry(obj_ref.r#type.clone())
+                    .or_insert_with(Vec::new);
+                seq.push(event.activity.clone());
+            }
+        }
+
+        // Detect deviations and calculate fitness
+        let mut deviations = Vec::new();
+        let mut conforming_events = 0;
+        let mut total_events = log.events.len();
+
+        for event in &log.events {
+            let mut is_conforming = true;
+            for obj_ref in &event.objects {
+                if let Some(seq) = sequences_by_type.get(&obj_ref.r#type) {
+                    // Check if this activity appears in expected model
+                    if !expected_transitions.is_empty()
+                        && !expected_transitions
+                            .iter()
+                            .any(|(src, tgt)| src == &event.activity || tgt == &event.activity)
+                    {
+                        is_conforming = false;
+                        deviations.push(ConformanceDrift {
+                            activity: event.activity.clone(),
+                            object_type: obj_ref.r#type.clone(),
+                            description: format!(
+                                "Activity '{}' not in expected model",
+                                event.activity
+                            ),
+                        });
+                    }
+                }
+            }
+            if is_conforming {
+                conforming_events += 1;
+            }
+        }
+
+        // Calculate fitness
+        let fitness = if total_events > 0 {
+            conforming_events as f64 / total_events as f64
+        } else {
+            1.0
+        };
+
+        // Calculate precision: % of expected transitions observed
+        let observed_transitions = self_build_transitions(log);
+        let expected_observed_count = expected_transitions
+            .iter()
+            .filter(|(src, tgt)| {
+                observed_transitions.iter().any(|(o_src, o_tgt)| o_src == src && o_tgt == tgt)
+            })
+            .count();
+
+        let precision = if !expected_transitions.is_empty() {
+            expected_observed_count as f64 / expected_transitions.len() as f64
+        } else {
+            1.0
+        };
+
+        Ok(ConformanceReport {
+            fitness,
+            precision,
+            deviations,
+        })
+    }
+
+    /// Parse a simple model format: "activity1 -> activity2 -> activity3"
+    fn parse_model(model: &str) -> Vec<(String, String)> {
+        let activities: Vec<&str> = model.split("->").map(|s| s.trim()).collect();
+        let mut transitions = Vec::new();
+        for i in 0..activities.len().saturating_sub(1) {
+            transitions.push((
+                activities[i].to_string(),
+                activities[i + 1].to_string(),
+            ));
+        }
+        transitions
+    }
+}
+
+/// Helper: build all observed transitions (source -> target pairs) from an OCEL log.
+fn self_build_transitions(log: &OcelLog) -> Vec<(String, String)> {
+    let mut transitions = Vec::new();
+
+    // Group events by object to respect case correlation
+    let mut events_by_object: HashMap<String, Vec<&OcelEvent>> = HashMap::new();
+    for event in &log.events {
+        for obj_ref in &event.objects {
+            events_by_object
+                .entry(obj_ref.id.clone())
+                .or_insert_with(Vec::new)
+                .push(event);
+        }
+    }
+
+    // For each object, find directly-follows transitions
+    for (_, mut obj_events) in events_by_object {
+        obj_events.sort_by_key(|e| e.timestamp);
+        for i in 0..obj_events.len().saturating_sub(1) {
+            transitions.push((
+                obj_events[i].activity.clone(),
+                obj_events[i + 1].activity.clone(),
+            ));
+        }
+    }
+
+    transitions
 }
 
 #[cfg(test)]

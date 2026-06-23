@@ -1,6 +1,7 @@
 pub mod conformance;
 pub mod coverage;
 pub mod dfg;
+pub mod discovery;
 pub mod gall_projection;
 pub mod ocel_types;
 pub mod pack_events;
@@ -8,9 +9,10 @@ pub mod projection;
 pub mod prov_types;
 pub mod self_audit;
 
-pub use conformance::{check_guard, check_lifecycle_order};
+pub use conformance::{check_guard, check_lifecycle_order, ConformanceDrift, ConformanceReport, OcelConformanceChecker};
 pub use coverage::{generate_coverage_matrix, CoverageMatrix, RequirementEvidence};
 pub use dfg::{discover_dfg, DfgEdge};
+pub use discovery::{OcelProcessDiscovery, ProcessModel};
 pub use gall_projection::{extract_self_audit, project_self_audit, query_relationship};
 pub use ocel_types::{OcelEvent, OcelLog, OcelObject, OcelObjectRef};
 pub use pack_events::{
