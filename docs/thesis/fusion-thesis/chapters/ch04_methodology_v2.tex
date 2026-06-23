@@ -1,0 +1,133 @@
+\chapter{Methodology: The KGC Substrate and the Modernized Five-Stage Pipeline}
+
+This chapter establishes the theoretical and practical framework for the Knowledge Graph Compiler (KGC). We synthesize the formal KGC Substrate Model with a modernized five-stage measurement pipeline, incorporating advanced capabilities of the Template Engine v2 and the Ontology Pack metadata structures. This methodology ensures that RDF-to-artifact transformations are not only deterministic and verifiable but also highly flexible and scalable.
+
+\section{The KGC Substrate Model}
+
+The KGC substrate provides the algebraic foundation for all RDF transformations within the ecosystem. It defines a minimal calculus for transforming semantic graphs into executable artifacts.
+
+\begin{definition}[Observable $\Oobs$]
+An \textbf{observable} $\Oobs$ is a source of RDF data, such as SPARQL endpoints, Turtle files, or API responses. Observables are the primary inputs to the compiler and are assumed to be read-only snapshots.
+\end{definition}
+
+\begin{definition}[Artifact $\Aout$]
+An \textbf{artifact} $\Aout$ is an immutable output produced by the compiler, such as a triple store instance $\store$, a serialized code file, or a cryptographic receipt $\receipt{\cdot}$.
+\end{definition}
+
+\begin{definition}[Reconciler $\muRecon$]
+A \textbf{reconciler} $\muRecon : \Oobs \to \Aout$ is a pure function that transforms observables into artifacts. In the context of ggen, the compiler itself acts as a composite reconciler $\mu$.
+\end{definition}
+
+\begin{definition}[Type Signature $\SigmaType$]
+A \textbf{type signature} $\SigmaType$ represents the schema or constraints (e.g., SHACL shapes, Zod schemas) that validate the structural integrity of both $\Oobs$ and $\Aout$.
+\end{definition}
+
+\begin{definition}[Compositional Operators]
+The substrate supports two primary operators:
+\begin{itemize}
+    \item \textbf{Sequential Composition ($\PiMerge$)}: $f \PiMerge g = g \compose f$, representing the pipeline flow.
+    \item \textbf{Commutative Fusion ($\oplusMerge$)}: Represents the union of artifacts or graphs with deterministic ordering.
+\end{itemize}
+\end{definition}
+
+\begin{definition}[Invariants and Guards]
+An \textbf{invariant} $\InvQ$ is a property (like referential transparency) preserved across transformations. A \textbf{guard} $\GuardH$ is an impossibility predicate that prevents invalid states or forbidden patterns (e.g., non-deterministic I/O during emission).
+\end{definition}
+
+\section{The Five-Stage Pipeline (\(\mu_1\)--\(\mu_5\))}
+
+The compiler implements the substrate through a five-stage pipeline $\mu = \mu_5 \circ \mu_4 \circ \mu_3 \circ \mu_2 \circ \mu_1$. Each stage is a discrete reconciler that preserves the invariants of the substrate.
+
+\subsection{Stage 1: Normalization (\(\mu_1\))}
+
+The normalization stage transforms raw observables into a validated, in-memory graph representation. In the modernized pipeline, this stage is governed by the \textbf{Ontology Pack} metadata.
+
+\begin{itemize}
+    \item \textbf{Input}: RDF files (Turtle, JSON-LD), Ontology Pack configuration (\texttt{ggen.toml}).
+    \item \textbf{Process}: 
+        \begin{enumerate}
+            \item Parse RDF using the Oxigraph store.
+            \item Load \texttt{OntologyDefinition} metadata (ID, namespace, version).
+            \item Apply SHACL validation to ensure the graph satisfies $\SigmaType$.
+            \item Verify ontology closure (no undefined references).
+        \end{enumerate}
+    \item \textbf{Output}: A normalized graph $G$ and its associated metadata context.
+\end{itemize}
+
+\subsection{Stage 2: Extraction (\(\mu_2\))}
+
+The extraction stage discovers semantic patterns using SPARQL. Template Engine v2 introduces \textbf{inline SPARQL} and named queries defined directly in the template frontmatter.
+
+\begin{definition}[Frontmatter Query Injection]
+Templates now specify their own extraction logic, reducing the need for external query files.
+\begin{minted}[fontsize=\small]{yaml}
+---
+sparql:
+  classes: "SELECT ?class WHERE { ?class a owl:Class }"
+  properties: "SELECT ?prop WHERE { ?prop a rdf:Property }"
+---
+\end{minted}
+\end{definition}
+
+This stage executes these queries against the normalized graph $G$, binding the results to the \texttt{sparql\_results} context variable for the next stage.
+
+\subsection{Stage 3: Emission (\(\mu_3\))}
+
+The emission stage generates the final code or documentation artifacts. Template Engine v2 provides a major upgrade: \textbf{Multi-File Emission}.
+
+Unlike v1, which produced a single output per template, v2 templates can emit multiple files using the \texttt{\{# FILE: path \#\}} marker.
+
+\begin{minted}[fontsize=\small]{tera}
+{% for row in sparql_results.classes %}
+{# FILE: src/models/{{ row.class | local_name }}.ts #}
+export interface {{ row.class | local_name }} {
+  id: string;
+}
+{% endfor %}
+\end{minted}
+
+This allows a single ontology to drive the generation of an entire directory structure (e.g., one file per class, separate guards and types) in a single pass, ensuring absolute consistency across all generated artifacts.
+
+\subsection{Stage 4: Canonicalization (\(\mu_4\))}
+
+To ensure determinism $\InvQ(\text{deterministic})$, all emitted artifacts pass through a canonicalization stage. This stage applies language-specific formatting (e.g., \texttt{rustfmt}, \texttt{prettier}) and normalizes line endings and whitespace.
+
+The output is then hashed using \textbf{BLAKE3}, creating a content-addressable identifier $\ProvHash(\Aout)$ for each artifact.
+
+\subsection{Stage 5: Receipt Generation (\(\mu_5\))}
+
+The final stage produces a cryptographic \textbf{receipt} $\receipt{\cdot}$, proving the provenance and integrity of the generation process.
+
+\begin{equation}
+R = \text{Sign}_{sk}(\ProvHash(\Oobs) \| \ProvHash(\Aout) \| \tauEpoch)
+\end{equation}
+
+Where $sk$ is the generator's private key and $\tauEpoch$ is the causality boundary (version/timestamp). This receipt allows any third party to verify that the artifact $\Aout$ was indeed derived from the specific observable $\Oobs$ using a verified pipeline.
+
+\section{Ontology Pack Architecture}
+
+The methodology relies on the \texttt{OntologyPackMetadata} to coordinate the pipeline. This structure bundles ontologies with their corresponding templates and generation targets.
+
+\begin{table}[h]
+\centering
+\caption{Key Components of Ontology Pack Metadata}
+\begin{tabular}{lp{8cm}}
+\toprule
+\textbf{Component} & \textbf{Function} \\
+\midrule
+\texttt{OntologyDefinition} & Defines the vocabulary ID, namespace, and format (Turtle, JSON-LD). \\
+\texttt{CodeGenTarget} & Maps a target language (e.g., TypeScript) to a specific v2 template and output pattern. \\
+\texttt{Prefixes} & Standardizes RDF prefixes across the extraction and emission stages. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Formal Verification and Determinism}
+
+The synthesis of the substrate and the pipeline enables rigorous verification.
+
+\begin{theorem}[Compositional Determinism]
+Given that each stage $\mu_i$ is a pure function and $\mu_4$ provides canonical normalization, the composite pipeline $\mu$ is deterministic: $\mu(O) = \mu(O')$ if $O = O'$.
+\end{theorem}
+
+This is empirically verified through "Golden File" testing and the EPIC (Empirical Parallel Integrity Check) protocol, ensuring that parallel execution across different environments yields identical $\ProvHash(\Aout)$ values.
