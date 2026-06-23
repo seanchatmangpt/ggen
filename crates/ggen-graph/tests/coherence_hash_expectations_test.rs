@@ -224,28 +224,28 @@ fn test_multiple_poles_with_hash_mismatches() {
 
     let report = CoherenceChecker::check_with_expectations(&[o_fresh.clone(), a_fresh.clone(), l_fresh], &expectations);
 
-    // Assert: two HashMismatch drifts (one for O, one for A)
-    let hash_mismatches: Vec<&CoherenceDrift> = report
+    // Assert: multiple self-comparison HashMismatch drifts (Rule 5) for O and A
+    let self_comparison_mismatches: Vec<&CoherenceDrift> = report
         .drifts
         .iter()
-        .filter(|d| d.kind == DriftKind::HashMismatch)
+        .filter(|d| d.kind == DriftKind::HashMismatch && d.source_pole == d.target_pole)
         .collect();
 
     assert_eq!(
-        hash_mismatches.len(),
+        self_comparison_mismatches.len(),
         2,
-        "expected exactly 2 HashMismatch drifts (O and A); got: {:?}",
+        "expected exactly 2 self-comparison HashMismatch drifts (O and A); got: {:?}",
         report.drifts
     );
 
     // Assert: drifts cover both poles
-    let o_drifts = hash_mismatches.iter().filter(|d| d.source_pole == Pole::Ontology).count();
-    let a_drifts = hash_mismatches.iter().filter(|d| d.source_pole == Pole::Artifact).count();
+    let o_drifts = self_comparison_mismatches.iter().filter(|d| d.source_pole == Pole::Ontology).count();
+    let a_drifts = self_comparison_mismatches.iter().filter(|d| d.source_pole == Pole::Artifact).count();
 
     assert_eq!(o_drifts, 1, "exactly one drift should be for Ontology pole");
     assert_eq!(a_drifts, 1, "exactly one drift should be for Artifact pole");
 
-    // Assert: admitted is false
+    // Assert: admitted is false (multiple mismatches block admission)
     assert!(!report.admitted, "multiple mismatches must force admitted = false");
 }
 

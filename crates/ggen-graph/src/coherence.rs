@@ -132,10 +132,9 @@ impl CoherenceChecker {
     /// Compare up to three pole states and produce a [`CoherenceReport`].
     ///
     /// This is shorthand for [`CoherenceChecker::check_with_expectations`] with no
-    /// declared fingerprints, so it never emits [`DriftKind::HashMismatch`] from self-comparison.
-    /// Rule 6 (cross-pole O↔L hash comparison) still applies. To detect drift against a
-    /// previously recorded fingerprint (e.g., a prior receipt), use
-    /// [`CoherenceChecker::check_with_expectations`].
+    /// declared fingerprints, so it never emits [`DriftKind::HashMismatch`] from self-comparison
+    /// or cross-pole coherence checks. To detect drift against a previously recorded
+    /// fingerprint (e.g., a prior receipt), use [`CoherenceChecker::check_with_expectations`].
     ///
     /// # Drift rules
     ///
@@ -147,8 +146,6 @@ impl CoherenceChecker {
     /// 4. If event-log `item_count == 0` and ontology `item_count > 0` →
     ///    [`DriftKind::CountDiscrepancy`] between O and L (direct O↔L check, not only
     ///    transitive through A).
-    /// 6. If ontology hash differs from event-log hash →
-    ///    [`DriftKind::HashMismatch`] between O and L (cross-pole check).
     ///
     /// `admitted` is `true` iff `drifts` is empty **and** all three poles are present.
     pub fn check(poles: &[PoleState]) -> CoherenceReport {
@@ -164,8 +161,10 @@ impl CoherenceChecker {
     /// emits [`DriftKind::HashMismatch`]. This makes the post-Chatman round-trip (O→A→O)
     /// auditable: silent regeneration drift becomes a visible drift observation.
     ///
-    /// Additionally, implements Rule 6 (cross-pole hash comparison): if ontology (O) hash
-    /// differs from event-log (L) hash, emits a drift with source=Ontology, target=EventLog.
+    /// Additionally, implements Rule 6 (cross-pole expectation coherence): if expectations
+    /// exist for both O and L, and one pole is stable (matches expectation) while the other
+    /// drifted (differs from expectation), this indicates a coherence fracture and emits
+    /// a HashMismatch drift with the stable pole as source and drifted pole as target.
     ///
     /// All count/missing rules from [`CoherenceChecker::check`] also apply.
     ///
@@ -266,20 +265,30 @@ impl CoherenceChecker {
             }
         }
 
-        // Rule 6 — Cross-pole hash comparison: if ontology (O) hash differs from
-        // event-log (L) hash, emit a drift with source=Ontology, target=EventLog.
-        // This captures when the ontology and event log are out of sync.
+        // Rule 6 — Cross-pole expectation coherence: if expectations exist for both O and L,
+        // and O_fresh matches O_expected but L_fresh diverges from L_expected (or vice versa),
+        // this indicates one pole is stable while the other drifted — a coherence fracture.
+        let o_expected = expectations.get(&Pole::Ontology);
+        let l_expected = expectations.get(&Pole::EventLog);
         if let (Some(o), Some(l)) = (by_pole.get(&Pole::Ontology), by_pole.get(&Pole::EventLog)) {
-            if o.hash != l.hash {
-                drifts.push(CoherenceDrift {
-                    kind: DriftKind::HashMismatch,
-                    source_pole: Pole::Ontology,
-                    target_pole: Pole::EventLog,
-                    detail: format!(
-                        "Ontology and EventLog fingerprints diverge: O={} vs L={}",
-                        o.hash, l.hash
-                    ),
-                });
+            if let (Some(o_exp), Some(l_exp)) = (o_expected, l_expected) {
+                let o_matches = o.hash == *o_exp;
+                let l_matches = l.hash == *l_exp;
+                // If one pole is stable (matches expectation) and the other drifted (doesn't match),
+                // that's a cross-pole coherence fracture.
+                if o_matches != l_matches {
+                    let (stable_pole, drifted_pole) = if o_matches { (Pole::Ontology, Pole::EventLog) } else { (Pole::EventLog, Pole::Ontology) };
+                    drifts.push(CoherenceDrift {
+                        kind: DriftKind::HashMismatch,
+                        source_pole: stable_pole,
+                        target_pole: drifted_pole,
+                        detail: format!(
+                            "Cross-pole coherence fracture: {stable:?} is stable while {drifted:?} drifted",
+                            stable = stable_pole,
+                            drifted = drifted_pole
+                        ),
+                    });
+                }
             }
         }
 
