@@ -1,12 +1,10 @@
 pub mod diag;
 pub mod harness_analyzer;
-pub mod mtlx_analyzer;
 pub mod rdf_analyzer;
 pub mod source_law_analyzer;
 pub mod sparql_analyzer;
 pub mod tera_analyzer;
 pub mod toml_analyzer;
-pub mod usd_analyzer;
 
 use lsp_max::lsp_types_max::{
     CallHierarchyItem, CodeLens, CompletionResponse, DocumentSymbol, FoldingRange, Hover,
@@ -18,7 +16,6 @@ use std::collections::BTreeSet;
 use std::fmt;
 
 pub use harness_analyzer::{harness_mismatch_diagnostics, DeclaredTarget, GGEN_HARNESS_001};
-pub use mtlx_analyzer::{MtlxAnalyzer, GGEN_MTLX_001};
 pub use rdf_analyzer::{RdfAnalyzer, RdfFlavor};
 pub use source_law_analyzer::{do_not_edit_diagnostics, GGEN_SRC_002, GGEN_SRC_003};
 pub use sparql_analyzer::SparqlAnalyzer;
@@ -30,7 +27,6 @@ pub use tera_analyzer::{
     GGEN_YIELD_001, GGEN_YIELD_003, GGEN_YIELD_004, GGEN_YIELD_005,
 };
 pub use toml_analyzer::{source_caste_path_violation, TomlAnalyzer, GGEN_SRC_001};
-pub use usd_analyzer::{UsdAnalyzer, GGEN_USD_001, GGEN_USD_002, GGEN_USD_003};
 
 use crate::state::FileType;
 
@@ -374,8 +370,6 @@ pub fn build_analyzer(path: &str, content: &str) -> Option<DocumentAnalyzer> {
         FileType::Toml => TomlAnalyzer::new_from_content(content)
             .ok()
             .map(DocumentAnalyzer::Toml),
-        FileType::Usd => Some(DocumentAnalyzer::Usd(UsdAnalyzer::new(content))),
-        FileType::Mtlx => Some(DocumentAnalyzer::Mtlx(MtlxAnalyzer::new(content))),
         FileType::Unknown => None,
     }
 }
@@ -404,8 +398,6 @@ pub enum DocumentAnalyzer {
     Sparql(SparqlAnalyzer),
     Tera(TeraAnalyzer),
     Toml(TomlAnalyzer),
-    Usd(UsdAnalyzer),
-    Mtlx(MtlxAnalyzer),
 }
 
 impl fmt::Debug for DocumentAnalyzer {
@@ -415,8 +407,6 @@ impl fmt::Debug for DocumentAnalyzer {
             Self::Sparql(_) => f.write_str("DocumentAnalyzer::Sparql"),
             Self::Tera(_) => f.write_str("DocumentAnalyzer::Tera"),
             Self::Toml(_) => f.write_str("DocumentAnalyzer::Toml"),
-            Self::Usd(_) => f.write_str("DocumentAnalyzer::Usd"),
-            Self::Mtlx(_) => f.write_str("DocumentAnalyzer::Mtlx"),
         }
     }
 }
@@ -429,8 +419,6 @@ impl DocumentAnalyzer {
             Self::Sparql(a) => a.diagnostics(),
             Self::Tera(a) => a.diagnostics(),
             Self::Toml(a) => a.diagnostics(),
-            Self::Usd(a) => a.diagnostics(),
-            Self::Mtlx(a) => a.diagnostics(),
         }
     }
 
@@ -440,8 +428,6 @@ impl DocumentAnalyzer {
             Self::Sparql(a) => a.completion_at(line, character),
             Self::Tera(a) => a.completion_at(line, character),
             Self::Toml(a) => a.completion_at(line, character),
-            Self::Usd(a) => a.completion_at(line, character),
-            Self::Mtlx(a) => a.completion_at(line, character),
         }
     }
 
@@ -451,8 +437,6 @@ impl DocumentAnalyzer {
             Self::Sparql(a) => a.hover_at(line, character),
             Self::Tera(a) => a.hover_at(line, character),
             Self::Toml(a) => a.hover_at(line, character),
-            Self::Usd(a) => a.hover_at(line, character),
-            Self::Mtlx(a) => a.hover_at(line, character),
         }
     }
 
@@ -461,7 +445,7 @@ impl DocumentAnalyzer {
             Self::Rdf(a) => a.definition_at(line, character),
             Self::Sparql(a) => a.definition_at(line, character),
             Self::Tera(a) => a.definition_at(line, character),
-            Self::Toml(_) | Self::Usd(_) | Self::Mtlx(_) => None,
+            Self::Toml(_) => None,
         }
     }
 
@@ -470,7 +454,7 @@ impl DocumentAnalyzer {
             Self::Rdf(a) => a.references_at(line, character),
             Self::Sparql(a) => a.references_at(line, character),
             Self::Tera(a) => a.references_at(line, character),
-            Self::Toml(_) | Self::Usd(_) | Self::Mtlx(_) => None,
+            Self::Toml(_) => None,
         }
     }
 
@@ -480,8 +464,6 @@ impl DocumentAnalyzer {
             Self::Sparql(a) => a.semantic_tokens(),
             Self::Tera(a) => a.semantic_tokens(),
             Self::Toml(a) => a.semantic_tokens(),
-            Self::Usd(a) => a.semantic_tokens(),
-            Self::Mtlx(a) => a.semantic_tokens(),
         }
     }
 
@@ -499,8 +481,6 @@ impl DocumentAnalyzer {
                 .collect(),
             Self::Tera(a) => a.document_symbols(range),
             Self::Toml(a) => a.document_symbols(range),
-            Self::Usd(a) => a.document_symbols(range),
-            Self::Mtlx(a) => a.document_symbols(range),
         }
     }
 
@@ -518,8 +498,6 @@ impl DocumentAnalyzer {
             }),
             Self::Tera(a) => a.code_lenses(),
             Self::Toml(a) => a.code_lenses(),
-            Self::Usd(a) => a.code_lenses(),
-            Self::Mtlx(a) => a.code_lenses(),
         }
     }
 
@@ -537,8 +515,6 @@ impl DocumentAnalyzer {
             }),
             Self::Tera(a) => a.folding_ranges(),
             Self::Toml(a) => a.folding_ranges(),
-            Self::Usd(a) => a.folding_ranges(),
-            Self::Mtlx(a) => a.folding_ranges(),
         }
     }
 
@@ -556,8 +532,6 @@ impl DocumentAnalyzer {
             }),
             Self::Tera(a) => a.format_document(),
             Self::Toml(a) => a.format_document(),
-            Self::Usd(a) => a.format_document(),
-            Self::Mtlx(a) => a.format_document(),
         }
     }
 
@@ -575,8 +549,6 @@ impl DocumentAnalyzer {
                 .collect(),
             Self::Tera(a) => a.inlay_hints(range),
             Self::Toml(a) => a.inlay_hints(range),
-            Self::Usd(a) => a.inlay_hints(range),
-            Self::Mtlx(a) => a.inlay_hints(range),
         }
     }
 
@@ -593,8 +565,6 @@ impl DocumentAnalyzer {
             Self::Sparql(a) => a.rename_symbol(position, new_name),
             Self::Tera(a) => a.rename_symbol(position, new_name),
             Self::Toml(a) => a.rename_symbol(position, new_name),
-            Self::Usd(a) => a.rename_symbol(position, new_name),
-            Self::Mtlx(a) => a.rename_symbol(position, new_name),
         }
     }
 
@@ -603,14 +573,14 @@ impl DocumentAnalyzer {
             Self::Rdf(a) => a.call_hierarchy_items(position),
             Self::Sparql(a) => a.call_hierarchy_items(position),
             Self::Tera(a) => a.call_hierarchy_items(position),
-            Self::Toml(_) | Self::Usd(_) | Self::Mtlx(_) => None,
+            Self::Toml(_) => None,
         }
     }
 
     pub fn type_hierarchy_items(&self, position: Position) -> Option<Vec<TypeHierarchyItem>> {
         match self {
             Self::Rdf(a) => a.type_hierarchy_items(position),
-            Self::Sparql(_) | Self::Tera(_) | Self::Toml(_) | Self::Usd(_) | Self::Mtlx(_) => None,
+            Self::Sparql(_) | Self::Tera(_) | Self::Toml(_) => None,
         }
     }
 }
