@@ -85,8 +85,7 @@ Inflector = "0.11"
 heck = "0.5"
 regex = "1.12"
 
-# CLI / UX
-clap = { version = "4.5", features = ["derive"] }
+# CLI / UX (ggen-core is CLI-agnostic — no clap; the CLI lives in ggen-cli)
 colored = "3.0"
 indicatif = "0.17"
 

@@ -42,21 +42,6 @@
 //! # }
 //! ```
 //!
-//! ### Merging CLI Arguments
-//!
-//! ```rust,no_run
-//! use crate::utils::app_config::AppConfig;
-//! use clap::{Arg, Command};
-//!
-//! # fn main() -> crate::utils::error::Result<()> {
-//! let matches = Command::new("ggen")
-//!     .arg(Arg::new("debug").long("debug").action(clap::ArgAction::SetTrue))
-//!     .get_matches_from(["ggen", "--debug"]);
-//! AppConfig::merge_args(&matches)?;
-//! # Ok(())
-//! # }
-//! ```
-//!
 //! ### Accessing Configuration Values
 //!
 //! ```rust,no_run
@@ -133,57 +118,10 @@ impl AppConfig {
         Ok(())
     }
 
-    /// Merge CLI arguments with existing configuration.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if configuration merging fails.
-    pub fn merge_args(args: &clap::ArgMatches) -> Result<()> {
-        // Merge Clap arguments with existing configuration
-        // This allows CLI arguments to override environment variables and config files
-
-        if args.contains_id("debug") {
-            let value: &bool = args.get_one("debug").unwrap_or(&false);
-            Self::set("debug", &value.to_string())?;
-        }
-
-        if args.contains_id("log_level") {
-            let value: &LogLevel = args.get_one("log_level").unwrap_or(&LogLevel::Info);
-            Self::set("log_level", &value.to_string())?;
-        }
-
-        // Add support for more CLI arguments
-        if args.contains_id("config") {
-            if let Some(config_path) = args.get_one::<String>("config") {
-                Self::merge_config(Some(Path::new(config_path)))?;
-            }
-        }
-
-        Ok(())
-    }
-
-    /// Initialize configuration with proper precedence order:
-    /// 1. Default configuration (embedded)
-    /// 2. Configuration file (if specified)
-    /// 3. Environment variables (APP_*)
-    /// 4. CLI arguments (highest precedence)
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if configuration initialization or merging fails.
-    pub fn init_with_args(
-        default_config: Option<&str>, args: Option<clap::ArgMatches>,
-    ) -> Result<()> {
-        // Initialize with defaults and environment variables
-        Self::init(default_config)?;
-
-        // Merge CLI arguments if provided
-        if let Some(arg_matches) = args {
-            Self::merge_args(&arg_matches)?;
-        }
-
-        Ok(())
-    }
+    // CLI-argument merging (formerly `merge_args` / `init_with_args`, which took a
+    // `clap::ArgMatches`) now lives in the ggen-cli command layer so ggen-core
+    // stays CLI-agnostic and clap-free. Use `init` / `merge_config` for
+    // programmatic configuration.
 
     /// Merge configuration from a file.
     ///
