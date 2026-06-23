@@ -13,6 +13,14 @@ pipelining = true
 # Always show colors
 color = "always"
 
+[net]
+# Fetch git dependencies with the system `git` binary rather than the built-in
+# libgit2 client. Required for clean / cloud builds: the workspace patches the
+# lsp-max family to https://github.com/seanchatmangpt/* git revisions (see the
+# [patch.crates-io] section in Cargo.toml), and the git CLI honors this
+# environment's proxy and credential configuration where libgit2 may not.
+git-fetch-with-cli = true
+
 # sccache configuration
 [env]
 SCCACHE_DIR = "$HOME/.cache/sccache"

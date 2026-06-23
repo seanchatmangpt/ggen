@@ -104,7 +104,7 @@ rustc-hash = "2.0"
 itertools = "0.13"
 bcinr = "26.4.22"
 urlencoding = "2.1"
-wasm4pm-compat = { version = "26.6.9", path = "../wasm4pm-compat" }
+wasm4pm-compat = { version = "26.6.9", git = "https://github.com/seanchatmangpt/wasm4pm-compat", rev = "e46155e209a750fda0218532d96ae17a9e10903e" }
 
 rayon = "1.11"
 regex = "1.12"
@@ -783,20 +783,30 @@ package = "ggen-amd64"
 [package.metadata.deb.lintian-overrides]
 unused-shlibs = []
 
-# Point lsp-max family to the local workspace — the crates.io 26.6.9 release
-# still carried tower-lsp symbols internally; the local checkout has them stripped.
-# All crates that declare `lsp-max = "26.6.9"` in workspace.dependencies silently
-# resolve to the local path below. No version-number change needed.
+# Point the lsp-max family at the maintainer's GitHub repositories so the
+# workspace builds in clean / cloud checkouts that have no sibling source trees.
+# The crates.io 26.6.x releases still carried tower-lsp symbols internally; the
+# git revisions below have them stripped. All crates that declare
+# `lsp-max = "26.6.9"` in workspace.dependencies resolve to these git revisions.
+# Revisions are pinned for reproducible builds and match the vetted, PR-gated set
+# in .github/actions/setup-ggen-build (lsp-max master HEAD has drifted ahead of
+# the compatible lsp-types-max and does NOT compile against it — keep them in
+# lockstep). Bump all four crates together with a deliberate, reviewed change.
 [patch.crates-io]
-lsp-max          = { path = "../lsp-max" }
-lsp-max-protocol = { path = "../lsp-max/lsp-max-protocol" }
-lsp-max-macros   = { path = "../lsp-max/lsp-max-macros" }
-lsp-max-client   = { path = "../lsp-max/crates/lsp-max-client" }
-# wasm4pm-compat and wasm4pm must be patched here so that lsp-max (which
-# is itself a non-member path dep) resolves their transitive uses from
-# the local sources rather than crates.io, which lacks newer modules.
-wasm4pm-compat   = { path = "../wasm4pm-compat" }
-wasm4pm          = { path = "../wasm4pm/wasm4pm" }
+lsp-max          = { git = "https://github.com/seanchatmangpt/lsp-max", rev = "7bcc1e16dec71ef5fb2cedea2dfd6cb5cde37f59" }
+lsp-max-protocol = { git = "https://github.com/seanchatmangpt/lsp-max", rev = "7bcc1e16dec71ef5fb2cedea2dfd6cb5cde37f59" }
+lsp-max-macros   = { git = "https://github.com/seanchatmangpt/lsp-max", rev = "7bcc1e16dec71ef5fb2cedea2dfd6cb5cde37f59" }
+lsp-max-client   = { git = "https://github.com/seanchatmangpt/lsp-max", rev = "7bcc1e16dec71ef5fb2cedea2dfd6cb5cde37f59" }
+# lsp-max pulls wasm4pm-compat transitively from crates.io; redirect it to the
+# maintainer's repo so the newer modules lsp-max relies on are present.
+wasm4pm-compat   = { git = "https://github.com/seanchatmangpt/wasm4pm-compat", rev = "e46155e209a750fda0218532d96ae17a9e10903e" }
+
+# lsp-max references lsp-types-max via an in-repo path (`../lsp-types-max`) that
+# escapes the git checkout. Cargo resolves a git dependency's path deps within
+# that same git source, so a [patch.crates-io] entry cannot reach it. Instead we
+# patch the lsp-max git source directly to pull lsp-types-max from its own repo.
+[patch."https://github.com/seanchatmangpt/lsp-max"]
+lsp-types-max = { git = "https://github.com/seanchatmangpt/lsp-types-max", rev = "6773e6017ca83c565785d0ec39d75304f62c3237" }
 
 # NOTE on the clap-noun-verb kebab-case fix (--profile-id with --profile_id alias):
 # the fix is committed in ~/clap-noun-verb (313ba73). It was NOT integrated here via
