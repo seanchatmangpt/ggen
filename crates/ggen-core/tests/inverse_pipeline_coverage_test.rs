@@ -67,14 +67,14 @@ pub struct Worker {
 }
 "#;
 
-/// Count `code:`-namespaced triple-ish lines as a coarse proxy for recovered
-/// information density. Each emitted property line and blank-node typing
-/// contributes; this is intentionally a relative measure used only to compare
-/// the rich extraction against the struct-only baseline.
+/// Count `code:`-namespaced data lines (excluding `@prefix` declarations) as a
+/// coarse proxy for recovered information density. Each emitted property line
+/// and blank-node typing contributes; this is intentionally a relative measure
+/// used only to compare the rich extraction against the struct-only baseline.
 fn count_code_predicates(turtle: &str) -> usize {
     turtle
         .lines()
-        .filter(|line| line.contains("code:"))
+        .filter(|line| line.contains("code:") && !line.trim_start().starts_with("@prefix"))
         .count()
 }
 
