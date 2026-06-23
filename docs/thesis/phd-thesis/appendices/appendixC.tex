@@ -1,0 +1,142 @@
+\chapter{Test Infrastructure}
+
+This appendix covers the testing frameworks and methodologies.
+
+\section{Chicago TDD Patterns}
+
+\subsection{AAA Pattern}
+
+All tests follow Arrange-Act-Assert:
+
+\begin{minted}[fontsize=\small]{rust}
+#[test]
+fn test_entity_generation() {
+    // Arrange
+    let spec = load_spec("test.ttl");
+    let expected = load_golden("expected.rs");
+
+    // Act
+    let generated = generate_rust(&spec);
+
+    // Assert
+    assert_eq!(generated, expected);
+}
+\end{minted}
+
+\subsection{State-Based Verification}
+
+Verify state changes, not implementation details:
+
+\begin{minted}[fontsize=\small]{rust}
+#[test]
+fn test_agent_state_transition() {
+    let mut agent = Agent::new();
+
+    // Initial state
+    assert_eq!(agent.state(), AgentState::Created);
+
+    // Transition
+    agent.start().unwrap();
+    assert_eq!(agent.state(), AgentState::Running);
+
+    // Final state
+    agent.complete().unwrap();
+    assert_eq!(agent.state(), AgentState::Completed);
+}
+\end{minted}
+
+\subsection{Real Collaborators}
+
+Use real implementations, not mocks:
+
+\begin{minted}[fontsize=\small]{rust}
+#[test]
+fn test_tool_execution() {
+    let registry = ToolRegistry::real(); // Not mocked
+    let tool = registry.get("createUser").unwrap();
+
+    let result = tool.execute(json!({"name": "John"})).unwrap();
+
+    assert!(result.is_success());
+}
+\end{minted}
+
+\section{Property-Based Testing}
+
+Use proptest for invariant verification:
+
+\begin{minted}[fontsize=\small]{rust}
+use proptest::prelude::*;
+
+proptest! {
+    #[test]
+    fn test_determinism(spec in any::<String>()) {
+        if let Ok(parsed) = parse_spec(&spec) {
+            let artifact1 = generate(&parsed);
+            let artifact2 = generate(&parsed);
+            prop_assert_eq!(artifact1, artifact2);
+        }
+    }
+}
+\end{minted}
+
+\section{Performance Benchmarking}
+
+Criterion for benchmarks:
+
+\begin{minted}[fontsize=\small]{rust}
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
+
+fn bench_generation(c: &mut Criterion) {
+    c.bench_function("generate blog api", |b| {
+        let spec = load_spec("blog.ttl");
+        b.iter(|| {
+            generate(black_box(&spec))
+        });
+    });
+}
+
+criterion_group!(benches, bench_generation);
+criterion_main!(benches);
+\end{minted}
+
+\section{Snapshot Testing}
+
+Insta for snapshot testing:
+
+\begin{minted}[fontsize=\small]{rust}
+#[test]
+fn test_openapi_snapshot() {
+    let spec = load_spec("blog.ttl");
+    let openapi = generate_openapi(&spec);
+
+    insta::assert_yaml_snapshot!(openapi);
+}
+\end{minted}
+
+\section{Mutation Testing}
+
+Cargo-mutate for mutation testing:
+
+\begin{minted}[fontsize=\small]{bash}
+cargo install cargo-mutate
+cargo mutate
+\end{minted}
+
+Target: ≥60\% mutation score.
+
+\section{Determinism Testing}
+
+\begin{minted}[fontsize=\small]{rust}
+#[test]
+fn test_10000_generations() {
+    let spec = load_spec("blog.ttl");
+    let reference_hash = generate(&spec).hash();
+
+    for i in 0..10000 {
+        let artifact = generate(&spec);
+        let hash = artifact.hash();
+        assert_eq!(hash, reference_hash, "Divergence at iteration {}", i);
+    }
+}
+\end{minted}

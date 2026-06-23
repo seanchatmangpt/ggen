@@ -1,0 +1,132 @@
+\chapter{RDF Specification Primer}
+
+This appendix provides a tutorial for writing RDF specifications.
+
+\section{Turtle Syntax}
+
+\subsection{Basic Triples}
+
+\begin{minted}[fontsize=\small]{turtle}
+@prefix ex: <http://example.com/> .
+
+ex:subject ex:predicate ex:object .
+\end{minted}
+
+\subsection{Prefixes}
+
+\begin{minted}[fontsize=\small]{turtle}
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.com/> .
+\end{minted}
+
+\subsection{Classes and Instances}
+
+\begin{minted}[fontsize=\small]{turtle}
+ex:Person a rdfs:Class .
+
+ex:john a ex:Person ;
+    ex:name "John Doe" ;
+    ex:age 30 .
+\end{minted}
+
+\subsection{Properties}
+
+\begin{minted}[fontsize=\small]{turtle}
+ex:name a rdf:Property ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string .
+
+ex:age a rdf:Property ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:integer .
+\end{minted}
+
+\section{SPARQL Query Writing}
+
+\subsection{SELECT Queries}
+
+\begin{minted}[fontsize=\small]{sparql}
+PREFIX ex: <http://example.com/>
+
+SELECT ?person ?name
+WHERE {
+    ?person a ex:Person .
+    ?person ex:name ?name .
+}
+\end{minted}
+
+\subsection{CONSTRUCT Queries}
+
+\begin{minted}[fontsize=\small]{sparql}
+PREFIX ex: <http://example.com/>
+
+CONSTRUCT {
+    ?person ex:fullName ?name .
+}
+WHERE {
+    ?person a ex:Person .
+    ?person ex:name ?name .
+}
+\end{minted}
+
+\subsection{FILTER Clauses}
+
+\begin{minted}[fontsize=\small]{sparql}
+PREFIX ex: <http://example.com/>
+
+SELECT ?person ?age
+WHERE {
+    ?person a ex:Person .
+    ?person ex:age ?age .
+    FILTER (?age > 18)
+}
+\end{minted}
+
+\subsection{OPTIONAL Patterns}
+
+\begin{minted}[fontsize=\small]{sparql}
+PREFIX ex: <http://example.com/>
+
+SELECT ?person ?email
+WHERE {
+    ?person a ex:Person .
+    OPTIONAL { ?person ex:email ?email }
+}
+\end{minted}
+
+\section{SHACL Validation}
+
+\subsection{Node Shapes}
+
+\begin{minted}[fontsize=\small]{turtle}
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+ex:PersonShape a sh:NodeShape ;
+    sh:targetClass ex:Person ;
+    sh:property ex:nameShape ;
+    sh:property ex:ageShape .
+
+ex:nameShape a sh:PropertyShape ;
+    sh:path ex:name ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:maxLength 100 .
+
+ex:ageShape a sh:PropertyShape ;
+    sh:path ex:age ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 150 .
+\end{minted}
+
+\subsection{Validation}
+
+\begin{minted}[fontsize=\small]{bash}
+# Validate RDF file
+ggen validate spec.ttl
+
+# Validate with custom SHACL
+ggen validate spec.ttl --shapes custom-shapes.ttl
+\end{minted}
