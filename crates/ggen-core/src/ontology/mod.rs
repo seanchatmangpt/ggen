@@ -71,3 +71,6 @@ pub use error::{OntologyError, OntologyResult};
 pub use extractor::OntologyExtractor;
 pub use schema::*;
 pub mod resolver;
+pub mod core_bundle;
+
+pub use core_bundle::{CoreOntologyBundle, OntologyStats};
