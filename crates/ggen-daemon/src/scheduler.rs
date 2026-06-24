@@ -1,5 +1,5 @@
-use std::{path::PathBuf, sync::Arc, time::Duration};
-use tracing::{error, info};
+use std::{path::{Path, PathBuf}, sync::Arc, time::Duration};
+use tracing::{error, info, warn};
 use crate::{
     dispatch::dispatch_bundle,
     error::Result,
@@ -87,6 +87,111 @@ impl DaemonScheduler {
             h.abort();
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// Watch mode (Lever 6)
+// ---------------------------------------------------------------------------
+
+/// Start a file-system watcher on `watch_dir` and dispatch the affected
+/// manifest whenever a `.toml` or `.ttl` spec file changes.
+///
+/// Uses `notify-debouncer-full` with a `debounce_secs`-second window (default 5)
+/// to avoid duplicate events on rapid saves.  Runs until the tokio runtime is
+/// shut down.
+pub async fn watch_and_dispatch(
+    watch_dir: PathBuf,
+    state: Arc<DaemonState>,
+    working_dir: PathBuf,
+    debounce_secs: u64,
+) -> Result<()> {
+    use notify::RecursiveMode;
+    use notify_debouncer_full::{new_debouncer, DebounceEventResult};
+    use std::sync::mpsc;
+
+    let (std_tx, std_rx) = mpsc::channel::<PathBuf>();
+    let debounce_dur = Duration::from_secs(debounce_secs.max(1));
+    let watch_dir_clone = watch_dir.clone();
+
+    // Spawn a dedicated blocking thread for the notify watcher.
+    // The thread runs indefinitely, keeping the Debouncer alive.
+    std::thread::spawn(move || {
+        let tx = std_tx;
+        let mut debouncer = match new_debouncer(
+            debounce_dur,
+            None,
+            move |result: DebounceEventResult| match result {
+                Ok(events) => {
+                    for event in events {
+                        for path in event.event.paths {
+                            if is_spec_file(&path) {
+                                let _ = tx.send(path);
+                            }
+                        }
+                    }
+                }
+                Err(errors) => {
+                    for e in errors {
+                        warn!("watch error: {:?}", e);
+                    }
+                }
+            },
+        ) {
+            Ok(d) => d,
+            Err(e) => {
+                error!("watcher init failed: {}", e);
+                return;
+            }
+        };
+
+        if let Err(e) = debouncer.watch(&watch_dir_clone, RecursiveMode::Recursive) {
+            error!("watch start failed for {}: {}", watch_dir_clone.display(), e);
+            return;
+        }
+
+        info!(
+            "watch mode: monitoring {} ({}s debounce)",
+            watch_dir_clone.display(),
+            debounce_secs.max(1)
+        );
+
+        // Park forever — the Debouncer must stay alive to receive events.
+        loop {
+            std::thread::sleep(Duration::from_secs(3600));
+        }
+    });
+
+    // Bridge: forward path changes from the std::sync::mpsc channel to a tokio
+    // unbounded channel so the async loop below can await on them.
+    let (async_tx, mut async_rx) = tokio::sync::mpsc::unbounded_channel::<PathBuf>();
+    tokio::task::spawn_blocking(move || {
+        for path in std_rx {
+            if async_tx.send(path).is_err() {
+                break;
+            }
+        }
+    });
+
+    // Async dispatch loop: for each changed spec file, trigger a bundle dispatch.
+    while let Some(path) = async_rx.recv().await {
+        info!("spec changed: {} — triggering dispatch", path.display());
+        if let Some(manifest) = path.to_str() {
+            match dispatch_bundle("watch:spec-changed", manifest, &working_dir, &state).await {
+                Ok(r) => info!("watch dispatch complete: exit={}", r.exit_code),
+                Err(e) => warn!("watch dispatch failed: {}", e),
+            }
+        }
+    }
+
+    Ok(())
+}
+
+/// Returns true for files that should trigger a re-dispatch when changed.
+pub(crate) fn is_spec_file(path: &Path) -> bool {
+    matches!(
+        path.extension().and_then(|e| e.to_str()),
+        Some("toml") | Some("ttl")
+    )
 }
 
 /// Compute how long to sleep until the next cron fire, relative to now (UTC).

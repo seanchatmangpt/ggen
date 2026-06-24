@@ -1,6 +1,6 @@
 use std::{path::{Path, PathBuf}, sync::Arc};
 use tokio::sync::Semaphore;
-use tracing::{info, warn};
+use tracing::{info, warn, instrument, Instrument};
 use serde::{Deserialize, Serialize};
 
 use ggen_core::codegen::executor::{SyncExecutor, SyncOptions};
@@ -10,6 +10,7 @@ use crate::{
     dispatch::DispatchResult,
     health::{check_repo, RepoHealthStatus},
     manifest_cache::{hash_file, ManifestCache},
+    remediation::{decide, RemediationDecision},
     repo_manager::RepoManager,
     retry::retry_with_backoff,
     state::DaemonState,
@@ -35,6 +36,16 @@ pub struct BatchResult {
 /// Uses ggen-core SyncExecutor for generation so the same pipeline is used
 /// everywhere; spec files live in the ggen repo, output lands in the cloned
 /// target repo via SyncOptions::output_dir.
+#[instrument(
+    name = "batch.dispatch",
+    skip(repos, manager, state, ggen_root),
+    fields(
+        manifest = spec_manifest,
+        repos_total = repos.len(),
+        repos_succeeded = tracing::field::Empty,
+        repos_cached = tracing::field::Empty,
+    )
+)]
 pub async fn dispatch_to_all(
     dispatch_iri: &str,
     spec_manifest: &str,
@@ -57,7 +68,15 @@ pub async fn dispatch_to_all(
         let iri = dispatch_iri.to_owned();
         let ggen_root = ggen_root.clone();
 
-        let h = tokio::spawn(async move {
+        let repo_name_span = repo.name.clone();
+        let manifest_span = spec_manifest.to_owned();
+        let repo_span = tracing::info_span!(
+            "repo.dispatch",
+            repo = %repo_name_span,
+            manifest = %manifest_span,
+        );
+        let h = tokio::spawn(
+          async move {
             let _permit = permit.acquire_owned().await.ok()?;
             let mgr = RepoManager::new(manager_wd, owner);
 
@@ -143,6 +162,32 @@ pub async fn dispatch_to_all(
                 return Some(Err(stderr_tail));
             }
 
+            // Lever 3: Andon signal detection.
+            // The executor can return Ok(result) with an `andon_signal` field when
+            // it detects a structural error (e.g. invalid manifest). A red signal
+            // means the generated artifacts are known-bad; suppress the push and
+            // emit an OCEL event so it's visible in process mining.
+            if let Some(andon) = sync_result.as_ref().ok().and_then(|r| r.andon_signal.as_ref()) {
+                match decide(andon) {
+                    RemediationDecision::NeedsHuman { ref code, ref steps } => {
+                        let step_summary = steps.join("; ");
+                        warn!(
+                            "{}: andon RED [{}] — suppressing push; steps: {}",
+                            repo_entry.name, code, step_summary
+                        );
+                        if run_id >= 0 {
+                            let andon_msg = format!("andon:{}: {}", code, step_summary);
+                            let _ = state.record_finish(run_id, -1, &stdout_tail, &andon_msg).await;
+                        }
+                        return Some(Err(format!("andon:red:{}", code)));
+                    }
+                    RemediationDecision::Warn { ref message } => {
+                        warn!("{}: andon YELLOW — {}", repo_entry.name, message);
+                    }
+                    RemediationDecision::Proceed => {}
+                }
+            }
+
             let files_synced = sync_result.as_ref().map(|r| r.files_synced).unwrap_or(0);
 
             // Nothing written — no commit needed; write cache so the next dispatch
@@ -216,7 +261,8 @@ pub async fn dispatch_to_all(
                 validation_passed: true,
                 validation_ms: validation.elapsed_ms,
             }))
-        });
+          }.instrument(repo_span) // end async move
+        ); // end tokio::spawn
         handles.push((repo.name.clone(), h));
     }
 
@@ -252,6 +298,9 @@ pub async fn dispatch_to_all(
             Ok(None) | Err(_) => { failed += 1; }
         }
     }
+
+    tracing::Span::current().record("repos_succeeded", succeeded);
+    tracing::Span::current().record("repos_cached", cached);
 
     BatchResult {
         spec_manifest: spec_manifest.to_owned(),

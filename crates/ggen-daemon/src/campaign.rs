@@ -1,6 +1,6 @@
-use std::{collections::HashSet, path::PathBuf, sync::Arc};
+use std::{collections::HashSet, path::PathBuf, sync::Arc, time::Instant};
 use chrono::Utc;
-use tracing::{info, warn};
+use tracing::{info, warn, instrument};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -45,7 +45,20 @@ impl CampaignRunner {
     }
 
     /// Run all bundles for a specific day (1-7) and write a checkpoint on success.
+    #[instrument(
+        name = "campaign.run_day",
+        skip(self),
+        fields(
+            day = day,
+            campaign_id = %self.campaign_id,
+            bundle_count = tracing::field::Empty,
+            total_commits = tracing::field::Empty,
+            total_errors = tracing::field::Empty,
+            elapsed_ms = tracing::field::Empty,
+        )
+    )]
     pub async fn run_day(&self, day: u8) -> Result<CampaignResult> {
+        let t = Instant::now();
         let catalog = load_catalog(&self.catalog_path)?;
         let jobs = load_jobs(&self.cron_ttl_path)?;
 
@@ -55,6 +68,7 @@ impl CampaignRunner {
             .collect();
 
         info!("day {}: {} bundles to dispatch", day, day_jobs.len());
+        tracing::Span::current().record("bundle_count", day_jobs.len());
 
         let manager = RepoManager::new(self.work_dir.clone(), "seanchatmangpt");
         let mut batches = Vec::new();
@@ -85,6 +99,10 @@ impl CampaignRunner {
 
         let total_commits: usize = batches.iter().map(|b| b.succeeded).sum();
         let total_errors: usize = batches.iter().map(|b| b.failed).sum();
+        let elapsed_ms = t.elapsed().as_millis() as u64;
+        tracing::Span::current().record("total_commits", total_commits);
+        tracing::Span::current().record("total_errors", total_errors);
+        tracing::Span::current().record("elapsed_ms", elapsed_ms);
 
         // Persist checkpoint so a crash + restart can skip this day.
         let checkpoint = CampaignCheckpoint {

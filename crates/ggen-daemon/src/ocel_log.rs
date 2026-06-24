@@ -66,6 +66,27 @@ impl OcelLog {
         })
     }
 
+    pub fn emit_needs_remediation(
+        &self,
+        repo: &str,
+        manifest: &str,
+        andon_code: &str,
+        steps: &[String],
+    ) -> Result<()> {
+        self.append(&OcelEvent {
+            id: uuid::Uuid::new_v4().to_string(),
+            activity: "dispatch:needs-remediation".into(),
+            timestamp: epoch_now(),
+            object_type: "BundleDispatch".into(),
+            attributes: serde_json::json!({
+                "repo": repo,
+                "manifest": manifest,
+                "andon_code": andon_code,
+                "recovery_steps": steps,
+            }),
+        })
+    }
+
     pub fn emit_dispatch_complete(&self, repo: &str, manifest: &str, success: bool, exit_code: i32) -> Result<()> {
         self.append(&OcelEvent {
             id: uuid::Uuid::new_v4().to_string(),

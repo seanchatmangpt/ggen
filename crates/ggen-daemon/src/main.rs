@@ -64,6 +64,20 @@ async fn main() -> anyhow::Result<()> {
             println!("{}", serde_json::to_string_pretty(&dash)?);
         }
 
+        "--watch" | "watch" => {
+            let specify_dir = working_dir.join(".specify");
+            let debounce_secs: u64 = args.get(2)
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(5);
+            info!("watch mode: monitoring {} ({}s debounce)", specify_dir.display(), debounce_secs);
+            ggen_daemon::scheduler::watch_and_dispatch(
+                specify_dir,
+                Arc::clone(&state),
+                working_dir,
+                debounce_secs,
+            ).await?;
+        }
+
         _ => {
             if !cron_ttl.exists() {
                 anyhow::bail!("cron TTL not found: {}", cron_ttl.display());
