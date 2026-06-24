@@ -37,4 +37,4 @@ pub use metrics::{CampaignDashboard, MetricsStore};
 pub use ocel_log::{OcelEvent, OcelLog};
 pub use ontology::{load_jobs, JobDef};
 pub use scheduler::DaemonScheduler;
-pub use state::DaemonState;
+pub use state::{CampaignCheckpoint, DaemonState};
