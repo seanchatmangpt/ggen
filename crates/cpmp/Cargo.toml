@@ -10,7 +10,7 @@ repository = "https://github.com/seanchatmangpt/ggen"
 uuid = { version = "1.8", features = ["v4"] }
 clap-noun-verb = { workspace = true }
 clap-noun-verb-macros = { workspace = true }
-rusqlite = { version = "0.40.0", features = ["bundled"] }
+rusqlite = { version = "0.40.0", features = ["bundled"], optional = true }
 anyhow = "1.0"
 blake3 = "1.4"
 chrono = { version = "0.4", features = ["serde"] }
@@ -22,6 +22,14 @@ serde_json = "1.0"
 thiserror = { workspace = true }
 toml = "1.1.0"
 walkdir = "2.4"
+
+[features]
+# Optional SQLite catalog backend. Off by default so the core scanner/receipt
+# engine builds without rusqlite/libsqlite3-sys (which needs a bundled C
+# sqlite + unstable `cfg_select` and was the cpmp build blocker). The DB layer
+# was unused dead code; gate it until a real persistence backend is wired.
+default = []
+sqlite = ["dep:rusqlite"]
 
 [lints]
 workspace = true

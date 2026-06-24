@@ -1,6 +1,7 @@
 pub mod capability;
 pub mod catalog; // clap-noun-verb command surface (`cpmp catalog <verb>`)
 pub mod classification;
+#[cfg(feature = "sqlite")] // optional SQLite catalog backend (off by default)
 pub mod db;
 pub mod entry;
 pub mod models;
