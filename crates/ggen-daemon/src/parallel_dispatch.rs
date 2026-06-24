@@ -13,6 +13,7 @@ use crate::{
     repo_manager::RepoManager,
     retry::retry_with_backoff,
     state::DaemonState,
+    validator::validate_generated,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -25,6 +26,8 @@ pub struct BatchResult {
     /// Repos where the executor was skipped because the manifest hash was
     /// unchanged since the last successful dispatch (a subset of `succeeded`).
     pub cached: usize,
+    /// Repos where post-generation validation failed; the push was suppressed.
+    pub validation_failed: usize,
     pub results: Vec<DispatchResult>,
 }
 
@@ -93,6 +96,8 @@ pub async fn dispatch_to_all(
                             stderr_tail: String::new(),
                             success: true,
                             cached: true,
+                            validation_passed: true,
+                            validation_ms: 0,
                         }));
                     }
                 }
@@ -155,7 +160,27 @@ pub async fn dispatch_to_all(
                     stderr_tail,
                     success: true,
                     cached: false,
+                    validation_passed: true,
+                    validation_ms: 0,
                 }));
+            }
+
+            // Artifact validation: run language-aware checks on the generated files
+            // before committing.  A validation failure suppresses the push.
+            let validation = validate_generated(
+                &local,
+                repo_entry.primary_language.as_deref(),
+            )
+            .await;
+            if !validation.passed {
+                let err_msg = validation
+                    .failure_summary
+                    .unwrap_or_else(|| "validation failed".to_owned());
+                warn!("{}: validation blocked push: {}", repo_entry.name, err_msg);
+                if run_id >= 0 {
+                    let _ = state.record_finish(run_id, -1, &stdout_tail, &err_msg).await;
+                }
+                return Some(Err(format!("validation: {}", err_msg)));
             }
 
             let commit_msg = format!(
@@ -188,6 +213,8 @@ pub async fn dispatch_to_all(
                 stderr_tail,
                 success: true,
                 cached: false,
+                validation_passed: true,
+                validation_ms: validation.elapsed_ms,
             }))
         });
         handles.push((repo.name.clone(), h));
@@ -198,6 +225,7 @@ pub async fn dispatch_to_all(
     let mut failed = 0usize;
     let mut skipped_unhealthy = 0usize;
     let mut cached = 0usize;
+    let mut validation_failed = 0usize;
 
     for (name, h) in handles {
         match h.await {
@@ -210,6 +238,11 @@ pub async fn dispatch_to_all(
             }
             Ok(Some(Err(e))) if e.starts_with("unhealthy") => {
                 skipped_unhealthy += 1;
+                warn!("{}: {}", name, e);
+            }
+            Ok(Some(Err(e))) if e.starts_with("validation:") => {
+                failed += 1;
+                validation_failed += 1;
                 warn!("{}: {}", name, e);
             }
             Ok(Some(Err(e))) => {
@@ -227,6 +260,7 @@ pub async fn dispatch_to_all(
         failed,
         skipped_unhealthy,
         cached,
+        validation_failed,
         results,
     }
 }

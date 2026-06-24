@@ -14,6 +14,7 @@ pub mod expansion;
 pub mod health;
 pub mod manifest_cache;
 pub mod mcp_server;
+pub mod validator;
 pub mod metrics;
 pub mod ocel_log;
 pub mod ontology;

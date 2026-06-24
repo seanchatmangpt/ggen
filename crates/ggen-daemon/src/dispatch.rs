@@ -15,6 +15,11 @@ pub struct DispatchResult {
     /// True when the executor was skipped because the manifest hash matched
     /// the last-applied cache entry in the target repo.
     pub cached: bool,
+    /// True when post-generation validation passed (or was skipped because no
+    /// language-specific tool was available/configured).
+    pub validation_passed: bool,
+    /// Wall-clock milliseconds spent in validation subprocesses.
+    pub validation_ms: u64,
 }
 
 /// Invoke `ggen sync --spec <manifest>` as a subprocess.
@@ -57,6 +62,8 @@ pub async fn dispatch_bundle(
         stderr_tail,
         success,
         cached: false,
+        validation_passed: true,
+        validation_ms: 0,
     })
 }
 
