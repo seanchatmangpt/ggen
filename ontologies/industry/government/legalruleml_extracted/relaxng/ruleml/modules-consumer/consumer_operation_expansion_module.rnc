@@ -1,0 +1,65 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dcterms:title [ "Consumer RuleML Generic Operations" ]
+dcterms:identifier [ "http://consumer.ruleml.org/1.02/relaxng/modules/consumer_oeration_expansion_module.rnc" ]
+dcterms:isPartOf [ "http://consumer.ruleml.org/1.02/spec" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Athant" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Paschkea" ]
+dc:subject [ "RuleML, Consumer, generic, operation" ]
+dcterms:description [
+  "The expansion module for generic operations (logical or modal connectives)."
+]
+dcterms:language [ "en" ]
+dc:rights [
+  'Copyright 2015 RuleML Inc. -- Licensed under the RuleML Specification License, Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://ruleml.org/licensing/RSL1.0-RuleML. Disclaimer: THIS SPECIFICATION IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, ..., EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. See the License for the specifics governing permissions and limitations under the License.'
+]
+dcterms:rights [ "http://ruleml.org/licensing/RSL1.0-RuleML" ]
+dcterms:relation [ "http://consumer.ruleml.org" ]
+start |= Operation.Node.def
+Node.choice |= Operation.Node.def
+edge.choice |= formula-Operation.edge.def
+# This module declares the following Consumer RuleML elements:
+#            * Operation		generic polymorphic formula
+# This module also declares the following Consumer RuleML choice pattern:
+# OperationFormula.choice
+
+## an extension point for the generic operation category.  
+Operation-node.choice |= Operation.Node.def
+Operation.Node.def =
+  
+  ## <Operation>: a generic polymorphic Operation, which is interpreted by the intended semantics (i.e. semantic profile). See
+  ## http://consumer.ruleml.org/1.02/glossary/#gloss-Operation
+  element Operation { Operation.type.def }
+Operation.type.def = Operation.content, Operation.attlist
+
+## the Operation attribute list follows the generic pattern
+Operation.attlist &= generic-Formula.attlist?
+Operation.content |= Node.header, formula-Operation-edge.choice*
+
+## an extension point for stripe skipping.  
+formula-Operation-edge.choice |= formula-Operation.edge.def
+
+## The formula role of a generic operation (<Operation>) expression, 
+## Within Operation ...
+formula-Operation.edge.def = element formula { formula-Operation.type.def }
+formula-Operation.type.def =
+  (formula_Operation-datt.choice & formula-Operation.attlist), formula_Operation.content
+formula_Operation-datt.choice |= index-attrib.choice
+formula-Operation.attlist &= commonInit.attlist?
+
+## Formulas within generic operations consist of a single formula
+formula_Operation.content |= OperationFormula.choice
+
+## formulas allowed to participate in generic operations include all formulas allowed in conjunctions. Typically, this will be all logical formulas. 
+OperationFormula.choice |= AndFormula.choice
+
+## extending Deliberation RuleML patterns to include Operation
+AndFormula.choice |= Operation-node.choice
+OrFormula.choice |= Operation-node.choice
+NegFormula.choice |= Operation-node.choice
+NafFormula.choice |= Operation-node.choice
+PremiseFormula.choice |= Operation-node.choice
+ConclusionFormula.choice |= Operation-node.choice
+ForallFormula.choice |= Operation-node.choice
+ExistsFormula.choice |= Operation-node.choice

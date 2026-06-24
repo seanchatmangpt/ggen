@@ -1,0 +1,54 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Sources" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, Source" ]
+dc:description [ "The expansion module for LegalRuleML legal and other sources." ]
+dc:language [ "en" ]
+start |= LegalSourceCollection.Node.def | LegalSource.Node.def| SourceCollection.Node.def | Source.Node.def
+
+##
+LegalSourceCollection.Node.choice |= LegalSourceCollection.Node.def
+LegalSourceCollection.Node.def =
+  
+  ## a collection where every member is a LegalSource.
+  element LegalSources { LegalSourceCollection.type.def }
+LegalSourceCollection.type.def = SourceCollection.attlist, LegalSourceCollection.main
+
+##
+SourceCollection.Node.choice |= SourceCollection.Node.def
+SourceCollection.Node.def =
+  
+  ## a collection where every member is a Source.
+  element Sources { SourceCollection.type.def }
+SourceCollection.type.def = SourceCollection.attlist, SourceCollection.main
+
+##
+SourceCollection.attlist &= commonCollection.attlist?
+
+##
+LegalSource.Node.choice |= LegalSource.Node.def
+LegalSource.Node.def =
+  
+  ## a source of one or more Legal Norms formulated in any format and endorsed by an Authority.
+  element LegalSource { LegalSource.type.def }
+LegalSource.type.def = Source.attlist, Source.main
+
+##
+Source.Node.choice |= Source.Node.def
+Source.Node.def =
+  
+  ## a source of information formulated in any format.
+  element Source { Source.type.def }
+Source.type.def = Source.attlist, Source.main
+
+##
+Source.attlist &= commonLRMLNodeInit.attlist?
+Source.attlist &= sameAs.attrib.opt.choice?

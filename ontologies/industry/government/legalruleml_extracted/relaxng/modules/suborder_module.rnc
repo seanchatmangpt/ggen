@@ -1,0 +1,27 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Suborder List" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, SuborderList" ]
+dc:description [ "Expansion module for suborder lists." ]
+dc:language [ "en" ]
+start |= SuborderList.Node.def
+
+##
+SuborderList.Node.choice |= SuborderList.Node.def
+SuborderList.Node.def =
+  
+  ## a Deontic Specification consisting of a sequence of Deontic Specifications other than SuborderLists (at any depth).  When a SuborderList holds, a Deontic Specification in the SuborderList holds if all Deontic Specifications that precede it in the SuborderList have been violated.
+  element SuborderList { SuborderList.type.def }
+SuborderList.type.def = SuborderList.attlist, SuborderList.main
+
+##
+SuborderList.attlist &= commonLRMLNodeInit.attlist?
+SuborderFormula.choice |= DeonticFormula.choice

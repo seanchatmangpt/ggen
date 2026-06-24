@@ -1,0 +1,139 @@
+=============================================================================
+INTEGRITY VERIFICATION REPORT
+Downloaded: 2026-06-23
+=============================================================================
+
+
+File: rdf-syntax-ns.ttl
+---
+  Prefixes declared: 4
+  Namespaces:
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+  RDF triples (with 'a'): ~28
+  Structure: VALID (ends with .)
+
+File: rdf-schema.ttl
+---
+  Prefixes declared: 4
+  Namespaces:
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+  RDF triples (with 'a'): ~18
+  Structure: VALID (ends with .)
+
+File: owl.ttl
+---
+  Prefixes declared: 7
+  Namespaces:
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix grddl: <http://www.w3.org/2003/g/data-view#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+  RDF triples (with 'a'): ~109
+  Structure: WARNING (may be truncated)
+
+File: skos.ttl
+---
+  Prefixes declared: 0
+0
+  Namespaces:
+  RDF triples (with 'a'): ~38
+  Structure: WARNING (may be truncated)
+
+File: skos-xl.ttl
+---
+  Prefixes declared: 0
+0
+  Namespaces:
+  RDF triples (with 'a'): ~5
+  Structure: WARNING (may be truncated)
+
+File: dcterms.ttl
+---
+  Prefixes declared: 6
+  Namespaces:
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcam: <http://purl.org/dc/dcam/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+  RDF triples (with 'a'): ~139
+  Structure: WARNING (may be truncated)
+
+File: dcat.ttl
+---
+  Prefixes declared: 18
+  Namespaces:
+@prefix adms: <http://www.w3.org/ns/adms#> .
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dctype: <http://purl.org/dc/dcmitype/> .
+  RDF triples (with 'a'): ~282
+  Structure: VALID (ends with .)
+
+File: prov-o.ttl
+---
+  Prefixes declared: 6
+  Namespaces:
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+  RDF triples (with 'a'): ~75
+  Structure: VALID (ends with .)
+
+File: shacl.ttl
+---
+  Prefixes declared: 6
+  Namespaces:
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+  RDF triples (with 'a'): ~119
+  Structure: VALID (ends with .)
+
+File: ocel2.ttl
+---
+  Prefixes declared: 6
+  Namespaces:
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+  RDF triples (with 'a'): ~76
+  Structure: WARNING (may be truncated)
+
+File: owl2.ttl
+---
+  Prefixes declared: 5
+  Namespaces:
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+  RDF triples (with 'a'): ~66
+  Structure: VALID (ends with .)
+
+File: xmlschema-datatypes.ttl
+---
+  Prefixes declared: 5
+  Namespaces:
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+  RDF triples (with 'a'): ~49
+  Structure: VALID (ends with .)

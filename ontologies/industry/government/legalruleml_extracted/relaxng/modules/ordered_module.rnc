@@ -1,0 +1,180 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "LegalRuleML Ordered Content Models" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, ordered" ]
+dc:description [ "Expansion module for LegalRuleML ordered content models." ]
+dc:language [ "en" ]
+start |= notAllowed
+
+##
+ReferenceCollection.main |= hasComment.edge.choice?, hasReference.edge.choice*
+
+##
+LegalReferenceCollection.main |= hasComment.edge.choice?, hasLegalReference.edge.choice*
+
+##
+commonCollection.main |= hasComment.edge.choice?, hasMemberType.edge.choice*
+commonCollectionItem.main |= hasComment.edge.choice?, hasType.edge.choice*
+
+##
+LegalSourceCollection.main |=
+  commonCollection.main, (hasLegalSource.edge.choice | hasLegalSourceCollection.edge.choice)*
+
+##
+SourceCollection.main |=
+  commonCollection.main, (hasSource.edge.choice | hasSourceCollection.edge.choice)*
+
+##
+Source.main |= commonCollectionItem.main
+
+##
+TimeCollection.main |= commonCollection.main, hasTime.edge.choice*
+
+##
+TemporalCharacteristicCollection.main |=
+  commonCollection.main, hasTemporalCharacteristic.edge.choice*
+
+##
+TemporalCharacteristic.main |=
+  commonCollectionItem.main,
+  forStatus.edge.choice?,
+  hasStatusDevelopment.edge.choice?,
+  atTime.edge.choice?
+
+##
+AgentCollection.main |= commonCollection.main, hasAgent.edge.choice*
+
+##
+Agent.main |= commonCollectionItem.main
+
+##
+FigureCollection.main |= commonCollection.main, hasFigure.edge.choice*
+
+##
+Figure.main |= commonCollectionItem.main, hasFunction.edge.choice*, hasActor.edge.choice*
+
+##
+RoleCollection.main |= commonCollection.main, hasRole.edge.choice*
+
+##
+Role.main |= commonCollectionItem.main, filledBy.edge.choice*, forExpression.edge.choice*
+
+##
+AuthorityCollection.main |= commonCollection.main, hasAuthority.edge.choice*
+
+##
+Authority.main |= commonCollectionItem.main
+
+##
+JurisdictionCollection.main |= commonCollection.main, hasJurisdiction.edge.choice*
+
+##
+Jurisdiction.main |= commonCollectionItem.main
+
+##
+AssociationCollection.main |= commonCollection.main, hasAssociation.edge.choice*
+
+##
+AlternativeCollection.main |=
+  commonCollection.main, fromLegalSources.edge.choice?, hasAlternative.edge.choice*
+
+##
+Association.main |=
+  commonCollectionItem.main,
+  (appliesSource.edge.choice
+   | appliesTemporalCharacteristics.edge.choice
+   | appliesTemporalCharacteristic.edge.choice
+   | appliesStrength.edge.choice
+   | appliesModality.edge.choice
+   | appliesAuthority.edge.choice
+   | appliesJurisdiction.edge.choice)*,
+  toTarget.edge.choice*
+
+##
+Context.main |=
+  hasComment.edge.choice?,
+  (appliesSource.edge.choice
+   | appliesTemporalCharacteristics.edge.choice
+   | appliesTemporalCharacteristic.edge.choice
+   | appliesStrength.edge.choice
+   | appliesModality.edge.choice
+   | appliesAuthority.edge.choice
+   | appliesJurisdiction.edge.choice)*,
+  (appliesAssociationCollection.edge.choice | appliesAssociation.edge.choice)*,
+  appliesAlternativeCollection.edge.choice*,
+  inScope.edge.choice*
+
+##
+StatementCollection.main |=
+  commonCollection.main,
+  (hasQualification.edge.choice* &
+   hasStatement.edge.choice* & 
+   hasStatementCollection.edge.choice*)
+
+##
+ConstitutiveStatement.main |= commonCollectionItem.main, hasTemplate-Constitutive.edge.choice?
+
+##
+PrescriptiveStatement.main |= commonCollectionItem.main, hasTemplate-Prescriptive.edge.choice?
+
+##
+FactualStatement.main |= commonCollectionItem.main, hasTemplate-Factual.edge.choice?
+
+##
+OverrideStatement.main |= commonCollectionItem.main, hasTemplate-Override.edge.choice?
+
+##
+PenaltyStatement.main |= commonCollectionItem.main, hasTemplate-Penalty.edge.choice?
+
+##
+ReparationStatement.main |= commonCollectionItem.main, hasTemplate-Reparation.edge.choice?
+
+##
+Obligation.main |= hasComment.edge.choice?, hasParaphrase.edge.choice?, slotDeontic.edge.choice*, formula_Deontic.edge.choice?
+
+##
+Permission.main |= hasComment.edge.choice?, hasParaphrase.edge.choice?, slotDeontic.edge.choice*, formula_Deontic.edge.choice?
+
+##
+Prefix.main |= hasComment.edge.choice?
+
+##
+Prohibition.main |= hasComment.edge.choice?, hasParaphrase.edge.choice?, slotDeontic.edge.choice*, formula_Deontic.edge.choice?
+
+##
+Reparation.main |=
+  hasComment.edge.choice?, hasParaphrase.edge.choice?, appliesPenalty.edge.choice*, toPrescriptiveStatement.edge.choice*
+
+##
+Right.main |= hasComment.edge.choice?, hasParaphrase.edge.choice?, slotDeontic.edge.choice*, formula_Deontic.edge.choice?
+
+##
+SuborderList.main |= hasComment.edge.choice?, hasParaphrase.edge.choice?, formula_Suborder.edge.choice*
+# LegalRuleML main patterns for element in the RuleML namespace
+#
+ConstitutiveRule.main |= empty
+ConstitutiveRule.main |= body_ConstitutiveRule.edge.choice?, head_ConstitutiveRule.edge.choice?
+
+##
+Implies-const.main |= body_Implies-const.name.choice, head_Implies-const.name.choice
+And-const.main |= formula_And-const-edge.choice*
+Or-const.main |= formula_Or-const-edge.choice*
+Equivalent-const.main |= torso-const-edge.choice, torso-const-edge.choice
+Forall-const.main |= boundVariables.choice, formula_Forall-const-edge.choice
+Exists-const.main |= boundVariables.choice, formula_Exists-const-edge.choice
+Neg-const.main |= strong-const-edge.choice
+
+##
+PrescriptiveRule.main |= empty
+PrescriptiveRule.main |= body_PrescriptiveRule.edge.choice?, head_PrescriptiveRule.edge.choice?
+
+##
+Time.main |= commonCollectionItem.main, argTimeData.edge.choice?

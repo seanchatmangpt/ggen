@@ -1,0 +1,86 @@
+namespace lrml = "http://docs.oasis-open.org/legalruleml/ns/v1.0/"
+namespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+namespace ruleml = "http://ruleml.org/spec"
+
+include "../modules/agent_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/alternative_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/association_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/authority_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/collection_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/comment_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/common_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/context_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/defeasible_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/deontic_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/jurisdiction_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/legalsource_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/node_label_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/ordered_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+#include "../modules/prefix_module.rnc" inherit = lrml {
+#  start |= notAllowed
+#}
+include "../modules/reference_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/rule_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/rule_ruleml_module.rnc" inherit = ruleml {
+  start |= notAllowed
+}
+include "../modules/sameas_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/statement_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/stripe_content_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/stripe_required_ruleml_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/suborder_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/temp_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/time_collection_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../xml/xml_module.rnc" inherit = ruleml {
+  start |= notAllowed
+}
+include "../modules-init/init_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+

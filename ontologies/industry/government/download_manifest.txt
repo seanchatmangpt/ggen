@@ -1,0 +1,37 @@
+# Government/Legal Ontologies Download Manifest
+# 2026-06-23
+
+# 1. FIBO Legal Extension (OMG)
+# Source: https://spec.edmcouncil.org/fibo/ontology/master/latest/
+# Format: RDF/OWL
+
+# 2. LegalRuleML (OASIS)
+# Source: https://docs.oasis-open.org/legalruleml/
+# Format: XML-based (will need RDF conversion or schema)
+
+# 3. European Legislation Ontology (EU)
+# Source: http://www.w3.org/TR/eli/ or EU data portal
+# Format: RDF/OWL
+
+# 4. Government Functions Ontology (W3C)
+# Source: https://www.w3.org/TR/govt/
+# Format: RDF/OWL
+
+# 5. eGovernment Ontology
+# Source: W3C IG on eGovernment
+
+# 6. Legislative Ontology
+# Source: W3C or similar authority
+
+# 7. Court Ontology
+# Source: Legal domain, W3C-aligned
+
+# 8. Administrative Ontology
+# Source: EU or government sources
+
+# 9. Public Procurement Ontology (DCAT-AP)
+# Source: https://data.europa.eu/api/hub/store/
+# Format: RDF/OWL
+
+# 10. Regulation Ontology
+# Source: EU or W3C legal working group

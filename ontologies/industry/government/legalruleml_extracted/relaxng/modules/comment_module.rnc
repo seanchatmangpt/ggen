@@ -1,0 +1,44 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Comments" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, Comment" ]
+dc:description [ "Expansion module for Comments." ]
+dc:language [ "en" ]
+start |= Comment.Node.def | Paraphrase.Node.def
+
+##
+Comment.Node.choice |= Comment.Node.def
+Comment.Node.def =
+  
+  ## a comment, which has with no semantic effect.
+  element Comment { Comment.type.def }
+Comment.type.def = Comment.attlist, Comment.main
+
+##
+Comment.attlist &= iri.lrml.attrib.opt.choice?
+Comment.attlist &= commonLRMLNodeInit.attlist?
+Comment.main |= any.type.choice
+
+##
+Paraphrase.Node.choice |= Paraphrase.Node.def
+Paraphrase.Node.def =
+  
+  ## a natural language rendering of a Legal  Rule or fragment of it that is an alternative to its Legal Source(s).
+  element Paraphrase { Paraphrase.type.def }
+Paraphrase.type.def = Paraphrase.attlist, Paraphrase.main
+
+##
+Paraphrase.attlist &= iri.lrml.attrib.opt.choice?
+Paraphrase.attlist &= commonLRMLNodeInit.attlist?
+Paraphrase.main |= any.type.choice
+
+##
+any.type.choice |= text & anyElement.choice*

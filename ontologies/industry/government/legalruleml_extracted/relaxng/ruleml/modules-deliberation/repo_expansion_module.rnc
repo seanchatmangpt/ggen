@@ -1,0 +1,45 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dcterms:title [ "RuleML Positional Rest Variables" ]
+dcterms:identifier [ "http://deliberation.ruleml.org/1.02/relaxng/modules/repo_expansion_module.rnc" ]
+dcterms:isPartOf [ "http://deliberation.ruleml.org/1.02/spec" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Athant" ]
+dc:subject [ "RuleML, rest variable, positional" ]
+dcterms:description [ "The expansion module for positional rest variables." ]
+dcterms:language [ "en" ]
+dc:rights [
+  'Copyright 2015 RuleML Inc. -- Licensed under the RuleML Specification License, Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://ruleml.org/licensing/RSL1.0-RuleML. Disclaimer: THIS SPECIFICATION IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, ..., EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. See the License for the specifics governing permissions and limitations under the License.'
+]
+dcterms:rights [ "http://ruleml.org/licensing/RSL1.0-RuleML" ]
+dcterms:relation [ "http://deliberation.ruleml.org" ]
+start |= repo.edge.def
+edge.choice |= repo.edge.def
+# This module declares the following RuleML elements and attributes:
+#            * <repo>
+
+## an extension point for specializations of the positional rest tag name. 
+## Stripe-skipping is not allowed for positional rest variables.  
+restOfPositionalArguments-edge.choice |= repo.edge.def
+repo.edge.def =
+  
+  ## A positional rest variable used in <Atom>s, <Expr>s and <Plex>s. 
+  ## Note that <Plex>s are generated, so <repo>s are only available above the Datalog sublanguage.
+  ##        See http://www.ruleml.org/0.9/glossary/#gloss-repo
+  element repo { repo.type.def }
+repo.type.def = repo.attlist? & repo.content
+
+## The content model of a positional rest variable is a single term.
+repo.content |= repoTerm.choice
+
+## terms allowed in positional rest variables include sequence markers. 
+repoTerm.choice |= SequenceMarker.choice
+
+## Generalized lists of a restricted type are allowed terms in positional rest variables.
+repoTerm.choice |= Plex_repo-node.choice
+# For the declaration of generalized lists (plexes), see the generalized list module (plex-module).
+
+## Sequence markers are represented as ordinary variables.
+SequenceMarker.choice |= Variable-node.choice
+# For the declaration of variables, see the quantification module (quantifier-module).
+repo.attlist &= commonInit.attlist?

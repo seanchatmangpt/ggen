@@ -76,16 +76,20 @@
 #![deny(missing_docs)]
 
 pub mod chain;
+pub mod chain_linking;
 pub mod envelope;
 pub mod error;
+pub mod provenance_envelope;
 pub mod receipt_impl;
 pub use self::receipt_impl::{generate_keypair, hash_data, Receipt};
 pub use chain::ReceiptChain;
+pub use chain_linking::OperationLink;
 pub use envelope::{
     payload_hash, EnvelopeChain, EnvelopeChainLink, EnvelopeSignature, PayloadRef, Producer,
     ReceiptEnvelope, ENVELOPE_SCHEMA, HASH_PREFIX, SIGNATURE_ALGORITHM,
 };
 pub use error::{ReceiptError, Result};
+pub use provenance_envelope::{CoherenceReport, ProvenanceEnvelope};
 
 /// Convenience function to create a new receipt chained to a parent.
 ///

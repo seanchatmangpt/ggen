@@ -1,0 +1,35 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+namespace xs = "http://www.w3.org/2001/XMLSchema"
+
+dc:title [ "Temporal Collections" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, Temporal Collections" ]
+dc:description [ "Expansion module for collections of temporal entities." ]
+dc:language [ "en" ]
+start |= notAllowed
+
+##
+TimeCollection.Node.choice |= TimeCollection.Node.def
+
+##
+TimeCollection.Node.def =
+  
+  ## a collection where every member is a Time.
+  element Times { TimeCollection.type.def }
+TimeCollection.type.def = TimeCollection.attlist & TimeCollection.main
+
+##
+TimeCollection.attlist &= commonCollection.attlist?
+hasCreationDate.attrib.opt.choice |= hasCreationDate.attrib.def?
+hasCreationDate.attrib.def =
+  
+  ## the creation date of the Context or LegalRuleML document.
+  attribute hasCreationDate { iri.lrml.datatype }
+  

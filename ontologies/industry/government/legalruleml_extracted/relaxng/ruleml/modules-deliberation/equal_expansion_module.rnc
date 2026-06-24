@@ -1,0 +1,79 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dcterms:title [ "RuleML Equations" ]
+dcterms:identifier [ "http://deliberation.ruleml.org/1.02/relaxng/modules/equal_expansion_module.rnc" ]
+dcterms:isPartOf [ "http://deliberation.ruleml.org/1.02/spec" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Athant" ]
+dc:subject [ "RuleML, equals, equality, equations" ]
+dcterms:description [ "The expansion module for equations." ]
+dcterms:language [ "en" ]
+dc:rights [
+  'Copyright 2015 RuleML Inc. -- Licensed under the RuleML Specification License, Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://ruleml.org/licensing/RSL1.0-RuleML. Disclaimer: THIS SPECIFICATION IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, ..., EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. See the License for the specifics governing permissions and limitations under the License.'
+]
+dcterms:rights [ "http://ruleml.org/licensing/RSL1.0-RuleML" ]
+dcterms:relation [ "http://deliberation.ruleml.org" ]
+start |= Equal.Node.def | left.edge.def | right.edge.def
+Node.choice |= Equal.Node.def
+edge.choice |= left.edge.def | right.edge.def
+# This module declares the following RuleML elements and attributes:
+#            * <Equal>
+#            * <left>
+#            * <right>
+#             leftTerm.choice
+#             rightTerm.choice
+
+## an extension point for specializations of the equation tag name.  
+Equal-node.choice |= Equal.Node.def
+
+## An equational formula consisting of two expressions, each of which contains an argument and may be optionally surrounded 
+## by a left (<left>) or a right (<right>) role.
+
+## The children of the equation element are divided into two sections, a header section for modifiers, and a main section for the formulas on either side of the equation. 
+Equal.Node.def =
+  
+  ## <Equal>: an equation between two terms. See 
+  ## http://deliberation.ruleml.org/1.02/glossary/#gloss-Equal
+  element Equal { Equal.type.def }
+Equal.type.def = (Equal-datt.choice & reEqual.attlist), Equal.header, Equal.main
+reEqual.attlist &= closure-att-fo.choice?
+
+## Equations accept the header of truth-valued connectives
+Equal.header &= TruthValuedConnective.header?
+# For the declaration of the TruthValuedConnective header, see the modules ordered_groups_expansion_module and unordered_groups_expansion_module).
+
+## Equations contain a pair of terms, a left-hand side and a right-hand side.
+Equal.main |= leftSide-edge.choice, rightSide-edge.choice
+
+## an extension point for stripe skipping as well as specializations of the left-hand side tag name in equations.  
+leftSide-edge.choice |= left.edge.def
+left.edge.def =
+  
+  ## <left>: The left-hand side of an equation. See 
+  ## http://deliberation.ruleml.org/1.02/glossary/#gloss-left
+  element left { left.type.def }
+left.type.def = left.attlist? & left.content
+left.attlist &= commonInit.attlist?
+
+## The left-hand side role in an equation is filled by a term.
+left.content |= leftTerm.choice
+
+## an extension point for stripe skipping as well as specializations of the right-hand side tag name in equations.  
+rightSide-edge.choice |= right.edge.def
+right.edge.def =
+  
+  ## <right>: The right-hand side of an equation. See 
+  ## http://deliberation.ruleml.org/1.02/glossary/#gloss-right
+  element right { right.type.def }
+right.type.def = right.attlist? & right.content
+right.attlist &= commonInit.attlist?
+
+## The right-hand side role in an equation is filled by a term.
+right.content |= rightTerm.choice
+
+## terms allowed in the left-hand side of an equation 
+leftTerm.choice |= AnyTerm.choice
+
+## terms allowed in the right-hand side of an equation 
+rightTerm.choice |= AnyTerm.choice
+reEqual.attlist &= commonNode.attlist?

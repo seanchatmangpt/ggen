@@ -1,5 +1,4 @@
 use lsp_max::lsp_types_max::*;
-use lsp_max::primitives::DiagnosticSink;
 use lsp_max::{jsonrpc::Result, Client, LanguageServer};
 use std::sync::Arc;
 
@@ -9,16 +8,13 @@ use crate::state::ServerState;
 pub struct GgenLanguageServer {
     pub(crate) state: Arc<ServerState>,
     pub(crate) client: Client,
-    sink: DiagnosticSink,
 }
 
 impl GgenLanguageServer {
     pub fn new(client: Client) -> Self {
-        let sink = DiagnosticSink::new(client.clone());
         Self {
             state: Arc::new(ServerState::default()),
             client,
-            sink,
         }
     }
 
@@ -28,7 +24,13 @@ impl GgenLanguageServer {
         for (target_uri, diagnostics) in self.state.analyze_and_observe(uri, content).await {
             // Task C — mirror diagnostics into lsp-max REGISTRY and write the Λ_CD gate.
             push_diagnostics_to_registry(&diagnostics);
-            self.sink.publish_max(target_uri, diagnostics).await;
+            self.client
+                .publish_diagnostics(
+                    target_uri,
+                    diagnostics.into_iter().map(|d| d.lsp).collect(),
+                    None,
+                )
+                .await;
         }
     }
 }
@@ -130,7 +132,7 @@ impl LanguageServer for GgenLanguageServer {
 
     async fn shutdown(&self) -> Result<()> {
         // Clear the Λ_CD gate on orderly shutdown so the next session starts OPEN.
-        let _ = std::fs::write(lsp_max::primitives::gate_file_path(), b"0");
+        let _ = std::fs::write(gate_file_path(), b"0");
         Ok(())
     }
 
@@ -155,7 +157,13 @@ impl LanguageServer for GgenLanguageServer {
         let uri = params.text_document.uri;
         for (target_uri, diagnostics) in self.state.close_document(&uri).await {
             push_diagnostics_to_registry(&diagnostics);
-            self.sink.publish_max(target_uri, diagnostics).await;
+            self.client
+                .publish_diagnostics(
+                    target_uri,
+                    diagnostics.into_iter().map(|d| d.lsp).collect(),
+                    None,
+                )
+                .await;
         }
     }
 
@@ -282,9 +290,24 @@ fn push_diagnostics_to_registry(diagnostics: &[lsp_max_protocol::MaxDiagnostic])
 
     // ANDON = "1" when GGEN-* violations are present; OPEN = "0" when clean.
     let _ = std::fs::write(
-        lsp_max::primitives::gate_file_path(),
+        gate_file_path(),
         if has_violations { b"1" } else { b"0" },
     );
+}
+
+/// Filesystem path for the Λ_CD gate file.
+///
+/// Published `lsp-max` tracks gate state in its in-memory registry rather than
+/// exposing a gate-file helper (the local checkout's `primitives::gate_file_path`
+/// is unavailable on crates.io), so ggen-lsp owns this path. It is derived from
+/// the registry root when set; the write is best-effort and non-fatal.
+fn gate_file_path() -> std::path::PathBuf {
+    lsp_max::get_registry()
+        .lock()
+        .map(|reg| reg.root_path.clone())
+        .unwrap_or_default()
+        .join(".ggen")
+        .join("lambda_cd.gate")
 }
 
 pub fn range_contains(range: &Range, position: Position) -> bool {

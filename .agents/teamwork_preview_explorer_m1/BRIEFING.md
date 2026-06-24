@@ -1,46 +1,35 @@
-# BRIEFING — 2026-05-27T22:27:30Z
+# BRIEFING — 2026-06-23T04:18:35Z
 
 ## Mission
-Perform a comprehensive codebase audit of /Users/sac/capability-map and verify compilation, test status, existing codebase structures, CLI commands, enterprise modules, refusal gates, and docs.
+Analyze requirements for the 1000x praxis active self-healing and validation system and design the directory structure and libraries.
 
 ## 🔒 My Identity
-- Archetype: Codebase Auditor
-- Roles: teamwork_preview_explorer
-- Working directory: /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/
-- Original parent: 78b02281-57d0-46c0-97ce-0b633125fe52
+- Archetype: teamwork_preview_explorer
+- Roles: read-only investigation and design
+- Working directory: /Users/sac/ggen/.agents/teamwork_preview_explorer_m1
+- Original parent: 7f3068c0-71db-4e8b-9fcd-8a0791ee93fb
 - Milestone: m1
 
 ## 🔒 Key Constraints
 - Read-only investigation — do NOT implement
-- CODE_ONLY network mode: no external requests, no curl/wget/lynx.
-- Do not write project code files to tmp, in the .gemini dir, or directly to the Desktop and similar folders. Write only in /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/
+- CODE_ONLY network mode: no external website or service requests.
 
 ## Current Parent
-- Conversation ID: 78b02281-57d0-46c0-97ce-0b633125fe52
-- Updated: 2026-05-27T22:27:30Z
+- Conversation ID: 7f3068c0-71db-4e8b-9fcd-8a0791ee93fb
+- Updated: not yet
 
 ## Investigation State
-- **Explored paths**: `src/scanner.rs`, `src/rdf.rs`, `src/receipt.rs`, `src/gates.rs`, `src/policy.rs`, `src/projection.rs`, `src/main.rs`, `src/db.rs`, `src/report.rs`, `tests/integration_tests.rs`, `docs/`, `open-ontologies` CLI.
+- **Explored paths**: `/Users/sac/praxis`, `/Users/sac/praxis/template`, `/Users/sac/praxis/crates/chatman-common`
 - **Key findings**:
-  - Codebase does not compile due to 5 main compile errors:
-    1. Calling `capability::detect_capabilities` in `scanner.rs` and `integration_tests.rs` (does not exist on `capability.rs`).
-    2. Reversed arguments for `Store::dump_to_writer` in `rdf.rs:107`.
-    3. Reversed arguments for `Store::dump_graph_to_writer` in `rdf.rs:114`.
-    4. Constructing `CpmpError::Database(e)` in `db.rs` and `report.rs` when `CpmpError` is an alias for `anyhow::Error` which has no variants.
-  - `open-ontologies` CLI tool is available on the system.
-  - R3 commands are fully defined in `main.rs` but fail to execute because the source doesn't compile.
-  - R4 enterprise modules are listed as stubs and have no source files.
-  - R5 refusal gates are partially implemented but miss key refusal conditions.
-  - R2 documentation is mostly missing/empty.
+  - `chatman-common` provides rolling BLAKE3 chain hashing (`RollingChain`/`RollingHash`) which is ideal for the cryptographic compliance receipt of `praxis-guard`.
+  - `template/tools/hollow-gate` verifies structural conformance to typestates, evidence wrappers, ZST markers (`Raw`/`Validated`/`Admitted`), `Admit` traits, and blocks stubs like `unimplemented!`, `todo!`, etc. This serves as the basis for `praxis-guard`'s structural validation.
+  - `apply.sh` defines standard files (`deny.toml`, `typos.toml`, `rustfmt.toml`, etc.) that `praxis-reconciler` needs to monitor and restore.
 - **Unexplored areas**: None.
 
 ## Key Decisions Made
-- Performed comprehensive audit.
-- Identified and detailed all five compilation issues.
-- Mapped existing and missing structures for R3, R4, R5, and R2.
-- Written structured handoff.md.
+- Start with exploring files in `/Users/sac/praxis` and `/Users/sac/praxis/template` to understand the setup.
+- Design `praxis-reconciler` as a hybrid file watcher / polling reconciler with dynamic template placeholder substitution.
+- Design `praxis-guard` as a Cargo subprocess runner, source directory hashing engine (via `RollingChain`), and Ed25519 signer/verifier for cryptographic compliance receipts.
 
 ## Artifact Index
-- /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/original_prompt.md — Original prompt record
-- /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/handoff.md — Handoff report
-- /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/progress.md — Heartbeat progress
+- `/Users/sac/ggen/.agents/teamwork_preview_explorer_m1/handoff.md` — Final exploration report

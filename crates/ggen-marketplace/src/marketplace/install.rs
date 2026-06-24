@@ -850,9 +850,11 @@ impl<R: AsyncRepository> Installer<R> {
                 }
             }
 
-            entry.unpack(&target).map_err(|e| Error::InstallationFailed {
-                reason: format!("Failed to extract tar.gz entry: {}", e),
-            })?;
+            entry
+                .unpack(&target)
+                .map_err(|e| Error::InstallationFailed {
+                    reason: format!("Failed to extract tar.gz entry: {}", e),
+                })?;
         }
 
         Ok(())

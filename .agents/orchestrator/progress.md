@@ -1,21 +1,16 @@
 ## Current Status
-Last visited: 2026-05-26T23:53:36Z
+Last visited: 2026-06-23T01:23:20Z
 
-- [x] Create original_prompt.md and BRIEFING.md
-- [x] Initialize plan.md and PROJECT.md
-- [x] Explore current implementation and locate key integration points
-- [x] Implement self-audit log and GALL projection
-- [x] Implement coverage matrix and integration tests
-- [x] Author/re-write self_audit.summary.md and VISION_2030_GALL_PROOF.md
-- [x] Implement External Observer Script Ring (00 to 13) under `scripts/gall/external/`
-- [x] Implement contradiction detection logic in `12_detect_contradictions.sh`
-- [x] Implement `09_verify_ocel_self_audit.sh`
-- [x] Implement `13_adjudicate_gall_promotion.sh` and output `vision2030.external_adjudication.json`
-- [x] Integrate verifier scripts into CI flows
-- [x] Rewrite `docs/VISION_2030_GALL_PROOF.md` to depend on external adjudication results
-- [x] Execute `13_adjudicate_gall_promotion.sh` successfully and verify E2E promotion
-- [x] Verify that all Rust tests pass cleanly
+- [x] Initialize PROJECT.md and plan.md for star-toml config migration [done]
+- [x] Milestone 1: Explorer investigation of star-toml and ggen-config requirements [done]
+- [x] Milestone 2: Implement star-toml validation extensions [done]
+- [x] Milestone 3: Implement star_toml::Validate for GgenConfig & sub-configs [done]
+- [x] Milestone 4: Refactor ggen-config to use star-toml and verify test suite [done]
 
 ## Iteration Status
-Current iteration: 1 / 32
-Spawn count: 11 / 16
+Current iteration: 3 / 32
+Spawn count: 14 / 16
+
+## Retrospective Notes
+- **What worked**: Spawning parallel Explorers mapped out the exact error messages required for legacy compatibility. Stress testing using Challenger agents effectively identified null-byte path formatting mismatches and A2A consensus orchestration gaps.
+- **Lessons learned**: Trait-based validation checks should be verified against edge cases (like null bytes and None values) using explicit test cases, as custom match patterns in the wrappers may otherwise miss key branches.

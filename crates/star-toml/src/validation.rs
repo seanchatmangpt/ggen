@@ -351,7 +351,10 @@ impl ValidationError {
             ErrorKind::TooShort { min, .. } => format!("provide at least {min} items/characters"),
             ErrorKind::TooLong { max, .. } => format!("use at most {max} items/characters"),
             ErrorKind::Inconsistent { related, .. } => {
-                format!("ensure this field is consistent with: {}", related.join(", "))
+                format!(
+                    "ensure this field is consistent with: {}",
+                    related.join(", ")
+                )
             }
             ErrorKind::Predicate { .. } => self.msg.clone(),
         }
@@ -467,7 +470,11 @@ impl ValidationErrors {
         if self.checks_run == 0 {
             return 1.0;
         }
-        let failed = self.errors.iter().filter(|e| e.severity >= Severity::Error).count();
+        let failed = self
+            .errors
+            .iter()
+            .filter(|e| e.severity >= Severity::Error)
+            .count();
         let passed = self.checks_run.saturating_sub(failed);
         passed as f64 / self.checks_run as f64
     }
@@ -618,10 +625,7 @@ impl Validator {
 
     /// Record an error at the current location, capturing an offending value.
     pub fn error_with(
-        &mut self,
-        kind: ErrorKind,
-        input: impl fmt::Display,
-        msg: impl Into<String>,
+        &mut self, kind: ErrorKind, input: impl fmt::Display, msg: impl Into<String>,
     ) {
         self.record(kind, Some(input.to_string()), msg.into());
     }
@@ -680,11 +684,7 @@ impl Validator {
     ///
     /// The escape hatch for arbitrary domain rules.
     pub fn check_predicate(
-        &mut self,
-        field: &str,
-        passed: bool,
-        code: &'static str,
-        msg: impl Into<String>,
+        &mut self, field: &str, passed: bool, code: &'static str, msg: impl Into<String>,
     ) {
         self.checks_run += 1;
         if !passed {
@@ -722,12 +722,8 @@ impl Validator {
     /// assert_eq!(errs.errors()[0].code(), "tls_cert_required");
     /// ```
     pub fn check_consistent(
-        &mut self,
-        primary_field: &str,
-        related_fields: &[&str],
-        condition: bool,
-        code: &'static str,
-        msg: impl Into<String>,
+        &mut self, primary_field: &str, related_fields: &[&str], condition: bool,
+        code: &'static str, msg: impl Into<String>,
     ) {
         self.checks_run += 1;
         if !condition {
@@ -735,6 +731,150 @@ impl Validator {
             let msg = msg.into();
             self.at(primary_field, |v| {
                 v.error(ErrorKind::Inconsistent { related, code }, msg);
+            });
+        }
+    }
+
+    /// Fail subfield `field` if `value` is not a valid semver string (e.g. "1.0.0").
+    pub fn check_semver(&mut self, field: &str, value: &str) {
+        self.checks_run += 1;
+        let parts: Vec<&str> = value.split('.').collect();
+        let is_valid = parts.len() == 3
+            && parts.iter().all(|p| {
+                !p.is_empty()
+                    && p.chars().all(|c| c.is_ascii_digit())
+                    && !(p.len() > 1 && p.starts_with('0'))
+                    && p.parse::<u32>().is_ok()
+            });
+        if !is_valid {
+            let msg = format!(
+                "Invalid version format: '{}'. Expected semver format (e.g., 1.0.0)",
+                value
+            );
+            self.at(field, |v| {
+                v.error_with(
+                    ErrorKind::Predicate {
+                        code: "invalid_semver",
+                    },
+                    value,
+                    msg,
+                );
+            });
+        }
+    }
+
+    /// Fail subfield `field` if `value` is not a valid IP or domain hostname.
+    pub fn check_ip_or_domain(&mut self, field: &str, value: &str) {
+        self.checks_run += 1;
+        let is_ip = value.parse::<std::net::IpAddr>().is_ok();
+        let is_hostname = if value.is_empty() || value.len() > 253 {
+            false
+        } else {
+            let normalized = value.strip_suffix('.').unwrap_or(value);
+            if normalized.is_empty() {
+                false
+            } else {
+                normalized.split('.').all(|label| {
+                    !label.is_empty()
+                        && label.len() <= 63
+                        && !label.starts_with('-')
+                        && !label.ends_with('-')
+                        && label.chars().all(|c| c.is_ascii_alphanumeric() || c == '-')
+                })
+            }
+        };
+        if !is_ip && !is_hostname {
+            let msg = format!("Invalid IP or domain hostname: '{}'", value);
+            self.at(field, |v| {
+                v.error_with(
+                    ErrorKind::Predicate {
+                        code: "invalid_ip_or_domain",
+                    },
+                    value,
+                    msg,
+                );
+            });
+        }
+    }
+
+    /// Fail subfield `field` if `value` is not a safe path (e.g. non-empty, no traversal, no null bytes, and optionally absolute/relative).
+    pub fn check_path(&mut self, field: &str, value: &str, must_be_absolute: Option<bool>) {
+        self.checks_run += 1;
+
+        if value.is_empty() {
+            self.at(field, |v| {
+                v.error_with(ErrorKind::Empty, "\"\"", "path must not be empty");
+            });
+            return;
+        }
+
+        let mut errors = Vec::new();
+
+        if value.contains('\0') {
+            errors.push("path must not contain null bytes".to_string());
+        }
+
+        let path = std::path::Path::new(value);
+        let has_traversal = path
+            .components()
+            .any(|c| c == std::path::Component::ParentDir)
+            || value.split(|c| c == '/' || c == '\\').any(|s| s == "..");
+        if has_traversal {
+            errors.push("path traversal ('..') is not allowed".to_string());
+        }
+
+        if let Some(absolute) = must_be_absolute {
+            if absolute && !path.is_absolute() {
+                errors.push("path must be absolute".to_string());
+            } else if !absolute && !path.is_relative() {
+                errors.push("path must be relative".to_string());
+            }
+        }
+
+        if !errors.is_empty() {
+            let msg = format!("Invalid path '{}': {}", value, errors.join(", "));
+            self.at(field, |v| {
+                v.error_with(
+                    ErrorKind::Predicate {
+                        code: "invalid_path",
+                    },
+                    value,
+                    msg,
+                );
+            });
+        }
+    }
+
+    /// Fail subfield `field` if `value` does not conform to cache size formats (e.g. "512MB").
+    pub fn check_size_format(&mut self, field: &str, value: &str) {
+        self.checks_run += 1;
+        let val_upper = value.to_uppercase();
+        let suffixes = ["B", "KB", "MB", "GB", "TB"];
+        let mut is_valid = false;
+        for suffix in suffixes {
+            if let Some(prefix) = val_upper.strip_suffix(suffix) {
+                if !prefix.is_empty()
+                    && prefix.chars().all(|c| c.is_ascii_digit())
+                    && prefix.parse::<u64>().is_ok()
+                {
+                    is_valid = true;
+                    break;
+                }
+            }
+        }
+        if !is_valid {
+            let msg = format!(
+                "Invalid size format: '{}'. Expected format like '1GB', '512MB'",
+                value
+            );
+            self.at(field, |v| {
+                v.error_with(
+                    ErrorKind::Predicate {
+                        code: "invalid_size_format",
+                    },
+                    value,
+                    msg,
+                );
             });
         }
     }
@@ -1054,7 +1194,11 @@ mod tests {
                 });
             }
         }
-        let errs = Cfg { log_dir: String::new() }.check().unwrap_err();
+        let errs = Cfg {
+            log_dir: String::new(),
+        }
+        .check()
+        .unwrap_err();
         assert_eq!(errs.errors()[0].severity, Severity::Warning);
         assert!(!errs.has_fatal());
     }
@@ -1271,5 +1415,219 @@ mod tests {
         }
         .check()
         .is_ok());
+    }
+
+    #[test]
+    fn test_check_semver() {
+        struct Ver(String);
+        impl Validate for Ver {
+            fn validate(&self, v: &mut Validator) {
+                v.check_semver("version", &self.0);
+            }
+        }
+
+        // Valid versions
+        assert!(Ver("1.0.0".into()).check().is_ok());
+        assert!(Ver("0.0.0".into()).check().is_ok());
+        assert!(Ver("10.23.456".into()).check().is_ok());
+
+        // Invalid versions
+        let test_cases = vec![
+            ("", "invalid_semver"),
+            ("1.0", "invalid_semver"),
+            ("1.0.0.0", "invalid_semver"),
+            ("a.b.c", "invalid_semver"),
+            ("1.a.0", "invalid_semver"),
+            ("1.0.0-alpha", "invalid_semver"),
+            ("-1.0.0", "invalid_semver"),
+            ("1.-0.0", "invalid_semver"),
+            ("01.0.0", "invalid_semver"),
+            ("1.01.0", "invalid_semver"),
+            ("1.0.01", "invalid_semver"),
+        ];
+
+        for (val, expected_code) in test_cases {
+            let errs = Ver(val.to_string()).check().unwrap_err();
+            assert_eq!(errs.len(), 1);
+            assert_eq!(errs.errors()[0].code(), expected_code);
+            assert_eq!(errs.errors()[0].input.as_deref(), Some(val));
+            assert!(errs.errors()[0].msg.contains("Invalid version format"));
+        }
+    }
+
+    #[test]
+    fn test_check_ip_or_domain() {
+        struct Host(String);
+        impl Validate for Host {
+            fn validate(&self, v: &mut Validator) {
+                v.check_ip_or_domain("host", &self.0);
+            }
+        }
+
+        // Valid IPs and hostnames
+        assert!(Host("127.0.0.1".into()).check().is_ok());
+        assert!(Host("::1".into()).check().is_ok());
+        assert!(Host("localhost".into()).check().is_ok());
+        assert!(Host("example.com".into()).check().is_ok());
+        assert!(Host("example.com.".into()).check().is_ok()); // trailing dot allowed
+        assert!(Host("sub-domain.example.co.uk".into()).check().is_ok());
+        assert!(Host("123.abc.xyz".into()).check().is_ok());
+
+        // Invalid
+        let test_cases = vec![
+            ("".to_string(), "invalid_ip_or_domain"),
+            ("a".repeat(254), "invalid_ip_or_domain"), // too long (>253)
+            ("-example.com".to_string(), "invalid_ip_or_domain"), // leading hyphen
+            ("example-.com".to_string(), "invalid_ip_or_domain"), // trailing hyphen in label
+            ("example.com-".to_string(), "invalid_ip_or_domain"), // trailing hyphen in label
+            ("a..b".to_string(), "invalid_ip_or_domain"), // empty label
+            ("a.b_c.d".to_string(), "invalid_ip_or_domain"), // invalid character (underscore)
+            (
+                "label-".to_string() + &"a".repeat(60) + ".com",
+                "invalid_ip_or_domain",
+            ), // label too long (>63)
+        ];
+
+        for (val, expected_code) in test_cases {
+            let errs = Host(val.clone()).check().unwrap_err();
+            assert_eq!(errs.len(), 1);
+            assert_eq!(errs.errors()[0].code(), expected_code);
+            assert_eq!(errs.errors()[0].input.as_deref(), Some(val.as_str()));
+            assert!(errs.errors()[0]
+                .msg
+                .contains("Invalid IP or domain hostname"));
+        }
+    }
+
+    #[test]
+    fn test_check_path() {
+        struct PathVal {
+            path: String,
+            must_be_absolute: Option<bool>,
+        }
+        impl Validate for PathVal {
+            fn validate(&self, v: &mut Validator) {
+                v.check_path("path", &self.path, self.must_be_absolute);
+            }
+        }
+
+        // 1. Non-empty check
+        let errs = PathVal {
+            path: "".into(),
+            must_be_absolute: None,
+        }
+        .check()
+        .unwrap_err();
+        assert_eq!(errs.len(), 1);
+        assert_eq!(errs.errors()[0].code(), "empty");
+        assert_eq!(errs.errors()[0].msg, "path must not be empty");
+
+        // 2. Null byte check
+        let errs = PathVal {
+            path: "foo\0bar".into(),
+            must_be_absolute: None,
+        }
+        .check()
+        .unwrap_err();
+        assert_eq!(errs.len(), 1);
+        assert_eq!(errs.errors()[0].code(), "invalid_path");
+        assert!(errs.errors()[0]
+            .msg
+            .contains("path must not contain null bytes"));
+
+        // 3. Path traversal check
+        let errs = PathVal {
+            path: "foo/../bar".into(),
+            must_be_absolute: None,
+        }
+        .check()
+        .unwrap_err();
+        assert_eq!(errs.len(), 1);
+        assert_eq!(errs.errors()[0].code(), "invalid_path");
+        assert!(errs.errors()[0]
+            .msg
+            .contains("path traversal ('..') is not allowed"));
+
+        // 4. Absolute check
+        let errs = PathVal {
+            path: "relative/path".into(),
+            must_be_absolute: Some(true),
+        }
+        .check()
+        .unwrap_err();
+        assert_eq!(errs.len(), 1);
+        assert_eq!(errs.errors()[0].code(), "invalid_path");
+        assert!(errs.errors()[0].msg.contains("path must be absolute"));
+
+        // 5. Relative check
+        let abs_path = std::env::current_dir()
+            .unwrap()
+            .to_string_lossy()
+            .to_string();
+        let errs = PathVal {
+            path: abs_path.clone(),
+            must_be_absolute: Some(false),
+        }
+        .check()
+        .unwrap_err();
+        assert_eq!(errs.len(), 1);
+        assert_eq!(errs.errors()[0].code(), "invalid_path");
+        assert!(errs.errors()[0].msg.contains("path must be relative"));
+
+        // 6. Valid combinations
+        assert!(PathVal {
+            path: "safe/path".into(),
+            must_be_absolute: None
+        }
+        .check()
+        .is_ok());
+        assert!(PathVal {
+            path: "safe/path".into(),
+            must_be_absolute: Some(false)
+        }
+        .check()
+        .is_ok());
+        assert!(PathVal {
+            path: abs_path.clone(),
+            must_be_absolute: Some(true)
+        }
+        .check()
+        .is_ok());
+    }
+
+    #[test]
+    fn test_check_size_format() {
+        struct CacheSize(String);
+        impl Validate for CacheSize {
+            fn validate(&self, v: &mut Validator) {
+                v.check_size_format("cache_size", &self.0);
+            }
+        }
+
+        // Valid sizes
+        assert!(CacheSize("10B".into()).check().is_ok());
+        assert!(CacheSize("512KB".into()).check().is_ok());
+        assert!(CacheSize("1024MB".into()).check().is_ok());
+        assert!(CacheSize("1GB".into()).check().is_ok());
+        assert!(CacheSize("2TB".into()).check().is_ok());
+        assert!(CacheSize("512mb".into()).check().is_ok()); // case-insensitive
+
+        // Invalid
+        let test_cases = vec![
+            ("".to_string(), "invalid_size_format"),
+            ("10".to_string(), "invalid_size_format"), // missing suffix
+            ("MB".to_string(), "invalid_size_format"), // missing number
+            ("1.5GB".to_string(), "invalid_size_format"), // decimal not allowed
+            ("512 MB".to_string(), "invalid_size_format"), // space not allowed
+            ("10PB".to_string(), "invalid_size_format"), // invalid suffix PB
+        ];
+
+        for (val, expected_code) in test_cases {
+            let errs = CacheSize(val.clone()).check().unwrap_err();
+            assert_eq!(errs.len(), 1);
+            assert_eq!(errs.errors()[0].code(), expected_code);
+            assert_eq!(errs.errors()[0].input.as_deref(), Some(val.as_str()));
+            assert!(errs.errors()[0].msg.contains("Invalid size format"));
+        }
     }
 }

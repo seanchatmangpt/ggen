@@ -1,0 +1,100 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+namespace ruleml = "http://ruleml.org/spec"
+
+dc:title [ "RuleML Required Stripes Module" ]
+dc:version [ "1.0." ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "RuleML, stripe-required" ]
+dc:description [ "expansion module for required stripes in the RuleML namespace." ]
+dc:language [ "en" ]
+start |= notAllowed
+# This module declares the following LegalRuleML elements and attributes:
+# The following required stripes have no leaf form
+#            * <if>
+#            * <then>
+# 
+# This module extends the following RuleML choice patterns:
+#   body_Implies-const.name.choice
+#   body_Implies-const.content
+#   head_Implies-const.name.choice
+#   head_Implies-const.content
+#   body_ConstitutiveRule.edge.choice 
+#   body_ConstitutiveRule.content 
+#   head_ConstitutiveRule.edge.choice 
+#   head_ConstitutiveRule.content 
+#   body_PrescriptiveRule.edge.choice 
+#   body_PrescriptiveRule.content 
+#   head_PrescriptiveRule.edge.choice 
+#   head_PrescriptiveRule.content 
+
+##
+slotDeontic.edge.choice |= slotDeontic.edge.def
+slotDeontic.edge.def =
+  
+  ## a role of the deontic operator and its filler.
+  element ruleml:slot { slotDeontic.type.def }
+slotDeontic.type.def = slotDeontic.attlist, slotDeontic.content
+
+## These edges could be made skippable, since if-then order is required.
+body_Implies-const.name.choice |= body_Implies-const.edge.def
+body_Implies-const.edge.def =
+  
+  ## the premise (antecedent) of a Rule.
+  element ruleml:if { body_Implies-const.type.def }
+body_Implies-const.type.def = body_Implies.attlist? & body_Implies-const.content
+
+##
+head_Implies-const.name.choice |= head_Implies-const.edge.def
+head_Implies-const.edge.def =
+  
+  ## the conclusion (consequent) of a Rule.
+  element ruleml:then { head_Implies-const.type.def }
+head_Implies-const.type.def = head_Implies.attlist? & head_Implies-const.content
+
+##
+body_ConstitutiveRule.edge.choice |= body_ConstitutiveRule.edge.def
+body_ConstitutiveRule.edge.def =
+  
+  ## the premise (antecedent) of a constitutive statement.
+  element ruleml:if { body_ConstitutiveRule.type.def }
+body_ConstitutiveRule.type.def =
+  body_ConstitutiveRule.attlist, body_ConstitutiveRule.content
+
+##
+head_ConstitutiveRule.edge.choice |= head_ConstitutiveRule.edge.def
+head_ConstitutiveRule.edge.def =
+  
+  ## the conclusion (consequent) of a constitutive statement.
+  element ruleml:then { head_ConstitutiveRule.type.def }
+head_ConstitutiveRule.type.def =
+  head_ConstitutiveRule.attlist, head_ConstitutiveRule.content
+
+##
+body_PrescriptiveRule.edge.choice |= body_PrescriptiveRule.edge.def
+body_PrescriptiveRule.edge.def =
+  
+  ## the premise (antecedent) of a prescriptive statement.
+  element ruleml:if { body_PrescriptiveRule.type.def }
+body_PrescriptiveRule.type.def =
+  body_PrescriptiveRule.attlist, body_PrescriptiveRule.content
+
+##
+head_PrescriptiveRule.edge.choice |= head_PrescriptiveRule.edge.def
+head_PrescriptiveRule.edge.def =
+  
+  ## the conclusion (consequent) of a prescriptive statement.
+  element ruleml:then { head_PrescriptiveRule.type.def }
+head_PrescriptiveRule.type.def =
+  head_PrescriptiveRule.attlist, head_PrescriptiveRule.content
+##
+body_PrescriptiveRule.attlist &= if_Rule.attlist?
+head_PrescriptiveRule.attlist &= then_Rule.attlist?
+body_ConstitutiveRule.attlist &= if_Rule.attlist?
+head_ConstitutiveRule.attlist &= then_Rule.attlist?
+slotDeontic.attlist &= reslot.attlist?

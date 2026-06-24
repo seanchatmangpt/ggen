@@ -162,6 +162,9 @@ workspace = true
 workspace = true
 features = ["otel"]
 
+[dependencies.ggen-graph]
+workspace = true
+
 [dependencies.clap-noun-verb-macros]
 workspace = true
 

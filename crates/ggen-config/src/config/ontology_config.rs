@@ -313,4 +313,128 @@ mod tests {
             CompositionStrategy::Intersection
         );
     }
+
+    #[test]
+    fn test_ontology_config_star_toml_validate() {
+        use star_toml::Validate;
+
+        let mut config = OntologyConfig::new();
+        // Invalid: empty packs
+        let errs = config.check().unwrap_err();
+        let error_msgs: Vec<String> = errs.errors().iter().map(|e| e.msg.clone()).collect();
+        assert!(error_msgs
+            .iter()
+            .any(|m| m.contains("No ontology packs configured")));
+
+        // Add invalid pack ref
+        config = config.with_pack(OntologyPackRef {
+            name: "".to_string(),
+            version: "".to_string(),
+            namespace: None,
+            classes: None,
+            properties: None,
+            source: None,
+        });
+
+        let errs = config.check().unwrap_err();
+        let error_locs: Vec<String> = errs.errors().iter().map(|e| e.loc.to_string()).collect();
+        assert!(error_locs.contains(&"[0].name".to_string()));
+        assert!(error_locs.contains(&"[0].version".to_string()));
+
+        // Add invalid target config
+        config.targets.insert(
+            "test-target".to_string(),
+            TargetConfig {
+                language: "".to_string(),
+                output_dir: std::path::PathBuf::from("."),
+                features: vec![],
+                template_path: None,
+                hooks: None,
+            },
+        );
+
+        let errs = config.check().unwrap_err();
+        let error_locs: Vec<String> = errs.errors().iter().map(|e| e.loc.to_string()).collect();
+        assert!(error_locs.contains(&"test-target.language".to_string()));
+
+        // Add invalid paths to targets and lock config to check path validation
+        config.packs[0] = OntologyPackRef {
+            name: "valid-pack".to_string(),
+            version: "1.0.0".to_string(),
+            namespace: None,
+            classes: None,
+            properties: None,
+            source: None,
+        };
+        config.targets.insert(
+            "test-target".to_string(),
+            TargetConfig {
+                language: "rust".to_string(),
+                output_dir: std::path::PathBuf::from("path/../../traversal"),
+                features: vec![],
+                template_path: Some(std::path::PathBuf::from("path/with\0null")),
+                hooks: None,
+            },
+        );
+        config.lock = LockConfig {
+            file: std::path::PathBuf::from("lock/../../traversal"),
+            auto_update: true,
+            enforce: false,
+        };
+
+        let errs = config.check().unwrap_err();
+        let error_locs: Vec<String> = errs.errors().iter().map(|e| e.loc.to_string()).collect();
+        assert!(error_locs.contains(&"test-target.output_dir".to_string()));
+        assert!(error_locs.contains(&"test-target.template_path".to_string()));
+        assert!(error_locs.contains(&"lock.file".to_string()));
+    }
+}
+
+// =========================================================================
+// Validate Trait Implementations
+// =========================================================================
+
+impl star_toml::Validate for OntologyConfig {
+    fn validate(&self, v: &mut star_toml::Validator) {
+        if self.packs.is_empty() {
+            v.error(star_toml::ErrorKind::Empty, "No ontology packs configured");
+        }
+        for (i, pack) in self.packs.iter().enumerate() {
+            v.index(i, |v| pack.validate(v));
+        }
+        for (name, target) in &self.targets {
+            v.field(name, |v| target.validate(v));
+        }
+        v.field("lock", |v| self.lock.validate(v));
+    }
+}
+
+impl star_toml::Validate for OntologyPackRef {
+    fn validate(&self, v: &mut star_toml::Validator) {
+        v.check_non_empty("name", &self.name);
+        v.check_non_empty("version", &self.version);
+    }
+}
+
+impl star_toml::Validate for TargetConfig {
+    fn validate(&self, v: &mut star_toml::Validator) {
+        v.check_non_empty("language", &self.language);
+        v.check_path("output_dir", &self.output_dir.to_string_lossy(), None);
+        if let Some(template_path) = &self.template_path {
+            v.check_path("template_path", &template_path.to_string_lossy(), None);
+        }
+        if let Some(hooks) = &self.hooks {
+            v.field("hooks", |v| hooks.validate(v));
+        }
+    }
+}
+
+impl star_toml::Validate for GenerationHooks {
+    fn validate(&self, _v: &mut star_toml::Validator) {}
+}
+
+impl star_toml::Validate for LockConfig {
+    fn validate(&self, v: &mut star_toml::Validator) {
+        v.check_path("file", &self.file.to_string_lossy(), None);
+    }
 }

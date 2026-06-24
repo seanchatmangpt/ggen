@@ -17,8 +17,43 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  release-health:
+    name: Release Health Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust and cache
+        uses: ./.github/actions/setup-rust-cached
+        with:
+          toolchain: stable
+          cache-key-suffix: cicd-release-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install cargo-cicd and wpm oracle
+        uses: ./.github/actions/install-cargo-tools
+        with:
+          tools: cicd,wpm
+          cache-tools: 'true'
+
+      - name: Pre-flight — verify wpm on PATH (ANDON if missing)
+        run: |
+          set -euo pipefail
+          if ! command -v wpm >/dev/null 2>&1; then
+            echo "ANDON: wpm not found after install step — pull the cord"
+            exit 1
+          fi
+          echo "wpm: $(wpm --version 2>/dev/null || which wpm)"
+
+      - name: Workspace doctor
+        run: cargo cicd workspace doctor
+
+      - name: Process conformance gate (wpm oracle)
+        run: cargo cicd status audit
+
   build-release:
     name: Build Release
+    needs: [release-health]
     timeout-minutes: 45
     strategy:
       fail-fast: false

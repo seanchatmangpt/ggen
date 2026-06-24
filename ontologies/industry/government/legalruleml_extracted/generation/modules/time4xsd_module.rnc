@@ -1,0 +1,38 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+namespace ruleml = "http://ruleml.org/spec"
+namespace xs = "http://www.w3.org/2001/XMLSchema"
+
+dc:title [ "Temporal Entities" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "RuleML, Temporal Entities, XSD" ]
+dc:description [
+  "Expansion module for temporal entities, and temporal data, in the RuleML namespace, for conversion to XSD."
+]
+dc:language [ "en" ]
+start |= notAllowed
+# This module is for conversion into XSD.
+
+##
+Time.Node.choice |= Time.Node.def
+Time.Node.def =
+  
+  ## a neutral temporal entity.
+  element ruleml:Time { Timetype.def }
+Timetype.def = Time.attlist, Time.main
+
+##
+Time.attlist &= commonNode.attlist?
+
+
+##
+TimeData.Node.choice |=
+  
+  ## a temporal data value.
+  element ruleml:Data { xsd:dateTime | xsd:date | xsd:duration }

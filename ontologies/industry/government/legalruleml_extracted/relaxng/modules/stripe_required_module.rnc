@@ -1,0 +1,310 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "LegalRuleML Required Stripes Module" ]
+dc:version [ "1.0." ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, stripe-required" ]
+dc:description [ "expansion module for required stripes." ]
+dc:language [ "en" ]
+start |= notAllowed
+# 
+# The following required stripes can only occur in (have obligatory) leaf form.
+
+##
+appliesAssociationCollection.edge.choice |= appliesAssociationCollection.edge.def
+appliesAssociationCollection.edge.def =
+  
+  ## a collection of Associations applied by the Context.
+  element appliesAssociations { appliesAssociationCollection.type.def }
+appliesAssociationCollection.type.def = NodeReference.attrib.choice &
+  appliesAssociationCollection.attlist
+appliesAssociationCollection.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+appliesAssociation.edge.choice |= appliesAssociation.edge.def
+appliesAssociation.edge.def =
+  
+  ## an Association applied by the Context.
+  element appliesAssociation { appliesAssociation.type.def }
+appliesAssociation.type.def = NodeReference.attrib.choice & appliesAssociation.attlist
+appliesAssociation.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+atTime.edge.choice |= atTime.edge.def
+atTime.edge.def =
+  
+  ## the Time of the qualification of a TemporalCharacteristic.
+  element atTime { atTime.type.def }
+atTime.type.def = NodeReference.attrib.choice & atTime.attlist
+atTime.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+fromLegalSources.edge.choice |= fromLegalSources.edge.def
+fromLegalSources.edge.def =
+  
+  ## the LegalSources from which the Alternatives are derived.
+  element fromLegalSources { fromLegalSources.type.def }
+fromLegalSources.type.def = NodeReference.attrib.choice & fromLegalSources.attlist
+fromLegalSources.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+appliesAlternativeCollection.edge.choice |= appliesAlternativeCollection.edge.def
+appliesAlternativeCollection.edge.def =
+  
+  ## a collection of Alternatives applied by the Context.
+  element appliesAlternatives { appliesAlternativeCollection.type.def }
+appliesAlternativeCollection.type.def =
+  NodeReference.attrib.choice & appliesAlternativeCollection.attlist
+appliesAlternativeCollection.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+appliesAuthority.edge.choice |= appliesAuthority.edge.def
+appliesAuthority.edge.def =
+  
+  ## an Authority applied by the Context or Association.
+  element appliesAuthority { appliesAuthority.type.def }
+appliesAuthority.type.def = NodeReference.attrib.choice & appliesAuthority.attlist
+appliesAuthority.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+appliesJurisdiction.edge.choice |= appliesJurisdiction.edge.def
+appliesJurisdiction.edge.def =
+  
+  ## a Jurisdiction applied by the Context or Association.
+  element appliesJurisdiction { appliesJurisdiction.type.def }
+appliesJurisdiction.type.def = NodeReference.attrib.choice & appliesJurisdiction.attlist
+appliesJurisdiction.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+appliesModality.edge.choice |= appliesModality.edge.def
+appliesModality.edge.def =
+  
+  ## the deontic mode that applies to a Deontic Specification in a Context or Association.
+  element appliesModality { appliesModality.type.def }
+appliesModality.type.def = iri.lrml.attrib.choice & appliesModality.attlist
+appliesModality.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+appliesPenalty.edge.choice |= appliesPenalty.edge.def
+appliesPenalty.edge.def =
+  
+  ## the PenaltyStatement that is linked to a LegalRule in a Reparation.
+  element appliesPenalty { appliesPenalty.type.def }
+appliesPenalty.type.def = NodeReference.attrib.choice & appliesPenalty.attlist
+appliesPenalty.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+appliesSource.edge.choice |= appliesSource.edge.def
+appliesSource.edge.def =
+  
+  ## a LegalSource or Reference applied by the Context or Association.
+  element appliesSource { appliesSource.type.def }
+appliesSource.type.def = NodeReference.attrib.choice & appliesSource.attlist
+appliesSource.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+appliesTemporalCharacteristics.edge.choice |= appliesTemporalCharacteristics.edge.def
+appliesTemporalCharacteristics.edge.def =
+  
+  ## a collection of TemporalCharacteristics applied by the Context or Association.
+  element appliesTemporalCharacteristics { appliesTemporalCharacteristics.type.def }
+appliesTemporalCharacteristics.type.def =
+  NodeReference.attrib.choice & appliesTemporalCharacteristics.attlist
+appliesTemporalCharacteristics.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+appliesTemporalCharacteristic.edge.choice |= appliesTemporalCharacteristic.edge.def
+appliesTemporalCharacteristic.edge.def =
+  
+  ## a TemporalCharacteristic applied by the Context or Association.
+  element appliesTemporalCharacteristic { appliesTemporalCharacteristic.type.def }
+appliesTemporalCharacteristic.type.def =
+  NodeReference.attrib.choice & appliesTemporalCharacteristic.attlist
+appliesTemporalCharacteristic.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+forExpression.edge.choice |= forExpression.edge.def
+forExpression.edge.def =
+  
+  ## a LegalRuleML expression for which the Role is responsible e.g., the expression was created or endorsed by the role.
+  element forExpression { forExpression.type.def }
+forExpression.type.def = NodeReference.attrib.choice & forExpression.attlist
+forExpression.attlist &= commonLRMLEdgeInit.attlist?
+
+## Legal Status : a standing that can apply to a Legal Norm at a Time, e.g.,  "is applicable", "is in force", "has efficacy", "is valid".
+forStatus.edge.choice |= forStatus.edge.def
+forStatus.edge.def =
+  
+  ## the Legal Status of the qualification in a TemporalCharacteristic.
+  element forStatus { forStatus.type.def }
+forStatus.type.def = iri.lrml.attrib.choice & forStatus.attlist
+forStatus.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+hasAlternative.edge.choice |= hasAlternative.edge.def
+hasAlternative.edge.def =
+  
+  ## a member of a collection of Alternatives.
+  element hasAlternative { hasAlternative.type.def }
+hasAlternative.type.def = NodeReference.attrib.choice & hasAlternative.attlist
+hasAlternative.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+hasFunction.edge.choice |= hasFunction.edge.def
+hasFunction.edge.def =
+  
+  ## the function of a Figure.
+  element hasFunction { hasFunction.type.def }
+hasFunction.type.def = iri.lrml.attrib.choice & hasFunction.attlist
+hasFunction.attlist &= commonLRMLEdgeInit.attlist?
+
+## Status Development : a kind of event e.g., start, end that changes the Legal Status of a Legal Norm, e.g. making a Legal Norm in force.
+hasStatusDevelopment.edge.choice |= hasStatusDevelopment.edge.def
+hasStatusDevelopment.edge.def =
+  
+  ## the Status Development of the qualification in a TemporalCharacteristic.
+  element hasStatusDevelopment { hasStatusDevelopment.type.def }
+hasStatusDevelopment.type.def = iri.lrml.attrib.choice & hasStatusDevelopment.attlist
+hasStatusDevelopment.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+hasMemberType.edge.choice |= hasMemberType.edge.def
+hasMemberType.edge.def =
+  
+  ##  the type or class of members of the collection.
+  element hasMemberType { hasMemberType.type.def }
+hasMemberType.type.def = iri.lrml.attrib.choice & hasMemberType.attlist
+hasMemberType.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+hasType.edge.choice |= hasType.edge.def
+hasType.edge.def =
+  
+  ##  the type or class of the parent Node Element.
+  element hasType { hasType.type.def }
+hasType.type.def = iri.lrml.attrib.choice & hasType.attlist
+hasType.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+toTarget.edge.choice |= toTarget.edge.def
+toTarget.edge.def =
+  
+  ## the target to which properties are applied by the Association.
+  element toTarget { toTarget.type.def }
+toTarget.type.def = NodeReference.attrib.choice & toTarget.attlist
+toTarget.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+toPrescriptiveStatement.edge.choice |= toPrescriptiveStatement.edge.def
+toPrescriptiveStatement.edge.def =
+  
+  ## the PrescriptiveStatement that is linked to a PenaltyStatement in a Reparation.
+  element toPrescriptiveStatement { toPrescriptiveStatement.type.def }
+toPrescriptiveStatement.type.def = NodeReference.attrib.choice & toPrescriptiveStatement.attlist
+toPrescriptiveStatement.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+inScope.edge.choice |= inScope.edge.def
+inScope.edge.def =
+  
+  ## the Statement or (collection of) Statements that the Context is applied to.
+  element inScope { inScope.type.def }
+inScope.type.def = NodeReference.attrib.choice & inScope.attlist
+inScope.attlist &= commonLRMLEdgeInit.attlist?
+
+## Actor: an Agent or a Figure.
+##
+filledBy.edge.choice |= filledBy.edge.def
+filledBy.edge.def =
+  
+  ## an Actor that fills the Role.
+  element filledBy { filledBy.type.def }
+filledBy.type.def = NodeReference.attrib.choice, filledBy.attlist
+filledBy.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+hasActor.edge.choice |= hasActor.edge.def
+hasActor.edge.def =
+  
+  ## an Actor that has the responsibility to fulfill the function of a Figure.
+  element hasActor { hasActor.type.def }
+hasActor.type.def = NodeReference.attrib.choice, hasActor.attlist
+hasActor.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+# Non-skippable edges with leaf or branch forms
+##
+## Strength: the quality of a Legal Rule to resist or not to resist a rebuttal.
+##
+hasStrength.edge.choice |= hasStrength-branch.edge.def
+hasStrength-branch.edge.def =
+  
+  ## the (defeasible) Strength of the Legal Rule.
+  element hasStrength { hasStrength-branch.type.def }
+hasStrength-branch.type.def = hasStrength.attlist, hasStrength.content
+
+##
+hasStrength.edge.choice |= hasStrength-leaf.edge.def
+hasStrength-leaf.edge.def =
+  
+  ## the (defeasible) Strength of the Legal Rule.
+  element hasStrength { hasStrength-leaf.type.def }
+hasStrength-leaf.type.def = iri.lrml.attrib.choice & hasStrength.attlist
+hasStrength.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+appliesStrength.edge.choice |= appliesStrength-branch.edge.def
+appliesStrength-branch.edge.def =
+  
+  ## a (defeasible) Strength applied by the Context or Association.
+  element appliesStrength { appliesStrength-branch.type.def }
+appliesStrength-branch.type.def = appliesStrength.attlist, appliesStrength.content
+
+##
+appliesStrength.edge.choice |= appliesStrength-leaf.edge.def
+appliesStrength-leaf.edge.def =
+  
+  ## a (defeasible) Strength applied by the Context or Association.
+  element appliesStrength { appliesStrength-leaf.type.def }
+appliesStrength-leaf.type.def = iri.lrml.attrib.choice & appliesStrength.attlist
+appliesStrength.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+hasTemplate-Factual.edge.choice |= hasTemplate-Factual-branch.edge.def
+hasTemplate-Factual-branch.edge.def =
+  
+  ## the template of a FactualStatement.
+  element hasTemplate { hasTemplate-Factual-branch.type.def }
+hasTemplate-Factual-branch.type.def = hasTemplate-Factual.attlist, hasTemplate-Factual.content
+
+##
+hasTemplate-Factual.edge.choice |= hasTemplate-Factual-leaf.edge.def
+hasTemplate-Factual-leaf.edge.def =
+  
+  ## the template of a FactualStatement.
+  element hasTemplate { hasTemplate-Factual-leaf.type.def }
+hasTemplate-Factual-leaf.type.def = NodeReference.attrib.choice & hasTemplate-Factual.attlist
+hasTemplate-Factual.attlist &= commonLRMLEdgeInit.attlist?
+
+##
+hasQualification.edge.choice |= hasQualification-branch.edge.def
+hasQualification-branch.edge.def =
+  
+  ## a qualification (e.g. an Override) of the Statements.
+  element hasQualification { hasQualification-branch.type.def }
+hasQualification-branch.type.def = hasQualification.attlist, hasQualification.content
+
+##
+hasQualification.edge.choice |= hasQualification-leaf.edge.def
+hasQualification-leaf.edge.def =
+  
+  ## a qualification (e.g. an Override) of the Statements.
+  element hasQualification { hasQualification-leaf.type.def }
+hasQualification-leaf.type.def = NodeReference.attrib.choice & hasQualification.attlist
+hasQualification.attlist &= commonLRMLEdgeInit.attlist?

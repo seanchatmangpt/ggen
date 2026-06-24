@@ -1,7 +1,9 @@
 # ggen v26.5.28 - Rust Code Generation CLI
 
 Specification-driven code generation from RDF ontologies. Formula: A = μ(O) - Code precipitates from RDF via five-stage pipeline (μ₁-μ₅).
-Stack: Rust (stable) | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY | 15-crate workspace
+Stack: Rust (nightly, pinned via `rust-toolchain.toml`) | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY | 15-crate workspace
+
+> **Toolchain:** the workspace currently requires **nightly** Rust, pinned to a specific date in `rust-toolchain.toml`. Two crates.io dependencies use nightly-only features: `wasm4pm-compat` (via `ggen-lsp`→`lsp-max`→`lsp-max-runtime`; `#![feature(...)]`) and `libsqlite3-sys` 0.38.x (via `cpmp`→`rusqlite` "bundled"; `cfg_select!`). Run `cargo`/`just` as usual — the toolchain file selects nightly automatically. `Cargo.lock` is committed for reproducible builds. Move back to stable here if/when those dependencies support it.
 **Compressed Architecture:** `docs/architecture/COMPRESSED_REFERENCE.md` — verified C4, real sync flow, stub registry, error map. Load this before modifying any code.
 
 **Recent Audit (2026-04-01):** `docs/crate-audits/AUDIT_DASHBOARD.md` — workspace health assessment with 54 stubs classified, 8,900 lines dead code identified, 4 P0 blockers prioritized.

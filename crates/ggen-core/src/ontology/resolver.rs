@@ -19,11 +19,9 @@ impl OntologyResolver {
 
             let mut paths = Vec::new();
             if local_registry.exists() && local_registry.is_dir() {
-                for entry in WalkDir::new(&local_registry) {
-                    if let Ok(entry) = entry {
-                        if entry.path().extension().and_then(|e| e.to_str()) == Some("ttl") {
-                            paths.push(entry.path().to_path_buf());
-                        }
+                for entry in WalkDir::new(&local_registry).into_iter().flatten() {
+                    if entry.path().extension().and_then(|e| e.to_str()) == Some("ttl") {
+                        paths.push(entry.path().to_path_buf());
                     }
                 }
             }

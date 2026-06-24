@@ -1,15 +1,13 @@
 //! Build script for ggen workspace
 //!
-//! Auto-discovers templates at build time and generates Rust code for
-//! template registration. This eliminates manual template maintenance waste
-//! and ensures all templates are always accessible.
+//! Auto-discovers templates and core ontologies at build time and generates Rust code for
+//! registration. This eliminates manual maintenance waste and ensures all resources are
+//! always accessible.
 //!
-//! **Week 2 Efficiency Improvement**: Template Auto-Discovery
-//! **Waste Eliminated**: Manual template registration and maintenance
-//! **Benefits**:
-//! - Automatic discovery of all 335 templates
-//! - Compile-time validation of template syntax
-//! - Type-safe template access
+//! **Features**:
+//! - Automatic discovery of all templates (335+)
+//! - Compile-time embedding of core ontologies (12 W3C standards)
+//! - Type-safe resource access
 //! - Zero-cost abstraction (compile-time code generation)
 
 use std::env;
@@ -19,6 +17,7 @@ use std::path::Path;
 
 fn main() {
     println!("cargo:rerun-if-changed=templates/");
+    println!("cargo:rerun-if-changed=ontologies/core/");
 
     // Discover all templates
     let templates = discover_templates().unwrap_or_else(|e| {
@@ -28,9 +27,22 @@ fn main() {
 
     println!("cargo:warning=Discovered {} templates", templates.len());
 
+    // Discover and embed core ontologies
+    let ontologies = discover_core_ontologies().unwrap_or_else(|e| {
+        eprintln!("Warning: Failed to discover core ontologies: {e}");
+        Vec::new()
+    });
+
+    println!("cargo:warning=Discovered {} core ontologies", ontologies.len());
+
     // Generate Rust code for template registry
     generate_template_registry(&templates).unwrap_or_else(|e| {
         eprintln!("Warning: Failed to generate template registry: {e}");
+    });
+
+    // Generate Rust code for ontology bundle
+    generate_ontology_bundle(&ontologies).unwrap_or_else(|e| {
+        eprintln!("Warning: Failed to generate ontology bundle: {e}");
     });
 }
 
@@ -213,4 +225,171 @@ fn escape_string(s: &str) -> String {
         .replace('\n', "\\n")
         .replace('\r', "\\r")
         .replace('\t', "\\t")
+}
+
+/// Core ontology information
+#[derive(Debug, Clone)]
+struct OntologyInfo {
+    /// File name (without extension)
+    name: String,
+    /// Relative path from ontologies/core/
+    path: String,
+    /// Namespace URI for this ontology
+    namespace: String,
+    /// File size in bytes
+    size: u64,
+}
+
+/// Discover all ontology files in ontologies/core/ directory
+fn discover_core_ontologies() -> Result<Vec<OntologyInfo>, Box<dyn std::error::Error>> {
+    let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
+    let ontologies_dir = Path::new(&manifest_dir).join("ontologies").join("core");
+
+    if !ontologies_dir.exists() {
+        return Ok(Vec::new());
+    }
+
+    let mut ontologies = Vec::new();
+
+    for entry in fs::read_dir(&ontologies_dir)? {
+        let entry = entry?;
+        let path = entry.path();
+
+        if path.is_file() {
+            if let Some(ext) = path.extension() {
+                if ext == "ttl" || ext == "rdf" {
+                    let file_name = path
+                        .file_stem()
+                        .map(|s| s.to_string_lossy().to_string())
+                        .unwrap_or_else(|| "unknown".to_string());
+
+                    let relative_path = path
+                        .strip_prefix(&ontologies_dir)
+                        .map_err(|e| format!("Failed to strip prefix: {e}"))?
+                        .to_string_lossy()
+                        .to_string();
+
+                    let metadata = fs::metadata(&path)?;
+                    let size = metadata.len();
+
+                    // Map file names to their namespace URIs
+                    let namespace = match file_name.as_str() {
+                        "rdf-syntax-ns" => "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string(),
+                        "rdf-schema" => "http://www.w3.org/2000/01/rdf-schema#".to_string(),
+                        "owl" | "owl2" => "http://www.w3.org/2002/07/owl#".to_string(),
+                        "skos" => "http://www.w3.org/2004/02/skos/core#".to_string(),
+                        "skos-xl" => "http://www.w3.org/2008/05/skos-xl#".to_string(),
+                        "dcterms" => "http://purl.org/dc/terms/".to_string(),
+                        "dcat" => "http://www.w3.org/ns/dcat#".to_string(),
+                        "prov-o" => "http://www.w3.org/ns/prov#".to_string(),
+                        "shacl" => "http://www.w3.org/ns/shacl#".to_string(),
+                        "xmlschema-datatypes" => "http://www.w3.org/2001/XMLSchema#".to_string(),
+                        "ocel2" => "https://ocelprov.org/ontology#".to_string(),
+                        _ => format!("http://unknown.org/ontology/{file_name}#"),
+                    };
+
+                    ontologies.push(OntologyInfo {
+                        name: file_name,
+                        path: relative_path,
+                        namespace,
+                        size,
+                    });
+                }
+            }
+        }
+    }
+
+    // Sort for deterministic output
+    ontologies.sort_by(|a, b| a.path.cmp(&b.path));
+
+    Ok(ontologies)
+}
+
+/// Generate Rust code for ontology bundle (embedded at compile time)
+fn generate_ontology_bundle(
+    ontologies: &[OntologyInfo],
+) -> Result<(), Box<dyn std::error::Error>> {
+    let out_dir = env::var("OUT_DIR")?;
+    let dest_path = Path::new(&out_dir).join("ontologies.rs");
+    let mut f = File::create(&dest_path)?;
+
+    writeln!(f, "// Auto-generated by build.rs - DO NOT EDIT")?;
+    writeln!(f, "// Generated from {} core ontologies", ontologies.len())?;
+    writeln!(f)?;
+    writeln!(f, "/// Information about an embedded core ontology")?;
+    writeln!(f, "#[derive(Debug, Clone, Copy)]")?;
+    writeln!(f, "pub struct OntologyMetadata {{")?;
+    writeln!(f, "    /// Ontology name (filename without extension)")?;
+    writeln!(f, "    pub name: &'static str,")?;
+    writeln!(f, "    /// Namespace URI for this ontology")?;
+    writeln!(f, "    pub namespace: &'static str,")?;
+    writeln!(f, "    /// Embedded ontology content (Turtle or RDF/XML)")?;
+    writeln!(f, "    pub content: &'static [u8],")?;
+    writeln!(f, "    /// Original file size")?;
+    writeln!(f, "    pub size: usize,")?;
+    writeln!(f, "}}")?;
+    writeln!(f)?;
+
+    // Generate include_bytes! declarations
+    writeln!(f, "// Embedded ontology content")?;
+    for ontology in ontologies {
+        let const_name = format!(
+            "ONTOLOGY_{}",
+            ontology.name.to_uppercase().replace('-', "_")
+        );
+        let safe_path = ontology.path.replace('\\', "/");
+        writeln!(f, "const {}: &[u8] = include_bytes!(\"../../ontologies/core/{}\");", const_name, safe_path)?;
+    }
+    writeln!(f)?;
+
+    // Generate metadata array
+    writeln!(f, "/// All embedded core ontologies")?;
+    writeln!(f, "pub static CORE_ONTOLOGIES: &[OntologyMetadata] = &[")?;
+
+    for ontology in ontologies {
+        let const_name = format!(
+            "ONTOLOGY_{}",
+            ontology.name.to_uppercase().replace('-', "_")
+        );
+        writeln!(f, "    OntologyMetadata {{")?;
+        writeln!(f, "        name: \"{}\",", escape_string(&ontology.name))?;
+        writeln!(f, "        namespace: \"{}\",", escape_string(&ontology.namespace))?;
+        writeln!(f, "        content: {},", const_name)?;
+        writeln!(f, "        size: {},", ontology.size)?;
+        writeln!(f, "    }},")?;
+    }
+
+    writeln!(f, "];")?;
+    writeln!(f)?;
+
+    // Generate namespace lookup function
+    writeln!(f, "/// Look up an ontology by namespace URI")?;
+    writeln!(f, "pub fn by_namespace(uri: &str) -> Option<&'static OntologyMetadata> {{")?;
+    writeln!(f, "    CORE_ONTOLOGIES.iter().find(|o| o.namespace == uri)")?;
+    writeln!(f, "}}")?;
+    writeln!(f)?;
+
+    // Generate namespace lookup by partial URI
+    writeln!(f, "/// Look up an ontology by name")?;
+    writeln!(f, "pub fn by_name(name: &str) -> Option<&'static OntologyMetadata> {{")?;
+    writeln!(f, "    CORE_ONTOLOGIES.iter().find(|o| o.name == name)")?;
+    writeln!(f, "}}")?;
+    writeln!(f)?;
+
+    // Generate availability function
+    writeln!(f, "/// Get list of all available core ontologies")?;
+    writeln!(f, "pub fn available() -> Vec<(&'static str, &'static str)> {{")?;
+    writeln!(f, "    CORE_ONTOLOGIES.iter().map(|o| (o.name, o.namespace)).collect()")?;
+    writeln!(f, "}}")?;
+    writeln!(f)?;
+
+    // Generate statistics
+    let total_size: u64 = ontologies.iter().map(|o| o.size).sum();
+    writeln!(f, "/// Statistics about embedded ontologies")?;
+    writeln!(f, "pub mod stats {{")?;
+    writeln!(f, "    pub const TOTAL_ONTOLOGIES: usize = {};", ontologies.len())?;
+    writeln!(f, "    pub const TOTAL_SIZE_BYTES: usize = {};", total_size)?;
+    writeln!(f, "}}")?;
+
+    Ok(())
 }

@@ -1,0 +1,86 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Agents" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, Agent" ]
+dc:description [ "The expansion module for Agents." ]
+dc:language [ "en" ]
+start |= AgentCollection.Node.def | Agent.Node.def
+start |= FigureCollection.Node.def | Figure.Node.def
+
+##
+AgentCollection.Node.choice |= AgentCollection.Node.def
+AgentCollection.Node.def =
+  
+  ## a collection where every member is an Agent.
+  element Agents { AgentCollection.type.def }
+AgentCollection.type.def = AgentCollection.attlist, AgentCollection.main
+
+##
+AgentCollection.attlist &= commonCollection.attlist?
+
+##
+Agent.Node.choice |= Agent.Node.def
+Agent.Node.def =
+  
+  ## an entity that acts or has the capability to act.
+  element Agent { Agent.type.def }
+Agent.type.def = Agent.attlist, Agent.main
+
+##
+Agent.attlist &= commonLRMLNodeInit.attlist?
+Agent.attlist &= sameAs.attrib.opt.choice?
+
+##
+FigureCollection.Node.choice |= FigureCollection.Node.def
+FigureCollection.Node.def =
+  
+  ## a collection where every member is a Figure.
+  element Figures { FigureCollection.type.def }
+FigureCollection.type.def = FigureCollection.attlist, FigureCollection.main
+
+##
+FigureCollection.attlist &= commonCollection.attlist?
+
+##
+Figure.Node.choice |= Figure.Node.def
+Figure.Node.def =
+  
+  ## an instantiation of a function by an Actor.
+  element Figure { Figure.type.def }
+Figure.type.def = Figure.attlist, Figure.main
+
+##
+Figure.attlist &= commonLRMLNodeInit.attlist?
+
+## Actor: an Agent or a Figure.
+Actor.Node.choice |= Agent.Node.choice | Figure.Node.choice
+
+
+##
+RoleCollection.Node.choice |= RoleCollection.Node.def
+RoleCollection.Node.def =
+  
+  ## a collection where every member is a Role.
+  element Roles { RoleCollection.type.def }
+RoleCollection.type.def = RoleCollection.attlist, RoleCollection.main
+
+##
+RoleCollection.attlist &= commonCollection.attlist?
+
+##
+Role.Node.choice |= Role.Node.def
+Role.Node.def =
+  
+  ## a function of or part played by an Actor relative to a LegalRuleML expression.
+  element Role { Role.type.def }
+Role.type.def = Role.attlist, Role.main
+Role.attlist &= commonLRMLNodeInit.attlist?
+Role.attlist &= iri.lrml.attrib.opt.choice?

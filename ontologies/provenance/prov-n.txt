@@ -1,0 +1,16 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<title>300 Multiple Choices</title>
+</head><body>
+<h1>Multiple Choices</h1>
+The document name you requested (<code>/ns/prov.n</code>) could not be found on this server.
+However, we found documents with names similar to the one you requested.<p>Available documents:
+<ul>
+<li><a href="/ns/prov.var">/ns/prov.var</a> (common basename)
+<li><a href="/ns/prov.html">/ns/prov.html</a> (common basename)
+<li><a href="/ns/prov.xsd">/ns/prov.xsd</a> (common basename)
+<li><a href="/ns/prov.owl">/ns/prov.owl</a> (common basename)
+<li><a href="/ns/prov.ttl">/ns/prov.ttl</a> (common basename)
+<li><a href="/ns/prov.rdf">/ns/prov.rdf</a> (common basename)
+</ul>
+</body></html>

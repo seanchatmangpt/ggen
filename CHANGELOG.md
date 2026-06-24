@@ -5,6 +5,33 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.6.23] — Autonomic Configuration, Coherence Verification, and Star-TOML Integration (2026-06-23)
+
+### Added
+- **`star-toml` general-purpose configuration framework** — Declarative Schema builder, remote-aware session hook, Van der Aalst-grade validation analytics, and Pydantic-grade validation engine, replacing rejected ggen-toml. (commits `022caf9bb`, `3ae94cb34`, `9fe8d8439`, `9203d7c1d`)
+- **Three-pole coherence checker** — `O ≅ A ≅ L` (Post-Chatman Feature 2) in `ggen-graph` and formal spec in `post_chatman.ttl`. (commits `b5eea07cf`, `b34b5a368`, `9d9a3f5f1`)
+- **Production-grade Rust workspace boilerplate** — Added startup banner, migrate dry-run, verbose tracing levels, cursor-based pagination types, Email/Slug value objects, property-based tests, and Chicago TDD unit/integration tests. (commits `d2120fed5`, `caef38ecf`, `c8bea36b0`, `cb6d5873b`)
+- **Inverse pipeline `μ⁻¹`** — Formal inverse pipeline with typed stages and receipt in `ggen-core`. (commit `9a4c586be`)
+- **POWL process law types** — Added residual-vector repair types (Post-Chatman Feature 4) and process admission in `genesis-types-v2`. (commits `c2a76f00f`, `d0327fd08`)
+- **Post-Chatman AGI doctrine** — Added WHY/WHAT/HOW doctrine documents. (commit `82906d720`)
+- **O-Crates and registry:// URIs** — Finished full CLI and compiler support for O-Crates, curated and admitted the Semantic Universe O-Crate registry. (commits `b0962a680`, `6ba484661`)
+- **Van der Aalst process mining ontology** — OCEL 2.0 module, 57-entry DCAT 2 catalog, and OntologyRegistry in `cpmp`. (commits `0c80a8a6a`, `e4d2786bb`, `53821fac2`)
+
+### Fixed
+- **Turtle escaped quote literal truncation** — Unescape Turtle string literals instead of truncating at interior escaped quotes in `ggen-core`. (commit `0c5a35ba7`)
+- **`install-hooks.sh` isolation** — Prevent clobbering parent repo git hooks. (commit `9e5ab0c41`)
+
+## [26.6.11] — Chicago TDD, LSP-Max Integration, and Testcontainers Hardening (2026-06-11)
+
+### Added
+- **Process-Intelligent LSP** — POWL/OCEL/SPARQL repair routes with promotion, replay, and measurable improvement. Expose route engine as cycle-free A2A agent bridge. (commits `639b7e492`, `be2335f0a`, `1281c80fe`, `388a1616f`)
+- **GGEN-YIELD diagnostic family** — Headless gate wiring, compiled packs, and noun-verb CLI in `ggen-lsp`. (commit `c14f5873b`)
+- **Stewardship Cell (CSC-1)** — Canonical Stewardship Cell with proof machinery and operational spec. (commits `13a4bf8fb`, `09b42876d`)
+- **Design for Lean Six Sigma (DMADV)** — DMADV framework and autonomic knowledge actuation. (commits `8b34f5d38`, `b9722b7de`)
+
+### Fixed
+- **Testcontainers hardening** — Upgrade testcontainers to fix vulnerabilities. (commit `ece341d54`)
+
 ## [26.5.28] — LSP Delivery Plane, E0010 Enforcement & Docs Reconciliation (2026-05-28)
 
 ### Added

@@ -22,7 +22,7 @@ fn test_three_pole_full_coherence_all_poles_present() {
     // Arrange: real ontology triples (N-Triples format)
     let triples = [
         "<https://example.org/ggen> <https://example.org/type> <https://example.org/Tool> .",
-        "<https://example.org/ggen> <https://example.org/version> \"26.6.11\" .",
+        "<https://example.org/ggen> <https://example.org/version> \"26.6.23\" .",
     ];
 
     // Arrange: real artifact inventory (path, byte_size)
@@ -135,7 +135,10 @@ fn test_coherence_fingerprints_are_deterministic() {
     // Same input called twice → same hash
     let o1 = CoherenceChecker::fingerprint_ontology(&triples);
     let o2 = CoherenceChecker::fingerprint_ontology(&triples);
-    assert_eq!(o1.hash, o2.hash, "ontology fingerprint must be deterministic");
+    assert_eq!(
+        o1.hash, o2.hash,
+        "ontology fingerprint must be deterministic"
+    );
     assert_eq!(o1.item_count, 2);
 
     let a1 = CoherenceChecker::fingerprint_artifacts(&artifacts);
@@ -285,20 +288,39 @@ fn test_coherence_realistic_multi_triple_ontology() {
 
     // All poles present and non-empty with matching counts
     assert_eq!(
-        report.poles.iter().find(|p| p.pole == Pole::Ontology).map(|p| p.item_count),
+        report
+            .poles
+            .iter()
+            .find(|p| p.pole == Pole::Ontology)
+            .map(|p| p.item_count),
         Some(6),
         "six triples"
     );
     assert_eq!(
-        report.poles.iter().find(|p| p.pole == Pole::Artifact).map(|p| p.item_count),
+        report
+            .poles
+            .iter()
+            .find(|p| p.pole == Pole::Artifact)
+            .map(|p| p.item_count),
         Some(6),
         "six artifacts"
     );
     assert_eq!(
-        report.poles.iter().find(|p| p.pole == Pole::EventLog).map(|p| p.item_count),
+        report
+            .poles
+            .iter()
+            .find(|p| p.pole == Pole::EventLog)
+            .map(|p| p.item_count),
         Some(6),
         "six events"
     );
-    assert!(report.admitted, "realistic multi-item coherence must be admitted");
-    assert!(report.drifts.is_empty(), "no drifts expected; got: {:?}", report.drifts);
+    assert!(
+        report.admitted,
+        "realistic multi-item coherence must be admitted"
+    );
+    assert!(
+        report.drifts.is_empty(),
+        "no drifts expected; got: {:?}",
+        report.drifts
+    );
 }

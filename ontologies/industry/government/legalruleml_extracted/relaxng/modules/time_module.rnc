@@ -1,0 +1,51 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+namespace ruleml = "http://ruleml.org/spec"
+namespace xs = "http://www.w3.org/2001/XMLSchema"
+
+dc:title [ "Temporal Entities" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "RuleML, Temporal Entities" ]
+dc:description [
+  "Expansion module for temporal entities, and temporal data, in the RuleML namespace."
+]
+dc:language [ "en" ]
+start |= notAllowed
+# This module is for use with the Relax NG driver only.
+# It cannot be accurately transformed into XSD using Jing/Trang.
+
+##
+Time.Node.choice |= Time.Node.def
+Time.Node.def =
+  
+  ## a neutral temporal entity.
+  element ruleml:Time { Time.type.def }
+Time.type.def = Time.attlist, Time.main
+##
+Time.attlist &= commonNode.attlist?
+
+##
+TimeData.Node.choice |=
+  
+  ## a temporal data value.
+  element ruleml:Data { TimeData.type.def }
+TimeData.type.def = TimeData.attlist, TimeData.Node.main
+TimeData.attlist &= empty
+
+
+##  
+TimeData.Node.main |= dateTime.datatype.choice
+dateTime.datatype.choice |= xsd:dateTime
+TimeData.Node.main |= date.datatype.choice
+date.datatype.choice |= xsd:date
+TimeData.Node.main |= duration.datatype.choice
+duration.datatype.choice |= xsd:duration
+
+##
+Dummyxs = element xs:Dummy {empty}

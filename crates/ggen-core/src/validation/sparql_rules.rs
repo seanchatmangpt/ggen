@@ -129,15 +129,27 @@ impl RuleExecutor {
 
     fn execute_rule(&self, output: &Graph, rule: &ValidationRule) -> Result<Vec<Violation>> {
         let query_str = rule.query.trim().to_uppercase();
+        // Skip over PREFIX declarations to find the actual query verb
+        let query_verb = if let Some(idx) = query_str.find("ASK") {
+            if query_str.find("SELECT").map_or(true, |s| idx < s) {
+                "ASK"
+            } else {
+                "SELECT"
+            }
+        } else if query_str.find("SELECT").is_some() {
+            "SELECT"
+        } else {
+            ""
+        };
 
-        if query_str.starts_with("ASK") {
+        if query_verb == "ASK" {
             self.execute_ask_rule(output, rule)
-        } else if query_str.starts_with("SELECT") {
+        } else if query_verb == "SELECT" {
             self.execute_select_rule(output, rule)
         } else {
             Err(ValidationError::invalid_query(
                 &rule.id,
-                "Query must start with ASK or SELECT",
+                "Query must contain ASK or SELECT",
             ))
         }
     }

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY fibo-ind-ei-mod "https://spec.edmcouncil.org/fibo/ontology/IND/EconomicIndicators/MetadataINDEconomicIndicators/">
+	<!ENTITY fibo-ind-fx-mod "https://spec.edmcouncil.org/fibo/ontology/IND/ForeignExchange/MetadataINDForeignExchange/">
+	<!ENTITY fibo-ind-ind-mod "https://spec.edmcouncil.org/fibo/ontology/IND/Indicators/MetadataINDIndicators/">
+	<!ENTITY fibo-ind-ir-mod "https://spec.edmcouncil.org/fibo/ontology/IND/InterestRates/MetadataINDInterestRates/">
+	<!ENTITY fibo-ind-mkt-mod "https://spec.edmcouncil.org/fibo/ontology/IND/MarketIndices/MetadataINDMarketIndices/">
+	<!ENTITY fibo-ind-mod "https://spec.edmcouncil.org/fibo/ontology/IND/MetadataIND/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/IND/MetadataIND/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:fibo-ind-ei-mod="https://spec.edmcouncil.org/fibo/ontology/IND/EconomicIndicators/MetadataINDEconomicIndicators/"
+	xmlns:fibo-ind-fx-mod="https://spec.edmcouncil.org/fibo/ontology/IND/ForeignExchange/MetadataINDForeignExchange/"
+	xmlns:fibo-ind-ind-mod="https://spec.edmcouncil.org/fibo/ontology/IND/Indicators/MetadataINDIndicators/"
+	xmlns:fibo-ind-ir-mod="https://spec.edmcouncil.org/fibo/ontology/IND/InterestRates/MetadataINDInterestRates/"
+	xmlns:fibo-ind-mkt-mod="https://spec.edmcouncil.org/fibo/ontology/IND/MarketIndices/MetadataINDMarketIndices/"
+	xmlns:fibo-ind-mod="https://spec.edmcouncil.org/fibo/ontology/IND/MetadataIND/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/IND/MetadataIND/">
+		<rdfs:label>Metadata about the FIBO Indices and Indicators (IND) Domain</rdfs:label>
+		<dct:abstract>This ontology provides metadata about the FIBO Indices and Indicators (IND) Domain, which covers market indices and reference rates including economic indicators, foreign exchange, interest rates, and other benchmarks.</dct:abstract>
+		<dct:issued rdf:datatype="&xsd;dateTime">2018-08-27T18:00:00</dct:issued>
+		<dct:license>Copyright (c) 2014-2026 EDM Association dba EDM Council, Inc.
+Copyright (c) 2014-2026 Object Management Group
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+See https://opensource.org/licenses/MIT.</dct:license>
+		<dct:modified rdf:datatype="&xsd;dateTime">2026-04-15T18:00:00</dct:modified>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/EconomicIndicators/MetadataINDEconomicIndicators/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/ForeignExchange/MetadataINDForeignExchange/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/Indicators/MetadataINDIndicators/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/InterestRates/MetadataINDInterestRates/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/MarketIndices/MetadataINDMarketIndices/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/20260401/MetadataIND/"/>
+		<cmns-av:copyright>Copyright (c) 2014-2026 EDM Association dba EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2014-2026 Object Management Group</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:NamedIndividual rdf:about="&fibo-ind-mod;INDDomain">
+		<rdf:type rdf:resource="&fibo-fnd-utl-av;Module"/>
+		<rdfs:label>indices and indicators module</rdfs:label>
+		<dct:abstract>The FIBO Indices and Indicators (IND) Domain covers market indices and reference rates including economic indicators, foreign exchange, interest rates, and other benchmarks. The ontologies cover quoted interest rates, economic measures such as employment rates, and quoted indices required to support baskets of securities, including specific kinds of securities in share indices or bond indices, as well as credit indices.</dct:abstract>
+		<dct:contributor>88 Solutions</dct:contributor>
+		<dct:contributor>Adaptive Analytics, Inc.</dct:contributor>
+		<dct:contributor>Bank of New York Mellon</dct:contributor>
+		<dct:contributor>Bloomberg LP</dct:contributor>
+		<dct:contributor>Bureau of Economic Analysis (BEA, US Department of Commerce)</dct:contributor>
+		<dct:contributor>Bureau of Labor Statistics (BLS, US Department of Commerce)</dct:contributor>
+		<dct:contributor>Census Bureau (US Department of Commerce)</dct:contributor>
+		<dct:contributor>Citigroup</dct:contributor>
+		<dct:contributor>Dassault Systemes/No Magic</dct:contributor>
+		<dct:contributor>Deutsche Bank</dct:contributor>
+		<dct:contributor>Federal Reserve Bank of Kansas City</dct:contributor>
+		<dct:contributor>Federated Knowledge, LLC</dct:contributor>
+		<dct:contributor>HP Enterprise / Mphasis</dct:contributor>
+		<dct:contributor>Intuitive Technology Partners, Inc.</dct:contributor>
+		<dct:contributor>John F. Gemski</dct:contributor>
+		<dct:contributor>John F. Tierney</dct:contributor>
+		<dct:contributor>Nordea Bank AB</dct:contributor>
+		<dct:contributor>Office of Financial Research (OFR), U.S. Department of the Treasury</dct:contributor>
+		<dct:contributor>Pinnacle Bank (Morgan Hill, California)</dct:contributor>
+		<dct:contributor>State Street Bank and Trust</dct:contributor>
+		<dct:contributor>Statistics Canada</dct:contributor>
+		<dct:contributor>Tahoe Blue Ltd</dct:contributor>
+		<dct:contributor>Thematix Partners, LLC</dct:contributor>
+		<dct:contributor>Wells Fargo Bank, N. A.</dct:contributor>
+		<dct:contributor>agnos.ai UK Ltd</dct:contributor>
+		<dct:creator rdf:datatype="&xsd;anyURI">https://wiki.edmcouncil.org/display/IND/FIBO+-+FCT+-+Indices+and+Indicators+Home</dct:creator>
+		<dct:hasPart rdf:resource="&fibo-ind-ei-mod;EconomicIndicatorsModule"/>
+		<dct:hasPart rdf:resource="&fibo-ind-fx-mod;ForeignExchangeModule"/>
+		<dct:hasPart rdf:resource="&fibo-ind-ind-mod;IndicatorsModule"/>
+		<dct:hasPart rdf:resource="&fibo-ind-ir-mod;InterestRatesModule"/>
+		<dct:hasPart rdf:resource="&fibo-ind-mkt-mod;MarketIndicesModule"/>
+		<dct:issued rdf:datatype="&xsd;dateTime">2018-08-27T18:00:00</dct:issued>
+		<dct:license>Copyright (c) 2014-2026 EDM Association dba EDM Council, Inc.
+Copyright (c) 2014-2026 Object Management Group
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+See https://opensource.org/licenses/MIT.</dct:license>
+		<dct:modified rdf:datatype="&xsd;dateTime">2026-04-15T18:00:00</dct:modified>
+		<dct:title>FIBO IND Domain</dct:title>
+		<dct:title>Financial Industry Business Ontology (FIBO) Indices and Indicators (IND) Domain</dct:title>
+		<rdfs:seeAlso rdf:resource="https://www.edmcouncil.org/fibo/"/>
+		<skos:altLabel>Indices and Indicators (IND)</skos:altLabel>
+		<cmns-av:copyright>Copyright (c) 2014-2026 EDM Association dba EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2014-2026 Object Management Group</cmns-av:copyright>
+	</owl:NamedIndividual>
+
+</rdf:RDF>

@@ -1,0 +1,46 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "LegalRuleML Initializing Base Patterns" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, initialize, base patterns" ]
+dc:description [ "expansion module for initializing base patterns." ]
+dc:language [ "en" ]
+start |= notAllowed
+appliesAlternativeCollection.type.def |= notAllowed
+appliesAssociationCollection.type.def |= notAllowed
+appliesAssociation.type.def |= notAllowed
+appliesAuthority.type.def |= notAllowed
+appliesJurisdiction.type.def |= notAllowed
+appliesPenalty.type.def |= notAllowed
+toPrescriptiveStatement.type.def |= notAllowed
+appliesStrength.type.def |= notAllowed
+appliesTemporalCharacteristics.type.def |= notAllowed
+appliesTemporalCharacteristic.type.def |= notAllowed
+fromLegalSources.type.def |= notAllowed
+hasComment.type.def |= notAllowed
+hasParaphrase.type.def |= notAllowed
+hasQualification.type.def |= notAllowed
+atTime.type.def |= notAllowed
+filledBy.type.def |= notAllowed
+hasActor.type.def |= notAllowed
+hasLegalSourceCollection.type.def |= notAllowed
+hasLegalSource.type.def |= notAllowed
+hasSourceCollection.type.def |= notAllowed
+hasSource.type.def |= notAllowed
+hasStrength.type.def |= notAllowed
+hasTemplate-Constitutive.type.def |= notAllowed
+hasTemplate-Factual.type.def |= notAllowed
+hasTemplate-Override.type.def |= notAllowed
+hasTemplate-Penalty.type.def |= notAllowed
+hasTemplate-Prescriptive.type.def |= notAllowed
+hasTemplate-Reparation.type.def |= notAllowed
+hasTemporalCharacteristics.type.def |= notAllowed
+hasTemporalCharacteristic.type.def |= notAllowed
+inScope.type.def |= notAllowed

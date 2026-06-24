@@ -1,0 +1,62 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dcterms:title [ "Consumer RuleML Spatial" ]
+dcterms:identifier [ "http://consumer.ruleml.org/1.02/relaxng/modules/consumer_spatial_expansion_module.rnc" ]
+dcterms:isPartOf [ "http://consumer.ruleml.org/1.02/spec" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Athant" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Paschkea" ]
+dc:subject [ "RuleML, Consumer, Spatial" ]
+dcterms:description [ "The expansion module for spatial entities and relations." ]
+dcterms:language [ "en" ]
+dc:rights [
+  'Copyright 2015 RuleML Inc. -- Licensed under the RuleML Specification License, Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://ruleml.org/licensing/RSL1.0-RuleML. Disclaimer: THIS SPECIFICATION IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, ..., EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. See the License for the specifics governing permissions and limitations under the License.'
+]
+dcterms:rights [ "http://ruleml.org/licensing/RSL1.0-RuleML" ]
+dcterms:relation [ "http://consumer.ruleml.org" ]
+start |= Spatial_term.Node.def | Spatial_formula.Node.def
+Node.choice |= Spatial_term.Node.def
+Node.choice |= Spatial_formula.Node.def
+edge.choice |= arg_spatial.edge.def
+#
+
+##
+Spatial_term-node.choice |= Spatial_term.Node.def
+
+##
+Spatial_term.Node.def =
+  
+  ## <Spatial>: generic Spatial element. See
+  ## http://consumer.ruleml.org/1.02/glossary/#gloss-Spatial
+  element Spatial { Spatial_term.type.def }
+Spatial_term.type.def = Spatial_term.attlist & Spatial_term.content
+Spatial_term.attlist &= type-att.choice?
+Spatial_term.attlist &= commonNode.attlist?
+Spatial_term.content |= Spatial_term.header, argumentsForSpatial.sequence
+Spatial_term.header &= Expr.header?
+
+##
+Spatial_formula-node.choice |= Spatial_formula.Node.def
+
+##
+Spatial_formula.Node.def = element Spatial { Spatial_formula.type.def }
+Spatial_formula.type.def = Spatial_formula.attlist & Spatial_formula.content
+Spatial_formula.attlist &= formula-interface.attlist?
+Spatial_formula.attlist &= type-att.choice?
+Spatial_formula.attlist &= commonNode.attlist?
+Spatial_formula.content |= Spatial_formula.header, argumentsForSpatial.sequence
+Spatial_formula.header &= Atom.header?
+
+##
+arg_spatial-edge.choice |= arg_spatial.edge.def
+arg_spatial.edge.def = element arg { arg_spatial.type.def }
+arg_spatial.type.def = index-attrib.choice & arg_spatial.attlist & arg_spatial.content
+arg_spatial.attlist &= commonInit.attlist?
+arg_spatial.content |= spatial_primitives.content
+
+## Usage
+SimpleKeyTerm.choice |= Spatial_term-node.choice
+Atom-node.choice |= Spatial_formula-node.choice
+
+## An internal group for the spatial primitives for interpretation as spatial
+spatial_primitives.content |= arg.content

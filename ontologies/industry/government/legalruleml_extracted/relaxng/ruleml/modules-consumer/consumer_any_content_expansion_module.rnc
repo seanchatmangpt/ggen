@@ -1,0 +1,55 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+namespace this = inherit
+
+dcterms:title [ "Consumer RuleML Foreign Namespace content" ]
+dcterms:identifier [ "http://consumer.ruleml.org/1.02/relaxng/modules/consumer_any_content_expansion_module.rnc" ]
+dcterms:isPartOf [ "http://consumer.ruleml.org/1.02/spec" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Athant" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Paschkea" ]
+dc:subject [ "RuleML, Consumer, foreign" ]
+dcterms:description [
+  "The expansion module for foreign namespace content."
+]
+dcterms:language [ "en" ]
+dc:rights [ 'Copyright 2015 RuleML Inc. -- Licensed under the RuleML Specification License, Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://ruleml.org/licensing/RSL1.0-RuleML. Disclaimer: THIS SPECIFICATION IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, ..., EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. See the License for the specifics governing permissions and limitations under the License.' ]
+dcterms:rights [ "http://ruleml.org/licensing/RSL1.0-RuleML" ]
+dcterms:relation [ "http://consumer.ruleml.org" ]
+start |= notAllowed
+edge.choice |= time_anycontent.edge.def
+edge.choice |= spatial_anycontent.edge.def
+edge.choice |= interval_anycontent.edge.def
+
+# *** content ***
+# 
+#
+argumentsForTime.sequence |= time_anycontent-edge.choice*
+time_anycontent-edge.choice |= time_anycontent.edge.def
+time_anycontent.edge.def = element content { time_anycontent.type }
+time_anycontent.type = time_anycontent.attlist & index-attrib.choice & time_anycontent.content
+time_anycontent.content |= anycontent.content
+time_anycontent.attlist &= commonInit.attlist?
+#
+argumentsForSpatial.sequence |= spatial_anycontent-edge.choice*
+spatial_anycontent-edge.choice |= spatial_anycontent.edge.def
+spatial_anycontent.edge.def = element content { spatial_anycontent.type }
+spatial_anycontent.type =
+  spatial_anycontent.attlist & index-attrib.choice & spatial_anycontent.content
+spatial_anycontent.content |= anycontent.content
+spatial_anycontent.attlist &= commonInit.attlist?
+#
+arg_interval.choice |= interval_anycontent-edge.choice
+interval_anycontent-edge.choice |= interval_anycontent.edge.def
+interval_anycontent.edge.def = element content { interval_anycontent.type }
+interval_anycontent.type =
+  interval_anycontent.attlist & index-attrib.choice & interval_anycontent.content
+interval_anycontent.content |= anycontent.content
+interval_anycontent.attlist &= commonInit.attlist?
+#
+anycontent.content |= (text & foreign-element*) | Node.choice | edge.choice
+#
+foreign-element = element * - this:* { anything }
+anything =
+  (element * { anything }
+   | attribute * { text }
+   | text)*

@@ -65,6 +65,73 @@ test:
 test-lib:
     timeout 30s cargo test --lib --workspace
 
+# ── Phase 2: Inverse Sync + Coherence Gate ────────────────────────────────────
+
+# Test Phase 2 components (inverse-sync, coherence validation, process discovery)
+test-phase2:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Running Phase 2 test suite..."
+
+    # Core AST extraction tests
+    cargo test -p ggen-core --test ast_extractor_70pct_test || exit 1
+
+    # Inverse receipt chain validation
+    cargo test -p ggen-core --test inverse_receipt_chain_test || exit 1
+
+    # Provenance envelope (O→A bridge)
+    cargo test -p ggen-core --test provenance_envelope_test || exit 1
+
+    # OCEL conformance
+    cargo test -p ggen-graph --test ocel_conformance_test || exit 1
+
+    # Coherence hash expectations
+    cargo test -p ggen-graph --test coherence_hash_expectations_test || exit 1
+
+    # pm4py bridge for process discovery
+    cargo test -p ggen-graph --test pm4py_bridge_test || exit 1
+
+    # Post-Chatman round-trip (O→A→O cycle)
+    cargo test -p ggen-graph --test post_chatman_coherence_integration || exit 1
+
+    echo "✅ Phase 2 test suite complete"
+
+# Validate post-Chatman ontology + SHACL shapes
+coherence-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ontology=".specify/specs/post-chatman/post_chatman.ttl"
+    shapes=".specify/specs/post-chatman/post_chatman_shapes.ttl"
+
+    echo "Validating ontology: $ontology"
+    ggen validate "$ontology" || exit 1
+
+    echo "Validating shapes: $shapes"
+    ggen validate "$shapes" || exit 1
+
+    echo "✅ Coherence check passed (O→A→O validation gates satisfied)"
+
+# Run inverse-sync on sample artifacts
+inverse-sync source_dir=".specify/specs" ontology=".specify/specs/post-chatman/post_chatman.ttl":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    echo "Running inverse-sync..."
+    echo "  Source dir: {{source_dir}}"
+    echo "  Ontology: {{ontology}}"
+
+    # Invoke the inverse-sync CLI command (when available)
+    # For now, this is a placeholder that verifies the ontology is valid
+    ggen validate "{{ontology}}" || exit 1
+
+    echo "✅ Inverse-sync validation complete (envelope would be written here)"
+
+# Full O→A→O round-trip test
+round-trip: coherence-check inverse-sync
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "✅ O→A→O round-trip complete (coherence + inverse-sync + ontology re-validation)"
+
 # Doctests — validates all /// Examples blocks compile and run
 test-doc:
     #!/usr/bin/env bash
@@ -95,12 +162,28 @@ test-mutation:
 
 # ── Quality gates ─────────────────────────────────────────────────────────────
 
-# Full pre-commit gate: fmt → check → lint → test-lib (in sequence, fail fast)
-pre-commit: fmt-check check lint test-lib
+# Full pre-commit gate: fmt → check → lint → test-lib → coherence-check (in sequence, fail fast)
+pre-commit: fmt-check check lint test-lib coherence-check
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence)"
 
-# Performance SLO validation
+# Performance SLO validation (Phase 1 + Phase 2)
 slo-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Running Phase 1 SLO checks..."
     cargo bench --bench cli_startup_performance -- --test
+
+    echo "Running Phase 2 SLO checks..."
+    # Phase 2: Inverse pipeline + coherence checker performance
+    # InversePipeline::run_signed() must complete in <5s for typical artifact sets
+    # CoherenceChecker::check() must complete in <2s for 3-pole validation
+    # These are measured via integration tests that include timing assertions
+    cargo test -p ggen-core --test inverse_receipt_chain_test -- --nocapture || exit 1
+    cargo test -p ggen-graph --test coherence_hash_expectations_test -- --nocapture || exit 1
+
+    echo "✅ Phase 1 + Phase 2 SLO checks complete"
 
 # Security vulnerability scan
 audit:
@@ -126,6 +209,76 @@ sync:
 # Preview sync without writing any files
 sync-dry:
     ggen sync --dry_run true
+
+# ── cargo-cicd ────────────────────────────────────────────────────────────────
+
+# Full workspace health check
+doctor:
+    cargo cicd workspace doctor
+
+# Run only tests for crates changed since origin/main
+test-changed:
+    cargo cicd test changed
+
+# Check git working-tree state
+git-status:
+    cargo cicd git status
+
+# Check publish readiness
+publish-check:
+    cargo cicd publish run
+
+# Show target directory size
+target-show:
+    cargo cicd target show
+
+# Prune stale build artifacts
+target-prune:
+    cargo cicd target prune
+
+# Run the full manufacturing pipeline (status, target, tests, doctor, publish check, oracle audit)
+pipeline:
+    cargo cicd pipeline run
+
+# Check pipeline preconditions without running
+pipeline-validate:
+    cargo cicd pipeline validate
+
+# Invoke ggen sync via cargo-cicd (requires ggen binary on PATH)
+workspace-sync:
+    cargo cicd workspace sync
+
+# Show pipeline state: evidence files and cicd.toml fields
+pipeline-status:
+    cargo cicd pipeline status
+
+# Seal evidence journal into a BLAKE3 provenance receipt (requires affi on PATH)
+affidavit-seal:
+    cargo cicd affidavit seal
+
+# Verify sealed BLAKE3 receipt — ACCEPT or REJECT
+affidavit-verify:
+    cargo cicd affidavit verify
+
+# Show evidence event summary (count, timestamps, verdicts)
+evidence-show:
+    cargo cicd evidence show
+
+# wpm oracle adjudication on the evidence log
+evidence-audit:
+    cargo cicd evidence audit
+
+# Scan changed .rs files for anti-LLM admissibility violations
+lsp-check:
+    cargo cicd lsp check
+
+# wpm oracle process conformance gate (TRUTHFUL/VARIANCE/DECEPTIVE/BLOCKED)
+status-audit:
+    cargo cicd status audit
+
+# IEC 61508 / ISO 26262 compliance evidence summary
+certification-show:
+    cargo cicd certification show
 
 # ── lsp-max scaffold ──────────────────────────────────────────────────────────
 

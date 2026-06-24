@@ -1,0 +1,4 @@
+SELECT ?s 
+WHERE {?s <https://www.omg.org/spec/LCC/Languages/LanguageRepresentation/identifies> <https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/TestFormalOrganizations/GlobalBank>}
+
+ 

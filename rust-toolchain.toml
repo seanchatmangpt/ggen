@@ -1,2 +1,17 @@
+# Pinned toolchain for reproducible builds.
+#
+# The ggen workspace requires *nightly* Rust because two transitive,
+# crates.io-published dependencies use nightly-only features:
+#
+#   * wasm4pm-compat  (via ggen-lsp -> lsp-max -> lsp-max-runtime)
+#       uses `#![feature(unsized_const_params, min_specialization,
+#       const_trait_impl, portable_simd)]`.
+#   * libsqlite3-sys 0.38.x  (via cpmp -> rusqlite, "bundled" feature)
+#       uses the unstable `cfg_select!` macro in its build script.
+#
+# A specific nightly is pinned (rather than a floating `nightly`) so that
+# `cargo check/build/test` are reproducible from a clean checkout. Bump this
+# date deliberately and re-run `just check` when upgrading.
 [toolchain]
-channel = "nightly-2026-04-15"
+channel = "nightly-2026-06-22"
+components = ["rustfmt", "clippy"]

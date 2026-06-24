@@ -1,0 +1,693 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-cls "https://www.omg.org/spec/Commons/Classifiers/">
+	<!ENTITY cmns-col "https://www.omg.org/spec/Commons/Collections/">
+	<!ENTITY cmns-cxtdsg "https://www.omg.org/spec/Commons/ContextualDesignators/">
+	<!ENTITY cmns-doc "https://www.omg.org/spec/Commons/Documents/">
+	<!ENTITY cmns-dt "https://www.omg.org/spec/Commons/DatesAndTimes/">
+	<!ENTITY cmns-org "https://www.omg.org/spec/Commons/Organizations/">
+	<!ENTITY cmns-pts "https://www.omg.org/spec/Commons/PartiesAndSituations/">
+	<!ENTITY cmns-qtu "https://www.omg.org/spec/Commons/QuantitiesAndUnits/">
+	<!ENTITY cmns-ra "https://www.omg.org/spec/Commons/RegistrationAuthorities/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-fbc-dae-dbt "https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/">
+	<!ENTITY fibo-fbc-dae-gty "https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Guaranty/">
+	<!ENTITY fibo-fbc-fi-fi "https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/">
+	<!ENTITY fibo-fbc-pas-caa "https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/">
+	<!ENTITY fibo-fbc-pas-fpas "https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/">
+	<!ENTITY fibo-fnd-acc-cur "https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/">
+	<!ENTITY fibo-fnd-agr-agr "https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Agreements/">
+	<!ENTITY fibo-fnd-agr-ctr "https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/">
+	<!ENTITY fibo-fnd-arr-asmt "https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Assessments/">
+	<!ENTITY fibo-fnd-arr-doc "https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Documents/">
+	<!ENTITY fibo-fnd-dt-fd "https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/">
+	<!ENTITY fibo-fnd-oac-own "https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/">
+	<!ENTITY fibo-fnd-pas-psch "https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/PaymentsAndSchedules/">
+	<!ENTITY fibo-fnd-rel-rel "https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY fibo-loan-ln-ln "https://spec.edmcouncil.org/fibo/ontology/LOAN/LoansGeneral/Loans/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/LOAN/LoansGeneral/Loans/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-cls="https://www.omg.org/spec/Commons/Classifiers/"
+	xmlns:cmns-col="https://www.omg.org/spec/Commons/Collections/"
+	xmlns:cmns-cxtdsg="https://www.omg.org/spec/Commons/ContextualDesignators/"
+	xmlns:cmns-doc="https://www.omg.org/spec/Commons/Documents/"
+	xmlns:cmns-dt="https://www.omg.org/spec/Commons/DatesAndTimes/"
+	xmlns:cmns-org="https://www.omg.org/spec/Commons/Organizations/"
+	xmlns:cmns-pts="https://www.omg.org/spec/Commons/PartiesAndSituations/"
+	xmlns:cmns-qtu="https://www.omg.org/spec/Commons/QuantitiesAndUnits/"
+	xmlns:cmns-ra="https://www.omg.org/spec/Commons/RegistrationAuthorities/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-fbc-dae-dbt="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/"
+	xmlns:fibo-fbc-dae-gty="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Guaranty/"
+	xmlns:fibo-fbc-fi-fi="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/"
+	xmlns:fibo-fbc-pas-caa="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/"
+	xmlns:fibo-fbc-pas-fpas="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/"
+	xmlns:fibo-fnd-acc-cur="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"
+	xmlns:fibo-fnd-agr-agr="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Agreements/"
+	xmlns:fibo-fnd-agr-ctr="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"
+	xmlns:fibo-fnd-arr-asmt="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Assessments/"
+	xmlns:fibo-fnd-arr-doc="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Documents/"
+	xmlns:fibo-fnd-dt-fd="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"
+	xmlns:fibo-fnd-oac-own="https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/"
+	xmlns:fibo-fnd-pas-psch="https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/PaymentsAndSchedules/"
+	xmlns:fibo-fnd-rel-rel="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:fibo-loan-ln-ln="https://spec.edmcouncil.org/fibo/ontology/LOAN/LoansGeneral/Loans/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/LOAN/LoansGeneral/Loans/">
+		<rdfs:label>Loans Ontology</rdfs:label>
+		<dct:abstract>This ontology is the top-level, and most fundamental ontology for the LOAN module, extending the Debt ontology to define concepts common to all loans. It includes the primary obligations to fund the loan and to pay it back according to payment schedules. Kinds of loans covered in this ontology include open and closed end, secured and unsecured.</dct:abstract>
+		<dct:license>Copyright (c) 2016-2025 EDM Council, Inc.
+Copyright (c) 2016-2025 Object Management Group, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Guaranty/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Agreements/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Assessments/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Documents/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/PaymentsAndSchedules/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Classifiers/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Collections/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/ContextualDesignators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/DatesAndTimes/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Documents/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Organizations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/PartiesAndSituations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/QuantitiesAndUnits/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RegistrationAuthorities/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/LOAN/20251201/LoansGeneral/Loans/"/>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/LOAN/20220601/LoansGeneral/Loans.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/LOAN/20230201/LoansGeneral/Loans.rdf version of this ontology was modified to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC), eliminating redundancies in FIBO as appropriate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/LOAN/20230301/LoansGeneral/Loans.rdf version of this ontology was modified to eliminate a subproperty relationship between the principal and notional amount, which may not be appropriate (DER-127) and to replace content that is now available in the OMG Commons Ontology Library (Commons) v1.1 (FND-380).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/LOAN/20231201/LoansGeneral/Loans.rdf version of this ontology was modified to replace content that is now available in the OMG Commons Ontology Library (Commons) v1.1 (FND-380).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/LOAN/20240101/LoansGeneral/Loans.rdf version of this ontology was modified to move certain terms athat are general debt schedule terms to the Debt ontology (FBC-317).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/LOAN/20240301/LoansGeneral/Loans.rdf version of this ontology was modified to correct the distinction between amortization schedule and loan payment schedule and move security agreement to the debt ontology (LOAN-168) and eliminate elements that have been deprecated for more than six months (FND-386).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/LOAN/20241101/LoansGeneral/Loans.rdf version of this ontology was modified to move the property &apos;has credit limit&apos; to FBC as needed to define certain credit facilities (FBC-324).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/LOAN/20250301/LoansGeneral/Loans.rdf version of this ontology was modified to clean up older deprecations (FND-399).</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2016-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2016-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-dbt;InterestPaymentTerms">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-loan-ln-ln;hasFirstRateChangeTerm"/>
+				<owl:onClass rdf:resource="&cmns-dt;ExplicitDuration"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-dbt;PrincipalRepaymentTerms">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-loan-ln-ln;hasBalloonPayment"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+				<owl:onDataRange rdf:resource="&xsd;boolean"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-loan-ln-ln;isInitiallyPayable"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+				<owl:onDataRange rdf:resource="&xsd;boolean"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-dbt;SecurityAgreement">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;isClassifiedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-loan-ln-ln;LenderLienPosition"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;isClassifiedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-loan-ln-ln;OwnershipInterest"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;ClosedEndCredit">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-dbt;CreditAgreement"/>
+		<rdfs:label>closed-end credit</rdfs:label>
+		<skos:definition>credit agreement in which the loan principal cannot be increased after funds are dispersed in full when the loan closes</skos:definition>
+		<cmns-av:explanatoryNote>The loan may require regular payments that pay down principal periodically, or it may require the full payment of principal at maturity.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;CollateralizedLoan">
+		<rdfs:subClassOf rdf:resource="&fibo-loan-ln-ln;SecuredLoan"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;isCollateralizedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-dbt;Collateral"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-agr-ctr;isPrimaryContractFor"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-agr-ctr;CollateralAgreement"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">collateralized loan</rdfs:label>
+		<skos:definition xml:lang="en">secured loan that is secured with cash or other acceptable collateral (real property, securities or other assets) provided by the borrower as specified in the collateral agreement</skos:definition>
+		<cmns-av:adaptedFrom xml:lang="en">ISO 10962, Securities and related financial instruments - Classification of financial instruments (CFI) code, Fourth Edition, 2019.</cmns-av:adaptedFrom>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;Comaker">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-agr-ctr;ContractThirdParty"/>
+		<rdfs:label>co-maker</rdfs:label>
+		<skos:definition>party that signs a borrower&apos;s promissory note, providing additional security and potentially improving the quality of the debt</skos:definition>
+		<cmns-av:explanatoryNote>Differences between a co-maker and co-borrower include: (1) a co-maker is not listed on the title of the asset to which the loan applies, (2) a co-maker does not have any legal ownership rights to the asset, and (3) the co-maker does not make regular payments on the loan unless the primary borrower(s) fails to do so.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote>The co-maker&apos;s liability is similar to that of an endorser or guarantor, but with additional risk/exposure, as they can be compelled to honor the debt much sooner and regardless of whether certain conditions are met.</cmns-av:explanatoryNote>
+		<cmns-av:synonym>comaker</cmns-av:synonym>
+		<cmns-av:synonym>cosigner</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;CombinedLoanToValueRatio">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-acc-cur;PercentageMonetaryAmount"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;appliesTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-oac-own;Asset"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;refersTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-arr-asmt;Appraisal"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-qtu;hasArgument"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-arr-asmt;AppraisedValue"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-qtu;hasArgument"/>
+				<owl:someValuesFrom rdf:resource="&fibo-loan-ln-ln;TotalOutstandingPrincipal"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>combined loan-to-value ratio</rdfs:label>
+		<skos:definition>ratio of the total amount of debt that is secured by the asset(s) and the appraised value of the asset(s) securing the financing</skos:definition>
+		<cmns-av:explanatoryNote>This is particularly important for secondary loans, or for refinancing that combines outstanding loans against a given asset. Lenders use this ratio to evaluate the risk of extending a loan to a borrower(s) in cases where multiple loans are involved.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-loan-ln-ln;FeeSimpleOwnershipInterest">
+		<rdf:type rdf:resource="&fibo-loan-ln-ln;OwnershipInterest"/>
+		<rdfs:label>fee-simple ownership interest</rdfs:label>
+		<skos:definition>classification indicating the most common type of ownership, covering an indefinite ownership period and the freedom to transfer said ownership as desired</skos:definition>
+		<cmns-av:explanatoryNote>Fee simple is the term used to represent the maximum ownership interest in real property that is allowed under the law. It can be referred to as &apos;complete ownership&apos;.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote>The asset may still be subject to government regulations such as property taxes, and the owner can place voluntary encumbrances on the real estate including its use as collateral for a loan. In the case of a mortgage, fee simple can be contrasted with lease ownership, in which case the owners have complete access to the land, but they do not own it. Owners of single-family residences typically have fee simple ownership, but condo and many townhouse owners do not, as they own their individual unit but not the land on which the development is built.</cmns-av:explanatoryNote>
+		<cmns-av:synonym>complete ownership</cmns-av:synonym>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-loan-ln-ln;FractionalOwnershipInterest">
+		<rdf:type rdf:resource="&fibo-loan-ln-ln;OwnershipInterest"/>
+		<rdfs:label>fractional ownership interest</rdfs:label>
+		<skos:definition>classification indicating that several parties may share in, and mitigate the risk of, ownership of a high-value tangible asset</skos:definition>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;GuaranteedLoan">
+		<rdfs:subClassOf rdf:resource="&fibo-loan-ln-ln;SecuredLoan"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-gty;hasGuarantor"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-gty;Guarantor"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-gty;Guaranty"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">guaranteed loan</rdfs:label>
+		<skos:definition xml:lang="en">loan that is secured with respect to repayment of principal and interest by guaranty</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">A loan guarantee is a promise by one party to assume the debt obligation of a borrower if that borrower defaults. A guarantee can be limited or unlimited, making the guarantor liable for only a portion or all of the debt.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote xml:lang="en">In the U.S., the term &apos;guaranteed loan&apos; typically refers to a loan that is backed by a federal agency, such as the Department of Veterans Affairs or the Small Business Administration. Student loans may be guaranteed by the Student Loan Marketing Association.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;IndividualPaymentTransaction">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;IndividualTransaction"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-pas-psch;Payment"/>
+		<rdfs:label xml:lang="en">individual payment transaction</rdfs:label>
+		<skos:definition xml:lang="en">actual payment of principal, interest, fees, or other related amounts towards fulfillment of a debt obligation</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;LenderLienPosition">
+		<rdfs:subClassOf rdf:resource="&cmns-cls;Classifier"/>
+		<rdfs:label>lender lien position</rdfs:label>
+		<skos:definition>classifier indicating whether the lender has the primary lien position with respect to an asset used as collateral for the loan</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;Loan">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-dbt;CreditAgreementRepaidPeriodically"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fi-fi;DebtInstrument"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-gty;hasGuarantor"/>
+				<owl:onClass rdf:resource="&fibo-fbc-dae-gty;Guarantor"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-loan-ln-ln;hasTotalClosingCosts"/>
+				<owl:onClass rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-loan-ln-ln;hasTotalPointsAndFees"/>
+				<owl:onClass rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-agr-ctr;hasThirdParty"/>
+				<owl:onClass rdf:resource="&fibo-fnd-agr-ctr;ContractThirdParty"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;isClassifiedBy"/>
+				<owl:onClass rdf:resource="&fibo-loan-ln-ln;LenderLienPosition"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;hasCorrespondingAccount"/>
+				<owl:onClass rdf:resource="&fibo-loan-ln-ln;LoanSpecificCustomerAccount"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-loan-ln-ln;isServicedBy"/>
+				<owl:onClass rdf:resource="&fibo-loan-ln-ln;Servicer"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;hasMaturityDate"/>
+				<owl:onClass rdf:resource="&cmns-dt;ExplicitDate"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-loan-ln-ln;hasNegativeAmortization"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+				<owl:onDataRange rdf:resource="&xsd;boolean"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-loan-ln-ln;isInterestOnly"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+				<owl:onDataRange rdf:resource="&xsd;boolean"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-loan-ln-ln;hasPrincipalAmount"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>loan</rdfs:label>
+		<skos:definition>debt instrument whereby one party extends money or credit to another party (or parties) with the understanding that the borrowed money will be repaid according to the terms of the contract</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;LoanPaymentSchedule">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-pas-psch;PaymentSchedule"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;hasAnticipatedNumberOfPayments"/>
+				<owl:someValuesFrom rdf:resource="&xsd;positiveInteger"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;appliesTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-loan-ln-ln;LoanSpecificCustomerAccount"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>loan payment schedule</rdfs:label>
+		<skos:definition>regular or explicit (ad hoc) payment schedule associated with a given loan-specific account</skos:definition>
+		<cmns-av:explanatoryNote>Loan payment schedules may or may not be amortization schedules, i.e., they may or may not include principal.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;LoanSpecificCustomerAccount">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;CustomerAccount"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;LoanOrCreditAccount"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-loan-ln-ln;hasLoanBalance"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;Balance"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-pas-psch;hasPaymentSchedule"/>
+				<owl:onClass rdf:resource="&fibo-loan-ln-ln;LoanPaymentSchedule"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-loan-ln-ln;hasPaymentHistory"/>
+				<owl:onClass rdf:resource="&fibo-loan-ln-ln;PaymentHistory"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-fpas;relatesTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-loan-ln-ln;Loan"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isHeldBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-dbt;Borrower"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;isProvidedBy"/>
+				<owl:someValuesFrom>
+					<owl:Class>
+						<owl:unionOf rdf:parseType="Collection">
+							<rdf:Description rdf:about="&fibo-fbc-dae-dbt;Lender">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-loan-ln-ln;Servicer">
+							</rdf:Description>
+						</owl:unionOf>
+					</owl:Class>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>loan-specific customer account</rdfs:label>
+		<skos:definition>account held by the borrower associated with a specific loan</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;LoanToValueRatio">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-acc-cur;PercentageMonetaryAmount"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;appliesTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-oac-own;Asset"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;refersTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-arr-asmt;Appraisal"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-qtu;hasArgument"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-dbt;Principal"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-qtu;hasArgument"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-arr-asmt;AppraisedValue"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>loan-to-value ratio</rdfs:label>
+		<skos:definition>ratio, expressed as a percentage, between the principal amount of the loan and the appraised value of the asset securing the financing</skos:definition>
+		<cmns-av:abbreviation>LTV</cmns-av:abbreviation>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;OpenEndCredit">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-dbt;CreditAgreement"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;hasCreditLimit"/>
+				<owl:onClass rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>open-end credit</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-loan-ln-ln;ClosedEndCredit"/>
+		<skos:definition>credit agreement that may be extended up to an agreed credit limit and paid down at any time within the period of the line, if any, and on which interest is charged only on the outstanding balance</skos:definition>
+		<skos:example>Credit card and overdraft lines of credit are among the most widely used forms of open-end credit.</skos:example>
+		<cmns-av:explanatoryNote>There is a credit limit most of the time, with exceptions including reverse mortgages with tenure payment. The borrower has the option of paying off the outstanding balance, without penalty, or making installment payments.</cmns-av:explanatoryNote>
+		<cmns-av:synonym>charge account credit</cmns-av:synonym>
+		<cmns-av:synonym>revolving credit</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;OwnershipInterest">
+		<rdfs:subClassOf rdf:resource="&cmns-cls;Classifier"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;classifies"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-oac-own;Ownership"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>ownership interest</rdfs:label>
+		<skos:definition>classifier indicating the nature of the applicant&apos;s or borrower&apos;s ownership or leasehold interest in an asset used as collateral for the loan</skos:definition>
+		<cmns-av:usageNote>Note that there are a number of variations for ownership interest that represent &apos;corner cases&apos;, including jurisdiction-specific variants, which can be added as needed for specific applications.</cmns-av:usageNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;PaymentHistory">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;TransactionRecord"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;appliesToAccount"/>
+				<owl:someValuesFrom rdf:resource="&fibo-loan-ln-ln;LoanSpecificCustomerAccount"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-loan-ln-ln;hasIndividualPayment"/>
+				<owl:someValuesFrom rdf:resource="&fibo-loan-ln-ln;IndividualPaymentTransaction"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>payment history</rdfs:label>
+		<skos:definition>record of actual payments of principal, interest, and other related amounts made by a borrower to a lender or servicer in order to fulfill their re-payment obligation</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;PrepaymentTerms">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-dbt;PrincipalRepaymentTerms"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-loan-ln-ln;hasPrePaymentPenaltyTerm"/>
+				<owl:someValuesFrom rdf:resource="&cmns-dt;ExplicitDuration"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">pre-payment terms</rdfs:label>
+		<skos:definition xml:lang="en">principal repayment terms related to payment of the loan prior to maturity</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">Prepayment may or may not involve refinancing with the same lender. Prepayment terms include any prepayment penalty period, penalty amount and whether or not there is provision for waiver of the penalty, and any conditions related to making additional payments or payments over and above the expected installment payment over the lifetime of the loan.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-loan-ln-ln;PrimaryLienPosition">
+		<rdf:type rdf:resource="&fibo-loan-ln-ln;LenderLienPosition"/>
+		<rdfs:label>primary lien position</rdfs:label>
+		<skos:definition xml:lang="en">first position in the order of seniority in which the law recognizes lenders&apos; claims against a property</skos:definition>
+		<cmns-av:synonym>primary lien priority</cmns-av:synonym>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;SecuredLoan">
+		<rdfs:subClassOf rdf:resource="&fibo-loan-ln-ln;Loan"/>
+		<rdfs:subClassOf>
+			<owl:Class>
+				<owl:unionOf rdf:parseType="Collection">
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+						<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-dbt;SecurityAgreement"/>
+					</owl:Restriction>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+						<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-gty;Guaranty"/>
+					</owl:Restriction>
+				</owl:unionOf>
+			</owl:Class>
+		</rdfs:subClassOf>
+		<rdfs:label>secured loan</rdfs:label>
+		<skos:definition>loan in which the borrower pledges some asset via a security agreement as collateral for the loan, or that is secured via third-party guarantee</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;Servicer">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-fpas;FinancialServiceProvider"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-agr-ctr;ContractThirdParty"/>
+		<rdfs:label>servicer</rdfs:label>
+		<skos:definition>party that collects principal and interest payments on behalf of the lender</skos:definition>
+		<cmns-av:explanatoryNote>In cases where a loan has been securitized, the servicer is also responsible for forwarding payments to investors, filing reports with credit-rating agencies and investors, and so forth.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-loan-ln-ln;SubordinateLienPosition">
+		<rdf:type rdf:resource="&fibo-loan-ln-ln;LenderLienPosition"/>
+		<rdfs:label>subordinate lien position</rdfs:label>
+		<skos:definition xml:lang="en">secondary or lower position in the order of seniority in which the law recognizes lenders&apos; claims against a property</skos:definition>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;TotalOutstandingPrincipal">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-dbt;Principal"/>
+		<rdfs:label>total outstanding principal</rdfs:label>
+		<skos:definition>the principal balance of all loans secured by the property</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-loan-ln-ln;UnsecuredLoan">
+		<rdfs:subClassOf rdf:resource="&fibo-loan-ln-ln;Loan"/>
+		<rdfs:label>unsecured loan</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-loan-ln-ln;SecuredLoan"/>
+		<skos:definition>loan granted based on the strength of the borrower&apos;s credit history or reputation in the community</skos:definition>
+	</owl:Class>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-loan-ln-ln;hasBalloonPayment">
+		<rdfs:label xml:lang="en">has balloon payment</rdfs:label>
+		<rdfs:range rdf:resource="&xsd;boolean"/>
+		<skos:definition xml:lang="en">indicates whether the contractual terms include or would have included repayment of the outstanding principal sum at the end of a loan period, prior to which only partial or no payments were made on the principal</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-loan-ln-ln;hasCost">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-acc-cur;hasMonetaryAmount"/>
+		<rdfs:label>has cost</rdfs:label>
+		<skos:definition>has amount payable for principal, interest, fees or other expenses</skos:definition>
+		<cmns-av:explanatoryNote>This can entail adding up other prices and/or fees (e.g. 4 units * a unit price)</cmns-av:explanatoryNote>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-loan-ln-ln;hasFirstRateChangeTerm">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasDuration"/>
+		<rdfs:label>has first rate change term</rdfs:label>
+		<skos:definition>specifies a period of time in months after origination during which the interest rate cannot change</skos:definition>
+		<cmns-av:usageNote>This normally applies to a variable rate loan. It may also apply to step up/step down loans that are fixed rate but whose rate changes after a pre-determined number of months.</cmns-av:usageNote>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-loan-ln-ln;hasIndividualPayment">
+		<rdfs:subPropertyOf rdf:resource="&cmns-col;comprises"/>
+		<rdfs:label>has individual payment</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-loan-ln-ln;PaymentHistory"/>
+		<rdfs:range rdf:resource="&fibo-loan-ln-ln;IndividualPaymentTransaction"/>
+		<skos:definition>links an actual payment of principal, interest, and other related amounts to the overall payment history for an account</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-loan-ln-ln;hasLoanBalance">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fbc-dae-dbt;hasOutstandingAmount"/>
+		<rdfs:subPropertyOf rdf:resource="&fibo-fbc-pas-caa;hasBalance"/>
+		<rdfs:label>has loan balance</rdfs:label>
+		<skos:definition>indicates the balance with respect to the principal on the loan as of some date</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-loan-ln-ln;hasNegativeAmortization">
+		<rdfs:label xml:lang="en">has negative amortization</rdfs:label>
+		<rdfs:range rdf:resource="&xsd;boolean"/>
+		<skos:definition xml:lang="en">indicates whether the contractual terms include or would have included a feature that allows unpaid interest to be added to the balance of unpaid principal</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-loan-ln-ln;hasPaymentHistory">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-arr-doc;hasRecord"/>
+		<rdfs:label>has payment history</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-loan-ln-ln;PaymentHistory"/>
+		<skos:definition>relates a credit agreement, loan, or commitment to any history of payments that have been made by the borrower up to the point that payment history is requested</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-loan-ln-ln;hasPrePaymentPenaltyTerm">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasDuration"/>
+		<rdfs:label>has pre-payment penalty term</rdfs:label>
+		<skos:definition>relates a loan to a period of time in months after which there is no prepayment penalty</skos:definition>
+		<cmns-av:usageNote>A value of zero means no prepayment penalty; this avoids need for a separate boolean property about whether there is a prepayment penalty</cmns-av:usageNote>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-loan-ln-ln;hasPrincipalAmount">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fbc-dae-dbt;hasPrincipal"/>
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-acc-cur;hasMonetaryAmount"/>
+		<rdfs:label xml:lang="en">has principal amount</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+		<skos:definition xml:lang="en">indicates the nominal amount of the loan that must be paid at or before maturity</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-loan-ln-ln;hasScheduledUnpaidBalance">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fbc-pas-caa;hasBalance"/>
+		<rdfs:label>has scheduled unpaid balance</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fbc-pas-caa;Balance"/>
+		<skos:definition>indicates what the balance should be after a scheduled payment is made according to contract terms</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-loan-ln-ln;hasTotalClosingCosts">
+		<rdfs:subPropertyOf rdf:resource="&fibo-loan-ln-ln;hasCost"/>
+		<rdfs:label>has total closing costs</rdfs:label>
+		<skos:definition>indicates the total the amount paid at the closing of a real estate transaction, i.e., at the time when the title to the property is conveyed (transferred) to the buyer</skos:definition>
+		<cmns-av:explanatoryNote>Closing costs may be incurred by either the buyer or the seller, and may include fees paid by either or both parties for the preparation and recording of documents, title service costs, such as for title search and insurance (typically paid by the seller, depending on the jurisdiction), other recording costs, other document or transaction stamps or taxes, brokerage commissions, survey, appraisal, inspection and other such fees, home warranties, private mortgage insurance (PMI), and so forth.</cmns-av:explanatoryNote>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-loan-ln-ln;hasTotalPointsAndFees">
+		<rdfs:subPropertyOf rdf:resource="&fibo-loan-ln-ln;hasCost"/>
+		<rdfs:label>has total points and fees</rdfs:label>
+		<skos:definition>indicates a form of pre-paid interest, charged by the lender as an alternative to charging a higher rate of interest on the mortgage loan</skos:definition>
+		<cmns-av:explanatoryNote>One point equals one percent of the loan principal, and usually reduces the interest rate by 1/8 percent (0.125)</cmns-av:explanatoryNote>
+	</owl:ObjectProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-loan-ln-ln;isAssumable">
+		<rdfs:label xml:lang="en">is assumable</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-loan-ln-ln;Loan"/>
+		<rdfs:range rdf:resource="&xsd;boolean"/>
+		<skos:definition xml:lang="en">indicates whether or not another borrower may assume the payments on this loan</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-loan-ln-ln;isInitiallyPayable">
+		<rdfs:label xml:lang="en">is initially payable</rdfs:label>
+		<rdfs:range rdf:resource="&xsd;boolean"/>
+		<skos:definition xml:lang="en">indicates whether the obligation arising from the covered loan was, or in the case of an application, would have been initially payable to the financial institution</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-loan-ln-ln;isInterestOnly">
+		<rdfs:label xml:lang="en">is interest only</rdfs:label>
+		<rdfs:range rdf:resource="&xsd;boolean"/>
+		<skos:definition xml:lang="en">indicates whether the contractual terms include or would have included interest only payments</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-loan-ln-ln;isServicedBy">
+		<rdfs:subPropertyOf rdf:resource="&cmns-pts;hasPartyRole"/>
+		<rdfs:label>is performed by</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-loan-ln-ln;Servicer"/>
+		<skos:definition>relates a loan to the financial service provider that services it</skos:definition>
+	</owl:ObjectProperty>
+
+</rdf:RDF>

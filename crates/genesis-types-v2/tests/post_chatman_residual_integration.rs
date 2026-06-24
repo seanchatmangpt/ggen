@@ -81,11 +81,11 @@ fn test_repair_no_improvement_is_not_admitted() {
 fn test_repair_reduces_failing_count_is_admitted() {
     // Two failing dims before, one fixed after
     let before = ResidualVector::new(vec![
-        ResidualDimension::new("count", 22.0, (1.0, 5.0)),       // failing
+        ResidualDimension::new("count", 22.0, (1.0, 5.0)), // failing
         ResidualDimension::new("silhouette", 0.10, (0.25, 1.0)), // failing
     ]);
     let after = ResidualVector::new(vec![
-        ResidualDimension::new("count", 4.0, (1.0, 5.0)),        // now passing
+        ResidualDimension::new("count", 4.0, (1.0, 5.0)), // now passing
         ResidualDimension::new("silhouette", 0.10, (0.25, 1.0)), // still failing
     ]);
 
@@ -116,15 +116,33 @@ fn test_repair_band_enforcement() {
     // Forbidden zone (0 < value < 0.5)
     assert!(band.is_forbidden(0.25), "0.25 is inside the forbidden band");
     assert!(band.is_forbidden(0.1), "0.1 is inside the forbidden band");
-    assert!(!band.is_forbidden(0.5), "0.5 is at the exclusive upper bound — not forbidden");
-    assert!(!band.is_forbidden(5.0), "5.0 is well above the forbidden band");
+    assert!(
+        !band.is_forbidden(0.5),
+        "0.5 is at the exclusive upper bound — not forbidden"
+    );
+    assert!(
+        !band.is_forbidden(5.0),
+        "5.0 is well above the forbidden band"
+    );
 
     // Preferred zone (3.0 ≤ value ≤ 10.0)
     assert!(band.is_preferred(5.0), "5.0 is inside the preferred band");
-    assert!(band.is_preferred(3.0), "3.0 is at the inclusive lower bound of preferred");
-    assert!(band.is_preferred(10.0), "10.0 is at the inclusive upper bound of preferred");
-    assert!(!band.is_preferred(15.0), "15.0 is outside preferred (but not forbidden)");
-    assert!(!band.is_preferred(0.3), "0.3 is in the forbidden band, not preferred");
+    assert!(
+        band.is_preferred(3.0),
+        "3.0 is at the inclusive lower bound of preferred"
+    );
+    assert!(
+        band.is_preferred(10.0),
+        "10.0 is at the inclusive upper bound of preferred"
+    );
+    assert!(
+        !band.is_preferred(15.0),
+        "15.0 is outside preferred (but not forbidden)"
+    );
+    assert!(
+        !band.is_preferred(0.3),
+        "0.3 is in the forbidden band, not preferred"
+    );
 }
 
 // ─── stale VisualGapReport is rejected ────────────────────────────────────────
@@ -139,7 +157,10 @@ fn test_stale_visual_gap_report_is_rejected() {
     };
 
     let result = stale.assert_fresh();
-    assert!(result.is_err(), "stale report must be rejected by assert_fresh()");
+    assert!(
+        result.is_err(),
+        "stale report must be rejected by assert_fresh()"
+    );
 }
 
 // ─── fresh VisualGapReport is accepted ───────────────────────────────────────
@@ -149,14 +170,19 @@ fn test_fresh_visual_gap_report_is_accepted() {
     let fresh = VisualGapReport {
         render_hash: "fresh-hash-deadbeef".to_string(),
         timestamp: chrono::Utc::now(),
-        residuals: ResidualVector::new(vec![
-            ResidualDimension::new("silhouette_iou", 0.45, (0.25, 1.0)),
-        ]),
+        residuals: ResidualVector::new(vec![ResidualDimension::new(
+            "silhouette_iou",
+            0.45,
+            (0.25, 1.0),
+        )]),
         is_fresh_render: true,
     };
 
     let result = fresh.assert_fresh();
-    assert!(result.is_ok(), "fresh report must be accepted by assert_fresh()");
+    assert!(
+        result.is_ok(),
+        "fresh report must be accepted by assert_fresh()"
+    );
 }
 
 // ─── dominant dimension computation ───────────────────────────────────────────
@@ -186,7 +212,10 @@ fn test_dominant_dimension_is_largest_absolute_residual() {
 fn test_empty_residual_vector_has_no_dominant_and_all_passing() {
     let vec = ResidualVector::new(vec![]);
     assert!(vec.dominant.is_none(), "empty vector has no dominant");
-    assert!(vec.all_passing(), "empty vector trivially passes (vacuous truth)");
+    assert!(
+        vec.all_passing(),
+        "empty vector trivially passes (vacuous truth)"
+    );
 }
 
 // ─── BoundedRepairOperator field integrity ────────────────────────────────────
@@ -211,7 +240,10 @@ fn test_bounded_repair_operator_serializes_and_has_correct_fields() {
     // Assert field values are preserved (state-based assertion, not mock interaction)
     assert_eq!(op.id, "merge-components-v1");
     assert_eq!(op.targets_dimension, "foreground_component_count");
-    assert!(!op.modifies_source_law, "this operator must not modify source law");
+    assert!(
+        !op.modifies_source_law,
+        "this operator must not modify source law"
+    );
     assert!(op.band.is_preferred(5.0));
     assert!(!op.band.is_forbidden(5.0));
 
@@ -238,7 +270,10 @@ fn test_evidence_tier_all_variants_roundtrip() {
     for tier in &tiers {
         let json = serde_json::to_string(tier).unwrap();
         let back: EvidenceTier = serde_json::from_str(&json).unwrap();
-        assert_eq!(*tier, back, "EvidenceTier::{tier:?} must roundtrip through JSON");
+        assert_eq!(
+            *tier, back,
+            "EvidenceTier::{tier:?} must roundtrip through JSON"
+        );
     }
 }
 
@@ -253,7 +288,7 @@ fn test_repair_admission_detail_message_reflects_failure_reduction() {
         ResidualDimension::new("c", 100.0, (0.0, 10.0)), // failing
     ]);
     let after = ResidualVector::new(vec![
-        ResidualDimension::new("a", 5.0, (0.0, 10.0)),   // passing
+        ResidualDimension::new("a", 5.0, (0.0, 10.0)), // passing
         ResidualDimension::new("b", 100.0, (0.0, 10.0)), // still failing
         ResidualDimension::new("c", 100.0, (0.0, 10.0)), // still failing
     ]);

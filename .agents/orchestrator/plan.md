@@ -1,36 +1,26 @@
-# Action Plan: ggen External Lifecycle Evaluation
+# Action Plan: ggen star-toml Config Migration
 
-## Milestone 1: Exploration & Analysis [DONE]
-- **Goal**: Verify compilation of existing code, locate source code integration points.
-- **Worker**: teamwork_preview_explorer
+## Milestone 1: Exploration & Analysis
+- **Goal**: Survey the `star-toml` library's existing structures, validator, loader, and error traits. Survey `ggen-config`'s custom TOML parsing and validation system, locating `GgenConfig`, its sub-configs, `ConfigValidator`, and related tests. Identify the exact custom validations currently run (semver, IP/domain, path, and all other fields).
+- **Worker**: `teamwork_preview_explorer`
 
-## Milestone 2: Self-Audit Implementation [DONE]
-- **Goal**: Implement `crates/ggen-graph/src/ocel/self_audit.rs` and `crates/ggen-graph/src/ocel/gall_projection.rs` emitting the OCEL v2 self-audit log.
-- **Worker**: teamwork_preview_worker
+## Milestone 2: Implement star-toml Validation Extensions
+- **Goal**: Implement validation helper methods (semver, IP/domain hostname, path validation) in `star-toml` (within `crates/star-toml/src/validation.rs` or appropriate place) on the `Validator` struct. Ensure unit tests are added or updated in `star-toml` to verify these extensions.
+- **Worker**: `teamwork_preview_worker`
+- **Reviewer**: `teamwork_preview_reviewer`
+- **Adversarial**: `teamwork_preview_challenger`
+- **Auditor**: `teamwork_preview_auditor`
 
-## Milestone 3: Coverage Matrix & Verification Scripts [DONE]
-- **Goal**: Implement coverage mapping, integration tests, and scripts `verify_ocel_self_audit.sh`.
-- **Worker**: teamwork_preview_worker
+## Milestone 3: Implement star_toml::Validate for GgenConfig & Sub-configs
+- **Goal**: Implement the `star_toml::Validate` trait for `GgenConfig` and all sub-configs in `crates/ggen-config`, using the new `star-toml` validation helpers. Ensure all previous checks from `ConfigValidator` are fully ported.
+- **Worker**: `teamwork_preview_worker`
+- **Reviewer**: `teamwork_preview_reviewer`
+- **Adversarial**: `teamwork_preview_challenger`
+- **Auditor**: `teamwork_preview_auditor`
 
-## Milestone 4: Derived Checkpoint Proof Report [DONE]
-- **Goal**: Author `crates/ggen-graph/audit/vision2030.self_audit.summary.md` and `docs/VISION_2030_GALL_PROOF.md`.
-- **Worker**: teamwork_preview_worker
-
-## Milestone 5: Forensic Audit & Validation [DONE]
-- **Goal**: Execute verification scripts and run the Forensic Auditor.
-- **Worker**: teamwork_preview_auditor
-
-## Milestone 6: External Observer Script Ring
-- **Goal**: Implement the 14 scripts (`00_` to `13_`) under `scripts/gall/external/` to capture baseline, extract requirements, verify package constraints, check feature flags, run tests, scan forbidden surfaces, verify OCEL self-audits (09_verify_ocel_self_audit.sh), detect contradictions (12_detect_contradictions.sh), and perform final promotion adjudication (13_adjudicate_gall_promotion.sh).
-- **Digests Requirement**: Capture script digests and file digests in scripts to prevent bypass/mutation.
-- **Worker**: teamwork_preview_worker
-- **Reviewer**: teamwork_preview_reviewer
-
-## Milestone 7: CI Integration & Docs Rewrite
-- **Goal**: Integrate external scripts into CI flows and rewrite `docs/VISION_2030_GALL_PROOF.md` such that the promotion decision is strictly declared as dependent on the external verifier scripts' adjudication results.
-- **Worker**: teamwork_preview_worker
-- **Reviewer**: teamwork_preview_reviewer
-
-## Milestone 8: E2E External Adjudication Verification
-- **Goal**: Execute the full script ring `13_adjudicate_gall_promotion.sh` to produce `crates/ggen-graph/audit/vision2030.external_adjudication.json`. Ensure all tests pass and there are no violations. Run the Forensic Auditor on the final codebase to confirm compliance.
-- **Auditor**: teamwork_preview_auditor
+## Milestone 4: Refactor ggen-config to use star-toml
+- **Goal**: Refactor `crates/ggen-config` loader/parser to use `star-toml` library for loading (and env-var expansion if done in star-toml/ggen-config). Delegate to `star-toml`'s validation engine. Map/wrap `star_toml::ValidationErrors` to/in `ConfigError`. Ensure all workspace tests compile and pass cleanly.
+- **Worker**: `teamwork_preview_worker`
+- **Reviewer**: `teamwork_preview_reviewer`
+- **Adversarial**: `teamwork_preview_challenger`
+- **Auditor**: `teamwork_preview_auditor`

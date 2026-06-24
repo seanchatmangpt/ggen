@@ -1,0 +1,37 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rental: <http://purl.org/linked-data/rental#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+
+<http://purl.org/linked-data/rental> a owl:Ontology ;
+    dct:title "Rental and Lease Ontology"@en ;
+    dct:description "An ontology for describing rental agreements and lease contracts" ;
+    owl:versionInfo "1.0" .
+
+rental:RentalProperty a owl:Class ;
+    rdfs:label "Rental Property"@en ;
+    rdfs:comment "A property available for rent" .
+
+rental:Lease a owl:Class ;
+    rdfs:label "Lease"@en ;
+    rdfs:comment "A legal agreement for renting a property" .
+
+rental:RentalAgreement a owl:Class ;
+    rdfs:label "Rental Agreement"@en ;
+    rdfs:subClassOf rental:Lease .
+
+rental:hasLease a owl:ObjectProperty ;
+    rdfs:domain rental:RentalProperty ;
+    rdfs:range rental:Lease ;
+    rdfs:label "has lease"@en .
+
+rental:leaseStartDate a owl:DatatypeProperty ;
+    rdfs:domain rental:Lease ;
+    rdfs:range xsd:date ;
+    rdfs:label "lease start date"@en .
+
+rental:monthlyRent a owl:DatatypeProperty ;
+    rdfs:domain rental:Lease ;
+    rdfs:label "monthly rent"@en .

@@ -6,10 +6,16 @@
 #![allow(clippy::doc_markdown)]
 #![allow(clippy::must_use_candidate)]
 
-/// Canonical marketplace namespace (v1)
+/// Canonical marketplace namespace (v1).
 ///
-/// This is the single source of truth for the ggen marketplace RDF namespace.
-/// All code should reference this constant rather than hardcoding the URI.
+/// This is THE single source of truth for the ggen marketplace RDF namespace.
+/// All code — including the enum-based ontology in
+/// [`crate::marketplace::rdf::ontology`] — must reference this constant rather
+/// than declaring its own literal. The `Classes`/`Properties` helpers below
+/// and the enum-based `Class`/`Property` URIs are kept byte-identical so that a
+/// triple inserted by one path is findable by a SPARQL query built by the
+/// other. Divergent local property names (e.g. routing `packageName` to
+/// `dc:title`) cause silent SPARQL data loss (see P0-03).
 pub const MARKETPLACE_NS: &str = "https://ggen.io/marketplace/";
 
 /// Core namespaces for marketplace RDF
@@ -458,5 +464,41 @@ mod tests {
         let search = Queries::search_by_name("test");
         assert!(search.contains("test"));
         assert!(search.contains("LCASE"));
+    }
+
+    #[test]
+    fn test_data_properties_under_canonical_namespace() {
+        // The data-bearing package properties (the ones written by the
+        // production insert path and read by the query builders) must all
+        // resolve under MARKETPLACE_NS. This locks the single-source-of-truth
+        // invariant that P0-03 violated.
+        for uri in [
+            Properties::package_id(),
+            Properties::name(),
+            Properties::description(),
+            Properties::license(),
+            Properties::repository_url(),
+            Properties::homepage_url(),
+            Properties::downloads(),
+            Properties::created_at(),
+            Properties::updated_at(),
+            Properties::has_version(),
+            Properties::has_dependency(),
+            Properties::has_author(),
+        ] {
+            assert!(
+                uri.starts_with(MARKETPLACE_NS),
+                "data property {uri} must live under MARKETPLACE_NS"
+            );
+        }
+
+        // Classes likewise.
+        assert!(Classes::package().starts_with(MARKETPLACE_NS));
+        assert!(Classes::package_version().starts_with(MARKETPLACE_NS));
+
+        // Author NAME stays FOAF (genuine standard vocab, consistent both
+        // sides); the author LINK is canonical.
+        assert_eq!(Properties::author_name(), "http://xmlns.com/foaf/0.1/name");
+        assert!(Properties::has_author().starts_with(MARKETPLACE_NS));
     }
 }

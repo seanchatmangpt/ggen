@@ -1,0 +1,9 @@
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+
+SELECT ?output 
+WHERE {?s <https://www.omg.org/spec/LCC/Languages/LanguageRepresentation/identifies> <https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/TestFormalOrganizations/GlobalBank>
+FILTER (?s != <https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/TestFormalOrganizations/GlobalbankIdentifier>)
+BIND (CONCAT ("ERROR: Expected GlobalBankIdentifier, but we got <", xsd:string (?s), ">. ") AS ?output)
+}
+

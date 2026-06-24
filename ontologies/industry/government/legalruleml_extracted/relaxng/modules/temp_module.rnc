@@ -1,0 +1,39 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+namespace xs = "http://www.w3.org/2001/XMLSchema"
+
+dc:title [ "Temporal Characteristics" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, TemporalCharacteristic" ]
+dc:description [ "Expansion module for temporal characteristics." ]
+dc:language [ "en" ]
+start |= notAllowed
+
+##
+TemporalCharacteristicCollection.Node.choice |= TemporalCharacteristicCollection.Node.def
+
+##
+TemporalCharacteristicCollection.Node.def =
+  
+  ## a collection where every member is a Temporal Characteristic.
+  element TemporalCharacteristics { TemporalCharacteristicCollection.type.def }
+TemporalCharacteristicCollection.type.def =
+  TemporalCharacteristicCollection.attlist & TemporalCharacteristicCollection.main
+
+##
+TemporalCharacteristicCollection.attlist &= commonCollection.attlist?
+
+##
+TemporalCharacteristic.Node.choice |= TemporalCharacteristic.Node.def
+TemporalCharacteristic.Node.def =
+  
+  ## a pair of Time with a qualification (consisting of a Legal Status and a Status Development) that holds at the Time.
+  element TemporalCharacteristic { TemporalCharacteristic.type.def }
+TemporalCharacteristic.type.def = TemporalCharacteristic.attlist, TemporalCharacteristic.main
+TemporalCharacteristic.attlist &= commonLRMLNodeInit.attlist?

@@ -217,10 +217,7 @@ impl PowlGraph {
 
         // Root must exist in nodes.
         if !node_ids.contains(self.root.as_str()) {
-            violations.push(format!(
-                "root node '{}' not found in nodes",
-                self.root
-            ));
+            violations.push(format!("root node '{}' not found in nodes", self.root));
         }
 
         // Every edge endpoint must exist in nodes.
@@ -232,10 +229,7 @@ impl PowlGraph {
                 ));
             }
             if !node_ids.contains(edge.to.as_str()) {
-                violations.push(format!(
-                    "edge 'to' node '{}' not found in nodes",
-                    edge.to
-                ));
+                violations.push(format!("edge 'to' node '{}' not found in nodes", edge.to));
             }
         }
 
@@ -891,9 +885,7 @@ impl RepairAdmissionReport {
     /// Compute admission: admitted if after has fewer failing dimensions than before,
     /// or if all dimensions are now passing.
     pub fn compute(
-        operator_id: impl Into<String>,
-        before: ResidualVector,
-        after: ResidualVector,
+        operator_id: impl Into<String>, before: ResidualVector, after: ResidualVector,
     ) -> Self {
         let before_failing = before.dimensions.iter().filter(|d| !d.is_passing()).count();
         let after_failing = after.dimensions.iter().filter(|d| !d.is_passing()).count();
@@ -980,32 +972,16 @@ mod residual_vector_tests {
 
     #[test]
     fn test_repair_admission_admitted() {
-        let before = ResidualVector::new(vec![ResidualDimension::new(
-            "count",
-            22.0,
-            (1.0, 5.0),
-        )]);
-        let after = ResidualVector::new(vec![ResidualDimension::new(
-            "count",
-            4.0,
-            (1.0, 5.0),
-        )]);
+        let before = ResidualVector::new(vec![ResidualDimension::new("count", 22.0, (1.0, 5.0))]);
+        let after = ResidualVector::new(vec![ResidualDimension::new("count", 4.0, (1.0, 5.0))]);
         let report = RepairAdmissionReport::compute("op-001", before, after);
         assert!(report.admitted);
     }
 
     #[test]
     fn test_repair_admission_not_admitted_when_no_improvement() {
-        let before = ResidualVector::new(vec![ResidualDimension::new(
-            "count",
-            22.0,
-            (1.0, 5.0),
-        )]);
-        let after = ResidualVector::new(vec![ResidualDimension::new(
-            "count",
-            20.0,
-            (1.0, 5.0),
-        )]);
+        let before = ResidualVector::new(vec![ResidualDimension::new("count", 22.0, (1.0, 5.0))]);
+        let after = ResidualVector::new(vec![ResidualDimension::new("count", 20.0, (1.0, 5.0))]);
         // Both still failing, same count of failures
         let report = RepairAdmissionReport::compute("op-002", before, after);
         assert!(!report.admitted);
