@@ -119,9 +119,9 @@ cron:Campaign2026
 # Day 1 — Community Health (all repos)
 cron:Day1
     a cron:DailyBatch ;
-    dcterms:title "Day 1: Community Health" ;
+    dcterms:title "Day 1: Community Health + GitHub Templates" ;
     cron:day 1 ;
-    cron:dispatchBundle cron:Day1-CommunityHealth-All .
+    cron:dispatchBundle cron:Day1-CommunityHealth-All, cron:Day1-GithubTemplates-All .
 
 cron:Day1-CommunityHealth-All
     a cron:BundleDispatch ;
@@ -130,12 +130,19 @@ cron:Day1-CommunityHealth-All
     cron:specManifest ".specify/specs/community-health/ggen.toml" ;
     cron:cronExpression "0 9 * * *" .
 
-# Day 2 — CI Standard (Rust + Python + TypeScript)
+cron:Day1-GithubTemplates-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:GithubTemplates ;
+    cron:estimatedCommits 115 ;
+    cron:specManifest ".specify/specs/github-templates/ggen.toml" ;
+    cron:cronExpression "0 10 * * *" .
+
+# Day 2 — CI Standard (Rust + Python + TypeScript) + Code Hygiene
 cron:Day2
     a cron:DailyBatch ;
-    dcterms:title "Day 2: CI Standard" ;
+    dcterms:title "Day 2: CI Standard + Code Hygiene" ;
     cron:day 2 ;
-    cron:dispatchBundle cron:Day2-CI-Rust, cron:Day2-CI-Python, cron:Day2-CI-TypeScript .
+    cron:dispatchBundle cron:Day2-CI-Rust, cron:Day2-CI-Python, cron:Day2-CI-TypeScript, cron:Day2-CodeHygiene-All .
 
 cron:Day2-CI-Rust
     a cron:BundleDispatch ;
@@ -161,12 +168,19 @@ cron:Day2-CI-TypeScript
     cron:specManifest ".specify/specs/ci-standard/typescript/ggen.toml" ;
     cron:cronExpression "0 12 * * *" .
 
-# Day 3 — README Standard (all repos)
+cron:Day2-CodeHygiene-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:CodeHygiene ;
+    cron:estimatedCommits 115 ;
+    cron:specManifest ".specify/specs/code-hygiene/ggen.toml" ;
+    cron:cronExpression "0 14 * * *" .
+
+# Day 3 — README Standard + Docs Hub (all repos)
 cron:Day3
     a cron:DailyBatch ;
-    dcterms:title "Day 3: README Standard" ;
+    dcterms:title "Day 3: README Standard + Docs Hub" ;
     cron:day 3 ;
-    cron:dispatchBundle cron:Day3-Readme-All .
+    cron:dispatchBundle cron:Day3-Readme-All, cron:Day3-DocsHub-All .
 
 cron:Day3-Readme-All
     a cron:BundleDispatch ;
@@ -175,12 +189,19 @@ cron:Day3-Readme-All
     cron:specManifest ".specify/specs/readme-standard/ggen.toml" ;
     cron:cronExpression "0 9 * * *" .
 
-# Day 4 — Onboarding Conventions (all repos)
+cron:Day3-DocsHub-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:DocsHub ;
+    cron:estimatedCommits 115 ;
+    cron:specManifest ".specify/specs/docs-hub/ggen.toml" ;
+    cron:cronExpression "0 11 * * *" .
+
+# Day 4 — Onboarding Conventions + Container Ops (all repos)
 cron:Day4
     a cron:DailyBatch ;
-    dcterms:title "Day 4: Onboarding Conventions" ;
+    dcterms:title "Day 4: Onboarding Conventions + Container Ops" ;
     cron:day 4 ;
-    cron:dispatchBundle cron:Day4-Onboarding-All .
+    cron:dispatchBundle cron:Day4-Onboarding-All, cron:Day4-ContainerOps-All .
 
 cron:Day4-Onboarding-All
     a cron:BundleDispatch ;
@@ -189,12 +210,19 @@ cron:Day4-Onboarding-All
     cron:specManifest ".specify/specs/onboarding-conventions/ggen.toml" ;
     cron:cronExpression "0 9 * * *" .
 
-# Day 5 — Security Policy (Rust + Python + JS + TS)
+cron:Day4-ContainerOps-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:ContainerOps ;
+    cron:estimatedCommits 115 ;
+    cron:specManifest ".specify/specs/container-ops/ggen.toml" ;
+    cron:cronExpression "0 11 * * *" .
+
+# Day 5 — Security Policy (Rust + Python + JS + TS) + Release Automation
 cron:Day5
     a cron:DailyBatch ;
-    dcterms:title "Day 5: Security Policy" ;
+    dcterms:title "Day 5: Security Policy + Release Automation" ;
     cron:day 5 ;
-    cron:dispatchBundle cron:Day5-Security-Rust, cron:Day5-Security-Python, cron:Day5-Security-JS .
+    cron:dispatchBundle cron:Day5-Security-Rust, cron:Day5-Security-Python, cron:Day5-Security-JS, cron:Day5-ReleaseAutomation-All .
 
 cron:Day5-Security-Rust
     a cron:BundleDispatch ;
@@ -220,12 +248,19 @@ cron:Day5-Security-JS
     cron:specManifest ".specify/specs/security-policy/javascript/ggen.toml" ;
     cron:cronExpression "0 12 * * *" .
 
-# Day 6 — Changelog + Coverage (all repos)
+cron:Day5-ReleaseAutomation-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:ReleaseAutomation ;
+    cron:estimatedCommits 115 ;
+    cron:specManifest ".specify/specs/release-automation/ggen.toml" ;
+    cron:cronExpression "0 14 * * *" .
+
+# Day 6 — Changelog + Coverage + Code Quality (all repos)
 cron:Day6
     a cron:DailyBatch ;
-    dcterms:title "Day 6: Changelog and Coverage" ;
+    dcterms:title "Day 6: Changelog, Coverage, and Code Quality" ;
     cron:day 6 ;
-    cron:dispatchBundle cron:Day6-Changelog, cron:Day6-Coverage .
+    cron:dispatchBundle cron:Day6-Changelog, cron:Day6-Coverage, cron:Day6-CodeQuality-All .
 
 cron:Day6-Changelog
     a cron:BundleDispatch ;
@@ -241,12 +276,19 @@ cron:Day6-Coverage
     cron:specManifest ".specify/specs/coverage-policy/ggen.toml" ;
     cron:cronExpression "0 13 * * *" .
 
-# Day 7 — Dependency Audit (Rust + Python + JS)
+cron:Day6-CodeQuality-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:CodeQuality ;
+    cron:estimatedCommits 115 ;
+    cron:specManifest ".specify/specs/code-quality/ggen.toml" ;
+    cron:cronExpression "0 15 * * *" .
+
+# Day 7 — Dependency Audit (Rust + Python + JS) + Community Extended
 cron:Day7
     a cron:DailyBatch ;
-    dcterms:title "Day 7: Dependency Audit" ;
+    dcterms:title "Day 7: Dependency Audit + Community Extended" ;
     cron:day 7 ;
-    cron:dispatchBundle cron:Day7-Deps-Rust, cron:Day7-Deps-Python, cron:Day7-Deps-JS .
+    cron:dispatchBundle cron:Day7-Deps-Rust, cron:Day7-Deps-Python, cron:Day7-Deps-JS, cron:Day7-CommunityExtended-All .
 
 cron:Day7-Deps-Rust
     a cron:BundleDispatch ;
@@ -271,3 +313,10 @@ cron:Day7-Deps-JS
     cron:estimatedCommits 18 ;
     cron:specManifest ".specify/specs/dependency-audit/javascript/ggen.toml" ;
     cron:cronExpression "0 12 * * *" .
+
+cron:Day7-CommunityExtended-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:CommunityExtended ;
+    cron:estimatedCommits 115 ;
+    cron:specManifest ".specify/specs/community-extended/ggen.toml" ;
+    cron:cronExpression "0 14 * * *" .
