@@ -1,0 +1,18 @@
+[spec]
+name = "dependency-audit-python"
+description = "Generates .python-version and requirements.txt audit config for Python repos"
+ontology = ".specify/specs/universal/domain.ttl"
+
+[[generation.rules]]
+name = "python-version"
+query = ".specify/specs/dependency-audit/python/queries/python-deps.rq"
+template = ".specify/specs/dependency-audit/python/templates/python-version.tera"
+output_file = ".python-version"
+mode = "Create"
+
+[[generation.rules]]
+name = "pip-audit-workflow"
+query = ".specify/specs/dependency-audit/python/queries/python-deps.rq"
+template = ".specify/specs/dependency-audit/python/templates/pip-audit.yml.tera"
+output_file = ".github/workflows/pip-audit.yml"
+mode = "Create"

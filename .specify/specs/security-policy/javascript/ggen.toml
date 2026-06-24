@@ -1,0 +1,18 @@
+[spec]
+name = "security-policy-javascript"
+description = "SECURITY.md and npm-audit workflow for JavaScript/TypeScript repos"
+ontology = ".specify/specs/universal/domain.ttl"
+
+[[generation.rules]]
+name = "security-md"
+query = ".specify/specs/security-policy/javascript/queries/security.rq"
+template = ".specify/specs/security-policy/javascript/templates/SECURITY.md.tera"
+output_file = "SECURITY.md"
+mode = "Create"
+
+[[generation.rules]]
+name = "audit-workflow"
+query = ".specify/specs/security-policy/javascript/queries/security.rq"
+template = ".specify/specs/security-policy/javascript/templates/audit.yml.tera"
+output_file = ".github/workflows/audit.yml"
+mode = "Create"
