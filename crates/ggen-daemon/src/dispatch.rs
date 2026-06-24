@@ -12,6 +12,9 @@ pub struct DispatchResult {
     pub stdout_tail: String,
     pub stderr_tail: String,
     pub success: bool,
+    /// True when the executor was skipped because the manifest hash matched
+    /// the last-applied cache entry in the target repo.
+    pub cached: bool,
 }
 
 /// Invoke `ggen sync --spec <manifest>` as a subprocess.
@@ -53,6 +56,7 @@ pub async fn dispatch_bundle(
         stdout_tail,
         stderr_tail,
         success,
+        cached: false,
     })
 }
 

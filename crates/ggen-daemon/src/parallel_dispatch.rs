@@ -1,4 +1,4 @@
-use std::{path::PathBuf, sync::Arc};
+use std::{path::{Path, PathBuf}, sync::Arc};
 use tokio::sync::Semaphore;
 use tracing::{info, warn};
 use serde::{Deserialize, Serialize};
@@ -9,6 +9,7 @@ use crate::{
     catalog::RepoCatalogEntry,
     dispatch::DispatchResult,
     health::{check_repo, RepoHealthStatus},
+    manifest_cache::{hash_file, ManifestCache},
     repo_manager::RepoManager,
     retry::retry_with_backoff,
     state::DaemonState,
@@ -21,6 +22,9 @@ pub struct BatchResult {
     pub succeeded: usize,
     pub failed: usize,
     pub skipped_unhealthy: usize,
+    /// Repos where the executor was skipped because the manifest hash was
+    /// unchanged since the last successful dispatch (a subset of `succeeded`).
+    pub cached: usize,
     pub results: Vec<DispatchResult>,
 }
 
@@ -72,6 +76,28 @@ pub async fn dispatch_to_all(
                 return Some(Err(format!("unhealthy: {:?}", health.status)));
             }
 
+            // Diff-based skip: hash the manifest and compare with the last-applied
+            // cache stored in the target repo.  A hash match means the target repo
+            // already reflects this manifest version — no executor run needed.
+            let manifest_path = ggen_root.join(&manifest);
+            let current_hash = hash_file(&manifest_path);
+            if let Some(ref hash) = current_hash {
+                if let Some(cached_entry) = ManifestCache::read(&local) {
+                    if &cached_entry.manifest_hash == hash {
+                        info!("{}: manifest unchanged, skipping executor", repo_entry.name);
+                        return Some(Ok(DispatchResult {
+                            dispatch_iri: iri,
+                            spec_manifest: manifest,
+                            exit_code: 0,
+                            stdout_tail: "cache hit: manifest unchanged".to_owned(),
+                            stderr_tail: String::new(),
+                            success: true,
+                            cached: true,
+                        }));
+                    }
+                }
+            }
+
             info!("generating {} → {}", manifest, repo_entry.name);
 
             // Record start in state
@@ -85,11 +111,11 @@ pub async fn dispatch_to_all(
 
             // Run SyncExecutor in a blocking thread — spec file lives in ggen_root,
             // output goes to the cloned target repo directory.
-            let manifest_path = ggen_root.join(&manifest);
             let output_dir = local.clone();
+            let manifest_path_exec = manifest_path.clone();
             let sync_result = tokio::task::spawn_blocking(move || {
                 let opts = SyncOptions {
-                    manifest_path,
+                    manifest_path: manifest_path_exec,
                     output_dir: Some(output_dir),
                     use_cache: false,
                     ..Default::default()
@@ -114,9 +140,13 @@ pub async fn dispatch_to_all(
 
             let files_synced = sync_result.as_ref().map(|r| r.files_synced).unwrap_or(0);
 
-            // Nothing written — no commit needed
+            // Nothing written — no commit needed; write cache so the next dispatch
+            // with the same manifest can skip the executor.
             if files_synced == 0 {
                 info!("{}: no files written", repo_entry.name);
+                if let Some(hash) = current_hash.as_deref() {
+                    write_manifest_cache(&local, hash, &repo_entry.name).await;
+                }
                 return Some(Ok(DispatchResult {
                     dispatch_iri: iri,
                     spec_manifest: manifest,
@@ -124,6 +154,7 @@ pub async fn dispatch_to_all(
                     stdout_tail,
                     stderr_tail,
                     success: true,
+                    cached: false,
                 }));
             }
 
@@ -134,6 +165,11 @@ pub async fn dispatch_to_all(
             match mgr.commit_and_push(&local, &commit_msg).await {
                 Ok(pushed) => {
                     info!("{}: {} (pushed={})", repo_entry.name, stdout_tail, pushed);
+                    // Write cache only after a successful push so the next dispatch
+                    // skips the executor for this manifest+repo pair.
+                    if let Some(hash) = current_hash.as_deref() {
+                        write_manifest_cache(&local, hash, &repo_entry.name).await;
+                    }
                 }
                 Err(e) => {
                     let err_msg = format!("commit_and_push failed: {}", e);
@@ -151,6 +187,7 @@ pub async fn dispatch_to_all(
                 stdout_tail,
                 stderr_tail,
                 success: true,
+                cached: false,
             }))
         });
         handles.push((repo.name.clone(), h));
@@ -160,10 +197,17 @@ pub async fn dispatch_to_all(
     let mut succeeded = 0usize;
     let mut failed = 0usize;
     let mut skipped_unhealthy = 0usize;
+    let mut cached = 0usize;
 
     for (name, h) in handles {
         match h.await {
-            Ok(Some(Ok(r))) => { succeeded += 1; results.push(r); }
+            Ok(Some(Ok(r))) => {
+                succeeded += 1;
+                if r.cached {
+                    cached += 1;
+                }
+                results.push(r);
+            }
             Ok(Some(Err(e))) if e.starts_with("unhealthy") => {
                 skipped_unhealthy += 1;
                 warn!("{}: {}", name, e);
@@ -182,7 +226,33 @@ pub async fn dispatch_to_all(
         succeeded,
         failed,
         skipped_unhealthy,
+        cached,
         results,
+    }
+}
+
+/// Write `ManifestCache` to `<local>/.ggen/last-applied.json`, recording the
+/// current HEAD SHA for audit purposes.  Failures are logged and swallowed —
+/// a missing cache entry only means the next dispatch re-runs the executor;
+/// it is never a correctness issue.
+async fn write_manifest_cache(local: &Path, manifest_hash: &str, repo_name: &str) {
+    let commit_sha = tokio::process::Command::new("git")
+        .args(["rev-parse", "HEAD"])
+        .current_dir(local)
+        .output()
+        .await
+        .ok()
+        .filter(|o| o.status.success())
+        .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_owned())
+        .unwrap_or_default();
+
+    let entry = ManifestCache {
+        manifest_hash: manifest_hash.to_owned(),
+        commit_sha,
+        applied_at: chrono::Utc::now().to_rfc3339(),
+    };
+    if let Err(e) = entry.write(local) {
+        warn!("{}: manifest cache write failed: {}", repo_name, e);
     }
 }
 

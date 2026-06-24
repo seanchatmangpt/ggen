@@ -26,6 +26,7 @@ serde_json = "1"
 uuid = { version = "1.18", features = ["v4", "serde"] }
 schemars = "1.2.1"
 chrono = { version = "0.4", features = ["serde"] }
+sha2 = "0.10"
 
 [dev-dependencies]
 tempfile = "3"
