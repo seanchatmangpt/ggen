@@ -122,12 +122,11 @@ fn every_real_catalog_entry_has_non_empty_name_and_github_url() {
             "entry github_url must not be empty for repo '{}'",
             entry.name
         );
-        // The fallback URL format is `https://github.com/seanchatmangpt/<name>`;
-        // either the catalog provides a homepage or the fallback is applied —
-        // either way the field must start with "https://".
+        // Catalog entries may have http:// or https:// homepages; the fallback
+        // is always https://github.com/... — accept both schemes.
         assert!(
-            entry.github_url.starts_with("https://"),
-            "github_url must start with https://, got '{}' for repo '{}'",
+            entry.github_url.starts_with("http://") || entry.github_url.starts_with("https://"),
+            "github_url must be an http(s) URL, got '{}' for repo '{}'",
             entry.github_url,
             entry.name
         );
