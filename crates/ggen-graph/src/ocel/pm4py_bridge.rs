@@ -150,7 +150,7 @@ impl Pm4pyBridge {
     }
 
     /// Create a temporary file with the OCEL JSON data.
-    fn create_temp_ocel_file(&self, json_str: &str) -> Result<String, GraphError> {
+    pub fn create_temp_ocel_file(&self, json_str: &str) -> Result<String, GraphError> {
         let temp_dir = std::env::temp_dir();
         let temp_file = temp_dir.join(format!("ocel-{}.json", Uuid::new_v4()));
         let mut file = File::create(&temp_file).map_err(|e| {
@@ -195,7 +195,7 @@ impl Pm4pyBridge {
     }
 
     /// Build the Python discovery script.
-    fn build_discovery_script(&self, ocel_file: &str) -> String {
+    pub fn build_discovery_script(&self, ocel_file: &str) -> String {
         // Escape file path for Python string
         let escaped_path = ocel_file.replace('\\', "\\\\").replace('"', "\\\"");
 
