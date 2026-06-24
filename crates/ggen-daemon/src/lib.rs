@@ -6,6 +6,7 @@
 
 pub mod campaign;
 pub mod catalog;
+pub mod generator;
 pub mod dispatch;
 pub mod error;
 pub mod health;

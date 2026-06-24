@@ -23,6 +23,7 @@ pub struct CampaignRunner {
     pub catalog_path: PathBuf,
     pub cron_ttl_path: PathBuf,
     pub work_dir: PathBuf,
+    pub ggen_root: PathBuf,
     pub state: Arc<DaemonState>,
     pub concurrency: usize,
 }
@@ -34,7 +35,8 @@ impl CampaignRunner {
         work_dir: PathBuf,
         state: Arc<DaemonState>,
     ) -> Self {
-        Self { catalog_path, cron_ttl_path, work_dir, state, concurrency: 8 }
+        let ggen_root = std::env::current_dir().unwrap_or_default();
+        Self { catalog_path, cron_ttl_path, work_dir, ggen_root, state, concurrency: 8 }
     }
 
     /// Run all bundles for a specific day (1-7).
@@ -69,6 +71,7 @@ impl CampaignRunner {
                 &manager,
                 &self.state,
                 self.concurrency,
+                self.ggen_root.clone(),
             ).await;
 
             info!("batch done: {}/{} succeeded", batch.succeeded, batch.total_repos);
