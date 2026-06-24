@@ -24,12 +24,12 @@ fn init_git_repo(dir: &TempDir) {
         .unwrap();
 }
 
-#[test]
-fn clean_repo_is_healthy() {
+#[tokio::test]
+async fn clean_repo_is_healthy() {
     let dir = TempDir::new().unwrap();
     init_git_repo(&dir);
 
-    let health = check_repo(dir.path(), "test-repo");
+    let health = check_repo(dir.path(), "test-repo").await;
 
     assert_eq!(health.status, RepoHealthStatus::Healthy);
     assert_eq!(health.repo_name, "test-repo");
@@ -40,23 +40,23 @@ fn clean_repo_is_healthy() {
     );
 }
 
-#[test]
-fn directory_without_dot_git_is_not_a_repo() {
+#[tokio::test]
+async fn directory_without_dot_git_is_not_a_repo() {
     let dir = TempDir::new().unwrap();
     // No `git init` — plain directory
-    let health = check_repo(dir.path(), "no-git-here");
+    let health = check_repo(dir.path(), "no-git-here").await;
     assert_eq!(health.status, RepoHealthStatus::NoGitDir);
     assert_eq!(health.repo_name, "no-git-here");
 }
 
-#[test]
-fn repo_with_untracked_file_is_dirty() {
+#[tokio::test]
+async fn repo_with_untracked_file_is_dirty() {
     let dir = TempDir::new().unwrap();
     init_git_repo(&dir);
 
     std::fs::write(dir.path().join("untracked.txt"), "new content").unwrap();
 
-    let health = check_repo(dir.path(), "dirty-repo");
+    let health = check_repo(dir.path(), "dirty-repo").await;
     assert_eq!(health.status, RepoHealthStatus::DirtyWorkTree);
     assert!(
         health.uncommitted_files > 0,
@@ -64,8 +64,8 @@ fn repo_with_untracked_file_is_dirty() {
     );
 }
 
-#[test]
-fn repo_with_staged_change_is_dirty() {
+#[tokio::test]
+async fn repo_with_staged_change_is_dirty() {
     let dir = TempDir::new().unwrap();
     init_git_repo(&dir);
 
@@ -76,7 +76,7 @@ fn repo_with_staged_change_is_dirty() {
         .output()
         .unwrap();
 
-    let health = check_repo(dir.path(), "staged-repo");
+    let health = check_repo(dir.path(), "staged-repo").await;
     assert_eq!(
         health.status,
         RepoHealthStatus::DirtyWorkTree,
@@ -85,9 +85,9 @@ fn repo_with_staged_change_is_dirty() {
     assert!(health.uncommitted_files > 0);
 }
 
-#[test]
-fn repo_name_is_preserved_verbatim() {
+#[tokio::test]
+async fn repo_name_is_preserved_verbatim() {
     let dir = TempDir::new().unwrap();
-    let health = check_repo(dir.path(), "my-unique-name-42");
+    let health = check_repo(dir.path(), "my-unique-name-42").await;
     assert_eq!(health.repo_name, "my-unique-name-42");
 }
