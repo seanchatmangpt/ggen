@@ -260,6 +260,15 @@ pub use ggen_config::{
 };
 pub mod receipt {
     pub use ggen_config::*;
+
+    // `ProvenanceEnvelope` binds ggen_config's forward `Receipt` to ggen-core's
+    // inverse `reverse_sync::InverseReceipt`, so it must live in ggen-core (it
+    // cannot move into ggen_config without a dependency cycle). The forward
+    // receipt types it uses (`receipt::Receipt`, `receipt::error`) are the
+    // ggen_config re-exports glob-imported above.
+    #[path = "provenance_envelope.rs"]
+    pub mod provenance_envelope;
+    pub use provenance_envelope::{CoherenceReport, ProvenanceEnvelope};
 }
 pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsResponse};
 pub use gpack::GpackManifest;

@@ -42,7 +42,7 @@
 )]
 
 use chrono::Utc;
-use ed25519_dalek::SigningKey;
+use ed25519_dalek::{Signer, SigningKey, Verifier};
 use ggen_graph::coherence::{CoherenceChecker, CoherenceDrift, DriftKind, Pole, PoleState};
 use ggen_graph::ocel::pack_events::{
     emit_pack_install, emit_pack_verify, pack_object, ACT_PACK_INSTALL, ACT_PACK_VERIFY,
@@ -95,7 +95,7 @@ fn test_post_chatman_roundtrip_scenario_1_happy_path_coherent() {
         .expect("event must serialize to JSON");
 
     // Step 5: Compute L pole hash (BLAKE3 of OCEL JSON)
-    let event_strings = [&event_1_json, &event_2_json];
+    let event_strings = [event_1_json.as_str(), event_2_json.as_str()];
     let l_pole = CoherenceChecker::fingerprint_event_log(&event_strings);
     assert!(!l_pole.hash.is_empty(), "L pole hash must be non-empty");
     assert_eq!(l_pole.item_count, 2, "L pole should have 2 events");
@@ -557,8 +557,15 @@ fn test_post_chatman_roundtrip_cross_pole_hash_comparison_o_vs_l() {
         "test setup: ontology and event log content must produce different hashes"
     );
 
-    // Act: run coherence check
-    let report = CoherenceChecker::check(&[o_pole, a_pole, l_pole]);
+    // Act: Rule 6 (cross-pole coherence fracture) compares each pole against its
+    // declared expectation, not the two poles against each other directly. Declare
+    // O stable (expectation == its own hash) while L drifts (expectation != its
+    // hash), so the checker must flag an O→L HashMismatch fracture.
+    let mut expectations = HashMap::new();
+    expectations.insert(Pole::Ontology, o_pole.hash.clone());
+    expectations.insert(Pole::EventLog, format!("{}-drifted", l_pole.hash));
+    let report =
+        CoherenceChecker::check_with_expectations(&[o_pole, a_pole, l_pole], &expectations);
 
     // Assert: HashMismatch drift from O→L (cross-pole Rule 6)
     let o_l_hash_mismatch: Vec<&CoherenceDrift> = report

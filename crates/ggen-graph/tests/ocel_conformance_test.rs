@@ -193,11 +193,13 @@ fn discovery_canonical_path_for_lawful_pack_lifecycle() -> Result<(), GraphError
     // Act: discover process models
     let models = OcelProcessDiscovery::discover(&log)?;
 
-    // Assert: one model (pack type), canonical path is install → verify → publish
-    assert_eq!(models.len(), 1, "should discover one process model");
-
-    let pack_model = &models[0];
-    assert_eq!(pack_model.object_type, "pack", "model should be for pack type");
+    // The lawful log contains pack, lockfile-entry, and receipt objects (the
+    // install/publish events reference all three), so discovery returns one
+    // model per object type. Assert on the pack model's canonical lifecycle.
+    let pack_model = models
+        .iter()
+        .find(|m| m.object_type == "pack")
+        .expect("a 'pack' process model should be discovered");
     assert_eq!(
         pack_model.canonical_path,
         vec!["pack.install", "pack.verify", "pack.publish"],
@@ -221,10 +223,12 @@ fn discovery_detects_variant_paths() -> Result<(), GraphError> {
     // Act: discover process models
     let models = OcelProcessDiscovery::discover(&combined)?;
 
-    // Assert: one pack model with two variants
-    assert_eq!(models.len(), 1, "should discover one process model (pack)");
-
-    let pack_model = &models[0];
+    // Discovery returns one model per object type; assert on the pack model,
+    // which now has two distinct execution paths (lawful + variant).
+    let pack_model = models
+        .iter()
+        .find(|m| m.object_type == "pack")
+        .expect("a 'pack' process model should be discovered");
     assert_eq!(pack_model.variant_count, 2, "two distinct execution paths detected");
     assert!(
         pack_model.variant_ratio > 0.0 && pack_model.variant_ratio < 1.0,

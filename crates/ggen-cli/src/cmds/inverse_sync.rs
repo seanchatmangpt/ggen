@@ -77,7 +77,7 @@ fn load_signing_key(key_path: &PathBuf) -> std::result::Result<SigningKey, Strin
         .as_slice()
         .try_into()
         .map_err(|_| "Signing key must be exactly 32 bytes".to_string())?;
-    SigningKey::from_bytes(&key_array)
+    Ok(SigningKey::from_bytes(&key_array))
 }
 
 /// Resolve the signing key path: explicit arg or default to .ggen/keys/signing.key
@@ -212,13 +212,15 @@ fn do_inverse_sync(
     let l_pole = CoherenceChecker::fingerprint_event_log(&ocel_event_refs);
 
     // === Step 6: Compute A pole hash from recovered files ===
-    let artifact_data: Vec<(&str, u64)> = artifact_files
+    let artifact_paths: Vec<(String, u64)> = artifact_files
         .iter()
         .map(|p| {
             let size = fs::metadata(p).map(|m| m.len()).unwrap_or(0);
-            (p.to_string_lossy().as_ref(), size)
+            (p.to_string_lossy().into_owned(), size)
         })
         .collect();
+    let artifact_data: Vec<(&str, u64)> =
+        artifact_paths.iter().map(|(s, n)| (s.as_str(), *n)).collect();
     let a_pole = CoherenceChecker::fingerprint_artifacts(&artifact_data);
 
     // === Step 7: Create O pole from expected ontology hash ===
@@ -233,10 +235,12 @@ fn do_inverse_sync(
     let mut expectations = HashMap::new();
     expectations.insert(Pole::Ontology, ontology_hash);
 
+    // Capture the A-pole hash before the poles are moved into the coherence check.
+    let a_pole_hash = a_pole.hash.clone();
     let coherence_report = CoherenceChecker::check_with_expectations(&[o_pole, a_pole, l_pole], &expectations);
     let coherence_admitted = coherence_report.admitted;
 
-    let coherence_drifts = if !coherence_report.drifts.is_empty() {
+    let coherence_drifts: Option<Vec<String>> = if !coherence_report.drifts.is_empty() {
         Some(
             coherence_report
                 .drifts
@@ -259,7 +263,7 @@ fn do_inverse_sync(
         use ggen_core::receipt::provenance_envelope::CoherenceReport as EnvelopeCoherenceReport;
         EnvelopeCoherenceReport::new(
             Uuid::new_v4().to_string(),
-            a_pole.hash.clone(),
+            a_pole_hash,
             inverse_receipt.output_hash.clone(),
             coherence_admitted,
             if coherence_admitted { None } else { coherence_drifts.as_ref().map(|d| d.join("; ")) },
