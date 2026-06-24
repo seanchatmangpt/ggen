@@ -1,5 +1,5 @@
 use std::{path::PathBuf, sync::Arc, time::Duration};
-use tracing::{info, error};
+use tracing::{error, info, warn};
 use crate::{
     dispatch::dispatch_bundle,
     error::Result,
@@ -13,10 +13,10 @@ pub struct DaemonScheduler {
 }
 
 impl DaemonScheduler {
-    /// Load jobs from the cron ontology TTL and register them as tokio tasks.
-    /// Each job is run at the interval derived from its cron expression.
-    /// For simplicity, the cron expression "*/N * * * *" is parsed as N minutes;
-    /// other expressions default to a 60-second poll interval.
+    /// Load jobs from the cron ontology TTL and register tokio tasks for each.
+    ///
+    /// Jobs with unrecognized cron expressions are logged as errors and skipped —
+    /// they are NOT silently demoted to 60-second polling.
     pub async fn from_ontology(
         ttl_path: &std::path::Path,
         state: Arc<DaemonState>,
@@ -28,33 +28,48 @@ impl DaemonScheduler {
         let mut handles = Vec::new();
 
         for job_def in &jobs {
+            let cron_expr = job_def.cron_expr.clone();
+
+            // Validate the expression up front; skip jobs we cannot schedule.
+            match duration_until_next_fire(&cron_expr) {
+                Some(first_sleep) => {
+                    info!(
+                        "registered job '{}' @ '{}' (first fire in {:?})",
+                        job_def.spec_manifest, cron_expr, first_sleep
+                    );
+                }
+                None => {
+                    error!(
+                        "unrecognized cron expression '{}' for job '{}' — job will NOT be scheduled",
+                        cron_expr, job_def.spec_manifest
+                    );
+                    continue;
+                }
+            }
+
             let state = Arc::clone(&state);
             let wd = working_dir.clone();
             let dispatch_iri = job_def.dispatch_iri.clone();
             let spec_manifest = job_def.spec_manifest.clone();
-            let interval_secs = parse_cron_interval_secs(&job_def.cron_expr);
-            let cron_expr = job_def.cron_expr.clone();
-
-            info!(
-                "registered job: {} @ '{}' (every {}s)",
-                spec_manifest, cron_expr, interval_secs
-            );
 
             let handle = tokio::spawn(async move {
-                let mut ticker = tokio::time::interval(Duration::from_secs(interval_secs));
-                // Skip the first immediate tick
-                ticker.tick().await;
                 loop {
-                    ticker.tick().await;
+                    let sleep_for = match duration_until_next_fire(&cron_expr) {
+                        Some(d) => d,
+                        None => {
+                            // Should not happen for a validated expression, but defend anyway.
+                            error!(
+                                "cannot recompute next fire for '{}'; retrying in 1 hour",
+                                cron_expr
+                            );
+                            Duration::from_secs(3600)
+                        }
+                    };
+                    info!("job '{}' sleeping {:?} until next fire", spec_manifest, sleep_for);
+                    tokio::time::sleep(sleep_for).await;
                     match dispatch_bundle(&dispatch_iri, &spec_manifest, &wd, &state).await {
-                        Ok(r) => info!(
-                            "bundle done: {} exit={}",
-                            spec_manifest, r.exit_code
-                        ),
-                        Err(e) => error!(
-                            "bundle error: {} — {}",
-                            spec_manifest, e
-                        ),
+                        Ok(r) => info!("bundle done: {} exit={}", spec_manifest, r.exit_code),
+                        Err(e) => error!("bundle error: {} — {}", spec_manifest, e),
                     }
                 }
             });
@@ -64,7 +79,7 @@ impl DaemonScheduler {
         Ok(Self { jobs: jobs.clone(), handles })
     }
 
-    /// Wait for a shutdown signal; aborts all job tasks on drop.
+    /// Block until SIGINT/SIGTERM, then abort all job tasks.
     pub async fn run_until_signal(self) {
         tokio::signal::ctrl_c().await.ok();
         info!("shutdown signal received — aborting {} job tasks", self.handles.len());
@@ -74,22 +89,177 @@ impl DaemonScheduler {
     }
 }
 
-/// Parse a cron expression into a poll interval in seconds.
-/// Handles the common "*/N * * * *" (every N minutes) pattern.
-/// All other expressions default to 60 seconds.
-fn parse_cron_interval_secs(expr: &str) -> u64 {
+/// Compute how long to sleep until the next cron fire, relative to now (UTC).
+///
+/// Supported patterns (standard 5-field cron, UTC):
+/// - `*/N * * * *`  — every N minutes, aligned to clock-minute boundaries (N ∈ 1..=59)
+/// - `M H * * *`    — daily at HH:MM UTC (M ∈ 0..=59, H ∈ 0..=23)
+///
+/// Returns `None` for unsupported or invalid expressions.  The caller is expected
+/// to log an error and skip (or fall back) when `None` is returned.
+pub(crate) fn duration_until_next_fire(expr: &str) -> Option<Duration> {
     let parts: Vec<&str> = expr.trim().split_whitespace().collect();
-    // "*/N * * * *" — every N minutes
-    if parts.len() == 5 {
-        if let Some(min_part) = parts.first() {
-            if let Some(n_str) = min_part.strip_prefix("*/") {
-                if let Ok(n) = n_str.parse::<u64>() {
-                    return n * 60;
-                }
-            }
-            // "@every Ns" — not a standard cron but handle it gracefully
+    if parts.len() != 5 {
+        return None;
+    }
+
+    let now_secs = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .ok()?
+        .as_secs();
+
+    // "*/N * * * *" — every N minutes, clock-boundary aligned
+    if let Some(n_str) = parts[0].strip_prefix("*/") {
+        if parts[1] != "*" || parts[2] != "*" || parts[3] != "*" || parts[4] != "*" {
+            return None;
+        }
+        let n: u64 = n_str.parse().ok()?;
+        if n == 0 || n > 59 {
+            return None;
+        }
+        let current_min = (now_secs % 3600) / 60;
+        let current_sec = now_secs % 60;
+        // Integer division gives the slot; the next boundary is one slot ahead.
+        let next_boundary = (current_min / n + 1) * n;
+        let mins_to_wait = next_boundary - current_min; // always >= 1
+        let secs_until = mins_to_wait * 60 - current_sec;
+        return Some(Duration::from_secs(secs_until));
+    }
+
+    // "M H * * *" — daily at H:M UTC
+    if parts[2] == "*" && parts[3] == "*" && parts[4] == "*" {
+        let minute: u64 = parts[0].parse().ok()?;
+        let hour: u64 = parts[1].parse().ok()?;
+        if hour >= 24 || minute >= 60 {
+            return None;
+        }
+        let target_sod = hour * 3600 + minute * 60; // target second-of-day
+        let sod = now_secs % 86400;                  // current second-of-day
+        let secs_until = if sod < target_sod {
+            target_sod - sod
+        } else {
+            // Already past today's window; fire at the same time tomorrow.
+            86400 - sod + target_sod
+        };
+        return Some(Duration::from_secs(secs_until));
+    }
+
+    None
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn every_five_minutes_sleeps_at_most_five_minutes() {
+        let d = duration_until_next_fire("*/5 * * * *").expect("*/5 must parse");
+        let secs = d.as_secs();
+        assert!(secs > 0 && secs <= 300, "expected 0 < sleep <= 300s, got {}", secs);
+    }
+
+    #[test]
+    fn every_one_minute_sleeps_at_most_one_minute() {
+        let d = duration_until_next_fire("*/1 * * * *").expect("*/1 must parse");
+        let secs = d.as_secs();
+        assert!(secs > 0 && secs <= 60, "expected 0 < sleep <= 60s, got {}", secs);
+    }
+
+    #[test]
+    fn daily_9am_schedule_sleeps_within_one_day() {
+        let d = duration_until_next_fire("0 9 * * *").expect("0 9 * * * must parse");
+        let secs = d.as_secs();
+        assert!(secs > 0 && secs <= 86400, "expected 0 < sleep <= 86400s, got {}", secs);
+    }
+
+    #[test]
+    fn midnight_schedule_sleeps_within_one_day() {
+        let d = duration_until_next_fire("0 0 * * *").expect("0 0 * * * must parse");
+        let secs = d.as_secs();
+        assert!(secs > 0 && secs <= 86400);
+    }
+
+    #[test]
+    fn end_of_day_schedule_sleeps_within_one_day() {
+        let d = duration_until_next_fire("59 23 * * *").expect("23:59 must parse");
+        let secs = d.as_secs();
+        assert!(secs > 0 && secs <= 86400);
+    }
+
+    #[test]
+    fn all_seven_campaign_expressions_are_supported() {
+        // Every expression used in cron-schedule.ttl must parse without fallback.
+        let exprs = [
+            "0 9 * * *", "0 10 * * *", "0 11 * * *", "0 12 * * *",
+            "0 14 * * *", "0 15 * * *", "0 16 * * *",
+        ];
+        for expr in exprs {
+            assert!(
+                duration_until_next_fire(expr).is_some(),
+                "TTL expression '{}' must parse",
+                expr
+            );
         }
     }
-    // Default: 60 seconds
-    60
+
+    // ── Rejection tests ──────────────────────────────────────────────────────
+
+    #[test]
+    fn rejects_dom_field_restriction() {
+        assert!(duration_until_next_fire("0 9 1 * *").is_none(), "DOM 1 unsupported");
+    }
+
+    #[test]
+    fn rejects_month_field_restriction() {
+        assert!(duration_until_next_fire("0 9 * 6 *").is_none(), "month 6 unsupported");
+    }
+
+    #[test]
+    fn rejects_dow_field_restriction() {
+        assert!(duration_until_next_fire("0 9 * * 1").is_none(), "DOW 1 unsupported");
+    }
+
+    #[test]
+    fn rejects_hour_24() {
+        assert!(duration_until_next_fire("0 24 * * *").is_none());
+    }
+
+    #[test]
+    fn rejects_hour_out_of_range() {
+        assert!(duration_until_next_fire("0 25 * * *").is_none());
+    }
+
+    #[test]
+    fn rejects_minute_60() {
+        assert!(duration_until_next_fire("60 9 * * *").is_none());
+    }
+
+    #[test]
+    fn rejects_zero_interval() {
+        assert!(duration_until_next_fire("*/0 * * * *").is_none());
+    }
+
+    #[test]
+    fn rejects_interval_60() {
+        // */60 is not valid 5-field cron (minute field is 0-59)
+        assert!(duration_until_next_fire("*/60 * * * *").is_none());
+    }
+
+    #[test]
+    fn rejects_empty_string() {
+        assert!(duration_until_next_fire("").is_none());
+    }
+
+    #[test]
+    fn rejects_wrong_field_count() {
+        assert!(duration_until_next_fire("* * * *").is_none());
+        assert!(duration_until_next_fire("* * * * * *").is_none());
+        assert!(duration_until_next_fire("not a cron expression").is_none());
+    }
+
+    #[test]
+    fn rejects_interval_with_mixed_wildcards() {
+        // "*/5 0 * * *" is not a supported pattern (minute-interval + fixed hour)
+        assert!(duration_until_next_fire("*/5 0 * * *").is_none());
+    }
 }

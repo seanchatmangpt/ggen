@@ -48,7 +48,7 @@ impl GgenDaemonMcp {
     }
 
     #[tool(description = "Manually trigger a ggen sync for a spec manifest path")]
-    async fn daemon_trigger(
+    async fn trigger_dispatch(
         &self,
         Parameters(TriggerParams { manifest }): Parameters<TriggerParams>,
     ) -> Result<CallToolResult, McpError> {

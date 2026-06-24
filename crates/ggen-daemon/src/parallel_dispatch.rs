@@ -129,12 +129,21 @@ pub async fn dispatch_to_all(
 
             let commit_msg = format!(
                 "chore: ggen {} [auto]",
-                manifest.split('/').nth_back(1).unwrap_or(&manifest)
+                bundle_label(&manifest)
             );
-            let pushed = mgr.commit_and_push(&local, &commit_msg).await
-                .unwrap_or(false);
-
-            info!("{}: {} (pushed={})", repo_entry.name, stdout_tail, pushed);
+            match mgr.commit_and_push(&local, &commit_msg).await {
+                Ok(pushed) => {
+                    info!("{}: {} (pushed={})", repo_entry.name, stdout_tail, pushed);
+                }
+                Err(e) => {
+                    let err_msg = format!("commit_and_push failed: {}", e);
+                    warn!("{}: {}", repo_entry.name, err_msg);
+                    if run_id >= 0 {
+                        let _ = state.record_finish(run_id, -1, &stdout_tail, &err_msg).await;
+                    }
+                    return Some(Err(err_msg));
+                }
+            }
             Some(Ok(DispatchResult {
                 dispatch_iri: iri,
                 spec_manifest: manifest,
@@ -174,5 +183,37 @@ pub async fn dispatch_to_all(
         failed,
         skipped_unhealthy,
         results,
+    }
+}
+
+/// Returns the parent directory name of a manifest path, used as a short commit label.
+///
+/// `.specify/specs/code-quality/ggen.toml` → `"code-quality"`
+/// `.specify/specs/ci-standard/rust/ggen.toml` → `"rust"`
+fn bundle_label(manifest: &str) -> &str {
+    std::path::Path::new(manifest)
+        .parent()
+        .and_then(|p| p.file_name())
+        .and_then(|n| n.to_str())
+        .unwrap_or(manifest)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bundle_label_extracts_parent_dir_name() {
+        assert_eq!(bundle_label(".specify/specs/code-quality/ggen.toml"), "code-quality");
+        assert_eq!(bundle_label(".specify/specs/community-health/ggen.toml"), "community-health");
+        assert_eq!(bundle_label(".specify/specs/ci-standard/rust/ggen.toml"), "rust");
+        assert_eq!(bundle_label(".specify/specs/security-policy/python/ggen.toml"), "python");
+    }
+
+    #[test]
+    fn bundle_label_falls_back_on_bare_name() {
+        // No parent dir → fall back to the manifest string itself
+        assert_eq!(bundle_label("ggen.toml"), "ggen.toml");
+        assert_eq!(bundle_label("manifest"), "manifest");
     }
 }

@@ -3547,6 +3547,7 @@ name = "ggen-daemon"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "chrono",
  "ggen-core",
  "oxigraph",
  "rmcp",
