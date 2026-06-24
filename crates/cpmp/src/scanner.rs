@@ -83,7 +83,10 @@ pub fn scan(paths: &[PathBuf], out: &PathBuf) -> Result<()> {
         }
     }
 
-    // 3. Emit the scan receipt with a deterministic aggregate hash — the stable
+    // 3. Project the human-readable capability inventory from the scan data.
+    crate::projection::generate_reports(&files, &all_capabilities, out)?;
+
+    // 4. Emit the scan receipt with a deterministic aggregate hash — the stable
     //    scan identity a downstream ggen admissibility pack binds to. The only
     //    real output artifact is the JSON scan receipt; nothing downstream reads
     //    anything else, so nothing else is claimed.
@@ -100,6 +103,10 @@ pub fn scan(paths: &[PathBuf], out: &PathBuf) -> Result<()> {
         files.len(),
         all_symbols.len(),
         all_capabilities.len()
+    );
+    println!(
+        "Capability inventory: {}",
+        out.join("reports/CAPABILITY_INVENTORY.md").display()
     );
     Ok(())
 }
