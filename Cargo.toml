@@ -49,6 +49,7 @@ members = [
   "crates/genesis-core",
   "crates/cpmp",
   "crates/stpnt",
+  "crates/ggen-daemon",
   # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
   # drifted from its own types in a prior release (ValidationAgent missing the
   # `agent_type` field; async fns misusing `?`) and does not compile under
