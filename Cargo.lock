@@ -3548,8 +3548,10 @@ version = "26.6.23"
 dependencies = [
  "blake3",
  "chrono",
+ "ed25519-dalek",
  "hex",
  "oxigraph",
+ "rand 0.8.6",
  "serde",
  "serde_json",
  "sha2",

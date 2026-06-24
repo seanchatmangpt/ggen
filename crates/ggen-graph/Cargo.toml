@@ -21,5 +21,9 @@ uuid = { workspace = true }
 urlencoding = { workspace = true }
 tracing = { workspace = true }
 
+[dev-dependencies]
+ed25519-dalek = { workspace = true }
+rand = "0.8"
+
 [lints]
 workspace = true

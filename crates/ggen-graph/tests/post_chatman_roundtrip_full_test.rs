@@ -42,7 +42,7 @@
 )]
 
 use chrono::Utc;
-use ed25519_dalek::SigningKey;
+use ed25519_dalek::{Signer, SigningKey, Verifier};
 use ggen_graph::coherence::{CoherenceChecker, CoherenceDrift, DriftKind, Pole, PoleState};
 use ggen_graph::ocel::pack_events::{
     emit_pack_install, emit_pack_verify, pack_object, ACT_PACK_INSTALL, ACT_PACK_VERIFY,
@@ -95,7 +95,7 @@ fn test_post_chatman_roundtrip_scenario_1_happy_path_coherent() {
         .expect("event must serialize to JSON");
 
     // Step 5: Compute L pole hash (BLAKE3 of OCEL JSON)
-    let event_strings = [&event_1_json, &event_2_json];
+    let event_strings = [event_1_json.as_str(), event_2_json.as_str()];
     let l_pole = CoherenceChecker::fingerprint_event_log(&event_strings);
     assert!(!l_pole.hash.is_empty(), "L pole hash must be non-empty");
     assert_eq!(l_pole.item_count, 2, "L pole should have 2 events");
