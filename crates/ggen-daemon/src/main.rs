@@ -20,8 +20,8 @@ async fn main() -> anyhow::Result<()> {
     let state_dir = working_dir.join(".ggen");
     let repos_dir = working_dir.join(".ggen/repos");
 
-    if !state_dir.exists() { std::fs::create_dir_all(&state_dir)?; }
-    if !repos_dir.exists() { std::fs::create_dir_all(&repos_dir)?; }
+    if !state_dir.exists() { tokio::fs::create_dir_all(&state_dir).await?; }
+    if !repos_dir.exists() { tokio::fs::create_dir_all(&repos_dir).await?; }
 
     let persist_path = Some(state_dir.join("daemon-runs.json"));
     let state = Arc::new(

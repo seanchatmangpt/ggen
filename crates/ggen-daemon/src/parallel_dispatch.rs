@@ -64,7 +64,7 @@ pub async fn dispatch_to_all(
             };
 
             // Health check
-            let health = check_repo(&local, &repo_entry.name);
+            let health = check_repo(&local, &repo_entry.name).await;
             if health.status != RepoHealthStatus::Healthy
                 && health.status != RepoHealthStatus::DirtyWorkTree
             {

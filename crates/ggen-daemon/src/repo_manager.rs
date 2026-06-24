@@ -37,7 +37,12 @@ impl RepoManager {
             .map_err(DaemonError::Io)?;
         if !out.status.success() {
             let stderr = String::from_utf8_lossy(&out.stderr);
-            warn!("clone failed for {}: {}", repo_name, &stderr[..stderr.len().min(200)]);
+            let msg = stderr[..stderr.len().min(200)].to_owned();
+            warn!("clone failed for {}: {}", repo_name, msg);
+            return Err(DaemonError::Io(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!("git clone failed for {repo_name}: {msg}"),
+            )));
         }
         Ok(())
     }
@@ -51,7 +56,13 @@ impl RepoManager {
             .await
             .map_err(DaemonError::Io)?;
         if !out.status.success() {
-            warn!("pull failed at {}: non-fast-forward, continuing", local.display());
+            let stderr = String::from_utf8_lossy(&out.stderr);
+            let msg = stderr[..stderr.len().min(200)].to_owned();
+            warn!("pull failed at {}: {}", local.display(), msg);
+            return Err(DaemonError::Io(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!("git pull failed at {}: {msg}", local.display()),
+            )));
         }
         Ok(())
     }
@@ -93,7 +104,12 @@ impl RepoManager {
 
         if !push_out.status.success() {
             let err = String::from_utf8_lossy(&push_out.stderr);
-            warn!("push failed: {}", &err[..err.len().min(200)]);
+            let msg = err[..err.len().min(200)].to_owned();
+            warn!("push failed: {}", msg);
+            return Err(DaemonError::Io(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!("git push failed: {msg}"),
+            )));
         }
 
         Ok(true)
