@@ -1,0 +1,17 @@
+[project]
+name = "readme-standard"
+version = "1.0.0"
+description = "Generates a standard README.md from DOAP + DCTerms metadata"
+
+[ontology]
+source = "../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "readme"
+query = { file = "queries/readme.rq" }
+template = { file = "templates/README.md.tera" }
+output_file = "README.md"
+mode = "Overwrite"

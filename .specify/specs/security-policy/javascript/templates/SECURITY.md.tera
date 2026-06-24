@@ -1,0 +1,17 @@
+# Security Policy — {{ repoName }}
+
+## Supported Versions
+
+| Version | Supported |
+| ------- | --------- |
+| latest  | ✅ |
+
+## Reporting a Vulnerability
+
+Please report security vulnerabilities privately. Do NOT open a public issue.
+
+Email: {% if maintainerEmail %}{{ maintainerEmail }}{% else %}the project maintainers{% endif %}
+
+## Automated Scanning
+
+This project uses `npm audit` for dependency vulnerability scanning.

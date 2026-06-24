@@ -1,0 +1,38 @@
+# {{ repoName }}
+
+{{ shortdesc }}
+
+{% if primaryLanguage %}
+**Language:** {{ primaryLanguage }}
+{% endif %}
+{% if homepage %}
+**Homepage:** {{ homepage }}
+{% endif %}
+{% if licenseId %}
+**License:** [{{ licenseId }}](https://opensource.org/licenses/{{ licenseId }})
+{% endif %}
+
+## Overview
+
+{{ shortdesc }}
+
+## Getting Started
+
+````bash
+git clone {{ homepage | default(value="https://github.com/seanchatmangpt/" ~ repoName) }}
+cd {{ repoName }}
+````
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## Code of Conduct
+
+See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+{% if authorName %}
+## Author
+
+{{ authorName }}
+{% endif %}

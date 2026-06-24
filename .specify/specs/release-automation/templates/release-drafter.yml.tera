@@ -1,0 +1,69 @@
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+
+categories:
+  - title: "Breaking Changes"
+    labels:
+      - "breaking"
+      - "breaking-change"
+  - title: "New Features"
+    labels:
+      - "feature"
+      - "enhancement"
+  - title: "Bug Fixes"
+    labels:
+      - "fix"
+      - "bugfix"
+      - "bug"
+  - title: "Performance Improvements"
+    labels:
+      - "performance"
+      - "perf"
+  - title: "Documentation"
+    labels:
+      - "documentation"
+      - "docs"
+  - title: "Dependencies"
+    labels:
+      - "dependencies"
+      - "deps"
+  - title: "Maintenance"
+    labels:
+      - "chore"
+      - "maintenance"
+      - "refactor"
+
+change-template: "- $TITLE @$AUTHOR (#$NUMBER)"
+change-title-escapes: '\<*_&'
+
+version-resolver:
+  major:
+    labels:
+      - "breaking"
+      - "breaking-change"
+  minor:
+    labels:
+      - "feature"
+      - "enhancement"
+  patch:
+    labels:
+      - "fix"
+      - "bugfix"
+      - "bug"
+      - "performance"
+      - "perf"
+      - "documentation"
+      - "docs"
+      - "dependencies"
+      - "deps"
+      - "chore"
+      - "maintenance"
+      - "refactor"
+  default: patch
+
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/{{ homepage | default(value="seanchatmangpt/" ~ repoName) | replace(from="https://github.com/", to="") }}/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION

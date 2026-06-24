@@ -1,0 +1,24 @@
+[project]
+name = "onboarding-conventions"
+version = "1.0.0"
+description = "Generates .editorconfig and .gitignore for all repos"
+
+[ontology]
+source = "../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "editorconfig"
+query = { file = "queries/editorconfig.rq" }
+template = { file = "templates/editorconfig.tera" }
+output_file = ".editorconfig"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "gitignore"
+query = { file = "queries/gitignore.rq" }
+template = { file = "templates/gitignore.tera" }
+output_file = ".gitignore"
+mode = "Overwrite"

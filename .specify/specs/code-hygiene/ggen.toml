@@ -1,0 +1,31 @@
+[project]
+name = "code-hygiene"
+version = "1.0.0"
+description = "Generates .editorconfig, .gitattributes, and .gitignore for repos"
+
+[ontology]
+source = "../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "editorconfig"
+query = { file = "queries/repo.rq" }
+template = { file = "templates/editorconfig.tera" }
+output_file = ".editorconfig"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "gitattributes"
+query = { file = "queries/repo.rq" }
+template = { file = "templates/gitattributes.tera" }
+output_file = ".gitattributes"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "gitignore"
+query = { file = "queries/repo.rq" }
+template = { file = "templates/gitignore.tera" }
+output_file = ".gitignore"
+mode = "Overwrite"

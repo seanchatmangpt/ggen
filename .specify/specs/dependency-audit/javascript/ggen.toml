@@ -1,0 +1,24 @@
+[project]
+name = "dependency-audit-javascript"
+version = "1.0.0"
+description = "Generates .nvmrc and npm-audit workflow for JavaScript/TypeScript repos"
+
+[ontology]
+source = "../../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "nvmrc"
+query = { file = "queries/js-deps.rq" }
+template = { file = "templates/nvmrc.tera" }
+output_file = ".nvmrc"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "npm-audit-workflow"
+query = { file = "queries/js-deps.rq" }
+template = { file = "templates/npm-audit.yml.tera" }
+output_file = ".github/workflows/npm-audit.yml"
+mode = "Overwrite"

@@ -1,0 +1,59 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX doap:    <http://usefulinc.com/ns/doap#>
+PREFIX foaf:    <http://xmlns.com/foaf/0.1/>
+PREFIX ggen:    <https://ggen.dev/ontology/core#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema:  <https://schema.org/>
+
+SELECT
+  ?repoName
+  ?shortdesc
+  ?description
+  ?homepage
+  ?bugTracker
+  ?created
+  ?authorName
+  ?authorEmail
+  ?authorUrl
+  ?orcid
+  ?affiliation
+  ?licenseId
+  ?primaryLanguage
+  ?githubOwner
+  ?githubSponsor
+  ?doiUrl
+WHERE {
+  ?project a doap:Project ;
+           doap:name      ?repoName ;
+           doap:shortdesc ?shortdesc .
+
+  OPTIONAL { ?project doap:description  ?description . }
+  OPTIONAL { ?project doap:homepage     ?homepage . }
+  OPTIONAL { ?project doap:bug-database ?bugTracker . }
+  OPTIONAL { ?project doap:created      ?created . }
+
+  OPTIONAL {
+    ?project doap:maintainer ?person .
+    ?person  foaf:name       ?authorName .
+    OPTIONAL { ?person foaf:mbox   ?authorMbox .
+               BIND(STRAFTER(STR(?authorMbox), "mailto:") AS ?authorEmail) }
+    OPTIONAL { ?person schema:url  ?authorUrl . }
+    OPTIONAL { ?person ggen:orcid       ?orcid . }
+    OPTIONAL { ?person ggen:affiliation ?affiliation . }
+  }
+
+  OPTIONAL {
+    ?project dcterms:license ?lic .
+    BIND(STRAFTER(STR(?lic), "licenses/") AS ?licenseId)
+  }
+
+  OPTIONAL {
+    ?project ggen:primaryLanguage ?lang .
+    ?lang rdfs:label ?primaryLanguage .
+  }
+
+  OPTIONAL { ?project ggen:githubOwner   ?githubOwner . }
+  OPTIONAL { ?project ggen:githubSponsor ?githubSponsor . }
+  OPTIONAL { ?project ggen:doiUrl        ?doiUrl . }
+}
+ORDER BY ?repoName

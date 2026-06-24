@@ -1,0 +1,322 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix ggen:    <https://ggen.dev/ontology/core#> .
+@prefix cron:    <https://ggen.dev/ontology/cron#> .
+
+<https://ggen.dev/specs/cron>
+    a owl:Ontology ;
+    dcterms:title "ggen Cron Schedule Ontology" ;
+    dcterms:description "Models 7-day automated commit schedules for cross-repo generation campaigns." ;
+    dcterms:created "2026-06-24"^^xsd:date ;
+    owl:imports <https://ggen.dev/specs/universal> .
+
+# ─── Core scheduling classes ────────────────────────────────────────────────────
+
+cron:Schedule
+    a owl:Class ;
+    rdfs:label "Schedule" ;
+    rdfs:comment "A named cron schedule for automated ggen commits." .
+
+cron:DailyBatch
+    a owl:Class ;
+    rdfs:subClassOf cron:Schedule ;
+    rdfs:label "Daily Batch" ;
+    rdfs:comment "A set of commit bundles to execute on a specific day." .
+
+cron:CommitWindow
+    a owl:Class ;
+    rdfs:label "Commit Window" ;
+    rdfs:comment "A time window within a day during which commits are dispatched." .
+
+cron:BundleDispatch
+    a owl:Class ;
+    rdfs:label "Bundle Dispatch" ;
+    rdfs:comment "One bundle type applied to one batch of repositories." .
+
+cron:CampaignPlan
+    a owl:Class ;
+    rdfs:label "Campaign Plan" ;
+    rdfs:comment "The full 7-day plan across all repos and bundle types." .
+
+# ─── Properties ─────────────────────────────────────────────────────────────────
+
+cron:day
+    a owl:DatatypeProperty ;
+    rdfs:domain cron:DailyBatch ;
+    rdfs:range xsd:integer ;
+    rdfs:label "day (1-7)" .
+
+cron:windowStart
+    a owl:DatatypeProperty ;
+    rdfs:domain cron:CommitWindow ;
+    rdfs:range xsd:time ;
+    rdfs:label "window start UTC" .
+
+cron:windowEnd
+    a owl:DatatypeProperty ;
+    rdfs:domain cron:CommitWindow ;
+    rdfs:range xsd:time ;
+    rdfs:label "window end UTC" .
+
+cron:maxCommitsPerHour
+    a owl:DatatypeProperty ;
+    rdfs:domain cron:CommitWindow ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max commits per hour" .
+
+cron:dispatchBundle
+    a owl:ObjectProperty ;
+    rdfs:domain cron:DailyBatch ;
+    rdfs:range cron:BundleDispatch ;
+    rdfs:label "dispatch bundle" .
+
+cron:appliesTo
+    a owl:ObjectProperty ;
+    rdfs:domain cron:BundleDispatch ;
+    rdfs:range ggen:LanguagePrimary ;
+    rdfs:label "applies to language" .
+
+cron:bundleKind
+    a owl:ObjectProperty ;
+    rdfs:domain cron:BundleDispatch ;
+    rdfs:range ggen:BundleType ;
+    rdfs:label "bundle kind" .
+
+cron:estimatedCommits
+    a owl:DatatypeProperty ;
+    rdfs:domain cron:BundleDispatch ;
+    rdfs:range xsd:integer ;
+    rdfs:label "estimated commits" .
+
+cron:cronExpression
+    a owl:DatatypeProperty ;
+    rdfs:domain cron:Schedule ;
+    rdfs:range xsd:string ;
+    rdfs:label "cron expression" ;
+    rdfs:comment "Standard 5-field cron expression: min hour dom month dow" .
+
+cron:specManifest
+    a owl:DatatypeProperty ;
+    rdfs:domain cron:BundleDispatch ;
+    rdfs:range xsd:string ;
+    rdfs:label "spec manifest path" ;
+    rdfs:comment "Path to the ggen.toml spec manifest for this bundle." .
+
+# ─── 7-Day Campaign Plan ────────────────────────────────────────────────────────
+
+cron:Campaign2026
+    a cron:CampaignPlan ;
+    dcterms:title "ggen 7-Day 1500-Commit Campaign" ;
+    dcterms:description "Automated 7-day schedule to generate 1,527 real commits across 177 repos." ;
+    dcterms:created "2026-06-24"^^xsd:date ;
+    cron:totalTargetCommits 1527 ;
+    cron:totalRepos 177 .
+
+# Day 1 — Community Health (all repos)
+cron:Day1
+    a cron:DailyBatch ;
+    dcterms:title "Day 1: Community Health + GitHub Templates" ;
+    cron:day 1 ;
+    cron:dispatchBundle cron:Day1-CommunityHealth-All, cron:Day1-GithubTemplates-All .
+
+cron:Day1-CommunityHealth-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:CommunityHealth ;
+    cron:estimatedCommits 177 ;
+    cron:specManifest ".specify/specs/community-health/ggen.toml" ;
+    cron:cronExpression "0 9 * * *" .
+
+cron:Day1-GithubTemplates-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:GithubTemplates ;
+    cron:estimatedCommits 115 ;
+    cron:specManifest ".specify/specs/github-templates/ggen.toml" ;
+    cron:cronExpression "0 10 * * *" .
+
+# Day 2 — CI Standard (Rust + Python + TypeScript) + Code Hygiene
+cron:Day2
+    a cron:DailyBatch ;
+    dcterms:title "Day 2: CI Standard + Code Hygiene" ;
+    cron:day 2 ;
+    cron:dispatchBundle cron:Day2-CI-Rust, cron:Day2-CI-Python, cron:Day2-CI-TypeScript, cron:Day2-CodeHygiene-All .
+
+cron:Day2-CI-Rust
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:CiStandard ;
+    cron:appliesTo ggen:Rust ;
+    cron:estimatedCommits 27 ;
+    cron:specManifest ".specify/specs/ci-standard/rust/ggen.toml" ;
+    cron:cronExpression "0 10 * * *" .
+
+cron:Day2-CI-Python
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:CiStandard ;
+    cron:appliesTo ggen:Python ;
+    cron:estimatedCommits 40 ;
+    cron:specManifest ".specify/specs/ci-standard/python/ggen.toml" ;
+    cron:cronExpression "0 11 * * *" .
+
+cron:Day2-CI-TypeScript
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:CiStandard ;
+    cron:appliesTo ggen:TypeScript ;
+    cron:estimatedCommits 22 ;
+    cron:specManifest ".specify/specs/ci-standard/typescript/ggen.toml" ;
+    cron:cronExpression "0 12 * * *" .
+
+cron:Day2-CodeHygiene-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:CodeHygiene ;
+    cron:estimatedCommits 115 ;
+    cron:specManifest ".specify/specs/code-hygiene/ggen.toml" ;
+    cron:cronExpression "0 14 * * *" .
+
+# Day 3 — README Standard + Docs Hub (all repos)
+cron:Day3
+    a cron:DailyBatch ;
+    dcterms:title "Day 3: README Standard + Docs Hub" ;
+    cron:day 3 ;
+    cron:dispatchBundle cron:Day3-Readme-All, cron:Day3-DocsHub-All .
+
+cron:Day3-Readme-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:ReadmeStandard ;
+    cron:estimatedCommits 177 ;
+    cron:specManifest ".specify/specs/readme-standard/ggen.toml" ;
+    cron:cronExpression "0 9 * * *" .
+
+cron:Day3-DocsHub-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:DocsHub ;
+    cron:estimatedCommits 115 ;
+    cron:specManifest ".specify/specs/docs-hub/ggen.toml" ;
+    cron:cronExpression "0 11 * * *" .
+
+# Day 4 — Onboarding Conventions + Container Ops (all repos)
+cron:Day4
+    a cron:DailyBatch ;
+    dcterms:title "Day 4: Onboarding Conventions + Container Ops" ;
+    cron:day 4 ;
+    cron:dispatchBundle cron:Day4-Onboarding-All, cron:Day4-ContainerOps-All .
+
+cron:Day4-Onboarding-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:OnboardingConventions ;
+    cron:estimatedCommits 177 ;
+    cron:specManifest ".specify/specs/onboarding-conventions/ggen.toml" ;
+    cron:cronExpression "0 9 * * *" .
+
+cron:Day4-ContainerOps-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:ContainerOps ;
+    cron:estimatedCommits 115 ;
+    cron:specManifest ".specify/specs/container-ops/ggen.toml" ;
+    cron:cronExpression "0 11 * * *" .
+
+# Day 5 — Security Policy (Rust + Python + JS + TS) + Release Automation
+cron:Day5
+    a cron:DailyBatch ;
+    dcterms:title "Day 5: Security Policy + Release Automation" ;
+    cron:day 5 ;
+    cron:dispatchBundle cron:Day5-Security-Rust, cron:Day5-Security-Python, cron:Day5-Security-JS, cron:Day5-ReleaseAutomation-All .
+
+cron:Day5-Security-Rust
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:SecurityPolicy ;
+    cron:appliesTo ggen:Rust ;
+    cron:estimatedCommits 27 ;
+    cron:specManifest ".specify/specs/security-policy/rust/ggen.toml" ;
+    cron:cronExpression "0 10 * * *" .
+
+cron:Day5-Security-Python
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:SecurityPolicy ;
+    cron:appliesTo ggen:Python ;
+    cron:estimatedCommits 40 ;
+    cron:specManifest ".specify/specs/security-policy/python/ggen.toml" ;
+    cron:cronExpression "0 11 * * *" .
+
+cron:Day5-Security-JS
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:SecurityPolicy ;
+    cron:appliesTo ggen:JavaScript ;
+    cron:estimatedCommits 18 ;
+    cron:specManifest ".specify/specs/security-policy/javascript/ggen.toml" ;
+    cron:cronExpression "0 12 * * *" .
+
+cron:Day5-ReleaseAutomation-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:ReleaseAutomation ;
+    cron:estimatedCommits 115 ;
+    cron:specManifest ".specify/specs/release-automation/ggen.toml" ;
+    cron:cronExpression "0 14 * * *" .
+
+# Day 6 — Changelog + Coverage + Code Quality (all repos)
+cron:Day6
+    a cron:DailyBatch ;
+    dcterms:title "Day 6: Changelog, Coverage, and Code Quality" ;
+    cron:day 6 ;
+    cron:dispatchBundle cron:Day6-Changelog, cron:Day6-Coverage, cron:Day6-CodeQuality-All .
+
+cron:Day6-Changelog
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:Changelog ;
+    cron:estimatedCommits 177 ;
+    cron:specManifest ".specify/specs/changelog/ggen.toml" ;
+    cron:cronExpression "0 9 * * *" .
+
+cron:Day6-Coverage
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:CoveragePolicy ;
+    cron:estimatedCommits 177 ;
+    cron:specManifest ".specify/specs/coverage-policy/ggen.toml" ;
+    cron:cronExpression "0 13 * * *" .
+
+cron:Day6-CodeQuality-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:CodeQuality ;
+    cron:estimatedCommits 115 ;
+    cron:specManifest ".specify/specs/code-quality/ggen.toml" ;
+    cron:cronExpression "0 15 * * *" .
+
+# Day 7 — Dependency Audit (Rust + Python + JS) + Community Extended
+cron:Day7
+    a cron:DailyBatch ;
+    dcterms:title "Day 7: Dependency Audit + Community Extended" ;
+    cron:day 7 ;
+    cron:dispatchBundle cron:Day7-Deps-Rust, cron:Day7-Deps-Python, cron:Day7-Deps-JS, cron:Day7-CommunityExtended-All .
+
+cron:Day7-Deps-Rust
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:DependencyAudit ;
+    cron:appliesTo ggen:Rust ;
+    cron:estimatedCommits 27 ;
+    cron:specManifest ".specify/specs/dependency-audit/rust/ggen.toml" ;
+    cron:cronExpression "0 10 * * *" .
+
+cron:Day7-Deps-Python
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:DependencyAudit ;
+    cron:appliesTo ggen:Python ;
+    cron:estimatedCommits 40 ;
+    cron:specManifest ".specify/specs/dependency-audit/python/ggen.toml" ;
+    cron:cronExpression "0 11 * * *" .
+
+cron:Day7-Deps-JS
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:DependencyAudit ;
+    cron:appliesTo ggen:JavaScript ;
+    cron:estimatedCommits 18 ;
+    cron:specManifest ".specify/specs/dependency-audit/javascript/ggen.toml" ;
+    cron:cronExpression "0 12 * * *" .
+
+cron:Day7-CommunityExtended-All
+    a cron:BundleDispatch ;
+    cron:bundleKind ggen:CommunityExtended ;
+    cron:estimatedCommits 115 ;
+    cron:specManifest ".specify/specs/community-extended/ggen.toml" ;
+    cron:cronExpression "0 14 * * *" .

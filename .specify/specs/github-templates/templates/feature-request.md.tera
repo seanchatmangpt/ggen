@@ -1,0 +1,39 @@
+---
+name: Feature Request
+about: Suggest a new feature or enhancement for {{ name | default(value="this project") }}
+title: "[FEAT] "
+labels: enhancement
+assignees: ''
+---
+
+## Summary
+
+A clear and concise description of the feature you are requesting.
+
+## Motivation
+
+Why is this feature needed? What problem does it solve?
+
+## Proposed Solution
+
+Describe the solution you would like to see implemented.
+
+## Alternatives Considered
+
+Describe any alternative solutions or features you have considered.
+
+## Acceptance Criteria
+
+- [ ] Criterion 1
+- [ ] Criterion 2
+- [ ] Criterion 3
+
+## Additional Context
+
+Add any other context, mockups, or references about the feature request here.
+
+---
+- **Project**: {{ name | default(value="N/A") }}
+{% if language %}- **Language**: {{ language }}{% endif %}
+{% if maintainer %}*Maintained by {{ maintainer }}*{% endif %}
+{% if description %}*{{ description }}*{% endif %}

@@ -1,0 +1,17 @@
+[project]
+name = "coverage-policy"
+version = "1.0.0"
+description = "Generates .codecov.yml coverage policy for all repos"
+
+[ontology]
+source = "../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "codecov"
+query = { file = "queries/coverage.rq" }
+template = { file = "templates/codecov.yml.tera" }
+output_file = ".codecov.yml"
+mode = "Overwrite"

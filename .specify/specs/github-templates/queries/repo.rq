@@ -1,0 +1,16 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX doap:    <http://usefulinc.com/ns/doap#>
+PREFIX foaf:    <http://xmlns.com/foaf/0.1/>
+PREFIX ggen:    <https://ggen.dev/ontology/core#>
+PREFIX schema:  <https://schema.org/>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?name ?description ?maintainer ?language
+WHERE {
+  ?project a doap:Project ;
+           doap:name ?name .
+  OPTIONAL { ?project doap:description ?description . }
+  OPTIONAL { ?project doap:maintainer ?p . ?p foaf:name ?maintainer . }
+  OPTIONAL { ?project ggen:primaryLanguage ?lang . ?lang rdfs:label ?language . }
+}
+ORDER BY ?name

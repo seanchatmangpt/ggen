@@ -1,0 +1,28 @@
+# {{ repoName }}
+
+> {{ shortdesc }}
+
+{% if primaryLanguage %}![Language](https://img.shields.io/badge/language-{{ primaryLanguage }}-blue){% endif %} {% if licenseId %}![License](https://img.shields.io/badge/license-{{ licenseId }}-green){% endif %}
+
+## About
+
+{{ description | default(value=shortdesc) }}
+
+## Installation
+
+````bash
+git clone {{ homepage | default(value="https://github.com/seanchatmangpt/" ~ repoName) }}
+cd {{ repoName }}
+````
+
+## Usage
+
+See the [documentation](docs/) for detailed usage instructions.
+
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+{% if licenseId %}[{{ licenseId }}](LICENSE){% else %}See [LICENSE](LICENSE){% endif %}{% if authorName %} © {{ authorName }}{% endif %}

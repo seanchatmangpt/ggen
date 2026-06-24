@@ -1,0 +1,31 @@
+[project]
+name = "container-ops"
+version = "1.0.0"
+description = "Generates Dockerfile and docker-compose for containerized repos"
+
+[ontology]
+source = "../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "dockerfile"
+query = { file = "queries/container.rq" }
+template = { file = "templates/dockerfile.tera" }
+output_file = "Dockerfile"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "docker-compose"
+query = { file = "queries/container.rq" }
+template = { file = "templates/docker-compose.yml.tera" }
+output_file = "docker-compose.yml"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "dockerignore"
+query = { file = "queries/container.rq" }
+template = { file = "templates/dockerignore.tera" }
+output_file = ".dockerignore"
+mode = "Overwrite"

@@ -1,0 +1,22 @@
+# Security Policy — {{ repoName }}
+
+## Supported Versions
+
+| Version | Supported |
+| ------- | --------- |
+| latest  | ✅ |
+
+## Reporting a Vulnerability
+
+Please report security vulnerabilities by:
+
+1. **Do not** open a public GitHub issue
+2. Email {% if maintainerEmail %}{{ maintainerEmail }}{% else %}the maintainers{% endif %} with subject: `[SECURITY] {{ repoName }}`
+3. Include a description and reproduction steps
+
+We will respond within 72 hours and issue a patch within 7 days for critical issues.
+
+## Security Scanning
+
+This project uses `cargo audit` for automated dependency vulnerability scanning.
+See [.github/workflows/audit.yml](.github/workflows/audit.yml).

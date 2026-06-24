@@ -1,0 +1,38 @@
+[project]
+name = "community-health"
+version = "1.0.0"
+description = "Generates community health files: README, CONTRIBUTING, CODE_OF_CONDUCT, LICENSE"
+
+[ontology]
+source = "../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "readme"
+query = { file = "queries/readme.rq" }
+template = { file = "templates/README.md.tera" }
+output_file = "README.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "contributing"
+query = { file = "queries/contributing.rq" }
+template = { file = "templates/CONTRIBUTING.md.tera" }
+output_file = "CONTRIBUTING.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "code-of-conduct"
+query = { file = "queries/code-of-conduct.rq" }
+template = { file = "templates/CODE_OF_CONDUCT.md.tera" }
+output_file = "CODE_OF_CONDUCT.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "license"
+query = { file = "queries/license.rq" }
+template = { file = "templates/LICENSE.tera" }
+output_file = "LICENSE"
+mode = "Overwrite"

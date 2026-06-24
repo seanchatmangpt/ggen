@@ -1,0 +1,52 @@
+# Support for {{ repoName }}
+
+> {{ shortdesc }}
+
+Thank you for using {{ repoName }}! This document explains how to get help and
+report problems.
+
+---
+
+## Asking Questions
+
+For general usage questions, ideas, or discussion, please open a
+**[GitHub Discussion]({{ homepage | default(value="https://github.com/" ~ repoName) }}/discussions)**
+so the community can benefit from the answer.
+
+## Reporting Bugs
+
+Before filing a new bug, search the existing issues to avoid duplicates.
+
+**Issue tracker:** {% if bugTracker %}{{ bugTracker }}{% else %}{{ homepage | default(value="https://github.com/" ~ repoName) }}/issues{% endif %}
+
+When reporting a bug please include:
+
+- A clear, concise description of the problem
+- Steps to reproduce the behaviour
+- Expected vs actual output
+- Version information (`{{ repoName }} --version` / `cargo --version`)
+- Operating system and architecture
+
+## Security Vulnerabilities
+
+Please do **not** open a public issue for security vulnerabilities.
+
+Contact the maintainer directly{% if authorEmail %} at **{{ authorEmail }}**{% endif %}
+or follow the project's `SECURITY.md` if present.
+
+## Feature Requests
+
+Feature requests are welcome. Open an issue in the tracker above and use the
+**enhancement** label. Describe the use-case you are trying to solve rather
+than just the solution you have in mind.
+
+## Commercial Support
+
+{{ repoName }} is an open-source project maintained on a best-effort basis.
+{% if authorName %}If you need priority support or a commercial arrangement, reach out to
+**{{ authorName }}**{% if authorEmail %} ({{ authorEmail }}){% endif %}.{% else %}No
+commercial support is currently available.{% endif %}
+
+---
+
+*Built with [ggen](https://github.com/seanchatmangpt/ggen) — specification-driven code generation.*

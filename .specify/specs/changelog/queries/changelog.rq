@@ -1,0 +1,14 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX doap:    <http://usefulinc.com/ns/doap#>
+PREFIX prov:    <http://www.w3.org/ns/prov#>
+PREFIX prv:     <https://ggen.dev/ontology/provenance#>
+
+SELECT ?repoName ?shortdesc ?created ?authorName
+WHERE {
+  ?project a doap:Project ;
+           doap:name ?repoName ;
+           doap:shortdesc ?shortdesc .
+  OPTIONAL { ?project doap:created ?created . }
+  OPTIONAL { ?project doap:maintainer ?p . ?p foaf:name ?authorName . }
+}
+ORDER BY ?repoName

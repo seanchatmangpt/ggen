@@ -1,0 +1,24 @@
+[project]
+name = "ci-standard-python"
+version = "1.0.0"
+description = "GitHub Actions CI for Python repos"
+
+[ontology]
+source = "../../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "ci-python"
+query = { file = "../queries/ci-python.rq" }
+template = { file = "../templates/ci-python.yml.tera" }
+output_file = ".github/workflows/ci.yml"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "dependabot-python"
+query = { file = "../queries/dependabot.rq" }
+template = { file = "../templates/dependabot.yml.tera" }
+output_file = ".github/dependabot.yml"
+mode = "Overwrite"

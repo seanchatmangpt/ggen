@@ -1,0 +1,10 @@
+PREFIX doap: <http://usefulinc.com/ns/doap#>
+PREFIX ggen: <https://ggen.dev/ontology/core#>
+
+SELECT ?repoName
+WHERE {
+  ?project a doap:Project ;
+           doap:name ?repoName ;
+           ggen:primaryLanguage ggen:Python .
+}
+ORDER BY ?repoName

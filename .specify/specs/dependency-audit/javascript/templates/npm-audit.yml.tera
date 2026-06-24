@@ -1,0 +1,19 @@
+name: Dependency Audit
+
+on:
+  push:
+    paths: ['package.json', 'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml']
+  schedule:
+    - cron: '0 6 * * 1'
+
+jobs:
+  npm-audit:
+    name: npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install --package-lock-only 2>/dev/null || true
+      - run: npm audit --audit-level=moderate || true

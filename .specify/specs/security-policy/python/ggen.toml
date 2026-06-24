@@ -1,0 +1,24 @@
+[project]
+name = "security-policy-python"
+version = "1.0.0"
+description = "SECURITY.md and pip-audit workflow for Python repos"
+
+[ontology]
+source = "../../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "security-md"
+query = { file = "queries/security.rq" }
+template = { file = "templates/SECURITY.md.tera" }
+output_file = "SECURITY.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "audit-workflow"
+query = { file = "queries/security.rq" }
+template = { file = "templates/audit.yml.tera" }
+output_file = ".github/workflows/audit.yml"
+mode = "Overwrite"

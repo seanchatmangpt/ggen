@@ -1,0 +1,17 @@
+[project]
+name = "changelog"
+version = "1.0.0"
+description = "Generates CHANGELOG.md from PROV-O activity log"
+
+[ontology]
+source = "../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "changelog"
+query = { file = "queries/changelog.rq" }
+template = { file = "templates/CHANGELOG.md.tera" }
+output_file = "CHANGELOG.md"
+mode = "Overwrite"

@@ -1,0 +1,31 @@
+[project]
+name = "code-quality"
+version = "1.0.0"
+description = "Generates linter and formatter configs for consistent code quality"
+
+[ontology]
+source = "../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "eslint-config"
+query = { file = "queries/quality.rq" }
+template = { file = "templates/eslintrc.tera" }
+output_file = ".eslintrc.json"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "prettier-config"
+query = { file = "queries/quality.rq" }
+template = { file = "templates/prettierrc.tera" }
+output_file = ".prettierrc"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "pre-commit-config"
+query = { file = "queries/quality.rq" }
+template = { file = "templates/pre-commit-config.yml.tera" }
+output_file = ".pre-commit-config.yaml"
+mode = "Overwrite"

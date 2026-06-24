@@ -1,0 +1,13 @@
+{
+  "_generated_for": "{{ repoName }}",
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "printWidth": {% if primaryLanguage == "TypeScript" or primaryLanguage == "JavaScript" %}100{% else %}80{% endif %},
+  "tabWidth": 2,
+  "useTabs": false,
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "endOfLine": "lf"{% if primaryLanguage == "TypeScript" %},
+  "plugins": ["prettier-plugin-organize-imports"]{% endif %}
+}

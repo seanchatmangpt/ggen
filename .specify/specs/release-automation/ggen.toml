@@ -1,0 +1,24 @@
+[project]
+name = "release-automation"
+version = "1.0.0"
+description = "Generates GitHub release workflow and release guide"
+
+[ontology]
+source = "../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "release-workflow"
+query = { file = "queries/release.rq" }
+template = { file = "templates/release.yml.tera" }
+output_file = ".github/workflows/release.yml"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "release-drafter"
+query = { file = "queries/release.rq" }
+template = { file = "templates/release-drafter.yml.tera" }
+output_file = ".github/release-drafter.yml"
+mode = "Overwrite"

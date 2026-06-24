@@ -1,0 +1,24 @@
+[project]
+name = "ci-standard-rust"
+version = "1.0.0"
+description = "GitHub Actions CI for Rust repos"
+
+[ontology]
+source = "../../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "ci-rust"
+query = { file = "../queries/ci-rust.rq" }
+template = { file = "../templates/ci-rust.yml.tera" }
+output_file = ".github/workflows/ci.yml"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "dependabot-rust"
+query = { file = "../queries/dependabot.rq" }
+template = { file = "../templates/dependabot.yml.tera" }
+output_file = ".github/dependabot.yml"
+mode = "Overwrite"

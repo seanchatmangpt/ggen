@@ -1,0 +1,19 @@
+name: Dependency Audit
+
+on:
+  push:
+    paths: ['requirements*.txt', 'pyproject.toml', 'setup.cfg', 'Pipfile.lock']
+  schedule:
+    - cron: '0 6 * * 1'
+
+jobs:
+  pip-audit:
+    name: pip-audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pip-audit
+      - run: pip-audit --requirement requirements.txt 2>/dev/null || pip-audit . || true

@@ -1,0 +1,110 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix doap:    <http://usefulinc.com/ns/doap#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix prv:     <https://ggen.dev/ontology/provenance#> .
+@prefix schema:  <https://schema.org/> .
+@prefix spdx:    <http://spdx.org/rdf/terms#> .
+@prefix ggen:    <https://ggen.dev/ontology/core#> .
+
+<https://ggen.dev/specs/universal>
+    a owl:Ontology ;
+    dcterms:title "ggen Universal Domain Seed" ;
+    dcterms:description "Seed ontology bridging FOAF, DOAP, DCTerms, PROV-O, Schema.org, and SPDX for cross-repo code generation." ;
+    dcterms:created "2026-06-24"^^xsd:date ;
+    dcterms:creator <https://ggen.dev/team/seanchatmangpt> ;
+    owl:imports <http://purl.org/dc/terms/> ;
+    owl:imports <http://xmlns.com/foaf/0.1/> ;
+    owl:imports <http://usefulinc.com/ns/doap#> ;
+    owl:imports <http://www.w3.org/ns/prov#> ;
+    owl:imports <https://schema.org/> .
+
+# ─── Cross-ontology alignment bridges ──────────────────────────────────────────
+
+<http://schema.org/> owl:sameAs <https://schema.org/> .
+doap:GitRepository rdfs:subClassOf doap:Repository .
+doap:Project rdfs:subClassOf foaf:Project .
+prov:Entity owl:equivalentClass prv:ArtifactReceipt .
+prov:Activity owl:equivalentClass prv:GenerationStep .
+foaf:Person rdfs:subClassOf prov:Agent .
+schema:SoftwareSourceCode rdfs:subClassOf doap:Project .
+
+# ─── ggen core classes ──────────────────────────────────────────────────────────
+
+ggen:Repository
+    a owl:Class ;
+    rdfs:subClassOf doap:GitRepository ;
+    rdfs:label "Repository" ;
+    rdfs:comment "A GitHub/GitLab repository managed by ggen." .
+
+ggen:LanguagePrimary
+    a owl:Class ;
+    rdfs:label "Primary Programming Language" ;
+    rdfs:comment "The dominant language of a ggen:Repository." .
+
+ggen:CommitBundle
+    a owl:Class ;
+    rdfs:label "Commit Bundle" ;
+    rdfs:comment "A set of generated files intended for one git commit." .
+
+ggen:BundleType
+    a owl:Class ;
+    rdfs:label "Bundle Type" ;
+    rdfs:comment "Category of files in a CommitBundle (community-health, ci-standard, etc.)." .
+
+# ─── Repository instances (language populations) ────────────────────────────────
+
+ggen:Python       a ggen:LanguagePrimary ; rdfs:label "Python" .
+ggen:Rust         a ggen:LanguagePrimary ; rdfs:label "Rust" .
+ggen:TypeScript   a ggen:LanguagePrimary ; rdfs:label "TypeScript" .
+ggen:JavaScript   a ggen:LanguagePrimary ; rdfs:label "JavaScript" .
+ggen:Elixir       a ggen:LanguagePrimary ; rdfs:label "Elixir" .
+ggen:Go           a ggen:LanguagePrimary ; rdfs:label "Go" .
+ggen:Ruby         a ggen:LanguagePrimary ; rdfs:label "Ruby" .
+ggen:Java         a ggen:LanguagePrimary ; rdfs:label "Java" .
+ggen:Vue          a ggen:LanguagePrimary ; rdfs:label "Vue" .
+ggen:Generic      a ggen:LanguagePrimary ; rdfs:label "Generic" .
+
+# ─── Bundle types ───────────────────────────────────────────────────────────────
+
+ggen:CommunityHealth   a ggen:BundleType ; rdfs:label "community-health" .
+ggen:CiStandard        a ggen:BundleType ; rdfs:label "ci-standard" .
+ggen:OnboardingConventions a ggen:BundleType ; rdfs:label "onboarding-conventions" .
+ggen:ReadmeStandard    a ggen:BundleType ; rdfs:label "readme-standard" .
+ggen:Changelog         a ggen:BundleType ; rdfs:label "changelog" .
+ggen:SecurityPolicy    a ggen:BundleType ; rdfs:label "security-policy" .
+ggen:CoveragePolicy    a ggen:BundleType ; rdfs:label "coverage-policy" .
+ggen:DependencyAudit   a ggen:BundleType ; rdfs:label "dependency-audit" .
+ggen:CronSchedule      a ggen:BundleType ; rdfs:label "cron-schedule" .
+
+# ─── Properties ─────────────────────────────────────────────────────────────────
+
+ggen:primaryLanguage
+    a owl:ObjectProperty ;
+    rdfs:domain ggen:Repository ;
+    rdfs:range ggen:LanguagePrimary ;
+    rdfs:label "primary language" .
+
+ggen:bundleType
+    a owl:ObjectProperty ;
+    rdfs:domain ggen:CommitBundle ;
+    rdfs:range ggen:BundleType ;
+    rdfs:label "bundle type" .
+
+ggen:targetRepo
+    a owl:ObjectProperty ;
+    rdfs:domain ggen:CommitBundle ;
+    rdfs:range ggen:Repository ;
+    rdfs:label "target repository" .
+
+ggen:scheduledAt
+    a owl:DatatypeProperty ;
+    rdfs:domain ggen:CommitBundle ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "scheduled at" .
