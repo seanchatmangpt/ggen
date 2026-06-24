@@ -104,10 +104,18 @@ impl OcelProcessDiscovery {
                 *path_frequency.entry(path).or_insert(0) += 1;
             }
 
-            // Find canonical path (most frequent)
+            // Find canonical path (most frequent). Ties are broken
+            // deterministically — prefer the longer (more complete) lifecycle,
+            // then lexicographic order — so discovery output is reproducible
+            // rather than dependent on `HashMap` iteration order.
             let canonical_path = path_frequency
                 .iter()
-                .max_by_key(|(_, count)| *count)
+                .max_by(|(path_a, count_a), (path_b, count_b)| {
+                    count_a
+                        .cmp(count_b)
+                        .then_with(|| path_a.len().cmp(&path_b.len()))
+                        .then_with(|| path_a.cmp(path_b))
+                })
                 .map(|(path, _)| path.clone())
                 .unwrap_or_default();
 
