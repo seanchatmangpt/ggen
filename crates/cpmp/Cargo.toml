@@ -8,8 +8,10 @@ repository = "https://github.com/seanchatmangpt/ggen"
 
 [dependencies]
 uuid = { version = "1.8", features = ["v4"] }
+clap = { workspace = true } # framework requirement of clap-noun-verb's #[verb]/#[arg] (no raw clap usage)
 clap-noun-verb = { workspace = true }
 clap-noun-verb-macros = { workspace = true }
+linkme = "0.3" # required by clap-noun-verb's #[verb] for distributed verb registration
 rusqlite = { version = "0.40.0", features = ["bundled"], optional = true }
 anyhow = "1.0"
 blake3 = "1.4"
