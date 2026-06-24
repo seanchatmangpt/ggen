@@ -123,3 +123,91 @@ pub fn dormant_crate_dirs(scan_root: &std::path::Path) -> Vec<String> {
     }
     dormant
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn classify_file_differentiates_by_signal() {
+        assert_eq!(
+            classify_file("a/src/x.rs", "#![cfg(any())]\nfn f() {}", &[]),
+            Classification::Dormant
+        );
+        assert_eq!(
+            classify_file("README.md", "# doc", &[]),
+            Classification::DocOnly
+        );
+        assert_eq!(
+            classify_file("notes.txt", "text", &[]),
+            Classification::DocOnly
+        );
+        assert_eq!(
+            classify_file("crates/x/tests/t.rs", "fn t() {}", &[]),
+            Classification::TestOnly
+        );
+        assert_eq!(
+            classify_file("src/x.rs", "fn f() { todo!() }", &[]),
+            Classification::BrokenButReal
+        );
+        assert_eq!(
+            classify_file("src/x.rs", "fn f() { unimplemented!() }", &[]),
+            Classification::BrokenButReal
+        );
+        assert_eq!(
+            classify_file("crates/x/src/lib.rs", "fn f() {}", &[]),
+            Classification::Live
+        );
+    }
+
+    #[test]
+    fn dormant_cfg_any_beats_test_path() {
+        // cfg(any()) is checked first, so a disabled test file is DORMANT, not TEST_ONLY.
+        assert_eq!(
+            classify_file("crates/x/tests/t.rs", "#![cfg(any())]", &[]),
+            Classification::Dormant
+        );
+    }
+
+    #[test]
+    fn as_str_labels_are_stable() {
+        assert_eq!(Classification::Live.as_str(), "LIVE");
+        assert_eq!(Classification::Dormant.as_str(), "DORMANT");
+        assert_eq!(Classification::TestOnly.as_str(), "TEST_ONLY");
+        assert_eq!(Classification::DocOnly.as_str(), "DOC_ONLY");
+        assert_eq!(Classification::BrokenButReal.as_str(), "BROKEN_BUT_REAL");
+    }
+
+    #[test]
+    fn dormant_crate_dirs_flags_excluded_crates() {
+        // Real temp workspace: `live` is a member, `dead` is not → dead is dormant.
+        let root = std::env::temp_dir().join(format!("cpmp_dormant_{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(root.join("crates/live/src")).unwrap();
+        std::fs::create_dir_all(root.join("crates/dead/src")).unwrap();
+        std::fs::write(
+            root.join("Cargo.toml"),
+            "[workspace]\nmembers = [\n  \"crates/live\",\n]\n",
+        )
+        .unwrap();
+
+        let dormant = dormant_crate_dirs(&root.join("crates"));
+        assert!(
+            dormant.contains(&"dead".to_string()),
+            "excluded crate must be dormant: {dormant:?}"
+        );
+        assert!(
+            !dormant.contains(&"live".to_string()),
+            "member crate must not be dormant: {dormant:?}"
+        );
+
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn dormant_crate_dirs_empty_without_workspace_root() {
+        let root = std::env::temp_dir().join(format!("cpmp_nows_{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&root).unwrap();
+        assert!(dormant_crate_dirs(&root).is_empty());
+        let _ = std::fs::remove_dir_all(&root);
+    }
+}

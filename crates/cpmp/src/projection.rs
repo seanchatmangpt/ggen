@@ -169,3 +169,89 @@ pub fn generate_rdf_fallback(
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::Language;
+    use std::time::SystemTime;
+
+    fn file(path: &str) -> FileEntry {
+        FileEntry {
+            path: path.to_string(),
+            language: Language::Rust,
+            size_bytes: 0,
+            hash: String::new(),
+            modified_time: SystemTime::UNIX_EPOCH,
+            git_root: None,
+            is_test: false,
+            is_binary: false,
+        }
+    }
+    fn cap(file_path: &str, capability: &str, classification: &str) -> DetectedCapability {
+        DetectedCapability {
+            file_path: file_path.to_string(),
+            capability: capability.to_string(),
+            matched_term: capability.to_string(),
+            name: capability.to_string(),
+            confidence: 1.0,
+            evidence_type: "CODE".to_string(),
+            classification: classification.to_string(),
+            line_number: 1,
+        }
+    }
+    fn temp_out() -> std::path::PathBuf {
+        let p = std::env::temp_dir().join(format!("cpmp_proj_{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&p).unwrap();
+        p
+    }
+
+    #[test]
+    fn crate_of_extracts_crate_name() {
+        assert_eq!(crate_of("crates/ggen-core/src/lib.rs"), Some("ggen-core"));
+        assert_eq!(crate_of("/home/u/ggen/crates/cpmp/src/x.rs"), Some("cpmp"));
+        assert_eq!(crate_of("src/main.rs"), None);
+    }
+
+    #[test]
+    fn inventory_has_real_counts_and_breakdown() {
+        let out = temp_out();
+        let files = vec![file("crates/a/src/x.rs"), file("crates/a/src/y.rs")];
+        let caps = vec![
+            cap("crates/a/src/x.rs", "OCEL", "LIVE"),
+            cap("crates/a/src/y.rs", "OCEL", "LIVE"),
+            cap("crates/a/src/y.rs", "SHACL", "DORMANT"),
+        ];
+        generate_reports(&files, &caps, &out).unwrap();
+        let md = std::fs::read_to_string(out.join("reports/CAPABILITY_INVENTORY.md")).unwrap();
+        assert!(md.contains("Capability evidences: **3**"), "{md}");
+        assert!(md.contains("Distinct capabilities: **2**"), "{md}");
+        assert!(md.contains("| LIVE | 2 |"), "{md}");
+        assert!(md.contains("| DORMANT | 1 |"), "{md}");
+        assert!(md.contains("| OCEL | 2 | 2 |"), "{md}"); // 2 evidences, 2 files
+        let _ = std::fs::remove_dir_all(&out);
+    }
+
+    #[test]
+    fn dashboard_status_prioritizes_dormant_then_live() {
+        let out = temp_out();
+        let files = vec![file("crates/live/src/x.rs"), file("crates/dead/src/y.rs")];
+        let caps = vec![
+            // `live` has real LIVE code plus a test-evidence plurality — still LIVE.
+            cap("crates/live/src/x.rs", "A", "LIVE"),
+            cap("crates/live/src/x.rs", "B", "TEST_ONLY"),
+            cap("crates/live/src/x.rs", "C", "TEST_ONLY"),
+            // `dead` is wholly dormant.
+            cap("crates/dead/src/y.rs", "A", "DORMANT"),
+            cap("crates/dead/src/y.rs", "B", "DORMANT"),
+        ];
+        generate_audit_dashboard(&files, &caps, &out).unwrap();
+        let md = std::fs::read_to_string(out.join("reports/AUDIT_DASHBOARD.md")).unwrap();
+        assert!(md.contains("| live | LIVE |"), "live code → LIVE: {md}");
+        assert!(
+            md.contains("| dead | DORMANT |"),
+            "all dormant → DORMANT: {md}"
+        );
+        let _ = std::fs::remove_dir_all(&out);
+    }
+}
