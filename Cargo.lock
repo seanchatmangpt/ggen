@@ -3593,6 +3593,7 @@ dependencies = [
  "tracing-subscriber",
  "url",
  "walkdir",
+ "wasm4pm-compat",
 ]
 
 [[package]]
