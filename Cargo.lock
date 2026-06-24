@@ -3543,6 +3543,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "ggen-daemon"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "ggen-core",
+ "oxigraph",
+ "rmcp",
+ "schemars 1.2.1",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
+
+[[package]]
 name = "ggen-graph"
 version = "26.6.23"
 dependencies = [
