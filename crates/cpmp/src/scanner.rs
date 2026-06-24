@@ -98,8 +98,10 @@ pub fn scan(paths: &[PathBuf], out: &PathBuf) -> Result<()> {
         }
     }
 
-    // 3. Project the human-readable capability inventory from the scan data.
+    // 3. Project the human-readable capability inventory + per-crate audit
+    //    dashboard from the scan data.
     crate::projection::generate_reports(&files, &all_capabilities, out)?;
+    crate::projection::generate_audit_dashboard(&files, &all_capabilities, out)?;
 
     // 4. Emit the scan receipt with a deterministic aggregate hash — the stable
     //    scan identity a downstream ggen admissibility pack binds to. The only
@@ -122,6 +124,10 @@ pub fn scan(paths: &[PathBuf], out: &PathBuf) -> Result<()> {
     println!(
         "Capability inventory: {}",
         out.join("reports/CAPABILITY_INVENTORY.md").display()
+    );
+    println!(
+        "Audit dashboard:      {}",
+        out.join("reports/AUDIT_DASHBOARD.md").display()
     );
     Ok(())
 }
