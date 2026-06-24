@@ -557,8 +557,15 @@ fn test_post_chatman_roundtrip_cross_pole_hash_comparison_o_vs_l() {
         "test setup: ontology and event log content must produce different hashes"
     );
 
-    // Act: run coherence check
-    let report = CoherenceChecker::check(&[o_pole, a_pole, l_pole]);
+    // Act: Rule 6 (cross-pole coherence fracture) compares each pole against its
+    // declared expectation, not the two poles against each other directly. Declare
+    // O stable (expectation == its own hash) while L drifts (expectation != its
+    // hash), so the checker must flag an O→L HashMismatch fracture.
+    let mut expectations = HashMap::new();
+    expectations.insert(Pole::Ontology, o_pole.hash.clone());
+    expectations.insert(Pole::EventLog, format!("{}-drifted", l_pole.hash));
+    let report =
+        CoherenceChecker::check_with_expectations(&[o_pole, a_pole, l_pole], &expectations);
 
     // Assert: HashMismatch drift from O→L (cross-pole Rule 6)
     let o_l_hash_mismatch: Vec<&CoherenceDrift> = report
