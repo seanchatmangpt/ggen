@@ -1,0 +1,18 @@
+[spec]
+name = "security-policy-python"
+description = "SECURITY.md and pip-audit workflow for Python repos"
+ontology = ".specify/specs/universal/domain.ttl"
+
+[[generation.rules]]
+name = "security-md"
+query = ".specify/specs/security-policy/python/queries/security.rq"
+template = ".specify/specs/security-policy/python/templates/SECURITY.md.tera"
+output_file = "SECURITY.md"
+mode = "Create"
+
+[[generation.rules]]
+name = "audit-workflow"
+query = ".specify/specs/security-policy/python/queries/security.rq"
+template = ".specify/specs/security-policy/python/templates/audit.yml.tera"
+output_file = ".github/workflows/audit.yml"
+mode = "Create"

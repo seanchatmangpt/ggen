@@ -1,0 +1,13 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX doap:    <http://usefulinc.com/ns/doap#>
+PREFIX foaf:    <http://xmlns.com/foaf/0.1/>
+
+SELECT ?repoName ?shortdesc ?authorName ?bugTracker
+WHERE {
+  ?project a doap:Project ;
+           doap:name ?repoName ;
+           doap:shortdesc ?shortdesc .
+  OPTIONAL { ?project doap:bug-database ?bugTracker . }
+  OPTIONAL { ?project doap:maintainer ?person . ?person foaf:name ?authorName . }
+}
+ORDER BY ?repoName

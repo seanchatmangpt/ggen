@@ -1,0 +1,11 @@
+[spec]
+name = "changelog"
+description = "Generates CHANGELOG.md from PROV-O activity log"
+ontology = ".specify/specs/universal/domain.ttl"
+
+[[generation.rules]]
+name = "changelog"
+query = ".specify/specs/changelog/queries/changelog.rq"
+template = ".specify/specs/changelog/templates/CHANGELOG.md.tera"
+output_file = "CHANGELOG.md"
+mode = "Create"

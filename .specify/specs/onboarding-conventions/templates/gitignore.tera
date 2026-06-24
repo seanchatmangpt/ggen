@@ -1,0 +1,19 @@
+# .gitignore — {{ repoName }}
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Editor
+.vscode/settings.json
+.idea/
+*.suo
+*.user
+
+{% if primaryLanguage == "Rust" %}
+# Rust
+/target/
+Cargo.lock
+*.pdb

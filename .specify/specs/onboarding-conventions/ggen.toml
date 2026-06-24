@@ -1,0 +1,18 @@
+[spec]
+name = "onboarding-conventions"
+description = "Generates .editorconfig and .gitignore for all repos"
+ontology = ".specify/specs/universal/domain.ttl"
+
+[[generation.rules]]
+name = "editorconfig"
+query = ".specify/specs/onboarding-conventions/queries/editorconfig.rq"
+template = ".specify/specs/onboarding-conventions/templates/editorconfig.tera"
+output_file = ".editorconfig"
+mode = "Create"
+
+[[generation.rules]]
+name = "gitignore"
+query = ".specify/specs/onboarding-conventions/queries/gitignore.rq"
+template = ".specify/specs/onboarding-conventions/templates/gitignore.tera"
+output_file = ".gitignore"
+mode = "Create"

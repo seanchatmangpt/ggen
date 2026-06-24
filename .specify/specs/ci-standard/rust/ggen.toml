@@ -1,0 +1,18 @@
+[spec]
+name = "ci-standard-rust"
+description = "GitHub Actions CI for Rust repos"
+ontology = ".specify/specs/universal/domain.ttl"
+
+[[generation.rules]]
+name = "ci-rust"
+query = ".specify/specs/ci-standard/queries/ci-rust.rq"
+template = ".specify/specs/ci-standard/templates/ci-rust.yml.tera"
+output_file = ".github/workflows/ci.yml"
+mode = "Create"
+
+[[generation.rules]]
+name = "dependabot-rust"
+query = ".specify/specs/ci-standard/queries/dependabot.rq"
+template = ".specify/specs/ci-standard/templates/dependabot.yml.tera"
+output_file = ".github/dependabot.yml"
+mode = "Create"

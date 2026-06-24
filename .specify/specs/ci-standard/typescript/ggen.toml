@@ -1,0 +1,18 @@
+[spec]
+name = "ci-standard-typescript"
+description = "GitHub Actions CI for TypeScript repos"
+ontology = ".specify/specs/universal/domain.ttl"
+
+[[generation.rules]]
+name = "ci-typescript"
+query = ".specify/specs/ci-standard/queries/ci-typescript.rq"
+template = ".specify/specs/ci-standard/templates/ci-typescript.yml.tera"
+output_file = ".github/workflows/ci.yml"
+mode = "Create"
+
+[[generation.rules]]
+name = "dependabot-js"
+query = ".specify/specs/ci-standard/queries/dependabot.rq"
+template = ".specify/specs/ci-standard/templates/dependabot.yml.tera"
+output_file = ".github/dependabot.yml"
+mode = "Create"

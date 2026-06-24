@@ -1,0 +1,18 @@
+[spec]
+name = "ci-standard-python"
+description = "GitHub Actions CI for Python repos"
+ontology = ".specify/specs/universal/domain.ttl"
+
+[[generation.rules]]
+name = "ci-python"
+query = ".specify/specs/ci-standard/queries/ci-python.rq"
+template = ".specify/specs/ci-standard/templates/ci-python.yml.tera"
+output_file = ".github/workflows/ci.yml"
+mode = "Create"
+
+[[generation.rules]]
+name = "dependabot-python"
+query = ".specify/specs/ci-standard/queries/dependabot.rq"
+template = ".specify/specs/ci-standard/templates/dependabot.yml.tera"
+output_file = ".github/dependabot.yml"
+mode = "Create"

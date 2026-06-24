@@ -1,0 +1,19 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX doap:    <http://usefulinc.com/ns/doap#>
+PREFIX foaf:    <http://xmlns.com/foaf/0.1/>
+PREFIX ggen:    <https://ggen.dev/ontology/core#>
+PREFIX schema:  <https://schema.org/>
+
+SELECT ?repoName ?shortdesc ?description ?homepage ?authorName ?primaryLanguage ?licenseId ?created
+WHERE {
+  ?project a doap:Project ;
+           doap:name ?repoName ;
+           doap:shortdesc ?shortdesc .
+  OPTIONAL { ?project doap:description ?description . }
+  OPTIONAL { ?project doap:homepage ?homepage . }
+  OPTIONAL { ?project doap:created ?created . }
+  OPTIONAL { ?project ggen:primaryLanguage ?lang . ?lang rdfs:label ?primaryLanguage . }
+  OPTIONAL { ?project doap:maintainer ?p . ?p foaf:name ?authorName . }
+  OPTIONAL { ?project dcterms:license ?lic . BIND(STRAFTER(STR(?lic), "licenses/") AS ?licenseId) }
+}
+ORDER BY ?repoName

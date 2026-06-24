@@ -1,0 +1,32 @@
+[spec]
+name = "community-health"
+description = "Generates community health files: README, CONTRIBUTING, CODE_OF_CONDUCT, LICENSE"
+ontology = ".specify/specs/universal/domain.ttl"
+
+[[generation.rules]]
+name = "readme"
+query = ".specify/specs/community-health/queries/readme.rq"
+template = ".specify/specs/community-health/templates/README.md.tera"
+output_file = "README.md"
+mode = "Create"
+
+[[generation.rules]]
+name = "contributing"
+query = ".specify/specs/community-health/queries/contributing.rq"
+template = ".specify/specs/community-health/templates/CONTRIBUTING.md.tera"
+output_file = "CONTRIBUTING.md"
+mode = "Create"
+
+[[generation.rules]]
+name = "code-of-conduct"
+query = ".specify/specs/community-health/queries/code-of-conduct.rq"
+template = ".specify/specs/community-health/templates/CODE_OF_CONDUCT.md.tera"
+output_file = "CODE_OF_CONDUCT.md"
+mode = "Create"
+
+[[generation.rules]]
+name = "license"
+query = ".specify/specs/community-health/queries/license.rq"
+template = ".specify/specs/community-health/templates/LICENSE.tera"
+output_file = "LICENSE"
+mode = "Create"

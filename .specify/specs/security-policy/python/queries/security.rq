@@ -1,0 +1,14 @@
+PREFIX doap: <http://usefulinc.com/ns/doap#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX ggen: <https://ggen.dev/ontology/core#>
+
+SELECT ?repoName ?maintainerName ?maintainerEmail
+WHERE {
+  ?project a doap:Project ;
+           doap:name ?repoName ;
+           ggen:primaryLanguage ggen:Python .
+  OPTIONAL { ?project doap:maintainer ?p .
+             ?p foaf:name ?maintainerName .
+             OPTIONAL { ?p foaf:mbox ?maintainerEmail . } }
+}
+ORDER BY ?repoName

@@ -1,0 +1,18 @@
+[spec]
+name = "security-policy-rust"
+description = "SECURITY.md and cargo-audit workflow for Rust repos"
+ontology = ".specify/specs/universal/domain.ttl"
+
+[[generation.rules]]
+name = "security-md"
+query = ".specify/specs/security-policy/rust/queries/security.rq"
+template = ".specify/specs/security-policy/rust/templates/SECURITY.md.tera"
+output_file = "SECURITY.md"
+mode = "Create"
+
+[[generation.rules]]
+name = "audit-workflow"
+query = ".specify/specs/security-policy/rust/queries/security.rq"
+template = ".specify/specs/security-policy/rust/templates/audit.yml.tera"
+output_file = ".github/workflows/audit.yml"
+mode = "Create"
