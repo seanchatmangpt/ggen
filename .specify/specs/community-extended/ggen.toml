@@ -1,0 +1,31 @@
+[project]
+name = "community-extended"
+version = "1.0.0"
+description = "Generates SUPPORT.md, FUNDING.yml, and CITATION.cff"
+
+[ontology]
+source = "../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "support"
+query = { file = "queries/community.rq" }
+template = { file = "templates/support.md.tera" }
+output_file = "SUPPORT.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "funding"
+query = { file = "queries/community.rq" }
+template = { file = "templates/funding.yml.tera" }
+output_file = ".github/FUNDING.yml"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "citation"
+query = { file = "queries/community.rq" }
+template = { file = "templates/citation.cff.tera" }
+output_file = "CITATION.cff"
+mode = "Overwrite"

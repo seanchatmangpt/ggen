@@ -1,0 +1,81 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix doap:    <http://usefulinc.com/ns/doap#> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix ggen:    <https://ggen.dev/ontology/core#> .
+@prefix schema:  <https://schema.org/> .
+
+# ──────────────────────────────────────────────────────────
+# Universal Domain Ontology
+# Shared vocabulary for all ggen spec bundles.
+# ──────────────────────────────────────────────────────────
+
+<https://ggen.dev/ontology/domain>
+    a owl:Ontology ;
+    rdfs:label "ggen Universal Domain Ontology" ;
+    dcterms:description "Shared vocabulary of project metadata predicates used across all ggen spec bundles." .
+
+# ── Language class ─────────────────────────────────────────
+
+ggen:Language a owl:Class ;
+    rdfs:label "Programming Language" ;
+    rdfs:comment "A programming language used by a project." .
+
+# ── Container-specific predicates ─────────────────────────
+
+ggen:exposedPort a owl:DatatypeProperty ;
+    rdfs:label "exposed port" ;
+    rdfs:comment "A network port exposed by the containerised service." ;
+    rdfs:domain doap:Project ;
+    rdfs:range  xsd:integer .
+
+ggen:buildTool a owl:DatatypeProperty ;
+    rdfs:label "build tool" ;
+    rdfs:comment "Primary build tool used to compile the project (e.g. cargo, maven, gradle, npm)." ;
+    rdfs:domain doap:Project ;
+    rdfs:range  xsd:string .
+
+ggen:baseImage a owl:DatatypeProperty ;
+    rdfs:label "base image" ;
+    rdfs:comment "Preferred Docker base image tag for this project (e.g. rust:1.79-slim, node:20-alpine)." ;
+    rdfs:domain doap:Project ;
+    rdfs:range  xsd:string .
+
+ggen:servicePort a owl:DatatypeProperty ;
+    rdfs:label "service port" ;
+    rdfs:comment "The primary port on which the service listens inside the container." ;
+    rdfs:domain doap:Project ;
+    rdfs:range  xsd:integer .
+
+ggen:healthCheckPath a owl:DatatypeProperty ;
+    rdfs:label "health check path" ;
+    rdfs:comment "HTTP path used for Docker HEALTHCHECK (e.g. /health)." ;
+    rdfs:domain doap:Project ;
+    rdfs:range  xsd:string .
+
+# ── Sample project data ────────────────────────────────────
+
+<https://ggen.dev/projects/ggen>
+    a doap:Project ;
+    doap:name        "ggen" ;
+    doap:shortdesc   "Specification-driven code generation from RDF ontologies" ;
+    doap:description "ggen precipitates code from RDF ontologies via a five-stage deterministic pipeline (μ₁–μ₅)." ;
+    doap:homepage    <https://github.com/seanchatmangpt/ggen> ;
+    doap:created     "2024-01-01"^^xsd:date ;
+    dcterms:license  <https://spdx.org/licenses/MIT> ;
+    ggen:primaryLanguage [
+        a ggen:Language ;
+        rdfs:label "Rust"
+    ] ;
+    ggen:buildTool       "cargo" ;
+    ggen:baseImage       "rust:1.79-slim" ;
+    ggen:servicePort     8080 ;
+    ggen:exposedPort     8080 ;
+    ggen:healthCheckPath "/health" ;
+    doap:maintainer [
+        a foaf:Person ;
+        foaf:name "Sean Chatman"
+    ] .

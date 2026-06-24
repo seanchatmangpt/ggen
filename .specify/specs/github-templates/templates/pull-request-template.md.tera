@@ -1,0 +1,46 @@
+## Summary
+
+<!-- Briefly describe what this PR does and why. -->
+
+## Changes
+
+<!-- List the key changes made in this PR. -->
+
+-
+-
+-
+
+## Type of Change
+
+- [ ] Bug fix (non-breaking change that fixes an issue)
+- [ ] New feature (non-breaking change that adds functionality)
+- [ ] Breaking change (fix or feature that causes existing functionality to change)
+- [ ] Documentation update
+- [ ] Refactor / code cleanup
+- [ ] CI / build system change
+
+## Testing
+
+<!-- Describe the tests you ran and how to reproduce them. -->
+
+- [ ] Unit tests pass (`{% if language == "Rust" %}cargo test{% elif language == "Python" %}pytest{% else %}make test{% endif %}`)
+- [ ] Integration tests pass
+- [ ] Linting / formatting checks pass
+- [ ] New tests added for new functionality
+
+## Checklist
+
+- [ ] My code follows the style guidelines of **{{ name | default(value="this project") }}**
+- [ ] I have performed a self-review of my own code
+- [ ] I have commented my code where necessary
+- [ ] I have updated the documentation accordingly
+- [ ] My changes generate no new warnings
+- [ ] All existing tests pass
+
+## Related Issues
+
+Closes #<!-- issue number -->
+
+---
+{% if maintainer %}*Reviewer: @{{ maintainer }}*{% endif %}
+{% if description %}*{{ description }}*{% endif %}

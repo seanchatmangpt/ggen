@@ -4,10 +4,13 @@
     clippy::panic,
 )]
 
+pub mod amplifier;
 pub mod campaign;
+pub mod cascade;
 pub mod catalog;
 pub mod dispatch;
 pub mod error;
+pub mod expansion;
 pub mod health;
 pub mod mcp_server;
 pub mod metrics;
@@ -19,8 +22,11 @@ pub mod retry;
 pub mod scheduler;
 pub mod state;
 
+pub use amplifier::{CommitMultiplier, MultiplierSummary};
 pub use campaign::{CampaignResult, CampaignRunner};
+pub use cascade::{CascadeRunner, CascadeWave};
 pub use catalog::{load_catalog, RepoCatalogEntry};
+pub use expansion::{ExpansionPlan, ExpansionSummary};
 pub use error::{DaemonError, Result};
 pub use health::{check_repo, RepoHealth, RepoHealthStatus};
 pub use mcp_server::GgenDaemonMcp;

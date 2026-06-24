@@ -1,0 +1,31 @@
+[project]
+name = "docs-hub"
+version = "1.0.0"
+description = "Generates CONTRIBUTING.md, CODE_OF_CONDUCT.md, and docs index"
+
+[ontology]
+source = "../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "contributing"
+query = { file = "queries/docs.rq" }
+template = { file = "templates/contributing.md.tera" }
+output_file = "CONTRIBUTING.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "code-of-conduct"
+query = { file = "queries/docs.rq" }
+template = { file = "templates/code-of-conduct.md.tera" }
+output_file = "CODE_OF_CONDUCT.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "docs-index"
+query = { file = "queries/docs.rq" }
+template = { file = "templates/docs-index.md.tera" }
+output_file = "docs/index.md"
+mode = "Overwrite"

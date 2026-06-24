@@ -1,0 +1,35 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX doap:    <http://usefulinc.com/ns/doap#>
+PREFIX foaf:    <http://xmlns.com/foaf/0.1/>
+PREFIX ggen:    <https://ggen.dev/ontology/core#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+
+SELECT
+  ?repoName
+  ?shortdesc
+  ?primaryLanguage
+  ?buildTool
+  ?baseImage
+  ?servicePort
+  ?exposedPort
+  ?healthCheckPath
+  ?homepage
+  ?authorName
+  ?licenseId
+WHERE {
+  ?project a doap:Project ;
+           doap:name ?repoName ;
+           doap:shortdesc ?shortdesc .
+
+  OPTIONAL { ?project ggen:primaryLanguage ?lang . ?lang rdfs:label ?primaryLanguage . }
+  OPTIONAL { ?project ggen:buildTool       ?buildTool . }
+  OPTIONAL { ?project ggen:baseImage       ?baseImage . }
+  OPTIONAL { ?project ggen:servicePort     ?servicePort . }
+  OPTIONAL { ?project ggen:exposedPort     ?exposedPort . }
+  OPTIONAL { ?project ggen:healthCheckPath ?healthCheckPath . }
+  OPTIONAL { ?project doap:homepage        ?homepage . }
+  OPTIONAL { ?project doap:maintainer ?p . ?p foaf:name ?authorName . }
+  OPTIONAL { ?project dcterms:license ?lic . BIND(STRAFTER(STR(?lic), "licenses/") AS ?licenseId) }
+}
+ORDER BY ?repoName

@@ -1,0 +1,155 @@
+# Contributing to {{ repoName }}
+
+Thank you for your interest in contributing to **{{ repoName }}**! {{ shortdesc }}
+
+{% if authorName %}This project is maintained by {{ authorName }}.{% endif %}
+
+---
+
+## Table of Contents
+
+- [Code of Conduct](#code-of-conduct)
+- [Getting Started](#getting-started)
+- [How to Contribute](#how-to-contribute)
+- [Development Workflow](#development-workflow)
+- [Pull Request Process](#pull-request-process)
+- [Reporting Bugs](#reporting-bugs)
+- [Suggesting Enhancements](#suggesting-enhancements)
+
+---
+
+## Code of Conduct
+
+By participating in this project you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md). Please read it before contributing.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Clone the repository:
+
+```bash
+git clone {{ homepage | default(value="https://github.com/seanchatmangpt/" ~ repoName) }}
+cd {{ repoName }}
+```
+
+{% if primaryLanguage %}
+- Ensure you have **{{ primaryLanguage }}** installed and up to date.
+{% endif %}
+
+### Fork and Branch
+
+1. [Fork]({{ homepage | default(value="https://github.com/seanchatmangpt/" ~ repoName) }}/fork) the repository.
+2. Create a feature branch from `main`:
+
+```bash
+git checkout -b feat/your-feature-name
+```
+
+3. Keep your fork in sync with upstream:
+
+```bash
+git remote add upstream {{ homepage | default(value="https://github.com/seanchatmangpt/" ~ repoName) }}
+git fetch upstream
+git rebase upstream/main
+```
+
+---
+
+## How to Contribute
+
+### Bug Fixes
+
+- Open an issue describing the bug before submitting a fix.
+- Reference the issue number in your pull request (`Fixes #123`).
+
+### New Features
+
+- Open a discussion or issue to propose the feature first.
+- Small, focused pull requests are preferred over large sweeping changes.
+
+### Documentation
+
+- Documentation improvements are always welcome.
+- Keep examples accurate and runnable.
+
+---
+
+## Development Workflow
+
+```bash
+# Install dependencies and build
+# (see README.md for language-specific instructions)
+
+# Run the test suite
+just test
+
+# Check formatting and linting
+just lint
+
+# Verify the build
+just check
+```
+
+All pull requests must pass the full test suite and linter before review.
+
+---
+
+## Pull Request Process
+
+1. Ensure your branch is up to date with `main`.
+2. Write or update tests for your changes.
+3. Run `just pre-commit` (or the project equivalent) locally.
+4. Open a pull request with a clear title and description.
+5. Reference any related issues using GitHub keywords (`Closes #N`, `Fixes #N`).
+6. A maintainer will review your pull request within **5 business days**.
+7. Address feedback promptly; stale PRs may be closed after 30 days of inactivity.
+
+### Commit Messages
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+feat(scope): add new widget renderer
+fix(scope): handle nil pointer in parser
+docs(scope): update installation steps
+```
+
+---
+
+## Reporting Bugs
+
+Please file bugs via [GitHub Issues]({{ homepage | default(value="https://github.com/seanchatmangpt/" ~ repoName) }}/issues) and include:
+
+- A clear, descriptive title.
+- Steps to reproduce the problem.
+- Expected vs. actual behaviour.
+- Environment details (OS, {% if primaryLanguage %}{{ primaryLanguage }} version, {% endif %}relevant dependency versions).
+
+---
+
+## Suggesting Enhancements
+
+Feature requests are welcome. Open an issue with the label `enhancement` and describe:
+
+- The problem you are trying to solve.
+- Your proposed solution.
+- Alternatives you have considered.
+
+---
+
+{% if licenseId %}
+## License
+
+By contributing, you agree that your contributions will be licensed under the [{{ licenseId }}](LICENSE) license.
+{% else %}
+## License
+
+By contributing, you agree that your contributions will be released under the same license as this project. See [LICENSE](LICENSE) for details.
+{% endif %}
+
+---
+
+*This file was generated from the ggen `docs-hub` spec bundle.*

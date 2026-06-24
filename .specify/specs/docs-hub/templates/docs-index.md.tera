@@ -1,0 +1,68 @@
+# {{ repoName }} Documentation
+
+> {{ shortdesc }}
+
+{% if primaryLanguage %}**Primary language:** {{ primaryLanguage }}{% endif %} {% if licenseId %} | **License:** {{ licenseId }}{% endif %}{% if authorName %} | **Maintained by:** {{ authorName }}{% endif %}
+
+---
+
+## Overview
+
+{{ description | default(value=shortdesc) }}
+
+{% if homepage %}
+**Repository:** [{{ homepage }}]({{ homepage }})
+{% endif %}
+
+---
+
+## Documentation Index
+
+### Getting Started
+
+| Topic | Description |
+|-------|-------------|
+| [Installation](../README.md#installation) | Set up {{ repoName }} locally |
+| [Quick Start](../README.md#usage) | Run your first example |
+| [Contributing](../CONTRIBUTING.md) | How to submit patches and improvements |
+| [Code of Conduct](../CODE_OF_CONDUCT.md) | Community standards |
+
+### Reference
+
+| Topic | Description |
+|-------|-------------|
+| [Architecture](architecture.md) | System design and component overview |
+| [API Reference](api/) | Full API documentation |
+| [Configuration](configuration.md) | Configuration options and defaults |
+| [CLI Reference](cli.md) | Command-line interface reference |
+
+### Guides
+
+| Topic | Description |
+|-------|-------------|
+| [Tutorials](tutorials/) | Step-by-step walkthroughs |
+| [How-to Guides](how-to/) | Task-focused recipes |
+| [Troubleshooting](troubleshooting.md) | Common issues and solutions |
+| [FAQ](faq.md) | Frequently asked questions |
+
+---
+
+## Project Health
+
+| Check | Status |
+|-------|--------|
+| CI | ![CI]({{ homepage | default(value="https://github.com/seanchatmangpt/" ~ repoName) }}/actions/workflows/ci.yml/badge.svg) |
+| License | {% if licenseId %}[{{ licenseId }}](../LICENSE){% else %}See [LICENSE](../LICENSE){% endif %} |
+| Contributing | [CONTRIBUTING.md](../CONTRIBUTING.md) |
+
+---
+
+## Community
+
+- **Issues & Bug Reports:** [GitHub Issues]({{ homepage | default(value="https://github.com/seanchatmangpt/" ~ repoName) }}/issues)
+- **Discussions:** [GitHub Discussions]({{ homepage | default(value="https://github.com/seanchatmangpt/" ~ repoName) }}/discussions)
+- **Security:** See [SECURITY.md](../SECURITY.md) for responsible disclosure
+
+---
+
+*This documentation index was generated from the ggen `docs-hub` spec bundle.{% if created %} Project created: {{ created }}.{% endif %}*

@@ -1,0 +1,31 @@
+[project]
+name = "github-templates"
+version = "1.0.0"
+description = "Generates GitHub issue and PR templates"
+
+[ontology]
+source = "../universal/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "bug-report"
+query = { file = "queries/repo.rq" }
+template = { file = "templates/bug-report.md.tera" }
+output_file = ".github/ISSUE_TEMPLATE/bug_report.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "feature-request"
+query = { file = "queries/repo.rq" }
+template = { file = "templates/feature-request.md.tera" }
+output_file = ".github/ISSUE_TEMPLATE/feature_request.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "pull-request-template"
+query = { file = "queries/repo.rq" }
+template = { file = "templates/pull-request-template.md.tera" }
+output_file = ".github/pull_request_template.md"
+mode = "Overwrite"

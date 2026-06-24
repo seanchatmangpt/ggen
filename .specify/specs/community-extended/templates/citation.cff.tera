@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: >-
+  If you use {{ repoName }} in research or a publication, please cite it using
+  the metadata in this file.
+title: "{{ repoName }}"
+abstract: "{{ description | default(value=shortdesc) }}"
+{% if authorName -%}
+authors:
+  - family-names: "{{ authorName | split(pat=' ') | last }}"
+    given-names: "{{ authorName | split(pat=' ') | first }}"
+    {% if orcid %}orcid: "https://orcid.org/{{ orcid }}"{% endif %}
+
+    {% if affiliation %}affiliation: "{{ affiliation }}"{% endif %}
+
+    {% if authorEmail %}email: "{{ authorEmail }}"{% endif %}
+
+{% else -%}
+authors:
+  - name: "{{ repoName }} Contributors"
+{% endif -%}
+{% if licenseId %}license: {{ licenseId }}{% endif %}
+
+{% if homepage %}repository-code: "{{ homepage }}"{% endif %}
+
+{% if doiUrl %}doi: "{{ doiUrl | replace(from='https://doi.org/', to='') }}"
+url: "{{ doiUrl }}"{% endif %}
+
+{% if created %}date-released: "{{ created }}"{% endif %}
+
+type: software
+keywords:
+  - code generation
+  - RDF
+  - ontology
+  - Rust
+  - specification-driven
