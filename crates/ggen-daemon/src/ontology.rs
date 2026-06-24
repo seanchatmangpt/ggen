@@ -39,6 +39,7 @@ pub fn load_jobs(ttl_path: &Path) -> Result<Vec<JobDef>> {
     store.load_from_reader(RdfFormat::Turtle, content.as_bytes())
         .map_err(|e| crate::error::DaemonError::Scheduler(e.to_string()))?;
 
+    #[allow(deprecated)] // migrate to SparqlEvaluator when oxigraph stabilises the API
     let results = store.query(JOBS_QUERY)?;
     let QueryResults::Solutions(solutions) = results else {
         return Ok(vec![]);

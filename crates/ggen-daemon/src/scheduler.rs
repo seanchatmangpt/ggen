@@ -1,5 +1,5 @@
 use std::{path::PathBuf, sync::Arc, time::Duration};
-use tracing::{error, info, warn};
+use tracing::{error, info};
 use crate::{
     dispatch::dispatch_bundle,
     error::Result,

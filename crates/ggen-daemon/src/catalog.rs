@@ -39,6 +39,7 @@ pub fn load_catalog(ttl_path: &Path) -> Result<Vec<RepoCatalogEntry>> {
     store.load_from_reader(RdfFormat::Turtle, content.as_bytes())
         .map_err(|e| crate::error::DaemonError::Scheduler(e.to_string()))?;
 
+    #[allow(deprecated)] // migrate to SparqlEvaluator when oxigraph stabilises the API
     let results = store.query(CATALOG_QUERY)?;
     let QueryResults::Solutions(solutions) = results else {
         return Ok(vec![]);
