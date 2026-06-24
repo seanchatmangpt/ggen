@@ -785,19 +785,14 @@ package = "ggen-amd64"
 [package.metadata.deb.lintian-overrides]
 unused-shlibs = []
 
-# Point lsp-max family to seanchatmangpt's repos — the crates.io 26.6.9 release
-# still carried tower-lsp symbols internally; the repo versions have them stripped.
-# All crates that declare `lsp-max = "26.6.9"` in workspace.dependencies silently
-# resolve to the git source below. No version-number change needed.
-[patch.crates-io]
-lsp-max          = { git = "https://github.com/seanchatmangpt/lsp-max" }
-lsp-max-protocol = { git = "https://github.com/seanchatmangpt/lsp-max" }
-lsp-max-macros   = { git = "https://github.com/seanchatmangpt/lsp-max" }
-lsp-max-client   = { git = "https://github.com/seanchatmangpt/lsp-max" }
-# lsp-max-runtime (a dep of lsp-max) pulls in wasm4pm-compat; the crates.io
-# 26.6.9 release requires nightly (#![feature]). Redirect to the repo version.
-wasm4pm-compat   = { git = "https://github.com/seanchatmangpt/wasm4pm-compat" }
-wasm4pm          = { git = "https://github.com/seanchatmangpt/wasm4pm" }
+# wasm4pm-compat and wasm4pm use #![feature] in their crates.io releases and
+# require nightly Rust (which this workspace already pins via rust-toolchain.toml).
+# Redirect to seanchatmangpt's repos if the stubs there are ever updated to
+# provide the full API needed by lsp-max-runtime.
+#
+# [patch.crates-io]
+# wasm4pm-compat = { git = "https://github.com/seanchatmangpt/wasm4pm-compat" }
+# wasm4pm        = { git = "https://github.com/seanchatmangpt/wasm4pm" }
 
 # NOTE on the clap-noun-verb kebab-case fix (--profile-id with --profile_id alias):
 # the fix is committed in ~/clap-noun-verb (313ba73). It was NOT integrated here via
