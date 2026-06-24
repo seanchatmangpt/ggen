@@ -3147,14 +3147,14 @@ dependencies = [
 
 [[package]]
 name = "genesis-core"
-version = "26.6.23"
+version = "26.6.24"
 dependencies = [
  "blake3",
 ]
 
 [[package]]
 name = "genesis-core-v2"
-version = "26.6.23"
+version = "26.6.24"
 dependencies = [
  "async-trait",
  "blake3",
@@ -3176,7 +3176,7 @@ dependencies = [
 
 [[package]]
 name = "genesis-schema"
-version = "26.6.23"
+version = "26.6.24"
 dependencies = [
  "serde",
  "serde_json",
@@ -3187,7 +3187,7 @@ dependencies = [
 
 [[package]]
 name = "genesis-types"
-version = "26.6.23"
+version = "26.6.24"
 dependencies = [
  "blake3",
  "chrono",
@@ -3282,7 +3282,7 @@ dependencies = [
 
 [[package]]
 name = "ggen"
-version = "26.6.23"
+version = "26.6.24"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -3337,7 +3337,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-a2a-mcp"
-version = "26.6.23"
+version = "26.6.24"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3359,7 +3359,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-cli-lib"
-version = "26.6.23"
+version = "26.6.24"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -3426,7 +3426,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-config"
-version = "26.6.23"
+version = "26.6.24"
 dependencies = [
  "blake3",
  "chrono",
@@ -3446,7 +3446,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-core"
-version = "26.6.23"
+version = "26.6.24"
 dependencies = [
  "Inflector",
  "ahash 0.8.12",
@@ -3546,7 +3546,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-graph"
-version = "26.6.23"
+version = "26.6.24"
 dependencies = [
  "blake3",
  "chrono",
@@ -3566,7 +3566,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-lsp"
-version = "26.6.23"
+version = "26.6.24"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -3598,7 +3598,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-lsp-a2a"
-version = "26.6.23"
+version = "26.6.24"
 dependencies = [
  "async-trait",
  "ggen-a2a-mcp",
@@ -3611,7 +3611,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-lsp-mcp"
-version = "26.6.23"
+version = "26.6.24"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -3627,7 +3627,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-marketplace"
-version = "26.6.23"
+version = "26.6.24"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -8974,7 +8974,7 @@ dependencies = [
 
 [[package]]
 name = "star-toml"
-version = "26.6.23"
+version = "26.6.24"
 dependencies = [
  "serde",
  "tempfile",

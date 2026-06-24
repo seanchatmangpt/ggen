@@ -1,15 +1,16 @@
 [package]
 name = "ggen-lsp"
-version = "26.6.23"
+version = "26.6.24"
 edition = "2021"
 license = "MIT"
 description = "Language server for ggen surfaces — analyzers, check, intel/mining, pack, route/repair, handlers."
 repository = "https://github.com/seanchatmangpt/ggen"
 
 [dependencies]
-# Pin wasm4pm-compat to 26.6.9: the 26.6.23 crates.io release uses
-# `pub const trait` / `impl const` syntax that is broken on nightly-2026-06-22.
-# The exact pin intersects with lsp-max-runtime's ^26.6.9 to hold the floor.
+# Pin to =26.6.24 once that release is published. The 26.6.23 crates.io release
+# is broken on nightly-2026-06-22 (pub const trait regression); 26.6.24 should
+# ship the fix. The exact pin intersects with lsp-max-runtime's constraint to
+# prevent Cargo from silently pulling the broken release.
 wasm4pm-compat = "=26.6.9"
 lsp-max = { workspace = true }
 lsp-max-protocol = { workspace = true }
@@ -21,9 +22,9 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 
 # Reuse from ggen workspace
-ggen-core = { path = "../ggen-core", version = "26.6.23" }
-ggen-config = { path = "../ggen-config", version = "26.6.23" }
-ggen-graph = { path = "../ggen-graph", version = "26.6.23" }
+ggen-core = { path = "../ggen-core", version = "26.6.24" }
+ggen-config = { path = "../ggen-config", version = "26.6.24" }
+ggen-graph = { path = "../ggen-graph", version = "26.6.24" }
 tera = { workspace = true }
 toml = { workspace = true }
 # Canonical RDF/SPARQL formatting (parse + reserialize). Matches the
