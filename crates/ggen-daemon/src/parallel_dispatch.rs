@@ -3,10 +3,11 @@ use tokio::sync::Semaphore;
 use tracing::{info, warn};
 use serde::{Deserialize, Serialize};
 
+use ggen_core::codegen::executor::{SyncExecutor, SyncOptions};
+
 use crate::{
     catalog::RepoCatalogEntry,
     dispatch::DispatchResult,
-    generator::generate_bundle,
     health::{check_repo, RepoHealthStatus},
     repo_manager::RepoManager,
     retry::retry_with_backoff,
@@ -24,8 +25,9 @@ pub struct BatchResult {
 }
 
 /// Dispatch a spec manifest to all repos in the catalog, bounded by concurrency.
-/// Uses direct Tera template rendering rather than a `ggen sync` subprocess
-/// so it works when the spec files live in the ggen repo, not the target repos.
+/// Uses ggen-core SyncExecutor for generation so the same pipeline is used
+/// everywhere; spec files live in the ggen repo, output lands in the cloned
+/// target repo via SyncOptions::output_dir.
 pub async fn dispatch_to_all(
     dispatch_iri: &str,
     spec_manifest: &str,
@@ -81,19 +83,24 @@ pub async fn dispatch_to_all(
                 }
             };
 
-            // Direct Tera generation — no ggen binary needed
-            let files_written = tokio::task::spawn_blocking({
-                let ggen_root = ggen_root.clone();
-                let manifest = manifest.clone();
-                let repo_entry = repo_entry.clone();
-                let local = local.clone();
-                move || generate_bundle(&ggen_root, &manifest, &repo_entry, &local)
+            // Run SyncExecutor in a blocking thread — spec file lives in ggen_root,
+            // output goes to the cloned target repo directory.
+            let manifest_path = ggen_root.join(&manifest);
+            let output_dir = local.clone();
+            let sync_result = tokio::task::spawn_blocking(move || {
+                let opts = SyncOptions {
+                    manifest_path,
+                    output_dir: Some(output_dir),
+                    use_cache: false,
+                    ..Default::default()
+                };
+                SyncExecutor::new(opts).execute()
             })
             .await
-            .unwrap_or_else(|e| Err(crate::error::DaemonError::Scheduler(e.to_string())));
+            .unwrap_or_else(|e| Err(ggen_core::utils::error::Error::new(&e.to_string())));
 
-            let (exit_code, stdout_tail, stderr_tail) = match &files_written {
-                Ok(files) => (0i32, format!("wrote {} files", files.len()), String::new()),
+            let (exit_code, stdout_tail, stderr_tail) = match &sync_result {
+                Ok(r) => (0i32, format!("wrote {} files", r.files_synced), String::new()),
                 Err(e) => (-1i32, String::new(), e.to_string()),
             };
 
@@ -101,13 +108,15 @@ pub async fn dispatch_to_all(
                 let _ = state.record_finish(run_id, exit_code, &stdout_tail, &stderr_tail).await;
             }
 
-            if files_written.is_err() {
+            if sync_result.is_err() {
                 return Some(Err(stderr_tail));
             }
 
-            // Commit and push if files were written
-            if stdout_tail.starts_with("wrote 0") {
-                info!("{}: no files written (all already exist)", repo_entry.name);
+            let files_synced = sync_result.as_ref().map(|r| r.files_synced).unwrap_or(0);
+
+            // Nothing written — no commit needed
+            if files_synced == 0 {
+                info!("{}: no files written", repo_entry.name);
                 return Some(Ok(DispatchResult {
                     dispatch_iri: iri,
                     spec_manifest: manifest,

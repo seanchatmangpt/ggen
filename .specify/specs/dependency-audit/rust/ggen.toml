@@ -1,18 +1,24 @@
-[spec]
+[project]
 name = "dependency-audit-rust"
+version = "1.0.0"
 description = "Generates rust-toolchain.toml and deny.toml for Rust repos"
-ontology = ".specify/specs/universal/domain.ttl"
+
+[ontology]
+source = "../../universal/domain.ttl"
+
+[generation]
+output_dir = "."
 
 [[generation.rules]]
 name = "rust-toolchain"
-query = ".specify/specs/dependency-audit/queries/rust-deps.rq"
-template = ".specify/specs/dependency-audit/templates/rust-toolchain.toml.tera"
+query = { file = "../queries/rust-deps.rq" }
+template = { file = "../templates/rust-toolchain.toml.tera" }
 output_file = "rust-toolchain.toml"
-mode = "Create"
+mode = "Overwrite"
 
 [[generation.rules]]
 name = "cargo-deny"
-query = ".specify/specs/dependency-audit/queries/rust-deps.rq"
-template = ".specify/specs/dependency-audit/templates/deny.toml.tera"
+query = { file = "../queries/rust-deps.rq" }
+template = { file = "../templates/deny.toml.tera" }
 output_file = "deny.toml"
-mode = "Create"
+mode = "Overwrite"

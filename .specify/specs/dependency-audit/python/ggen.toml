@@ -1,18 +1,24 @@
-[spec]
+[project]
 name = "dependency-audit-python"
-description = "Generates .python-version and requirements.txt audit config for Python repos"
-ontology = ".specify/specs/universal/domain.ttl"
+version = "1.0.0"
+description = "Generates .python-version and pip-audit workflow for Python repos"
+
+[ontology]
+source = "../../universal/domain.ttl"
+
+[generation]
+output_dir = "."
 
 [[generation.rules]]
 name = "python-version"
-query = ".specify/specs/dependency-audit/python/queries/python-deps.rq"
-template = ".specify/specs/dependency-audit/python/templates/python-version.tera"
+query = { file = "queries/python-deps.rq" }
+template = { file = "templates/python-version.tera" }
 output_file = ".python-version"
-mode = "Create"
+mode = "Overwrite"
 
 [[generation.rules]]
 name = "pip-audit-workflow"
-query = ".specify/specs/dependency-audit/python/queries/python-deps.rq"
-template = ".specify/specs/dependency-audit/python/templates/pip-audit.yml.tera"
+query = { file = "queries/python-deps.rq" }
+template = { file = "templates/pip-audit.yml.tera" }
 output_file = ".github/workflows/pip-audit.yml"
-mode = "Create"
+mode = "Overwrite"

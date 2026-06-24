@@ -1,11 +1,17 @@
-[spec]
+[project]
 name = "readme-standard"
+version = "1.0.0"
 description = "Generates a standard README.md from DOAP + DCTerms metadata"
-ontology = ".specify/specs/universal/domain.ttl"
+
+[ontology]
+source = "../universal/domain.ttl"
+
+[generation]
+output_dir = "."
 
 [[generation.rules]]
 name = "readme"
-query = ".specify/specs/readme-standard/queries/readme.rq"
-template = ".specify/specs/readme-standard/templates/README.md.tera"
+query = { file = "queries/readme.rq" }
+template = { file = "templates/README.md.tera" }
 output_file = "README.md"
-mode = "Update"
+mode = "Overwrite"

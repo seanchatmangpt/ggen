@@ -725,6 +725,11 @@ impl SyncExecutor {
             pipeline.set_force_overwrite(true);
         }
 
+        // Apply explicit output_dir override (used by ggen-daemon for cross-repo generation).
+        if let Some(ref out) = self.options.output_dir {
+            pipeline.set_output_dir(out.clone());
+        }
+
         // Inject LLM service if provided in options
         if let Some(llm_service) = self.options.llm_service.take() {
             pipeline.set_llm_service(Some(llm_service));
