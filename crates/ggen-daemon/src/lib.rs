@@ -21,6 +21,7 @@ pub mod scheduler;
 pub mod state;
 
 pub use campaign::{CampaignResult, CampaignRunner};
+pub use generator::generate_bundle;
 pub use catalog::{load_catalog, RepoCatalogEntry};
 pub use error::{DaemonError, Result};
 pub use health::{check_repo, RepoHealth, RepoHealthStatus};
