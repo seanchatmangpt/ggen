@@ -92,10 +92,12 @@ pub fn generate_bundle(
 }
 
 fn build_context(entry: &RepoCatalogEntry) -> Context {
+    let github_repo_url = format!("https://github.com/seanchatmangpt/{}", entry.name);
+    let homepage = if entry.github_url.is_empty() { github_repo_url.clone() } else { entry.github_url.clone() };
     let mut ctx = Context::new();
     ctx.insert("repoName", &entry.name);
     ctx.insert("shortdesc", &entry.short_desc);
-    ctx.insert("homepage", &entry.github_url);
+    ctx.insert("homepage", &homepage);
     ctx.insert("primaryLanguage", &entry.primary_language.clone().unwrap_or_default());
     ctx.insert("authorName", "seanchatmangpt");
     ctx.insert("maintainerEmail", "xpointsh@gmail.com");
@@ -103,7 +105,8 @@ fn build_context(entry: &RepoCatalogEntry) -> Context {
     ctx.insert("spdxId", "MIT");
     ctx.insert("year", "2026");
     ctx.insert("created", "2026-06-24");
-    ctx.insert("bugTracker", &format!("{}/issues", entry.github_url));
+    // Always use the GitHub Issues URL (not the homepage) for bug tracking
+    ctx.insert("bugTracker", &format!("{}/issues", github_repo_url));
     ctx.insert("projectName", &entry.name);
     // Empty array for templates that iterate SPARQL query results;
     // they will render but produce no rows (graceful no-op).
