@@ -83,6 +83,21 @@ pub fn scan(paths: &[PathBuf], out: &PathBuf) -> Result<()> {
         }
     }
 
+    // Re-classify capabilities in workspace-excluded crates as DORMANT — a
+    // stronger, repo-level dormancy signal than per-file `#![cfg(any())]`.
+    let scan_root = paths.first().cloned().unwrap_or_default();
+    let dormant_crates = crate::classification::dormant_crate_dirs(&scan_root);
+    if !dormant_crates.is_empty() {
+        for cap in &mut all_capabilities {
+            if dormant_crates
+                .iter()
+                .any(|d| cap.file_path.contains(&format!("crates/{}/", d)))
+            {
+                cap.classification = "DORMANT".to_string();
+            }
+        }
+    }
+
     // 3. Project the human-readable capability inventory from the scan data.
     crate::projection::generate_reports(&files, &all_capabilities, out)?;
 
