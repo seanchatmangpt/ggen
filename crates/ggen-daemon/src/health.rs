@@ -1,5 +1,6 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
+use tokio::process::Command;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum RepoHealthStatus {
@@ -19,32 +20,40 @@ pub struct RepoHealth {
 }
 
 /// Check whether a locally-cloned repo is in a healthy state for dispatch.
-pub fn check_repo(local: &Path, repo_name: &str) -> RepoHealth {
-    if !local.join(".git").exists() {
+///
+/// This function is `async` because it spawns git subprocesses via
+/// `tokio::process::Command`, avoiding blocking the async executor.
+pub async fn check_repo(local: &Path, repo_name: &str) -> RepoHealth {
+    let local_owned: PathBuf = local.to_owned();
+    let repo_name_owned = repo_name.to_owned();
+
+    if !local_owned.join(".git").exists() {
         return RepoHealth {
-            repo_name: repo_name.to_owned(),
+            repo_name: repo_name_owned,
             status: RepoHealthStatus::NoGitDir,
             branch: None,
             uncommitted_files: 0,
         };
     }
 
-    let branch = std::process::Command::new("git")
+    let branch = Command::new("git")
         .args(["rev-parse", "--abbrev-ref", "HEAD"])
-        .current_dir(local)
+        .current_dir(&local_owned)
         .output()
+        .await
         .ok()
         .filter(|o| o.status.success())
         .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_owned());
 
     let is_detached = branch.as_deref() == Some("HEAD");
 
-    let dirty_count = std::process::Command::new("git")
+    let dirty_count = Command::new("git")
         .args(["status", "--porcelain"])
-        .current_dir(local)
+        .current_dir(&local_owned)
         .output()
+        .await
         .ok()
-        .map(|o| o.stdout.split(|b| *b == b'\n').filter(|l| !l.is_empty()).count())
+        .map(|o| o.stdout.split(|b: &u8| *b == b'\n').filter(|l| !l.is_empty()).count())
         .unwrap_or(0);
 
     let status = if is_detached {
@@ -56,7 +65,7 @@ pub fn check_repo(local: &Path, repo_name: &str) -> RepoHealth {
     };
 
     RepoHealth {
-        repo_name: repo_name.to_owned(),
+        repo_name: repo_name_owned,
         status,
         branch,
         uncommitted_files: dirty_count,

@@ -20,8 +20,8 @@ async fn main() -> anyhow::Result<()> {
     let state_dir = working_dir.join(".ggen");
     let repos_dir = working_dir.join(".ggen/repos");
 
-    if !state_dir.exists() { std::fs::create_dir_all(&state_dir)?; }
-    if !repos_dir.exists() { std::fs::create_dir_all(&repos_dir)?; }
+    if !state_dir.exists() { tokio::fs::create_dir_all(&state_dir).await?; }
+    if !repos_dir.exists() { tokio::fs::create_dir_all(&repos_dir).await?; }
 
     let persist_path = Some(state_dir.join("daemon-runs.json"));
     let state = Arc::new(
@@ -62,6 +62,20 @@ async fn main() -> anyhow::Result<()> {
             let metrics = MetricsStore::new(Arc::clone(&state));
             let dash = metrics.dashboard().await?;
             println!("{}", serde_json::to_string_pretty(&dash)?);
+        }
+
+        "--watch" | "watch" => {
+            let specify_dir = working_dir.join(".specify");
+            let debounce_secs: u64 = args.get(2)
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(5);
+            info!("watch mode: monitoring {} ({}s debounce)", specify_dir.display(), debounce_secs);
+            ggen_daemon::scheduler::watch_and_dispatch(
+                specify_dir,
+                Arc::clone(&state),
+                working_dir,
+                debounce_secs,
+            ).await?;
         }
 
         _ => {

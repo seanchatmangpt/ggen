@@ -39,6 +39,7 @@ pub fn load_catalog(ttl_path: &Path) -> Result<Vec<RepoCatalogEntry>> {
     store.load_from_reader(RdfFormat::Turtle, content.as_bytes())
         .map_err(|e| crate::error::DaemonError::Scheduler(e.to_string()))?;
 
+    #[allow(deprecated)] // migrate to SparqlEvaluator when oxigraph stabilises the API
     let results = store.query(CATALOG_QUERY)?;
     let QueryResults::Solutions(solutions) = results else {
         return Ok(vec![]);
@@ -71,6 +72,46 @@ pub fn load_catalog(ttl_path: &Path) -> Result<Vec<RepoCatalogEntry>> {
         entries.push(RepoCatalogEntry { name, github_url, short_desc, primary_language });
     }
     Ok(entries)
+}
+
+/// Append a new DOAP repo stanza to an existing catalog TTL file.
+///
+/// Idempotent at the load level only — it does NOT check for duplicates before
+/// writing.  Callers should filter against `load_catalog` before calling this.
+///
+/// The stanza follows the DOAP vocabulary used by the existing catalog.
+pub fn append_entry(ttl_path: &Path, entry: &RepoCatalogEntry) -> Result<()> {
+    let lang_stanza = if let Some(ref lang) = entry.primary_language {
+        format!(
+            "    <https://ggen.dev/ontology/core#primaryLanguage> [ <http://www.w3.org/2000/01/rdf-schema#label> {:?} ] ;\n",
+            lang
+        )
+    } else {
+        String::new()
+    };
+
+    let desc_stanza = if entry.short_desc.is_empty() {
+        String::new()
+    } else {
+        format!("    <http://usefulinc.com/ns/doap#shortdesc> {:?} ;\n", entry.short_desc)
+    };
+
+    let stanza = format!(
+        "\n<{}> a <http://usefulinc.com/ns/doap#Project> ;\n    <http://usefulinc.com/ns/doap#name> {:?} ;\n    <http://usefulinc.com/ns/doap#homepage> <{}> ;\n{}{}..\n",
+        entry.github_url,
+        entry.name,
+        entry.github_url,
+        desc_stanza,
+        lang_stanza,
+    );
+
+    let mut file = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(ttl_path)?;
+    use std::io::Write;
+    write!(file, "{}", stanza)?;
+    Ok(())
 }
 
 /// Filter catalog entries by primary language (case-insensitive).

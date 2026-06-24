@@ -1,6 +1,6 @@
-use std::{path::PathBuf, sync::Arc};
+use std::{path::{Path, PathBuf}, sync::Arc};
 use tokio::sync::Semaphore;
-use tracing::{info, warn};
+use tracing::{info, warn, instrument, Instrument};
 use serde::{Deserialize, Serialize};
 
 use ggen_core::codegen::executor::{SyncExecutor, SyncOptions};
@@ -9,9 +9,12 @@ use crate::{
     catalog::RepoCatalogEntry,
     dispatch::DispatchResult,
     health::{check_repo, RepoHealthStatus},
+    manifest_cache::{hash_file, ManifestCache},
+    remediation::{decide, RemediationDecision},
     repo_manager::RepoManager,
     retry::retry_with_backoff,
     state::DaemonState,
+    validator::validate_generated,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -21,6 +24,11 @@ pub struct BatchResult {
     pub succeeded: usize,
     pub failed: usize,
     pub skipped_unhealthy: usize,
+    /// Repos where the executor was skipped because the manifest hash was
+    /// unchanged since the last successful dispatch (a subset of `succeeded`).
+    pub cached: usize,
+    /// Repos where post-generation validation failed; the push was suppressed.
+    pub validation_failed: usize,
     pub results: Vec<DispatchResult>,
 }
 
@@ -28,6 +36,16 @@ pub struct BatchResult {
 /// Uses ggen-core SyncExecutor for generation so the same pipeline is used
 /// everywhere; spec files live in the ggen repo, output lands in the cloned
 /// target repo via SyncOptions::output_dir.
+#[instrument(
+    name = "batch.dispatch",
+    skip(repos, manager, state, ggen_root),
+    fields(
+        manifest = spec_manifest,
+        repos_total = repos.len(),
+        repos_succeeded = tracing::field::Empty,
+        repos_cached = tracing::field::Empty,
+    )
+)]
 pub async fn dispatch_to_all(
     dispatch_iri: &str,
     spec_manifest: &str,
@@ -50,7 +68,15 @@ pub async fn dispatch_to_all(
         let iri = dispatch_iri.to_owned();
         let ggen_root = ggen_root.clone();
 
-        let h = tokio::spawn(async move {
+        let repo_name_span = repo.name.clone();
+        let manifest_span = spec_manifest.to_owned();
+        let repo_span = tracing::info_span!(
+            "repo.dispatch",
+            repo = %repo_name_span,
+            manifest = %manifest_span,
+        );
+        let h = tokio::spawn(
+          async move {
             let _permit = permit.acquire_owned().await.ok()?;
             let mgr = RepoManager::new(manager_wd, owner);
 
@@ -64,12 +90,36 @@ pub async fn dispatch_to_all(
             };
 
             // Health check
-            let health = check_repo(&local, &repo_entry.name);
+            let health = check_repo(&local, &repo_entry.name).await;
             if health.status != RepoHealthStatus::Healthy
                 && health.status != RepoHealthStatus::DirtyWorkTree
             {
                 warn!("skipping {}: {:?}", repo_entry.name, health.status);
                 return Some(Err(format!("unhealthy: {:?}", health.status)));
+            }
+
+            // Diff-based skip: hash the manifest and compare with the last-applied
+            // cache stored in the target repo.  A hash match means the target repo
+            // already reflects this manifest version — no executor run needed.
+            let manifest_path = ggen_root.join(&manifest);
+            let current_hash = hash_file(&manifest_path);
+            if let Some(ref hash) = current_hash {
+                if let Some(cached_entry) = ManifestCache::read(&local) {
+                    if &cached_entry.manifest_hash == hash {
+                        info!("{}: manifest unchanged, skipping executor", repo_entry.name);
+                        return Some(Ok(DispatchResult {
+                            dispatch_iri: iri,
+                            spec_manifest: manifest,
+                            exit_code: 0,
+                            stdout_tail: "cache hit: manifest unchanged".to_owned(),
+                            stderr_tail: String::new(),
+                            success: true,
+                            cached: true,
+                            validation_passed: true,
+                            validation_ms: 0,
+                        }));
+                    }
+                }
             }
 
             info!("generating {} → {}", manifest, repo_entry.name);
@@ -85,11 +135,11 @@ pub async fn dispatch_to_all(
 
             // Run SyncExecutor in a blocking thread — spec file lives in ggen_root,
             // output goes to the cloned target repo directory.
-            let manifest_path = ggen_root.join(&manifest);
             let output_dir = local.clone();
+            let manifest_path_exec = manifest_path.clone();
             let sync_result = tokio::task::spawn_blocking(move || {
                 let opts = SyncOptions {
-                    manifest_path,
+                    manifest_path: manifest_path_exec,
                     output_dir: Some(output_dir),
                     use_cache: false,
                     ..Default::default()
@@ -112,11 +162,41 @@ pub async fn dispatch_to_all(
                 return Some(Err(stderr_tail));
             }
 
+            // Lever 3: Andon signal detection.
+            // The executor can return Ok(result) with an `andon_signal` field when
+            // it detects a structural error (e.g. invalid manifest). A red signal
+            // means the generated artifacts are known-bad; suppress the push and
+            // emit an OCEL event so it's visible in process mining.
+            if let Some(andon) = sync_result.as_ref().ok().and_then(|r| r.andon_signal.as_ref()) {
+                match decide(andon) {
+                    RemediationDecision::NeedsHuman { ref code, ref steps } => {
+                        let step_summary = steps.join("; ");
+                        warn!(
+                            "{}: andon RED [{}] — suppressing push; steps: {}",
+                            repo_entry.name, code, step_summary
+                        );
+                        if run_id >= 0 {
+                            let andon_msg = format!("andon:{}: {}", code, step_summary);
+                            let _ = state.record_finish(run_id, -1, &stdout_tail, &andon_msg).await;
+                        }
+                        return Some(Err(format!("andon:red:{}", code)));
+                    }
+                    RemediationDecision::Warn { ref message } => {
+                        warn!("{}: andon YELLOW — {}", repo_entry.name, message);
+                    }
+                    RemediationDecision::Proceed => {}
+                }
+            }
+
             let files_synced = sync_result.as_ref().map(|r| r.files_synced).unwrap_or(0);
 
-            // Nothing written — no commit needed
+            // Nothing written — no commit needed; write cache so the next dispatch
+            // with the same manifest can skip the executor.
             if files_synced == 0 {
                 info!("{}: no files written", repo_entry.name);
+                if let Some(hash) = current_hash.as_deref() {
+                    write_manifest_cache(&local, hash, &repo_entry.name).await;
+                }
                 return Some(Ok(DispatchResult {
                     dispatch_iri: iri,
                     spec_manifest: manifest,
@@ -124,17 +204,52 @@ pub async fn dispatch_to_all(
                     stdout_tail,
                     stderr_tail,
                     success: true,
+                    cached: false,
+                    validation_passed: true,
+                    validation_ms: 0,
                 }));
+            }
+
+            // Artifact validation: run language-aware checks on the generated files
+            // before committing.  A validation failure suppresses the push.
+            let validation = validate_generated(
+                &local,
+                repo_entry.primary_language.as_deref(),
+            )
+            .await;
+            if !validation.passed {
+                let err_msg = validation
+                    .failure_summary
+                    .unwrap_or_else(|| "validation failed".to_owned());
+                warn!("{}: validation blocked push: {}", repo_entry.name, err_msg);
+                if run_id >= 0 {
+                    let _ = state.record_finish(run_id, -1, &stdout_tail, &err_msg).await;
+                }
+                return Some(Err(format!("validation: {}", err_msg)));
             }
 
             let commit_msg = format!(
                 "chore: ggen {} [auto]",
-                manifest.split('/').nth_back(1).unwrap_or(&manifest)
+                bundle_label(&manifest)
             );
-            let pushed = mgr.commit_and_push(&local, &commit_msg).await
-                .unwrap_or(false);
-
-            info!("{}: {} (pushed={})", repo_entry.name, stdout_tail, pushed);
+            match mgr.commit_and_push(&local, &commit_msg).await {
+                Ok(pushed) => {
+                    info!("{}: {} (pushed={})", repo_entry.name, stdout_tail, pushed);
+                    // Write cache only after a successful push so the next dispatch
+                    // skips the executor for this manifest+repo pair.
+                    if let Some(hash) = current_hash.as_deref() {
+                        write_manifest_cache(&local, hash, &repo_entry.name).await;
+                    }
+                }
+                Err(e) => {
+                    let err_msg = format!("commit_and_push failed: {}", e);
+                    warn!("{}: {}", repo_entry.name, err_msg);
+                    if run_id >= 0 {
+                        let _ = state.record_finish(run_id, -1, &stdout_tail, &err_msg).await;
+                    }
+                    return Some(Err(err_msg));
+                }
+            }
             Some(Ok(DispatchResult {
                 dispatch_iri: iri,
                 spec_manifest: manifest,
@@ -142,8 +257,12 @@ pub async fn dispatch_to_all(
                 stdout_tail,
                 stderr_tail,
                 success: true,
+                cached: false,
+                validation_passed: true,
+                validation_ms: validation.elapsed_ms,
             }))
-        });
+          }.instrument(repo_span) // end async move
+        ); // end tokio::spawn
         handles.push((repo.name.clone(), h));
     }
 
@@ -151,12 +270,25 @@ pub async fn dispatch_to_all(
     let mut succeeded = 0usize;
     let mut failed = 0usize;
     let mut skipped_unhealthy = 0usize;
+    let mut cached = 0usize;
+    let mut validation_failed = 0usize;
 
     for (name, h) in handles {
         match h.await {
-            Ok(Some(Ok(r))) => { succeeded += 1; results.push(r); }
+            Ok(Some(Ok(r))) => {
+                succeeded += 1;
+                if r.cached {
+                    cached += 1;
+                }
+                results.push(r);
+            }
             Ok(Some(Err(e))) if e.starts_with("unhealthy") => {
                 skipped_unhealthy += 1;
+                warn!("{}: {}", name, e);
+            }
+            Ok(Some(Err(e))) if e.starts_with("validation:") => {
+                failed += 1;
+                validation_failed += 1;
                 warn!("{}: {}", name, e);
             }
             Ok(Some(Err(e))) => {
@@ -167,12 +299,74 @@ pub async fn dispatch_to_all(
         }
     }
 
+    tracing::Span::current().record("repos_succeeded", succeeded);
+    tracing::Span::current().record("repos_cached", cached);
+
     BatchResult {
         spec_manifest: spec_manifest.to_owned(),
         total_repos: repos.len(),
         succeeded,
         failed,
         skipped_unhealthy,
+        cached,
+        validation_failed,
         results,
+    }
+}
+
+/// Write `ManifestCache` to `<local>/.ggen/last-applied.json`, recording the
+/// current HEAD SHA for audit purposes.  Failures are logged and swallowed —
+/// a missing cache entry only means the next dispatch re-runs the executor;
+/// it is never a correctness issue.
+async fn write_manifest_cache(local: &Path, manifest_hash: &str, repo_name: &str) {
+    let commit_sha = tokio::process::Command::new("git")
+        .args(["rev-parse", "HEAD"])
+        .current_dir(local)
+        .output()
+        .await
+        .ok()
+        .filter(|o| o.status.success())
+        .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_owned())
+        .unwrap_or_default();
+
+    let entry = ManifestCache {
+        manifest_hash: manifest_hash.to_owned(),
+        commit_sha,
+        applied_at: chrono::Utc::now().to_rfc3339(),
+    };
+    if let Err(e) = entry.write(local) {
+        warn!("{}: manifest cache write failed: {}", repo_name, e);
+    }
+}
+
+/// Returns the parent directory name of a manifest path, used as a short commit label.
+///
+/// `.specify/specs/code-quality/ggen.toml` → `"code-quality"`
+/// `.specify/specs/ci-standard/rust/ggen.toml` → `"rust"`
+fn bundle_label(manifest: &str) -> &str {
+    std::path::Path::new(manifest)
+        .parent()
+        .and_then(|p| p.file_name())
+        .and_then(|n| n.to_str())
+        .unwrap_or(manifest)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bundle_label_extracts_parent_dir_name() {
+        assert_eq!(bundle_label(".specify/specs/code-quality/ggen.toml"), "code-quality");
+        assert_eq!(bundle_label(".specify/specs/community-health/ggen.toml"), "community-health");
+        assert_eq!(bundle_label(".specify/specs/ci-standard/rust/ggen.toml"), "rust");
+        assert_eq!(bundle_label(".specify/specs/security-policy/python/ggen.toml"), "python");
+    }
+
+    #[test]
+    fn bundle_label_falls_back_on_bare_name() {
+        // No parent dir → fall back to the manifest string itself
+        assert_eq!(bundle_label("ggen.toml"), "ggen.toml");
+        assert_eq!(bundle_label("manifest"), "manifest");
     }
 }

@@ -28,6 +28,9 @@ pub enum DaemonError {
 
     #[error("task join error: {0}")]
     Join(String),
+
+    #[error("HTTP error: {0}")]
+    Http(String),
 }
 
 impl From<oxigraph::store::LoaderError> for DaemonError {

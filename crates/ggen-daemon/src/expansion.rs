@@ -35,7 +35,13 @@ impl ExpansionPlan {
     }
 
     /// Record a bundle as having finished dispatching.
+    ///
+    /// Bundles not in the original plan are silently ignored — `completed` only
+    /// ever contains entries from `spec_bundles`.
     pub fn mark_complete(&mut self, bundle: &str) {
+        if !self.spec_bundles.iter().any(|b| b == bundle) {
+            return;
+        }
         self.pending.retain(|b| b != bundle);
         if !self.completed.iter().any(|b| b == bundle) {
             self.completed.push(bundle.to_owned());
