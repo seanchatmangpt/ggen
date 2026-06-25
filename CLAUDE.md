@@ -1,10 +1,31 @@
-# ggen v26.5.28 - Rust Code Generation CLI
+# ggen v26.6.25 - Rust Code Generation CLI
 
-Specification-driven code generation from RDF ontologies. Formula: A = μ(O) - Code precipitates from RDF via five-stage pipeline (μ₁-μ₅).
-Stack: Rust (stable) | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY | 15-crate workspace
-**Compressed Architecture:** `docs/architecture/COMPRESSED_REFERENCE.md` — verified C4, real sync flow, stub registry, error map. Load this before modifying any code.
+Specification-driven code generation from RDF ontologies. Formula: A = μ(O) — code precipitates from RDF via five-stage pipeline (μ₁–μ₅).
+Stack: Rust (stable) | Oxigraph | Tera | Serde | Clap
 
-**Recent Audit (2026-04-01):** `docs/crate-audits/AUDIT_DASHBOARD.md` — workspace health assessment with 54 stubs classified, 8,900 lines dead code identified, 4 P0 blockers prioritized.
+**Architecture reference:** `docs/architecture/COMPRESSED_REFERENCE.md`
+
+## Type Authority Boundaries — CRITICAL
+
+**Process intelligence belongs in `wasm4pm-compat`, not in any ggen crate.**
+
+| Concern | Authoritative crate | Forbidden |
+|---------|---------------------|-----------|
+| OCEL types | `wasm4pm-compat::ocel` | Local redefinition |
+| DFG discovery | `wasm4pm-compat::dfg::discover_ocel_dfg` | Python subprocess, custom impl |
+| DFG shapes | `wasm4pm-compat::models::{DFG, DFGNode, DFGEdge}` | Local redefinition |
+| Fitness/precision | `wasm4pm-compat::dfg::{dfg_fitness, dfg_precision}` | Custom impl |
+| WASM execution | `wasm4pm` crate (WASM only) | Native dep — causes wasm-bindgen version conflict |
+
+`wasm4pm` requires `wasm-bindgen = "=0.2.100"`. It **cannot** be a direct dep in any ggen crate. Always use `wasm4pm-compat` for native Rust code.
+
+## mode=Create Semantics (v26.6.25+)
+
+`mode = "Create"` silently skips existing files. It is the correct mode for bootstrap scaffolds (analyzer stubs, breed stubs) that are hand-completed after first generation. Do NOT use `mode = "Overwrite"` on files with hand-written logic.
+
+## ggen-graph pm4py_bridge
+
+`ggen-graph/src/ocel/pm4py_bridge.rs` — Python subprocess bridge was replaced with `wasm4pm_compat::dfg` functions. `Pm4pyBridge` now converts `OcelLog` → `wasm4pm_compat::ocel::OCEL` and delegates to `discover_ocel_dfg`, `extract_ocel_variants`, `dfg_fitness`, `dfg_precision`. No Python, no WASM dep conflict.
 
 ## Rules (see .claude/rules/ for details)
 
