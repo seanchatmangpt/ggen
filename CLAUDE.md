@@ -8,6 +8,34 @@ Stack: Rust (nightly, pinned via `rust-toolchain.toml`) | Tokio | Oxigraph | Ter
 
 **Recent Audit (2026-04-01):** `docs/crate-audits/AUDIT_DASHBOARD.md` — workspace health assessment with 54 stubs classified, 8,900 lines dead code identified, 4 P0 blockers prioritized.
 
+## Process Intelligence Boundary — CRITICAL
+
+**ggen EMITS process evidence. ggen does NOT analyse it.**
+
+ggen is a code generator. It observes its own operations by emitting OCEL events (like OTel spans). wasm4pm-compat and wasm4pm own all analysis: discovery, conformance, fitness, precision, variants.
+
+The split calculus: after a feature is extracted into its own project, the original project keeps the **emission surface** and deletes the **analysis surface**.
+
+| Concern | Owner | Forbidden in ggen |
+|---------|-------|-------------------|
+| OCEL event emission | `ggen-graph/ocel/pack_events.rs` | Analysis, discovery, conformance |
+| Lifecycle order (SPARQL over RDF) | `ggen-graph/ocel/lifecycle.rs` | pm4py, subprocess, Python |
+| DFG discovery | `wasm4pm-compat::dfg::discover_ocel_dfg` | Any local discovery impl |
+| Conformance checking | `wasm4pm-compat::dfg::{dfg_fitness, dfg_precision}` | Any local fitness/precision impl |
+| Process variants | `wasm4pm-compat::dfg::extract_ocel_variants` | Any local variant counting |
+| OCEL types (authority) | `wasm4pm-compat::ocel::{OCEL, OCELEvent, OCELObject}` | Local redefinition |
+| DFG shapes (authority) | `wasm4pm-compat::models::{DFG, DFGNode, DFGEdge}` | Local redefinition |
+| WASM execution | `wasm4pm` crate (WASM only) | Native dep — wasm-bindgen version conflict |
+
+`wasm4pm` requires `wasm-bindgen = "=0.2.100"`. It **cannot** be a direct dep in any ggen crate. Always use `wasm4pm-compat` for native Rust code.
+
+**If you find process analysis code in ggen:** it is a post-split residue. Delete it.  
+**If you need process analysis from ggen:** you are doing the wrong thing. Use wasm4pm externally.
+
+## mode=Create Semantics (v26.6.25+)
+
+`mode = "Create"` silently skips existing files. It is the correct mode for bootstrap scaffolds (analyzer stubs, breed stubs) that are hand-completed after first generation. Do NOT use `mode = "Overwrite"` on files with hand-written logic.
+
 ## Rules (see .claude/rules/ for details)
 
 ---

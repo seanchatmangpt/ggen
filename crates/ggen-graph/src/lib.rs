@@ -35,10 +35,7 @@ pub use graph::{
     ParseDiagnostic, RdfDelta, TransitionReceipt,
 };
 pub use interchangeable::{AdapterLayer, GenesisCore, OuterMembrane, ProjectionLayer};
-pub use ocel::{
-    check_guard, check_lifecycle_order, ConformanceDrift, ConformanceReport, discover_dfg, DfgEdge,
-    OcelConformanceChecker, OcelProcessDiscovery, ProcessModel,
-};
+pub use ocel::{check_guard, check_lifecycle_order, discover_dfg, DfgEdge};
 pub use shacl::{validate_shacl, ShaclSeverity, ShaclViolation};
 pub use sparql::{check_sparql_syntax, sparql_kind, SparqlKind};
 

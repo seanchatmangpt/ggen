@@ -8,6 +8,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+wasm4pm-compat = { workspace = true }
 oxigraph = { workspace = true }
 blake3 = { workspace = true }
 serde = { workspace = true }
