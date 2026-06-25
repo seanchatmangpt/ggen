@@ -1037,11 +1037,7 @@ impl GenerationPipeline {
                 let final_content = match rule.mode {
                     GenerationMode::Create => {
                         if full_output_path.exists() {
-                            return Err(Error::new(&format!(
-                                "error[E0011]: Output file already exists in 'Create' mode\n  --> rule: '{}', output: '{}'\n  |\n  = help: mode=Create requires that the file does not exist\n  = help: Use mode=Overwrite to replace the file, or mode=Merge to combine content",
-                                rule.name,
-                                full_output_path.display()
-                            )));
+                            return Ok((generated, executed_rules));
                         }
                         rendered
                     }
@@ -1186,11 +1182,7 @@ impl GenerationPipeline {
                     let final_content = match rule.mode {
                         GenerationMode::Create => {
                             if full_output_path.exists() {
-                                return Err(Error::new(&format!(
-                                    "error[E0011]: Output file already exists in 'Create' mode\n  --> rule: '{}', output: '{}'\n  |\n  = help: mode=Create requires that the file does not exist\n  = help: Use mode=Overwrite to replace the file, or mode=Merge to combine content",
-                                    rule.name,
-                                    full_output_path.display()
-                                )));
+                                continue;
                             }
                             rendered.clone()
                         }

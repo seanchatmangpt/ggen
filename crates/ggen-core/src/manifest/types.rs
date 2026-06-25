@@ -378,13 +378,12 @@ pub enum TemplateSource {
 /// File generation mode
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub enum GenerationMode {
-    /// Create file on first pass; fail if the file already exists.
+    /// Write on first sync; silently skip on subsequent syncs if the file already exists.
     ///
-    /// This mode ensures strict generation for scaffolding: the first `ggen sync`
-    /// writes the file, subsequent syncs will fail if the file exists to prevent
-    /// accidental overwrites or misconfigurations. Use `Overwrite` to replace
-    /// the file on every sync, or `Merge` to combine generated sections with
-    /// hand-written sections.
+    /// This is the default mode for bootstrap scaffolding: the first `ggen sync`
+    /// writes the file; subsequent syncs leave it untouched so hand-written
+    /// modifications are preserved. Use `Overwrite` to replace the file on every
+    /// sync, or `Merge` to combine generated sections with hand-written sections.
     #[default]
     Create,
     /// Overwrite existing

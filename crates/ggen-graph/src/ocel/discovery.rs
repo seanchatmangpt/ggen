@@ -21,7 +21,7 @@ use crate::ocel::{OcelEvent, OcelLog};
 use crate::GraphError;
 
 /// A discovered process model for a single object type.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ProcessModel {
     /// The object type this model describes (e.g., "pack", "lockfile-entry", "receipt").
     pub object_type: String,

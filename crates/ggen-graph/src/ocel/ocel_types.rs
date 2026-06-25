@@ -2,54 +2,41 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Represents an OCEL (Object-Centric Event Log) data structure.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+/// Local working type — converts to/from wasm4pm-compat's authority types.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct OcelLog {
-    /// The list of objects in the log.
     pub objects: Vec<OcelObject>,
-    /// The list of events in the log.
     pub events: Vec<OcelEvent>,
 }
 
 impl OcelLog {
-    /// Creates a new empty `OcelLog`.
     pub fn new() -> Self {
         Self::default()
     }
 }
 
 /// Represents an object in the OCEL log.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct OcelObject {
-    /// The unique identifier of the object.
     pub id: String,
-    /// The type classification of the object.
     pub r#type: String,
-    /// Custom attributes associated with the object.
     pub attributes: HashMap<String, String>,
 }
 
 /// Represents an event in the OCEL log.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct OcelEvent {
-    /// The unique identifier of the event.
     pub id: String,
-    /// The activity name associated with this event.
     pub activity: String,
-    /// The timestamp when the event occurred.
     pub timestamp: chrono::DateTime<chrono::Utc>,
-    /// Reference to objects involved in this event.
     pub objects: Vec<OcelObjectRef>,
-    /// Custom attributes associated with the event.
     pub attributes: HashMap<String, String>,
 }
 
 /// A reference to an object from an event, optionally with a qualifier.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct OcelObjectRef {
-    /// The unique identifier of the referenced object.
     pub id: String,
-    /// The type of the referenced object.
     pub r#type: String,
-    /// An optional qualifier defining the role of the object in the event.
     pub qualifier: Option<String>,
 }
