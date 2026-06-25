@@ -151,7 +151,7 @@ pub struct LockFileEntry {
 ///   ggen ontology list --embedded
 #[verb("ontology list", "root")]
 pub fn list(
-    #[arg(long, default_value = "true")] embedded: bool,
+    #[arg(default_value = "true")] embedded: bool,
 ) -> VerbResult<OntologyListOutput> {
     if !embedded {
         return Ok(OntologyListOutput {
@@ -194,7 +194,7 @@ pub fn status(uri: String) -> VerbResult<OntologyStatusOutput> {
                 embedded: true,
                 location: "core-bundle".to_string(),
                 size: Some(metadata.size),
-                name: Some(metadata.name),
+                name: Some(metadata.name.to_string()),
             });
         }
     }
@@ -233,7 +233,7 @@ pub fn info(uri: String) -> VerbResult<OntologyInfoOutput> {
         metadata_map.insert("content_length".to_string(), metadata.size.to_string());
 
         return Ok(OntologyInfoOutput {
-            name: metadata.name,
+            name: metadata.name.to_string(),
             namespace: uri.clone(),
             size: metadata.size,
             embedded: true,
@@ -266,9 +266,9 @@ pub fn info(uri: String) -> VerbResult<OntologyInfoOutput> {
 /// Note: This is a placeholder for marketplace integration.
 #[verb("ontology search", "root")]
 pub fn search(
-    #[arg(trailing_var_arg = true)] domain: Vec<String>,
+    domain: String,
 ) -> VerbResult<OntologySearchOutput> {
-    let query = domain.join(" ");
+    let query = domain;
 
     // Placeholder: In Phase 4, this will query the marketplace
     let message = Some(format!(

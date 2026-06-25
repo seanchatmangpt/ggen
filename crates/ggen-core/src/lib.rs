@@ -260,7 +260,11 @@ pub use ggen_config::{
 };
 pub mod receipt {
     pub use ggen_config::*;
+    pub use crate::provenance_envelope;
+    pub use crate::provenance_envelope::{CoherenceReport, ProvenanceEnvelope};
 }
+#[path = "receipt/provenance_envelope.rs"]
+pub mod provenance_envelope;
 pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsResponse};
 pub use gpack::GpackManifest;
 pub use graph::Graph;
