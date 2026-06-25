@@ -495,7 +495,7 @@ fn resolve_language(lang: &SyncLanguage, ontology_path: &Path) -> SyncLanguage {
 
     if stem.contains("elixir") || stem.contains("canopy") || stem.contains("osa") {
         SyncLanguage::Elixir
-    } else if stem.contains("rust") || stem.contains("pm4py") {
+    } else if stem.contains("rust") {
         SyncLanguage::Rust
     } else if stem.contains("typescript") || stem.contains("svelte") {
         SyncLanguage::TypeScript
