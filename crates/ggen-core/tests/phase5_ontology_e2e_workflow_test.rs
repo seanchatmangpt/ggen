@@ -167,7 +167,7 @@ fn test_incremental_rebuild_with_cache() {
     );
 
     for ((uri1, content1), (_uri2, content2)) in first_build_contents.iter().zip(second_build_contents.iter()) {
-        assert_eq!(content1, &content2, "Content should be identical for {}", uri1);
+        assert_eq!(content1, content2, "Content should be identical for {}", uri1);
     }
 }
 

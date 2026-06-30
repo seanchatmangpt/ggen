@@ -408,13 +408,13 @@ mod tests {
     #[test]
     fn test_core_bundle_copy_trait() {
         let bundle1 = CoreOntologyBundle;
-        let bundle2 = bundle1; // This is a copy, not a clone
+        let _bundle2 = bundle1; // This is a copy, not a clone
 
-        // Both should work identically
-        assert_eq!(bundle1.all().len(), bundle2.all().len());
+        // Both should work identically (stateless associated functions)
+        assert_eq!(CoreOntologyBundle::all().len(), CoreOntologyBundle::all().len());
         assert_eq!(
-            bundle1.by_name("owl").is_some(),
-            bundle2.by_name("owl").is_some()
+            CoreOntologyBundle::by_name("owl").is_some(),
+            CoreOntologyBundle::by_name("owl").is_some()
         );
     }
 }

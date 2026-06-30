@@ -10,7 +10,6 @@
 
 use std::path::PathBuf;
 use std::process::Command;
-use std::time::Instant;
 
 /// Test that coherence-check recipe validates ontology and shapes
 #[test]

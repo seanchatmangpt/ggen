@@ -30,7 +30,7 @@ async-trait = "0.1"
 tracing = "0.1"
 rmcp = { version = "1.7.0", features = ["transport-io", "schemars"] }
 schemars = "1.2.1"
-ggen-core = { path = "../ggen-core", version = "26.6.24" }
+ggen-core = { path = "../ggen-core", version = "26.6.25" }
 anyhow.workspace = true
 blake3 = "1.5"
 

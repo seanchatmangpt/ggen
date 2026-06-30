@@ -3,9 +3,9 @@
 //! Tests verify the complete inverse-sync pipeline with real artifacts, real ontology,
 //! and real Ed25519 key pairs. No mocks, no test doubles — Chicago TDD only.
 
-use ed25519_dalek::SigningKey;
+use ed25519_dalek::{Signer, SigningKey};
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 use uuid::Uuid;
 
@@ -14,7 +14,7 @@ use uuid::Uuid;
 // ============================================================================
 
 /// Write a Rust source file with a real service definition.
-fn create_rust_artifact(dir: &PathBuf, filename: &str, content: &str) -> PathBuf {
+fn create_rust_artifact(dir: &Path, filename: &str, content: &str) -> PathBuf {
     let path = dir.join(filename);
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).expect("Failed to create parent directory");
@@ -24,14 +24,14 @@ fn create_rust_artifact(dir: &PathBuf, filename: &str, content: &str) -> PathBuf
 }
 
 /// Create a real RDF ontology in Turtle format.
-fn create_ontology_file(dir: &PathBuf, content: &str) -> PathBuf {
+fn create_ontology_file(dir: &Path, content: &str) -> PathBuf {
     let path = dir.join("ontology.ttl");
     fs::write(&path, content).expect("Failed to write ontology");
     path
 }
 
 /// Generate a real Ed25519 key pair and write to disk.
-fn create_signing_key(dir: &PathBuf) -> (PathBuf, SigningKey) {
+fn create_signing_key(dir: &Path) -> (PathBuf, SigningKey) {
     let signing_key = SigningKey::from_bytes(&[0u8; 32]); // Deterministic for testing.
     let key_bytes = signing_key.to_bytes();
     let hex_key = hex::encode(key_bytes);
@@ -140,7 +140,7 @@ fn test_inverse_sync_happy_path_recover_and_coherent() {
 #[test]
 fn test_inverse_sync_missing_source_dir_fails() {
     // Arrange: Use a non-existent source directory
-    let non_existent = PathBuf::from("/tmp/this-directory-does-not-exist-" + &Uuid::new_v4().to_string());
+    let non_existent = PathBuf::from(format!("/tmp/this-directory-does-not-exist-{}", Uuid::new_v4()));
 
     // Act + Assert: Attempting to collect from non-existent dir should fail
     let artifact_result: std::result::Result<Vec<PathBuf>, String> = {
@@ -280,7 +280,7 @@ fn test_inverse_sync_sabotage_missing_ontology_file() {
     let keys_dir = TempDir::new().expect("Failed to create keys dir");
     let (_signing_key_path, _signing_key) = create_signing_key(keys_dir.path());
 
-    let missing_ontology = PathBuf::from("/tmp/non-existent-ontology-" + &Uuid::new_v4().to_string() + ".ttl");
+    let missing_ontology = PathBuf::from(format!("/tmp/non-existent-ontology-{}.ttl", Uuid::new_v4()));
 
     // Act: Attempt to load non-existent ontology
     let result = fs::read_to_string(&missing_ontology);

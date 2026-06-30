@@ -44,7 +44,11 @@ fn test_client_configuration_with_timeout() {
 #[test]
 fn test_client_configuration_with_cache() {
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
-    let cache = ggen_marketplace::marketplace::cache::PackCache::new(temp_dir.path())
+    let cache_config = ggen_marketplace::marketplace::cache::CacheConfig {
+        cache_dir: temp_dir.path().to_path_buf(),
+        ..Default::default()
+    };
+    let cache = ggen_marketplace::marketplace::cache::PackCache::new(cache_config)
         .expect("Failed to create cache");
     let cache_arc = Arc::new(cache);
 
@@ -103,7 +107,11 @@ fn test_url_flexible_types() {
 #[test]
 fn test_builder_chaining_works() {
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
-    let cache = ggen_marketplace::marketplace::cache::PackCache::new(temp_dir.path())
+    let cache_config = ggen_marketplace::marketplace::cache::CacheConfig {
+        cache_dir: temp_dir.path().to_path_buf(),
+        ..Default::default()
+    };
+    let cache = ggen_marketplace::marketplace::cache::PackCache::new(cache_config)
         .expect("Failed to create cache");
     let cache_arc = Arc::new(cache);
 
@@ -122,7 +130,11 @@ fn test_builder_chaining_works() {
 #[test]
 fn test_offline_fallback_with_cache() {
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
-    let cache = ggen_marketplace::marketplace::cache::PackCache::new(temp_dir.path())
+    let cache_config = ggen_marketplace::marketplace::cache::CacheConfig {
+        cache_dir: temp_dir.path().to_path_buf(),
+        ..Default::default()
+    };
+    let cache = ggen_marketplace::marketplace::cache::PackCache::new(cache_config)
         .expect("Failed to create cache");
     let cache_arc = Arc::new(cache);
 
@@ -139,7 +151,11 @@ fn test_cache_initialization() {
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
     // Create cache with default config
-    let cache_result = ggen_marketplace::marketplace::cache::PackCache::new(temp_dir.path());
+    let cache_config = ggen_marketplace::marketplace::cache::CacheConfig {
+        cache_dir: temp_dir.path().to_path_buf(),
+        ..Default::default()
+    };
+    let cache_result = ggen_marketplace::marketplace::cache::PackCache::new(cache_config);
     assert!(cache_result.is_ok(), "Cache should initialize successfully");
 
     // Verify cache directory was created
@@ -209,8 +225,8 @@ fn test_package_metadata_structure() {
     use ggen_marketplace::marketplace::models::{PackageId, PackageVersion};
 
     let metadata = PackageMetadata {
-        id: PackageId::from("acme/base"),
-        version: PackageVersion::from("1.0.0"),
+        id: PackageId::new("acme-base").expect("valid package id"),
+        version: PackageVersion::new("1.0.0").expect("valid version"),
         description: "Base package".to_string(),
         author: "Acme".to_string(),
         license: "MIT".to_string(),
@@ -221,7 +237,7 @@ fn test_package_metadata_structure() {
         published_at: "2024-01-01T00:00:00Z".to_string(),
     };
 
-    assert_eq!(metadata.id.as_str(), "acme/base");
+    assert_eq!(metadata.id.as_str(), "acme-base");
     assert_eq!(metadata.version.as_str(), "1.0.0");
     assert_eq!(metadata.size_bytes, 1024);
 }
@@ -233,8 +249,8 @@ fn test_package_metadata_serialization() {
     use ggen_marketplace::marketplace::models::{PackageId, PackageVersion};
 
     let metadata = PackageMetadata {
-        id: PackageId::from("acme/base"),
-        version: PackageVersion::from("1.0.0"),
+        id: PackageId::new("acme-base").expect("valid package id"),
+        version: PackageVersion::new("1.0.0").expect("valid version"),
         description: "Base package".to_string(),
         author: "Acme".to_string(),
         license: "MIT".to_string(),
@@ -247,12 +263,12 @@ fn test_package_metadata_serialization() {
 
     // Should serialize to JSON
     let json = serde_json::to_string(&metadata).expect("Should serialize");
-    assert!(json.contains("acme/base"));
+    assert!(json.contains("acme-base"));
     assert!(json.contains("1.0.0"));
 
     // Should deserialize back
     let deserialized: PackageMetadata = serde_json::from_str(&json).expect("Should deserialize");
-    assert_eq!(deserialized.id.as_str(), "acme/base");
+    assert_eq!(deserialized.id.as_str(), "acme-base");
 }
 
 // ============================================================================

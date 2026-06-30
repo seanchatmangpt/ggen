@@ -270,6 +270,10 @@ pub mod receipt {
     #[path = "provenance_envelope.rs"]
     pub mod provenance_envelope;
     pub use provenance_envelope::{CoherenceReport, ProvenanceEnvelope};
+
+    #[path = "chain_linking.rs"]
+    pub mod chain_linking;
+    pub use chain_linking::OperationLink;
 }
 pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsResponse};
 pub use gpack::GpackManifest;
