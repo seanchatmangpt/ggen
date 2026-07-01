@@ -217,8 +217,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "Dialect Completeness Matrix",
         ),
         ("sabotage.validation.ttl", "Sabotage Suite Verification"),
-        ("gall_code_evaluation.receipt.ttl", "Gall Code Evaluation Receipt"),
-        ("gall_code_evaluation.final.ttl", "Gall Code Evaluation Final Report"),
+        (
+            "gall_code_evaluation.receipt.ttl",
+            "Gall Code Evaluation Receipt",
+        ),
+        (
+            "gall_code_evaluation.final.ttl",
+            "Gall Code Evaluation Final Report",
+        ),
     ];
 
     for (filename, _desc) in other_reports {

@@ -375,7 +375,9 @@ fn test_load_foaf_and_dc_from_embedded() {
     assert!(!foaf_content.unwrap().is_empty());
 
     let dc_content = OntologyLoader::load_content(dc_uri, Path::new("."));
-    assert!(dc_content.is_some(), "Should load Dublin Core from embedded");
+    assert!(
+        dc_content.is_some(),
+        "Should load Dublin Core from embedded"
+    );
     assert!(!dc_content.unwrap().is_empty());
 }
-

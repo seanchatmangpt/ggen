@@ -399,19 +399,19 @@ pub fn require_docker() {
     // ✅ Docker is available, test can proceed
 }
 
-/// Find ggen binary in container at common locations
-///
-/// **Root Cause Prevention**: Helper function to find binary instead of hardcoded path assumption.
-/// Pattern: Always search for binary in common locations, don't assume path.
-///
-/// # Arguments
-///
-/// * `container` - Container to search in
-/// * `workspace_root` - Root directory of workspace (e.g., "/workspace")
-///
-/// # Returns
-///
-/// Path to binary if found, or error if not found
+// Find ggen binary in container at common locations
+//
+// **Root Cause Prevention**: Helper function to find binary instead of hardcoded path assumption.
+// Pattern: Always search for binary in common locations, don't assume path.
+//
+// # Arguments
+//
+// * `container` - Container to search in
+// * `workspace_root` - Root directory of workspace (e.g., "/workspace")
+//
+// # Returns
+//
+// Path to binary if found, or error if not found
 /*
 #[allow(dead_code)]
 pub fn find_ggen_binary_in_container(

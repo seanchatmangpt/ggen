@@ -234,7 +234,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let target_eval_bin_str = workspace_root.join("target/debug/gall_actuate_code_evaluation");
     let target_eval_bin = target_eval_bin_str.to_str().unwrap();
-    let target_adjudicate_bin_str = workspace_root.join("target/debug/gall_adjudicate_witnessed_truthfulness");
+    let target_adjudicate_bin_str =
+        workspace_root.join("target/debug/gall_adjudicate_witnessed_truthfulness");
     let target_adjudicate_bin = target_adjudicate_bin_str.to_str().unwrap();
 
     // Case 1: Cargo features (extra features)

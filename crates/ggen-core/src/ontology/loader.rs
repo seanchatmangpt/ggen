@@ -10,20 +10,22 @@ use crate::ontology::resolver::OntologyResolver;
 use std::path::Path;
 
 #[cfg(feature = "bundled-standards")]
-static FOAF_METADATA: crate::ontology::core_bundle::OntologyMetadata = crate::ontology::core_bundle::OntologyMetadata {
-    name: "foaf",
-    namespace: "http://xmlns.com/foaf/0.1/",
-    size: crate::domain::ontology::standards::FOAF_TTL.len(),
-    content: crate::domain::ontology::standards::FOAF_TTL.as_bytes(),
-};
+static FOAF_METADATA: crate::ontology::core_bundle::OntologyMetadata =
+    crate::ontology::core_bundle::OntologyMetadata {
+        name: "foaf",
+        namespace: "http://xmlns.com/foaf/0.1/",
+        size: crate::domain::ontology::standards::FOAF_TTL.len(),
+        content: crate::domain::ontology::standards::FOAF_TTL.as_bytes(),
+    };
 
 #[cfg(feature = "bundled-standards")]
-static DUBLIN_CORE_METADATA: crate::ontology::core_bundle::OntologyMetadata = crate::ontology::core_bundle::OntologyMetadata {
-    name: "dc",
-    namespace: "http://purl.org/dc/elements/1.1/",
-    size: crate::domain::ontology::standards::DUBLIN_CORE_TTL.len(),
-    content: crate::domain::ontology::standards::DUBLIN_CORE_TTL.as_bytes(),
-};
+static DUBLIN_CORE_METADATA: crate::ontology::core_bundle::OntologyMetadata =
+    crate::ontology::core_bundle::OntologyMetadata {
+        name: "dc",
+        namespace: "http://purl.org/dc/elements/1.1/",
+        size: crate::domain::ontology::standards::DUBLIN_CORE_TTL.len(),
+        content: crate::domain::ontology::standards::DUBLIN_CORE_TTL.as_bytes(),
+    };
 
 /// Ontology loading strategy with fallback chain
 #[derive(Debug, Clone, Copy)]
@@ -132,8 +134,10 @@ impl OntologyLoader {
 
         #[cfg(feature = "bundled-standards")]
         {
-            if uri == "http://xmlns.com/foaf/0.1/" || uri == "foaf"
-                || uri == "http://purl.org/dc/elements/1.1/" || uri == "dc"
+            if uri == "http://xmlns.com/foaf/0.1/"
+                || uri == "foaf"
+                || uri == "http://purl.org/dc/elements/1.1/"
+                || uri == "dc"
             {
                 return true;
             }
@@ -153,7 +157,6 @@ impl OntologyLoader {
         list
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -378,7 +381,10 @@ mod tests {
             // URI should be valid
             assert!(!uri.is_empty(), "URI should not be empty");
             assert!(uri.starts_with("http"), "URI should start with http");
-            assert!(uri.ends_with('#') || uri.ends_with('/'), "URI should end with # or /");
+            assert!(
+                uri.ends_with('#') || uri.ends_with('/'),
+                "URI should end with # or /"
+            );
 
             // Should actually be loadable
             assert!(

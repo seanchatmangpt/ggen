@@ -401,12 +401,22 @@ mod tests {
     #[test]
     fn test_namespaces_command() {
         let result = namespaces().expect("namespaces command failed");
-        assert_eq!(result.count, 8, "Expected 8 unique namespaces, got: {:?}", result.namespaces);
+        assert_eq!(
+            result.count, 8,
+            "Expected 8 unique namespaces, got: {:?}",
+            result.namespaces
+        );
         assert_eq!(result.namespaces.len(), 8);
 
         // Verify prefixes
-        let prefixes: std::collections::HashSet<&str> = result.namespaces.iter().map(|ns| ns.prefix.as_str()).collect();
-        let expected = ["rdf", "rdfs", "owl", "schema", "foaf", "dc", "skos", "bigfive"];
+        let prefixes: std::collections::HashSet<&str> = result
+            .namespaces
+            .iter()
+            .map(|ns| ns.prefix.as_str())
+            .collect();
+        let expected = [
+            "rdf", "rdfs", "owl", "schema", "foaf", "dc", "skos", "bigfive",
+        ];
         for p in &expected {
             assert!(prefixes.contains(p), "Missing prefix: {}", p);
         }
@@ -431,4 +441,3 @@ mod tests {
         }
     }
 }
-

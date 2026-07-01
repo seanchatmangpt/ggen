@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "canon": "v30.1.1",
+  "pack_hash": "bbd927ba47bdb5592f4d64d82fdf95140128ae243e4be63eb5e013bed24a8bb0",
+  "law_surfaces": [
+    "**/*.ttl",
+    "**/*.nt",
+    "**/*.nq",
+    "**/*.rq",
+    "**/*.sparql",
+    "**/*.tera",
+    "**/ggen.toml"
+  ],
+  "policies": [
+    {
+      "path": "policies/public-vocab.shacl.ttl",
+      "hash": "b6bb5cc1a6fd208d019390f781300c9d5172921c07498c6cd59f7354737a412c"
+    },
+    {
+      "path": "policies/no-private-namespace.shacl.ttl",
+      "hash": "77f01bb44a24799518327d2d32d8656e8b69d9a50df4ac270aae093bbfc0491b"
+    },
+    {
+      "path": "policies/receipt-required.shacl.ttl",
+      "hash": "e6681b1ad75886a5e0701ccd69827311c0c30b909c260e55a160e374680987d2"
+    }
+  ],
+  "routes": []
+}

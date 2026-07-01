@@ -1,36 +1,38 @@
-# BRIEFING — 2026-07-01T05:25:00Z
+# BRIEFING — 2026-07-01T18:44:49Z
 
 ## Mission
-Investigate and document uncommitted fixes, git/stash status, .md files corruption, and Cargo.toml versions.
+Perform exploration for the ggen v26.7.1 release cycle.
 
 ## 🔒 My Identity
-- Archetype: teamwork_preview_explorer
-- Roles: explorer, analyst, investigator
+- Archetype: explorer
+- Roles: Teamwork explorer
 - Working directory: /Users/sac/ggen/.agents/teamwork_preview_explorer_m1
-- Original parent: 403c7c53-6205-4ed0-982f-a48aa11acd33
-- Milestone: M1 - Preview Exploration
+- Original parent: d183dd90-4f37-4c46-a407-a3d9ea7c0432
+- Milestone: ggen v26.7.1 release cycle exploration
 
 ## 🔒 Key Constraints
 - Read-only investigation — do NOT implement
-- Do not modify any source code files
-- Follow all AGENTS.md rules
+- Network mode: CODE_ONLY (no external network, no external curl/wget)
+- Non-negotiable laws in AGENTS.md
 
 ## Current Parent
-- Conversation ID: 403c7c53-6205-4ed0-982f-a48aa11acd33
-- Updated: 2026-07-01T05:25:00Z
+- Conversation ID: d183dd90-4f37-4c46-a407-a3d9ea7c0432
+- Updated: 2026-07-01T18:52:05Z
 
 ## Investigation State
-- **Explored paths**: Cargo.toml, crates/ggen-cli/src/cmds/ontology.rs, crates/ggen-cli/tests/performance.rs, crates/ggen-cli/tests/proof_digest_reverify_test.rs, crates/ggen-core/src/receipt/provenance_envelope.rs, tests/e2e_production_marketplace.rs
+- **Explored paths**: `Cargo.toml`, `crates/*/Cargo.toml`, `CHANGELOG.md`, `docs/CHANGELOG.md`.
 - **Key findings**:
-  - Uncommitted changes in CLI (`ontology.rs`), performance tests (`performance.rs`, `proof_digest_reverify_test.rs`), and core hashing (`provenance_envelope.rs`) are clean and functionally correct.
-  - Workspace test runs demonstrate that all workspace and E2E tests pass, with the exception of 3 pre-existing failures in `otel_validation_tests.rs` caused by local ontology template mismatch (`SyntaxError` on `test_template` for `cli-commands-reference`).
-  - Active branch is `claude/nice-dijkstra-1543ko`. Stash list has 39 stashes; `stash@{0}` is the corrupted stash to be dropped.
-  - Identified 5 `Cargo.toml` files declaring package versions explicitly and 11 files declaring internal package dependency versions that require version updates to `26.7.1`.
+  - Current git branch is `main`. Uncommitted files exist.
+  - Workspace package version is `26.7.1`. All 16 workspace member crates are aligned to version `26.7.1`.
+  - Root `CHANGELOG.md` already contains `[26.7.1]` release notes, whereas `docs/CHANGELOG.md` is currently missing them.
+  - `cargo check --all-targets` compiles successfully.
 - **Unexplored areas**: None.
 
 ## Key Decisions Made
-- Confirmed green build for compiled `ggen` binary and all core + E2E tests by compiling `ggen` and running `cargo test`.
-- Analyzed all internal Cargo.toml dependency relationships for version bumps.
+- Concluded investigation of workspace versions, branch status, changelogs, and build status.
+- Documented findings in `handoff.md`.
 
 ## Artifact Index
-- /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/ORIGINAL_REQUEST.md — Save original request to ORIGINAL_REQUEST.md as required by workflow protocol
+- /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/ORIGINAL_REQUEST.md — Original request details
+- /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/progress.md — Liveness progress report
+- /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/handoff.md — Final structured handoff report

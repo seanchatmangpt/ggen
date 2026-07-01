@@ -507,11 +507,9 @@ pub fn get_standard_namespaces() -> Vec<NamespaceInfo> {
 
     // Deduplicate (prioritizing "bundled-standard" over "core-stub")
     // 1. Sort by URI, and then by source alphabetically ("bundled-standard" < "core-stub")
-    namespaces.sort_by(|a, b| {
-        match a.uri.cmp(&b.uri) {
-            std::cmp::Ordering::Equal => a.source.cmp(&b.source),
-            ord => ord,
-        }
+    namespaces.sort_by(|a, b| match a.uri.cmp(&b.uri) {
+        std::cmp::Ordering::Equal => a.source.cmp(&b.source),
+        ord => ord,
     });
     // 2. dedup_by keeps the first entry of consecutive duplicates
     namespaces.dedup_by(|a, b| a.uri == b.uri);
@@ -526,10 +524,18 @@ mod tests {
     #[test]
     fn test_get_standard_namespaces() {
         let ns_list = get_standard_namespaces();
-        assert_eq!(ns_list.len(), 8, "Expected 8 unique namespaces, got: {:?}", ns_list);
+        assert_eq!(
+            ns_list.len(),
+            8,
+            "Expected 8 unique namespaces, got: {:?}",
+            ns_list
+        );
 
-        let prefixes: std::collections::HashSet<&str> = ns_list.iter().map(|ns| ns.prefix.as_str()).collect();
-        let expected = ["rdf", "rdfs", "owl", "schema", "foaf", "dc", "skos", "bigfive"];
+        let prefixes: std::collections::HashSet<&str> =
+            ns_list.iter().map(|ns| ns.prefix.as_str()).collect();
+        let expected = [
+            "rdf", "rdfs", "owl", "schema", "foaf", "dc", "skos", "bigfive",
+        ];
         for p in &expected {
             assert!(prefixes.contains(p), "Missing prefix: {}", p);
         }
@@ -537,9 +543,12 @@ mod tests {
         // Verify that rdf, rdfs, owl are marked as "bundled-standard" rather than "core-stub" due to dedup prioritization
         for ns in &ns_list {
             if ns.prefix == "rdf" || ns.prefix == "rdfs" || ns.prefix == "owl" {
-                assert_eq!(ns.source, "bundled-standard", "Expected prefix {} to have source bundled-standard", ns.prefix);
+                assert_eq!(
+                    ns.source, "bundled-standard",
+                    "Expected prefix {} to have source bundled-standard",
+                    ns.prefix
+                );
             }
         }
     }
 }
-
