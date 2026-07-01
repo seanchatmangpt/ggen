@@ -4,6 +4,22 @@ All notable changes to ggen are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.7.1] — Ontology Macro, Performance Test, and Hashing Fixes (2026-07-01)
+
+### Added
+- **Standard Ontology Inclusions** — Integrated FOAF and Dublin Core Metadata Element Set (DCE) into the root `ontologies/` directory.
+- **Compile-Time Bundling** — Embedded the new public ontologies into the `ggen-core` bundled standards compile-time resource cache.
+- **`ontology namespaces` Enhancements** — Enhanced namespace resolution CLI command to output all newly added namespaces, print prefixes/URIs/source cleanly in JSON without duplicates.
+
+### Fixed
+- **Ontology `#[verb]` macro usages** — Fixed compiler errors and verified macro-actuated command routing compatibility.
+- **Performance tests positional arguments** — Corrected positional arguments in performance benchmarks and tests to align with updated CLI verbs.
+- **Provenance envelope hashing** — Fixed cryptographic digest generation for provenance envelopes.
+- **Dropping corrupted `stash@{0}`** — Removed corrupt git stash reference to stabilize local repository state.
+- **Generating documentation audit report** — Run and completed documentation compliance auditing across all vendors and components.
+- **Dependency pinning for `ggen-lsp`** — Pinned and subsequently updated `wasm4pm-compat` to `26.6.26` to bypass broken upstream releases.
+- **Stale test compile errors** — Fixed compilation errors in legacy tests due to dependency bumps.
+
 ## [26.5.28] - 2026-06-23
 
 ### Added
