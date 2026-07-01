@@ -5,7 +5,12 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [26.7.1] — Ontology Macro, Performance Test, and Hashing Fixes (2026-06-30)
+## [26.7.1] — Ontology Macro, Performance Test, and Hashing Fixes (2026-07-01)
+
+### Added
+- **Standard Ontology Inclusions** — Integrated FOAF and Dublin Core Metadata Element Set (DCE) into the root `ontologies/` directory.
+- **Compile-Time Bundling** — Embedded the new public ontologies into the `ggen-core` bundled standards compile-time resource cache.
+- **`ontology namespaces` Enhancements** — Enhanced namespace resolution CLI command to output all newly added namespaces, print prefixes/URIs/source cleanly in JSON without duplicates.
 
 ### Fixed
 - **Ontology `#[verb]` macro usages** — Fixed compiler errors and verified macro-actuated command routing compatibility.
