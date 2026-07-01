@@ -4,16 +4,16 @@
       "id": "obj_crate_ggen",
       "type": "RustCrate",
       "attributes": {
-        "name": "ggen-graph",
-        "version": "0.1.0"
+        "version": "0.1.0",
+        "name": "ggen-graph"
       }
     },
     {
       "id": "obj_prd_compliance",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Self-Audit Compliance Log",
-        "description": "The system must generate a self-audit log containing all required activities and objects."
+        "description": "The system must generate a self-audit log containing all required activities and objects.",
+        "title": "Self-Audit Compliance Log"
       }
     },
     {
@@ -28,8 +28,8 @@
       "id": "req_r1_one_crate",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "One-Crate Package Boundary and No Feature Flags",
-        "description": "The substrate must be implemented as a single standalone Rust package at crates/ggen-graph with no feature flags."
+        "description": "The substrate must be implemented as a single standalone Rust package at crates/ggen-graph with no feature flags.",
+        "title": "One-Crate Package Boundary and No Feature Flags"
       }
     },
     {
@@ -68,8 +68,8 @@
       "id": "req_r6_compliance",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Compliance Checks & Anti-Fake Gates",
-        "description": "Must pass structural analyses checking for forbidden execution surfaces and zero placeholder/stub/mock/fake-success patterns."
+        "description": "Must pass structural analyses checking for forbidden execution surfaces and zero placeholder/stub/mock/fake-success patterns.",
+        "title": "Compliance Checks & Anti-Fake Gates"
       }
     },
     {
@@ -100,8 +100,8 @@
       "id": "req_r10_interchangeable",
       "type": "PRDRequirement",
       "attributes": {
-        "description": "Ensure interchangeable parts where Genesis is the embedded core and ggen forms the outer membrane, adapter layer, and projection layer.",
-        "title": "Genesis-bearing Interchangeable Part Architecture"
+        "title": "Genesis-bearing Interchangeable Part Architecture",
+        "description": "Ensure interchangeable parts where Genesis is the embedded core and ggen forms the outer membrane, adapter layer, and projection layer."
       }
     },
     {
@@ -124,8 +124,8 @@
       "id": "obj_ontology_term_event",
       "type": "OntologyTerm",
       "attributes": {
-        "uri": "http://www.ocel-standard.org/ns#Event",
-        "name": "Event"
+        "name": "Event",
+        "uri": "http://www.ocel-standard.org/ns#Event"
       }
     },
     {
@@ -148,8 +148,8 @@
       "id": "obj_example_file_self_audit",
       "type": "ExampleFile",
       "attributes": {
-        "description": "Demonstrates generation and projection of self-audit log",
-        "path": "crates/ggen-graph/examples/self_audit_demo.rs"
+        "path": "crates/ggen-graph/examples/self_audit_demo.rs",
+        "description": "Demonstrates generation and projection of self-audit log"
       }
     },
     {
@@ -164,16 +164,16 @@
       "id": "obj_script_file_verify",
       "type": "ScriptFile",
       "attributes": {
-        "interpreter": "bash",
-        "path": "scripts/gall/external/09_verify_ocel_self_audit.sh"
+        "path": "scripts/gall/external/09_verify_ocel_self_audit.sh",
+        "interpreter": "bash"
       }
     },
     {
       "id": "obj_command_test",
       "type": "Command",
       "attributes": {
-        "binary": "cargo",
-        "args": "test --package ggen-graph"
+        "args": "test --package ggen-graph",
+        "binary": "cargo"
       }
     },
     {
@@ -220,8 +220,8 @@
       "id": "obj_unsupported_capability_1",
       "type": "UnsupportedCapability",
       "attributes": {
-        "name": "RealtimeMultiAgentConsensus",
-        "reason": "Out of scope for deterministic local execution model"
+        "reason": "Out of scope for deterministic local execution model",
+        "name": "RealtimeMultiAgentConsensus"
       }
     }
   ],

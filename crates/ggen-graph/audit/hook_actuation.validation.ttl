@@ -1,0 +1,14 @@
+@base <http://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<#hook_actuation_report> a sh:ValidationReport ;
+    sh:conforms "false"^^xsd:boolean ;
+    dcterms:identifier "hook_actuation.validation" ;
+    dcterms:description "Hook Actuation and Execution Conformance Report" ;
+    sh:result [
+        a sh:ValidationResult ;
+        sh:resultSeverity sh:Violation ;
+        sh:resultMessage "One or more evaluation hooks failed or returned non-conformance."
+    ] .

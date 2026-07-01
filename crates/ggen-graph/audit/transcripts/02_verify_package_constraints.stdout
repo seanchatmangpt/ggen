@@ -1,0 +1,2 @@
+=== [02] Verifying Package Constraints ===
+PASS: ggen-graph is standalone and has no sibling ggen dependency constraints.

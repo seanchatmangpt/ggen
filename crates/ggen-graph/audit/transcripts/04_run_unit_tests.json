@@ -1,0 +1,13 @@
+{
+  "command": "04_run_unit_tests",
+  "argv": [
+    "/Users/sac/ggen/scripts/gall/external/04_run_unit_tests.sh"
+  ],
+  "cwd": "/Users/sac/ggen",
+  "exit_code": 0,
+  "duration_ms": 6047.383083,
+  "stdout_path": "crates/ggen-graph/audit/transcripts/04_run_unit_tests.stdout",
+  "stderr_path": "crates/ggen-graph/audit/transcripts/04_run_unit_tests.stderr",
+  "stdout_sha256": "7da1894105e82eac2b6472c4f80518c6ace453e737175640d2bb0b9a29688f87",
+  "stderr_sha256": "0ff384a1bb0b80055325b749065a5721de53779e52af10566445803d3133c74e"
+}

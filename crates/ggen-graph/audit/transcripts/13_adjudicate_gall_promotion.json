@@ -1,0 +1,13 @@
+{
+  "command": "13_adjudicate_gall_promotion",
+  "argv": [
+    "/Users/sac/ggen/scripts/gall/external/13_adjudicate_gall_promotion.sh"
+  ],
+  "cwd": "/Users/sac/ggen",
+  "exit_code": 1,
+  "duration_ms": 635.807958,
+  "stdout_path": "crates/ggen-graph/audit/transcripts/13_adjudicate_gall_promotion.stdout",
+  "stderr_path": "crates/ggen-graph/audit/transcripts/13_adjudicate_gall_promotion.stderr",
+  "stdout_sha256": "9447db23d48b8b87fb6aaf3faab8ded6975c9ea438b80912192b1e29be4083bd",
+  "stderr_sha256": "43eceaa18cca4340da142fdd4345ef6819612ac58ad5cdcc00c4aa7f3fc3ac6c"
+}

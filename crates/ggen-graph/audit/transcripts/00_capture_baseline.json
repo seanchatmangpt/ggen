@@ -1,0 +1,13 @@
+{
+  "command": "00_capture_baseline",
+  "argv": [
+    "/Users/sac/ggen/scripts/gall/external/00_capture_baseline.sh"
+  ],
+  "cwd": "/Users/sac/ggen",
+  "exit_code": 0,
+  "duration_ms": 393.58175,
+  "stdout_path": "crates/ggen-graph/audit/transcripts/00_capture_baseline.stdout",
+  "stderr_path": "crates/ggen-graph/audit/transcripts/00_capture_baseline.stderr",
+  "stdout_sha256": "1320f42daa98375e12cb5f4761aae20702934a60cafec1795589926dabfac25b",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

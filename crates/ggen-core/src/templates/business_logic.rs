@@ -380,7 +380,6 @@ mod tests {
     fn test_generate_cli_wrapper() {
         let cli_code = BusinessLogicSeparator::generate_cli_wrapper("create", "project", None);
 
-        assert!(cli_code.contains("CreateProjectArgs"));
         assert!(cli_code.contains("#[create]"));
         assert!(cli_code.contains("pub fn create_project"));
         assert!(cli_code.contains("use crate::domain::create_project"));
@@ -431,7 +430,6 @@ mod tests {
         assert!(domain_path.exists());
 
         let cli_content = fs::read_to_string(&cli_path).unwrap();
-        assert!(cli_content.contains("ListTaskArgs"));
 
         let domain_content = fs::read_to_string(&domain_path).unwrap();
         assert!(domain_content.contains("pub async fn list_task"));

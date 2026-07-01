@@ -1,0 +1,50 @@
+=== [04] Running Unit Tests ===
+
+running 43 tests
+test coherence::tests::test_different_inputs_produce_different_fingerprints ... ok
+test coherence::tests::test_fingerprint_is_deterministic ... ok
+test coherence::tests::test_ontology_with_empty_event_log_emits_o_to_l_discrepancy ... ok
+test coherence::tests::test_missing_event_log_emits_drift ... ok
+test coherence::tests::test_empty_all_poles_admitted ... ok
+test coherence::tests::test_all_poles_present_no_drift ... ok
+test coherence::tests::test_declared_equals_computed_no_hash_mismatch ... ok
+test coherence::tests::test_artifact_without_event_log_events_emits_count_discrepancy ... ok
+test coherence::tests::test_operation_id_is_unique_per_check ... ok
+test coherence::tests::test_zero_artifacts_with_triples_emits_count_discrepancy ... ok
+test coherence::tests::test_check_with_expectations_is_deterministic_same_inputs ... ok
+test coherence::tests::test_declared_differs_from_computed_emits_hash_mismatch_not_admitted ... ok
+test ocel::discovery::tests::detects_variants_in_execution_paths ... ok
+test ocel::conformance::tests::conformance_check_detects_deviations ... ok
+test ocel::discovery::tests::discovers_multiple_object_types ... ok
+test ocel::conformance::tests::conformance_check_with_valid_model ... ok
+test ocel::conformance::tests::conformance_check_with_multiple_object_types ... ok
+test ocel::discovery::tests::discovers_canonical_path_for_single_object_type ... ok
+test graph::locate::tests::malformed_turtle_reports_located_diagnostic ... ok
+test graph::locate::tests::clean_turtle_has_no_diagnostics ... ok
+test graph::locate::tests::extract_prefixes_returns_declared_prefixes ... ok
+test ocel::pm4py_bridge::tests::pm4py_bridge_creation ... ok
+test ocel::pm4py_bridge::tests::pm4py_bridge_discovery_script_generation ... ok
+test ocel::pack_events::tests::lifecycle_round_trips_through_json ... ok
+test ocel::pack_events::tests::required_ocel_attributes_are_present_and_non_empty ... ok
+test ocel::pm4py_bridge::tests::pm4py_bridge_temp_file_creation ... ok
+test ocel::pack_events::tests::remove_and_lockfile_write_emitters_carry_required_attributes ... ok
+test ocel::pack_events::tests::timestamps_are_lawfully_ordered ... ok
+test ocel::pack_events::tests::pack_object_id_is_consistent_across_lifecycle_events ... ok
+test ocel::pm4py_bridge::tests::pm4py_stats_default ... ok
+test sparql::tests::detects_query_forms ... ok
+test sparql::tests::invalid_query_fails_syntax_check ... ok
+test sparql::tests::valid_query_passes_syntax_check ... ok
+test ocel::conformance::tests::conforming_repair_lifecycle_passes ... ok
+test ocel::conformance::tests::out_of_order_repair_fails ... ok
+test ocel::pm4py_bridge::tests::pm4py_discover_with_unavailable_python ... ok
+test graph::introspect::tests::enumerates_classes_and_properties ... ok
+test ocel::dfg::tests::discovers_directly_follows_edges ... ok
+test shacl::tests::missing_required_property_is_a_violation ... ok
+test shacl::tests::conforming_data_has_no_violations ... ok
+test tests::test_graph_and_receipt_flow ... ok
+test ocel::self_audit::tests::test_self_audit_log_generation_and_projection ... ok
+test ocel::pm4py_bridge::tests::pm4py_discover_with_multiple_variants ... ok
+
+test result: ok. 43 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.19s
+
+PASS: Unit tests passed successfully.

@@ -1,0 +1,84 @@
+{
+  "objects": [
+    {
+      "id": "obj_worktree",
+      "type": "WorktreeInventory",
+      "attributes": {
+        "timestamp": "2026-07-01T06:23:48Z",
+        "total_files": "14132"
+      }
+    },
+    {
+      "id": "obj_clean_room",
+      "type": "CleanRoomRebuild",
+      "attributes": {}
+    },
+    {
+      "id": "obj_doctests",
+      "type": "DoctestVerification",
+      "attributes": {
+        "status": "PASS",
+        "passed_count": "10"
+      }
+    },
+    {
+      "id": "obj_sabotage",
+      "type": "SabotageVerification",
+      "attributes": {}
+    }
+  ],
+  "events": [
+    {
+      "id": "evt_observe_worktree",
+      "activity": "ObserveWorktree",
+      "timestamp": "2026-07-01T06:23:58.826049Z",
+      "objects": [
+        {
+          "id": "obj_worktree",
+          "type": "WorktreeInventory",
+          "qualifier": null
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "evt_observe_clean_room",
+      "activity": "ObserveCleanRoom",
+      "timestamp": "2026-07-01T06:23:58.826049Z",
+      "objects": [
+        {
+          "id": "obj_clean_room",
+          "type": "CleanRoomRebuild",
+          "qualifier": null
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "evt_observe_doctests",
+      "activity": "ObserveDoctests",
+      "timestamp": "2026-07-01T06:23:58.826049Z",
+      "objects": [
+        {
+          "id": "obj_doctests",
+          "type": "DoctestVerification",
+          "qualifier": null
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "evt_observe_sabotage",
+      "activity": "ObserveSabotage",
+      "timestamp": "2026-07-01T06:23:58.826049Z",
+      "objects": [
+        {
+          "id": "obj_sabotage",
+          "type": "SabotageVerification",
+          "qualifier": null
+        }
+      ],
+      "attributes": {}
+    }
+  ]
+}

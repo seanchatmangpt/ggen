@@ -1,0 +1,13 @@
+{
+  "command": "05_run_integration_tests",
+  "argv": [
+    "/Users/sac/ggen/scripts/gall/external/05_run_integration_tests.sh"
+  ],
+  "cwd": "/Users/sac/ggen",
+  "exit_code": 1,
+  "duration_ms": 36868.497875,
+  "stdout_path": "crates/ggen-graph/audit/transcripts/05_run_integration_tests.stdout",
+  "stderr_path": "crates/ggen-graph/audit/transcripts/05_run_integration_tests.stderr",
+  "stdout_sha256": "a03e6d8b5777334d577b049e4bedc8c7f113f3174de573d5d43753aab716aecd",
+  "stderr_sha256": "e8b6d044bc33f65ab0f7de3231c4d7e8587690235a8ada3095e8b71d1c776bab"
+}

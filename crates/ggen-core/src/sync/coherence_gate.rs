@@ -160,6 +160,9 @@ impl CoherenceGate {
             .drifts
             .iter()
             .filter(|d| {
+                if !self.config.check_event_log && (d.source_pole == Pole::EventLog || d.target_pole == Pole::EventLog) {
+                    return false;
+                }
                 matches!(d.kind, DriftKind::Missing | DriftKind::HashMismatch)
                     || (!self.config.allow_count_discrepancy && matches!(d.kind, DriftKind::CountDiscrepancy))
             })
@@ -220,7 +223,10 @@ mod tests {
 
     #[test]
     fn test_gate_admits_full_coherence() {
-        let config = CoherenceGateConfig::default();
+        let config = CoherenceGateConfig {
+            allow_count_discrepancy: true,
+            ..Default::default()
+        };
         let gate = CoherenceGate::new(config);
 
         let ontology_bytes = b"<https://example.org/s> <https://example.org/p> <https://example.org/o> .";

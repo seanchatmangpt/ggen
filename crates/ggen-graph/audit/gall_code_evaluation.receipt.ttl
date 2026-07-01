@@ -1,0 +1,88 @@
+@base <http://example.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<#evaluation_receipt> a prov:Entity, dcat:Dataset ;
+dcterms:identifier "35b36150-d068-4103-807c-da9d7bcb1bc2" ;
+dcterms:created "2026-07-01T06:24:13Z"^^xsd:dateTime ;
+dcterms:description "Witnessed Agent Truthfulness code evaluation receipt" ;
+prov:wasGeneratedBy <#activity_hook_actuation> ;
+prov:used <#evaluation_final_report> ;
+spdx:checksum [
+a spdx:Checksum ;
+spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
+spdx:checksumValue "fc8c443250898f0715c5092e8725bca418a3a009f60384151be284637c663ecd"
+] .
+
+<#activity_hook_actuation> a prov:Activity ;
+dcterms:title "Hook Actuation Activity" ;
+prov:startedAtTime "2026-07-01T06:24:00Z"^^xsd:dateTime ;
+prov:endedAtTime "2026-07-01T06:24:13Z"^^xsd:dateTime .
+
+<#activity_hook_actuation> prov:wasInformedBy <http://example.org/#doctest_run> .
+
+<#evaluation_final_report> a prov:Entity, dcat:Distribution ;
+dcterms:title "Final Evaluation Report" ;
+dcat:downloadURL <file://witnessed_code_evaluation.final.ttl> ;
+spdx:checksum [
+a spdx:Checksum ;
+spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
+spdx:checksumValue "2b2fcca1ab7fe25f412ac254adf42319c6c86240a495b892fb8ca4339e029290"
+] .
+
+<#evaluation_delta> a prov:Entity, dcat:Distribution ;
+dcterms:title "Evaluation Decision Delta" ;
+dcat:downloadURL <file://witnessed_decision.delta.ttl> ;
+spdx:checksum [
+a spdx:Checksum ;
+spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
+spdx:checksumValue "ff7d26c56a47dd3d5290df9a2452135ae4397ec60dc0c97ab3a367b680a63e6f"
+] .
+
+<#evidence_0> a prov:Entity, dcat:Distribution ;
+dcterms:title "Evidence: gall_evidence.ttl" ;
+dcat:downloadURL <file://witnessed_evidence.ttl> ;
+spdx:checksum [
+a spdx:Checksum ;
+spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
+spdx:checksumValue "aed001d892cd3158837a51708e8fb71d7fd2adc3b6d802409ae5d63747899443"
+] .
+
+<#evaluation_receipt> prov:used <#evidence_0> .
+
+<#evidence_1> a prov:Entity, dcat:Distribution ;
+dcterms:title "Evidence: worktree_inventory.ttl" ;
+dcat:downloadURL <file://worktree_inventory.ttl> ;
+spdx:checksum [
+a spdx:Checksum ;
+spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
+spdx:checksumValue "3c11c8ef77fba2a48b930983441ba2ef127ee27df7307adbbb39168cfd10eb60"
+] .
+
+<#evaluation_receipt> prov:used <#evidence_1> .
+
+<#evidence_2> a prov:Entity, dcat:Distribution ;
+dcterms:title "Evidence: doctest_results.ttl" ;
+dcat:downloadURL <file://doctest_results.ttl> ;
+spdx:checksum [
+a spdx:Checksum ;
+spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
+spdx:checksumValue "56ad06c164455994b474416daabc2010be70d2c86946ff8ba5808e444cda162c"
+] .
+
+<#evaluation_receipt> prov:used <#evidence_2> .
+
+<#evidence_3> a prov:Entity, dcat:Distribution ;
+dcterms:title "Evidence: dialect_completeness.validation.ttl" ;
+dcat:downloadURL <file://dialect_completeness.validation.ttl> ;
+spdx:checksum [
+a spdx:Checksum ;
+spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
+spdx:checksumValue "0c8a0b7b5136ced6ddd1f76cda3c3f3eb3531e18d3dc446f0d2e0706f4188050"
+] .
+
+<#evaluation_receipt> prov:used <#evidence_3> .
+

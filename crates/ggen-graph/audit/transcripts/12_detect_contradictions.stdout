@@ -1,0 +1,11 @@
+=== Running Contradiction & Missing Evaluation Scanner ===
+Target OCEL file: crates/ggen-graph/audit/vision2030.self_audit.ocel.json
+Running Check 1: Conflicting Decisions... PASS
+Running Check 2: Decision without Evaluation... PASS
+Running Check 3: Evaluation without Adjudication... PASS
+Running Check 4: Declared but never Evaluated... PASS
+Running Check 5: Promotion despite un-remediated failure... PASS
+Running Check 6: Redundant Decisions... PASS
+Running Check 7: PromotionDecision ID reuse... PASS
+=== Contradiction Scan Summary ===
+PASS: Zero contradictions detected in OCEL log.

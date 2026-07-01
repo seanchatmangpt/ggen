@@ -1,0 +1,13 @@
+{
+  "command": "08_verify_replay_receipts",
+  "argv": [
+    "/Users/sac/ggen/scripts/gall/external/08_verify_replay_receipts.sh"
+  ],
+  "cwd": "/Users/sac/ggen",
+  "exit_code": 0,
+  "duration_ms": 1802.775875,
+  "stdout_path": "crates/ggen-graph/audit/transcripts/08_verify_replay_receipts.stdout",
+  "stderr_path": "crates/ggen-graph/audit/transcripts/08_verify_replay_receipts.stderr",
+  "stdout_sha256": "28df12f51cf743bfc8cb65385e1881b766731d0452891ccbd4850fd14ad8a607",
+  "stderr_sha256": "63abb329bab433039c64e02b7bf33aee9e0f05cc73dd6f0caa6bb9a02abd664e"
+}

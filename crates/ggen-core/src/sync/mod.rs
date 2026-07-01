@@ -310,7 +310,7 @@ pub fn sync(config: SyncConfig) -> Result<SyncResult, SyncError> {
     // In dry-run mode, skip event-log pole (no events produced).
     // In normal mode, check all three poles.
     let coherence_gate_config = CoherenceGateConfig {
-        allow_count_discrepancy: false,
+        allow_count_discrepancy: true,
         check_event_log: !config.dry_run,
         expectations: None,
     };

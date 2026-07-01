@@ -1,0 +1,43 @@
+=== Running GALL Checkpoint Promotion Adjudicator ===
+Verifying verifier scripts & source files integrity...
+All script and source file digests match the integrity manifest.
+Executing script: scripts/gall/external/00_capture_baseline.sh
+=== [00] Capturing Workspace Baseline ===
+Git HEAD: dea9dc7dd3ee7a9e9de8f8285b0aa7ab1e634624
+ M crates/ggen-graph/audit/vision2030.self_audit.ocel.json
+ M docs/docs.tree.json
+ M docs/docs.tree.ttl
+?? crates/ggen-graph/audit/dialect_completeness.validation.ttl
+?? crates/ggen-graph/audit/gall_code_evaluation.final.ttl
+?? crates/ggen-graph/audit/gall_code_evaluation.receipt.ttl
+?? crates/ggen-graph/audit/gall_decision.delta.ttl
+?? crates/ggen-graph/audit/gall_evidence.ocel.json
+?? crates/ggen-graph/audit/gall_evidence.ttl
+?? crates/ggen-graph/audit/hook_actuation.validation.ttl
+?? crates/ggen-graph/audit/public_vocab.validation.ttl
+?? crates/ggen-graph/audit/transcripts/
+?? crates/ggen-graph/audit/vision2030.verification_manifest.json
+?? crates/ggen-graph/audit/worktree_inventory.full.json
+?? crates/ggen-graph/audit/worktree_inventory.ttl
+Baseline captured successfully.
+Executing script: scripts/gall/external/01_extract_requirements.sh
+=== [01] Extracting & Verifying Requirements ===
+Requirement req_r1_one_crate confirmed in request/codebase.
+Requirement req_r2_ontology confirmed in request/codebase.
+Requirement req_r3_deterministic confirmed in request/codebase.
+Requirement req_r4_knowledge_hook confirmed in request/codebase.
+Requirement req_r5_ocel_prov confirmed in request/codebase.
+Requirement req_r6_compliance confirmed in request/codebase.
+Requirement req_r7_ocel_self_audit confirmed in request/codebase.
+Requirement req_r8_coverage_matrix confirmed in request/codebase.
+Requirement req_r9_proof_report confirmed in request/codebase.
+Requirements verified.
+Executing script: scripts/gall/external/02_verify_package_constraints.sh
+=== [02] Verifying Package Constraints ===
+PASS: ggen-graph is standalone and has no sibling ggen dependency constraints.
+Executing script: scripts/gall/external/03_check_feature_flags.sh
+=== [03] Verifying Feature Flags ===
+=== Adjudication Finished ===
+Verdict: Refused
+Receipt: 3e35c7fb707a7acec16f4bfc32de9628348d047ceeeb339ae4fe87d5de176e98
+Results written to: crates/ggen-graph/audit/vision2030.external_adjudication.json

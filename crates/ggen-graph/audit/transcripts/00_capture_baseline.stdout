@@ -1,0 +1,15 @@
+=== [00] Capturing Workspace Baseline ===
+Git HEAD: dea9dc7dd3ee7a9e9de8f8285b0aa7ab1e634624
+ M docs/docs.tree.json
+ M docs/docs.tree.ttl
+?? crates/ggen-graph/audit/dialect_completeness.validation.ttl
+?? crates/ggen-graph/audit/gall_code_evaluation.final.ttl
+?? crates/ggen-graph/audit/gall_code_evaluation.receipt.ttl
+?? crates/ggen-graph/audit/gall_decision.delta.ttl
+?? crates/ggen-graph/audit/gall_evidence.ocel.json
+?? crates/ggen-graph/audit/gall_evidence.ttl
+?? crates/ggen-graph/audit/hook_actuation.validation.ttl
+?? crates/ggen-graph/audit/public_vocab.validation.ttl
+?? crates/ggen-graph/audit/worktree_inventory.full.json
+?? crates/ggen-graph/audit/worktree_inventory.ttl
+Baseline captured successfully.

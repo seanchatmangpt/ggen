@@ -1,0 +1,30 @@
+@base <http://example.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<#activity_04_run_unit_tests> a prov:Activity ;
+    dcterms:identifier "04_run_unit_tests" ;
+    prov:startedAtTime "2026-07-01T06:24:15.714Z" ; 
+    prov:endedAtTime "2026-07-01T06:24:21.761Z" ;
+    prov:value 0 
+    ; prov:wasInformedBy _:ee098c9c6d70e8cd50f2e49593a6a2bd .
+
+<#stdout_04_run_unit_tests> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_04_run_unit_tests> ;
+    dcterms:title "04_run_unit_tests.stdout" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "7da1894105e82eac2b6472c4f80518c6ace453e737175640d2bb0b9a29688f87"
+    ] .
+
+<#stderr_04_run_unit_tests> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_04_run_unit_tests> ;
+    dcterms:title "04_run_unit_tests.stderr" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "0ff384a1bb0b80055325b749065a5721de53779e52af10566445803d3133c74e"
+    ] .

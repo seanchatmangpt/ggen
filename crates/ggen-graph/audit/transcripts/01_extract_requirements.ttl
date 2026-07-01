@@ -1,0 +1,30 @@
+@base <http://example.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<#activity_01_extract_requirements> a prov:Activity ;
+    dcterms:identifier "01_extract_requirements" ;
+    prov:startedAtTime "2026-07-01T06:24:15.606Z" ; 
+    prov:endedAtTime "2026-07-01T06:24:15.695Z" ;
+    prov:value 0 
+    ; prov:wasInformedBy _:ee098c9c6d70e8cd50f2e49593a6a2bd .
+
+<#stdout_01_extract_requirements> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_01_extract_requirements> ;
+    dcterms:title "01_extract_requirements.stdout" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "925c202f4d7d3b66e3061361db43459c6b5ae562a918cf93643ecc93809620ec"
+    ] .
+
+<#stderr_01_extract_requirements> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_01_extract_requirements> ;
+    dcterms:title "01_extract_requirements.stderr" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ] .

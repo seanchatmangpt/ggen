@@ -1,0 +1,13 @@
+{
+  "command": "12_detect_contradictions",
+  "argv": [
+    "/Users/sac/ggen/scripts/gall/external/12_detect_contradictions.sh"
+  ],
+  "cwd": "/Users/sac/ggen",
+  "exit_code": 0,
+  "duration_ms": 34.745125,
+  "stdout_path": "crates/ggen-graph/audit/transcripts/12_detect_contradictions.stdout",
+  "stderr_path": "crates/ggen-graph/audit/transcripts/12_detect_contradictions.stderr",
+  "stdout_sha256": "7641f4886bf3ab5839da479ee1dedff4977e253e19217a657e5db7de46fef474",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

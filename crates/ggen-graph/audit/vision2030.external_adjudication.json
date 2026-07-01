@@ -1,0 +1,63 @@
+{
+  "timestamp": "2026-07-01T06:25:03Z",
+  "verdict": "Refused",
+  "reason": "Adjudication refused because script scripts/gall/external/03_check_feature_flags.sh failed with exit code 1.",
+  "scripts_verified": [
+    {
+      "path": "scripts/gall/external/00_capture_baseline.sh",
+      "sha256": "cf126c50125518f0b66909e24ab1969dd618dc8804dc64460a228ca4a90c206b",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_seconds": 1
+    },
+    {
+      "path": "scripts/gall/external/01_extract_requirements.sh",
+      "sha256": "adfaa05f378dbb4c4449657dfb1fe0752f84563bc528115d25cb91f71835ea8a",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_seconds": 0
+    },
+    {
+      "path": "scripts/gall/external/02_verify_package_constraints.sh",
+      "sha256": "8d8e692bc9742664e949123dcdde1066f536b4cb7f06eda71e9836b24e776ac5",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_seconds": 0
+    },
+    {
+      "path": "scripts/gall/external/03_check_feature_flags.sh",
+      "sha256": "d24688011931502f71178beb69307351e9dfe16cf165e878d1d40b7d20da81ce",
+      "exit_code": 1,
+      "status": "FAIL",
+      "duration_seconds": 0
+    }
+  ],
+  "source_files_verified": [
+    {
+      "path": "crates/ggen-graph/src/ocel/self_audit.rs",
+      "sha256": "dde03e0129c3ad4e4f1467ced6603dae53b168890b462ecaf17c0dd51b50c63e"
+    },
+    {
+      "path": "crates/ggen-graph/src/ocel/coverage.rs",
+      "sha256": "11a556ea89eb4ce345c8394ee267868b0ccf3ffc15086bc7ca0c819799ff8460"
+    },
+    {
+      "path": "crates/ggen-graph/src/bin/verify_audit.rs",
+      "sha256": "9921b0ee3e1ffa2aae5743ca5d70a711cc69e007ca6bc47f85b896dd2b3aec7e"
+    }
+  ],
+  "contradiction_check": {
+    "status": "PASS",
+    "violations_count": 0,
+    "violations": []
+  },
+  "self_audit_digest": {
+    "path": "crates/ggen-graph/audit/vision2030.self_audit.ocel.json",
+    "blake3": "791f13c530e731f543bb7943619e58052ccb82b487bf389f4be4eee6d1fe7e31"
+  },
+  "coverage_digest": {
+    "path": "crates/ggen-graph/audit/vision2030.coverage.json",
+    "blake3": "baa7d485ecf07040ec6dae5efc3e80d93fd0325013af29127a9c1ada353325e5"
+  },
+  "adjudication_blake3_receipt": "3e35c7fb707a7acec16f4bfc32de9628348d047ceeeb339ae4fe87d5de176e98"
+}

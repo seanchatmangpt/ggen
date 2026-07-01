@@ -1,0 +1,13 @@
+@base <http://example.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<#clean_room_rebuild> a prov:Entity ;
+    dcterms:identifier "clean_room_rebuild" ;
+    dcterms:type "BoundaryExecutionRequest" ;
+    sh:conforms false ;
+    prov:value 1 ;
+    dcterms:description "Clean-room build duration: 101 seconds" ;
+    prov:wasGeneratedBy _:ea2b679883dd91d59afd2181d1023c1b .

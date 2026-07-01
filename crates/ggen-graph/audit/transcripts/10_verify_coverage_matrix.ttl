@@ -1,0 +1,30 @@
+@base <http://example.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<#activity_10_verify_coverage_matrix> a prov:Activity ;
+    dcterms:identifier "10_verify_coverage_matrix" ;
+    prov:startedAtTime "2026-07-01T06:25:02.819Z" ; 
+    prov:endedAtTime "2026-07-01T06:25:02.829Z" ;
+    prov:value 0 
+    ; prov:wasInformedBy _:ee098c9c6d70e8cd50f2e49593a6a2bd .
+
+<#stdout_10_verify_coverage_matrix> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_10_verify_coverage_matrix> ;
+    dcterms:title "10_verify_coverage_matrix.stdout" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "7895f4e62a7fe5af9bb26945726f3a92f7bb207cc11513df13f4720e3b6adc59"
+    ] .
+
+<#stderr_10_verify_coverage_matrix> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_10_verify_coverage_matrix> ;
+    dcterms:title "10_verify_coverage_matrix.stderr" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ] .

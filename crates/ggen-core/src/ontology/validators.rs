@@ -500,7 +500,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_performance_validator() {
-        let validator = RealPerformanceValidator::new(1000, 100 * 1024);
+        let validator = RealPerformanceValidator::new(100_000, 100 * 1024);
         let ctx = create_test_context();
         let result = validator.validate(&ctx).await.unwrap();
 
@@ -512,7 +512,7 @@ mod tests {
         let static_v: Arc<dyn StaticValidator> = Arc::new(RealStaticValidator::new(vec![]));
         let dynamic_v: Arc<dyn DynamicValidator> = Arc::new(RealDynamicValidator::new(3));
         let perf_v: Arc<dyn PerformanceValidator> =
-            Arc::new(RealPerformanceValidator::new(1000, 100 * 1024));
+            Arc::new(RealPerformanceValidator::new(100_000, 100 * 1024));
 
         let composite = CompositeValidator::new(static_v, dynamic_v, perf_v);
         let ctx = create_test_context();
@@ -529,7 +529,7 @@ mod tests {
         let static_v: Arc<dyn StaticValidator> = Arc::new(RealStaticValidator::new(vec![]));
         let dynamic_v: Arc<dyn DynamicValidator> = Arc::new(RealDynamicValidator::new(3));
         let perf_v: Arc<dyn PerformanceValidator> =
-            Arc::new(RealPerformanceValidator::new(1000, 100 * 1024));
+            Arc::new(RealPerformanceValidator::new(100_000, 100 * 1024));
 
         let composite = CompositeValidator::new(static_v, dynamic_v, perf_v);
         let ctx = create_test_context();
