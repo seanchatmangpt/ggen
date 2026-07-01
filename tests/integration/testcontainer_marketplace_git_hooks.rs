@@ -75,7 +75,7 @@ fn test_marketplace_project_with_git_hooks() {
     println!("📝 Build completed (output truncated)");
     println!(
         "    {}",
-        &build_stdout
+        build_stdout
             .lines()
             .take(3)
             .collect::<Vec<_>>()

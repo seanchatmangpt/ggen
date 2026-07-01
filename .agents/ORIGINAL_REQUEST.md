@@ -200,3 +200,39 @@ The work must be distributed and conducted using a 20-agent research swarm metho
 
 ### Swarm Execution
 - [ ] The execution log must demonstrate multi-agent collaboration (e.g., via subagents), with evidence of specialized delegation.
+
+## Follow-up — 2026-07-01T05:19:30Z
+
+Finalize the ggen v26.7.1 release by successfully resolving the current uncommitted fixes on the `claude/nice-dijkstra-1543ko` branch, safely auditing the markdown documentation, and preparing the workspace for a merge to `main`.
+
+Working directory: /Users/sac/ggen
+Integrity mode: development
+
+## Requirements
+
+### R1. Solidify In-Flight Work
+Test and commit the uncommitted fixes currently present on the branch (simplification of `#[verb]` macro usages in the CLI, performance test fixes, and the `provenance_envelope.rs` hashing logic).
+
+### R2. Safely Audit Documentation
+Drop the corrupted `stash@{0}`. Safely execute a documentation sweep of all `.md` files in the repository to produce `DOCUMENTATION_AUDIT_REPORT.md` (as originally requested by the user) *without* modifying or corrupting the source markdown files.
+
+### R3. Version Bump and Release Prep
+Bump the workspace version to `26.7.1` in all `Cargo.toml` files, ensure `Cargo.lock` is updated, and draft the new release section in `CHANGELOG.md`.
+
+## Acceptance Criteria
+
+### Build & Test Integrity
+- [ ] `cargo check --all-targets` exits with code 0.
+- [ ] `cargo test --all-targets` exits with code 0 (Chicago TDD compliance; no failing tests or bypassed proof gates).
+- [ ] `cargo clippy --all-targets --all-features -- -D warnings` exits with code 0.
+
+### Documentation Generation
+- [ ] `stash@{0}` is successfully dropped.
+- [ ] A final `DOCUMENTATION_AUDIT_REPORT.md` exists in the workspace root accurately detailing the state of `.md` files.
+- [ ] No `.md` files in `vendors/tai-erlang-autonomics/` or elsewhere are corrupted or unexpectedly truncated.
+
+### Release Readiness
+- [ ] The root `Cargo.toml` workspace package version is set to `26.7.1`.
+- [ ] `CHANGELOG.md` includes a new section for `[26.7.1]` documenting the fixes.
+- [ ] The `claude/nice-dijkstra-1543ko` branch is clean, fully committed, and ready to be merged into `main`.
+

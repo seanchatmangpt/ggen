@@ -120,6 +120,7 @@
 #![allow(unexpected_cfgs)]
 #![allow(unused_imports)]
 #![allow(dead_code)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+#![allow(clippy::unused_async_trait_impl, clippy::branches_sharing_code)]
 #![allow(
     clippy::manual_checked_ops,
     clippy::unnecessary_sort_by,
@@ -144,6 +145,7 @@
     clippy::suspicious_doc_comments,
     clippy::ignored_unit_patterns
 )]
+pub mod agent;
 pub mod audit;
 pub mod cache;
 pub mod canonical;
@@ -269,6 +271,10 @@ pub mod receipt {
     #[path = "provenance_envelope.rs"]
     pub mod provenance_envelope;
     pub use provenance_envelope::{CoherenceReport, ProvenanceEnvelope};
+
+    #[path = "chain_linking.rs"]
+    pub mod chain_linking;
+    pub use chain_linking::OperationLink;
 }
 pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsResponse};
 pub use gpack::GpackManifest;
@@ -331,10 +337,6 @@ pub use ontology::{
     IterationTelemetry,
     LoopState,
     MinerConfig,
-    MockDynamicValidator,
-    MockLLMProposer,
-    MockPerformanceValidator,
-    MockStaticValidator,
     NoRetrocausationCheck,
     Observation,
     ObservationSource,
@@ -346,6 +348,7 @@ pub use ontology::{
     OntologyStats,
     // Pattern mining
     Pattern,
+    PatternHeuristicProposer,
     PatternMiner,
     PatternType,
     PerformanceMetrics,

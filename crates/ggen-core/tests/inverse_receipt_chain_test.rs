@@ -11,8 +11,8 @@
 //! lifecycle: creation, signing, chaining, and multi-receipt verification.
 
 use ggen_core::generate_keypair;
-use ggen_core::reverse_sync::{InverseReceipt, InverseReceiptChain, InverseStage};
 use ggen_core::receipt::OperationLink;
+use ggen_core::reverse_sync::{InverseReceipt, InverseReceiptChain, InverseStage};
 use std::collections::HashMap;
 
 /// Helper to create a valid InverseReceipt with real signature.
@@ -36,13 +36,12 @@ fn create_signed_receipt(signing_key: &ed25519_dalek::SigningKey) -> InverseRece
     receipt
 }
 
-/// Helper to create a signed receipt linked to a forward operation.
 fn create_linked_receipt(
     signing_key: &ed25519_dalek::SigningKey, forward_op_id: &str,
 ) -> InverseReceipt {
     let mut receipt = create_signed_receipt(signing_key);
     receipt.previous_operation_id = Some(forward_op_id.to_string());
-    receipt
+    receipt.sign(signing_key).expect("sign should succeed")
 }
 
 #[test]
@@ -50,7 +49,11 @@ fn test_inverse_receipt_chain_new_empty() {
     let chain = InverseReceiptChain::new();
 
     assert_eq!(chain.receipts.len(), 0, "new chain must be empty");
-    assert_eq!(chain.chain_hash.len(), 64, "chain_hash must be 64 hex chars (BLAKE3)");
+    assert_eq!(
+        chain.chain_hash.len(),
+        64,
+        "chain_hash must be 64 hex chars (BLAKE3)"
+    );
     assert!(
         chain.chain_hash.chars().all(|c| c.is_ascii_hexdigit()),
         "chain_hash must be valid hex"
@@ -69,7 +72,10 @@ fn test_inverse_receipt_chain_append_single_valid() {
     let result = chain.append(receipt.clone(), &verifying_key);
 
     // Assert
-    assert!(result.is_ok(), "append should succeed for valid signed receipt");
+    assert!(
+        result.is_ok(),
+        "append should succeed for valid signed receipt"
+    );
     assert_eq!(chain.receipts.len(), 1, "chain must contain one receipt");
     assert_eq!(
         chain.receipts[0].operation_id, receipt.operation_id,
@@ -115,8 +121,14 @@ fn test_inverse_receipt_chain_append_multiple_grows_correctly() {
 
     // Assert
     assert_eq!(chain.receipts.len(), 3, "chain must contain 3 receipts");
-    assert_ne!(hash_after_r1, hash_after_r2, "hash must differ after each append");
-    assert_ne!(hash_after_r2, hash_after_r3, "hash must differ after each append");
+    assert_ne!(
+        hash_after_r1, hash_after_r2,
+        "hash must differ after each append"
+    );
+    assert_ne!(
+        hash_after_r2, hash_after_r3,
+        "hash must differ after each append"
+    );
     // All three hashes must be distinct.
     assert_ne!(hash_after_r1, hash_after_r3);
 }
@@ -137,7 +149,11 @@ fn test_inverse_receipt_chain_append_invalid_signature_rejected() {
         result.is_err(),
         "append must reject receipt with empty signature"
     );
-    assert_eq!(chain.receipts.len(), 0, "chain must remain empty after rejection");
+    assert_eq!(
+        chain.receipts.len(),
+        0,
+        "chain must remain empty after rejection"
+    );
 }
 
 #[test]
@@ -158,7 +174,11 @@ fn test_inverse_receipt_chain_append_tampered_receipt_rejected() {
         result.is_err(),
         "append must reject tampered receipt (signature no longer valid)"
     );
-    assert_eq!(chain.receipts.len(), 0, "chain must remain empty after rejection");
+    assert_eq!(
+        chain.receipts.len(),
+        0,
+        "chain must remain empty after rejection"
+    );
 }
 
 #[test]
@@ -186,7 +206,10 @@ fn test_inverse_receipt_chain_verify_all_valid_returns_true() {
     let is_valid = chain.verify(&verifying_key);
 
     // Assert
-    assert!(is_valid, "valid chain with all correct signatures must verify true");
+    assert!(
+        is_valid,
+        "valid chain with all correct signatures must verify true"
+    );
 }
 
 #[test]
@@ -284,7 +307,8 @@ fn test_inverse_receipt_previous_operation_id_links_to_forward() {
 
     // Assert
     assert_eq!(
-        inverse.previous_operation_id, Some(forward_op_id),
+        inverse.previous_operation_id,
+        Some(forward_op_id),
         "inverse receipt must record the forward operation_id"
     );
 }
@@ -295,8 +319,7 @@ fn test_inverse_receipt_chain_preserves_operation_linkage() {
     let forward_op_id = uuid::Uuid::new_v4().to_string();
     let (signing_key, verifying_key) = generate_keypair();
 
-    let mut receipt = create_signed_receipt(&signing_key);
-    receipt.previous_operation_id = Some(forward_op_id.clone());
+    let receipt = create_linked_receipt(&signing_key, &forward_op_id);
 
     // Act
     let mut chain = InverseReceiptChain::new();
@@ -306,7 +329,8 @@ fn test_inverse_receipt_chain_preserves_operation_linkage() {
 
     // Assert
     assert_eq!(
-        chain.receipts[0].previous_operation_id, Some(forward_op_id),
+        chain.receipts[0].previous_operation_id,
+        Some(forward_op_id),
         "chain must preserve the operation linkage"
     );
 }
@@ -342,7 +366,10 @@ fn test_inverse_receipt_hash_changes_with_modification() {
     let hash2 = receipt2.hash().expect("hash should succeed");
 
     // Assert
-    assert_ne!(hash1, hash2, "different receipts must have different hashes");
+    assert_ne!(
+        hash1, hash2,
+        "different receipts must have different hashes"
+    );
 }
 
 #[test]
@@ -454,8 +481,7 @@ fn test_operation_link_rejects_invalid_inverse_id() {
 #[test]
 fn test_operation_link_rejects_non_v4_uuid() {
     // Arrange — create a UUID v1 (not v4).
-    let v1_uuid = uuid::Uuid::new_v1(uuid::Timestamp::now(uuid::NoContext), &[1, 2, 3, 4, 5, 6])
-        .to_string();
+    let v1_uuid = "c106a26a-21bb-11eb-adc1-0242ac120002".to_string();
     let v4_uuid = uuid::Uuid::new_v4().to_string();
 
     // Act
@@ -476,8 +502,7 @@ fn test_full_e2e_forward_inverse_linkage() {
     let (signing_key, verifying_key) = generate_keypair();
 
     // Create and sign an inverse receipt linked to the forward operation.
-    let mut inverse_receipt = create_signed_receipt(&signing_key);
-    inverse_receipt.previous_operation_id = Some(forward_op_id.clone());
+    let inverse_receipt = create_linked_receipt(&signing_key, &forward_op_id);
 
     // Build the inverse chain.
     let mut chain = InverseReceiptChain::new();
@@ -514,6 +539,9 @@ fn test_chain_default_returns_new_chain() {
     let chain1 = InverseReceiptChain::new();
     let chain2 = InverseReceiptChain::default();
 
-    assert_eq!(chain1.chain_hash, chain2.chain_hash, "Default must match new()");
+    assert_eq!(
+        chain1.chain_hash, chain2.chain_hash,
+        "Default must match new()"
+    );
     assert_eq!(chain1.receipts.len(), chain2.receipts.len());
 }

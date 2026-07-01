@@ -289,10 +289,7 @@ fn push_diagnostics_to_registry(diagnostics: &[lsp_max_protocol::MaxDiagnostic])
     }
 
     // ANDON = "1" when GGEN-* violations are present; OPEN = "0" when clean.
-    let _ = std::fs::write(
-        gate_file_path(),
-        if has_violations { b"1" } else { b"0" },
-    );
+    let _ = std::fs::write(gate_file_path(), if has_violations { b"1" } else { b"0" });
 }
 
 /// Filesystem path for the Λ_CD gate file.

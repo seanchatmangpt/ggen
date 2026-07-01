@@ -39,6 +39,7 @@ fn make_inverse_receipt(op_id: &str) -> (InverseReceipt, ed25519_dalek::SigningK
         shacl_valid: true,
         last_stage: InverseStage::Emit,
         signature: String::new(),
+        previous_operation_id: None,
     }
     .sign(&signing_key)
     .expect("failed to sign inverse receipt");
@@ -303,6 +304,7 @@ fn test_verify_both_forward_and_inverse_with_same_key() {
         shacl_valid: true,
         last_stage: InverseStage::Emit,
         signature: String::new(),
+        previous_operation_id: None,
     }
     .sign(&signing_key)
     .expect("failed to sign inverse");
@@ -493,7 +495,10 @@ fn sabotage_add_forward_rejects_unsigned_receipt() {
         vec!["output".to_string()],
         None,
     );
-    assert!(unsigned.signature.is_empty(), "precondition: signature must be empty");
+    assert!(
+        unsigned.signature.is_empty(),
+        "precondition: signature must be empty"
+    );
 
     // Act
     let result = ProvenanceEnvelope::new().add_forward(unsigned);
@@ -525,8 +530,12 @@ fn sabotage_add_inverse_rejects_unsigned_receipt() {
         shacl_valid: true,
         last_stage: InverseStage::Emit,
         signature: String::new(),
+        previous_operation_id: None,
     };
-    assert!(unsigned.signature.is_empty(), "precondition: signature must be empty");
+    assert!(
+        unsigned.signature.is_empty(),
+        "precondition: signature must be empty"
+    );
 
     // Act
     let result = ProvenanceEnvelope::new().add_inverse(unsigned);

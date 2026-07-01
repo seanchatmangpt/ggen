@@ -59,20 +59,18 @@
 //!
 //! ```ignore
 //! //! CLI wrapper for create project (illustrative generated output)
-//! use crate::utils::error::Result;
-//! use clap::Args;
-//! use crate::domain::create_project;
+//! use clap_noun_verb::{NounVerbError, Result};
+//! use clap_noun_verb_macros::verb;
+//! use serde_json::{json, Value};
+//! use crate::domain::create_project as domain_impl;
 //!
-//! #[derive(Debug, Args)]
-//! pub struct CreateProjectArgs {
-//!     // CLI arguments here
-//! }
-//!
-//! #[create]
-//! pub fn create_project(args: CreateProjectArgs) -> Result<()> {
-//!     tokio::runtime::Runtime::new()?.block_on(async {
-//!         create_project(args).await
-//!     })
+//! /// create project command.
+//! #[verb("create", "project")]
+//! pub fn create_project() -> Result<Value> {
+//!     let _result = tokio::runtime::Runtime::new()
+//!         .map_err(|e| NounVerbError::execution_error(e.to_string()))?
+//!         .block_on(async { domain_impl().await });
+//!     Ok(json!({ "status": "ok" }))
 //! }
 //! ```
 //!
@@ -142,43 +140,31 @@ impl BusinessLogicSeparator {
         let struct_name = Self::to_pascal_case(&format!("{}-{}", verb, noun));
         let function_name = Self::to_snake_case(&format!("{}_{}", verb, noun));
 
+        let _ = struct_name; // no longer emitted: clap-noun-verb verbs take params, not an Args struct
         format!(
-            r"//! CLI wrapper for {} {}
+            r#"//! CLI wrapper for {verb} {noun}
 //!
-//! This is a thin synchronous wrapper that delegates to async business logic.
+//! Thin clap-noun-verb verb that delegates to async business logic.
 
-use crate::utils::error::Result;
-use clap::Args;
-use crate::{}::{};
+use clap_noun_verb::{{NounVerbError, Result}};
+use clap_noun_verb_macros::verb;
+use serde_json::{{json, Value}};
+use crate::{module}::{function_name} as domain_impl;
 
-/// CLI arguments for {} {}
-#[derive(Debug, Args)]
-pub struct {}Args {{
-    // FUTURE: Add CLI arguments here
+/// {verb} {noun} command.
+#[verb("{verb}", "{noun}")]
+pub fn {function_name}() -> Result<Value> {{
+    // Delegate to async business logic.
+    let _result = tokio::runtime::Runtime::new()
+        .map_err(|e| NounVerbError::execution_error(e.to_string()))?
+        .block_on(async {{ domain_impl().await }});
+    Ok(json!({{ "status": "ok" }}))
 }}
-
-/// {} {} command (sync wrapper)
-#[{}]
-pub fn {}(args: {}Args) -> Result<()> {{
-    // Delegate to async business logic
-    tokio::runtime::Runtime::new()?.block_on(async {{
-        {}(args).await
-    }})
-}}
-",
-            verb,
-            noun,
-            module,
-            function_name,
-            verb,
-            noun,
-            struct_name,
-            verb,
-            noun,
-            verb,
-            function_name,
-            struct_name,
-            function_name
+"#,
+            verb = verb,
+            noun = noun,
+            module = module,
+            function_name = function_name
         )
     }
 
@@ -394,8 +380,7 @@ mod tests {
     fn test_generate_cli_wrapper() {
         let cli_code = BusinessLogicSeparator::generate_cli_wrapper("create", "project", None);
 
-        assert!(cli_code.contains("CreateProjectArgs"));
-        assert!(cli_code.contains("#[create]"));
+        assert!(cli_code.contains("#[verb(\"create\", \"project\")]"));
         assert!(cli_code.contains("pub fn create_project"));
         assert!(cli_code.contains("use crate::domain::create_project"));
     }
@@ -445,7 +430,6 @@ mod tests {
         assert!(domain_path.exists());
 
         let cli_content = fs::read_to_string(&cli_path).unwrap();
-        assert!(cli_content.contains("ListTaskArgs"));
 
         let domain_content = fs::read_to_string(&domain_path).unwrap();
         assert!(domain_content.contains("pub async fn list_task"));

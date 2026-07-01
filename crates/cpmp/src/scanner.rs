@@ -83,7 +83,27 @@ pub fn scan(paths: &[PathBuf], out: &PathBuf) -> Result<()> {
         }
     }
 
-    // 3. Emit the scan receipt with a deterministic aggregate hash — the stable
+    // Re-classify capabilities in workspace-excluded crates as DORMANT — a
+    // stronger, repo-level dormancy signal than per-file `#![cfg(any())]`.
+    let scan_root = paths.first().cloned().unwrap_or_default();
+    let dormant_crates = crate::classification::dormant_crate_dirs(&scan_root);
+    if !dormant_crates.is_empty() {
+        for cap in &mut all_capabilities {
+            if dormant_crates
+                .iter()
+                .any(|d| cap.file_path.contains(&format!("crates/{}/", d)))
+            {
+                cap.classification = "DORMANT".to_string();
+            }
+        }
+    }
+
+    // 3. Project the human-readable capability inventory + per-crate audit
+    //    dashboard from the scan data.
+    crate::projection::generate_reports(&files, &all_capabilities, out)?;
+    crate::projection::generate_audit_dashboard(&files, &all_capabilities, out)?;
+
+    // 4. Emit the scan receipt with a deterministic aggregate hash — the stable
     //    scan identity a downstream ggen admissibility pack binds to. The only
     //    real output artifact is the JSON scan receipt; nothing downstream reads
     //    anything else, so nothing else is claimed.
@@ -100,6 +120,14 @@ pub fn scan(paths: &[PathBuf], out: &PathBuf) -> Result<()> {
         files.len(),
         all_symbols.len(),
         all_capabilities.len()
+    );
+    println!(
+        "Capability inventory: {}",
+        out.join("reports/CAPABILITY_INVENTORY.md").display()
+    );
+    println!(
+        "Audit dashboard:      {}",
+        out.join("reports/AUDIT_DASHBOARD.md").display()
     );
     Ok(())
 }

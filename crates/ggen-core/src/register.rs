@@ -144,6 +144,20 @@ pub fn register_all(tera: &mut Tera) {
         }
     });
 
+    tera.register_filter(
+        "pad_right",
+        |value: &tera::Value,
+         args: &std::collections::HashMap<String, tera::Value>|
+         -> tera::Result<tera::Value> {
+            let s = match value.as_str() {
+                Some(s) => s.to_string(),
+                None => value.to_string(),
+            };
+            let width = args.get("width").and_then(|v| v.as_u64()).unwrap_or(0) as usize;
+            Ok(tera::Value::String(format!("{:<width$}", s, width = width)))
+        },
+    );
+
     // ---------- SPARQL projection helpers ----------
     register_sparql_helpers(tera);
 

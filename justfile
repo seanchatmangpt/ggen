@@ -104,10 +104,10 @@ coherence-check:
     shapes=".specify/specs/post-chatman/post_chatman_shapes.ttl"
 
     echo "Validating ontology: $ontology"
-    ggen validate "$ontology" || exit 1
+    ggen graph validate --schema-file "$ontology" || exit 1
 
     echo "Validating shapes: $shapes"
-    ggen validate "$shapes" || exit 1
+    ggen graph validate --schema-file "$shapes" || exit 1
 
     echo "✅ Coherence check passed (O→A→O validation gates satisfied)"
 
@@ -122,7 +122,7 @@ inverse-sync source_dir=".specify/specs" ontology=".specify/specs/post-chatman/p
 
     # Invoke the inverse-sync CLI command (when available)
     # For now, this is a placeholder that verifies the ontology is valid
-    ggen validate "{{ontology}}" || exit 1
+    ggen graph validate --schema-file "{{ontology}}" || exit 1
 
     echo "✅ Inverse-sync validation complete (envelope would be written here)"
 

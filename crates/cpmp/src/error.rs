@@ -1,5 +1,5 @@
-use std::io;
 use std::fmt;
+use std::io;
 
 pub type Result<T> = std::result::Result<T, MapError>;
 
@@ -9,6 +9,7 @@ pub enum MapError {
         path: std::path::PathBuf,
         source: io::Error,
     },
+    #[cfg(feature = "sqlite")]
     Db(rusqlite::Error),
     Database(String),
     Serialization(String),
@@ -22,6 +23,7 @@ impl fmt::Display for MapError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             MapError::Io { path, source } => write!(f, "IO error at {:?}: {}", path, source),
+            #[cfg(feature = "sqlite")]
             MapError::Db(e) => write!(f, "Database error: {}", e),
             MapError::Database(s) => write!(f, "Database error: {}", s),
             MapError::Serialization(s) => write!(f, "Serialization error: {}", s),
@@ -33,6 +35,7 @@ impl fmt::Display for MapError {
     }
 }
 
+#[cfg(feature = "sqlite")]
 impl From<rusqlite::Error> for MapError {
     fn from(e: rusqlite::Error) -> Self {
         MapError::Db(e)

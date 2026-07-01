@@ -37,7 +37,7 @@ echo ""
 echo "2️⃣  Artifact Emission (output files generated)"
 if [ -d ".ggen/receipts" ] && [ -f ".ggen/receipts/latest.json" ]; then
   RECEIPT_TIME=$(stat -c %Y .ggen/receipts/latest.json 2>/dev/null || stat -f %m .ggen/receipts/latest.json 2>/dev/null)
-  OUTPUT_FILES=$(find . -type f -newermt "@$RECEIPT_TIME" 2>/dev/null | grep -E '\.(rs|go|py|js)$' | wc -l)
+  OUTPUT_FILES=$(jq -r '.output_hashes[] | split(":")[0]' .ggen/receipts/latest.json | while read -r f; do [ -f "$f" ] && echo "$f"; done | wc -l | tr -d ' ' )
   if [ "$OUTPUT_FILES" -gt 0 ]; then
     echo -e "${GREEN}✅ PASS${NC} - $OUTPUT_FILES output files generated"
     ((PASS_COUNT++))
@@ -56,7 +56,7 @@ echo "3️⃣  Checksum Validation (SHA-256 integrity)"
 if [ -f ".ggen/receipts/latest.json" ]; then
   if jq -e '.output_hashes | length > 0' .ggen/receipts/latest.json >/dev/null 2>&1; then
     # Validate a sample of hashes
-    VALID_HASHES=$(jq -r '.output_hashes | to_entries[] | select(.value | test("^[0-9a-f]{64}$")) | .key' .ggen/receipts/latest.json | wc -l)
+    VALID_HASHES=$(jq -r '.output_hashes[] | split(":")[1] | select(test("^[0-9a-f]{64}$"))' .ggen/receipts/latest.json | wc -l)
     TOTAL_HASHES=$(jq -r '.output_hashes | length' .ggen/receipts/latest.json)
     if [ "$VALID_HASHES" -eq "$TOTAL_HASHES" ] && [ "$TOTAL_HASHES" -gt 0 ]; then
       echo -e "${GREEN}✅ PASS${NC} - All $TOTAL_HASHES hashes are valid SHA-256"

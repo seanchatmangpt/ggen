@@ -224,7 +224,6 @@ fn test_add_writes_lockfile_with_digest_and_emits_signed_receipt() {
     world
         .pack()
         .arg("add")
-        .arg("--pack_name")
         .arg("alpha")
         .assert()
         .success()
@@ -301,12 +300,7 @@ fn test_add_nonexistent_pack_does_not_fake_success_or_emit_receipt() {
     let world = World::new();
     // Registry is empty: no nonexistent.toml written.
 
-    let assert = world
-        .pack()
-        .arg("add")
-        .arg("--pack_name")
-        .arg("nonexistent")
-        .assert();
+    let assert = world.pack().arg("add").arg("nonexistent").assert();
     let output = assert.get_output().clone();
     let code = output.status.code();
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -388,7 +382,6 @@ fn test_show_reflects_real_pack_metadata() {
     world
         .pack()
         .arg("show")
-        .arg("--pack_id")
         .arg("gamma")
         .assert()
         .success()
@@ -401,13 +394,7 @@ fn test_show_reflects_real_pack_metadata() {
 fn test_show_nonexistent_pack_exits_nonzero() {
     let world = World::new();
 
-    world
-        .pack()
-        .arg("show")
-        .arg("--pack_id")
-        .arg("ghost")
-        .assert()
-        .failure();
+    world.pack().arg("show").arg("ghost").assert().failure();
 }
 
 // ============================================================================
@@ -425,7 +412,6 @@ fn test_remove_mutates_real_lockfile() {
     world
         .pack()
         .arg("remove")
-        .arg("--pack_name")
         .arg("delta")
         .env(
             "GGEN_PACK_CACHE_DIR",
@@ -454,7 +440,6 @@ fn test_remove_without_lockfile_exits_nonzero() {
     world
         .pack()
         .arg("remove")
-        .arg("--pack_name")
         .arg("delta")
         .assert()
         .failure()
@@ -475,7 +460,6 @@ fn test_remove_absent_pack_exits_nonzero_and_preserves_lockfile() {
     world
         .pack()
         .arg("remove")
-        .arg("--pack_name")
         .arg("not-installed")
         .env(
             "GGEN_PACK_CACHE_DIR",
@@ -505,13 +489,7 @@ fn test_add_then_remove_roundtrip_on_real_lockfile() {
     let world = World::new();
     world.write_pack("epsilon", "0.9.0");
 
-    world
-        .pack()
-        .arg("add")
-        .arg("--pack_name")
-        .arg("epsilon")
-        .assert()
-        .success();
+    world.pack().arg("add").arg("epsilon").assert().success();
     assert!(
         world.lockfile_has_pack("epsilon"),
         "add must have written epsilon to the lockfile"
@@ -520,7 +498,6 @@ fn test_add_then_remove_roundtrip_on_real_lockfile() {
     world
         .pack()
         .arg("remove")
-        .arg("--pack_name")
         .arg("epsilon")
         .env(
             "GGEN_PACK_CACHE_DIR",

@@ -7,7 +7,6 @@
 //! - HTTP client using reqwest with timeout
 //! - Real HTTP calls (Chicago TDD — no mocks)
 
-use async_trait::async_trait;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -256,7 +255,10 @@ impl MarketplaceClient {
         );
 
         // Try to download from marketplace
-        match self.download_from_url(&metadata.download_url, progress.as_ref()).await {
+        match self
+            .download_from_url(&metadata.download_url, progress.as_ref())
+            .await
+        {
             Ok(content) => {
                 // Verify digest
                 let actual_digest = sha256(&content);

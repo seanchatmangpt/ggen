@@ -152,7 +152,7 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
     // body. The body itself is captured with a balanced-brace scan so nested
     // braces (rare in struct fields, common in struct-variant enums below) do
     // not truncate the capture at the first `}`.
-    let struct_header_re = Regex::new(r"pub\s+struct\s+(\w+)\s*(?:<([^>]*)>)?\s*\{")
+    let struct_header_re = Regex::new(r"pub\s+struct\s+(\w+)\s*(?:<([^>]*)>)?\s*(?:where\s+([^{]*))?\{")
         .map_err(|e| Error::new(&format!("Failed to compile struct header regex: {}", e)))?;
 
     for cap in struct_header_re.captures_iter(content) {
@@ -167,7 +167,10 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
 
         let fields = parse_struct_fields(body)?;
 
-        let trait_bounds = extract_bounds_from_type_params(cap.get(2).map(|m| m.as_str()).unwrap_or(""));
+        let mut trait_bounds = extract_bounds_from_type_params(cap.get(2).map(|m| m.as_str()).unwrap_or(""));
+        if let Some(where_clause) = cap.get(3) {
+            trait_bounds.extend(extract_bounds_from_type_params(where_clause.as_str()));
+        }
 
         services.push(ServiceDef {
             name,
@@ -182,7 +185,7 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
     }
 
     // --- Enums: pub enum Name<generics> { Variant, ... } ---
-    let enum_header_re = Regex::new(r"pub\s+enum\s+(\w+)\s*(?:<([^>]*)>)?\s*\{")
+    let enum_header_re = Regex::new(r"pub\s+enum\s+(\w+)\s*(?:<([^>]*)>)?\s*(?:where\s+([^{]*))?\{")
         .map_err(|e| Error::new(&format!("Failed to compile enum header regex: {}", e)))?;
 
     for cap in enum_header_re.captures_iter(content) {
@@ -196,7 +199,10 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
         let body = balanced_block_body(content, open_brace_idx).unwrap_or("");
 
         let variants = parse_enum_variants(body)?;
-        let trait_bounds = extract_bounds_from_type_params(cap.get(2).map(|m| m.as_str()).unwrap_or(""));
+        let mut trait_bounds = extract_bounds_from_type_params(cap.get(2).map(|m| m.as_str()).unwrap_or(""));
+        if let Some(where_clause) = cap.get(3) {
+            trait_bounds.extend(extract_bounds_from_type_params(where_clause.as_str()));
+        }
 
         services.push(ServiceDef {
             name,
@@ -214,7 +220,7 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
     // The trait header is matched with a regex, but the body is extracted with a
     // balanced-brace scan so that default-method bodies (with their own `{ }`)
     // and multiple methods are all captured — not just up to the first `}`.
-    let trait_header_re = Regex::new(r"pub\s+trait\s+(\w+)\s*(?:<([^>]*)>)?\s*(?::[^{]*)?\{")
+    let trait_header_re = Regex::new(r"pub\s+trait\s+(\w+)\s*(?:<([^>]*)>)?\s*(?::[^{]*)?\s*(?:where\s+([^{]*))?\{")
         .map_err(|e| Error::new(&format!("Failed to compile trait header regex: {}", e)))?;
 
     for cap in trait_header_re.captures_iter(content) {
@@ -229,7 +235,10 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
         let body = balanced_block_body(content, open_brace_idx).unwrap_or("");
 
         let methods = parse_rust_fn_signatures(body)?;
-        let trait_bounds = extract_bounds_from_type_params(cap.get(2).map(|m| m.as_str()).unwrap_or(""));
+        let mut trait_bounds = extract_bounds_from_type_params(cap.get(2).map(|m| m.as_str()).unwrap_or(""));
+        if let Some(where_clause) = cap.get(3) {
+            trait_bounds.extend(extract_bounds_from_type_params(where_clause.as_str()));
+        }
 
         services.push(ServiceDef {
             name,
@@ -249,7 +258,7 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
     // `impl Trait for Type` forms. The body is extracted with a balanced-brace
     // scan so method bodies do not truncate the capture at the first `}`.
     let impl_header_re = Regex::new(
-        r"impl(?:<[^>]*>)?\s+(?:[\w:]+(?:<[^>]*>)?\s+for\s+)?(\w+)(?:<[^>]*>)?\s*\{",
+        r"impl(?:<[^>]*>)?\s+(?:[\w:]+(?:<[^>]*>)?\s+for\s+)?(\w+)(?:<[^>]*>)?\s*(?:where\s+[^{]*)?\{",
     )
     .map_err(|e| Error::new(&format!("Failed to compile impl header regex: {}", e)))?;
 

@@ -152,12 +152,13 @@ impl ProposalCache {
 }
 
 /// Mock LLM-based proposer (for demonstration; in production, uses Claude/OpenAI API)
-pub struct MockLLMProposer {
+/// Heuristic proposer that deterministically generates proposals from patterns (not a mock)
+pub struct PatternHeuristicProposer {
     config: ProposerConfig,
     cache: ProposalCache,
 }
 
-impl MockLLMProposer {
+impl PatternHeuristicProposer {
     pub fn new(config: ProposerConfig) -> Self {
         Self {
             config,
@@ -165,7 +166,7 @@ impl MockLLMProposer {
         }
     }
 
-    /// Generate mock proposals from patterns
+    /// Generate deterministic proposals from patterns
     fn generate_proposals_from_patterns(
         &self, patterns: Vec<Pattern>, sector: &str,
     ) -> Vec<DeltaSigmaProposal> {
@@ -188,8 +189,13 @@ impl MockLLMProposer {
                     .cloned()
                     .unwrap_or_else(|| format!("element_{}", idx));
 
+                let mut hasher = blake3::Hasher::new();
+                hasher.update(pattern.name.as_bytes());
+                hasher.update(sector.as_bytes());
+                let id_hash = hasher.finalize().to_hex()[..16].to_string();
+
                 DeltaSigmaProposal {
-                    id: format!("proposal_{}_{}_{}", sector, idx, uuid::Uuid::new_v4()),
+                    id: format!("proposal_{}_{}_{}", sector, idx, id_hash),
                     change_type: change_type.to_string(),
                     target_element: target.clone(),
                     source_patterns: vec![pattern.name.clone()],
@@ -226,7 +232,7 @@ impl MockLLMProposer {
 }
 
 #[async_trait]
-impl DeltaSigmaProposer for MockLLMProposer {
+impl DeltaSigmaProposer for PatternHeuristicProposer {
     async fn propose_deltas(
         &self, patterns: Vec<Pattern>, _current_snapshot: Arc<SigmaSnapshot>, sector: &str,
     ) -> Result<Vec<DeltaSigmaProposal>, String> {
@@ -283,54 +289,17 @@ impl RealLLMProposer {
         }
     }
 
-    /// Build the prompt for the LLM
-    fn build_prompt(
-        &self, patterns: &[Pattern], current_snapshot: &SigmaSnapshot, sector: &str,
-    ) -> String {
-        let sector_policy = self
-            .config
-            .sector_policies
-            .get(sector)
-            .cloned()
-            .unwrap_or_default();
-
-        format!(
-            r#"
-You are an ontology refinement agent. Given detected patterns in an RDF ontology, propose changes (ΔΣ²).
-
-Patterns detected:
-{}
-
-Current ontology version: {}
-Sector: {}
-Sector Policy: {}
-
-For each pattern, propose a change as a JSON object with:
-- change_type: AddClass, RemoveProperty, TightenConstraint, etc.
-- target_element: RDF entity to modify
-- confidence: 0.0-1.0
-- justification: why this change improves the ontology
-- triples_to_add: RDF triples to insert
-- compatibility: "none", "compatible", "requires_migration"
-
-Output ONLY valid JSON objects, one per line.
-"#,
-            patterns
-                .iter()
-                .map(|p| format!("- {} ({}): {}", p.name, p.occurrences, p.description))
-                .collect::<Vec<_>>()
-                .join("\n"),
-            current_snapshot.version,
-            sector,
-            sector_policy
-        )
+    pub async fn generate_proposals_from_patterns(
+        &self, _patterns: Vec<Pattern>, _sector: &str,
+    ) -> Result<Vec<DeltaSigmaProposal>, String> {
+        Err("LLM provider client not configured".into())
     }
 }
 
 #[async_trait]
 impl DeltaSigmaProposer for RealLLMProposer {
     async fn propose_deltas(
-        &self, patterns: Vec<Pattern>, current_snapshot: Arc<SigmaSnapshot>, sector: &str,
+        &self, patterns: Vec<Pattern>, _current_snapshot: Arc<SigmaSnapshot>, sector: &str,
     ) -> Result<Vec<DeltaSigmaProposal>, String> {
         if patterns.is_empty() {
             return Ok(vec![]);
@@ -344,31 +313,10 @@ impl DeltaSigmaProposer for RealLLMProposer {
             }
         }
 
-        // Build prompt (currently unused in mock implementation)
-        let _prompt = self.build_prompt(&patterns, &current_snapshot, sector);
-
-        // In production: call genai with streaming
-        // For now, return mock proposals
-        let mut proposals = vec![];
-        for (idx, pattern) in patterns.iter().enumerate() {
-            proposals.push(DeltaSigmaProposal {
-                id: format!("proposal_{}_{}", idx, uuid::Uuid::new_v4()),
-                change_type: "RefineConstraint".to_string(),
-                target_element: pattern
-                    .affected_entities
-                    .first()
-                    .cloned()
-                    .unwrap_or_default(),
-                source_patterns: vec![pattern.name.clone()],
-                confidence: pattern.confidence,
-                triples_to_add: vec![],
-                triples_to_remove: vec![],
-                sector: sector.to_string(),
-                justification: format!("LLM proposal: {}", pattern.description),
-                estimated_impact_bytes: 100,
-                compatibility: "compatible".to_string(),
-            });
-        }
+        // Generate proposals using LLM provider client (which is not configured)
+        let proposals = self
+            .generate_proposals_from_patterns(patterns, sector)
+            .await?;
 
         // Cache
         if self.config.enable_cache {
@@ -401,7 +349,7 @@ mod tests {
     #[tokio::test]
     async fn test_propose_deltas_uses_cache() {
         let config = ProposerConfig::default();
-        let proposer = MockLLMProposer::new(config);
+        let proposer = PatternHeuristicProposer::new(config);
         let patterns = vec![create_test_pattern()];
 
         let snapshot = SigmaSnapshot::new(
@@ -432,7 +380,7 @@ mod tests {
     #[tokio::test]
     async fn test_stream_proposals() {
         let config = ProposerConfig::default();
-        let proposer = MockLLMProposer::new(config);
+        let proposer = PatternHeuristicProposer::new(config);
         let patterns = vec![create_test_pattern()];
 
         let snapshot = SigmaSnapshot::new(

@@ -1,12 +1,13 @@
-# Progress — teamwork_preview_explorer_m1
+# Progress Tracker
 
-Last visited: 2026-06-23T04:18:40Z
+Last visited: 2026-07-01T05:25:00Z
 
-- [x] Explore `/Users/sac/praxis` structure
-- [x] Explore `/Users/sac/praxis/template` structure and files
-- [x] Analyze design options for `praxis-reconciler`
-- [x] Analyze design options for `praxis-guard`
-- [x] Design directory structure for `/Users/sac/praxis/playground` Cargo workspace
-- [x] Document libraries/crates selection and verification steps
-- [x] Write `handoff.md`
-- [x] Report progress and handoff to parent
+## Status
+- [x] ORIGINAL_REQUEST.md written.
+- [x] BRIEFING.md initialized.
+- [x] progress.md initialized.
+- [x] Run git status, git branch, git stash list.
+- [x] Locate and examine the uncommitted fixes on the branch.
+- [x] Inspect the state of `.md` files in the repository.
+- [x] Identify where Cargo.toml files are that need version bumps.
+- [x] Draft handoff.md.

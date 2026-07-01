@@ -36,9 +36,7 @@ fn bench_core_bundle_by_name(c: &mut Criterion) {
 }
 
 fn bench_core_bundle_all(c: &mut Criterion) {
-    c.bench_function("core_bundle_all", |b| {
-        b.iter(|| CoreOntologyBundle::all())
-    });
+    c.bench_function("core_bundle_all", |b| b.iter(|| CoreOntologyBundle::all()));
 }
 
 fn bench_core_bundle_available(c: &mut Criterion) {
@@ -60,20 +58,14 @@ fn bench_core_bundle_stats(c: &mut Criterion) {
 fn bench_ontology_loader_is_embedded(c: &mut Criterion) {
     c.bench_function("ontology_loader_is_embedded", |b| {
         b.iter(|| {
-            OntologyLoader::is_embedded(black_box(
-                "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-            ))
+            OntologyLoader::is_embedded(black_box("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
         })
     });
 }
 
 fn bench_ontology_loader_get_metadata(c: &mut Criterion) {
     c.bench_function("ontology_loader_get_metadata", |b| {
-        b.iter(|| {
-            OntologyLoader::get_metadata(black_box(
-                "http://www.w3.org/2002/07/owl#",
-            ))
-        })
+        b.iter(|| OntologyLoader::get_metadata(black_box("http://www.w3.org/2002/07/owl#")))
     });
 }
 
@@ -117,8 +109,7 @@ fn bench_all_embedded_load(c: &mut Criterion) {
             let embedded = OntologyLoader::list_embedded();
             let mut count = 0;
             for (_name, uri) in embedded {
-                if OntologyLoader::load_content(black_box(uri), black_box(Path::new(".")))
-                    .is_some()
+                if OntologyLoader::load_content(black_box(uri), black_box(Path::new("."))).is_some()
                 {
                     count += 1;
                 }

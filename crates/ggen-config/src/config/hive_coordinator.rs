@@ -4,7 +4,7 @@
 //! Implements distributed decision-making patterns for optimal pack composition, version
 //! resolution, and conflict resolution using swarm intelligence principles.
 
-#![allow(dead_code)]
+#![allow(dead_code, clippy::unused_async_trait_impl)]
 use crate::config_lib::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;

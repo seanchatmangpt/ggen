@@ -44,7 +44,10 @@ fn test_embedded_fallback_when_filesystem_unavailable() {
     let content = OntologyLoader::load_content(uri, &nonexistent_subdir);
 
     // Should still load from embedded even though filesystem path doesn't exist
-    assert!(content.is_some(), "Should load from embedded despite nonexistent path");
+    assert!(
+        content.is_some(),
+        "Should load from embedded despite nonexistent path"
+    );
 }
 
 /// Test that filesystem has fallback priority after embedded
@@ -113,7 +116,11 @@ fn test_embedded_ontologies_in_core_bundle() {
 
         // Verify by_namespace lookup works
         let found = CoreOntologyBundle::by_namespace(ont.namespace);
-        assert!(found.is_some(), "Should find by namespace: {}", ont.namespace);
+        assert!(
+            found.is_some(),
+            "Should find by namespace: {}",
+            ont.namespace
+        );
         assert_eq!(
             found.unwrap().name,
             ont.name,
@@ -234,7 +241,10 @@ fn test_load_with_empty_base_path() {
     let content = OntologyLoader::load_content(uri, Path::new(""));
 
     // Should still load from embedded
-    assert!(content.is_some(), "Should load from embedded with empty base path");
+    assert!(
+        content.is_some(),
+        "Should load from embedded with empty base path"
+    );
 }
 
 /// Test with root path
@@ -244,7 +254,10 @@ fn test_load_with_root_path() {
     let content = OntologyLoader::load_content(uri, Path::new("/"));
 
     // Should still load from embedded
-    assert!(content.is_some(), "Should load from embedded with root path");
+    assert!(
+        content.is_some(),
+        "Should load from embedded with root path"
+    );
 }
 
 // ============================================================================
@@ -336,11 +349,7 @@ fn test_all_ontologies_have_valid_metadata() {
             assert_eq!(m.namespace, uri, "Metadata namespace should match");
             assert!(m.size > 0, "Size should be positive");
             assert!(!m.content.is_empty(), "Content should not be empty");
-            assert_eq!(
-                m.size,
-                m.content.len(),
-                "Size should match content length"
-            );
+            assert_eq!(m.size, m.content.len(), "Size should match content length");
         }
     }
 }

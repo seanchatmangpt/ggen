@@ -120,6 +120,142 @@ impl GgenMcpServer {
 
         Ok(CallToolResult::success(vec![Content::text(text)]).with_meta(Some(meta)))
     }
+
+    // ── Pack + marketplace tools ────────────────────────────────────────────
+    //
+    // Each tool is a thin wrapper over a single pure result function in
+    // `mcp_packs`; the same functions back the A2A `PackToolsAdapter`, so the
+    // two transports cannot drift. Outputs are the structured, evidence-bearing
+    // `ggen_core::agent` contract; failures are typed `AgentError`s carrying a
+    // `{kind, detail}` body the agent can branch on.
+
+    #[tool(
+        name = "ggen.packs.capabilities",
+        description = "Describe the pack operations and capability surfaces available to agents."
+    )]
+    async fn packs_capabilities(
+        &self, Parameters(params): Parameters<crate::mcp_packs::PackCapabilitiesParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::mcp_packs::ocel_invoked("ggen.packs.capabilities", "-");
+        let value =
+            crate::mcp_packs::capabilities_result(params).map_err(crate::mcp_packs::mcp_err)?;
+        Ok(crate::mcp_packs::mcp_ok(value))
+    }
+
+    #[tool(
+        name = "ggen.packs.search",
+        description = "Relevance-rank packs in the local registry by a text query (name > id > description)."
+    )]
+    async fn packs_search(
+        &self, Parameters(params): Parameters<crate::mcp_packs::PackSearchParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::mcp_packs::ocel_invoked("ggen.packs.search", &params.query);
+        let value = crate::mcp_packs::search_result(params).map_err(crate::mcp_packs::mcp_err)?;
+        Ok(crate::mcp_packs::mcp_ok(value))
+    }
+
+    #[tool(
+        name = "ggen.packs.list",
+        description = "List all packs in the local registry, optionally filtered by category."
+    )]
+    async fn packs_list(
+        &self, Parameters(params): Parameters<crate::mcp_packs::PackListParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::mcp_packs::ocel_invoked(
+            "ggen.packs.list",
+            params.category.as_deref().unwrap_or("-"),
+        );
+        let value = crate::mcp_packs::list_result(params).map_err(crate::mcp_packs::mcp_err)?;
+        Ok(crate::mcp_packs::mcp_ok(value))
+    }
+
+    #[tool(
+        name = "ggen.packs.show",
+        description = "Full detail for one pack: metadata, packages, templates, dependencies, and validation."
+    )]
+    async fn packs_show(
+        &self, Parameters(params): Parameters<crate::mcp_packs::PackShowParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::mcp_packs::ocel_invoked("ggen.packs.show", &params.pack_id);
+        let value = crate::mcp_packs::show_result(params).map_err(crate::mcp_packs::mcp_err)?;
+        Ok(crate::mcp_packs::mcp_ok(value))
+    }
+
+    #[tool(
+        name = "ggen.packs.resolve",
+        description = "Resolve a capability surface (e.g. mcp, web) to concrete pack IDs, splitting resolved vs missing."
+    )]
+    async fn packs_resolve(
+        &self, Parameters(params): Parameters<crate::mcp_packs::PackResolveParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::mcp_packs::ocel_invoked("ggen.packs.resolve", &params.surface);
+        let value = crate::mcp_packs::resolve_result(params).map_err(crate::mcp_packs::mcp_err)?;
+        Ok(crate::mcp_packs::mcp_ok(value))
+    }
+
+    #[tool(
+        name = "ggen.packs.compatibility",
+        description = "Check whether a set of packs can be composed without conflicts (overlapping packages or unloadable packs)."
+    )]
+    async fn packs_compatibility(
+        &self, Parameters(params): Parameters<crate::mcp_packs::PackCompatibilityParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::mcp_packs::ocel_invoked("ggen.packs.compatibility", "-");
+        let value = crate::mcp_packs::compatibility_result(params)
+            .await
+            .map_err(crate::mcp_packs::mcp_err)?;
+        Ok(crate::mcp_packs::mcp_ok(value))
+    }
+
+    #[tool(
+        name = "ggen.packs.status",
+        description = "Report installed packs from the project lockfile (.ggen/packs.lock)."
+    )]
+    async fn packs_status(
+        &self, Parameters(params): Parameters<crate::mcp_packs::PackStatusParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::mcp_packs::ocel_invoked("ggen.packs.status", params.root.as_deref().unwrap_or("."));
+        let value = crate::mcp_packs::status_result(params).map_err(crate::mcp_packs::mcp_err)?;
+        Ok(crate::mcp_packs::mcp_ok(value))
+    }
+
+    #[tool(
+        name = "ggen.packs.verify",
+        description = "Verify a provenance receipt against its signing key. Fail-closed: missing key or bad signature yields is_valid=false."
+    )]
+    async fn packs_verify(
+        &self, Parameters(params): Parameters<crate::mcp_packs::PackVerifyParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::mcp_packs::ocel_invoked("ggen.packs.verify", &params.receipt_path);
+        let value = crate::mcp_packs::verify_result(params).map_err(crate::mcp_packs::mcp_err)?;
+        Ok(crate::mcp_packs::mcp_ok(value))
+    }
+
+    #[tool(
+        name = "ggen.packs.install",
+        description = "Install a pack: write the lockfile with a non-empty digest and emit a signed provenance receipt."
+    )]
+    async fn packs_install(
+        &self, Parameters(params): Parameters<crate::mcp_packs::PackInstallParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::mcp_packs::ocel_invoked("ggen.packs.install", &params.pack_id);
+        let value = crate::mcp_packs::install_result(params)
+            .await
+            .map_err(crate::mcp_packs::mcp_err)?;
+        Ok(crate::mcp_packs::mcp_ok(value))
+    }
+
+    #[tool(
+        name = "ggen.packs.remove",
+        description = "Remove a pack from the project lockfile. Fail-closed: an absent pack or missing lockfile errors."
+    )]
+    async fn packs_remove(
+        &self, Parameters(params): Parameters<crate::mcp_packs::PackRemoveParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::mcp_packs::ocel_invoked("ggen.packs.remove", &params.pack_id);
+        let value = crate::mcp_packs::remove_result(params).map_err(crate::mcp_packs::mcp_err)?;
+        Ok(crate::mcp_packs::mcp_ok(value))
+    }
 }
 
 #[tool_handler(router = self.tool_router)]

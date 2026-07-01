@@ -57,7 +57,6 @@ pub fn expand_env_vars(input: &str) -> String {
                     result.push('}');
                 }
             }
-            seg = i;
         } else if bytes[i].is_ascii_alphanumeric() || bytes[i] == b'_' {
             // $VAR form — collect alphanumeric + underscore chars
             let name_start = i;
@@ -72,12 +71,11 @@ pub fn expand_env_vars(input: &str) -> String {
                     result.push_str(name);
                 }
             }
-            seg = i;
         } else {
             // Bare '$' not followed by a name character — preserve it
             result.push('$');
-            seg = i;
         }
+        seg = i;
     }
 
     // Flush any remaining passthrough segment (handles inputs with no '$' cheaply)

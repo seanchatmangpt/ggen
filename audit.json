@@ -1,92 +1,29 @@
 {
-  "generated_at": "2026-06-13T18:37:31.768954+00:00",
-  "ggen_version": "26.6.11",
+  "generated_at": "2026-07-01T07:39:39.197191+00:00",
+  "ggen_version": "26.6.25",
   "inputs": {
-    "manifest_hash": "060d89517a42d199033692319d8f76bcb2852f4f6a2ca6cec53852378003c484",
+    "manifest_hash": "bcb2eaf10e65589b0fb6adb5e99b6da69ff2e936a476cdb7badaa8185aea284c",
     "ontology_hashes": {
-      ".specify/specs/lsp-max/lsp.ttl": "27ede70ea215ff08ffab4352bed4c32f2b74e19ac7b10947dc91fca2a8c05770"
+      ".specify/cli-commands.ttl": "e1030900966499842ba4985a0e4e49f8190fc8726fe5f00960a81443d79a4268"
     },
     "template_hashes": {
-      ".specify/specs/lsp-max/../../../templates/lsp-max/Cargo.toml.tera": "ce165971d6accf20e9c9acf2631483255a17f3762917dc483a513cbcaf071593",
-      ".specify/specs/lsp-max/../../../templates/lsp-max/backend.rs.tera": "f6c42bcba71ec899bbc2eb2f374ad64902de23a3928b536807311908a9932fa1",
-      ".specify/specs/lsp-max/../../../templates/lsp-max/build.rs.tera": "3b0111edd9b8f3cd8ba9280a98409d411ecb31a31a8033efdbd57577860234bd",
-      ".specify/specs/lsp-max/../../../templates/lsp-max/cli.rs.tera": "9c685d1d796f8597357c0ab1d049d47b262e4598b4c207d9302d351c054846c5",
-      ".specify/specs/lsp-max/../../../templates/lsp-max/pack_rules.rs.tera": "4c68f15b4950052f7ea807cad33e30441db6c085e61aa04def3a481a09041252",
-      ".specify/specs/lsp-max/../../../templates/lsp-max/packs_mod.rs.tera": "a72bd571476165a1a6b1ed9ead1dd780ce7e553df8c561cf5a613238504a2696",
-      ".specify/specs/lsp-max/../../../templates/lsp-max/rule.toml.tera": "587f224054ee05f99fff9abc99d33d5c0fd24e4da46cd07717d003753b906aa2",
-      ".specify/specs/lsp-max/../../../templates/lsp-max/workspace.rs.tera": "dbfe5b54304014e3b97df57a4cffaabdf78969dc35d912e4d56c0c0c580672ae"
+      ".specify/templates/cli/commands-reference.rs.tera": "d356d306123073b334eeee3047d33d0fe26ef032f68102faef66dc0a8802e4af"
     },
     "query_hashes": {}
   },
   "pipeline": [
     {
       "step_type": "inference",
-      "name": "normalize",
-      "duration_ms": 8,
-      "triples_added": 293,
+      "name": "command-projection",
+      "duration_ms": 2,
+      "triples_added": 24,
       "status": "success",
       "error": null
     },
     {
       "step_type": "render",
-      "name": "lsp-max-backend",
-      "duration_ms": 6,
-      "triples_added": null,
-      "status": "success",
-      "error": null
-    },
-    {
-      "step_type": "render",
-      "name": "lsp-max-cli",
-      "duration_ms": 8,
-      "triples_added": null,
-      "status": "success",
-      "error": null
-    },
-    {
-      "step_type": "render",
-      "name": "lsp-max-build",
-      "duration_ms": 6,
-      "triples_added": null,
-      "status": "success",
-      "error": null
-    },
-    {
-      "step_type": "render",
-      "name": "lsp-max-cargo",
-      "duration_ms": 6,
-      "triples_added": null,
-      "status": "success",
-      "error": null
-    },
-    {
-      "step_type": "render",
-      "name": "lsp-max-rule-toml",
-      "duration_ms": 34,
-      "triples_added": null,
-      "status": "success",
-      "error": null
-    },
-    {
-      "step_type": "render",
-      "name": "lsp-max-workspace",
-      "duration_ms": 6,
-      "triples_added": null,
-      "status": "success",
-      "error": null
-    },
-    {
-      "step_type": "render",
-      "name": "lsp-max-pack-rules",
-      "duration_ms": 17,
-      "triples_added": null,
-      "status": "success",
-      "error": null
-    },
-    {
-      "step_type": "render",
-      "name": "lsp-max-packs-mod",
-      "duration_ms": 8,
+      "name": "cli-commands-reference",
+      "duration_ms": 7,
       "triples_added": null,
       "status": "success",
       "error": null
@@ -94,216 +31,12 @@
   ],
   "outputs": [
     {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/server.rs",
-      "content_hash": "935fc114353ee4700e435a173dfef6d06e4e4edb5fe1d60dddf23adf9abd926d",
-      "size_bytes": 3109,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/server.rs"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/src/server.rs",
-      "content_hash": "49003fa7cedbed67eb4ec786a99b56579ed57b6d09f157a91842948218087b1d",
-      "size_bytes": 3045,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/src/server.rs"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/main.rs",
-      "content_hash": "977ae0e9951c55291b3569bc39c9680887af7d6e2732ca96233b088da4a2c6db",
-      "size_bytes": 10383,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/main.rs"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/src/main.rs",
-      "content_hash": "b12f2148a6726835060fe646a5e6d52eaca76071b8c824a099129bf9efe99aa3",
-      "size_bytes": 10317,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/src/main.rs"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/build.rs",
-      "content_hash": "79e935334ef6df214dad9a1a926fbe5825b0a1c3adab82f7aadee0d92fc0c1ca",
-      "size_bytes": 545,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/build.rs"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/build.rs",
-      "content_hash": "79e935334ef6df214dad9a1a926fbe5825b0a1c3adab82f7aadee0d92fc0c1ca",
-      "size_bytes": 545,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/build.rs"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/Cargo.toml",
-      "content_hash": "368fbef2f478f1b2060ad1bf9ae9c35bd726a46a405286d8fe33d89225e71130",
-      "size_bytes": 656,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/Cargo.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/Cargo.toml",
-      "content_hash": "254219cd73582c289e100b8fc0039ef85b9101bd293ee238a4988d57e539145d",
-      "size_bytes": 632,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/Cargo.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-claims@1.0.0.toml",
-      "content_hash": "728194cfff2d45f533247d1da4c7b63a37f4025b9be8000a43a7837c90350840",
-      "size_bytes": 325,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-claims@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-claims@1.0.0.toml",
-      "content_hash": "728194cfff2d45f533247d1da4c7b63a37f4025b9be8000a43a7837c90350840",
-      "size_bytes": 325,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-claims@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-claims@1.0.0.toml",
-      "content_hash": "728194cfff2d45f533247d1da4c7b63a37f4025b9be8000a43a7837c90350840",
-      "size_bytes": 325,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-claims@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-claims@1.0.0.toml",
-      "content_hash": "728194cfff2d45f533247d1da4c7b63a37f4025b9be8000a43a7837c90350840",
-      "size_bytes": 325,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-claims@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-receipts@1.0.0.toml",
-      "content_hash": "a833e4815e2cc5653503f8f847b4447d16f1fa9cb3dc2a6ea3923505ba9e28ba",
-      "size_bytes": 367,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-receipts@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-receipts@1.0.0.toml",
-      "content_hash": "a833e4815e2cc5653503f8f847b4447d16f1fa9cb3dc2a6ea3923505ba9e28ba",
-      "size_bytes": 367,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-receipts@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-receipts@1.0.0.toml",
-      "content_hash": "a833e4815e2cc5653503f8f847b4447d16f1fa9cb3dc2a6ea3923505ba9e28ba",
-      "size_bytes": 367,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-receipts@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-smells@1.0.0.toml",
-      "content_hash": "9ecd7bd004edb327eea99632f3a54b34d951df49758bd5522bd442755295543d",
-      "size_bytes": 343,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-smells@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-smells@1.0.0.toml",
-      "content_hash": "9ecd7bd004edb327eea99632f3a54b34d951df49758bd5522bd442755295543d",
-      "size_bytes": 343,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-smells@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-smells@1.0.0.toml",
-      "content_hash": "9ecd7bd004edb327eea99632f3a54b34d951df49758bd5522bd442755295543d",
-      "size_bytes": 343,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-smells@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-smells@1.0.0.toml",
-      "content_hash": "9ecd7bd004edb327eea99632f3a54b34d951df49758bd5522bd442755295543d",
-      "size_bytes": 343,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-smells@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-smells@1.0.0.toml",
-      "content_hash": "9ecd7bd004edb327eea99632f3a54b34d951df49758bd5522bd442755295543d",
-      "size_bytes": 343,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-smells@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-surface@1.0.0.toml",
-      "content_hash": "9a516caa235385a4cfdb3cf07a14731b674ae2b43fac010163cf142ac0b6b81b",
-      "size_bytes": 328,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-surface@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-surface@1.0.0.toml",
-      "content_hash": "9a516caa235385a4cfdb3cf07a14731b674ae2b43fac010163cf142ac0b6b81b",
-      "size_bytes": 328,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-surface@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-tests@1.0.0.toml",
-      "content_hash": "dce90ff02eb1341e494a155c53084b75033e8841af7c272b10c41293d746e63a",
-      "size_bytes": 368,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-tests@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-tests@1.0.0.toml",
-      "content_hash": "dce90ff02eb1341e494a155c53084b75033e8841af7c272b10c41293d746e63a",
-      "size_bytes": 368,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/rules/cheat-tests@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/rules/example@1.0.0.toml",
-      "content_hash": "6d140ee7a5ecf149680dd77bb324c41e224da4b04889d8ea711273f3b0428dae",
-      "size_bytes": 303,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/rules/example@1.0.0.toml"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/workspace.rs",
-      "content_hash": "51492bf5f2b6adba36622e0517bca00b13a79d591e45d551f99df3e00ce50434",
-      "size_bytes": 914,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/workspace.rs"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/src/workspace.rs",
-      "content_hash": "0e4c187af2344f27a29ecdc3476c50fa866c3a4ac41632955e4839a7253c5607",
-      "size_bytes": 847,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/src/workspace.rs"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/packs/cheat_claims.rs",
-      "content_hash": "fb94a97e4e795616a9f32e279c219f6fc866ade5361381d78fbd658cde019b5b",
-      "size_bytes": 2850,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/packs/cheat_claims.rs"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/packs/cheat_receipts.rs",
-      "content_hash": "2b1c4a98a44376e337b27d1b6c9f4924c5a3586e1d8f1c224d488c80fb026385",
-      "size_bytes": 2311,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/packs/cheat_receipts.rs"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/packs/cheat_smells.rs",
-      "content_hash": "79c1f05f5d60b15bb3b69cfed81ef1444d7aa5a8f3b6c122da76441888a8ed02",
-      "size_bytes": 3536,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/packs/cheat_smells.rs"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/packs/cheat_surface.rs",
-      "content_hash": "63119134aae2ed320852552346028c6cd95485f541be21d0129d1a02d30e1e87",
-      "size_bytes": 1611,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/packs/cheat_surface.rs"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/packs/cheat_tests.rs",
-      "content_hash": "5ca025e43284a4c377c833ed5d09c0f8ad0045cc4ee566485664426977e8ed1f",
-      "size_bytes": 1639,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/packs/cheat_tests.rs"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/src/packs/example.rs",
-      "content_hash": "009ff1007a1d65a5e8da129738fbc392874ef6a1e71512a069d9c6c91c837a1d",
-      "size_bytes": 949,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/src/packs/example.rs"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/packs/mod.rs",
-      "content_hash": "6fca445b6847ff8c184494a672c7103499002ae0d191adb2b1fd9f52cfb31db6",
-      "size_bytes": 555,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/packs/mod.rs"
-    },
-    {
-      "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/src/packs/mod.rs",
-      "content_hash": "ed4870c71e339c7db9b11cd1e8c3ba685c2c0365be5b3c600a961c213578a832",
-      "size_bytes": 333,
-      "source_rule": "rule-.specify/specs/lsp-max/./examples/lsp-max-scaffold/my-lsp/src/packs/mod.rs"
+      "path": "./crates/ggen-cli/src/generated_commands.rs",
+      "content_hash": "f7624a8c046ea18ab934522e30ef22132dedde7062f1f38728471aa6f20c6d34",
+      "size_bytes": 258,
+      "source_rule": "rule-./crates/ggen-cli/src/generated_commands.rs"
     }
   ],
   "validation_passed": true,
-  "total_duration_ms": 5
+  "total_duration_ms": 0
 }

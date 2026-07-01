@@ -1,4 +1,4 @@
-[1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 0.13s
+[1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
 [1m[92m     Running[0m `target/debug/emit_audit`
-[1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 0.13s
+[1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
 [1m[92m     Running[0m `target/debug/verify_audit`

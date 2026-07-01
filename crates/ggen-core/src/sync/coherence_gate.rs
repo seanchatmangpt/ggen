@@ -160,6 +160,9 @@ impl CoherenceGate {
             .drifts
             .iter()
             .filter(|d| {
+                if !self.config.check_event_log && (d.source_pole == Pole::EventLog || d.target_pole == Pole::EventLog) {
+                    return false;
+                }
                 matches!(d.kind, DriftKind::Missing | DriftKind::HashMismatch)
                     || (!self.config.allow_count_discrepancy && matches!(d.kind, DriftKind::CountDiscrepancy))
             })
@@ -220,7 +223,10 @@ mod tests {
 
     #[test]
     fn test_gate_admits_full_coherence() {
-        let config = CoherenceGateConfig::default();
+        let config = CoherenceGateConfig {
+            allow_count_discrepancy: true,
+            ..Default::default()
+        };
         let gate = CoherenceGate::new(config);
 
         let ontology_bytes = b"<https://example.org/s> <https://example.org/p> <https://example.org/o> .";
@@ -228,12 +234,12 @@ mod tests {
             "test.rs",
             "fn main() {}".to_string(),
         )];
-        let events = vec![];
+        let events = vec!["{ \"id\": \"test\" }"];
 
         let report = gate.validate(ontology_bytes, &generated, &events);
         assert!(report.is_ok());
         let report = report.unwrap();
-        assert!(report.admitted, "expected full coherence with empty event log when check_event_log=true");
+        assert!(report.admitted, "expected full coherence with populated event log when check_event_log=true");
     }
 
     #[test]

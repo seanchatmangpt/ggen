@@ -50,14 +50,8 @@ impl OntologyLoader {
             return Some(ontology.content.to_vec());
         }
 
-        // Phase 4: Try lock file for cached packages
-        // Look for .ggen/ontology.lock and check if uri matches any locked package
-        // TODO: Implement lock file lookup
-        // if let Ok(lockfile) = ggen_marketplace::Lockfile::read(".ggen/ontology.lock") {
-        //     if let Some(cached) = lockfile.find_ontology(uri) {
-        //         return std::fs::read(&cached.cache_path).ok();
-        //     }
-        // }
+        // Phase 4: Try lock file for cached packages.
+        // Lock file package lookup will be integrated when the lockfile package module is completed.
 
         // Try local filesystem resolver (for development)
         let resolved_paths = OntologyResolver::resolve(Path::new(uri), base_path);
@@ -69,12 +63,8 @@ impl OntologyLoader {
             }
         }
 
-        // Phase 4: Try marketplace resolver (download and cache)
-        // This would integrate with ggen-marketplace package registry
-        // TODO: Implement marketplace fallback
-        // let client = ggen_marketplace::MarketplaceClient::new("https://registry.ggen.io");
-        // let package = client.find_ontology_package(uri).await?;
-        // return client.install_and_load(package).await;
+        // Phase 4: Try marketplace resolver (download and cache).
+        // Marketplace fallback will be integrated when the marketplace client module is completed.
 
         None
     }
@@ -82,7 +72,9 @@ impl OntologyLoader {
     /// Get ontology metadata for a namespace URI
     ///
     /// Returns metadata about the ontology if available in core bundle
-    pub fn get_metadata(uri: &str) -> Option<&'static crate::ontology::core_bundle::OntologyMetadata> {
+    pub fn get_metadata(
+        uri: &str,
+    ) -> Option<&'static crate::ontology::core_bundle::OntologyMetadata> {
         crate::ontology::CoreOntologyBundle::by_namespace(uri)
             .or_else(|| crate::ontology::CoreOntologyBundle::by_name(uri))
     }
@@ -111,8 +103,14 @@ mod tests {
             "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
             Path::new("."),
         );
-        assert!(content.is_some(), "RDF ontology should be available in core bundle");
-        assert!(!content.unwrap().is_empty(), "Ontology content should not be empty");
+        assert!(
+            content.is_some(),
+            "RDF ontology should be available in core bundle"
+        );
+        assert!(
+            !content.unwrap().is_empty(),
+            "Ontology content should not be empty"
+        );
     }
 
     #[test]
@@ -191,7 +189,11 @@ mod tests {
 
             if let Some(m) = meta {
                 assert!(m.size > 0, "Size should be non-zero for {}", uri);
-                assert!(!m.content.is_empty(), "Content should not be empty for {}", uri);
+                assert!(
+                    !m.content.is_empty(),
+                    "Content should not be empty for {}",
+                    uri
+                );
                 assert_eq!(m.size, m.content.len(), "Size should match content length");
             }
         }
@@ -205,7 +207,11 @@ mod tests {
         for (_name, uri) in embedded {
             let content = OntologyLoader::load_content(uri, Path::new("."));
             assert!(content.is_some(), "Should load content for {}", uri);
-            assert!(!content.unwrap().is_empty(), "Content should not be empty for {}", uri);
+            assert!(
+                !content.unwrap().is_empty(),
+                "Content should not be empty for {}",
+                uri
+            );
         }
     }
 
@@ -221,7 +227,11 @@ mod tests {
         assert!(content.is_some());
 
         if let (Some(meta), Some(cnt)) = (metadata, content) {
-            assert_eq!(meta.content.len(), cnt.len(), "Metadata content length should match loaded content");
+            assert_eq!(
+                meta.content.len(),
+                cnt.len(),
+                "Metadata content length should match loaded content"
+            );
         }
     }
 
@@ -242,8 +252,14 @@ mod tests {
         let content2 = OntologyLoader::load_content(uri, Path::new("."));
         let content3 = OntologyLoader::load_content(uri, Path::new("."));
 
-        assert_eq!(content1, content2, "Same URI should return identical content");
-        assert_eq!(content2, content3, "Same URI should return identical content");
+        assert_eq!(
+            content1, content2,
+            "Same URI should return identical content"
+        );
+        assert_eq!(
+            content2, content3,
+            "Same URI should return identical content"
+        );
     }
 
     /// Test fallback chain with by_namespace and by_name
@@ -252,7 +268,8 @@ mod tests {
         // Test that looking up by name works
         let by_name = OntologyLoader::load_content("owl", Path::new("."));
         // Test that looking up by full namespace also works
-        let by_namespace = OntologyLoader::load_content("http://www.w3.org/2002/07/owl#", Path::new("."));
+        let by_namespace =
+            OntologyLoader::load_content("http://www.w3.org/2002/07/owl#", Path::new("."));
 
         // Both should succeed
         assert!(by_name.is_some(), "Should load by short name");
@@ -269,7 +286,9 @@ mod tests {
         assert!(!OntologyLoader::is_embedded("http://example.com/ontology#"));
         assert!(!OntologyLoader::is_embedded("notanontology"));
         assert!(!OntologyLoader::is_embedded(""));
-        assert!(!OntologyLoader::is_embedded("HTTP://www.w3.org/1999/02/22-rdf-syntax-ns#")); // case-sensitive
+        assert!(!OntologyLoader::is_embedded(
+            "HTTP://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        )); // case-sensitive
     }
 
     /// Test list_embedded never returns duplicates
@@ -313,7 +332,10 @@ mod tests {
     fn test_multiple_lookups_thread_safe() {
         // Load the same ontology 100 times to verify no race conditions
         for _ in 0..100 {
-            let _ = OntologyLoader::load_content("http://www.w3.org/1999/02/22-rdf-syntax-ns#", Path::new("."));
+            let _ = OntologyLoader::load_content(
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                Path::new("."),
+            );
             let _ = OntologyLoader::get_metadata("http://www.w3.org/2000/01/rdf-schema#");
             let _ = OntologyLoader::is_embedded("owl");
         }

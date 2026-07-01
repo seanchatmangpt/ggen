@@ -148,8 +148,8 @@ fn graph_load_imports_ttl_and_reports_triple_count() {
         .current_dir(&dir)
         .assert()
         .success()
-        .stdout(predicate::str::contains("\"triples_loaded\":5"))
-        .stdout(predicate::str::contains("\"total_triples\":5"))
+        .stdout(predicate::str::contains("\"triples_loaded\": 5"))
+        .stdout(predicate::str::contains("\"total_triples\": 5"))
         .stdout(predicate::str::contains("Turtle"));
 }
 
@@ -199,7 +199,7 @@ SELECT ?name WHERE { ?p a foaf:Person ; foaf:name ?name } ORDER BY ?name"#;
         .current_dir(&dir)
         .assert()
         .success()
-        .stdout(predicate::str::contains("\"result_count\":2"))
+        .stdout(predicate::str::contains("\"result_count\": 2"))
         .stdout(predicate::str::contains("Alice"))
         .stdout(predicate::str::contains("Bob"));
 }
@@ -254,7 +254,7 @@ fn graph_export_writes_serialized_file_with_real_triples() {
         .current_dir(&dir)
         .assert()
         .success()
-        .stdout(predicate::str::contains("\"triples_exported\":5"));
+        .stdout(predicate::str::contains("\"triples_exported\": 5"));
 
     // Durable state: the export file was actually written.
     assert!(out.exists(), "export must write a real output file");
@@ -330,7 +330,7 @@ fn graph_visualize_writes_dot_artifact_with_real_nodes() {
         .assert()
         .success()
         // Two distinct subjects (ex:alice, ex:bob) => 2 nodes rendered.
-        .stdout(predicate::str::contains("\"nodes_rendered\":2"));
+        .stdout(predicate::str::contains("\"nodes_rendered\": 2"));
 
     // Durable state: DOT artifact written next to input (extension swapped).
     let dot = dir.path().join("data.dot");
@@ -405,9 +405,9 @@ fn graph_validate_extracts_schema_and_reports_counts() {
         .current_dir(&dir)
         .assert()
         .success()
-        .stdout(predicate::str::contains("\"classes_count\":2"))
-        .stdout(predicate::str::contains("\"properties_count\":3"))
-        .stdout(predicate::str::contains("\"is_valid\":true"));
+        .stdout(predicate::str::contains("\"classes_count\": 2"))
+        .stdout(predicate::str::contains("\"properties_count\": 3"))
+        .stdout(predicate::str::contains("\"is_valid\": true"));
 }
 
 /// PROOF: `graph validate --strict` runs the same real extraction plus the
@@ -429,6 +429,6 @@ fn graph_validate_strict_mode_runs_reference_checks() {
         .current_dir(&dir)
         .assert()
         .success()
-        .stdout(predicate::str::contains("\"classes_count\":2"))
-        .stdout(predicate::str::contains("\"is_valid\":true"));
+        .stdout(predicate::str::contains("\"classes_count\": 2"))
+        .stdout(predicate::str::contains("\"is_valid\": true"));
 }

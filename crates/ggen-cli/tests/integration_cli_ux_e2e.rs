@@ -177,30 +177,55 @@ fn test_help_progressive_topic() {
         .success();
 }
 
-#[test]
-#[ignore]
-fn test_all_nouns_have_help() {
-    // Chicago TDD: Verify every noun command has help
-    let nouns = vec![
-        "template",
-        "market",
-        "project",
-        "graph",
-        "ai",
-        "hook",
-        "lifecycle",
-        "audit",
-        "ci",
-        "shell",
-    ];
+/// Derive the set of top-level nouns from `ggen --help` itself, rather than
+/// hardcoding a list that goes stale every time a noun is added or removed.
+/// Subcommand name lines in clap help are indented exactly two spaces; wrapped
+/// description lines are indented deeper, so they are skipped.
+fn discovered_nouns() -> Vec<String> {
+    let output = ggen().arg("--help").output().expect("run ggen --help");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let mut nouns = Vec::new();
+    let mut in_commands = false;
+    for line in stdout.lines() {
+        if line.trim() == "Commands:" {
+            in_commands = true;
+            continue;
+        }
+        if !in_commands {
+            continue;
+        }
+        if line.trim().is_empty() {
+            break; // the Commands section ends at the first blank line
+        }
+        let bytes = line.as_bytes();
+        let is_name_line = bytes.len() >= 3 && &bytes[0..2] == b"  " && bytes[2] != b' ';
+        if !is_name_line {
+            continue; // wrapped description continuation line
+        }
+        if let Some(name) = line.split_whitespace().next() {
+            if name != "help" {
+                nouns.push(name.to_string());
+            }
+        }
+    }
+    nouns
+}
 
-    for noun in nouns {
+#[test]
+fn test_all_nouns_have_help() {
+    // Chicago TDD: every noun the CLI advertises must have working help.
+    let nouns = discovered_nouns();
+    assert!(
+        !nouns.is_empty(),
+        "ggen --help should advertise at least one noun"
+    );
+    for noun in &nouns {
         ggen()
             .arg(noun)
             .arg("--help")
             .assert()
             .success()
-            .stdout(predicate::str::contains(noun).or(predicate::str::contains("Usage")));
+            .stdout(predicate::str::contains(noun.as_str()).or(predicate::str::contains("Usage")));
     }
 }
 

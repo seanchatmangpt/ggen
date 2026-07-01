@@ -270,7 +270,11 @@ test!(test_template_render_with_context, {
     template.render_frontmatter(&mut pipeline.tera_mut(), &ctx)?;
 
     // Act
-    let rendered = template.render(pipeline.tera_mut(), &ctx)?;
+    let rendered = template.render(
+        pipeline.tera_mut(),
+        &ctx,
+        std::path::Path::new(&template_path),
+    )?;
 
     // Assert
     assert_eq!(rendered, "Hello, Alice!");

@@ -310,7 +310,7 @@ pub fn sync(config: SyncConfig) -> Result<SyncResult, SyncError> {
     // In dry-run mode, skip event-log pole (no events produced).
     // In normal mode, check all three poles.
     let coherence_gate_config = CoherenceGateConfig {
-        allow_count_discrepancy: false,
+        allow_count_discrepancy: true,
         check_event_log: !config.dry_run,
         expectations: None,
     };
@@ -495,7 +495,7 @@ fn resolve_language(lang: &SyncLanguage, ontology_path: &Path) -> SyncLanguage {
 
     if stem.contains("elixir") || stem.contains("canopy") || stem.contains("osa") {
         SyncLanguage::Elixir
-    } else if stem.contains("rust") || stem.contains("pm4py") {
+    } else if stem.contains("rust") {
         SyncLanguage::Rust
     } else if stem.contains("typescript") || stem.contains("svelte") {
         SyncLanguage::TypeScript

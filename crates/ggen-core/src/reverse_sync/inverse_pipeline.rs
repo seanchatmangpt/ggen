@@ -196,7 +196,9 @@ impl InverseReceiptChain {
     /// Returns [`InversePipelineError::ValidateFailed`] if:
     /// - The receipt signature is invalid
     /// - The receipt hash cannot be computed
-    pub fn append(&mut self, receipt: InverseReceipt, verifying_key: &VerifyingKey) -> InverseResult<()> {
+    pub fn append(
+        &mut self, receipt: InverseReceipt, verifying_key: &VerifyingKey,
+    ) -> InverseResult<()> {
         // Fail-closed: verify the receipt before appending.
         if !receipt.verify(verifying_key) {
             return Err(InversePipelineError::ValidateFailed(
@@ -347,21 +349,24 @@ impl InversePipeline {
             let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
 
             let extracted = match ext {
-                "rs" => super::extract_rust_service(&path_str)
-                    .map_err(|e| InversePipelineError::ExtractFailed {
+                "rs" => super::extract_rust_service(&path_str).map_err(|e| {
+                    InversePipelineError::ExtractFailed {
                         path: path_str.clone(),
                         reason: e.to_string(),
-                    })?,
-                "ex" | "exs" => super::extract_elixir_genserver(&path_str)
-                    .map_err(|e| InversePipelineError::ExtractFailed {
+                    }
+                })?,
+                "ex" | "exs" => super::extract_elixir_genserver(&path_str).map_err(|e| {
+                    InversePipelineError::ExtractFailed {
                         path: path_str.clone(),
                         reason: e.to_string(),
-                    })?,
-                "go" => super::extract_go_service(&path_str)
-                    .map_err(|e| InversePipelineError::ExtractFailed {
+                    }
+                })?,
+                "go" => super::extract_go_service(&path_str).map_err(|e| {
+                    InversePipelineError::ExtractFailed {
                         path: path_str.clone(),
                         reason: e.to_string(),
-                    })?,
+                    }
+                })?,
                 // Should never reach here due to the Scan filter above.
                 _ => Vec::new(),
             };
@@ -383,13 +388,10 @@ impl InversePipeline {
                     reason: e.to_string(),
                 }
             })?;
-            // Trim prefix-only output: if the RDF contains nothing after the prefix declarations
-            // there is effectively no data.
-            let data_lines: Vec<&str> = rdf
+            let has_data = rdf
                 .lines()
-                .filter(|l| !l.trim().is_empty() && !l.starts_with("@prefix"))
-                .collect();
-            if data_lines.is_empty() {
+                .any(|l| !l.trim().is_empty() && !l.starts_with("@prefix"));
+            if !has_data {
                 return Err(InversePipelineError::ConvertEmpty {
                     service: first_service_name,
                 });
@@ -400,10 +402,9 @@ impl InversePipeline {
         // μ⁻¹₄ Validate: check RDF output is non-empty and contains service declarations.
         // The convert_to_rdf function emits Turtle format, so we look for code: prefixed
         // service IRIs rather than bare N-Triples markers.
-        let shacl_valid;
-        if rdf.is_empty() {
+        let shacl_valid = if rdf.is_empty() {
             // No services to validate — pass vacuously (nothing was promised).
-            shacl_valid = true;
+            true
         } else {
             let has_service_decl = rdf.lines().any(|l| {
                 let t = l.trim();
@@ -416,8 +417,8 @@ impl InversePipeline {
                     "recovered RDF contains no code:Service declarations".to_string(),
                 ));
             }
-            shacl_valid = true;
-        }
+            true
+        };
 
         // μ⁻¹₅ Emit: build receipt with BLAKE3 of output, non-empty UUID, real timestamp.
         let output_hash = {
@@ -480,8 +481,8 @@ mod tests {
     use std::io::Write;
 
     fn write_temp_rust(content: &str) -> tempfile::NamedTempFile {
-        let mut f = tempfile::NamedTempFile::with_suffix(".rs")
-            .expect("Failed to create named temp file");
+        let mut f =
+            tempfile::NamedTempFile::with_suffix(".rs").expect("Failed to create named temp file");
         f.write_all(content.as_bytes())
             .expect("Failed to write temp file content");
         f
@@ -550,8 +551,8 @@ impl UserService {
     #[test]
     fn test_unknown_extension_skipped_gracefully() {
         // .txt files must be skipped by the Scan stage → ScanEmpty.
-        let mut f = tempfile::NamedTempFile::with_suffix(".txt")
-            .expect("Failed to create named temp file");
+        let mut f =
+            tempfile::NamedTempFile::with_suffix(".txt").expect("Failed to create named temp file");
         f.write_all(b"not a rust file")
             .expect("Failed to write content");
         let result = InversePipeline::run(&[f.path().to_path_buf()]);
@@ -653,20 +654,41 @@ impl OrderService {
             "recovered_triple_count must be > 0 for a recoverable struct; got {}",
             receipt.recovered_triple_count
         );
-        assert!(receipt.shacl_valid, "validate stage must pass for recovered RDF");
-        assert_eq!(receipt.last_stage, InverseStage::Emit, "must complete through Emit");
+        assert!(
+            receipt.shacl_valid,
+            "validate stage must pass for recovered RDF"
+        );
+        assert_eq!(
+            receipt.last_stage,
+            InverseStage::Emit,
+            "must complete through Emit"
+        );
 
         // §4.2 invariant analogues: real UUID v4, non-empty signature.
         assert!(
             !receipt.signature.is_empty(),
             "a real signed run must carry a NON-EMPTY signature"
         );
-        let parsed_id = uuid::Uuid::parse_str(&receipt.operation_id)
-            .expect("operation_id must be a real UUID");
-        assert_eq!(parsed_id.get_version_num(), 4, "operation_id must be UUID v4");
-        assert_ne!(parsed_id, uuid::Uuid::nil(), "operation_id must be non-zero");
-        assert!(!receipt.output_hash.is_empty(), "output_hash must be populated");
-        assert!(!receipt.input_hashes.is_empty(), "input_hashes must record the source file");
+        let parsed_id =
+            uuid::Uuid::parse_str(&receipt.operation_id).expect("operation_id must be a real UUID");
+        assert_eq!(
+            parsed_id.get_version_num(),
+            4,
+            "operation_id must be UUID v4"
+        );
+        assert_ne!(
+            parsed_id,
+            uuid::Uuid::nil(),
+            "operation_id must be non-zero"
+        );
+        assert!(
+            !receipt.output_hash.is_empty(),
+            "output_hash must be populated"
+        );
+        assert!(
+            !receipt.input_hashes.is_empty(),
+            "input_hashes must record the source file"
+        );
 
         // Verification with the matching key must SUCCEED.
         assert!(
@@ -686,7 +708,10 @@ impl OrderService {
             .expect("inverse pipeline should produce an (unsigned) receipt");
 
         // Assert — fail-closed: an empty signature is never valid.
-        assert!(receipt.signature.is_empty(), "run() must leave signature empty");
+        assert!(
+            receipt.signature.is_empty(),
+            "run() must leave signature empty"
+        );
         assert!(
             !receipt.verify(&verifying_key),
             "an unsigned receipt (empty signature) must fail verification (fail-closed)"
@@ -700,7 +725,10 @@ impl OrderService {
         let (signing_key, verifying_key) = generate_keypair();
         let receipt = InversePipeline::run_signed(&[tmp.path().to_path_buf()], &signing_key)
             .expect("signed run should succeed");
-        assert!(receipt.verify(&verifying_key), "precondition: receipt verifies before tampering");
+        assert!(
+            receipt.verify(&verifying_key),
+            "precondition: receipt verifies before tampering"
+        );
 
         // Act — tamper with the receipt BODY (the output_hash is part of the
         // signed message). The signature no longer matches the mutated body.
@@ -714,7 +742,10 @@ impl OrderService {
         );
         // The pristine receipt still verifies — proves the failure is the tamper,
         // not a flaky key/message.
-        assert!(receipt.verify(&verifying_key), "original receipt must still verify");
+        assert!(
+            receipt.verify(&verifying_key),
+            "original receipt must still verify"
+        );
     }
 
     #[test]

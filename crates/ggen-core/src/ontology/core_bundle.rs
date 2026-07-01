@@ -150,7 +150,10 @@ mod tests {
     fn test_core_ontologies_available() {
         let ontologies = CoreOntologyBundle::all();
         assert!(!ontologies.is_empty(), "Core ontologies should be embedded");
-        assert!(ontologies.len() >= 3, "Should have at least 3 core ontologies");
+        assert!(
+            ontologies.len() >= 3,
+            "Should have at least 3 core ontologies"
+        );
     }
 
     #[test]
@@ -160,7 +163,10 @@ mod tests {
 
         if let Some(rdf_meta) = rdf {
             assert_eq!(rdf_meta.name, "rdf");
-            assert!(!rdf_meta.content.is_empty(), "Ontology content should not be empty");
+            assert!(
+                !rdf_meta.content.is_empty(),
+                "Ontology content should not be empty"
+            );
         }
     }
 
@@ -177,7 +183,10 @@ mod tests {
     #[test]
     fn test_available_list() {
         let available = CoreOntologyBundle::available();
-        assert!(!available.is_empty(), "Should have at least one core ontology");
+        assert!(
+            !available.is_empty(),
+            "Should have at least one core ontology"
+        );
 
         // Each entry should have both name and namespace
         for (name, ns) in available {
@@ -191,7 +200,10 @@ mod tests {
     fn test_stats() {
         let stats = CoreOntologyBundle::stats();
         assert!(stats.count > 0, "Should have at least one core ontology");
-        assert!(stats.total_size_bytes > 0, "Total size should be greater than zero");
+        assert!(
+            stats.total_size_bytes > 0,
+            "Total size should be greater than zero"
+        );
     }
 
     // Phase 5: NEW TESTS FOR EXPANDED COVERAGE
@@ -207,7 +219,11 @@ mod tests {
             let _ = ont.size;
             let _ = ont.content;
             // Verify content is not empty (zero-copy semantic)
-            assert!(!ont.content.is_empty(), "Ontology {} should have content", ont.name);
+            assert!(
+                !ont.content.is_empty(),
+                "Ontology {} should have content",
+                ont.name
+            );
         }
     }
 
@@ -215,14 +231,20 @@ mod tests {
     #[test]
     fn test_namespace_case_sensitive() {
         // Exact match should succeed
-        assert!(CoreOntologyBundle::by_namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-            .is_some());
+        assert!(
+            CoreOntologyBundle::by_namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+                .is_some()
+        );
         // Case variation should fail
-        assert!(CoreOntologyBundle::by_namespace("HTTP://www.w3.org/1999/02/22-rdf-syntax-ns#")
-            .is_none());
+        assert!(
+            CoreOntologyBundle::by_namespace("HTTP://www.w3.org/1999/02/22-rdf-syntax-ns#")
+                .is_none()
+        );
         // Partial match should fail
-        assert!(CoreOntologyBundle::by_namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns")
-            .is_none());
+        assert!(
+            CoreOntologyBundle::by_namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns")
+                .is_none()
+        );
     }
 
     /// Test case-sensitive name matching
@@ -268,7 +290,11 @@ mod tests {
         let all = CoreOntologyBundle::all();
 
         // Count must match
-        assert_eq!(stats.count, all.len(), "Stats count should match all() length");
+        assert_eq!(
+            stats.count,
+            all.len(),
+            "Stats count should match all() length"
+        );
 
         // Total size must match sum of all ontology sizes
         let expected_size: usize = all.iter().map(|o| o.size).sum();
@@ -297,13 +323,10 @@ mod tests {
                 "Ontology {} has empty content",
                 ont.name
             );
-            assert!(
-                ont.size > 0,
-                "Ontology {} has zero size",
-                ont.name
-            );
+            assert!(ont.size > 0, "Ontology {} has zero size", ont.name);
             assert_eq!(
-                ont.size, ont.content.len(),
+                ont.size,
+                ont.content.len(),
                 "Ontology {} size doesn't match content",
                 ont.name
             );
@@ -408,13 +431,16 @@ mod tests {
     #[test]
     fn test_core_bundle_copy_trait() {
         let bundle1 = CoreOntologyBundle;
-        let bundle2 = bundle1; // This is a copy, not a clone
+        let _bundle2 = bundle1; // This is a copy, not a clone
 
-        // Both should work identically
-        assert_eq!(bundle1.all().len(), bundle2.all().len());
+        // Both should work identically (stateless associated functions)
         assert_eq!(
-            bundle1.by_name("owl").is_some(),
-            bundle2.by_name("owl").is_some()
+            CoreOntologyBundle::all().len(),
+            CoreOntologyBundle::all().len()
+        );
+        assert_eq!(
+            CoreOntologyBundle::by_name("owl").is_some(),
+            CoreOntologyBundle::by_name("owl").is_some()
         );
     }
 }

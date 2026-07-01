@@ -375,7 +375,7 @@ fn perf_concurrent_marketplace_searches() {
         .map(|query| {
             thread::spawn(move || {
                 Command::new(env!("CARGO_BIN_EXE_ggen"))
-                    .args(["pack", "search", "--query", query, "--limit", "5"])
+                    .args(["pack", "search", query, "--limit", "5"])
                     .assert()
                     .success();
             })
@@ -415,7 +415,7 @@ fn perf_response_time_marketplace_search() {
     let start = Instant::now();
 
     Command::new(env!("CARGO_BIN_EXE_ggen"))
-        .args(["pack", "search", "--query", "rust", "--limit", "10"])
+        .args(["pack", "search", "rust", "--limit", "10"])
         .assert()
         .success();
 

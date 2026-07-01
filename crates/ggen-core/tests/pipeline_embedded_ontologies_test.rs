@@ -30,17 +30,18 @@ fn test_pipeline_single_embedded_ontology() {
     // Verify epoch was created successfully
     assert_eq!(epoch.inputs.len(), 1, "Should have 1 ontology input");
     assert!(!epoch.id.is_empty(), "Epoch should have computed ID");
-    assert_eq!(epoch.id.len(), 64, "Epoch ID should be SHA-256 hex (64 chars)");
-    assert!(
-        epoch.total_triples > 0,
-        "RDF ontology should have triples"
+    assert_eq!(
+        epoch.id.len(),
+        64,
+        "Epoch ID should be SHA-256 hex (64 chars)"
     );
+    assert!(epoch.total_triples > 0, "RDF ontology should have triples");
 
     // Verify input metadata
     let rdf_input = epoch
         .inputs
         .get(&PathBuf::from(
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
         ))
         .expect("Should find RDF input");
 
@@ -84,24 +85,19 @@ fn test_pipeline_multiple_embedded_ontologies() {
     // Verify epoch has both ontologies
     assert_eq!(epoch.inputs.len(), 2, "Should have 2 ontology inputs");
     assert!(!epoch.id.is_empty(), "Epoch should have ID");
-    assert!(
-        epoch.total_triples > 0,
-        "Should have combined triple count"
-    );
+    assert!(epoch.total_triples > 0, "Should have combined triple count");
 
     // Verify each ontology is present
     let rdf_input = epoch
         .inputs
         .get(&PathBuf::from(
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
         ))
         .expect("Should find RDF input");
 
     let owl_input = epoch
         .inputs
-        .get(&PathBuf::from(
-            "http://www.w3.org/2002/07/owl#"
-        ))
+        .get(&PathBuf::from("http://www.w3.org/2002/07/owl#"))
         .expect("Should find OWL input");
 
     // Verify hashes are deterministic
@@ -113,14 +109,8 @@ fn test_pipeline_multiple_embedded_ontologies() {
     );
 
     // Verify triple counts are reasonable
-    assert!(
-        rdf_input.triple_count > 0,
-        "RDF should have triples"
-    );
-    assert!(
-        owl_input.triple_count > 0,
-        "OWL should have triples"
-    );
+    assert!(rdf_input.triple_count > 0, "RDF should have triples");
+    assert!(owl_input.triple_count > 0, "OWL should have triples");
     assert_eq!(
         epoch.total_triples,
         rdf_input.triple_count + owl_input.triple_count,
@@ -174,10 +164,7 @@ ex:Individual2 a ex:MyClass .
     // Create epoch with mixed: local file + embedded ontology
     let epoch = Epoch::create_with_fallback(
         temp_dir.path(),
-        &[
-            "custom.ttl",
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-        ],
+        &["custom.ttl", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"],
     )
     .expect("Should load both custom and embedded ontologies");
 
@@ -200,7 +187,7 @@ ex:Individual2 a ex:MyClass .
     let rdf_input = epoch
         .inputs
         .get(&PathBuf::from(
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
         ))
         .expect("Should find RDF input");
 
@@ -243,12 +230,22 @@ fn test_epoch_determinism_with_embedded() {
     );
 
     // Verify input hashes are deterministic
-    assert_eq!(epoch1.inputs.len(), epoch2.inputs.len(), "Input count should match");
+    assert_eq!(
+        epoch1.inputs.len(),
+        epoch2.inputs.len(),
+        "Input count should match"
+    );
 
     for (path, input1) in epoch1.inputs.iter() {
-        let input2 = epoch2.inputs.get(path)
+        let input2 = epoch2
+            .inputs
+            .get(path)
             .expect(&format!("Input {:?} should exist in both epochs", path));
-        assert_eq!(input1.hash, input2.hash, "Hash for {:?} should be deterministic", path);
+        assert_eq!(
+            input1.hash, input2.hash,
+            "Hash for {:?} should be deterministic",
+            path
+        );
     }
 
     println!(
@@ -281,19 +278,17 @@ fn test_no_network_access_required() {
     // Load all via OntologyInput
     let base_path = Path::new(".");
     for uri in &embedded_uris {
-        let input = OntologyInput::from_namespace(uri, base_path, Some(uri))
-            .expect(&format!("Should load {} from core bundle without network", uri));
+        let input = OntologyInput::from_namespace(uri, base_path, Some(uri)).expect(&format!(
+            "Should load {} from core bundle without network",
+            uri
+        ));
 
         assert!(
             !input.hash.is_empty(),
             "URI {} should have computed hash",
             uri
         );
-        assert!(
-            input.size_bytes > 0,
-            "URI {} should have content",
-            uri
-        );
+        assert!(input.size_bytes > 0, "URI {} should have content", uri);
     }
 
     println!("✓ All embedded ontologies verified offline without network access");

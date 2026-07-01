@@ -1,30 +1,35 @@
-{#- Generated command module for {{ command_name }} -#}
+{#- Generated clap-noun-verb command module for {{ command_name }} -#}
 
-use clap::Parser;
-use anyhow::Result;
+use clap_noun_verb::Result;
+use clap_noun_verb_macros::verb;
+use serde_json::Value;
 
-/// {{ command_name }} command
-#[derive(Debug, Parser)]
-pub struct {{ command_name | pascal }}Args {
+/// {{ command_name }} command.
+///
+/// clap-noun-verb derives the CLI surface from this function's signature:
+/// required arguments become required `--flags`, `Option<T>` arguments become
+/// optional flags, and `bool` parameters become switches. Add `#[arg(index = N)]`
+/// to a parameter to make it positional instead.
+#[verb]
+pub fn {{ command_name | snake }}(
     {%- for argument in arguments %}
-    /// {{ argument.comment }}
     {%- if argument.required %}
-    pub {{ argument.name }}: {{ argument.type }},
+    {{ argument.name }}: {{ argument.type }},
     {%- else %}
-    #[arg(long)]
-    pub {{ argument.name }}: Option<{{ argument.type }}>,
+    {{ argument.name }}: Option<{{ argument.type }}>,
     {%- endif %}
     {%- endfor %}
-
     {%- for flag in flags %}
-    /// {{ flag.comment }}
-    #[arg(short = '{{ flag.short_flag }}', long)]
-    pub {{ flag.name }}: bool,
+    {{ flag.name }}: bool,
     {%- endfor %}
-}
-
-/// Execute the {{ command_name }} command
-pub async fn execute(args: {{ command_name | pascal }}Args) -> Result<()> {
-    // Call domain logic
-    crate::domain::{{ command_name | snake }}::execute(args).await
+) -> Result<Value> {
+    // Keep CLI parsing and business logic separate — delegate to the domain layer.
+    crate::domain::{{ command_name | snake }}::execute(
+        {%- for argument in arguments %}
+        {{ argument.name }},
+        {%- endfor %}
+        {%- for flag in flags %}
+        {{ flag.name }},
+        {%- endfor %}
+    )
 }

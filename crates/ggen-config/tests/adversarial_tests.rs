@@ -31,6 +31,8 @@ fn test_minimal_and_empty_configs() {
         build: None,
         test: None,
         package: None,
+        inference: None,
+        generation: None,
         mcp: None,
         a2a: None,
     };
@@ -77,6 +79,8 @@ fn test_missing_optional_subconfigs() {
         build: None,
         test: None,
         package: None,
+        inference: None,
+        generation: None,
         mcp: None,
         a2a: None,
     };
@@ -147,6 +151,8 @@ fn test_extreme_values_ai() {
         build: None,
         test: None,
         package: None,
+        inference: None,
+        generation: None,
         mcp: None,
         a2a: None,
     };
@@ -219,6 +225,8 @@ fn test_extreme_values_mcp_and_a2a() {
         build: None,
         test: None,
         package: None,
+        inference: None,
+        generation: None,
         mcp: Some(McpConfig {
             name: None,
             version: None,
@@ -328,6 +336,8 @@ fn test_performance_workers_constraint() {
         build: None,
         test: None,
         package: None,
+        inference: None,
+        generation: None,
         mcp: None,
         a2a: None,
     };

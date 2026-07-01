@@ -121,10 +121,8 @@ mod tests {
         let fwd_id = uuid::Uuid::new_v4().to_string();
         let inv_id = uuid::Uuid::new_v4().to_string();
 
-        let link1 = OperationLink::create(&fwd_id, &inv_id)
-            .expect("first link should succeed");
-        let link2 = OperationLink::create(&fwd_id, &inv_id)
-            .expect("second link should succeed");
+        let link1 = OperationLink::create(&fwd_id, &inv_id).expect("first link should succeed");
+        let link2 = OperationLink::create(&fwd_id, &inv_id).expect("second link should succeed");
 
         // Same inputs must produce identical hashes.
         assert_eq!(link1.link_hash, link2.link_hash);
@@ -136,10 +134,8 @@ mod tests {
         let fwd_id2 = uuid::Uuid::new_v4().to_string();
         let inv_id = uuid::Uuid::new_v4().to_string();
 
-        let link1 = OperationLink::create(&fwd_id1, &inv_id)
-            .expect("first link should succeed");
-        let link2 = OperationLink::create(&fwd_id2, &inv_id)
-            .expect("second link should succeed");
+        let link1 = OperationLink::create(&fwd_id1, &inv_id).expect("first link should succeed");
+        let link2 = OperationLink::create(&fwd_id2, &inv_id).expect("second link should succeed");
 
         // Different forward IDs must produce different hashes.
         assert_ne!(link1.link_hash, link2.link_hash);
@@ -168,8 +164,7 @@ mod tests {
     #[test]
     fn test_operation_link_rejects_non_v4_uuid() {
         // UUID v1 (timestamp-based)
-        let v1_id = uuid::Uuid::new_v1(uuid::Timestamp::now(uuid::NoContext), &[1, 2, 3, 4, 5, 6])
-            .to_string();
+        let v1_id = "c106a26a-21bb-11eb-adc1-0242ac120002".to_string();
         let v4_id = uuid::Uuid::new_v4().to_string();
 
         let result = OperationLink::create(&v1_id, &v4_id);
@@ -183,8 +178,7 @@ mod tests {
         let inv_id = uuid::Uuid::new_v4().to_string();
 
         let before = Utc::now();
-        let link = OperationLink::create(&fwd_id, &inv_id)
-            .expect("link creation should succeed");
+        let link = OperationLink::create(&fwd_id, &inv_id).expect("link creation should succeed");
         let after = Utc::now();
 
         // Timestamp must be within creation window (allowing for system clock jitter).

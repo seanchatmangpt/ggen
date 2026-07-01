@@ -94,7 +94,9 @@ tracing-subscriber = "0.3"
                     framework
                 )
             }
-            ProjectType::RustCli => r#"clap = { version = "4.0", features = ["derive"] }
+            ProjectType::RustCli => r#"clap-noun-verb = "26.5"
+clap-noun-verb-macros = "26.5"
+serde_json = "1.0"
 anyhow = "1.0"
 tokio = { version = "1.0", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -184,27 +186,22 @@ async fn main() -> Result<()> {{
             }
             ProjectType::RustCli => {
                 format!(
-                    r#"use crate::utils::error::Result;
-use clap::Parser;
+                    r#"//! {} — a clap-noun-verb CLI.
 
-#[derive(Parser)]
-#[command(name = "{}")]
-#[command(about = "A CLI tool", long_about = None)]
-struct Cli {{
-    #[arg(short, long)]
-    verbose: bool,
+use clap_noun_verb::Result;
+use clap_noun_verb_macros::verb;
+use serde_json::{{json, Value}};
+
+/// Greet someone (run `{} greet hello --name <NAME>`).
+#[verb("hello", "greet")]
+pub fn hello(name: Option<String>) -> Result<Value> {{
+    let who = name.unwrap_or_else(|| "world".to_string());
+    Ok(json!({{ "message": format!("Hello, {{}}!", who) }}))
 }}
 
-#[tokio::main]
-async fn main() -> Result<()> {{
-    let cli = Cli::parse();
-
-    if cli.verbose {{
-        println!("Running in verbose mode");
-    }}
-
-    println!("Hello from {}!");
-    Ok(())
+fn main() -> Result<()> {{
+    // clap-noun-verb auto-discovers the `#[verb]` functions above.
+    clap_noun_verb::run()
 }}
 "#,
                     config.name, config.name
@@ -371,7 +368,8 @@ mod tests {
             .map(|(_, content)| content)
             .unwrap();
 
-        assert!(main_rs.contains("clap::Parser"));
+        assert!(main_rs.contains("clap_noun_verb"));
+        assert!(main_rs.contains("#[verb("));
     }
 
     #[test]

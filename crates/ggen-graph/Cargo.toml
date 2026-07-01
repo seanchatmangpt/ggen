@@ -8,6 +8,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+wasm4pm-compat = { workspace = true }
 oxigraph = { workspace = true }
 blake3 = { workspace = true }
 serde = { workspace = true }
@@ -24,6 +25,9 @@ tracing = { workspace = true }
 [dev-dependencies]
 ed25519-dalek = { workspace = true }
 rand = "0.8"
+
+[features]
+otel = []
 
 [lints]
 workspace = true

@@ -1,0 +1,8 @@
+//! Auto-generated commands reference
+//! DO NOT EDIT
+
+pub const COMMANDS_REFERENCE: &[(&str, &str, &str)] = &[
+{%- for row in results %}
+    ("{{ row["?cmd"] | default(value="") }}", "{{ row["?label"] | default(value="") }}", "{{ row["?comment"] | default(value="") }}"),
+{%- endfor %}
+];

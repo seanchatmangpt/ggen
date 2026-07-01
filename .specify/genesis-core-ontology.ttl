@@ -24,7 +24,7 @@ deterministic transformation μ decomposed into five pipeline stages μ₁–μ�
 All structures derive from crates/genesis-core/src/lib.rs (#[no_std], zero-allocation).""" ;
     owl:imports <https://ggen.io/ontology/core> ;
     dcterms:created "2026-06-20"^^xsd:date ;
-    owl:versionInfo "26.5.28" .
+    owl:versionInfo "26.7.1" .
 
 #################################################################
 # PART 1: The A = μ(O) Formula

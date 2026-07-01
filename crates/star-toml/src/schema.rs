@@ -211,7 +211,7 @@ pub struct FieldBuilder<'a> {
     name: String,
 }
 
-impl<'a> FieldBuilder<'a> {
+impl FieldBuilder<'_> {
     /// Fail with `empty` if the value is an empty string.
     pub fn non_empty(self) -> Self {
         self.add(Constraint::NonEmpty)
@@ -409,7 +409,7 @@ impl Schema {
             for c in constraints {
                 if let Some(mut e) = c.check(name, child, checks_run) {
                     let mut loc_segs = prefix.to_vec();
-                    loc_segs.extend(e.loc.0.drain(..));
+                    loc_segs.append(&mut e.loc.0);
                     e.loc = Loc(loc_segs);
                     errors.push(e);
                 }
@@ -442,7 +442,7 @@ impl Schema {
             for c in constraints {
                 if let Some(mut e) = c.check(name, None, checks_run) {
                     let mut loc_segs = prefix.to_vec();
-                    loc_segs.extend(e.loc.0.drain(..));
+                    loc_segs.append(&mut e.loc.0);
                     e.loc = Loc(loc_segs);
                     errors.push(e);
                 }

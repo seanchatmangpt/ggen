@@ -100,18 +100,18 @@ fn build_manifest(output_dir: &str, mode: GenerationMode, output_file: &str) -> 
 }
 
 // ---------------------------------------------------------------------------
-// BUG-004: Create mode must fail when output file exists
+// Create mode: skip silently when output file already exists
 // ---------------------------------------------------------------------------
 
-/// BUG-004: When output file exists and mode = Create, pipeline must return an error.
+/// When output file exists and mode = Create, pipeline must succeed and leave
+/// the existing file untouched (bootstrap-scaffold semantics: write-once,
+/// hand-owned thereafter).
 #[test]
-fn test_create_mode_fails_when_existing() {
+fn test_create_mode_skips_when_existing() {
     let dir = TempDir::new().expect("TempDir");
 
-    // Write the ontology so the pipeline can load it.
     std::fs::write(dir.path().join("ontology.ttl"), MINIMAL_TTL).expect("write ontology");
 
-    // Pre-create the output file with sentinel content.
     let out_dir = dir.path().join("out");
     std::fs::create_dir_all(&out_dir).expect("create out dir");
     let output_path = out_dir.join("result.txt");
@@ -124,19 +124,14 @@ fn test_create_mode_fails_when_existing() {
     pipeline.load_ontology().expect("load ontology");
     let result = pipeline.execute_generation_rules();
 
-    // Create mode: must return error E0011 when file exists.
+    // Create mode: must succeed (not error) when file already exists.
     assert!(
-        result.is_err(),
-        "Create mode must return error when file exists"
-    );
-    let err_msg = result.unwrap_err().to_string();
-    assert!(
-        err_msg.contains("E0011"),
-        "Error message should contain E0011, got: {}",
-        err_msg
+        result.is_ok(),
+        "Create mode must succeed when file exists, got: {:?}",
+        result.err()
     );
 
-    // Real filesystem state: sentinel must be intact.
+    // Sentinel must be intact — file was not overwritten.
     let actual = std::fs::read_to_string(&output_path).expect("read output");
     assert_eq!(
         actual, sentinel,
