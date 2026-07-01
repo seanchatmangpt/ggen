@@ -3,20 +3,20 @@ Verifying verifier scripts & source files integrity...
 All script and source file digests match the integrity manifest.
 Executing script: scripts/gall/external/00_capture_baseline.sh
 === [00] Capturing Workspace Baseline ===
-Git HEAD: 745f6f67848a47a31716327022d8fb7864ea2552
- M .claude-plugin/marketplace.json
- M crates/ggen-core/tests/pipeline_edge_cases_test.rs
- M crates/ggen-core/tests/provenance_envelope_test.rs
- M crates/ggen-graph/Cargo.toml
+Git HEAD: 84e7cb5d51b72d28fa5251d96e437d8dd809e14a
  D crates/ggen-graph/audit/clean_room_rebuild.json
  D crates/ggen-graph/audit/clean_room_rebuild.ttl
  M crates/ggen-graph/audit/doctest_results.json
+ D crates/ggen-graph/audit/final.validation.ttl
  M crates/ggen-graph/audit/gall_code_evaluation.final.ttl
  M crates/ggen-graph/audit/gall_code_evaluation.receipt.ttl
  M crates/ggen-graph/audit/gall_decision.delta.ttl
  M crates/ggen-graph/audit/gall_evidence.ocel.json
  M crates/ggen-graph/audit/gall_evidence.ttl
- M crates/ggen-graph/audit/public_vocab.validation.ttl
+ M crates/ggen-graph/audit/hook_actuation.validation.ttl
+ D crates/ggen-graph/audit/sabotage.validation.ttl
+ D crates/ggen-graph/audit/sabotage_results.json
+ D crates/ggen-graph/audit/sabotage_results.ttl
  M crates/ggen-graph/audit/transcripts/00_capture_baseline.json
  M crates/ggen-graph/audit/transcripts/00_capture_baseline.stdout
  M crates/ggen-graph/audit/transcripts/00_capture_baseline.ttl
@@ -25,11 +25,8 @@ Git HEAD: 745f6f67848a47a31716327022d8fb7864ea2552
  M crates/ggen-graph/audit/transcripts/02_verify_package_constraints.json
  M crates/ggen-graph/audit/transcripts/02_verify_package_constraints.ttl
  M crates/ggen-graph/audit/transcripts/03_check_feature_flags.json
- M crates/ggen-graph/audit/transcripts/03_check_feature_flags.stderr
- M crates/ggen-graph/audit/transcripts/03_check_feature_flags.stdout
  M crates/ggen-graph/audit/transcripts/03_check_feature_flags.ttl
  M crates/ggen-graph/audit/transcripts/04_run_unit_tests.json
- M crates/ggen-graph/audit/transcripts/04_run_unit_tests.stderr
  M crates/ggen-graph/audit/transcripts/04_run_unit_tests.stdout
  M crates/ggen-graph/audit/transcripts/04_run_unit_tests.ttl
  M crates/ggen-graph/audit/transcripts/05_run_integration_tests.json
@@ -37,13 +34,10 @@ Git HEAD: 745f6f67848a47a31716327022d8fb7864ea2552
  M crates/ggen-graph/audit/transcripts/05_run_integration_tests.stdout
  M crates/ggen-graph/audit/transcripts/05_run_integration_tests.ttl
  M crates/ggen-graph/audit/transcripts/06_scan_forbidden_surfaces.json
- M crates/ggen-graph/audit/transcripts/06_scan_forbidden_surfaces.stderr
- M crates/ggen-graph/audit/transcripts/06_scan_forbidden_surfaces.stdout
  M crates/ggen-graph/audit/transcripts/06_scan_forbidden_surfaces.ttl
  M crates/ggen-graph/audit/transcripts/07_check_anti_fake.json
  M crates/ggen-graph/audit/transcripts/07_check_anti_fake.ttl
  M crates/ggen-graph/audit/transcripts/08_verify_replay_receipts.json
- M crates/ggen-graph/audit/transcripts/08_verify_replay_receipts.stderr
  M crates/ggen-graph/audit/transcripts/08_verify_replay_receipts.ttl
  M crates/ggen-graph/audit/transcripts/09_verify_ocel_self_audit.json
  M crates/ggen-graph/audit/transcripts/09_verify_ocel_self_audit.ttl
@@ -60,14 +54,14 @@ Git HEAD: 745f6f67848a47a31716327022d8fb7864ea2552
  D crates/ggen-graph/audit/vision2030.external_adjudication.json
  M crates/ggen-graph/audit/vision2030.self_audit.ocel.json
  M crates/ggen-graph/audit/vision2030.verification_manifest.json
+ D crates/ggen-graph/audit/witnessed_truthfulness.external_adjudication.json
  M crates/ggen-graph/audit/worktree_inventory.full.json
  M crates/ggen-graph/audit/worktree_inventory.ttl
  M crates/ggen-graph/src/bin/gall_actuate_code_evaluation.rs
- M crates/ggen-lsp-a2a/tests/triad_stress_test.rs
- M crates/ggen-lsp-mcp/tests/mcp_protocol_test.rs
- M crates/ggen-marketplace/tests/m2_challenger_stress_tests.rs
- M schema/stpnt-shapes-welcome.ttl
- D target.old/.rustc_info.json
+ M crates/ggen-graph/src/bin/gall_adjudicate_witnessed_truthfulness.rs
+ M crates/ggen-graph/src/bin/gall_observe_sabotage.rs
+ M run_test.sh
+ M test_fast.sh
 Baseline captured successfully.
 Executing script: scripts/gall/external/01_extract_requirements.sh
 === [01] Extracting & Verifying Requirements ===
@@ -91,34 +85,34 @@ Executing script: scripts/gall/external/04_run_unit_tests.sh
 === [04] Running Unit Tests ===
 
 running 31 tests
-test coherence::tests::test_fingerprint_is_deterministic ... ok
-test coherence::tests::test_different_inputs_produce_different_fingerprints ... ok
-test coherence::tests::test_all_poles_present_no_drift ... ok
-test coherence::tests::test_declared_equals_computed_no_hash_mismatch ... ok
 test coherence::tests::test_empty_all_poles_admitted ... ok
 test coherence::tests::test_declared_differs_from_computed_emits_hash_mismatch_not_admitted ... ok
-test coherence::tests::test_missing_event_log_emits_drift ... ok
 test coherence::tests::test_artifact_without_event_log_events_emits_count_discrepancy ... ok
-test coherence::tests::test_operation_id_is_unique_per_check ... ok
-test coherence::tests::test_ontology_with_empty_event_log_emits_o_to_l_discrepancy ... ok
+test coherence::tests::test_all_poles_present_no_drift ... ok
+test coherence::tests::test_missing_event_log_emits_drift ... ok
+test coherence::tests::test_fingerprint_is_deterministic ... ok
 test coherence::tests::test_check_with_expectations_is_deterministic_same_inputs ... ok
+test coherence::tests::test_different_inputs_produce_different_fingerprints ... ok
+test coherence::tests::test_declared_equals_computed_no_hash_mismatch ... ok
+test coherence::tests::test_ontology_with_empty_event_log_emits_o_to_l_discrepancy ... ok
+test coherence::tests::test_operation_id_is_unique_per_check ... ok
 test coherence::tests::test_zero_artifacts_with_triples_emits_count_discrepancy ... ok
 test graph::locate::tests::clean_turtle_has_no_diagnostics ... ok
 test graph::locate::tests::malformed_turtle_reports_located_diagnostic ... ok
 test graph::locate::tests::extract_prefixes_returns_declared_prefixes ... ok
 test ocel::pack_events::tests::remove_and_lockfile_write_emitters_carry_required_attributes ... ok
-test ocel::pack_events::tests::lifecycle_round_trips_through_json ... ok
 test ocel::pack_events::tests::pack_object_id_is_consistent_across_lifecycle_events ... ok
+test ocel::pack_events::tests::lifecycle_round_trips_through_json ... ok
+test ocel::pack_events::tests::timestamps_are_lawfully_ordered ... ok
 test ocel::pack_events::tests::required_ocel_attributes_are_present_and_non_empty ... ok
 test sparql::tests::detects_query_forms ... ok
-test ocel::pack_events::tests::timestamps_are_lawfully_ordered ... ok
 test sparql::tests::invalid_query_fails_syntax_check ... ok
 test sparql::tests::valid_query_passes_syntax_check ... ok
-test graph::introspect::tests::enumerates_classes_and_properties ... ok
-test ocel::lifecycle::tests::out_of_order_repair_fails ... ok
 test ocel::lifecycle::tests::conforming_repair_lifecycle_passes ... ok
-test shacl::tests::missing_required_property_is_a_violation ... ok
+test ocel::lifecycle::tests::out_of_order_repair_fails ... ok
+test graph::introspect::tests::enumerates_classes_and_properties ... ok
 test shacl::tests::conforming_data_has_no_violations ... ok
+test shacl::tests::missing_required_property_is_a_violation ... ok
 test ocel::dfg::tests::discovers_directly_follows_edges ... ok
 test tests::test_graph_and_receipt_flow ... ok
 test ocel::self_audit::tests::test_self_audit_log_generation_and_projection ... ok
@@ -130,34 +124,34 @@ Executing script: scripts/gall/external/05_run_integration_tests.sh
 === [05] Running Integration Tests ===
 
 running 31 tests
-test coherence::tests::test_declared_equals_computed_no_hash_mismatch ... ok
 test coherence::tests::test_artifact_without_event_log_events_emits_count_discrepancy ... ok
 test coherence::tests::test_declared_differs_from_computed_emits_hash_mismatch_not_admitted ... ok
-test coherence::tests::test_all_poles_present_no_drift ... ok
-test coherence::tests::test_different_inputs_produce_different_fingerprints ... ok
+test coherence::tests::test_declared_equals_computed_no_hash_mismatch ... ok
 test coherence::tests::test_check_with_expectations_is_deterministic_same_inputs ... ok
-test coherence::tests::test_fingerprint_is_deterministic ... ok
-test coherence::tests::test_empty_all_poles_admitted ... ok
 test coherence::tests::test_missing_event_log_emits_drift ... ok
+test coherence::tests::test_all_poles_present_no_drift ... ok
+test coherence::tests::test_fingerprint_is_deterministic ... ok
 test coherence::tests::test_ontology_with_empty_event_log_emits_o_to_l_discrepancy ... ok
-test coherence::tests::test_zero_artifacts_with_triples_emits_count_discrepancy ... ok
+test coherence::tests::test_empty_all_poles_admitted ... ok
+test coherence::tests::test_different_inputs_produce_different_fingerprints ... ok
 test coherence::tests::test_operation_id_is_unique_per_check ... ok
+test coherence::tests::test_zero_artifacts_with_triples_emits_count_discrepancy ... ok
 test graph::locate::tests::clean_turtle_has_no_diagnostics ... ok
 test graph::locate::tests::malformed_turtle_reports_located_diagnostic ... ok
 test graph::locate::tests::extract_prefixes_returns_declared_prefixes ... ok
-test ocel::pack_events::tests::remove_and_lockfile_write_emitters_carry_required_attributes ... ok
-test ocel::pack_events::tests::pack_object_id_is_consistent_across_lifecycle_events ... ok
 test ocel::pack_events::tests::lifecycle_round_trips_through_json ... ok
-test sparql::tests::detects_query_forms ... ok
+test ocel::pack_events::tests::pack_object_id_is_consistent_across_lifecycle_events ... ok
 test ocel::pack_events::tests::required_ocel_attributes_are_present_and_non_empty ... ok
+test ocel::pack_events::tests::remove_and_lockfile_write_emitters_carry_required_attributes ... ok
 test ocel::pack_events::tests::timestamps_are_lawfully_ordered ... ok
+test sparql::tests::detects_query_forms ... ok
 test sparql::tests::invalid_query_fails_syntax_check ... ok
 test sparql::tests::valid_query_passes_syntax_check ... ok
-test graph::introspect::tests::enumerates_classes_and_properties ... ok
 test ocel::lifecycle::tests::conforming_repair_lifecycle_passes ... ok
+test graph::introspect::tests::enumerates_classes_and_properties ... ok
 test ocel::lifecycle::tests::out_of_order_repair_fails ... ok
-test shacl::tests::missing_required_property_is_a_violation ... ok
 test shacl::tests::conforming_data_has_no_violations ... ok
+test shacl::tests::missing_required_property_is_a_violation ... ok
 test ocel::dfg::tests::discovers_directly_follows_edges ... ok
 test tests::test_graph_and_receipt_flow ... ok
 test ocel::self_audit::tests::test_self_audit_log_generation_and_projection ... ok
@@ -237,14 +231,14 @@ test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 
 running 9 tests
-test test_empty_expectations_produces_no_hash_drifts ... ok
 test test_artifact_hash_mismatch_against_expectation ... ok
 test test_event_log_hash_mismatch_against_expectation ... ok
 test test_expectations_do_not_suppress_count_discrepancies ... ok
 test test_matching_expectations_no_hash_drift ... ok
+test test_multiple_poles_with_hash_mismatches ... ok
+test test_empty_expectations_produces_no_hash_drifts ... ok
 test test_partial_expectations_only_checks_declared_poles ... ok
 test test_ontology_hash_mismatch_against_expectation ... ok
-test test_multiple_poles_with_hash_mismatches ... ok
 test test_rule_6_cross_pole_coherence_fracture ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
@@ -258,8 +252,8 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 
 running 5 tests
-test test_n3_completeness ... ok
 test test_shex_completeness ... ok
+test test_n3_completeness ... ok
 test test_datalog_completeness ... ok
 test test_sparql_completeness ... ok
 test test_shacl_completeness ... ok
@@ -338,9 +332,9 @@ test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 running 8 tests
 test test_coherence_different_inputs_produce_different_hashes ... ok
+test test_coherence_missing_ontology_pole_not_admitted ... ok
 test test_coherence_fingerprints_are_deterministic ... ok
 test test_coherence_empty_event_log_produces_count_discrepancy ... ok
-test test_coherence_missing_ontology_pole_not_admitted ... ok
 test test_coherence_realistic_multi_triple_ontology ... ok
 test test_coherence_zero_artifacts_with_triples_emits_o_to_a_discrepancy ... ok
 test test_coherence_report_operation_ids_are_unique_across_calls ... ok
@@ -355,9 +349,9 @@ test test_post_chatman_roundtrip_missing_pole_blocks_admission ... ok
 test test_post_chatman_roundtrip_cross_pole_hash_comparison_o_vs_l ... ok
 test test_post_chatman_roundtrip_full_integration_all_poles_present ... ok
 test test_post_chatman_roundtrip_scenario_1_happy_path_coherent ... ok
+test test_post_chatman_roundtrip_scenario_3_sabotage_ontology ... ok
 test test_post_chatman_roundtrip_scenario_2_sabotage_artifact ... ok
 test test_post_chatman_roundtrip_scenario_4_sabotage_event_log ... ok
-test test_post_chatman_roundtrip_scenario_3_sabotage_ontology ... ok
 test test_post_chatman_roundtrip_scenario_5_invalid_signature_fail_closed ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
@@ -394,7 +388,7 @@ test test_audit_doctest_results_ttl_vocab_is_clean ... ok
 test test_hook_pack_ttl_contains_no_gall_namespace_terms ... ok
 test test_all_ttl_files_have_no_gall_terms ... ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.18s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.20s
 
 PASS: Integration tests passed successfully.
 Executing script: scripts/gall/external/06_scan_forbidden_surfaces.sh
@@ -449,5 +443,5 @@ Running Check 7: PromotionDecision ID reuse... PASS
 PASS: Zero contradictions detected in OCEL log.
 === Adjudication Finished ===
 Verdict: Promoted
-Receipt: 0bf5f5ea98066a98abfb505d2519c313f9942370f90a5e54dbf5130bd6319fdd
+Receipt: 61175fde82b31705c749559df429afaf905d0d08598703fa9db05f09313d1e3b
 Results written to: crates/ggen-graph/audit/vision2030.external_adjudication.json

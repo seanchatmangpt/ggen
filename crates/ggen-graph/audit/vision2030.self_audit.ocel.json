@@ -4,24 +4,24 @@
       "id": "obj_crate_ggen",
       "type": "RustCrate",
       "attributes": {
-        "name": "ggen-graph",
-        "version": "0.1.0"
+        "version": "0.1.0",
+        "name": "ggen-graph"
       }
     },
     {
       "id": "obj_prd_compliance",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Self-Audit Compliance Log",
-        "description": "The system must generate a self-audit log containing all required activities and objects."
+        "description": "The system must generate a self-audit log containing all required activities and objects.",
+        "title": "Self-Audit Compliance Log"
       }
     },
     {
       "id": "obj_ard_mapping",
       "type": "ARDRequirement",
       "attributes": {
-        "title": "Deterministic Graph Mapping",
-        "description": "Self-audit logs must project deterministically to and from RDF triple graphs."
+        "description": "Self-audit logs must project deterministically to and from RDF triple graphs.",
+        "title": "Deterministic Graph Mapping"
       }
     },
     {
@@ -36,16 +36,16 @@
       "id": "req_r2_ontology",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Public Ontology Governance and Vocabulary Emission",
-        "description": "Vocabulary constants must be emitted directly from public ontology profiles."
+        "description": "Vocabulary constants must be emitted directly from public ontology profiles.",
+        "title": "Public Ontology Governance and Vocabulary Emission"
       }
     },
     {
       "id": "req_r3_deterministic",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Deterministic Graph Substrate and Delta Conservation",
-        "description": "Graph parsing, serialization, canonical byte generation, hashing, and RdfDelta transitions must be deterministic."
+        "description": "Graph parsing, serialization, canonical byte generation, hashing, and RdfDelta transitions must be deterministic.",
+        "title": "Deterministic Graph Substrate and Delta Conservation"
       }
     },
     {
@@ -68,8 +68,8 @@
       "id": "req_r6_compliance",
       "type": "PRDRequirement",
       "attributes": {
-        "description": "Must pass structural analyses checking for forbidden execution surfaces and zero placeholder/stub/mock/fake-success patterns.",
-        "title": "Compliance Checks & Anti-Fake Gates"
+        "title": "Compliance Checks & Anti-Fake Gates",
+        "description": "Must pass structural analyses checking for forbidden execution surfaces and zero placeholder/stub/mock/fake-success patterns."
       }
     },
     {
@@ -100,16 +100,16 @@
       "id": "req_r10_interchangeable",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Genesis-bearing Interchangeable Part Architecture",
-        "description": "Ensure interchangeable parts where Genesis is the embedded core and ggen forms the outer membrane, adapter layer, and projection layer."
+        "description": "Ensure interchangeable parts where Genesis is the embedded core and ggen forms the outer membrane, adapter layer, and projection layer.",
+        "title": "Genesis-bearing Interchangeable Part Architecture"
       }
     },
     {
       "id": "obj_cp_verify",
       "type": "GALLCheckpoint",
       "attributes": {
-        "milestone": "self_audit_verification",
-        "target_date": "2026-05-26Z"
+        "target_date": "2026-05-26Z",
+        "milestone": "self_audit_verification"
       }
     },
     {
@@ -140,8 +140,8 @@
       "id": "obj_test_file_self_audit",
       "type": "TestFile",
       "attributes": {
-        "path": "crates/ggen-graph/tests/ocel_self_audit.rs",
-        "framework": "cargo test"
+        "framework": "cargo test",
+        "path": "crates/ggen-graph/tests/ocel_self_audit.rs"
       }
     },
     {
@@ -164,16 +164,16 @@
       "id": "obj_script_file_verify",
       "type": "ScriptFile",
       "attributes": {
-        "interpreter": "bash",
-        "path": "scripts/gall/external/09_verify_ocel_self_audit.sh"
+        "path": "scripts/gall/external/09_verify_ocel_self_audit.sh",
+        "interpreter": "bash"
       }
     },
     {
       "id": "obj_command_test",
       "type": "Command",
       "attributes": {
-        "binary": "cargo",
-        "args": "test --package ggen-graph"
+        "args": "test --package ggen-graph",
+        "binary": "cargo"
       }
     },
     {
@@ -188,8 +188,8 @@
       "id": "obj_evidence_artifact_1",
       "type": "EvidenceArtifact",
       "attributes": {
-        "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
-        "size_bytes": "1024"
+        "size_bytes": "1024",
+        "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
       }
     },
     {
@@ -212,8 +212,8 @@
       "id": "obj_promotion_decision_1",
       "type": "PromotionDecision",
       "attributes": {
-        "approver": "OrchestratorAgent",
-        "status": "Promoted"
+        "status": "Promoted",
+        "approver": "OrchestratorAgent"
       }
     },
     {

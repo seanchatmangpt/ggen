@@ -5,7 +5,7 @@
   ],
   "cwd": "/Users/sac/ggen",
   "exit_code": 0,
-  "duration_ms": 263.68025,
+  "duration_ms": 261.124875,
   "stdout_path": "crates/ggen-graph/audit/transcripts/08_verify_replay_receipts.stdout",
   "stderr_path": "crates/ggen-graph/audit/transcripts/08_verify_replay_receipts.stderr",
   "stdout_sha256": "28df12f51cf743bfc8cb65385e1881b766731d0452891ccbd4850fd14ad8a607",

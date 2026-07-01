@@ -5,7 +5,7 @@
   ],
   "cwd": "/Users/sac/ggen",
   "exit_code": 0,
-  "duration_ms": 50.975,
+  "duration_ms": 52.438083000000006,
   "stdout_path": "crates/ggen-graph/audit/transcripts/06_scan_forbidden_surfaces.stdout",
   "stderr_path": "crates/ggen-graph/audit/transcripts/06_scan_forbidden_surfaces.stderr",
   "stdout_sha256": "a3b570b6884bb8a71208374ab37c93812fec8e6ba65aad07753a1699cec0827f",

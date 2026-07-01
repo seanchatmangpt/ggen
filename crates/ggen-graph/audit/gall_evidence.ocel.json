@@ -5,15 +5,15 @@
       "type": "WorktreeInventory",
       "attributes": {
         "total_files": "14272",
-        "timestamp": "2026-07-01T09:32:33Z"
+        "timestamp": "2026-07-01T10:14:03Z"
       }
     },
     {
       "id": "obj_clean_room",
       "type": "CleanRoomRebuild",
       "attributes": {
-        "status": "PASS",
-        "duration_seconds": "95"
+        "duration_seconds": "98",
+        "status": "PASS"
       }
     },
     {
@@ -36,7 +36,7 @@
     {
       "id": "evt_observe_worktree",
       "activity": "ObserveWorktree",
-      "timestamp": "2026-07-01T09:40:23.508659Z",
+      "timestamp": "2026-07-01T10:21:57.088093Z",
       "objects": [
         {
           "id": "obj_worktree",
@@ -49,7 +49,7 @@
     {
       "id": "evt_observe_clean_room",
       "activity": "ObserveCleanRoom",
-      "timestamp": "2026-07-01T09:40:23.508659Z",
+      "timestamp": "2026-07-01T10:21:57.088093Z",
       "objects": [
         {
           "id": "obj_clean_room",
@@ -62,7 +62,7 @@
     {
       "id": "evt_observe_doctests",
       "activity": "ObserveDoctests",
-      "timestamp": "2026-07-01T09:40:23.508659Z",
+      "timestamp": "2026-07-01T10:21:57.088093Z",
       "objects": [
         {
           "id": "obj_doctests",
@@ -75,7 +75,7 @@
     {
       "id": "evt_observe_sabotage",
       "activity": "ObserveSabotage",
-      "timestamp": "2026-07-01T09:40:23.508659Z",
+      "timestamp": "2026-07-01T10:21:57.088093Z",
       "objects": [
         {
           "id": "obj_sabotage",

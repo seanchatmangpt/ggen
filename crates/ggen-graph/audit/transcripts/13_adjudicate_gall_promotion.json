@@ -5,9 +5,9 @@
   ],
   "cwd": "/Users/sac/ggen",
   "exit_code": 0,
-  "duration_ms": 11366.946208,
+  "duration_ms": 11413.465667,
   "stdout_path": "crates/ggen-graph/audit/transcripts/13_adjudicate_gall_promotion.stdout",
   "stderr_path": "crates/ggen-graph/audit/transcripts/13_adjudicate_gall_promotion.stderr",
-  "stdout_sha256": "1b40b9acf13fe06b9a676ecb8abe5361cce2cff185c9decec9b5f3f52000f6c4",
-  "stderr_sha256": "e9a469efdf2da85c6e91bf1a496b3954c206281f126adb3e491f3c0cee1f07fc"
+  "stdout_sha256": "035a1b84a3b7fbb447408bcaa2c8fa30c1cfac7bbaff03fb0a6fb2b6ab146e9f",
+  "stderr_sha256": "7efdb53872ae1bcbd70ffb2a3bcf1305cc30351ce2767d91f246d92c923427aa"
 }

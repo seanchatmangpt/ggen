@@ -1,5 +1,5 @@
 #!/bin/bash
-export GGEN_PATH="/Users/sac/ggen"
+export GGEN_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 avatars=("ProductManager" "DataScientist" "SecurityAuditor" "FrontendDev" "BackendDev" "DevOpsEngineer" "ComplianceOfficer" "SystemArchitect")
 jtbds=(

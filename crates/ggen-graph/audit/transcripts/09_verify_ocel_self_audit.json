@@ -5,7 +5,7 @@
   ],
   "cwd": "/Users/sac/ggen",
   "exit_code": 0,
-  "duration_ms": 1774.040791,
+  "duration_ms": 1776.006625,
   "stdout_path": "crates/ggen-graph/audit/transcripts/09_verify_ocel_self_audit.stdout",
   "stderr_path": "crates/ggen-graph/audit/transcripts/09_verify_ocel_self_audit.stderr",
   "stdout_sha256": "e2975ca8a6d1386b8b8c5e6653fa6cf56676df38327ec2fb7273336a2c7ce30d",

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-01T09:33:22Z",
+  "timestamp": "2026-07-01T10:14:51Z",
   "verdict": "Promoted",
   "reason": "All 13 validation scripts passed successfully and zero contradictions were detected.",
   "scripts_verified": [
@@ -36,7 +36,7 @@
       "sha256": "a28a607050573bc99f3725efb89085a081990a6a1a158ec828fbb8f4003e8d2f",
       "exit_code": 0,
       "status": "PASS",
-      "duration_seconds": 0
+      "duration_seconds": 1
     },
     {
       "path": "scripts/gall/external/05_run_integration_tests.sh",
@@ -50,7 +50,7 @@
       "sha256": "8f1c4a03aff8d738a938235131a832fb802d81e2e97153e830ddc6631309a4b4",
       "exit_code": 0,
       "status": "PASS",
-      "duration_seconds": 1
+      "duration_seconds": 0
     },
     {
       "path": "scripts/gall/external/07_check_anti_fake.sh",
@@ -116,11 +116,11 @@
   },
   "self_audit_digest": {
     "path": "crates/ggen-graph/audit/vision2030.self_audit.ocel.json",
-    "blake3": "cca305639e87ca64aea4be04a6c54e25ccd1c85bd49b9b32c6123daed17cc921"
+    "blake3": "187d55670400e6c97e5b0b3c4a5c202e0eba148140a050b5278b7e07c64c72d1"
   },
   "coverage_digest": {
     "path": "crates/ggen-graph/audit/vision2030.coverage.json",
     "blake3": "baa7d485ecf07040ec6dae5efc3e80d93fd0325013af29127a9c1ada353325e5"
   },
-  "adjudication_blake3_receipt": "0bf5f5ea98066a98abfb505d2519c313f9942370f90a5e54dbf5130bd6319fdd"
+  "adjudication_blake3_receipt": "61175fde82b31705c749559df429afaf905d0d08598703fa9db05f09313d1e3b"
 }

@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-07-01T09:40:36Z",
+  "timestamp": "2026-07-01T10:22:10Z",
   "verdict": "Promoted",
   "reason": "Witnessed Agent Truthfulness validation checks satisfied. Checkpoints W0-W9 and Dialect matrix verified passed.",
   "integrity_status": "PASS",
-  "witness_adjudication_blake3_receipt": "df8e9782fa269250941cbdba6392648bb730d109657f910bef62fb8dd9680b51"
+  "witness_adjudication_blake3_receipt": "e845fac08a66c07b52b44f2de051c6cc9958b62e6186780abf96391cbe3ef5aa"
 }
