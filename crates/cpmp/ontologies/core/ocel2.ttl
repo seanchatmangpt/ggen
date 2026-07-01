@@ -1,0 +1,499 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ocel:    <https://www.ocel-standard.org/2.0/> .
+
+# ===========================================================================
+# OCEL 2.0 — Object-Centric Event Log Ontology
+# Published by the IEEE Task Force on Process Mining (Wil van der Aalst et al.)
+# Standard home: https://www.ocel-standard.org/2.0/
+# ===========================================================================
+
+<https://www.ocel-standard.org/2.0/>
+    a owl:Ontology ;
+    dcterms:title "OCEL 2.0 — Object-Centric Event Log Ontology" ;
+    dcterms:description "OWL formalisation of the Object-Centric Event Log (OCEL) 2.0 standard. OCEL overcomes the flattening problem of XES by allowing events to relate to multiple objects of different types simultaneously." ;
+    dcterms:creator "IEEE Task Force on Process Mining" ;
+    dcterms:contributor "Wil van der Aalst" ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
+    dcterms:source <https://www.ocel-standard.org/2.0/> ;
+    owl:versionInfo "2.0" .
+
+# ===========================================================================
+# CLASSES
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# ocel:EventLog — the top-level container
+# ---------------------------------------------------------------------------
+
+ocel:EventLog
+    a owl:Class ;
+    rdfs:label "Event Log" ;
+    rdfs:comment "A collection of events and objects that constitutes an OCEL 2.0 event log. An event log is the primary unit of exchange in process mining." .
+
+# ---------------------------------------------------------------------------
+# ocel:Event — an atomic execution event
+# ---------------------------------------------------------------------------
+
+ocel:Event
+    a owl:Class ;
+    rdfs:label "Event" ;
+    rdfs:comment "An event records that a specific activity occurred at a specific point in time. Unlike XES, an OCEL event may relate to zero or more objects of potentially different types." .
+
+# ---------------------------------------------------------------------------
+# ocel:Object — a business object participating in events
+# ---------------------------------------------------------------------------
+
+ocel:Object
+    a owl:Class ;
+    rdfs:label "Object" ;
+    rdfs:comment "A business object (e.g., an order, a shipment, a customer) that participates in one or more events. Objects are the primary carriers of case-level context in OCEL." .
+
+# ---------------------------------------------------------------------------
+# ocel:EventType — the activity class of an event
+# ---------------------------------------------------------------------------
+
+ocel:EventType
+    a owl:Class ;
+    rdfs:label "Event Type" ;
+    rdfs:comment "A named activity class that classifies events (e.g., 'Place Order', 'Ship Item', 'Pay Invoice'). Corresponds to the concept:name in XES." .
+
+# ---------------------------------------------------------------------------
+# ocel:ObjectType — the class of a business object
+# ---------------------------------------------------------------------------
+
+ocel:ObjectType
+    a owl:Class ;
+    rdfs:label "Object Type" ;
+    rdfs:comment "A named category for business objects (e.g., 'Order', 'Item', 'Customer'). Every ocel:Object has exactly one ocel:ObjectType." .
+
+# ---------------------------------------------------------------------------
+# ocel:Attribute — a key-value annotation
+# ---------------------------------------------------------------------------
+
+ocel:Attribute
+    a owl:Class ;
+    rdfs:label "Attribute" ;
+    rdfs:comment "A key-value annotation that can be attached to events or objects. Attributes capture data payloads such as costs, quantities, statuses, and identifiers." .
+
+# ---------------------------------------------------------------------------
+# ocel:Relationship — a qualified event-to-object relationship
+# ---------------------------------------------------------------------------
+
+ocel:Relationship
+    a owl:Class ;
+    rdfs:label "Relationship" ;
+    rdfs:comment "A qualified association between an event and an object. The qualifier (role) refines the nature of participation, e.g., 'item' vs 'responsible employee' in the same event." .
+
+# ---------------------------------------------------------------------------
+# ocel:O2ORelationship — an object-to-object relationship
+# ---------------------------------------------------------------------------
+
+ocel:O2ORelationship
+    a owl:Class ;
+    rdfs:label "Object-to-Object Relationship" ;
+    rdfs:comment "A qualified relationship between two objects, independent of any event. Used to model structural or organisational links (e.g., 'Order contains Item')." .
+
+# ---------------------------------------------------------------------------
+# ocel:QualifierRole — the role label on a relationship
+# ---------------------------------------------------------------------------
+
+ocel:QualifierRole
+    a owl:Class ;
+    rdfs:label "Qualifier Role" ;
+    rdfs:comment "A named role that qualifies how an object participates in an event or how two objects relate to each other. Examples: 'item', 'resource', 'responsible', 'contained in'." .
+
+# ---------------------------------------------------------------------------
+# ocel:Process — a discovered or declared process model
+# ---------------------------------------------------------------------------
+
+ocel:Process
+    a owl:Class ;
+    rdfs:label "Process" ;
+    rdfs:comment "A process model (e.g., a Petri net, DFG, or BPMN model) discovered from or declared against an event log. Used to anchor conformance checking results." .
+
+# ---------------------------------------------------------------------------
+# ocel:Case — XES-compatibility wrapper
+# ---------------------------------------------------------------------------
+
+ocel:Case
+    a owl:Class ;
+    rdfs:label "Case" ;
+    rdfs:comment "A traditional case or trace in the XES sense: an ordered sequence of events sharing a common case identifier. Provided for backward-compatibility with XES-based tooling. In pure OCEL, the concept of a single case is replaced by object-centric process instances." .
+
+# ===========================================================================
+# DATATYPE PROPERTIES
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# ocel:eventId — unique event identifier
+# ---------------------------------------------------------------------------
+
+ocel:eventId
+    a owl:DatatypeProperty ;
+    rdfs:label "event ID" ;
+    rdfs:comment "A unique string identifier for an event within the event log." ;
+    rdfs:domain ocel:Event ;
+    rdfs:range  xsd:string .
+
+# ---------------------------------------------------------------------------
+# ocel:timestamp — when the event occurred
+# ---------------------------------------------------------------------------
+
+ocel:timestamp
+    a owl:DatatypeProperty ;
+    rdfs:label "timestamp" ;
+    rdfs:comment "The date and time at which the event occurred, expressed as an xsd:dateTime value." ;
+    rdfs:domain ocel:Event ;
+    rdfs:range  xsd:dateTime .
+
+# ---------------------------------------------------------------------------
+# ocel:activityName — human-readable activity label
+# ---------------------------------------------------------------------------
+
+ocel:activityName
+    a owl:DatatypeProperty ;
+    rdfs:label "activity name" ;
+    rdfs:comment "The name of the activity associated with an event (e.g., 'Create Order'). May duplicate ocel:EventType for denormalised storage formats." ;
+    rdfs:domain ocel:Event ;
+    rdfs:range  xsd:string .
+
+# ---------------------------------------------------------------------------
+# ocel:objectId — unique object identifier
+# ---------------------------------------------------------------------------
+
+ocel:objectId
+    a owl:DatatypeProperty ;
+    rdfs:label "object ID" ;
+    rdfs:comment "A unique string identifier for a business object within the event log." ;
+    rdfs:domain ocel:Object ;
+    rdfs:range  xsd:string .
+
+# ---------------------------------------------------------------------------
+# ocel:attributeKey — the key part of a key-value attribute
+# ---------------------------------------------------------------------------
+
+ocel:attributeKey
+    a owl:DatatypeProperty ;
+    rdfs:label "attribute key" ;
+    rdfs:comment "The name (key) of a key-value attribute pair." ;
+    rdfs:domain ocel:Attribute ;
+    rdfs:range  xsd:string .
+
+# ---------------------------------------------------------------------------
+# ocel:attributeValue — the value part of a key-value attribute (string form)
+# ---------------------------------------------------------------------------
+
+ocel:attributeValue
+    a owl:DatatypeProperty ;
+    rdfs:label "attribute value" ;
+    rdfs:comment "The string serialisation of the value of a key-value attribute pair. For typed values use ocel:attributeValueInt, ocel:attributeValueFloat, ocel:attributeValueBoolean, or ocel:attributeValueTime." ;
+    rdfs:domain ocel:Attribute ;
+    rdfs:range  xsd:string .
+
+# ---------------------------------------------------------------------------
+# Typed attribute value variants
+# ---------------------------------------------------------------------------
+
+ocel:attributeValueInt
+    a owl:DatatypeProperty ;
+    rdfs:label "attribute value (integer)" ;
+    rdfs:comment "Integer-typed attribute value." ;
+    rdfs:domain ocel:Attribute ;
+    rdfs:range  xsd:integer .
+
+ocel:attributeValueFloat
+    a owl:DatatypeProperty ;
+    rdfs:label "attribute value (float)" ;
+    rdfs:comment "Floating-point-typed attribute value." ;
+    rdfs:domain ocel:Attribute ;
+    rdfs:range  xsd:double .
+
+ocel:attributeValueBoolean
+    a owl:DatatypeProperty ;
+    rdfs:label "attribute value (boolean)" ;
+    rdfs:comment "Boolean-typed attribute value." ;
+    rdfs:domain ocel:Attribute ;
+    rdfs:range  xsd:boolean .
+
+ocel:attributeValueTime
+    a owl:DatatypeProperty ;
+    rdfs:label "attribute value (timestamp)" ;
+    rdfs:comment "Timestamp-typed attribute value." ;
+    rdfs:domain ocel:Attribute ;
+    rdfs:range  xsd:dateTime .
+
+# ---------------------------------------------------------------------------
+# ocel:qualifier — role string on a Relationship
+# ---------------------------------------------------------------------------
+
+ocel:qualifier
+    a owl:DatatypeProperty ;
+    rdfs:label "qualifier" ;
+    rdfs:comment "A string that names the role of an object within a Relationship or the type of an O2O link (e.g., 'item', 'resource', 'contained in')." ;
+    rdfs:domain [ owl:unionOf ( ocel:Relationship ocel:O2ORelationship ) ] ;
+    rdfs:range  xsd:string .
+
+# ---------------------------------------------------------------------------
+# ocel:caseId — XES compatibility
+# ---------------------------------------------------------------------------
+
+ocel:caseId
+    a owl:DatatypeProperty ;
+    rdfs:label "case ID" ;
+    rdfs:comment "A traditional case identifier string, provided for backward-compatibility with XES. In OCEL this is captured through object identifiers." ;
+    rdfs:domain ocel:Case ;
+    rdfs:range  xsd:string .
+
+# ---------------------------------------------------------------------------
+# ocel:objectTypeName / ocel:eventTypeName — type labels
+# ---------------------------------------------------------------------------
+
+ocel:objectTypeName
+    a owl:DatatypeProperty ;
+    rdfs:label "object type name" ;
+    rdfs:comment "The string name of an object type (e.g., 'Order', 'Item')." ;
+    rdfs:domain ocel:ObjectType ;
+    rdfs:range  xsd:string .
+
+ocel:eventTypeName
+    a owl:DatatypeProperty ;
+    rdfs:label "event type name" ;
+    rdfs:comment "The string name of an event type / activity (e.g., 'Place Order', 'Pay Invoice')." ;
+    rdfs:domain ocel:EventType ;
+    rdfs:range  xsd:string .
+
+# ===========================================================================
+# OBJECT PROPERTIES
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# ocel:hasEventType — Event → EventType
+# ---------------------------------------------------------------------------
+
+ocel:hasEventType
+    a owl:ObjectProperty ;
+    rdfs:label "has event type" ;
+    rdfs:comment "Links an event to the EventType (activity class) it instantiates." ;
+    rdfs:domain ocel:Event ;
+    rdfs:range  ocel:EventType .
+
+# ---------------------------------------------------------------------------
+# ocel:hasObjectType — Object → ObjectType
+# ---------------------------------------------------------------------------
+
+ocel:hasObjectType
+    a owl:ObjectProperty ;
+    rdfs:label "has object type" ;
+    rdfs:comment "Links a business object to its ObjectType (e.g., an order object to the 'Order' type)." ;
+    rdfs:domain ocel:Object ;
+    rdfs:range  ocel:ObjectType .
+
+# ---------------------------------------------------------------------------
+# ocel:relatesTo — Event → Object (non-qualified)
+# ---------------------------------------------------------------------------
+
+ocel:relatesTo
+    a owl:ObjectProperty ;
+    rdfs:label "relates to" ;
+    rdfs:comment "A direct, non-qualified association from an event to a participating object. For qualified participation use ocel:hasRelationship + ocel:Relationship." ;
+    rdfs:domain ocel:Event ;
+    rdfs:range  ocel:Object .
+
+# ---------------------------------------------------------------------------
+# ocel:hasRelationship — Event → Relationship (qualified)
+# ---------------------------------------------------------------------------
+
+ocel:hasRelationship
+    a owl:ObjectProperty ;
+    rdfs:label "has relationship" ;
+    rdfs:comment "Links an event to a Relationship node that carries a qualifier and points to a specific participating object." ;
+    rdfs:domain ocel:Event ;
+    rdfs:range  ocel:Relationship .
+
+# ---------------------------------------------------------------------------
+# ocel:relationshipObject — Relationship → Object
+# ---------------------------------------------------------------------------
+
+ocel:relationshipObject
+    a owl:ObjectProperty ;
+    rdfs:label "relationship object" ;
+    rdfs:comment "The object that participates in a qualified Relationship." ;
+    rdfs:domain ocel:Relationship ;
+    rdfs:range  ocel:Object .
+
+# ---------------------------------------------------------------------------
+# ocel:relationshipEvent — Relationship → Event
+# ---------------------------------------------------------------------------
+
+ocel:relationshipEvent
+    a owl:ObjectProperty ;
+    rdfs:label "relationship event" ;
+    rdfs:comment "The event from which a qualified Relationship originates. The inverse of ocel:hasRelationship." ;
+    rdfs:domain ocel:Relationship ;
+    rdfs:range  ocel:Event ;
+    owl:inverseOf ocel:hasRelationship .
+
+# ---------------------------------------------------------------------------
+# ocel:hasO2ORelationship — Object → O2ORelationship
+# ---------------------------------------------------------------------------
+
+ocel:hasO2ORelationship
+    a owl:ObjectProperty ;
+    rdfs:label "has object-to-object relationship" ;
+    rdfs:comment "Links a source object to an O2ORelationship node that carries a qualifier and points to a target object." ;
+    rdfs:domain ocel:Object ;
+    rdfs:range  ocel:O2ORelationship .
+
+# ---------------------------------------------------------------------------
+# ocel:o2oSourceObject / ocel:o2oTargetObject
+# ---------------------------------------------------------------------------
+
+ocel:o2oSourceObject
+    a owl:ObjectProperty ;
+    rdfs:label "O2O source object" ;
+    rdfs:comment "The source object of an object-to-object relationship." ;
+    rdfs:domain ocel:O2ORelationship ;
+    rdfs:range  ocel:Object .
+
+ocel:o2oTargetObject
+    a owl:ObjectProperty ;
+    rdfs:label "O2O target object" ;
+    rdfs:comment "The target object of an object-to-object relationship." ;
+    rdfs:domain ocel:O2ORelationship ;
+    rdfs:range  ocel:Object .
+
+# ---------------------------------------------------------------------------
+# ocel:hasAttribute — owl:Thing → Attribute
+# ---------------------------------------------------------------------------
+
+ocel:hasAttribute
+    a owl:ObjectProperty ;
+    rdfs:label "has attribute" ;
+    rdfs:comment "Associates any resource (Event, Object, or EventLog) with a key-value Attribute node." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range  ocel:Attribute .
+
+# ---------------------------------------------------------------------------
+# ocel:containsEvent — EventLog → Event
+# ---------------------------------------------------------------------------
+
+ocel:containsEvent
+    a owl:ObjectProperty ;
+    rdfs:label "contains event" ;
+    rdfs:comment "Associates an EventLog with one of its member events." ;
+    rdfs:domain ocel:EventLog ;
+    rdfs:range  ocel:Event .
+
+# ---------------------------------------------------------------------------
+# ocel:containsObject — EventLog → Object
+# ---------------------------------------------------------------------------
+
+ocel:containsObject
+    a owl:ObjectProperty ;
+    rdfs:label "contains object" ;
+    rdfs:comment "Associates an EventLog with one of the business objects referenced by its events." ;
+    rdfs:domain ocel:EventLog ;
+    rdfs:range  ocel:Object .
+
+# ---------------------------------------------------------------------------
+# ocel:containsEventType — EventLog → EventType
+# ---------------------------------------------------------------------------
+
+ocel:containsEventType
+    a owl:ObjectProperty ;
+    rdfs:label "contains event type" ;
+    rdfs:comment "Associates an EventLog with one of the event types (activity classes) it uses." ;
+    rdfs:domain ocel:EventLog ;
+    rdfs:range  ocel:EventType .
+
+# ---------------------------------------------------------------------------
+# ocel:containsObjectType — EventLog → ObjectType
+# ---------------------------------------------------------------------------
+
+ocel:containsObjectType
+    a owl:ObjectProperty ;
+    rdfs:label "contains object type" ;
+    rdfs:comment "Associates an EventLog with one of the object types it uses." ;
+    rdfs:domain ocel:EventLog ;
+    rdfs:range  ocel:ObjectType .
+
+# ---------------------------------------------------------------------------
+# ocel:hasCase — EventLog → Case (XES compat)
+# ---------------------------------------------------------------------------
+
+ocel:hasCase
+    a owl:ObjectProperty ;
+    rdfs:label "has case" ;
+    rdfs:comment "Associates an EventLog with a traditional Case for XES backward-compatibility." ;
+    rdfs:domain ocel:EventLog ;
+    rdfs:range  ocel:Case .
+
+# ---------------------------------------------------------------------------
+# ocel:caseEvent — Case → Event (ordered sequence)
+# ---------------------------------------------------------------------------
+
+ocel:caseEvent
+    a owl:ObjectProperty ;
+    rdfs:label "case event" ;
+    rdfs:comment "Links a Case to one of its constituent events (XES compatibility). Event ordering is implied by ocel:timestamp." ;
+    rdfs:domain ocel:Case ;
+    rdfs:range  ocel:Event .
+
+# ===========================================================================
+# DIRECTLY-FOLLOWS / EVENTUALLY-FOLLOWS GRAPH EDGES
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# ocel:directly_follows — DFG edge between two events per shared object
+# ---------------------------------------------------------------------------
+
+ocel:directly_follows
+    a owl:ObjectProperty ;
+    rdfs:label "directly follows" ;
+    rdfs:comment "A directly-follows relationship between two events as seen through a shared object's perspective. Used to construct per-object-type Directly-Follows Graphs (DFGs)." ;
+    rdfs:domain ocel:Event ;
+    rdfs:range  ocel:Event .
+
+# ---------------------------------------------------------------------------
+# ocel:eventually_follows — reflexive-transitive closure of directly_follows
+# ---------------------------------------------------------------------------
+
+ocel:eventually_follows
+    a owl:ObjectProperty , owl:TransitiveProperty ;
+    rdfs:label "eventually follows" ;
+    rdfs:comment "An eventually-follows (reachability) relationship between two events. Defined as the transitive closure of ocel:directly_follows." ;
+    rdfs:domain ocel:Event ;
+    rdfs:range  ocel:Event .
+
+# ===========================================================================
+# CONFORMANCE / PROCESS PROPERTIES
+# ===========================================================================
+
+ocel:refersToProcess
+    a owl:ObjectProperty ;
+    rdfs:label "refers to process" ;
+    rdfs:comment "Associates an EventLog with the Process model it was discovered from or checked against." ;
+    rdfs:domain ocel:EventLog ;
+    rdfs:range  ocel:Process .
+
+ocel:processName
+    a owl:DatatypeProperty ;
+    rdfs:label "process name" ;
+    rdfs:comment "A human-readable name for a process model." ;
+    rdfs:domain ocel:Process ;
+    rdfs:range  xsd:string .
+
+ocel:fitnessScore
+    a owl:DatatypeProperty ;
+    rdfs:label "fitness score" ;
+    rdfs:comment "A conformance fitness value in [0, 1] indicating how well an event log fits a declared process model." ;
+    rdfs:domain ocel:Process ;
+    rdfs:range  xsd:double .
+
+# ===========================================================================
+# END OF OCEL 2.0 ONTOLOGY
+# ===========================================================================

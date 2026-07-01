@@ -9,16 +9,16 @@ use crate::tier::{OntologyAuthority, OntologyTier};
 
 // ── Tier 0: embedded at compile-time ────────────────────────────────────────
 
-const CATALOG_TTL: &str = include_str!("../../../ontologies/catalog.ttl");
+const CATALOG_TTL: &str = include_str!("../ontologies/catalog.ttl");
 
-const RDF_SYNTAX_NS_TTL: &str = include_str!("../../../ontologies/core/rdf-syntax-ns.ttl");
-const RDF_SCHEMA_TTL: &str = include_str!("../../../ontologies/core/rdf-schema.ttl");
-const OWL2_TTL: &str = include_str!("../../../ontologies/core/owl2.ttl");
-const XSD_DATATYPES_TTL: &str = include_str!("../../../ontologies/core/xmlschema-datatypes.ttl");
-const SHACL_TTL: &str = include_str!("../../../ontologies/core/shacl.ttl");
-const PROV_O_TTL: &str = include_str!("../../../ontologies/core/prov-o.ttl");
-const DCTERMS_TTL: &str = include_str!("../../../ontologies/core/dcterms.ttl");
-const OCEL2_TTL: &str = include_str!("../../../ontologies/core/ocel2.ttl");
+const RDF_SYNTAX_NS_TTL: &str = include_str!("../ontologies/core/rdf-syntax-ns.ttl");
+const RDF_SCHEMA_TTL: &str = include_str!("../ontologies/core/rdf-schema.ttl");
+const OWL2_TTL: &str = include_str!("../ontologies/core/owl2.ttl");
+const XSD_DATATYPES_TTL: &str = include_str!("../ontologies/core/xmlschema-datatypes.ttl");
+const SHACL_TTL: &str = include_str!("../ontologies/core/shacl.ttl");
+const PROV_O_TTL: &str = include_str!("../ontologies/core/prov-o.ttl");
+const DCTERMS_TTL: &str = include_str!("../ontologies/core/dcterms.ttl");
+const OCEL2_TTL: &str = include_str!("../ontologies/core/ocel2.ttl");
 
 // ── Error type ───────────────────────────────────────────────────────────────
 
