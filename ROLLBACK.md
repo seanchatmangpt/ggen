@@ -1,22 +1,24 @@
-# Rollback Plan for v26.7.1
+# Release Rollback Plan (v26.7.1)
 
-## Triggers for Rollback
-- Critical regressions in the `ggen sync` pipeline affecting artifact generation.
-- Production failures in observability or evidence validation.
-- Unhandled syntactical errors in the default `cli-commands.ttl`.
+In case of critical failures after release v26.7.1, the following rollback steps must be executed:
 
-## Execution Steps
-1. Revert to `v26.6.25`:
+1. **Revert the Release Tag**:
    ```bash
-   git checkout v26.6.25
+   git push --delete origin v26.7.1
+   git tag -d v26.7.1
    ```
-2. Re-run `ggen sync` to restore the previous generation artifacts:
+
+2. **Revert Main Branch**:
    ```bash
-   cargo run -p ggen-cli-lib --bin ggen -- sync --audit true
+   git checkout main
+   git revert -m 1 <merge_commit_sha>
+   git push origin main
    ```
-3. Run the validation gates:
+
+3. **Demote Cargo Publish** (if already published):
    ```bash
-   just check && just test
+   cargo yank --vers 26.7.1
    ```
-4. Verify the system states are stable and artifacts match the `v26.6.25` hashes.
-5. Communicate the rollback incident via the incident management channel.
+
+4. **Incident Response**:
+   Notify the team in the #releases channel and trigger an immediate incident review.

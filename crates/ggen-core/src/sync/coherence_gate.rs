@@ -92,12 +92,14 @@ impl CoherenceGate {
     /// - Any `HashMismatch` (cross-pole or self-comparison against expectations)
     /// - Any `CountDiscrepancy` (if `allow_count_discrepancy = false`)
     pub fn validate(
-        &self, ontology_bytes: &[u8], generated_files: &[(impl AsRef<Path>, String)],
+        &self,
+        ontology_bytes: &[u8],
+        generated_files: &[(impl AsRef<Path>, String)],
         event_log_events: &[&str],
     ) -> Result<CoherenceReport, SyncError> {
         // Convert ontology bytes to UTF-8 string for fingerprinting.
-        let ontology_str =
-            std::str::from_utf8(ontology_bytes).map_err(|e| SyncError::CoherenceViolation {
+        let ontology_str = std::str::from_utf8(ontology_bytes)
+            .map_err(|e| SyncError::CoherenceViolation {
                 detail: format!("Cannot decode ontology as UTF-8: {}", e),
                 report: CoherenceChecker::check(&[]), // Empty report as fallback
             })?;
@@ -109,7 +111,10 @@ impl CoherenceGate {
         let artifact_pairs: Vec<(&str, u64)> = generated_files
             .iter()
             .map(|(p, content)| {
-                let path_str = p.as_ref().to_str().unwrap_or("<invalid-utf8-path>");
+                let path_str = p
+                    .as_ref()
+                    .to_str()
+                    .unwrap_or("<invalid-utf8-path>");
                 (path_str, content.len() as u64)
             })
             .collect();
@@ -134,11 +139,8 @@ impl CoherenceGate {
         );
 
         // Perform coherence check with optional expectations.
-        let mut report = if let Some(expectations) = &self.config.expectations {
-            CoherenceChecker::check_with_expectations(
-                &[ontology_pole, artifact_pole, event_log_pole],
-                expectations,
-            )
+        let report = if let Some(expectations) = &self.config.expectations {
+            CoherenceChecker::check_with_expectations(&[ontology_pole, artifact_pole, event_log_pole], expectations)
         } else {
             CoherenceChecker::check(&[ontology_pole, artifact_pole, event_log_pole])
         };
@@ -158,14 +160,11 @@ impl CoherenceGate {
             .drifts
             .iter()
             .filter(|d| {
-                if !self.config.check_event_log
-                    && (d.source_pole == Pole::EventLog || d.target_pole == Pole::EventLog)
-                {
+                if !self.config.check_event_log && (d.source_pole == Pole::EventLog || d.target_pole == Pole::EventLog) {
                     return false;
                 }
                 matches!(d.kind, DriftKind::Missing | DriftKind::HashMismatch)
-                    || (!self.config.allow_count_discrepancy
-                        && matches!(d.kind, DriftKind::CountDiscrepancy))
+                    || (!self.config.allow_count_discrepancy && matches!(d.kind, DriftKind::CountDiscrepancy))
             })
             .collect();
 
@@ -187,10 +186,11 @@ impl CoherenceGate {
                 "Coherence check failed: {} blocking drift(s) detected",
                 blocking_drifts.len()
             );
-            return Err(SyncError::CoherenceViolation { detail, report });
+            return Err(SyncError::CoherenceViolation {
+                detail,
+                report,
+            });
         }
-
-        report.admitted = blocking_drifts.is_empty() && self.config.check_event_log;
 
         // Log non-blocking drifts (CountDiscrepancy when allow_count_discrepancy=true).
         for drift in &report.drifts {
@@ -229,18 +229,17 @@ mod tests {
         };
         let gate = CoherenceGate::new(config);
 
-        let ontology_bytes =
-            b"<https://example.org/s> <https://example.org/p> <https://example.org/o> .";
-        let generated = vec![("test.rs", "fn main() {}".to_string())];
-        let events = vec![];
+        let ontology_bytes = b"<https://example.org/s> <https://example.org/p> <https://example.org/o> .";
+        let generated = vec![(
+            "test.rs",
+            "fn main() {}".to_string(),
+        )];
+        let events = vec!["{ \"id\": \"test\" }"];
 
         let report = gate.validate(ontology_bytes, &generated, &events);
         assert!(report.is_ok());
         let report = report.unwrap();
-        assert!(
-            report.admitted,
-            "expected full coherence with empty event log when check_event_log=true"
-        );
+        assert!(report.admitted, "expected full coherence with populated event log when check_event_log=true");
     }
 
     #[test]
@@ -251,17 +250,16 @@ mod tests {
         };
         let gate = CoherenceGate::new(config);
 
-        let ontology_bytes =
-            b"<https://example.org/s> <https://example.org/p> <https://example.org/o> .";
-        let generated = vec![("test.rs", "fn main() {}".to_string())];
+        let ontology_bytes = b"<https://example.org/s> <https://example.org/p> <https://example.org/o> .";
+        let generated = vec![(
+            "test.rs",
+            "fn main() {}".to_string(),
+        )];
         let events = vec![];
 
         let report = gate.validate(ontology_bytes, &generated, &events);
         assert!(report.is_ok());
         let report = report.unwrap();
-        assert!(
-            !report.admitted,
-            "missing event-log pole should prevent admission"
-        );
+        assert!(!report.admitted, "missing event-log pole should prevent admission");
     }
 }
