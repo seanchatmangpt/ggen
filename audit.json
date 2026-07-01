@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-01T06:34:19.388458+00:00",
+  "generated_at": "2026-07-01T06:42:17.133946+00:00",
   "ggen_version": "26.7.1",
   "inputs": {
     "manifest_hash": "bcb2eaf10e65589b0fb6adb5e99b6da69ff2e936a476cdb7badaa8185aea284c",
@@ -15,7 +15,7 @@
     {
       "step_type": "inference",
       "name": "command-projection",
-      "duration_ms": 3,
+      "duration_ms": 2,
       "triples_added": 24,
       "status": "success",
       "error": null
@@ -23,7 +23,7 @@
     {
       "step_type": "render",
       "name": "cli-commands-reference",
-      "duration_ms": 2,
+      "duration_ms": 3,
       "triples_added": null,
       "status": "success",
       "error": null

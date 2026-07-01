@@ -190,7 +190,7 @@ impl CoherenceGate {
             return Err(SyncError::CoherenceViolation { detail, report });
         }
 
-        report.admitted = true;
+        report.admitted = blocking_drifts.is_empty() && self.config.check_event_log;
 
         // Log non-blocking drifts (CountDiscrepancy when allow_count_discrepancy=true).
         for drift in &report.drifts {
