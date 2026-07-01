@@ -412,6 +412,7 @@ pub fn require_docker() {
 /// # Returns
 ///
 /// Path to binary if found, or error if not found
+/*
 #[allow(dead_code)]
 pub fn find_ggen_binary_in_container(
     container: &chicago_tdd_tools::testcontainers::GenericContainer, workspace_root: &str,
@@ -460,6 +461,7 @@ pub fn find_ggen_binary_in_container(
         locations
     ))
 }
+*/
 
 #[cfg(test)]
 mod tests {

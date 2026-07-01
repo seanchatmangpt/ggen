@@ -1301,12 +1301,12 @@ checksum = "613afe47fcd5fac7ccf1db93babcb082c5994d996f20b8b159f2ad1658eb5724"
 
 [[package]]
 name = "chicago-tdd-tools"
-version = "1.4.0"
+version = "26.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2a7d44880fad5dfa03bd22ae8b7d68bf203a7122e3c50d66fc35bad91de4b8a1"
+checksum = "568a1ea3e883b5726dbad687663231d2e90cef65cfc8d0598346a9db713abc46"
 dependencies = [
  "arbitrary",
- "chicago-tdd-tools-proc-macros 1.4.0",
+ "chicago-tdd-tools-proc-macros",
  "chrono",
  "fake 3.1.0",
  "futures",
@@ -1316,45 +1316,12 @@ dependencies = [
  "proptest",
  "serde",
  "serde_json",
+ "serde_yaml",
  "sha2",
  "thiserror 2.0.18",
  "tokio",
+ "toml 0.8.23",
  "uuid",
-]
-
-[[package]]
-name = "chicago-tdd-tools"
-version = "26.6.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67fbd6397b5441d993e8429dd4593f4892f3b1a0e5497a2a050d0d03c7ca1431"
-dependencies = [
- "arbitrary",
- "chicago-tdd-tools-proc-macros 26.7.1",
- "chrono",
- "fake 3.1.0",
- "futures",
- "hex",
- "insta",
- "log",
- "proptest",
- "serde",
- "serde_json",
- "sha2",
- "testcontainers",
- "thiserror 2.0.18",
- "tokio",
- "uuid",
-]
-
-[[package]]
-name = "chicago-tdd-tools-proc-macros"
-version = "1.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b26813c07da3a789f7a007ad9f87bd551984ac31d0a57fb2a940853c106302fe"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.118",
 ]
 
 [[package]]
@@ -3324,7 +3291,7 @@ dependencies = [
  "assert_cmd",
  "assert_fs",
  "better-panic",
- "chicago-tdd-tools 26.6.11",
+ "chicago-tdd-tools",
  "chrono",
  "clnrm",
  "criterion 0.7.0",
@@ -3403,7 +3370,7 @@ dependencies = [
  "async-trait",
  "base64 0.22.1",
  "blake3",
- "chicago-tdd-tools 1.4.0",
+ "chicago-tdd-tools",
  "chrono",
  "clap",
  "clap-noun-verb 26.6.2",
@@ -3493,7 +3460,7 @@ dependencies = [
  "base64 0.22.1",
  "blake3",
  "bytes",
- "chicago-tdd-tools 26.6.11",
+ "chicago-tdd-tools",
  "chrono",
  "colored 3.1.1",
  "compact_str",

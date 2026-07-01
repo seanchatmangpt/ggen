@@ -216,7 +216,40 @@ ex:subject ex:predicate ex:object .
         assert!(ts_code.contains("name: string"));
         assert!(ts_code.contains("Auto-generated TypeScript types"));
     }
+
+    /// Test: namespaces command returns correct list of namespaces
+    #[test]
+    fn test_namespaces_command_integration() {
+        use ggen_cli_lib::cmds::ontology::namespaces;
+
+        let result = namespaces().unwrap();
+        assert_eq!(result.count, 8);
+        assert_eq!(result.namespaces.len(), 8);
+
+        // Verify prefixes exist
+        let prefixes: std::collections::HashSet<&str> = result
+            .namespaces
+            .iter()
+            .map(|ns| ns.prefix.as_str())
+            .collect();
+        assert!(prefixes.contains("rdf"));
+        assert!(prefixes.contains("rdfs"));
+        assert!(prefixes.contains("owl"));
+        assert!(prefixes.contains("schema"));
+        assert!(prefixes.contains("foaf"));
+        assert!(prefixes.contains("dc"));
+        assert!(prefixes.contains("skos"));
+        assert!(prefixes.contains("bigfive"));
+
+        // Verify source prioritization (rdf, rdfs, owl should be bundled-standard, not core-stub)
+        for ns in &result.namespaces {
+            if ns.prefix == "rdf" || ns.prefix == "rdfs" || ns.prefix == "owl" {
+                assert_eq!(ns.source, "bundled-standard");
+            }
+        }
+    }
 }
+
 
 // ============================================================================
 // OntologySchema Structure Tests

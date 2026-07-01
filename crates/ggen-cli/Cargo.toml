@@ -194,7 +194,7 @@ version = "0.5"
 features = [ "async_tokio", "html_reports",]
 
 [dev-dependencies.chicago-tdd-tools]
-version = "1.4.0"
+version = "26.7.1"
 features = [ "testing-extras",]
 
 [dev-dependencies.oxigraph]

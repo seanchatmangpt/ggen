@@ -1,0 +1,138 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+<http://purl.org/dc/elements/1.1/>
+    a owl:Ontology ;
+    dcterms:title "Dublin Core Metadata Element Set, Version 1.1" ;
+    dcterms:description "The 15 core metadata elements of the original Dublin Core that are essential for cross-domain resource discovery." ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:language "en" ;
+    foaf:homepage <https://www.dublincore.org/specifications/dublin-core/dcmi-terms/elements-1.1/> ;
+    rdfs:comment "This namespace defines the 15 original Dublin Core metadata elements." ;
+    owl:versionInfo "1.1" .
+
+# The 15 Basic Dublin Core Elements
+dc:contributor
+    a rdf:Property ;
+    rdfs:label "Contributor" ;
+    rdfs:comment "An entity responsible for making contributions to the resource." ;
+    rdfs:range rdfs:Resource ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+dc:coverage
+    a rdf:Property ;
+    rdfs:label "Coverage" ;
+    rdfs:comment "The spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant." ;
+    rdfs:range rdfs:Resource ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+dc:creator
+    a rdf:Property ;
+    rdfs:label "Creator" ;
+    rdfs:comment "An entity primarily responsible for making the resource." ;
+    rdfs:range rdfs:Resource ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+dc:date
+    a rdf:Property ;
+    rdfs:label "Date" ;
+    rdfs:comment "A point or period of time associated with an event in the lifecycle of the resource." ;
+    rdfs:range rdfs:Literal ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+dc:description
+    a rdf:Property ;
+    rdfs:label "Description" ;
+    rdfs:comment "An account of the resource." ;
+    rdfs:range rdfs:Literal ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+dc:format
+    a rdf:Property ;
+    rdfs:label "Format" ;
+    rdfs:comment "The file format, physical medium, or dimensions of the resource." ;
+    rdfs:range rdfs:Resource ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+dc:identifier
+    a rdf:Property ;
+    rdfs:label "Identifier" ;
+    rdfs:comment "An unambiguous reference to the resource within a given context." ;
+    rdfs:range rdfs:Literal ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+dc:language
+    a rdf:Property ;
+    rdfs:label "Language" ;
+    rdfs:comment "A language of the resource." ;
+    rdfs:range rdfs:Resource ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+dc:publisher
+    a rdf:Property ;
+    rdfs:label "Publisher" ;
+    rdfs:comment "An entity responsible for making the resource available." ;
+    rdfs:range rdfs:Resource ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+dc:relation
+    a rdf:Property ;
+    rdfs:label "Relation" ;
+    rdfs:comment "A related resource." ;
+    rdfs:range rdfs:Resource ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+dc:rights
+    a rdf:Property ;
+    rdfs:label "Rights" ;
+    rdfs:comment "Information about rights held in and over the resource." ;
+    rdfs:range rdfs:Resource ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+dc:source
+    a rdf:Property ;
+    rdfs:label "Source" ;
+    rdfs:comment "A related resource from which the described resource is derived." ;
+    rdfs:range rdfs:Resource ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+dc:subject
+    a rdf:Property ;
+    rdfs:label "Subject" ;
+    rdfs:comment "The topic of the resource." ;
+    rdfs:range rdfs:Resource ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+dc:title
+    a rdf:Property ;
+    rdfs:label "Title" ;
+    rdfs:comment "A name given to the resource." ;
+    rdfs:range rdfs:Literal ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+dc:type
+    a rdf:Property ;
+    rdfs:label "Type" ;
+    rdfs:comment "The nature or genre of the resource." ;
+    rdfs:range rdfs:Class ;
+    dcterms:issued "1998-07-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .

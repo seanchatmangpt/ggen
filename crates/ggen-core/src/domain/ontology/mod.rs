@@ -7,6 +7,9 @@ use crate::ontology::OntologySchema;
 use crate::utils::error::Error;
 use std::path::{Path, PathBuf};
 
+#[cfg(feature = "bundled-standards")]
+pub mod standards;
+
 /// Extract schema from ontology file
 pub async fn extract_ontology_schema(
     ontology_file: &Path, namespace: &str,
@@ -14,6 +17,10 @@ pub async fn extract_ontology_schema(
     use crate::Graph;
 
     let graph = Graph::new().map_err(|e| Error::new(&format!("Failed to create graph: {}", e)))?;
+
+    // Load bundled standard vocabularies (80/20 public ontologies)
+    #[cfg(feature = "bundled-standards")]
+    standards::load_standard_vocabularies(&graph)?;
 
     let file_content = std::fs::read_to_string(ontology_file)
         .map_err(|e| Error::new(&format!("Failed to read file: {}", e)))?;
@@ -452,3 +459,87 @@ dc:subject a rdf:Property ;
   rdfs:range xsd:string ;
   rdfs:label "Subject" .
 "#;
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
+pub struct NamespaceInfo {
+    pub prefix: String,
+    pub uri: String,
+    pub source: String,
+}
+
+pub fn get_standard_namespaces() -> Vec<NamespaceInfo> {
+    let mut namespaces = Vec::new();
+
+    // Add Core Stubs
+    let core_ontologies = crate::ontology::CoreOntologyBundle::all();
+    for ont in core_ontologies {
+        namespaces.push(NamespaceInfo {
+            prefix: ont.name.to_string(),
+            uri: ont.namespace.to_string(),
+            source: "core-stub".to_string(),
+        });
+    }
+
+    // Add registered public ontologies from CoreOntologyBundle as bundled standards
+    for ont in core_ontologies {
+        namespaces.push(NamespaceInfo {
+            prefix: ont.name.to_string(),
+            uri: ont.namespace.to_string(),
+            source: "bundled-standard".to_string(),
+        });
+    }
+
+    // Add registered public ontologies from StandardOntology as bundled standards
+    for std_ont in crate::validation::StandardOntology::all() {
+        let prefix = match std_ont {
+            crate::validation::StandardOntology::SchemaOrg => "schema",
+            crate::validation::StandardOntology::Foaf => "foaf",
+            crate::validation::StandardOntology::DublinCore => "dc",
+            crate::validation::StandardOntology::Skos => "skos",
+            crate::validation::StandardOntology::BigFive => "bigfive",
+        };
+        namespaces.push(NamespaceInfo {
+            prefix: prefix.to_string(),
+            uri: std_ont.namespace().to_string(),
+            source: "bundled-standard".to_string(),
+        });
+    }
+
+    // Deduplicate (prioritizing "bundled-standard" over "core-stub")
+    // 1. Sort by URI, and then by source alphabetically ("bundled-standard" < "core-stub")
+    namespaces.sort_by(|a, b| {
+        match a.uri.cmp(&b.uri) {
+            std::cmp::Ordering::Equal => a.source.cmp(&b.source),
+            ord => ord,
+        }
+    });
+    // 2. dedup_by keeps the first entry of consecutive duplicates
+    namespaces.dedup_by(|a, b| a.uri == b.uri);
+
+    namespaces
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_standard_namespaces() {
+        let ns_list = get_standard_namespaces();
+        assert_eq!(ns_list.len(), 8, "Expected 8 unique namespaces, got: {:?}", ns_list);
+
+        let prefixes: std::collections::HashSet<&str> = ns_list.iter().map(|ns| ns.prefix.as_str()).collect();
+        let expected = ["rdf", "rdfs", "owl", "schema", "foaf", "dc", "skos", "bigfive"];
+        for p in &expected {
+            assert!(prefixes.contains(p), "Missing prefix: {}", p);
+        }
+
+        // Verify that rdf, rdfs, owl are marked as "bundled-standard" rather than "core-stub" due to dedup prioritization
+        for ns in &ns_list {
+            if ns.prefix == "rdf" || ns.prefix == "rdfs" || ns.prefix == "owl" {
+                assert_eq!(ns.source, "bundled-standard", "Expected prefix {} to have source bundled-standard", ns.prefix);
+            }
+        }
+    }
+}
+
