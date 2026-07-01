@@ -6,10 +6,10 @@
 
 <#activity_12_detect_contradictions> a prov:Activity ;
     dcterms:identifier "12_detect_contradictions" ;
-    prov:startedAtTime "2026-07-01T10:14:40.279Z" ; 
-    prov:endedAtTime "2026-07-01T10:14:40.308Z" ;
+    prov:startedAtTime "2026-07-01T10:54:53.818Z" ; 
+    prov:endedAtTime "2026-07-01T10:54:53.847Z" ;
     prov:value 0 
-    ; prov:wasInformedBy _:cfe6e2777c9c1999ce28333d6d2fffb7 .
+    ; prov:wasInformedBy _:a713beaaff025ff87f11a164c0e578fe .
 
 <#stdout_12_detect_contradictions> a prov:Entity ;
     prov:wasGeneratedBy <#activity_12_detect_contradictions> ;

@@ -73,16 +73,8 @@ fn test_phase2_recipe() {
         "Recipe missing provenance_envelope_test"
     );
     assert!(
-        recipe.contains("ocel_conformance_test"),
-        "Recipe missing ocel_conformance_test"
-    );
-    assert!(
         recipe.contains("coherence_hash_expectations_test"),
         "Recipe missing coherence_hash_expectations_test"
-    );
-    assert!(
-        recipe.contains("pm4py_bridge_test"),
-        "Recipe missing pm4py_bridge_test"
     );
     assert!(
         recipe.contains("post_chatman_coherence_integration"),

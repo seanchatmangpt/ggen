@@ -1,6 +1,6 @@
-[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.23s
 [1m[92m     Running[0m unittests src/lib.rs (target/debug/deps/ggen_graph-04eaf65562f407dd)
-[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.24s
 [1m[92m     Running[0m unittests src/lib.rs (target/debug/deps/ggen_graph-04eaf65562f407dd)
 [1m[92m     Running[0m unittests src/bin/emit_audit.rs (target/debug/deps/emit_audit-256de82feac066b6)
 [1m[92m     Running[0m unittests src/bin/gall_actuate_code_evaluation.rs (target/debug/deps/gall_actuate_code_evaluation-f5f8c2999b03d08a)
@@ -34,9 +34,9 @@
 [1m[92m     Running[0m tests/sparql_actuation.rs (target/debug/deps/sparql_actuation-6009209b48c5810c)
 [1m[92m     Running[0m tests/vision2030_coverage.rs (target/debug/deps/vision2030_coverage-db76f565955f90f2)
 [1m[92m     Running[0m tests/vocab_projection.rs (target/debug/deps/vocab_projection-99d196a623cb4697)
-[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.19s
+[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.24s
 [1m[92m     Running[0m tests/receipt_replay.rs (target/debug/deps/receipt_replay-ea965188328c2f74)
-[1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+[1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 0.26s
 [1m[92m     Running[0m `target/debug/emit_audit`
-[1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+[1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 0.25s
 [1m[92m     Running[0m `target/debug/verify_audit`

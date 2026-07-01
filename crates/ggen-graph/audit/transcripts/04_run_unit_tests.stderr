@@ -1,2 +1,2 @@
-[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.26s
 [1m[92m     Running[0m unittests src/lib.rs (target/debug/deps/ggen_graph-04eaf65562f407dd)

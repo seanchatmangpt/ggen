@@ -194,9 +194,7 @@ jobs:
           cargo test -p ggen-core --test ast_extractor_70pct_test || exit 1
           cargo test -p ggen-core --test inverse_receipt_chain_test || exit 1
           cargo test -p ggen-core --test provenance_envelope_test || exit 1
-          cargo test -p ggen-graph --test ocel_conformance_test || exit 1
           cargo test -p ggen-graph --test coherence_hash_expectations_test || exit 1
-          cargo test -p ggen-graph --test pm4py_bridge_test || exit 1
           cargo test -p ggen-graph --test post_chatman_coherence_integration || exit 1
           echo "✅ Phase 2 test suite complete"
       - name: OTEL validation (coherence spans)

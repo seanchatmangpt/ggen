@@ -2,63 +2,63 @@
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/identifier> "R7" ;
 	a <http://www.w3.org/ns/shacl#ValidationReport> .
-_:d767f7dd950bbe69830e2425eecb6724 a <http://www.w3.org/ns/shacl#ValidationReport> ;
+_:e28ec9f489f20c41cf51bd9a1de46081 a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "W0" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/description> "Worktree files verified" .
-_:d877ef332411ab0196afa643f912100d a <http://www.w3.org/ns/shacl#ValidationReport> ;
+_:e14cd6a8e1f31728b7853c150fe616bb a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "W1" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/description> "All 14 command executions passed" .
-_:e68b18e4d5a93564d4f07056ab883878 a <http://www.w3.org/ns/shacl#ValidationReport> ;
+_:adc88d096af0555fee50cc0adf914a6e a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "W2" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/description> "Passed: 10, Failed: 0" .
-_:de791c93430887061ac75525ec6fa812 a <http://www.w3.org/ns/shacl#ValidationReport> ;
+_:c2f5fa0b048aee5e2c5b38c1699e7dc0 a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "W3" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/description> "Clean room rebuild verified" .
-_:fa89294cbc45c2c563d3f45b2c057ae6 a <http://www.w3.org/ns/shacl#ValidationReport> ;
+_:c2c1ea9ba12d06b805c326a82b73597d a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "W4" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/description> "All sabotage cases refused" .
-_:ed4d3d4b97de834c994b677681142ec2 a <http://www.w3.org/ns/shacl#ValidationReport> ;
+_:dc27a91abb99aae75bcb01f5f740785a a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "W5" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/description> "Required documentation verified" .
-_:e801c0dc2792740f293429af9ffba395 a <http://www.w3.org/ns/shacl#ValidationReport> ;
+_:e11d89771f5d771e82160bcd854c44c7 a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "W6" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/description> "Causal consistency verified successfully" .
-_:baa7e3cfebb0c34eaad6821d86afa23b a <http://www.w3.org/ns/shacl#ValidationReport> ;
+_:d583370261550133b88df35ddbb49336 a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "W7" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/description> "Cross-artifact consistency verified successfully" .
-_:ea38dc052b41ff709f8cfd5fff1045e5 a <http://www.w3.org/ns/shacl#ValidationReport> ;
+_:f956b8c6a08049f8da485ae3e1f6668b a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "W8" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/description> "Causal sufficiency verified successfully" .
-_:f78c20d0ef027c2b6aa4f3f85ae60e3b a <http://www.w3.org/ns/shacl#ValidationReport> ;
+_:f1cfe9629b9582e3318e9aa9d7d08b8e a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "W9" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/description> "No contradictions or supersession violations detected" .
-_:a1f086ee943c4e7388e66ec542828c53 a <http://www.w3.org/ns/shacl#ValidationReport> ;
+_:ad137651c92a6e304ff50aa5507c4dd5 a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "W-DIALECT-SPARQL" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/description> "SPARQL dialect verified successfully" .
-_:aeb5d3c0674adca88e524c5b15c2475d a <http://www.w3.org/ns/shacl#ValidationReport> ;
+_:b6c55dbe84eb2dece9076bbcacab25f7 a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "W-DIALECT-SHACL" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/description> "SHACL dialect verified successfully" .
-_:bcfdf2804a08cdd964642f01490c75a9 a <http://www.w3.org/ns/shacl#ValidationReport> ;
+_:d916f0595baec5fdf72a462a242f517 a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "W-DIALECT-N3" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/description> "N3 dialect verified as bounded unsupported capability" .
-_:cb023ca76ff2540522ea523ce069fdac a <http://www.w3.org/ns/shacl#ValidationReport> ;
+_:d09ba30d7d127025b64cd367d15f14a a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "W-DIALECT-DATALOG" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/description> "Datalog dialect verified as bounded unsupported capability" .
-_:cd89074268c38641a7d5e29a3934886f a <http://www.w3.org/ns/shacl#ValidationReport> ;
+_:d47c3d86fbd32964b6155dbf38cdf12b a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "W-DIALECT-SHEX" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/description> "ShEx dialect verified as bounded unsupported capability" .

@@ -28,8 +28,8 @@
       "id": "req_r1_one_crate",
       "type": "PRDRequirement",
       "attributes": {
-        "description": "The substrate must be implemented as a single standalone Rust package at crates/ggen-graph with no feature flags.",
-        "title": "One-Crate Package Boundary and No Feature Flags"
+        "title": "One-Crate Package Boundary and No Feature Flags",
+        "description": "The substrate must be implemented as a single standalone Rust package at crates/ggen-graph with no feature flags."
       }
     },
     {
@@ -60,8 +60,8 @@
       "id": "req_r5_ocel_prov",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "OCEL/PROV Evidence Projection & Replayable Receipts",
-        "description": "Every graph transition must produce a replayable cryptographic receipt bundle and project PROV-O/OCEL."
+        "description": "Every graph transition must produce a replayable cryptographic receipt bundle and project PROV-O/OCEL.",
+        "title": "OCEL/PROV Evidence Projection & Replayable Receipts"
       }
     },
     {
@@ -108,8 +108,8 @@
       "id": "obj_cp_verify",
       "type": "GALLCheckpoint",
       "attributes": {
-        "target_date": "2026-05-26Z",
-        "milestone": "self_audit_verification"
+        "milestone": "self_audit_verification",
+        "target_date": "2026-05-26Z"
       }
     },
     {
@@ -132,8 +132,8 @@
       "id": "obj_source_file_self_audit",
       "type": "SourceFile",
       "attributes": {
-        "language": "rust",
-        "path": "crates/ggen-graph/src/ocel/self_audit.rs"
+        "path": "crates/ggen-graph/src/ocel/self_audit.rs",
+        "language": "rust"
       }
     },
     {
@@ -172,16 +172,16 @@
       "id": "obj_command_test",
       "type": "Command",
       "attributes": {
-        "args": "test --package ggen-graph",
-        "binary": "cargo"
+        "binary": "cargo",
+        "args": "test --package ggen-graph"
       }
     },
     {
       "id": "obj_command_run_1",
       "type": "CommandRun",
       "attributes": {
-        "exit_code": "0",
-        "execution_host": "localhost"
+        "execution_host": "localhost",
+        "exit_code": "0"
       }
     },
     {
@@ -196,8 +196,8 @@
       "id": "obj_graph_receipt_1",
       "type": "GraphReceipt",
       "attributes": {
-        "block_index": "42",
-        "hash": "eb3a28b0f4e1f72da89f2cf0f95b9d3bb8cf03ffdcf82309e7116744f2ef08eb"
+        "hash": "eb3a28b0f4e1f72da89f2cf0f95b9d3bb8cf03ffdcf82309e7116744f2ef08eb",
+        "block_index": "42"
       }
     },
     {
@@ -212,8 +212,8 @@
       "id": "obj_promotion_decision_1",
       "type": "PromotionDecision",
       "attributes": {
-        "status": "Promoted",
-        "approver": "OrchestratorAgent"
+        "approver": "OrchestratorAgent",
+        "status": "Promoted"
       }
     },
     {

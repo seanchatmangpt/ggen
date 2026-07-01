@@ -1,18 +1,19 @@
 === [00] Capturing Workspace Baseline ===
-Git HEAD: 84e7cb5d51b72d28fa5251d96e437d8dd809e14a
+Git HEAD: 8b1e8e3a042278fc6230a466e8a6d5241b2efc37
+ M .github/workflows/ci.yml
+ M Cargo.toml
  D crates/ggen-graph/audit/clean_room_rebuild.json
  D crates/ggen-graph/audit/clean_room_rebuild.ttl
  M crates/ggen-graph/audit/doctest_results.json
- D crates/ggen-graph/audit/final.validation.ttl
+ M crates/ggen-graph/audit/final.validation.ttl
  M crates/ggen-graph/audit/gall_code_evaluation.final.ttl
  M crates/ggen-graph/audit/gall_code_evaluation.receipt.ttl
  M crates/ggen-graph/audit/gall_decision.delta.ttl
  M crates/ggen-graph/audit/gall_evidence.ocel.json
  M crates/ggen-graph/audit/gall_evidence.ttl
  M crates/ggen-graph/audit/hook_actuation.validation.ttl
- D crates/ggen-graph/audit/sabotage.validation.ttl
- D crates/ggen-graph/audit/sabotage_results.json
- D crates/ggen-graph/audit/sabotage_results.ttl
+ M crates/ggen-graph/audit/sabotage_results.json
+ M crates/ggen-graph/audit/sabotage_results.ttl
  D crates/ggen-graph/audit/transcripts/00_capture_baseline.json
  D crates/ggen-graph/audit/transcripts/00_capture_baseline.stderr
  D crates/ggen-graph/audit/transcripts/00_capture_baseline.stdout
@@ -72,12 +73,10 @@ Git HEAD: 84e7cb5d51b72d28fa5251d96e437d8dd809e14a
  D crates/ggen-graph/audit/vision2030.external_adjudication.json
  M crates/ggen-graph/audit/vision2030.self_audit.ocel.json
  D crates/ggen-graph/audit/vision2030.verification_manifest.json
- D crates/ggen-graph/audit/witnessed_truthfulness.external_adjudication.json
+ M crates/ggen-graph/audit/witnessed_truthfulness.external_adjudication.json
  M crates/ggen-graph/audit/worktree_inventory.full.json
  M crates/ggen-graph/audit/worktree_inventory.ttl
- M crates/ggen-graph/src/bin/gall_actuate_code_evaluation.rs
- M crates/ggen-graph/src/bin/gall_adjudicate_witnessed_truthfulness.rs
- M crates/ggen-graph/src/bin/gall_observe_sabotage.rs
- M run_test.sh
- M test_fast.sh
+ M justfile
+ M tests/phase2_recipes_test.rs
+?? src/main.rs
 Baseline captured successfully.

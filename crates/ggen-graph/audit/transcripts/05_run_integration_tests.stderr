@@ -1,5 +1,4 @@
-[1m[92m   Compiling[0m ggen-graph v26.7.1 (/Users/sac/ggen/crates/ggen-graph)
-[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.77s
+[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.24s
 [1m[92m     Running[0m unittests src/lib.rs (target/debug/deps/ggen_graph-04eaf65562f407dd)
 [1m[92m     Running[0m unittests src/bin/emit_audit.rs (target/debug/deps/emit_audit-256de82feac066b6)
 [1m[92m     Running[0m unittests src/bin/gall_actuate_code_evaluation.rs (target/debug/deps/gall_actuate_code_evaluation-f5f8c2999b03d08a)

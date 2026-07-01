@@ -29,6 +29,10 @@ include = [
     "CHANGELOG.md",
 ]
 
+[[bin]]
+name = "ggen"
+path = "src/main.rs"
+
 [workspace]
 members = [
   "crates/ggen-a2a-mcp",

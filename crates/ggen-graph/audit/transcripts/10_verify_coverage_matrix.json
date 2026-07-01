@@ -5,7 +5,7 @@
   ],
   "cwd": "/Users/sac/ggen",
   "exit_code": 0,
-  "duration_ms": 7.868208,
+  "duration_ms": 7.632834,
   "stdout_path": "crates/ggen-graph/audit/transcripts/10_verify_coverage_matrix.stdout",
   "stderr_path": "crates/ggen-graph/audit/transcripts/10_verify_coverage_matrix.stderr",
   "stdout_sha256": "7895f4e62a7fe5af9bb26945726f3a92f7bb207cc11513df13f4720e3b6adc59",

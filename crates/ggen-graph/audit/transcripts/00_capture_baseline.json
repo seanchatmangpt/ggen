@@ -5,9 +5,9 @@
   ],
   "cwd": "/Users/sac/ggen",
   "exit_code": 0,
-  "duration_ms": 324.417375,
+  "duration_ms": 443.795416,
   "stdout_path": "crates/ggen-graph/audit/transcripts/00_capture_baseline.stdout",
   "stderr_path": "crates/ggen-graph/audit/transcripts/00_capture_baseline.stderr",
-  "stdout_sha256": "e21175099d0dff78ea8d53007331316c63586981ceb77424036f8e7ff6d11048",
+  "stdout_sha256": "c03deba1c0e7424d1daec5fd4381fd03b487d5cfba51959ce608cde7dd6ad7c2",
   "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 }

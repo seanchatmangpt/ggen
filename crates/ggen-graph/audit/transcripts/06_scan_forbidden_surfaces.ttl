@@ -6,10 +6,10 @@
 
 <#activity_06_scan_forbidden_surfaces> a prov:Activity ;
     dcterms:identifier "06_scan_forbidden_surfaces" ;
-    prov:startedAtTime "2026-07-01T10:14:38.047Z" ; 
-    prov:endedAtTime "2026-07-01T10:14:38.100Z" ;
+    prov:startedAtTime "2026-07-01T10:54:51.320Z" ; 
+    prov:endedAtTime "2026-07-01T10:54:51.367Z" ;
     prov:value 0 
-    ; prov:wasInformedBy _:cfe6e2777c9c1999ce28333d6d2fffb7 .
+    ; prov:wasInformedBy _:a713beaaff025ff87f11a164c0e578fe .
 
 <#stdout_06_scan_forbidden_surfaces> a prov:Entity ;
     prov:wasGeneratedBy <#activity_06_scan_forbidden_surfaces> ;
