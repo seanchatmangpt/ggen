@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-01T06:42:17.133946+00:00",
-  "ggen_version": "26.7.1",
+  "generated_at": "2026-07-01T07:39:39.197191+00:00",
+  "ggen_version": "26.6.25",
   "inputs": {
     "manifest_hash": "bcb2eaf10e65589b0fb6adb5e99b6da69ff2e936a476cdb7badaa8185aea284c",
     "ontology_hashes": {
@@ -23,7 +23,7 @@
     {
       "step_type": "render",
       "name": "cli-commands-reference",
-      "duration_ms": 3,
+      "duration_ms": 7,
       "triples_added": null,
       "status": "success",
       "error": null
@@ -38,5 +38,5 @@
     }
   ],
   "validation_passed": true,
-  "total_duration_ms": 1
+  "total_duration_ms": 0
 }
