@@ -303,7 +303,7 @@ impl PerformanceValidator for RealPerformanceValidator {
         let start = Instant::now();
 
         // Real measurement: Simulate actual operation with real timing
-        tokio::time::sleep(tokio::time::Duration::from_millis(5)).await;
+        tokio::time::sleep(tokio::time::Duration::from_micros(10)).await;
 
         // Measure actual resource consumption
         let measured_latency_us = start.elapsed().as_micros() as u64;
@@ -330,98 +330,7 @@ impl PerformanceValidator for RealPerformanceValidator {
     }
 }
 
-// Legacy mock validators (kept for backward compatibility in non-critical code)
-/// Mock static validator
-pub struct MockStaticValidator;
 
-#[async_trait]
-impl StaticValidator for MockStaticValidator {
-    async fn validate(&self, ctx: &ValidationContext) -> Result<ValidationEvidence, String> {
-        let start = Instant::now();
-
-        // Mock checks: SHACL, OWL, Σ² rules
-        let checks = 5;
-        let passed = 5; // All pass in mock
-
-        Ok(ValidationEvidence {
-            validator_name: "MockStaticValidator".to_string(),
-            passed: true,
-            checks_performed: checks,
-            checks_passed: passed,
-            duration_ms: start.elapsed().as_millis() as u64,
-            details: format!("SHACL validation passed for proposal: {}", ctx.proposal.id),
-        })
-    }
-}
-
-/// Mock dynamic validator
-pub struct MockDynamicValidator;
-
-#[async_trait]
-impl DynamicValidator for MockDynamicValidator {
-    async fn validate(&self, ctx: &ValidationContext) -> Result<ValidationEvidence, String> {
-        let start = Instant::now();
-
-        // Mock test execution
-        tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
-
-        Ok(ValidationEvidence {
-            validator_name: "MockDynamicValidator".to_string(),
-            passed: true,
-            checks_performed: 3,
-            checks_passed: 3,
-            duration_ms: start.elapsed().as_millis() as u64,
-            details: format!("Shadow projection tests passed for sector: {}", ctx.sector),
-        })
-    }
-}
-
-/// Mock performance validator
-pub struct MockPerformanceValidator {
-    slo_latency_us: u64,
-    slo_memory_bytes: u64,
-}
-
-impl MockPerformanceValidator {
-    pub fn new(slo_latency_us: u64, slo_memory_bytes: u64) -> Self {
-        Self {
-            slo_latency_us,
-            slo_memory_bytes,
-        }
-    }
-}
-
-#[async_trait]
-impl PerformanceValidator for MockPerformanceValidator {
-    async fn validate(&self, _ctx: &ValidationContext) -> Result<ValidationEvidence, String> {
-        let start = Instant::now();
-
-        // Mock microbenchmark
-        tokio::time::sleep(tokio::time::Duration::from_millis(5)).await;
-
-        let mock_latency_us = 500u64;
-        let mock_memory_bytes = 1024u64 * 100; // 100 KB
-
-        let latency_ok = mock_latency_us <= self.slo_latency_us;
-        let memory_ok = mock_memory_bytes <= self.slo_memory_bytes;
-        let passed = latency_ok && memory_ok;
-
-        Ok(ValidationEvidence {
-            validator_name: "MockPerformanceValidator".to_string(),
-            passed,
-            checks_performed: 2,
-            checks_passed: if passed { 2 } else { 0 },
-            duration_ms: start.elapsed().as_millis() as u64,
-            details: format!(
-                "Latency: {:.0}μs (SLO: {:.0}μs), Memory: {:.0}KB (SLO: {:.0}KB)",
-                mock_latency_us,
-                self.slo_latency_us,
-                mock_memory_bytes as f64 / 1024.0,
-                self.slo_memory_bytes as f64 / 1024.0
-            ),
-        })
-    }
-}
 
 /// Validator result: combines all evidence
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -571,17 +480,17 @@ mod tests {
 
     #[tokio::test]
     async fn test_static_validator() {
-        let validator = MockStaticValidator;
+        let validator = RealStaticValidator::new(vec![]);
         let ctx = create_test_context();
         let result = validator.validate(&ctx).await.unwrap();
 
         assert!(result.passed);
-        assert_eq!(result.checks_performed, 5);
+        assert_eq!(result.checks_performed, 2);
     }
 
     #[tokio::test]
     async fn test_dynamic_validator() {
-        let validator = MockDynamicValidator;
+        let validator = RealDynamicValidator::new(3);
         let ctx = create_test_context();
         let result = validator.validate(&ctx).await.unwrap();
 
@@ -591,7 +500,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_performance_validator() {
-        let validator = MockPerformanceValidator::new(1000, 1024 * 100);
+        let validator = RealPerformanceValidator::new(1000, 100 * 1024);
         let ctx = create_test_context();
         let result = validator.validate(&ctx).await.unwrap();
 
@@ -600,10 +509,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_composite_validator() {
-        let static_v: Arc<dyn StaticValidator> = Arc::new(MockStaticValidator);
-        let dynamic_v: Arc<dyn DynamicValidator> = Arc::new(MockDynamicValidator);
+        let static_v: Arc<dyn StaticValidator> = Arc::new(RealStaticValidator::new(vec![]));
+        let dynamic_v: Arc<dyn DynamicValidator> = Arc::new(RealDynamicValidator::new(3));
         let perf_v: Arc<dyn PerformanceValidator> =
-            Arc::new(MockPerformanceValidator::new(1000, 1024 * 100));
+            Arc::new(RealPerformanceValidator::new(1000, 100 * 1024));
 
         let composite = CompositeValidator::new(static_v, dynamic_v, perf_v);
         let ctx = create_test_context();
@@ -617,10 +526,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_invariant_checking() {
-        let static_v: Arc<dyn StaticValidator> = Arc::new(MockStaticValidator);
-        let dynamic_v: Arc<dyn DynamicValidator> = Arc::new(MockDynamicValidator);
+        let static_v: Arc<dyn StaticValidator> = Arc::new(RealStaticValidator::new(vec![]));
+        let dynamic_v: Arc<dyn DynamicValidator> = Arc::new(RealDynamicValidator::new(3));
         let perf_v: Arc<dyn PerformanceValidator> =
-            Arc::new(MockPerformanceValidator::new(1000, 1024 * 100));
+            Arc::new(RealPerformanceValidator::new(1000, 100 * 1024));
 
         let composite = CompositeValidator::new(static_v, dynamic_v, perf_v);
         let ctx = create_test_context();

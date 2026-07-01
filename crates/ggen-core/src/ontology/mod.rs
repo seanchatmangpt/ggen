@@ -48,12 +48,11 @@ pub use pattern_miner::{
 };
 
 pub use delta_proposer::{
-    DeltaSigmaProposal, DeltaSigmaProposer, MockLLMProposer, ProposerConfig, RealLLMProposer,
+    DeltaSigmaProposal, DeltaSigmaProposer, PatternHeuristicProposer, ProposerConfig, RealLLMProposer,
 };
 
 pub use validators::{
-    CompositeValidator, DynamicValidator, Invariant, MockDynamicValidator,
-    MockPerformanceValidator, MockStaticValidator, PerformanceValidator, StaticValidator,
+    CompositeValidator, DynamicValidator, Invariant, PerformanceValidator, StaticValidator,
     ValidationContext, ValidationEvidence, ValidatorResult,
 };
 

@@ -11,12 +11,26 @@
 use std::path::PathBuf;
 use std::process::Command;
 
+fn workspace_root() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+}
+
+fn get_ggen_binary_path() -> PathBuf {
+    let root = workspace_root();
+    let debug_path = root.join("target").join("debug").join("ggen");
+    if debug_path.exists() {
+        debug_path
+    } else {
+        PathBuf::from("ggen")
+    }
+}
+
 /// Test that coherence-check recipe validates ontology and shapes
 #[test]
 fn test_coherence_check_recipe() {
     let status = Command::new("just")
         .arg("coherence-check")
-        .current_dir("/home/user/ggen")
+        .current_dir(workspace_root())
         .status()
         .expect("Failed to run 'just coherence-check'");
 
@@ -34,7 +48,7 @@ fn test_phase2_recipe() {
     let output = Command::new("just")
         .arg("--show")
         .arg("test-phase2")
-        .current_dir("/home/user/ggen")
+        .current_dir(workspace_root())
         .output()
         .expect("Failed to run 'just --show test-phase2'");
 
@@ -81,7 +95,7 @@ fn test_phase2_recipe() {
 fn test_inverse_sync_recipe() {
     let status = Command::new("just")
         .arg("inverse-sync")
-        .current_dir("/home/user/ggen")
+        .current_dir(workspace_root())
         .status()
         .expect("Failed to run 'just inverse-sync'");
 
@@ -97,7 +111,7 @@ fn test_inverse_sync_recipe() {
 fn test_round_trip_recipe() {
     let status = Command::new("just")
         .arg("round-trip")
-        .current_dir("/home/user/ggen")
+        .current_dir(workspace_root())
         .status()
         .expect("Failed to run 'just round-trip'");
 
@@ -111,8 +125,8 @@ fn test_round_trip_recipe() {
 /// Test that post-chatman ontology files exist and are valid
 #[test]
 fn test_post_chatman_ontology_files() {
-    let ontology = PathBuf::from("/home/user/ggen/.specify/specs/post-chatman/post_chatman.ttl");
-    let shapes = PathBuf::from("/home/user/ggen/.specify/specs/post-chatman/post_chatman_shapes.ttl");
+    let ontology = workspace_root().join(".specify/specs/post-chatman/post_chatman.ttl");
+    let shapes = workspace_root().join(".specify/specs/post-chatman/post_chatman_shapes.ttl");
 
     assert!(
         ontology.exists(),
@@ -137,7 +151,7 @@ fn test_phase2_recipe_structure() {
     let output = Command::new("just")
         .arg("--show")
         .arg("test-phase2")
-        .current_dir("/home/user/ggen")
+        .current_dir(workspace_root())
         .output()
         .expect("Failed to run 'just --show test-phase2'");
 
@@ -161,7 +175,7 @@ fn test_slo_check_includes_phase2() {
     let output = Command::new("just")
         .arg("--show")
         .arg("slo-check")
-        .current_dir("/home/user/ggen")
+        .current_dir(workspace_root())
         .output()
         .expect("Failed to run 'just --show slo-check'");
 
@@ -183,7 +197,7 @@ fn test_pre_commit_includes_coherence() {
     let output = Command::new("just")
         .arg("--show")
         .arg("pre-commit")
-        .current_dir("/home/user/ggen")
+        .current_dir(workspace_root())
         .output()
         .expect("Failed to run 'just --show pre-commit'");
 
@@ -201,7 +215,7 @@ fn test_pre_commit_includes_coherence() {
 /// Test that CI workflow includes phase2 job
 #[test]
 fn test_ci_workflow_includes_phase2() {
-    let ci_workflow = std::fs::read_to_string("/home/user/ggen/.github/workflows/ci.yml")
+    let ci_workflow = std::fs::read_to_string(workspace_root().join(".github/workflows/ci.yml"))
         .expect("Failed to read CI workflow");
 
     assert!(
@@ -226,11 +240,11 @@ fn test_ci_workflow_includes_phase2() {
 /// Test that CI status gate includes phase2 as required dependency
 #[test]
 fn test_ci_status_requires_phase2() {
-    let ci_workflow = std::fs::read_to_string("/home/user/ggen/.github/workflows/ci.yml")
+    let ci_workflow = std::fs::read_to_string(workspace_root().join(".github/workflows/ci.yml"))
         .expect("Failed to read CI workflow");
 
     assert!(
-        ci_workflow.contains("needs: [check, build, test, doctest, phase2]"),
+        ci_workflow.contains("needs: [check, build, test, doctest, phase2, cargo-cicd]"),
         "CI status gate doesn't require phase2 job"
     );
 }
@@ -238,7 +252,7 @@ fn test_ci_status_requires_phase2() {
 /// Test that Makefile.toml has backward-compatible Phase 2 recipes
 #[test]
 fn test_makefile_backward_compatibility() {
-    let makefile = std::fs::read_to_string("/home/user/ggen/Makefile.toml")
+    let makefile = std::fs::read_to_string(workspace_root().join("Makefile.toml"))
         .expect("Failed to read Makefile.toml");
 
     assert!(
@@ -266,10 +280,12 @@ fn test_makefile_backward_compatibility() {
 /// Test ontology validates with ggen validate command
 #[test]
 fn test_ontology_ggen_validate() {
-    let output = Command::new("ggen")
+    let output = Command::new(get_ggen_binary_path())
+        .arg("graph")
         .arg("validate")
+        .arg("--schema-file")
         .arg(".specify/specs/post-chatman/post_chatman.ttl")
-        .current_dir("/home/user/ggen")
+        .current_dir(workspace_root())
         .output()
         .expect("Failed to run ggen validate");
 
@@ -283,10 +299,12 @@ fn test_ontology_ggen_validate() {
 /// Test shapes validate with ggen validate command
 #[test]
 fn test_shapes_ggen_validate() {
-    let output = Command::new("ggen")
+    let output = Command::new(get_ggen_binary_path())
+        .arg("graph")
         .arg("validate")
+        .arg("--schema-file")
         .arg(".specify/specs/post-chatman/post_chatman_shapes.ttl")
-        .current_dir("/home/user/ggen")
+        .current_dir(workspace_root())
         .output()
         .expect("Failed to run ggen validate");
 

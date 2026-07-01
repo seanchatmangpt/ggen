@@ -272,7 +272,7 @@ fn init_force_rescaffolds_but_preserves_user_files() {
         ])
         .assert()
         .success()
-        .stdout(predicate::str::contains("\"status\":\"success\""));
+        .stdout(predicate::str::contains("\"status\": \"success\""));
 
     let json = stdout_json(&assert.get_output().stdout);
 

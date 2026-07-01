@@ -1,28 +1,28 @@
 [package]
 name = "cpmp"
-version = "0.1.0"
-edition = "2021"
-license = "MIT"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
 description = "Computer Project Mapping Protocol — scanner, capability classification, projection, receipts."
-repository = "https://github.com/seanchatmangpt/ggen"
+repository.workspace = true
 
 [dependencies]
-uuid = { version = "1.8", features = ["v4"] }
+uuid = { workspace = true }
 clap = { workspace = true } # framework requirement of clap-noun-verb's #[verb]/#[arg] (no raw clap usage)
 clap-noun-verb = { workspace = true }
 clap-noun-verb-macros = { workspace = true }
 linkme = "0.3" # required by clap-noun-verb's #[verb] for distributed verb registration
 rusqlite = { version = "0.40.0", features = ["bundled"], optional = true }
-anyhow = "1.0"
-blake3 = "1.4"
-chrono = { version = "0.4", features = ["serde"] }
+anyhow = { workspace = true }
+blake3 = { workspace = true }
+chrono = { workspace = true }
 ignore = "0.4"
 oxigraph = { workspace = true }
-regex = "1.10"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+regex = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 thiserror = { workspace = true }
-toml = "1.1.0"
+toml = { workspace = true }
 walkdir = "2.4"
 
 [features]

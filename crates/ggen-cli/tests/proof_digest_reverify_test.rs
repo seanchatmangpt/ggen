@@ -187,7 +187,7 @@ fn test_sync_locked_passes_for_unmodified_pack() {
     let world = World::new();
     world.install("io.ggen.happy", "1.0.0");
 
-    let (_code, combined) = combined_output(world.sync().arg("--locked").arg("--dry-run"));
+    let (_code, combined) = combined_output(world.sync().arg("--locked").arg("--dry-run").arg("true"));
 
     assert!(
         !combined.contains("digest mismatch"),
@@ -217,7 +217,7 @@ fn test_sync_locked_fails_on_digest_mismatch_after_mutation() {
     // Sabotage: mutate the on-disk pack definition (version bump changes digest).
     world.write_pack("io.ggen.drift", "2.0.0");
 
-    let (code, combined) = combined_output(world.sync().arg("--locked").arg("--dry-run"));
+    let (code, combined) = combined_output(world.sync().arg("--locked").arg("--dry-run").arg("true"));
 
     assert_ne!(
         code,
@@ -250,7 +250,7 @@ fn test_sync_locked_fails_when_pack_definition_removed() {
     fs::remove_file(world.registry_pack_path("io.ggen.gone")).expect("remove registry pack toml");
     assert!(!world.registry_pack_path("io.ggen.gone").exists());
 
-    let (code, combined) = combined_output(world.sync().arg("--locked").arg("--dry-run"));
+    let (code, combined) = combined_output(world.sync().arg("--locked").arg("--dry-run").arg("true"));
 
     assert_ne!(
         code,

@@ -10,6 +10,7 @@
 #[cfg(test)]
 mod e2e_tests {
     use crate::ontology::sigma_runtime::{Statement, ValidationResult};
+    use crate::ontology::validators::{RealDynamicValidator, RealPerformanceValidator, RealStaticValidator};
     use crate::ontology::*;
     use std::sync::Arc;
 
@@ -36,12 +37,12 @@ mod e2e_tests {
 
         // 2. CREATE PROPOSER AND VALIDATOR
         let proposer: Arc<dyn DeltaSigmaProposer> =
-            Arc::new(MockLLMProposer::new(ProposerConfig::default()));
+            Arc::new(PatternHeuristicProposer::new(ProposerConfig::default()));
 
-        let static_v: Arc<dyn StaticValidator> = Arc::new(MockStaticValidator);
-        let dynamic_v: Arc<dyn DynamicValidator> = Arc::new(MockDynamicValidator);
+        let static_v: Arc<dyn StaticValidator> = Arc::new(RealStaticValidator::new(vec![]));
+        let dynamic_v: Arc<dyn DynamicValidator> = Arc::new(RealDynamicValidator::new(3));
         let perf_v: Arc<dyn PerformanceValidator> =
-            Arc::new(MockPerformanceValidator::new(1000, 1024 * 100));
+            Arc::new(RealPerformanceValidator::new(10000, 100 * 1024));
 
         let validator = Arc::new(CompositeValidator::new(static_v, dynamic_v, perf_v));
 
@@ -147,7 +148,7 @@ mod e2e_tests {
         }
 
         // 2. Generate proposals
-        let proposer = MockLLMProposer::new(ProposerConfig::default());
+        let proposer = PatternHeuristicProposer::new(ProposerConfig::default());
         let snapshot = SigmaSnapshot::new(
             None,
             vec![],
@@ -220,10 +221,10 @@ mod e2e_tests {
         println!("\n=== Full Validation Test ===");
 
         // Create validators
-        let static_v: Arc<dyn StaticValidator> = Arc::new(MockStaticValidator);
-        let dynamic_v: Arc<dyn DynamicValidator> = Arc::new(MockDynamicValidator);
+        let static_v: Arc<dyn StaticValidator> = Arc::new(RealStaticValidator::new(vec![]));
+        let dynamic_v: Arc<dyn DynamicValidator> = Arc::new(RealDynamicValidator::new(3));
         let perf_v: Arc<dyn PerformanceValidator> =
-            Arc::new(MockPerformanceValidator::new(1000, 1024 * 100));
+            Arc::new(RealPerformanceValidator::new(10000, 100 * 1024));
 
         let validator = CompositeValidator::new(static_v, dynamic_v, perf_v);
 

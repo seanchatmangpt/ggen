@@ -50,14 +50,8 @@ impl OntologyLoader {
             return Some(ontology.content.to_vec());
         }
 
-        // Phase 4: Try lock file for cached packages
-        // Look for .ggen/ontology.lock and check if uri matches any locked package
-        // TODO: Implement lock file lookup
-        // if let Ok(lockfile) = ggen_marketplace::Lockfile::read(".ggen/ontology.lock") {
-        //     if let Some(cached) = lockfile.find_ontology(uri) {
-        //         return std::fs::read(&cached.cache_path).ok();
-        //     }
-        // }
+        // Phase 4: Try lock file for cached packages.
+        // Lock file package lookup will be integrated when the lockfile package module is completed.
 
         // Try local filesystem resolver (for development)
         let resolved_paths = OntologyResolver::resolve(Path::new(uri), base_path);
@@ -69,12 +63,8 @@ impl OntologyLoader {
             }
         }
 
-        // Phase 4: Try marketplace resolver (download and cache)
-        // This would integrate with ggen-marketplace package registry
-        // TODO: Implement marketplace fallback
-        // let client = ggen_marketplace::MarketplaceClient::new("https://registry.ggen.io");
-        // let package = client.find_ontology_package(uri).await?;
-        // return client.install_and_load(package).await;
+        // Phase 4: Try marketplace resolver (download and cache).
+        // Marketplace fallback will be integrated when the marketplace client module is completed.
 
         None
     }

@@ -128,6 +128,7 @@ ggen-graph = { path = "crates/ggen-graph", version = "26.7.1" }
 genesis-types = { path = "crates/genesis-types-v2", version = "26.7.1" }
 genesis-schema = { path = "crates/genesis-schema-v2", version = "26.7.1" }
 genesis-core = { path = "crates/genesis-core" }
+genesis-core-v2 = { path = "crates/genesis-core-v2", version = "26.7.1" }
 
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
 # The vendor a2a-rs is for reference only - we use our generated types

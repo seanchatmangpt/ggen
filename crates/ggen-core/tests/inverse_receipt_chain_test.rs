@@ -454,8 +454,7 @@ fn test_operation_link_rejects_invalid_inverse_id() {
 #[test]
 fn test_operation_link_rejects_non_v4_uuid() {
     // Arrange — create a UUID v1 (not v4).
-    let v1_uuid = uuid::Uuid::new_v1(uuid::Timestamp::now(uuid::NoContext), &[1, 2, 3, 4, 5, 6])
-        .to_string();
+    let v1_uuid = "c106a26a-21bb-11eb-adc1-0242ac120002".to_string();
     let v4_uuid = uuid::Uuid::new_v4().to_string();
 
     // Act

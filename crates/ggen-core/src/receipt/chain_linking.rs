@@ -168,8 +168,7 @@ mod tests {
     #[test]
     fn test_operation_link_rejects_non_v4_uuid() {
         // UUID v1 (timestamp-based)
-        let v1_id = uuid::Uuid::new_v1(uuid::Timestamp::now(uuid::NoContext), &[1, 2, 3, 4, 5, 6])
-            .to_string();
+        let v1_id = "c106a26a-21bb-11eb-adc1-0242ac120002".to_string();
         let v4_id = uuid::Uuid::new_v4().to_string();
 
         let result = OperationLink::create(&v1_id, &v4_id);
