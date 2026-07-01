@@ -5,7 +5,7 @@ use wasm4pm_compat::ocel::{OCELEvent, OCELObject, OCELRelationship, OCELType, OC
 
 /// Represents an OCEL (Object-Centric Event Log) data structure.
 /// Local working type — converts to/from wasm4pm-compat's authority types.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
 pub struct OcelLog {
     pub objects: Vec<OcelObject>,
     pub events: Vec<OcelEvent>,
@@ -18,7 +18,7 @@ impl OcelLog {
 }
 
 /// Represents an object in the OCEL log.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct OcelObject {
     pub id: String,
     pub r#type: String,
@@ -26,7 +26,7 @@ pub struct OcelObject {
 }
 
 /// Represents an event in the OCEL log.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct OcelEvent {
     pub id: String,
     pub activity: String,
@@ -36,7 +36,7 @@ pub struct OcelEvent {
 }
 
 /// A reference to an object from an event, optionally with a qualifier.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct OcelObjectRef {
     pub id: String,
     pub r#type: String,
@@ -47,6 +47,7 @@ pub struct OcelObjectRef {
 ///
 /// Used internally by discovery and conformance modules to delegate
 /// process-intelligence work to the authoritative wasm4pm-compat algorithms.
+#[allow(clippy::expect_used)]
 pub(crate) fn to_compat_ocel(log: &OcelLog) -> OCEL {
     use std::collections::HashSet;
 
