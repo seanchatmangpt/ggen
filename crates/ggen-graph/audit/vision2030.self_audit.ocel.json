@@ -28,32 +28,32 @@
       "id": "req_r1_one_crate",
       "type": "PRDRequirement",
       "attributes": {
-        "description": "The substrate must be implemented as a single standalone Rust package at crates/ggen-graph with no feature flags.",
-        "title": "One-Crate Package Boundary and No Feature Flags"
+        "title": "One-Crate Package Boundary and No Feature Flags",
+        "description": "The substrate must be implemented as a single standalone Rust package at crates/ggen-graph with no feature flags."
       }
     },
     {
       "id": "req_r2_ontology",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Public Ontology Governance and Vocabulary Emission",
-        "description": "Vocabulary constants must be emitted directly from public ontology profiles."
+        "description": "Vocabulary constants must be emitted directly from public ontology profiles.",
+        "title": "Public Ontology Governance and Vocabulary Emission"
       }
     },
     {
       "id": "req_r3_deterministic",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Deterministic Graph Substrate and Delta Conservation",
-        "description": "Graph parsing, serialization, canonical byte generation, hashing, and RdfDelta transitions must be deterministic."
+        "description": "Graph parsing, serialization, canonical byte generation, hashing, and RdfDelta transitions must be deterministic.",
+        "title": "Deterministic Graph Substrate and Delta Conservation"
       }
     },
     {
       "id": "req_r4_knowledge_hook",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Knowledge Hook Runtime & Deterministic Scheduling",
-        "description": "Turtle-based hook packs must load dynamically as graph laws and schedule deterministically."
+        "description": "Turtle-based hook packs must load dynamically as graph laws and schedule deterministically.",
+        "title": "Knowledge Hook Runtime & Deterministic Scheduling"
       }
     },
     {
@@ -68,8 +68,8 @@
       "id": "req_r6_compliance",
       "type": "PRDRequirement",
       "attributes": {
-        "description": "Must pass structural analyses checking for forbidden execution surfaces and zero placeholder/stub/mock/fake-success patterns.",
-        "title": "Compliance Checks & Anti-Fake Gates"
+        "title": "Compliance Checks & Anti-Fake Gates",
+        "description": "Must pass structural analyses checking for forbidden execution surfaces and zero placeholder/stub/mock/fake-success patterns."
       }
     },
     {
@@ -92,16 +92,16 @@
       "id": "req_r9_proof_report",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Vision 2030 Durable Proof Report",
-        "description": "Establish Vision 2030 durable proof report."
+        "description": "Establish Vision 2030 durable proof report.",
+        "title": "Vision 2030 Durable Proof Report"
       }
     },
     {
       "id": "req_r10_interchangeable",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Genesis-bearing Interchangeable Part Architecture",
-        "description": "Ensure interchangeable parts where Genesis is the embedded core and ggen forms the outer membrane, adapter layer, and projection layer."
+        "description": "Ensure interchangeable parts where Genesis is the embedded core and ggen forms the outer membrane, adapter layer, and projection layer.",
+        "title": "Genesis-bearing Interchangeable Part Architecture"
       }
     },
     {
@@ -116,8 +116,8 @@
       "id": "obj_public_ontology",
       "type": "PublicOntology",
       "attributes": {
-        "namespace": "http://www.ocel-standard.org/ns#",
-        "prefix": "ocel"
+        "prefix": "ocel",
+        "namespace": "http://www.ocel-standard.org/ns#"
       }
     },
     {
@@ -148,8 +148,8 @@
       "id": "obj_example_file_self_audit",
       "type": "ExampleFile",
       "attributes": {
-        "path": "crates/ggen-graph/examples/self_audit_demo.rs",
-        "description": "Demonstrates generation and projection of self-audit log"
+        "description": "Demonstrates generation and projection of self-audit log",
+        "path": "crates/ggen-graph/examples/self_audit_demo.rs"
       }
     },
     {
@@ -172,24 +172,24 @@
       "id": "obj_command_test",
       "type": "Command",
       "attributes": {
-        "args": "test --package ggen-graph",
-        "binary": "cargo"
+        "binary": "cargo",
+        "args": "test --package ggen-graph"
       }
     },
     {
       "id": "obj_command_run_1",
       "type": "CommandRun",
       "attributes": {
-        "exit_code": "0",
-        "execution_host": "localhost"
+        "execution_host": "localhost",
+        "exit_code": "0"
       }
     },
     {
       "id": "obj_evidence_artifact_1",
       "type": "EvidenceArtifact",
       "attributes": {
-        "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
-        "size_bytes": "1024"
+        "size_bytes": "1024",
+        "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
       }
     },
     {
@@ -212,8 +212,8 @@
       "id": "obj_promotion_decision_1",
       "type": "PromotionDecision",
       "attributes": {
-        "status": "Promoted",
-        "approver": "OrchestratorAgent"
+        "approver": "OrchestratorAgent",
+        "status": "Promoted"
       }
     },
     {

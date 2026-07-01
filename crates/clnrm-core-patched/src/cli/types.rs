@@ -1,0 +1,883 @@
+//! Shared types for the CLI module
+//!
+//! Contains all the common types, enums, and structs used across CLI commands.
+
+use clap::{ArgAction, Parser, Subcommand, ValueEnum};
+use serde::Deserialize;
+use std::collections::HashMap;
+use std::path::PathBuf;
+
+/// Cleanroom Testing Platform - Hermetic Integration Testing
+#[derive(Parser)]
+#[command(name = "clnrm")]
+#[command(about = "Hermetic integration testing platform")]
+#[command(version, long_about = None)]
+#[command(styles = clap::builder::styling::Styles::styled()
+    .header(clap::builder::styling::AnsiColor::Green.on_default().bold())
+    .usage(clap::builder::styling::AnsiColor::Blue.on_default().bold())
+    .literal(clap::builder::styling::AnsiColor::Cyan.on_default().bold())
+    .placeholder(clap::builder::styling::AnsiColor::Yellow.on_default()))]
+pub struct Cli {
+    /// Increase verbosity (can be used multiple times: -v, -vv, -vvv)
+    #[arg(short, long, action = ArgAction::Count)]
+    pub verbose: u8,
+
+    /// Configuration file
+    #[arg(short, long, value_name = "FILE")]
+    pub config: Option<PathBuf>,
+
+    /// Output format
+    #[arg(short, long, default_value = "auto")]
+    pub format: OutputFormat,
+
+    #[command(subcommand)]
+    pub command: Commands,
+}
+
+#[derive(Subcommand)]
+pub enum Commands {
+    /// Run tests
+    Run {
+        /// Test files or directories to run (default: discover all test files)
+        paths: Option<Vec<PathBuf>>,
+
+        /// Run tests in parallel
+        #[arg(short, long)]
+        parallel: bool,
+
+        /// Maximum number of parallel workers
+        #[arg(short = 'j', long, default_value = "4")]
+        jobs: usize,
+
+        /// Fail fast (stop on first failure)
+        #[arg(short, long)]
+        fail_fast: bool,
+
+        /// Watch mode (rerun on file changes)
+        #[arg(short, long)]
+        watch: bool,
+
+        /// Force run all tests (bypass cache)
+        #[arg(long)]
+        force: bool,
+
+        /// Shard tests for parallel execution (format: i/m where i is 1-based index, m is total shards)
+        #[arg(long, value_parser = parse_shard)]
+        shard: Option<(usize, usize)>,
+
+        /// Generate SHA-256 digest for reproducibility
+        #[arg(long)]
+        digest: bool,
+
+        /// Generate JUnit XML report to file
+        #[arg(long, value_name = "FILE")]
+        report_junit: Option<PathBuf>,
+
+        /// Validate telemetry with Weaver live-check (requires Weaver installed)
+        #[arg(long)]
+        validate: bool,
+
+        /// OTEL exporter type (none, stdout, otlp-http, otlp-grpc)
+        #[arg(long, default_value = "none")]
+        otel_exporter: String,
+
+        /// OTEL endpoint (for otlp-http/otlp-grpc)
+        #[arg(long)]
+        otel_endpoint: Option<String>,
+
+        /// Enable Weaver live-check validation (alias for --validate)
+        #[arg(long)]
+        live_check: bool,
+
+        /// Validation mode: strict, lenient, 80_20, minimal
+        #[arg(long, value_name = "MODE")]
+        validation_mode: Option<String>,
+
+        /// Path to Weaver registry (overrides TOML and default resolution)
+        #[arg(long, value_name = "PATH")]
+        registry_path: Option<PathBuf>,
+
+        /// OTLP port for Weaver (0 = auto-discover)
+        #[arg(long, value_name = "PORT", default_value = "0")]
+        otlp_port: u16,
+
+        /// Admin port for Weaver (0 = auto-discover)
+        #[arg(long, value_name = "PORT", default_value = "0")]
+        admin_port: u16,
+
+        /// Diagnostic output format: ansi, json, github
+        #[arg(long, value_name = "FORMAT", default_value = "ansi")]
+        diagnostic_format: String,
+
+        /// Stop condition timeout (seconds)
+        #[arg(long, value_name = "SECONDS", default_value = "300")]
+        stop_timeout: u64,
+    },
+
+    /// Initialize a new test project
+    Init {
+        /// Force reinitialize if already initialized
+        #[arg(long)]
+        force: bool,
+
+        /// Generate cleanroom.toml configuration file
+        #[arg(long)]
+        config: bool,
+    },
+
+    /// Generate project from template
+    Template {
+        /// Template name (default, advanced, minimal, database, api, otel)
+        #[arg(value_name = "TEMPLATE")]
+        template: String,
+
+        /// Project name
+        #[arg(value_name = "NAME")]
+        name: Option<String>,
+
+        /// Output file path (for template templates like 'otel')
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+    },
+
+    /// Validate test configuration
+    Validate {
+        /// Files to validate
+        #[arg(required = true)]
+        files: Vec<PathBuf>,
+    },
+
+    /// List available plugins
+    Plugins,
+
+    /// Show service status
+    Services {
+        #[command(subcommand)]
+        command: ServiceCommands,
+    },
+
+    /// Generate test reports
+    Report {
+        /// Input test results
+        #[arg(short, long)]
+        input: Option<PathBuf>,
+
+        /// Output file
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+
+        /// Report format
+        #[arg(short, long, default_value = "html")]
+        format: ReportFormat,
+    },
+
+    /// Run framework self-tests with optional OTEL export
+    SelfTest {
+        /// Run specific test suite (framework, container, plugin, cli, otel)
+        #[arg(short, long)]
+        suite: Option<String>,
+
+        /// Generate detailed report
+        #[arg(short, long)]
+        report: bool,
+
+        /// OTEL exporter type (none, stdout, otlp-http, otlp-grpc)
+        #[arg(long, default_value = "none")]
+        otel_exporter: String,
+
+        /// OTEL endpoint (for otlp-http/otlp-grpc)
+        #[arg(long)]
+        otel_endpoint: Option<String>,
+    },
+
+    /// AI-powered test orchestration [EXPERIMENTAL - requires 'ai' feature]
+    #[cfg(feature = "ai")]
+    #[command(about = "AI-powered test orchestration [EXPERIMENTAL]")]
+    AiOrchestrate {
+        /// Test files or directories to orchestrate
+        paths: Option<Vec<PathBuf>>,
+
+        /// Enable predictive failure analysis
+        #[arg(long)]
+        predict_failures: bool,
+
+        /// Enable autonomous optimization
+        #[arg(long)]
+        auto_optimize: bool,
+
+        /// AI confidence threshold (0.0-1.0)
+        #[arg(long, default_value = "0.8")]
+        confidence_threshold: f64,
+
+        /// Maximum parallel workers (AI-optimized)
+        #[arg(short = 'j', long, default_value = "8")]
+        max_workers: usize,
+    },
+
+    /// AI-powered predictive analytics [EXPERIMENTAL - requires 'ai' feature]
+    #[cfg(feature = "ai")]
+    #[command(about = "AI-powered predictive analytics [EXPERIMENTAL]")]
+    AiPredict {
+        /// Analyze test execution history
+        #[arg(long)]
+        analyze_history: bool,
+
+        /// Predict failure patterns
+        #[arg(long)]
+        predict_failures: bool,
+
+        /// Generate optimization recommendations
+        #[arg(long)]
+        recommendations: bool,
+
+        /// Output format for predictions
+        #[arg(short, long, default_value = "human")]
+        format: PredictionFormat,
+    },
+
+    /// AI-powered optimization [EXPERIMENTAL - requires 'ai' feature]
+    #[cfg(feature = "ai")]
+    #[command(about = "AI-powered optimization [EXPERIMENTAL]")]
+    AiOptimize {
+        /// Optimize test execution order
+        #[arg(long)]
+        execution_order: bool,
+
+        /// Optimize resource allocation
+        #[arg(long)]
+        resource_allocation: bool,
+
+        /// Optimize parallel execution
+        #[arg(long)]
+        parallel_execution: bool,
+
+        /// Apply optimizations automatically
+        #[arg(long)]
+        auto_apply: bool,
+    },
+
+    /// Real AI intelligence using SurrealDB and Ollama [EXPERIMENTAL - requires 'ai' feature]
+    #[cfg(feature = "ai")]
+    #[command(about = "Real AI intelligence with SurrealDB and Ollama [EXPERIMENTAL]")]
+    AiReal {
+        /// Run real AI analysis with actual data and AI processing
+        #[arg(long)]
+        analyze: bool,
+    },
+
+    /// AI-powered autonomous monitoring system [EXPERIMENTAL - requires 'ai' feature]
+    #[cfg(feature = "ai")]
+    #[command(about = "AI-powered autonomous monitoring [EXPERIMENTAL]")]
+    AiMonitor {
+        /// Monitoring interval in seconds
+        #[arg(long, default_value = "30")]
+        interval: u64,
+
+        /// Anomaly detection threshold (0.0-1.0)
+        #[arg(long, default_value = "0.7")]
+        anomaly_threshold: f64,
+
+        /// Enable AI-powered alerting
+        #[arg(long)]
+        ai_alerts: bool,
+
+        /// Enable proactive anomaly detection
+        #[arg(long)]
+        anomaly_detection: bool,
+
+        /// Enable automatic self-healing
+        #[arg(long)]
+        proactive_healing: bool,
+
+        /// Webhook URL for notifications
+        #[arg(long)]
+        webhook_url: Option<String>,
+    },
+
+    /// System health check
+    Health {
+        /// Show verbose health information
+        #[arg(short, long)]
+        verbose: bool,
+    },
+
+    /// Development mode with file watching
+    Dev {
+        /// Test files or directories to watch
+        paths: Option<Vec<PathBuf>>,
+
+        /// Watch debounce delay in milliseconds
+        #[arg(long, default_value = "300")]
+        debounce_ms: u64,
+
+        /// Clear screen on each run
+        #[arg(long)]
+        clear: bool,
+
+        /// Filter scenarios by pattern (substring match on file path)
+        #[arg(long)]
+        only: Option<String>,
+
+        /// Maximum execution time per scenario in milliseconds
+        #[arg(long)]
+        timebox: Option<u64>,
+    },
+
+    /// Dry-run validation without execution
+    DryRun {
+        /// Files to validate
+        #[arg(required = true)]
+        files: Vec<PathBuf>,
+
+        /// Show detailed validation output
+        #[arg(short, long)]
+        verbose: bool,
+    },
+
+    /// Format Tera templates
+    Fmt {
+        /// Files to format
+        files: Vec<PathBuf>,
+
+        /// Check formatting without modifying files
+        #[arg(long)]
+        check: bool,
+
+        /// Verify idempotency after formatting
+        #[arg(long)]
+        verify: bool,
+    },
+
+    /// Lint TOML test configurations
+    Lint {
+        /// Files to lint
+        #[arg(required = true)]
+        files: Vec<PathBuf>,
+
+        /// Output format for diagnostics
+        #[arg(short, long, default_value = "human")]
+        format: LintFormat,
+
+        /// Fail on warnings
+        #[arg(long)]
+        deny_warnings: bool,
+    },
+
+    /// Diff OpenTelemetry traces
+    Diff {
+        /// First trace file or test run
+        baseline: PathBuf,
+
+        /// Second trace file or test run to compare
+        current: PathBuf,
+
+        /// Output format
+        #[arg(short, long, default_value = "tree")]
+        format: DiffFormat,
+
+        /// Show only differences
+        #[arg(long)]
+        only_changes: bool,
+    },
+
+    /// Record baseline for test runs
+    Record {
+        /// Test files or directories to record (default: discover all)
+        paths: Option<Vec<PathBuf>>,
+
+        /// Output path for baseline
+        #[arg(short, long, default_value = ".clnrm/baseline.json")]
+        output: Option<PathBuf>,
+    },
+
+    /// Pre-pull Docker images from test configurations
+    Pull {
+        /// Test files to scan for images (default: all test files)
+        paths: Option<Vec<PathBuf>>,
+
+        /// Pull in parallel
+        #[arg(short, long)]
+        parallel: bool,
+
+        /// Maximum parallel pulls
+        #[arg(short = 'j', long, default_value = "4")]
+        jobs: usize,
+    },
+
+    /// Visualize OpenTelemetry trace graph
+    Graph {
+        /// Trace file or test run to visualize
+        trace: PathBuf,
+
+        /// Output format
+        #[arg(short, long, default_value = "ascii")]
+        format: GraphFormat,
+
+        /// Highlight missing edges
+        #[arg(long)]
+        highlight_missing: bool,
+
+        /// Show only specific span names (filter)
+        #[arg(long)]
+        filter: Option<String>,
+    },
+
+    /// Reproduce a previous test run from baseline
+    Repro {
+        /// Baseline file to reproduce
+        baseline: PathBuf,
+
+        /// Verify digest matches
+        #[arg(long)]
+        verify_digest: bool,
+
+        /// Output file for reproduction results
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+    },
+
+    /// Run red/green TDD workflow validation
+    RedGreen {
+        /// Test files to validate
+        paths: Vec<PathBuf>,
+
+        /// Expected TDD state: red (should fail) or green (should pass)
+        #[arg(long, value_name = "STATE")]
+        expect: Option<TddState>,
+
+        /// Verify that tests fail first (red) - deprecated, use --expect red
+        #[arg(long, conflicts_with = "expect")]
+        verify_red: bool,
+
+        /// Verify that tests pass after fix (green) - deprecated, use --expect green
+        #[arg(long, conflicts_with = "expect")]
+        verify_green: bool,
+    },
+
+    /// Render Tera templates with variable mapping
+    Render {
+        /// Template file to render
+        template: PathBuf,
+
+        /// Variable mappings in key=value format
+        #[arg(short, long)]
+        map: Vec<String>,
+
+        /// Output file (default: stdout)
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+
+        /// Show resolved variables
+        #[arg(long)]
+        show_vars: bool,
+    },
+
+    /// Search and filter OpenTelemetry spans
+    Spans {
+        /// Trace file or test run
+        trace: PathBuf,
+
+        /// Grep pattern to filter spans
+        #[arg(long)]
+        grep: Option<String>,
+
+        /// Output format
+        #[arg(short, long, default_value = "human")]
+        format: OutputFormat,
+
+        /// Show span attributes
+        #[arg(long)]
+        show_attrs: bool,
+
+        /// Show span events
+        #[arg(long)]
+        show_events: bool,
+    },
+
+    /// Manage local OTEL collector
+    Collector {
+        #[command(subcommand)]
+        command: CollectorCommands,
+    },
+
+    /// Analyze OTEL traces against test expectations
+    ///
+    /// REQUIRES SETUP: OpenTelemetry Collector must be installed and running.
+    /// See docs/OPENTELEMETRY_INTEGRATION_GUIDE.md for complete setup instructions.
+    ///
+    /// Quick setup:
+    ///   1. Install OTEL Collector: brew install opentelemetry-collector
+    ///   2. Configure collector to export to /tmp/clnrm-spans.json
+    ///   3. Start collector: otelcol --config otel-collector-config.yaml
+    ///   4. Run tests: clnrm run --features otel tests/
+    ///   5. Analyze: clnrm analyze tests/my-test.clnrm.toml
+    Analyze {
+        /// Test configuration file with expectations
+        #[arg(value_name = "TEST_FILE")]
+        test_file: PathBuf,
+
+        /// OTEL traces JSON file (optional, will auto-load from artifacts if not provided)
+        #[arg(long, value_name = "TRACES")]
+        traces: Option<PathBuf>,
+    },
+
+    /// Manage Weaver live-check configuration and validation
+    LiveCheck {
+        #[command(subcommand)]
+        command: LiveCheckCommands,
+    },
+}
+
+#[derive(Subcommand)]
+pub enum CollectorCommands {
+    /// Start local OTEL collector
+    Up {
+        /// Collector image to use
+        #[arg(long, default_value = "otel/opentelemetry-collector:latest")]
+        image: String,
+
+        /// HTTP endpoint port
+        #[arg(long, default_value = "4318")]
+        http_port: u16,
+
+        /// gRPC endpoint port
+        #[arg(long, default_value = "4317")]
+        grpc_port: u16,
+
+        /// Detach (run in background)
+        #[arg(short, long)]
+        detach: bool,
+    },
+
+    /// Stop local OTEL collector
+    Down {
+        /// Remove volumes
+        #[arg(short, long)]
+        volumes: bool,
+    },
+
+    /// Show collector status
+    Status,
+
+    /// Show collector logs
+    Logs {
+        /// Number of lines to show
+        #[arg(short = 'n', long, default_value = "50")]
+        lines: usize,
+
+        /// Follow logs
+        #[arg(short, long)]
+        follow: bool,
+    },
+}
+
+#[derive(Subcommand)]
+pub enum ServiceCommands {
+    /// Show status of all services
+    Status,
+
+    /// Show logs for a service
+    Logs {
+        /// Service name
+        service: String,
+
+        /// Number of lines to show
+        #[arg(short, long, default_value = "50")]
+        lines: usize,
+    },
+
+    /// Restart a service
+    Restart {
+        /// Service name
+        service: String,
+    },
+
+    /// AI-driven service lifecycle management [EXPERIMENTAL - requires 'ai' feature]
+    #[cfg(feature = "ai")]
+    #[command(about = "AI-driven service lifecycle management [EXPERIMENTAL]")]
+    AiManage {
+        /// Enable auto-scaling based on load prediction
+        #[arg(long)]
+        auto_scale: bool,
+
+        /// Enable load prediction
+        #[arg(long)]
+        predict_load: bool,
+
+        /// Enable resource optimization
+        #[arg(long)]
+        optimize_resources: bool,
+
+        /// Prediction horizon in minutes
+        #[arg(long, default_value = "5")]
+        horizon_minutes: u32,
+
+        /// Filter services by name
+        #[arg(short, long)]
+        service: Option<String>,
+    },
+}
+
+#[derive(Subcommand)]
+pub enum LiveCheckCommands {
+    /// Show current live-check configuration
+    Status,
+
+    /// Validate registry schemas
+    ValidateRegistry {
+        /// Path to Weaver registry
+        #[arg(long, value_name = "PATH")]
+        registry: PathBuf,
+    },
+
+    /// Test Weaver installation and configuration
+    TestWeaver,
+
+    /// Show available validation modes
+    Modes,
+
+    /// Show Weaver version and capabilities
+    Version,
+}
+
+#[derive(Clone, Debug, ValueEnum)]
+pub enum OutputFormat {
+    /// Auto-detect based on context
+    Auto,
+    /// Human-readable output
+    Human,
+    /// JSON format
+    Json,
+    /// JUnit XML for CI
+    Junit,
+    /// TAP format
+    Tap,
+}
+
+#[derive(Clone, Debug, ValueEnum)]
+pub enum ReportFormat {
+    /// HTML report
+    Html,
+    /// Markdown report
+    Markdown,
+    /// JSON report
+    Json,
+    /// PDF report
+    Pdf,
+}
+
+#[derive(Clone, Debug, ValueEnum)]
+pub enum PredictionFormat {
+    /// Human-readable predictions
+    Human,
+    /// JSON format for programmatic use
+    Json,
+    /// Markdown format for documentation
+    Markdown,
+    /// CSV format for analysis
+    Csv,
+}
+
+#[derive(Clone, Debug, ValueEnum)]
+pub enum LintFormat {
+    /// Human-readable diagnostics
+    Human,
+    /// JSON format for IDE integration
+    Json,
+    /// GitHub Actions annotations
+    Github,
+}
+
+#[derive(Clone, Debug, ValueEnum)]
+pub enum DiffFormat {
+    /// ASCII tree visualization
+    Tree,
+    /// JSON structured diff
+    Json,
+    /// Side-by-side comparison
+    SideBySide,
+}
+
+#[derive(Clone, Debug, ValueEnum)]
+pub enum GraphFormat {
+    /// ASCII tree visualization
+    Ascii,
+    /// DOT format for Graphviz
+    Dot,
+    /// JSON graph structure
+    Json,
+    /// Mermaid diagram format
+    Mermaid,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, ValueEnum)]
+pub enum TddState {
+    /// Red state - tests should fail (feature not implemented)
+    Red,
+    /// Green state - tests should pass (feature implemented)
+    Green,
+}
+
+/// CLI configuration
+#[derive(Debug, Clone)]
+pub struct CliConfig {
+    /// Parallel execution enabled
+    pub parallel: bool,
+    /// Number of parallel jobs
+    pub jobs: usize,
+    /// Output format
+    pub format: OutputFormat,
+    /// Fail fast mode
+    pub fail_fast: bool,
+    /// Watch mode
+    pub watch: bool,
+    /// Verbosity level
+    pub verbose: u8,
+    /// Force bypass cache
+    pub force: bool,
+    /// Generate SHA-256 digest for reproducibility
+    pub digest: bool,
+    /// Validate telemetry with Weaver
+    pub validate: bool,
+}
+
+impl Default for CliConfig {
+    fn default() -> Self {
+        Self {
+            parallel: false,
+            jobs: 4,
+            format: OutputFormat::Auto,
+            fail_fast: false,
+            watch: false,
+            verbose: 0,
+            force: false,
+            digest: false,
+            validate: false,
+        }
+    }
+}
+
+/// CLI test results for reporting
+#[derive(Debug, Clone)]
+pub struct CliTestResults {
+    pub tests: Vec<CliTestResult>,
+    pub total_duration_ms: u64,
+}
+
+/// Individual CLI test result
+#[derive(Debug, Clone)]
+pub struct CliTestResult {
+    pub name: String,
+    pub passed: bool,
+    pub duration_ms: u64,
+    pub error: Option<String>,
+}
+
+/// TOML test configuration structure - matches the existing config module
+#[derive(Debug, Deserialize)]
+pub struct TestConfig {
+    #[serde(rename = "test")]
+    pub test: TestMetadataSection,
+    #[serde(default)]
+    pub services: Option<HashMap<String, ServiceConfig>>,
+    #[serde(default)]
+    pub steps: Vec<TestStep>,
+    #[serde(default)]
+    pub assertions: Option<HashMap<String, toml::Value>>,
+}
+
+/// Test metadata section from TOML
+#[derive(Debug, Deserialize)]
+pub struct TestMetadataSection {
+    pub metadata: TestMetadata,
+}
+
+/// Test metadata from TOML
+#[derive(Debug, Deserialize)]
+pub struct TestMetadata {
+    pub name: String,
+    pub description: Option<String>,
+}
+
+/// Service configuration from TOML - matches the existing config module
+#[derive(Debug, Deserialize)]
+pub struct ServiceConfig {
+    #[serde(default = "default_service_plugin")]
+    pub plugin: String,
+    pub image: String,
+}
+
+/// Default plugin value for CLI service config
+fn default_service_plugin() -> String {
+    "generic_container".to_string()
+}
+
+/// Test step from TOML
+#[derive(Debug, Deserialize)]
+pub struct TestStep {
+    pub name: String,
+    pub command: Vec<String>,
+    pub expected_output_regex: Option<String>,
+    #[serde(default)]
+    pub service: Option<String>,
+}
+
+/// File extension constants
+pub const TOML_FILE_EXTENSION: &str = ".toml";
+pub const CLNRM_TOML_EXTENSION: &str = ".clnrm.toml";
+pub const ACCEPTED_EXTENSIONS: &[&str] = &[".toml", ".clnrm.toml"];
+
+/// Parse shard argument in format "i/m" where i is 1-based index and m is total shards
+///
+/// # Arguments
+///
+/// * `s` - String in format "i/m" (e.g., "1/4" for first shard of 4 total)
+///
+/// # Returns
+///
+/// * `Ok((i, m))` - Tuple of (shard_index, total_shards) where i is 1-based
+/// * `Err(String)` - Error message if format is invalid
+///
+/// # Examples
+///
+/// ```
+/// # use clnrm_core::cli::types::parse_shard;
+/// assert_eq!(parse_shard("1/4").unwrap(), (1, 4));
+/// assert_eq!(parse_shard("3/8").unwrap(), (3, 8));
+/// assert!(parse_shard("0/4").is_err()); // i must be >= 1
+/// assert!(parse_shard("5/4").is_err()); // i must be <= m
+/// ```
+pub fn parse_shard(s: &str) -> Result<(usize, usize), String> {
+    let parts: Vec<&str> = s.split('/').collect();
+    if parts.len() != 2 {
+        return Err(format!(
+            "Invalid shard format '{}'. Expected format: i/m (e.g., 1/4)",
+            s
+        ));
+    }
+
+    let i = parts[0]
+        .parse::<usize>()
+        .map_err(|e| format!("Invalid shard index '{}': {}", parts[0], e))?;
+
+    let m = parts[1]
+        .parse::<usize>()
+        .map_err(|e| format!("Invalid total shards '{}': {}", parts[1], e))?;
+
+    if m == 0 {
+        return Err("Total shards (m) must be greater than 0".to_string());
+    }
+
+    if i == 0 {
+        return Err("Shard index (i) must be 1-based (minimum value: 1)".to_string());
+    }
+
+    if i > m {
+        return Err(format!(
+            "Shard index ({}) cannot exceed total shards ({})",
+            i, m
+        ));
+    }
+
+    Ok((i, m))
+}

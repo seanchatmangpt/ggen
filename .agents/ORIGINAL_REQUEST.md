@@ -236,3 +236,50 @@ Bump the workspace version to `26.7.1` in all `Cargo.toml` files, ensure `Cargo.
 - [ ] `CHANGELOG.md` includes a new section for `[26.7.1]` documenting the fixes.
 - [ ] The `claude/nice-dijkstra-1543ko` branch is clean, fully committed, and ready to be merged into `main`.
 
+## Follow-up — 2026-07-01T11:43:45-07:00
+
+Finalize the ggen v26.7.1 release cycle by updating version manifests, documenting changes in the changelog, running pre-merge validation, merging the working branch to main, pushing changes/tags to remote origin, and validating package integrity using dry-run publishing checks.
+
+Working directory: /Users/sac/ggen
+Integrity mode: development
+
+## Requirements
+
+### R1. Workspace Version Bump and Lockfile Update
+Ensure all workspace `Cargo.toml` files are set to version `26.7.1` and run a compilation/check command to ensure `Cargo.lock` is cleanly updated.
+
+### R2. Changelog and Release Notes
+Audit the branch history and draft a new release section in `CHANGELOG.md` under `[26.7.1]` summarizing all bug fixes, standard ontology inclusions, and command enhancements.
+
+### R3. Final Pre-Merge Validation and Quality Gate
+Run a comprehensive suite of checks (including `cargo test`, `cargo clippy`, and formatting) to ensure no regressions exist and the code conforms to the project's quality standard.
+
+### R4. Git Merge, Tagging, and Remote Push
+Merge the current working branch `claude/nice-dijkstra-1543ko` into `main`, create a local git release tag named `v26.7.1`, and push both `main` and the tag to the remote `origin` repository.
+
+### R5. Packaging Audit
+Audit the package configurations and verify that the crates compile and package cleanly for distribution by running dry-run publish checks (`cargo publish --dry-run`) across all workspace member crates.
+
+## Acceptance Criteria
+
+### Version Alignment
+- [ ] Every crate's `Cargo.toml` has `version = "26.7.1"` (or inherits from workspace version).
+- [ ] `Cargo.lock` is updated and in sync.
+
+### Documentation
+- [ ] `CHANGELOG.md` is updated with a `[26.7.1]` header and release notes.
+
+### Quality and Build
+- [ ] `cargo check --all-targets` exits with code 0.
+- [ ] `cargo test --all-targets` runs and passes successfully.
+- [ ] `cargo clippy --all-targets --all-features -- -D warnings` exits with code 0.
+
+### Git State
+- [ ] Branch `claude/nice-dijkstra-1543ko` is successfully merged into `main`.
+- [ ] Git tag `v26.7.1` exists on the local repository.
+- [ ] Branch `main` and tag `v26.7.1` are successfully pushed to `origin`.
+
+### Packaging
+- [ ] `cargo publish --dry-run` completes successfully for all workspace crates.
+
+

@@ -418,12 +418,13 @@ async fn test_stress_readme_validator_scenarios() {
     ];
 
     for variant in readme_variants {
-        // Clean and recreate dir
-        let _ = std::fs::remove_dir_all(&pkg_dir);
         std::fs::create_dir_all(&pkg_dir).unwrap();
-
         std::fs::write(pkg_dir.join(variant), "content").unwrap();
         let check = validator.validate(&package).await.unwrap();
+
+        // Clean up immediately after validate
+        let _ = std::fs::remove_dir_all(&pkg_dir);
+
         assert!(
             check.passed,
             "Validation must pass with readme variant: {}",

@@ -97,10 +97,10 @@ fn triad_holds_under_concurrent_pressure() {
         lines.len(),
         "no events lost/merged under contention"
     );
-    // Each capture writes the full E0011 chain (5 events).
+    // Each capture writes two 5-event chains for the 2 diagnostics raised by E0011 (total 10 events).
     assert_eq!(
         log.events.len(),
-        CAPTURES * 5,
+        CAPTURES * 10,
         "every capture's chain landed intact"
     );
 

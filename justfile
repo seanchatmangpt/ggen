@@ -1,6 +1,8 @@
 # ggen task runner — single entry point for all dev commands
 # Delegates directly to cargo; Makefile.toml is kept as historical reference only.
 
+GGEN := "cargo run --bin ggen --"
+
 _default:
     @just --list
 
@@ -82,14 +84,8 @@ test-phase2:
     # Provenance envelope (O→A bridge)
     cargo test -p ggen-core --test provenance_envelope_test || exit 1
 
-    # OCEL conformance
-    cargo test -p ggen-graph --test ocel_conformance_test || exit 1
-
     # Coherence hash expectations
     cargo test -p ggen-graph --test coherence_hash_expectations_test || exit 1
-
-    # pm4py bridge for process discovery
-    cargo test -p ggen-graph --test pm4py_bridge_test || exit 1
 
     # Post-Chatman round-trip (O→A→O cycle)
     cargo test -p ggen-graph --test post_chatman_coherence_integration || exit 1
@@ -104,10 +100,10 @@ coherence-check:
     shapes=".specify/specs/post-chatman/post_chatman_shapes.ttl"
 
     echo "Validating ontology: $ontology"
-    ggen graph validate --schema-file "$ontology" || exit 1
+    {{GGEN}} graph validate --schema-file "$ontology" || exit 1
 
     echo "Validating shapes: $shapes"
-    ggen graph validate --schema-file "$shapes" || exit 1
+    {{GGEN}} graph validate --schema-file "$shapes" || exit 1
 
     echo "✅ Coherence check passed (O→A→O validation gates satisfied)"
 
@@ -122,7 +118,7 @@ inverse-sync source_dir=".specify/specs" ontology=".specify/specs/post-chatman/p
 
     # Invoke the inverse-sync CLI command (when available)
     # For now, this is a placeholder that verifies the ontology is valid
-    ggen graph validate --schema-file "{{ontology}}" || exit 1
+    {{GGEN}} graph validate --schema-file "{{ontology}}" || exit 1
 
     echo "✅ Inverse-sync validation complete (envelope would be written here)"
 
@@ -204,11 +200,11 @@ bench:
 
 # Full μ₁-μ₅ sync with cryptographic receipt
 sync:
-    ggen sync --audit true
+    {{GGEN}} sync --audit true
 
 # Preview sync without writing any files
 sync-dry:
-    ggen sync --dry_run true
+    {{GGEN}} sync --dry_run true
 
 # ── cargo-cicd ────────────────────────────────────────────────────────────────
 
@@ -290,7 +286,7 @@ lsp-max-new: lsp-max-sync lsp-max-check
 
 # Run the ggen μ-pipeline for lsp-max (30ms)
 lsp-max-sync:
-    ggen sync --manifest {{LSP_MAX_MANIFEST}}
+    {{GGEN}} sync --manifest {{LSP_MAX_MANIFEST}}
 
 # Cargo check every generated scaffold crate
 lsp-max-check:

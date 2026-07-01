@@ -2729,3 +2729,87 @@ Create exhaustive Tera templates that render the projected facts into valid Rust
 - [ ] **End-to-End Test (if GGEN runner or mock is available):** Given a complete TTL graph describing a workspace and crate, the templates render a Rust codebase that passes `cargo fmt --check`, `cargo check --workspace --all-targets`, and `cargo test --workspace`.
 - [ ] No manual registry drift: templates generate registries entirely from ontology facts.
 - [ ] Every generated file specifies a receipt identifying the source entity, template, query, output path, hash, and verification command.
+
+## Follow-up — 2026-07-01T11:03:05-07:00
+
+Conduct deep research to identify the most widely used public ontologies (the "80/20") for semantic web and domain modeling. Retrieve missing public ontologies (e.g. FOAF, Dublin Core Elements, etc.) online, unify them with the existing schemas in the `ontologies/` folder (such as DCAT, DCTerms, SKOS, PROV-O, SHACL), connect them inside `ggen-core`'s bundled standards, and verify their exposure through the `ontology namespaces` CLI command.
+
+Working directory: /Users/sac/ggen
+Integrity mode: development
+
+## Requirements
+
+### R1. Ontology Collection and Unification
+Identify and collect candidate public ontologies (the "80/20" of the Semantic Web). This includes:
+- Utilizing the high-priority core ontologies already present in `ontologies/core/` (e.g., DCAT, DCTerms, SKOS, PROV-O, SHACL).
+- Researching and downloading other standard namespaces (like FOAF, Dublin Core Metadata Element Set) in Turtle (`.ttl`) format.
+- Storing all production ontology files under the root `ontologies/` folder structure (no files in `.specify/` or temp folders).
+
+### R2. Compile-Time Bundling
+Integrate these new ontologies into `crates/ggen-core/src/domain/ontology/standards.rs` behind the `bundled-standards` feature flag. Use Rust's `include_str!` macro to link them to their paths in the root `ontologies/` folder.
+
+### R3. Loader and CLI Resolution
+Ensure that the embedded ontologies are successfully loaded into the in-memory Oxigraph graph when resolving namespaces. Update the `ggen ontology namespaces` command so it reads all registered public ontologies and prints their prefixes, URIs, and source. Ensure that the deduplication logic handles the increased list properly.
+
+## Acceptance Criteria
+
+### Research & Assets
+- [ ] High-priority ontologies from `ontologies/core/` (DCAT, DCTerms, SKOS, PROV-O, SHACL) are integrated.
+- [ ] At least 2 new standard public ontologies (e.g. FOAF, Dublin Core Element Set) are downloaded online and placed into the unified production `ontologies/` folder.
+- [ ] No `.ttl` files are written to `.specify/` or other non-production directories.
+
+### Compiler & Integration
+- [ ] `cargo check --all-targets` exits with code 0.
+- [ ] `cargo test` passes cleanly.
+
+### CLI Execution
+- [ ] Running `cargo run -p ggen-cli-lib -- ontology namespaces` outputs a valid JSON list containing all newly added namespaces with their prefix, URI, and source "bundled-standard".
+- [ ] No duplicate URI entries appear in the JSON output.
+
+## Follow-up — 2026-07-01T11:43:45-07:00
+
+Finalize the ggen v26.7.1 release cycle by updating version manifests, documenting changes in the changelog, running pre-merge validation, merging the working branch to main, pushing changes/tags to remote origin, and validating package integrity using dry-run publishing checks.
+
+Working directory: /Users/sac/ggen
+Integrity mode: development
+
+## Requirements
+
+### R1. Workspace Version Bump and Lockfile Update
+Ensure all workspace `Cargo.toml` files are set to version `26.7.1` and run a compilation/check command to ensure `Cargo.lock` is cleanly updated.
+
+### R2. Changelog and Release Notes
+Audit the branch history and draft a new release section in `CHANGELOG.md` under `[26.7.1]` summarizing all bug fixes, standard ontology inclusions, and command enhancements.
+
+### R3. Final Pre-Merge Validation and Quality Gate
+Run a comprehensive suite of checks (including `cargo test`, `cargo clippy`, and formatting) to ensure no regressions exist and the code conforms to the project's quality standard.
+
+### R4. Git Merge, Tagging, and Remote Push
+Merge the current working branch `claude/nice-dijkstra-1543ko` into `main`, create a local git release tag named `v26.7.1`, and push both `main` and the tag to the remote `origin` repository.
+
+### R5. Packaging Audit
+Audit the package configurations and verify that the crates compile and package cleanly for distribution by running dry-run publish checks (`cargo publish --dry-run`) across all workspace member crates.
+
+## Acceptance Criteria
+
+### Version Alignment
+- [ ] Every crate's `Cargo.toml` has `version = "26.7.1"` (or inherits from workspace version).
+- [ ] `Cargo.lock` is updated and in sync.
+
+### Documentation
+- [ ] `CHANGELOG.md` is updated with a `[26.7.1]` header and release notes.
+
+### Quality and Build
+- [ ] `cargo check --all-targets` exits with code 0.
+- [ ] `cargo test --all-targets` runs and passes successfully.
+- [ ] `cargo clippy --all-targets --all-features -- -D warnings` exits with code 0.
+
+### Git State
+- [ ] Branch `claude/nice-dijkstra-1543ko` is successfully merged into `main`.
+- [ ] Git tag `v26.7.1` exists on the local repository.
+- [ ] Branch `main` and tag `v26.7.1` are successfully pushed to `origin`.
+
+### Packaging
+- [ ] `cargo publish --dry-run` completes successfully for all workspace crates.
+
+

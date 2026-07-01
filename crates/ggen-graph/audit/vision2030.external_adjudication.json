@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-07-01T06:25:03Z",
-  "verdict": "Refused",
-  "reason": "Adjudication refused because script scripts/gall/external/03_check_feature_flags.sh failed with exit code 1.",
+  "timestamp": "2026-07-01T10:55:08Z",
+  "verdict": "Promoted",
+  "reason": "All 13 validation scripts passed successfully and zero contradictions were detected.",
   "scripts_verified": [
     {
       "path": "scripts/gall/external/00_capture_baseline.sh",
@@ -27,8 +27,71 @@
     {
       "path": "scripts/gall/external/03_check_feature_flags.sh",
       "sha256": "d24688011931502f71178beb69307351e9dfe16cf165e878d1d40b7d20da81ce",
-      "exit_code": 1,
-      "status": "FAIL",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_seconds": 0
+    },
+    {
+      "path": "scripts/gall/external/04_run_unit_tests.sh",
+      "sha256": "a28a607050573bc99f3725efb89085a081990a6a1a158ec828fbb8f4003e8d2f",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_seconds": 0
+    },
+    {
+      "path": "scripts/gall/external/05_run_integration_tests.sh",
+      "sha256": "bb3e7b64ef6828f9d77e7f776d6ce8ecc75dd750d076539fd4457eaaeed62c81",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_seconds": 10
+    },
+    {
+      "path": "scripts/gall/external/06_scan_forbidden_surfaces.sh",
+      "sha256": "8f1c4a03aff8d738a938235131a832fb802d81e2e97153e830ddc6631309a4b4",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_seconds": 0
+    },
+    {
+      "path": "scripts/gall/external/07_check_anti_fake.sh",
+      "sha256": "0003166e1ac12c1b74579d5a34c76b24a1133a9f052c3fc0043487d39f614ad6",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_seconds": 0
+    },
+    {
+      "path": "scripts/gall/external/08_verify_replay_receipts.sh",
+      "sha256": "3610e2d1e8b0b0acb5f990b54b8656cc1353d884ac835db51b7792a2d3c58dec",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_seconds": 1
+    },
+    {
+      "path": "scripts/gall/external/09_verify_ocel_self_audit.sh",
+      "sha256": "968d29b714058342691943be57aae0a721620a6137af8e92c446a7d14230d0ce",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_seconds": 2
+    },
+    {
+      "path": "scripts/gall/external/10_verify_coverage_matrix.sh",
+      "sha256": "4f365df1f19a5af44e1a244ec308d8d4926b934dc9b21e5dc17f66ae894ed589",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_seconds": 0
+    },
+    {
+      "path": "scripts/gall/external/11_verify_proof_report.sh",
+      "sha256": "4812d1a0ffffc91848fe683927ef470b646769e43f277636a2e10f8e53929317",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_seconds": 0
+    },
+    {
+      "path": "scripts/gall/external/12_detect_contradictions.sh",
+      "sha256": "00136f7fef1463e7631a691fb095f34003a8c507ff2c526a452a731e5d395edb",
+      "exit_code": 0,
+      "status": "PASS",
       "duration_seconds": 0
     }
   ],
@@ -53,11 +116,11 @@
   },
   "self_audit_digest": {
     "path": "crates/ggen-graph/audit/vision2030.self_audit.ocel.json",
-    "blake3": "791f13c530e731f543bb7943619e58052ccb82b487bf389f4be4eee6d1fe7e31"
+    "blake3": "9482ea8b27429e7ba613badf73109c205b7552723e78f85f1e2c564069aecc96"
   },
   "coverage_digest": {
     "path": "crates/ggen-graph/audit/vision2030.coverage.json",
     "blake3": "baa7d485ecf07040ec6dae5efc3e80d93fd0325013af29127a9c1ada353325e5"
   },
-  "adjudication_blake3_receipt": "3e35c7fb707a7acec16f4bfc32de9628348d047ceeeb339ae4fe87d5de176e98"
+  "adjudication_blake3_receipt": "d265335c70a8e1af06e4a69e1d311b9787340666552f7f0b596af48168ca02aa"
 }

@@ -26,8 +26,5 @@ tracing = { workspace = true }
 ed25519-dalek = { workspace = true }
 rand = "0.8"
 
-[features]
-otel = []
-
 [lints]
 workspace = true

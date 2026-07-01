@@ -6,10 +6,10 @@
 
 <#activity_05_run_integration_tests> a prov:Activity ;
     dcterms:identifier "05_run_integration_tests" ;
-    prov:startedAtTime "2026-07-01T06:24:21.762Z" ; 
-    prov:endedAtTime "2026-07-01T06:24:58.631Z" ;
-    prov:value 1 
-    ; prov:wasInformedBy _:ee098c9c6d70e8cd50f2e49593a6a2bd .
+    prov:startedAtTime "2026-07-01T10:54:41.660Z" ; 
+    prov:endedAtTime "2026-07-01T10:54:51.319Z" ;
+    prov:value 0 
+    ; prov:wasInformedBy _:a713beaaff025ff87f11a164c0e578fe .
 
 <#stdout_05_run_integration_tests> a prov:Entity ;
     prov:wasGeneratedBy <#activity_05_run_integration_tests> ;
@@ -17,7 +17,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "a03e6d8b5777334d577b049e4bedc8c7f113f3174de573d5d43753aab716aecd"
+        spdx:checksumValue "a2cc147cdc37213a2964a625e533eb2b72a35742a89199a1da7d3f54e6c80fb5"
     ] .
 
 <#stderr_05_run_integration_tests> a prov:Entity ;
@@ -26,5 +26,5 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e8b6d044bc33f65ab0f7de3231c4d7e8587690235a8ada3095e8b71d1c776bab"
+        spdx:checksumValue "e4580c27ecf980b4b27a6a40f2ab6b84d7d39df7d170a9ff1fb438d42a6f7098"
     ] .

@@ -1,0 +1,18 @@
+{
+  "law_surfaces": [
+    "**/*.ttl",
+    "**/*.nt",
+    "**/*.nq",
+    "**/*.rq",
+    "**/*.sparql",
+    "**/*.tera",
+    "**/ggen.toml"
+  ],
+  "policies": [
+    "policies/public-vocab.shacl.ttl",
+    "policies/no-private-namespace.shacl.ttl",
+    "policies/receipt-required.shacl.ttl"
+  ],
+  "check_command": "ggen lsp check --files",
+  "canon": "v30.1.1"
+}

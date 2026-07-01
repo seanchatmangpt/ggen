@@ -6,10 +6,10 @@
 
 <#activity_13_adjudicate_witnessed_promotion> a prov:Activity ;
     dcterms:identifier "13_adjudicate_gall_promotion" ;
-    prov:startedAtTime "2026-07-01T06:25:02.874Z" ; 
-    prov:endedAtTime "2026-07-01T06:25:03.510Z" ;
-    prov:value 1 
-    ; prov:wasInformedBy _:ee098c9c6d70e8cd50f2e49593a6a2bd .
+    prov:startedAtTime "2026-07-01T10:54:53.848Z" ; 
+    prov:endedAtTime "2026-07-01T10:55:08.199Z" ;
+    prov:value 0 
+    ; prov:wasInformedBy _:a713beaaff025ff87f11a164c0e578fe .
 
 <#stdout_13_adjudicate_witnessed_promotion> a prov:Entity ;
     prov:wasGeneratedBy <#activity_13_adjudicate_witnessed_promotion> ;
@@ -17,7 +17,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "9447db23d48b8b87fb6aaf3faab8ded6975c9ea438b80912192b1e29be4083bd"
+        spdx:checksumValue "796597db9c71ddd5f8b361c90cb7708ab5186a84f00492b85be527d391420e92"
     ] .
 
 <#stderr_13_adjudicate_witnessed_promotion> a prov:Entity ;
@@ -26,5 +26,5 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "43eceaa18cca4340da142fdd4345ef6819612ac58ad5cdcc00c4aa7f3fc3ac6c"
+        spdx:checksumValue "a28ea5629aed4b7a485f440e97c25d4cc39e741e70d266bd1de62f830cdad016"
     ] .

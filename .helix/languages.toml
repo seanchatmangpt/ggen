@@ -1,0 +1,18 @@
+# ggen LSP — registers `ggen lsp start` for law-surface files.
+# Emitted by `ggen lsp init`. Merge into your global ~/.config/helix/languages.toml
+# if you prefer global registration.
+[language-server.ggen-lsp]
+command = "ggen"
+args = ["lsp", "start"]
+
+[[language]]
+name = "turtle"
+scope = "source.turtle"
+file-types = ["ttl", "nt", "nq"]
+language-servers = ["ggen-lsp"]
+
+[[language]]
+name = "sparql"
+scope = "source.sparql"
+file-types = ["rq", "sparql"]
+language-servers = ["ggen-lsp"]

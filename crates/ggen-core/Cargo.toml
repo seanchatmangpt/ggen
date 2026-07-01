@@ -31,7 +31,8 @@ path = "tests/template_comprehensive_test.rs"
 required-features = [ "integration"]
 
 [features]
-default = [ "dx", "marketplace"]
+default = [ "dx", "marketplace", "bundled-standards"]
+bundled-standards = []
 dx = []
 marketplace = ["ggen-marketplace"]
 live-llm-tests = []
@@ -254,11 +255,10 @@ version = "1.18"
 features = [ "v4"]
 
 [dev-dependencies.chicago-tdd-tools]
-version = "26.6.11"
-features = [ "testing-extras", "testcontainers"]
+workspace = true
 
 [dev-dependencies.testcontainers]
-version = "0.25"
+workspace = true
 
 [dev-dependencies.serial_test]
 workspace = true

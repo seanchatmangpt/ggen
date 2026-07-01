@@ -1,15 +1,82 @@
 === [00] Capturing Workspace Baseline ===
-Git HEAD: dea9dc7dd3ee7a9e9de8f8285b0aa7ab1e634624
- M docs/docs.tree.json
- M docs/docs.tree.ttl
-?? crates/ggen-graph/audit/dialect_completeness.validation.ttl
-?? crates/ggen-graph/audit/gall_code_evaluation.final.ttl
-?? crates/ggen-graph/audit/gall_code_evaluation.receipt.ttl
-?? crates/ggen-graph/audit/gall_decision.delta.ttl
-?? crates/ggen-graph/audit/gall_evidence.ocel.json
-?? crates/ggen-graph/audit/gall_evidence.ttl
-?? crates/ggen-graph/audit/hook_actuation.validation.ttl
-?? crates/ggen-graph/audit/public_vocab.validation.ttl
-?? crates/ggen-graph/audit/worktree_inventory.full.json
-?? crates/ggen-graph/audit/worktree_inventory.ttl
+Git HEAD: 8b1e8e3a042278fc6230a466e8a6d5241b2efc37
+ M .github/workflows/ci.yml
+ M Cargo.toml
+ D crates/ggen-graph/audit/clean_room_rebuild.json
+ D crates/ggen-graph/audit/clean_room_rebuild.ttl
+ M crates/ggen-graph/audit/doctest_results.json
+ M crates/ggen-graph/audit/final.validation.ttl
+ M crates/ggen-graph/audit/gall_code_evaluation.final.ttl
+ M crates/ggen-graph/audit/gall_code_evaluation.receipt.ttl
+ M crates/ggen-graph/audit/gall_decision.delta.ttl
+ M crates/ggen-graph/audit/gall_evidence.ocel.json
+ M crates/ggen-graph/audit/gall_evidence.ttl
+ M crates/ggen-graph/audit/hook_actuation.validation.ttl
+ M crates/ggen-graph/audit/sabotage_results.json
+ M crates/ggen-graph/audit/sabotage_results.ttl
+ D crates/ggen-graph/audit/transcripts/00_capture_baseline.json
+ D crates/ggen-graph/audit/transcripts/00_capture_baseline.stderr
+ D crates/ggen-graph/audit/transcripts/00_capture_baseline.stdout
+ D crates/ggen-graph/audit/transcripts/00_capture_baseline.ttl
+ D crates/ggen-graph/audit/transcripts/01_extract_requirements.json
+ D crates/ggen-graph/audit/transcripts/01_extract_requirements.stderr
+ D crates/ggen-graph/audit/transcripts/01_extract_requirements.stdout
+ D crates/ggen-graph/audit/transcripts/01_extract_requirements.ttl
+ D crates/ggen-graph/audit/transcripts/02_verify_package_constraints.json
+ D crates/ggen-graph/audit/transcripts/02_verify_package_constraints.stderr
+ D crates/ggen-graph/audit/transcripts/02_verify_package_constraints.stdout
+ D crates/ggen-graph/audit/transcripts/02_verify_package_constraints.ttl
+ D crates/ggen-graph/audit/transcripts/03_check_feature_flags.json
+ D crates/ggen-graph/audit/transcripts/03_check_feature_flags.stderr
+ D crates/ggen-graph/audit/transcripts/03_check_feature_flags.stdout
+ D crates/ggen-graph/audit/transcripts/03_check_feature_flags.ttl
+ D crates/ggen-graph/audit/transcripts/04_run_unit_tests.json
+ D crates/ggen-graph/audit/transcripts/04_run_unit_tests.stderr
+ D crates/ggen-graph/audit/transcripts/04_run_unit_tests.stdout
+ D crates/ggen-graph/audit/transcripts/04_run_unit_tests.ttl
+ D crates/ggen-graph/audit/transcripts/05_run_integration_tests.json
+ D crates/ggen-graph/audit/transcripts/05_run_integration_tests.stderr
+ D crates/ggen-graph/audit/transcripts/05_run_integration_tests.stdout
+ D crates/ggen-graph/audit/transcripts/05_run_integration_tests.ttl
+ D crates/ggen-graph/audit/transcripts/06_scan_forbidden_surfaces.json
+ D crates/ggen-graph/audit/transcripts/06_scan_forbidden_surfaces.stderr
+ D crates/ggen-graph/audit/transcripts/06_scan_forbidden_surfaces.stdout
+ D crates/ggen-graph/audit/transcripts/06_scan_forbidden_surfaces.ttl
+ D crates/ggen-graph/audit/transcripts/07_check_anti_fake.json
+ D crates/ggen-graph/audit/transcripts/07_check_anti_fake.stderr
+ D crates/ggen-graph/audit/transcripts/07_check_anti_fake.stdout
+ D crates/ggen-graph/audit/transcripts/07_check_anti_fake.ttl
+ D crates/ggen-graph/audit/transcripts/08_verify_replay_receipts.json
+ D crates/ggen-graph/audit/transcripts/08_verify_replay_receipts.stderr
+ D crates/ggen-graph/audit/transcripts/08_verify_replay_receipts.stdout
+ D crates/ggen-graph/audit/transcripts/08_verify_replay_receipts.ttl
+ D crates/ggen-graph/audit/transcripts/09_verify_ocel_self_audit.json
+ D crates/ggen-graph/audit/transcripts/09_verify_ocel_self_audit.stderr
+ D crates/ggen-graph/audit/transcripts/09_verify_ocel_self_audit.stdout
+ D crates/ggen-graph/audit/transcripts/09_verify_ocel_self_audit.ttl
+ D crates/ggen-graph/audit/transcripts/10_verify_coverage_matrix.json
+ D crates/ggen-graph/audit/transcripts/10_verify_coverage_matrix.stderr
+ D crates/ggen-graph/audit/transcripts/10_verify_coverage_matrix.stdout
+ D crates/ggen-graph/audit/transcripts/10_verify_coverage_matrix.ttl
+ D crates/ggen-graph/audit/transcripts/11_verify_proof_report.json
+ D crates/ggen-graph/audit/transcripts/11_verify_proof_report.stderr
+ D crates/ggen-graph/audit/transcripts/11_verify_proof_report.stdout
+ D crates/ggen-graph/audit/transcripts/11_verify_proof_report.ttl
+ D crates/ggen-graph/audit/transcripts/12_detect_contradictions.json
+ D crates/ggen-graph/audit/transcripts/12_detect_contradictions.stderr
+ D crates/ggen-graph/audit/transcripts/12_detect_contradictions.stdout
+ D crates/ggen-graph/audit/transcripts/12_detect_contradictions.ttl
+ D crates/ggen-graph/audit/transcripts/13_adjudicate_gall_promotion.json
+ D crates/ggen-graph/audit/transcripts/13_adjudicate_gall_promotion.stderr
+ D crates/ggen-graph/audit/transcripts/13_adjudicate_gall_promotion.stdout
+ D crates/ggen-graph/audit/transcripts/13_adjudicate_gall_promotion.ttl
+ D crates/ggen-graph/audit/vision2030.external_adjudication.json
+ M crates/ggen-graph/audit/vision2030.self_audit.ocel.json
+ D crates/ggen-graph/audit/vision2030.verification_manifest.json
+ M crates/ggen-graph/audit/witnessed_truthfulness.external_adjudication.json
+ M crates/ggen-graph/audit/worktree_inventory.full.json
+ M crates/ggen-graph/audit/worktree_inventory.ttl
+ M justfile
+ M tests/phase2_recipes_test.rs
+?? src/main.rs
 Baseline captured successfully.

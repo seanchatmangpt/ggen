@@ -79,6 +79,33 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    // Verify that all required script transcript json files exist
+    let required_transcripts = vec![
+        "00_capture_baseline.json",
+        "01_extract_requirements.json",
+        "02_verify_package_constraints.json",
+        "03_check_feature_flags.json",
+        "04_run_unit_tests.json",
+        "05_run_integration_tests.json",
+        "06_scan_forbidden_surfaces.json",
+        "07_check_anti_fake.json",
+        "08_verify_replay_receipts.json",
+        "09_verify_ocel_self_audit.json",
+        "10_verify_coverage_matrix.json",
+        "11_verify_proof_report.json",
+        "12_detect_contradictions.json",
+        "13_adjudicate_gall_promotion.json",
+    ];
+
+    let transcripts_dir = audit_dir.join("transcripts");
+    for filename in &required_transcripts {
+        let path = transcripts_dir.join(filename);
+        if !path.exists() {
+            violations += 1;
+            reason_details.push(format!("Missing required transcript file: {}", filename));
+        }
+    }
+
     // 2. Load delta and check checkpoints using SPARQL
     let mut passed_checkpoints = std::collections::HashSet::new();
     if delta_path.exists() {
@@ -178,7 +205,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         reason_details.push("OCEL evidence log file does not exist".to_string());
     }
 
-    // Verify that the other 4 validation reports exist and conform
+    // Verify that the other validation reports exist and conform
     let other_reports = vec![
         ("public_vocab.validation.ttl", "R7 Public Vocabulary Gate"),
         (
@@ -190,6 +217,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "Dialect Completeness Matrix",
         ),
         ("sabotage.validation.ttl", "Sabotage Suite Verification"),
+        (
+            "gall_code_evaluation.receipt.ttl",
+            "Gall Code Evaluation Receipt",
+        ),
+        (
+            "gall_code_evaluation.final.ttl",
+            "Gall Code Evaluation Final Report",
+        ),
     ];
 
     for (filename, _desc) in other_reports {

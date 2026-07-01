@@ -5,9 +5,9 @@
   ],
   "cwd": "/Users/sac/ggen",
   "exit_code": 0,
-  "duration_ms": 2167.414291,
+  "duration_ms": 2063.577667,
   "stdout_path": "crates/ggen-graph/audit/transcripts/09_verify_ocel_self_audit.stdout",
   "stderr_path": "crates/ggen-graph/audit/transcripts/09_verify_ocel_self_audit.stderr",
   "stdout_sha256": "e2975ca8a6d1386b8b8c5e6653fa6cf56676df38327ec2fb7273336a2c7ce30d",
-  "stderr_sha256": "5e1592a1f4d69c26fc3f4554c076aab13e9c4beba0c247a044c7e316c60872bb"
+  "stderr_sha256": "e4cf05a4574afd699fae993264ccd8c61978146e595a5032624917a844c485dc"
 }
