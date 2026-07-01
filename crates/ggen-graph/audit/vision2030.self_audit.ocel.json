@@ -12,32 +12,32 @@
       "id": "obj_prd_compliance",
       "type": "PRDRequirement",
       "attributes": {
-        "description": "The system must generate a self-audit log containing all required activities and objects.",
-        "title": "Self-Audit Compliance Log"
+        "title": "Self-Audit Compliance Log",
+        "description": "The system must generate a self-audit log containing all required activities and objects."
       }
     },
     {
       "id": "obj_ard_mapping",
       "type": "ARDRequirement",
       "attributes": {
-        "title": "Deterministic Graph Mapping",
-        "description": "Self-audit logs must project deterministically to and from RDF triple graphs."
+        "description": "Self-audit logs must project deterministically to and from RDF triple graphs.",
+        "title": "Deterministic Graph Mapping"
       }
     },
     {
       "id": "req_r1_one_crate",
       "type": "PRDRequirement",
       "attributes": {
-        "description": "The substrate must be implemented as a single standalone Rust package at crates/ggen-graph with no feature flags.",
-        "title": "One-Crate Package Boundary and No Feature Flags"
+        "title": "One-Crate Package Boundary and No Feature Flags",
+        "description": "The substrate must be implemented as a single standalone Rust package at crates/ggen-graph with no feature flags."
       }
     },
     {
       "id": "req_r2_ontology",
       "type": "PRDRequirement",
       "attributes": {
-        "description": "Vocabulary constants must be emitted directly from public ontology profiles.",
-        "title": "Public Ontology Governance and Vocabulary Emission"
+        "title": "Public Ontology Governance and Vocabulary Emission",
+        "description": "Vocabulary constants must be emitted directly from public ontology profiles."
       }
     },
     {
@@ -52,8 +52,8 @@
       "id": "req_r4_knowledge_hook",
       "type": "PRDRequirement",
       "attributes": {
-        "description": "Turtle-based hook packs must load dynamically as graph laws and schedule deterministically.",
-        "title": "Knowledge Hook Runtime & Deterministic Scheduling"
+        "title": "Knowledge Hook Runtime & Deterministic Scheduling",
+        "description": "Turtle-based hook packs must load dynamically as graph laws and schedule deterministically."
       }
     },
     {
@@ -68,8 +68,8 @@
       "id": "req_r6_compliance",
       "type": "PRDRequirement",
       "attributes": {
-        "description": "Must pass structural analyses checking for forbidden execution surfaces and zero placeholder/stub/mock/fake-success patterns.",
-        "title": "Compliance Checks & Anti-Fake Gates"
+        "title": "Compliance Checks & Anti-Fake Gates",
+        "description": "Must pass structural analyses checking for forbidden execution surfaces and zero placeholder/stub/mock/fake-success patterns."
       }
     },
     {
@@ -100,16 +100,16 @@
       "id": "req_r10_interchangeable",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Genesis-bearing Interchangeable Part Architecture",
-        "description": "Ensure interchangeable parts where Genesis is the embedded core and ggen forms the outer membrane, adapter layer, and projection layer."
+        "description": "Ensure interchangeable parts where Genesis is the embedded core and ggen forms the outer membrane, adapter layer, and projection layer.",
+        "title": "Genesis-bearing Interchangeable Part Architecture"
       }
     },
     {
       "id": "obj_cp_verify",
       "type": "GALLCheckpoint",
       "attributes": {
-        "target_date": "2026-05-26Z",
-        "milestone": "self_audit_verification"
+        "milestone": "self_audit_verification",
+        "target_date": "2026-05-26Z"
       }
     },
     {
@@ -132,24 +132,24 @@
       "id": "obj_source_file_self_audit",
       "type": "SourceFile",
       "attributes": {
-        "language": "rust",
-        "path": "crates/ggen-graph/src/ocel/self_audit.rs"
+        "path": "crates/ggen-graph/src/ocel/self_audit.rs",
+        "language": "rust"
       }
     },
     {
       "id": "obj_test_file_self_audit",
       "type": "TestFile",
       "attributes": {
-        "path": "crates/ggen-graph/tests/ocel_self_audit.rs",
-        "framework": "cargo test"
+        "framework": "cargo test",
+        "path": "crates/ggen-graph/tests/ocel_self_audit.rs"
       }
     },
     {
       "id": "obj_example_file_self_audit",
       "type": "ExampleFile",
       "attributes": {
-        "path": "crates/ggen-graph/examples/self_audit_demo.rs",
-        "description": "Demonstrates generation and projection of self-audit log"
+        "description": "Demonstrates generation and projection of self-audit log",
+        "path": "crates/ggen-graph/examples/self_audit_demo.rs"
       }
     },
     {
@@ -172,24 +172,24 @@
       "id": "obj_command_test",
       "type": "Command",
       "attributes": {
-        "args": "test --package ggen-graph",
-        "binary": "cargo"
+        "binary": "cargo",
+        "args": "test --package ggen-graph"
       }
     },
     {
       "id": "obj_command_run_1",
       "type": "CommandRun",
       "attributes": {
-        "execution_host": "localhost",
-        "exit_code": "0"
+        "exit_code": "0",
+        "execution_host": "localhost"
       }
     },
     {
       "id": "obj_evidence_artifact_1",
       "type": "EvidenceArtifact",
       "attributes": {
-        "size_bytes": "1024",
-        "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+        "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+        "size_bytes": "1024"
       }
     },
     {

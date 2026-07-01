@@ -36,13 +36,12 @@ fn create_signed_receipt(signing_key: &ed25519_dalek::SigningKey) -> InverseRece
     receipt
 }
 
-/// Helper to create a signed receipt linked to a forward operation.
 fn create_linked_receipt(
     signing_key: &ed25519_dalek::SigningKey, forward_op_id: &str,
 ) -> InverseReceipt {
     let mut receipt = create_signed_receipt(signing_key);
     receipt.previous_operation_id = Some(forward_op_id.to_string());
-    receipt
+    receipt.sign(signing_key).expect("sign should succeed")
 }
 
 #[test]
@@ -295,8 +294,7 @@ fn test_inverse_receipt_chain_preserves_operation_linkage() {
     let forward_op_id = uuid::Uuid::new_v4().to_string();
     let (signing_key, verifying_key) = generate_keypair();
 
-    let mut receipt = create_signed_receipt(&signing_key);
-    receipt.previous_operation_id = Some(forward_op_id.clone());
+    let receipt = create_linked_receipt(&signing_key, &forward_op_id);
 
     // Act
     let mut chain = InverseReceiptChain::new();
@@ -475,8 +473,7 @@ fn test_full_e2e_forward_inverse_linkage() {
     let (signing_key, verifying_key) = generate_keypair();
 
     // Create and sign an inverse receipt linked to the forward operation.
-    let mut inverse_receipt = create_signed_receipt(&signing_key);
-    inverse_receipt.previous_operation_id = Some(forward_op_id.clone());
+    let inverse_receipt = create_linked_receipt(&signing_key, &forward_op_id);
 
     // Build the inverse chain.
     let mut chain = InverseReceiptChain::new();
