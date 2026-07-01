@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [ggen v26.5.28](#ggen-v26528)
+- [ggen v26.7.1](#ggen-v2671)
   - [Quick Start](#quick-start)
   - [Key Features](#key-features)
     - [🔍 OpenTelemetry Tracing](#-opentelemetry-tracing)
@@ -28,7 +28,7 @@
     - [1. Specification-First (Big Bang 80/20)](#1-specification-first-big-bang-8020)
     - [2. Deterministic Validation](#2-deterministic-validation)
     - [3. RDF-First](#3-rdf-first)
-  - [Constitutional Rules (v26.5.28)](#constitutional-rules-v26528)
+  - [Constitutional Rules (v26.7.1)](#constitutional-rules-v2671)
     - [1. Big Bang 80/20: Specification Closure First](#1-big-bang-8020-specification-closure-first)
     - [2. EPIC 9: Parallel Agent Convergence (Advanced)](#2-epic-9-parallel-agent-convergence-advanced)
     - [3. Deterministic Receipts: Evidence Replaces Narrative](#3-deterministic-receipts-evidence-replaces-narrative)
@@ -47,7 +47,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# ggen v26.5.28
+# ggen v26.7.1
 
 [![CI](https://github.com/seanchatmangpt/ggen/workflows/CI/badge.svg)](https://github.com/seanchatmangpt/ggen/actions)
 [![Rust](https://img.shields.io/badge/Rust-stable-orange.svg)](https://www.rust-lang.org)
@@ -55,14 +55,14 @@
 
 **Deterministic, language-agnostic code generation from RDF ontologies with OpenTelemetry tracing.**
 
-ggen transforms domain ontologies (RDF/Turtle) into typed source code through a native v26.5.28 μ-pipeline (μ₁-μ₅): ontology normalization, SPARQL extraction, template rendering, canonicalization, and cryptographic receipt generation. Every generation is validated by **8 Canonical Proof Gates** to ensure the artifact `A` is a perfect projection of the ontology `O`.
+ggen transforms domain ontologies (RDF/Turtle) into typed source code through a native v26.7.1 μ-pipeline (μ₁-μ₅): ontology normalization, SPARQL extraction, template rendering, canonicalization, and cryptographic receipt generation. Every generation is validated by **8 Canonical Proof Gates** to ensure the artifact `A` is a perfect projection of the ontology `O`.
 
 ```
 ggen.toml  -->  RDF Ontology  -->  CONSTRUCT inference  -->  SELECT  -->  Tera Template  -->  Code
 ```
 
-**What's New in v26.5.28:**
-- ✅ **Native v26.5.28 μ-Pipeline** — Pure Rust implementation of the 5-stage transformation engine
+**What's New in v26.7.1:**
+- ✅ **Native v26.7.1 μ-Pipeline** — Pure Rust implementation of the 5-stage transformation engine
 - ✅ **8 Canonical Proof Gates** — Automated evidence validation (Schema, Ontology, Projection, Compilation, Receipt, Ethos, Observability, Causality)
 - ✅ **OpenTelemetry Tracing** — Full observability for pipeline stages
 - ✅ **Chicago TDD Enforcement** — 87% test coverage with real collaborators (no mocks)
@@ -424,9 +424,9 @@ ggen follows three paradigm shifts:
 
 ---
 
-## Constitutional Rules (v26.5.28)
+## Constitutional Rules (v26.7.1)
 
-ggen v26.5.28 introduces three **non-negotiable paradigms** that govern the entire development lifecycle.
+ggen v26.7.1 introduces three **non-negotiable paradigms** that govern the entire development lifecycle.
 
 ### 1. Big Bang 80/20: Specification Closure First
 
@@ -516,7 +516,7 @@ ggen sync
 
 ## Status & Performance
 
-**Version**: 26.5.28
+**Version**: 26.7.1
 **Stack**: Rust 1.94.0 | Tokio | Oxigraph | Tera | Clap | 15 crates
 **Testing**: Chicago TDD | 87% coverage | 347+ tests passing
 **Stability**: Production-ready

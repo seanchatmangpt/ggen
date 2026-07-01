@@ -48,12 +48,12 @@ pub use pattern_miner::{
 };
 
 pub use delta_proposer::{
-    DeltaSigmaProposal, DeltaSigmaProposer, MockLLMProposer, ProposerConfig, RealLLMProposer,
+    DeltaSigmaProposal, DeltaSigmaProposer, PatternHeuristicProposer, ProposerConfig,
+    RealLLMProposer,
 };
 
 pub use validators::{
-    CompositeValidator, DynamicValidator, Invariant, MockDynamicValidator,
-    MockPerformanceValidator, MockStaticValidator, PerformanceValidator, StaticValidator,
+    CompositeValidator, DynamicValidator, Invariant, PerformanceValidator, StaticValidator,
     ValidationContext, ValidationEvidence, ValidatorResult,
 };
 
@@ -70,9 +70,9 @@ pub use constitution::{
 pub use error::{OntologyError, OntologyResult};
 pub use extractor::OntologyExtractor;
 pub use schema::*;
-pub mod resolver;
 pub mod core_bundle;
 pub mod loader;
+pub mod resolver;
 
 pub use core_bundle::{CoreOntologyBundle, OntologyMetadata};
 pub use loader::OntologyLoader;

@@ -10,8 +10,8 @@ pub mod ast_extractor;
 pub mod inverse_pipeline;
 
 pub use ast_extractor::{
-    convert_to_rdf, extract_elixir_genserver, extract_go_service, extract_rust_service,
-    extract_bounds_from_type_params, Field, Language, Method, ServiceDef,
+    convert_to_rdf, extract_bounds_from_type_params, extract_elixir_genserver, extract_go_service,
+    extract_rust_service, Field, Language, Method, ServiceDef,
 };
 pub use inverse_pipeline::{
     InversePipeline, InversePipelineError, InverseReceipt, InverseReceiptChain, InverseResult,

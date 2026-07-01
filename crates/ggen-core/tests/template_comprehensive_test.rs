@@ -163,7 +163,7 @@ Count: {{ sparql_results.people | length }}"#;
     let vars = Context::new();
 
     template.process_graph(&mut graph, &mut tera, &vars, Path::new("test.tmpl"))?;
-    let rendered = template.render(&mut tera, &vars)?;
+    let rendered = template.render(&mut tera, &vars, Path::new("test.tmpl"))?;
 
     assert!(rendered.contains("Count: 2"));
     Ok(())
@@ -187,7 +187,7 @@ Has data: {{ sparql_results.has_data }}"#;
     let vars = Context::new();
 
     template.process_graph(&mut graph, &mut tera, &vars, Path::new("test.tmpl"))?;
-    let rendered = template.render(&mut tera, &vars)?;
+    let rendered = template.render(&mut tera, &vars, Path::new("test.tmpl"))?;
 
     assert!(rendered.contains("Has data: true"));
     Ok(())
@@ -211,7 +211,7 @@ Name: {{ sparql_first(results=sparql_results.query, column="n") }}"#;
     let vars = ctx_from_pairs(&[("entity", "Alice"), ("name", "Alice Smith")]);
 
     template.process_graph(&mut graph, &mut tera, &vars, Path::new("test.tmpl"))?;
-    let rendered = template.render(&mut tera, &vars)?;
+    let rendered = template.render(&mut tera, &vars, Path::new("test.tmpl"))?;
 
     assert!(rendered.contains("Name: \"Alice Smith\""));
     Ok(())
@@ -226,7 +226,7 @@ fn test_rdf_metadata_fixture() -> Result<()> {
     let vars = ctx_from_pairs(&[("component_name", "auth_controller")]);
 
     template.process_graph(&mut graph, &mut tera, &vars, Path::new("test.tmpl"))?;
-    let rendered = template.render(&mut tera, &vars)?;
+    let rendered = template.render(&mut tera, &vars, Path::new("test.tmpl"))?;
 
     assert!(rendered.contains("Component: auth_controller"));
     assert!(rendered.contains("Generated files:"));
@@ -248,7 +248,7 @@ fn test_generate_microservice_from_templates() -> Result<()> {
 
     template.process_graph(&mut graph, &mut tera, &vars, Path::new("test.tmpl"))?;
     template.render_frontmatter(&mut tera, &vars)?;
-    let rendered = template.render(&mut tera, &vars)?;
+    let rendered = template.render(&mut tera, &vars, Path::new("test.tmpl"))?;
 
     // Write to output directory
     let output_path = output_dir.path().join(
@@ -288,7 +288,7 @@ fn test_generate_cargo_toml() -> Result<()> {
     ]);
 
     template.render_frontmatter(&mut tera, &vars)?;
-    let rendered = template.render(&mut tera, &vars)?;
+    let rendered = template.render(&mut tera, &vars, Path::new("test.tmpl"))?;
 
     let output_path = output_dir.path().join(
         template
@@ -321,7 +321,7 @@ fn test_generate_integration_test() -> Result<()> {
     let vars = ctx_from_pairs(&[("service_name", "api_service"), ("port", "3000")]);
 
     template.render_frontmatter(&mut tera, &vars)?;
-    let rendered = template.render(&mut tera, &vars)?;
+    let rendered = template.render(&mut tera, &vars, Path::new("test.tmpl"))?;
 
     let output_path = output_dir.path().join(
         template
@@ -374,7 +374,7 @@ fn test_generate_complete_microservice_structure() -> Result<()> {
         template.process_graph(&mut graph, &mut tera, &vars, Path::new("test.tmpl"))?;
         template.render_frontmatter(&mut tera, &vars)?;
         let rendered = template
-            .render(&mut tera, &vars)
+            .render(&mut tera, &vars, Path::new("test.tmpl"))
             .unwrap_or_else(|e| panic!("Tera Error: {:?}", e));
 
         let output_path = output_dir.path().join(
@@ -468,7 +468,7 @@ to: "output.rs"
     }
 
     let start = Instant::now();
-    let _ = template.render(&mut tera, &vars)?;
+    let _ = template.render(&mut tera, &vars, Path::new("test.tmpl"))?;
     let render_duration = start.elapsed();
 
     // Rendering should be fast (< 50ms)
@@ -584,7 +584,7 @@ println!("{{message}}");"#;
     let vars = ctx_from_pairs(&[("message", "你好世界")]);
 
     template.render_frontmatter(&mut tera, &vars)?;
-    let rendered = template.render(&mut tera, &vars)?;
+    let rendered = template.render(&mut tera, &vars, Path::new("test.tmpl"))?;
 
     assert!(rendered.contains("你好世界"));
     Ok(())
@@ -691,7 +691,7 @@ body"#;
     template.render_frontmatter(&mut tera, &vars)?;
 
     // Should return an error when trying to read non-existent file
-    let result = template.render(&mut tera, &vars);
+    let result = template.render(&mut tera, &vars, Path::new("test.tmpl"));
 
     assert!(result.is_err());
 
@@ -719,7 +719,7 @@ Count: {{ sparql_results.count }}"#;
     let vars = Context::new();
 
     template.process_graph(&mut graph, &mut tera, &vars, Path::new("test.tmpl"))?;
-    let rendered = template.render(&mut tera, &vars)?;
+    let rendered = template.render(&mut tera, &vars, Path::new("test.tmpl"))?;
 
     assert!(rendered.contains("Count:"));
     assert!(template.front.sparql_results.contains_key("count"));

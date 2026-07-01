@@ -1,2 +1,1 @@
 === [03] Verifying Feature Flags ===
-PASS: No feature flags defined in crates/ggen-graph/Cargo.toml

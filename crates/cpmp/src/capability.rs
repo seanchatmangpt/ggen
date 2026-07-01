@@ -38,6 +38,8 @@ pub fn detect_capabilities(
     ];
 
     let path_str = path.to_string_lossy().to_string();
+    let classification =
+        crate::classification::classify_file(&path_str, content, _symbols).as_str();
     for (line_idx, line) in content.lines().enumerate() {
         for cap in &capabilities {
             if line.contains(cap) {
@@ -54,7 +56,7 @@ pub fn detect_capabilities(
                     } else {
                         "CODE".to_string()
                     },
-                    classification: "LIVE".to_string(),
+                    classification: classification.to_string(),
                     line_number: (line_idx + 1) as i64,
                 });
             }

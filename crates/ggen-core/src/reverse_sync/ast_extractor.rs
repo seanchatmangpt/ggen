@@ -17,9 +17,9 @@
 //! # }
 //! ```
 
+use crate::utils::error::{Error, Result};
 use regex::Regex;
 use std::fs;
-use crate::utils::error::{Error, Result};
 
 /// Programming language identifier
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -157,7 +157,10 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
 
     for cap in struct_header_re.captures_iter(content) {
         let name = cap_str(&cap, 1);
-        let type_params = cap.get(2).map(|m| parse_type_params(m.as_str())).unwrap_or_default();
+        let type_params = cap
+            .get(2)
+            .map(|m| parse_type_params(m.as_str()))
+            .unwrap_or_default();
 
         let open_brace_idx = match cap.get(0) {
             Some(m) => m.end() - 1,
@@ -167,7 +170,8 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
 
         let fields = parse_struct_fields(body)?;
 
-        let trait_bounds = extract_bounds_from_type_params(cap.get(2).map(|m| m.as_str()).unwrap_or(""));
+        let trait_bounds =
+            extract_bounds_from_type_params(cap.get(2).map(|m| m.as_str()).unwrap_or(""));
 
         services.push(ServiceDef {
             name,
@@ -187,7 +191,10 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
 
     for cap in enum_header_re.captures_iter(content) {
         let name = cap_str(&cap, 1);
-        let type_params = cap.get(2).map(|m| parse_type_params(m.as_str())).unwrap_or_default();
+        let type_params = cap
+            .get(2)
+            .map(|m| parse_type_params(m.as_str()))
+            .unwrap_or_default();
 
         let open_brace_idx = match cap.get(0) {
             Some(m) => m.end() - 1,
@@ -196,7 +203,8 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
         let body = balanced_block_body(content, open_brace_idx).unwrap_or("");
 
         let variants = parse_enum_variants(body)?;
-        let trait_bounds = extract_bounds_from_type_params(cap.get(2).map(|m| m.as_str()).unwrap_or(""));
+        let trait_bounds =
+            extract_bounds_from_type_params(cap.get(2).map(|m| m.as_str()).unwrap_or(""));
 
         services.push(ServiceDef {
             name,
@@ -219,7 +227,10 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
 
     for cap in trait_header_re.captures_iter(content) {
         let name = cap_str(&cap, 1);
-        let type_params = cap.get(2).map(|m| parse_type_params(m.as_str())).unwrap_or_default();
+        let type_params = cap
+            .get(2)
+            .map(|m| parse_type_params(m.as_str()))
+            .unwrap_or_default();
 
         // The full match ends at the opening `{`; scan from there for the body.
         let open_brace_idx = match cap.get(0) {
@@ -229,7 +240,8 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
         let body = balanced_block_body(content, open_brace_idx).unwrap_or("");
 
         let methods = parse_rust_fn_signatures(body)?;
-        let trait_bounds = extract_bounds_from_type_params(cap.get(2).map(|m| m.as_str()).unwrap_or(""));
+        let trait_bounds =
+            extract_bounds_from_type_params(cap.get(2).map(|m| m.as_str()).unwrap_or(""));
 
         services.push(ServiceDef {
             name,
@@ -248,10 +260,9 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
     // The captured type name (group 1) is the receiver type in both inherent and
     // `impl Trait for Type` forms. The body is extracted with a balanced-brace
     // scan so method bodies do not truncate the capture at the first `}`.
-    let impl_header_re = Regex::new(
-        r"impl(?:<[^>]*>)?\s+(?:[\w:]+(?:<[^>]*>)?\s+for\s+)?(\w+)(?:<[^>]*>)?\s*\{",
-    )
-    .map_err(|e| Error::new(&format!("Failed to compile impl header regex: {}", e)))?;
+    let impl_header_re =
+        Regex::new(r"impl(?:<[^>]*>)?\s+(?:[\w:]+(?:<[^>]*>)?\s+for\s+)?(\w+)(?:<[^>]*>)?\s*\{")
+            .map_err(|e| Error::new(&format!("Failed to compile impl header regex: {}", e)))?;
 
     for cap in impl_header_re.captures_iter(content) {
         let type_name = cap_str(&cap, 1);
@@ -292,7 +303,9 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
 /// Safely extract a capture group as an owned `String`, returning an empty
 /// string when the group is absent (avoids `unwrap` on optional captures).
 fn cap_str(cap: &regex::Captures<'_>, idx: usize) -> String {
-    cap.get(idx).map(|m| m.as_str().to_string()).unwrap_or_default()
+    cap.get(idx)
+        .map(|m| m.as_str().to_string())
+        .unwrap_or_default()
 }
 
 /// Given a byte index pointing at an opening `{` in `content`, return the inner
@@ -351,7 +364,9 @@ fn parse_type_params(raw: &str) -> Vec<String> {
 /// - "T" => ["Clone", "Send"]
 /// - "V" => ["Default"]
 /// (U has no bounds, so it is not included in the map)
-pub fn extract_bounds_from_type_params(raw: &str) -> std::collections::HashMap<String, Vec<String>> {
+pub fn extract_bounds_from_type_params(
+    raw: &str,
+) -> std::collections::HashMap<String, Vec<String>> {
     use std::collections::HashMap;
     let mut bounds_map: HashMap<String, Vec<String>> = HashMap::new();
 
@@ -415,7 +430,11 @@ fn parse_enum_variants(body: &str) -> Result<Vec<Variant>> {
                 let payload = if rest.starts_with('(') || rest.starts_with('{') {
                     let payload_end = rest.find('=').unwrap_or(rest.len());
                     let raw = rest[..payload_end].trim();
-                    if raw.is_empty() { None } else { Some(raw.to_string()) }
+                    if raw.is_empty() {
+                        None
+                    } else {
+                        Some(raw.to_string())
+                    }
                 } else {
                     None
                 };
@@ -564,8 +583,9 @@ fn extract_elixir_callbacks(content: &str) -> Result<Vec<Method>> {
     let mut methods = Vec::new();
 
     // Match: def callback_name(...) do ... end
-    let callback_re = Regex::new(r"def\s+(init|handle_call|handle_cast|handle_info|terminate)\s*\(([^)]*)\)")
-        .map_err(|e| Error::new(&format!("Failed to compile callback regex: {}", e)))?;
+    let callback_re =
+        Regex::new(r"def\s+(init|handle_call|handle_cast|handle_info|terminate)\s*\(([^)]*)\)")
+            .map_err(|e| Error::new(&format!("Failed to compile callback regex: {}", e)))?;
 
     for cap in callback_re.captures_iter(content) {
         let name = cap.get(1).unwrap().as_str().to_string();
@@ -660,7 +680,10 @@ fn extract_go_methods(content: &str, struct_name: &str) -> Result<Vec<Method>> {
     let mut methods = Vec::new();
 
     // Match: func (s *StructName) MethodName(...) ReturnType
-    let method_pattern = format!(r"func\s*\(\s*\w+\s*\*{}\s*\)\s*(\w+)\s*\(([^)]*)\)\s*(\w+)?", struct_name);
+    let method_pattern = format!(
+        r"func\s*\(\s*\w+\s*\*{}\s*\)\s*(\w+)\s*\(([^)]*)\)\s*(\w+)?",
+        struct_name
+    );
     let method_re = Regex::new(&method_pattern)
         .map_err(|e| Error::new(&format!("Failed to compile Go method regex: {}", e)))?;
 
@@ -726,7 +749,7 @@ pub fn convert_to_rdf(services: &[ServiceDef]) -> Result<String> {
     let mut turtle = String::from(
         "@prefix code: <https://ggen.io/code#> .\n\
          @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\
-         @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\n"
+         @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\n",
     );
 
     for service in services {
@@ -928,7 +951,10 @@ mod tests {
     #[test]
     fn test_parse_type_params_strips_bounds() {
         let params = parse_type_params("T: Clone + Send, U, V: Default");
-        assert_eq!(params, vec!["T".to_string(), "U".to_string(), "V".to_string()]);
+        assert_eq!(
+            params,
+            vec!["T".to_string(), "U".to_string(), "V".to_string()]
+        );
     }
 
     #[test]
@@ -942,11 +968,17 @@ mod tests {
         assert!(names.contains(&"Custom"));
 
         // Verify payloads are captured
-        let pending = variants.iter().find(|v| v.name == "Pending").expect("Pending variant");
+        let pending = variants
+            .iter()
+            .find(|v| v.name == "Pending")
+            .expect("Pending variant");
         assert!(pending.payload.is_some());
         assert!(pending.payload.as_ref().unwrap().contains("u32"));
 
-        let custom = variants.iter().find(|v| v.name == "Custom").expect("Custom variant");
+        let custom = variants
+            .iter()
+            .find(|v| v.name == "Custom")
+            .expect("Custom variant");
         assert!(custom.payload.is_some());
         assert!(custom.payload.as_ref().unwrap().contains("code"));
     }
@@ -955,7 +987,10 @@ mod tests {
     fn test_parse_rust_fn_signatures() {
         let body = "fn start(&self) -> bool { true }\n    fn stop(&mut self, force: bool) { }\n";
         let methods = parse_rust_fn_signatures(body).unwrap();
-        let start = methods.iter().find(|m| m.name == "start").expect("start fn");
+        let start = methods
+            .iter()
+            .find(|m| m.name == "start")
+            .expect("start fn");
         assert_eq!(start.return_type.as_deref(), Some("bool"));
         let stop = methods.iter().find(|m| m.name == "stop").expect("stop fn");
         assert!(stop.params.iter().any(|p| p.contains("force")));
@@ -965,7 +1000,10 @@ mod tests {
     fn test_extract_rust_struct_with_generics() {
         let src = "pub struct Container<T> { item: T, count: usize }";
         let services = extract_rust_service_from_str(src).unwrap();
-        let c = services.iter().find(|s| s.name == "Container").expect("Container");
+        let c = services
+            .iter()
+            .find(|s| s.name == "Container")
+            .expect("Container");
         assert_eq!(c.kind, ServiceKind::Struct);
         assert!(c.type_params.contains(&"T".to_string()));
         assert!(c.fields.iter().any(|f| f.name == "item"));
@@ -975,7 +1013,10 @@ mod tests {
     fn test_extract_rust_enum() {
         let src = "pub enum Status { Ok, Err, Pending }";
         let services = extract_rust_service_from_str(src).unwrap();
-        let e = services.iter().find(|s| s.name == "Status").expect("Status enum");
+        let e = services
+            .iter()
+            .find(|s| s.name == "Status")
+            .expect("Status enum");
         assert_eq!(e.kind, ServiceKind::Enum);
         let names: Vec<&str> = e.variants.iter().map(|v| v.name.as_str()).collect();
         assert!(names.contains(&"Ok"));
@@ -987,7 +1028,10 @@ mod tests {
     fn test_extract_rust_trait() {
         let src = "pub trait Runnable { fn run(&self) -> i32; fn name(&self) -> String; }";
         let services = extract_rust_service_from_str(src).unwrap();
-        let t = services.iter().find(|s| s.name == "Runnable").expect("Runnable trait");
+        let t = services
+            .iter()
+            .find(|s| s.name == "Runnable")
+            .expect("Runnable trait");
         assert_eq!(t.kind, ServiceKind::Trait);
         assert!(t.methods.iter().any(|m| m.name == "run"));
         assert!(t.methods.iter().any(|m| m.name == "name"));
@@ -998,7 +1042,10 @@ mod tests {
         let src = "pub struct Worker { id: u32 }\n\
                    impl Worker { fn process(&self) -> bool { true } fn reset(&mut self) { } }";
         let services = extract_rust_service_from_str(src).unwrap();
-        let w = services.iter().find(|s| s.name == "Worker").expect("Worker");
+        let w = services
+            .iter()
+            .find(|s| s.name == "Worker")
+            .expect("Worker");
         assert_eq!(w.kind, ServiceKind::Struct);
         assert!(w.methods.iter().any(|m| m.name == "process"));
         assert!(w.methods.iter().any(|m| m.name == "reset"));

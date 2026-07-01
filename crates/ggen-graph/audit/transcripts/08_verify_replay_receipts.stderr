@@ -1,2 +1,2 @@
-[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.15s
-[1m[92m     Running[0m tests/receipt_replay.rs (target/debug/deps/receipt_replay-d9807569526604ff)
+[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.19s
+[1m[92m     Running[0m tests/receipt_replay.rs (target/debug/deps/receipt_replay-8946d8dc8c4fbafb)

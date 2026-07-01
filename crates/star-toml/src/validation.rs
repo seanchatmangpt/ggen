@@ -818,7 +818,7 @@ impl Validator {
         let has_traversal = path
             .components()
             .any(|c| c == std::path::Component::ParentDir)
-            || value.split(|c| c == '/' || c == '\\').any(|s| s == "..");
+            || value.split(['/', '\\']).any(|s| s == "..");
         if has_traversal {
             errors.push("path traversal ('..') is not allowed".to_string());
         }

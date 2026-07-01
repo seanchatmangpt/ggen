@@ -9,11 +9,7 @@
 //! Chicago TDD: assertions target observable state changes (files written/not written,
 //! error variants returned, coherence report properties), not internal implementation.
 
-#![allow(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    clippy::panic,
-)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -122,7 +118,10 @@ fn test_coherence_gate_allows_empty_event_log_in_dry_run_mode() {
         "dry-run mode should skip event-log pole requirement"
     );
     let report = result.unwrap();
-    assert!(!report.admitted, "event-log pole is still missing, so admitted should be false");
+    assert!(
+        !report.admitted,
+        "event-log pole is still missing, so admitted should be false"
+    );
     assert!(
         report.poles.len() == 2,
         "should only have O and A poles in dry-run; got {} poles",
@@ -193,9 +192,7 @@ fn test_coherence_gate_detects_hash_drift_against_expectations() {
     }
 
     let ontology_bytes = fs::read(&ontology_path).expect("read ontology");
-    let generated = vec![
-        ("src/lib.rs".to_string(), "pub fn hello() {}".to_string()),
-    ];
+    let generated = vec![("src/lib.rs".to_string(), "pub fn hello() {}".to_string())];
 
     // First pass: compute the baseline
     use ggen_core::sync::{CoherenceGate, CoherenceGateConfig};
@@ -268,9 +265,7 @@ fn test_coherence_gate_detects_artifact_size_drift() {
     }
 
     let ontology_bytes = fs::read(&ontology_path).expect("read ontology");
-    let generated_v1 = vec![
-        ("src/lib.rs".to_string(), "pub fn hello() {}".to_string()),
-    ];
+    let generated_v1 = vec![("src/lib.rs".to_string(), "pub fn hello() {}".to_string())];
 
     // First pass: baseline
     use ggen_core::sync::{CoherenceGate, CoherenceGateConfig};
@@ -295,9 +290,10 @@ fn test_coherence_gate_detects_artifact_size_drift() {
         .expect("artifact pole must be present");
 
     // Second pass: modify artifact (append content to change size)
-    let generated_v2 = vec![
-        ("src/lib.rs".to_string(), "pub fn hello() {}\n\n// Modified\n".to_string()),
-    ];
+    let generated_v2 = vec![(
+        "src/lib.rs".to_string(),
+        "pub fn hello() {}\n\n// Modified\n".to_string(),
+    )];
 
     let drift_config = CoherenceGateConfig {
         allow_count_discrepancy: false,
@@ -327,9 +323,7 @@ fn test_coherence_gate_rejects_empty_event_log_with_artifacts() {
     // Arrange
     let ontology_bytes =
         b"<https://example.org/s> <https://example.org/p> <https://example.org/o> .";
-    let generated = vec![
-        ("src/lib.rs".to_string(), "pub fn hello() {}".to_string()),
-    ];
+    let generated = vec![("src/lib.rs".to_string(), "pub fn hello() {}".to_string())];
 
     // Act
     use ggen_core::sync::{CoherenceGate, CoherenceGateConfig};
@@ -368,9 +362,7 @@ fn test_coherence_gate_emits_otel_spans() {
 
     let ontology_bytes =
         b"<https://example.org/s> <https://example.org/p> <https://example.org/o> .";
-    let generated = vec![
-        ("src/lib.rs".to_string(), "pub fn hello() {}".to_string()),
-    ];
+    let generated = vec![("src/lib.rs".to_string(), "pub fn hello() {}".to_string())];
 
     use ggen_core::sync::{CoherenceGate, CoherenceGateConfig};
 

@@ -97,13 +97,16 @@ fn resolve_envelope_path(output_envelope: Option<String>) -> PathBuf {
 /// Collect all artifact files from the source directory recursively.
 fn collect_artifact_files(source_dir: &PathBuf) -> std::result::Result<Vec<PathBuf>, String> {
     if !source_dir.exists() {
-        return Err(format!("Source directory not found: {}", source_dir.display()));
+        return Err(format!(
+            "Source directory not found: {}",
+            source_dir.display()
+        ));
     }
 
     let mut files = Vec::new();
 
-    for entry in fs::read_dir(source_dir)
-        .map_err(|e| format!("Failed to read source directory: {}", e))?
+    for entry in
+        fs::read_dir(source_dir).map_err(|e| format!("Failed to read source directory: {}", e))?
     {
         let entry = entry.map_err(|e| format!("Failed to read directory entry: {}", e))?;
         let path = entry.path();
@@ -153,8 +156,9 @@ fn do_inverse_sync(
     let envelope_path = resolve_envelope_path(output_envelope);
 
     // === Step 1: Collect artifact files ===
-    let artifact_files = collect_artifact_files(&source_dir)
-        .map_err(|e| NounVerbError::execution_error(format!("Failed to collect artifacts: {}", e)))?;
+    let artifact_files = collect_artifact_files(&source_dir).map_err(|e| {
+        NounVerbError::execution_error(format!("Failed to collect artifacts: {}", e))
+    })?;
 
     if artifact_files.is_empty() {
         return Ok(InverseSyncOutput {
@@ -180,13 +184,11 @@ fn do_inverse_sync(
 
     // === Step 3: Run inverse pipeline μ⁻¹₁–μ⁻¹₅ ===
     let inverse_receipt = InversePipeline::run_signed(&artifact_files, &signing_key_obj)
-        .map_err(|e| {
-            NounVerbError::execution_error(format!("Inverse pipeline failed: {}", e))
-        })?;
+        .map_err(|e| NounVerbError::execution_error(format!("Inverse pipeline failed: {}", e)))?;
 
     // === Step 4: Load expected ontology and compute hash ===
-    let (ontology_hash, ontology_triple_count) = load_ontology_hash(&ontology_path)
-        .map_err(|e| NounVerbError::execution_error(e))?;
+    let (ontology_hash, ontology_triple_count) =
+        load_ontology_hash(&ontology_path).map_err(|e| NounVerbError::execution_error(e))?;
 
     // === Step 5: Emit OCEL pack lifecycle events and compute L pole hash ===
     // For this task, we simulate OCEL events from the inverse receipt metadata.
@@ -219,8 +221,10 @@ fn do_inverse_sync(
             (p.to_string_lossy().into_owned(), size)
         })
         .collect();
-    let artifact_data: Vec<(&str, u64)> =
-        artifact_paths.iter().map(|(s, n)| (s.as_str(), *n)).collect();
+    let artifact_data: Vec<(&str, u64)> = artifact_paths
+        .iter()
+        .map(|(s, n)| (s.as_str(), *n))
+        .collect();
     let a_pole = CoherenceChecker::fingerprint_artifacts(&artifact_data);
 
     // === Step 7: Create O pole from expected ontology hash ===
@@ -237,7 +241,8 @@ fn do_inverse_sync(
 
     // Capture the A-pole hash before the poles are moved into the coherence check.
     let a_pole_hash = a_pole.hash.clone();
-    let coherence_report = CoherenceChecker::check_with_expectations(&[o_pole, a_pole, l_pole], &expectations);
+    let coherence_report =
+        CoherenceChecker::check_with_expectations(&[o_pole, a_pole, l_pole], &expectations);
     let coherence_admitted = coherence_report.admitted;
 
     let coherence_drifts: Option<Vec<String>> = if !coherence_report.drifts.is_empty() {
@@ -266,7 +271,11 @@ fn do_inverse_sync(
             a_pole_hash,
             inverse_receipt.output_hash.clone(),
             coherence_admitted,
-            if coherence_admitted { None } else { coherence_drifts.as_ref().map(|d| d.join("; ")) },
+            if coherence_admitted {
+                None
+            } else {
+                coherence_drifts.as_ref().map(|d| d.join("; "))
+            },
         )
     };
 
@@ -280,10 +289,7 @@ fn do_inverse_sync(
     // === Step 11: Write envelope to disk ===
     if let Some(parent) = envelope_path.parent() {
         fs::create_dir_all(parent).map_err(|e| {
-            NounVerbError::execution_error(format!(
-                "Failed to create envelope directory: {}",
-                e
-            ))
+            NounVerbError::execution_error(format!("Failed to create envelope directory: {}", e))
         })?;
     }
 
@@ -309,7 +315,11 @@ fn do_inverse_sync(
         inverse_operation_id: inverse_receipt.operation_id,
         coherence_admitted,
         envelope_path: envelope_path.to_string_lossy().to_string(),
-        error: if !coherence_admitted { Some("Coherence check failed".to_string()) } else { None },
+        error: if !coherence_admitted {
+            Some("Coherence check failed".to_string())
+        } else {
+            None
+        },
         coherence_drifts,
     })
 }

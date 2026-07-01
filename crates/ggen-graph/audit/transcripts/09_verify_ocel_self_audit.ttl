@@ -6,10 +6,10 @@
 
 <#activity_09_verify_ocel_self_audit> a prov:Activity ;
     dcterms:identifier "09_verify_ocel_self_audit" ;
-    prov:startedAtTime "2026-05-27T04:21:59.465Z" ; 
-    prov:endedAtTime "2026-05-27T04:22:01.804Z" ;
+    prov:startedAtTime "2026-07-01T06:25:00.651Z" ; 
+    prov:endedAtTime "2026-07-01T06:25:02.818Z" ;
     prov:value 0 
-    ; prov:wasInformedBy _:aa6e93bf1365351a116e481f3a48e260 .
+    ; prov:wasInformedBy _:ee098c9c6d70e8cd50f2e49593a6a2bd .
 
 <#stdout_09_verify_ocel_self_audit> a prov:Entity ;
     prov:wasGeneratedBy <#activity_09_verify_ocel_self_audit> ;
@@ -17,7 +17,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "0195fae48642a6af4faecefb4ceb4bb62d6ce2b527fb7f20ce649d4e18ff33e8"
+        spdx:checksumValue "e2975ca8a6d1386b8b8c5e6653fa6cf56676df38327ec2fb7273336a2c7ce30d"
     ] .
 
 <#stderr_09_verify_ocel_self_audit> a prov:Entity ;
@@ -26,5 +26,5 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "224618dfb486f7deb93d56b1e1bf6d735582fb28c2b090a78cf8ac8f29b58a31"
+        spdx:checksumValue "5e1592a1f4d69c26fc3f4554c076aab13e9c4beba0c247a044c7e316c60872bb"
     ] .

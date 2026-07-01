@@ -15,6 +15,11 @@
       - examples[]: { text } (for special commands)
     - global_options: array of { name, long_name, type, summary, description }
 -#}
+{%- macro pad(val, width) -%}
+{%- set val_len = val | length -%}
+{%- set pad_len = width - val_len -%}
+{{ val }}{% if pad_len > 0 %}{% for i in range(end=pad_len) %} {% endfor %}{% endif %}
+{%- endmacro -%}
 //! Auto-generated help text for {{ interface_name }}
 //!
 //! DO NOT EDIT -- this file is generated from .specify/ontology/cli-ggen.ttl.
@@ -32,7 +37,7 @@ USAGE:
 
 COMMANDS:
 {%- for command in commands %}
-    {{ "%-16s" | format(command.name) }} {{ command.summary }}
+    {{ self::pad(val=command.name, width=16) }} {{ command.summary }}
 {%- endfor %}
 
 GLOBAL OPTIONS:
@@ -66,7 +71,7 @@ USAGE:
 
 SUBCOMMANDS:
 {%- for subcmd in command.subcommands %}
-    {{ "%-16s" | format(subcmd.name) }} {{ subcmd.summary }}
+    {{ self::pad(val=subcmd.name, width=16) }} {{ subcmd.summary }}
 {%- endfor %}
 "#;
 

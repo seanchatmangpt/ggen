@@ -31,7 +31,10 @@ fn test_full_project_setup_embedded_only() {
 
     // Step 2: Initialize with core ontologies
     let core_ontologies = CoreOntologyBundle::all();
-    assert!(!core_ontologies.is_empty(), "Core ontologies should be available");
+    assert!(
+        !core_ontologies.is_empty(),
+        "Core ontologies should be available"
+    );
 
     // Step 3: Verify all embedded ontologies can be loaded
     for ont in core_ontologies {
@@ -107,7 +110,8 @@ fn test_lock_file_creation_and_structure() {
     // Verify lock file exists and is valid JSON
     assert!(lock_file.exists(), "Lock file should exist");
     let content = fs::read_to_string(&lock_file).expect("Failed to read lock file");
-    let parsed: serde_json::Value = serde_json::from_str(&content).expect("Lock file should be valid JSON");
+    let parsed: serde_json::Value =
+        serde_json::from_str(&content).expect("Lock file should be valid JSON");
     assert_eq!(parsed["version"], "1.0");
 }
 
@@ -147,7 +151,10 @@ fn test_incremental_rebuild_with_cache() {
         }
     }
 
-    assert!(!first_build_contents.is_empty(), "First build should load ontologies");
+    assert!(
+        !first_build_contents.is_empty(),
+        "First build should load ontologies"
+    );
 
     // Second build: load again (should use "cache")
     let embedded_again = OntologyLoader::list_embedded();
@@ -166,8 +173,15 @@ fn test_incremental_rebuild_with_cache() {
         "Both builds should load same number of ontologies"
     );
 
-    for ((uri1, content1), (_uri2, content2)) in first_build_contents.iter().zip(second_build_contents.iter()) {
-        assert_eq!(content1, &content2, "Content should be identical for {}", uri1);
+    for ((uri1, content1), (_uri2, content2)) in first_build_contents
+        .iter()
+        .zip(second_build_contents.iter())
+    {
+        assert_eq!(
+            content1, content2,
+            "Content should be identical for {}",
+            uri1
+        );
     }
 }
 
@@ -207,14 +221,8 @@ fn test_deterministic_ontology_loading() {
         );
 
         for j in 0..loads[0].len() {
-            assert_eq!(
-                loads[0][j].0, loads[i][j].0,
-                "Ontology names should match"
-            );
-            assert_eq!(
-                loads[0][j].1, loads[i][j].1,
-                "Ontology sizes should match"
-            );
+            assert_eq!(loads[0][j].0, loads[i][j].0, "Ontology names should match");
+            assert_eq!(loads[0][j].1, loads[i][j].1, "Ontology sizes should match");
         }
     }
 }
@@ -251,7 +259,8 @@ fn test_complete_workflow_offline() {
     // Step 2: Verify offline availability
     let available = OntologyLoader::list_embedded();
     assert_eq!(
-        loaded_count, available.len(),
+        loaded_count,
+        available.len(),
         "Should load all available embedded ontologies"
     );
 

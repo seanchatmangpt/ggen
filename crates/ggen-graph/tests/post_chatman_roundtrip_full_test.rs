@@ -89,10 +89,10 @@ fn test_post_chatman_roundtrip_scenario_1_happy_path_coherent() {
     let pack_verify_event = emit_pack_verify("evt:2", now, "order-service", "1.0.0");
 
     // Serialize events to JSON (as would be stored in OCEL log)
-    let event_1_json = serde_json::to_string(&pack_install_event)
-        .expect("event must serialize to JSON");
-    let event_2_json = serde_json::to_string(&pack_verify_event)
-        .expect("event must serialize to JSON");
+    let event_1_json =
+        serde_json::to_string(&pack_install_event).expect("event must serialize to JSON");
+    let event_2_json =
+        serde_json::to_string(&pack_verify_event).expect("event must serialize to JSON");
 
     // Step 5: Compute L pole hash (BLAKE3 of OCEL JSON)
     let event_strings = [event_1_json.as_str(), event_2_json.as_str()];
@@ -116,11 +116,8 @@ fn test_post_chatman_roundtrip_scenario_1_happy_path_coherent() {
     assert_eq!(report.poles.len(), 3, "all three poles should be recorded");
 
     // Verify pole states are recorded correctly
-    let poles_by_kind: HashMap<Pole, &PoleState> = report
-        .poles
-        .iter()
-        .map(|p| (p.pole, p))
-        .collect();
+    let poles_by_kind: HashMap<Pole, &PoleState> =
+        report.poles.iter().map(|p| (p.pole, p)).collect();
 
     assert!(
         poles_by_kind.contains_key(&Pole::Ontology),
@@ -136,19 +133,25 @@ fn test_post_chatman_roundtrip_scenario_1_happy_path_coherent() {
     );
 
     // Verify operation_id is non-empty (real UUID, not sentinel)
-    assert!(!report.operation_id.is_empty(), "operation_id must be non-empty");
+    assert!(
+        !report.operation_id.is_empty(),
+        "operation_id must be non-empty"
+    );
 
     // Verify item counts are correct (state-based observable fact)
     assert_eq!(
-        poles_by_kind[&Pole::Ontology].item_count, 4,
+        poles_by_kind[&Pole::Ontology].item_count,
+        4,
         "Ontology must have 4 items"
     );
     assert_eq!(
-        poles_by_kind[&Pole::Artifact].item_count, 3,
+        poles_by_kind[&Pole::Artifact].item_count,
+        3,
         "Artifact must have 3 items"
     );
     assert_eq!(
-        poles_by_kind[&Pole::EventLog].item_count, 2,
+        poles_by_kind[&Pole::EventLog].item_count,
+        2,
         "EventLog must have 2 items"
     );
 }
@@ -191,8 +194,8 @@ fn test_post_chatman_roundtrip_scenario_2_sabotage_artifact() {
     // OCEL events (unchanged from original)
     let now = Utc::now();
     let pack_install_event = emit_pack_install("evt:1", now, "order-service", "1.0.0");
-    let event_1_json = serde_json::to_string(&pack_install_event)
-        .expect("event must serialize to JSON");
+    let event_1_json =
+        serde_json::to_string(&pack_install_event).expect("event must serialize to JSON");
     let l_pole = CoherenceChecker::fingerprint_event_log(&[&event_1_json]);
 
     // Act: run coherence check on sabotaged artifact with original ontology expectation
@@ -268,8 +271,8 @@ fn test_post_chatman_roundtrip_scenario_3_sabotage_ontology() {
 
     let now = Utc::now();
     let pack_install_event = emit_pack_install("evt:1", now, "order-service", "1.0.0");
-    let event_json = serde_json::to_string(&pack_install_event)
-        .expect("event must serialize to JSON");
+    let event_json =
+        serde_json::to_string(&pack_install_event).expect("event must serialize to JSON");
     let l_pole = CoherenceChecker::fingerprint_event_log(&[&event_json]);
 
     // Act: run coherence check with expectations mapping original ontology hash
@@ -317,13 +320,10 @@ fn test_post_chatman_roundtrip_scenario_4_sabotage_event_log() {
     let event1 = emit_pack_install("evt:1", now, "order-service", "1.0.0");
     let event2 = emit_pack_verify("evt:2", now, "order-service", "1.0.0");
 
-    let event1_json = serde_json::to_string(&event1)
-        .expect("event1 must serialize");
-    let event2_json = serde_json::to_string(&event2)
-        .expect("event2 must serialize");
+    let event1_json = serde_json::to_string(&event1).expect("event1 must serialize");
+    let event2_json = serde_json::to_string(&event2).expect("event2 must serialize");
 
-    let l_pole_original =
-        CoherenceChecker::fingerprint_event_log(&[&event1_json, &event2_json]);
+    let l_pole_original = CoherenceChecker::fingerprint_event_log(&[&event1_json, &event2_json]);
 
     // Sabotage: remove one event (only use event1)
     let l_pole_sabotaged = CoherenceChecker::fingerprint_event_log(&[&event1_json]);
@@ -380,8 +380,7 @@ fn test_post_chatman_roundtrip_scenario_5_invalid_signature_fail_closed() {
     // Create OCEL event and serialize as JSON (simulates InverseReceipt field)
     let now = Utc::now();
     let event = emit_pack_install("evt:1", now, "order-service", "1.0.0");
-    let event_json = serde_json::to_string(&event)
-        .expect("event must serialize");
+    let event_json = serde_json::to_string(&event).expect("event must serialize");
 
     // Create a receipt-like object (we simulate with JSON since we're testing
     // the coherence flow, not the InverseReceipt signing itself)
@@ -392,8 +391,7 @@ fn test_post_chatman_roundtrip_scenario_5_invalid_signature_fail_closed() {
         "output_hash": "def456"
     });
 
-    let receipt_json = serde_json::to_string(&receipt_body)
-        .expect("receipt must serialize");
+    let receipt_json = serde_json::to_string(&receipt_body).expect("receipt must serialize");
 
     // Sign the receipt with key 1
     let message = receipt_json.as_bytes();
@@ -427,8 +425,7 @@ fn test_post_chatman_roundtrip_scenario_5_invalid_signature_fail_closed() {
         && verifying_key_1
             .verify(
                 message,
-                &ed25519_dalek::Signature::from_slice(&[0u8; 64])
-                    .expect("dummy signature"),
+                &ed25519_dalek::Signature::from_slice(&[0u8; 64]).expect("dummy signature"),
             )
             .is_ok();
 
@@ -498,30 +495,21 @@ fn test_post_chatman_roundtrip_full_integration_all_poles_present() {
         .iter()
         .find(|p| p.pole == Pole::Ontology)
         .expect("Ontology pole must be present");
-    assert_eq!(
-        o_pole_state.item_count, 5,
-        "Ontology must have 5 triples"
-    );
+    assert_eq!(o_pole_state.item_count, 5, "Ontology must have 5 triples");
 
     let a_pole_state = report
         .poles
         .iter()
         .find(|p| p.pole == Pole::Artifact)
         .expect("Artifact pole must be present");
-    assert_eq!(
-        a_pole_state.item_count, 4,
-        "Artifact must have 4 files"
-    );
+    assert_eq!(a_pole_state.item_count, 4, "Artifact must have 4 files");
 
     let l_pole_state = report
         .poles
         .iter()
         .find(|p| p.pole == Pole::EventLog)
         .expect("EventLog pole must be present");
-    assert_eq!(
-        l_pole_state.item_count, 2,
-        "EventLog must have 2 events"
-    );
+    assert_eq!(l_pole_state.item_count, 2, "EventLog must have 2 events");
 
     // Verify operation_id is unique (UUID, not sentinel)
     assert!(!report.operation_id.is_empty());
@@ -544,8 +532,7 @@ fn test_post_chatman_roundtrip_cross_pole_hash_comparison_o_vs_l() {
     // Create ONE event and a DIFFERENT ontology to force hash divergence
     let now = Utc::now();
     let event = emit_pack_install("evt:1", now, "test-pack", "1.0.0");
-    let event_json = serde_json::to_string(&event)
-        .expect("event must serialize");
+    let event_json = serde_json::to_string(&event).expect("event must serialize");
 
     let o_pole = CoherenceChecker::fingerprint_ontology(&ontology_triples);
     let a_pole = CoherenceChecker::fingerprint_artifacts(&[]); // empty artifacts

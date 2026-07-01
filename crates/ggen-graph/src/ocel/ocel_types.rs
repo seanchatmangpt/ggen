@@ -55,12 +55,18 @@ pub(crate) fn to_compat_ocel(log: &OcelLog) -> OCEL {
 
     let event_types: Vec<OCELType> = event_type_names
         .into_iter()
-        .map(|name| OCELType { name: name.to_string(), attributes: vec![] })
+        .map(|name| OCELType {
+            name: name.to_string(),
+            attributes: vec![],
+        })
         .collect();
 
     let object_types: Vec<OCELType> = object_type_names
         .into_iter()
-        .map(|name| OCELType { name: name.to_string(), attributes: vec![] })
+        .map(|name| OCELType {
+            name: name.to_string(),
+            attributes: vec![],
+        })
         .collect();
 
     let objects: Vec<OCELObject> = log
@@ -98,5 +104,10 @@ pub(crate) fn to_compat_ocel(log: &OcelLog) -> OCEL {
         })
         .collect();
 
-    OCEL { event_types, object_types, events, objects }
+    OCEL {
+        event_types,
+        object_types,
+        events,
+        objects,
+    }
 }

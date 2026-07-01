@@ -424,10 +424,7 @@ mod tests {
         // Create epoch with mixed identifiers: file path + core bundle URI
         let epoch = Epoch::create_with_fallback(
             temp_dir.path(),
-            &[
-                "custom.ttl",
-                "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-            ],
+            &["custom.ttl", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"],
         )
         .expect("Should load custom file and RDF from core bundle");
 
@@ -461,6 +458,9 @@ mod tests {
         .expect("Should load RDF and OWL from core bundle");
 
         assert_eq!(epoch.inputs.len(), 2, "Should have 2 embedded ontologies");
-        assert!(epoch.total_triples > 0, "Should count triples across ontologies");
+        assert!(
+            epoch.total_triples > 0,
+            "Should count triples across ontologies"
+        );
     }
 }

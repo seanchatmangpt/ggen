@@ -6,10 +6,10 @@
 
 <#activity_01_extract_requirements> a prov:Activity ;
     dcterms:identifier "01_extract_requirements" ;
-    prov:startedAtTime "2026-05-27T04:21:52.572Z" ; 
-    prov:endedAtTime "2026-05-27T04:21:52.659Z" ;
+    prov:startedAtTime "2026-07-01T06:24:15.606Z" ; 
+    prov:endedAtTime "2026-07-01T06:24:15.695Z" ;
     prov:value 0 
-    ; prov:wasInformedBy _:aa6e93bf1365351a116e481f3a48e260 .
+    ; prov:wasInformedBy _:ee098c9c6d70e8cd50f2e49593a6a2bd .
 
 <#stdout_01_extract_requirements> a prov:Entity ;
     prov:wasGeneratedBy <#activity_01_extract_requirements> ;

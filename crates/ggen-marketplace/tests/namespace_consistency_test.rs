@@ -85,9 +85,7 @@ fn insert_canonical_package(store: &Store, id: &str, name: &str, description: &s
 /// Run a SELECT and count the solution rows (real SPARQL evaluation).
 fn count_solutions(store: &Store, query: &str) -> usize {
     match store.query(query).expect("query must execute") {
-        QueryResults::Solutions(solutions) => {
-            solutions.map(|s| s.expect("valid solution")).count()
-        }
+        QueryResults::Solutions(solutions) => solutions.map(|s| s.expect("valid solution")).count(),
         _ => panic!("expected SELECT solutions from query:\n{query}"),
     }
 }
@@ -101,7 +99,13 @@ fn count_solutions(store: &Store, query: &str) -> usize {
 fn test_inserted_package_is_findable_by_query_builder() {
     // Arrange: real store, canonical insert.
     let store = Store::new().expect("in-memory store");
-    insert_canonical_package(&store, "acme-base", "Acme Base", "Core acme package", "1.0.0");
+    insert_canonical_package(
+        &store,
+        "acme-base",
+        "Acme Base",
+        "Core acme package",
+        "1.0.0",
+    );
 
     // Act: build the SELECT with the real query builder, execute on real store.
     let search = MarketplaceQueries::search_packages(&SearchParams::default())
@@ -160,7 +164,10 @@ fn test_package_name_uri_agrees_across_insert_and_query_sides() {
     );
 
     // description likewise agrees and is under MARKETPLACE_NS.
-    assert_eq!(Property::PackageDescription.uri(), Properties::description());
+    assert_eq!(
+        Property::PackageDescription.uri(),
+        Properties::description()
+    );
     assert_eq!(
         Property::PackageDescription.uri(),
         format!("{MARKETPLACE_NS}description")
@@ -174,7 +181,13 @@ fn test_package_name_uri_agrees_across_insert_and_query_sides() {
 #[test]
 fn test_legacy_dc_title_predicate_finds_nothing_against_canonical_data() {
     let store = Store::new().expect("in-memory store");
-    insert_canonical_package(&store, "acme-base", "Acme Base", "Core acme package", "1.0.0");
+    insert_canonical_package(
+        &store,
+        "acme-base",
+        "Acme Base",
+        "Core acme package",
+        "1.0.0",
+    );
 
     let legacy_query = format!(
         r#"
@@ -237,8 +250,7 @@ fn test_data_properties_have_no_uri_local_name_drift() {
             "{prop:?} must resolve under MARKETPLACE_NS, got {uri}"
         );
         assert!(
-            !uri.starts_with("http://purl.org/dc/")
-                && !uri.starts_with("http://xmlns.com/foaf/"),
+            !uri.starts_with("http://purl.org/dc/") && !uri.starts_with("http://xmlns.com/foaf/"),
             "{prop:?} must not route to dc:/foaf:, got {uri}"
         );
     }

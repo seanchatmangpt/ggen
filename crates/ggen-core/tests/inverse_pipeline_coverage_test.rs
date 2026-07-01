@@ -95,30 +95,72 @@ fn rich_rust_source_recovers_struct_impl_enum_and_trait() {
     let turtle = convert_to_rdf(&services).expect("convert to rdf");
 
     // Assert: the struct is present with its fields.
-    assert!(turtle.contains("code:Worker"), "missing struct resource:\n{turtle}");
-    assert!(turtle.contains("\"id\""), "missing struct field id:\n{turtle}");
+    assert!(
+        turtle.contains("code:Worker"),
+        "missing struct resource:\n{turtle}"
+    );
+    assert!(
+        turtle.contains("\"id\""),
+        "missing struct field id:\n{turtle}"
+    );
 
     // Assert: impl-block methods are recovered and attached to the struct.
     assert!(
         turtle.contains("code:hasMethod"),
         "expected impl methods to be emitted:\n{turtle}"
     );
-    assert!(turtle.contains("\"start\""), "missing method start:\n{turtle}");
-    assert!(turtle.contains("\"stop\""), "missing method stop:\n{turtle}");
+    assert!(
+        turtle.contains("\"start\""),
+        "missing method start:\n{turtle}"
+    );
+    assert!(
+        turtle.contains("\"stop\""),
+        "missing method stop:\n{turtle}"
+    );
 
     // Assert: the enum and each of its variants are recovered.
-    assert!(turtle.contains("code:Enum"), "missing enum class:\n{turtle}");
-    assert!(turtle.contains("code:WorkerState"), "missing enum resource:\n{turtle}");
-    assert!(turtle.contains("code:hasVariant"), "missing variant predicate:\n{turtle}");
-    assert!(turtle.contains("\"Idle\""), "missing variant Idle:\n{turtle}");
-    assert!(turtle.contains("\"Running\""), "missing variant Running:\n{turtle}");
-    assert!(turtle.contains("\"Stopped\""), "missing variant Stopped:\n{turtle}");
+    assert!(
+        turtle.contains("code:Enum"),
+        "missing enum class:\n{turtle}"
+    );
+    assert!(
+        turtle.contains("code:WorkerState"),
+        "missing enum resource:\n{turtle}"
+    );
+    assert!(
+        turtle.contains("code:hasVariant"),
+        "missing variant predicate:\n{turtle}"
+    );
+    assert!(
+        turtle.contains("\"Idle\""),
+        "missing variant Idle:\n{turtle}"
+    );
+    assert!(
+        turtle.contains("\"Running\""),
+        "missing variant Running:\n{turtle}"
+    );
+    assert!(
+        turtle.contains("\"Stopped\""),
+        "missing variant Stopped:\n{turtle}"
+    );
 
     // Assert: the trait and its required methods are recovered.
-    assert!(turtle.contains("code:Trait"), "missing trait class:\n{turtle}");
-    assert!(turtle.contains("code:Schedulable"), "missing trait resource:\n{turtle}");
-    assert!(turtle.contains("\"schedule\""), "missing trait method schedule:\n{turtle}");
-    assert!(turtle.contains("\"cancel\""), "missing trait method cancel:\n{turtle}");
+    assert!(
+        turtle.contains("code:Trait"),
+        "missing trait class:\n{turtle}"
+    );
+    assert!(
+        turtle.contains("code:Schedulable"),
+        "missing trait resource:\n{turtle}"
+    );
+    assert!(
+        turtle.contains("\"schedule\""),
+        "missing trait method schedule:\n{turtle}"
+    );
+    assert!(
+        turtle.contains("\"cancel\""),
+        "missing trait method cancel:\n{turtle}"
+    );
 }
 
 #[test]
@@ -179,5 +221,8 @@ fn turtle_remains_well_formed_prefixes_and_terminators() {
 
     // Assert: every non-empty, non-prefix statement block terminates with a
     // Turtle full stop somewhere (no dangling resource without a terminator).
-    assert!(turtle.trim_end().ends_with('.'), "turtle not terminated:\n{turtle}");
+    assert!(
+        turtle.trim_end().ends_with('.'),
+        "turtle not terminated:\n{turtle}"
+    );
 }

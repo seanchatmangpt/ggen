@@ -1,6 +1,6 @@
 [package]
 name = "ggen-lsp-mcp"
-version = "26.6.23"
+version = "26.7.1"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -10,7 +10,7 @@ description = "MCP server exposing ggen-lsp repair routes as a tool (leaf crate 
 # Leaf crate: depends on ggen-lsp, never the reverse. ggen-a2a-mcp must NOT
 # depend on ggen-lsp (ggen-core already depends on ggen-a2a-mcp → that direction
 # cycles); a separate leaf MCP server is the cycle-free way to ship the tool.
-ggen-lsp = { version = "26.6.23", path = "../ggen-lsp" }
+ggen-lsp = { version = "26.7.1", path = "../ggen-lsp" }
 rmcp = { version = "1.7.0", features = ["transport-io", "schemars"] }
 schemars = "1.2.1"
 serde = { version = "1", features = ["derive"] }

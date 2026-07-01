@@ -125,11 +125,18 @@ fn test_create_mode_skips_when_existing() {
     let result = pipeline.execute_generation_rules();
 
     // Create mode: must succeed (not error) when file already exists.
-    assert!(result.is_ok(), "Create mode must succeed when file exists, got: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Create mode must succeed when file exists, got: {:?}",
+        result.err()
+    );
 
     // Sentinel must be intact — file was not overwritten.
     let actual = std::fs::read_to_string(&output_path).expect("read output");
-    assert_eq!(actual, sentinel, "Create mode must not change content of existing file");
+    assert_eq!(
+        actual, sentinel,
+        "Create mode must not change content of existing file"
+    );
 }
 
 // ---------------------------------------------------------------------------

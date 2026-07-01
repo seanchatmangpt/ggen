@@ -1,15 +1,51 @@
 === [05] Running Integration Tests ===
 
-running 2 tests
+running 43 tests
+test coherence::tests::test_different_inputs_produce_different_fingerprints ... ok
+test coherence::tests::test_fingerprint_is_deterministic ... ok
+test coherence::tests::test_missing_event_log_emits_drift ... ok
+test coherence::tests::test_all_poles_present_no_drift ... ok
+test coherence::tests::test_artifact_without_event_log_events_emits_count_discrepancy ... ok
+test coherence::tests::test_declared_equals_computed_no_hash_mismatch ... ok
+test coherence::tests::test_declared_differs_from_computed_emits_hash_mismatch_not_admitted ... ok
+test coherence::tests::test_empty_all_poles_admitted ... ok
+test coherence::tests::test_check_with_expectations_is_deterministic_same_inputs ... ok
+test coherence::tests::test_ontology_with_empty_event_log_emits_o_to_l_discrepancy ... ok
+test coherence::tests::test_zero_artifacts_with_triples_emits_count_discrepancy ... ok
+test coherence::tests::test_operation_id_is_unique_per_check ... ok
+test graph::locate::tests::clean_turtle_has_no_diagnostics ... ok
+test ocel::conformance::tests::conformance_check_with_multiple_object_types ... ok
+test ocel::conformance::tests::conformance_check_detects_deviations ... ok
+test graph::locate::tests::extract_prefixes_returns_declared_prefixes ... ok
+test ocel::conformance::tests::conformance_check_with_valid_model ... ok
+test graph::locate::tests::malformed_turtle_reports_located_diagnostic ... ok
+test ocel::discovery::tests::discovers_canonical_path_for_single_object_type ... ok
+test ocel::discovery::tests::detects_variants_in_execution_paths ... ok
+test ocel::discovery::tests::discovers_multiple_object_types ... ok
+test ocel::pack_events::tests::remove_and_lockfile_write_emitters_carry_required_attributes ... ok
+test ocel::pm4py_bridge::tests::pm4py_bridge_creation ... ok
+test ocel::pack_events::tests::lifecycle_round_trips_through_json ... ok
+test ocel::pm4py_bridge::tests::pm4py_bridge_discovery_script_generation ... ok
+test ocel::pack_events::tests::pack_object_id_is_consistent_across_lifecycle_events ... ok
+test ocel::pm4py_bridge::tests::pm4py_stats_default ... ok
+test ocel::pack_events::tests::timestamps_are_lawfully_ordered ... ok
+test ocel::pack_events::tests::required_ocel_attributes_are_present_and_non_empty ... ok
+test sparql::tests::detects_query_forms ... ok
+test sparql::tests::invalid_query_fails_syntax_check ... ok
+test sparql::tests::valid_query_passes_syntax_check ... ok
+test ocel::conformance::tests::conforming_repair_lifecycle_passes ... ok
+test ocel::conformance::tests::out_of_order_repair_fails ... ok
+test graph::introspect::tests::enumerates_classes_and_properties ... ok
+test ocel::dfg::tests::discovers_directly_follows_edges ... ok
+test shacl::tests::missing_required_property_is_a_violation ... ok
+test shacl::tests::conforming_data_has_no_violations ... ok
 test tests::test_graph_and_receipt_flow ... ok
+test ocel::pm4py_bridge::tests::pm4py_bridge_temp_file_creation ... ok
+test ocel::pm4py_bridge::tests::pm4py_discover_with_unavailable_python ... ok
 test ocel::self_audit::tests::test_self_audit_log_generation_and_projection ... ok
+test ocel::pm4py_bridge::tests::pm4py_discover_with_multiple_variants ... ok
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
-
-
-running 0 tests
-
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 43 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.07s
 
 
 running 0 tests
@@ -60,29 +96,58 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 5 tests
+test empty_graph_yields_empty_dfg ... ok
+test lifecycle_requires_all_three_in_order ... ok
+test single_event_has_no_edges ... ok
+test equal_timestamps_produce_no_direct_follow ... ok
+test distinct_cases_do_not_create_cross_edges ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
 
 running 1 test
 test test_anti_fake_implementation_scan ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+running 9 tests
+test test_empty_expectations_produces_no_hash_drifts ... ok
+test test_partial_expectations_only_checks_declared_poles ... ok
+test test_event_log_hash_mismatch_against_expectation ... ok
+test test_artifact_hash_mismatch_against_expectation ... ok
+test test_ontology_hash_mismatch_against_expectation ... ok
+test test_matching_expectations_no_hash_drift ... ok
+test test_expectations_do_not_suppress_count_discrepancies ... ok
+test test_rule_6_cross_pole_coherence_fracture ... ok
+test test_multiple_poles_with_hash_mismatches ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 
 running 2 tests
 test test_delta_determinism_empty_transitions ... ok
 test test_delta_determinism_insertion_order ... ok
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 
 running 5 tests
-test test_shex_completeness ... ok
 test test_n3_completeness ... ok
+test test_shex_completeness ... ok
 test test_datalog_completeness ... ok
 test test_sparql_completeness ... ok
 test test_shacl_completeness ... ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
 
 running 1 test
@@ -94,97 +159,29 @@ test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 running 1 test
 test test_dialect_replay ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 
 running 1 test
 test test_dialect_sabotage_checks ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 
 running 2 tests
 test test_forbidden_surfaces_scanner_detects_violation ... ok
-test test_forbidden_surfaces_scan ... ok
+test test_forbidden_surfaces_scan ... FAILED
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+failures:
 
-
-running 1 test
-test test_hash_stability_order_independence ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
-
-
-running 4 tests
-test test_hook_serialization_and_deserialization ... ok
-test test_load_hooks_from_json_array ... ok
-test test_all_ttl_hooks_have_nonempty_sparql_query ... ok
-test test_load_ttl_hook_pack_has_14_hooks ... ok
-
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+---- test_forbidden_surfaces_scan stdout ----
+File "src/ocel/pm4py_bridge.rs" contains forbidden pattern: 'std::process::Command'
+File "src/ocel/pm4py_bridge.rs" contains forbidden pattern: 'Command::new'
+Error: "Forbidden surfaces check failed: 2 violations found across 65 files scanned"
 
 
-running 2 tests
-test test_hook_scheduler_all_pass ... ok
-test test_hook_scheduler_aborts_on_failure ... ok
+failures:
+    test_forbidden_surfaces_scan
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
 
-
-running 4 tests
-test test_adapter_layer_json_rpc ... ok
-test test_outer_membrane_sanitization_and_injection_blocks ... ok
-test test_genesis_core_and_transaction ... ok
-test test_projection_layer_ocel ... ok
-
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
-
-
-running 2 tests
-test test_prov_roundtrip ... ok
-test test_ocel_roundtrip_and_diagnostics_flow ... ok
-
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
-
-
-running 1 test
-test test_integration_self_audit_graph_projection_and_sparql ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
-
-
-running 2 tests
-test test_receipt_tamper_detection ... ok
-test test_receipt_replay_success ... ok
-
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
-
-
-running 6 tests
-test test_sparql_malformed_query_error ... ok
-test test_sparql_unsupported_construct_error ... ok
-test test_sparql_select_query_solutions ... ok
-test test_hook_pack_w0_construct_query_against_real_store ... ok
-test test_hook_pack_w0_construct_query_empty_store_returns_nonconforming_report ... ok
-test test_all_hook_pack_queries_are_valid_sparql ... ok
-
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
-
-
-running 1 test
-test test_coverage_matrix_schema_and_contents ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-
-running 5 tests
-test test_vocab_constants_exist_and_match ... ok
-test test_vocab_projection_in_graph ... ok
-test test_hook_pack_ttl_contains_no_gall_namespace_terms ... ok
-test test_audit_doctest_results_ttl_vocab_is_clean ... ok
-test test_all_ttl_files_have_no_gall_terms ... ok
-
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.63s
-
-PASS: Integration tests passed successfully.

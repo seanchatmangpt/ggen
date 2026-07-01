@@ -136,7 +136,7 @@ impl RuleExecutor {
             } else {
                 "SELECT"
             }
-        } else if query_str.find("SELECT").is_some() {
+        } else if query_str.contains("SELECT") {
             "SELECT"
         } else {
             ""

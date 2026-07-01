@@ -43,7 +43,10 @@ fn test_ontology_hash_mismatch_against_expectation() {
     let mut expectations = HashMap::new();
     expectations.insert(Pole::Ontology, expected_o_hash.clone());
 
-    let report = CoherenceChecker::check_with_expectations(&[o_fresh.clone(), a_fresh, l_fresh], &expectations);
+    let report = CoherenceChecker::check_with_expectations(
+        &[o_fresh.clone(), a_fresh, l_fresh],
+        &expectations,
+    );
 
     // Assert: a HashMismatch drift is emitted for Ontology pole
     let hash_mismatch_drifts: Vec<&CoherenceDrift> = report
@@ -97,7 +100,10 @@ fn test_artifact_hash_mismatch_against_expectation() {
     let mut expectations = HashMap::new();
     expectations.insert(Pole::Artifact, expected_a_hash.clone());
 
-    let report = CoherenceChecker::check_with_expectations(&[o_fresh, a_fresh.clone(), l_fresh], &expectations);
+    let report = CoherenceChecker::check_with_expectations(
+        &[o_fresh, a_fresh.clone(), l_fresh],
+        &expectations,
+    );
 
     // Assert: a HashMismatch drift is emitted for Artifact pole
     let hash_mismatch_drifts: Vec<&CoherenceDrift> = report
@@ -139,7 +145,10 @@ fn test_event_log_hash_mismatch_against_expectation() {
     let mut expectations = HashMap::new();
     expectations.insert(Pole::EventLog, expected_l_hash.clone());
 
-    let report = CoherenceChecker::check_with_expectations(&[o_fresh, a_fresh, l_fresh.clone()], &expectations);
+    let report = CoherenceChecker::check_with_expectations(
+        &[o_fresh, a_fresh, l_fresh.clone()],
+        &expectations,
+    );
 
     // Assert: a HashMismatch drift is emitted for EventLog pole
     let hash_mismatch_drifts: Vec<&CoherenceDrift> = report
@@ -190,7 +199,8 @@ fn test_rule_6_cross_pole_coherence_fracture() {
     expectations.insert(Pole::Ontology, expected_o);
     expectations.insert(Pole::EventLog, expected_l);
 
-    let report = CoherenceChecker::check_with_expectations(&[o_fresh, a_fresh, l_fresh], &expectations);
+    let report =
+        CoherenceChecker::check_with_expectations(&[o_fresh, a_fresh, l_fresh], &expectations);
 
     // Assert: Rule 6 emits a cross-pole fracture drift (O stable, L drifted)
     let cross_pole_drifts: Vec<&CoherenceDrift> = report
@@ -211,7 +221,8 @@ fn test_rule_6_cross_pole_coherence_fracture() {
 
     // Assert: the detail describes the fracture
     assert!(
-        cross_pole_drifts[0].detail.contains("stable") && cross_pole_drifts[0].detail.contains("drifted"),
+        cross_pole_drifts[0].detail.contains("stable")
+            && cross_pole_drifts[0].detail.contains("drifted"),
         "drift detail should explain the fracture"
     );
 
@@ -242,7 +253,10 @@ fn test_multiple_poles_with_hash_mismatches() {
     expectations.insert(Pole::Ontology, expected_o.clone());
     expectations.insert(Pole::Artifact, expected_a.clone());
 
-    let report = CoherenceChecker::check_with_expectations(&[o_fresh.clone(), a_fresh.clone(), l_fresh], &expectations);
+    let report = CoherenceChecker::check_with_expectations(
+        &[o_fresh.clone(), a_fresh.clone(), l_fresh],
+        &expectations,
+    );
 
     // Assert: multiple self-comparison HashMismatch drifts (Rule 5) for O and A
     let self_comparison_mismatches: Vec<&CoherenceDrift> = report
@@ -259,14 +273,23 @@ fn test_multiple_poles_with_hash_mismatches() {
     );
 
     // Assert: drifts cover both poles
-    let o_drifts = self_comparison_mismatches.iter().filter(|d| d.source_pole == Pole::Ontology).count();
-    let a_drifts = self_comparison_mismatches.iter().filter(|d| d.source_pole == Pole::Artifact).count();
+    let o_drifts = self_comparison_mismatches
+        .iter()
+        .filter(|d| d.source_pole == Pole::Ontology)
+        .count();
+    let a_drifts = self_comparison_mismatches
+        .iter()
+        .filter(|d| d.source_pole == Pole::Artifact)
+        .count();
 
     assert_eq!(o_drifts, 1, "exactly one drift should be for Ontology pole");
     assert_eq!(a_drifts, 1, "exactly one drift should be for Artifact pole");
 
     // Assert: admitted is false (multiple mismatches block admission)
-    assert!(!report.admitted, "multiple mismatches must force admitted = false");
+    assert!(
+        !report.admitted,
+        "multiple mismatches must force admitted = false"
+    );
 }
 
 // ─── Backward compatibility: empty expectations → no hash drifts ──────────────
@@ -295,7 +318,10 @@ fn test_empty_expectations_produces_no_hash_drifts() {
     );
 
     // Assert: report is admitted (three poles, no count discrepancies)
-    assert!(report.admitted, "empty expectations should allow admission if no other drift");
+    assert!(
+        report.admitted,
+        "empty expectations should allow admission if no other drift"
+    );
 }
 
 // ─── Matching expectations produce no drift ────────────────────────────────────
@@ -317,7 +343,10 @@ fn test_matching_expectations_no_hash_drift() {
     expectations.insert(Pole::Artifact, a.hash.clone());
     expectations.insert(Pole::EventLog, l.hash.clone());
 
-    let report = CoherenceChecker::check_with_expectations(&[o.clone(), a.clone(), l.clone()], &expectations);
+    let report = CoherenceChecker::check_with_expectations(
+        &[o.clone(), a.clone(), l.clone()],
+        &expectations,
+    );
 
     // Assert: no HashMismatch drifts
     let hash_mismatches = report
@@ -332,7 +361,10 @@ fn test_matching_expectations_no_hash_drift() {
     );
 
     // Assert: fully admitted (three poles, matching hashes, no count issues)
-    assert!(report.admitted, "matching expectations with all poles should be admitted");
+    assert!(
+        report.admitted,
+        "matching expectations with all poles should be admitted"
+    );
 }
 
 // ─── Sabotage test: partial expectations with mismatch on one pole ────────────
@@ -353,7 +385,8 @@ fn test_partial_expectations_only_checks_declared_poles() {
     let mut expectations = HashMap::new();
     expectations.insert(Pole::Ontology, expected_o.clone());
 
-    let report = CoherenceChecker::check_with_expectations(&[o_fresh, a_fresh, l_fresh], &expectations);
+    let report =
+        CoherenceChecker::check_with_expectations(&[o_fresh, a_fresh, l_fresh], &expectations);
 
     // Assert: only one HashMismatch (for O), not for A or L
     let hash_mismatches: Vec<&CoherenceDrift> = report
@@ -368,7 +401,8 @@ fn test_partial_expectations_only_checks_declared_poles() {
         "only declared poles should be checked for hash mismatch"
     );
     assert_eq!(
-        hash_mismatches[0].source_pole, Pole::Ontology,
+        hash_mismatches[0].source_pole,
+        Pole::Ontology,
         "the single mismatch should be for Ontology"
     );
 }
@@ -410,7 +444,10 @@ fn test_expectations_do_not_suppress_count_discrepancies() {
         .filter(|d| d.kind == DriftKind::HashMismatch)
         .count();
 
-    assert_eq!(hash_drifts, 0, "matching expectations must not emit HashMismatch");
+    assert_eq!(
+        hash_drifts, 0,
+        "matching expectations must not emit HashMismatch"
+    );
 
     // Assert: not admitted (count discrepancy present)
     assert!(!report.admitted);

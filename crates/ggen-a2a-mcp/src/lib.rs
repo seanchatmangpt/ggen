@@ -11,6 +11,12 @@
 //! - Multi-agent orchestration registry
 //! - Health monitoring and status tracking
 
+#![allow(
+    clippy::unused_async_trait_impl,
+    clippy::for_kv_map,
+    clippy::too_long_first_doc_paragraph
+)]
+
 pub mod a2a;
 pub mod a2a_generated;
 pub mod a2a_registry;
@@ -22,4 +28,7 @@ pub use a2a::{
 pub use a2a_generated::{Agent, AgentFactory, Message, Port, UnifiedAgent, UnifiedAgentBuilder};
 pub use a2a_registry::{AgentEntry, AgentQuery, AgentRegistry, HealthMonitor, HealthStatus};
 
+pub mod mcp_packs;
 pub mod mcp_server;
+
+pub use mcp_packs::{dispatch_pack_tool, pack_agent_card, PackToolsAdapter, PACK_TOOLS};

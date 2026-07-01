@@ -778,10 +778,7 @@ mod tests {
         lockfile.add_pack("io.ggen.rust.cli", pack);
 
         let result = lockfile.validate_invariants();
-        assert!(
-            result.is_err(),
-            "epoch/default installed_at must fail §4.1"
-        );
+        assert!(result.is_err(), "epoch/default installed_at must fail §4.1");
         let msg = result.expect_err("expected an error").to_string();
         assert!(
             msg.contains("installed_at"),

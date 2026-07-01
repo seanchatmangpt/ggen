@@ -1,42 +1,13 @@
-use anyhow::Result;
-use clap::{Parser, Subcommand};
-use cpmp::{receipt, scanner};
-use std::path::PathBuf;
+//! `cpmp` binary entry point.
+//!
+//! The command surface lives in the library as clap-noun-verb `#[verb]`
+//! functions (see [`cpmp::catalog`]); this binary just runs the auto-discovered
+//! CLI via [`cpmp::run_cli`]. Keeping the verbs in the library ensures their
+//! registrations are linked into the binary.
 
-#[derive(Parser)]
-#[command(
-    name = "cpmp",
-    about = "Computer Project Mapping Protocol (Open Ontologies Catalog)"
-)]
-struct Cli {
-    #[command(subcommand)]
-    command: Commands,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    Scan {
-        paths: Vec<PathBuf>,
-        #[arg(long, default_value = ".cpmp")]
-        out: PathBuf,
-    },
-    VerifyNoDeletion {
-        #[arg(long)]
-        before: PathBuf,
-        #[arg(long)]
-        after: PathBuf,
-    },
-}
-
-fn main() -> Result<()> {
-    let cli = Cli::parse();
-    match cli.command {
-        Commands::Scan { paths, out } => {
-            scanner::scan(&paths, &out)?;
-        }
-        Commands::VerifyNoDeletion { before, after } => {
-            receipt::verify_no_deletion(&before, &after)?;
-        }
+fn main() {
+    if let Err(e) = cpmp::run_cli() {
+        eprintln!("ERROR: {e}");
+        std::process::exit(1);
     }
-    Ok(())
 }

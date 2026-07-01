@@ -386,9 +386,9 @@ fn get_time_ms() -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ontology::delta_proposer::MockLLMProposer;
+    use crate::ontology::delta_proposer::PatternHeuristicProposer;
     use crate::ontology::validators::{
-        MockDynamicValidator, MockPerformanceValidator, MockStaticValidator,
+        RealDynamicValidator, RealPerformanceValidator, RealStaticValidator,
     };
 
     fn create_test_loop() -> AutonomousControlLoop {
@@ -401,14 +401,14 @@ mod tests {
         );
 
         let proposer: Arc<dyn DeltaSigmaProposer> =
-            Arc::new(MockLLMProposer::new(Default::default()));
+            Arc::new(PatternHeuristicProposer::new(Default::default()));
 
         let static_v: Arc<dyn crate::ontology::validators::StaticValidator> =
-            Arc::new(MockStaticValidator);
+            Arc::new(RealStaticValidator::new(vec![]));
         let dynamic_v: Arc<dyn crate::ontology::validators::DynamicValidator> =
-            Arc::new(MockDynamicValidator);
+            Arc::new(RealDynamicValidator::new(3));
         let perf_v: Arc<dyn crate::ontology::validators::PerformanceValidator> =
-            Arc::new(MockPerformanceValidator::new(1000, 1024 * 100));
+            Arc::new(RealPerformanceValidator::new(10000, 100 * 1024));
 
         let validator = Arc::new(CompositeValidator::new(static_v, dynamic_v, perf_v));
 

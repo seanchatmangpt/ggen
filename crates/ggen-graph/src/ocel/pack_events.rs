@@ -275,7 +275,8 @@ mod tests {
         log.objects.push(pack_object(PACK_ID, VERSION, DIGEST));
         log.objects
             .push(lockfile_entry_object(PACK_ID, VERSION, DIGEST));
-        log.objects.push(receipt_object(OPERATION_ID, "c2lnbmF0dXJl"));
+        log.objects
+            .push(receipt_object(OPERATION_ID, "c2lnbmF0dXJl"));
 
         log.events
             .push(emit_pack_install("ev_install", ts(10), PACK_ID, VERSION));

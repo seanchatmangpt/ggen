@@ -75,14 +75,23 @@ pub async fn check_packs_compatibility(
     })
 }
 
-// Mock implementation for loading packs - replace with actual implementation
+/// Load a pack's real metadata from the registry — the same source the CLI
+/// (`ggen pack show`) and the agent facade ([`crate::agent::PackAgent::show`])
+/// read.
+///
+/// Fail-closed: a pack that is not present in the registry is a hard error, so
+/// [`check_packs_compatibility`] reports it as a load failure instead of
+/// fabricating a phantom pack whose package set is invented from the ID. (The
+/// previous implementation returned a synthetic `package-<id>` pack, which made
+/// compatibility checks pass against data that never existed.)
 async fn load_pack(pack_id: &str) -> Result<LoadedPack, Error> {
-    // This should load actual packs from storage
+    let pack = metadata::show_pack(pack_id)
+        .map_err(|e| Error::new(&format!("Failed to load pack '{}': {}", pack_id, e)))?;
     Ok(LoadedPack {
-        id: pack_id.to_string(),
-        name: format!("Pack {}", pack_id),
-        packages: vec![format!("package-{}", pack_id)],
-        dependencies: vec![],
+        id: pack.id,
+        name: pack.name,
+        packages: pack.packages,
+        dependencies: pack.dependencies.into_iter().map(|d| d.pack_id).collect(),
     })
 }
 

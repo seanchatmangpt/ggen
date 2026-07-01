@@ -1,4 +1,7 @@
 === [06] Scanning for Forbidden Surfaces ===
 === Running Forbidden Surface Check ===
-PASS: Zero forbidden surfaces detected.
-PASS: No forbidden surfaces detected.
+FAIL: Forbidden surface pattern 'std::process::Command' found in crates/ggen-graph/src (excluding bin/):
+crates/ggen-graph/src/ocel/pm4py_bridge.rs:19:use std::process::Command;
+FAIL: Forbidden surface pattern 'Command::new' found in crates/ggen-graph/src (excluding bin/):
+crates/ggen-graph/src/ocel/pm4py_bridge.rs:172:        let output = Command::new(&self.python_command)
+FAIL: 2 forbidden surface violations found.

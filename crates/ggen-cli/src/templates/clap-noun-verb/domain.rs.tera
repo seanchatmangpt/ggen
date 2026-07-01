@@ -1,30 +1,42 @@
 //! Domain logic for {{ module_name }}
 
-use anyhow::Result;
+use clap_noun_verb::Result;
+use serde_json::{json, Value};
 
-/// Execute {{ module_name }} business logic
-pub async fn execute(args: crate::cmds::{{ module_name | snake }}::{{ module_name | pascal }}Args) -> Result<()> {
-    println!("Executing {{ module_name }}");
-
+/// Execute {{ module_name }} business logic.
+///
+/// Returns a JSON value the CLI surface serializes via the requested `--format`.
+/// Replace the echo below with the real implementation.
+pub fn execute(
     {%- for argument in arguments %}
-    println!("  {{ argument.name }}: {:?}", args.{{ argument.name }});
+    {%- if argument.required %}
+    {{ argument.name }}: {{ argument.type }},
+    {%- else %}
+    {{ argument.name }}: Option<{{ argument.type }}>,
+    {%- endif %}
     {%- endfor %}
-
     {%- for flag in flags %}
-    if args.{{ flag.name }} {
-        println!("  Flag {{ flag.name }} is enabled");
-    }
+    {{ flag.name }}: bool,
     {%- endfor %}
-
-    Ok(())
+) -> Result<Value> {
+    Ok(json!({
+        "command": "{{ module_name }}",
+        {%- for argument in arguments %}
+        "{{ argument.name }}": format!("{:?}", {{ argument.name }}),
+        {%- endfor %}
+        {%- for flag in flags %}
+        "{{ flag.name }}": {{ flag.name }},
+        {%- endfor %}
+    }))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[tokio::test]
-    async fn test_{{ module_name | snake }}_execute() {
-        // Tests implementation deferred
+    #[test]
+    fn test_{{ module_name | snake }}_execute() {
+        // Assert on the returned JSON `Value` once the real logic lands.
+        let _ = stringify!(execute);
     }
 }

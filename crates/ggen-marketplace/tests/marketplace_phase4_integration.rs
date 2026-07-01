@@ -22,8 +22,8 @@ fn test_marketplace_client_creation() {
 
 #[test]
 fn test_marketplace_client_with_timeout() {
-    let client = MarketplaceClient::new("https://registry.ggen.io")
-        .with_timeout(Duration::from_secs(60));
+    let client =
+        MarketplaceClient::new("https://registry.ggen.io").with_timeout(Duration::from_secs(60));
     // Just verify it compiles and the timeout is set correctly
     assert_eq!(client.registry_url(), "https://registry.ggen.io");
 }
@@ -38,8 +38,7 @@ fn test_marketplace_client_with_cache() {
     let cache = PackCache::new(cache_config).unwrap();
     let cache_arc = Arc::new(cache);
 
-    let client = MarketplaceClient::new("https://registry.ggen.io")
-        .with_cache(cache_arc.clone());
+    let client = MarketplaceClient::new("https://registry.ggen.io").with_cache(cache_arc.clone());
 
     assert_eq!(client.registry_url(), "https://registry.ggen.io");
 }

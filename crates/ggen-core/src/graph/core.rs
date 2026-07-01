@@ -229,7 +229,13 @@ impl Graph {
         // Use higher-level load_from_reader API (oxigraph's recommended way to load RDF)
         self.inner
             .load_from_reader(RdfFormat::Turtle, turtle.as_bytes())
-            .map_err(|e| Error::new(&format!("Failed to load Turtle: {}", e)))?;
+            .map_err(|e| {
+                let snippet: String = turtle.chars().take(200).collect();
+                Error::new(&format!(
+                    "Failed to load Turtle: {} (Snippet: {})",
+                    e, snippet
+                ))
+            })?;
         self.bump_epoch();
         Ok(())
     }
@@ -252,7 +258,13 @@ impl Graph {
         // Use higher-level load_from_reader API (oxigraph's recommended way to load RDF)
         self.inner
             .load_from_reader(RdfFormat::Turtle, turtle_with_base.as_bytes())
-            .map_err(|e| Error::new(&format!("Failed to load Turtle with base IRI: {}", e)))?;
+            .map_err(|e| {
+                let snippet: String = turtle.chars().take(200).collect();
+                Error::new(&format!(
+                    "Failed to load Turtle with base IRI: {} (Snippet: {})",
+                    e, snippet
+                ))
+            })?;
         self.bump_epoch();
         Ok(())
     }

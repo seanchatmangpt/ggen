@@ -1,3 +1,5 @@
+#![allow(clippy::unused_async_trait_impl)]
+
 use crate::stpnt::obligation::StewardshipObligation;
 use crate::utils::error::Result;
 use serde_json::json;

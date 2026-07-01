@@ -7,7 +7,7 @@
 <#clean_room_rebuild> a prov:Entity ;
     dcterms:identifier "clean_room_rebuild" ;
     dcterms:type "BoundaryExecutionRequest" ;
-    sh:conforms true ;
-    prov:value 0 ;
-    dcterms:description "Clean-room build duration: 96 seconds" ;
-    prov:wasGeneratedBy _:d64fdc76283ed60e089e48e5c189708d .
+    sh:conforms false ;
+    prov:value 1 ;
+    dcterms:description "Clean-room build duration: 101 seconds" ;
+    prov:wasGeneratedBy _:ea2b679883dd91d59afd2181d1023c1b .

@@ -149,10 +149,8 @@ pub struct LockFileEntry {
 /// Usage:
 ///   ggen ontology list
 ///   ggen ontology list --embedded
-#[verb("ontology list", "root")]
-pub fn list(
-    #[arg(default_value = "true")] embedded: bool,
-) -> VerbResult<OntologyListOutput> {
+#[verb]
+pub fn list(#[arg(default_value = "true")] embedded: bool) -> VerbResult<OntologyListOutput> {
     if !embedded {
         return Ok(OntologyListOutput {
             ontologies: vec![],
@@ -182,7 +180,7 @@ pub fn list(
 /// Usage:
 ///   ggen ontology status http://www.w3.org/1999/02/22-rdf-syntax-ns#
 ///   ggen ontology status <uri>
-#[verb("ontology status", "root")]
+#[verb]
 pub fn status(uri: String) -> VerbResult<OntologyStatusOutput> {
     let is_embedded = OntologyLoader::is_embedded(&uri);
 
@@ -225,7 +223,7 @@ pub fn status(uri: String) -> VerbResult<OntologyStatusOutput> {
 /// Usage:
 ///   ggen ontology info http://www.w3.org/1999/02/22-rdf-syntax-ns#
 ///   ggen ontology info <uri>
-#[verb("ontology info", "root")]
+#[verb]
 pub fn info(uri: String) -> VerbResult<OntologyInfoOutput> {
     // Try to get metadata from core bundle
     if let Some(metadata) = OntologyLoader::get_metadata(&uri) {
@@ -264,7 +262,7 @@ pub fn info(uri: String) -> VerbResult<OntologyInfoOutput> {
 ///   ggen ontology search <domain>
 ///
 /// Note: This is a placeholder for marketplace integration.
-#[verb("ontology search", "root")]
+#[verb]
 pub fn search(query: String) -> VerbResult<OntologySearchOutput> {
     // Placeholder: In Phase 4, this will query the marketplace
     let message = Some(format!(
@@ -291,7 +289,7 @@ pub fn search(query: String) -> VerbResult<OntologySearchOutput> {
 /// 3. Resolves dependencies
 /// 4. Downloads and caches packages
 /// 5. Updates the lock file
-#[verb("ontology install", "root")]
+#[verb]
 pub fn install(package: String) -> VerbResult<OntologyInstallOutput> {
     // Parse package@version format
     let parts: Vec<&str> = package.split('@').collect();
@@ -337,7 +335,7 @@ pub fn install(package: String) -> VerbResult<OntologyInstallOutput> {
 /// 2. Computes SHA-256 digests for all packages
 /// 3. Creates .ggen/lock file with deterministic entries
 /// 4. Reports summary (count, total size, hashes)
-#[verb("ontology lock", "root")]
+#[verb]
 pub fn lock() -> VerbResult<OntologyLockOutput> {
     // NOTE: Phase 4 implementation - this is a placeholder that shows the structure.
     // The actual lock file creation will be done with:

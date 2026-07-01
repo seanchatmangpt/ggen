@@ -3,9 +3,9 @@
 //! Tests verify the complete inverse-sync pipeline with real artifacts, real ontology,
 //! and real Ed25519 key pairs. No mocks, no test doubles — Chicago TDD only.
 
-use ed25519_dalek::SigningKey;
+use ed25519_dalek::{Signer, SigningKey};
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 use uuid::Uuid;
 
@@ -14,7 +14,7 @@ use uuid::Uuid;
 // ============================================================================
 
 /// Write a Rust source file with a real service definition.
-fn create_rust_artifact(dir: &PathBuf, filename: &str, content: &str) -> PathBuf {
+fn create_rust_artifact(dir: &Path, filename: &str, content: &str) -> PathBuf {
     let path = dir.join(filename);
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).expect("Failed to create parent directory");
@@ -24,14 +24,14 @@ fn create_rust_artifact(dir: &PathBuf, filename: &str, content: &str) -> PathBuf
 }
 
 /// Create a real RDF ontology in Turtle format.
-fn create_ontology_file(dir: &PathBuf, content: &str) -> PathBuf {
+fn create_ontology_file(dir: &Path, content: &str) -> PathBuf {
     let path = dir.join("ontology.ttl");
     fs::write(&path, content).expect("Failed to write ontology");
     path
 }
 
 /// Generate a real Ed25519 key pair and write to disk.
-fn create_signing_key(dir: &PathBuf) -> (PathBuf, SigningKey) {
+fn create_signing_key(dir: &Path) -> (PathBuf, SigningKey) {
     let signing_key = SigningKey::from_bytes(&[0u8; 32]); // Deterministic for testing.
     let key_bytes = signing_key.to_bytes();
     let hex_key = hex::encode(key_bytes);
@@ -126,10 +126,15 @@ fn test_inverse_sync_happy_path_recover_and_coherent() {
     assert!(signing_key_path.exists(), "signing key must exist");
 
     // Verify we can read the ontology
-    let ontology_content =
-        fs::read_to_string(&ontology_path).expect("Failed to read ontology");
-    assert!(ontology_content.contains("code:UserService"), "Ontology must contain service");
-    assert!(ontology_content.contains("code:Service"), "Ontology must declare service type");
+    let ontology_content = fs::read_to_string(&ontology_path).expect("Failed to read ontology");
+    assert!(
+        ontology_content.contains("code:UserService"),
+        "Ontology must contain service"
+    );
+    assert!(
+        ontology_content.contains("code:Service"),
+        "Ontology must declare service type"
+    );
 
     // Verify we can read the signing key
     let key_content = fs::read_to_string(&signing_key_path).expect("Failed to read key");
@@ -140,12 +145,18 @@ fn test_inverse_sync_happy_path_recover_and_coherent() {
 #[test]
 fn test_inverse_sync_missing_source_dir_fails() {
     // Arrange: Use a non-existent source directory
-    let non_existent = PathBuf::from("/tmp/this-directory-does-not-exist-" + &Uuid::new_v4().to_string());
+    let non_existent = PathBuf::from(format!(
+        "/tmp/this-directory-does-not-exist-{}",
+        Uuid::new_v4()
+    ));
 
     // Act + Assert: Attempting to collect from non-existent dir should fail
     let artifact_result: std::result::Result<Vec<PathBuf>, String> = {
         if !non_existent.exists() {
-            Err(format!("Source directory not found: {}", non_existent.display()))
+            Err(format!(
+                "Source directory not found: {}",
+                non_existent.display()
+            ))
         } else {
             Ok(Vec::new())
         }
@@ -228,12 +239,17 @@ fn test_inverse_sync_envelope_json_structure() {
     let json = envelope.to_json().expect("Serialize envelope");
 
     // Assert: JSON must be valid and contain expected fields
-    let parsed: serde_json::Value =
-        serde_json::from_str(&json).expect("Parse envelope JSON");
+    let parsed: serde_json::Value = serde_json::from_str(&json).expect("Parse envelope JSON");
 
     assert!(parsed.is_object(), "Envelope must be a JSON object");
-    assert!(parsed["forward_receipt"].is_null(), "Empty envelope has no forward receipt");
-    assert!(parsed["inverse_receipt"].is_null(), "Empty envelope has no inverse receipt");
+    assert!(
+        parsed["forward_receipt"].is_null(),
+        "Empty envelope has no forward receipt"
+    );
+    assert!(
+        parsed["inverse_receipt"].is_null(),
+        "Empty envelope has no inverse receipt"
+    );
     assert!(
         parsed["coherence_report"].is_null(),
         "Empty envelope has no coherence report"
@@ -280,16 +296,14 @@ fn test_inverse_sync_sabotage_missing_ontology_file() {
     let keys_dir = TempDir::new().expect("Failed to create keys dir");
     let (_signing_key_path, _signing_key) = create_signing_key(keys_dir.path());
 
-    let missing_ontology = PathBuf::from("/tmp/non-existent-ontology-" + &Uuid::new_v4().to_string() + ".ttl");
+    let missing_ontology =
+        PathBuf::from(format!("/tmp/non-existent-ontology-{}.ttl", Uuid::new_v4()));
 
     // Act: Attempt to load non-existent ontology
     let result = fs::read_to_string(&missing_ontology);
 
     // Assert: Must fail with IO error
-    assert!(
-        result.is_err(),
-        "Reading non-existent ontology must fail"
-    );
+    assert!(result.is_err(), "Reading non-existent ontology must fail");
 }
 
 #[test]
@@ -320,8 +334,7 @@ impl ServiceTwo {
     );
 
     // Act: Collect all artifacts
-    let files = collect_artifact_files(source_dir.path())
-        .expect("Collect artifacts");
+    let files = collect_artifact_files(source_dir.path()).expect("Collect artifacts");
 
     // Assert: Both files must be collected
     assert_eq!(files.len(), 2, "Must collect both Rust artifacts");
@@ -411,13 +424,16 @@ fn collect_artifact_files(
     source_dir: &std::path::Path,
 ) -> std::result::Result<Vec<PathBuf>, String> {
     if !source_dir.exists() {
-        return Err(format!("Source directory not found: {}", source_dir.display()));
+        return Err(format!(
+            "Source directory not found: {}",
+            source_dir.display()
+        ));
     }
 
     let mut files = Vec::new();
 
-    for entry in fs::read_dir(source_dir)
-        .map_err(|e| format!("Failed to read source directory: {}", e))?
+    for entry in
+        fs::read_dir(source_dir).map_err(|e| format!("Failed to read source directory: {}", e))?
     {
         let entry = entry.map_err(|e| format!("Failed to read directory entry: {}", e))?;
         let path = entry.path();

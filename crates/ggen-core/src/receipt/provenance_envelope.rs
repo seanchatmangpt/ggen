@@ -112,14 +112,16 @@ impl ProvenanceEnvelope {
     /// Creates a new empty envelope.
     #[must_use]
     pub fn new() -> Self {
-        Self {
+        let mut envelope = Self {
             forward_receipt: None,
             inverse_receipt: None,
             coherence_report: None,
             operation_chain: Vec::new(),
             envelope_hash: String::new(),
             linked_at: Utc::now().to_rfc3339(),
-        }
+        };
+        envelope.envelope_hash = envelope.compute_hash();
+        envelope
     }
 
     /// Creates an envelope initialized with a forward receipt.
@@ -339,6 +341,7 @@ mod tests {
             shacl_valid: true,
             last_stage: InverseStage::Emit,
             signature: String::new(),
+            previous_operation_id: None,
         }
         .sign(&signing_key)
         .expect("signing failed");
@@ -385,7 +388,10 @@ mod tests {
         let result = ProvenanceEnvelope::new().add_forward(unsigned);
 
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("non-empty signature"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("non-empty signature"));
     }
 
     #[test]
@@ -406,6 +412,7 @@ mod tests {
             shacl_valid: true,
             last_stage: InverseStage::Emit,
             signature: String::new(),
+            previous_operation_id: None,
         }
         .sign(&signing_key)
         .expect("signing failed");
@@ -436,12 +443,16 @@ mod tests {
             shacl_valid: true,
             last_stage: InverseStage::Emit,
             signature: String::new(),
+            previous_operation_id: None,
         };
 
         let result = ProvenanceEnvelope::new().add_inverse(unsigned);
 
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("non-empty signature"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("non-empty signature"));
     }
 
     #[test]
@@ -498,6 +509,7 @@ mod tests {
             shacl_valid: true,
             last_stage: InverseStage::Emit,
             signature: String::new(),
+            previous_operation_id: None,
         }
         .sign(&signing_key)
         .expect("signing failed");
@@ -669,6 +681,7 @@ mod tests {
             shacl_valid: true,
             last_stage: InverseStage::Emit,
             signature: String::new(),
+            previous_operation_id: None,
         }
         .sign(&signing_key)
         .expect("signing failed");
@@ -727,6 +740,7 @@ mod tests {
             shacl_valid: true,
             last_stage: InverseStage::Emit,
             signature: String::new(),
+            previous_operation_id: None,
         };
         assert!(unsigned_receipt.signature.is_empty(), "precondition");
 
