@@ -234,12 +234,12 @@ mod tests {
             "test.rs",
             "fn main() {}".to_string(),
         )];
-        let events = vec![];
+        let events = vec!["{ \"id\": \"test\" }"];
 
         let report = gate.validate(ontology_bytes, &generated, &events);
         assert!(report.is_ok());
         let report = report.unwrap();
-        assert!(report.admitted, "expected full coherence with empty event log when check_event_log=true");
+        assert!(report.admitted, "expected full coherence with populated event log when check_event_log=true");
     }
 
     #[test]

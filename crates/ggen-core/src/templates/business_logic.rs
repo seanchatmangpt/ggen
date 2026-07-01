@@ -380,7 +380,7 @@ mod tests {
     fn test_generate_cli_wrapper() {
         let cli_code = BusinessLogicSeparator::generate_cli_wrapper("create", "project", None);
 
-        assert!(cli_code.contains("#[create]"));
+        assert!(cli_code.contains("#[verb(\"create\", \"project\")]"));
         assert!(cli_code.contains("pub fn create_project"));
         assert!(cli_code.contains("use crate::domain::create_project"));
     }
