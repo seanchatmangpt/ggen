@@ -1,1 +1,42 @@
-FAIL: [features] section found in crates/ggen-graph/Cargo.toml
+[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.17s
+[1m[92m     Running[0m unittests src/lib.rs (target/debug/deps/ggen_graph-04eaf65562f407dd)
+[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+[1m[92m     Running[0m unittests src/lib.rs (target/debug/deps/ggen_graph-04eaf65562f407dd)
+[1m[92m     Running[0m unittests src/bin/emit_audit.rs (target/debug/deps/emit_audit-256de82feac066b6)
+[1m[92m     Running[0m unittests src/bin/gall_actuate_code_evaluation.rs (target/debug/deps/gall_actuate_code_evaluation-f5f8c2999b03d08a)
+[1m[92m     Running[0m unittests src/bin/gall_adjudicate_witnessed_truthfulness.rs (target/debug/deps/gall_adjudicate_witnessed_truthfulness-b6d51fc2132caef1)
+[1m[92m     Running[0m unittests src/bin/gall_materialize_evidence_graph.rs (target/debug/deps/gall_materialize_evidence_graph-6ad2460401570ffd)
+[1m[92m     Running[0m unittests src/bin/gall_observe_clean_room.rs (target/debug/deps/gall_observe_clean_room-1766136dfaba70ac)
+[1m[92m     Running[0m unittests src/bin/gall_observe_commands.rs (target/debug/deps/gall_observe_commands-d0671b92e93d76d4)
+[1m[92m     Running[0m unittests src/bin/gall_observe_docs_tree.rs (target/debug/deps/gall_observe_docs_tree-32e52dfa34ca31a3)
+[1m[92m     Running[0m unittests src/bin/gall_observe_doctests.rs (target/debug/deps/gall_observe_doctests-46f0fd1366029130)
+[1m[92m     Running[0m unittests src/bin/gall_observe_sabotage.rs (target/debug/deps/gall_observe_sabotage-b7ca79d561d99e2a)
+[1m[92m     Running[0m unittests src/bin/gall_observe_worktree.rs (target/debug/deps/gall_observe_worktree-128d0d48cd016a7a)
+[1m[92m     Running[0m unittests src/bin/verify_audit.rs (target/debug/deps/verify_audit-cfa55942c4d7f112)
+[1m[92m     Running[0m tests/adversarial_dfg_test.rs (target/debug/deps/adversarial_dfg_test-1c5323cc473ffc43)
+[1m[92m     Running[0m tests/anti_fake_implementation.rs (target/debug/deps/anti_fake_implementation-171b478e14888195)
+[1m[92m     Running[0m tests/coherence_hash_expectations_test.rs (target/debug/deps/coherence_hash_expectations_test-452cb1ec080444f4)
+[1m[92m     Running[0m tests/delta_determinism.rs (target/debug/deps/delta_determinism-502164d0510b9875)
+[1m[92m     Running[0m tests/dialect_completeness.rs (target/debug/deps/dialect_completeness-b970ef0dada853f2)
+[1m[92m     Running[0m tests/dialect_receipts.rs (target/debug/deps/dialect_receipts-5ffff88a57cae408)
+[1m[92m     Running[0m tests/dialect_replay.rs (target/debug/deps/dialect_replay-1c098a4f5772274c)
+[1m[92m     Running[0m tests/dialect_sabotage.rs (target/debug/deps/dialect_sabotage-7fe0d4751cdc84e7)
+[1m[92m     Running[0m tests/forbidden_surface.rs (target/debug/deps/forbidden_surface-980bd5361effae0e)
+[1m[92m     Running[0m tests/hash_stability.rs (target/debug/deps/hash_stability-f6bbc74570bcb187)
+[1m[92m     Running[0m tests/hook_loader.rs (target/debug/deps/hook_loader-02df196ca0f0e50d)
+[1m[92m     Running[0m tests/hook_scheduler.rs (target/debug/deps/hook_scheduler-4b7eddc3a77223aa)
+[1m[92m     Running[0m tests/interchangeable_test.rs (target/debug/deps/interchangeable_test-de67e82da5f45d1a)
+[1m[92m     Running[0m tests/ocel_diagnostics_doctor_test.rs (target/debug/deps/ocel_diagnostics_doctor_test-83f08b6aaa253816)
+[1m[92m     Running[0m tests/ocel_self_audit.rs (target/debug/deps/ocel_self_audit-388aec95221974a5)
+[1m[92m     Running[0m tests/post_chatman_coherence_integration.rs (target/debug/deps/post_chatman_coherence_integration-a1128359a28b1ac1)
+[1m[92m     Running[0m tests/post_chatman_roundtrip_full_test.rs (target/debug/deps/post_chatman_roundtrip_full_test-7b03809fd6d907fc)
+[1m[92m     Running[0m tests/receipt_replay.rs (target/debug/deps/receipt_replay-ea965188328c2f74)
+[1m[92m     Running[0m tests/sparql_actuation.rs (target/debug/deps/sparql_actuation-6009209b48c5810c)
+[1m[92m     Running[0m tests/vision2030_coverage.rs (target/debug/deps/vision2030_coverage-db76f565955f90f2)
+[1m[92m     Running[0m tests/vocab_projection.rs (target/debug/deps/vocab_projection-99d196a623cb4697)
+[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.19s
+[1m[92m     Running[0m tests/receipt_replay.rs (target/debug/deps/receipt_replay-ea965188328c2f74)
+[1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+[1m[92m     Running[0m `target/debug/emit_audit`
+[1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+[1m[92m     Running[0m `target/debug/verify_audit`

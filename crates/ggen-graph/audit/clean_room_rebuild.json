@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-07-01T06:27:25Z",
-  "clean_room_directory": "/Users/sac/.cache/tmp/.tmpIAWrv4",
-  "rebuild_status": "FAIL",
-  "exit_code": 1,
-  "duration_seconds": 101
+  "timestamp": "2026-07-01T09:35:02Z",
+  "clean_room_directory": "/Users/sac/.cache/tmp/.tmpGHtpR5",
+  "rebuild_status": "PASS",
+  "exit_code": 0,
+  "duration_seconds": 95
 }

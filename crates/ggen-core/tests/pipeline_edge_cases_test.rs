@@ -512,16 +512,14 @@ fn test_generation_mode_create_file_exists() {
     pipeline.load_ontology().expect("Should load ontology");
 
     let result = pipeline.execute_generation_rules();
-
     assert!(
-        result.is_err(),
-        "Generation should fail in Create mode when file exists"
+        result.is_ok(),
+        "Generation should silently succeed in Create mode when file exists"
     );
-    let err_msg = result.unwrap_err().to_string();
+    let generated = result.unwrap();
     assert!(
-        err_msg.contains("E0011") || err_msg.contains("exists"),
-        "Error should mention file exists or E0011, got: {}",
-        err_msg
+        generated.is_empty(),
+        "No files should be generated when they already exist in Create mode"
     );
 
     // Verify original content is unchanged

@@ -4,24 +4,24 @@
       "id": "obj_crate_ggen",
       "type": "RustCrate",
       "attributes": {
-        "version": "0.1.0",
-        "name": "ggen-graph"
+        "name": "ggen-graph",
+        "version": "0.1.0"
       }
     },
     {
       "id": "obj_prd_compliance",
       "type": "PRDRequirement",
       "attributes": {
-        "description": "The system must generate a self-audit log containing all required activities and objects.",
-        "title": "Self-Audit Compliance Log"
+        "title": "Self-Audit Compliance Log",
+        "description": "The system must generate a self-audit log containing all required activities and objects."
       }
     },
     {
       "id": "obj_ard_mapping",
       "type": "ARDRequirement",
       "attributes": {
-        "description": "Self-audit logs must project deterministically to and from RDF triple graphs.",
-        "title": "Deterministic Graph Mapping"
+        "title": "Deterministic Graph Mapping",
+        "description": "Self-audit logs must project deterministically to and from RDF triple graphs."
       }
     },
     {
@@ -52,16 +52,16 @@
       "id": "req_r4_knowledge_hook",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Knowledge Hook Runtime & Deterministic Scheduling",
-        "description": "Turtle-based hook packs must load dynamically as graph laws and schedule deterministically."
+        "description": "Turtle-based hook packs must load dynamically as graph laws and schedule deterministically.",
+        "title": "Knowledge Hook Runtime & Deterministic Scheduling"
       }
     },
     {
       "id": "req_r5_ocel_prov",
       "type": "PRDRequirement",
       "attributes": {
-        "description": "Every graph transition must produce a replayable cryptographic receipt bundle and project PROV-O/OCEL.",
-        "title": "OCEL/PROV Evidence Projection & Replayable Receipts"
+        "title": "OCEL/PROV Evidence Projection & Replayable Receipts",
+        "description": "Every graph transition must produce a replayable cryptographic receipt bundle and project PROV-O/OCEL."
       }
     },
     {
@@ -92,8 +92,8 @@
       "id": "req_r9_proof_report",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Vision 2030 Durable Proof Report",
-        "description": "Establish Vision 2030 durable proof report."
+        "description": "Establish Vision 2030 durable proof report.",
+        "title": "Vision 2030 Durable Proof Report"
       }
     },
     {
@@ -116,8 +116,8 @@
       "id": "obj_public_ontology",
       "type": "PublicOntology",
       "attributes": {
-        "namespace": "http://www.ocel-standard.org/ns#",
-        "prefix": "ocel"
+        "prefix": "ocel",
+        "namespace": "http://www.ocel-standard.org/ns#"
       }
     },
     {
@@ -132,24 +132,24 @@
       "id": "obj_source_file_self_audit",
       "type": "SourceFile",
       "attributes": {
-        "path": "crates/ggen-graph/src/ocel/self_audit.rs",
-        "language": "rust"
+        "language": "rust",
+        "path": "crates/ggen-graph/src/ocel/self_audit.rs"
       }
     },
     {
       "id": "obj_test_file_self_audit",
       "type": "TestFile",
       "attributes": {
-        "framework": "cargo test",
-        "path": "crates/ggen-graph/tests/ocel_self_audit.rs"
+        "path": "crates/ggen-graph/tests/ocel_self_audit.rs",
+        "framework": "cargo test"
       }
     },
     {
       "id": "obj_example_file_self_audit",
       "type": "ExampleFile",
       "attributes": {
-        "path": "crates/ggen-graph/examples/self_audit_demo.rs",
-        "description": "Demonstrates generation and projection of self-audit log"
+        "description": "Demonstrates generation and projection of self-audit log",
+        "path": "crates/ggen-graph/examples/self_audit_demo.rs"
       }
     },
     {
@@ -164,16 +164,16 @@
       "id": "obj_script_file_verify",
       "type": "ScriptFile",
       "attributes": {
-        "path": "scripts/gall/external/09_verify_ocel_self_audit.sh",
-        "interpreter": "bash"
+        "interpreter": "bash",
+        "path": "scripts/gall/external/09_verify_ocel_self_audit.sh"
       }
     },
     {
       "id": "obj_command_test",
       "type": "Command",
       "attributes": {
-        "args": "test --package ggen-graph",
-        "binary": "cargo"
+        "binary": "cargo",
+        "args": "test --package ggen-graph"
       }
     },
     {
@@ -196,8 +196,8 @@
       "id": "obj_graph_receipt_1",
       "type": "GraphReceipt",
       "attributes": {
-        "hash": "eb3a28b0f4e1f72da89f2cf0f95b9d3bb8cf03ffdcf82309e7116744f2ef08eb",
-        "block_index": "42"
+        "block_index": "42",
+        "hash": "eb3a28b0f4e1f72da89f2cf0f95b9d3bb8cf03ffdcf82309e7116744f2ef08eb"
       }
     },
     {
@@ -212,8 +212,8 @@
       "id": "obj_promotion_decision_1",
       "type": "PromotionDecision",
       "attributes": {
-        "status": "Promoted",
-        "approver": "OrchestratorAgent"
+        "approver": "OrchestratorAgent",
+        "status": "Promoted"
       }
     },
     {

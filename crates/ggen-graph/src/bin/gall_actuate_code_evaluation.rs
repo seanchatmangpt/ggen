@@ -268,6 +268,9 @@ fn check_uri(uri: &str) -> Option<String> {
                 "select",
                 "ask",
                 "message",
+                "targetClass",
+                "hasValue",
+                "in",
             ],
         ),
         (

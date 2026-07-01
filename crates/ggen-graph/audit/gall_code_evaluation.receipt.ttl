@@ -6,23 +6,23 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <#evaluation_receipt> a prov:Entity, dcat:Dataset ;
-dcterms:identifier "35b36150-d068-4103-807c-da9d7bcb1bc2" ;
-dcterms:created "2026-07-01T06:24:13Z"^^xsd:dateTime ;
+dcterms:identifier "e5f9ff4a-0d70-4705-ace9-4f0231350a07" ;
+dcterms:created "2026-07-01T09:40:36Z"^^xsd:dateTime ;
 dcterms:description "Witnessed Agent Truthfulness code evaluation receipt" ;
 prov:wasGeneratedBy <#activity_hook_actuation> ;
 prov:used <#evaluation_final_report> ;
 spdx:checksum [
 a spdx:Checksum ;
 spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
-spdx:checksumValue "fc8c443250898f0715c5092e8725bca418a3a009f60384151be284637c663ecd"
+spdx:checksumValue "ac1061889a8ba0f8d8e1c96c58fb4127f9436037df0a0fb27ad50a15d1474a31"
 ] .
 
 <#activity_hook_actuation> a prov:Activity ;
 dcterms:title "Hook Actuation Activity" ;
-prov:startedAtTime "2026-07-01T06:24:00Z"^^xsd:dateTime ;
-prov:endedAtTime "2026-07-01T06:24:13Z"^^xsd:dateTime .
+prov:startedAtTime "2026-07-01T09:40:23Z"^^xsd:dateTime ;
+prov:endedAtTime "2026-07-01T09:40:36Z"^^xsd:dateTime .
 
-<#activity_hook_actuation> prov:wasInformedBy <http://example.org/#doctest_run> .
+<#activity_hook_actuation> prov:wasInformedBy <http://example.org/#activity_00_capture_baseline> .
 
 <#evaluation_final_report> a prov:Entity, dcat:Distribution ;
 dcterms:title "Final Evaluation Report" ;
@@ -30,7 +30,7 @@ dcat:downloadURL <file://witnessed_code_evaluation.final.ttl> ;
 spdx:checksum [
 a spdx:Checksum ;
 spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
-spdx:checksumValue "2b2fcca1ab7fe25f412ac254adf42319c6c86240a495b892fb8ca4339e029290"
+spdx:checksumValue "7cf02b73cbe0fd0a80b77848da1d6b0953e9314f3542dffed9404992cf4671c1"
 ] .
 
 <#evaluation_delta> a prov:Entity, dcat:Distribution ;
@@ -39,32 +39,87 @@ dcat:downloadURL <file://witnessed_decision.delta.ttl> ;
 spdx:checksum [
 a spdx:Checksum ;
 spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
-spdx:checksumValue "ff7d26c56a47dd3d5290df9a2452135ae4397ec60dc0c97ab3a367b680a63e6f"
+spdx:checksumValue "07508fdb4cf7cb4f21b8ac902d63e7b48f08b02b599de1591c423a84b2be7dc9"
 ] .
 
 <#evidence_0> a prov:Entity, dcat:Distribution ;
-dcterms:title "Evidence: gall_evidence.ttl" ;
-dcat:downloadURL <file://witnessed_evidence.ttl> ;
+dcterms:title "Evidence: clean_room_rebuild.ttl" ;
+dcat:downloadURL <file://clean_room_rebuild.ttl> ;
 spdx:checksum [
 a spdx:Checksum ;
 spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
-spdx:checksumValue "aed001d892cd3158837a51708e8fb71d7fd2adc3b6d802409ae5d63747899443"
+spdx:checksumValue "09bd2430d120aef51826506165e3d03be64354e87190de1b98fb218b80a69d2c"
 ] .
 
 <#evaluation_receipt> prov:used <#evidence_0> .
 
 <#evidence_1> a prov:Entity, dcat:Distribution ;
-dcterms:title "Evidence: worktree_inventory.ttl" ;
-dcat:downloadURL <file://worktree_inventory.ttl> ;
+dcterms:title "Evidence: sabotage_results.ttl" ;
+dcat:downloadURL <file://sabotage_results.ttl> ;
 spdx:checksum [
 a spdx:Checksum ;
 spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
-spdx:checksumValue "3c11c8ef77fba2a48b930983441ba2ef127ee27df7307adbbb39168cfd10eb60"
+spdx:checksumValue "1c9e081520977f9c6a76d8c08286c6c131c4f3baa4e3cc08c65bc4097f77816f"
 ] .
 
 <#evaluation_receipt> prov:used <#evidence_1> .
 
 <#evidence_2> a prov:Entity, dcat:Distribution ;
+dcterms:title "Evidence: sabotage.validation.ttl" ;
+dcat:downloadURL <file://sabotage.validation.ttl> ;
+spdx:checksum [
+a spdx:Checksum ;
+spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
+spdx:checksumValue "fe68141faaa8016dfaf19d1be469c1ea605cde2d8adc14715c42dca9336929dc"
+] .
+
+<#evaluation_receipt> prov:used <#evidence_2> .
+
+<#evidence_3> a prov:Entity, dcat:Distribution ;
+dcterms:title "Evidence: public_vocab.validation.ttl" ;
+dcat:downloadURL <file://public_vocab.validation.ttl> ;
+spdx:checksum [
+a spdx:Checksum ;
+spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
+spdx:checksumValue "70af9954a2c0e51e6c1063e61f606972c9ecdf4550b925f0df62fb14a745aaa4"
+] .
+
+<#evaluation_receipt> prov:used <#evidence_3> .
+
+<#evidence_4> a prov:Entity, dcat:Distribution ;
+dcterms:title "Evidence: gall_evidence.ttl" ;
+dcat:downloadURL <file://witnessed_evidence.ttl> ;
+spdx:checksum [
+a spdx:Checksum ;
+spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
+spdx:checksumValue "01f321f7f7cb4348b64fae6c32ac85ec5864f817afb1ac6d8a7f4434e6982f5b"
+] .
+
+<#evaluation_receipt> prov:used <#evidence_4> .
+
+<#evidence_5> a prov:Entity, dcat:Distribution ;
+dcterms:title "Evidence: worktree_inventory.ttl" ;
+dcat:downloadURL <file://worktree_inventory.ttl> ;
+spdx:checksum [
+a spdx:Checksum ;
+spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
+spdx:checksumValue "ad0759f2c978d1cbec7f20dbd7d6ac91370f71951829b7a008bcd525acddee54"
+] .
+
+<#evaluation_receipt> prov:used <#evidence_5> .
+
+<#evidence_6> a prov:Entity, dcat:Distribution ;
+dcterms:title "Evidence: hook_actuation.validation.ttl" ;
+dcat:downloadURL <file://hook_actuation.validation.ttl> ;
+spdx:checksum [
+a spdx:Checksum ;
+spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
+spdx:checksumValue "a1da77e45e7efa652e780eca9461c735c18d665c1cd2ed5e1cd9ef3991833726"
+] .
+
+<#evaluation_receipt> prov:used <#evidence_6> .
+
+<#evidence_7> a prov:Entity, dcat:Distribution ;
 dcterms:title "Evidence: doctest_results.ttl" ;
 dcat:downloadURL <file://doctest_results.ttl> ;
 spdx:checksum [
@@ -73,9 +128,9 @@ spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
 spdx:checksumValue "56ad06c164455994b474416daabc2010be70d2c86946ff8ba5808e444cda162c"
 ] .
 
-<#evaluation_receipt> prov:used <#evidence_2> .
+<#evaluation_receipt> prov:used <#evidence_7> .
 
-<#evidence_3> a prov:Entity, dcat:Distribution ;
+<#evidence_8> a prov:Entity, dcat:Distribution ;
 dcterms:title "Evidence: dialect_completeness.validation.ttl" ;
 dcat:downloadURL <file://dialect_completeness.validation.ttl> ;
 spdx:checksum [
@@ -84,5 +139,5 @@ spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_blake3> ;
 spdx:checksumValue "0c8a0b7b5136ced6ddd1f76cda3c3f3eb3531e18d3dc446f0d2e0706f4188050"
 ] .
 
-<#evaluation_receipt> prov:used <#evidence_3> .
+<#evaluation_receipt> prov:used <#evidence_8> .
 

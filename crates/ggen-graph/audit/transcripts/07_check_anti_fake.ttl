@@ -6,10 +6,10 @@
 
 <#activity_07_check_anti_fake> a prov:Activity ;
     dcterms:identifier "07_check_anti_fake" ;
-    prov:startedAtTime "2026-07-01T06:24:58.707Z" ; 
-    prov:endedAtTime "2026-07-01T06:24:58.846Z" ;
+    prov:startedAtTime "2026-07-01T09:33:08.832Z" ; 
+    prov:endedAtTime "2026-07-01T09:33:08.961Z" ;
     prov:value 0 
-    ; prov:wasInformedBy _:ee098c9c6d70e8cd50f2e49593a6a2bd .
+    ; prov:wasInformedBy _:ed96f97455474b2420a210c51f1c8f52 .
 
 <#stdout_07_check_anti_fake> a prov:Entity ;
     prov:wasGeneratedBy <#activity_07_check_anti_fake> ;

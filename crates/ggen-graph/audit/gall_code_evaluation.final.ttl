@@ -1,67 +1,68 @@
-_:b737db1a47ddf98850665531adaf756a <http://purl.org/dc/terms/description> "ShEx dialect verified as bounded unsupported capability" ;
+_:c5aebc812c943a123d2fca2b337351a1 <http://purl.org/dc/terms/description> "ShEx dialect verified as bounded unsupported capability" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/identifier> "W-DIALECT-SHEX" ;
 	a <http://www.w3.org/ns/shacl#ValidationReport> .
-_:b72ac76ac331a7b12c3e745ad43614c5 <http://purl.org/dc/terms/description> "Datalog dialect verified as bounded unsupported capability" ;
+_:a4a49d534f7e9fecaf0a33a998f1c089 <http://purl.org/dc/terms/description> "Datalog dialect verified as bounded unsupported capability" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/identifier> "W-DIALECT-DATALOG" ;
 	a <http://www.w3.org/ns/shacl#ValidationReport> .
-_:df987e1a2c206032b6e2feaae0a4de36 <http://purl.org/dc/terms/description> "N3 dialect verified as bounded unsupported capability" ;
+_:e5ff305a33b71662ee43ca350da47a5e <http://purl.org/dc/terms/description> "N3 dialect verified as bounded unsupported capability" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/identifier> "W-DIALECT-N3" ;
 	a <http://www.w3.org/ns/shacl#ValidationReport> .
-_:c9dbe47ac58a3bc75bb16527f36342b9 <http://purl.org/dc/terms/description> "SHACL dialect verified successfully" ;
+_:e8512aa6e59db7b1e06d09ea2ae7b8a8 <http://purl.org/dc/terms/description> "SHACL dialect verified successfully" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/identifier> "W-DIALECT-SHACL" ;
 	a <http://www.w3.org/ns/shacl#ValidationReport> .
-_:b6e6b71378e715a94e8cc600c94414b4 <http://purl.org/dc/terms/description> "SPARQL dialect verified successfully" ;
+_:e8d2f02a68e2693ec0295525030c2a9 <http://purl.org/dc/terms/description> "SPARQL dialect verified successfully" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/identifier> "W-DIALECT-SPARQL" ;
 	a <http://www.w3.org/ns/shacl#ValidationReport> .
-_:ef398faccf4a43bd50e4d9fe5fad3331 <http://purl.org/dc/terms/description> "Causal sufficiency verified successfully" ;
+_:cf85b5b158195d8228a3fa5f0cbbb17e <http://purl.org/dc/terms/description> "No contradictions or supersession violations detected" ;
+	<http://www.w3.org/ns/shacl#conforms> true ;
+	<http://purl.org/dc/terms/identifier> "W9" ;
+	a <http://www.w3.org/ns/shacl#ValidationReport> .
+_:d68b0e6d302154414a3f2aa328ebd1ab <http://purl.org/dc/terms/description> "Causal sufficiency verified successfully" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/identifier> "W8" ;
 	a <http://www.w3.org/ns/shacl#ValidationReport> .
-_:c7bfb07f23dd56339fbd499f520ef2b1 <http://purl.org/dc/terms/description> "Causal consistency verified successfully" ;
+_:bfc0760a9c1820cbd479f8a84968fbda <http://purl.org/dc/terms/description> "Cross-artifact consistency verified successfully" ;
+	<http://www.w3.org/ns/shacl#conforms> true ;
+	<http://purl.org/dc/terms/identifier> "W7" ;
+	a <http://www.w3.org/ns/shacl#ValidationReport> .
+_:cadd019fbc8eb98a74df72376952673e <http://purl.org/dc/terms/description> "Causal consistency verified successfully" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/identifier> "W6" ;
 	a <http://www.w3.org/ns/shacl#ValidationReport> .
-_:f6db649f1b3a213f995b2aa48bcc3a1c <http://purl.org/dc/terms/description> "Required documentation verified" ;
+_:d7667a82e33d536fa82cb551e6f70671 <http://purl.org/dc/terms/description> "Required documentation verified" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/identifier> "W5" ;
 	a <http://www.w3.org/ns/shacl#ValidationReport> .
-_:c740dfdaa0947d6b44814706cf9c495b <http://purl.org/dc/terms/description> "Request execution of sabotage checks" ;
-	<http://purl.org/dc/terms/identifier> "run_sabotage" ;
-	<http://purl.org/dc/terms/type> "BoundaryExecutionRequest" ;
-	a <http://www.w3.org/ns/prov#Activity> .
-_:afb2beed17bad48948e8404c4a44ae8f <http://purl.org/dc/terms/description> "Request execution of clean room rebuild" ;
-	<http://purl.org/dc/terms/identifier> "run_clean_room" ;
-	<http://purl.org/dc/terms/type> "BoundaryExecutionRequest" ;
-	a <http://www.w3.org/ns/prov#Activity> .
-_:e7ba16fbb8486b0dbfac0e1da3017451 <http://purl.org/dc/terms/description> "Passed: 10, Failed: 0" ;
+_:ecd256a2dd662578a787b1a9bf5c001c <http://purl.org/dc/terms/description> "All sabotage cases refused" ;
+	<http://www.w3.org/ns/shacl#conforms> true ;
+	<http://purl.org/dc/terms/identifier> "W4" ;
+	a <http://www.w3.org/ns/shacl#ValidationReport> .
+_:bc93b043d45be9bca08006665e480187 <http://purl.org/dc/terms/description> "Clean room rebuild verified" ;
+	<http://www.w3.org/ns/shacl#conforms> true ;
+	<http://purl.org/dc/terms/identifier> "W3" ;
+	a <http://www.w3.org/ns/shacl#ValidationReport> .
+_:e706b7d5cddb762b956e02b0ece805cd <http://purl.org/dc/terms/description> "Passed: 10, Failed: 0" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/identifier> "W2" ;
 	a <http://www.w3.org/ns/shacl#ValidationReport> .
-_:e1b7715f827921cc65ba753dccbd130b <http://purl.org/dc/terms/description> "Some commands failed or missing" ;
-	<http://www.w3.org/ns/shacl#conforms> false ;
+_:d4f70a625e7ac8d0b667fb0e7e60f88b <http://purl.org/dc/terms/description> "All 14 command executions passed" ;
+	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/identifier> "W1" ;
 	a <http://www.w3.org/ns/shacl#ValidationReport> .
-_:eb4b1af4f384bbe996af27fceb8b2b73 <http://purl.org/dc/terms/description> "Request execution of command transcripts" ;
-	<http://purl.org/dc/terms/identifier> "run_commands" ;
-	<http://purl.org/dc/terms/type> "BoundaryExecutionRequest" ;
-	a <http://www.w3.org/ns/prov#Activity> .
-_:c55a595ff06eeca5b6e774e01b0838d4 <http://purl.org/dc/terms/description> "Worktree files verified" ;
+_:ae0319448885fe3085d602a0278ad64 <http://purl.org/dc/terms/description> "Worktree files verified" ;
 	<http://www.w3.org/ns/shacl#conforms> true ;
 	<http://purl.org/dc/terms/identifier> "W0" ;
 	a <http://www.w3.org/ns/shacl#ValidationReport> .
 <http://example.org/#R7> a <http://www.w3.org/ns/shacl#ValidationReport> ;
 	<http://purl.org/dc/terms/identifier> "R7" ;
-	<http://www.w3.org/ns/shacl#conforms> false ;
-	<http://www.w3.org/ns/shacl#result> _:c5fcccdca65b4daa842c0d2439239cde .
-_:c5fcccdca65b4daa842c0d2439239cde a <http://www.w3.org/ns/shacl#ValidationResult> ;
-	<http://www.w3.org/ns/shacl#resultSeverity> <http://www.w3.org/ns/shacl#Violation> ;
-	<http://www.w3.org/ns/shacl#resultMessage> "Project-private prefix/namespace violations: [(\"/Users/sac/ggen/schema/stpnt-shapes-welcome.ttl\", \"Banned prefix declared: stpnt\")]" .
+	<http://www.w3.org/ns/shacl#conforms> true ;
+	<http://purl.org/dc/terms/description> "R7 Public Vocabulary Gate passed." .
 <http://example.org/#evaluation_final> a <http://www.w3.org/ns/shacl#ValidationReport> ;
-	<http://www.w3.org/ns/shacl#conforms> false ;
-	<http://www.w3.org/ns/shacl#result> _:df987e1a2c206032b6e2feaae0a4de36 , _:ef398faccf4a43bd50e4d9fe5fad3331 , _:b6e6b71378e715a94e8cc600c94414b4 , _:e7ba16fbb8486b0dbfac0e1da3017451 , _:e1b7715f827921cc65ba753dccbd130b , _:c9dbe47ac58a3bc75bb16527f36342b9 , _:f6db649f1b3a213f995b2aa48bcc3a1c , _:b737db1a47ddf98850665531adaf756a , _:c7bfb07f23dd56339fbd499f520ef2b1 , _:b72ac76ac331a7b12c3e745ad43614c5 , _:c55a595ff06eeca5b6e774e01b0838d4 , <http://example.org/#R7> ;
-	<http://purl.org/dc/terms/description> "Evaluation Refused: Conformance failure or hook violations detected" .
+	<http://www.w3.org/ns/shacl#conforms> true ;
+	<http://www.w3.org/ns/shacl#result> _:e706b7d5cddb762b956e02b0ece805cd , _:ecd256a2dd662578a787b1a9bf5c001c , _:a4a49d534f7e9fecaf0a33a998f1c089 , _:e8d2f02a68e2693ec0295525030c2a9 , _:cf85b5b158195d8228a3fa5f0cbbb17e , _:d7667a82e33d536fa82cb551e6f70671 , _:bc93b043d45be9bca08006665e480187 , <http://example.org/#R7> , _:e5ff305a33b71662ee43ca350da47a5e , _:c5aebc812c943a123d2fca2b337351a1 , _:bfc0760a9c1820cbd479f8a84968fbda , _:d68b0e6d302154414a3f2aa328ebd1ab , _:e8512aa6e59db7b1e06d09ea2ae7b8a8 , _:ae0319448885fe3085d602a0278ad64 , _:d4f70a625e7ac8d0b667fb0e7e60f88b , _:cadd019fbc8eb98a74df72376952673e ;
+	<http://purl.org/dc/terms/description> "Evaluation Passed: All hooks and R7 scan conform" .

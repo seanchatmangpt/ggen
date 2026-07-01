@@ -4,10 +4,10 @@
     "/Users/sac/ggen/scripts/gall/external/03_check_feature_flags.sh"
   ],
   "cwd": "/Users/sac/ggen",
-  "exit_code": 1,
-  "duration_ms": 8.218,
+  "exit_code": 0,
+  "duration_ms": 6.00375,
   "stdout_path": "crates/ggen-graph/audit/transcripts/03_check_feature_flags.stdout",
   "stderr_path": "crates/ggen-graph/audit/transcripts/03_check_feature_flags.stderr",
-  "stdout_sha256": "b2446fc5845620ffe7f4cdd77b466e38f908a33b526e62b3910889325e14f219",
-  "stderr_sha256": "43eceaa18cca4340da142fdd4345ef6819612ac58ad5cdcc00c4aa7f3fc3ac6c"
+  "stdout_sha256": "3c52b26bad7b0eee2ee53a293c09212e3fd089fb446a55e71adcbeeb8f9db8d7",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 }

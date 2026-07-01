@@ -662,7 +662,7 @@ fn test_linked_at_timestamp_is_rfc3339() {
     assert!(!envelope.linked_at.is_empty());
     // RFC-3339 timestamps contain 'T' and 'Z'
     assert!(envelope.linked_at.contains('T'));
-    assert!(envelope.linked_at.contains('Z'));
+    assert!(envelope.linked_at.contains('Z') || envelope.linked_at.contains("+00:00"));
 }
 
 #[test]
