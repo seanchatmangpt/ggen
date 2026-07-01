@@ -14,10 +14,8 @@
 //! No subprocess calls or external process-mining engines required.
 
 use std::collections::HashMap;
-use oxigraph::sparql::QueryResults;
 
-use crate::graph::DeterministicGraph;
-use crate::ocel::{OcelEvent, OcelLog};
+use crate::ocel::OcelLog;
 use crate::GraphError;
 
 /// A discovered process model for a single object type.

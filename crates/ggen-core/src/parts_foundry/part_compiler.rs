@@ -7,6 +7,8 @@
 //!
 //! No mocks. Real compilers only.
 
+#![allow(clippy::unused_async_trait_impl)]
+
 use crate::utils::error::Result;
 use std::path::PathBuf;
 use std::process::Command;

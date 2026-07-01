@@ -1,5 +1,7 @@
 //! Error types for configuration parsing and validation
 
+#![allow(clippy::uninlined_format_args, clippy::doc_markdown, clippy::too_many_lines, clippy::match_same_arms)]
+
 use std::path::PathBuf;
 
 /// Result type alias for configuration operations

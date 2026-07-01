@@ -3,7 +3,6 @@
 //! This module provides functionality for loading and parsing ggen.toml files.
 
 use crate::config_lib::{ConfigError, GgenConfig, Result};
-use std::fs;
 use std::path::{Path, PathBuf};
 
 /// Configuration loader and parser

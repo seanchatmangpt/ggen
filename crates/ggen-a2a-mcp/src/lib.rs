@@ -11,6 +11,12 @@
 //! - Multi-agent orchestration registry
 //! - Health monitoring and status tracking
 
+#![allow(
+    clippy::unused_async_trait_impl,
+    clippy::for_kv_map,
+    clippy::too_long_first_doc_paragraph
+)]
+
 pub mod a2a;
 pub mod a2a_generated;
 pub mod a2a_registry;

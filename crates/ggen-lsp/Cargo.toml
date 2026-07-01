@@ -1,6 +1,6 @@
 [package]
 name = "ggen-lsp"
-version = "26.6.25"
+version = "26.7.1"
 edition = "2021"
 license = "MIT"
 description = "Language server for ggen surfaces — analyzers, check, intel/mining, pack, route/repair, handlers."
@@ -24,9 +24,9 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 
 # Reuse from ggen workspace
-ggen-core = { path = "../ggen-core", version = "26.6.25" }
-ggen-config = { path = "../ggen-config", version = "26.6.25" }
-ggen-graph = { path = "../ggen-graph", version = "26.6.25" }
+ggen-core = { path = "../ggen-core", version = "26.7.1" }
+ggen-config = { path = "../ggen-config", version = "26.7.1" }
+ggen-graph = { path = "../ggen-graph", version = "26.7.1" }
 tera = { workspace = true }
 toml = { workspace = true }
 # Canonical RDF/SPARQL formatting (parse + reserialize). Matches the

@@ -120,6 +120,7 @@
 #![allow(unexpected_cfgs)]
 #![allow(unused_imports)]
 #![allow(dead_code)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+#![allow(clippy::unused_async_trait_impl, clippy::branches_sharing_code)]
 #![allow(
     clippy::manual_checked_ops,
     clippy::unnecessary_sort_by,

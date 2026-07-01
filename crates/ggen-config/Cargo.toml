@@ -23,7 +23,7 @@ workspace = true
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-star-toml = { path = "../star-toml", version = "26.6.25" }
+star-toml = { path = "../star-toml", version = "26.7.1" }
 toml = "1.1.0"
 thiserror = "2.0"
 tokio = { version = "1.47", features = ["sync"] }

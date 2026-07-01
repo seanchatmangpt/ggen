@@ -1,6 +1,6 @@
 [package]
 name = "ggen-lsp-a2a"
-version = "26.6.25"
+version = "26.7.1"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -10,11 +10,11 @@ description = "A2A bridge exposing the ggen-lsp-mcp route engine as an A2A agent
 # Leaf bridge: depends on ggen-lsp-mcp (the route tools) + ggen-a2a-mcp (the A2A
 # Adapter primitives). Nothing depends back, and ggen-a2a-mcp must NOT depend on
 # ggen-lsp — so the ggen-core → ggen-a2a-mcp edge stays acyclic.
-ggen-lsp-mcp = { version = "26.6.25", path = "../ggen-lsp-mcp" }
-ggen-a2a-mcp = { version = "26.6.25", path = "../ggen-a2a-mcp" }
+ggen-lsp-mcp = { version = "26.7.1", path = "../ggen-lsp-mcp" }
+ggen-a2a-mcp = { version = "26.7.1", path = "../ggen-a2a-mcp" }
 # Direct dep for the field-evidence gauge (capture_request). Cycle-free: ggen-lsp
 # never depends on this crate (cargo tree verified).
-ggen-lsp = { version = "26.6.25", path = "../ggen-lsp" }
+ggen-lsp = { version = "26.7.1", path = "../ggen-lsp" }
 serde_json = "1"
 async-trait = "0.1"
 

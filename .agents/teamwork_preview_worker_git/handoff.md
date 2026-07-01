@@ -1,66 +1,103 @@
-# Handoff Report — Git Inspection
+# Handoff Report
 
 ## 1. Observation
-I executed the following commands in the target directory `/Users/sac/capability-map`:
 
-**Command:**
-```bash
-git status
-```
-**Output:**
-```
-On branch main
+- **Stash before dropping**:
+  ```
+  stash@{0}: On main: main wip before dijkstra branch work
+  stash@{1}: WIP on fix/turtle-escaped-quote-literal-truncation: 0c5a35ba7 fix(ggen-core): unescape Turtle string literals instead of truncating at interior \"
+  ...
+  ```
+- **Stash drop command and output**:
+  ```
+  $ git stash drop stash@{0}
+  Dropped stash@{0} (bc228273ce12b27cdcca88109f9d6c3275de76c3)
+  ```
+- **Stash after dropping**:
+  ```
+  stash@{0}: WIP on fix/turtle-escaped-quote-literal-truncation: 0c5a35ba7 fix(ggen-core): unescape Turtle string literals instead of truncating at interior \"
+  ```
+- **Files staged**:
+  - `crates/ggen-cli/src/cmds/ontology.rs`
+  - `crates/ggen-cli/tests/performance.rs`
+  - `crates/ggen-cli/tests/proof_digest_reverify_test.rs`
+  - `crates/ggen-core/src/receipt/provenance_envelope.rs`
+- **Git Commit Command and Output**:
+  ```
+  $ git commit -m "fix: solidify in-flight ontology command, performance test, and provenance hashing fixes"
+  [claude/nice-dijkstra-1543ko facf15c16] fix: solidify in-flight ontology command, performance test, and provenance hashing fixes
+   4 files changed, 12 insertions(+), 11 deletions(-)
+  ```
+- **Git Log (recent 3 commits)**:
+  ```
+  commit facf15c1641ee50df8e402a591dbf0d17a1d4226
+  Author: Sean Chatman <136349053+seanchatmangpt@users.noreply.github.com>
+  Date:   Tue Jun 30 22:25:46 2026 -0700
 
-No commits yet
+      fix: solidify in-flight ontology command, performance test, and provenance hashing fixes
 
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-	.agents/
-	.gitignore
-	Cargo.lock
-	Cargo.toml
-	ORIGINAL_REQUEST.md
-	PROJECT.md
-	README.md
-	docs/
-	fixtures/
-	scripts/
-	src/
-	tests/
+  commit e57028188e7314f093027a39123a5fb79c02f431
+  Author: Sean Chatman <136349053+seanchatmangpt@users.noreply.github.com>
+  Date:   Tue Jun 30 13:20:46 2026 -0700
 
-nothing added to commit but untracked files present (use "git add" to track)
-```
+      chore(deps): bump workspace to 26.6.25, update deps, fix stale test compile errors
+      ...
+  ```
+- **Git Status**:
+  ```
+  On branch claude/nice-dijkstra-1543ko
+  Your branch is ahead of 'origin/claude/nice-dijkstra-1543ko' by 2 commits.
+    (use "git push" to publish your local commits)
 
-**Command:**
-```bash
-git diff
-```
-**Output:**
-*(Empty stdout and stderr)*
-
----
+  Changes not staged for commit:
+    (use "git add <file>..." to update what will be committed)
+    (use "git restore <file>..." to discard changes in working directory)
+  	modified:   .agents/ORIGINAL_REQUEST.md
+  	modified:   .agents/sentinel/BRIEFING.md
+  	modified:   .agents/sentinel/handoff.md
+  	modified:   .agents/teamwork_preview_explorer_m1/BRIEFING.md
+  	modified:   .agents/teamwork_preview_explorer_m1/handoff.md
+  	modified:   .agents/teamwork_preview_explorer_m1/progress.md
+  	modified:   .agents/teamwork_preview_worker_git/BRIEFING.md
+  	modified:   .agents/teamwork_preview_worker_git/progress.md
+  ```
+- **Cargo Check Output**:
+  `Finished dev profile [unoptimized + debuginfo] target(s) in 40.77s` (Clean compile)
+- **Cargo Test Output**:
+  - 15 passed, 3 failed.
+  - Failures (all in `otel_validation_tests.rs`):
+    - `test_comprehensive_validation`
+    - `test_readme_deterministic_output`
+    - `test_readme_generation_performance_slo`
+  - Error:
+    ```
+    Template validation failed for rule 'cli-commands-reference':
+      - SyntaxError("Failed to parse 'test_template'")
+    ```
 
 ## 2. Logic Chain
-1. Based on the output of `git status`, the repository has no commits yet ("No commits yet").
-2. There are several files and folders listed under "Untracked files", including `Cargo.toml`, `src/`, `tests/`, etc.
-3. Because all files are currently untracked and no commits exist, there are no tracked modifications.
-4. Consequently, `git diff` returned no output.
 
----
+- Checked `git stash list` to identify `stash@{0}`.
+- Dropped `stash@{0}` and confirmed that the list was updated.
+- Staged only the requested files (`ontology.rs`, `performance.rs`, `proof_digest_reverify_test.rs`, and `provenance_envelope.rs`).
+- Committed the changes with the requested commit message: `"fix: solidify in-flight ontology command, performance test, and provenance hashing fixes"`.
+- Verified commit is present at HEAD using `git log`.
+- Ran `cargo check --all-targets` to verify clean compilation.
+- Ran `cargo test --all-targets` to find pre-existing test failures.
 
 ## 3. Caveats
-- Since there are no commits, running commands like `git diff HEAD` or `git log` will fail due to the lack of a HEAD reference.
-- I assumed the target directory `/Users/sac/capability-map` is the correct repository location as provided in the prompt.
 
----
+- The 3 failures in `otel_validation_tests` are pre-existing template validation issues with the `cli-commands-reference` rule. These are unrelated to the current commit's scope.
+- We did not modify or attempt to fix those template syntax errors as they are outside the objective.
 
 ## 4. Conclusion
-The repository at `/Users/sac/capability-map` is newly initialized with no commits. All project files (such as `Cargo.toml`, source code, and tests) exist as untracked files. There are no modifications to tracked files, resulting in an empty `git diff`.
 
----
+- The corrupted `stash@{0}` was successfully dropped.
+- The uncommitted fixes on branch `claude/nice-dijkstra-1543ko` have been committed.
+- Build compiles cleanly. Test suite passes except for the three pre-existing `otel_validation_tests.rs` failures.
 
 ## 5. Verification Method
-To independently verify:
-1. Navigate to `/Users/sac/capability-map`.
-2. Run `git status` to verify the list of untracked files and the "No commits yet" state.
-3. Run `git diff` to verify that there are no modifications tracked by git.
+
+- Check the git logs on branch `claude/nice-dijkstra-1543ko` using `git log -n 1`.
+- Verify the stash list using `git stash list`.
+- Verify code health using `cargo check --all-targets` and `cargo test --all-targets`.

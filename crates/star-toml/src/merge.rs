@@ -72,7 +72,10 @@ pub(crate) fn set_dotted(root: &mut Value, path: &str, value: Value) {
         Value::Table(t) => t,
         other => {
             *other = Value::Table(toml::map::Map::new());
-            other.as_table_mut().unwrap()
+            match other {
+                Value::Table(t) => t,
+                _ => unreachable!(),
+            }
         }
     };
 

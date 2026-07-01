@@ -383,13 +383,10 @@ impl InversePipeline {
                     reason: e.to_string(),
                 }
             })?;
-            // Trim prefix-only output: if the RDF contains nothing after the prefix declarations
-            // there is effectively no data.
-            let data_lines: Vec<&str> = rdf
+            let has_data = rdf
                 .lines()
-                .filter(|l| !l.trim().is_empty() && !l.starts_with("@prefix"))
-                .collect();
-            if data_lines.is_empty() {
+                .any(|l| !l.trim().is_empty() && !l.starts_with("@prefix"));
+            if !has_data {
                 return Err(InversePipelineError::ConvertEmpty {
                     service: first_service_name,
                 });
@@ -400,10 +397,9 @@ impl InversePipeline {
         // μ⁻¹₄ Validate: check RDF output is non-empty and contains service declarations.
         // The convert_to_rdf function emits Turtle format, so we look for code: prefixed
         // service IRIs rather than bare N-Triples markers.
-        let shacl_valid;
-        if rdf.is_empty() {
+        let shacl_valid = if rdf.is_empty() {
             // No services to validate — pass vacuously (nothing was promised).
-            shacl_valid = true;
+            true
         } else {
             let has_service_decl = rdf.lines().any(|l| {
                 let t = l.trim();
@@ -416,8 +412,8 @@ impl InversePipeline {
                     "recovered RDF contains no code:Service declarations".to_string(),
                 ));
             }
-            shacl_valid = true;
-        }
+            true
+        };
 
         // μ⁻¹₅ Emit: build receipt with BLAKE3 of output, non-empty UUID, real timestamp.
         let output_hash = {

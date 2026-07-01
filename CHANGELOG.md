@@ -5,6 +5,15 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.7.1] — Ontology Macro, Performance Test, and Hashing Fixes (2026-06-30)
+
+### Fixed
+- **Ontology `#[verb]` macro usages** — Fixed compiler errors and verified macro-actuated command routing compatibility.
+- **Performance tests positional arguments** — Corrected positional arguments in performance benchmarks and tests to align with updated CLI verbs.
+- **Provenance envelope hashing** — Fixed cryptographic digest generation for provenance envelopes.
+- **Dropping corrupted `stash@{0}`** — Removed corrupt git stash reference to stabilize local repository state.
+- **Generating documentation audit report** — Run and completed documentation compliance auditing across all vendors and components.
+
 ## [26.6.23] — Autonomic Configuration, Coherence Verification, and Star-TOML Integration (2026-06-23)
 
 ### Added

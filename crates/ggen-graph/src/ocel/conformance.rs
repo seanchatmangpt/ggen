@@ -155,7 +155,7 @@ impl OcelConformanceChecker {
         // Detect deviations and calculate fitness
         let mut deviations = Vec::new();
         let mut conforming_events = 0;
-        let mut total_events = log.events.len();
+        let total_events = log.events.len();
 
         for event in &log.events {
             let mut is_conforming = true;

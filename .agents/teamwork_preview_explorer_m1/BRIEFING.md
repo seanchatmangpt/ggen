@@ -1,35 +1,36 @@
-# BRIEFING — 2026-06-23T04:18:35Z
+# BRIEFING — 2026-07-01T05:25:00Z
 
 ## Mission
-Analyze requirements for the 1000x praxis active self-healing and validation system and design the directory structure and libraries.
+Investigate and document uncommitted fixes, git/stash status, .md files corruption, and Cargo.toml versions.
 
 ## 🔒 My Identity
 - Archetype: teamwork_preview_explorer
-- Roles: read-only investigation and design
+- Roles: explorer, analyst, investigator
 - Working directory: /Users/sac/ggen/.agents/teamwork_preview_explorer_m1
-- Original parent: 7f3068c0-71db-4e8b-9fcd-8a0791ee93fb
-- Milestone: m1
+- Original parent: 403c7c53-6205-4ed0-982f-a48aa11acd33
+- Milestone: M1 - Preview Exploration
 
 ## 🔒 Key Constraints
 - Read-only investigation — do NOT implement
-- CODE_ONLY network mode: no external website or service requests.
+- Do not modify any source code files
+- Follow all AGENTS.md rules
 
 ## Current Parent
-- Conversation ID: 7f3068c0-71db-4e8b-9fcd-8a0791ee93fb
-- Updated: not yet
+- Conversation ID: 403c7c53-6205-4ed0-982f-a48aa11acd33
+- Updated: 2026-07-01T05:25:00Z
 
 ## Investigation State
-- **Explored paths**: `/Users/sac/praxis`, `/Users/sac/praxis/template`, `/Users/sac/praxis/crates/chatman-common`
+- **Explored paths**: Cargo.toml, crates/ggen-cli/src/cmds/ontology.rs, crates/ggen-cli/tests/performance.rs, crates/ggen-cli/tests/proof_digest_reverify_test.rs, crates/ggen-core/src/receipt/provenance_envelope.rs, tests/e2e_production_marketplace.rs
 - **Key findings**:
-  - `chatman-common` provides rolling BLAKE3 chain hashing (`RollingChain`/`RollingHash`) which is ideal for the cryptographic compliance receipt of `praxis-guard`.
-  - `template/tools/hollow-gate` verifies structural conformance to typestates, evidence wrappers, ZST markers (`Raw`/`Validated`/`Admitted`), `Admit` traits, and blocks stubs like `unimplemented!`, `todo!`, etc. This serves as the basis for `praxis-guard`'s structural validation.
-  - `apply.sh` defines standard files (`deny.toml`, `typos.toml`, `rustfmt.toml`, etc.) that `praxis-reconciler` needs to monitor and restore.
+  - Uncommitted changes in CLI (`ontology.rs`), performance tests (`performance.rs`, `proof_digest_reverify_test.rs`), and core hashing (`provenance_envelope.rs`) are clean and functionally correct.
+  - Workspace test runs demonstrate that all workspace and E2E tests pass, with the exception of 3 pre-existing failures in `otel_validation_tests.rs` caused by local ontology template mismatch (`SyntaxError` on `test_template` for `cli-commands-reference`).
+  - Active branch is `claude/nice-dijkstra-1543ko`. Stash list has 39 stashes; `stash@{0}` is the corrupted stash to be dropped.
+  - Identified 5 `Cargo.toml` files declaring package versions explicitly and 11 files declaring internal package dependency versions that require version updates to `26.7.1`.
 - **Unexplored areas**: None.
 
 ## Key Decisions Made
-- Start with exploring files in `/Users/sac/praxis` and `/Users/sac/praxis/template` to understand the setup.
-- Design `praxis-reconciler` as a hybrid file watcher / polling reconciler with dynamic template placeholder substitution.
-- Design `praxis-guard` as a Cargo subprocess runner, source directory hashing engine (via `RollingChain`), and Ed25519 signer/verifier for cryptographic compliance receipts.
+- Confirmed green build for compiled `ggen` binary and all core + E2E tests by compiling `ggen` and running `cargo test`.
+- Analyzed all internal Cargo.toml dependency relationships for version bumps.
 
 ## Artifact Index
-- `/Users/sac/ggen/.agents/teamwork_preview_explorer_m1/handoff.md` — Final exploration report
+- /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/ORIGINAL_REQUEST.md — Save original request to ORIGINAL_REQUEST.md as required by workflow protocol

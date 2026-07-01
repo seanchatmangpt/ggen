@@ -7,7 +7,6 @@
 //! - HTTP client using reqwest with timeout
 //! - Real HTTP calls (Chicago TDD — no mocks)
 
-use async_trait::async_trait;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
