@@ -112,14 +112,16 @@ impl ProvenanceEnvelope {
     /// Creates a new empty envelope.
     #[must_use]
     pub fn new() -> Self {
-        Self {
+        let mut envelope = Self {
             forward_receipt: None,
             inverse_receipt: None,
             coherence_report: None,
             operation_chain: Vec::new(),
             envelope_hash: String::new(),
             linked_at: Utc::now().to_rfc3339(),
-        }
+        };
+        envelope.envelope_hash = envelope.compute_hash();
+        envelope
     }
 
     /// Creates an envelope initialized with a forward receipt.

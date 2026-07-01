@@ -151,7 +151,6 @@ keywords = ["{id}"]
         self.write_pack(id, version);
         self.pack()
             .arg("add")
-            .arg("--pack_name")
             .arg(id)
             .assert()
             .success();
