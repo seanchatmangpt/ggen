@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Provenance envelope hashing** — Fixed cryptographic digest generation for provenance envelopes.
 - **Dropping corrupted `stash@{0}`** — Removed corrupt git stash reference to stabilize local repository state.
 - **Generating documentation audit report** — Run and completed documentation compliance auditing across all vendors and components.
+- **Dependency pinning for `ggen-lsp`** — Pinned and subsequently updated `wasm4pm-compat` to `26.6.26` to bypass broken upstream releases.
+- **Stale test compile errors** — Fixed compilation errors in legacy tests due to dependency bumps.
 
 ## [26.6.23] — Autonomic Configuration, Coherence Verification, and Star-TOML Integration (2026-06-23)
 
