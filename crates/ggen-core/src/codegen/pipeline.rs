@@ -1026,9 +1026,15 @@ impl GenerationPipeline {
                     .unwrap_or(&rule.output_file);
 
                 let rendered = tera.render("generation_rule", &context).map_err(|e| {
+                    let mut error_chain = e.to_string();
+                    let mut source = std::error::Error::source(&e);
+                    while let Some(cause) = source {
+                        error_chain.push_str(&format!("\n  Caused by: {}", cause));
+                        source = std::error::Error::source(cause);
+                    }
                     Error::new(&format!(
                         "Failed to render template for rule '{}': {}",
-                        rule.name, e
+                        rule.name, error_chain
                     ))
                 })?;
 

@@ -854,25 +854,25 @@ cli:GlobalConfigOption
 # ============================================================================
 
 # Generate command generates from these PaaS artifacts
-cli:GenerateCommand cli:generatesFrom paas:DockerArtifact ;
-cli:GenerateCommand cli:generatesFrom paas:KubernetesArtifact ;
-cli:GenerateCommand cli:generatesFrom paas:TerraformArtifact ;
-cli:GenerateCommand cli:generatesFrom paas:OpenAPIArtifact ;
+cli:GenerateCommand cli:generatesFrom paas:DockerArtifact .
+cli:GenerateCommand cli:generatesFrom paas:KubernetesArtifact .
+cli:GenerateCommand cli:generatesFrom paas:TerraformArtifact .
+cli:GenerateCommand cli:generatesFrom paas:OpenAPIArtifact .
 
 # Deploy command deploys these containers
-cli:DeployCommand cli:deploys paas:Container ;
+cli:DeployCommand cli:deploys paas:Container .
 
 # Status command reads status of containers and datastores
-cli:StatusCommand cli:readsStatusOf paas:Container ;
-cli:StatusCommand cli:readsStatusOf paas:DataStore ;
+cli:StatusCommand cli:readsStatusOf paas:Container .
+cli:StatusCommand cli:readsStatusOf paas:DataStore .
 
 # Logs command streams logs from containers
-cli:LogsCommand cli:logsFrom paas:Container ;
+cli:LogsCommand cli:logsFrom paas:Container .
 
 # Describe command describes any PaaS resource
-cli:DescribeCommand cli:describes paas:Resource ;
-cli:DescribeCommand cli:describes paas:Container ;
-cli:DescribeCommand cli:describes paas:DataStore ;
+cli:DescribeCommand cli:describes paas:Resource .
+cli:DescribeCommand cli:describes paas:Container .
+cli:DescribeCommand cli:describes paas:DataStore .
 
 # ============================================================================
 # METADATA

@@ -56,7 +56,7 @@ WHERE {
 }
 ORDER BY ?label
 """ }
-template = { file = ".specify/templates/cli/help.rs.tera" }
+template = { file = ".specify/templates/cli/commands-reference.rs.tera" }
 output_file = "crates/ggen-cli/src/generated_commands.rs"
 mode = "Overwrite"
 
