@@ -1,0 +1,34 @@
+crates/ggen-lsp/src/analyzers/	IRREDUCIBLY-CUSTOM	Four-surface law analyzers (RDF/SPARQL/TOML/Tera parsing, GGEN-TPL-001/OUT-001 cross-surface checks); METHODOLOGY E-ledger allowlist names "LSP analyzers"
+crates/ggen-lsp/src/route/registry.rs	IRREDUCIBLY-CUSTOM	Family->route registry with cold-start seeds, priority sort, conformance-gated promoted-route merge
+crates/ggen-lsp/src/route/model.rs	IRREDUCIBLY-CUSTOM	POWL partial-order repair model + separable WF-net soundness check (acyclic single entry/exit)
+crates/ggen-lsp/src/route/edit.rs	IRREDUCIBLY-CUSTOM	Repair edit synthesis/anchoring logic
+crates/ggen-lsp/src/route/compact.rs	IRREDUCIBLY-CUSTOM	Route compaction logic (repair-engine core)
+crates/ggen-lsp/src/route/promoted.rs	IRREDUCIBLY-CUSTOM	Promotability gate + promoted-route artifact load
+crates/ggen-lsp/src/route/plan.rs	IRREDUCIBLY-CUSTOM	Repair plan ordering over POWL partial order
+crates/ggen-lsp/src/route/envelope.rs	IRREDUCIBLY-CUSTOM	Route envelope (repair-engine core)
+crates/ggen-lsp/src/route/mod.rs	IRREDUCIBLY-CUSTOM	Route module re-exports + family_of_code join logic
+crates/ggen-lsp/src/route/diagnostic_species.rs	GENERATABLE-WITH-SPEC	&'static metadata registry of diagnostic species; canonical values fixed by GGEN-TPL-001 inventory — TTL-spec registry shape
+crates/ggen-lsp/src/intel/mine.rs	IRREDUCIBLY-CUSTOM	Offline failure-edge mining: OCEL->RDF->DFG discovery + conformance-gated route synthesis (header doc)
+crates/ggen-lsp/src/intel/metrics.rs	IRREDUCIBLY-CUSTOM	Mined-route evidence metrics (support/success_rate)
+crates/ggen-lsp/src/intel/replay.rs	IRREDUCIBLY-CUSTOM	Episode replay over OCEL log
+crates/ggen-lsp/src/intel/log.rs	IRREDUCIBLY-CUSTOM	IntelLog append-only OCEL JSONL store (.ggen/ocel/agent-edit-events.ocel.jsonl)
+crates/ggen-lsp/src/intel/history.rs	IRREDUCIBLY-CUSTOM	Linear repair-history chaining (post_n == pre_{n+1})
+crates/ggen-lsp/src/intel/field.rs	IRREDUCIBLY-CUSTOM	Intel field extraction logic
+crates/ggen-lsp/src/intel/mod.rs	IRREDUCIBLY-CUSTOM	Intel module wiring (16 LOC, kept with module)
+crates/ggen-lsp/src/intel/events.rs	GENERATABLE-WITH-SPEC	OCEL activity-name consts + event builders over ggen-graph types verbatim; schema-derivable
+crates/ggen-lsp/src/intel/receipt.rs	GENERATABLE-WITH-SPEC	Serde RepairReceipt struct definition mirroring ggen-graph receipt pattern; type-def shape
+crates/ggen-lsp/src/features/	IRREDUCIBLY-CUSTOM	Real line-by-line tokenizers/formatters (delta-encoded semantic tokens, inlay hints, code lens, formatting) — algorithmic, not dispatch
+crates/ggen-lsp/src/rule_index.rs	IRREDUCIBLY-CUSTOM	Resolves [[generation.rules]] into analyzable entries; SPARQL SELECT variable extraction (header doc)
+crates/ggen-lsp/src/project_index.rs	IRREDUCIBLY-CUSTOM	Project/buffer-overlay index feeding analyzers
+crates/ggen-lsp/src/harness_index.rs	IRREDUCIBLY-CUSTOM	Harness index substrate for harness_analyzer
+crates/ggen-lsp/src/handlers/	GENERATABLE-WITH-SPEC	16 thin LSP dispatch files (12-53 LOC each; definition.rs=15): unwrap params -> get_analyzer -> map response; nearest template family templates/lsp-max/*.tera (backend.rs.tera renders handler wiring); needs new TTL spec, no algorithm
+crates/ggen-lsp/src/server.rs	GENERATABLE-WITH-SPEC	LanguageServer impl + capability declaration delegating to handlers; protocol wiring
+crates/ggen-lsp/src/main.rs	GENERATABLE-WITH-SPEC	22-LOC stdio server entrypoint
+crates/ggen-lsp/src/lib.rs	GENERATABLE-WITH-SPEC	Module re-export surface
+crates/ggen-lsp/src/error.rs	GENERATABLE-WITH-SPEC	thiserror enum (32 LOC); classic error-enum boilerplate
+crates/ggen-lsp/src/state.rs	GENERATABLE-WITH-SPEC	Document store + FileType extension map + analyzer cache; registry/dispatch glue
+crates/ggen-lsp/src/check.rs	GENERATABLE-WITH-SPEC	Headless gate orchestration: walkdir discovery, analyzer invocation, serde CheckReport — law lives in analyzers/
+crates/ggen-lsp/src/pack/mod.rs	GENERATABLE-WITH-SPEC	Admissibility-pack emitter driven wholly by include_str! assets; asset-manifest TTL would generate it
+crates/ggen-lsp/src/init.rs	GENERATABLE-WITH-SPEC	Project init scaffolding
+crates/ggen-lsp/src/utils.rs	GENERATABLE-WITH-SPEC	Position/range/text helpers
+crates/ggen-lsp/src/protocol.rs	DEAD-DELETE	0 code LOC (single comment); pub mod in lib.rs:23 but defines nothing; grep "protocol::" in crate src empty — delete file + mod decl

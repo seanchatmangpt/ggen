@@ -1,0 +1,7 @@
+crates/genesis-core-v2/src/lib.rs	GENERATABLE-WITH-SPEC	Pattern trait + 3 metadata-driven YAWL impls + registry boilerplate; needs yawl-patterns.ttl
+crates/genesis-core-v2/src/inventory.rs	GENERATABLE-WITH-SPEC	enums with per-variant policy tables; TTL-emittable
+crates/genesis-core-v2/src/registry.rs	GENERATABLE-WITH-SPEC	HashMap registry boilerplate
+crates/genesis-core-v2/src/patterns.rs	DEAD-DELETE	0 code LOC empty placeholder module
+crates/genesis-core-v2/src/primitives.rs	IRREDUCIBLY-CUSTOM	no_std zero-alloc primitives + BLAKE3 receipt/replay algorithms; E-ledger candidate
+crates/genesis-core-v2/src/revelation.rs	IRREDUCIBLY-CUSTOM	receipt/evidence verification logic (verify_lamb_authority, is_genuine recompute)
+crates/genesis-core-v2/src/split_laws.rs	IRREDUCIBLY-CUSTOM	need9/need257 page-split algorithms with receipt hashing

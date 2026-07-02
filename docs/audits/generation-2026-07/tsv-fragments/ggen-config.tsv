@@ -1,0 +1,22 @@
+crates/ggen-config/src/lib.rs	GENERATABLE-WITH-SPEC	re-export wiring only
+crates/ggen-config/src/config_lib/mod.rs	GENERATABLE-WITH-SPEC	module wiring/re-exports
+crates/ggen-config/src/config_lib/schema.rs	GENERATABLE-WITH-SPEC	pure serde structs of ggen.toml schema; needs schema TTL; nearest family: a2a_generated serde emitters
+crates/ggen-config/src/config_lib/error.rs	GENERATABLE-WITH-SPEC	thiserror enum + Display boilerplate
+crates/ggen-config/src/config_lib/parser.rs	IRREDUCIBLY-CUSTOM	TOML load + path validation IO glue (behavior, not shape)
+crates/ggen-config/src/config_lib/validator.rs	IRREDUCIBLY-CUSTOM	cross-field validation logic via star_toml::Validate
+crates/ggen-config/src/config/mod.rs	GENERATABLE-WITH-SPEC	module wiring/re-exports
+crates/ggen-config/src/config/template_config.rs	GENERATABLE-WITH-SPEC	serde config-section structs with defaults
+crates/ggen-config/src/config/ontology_config.rs	GENERATABLE-WITH-SPEC	serde ontology-pack config structs
+crates/ggen-config/src/config/lock_manager.rs	IRREDUCIBLY-CUSTOM	ggen.lock IO + digest verification; authoritative path per coding-agent-mistakes.md 4.1
+crates/ggen-config/src/config/hive_coordinator.rs	DEAD-DELETE	#![allow(dead_code)] header; zero consumers outside crate (grep HiveQueen/hive_coordinator across crates+src)
+crates/ggen-config/src/config/andon_gemba.rs	DEAD-DELETE	zero consumers outside crate (grep andon_gemba); lean-mfg framework unrelated to config parsing
+crates/ggen-config/src/config/system_health.rs	DEAD-DELETE	zero consumers outside crate (grep system_health)
+crates/ggen-config/src/config/quality_assurance.rs	DEAD-DELETE	zero consumers outside crate (grep quality_assurance)
+crates/ggen-config/src/config/qa_cli.rs	DEAD-DELETE	zero consumers outside crate (grep qa_cli); CLI for dead QA cluster
+crates/ggen-config/src/config/qa_integration_test.rs	DEAD-DELETE	tests the dead QA cluster; test file misplaced in src/
+crates/ggen-config/src/config/ontology_integration_test.rs	IRREDUCIBLY-CUSTOM	hand-written Chicago test assertions (misplaced in src/, should move to tests/)
+crates/ggen-config/src/receipt/mod.rs	GENERATABLE-WITH-SPEC	module wiring/re-exports
+crates/ggen-config/src/receipt/error.rs	GENERATABLE-WITH-SPEC	thiserror enum boilerplate
+crates/ggen-config/src/receipt/receipt_impl.rs	IRREDUCIBLY-CUSTOM	Ed25519 sign/verify + SHA-256 hashing; proposed E-ledger crypto allowlist (~40% type defs extractable)
+crates/ggen-config/src/receipt/chain.rs	IRREDUCIBLY-CUSTOM	hash-linked chain verification logic; proposed E-ledger
+crates/ggen-config/src/receipt/envelope.rs	IRREDUCIBLY-CUSTOM	Ed25519+BLAKE3 envelope sign/verify (chatmangpt.receipt.envelope.v1); proposed E-ledger

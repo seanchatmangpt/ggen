@@ -1,0 +1,16 @@
+crates/cpmp/src/registry.rs	GENERATABLE-NOW	63 builder calls duplicate crates/cpmp/ontologies/catalog.ttl (already include_str!'d); only template wiring missing
+crates/cpmp/src/projection.rs	GENERATABLE-WITH-SPEC	markdown/RDF report assembly via format! — template-shaped
+crates/cpmp/src/ocel.rs	GENERATABLE-WITH-SPEC	OCEL 2.0 standard serde mirrors; ~45 LOC DFG helpers custom remainder
+crates/cpmp/src/models.rs	GENERATABLE-WITH-SPEC	pure type defs (FileEntry, Symbol, Receipt, DetectedCapability)
+crates/cpmp/src/entry.rs	GENERATABLE-WITH-SPEC	Capability/OntologyContent/OntologyEntry type defs
+crates/cpmp/src/tier.rs	GENERATABLE-WITH-SPEC	two enums + Display impls
+crates/cpmp/src/error.rs	GENERATABLE-WITH-SPEC	error enum + Display + From impls
+crates/cpmp/src/db.rs	GENERATABLE-WITH-SPEC	CREATE TABLE strings + insert wiring; schema-derivable
+crates/cpmp/src/catalog.rs	GENERATABLE-WITH-SPEC	clap-noun-verb #[verb] CLI wiring; .specify/cli-schema.ttl family
+crates/cpmp/src/lib.rs	GENERATABLE-WITH-SPEC	mod decls + run_cli wiring
+crates/cpmp/src/main.rs	GENERATABLE-WITH-SPEC	one-line binary entry
+crates/cpmp/src/classification.rs	IRREDUCIBLY-CUSTOM	classify_file signal heuristics + dormant_crate_dirs workspace parsing
+crates/cpmp/src/capability.rs	IRREDUCIBLY-CUSTOM	keyword capability-detection heuristics
+crates/cpmp/src/symbol.rs	IRREDUCIBLY-CUSTOM	regex symbol extraction per language
+crates/cpmp/src/scanner.rs	IRREDUCIBLY-CUSTOM	walkdir scan orchestration + hashing
+crates/cpmp/src/receipt.rs	IRREDUCIBLY-CUSTOM	BLAKE3 aggregate_hash + verify_no_deletion; E-ledger candidate

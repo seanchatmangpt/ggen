@@ -1,0 +1,1 @@
+crates/ggen-lsp-a2a/src	GENERATABLE-WITH-SPEC	~90% Adapter-trait/dispatch boilerplate from a 3-tool schema; templates/a2a-rust.tera family exists, tool TTL spec missing; consolidation §2 merges into ggen-lsp (not dead)

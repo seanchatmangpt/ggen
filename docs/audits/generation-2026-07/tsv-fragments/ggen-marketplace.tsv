@@ -1,0 +1,41 @@
+crates/ggen-marketplace/src/lib.rs	GENERATABLE-WITH-SPEC	crate re-exports
+crates/ggen-marketplace/src/marketplace/mod.rs	GENERATABLE-WITH-SPEC	module re-exports
+crates/ggen-marketplace/src/marketplace/models.rs	GENERATABLE-WITH-SPEC	serde data models + newtypes (PackageId), poka-yoke enums
+crates/ggen-marketplace/src/marketplace/metadata.rs	GENERATABLE-WITH-SPEC	package.toml/metadata.json field-mapping boilerplate
+crates/ggen-marketplace/src/marketplace/error.rs	GENERATABLE-WITH-SPEC	thiserror enum boilerplate
+crates/ggen-marketplace/src/marketplace/builders.rs	GENERATABLE-WITH-SPEC	builder-pattern boilerplate over models
+crates/ggen-marketplace/src/marketplace/traits.rs	GENERATABLE-WITH-SPEC	trait signature definitions, no logic
+crates/ggen-marketplace/src/marketplace/ontology.rs	GENERATABLE-WITH-SPEC	canonical namespace + vocabulary constants (TTL-derivable); site of former P0-03 namespace bug
+crates/ggen-marketplace/src/marketplace/rdf/mod.rs	GENERATABLE-WITH-SPEC	module re-exports
+crates/ggen-marketplace/src/marketplace/rdf/ontology.rs	GENERATABLE-WITH-SPEC	enum Class/Property URI vocabulary; header documents P0-03 fix re-exporting MARKETPLACE_NS
+crates/ggen-marketplace/src/marketplace/rdf/sparql_queries.rs	GENERATABLE-WITH-SPEC	named SPARQL query registry; queries belong in .rq/TTL specs
+crates/ggen-marketplace/src/marketplace/rdf/turtle_config.rs	GENERATABLE-WITH-SPEC	Turtle serialization config tables
+crates/ggen-marketplace/src/marketplace/rdf/state_machine.rs	GENERATABLE-WITH-SPEC	package lifecycle transition table (TTL-expressible)
+crates/ggen-marketplace/src/marketplace/rdf_mapper.rs	GENERATABLE-WITH-SPEC	struct-to-RDF triple mapping boilerplate
+crates/ggen-marketplace/src/marketplace/registry_rdf.rs	GENERATABLE-WITH-SPEC	oxigraph CRUD over vocabulary, query-template-shaped
+crates/ggen-marketplace/src/marketplace/registry.rs	GENERATABLE-WITH-SPEC	registry facade
+crates/ggen-marketplace/src/marketplace/search_sparql.rs	GENERATABLE-WITH-SPEC	SPARQL search query builders
+crates/ggen-marketplace/src/marketplace/trust.rs	GENERATABLE-WITH-SPEC	TrustTier/RegistryType enums + tables
+crates/ggen-marketplace/src/marketplace/fmea_mitigations.rs	GENERATABLE-WITH-SPEC	FMEA mitigation tables, declarative risk registry
+crates/ggen-marketplace/src/marketplace/rdf/fmea_mitigations.rs	GENERATABLE-WITH-SPEC	RDF-side FMEA tables (possible consolidation candidate with fmea_mitigations.rs)
+crates/ggen-marketplace/src/marketplace/metrics.rs	GENERATABLE-WITH-SPEC	metric name/label definitions
+crates/ggen-marketplace/src/marketplace/bundle.rs	GENERATABLE-WITH-SPEC	bundle manifest types
+crates/ggen-marketplace/src/marketplace/ownership.rs	GENERATABLE-WITH-SPEC	OwnershipClass classification tables
+crates/ggen-marketplace/src/marketplace/compatibility.rs	IRREDUCIBLY-CUSTOM	10-dimension conflict-detection algorithm
+crates/ggen-marketplace/src/marketplace/install.rs	IRREDUCIBLY-CUSTOM	dependency resolution with cycle detection, atomic install, rollback, parallel batching
+crates/ggen-marketplace/src/marketplace/rdf/control.rs	IRREDUCIBLY-CUSTOM	profile enforcement engine (authoritative path per coding-agent-mistakes.md)
+crates/ggen-marketplace/src/marketplace/rdf/poka_yoke.rs	IRREDUCIBLY-CUSTOM	phantom-type/typestate SPARQL safety system; type-level programming
+crates/ggen-marketplace/src/marketplace/composition_receipt.rs	IRREDUCIBLY-CUSTOM	receipt hashing/chaining; E-ledger (crypto) candidate
+crates/ggen-marketplace/src/marketplace/migration.rs	IRREDUCIBLY-CUSTOM	stateful schema/data migration logic
+crates/ggen-marketplace/src/marketplace/profile.rs	IRREDUCIBLY-CUSTOM	profile constraint evaluation
+crates/ggen-marketplace/src/marketplace/policy.rs	IRREDUCIBLY-CUSTOM	policy evaluation engine (rule defs declarative, evaluator not)
+crates/ggen-marketplace/src/marketplace/v3.rs	IRREDUCIBLY-CUSTOM	LRU query caching, rayon parallel search, index optimization
+crates/ggen-marketplace/src/marketplace/rdf/sparql.rs	IRREDUCIBLY-CUSTOM	SPARQL execution/binding-extraction layer
+crates/ggen-marketplace/src/marketplace/cache.rs	IRREDUCIBLY-CUSTOM	cache eviction + filesystem lifecycle
+crates/ggen-marketplace/src/marketplace/validation.rs	IRREDUCIBLY-CUSTOM	validation rule execution
+crates/ggen-marketplace/src/marketplace/pki.rs	IRREDUCIBLY-CUSTOM	Ed25519 trusted-key + revocation management; E-ledger (crypto) candidate
+crates/ggen-marketplace/src/marketplace/rdf/rdf_control.rs	IRREDUCIBLY-CUSTOM	RDF control-flow enforcement (possible consolidation with rdf/control.rs)
+crates/ggen-marketplace/src/marketplace/atomic.rs	IRREDUCIBLY-CUSTOM	atomic filesystem transaction primitives
+crates/ggen-marketplace/src/marketplace/network.rs	IRREDUCIBLY-CUSTOM	reqwest HTTP client, download progress, offline fallback
+crates/ggen-marketplace/src/marketplace/security.rs	IRREDUCIBLY-CUSTOM	checksum/signature verification paths
+crates/ggen-marketplace/src/marketplace/search.rs	IRREDUCIBLY-CUSTOM	fuzzy matching + relevance ranking

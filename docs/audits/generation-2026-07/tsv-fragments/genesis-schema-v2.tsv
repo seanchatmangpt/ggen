@@ -1,0 +1,1 @@
+crates/genesis-schema-v2/src	GENERATABLE-WITH-SPEC	pure derive serde structs (OpenAPI mirror) + trivial registry; consolidation-analysis §2 merges into genesis-types-v2 (not dead)
