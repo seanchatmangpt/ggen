@@ -1,14 +1,12 @@
 use crate::graph::Graph;
 use crate::utils::error::Error;
 
-pub const OWL_TTL: &str = include_str!("../../../../../ontologies/core/owl.ttl");
-pub const RDF_TTL: &str = include_str!("../../../../../ontologies/core/rdf-syntax-ns.ttl");
-pub const RDFS_TTL: &str = include_str!("../../../../../ontologies/core/rdf-schema.ttl");
-pub const SCHEMA_TTL: &str =
-    include_str!("../../../../../ontologies/schema-org/schemaorg-all-https.ttl");
-pub const FOAF_TTL: &str = include_str!("../../../../../ontologies/foaf.ttl");
-pub const DUBLIN_CORE_TTL: &str =
-    include_str!("../../../../../ontologies/dublin-core-elements-1.1.ttl");
+pub const OWL_TTL: &str = include_str!("../../../ontologies/core/owl.ttl");
+pub const RDF_TTL: &str = include_str!("../../../ontologies/core/rdf-syntax-ns.ttl");
+pub const RDFS_TTL: &str = include_str!("../../../ontologies/core/rdf-schema.ttl");
+pub const SCHEMA_TTL: &str = include_str!("../../../ontologies/schema-org/schemaorg-all-https.ttl");
+pub const FOAF_TTL: &str = include_str!("../../../ontologies/foaf.ttl");
+pub const DUBLIN_CORE_TTL: &str = include_str!("../../../ontologies/dublin-core-elements-1.1.ttl");
 
 /// Helper to load standard public ontologies into a graph
 pub fn load_standard_vocabularies(graph: &Graph) -> Result<(), Error> {
