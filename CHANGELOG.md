@@ -5,6 +5,17 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.7.2] — CI Stabilization and Vendor Fork Cleanup (2026-07-02)
+
+### Removed
+- **`clnrm-core-patched` vendor fork and unused `clnrm` dependency** — Removed a stale vendored fork whose `pub mod coverage`/`generated` declarations pointed at files silently excluded by an overbroad `.gitignore` pattern, which broke fresh CI checkouts.
+
+### Fixed
+- **Workspace-wide clippy warnings-as-errors gate** — Resolved all outstanding clippy warnings across the workspace; this is the first time the gate has run clean.
+- **CI Phase 2 job** — Added the missing `ggen` binary build step that must run before the job invokes `ggen validate`.
+- **`cargo-cicd` `affi` tool install** — Added `--package` disambiguation for the upstream `affi` tool install, since the upstream repository now ships two binaries.
+- **`just lint` recipe timeout** — Bumped from 90s to 180s to accommodate the full clippy run.
+
 ## [26.7.1] — Ontology Macro, Performance Test, and Hashing Fixes (2026-07-01)
 
 ### Added
