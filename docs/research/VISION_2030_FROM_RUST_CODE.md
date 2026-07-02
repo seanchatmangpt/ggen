@@ -1,329 +1,362 @@
-# The Point of ggen, and a Vision 2030 — Derived from the Rust Code Alone
+# The Point of ggen, and Vision 2030 — the Chatman Convergence, Verified Against the Rust Code
 
-**Method.** This analysis was produced by reading only Rust source (`.rs` files) across the 15
-compiled workspace crates and the 5 dormant crate directories under `crates/`. No markdown,
-no `docs/`, no README, no TTL files were consulted. Every claim below cites a real file path
-and real type/function names found in source. Doc comments (`///`, `//!`) inside `.rs` files
-were treated as part of the code.
+**Method.** This analysis was produced in two passes. First, a Rust-code-only survey of the 15
+compiled workspace crates and the 5 dormant crate directories under `crates/` — no markdown, no
+`docs/`, no README, no TTL files; only `.rs` source (doc comments included, since they are part
+of the code). Second, the survey was reconciled against the project's converged doctrine (the
+"Conversation Convergence" SPR): the **post-Rice mission operating system** governed by the
+**Chatman Equation `A = μ(O*)`**. Every doctrine concept below is either anchored to real
+files/types found in source, or honestly flagged as absent — claims of absence are backed by
+zero-hit searches over `**/*.rs`.
 
 ---
 
-## Part 1 — The Point of the Project
+## Part 1 — The Convergence: What This Project Actually Is
 
-### The one-sentence thesis
+### Not the smaller things it resembles
 
-**ggen is a deterministic compiler whose source language is an RDF ontology and whose object
-language is a software project — `A = μ(O)` — wrapped in a proof system where every state
-transition either emits a hash-chained cryptographic receipt or a typed Refusal, and where
-the ontology (O), the generated artifacts (A), and the event log (L) are continuously audited
-for isomorphism (`O ≅ A ≅ L`).**
+From the code alone, ggen looks like a very rigorous code generator. That reading is true but
+undersized. It is not "AI tools," not RevOps, not a scaffolding utility, and not a claim that
+everything is reducible. The converged claim is:
 
-The formula is stated verbatim in code: `crates/ggen-core/src/lib.rs` describes
-"Fully-Rendered Libraries via Ontology-First Compilation (A = μ(O))", and
-`crates/ggen-graph/src/coherence.rs` implements the "post-Chatman equation A ≅ O ≅ L" as a
-runnable auditor.
+> **Everything operational can be abstracted into a discrete, deterministic working model at
+> sufficient resolution for action** — and this codebase is the machinery for doing that
+> lawfully: a post-Rice **mission operating system**.
 
-### The five load-bearing ideas in the code
+### The Chatman Equation, as implemented
 
-#### 1. Ontology-first generation (the μ pipeline)
+```
+A = μ(O*)          R = receipt(A)          BRCE = bounded receipted execution
+```
 
-The primary engine is `crates/ggen-core/src/codegen/pipeline.rs` (`GenerationPipeline`),
-driven by `crates/ggen-core/src/codegen/executor.rs` (`SyncExecutor::execute`). The stages
-are literally the μ pipeline:
+- **O** — raw, open observation. The default world is semantically open and cannot be directly
+  planned (Rice's theorem: arbitrary semantics cannot be trusted as executable meaning).
+- **O\*** — the *admitted, bounded, verified* slice of observation. Authority begins here — not
+  at observation, not at tool output, not at LLM proposal.
+- **μ** — the lawful manufacturing function. This is ggen itself.
+- **A** — artifact / action / authority / consequence.
+- **R** — the receipt that makes A claimable.
 
-1. Load the RDF ontology into an Oxigraph `Graph`.
-2. `execute_inference_rules()` — SPARQL **CONSTRUCT** queries materialize inferred triples
-   back into the graph (with a strict-mode error `GGEN-INFER-001` when a CONSTRUCT adds
-   nothing).
-3. `execute_generation_rules()` — SPARQL **SELECT** rows feed **Tera** templates; the
-   `output_file` pattern itself is template-expanded; files are written through a
-   transactional `transaction.write_file(...)` with `GenerationMode::{Create, Overwrite, Merge}`.
+This is not a retrofitted narrative — the equation is native to the code. The graph crate's
+coherence module cites "the post-Chatman equation A ≅ O ≅ L" verbatim
+(`crates/ggen-graph/src/coherence.rs`), the sync pipeline mounts a FATAL
+`CoherenceGate` (`crates/ggen-core/src/sync/coherence_gate.rs`), and the test suite carries the
+name structurally: `crates/ggen-graph/tests/post_chatman_coherence_integration.rs`,
+`crates/ggen-graph/tests/post_chatman_roundtrip_full_test.rs`,
+`crates/genesis-types-v2/tests/post_chatman_powl_integration.rs`,
+`crates/genesis-types-v2/tests/post_chatman_residual_integration.rs`.
 
-A second, lower-level path in `crates/ggen-core/src/sync/mod.rs` names the stages
-Load → Extract → Generate → Validate → Write, adds Workflow-net soundness gates
-(`check_deadlock_freedom`, `check_liveness`, `check_boundedness`), a FATAL `CoherenceGate`
-at "stage 4.5", and computes a deterministic receipt
-`sha256(ontology_bytes ‖ sorted(file_contents))`. Target languages exist as
-`SyncLanguage::{Go, Elixir, Rust, TypeScript, Python, Auto}`.
+**The O → O\* boundary is what most of the codebase is.** The star on O is implemented as
+admission machinery at every layer:
 
-The manifest that specifies all of this is `GgenManifest` in
-`crates/ggen-core/src/manifest/types.rs`: `[ontology]` (source, imports, prefixes),
-`[inference]` (CONSTRUCT rules with ordering and ASK guards), `[generation]`
-(query + template + output_file + mode), `[[validation]]` (SHACL shapes + ASK rules),
-`[[packs]]`. Queries and templates can resolve from File / Inline / Pack / Git /
-package-manager sources.
+| Admission surface | Code |
+|---|---|
+| Packet admission gates (`AdmissionVerdict::{Admit, Refuse}`) | `crates/genesis-construct8/src/admission.rs` — `AdmissionPredicate`, `StructuralAdmissionGate`, `LawAdmissionGate`, `GatedSegmentBuilder` |
+| Process admission | `crates/genesis-types-v2/src/lib.rs` — `ProcessAdmissionReport`, `GateResult`, `AdmissionStatus::{Alive, PartialAlive, Refused, Unknown}` with BLAKE3 `receipt_hash` |
+| The only legal boundary crossing | `crates/ggen-membrane/src/lib.rs` — `GenesisAdapter` ("ggen owns contact, Genesis owns consequence, the adapter is the ONLY legal crossing, every crossing produces a receipt, every failure is a Refusal") |
+| Manifest-time admission (strict mode, SHACL, ASK guards) | `crates/ggen-core/src/manifest/types.rs` — `[[validation]]` shapes, `ValidationRule{ask, severity}`, `strict_mode` |
+| Author-time admission (law surfaces) | `crates/ggen-lsp/src/analyzers/` — `GGEN-TPL-001`, `GGEN-OUT-001`, `GGEN-YIELD-001`, `E0011`/`E0013` |
+| Trust admission for supply-chain inputs | `crates/ggen-marketplace/src/marketplace/trust.rs` — `TrustTier` (Blocked satisfies nothing, ever), `RegistryClass` |
+| Agent-work admission | `crates/ggen-a2a-mcp/src/a2a/receipt.rs` — `A2ATaskReceipt::verify()` fail-closing into 16 refusal variants incl. `SyntheticTaskClosure` |
 
-**The CLI collapsed onto this single golden path.** `crates/ggen-cli/src/cmds/mod.rs`
-documents that in v26.5.19 nearly everything folded into `ggen sync` ("The ONLY command");
-supporting nouns remain (`graph`, `ontology`, `pack`/`packs`, `agent`, `capability`,
-`receipt`, `policy`, `doctor`, `inverse_sync`, `lsp`), and speculative nouns (`a2a`, `mcp`,
-`sigma`, `wizard`, `framework`) are archived behind a default-off `experimental` feature
-under an explicit non-deletion doctrine.
+Everything upstream of these gates is O. Everything downstream is O\*, and only O\* actuates.
 
-**The system is self-hosting.** `crates/ggen-a2a-mcp/src/a2a_generated/mod.rs` is headed
-"Generated by ggen from A2A ontology / Do not edit — regenerate with: ggen sync"
-(`ONTOLOGY_VERSION = "1.0.0"`). ggen generates its own agent-protocol type system from an
-RDF ontology.
+### Rice Quarantine, as implemented
 
-#### 2. Determinism as a law, not a preference
+The doctrine — do not model the whole world; model the admitted lawful slice; everything outside
+has no operational standing; the system *refuses, quarantines, or abstracts* rather than crying
+over inadmissible state — is executable behavior in the code:
 
-- `crates/ggen-graph/src/graph/dataset.rs`: `DeterministicGraph` wraps Oxigraph;
-  `state_hash()` is a BLAKE3 hash over all quads.
-- `crates/ggen-core/src/sync/mod.rs`: BTreeMap ordering, lexicographic `.rq` execution,
-  fixed SPARQL timeout.
-- The LSP enforces ordering at author time: `E0011`/`E0013` diagnostics require `ORDER BY`
-  on CONSTRUCT/SELECT under strict mode (`crates/ggen-lsp/src/analyzers/`).
-- `crates/genesis-construct8/src/forge.rs` (dormant): `forge_canonical()` emits
-  lexicographically-sorted N-Quads with order-independence proven in tests.
+- **Refuses:** typed `Refusal { reason: RefusalReason, .. }` in the no_std kernel
+  (`crates/genesis-core/src/lib.rs`); `RouteRefusal` in the LSP route engine so that an empty
+  route list is never read as "all clear" (`crates/ggen-lsp-mcp/src/lib.rs`); `HierarchyRefusal`
+  in the corpus builder; `ConsentRefused` with receipt evidence in stpnt.
+- **Quarantines:** the promotion ledger in `crates/ggen-lsp/src/intel/history.rs` carries the
+  literal status set `Active / Demoted / Quarantined / Superseded` — mined knowledge that loses
+  evidentiary standing is quarantined, not deleted and not argued with.
+- **Abstracts:** the entire μ pipeline is the abstraction move — the world enters only as an RDF
+  ontology bounded by a manifest (`GgenManifest`), never as raw semantics.
 
-#### 3. Receipts or Refusals — nothing in between
+And the honesty backstop: `crates/ggen-lsp/src/intel/metrics.rs` refuses to compute over
+inadmissible state — `MetricValue::InsufficientEvidence`, "no event → no metric, never a
+fabricated number." Unknown outside scope is not a problem to lament; it is simply not standing.
 
-Every layer carries the same contract: a lawful transition yields a chained receipt; an
-unlawful one yields a typed refusal. Panics are designed out
-(`crates/ggen-graph/src/lib.rs` denies `unwrap/expect/panic/todo/unimplemented`).
+---
 
-- **Sync receipts:** `crates/ggen-cli/src/cmds/sync.rs::emit_sync_receipt()` writes
-  Ed25519-signed receipts to `.ggen/receipts/`, chained to the previous receipt, hashing the
-  full input closure (actuator identity, `ggen.toml`, ontology + imports, external queries
-  and templates — recording `MISSING` for unreadable inputs). Dry-runs deliberately write no
-  receipt ("a preview must record no consequence").
-- **Graph transition receipts:** `crates/ggen-graph/src/receipt/mod.rs`: `GraphReceipt`
-  binds `pre_state_hash / post_state_hash / delta_hash`; `verify()` detects a single flipped
-  bit; `ReplayVerifier` enforces anti-replay and linear-history chain continuity.
-  `apply_delta` runs `KnowledgeHook` SPARQL constraints and **rolls back** on failure.
-- **Kernel receipts:** `crates/genesis-core/src/lib.rs` — a `#![no_std]`, zero-alloc kernel:
-  `Pair2` (2 bytes), `RelationPage<CAP>`, `Construct8` (compile-time asserted 32 bytes),
-  `Receipt::generate(act, prev)` chaining BLAKE3, `ReplayCursor::advance` refusing
-  `OutOfOrderEpoch`/`ReceiptMismatch`, and a `Refusal { reason: RefusalReason, .. }` type
-  for every illegal state.
-- **Agent-task receipts:** `crates/ggen-a2a-mcp/src/a2a/receipt.rs`: `A2ATaskReceipt` binds
-  personas (`Avatar8`), jobs-to-be-done (`Jtbd8`), MCP invocation evidence, and
-  expected-vs-observed **OCEL path evidence** with a BLAKE3 canonical hash; `verify()`
-  fail-closes into 16 refusal variants including `SyntheticTaskClosure` and
-  `OcelHashMismatch` — a "prove the agent actually did the work" contract.
-- **Stewardship receipts:** `crates/stpnt/src/proof/receipt.rs`: `StewardshipReceipt` binds
-  seven hashes plus a keyed-BLAKE3 MAC; unsigned receipts fail `verify()`; empty signing
-  keys are refused.
+## Part 2 — Doctrine → Code Map
 
-#### 4. O ≅ A ≅ L — the three-pole coherence audit
+Each pillar of the convergence, and where it already lives in `.rs` source.
 
-`crates/ggen-graph/src/coherence.rs` defines `Pole::{Ontology, Artifact, EventLog}`,
-`PoleState` (BLAKE3 fingerprint + item count), `CoherenceChecker`, and a `CoherenceReport`
-with `DriftKind::{HashMismatch, CountDiscrepancy, Missing}`. The sync pipeline mounts this
-as a FATAL gate. The event-log pole is OCEL 2.0 (`crates/ggen-graph/src/ocel/`):
-`OcelEvent/OcelLog/OcelObject`, directly-follows-graph discovery (`discover_dfg`),
-lifecycle-order checks, PROV-O provenance types, and pack-lifecycle emitters
-(`emit_pack_install`, `emit_lockfile_write`, …).
+### μ — the manufacturing function (ggen proper)
 
-There is also a **reverse arrow**: `inverse_sync` in the CLI and
-`reverse_sync::InverseReceipt` in ggen-core — code back to ontology — meaning the
-isomorphism is meant to be maintainable from either side.
+Ontology in; representation out. The primary engine is
+`crates/ggen-core/src/codegen/pipeline.rs` (`GenerationPipeline`): load ontology into Oxigraph →
+SPARQL CONSTRUCT inference materialized back into the graph → SPARQL SELECT rows through Tera
+templates → transactional file writes (`GenerationMode::{Create, Overwrite, Merge}`). The CLI
+collapsed onto the single golden path `ggen sync` (`crates/ggen-cli/src/cmds/mod.rs`), emitting
+Ed25519-signed receipts chained over the full input closure
+(`cmds/sync.rs::emit_sync_receipt`) — and dry-runs deliberately emit nothing: "a preview must
+record no consequence."
 
-#### 5. A self-improving law surface, gated by process mining
+What μ manufactures today, from code: **Rust/Go/Elixir/TypeScript/Python sources**
+(`SyncLanguage` in `crates/ggen-core/src/sync/mod.rs`), **its own agent-protocol types**
+(`crates/ggen-a2a-mcp/src/a2a_generated/` — "Generated by ggen from A2A ontology"), **MCP
+capability surfaces** (`mcp_packs.rs` tools shared byte-identically across MCP and A2A
+transports), **OCEL logs and receipts** (`crates/ggen-graph/src/ocel/`), and **tests, fixtures,
+diagnostics packs** (`crates/ggen-lsp/src/pack/mod.rs` — the hook foundry with hash-bound
+`scan_hash → pack_hash` CPMP-PACK-1 receipts). What it does not yet manufacture: PDDL operators
+(see the gap map).
 
-`crates/ggen-lsp/` treats the generation inputs (`.ttl`, `.rq`, `.tera`, `ggen.toml`) as
-"law surfaces" and enforces the same `E00xx`/`GGEN-*` codes at author time that `ggen sync`
-enforces at build time (`GGEN-TPL-001` unbound template variable, `GGEN-OUT-001` unbound
-output path, `GGEN-YIELD-001` output escaping the root, etc.). Its repair engine
-(`crates/ggen-lsp/src/route/`) is POWL-native: "a Diagnostic is the observable trace of a
-failed process transition; a CodeAction is the transition that repairs it."
+### BRCE — bounded receipted execution
 
-The remarkable part is the improvement loop (`crates/ggen-lsp/src/intel/`): every
-diagnostic episode is appended to an OCEL log
-(`DiagnosticRaised → RouteSelected → GatePassed/GateFailed → ReceiptEmitted/RefusalEmitted`),
-attributed per agent and transport (lsp | mcp | a2a | headless). `ggen lsp mine` projects
-the log to RDF, discovers the directly-follows graph via SPARQL, and synthesizes mined
-repair routes that displace the seeded defaults **only** when measured support and success
-rates cross promotion thresholds — with a promotion receipt, a demotion/quarantine ledger,
-and a metrics module whose honesty gate is explicit:
-`MetricValue::InsufficientEvidence` — "no event → no metric, never a fabricated number"
-(`crates/ggen-lsp/src/intel/metrics.rs`). The route engine is exposed byte-identically over
-four channels (editor, headless gate, MCP via `crates/ggen-lsp-mcp/`, A2A via
-`crates/ggen-lsp-a2a/`).
+Every layer implements transition-with-receipt-or-refusal:
 
-#### 6. A governed supply chain for generation assets
+- Kernel: `Receipt::generate(act, prev)` BLAKE3 chain, `ReplayCursor::advance` refusing
+  `OutOfOrderEpoch`/`ReceiptMismatch` (`crates/genesis-core/src/lib.rs`, compile-time asserted
+  32-byte `Construct8`).
+- Graph: `GraphReceipt` binding `pre_state_hash / post_state_hash / delta_hash`, `KnowledgeHook`
+  SPARQL constraints with rollback, `ReplayVerifier` enforcing linear-history chain continuity
+  (`crates/ggen-graph/src/receipt/mod.rs`, `graph/dataset.rs`).
+- Sync: signed chained receipts over the O\* closure (actuator identity + manifest + ontology +
+  imports + external queries/templates, `MISSING` recorded for unreadable inputs).
+- Agents: `A2ATaskReceipt` binding personas, jobs-to-be-done, MCP invocation evidence, and
+  expected-vs-observed OCEL path hashes.
+- Humans: `StewardshipReceipt` with keyed-BLAKE3 MAC; unsigned receipts fail `verify()`
+  (`crates/stpnt/src/proof/receipt.rs`).
 
-`crates/ggen-marketplace/src/marketplace/` is a package registry whose control plane **is
-RDF**: `rdf/control.rs::RdfControlPlane` performs create/publish/search entirely through
-SPARQL over an Oxigraph store; the package lifecycle is a typestate + guarded state machine
+**Cache stores standing, not output.** `.ggen/packs.lock` plus the signed provenance receipt on
+install (`crates/ggen-a2a-mcp/src/mcp_packs.rs`) is exactly this: a cache hit is the reuse of a
+prior admitted receipt, re-verified at `--locked` time; it is never a bypass of admission.
+
+### Capability Physics — capability as admitted object moving through law
+
+The doctrine requires capability to carry state, authority, preconditions, effects, resources,
+constraints, receipt, replay — and requires the loop *tool call → quarantine → admission →
+plan → execution → receipt → replay → promotion/refusal*. The code implements the loop
+end-to-end in the LSP intel subsystem (`crates/ggen-lsp/src/intel/`): every diagnostic episode
+is OCEL-logged (`DiagnosticRaised → RouteSelected → GatePassed/GateFailed →
+ReceiptEmitted/RefusalEmitted`), attributed per agent and transport (lsp | mcp | a2a |
+headless); `ggen lsp mine` projects the log to RDF, discovers the directly-follows graph, and
+promotes mined repair routes **only** on measured support + success thresholds, with a
+promotion receipt and replay verification ("if replay cannot reconstruct the claim, the claim
+is not done" — `intel/replay.rs`). The MCP+ membrane exists as the pack-tool surface: ten
+`ggen.packs.*` tools, each a pure function shared across transports, each invocation emitting
+an OCEL boundary event. Capability discovery/verification is a first-class CLI noun
+(`agent: capabilities, search, resolve, compatibility, verify, install` in
+`crates/ggen-cli/src/cmds/`, backed by `ggen_core::agent::PackAgent`).
+
+### Gall Foundations — inherited constants, not invented gravity
+
+The engineered foundations are present in the stack the code chooses rather than argues for:
+**Rust as local deterministic law** (the entire workspace; `ggen-graph/src/lib.rs` denies
+`unwrap/expect/panic/todo/unimplemented` at the crate level), **Erlang/OTP as distributed
+supervision law** (Elixir is a first-class generation target — `SyncLanguage::Elixir` with
+`generate_elixir` in `crates/ggen-core/src/sync/mod.rs`), and **AtomVM as the edge bridge**
+(`AtomVM`, `Erlang`, `WASM` are entries in cpmp's capability vocabulary —
+`crates/cpmp/src/capability.rs` — i.e., the self-scanner is explicitly looking for where these
+foundations live in the repo; the dormant `crates/genesis-wasm-shell/` runs the kernel in the
+browser). The physical foundations (light-speed propagation bounds, causal cones) appear in the
+code as their software shadows: `NoRetrocausationCheck` in the Σ constitution
+(`crates/ggen-core/src/ontology/`), temporal-order refusals (`OutOfOrderEpoch`), and
+lifecycle-order conformance checks (`check_lifecycle_order` in `crates/ggen-graph/src/ocel/`).
+
+### PDDL / POWL — action law and execution geometry
+
+The doctrine splits planning into PDDL (what actions are possible, preconditions, effects,
+resources) and POWL (what runs concurrently, what orders, what synchronizes, what receipts gate
+promotion). **The POWL half is built; the PDDL half is not.**
+
+- **POWL present:** `PowlNode`/`PowlEdge`/`PowlGraph` with `validate()` in
+  `crates/genesis-types-v2/src/lib.rs`; the LSP route engine is documented as POWL-native — "a
+  Diagnostic is the observable trace of a failed process transition; a CodeAction is the
+  transition that repairs it" (`crates/ggen-lsp/src/route/`); the agent-admissibility pack
+  ships a `powl/` stewardship directory; the workflow engine (`genesis-core-v2`) implements the
+  `Pattern` trait against Van der Aalst's 43-pattern YAWL taxonomy (3 built:
+  Sequence, ParallelSplit, ExclusiveChoice).
+- **PDDL absent:** `PDDL` matches **zero** `.rs` files in the repository. `ORTAC` matches zero.
+  "Fluent" appears only in the fluent-builder-API sense, never as a numeric planning fluent.
+  There are no action operators, no preconditions/effects schemas, no numeric objective
+  fluents, no planner integration. Preconditions and effects exist today only implicitly — as
+  admission gates and receipts around transitions, not as a declarative action calculus a
+  planner can search over.
+
+This is the single most consequential gap between the code and the convergence (see Part 4).
+
+### Mission Physics — same substrate, different objective fluents
+
+The doctrine: institutions differ by objective function, not planning mathematics. The code
+already proves the invariance with one non-commercial instantiation carried to completion —
+**stpnt** ("Stewards of the Pentecost"): a church-operations domain where the mission variables
+are welcomes, follow-ups, consent, incorporation; where every action must cite a canon basis
+(`trait CanonBasis`, `crates/stpnt/src/canon/mod.rs`); where consent is a hard admission gate
+(`ConsentGatePart` → `ConsentRefused` with PROV receipt); where obligations have deadlines and
+`Overdue` is a refused terminal state (`crates/ggen-core/src/stpnt/obligation.rs`); and where
+institutional failure is a computed KPI — `SlrAdjudicator::calculate_slr()`, the **Silent Loss
+Rate** = orphaned obligations / welcomed persons (`crates/stpnt/src/governance/slr.rs`). Change
+the ontology and the objective fluents, keep the substrate: that is mission physics, and the
+codebase runs it against a church before it runs it against a sales team. The `Avatar8`/`Jtbd8`
+persona-and-job bindings in `crates/ggen-a2a-mcp/src/a2a/receipt.rs` are the same move on the
+agent-work axis.
+
+**Revenue Physics is the designated first commercial specialization and is not yet built.**
+There is no revenue ontology, no `MaximumReachableRevenue`, no `RevenueUtilization`, no revenue
+DPMO in any `.rs` file. What exists is everything such a specialization would sit on: numeric
+state transition with receipts, typestate lifecycles with guards
 (`Draft → Published → {Deprecated, Yanked}` with `TransitionGuard`s in
-`rdf/state_machine.rs`). Trust is first-class: `trust.rs::TrustTier`
-(EnterpriseCertified → … → Blocked, where Blocked satisfies nothing),
-`RegistryClass::{Public, PrivateEnterprise, MirroredAirGapped}` ("Cargo is transport, not
-trust"), and `profile.rs` policy bundles such as `regulated_finance_profile` requiring
-`SignedAndChained` receipts and forbidding public registries. Pack installs write
-`.ggen/packs.lock` plus a signed provenance receipt, and verification fail-closes
-(`crates/ggen-a2a-mcp/src/mcp_packs.rs`).
+`crates/ggen-marketplace/src/marketplace/rdf/state_machine.rs` — a template for
+`opportunity may enter procurement only with security evidence, legal readiness, executive
+sponsor, delivery capacity`), and trust/profile policy enforcement
+(`regulated_finance_profile` in `marketplace/profile.rs` already encodes
+regulated-industry constraints).
 
-### So what is the point?
+### TPS / DfLSS — numeric flow and defect control over mission transitions
 
-Put together, the code is not "a code generator" in the scaffolding-tool sense. It is an
-attempt to make **software a proven consequence of a specification**:
+The upgrade path the doctrine describes has its foundations compiled in:
+`crates/ggen-core/src/` contains dedicated modules `dflss`, `lean_six_sigma`, `poka_yoke`,
+`manufacturing`, and `metrics` with `OEEMetrics`, `KaizenMetrics`, `WasteType`, `FlowMetrics`.
+Poka-yoke exists as typestate (`Open`/`Closed`, `NonEmptyPath` markers) and as an explicit
+marketplace module (`marketplace/poka_yoke.rs`, `fmea_mitigations.rs`). Jidoka — automatic
+refusal before bad consequence — is the pervasive Refusal machinery itself; Andon is the
+diagnostic surface (`GGEN-*` codes halting sync); Kaizen-as-promoted-receipted-improvement is
+literally the mined-route promotion loop with its `PromotionHistory` ledger. What is *not* yet
+wired: DPMO computed over mission-state transitions (revenue DPMO, ministry DPMO). The event
+substrate for it exists — OCEL logs count transition opportunities and `GateFailed` events —
+but no code divides the two and multiplies by a million.
 
-- The ontology is the only authored artifact; code *precipitates* from it deterministically.
-- Every consequence — a generated file, an installed pack, an agent task, an LSP repair, a
-  graph mutation — is either receipted (hash-chained, signed, replayable) or refused (typed,
-  with evidence). There is no silent third state.
-- Truth is externalized: the event log, not the return code, decides whether something
-  happened (`crates/ggen-lsp/src/intel/replay.rs`: "if replay cannot reconstruct the claim,
-  the claim is not done").
-- The system observes its own operation (OCEL), mines its own process, and promotes
-  improvements only on measured evidence.
+### Combinatorial Maximalism — maximize inside the admitted surface only
 
-The same laws are deliberately tested against a *human* process: `crates/stpnt/` encodes a
-church-community stewardship workflow (welcome → assign steward → follow up) where consent
-is a hard admission gate (`ConsentGatePart` returns `ConsentRefused` with a PROV receipt),
-every action must cite a canon basis (`trait CanonBasis`), and institutional failure is a
-measured KPI (`governance/slr.rs::SlrAdjudicator` — Silent Loss Rate). This is the codebase
-demonstrating that "receipts, refusals, replay" is a general theory of accountable process,
-not a compiler trick.
+This is the doctrine's least-anchored pillar, and honesty requires saying so. The code enforces
+the *boundary* half everywhere (nothing outside admission has standing) and implements
+enumerate-evaluate-promote in one domain: route mining enumerates candidate repairs from logs,
+filters refused/unsupported ones, and promotes only receipted winners
+(`crates/ggen-lsp/src/intel/mine.rs`). The pattern registries
+(`CorePatternRegistry`, `DashMap`-backed in `crates/genesis-core-v2/src/lib.rs`) and the
+capability-combination surface (`pack resolve` / `compatibility` verbs) are the scaffolding for
+lawful-combination enumeration. But a general "enumerate all lawful capability combinations,
+evaluate the frontier" engine does not exist yet as code.
 
----
+### Anti-Complaint Doctrine — spilled milk as an operational Rice principle
 
-## Part 2 — Vision 2030
-
-The phrase "Vision 2030" already lives in the source: `crates/cpmp/src/tier.rs` describes a
-tiered offline-first ontology registry as Vision 2030 work, and
-`crates/genesis-construct8/src/hierarchy.rs` is headed "Vision 2030 A = μ(O) construction."
-The vision below is therefore not invented; it is the completion of trajectories the code
-has already committed to — stubs, `v2`/`v3` layers, dormant crates, and feature-gated
-subsystems.
-
-### The end state: a provable software supply chain, self-governing from spec to receipt
-
-**By 2030, ggen becomes a system where organizations author ontologies — not code — and
-receive continuously regenerated, cryptographically attested software whose entire history
-is replayable by any third party, produced and repaired largely by agents operating under
-machine-checkable law.**
-
-Concretely, seven trajectories in the code converge:
-
-#### 1. Ontology as the only source artifact, in every language
-
-The multi-language backends (`generate_go/elixir/rust/typescript/python` in
-`crates/ggen-core/src/sync/mod.rs`) plus `inverse_sync` (code → ontology) complete the
-round trip: legacy codebases are lifted *into* ontologies, then maintained from them. The
-2030 workflow is: edit `O`, run `μ`, ship `A` — in any target language — with the
-`CoherenceChecker` proving nothing drifted. Hand-written code becomes the exception that
-must justify itself, mechanically flagged by source-caste laws
-(`GGEN-SRC-001/002/003` in `crates/ggen-lsp/src/analyzers/`).
-
-#### 2. Autonomous, constitutional ontology evolution (the Σ loop)
-
-`crates/ggen-core/src/ontology/` already contains the machinery, feature-gated off:
-`AutonomousControlLoop`, `DeltaSigmaProposer`, `RealLLMProposer` (LLM-proposed ontology
-deltas ΔΣ), `SigmaRuntime` with lock-free `AtomicSnapshotPromoter`, and — critically — a
-`Constitution` of invariant checks (`NoRetrocausationCheck`, `ProjectionDeterminismCheck`,
-`TypeSoundnessCheck`, `SLOPreservationCheck`, `ImmutabilityCheck`, `GuardSoundnessCheck`).
-By 2030 this loop runs closed: LLMs propose specification changes; the constitution, SHACL
-gates, and coherence audit decide admission; every promoted snapshot carries a
-`SigmaReceipt`. Software evolves at machine speed while remaining inside hand-written law.
-`GenerationConfig.enable_llm` defaulting to `false` today
-(`crates/ggen-core/src/manifest/types.rs`) is the safety catch waiting for the gates to
-mature.
-
-#### 3. The full 43-pattern lawful process engine (KNHK V2)
-
-`crates/genesis-core-v2/src/patterns.rs` is a 22-line roadmap stub: 3 of 43 YAWL workflow
-patterns exist (`SequencePattern`, `ParallelSplitPattern`, `ExclusiveChoicePattern`), with
-a `Pattern` async trait budgeted at ≤5µs on the hot path and DashMap registries ready.
-`genesis-types-v2` already ships POWL process graphs with `ProcessAdmissionReport` and a
-residual-vector bounded-repair controller (`ResidualVector`, `BoundedRepairOperator`,
-`VisualGapReport::assert_fresh()`). Completed, this is a receipt-backed workflow runtime
-expressive enough (van der Aalst's full taxonomy) to *be* the execution substrate for the μ
-pipeline, agent orchestration, and stpnt-style human processes alike — one engine, every
-process, every step admitted or refused.
-
-#### 4. Portable, decentralized trust (lockchain + quorum)
-
-The dormant `crates/genesis-lockchain/` sketches the missing inter-organizational layer:
-Merkle trees over receipts (`MerkleTree`/`MerkleProof`), `QuorumManager` with peer votes and
-threshold verification, URDNA2015 canonicalization (explicitly stubbed "to v1.1"). Combined
-with the marketplace's `TrustTier`/`RegistryClass`/profile machinery and
-`MirroredAirGapped` registries, the 2030 state is: receipt roots are co-signed by peer
-quorums, so *any* organization can verify *another's* generated software without trusting
-its build farm — provenance as a network property, satisfying the regulated profiles
-(`regulated_finance_profile`) already coded.
-
-#### 5. The kernel everywhere (no_std → WASM → edge)
-
-`crates/genesis-core/` compiles the entire receipt/replay/refusal algebra into
-compile-time-asserted 32-byte packets with no allocator; the dormant
-`crates/genesis-wasm-shell/` already wraps it in `wasm_bindgen`
-(`WasmConstruct8`, `WasmReplayCursor`, `RelationPageStreamer`). By 2030 verification is
-ambient: a browser, a phone, or an air-gapped auditor replays a corpus receipt chain
-(Segment → Shard → Corpus Merkle hierarchy from `genesis-construct8/src/hierarchy.rs`)
-without any server. The dormant `crates/ggen-membrane/` supplies the boundary law — one
-legal crossing between the messy outside (JSON/RDF/APIs) and the lawful kernel, every
-crossing receipted.
-
-#### 6. Agents as first-class, evidence-bound workers
-
-The A2A layer (`crates/ggen-a2a-mcp/`) models agent work as kanban tasks with no chat and
-only terminal states; `A2ATaskReceipt` refuses `SyntheticTaskClosure`. The LSP's
-agent-admissibility pack (`crates/ggen-lsp/src/pack/mod.rs`) manufactures per-agent hooks
-(pre-edit / post-edit / pre-commit / refusal) and SHACL policies, hash-bound
-`scan_hash → pack_hash` via a `CPMP-PACK-1` receipt. The mined-route promotion loop means
-the repair knowledge agents use is itself earned from logs, never asserted. The 2030
-picture: fleets of coding agents whose every edit is admission-gated, OCEL-logged, and
-whose collective experience compounds into promoted routes — an economy of repairs where
-"trust only what the log proves" (the van der Aalst reference is verbatim in
-`crates/ggen-lsp/src/route/`).
-
-#### 7. The self-knowing monorepo (cpmp + the non-deletion doctrine)
-
-`crates/cpmp/` scans the repository itself, BLAKE3-hashes every file, classifies each
-artifact into the nine statuses of `genesis-core-v2/src/inventory.rs` (where
-`deletion_allowed()` is hard-coded `false`), flags non-member crates as DORMANT, and emits a
-deterministic scan receipt whose `verify_no_deletion()` prints `REFUSAL:` for anything that
-vanished. `genesis-core-v2/src/revelation.rs` encodes the audit rubric as types — seven
-evidence "Seals" (Existence, Boundary, Receipt, Replay, Refusal, Observation, Causality) and
-a `BabylonClaim` category for unreceipted completion claims. By 2030 the project governs its
-own evolution with the same machinery it sells: capabilities are never deleted, only
-reclassified; promotion from Dormant to Live requires passing the gates; the repo's history
-is itself a receipt chain.
-
-### Vision 2030, in one paragraph
-
-By 2030, ggen is the reference implementation of **specification-sovereign software**: the
-ontology is the system of record; code, docs, APIs, and protocols are disposable projections
-regenerated on demand in any language; every transition from intent to artifact is
-receipted, replayable, and quorum-attestable across organizational boundaries; LLM-driven
-evolution runs continuously inside a typed constitution; agents do most of the mechanical
-work under admission gates that make faking harder than doing; and the whole apparatus —
-compiler, marketplace, process engine, kernel — audits itself with the same laws it imposes,
-so that the answer to "did it really happen?" is never a log line or a green checkmark, but
-a hash chain anyone can replay.
+Complaint is computation over inadmissible or non-actionable state; the code refuses to do it.
+Past irreversible state has execution standing only insofar as it changes the next admissible
+action — which is exactly the shape of the residual-repair controller in
+`crates/genesis-types-v2/src/lib.rs`: `ResidualVector` measures the gap, a
+`BoundedRepairOperator` applies a *bounded* correction, `VisualGapReport::assert_fresh()`
+rejects stale evidence, and `RepairAdmissionReport` admits the repair only if the residual
+improved. Defect → admitted observation → corrective action → new rule → receipt → promotion is
+the mined-route lifecycle verbatim. The strong tier — *convert the spill into a system
+upgrade* — is the whole intel loop: failures are not lamented, they are mined into promoted
+routes with receipts.
 
 ---
 
-## Part 3 — Gap Map (what exists vs. what the vision still requires)
+## Part 3 — Vision 2030: The Mission Operating System
 
-Honesty gate: the vision above extrapolates. This is the measured distance, from source.
+The phrase "Vision 2030" already lives in source (`crates/cpmp/src/tier.rs` — the tiered
+offline-first ontology registry; `crates/genesis-construct8/src/hierarchy.rs` — "Vision 2030
+A = μ(O) construction"). Reconciled with the convergence, the 2030 end-state is:
 
-| Capability | Status in code | Evidence |
+**Any mission-bearing institution — company, church, unit, university, hospital, agency —
+operates as a deterministic planning surface. Its relevant state, actions, resources,
+constraints, authority, and consequences are discretized at sufficient abstraction, bounded by
+admission, and executed under receipts and replay. Same planning mathematics everywhere; only
+the ontology and the objective fluents change.**
+
+The trajectories, each grounded in what the code has already committed to:
+
+1. **Ontology defines the work; μ manufactures the representation.** From one mission ontology,
+   ggen emits Rust types, **PDDL operators** (the to-be-built action law), POWL execution
+   structures, MCP+ capability surfaces, OCEL/receipt schemas, and tests/fixtures/diagnostics —
+   the multi-output pattern already proven by the self-hosted `a2a_generated` layer and the
+   LSP's manufactured hook packs. Rust executes the law; OTP supervises life (the
+   Elixir/AtomVM backends); BRCE receipts consequence.
+
+2. **Operator languages, not planner languages.** The ORTAC+ pattern — field-user DSL with
+   mission-native predicates translating down to PDDL — is replicated per institution: revenue
+   operators write revenue missions (account graph as geography, evidence and sponsors as
+   support predicates), ministry operators write care missions, and "sales judgment" becomes
+   executable law the way the marketplace's `TransitionGuard`s already make publish-judgment
+   executable. Nobody writes PDDL by hand; μ manufactures it from the ontology.
+
+3. **Revenue Physics as the first commercial specialization.** Revenue is already numeric, so
+   it is the ideal first PDDL-numeric-planning domain: predicates, numeric fluents, actions
+   with resource effects, authority, receipts. Maximum Reachable Revenue becomes an *upper
+   bound computed over the current capability graph*; Revenue Utilization = actual / maximum;
+   Revenue Opportunity = the difference. RevOps reports; Revenue Physics computes. The Business
+   Rice Boundary is respected: unplanned revenue is not optimized, only discussed — crossing
+   the boundary requires bounded objects, admissible actions, POWL execution, receipts.
+
+4. **DPMO over mission transitions.** TPS/DfLSS complete their upgrade from factory metaphor to
+   computed control: waste = action that moved no admitted mission state; defect = intended
+   transition that failed, delayed, reversed, or could not be receipted; DPMO computed per
+   domain (revenue, ministry, mission) from the OCEL logs that already count opportunities and
+   gate failures. Andon, Jidoka, and Kaizen are already code (diagnostics, refusals, promotion
+   receipts); the metrics close the loop.
+
+5. **Constitutional autonomous evolution.** The feature-gated Σ system
+   (`AutonomousControlLoop`, `RealLLMProposer`, `Constitution` with
+   `NoRetrocausationCheck`/`ProjectionDeterminismCheck`/`SLOPreservationCheck`) runs closed:
+   LLMs *propose* ontology deltas — and per the doctrine, an LLM proposal is not authority;
+   admission is. The constitution, SHACL gates, and the coherence audit decide; promoted
+   snapshots carry `SigmaReceipt`s.
+
+6. **Trust as a network property.** The dormant lockchain (`crates/genesis-lockchain/` — Merkle
+   trees over receipts, `QuorumManager` threshold verification) plus the marketplace's trust
+   tiers and air-gapped registry classes make receipt roots quorum-attestable across
+   organizational boundaries. The dormant WASM shell makes replay verification ambient — a
+   browser or an air-gapped auditor replays a Segment→Shard→Corpus receipt chain without
+   trusting anyone's build farm.
+
+7. **The system audits itself with the laws it imposes.** cpmp keeps scanning the repo,
+   classifying every artifact under the non-deletion doctrine
+   (`deletion_allowed()` hard-coded `false` in `crates/genesis-core-v2/src/inventory.rs`),
+   refusing silently vanished capability, and binding scans to packs by receipt. Dormant is a
+   status, not a grave; promotion requires passing the gates.
+
+**Core theorem, as the code is betting on it:** any mission-bearing system can be operated as a
+deterministic planning surface when its relevant state, actions, resources, constraints,
+authority, and consequences are discretized at a sufficient abstraction level and bounded by
+admission, receipts, and replay. The codebase is the constructive proof-in-progress: the
+admission/receipt/replay bounding is finished and hardened; the planning surface (PDDL + fluents
++ operator DSLs) is the remaining construction.
+
+---
+
+## Part 4 — Gap Map: Doctrine vs. Code, Measured
+
+| Doctrine element | Status in code | Evidence |
 |---|---|---|
-| μ pipeline (RDF → CONSTRUCT → SELECT → Tera → files) | **Live, complete** | `ggen-core/src/codegen/{pipeline,executor}.rs` |
-| Signed, chained sync receipts over full input closure | **Live** | `ggen-cli/src/cmds/sync.rs::emit_sync_receipt` |
-| Deterministic graph, transition receipts, replay verification | **Live** | `ggen-graph/src/{graph,receipt}/` |
-| O ≅ A ≅ L coherence auditing | **Live** (FATAL gate in sync) | `ggen-graph/src/coherence.rs` |
-| LSP law surfaces + headless check + 4-transport route engine | **Live** | `ggen-lsp/src/{analyzers,check,route}/`, `ggen-lsp-mcp`, `ggen-lsp-a2a` |
-| OCEL intel log + mining + conformance-gated promotion | **Live, advisory-only** (routes are `NoOp` edits by design in the MVP) | `ggen-lsp/src/intel/`, `route/` |
-| Marketplace RDF control plane, trust tiers, profiles | **Live with honest stubs** (`Error::NotImplemented`, zeroed dashboards, no-op RDF state-machine config loading) | `ggen-marketplace/src/marketplace/` |
-| Multi-language backends | **Partial** (Rust path strongest; `codegen/go.rs` carries TODOs) | `ggen-core/src/sync/mod.rs`, grep: 73 `todo!/TODO/FIXME` across 28 files |
-| Σ autonomous ontology evolution + Constitution | **Built but feature-gated off; proposers partially stubbed** | `ggen-core/src/ontology/`, `manifest/types.rs::enable_llm = false` |
-| 43-pattern YAWL engine | **3 of 43 patterns; roadmap stub** | `genesis-core-v2/src/patterns.rs` (22 lines) |
-| Lockchain (Merkle + quorum over receipts) | **Dormant crate; Ed25519 placeholder, URDNA2015 stubbed** | `crates/genesis-lockchain/` (not a workspace member) |
-| WASM kernel shell | **Dormant crate, wrappers written** | `crates/genesis-wasm-shell/` |
+| μ pipeline (RDF → CONSTRUCT → SELECT → Tera → files, receipted) | **Live, complete** | `ggen-core/src/codegen/{pipeline,executor}.rs`, `ggen-cli/src/cmds/sync.rs` |
+| O\* admission machinery (gates, guards, strict mode, trust tiers) | **Live at every layer** | `genesis-construct8/src/admission.rs`, `genesis-types-v2` `AdmissionStatus`, `ggen-lsp/src/analyzers/`, `marketplace/trust.rs` |
+| Chatman coherence audit (O ≅ A ≅ L) | **Live, FATAL gate** | `ggen-graph/src/coherence.rs`, `ggen-core/src/sync/coherence_gate.rs`, `post_chatman_*` tests |
+| BRCE: receipts, refusals, replay | **Live and hardened** (bit-flip tests, fail-closed verify, anti-replay) | `genesis-core`, `ggen-graph/src/receipt/`, `a2a/receipt.rs`, `stpnt/src/proof/` |
+| Rice Quarantine behaviors (refuse / quarantine / abstract) | **Live** | typed Refusals everywhere; `Quarantined` ledger status in `ggen-lsp/src/intel/history.rs` |
+| Capability loop (call → admit → execute → receipt → replay → promote) | **Live, advisory actuation** | `ggen-lsp/src/intel/`, `mcp_packs.rs`, route promotion thresholds |
+| Cache-as-standing (lockfile + provenance receipts, `--locked` re-verify) | **Live** | `.ggen/packs.lock` path in `mcp_packs.rs`, sync `--locked` |
+| POWL execution geometry | **Present** (graphs + validation + POWL-native routes) | `genesis-types-v2` `PowlGraph`, `ggen-lsp/src/route/` |
+| **PDDL action law** | **Absent — zero hits in `.rs`** | grep `PDDL` over `**/*.rs`: no files |
+| **Numeric objective fluents** | **Absent** (only fluent-builder-API idiom exists) | grep `fluent` over `**/*.rs`: builder APIs only |
+| **ORTAC-style operator DSLs (RevTAC+ etc.)** | **Absent** | grep `ORTAC`: no files |
+| Revenue Physics (MRR bound, utilization, revenue DPMO) | **Absent; substrate ready** (numeric guarded state machines, regulated profiles) | `marketplace/rdf/state_machine.rs`, `marketplace/profile.rs` |
+| Mission physics invariance proof | **Live in one domain** (church operations, consent gates, SLR KPI) | `crates/stpnt/`, `ggen-core/src/stpnt/` |
+| TPS/DfLSS modules (poka-yoke, OEE, Kaizen, waste taxonomy) | **Present; DPMO-over-transitions not wired** | `ggen-core/src/{dflss,lean_six_sigma,poka_yoke,metrics}` |
+| Combinatorial maximalism engine | **Partial** (route mining enumerates/promotes; no general combination frontier) | `ggen-lsp/src/intel/mine.rs`, pattern registries |
+| 43-pattern YAWL engine | **3 of 43; roadmap stub** | `genesis-core-v2/src/patterns.rs` (22 lines) |
+| Σ constitutional autonomous evolution | **Built, feature-gated off, proposers partially stubbed** | `ggen-core/src/ontology/`, `enable_llm = false` default |
+| Lockchain quorum attestation | **Dormant crate; Ed25519 placeholder, URDNA2015 stubbed** | `crates/genesis-lockchain/` |
+| WASM ambient verification | **Dormant crate, wrappers written** | `crates/genesis-wasm-shell/` |
 | Membrane boundary law | **Dormant crate** | `crates/ggen-membrane/` |
-| Segment→Shard→Corpus corpus hierarchy + genesis8 CLI | **Dormant crate, substantially implemented** | `crates/genesis-construct8/` |
-| Self-audit scanner + non-deletion enforcement | **Live** | `crates/cpmp/src/{scanner,classification,receipt}.rs` |
-| Human-process governance instantiation | **Live** (stpnt cells, consent gate, SLR metric) | `crates/stpnt/`, `ggen-core/src/stpnt/` |
+| Gall foundations (Rust / OTP / AtomVM) | **Chosen and scanned-for** | workspace itself; `SyncLanguage::Elixir`; `cpmp/src/capability.rs` vocab (`AtomVM`, `Erlang`, `WASM`) |
+| Anti-complaint doctrine (bounded repair, evidence-or-silence) | **Live** | `genesis-types-v2` `ResidualVector`/`BoundedRepairOperator`, `intel/metrics.rs` `InsufficientEvidence` |
 
-The pattern in the gaps is itself informative: the **proof layer is finished before the
-power layer**. Receipts, refusals, replay, coherence, and honesty gates are everywhere and
-hardened (tests flip bits in receipts and assert failure; metrics refuse to fabricate
-numbers). What remains dormant or gated is the *scale-out*: full pattern expressiveness,
-autonomous evolution, decentralized attestation, ubiquitous verification. The codebase built
-the brakes before the engine — which is exactly what you would do if the point of the
-project is that **nothing is allowed to be claimed that cannot be replayed.**
+### The shape of the distance
+
+The gap pattern is coherent, and it inverts the usual startup failure mode: **the proof layer
+was finished before the power layer.** Admission, receipts, refusals, replay, coherence, and
+honesty gates are complete, pervasive, and adversarially tested. What remains is the planning
+surface the doctrine names as the destination — PDDL action law with numeric fluents, per-
+institution operator DSLs compiling down to it, DPMO computed over mission transitions, and the
+combinatorial frontier evaluated inside the admitted boundary. Which is exactly the build order
+the doctrine itself prescribes: you cannot lawfully maximize over a surface until the surface is
+bounded, admitted, receipted, and replayable. The brakes exist so the engine, when it arrives,
+can be floored.
