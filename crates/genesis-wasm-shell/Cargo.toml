@@ -2,6 +2,7 @@
 name = "genesis-wasm-shell"
 version = "1.0.0"
 edition = "2021"
+repository = "https://github.com/seanchatmangpt/ggen"
 description = "Portable WASM Wrapper Shell encapsulating the Genesis Core and ggen membrane bindings"
 authors = ["KNHK Team"]
 license = "MIT OR Apache-2.0"

@@ -2,6 +2,8 @@
 name = "knhk-construct8"
 version = "1.0.0"
 edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
 description = "KNHK Genesis8 Engine - Lawful triple materialization 8 triples at a time"
 authors = ["KNHK Team"]
 

@@ -2,6 +2,7 @@
 name = "genesis-core-v2"
 version.workspace = true
 edition.workspace = true
+repository.workspace = true
 authors.workspace = true
 license.workspace = true
 description = "KNHK V2 core — Pattern trait system, pattern registry, composition, zero-copy execution paths."
