@@ -6,8 +6,8 @@
 
 use lsp_max::lsp_types::{
     CallHierarchyItem, CodeLens, CompletionItem, CompletionItemKind, CompletionResponse,
-    Diagnostic, DiagnosticSeverity, DocumentSymbol, FoldingRange, FoldingRangeKind, Hover,
-    InlayHint, Location, NumberOrString, Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
+    DiagnosticSeverity, DocumentSymbol, FoldingRange, FoldingRangeKind, Hover, InlayHint, Location,
+    Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
 };
 use std::collections::BTreeSet;
 
@@ -33,9 +33,11 @@ pub const GGEN_OUT_001: &str = "GGEN-OUT-001";
 /// as a live diagnostic on the `ggen.toml` declaration surface.
 pub const GGEN_RULE_001: &str = "GGEN-RULE-001";
 
-/// Canonical diagnostic code for the output-path-escape law: a rule's
-/// `output_file` (after stripping Tera `{{ }}` interpolations) resolves to a
-/// path outside the project root — a pack-root traversal / path-injection risk.
+/// Canonical diagnostic code for the output-path-escape law.
+///
+/// A rule's `output_file` (after stripping Tera `{{ }}` interpolations)
+/// resolves to a path outside the project root — a pack-root traversal /
+/// path-injection risk.
 pub const GGEN_YIELD_001: &str = "GGEN-YIELD-001";
 
 /// Canonical diagnostic code for the orphaned-output law: a rule's output_file
@@ -54,10 +56,12 @@ pub const GGEN_YIELD_005: &str = "GGEN-YIELD-005";
 /// projected variable set is unknowable at author time.
 pub const GGEN_QUERY_002: &str = "GGEN-QUERY-002";
 
-/// Canonical diagnostic code for the pack-source advisory: a rule's query or
-/// template source is `{ pack = "...", output = "...", file = "..." }`, which
-/// ggen-lsp cannot resolve at author time (resolution happens at `ggen sync`).
-/// GGEN-TPL-001 and GGEN-OUT-001 are therefore disabled for this rule.
+/// Canonical diagnostic code for the pack-source advisory.
+///
+/// A rule's query or template source is `{ pack = "...", output = "...",
+/// file = "..." }`, which ggen-lsp cannot resolve at author time (resolution
+/// happens at `ggen sync`). GGEN-TPL-001 and GGEN-OUT-001 are therefore
+/// disabled for this rule.
 pub const GGEN_PACK_001: &str = "GGEN-PACK-001";
 
 const FILTERS: &[&str] = &[
@@ -844,6 +848,7 @@ pub fn is_select_star(query: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use lsp_max::lsp_types::NumberOrString;
     use lsp_max_protocol::MaxDiagnostic;
 
     fn vars(names: &[&str]) -> BTreeSet<String> {

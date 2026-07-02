@@ -9,6 +9,8 @@
 //! the wire layer actually *routes* to it, and that the A2A agent card and the
 //! dispatch table do not drift apart.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::fs;
 use std::path::{Path, PathBuf};
 

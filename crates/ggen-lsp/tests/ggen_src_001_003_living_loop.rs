@@ -7,6 +7,8 @@
 //! These tests verify that check_files_in_root() surfaces the correct diagnostics
 //! and that clean fixtures produce no false positives.
 
+#![allow(clippy::expect_used, clippy::match_wildcard_for_single_variants)]
+
 use ggen_lsp::check::{check_files_in_root, discover_law_surfaces};
 use lsp_max::lsp_types;
 use std::fs;

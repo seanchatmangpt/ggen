@@ -286,7 +286,6 @@ fn test_fallback_chain_order_respected() {
 /// Test concurrent access to ontologies is safe
 #[test]
 fn test_concurrent_ontology_access() {
-    use std::sync::Arc;
     use std::thread;
 
     let handles: Vec<_> = (0..10)
@@ -315,11 +314,16 @@ fn test_concurrent_ontology_access() {
 fn test_advertised_ontologies_available() {
     let available = OntologyLoader::list_embedded();
 
-    // Verify count matches core bundle
+    // Verify count matches core bundle plus standard bundled ontologies
+    #[cfg(feature = "bundled-standards")]
+    let expected_len = CoreOntologyBundle::all().len() + 2;
+    #[cfg(not(feature = "bundled-standards"))]
+    let expected_len = CoreOntologyBundle::all().len();
+
     assert_eq!(
         available.len(),
-        CoreOntologyBundle::all().len(),
-        "Advertised ontologies should match core bundle"
+        expected_len,
+        "Advertised ontologies should match core bundle plus bundled standards"
     );
 
     // Verify each is loadable
@@ -352,4 +356,27 @@ fn test_all_ontologies_have_valid_metadata() {
             assert_eq!(m.size, m.content.len(), "Size should match content length");
         }
     }
+}
+
+/// Test that FOAF and Dublin Core can be loaded from embedded bundle
+#[test]
+fn test_load_foaf_and_dc_from_embedded() {
+    let foaf_uri = "http://xmlns.com/foaf/0.1/";
+    let dc_uri = "http://purl.org/dc/elements/1.1/";
+
+    // Verify they are registered as embedded
+    assert!(OntologyLoader::is_embedded(foaf_uri));
+    assert!(OntologyLoader::is_embedded(dc_uri));
+
+    // Verify loading content works
+    let foaf_content = OntologyLoader::load_content(foaf_uri, Path::new("."));
+    assert!(foaf_content.is_some(), "Should load FOAF from embedded");
+    assert!(!foaf_content.unwrap().is_empty());
+
+    let dc_content = OntologyLoader::load_content(dc_uri, Path::new("."));
+    assert!(
+        dc_content.is_some(),
+        "Should load Dublin Core from embedded"
+    );
+    assert!(!dc_content.unwrap().is_empty());
 }

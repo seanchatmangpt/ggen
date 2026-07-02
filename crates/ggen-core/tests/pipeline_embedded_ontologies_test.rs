@@ -1,3 +1,4 @@
+#![allow(clippy::expect_used, clippy::expect_fun_call)]
 //! Integration test: Full μ₁–μ₅ pipeline with embedded RDF ontologies
 //!
 //! This test verifies that the complete code generation pipeline works offline

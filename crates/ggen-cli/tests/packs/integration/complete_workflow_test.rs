@@ -29,8 +29,6 @@
 //! - Failure recovery and rollback
 //! - SPARQL query execution on installed packs
 
-use std::collections::HashMap;
-
 // Mock types for integration testing
 struct PackRegistry;
 struct PackInstaller;

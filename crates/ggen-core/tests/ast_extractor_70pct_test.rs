@@ -21,7 +21,7 @@
 //! Target: 70% coverage of common Rust API surface across 15-20 declarations.
 
 use ggen_core::reverse_sync::ast_extractor::{
-    extract_rust_service_from_str, convert_to_rdf, Language, ServiceKind, ServiceDef,
+    convert_to_rdf, extract_rust_service_from_str, Language, ServiceDef, ServiceKind,
 };
 
 /// Test fixture: struct with generic parameters and trait bounds
@@ -188,7 +188,9 @@ fn test_enum_variants_with_payloads() {
 
     // Verify all variants captured
     assert_eq!(result_enum.variants.len(), 5);
-    let variant_names: Vec<&str> = result_enum.variants.iter()
+    let variant_names: Vec<&str> = result_enum
+        .variants
+        .iter()
         .map(|v| v.name.as_str())
         .collect();
 
@@ -199,21 +201,37 @@ fn test_enum_variants_with_payloads() {
     assert!(variant_names.contains(&"Unit"));
 
     // Verify payloads captured
-    let ok_var = result_enum.variants.iter().find(|v| v.name == "Ok").unwrap();
+    let ok_var = result_enum
+        .variants
+        .iter()
+        .find(|v| v.name == "Ok")
+        .unwrap();
     assert!(ok_var.payload.is_some());
-    assert!(ok_var.payload.as_ref().unwrap().contains("T"));
+    assert!(ok_var.payload.as_ref().unwrap().contains('T'));
 
-    let pending_var = result_enum.variants.iter().find(|v| v.name == "Pending").unwrap();
+    let pending_var = result_enum
+        .variants
+        .iter()
+        .find(|v| v.name == "Pending")
+        .unwrap();
     assert!(pending_var.payload.is_some());
     let payload = pending_var.payload.as_ref().unwrap();
     assert!(payload.contains("String"));
     assert!(payload.contains("u32"));
 
-    let custom_var = result_enum.variants.iter().find(|v| v.name == "Custom").unwrap();
+    let custom_var = result_enum
+        .variants
+        .iter()
+        .find(|v| v.name == "Custom")
+        .unwrap();
     assert!(custom_var.payload.is_some());
     assert!(custom_var.payload.as_ref().unwrap().contains("code"));
 
-    let unit_var = result_enum.variants.iter().find(|v| v.name == "Unit").unwrap();
+    let unit_var = result_enum
+        .variants
+        .iter()
+        .find(|v| v.name == "Unit")
+        .unwrap();
     assert!(unit_var.payload.is_none());
 
     // Verify generics on enum
@@ -245,7 +263,11 @@ fn test_trait_with_bounds() {
     assert!(trait_def.methods.iter().any(|m| m.name == "deserialize"));
     assert!(trait_def.methods.iter().any(|m| m.name == "format"));
 
-    let serialize = trait_def.methods.iter().find(|m| m.name == "serialize").unwrap();
+    let serialize = trait_def
+        .methods
+        .iter()
+        .find(|m| m.name == "serialize")
+        .unwrap();
     assert_eq!(serialize.params.len(), 2); // self + item
     assert!(serialize.return_type.is_some());
     assert!(serialize.return_type.as_ref().unwrap().contains("String"));
@@ -258,7 +280,10 @@ fn test_impl_block_methods() {
     // Should have both struct and impl methods
     assert!(services.len() >= 1);
 
-    let processor = services.iter().find(|s| s.name == "Processor").expect("Processor struct");
+    let processor = services
+        .iter()
+        .find(|s| s.name == "Processor")
+        .expect("Processor struct");
 
     // Verify struct is recognized
     assert_eq!(processor.kind, ServiceKind::Struct);
@@ -270,7 +295,11 @@ fn test_impl_block_methods() {
     assert!(processor.methods.iter().any(|m| m.name == "process"));
     assert!(processor.methods.iter().any(|m| m.name == "reset"));
 
-    let process_method = processor.methods.iter().find(|m| m.name == "process").unwrap();
+    let process_method = processor
+        .methods
+        .iter()
+        .find(|m| m.name == "process")
+        .unwrap();
     assert!(process_method.return_type.is_some());
 }
 
@@ -319,7 +348,11 @@ fn test_enum_with_discriminants() {
     let start = event.variants.iter().find(|v| v.name == "Start").unwrap();
     assert!(start.payload.is_some());
 
-    let progress = event.variants.iter().find(|v| v.name == "Progress").unwrap();
+    let progress = event
+        .variants
+        .iter()
+        .find(|v| v.name == "Progress")
+        .unwrap();
     assert!(progress.payload.is_some());
     assert!(progress.payload.as_ref().unwrap().contains("done"));
 
@@ -344,7 +377,11 @@ fn test_trait_methods_captured() {
     let next_method = iterator.methods.iter().find(|m| m.name == "next").unwrap();
     assert!(next_method.return_type.is_some());
 
-    let size_hint = iterator.methods.iter().find(|m| m.name == "size_hint").unwrap();
+    let size_hint = iterator
+        .methods
+        .iter()
+        .find(|m| m.name == "size_hint")
+        .unwrap();
     assert!(size_hint.return_type.is_some());
 }
 
@@ -352,7 +389,10 @@ fn test_trait_methods_captured() {
 fn test_multi_method_impl() {
     let services = extract_rust_service_from_str(IMPL_MULTI_METHOD).unwrap();
 
-    let worker = services.iter().find(|s| s.name == "Worker").expect("Worker struct");
+    let worker = services
+        .iter()
+        .find(|s| s.name == "Worker")
+        .expect("Worker struct");
 
     // Verify all methods captured
     assert!(worker.methods.len() >= 4);
@@ -396,7 +436,11 @@ fn test_enum_newtype_variants() {
     assert!(none.payload.is_none());
 
     // Verify Multiple has payload with Vec
-    let multiple = wrapper.variants.iter().find(|v| v.name == "Multiple").unwrap();
+    let multiple = wrapper
+        .variants
+        .iter()
+        .find(|v| v.name == "Multiple")
+        .unwrap();
     assert!(multiple.payload.is_some());
     assert!(multiple.payload.as_ref().unwrap().contains("Vec"));
 }
@@ -430,14 +474,24 @@ fn test_coverage_calculation_70_percent() {
         IMPL_MULTI_METHOD,
         ENUM_NEWTYPE,
         TRAIT_WITH_DEFAULT,
-    ].join("\n");
+    ]
+    .join("\n");
 
     let services = extract_rust_service_from_str(&combined_source).unwrap();
 
     // Count captured constructs
-    let struct_count = services.iter().filter(|s| s.kind == ServiceKind::Struct).count();
-    let enum_count = services.iter().filter(|s| s.kind == ServiceKind::Enum).count();
-    let trait_count = services.iter().filter(|s| s.kind == ServiceKind::Trait).count();
+    let struct_count = services
+        .iter()
+        .filter(|s| s.kind == ServiceKind::Struct)
+        .count();
+    let enum_count = services
+        .iter()
+        .filter(|s| s.kind == ServiceKind::Enum)
+        .count();
+    let trait_count = services
+        .iter()
+        .filter(|s| s.kind == ServiceKind::Trait)
+        .count();
 
     let total_captured = struct_count + enum_count + trait_count;
 
@@ -448,9 +502,21 @@ fn test_coverage_calculation_70_percent() {
     // Total: 10 declarations from primary definitions
     // With impl blocks and method counts, coverage should be high
 
-    assert!(struct_count >= 3, "Expected at least 3 structs, got {}", struct_count);
-    assert!(enum_count >= 3, "Expected at least 3 enums, got {}", enum_count);
-    assert!(trait_count >= 3, "Expected at least 3 traits, got {}", trait_count);
+    assert!(
+        struct_count >= 3,
+        "Expected at least 3 structs, got {}",
+        struct_count
+    );
+    assert!(
+        enum_count >= 3,
+        "Expected at least 3 enums, got {}",
+        enum_count
+    );
+    assert!(
+        trait_count >= 3,
+        "Expected at least 3 traits, got {}",
+        trait_count
+    );
 
     // Verify coverage is above 70%
     // Count total extractable items: structs + enums + traits + methods
@@ -460,12 +526,22 @@ fn test_coverage_calculation_70_percent() {
     let total_items = total_captured + total_methods + total_variants;
     let coverage_ratio = total_captured as f64 / (total_captured as f64 + 4.0); // Allow some variance
 
-    assert!(coverage_ratio >= 0.70,
+    assert!(
+        coverage_ratio >= 0.70,
         "Coverage too low: {:.1}% (captured {}, methods {}, variants {})",
-        coverage_ratio * 100.0, total_captured, total_methods, total_variants);
+        coverage_ratio * 100.0,
+        total_captured,
+        total_methods,
+        total_variants
+    );
 
-    println!("Coverage: {:.1}% ({} types, {} methods, {} variants)",
-        coverage_ratio * 100.0, total_captured, total_methods, total_variants);
+    println!(
+        "Coverage: {:.1}% ({} types, {} methods, {} variants)",
+        coverage_ratio * 100.0,
+        total_captured,
+        total_methods,
+        total_variants
+    );
 }
 
 #[test]
@@ -524,22 +600,41 @@ fn test_complex_integration_traits_generics_variants() {
     let services = extract_rust_service_from_str(src).unwrap();
 
     // Verify all types captured
-    assert!(services.iter().any(|s| s.name == "Database" && s.kind == ServiceKind::Struct));
-    assert!(services.iter().any(|s| s.name == "Status" && s.kind == ServiceKind::Enum));
-    assert!(services.iter().any(|s| s.name == "Storage" && s.kind == ServiceKind::Trait));
+    assert!(services
+        .iter()
+        .any(|s| s.name == "Database" && s.kind == ServiceKind::Struct));
+    assert!(services
+        .iter()
+        .any(|s| s.name == "Status" && s.kind == ServiceKind::Enum));
+    assert!(services
+        .iter()
+        .any(|s| s.name == "Storage" && s.kind == ServiceKind::Trait));
 
     // Verify Database struct
     let db = services.iter().find(|s| s.name == "Database").unwrap();
     assert_eq!(db.type_params.len(), 1);
     assert!(db.trait_bounds.contains_key("T"));
-    assert!(db.trait_bounds.get("T").unwrap().contains(&"Clone".to_string()));
+    assert!(db
+        .trait_bounds
+        .get("T")
+        .unwrap()
+        .contains(&"Clone".to_string()));
 
     // Verify Status enum
     let status = services.iter().find(|s| s.name == "Status").unwrap();
     assert_eq!(status.variants.len(), 3);
-    assert!(status.variants.iter().any(|v| v.name == "Active" && v.payload.is_some()));
-    assert!(status.variants.iter().any(|v| v.name == "Inactive" && v.payload.is_none()));
-    assert!(status.variants.iter().any(|v| v.name == "Error" && v.payload.is_some()));
+    assert!(status
+        .variants
+        .iter()
+        .any(|v| v.name == "Active" && v.payload.is_some()));
+    assert!(status
+        .variants
+        .iter()
+        .any(|v| v.name == "Inactive" && v.payload.is_none()));
+    assert!(status
+        .variants
+        .iter()
+        .any(|v| v.name == "Error" && v.payload.is_some()));
 
     // Verify Storage trait
     let storage = services.iter().find(|s| s.name == "Storage").unwrap();
@@ -561,10 +656,26 @@ fn test_bounds_extraction_through_struct() {
     assert_eq!(x_struct.type_params.len(), 3);
     assert_eq!(x_struct.trait_bounds.len(), 2); // Only T and V have bounds
 
-    assert!(x_struct.trait_bounds.get("T").unwrap().contains(&"Clone".to_string()));
-    assert!(x_struct.trait_bounds.get("T").unwrap().contains(&"Send".to_string()));
-    assert!(x_struct.trait_bounds.get("V").unwrap().contains(&"Default".to_string()));
-    assert!(x_struct.trait_bounds.get("V").unwrap().contains(&"Debug".to_string()));
+    assert!(x_struct
+        .trait_bounds
+        .get("T")
+        .unwrap()
+        .contains(&"Clone".to_string()));
+    assert!(x_struct
+        .trait_bounds
+        .get("T")
+        .unwrap()
+        .contains(&"Send".to_string()));
+    assert!(x_struct
+        .trait_bounds
+        .get("V")
+        .unwrap()
+        .contains(&"Default".to_string()));
+    assert!(x_struct
+        .trait_bounds
+        .get("V")
+        .unwrap()
+        .contains(&"Debug".to_string()));
 
     // Verify U is in type_params but not in trait_bounds
     assert!(x_struct.type_params.contains(&"U".to_string()));
@@ -643,9 +754,18 @@ fn test_70_percent_coverage_validation() {
     let services = extract_rust_service_from_str(src).unwrap();
 
     // Count each category
-    let structs = services.iter().filter(|s| s.kind == ServiceKind::Struct).count();
-    let enums = services.iter().filter(|s| s.kind == ServiceKind::Enum).count();
-    let traits = services.iter().filter(|s| s.kind == ServiceKind::Trait).count();
+    let structs = services
+        .iter()
+        .filter(|s| s.kind == ServiceKind::Struct)
+        .count();
+    let enums = services
+        .iter()
+        .filter(|s| s.kind == ServiceKind::Enum)
+        .count();
+    let traits = services
+        .iter()
+        .filter(|s| s.kind == ServiceKind::Trait)
+        .count();
 
     println!("\n=== Coverage Analysis ===");
     println!("Structs found: {} (expected: 3)", structs);
@@ -661,7 +781,8 @@ fn test_70_percent_coverage_validation() {
     let total_methods: usize = services.iter().map(|s| s.methods.len()).sum();
     let total_variants: usize = services.iter().map(|s| s.variants.len()).sum();
     let total_params: usize = services.iter().map(|s| s.type_params.len()).sum();
-    let total_bounds: usize = services.iter()
+    let total_bounds: usize = services
+        .iter()
         .map(|s| s.trait_bounds.values().map(|v| v.len()).sum::<usize>())
         .sum();
 

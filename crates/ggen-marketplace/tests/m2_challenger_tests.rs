@@ -1,10 +1,10 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 use chrono::Utc;
 use ggen_config::ReceiptChain;
 use ggen_marketplace::marketplace::{
     compatibility::{CompatibilityDimension, Conflict, ConflictSeverity},
     composition_receipt::{CompositionReceipt, RuntimeProfile},
     models::{Package, PackageId, PackageMetadata, PackageVersion, ReleaseInfo},
-    policy::{Policy, PolicyId, PolicyRule, PolicyViolation},
     profile::{CustomProfileEntry, ProfileConfig, ReceiptSpec, RuntimeConstraint},
     rdf::poka_yoke::SparqlQuery,
     rdf::rdf_control::{ControlPlaneError, RdfControlPlane},

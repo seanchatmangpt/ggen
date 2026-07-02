@@ -26,36 +26,47 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rmcp = { version = "1.3", features = ["server", "client", "transport-io", "macros"] }
+rmcp = { version = "=1.3.0", features = ["server", "client", "transport-io", "macros"] }
+rmcp-macros = "=1.3.0"
 schemars = "1.0"
+serde = { version = "1.0", features = ["derive"] }
 EOF
 
 cat > src/main.rs <<'EOF'
-use rmcp::{tool, tool_handler, tool_router, ServerHandler, ToolRouter};
+use rmcp::handler::server::{router::tool::ToolRouter, wrapper::Parameters};
+use rmcp::model::{CallToolResult, Content, ErrorData};
+use rmcp::{tool, tool_handler, tool_router, ServerHandler};
+
+#[derive(serde::Deserialize, schemars::JsonSchema, Debug)]
+pub struct TestParams {
+    pub input: String,
+}
 
 #[derive(Clone)]
 pub struct TestServer {
-    router: ToolRouter<TestServer>,
+    tool_router: ToolRouter<TestServer>,
 }
 
 #[tool_router]
 impl TestServer {
     pub fn new() -> Self {
-        Self { router: Self::tool_router() }
+        Self { tool_router: Self::tool_router() }
     }
 
     #[tool(description = "Test tool")]
-    async fn test_tool(&self, #[tool(param)] input: String)
-        -> Result<rmcp::types::CallToolResult, rmcp::Error>
+    async fn test_tool(&self, Parameters(params): Parameters<TestParams>)
+        -> Result<CallToolResult, ErrorData>
     {
-        Ok(rmcp::types::CallToolResult::success(vec![
-            rmcp::types::Content::text(format!("Echo: {}", input))
+        Ok(CallToolResult::success(vec![
+            Content::text(format!("Echo: {}", params.input))
         ]))
     }
 }
 
 #[tool_handler]
 impl ServerHandler for TestServer {}
+
+fn main() {}
 EOF
 
 echo "✓ Created minimal rmcp server project"

@@ -511,6 +511,13 @@ impl Default for GgenManifest {
     }
 }
 
+impl OntologyConfig {
+    /// Resolves the primary ontology source into a list of paths
+    pub fn resolved_sources(&self, base_path: &std::path::Path) -> Vec<PathBuf> {
+        crate::ontology::resolver::OntologyResolver::resolve(&self.source, base_path)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -562,12 +569,5 @@ mod tests {
         // Empty package.toml
         let empty_pkg = PackageToml::default();
         assert_eq!(empty_pkg.resolve_output_key("queries"), "queries");
-    }
-}
-
-impl OntologyConfig {
-    /// Resolves the primary ontology source into a list of paths
-    pub fn resolved_sources(&self, base_path: &std::path::Path) -> Vec<PathBuf> {
-        crate::ontology::resolver::OntologyResolver::resolve(&self.source, base_path)
     }
 }

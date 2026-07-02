@@ -2,6 +2,8 @@
 name = "ggen-membrane"
 version = "1.0.0"
 edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
 description = "ggen Membrane Foundry - Adapt messy source reality into RelationPages, symbol pages, and public expansion laws"
 authors = ["KNHK Team"]
 

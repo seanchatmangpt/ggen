@@ -1,3 +1,4 @@
+#![allow(clippy::expect_used, clippy::needless_raw_string_hashes)]
 //! μ⁻¹ inverse-pipeline coverage tests for the Rust AST extractor.
 //!
 //! These are Chicago-TDD tests: they use real filesystem collaborators

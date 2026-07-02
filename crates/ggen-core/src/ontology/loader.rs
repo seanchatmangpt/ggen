@@ -9,6 +9,24 @@
 use crate::ontology::resolver::OntologyResolver;
 use std::path::Path;
 
+#[cfg(feature = "bundled-standards")]
+static FOAF_METADATA: crate::ontology::core_bundle::OntologyMetadata =
+    crate::ontology::core_bundle::OntologyMetadata {
+        name: "foaf",
+        namespace: "http://xmlns.com/foaf/0.1/",
+        size: crate::domain::ontology::standards::FOAF_TTL.len(),
+        content: crate::domain::ontology::standards::FOAF_TTL.as_bytes(),
+    };
+
+#[cfg(feature = "bundled-standards")]
+static DUBLIN_CORE_METADATA: crate::ontology::core_bundle::OntologyMetadata =
+    crate::ontology::core_bundle::OntologyMetadata {
+        name: "dc",
+        namespace: "http://purl.org/dc/elements/1.1/",
+        size: crate::domain::ontology::standards::DUBLIN_CORE_TTL.len(),
+        content: crate::domain::ontology::standards::DUBLIN_CORE_TTL.as_bytes(),
+    };
+
 /// Ontology loading strategy with fallback chain
 #[derive(Debug, Clone, Copy)]
 pub struct OntologyLoader;
@@ -50,6 +68,16 @@ impl OntologyLoader {
             return Some(ontology.content.to_vec());
         }
 
+        #[cfg(feature = "bundled-standards")]
+        {
+            if uri == "http://xmlns.com/foaf/0.1/" || uri == "foaf" {
+                return Some(FOAF_METADATA.content.to_vec());
+            }
+            if uri == "http://purl.org/dc/elements/1.1/" || uri == "dc" {
+                return Some(DUBLIN_CORE_METADATA.content.to_vec());
+            }
+        }
+
         // Phase 4: Try lock file for cached packages.
         // Lock file package lookup will be integrated when the lockfile package module is completed.
 
@@ -75,21 +103,58 @@ impl OntologyLoader {
     pub fn get_metadata(
         uri: &str,
     ) -> Option<&'static crate::ontology::core_bundle::OntologyMetadata> {
-        crate::ontology::CoreOntologyBundle::by_namespace(uri)
+        if let Some(meta) = crate::ontology::CoreOntologyBundle::by_namespace(uri)
             .or_else(|| crate::ontology::CoreOntologyBundle::by_name(uri))
+        {
+            return Some(meta);
+        }
+
+        #[cfg(feature = "bundled-standards")]
+        {
+            if uri == "http://xmlns.com/foaf/0.1/" || uri == "foaf" {
+                return Some(&FOAF_METADATA);
+            }
+            if uri == "http://purl.org/dc/elements/1.1/" || uri == "dc" {
+                return Some(&DUBLIN_CORE_METADATA);
+            }
+        }
+
+        None
     }
 
     /// Check if ontology is available in core bundle (zero-copy access)
     ///
     /// This is useful for determining whether network access is required
     pub fn is_embedded(uri: &str) -> bool {
-        crate::ontology::CoreOntologyBundle::by_namespace(uri).is_some()
+        if crate::ontology::CoreOntologyBundle::by_namespace(uri).is_some()
             || crate::ontology::CoreOntologyBundle::by_name(uri).is_some()
+        {
+            return true;
+        }
+
+        #[cfg(feature = "bundled-standards")]
+        {
+            if uri == "http://xmlns.com/foaf/0.1/"
+                || uri == "foaf"
+                || uri == "http://purl.org/dc/elements/1.1/"
+                || uri == "dc"
+            {
+                return true;
+            }
+        }
+
+        false
     }
 
     /// List all embedded ontologies available without network access
     pub fn list_embedded() -> Vec<(&'static str, &'static str)> {
-        crate::ontology::CoreOntologyBundle::available()
+        let mut list = crate::ontology::CoreOntologyBundle::available();
+        #[cfg(feature = "bundled-standards")]
+        {
+            list.push(("foaf", "http://xmlns.com/foaf/0.1/"));
+            list.push(("dc", "http://purl.org/dc/elements/1.1/"));
+        }
+        list
     }
 }
 
@@ -316,7 +381,10 @@ mod tests {
             // URI should be valid
             assert!(!uri.is_empty(), "URI should not be empty");
             assert!(uri.starts_with("http"), "URI should start with http");
-            assert!(uri.ends_with("#"), "URI should end with #");
+            assert!(
+                uri.ends_with('#') || uri.ends_with('/'),
+                "URI should end with # or /"
+            );
 
             // Should actually be loadable
             assert!(

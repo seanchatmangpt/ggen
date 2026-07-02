@@ -3,6 +3,13 @@
 //! Tests verify the complete inverse-sync pipeline with real artifacts, real ontology,
 //! and real Ed25519 key pairs. No mocks, no test doubles — Chicago TDD only.
 
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes
+)]
+
 use ed25519_dalek::{Signer, SigningKey};
 use std::fs;
 use std::path::{Path, PathBuf};

@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used)]
 use chrono::Utc;
 use ggen_marketplace::marketplace::composition_receipt::{CompositionReceipt, RuntimeProfile};
 use ggen_marketplace::marketplace::models::{

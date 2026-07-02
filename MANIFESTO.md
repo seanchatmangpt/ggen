@@ -31,7 +31,7 @@ Substitution Test: Pack replacement does not corrupt receipt chain or SHACL conf
 
 ---
 
-For the full doctrine, see: [v30.1.1 Manifesto](stpnt/MANIFESTO.md)
+For the full doctrine, see: [v30.1.1 Manifesto](docs/interop/26_V30_1_1_MANIFESTO.md)
 
 The manifesto governs all consequence-conserving projects under this horizon.
 ggen instantiates it as specification-driven code generation with cryptographic receipts.

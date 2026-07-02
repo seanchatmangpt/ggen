@@ -750,7 +750,7 @@ pub struct ResidualDimension {
 impl ResidualDimension {
     /// Construct a ResidualDimension, computing residual automatically.
     pub fn new(name: impl Into<String>, measured: f64, target: (f64, f64)) -> Self {
-        let midpoint = (target.0 + target.1) / 2.0;
+        let midpoint = f64::midpoint(target.0, target.1);
         let residual = measured - midpoint;
         Self {
             name: name.into(),
@@ -800,6 +800,7 @@ impl ResidualVector {
 }
 
 /// A repair operator that is bounded by prior knowledge.
+///
 /// An operator is only admissible when the target dimension's residual exceeds a threshold
 /// AND the proposed repair keeps the result within the `band`.
 #[derive(Debug, Clone, Serialize, Deserialize)]

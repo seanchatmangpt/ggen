@@ -38,15 +38,31 @@ pub fn at(
     }
 }
 
+/// A 0-based line/column span, grouped to keep diagnostic-builder signatures
+/// under clippy's argument-count limit.
+#[derive(Debug, Clone, Copy)]
+pub struct Span {
+    pub start_line: u32,
+    pub start_col: u32,
+    pub end_line: u32,
+    pub end_col: u32,
+}
+
 /// Build a `MaxDiagnostic` (LSP + ggen metadata) spanning a single line/column range.
 #[must_use]
 pub fn max(
-    start_line: u32, start_col: u32, end_line: u32, end_col: u32, severity: DiagnosticSeverity,
-    code: Option<&str>, message: impl Into<String>, axis: LawAxis,
+    span: Span, severity: DiagnosticSeverity, code: Option<&str>, message: impl Into<String>,
+    axis: LawAxis,
 ) -> MaxDiagnostic {
     let msg = message.into();
     let diag = at(
-        start_line, start_col, end_line, end_col, severity, code, &msg,
+        span.start_line,
+        span.start_col,
+        span.end_line,
+        span.end_col,
+        severity,
+        code,
+        &msg,
     );
     let code_str = code.unwrap_or("GGEN-UNKNOWN").to_string();
 
@@ -84,18 +100,30 @@ pub fn from_oxrdfio(
     )
 }
 
+/// A 1-based line/column span as reported by oxrdfio, grouped to keep
+/// diagnostic-builder signatures under clippy's argument-count limit.
+#[derive(Debug, Clone, Copy)]
+pub struct OxrdfioSpan {
+    pub line: u64,
+    pub column: u64,
+    pub end_line: u64,
+    pub end_column: u64,
+}
+
 /// Convert oxrdfio's 1-based `(line, column)` positions to a 0-based `MaxDiagnostic`.
 #[must_use]
 pub fn max_from_oxrdfio(
-    line: u64, column: u64, end_line: u64, end_column: u64, severity: DiagnosticSeverity,
-    code: Option<&str>, message: impl Into<String>, axis: LawAxis,
+    span: OxrdfioSpan, severity: DiagnosticSeverity, code: Option<&str>,
+    message: impl Into<String>, axis: LawAxis,
 ) -> MaxDiagnostic {
     let to0 = |v: u64| u32::try_from(v.saturating_sub(1)).unwrap_or(0);
     max(
-        to0(line),
-        to0(column),
-        to0(end_line),
-        to0(end_column),
+        Span {
+            start_line: to0(span.line),
+            start_col: to0(span.column),
+            end_line: to0(span.end_line),
+            end_col: to0(span.end_column),
+        },
         severity,
         code,
         message,
@@ -118,5 +146,16 @@ pub fn max_whole_line(
     line: u32, severity: DiagnosticSeverity, code: Option<&str>, message: impl Into<String>,
     axis: LawAxis,
 ) -> MaxDiagnostic {
-    max(line, 0, line, u32::MAX, severity, code, message, axis)
+    max(
+        Span {
+            start_line: line,
+            start_col: 0,
+            end_line: line,
+            end_col: u32::MAX,
+        },
+        severity,
+        code,
+        message,
+        axis,
+    )
 }

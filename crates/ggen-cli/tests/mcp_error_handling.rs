@@ -5,7 +5,8 @@
     clippy::expect_used,
     clippy::panic,
     clippy::single_char_pattern,
-    clippy::needless_pass_by_ref_mut
+    clippy::needless_pass_by_ref_mut,
+    clippy::unused_async_trait_impl
 )]
 //! MCP Error Handling Test Suite
 //!

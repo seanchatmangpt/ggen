@@ -612,7 +612,7 @@ mod tests {
 
         let output = result.unwrap();
         assert_eq!(output.total_failures, 0); // Empty system
-        assert!(output.rpn_distribution.len() == 3); // Low, Medium, High
+        assert_eq!(output.rpn_distribution.len(), 3); // Low, Medium, High
     }
 
     #[test]

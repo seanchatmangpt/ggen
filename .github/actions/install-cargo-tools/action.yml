@@ -68,7 +68,7 @@ runs:
       if: contains(inputs.tools, 'affi')
       run: |
         for attempt in 1 2 3; do
-          cargo install --git https://github.com/seanchatmangpt/affidavit --branch main --bin affi --locked && break
+          cargo install --git https://github.com/seanchatmangpt/affidavit --branch main --package affidavit --bin affi --locked && break
           echo "affi install attempt $attempt failed (likely crates.io HTTP flake), retrying in $((attempt * 8))s..."
           sleep $((attempt * 8))
         done

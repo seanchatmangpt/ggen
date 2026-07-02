@@ -262,7 +262,7 @@ impl LanguageServer for GgenLanguageServer {
 /// autonomic mesh can observe them, then write the Λ_CD gate file accordingly.
 /// Best-effort: lock failures are silently ignored; gate write failures are non-fatal.
 fn push_diagnostics_to_registry(diagnostics: &[lsp_max_protocol::MaxDiagnostic]) {
-    use lsp_max_protocol::{LawAxis, MaxDiagnostic};
+    use lsp_max_protocol::LawAxis;
 
     let mut has_violations = false;
 

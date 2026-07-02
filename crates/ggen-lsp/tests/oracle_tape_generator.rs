@@ -61,7 +61,7 @@
 
 use std::path::{Path, PathBuf};
 
-use lsp_max::lsp_types::{Diagnostic, NumberOrString, Url};
+use lsp_max::lsp_types::{NumberOrString, Url};
 
 fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
     url::Url::from_file_path(path.as_ref())

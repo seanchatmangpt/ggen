@@ -8,6 +8,8 @@
 //! WARNING on the ggen.toml when a pack-sourced query or template is declared,
 //! and that non-pack sources (inline, file) do NOT trigger the advisory.
 
+#![allow(clippy::expect_used)]
+
 use ggen_lsp::check::{check_files_in_root, discover_law_surfaces};
 use lsp_max::lsp_types;
 use std::fs;

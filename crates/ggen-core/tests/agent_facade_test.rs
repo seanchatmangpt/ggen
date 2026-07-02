@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Chicago TDD for the agent-facing packs facade (`ggen_core::agent`).
 //!
 //! Real collaborators only: a real `TempDir` registry of `<id>.toml` packs, a

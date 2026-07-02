@@ -1,0 +1,12 @@
+@base <http://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+<#sabotage_results> a sh:ValidationReport ;
+    sh:conforms "true"^^xsd:boolean ;
+    dcterms:identifier "sabotage.validation" ;
+    dcterms:description "Sabotage Suite Verification Report" ;
+    prov:value "All sabotage cases refused" ;
+    dcterms:title "All 12 sabotage cases successfully failed validation and refused promotion as expected." .

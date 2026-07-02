@@ -106,14 +106,13 @@ fn test_artifact_hash_mismatch_against_expectation() {
     );
 
     // Assert: a HashMismatch drift is emitted for Artifact pole
-    let hash_mismatch_drifts: Vec<&CoherenceDrift> = report
+    let has_hash_mismatch_drift = report
         .drifts
         .iter()
-        .filter(|d| d.kind == DriftKind::HashMismatch && d.source_pole == Pole::Artifact)
-        .collect();
+        .any(|d| d.kind == DriftKind::HashMismatch && d.source_pole == Pole::Artifact);
 
     assert!(
-        !hash_mismatch_drifts.is_empty(),
+        has_hash_mismatch_drift,
         "expected a HashMismatch drift for Artifact pole; got drifts: {:?}",
         report.drifts
     );
@@ -151,14 +150,13 @@ fn test_event_log_hash_mismatch_against_expectation() {
     );
 
     // Assert: a HashMismatch drift is emitted for EventLog pole
-    let hash_mismatch_drifts: Vec<&CoherenceDrift> = report
+    let has_hash_mismatch_drift = report
         .drifts
         .iter()
-        .filter(|d| d.kind == DriftKind::HashMismatch && d.source_pole == Pole::EventLog)
-        .collect();
+        .any(|d| d.kind == DriftKind::HashMismatch && d.source_pole == Pole::EventLog);
 
     assert!(
-        !hash_mismatch_drifts.is_empty(),
+        has_hash_mismatch_drift,
         "expected a HashMismatch drift for EventLog pole; got drifts: {:?}",
         report.drifts
     );

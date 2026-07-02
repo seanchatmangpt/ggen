@@ -1,6 +1,6 @@
 # ggen Release Readiness — 10-Dimension Definition of Done
 
-**Version:** 26.6.23 | **Last Updated:** 2026-06-23 | **Status:** NORMATIVE
+**Version:** 26.7.1 | **Last Updated:** 2026-07-01 | **Status:** NORMATIVE
 
 > **GOLDEN RULE:** All 10 dimensions must pass before shipping. No partial success. One failure = do not deploy.
 
@@ -320,4 +320,4 @@ When a dimension fails:
 
 ---
 
-**Last Updated:** 2026-06-23 | **Project:** ggen v26.6.23 | **Repository:** https://github.com/seanchatmangpt/ggen
+**Last Updated:** 2026-07-01 | **Project:** ggen v26.7.1 | **Repository:** https://github.com/seanchatmangpt/ggen

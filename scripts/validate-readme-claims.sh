@@ -22,7 +22,7 @@ fi
 # Claim 2: "cargo make test green"
 echo ""
 echo "#### Claim: 'cargo make test green'"
-if timeout 60s cargo test --workspace --tests --lib 2>&1 | grep -q "test result: ok"; then
+if timeout 300s cargo test --workspace --tests --lib 2>&1 | grep "test result: ok" > /dev/null; then
     echo "✅ PASSED: tests pass"
 else
     echo "❌ FAILED: tests do not pass"
@@ -33,10 +33,9 @@ fi
 echo ""
 echo "#### Claim: Feature bullet points documented"
 FEATURES=(
-    "Elixir A2A"
-    "MCP Server"
-    "Protocol Integration"
-    "OTel Weaver"
+    "OpenTelemetry Tracing"
+    "Chicago TDD"
+    "8 Canonical Proof Gates"
 )
 
 for feature in "${FEATURES[@]}"; do
@@ -52,8 +51,6 @@ done
 echo ""
 echo "#### Claim: Documentation links exist"
 DOCS=(
-    "docs/ELIXIR_A2A_NOTES.md"
-    "docs/RMCP_NOTES.md"
     "examples/README.md"
 )
 

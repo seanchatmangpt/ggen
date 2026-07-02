@@ -19,7 +19,10 @@
     clippy::future_not_send,
     clippy::unnested_or_patterns,
     clippy::no_effect_underscore_binding,
-    clippy::literal_string_with_formatting_args
+    clippy::literal_string_with_formatting_args,
+    clippy::derive_partial_eq_without_eq,
+    clippy::transmute_ptr_to_ptr,
+    unsafe_code
 )]
 //! Unit tests for package extraction functionality
 //!
@@ -33,7 +36,7 @@
 use flate2::write::GzEncoder;
 use flate2::Compression;
 use std::fs;
-use std::io::{Read, Write};
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 

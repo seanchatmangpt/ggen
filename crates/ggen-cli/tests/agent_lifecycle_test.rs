@@ -14,6 +14,8 @@
 //! Chicago TDD: real CLI process execution (`assert_cmd`), real filesystem, real
 //! Ed25519 receipts. No mocks. Sabotage paths prove the surface is fail-closed.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use assert_cmd::Command;
 use serde_json::Value;
 use std::fs;

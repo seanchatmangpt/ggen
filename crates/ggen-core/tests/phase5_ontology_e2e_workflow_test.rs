@@ -10,7 +10,6 @@
 
 use ggen_core::ontology::{CoreOntologyBundle, OntologyLoader};
 use std::fs;
-use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 
 // ============================================================================

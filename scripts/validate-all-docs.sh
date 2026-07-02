@@ -19,7 +19,7 @@ else
     FAILURES=$((FAILURES + 1))
 fi
 
-if cargo test -p ggen-core --test mcp_template_validation 2>&1 | grep -q "test result: ok"; then
+if cargo test -p ggen-core --test mcp_a2a_render_test 2>&1 | grep -q "test result: ok"; then
     echo "✓ MCP template unit tests passed"
 else
     echo "✗ MCP template unit tests FAILED"

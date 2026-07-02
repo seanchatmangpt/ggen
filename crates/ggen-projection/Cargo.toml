@@ -2,6 +2,8 @@
 name = "ggen-projection"
 version = "1.0.0"
 edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
 description = "ggen Projection Membrane - Expand relation page Pair2 streams and local receipts into external formats"
 authors = ["KNHK Team"]
 

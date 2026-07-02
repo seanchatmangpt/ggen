@@ -11,6 +11,7 @@
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
 use ggen_core::ontology::{CoreOntologyBundle, OntologyLoader};
+use ggen_core::validation::StandardOntology;
 use serde::Serialize;
 use std::collections::BTreeMap;
 use std::str::FromStr;
@@ -140,6 +141,26 @@ pub struct LockFileEntry {
     pub installed_at: String,
 }
 
+/// Output for the `ggen ontology namespaces` command
+#[derive(Debug, Clone, Serialize)]
+pub struct NamespacesListOutput {
+    /// List of namespace URIs and their prefixes
+    pub namespaces: Vec<NamespaceEntry>,
+    /// Total count
+    pub count: usize,
+}
+
+/// Single namespace entry
+#[derive(Debug, Clone, Serialize)]
+pub struct NamespaceEntry {
+    /// Prefix (e.g. rdf, owl, schema)
+    pub prefix: String,
+    /// Full namespace URI
+    pub uri: String,
+    /// Source (e.g. bundled-standard, core-stub)
+    pub source: String,
+}
+
 // ============================================================================
 // Verb Functions (the actual CLI commands)
 // ============================================================================
@@ -173,6 +194,26 @@ pub fn list(#[arg(default_value = "true")] embedded: bool) -> VerbResult<Ontolog
         ontologies: entries,
         count,
     })
+}
+
+/// List all available namespaces currently known to ggen
+///
+/// Usage:
+///   ggen ontology namespaces
+#[verb]
+pub fn namespaces() -> VerbResult<NamespacesListOutput> {
+    let standard_ns = ggen_core::domain::ontology::get_standard_namespaces();
+    let namespaces: Vec<NamespaceEntry> = standard_ns
+        .into_iter()
+        .map(|ns| NamespaceEntry {
+            prefix: ns.prefix,
+            uri: ns.uri,
+            source: ns.source,
+        })
+        .collect();
+
+    let count = namespaces.len();
+    Ok(NamespacesListOutput { namespaces, count })
 }
 
 /// Check the status and availability of an ontology.
@@ -351,4 +392,52 @@ pub fn lock() -> VerbResult<OntologyLockOutput> {
         message: "Lock file created successfully (Phase 4 placeholder)".to_string(),
         packages: vec![],
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_namespaces_command() {
+        let result = namespaces().expect("namespaces command failed");
+        assert_eq!(
+            result.count, 8,
+            "Expected 8 unique namespaces, got: {:?}",
+            result.namespaces
+        );
+        assert_eq!(result.namespaces.len(), 8);
+
+        // Verify prefixes
+        let prefixes: std::collections::HashSet<&str> = result
+            .namespaces
+            .iter()
+            .map(|ns| ns.prefix.as_str())
+            .collect();
+        let expected = [
+            "rdf", "rdfs", "owl", "schema", "foaf", "dc", "skos", "bigfive",
+        ];
+        for p in &expected {
+            assert!(prefixes.contains(p), "Missing prefix: {}", p);
+        }
+
+        // Verify some URIs and sources
+        for ns in &result.namespaces {
+            match ns.prefix.as_str() {
+                "foaf" => {
+                    assert_eq!(ns.uri, "http://xmlns.com/foaf/0.1/");
+                    assert_eq!(ns.source, "bundled-standard");
+                }
+                "dc" => {
+                    assert_eq!(ns.uri, "http://purl.org/dc/elements/1.1/");
+                    assert_eq!(ns.source, "bundled-standard");
+                }
+                "rdf" => {
+                    assert_eq!(ns.uri, "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+                    assert_eq!(ns.source, "bundled-standard");
+                }
+                _ => {}
+            }
+        }
+    }
 }

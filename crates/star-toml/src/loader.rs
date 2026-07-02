@@ -443,6 +443,7 @@ fn find_config_file_from_cwd(file_name: &str) -> Option<PathBuf> {
 // ---------------------------------------------------------------------------
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use serde::{Deserialize, Serialize};

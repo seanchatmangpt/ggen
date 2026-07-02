@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::expect_fun_call)]
 //! Phase 4 Marketplace Integration Tests
 //!
 //! Real HTTP calls (Chicago TDD), no mocks.

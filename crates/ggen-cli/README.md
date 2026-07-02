@@ -57,7 +57,7 @@ ggen sync
 For a dry run (preview changes without writing):
 
 ```bash
-ggen sync --dry-run
+ggen sync --dry-run true
 ```
 
 ---
@@ -96,7 +96,7 @@ ggen sync [OPTIONS]
 OPTIONS:
   --manifest <PATH>      Path to ggen.toml (default: ./ggen.toml)
   --output-dir <PATH>    Override output directory from manifest
-  --dry-run              Preview changes without writing files
+  --dry-run <bool>       Preview changes without writing files
   --force                Overwrite existing files (use with --audit)
   --audit                Write a detailed audit trail to .ggen/audit/
   --rule <NAME>          Execute only the named generation rule
@@ -154,9 +154,9 @@ ggen doctor check   # Quick check: ggen.toml presence only
 Manage installable packs (template + query bundles from the marketplace).
 
 ```
-ggen pack add <PACK_NAME> [--force]      # Install a pack
+ggen pack add <PACK_NAME> [--force true]      # Install a pack
 ggen pack remove <PACK_NAME>            # Uninstall a pack
-ggen pack list [--verbose] [--category] # List available packs
+ggen pack list [--verbose true] [--category true] # List available packs
 ggen pack show <PACK_ID>                # Show pack details
 ggen pack search <QUERY> [--limit N]    # Search packs by keyword
 ggen pack doctor                        # Health check on installed packs
@@ -523,5 +523,5 @@ Receipts are chained: each receipt records a hash of the previous receipt, formi
 - Source: `crates/ggen-cli/` (binary) and `crates/ggen-cli/src/lib.rs` (library)
 - Binary name: `ggen`
 - Library name: `ggen_cli_lib`
-- Crate version: matches workspace version (`26.5.x`)
+- Crate version: matches workspace version (`26.7.1`)
 - GitHub: https://github.com/seanchatmangpt/ggen

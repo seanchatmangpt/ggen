@@ -1,0 +1,10 @@
+@base <http://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<#final_adjudication_report> a sh:ValidationReport ;
+    sh:conforms "true"^^xsd:boolean ;
+    dcterms:identifier "final.validation" ;
+    dcterms:description "Final Adjudication Report" ;
+    dcterms:title "All checkpoints passed. Promotion approved." .

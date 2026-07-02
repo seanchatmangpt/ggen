@@ -1,10 +1,9 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 use chrono::Utc;
 use ggen_config::ReceiptChain;
 use ggen_marketplace::marketplace::{
-    compatibility::{CompatibilityDimension, Conflict, ConflictSeverity},
     composition_receipt::{CompositionReceipt, OwnershipRecord, RuntimeProfile},
     models::{Package, PackageId, PackageMetadata, PackageVersion, ReleaseInfo},
-    profile::{CustomProfileEntry, ProfileConfig, ReceiptSpec, RuntimeConstraint},
     rdf::poka_yoke::SparqlQuery,
     rdf::rdf_control::{ControlPlaneError, RdfControlPlane},
     rdf_mapper::RdfMapper,
@@ -418,12 +417,13 @@ async fn test_stress_readme_validator_scenarios() {
     ];
 
     for variant in readme_variants {
-        // Clean and recreate dir
-        let _ = std::fs::remove_dir_all(&pkg_dir);
         std::fs::create_dir_all(&pkg_dir).unwrap();
-
         std::fs::write(pkg_dir.join(variant), "content").unwrap();
         let check = validator.validate(&package).await.unwrap();
+
+        // Clean up immediately after validate
+        let _ = std::fs::remove_dir_all(&pkg_dir);
+
         assert!(
             check.passed,
             "Validation must pass with readme variant: {}",

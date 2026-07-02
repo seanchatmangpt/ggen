@@ -354,7 +354,7 @@ mod tests {
 
         env.verify(&vk).unwrap();
         assert!(env.chain.own_hash.starts_with(HASH_PREFIX));
-        assert!(env.signature.value.len() == 128); // 64 raw bytes hex-encoded
+        assert_eq!(env.signature.value.len(), 128); // 64 raw bytes hex-encoded
     }
 
     #[test]

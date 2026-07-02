@@ -11,6 +11,8 @@
 //! - errors grouped by top-level config section (object-centric view)
 //! - a DECLARE cross-field constraint violation
 
+#![allow(clippy::expect_used)]
+
 use serde::Deserialize;
 use star_toml::{from_str, Severity, Validate, Validator};
 

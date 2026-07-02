@@ -365,38 +365,6 @@ async fn test_sequential_workflow_performance() -> Result<()> {
     Ok(())
 }
 
-/// Integration test: Ggen + Cleanroom validation
-#[tokio::test]
-#[serial]
-#[ignore = "ggen project init subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
-async fn test_ggen_cleanroom_integration() -> Result<()> {
-    let tester = UltraDeployTester::new()?;
-    let project_name = format!("test-cleanroom-{}", uuid::Uuid::new_v4());
-    let project_dir = tester.work_dir().join(&project_name);
-
-    // Generate project with ggen
-    tester.generate_project("rust-cli-minimal", &project_name)?;
-
-    // Validate with cleanroom (using testcontainers) — clnrm 1.3.0: no-args new(), Drop for cleanup
-    let environment = clnrm::CleanroomEnvironment::new().await?;
-
-    // Execute cargo check in cleanroom
-    let result = environment
-        .execute_test("cargo_check", || {
-            Command::new("cargo")
-                .args(["check"])
-                .current_dir(&project_dir)
-                .output()
-                .map_err(|e| clnrm::CleanroomError::io_error(format!("Cargo check failed: {}", e)))
-        })
-        .await?;
-
-    assert!(result.status.success(), "Cargo check failed in cleanroom");
-    // CleanroomEnvironment cleans up on Drop (clnrm 1.3.0)
-
-    Ok(())
-}
-
 /// Performance test: Measure each stage individually
 #[tokio::test]
 #[serial]

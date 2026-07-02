@@ -25,7 +25,7 @@ This project implements an IoT sensor firmware for ARM Cortex-M processors with:
 ### Supported Architectures
 - **thumbv7em-none-eabihf**: Cortex-M4F/M7F (with FPU)
 - **thumbv7m-none-eabi**: Cortex-M3 (no FPU)
-- **thumbv26.5.19m-none-eabi**: Cortex-M0/M0+
+- **thumbv6m-none-eabi**: Cortex-M0/M0+
 
 ## Project Structure
 
@@ -51,7 +51,7 @@ examples/embedded-iot/
 # Install ARM targets
 rustup target add thumbv7em-none-eabihf  # Cortex-M4F/M7F
 rustup target add thumbv7m-none-eabi     # Cortex-M3
-rustup target add thumbv26.5.19m-none-eabi     # Cortex-M0/M0+
+rustup target add thumbv6m-none-eabi     # Cortex-M0/M0+
 
 # Install embedded tools
 rustup component add llvm-tools-preview

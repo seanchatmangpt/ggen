@@ -1,6 +1,6 @@
 [workspace]
 name = "ggen"
-toolchain = "nightly-2026-04-15"
+toolchain = "nightly-2026-06-22"
 target_dir = "target"
 
 [state]
@@ -19,7 +19,7 @@ enabled = true
 base = "origin/main"
 
 [trybuild.changed]
-enabled = false
+enabled = true
 snapshot_mode = "changed-only"
 
 [git.phase]
@@ -29,9 +29,6 @@ commit_after_phase = false
 [autonomic]
 enabled = true
 mode = "suggest"
-
-[process_data]
-output_path = ".cicd/events.xes"
 
 [[events]]
 kind = "status"

@@ -1,0 +1,152 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<http://www.w3.org/ns/shacl#>
+    a owl:Ontology ;
+    dcterms:title "Shapes Constraint Language (SHACL)" ;
+    dcterms:description "W3C SHACL vocabulary for defining constraints on RDF graphs (W3C Recommendation 2017)" ;
+    owl:versionInfo "1.0" .
+
+# Core classes
+sh:Shape a owl:Class ; rdfs:label "Shape" .
+sh:NodeShape a owl:Class ; rdfs:subClassOf sh:Shape ; rdfs:label "NodeShape" .
+sh:PropertyShape a owl:Class ; rdfs:subClassOf sh:Shape ; rdfs:label "PropertyShape" .
+sh:ValidationReport a owl:Class ; rdfs:label "ValidationReport" .
+sh:ValidationResult a owl:Class ; rdfs:label "ValidationResult" .
+sh:AbstractResult a owl:Class ; rdfs:label "AbstractResult" .
+sh:Severity a owl:Class ; rdfs:label "Severity" .
+sh:ConstraintComponent a owl:Class ; rdfs:label "ConstraintComponent" .
+sh:Parameter a owl:Class ; rdfs:subClassOf sh:PropertyShape ; rdfs:label "Parameter" .
+sh:Parameterizable a owl:Class ; rdfs:label "Parameterizable" .
+sh:Function a owl:Class ; rdfs:subClassOf sh:Parameterizable ; rdfs:label "Function" .
+sh:JSLibrary a owl:Class ; rdfs:label "JSLibrary" .
+sh:JSConstraint a owl:Class ; rdfs:label "JSConstraint" .
+sh:JSConstraintComponent a owl:Class ; rdfs:label "JSConstraintComponent" .
+sh:NodeExpressionConstraintComponent a owl:Class ; rdfs:label "NodeExpressionConstraintComponent" .
+sh:PrefixDeclaration a owl:Class ; rdfs:label "PrefixDeclaration" .
+sh:PropertyGroup a owl:Class ; rdfs:label "PropertyGroup" .
+sh:SPARQLAskValidator a owl:Class ; rdfs:label "SPARQLAskValidator" .
+sh:SPARQLConstraint a owl:Class ; rdfs:label "SPARQLConstraint" .
+sh:SPARQLConstraintComponent a owl:Class ; rdfs:label "SPARQLConstraintComponent" .
+sh:SPARQLExecutable a owl:Class ; rdfs:label "SPARQLExecutable" .
+sh:SPARQLFunction a owl:Class ; rdfs:subClassOf sh:Function ; rdfs:label "SPARQLFunction" .
+sh:SPARQLRule a owl:Class ; rdfs:label "SPARQLRule" .
+sh:SPARQLSelectValidator a owl:Class ; rdfs:label "SPARQLSelectValidator" .
+sh:SPARQLTarget a owl:Class ; rdfs:label "SPARQLTarget" .
+sh:SPARQLTargetType a owl:Class ; rdfs:label "SPARQLTargetType" .
+sh:SPARQLValuesDeriver a owl:Class ; rdfs:label "SPARQLValuesDeriver" .
+sh:Target a owl:Class ; rdfs:label "Target" .
+sh:TargetType a owl:Class ; rdfs:subClassOf sh:Parameterizable ; rdfs:label "TargetType" .
+sh:Rule a owl:Class ; rdfs:label "Rule" .
+sh:TripleRule a owl:Class ; rdfs:subClassOf sh:Rule ; rdfs:label "TripleRule" .
+
+# Severity instances
+sh:Info a sh:Severity ; rdfs:label "Info" .
+sh:Warning a sh:Severity ; rdfs:label "Warning" .
+sh:Violation a sh:Severity ; rdfs:label "Violation" .
+
+# NodeKind
+sh:NodeKind a owl:Class ; rdfs:label "NodeKind" .
+sh:BlankNode a sh:NodeKind ; rdfs:label "BlankNode" .
+sh:IRI a sh:NodeKind ; rdfs:label "IRI" .
+sh:Literal a sh:NodeKind ; rdfs:label "Literal" .
+sh:BlankNodeOrIRI a sh:NodeKind ; rdfs:label "BlankNodeOrIRI" .
+sh:BlankNodeOrLiteral a sh:NodeKind ; rdfs:label "BlankNodeOrLiteral" .
+sh:IRIOrLiteral a sh:NodeKind ; rdfs:label "IRIOrLiteral" .
+
+# Shape properties
+sh:property a rdf:Property ; rdfs:label "property" ; rdfs:domain sh:Shape ; rdfs:range sh:PropertyShape .
+sh:path a rdf:Property ; rdfs:label "path" ; rdfs:domain sh:PropertyShape .
+sh:targetClass a rdf:Property ; rdfs:label "targetClass" ; rdfs:domain sh:Shape ; rdfs:range rdfs:Class .
+sh:targetNode a rdf:Property ; rdfs:label "targetNode" .
+sh:targetObjectsOf a rdf:Property ; rdfs:label "targetObjectsOf" .
+sh:targetSubjectsOf a rdf:Property ; rdfs:label "targetSubjectsOf" .
+sh:deactivated a rdf:Property ; rdfs:label "deactivated" ; rdfs:range xsd:boolean .
+sh:severity a rdf:Property ; rdfs:label "severity" ; rdfs:range sh:Severity .
+sh:message a rdf:Property ; rdfs:label "message" .
+sh:name a rdf:Property ; rdfs:label "name" .
+sh:description a rdf:Property ; rdfs:label "description" .
+sh:order a rdf:Property ; rdfs:label "order" ; rdfs:range xsd:decimal .
+sh:group a rdf:Property ; rdfs:label "group" ; rdfs:range sh:PropertyGroup .
+sh:defaultValue a rdf:Property ; rdfs:label "defaultValue" .
+
+# Constraint properties
+sh:datatype a rdf:Property ; rdfs:label "datatype" .
+sh:class a rdf:Property ; rdfs:label "class" .
+sh:nodeKind a rdf:Property ; rdfs:label "nodeKind" ; rdfs:range sh:NodeKind .
+sh:minCount a rdf:Property ; rdfs:label "minCount" ; rdfs:range xsd:integer .
+sh:maxCount a rdf:Property ; rdfs:label "maxCount" ; rdfs:range xsd:integer .
+sh:minLength a rdf:Property ; rdfs:label "minLength" ; rdfs:range xsd:integer .
+sh:maxLength a rdf:Property ; rdfs:label "maxLength" ; rdfs:range xsd:integer .
+sh:minExclusive a rdf:Property ; rdfs:label "minExclusive" .
+sh:minInclusive a rdf:Property ; rdfs:label "minInclusive" .
+sh:maxExclusive a rdf:Property ; rdfs:label "maxExclusive" .
+sh:maxInclusive a rdf:Property ; rdfs:label "maxInclusive" .
+sh:pattern a rdf:Property ; rdfs:label "pattern" ; rdfs:range xsd:string .
+sh:flags a rdf:Property ; rdfs:label "flags" ; rdfs:range xsd:string .
+sh:in a rdf:Property ; rdfs:label "in" .
+sh:hasValue a rdf:Property ; rdfs:label "hasValue" .
+sh:languageIn a rdf:Property ; rdfs:label "languageIn" .
+sh:uniqueLang a rdf:Property ; rdfs:label "uniqueLang" ; rdfs:range xsd:boolean .
+sh:equals a rdf:Property ; rdfs:label "equals" .
+sh:disjoint a rdf:Property ; rdfs:label "disjoint" .
+sh:lessThan a rdf:Property ; rdfs:label "lessThan" .
+sh:lessThanOrEquals a rdf:Property ; rdfs:label "lessThanOrEquals" .
+sh:and a rdf:Property ; rdfs:label "and" .
+sh:or a rdf:Property ; rdfs:label "or" .
+sh:not a rdf:Property ; rdfs:label "not" .
+sh:xone a rdf:Property ; rdfs:label "xone" .
+sh:node a rdf:Property ; rdfs:label "node" .
+sh:qualifiedValueShape a rdf:Property ; rdfs:label "qualifiedValueShape" .
+sh:qualifiedMinCount a rdf:Property ; rdfs:label "qualifiedMinCount" ; rdfs:range xsd:integer .
+sh:qualifiedMaxCount a rdf:Property ; rdfs:label "qualifiedMaxCount" ; rdfs:range xsd:integer .
+sh:qualifiedValueShapesDisjoint a rdf:Property ; rdfs:label "qualifiedValueShapesDisjoint" ; rdfs:range xsd:boolean .
+sh:closed a rdf:Property ; rdfs:label "closed" ; rdfs:range xsd:boolean .
+sh:ignoredProperties a rdf:Property ; rdfs:label "ignoredProperties" .
+
+# Validation report properties
+sh:conforms a rdf:Property ; rdfs:label "conforms" ; rdfs:domain sh:ValidationReport ; rdfs:range xsd:boolean .
+sh:result a rdf:Property ; rdfs:label "result" ; rdfs:domain sh:ValidationReport ; rdfs:range sh:ValidationResult .
+sh:focusNode a rdf:Property ; rdfs:label "focusNode" ; rdfs:domain sh:AbstractResult .
+sh:resultPath a rdf:Property ; rdfs:label "resultPath" ; rdfs:domain sh:AbstractResult .
+sh:value a rdf:Property ; rdfs:label "value" ; rdfs:domain sh:AbstractResult .
+sh:resultSeverity a rdf:Property ; rdfs:label "resultSeverity" .
+sh:resultMessage a rdf:Property ; rdfs:label "resultMessage" .
+sh:sourceConstraintComponent a rdf:Property ; rdfs:label "sourceConstraintComponent" .
+sh:sourceShape a rdf:Property ; rdfs:label "sourceShape" .
+sh:detail a rdf:Property ; rdfs:label "detail" .
+
+# SPARQL properties
+sh:sparql a rdf:Property ; rdfs:label "sparql" .
+sh:select a rdf:Property ; rdfs:label "select" .
+sh:ask a rdf:Property ; rdfs:label "ask" .
+sh:construct a rdf:Property ; rdfs:label "construct" .
+sh:prefixes a rdf:Property ; rdfs:label "prefixes" .
+sh:declare a rdf:Property ; rdfs:label "declare" .
+sh:prefix a rdf:Property ; rdfs:label "prefix" .
+sh:namespace a rdf:Property ; rdfs:label "namespace" .
+
+# Path properties
+sh:inversePath a rdf:Property ; rdfs:label "inversePath" .
+sh:alternativePath a rdf:Property ; rdfs:label "alternativePath" .
+sh:zeroOrMorePath a rdf:Property ; rdfs:label "zeroOrMorePath" .
+sh:oneOrMorePath a rdf:Property ; rdfs:label "oneOrMorePath" .
+sh:zeroOrOnePath a rdf:Property ; rdfs:label "zeroOrOnePath" .
+
+# Label template
+sh:labelTemplate a rdf:Property ; rdfs:label "labelTemplate" .
+
+# Rule properties
+sh:rule a rdf:Property ; rdfs:label "rule" ; rdfs:range sh:Rule .
+sh:subject a rdf:Property ; rdfs:label "subject" ; rdfs:domain sh:TripleRule .
+sh:predicate a rdf:Property ; rdfs:label "predicate" ; rdfs:domain sh:TripleRule .
+sh:object a rdf:Property ; rdfs:label "object" ; rdfs:domain sh:TripleRule .
+sh:condition a rdf:Property ; rdfs:label "condition" .
+
+# Parameter
+sh:parameter a rdf:Property ; rdfs:label "parameter" ; rdfs:range sh:Parameter .
+sh:optional a rdf:Property ; rdfs:label "optional" ; rdfs:range xsd:boolean .

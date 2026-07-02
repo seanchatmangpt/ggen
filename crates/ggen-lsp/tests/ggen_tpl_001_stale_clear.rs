@@ -19,7 +19,8 @@
     clippy::future_not_send,
     clippy::unnested_or_patterns,
     clippy::no_effect_underscore_binding,
-    clippy::literal_string_with_formatting_args
+    clippy::literal_string_with_formatting_args,
+    clippy::mutable_key_type
 )]
 
 //! GALL-CHECKPOINT-001B — stale-clear hard gate (the alive-vs-fake-live proof).

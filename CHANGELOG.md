@@ -5,7 +5,13 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [26.7.1] — Ontology Macro, Performance Test, and Hashing Fixes (2026-06-30)
+## [26.7.1] — Ontology Macro, Performance Test, and Hashing Fixes (2026-07-01)
+
+### Added
+- **Standard Ontology Inclusions** — Integrated FOAF and Dublin Core Metadata Element Set (DCE) into the root `ontologies/` directory.
+- **Compile-Time Bundling** — Embedded the new public ontologies into the `ggen-core` bundled standards compile-time resource cache.
+- **`ontology namespaces` Enhancements** — Enhanced namespace resolution CLI command to output all newly added namespaces, print prefixes/URIs/source cleanly in JSON without duplicates.
+- **`compile_from_ir` prompt compiler entry point** — New `PromptCompiler::compile_from_ir` in `ggen-core` `prompt_mfg` that validates, emits, and hashes a caller-built `PromptIR` directly, bypassing `from_construct`/`from_store` (e.g. for IR assembled from parsed RDF triples).
 
 ### Fixed
 - **Ontology `#[verb]` macro usages** — Fixed compiler errors and verified macro-actuated command routing compatibility.
@@ -1361,8 +1367,8 @@ Each pattern includes complete workflow, real commands, use cases, and impact me
 ### Documentation
 
 #### New Documentation
-- [Migration Guide v1 to v2](docs/MIGRATION_V1_TO_V2.md)
-- [Architecture v2.0.0](docs/ARCHITECTURE_V2.md)
+- [Migration Guide v1 to v2](docs/architecture/marketplace-v2-migration/README.md)
+- [Architecture v2.0.0](docs/architecture/C4_GGEN_PAAS_ARCHITECTURE.md)
 - Updated README with v2.0.0 features
 - Performance benchmark comparisons
 
@@ -1400,9 +1406,9 @@ Each pattern includes complete workflow, real commands, use cases, and impact me
 
 ### Links
 
-- [Migration Guide](docs/MIGRATION_V1_TO_V2.md)
-- [Architecture Guide](docs/ARCHITECTURE_V2.md)
-- [Performance Benchmarks](docs/BENCHMARK_QUICK_START.md)
+- [Migration Guide](docs/architecture/marketplace-v2-migration/README.md)
+- [Architecture Guide](docs/architecture/C4_GGEN_PAAS_ARCHITECTURE.md)
+- [Performance Benchmarks](docs/PERFORMANCE_QUICK_START.md)
 
 ---
 

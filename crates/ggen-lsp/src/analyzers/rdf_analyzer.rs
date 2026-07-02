@@ -87,10 +87,12 @@ impl RdfAnalyzer {
             .iter()
             .map(|d| {
                 diag::max_from_oxrdfio(
-                    d.line,
-                    d.column,
-                    d.end_line,
-                    d.end_column,
+                    diag::OxrdfioSpan {
+                        line: d.line,
+                        column: d.column,
+                        end_line: d.end_line,
+                        end_column: d.end_column,
+                    },
                     DiagnosticSeverity::ERROR,
                     None,
                     format!("RDF syntax error: {}", d.message),

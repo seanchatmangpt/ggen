@@ -9,16 +9,16 @@ use crate::tier::{OntologyAuthority, OntologyTier};
 
 // ── Tier 0: embedded at compile-time ────────────────────────────────────────
 
-const CATALOG_TTL: &str = include_str!("../../../ontologies/catalog.ttl");
+const CATALOG_TTL: &str = include_str!("../ontologies/catalog.ttl");
 
-const RDF_SYNTAX_NS_TTL: &str = include_str!("../../../ontologies/core/rdf-syntax-ns.ttl");
-const RDF_SCHEMA_TTL: &str = include_str!("../../../ontologies/core/rdf-schema.ttl");
-const OWL2_TTL: &str = include_str!("../../../ontologies/core/owl2.ttl");
-const XSD_DATATYPES_TTL: &str = include_str!("../../../ontologies/core/xmlschema-datatypes.ttl");
-const SHACL_TTL: &str = include_str!("../../../ontologies/core/shacl.ttl");
-const PROV_O_TTL: &str = include_str!("../../../ontologies/core/prov-o.ttl");
-const DCTERMS_TTL: &str = include_str!("../../../ontologies/core/dcterms.ttl");
-const OCEL2_TTL: &str = include_str!("../../../ontologies/core/ocel2.ttl");
+const RDF_SYNTAX_NS_TTL: &str = include_str!("../ontologies/core/rdf-syntax-ns.ttl");
+const RDF_SCHEMA_TTL: &str = include_str!("../ontologies/core/rdf-schema.ttl");
+const OWL2_TTL: &str = include_str!("../ontologies/core/owl2.ttl");
+const XSD_DATATYPES_TTL: &str = include_str!("../ontologies/core/xmlschema-datatypes.ttl");
+const SHACL_TTL: &str = include_str!("../ontologies/core/shacl.ttl");
+const PROV_O_TTL: &str = include_str!("../ontologies/core/prov-o.ttl");
+const DCTERMS_TTL: &str = include_str!("../ontologies/core/dcterms.ttl");
+const OCEL2_TTL: &str = include_str!("../ontologies/core/ocel2.ttl");
 
 // ── Error type ───────────────────────────────────────────────────────────────
 
@@ -75,14 +75,19 @@ impl OntologyRegistry {
 
     /// Process-wide singleton — initialised exactly once via `OnceLock`.
     ///
-    /// # Panics
-    ///
-    /// Panics on first access if the Oxigraph store cannot be created (out of
-    /// memory) or the embedded catalog TTL is malformed. Both indicate
-    /// non-recoverable corruption of the binary.
-    pub fn global() -> &'static OntologyRegistry {
-        static REGISTRY: OnceLock<OntologyRegistry> = OnceLock::new();
-        REGISTRY.get_or_init(|| Self::new().expect("OntologyRegistry initialisation failed"))
+    /// Returns `Err` on first access if the Oxigraph store cannot be created
+    /// (out of memory) or the embedded catalog TTL is malformed, instead of
+    /// panicking. Both indicate non-recoverable corruption of the binary, but
+    /// the caller decides how to surface that.
+    pub fn global() -> RegistryResult<&'static OntologyRegistry> {
+        static REGISTRY: OnceLock<RegistryResult<OntologyRegistry>> = OnceLock::new();
+        match REGISTRY.get_or_init(Self::new) {
+            Ok(registry) => Ok(registry),
+            Err(err) => Err(RegistryError::Unavailable {
+                iri: "catalog".to_string(),
+                reason: err.to_string(),
+            }),
+        }
     }
 
     /// IRIs of all Tier 0 (Core) ontologies embedded in this binary.

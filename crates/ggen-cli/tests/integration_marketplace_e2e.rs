@@ -7,6 +7,7 @@
     clippy::unwrap_used,
     clippy::expect_used,
     clippy::panic,
+    clippy::ignore_without_reason,
     unused_mut
 )]
 

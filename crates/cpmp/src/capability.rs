@@ -2,7 +2,7 @@ use crate::models::{DetectedCapability, Symbol};
 use std::path::Path;
 
 pub fn detect_capabilities(
-    path: &Path, content: &str, _symbols: &[Symbol],
+    path: &Path, content: &str, symbols: &[Symbol],
 ) -> Vec<DetectedCapability> {
     let mut detected = Vec::new();
     let capabilities = vec![
@@ -38,8 +38,7 @@ pub fn detect_capabilities(
     ];
 
     let path_str = path.to_string_lossy().to_string();
-    let classification =
-        crate::classification::classify_file(&path_str, content, _symbols).as_str();
+    let classification = crate::classification::classify_file(&path_str, content, symbols).as_str();
     for (line_idx, line) in content.lines().enumerate() {
         for cap in &capabilities {
             if line.contains(cap) {

@@ -1244,6 +1244,7 @@ impl Validate for A2AOrchestrationConfig {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
     use star_toml::Validate;
@@ -1251,7 +1252,7 @@ mod tests {
     #[test]
     fn test_ggen_config_validate_trait() {
         let mut config = GgenConfig::default();
-        config.project.name = "".to_string(); // Invalid: empty
+        config.project.name = String::new(); // Invalid: empty
         config.project.version = "1.0".to_string(); // Invalid: bad semver
 
         let errs = config.check().unwrap_err();
@@ -1359,7 +1360,6 @@ mod tests {
                 host: "localhost".to_string(),
                 tls: None,
                 request_timeout_seconds: 30,
-                ..Default::default()
             }),
             tools: None,
             zai: None,
@@ -1388,7 +1388,6 @@ mod tests {
                 timeout_ms: 5000,
                 max_connections: Some(10),
                 retry: None,
-                ..Default::default()
             }),
             messaging: None,
             orchestration: Some(A2AOrchestrationConfig {
@@ -1398,7 +1397,6 @@ mod tests {
                 agent_timeout_seconds: 30,
                 consensus_enabled: true,
                 consensus_algorithm: Some("paxos".to_string()), // Invalid consensus algo
-                ..Default::default()
             }),
         });
 
@@ -1454,8 +1452,10 @@ mod tests {
         });
 
         let errs = config.check().unwrap_err();
-        let locs: Vec<String> = errs.errors().iter().map(|e| e.loc.to_string()).collect();
-        assert!(locs.contains(&"logging.file".to_string()));
+        assert!(errs
+            .errors()
+            .iter()
+            .any(|e| e.loc.to_string() == "logging.file"));
 
         // 3. MCP Config
         config.logging = None;
@@ -1476,7 +1476,6 @@ mod tests {
                     ca_path: Some(null_byte_path.clone()),
                 }),
                 request_timeout_seconds: 30,
-                ..Default::default()
             }),
             tools: Some(McpToolsConfig {
                 discovery_path: Some(malicious_path.clone()),
@@ -1516,7 +1515,9 @@ mod tests {
         });
 
         let errs = config.check().unwrap_err();
-        let locs: Vec<String> = errs.errors().iter().map(|e| e.loc.to_string()).collect();
-        assert!(locs.contains(&"a2a.messaging.persistence_path".to_string()));
+        assert!(errs
+            .errors()
+            .iter()
+            .any(|e| e.loc.to_string() == "a2a.messaging.persistence_path"));
     }
 }

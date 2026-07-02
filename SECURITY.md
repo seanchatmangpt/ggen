@@ -1,4 +1,4 @@
-# Security Policy for ggen (v26.5.28)
+# Security Policy for ggen (v26.7.1)
 
 ## Reporting Security Vulnerabilities
 
@@ -13,7 +13,7 @@ The ggen project takes security seriously. We appreciate your responsible disclo
 Please report security issues via email:
 
 **Email**: `sean@chatmangpt.com`
-**Subject**: `[SECURITY] ggen v26.5.19 vulnerability - [brief description]`
+**Subject**: `[SECURITY] ggen v26.7.1 vulnerability - [brief description]`
 
 ### Information to Include
 
@@ -24,7 +24,7 @@ Provide as much detail as possible:
 - Component affected (crate, module, function)
 - Description of the vulnerability
 - Steps to reproduce (if possible)
-- Affected versions (v26.5.19+)
+- Affected versions (v26.7.1+)
 - Suggested fix (if you have one)
 - Your name and contact (for acknowledgment)
 ```
@@ -40,7 +40,7 @@ Provide as much detail as possible:
   - Low (Minor Issues): Next release
 - **Public disclosure**: After patch release
 
-## Security Practices (v26.5.19)
+## Security Practices (v26.7.1)
 
 ### Code Review
 
@@ -79,9 +79,9 @@ Unsafe code is:
 - **Reviewed thoroughly** by 2+ maintainers
 - **Tested extensively** with property-based testing
 
-Current unsafe usage (v26.5.19):
-- **None in production code** - v26.5.19 eliminates all unsafe blocks
-- Historical unsafe code (v26.5.19.x) has been refactored to safe alternatives
+Current unsafe usage (v26.7.1):
+- **None in production code** - v26.7.1 eliminates all unsafe blocks
+- Historical unsafe code (v26.7.1.x) has been refactored to safe alternatives
 - If unsafe is required in future, it must be justified with FMEA analysis
 
 ### Timing Security
@@ -341,7 +341,7 @@ For critical vulnerabilities:
 
 | Version | Status | Security Updates | End of Life |
 |---------|--------|------------------|-------------|
-| 6.x | Stable | ✓ Active (all severity) | TBD |
+| 6.x | Stable | ✓ Active (all severity) | To Be Determined |
 | 5.x | Legacy | ✓ Critical only | 2026-06-01 |
 | 4.x | Unsupported | ✗ None | 2025-12-31 |
 | 3.x | Unsupported | ✗ None | 2025-06-30 |

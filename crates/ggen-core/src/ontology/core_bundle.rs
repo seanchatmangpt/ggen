@@ -393,7 +393,7 @@ mod tests {
             );
             // Should end with # for RDF namespace convention
             assert!(
-                ont.namespace.ends_with("#"),
+                ont.namespace.ends_with('#'),
                 "RDF namespace '{}' should end with #",
                 ont.namespace
             );

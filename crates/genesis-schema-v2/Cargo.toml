@@ -2,6 +2,7 @@
 name = "genesis-schema"
 version.workspace = true
 edition.workspace = true
+repository.workspace = true
 authors.workspace = true
 license.workspace = true
 description = "KNHK V2 schema system — OpenAPI specs, RDF ontology, 43 YAWL pattern definitions, workflow schema validation."

@@ -67,7 +67,7 @@ impl LineColMapper {
         // it means target_character is at or beyond the end of the line.
         // LSP spec says to default to line length.
         let line_end_offset = remaining_text
-            .find(|c| c == '\n' || c == '\r')
+            .find(['\n', '\r'])
             .unwrap_or(remaining_text.len());
 
         Some(line_start + line_end_offset)

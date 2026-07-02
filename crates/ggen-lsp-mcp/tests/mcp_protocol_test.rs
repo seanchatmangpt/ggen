@@ -41,7 +41,7 @@ const READ_TIMEOUT: Duration = Duration::from_secs(10);
 const BROKEN_CONSTRUCT: &str = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }\n";
 /// A SPARQL SELECT with no VALUES and no CONSTRUCT — the sparql_analyzer raises
 /// neither E0010 nor E0011, so it is a clean law surface (envelopes empty).
-const CLEAN_SELECT: &str = "SELECT ?s WHERE { ?s ?p ?o }\n";
+const CLEAN_SELECT: &str = "SELECT ?s WHERE { ?s ?p ?o } ORDER BY ?s\n";
 
 struct McpClient {
     stdin: ChildStdin,

@@ -1,17 +1,19 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use cpmp::registry::OntologyRegistry;
 use cpmp::tier::OntologyTier;
 
 #[test]
 fn global_singleton_initialises_without_panic() {
-    let registry = OntologyRegistry::global();
+    let registry = OntologyRegistry::global().expect("registry init");
     // Calling twice must return the same pointer (OnceLock guarantee).
-    let registry2 = OntologyRegistry::global();
+    let registry2 = OntologyRegistry::global().expect("registry init");
     assert!(std::ptr::eq(registry, registry2));
 }
 
 #[test]
 fn tier0_returns_exactly_eight_iris() {
-    let registry = OntologyRegistry::global();
+    let registry = OntologyRegistry::global().expect("registry init");
     let iris = registry.tier0_iris();
     assert_eq!(
         iris.len(),
@@ -23,7 +25,9 @@ fn tier0_returns_exactly_eight_iris() {
 
 #[test]
 fn tier0_iris_include_all_w3c_foundations() {
-    let iris = OntologyRegistry::global().tier0_iris();
+    let iris = OntologyRegistry::global()
+        .expect("registry init")
+        .tier0_iris();
     let required = [
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
         "http://www.w3.org/2000/01/rdf-schema#",
@@ -44,7 +48,7 @@ fn tier0_iris_include_all_w3c_foundations() {
 
 #[test]
 fn catalog_store_contains_triples_after_load() {
-    let registry = OntologyRegistry::global();
+    let registry = OntologyRegistry::global().expect("registry init");
     let triple_count = registry.catalog_triple_count();
     assert!(
         triple_count > 50,
@@ -54,7 +58,7 @@ fn catalog_store_contains_triples_after_load() {
 
 #[test]
 fn tier0_entries_have_embedded_content() {
-    let registry = OntologyRegistry::global();
+    let registry = OntologyRegistry::global().expect("registry init");
     let core_entries: Vec<_> = registry
         .entries()
         .filter(|e| e.tier == OntologyTier::Core)
@@ -88,6 +92,7 @@ fn load_tier0_into_store_populates_owl_classes() {
 
     let store = Store::new().expect("oxigraph store creation failed");
     OntologyRegistry::global()
+        .expect("registry init")
         .load_tier0_into_store(&store)
         .expect("load_tier0_into_store failed");
 
@@ -100,7 +105,7 @@ fn load_tier0_into_store_populates_owl_classes() {
 
 #[test]
 fn catalog_covers_all_three_tiers() {
-    let registry = OntologyRegistry::global();
+    let registry = OntologyRegistry::global().expect("registry init");
     let has_core = registry.entries().any(|e| e.tier == OntologyTier::Core);
     let has_cached = registry.entries().any(|e| e.tier == OntologyTier::Cached);
     let has_referenced = registry
@@ -117,7 +122,7 @@ fn catalog_covers_all_three_tiers() {
 
 #[test]
 fn total_catalog_entry_count_meets_vision_2030_minimum() {
-    let registry = OntologyRegistry::global();
+    let registry = OntologyRegistry::global().expect("registry init");
     let total: usize = registry.entries().count();
     assert!(
         total >= 54,
@@ -127,7 +132,7 @@ fn total_catalog_entry_count_meets_vision_2030_minimum() {
 
 #[test]
 fn get_entry_by_iri_returns_correct_tier() {
-    let registry = OntologyRegistry::global();
+    let registry = OntologyRegistry::global().expect("registry init");
 
     let rdf = registry
         .get("http://www.w3.org/1999/02/22-rdf-syntax-ns#")

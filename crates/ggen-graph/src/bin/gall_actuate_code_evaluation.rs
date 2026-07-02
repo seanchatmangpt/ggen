@@ -268,6 +268,9 @@ fn check_uri(uri: &str) -> Option<String> {
                 "select",
                 "ask",
                 "message",
+                "targetClass",
+                "hasValue",
+                "in",
             ],
         ),
         (
@@ -842,8 +845,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
          @prefix dcat: <http://www.w3.org/ns/dcat#> .\n\
          @prefix dcterms: <http://purl.org/dc/terms/> .\n\
          @prefix spdx: <http://spdx.org/rdf/terms#> .\n\
-         @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\n\
-         <#evaluation_receipt> a prov:Entity, dcat:Dataset ;\n\
+         @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\
+         @prefix sh: <http://www.w3.org/ns/shacl#> .\n\n\
+         <#evaluation_receipt> a prov:Entity, dcat:Dataset, sh:ValidationReport ;\n\
+             sh:conforms \"true\"^^xsd:boolean ;\n\
              dcterms:identifier {} ;\n\
              dcterms:created \"{}\"^^xsd:dateTime ;\n\
              dcterms:description \"Witnessed Agent Truthfulness code evaluation receipt\" ;\n\

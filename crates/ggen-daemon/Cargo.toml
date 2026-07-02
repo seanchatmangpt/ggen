@@ -2,6 +2,8 @@
 name = "ggen-daemon"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
 description = "Cron-driven commit campaign daemon — reads cron-schedule.ttl via SPARQL, dispatches ggen sync per bundle"
 
 [[bin]]

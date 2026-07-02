@@ -264,7 +264,57 @@ impl OntologyConfig {
     }
 }
 
+// =========================================================================
+// Validate Trait Implementations
+// =========================================================================
+
+impl star_toml::Validate for OntologyConfig {
+    fn validate(&self, v: &mut star_toml::Validator) {
+        if self.packs.is_empty() {
+            v.error(star_toml::ErrorKind::Empty, "No ontology packs configured");
+        }
+        for (i, pack) in self.packs.iter().enumerate() {
+            v.index(i, |v| pack.validate(v));
+        }
+        for (name, target) in &self.targets {
+            v.field(name, |v| target.validate(v));
+        }
+        v.field("lock", |v| self.lock.validate(v));
+    }
+}
+
+impl star_toml::Validate for OntologyPackRef {
+    fn validate(&self, v: &mut star_toml::Validator) {
+        v.check_non_empty("name", &self.name);
+        v.check_non_empty("version", &self.version);
+    }
+}
+
+impl star_toml::Validate for TargetConfig {
+    fn validate(&self, v: &mut star_toml::Validator) {
+        v.check_non_empty("language", &self.language);
+        v.check_path("output_dir", &self.output_dir.to_string_lossy(), None);
+        if let Some(template_path) = &self.template_path {
+            v.check_path("template_path", &template_path.to_string_lossy(), None);
+        }
+        if let Some(hooks) = &self.hooks {
+            v.field("hooks", |v| hooks.validate(v));
+        }
+    }
+}
+
+impl star_toml::Validate for GenerationHooks {
+    fn validate(&self, _v: &mut star_toml::Validator) {}
+}
+
+impl star_toml::Validate for LockConfig {
+    fn validate(&self, v: &mut star_toml::Validator) {
+        v.check_path("file", &self.file.to_string_lossy(), None);
+    }
+}
+
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
 
@@ -354,8 +404,10 @@ mod tests {
         );
 
         let errs = config.check().unwrap_err();
-        let error_locs: Vec<String> = errs.errors().iter().map(|e| e.loc.to_string()).collect();
-        assert!(error_locs.contains(&"test-target.language".to_string()));
+        assert!(errs
+            .errors()
+            .iter()
+            .any(|e| e.loc.to_string() == "test-target.language"));
 
         // Add invalid paths to targets and lock config to check path validation
         config.packs[0] = OntologyPackRef {
@@ -387,54 +439,5 @@ mod tests {
         assert!(error_locs.contains(&"test-target.output_dir".to_string()));
         assert!(error_locs.contains(&"test-target.template_path".to_string()));
         assert!(error_locs.contains(&"lock.file".to_string()));
-    }
-}
-
-// =========================================================================
-// Validate Trait Implementations
-// =========================================================================
-
-impl star_toml::Validate for OntologyConfig {
-    fn validate(&self, v: &mut star_toml::Validator) {
-        if self.packs.is_empty() {
-            v.error(star_toml::ErrorKind::Empty, "No ontology packs configured");
-        }
-        for (i, pack) in self.packs.iter().enumerate() {
-            v.index(i, |v| pack.validate(v));
-        }
-        for (name, target) in &self.targets {
-            v.field(name, |v| target.validate(v));
-        }
-        v.field("lock", |v| self.lock.validate(v));
-    }
-}
-
-impl star_toml::Validate for OntologyPackRef {
-    fn validate(&self, v: &mut star_toml::Validator) {
-        v.check_non_empty("name", &self.name);
-        v.check_non_empty("version", &self.version);
-    }
-}
-
-impl star_toml::Validate for TargetConfig {
-    fn validate(&self, v: &mut star_toml::Validator) {
-        v.check_non_empty("language", &self.language);
-        v.check_path("output_dir", &self.output_dir.to_string_lossy(), None);
-        if let Some(template_path) = &self.template_path {
-            v.check_path("template_path", &template_path.to_string_lossy(), None);
-        }
-        if let Some(hooks) = &self.hooks {
-            v.field("hooks", |v| hooks.validate(v));
-        }
-    }
-}
-
-impl star_toml::Validate for GenerationHooks {
-    fn validate(&self, _v: &mut star_toml::Validator) {}
-}
-
-impl star_toml::Validate for LockConfig {
-    fn validate(&self, v: &mut star_toml::Validator) {
-        v.check_path("file", &self.file.to_string_lossy(), None);
     }
 }

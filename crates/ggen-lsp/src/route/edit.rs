@@ -208,6 +208,10 @@ mod tests {
             ..Default::default()
         };
         let we = workspace_edit_from_route(&route, &b, &uri(), "ex:a ex:b ex:c .\n");
+        // `lsp_types::WorkspaceEdit::changes` is `HashMap<Url, _>`; `Url`'s interior
+        // mutability comes from the external `lsp_types` crate and is not something
+        // we control here.
+        #[allow(clippy::mutable_key_type)]
         let changes = we.changes.expect("changes");
         assert_eq!(changes.get(&uri()).map(Vec::len), Some(1));
     }
