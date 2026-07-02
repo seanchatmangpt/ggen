@@ -570,8 +570,6 @@ genai = { workspace = true }
 proptest.workspace = true
 # chicago-tdd-tools = { workspace = true, features = ["testcontainers"] }
 # Note: chicago-tdd-tools commented for cross-platform compatibility
-# Cleanroom integration for CLI testing
-clnrm = "1.3.0"
 testcontainers.workspace = true
 testcontainers-modules.workspace = true
 rand = "0.8"
@@ -795,9 +793,6 @@ unused-shlibs = []
 # Redirect to seanchatmangpt's repos if the stubs there are ever updated to
 # provide the full API needed by lsp-max-runtime.
 #
-[patch.crates-io]
-clnrm-core = { path = "crates/clnrm-core-patched" }
-
 # NOTE on the clap-noun-verb kebab-case fix (--profile-id with --profile_id alias):
 # the fix is committed in ~/clap-noun-verb (313ba73). It was NOT integrated here via
 # a local [patch.crates-io] because the local checkout (26.5.29, branch

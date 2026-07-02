@@ -1,7 +1,0 @@
-{
-  "git": {
-    "sha1": "92fa269aebb69f0a1729c5f4ba304c76334c6fd4",
-    "dirty": true
-  },
-  "path_in_vcs": "crates/clnrm-core"
-}
