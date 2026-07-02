@@ -47,9 +47,9 @@ fmt-check:
 
 # ── Linting ───────────────────────────────────────────────────────────────────
 
-# Clippy with -D warnings across all targets (90s; first run compiles deps)
+# Clippy with -D warnings across all targets (180s; first run / cache invalidation compiles deps)
 lint:
-    timeout 90s cargo clippy --all-targets -- -D warnings
+    timeout 180s cargo clippy --all-targets -- -D warnings
 
 # ── Testing ───────────────────────────────────────────────────────────────────
 
