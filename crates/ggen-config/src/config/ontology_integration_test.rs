@@ -5,8 +5,8 @@
 /// Integration test module: unwrap()/expect() used for test setup and assertions.
 mod tests {
     use crate::config::{
-        AgentRole, CompositionMetadata, CompositionStrategy, HiveQueen, LockedPackage,
-        LockfileManager, OntologyConfig, OntologyPackRef, TargetConfig,
+        CompositionMetadata, CompositionStrategy, LockedPackage, LockfileManager, OntologyConfig,
+        OntologyPackRef, TargetConfig,
     };
     use std::collections::BTreeMap;
     use std::path::PathBuf;
@@ -115,40 +115,6 @@ mod tests {
         // Verify exact versions for reproducible builds
         assert_eq!(version_spec.get("schema-org"), Some(&"3.13.0".to_string()));
         assert_eq!(version_spec.get("dublin-core"), Some(&"1.11.0".to_string()));
-    }
-
-    /// Test hive queen configuration orchestration
-    #[tokio::test]
-    async fn test_hive_queen_orchestration() {
-        let config = OntologyConfig::new()
-            .with_pack(OntologyPackRef {
-                name: "schema-org".to_string(),
-                version: "3.13.0".to_string(),
-                namespace: None,
-                classes: None,
-                properties: None,
-                source: None,
-            })
-            .with_composition(CompositionStrategy::Union);
-
-        let hive = HiveQueen::new(config).await;
-        assert!(hive.is_ok());
-
-        let hive = hive.unwrap();
-        // Verify agents were spawned
-        assert!(hive.agents.len() >= 4);
-
-        // Verify required agents exist
-        let has_analyzer = hive.agents.iter().any(|a| a.role == AgentRole::Analyzer);
-        let has_resolver = hive
-            .agents
-            .iter()
-            .any(|a| a.role == AgentRole::VersionResolver);
-        let has_validator = hive.agents.iter().any(|a| a.role == AgentRole::Validator);
-
-        assert!(has_analyzer);
-        assert!(has_resolver);
-        assert!(has_validator);
     }
 
     /// Test code generation target configuration

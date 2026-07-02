@@ -1,1 +1,0 @@
-// LSP protocol message handling

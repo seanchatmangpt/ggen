@@ -20,7 +20,6 @@ pub mod init;
 pub mod intel;
 pub mod pack;
 pub mod project_index;
-pub mod protocol;
 pub mod route;
 pub mod rule_index;
 pub mod server;

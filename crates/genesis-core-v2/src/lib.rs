@@ -14,7 +14,6 @@ use serde_json::json;
 use std::sync::Arc;
 
 pub mod inventory;
-pub mod patterns;
 pub mod primitives;
 pub mod registry;
 pub mod revelation;
