@@ -79,12 +79,12 @@ strategy_1_docker_daemon() {
     fi
 
     # Check Docker info (requires daemon running)
-    if ! docker info &> /dev/null; then
-        log_error "Docker daemon is not running or not accessible"
+    if ! timeout 5 docker info &> /dev/null; then
+        log_error "Docker daemon is not running or not accessible (connection timed out)"
         status="FAIL"
     else
         log_success "Docker daemon is running"
-        docker info | grep -E "Server Version|Storage Driver|Kernel Version" || true
+        timeout 5 docker info | grep -E "Server Version|Storage Driver|Kernel Version" || true
     fi
 
     # Check Docker socket
@@ -357,7 +357,10 @@ run_all_strategies() {
     log_section "Running All Validation Strategies"
 
     # Run strategies sequentially (parallel would require more complex coordination)
-    strategy_1_docker_daemon || true
+    if ! strategy_1_docker_daemon; then
+        log_error "Docker daemon is not responsive. Aborting further container strategies."
+        return 1
+    fi
     strategy_2_container_lifecycle || true
     strategy_3_port_accessibility || true
     strategy_4_negative_testing || true
