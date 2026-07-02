@@ -1,7 +1,8 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use ggen_config::config_lib::{
     A2AConfig, A2AOrchestrationConfig, A2ATransportConfig, AiConfig, AiValidation, ConfigLoader,
-    GgenConfig, LoggingConfig, McpConfig, McpTransportConfig, PerformanceConfig, ProjectConfig,
-    TemplatesConfig,
+    GgenConfig, McpConfig, McpTransportConfig, PerformanceConfig, ProjectConfig, TemplatesConfig,
 };
 use star_toml::Validate;
 
@@ -663,7 +664,7 @@ fn test_adversarial_stress_checks() {
         err.to_string()
             .contains("A2A consensus algorithm must be specified when consensus is enabled"),
         "Formatted error should report missing consensus algorithm, but reports: '{}'",
-        err.to_string()
+        err
     );
 }
 
@@ -700,19 +701,16 @@ fn test_new_adversarial_vulnerabilities() {
     "#;
     let loader = ConfigLoader::from_str(toml_missing_base_ai).unwrap();
     // If we apply overrides, ai remains None
-    let mut config_overridden = loader.clone();
+    let config_overridden = loader.clone();
     if let Some(env_overrides) = config_overridden.env.clone() {
         if let Some(overrides) = env_overrides.get("production") {
             // Apply overrides manually or via helper
             if let Some(obj) = overrides.as_object() {
                 for (key, _value) in obj {
                     let parts: Vec<&str> = key.split('.').collect();
-                    match parts.as_slice() {
-                        ["ai", _field] => {
-                            // If config.ai is None, it is not updated!
-                            assert!(config_overridden.ai.is_none());
-                        }
-                        _ => {}
+                    if let ["ai", _field] = parts.as_slice() {
+                        // If config.ai is None, it is not updated!
+                        assert!(config_overridden.ai.is_none());
                     }
                 }
             }

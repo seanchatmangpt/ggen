@@ -1,4 +1,6 @@
-use star_toml::validation::{ErrorKind, Severity, Validate, Validator};
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::unicode_not_nfc)]
+
+use star_toml::validation::{Validate, Validator};
 
 #[test]
 fn test_semver_adversarial() {

@@ -58,10 +58,12 @@ pub fn classify_file(path: &str, content: &str, _symbols: &[Symbol]) -> Classifi
     Classification::Live
 }
 
-/// Crate directories present on disk under `<workspace>/crates/` but absent from
-/// `[workspace] members` — i.e. crates excluded from the build (dormant). Returns
-/// the bare directory names (e.g. `"genesis-construct8"`); empty if no workspace
-/// root is found above `scan_root`.
+/// Crate directories present on disk under `<workspace>/crates/` but absent
+/// from `[workspace] members` (dormant).
+///
+/// I.e. crates excluded from the build. Returns the bare directory names
+/// (e.g. `"genesis-construct8"`); empty if no workspace root is found above
+/// `scan_root`.
 ///
 /// This is a stronger, repo-level dormancy signal than per-file `#![cfg(any())]`:
 /// an entire crate the workspace refuses to compile.
@@ -125,6 +127,7 @@ pub fn dormant_crate_dirs(scan_root: &std::path::Path) -> Vec<String> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 mod tests {
     use super::*;
 

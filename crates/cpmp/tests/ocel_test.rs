@@ -1,3 +1,5 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use cpmp::ocel::{OcelEventLog, OcelReader};
 use std::path::Path;
 

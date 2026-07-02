@@ -733,7 +733,7 @@ impl OrderService {
         // Act — tamper with the receipt BODY (the output_hash is part of the
         // signed message). The signature no longer matches the mutated body.
         let mut tampered = receipt.clone();
-        tampered.output_hash = format!("{}deadbeef", &tampered.output_hash);
+        tampered.output_hash = format!("{}deadbeef", tampered.output_hash);
 
         // Assert — fail-closed: a body that disagrees with the signature is invalid.
         assert!(

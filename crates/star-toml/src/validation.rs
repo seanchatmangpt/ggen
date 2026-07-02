@@ -1003,6 +1003,7 @@ fn fnv1a(data: &[u8]) -> u64 {
 // ---------------------------------------------------------------------------
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::panic)]
 mod tests {
     use super::*;
 

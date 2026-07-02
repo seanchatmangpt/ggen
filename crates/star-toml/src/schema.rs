@@ -456,6 +456,7 @@ impl Schema {
 // ---------------------------------------------------------------------------
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 
@@ -514,8 +515,10 @@ port = 0
     fn nested_section_paths_are_prefixed() {
         let toml = "name = \"ok\"\nworkers = 4\nlog_level = \"info\"\n[server]\nhost = \"\"\nport = 8080\n";
         let errs = app_schema().validate_str(toml).unwrap_err();
-        let locs: Vec<String> = errs.errors().iter().map(|e| e.loc.to_string()).collect();
-        assert!(locs.contains(&"server.host".to_string()));
+        assert!(errs
+            .errors()
+            .iter()
+            .any(|e| e.loc.to_string() == "server.host"));
     }
 
     #[test]

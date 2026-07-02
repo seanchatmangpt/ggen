@@ -113,6 +113,7 @@ pub(crate) fn env_str_to_value(s: &str) -> Value {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use toml::Value;
