@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Standard Ontology Inclusions** — Integrated FOAF and Dublin Core Metadata Element Set (DCE) into the root `ontologies/` directory.
 - **Compile-Time Bundling** — Embedded the new public ontologies into the `ggen-core` bundled standards compile-time resource cache.
 - **`ontology namespaces` Enhancements** — Enhanced namespace resolution CLI command to output all newly added namespaces, print prefixes/URIs/source cleanly in JSON without duplicates.
+- **`compile_from_ir` prompt compiler entry point** — New `PromptCompiler::compile_from_ir` in `ggen-core` `prompt_mfg` that validates, emits, and hashes a caller-built `PromptIR` directly, bypassing `from_construct`/`from_store` (e.g. for IR assembled from parsed RDF triples).
 
 ### Fixed
 - **Ontology `#[verb]` macro usages** — Fixed compiler errors and verified macro-actuated command routing compatibility.
@@ -20,7 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Dependency pinning for `ggen-lsp`** — Pinned and subsequently updated `wasm4pm-compat` to `26.6.26` to bypass broken upstream releases.
 - **Stale test compile errors** — Fixed compilation errors in legacy tests due to dependency bumps.
 
-## [26.5.28] - 2026-06-23
+## [26.6.23] - 2026-06-23
 
 ### Added
 
@@ -187,7 +188,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
-## [26.5.27] - 2026-06-01
+## [26.7.1] - 2026-06-01
 
 ### Added
 - Initial μ₁–μ₅ pipeline implementation
@@ -204,7 +205,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
-## [26.5.26] - 2026-05-15
+## [26.7.1] - 2026-05-15
 
 ### Added
 - Core ggen CLI
@@ -213,7 +214,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
-## [26.5.25] - 2026-05-01
+## [26.7.1] - 2026-05-01
 
 ### Added
 - Project scaffolding (`ggen init`)

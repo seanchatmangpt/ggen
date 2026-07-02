@@ -78,8 +78,8 @@ cargo install ggen-cli
 ggen init
 
 # 3. Generate code from your ontology
-ggen sync --dry-run
-ggen sync --audit
+ggen sync --dry-run true
+ggen sync --audit true
 ```
 
 **Examples:** See [examples/](examples/) for 40+ ready-to-use projects including REST APIs and multi-language scaffolds.
@@ -117,7 +117,7 @@ See [.claude/rules/otel-validation.md](.claude/rules/otel-validation.md) for OTE
 **Documentation:**
 - [Audit Dashboard](docs/crate-audits/AUDIT_DASHBOARD.md) — Visual summary with Mermaid diagrams
 - [Stub Classification](docs/crate-audits/STUB_CLASSIFICATION.md) — Execution-trace verified
-- [Master TODO](docs/MASTER_TODO.md) — Prioritized remediation plan
+- [Master Backlog](docs/MASTER_TODO.md) — Prioritized remediation plan
 
 ## 🏗️ Architecture
 
@@ -202,10 +202,10 @@ ggen init --name "my-project" --version "1.0.0" --description "Domain-driven API
 ggen init --path my-project
 
 # Re-initialize (overwrites existing ggen files)
-ggen init --force
+ggen init --force true
 
 # Skip git hooks installation
-ggen init --skip-hooks
+ggen init --skip-hooks true
 ```
 
 Creates: `ggen.toml`, `schema/domain.ttl`, `Makefile`, `templates/example.txt.tera`, `scripts/startup.sh`, `.gitignore`.
@@ -219,13 +219,13 @@ Creates: `ggen.toml`, `schema/domain.ttl`, `Makefile`, `templates/example.txt.te
 ggen wizard
 
 # Non-interactive with metadata
-ggen wizard --profile mcp-a2a --name "agent-system" --yes
+ggen wizard --profile mcp-a2a --name "agent-system" --yes true
 
 # Custom output directory
 ggen wizard --output-dir ./my-project
 
 # Skip initial sync
-ggen wizard --no-sync
+ggen wizard --no-sync true
 ```
 
 Available profiles:
@@ -252,22 +252,22 @@ Available profiles:
 ggen sync
 
 # Dry-run: preview changes without writing files
-ggen sync --dry-run
+ggen sync --dry-run true
 
 # Full sync with cryptographic audit trail
-ggen sync --audit
+ggen sync --audit true
 
 # Force overwrite with audit (recommended for destructive changes)
-ggen sync --force --audit
+ggen sync --force true --audit true
 
 # Run specific generation rule only
 ggen sync --rule a2a-agents
 
 # Watch mode: regenerate on file changes
-ggen sync --watch --verbose
+ggen sync --watch true --verbose true
 
 # Validate ontology without generating code
-ggen sync --validate-only
+ggen sync --validate-only true
 
 # Machine-readable output for CI/CD
 ggen sync --format json
@@ -440,7 +440,7 @@ ggen v26.7.1 introduces three **non-negotiable paradigms** that govern the entir
 ```bash
 # 1. Complete your .specify/*.ttl files
 # 2. Validate closure with receipts
-ggen sync --validate-only
+ggen sync --validate-only true
 
 # 3. Only then generate code (single pass)
 ggen sync
@@ -576,6 +576,12 @@ This project follows strict operational principles. See [CLAUDE.md](CLAUDE.md) f
 ## License
 
 Licensed under the MIT License ([LICENSE](LICENSE) or http://opensource.org/licenses/MIT).
+
+---
+
+## Contributors
+
+See [CONTRIBUTORS.md](CONTRIBUTORS.md) for the list of contributors.
 
 ---
 

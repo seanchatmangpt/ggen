@@ -3,7 +3,7 @@
 **Table of Contents**
 
 - [ggen Documentation](#ggen-documentation)
-  - [📐 Canonical documentation map — ggen v26.5.28](#-canonical-documentation-map--ggen-v26528)
+  - [📐 Canonical documentation map — ggen v26.7.1](#-canonical-documentation-map--ggen-v2671)
   - [Quick Start](#quick-start)
   - [🗺️ Choose Your Learning Path](#-choose-your-learning-path)
     - [Question 1: Are you familiar with RDF/Semantic Web?](#question-1-are-you-familiar-with-rdfsemantic-web)
@@ -38,9 +38,9 @@ Welcome to the ggen documentation! This documentation follows the [Diataxis fram
 
 ---
 
-## 📐 Canonical documentation map — ggen v26.5.28
+## 📐 Canonical documentation map — ggen v26.7.1
 
-> This is the authoritative entry point for the **v26.5.28** Genesis Run. Where any other
+> This is the authoritative entry point for the **v26.7.1** Genesis Run. Where any other
 > page disagrees with what builds, this map and the reference layer are correct.
 > (Release facts elsewhere in this file referencing "v0.2.0" are stale and pending
 > reconciliation under DOCS-REST-1.)
