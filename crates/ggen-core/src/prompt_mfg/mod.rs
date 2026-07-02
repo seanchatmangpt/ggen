@@ -119,6 +119,31 @@ impl PromptCompiler {
         })
     }
 
+    /// Compile a prompt from a caller-built `PromptIR`
+    ///
+    /// This bypasses `from_construct`/`from_store` entirely, allowing callers to
+    /// construct the IR themselves (e.g. from parsed RDF triples) and compile it
+    /// directly.
+    ///
+    /// # Arguments
+    ///
+    /// * `prompt_ir` - A fully-constructed prompt IR
+    ///
+    /// # Errors
+    ///
+    /// Returns error if validation fails or emission fails
+    pub fn compile_from_ir(&self, prompt_ir: ir::PromptIR) -> Result<CompiledPrompt> {
+        self.validator.validate(&prompt_ir)?;
+        let content = self.emitter.emit(&prompt_ir)?;
+        let hash = hash::compute_prompt_hash(&content)?;
+
+        Ok(CompiledPrompt {
+            content,
+            hash,
+            ir: prompt_ir,
+        })
+    }
+
     /// Compile from RDF graph store
     ///
     /// # Arguments
@@ -210,5 +235,43 @@ mod tests {
     #[test]
     fn test_default_compiler() {
         let _compiler = PromptCompiler::default();
+    }
+
+    #[test]
+    fn test_compile_from_ir() {
+        use std::collections::BTreeMap;
+
+        let compiler = PromptCompiler::new().expect("compiler init");
+
+        let mut sections = BTreeMap::new();
+        sections.insert(
+            "system".to_string(),
+            ir::Section {
+                section_type: ir::SectionType::System,
+                blocks: vec![ir::ContentBlock {
+                    block_type: ir::BlockType::Instruction,
+                    content: "You are a helpful assistant.".to_string(),
+                    metadata: BTreeMap::new(),
+                }],
+                priority: 0,
+            },
+        );
+
+        let prompt_ir = ir::PromptIR {
+            sections,
+            metadata: ir::PromptMetadata {
+                id: "manual".to_string(),
+                version: "0.1.0".to_string(),
+                schema_version: "1.0.0".to_string(),
+                source_ontology: "manual".to_string(),
+                construct_query: "n/a".to_string(),
+            },
+            variables: BTreeMap::new(),
+        };
+
+        let result = compiler.compile_from_ir(prompt_ir);
+        assert!(result.is_ok());
+        let compiled = result.expect("compile_from_ir should succeed");
+        assert!(!compiled.content().is_empty());
     }
 }
