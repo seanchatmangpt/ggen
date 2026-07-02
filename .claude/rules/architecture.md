@@ -50,9 +50,9 @@ Verified against `Cargo.toml` `members = [...]` on 2026-05-28. These are the onl
 | `cpmp` | Computer Project Mapping Protocol (Open Ontologies Catalog) — scanner, capability classification, projection, receipts, symbol/db modules |
 | `stpnt` | Stewards of the Pentecost — Canonical Stewardship Cell implementation (canon, cells, governance, membrane, projections, proof) |
 
-### Dormant (on-disk under `crates/`, NOT workspace members — do not compile)
+### Dormant
 
-`genesis-construct8`, `genesis-lockchain`, `genesis-wasm-shell`, `ggen-membrane`, `ggen-projection`. These directories exist but are excluded from `Cargo.toml` `members`. Treat as non-compiled reference material until activated.
+None. The prior dormant non-member directories (`genesis-construct8`, `genesis-lockchain`, `genesis-wasm-shell`, `ggen-daemon`, `ggen-membrane`, `ggen-projection`, `ggen-pack-clap-noun-verb`, `ggen-pack-lsp-max`) were deleted in the 2026-07 crate-consolidation pass — see `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` and git history for the removed code.
 
 ## Cross-Cutting Patterns
 
