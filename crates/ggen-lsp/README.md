@@ -98,7 +98,7 @@ ggen-lsp/
 └── Cargo.toml              # Package metadata + marketplace registration
 ```
 
-## LSP Capabilities (lsp-max 26.6.13)
+## LSP Capabilities (lsp-max 26.7.1)
 
 | Feature | Status | Use Case |
 |---------|--------|----------|

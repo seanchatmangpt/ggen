@@ -2,7 +2,8 @@
     clippy::unwrap_used,
     clippy::expect_used,
     clippy::panic,
-    clippy::needless_raw_string_hashes
+    clippy::needless_raw_string_hashes,
+    clippy::ignore_without_reason
 )]
 //! End-to-end integration tests for template workflow
 //!

@@ -6,9 +6,9 @@
 //! sections and enum values so agents can only author admitted configuration.
 
 use lsp_max::lsp_types::{
-    CodeLens, CompletionItem, CompletionItemKind, CompletionResponse, Diagnostic,
-    DiagnosticSeverity, DocumentSymbol, FoldingRange, Hover, HoverContents, InlayHint,
-    MarkupContent, MarkupKind, Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
+    CodeLens, CompletionItem, CompletionItemKind, CompletionResponse, DiagnosticSeverity,
+    DocumentSymbol, FoldingRange, Hover, HoverContents, InlayHint, MarkupContent, MarkupKind,
+    Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
 };
 
 use crate::analyzers::diag;

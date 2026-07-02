@@ -8,8 +8,8 @@
 //! Plus keyword/variable completion and a variable outline.
 
 use lsp_max::lsp_types::{
-    CompletionItem, CompletionItemKind, CompletionResponse, Diagnostic, DiagnosticSeverity, Hover,
-    Location, Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
+    CompletionItem, CompletionItemKind, CompletionResponse, DiagnosticSeverity, Hover, Location,
+    Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
 };
 use std::collections::BTreeSet;
 

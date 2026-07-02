@@ -1,6 +1,6 @@
+#![allow(clippy::unwrap_used, unused_must_use)]
+
 use assert_cmd::Command;
-use assert_fs::prelude::*;
-use std::fs;
 use tempfile::TempDir;
 
 /// Chicago TDD Combinatorial Tests for Working Capabilities

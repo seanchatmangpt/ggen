@@ -207,7 +207,7 @@ fn test_enum_variants_with_payloads() {
         .find(|v| v.name == "Ok")
         .unwrap();
     assert!(ok_var.payload.is_some());
-    assert!(ok_var.payload.as_ref().unwrap().contains("T"));
+    assert!(ok_var.payload.as_ref().unwrap().contains('T'));
 
     let pending_var = result_enum
         .variants

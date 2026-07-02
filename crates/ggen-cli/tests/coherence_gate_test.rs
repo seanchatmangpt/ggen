@@ -12,8 +12,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::fs;
-use std::path::{Path, PathBuf};
-use tempfile::TempDir;
+use std::path::PathBuf;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Test 1: Full Coherence — All Poles Present, No Drift
@@ -196,7 +195,7 @@ fn test_coherence_gate_detects_hash_drift_against_expectations() {
 
     // First pass: compute the baseline
     use ggen_core::sync::{CoherenceGate, CoherenceGateConfig};
-    use ggen_graph::coherence::{CoherenceChecker, Pole};
+    use ggen_graph::coherence::Pole;
     use std::collections::HashMap;
 
     let baseline_config = CoherenceGateConfig {
@@ -269,7 +268,7 @@ fn test_coherence_gate_detects_artifact_size_drift() {
 
     // First pass: baseline
     use ggen_core::sync::{CoherenceGate, CoherenceGateConfig};
-    use ggen_graph::coherence::{CoherenceChecker, Pole};
+    use ggen_graph::coherence::Pole;
     use std::collections::HashMap;
 
     let baseline_config = CoherenceGateConfig {
@@ -446,7 +445,7 @@ fn test_coherence_gate_integration_with_sync_config() {
     //
     // For now, we verify that SyncError::CoherenceViolation exists and is properly defined.
     use ggen_core::sync::SyncError;
-    use ggen_graph::coherence::{CoherenceChecker, CoherenceReport};
+    use ggen_graph::coherence::CoherenceChecker;
 
     // Create a sample CoherenceViolation error
     let empty_report = CoherenceChecker::check(&[]);

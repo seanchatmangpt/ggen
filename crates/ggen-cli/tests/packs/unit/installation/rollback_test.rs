@@ -19,7 +19,8 @@
     clippy::future_not_send,
     clippy::unnested_or_patterns,
     clippy::no_effect_underscore_binding,
-    clippy::literal_string_with_formatting_args
+    clippy::literal_string_with_formatting_args,
+    clippy::derive_partial_eq_without_eq
 )]
 //! Unit tests for installation rollback functionality
 //!

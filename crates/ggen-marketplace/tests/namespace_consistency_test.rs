@@ -1,3 +1,4 @@
+#![allow(clippy::expect_used, clippy::panic)]
 //! Namespace consistency regression tests (P0-03).
 //!
 //! ## What this proves
@@ -28,7 +29,7 @@
 use ggen_marketplace::marketplace::ontology::{Classes, Properties, MARKETPLACE_NS};
 use ggen_marketplace::marketplace::rdf::ontology::Property;
 use ggen_marketplace::marketplace::rdf::sparql_queries::{MarketplaceQueries, SearchParams};
-use oxigraph::sparql::QueryResults;
+use oxigraph::sparql::{QueryResults, SparqlEvaluator};
 use oxigraph::store::Store;
 
 /// Build a canonical package URI exactly as the production code does.
@@ -84,8 +85,21 @@ fn insert_canonical_package(store: &Store, id: &str, name: &str, description: &s
 
 /// Run a SELECT and count the solution rows (real SPARQL evaluation).
 fn count_solutions(store: &Store, query: &str) -> usize {
-    match store.query(query).expect("query must execute") {
-        QueryResults::Solutions(solutions) => solutions.map(|s| s.expect("valid solution")).count(),
+    let results = SparqlEvaluator::new()
+        .parse_query(query)
+        .expect("query must parse")
+        .on_store(store)
+        .execute()
+        .expect("query must execute");
+    match results {
+        QueryResults::Solutions(solutions) => {
+            let mut count = 0usize;
+            for solution in solutions {
+                solution.expect("valid solution");
+                count += 1;
+            }
+            count
+        }
         _ => panic!("expected SELECT solutions from query:\n{query}"),
     }
 }
@@ -190,11 +204,11 @@ fn test_legacy_dc_title_predicate_finds_nothing_against_canonical_data() {
     );
 
     let legacy_query = format!(
-        r#"
+        "
         SELECT ?name WHERE {{
             <{pkg}> <http://purl.org/dc/terms/title> ?name .
         }}
-        "#,
+        ",
         pkg = package_uri("acme-base"),
     );
     let legacy_rows = count_solutions(&store, &legacy_query);
@@ -206,11 +220,11 @@ fn test_legacy_dc_title_predicate_finds_nothing_against_canonical_data() {
 
     // And the corrected predicate (ggen:name) DOES find it.
     let canonical_query = format!(
-        r#"
+        "
         SELECT ?name WHERE {{
             <{pkg}> <{p_name}> ?name .
         }}
-        "#,
+        ",
         pkg = package_uri("acme-base"),
         p_name = Properties::name(),
     );

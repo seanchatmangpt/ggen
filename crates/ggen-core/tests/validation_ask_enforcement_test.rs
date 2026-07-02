@@ -4,7 +4,8 @@
     clippy::panic,
     dead_code,
     unused_imports,
-    clippy::all
+    clippy::all,
+    clippy::needless_raw_string_hashes
 )]
 
 //! Regression witness: custom `[[validation.rules]]` SPARQL ASK rules are EXECUTED

@@ -4,6 +4,8 @@
 //! but were never wired into `check_files_in_root()`. These tests verify the full
 //! gate path: fixture → check_files_in_root → diagnostic present.
 
+#![allow(clippy::expect_used)]
+
 use ggen_lsp::check::{check_files_in_root, discover_law_surfaces};
 use lsp_max::lsp_types;
 use std::fs;

@@ -286,7 +286,6 @@ fn test_fallback_chain_order_respected() {
 /// Test concurrent access to ontologies is safe
 #[test]
 fn test_concurrent_ontology_access() {
-    use std::sync::Arc;
     use std::thread;
 
     let handles: Vec<_> = (0..10)

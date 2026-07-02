@@ -38,16 +38,14 @@
     clippy::expect_used,
     clippy::panic,
     clippy::needless_raw_string_hashes,
-    clippy::literal_string_with_formatting_args
+    clippy::literal_string_with_formatting_args,
+    clippy::const_is_empty
 )]
 
 use chrono::Utc;
 use ed25519_dalek::{Signer, SigningKey, Verifier};
 use ggen_graph::coherence::{CoherenceChecker, CoherenceDrift, DriftKind, Pole, PoleState};
-use ggen_graph::ocel::pack_events::{
-    emit_pack_install, emit_pack_verify, pack_object, ACT_PACK_INSTALL, ACT_PACK_VERIFY,
-    OBJ_TYPE_PACK,
-};
+use ggen_graph::ocel::pack_events::{emit_pack_install, emit_pack_verify};
 use serde_json::json;
 use std::collections::HashMap;
 
@@ -285,14 +283,13 @@ fn test_post_chatman_roundtrip_scenario_3_sabotage_ontology() {
     );
 
     // Assert: HashMismatch drift for Ontology pole
-    let hash_mismatch_drifts: Vec<&CoherenceDrift> = report
+    let has_hash_mismatch_drift = report
         .drifts
         .iter()
-        .filter(|d| d.kind == DriftKind::HashMismatch && d.source_pole == Pole::Ontology)
-        .collect();
+        .any(|d| d.kind == DriftKind::HashMismatch && d.source_pole == Pole::Ontology);
 
     assert!(
-        !hash_mismatch_drifts.is_empty(),
+        has_hash_mismatch_drift,
         "expected HashMismatch drift for Ontology; got drifts: {:?}",
         report.drifts
     );
@@ -347,14 +344,13 @@ fn test_post_chatman_roundtrip_scenario_4_sabotage_event_log() {
     );
 
     // Assert: HashMismatch drift for EventLog pole (sabotaged)
-    let hash_mismatch_drifts: Vec<&CoherenceDrift> = report
+    let has_hash_mismatch_drift = report
         .drifts
         .iter()
-        .filter(|d| d.kind == DriftKind::HashMismatch && d.source_pole == Pole::EventLog)
-        .collect();
+        .any(|d| d.kind == DriftKind::HashMismatch && d.source_pole == Pole::EventLog);
 
     assert!(
-        !hash_mismatch_drifts.is_empty(),
+        has_hash_mismatch_drift,
         "expected HashMismatch drift for EventLog; got drifts: {:?}",
         report.drifts
     );
@@ -420,8 +416,13 @@ fn test_post_chatman_roundtrip_scenario_5_invalid_signature_fail_closed() {
     // In real InverseReceipt, verify() returns false for empty signature
     // Simulate by checking hex-encoded empty string
     let empty_signature = "";
-    let is_empty_valid = !empty_signature.is_empty()
-        && hex::decode(empty_signature).is_ok()
+    assert!(
+        empty_signature.is_empty(),
+        "test precondition: signature under test must be empty"
+    );
+    let is_empty_valid = hex::decode(empty_signature)
+        .map(|decoded| !decoded.is_empty())
+        .unwrap_or(false)
         && verifying_key_1
             .verify(
                 message,
@@ -555,18 +556,14 @@ fn test_post_chatman_roundtrip_cross_pole_hash_comparison_o_vs_l() {
         CoherenceChecker::check_with_expectations(&[o_pole, a_pole, l_pole], &expectations);
 
     // Assert: HashMismatch drift from O→L (cross-pole Rule 6)
-    let o_l_hash_mismatch: Vec<&CoherenceDrift> = report
-        .drifts
-        .iter()
-        .filter(|d| {
-            d.kind == DriftKind::HashMismatch
-                && d.source_pole == Pole::Ontology
-                && d.target_pole == Pole::EventLog
-        })
-        .collect();
+    let has_o_l_hash_mismatch = report.drifts.iter().any(|d| {
+        d.kind == DriftKind::HashMismatch
+            && d.source_pole == Pole::Ontology
+            && d.target_pole == Pole::EventLog
+    });
 
     assert!(
-        !o_l_hash_mismatch.is_empty(),
+        has_o_l_hash_mismatch,
         "expected O↔L HashMismatch drift (Rule 6); got drifts: {:?}",
         report.drifts
     );
@@ -593,14 +590,13 @@ fn test_post_chatman_roundtrip_missing_pole_blocks_admission() {
     let report = CoherenceChecker::check(&[o_pole, a_pole]);
 
     // Assert: Missing drift for EventLog
-    let missing_drifts: Vec<&CoherenceDrift> = report
+    let has_missing_drift = report
         .drifts
         .iter()
-        .filter(|d| d.kind == DriftKind::Missing && d.source_pole == Pole::EventLog)
-        .collect();
+        .any(|d| d.kind == DriftKind::Missing && d.source_pole == Pole::EventLog);
 
     assert!(
-        !missing_drifts.is_empty(),
+        has_missing_drift,
         "expected Missing drift for EventLog; got drifts: {:?}",
         report.drifts
     );

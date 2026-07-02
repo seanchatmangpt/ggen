@@ -491,13 +491,12 @@ mod tests {
 
         // Assert — no HashMismatch (between expected and computed), but may have
         // HashMismatch from Rule 6 if O and L hashes differ.
-        let self_comparison_mismatches: Vec<&CoherenceDrift> = report
+        let has_self_comparison_mismatch = report
             .drifts
             .iter()
-            .filter(|d| d.kind == DriftKind::HashMismatch && d.source_pole == d.target_pole)
-            .collect();
+            .any(|d| d.kind == DriftKind::HashMismatch && d.source_pole == d.target_pole);
         assert!(
-            self_comparison_mismatches.is_empty(),
+            !has_self_comparison_mismatch,
             "matching fingerprints must not emit self-comparison HashMismatch: {:?}",
             report.drifts
         );

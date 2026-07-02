@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Comprehensive Chicago TDD tests for ProvenanceEnvelope.
 //!
 //! Tests the complete lifecycle of merging forward and inverse receipts

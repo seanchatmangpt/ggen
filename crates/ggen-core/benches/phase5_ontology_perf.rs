@@ -11,8 +11,9 @@
 //!
 //! Run with: cargo bench -p ggen-core
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 use ggen_core::ontology::{CoreOntologyBundle, OntologyLoader};
+use std::hint::black_box;
 use std::path::Path;
 
 // ============================================================================

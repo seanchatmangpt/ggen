@@ -1,3 +1,5 @@
+#![allow(clippy::expect_used)]
+
 use ggen_lsp::check::check_content;
 use lsp_max::lsp_types::DiagnosticSeverity;
 

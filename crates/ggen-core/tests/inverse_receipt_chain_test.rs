@@ -1,3 +1,8 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::useless_borrows_in_formatting
+)]
 //! Chicago TDD tests for InverseReceiptChain cryptographic linkage.
 //!
 //! Tests the complete chain with:

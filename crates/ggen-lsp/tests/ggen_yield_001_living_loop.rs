@@ -13,7 +13,7 @@
 //!
 //! Chicago TDD: real TempDir, real ggen.toml, real headless gate. No mocks.
 
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString};
 

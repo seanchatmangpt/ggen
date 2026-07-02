@@ -38,7 +38,7 @@ use std::path::{Path, PathBuf};
 
 use ggen_lsp::intel::MetricValue;
 use ggen_lsp::state::ServerState;
-use ggen_lsp::{check_content, check_files_in_root, compute_metrics, mine};
+use ggen_lsp::{check_files_in_root, compute_metrics, mine};
 use lsp_max::lsp_types::Url;
 use tempfile::TempDir;
 
