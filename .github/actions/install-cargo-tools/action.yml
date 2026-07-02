@@ -10,6 +10,11 @@ inputs:
     required: false
     default: 'true'
 
+outputs:
+  wpm-available:
+    description: 'Whether wpm (wasm4pm-cli) installed successfully. "false" means upstream wasm4pm@main is broken and the wpm-dependent gate should be skipped loudly.'
+    value: ${{ steps.install-wpm.outputs.available }}
+
 runs:
   using: composite
   steps:
@@ -75,11 +80,29 @@ runs:
       shell: bash
 
     - name: Install wpm (wasm4pm process oracle)
+      id: install-wpm
       if: contains(inputs.tools, 'wpm')
       run: |
+        installed=false
         for attempt in 1 2 3; do
-          cargo install --git https://github.com/seanchatmangpt/wasm4pm wasm4pm-cli --bin wpm --locked && break
-          echo "wpm install attempt $attempt failed (likely crates.io HTTP flake), retrying in $((attempt * 8))s..."
+          if cargo install --git https://github.com/seanchatmangpt/wasm4pm wasm4pm-cli --bin wpm --locked; then
+            installed=true
+            break
+          fi
+          echo "wpm install attempt $attempt failed, retrying in $((attempt * 8))s..."
           sleep $((attempt * 8))
         done
+
+        if [ "$installed" = "true" ]; then
+          echo "available=true" >> "$GITHUB_OUTPUT"
+        else
+          # NOTE: as of 2026-07, github.com/seanchatmangpt/wasm4pm@main does not compile
+          # (unresolved imports: Ocel20, Xes1849, witness/witnesses module items). This is
+          # an upstream defect in a separate repository, out of scope for this repo to fix.
+          # We do NOT hard-fail this job on that external breakage; downstream steps must
+          # check the `wpm-available` output of this action and skip the wpm-dependent gate
+          # LOUDLY (never silently) when it is "false".
+          echo "::warning::wpm install failed after 3 attempts — upstream https://github.com/seanchatmangpt/wasm4pm@main is currently broken (unresolved imports). Skipping wpm-dependent process-conformance gate; this is a known external issue, not a regression in this repo."
+          echo "available=false" >> "$GITHUB_OUTPUT"
+        fi
       shell: bash
