@@ -1,6 +1,6 @@
 [package]
 name = "ggen-lsp-mcp"
-version = "26.7.1"
+version = "26.7.2"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
