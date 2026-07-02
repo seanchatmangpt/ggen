@@ -1,0 +1,1 @@
+crates/genesis-types-v2/src	GENERATABLE-WITH-SPEC	~90% derive structs/newtypes/json round-trips (symbol sweep); ~80 LOC custom (PowlGraph::validate, compute_status, receipt hash) noted in crate audit

@@ -1,0 +1,7 @@
+crates/star-toml/src/validation.rs	IRREDUCIBLY-CUSTOM	Validator check-event engine, fitness/variant_id/DECLARE; ~300 LOC type-def slice noted generatable in crate audit
+crates/star-toml/src/schema.rs	IRREDUCIBLY-CUSTOM	Constraint interpreter over toml::Value
+crates/star-toml/src/loader.rs	IRREDUCIBLY-CUSTOM	layered load/merge/env-override/discovery engine
+crates/star-toml/src/merge.rs	IRREDUCIBLY-CUSTOM	recursive deep_merge + dotted-path set + env coercion
+crates/star-toml/src/expand.rs	IRREDUCIBLY-CUSTOM	UTF-8-safe ${VAR} scanner with partial-expansion semantics
+crates/star-toml/src/error.rs	GENERATABLE-WITH-SPEC	thiserror enum + constructor boilerplate
+crates/star-toml/src/lib.rs	GENERATABLE-WITH-SPEC	mod/re-export declarations

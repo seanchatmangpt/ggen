@@ -1,0 +1,1 @@
+crates/stpnt/src	DEAD-DELETE	consolidation-analysis §1 REMOVE (Decorative Completion); dependent-grep: no Cargo.toml declares stpnt; ggen-core hits are its own internal stpnt module

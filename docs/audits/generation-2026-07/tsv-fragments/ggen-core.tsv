@@ -1,0 +1,99 @@
+crates/ggen-core/src/domain/ontology/standards.rs	GENERATABLE-NOW	include_str! wrappers over ontologies/*.ttl (OWL_TTL, RDF_TTL, SCHEMA_TTL...); content already lives in TTL files, only const-wrapper emission wiring missing
+crates/ggen-core/src/codegen/python.rs	GENERATABLE-WITH-SPEC	language emitter: template-shaped string assembly; payload of the machinery, convertible to .tera templates + TTL emitter spec
+crates/ggen-core/src/codegen/go.rs	GENERATABLE-WITH-SPEC	language emitter, same pattern as python.rs
+crates/ggen-core/src/codegen/typescript.rs	GENERATABLE-WITH-SPEC	language emitter, template-shaped
+crates/ggen-core/src/codegen/terraform.rs	GENERATABLE-WITH-SPEC	IaC emitter, template-shaped
+crates/ggen-core/src/codegen/docker_kubernetes.rs	GENERATABLE-WITH-SPEC	manifest emitter, template-shaped
+crates/ggen-core/src/codegen/elixir.rs	GENERATABLE-WITH-SPEC	language emitter, template-shaped
+crates/ggen-core/src/codegen/	IRREDUCIBLY-CUSTOM	E-ledger candidate: codegen pipeline.rs/executor.rs/canonicalize.rs/incremental/watch/transaction — mu-machinery orchestration
+crates/ggen-core/src/domain/config	GENERATABLE-WITH-SPEC	config schema structs + serde parsing; boilerplate-shaped
+crates/ggen-core/src/domain/mcp_config.rs	GENERATABLE-WITH-SPEC	MCP config schema structs (serde)
+crates/ggen-core/src/domain/packs/	GENERATABLE-WITH-SPEC	pack registry/installer/metadata CRUD wiring; mixed-dir note: advanced_resolver.rs + dependency_graph.rs (~1k LOC) are algorithmic minority, E-ledger candidates
+crates/ggen-core/src/domain/template/	GENERATABLE-WITH-SPEC	CLI command handlers over template ops; command-wiring shape
+crates/ggen-core/src/domain/cli_helpers.rs	GENERATABLE-WITH-SPEC	CLI wiring helpers
+crates/ggen-core/src/domain/ci/	GENERATABLE-WITH-SPEC	CI config emission, template-shaped
+crates/ggen-core/src/domain/shell/	GENERATABLE-WITH-SPEC	shell integration wiring
+crates/ggen-core/src/domain/project/	GENERATABLE-WITH-SPEC	project scaffolding command wiring
+crates/ggen-core/src/domain/environment.rs	GENERATABLE-WITH-SPEC	environment config struct
+crates/ggen-core/src/domain/	IRREDUCIBLY-CUSTOM	E-ledger candidate: domain graph/rdf/ontology/generation/sync_profile — semantic core of the domain layer (mixed dir; GWS subdirs split out above)
+crates/ggen-core/src/utils/fmea	GENERATABLE-WITH-SPEC	FMEA catalog/registry/type modules; data-table shaped
+crates/ggen-core/src/utils/error.rs	GENERATABLE-WITH-SPEC	thiserror error-enum boilerplate
+crates/ggen-core/src/utils/enhanced_error.rs	GENERATABLE-WITH-SPEC	error type boilerplate
+crates/ggen-core/src/utils/types.rs	GENERATABLE-WITH-SPEC	type definitions
+crates/ggen-core/src/utils/	IRREDUCIBLY-CUSTOM	E-ledger candidates: secrets.rs, safe_command.rs, path_validator.rs, safe_path.rs, supply_chain.rs — security-critical path/command sandboxing
+crates/ggen-core/src/pipeline_engine/	IRREDUCIBLY-CUSTOM	E-ledger candidate: the mu-pipeline itself (passes/, receipt.rs, proof_gate.rs, guard.rs, epoch.rs)
+crates/ggen-core/src/graph/	IRREDUCIBLY-CUSTOM	E-ledger candidate: Oxigraph wrapper — store, query, construct, update, cycle detection/fixing
+crates/ggen-core/src/rdf/	IRREDUCIBLY-CUSTOM	E-ledger candidate: RDF query builder, schema, template metadata over triples; ships code_ontology.ttl + schema.ttl alongside
+crates/ggen-core/src/canonical/	IRREDUCIBLY-CUSTOM	E-ledger candidate: canonical hashing/serialization — determinism core
+crates/ggen-core/src/merge/	IRREDUCIBLY-CUSTOM	E-ledger candidate: three-way merge algorithm
+crates/ggen-core/src/security/	IRREDUCIBLY-CUSTOM	E-ledger candidate: intrusion detection, audit trail, secure templating, security event pipeline
+crates/ggen-core/src/pki.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: PKI/crypto
+crates/ggen-core/src/pqc.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: post-quantum crypto
+crates/ggen-core/src/validation/shacl.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate; P0-01 called this an always-pass stub — 2026-07 skim shows shape types + ShapeLoader are real and validator.rs implements minCount/maxCount/datatype SPARQL checks, so the stub claim looks stale; constraint coverage (sh:pattern, sh:in) unverified
+crates/ggen-core/src/validation/	IRREDUCIBLY-CUSTOM	E-ledger candidate: SHACL/SPARQL validation gates, input compiler, soundness gates, preflight
+crates/ggen-core/src/sync/	IRREDUCIBLY-CUSTOM	E-ledger candidate: sync coherence gate
+crates/ggen-core/src/reverse_sync/	IRREDUCIBLY-CUSTOM	E-ledger candidate: AST extraction / inverse mu-pipeline
+crates/ggen-core/src/cli_generator/	IRREDUCIBLY-CUSTOM	E-ledger candidate: CLI generation from ontology (ontology_parser.rs, cli/domain layer emitters)
+crates/ggen-core/src/project_generator/	IRREDUCIBLY-CUSTOM	E-ledger candidate BUT FLAGGED: rust.rs/nextjs.rs scaffold via hardcoded string literals (~250 quoted strings) — convert payload to .tera templates + TTL
+crates/ggen-core/src/prompt_mfg/	IRREDUCIBLY-CUSTOM	E-ledger candidate: prompt manufacturing IR/emitter/validator (+ embedded templates/)
+crates/ggen-core/src/lifecycle/production.rs	GENERATABLE-WITH-SPEC	production-readiness checklist/tracking tables; data-shaped
+crates/ggen-core/src/lifecycle/integration_test.rs	GENERATABLE-WITH-SPEC	test code compiled into src/ (should live in tests/)
+crates/ggen-core/src/lifecycle/	IRREDUCIBLY-CUSTOM	E-ledger candidate: lifecycle DAG, state machine, exec, hooks
+crates/ggen-core/src/agent/	GENERATABLE-WITH-SPEC	agent facade with serde-serializable contract types over packs subsystem; facade wiring per module doc
+crates/ggen-core/src/prevention/	GENERATABLE-WITH-SPEC	DfLSS contracts/state-machine/error-taxonomy boilerplate (PhantomData patterns)
+crates/ggen-core/src/registry.rs	GENERATABLE-WITH-SPEC	registry HTTP client wiring (fetch/search/resolve)
+crates/ggen-core/src/gpack.rs	GENERATABLE-WITH-SPEC	gpack manifest serde types
+crates/ggen-core/src/lockfile.rs	GENERATABLE-WITH-SPEC	lockfile serde types
+crates/ggen-core/src/ontology_pack.rs	GENERATABLE-WITH-SPEC	ontology pack manifest types
+crates/ggen-core/src/audit/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/cache.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/cleanroom/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/codegen_lib/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/delta.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/dflss.rs	GENERATABLE-WITH-SPEC	quality-gate definition tables
+crates/ggen-core/src/drift/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/e2e_tests.rs	GENERATABLE-WITH-SPEC	test code compiled into src/ (should move to tests/)
+crates/ggen-core/src/generator.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/genesis.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/github.rs	GENERATABLE-WITH-SPEC	GitHub API client wiring
+crates/ggen-core/src/inject.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/lean_six_sigma.rs	GENERATABLE-WITH-SPEC	LSS metric/definition tables
+crates/ggen-core/src/lib.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/lockfile_unified/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/manifest/	GENERATABLE-WITH-SPEC	manifest types/parser/validation; config-schema shaped
+crates/ggen-core/src/manufacturing/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/membrane/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/metrics.rs	GENERATABLE-WITH-SPEC	metrics structs + emission wiring
+crates/ggen-core/src/naming.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/ontology/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/ontology_core/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/pack_resolver.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/packs/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/parallel_generator.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/parts_execution.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/parts_foundry.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/parts_foundry/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/pipeline.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/poc.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/poka_yoke/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/preprocessor.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/protection/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/receipt/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/register.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/resolver.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/schema/	GENERATABLE-WITH-SPEC	schema parser + generators; mixed-dir note: grammar.pest/parser.rs algorithmic minority
+crates/ggen-core/src/semantic_bit/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/simple_tracing.rs	GENERATABLE-WITH-SPEC	observability wiring boilerplate
+crates/ggen-core/src/snapshot.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/stewardship.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/stpnt/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/streaming_generator.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/telemetry.rs	GENERATABLE-WITH-SPEC	observability wiring boilerplate
+crates/ggen-core/src/template/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/template_cache.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/template_types.rs	GENERATABLE-WITH-SPEC	template frontmatter type definitions
+crates/ggen-core/src/templates/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/tera_env.rs	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/tracing.rs	GENERATABLE-WITH-SPEC	observability wiring boilerplate
+crates/ggen-core/src/transport/	IRREDUCIBLY-CUSTOM	E-ledger candidate: generation-engine core module (directory-level classification, documentSymbol/header-skim sampling basis)
+crates/ggen-core/src/types/	GENERATABLE-WITH-SPEC	type-definition modules (codeowners, enterprise, fmea, path_protection): serde structs, no algorithms

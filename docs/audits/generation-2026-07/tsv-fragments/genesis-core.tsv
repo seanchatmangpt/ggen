@@ -1,0 +1,1 @@
+crates/genesis-core/src	DEAD-DELETE	consolidation-analysis §1 REMOVE; dependent-grep: only dormant non-member crates reference it; primitives duplicated in genesis-core-v2/src/primitives.rs

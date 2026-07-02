@@ -1,0 +1,48 @@
+crates/ggen-cli/src/main.rs	GENERATABLE-NOW	thin entry; .specify/templates/cli/main.rs.tera + .specify/cli-commands.ttl exist, wiring missing
+crates/ggen-cli/src/generated_commands.rs	GENERATABLE-NOW	DO NOT EDIT header but 8 EMPTY tuples (read 2026-07-02); template .specify/templates/cli/commands-reference.rs.tera + spec .specify/cli-commands.ttl exist; key-prefix wiring bug, not GENERATED
+crates/ggen-cli/src/lib.rs	GENERATABLE-WITH-SPEC	module registry/re-exports; registry-shaped
+crates/ggen-cli/src/prelude.rs	GENERATABLE-WITH-SPEC	re-export boilerplate
+crates/ggen-cli/src/error.rs	GENERATABLE-WITH-SPEC	thiserror enum; .specify/templates/cli/error.rs.tera exists, error taxonomy not yet in TTL
+crates/ggen-cli/src/introspection.rs	GENERATABLE-WITH-SPEC	VerbMetadata/CommandGraph registry data that .specify/cli-commands.ttl should own
+crates/ggen-cli/src/runtime.rs	GENERATABLE-WITH-SPEC	fixed async-bridge boilerplate
+crates/ggen-cli/src/runtime_helper.rs	GENERATABLE-WITH-SPEC	fixed async-bridge boilerplate
+crates/ggen-cli/src/config_clap	GENERATABLE-WITH-SPEC	serde config loader + error enum boilerplate
+crates/ggen-cli/src/validation	GENERATABLE-WITH-SPEC	command-structure validation tables
+crates/ggen-cli/src/validation_lib/mod.rs	GENERATABLE-WITH-SPEC	module wiring
+crates/ggen-cli/src/validation_lib/error.rs	GENERATABLE-WITH-SPEC	thiserror enum boilerplate
+crates/ggen-cli/src/validation_lib/security.rs	GENERATABLE-WITH-SPEC	permission rule tables
+crates/ggen-cli/src/validation_lib/io_validator.rs	GENERATABLE-WITH-SPEC	rule-table validation boilerplate
+crates/ggen-cli/src/validation_lib/noun_verb_validator.rs	IRREDUCIBLY-CUSTOM	cycle detection over command dependency graph
+crates/ggen-cli/src/pack_install.rs	IRREDUCIBLY-CUSTOM	concurrent install orchestration (Semaphore/join_all/caching/dependency resolution)
+crates/ggen-cli/src/progress.rs	IRREDUCIBLY-CUSTOM	async progress state machine over tokio::broadcast; replace-with-crate candidate
+crates/ggen-cli/src/receipt_manager.rs	IRREDUCIBLY-CUSTOM	ed25519 receipt signing/verification; E-ledger allowlist candidate
+crates/ggen-cli/src/version_checker.rs	IRREDUCIBLY-CUSTOM	binary-mtime/CI-env heuristic
+crates/ggen-cli/src/conventions/mod.rs	GENERATABLE-WITH-SPEC	module wiring
+crates/ggen-cli/src/conventions/presets	GENERATABLE-WITH-SPEC	preset pattern data tables
+crates/ggen-cli/src/conventions/planner.rs	IRREDUCIBLY-CUSTOM	template-metadata parsing + generation planning algorithm; feeds generation
+crates/ggen-cli/src/conventions/resolver.rs	IRREDUCIBLY-CUSTOM	convention discovery/resolution algorithm
+crates/ggen-cli/src/conventions/watcher.rs	IRREDUCIBLY-CUSTOM	debounced file-watching regeneration loop
+crates/ggen-cli/src/cmds/sync.rs	IRREDUCIBLY-CUSTOM	μ1–μ5 pipeline orchestration, exit-code policy; pipeline driver cannot emit itself
+crates/ggen-cli/src/cmds/mod.rs	GENERATABLE-WITH-SPEC	noun registry wiring; conventions/templates/clap-noun-verb/ family matches shape
+crates/ggen-cli/src/cmds/a2a.rs	GENERATABLE-WITH-SPEC	clap noun-verb wiring + serde outputs over ggen-a2a-mcp domain
+crates/ggen-cli/src/cmds/agent.rs	GENERATABLE-WITH-SPEC	clap noun-verb wiring
+crates/ggen-cli/src/cmds/capability.rs	GENERATABLE-WITH-SPEC	clap noun-verb wiring
+crates/ggen-cli/src/cmds/doctor.rs	GENERATABLE-WITH-SPEC	thin wiring; diagnostics live in ggen_core::domain::utils::execute_doctor
+crates/ggen-cli/src/cmds/framework.rs	GENERATABLE-WITH-SPEC	clap noun-verb wiring
+crates/ggen-cli/src/cmds/git_hooks.rs	GENERATABLE-WITH-SPEC	hook install wiring with embedded scripts; scripts belong in templates
+crates/ggen-cli/src/cmds/graph.rs	GENERATABLE-WITH-SPEC	clap noun-verb wiring
+crates/ggen-cli/src/cmds/helpers.rs	GENERATABLE-WITH-SPEC	shared CLI helper boilerplate
+crates/ggen-cli/src/cmds/init.rs	GENERATABLE-WITH-SPEC	scaffold command; bulk is hardcoded seed-file content that should be templates+TTL
+crates/ggen-cli/src/cmds/inverse_sync.rs	GENERATABLE-WITH-SPEC	clap noun-verb wiring
+crates/ggen-cli/src/cmds/lsp.rs	GENERATABLE-WITH-SPEC	clap noun-verb wiring over ggen-lsp
+crates/ggen-cli/src/cmds/mcp.rs	GENERATABLE-WITH-SPEC	thin wiring; near-NOW given command.rs.tera template shape
+crates/ggen-cli/src/cmds/ontology.rs	GENERATABLE-WITH-SPEC	clap noun-verb wiring
+crates/ggen-cli/src/cmds/pack.rs	GENERATABLE-WITH-SPEC	clap noun-verb wiring
+crates/ggen-cli/src/cmds/packs.rs	GENERATABLE-WITH-SPEC	clap noun-verb wiring
+crates/ggen-cli/src/cmds/packs_receipt.rs	GENERATABLE-WITH-SPEC	9 LOC thin wiring; near-NOW
+crates/ggen-cli/src/cmds/policy.rs	GENERATABLE-WITH-SPEC	clap noun-verb wiring
+crates/ggen-cli/src/cmds/receipt.rs	GENERATABLE-WITH-SPEC	clap noun-verb wiring
+crates/ggen-cli/src/cmds/sigma.rs	GENERATABLE-WITH-SPEC	34 LOC thin wiring; near-NOW
+crates/ggen-cli/src/cmds/template.rs	GENERATABLE-WITH-SPEC	clap noun-verb wiring
+crates/ggen-cli/src/cmds/utils.rs	GENERATABLE-WITH-SPEC	clap noun-verb wiring
+crates/ggen-cli/src/cmds/wizard.rs	GENERATABLE-WITH-SPEC	scaffold command; embedded scaffold content should be templates+TTL

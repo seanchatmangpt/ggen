@@ -1,0 +1,16 @@
+{
+  "git_sha": "013bee436654918c293613ae26eb7c00d34375c6",
+  "tool": "tokei (Rust code lines, src/ only)",
+  "total_loc": 167380,
+  "by_class": {
+    "GENERATED": 5184,
+    "GENERATABLE-NOW": 797,
+    "GENERATABLE-WITH-SPEC": 52617,
+    "IRREDUCIBLY-CUSTOM": 105623,
+    "DEAD-DELETE": 3159
+  },
+  "generation_coverage": 0.0316,
+  "potential_coverage": 0.3568,
+  "custom_ratio": 0.6432,
+  "unclassified_count": 0
+}

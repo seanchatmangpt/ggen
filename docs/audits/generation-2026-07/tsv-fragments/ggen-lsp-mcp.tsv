@@ -1,0 +1,1 @@
+crates/ggen-lsp-mcp/src	GENERATABLE-WITH-SPEC	~87% schemars param structs + tool registration + validation/dispatch determined by a 3-tool schema; ~40 LOC build_repair_routes_in custom (noted in crate audit); consolidation §2 merges into ggen-lsp (not dead)

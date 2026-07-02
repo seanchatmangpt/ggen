@@ -1,0 +1,4 @@
+src/main.rs	GENERATABLE-NOW	12-LOC delegation to ggen_cli_lib::cli_match; .specify/templates/cli/main.rs.tera + .specify/cli-commands.ttl exist
+src/lib.rs	GENERATABLE-WITH-SPEC	2-LOC re-export + VERSION const
+src/scanner.rs	DEAD-DELETE	orphaned: no mod/include! declaration in src/ (grep exit 1); references nonexistent crate::models/db/receipt; cpmp scanner residue
+src/rdf.rs	DEAD-DELETE	orphaned: no mod/include! declaration in src/ (grep exit 1); references nonexistent crate::models; cpmp projection residue

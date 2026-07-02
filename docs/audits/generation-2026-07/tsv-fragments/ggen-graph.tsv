@@ -1,0 +1,25 @@
+crates/ggen-graph/src/lib.rs	GENERATABLE-WITH-SPEC	module wiring/re-exports
+crates/ggen-graph/src/prelude.rs	GENERATABLE-WITH-SPEC	re-export prelude
+crates/ggen-graph/src/vocab/	GENERATABLE-WITH-SPEC	RDF/OWL/SHACL/PROV/SKOS/OCEL/POWL/XSD/DFG NamedNodeRef constants; vocabulary URIs derivable via CONSTRUCT over source ontologies
+crates/ggen-graph/src/graph/	IRREDUCIBLY-CUSTOM	determinism kernel: canonical quad sort, blank-node handling, BLAKE3 quad hashing, DeterministicGraph wrapper; E-ledger engine core
+crates/ggen-graph/src/coherence.rs	IRREDUCIBLY-CUSTOM	three-pole O~A~L BLAKE3 fingerprint/drift checker; E-ledger
+crates/ggen-graph/src/receipt/mod.rs	IRREDUCIBLY-CUSTOM	GraphReceipt binding pre/post/delta BLAKE3 hashes, replay verification; E-ledger crypto/receipts
+crates/ggen-graph/src/delta/mod.rs	IRREDUCIBLY-CUSTOM	RdfDelta state-change algebra; E-ledger
+crates/ggen-graph/src/shacl.rs	IRREDUCIBLY-CUSTOM	SHACL minCount evaluation over Oxigraph for LSP diagnostics; RDF internals E-ledger
+crates/ggen-graph/src/dialect.rs	IRREDUCIBLY-CUSTOM	SPARQL/Turtle dialect conformance checking over live store; E-ledger
+crates/ggen-graph/src/sparql.rs	IRREDUCIBLY-CUSTOM	SPARQL execution helpers; RDF internals E-ledger
+crates/ggen-graph/src/interchangeable.rs	IRREDUCIBLY-CUSTOM	GenesisCore/OuterMembrane/Adapter/Projection membrane architecture glue
+crates/ggen-graph/src/doctor/mod.rs	IRREDUCIBLY-CUSTOM	health-check logic
+crates/ggen-graph/src/diagnostics/mod.rs	IRREDUCIBLY-CUSTOM	diagnostic types/logic glue
+crates/ggen-graph/src/ocel/mod.rs	GENERATABLE-WITH-SPEC	module wiring/re-exports
+crates/ggen-graph/src/ocel/ocel_types.rs	GENERATABLE-WITH-SPEC	serde working types converting to/from wasm4pm-compat authority types
+crates/ggen-graph/src/ocel/prov_types.rs	GENERATABLE-WITH-SPEC	PROV serde type definitions
+crates/ggen-graph/src/ocel/self_audit.rs	GENERATABLE-WITH-SPEC	declarative fixed OcelLog fixture (literal objects/events/attrs); expressible as TTL+template
+crates/ggen-graph/src/ocel/pack_events.rs	GENERATABLE-WITH-SPEC	thin lawful builder constructors for 5 pack-lifecycle activities; registry-shaped boilerplate
+crates/ggen-graph/src/ocel/projection.rs	IRREDUCIBLY-CUSTOM	bidirectional OCEL/PROV<->RDF projection engine; E-ledger
+crates/ggen-graph/src/ocel/lifecycle.rs	IRREDUCIBLY-CUSTOM	SPARQL-derived lifecycle ordering; CLAUDE.md-mandated emission boundary
+crates/ggen-graph/src/ocel/dfg.rs	IRREDUCIBLY-CUSTOM	delegation glue to wasm4pm-compat discover_ocel_dfg
+crates/ggen-graph/src/ocel/coverage.rs	IRREDUCIBLY-CUSTOM	coverage computation over OCEL logs
+crates/ggen-graph/src/ocel/gall_projection.rs	IRREDUCIBLY-CUSTOM	GALL-specific projection glue
+crates/ggen-graph/src/bin/	IRREDUCIBLY-CUSTOM	11 bespoke gall_*/audit harness binaries (URI whitelisting, sabotage mutation testing, evidence-graph materialization); NOT E-ledger; flagged for DEAD-DELETE consolidation review
+crates/ggen-graph/src/lib.rs.clean	DEAD-DELETE	stray non-Rust text artifact, 0 code LOC (file(1): ASCII text)
