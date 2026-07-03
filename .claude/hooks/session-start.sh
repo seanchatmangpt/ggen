@@ -1,96 +1,55 @@
-#!/bin/bash
-# Timeout: 15s
-# Purpose: Inject live workspace state as structured JSON (additionalContext).
-#          Claude Code reads hookSpecificOutput.additionalContext and prepends
-#          it to the first system message — gives the agent accurate branch,
-#          compile, and rule context before the first prompt.
+#!/usr/bin/env bash
+# SessionStart hook. Budget: 15s (see .claude/settings.json).
 #
-# Phase-shift: detects the [patch.crates-io] path issue (lsp-max sibling dirs
-# absent in remote execution) instead of silently failing cargo check --workspace.
+# Purpose: give the agent accurate, live workspace state before the first
+# prompt — branch, uncommitted changes, a fast compile signal, and whether a
+# stop-the-line (Andon) flag is already raised from a prior turn. Doctrine
+# itself (just-not-cargo, Chicago TDD, fix-forward, LSP-first) already lives
+# in CLAUDE.md and is loaded unconditionally, so this hook does not repeat it
+# — it only adds what CLAUDE.md cannot know: current repo state.
 
-set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/common.sh
+source "${SCRIPT_DIR}/lib/common.sh"
 
-main() {
-  # ── workspace root ───────────────────────────────────────────────────────
-  WORKSPACE_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
-  if [[ -z "$WORKSPACE_ROOT" ]]; then
-    jq -n '{"hookSpecificOutput":{"additionalContext":"ERROR: not inside a git repo"}}'
-    return 0
-  fi
-  cd "$WORKSPACE_ROOT"
+read_input  # drain stdin exactly once, into $HOOK_INPUT
 
-  # ── branch + changes ─────────────────────────────────────────────────────
-  BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
-  UNCOMMITTED="$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ' || echo '?')"
+cd "$WORKSPACE_ROOT" 2>/dev/null || { additional_context "session-start: not inside the ggen git repo"; exit 0; }
 
-  # ── workspace patch health ───────────────────────────────────────────────
-  # Remote execution (code.claude.com) clones only this repo; sibling dirs
-  # referenced in [patch.crates-io] don't exist, blocking cargo check --workspace.
-  MISSING=""
-  for P in "../lsp-max" "../wasm4pm-compat" "../wasm4pm"; do
-    [[ -d "$P" ]] || MISSING+="$P "
-  done
-  MISSING="${MISSING% }"
+BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
+UNCOMMITTED="$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')"
 
-  if [[ -n "$MISSING" ]]; then
-    COMPILE_STATE="PATCH_MISSING"
-    COMPILE_NOTE="Missing: $MISSING — use per-crate builds (cargo check -p star-toml)"
-  else
-    OUT="$(cargo check -p star-toml -p ggen-config 2>&1 | tail -3 || true)"
-    if echo "$OUT" | grep -qE 'error\[E|^error:'; then
-      COMPILE_STATE="ERRORS"
-      COMPILE_NOTE="$(echo "$OUT" | grep -m1 'error' | head -c 120)"
-    elif echo "$OUT" | grep -qE '^warning:'; then
-      COMPILE_STATE="WARNINGS"
-      COMPILE_NOTE="see cargo output"
+# Fast, bounded compile signal. `cargo check --workspace` can run well past the
+# 15s hook budget on a cold cache, so this checks one small, always-present
+# crate (ggen-config) as a canary rather than the whole workspace.
+COMPILE_STATE="UNKNOWN"
+if command -v cargo >/dev/null 2>&1; then
+    OUT="$(timeout 10s cargo check -p ggen-config 2>&1 | tail -5)"
+    if echo "$OUT" | grep -qE 'error(\[E[0-9]+\])?:'; then
+        COMPILE_STATE="ERRORS (ggen-config) — run: just check"
+    elif [[ -z "$OUT" ]]; then
+        COMPILE_STATE="TIMED OUT (>10s) — run: just check"
     else
-      COMPILE_STATE="CLEAN"
-      COMPILE_NOTE="star-toml + ggen-config OK"
+        COMPILE_STATE="clean (ggen-config canary)"
     fi
-  fi
+fi
 
-  # ── dev branch guidance ──────────────────────────────────────────────────
-  DEV_NOTE=""
-  if echo "$BRANCH" | grep -qE '^claude/'; then
-    DEV_NOTE="Dev branch: $BRANCH — push to origin/$BRANCH"
-  fi
+ANDON_NOTE=""
+if andon_is_raised; then
+    REASON="$(jq -r '.reason // "unknown"' "$(andon_flag_path)" 2>/dev/null)"
+    ANDON_NOTE="ANDON FLAG RAISED from a prior turn: ${REASON}. Fix and re-run the failing command before ending this turn."
+fi
 
-  # ── truth-gate ───────────────────────────────────────────────────────────
-  TG="present"
-  [[ -f "$WORKSPACE_ROOT/tools/truth-gate/target/release/truth-gate" ]] || \
-    TG="missing (cargo make build-truth-gate)"
-
-  # ── compose context string ───────────────────────────────────────────────
-  # jq handles all escaping; we pass each field as a shell variable.
-  CONTEXT="$(jq -rn \
+CONTEXT="$(jq -rn \
     --arg branch "$BRANCH" \
     --arg uncommitted "$UNCOMMITTED" \
     --arg compile "$COMPILE_STATE" \
-    --arg note "$COMPILE_NOTE" \
-    --arg tg "$TG" \
-    --arg dev "$DEV_NOTE" \
-    '"=== ggen workspace @ \($branch) ===
-changes: \($uncommitted) uncommitted | compile: \($compile)
-note: \($note)
-truth-gate: \($tg)
-\(if $dev != "" then "dev: \($dev)" else "" end)
+    --arg andon "$ANDON_NOTE" \
+    '"=== ggen @ \($branch) ===
+uncommitted changes: \($uncommitted)
+compile canary: \($compile)
+\(if $andon != "" then "\n\($andon)\n" else "" end)"'
+)"
 
-KEY RULES:
-  just <cmd> — never bare cargo
-  Chicago TDD: real collaborators, no mocks
-  STOP THE LINE on error[E...] or test FAILED
-  star_toml: config validation framework (crates/star-toml/)
-  Validators: check_non_empty/range/one_of/consistent + with_severity()
-  Analytics: fitness() conformance score, variant_id() fingerprint, by_section()
-  Evidence-First: OTEL spans prove LLM calls — tests alone are not proof"'
-  )"
-
-  # ── emit structured JSON ─────────────────────────────────────────────────
-  jq -n \
-    --arg ctx "$CONTEXT" \
-    --arg title "ggen/$BRANCH" \
-    '{"hookSpecificOutput":{"additionalContext":$ctx,"sessionTitle":$title}}'
-}
-
-main 2>/dev/null || jq -n '{"hookSpecificOutput":{"additionalContext":"session-start hook errored"}}'
+additional_context "$CONTEXT"
 exit 0

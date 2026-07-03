@@ -1,101 +1,50 @@
-#!/bin/bash
-# Timeout: 3s
-# Purpose: Validate user prompts and detect anti-patterns.
-#          Non-blocking (exit 0 always) -- surfaces violations to stderr.
+#!/usr/bin/env bash
+# UserPromptSubmit hook. Budget: 5s (see .claude/settings.json).
+#
+# Purpose: catch a small number of high-precision, high-cost mistakes before
+# the agent starts working — not a general lint pass over prose. Each check
+# below corresponds to a documented absolute rule (CLAUDE.md /
+# .claude/rules/_core/absolute.md) whose violation is expensive to undo
+# (a destructive git op, a direct `cargo` invocation bypassing `just`, a
+# forbidden tool). Silent (no additionalContext) when nothing matches —
+# noisy heuristics that fire on ordinary phrasing train the agent (and the
+# user) to ignore the hook.
 
-set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/common.sh
+source "${SCRIPT_DIR}/lib/common.sh"
 
-PROMPT="${1:-}"
+read_input  # drain stdin exactly once, into $HOOK_INPUT
 
-timeout 3s bash -c '
-  PROMPT="$1"
+PROMPT="$(jqf '.prompt')"
+[[ -z "$PROMPT" ]] && exit 0
 
-  # Detect workspace root from git
-  WORKSPACE_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo "")"
+NOTES=()
 
-  # Check for empty prompt
-  if [[ -z "$PROMPT" ]]; then
+# Direct cargo invocation instead of the just entry point (absolute rule #4).
+if echo "$PROMPT" | grep -qiE '\brun\b.*\bcargo\s+(check|test|build|clippy|fmt|bench)\b|\bcargo\s+make\b'; then
+    NOTES+=("This repo requires \`just <task>\` as the entry point (never bare cargo or cargo-make) — see .claude/rules/_core/absolute.md rule 4.")
+fi
+
+# Destructive git ops the repo forbids outright (fix-forward only).
+if echo "$PROMPT" | grep -qiE 'git\s+reset\s+--hard|git\s+push[^|&]*--force[^|&]*\b(main|master)\b|git\s+clean\s+-[a-z]*f'; then
+    NOTES+=("CLAUDE.md: fix forward only — git reset --hard and force-push to main/master are forbidden. Add a commit instead.")
+fi
+
+# Forbidden tool family (CLAUDE.md Tool Restrictions).
+if echo "$PROMPT" | grep -qiE 'desktop-commander'; then
+    NOTES+=("mcp__desktop-commander__* is explicitly forbidden in this repo — use Read/Write/Edit/Glob/Grep/Bash instead.")
+fi
+
+# RDF-is-truth: editing generated markdown instead of the TTL source.
+if echo "$PROMPT" | grep -qiE '\.specify.*\.(md|markdown)\b' ; then
+    NOTES+=("RDF is the source of truth here — edit .specify/*.ttl, not the generated .md.")
+fi
+
+if [[ ${#NOTES[@]} -eq 0 ]]; then
     exit 0
-  fi
+fi
 
-  # DETECT: Self-certification without evidence
-  if echo "$PROMPT" | grep -qiE "(looks correct|should work|seems fine|looks good)" && \
-     ! echo "$PROMPT" | grep -qiE "(test|verify|check|otel|span|trace|evidence|proof|cargo make)"; then
-    echo "WARNING: Self-certification without evidence detected" >&2
-    echo "  Claims like \"looks correct\" require test results or OTEL spans as proof" >&2
-  fi
-
-  # DETECT: Narration instead of verification
-  if echo "$PROMPT" | grep -qiE "(should have|would be|probably|likely|I think)" && \
-     echo "$PROMPT" | grep -qiE "(done|complete|finished|working|ready)"; then
-    echo "WARNING: Narration detected -- verify before claiming completion" >&2
-    echo "  Replace \"should work\" with: cargo make test && cargo make check" >&2
-  fi
-
-  # DETECT: Completion claim without validation keywords
-  if echo "$PROMPT" | grep -qiE "\b(done|complete|finished|ready)\b" && \
-     ! echo "$PROMPT" | grep -qiE "(test|verify|check|validate|prove|run cargo|cargo make)"; then
-    echo "WARNING: Completion claim without validation" >&2
-    echo "  Definition of Done: cargo make check && cargo make lint && cargo make test" >&2
-  fi
-
-  # DETECT: Requests to skip safety checks
-  if echo "$PROMPT" | grep -qiE "(skip|ignore|bypass|disable).*(test|check|lint|validation)"; then
-    echo "WARNING: Request to skip safety checks detected" >&2
-    echo "  All checks are required per CLAUDE.md" >&2
-  fi
-
-  # DETECT: Direct cargo command requests
-  if echo "$PROMPT" | grep -qE "run\s+(cargo\s+(check|test|build|clippy|fmt))"; then
-    echo "WARNING: Direct cargo command requested" >&2
-    echo "  Use cargo make instead: cargo make <target>" >&2
-  fi
-
-  # DETECT: Requests to save to root folder
-  if echo "$PROMPT" | grep -qiE "(save|write|create).*\s+(to|in|at)\s+root"; then
-    echo "WARNING: Request to save to root folder detected" >&2
-    echo "  Use subdirectories: crates/*/src/, docs/, tests/, etc." >&2
-  fi
-
-  # DETECT: Relative paths (should use absolute)
-  if echo "$PROMPT" | grep -qE "\./|\.\./" && ! echo "$PROMPT" | grep -q "example"; then
-    echo "WARNING: Relative path detected in prompt" >&2
-    if [[ -n "$WORKSPACE_ROOT" ]]; then
-      echo "  Use absolute paths: ${WORKSPACE_ROOT}/..." >&2
-    fi
-  fi
-
-  # DETECT: Dangerous destructive patterns
-  if echo "$PROMPT" | grep -qiE "(delete all|remove everything|wipe|nuke)"; then
-    echo "WARNING: Destructive operation requested" >&2
-    echo "  Ensure this is intentional before proceeding" >&2
-  fi
-
-  # DETECT: TodoWrite batch size reminder
-  if echo "$PROMPT" | grep -qiE "todo|task" && echo "$PROMPT" | grep -qiE "create|write|add"; then
-    echo "REMINDER: TodoWrite requires 10+ todos in ONE batch" >&2
-  fi
-
-  # DETECT: Agent execution reminder
-  if echo "$PROMPT" | grep -qiE "(agent|swarm|spawn|coordinate)"; then
-    echo "REMINDER: Use Claude Code Task tool for agent execution" >&2
-    echo "  MCP only for coordination topology" >&2
-  fi
-
-  # DETECT: Spec edits targeting markdown instead of TTL
-  if echo "$PROMPT" | grep -qiE "(spec|ontology|rdf|ttl).*\.(md|markdown)"; then
-    echo "WARNING: Request involves markdown specs" >&2
-    echo "  RDF (.ttl) is source of truth, .md is generated" >&2
-    echo "  Edit .specify/*.ttl, then: cargo make speckit-render" >&2
-  fi
-
-  # DETECT: unwrap/expect requests in production
-  if echo "$PROMPT" | grep -qiE "unwrap|expect" && echo "$PROMPT" | grep -qiE "production|src/"; then
-    echo "WARNING: unwrap/expect in production code" >&2
-    echo "  Use Result<T, E> instead. unwrap() only allowed in tests." >&2
-  fi
-
-  exit 0
-' bash "$PROMPT"
-
-exit $?
+JOINED="$(printf '%s\n' "${NOTES[@]}")"
+additional_context "$JOINED"
+exit 0
