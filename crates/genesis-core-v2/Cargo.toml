@@ -16,7 +16,6 @@ thiserror.workspace = true
 parking_lot.workspace = true
 dashmap.workspace = true
 genesis-types.workspace = true
-genesis-schema.workspace = true
 blake3.workspace = true
 
 [dev-dependencies]
