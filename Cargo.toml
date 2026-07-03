@@ -49,10 +49,7 @@ members = [
   "crates/genesis-types-v2",
   "crates/genesis-schema-v2",
   "crates/genesis-core-v2",
-  # DORMANT: no_std variant for wasm32-unknown-unknown targets
-  "crates/genesis-core",
   "crates/cpmp",
-  "crates/stpnt",
   # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
   # drifted from its own types in a prior release (ValidationAgent missing the
   # `agent_type` field; async fns misusing `?`) and does not compile under
@@ -131,7 +128,6 @@ ggen-graph = { path = "crates/ggen-graph", version = "26.7.2" }
 # Genesis kernel crates (pure Rust, IO-free — A = μ(O) foundation)
 genesis-types = { path = "crates/genesis-types-v2", version = "26.7.2" }
 genesis-schema = { path = "crates/genesis-schema-v2", version = "26.7.2" }
-genesis-core = { path = "crates/genesis-core" }
 genesis-core-v2 = { path = "crates/genesis-core-v2", version = "26.7.2" }
 
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
