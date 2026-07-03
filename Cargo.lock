@@ -2639,9 +2639,9 @@ dependencies = [
  "fastrand",
  "futures",
  "genai",
- "ggen-a2a-mcp",
  "ggen-cli-lib",
  "ggen-core",
+ "ggen-lsp",
  "human-panic",
  "insta",
  "lazy_static",
@@ -2676,28 +2676,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ggen-a2a-mcp"
-version = "26.7.2"
-dependencies = [
- "anyhow",
- "async-trait",
- "blake3",
- "chrono",
- "criterion 0.5.1",
- "ggen-core",
- "reqwest 0.12.28",
- "rmcp",
- "schemars 1.2.1",
- "serde",
- "serde_json",
- "tempfile",
- "thiserror 2.0.18",
- "tokio",
- "tracing",
- "uuid",
-]
-
-[[package]]
 name = "ggen-cli-lib"
 version = "26.7.2"
 dependencies = [
@@ -2722,11 +2700,9 @@ dependencies = [
  "flate2",
  "futures",
  "genai",
- "ggen-a2a-mcp",
  "ggen-core",
  "ggen-graph",
  "ggen-lsp",
- "ggen-lsp-mcp",
  "glob",
  "hex",
  "httpmock",
@@ -2911,8 +2887,10 @@ version = "26.7.2"
 dependencies = [
  "anyhow",
  "assert_cmd",
+ "async-trait",
  "blake3",
  "chrono",
+ "criterion 0.5.1",
  "ggen-config",
  "ggen-core",
  "ggen-graph",
@@ -2923,6 +2901,9 @@ dependencies = [
  "lsp-max-protocol",
  "oxigraph",
  "qlue-ls",
+ "reqwest 0.12.28",
+ "rmcp",
+ "schemars 1.2.1",
  "serde",
  "serde_json",
  "tempfile",
@@ -2933,37 +2914,9 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "url",
+ "uuid",
  "walkdir",
  "wasm4pm-compat",
-]
-
-[[package]]
-name = "ggen-lsp-a2a"
-version = "26.7.2"
-dependencies = [
- "async-trait",
- "ggen-a2a-mcp",
- "ggen-lsp",
- "ggen-lsp-mcp",
- "serde_json",
- "tempfile",
- "tokio",
-]
-
-[[package]]
-name = "ggen-lsp-mcp"
-version = "26.7.2"
-dependencies = [
- "anyhow",
- "assert_cmd",
- "ggen-lsp",
- "rmcp",
- "schemars 1.2.1",
- "serde",
- "serde_json",
- "tempfile",
- "tokio",
- "tracing",
 ]
 
 [[package]]

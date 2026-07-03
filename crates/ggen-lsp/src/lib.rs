@@ -2,7 +2,10 @@
     clippy::expect_used,
     clippy::unwrap_used,
     clippy::panic,
-    clippy::match_wildcard_for_single_variants
+    clippy::match_wildcard_for_single_variants,
+    clippy::unused_async_trait_impl,
+    clippy::for_kv_map,
+    clippy::too_long_first_doc_paragraph
 )]
 // stdout is the LSP frame channel; a print!/println! here interleaves ahead of
 // the Content-Length header and corrupts framing — the exact failure mode that
@@ -25,6 +28,16 @@ pub mod rule_index;
 pub mod server;
 pub mod state;
 pub mod utils;
+
+// Absorbed during the 2026-07 crate-consolidation pass (4 crates -> 1, behind
+// features): ggen-lsp-mcp -> mcp, ggen-a2a-mcp -> a2a_mcp, ggen-lsp-a2a -> a2a.
+// See CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md.
+#[cfg(feature = "a2a")]
+pub mod a2a;
+#[cfg(feature = "a2a")]
+pub mod a2a_mcp;
+#[cfg(feature = "mcp")]
+pub mod mcp;
 
 pub use check::{
     capture_request, check_content, check_files, check_files_in_root, check_files_with_routes,

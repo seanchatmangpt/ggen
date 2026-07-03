@@ -50,6 +50,34 @@ chrono = { workspace = true }
 blake3 = { workspace = true }
 tempfile = { workspace = true }
 
+# Optional: mcp/a2a features (absorbed from ggen-lsp-mcp, ggen-a2a-mcp, ggen-lsp-a2a
+# during the 2026-07 crate-consolidation pass — see CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md)
+rmcp = { version = "1.7.0", features = ["transport-io", "schemars"], optional = true }
+schemars = { version = "1.2.1", optional = true }
+async-trait = { version = "0.1", optional = true }
+uuid = { version = "1.18", features = ["v4", "serde"], optional = true }
+
+[dependencies.reqwest]
+workspace = true
+features = ["json"]
+optional = true
+
+[dependencies.criterion]
+workspace = true
+optional = true
+
+[features]
+# mcp: exposes the repair-route engine as an MCP tool (ggen-lsp-mcp, absorbed).
+mcp = ["dep:rmcp", "dep:schemars"]
+# a2a: A2A protocol + MCP server for agent-to-agent communication (ggen-a2a-mcp)
+# plus the A2A bridge over the mcp tools (ggen-lsp-a2a, absorbed). Depends on mcp
+# since the bridge dispatches to the mcp tool functions directly (one route engine,
+# two transports — no drift).
+a2a = ["mcp", "dep:async-trait", "dep:uuid", "dep:reqwest"]
+http-adapter = []
+all-adapters = ["http-adapter"]
+benchmark = ["dep:criterion"]
+
 [dev-dependencies]
 tempfile = { workspace = true }
 # Spawn the real `ggen-lsp` binary for protocol-level tests (resolve via cargo_bin).
@@ -87,6 +115,57 @@ marketplace_capabilities = [
 [[bin]]
 name = "ggen-lsp"
 path = "src/main.rs"
+
+[[bin]]
+name = "ggen-lsp-mcp"
+path = "src/bin/ggen-lsp-mcp.rs"
+required-features = ["mcp"]
+
+# Integration tests absorbed with the mcp/a2a modules (see lib.rs comment).
+[[test]]
+name = "mcp_parity_test"
+path = "tests/mcp_parity_test.rs"
+required-features = ["mcp"]
+
+[[test]]
+name = "mcp_field_gauge_test"
+path = "tests/mcp_field_gauge_test.rs"
+required-features = ["mcp"]
+
+[[test]]
+name = "mcp_protocol_test"
+path = "tests/mcp_protocol_test.rs"
+required-features = ["mcp"]
+
+[[test]]
+name = "mcp_replay_metrics_test"
+path = "tests/mcp_replay_metrics_test.rs"
+required-features = ["mcp"]
+
+[[test]]
+name = "mcp_harden_test"
+path = "tests/mcp_harden_test.rs"
+required-features = ["mcp"]
+
+[[test]]
+name = "a2a_mcp_pack_tools_test"
+path = "tests/a2a_mcp_pack_tools_test.rs"
+required-features = ["a2a"]
+
+[[test]]
+name = "a2a_triad_stress_test"
+path = "tests/a2a_triad_stress_test.rs"
+required-features = ["a2a"]
+
+[[test]]
+name = "a2a_bridge_test"
+path = "tests/a2a_bridge_test.rs"
+required-features = ["a2a"]
+
+[[test]]
+name = "a2a_gall_foundation_test"
+path = "tests/a2a_gall_foundation_test.rs"
+required-features = ["a2a"]
 
 [lints]
 workspace = true

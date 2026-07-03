@@ -5,8 +5,8 @@
 //! 2. Observable State: Metrics are updated (metrics().total_messages == 1).
 //! 3. External Evidence: CLI output contains real trace_id and status.
 
-use ggen_a2a_mcp::a2a_generated::converged::ConvergedMessage;
-use ggen_a2a_mcp::a2a_generated::handlers::HandlerFactory;
+use ggen_lsp::a2a_mcp::a2a_generated::converged::ConvergedMessage;
+use ggen_lsp::a2a_mcp::a2a_generated::handlers::HandlerFactory;
 
 #[tokio::test]
 async fn test_telco_unified_router_execution() {

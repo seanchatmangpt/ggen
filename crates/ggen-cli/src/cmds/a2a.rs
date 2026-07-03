@@ -4,11 +4,11 @@
 
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
-use ggen_a2a_mcp::a2a::receipt::{
+use ggen_lsp::a2a_mcp::a2a::receipt::{
     AlignmentEvidence, ExpectedPathEvidence, McpInvocationEvidence, ObservedPathEvidence,
     OcelEvent, OcelObject, OcelObjectRef, ReceiptOcelSlice,
 };
-use ggen_a2a_mcp::a2a::{
+use ggen_lsp::a2a_mcp::a2a::{
     A2ARefusalState, A2AState, A2ATaskReceipt, Avatar8, Jtbd8, Task, TaskState,
 };
 use serde::{Deserialize, Serialize};
@@ -134,10 +134,12 @@ fn execute(id: String, fail: Option<bool>) -> Result<A2aTaskOutput> {
         let artifact_content = b"real_artifact_content_for_task";
         let artifact_hash = blake3::hash(artifact_content).to_hex().to_string();
 
-        let artifact = ggen_a2a_mcp::a2a::Artifact::new(
+        let artifact = ggen_lsp::a2a_mcp::a2a::Artifact::new(
             "artifact_needed.md".to_string(),
-            ggen_a2a_mcp::a2a::ArtifactType::Output,
-            ggen_a2a_mcp::a2a::ArtifactContent::Text("real_artifact_content_for_task".to_string()),
+            ggen_lsp::a2a_mcp::a2a::ArtifactType::Output,
+            ggen_lsp::a2a_mcp::a2a::ArtifactContent::Text(
+                "real_artifact_content_for_task".to_string(),
+            ),
         );
         task = task.with_artifact("artifact_needed.md".to_string(), artifact);
 
@@ -373,7 +375,7 @@ fn do_verify(run: Option<String>, out: Option<String>) -> Result<VerifyOutput> {
                 if let Some(artifact) = task.artifacts.get("artifact_needed.md") {
                     task_state = A2AState::ArtifactEmitted;
                     let content_str = match &artifact.content {
-                        ggen_a2a_mcp::a2a::ArtifactContent::Text(t) => t.clone(),
+                        ggen_lsp::a2a_mcp::a2a::ArtifactContent::Text(t) => t.clone(),
                         _ => "".to_string(),
                     };
                     observed_artifact_hash =
