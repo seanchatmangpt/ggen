@@ -4,7 +4,7 @@
 
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
-use ggen_a2a_mcp::mcp_server::GgenMcpServer;
+use ggen_lsp::a2a_mcp::mcp_server::GgenMcpServer;
 use serde::Serialize;
 
 #[derive(Serialize)]

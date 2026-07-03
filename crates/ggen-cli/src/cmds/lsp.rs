@@ -97,7 +97,7 @@ fn serve(protocol: Option<String>) -> Result<StartOutput> {
         }
         "mcp" => {
             crate::runtime::block_on(async move {
-                ggen_lsp_mcp::RepairRouteServer::start_stdio().await
+                ggen_lsp::mcp::RepairRouteServer::start_stdio().await
             })
             .map_err(|e: ggen_core::utils::Error| {
                 clap_noun_verb::NounVerbError::execution_error(e.to_string())

@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_a2a_mcp::a2a::{
+use ggen_lsp::a2a_mcp::a2a::{
     Artifact, ArtifactContent, ArtifactType, StateTransition, Task, TaskState, TaskStateMachine,
 };
 use std::hint::black_box;
