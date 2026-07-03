@@ -1,6 +1,6 @@
 [package]
 name = "ggen-lsp"
-version = "26.7.2"
+version.workspace = true
 edition = "2021"
 license = "MIT"
 description = "Language server for ggen surfaces — analyzers, check, intel/mining, pack, route/repair, handlers."
