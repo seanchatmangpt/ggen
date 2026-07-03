@@ -154,7 +154,17 @@ jobs:
   phase2:
     name: Phase 2 (Inverse Sync + Coherence)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # oxrocksdb-sys (bundled RocksDB, a large C++ build) gets compiled from
+    # scratch by each of the 5 separate `cargo test -p <crate> --test <name>`
+    # invocations in "Phase 2 test suite" whenever their feature sets don't
+    # unify with the prior "Build ggen binary" step's build — observed twice
+    # in a row: two consecutive runs timed out at the old 30-minute limit
+    # mid-native-compile (once per test crate, ~10min+ each). This isn't a
+    # code defect being masked — it's genuinely slow, correct C++ compilation
+    # that needs more wall-clock room. 60 min gives real margin for a full
+    # cold-cache run (3x oxrocksdb-sys builds + everything else) without
+    # papering over an actual hang (a true hang would still trip this).
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       - name: Provision siblings + pinned nightly + cache
