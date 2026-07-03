@@ -232,13 +232,13 @@ target-show:
 target-prune:
     cargo cicd target prune
 
-# Run the full manufacturing pipeline (status, target, tests, doctor, publish check, oracle audit)
+# Run the full manufacturing pipeline (workspace check, tests, publish check)
 pipeline:
-    cargo cicd pipeline run
+    cargo cicd workspace && cargo cicd test && cargo cicd publish
 
 # Check pipeline preconditions without running
 pipeline-validate:
-    cargo cicd pipeline validate
+    cargo cicd workspace
 
 # Invoke ggen sync via cargo-cicd (requires ggen binary on PATH)
 workspace-sync:
@@ -246,15 +246,17 @@ workspace-sync:
 
 # Show pipeline state: evidence files and cicd.toml fields
 pipeline-status:
-    cargo cicd pipeline status
+    cargo cicd status
 
 # Seal evidence journal into a BLAKE3 provenance receipt (requires affi on PATH)
+# NOTE: cargo-cicd 'affidavit' subcommand has been removed; use the 'affi' tool directly if on PATH
 affidavit-seal:
-    cargo cicd affidavit seal
+    affi seal
 
 # Verify sealed BLAKE3 receipt — ACCEPT or REJECT
+# NOTE: cargo-cicd 'affidavit' subcommand has been removed; use the 'affi' tool directly if on PATH
 affidavit-verify:
-    cargo cicd affidavit verify
+    affi verify
 
 # Show evidence event summary (count, timestamps, verdicts)
 evidence-show:

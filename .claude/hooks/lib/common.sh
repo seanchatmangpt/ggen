@@ -56,9 +56,12 @@ ensure_evidence_dir() {
     printf '%s' "$EVIDENCE_DIR"
 }
 
-# additional_context TEXT — emit the standard UserPromptSubmit/SessionStart payload.
+# additional_context TEXT EVENT_NAME — emit the standard UserPromptSubmit/SessionStart payload.
+# EVENT_NAME defaults to "UserPromptSubmit".
 additional_context() {
-    jq -n --arg ctx "$1" '{"hookSpecificOutput":{"additionalContext":$ctx}}'
+    local event="${2:-UserPromptSubmit}"
+    jq -n --arg ctx "$1" --arg evt "$event" \
+        '{"hookSpecificOutput":{"hookEventName":$evt,"additionalContext":$ctx}}'
 }
 
 # deny_tool REASON — emit a PreToolUse hard-deny payload.

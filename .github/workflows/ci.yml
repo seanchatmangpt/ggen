@@ -198,9 +198,9 @@ jobs:
           ontology=".specify/specs/post-chatman/post_chatman.ttl"
           shapes=".specify/specs/post-chatman/post_chatman_shapes.ttl"
           echo "Validating ontology: $ontology"
-          ./target/debug/ggen validate "$ontology"
+          ./target/debug/ggen graph validate --schema-file "$ontology"
           echo "Validating shapes: $shapes"
-          ./target/debug/ggen validate "$shapes"
+          ./target/debug/ggen graph validate --schema-file "$shapes"
           echo "✅ Coherence check passed"
       - name: Phase 2 test suite
         run: |
