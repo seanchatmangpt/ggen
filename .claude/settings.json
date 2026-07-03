@@ -718,18 +718,6 @@
         ]
       }
     ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/stop_release_gate.sh",
-            "timeout": 30,
-            "statusMessage": "Running release gate..."
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "Edit|Write|Bash",
@@ -737,18 +725,6 @@
           {
             "type": "command",
             "command": ".claude/hooks/pre_tool_use_guard.sh",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Bash|Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/post_tool_use_emitter.sh",
             "timeout": 10
           }
         ]
