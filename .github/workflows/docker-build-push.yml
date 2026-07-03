@@ -2,7 +2,9 @@ name: Docker Build & Push (Multi-Registry)
 
 on:
   push:
-    branches: [main, develop]
+    # Only build/push Docker images on version tags — not on every main push.
+    # GCP_ARTIFACT_REGISTRY_KEY is required; main-push builds would always fail
+    # without that secret being configured.
     tags: ['v*']
   workflow_dispatch:
 
