@@ -37,7 +37,6 @@ path = "src/main.rs"
 members = [
   "crates/ggen-a2a-mcp",
   "crates/ggen-config",
-  "crates/star-toml",
   "crates/ggen-marketplace",
   "crates/ggen-core",
   "crates/ggen-cli",
@@ -47,7 +46,6 @@ members = [
   "crates/ggen-lsp-a2a",
   # Genesis kernel crates (pure Rust, IO-free)
   "crates/genesis-types-v2",
-  "crates/genesis-schema-v2",
   "crates/genesis-core-v2",
   "crates/cpmp",
   # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
@@ -127,7 +125,6 @@ ggen-graph = { path = "crates/ggen-graph", version = "26.7.2" }
 
 # Genesis kernel crates (pure Rust, IO-free — A = μ(O) foundation)
 genesis-types = { path = "crates/genesis-types-v2", version = "26.7.2" }
-genesis-schema = { path = "crates/genesis-schema-v2", version = "26.7.2" }
 genesis-core-v2 = { path = "crates/genesis-core-v2", version = "26.7.2" }
 
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated

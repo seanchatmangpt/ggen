@@ -2548,13 +2548,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "genesis-core"
-version = "26.7.1"
-dependencies = [
- "blake3",
-]
-
-[[package]]
 name = "genesis-core-v2"
 version = "26.7.2"
 dependencies = [
@@ -2563,7 +2556,6 @@ dependencies = [
  "chrono",
  "criterion 0.5.1",
  "dashmap",
- "genesis-schema",
  "genesis-types",
  "parking_lot",
  "proptest",
@@ -2573,17 +2565,6 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio",
  "tokio-test",
- "uuid",
-]
-
-[[package]]
-name = "genesis-schema"
-version = "26.7.2"
-dependencies = [
- "serde",
- "serde_json",
- "thiserror 2.0.18",
- "tokio",
  "uuid",
 ]
 
@@ -7514,9 +7495,10 @@ checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 [[package]]
 name = "star-toml"
 version = "26.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "610bba28a41e85fa7bd78692742dc008ac91281a9fe07c63cc580142cda71267"
 dependencies = [
  "serde",
- "tempfile",
  "thiserror 2.0.18",
  "toml 1.1.2+spec-1.1.0",
 ]
@@ -7526,23 +7508,6 @@ name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
-
-[[package]]
-name = "stpnt"
-version = "26.7.2"
-dependencies = [
- "anyhow",
- "async-trait",
- "blake3",
- "chrono",
- "genesis-core-v2",
- "genesis-types",
- "ggen-core",
- "serde",
- "serde_json",
- "tokio",
- "uuid",
-]
 
 [[package]]
 name = "streaming-iterator"

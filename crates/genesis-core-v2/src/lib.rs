@@ -8,7 +8,7 @@
 
 use async_trait::async_trait;
 use dashmap::DashMap;
-use genesis_schema::PatternMetadata;
+use genesis_types::schema::PatternMetadata;
 use genesis_types::{Error, ExecutionContext, PatternId, Result, WorkflowStep};
 use serde_json::json;
 use std::sync::Arc;
