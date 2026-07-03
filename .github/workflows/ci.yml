@@ -85,7 +85,11 @@ jobs:
         run: cargo cicd status || true
 
       - name: Run changed tests
-        run: cargo cicd test
+        # cargo-cicd's noun-verb CLI requires an explicit verb under the
+        # `test` noun (bare `cargo cicd test` errors with "Noun 'test' has
+        # no verbs ... and cannot be executed directly") — use `changed` to
+        # match this step's stated intent.
+        run: cargo cicd test changed
 
   check:
     name: Check
