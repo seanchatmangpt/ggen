@@ -21,8 +21,31 @@ if andon_is_raised; then
     FLAG="$(andon_flag_path)"
     REASON="$(jq -r '.reason // "unknown"' "$FLAG" 2>/dev/null)"
     EXCERPT="$(jq -r '.excerpt // ""' "$FLAG" 2>/dev/null)"
-    stop_block "Andon flag is raised (${REASON}): ${EXCERPT}
-Fix the underlying issue and re-run the failing \`just\` command (check/test/lint) to clear the flag before ending this turn."
+    AGE="$(andon_age_seconds)"
+    FLAG_SESSION="$(andon_session_id)"
+    THIS_SESSION="$(current_session_id)"
+
+    # Gap fix: the flag has no expiry/session binding, so a crashed session's
+    # never-cleared flag would otherwise block a brand new, unrelated
+    # session's very first Stop forever with no indication it isn't this
+    # turn's own unresolved failure. Still block either way (safe default —
+    # never silently drop a real signal) but make the provenance explicit so
+    # whoever reads it can judge whether to fix it or just clear it by hand.
+    PROVENANCE=""
+    if [[ -n "$FLAG_SESSION" && -n "$THIS_SESSION" && "$FLAG_SESSION" != "$THIS_SESSION" ]]; then
+        PROVENANCE=" (raised by a different session: ${FLAG_SESSION})"
+    fi
+    AGE_NOTE=""
+    if [[ "$AGE" -ge 0 ]]; then
+        AGE_NOTE=" ${AGE}s ago"
+        if andon_is_stale; then
+            AGE_NOTE="${AGE_NOTE} — older than ${ANDON_STALE_SECONDS}s, likely stale/from a crashed session"
+        fi
+    fi
+
+    stop_block "Andon flag raised${AGE_NOTE}${PROVENANCE}: ${REASON}
+Excerpt: ${EXCERPT}
+Fix the underlying issue and re-run the failing \`just\` command (check/test/lint) to clear the flag, or if this is confirmed stale/from an unrelated session: rm ${FLAG}"
     exit 0
 fi
 

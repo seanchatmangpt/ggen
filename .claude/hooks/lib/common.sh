@@ -55,11 +55,50 @@ andon_is_raised() {
     [[ -f "$(andon_flag_path)" ]]
 }
 
-# raise_andon REASON EXCERPT — record a stop-the-line signal.
+# ANDON_STALE_SECONDS: past this age, a raised flag is almost certainly a
+# leftover from a crashed/killed session rather than this turn's unresolved
+# failure (gap: the flag has no expiry and no session binding — a stale flag
+# from an unrelated, long-dead session would otherwise block a brand new
+# session's very first Stop event forever with no way to tell it's inherited).
+ANDON_STALE_SECONDS=28800  # 8h
+
+# andon_age_seconds — seconds since the flag's raised_at, or -1 if unknown/absent.
+andon_age_seconds() {
+    local flag raised raised_epoch now_epoch
+    flag="$(andon_flag_path)"
+    [[ -f "$flag" ]] || { printf '%s' -1; return; }
+    raised="$(jq -r '.raised_at // empty' "$flag" 2>/dev/null)"
+    [[ -z "$raised" ]] && { printf '%s' -1; return; }
+    # GNU date (Linux) then BSD date (macOS) — one of the two will work.
+    raised_epoch="$(date -u -d "$raised" +%s 2>/dev/null || date -u -j -f '%Y-%m-%dT%H:%M:%SZ' "$raised" +%s 2>/dev/null)"
+    [[ -z "$raised_epoch" ]] && { printf '%s' -1; return; }
+    now_epoch="$(date -u +%s)"
+    printf '%s' "$((now_epoch - raised_epoch))"
+}
+
+andon_is_stale() {
+    local age
+    age="$(andon_age_seconds)"
+    [[ "$age" -ge 0 && "$age" -gt "$ANDON_STALE_SECONDS" ]]
+}
+
+andon_session_id() {
+    local flag
+    flag="$(andon_flag_path)"
+    [[ -f "$flag" ]] || { printf '%s' ""; return; }
+    jq -r '.session_id // empty' "$flag" 2>/dev/null
+}
+
+current_session_id() {
+    jqf '.session_id' 'unknown'
+}
+
+# raise_andon REASON EXCERPT — record a stop-the-line signal, tagged with the
+# raising session so a later, unrelated session can tell the flag isn't its own.
 raise_andon() {
     local reason="$1" excerpt="${2:-}"
-    jq -n --arg ts "$(now)" --arg reason "$reason" --arg excerpt "$excerpt" \
-        '{raised_at:$ts, reason:$reason, excerpt:$excerpt}' > "$(andon_flag_path)" 2>/dev/null || true
+    jq -n --arg ts "$(now)" --arg reason "$reason" --arg excerpt "$excerpt" --arg session "$(current_session_id)" \
+        '{raised_at:$ts, reason:$reason, excerpt:$excerpt, session_id:$session}' > "$(andon_flag_path)" 2>/dev/null || true
 }
 
 clear_andon() {
