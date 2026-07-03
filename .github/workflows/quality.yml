@@ -78,14 +78,16 @@ jobs:
       # the workspace's clippy-cleanliness is unverified (the old CI never compiled),
       # so gating on it would be red for pre-existing debt. Warnings are surfaced as
       # annotations; promote to `-D warnings` (blocking) once the backlog is clean.
-      # The lsp trio (ggen-lsp, ggen-lsp-mcp, ggen-lsp-a2a) is excluded here, kept
-      # consistent with ci.yml's deliverable scope: the trio does not compile against
-      # the floating-HEAD external `lsp-max` sibling (51-error API drift), so leaving
-      # it in would make clippy always red and give no signal on the shippable code;
-      # the trio's own lint health is covered separately by ci.yml's `lsp-crates`
-      # advisory job.
+      # ggen-lsp (which since the 2026-07 consolidation pass also carries the
+      # absorbed mcp/a2a modules behind features — see
+      # CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md) is excluded here, kept
+      # consistent with ci.yml's deliverable scope: it has a history of API
+      # drift against the floating-HEAD external `lsp-max` sibling, so leaving
+      # it in could make clippy red on an upstream nobody here controls and
+      # give no signal on the shippable code; its own lint health is covered
+      # separately by ci.yml's `lsp-crates` advisory job.
       - name: cargo clippy (advisory)
-        run: cargo clippy --workspace --all-targets --exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a
+        run: cargo clippy --workspace --all-targets --exclude ggen-lsp
 
   # cargo audit over the resolved dependency tree (RUSTSEC advisories). Needs the
   # workspace to resolve, so siblings are provisioned. No continue-on-error: a
