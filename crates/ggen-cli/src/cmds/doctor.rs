@@ -13,7 +13,7 @@ use std::path::Path;
 // ============================================================================
 
 #[derive(Serialize)]
-pub struct RunOutput {
+pub struct DoctorOutput {
     pub healthy: bool,
     pub binary_version: String,
     pub ggen_toml_found: bool,
@@ -27,15 +27,6 @@ pub struct CheckItem {
     pub name: String,
     pub passed: bool,
     pub detail: String,
-    pub recovery: Option<String>,
-}
-
-#[derive(Serialize)]
-pub struct CheckOutput {
-    pub passed: bool,
-    pub ggen_toml_found: bool,
-    pub workspace_root: String,
-    pub message: String,
     pub recovery: Option<String>,
 }
 
@@ -91,11 +82,12 @@ fn path_check(name: &str, path: &str, found_msg: &str, missing_msg: &str) -> Che
     }
 }
 
-fn toolchain_checks() -> Result<Vec<CheckItem>> {
+fn toolchain_checks(all: bool, check: Option<String>) -> Result<Vec<CheckItem>> {
     let domain_result = crate::runtime::block_on(execute_doctor(DoctorInput {
         verbose: false,
-        check: None,
+        check,
         env: false,
+        all,
     }))
     .map_err(|e| NounVerbError::execution_error(format!("tokio runtime error: {}", e)))?
     .map_err(|e| NounVerbError::execution_error(format!("doctor domain error: {}", e)))?;
@@ -127,9 +119,13 @@ fn is_healthy(checks: &[CheckItem]) -> bool {
 // Verb Functions
 // ============================================================================
 
-/// Run a full health check: ggen.toml presence, binary version, workspace state, and toolchain
-#[verb]
-pub fn run() -> Result<RunOutput> {
+/// Health check: ggen.toml presence, binary version, workspace state, and
+/// toolchain (rust/cargo/git/marketplace/cache). Fast, local-only by
+/// default — pass `all` to also run SLO microbenchmarks and probe the
+/// observability stack (Tempo/OTel/Jaeger), or `check` to run a single
+/// named check (e.g. "rust", "slo", "observability").
+#[verb("doctor", "root")]
+pub fn doctor(all: bool, check: Option<String>) -> Result<DoctorOutput> {
     let cwd = std::env::current_dir()
         .map(|p| p.display().to_string())
         .unwrap_or_else(|_| "<unknown>".to_string());
@@ -137,7 +133,7 @@ pub fn run() -> Result<RunOutput> {
     let binary_version = env!("CARGO_PKG_VERSION").to_string();
 
     let mut checks = workspace_checks();
-    checks.extend(toolchain_checks()?);
+    checks.extend(toolchain_checks(all, check)?);
 
     let healthy = is_healthy(&checks);
     let message = if healthy {
@@ -146,40 +142,12 @@ pub fn run() -> Result<RunOutput> {
         "One or more health checks failed — see checks for details".to_string()
     };
 
-    Ok(RunOutput {
+    Ok(DoctorOutput {
         healthy,
         binary_version,
         ggen_toml_found,
         workspace_root: cwd,
         checks,
         message,
-    })
-}
-
-/// Quick validation: verifies the workspace can be found and ggen.toml is present
-#[verb]
-pub fn check() -> Result<CheckOutput> {
-    let cwd = std::env::current_dir()
-        .map(|p| p.display().to_string())
-        .unwrap_or_else(|_| "<unknown>".to_string());
-    let ggen_toml_found = Path::new("ggen.toml").exists();
-    let (passed, message) = if ggen_toml_found {
-        (true, "Quick check passed — ggen.toml found".to_string())
-    } else {
-        (
-            false,
-            "Quick check failed — ggen.toml not found in current directory".to_string(),
-        )
-    };
-    Ok(CheckOutput {
-        passed,
-        ggen_toml_found,
-        workspace_root: cwd,
-        message,
-        recovery: if ggen_toml_found {
-            None
-        } else {
-            Some("Create ggen.toml in the workspace root".to_string())
-        },
     })
 }
