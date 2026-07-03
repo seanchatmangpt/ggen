@@ -205,6 +205,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+!.claude/hooks/lib/
 lib64/
 parts/
 sdist/

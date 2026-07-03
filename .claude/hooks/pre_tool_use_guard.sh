@@ -1,123 +1,50 @@
 #!/usr/bin/env bash
-# PreToolUse Guard - Protects critical surfaces from direct editing
-# Input: JSON via stdin with tool_name, parameters
-# Output: Exit code 0 (allow) or 1 (deny)
+# PreToolUse hook, matcher: Edit|Write (see .claude/settings.json). Budget: 10s.
+#
+# Purpose: hard-deny direct edits to surfaces that must only change through
+# their own authoritative process — regenerating from RDF, re-signing a
+# receipt, or a git hook re-install. Editing these files by hand silently
+# desyncs them from the process that is supposed to own them (see
+# .claude/rules/coding-agent-mistakes.md, "Legacy Path Contamination" /
+# "Contract Drift").
 
-set -euo pipefail
-
-# Import shared utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib/utils.sh
-source "${SCRIPT_DIR}/lib/utils.sh"
+# shellcheck source=lib/common.sh
+source "${SCRIPT_DIR}/lib/common.sh"
 
-# Check if tool should be blocked
-check_tool_blocked() {
-    local tool_name=$1
+read_input  # drain stdin exactly once, into $HOOK_INPUT
 
-    # Block Edit, Write, Bash on protected surfaces
-    if [[ "$tool_name" == "Edit" ]] || \
-       [[ "$tool_name" == "Write" ]] || \
-       [[ "$tool_name" == "Bash" ]]; then
-        return 0  # Tool needs checking
-    fi
+# Edit and Write both carry the target path at tool_input.file_path.
+FILE_PATH="$(jqf '.tool_input.file_path')"
+[[ -z "$FILE_PATH" ]] && exit 0
 
-    return 1  # Tool allowed
+is_protected() {
+    case "$1" in
+        */crates/ggen-cli/src/generated_commands.rs|crates/ggen-cli/src/generated_commands.rs)
+            REASON="generated_commands.rs is ggen sync output — edit the .specify/*.ttl spec and run ggen sync instead"
+            return 0 ;;
+        */.ggen/receipts/*|.ggen/receipts/*)
+            REASON="receipts are cryptographic provenance sealed by ggen sync — they cannot be hand-edited"
+            return 0 ;;
+        */.ggen/keys/*|.ggen/keys/*)
+            REASON="signing keys must not be edited by an agent"
+            return 0 ;;
+        */.git/hooks/*|.git/hooks/*)
+            REASON="git hooks are installed by scripts/hooks/ — edit the source script, not the installed copy"
+            return 0 ;;
+    esac
+    return 1
 }
 
-# Extract file paths from parameters
-extract_file_paths() {
-    local json_input=$1
-    local file_paths=()
+REASON=""
+if is_protected "$FILE_PATH"; then
+    ensure_evidence_dir >/dev/null
+    jq -nc --arg ts "$(now)" --arg path "$FILE_PATH" --arg reason "$REASON" \
+        '{timestamp:$ts, file_path:$path, reason:$reason, action:"denied"}' \
+        >> "${EVIDENCE_DIR}/denied_edits.jsonl" 2>/dev/null || true
 
-    # Edit tool: file_path (direct field in input)
-    local edit_path
-    edit_path=$(echo "$json_input" | jq -r '.file_path // empty')
-    if [[ -n "$edit_path" ]]; then
-        file_paths+=("$edit_path")
-    fi
-
-    # Write tool: file_path (direct field in input)
-    local write_path
-    write_path=$(echo "$json_input" | jq -r '.file_path // empty')
-    if [[ -n "$write_path" ]]; then
-        file_paths+=("$write_path")
-    fi
-
-    # Bash tool: command (may contain paths)
-    local bash_cmd
-    bash_cmd=$(echo "$json_input" | jq -r '.command // empty')
-    if [[ -n "$bash_cmd" ]]; then
-        # Extract potential file paths from command
-        # This is basic - could be enhanced
-        while IFS= read -r path; do
-            [[ -n "$path" ]] && file_paths+=("$path")
-        done < <(echo "$bash_cmd" | grep -oE '[a-zA-Z0-9_/\.-]+\.[a-z]+' || true)
-    fi
-
-    printf '%s\n' "${file_paths[@]}"
-}
-
-# Main guard function
-guard_pre_tool_use() {
-    local json_input
-
-    # Read JSON from stdin
-    json_input=$(cat)
-
-    # Validate JSON
-    if ! validate_json "$json_input"; then
-        log_event "ERROR" "Invalid JSON input to pre_tool_use_guard"
-        exit 1
-    fi
-
-    # Extract tool name
-    local tool_name
-    tool_name=$(extract_tool_name "$json_input")
-
-    # Check if tool needs guarding
-    if ! check_tool_blocked "$tool_name"; then
-        # Tool not blocked, allow
-        exit 0
-    fi
-
-    # Extract file paths (pass full input, not just params)
-    local file_paths
-    mapfile -t file_paths < <(extract_file_paths "$json_input")
-
-    # Check each path
-    for file_path in "${file_paths[@]}"; do
-        if is_protected_path "$file_path"; then
-            log_event "BLOCK" "PreToolUse denied: ${file_path} (${tool_name})"
-
-            # Write denial to evidence log
-            local evidence_dir evidence_file
-            evidence_dir=$(ensure_evidence_dir)
-            evidence_file="${evidence_dir}/denied_attempts.jsonl"
-
-            local denial_record
-            denial_record=$(jq -n \
-                --arg ts "$(get_timestamp)" \
-                --arg tool "$tool_name" \
-                --arg path "$file_path" \
-                --arg session "$(get_session_id)" \
-                '{
-                    timestamp: $ts,
-                    tool_name: $tool,
-                    file_path: $path,
-                    session_id: $session,
-                    action: "denied"
-                }')
-
-            append_jsonl "$evidence_file" "$denial_record"
-
-            # Deny the operation
-            exit 1
-        fi
-    done
-
-    # No protected paths found, allow
+    deny_tool "Denied: ${FILE_PATH} — ${REASON}"
     exit 0
-}
+fi
 
-# Execute main function
-guard_pre_tool_use "$@"
+exit 0
