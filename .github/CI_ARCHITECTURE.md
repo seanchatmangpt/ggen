@@ -192,8 +192,8 @@ scripts/ci/validate-workflows.py  # [Agent 5] structural YAML validation
 ### 3.1 `ci.yml` (rewrite, Agent 3) — the merge gate
 
 Jobs run on the pinned nightly through `setup-ggen-build`, scoped to the
-**shippable deliverable** = the workspace **excluding** the lsp trio
-(`ggen-lsp`, `ggen-lsp-mcp`, `ggen-lsp-a2a`); see §4 for the scoping rationale.
+**shippable deliverable** = the workspace **excluding** `ggen-lsp`; see §4 for
+the scoping rationale.
 Commands are cargo-direct (mirroring the `just` recipes) because the recipes wrap
 commands in short timeouts tuned for the warm-cache local loop, which fire
 mid-compile on a CI cold build; the job-level `timeout-minutes` is the CI
@@ -205,7 +205,7 @@ guardrail instead.
 | `build` | `cargo build --workspace --exclude …` | `cargo build` from build.yml, quality-gates(G6) |
 | `test` | `cargo test --workspace --lib --exclude …` | lib/unit tests from test.yml, ci.yml, ci-complete, ci-quality-gates(G3), quality-gates(G5), andon-validation(L2), andon_ci, london-tdd |
 | `doctest` | `cargo test --doc --workspace --exclude …` | doc tests from test.yml, ci.yml, ci-quality-gates(G5), quality-gates(G7) |
-| `lsp-crates` | `cargo check -p ggen-lsp -p ggen-lsp-mcp -p ggen-lsp-a2a` | **advisory, NON-required** — surfaces the trio's true (red) status; absent from `ci-status.needs` (§4) |
+| `lsp-crates` | `cargo check -p ggen-lsp --all-features` | **advisory, NON-required** — surfaces the trio's true (red) status; absent from `ci-status.needs` (§4) |
 | `ci-status` | `needs: [check, build, test, doctest]` | aggregator of the four gating jobs — the stable required aggregate (does **not** `needs:` `lsp-crates`) |
 
 ### 3.2 `quality.yml` (new, Agent 4) — lint + audit + perf budget
@@ -247,19 +247,18 @@ depends on a built `ggen-cli` is the one borderline case — see §5 "real-check
 ### 4.1 The required gate is deliverable-scoped (excludes the lsp trio)
 
 The required PR gate builds the **shippable deliverable** = the workspace
-**excluding** the lsp trio (`ggen-lsp`, `ggen-lsp-mcp`, `ggen-lsp-a2a`).
+**excluding** `ggen-lsp`.
 
 Rationale:
 
-- **Leaf crates.** Nothing in the workspace depends on the trio by default.
-  `ggen-cli` reaches `ggen-lsp` / `ggen-lsp-mcp` **only** behind the optional
-  `lsp` feature (`crates/ggen-cli/Cargo.toml`:
-  `lsp = ["dep:ggen-lsp","dep:ggen-lsp-mcp"]`), which is **off by default**. The
-  default shippable product never touches them.
-- **They don't compile against a moving target.** `ggen-lsp` currently has 51
-  errors (E0277/E0308/E0425/E0432) from API drift against the **external**
-  sibling `lsp-max` v26.6.18 — an **untagged WIP repo cloned at floating HEAD**.
-  There is no compiling commit to pin.
+- **Leaf crate.** Nothing in the workspace depends on `ggen-lsp` by default.
+  `ggen-cli` reaches it **only** behind the optional `lsp`/`experimental`
+  features (`crates/ggen-cli/Cargo.toml`), which are **off by default**. The
+  default shippable product never touches it.
+- **It has a history of not compiling against a moving target.** `ggen-lsp`
+  depends on the **external** sibling `lsp-max`, an **untagged WIP repo cloned
+  at floating HEAD** — there is no compiling commit to pin, so it can regress
+  at any time independent of this repo.
 - **Gating the whole product on a floating external target is the anti-pattern.**
   It makes the required PR gate hostage to an upstream nobody controls. So the
   gate is scoped to the deliverable, and the trio is surfaced **honestly** in a
@@ -284,8 +283,7 @@ single failure is legible without expanding the aggregate.
 
 ### 4.3 Advisory `lsp-crates` job + promotion criteria
 
-`ci.yml` also runs `lsp-crates` (`cargo check -p ggen-lsp -p ggen-lsp-mcp -p
-ggen-lsp-a2a`). It is **NON-required**: it shows the trio's **true** status
+`ci.yml` also runs `lsp-crates` (`cargo check -p ggen-lsp --all-features`). It is **NON-required**: it shows the trio's **true** status
 (currently red) with **no `continue-on-error` masking**, and is deliberately
 **absent from `ci-status.needs`**, so its failure cannot block a PR or the merge
 queue. `validate-workflows.py` (`check_advisory_isolation`) enforces this

@@ -38,7 +38,7 @@ the composite action `./.github/actions/setup-ggen-build`, which clones the four
 sibling repos (`lsp-max`, `lsp-types-max`, `wasm4pm`, `wasm4pm-compat`) and installs
 the pinned `nightly-2026-04-15` toolchain — the only toolchain that compiles this
 workspace. The required gate is **deliverable-scoped**: it excludes the `ggen-lsp`,
-`ggen-lsp-mcp`, and `ggen-lsp-a2a` leaf crates (see `CI_ARCHITECTURE.md` §4).
+leaf crate (see `CI_ARCHITECTURE.md` §4).
 
 #### `ci.yml` — the required gate
 
@@ -49,11 +49,11 @@ also run in the merge queue).
 
 | Job (`name:`) | Command | Required? |
 |---------------|---------|-----------|
-| `Check` | `cargo check --workspace --exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a` | ✅ required |
+| `Check` | `cargo check --workspace --exclude ggen-lsp` | ✅ required |
 | `Build` | `cargo build --workspace --exclude …` | ✅ required |
 | `Test` | `cargo test --workspace --lib --exclude …` (lib-only, fast PR gate) | ✅ required |
 | `Doctest` | `cargo test --doc --workspace --exclude …` | ✅ required |
-| `lsp crates (advisory)` | `cargo check -p ggen-lsp -p ggen-lsp-mcp -p ggen-lsp-a2a` | ❌ advisory — surfaces the trio's true (currently red) status; **not** in `ci-status.needs` |
+| `lsp crates (advisory)` | `cargo check -p ggen-lsp --all-features` | ❌ advisory — surfaces the trio's true (currently red) status; **not** in `ci-status.needs` |
 | `CI Status` | aggregate, `needs: [check, build, test, doctest]` | ✅ required (the stable aggregate) |
 
 > **Scope note:** `Test` is intentionally lib-only for a fast PR gate. Integration,
@@ -67,7 +67,7 @@ also run in the merge queue).
 | Job (`name:`) | Command | Blocking? |
 |---------------|---------|-----------|
 | `fmt` | `just fmt-check` | blocking **within** quality.yml (fails honestly), but not a required branch-protection check |
-| `clippy (advisory)` | `cargo clippy --workspace --all-targets --exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a` (deliberately **not** `-D warnings`) | advisory |
+| `clippy (advisory)` | `cargo clippy --workspace --all-targets --exclude ggen-lsp` (deliberately **not** `-D warnings`) | advisory |
 | `audit (advisory)` | `cargo audit` (warns on advisories) | advisory |
 | `slo (advisory)` | `just slo-check` (warns) | advisory |
 
@@ -492,7 +492,7 @@ Add a required check by adding a job to `ci.yml` and wiring it into the `ci-stat
 aggregate (so branch protection keeps tracking a single stable check). Add an
 advisory check by adding a job to `quality.yml` instead. Cargo jobs must call the
 `setup-ggen-build` action first and use the deliverable scope
-(`--exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a`):
+(`--exclude ggen-lsp`):
 
 ```yaml
 # In ci.yml — a new REQUIRED gate
@@ -503,7 +503,7 @@ my-check:
   steps:
     - uses: actions/checkout@<sha> # vX.Y.Z
     - uses: ./.github/actions/setup-ggen-build
-    - run: cargo <command> --workspace --exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a
+    - run: cargo <command> --workspace --exclude ggen-lsp
 
 # Then add it to the aggregate so it becomes part of the `CI Status` required check:
 ci-status:
@@ -601,14 +601,14 @@ the four provisioned siblings. Reproduce locally with the same scope:
 
 ```bash
 # Compile the shippable deliverable (same exclusions as the required gate)
-cargo check --workspace --exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a
+cargo check --workspace --exclude ggen-lsp
 
 # Or use the project entry point
 just check && just test-lib
 ```
 
 Then fix the errors and push. Note: failures in the advisory `lsp crates` job
-(`ggen-lsp` / `ggen-lsp-mcp` / `ggen-lsp-a2a`) do **not** block merge — that job is
+(`ggen-lsp`) does **not** block merge — that job is
 intentionally non-required until `ggen-lsp` compiles against a pinned `lsp-max`.
 
 ### Issue: "Docker image build timeout"

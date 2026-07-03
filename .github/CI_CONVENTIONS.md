@@ -118,16 +118,16 @@ build failure. Fail honestly. The only acceptable non-blocking job is one that i
 explicitly documented as advisory (e.g. an SLO check needing a build budget) —
 and it must say so in a comment.
 
-## 8. Required gate is deliverable-scoped; the lsp trio is advisory
+## 8. Required gate is deliverable-scoped; ggen-lsp is advisory
 
 The required PR gate builds the **shippable deliverable** = the workspace
-**excluding** the lsp trio (`ggen-lsp`, `ggen-lsp-mcp`, `ggen-lsp-a2a`). Those
-three are **leaf crates**: nothing depends on them by default (`ggen-cli` pulls
-them in only behind the off-by-default `lsp` feature), and they currently fail to
-compile (51 errors) against the **untagged, floating-HEAD** external sibling
-`lsp-max` v26.6.18. Gating the entire product on a moving external target nobody
-controls is the anti-pattern, so the required gate is scoped to the deliverable
-and the trio is surfaced **honestly** in a separate, non-required job.
+**excluding** `ggen-lsp`. It is a **leaf crate**: nothing depends on it by
+default (`ggen-cli` pulls it in only behind the off-by-default `lsp`/
+`experimental` features), and it depends on the **untagged, floating-HEAD**
+external sibling `lsp-max`, which can regress independent of this repo.
+Gating the entire product on a moving external target nobody controls is the
+anti-pattern, so the required gate is scoped to the deliverable and ggen-lsp
+is surfaced **honestly** in a separate, non-required job.
 
 **Required status checks** (mark these "required" in branch protection on `main`):
 
@@ -158,8 +158,7 @@ ci-status:
 ```
 
 **Advisory `lsp-crates` job (NON-required).** `ci.yml` also carries an advisory
-`lsp-crates` job that runs `cargo check -p ggen-lsp -p ggen-lsp-mcp -p
-ggen-lsp-a2a`. It shows the trio's **true** status (currently red) — **no
+`lsp-crates` job that runs `cargo check -p ggen-lsp --all-features`. It shows the trio's **true** status (currently red) — **no
 `continue-on-error` masking** — and is deliberately **absent from
 `ci-status.needs`**, so its failure cannot block a PR or the merge queue.
 `validate-workflows.py` (`check_advisory_isolation`) enforces that `lsp-crates`
