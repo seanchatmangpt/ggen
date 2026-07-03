@@ -2,8 +2,7 @@
 # SessionStart hook. Budget: 15s (see .claude/settings.json).
 #
 # Purpose: give the agent accurate, live workspace state before the first
-# prompt — branch, uncommitted changes, a fast compile signal, and whether a
-# stop-the-line (Andon) flag is already raised from a prior turn. Doctrine
+# prompt — branch, uncommitted changes, a fast compile signal. Doctrine
 # itself (just-not-cargo, Chicago TDD, fix-forward, LSP-first) already lives
 # in CLAUDE.md and is loaded unconditionally, so this hook does not repeat it
 # — it only adds what CLAUDE.md cannot know: current repo state.
@@ -14,8 +13,8 @@ source "${SCRIPT_DIR}/lib/common.sh"
 
 read_input  # drain stdin exactly once, into $HOOK_INPUT
 
-# Gap fix: every downstream helper (additional_context, jqf, andon_*) shells
-# out to jq. If jq isn't on PATH (minimal/sandboxed PATH, a container missing
+# Gap fix: every downstream helper (additional_context, jqf) shells out to
+# jq. If jq isn't on PATH (minimal/sandboxed PATH, a container missing
 # it), those calls fail silently under `set -uo pipefail` (no -e) and the hook
 # still exits 0 with completely empty stdout — the agent gets zero session
 # context with no indication anything went wrong. Fail loudly instead, with a
@@ -56,31 +55,13 @@ if command -v cargo >/dev/null 2>&1; then
     fi
 fi
 
-ANDON_NOTE=""
-if andon_is_raised; then
-    REASON="$(jq -r '.reason // "unknown"' "$(andon_flag_path)" 2>/dev/null)"
-    AGE="$(andon_age_seconds)"
-    FLAG_SESSION="$(andon_session_id)"
-    THIS_SESSION="$(current_session_id)"
-    PROVENANCE="from a prior turn"
-    if [[ -n "$FLAG_SESSION" && -n "$THIS_SESSION" && "$FLAG_SESSION" != "$THIS_SESSION" ]]; then
-        PROVENANCE="from a DIFFERENT session (${FLAG_SESSION})"
-        if [[ "$AGE" -ge 0 ]] && andon_is_stale; then
-            PROVENANCE="${PROVENANCE}, ${AGE}s ago — likely stale; clear with: rm $(andon_flag_path)"
-        fi
-    fi
-    ANDON_NOTE="ANDON FLAG RAISED ${PROVENANCE}: ${REASON}. Fix and re-run the failing command before ending this turn (or clear manually if confirmed stale)."
-fi
-
 CONTEXT="$(jq -rn \
     --arg branch "$BRANCH" \
     --arg uncommitted "$UNCOMMITTED" \
     --arg compile "$COMPILE_STATE" \
-    --arg andon "$ANDON_NOTE" \
     '"=== ggen @ \($branch) ===
 uncommitted changes: \($uncommitted)
-compile canary: \($compile)
-\(if $andon != "" then "\n\($andon)\n" else "" end)"'
+compile canary: \($compile)"'
 )"
 
 additional_context "$CONTEXT"
