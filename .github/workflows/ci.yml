@@ -17,23 +17,24 @@
 # and drive every job through the real `just` recipes (the project entry point).
 # No matrix, no continue-on-error. One required aggregate check: `ci-status`.
 #
-# SCOPING DECISION (2026-06-20): the required gate builds the SHIPPABLE DELIVERABLE
-# = the workspace EXCLUDING the lsp trio (ggen-lsp, ggen-lsp-mcp, ggen-lsp-a2a).
-# Rationale:
-#   - These three are LEAF crates: nothing in the workspace depends on them by
-#     default. `ggen-cli` pulls in ggen-lsp / ggen-lsp-mcp ONLY behind the optional
-#     `lsp` feature (crates/ggen-cli/Cargo.toml: `lsp = ["dep:ggen-lsp","dep:ggen-lsp-mcp"]`),
-#     which is OFF by default. The default shippable product never touches them.
-#   - They currently FAIL TO COMPILE: ggen-lsp has 51 errors (E0277/E0308/E0425/E0432)
-#     from API drift against the EXTERNAL sibling `lsp-max` v26.6.18 — an untagged
-#     WIP repo cloned at floating HEAD. There is no compiling commit to pin.
-#   - Gating the ENTIRE product on a floating external target is the anti-pattern:
-#     it makes the required PR gate hostage to a moving upstream nobody controls.
-#   - Therefore the trio are surfaced HONESTLY in a separate, NON-REQUIRED advisory
-#     job (`lsp-crates`) that shows its TRUE status (currently red). It is NEVER
+# SCOPING DECISION (2026-06-20, crate names updated 2026-07-02 after the LSP
+# consolidation pass folded ggen-lsp-mcp/ggen-a2a-mcp/ggen-lsp-a2a into
+# ggen-lsp's `mcp`/`a2a` features — see CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md):
+# the required gate builds the SHIPPABLE DELIVERABLE = the workspace EXCLUDING
+# ggen-lsp. Rationale:
+#   - ggen-lsp is a LEAF crate: nothing in the workspace depends on it by
+#     default. `ggen-cli` pulls it in ONLY behind the optional `lsp`/`experimental`
+#     features (crates/ggen-cli/Cargo.toml), which are OFF by default. The
+#     default shippable product never touches it.
+#   - It has a history of falling out of sync with the EXTERNAL sibling
+#     `lsp-max` (an untagged WIP repo cloned at floating HEAD). Gating the
+#     ENTIRE product on a floating external target is the anti-pattern: it
+#     makes the required PR gate hostage to a moving upstream nobody controls.
+#   - Therefore ggen-lsp is surfaced HONESTLY in a separate, NON-REQUIRED
+#     advisory job (`lsp-crates`) that shows its TRUE status. It is NEVER
 #     masked with continue-on-error, and it is NOT in any required `needs:` path.
-#     Promote it to a required `needs:` of `ci-status` once ggen-lsp tracks a pinned
-#     lsp-max and compiles.
+#     Promote it to a required `needs:` of `ci-status` once ggen-lsp reliably
+#     tracks a pinned lsp-max.
 name: CI
 
 on:
@@ -137,7 +138,7 @@ jobs:
       # Scoped to the shippable deliverable: the lsp trio is excluded (leaf crates,
       # optional in cli, failing against floating-HEAD lsp-max WIP — see top comment).
       - name: cargo check
-        run: cargo check --workspace --exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a
+        run: cargo check --workspace --exclude ggen-lsp
 
   build:
     name: Build
@@ -150,7 +151,7 @@ jobs:
         with:
           cache-key-suffix: build
       - name: cargo build
-        run: cargo build --workspace --exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a
+        run: cargo build --workspace --exclude ggen-lsp
 
   test:
     name: Test
@@ -163,7 +164,7 @@ jobs:
         with:
           cache-key-suffix: test
       - name: cargo test (lib)
-        run: cargo test --workspace --lib --exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a
+        run: cargo test --workspace --lib --exclude ggen-lsp
 
   doctest:
     name: Doctest
@@ -176,7 +177,7 @@ jobs:
         with:
           cache-key-suffix: doctest
       - name: cargo test (doc)
-        run: cargo test --doc --workspace --exclude ggen-core --exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a
+        run: cargo test --doc --workspace --exclude ggen-core --exclude ggen-lsp
 
   # Phase 2: Inverse sync + coherence gate validation
   phase2:
@@ -223,17 +224,18 @@ jobs:
             echo "⚠️  No OTEL spans found (check may be optional for this phase)"
           fi
 
-  # ADVISORY, NON-BLOCKING. The lsp trio (ggen-lsp, ggen-lsp-mcp, ggen-lsp-a2a)
-  # are LEAF crates that nothing depends on by default — ggen-cli reaches them only
-  # behind the optional `lsp` feature (OFF by default). They currently FAIL to
-  # compile: ggen-lsp has 51 errors (E0277/E0308/E0425/E0432) from API drift
-  # against the EXTERNAL sibling `lsp-max` v26.6.18, an untagged WIP repo cloned at
+  # ADVISORY, NON-BLOCKING. ggen-lsp (which since the 2026-07 consolidation pass
+  # also carries the absorbed mcp/a2a modules behind features — see
+  # CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md) is a LEAF crate that nothing
+  # depends on by default — ggen-cli reaches it only behind the optional
+  # `lsp`/`experimental` features (OFF by default). It has a history of API
+  # drift against the EXTERNAL sibling `lsp-max`, an untagged WIP repo cloned at
   # floating HEAD (no compiling commit to pin). Gating the whole product on a
   # moving external target is the anti-pattern, so this job is advisory: it runs to
-  # surface the TRUE status (currently red) WITHOUT continue-on-error masking, and
-  # it is deliberately ABSENT from `ci-status.needs`, so its failure cannot block a
+  # surface the TRUE status WITHOUT continue-on-error masking, and it is
+  # deliberately ABSENT from `ci-status.needs`, so its failure cannot block a
   # PR or the merge queue. Promote it to a required `needs:` of `ci-status` once
-  # ggen-lsp tracks a pinned lsp-max and compiles cleanly.
+  # ggen-lsp reliably tracks a pinned lsp-max.
   lsp-crates:
     name: lsp crates (advisory)
     runs-on: ubuntu-latest
@@ -244,8 +246,8 @@ jobs:
         uses: ./.github/actions/setup-ggen-build
         with:
           cache-key-suffix: lsp
-      - name: cargo check (lsp trio)
-        run: cargo check -p ggen-lsp -p ggen-lsp-mcp -p ggen-lsp-a2a
+      - name: cargo check (ggen-lsp, all features)
+        run: cargo check -p ggen-lsp --all-features
 
   # Single required aggregate check. Fails if ANY gating job did not succeed,
   # including skipped/cancelled (no honest job can be 'skipped' here).

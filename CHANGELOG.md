@@ -5,6 +5,17 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] — Crate Consolidation (2026-07-02)
+
+### Removed
+- **Workspace trimmed from 17 packages / 24 disk dirs to 10 packages / 9 disk dirs.** A 5-phase consolidation pass (see `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md`) removed dead crates and folded single-consumer/leaf crates into their sole dependent, all behind Cargo features to preserve functionality:
+  - Deleted 8 non-member dormant directories, root-package orphans, and a dead code cluster in `ggen-config` (17,424 dead LOC).
+  - Removed `stpnt` and `genesis-core` (zero dependents, dead code).
+  - Removed `star-toml` from the workspace; `ggen-config` now depends on the published `star-toml` crate instead of an in-tree copy.
+  - Folded `genesis-schema-v2` into `genesis-types-v2` as its `schema` module.
+  - Folded `ggen-lsp-mcp`, `ggen-a2a-mcp`, and `ggen-lsp-a2a` into `ggen-lsp` as feature-gated modules (`mcp`, `a2a`); `ggen-cli`'s `lsp`/`experimental` features now enable those `ggen-lsp` features instead of depending on the separate crates.
+- **`scripts/publish_loop.sh`** — deleted; it listed crates that no longer exist in the workspace and predated this consolidation entirely.
+
 ## [26.7.2] — CI Stabilization and Vendor Fork Cleanup (2026-07-02)
 
 ### Removed
