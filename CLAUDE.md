@@ -1,7 +1,7 @@
 # ggen v26.7.1 - Rust Code Generation CLI
 
 Specification-driven code generation from RDF ontologies. Formula: A = μ(O) - Code precipitates from RDF via five-stage pipeline (μ₁-μ₅).
-Stack: Rust (nightly, pinned via `rust-toolchain.toml`) | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY | 15-crate workspace
+Stack: Rust (nightly, pinned via `rust-toolchain.toml`) | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY | 10-crate workspace
 
 > **Toolchain:** the workspace currently requires **nightly** Rust, pinned to a specific date in `rust-toolchain.toml`. Two crates.io dependencies use nightly-only features: `wasm4pm-compat` (via `ggen-lsp`→`lsp-max`→`lsp-max-runtime`; `#![feature(...)]`) and `libsqlite3-sys` 0.38.x (via `cpmp`→`rusqlite` "bundled"; `cfg_select!`). Run `cargo`/`just` as usual — the toolchain file selects nightly automatically. `Cargo.lock` is committed for reproducible builds. Move back to stable here if/when those dependencies support it.
 **Compressed Architecture:** `docs/architecture/COMPRESSED_REFERENCE.md` — verified C4, real sync flow, stub registry, error map. Load this before modifying any code.
@@ -42,31 +42,26 @@ The split calculus: after a feature is extracted into its own project, the origi
 
 ## Architecture Reference
 
-### Crate Map (15 workspace members)
+### Crate Map (10 workspace members)
 
-Verified against `Cargo.toml` `members = [...]`. These are the only crates that compile in the workspace.
+Verified against `Cargo.toml` `members = [...]`. These are the only crates that compile in the workspace. Trimmed from 17 packages / 24 disk dirs to 10 packages / 9 disk dirs by the 2026-07 crate-consolidation pass — see `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` for the full evidence base and phase-by-phase history.
 
 | Crate | Purpose (from Cargo.toml / lib.rs) |
 |-------|-------------------------------------|
 | `ggen-core` | Core graph-aware code generation engine (μ₁–μ₅ pipeline) |
 | `ggen-cli` | CLI interface for ggen (binary + `ggen-cli-lib`) |
-| `ggen-config` | Configuration parser and validator for `ggen.toml` files |
+| `ggen-config` | Configuration parser and validator for `ggen.toml` files (depends on the published `star-toml` crate, not an embedded copy) |
 | `ggen-marketplace` | Marketplace / package management system for ggen |
-| `ggen-a2a-mcp` | A2A protocol and MCP server for agent-to-agent communication |
 | `ggen-graph` | Deterministic RDF graph module — Oxigraph wrapper with deterministic hashing, deltas, validation hooks, transition receipts |
-| `ggen-lsp` | Language server for ggen surfaces (analyzers, check, intel, pack, route, repair); also exposes `check`/`init`/`mine` library APIs |
-| `ggen-lsp-mcp` | MCP server exposing `ggen-lsp` repair routes as a tool (leaf crate — avoids the `ggen-core`↔`ggen-a2a-mcp` cycle) |
-| `ggen-lsp-a2a` | A2A bridge exposing the `ggen-lsp-mcp` route engine as an A2A agent (leaf crate, cycle-free) |
-| `genesis-core` | Pure mathematical foundation for the Genesis interchangeable-parts architecture (A = μ(O)); no_std variant for wasm32 targets |
-| `genesis-types-v2` | KNHK V2 type system — foundational data structures for the workflow engine (workflow/pattern defs, execution state, errors, config) |
-| `genesis-schema-v2` | KNHK V2 schema system — OpenAPI specs, RDF ontology, 43 YAWL pattern definitions, workflow schema validation |
+| `ggen-lsp` | Language server for ggen surfaces (analyzers, check, intel, pack, route, repair); also exposes `check`/`init`/`mine` library APIs. Absorbed `ggen-lsp-mcp`, `ggen-a2a-mcp`, and `ggen-lsp-a2a` as feature-gated modules (`mcp`, `a2a`) in the 2026-07 consolidation |
+| `genesis-types-v2` | KNHK V2 type system — foundational data structures for the workflow engine (workflow/pattern defs, execution state, errors, config); absorbed `genesis-schema-v2` as its `schema` module (OpenAPI specs, RDF ontology, 43 YAWL pattern definitions) |
 | `genesis-core-v2` | KNHK V2 core — `Pattern` trait system, pattern registry, composition, zero-copy/zero-alloc execution paths |
 | `cpmp` | Computer Project Mapping Protocol (Open Ontologies Catalog) — scanner, capability classification, projection, receipts |
-| `stpnt` | Stewards of the Pentecost — Canonical Stewardship Cell implementation (canon, cells, governance, membrane, projections, proof) |
+| `ggen` (root) | Workspace root package |
 
-#### Dormant
+#### Removed in the 2026-07 consolidation pass
 
-None. Prior dormant non-member directories were deleted in the 2026-07 crate-consolidation pass — see `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md`.
+`ggen-a2a-mcp`, `ggen-lsp-mcp`, `ggen-lsp-a2a` (absorbed into `ggen-lsp`), `genesis-schema-v2` (absorbed into `genesis-types-v2`), `star-toml` (removed from the workspace — now an external published dependency), `stpnt` and `genesis-core` (dead code, zero dependents). Prior dormant non-member directories were deleted earlier in the same pass.
 
 ### Cross-Cutting Patterns
 
@@ -76,12 +71,12 @@ None. Prior dormant non-member directories were deleted in the 2026-07 crate-con
 | **Builder pattern** | `ggen-core` | `with_*()` chain methods for optional config |
 | **Typestate** | `ggen-marketplace` | Compile-time state transitions (`Draft`/`Published`) |
 | **Newtype wrappers** | `ggen-core`, `ggen-marketplace` | Invariant encoding in types (e.g., `PackageId`) |
-| **Async traits** | `ggen-a2a-mcp` | `#[async_trait]` with `Result` returns |
+| **Async traits** | `ggen-lsp` (`a2a_mcp` module, feature `mcp`/`a2a`) | `#[async_trait]` with `Result` returns |
 | **RDF/SPARQL foundation** | `ggen-core`, `ggen-graph`, `ggen-marketplace` | Built on `oxigraph` triplestores |
 | **Pipeline architecture** | `ggen-core` (μ₁–μ₅) | Multi-stage deterministic transformation |
 | **Deterministic hashing + transition receipts** | `ggen-graph` | State-change detection (deltas) and cryptographic receipts |
-| **Leaf-crate cycle avoidance** | `ggen-lsp-mcp`, `ggen-lsp-a2a` | Bridge crates kept dependency-cycle-free |
-| **Pattern trait / registry** | `genesis-core-v2`, `genesis-schema-v2` | 43 YAWL workflow patterns, zero-copy execution |
+| **Feature-gated module absorption** | `ggen-lsp` (`mcp`/`a2a` features), `genesis-types-v2` (`schema` module) | Former sibling crates folded in behind Cargo features/modules, cycle-free |
+| **Pattern trait / registry** | `genesis-core-v2`, `genesis-types-v2::schema` | 43 YAWL workflow patterns, zero-copy execution |
 
 ---
 

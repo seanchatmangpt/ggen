@@ -1,16 +1,16 @@
 {
-  "git_sha": "013bee436654918c293613ae26eb7c00d34375c6",
+  "git_sha": "619b7ec103a335a0651bdbe99db30178c9d1a3db",
   "tool": "tokei (Rust code lines, src/ only)",
-  "total_loc": 167380,
+  "total_loc": 162099,
   "by_class": {
     "GENERATED": 5184,
     "GENERATABLE-NOW": 797,
-    "GENERATABLE-WITH-SPEC": 52617,
-    "IRREDUCIBLY-CUSTOM": 105623,
-    "DEAD-DELETE": 3159
+    "GENERATABLE-WITH-SPEC": 52544,
+    "IRREDUCIBLY-CUSTOM": 103488,
+    "DEAD-DELETE": 86
   },
-  "generation_coverage": 0.0316,
-  "potential_coverage": 0.3568,
-  "custom_ratio": 0.6432,
+  "generation_coverage": 0.032,
+  "potential_coverage": 0.3612,
+  "custom_ratio": 0.6388,
   "unclassified_count": 0
 }
