@@ -1,8 +1,11 @@
 name: Docker Image CI
 
 on:
+  # Only build on tags — DOCKER_USERNAME/DOCKER_TOKEN are required secrets
+  # that aren't configured for branch pushes. Avoids constant credential failures.
   push:
-    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
 
 # Pushes to Docker Hub via external credentials; no GitHub-scoped writes needed.
 permissions:

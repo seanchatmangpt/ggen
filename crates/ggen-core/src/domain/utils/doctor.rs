@@ -33,6 +33,11 @@ pub struct DoctorInput {
 
     /// Show environment information
     pub env: bool,
+
+    /// Also run the expensive checks (SLO microbenchmarks, observability
+    /// stack network probes). Off by default so `doctor` stays a fast,
+    /// no-network local health check.
+    pub all: bool,
 }
 
 /// Doctor command result
@@ -87,14 +92,15 @@ pub async fn execute_doctor(input: DoctorInput) -> Result<DoctorResult> {
         checks.push(cache_check);
     }
 
-    // Check Observability Stack (Anti-Cheating Gate)
-    if input.check.is_none() || input.check.as_deref() == Some("observability") {
+    // Observability stack (network probes) and SLO microbenchmarks are
+    // expensive and not local-only — opt in explicitly via `all` or by
+    // naming the check directly, don't run them on a bare `doctor` call.
+    if input.all || input.check.as_deref() == Some("observability") {
         let observability_check = check_observability().await?;
         checks.push(observability_check);
     }
 
-    // Check SLO Performance (Vision 2030 Gate)
-    if input.check.is_none() || input.check.as_deref() == Some("slo") {
+    if input.all || input.check.as_deref() == Some("slo") {
         let slo_check = check_slo().await?;
         checks.push(slo_check);
     }

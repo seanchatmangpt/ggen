@@ -319,6 +319,7 @@ pub fn doctor() -> Result<serde_json::Value> {
         verbose: true,
         check: Some("cache".to_string()),
         env: false,
+        all: false,
     }))
     .map_err(|e| NounVerbError::execution_error(format!("Runtime error: {}", e)))?
     .map_err(|e| NounVerbError::execution_error(format!("Doctor execution failed: {}", e)))?;

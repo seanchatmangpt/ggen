@@ -24,7 +24,7 @@ if ! command -v jq >/dev/null 2>&1; then
     exit 0
 fi
 
-cd "$WORKSPACE_ROOT" 2>/dev/null || { additional_context "session-start: not inside the ggen git repo"; exit 0; }
+cd "$WORKSPACE_ROOT" 2>/dev/null || { additional_context "session-start: not inside the ggen git repo" "SessionStart"; exit 0; }
 
 BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
 UNCOMMITTED="$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')"
@@ -64,5 +64,5 @@ uncommitted changes: \($uncommitted)
 compile canary: \($compile)"'
 )"
 
-additional_context "$CONTEXT"
+additional_context "$CONTEXT" "SessionStart"
 exit 0

@@ -18,8 +18,8 @@ on:
         description: 'Reason for rollback'
         required: true
         type: string
-  schedule:
-    - cron: '*/5 * * * *'  # Run health checks every 5 minutes
+  # schedule disabled — no Kubernetes cluster deployed; health-check job
+  # uses kubectl which is unavailable in CI. Re-enable when infra is live.
 
 env:
   HEALTH_CHECK_TIMEOUT: 300  # 5 minutes

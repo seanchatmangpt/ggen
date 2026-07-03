@@ -1,11 +1,11 @@
 [workspace]
 name = "ggen"
-toolchain = "nightly-2026-06-22"
+toolchain = "nightly-2026-06-22-aarch64-apple-darwin"
 target_dir = "target"
 
 [state]
-dirty = false
-target_size_gb = 0.0
+dirty = true
+target_size_gb = 130.57
 changed_files = 0
 changed_tests = 0
 changed_trybuild_fixtures = 0
