@@ -198,23 +198,24 @@ test-phase2:
     set -euo pipefail
     echo "Running Phase 2 test suite..."
 
-    # Core AST extraction tests -- SKIPPED (2026-07-17): reverse_sync::ast_extractor
-    # has no ggen-engine/ggen-graph port yet, and ggen-core cannot be invoked via
-    # cargo at all post-disconnect (see note above). Not a silent gap: this line
-    # intentionally does not run and prints why every time this recipe executes.
-    echo "SKIPPED: ast_extractor_70pct_test (ggen-core unreachable post-disconnect, no ggen-engine port yet -- see comment above test-phase2)"
+    # Core AST extraction tests -- SKIPPED: reverse_sync::ast_extractor was
+    # abandoned (not ported) when ggen-core was deleted (2026-07-17, see
+    # docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md). Not a silent gap:
+    # this line intentionally does not run and prints why every time this
+    # recipe executes.
+    echo "SKIPPED: ast_extractor_70pct_test (ggen-core deleted, functionality abandoned not ported -- see docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md)"
 
     # Receipt chain validation (T067: retargeted from ggen-core's
     # inverse_receipt_chain_test -- ggen-core is being disconnected from the
     # workspace; ggen-engine::sync + receipt_chain_e2e is the live equivalent)
     cargo test -p ggen-engine --test receipt_chain_e2e || exit 1
 
-    # Provenance envelope (O→A bridge) -- SKIPPED (2026-07-17): ProvenanceEnvelope
-    # lives only in ggen-core::receipt::provenance_envelope; its only other
-    # consumer (ggen-cli's inverse_sync command) is itself still ggen-core-backed,
-    # and ggen-core cannot be invoked via cargo at all post-disconnect (see comment
-    # above test-phase2). Not a silent gap: this line intentionally does not run.
-    echo "SKIPPED: provenance_envelope_test (ggen-core unreachable post-disconnect, no ggen-engine port yet -- see comment above test-phase2)"
+    # Provenance envelope (O→A bridge) -- SKIPPED: ProvenanceEnvelope lived only
+    # in ggen-core::receipt::provenance_envelope; its only consumer (ggen-cli's
+    # inverse_sync command) was abandoned in the same removal pass, not ported
+    # (2026-07-17, docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md). Not a
+    # silent gap: this line intentionally does not run.
+    echo "SKIPPED: provenance_envelope_test (ggen-core deleted, functionality abandoned not ported -- see docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md)"
 
     # Coherence hash expectations
     cargo test -p ggen-graph --test coherence_hash_expectations_test || exit 1

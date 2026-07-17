@@ -97,34 +97,12 @@ fn test_sabotage_corrupt_lockfile_sync_locked_exits_nonzero() {
         );
 }
 
-/// Test 3: Empty signature in receipt, verify should return is_valid:false
-#[test]
-fn test_sabotage_empty_signature_receipt_verify_returns_invalid() {
-    use ggen_core::receipt::{generate_keypair, Receipt};
-
-    let temp_dir = TempDir::new().unwrap();
-    let receipt_path = temp_dir.path().join("receipt.json");
-
-    // Create a receipt without signing (signature field will be empty string)
-    let receipt = Receipt::new(
-        "test-operation-id".to_string(),
-        vec!["sha256:input-hash".to_string()],
-        vec!["sha256:output-hash".to_string()],
-        None,
-    );
-
-    let receipt_json = serde_json::to_string_pretty(&receipt).unwrap();
-    fs::write(&receipt_path, receipt_json).unwrap();
-
-    ggen()
-        .arg("receipt")
-        .arg("verify")
-        .arg(&receipt_path)
-        .current_dir(temp_dir.path())
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("\"is_valid\":false"));
-}
+// REMOVED (2026-07-17, ggen-core removal, docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md):
+// test_sabotage_empty_signature_receipt_verify_returns_invalid constructed its fixture via the
+// deleted ggen_core::receipt::Receipt type, and separately already used a stale CLI invocation
+// (`ggen receipt verify <path>` -- the current `receipt verify` takes zero positional args,
+// always targeting `.ggen-v2/receipt.json`). Equivalent real coverage for tamper/invalid-receipt
+// behavior exists in crates/ggen-engine/tests/receipt_chain_e2e.rs and cli_boundary.rs.
 
 /// Test 4: Delete verifying key, receipt verify should return is_valid:false
 #[test]

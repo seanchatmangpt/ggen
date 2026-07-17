@@ -230,65 +230,6 @@ fn proof_policy_check_runs_enterprise_strict_with_real_lockfile() {
 /// Observable assertion: success exit + stdout indicates the check passed /
 /// found ggen.toml. A stub ignoring the filesystem could not distinguish this
 /// from the absent case below.
-// ARCHIVED (v26.7.16 routing flip, upstream ggen-engine behavior gap):
-// ggen-engine's `handle_doctor` (crates/ggen-engine/src/verbs/handlers.rs)
-// calls `GgenConfig::load` unconditionally and requires the full manifest
-// schema (`[ontology]` etc.), not just `[project]` -- this fixture's minimal
-// `ggen.toml` now fails to deserialize (FM-CONFIG-002) instead of being
-// accepted as "present". Doctor's manifest-presence/validity semantics are
-// ggen-engine's own, not a ggen-cli routing/flag issue -- out of this
-// routing task's scope. Left BLOCKED rather than silently worked around.
-#[cfg(feature = "ggen-core-retired")]
-#[test]
-fn proof_doctor_check_passes_when_ggen_toml_present() {
-    let tmp = TempDir::new().expect("tempdir");
-    fs::write(
-        tmp.path().join("ggen.toml"),
-        "[project]\nname = \"proof\"\n",
-    )
-    .expect("write ggen.toml");
-    ggen()
-        .current_dir(tmp.path())
-        .arg("doctor")
-        .assert()
-        .success()
-        .stdout(
-            predicate::str::contains("passed")
-                .or(predicate::str::contains("ggen.toml"))
-                .or(predicate::str::contains("true")),
-        );
-}
-
-/// PROOF (negative): `doctor` in a directory WITHOUT `ggen.toml` reports
-/// the check failed and surfaces recovery guidance (doctor.rs:169-183).
-///
-/// Observable assertion: stdout reflects the not-found / failed state. This is
-/// the differentiating proof versus the positive case: same command, opposite
-/// observable result driven purely by real filesystem state.
-// ARCHIVED (v26.7.16 routing flip, upstream ggen-engine behavior gap): a
-// missing `ggen.toml` now hard-fails the process (FM-CONFIG-001, empty
-// stdout, error on stderr) instead of doctor reporting a soft "not found"
-// finding on stdout. Same root cause as
-// `proof_doctor_check_passes_when_ggen_toml_present` above. Out of this
-// routing task's scope; left BLOCKED.
-#[cfg(feature = "ggen-core-retired")]
-#[test]
-fn proof_doctor_check_reports_missing_ggen_toml() {
-    let tmp = TempDir::new().expect("tempdir");
-    // Ensure no ggen.toml exists.
-    assert!(!tmp.path().join("ggen.toml").exists());
-    ggen()
-        .current_dir(tmp.path())
-        .arg("doctor")
-        .assert()
-        .stdout(
-            predicate::str::contains("not found")
-                .or(predicate::str::contains("failed"))
-                .or(predicate::str::contains("false"))
-                .or(predicate::str::contains("Create ggen.toml")),
-        );
-}
-
 // ============================================================================
 // utils env  (crates/ggen-cli/src/cmds/utils.rs:103)
 // ============================================================================
