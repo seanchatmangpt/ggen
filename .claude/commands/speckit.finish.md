@@ -348,7 +348,7 @@ git merge origin/master
 
 Conflicts in:
 - Cargo.toml
-- crates/ggen-core/src/lib.rs
+- crates/ggen-engine/src/sync.rs
 
 Action: Resolve conflicts manually using Chicago TDD approach:
   1. Resolve conflicts
@@ -428,7 +428,7 @@ Use this structure:
 
 ### Crates Modified
 [List crates with file counts]
-- `ggen-core`: 5 files
+- `ggen-engine`: 5 files
 - `ggen-domain`: 3 files
 - `ggen-cli`: 8 files
 

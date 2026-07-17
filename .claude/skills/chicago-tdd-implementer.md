@@ -77,20 +77,26 @@ fn test_audit_trail_created_with_flag() {
 ## Test Categories
 
 ### Unit Tests
-- `crates/ggen-core/tests/audit_trail_tests.rs`
-- `crates/ggen-core/tests/force_flag_tests.rs`
+- `crates/ggen-core/tests/audit_trail_integration_tests.rs`
+- `crates/ggen-core/tests/force_flag_integration_tests.rs`
 - `crates/ggen-core/tests/merge_mode_tests.rs`
-- `crates/ggen-core/tests/watch_mode_tests.rs`
+- `crates/ggen-core/src/codegen/watch_mode.rs`, `watch_mode_enhanced.rs`, `watch.rs` (inline `#[cfg(test)] mod tests` — no standalone `tests/watch_mode_tests.rs` file exists)
 - `crates/ggen-core/tests/conditional_execution_tests.rs`
 - `crates/ggen-core/tests/validation_tests.rs`
 
 ### Integration Tests
-- `tests/integration/sync_e2e_tests.rs`
-- `tests/integration/cli_flag_combinations.rs`
+- `crates/ggen-engine/tests/sync_e2e.rs` (real; the `tests/integration/sync_e2e_tests.rs` path
+  this line previously named does not exist anywhere in the repo)
+- `crates/ggen-engine/tests/cli_boundary.rs` (real; covers CLI flag combinations across
+  sync/graph/receipt/doctor verbs — the `tests/integration/cli_flag_combinations.rs` path this
+  line previously named does not exist anywhere in the repo)
 
 ## Coverage Target
 - **Minimum**: 95% for `crates/ggen-core/src/codegen/`
-- **Verification**: `cargo make` with coverage reporting
+- **Verification**: no coverage tooling is currently wired into `just` or CI (confirmed —
+  `.github/workflows/quality.yml` explicitly lists "tarpaulin coverage" among gates it does
+  NOT run; no `test-coverage`/`coverage-report` recipe exists in the justfile). This target is
+  currently unverified/unenforced, not just run under a different command.
 
 ## Dependencies
 - `tempfile` - Temp directory management
@@ -103,28 +109,26 @@ fn test_audit_trail_created_with_flag() {
 - `architecture-validator` - Test organization
 
 ## Files to Create
-- `crates/ggen-core/tests/common/mod.rs`
-- `crates/ggen-core/tests/fixtures/` (ontology, toml, templates)
-- `crates/ggen-core/tests/audit_trail_tests.rs`
-- `crates/ggen-core/tests/force_flag_tests.rs`
-- `crates/ggen-core/tests/merge_mode_tests.rs`
-- `crates/ggen-core/tests/watch_mode_tests.rs`
-- `crates/ggen-core/tests/conditional_execution_tests.rs`
-- `crates/ggen-core/tests/validation_tests.rs`
+- `crates/ggen-core/tests/common/mod.rs` (already exists)
+- `crates/ggen-core/tests/fixtures/` (already exists — ontology, toml, templates)
+- `crates/ggen-core/tests/audit_trail_integration_tests.rs` (already exists)
+- `crates/ggen-core/tests/force_flag_integration_tests.rs` (already exists)
+- `crates/ggen-core/tests/merge_mode_tests.rs` (already exists)
+- watch-mode tests already exist, inline in `crates/ggen-core/src/codegen/{watch,watch_mode,watch_mode_enhanced}.rs` — no separate file needed
+- `crates/ggen-core/tests/conditional_execution_tests.rs` (already exists)
+- `crates/ggen-core/tests/validation_tests.rs` (already exists)
 
 ## Test Execution
 ```bash
-# Run all tests
-cargo make test
+# Run all tests (mandated entry point per CLAUDE.md -- never bare cargo/cargo make)
+just test
 
-# Run specific test file
-cargo make test -- tests/audit_trail_tests.rs
+# Run a specific test file (scoped cargo test is fine for fast iteration)
+cargo test -p ggen-core --test audit_trail_integration_tests
 
-# Run with coverage
-cargo make test-coverage
-
-# Check coverage
-cargo make coverage-report
+# Coverage: no working command exists today (see Coverage Target above) -- this
+# section previously listed `cargo make test-coverage`/`coverage-report`, neither
+# of which is wired to any real tool in this workspace.
 ```
 
 ## Quality Standards
