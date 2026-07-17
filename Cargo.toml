@@ -68,6 +68,7 @@ members = [
   "crates/genesis-types-v2",
   "crates/genesis-core-v2",
   "crates/cpmp",
+  "crates/ggen-cheat-scanner",
   # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
   # drifted from its own types in a prior release (ValidationAgent missing the
   # `agent_type` field; async fns misusing `?`) and does not compile under
@@ -899,8 +900,8 @@ name = "a2a_rig_mcp_integration"
 path = "tests/a2a_rig_mcp_integration.rs"
 required-features = ["integration"]
 [[test]]
-name = "a2a_integration_tests"
-path = "tests/a2a_integration_tests.rs"
+name = "config_error_conversion_tests"
+path = "tests/config_error_conversion_tests.rs"
 required-features = ["integration"]
 [[test]]
 name = "test_telco_routing"

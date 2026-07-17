@@ -113,11 +113,15 @@ fn test_builder_chaining_works() {
         .expect("Failed to create cache");
     let cache_arc = Arc::new(cache);
 
-    let _client = MarketplaceClient::new("https://registry.example.com")
+    let client = MarketplaceClient::new("https://registry.example.com")
         .with_timeout(Duration::from_secs(10))
         .with_cache(cache_arc);
 
-    // If we got here without panic, chaining works
+    // Assert real state survives the chain: registry_url is the only field
+    // exposed to this integration test (request_timeout/cache are private),
+    // so verify it was preserved through both with_timeout() and with_cache()
+    // rather than overwritten or reset by either builder step.
+    assert_eq!(client.registry_url(), "https://registry.example.com");
 }
 
 // ============================================================================

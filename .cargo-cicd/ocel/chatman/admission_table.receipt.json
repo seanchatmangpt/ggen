@@ -1,0 +1,6 @@
+{
+  "suite": "admission_table",
+  "digest_blake3": "55ee001a0fa525a805622afd907a8df785a56dbc7bb00b2a3c715b63ca234a29",
+  "sealed_by": "chatman_engine_acceptance::harness::SealGuard",
+  "clock": "ordinal (no wall clock)"
+}

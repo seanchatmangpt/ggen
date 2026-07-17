@@ -1,0 +1,19 @@
+[package]
+name = "ggen-cheat-scanner"
+description = "AST-based scanner for test-quality cheat patterns (vacuous asserts, tautological checks, assertion-free tests, mock-collaborator substitutes)"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+publish = false
+
+[[bin]]
+name = "ggen-cheat-scanner"
+path = "src/main.rs"
+
+[dependencies]
+walkdir = "2"
+syn = { version = "2", features = ["full", "visit", "extra-traits"] }
+quote = "1.0"
+proc-macro2 = { version = "1.0", features = ["span-locations"] }

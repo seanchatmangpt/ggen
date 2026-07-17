@@ -323,11 +323,11 @@ slo-check:
 
 # ── Quality gates ─────────────────────────────────────────────────────────────
 
-# Full pre-commit gate: fmt → check → lint → test-lib → coherence-check → boundary guard (in sequence, fail fast)
-pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary
+# Full pre-commit gate: fmt → check → lint → test-lib → coherence-check → boundary guard → cheat scan (in sequence, fail fast)
+pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan
     #!/usr/bin/env bash
     set -euo pipefail
-    echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard)"
+    echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan)"
 
 # Security vulnerability scan
 audit:
@@ -352,6 +352,17 @@ guard-process-intelligence-boundary:
 # specs/014-ggen-core-replacement/tasks.md -- named exactly this way there).
 # Delegates to the same recipe/script rather than duplicating the call.
 guard-process-boundary: guard-process-intelligence-boundary
+
+# Test-quality cheat scan (crates/ggen-cheat-scanner): syn-based AST scan for
+# CHEAT-T01 vacuous-assert, CHEAT-T02 tautological-result-check, CHEAT-T03
+# no-assertion-test, and CHEAT-T04 mock-import across crates/*/src, crates/*/tests,
+# and tests/. NOTE (2026-07-17): wired into `pre-commit` per the same
+# unconditional pattern as guard-process-intelligence-boundary, but as of this
+# recipe's introduction the scanner reports 515 pre-existing findings across the
+# workspace's existing test suites -- this currently makes `just pre-commit` fail
+# until that debt is triaged/fixed, same as any other newly-added real gate.
+guard-cheat-scan:
+    cargo run --quiet -p ggen-cheat-scanner --bin ggen-cheat-scanner
 
 # ── Documentation ─────────────────────────────────────────────────────────────
 
