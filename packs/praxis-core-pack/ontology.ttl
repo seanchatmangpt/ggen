@@ -1,0 +1,79 @@
+# praxis-core-pack ontology — refusal taxonomy domain.
+#
+# Mirrors praxis_core::refusal: RefusalScenario variants map to exactly one
+# 8-bucket RefusalCategory, and the DenialPolarity-lane scenarios carry the
+# bcinr_powl_receipt lane constant they correspond to.
+
+@prefix pxc:  <http://seanchatmangpt.github.io/packs/praxis-core#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+pxc:RefusalScenario
+    a            rdfs:Class ;
+    rdfs:label   "RefusalScenario" ;
+    rdfs:comment "A concrete praxis-core refusal scenario (closed enum variant)." .
+
+pxc:RefusalCategory
+    a            rdfs:Class ;
+    rdfs:label   "RefusalCategory" ;
+    rdfs:comment "One of the 8 praxis-core refusal buckets." .
+
+pxc:scenarioName
+    a            rdf:Property ;
+    rdfs:label   "scenario name" ;
+    rdfs:domain  pxc:RefusalScenario ;
+    rdfs:range   xsd:string .
+
+pxc:categoryName
+    a            rdf:Property ;
+    rdfs:label   "category name" ;
+    rdfs:domain  pxc:RefusalScenario ;
+    rdfs:range   xsd:string .
+
+pxc:denialLane
+    a            rdf:Property ;
+    rdfs:label   "denial lane constant" ;
+    rdfs:comment "bcinr_powl_receipt DenialPolarity lane constant name." ;
+    rdfs:domain  pxc:RefusalScenario ;
+    rdfs:range   xsd:string .
+
+pxc:note
+    a            rdf:Property ;
+    rdfs:label   "note" ;
+    rdfs:domain  pxc:RefusalScenario ;
+    rdfs:range   xsd:string .
+
+# ── DenialPolarity-lane scenarios (subset mirroring refusal.rs::category) ──
+
+pxc:WatchdogDrained
+    a                 pxc:RefusalScenario ;
+    rdfs:label        "WatchdogDrained" ;
+    pxc:scenarioName  "WatchdogDrained" ;
+    pxc:categoryName  "temporal" ;
+    pxc:denialLane    "WATCHDOG_DRAINED" ;
+    pxc:note          "Watchdog budget drained before Judge completed." .
+
+pxc:AuthorizationDenied
+    a                 pxc:RefusalScenario ;
+    rdfs:label        "AuthorizationDenied" ;
+    pxc:scenarioName  "AuthorizationDenied" ;
+    pxc:categoryName  "authorization" ;
+    pxc:denialLane    "AUTHORIZATION_DENIED" ;
+    pxc:note          "Credential or capability check failed at admission." .
+
+pxc:ResourceExhausted
+    a                 pxc:RefusalScenario ;
+    rdfs:label        "ResourceExhausted" ;
+    pxc:scenarioName  "ResourceExhausted" ;
+    pxc:categoryName  "capacity" ;
+    pxc:denialLane    "RESOURCE_EXHAUSTED" ;
+    pxc:note          "Resource capacity or quota limit reached." .
+
+pxc:ConformanceGateFailed
+    a                 pxc:RefusalScenario ;
+    rdfs:label        "ConformanceGateFailed" ;
+    pxc:scenarioName  "ConformanceGateFailed" ;
+    pxc:categoryName  "topology" ;
+    pxc:denialLane    "CONFORMANCE_GATE_FAILED" ;
+    pxc:note          "Conformance gate rejected the POWL replay projection." .

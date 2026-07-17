@@ -1,0 +1,36 @@
+@prefix w4pm: <http://seanchatmangpt.github.io/packs/wasm4pm-compat#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Emission-surface ontology for the wasm4pm-compat integration.
+# ggen EMITS OCEL events; wasm4pm-compat owns all analysis (discovery,
+# conformance, fitness, variants). Only EventType individuals live here.
+
+w4pm:EventType a rdfs:Class ;
+    rdfs:label "OCEL event type emitted by the generator" .
+
+w4pm:ObjectType a rdfs:Class ;
+    rdfs:label "OCEL object type an event binds to" .
+
+w4pm:OntologyGraph a w4pm:ObjectType ;
+    rdfs:label "the union RDF graph a sync runs over" .
+
+w4pm:Pack a w4pm:ObjectType ;
+    rdfs:label "a resolved, content-hashed template pack" .
+
+w4pm:SyncReceipt a w4pm:ObjectType ;
+    rdfs:label "the chained BLAKE3 sync receipt" .
+
+w4pm:GraphUnionHashed a w4pm:EventType ;
+    w4pm:eventName "graph_union_hashed" ;
+    w4pm:objectType "OntologyGraph" ;
+    rdfs:label "emitted after the project + pack graphs are unioned and state-hashed" .
+
+w4pm:PackLockVerified a w4pm:EventType ;
+    w4pm:eventName "pack_lock_verified" ;
+    w4pm:objectType "Pack" ;
+    rdfs:label "emitted after a pack's content hash matches ggen.lock" .
+
+w4pm:ReceiptChained a w4pm:EventType ;
+    w4pm:eventName "receipt_chained" ;
+    w4pm:objectType "SyncReceipt" ;
+    rdfs:label "emitted after a new receipt links onto the previous chain hash" .

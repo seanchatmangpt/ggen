@@ -1,0 +1,4 @@
+[pack]
+name = "wasm4pm-cognition-pack"
+version = "0.1.0"
+description = "wasm4pm cognition breed catalog and typed dispatch-surface skeleton over the stable 6-verb ABI (cognition_show/run/verify/replay, system_build/verify); catalog/caller surface only — evidence and analysis stay in wasm4pm"

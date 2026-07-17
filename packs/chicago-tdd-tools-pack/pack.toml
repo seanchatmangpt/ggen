@@ -1,0 +1,4 @@
+[pack]
+name = "chicago-tdd-tools-pack"
+version = "0.1.0"
+description = "Generates CliHarness-based Chicago-style CLI boundary tests (#[test] fns crossing a real binary boundary) from ctt:CliBoundaryTest individuals."

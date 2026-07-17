@@ -1,0 +1,4 @@
+[pack]
+name = "wasm4pm-compat-pack"
+version = "0.1.0"
+description = "OCEL event-type emission enum and emit helper stubs targeting wasm4pm-compat (emission surface only; all analysis stays in wasm4pm-compat)"

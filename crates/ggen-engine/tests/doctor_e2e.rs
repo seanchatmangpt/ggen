@@ -202,3 +202,44 @@ fn deleted_output_fails_receipt_staleness_independently_of_other_checks() {
     assert!(!stderr.contains("lockfile_drift:"), "{stderr}");
     assert!(!stderr.contains("orphaned_artifacts:"), "{stderr}");
 }
+
+/// (e) Deleting the template file that produced a receipt-recorded output
+/// (while leaving `templates/` itself intact and readable) makes
+/// `doctor run` fail closed, naming `orphaned_artifacts` and the orphaned
+/// output's path — while `lockfile_drift` and `receipt_staleness` are each
+/// computed independently and still individually pass (the output file
+/// itself is untouched on disk, only its producing template is gone).
+#[test]
+fn orphaned_artifact_after_template_deletion_fails_independently() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice", "bob"]);
+    sync(
+        dir.path(),
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("sync");
+
+    let output = dir.path().join("out/names.txt");
+    assert!(output.is_file());
+
+    // Delete only the template FILE, not the `templates/` directory — the
+    // directory must remain present and readable so the orphan-detection
+    // logic fires, not a `templates dir ... unreadable` config error.
+    let template = dir.path().join("templates/one.tmpl");
+    assert!(template.is_file());
+    std::fs::remove_file(&template).expect("delete template");
+    assert!(dir.path().join("templates").is_dir());
+
+    let assert = run_doctor(dir.path()).failure();
+    let stderr = stderr_str(&assert);
+    assert!(stderr.contains("orphaned_artifacts"), "{stderr}");
+    assert!(stderr.contains("out/names.txt"), "{stderr}");
+
+    // lockfile_drift and receipt_staleness are each still individually
+    // fine — nothing here should mention them as failing.
+    assert!(!stderr.contains("lockfile_drift:"), "{stderr}");
+    assert!(!stderr.contains("receipt_staleness:"), "{stderr}");
+}

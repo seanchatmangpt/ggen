@@ -1,0 +1,41 @@
+@prefix lm:   <http://seanchatmangpt.github.io/packs/lsp-max#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ── Classes ────────────────────────────────────────────────────────────
+# A regex lint rule consumed by an lsp-max RulePackServer (the AhoCorasick
+# rule engine loads [[rules]] tables from rules/*.toml).
+lm:LintRule a rdfs:Class ;
+    rdfs:label "lsp-max RulePackServer lint rule" .
+
+lm:RulePack a rdfs:Class ;
+    rdfs:label "lsp-max rule pack (a rules/*.toml file)" .
+
+# ── The pack itself ────────────────────────────────────────────────────
+lm:PraxisHygienePack a lm:RulePack ;
+    rdfs:label "praxis-hygiene" ;
+    lm:packDescription "Production-code hygiene rules for lsp-max servers" .
+
+# ── Rule individuals ───────────────────────────────────────────────────
+lm:UnwrapRule a lm:LintRule ;
+    lm:ruleId    "LSPMAX-UNWRAP-001" ;
+    lm:name      "Unwrap in production path" ;
+    lm:severity  "error" ;
+    lm:pattern   "\\.unwrap\\(\\)|\\.expect\\(" ;
+    lm:message   "unwrap()/expect() outside #[cfg(test)] panics the language server; return Result instead." ;
+    lm:rationale "An lsp-max server must never panic mid-request; RulePackServer handlers return ClassifiedFindings, not aborts." .
+
+lm:RawProtocolRule a lm:LintRule ;
+    lm:ruleId    "LSPMAX-RAWJSON-002" ;
+    lm:name      "Raw protocol fallback" ;
+    lm:severity  "warning" ;
+    lm:pattern   "serde_json::Value|json!\\(" ;
+    lm:message   "Raw JSON fallback detected; use the generated metaModel.json protocol types." ;
+    lm:rationale "Protocol completeness must not be faked with untyped serde_json fallback." .
+
+lm:WallClockRule a lm:LintRule ;
+    lm:ruleId    "LSPMAX-WALLCLOCK-003" ;
+    lm:name      "Wall clock in server code" ;
+    lm:severity  "error" ;
+    lm:pattern   "SystemTime::now|Instant::now" ;
+    lm:message   "Wall-clock reads make receipts nondeterministic; thread time in from the transport boundary." ;
+    lm:rationale "Deterministic replay of an lsp-max session requires clock-free handler logic." .
