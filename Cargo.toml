@@ -555,6 +555,20 @@ experimental = []
 # stay publishable. Off by default; there is currently no working implementation behind this
 # feature to enable, it exists only so the `#![cfg(...)]` gates compile cleanly.
 root-ggen-cli-lib-tests = []
+# `a2a-integration-tests` empty placeholder (2026-07-16, publish-safety fix, revised): a
+# previous version of this comment forwarded `ggen-lsp/a2a` here, off-by-default, on the
+# theory that an optional/inactive feature-forward wouldn't block publish. Empirically wrong,
+# verified via `cargo publish --dry-run -p ggen`: it failed identically with the forward
+# present but disabled -- Cargo's publish resolver checks every possible feature/dependency
+# combination the manifest COULD produce, not just the active defaults, so ANY mention of
+# `ggen-lsp/a2a` anywhere in this manifest blocks publish for as long as the published
+# ggen-lsp lacks that feature. There is no Cargo.toml-only way to keep this reachable from
+# root while staying publishable. Root's `ggen-lsp` dependency (and the a2a feature request)
+# is removed entirely; `tests/integration/test_telco_routing.rs` and `benches/a2a_bench.rs`
+# are gated behind this now-permanently-empty feature (their own file headers explain why) --
+# their real home is crates/ggen-lsp/tests or crates/ggen-lsp/benches, where ggen-lsp's a2a
+# feature is native/local and doesn't need external registry resolution to test.
+a2a-integration-tests = []
 # OpenTelemetry instrumentation (optional - adds ~200 dependencies)
 # Enable with: cargo build --features otel
 # Only forward to ggen-core, which handles its own otel dependencies
@@ -613,7 +627,17 @@ tracing-subscriber = "0.3"
 # Enable OTEL via: cargo build --features otel (which forwards to ggen-core/otel)
 # Example definitions removed - examples now discovered automatically by Cargo
 [dev-dependencies]
-ggen-lsp = { path = "crates/ggen-lsp", version = "26.7.2", features = ["a2a"] }
+# ggen-lsp intentionally NOT a dependency here (removed 2026-07-16, publish-safety fix): its
+# only real consumers were tests/integration/test_telco_routing.rs and benches/a2a_bench.rs
+# (both import ggen_lsp::a2a_mcp::*, confirmed via grep -- nothing else in root's src/tests/
+# examples/benches touches ggen_lsp:: at all), and BOTH need the `a2a` feature, which isn't
+# published to crates.io yet for ggen-lsp 26.7.2/26.7.3. A path+version dependency on
+# ggen-lsp with `a2a` requested anywhere in this manifest (even behind an inactive optional
+# feature-forward -- empirically tested, see the `a2a-integration-tests` [features] comment)
+# makes `cargo publish --dry-run -p ggen` unresolvable for as long as that external gap
+# persists. Both files are gated behind the now-permanently-empty `a2a-integration-tests`
+# feature with their own ARCHIVED headers -- their real home is crates/ggen-lsp's own
+# tests/benches, where ggen-lsp's a2a feature is native/local, not a registry dependency.
 assert_cmd = "2.0.17"
 predicates = "3.1.3"
 serde_json = "1.0"
@@ -720,6 +744,7 @@ harness = false
 [[bench]]
 name = "a2a_bench"
 harness = false
+required-features = ["a2a-integration-tests"]
 [[bench]]
 name = "canonical_bench"
 harness = false
@@ -809,7 +834,7 @@ required-features = ["integration"]
 [[test]]
 name = "test_telco_routing"
 path = "tests/integration/test_telco_routing.rs"
-required-features = ["integration"]
+required-features = ["integration", "a2a-integration-tests"]
 
 # ProofPack release-gate tests — run by default, no feature flag required.
 # Covers: smoke (CLI boot), invariants (manifest rules), refusal (negative

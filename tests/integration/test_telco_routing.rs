@@ -4,6 +4,15 @@
 //! 1. Execution Path: UnifiedMessageRouter processes a routing request.
 //! 2. Observable State: Metrics are updated (metrics().total_messages == 1).
 //! 3. External Evidence: CLI output contains real trace_id and status.
+//!
+//! ARCHIVED (2026-07-16, publish-safety fix): root no longer depends on ggen-lsp at
+//! all -- its `a2a` feature isn't published to crates.io yet, and referencing it
+//! anywhere in root's manifest (even inactive/optional) blocks
+//! `cargo publish --dry-run -p ggen`. Already gated behind
+//! `required-features = ["integration", "a2a-integration-tests"]` in Cargo.toml,
+//! both permanently off. Retained on disk, not deleted, per fix-forward doctrine --
+//! its real home is crates/ggen-lsp/tests, where ggen-lsp's own a2a feature is
+//! native/local and doesn't need external registry resolution to test.
 
 use ggen_lsp::a2a_mcp::a2a_generated::converged::ConvergedMessage;
 use ggen_lsp::a2a_mcp::a2a_generated::handlers::HandlerFactory;
