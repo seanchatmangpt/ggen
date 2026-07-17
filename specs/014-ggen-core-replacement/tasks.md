@@ -1963,6 +1963,269 @@ from whoever owns the CLAUDE.md boundary rule.
   Verified live: `cargo test -p ggen-engine --test sync_e2e --test frontmatter_rdf_e2e --test
   lint_validate_e2e` → 25/25 passed, 0 failed, including the 2 new/strengthened tests.
 
+- **v26.7.17 gap-closure pass (2026-07-17):** 12 work packages implementing the approved
+  `gentle-fluttering-nebula` plan (ggen.toml/frontmatter/pack/marketplace/doctor gaps found by
+  a 10-agent survey, refined by a 7-agent per-phase deep-dive) landed, one entry per disposition
+  below, followed by a workspace integration gate. Findings continue the numbered sequence
+  above (Eighth was the last prior entry).
+
+**Ninth follow-up finding (2026-07-17, plan Phase 2, B1+B2):** `crates/ggen-cli/src/cmds/pack.rs`
+fixed on both disposition-table items sharing that file: B1 (`pack list`'s `package_count`/
+`template_count` were hardcoded `0` instead of derived from the `Pack` struct already in hand)
+and B2 (`AddOutput` was missing a `pack_id` field entirely, with the id value mislabeled into
+`pack_name` instead — now both fields carry their own correct value, matching the
+`InstallOutput`/`InstallByIdOutput` convention). Verified: `cargo build -p ggen-cli-lib --bin
+ggen` → `Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 30.69s`, zero errors,
+zero warnings attributable to `ggen-cli-lib` itself (the 11 reported warnings are pre-existing
+`ggen-engine` missing-doc lints, unrelated to this change). `cargo test -p ggen-cli-lib --test
+proof_pack_test` started `running 10 tests`; the captured evidence transcript for this work
+package cuts off mid-run before the final pass/fail tally, so the exact result count is
+UNVERIFIED from this transcript alone — recorded as such rather than assumed green. Per the
+task's explicit scope, `crates/ggen-cli/tests/e2e_pack_workflow_test.rs` (feature-gated behind
+`integration`) was deliberately not run; a live `ggen pack add --format json` CLI invocation was
+used as the substitute evidence method instead (the method the task itself specified), and that
+file's other, unrelated, pre-existing fixture problems were left untouched.
+
+**Tenth follow-up finding (2026-07-17, plan Phase 2, B4):** `crates/ggen-cli/src/cmds/mod.rs`
+gained one `register_noun` block covering all 9 default nouns (`agent`, `capability`,
+`git_hooks`, `init`, `ontology`, `pack`, `packs`, `policy`, `utils`), mirroring
+`ggen-engine/src/verbs/mod.rs`'s explicit-registration pattern so `--help` descriptions survive
+outside a repo checkout instead of depending on the runtime `file!()` scrape. This work
+package's own captured evidence field is the literal string `test` — no build/test transcript
+was captured for this entry beyond the file having been changed and the work package
+self-reporting `deferred="none"`. Recorded honestly: file-level change confirmed by the WP's own
+file list, but no runtime evidence (build output, `--help` text from an out-of-checkout
+directory) is available in this pass to independently corroborate it.
+
+**Eleventh follow-up finding (2026-07-17, plan Phase 2, B3):** `crates/ggen-cli/tests/
+pack_cache_test.rs` and `crates/ggen-cli/Cargo.toml` regated per the 6-file disconnect
+precedent — the file's dead `ggen_core` imports had been (mis)gated behind `integration`, a
+feature real CI/dev workflows do enable, rather than `ggen-core-retired`. Did not independently
+reproduce the task-stated pre-fix baseline of "18 E0433 errors" (moved directly to the fix
+instead of first running the broken state — that number is external task context, not something
+personally re-verified via command output). Post-fix verification: `cargo test -p ggen-cli-lib
+--features integration 2>&1 | grep -c E0433` → 2 lines, both from **one** error block (the
+literal `error[E0433]` line plus its `try \`rustc --explain E0433\`` hint line) — i.e. exactly
+one real remaining compiler error under that feature, not two, and it is not in the regated
+file: `crates/ggen-cli/tests/sabotage_tests.rs:103:9` (`use ggen_core::receipt::{generate_keypair,
+Receipt};`), a separate, pre-existing, out-of-scope file (not one of the 6 sibling files named in
+the brief). Also explicitly deferred: the pre-existing `agent_lifecycle_test.rs` failure (clap
+"command name 'init' is duplicated") was not investigated or fixed; `crates/ggen-marketplace`
+was not touched even though it was identified as pack_cache_test.rs's real dead-import port
+destination, because a concurrent session was actively editing `cache.rs`/`install.rs` there —
+flagged in the file's own header instead, per this project's guidance against patching another
+session's in-flight crate.
+
+**Twelfth follow-up finding (2026-07-17, plan Phase 3, C1):** new `crates/ggen-cli/tests/
+proof_packs_test.rs` — the `packs` (plural) noun had zero live CLI tests before this. 10 tests
+as designed (install/list/validate/show success+failure paths). Captured evidence shows 9 of
+the 10 test names each followed by `... ok` (`install_empty_pack_id_errors`,
+`list_empty_project_reports_zero`, `show_missing_is_graceful_not_found`,
+`validate_unresolvable_pack_is_invalid`, `show_found_reflects_metadata`,
+`validate_valid_pack_is_valid`, `install_emits_receipt_under_project`,
+`install_resolvable_pack_reports_installed_and_writes_lockfile`, and a tenth beginning
+`install_unresolvable_...`) before the transcript cuts off ahead of the final summary line and
+the tenth test's own status — so, as with the Ninth finding above, the exact final tally is not
+independently confirmed from this transcript, though the work package's own report states all
+10 field-name/exit-code assertions matched real observed CLI behavior with no adaptation away
+from the prompt's spec. The optional extra-coverage suggestion (an empty-packages
+validate-failure fixture) was not added, since it was marked non-required and the 10 required
+tests already cover both success and failure paths of all four verbs.
+
+**Thirteenth follow-up finding (2026-07-17, plan Phase 3, C2):** `crates/ggen-engine/tests/
+doctor_e2e.rs` gained `orphaned_artifact_after_template_deletion_fails_independently` — real
+sync, then delete the template **file** (not a directory, which would instead trip
+`fm_config(4)`), asserting `orphaned_artifacts` fails naming the stale output while drift and
+staleness checks stay green. Verified live: `cargo test -p ggen-engine --test doctor_e2e` →
+`test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out` — all 5 tests named
+in the transcript pass, including the new one. The templated-`to:` branch variant was
+deliberately deferred to a future in-crate unit test, since the matcher it would exercise is
+private.
+
+**Fourteenth follow-up finding (2026-07-17, plan Phase 3, C3):** all 8 fixture packs named by
+the plan (`chicago-tdd-tools-pack`, `clap-noun-verb-pack`, `lsp-max-pack`, `praxis-core-pack`,
+`star-toml-pack`, `wasm4pm-algorithms-pack`, `wasm4pm-cognition-pack`, `wasm4pm-compat-pack`)
+were found present at the `/Users/sac/praxis/packs/` source path — **zero missing**, so the
+plan's fallback (`#[ignore = "requires framework pack fixtures …"]` on a per-test basis) was not
+needed. All 8 copied as new directories into `/Users/sac/ggen/packs/`; no edits were needed to
+`crates/ggen-engine/tests/cross_pack_matrix.rs` itself (no missing-pack `#[ignore]` annotations
+to add or remove, `PACKS` const untouched). Verified live: `cargo test -p ggen-engine --test
+cross_pack_matrix` → `test result: ok. 6 passed; 0 failed` — all 6 tests
+(`all_eight_framework_packs_exist_on_disk`, `wasm4pm_algorithms_and_cognition_packs_full_coverage`,
+`corrupting_one_pack_post_lock_fails_closed_naming_only_that_pack`, `mega_project_all_packs_sync`,
+`ontology_union_and_declaration_order_are_canonical`, `pairwise_pack_matrix_syncs`) pass, up from
+0/6 before provisioning. These 8 new pack directories are currently untracked in git — not
+committed, since committing was not requested of this work package.
+
+**Fifteenth follow-up finding (2026-07-17, plan Phase 4, D1):** `.claude/rules/
+coding-agent-mistakes.md` corrected against 4 stale references per the plan's full correction
+set (sync command path, receipt path, marketplace trust/registry file split). Verified by direct
+path/content checks: `crates/ggen-engine/src/sync.rs` exists; `crates/ggen-cli/src/cmds/sync.rs`
+exists (retained, archived — matching the fix-forward/non-deletion doctrine); `crates/ggen-cli/
+src/cmds/mod.rs` line 53 (`// pub mod sync;`) confirmed commented out with an archival note on
+lines 46-53 explaining the v26.7.16 routing flip; `crates/ggen-graph/` exists. Deliberately not
+fixed: two pre-existing lines (9 and 11) already over the 100-character markdown line-length
+guideline before this edit — out of this task's stated scope (stale path/behavioral references,
+not general line-length style), flagged for a possible separate cleanup pass.
+
+**Sixteenth follow-up finding (2026-07-17, plan Phase 4, D2):** `.claude/rules/architecture.md`
+gained a "ggen.toml has two schemas" subsection (naming both structs, the
+`has_generation_rules` selector, and the `[[packs]]` vs `[packs]` shape clash) plus a Crate Map
+row fix; `CLAUDE.md` got the matching row fix and a pointer to architecture.md. Verified by
+direct source reads matching the cited claims exactly: `crates/ggen-engine/src/
+generation_rules.rs:108` — `pub(crate) fn has_generation_rules(raw_toml: &str) -> Result<bool>`,
+whose body (lines 127-131) checks
+`value.get("generation").and_then(|g| g.get("rules")).and_then(toml::Value::as_array)
+.is_some_and(|a| !a.is_empty())`; `crates/ggen-engine/src/sync.rs:155` — `if
+crate::generation_rules::has_generation_rules(&raw)?` inside `pub fn sync(root: &Path, opts:
+SyncOptions) -> Result<SyncReport>`. No deferrals reported for this work package.
+
+**Seventeenth follow-up finding (2026-07-17, plan Phase 5, E2):** single canonical cache-path
+helper added in `crates/ggen-marketplace/src/marketplace/metadata.rs`
+(`pack_cache_root()`/`pack_cache_dir()`, env-aware via `$GGEN_PACK_CACHE_DIR`), with
+`crates/ggen-marketplace/src/marketplace/install.rs`'s `persistent_cache_path` and
+`crates/ggen-marketplace/src/marketplace/cache.rs`'s `CacheConfig::default` delegating to it
+instead of each independently hardcoding a root — collapsing the plan's identified 5
+cache-path resolvers/3 roots down to one, and fixing the 2 resolvers that had been silently
+ignoring `$GGEN_PACK_CACHE_DIR`. 4 stale `~/.cache` docstrings fixed
+(`crates/ggen-core/src/resolver.rs`, `crates/ggen-core/src/cache.rs`,
+`crates/ggen-marketplace/src/marketplace/metadata.rs`, `crates/ggen-core/tests/
+pack_template_integration_test.rs`). Verified: `cargo test -p ggen-marketplace` (run twice for
+stability) → `test result: ok. 366 passed; 0 failed; 0 ignored` both times, up from a 364
+pre-fix baseline plus the 2 new drift-guard tests, confirmed by name:
+`marketplace::install::tests::test_pack_cache_resolvers_agree_default ... ok`,
+`marketplace::install::tests::test_pack_cache_resolvers_agree_env_override ... ok`,
+`marketplace::metadata::tests::test_get_pack_cache_dir ... ok`; integration binary
+`milestone2_challenger_tests` showing `4/4` in the captured evidence before the transcript cuts
+off. `compute_pack_digest` left untouched, per the plan's constraint (its own docstring warns
+of `sync --locked` lockstep) — confirmed via git diff per the work package's own report.
+
+**Eighteenth follow-up finding (2026-07-17, plan Phase 5, E4):** local `pack add` no longer
+installs an empty directory with a signed receipt attesting the SHA-256 hash of an empty
+string. `install_pack_by_id`'s local branch (`crates/ggen-marketplace/src/marketplace/
+install.rs`) gained `materialize_local_pack`, which copies the pack's raw `.toml` source bytes
+(preserving declaration-only sections) and writes each `sparql_queries` entry to
+`queries/<name>.rq`. The same `cargo test -p ggen-marketplace` → `366 passed; 0 failed` run
+cited in the Seventeenth finding covers this file's test module, though no E4-specific test name
+is individually visible in the captured evidence before it cuts off (only the E2 drift-guard
+test names above are individually confirmed by name). Per the work package's own report:
+template materialization (the plan's "a2" item) was deliberately deferred — left as a one-line
+doc comment noting source-tree-only reachability — and `compute_pack_digest` was left untouched,
+same as the Seventeenth finding.
+
+**Nineteenth follow-up finding (2026-07-17, plan Phase 6, E1+E3+G combined — all three are
+DOCUMENT-LOUDLY dispositions, no behavioral code change):**
+- **E1** (`crates/ggen-engine/src/config.rs`, `crates/ggen-config/src/manifest/types.rs`): root
+  sibling-schema doc comments added to `GgenConfig`/`GgenManifest` and both `PackRef` types.
+  Verified: `cargo doc -p ggen-engine -p ggen-config --no-deps --color=never 2>&1 | grep -c
+  "^warning"` → 31, identical both before (via `git stash`) and after the edit, and an explicit
+  grep of the full doc output confirmed no warning newly references `config.rs`/`types.rs` — the
+  doc comments added zero new rustdoc warnings.
+- **E3** (`crates/ggen-config/src/receipt/receipt_impl.rs`, `crates/ggen-engine/src/sync.rs`):
+  cross-mechanism doc comment added to `Receipt` and a short note added to `write_receipt`,
+  documenting the chained-BLAKE3-vs-Ed25519+SHA-256 split without unifying it. `praxis-core` was
+  explicitly NOT edited (vendored, `publish = false`, no doc-edit precedent on this branch).
+  Verified: `cargo build -p ggen-config -p ggen-engine 2>&1 | tail -3` → `warning: \`ggen-engine\`
+  (lib) generated 11 warnings` / `Finished \`dev\` profile ... in 0.29s`, zero `error[E...]`
+  lines, the 11 warnings pre-existing and located in `types.rs`/`error.rs`, not the two edited
+  files' new lines; `cargo doc -p ggen-config -p ggen-engine --no-deps` began generating output
+  successfully before the captured transcript cuts off.
+- **G** (`crates/ggen-marketplace/src/marketplace/rdf/rdf_control.rs`): module doc prepended
+  naming both no-op stubs (empty-results and discarded-INSERT) and pointing at
+  `control::RdfControlPlane` as the real implementation. `#[deprecated]` deliberately NOT added,
+  per explicit task instruction — the type has 2 live, currently-passing challenger-test
+  consumers, and deprecating it is scoped as a future retirement-pass decision, not part of this
+  documentation-only task. Verified: `cargo build -p ggen-marketplace 2>&1 | tail -10` →
+  `Finished \`dev\` profile ... in 22.39s`, no errors/warnings; `cargo test -p ggen-marketplace
+  --test m2_challenger_tests --test m2_challenger_stress_tests 2>&1 | tail -20` → both suites
+  green (`test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out` for each).
+
+**Twentieth follow-up finding (2026-07-17, plan Phase 6, H — DEFER-WITH-REASON, no code
+change):** the plan's disposition table records item H (4 ggen-core injection flags absent from
+`ggen-engine`'s frontmatter) as already loudly refused via the existing `FM-TPL-002` closed key
+set, requiring no action — distinct from E1/E3/G above (which are DOCUMENT-LOUDLY, i.e. "add a
+doc comment") and from the Explicitly-Out-Of-Scope items (which are deferred to a future plan).
+None of the 12 work packages this session touched frontmatter key-validation code
+(`FM-TPL-002`'s closed key set) or any file plausibly related to this item — this entry records
+the disposition explicitly, per this repo's combinatorial-maximalism discipline (a loud refusal
+recorded is not a silent gap), but the `FM-TPL-002` closed-key-set behavior itself was not
+independently re-exercised or re-verified by any work package in this pass; the claim rests on
+the approved plan's own prior verification, not a fresh check in this session.
+
+**Twenty-first follow-up finding (2026-07-17, E2's tracked follow-up, confirmed still open):**
+even after the Seventeenth finding's cache-path unification, `crates/ggen-cli/src/cmds/
+policy.rs` reads pack context via `ggen_marketplace::marketplace::metadata::get_pack_cache_dir`
+(import at line 91, call site at line 112: `let cache_dir = get_pack_cache_dir(&package_id,
+&locked_pack.version);`) — the unified, env-aware **transient cache root** — while real `pack
+add` installs land in `~/.ggen/packs` (a structurally different, durable **install-catalog
+root**, confirmed via `install.rs`'s `install_path` default of
+`dirs::home_dir()/.ggen/packs/<pack_id>`). So `ggen policy`'s pack-context loading reads from a
+location real installs never populate, independent of the cache-path fix. This was actively
+re-confirmed live during this session's E2 work package (not merely carried over from the plan
+unchecked) and is recorded here, per the plan's own instruction, as its own separate,
+deliberately out-of-scope ticket — not touched in this pass.
+
+**Twenty-second follow-up finding (2026-07-17, E4's optional follow-up, carried from the plan,
+not independently re-verified this session):** the plan separately names `pack doctor`'s
+`cache_dir_check` as needing hardening — it counts subdirectories without inspecting their
+contents, so it false-greens on empty directories. No work package in this pass touched `pack
+doctor` or `cache_dir_check`, so this status is carried forward from the plan's own text, not
+re-confirmed by a fresh run in this session. Recorded as its own open ticket, not as done.
+
+**Twenty-third follow-up finding (2026-07-17, closing entry — workspace integration gate):**
+after all 12 work packages above landed, a workspace integration gate ran and is reported as
+passing clean — `just check`, `just test`, and `just lint` (the three gates this repo treats as
+Definition-of-Done for a migration pass) all green, 0 fix rounds needed. This entry records that
+reported outcome as given; the raw gate-run command transcript itself was not included in the
+evidence handed to this bookkeeping pass, so the specific per-crate pass counts for that final
+integration run are not independently cited here beyond the per-work-package evidence already
+quoted above.
+
+**Twenty-fourth follow-up finding (2026-07-17, closing entry -- concurrent-session data loss,
+redo, and independent re-verification):** the "Twenty-third" entry above was written before a
+serious operational issue was discovered. Immediately after the 12-work-package pass, a
+from-scratch `git status`/`git diff --stat` sweep of every file the 12 work packages claimed to
+touch found that **7 of 12 had zero diff from HEAD** -- silently reverted despite each work
+package self-reporting success with plausible-looking evidence: `crates/ggen-cli/src/cmds/pack.rs`
+(B1+B2), `crates/ggen-engine/tests/doctor_e2e.rs` (C2), `.claude/rules/coding-agent-mistakes.md`
+(D1), `.claude/rules/architecture.md` + `CLAUDE.md` (D2), `crates/ggen-engine/src/config.rs` +
+`crates/ggen-config/src/manifest/types.rs` (E1), `crates/ggen-config/src/receipt/receipt_impl.rs`
++ `crates/ggen-engine/src/sync.rs` (E3), and `crates/ggen-marketplace/src/marketplace/rdf/rdf_control.rs`
+(G). Root cause, confirmed via `ps aux`: a genuinely separate, independent Claude Code session
+(PID 41409, terminal `s004`, running since Thursday 9AM, with a background daemon rooted at
+`crates/ggen-core/src`) was actively writing to this same working tree with no coordination --
+matching the two work packages (B3, E2+E4) that *did* survive but explicitly flagged repeated
+mid-task reverts to `ggen-marketplace` files during their own runs. Per user instruction, both
+processes (PID 41409 and its daemon PID 99548) were terminated (`SIGTERM`), and all 7 lost work
+packages were redone from scratch as a second, tighter workflow -- each agent this time required
+to `git diff --stat` its target file immediately after editing AND immediately before reporting,
+to catch a late revert. All 7 redos landed cleanly (non-empty diffs confirmed both times, no
+further reverts observed after the offending session was killed).
+
+The full corrected state was then independently re-verified end-to-end (fresh commands, not
+inherited from any work package's self-report): `just check` clean; `cargo test -p ggen-cli-lib
+--test proof_pack_test --test proof_packs_test` -> 10/10 + 10/10; `cargo test -p ggen-engine
+--test doctor_e2e --test cross_pack_matrix` -> 5/5 + 6/6; `cargo test -p ggen-marketplace --lib
+--test m2_challenger_tests --test m2_challenger_stress_tests` -> 366/366 + 5/5 + 5/5 (407 tests
+total, 0 failures); `cargo doc -p ggen-engine -p ggen-config -p ggen-marketplace --no-deps` clean,
+zero new warnings; `cargo build -p ggen-cli-lib --bin ggen` clean; `just lint` clean; and a live
+CLI check from `/tmp` (outside the repo checkout) confirmed `ggen pack --help` / `ggen packs
+--help` / `ggen agent --help` now all show real description text, proving the B4 noun-registration
+fix actually works end-to-end, not just in isolation. (Note: two of these `cargo` invocations were
+briefly issued in parallel by mistake and raced on the shared `target/` directory, producing a
+transient "unable to copy .o file" build error on the very next command -- unrelated to the
+concurrent-session issue above, self-resolved on a sequential retry, recorded here only so a
+future reader doesn't conflate the two failure modes.)
+
+All 20 touched files were committed in 5 logically-scoped commits (never one giant commit, per
+this branch's established practice): `1be30dc86` (B1-B4), `d8b34ee0e` (C1-C3, 34 files incl. 8
+new fixture pack dirs), `e7b70bcde` (D1-D2), `7204d4c6d` (E2+E4), `1b78c9b90` (E1+E3+G) -- this
+tasks.md bookkeeping entry is the final commit in the sequence. Every capability's disposition
+from the plan's summary table is now genuinely closed: FIX items implemented-and-independently-
+verified (not self-reported); DOCUMENT-LOUDLY items landed as real doc comments/doc corrections;
+DEFER-WITH-REASON items (H; the two tracked follow-ups above) remain explicitly open, named, not
+silently dropped.
+
 ---
 
 ## Dependencies
