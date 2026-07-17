@@ -1,5 +1,0 @@
-Archetype: teamwork_preview_worker
-Role: Worker (Truthfulness Implementation)
-Milestone: truthfulness
-Working directory: /Users/sac/ggen/.agents/teamwork_preview_worker_truthfulness_1
-Parent Orchestrator: /Users/sac/ggen/.agents/teamwork_preview_orchestrator_truthfulness_1

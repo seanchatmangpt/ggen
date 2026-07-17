@@ -10,8 +10,7 @@
 
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
-use ggen_core::ontology::{CoreOntologyBundle, OntologyLoader};
-use ggen_core::validation::StandardOntology;
+use ggen_marketplace::ontology_core::{CoreOntologyBundle, OntologyLoader};
 use serde::Serialize;
 use std::collections::BTreeMap;
 use std::str::FromStr;
@@ -202,7 +201,7 @@ pub fn list(#[arg(default_value = "true")] embedded: bool) -> VerbResult<Ontolog
 ///   ggen ontology namespaces
 #[verb]
 pub fn namespaces() -> VerbResult<NamespacesListOutput> {
-    let standard_ns = ggen_core::domain::ontology::get_standard_namespaces();
+    let standard_ns = ggen_marketplace::ontology_core::get_standard_namespaces();
     let namespaces: Vec<NamespaceEntry> = standard_ns
         .into_iter()
         .map(|ns| NamespaceEntry {

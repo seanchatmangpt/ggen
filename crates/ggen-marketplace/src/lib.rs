@@ -10,7 +10,12 @@
 // - into_iter: single-item iteration patterns
 #![allow(clippy::expect_used, clippy::unwrap_used, clippy::panic)]
 
+pub mod agent;
 pub mod marketplace;
+pub mod ontology_core;
+pub mod packs;
+pub mod packs_registry;
+pub mod sync_profile;
 
 pub use marketplace::{
     Manifest, Package, PackageId, QualityScore, RdfRegistry, SparqlSearchEngine,

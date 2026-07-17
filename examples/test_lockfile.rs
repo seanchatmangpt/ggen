@@ -1,4 +1,9 @@
-use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
+// Re-pointed from `ggen_core::packs::lockfile::{...}` to
+// `ggen_marketplace::packs::lockfile::{...}` (T053, specs/014-ggen-core-replacement)
+// -- T026's port destination; struct/method shapes confirmed identical
+// (`PackLockfile::{new,from_file,save,add_pack}`, `LockedPack` fields,
+// `PackSource::Local{path}`) via `cargo run --example test_lockfile`.
+use ggen_marketplace::packs::lockfile::{LockedPack, PackLockfile, PackSource};
 use std::path::PathBuf;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

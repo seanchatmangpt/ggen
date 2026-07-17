@@ -11,4 +11,4 @@ pub use error::ConfigClapError;
 pub use loader::LoadConfigFromGgenToml;
 
 /// Re-export ggen-config for convenience
-pub use ggen_core::config_lib as ggen_config;
+pub use ggen_config::config_lib as ggen_config_lib;

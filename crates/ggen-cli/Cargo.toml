@@ -75,6 +75,12 @@ md5 = "0.8"
 # crate-consolidation pass — see CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md.
 ggen-lsp = { version = "26.7.2", path = "../ggen-lsp", optional = true }
 blake3.workspace = true
+# Used by scaffolding::transaction::FileTransaction (ported from ggen-core/src/codegen/
+# transaction.rs, Phase 3 non-colliding noun re-points). Was previously only a dev-dependency
+# (see [dev-dependencies] below) — FileTransaction is production code, not test-only, so it
+# needs to be a regular dependency now.
+parking_lot = { workspace = true }
+tempfile = "3.23"
 
 [features]
 autonomic = []
@@ -249,7 +255,19 @@ version = "0.5"
 features = [ "async_tokio", "html_reports",]
 
 [dev-dependencies.chicago-tdd-tools]
+# `features = ["cli-proof"]` added on top of the workspace-inherited base spec (2026-07-16,
+# fixes a real self-inflicted regression from commit 3862fe000): that commit both added
+# tests/generated/cli_proof_tests.rs's [[test]] registration (needs chicago_tdd_tools::
+# cli_proof) AND removed `cli-proof` from the SHARED workspace.dependencies chicago-tdd-tools
+# entry (correctly -- root doesn't need it and it was blocking `cargo publish --dry-run -p
+# ggen`), breaking this crate's own test compile in the same commit. Safe to add back here
+# specifically: ggen-cli-lib is `publish = false` (see [package] above), so it no longer has
+# any publish-dry-run exposure to worry about -- `cargo publish --dry-run -p ggen-cli-lib`
+# reports "cannot be published" before ever resolving dev-dependencies. The local
+# `[patch.crates-io]` override (root Cargo.toml) supplies the real cli_proof module for
+# ordinary `cargo test`/`just test` builds regardless of what's published to crates.io.
 workspace = true
+features = ["cli-proof"]
 
 [dev-dependencies.oxigraph]
 version = "0.5.6"
@@ -265,3 +283,14 @@ workspace = true
 
 [lints]
 workspace = true
+
+# Used by scaffolding::preflight::PreFlightValidator's get_available_disk_space (ported from
+# ggen-core/src/validation/preflight.rs, Phase 3 non-colliding noun re-points) — same platform
+# split as the ggen-core original.
+[target."cfg(unix)".dependencies.nix]
+version = "0.29"
+features = [ "fs"]
+
+[target."cfg(windows)".dependencies.windows]
+version = "0.58"
+features = [ "Win32_Storage_FileSystem"]

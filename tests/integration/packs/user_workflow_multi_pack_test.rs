@@ -5,9 +5,20 @@
 //! Workflow 3: Multi-pack composition (2 packs)
 //! Workflow 4: Multi-pack complex (3+ packs)
 
-use ggen_core::domain::packs::{
-    compose_packs, list_packs, show_pack, ComposePacksInput, CompositionStrategy,
-};
+// Re-pointed from `ggen_core::domain::packs::{...}` (flat re-export that
+// never actually existed in ggen-core's own mod.rs -- confirmed via
+// `grep -c "pub use" crates/ggen-core/src/domain/packs/mod.rs` == 0, so this
+// file was already pre-existing dead code, not a working import broken by
+// this migration) to the real submodule-qualified paths in
+// `ggen_marketplace::packs_registry` (T025's port destination). This file is
+// not part of any compiled `cargo test` target today (verified via
+// `cargo metadata`'s test-target list -- not tests/*.rs-auto-discovered, no
+// `[[test]]` entry, not `mod`-included from any entry point that is), so
+// this fix is import-correctness only; wiring it back into the build is a
+// separate decision (specs/014-ggen-core-replacement, T053 notes).
+use ggen_marketplace::packs_registry::compose::{compose_packs, ComposePacksInput};
+use ggen_marketplace::packs_registry::metadata::{list_packs, show_pack};
+use ggen_marketplace::packs_registry::types::CompositionStrategy;
 use std::path::PathBuf;
 
 #[tokio::test]

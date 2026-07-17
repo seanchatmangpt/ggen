@@ -1,0 +1,38 @@
+# fixtures/session-malformed.ttl — a sample session log with a DELIBERATE
+# Turtle PARSE error, for the falsifier. The verifier
+# `ggen graph validate --files fixtures/session-malformed.ttl` must exit
+# NON-ZERO and name this file.
+#
+# The injected fault is an UNCLOSED IRI on <#event-1>'s prov:used object: the
+# urn:blake3: angle-bracket handle below is missing its closing '>'. This is a
+# real Turtle syntax error (not merely a SHACL shape violation), which is what
+# the current parse-only verifier detects.
+
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@base <http://seanchatmangpt.github.io/packs/dogfood-lifecycle/fixtures/session-malformed#> .
+
+<#mainAgent>
+    a            prov:Agent , prov:SoftwareAgent ;
+    dcterms:description "The primary Claude Code agent driving this session." .
+
+<#session>
+    a                     dfl:Session ;
+    dcterms:identifier    "malformed-sample-0000" ;
+    prov:wasAssociatedWith <#mainAgent> .
+
+<#event-1>
+    a                       dfl:ToolEvent ;
+    dcterms:isPartOf        <#session> ;
+    skos:notation           "Bash" ;
+    dfl:sequenceIndex       1 ;
+    time:inXSDDateTimeStamp "2026-07-13T15:30:00Z"^^xsd:dateTimeStamp ;
+    dfl:outcome             dfl:Ok ;
+    prov:wasAssociatedWith  <#mainAgent> ;
+    prov:used               <urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae ;
+    prov:generated          <urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8> ;
+    dcterms:description     "This event's prov:used IRI is unclosed — a deliberate parse error." .

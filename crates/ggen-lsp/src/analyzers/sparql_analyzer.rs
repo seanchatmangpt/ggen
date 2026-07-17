@@ -13,7 +13,7 @@ use lsp_max::lsp_types::{
 };
 use std::collections::BTreeSet;
 
-use ggen_core::manifest::validation::{query_contains_values, query_has_order_by};
+use ggen_config::manifest::validation::{query_contains_values, query_has_order_by};
 use ggen_graph::{check_sparql_syntax, sparql_kind, SparqlKind};
 
 use crate::analyzers::diag;

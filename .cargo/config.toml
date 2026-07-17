@@ -2,8 +2,8 @@
 # Shared build cache configuration
 
 [build]
-# Use sccache for shared compilation cache (temporarily disabled due to read-only filesystem)
-# rustc-wrapper = "sccache"
+# Use sccache for shared compilation cache.
+rustc-wrapper = "sccache"
 
 # Build optimization
 jobs = 16
@@ -14,6 +14,17 @@ pipelining = true
 color = "always"
 
 # sccache configuration
+#
+# SCCACHE_DIR was previously set to the literal string "$HOME/.cache/sccache" --
+# Cargo's [env] table does NOT perform shell variable expansion, so sccache
+# received a broken path containing a literal, unexpanded "$HOME" and failed
+# to create it ("Read-only file system" from whatever directory that resolved
+# relative to). This looked like a filesystem permissions problem but was
+# actually a config bug. Fix: don't override SCCACHE_DIR at all -- sccache's
+# own platform-appropriate default cache location (e.g.
+# ~/Library/Caches/Mozilla.sccache on macOS) already exists and is writable.
+# If a specific shared cache location is genuinely needed, it must be an
+# absolute path with no shell-style variables, since Cargo passes env values
+# through literally.
 [env]
-SCCACHE_DIR = "$HOME/.cache/sccache"
 SCCACHE_CACHE_SIZE = "10G"

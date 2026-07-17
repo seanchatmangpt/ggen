@@ -42,8 +42,8 @@
 use chrono::Utc;
 use clap_noun_verb::{NounVerbError, Result as VerbResult};
 use clap_noun_verb_macros::verb;
+use ggen_config::receipt::{generate_keypair, hash_data, Receipt};
 use ggen_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
-use ggen_core::receipt::{generate_keypair, hash_data, Receipt};
 use ggen_core::sync::{sync as low_level_sync, SyncConfig, SyncLanguage};
 use serde::Serialize;
 use std::path::PathBuf;
@@ -590,14 +590,14 @@ fn emit_sync_receipt(
         // Bind the rest of the closure: ontology + imports + external query/template
         // files. Inline inference rules, queries, and templates live inside ggen.toml
         // and are therefore already bound by the manifest hash above.
-        if let Ok(manifest) = ggen_core::manifest::ManifestParser::parse_str(&manifest_content) {
+        if let Ok(manifest) = ggen_config::manifest::ManifestParser::parse_str(&manifest_content) {
             let mut closure: Vec<PathBuf> = vec![manifest.ontology.source.clone()];
             closure.extend(manifest.ontology.imports.iter().cloned());
             for rule in &manifest.generation.rules {
-                if let ggen_core::manifest::QuerySource::File { file } = &rule.query {
+                if let ggen_config::manifest::QuerySource::File { file } = &rule.query {
                     closure.push(file.clone());
                 }
-                if let ggen_core::manifest::TemplateSource::File { file } = &rule.template {
+                if let ggen_config::manifest::TemplateSource::File { file } = &rule.template {
                     closure.push(file.clone());
                 }
             }

@@ -7,8 +7,8 @@ use clap_noun_verb_macros::verb;
 use serde::Serialize;
 
 // Re-export marketplace types for policy enforcement
-pub use ggen_core::marketplace::policy::{PackContext, PolicyReport};
-pub use ggen_core::marketplace::profile::{predefined_profiles, Profile, ProfileId};
+pub use ggen_marketplace::marketplace::policy::{PackContext, PolicyReport};
+pub use ggen_marketplace::marketplace::profile::{predefined_profiles, Profile, ProfileId};
 
 // ============================================================================
 // Output Types
@@ -88,31 +88,31 @@ pub struct RuntimeConstraintSummary {
 /// - Lockfile is invalid
 /// - Pack metadata cannot be loaded
 fn load_pack_contexts_from_project() -> crate::Result<Vec<PackContext>> {
-    use ggen_core::marketplace::metadata::{get_pack_cache_dir, load_pack_metadata};
-    use ggen_core::packs::lockfile::PackLockfile;
+    use ggen_marketplace::marketplace::metadata::{get_pack_cache_dir, load_pack_metadata};
+    use ggen_marketplace::packs::lockfile::PackLockfile;
     use std::path::Path;
 
     let lockfile_path = Path::new(".ggen/packs.lock");
     if !lockfile_path.exists() {
-        return Err(ggen_core::utils::error::Error::new(
+        return Err(crate::utils::error::Error::new(
             "No project found. Please install packs first with 'ggen packs install <pack-id>'",
         ));
     }
 
     let lockfile = PackLockfile::from_file(lockfile_path).map_err(|e| {
-        ggen_core::utils::error::Error::new(&format!("Failed to load lockfile: {}", e))
+        crate::utils::error::Error::new(&format!("Failed to load lockfile: {}", e))
     })?;
 
     let mut pack_contexts = Vec::new();
     for (pack_id, locked_pack) in &lockfile.packs {
-        let package_id = ggen_core::marketplace::models::PackageId::new(pack_id).map_err(|e| {
-            ggen_core::utils::error::Error::new(&format!("Invalid package ID {}: {}", pack_id, e))
+        let package_id = ggen_marketplace::marketplace::models::PackageId::new(pack_id).map_err(|e| {
+            crate::utils::error::Error::new(&format!("Invalid package ID {}: {}", pack_id, e))
         })?;
 
         let cache_dir = get_pack_cache_dir(&package_id, &locked_pack.version);
 
         let metadata = load_pack_metadata(&cache_dir).map_err(|e| {
-            ggen_core::utils::error::Error::new(&format!(
+            crate::utils::error::Error::new(&format!(
                 "Failed to load metadata for pack {}: {}",
                 pack_id, e
             ))
@@ -212,7 +212,7 @@ pub fn list(verbose: bool) -> VerbResult<ListOutput> {
 #[verb]
 pub fn validate(profile: String) -> VerbResult<ValidateOutput> {
     // Get the profile
-    let profile_obj = ggen_core::marketplace::profile::get_profile(&profile).map_err(|e| {
+    let profile_obj = ggen_marketplace::marketplace::profile::get_profile(&profile).map_err(|e| {
         clap_noun_verb::NounVerbError::argument_error(format!("Profile not found: {}", e))
     })?;
 
@@ -258,7 +258,7 @@ pub fn validate(profile: String) -> VerbResult<ValidateOutput> {
 /// Show detailed profile information
 #[verb]
 pub fn show(profile_id: String) -> VerbResult<ShowOutput> {
-    let profile = ggen_core::marketplace::profile::get_profile(&profile_id).map_err(|e| {
+    let profile = ggen_marketplace::marketplace::profile::get_profile(&profile_id).map_err(|e| {
         clap_noun_verb::NounVerbError::argument_error(format!("Profile not found: {}", e))
     })?;
 
@@ -320,7 +320,7 @@ pub fn show(profile_id: String) -> VerbResult<ShowOutput> {
 pub fn check() -> VerbResult<ValidateOutput> {
     // Use Production as the default profile
     let profile_obj =
-        ggen_core::marketplace::profile::get_profile("enterprise-strict").map_err(|e| {
+        ggen_marketplace::marketplace::profile::get_profile("enterprise-strict").map_err(|e| {
             clap_noun_verb::NounVerbError::argument_error(format!(
                 "Default profile not found: {}",
                 e

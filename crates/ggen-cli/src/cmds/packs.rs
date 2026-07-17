@@ -15,10 +15,10 @@ use clap_noun_verb_macros::verb;
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 
-use ggen_core::agent::{emit_install_receipt, PackInstallClosure};
-use ggen_core::domain::packs::metadata::show_pack;
-use ggen_core::domain::packs::validate::validate_pack;
-use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
+use crate::agent::{emit_install_receipt, PackInstallClosure};
+use ggen_marketplace::packs::lockfile::{LockedPack, PackLockfile, PackSource};
+use ggen_marketplace::packs_registry::metadata::show_pack;
+use ggen_marketplace::packs_registry::validate::validate_pack;
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
@@ -71,7 +71,7 @@ pub fn install(pack_id: String) -> Result<Value> {
     };
 
     // Deterministic, non-empty digest binding the declared identity.
-    let digest = ggen_core::calculate_sha256(format!("{}@{}", pack_id, version).as_bytes());
+    let digest = crate::utils::sha256_hex(format!("{}@{}", pack_id, version).as_bytes());
 
     let mut lockfile = load_or_new_lockfile(&lock_path)?;
     lockfile.add_pack(

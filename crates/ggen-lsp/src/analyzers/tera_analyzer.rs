@@ -564,7 +564,7 @@ pub fn unbound_projection_diagnostics(
 /// SPARQL `SELECT` does **not** produce (`available_vars`), emit a GGEN-OUT-001
 /// (`unbound_output_path`) error diagnostic. `output_file` is a tiny Tera
 /// template rendered once per SPARQL result row against the row's bindings
-/// (`ggen_core::codegen::pipeline` renders it via `tera.render_str`), so the
+/// (the generation pipeline renders it via `tera.render_str`), so the
 /// SAME [`consumed_vars`] extractor that powers GGEN-TPL-001 applies verbatim.
 ///
 /// Returns empty when `output_file` is a STATIC path (no `{{`) — `consumed_vars`

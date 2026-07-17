@@ -1,5 +1,9 @@
 // Manifest validation contract tests
-use ggen_core::domain::packs::types::PackFile;
+// Re-pointed from `ggen_core::domain::packs::types::PackFile` to
+// `ggen_marketplace::packs_registry::types::PackFile` (T053, T025's port
+// destination) -- `Pack`/`PackFile` field shapes confirmed identical via
+// `cargo test --test contract`.
+use ggen_marketplace::packs_registry::types::PackFile;
 
 #[test]
 fn test_manifest_parsing_and_validation() {

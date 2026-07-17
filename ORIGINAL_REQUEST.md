@@ -2812,4 +2812,54 @@ Audit the package configurations and verify that the crates compile and package 
 ### Packaging
 - [ ] `cargo publish --dry-run` completes successfully for all workspace crates.
 
+## Follow-up — 2026-07-03T23:40:17Z
 
+The goal is to design a complete documentation system architecture from first principles (design patterns, structure, testing) and generate a comprehensive specification/RFC, adopting the perspective and execution rigor of a Rust Core Team AGI Swarm.
+
+Working directory: /Users/sac/ggen/docs/rust_swarm_doc_plan
+Integrity mode: development
+
+## Requirements
+
+### R1. Architecture Design from First Principles
+Design the core structural patterns, directory structure, compilation/generation pipeline, and verification gates (e.g., compile-time link checking, doctest validation) for a next-generation documentation system.
+
+### R2. Comprehensive Specification/RFC
+Write a highly detailed, professional RFC/specification (in Markdown format) detailing the proposed system, complete with block diagrams (Mermaid or similar), structural descriptions, and exact step-by-step verification flows.
+
+### R3. Observability and Verification Mechanics
+Detail the verification mechanics: how documentation is checked for accuracy, how code blocks are run and tested, and how drift between implementation and docs is mathematically/cryptographically prevented.
+
+## Acceptance Criteria
+
+### Completeness & Rigor
+- [ ] The generated specification must cover all components of the documentation lifecycle: authoring, validation, compilation, and hosting/serving.
+- [ ] The specification must explicitly detail a mechanism for continuous integration verification (e.g., a CLI tool check or git hook description) that fails if documentation code blocks or links are broken.
+- [ ] Includes at least 3 distinct Mermaid diagrams depicting the data/control flow of document compilation, verification gates, and rendering.
+
+## Follow-up — 2026-07-04T00:06:19Z
+
+The goal is to write a highly detailed, professional, and comprehensive manual covering all aspects of the `ggen sync` command, including its flags, pipeline stages, profile enforcement settings, workflow options, and error code mappings.
+
+Working directory: /Users/sac/ggen/docs/reference
+Integrity mode: development
+
+## Requirements
+
+### R1. Comprehensive CLI Reference Guide for `ggen sync`
+Create a master reference document covering all `ggen sync` CLI options and behaviors, mapping exactly to the implementation constraints (e.g. `--manifest`, `--output-dir`, `--dry-run`, `--force`, `--audit`, `--rule`, `--verbose`, `--watch`, `--validate-only`, `--format`, `--timeout`, `--stage`, `--ontology`, `--queries`, `--language`, `--profile`, `--locked`).
+
+### R2. Detailed Pipeline & Multi-Language Analysis
+Explain the A2A-RS μ₁-μ₅ generation pipeline and code structure transitions, along with detail on the new `--queries` direct-bypass mode, and code generator targets (Go, Elixir, Rust, TypeScript, Python).
+
+### R3. Enforcement Profiles & Defensive Workflows
+Explain security enforcement profiles (`--profile`), locked mode checks (`--locked`), safety rules for destructive overwrites (`--force` + `--audit` / `--dry-run` checks), and error code exits (codes 0 to 6).
+
+## Acceptance Criteria
+
+### Completeness & Professional Layout
+- [ ] Outputs a single comprehensive Markdown reference file `/Users/sac/ggen/docs/reference/ggen_sync_manual.md`.
+- [ ] Includes detailed tables explaining all 17 CLI options and all 7 error exit codes (0 to 6).
+- [ ] Contains at least 2 ASCII/Mermaid structural diagrams mapping the pipeline execution layout and the `--queries` low-level bypass architecture.
+- [ ] Incorporates code block snippets illustrating sample usages of different flag combinations (e.g., `--dry-run`, `--watch`, `--profile`).
+- [ ] Has no TODOs, placeholders, or empty sections.

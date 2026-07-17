@@ -3,11 +3,11 @@
 //!
 //! GGEN-TPL-001 — Living LSP. This is the entry point the rest of the LSP uses
 //! to obtain a resolved, queryable view of a project's generation rules.
-//! Manifest parsing is delegated to `ggen_core::manifest` (no hand-rolled TOML).
+//! Manifest parsing is delegated to `ggen_config::manifest` (no hand-rolled TOML).
 
 use std::path::{Path, PathBuf};
 
-use ggen_core::manifest::ManifestParser;
+use ggen_config::manifest::ManifestParser;
 
 use crate::rule_index::RuleIndexEntry;
 
@@ -34,7 +34,7 @@ pub enum IndexError {
         /// The path that was probed.
         path: PathBuf,
     },
-    /// The `ggen.toml` existed but could not be parsed by `ggen_core::manifest`.
+    /// The `ggen.toml` existed but could not be parsed by `ggen_config::manifest`.
     ManifestParse {
         /// The manifest path that failed to parse.
         path: PathBuf,
@@ -70,7 +70,7 @@ pub struct ProjectIndex {
 impl ProjectIndex {
     /// Build a [`ProjectIndex`] from a project root directory.
     ///
-    /// Looks for `<root>/ggen.toml`, parses it via `ggen_core::manifest`, and
+    /// Looks for `<root>/ggen.toml`, parses it via `ggen_config::manifest`, and
     /// produces a [`RuleIndexEntry`] for each generation rule. If the manifest
     /// has no `[generation]` section (or no rules), the index is built with an
     /// empty `rule_entries` vector.

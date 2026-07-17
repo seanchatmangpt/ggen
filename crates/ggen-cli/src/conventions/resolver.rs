@@ -27,7 +27,7 @@
 //! ```rust,no_run
 //! use ggen_cli_lib::conventions::resolver::ConventionResolver;
 //!
-//! # fn main() -> ggen_core::utils::error::Result<()> {
+//! # fn main() -> ggen_cli_lib::utils::error::Result<()> {
 //! let conventions = ConventionResolver::new(".").discover()?;
 //! println!("Found {} RDF files", conventions.rdf_files.len());
 //! println!("Found {} templates", conventions.templates.len());
@@ -35,7 +35,7 @@
 //! # }
 //! ```
 
-use ggen_core::utils::error::{Context, Result};
+use crate::utils::error::{Context, Result};
 use glob::glob;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -144,14 +144,14 @@ impl ConventionResolver {
 
         if override_path.exists() {
             let content = std::fs::read_to_string(&override_path).map_err(|e| {
-                ggen_core::utils::error::Error::new(&format!(
+                crate::utils::error::Error::new(&format!(
                     "Failed to read conventions.toml: {}",
                     e
                 ))
             })?;
             let overrides: ConventionOverrides = Context::context(
                 toml::from_str(&content).map_err(|e| {
-                    ggen_core::utils::error::Error::new(&format!(
+                    crate::utils::error::Error::new(&format!(
                         "Failed to parse conventions.toml: {}",
                         e
                     ))
@@ -176,14 +176,14 @@ impl ConventionResolver {
         for pattern in patterns {
             let full_pattern = self.project_root.join(&pattern);
             for entry in glob(&full_pattern.to_string_lossy()).map_err(|e| {
-                ggen_core::utils::error::Error::new(&format!(
+                crate::utils::error::Error::new(&format!(
                     "Failed to glob pattern {}: {}",
                     full_pattern.display(),
                     e
                 ))
             })? {
                 files.push(entry.map_err(|e| {
-                    ggen_core::utils::error::Error::new(&format!(
+                    crate::utils::error::Error::new(&format!(
                         "Failed to read glob entry: {}",
                         e
                     ))
@@ -213,14 +213,14 @@ impl ConventionResolver {
         for pattern in patterns {
             let full_pattern = self.project_root.join(&pattern);
             for entry in glob(&full_pattern.to_string_lossy()).map_err(|e| {
-                ggen_core::utils::error::Error::new(&format!(
+                crate::utils::error::Error::new(&format!(
                     "Failed to glob pattern {}: {}",
                     full_pattern.display(),
                     e
                 ))
             })? {
                 let path = entry.map_err(|e| {
-                    ggen_core::utils::error::Error::new(&format!(
+                    crate::utils::error::Error::new(&format!(
                         "Failed to read glob entry: {}",
                         e
                     ))
@@ -268,14 +268,14 @@ impl ConventionResolver {
         for pattern in patterns {
             let full_pattern = self.project_root.join(&pattern);
             for entry in glob(&full_pattern.to_string_lossy()).map_err(|e| {
-                ggen_core::utils::error::Error::new(&format!(
+                crate::utils::error::Error::new(&format!(
                     "Failed to glob pattern {}: {}",
                     full_pattern.display(),
                     e
                 ))
             })? {
                 let path = entry.map_err(|e| {
-                    ggen_core::utils::error::Error::new(&format!(
+                    crate::utils::error::Error::new(&format!(
                         "Failed to read glob entry: {}",
                         e
                     ))
@@ -284,7 +284,7 @@ impl ConventionResolver {
                 // Read query content
                 let content = Context::with_context(
                     std::fs::read_to_string(&path).map_err(|e| {
-                        ggen_core::utils::error::Error::new(&format!(
+                        crate::utils::error::Error::new(&format!(
                             "Failed to read query file {}: {}",
                             path.display(),
                             e

@@ -1,6 +1,7 @@
 //! Pack + marketplace tools for the agent surface (MCP and A2A).
 //!
-//! This module is the wire-protocol layer over [`ggen_core::agent::PackAgent`].
+//! This module is the wire-protocol layer over
+//! [`ggen_marketplace::agent::PackAgent`].
 //! It follows the project's no-drift discipline: every operation is a single
 //! *pure result function* (`*_result`) returning `serde_json::Value`, and both
 //! transports call the same function —
@@ -11,13 +12,13 @@
 //! There is therefore exactly one implementation of each pack operation; the
 //! MCP and A2A surfaces cannot disagree. Inputs are typed (`schemars`-derived
 //! JSON Schemas) and outputs are the structured, evidence-bearing
-//! [`ggen_core::agent::types`] contract. Failures are surfaced as typed errors,
-//! never swallowed into a fake success.
+//! [`ggen_marketplace::agent::types`] contract. Failures are surfaced as typed
+//! errors, never swallowed into a fake success.
 
 use std::collections::HashMap;
 
 use async_trait::async_trait;
-use ggen_core::agent::{AgentError, InstallRequest, PackAgent};
+use ggen_marketplace::agent::{AgentError, InstallRequest, PackAgent};
 use rmcp::model::{CallToolResult, Content, ErrorData};
 use serde::Deserialize;
 use serde_json::{json, Value};

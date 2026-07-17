@@ -20,7 +20,12 @@
 use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
 use ed25519_dalek::SigningKey;
-use ggen_core::receipt::{generate_keypair, ProvenanceEnvelope};
+// `ProvenanceEnvelope`/`CoherenceReport` (below) are native-only — excluded from
+// the T033 receipt-core re-point by design; their fate is decided by T054
+// (Phase 4i, deletion prep), out of this task's scope. `generate_keypair` has a
+// real counterpart (ported in T033), so it moves now.
+use ggen_config::receipt::generate_keypair;
+use ggen_core::receipt::ProvenanceEnvelope;
 use ggen_core::reverse_sync::inverse_pipeline::InversePipeline;
 use ggen_graph::{CoherenceChecker, Pole, PoleState};
 use serde::Serialize;

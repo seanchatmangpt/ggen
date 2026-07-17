@@ -1,3 +1,17 @@
+// ARCHIVED (v26.7.16 routing flip): every test in this file drives `ggen
+// receipt verify --receipt_path <path> --public_key <path>` and `ggen
+// receipt info --receipt_path <path>` against an ad-hoc receipt file. In
+// ggen-engine's `receipt` noun (crates/ggen-engine/src/verbs/receipt.rs)
+// `verify` and `history` are both no-argument verbs that read the fixed
+// project-relative `.ggen-v2/receipt.json` / `.ggen-v2/receipt-log.jsonl` --
+// there is no `info` verb, and `verify` takes no `--receipt_path`/
+// `--public_key` flags (REFUSED, no equivalent surface for pointing at an
+// arbitrary receipt/key pair). The equivalent live coverage is
+// crates/ggen-engine/tests/cli_boundary.rs's `receipt_verify_*`/
+// `receipt_history_*` tests, which drive `sync run` to produce a real
+// `.ggen-v2/receipt.json` first. Gated as a whole file rather than deleted,
+// per this project's fix-forward doctrine.
+#![cfg(feature = "ggen-core-retired")]
 #![allow(
     clippy::unwrap_used,
     clippy::expect_used,

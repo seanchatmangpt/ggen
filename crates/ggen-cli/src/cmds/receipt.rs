@@ -7,7 +7,7 @@
 use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
 use ed25519_dalek::VerifyingKey;
-use ggen_core::receipt::Receipt;
+use ggen_config::receipt::Receipt;
 use serde::Serialize;
 use std::{fs, path::PathBuf};
 

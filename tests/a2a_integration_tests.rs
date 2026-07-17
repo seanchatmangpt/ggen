@@ -6,8 +6,11 @@
 //! covering CLI commands with real a2a-rs backend, agent lifecycle management,
 //! tool discovery, message passing, and error scenarios.
 
-use ggen_core::domain::error::{A2aError, AgentError, McpError};
-use ggen_core::domain::mcp_config::{A2aAgentConfig as AgentConfig, A2aConfig, McpServerConfig};
+// Re-pointed off ggen-core (specs/014-ggen-core-replacement, docs/jira/v26.7.16/
+// 12-OPEN-QUESTIONS.md item 2): `domain::error`/`domain::mcp_config` now live in
+// `ggen-config`, field-for-field identical to the ggen-core originals these were ported from.
+use ggen_config::domain::error::{A2aError, AgentError, McpError};
+use ggen_config::domain::mcp_config::{A2aAgentConfig as AgentConfig, A2aConfig, McpServerConfig};
 use std::collections::HashMap;
 use std::thread;
 use std::time::Duration;
@@ -842,10 +845,14 @@ mod main_test_suite {
         let mcp_error = McpError::ToolNotFound("Test tool not found".to_string());
         let agent_error = AgentError::StartupFailed("Test startup failed".to_string());
 
-        // These should all be convertible to domain errors
-        let domain_error1: ggen_core::utils::error::Error = a2a_error.into();
-        let domain_error2: ggen_core::utils::error::Error = mcp_error.into();
-        let domain_error3: ggen_core::utils::error::Error = agent_error.into();
+        // These should all be convertible to domain errors. Re-pointed off
+        // `ggen_core::utils::error::Error` onto `ggen_config::config_lib::ConfigError` — the
+        // real destination the ported `From<A2aError|McpError|AgentError>` impls now target
+        // (see crates/ggen-config/src/domain/error.rs) — closing the last of the 3 dependencies
+        // this test had on ggen-core (docs/jira/v26.7.16/12-OPEN-QUESTIONS.md item 2).
+        let domain_error1: ggen_config::config_lib::ConfigError = a2a_error.into();
+        let domain_error2: ggen_config::config_lib::ConfigError = mcp_error.into();
+        let domain_error3: ggen_config::config_lib::ConfigError = agent_error.into();
 
         assert!(!domain_error1.to_string().is_empty());
         assert!(!domain_error2.to_string().is_empty());

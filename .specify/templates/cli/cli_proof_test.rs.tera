@@ -1,0 +1,70 @@
+//! Generated CLI proof tests — DO NOT EDIT
+//!
+//! Source:    .specify/cli-proof-tests.ttl
+//! Query:     .specify/queries/cli-proof-tests.rq
+//! Template:  .specify/templates/cli/cli_proof_test.rs.tera
+//!
+//! Regenerate: ggen sync --stage cli-proof-tests
+//! Test count: {{ results | length }}
+
+#![allow(clippy::unwrap_used)]
+
+use chicago_tdd_tools::cli_proof::{CliHarness, TempWorkspace};
+
+{% for row in results %}
+{% set test_id = row["testId"] | default(value="unnamed") %}
+{% set command = row["command"] | default(value="") %}
+{% set args = row["args"] | default(value="") %}
+{% set expect_code = row["expectExitCode"] | default(value="0") %}
+{% set stdout_contains = row["assertStdoutContains"] | default(value="") %}
+{% set stderr_contains = row["assertStderrContains"] | default(value="") %}
+{% set file_exists = row["assertFileExists"] | default(value="") %}
+{% set file_absent = row["assertFileAbsent"] | default(value="") %}
+{% set covers = row["coversAxiom"] | default(value="") %}
+
+#[test]
+fn {{ test_id }}() {
+    // Axiom: {{ covers }}
+
+    // Arrange
+    let ws = TempWorkspace::new().expect("TempWorkspace");
+
+    // Act — spawn real ggen binary
+    let mut cmd_args: Vec<&str> = vec![];
+    {%- set parts = command | split(pat=" ") %}
+    {%- for part in parts %}
+    {%- if part != "" %}
+    cmd_args.push("{{ part }}");
+    {%- endif %}
+    {%- endfor %}
+    {%- if args != "" %}
+    {%- set arg_parts = args | split(pat=" ") %}
+    {%- for arg in arg_parts %}
+    {%- if arg != "" %}
+    cmd_args.push("{{ arg }}");
+    {%- endif %}
+    {%- endfor %}
+    {%- endif %}
+
+    let result = CliHarness::cargo_bin("ggen")
+        .args(cmd_args)
+        .workspace(&ws)
+        .run()
+        .expect("ggen binary executed");
+
+    // Assert
+    result.assert_exit_code({{ expect_code }});
+    {%- if stdout_contains != "" %}
+    result.assert_stdout_contains("{{ stdout_contains }}");
+    {%- endif %}
+    {%- if stderr_contains != "" %}
+    result.assert_stderr_contains("{{ stderr_contains }}");
+    {%- endif %}
+    {%- if file_exists != "" %}
+    ws.assert_file_exists("{{ file_exists }}");
+    {%- endif %}
+    {%- if file_absent != "" %}
+    ws.assert_file_absent("{{ file_absent }}");
+    {%- endif %}
+}
+{% endfor %}

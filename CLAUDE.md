@@ -358,3 +358,10 @@ Before launching agents:
 - **Documentation**: ./docs/
 - **Detailed Rules**: ./.claude/rules/
 - **Research**: ./docs/research/
+
+## Active Technologies
+- Rust, nightly toolchain pinned via `rust-toolchain.toml` + `oxigraph` (existing three RDF stacks: `ggen-core::rdf`, (2026-ggen-core-replacement)
+- Local filesystem only — `.ggen/receipts/`, `.ggen/keys/`, `.ggen/packs.lock`; (2026-ggen-core-replacement)
+
+## Recent Changes
+- 2026-ggen-core-replacement: Added Rust, nightly toolchain pinned via `rust-toolchain.toml` + `oxigraph` (existing three RDF stacks: `ggen-core::rdf`,

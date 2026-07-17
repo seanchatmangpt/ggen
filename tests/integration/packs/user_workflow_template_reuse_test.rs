@@ -2,7 +2,11 @@
 //!
 //! Workflow 5: Template reuse with variables
 
-use ggen_core::domain::packs::{generate_from_pack, list_packs, show_pack, GenerateInput};
+// Re-pointed to ggen_marketplace::packs_registry (T053; see
+// user_workflow_multi_pack_test.rs's comment for the full rationale --
+// same orphaned-file, submodule-qualified-path situation applies here).
+use ggen_marketplace::packs_registry::generator::{generate_from_pack, GenerateInput};
+use ggen_marketplace::packs_registry::metadata::{list_packs, show_pack};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 

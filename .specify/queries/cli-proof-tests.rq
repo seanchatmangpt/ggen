@@ -1,0 +1,36 @@
+PREFIX proof: <https://ggen.dev/ontology/cli-proof#>
+PREFIX tdd:   <https://ggen.dev/ontology/tdd#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:   <http://www.w3.org/2001/XMLSchema#>
+
+SELECT
+  ?testId
+  ?command
+  ?args
+  ?fixture
+  ?expectExitCode
+  ?assertStdoutContains
+  ?assertStderrContains
+  ?assertFileExists
+  ?assertFileAbsent
+  ?sabotage
+  ?driftMutation
+  ?assertionType
+  ?coversAxiom
+WHERE {
+  ?test a proof:CliProofTest ;
+        tdd:testCaseId  ?testId ;
+        proof:command   ?command .
+  OPTIONAL { ?test proof:args                   ?args }
+  OPTIONAL { ?test proof:fixture                ?fixture }
+  OPTIONAL { ?test proof:expectExitCode         ?expectExitCode }
+  OPTIONAL { ?test proof:assertStdoutContains   ?assertStdoutContains }
+  OPTIONAL { ?test proof:assertStderrContains   ?assertStderrContains }
+  OPTIONAL { ?test proof:assertFileExists       ?assertFileExists }
+  OPTIONAL { ?test proof:assertFileAbsent       ?assertFileAbsent }
+  OPTIONAL { ?test proof:sabotage               ?sabotage }
+  OPTIONAL { ?test proof:driftMutation          ?driftMutation }
+  OPTIONAL { ?test tdd:assertionType            ?assertionType }
+  OPTIONAL { ?test tdd:coversAxiom              ?coversAxiom }
+}
+ORDER BY ?assertionType ?testId

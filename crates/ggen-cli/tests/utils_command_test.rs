@@ -172,6 +172,7 @@ mod doctor_input_tests {
             verbose: true,
             check: None,
             env: false,
+            all: false,
         };
 
         assert!(input.verbose);
@@ -184,6 +185,7 @@ mod doctor_input_tests {
             verbose: false,
             check: Some("rust".to_string()),
             env: false,
+            all: false,
         };
 
         assert_eq!(input.check, Some("rust".to_string()));
@@ -196,6 +198,7 @@ mod doctor_input_tests {
             verbose: false,
             check: None,
             env: true,
+            all: false,
         };
 
         assert!(input.env);
@@ -208,6 +211,7 @@ mod doctor_input_tests {
             verbose: true,
             check: Some("cargo".to_string()),
             env: true,
+            all: true,
         };
 
         assert!(input.verbose);
@@ -495,6 +499,7 @@ mod integration_tests {
                 verbose: false,
                 check: Some(check_type.to_string()),
                 env: false,
+                all: false,
             };
 
             assert_eq!(input.check, Some(check_type.to_string()));

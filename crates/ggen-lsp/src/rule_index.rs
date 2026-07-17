@@ -2,7 +2,7 @@
 //! entry from a `ggen.toml` manifest.
 //!
 //! GGEN-TPL-001 — Living LSP. This module turns a parsed `GenerationRule`
-//! (from `ggen_core::manifest`) into a [`RuleIndexEntry`]: query/template text
+//! (from `ggen_config::manifest`) into a [`RuleIndexEntry`]: query/template text
 //! is resolved (inline kept as-is, file references read from disk relative to
 //! the manifest directory), and the SPARQL `SELECT` variables are extracted so
 //! downstream analyzers can reason about which Tera variables are available.
@@ -14,7 +14,7 @@
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
-use ggen_core::manifest::{GenerationRule, QuerySource, TemplateSource};
+use ggen_config::manifest::{GenerationRule, QuerySource, TemplateSource};
 
 use crate::project_index::BufferOverlay;
 
@@ -181,7 +181,7 @@ fn read_overlay_or_disk(overlay: &BufferOverlay, path: &Path) -> std::io::Result
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ggen_core::manifest::{GenerationRule, QuerySource, TemplateSource};
+    use ggen_config::manifest::{GenerationRule, QuerySource, TemplateSource};
     use std::collections::BTreeSet;
     use tempfile::TempDir;
 
@@ -192,7 +192,7 @@ mod tests {
             template,
             output_file: "out.rs".to_string(),
             skip_empty: false,
-            mode: ggen_core::manifest::GenerationMode::Create,
+            mode: ggen_config::manifest::GenerationMode::Create,
             when: None,
         }
     }

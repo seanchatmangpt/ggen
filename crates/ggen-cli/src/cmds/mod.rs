@@ -31,7 +31,14 @@ pub mod helpers;
 pub mod git_hooks;
 pub mod init;
 pub mod inverse_sync;
-pub mod sync;
+// ARCHIVED (v26.7.16 routing flip): replaced by ggen-engine's `sync` noun
+// (verb `run`). A root FLAT verb named "sync" here and a noun named "sync"
+// registered by ggen-engine both become top-level clap subcommands named
+// "sync" -- clap_builder's debug_asserts panics on the duplicate name in
+// debug builds, and release builds would silently shadow one path with the
+// other. File retained on disk at cmds/sync.rs, not deleted, per this
+// project's fix-forward doctrine.
+// pub mod sync;
 // ARCHIVED (v26.5.28): ambiguous noun, gated behind default-off `experimental`.
 #[cfg(feature = "experimental")]
 pub mod wizard;
@@ -42,12 +49,19 @@ pub mod wizard;
 // the code is preserved (non-deletion doctrine). See cmds/mod.rs feature note.
 #[cfg(feature = "experimental")]
 pub mod a2a;
-pub mod agent; // AGI-facing lifecycle surface over ggen_core::agent::PackAgent (`ggen agent <verb>`)
+pub mod agent; // AGI-facing lifecycle surface (`ggen agent <verb>`) over crate::agent::PackAgent (ported from ggen_core, T041)
 pub mod capability; // capability surfaces → atomic packs (`ggen capability enable/list/inspect`)
-pub mod doctor;
+// ARCHIVED (v26.7.16 routing flip): replaced by ggen-engine's `doctor` noun
+// (verb `run`). Same root-flat-verb-vs-noun collision as `sync` above. File
+// retained on disk at cmds/doctor.rs, not deleted, per this project's
+// fix-forward doctrine.
+// pub mod doctor;
 #[cfg(feature = "experimental")]
 pub mod framework; // Framework bridge commands (LangChain, etc.)
-pub mod graph;
+// ARCHIVED (v26.7.16 routing flip): replaced by ggen-engine's `graph` noun
+// (verb `validate`). File retained on disk at cmds/graph.rs, not deleted,
+// per this project's fix-forward doctrine.
+// pub mod graph;
 #[cfg(feature = "lsp")]
 pub mod lsp; // ggen lsp noun (start/check/init/serve/mine/metrics/replay/field-status/emit_pack/verify_pack) — opt-in: --features lsp
 #[cfg(feature = "experimental")]
@@ -57,7 +71,10 @@ pub mod pack; // Singular alias for `packs` noun (golden-path: ggen pack add <na
 pub mod packs; // lockfile-oriented multi-pack management (`ggen packs install/list/validate/show`)
 pub mod packs_receipt; // pack-install receipt emitter (full-closure, fail-closed) — invoked by `pack add`
 pub mod policy;
-pub mod receipt; // ggen receipt verify / info — cryptographic receipt CLI surface (BUG-005)
+// ARCHIVED (v26.7.16 routing flip): replaced by ggen-engine's `receipt` noun
+// (verbs `verify`/`history`). File retained on disk at cmds/receipt.rs, not
+// deleted, per this project's fix-forward doctrine.
+// pub mod receipt; // ggen receipt verify / info — cryptographic receipt CLI surface (BUG-005)
 #[cfg(feature = "experimental")]
 pub mod sigma;
 pub mod utils;

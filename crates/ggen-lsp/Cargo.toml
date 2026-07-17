@@ -5,15 +5,32 @@ edition = "2021"
 license = "MIT"
 description = "Language server for ggen surfaces — analyzers, check, intel/mining, pack, route/repair, handlers."
 repository = "https://github.com/seanchatmangpt/ggen"
+# publish = false (T049, ggen-core -> ggen-engine re-point): the `ggen.construct` MCP handler
+# (src/a2a_mcp/mcp_server.rs) now calls `ggen_engine::sync::sync` directly instead of
+# ggen-core's ManifestParser/GenerationPipeline. ggen-engine is itself `publish = false` --
+# praxis-core/praxis-graphlaw carry hard absolute-path deps on sibling repos
+# (/Users/sac/bcinr/crates/*, /Users/sac/wasm4pm-compat) that only exist on this machine, so it
+# can never resolve on crates.io. That dependency is real and functional (not a leaf/unused
+# re-export), so `cargo publish --dry-run -p ggen-lsp` can never pass while it exists -- same
+# disposition already applied to `ggen-cli-lib` for the identical reason (see that crate's
+# Cargo.toml comment and docs/jira/v26.7.16/ tickets 01/02). ggen-lsp remains fully usable from
+# a git-repo build/workspace member; only `cargo install ggen-lsp` from crates.io is affected.
+publish = false
 
 [dependencies]
-# Pinned to =26.6.26: this is the fixed crates.io release. 26.6.23 was broken on
+# Pinned to =26.6.29: this is the fixed crates.io release. 26.6.23 was broken on
 # nightly-2026-06-22 (pub const trait / impl const regression — "expected a
-# trait, found type" on every witness_marker! expansion); 26.6.26 ships the fix
-# and compiles clean under the pinned toolchain. The exact pin intersects with
-# lsp-max-runtime's ^26.6.9 constraint so Cargo can't silently pull a future
-# broken release within the same date-versioned minor.
-wasm4pm-compat = "=26.6.26"
+# trait, found type" on every witness_marker! expansion); 26.6.26 shipped the fix
+# and compiled clean under the pinned toolchain. Bumped from 26.6.26 to 26.6.29
+# to match the version praxis-core/praxis-graphlaw depend on (as a path dep to
+# /Users/sac/wasm4pm-compat, which is at 26.6.29) — those two crates are
+# candidates for a future ggen-core replacement (see
+# docs/jira/v26.7.16/GGEN-CORE-PRAXIS-REPLACEMENT.md) and a version mismatch on
+# this package would otherwise block adding them to this workspace. Verified to
+# still compile clean under nightly-2026-06-22 via `just check`. The exact pin
+# intersects with lsp-max-runtime's ^26.6.9 constraint so Cargo can't silently
+# pull a future broken release within the same date-versioned minor.
+wasm4pm-compat = "=26.6.29"
 lsp-max = { workspace = true }
 lsp-max-protocol = { workspace = true }
 lsp-max-macros = { workspace = true }
@@ -24,7 +41,12 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 
 # Reuse from ggen workspace
-ggen-core = { path = "../ggen-core", version = "26.7.1" }
+# ggen-core removed (T049, 2026-ggen-core-replacement): the only production call sites
+# (mcp_server.rs's `ggen.construct` handler, mcp_packs.rs) now go through ggen-engine /
+# ggen-marketplace respectively -- see the `publish = false` comment above this table for why
+# this edge makes the crate unpublishable, and why that mirrors ggen-cli-lib's prior fix.
+ggen-engine = { path = "../ggen-engine", version = "26.7.13" }
+ggen-marketplace = { path = "../ggen-marketplace", version = "26.7.4" }
 ggen-config = { path = "../ggen-config", version = "26.7.1" }
 ggen-graph = { path = "../ggen-graph", version = "26.7.1" }
 tera = { workspace = true }

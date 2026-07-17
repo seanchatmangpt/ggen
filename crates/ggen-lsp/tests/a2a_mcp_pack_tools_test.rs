@@ -14,7 +14,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use ggen_core::agent::{emit_install_receipt, PackInstallClosure};
+use ggen_marketplace::agent::{emit_install_receipt, PackInstallClosure};
 use ggen_lsp::a2a_mcp::a2a_generated::adapter::Adapter;
 use ggen_lsp::a2a_mcp::{dispatch_pack_tool, pack_agent_card, PackToolsAdapter, PACK_TOOLS};
 use serde_json::json;

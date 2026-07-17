@@ -41,9 +41,6 @@ impl GgenMcpServer {
     async fn construct(
         &self, Parameters(params): Parameters<ConstructParams>,
     ) -> Result<CallToolResult, rmcp::model::ErrorData> {
-        use ggen_core::codegen::pipeline::GenerationPipeline;
-        use ggen_core::manifest::ManifestParser;
-
         // Log the boundary crossing.
         tracing::info!(
             "OCEL: {}",
@@ -53,7 +50,7 @@ impl GgenMcpServer {
             })
         );
 
-        // 1. Locate and load the manifest from CWD
+        // 1. Locate the project root (CWD) and confirm it is a ggen project.
         let base_path = std::env::current_dir().map_err(|e| {
             rmcp::model::ErrorData::internal_error(
                 format!("Failed to get current directory: {}", e),
@@ -69,50 +66,68 @@ impl GgenMcpServer {
             ));
         }
 
-        let manifest = ManifestParser::parse_and_validate(&manifest_path).map_err(|e| {
-            rmcp::model::ErrorData::internal_error(format!("Failed to load manifest: {}", e), None)
-        })?;
+        // 2. Run the ggen-engine sync pipeline (T049: replaces the retired
+        // ggen-core ManifestParser::parse_and_validate + GenerationPipeline
+        // chain). `ggen_engine::sync::sync` loads `ggen.toml` and the ontology
+        // itself and handles BOTH the frontmatter-per-template schema and the
+        // `[[generation.rules]]` declarative schema automatically (T070), so
+        // the separate manifest-parse step is subsumed, not preserved.
+        let report =
+            ggen_engine::sync::sync(&base_path, ggen_engine::sync::SyncOptions::default())
+                .map_err(|e| {
+                    rmcp::model::ErrorData::internal_error(
+                        format!("Generation pipeline failed: {}", e),
+                        None,
+                    )
+                })?;
 
-        // 2. Initialize and run the GenerationPipeline
-        let mut pipeline = GenerationPipeline::new(manifest, base_path);
+        // NOTE: no LLM-service hook here. The old handler connected an
+        // optional `Box<dyn LlmService>` via `ggen_core::codegen::pipeline::
+        // get_llm_service()`, but that free-function's only production setter
+        // (the same-named `set_llm_service`) had zero callers anywhere in the
+        // workspace outside ggen-core's own unit tests (confirmed via
+        // workspace-wide grep) -- it died with ggen-cli's sync module removal
+        // earlier in this migration. `ggen_engine::sync::sync` has no
+        // equivalent LLM-injection point; there is nothing to preserve.
 
-        // Connect LLM service if available in global slot (e.g. from ggen-cli)
-        if let Some(svc) = ggen_core::codegen::pipeline::get_llm_service() {
-            pipeline.set_llm_service(Some(svc));
-        }
-
-        let state = pipeline.run().map_err(|e| {
-            rmcp::model::ErrorData::internal_error(
-                format!("Generation pipeline failed: {}", e),
-                None,
-            )
-        })?;
-
-        // 3. Formulate success response with artifact details
+        // 3. Formulate success response with artifact details.
         let mut text = format!(
             "Successfully constructed artifact for task {}.\n",
             params.task_id
         );
         text.push_str(&format!("JTBD: {}\n", params.jtbd));
-        text.push_str(&format!(
-            "Generated {} files:\n",
-            state.generated_files.len()
-        ));
+        text.push_str(&format!("Generated {} files:\n", report.written.len()));
 
-        for file in &state.generated_files {
-            text.push_str(&format!(
-                "- {} ({} bytes, hash: {})\n",
-                file.path.display(),
-                file.size_bytes,
-                &file.content_hash[..8]
-            ));
+        for path in &report.written {
+            text.push_str(&format!("- {}\n", path.display()));
         }
 
+        // Field-by-field disposition of the OLD `ggen_result` meta payload
+        // against the new `SyncReport` (T049 combinatorial-maximalism pass):
+        //   - "status": "success"        -> kept literally; reaching this line
+        //                                    without an early return means sync succeeded.
+        //   - "task_id"                  -> kept unchanged (request echo, not
+        //                                    engine-derived).
+        //   - "files_count"              -> mapped from `report.written.len()`
+        //                                    (was `state.generated_files.len()`).
+        //   - "duration_ms"              -> DROPPED. `SyncReport` carries no
+        //                                    timing field and `sync()` does not
+        //                                    expose a start instant; ggen-engine
+        //                                    treats wall-clock timing as
+        //                                    non-deterministic receipt content
+        //                                    (see sync.rs's `ts_ns` note), so
+        //                                    there is no equivalent to map to.
+        //   - (new) "graph_hash_hex"     -> ADDED from `report.graph_hash_hex`,
+        //                                    the closest ggen-engine equivalent
+        //                                    to a content-identity hash for the
+        //                                    run (the old handler had no
+        //                                    per-file content hash at the
+        //                                    top level to preserve either).
         let result_data = serde_json::json!({
             "status": "success",
             "task_id": params.task_id,
-            "files_count": state.generated_files.len(),
-            "duration_ms": state.started_at.elapsed().as_millis()
+            "files_count": report.written.len(),
+            "graph_hash_hex": report.graph_hash_hex,
         });
 
         let mut meta = rmcp::model::Meta::default();
@@ -126,8 +141,8 @@ impl GgenMcpServer {
     // Each tool is a thin wrapper over a single pure result function in
     // `mcp_packs`; the same functions back the A2A `PackToolsAdapter`, so the
     // two transports cannot drift. Outputs are the structured, evidence-bearing
-    // `ggen_core::agent` contract; failures are typed `AgentError`s carrying a
-    // `{kind, detail}` body the agent can branch on.
+    // `ggen_marketplace::agent` contract; failures are typed `AgentError`s
+    // carrying a `{kind, detail}` body the agent can branch on.
 
     #[tool(
         name = "ggen.packs.capabilities",

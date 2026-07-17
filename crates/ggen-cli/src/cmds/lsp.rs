@@ -67,7 +67,7 @@ fn start(transport: Option<String>) -> Result<StartOutput> {
     }
 
     crate::runtime::block_on(async move { ggen_lsp::run_stdio().await })
-        .map_err(|e: ggen_core::utils::Error| {
+        .map_err(|e: crate::utils::error::Error| {
             clap_noun_verb::NounVerbError::execution_error(e.to_string())
         })?
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
@@ -90,7 +90,7 @@ fn serve(protocol: Option<String>) -> Result<StartOutput> {
     match proto.as_str() {
         "lsp" => {
             crate::runtime::block_on(async move { ggen_lsp::run_stdio().await })
-                .map_err(|e: ggen_core::utils::Error| {
+                .map_err(|e: crate::utils::error::Error| {
                     clap_noun_verb::NounVerbError::execution_error(e.to_string())
                 })?
                 .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
@@ -99,7 +99,7 @@ fn serve(protocol: Option<String>) -> Result<StartOutput> {
             crate::runtime::block_on(async move {
                 ggen_lsp::mcp::RepairRouteServer::start_stdio().await
             })
-            .map_err(|e: ggen_core::utils::Error| {
+            .map_err(|e: crate::utils::error::Error| {
                 clap_noun_verb::NounVerbError::execution_error(e.to_string())
             })?
             .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;

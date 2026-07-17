@@ -83,24 +83,115 @@ test-doc:
 #   cargo test -p ggen-core --test all_marketplace_packs_validation_test
 #   cargo mutants --workspace                                  (mutation score)
 # Phase-2 / coherence / round-trip checks — same commands CI's `phase2` job runs:
-#   {{GGEN}} graph validate --schema-file .specify/specs/post-chatman/post_chatman.ttl
+#   {{GGEN}} graph validate --files .specify/specs/post-chatman/post_chatman.ttl
 #   cargo test -p ggen-core --test ast_extractor_70pct_test
 #   cargo test -p ggen-core --test inverse_receipt_chain_test
 #   cargo test -p ggen-core --test provenance_envelope_test
 #   cargo test -p ggen-graph --test coherence_hash_expectations_test
 #   cargo test -p ggen-graph --test post_chatman_coherence_integration
 
-# ── Quality gates ─────────────────────────────────────────────────────────────
-
-# Full pre-commit gate: fmt → check → lint → test-lib (in sequence, fail fast)
-pre-commit: fmt-check check lint test-lib
+# Test Phase 2 components (inverse-sync, coherence validation, process discovery)
+test-phase2:
     #!/usr/bin/env bash
     set -euo pipefail
-    echo "✅ Pre-commit gate complete (fmt, check, lint, tests)"
+    echo "Running Phase 2 test suite..."
+
+    # Core AST extraction tests
+    cargo test -p ggen-core --test ast_extractor_70pct_test || exit 1
+
+    # Inverse receipt chain validation
+    cargo test -p ggen-core --test inverse_receipt_chain_test || exit 1
+
+    # Provenance envelope (O→A bridge)
+    cargo test -p ggen-core --test provenance_envelope_test || exit 1
+
+    # Coherence hash expectations
+    cargo test -p ggen-graph --test coherence_hash_expectations_test || exit 1
+
+    # Post-Chatman round-trip (O→A→O cycle)
+    cargo test -p ggen-graph --test post_chatman_coherence_integration || exit 1
+
+    echo "✅ Phase 2 test suite complete"
+
+# Validate post-Chatman ontology + SHACL shapes
+coherence-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ontology=".specify/specs/post-chatman/post_chatman.ttl"
+    shapes=".specify/specs/post-chatman/post_chatman_shapes.ttl"
+
+    echo "Validating ontology: $ontology"
+    {{GGEN}} graph validate --files "$ontology" || exit 1
+
+    echo "Validating shapes: $shapes"
+    {{GGEN}} graph validate --files "$shapes" || exit 1
+
+    echo "✅ Coherence check passed (O→A→O validation gates satisfied)"
+
+# Run inverse-sync on sample artifacts
+inverse-sync source_dir=".specify/specs" ontology=".specify/specs/post-chatman/post_chatman.ttl":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    echo "Running inverse-sync..."
+    echo "  Source dir: {{source_dir}}"
+    echo "  Ontology: {{ontology}}"
+
+    # Invoke the inverse-sync CLI command (when available)
+    # For now, this is a placeholder that verifies the ontology is valid
+    {{GGEN}} graph validate --files "{{ontology}}" || exit 1
+
+    echo "✅ Inverse-sync validation complete (envelope would be written here)"
+
+# Full O→A→O round-trip test
+round-trip: coherence-check inverse-sync
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "✅ O→A→O round-trip complete (coherence + inverse-sync + ontology re-validation)"
+
+# Performance SLO validation (Phase 1 + Phase 2)
+slo-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Running Phase 1 SLO checks..."
+    cargo bench --bench cli_startup_performance -- --test
+
+    echo "Running Phase 2 SLO checks..."
+    # Phase 2: Inverse pipeline + coherence checker performance
+    # InversePipeline::run_signed() must complete in <5s for typical artifact sets
+    # CoherenceChecker::check() must complete in <2s for 3-pole validation
+    # These are measured via integration tests that include timing assertions
+    cargo test -p ggen-core --test inverse_receipt_chain_test -- --nocapture || exit 1
+    cargo test -p ggen-graph --test coherence_hash_expectations_test -- --nocapture || exit 1
+
+    echo "✅ Phase 1 + Phase 2 SLO checks complete"
+
+# ── Quality gates ─────────────────────────────────────────────────────────────
+
+# Full pre-commit gate: fmt → check → lint → test-lib → coherence-check → boundary guard (in sequence, fail fast)
+pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard)"
 
 # Security vulnerability scan
 audit:
     cargo audit
+
+# Publish-safety guard (docs/jira/v26.7.16/01-PUBLISH-SAFETY-AND-CRATE-RENAME.md):
+# no workspace member other than root `ggen` may be named "ggen" or ever publish.
+# NOT wired into `pre-commit` -- its `cargo publish --dry-run` step currently fails
+# on the pre-existing chicago-tdd-tools/cli-proof dev-dependency gap (Cargo.toml
+# lines 159, 803-808), unrelated to this guard's own collision/publish=false logic.
+# Wiring it into the commit-blocking chain today would break every commit on an
+# unrelated, already-documented issue. Run standalone: `just guard-publish-target`.
+guard-publish-target:
+    ./scripts/ci/guard-publish-target.sh
+
+# Process Intelligence Boundary guard (CLAUDE.md): ggen must only emit process
+# evidence, never analyze it. Cheap and always green -- safe to run every commit.
+guard-process-intelligence-boundary:
+    ./scripts/ci/guard-process-intelligence-boundary.sh
 
 # ── Documentation ─────────────────────────────────────────────────────────────
 

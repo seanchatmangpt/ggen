@@ -33,6 +33,7 @@ fn ggen() -> Command {
 }
 
 #[test]
+#[ignore = "utils doctor command consolidated to root ggen doctor (v26.7.3)"]
 fn test_utils_doctor_runs() {
     // Chicago TDD: Verify system diagnostics execute
     ggen().arg("utils").arg("doctor").assert().success().stdout(
@@ -43,6 +44,7 @@ fn test_utils_doctor_runs() {
 }
 
 #[test]
+#[ignore = "utils doctor command consolidated to root ggen doctor (v26.7.3)"]
 fn test_utils_doctor_all() {
     // Chicago TDD: Verify all checks mode
     ggen()
@@ -54,6 +56,7 @@ fn test_utils_doctor_all() {
 }
 
 #[test]
+#[ignore = "utils doctor command consolidated to root ggen doctor (v26.7.3)"]
 fn test_utils_doctor_env_format() {
     // Chicago TDD: Verify environment format output
     ggen()
@@ -66,6 +69,7 @@ fn test_utils_doctor_env_format() {
 }
 
 #[test]
+#[ignore = "utils doctor command consolidated to root ggen doctor (v26.7.3)"]
 fn test_utils_doctor_json_format() {
     // Chicago TDD: Verify JSON format output
     let output = ggen()
@@ -126,11 +130,11 @@ fn test_utils_help_shows_verbs() {
         .arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("doctor"))
         .stdout(predicate::str::contains("env"));
 }
 
 #[test]
+#[ignore = "utils doctor command consolidated to root ggen doctor (v26.7.3)"]
 fn test_utils_doctor_help() {
     // Chicago TDD: Verify verb-specific help
     ggen()
@@ -154,6 +158,7 @@ fn test_utils_invalid_verb() {
 }
 
 #[test]
+#[ignore = "utils doctor command consolidated to root ggen doctor (v26.7.3)"]
 fn test_utils_doctor_checks_system_tools() {
     // Chicago TDD: Verify doctor checks for required tools
     let output = ggen()
@@ -176,6 +181,7 @@ fn test_utils_doctor_checks_system_tools() {
 }
 
 #[test]
+#[ignore = "utils doctor command consolidated to root ggen doctor (v26.7.3)"]
 fn test_utils_doctor_reports_health_status() {
     // Chicago TDD: Verify doctor reports overall health
     let output = ggen()

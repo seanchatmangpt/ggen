@@ -5,7 +5,29 @@
 //! - Checking completeness
 //! - Scoring packs
 
-use ggen_core::domain::packs::{score_pack, show_pack, validate_pack};
+// Re-pointed (T053): `validate_pack`/`show_pack`/`ValidationResult`/
+// `ValidationCheck` have a real, WORKING port destination in
+// `ggen_marketplace::packs_registry::{validate,metadata}` (T025).
+// `score_pack`/`PackScore`/`score::DimensionScores` are pointed at their
+// correct eventual home, `ggen_marketplace::packs_registry::score`, but this
+// does NOT currently resolve (same as it did NOT resolve via
+// `ggen_core::domain::packs::score_pack` before this change either --
+// confirmed via `cargo check`: `ggen-core/src/domain/packs/mod.rs` also
+// lacks `pub mod score;`, so this was pre-existing dead code, not something
+// this migration broke): `packs_registry/score.rs` exists on disk in the
+// T025 port but is NOT declared `pub mod score;` in
+// `crates/ggen-marketplace/src/packs_registry/mod.rs` (confirmed: it's one
+// of several files -- also `advanced_resolver.rs`, `cloud_distribution.rs`,
+// `composer.rs`, `installer.rs`, `sparql_executor.rs`, `template_generator.rs`
+// -- physically present but not wired into the module tree). Fixing that
+// one-line wiring gap requires editing ggen-marketplace source, out of this
+// task's file scope (root package only) -- flagged in tasks.md for whoever
+// owns that crate next. This file is not part of any compiled `cargo test`
+// target today regardless (verified via `cargo metadata`'s test-target
+// list), so nothing regresses either way.
+use ggen_marketplace::packs_registry::metadata::show_pack;
+use ggen_marketplace::packs_registry::score::score_pack;
+use ggen_marketplace::packs_registry::validate::validate_pack;
 
 #[test]
 fn test_validate_pack_structure() {
@@ -17,7 +39,7 @@ fn test_validate_pack_structure() {
         Ok(validation) => {
             assert_eq!(validation.pack_id, "startup-essentials");
             assert!(validation.score >= 0.0 && validation.score <= 100.0);
-            assert!(validation.checks.is_empty() == False, "Should have validation checks");
+            assert!(validation.checks.is_empty() == false, "Should have validation checks");
         }
         Err(e) => {
             // Expected if pack doesn't exist
@@ -50,7 +72,7 @@ fn test_validate_pack_has_checks() {
     // Assert
     if let Ok(validation) = result {
         // Should have various checks
-        assert!(validation.checks.is_empty() == False);
+        assert!(validation.checks.is_empty() == false);
 
         // Each check should have a name and message
         for check in &validation.checks {
@@ -182,13 +204,13 @@ fn test_validate_pack_with_dependencies() {
 
         // If pack has dependencies, should validate them
         // This is a weak assertion since not all packs have dependencies
-        assert!(validation.checks.is_empty() == False);
+        assert!(validation.checks.is_empty() == false);
     }
 }
 
 #[test]
 fn test_validation_result_serialization() {
-    use ggen_core::domain::packs::ValidationResult;
+    use ggen_marketplace::packs_registry::validate::ValidationResult;
 
     // Arrange
     let validation = ValidationResult {
@@ -197,7 +219,7 @@ fn test_validation_result_serialization() {
         score: 85.5,
         errors: vec![],
         warnings: vec!["Minor warning".to_string()],
-        checks: vec![ggen_core::domain::packs::validate::ValidationCheck {
+        checks: vec![ggen_marketplace::packs_registry::validate::ValidationCheck {
             name: "test_check".to_string(),
             passed: true,
             message: "Check passed".to_string(),
@@ -218,14 +240,14 @@ fn test_validation_result_serialization() {
 
 #[test]
 fn test_pack_score_serialization() {
-    use ggen_core::domain::packs::PackScore;
+    use ggen_marketplace::packs_registry::score::PackScore;
 
     // Arrange
     let score = PackScore {
         pack_id: "test-pack".to_string(),
         total_score: 75,
         maturity_level: "Beta".to_string(),
-        scores: ggen_core::domain::packs::score::DimensionScores {
+        scores: ggen_marketplace::packs_registry::score::DimensionScores {
             documentation: 20,
             completeness: 25,
             quality: 20,

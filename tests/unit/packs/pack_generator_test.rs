@@ -5,7 +5,10 @@
 //! - Variable substitution
 //! - Project structure generation
 
-use ggen_core::domain::packs::{generate_from_pack, GenerateInput};
+// Re-pointed to ggen_marketplace::packs_registry (T053; see
+// tests/integration/packs/user_workflow_multi_pack_test.rs's comment for the
+// full rationale -- same orphaned-file, submodule-qualified-path situation).
+use ggen_marketplace::packs_registry::generator::{generate_from_pack, GenerateInput};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
@@ -209,7 +212,7 @@ async fn test_generate_all_templates_when_none_specified() {
     // Assert
     if let Ok(output) = result {
         assert!(
-            output.templates_generated.is_empty() == False,
+            output.templates_generated.is_empty() == false,
             "Should generate all templates when none specified"
         );
     }
@@ -243,7 +246,7 @@ fn test_generate_input_serialization() {
 #[test]
 fn test_generate_output_structure() {
     // Arrange
-    let output = ggen_core::domain::packs::GenerateOutput {
+    let output = ggen_marketplace::packs_registry::generator::GenerateOutput {
         pack_id: "test-pack".to_string(),
         project_name: "test-project".to_string(),
         templates_generated: vec!["template1".to_string(), "template2".to_string()],
@@ -253,7 +256,7 @@ fn test_generate_output_structure() {
 
     // Act
     let json = serde_json::to_string(&output).expect("Should serialize");
-    let deserialized: ggen_core::domain::packs::GenerateOutput =
+    let deserialized: ggen_marketplace::packs_registry::generator::GenerateOutput =
         serde_json::from_str(&json).expect("Should deserialize");
 
     // Assert
