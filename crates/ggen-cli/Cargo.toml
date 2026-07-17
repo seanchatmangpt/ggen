@@ -272,9 +272,19 @@ features = [ "async_tokio", "html_reports",]
 # ggen`), breaking this crate's own test compile in the same commit. Safe to add back here
 # specifically: ggen-cli-lib is `publish = false` (see [package] above), so it no longer has
 # any publish-dry-run exposure to worry about -- `cargo publish --dry-run -p ggen-cli-lib`
-# reports "cannot be published" before ever resolving dev-dependencies. The local
-# `[patch.crates-io]` override (root Cargo.toml) supplies the real cli_proof module for
-# ordinary `cargo test`/`just test` builds regardless of what's published to crates.io.
+# reports "cannot be published" before ever resolving dev-dependencies.
+#
+# Correction (2026-07-17, PR #255): the `[patch.crates-io]` override this comment used to cite
+# is gone. `chicago-tdd-tools` is now a vendored workspace member (crates/chicago-tdd-tools,
+# publish = false) and this `workspace = true` entry resolves straight to it via a plain path
+# dependency -- no patch indirection needed anymore.
+#
+# Separate, still-open gap (not caused by the above): `tests/generated/cli_proof_tests.rs`
+# (line 26's [[test]] entry) is gitignored (.gitignore:157) and not tracked in git -- nothing
+# in this repo currently generates it, so a fresh checkout's `cargo fmt --check`/`cargo test`
+# fails with "file ... does not exist" unless it happens to already exist locally. Predates
+# this PR (comment above cites its origin as commit 3862fe000); confirmed via this branch's
+# first-ever CI run. Not fixed here -- tracked in tasks.md.
 workspace = true
 features = ["cli-proof"]
 
