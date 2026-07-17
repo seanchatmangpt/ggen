@@ -1817,6 +1817,23 @@ already applied to the `just lint`/`fmt-check` scoping findings above). `ggen do
 also live-checked against an empty scratch dir and correctly fails closed with a clear
 `[FM-CONFIG-001]` error (exit 1) rather than crashing or silently no-op'ing.
 
+**Eighth follow-up finding (2026-07-17): `ggen law` noun (all 5 verbs) live-tested for the first
+time.** T016-T018 already cover `law_engine.rs` at the engine/unit level (`law_engine_test.rs`,
+4/4). This adds the untested layer: the actual `ggen law {load,derive,explain,validate,export}`
+CLI dispatch, against a real scratch project with a real N3 rule and a real SHACL shape. All 5
+verbs confirmed genuinely correct, not stubs:
+- `load`: reports the real per-file rule count (1 rule in `rules.n3`).
+- `derive`/`explain`: a real N3 forward-chaining rule (`{?a ex:knows ?b} => {?b ex:knownBy ?a}`)
+  fired correctly — `explain`'s `derived_triples` shows the exact expected triple
+  (`<bob> <knownBy> <alice>`), not just a plausible count.
+- `export`: dumps 2 real N-Triples (original + derived) with a `graph_hash` matching `derive`'s.
+- `validate` — both directions proven, not just the happy path: with a real SHACL shape
+  requiring `ex:age` on any `ex:knows` subject and `alice` missing it, `validate` correctly
+  refused (`[FM-LAW-013]`, exact focus node + message named, exit 1, `shapes_checked: 1` proving
+  the gate actually ran); adding `ex:age` to `alice` and re-running showed `conforms: true`,
+  `shapes_checked: 1`, exit 0 — a genuine positive/negative pair, not just "no shapes configured
+  trivially passes" (which was also separately checked and correctly shows `shapes_checked: 0`).
+
 **Checkpoint**: User Story 1's independent test passes — full suite green, `ggen-core`
 fully retired, command-surface diff against the T003 baseline shows zero regressions.
 
