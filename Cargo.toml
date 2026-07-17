@@ -41,6 +41,14 @@ members = [
   "crates/ggen-cli",
   "crates/ggen-graph",
   "crates/ggen-lsp",
+  # ggen-core replacement engine (docs/jira/v26.7.16/): vendored, renamed copy
+  # of ~/praxis/crates/ggen (see 01-PUBLISH-SAFETY-AND-CRATE-RENAME.md) plus
+  # its two direct dependencies, also vendored so migration-specific edits
+  # (e.g. ReceiptRecord.signature_hex) land here, not upstream in ~/praxis.
+  # Landed inert in this pass -- no consumer references them yet.
+  "crates/ggen-engine",
+  "crates/praxis-core",
+  "crates/praxis-graphlaw",
   # Genesis kernel crates (pure Rust, IO-free)
   "crates/genesis-types-v2",
   "crates/genesis-core-v2",
@@ -77,8 +85,8 @@ tracing-subscriber = { version = "0.3", features = [
   "ansi",
 ] }
 clap = { version = "4.5", features = ["derive"] }
-clap-noun-verb = "=26.6.2"
-clap-noun-verb-macros = "=26.6.2"
+clap-noun-verb = "=26.7.4"
+clap-noun-verb-macros = "=26.7.4"
 once_cell = "1.19"
 reqwest = { version = "0.12", features = ["blocking", "json", "rustls-tls"] }
 tempfile = "3.23"
@@ -119,6 +127,13 @@ rig-core = "0.15.1"
 ggen-core = { path = "crates/ggen-core", version = "26.7.2" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "26.7.2" }
 ggen-graph = { path = "crates/ggen-graph", version = "26.7.2" }
+# ggen-core replacement engine dependencies (specs/014-ggen-core-replacement,
+# docs/jira/v26.7.16/10-ROOT-PACKAGE-TEST-MIGRATION.md, T051-T053): root
+# package/tests/examples/benches re-point away from ggen_core:: onto these,
+# file by file, as each file's specific symbols land a real port destination.
+ggen-config = { path = "crates/ggen-config", version = "26.7.2" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "26.7.2" }
+ggen-engine = { path = "crates/ggen-engine", version = "26.7.13" }
 
 # Genesis kernel crates (pure Rust, IO-free — A = μ(O) foundation)
 genesis-types = { path = "crates/genesis-types-v2", version = "26.7.2" }
@@ -148,7 +163,7 @@ console = "0.16"
 
 # Testing libraries
 proptest = "1.8"
-chicago-tdd-tools = { version = "26.7.1", features = ["testing-extras", "testcontainers"] }
+chicago-tdd-tools = { version = "26.7.1", features = ["testing-extras", "testcontainers", "cli-proof"] }
 fake = "2.9"
 tokio-test = "0.4"
 
@@ -518,6 +533,29 @@ otel = [
 [dependencies]
 ggen-core = { workspace = true }
 ggen-cli-lib = { workspace = true }
+# Re-point targets for tests/examples/benches (T051-T053): ggen-core is still
+# present above -- most of the 82 ggen_core::-referencing files depend on
+# ggen-core modules (graph, gpack, generator, pipeline, template, lifecycle,
+# cache, rdf, registry, resolver, snapshot, ontology*, github, metrics, merge,
+# pki, pqc, simple_tracing, security, template_cache, canonical, prevention,
+# a2a*, validation, streaming_generator, telemetry, domain::{graph,template,
+# error,mcp_config,ontology,rdf,generation,project,audit,config,shell,ci})
+# that have NO port destination anywhere in this migration (see tasks.md
+# T053 notes) -- ggen-core cannot be dropped from here until those are
+# ported by a future task.
+ggen-config = { workspace = true }
+ggen-marketplace = { workspace = true }
+# ggen-engine intentionally NOT a dependency here (removed 2026-07-16, discovered via
+# `cargo publish --dry-run -p ggen`): ggen-engine -> praxis-core/praxis-graphlaw carry hard
+# absolute-path deps on sibling repos (/Users/sac/bcinr/crates/*, /Users/sac/wasm4pm-compat)
+# that only exist on this machine, so ggen-engine is `publish = false` and can never resolve
+# on crates.io. A real dependency edge here broke `cargo publish --dry-run -p ggen` with
+# "no matching package named `ggen-engine` found". Confirmed zero internal consumers (grep
+# for `ggen::core::` across src/tests/examples/benches/crates returned nothing) before
+# removing -- the T051 `pub use ggen_engine as core;` re-export in src/lib.rs is reverted
+# alongside this for the same reason. ggen-cli (workspace = true below) still needs
+# ggen-engine directly for the CLI routing flip; that crate's own publishability is a
+# separate, still-open question (see docs/jira/v26.7.16/ tickets 01/02).
 chrono = { workspace = true }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
@@ -791,3 +829,10 @@ unused-shlibs = []
 # a wide blast radius unsuitable for the release foundation. Land kebab via a
 # MINIMAL published clap-noun-verb release on top of the stable 26.5.x line, then
 # bump the dep. ggen works today on published 26.5.19 (snake flags).
+
+# ─── Local path overrides ────────────────────────────────────────────────────
+# chicago-tdd-tools is patched to the local checkout so the `cli-proof` feature
+# (not yet published to crates.io) is available for the self-hosting test loop.
+# Remove this section and bump the version constraint once cli-proof is released.
+[patch.crates-io]
+chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools" }
