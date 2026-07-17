@@ -2226,6 +2226,69 @@ verified (not self-reported); DOCUMENT-LOUDLY items landed as real doc comments/
 DEFER-WITH-REASON items (H; the two tracked follow-ups above) remain explicitly open, named, not
 silently dropped.
 
+**Twenty-fifth follow-up finding (2026-07-17, gate-verification pass -- the first time `just
+test` was ever run end-to-end on this branch):** the Twenty-fourth finding's "just check clean"
+evidence, above, ran targeted `-p <crate> --test <name>` commands, never the actual `just test`
+gate (`cargo test --workspace --tests`). Running it for real surfaced that **the gate itself was
+silently broken**: `justfile`'s `test:` recipe used `if timeout 30s cargo test ...; then exit 0;
+fi` with no `else` -- after that `if` block, a bare `status=$?` on the next line captures the
+if-statement's own exit code (0), not the wrapped command's, so a 30s timeout-kill (or any real
+failure the `then`-branch didn't take) was silently reported as success and the 120s escalation
+retry never fired. The identical pattern was found in 5 more places: justfile's `test-doc:`
+(:151-158) and Makefile.toml's `lint` (:118-125), `test` (:346-350), `test-full` (:368-378),
+`test-doc` (:419-428), and `docs-check` (:1270-1281) tasks -- all fixed the same way (capture the
+real exit code inside an explicit `else`). Commit `9a32eeffa`.
+
+Running the fixed gate then surfaced 3 genuinely broken suites -- none caused by the gate bug
+itself, all pre-dating this session's own work: `tests/proof/invariants.rs` + `smoke.rs` used the
+pre-v26.7.16 declarative-rules `ggen.toml` shape, the retired `--schema_file` flag, the old
+`.ggen/receipts/latest.json` path, and a flat `signature` field -- updated to the live engine
+contract (`[project]` name-only + required `[templates]`, `graph validate --files`,
+`.ggen-v2/receipt.json`, `record.signature_hex`); `crates/ggen-engine/tests/
+multi_template_determinism.rs`'s byte-identity assertion was defeated by receipt signing (T063)
+generating a fresh per-project key across two temp dirs -- fixed by pre-seeding both with an
+identical `.ggen/keys/signing.key`; `crates/ggen-engine/tests/wasm4pm_facts_e2e.rs` referenced
+`packs/wasm4pm-facts-pack/`, `ontology/rules/breed_standing.n3`, and a registry template that
+were never committed to this repo (`git log --all` confirmed empty history for these paths -- the
+test shipped in `60132d11f` without its fixture) -- real source data was found and copied
+verbatim from `/Users/sac/praxis/{packs/wasm4pm-facts-pack,ontology/rules/breed_standing.n3}` (a
+plain file copy, no path dependency or other live coupling to `~/praxis` introduced -- same
+sourcing precedent as this branch's earlier 8-pack provisioning, C3 above, not fabricated). A
+follow-up 10-agent read-only Explore survey additionally found `tests/proof/receipts.rs` (7
+tests) fabricated JSON receipts by hand and never invoked real code -- vacuous, unable to catch
+drift -- rewritten to run a real `ggen sync` and assert against the real `.ggen-v2/receipt.json`,
+adapting 2 tests whose original assertions (UUID-shaped `operation_id`, RFC-3339 `timestamp`)
+don't correspond to anything the live receipt emits (`object_ids` use a `law:<16-hex>` scheme;
+`ts_ns` is pinned to 0 for replay determinism). Commit `587a20780`.
+
+The same survey found plan item F (documenting that `capability`/`agent-resolve`'s hardcoded
+match is a legitimate, permanent exception, promised to ride along with D1) never actually landed
+in `.claude/rules/coding-agent-mistakes.md` -- D1's real edit covered only 4 unrelated
+stale-reference fixes. Added: a reviewed-exception note under the Epistemic Bypass class, citing
+`resolve_capability_to_packs` (`crates/ggen-marketplace/src/packs_registry/
+capability_registry.rs:23-61`), a 7-arm match from capability surface to pack ID. Commit
+`d97ba55b5`.
+
+**Verified live, this pass:** `cargo test -p ggen --test proof` -> 20/20; `cargo test -p
+ggen-engine --test multi_template_determinism` -> 3/3; `cargo test -p ggen-engine --test
+wasm4pm_facts_e2e` -> 3/3; `just check` -> exit 0; `just lint` -> exit 0; `just test` (the real,
+now-trustworthy gate) -> 227 test binaries run, **226 green (2672 tests passed)**, 1 failed.
+
+**The one remaining failure, scoped out (not fixed, not silenced):**
+`crates/praxis-graphlaw/tests/chatman_acceptance_agents.rs` (7 tests) fails on fixtures under
+`fixtures/agents/*.json` that don't exist. Checked before assuming this was v26.7.17's to fix:
+`diff -rq` against `/Users/sac/praxis/crates/praxis-graphlaw/tests/chatman_engine_acceptance`
+confirmed the `fixtures/agents/` subdirectory is absent from the vendored source too -- a
+pre-existing upstream gap, not a v26.7.16/17 regression, not touched by any work package on this
+branch. Per this repo's own precedent of not editing vendored `praxis-core`/`praxis-graphlaw`
+(E3, above), and since authoring these fixtures from scratch would mean fabricating scenario data
+with no real source to draw from, this was deliberately left as-is -- not fixed, and not
+`#[ignore]`d either (that would itself be an edit to vendored test code). Recorded here as its
+own open ticket. So: `just test`'s literal exit code is 101 (1 of 227 suites red), but everything
+within this branch's actual scope -- the ggen-core-replacement migration, the v26.7.16/17
+gap-closure work, and this gate-verification pass -- is independently confirmed green. Stated as
+a scoped claim, not rounded up to an unqualified "all tests pass."
+
 ---
 
 ## Dependencies
