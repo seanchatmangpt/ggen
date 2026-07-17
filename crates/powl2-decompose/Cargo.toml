@@ -1,0 +1,24 @@
+[package]
+name = "powl2-decompose"
+version = "26.6.30"
+edition = "2021"
+rust-version = "1.82"
+license = "MIT OR Apache-2.0"
+description = "Kourani et al. Stage-1 decomposition: safe & sound WF-nets -> POWL 2.0. Separability is the admission predicate; non-separable nets are refused with a receipt."
+# Vendored copy (2026-07-17, PR #255): not published from this repo under this
+# name -- see praxis-core/praxis-graphlaw's own `publish = false` for the
+# established pattern this follows.
+publish = false
+
+[lib]
+doctest = false
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+blake3 = "1"
+hex = "0.4"
+thiserror = "2"
+
+[dev-dependencies]
+serde_json = "1"

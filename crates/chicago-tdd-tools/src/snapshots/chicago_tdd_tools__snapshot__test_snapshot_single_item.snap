@@ -1,0 +1,8 @@
+---
+source: src/snapshot.rs
+assertion_line: 67
+expression: "format!(\"{:#?}\", value)"
+---
+[
+    42,
+]

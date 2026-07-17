@@ -1,0 +1,23 @@
+[package]
+name = "chicago-tdd-tools-proc-macros"
+version = "26.7.1"
+edition = "2021"
+authors = ["KNHK Team"]
+license = "MIT"
+description = "Procedural macros for chicago-tdd-tools"
+repository = "https://github.com/seanchatmangpt/chicago-tdd-tools"
+# Vendored alongside crates/chicago-tdd-tools (2026-07-17, PR #255): not
+# published from this repo under this name.
+publish = false
+readme = "README.md"
+keywords = ["testing", "tdd", "chicago-tdd", "proc-macro"]
+categories = ["development-tools::testing"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "2.0", features = ["full", "parsing", "extra-traits"] }
+quote = "1.0"
+proc-macro2 = "1.0"
+

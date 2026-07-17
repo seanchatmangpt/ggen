@@ -1,0 +1,10 @@
+---
+source: src/snapshot.rs:81
+expression: serde_json::to_string_pretty(value).unwrap_or_else(|_| "invalid json".to_string())
+---
+
+{
+  "name": "test",
+  "value": 42
+}
+

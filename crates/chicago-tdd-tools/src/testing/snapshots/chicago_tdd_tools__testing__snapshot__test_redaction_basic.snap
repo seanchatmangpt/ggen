@@ -1,0 +1,9 @@
+---
+source: src/testing/snapshot.rs
+assertion_line: 83
+expression: "serde_json::to_string_pretty(value).unwrap_or_else(|_|\n\"invalid json\".to_string())"
+---
+{
+  "id": "[UUID]",
+  "message": "test message"
+}

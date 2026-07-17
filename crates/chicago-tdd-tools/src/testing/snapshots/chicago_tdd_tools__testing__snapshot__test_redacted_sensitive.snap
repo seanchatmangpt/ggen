@@ -1,0 +1,15 @@
+---
+source: src/testing/snapshot.rs
+expression: "serde_json::to_string_pretty(value).unwrap_or_else(|_|\n\"invalid json\".to_string())"
+---
+{
+  "created_at": "[TIMESTAMP]",
+  "id": "[UUID]",
+  "message": "test",
+  "password": "[PASSWORD]",
+  "secret": "[SECRET]",
+  "timestamp": "[TIMESTAMP]",
+  "token": "[TOKEN]",
+  "updated_at": "[TIMESTAMP]",
+  "uuid": "[UUID]"
+}

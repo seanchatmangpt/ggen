@@ -1,0 +1,22 @@
+---
+source: src/testing/snapshot.rs
+expression: "serde_json::to_string_pretty(value).unwrap_or_else(|_|\n\"invalid json\".to_string())"
+---
+{
+  "created_at": "[TIMESTAMP]",
+  "id": "[UUID]",
+  "password": "[PASSWORD]",
+  "secret": "[SECRET]",
+  "session": {
+    "created_at": "2024-01-01T00:00:00Z",
+    "token": "[SESSION_TOKEN]"
+  },
+  "timestamp": "[TIMESTAMP]",
+  "token": "[TOKEN]",
+  "updated_at": "[TIMESTAMP]",
+  "user": {
+    "email": "test@example.com",
+    "id": "[USER_ID]"
+  },
+  "uuid": "[UUID]"
+}

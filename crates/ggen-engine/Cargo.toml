@@ -119,7 +119,7 @@ clap-noun-verb-macros = { workspace = true }
 linkme = "0.3" # required by clap-noun-verb's #[verb] for distributed verb registration
 
 [dev-dependencies]
-chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools", features = ["cli-proof"] }
+chicago-tdd-tools = { path = "../chicago-tdd-tools", features = ["cli-proof"] }
 assert_cmd = "2"
 predicates = "3"
 tempfile = "3"

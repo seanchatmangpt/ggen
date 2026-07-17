@@ -1,0 +1,13 @@
+---
+source: src/testing/snapshot.rs
+expression: "format!(\"{:#?}\", value)"
+---
+[
+    Variant1,
+    Variant2(
+        "test",
+    ),
+    Variant3 {
+        field: 42,
+    },
+]

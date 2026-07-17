@@ -1,0 +1,10 @@
+---
+source: src/testing/snapshot.rs
+assertion_line: 159
+expression: value
+---
+[
+    1,
+    2,
+    3,
+]

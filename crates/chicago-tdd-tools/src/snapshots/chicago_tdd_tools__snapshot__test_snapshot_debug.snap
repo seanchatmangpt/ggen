@@ -1,0 +1,11 @@
+---
+source: src/snapshot.rs:67
+expression: format!("{:#?}", value)
+---
+
+[
+    1,
+    2,
+    3,
+]
+

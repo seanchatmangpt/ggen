@@ -60,6 +60,10 @@ members = [
   "crates/ggen-engine",
   "crates/praxis-core",
   "crates/praxis-graphlaw",
+  "crates/powl2-decompose",
+  "crates/chicago-tdd-tools",
+  "crates/bcinr-pddl",
+  "crates/bcinr-mfw-ir",
   # Genesis kernel crates (pure Rust, IO-free)
   "crates/genesis-types-v2",
   "crates/genesis-core-v2",
@@ -190,14 +194,21 @@ console = "0.16"
 proptest = "1.8"
 # `cli-proof` deliberately dropped from this shared feature set (2026-07-16, discovered via
 # `cargo publish --dry-run -p ggen`): the published chicago-tdd-tools 26.7.1 doesn't have that
-# feature yet (there's a `[patch.crates-io]` override below pointing at a local checkout that
-# does, for dev use). Root package is the ONLY consumer of this shared `{ workspace = true }`
+# feature yet. Root package is the ONLY consumer of this shared `{ workspace = true }`
 # definition (confirmed via grep) and has zero cli_proof/CliHarness usage in its own tests/ --
 # every real cli-proof consumer (ggen-engine, ggen-cli, praxis-graphlaw) declares its own
 # separate chicago-tdd-tools dependency directly, not through this shared entry. Keeping
 # `cli-proof` here served no one and blocked `cargo publish --dry-run -p ggen` on a feature
 # root never uses.
-chicago-tdd-tools = { version = "26.7.1", features = ["testing-extras", "testcontainers"] }
+#
+# 2026-07-17: switched from the published registry version to the vendored local copy at
+# crates/chicago-tdd-tools (copied from /Users/sac/chicago-tdd-tools's library source only --
+# not its tests/examples/benches/docs -- as part of removing every absolute machine-local
+# Cargo path dependency from this workspace, PR #255). This crate is `publish = false`, so it
+# never risks the real chicago-tdd-tools' crates.io identity. Once cli-proof is published
+# upstream, this can point back at a plain `version = "..."` and the vendored copy can be
+# dropped -- tracked in tasks.md.
+chicago-tdd-tools = { path = "crates/chicago-tdd-tools", version = "26.7.1", features = ["testing-extras", "testcontainers"] }
 fake = "2.9"
 tokio-test = "0.4"
 
@@ -948,9 +959,8 @@ unused-shlibs = []
 # MINIMAL published clap-noun-verb release on top of the stable 26.5.x line, then
 # bump the dep. ggen works today on published 26.5.19 (snake flags).
 
-# ─── Local path overrides ────────────────────────────────────────────────────
-# chicago-tdd-tools is patched to the local checkout so the `cli-proof` feature
-# (not yet published to crates.io) is available for the self-hosting test loop.
-# Remove this section and bump the version constraint once cli-proof is released.
-[patch.crates-io]
-chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools" }
+# 2026-07-17: the [patch.crates-io] override that used to live here (redirecting
+# chicago-tdd-tools to /Users/sac/chicago-tdd-tools for the unpublished cli-proof
+# feature) is gone -- every real consumer now depends on the vendored copy at
+# crates/chicago-tdd-tools directly (a plain path dependency, no patch needed;
+# see the workspace.dependencies entry above and PR #255).

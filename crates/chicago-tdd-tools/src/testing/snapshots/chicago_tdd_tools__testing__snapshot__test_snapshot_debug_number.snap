@@ -1,0 +1,6 @@
+---
+source: src/testing/snapshot.rs
+assertion_line: 67
+expression: "format!(\"{:#?}\", value)"
+---
+42

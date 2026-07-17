@@ -1,0 +1,28 @@
+---
+source: src/testing/snapshot.rs
+expression: "serde_json::to_string_pretty(value).unwrap_or_else(|_|\n\"invalid json\".to_string())"
+---
+{
+  "created_at": "[TIMESTAMP]",
+  "data": {
+    "balance": "[BALANCE]",
+    "last_login": "2024-01-01T00:00:00Z"
+  },
+  "id": "[UUID]",
+  "password": "[PASSWORD]",
+  "secret": "[SECRET]",
+  "session": {
+    "expires_at": "2024-01-01T01:00:00Z",
+    "refresh_token": "[REFRESH_TOKEN]",
+    "token": "secret-jwt-token-abc123"
+  },
+  "timestamp": "[TIMESTAMP]",
+  "token": "[TOKEN]",
+  "updated_at": "[TIMESTAMP]",
+  "user": {
+    "created_at": "2024-01-01T00:00:00Z",
+    "email": "user@example.com",
+    "id": "uuid-user-12345"
+  },
+  "uuid": "[UUID]"
+}

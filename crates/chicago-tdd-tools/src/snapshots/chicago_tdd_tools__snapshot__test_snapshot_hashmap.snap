@@ -1,0 +1,10 @@
+---
+source: src/snapshot.rs
+assertion_line: 67
+expression: "format!(\"{:#?}\", value)"
+---
+{
+    "key1": "value1",
+    "key2": "value2",
+    "key3": "value3",
+}

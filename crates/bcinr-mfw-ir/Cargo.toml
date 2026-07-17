@@ -1,0 +1,23 @@
+[package]
+name = "bcinr-mfw-ir"
+version = "26.6.26"
+edition = "2021"
+description = "Shared IR types and trait contracts for the multifractal-workflow (MFW) planner: witness algebra, formal-law contracts, EventSet, causal/concurrency IR, POWL projection contracts. No PDDL- or POWL-specific concepts; bcinr-pddl and bcinr-powl depend on this crate, never the reverse."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/bcinr"
+keywords = ["pddl", "planning", "workflow", "concurrency", "receipt"]
+# Vendored copy (2026-07-17, PR #255): not published from this repo under this
+# name -- see praxis-core/praxis-graphlaw's own `publish = false` for the
+# established pattern this follows.
+publish = false
+categories = ["algorithms"]
+
+# Zero path-dependency on bcinr-pddl or bcinr-powl by design: this crate is
+# the shared substrate they both build on. Adding either back as a
+# dependency here would create a cycle.
+
+[dependencies]
+# BLAKE3 for the Digest newtype — same major version pinned everywhere else
+# in this workspace (bcinr-pddl, bcinr-powl, bcinr-powl-receipt all use
+# `blake3 = "1"`, resolved to 1.8.5 in Cargo.lock).
+blake3 = "1"

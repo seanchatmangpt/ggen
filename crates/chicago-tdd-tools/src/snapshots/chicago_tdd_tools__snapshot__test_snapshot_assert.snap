@@ -1,0 +1,7 @@
+---
+source: src/snapshot.rs:53
+expression: value
+---
+
+test_value
+

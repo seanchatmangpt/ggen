@@ -1,0 +1,13 @@
+---
+source: src/testing/snapshot.rs
+assertion_line: 69
+expression: "format!(\"{:#?}\", value)"
+---
+TestStruct {
+    name: "test",
+    value: 42,
+    tags: [
+        "tag1",
+        "tag2",
+    ],
+}

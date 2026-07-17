@@ -1,0 +1,11 @@
+---
+source: src/testing/snapshot.rs
+expression: "format!(\"{:#?}\", value)"
+---
+Outer {
+    inner: Inner {
+        value: 42,
+        name: "test",
+    },
+    count: 10,
+}

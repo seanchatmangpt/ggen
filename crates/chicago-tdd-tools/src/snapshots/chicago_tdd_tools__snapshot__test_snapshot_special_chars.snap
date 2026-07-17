@@ -1,0 +1,8 @@
+---
+source: src/snapshot.rs
+assertion_line: 53
+expression: value
+---
+Line 1
+Line 2	Tabbed
+Windows

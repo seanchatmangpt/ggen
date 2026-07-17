@@ -1,0 +1,5 @@
+---
+source: src/testing/snapshot.rs
+expression: value
+---
+8178561cc56053a6b930dc5d8383761dfdd43e039ebd9e65edf120ef8d11efb8

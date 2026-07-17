@@ -36,14 +36,24 @@ rustc-hash = "2"
 smallvec = { version = "1", features = ["serde"] }
 fixedbitset = "0.5"
 oxigraph = { version = "0.5.9", features = ["rdf-12"] }
-powl2-decompose = { path = "/Users/sac/praxis/crates/powl2-decompose" }
-bcinr-pddl = { path = "/Users/sac/bcinr/crates/bcinr-pddl" }
-bcinr-powl = { path = "/Users/sac/bcinr/crates/bcinr-powl" }
-bcinr-powl-receipt = { path = "/Users/sac/bcinr/crates/bcinr-powl-receipt" }
+powl2-decompose = { path = "../powl2-decompose" }
+bcinr-pddl = { path = "../bcinr-pddl", version = "26.6.26" }
+bcinr-powl = "26.6.25"
+bcinr-powl-receipt = "26.6.24"
 thiserror = "2"
 # compat owns receipt identity; all chatman hashing routes through wasm4pm_compat::hash.
-wasm4pm-compat = { path = "/Users/sac/wasm4pm-compat", version = "26.6.29" }
-wasm4pm-cognition = { path = "/Users/sac/wasm4pm/crates/wasm4pm-cognition", optional = true }
+wasm4pm-compat = "26.6.29"
+# LICENSE WARNING (2026-07-17, PR #255 license audit): the published 26.7.1
+# is BUSL-1.1 (Business Source License), not MIT/Apache -- non-OSI,
+# source-available with a use restriction until its Change Date (converts to
+# AGPL-3.0-only), no Additional Use Grant. Incompatible with this workspace's
+# MIT license if ever bundled into a distributed build. Mitigated today only
+# because `cognition` is optional and not in any default feature set -- grep
+# confirms nothing in this workspace enables it. Do NOT add `cognition` to
+# any default feature list without re-clearing this license first. Not yet
+# recorded in docs/jira/v26.7.16/02-CROSS-REPO-DEPENDENCY-RISKS.md item 4
+# (that item covers MIT/Apache-2.0 mismatches only) -- flagged as a doc gap.
+wasm4pm-cognition = { version = "26.7.1", optional = true }
 
 [features]
 cognition = ["dep:wasm4pm-cognition"]
@@ -91,7 +101,7 @@ proptest = "1.5"
 # Required for chicago_tdd_tools::async_test! (expands to #[tokio::test]).
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
 # otel/weaver features left OFF: they drag network deps into the required build.
-chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools", features = [
+chicago-tdd-tools = { path = "../chicago-tdd-tools", features = [
     "property-testing",
     "snapshot-testing",
     "parameterized-testing",
