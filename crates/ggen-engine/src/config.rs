@@ -27,6 +27,19 @@ use crate::error::{AppError, Result};
 /// set (via `schemars::schema_for!`) against `schema/ggen-toml-schema.ttl`,
 /// instead of a hand-maintained mirror list that could itself drift — the
 /// exact failure mode found in every sibling implementation's LSP/validator.
+///
+/// A second, independently-defined `ggen.toml` root type also exists:
+/// [`ggen_config::manifest::GgenManifest`]. Both share the same top-level
+/// table names (`project`/`ontology`/`packs`/`law`/…) but are deliberately
+/// different shapes — this type's `[packs]` is a table-of-tables keyed by
+/// pack name with an untagged [`PackRef`], and its [`Law`] carries both
+/// `rules` and `shapes`; `GgenManifest` instead uses `[[packs]]`
+/// array-of-tables with a flat `ggen_config::manifest::PackRef`, and a
+/// rules-only `Law` (shapes live in `validation.shacl` there). Which schema
+/// a given `ggen.toml` parses as is decided by
+/// `generation_rules::has_generation_rules` on the raw TOML text, before
+/// either typed parse runs. There is intentionally no automated
+/// cross-schema equivalence guard between the two.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct GgenConfig {
@@ -82,6 +95,11 @@ pub struct Ontology {
 }
 
 /// A pack source reference: either a local path or a git coordinate.
+///
+/// Not the same type as [`ggen_config::manifest::PackRef`] — that one is a
+/// flat `{name, registry, path, version}` struct, not this untagged
+/// `Path | Git` enum. See [`GgenConfig`]'s struct doc for the fuller
+/// schema-divergence note.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 #[serde(untagged)]
 pub enum PackRef {

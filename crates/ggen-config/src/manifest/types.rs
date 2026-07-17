@@ -31,6 +31,11 @@ fn default_output_dir() -> PathBuf {
 }
 
 /// A reference to a ggen pack declared in ggen.toml
+///
+/// Not the same type as `ggen_engine::config::PackRef` — that one is an
+/// untagged `Path { path, extra_ontologies, lock } | Git { git, version }`
+/// enum, not this flat struct. See [`GgenManifest`]'s struct doc for the
+/// fuller schema-divergence note.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PackRef {
@@ -137,6 +142,19 @@ impl PackageToml {
 /// `law.rules` for N3 and `validation.shacl` for shapes. See the "Engine
 /// wiring" design note in specs/014-ggen-core-replacement/tasks.md for the
 /// (not yet implemented) consumer-side plan.
+///
+/// A second, independently-defined `ggen.toml` root type also exists:
+/// `ggen_engine::config::GgenConfig`. Both share the same top-level table
+/// names (`project`/`ontology`/`packs`/`law`/…) but are deliberately
+/// different shapes — this type's `[[packs]]` is an array-of-tables with a
+/// flat `PackRef`, and its `Law` is rules-only (shapes live in
+/// `validation.shacl` above), whereas `GgenConfig` uses a `[packs]`
+/// table-of-tables keyed by pack name with an untagged
+/// `ggen_engine::config::PackRef`, and a `Law` that carries both `rules`
+/// and `shapes`. Which schema a given `ggen.toml` parses as is decided by
+/// `ggen_engine::generation_rules::has_generation_rules` on the raw TOML
+/// text, before either typed parse runs. There is intentionally no
+/// automated cross-schema equivalence guard between the two.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct GgenManifest {

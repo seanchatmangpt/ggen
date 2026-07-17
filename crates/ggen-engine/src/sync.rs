@@ -1297,6 +1297,13 @@ fn read_prev_head(receipt_path: &Path, log_path: &Path) -> Result<Option<SyncRec
 /// declarative `[[generation.rules]]` sync path chains onto the exact same
 /// receipt history/log as the frontmatter path (one receipt chain per
 /// project, regardless of which schema `ggen.toml` uses).
+///
+/// This is one of two deliberately coexisting receipt mechanisms: the
+/// chained BLAKE3 ledger written here is a continuous chain-of-custody
+/// record across syncs. `ggen_config::receipt::Receipt` is the other —
+/// Ed25519-signed over SHA-256, emitted once per pack install to
+/// `.ggen/receipts/pack-*.json`. Different lifecycles, different hash
+/// algorithms; neither replaces the other.
 pub(crate) fn write_receipt(root: &Path, report: &SyncReport) -> Result<()> {
     use std::io::Write as _;
 

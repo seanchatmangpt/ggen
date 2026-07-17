@@ -8,6 +8,21 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 /// A cryptographic receipt for an operation.
+///
+/// This is one of two deliberately coexisting receipt mechanisms in this
+/// workspace, not a duplicate of the other. `Receipt` is Ed25519-signed over
+/// a SHA-256 digest and is emitted once per pack install, by
+/// `ggen_marketplace::agent::receipt::emit_install_receipt`, to
+/// `.ggen/receipts/pack-*.json` — one-shot install provenance for that
+/// single package.
+///
+/// The other mechanism is `praxis_core::receipt_record::ReceiptRecord`
+/// (chained BLAKE3 hashing), emitted on every non-dry-run `ggen sync` by
+/// `ggen_engine::sync::write_receipt` to `.ggen-v2/receipt.json` — a
+/// continuous chain-of-custody ledger across syncs, not a single event.
+///
+/// Different lifecycles, different hash algorithms, neither replaces the
+/// other.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Receipt {
     /// Unique identifier for the operation.
