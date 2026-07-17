@@ -97,6 +97,20 @@ fn receipt_payload_bytes_identical_across_fresh_syncs_of_identical_input() {
     scaffold(d1.path(), &["alpha", "beta", "gamma"]);
     scaffold(d2.path(), &["gamma", "alpha", "beta"]);
 
+    // Receipt signing (keys.rs, T063) generates a fresh per-project ed25519
+    // key when none exists, which makes `signature_hex` — and therefore the
+    // whole receipt file — differ across fresh project roots. Pre-seed both
+    // projects with the same key via the documented `.ggen/keys/signing.key`
+    // path so the byte-identity assertion exercises everything *except* key
+    // provenance. (This assertion predates signing and was only ever
+    // satisfiable with a shared key.)
+    const SHARED_SEED_HEX: &str = "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60";
+    for d in [d1.path(), d2.path()] {
+        let keys_dir = d.join(".ggen/keys");
+        std::fs::create_dir_all(&keys_dir).expect("mkdir keys");
+        std::fs::write(keys_dir.join("signing.key"), SHARED_SEED_HEX).expect("seed signing key");
+    }
+
     sync(
         d1.path(),
         SyncOptions {

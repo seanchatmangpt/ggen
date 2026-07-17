@@ -10,23 +10,33 @@ use tempfile::TempDir;
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 
-/// Helper: Create a minimal ggen.toml in a temp directory
+/// Helper: Create a minimal ggen.toml in a temp directory.
+///
+/// Live frontmatter schema (`ggen_engine::config::GgenConfig`,
+/// `deny_unknown_fields`): `[project]` is name-only, `[templates]` required.
 fn setup_minimal_ggen_toml(dir: &TempDir) -> TestResult {
     let ggen_toml = r#"[project]
 name = "test-project"
-version = "0.1.0"
 
 [ontology]
 source = "ontology.ttl"
+
+[templates]
+dir = "templates"
 "#;
     fs::write(dir.path().join("ggen.toml"), ggen_toml)?;
+    fs::create_dir_all(dir.path().join("templates"))?;
+    fs::write(
+        dir.path().join("templates/one.tmpl"),
+        "---\nto: out/names.txt\nforce: true\nsparql:\n  people: SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\n---\n{% for row in results %}{{ row.name }}\n{% endfor %}",
+    )?;
     Ok(())
 }
 
 /// Helper: Create a minimal valid TTL file
 fn setup_minimal_ttl(dir: &TempDir) -> TestResult {
     let ttl = r#"@prefix ex: <http://example.org/> .
-ex:Thing a rdfs:Class .
+ex:Alice ex:name "Alice" .
 "#;
     fs::write(dir.path().join("ontology.ttl"), ttl)?;
     Ok(())

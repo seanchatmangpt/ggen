@@ -3,136 +3,137 @@
 //! - Receipt signatures are unforgeable (Ed25519)
 //! - Receipt chains maintain cryptographic integrity
 //! - Execution is deterministic (identical inputs → identical outputs)
+//!
+//! These tests run a real `ggen sync` and assert against the real
+//! `.ggen-v2/receipt.json` (`praxis_core::ReceiptRecord`, chained BLAKE3 +
+//! Ed25519 signing — see `crates/ggen-engine/src/sync.rs`'s `write_receipt`
+//! and `crates/ggen-engine/src/keys.rs`). The file previously fabricated
+//! JSON receipts by hand with a schema (`operation_id`/`timestamp`/
+//! `input_hashes`/`output_hashes`/flat `signature`) that no longer matches
+//! anything the engine actually writes — it could never catch real drift.
+//! Fixed 2026-07-17 alongside the same class of fix already applied to
+//! `tests/proof/invariants.rs` and `tests/proof/smoke.rs`.
 
 mod tests {
-    use serde_json::json;
+    use assert_cmd::Command;
     use sha2::{Digest, Sha256};
     use std::fs;
-    use std::path::PathBuf;
     use tempfile::TempDir;
 
-    /// Helper function to create a minimal ggen.toml
-    fn create_minimal_ggen_toml(temp_dir: &TempDir) -> PathBuf {
-        let ggen_toml = temp_dir.path().join("ggen.toml");
-        fs::write(
-            &ggen_toml,
-            r#"
-[project]
-name = "test-receipt-project"
-version = "0.1.0"
+    type TestResult = Result<(), Box<dyn std::error::Error>>;
 
-[generation]
-enabled = true
-"#,
-        )
-        .expect("write ggen.toml");
-        ggen_toml
+    /// Live engine frontmatter schema (`ggen_engine::config::GgenConfig`,
+    /// `deny_unknown_fields`): `[project]` is name-only, `[templates]` required.
+    fn setup_minimal_ggen_toml(dir: &TempDir) -> TestResult {
+        let ggen_toml = r#"[project]
+name = "test-receipt-project"
+
+[ontology]
+source = "ontology.ttl"
+
+[templates]
+dir = "templates"
+"#;
+        fs::write(dir.path().join("ggen.toml"), ggen_toml)?;
+        fs::create_dir_all(dir.path().join("templates"))?;
+        fs::write(
+            dir.path().join("templates/one.tmpl"),
+            "---\nto: out/names.txt\nforce: true\nsparql:\n  people: SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\n---\n{% for row in results %}{{ row.name }}\n{% endfor %}",
+        )?;
+        fs::write(
+            dir.path().join("ontology.ttl"),
+            "@prefix ex: <http://example.org/> .\nex:Alice ex:name \"Alice\" .\n",
+        )?;
+        Ok(())
+    }
+
+    /// Run a real `ggen sync` in a fresh temp project and return the parsed
+    /// `.ggen-v2/receipt.json`.
+    fn sync_and_load_receipt(
+        temp_dir: &TempDir,
+    ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+        let _ = Command::cargo_bin("ggen")?
+            .arg("sync")
+            .current_dir(temp_dir.path())
+            .assert()
+            .success();
+        let receipt_path = temp_dir.path().join(".ggen-v2").join("receipt.json");
+        let content = fs::read_to_string(&receipt_path)?;
+        Ok(serde_json::from_str(&content)?)
+    }
+
+    fn is_hex(s: &str) -> bool {
+        !s.is_empty() && s.chars().all(|c| c.is_ascii_hexdigit())
     }
 
     /// Test 1: Verify all required receipt fields are present
+    /// (`praxis_core::ReceiptRecord` + the sync payload it wraps).
     #[test]
-    fn receipt_has_all_required_fields() {
-        let temp_dir = TempDir::new().expect("create temp dir");
-        create_minimal_ggen_toml(&temp_dir);
+    fn receipt_has_all_required_fields() -> TestResult {
+        let temp_dir = TempDir::new()?;
+        setup_minimal_ggen_toml(&temp_dir)?;
+        let receipt = sync_and_load_receipt(&temp_dir)?;
 
-        // Create minimal .ggen/receipts structure for testing
-        let receipts_dir = temp_dir.path().join(".ggen").join("receipts");
-        fs::create_dir_all(&receipts_dir).expect("create receipts dir");
-
-        // Simulate a receipt JSON (what ggen sync would create)
-        let receipt_json = json!({
-            "operation_id": "op-12345-abcde-67890",
-            "timestamp": "2026-05-29T12:34:56.789012Z",
-            "input_hashes": ["abc123def456"],
-            "output_hashes": ["xyz789uvw012"],
-            "signature": "abcd1234efgh5678ijkl9012mnop3456qrst5678uvwx9012yzab3456cdef"
-        });
-
-        let receipt_path = receipts_dir.join("latest.json");
-        fs::write(&receipt_path, receipt_json.to_string()).expect("write receipt");
-
-        // Read and parse receipt
-        let content = fs::read_to_string(&receipt_path).expect("read receipt");
-        let parsed: serde_json::Value = serde_json::from_str(&content).expect("parse json");
-
-        // Assert all 5 required fields exist
+        let record = &receipt["record"];
+        assert!(record["activity"].is_string(), "record.activity missing");
+        assert!(record["ts_ns"].is_number(), "record.ts_ns missing");
         assert!(
-            parsed.get("operation_id").is_some(),
-            "operation_id field missing"
-        );
-        assert!(parsed.get("timestamp").is_some(), "timestamp field missing");
-        assert!(
-            parsed.get("input_hashes").is_some(),
-            "input_hashes field missing"
+            record["payload_hash_hex"].is_string(),
+            "record.payload_hash_hex missing"
         );
         assert!(
-            parsed.get("output_hashes").is_some(),
-            "output_hashes field missing"
+            record["chain_hash_hex"].is_string(),
+            "record.chain_hash_hex missing"
         );
-        assert!(parsed.get("signature").is_some(), "signature field missing");
+        assert!(
+            record["signature_hex"].is_string(),
+            "record.signature_hex missing"
+        );
+        assert!(record["object_ids"].is_array(), "record.object_ids missing");
+
+        let payload = &receipt["payload"];
+        assert!(payload["graph_hash"].is_string(), "payload.graph_hash missing");
+        assert!(payload["outputs"].is_object(), "payload.outputs missing");
+        Ok(())
     }
 
-    /// Test 2: Verify signature is non-empty and has sufficient length
+    /// Test 2: Verify the Ed25519 signature is non-empty and the correct
+    /// hex-encoded length (64-byte signature → 128 hex chars).
     #[test]
-    fn receipt_signature_is_nonempty_and_sufficient_length() {
-        let temp_dir = TempDir::new().expect("create temp dir");
-        let receipts_dir = temp_dir.path().join(".ggen").join("receipts");
-        fs::create_dir_all(&receipts_dir).expect("create receipts dir");
+    fn receipt_signature_is_nonempty_and_sufficient_length() -> TestResult {
+        let temp_dir = TempDir::new()?;
+        setup_minimal_ggen_toml(&temp_dir)?;
+        let receipt = sync_and_load_receipt(&temp_dir)?;
 
-        // Ed25519 signature hex-encoded is 128 characters (64 bytes × 2)
-        let signature = "a".repeat(128); // Valid Ed25519 signature length in hex
-        let receipt_json = json!({
-            "operation_id": "op-sig-test-001",
-            "timestamp": "2026-05-29T12:34:56.789012Z",
-            "input_hashes": ["hash1"],
-            "output_hashes": ["hash2"],
-            "signature": signature
-        });
-
-        let receipt_path = receipts_dir.join("latest.json");
-        fs::write(&receipt_path, receipt_json.to_string()).expect("write receipt");
-
-        let content = fs::read_to_string(&receipt_path).expect("read receipt");
-        let parsed: serde_json::Value = serde_json::from_str(&content).expect("parse json");
-
-        let sig = parsed["signature"]
+        let sig = receipt["record"]["signature_hex"]
             .as_str()
-            .expect("signature should be string");
+            .expect("signature_hex should be string");
 
         assert!(!sig.is_empty(), "signature must not be empty");
-        assert!(
-            sig.len() >= 128,
-            "signature must be at least 128 chars (Ed25519 hex-encoded)"
+        assert_eq!(
+            sig.len(),
+            128,
+            "signature_hex must be 128 chars (64-byte Ed25519 signature)"
         );
+        assert!(is_hex(sig), "signature_hex must be hex-only");
+        Ok(())
     }
 
-    /// Test 3: SHA-256 hash of receipt JSON is deterministic
+    /// Test 3: SHA-256 hash of the real receipt file bytes is deterministic
+    /// within a single run (hashing is a pure function of the bytes).
     #[test]
-    fn sha256_hash_of_receipt_json_is_deterministic() {
-        let temp_dir = TempDir::new().expect("create temp dir");
-        let receipts_dir = temp_dir.path().join(".ggen").join("receipts");
-        fs::create_dir_all(&receipts_dir).expect("create receipts dir");
+    fn sha256_hash_of_receipt_json_is_deterministic() -> TestResult {
+        let temp_dir = TempDir::new()?;
+        setup_minimal_ggen_toml(&temp_dir)?;
+        sync_and_load_receipt(&temp_dir)?;
 
-        let receipt_json = json!({
-            "operation_id": "op-determinism-test",
-            "timestamp": "2026-05-29T12:00:00.000000Z",
-            "input_hashes": ["input1", "input2"],
-            "output_hashes": ["output1"],
-            "signature": "b".repeat(128)
-        });
+        let receipt_path = temp_dir.path().join(".ggen-v2").join("receipt.json");
+        let content = fs::read_to_string(&receipt_path)?;
 
-        let receipt_path = receipts_dir.join("latest.json");
-        fs::write(&receipt_path, receipt_json.to_string()).expect("write receipt");
-
-        // Read receipt and compute SHA-256 twice
-        let content = fs::read_to_string(&receipt_path).expect("read receipt");
-
-        // First hash
         let mut hasher1 = Sha256::new();
         hasher1.update(content.as_bytes());
         let hash1 = format!("{:x}", hasher1.finalize());
 
-        // Second hash
         let mut hasher2 = Sha256::new();
         hasher2.update(content.as_bytes());
         let hash2 = format!("{:x}", hasher2.finalize());
@@ -141,212 +142,131 @@ enabled = true
             hash1, hash2,
             "SHA-256 hash should be deterministic (identical input → identical output)"
         );
+        Ok(())
     }
 
-    /// Test 4: operation_id is a valid UUID format
+    /// Test 4: `object_ids` entries follow the real `law:<16-hex>` identifier
+    /// scheme this engine actually uses (there is no UUID concept in the
+    /// live receipt — the previous version of this test asserted a UUID
+    /// shape that nothing here ever produces).
     #[test]
-    fn operation_id_is_valid_uuid() {
-        let temp_dir = TempDir::new().expect("create temp dir");
-        let receipts_dir = temp_dir.path().join(".ggen").join("receipts");
-        fs::create_dir_all(&receipts_dir).expect("create receipts dir");
+    fn object_id_is_valid_law_identifier() -> TestResult {
+        let temp_dir = TempDir::new()?;
+        setup_minimal_ggen_toml(&temp_dir)?;
+        let receipt = sync_and_load_receipt(&temp_dir)?;
 
-        // Valid UUID v4 format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-        let valid_uuid = "123e4567-e89b-12d3-a456-426614174000";
-        let receipt_json = json!({
-            "operation_id": valid_uuid,
-            "timestamp": "2026-05-29T12:34:56.789012Z",
-            "input_hashes": ["hash1"],
-            "output_hashes": ["hash2"],
-            "signature": "c".repeat(128)
-        });
+        let object_ids = receipt["record"]["object_ids"]
+            .as_array()
+            .expect("object_ids should be array");
+        assert!(!object_ids.is_empty(), "object_ids must not be empty");
 
-        let receipt_path = receipts_dir.join("latest.json");
-        fs::write(&receipt_path, receipt_json.to_string()).expect("write receipt");
-
-        let content = fs::read_to_string(&receipt_path).expect("read receipt");
-        let parsed: serde_json::Value = serde_json::from_str(&content).expect("parse json");
-
-        let uuid = parsed["operation_id"]
-            .as_str()
-            .expect("operation_id should be string");
-
-        // UUID v4 format: 36 chars total, with hyphens at positions 8, 13, 18, 23
-        assert_eq!(uuid.len(), 36, "UUID should be 36 characters");
-        assert_eq!(uuid.chars().nth(8), Some('-'), "hyphen at position 8");
-        assert_eq!(uuid.chars().nth(13), Some('-'), "hyphen at position 13");
-        assert_eq!(uuid.chars().nth(18), Some('-'), "hyphen at position 18");
-        assert_eq!(uuid.chars().nth(23), Some('-'), "hyphen at position 23");
-
-        // All other chars should be hex [0-9a-f]
-        for (i, ch) in uuid.chars().enumerate() {
-            if ![8, 13, 18, 23].contains(&i) {
-                assert!(
-                    ch.is_ascii_hexdigit(),
-                    "char at position {} should be hex digit, got '{}'",
-                    i,
-                    ch
-                );
-            }
-        }
-
-        // Ensure not all zeros (invalid UUID)
-        assert_ne!(
-            uuid, "00000000-0000-0000-0000-000000000000",
-            "UUID should not be all zeros"
+        let id = object_ids[0].as_str().expect("object_id should be string");
+        let hex_part = id
+            .strip_prefix("law:")
+            .unwrap_or_else(|| panic!("object_id {id:?} must start with \"law:\""));
+        assert_eq!(
+            hex_part.len(),
+            16,
+            "law: identifier must carry a 16-hex-char (8-byte) suffix, got {id:?}"
         );
+        assert!(is_hex(hex_part), "law: identifier suffix must be hex-only, got {id:?}");
+        Ok(())
     }
 
-    /// Test 5: timestamp is valid RFC-3339 format
+    /// Test 5: `ts_ns` is the documented deterministic value.
+    ///
+    /// The live receipt has no RFC-3339 timestamp field — replay determinism
+    /// is achieved by pinning `ts_ns` to 0 rather than recording wall-clock
+    /// time (see `crates/ggen-engine/tests/multi_template_determinism.rs`'s
+    /// comment: "ts_ns is pinned to 0, so the whole chained record is
+    /// identical too"). The previous version of this test asserted an
+    /// RFC-3339 string shape that nothing here ever produces.
     #[test]
-    fn timestamp_is_valid_rfc3339_format() {
-        let temp_dir = TempDir::new().expect("create temp dir");
-        let receipts_dir = temp_dir.path().join(".ggen").join("receipts");
-        fs::create_dir_all(&receipts_dir).expect("create receipts dir");
+    fn ts_ns_is_pinned_deterministic_value() -> TestResult {
+        let temp_dir = TempDir::new()?;
+        setup_minimal_ggen_toml(&temp_dir)?;
+        let receipt = sync_and_load_receipt(&temp_dir)?;
 
-        // Valid RFC-3339 timestamps
-        let valid_timestamps = vec![
-            "2026-05-29T12:34:56Z",
-            "2026-05-29T12:34:56.123456Z",
-            "2026-05-29T12:34:56.789012Z",
-            "2026-05-29T12:34:56+00:00",
-        ];
+        let ts_ns = receipt["record"]["ts_ns"]
+            .as_i64()
+            .expect("ts_ns should be an integer");
+        assert_eq!(ts_ns, 0, "ts_ns must be pinned to 0 for replay determinism");
+        Ok(())
+    }
 
-        for ts in valid_timestamps {
-            let receipt_json = json!({
-                "operation_id": "op-rfc3339-test",
-                "timestamp": ts,
-                "input_hashes": ["hash1"],
-                "output_hashes": ["hash2"],
-                "signature": "d".repeat(128)
-            });
+    /// Test 6: hash fields contain valid 64-hex-char (32-byte) hashes.
+    #[test]
+    fn hash_fields_contain_valid_sha256_hex_strings() -> TestResult {
+        let temp_dir = TempDir::new()?;
+        setup_minimal_ggen_toml(&temp_dir)?;
+        let receipt = sync_and_load_receipt(&temp_dir)?;
 
-            let receipt_path = receipts_dir.join("latest.json");
-            fs::write(&receipt_path, receipt_json.to_string()).expect("write receipt");
+        for (field, value) in [
+            ("record.payload_hash_hex", &receipt["record"]["payload_hash_hex"]),
+            ("record.chain_hash_hex", &receipt["record"]["chain_hash_hex"]),
+            (
+                "record.prev_chain_hash_hex",
+                &receipt["record"]["prev_chain_hash_hex"],
+            ),
+            ("payload.graph_hash", &receipt["payload"]["graph_hash"]),
+        ] {
+            let hash_str = value.as_str().unwrap_or_else(|| panic!("{field} should be string"));
+            assert_eq!(hash_str.len(), 64, "{field} must be 64 hex characters");
+            assert!(is_hex(hash_str), "{field} must contain only hex digits");
+        }
 
-            let content = fs::read_to_string(&receipt_path).expect("read receipt");
-            let parsed: serde_json::Value = serde_json::from_str(&content).expect("parse json");
-
-            let timestamp = parsed["timestamp"]
+        let outputs = receipt["payload"]["outputs"]
+            .as_object()
+            .expect("payload.outputs should be an object");
+        assert!(!outputs.is_empty(), "payload.outputs must not be empty");
+        for (path, hash) in outputs {
+            let hash_str = hash
                 .as_str()
-                .expect("timestamp should be string");
-
-            // Basic validation: should contain T, end with Z or offset
-            assert!(
-                timestamp.contains('T'),
-                "timestamp should contain 'T' separator"
+                .unwrap_or_else(|| panic!("payload.outputs[{path:?}] should be string"));
+            assert_eq!(
+                hash_str.len(),
+                64,
+                "payload.outputs[{path:?}] must be 64 hex characters"
             );
             assert!(
-                timestamp.ends_with('Z') || timestamp.contains('+') || timestamp.contains('-'),
-                "timestamp should end with Z or contain timezone offset"
-            );
-
-            // Should be parseable by chrono
-            assert!(
-                chrono::DateTime::parse_from_rfc3339(timestamp).is_ok() || timestamp.ends_with('Z'),
-                "timestamp {} should be valid RFC-3339 format",
-                timestamp
+                is_hex(hash_str),
+                "payload.outputs[{path:?}] must contain only hex digits"
             );
         }
+        Ok(())
     }
 
-    /// Test 6: hash fields contain valid SHA-256 hex strings
+    /// Test 7: Receipt roundtrip preserves deterministic hash — re-reading
+    /// the same file bytes and re-hashing produces the same digest, and
+    /// parse→reserialize→hash is also a well-formed SHA-256 digest.
     #[test]
-    fn hash_fields_contain_valid_sha256_hex_strings() {
-        let temp_dir = TempDir::new().expect("create temp dir");
-        let receipts_dir = temp_dir.path().join(".ggen").join("receipts");
-        fs::create_dir_all(&receipts_dir).expect("create receipts dir");
+    fn receipt_roundtrip_preserves_deterministic_hash() -> TestResult {
+        let temp_dir = TempDir::new()?;
+        setup_minimal_ggen_toml(&temp_dir)?;
+        sync_and_load_receipt(&temp_dir)?;
 
-        // Valid SHA-256 hashes (64 hex chars)
-        let valid_sha256_1 = "a".repeat(64);
-        let valid_sha256_2 = "b".repeat(64);
-
-        let receipt_json = json!({
-            "operation_id": "op-hash-test",
-            "timestamp": "2026-05-29T12:34:56.789012Z",
-            "input_hashes": [valid_sha256_1.clone()],
-            "output_hashes": [valid_sha256_2.clone()],
-            "signature": "e".repeat(128)
-        });
-
-        let receipt_path = receipts_dir.join("latest.json");
-        fs::write(&receipt_path, receipt_json.to_string()).expect("write receipt");
-
-        let content = fs::read_to_string(&receipt_path).expect("read receipt");
-        let parsed: serde_json::Value = serde_json::from_str(&content).expect("parse json");
-
-        // Verify input_hashes
-        let input_hashes = parsed["input_hashes"]
-            .as_array()
-            .expect("input_hashes should be array");
-        for hash in input_hashes {
-            let hash_str = hash.as_str().expect("hash should be string");
-            assert_eq!(hash_str.len(), 64, "SHA-256 hash must be 64 hex characters");
-            assert!(
-                hash_str.chars().all(|c| c.is_ascii_hexdigit()),
-                "hash should contain only hex digits [0-9a-f]"
-            );
-        }
-
-        // Verify output_hashes
-        let output_hashes = parsed["output_hashes"]
-            .as_array()
-            .expect("output_hashes should be array");
-        for hash in output_hashes {
-            let hash_str = hash.as_str().expect("hash should be string");
-            assert_eq!(hash_str.len(), 64, "SHA-256 hash must be 64 hex characters");
-            assert!(
-                hash_str.chars().all(|c| c.is_ascii_hexdigit()),
-                "hash should contain only hex digits [0-9a-f]"
-            );
-        }
-    }
-
-    /// Test 7: Receipt roundtrip preserves deterministic hash
-    #[test]
-    fn receipt_roundtrip_preserves_deterministic_hash() {
-        let temp_dir = TempDir::new().expect("create temp dir");
-        let receipts_dir = temp_dir.path().join(".ggen").join("receipts");
-        fs::create_dir_all(&receipts_dir).expect("create receipts dir");
-
-        let receipt_json = json!({
-            "operation_id": "op-roundtrip-test",
-            "timestamp": "2026-05-29T12:34:56.789012Z",
-            "input_hashes": ["input_abc123"],
-            "output_hashes": ["output_xyz789"],
-            "signature": "f".repeat(128)
-        });
-
-        let receipt_path = receipts_dir.join("latest.json");
-        let receipt_str = receipt_json.to_string();
-        fs::write(&receipt_path, &receipt_str).expect("write receipt");
+        let receipt_path = temp_dir.path().join(".ggen-v2").join("receipt.json");
 
         // Hash 1: File bytes → SHA-256
-        let file_bytes = fs::read_to_string(&receipt_path).expect("read receipt");
+        let file_bytes = fs::read_to_string(&receipt_path)?;
         let mut hasher1 = Sha256::new();
         hasher1.update(file_bytes.as_bytes());
         let hash1 = format!("{:x}", hasher1.finalize());
 
         // Hash 2: Parse JSON → serialize → SHA-256
-        let parsed: serde_json::Value = serde_json::from_str(&file_bytes).expect("parse json");
-        let serialized = serde_json::to_string(&parsed).expect("serialize json");
+        let parsed: serde_json::Value = serde_json::from_str(&file_bytes)?;
+        let serialized = serde_json::to_string(&parsed)?;
         let mut hasher2 = Sha256::new();
         hasher2.update(serialized.as_bytes());
         let hash2 = format!("{:x}", hasher2.finalize());
 
-        // Note: These may differ due to JSON formatting, so verify both are valid SHA-256
-        assert_eq!(
-            hash1.len(),
-            64,
-            "hash1 should be valid SHA-256 (64 hex chars)"
-        );
-        assert_eq!(
-            hash2.len(),
-            64,
-            "hash2 should be valid SHA-256 (64 hex chars)"
-        );
+        // Note: hash1 vs hash2 may differ due to JSON formatting, so verify
+        // both are valid SHA-256 digests.
+        assert_eq!(hash1.len(), 64, "hash1 should be valid SHA-256 (64 hex chars)");
+        assert_eq!(hash2.len(), 64, "hash2 should be valid SHA-256 (64 hex chars)");
 
-        // Verify that re-reading the file produces the same hash
-        let file_bytes_2 = fs::read_to_string(&receipt_path).expect("read receipt again");
+        // Verify that re-reading the file produces the same hash.
+        let file_bytes_2 = fs::read_to_string(&receipt_path)?;
         let mut hasher3 = Sha256::new();
         hasher3.update(file_bytes_2.as_bytes());
         let hash3 = format!("{:x}", hasher3.finalize());
@@ -355,5 +275,6 @@ enabled = true
             hash1, hash3,
             "Roundtrip: same file bytes should produce same hash"
         );
+        Ok(())
     }
 }

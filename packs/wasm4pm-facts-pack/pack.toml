@@ -1,0 +1,4 @@
+[pack]
+name = "wasm4pm-facts-pack"
+version = "0.1.0"
+description = "Admitted wasm4pm graph facts: 55 compat:CognitionBreed and 60 pi:ProcessIntelligenceAlgorithm individuals carried verbatim from wasm4pm/ggen/ontology/{breeds,algorithms}.ttl, plus the registry-report template generated from them"
