@@ -1720,6 +1720,22 @@ from whoever owns the CLAUDE.md boundary rule.
     exist only under ggen-core with zero port destination in ggen-engine/ggen-graph (grep,
     LSP degraded this session so corroborated but not LSP-verified). Committed in `1255c061d`.
 
+- **KNOWN, FLAGGED, NOT FIXED (2026-07-17): `FM-TPL-004`/`FM-TPL-005`/`FM-TPL-010` code reuse.**
+  Independent verification of the `FM-TPL-001`/`FM-TPL-008` split (commit `c01a3c1ff`, see
+  T067's own commit above) audited every `AppError::fm_tpl(...)` call site in
+  `crates/ggen-engine/src` and found the *same* class of defect on 3 more codes, none of
+  which were in that task's scope (which was specifically 001/008): `FM-TPL-004` is shared
+  between `lint.rs` (`to:` path consumes an unbound `{{ var }}`) and `sync.rs` (`when:` is
+  not an ASK query) — confirmed both fire live via real `ggen graph validate`/`ggen sync run`
+  commands; `FM-TPL-005` is shared between `lint.rs` (identity `CONSTRUCT`, no-op) and
+  `sync.rs` (Tera render failure); `FM-TPL-010` is shared between `lint.rs` (`SELECT` without
+  `ORDER BY`) and `sync.rs` (`rdf:` path traversal) — both confirmed by source read, not
+  live-fired. `lint_template` is reachable in production via `handle_graph_validate`
+  (`ggen graph validate`), so this is live code, not dead code — a user grepping
+  `[FM-TPL-004]` across `graph validate` and `sync run` output would see one code meaning two
+  unrelated things. No task in this list currently owns closing this out; tracked here so it
+  isn't lost.
+
 ---
 
 ## Dependencies
