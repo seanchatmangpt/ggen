@@ -28,10 +28,22 @@ include = [
     "README.md",
     "CHANGELOG.md",
 ]
-
-[[bin]]
-name = "ggen"
-path = "src/main.rs"
+# autobins = false (2026-07-16, v26.7.16 CLI-routing flip): this package's own `[[bin]]
+# name = "ggen"` (formerly here, now removed) was a byte-identical duplicate of
+# ggen-cli-lib's `[[bin]] name = "ggen"` -- both `main.rs` files just delegated to
+# `ggen_cli_lib::cli_match()`. That duplicate was a real, pre-existing bin-name collision
+# within this workspace (harmless for local `cargo build`, but meant the two packages raced
+# for `target/debug/ggen`). It also meant this package's OWN publish required resolving
+# `ggen-cli-lib` from the registry -- and ggen-cli-lib is now correctly `publish = false`
+# (it has a real, functional dependency on ggen-engine, which can never be published; see
+# ggen-cli-lib's own Cargo.toml comment and task #35 in the migration session tracker), so
+# a real bin target here made `cargo publish --dry-run -p ggen` unresolvable forever.
+# `src/main.rs` stays on disk (fix-forward doctrine, not deleted) but is no longer built from
+# this package -- the canonical "ggen" binary is now built solely from ggen-cli-lib
+# (`cargo build -p ggen-cli-lib --bin ggen`, wired into the `GGEN` justfile variable). This
+# package (`ggen` on crates.io) is now a pure library crate: `cargo add ggen` continues to
+# work; `cargo install ggen` no longer builds a CLI binary from this specific package.
+autobins = false
 
 [workspace]
 members = [
@@ -163,7 +175,16 @@ console = "0.16"
 
 # Testing libraries
 proptest = "1.8"
-chicago-tdd-tools = { version = "26.7.1", features = ["testing-extras", "testcontainers", "cli-proof"] }
+# `cli-proof` deliberately dropped from this shared feature set (2026-07-16, discovered via
+# `cargo publish --dry-run -p ggen`): the published chicago-tdd-tools 26.7.1 doesn't have that
+# feature yet (there's a `[patch.crates-io]` override below pointing at a local checkout that
+# does, for dev use). Root package is the ONLY consumer of this shared `{ workspace = true }`
+# definition (confirmed via grep) and has zero cli_proof/CliHarness usage in its own tests/ --
+# every real cli-proof consumer (ggen-engine, ggen-cli, praxis-graphlaw) declares its own
+# separate chicago-tdd-tools dependency directly, not through this shared entry. Keeping
+# `cli-proof` here served no one and blocked `cargo publish --dry-run -p ggen` on a feature
+# root never uses.
+chicago-tdd-tools = { version = "26.7.1", features = ["testing-extras", "testcontainers"] }
 fake = "2.9"
 tokio-test = "0.4"
 
@@ -520,10 +541,20 @@ journald = []
 syslog = []
 london_tdd = []
 integration = []  # Enable workspace-level integration tests (requires external services/missing crates)
-# Forwards the ggen-cli archive gate: compiles the archived nouns (a2a/framework/
-# mcp/sigma/wizard) so experimental-only tests (e.g. the wizard quickstart OTEL
-# validation) can reference them. Off by default — they are out of the v26.5.28 boundary.
-experimental = ["ggen-cli-lib/experimental"]
+# `experimental` no longer forwards to ggen-cli-lib (2026-07-16, publish-safety fix): root
+# dropped its ggen-cli-lib dependency entirely (see `autobins = false` comment above), so a
+# `pkg/feature` forward to a package that's no longer a dependency would be a hard Cargo.toml
+# error. The one real consumer (tests/otel_validation/capabilities.rs) is now gated behind
+# `root-ggen-cli-lib-tests` instead (see that feature below) pending a real rewrite against
+# ggen_engine::verbs::handlers. Kept as an empty placeholder so existing
+# `--features experimental` invocations don't hard-error, just no longer do anything here.
+experimental = []
+# Gates the handful of root tests/ files that used to call ggen_cli_lib::* directly (now
+# archived, see their own file-header comments) -- root no longer depends on ggen-cli-lib at
+# all, since ggen-cli-lib is `publish = false` (real dependency on ggen-engine) and root must
+# stay publishable. Off by default; there is currently no working implementation behind this
+# feature to enable, it exists only so the `#![cfg(...)]` gates compile cleanly.
+root-ggen-cli-lib-tests = []
 # OpenTelemetry instrumentation (optional - adds ~200 dependencies)
 # Enable with: cargo build --features otel
 # Only forward to ggen-core, which handles its own otel dependencies
@@ -532,7 +563,13 @@ otel = [
 ]
 [dependencies]
 ggen-core = { workspace = true }
-ggen-cli-lib = { workspace = true }
+# ggen-cli-lib intentionally NOT a dependency here (removed 2026-07-16, publish-safety fix):
+# it was needed only for root's own `[[bin]] "ggen"` (a byte-identical duplicate of
+# ggen-cli-lib's own binary, now removed -- see `autobins = false` comment above) and a
+# handful of root tests/ files (now gated behind `root-ggen-cli-lib-tests`, see [features]).
+# ggen-cli-lib is now `publish = false` (real dependency on ggen-engine, which can never
+# resolve on crates.io), so a real dependency edge here would make `cargo publish --dry-run
+# -p ggen` unresolvable forever, the same class of failure this whole fix chain started from.
 # Re-point targets for tests/examples/benches (T051-T053): ggen-core is still
 # present above -- most of the 82 ggen_core::-referencing files depend on
 # ggen-core modules (graph, gpack, generator, pipeline, template, lifecycle,
