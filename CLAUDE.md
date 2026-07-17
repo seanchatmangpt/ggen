@@ -1,7 +1,7 @@
 # ggen v26.7.1 - Rust Code Generation CLI
 
 Specification-driven code generation from RDF ontologies. Formula: A = μ(O) - Code precipitates from RDF via five-stage pipeline (μ₁-μ₅).
-Stack: Rust (nightly, pinned via `rust-toolchain.toml`) | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY | 12-crate workspace
+Stack: Rust (nightly, pinned via `rust-toolchain.toml`) | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY | 16-crate workspace
 
 > **Toolchain:** the workspace currently requires **nightly** Rust, pinned to a specific date in `rust-toolchain.toml`. Two crates.io dependencies use nightly-only features: `wasm4pm-compat` (via `ggen-lsp`→`lsp-max`→`lsp-max-runtime`; `#![feature(...)]`) and `libsqlite3-sys` 0.38.x (via `cpmp`→`rusqlite` "bundled"; `cfg_select!`). Run `cargo`/`just` as usual — the toolchain file selects nightly automatically. `Cargo.lock` is committed for reproducible builds. Move back to stable here if/when those dependencies support it.
 **Compressed Architecture:** `docs/architecture/COMPRESSED_REFERENCE.md` — C4, sync flow, stub registry, error map; the file's own header states it was last verified by LSP survey on 2026-04-01, well before the `ggen-engine` migration (`docs/jira/v26.7.16/`), and it has not been re-verified against current reality by this pass. For the crate map specifically, use `.claude/rules/architecture.md` instead (actively kept in sync — see Crate Map below).
@@ -44,9 +44,9 @@ The split calculus: after a feature is extracted into its own project, the origi
 
 ## Architecture Reference
 
-### Crate Map (12 workspace members)
+### Crate Map (16 workspace members)
 
-Verified against `Cargo.toml`'s `[workspace] members = [...]` array (11 entries) plus the root `ggen` package = 12 total. Trimmed from 17 packages / 24 disk dirs to 10 packages / 9 disk dirs by the 2026-07 crate-consolidation pass — see `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` for that pass's evidence base and history. The workspace then gained three more members for the ggen-core-replacement migration (`docs/jira/v26.7.16/`): `ggen-engine`, `praxis-core`, `praxis-graphlaw`. For the fuller, actively-refreshed breakdown (Praxis-kernel split, per-crate detail) see `.claude/rules/architecture.md`; this table is a lighter top-level summary.
+Verified against `Cargo.toml`'s `[workspace] members = [...]` array (15 entries) plus the root `ggen` package = 16 total. Trimmed from 17 packages / 24 disk dirs to 10 packages / 9 disk dirs by the 2026-07 crate-consolidation pass — see `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` for that pass's evidence base and history. The workspace then gained three more members for the ggen-core-replacement migration (`docs/jira/v26.7.16/`): `ggen-engine`, `praxis-core`, `praxis-graphlaw`. PR #255 (2026-07-17) added 4 more — `powl2-decompose`, `chicago-tdd-tools`, `bcinr-pddl`, `bcinr-mfw-ir` — vendored to eliminate every absolute `/Users/sac/...` Cargo path dependency in the workspace (they only resolved on one machine, breaking CI). For the fuller, actively-refreshed breakdown (Praxis-kernel split, per-crate detail, the license note on `wasm4pm-cognition`) see `.claude/rules/architecture.md`; this table is a lighter top-level summary and does not enumerate the 4 new crates individually.
 
 `ggen-core` is being **disconnected in place, not deleted**: it moved from `members` to `exclude` in `Cargo.toml` (see the `exclude` comment there) once every real dependent was ported or gated behind the `ggen-core-retired` feature. `crates/ggen-core/` is untouched on disk (fix-forward/non-deletion doctrine), but no workspace member calls into it on the default `ggen sync`/`doctor`/`graph`/`receipt` path any more — those route to `ggen-engine` instead (`crates/ggen-cli/src/lib.rs`'s `inject_default_verbs`; `cmds/mod.rs`'s `// pub mod sync;` archival note).
 

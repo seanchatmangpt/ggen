@@ -11,14 +11,17 @@ Full public API surface derived from LSP `documentSymbol` sweep of all workspace
 
 Use LSP for navigation -- this file is orientation, not a substitute for `LSP workspaceSymbol`.
 
-## Crate Map (12 workspace members)
+## Crate Map (16 workspace members)
 
-Re-verified against `Cargo.toml` `members = [...]` on 2026-07-16 (12 members, counted directly
-from the array). The 2026-07-02 count of 10 packages / 9 disk dirs (2026-07 crate-consolidation
-pass, trimmed from 17 packages / 24 disk dirs) is superseded: the workspace gained three more
-members — `ggen-engine`, `praxis-core`, `praxis-graphlaw` — vendored in for the ggen-core
-replacement migration (`docs/jira/v26.7.16/`, `2026-ggen-core-replacement` branch). Use `LSP
-workspaceSymbol` for live symbol discovery — this table is orientation only. See
+Re-verified against `Cargo.toml` `members = [...]` on 2026-07-17 (15 array entries + the root
+`ggen` package = 16 total; `grep -c '^  "crates/' Cargo.toml` → 15). The prior 12-member count
+(2026-07-16) is superseded: PR #255 (absolute-local-path Cargo dependency cleanup) added 4 more
+members — `powl2-decompose`, `chicago-tdd-tools` (+ its `chicago-tdd-tools/proc_macros`
+path-dependency, not itself a top-level workspace member), `bcinr-pddl`, `bcinr-mfw-ir` — all
+`publish = false`, vendored to eliminate `path = "/Users/sac/..."` dependencies that only
+resolved on one machine and broke CI (`cargo build --workspace` failing with "No such file or
+directory" for anyone else). See the Praxis kernel and Testing infrastructure sections below.
+Use `LSP workspaceSymbol` for live symbol discovery — this table is orientation only. See
 `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` for the 2026-07 pass's evidence base and
 phase-by-phase history.
 
@@ -79,22 +82,34 @@ no automated cross-drift guard between the two.
 Vendored alongside `ggen-engine` in the same migration pass — renamed copies of
 `~/praxis/crates/{praxis-core,praxis-graphlaw}`. Both `publish = false`.
 
-**Correction (2026-07-17, verified live):** the "not live path dependencies back to `~/praxis`"
-claim in an earlier version of this note was wrong. `praxis-core/Cargo.toml` and
-`praxis-graphlaw/Cargo.toml` both have real `path = "/Users/sac/praxis/crates/..."` dependency
-entries (`powl2-decompose` in both; `wasm4pm-arazzo` and the optional `chatman-common` in
-`praxis-core` only) — confirmed by grepping both manifests directly. This is not cosmetic: it
-means `cargo metadata`'s full (non-`--no-deps`) resolution transitively reaches into
-`/Users/sac/praxis`'s own workspace, including unrelated sibling members — this is exactly what
-made `cargo fmt --all` crash after the `ggen-core` disconnect (see `justfile`'s `fmt-check`
-recipe comment and `specs/014-ggen-core-replacement/tasks.md`'s T058 follow-up notes for the full
-chain). Anything in this workspace that walks the full dependency graph by name or via `--all`
-should be assumed to reach `~/praxis` unless proven otherwise.
+**Correction (2026-07-17, PR #255, verified live) — supersedes the prior "assume it reaches
+`~/praxis`" correction below:** every absolute `path = "/Users/sac/..."` Cargo dependency in this
+workspace was found and removed. `praxis-core`'s `arazzo.rs` module (the sole consumer of the
+`powl2-decompose`/`wasm4pm-arazzo` path deps this note used to describe) was deleted outright —
+confirmed unused by any downstream crate (`ggen-engine`, `ggen-cli`) before removal; its dead
+`chatman-common`-gated `signing` feature/module went with it. `ArazzoProjectionReceipt` is no
+longer part of `praxis-core`'s public API — the table row below is corrected accordingly.
+`praxis-graphlaw`'s own `powl2-decompose` dependency (genuinely load-bearing, reachable from
+`ggen-engine` via `chatman/{closure,abi,powl_projection,engine}.rs`) is now satisfied by the new
+`crates/powl2-decompose` workspace member (vendored, not a live path back to `~/praxis`) rather
+than an absolute path — see that row below. `cargo fmt --all`'s crash (the consequence this note
+used to warn about) is resolved as a side effect: nothing in this workspace's manifest graph
+reaches outside `/Users/sac/ggen` anymore. Verify via `grep -rn 'path.*=.*"/Users/sac'
+--include="Cargo.toml" .` → empty.
 
 | Crate | Purpose (from Cargo.toml / lib.rs) |
 |-------|-------------------------------------|
-| `praxis-core` | Fused Law Object abstraction: obligation + lifecycle + receipt + OCEL (`LawObject`, `Obligation`, `Andon`, `ReceiptRecord`, `ArazzoProjectionReceipt`) |
+| `praxis-core` | Fused Law Object abstraction: obligation + lifecycle + receipt + OCEL (`LawObject`, `Obligation`, `Andon`, `ReceiptRecord`). No longer exposes `ArazzoProjectionReceipt`/`arazzo` (removed 2026-07-17, PR #255 — dead weight, zero downstream consumers) |
 | `praxis-graphlaw` | Praxis GraphLaw law-state engine: native N3, Datalog, SPARQL 1.1, SHACL, ShEx (fork of `pbonte/roxi`) — `ggen-engine`'s default `EngineKind::GraphLaw` graph backend |
+| `powl2-decompose` | Vendored from `~/praxis/crates/powl2-decompose` (2026-07-17, PR #255): Kourani et al. Stage-1 WF-net → POWL 2.0 decomposition. `praxis-graphlaw`'s dependency (not published on crates.io). `publish = false` |
+| `bcinr-pddl` | Vendored from `~/bcinr/crates/bcinr-pddl` (2026-07-17, PR #255) — **not** the crates.io release: the published 26.6.26 lacks `Pddl8Error::PlanningFailed`/`.into_result()` that `praxis-graphlaw`'s code needs (version-tag/content divergence, confirmed by a failed build against the registry version before vendoring). PDDL8 → POWL tape → Prolog8 admission → OCEL → BLAKE3 receipt. `publish = false` |
+| `bcinr-mfw-ir` | Vendored alongside `bcinr-pddl` (its own hard dependency, same divergence reasoning) — shared IR types/trait contracts for the multifractal-workflow planner. `publish = false` |
+
+### Testing infrastructure
+
+| Crate | Purpose (from Cargo.toml / lib.rs) |
+|-------|-------------------------------------|
+| `chicago-tdd-tools` | Dev/test-only Chicago-TDD utilities (property-testing, snapshot-testing, parameterized-testing, mutation-testing, concurrency-testing, `cli-proof`) for `ggen-engine`/`praxis-graphlaw`'s own test suites — never a runtime dependency of any shipped binary. A trimmed vendor (source only — `src/`, `build.rs`, `proc_macros/`; no `tests/`/`examples/`/`benches/`/docs) of the ~106MB `~/chicago-tdd-tools` project, copied 2026-07-17 (PR #255) because its `cli-proof` feature isn't published to crates.io yet. `publish = false`. **License note:** its own optional `wasm4pm-cognition` re-export path is unrelated to `praxis-graphlaw`'s separate `wasm4pm-cognition` dependency, which carries a BUSL-1.1 (non-OSI) license on crates.io — see that dependency's Cargo.toml comment; mitigated only because it's optional and off by default |
 
 ### Agent & LSP surface
 

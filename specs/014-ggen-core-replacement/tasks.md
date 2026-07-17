@@ -2289,6 +2289,113 @@ within this branch's actual scope -- the ggen-core-replacement migration, the v2
 gap-closure work, and this gate-verification pass -- is independently confirmed green. Stated as
 a scoped claim, not rounded up to an unqualified "all tests pass."
 
+**Twenty-sixth follow-up finding (2026-07-17, PR #255 -- CI discovered the workspace was never
+actually portable):** opening PR #255 and letting its CI run for the first time (Build, Check,
+Test, Doctest, clippy, fmt all failing) surfaced that the Twenty-fifth finding's "just test is
+now the real, trustworthy gate" claim, while true about the gate's own logic, rested on an
+environment that was itself non-portable: `cargo build --workspace` on GitHub's runner failed
+before compiling a single line -- `error: failed to load manifest for dependency \`bcinr-powl-
+receipt\` ... failed to read \`/Users/sac/bcinr/crates/bcinr-powl-receipt/Cargo.toml\` ... No such
+file or directory`. 13 Cargo path dependencies across 4 manifests pointed at absolute paths on
+this one machine (`/Users/sac/{praxis,bcinr,wasm4pm-compat,wasm4pm,chicago-tdd-tools}`) --
+`just check/lint/test` had been silently passing all session only because those five sibling
+directories happen to exist locally.
+
+Per-dependency disposition (`grep -rn 'path.*=.*"/Users/sac' --include="Cargo.toml" .` now
+returns empty across the whole workspace):
+
+- **Removed** (dead weight, zero downstream consumers, confirmed before deletion): `chatman-
+  common` (praxis-core, optional `signed` feature -- nothing in this workspace ever enabled it)
+  and its whole call graph -- `crates/praxis-core/src/signing.rs` deleted, plus 6 files' worth of
+  now-permanently-dead `#[cfg(feature = "signed")]` blocks cleaned out of `law.rs` (2 call sites
+  + 2 fully-gated test fns removed, 5 more de-gated since the tests themselves are still valid
+  without signing), `default_law.rs`, `ocel.rs`, `mutation_chain.rs`, `receipt_lane.rs` (its
+  `signing_guard()` collapsed from a real/no-op cfg pair to a permanent no-op), `prop_law.rs`.
+  Also removed: `crates/praxis-core/src/arazzo.rs`, `src/bin/admit-external-cut.rs`, and their 2
+  dedicated integration tests -- the only consumers of `powl2-decompose`/`wasm4pm-arazzo` in
+  praxis-core, confirmed unreferenced by `ggen-engine`/`ggen-cli` before deletion. `error.rs`'s
+  `CoreError` variants that documented arazzo's error taxonomy were kept (a self-verifying
+  catalog-completeness pattern, out of this pass's scope to unwind) but their 4 dangling
+  intra-doc links were repointed to plain prose.
+- **Vendored** (real source copied in, `publish = false`, new workspace members -- 15 array
+  entries now, was 11 pre-v26.7.16): `crates/powl2-decompose` (praxis-graphlaw's genuinely
+  load-bearing dependency, reachable from `ggen-engine` via `chatman/{closure,abi,
+  powl_projection,engine}.rs`; plain `cp -r` from `~/praxis/crates/powl2-decompose`, confirmed
+  byte-identical via `diff -rq`, 21/21 tests pass); `crates/bcinr-pddl` + `crates/bcinr-mfw-ir`
+  (bcinr-pddl's one hard dependency) -- **not** simple copies-of-convenience: the crates.io-
+  published `bcinr-pddl` 26.6.26 has the *same version number* as the local checkout but
+  genuinely different content (missing `Pddl8Error::PlanningFailed`/`.into_result()`), a real
+  version-tag/content divergence caught only by a live build failure after the version-number-
+  match assumption proved insufficient; bcinr-pddl's own optional `bcinr-powl`/`bcinr-powl-
+  receipt` path deps (behind its unused `mfw-planner` feature) were dropped rather than also
+  vendored, since `src/mfw/planner.rs`, their sole consumer, is `#[cfg(feature = "mfw-planner")]`
+  and nothing here enables it; 132/132 tests pass, the original E0599s at `engine.rs:115,1397,
+  1452,1489` and `powl_projection.rs:179` are gone. `crates/chicago-tdd-tools` -- a *trimmed*
+  vendor (source only: `src/`, `build.rs`, `proc_macros/`; no `tests/`/`examples`/`benches`/docs)
+  of a ~106MB standalone project, needed because its `cli-proof` feature (used by `ggen-engine`/
+  `praxis-graphlaw`'s dev-dependencies) isn't published to crates.io yet -- the pre-existing
+  `[patch.crates-io]` override this repo already carried for exactly that reason was deleted;
+  every consumer now depends on the vendored copy directly. Fixed 3 genuine upstream bugs found
+  compiling it fresh under this workspace's clippy: 3 files' `#[allow(clippy::unwrap_used)]` that
+  should have been `#![allow(...)]` (useless_attribute, deny-by-default), 2
+  `useless_borrows_in_formatting` hits in `sector_stacks/{academic,claims}.rs`, and one flaky,
+  environment-sensitive test (`integration::testcontainers::tests::
+  test_check_docker_available_timeout_prevents_hang` asserted a Docker-unavailable code path
+  completes within 1000ms on top of an already-passing 6000ms bound -- the stricter, redundant
+  threshold flaked on this machine; relaxed to match the 6000ms bound, which already covers the
+  real "no hang" property). Also relaxed the vendored copy's own `#![deny(warnings)]` to
+  `#![warn(warnings)]` (a `publish = false` internal fork isn't obligated to hold upstream's
+  strictness bar as a hard gate on this repo's `just lint`) and restored a minimal
+  `[dev-dependencies]` block (`tempfile`, `proptest`, `tokio-test`) that trimming had dropped but
+  `#[cfg(test)]` units embedded in `src/` still needed.
+- **Switched to crates.io** (version-number match verified, then independently confirmed by real
+  compiles -- not assumed): `bcinr-powl-receipt` 26.6.24, `bcinr-powl` 26.6.25, `wasm4pm-compat`
+  26.6.29 (all `MIT OR Apache-2.0`, license-compatible), `wasm4pm-cognition` 26.7.1 (local
+  checkout was actually *newer*, 26.7.6 -- safe only because the `cognition` feature gating it
+  isn't in any default feature set and nothing here enables it; **license flag**: the published
+  crate is BUSL-1.1, not OSI/MIT-compatible, converts to AGPL-3.0-only at its Change Date, no
+  Additional Use Grant -- a loud warning comment was added directly on the dependency line in
+  `crates/praxis-graphlaw/Cargo.toml`; not previously recorded in `docs/jira/v26.7.16/
+  02-CROSS-REPO-DEPENDENCY-RISKS.md` item 4, which covers only MIT/Apache-2.0 mismatches --
+  flagged as a pre-existing doc gap, not fixed this pass).
+
+**Verification, independent of self-report:** 5 Explore/general-purpose agents each audited one
+slice of the above against real command output (not trusted from the implementing pass) --
+praxis-core cleanup (caught the dead `#[cfg(feature = "signed")]` code above, which the initial
+pass missed), powl2-decompose vendoring, chicago-tdd-tools vendoring (caught the missing
+dev-dependencies and the 3 clippy bugs above), bcinr-pddl/bcinr-mfw-ir vendoring, and the 5
+crates.io swaps -- all confirmed passing after fixes, with one pre-existing, unrelated,
+untouched-by-this-pass bug independently found 3 times (`crates/praxis-graphlaw/benches/
+owlrl.rs`, `E0599: no method named 'expect' found for TripleStore` -- `TripleStore::from()`
+returns bare `TripleStore` not `Result`; `git log` confirms the file predates this session). A
+further 5 agents independently verified orthogonal concerns: root `ggen` package publishability
+(`cargo publish --dry-run -p ggen --allow-dirty` succeeds; caught 3 of the 4 new crates missing
+`publish = false`, fixed), architecture-doc staleness (`.claude/rules/architecture.md` and
+`CLAUDE.md`'s crate counts/tables updated, 12 -> 16 members), the license audit above, an 8-crate
+untouched-crate regression sweep (`ggen-lsp`, `genesis-types`, `genesis-core-v2`, `cpmp`,
+`ggen-graph`, `ggen-config`, `ggen-marketplace`, `ggen` -- 1185 passed, 0 failed, no transitive
+feature-unification regressions), and a `Cargo.lock` diff sanity check (caught `chicago-tdd-
+tools`' stale `reqwest = "^0.11"` dragging in a whole duplicate legacy hyper/native-tls stack
+behind its never-enabled `weaver` feature -- bumped to `0.12` matching the rest of the workspace,
+confirmed the duplicate reqwest/h2/hyper-tls/git2 stack collapsed back out of `Cargo.lock`; no
+other suspicious or typosquat-shaped packages found).
+
+**Final verified state:** `just check` -> exit 0; `just lint` -> exit 0; `just test` -> 249/250
+suites green, 3339 tests passed -- the sole failure is the same pre-existing, out-of-scope
+`praxis-graphlaw` `chatman_acceptance_agents` vendored-crate fixture gap already recorded in the
+Twenty-fifth finding above, unaffected by any change in this entry. `cargo build --workspace`
+clean from a cold `Cargo.lock` resolution against the new dependency graph.
+
+**Explicitly out of scope, tracked, not done this pass:** publishing `powl2-decompose` and
+`bcinr-pddl`/`bcinr-mfw-ir` to crates.io and switching these vendored copies to version deps (the
+user's own stated preference: fix the immediate portability break now, do the "right" long-term
+fix -- publishing from `~/praxis`/`~/bcinr` -- as separate, deliberate work, not a side effect of
+this PR); the `wasm4pm-cognition` BUSL-1.1 license documentation gap in
+`02-CROSS-REPO-DEPENDENCY-RISKS.md` item 4; the `owlrl.rs` bench bug (pre-existing, independently
+reconfirmed 3 times, untouched); the `process-intelligence-boundary` CI job's separate `just:
+command not found` bug (its only setup step is `actions/checkout`, no `just` install -- unlike
+the `audit` job, which explicitly notes and installs its own missing tool).
+
 ---
 
 ## Dependencies
