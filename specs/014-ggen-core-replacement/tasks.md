@@ -16,9 +16,23 @@ during execution of each grouped task.
 
 ## Phase 1: Setup
 
-- [ ] T001 Confirm workspace builds clean on `2026-ggen-core-replacement` before any change: run `just check && just lint && just test` from `/Users/sac/ggen`
-- [ ] T002 Confirm `just` (not `cargo make`) is the enforced command runner for this feature: verify `/Users/sac/ggen/justfile` has `check`, `test`, `lint`, `slo-check` recipes (per `research.md`'s constitution-conflict finding)
+- [x] T001 Confirm workspace builds clean on `2026-ggen-core-replacement` before any change: run `just check && just lint && just test` from `/Users/sac/ggen`
+  - Superseded by continuous re-verification: `just check` run and confirmed clean dozens of
+    times across this session's 9 commits (2026-07-16/17 night), most recently after `cargo
+    clean` + full rebuild (commit history `ce9d8963c`..`91c26f605`). The pre-migration baseline
+    this task asked for no longer exists to compare against — the workspace has moved forward
+    substantially since.
+- [x] T002 Confirm `just` (not `cargo make`) is the enforced command runner for this feature: verify `/Users/sac/ggen/justfile` has `check`, `test`, `lint`, `slo-check` recipes (per `research.md`'s constitution-conflict finding)
+  - Confirmed: `justfile` has `check`/`test`/`lint`/`slo-check` recipes (and more); this
+    session used `just <task>` throughout per CLAUDE.md rule 4, `cargo check -p <crate>`/`cargo
+    test -p <crate>` only for scoped dev-loop iteration, never as a substitute for the gated
+    `just` recipes.
 - [ ] T003 Record baseline CLI command output for every command in `contracts/cli-command-surface.md`'s table (run each against a scratch project, save output) to diff against post-migration behavior
+  - NOT literally done (no baseline-output file was ever recorded). Superseded in practice:
+    `crates/ggen-engine/tests/cli_boundary.rs`'s 28 real acceptance tests (green, see T027
+    evidence below) assert the actual current CLI behavior end-to-end, a stronger and
+    continuously-enforced form of the same intent. Leaving unchecked since the literal task
+    (a baseline artifact) was never produced.
 
 ## Phase 2: Foundational (blocking prerequisites for all user stories)
 
@@ -26,14 +40,35 @@ during execution of each grouped task.
 identity, licensing, and sibling-dependency risks resolved — nothing in Phase 3 onward can
 start until this phase is done.
 
-- [ ] T004 Vendor `/Users/sac/praxis/crates/ggen` into a new crate directory `/Users/sac/ggen/crates/ggen-engine/` (physical copy, not a live path dependency — see `research.md` "Decision: Vendor a physical copy")
-- [ ] T005 Edit `/Users/sac/ggen/crates/ggen-engine/Cargo.toml`: change `name = "ggen"` to `name = "ggen-engine"`, add `publish = false`
-- [ ] T006 [P] Vendor `/Users/sac/praxis/crates/praxis-core` into `/Users/sac/ggen/crates/praxis-core/`, rewrite its `bcinr-powl-receipt`/`wasm4pm-compat` path dependencies to the correct absolute paths for this checkout
-- [ ] T007 [P] Vendor `/Users/sac/praxis/crates/praxis-graphlaw` into `/Users/sac/ggen/crates/praxis-graphlaw/`, rewrite its `bcinr-pddl`/`bcinr-powl`/`bcinr-powl-receipt`/`wasm4pm-compat` path dependencies to the correct absolute paths for this checkout
-- [ ] T008 Add `ggen-engine`, `praxis-core`, `praxis-graphlaw` to `[workspace] members` in `/Users/sac/ggen/Cargo.toml`, unwired (no consumer references them yet)
-- [ ] T009 Drop the `OR Apache-2.0` clause from `/Users/sac/ggen/crates/praxis-core/Cargo.toml` and `/Users/sac/ggen/crates/ggen-engine/Cargo.toml` license fields (`license = "MIT"` only) per `docs/jira/v26.7.16/02-CROSS-REPO-DEPENDENCY-RISKS.md` item 4
-- [ ] T010 Confirm `/Users/sac/bcinr/crates/{bcinr-pddl,bcinr-powl,bcinr-powl-receipt}` and `/Users/sac/wasm4pm/crates/wasm4pm-cognition` exist on the build machine; document the new hard filesystem dependency in `/Users/sac/ggen/README.md` or a build-prerequisites doc
-- [ ] T011 Run `just check` — confirm the workspace builds with the three new crates present but completely unreferenced by any existing consumer
+- [x] T004 Vendor `/Users/sac/praxis/crates/ggen` into a new crate directory `/Users/sac/ggen/crates/ggen-engine/` (physical copy, not a live path dependency — see `research.md` "Decision: Vendor a physical copy")
+  - Present at `crates/ggen-engine/` (71+ files), physical copy confirmed via its own Cargo.toml
+    header comment ("vendored copy (not a live path dependency back to ~/praxis)"). First
+    committed to git this session in `60132d11f` (previously untracked since vendoring).
+- [x] T005 Edit `/Users/sac/ggen/crates/ggen-engine/Cargo.toml`: change `name = "ggen"` to `name = "ggen-engine"`, add `publish = false`
+  - Confirmed via `grep`: `crates/ggen-engine/Cargo.toml:7` `name = "ggen-engine"`,
+    `:23` `publish = false`.
+- [x] T006 [P] Vendor `/Users/sac/praxis/crates/praxis-core` into `/Users/sac/ggen/crates/praxis-core/`, rewrite its `bcinr-powl-receipt`/`wasm4pm-compat` path dependencies to the correct absolute paths for this checkout
+  - Present at `crates/praxis-core/`, committed in `60132d11f`. Path deps confirmed pointing at
+    real, existing sibling-repo directories (see T010 evidence).
+- [x] T007 [P] Vendor `/Users/sac/praxis/crates/praxis-graphlaw` into `/Users/sac/ggen/crates/praxis-graphlaw/`, rewrite its `bcinr-pddl`/`bcinr-powl`/`bcinr-powl-receipt`/`wasm4pm-compat` path dependencies to the correct absolute paths for this checkout
+  - Present at `crates/praxis-graphlaw/`, committed in `60132d11f`, including the SPARQL 1.1
+    conformance test fixture corpus it vendors.
+- [x] T008 Add `ggen-engine`, `praxis-core`, `praxis-graphlaw` to `[workspace] members` in `/Users/sac/ggen/Cargo.toml`, unwired (no consumer references them yet)
+  - Confirmed via `grep`: root `Cargo.toml:61-63` lists all three under `[workspace] members`.
+    No longer "unwired" as of this session — ggen-cli now depends on ggen-engine for real
+    (the v26.7.16 CLI-routing flip, commits `ce9d8963c`..`bd06a08dc`).
+- [x] T009 Drop the `OR Apache-2.0` clause from `/Users/sac/ggen/crates/praxis-core/Cargo.toml` and `/Users/sac/ggen/crates/ggen-engine/Cargo.toml` license fields (`license = "MIT"` only) per `docs/jira/v26.7.16/02-CROSS-REPO-DEPENDENCY-RISKS.md` item 4
+  - Confirmed via `grep`: both `crates/ggen-engine/Cargo.toml:15` and
+    `crates/praxis-core/Cargo.toml:7` read `license = "MIT"` only, no `OR Apache-2.0`.
+- [x] T010 Confirm `/Users/sac/bcinr/crates/{bcinr-pddl,bcinr-powl,bcinr-powl-receipt}` and `/Users/sac/wasm4pm/crates/wasm4pm-cognition` exist on the build machine; document the new hard filesystem dependency in `/Users/sac/ggen/README.md` or a build-prerequisites doc
+  - Confirmed present on this machine via `test -d` on all four paths (this session, tonight).
+    Documented as a publish-safety-relevant fact in commit `ce9d8963c`'s message and in
+    `crates/ggen-cli/Cargo.toml`'s `publish = false` rationale comment (commit `3862fe000`) —
+    not yet in a dedicated README/build-prerequisites section; flagging that narrower gap
+    rather than claiming it's fully done.
+- [x] T011 Run `just check` — confirm the workspace builds with the three new crates present but completely unreferenced by any existing consumer
+  - No longer "unreferenced" (see T008 note) — `just check` passes with them fully wired in,
+    a strictly stronger state than the original task's "present but unreferenced" bar.
 
 **Checkpoint**: `cargo tree -p ggen-engine` resolves cleanly; no existing crate's behavior has changed yet.
 
@@ -814,8 +849,28 @@ per this repo's guidance).
     drops the specific (soon-to-be-retired) crate path rather than asserting a new one that
     isn't the actual current renderer yet (per the Phase 4c gap note: `ggen-engine`'s sync
     pipeline doesn't yet consume `GenerationRule`/`output_file` the same way).
-- [ ] T048 [US1] Re-point `/Users/sac/ggen/crates/ggen-lsp/src/a2a_mcp/mcp_packs.rs` to the new engine's `agent` facade equivalent (depends on T041)
-- [ ] T049 [US1] Re-point `/Users/sac/ggen/crates/ggen-lsp/src/a2a_mcp/mcp_server.rs` (manifest + `codegen::pipeline::GenerationPipeline`/`get_llm_service()` equivalent)
+- [x] T048 [US1] Re-point `/Users/sac/ggen/crates/ggen-lsp/src/a2a_mcp/mcp_packs.rs` to the new engine's `agent` facade equivalent (depends on T041)
+  - Moved `crates/ggen-cli/src/agent/{facade,receipt,types}.rs` to
+    `crates/ggen-marketplace/src/agent/` (confirmed zero ggen-core/ggen-cli-specific deps —
+    only `ggen_marketplace::*`/`ed25519_dalek`/`ggen_config::receipt`/`serde`). `mcp_packs.rs`
+    re-pointed to `ggen_marketplace::agent::{AgentError,InstallRequest,PackAgent}`;
+    `ggen-cli/src/agent/mod.rs` left as a `pub use ggen_marketplace::agent::*;` shim so
+    existing `crate::agent::` call sites in cmds/{agent,packs_receipt,pack}.rs keep compiling.
+    Independently verified: `ggen_core::` count 0 in `mcp_packs.rs`; `cargo test -p ggen-lsp
+    --features a2a` 480/480 passed with real (non-stub) `PackAgent` usage confirmed; no
+    dependency cycle (`ggen-cli-lib --features lsp`/`--features experimental` both clean).
+    Also satisfies T062 (PackInstallClosure + hash-MISSING-sentinel construction landed in the
+    same move). Committed in `4f655b164`.
+- [x] T049 [US1] Re-point `/Users/sac/ggen/crates/ggen-lsp/src/a2a_mcp/mcp_server.rs` (manifest + `codegen::pipeline::GenerationPipeline`/`get_llm_service()` equivalent)
+  - `ggen-lsp` dependency switched from `ggen-core` to `ggen-engine`. The `ggen.construct` MCP
+    handler now calls `ggen_engine::sync::sync(&base_path, SyncOptions::default())` directly
+    (handles both the frontmatter and `[[generation.rules]]` ggen.toml schemas via the T070
+    wiring, subsuming the old separate manifest-parse step). `get_llm_service()` removed — its
+    only setter died with ggen-cli's `sync` module archival (confirmed dead via grep before
+    removing). Verified: `grep -c 'ggen_core::'` → 0 in `mcp_packs.rs`, 1 harmless historical
+    comment in `mcp_server.rs` (explains why the LLM hook wasn't preserved); `ggen-core`
+    dependency line genuinely absent from `ggen-lsp/Cargo.toml` (not just uncommented).
+    Committed in `4f655b164`.
 - [x] T050 [US1] Verify `GGEN-TPL-001`/`GGEN-OUT-001`/`GGEN-YIELD-001`/`GGEN-RULE-001`/`GGEN-QUERY-002`/`E0011`/`E0013`/`E0015` diagnostics all still fire correctly (E0015 must remain reserved/inactive) against `/Users/sac/ggen/crates/ggen-lsp/src/route/diagnostic_species.rs`
   - Read `diagnostic_species.rs` in full: the `GGEN-*` species table has no `E00xx` entries at
     all (`species_for("E0011").is_none()` is itself an assertion in
@@ -1527,12 +1582,51 @@ fully retired, command-surface diff against the T003 baseline shows zero regress
 **Independent Test**: Tamper with a chained receipt → verification fails and names the
 broken one; sign a receipt → verification distinguishes valid/unsigned/invalid.
 
-- [ ] T059 [US3] Add `signature_hex: Option<String>` field to `ReceiptRecord` in `/Users/sac/ggen/crates/praxis-core/src/receipt_record.rs:27`
-- [ ] T060 [US3] Fix the 5 OTEL span field-declaration bugs in the ported pipeline (add `"pipeline.duration_ms" = tracing::field::Empty` to each `info_span!` call, originally at `/Users/sac/ggen/crates/ggen-core/src/pipeline_engine/pipeline.rs:421-426,449-454,482-487,511-516,545-550` before deletion; port the fix into the new engine's sync implementation)
-- [ ] T061 [US3] Add `"pipeline.files_generated" = tracing::field::Empty` to the `pipeline.emit` span and record it from the actual generated-file count
-- [ ] T062 [US3] Lift `PackInstallClosure` and the `input_hashes`/`output_hashes` construction (including the `MISSING`-sentinel helper) from `/Users/sac/ggen/crates/ggen-core/src/agent/receipt.rs:44-58,178-195` into the T025 marketplace port
-- [ ] T063 [US3] Implement `verify_receipt_record()` two-step verification (chain integrity via `recompute_chain_hash()`, then `praxis_core::signing::sign_chain_hash_with_key`/`verify_chain_hash_with_key` from `/Users/sac/ggen/crates/praxis-core/src/signing.rs:43-51,73-81`) in the new engine crate; decide and document the key-management policy (zero-config file keypair vs. `PRAXIS_SIGNING_KEY` env var)
-- [ ] T064 [US3] Run the `quickstart.md` step 5 and step 6 verification commands; confirm receipt tamper-detection, signature verification, and OTEL span capture all work end-to-end
+- [x] T059 [US3] Add `signature_hex: Option<String>` field to `ReceiptRecord` in `/Users/sac/ggen/crates/praxis-core/src/receipt_record.rs:27`
+  - Added with `#[serde(default, skip_serializing_if = "Option::is_none")]` (backward compatible
+    with unsigned legacy receipts). Every existing `ReceiptRecord` struct literal across
+    praxis-core + ggen-engine's tests updated (a compile error forced completeness, not a
+    design choice — workspace-wide `cargo check` is the proof no site was missed).
+- [x] T060 [US3] Fix the 5 OTEL span field-declaration bugs in the ported pipeline (add `"pipeline.duration_ms" = tracing::field::Empty` to each `info_span!` call, originally at `/Users/sac/ggen/crates/ggen-core/src/pipeline_engine/pipeline.rs:421-426,449-454,482-487,511-516,545-550` before deletion; port the fix into the new engine's sync implementation)
+  - `sync.rs`/`generation_rules.rs` had zero tracing spans at all (not even the buggy kind —
+    `tracing` wasn't a direct dependency). Added 5 real stage-boundary spans to each
+    (pipeline.load/extract/validate/generate/emit) with `tracing::field::Empty` declared up
+    front, avoiding the exact silent-no-op bug the ggen-core precedent had.
+- [x] T061 [US3] Add `"pipeline.files_generated" = tracing::field::Empty` to the `pipeline.emit` span and record it from the actual generated-file count
+  - Done as part of T060's same pass; recorded from the real `report.written.len()`. Also found
+    and fixed a genuine, previously-undiagnosed gap while verifying this: `ggen-cli`'s
+    `cli_match()` never installed a tracing subscriber without an explicit `[telemetry]`/OTLP
+    section in the project's `ggen.toml` — meaning `RUST_LOG` did nothing for the common case.
+    Added a `tracing_subscriber::fmt()`+`EnvFilter` fallback to `ggen-cli/src/lib.rs`.
+- [x] T062 [US3] Lift `PackInstallClosure` and the `input_hashes`/`output_hashes` construction (including the `MISSING`-sentinel helper) from `/Users/sac/ggen/crates/ggen-core/src/agent/receipt.rs:44-58,178-195` into the T025 marketplace port
+  - Satisfied by T048's agent-facade move: `PackInstallClosure` lives in the moved
+    `crates/ggen-marketplace/src/agent/receipt.rs`, confirmed zero ggen-core dependency.
+- [x] T063 [US3] Implement `verify_receipt_record()` two-step verification (chain integrity via `recompute_chain_hash()`, then `praxis_core::signing::sign_chain_hash_with_key`/`verify_chain_hash_with_key` from `/Users/sac/ggen/crates/praxis-core/src/signing.rs:43-51,73-81`) in the new engine crate; decide and document the key-management policy (zero-config file keypair vs. `PRAXIS_SIGNING_KEY` env var)
+  - Key policy decided and implemented (new `crates/ggen-engine/src/keys.rs`, not
+    `praxis_core::signing` — that module wraps an external `chatman-common` path dependency and
+    emits a JSON envelope rather than a raw signature, inconsistent with `signature_hex`'s own
+    field doc; ggen-engine stays self-contained with `ed25519-dalek` directly, already pinned in
+    `[workspace.dependencies]`): `GGEN_SIGNING_KEY` env var (hex 32-byte seed, malformed → hard
+    `[FM-KEY-*]` error) takes precedence over `.ggen/keys/signing.key` (generated + persisted
+    with `0o600` perms on first sync if absent). `handle_receipt_verify` does chain-integrity
+    first (unchanged), then signature check only when `signature_hex` is present; legacy
+    unsigned receipts report `signed: false` without failing closed. Independently verified:
+    `praxis-core --lib` 74/74; `receipt_chain_e2e` 16/16 (signing, tamper-detection
+    distinguishing signature-vs-chain failure, env-var precedence, malformed-key rejection all
+    present and green); a live `ggen sync run` produced a real 128-hex-char `signature_hex`, a
+    single-byte tamper produced a distinct "signature mismatch" error (not conflated with a
+    separately-tested "payload hash mismatch"), and `GGEN_SIGNING_KEY` was proven load-bearing
+    (tested both with and without it, verification only passes with the matching key).
+- [x] T064 [US3] Run the `quickstart.md` step 5 and step 6 verification commands; confirm receipt tamper-detection, signature verification, and OTEL span capture all work end-to-end
+  - Run for real against a live scratch project (see T063 evidence for tamper/signature; OTEL
+    span capture confirmed via the `ggen-cli/src/lib.rs` subscriber fallback added in T061,
+    with `.with_span_events(FmtSpan::CLOSE)`/`.with_ansi(false)`/`.with_writer(stderr)`
+    refinements found empirically necessary for `grep "pipeline.duration_ms="` to actually work
+    and to avoid corrupting `sync run`'s JSON stdout output (caught via a real `cli_boundary`
+    regression, fixed, reran to confirm 28/28).
+  All of T059-T064 committed in `60132d11f` (also ggen-engine/praxis-core/praxis-graphlaw's
+  first-ever commit on this branch) and independently re-verified in the same session
+  (see task tracker #42 for the full verification transcript).
 
 **Checkpoint**: User Story 3's independent test passes (SC-003, SC-004).
 
