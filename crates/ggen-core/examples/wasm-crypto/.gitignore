@@ -1,8 +1,0 @@
-target/
-pkg/
-dist/
-www/pkg/
-node_modules/
-*.wasm
-*.log
-.DS_Store

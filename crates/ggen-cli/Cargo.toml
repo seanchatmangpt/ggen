@@ -96,23 +96,6 @@ lsp = ["dep:ggen-lsp", "ggen-lsp/mcp"]
 # fossil evidence (non-deletion doctrine). See docs/reference/release/v26-5-28-boundary.md.
 # Pulls in ggen-lsp's `a2a` feature (which implies `mcp`) for cmds/a2a.rs and cmds/mcp.rs.
 experimental = ["dep:ggen-lsp", "ggen-lsp/a2a"]
-# Gate for test files exercising CLI surfaces retired by the v26.7.16 sync/
-# doctor/graph/receipt routing flip to ggen-engine (see cmds/mod.rs), plus
-# (2026-07-16, ggen-core disconnect) `inverse_sync`, `mcp_command_test`,
-# `coherence_gate_test`, `sync_command_test`, `ontology_command_test`,
-# `utils_command_test`, `graph_command_test`, and (2026-07-17) `pack_cache_test`
-# -- the remaining real ggen-core consumers. Most have no ggen-engine/
-# ggen-graph port destination (verified via workspace-wide search);
-# `pack_cache_test` is the one exception -- ggen_marketplace::marketplace::
-# {cache,models} already exposes a structurally-matching API and is a live
-# dependency of this crate, but porting it has not been done (see that
-# file's own header). Empty by design --
-# enabling it does not restore the old behavior. ggen-core is no longer a
-# dependency of this crate (see [dependencies] above), so enabling this
-# feature now produces a broken build; it exists only so the
-# `#![cfg(...)]` gates on the archived files compile cleanly with the
-# feature off.
-ggen-core-retired = []
 default = []
 
 [dev-dependencies]

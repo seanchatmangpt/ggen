@@ -30,19 +30,12 @@ pub mod helpers;
 // Core commands: ggen sync & ggen init
 pub mod git_hooks;
 pub mod init;
-// ARCHIVED (ggen-core disconnect, 2026-07-16): `inverse_sync` is the sole
-// production-code consumer of ggen-core outside tests (ProvenanceEnvelope,
-// InversePipeline, receipt::provenance_envelope::CoherenceReport -- a
-// 3,715-line transitive dependency chain rooted in
-// crates/ggen-core/src/{reverse_sync,receipt,utils/error.rs}). No
-// ggen-engine/ggen-graph equivalent exists for any of these types (verified
-// via workspace-wide search, 2026-07-16 investigation) and there are zero
-// other consumers of InversePipeline/ProvenanceEnvelope outside this file
-// and its own test (crates/ggen-cli/tests/inverse_sync_cmd_test.rs, archived
-// alongside this behind the `ggen-core-retired` feature). File retained on
-// disk at cmds/inverse_sync.rs, not deleted, per this project's fix-forward
-// doctrine.
-// pub mod inverse_sync;
+// REMOVED (2026-07-17, ggen-core removal, docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md):
+// `inverse_sync` was the sole production-code consumer of ggen-core outside tests
+// (ProvenanceEnvelope, InversePipeline, receipt::provenance_envelope::CoherenceReport). No
+// ggen-engine/ggen-graph port was ever built for these types; the decision was to abandon
+// this functionality rather than port it. File deleted (cmds/inverse_sync.rs); recoverable
+// from git history if ever needed.
 // ARCHIVED (v26.7.16 routing flip): replaced by ggen-engine's `sync` noun
 // (verb `run`). A root FLAT verb named "sync" here and a noun named "sync"
 // registered by ggen-engine both become top-level clap subcommands named
@@ -51,20 +44,9 @@ pub mod init;
 // other. File retained on disk at cmds/sync.rs, not deleted, per this
 // project's fix-forward doctrine.
 // pub mod sync;
-// ARCHIVED (v26.5.28, ambiguous noun; RE-ARCHIVED 2026-07-17, ggen-core disconnect):
-// wizard.rs still imports `ggen_core::codegen::executor::{SyncExecutor, SyncOptions}`
-// and `ggen_core::codegen::FileTransaction`. ggen-cli's `[dependencies.ggen-core]` was
-// removed entirely on 2026-07-16 (see Cargo.toml), so `cargo check -p ggen-cli-lib
-// --features experimental` now hard-fails with 2x E0433 "cannot find crate
-// `ggen_core`" -- confirmed live, not hypothetical. No CI job or justfile recipe
-// builds with --features experimental (grepped .github/workflows/*.yml and
-// justfile), so this was a silent gap until this comment. Gated off rather than
-// left broken, matching the sync/doctor/graph/receipt/inverse_sync precedent above.
-// File retained on disk at cmds/wizard.rs, not deleted, per fix-forward doctrine.
-// Real fix (not done here): port SyncExecutor/SyncOptions/FileTransaction usage to
-// ggen-engine equivalents, or delete the module if wizard is fully superseded.
-// #[cfg(feature = "experimental")]
-// pub mod wizard;
+// REMOVED (2026-07-17, ggen-core removal): wizard.rs imported ggen_core::codegen APIs
+// with no ggen-engine port ever built; abandoned rather than ported. File deleted
+// (cmds/wizard.rs); recoverable from git history if ever needed.
 
 // Command modules - clap-noun-verb auto-discovery
 // ARCHIVED (v26.5.28): a2a/framework/mcp/sigma not provable as finished; gated
@@ -98,14 +80,9 @@ pub mod policy;
 // (verbs `verify`/`history`). File retained on disk at cmds/receipt.rs, not
 // deleted, per this project's fix-forward doctrine.
 // pub mod receipt; // ggen receipt verify / info — cryptographic receipt CLI surface (BUG-005)
-// RE-ARCHIVED 2026-07-17 (ggen-core disconnect): sigma.rs still imports
-// `ggen_core::dflss::{execute_dflss, DflssReport}` and
-// `ggen_core::manifest::ManifestParser`. Same root cause and same disposition as
-// `wizard` above (see that comment) -- `cargo check -p ggen-cli-lib --features
-// experimental` now hard-fails with 2x E0433 for this module too, confirmed live.
-// File retained on disk at cmds/sigma.rs, not deleted, per fix-forward doctrine.
-// #[cfg(feature = "experimental")]
-// pub mod sigma;
+// REMOVED (2026-07-17, ggen-core removal): sigma.rs imported ggen_core::dflss/manifest
+// APIs with no ggen-engine port ever built; abandoned rather than ported. File deleted
+// (cmds/sigma.rs); recoverable from git history if ever needed.
 pub mod utils;
 
 // ---------------------------------------------------------------------

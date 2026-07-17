@@ -77,16 +77,11 @@ members = [
   # on disk (non-deletion doctrine); re-add after repair.
   # "examples/7-agent-validation",
   ]
-# `crates/ggen-core` (2026-07-16, ggen-core disconnect, T054-T058): removed from
-# `members` above -- ggen-core is being disconnected from the workspace, not
-# deleted. Every real dependent has been ported or gated (see cmds/mod.rs and
-# the `ggen-core-retired` features in this file and crates/ggen-cli/Cargo.toml).
-# Listed here in `exclude` (not just dropped from `members`) so that running
-# `cargo` commands directly inside crates/ggen-core/ treats it as a fully
-# standalone crate rather than erroring with "current package believes it's in
-# a workspace when it's not" -- crates/ggen-core/ itself is untouched, on disk,
-# per this project's fix-forward / non-deletion doctrine.
-exclude = ["examples/7-agent-validation", "crates/ggen-core"]
+# `crates/ggen-core` (2026-07-17, ggen-core removal, docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md):
+# fully deleted, not merely disconnected. It spent from 2026-07-16 to 2026-07-17 in `exclude`
+# below (disconnected but kept on disk); that interim state is now closed out per the
+# migration ticket set's own Phase 6/7. Git history retains the code if it's ever needed.
+exclude = ["examples/7-agent-validation"]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency

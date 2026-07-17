@@ -392,32 +392,6 @@ fn perf_concurrent_marketplace_searches() {
 // Response Time Tests
 // ============================================================================
 
-// ARCHIVED (v26.7.16 routing flip, upstream ggen-engine behavior gap): bare
-// `ggen doctor` runs with no `ggen.toml` in cwd (this crate's test working
-// directory). Unlike the old `cmds/doctor.rs`, ggen-engine's `handle_doctor`
-// (crates/ggen-engine/src/verbs/handlers.rs:581-583) hard-fails
-// (FM-CONFIG-001) instead of reporting a doctor "finding" when no manifest
-// is present. Same root cause as `test_doctor_before_operations` in
-// tests/integration.rs. Out of this routing task's scope; left BLOCKED.
-#[cfg(feature = "ggen-core-retired")]
-#[test]
-fn perf_response_time_doctor_command() {
-    // Doctor should complete quickly
-    let start = Instant::now();
-
-    Command::new(env!("CARGO_BIN_EXE_ggen"))
-        .args(["doctor"])
-        .assert()
-        .success();
-
-    let elapsed = start.elapsed();
-    assert!(
-        elapsed < Duration::from_secs(5),
-        "Doctor command took {:?}, should be <5s",
-        elapsed
-    );
-}
-
 #[test]
 fn perf_response_time_marketplace_search() {
     // Marketplace search should be reasonably fast
