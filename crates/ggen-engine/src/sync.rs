@@ -415,7 +415,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     );
     let generate_guard = generate_span.enter();
 
-    let mut tera = build_tera(Arc::clone(&graph));
+    let mut tera = build_tera(Arc::clone(&graph))?;
     let mut skipped: Vec<(PathBuf, String)> = Vec::new();
     let mut decisions: BTreeMap<String, String> = BTreeMap::new();
     let mut pending: Vec<PendingWrite<'_>> = Vec::new();
@@ -440,50 +440,45 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         let (active_graph, active_tera): (&Arc<dyn GraphEngine>, &mut tera::Tera) =
             match &overlay {
                 Some(og) => {
-                    overlay_tera_slot = build_tera(Arc::clone(og));
+                    overlay_tera_slot = build_tera(Arc::clone(og))?;
                     (og, &mut overlay_tera_slot)
                 }
                 None => (&graph, &mut tera),
             };
 
-        // Extract: ASK guard.
-        if let Some(ask) = tpl.frontmatter.when.as_deref() {
-            match active_graph.query(ask)? {
-                EngineQueryResults::Boolean(true) => {}
-                EngineQueryResults::Boolean(false) => {
-                    let reason = format!("when guard false ({})", tpl_path.display());
-                    decisions.insert(tpl.frontmatter.to.clone(), format!("skipped: {reason}"));
-                    skipped.push((PathBuf::from(&tpl.frontmatter.to), reason));
-                    continue;
-                }
-                _ => {
-                    return Err(AppError::fm_tpl(
-                        4,
-                        format!(
-                            "`when:` in {} must be an ASK query. \
-                             Remediation: use ASK {{ … }}.",
-                            tpl_path.display()
-                        ),
-                    ));
-                }
-            }
-        }
+        // Extract: `when:` ASK guard + named `sparql:` SELECTs → rows.
+        let Some((named, results)) =
+            extract_query_results(active_graph.as_ref(), tpl_path, &tpl.frontmatter, "primary")?
+        else {
+            let reason = format!("when guard false ({})", tpl_path.display());
+            decisions.insert(tpl.frontmatter.to.clone(), format!("skipped: {reason}"));
+            skipped.push((PathBuf::from(&tpl.frontmatter.to), reason));
+            continue;
+        };
 
-        // Extract: named SELECTs → rows.
-        let mut named: BTreeMap<String, Value> = BTreeMap::new();
-        for (key, query) in &tpl.frontmatter.sparql {
-            named.insert(key.clone(), sparql_to_value(active_graph.as_ref(), query)?);
-        }
-        // Driving rows: the first named query (BTreeMap key order) with an
-        // array result; empty when no SELECT produced rows.
-        let results: Vec<Value> = named
-            .values()
-            .find_map(|v| v.as_array().cloned())
-            .unwrap_or_default();
+        // `determinism: true` — run the SAME extraction a SECOND,
+        // independent time against the same graph, once per template (not
+        // once per row). `check_determinism` reuses this single recheck for
+        // every row/the one non-per-row render below, instead of re-running
+        // the query per row. The common case (`determinism` unset/false)
+        // never calls `extract_query_results` a second time: zero extra
+        // query cost, zero behavior change.
+        let determinism_recheck: Option<ExtractedRows> = if tpl.frontmatter.determinism
+            == Some(true)
+        {
+            Some(extract_query_results(
+                active_graph.as_ref(),
+                tpl_path,
+                &tpl.frontmatter,
+                "determinism_recheck",
+            )?)
+        } else {
+            None
+        };
 
         let per_row = tpl.frontmatter.to.contains("{{");
         if per_row {
-            for row in &results {
+            for (row_index, row) in results.iter().enumerate() {
                 let mut ctx = base_context(&named, &results);
                 ctx.insert("row", row);
                 if let Value::Object(map) = row {
@@ -496,9 +491,10 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 check_determinism(
                     active_tera,
                     &tpl.body,
-                    &ctx,
                     tpl_path,
                     &tpl.frontmatter,
+                    determinism_recheck.as_ref(),
+                    Some(row_index),
                     &body,
                     &to,
                 )?;
@@ -510,9 +506,10 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             check_determinism(
                 active_tera,
                 &tpl.body,
-                &ctx,
                 tpl_path,
                 &tpl.frontmatter,
+                determinism_recheck.as_ref(),
+                None,
                 &body,
                 &tpl.frontmatter.to,
             )?;
@@ -634,6 +631,80 @@ pub(crate) fn hash_file_or_missing(path: &Path) -> String {
         Ok(bytes) => blake3::hash(&bytes).to_hex().to_string(),
         Err(_) => "MISSING".to_string(),
     }
+}
+
+/// The outcome of [`extract_query_results`] when the `when:` guard (if any)
+/// evaluated `true`: the named `sparql:` results plus the driving row array.
+/// `None` (the outer [`Option`] returned by [`extract_query_results`] itself)
+/// means the `when:` guard evaluated `false` — the template must be skipped.
+type ExtractedRows = Option<(BTreeMap<String, Value>, Vec<Value>)>;
+
+/// Run this template's `when:` ASK guard and named `sparql:` SELECTs against
+/// `active_graph`. Returns `Ok(None)` when a `when:` guard is present and
+/// evaluates `false` (the template must be skipped this run); otherwise
+/// `Ok(Some((named, results)))`.
+///
+/// Shared by the per-template loop's primary extraction and
+/// [`check_determinism`]'s second, independent recheck — the exact same
+/// code path runs both times, so `determinism: true` catches
+/// query-execution nondeterminism (different bindings/ordering across two
+/// runs against identical graph state), not merely Tera-render
+/// nondeterminism against a single, already-fixed context.
+///
+/// `phase` (`"primary"` / `"determinism_recheck"`) is a `tracing` tag only —
+/// no behavior depends on it. It lets a test observe, via a
+/// `tracing::Subscriber`, that a determinism recheck genuinely re-executes
+/// every declared query rather than re-rendering cached values.
+///
+/// # Errors
+/// `[FM-TPL-004]` if `when:` is present and is not an ASK query.
+/// Propagates `[FM-GRAPH-*]` from the underlying `GraphEngine::query` calls.
+fn extract_query_results(
+    active_graph: &dyn GraphEngine,
+    tpl_path: &Path,
+    frontmatter: &Frontmatter,
+    phase: &'static str,
+) -> Result<ExtractedRows> {
+    if let Some(ask) = frontmatter.when.as_deref() {
+        tracing::debug!(
+            target: "ggen_engine::sync::query_extraction",
+            phase,
+            tpl = %tpl_path.display(),
+            "executing `when:` ASK guard"
+        );
+        match active_graph.query(ask)? {
+            EngineQueryResults::Boolean(true) => {}
+            EngineQueryResults::Boolean(false) => return Ok(None),
+            _ => {
+                return Err(AppError::fm_tpl(
+                    4,
+                    format!(
+                        "`when:` in {} must be an ASK query. \
+                         Remediation: use ASK {{ … }}.",
+                        tpl_path.display()
+                    ),
+                ));
+            }
+        }
+    }
+    let mut named: BTreeMap<String, Value> = BTreeMap::new();
+    for (key, query) in &frontmatter.sparql {
+        tracing::debug!(
+            target: "ggen_engine::sync::query_extraction",
+            phase,
+            tpl = %tpl_path.display(),
+            sparql_key = %key,
+            "executing named sparql query"
+        );
+        named.insert(key.clone(), sparql_to_value(active_graph, query)?);
+    }
+    // Driving rows: the first named query (BTreeMap key order) with an
+    // array result; empty when no SELECT produced rows.
+    let results: Vec<Value> = named
+        .values()
+        .find_map(|v| v.as_array().cloned())
+        .unwrap_or_default();
+    Ok(Some((named, results)))
 }
 
 /// Build the shared Tera context: `results` plus every named sparql key.
@@ -840,6 +911,12 @@ fn load_templates(dir: &Path) -> Result<Vec<(PathBuf, Template)>> {
 /// `from:`, the Tera body is replaced with the content of that path
 /// (resolved relative to this template file's own directory); frontmatter
 /// fields still come from `path` itself.
+///
+/// # Errors
+/// `[FM-TPL-008]` when `from:` escapes the template's own directory —
+/// distinct from [`check_shape_files_exist`]'s `[FM-TPL-014]` (a missing
+/// `shape:` file); the two used to share this numeric code despite being
+/// unrelated causes.
 fn parse_template_file(path: &Path) -> Result<Template> {
     let content = std::fs::read_to_string(path)?;
     let mut tpl = Template::parse(&content)
@@ -875,12 +952,17 @@ fn parse_template_file(path: &Path) -> Result<Template> {
 /// **Existence-checked only** — no SHACL engine runs in this crate yet, so
 /// this does not evaluate the shapes against rendered output; see
 /// `docs/v26.7.4/GGEN_TOML_SCHEMA_MAPPING.md`.
+///
+/// # Errors
+/// `[FM-TPL-014]` — distinct from `[FM-TPL-008]` (`from:` path traversal in
+/// [`parse_template_file`]): a missing `shape:` file is an unrelated failure
+/// cause that used to share `FM-TPL-008`'s numeric code.
 fn check_shape_files_exist(root: &Path, tpl_path: &Path, shapes: &[String]) -> Result<()> {
     for shape in shapes {
         let shape_path = root.join(shape);
         if !shape_path.exists() {
             return Err(AppError::fm_tpl(
-                8,
+                14,
                 format!(
                     "{}: `shape:` entry `{shape}` does not exist at `{}`. \
                      Remediation: fix the path or remove the entry.",
@@ -893,45 +975,105 @@ fn check_shape_files_exist(root: &Path, tpl_path: &Path, shapes: &[String]) -> R
     Ok(())
 }
 
-/// When `frontmatter.determinism == Some(true)`, render the same template
-/// body a second time with the identical context and refuse if the bytes
-/// differ from `first_render` — a real, enforced assertion rather than a
-/// declared-but-unchecked claim.
+/// When `frontmatter.determinism == Some(true)`, re-render the template's
+/// `to:` path and body against `determinism_recheck` — the result of a
+/// genuinely SECOND, independent execution of this template's declared
+/// queries (`when:`, `sparql:`; see [`extract_query_results`]), built by the
+/// caller once per template — and refuse if either differs from the first
+/// render. This is a real, enforced assertion of query-*and*-render
+/// determinism, not merely a second render against the first run's
+/// already-fixed context (which would only catch Tera-level nondeterminism,
+/// e.g. a `now()` call, never a query that returns different bindings or
+/// row order on a second, independent execution against identical graph
+/// state).
+///
+/// `row_index` selects which row of the second extraction's `results`
+/// corresponds to the row being checked (`None` for a non-per-row
+/// template). A row-count mismatch between the first and second extraction
+/// (the second run producing fewer rows than `row_index` needs) is itself a
+/// determinism violation, refused with the same `[FM-TPL-009]` code.
+///
+/// `determinism_recheck` is `None` when `frontmatter.determinism` is not
+/// `Some(true)` — in that case this function is a no-op, at zero cost
+/// (`extract_query_results` was never called a second time by the caller).
 #[allow(clippy::too_many_arguments)]
 fn check_determinism(
     tera: &mut tera::Tera,
     body_template: &str,
-    ctx: &tera::Context,
     tpl_path: &Path,
     frontmatter: &crate::template::Frontmatter,
+    determinism_recheck: Option<&ExtractedRows>,
+    row_index: Option<usize>,
     first_render: &str,
     first_to: &str,
 ) -> Result<()> {
-    if frontmatter.determinism != Some(true) {
+    let Some(recheck) = determinism_recheck else {
         return Ok(());
-    }
+    };
+    let Some((named2, results2)) = recheck else {
+        return Err(AppError::fm_tpl(
+            9,
+            format!(
+                "{}: `determinism: true` violated — re-running the `when:` guard a second, \
+                 independent time evaluated false after the first run evaluated true. \
+                 Remediation: remove non-deterministic terms from `when:`.",
+                tpl_path.display()
+            ),
+        ));
+    };
+
+    let ctx2 = match row_index {
+        Some(idx) => {
+            let row2 = results2.get(idx).ok_or_else(|| {
+                AppError::fm_tpl(
+                    9,
+                    format!(
+                        "{}: `determinism: true` violated — re-running the named `sparql:` \
+                         queries a second, independent time produced {} row(s), which does \
+                         not cover row index {idx} the first run produced. \
+                         Remediation: add an ORDER BY (and, if paginating, a stable tie-break) \
+                         to every `sparql:` query so row count and order are stable across runs.",
+                        tpl_path.display(),
+                        results2.len()
+                    ),
+                )
+            })?;
+            let mut ctx = base_context(named2, results2);
+            ctx.insert("row", row2);
+            if let Value::Object(map) = row2 {
+                for (k, v) in map {
+                    ctx.insert(k, v);
+                }
+            }
+            ctx
+        }
+        None => base_context(named2, results2),
+    };
+
     // The templated `to:` path is part of the output — a non-deterministic
     // path escapes a body-only check.
-    let second_to = render_str(tera, &frontmatter.to, ctx, tpl_path)?;
+    let second_to = render_str(tera, &frontmatter.to, &ctx2, tpl_path)?;
     if second_to != first_to {
         return Err(AppError::fm_tpl(
             9,
             format!(
-                "{}: `determinism: true` violated — re-rendering the `to:` path with the \
-                 identical context produced `{second_to}` after `{first_to}`. \
-                 Remediation: remove non-deterministic Tera functions/filters from `to:`.",
+                "{}: `determinism: true` violated — re-rendering the `to:` path from a \
+                 second, independent query execution produced `{second_to}` after \
+                 `{first_to}`. \
+                 Remediation: remove non-deterministic terms from the query or from `to:`.",
                 tpl_path.display()
             ),
         ));
     }
-    let second_render = render_str(tera, body_template, ctx, tpl_path)?;
+    let second_render = render_str(tera, body_template, &ctx2, tpl_path)?;
     if second_render != first_render {
         return Err(AppError::fm_tpl(
             9,
             format!(
-                "{}: `determinism: true` violated — re-rendering the same template with the \
-                 identical context produced different output. \
-                 Remediation: remove non-deterministic Tera functions/filters from this template.",
+                "{}: `determinism: true` violated — re-rendering the template body from a \
+                 second, independent query execution produced different output. \
+                 Remediation: remove non-deterministic terms from the query or from this \
+                 template.",
                 tpl_path.display()
             ),
         ));

@@ -369,7 +369,7 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
     );
     let generate_guard = generate_span.enter();
 
-    let mut tera = build_tera(Arc::clone(&graph));
+    let mut tera = build_tera(Arc::clone(&graph))?;
     let mut skipped: Vec<(PathBuf, String)> = Vec::new();
     let mut decisions: BTreeMap<String, String> = BTreeMap::new();
     let mut pending: Vec<PendingGenWrite> = Vec::new();

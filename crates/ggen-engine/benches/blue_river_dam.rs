@@ -39,7 +39,7 @@ fn ggen_render_report_small(bencher: divan::Bencher) {
     let store = GraphLawStore::new().expect("in-memory store");
     store.insert_turtle(TTL).expect("ttl loads");
     let graph: Arc<dyn GraphEngine> = Arc::new(store);
-    let mut tera = build_tera(graph);
+    let mut tera = build_tera(graph).expect("build tera");
 
     let mut ctx = tera::Context::new();
     let runs: Vec<serde_json::Value> = (0..4)

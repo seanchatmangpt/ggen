@@ -150,7 +150,10 @@ fn missing_shape_file_is_refused() {
         },
     )
     .expect_err("must refuse");
-    assert!(err.to_string().contains("FM-TPL-008"), "{err}");
+    // FM-TPL-014, not FM-TPL-008: a missing `shape:` file is a distinct
+    // failure cause from `from:` path traversal, which keeps FM-TPL-008 (see
+    // `check_shape_files_exist`'s doc comment in sync.rs).
+    assert!(err.to_string().contains("FM-TPL-014"), "{err}");
 }
 
 #[test]

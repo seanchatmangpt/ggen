@@ -170,8 +170,11 @@ impl Template {
     /// Parse a template file: a leading `---` YAML `---` block, then the body.
     ///
     /// # Errors
-    /// - `[FM-TPL-001]` when the leading frontmatter block is missing or
-    ///   unterminated.
+    /// - `[FM-TPL-001]` when the file does not start with a `---` line at all.
+    /// - `[FM-TPL-012]` when the opening `---` is present but not on its own
+    ///   line (trailing content after it on the same line).
+    /// - `[FM-TPL-013]` when the frontmatter block is unterminated (no
+    ///   closing `---` line found).
     /// - `[FM-TPL-002]` when the YAML fails to deserialize, including any
     ///   unknown frontmatter key (closed key set, fail closed).
     pub fn parse(content: &str) -> Result<Self> {
@@ -184,11 +187,11 @@ impl Template {
         })?;
         // The opening delimiter must be its own line.
         let rest = rest.strip_prefix('\n').ok_or_else(|| {
-            AppError::fm_tpl(1, "`---` frontmatter delimiter must be on its own line")
+            AppError::fm_tpl(12, "`---` frontmatter delimiter must be on its own line")
         })?;
         let (yaml, body) = split_closing_delimiter(rest).ok_or_else(|| {
             AppError::fm_tpl(
-                1,
+                13,
                 "unterminated frontmatter: no closing `---` line found. \
                  Remediation: close the YAML block with a `---` line.",
             )
@@ -340,29 +343,24 @@ where
 ///   `title` deliberately shadows Tera's own built-in `title` filter,
 ///   matching the semantics templates ported from ggen-core were authored
 ///   against).
-#[must_use]
-pub fn build_tera(graph: Arc<dyn GraphEngine>) -> Tera {
-    // NOTE (deferred follow-up, not fixed in this pass): this should return
-    // `Result<Tera>` and propagate the glob-registration-time Tera parse
-    // error via a typed `AppError` instead of swallowing it into an
-    // empty, harmless-looking `Tera::default()`. That signature change is
-    // blocked by this file-boundary pass: `build_tera` is also called from
-    // `crate::sync` (two call sites) and `crate::generation_rules` (one
-    // call site) -- both outside the set of files this pass may edit (see
-    // `crates/ggen-engine/src/sync.rs` is under concurrent live edit by
-    // another task; `generation_rules.rs` was not in this pass's allowed
-    // set either) -- fixing their call sites to handle a `Result` return
-    // would require editing files this pass must not touch. Smaller, safe
-    // improvement applied instead: the swallowed error is no longer
-    // silent-to-nowhere (`eprintln!`, invisible under `RUST_LOG` gating and
-    // easy to miss in CI) -- it is now a `tracing::error!` so it surfaces
-    // through the same structured-logging path every other pipeline
-    // failure in this crate uses. Full `Result<Tera>` fix tracked as a
-    // follow-up once the sync.rs edit boundary lifts.
-    let mut tera = Tera::new("templates/**/*").unwrap_or_else(|e| {
-        tracing::error!(error = %e, "Tera template glob registration failed; falling back to an empty Tera environment");
-        Tera::default()
-    });
+///
+/// # Errors
+/// Returns `[FM-TPL-015]` if the `templates/**/*` glob registration fails
+/// (e.g. a Tera syntax error in a file the glob matches). Previously this
+/// silently fell back to an empty `Tera::default()` — that fallback
+/// downgraded a real, diagnosable parse error into a generic "template not
+/// found" failure at the first `render_str` call, discarding the actual
+/// cause. Now the original error is propagated directly.
+pub fn build_tera(graph: Arc<dyn GraphEngine>) -> Result<Tera> {
+    let mut tera = Tera::new("templates/**/*").map_err(|e| {
+        AppError::fm_tpl(
+            15,
+            format!(
+                "Tera template glob registration failed for `templates/**/*`: {e}. \
+                 Remediation: fix the reported template syntax error.",
+            ),
+        )
+    })?;
     tera.register_function("sparql", move |args: &HashMap<String, Value>| {
         let query = args
             .get("query")
@@ -393,7 +391,7 @@ pub fn build_tera(graph: Arc<dyn GraphEngine>) -> Tera {
     tera.register_filter("pluralize", pluralize_filter);
     tera.register_filter("singularize", singularize_filter);
     tera.register_filter("hex_to_u64", hex_to_u64_filter);
-    tera
+    Ok(tera)
 }
 
 /// Execute `query` and convert the engine-neutral results into a Tera
@@ -832,7 +830,7 @@ mod tests {
         assert_eq!(tpl.frontmatter.to, "out.rs");
         let q = tpl.frontmatter.sparql.get("people").expect("query").clone();
 
-        let mut tera = build_tera(graph());
+        let mut tera = build_tera(graph()).expect("build tera");
         let mut ctx = tera::Context::new();
         ctx.insert("q", &q);
         let rendered = tera.render_str(&tpl.body, &ctx).expect("render");
@@ -841,7 +839,7 @@ mod tests {
 
     #[test]
     fn ask_query_returns_bool() {
-        let tera = build_tera(graph());
+        let tera = build_tera(graph()).expect("build tera");
         let mut t = tera;
         let rendered = t
             .render_str(
@@ -854,7 +852,7 @@ mod tests {
 
     #[test]
     fn construct_returns_triples() {
-        let mut tera = build_tera(graph());
+        let mut tera = build_tera(graph()).expect("build tera");
         let rendered = tera
             .render_str(
                 "{% set ts = sparql(query=\"CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }\") %}{{ ts | length }}",
@@ -879,7 +877,7 @@ mod tests {
 
     #[test]
     fn snake_and_pascal_filters() {
-        let mut tera = build_tera(graph());
+        let mut tera = build_tera(graph()).expect("build tera");
         let rendered = tera
             .render_str(
                 "{{ \"FooBarBaz\" | snake_case }} {{ \"foo_bar-baz qux\" | pascal_case }}",
@@ -891,7 +889,7 @@ mod tests {
 
     #[test]
     fn camel_kebab_shouty_title_filters() {
-        let mut tera = build_tera(graph());
+        let mut tera = build_tera(graph()).expect("build tera");
         let rendered = tera
             .render_str(
                 "{{ \"foo_bar-baz\" | camel_case }} \
@@ -906,7 +904,7 @@ mod tests {
 
     #[test]
     fn pluralize_and_singularize_filters() {
-        let mut tera = build_tera(graph());
+        let mut tera = build_tera(graph()).expect("build tera");
         let rendered = tera
             .render_str(
                 "{{ \"cat\" | pluralize }} {{ \"city\" | pluralize }} {{ \"bus\" | pluralize }} \
@@ -919,7 +917,7 @@ mod tests {
 
     #[test]
     fn local_function_strips_namespace() {
-        let mut tera = build_tera(graph());
+        let mut tera = build_tera(graph()).expect("build tera");
         let rendered = tera
             .render_str(
                 "{{ local(iri=\"http://example.org/name\") }} \
@@ -933,7 +931,7 @@ mod tests {
 
     #[test]
     fn sparql_first_values_empty_count_functions() {
-        let mut tera = build_tera(graph());
+        let mut tera = build_tera(graph()).expect("build tera");
         let rendered = tera
             .render_str(
                 "{% set rows = sparql(query=\"SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\") %}\
@@ -951,7 +949,7 @@ mod tests {
 
     #[test]
     fn sparql_first_on_empty_rows_is_null() {
-        let mut tera = build_tera(graph());
+        let mut tera = build_tera(graph()).expect("build tera");
         let rendered = tera
             .render_str("{{ sparql_first(rows=[]) }}", &tera::Context::new())
             .expect("render");
@@ -965,7 +963,7 @@ mod tests {
 
     #[test]
     fn filter_aliases_match_full_names_byte_identical() {
-        let mut tera = build_tera(graph());
+        let mut tera = build_tera(graph()).expect("build tera");
         for s in ["hello_world_example", "HelloWorldExample"] {
             let mut ctx = tera::Context::new();
             ctx.insert("v", s);
@@ -995,7 +993,7 @@ mod tests {
 
     #[test]
     fn sparql_first_values_accept_results_alias_and_column_extraction() {
-        let mut tera = build_tera(graph());
+        let mut tera = build_tera(graph()).expect("build tera");
         let rendered = tera
             .render_str(
                 "{% set rows = sparql(query=\"SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\") %}\
@@ -1018,7 +1016,7 @@ mod tests {
 
     #[test]
     fn sparql_functions_reject_both_rows_and_results() {
-        let mut tera = build_tera(graph());
+        let mut tera = build_tera(graph()).expect("build tera");
         for call in [
             "sparql_first(rows=[], results=[])",
             "sparql_values(rows=[], results=[], column=\"x\")",
@@ -1083,7 +1081,7 @@ mod tests {
             .expect("default query")
             .clone();
 
-        let mut tera = build_tera(graph());
+        let mut tera = build_tera(graph()).expect("build tera");
         let mut ctx = tera::Context::new();
         ctx.insert("q", &q);
         let rendered = tera.render_str(&tpl.body, &ctx).expect("render");
