@@ -229,7 +229,7 @@ fn inject_default_verbs(mut args: Vec<String>) -> Vec<String> {
     // verb's own help. Only treat the arg slot as "missing a verb" when it
     // isn't a help flag.
     let next = args.get(2).map(String::as_str);
-    let is_help_flag = matches!(next, Some("--help") | Some("-h"));
+    let is_help_flag = matches!(next, Some("--help" | "-h"));
     let has_verb = next.map(|a| !a.starts_with('-')).unwrap_or(false);
     if !has_verb && !is_help_flag {
         let default_verb = match noun.as_str() {

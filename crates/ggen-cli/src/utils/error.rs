@@ -368,7 +368,9 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
+    #[ignore = "Tera::new(\"templates/**/*\") globs a relative path and depends on the test \
+                binary's working directory containing a templates/ dir; not reproducible in \
+                every CI/dev environment"]
     fn test_error_from_tera_error() {
         let template_content = "{{ invalid template syntax";
         let tera_error = tera::Tera::new("templates/**/*")

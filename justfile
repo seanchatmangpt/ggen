@@ -88,6 +88,32 @@ fmt-check:
 # ── Linting ───────────────────────────────────────────────────────────────────
 
 # Clippy with -D warnings across all targets (180s; first run / cache invalidation compiles deps)
+#
+# SCOPE GAP, found and deliberately left open (2026-07-17): no `--workspace` flag
+# means this only ever checks the ROOT `ggen` package (confirmed live: its own
+# `Checking` output names exactly one package, `ggen v26.7.4`) -- none of the
+# other 11 real workspace members. `just pre-commit` including this recipe has
+# reported green all session without ever exercising clippy on ggen-cli,
+# ggen-engine, ggen-config, ggen-marketplace, praxis-core, praxis-graphlaw, etc.
+# Adding `--workspace` here is the correct fix in principle, but doing so live
+# immediately turns this recipe red across real, pre-existing, multi-crate debt
+# that was never triaged because this gap always masked it: confirmed live via
+# `cargo clippy --workspace --all-targets --exclude ggen-lsp -- -D warnings`:
+# `ggen-marketplace` (lib test, 1+ error), `praxis-graphlaw` (lib test 5+
+# errors, `pattern4_equivalence_canonicalization` test 1+ error, `owlrl` bench
+# 9 genuine `E0599` type errors -- `TripleStore::from` returns `TripleStore`
+# directly, not `Result`, so the bench's own `.expect()` calls never should
+# have compiled; this one predates this session, not introduced by it).
+# ggen-cli-lib's own `#![deny(warnings)]` (crates/ggen-cli/src/lib.rs:51)
+# additionally promotes ALL its clippy warnings to compile errors under plain
+# `cargo clippy --workspace --all-targets` (no `-D warnings` even needed) --
+# 2 real ggen-cli-lib issues found and fixed this session (unnested or-pattern
+# in lib.rs, `#[ignore]` without a reason in utils/error.rs); ggen-cli-lib now
+# passes `cargo clippy -p ggen-cli-lib --all-targets` clean on its own.
+# Widening this recipe to `--workspace` is real, valuable follow-up work but
+# needs a dedicated triage pass (each crate's issues reviewed on their own
+# merits, not blindly auto-fixed), not a 3am scope change bundled into
+# unrelated work -- left undone here on purpose, not silently.
 lint:
     timeout 180s cargo clippy --all-targets -- -D warnings
 

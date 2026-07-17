@@ -1693,6 +1693,43 @@ repo, nothing in `/Users/sac/praxis` touched). Re-verified live: both test files
 pass in full (4/4 and 6/6); the full `just test` now completes end-to-end for the first time this
 session (exit 0, 215 passed / 0 failed / 14 ignored across all 29 integration test binaries).
 
+**Fourth follow-up finding (2026-07-17, unrelated mechanism, found while re-verifying
+`.github/workflows/quality.yml`'s clippy job against the disconnect):** `just lint`
+(`cargo clippy --all-targets -- -D warnings`, no `-p`, no `--workspace`) has been silently
+checking only the ROOT `ggen` package this entire session — confirmed live: its own `Checking`
+output names exactly one package, `ggen v26.7.4`. Per Cargo's own default-package rule (no
+`default-members` declared in `Cargo.toml`, and the workspace root is itself a package), bare
+`cargo clippy` with no `-p`/`--workspace` operates on the root package only. `just pre-commit`
+(which runs `lint`) has reported green all session without ever running clippy against any of
+the other 11 real workspace members — a Decorative-Completion-class gap this repo's own
+`coding-agent-mistakes.md` names explicitly, just not previously caught here.
+
+Widening to `--workspace` is the correct fix in principle but was NOT done tonight: doing so
+live immediately surfaces real, previously-untriaged, multi-crate debt that this gap had been
+masking. Confirmed live via `cargo clippy --workspace --all-targets --exclude ggen-lsp -- -D
+warnings`: `ggen-marketplace` (lib test, 1+ error), `praxis-graphlaw` (lib test 5+ errors,
+`pattern4_equivalence_canonicalization` test 1+ error). Separately, even WITHOUT `-D warnings`
+(plain `cargo clippy --workspace --all-targets --exclude ggen-lsp`), two more real issues
+surfaced: `praxis-graphlaw`'s `benches/owlrl.rs` has 9 genuine `E0599` compile errors —
+`TripleStore::from` returns `TripleStore` directly (not `Result`), so the bench's own
+`.expect()` calls on it never should have compiled; this is vendoring drift (Phase 5,
+`60132d11f`), predates this session, unrelated to anything touched tonight — and `ggen-cli`'s
+own `#![deny(warnings)]` (`crates/ggen-cli/src/lib.rs:51`) promotes ALL its clippy warnings to
+compile errors under plain `cargo clippy`, no `-D warnings` flag even needed; 2 real,
+first-party ggen-cli-lib issues found this way and fixed directly (low-risk, well-understood,
+unlike the cross-crate debt above): an un-nested or-pattern in `lib.rs:232`
+(`matches!(next, Some("--help") | Some("-h"))` → `matches!(next, Some("--help" | "-h"))`) and an
+`#[ignore]` without a reason string in `utils/error.rs:371` (added one: the ignored test globs
+a relative `templates/**/*` path and is CWD-dependent). `cargo clippy -p ggen-cli-lib
+--all-targets` now passes clean on its own.
+
+Disposition, matching the 276-file vendored-formatting-diff precedent from an earlier commit
+tonight: the `just lint` scope gap and the `praxis-graphlaw`/`ggen-marketplace` clippy debt are
+loudly documented (this note, plus a comment directly on the `lint:` recipe in `justfile`) but
+deliberately NOT bulk-fixed tonight — each crate's issues need their own triage pass, not a 3am
+scope change bundled into unrelated work. The 2 ggen-cli-lib fixes, being small, first-party,
+and fully understood, were applied directly.
+
 **Checkpoint**: User Story 1's independent test passes — full suite green, `ggen-core`
 fully retired, command-surface diff against the T003 baseline shows zero regressions.
 
