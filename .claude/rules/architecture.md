@@ -55,9 +55,24 @@ reason — see `crates/ggen-cli/src/cmds/mod.rs`'s comments on both for the full
 | `ggen-core` | Legacy graph-aware code generation engine; μ₁–μ₅ deterministic pipeline. Disconnected: zero in-workspace dependents, does not compile standalone (see note above). Source untouched on disk. |
 | `ggen-engine` | SPARQL-in-Tera code generation engine (vendored, renamed from `~/praxis/crates/ggen`; `docs/jira/v26.7.16/`). Now the live pipeline behind `ggen sync`: five stages (Resolve → Enrich → Extract → Render → Write) in `src/sync.rs`, GENERATED clap-noun-verb CLI routing in `src/verbs/` (hand-written logic in `verbs::handlers` only), plus `config`/`graph`/`template`/`write`/`watch`/`pack`/`lint`/`law_engine`/`repl` modules. `publish = false`. |
 | `ggen-cli` | CLI interface for ggen (binary + library `ggen-cli-lib`); routes `sync`/`doctor`/`graph`/`receipt` to `ggen-engine`'s nouns |
-| `ggen-config` | Configuration parser and validator for `ggen.toml` files (depends on the published `star-toml` crate, not an embedded copy) |
+| `ggen-config` | Defines and validates ONE of `ggen.toml`'s two schemas — the "declarative-rules" `GgenManifest` (depends on the published `star-toml` crate, not an embedded copy). Not sole authority over `ggen.toml` parsing; see "ggen.toml has two schemas" below |
 | `ggen-graph` | Deterministic RDF graph module — Oxigraph wrapper with deterministic hashing, state-change deltas, validation hooks, and cryptographic transition receipts |
 | `ggen-marketplace` | Marketplace / package management system for ggen |
+
+### ggen.toml has two schemas
+
+`ggen.toml` is parsed by one of two independently-defined, incompatible struct hierarchies,
+chosen by a raw-text pre-parse before any typed parse runs: `ggen_engine::generation_rules::
+has_generation_rules` (`crates/ggen-engine/src/generation_rules.rs:108`) checks the raw TOML for
+a non-empty `[[generation.rules]]` array. If present, `sync()`'s Stage 0 dispatch
+(`crates/ggen-engine/src/sync.rs:155`) parses the file as `ggen_config::manifest::GgenManifest`
+(`crates/ggen-config/src/manifest/types.rs:142`, the "declarative-rules" schema) — `[[packs]]` is
+an array-of-tables of a flat `PackRef { name, registry, path, version }`. If absent, it falls
+through to `ggen_engine::config::GgenConfig` (`crates/ggen-engine/src/config.rs:32`, the
+"frontmatter" schema) — `[packs]` is instead a table-of-tables (`BTreeMap<String, PackRef>`) of
+an untagged `PackRef` enum, `Path { path, .. } | Git { .. }`. Same table names throughout
+(`[project]`, `[ontology]`, `[packs]`, `[templates]`, `[law]`), genuinely divergent shapes, and
+no automated cross-drift guard between the two.
 
 ### Praxis kernel (ggen-engine's direct dependencies)
 

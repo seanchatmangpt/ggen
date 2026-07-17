@@ -1,6 +1,6 @@
 ---
-version: 26.7.2
-last_updated: 2026-07-03
+version: 26.7.3
+last_updated: 2026-07-17
 gate: mandatory — read before every agent dispatch
 ---
 
@@ -16,7 +16,7 @@ gate: mandatory — read before every agent dispatch
 
 1. **Decorative Completion** — a command exits 0 and prints success, but no
    durable state changed (e.g. `ggen sync` says "complete" but
-   `.ggen/receipts/` gained no new file).
+   `.ggen-v2/receipt.json` was never written).
 2. **Epistemic Bypass** — logic that should come from the RDF ontology/SPARQL
    query is hardcoded inline instead (the code "knows" something it should
    only "ask" `.specify/*.ttl` for).
@@ -28,11 +28,16 @@ gate: mandatory — read before every agent dispatch
    accurately describes what actually ran (stale/empty/default fields).
 
 Real files to check against, not invented examples:
-- `crates/ggen-cli/src/cmds/sync.rs` — sync command authoritative path
+- `crates/ggen-engine/src/sync.rs` — sync command authoritative path
 - `crates/ggen-graph/` — deterministic hashing, deltas, transition receipts
-- `crates/ggen-marketplace/src/rdf/control.rs` — profile enforcement
-- `.ggen/packs.lock`, `.ggen/receipts/` — actual local state (verify with
-  `jq`, not assumptions, before claiming a field is populated correctly)
+- `crates/ggen-marketplace/src/marketplace/install.rs` (`Installer::verify_trust_tier`,
+  consulting `profile.rs`/`trust.rs`) — trust-tier enforcement (returns `Err`, not a
+  warning)
+- `crates/ggen-marketplace/src/marketplace/rdf/control.rs` — package registry CRUD
+  (SPARQL/oxigraph)
+- `.ggen/packs.lock`, `.ggen-v2/receipt.json` — actual local state (sync receipts;
+  pack-install receipts are a separate mechanism under `.ggen/receipts/pack-*.json`).
+  Verify with `jq`, not assumptions, before claiming a field is populated correctly
 
 ---
 

@@ -59,7 +59,7 @@ Verified against `Cargo.toml`'s `[workspace] members = [...]` array (11 entries)
 | `praxis-core` | `ggen-engine`'s direct dependency: fused Law Object abstraction (obligation + lifecycle + receipt + OCEL) — `LawObject`, `Obligation`, `ReceiptRecord`. Vendored from `~/praxis/crates/praxis-core`; `publish = false` |
 | `praxis-graphlaw` | `ggen-engine`'s direct dependency and default graph backend: native N3/Datalog/SPARQL 1.1/SHACL/ShEx engine (fork of `pbonte/roxi`). Vendored from `~/praxis/crates/praxis-graphlaw`; `publish = false` |
 | `ggen-cli` | CLI interface for ggen (binary + `ggen-cli-lib`); routes `sync`/`doctor`/`graph`/`receipt` to `ggen-engine`'s nouns |
-| `ggen-config` | Configuration parser and validator for `ggen.toml` files (depends on the published `star-toml` crate, not an embedded copy) |
+| `ggen-config` | Defines only ONE of `ggen.toml`'s two incompatible schemas (depends on the published `star-toml` crate, not an embedded copy) — see "ggen.toml has two schemas" in `.claude/rules/architecture.md` |
 | `ggen-marketplace` | Marketplace / package management system for ggen |
 | `ggen-graph` | Deterministic RDF graph module — Oxigraph wrapper with deterministic hashing, deltas, validation hooks, transition receipts |
 | `ggen-lsp` | Language server for ggen surfaces (analyzers, check, intel, pack, route, repair); also exposes `check`/`init`/`mine` library APIs. Absorbed `ggen-lsp-mcp`, `ggen-a2a-mcp`, and `ggen-lsp-a2a` as feature-gated modules (`mcp`, `a2a`) in the 2026-07 consolidation |
