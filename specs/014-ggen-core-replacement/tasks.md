@@ -1730,6 +1730,44 @@ deliberately NOT bulk-fixed tonight — each crate's issues need their own triag
 scope change bundled into unrelated work. The 2 ggen-cli-lib fixes, being small, first-party,
 and fully understood, were applied directly.
 
+**Fifth follow-up finding (2026-07-17, batch-verified every command in CLAUDE.md's Commands
+table against the real justfile):** 3 of ~14 claimed `just` recipes do not exist —
+`just test-unit`, `just test-mutation`, `just test-marketplace` — confirmed via `just --show
+<name>` for every row in one batch (`error: justfile does not contain recipe`). Root cause
+predates this migration entirely: a `v26.7.3` "DX rewrite" commit (`083651dba`, "trim justfile
+from 48 recipes down to 20") deliberately removed all three (plus `test-bdd`), and CLAUDE.md was
+never updated to match. `test-lib` (`cargo test --lib --workspace`) already existed in that same
+commit as the real fast-unit-test-loop recipe — the functional successor to `test-unit`'s stated
+purpose. No successor exists for `test-mutation`/`test-marketplace`; `ggen-marketplace`'s tests
+are already covered by `just test`'s workspace-wide run (confirmed earlier this session: 215
+passed / 0 failed across 29 integration binaries, `ggen-marketplace` among them).
+
+Fixed in `CLAUDE.md`: Commands table's `test-unit`/`test-mutation`/`test-marketplace` rows
+corrected/removed; `pre-commit`'s description corrected to the real 6-step chain (`fmt-check` →
+`check` → `lint` → `test-lib` → `coherence-check` → `guard-process-intelligence-boundary` — the
+table previously said `check → lint → test-unit`, missing 3 of 6 real steps); `lint`/`bench`
+rows gained a note about their root-package-only scoping (see fourth finding above); the 4-Step
+Workflow section's 2 `just test-unit` calls fixed to `just test` (matching the shown
+`tests/feature_test.rs` path — `test-lib` alone would never run it, since it's `--lib`-only, not
+`tests/`).
+
+Fixed in `.claude/rules/_core/workflow.md` (`auto_load: true` — always active, unlike CLAUDE.md's
+Commands table this file had NOT been touched by any earlier pass tonight and had 4 separate
+stale/broken commands): bare `ggen validate` → `ggen graph validate --files`; `ggen sync
+--dry_run true` → `ggen sync run --dry-run`; both `just test-unit` → `just test`; `just
+sync-dry`/`just sync` (both already known-broken per CLAUDE.md's own Commands table) → direct
+`ggen sync run --dry-run`/`ggen sync run` invocations.
+
+**Deliberately NOT fixed, lower priority, documented not silent:** the same 3 stale command names
+also appear in `.claude/testing/README.md`, `.claude/rules/rust/testing.md` (explicit `auto_load:
+false`), `.claude/skills/cargo-make-runner.md`, `.claude/skills/rust/chicago-tdd.md`,
+`.claude/skills/rust/cargo-make.md` — but in every one of these 5 files the stale commands are
+`cargo make test-unit`/`cargo make test-mutation`, not `just test-unit`/`just test-mutation`.
+All 5 document the `cargo-make` tool, which CLAUDE.md's own rules already call forbidden/
+historical ("NEVER call cargo make", "Makefile.toml is historical reference only") — fixing
+individual recipe names inside documentation for an already-superseded tool is lower value than
+what was just fixed. None of the 5 carry `auto_load: true` (checked each file's frontmatter).
+
 **Checkpoint**: User Story 1's independent test passes — full suite green, `ggen-core`
 fully retired, command-surface diff against the T003 baseline shows zero regressions.
 

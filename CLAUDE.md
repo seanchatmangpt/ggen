@@ -152,16 +152,14 @@ Use `just` as the entry point for all tasks (native cargo recipes; Makefile.toml
 |---------|---------|---------|
 | `just check` | Compilation check | <5s |
 | `just test` | Full test suite (unit + integration + property) | <30s |
-| `just test-unit` | Unit tests only (fast dev loop) | <10s |
-| `just test-mutation` | Mutation testing (≥60% score) | <5min |
-| `just lint` | Clippy + rustfmt | <60s |
-| `just pre-commit` | check → lint → test-unit | <2min |
+| `just test-lib` | Unit/lib tests only, workspace-wide (fast dev loop) | <10s |
+| `just lint` | `cargo clippy --all-targets -- -D warnings` — **root `ggen` package only**, not `--workspace`; confirmed 2026-07-17 (`Checking` output names exactly one package). Real, untriaged debt exists in other crates once `--workspace` is added — see the `lint:` recipe's own comment in `justfile` | <60s |
+| `just pre-commit` | `fmt-check` → `check` → `lint` → `test-lib` → `coherence-check` → `guard-process-intelligence-boundary` | <2min |
 | `just slo-check` | Performance SLOs — real wall-clock `date +%s` deltas around `cargo test -p ggen-engine --test receipt_chain_e2e` (180s threshold) plus a `cargo bench` startup check; see the `slo-check` recipe in `justfile` | - |
 | `just audit` | Security vulnerabilities scan | - |
 | `just doc` | Build HTML docs into `target/doc/` | - |
 | `just test-doc` | Validate all `# Examples` blocks compile/run | - |
-| `just test-marketplace` | Marketplace pack tests (no network) | - |
-| `just bench` | Run benchmarks | - |
+| `just bench` | `cargo bench` — **root `ggen` package only** (same scoping as `lint`; the root package does have 12 real `[[bench]]` entries, so this isn't a no-op, but it doesn't reach `ggen-engine`'s or other crates' benches). `just slo-check` separately targets the one bench that matters for the SLO gate (`cli_startup_performance`, which does live in the root package) | - |
 | `just sync` | Runs `ggen sync --audit true` — **currently broken**: the live `sync run` verb (`crates/ggen-engine/src/verbs/sync.rs`) has no `--audit` flag (only `--dry-run`/`--watch`); confirmed 2026-07-17 by running the recipe (`error: unexpected argument '--audit' found`, exit 1) | - |
 | `just sync-dry` | Runs `ggen sync --dry_run true` — **currently broken**: `--dry-run`/`--dry_run` is a bare switch on the live verb, it does not take a `true` value; confirmed 2026-07-17 by running the recipe (`error: unexpected argument 'true' found`, exit 1). Use `ggen sync run --dry-run` directly instead | - |
 | `ggen graph validate` / `ggen law validate` | SHACL / law validation — there is no bare `ggen validate` noun (confirmed: `error: unrecognized subcommand 'validate'`); see `crates/ggen-engine/src/verbs/{graph.rs,law.rs}` | - |
@@ -323,9 +321,9 @@ ggen graph validate --files .specify/specs/NNN-feature/feature.ttl  # bare `ggen
 # 2. Chicago TDD (RED → GREEN → REFACTOR) — ggen-engine is the live crate; ggen-core is
 # disconnected (see Crate Map above) and should not receive new tests/features
 vim crates/ggen-engine/tests/feature_test.rs  # Write failing test (RED)
-just test-unit                                # Verify fails
+just test                                     # Verify fails (test-lib only runs --lib, not tests/)
 vim crates/ggen-engine/src/feature.rs         # Implement (GREEN)
-just test-unit                                # Verify passes
+just test                                     # Verify passes
 just pre-commit                               # Refactor (maintain GREEN)
 
 # 3. Validation (Definition of Done)

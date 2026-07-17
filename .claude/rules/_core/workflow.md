@@ -10,23 +10,25 @@ version: 6.0.0
 ```bash
 mkdir -p .specify/specs/NNN-feature
 vim .specify/specs/NNN-feature/feature.ttl  # Edit TTL (source)
-ggen validate .specify/specs/NNN-feature/feature.ttl
-ggen sync --dry_run true   # Preview markdown generation
+ggen graph validate --files .specify/specs/NNN-feature/feature.ttl  # bare `ggen validate` no longer exists
+ggen sync run --dry-run   # Preview generation (`ggen sync --dry_run true` no longer works)
 ```
 
 ## 2. Chicago TDD
 ```bash
-vim crates/*/tests/feature_test.rs  # Write failing test (RED)
-just test-unit                      # Verify fails
-vim crates/*/src/feature.rs         # Implement (GREEN)
-just test-unit                      # Verify passes
-just pre-commit                     # Refactor (maintain GREEN)
+# ggen-engine is the live crate; ggen-core is disconnected and should not
+# receive new tests/features (see .claude/rules/architecture.md)
+vim crates/ggen-engine/tests/feature_test.rs  # Write failing test (RED)
+just test                                     # Verify fails (test-lib only runs --lib, not tests/)
+vim crates/ggen-engine/src/feature.rs         # Implement (GREEN)
+just test                                     # Verify passes
+just pre-commit                               # Refactor (maintain GREEN)
 ```
 
 ## 3. Generate from Ontology
 ```bash
-just sync-dry   # Preview
-just sync       # Full sync with audit
+ggen sync run --dry-run   # Preview (`just sync-dry` currently runs a broken command internally)
+ggen sync run             # Full sync with cryptographic receipt (`just sync` also currently broken)
 ```
 
 ## 4. Commit with Evidence
