@@ -178,8 +178,15 @@ jobs:
         uses: ./.github/actions/setup-ggen-build
         with:
           cache-key-suffix: phase2
+      # A bare `cargo build --bin ggen` (no -p) is ambiguous/fails since the
+      # root [[bin]] "ggen" entry was removed earlier in the ggen-core-
+      # replacement migration -- root Cargo.toml has no bin target named
+      # `ggen` anymore, only `ggen-cli-lib` (crates/ggen-cli) does. This
+      # branch's CI had simply never run before PR #255 to catch it; the
+      # justfile's own GGEN variable (justfile:9) already uses the qualified
+      # form, matched here.
       - name: Build ggen binary
-        run: cargo build --bin ggen
+        run: cargo build -p ggen-cli-lib --bin ggen
       - name: Coherence validation
         run: |
           set -euo pipefail
