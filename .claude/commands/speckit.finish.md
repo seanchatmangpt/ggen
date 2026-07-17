@@ -1,5 +1,5 @@
 ---
-description: Fill gaps using 80/20 approach, validate Definition of Done (DfLSS quality gates), automatically merge to master, and close branch with evidence collection for Rust/cargo make workflows.
+description: Fill gaps using 80/20 approach, validate Definition of Done (DfLSS quality gates), automatically merge to main, and close branch with evidence collection for Rust/just workflows.
 handoffs:
   - label: Implement Missing Items
     agent: speckit.implement
@@ -23,7 +23,7 @@ All quality gates validate against TTL specifications. Evidence artifacts prove 
 
 ## Outline
 
-This command enforces the Definition of Done (§5) and automates the Branch Lifecycle completion (§6) before creating a pull request. Customized for **ggen's Rust/cargo make/Chicago TDD workflow with RDF-first specifications**.
+This command enforces the Definition of Done (§5) and automates the Branch Lifecycle completion (§6) before creating a pull request. Customized for **ggen's Rust/just/Chicago TDD workflow with RDF-first specifications**.
 
 ### 1. Prerequisites Check
 
@@ -91,23 +91,18 @@ For each Priority 1 gap, apply automated fixes:
 
 **If compilation errors exist**:
 ```bash
-# Try to fix compilation
-cargo make check 2>&1 | tee /tmp/check-errors.txt
-
-# If errors found, analyze and fix
-if [ $? -ne 0 ]; then
-  echo "🔴 RED: Compilation errors detected"
-  # Apply common fixes (missing imports, type mismatches, etc.)
-  # Use cargo fix if available
-  cargo fix --allow-dirty --allow-staged 2>/dev/null || true
-  cargo make check
-fi
+just check 2>&1 | tee /tmp/check-errors.txt
 ```
+
+If `just check` fails, read the actual error output and fix the root cause by hand -- this
+repo's evidence-first doctrine forbids blind auto-patching (no `cargo fix`/bare `cargo` per
+CLAUDE.md's Absolute Rule 4: `just` is the only entry point). Re-run `just check` after each
+fix to confirm.
 
 **If test failures exist**:
 ```bash
 # Run tests and capture failures
-cargo make test 2>&1 | tee /tmp/test-failures.txt
+just test 2>&1 | tee /tmp/test-failures.txt
 
 # If failures found
 if [ $? -ne 0 ]; then
@@ -124,12 +119,12 @@ fi
 mkdir -p "$FEATURE_DIR/evidence/"
 
 # Capture critical evidence
-cargo make test > "$FEATURE_DIR/evidence/test-results.txt" 2>&1
-cargo make lint > "$FEATURE_DIR/evidence/lint-output.txt" 2>&1
-cargo make check 2>&1 | grep "Finished" > "$FEATURE_DIR/evidence/compile-time.txt"
+just test > "$FEATURE_DIR/evidence/test-results.txt" 2>&1
+just lint > "$FEATURE_DIR/evidence/lint-output.txt" 2>&1
+just check 2>&1 | grep "Finished" > "$FEATURE_DIR/evidence/compile-time.txt"
 
 # Optional: Capture SLO metrics
-cargo make slo-check > "$FEATURE_DIR/evidence/slo-metrics.txt" 2>&1 || true
+just slo-check > "$FEATURE_DIR/evidence/slo-metrics.txt" 2>&1 || true
 ```
 
 **If checklists incomplete**:
@@ -150,7 +145,7 @@ Generate report of auto-filled gaps:
 ✅ 80/20 Gap-Fill Complete
 
 Priority 1 (RED signals) - FIXED:
-- [AUTO] Fixed 2 compilation errors (cargo fix)
+- [MANUAL] Fixed 2 compilation errors (root-caused by hand, no auto-patching)
 - [AUTO] Captured evidence: test-results.txt, lint-output.txt, slo-metrics.txt
 - [MANUAL] 3 test failures remain (require investigation)
 
@@ -227,34 +222,34 @@ Incomplete tasks:
 Action: Complete tasks or run /speckit.implement
 ```
 
-#### 3.3 Code Quality Validation (Rust/cargo make)
+#### 3.3 Code Quality Validation (Rust/just)
 
 Run quality gates in sequence (follow Andon Signal Protocol):
 
 **🟢 Check: Fast compilation check**:
 ```bash
-timeout 15s cargo make check
+timeout 15s just check
 ```
 
 **Expected**: Exit code 0, output contains "Finished" or GREEN signal
 
 **🟢 Test: Run all tests with coverage**:
 ```bash
-timeout 300s cargo make test
+timeout 300s just test
 ```
 
 **Expected**: Exit code 0, all tests passing, no RED signals
 
 **🟢 Lint: Clippy lint check**:
 ```bash
-timeout 30s cargo make lint
+timeout 30s just lint
 ```
 
 **Expected**: Exit code 0, no clippy warnings (RUSTFLAGS=-D warnings enforced)
 
 **🟢 Format: Verify formatting**:
 ```bash
-timeout 10s cargo make fmt-check
+timeout 10s just fmt-check
 ```
 
 **Expected**: Exit code 0, code formatted correctly
@@ -274,7 +269,7 @@ timeout 10s cargo make fmt-check
 
 🟡 YELLOW ANDON SIGNALS:
 - Lint: warning: unused variable `x` (#[warn(unused_variables)])
-- Format: Files require formatting (run cargo make fmt)
+- Format: Files require formatting (run just fmt)
 
 Action: Fix all RED signals before proceeding. YELLOW signals must be addressed for release.
 ```
@@ -303,12 +298,12 @@ Check `FEATURE_DIR/evidence/` directory:
 ⚠️ WARNING: No evidence captured
 
 Evidence directory is empty or missing. Consider capturing:
-- Test output (cargo make test > evidence/test-results.txt)
+- Test output (just test > evidence/test-results.txt)
 - Coverage report (cargo tarpaulin --out Lcov && genhtml ...)
-- Lint output (cargo make lint > evidence/lint-clean.txt)
-- Build logs (cargo make ci > evidence/ci-output.txt)
-- SLO metrics (cargo make slo-check > evidence/slo-metrics.txt)
-- Performance benchmarks (cargo make bench)
+- Lint output (just lint > evidence/lint-clean.txt)
+- Build logs (just pre-commit > evidence/ci-output.txt)
+- SLO metrics (just slo-check > evidence/slo-metrics.txt)
+- Performance benchmarks (just bench)
 
 Continue anyway? (yes/no)
 ```
@@ -336,11 +331,11 @@ Example:
 Follow §6 Branch Lifecycle "Finish (before PR)":
 
 ```bash
-git fetch origin master
-git merge origin/master
+git fetch origin main
+git merge origin/main
 ```
 
-**Note**: ggen uses `master` as main branch (not `main`).
+**Note**: ggen's main branch is `main`.
 
 **If merge conflicts**: STOP and report:
 ```text
@@ -352,8 +347,8 @@ Conflicts in:
 
 Action: Resolve conflicts manually using Chicago TDD approach:
   1. Resolve conflicts
-  2. cargo make check (verify compilation)
-  3. cargo make test (verify tests pass)
+  2. just check (verify compilation)
+  3. just test (verify tests pass)
   4. git add . && git commit
   5. Re-run /speckit.finish
 ```
@@ -365,21 +360,21 @@ Action: Resolve conflicts manually using Chicago TDD approach:
 Re-run quality gates to ensure merge didn't break anything:
 
 ```bash
-cargo make check && cargo make lint && cargo make test
+just check && just lint && just test
 ```
 
 **If ANY failures**: STOP and report:
 ```text
 ❌ Post-merge validation FAILED
 
-🔴 RED ANDON SIGNAL: The merge from master introduced failures:
+🔴 RED ANDON SIGNAL: The merge from main introduced failures:
 - Tests: 2 new failures (test_integration, test_domain)
 
 Action: Fix merge-related issues following Andon Signal Protocol:
   1. STOP the line (don't proceed)
   2. Investigate root cause
   3. Fix issues
-  4. Verify fix (cargo make test)
+  4. Verify fix (just test)
   5. Re-run /speckit.finish
 ```
 
@@ -422,7 +417,7 @@ Use this structure:
 - Type-first design with zero-cost abstractions
 - Chicago TDD with real collaborators
 - Result<T,E> error handling (no unwrap/expect in production)
-- cargo make for build automation with timeout enforcement
+- just for build automation with timeout enforcement
 
 ## Changes
 
@@ -442,10 +437,10 @@ Use this structure:
 
 - ✅ All checklist items complete ([N] total)
 - ✅ All tasks complete ([M] total)
-- ✅ Tests passing (cargo make test) - [X] tests, 0 failures
-- ✅ Lint clean (cargo make lint) - 0 clippy warnings
-- ✅ Format check (cargo make fmt-check) - formatted correctly
-- ✅ Compilation (cargo make check) - clean build
+- ✅ Tests passing (just test) - [X] tests, 0 failures
+- ✅ Lint clean (just lint) - 0 clippy warnings
+- ✅ Format check (just fmt-check) - formatted correctly
+- ✅ Compilation (just check) - clean build
 - ✅ Evidence captured ([K] files)
 
 ## Andon Signal Status
@@ -478,7 +473,7 @@ Use this structure:
 - ✅ Section III: Error Handling Standards (Result<T,E>, no production panics)
 - ✅ Section IV: Testing Standards (Chicago TDD, observable outputs)
 - ✅ Section VI: Andon Signal Protocol (RED/YELLOW/GREEN monitoring)
-- ✅ Section IX: cargo make Protocol (mandatory timeout enforcement)
+- ✅ Section IX: just Protocol (mandatory timeout enforcement)
 
 ## Related
 
@@ -490,7 +485,7 @@ Use this structure:
 ---
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code) via `/speckit.finish`
-🦀 Built with Rust + cargo make + Chicago TDD
+🦀 Built with Rust + just + Chicago TDD
 ```
 
 Save to temporary file: `/tmp/pr-description-$BRANCH.md`
@@ -505,11 +500,11 @@ Use GitHub CLI to create PR and automatically merge:
 gh pr create \
   --title "[Feature Name from spec.md]" \
   --body "$(cat /tmp/pr-description-$BRANCH.md)" \
-  --base master \
+  --base main \
   --head "$BRANCH"
 ```
 
-**Note**: ggen uses `master` as base branch (not `main`).
+**Note**: ggen's PRs target `main` as the base branch.
 
 **If PR creation fails**: Report error and provide manual instructions:
 ```text
@@ -518,7 +513,7 @@ gh pr create \
 Error: [gh CLI error message]
 
 Manual steps:
-1. Go to: https://github.com/seanchatmangpt/ggen/compare/master...$BRANCH
+1. Go to: https://github.com/seanchatmangpt/ggen/compare/main...$BRANCH
 2. Click "Create Pull Request"
 3. Use generated description from: /tmp/pr-description-$BRANCH.md
 ```
@@ -560,7 +555,7 @@ gh pr merge "$PR_NUMBER" \
   --delete-branch \
   --body "Automated merge via /speckit.finish 🤖"
 
-echo "✅ PR #$PR_NUMBER merged to master"
+echo "✅ PR #$PR_NUMBER merged to main"
 echo "✅ Remote branch $BRANCH deleted automatically"
 ```
 
@@ -583,7 +578,7 @@ Manual fallback:
 1. Visit PR: https://github.com/seanchatmangpt/ggen/pull/$PR_NUMBER
 2. Get required approvals
 3. Merge manually
-4. Then run cleanup: git checkout master && git pull && git branch -d $BRANCH
+4. Then run cleanup: git checkout main && git pull && git branch -d $BRANCH
 ```
 
 STOP here if merge failed.
@@ -595,13 +590,13 @@ PR successfully merged. Clean up local environment:
 #### 7.1 Switch to Master and Update
 
 ```bash
-# Switch back to master
-git checkout master
+# Switch back to main
+git checkout main
 
 # Pull latest changes (includes merged PR)
-git pull origin master
+git pull origin main
 
-echo "✅ Switched to master and pulled latest changes"
+echo "✅ Switched to main and pulled latest changes"
 ```
 
 #### 7.2 Delete Local Feature Branch
@@ -629,9 +624,9 @@ git branch -a | grep "$BRANCH" && {
   echo "Run: git fetch --prune"
 } || echo "✅ Branch fully cleaned up"
 
-# Show current master HEAD
+# Show current main HEAD
 echo ""
-echo "Current master HEAD:"
+echo "Current main HEAD:"
 git log -1 --oneline
 ```
 
@@ -644,7 +639,7 @@ Output summary:
 
 Branch: $BRANCH → MERGED & CLOSED
 PR: #$PR_NUMBER (https://github.com/seanchatmangpt/ggen/pull/$PR_NUMBER)
-Status: ✅ Merged to master and branch deleted
+Status: ✅ Merged to main and branch deleted
 
 80/20 Gap-Fill Results:
 - ✅ Priority 1 (RED signals): All fixed
@@ -671,7 +666,7 @@ Merge Details:
 Spec updated: specs/NNN-feature/spec.md (Status: Complete)
 Andon Signals: 🟢 ALL GREEN
 
-Current Branch: master
+Current Branch: main
 Latest Commit: [commit hash from git log]
 
 🎉 Feature complete! No further action required.
@@ -696,7 +691,7 @@ Latest Commit: [commit hash from git log]
 3. **Defer YELLOW signals**: Priority 2 gaps are non-blocking but should be documented
 4. **Skip nice-to-have**: Priority 3 gaps deferred to future work (focus on vital few)
 5. **Evidence is CRITICAL**: Warn loudly if missing (but allow override for non-production features)
-6. **Atomic operations**: Each cargo make command must succeed before continuing
+6. **Atomic operations**: Each just command must succeed before continuing
 7. **Deterministic output**: Same state = same validation results (Principle VII)
 8. **Automated merge**: Merge PR automatically after CI passes (no manual intervention)
 9. **Automated cleanup**: Delete branches automatically after successful merge
@@ -712,9 +707,9 @@ Latest Commit: [commit hash from git log]
 1. **80/20 Gap-Fill**: Automatically fills Priority 1 (RED) gaps before validation (NEW)
 2. **Automated Merge**: Merges PR automatically after CI passes (NEW)
 3. **Automated Cleanup**: Deletes branches automatically after merge (NEW)
-4. **Build system**: cargo make (not pnpm) with mandatory timeouts
+4. **Build system**: just (not pnpm) with mandatory timeouts
 5. **Quality gates**: check + lint + fmt-check + test (not lint + test + build)
-6. **Main branch**: master (not main)
+6. **Main branch**: `main`
 7. **Error handling**: Verify Result<T,E> patterns, flag unwrap/expect in production
 8. **Test philosophy**: Chicago TDD (state-based, real collaborators) not London School
 9. **Andon signals**: RED/YELLOW/GREEN monitoring integrated into quality gates
@@ -725,30 +720,32 @@ Latest Commit: [commit hash from git log]
 
 ```bash
 # Compilation check (fast feedback, <5s target)
-timeout 15s cargo make check
+timeout 15s just check
 
 # Clippy lint (catches common mistakes, warnings-as-errors)
-timeout 30s cargo make lint
+timeout 30s just lint
 
 # Format verification (rustfmt with ggen style)
-timeout 10s cargo make fmt-check
+timeout 10s just fmt-check
 
 # Test suite (Chicago TDD, all tests must pass)
-timeout 300s cargo make test
+timeout 300s just test
 
 # Optional: SLO compliance check
-timeout 30s cargo make slo-check
+timeout 30s just slo-check
 ```
 
 ## Notes
 
-- This command assumes master branch is `master` (ggen convention)
+- This command assumes the main branch is `main` (ggen convention)
+- `just lint` is scoped to the root `ggen` package only, not `--workspace` (see CLAUDE.md) --
+  this is a known, accepted gap, not something this command should treat as a new failure
 - PR template can be customized via `.specify/templates/pr-template.md` (if exists)
 - Evidence files should be committed before running this command
 - **Fully automated**: Creates PR, waits for CI, merges, deletes branches automatically
 - **80/20 Pareto Principle**: Focuses on fixing the vital few (Priority 1) gaps only
 - Post-merge cleanup is **automated** (no manual steps required)
 - Andon Signal Protocol (§VI) is enforced throughout validation
-- cargo make targets must have timeout enforcement (§IX)
+- just targets must have timeout enforcement (§IX)
 - Constitution alignment verification is mandatory for production features
-- **Single command**: From incomplete feature → merged to master + branch closed
+- **Single command**: From incomplete feature → merged to main + branch closed
