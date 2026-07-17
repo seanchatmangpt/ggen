@@ -1768,6 +1768,27 @@ historical ("NEVER call cargo make", "Makefile.toml is historical reference only
 individual recipe names inside documentation for an already-superseded tool is lower value than
 what was just fixed. None of the 5 carry `auto_load: true` (checked each file's frontmatter).
 
+**Sixth follow-up finding (2026-07-17):** CLAUDE.md's "Git Hooks & Build Gotchas" section
+claimed `.git/hooks/pre-commit` "builds the entire workspace" and `.git/hooks/pre-push` "runs
+`cargo test`" as if both unconditionally validate every local commit/push. Read
+`scripts/hooks/{pre-commit,pre-push}.sh` directly (this project's own path guard blocks
+inspecting the *installed* `.git/hooks/*` copy even to read it, so the source scripts are the
+only accessible ground truth) and found both are **`main`-only**: `pre-commit.sh` checks
+`$(git symbolic-ref --short HEAD) != "main"` and exits 0 immediately otherwise; `pre-push.sh`
+checks the push's remote ref for `refs/heads/main` and exits 0 immediately for any other
+target. This entire migration has been developed on `2026-ggen-core-replacement`, never
+`main` — meaning **every commit and would-be push tonight has had zero hook-provided
+validation**, silently. This is a deliberate design (feature-branch validation deferred to
+PR-time CI — `ci.yml`/`quality.yml` trigger on `pull_request`), not a bug, but CLAUDE.md's
+prose gave no hint of the branch-scoping and would mislead a reader into trusting a hook that
+never ran. Also corrected: `pre-push.sh` runs 4 gates in sequence (`just check`, `just lint`,
+`just fmt-check`, `just test-lib`), not simply "`cargo test`" as previously claimed.
+
+Not a new gap introduced by this fix — this session's own commits were never at risk, since
+`just pre-commit`/`just check`/`just test` were run manually and verified before every commit
+tonight (visible throughout this file's own evidence trail), independent of whether the git
+hook itself fired. The finding is purely about CLAUDE.md's prose accuracy, now fixed.
+
 **Checkpoint**: User Story 1's independent test passes — full suite green, `ggen-core`
 fully retired, command-surface diff against the T003 baseline shows zero regressions.
 
