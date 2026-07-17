@@ -16,11 +16,15 @@ type: skill
 > `sync` noun/`run` verb (`crates/ggen-engine/src/verbs/sync.rs::sync_run`) →
 > `crates/ggen-engine/src/verbs/handlers.rs::handle_sync_run` →
 > `crates/ggen-engine/src/sync.rs::sync`. `ggen-core::codegen::executor::SyncExecutor` itself
-> is not deleted (fix-forward/non-deletion doctrine) and is still called directly by the
-> experimental, default-off `ggen wizard` command's initial-sync step
-> (`crates/ggen-cli/src/cmds/wizard.rs::run_initial_sync`, gated behind
-> `#[cfg(feature = "experimental")]`) — but that is no longer the same code path as `ggen sync`,
-> despite a stale comment in `wizard.rs` still claiming otherwise. This skill now describes the
+> is not deleted (fix-forward/non-deletion doctrine). **Update (2026-07-17):** the experimental,
+> default-off `ggen wizard` command's initial-sync step (`crates/ggen-cli/src/cmds/
+> wizard.rs::run_initial_sync`) no longer calls `SyncExecutor` at all — as of the same 2026-07-16
+> disconnect commit that removed `ggen-cli`'s `[dependencies.ggen-core]` entry, `wizard.rs`'s
+> `use ggen_core::...` imports became dead references to a crate no longer linked in, and
+> `cargo check -p ggen-cli-lib --features experimental` hard-failed with E0433. `wizard.rs` (and
+> `sigma.rs`, same issue) were re-archived on 2026-07-17 — `pub mod wizard;` is commented out in
+> `crates/ggen-cli/src/cmds/mod.rs`, file retained on disk, not deleted. `ggen wizard` currently
+> does not exist as a runnable command under any feature combination. This skill now describes the
 > current `ggen sync` pipeline (ggen-engine). The old feature set below (CLI `--audit`/`--force`/
 > `--watch`/`--validate-only` flags, `<<<<<<< GENERATED` merge markers, `audit.json`) does not
 > map one-to-one onto the new pipeline — see the "What changed" table.
@@ -54,7 +58,7 @@ producing generated files plus a chained cryptographic receipt.
 - `spec-writer` or specification context
 - Documentation generation
 - Architectural discussion
-- `ggen wizard`'s internal initial-sync step (still `ggen-core::codegen::executor::SyncExecutor` — see notice above; out of scope for this skill)
+- `ggen wizard` — re-archived 2026-07-17, does not currently exist as a runnable command (see notice above); out of scope for this skill regardless
 
 ## Responsibilities
 

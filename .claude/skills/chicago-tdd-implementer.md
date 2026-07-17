@@ -7,6 +7,19 @@ type: skill
 
 # Skill: chicago-tdd-implementer
 
+> **2026-07-17 notice:** this skill was written against `ggen-core`, the legacy pipeline. As of
+> the `2026-ggen-core-replacement` migration (`docs/jira/v26.7.16/`), `ggen-core` is
+> **disconnected** from the workspace (`Cargo.toml`'s `members` → `exclude`) and its source is
+> frozen byte-identical on disk (fix-forward/non-deletion doctrine) — it receives no new tests or
+> features. **`crates/ggen-engine` is the live crate new Chicago TDD work targets.** Confirmed
+> live, 2026-07-17: `cargo test -p ggen-core ...` now hard-fails with `package ID specification
+> did not match any packages` (`ggen-core/Cargo.toml` inherits ~25 fields via `workspace = true`
+> with no workspace left to inherit from post-`exclude`) — do not follow this skill's older
+> `-p ggen-core` command literally; see "Test Execution" below for the real, currently-runnable
+> equivalent. The `crates/ggen-core/tests/*.rs` paths below still exist on disk and are kept as
+> historical record of what Chicago TDD coverage looked like pre-migration; they are not a
+> growth target and cannot currently be run standalone.
+
 ## Purpose
 Implement comprehensive tests using Arrange-Act-Assert (AAA) pattern verifying observable behavior and state changes
 
@@ -92,7 +105,9 @@ fn test_audit_trail_created_with_flag() {
   line previously named does not exist anywhere in the repo)
 
 ## Coverage Target
-- **Minimum**: 95% for `crates/ggen-core/src/codegen/`
+- **Minimum**: 95% for `crates/ggen-engine/src/` (live pipeline; `crates/ggen-core/src/codegen/`
+  was the pre-migration target — frozen, no longer where new coverage work lands, see notice
+  above).
 - **Verification**: no coverage tooling is currently wired into `just` or CI (confirmed —
   `.github/workflows/quality.yml` explicitly lists "tarpaulin coverage" among gates it does
   NOT run; no `test-coverage`/`coverage-report` recipe exists in the justfile). This target is
@@ -108,7 +123,7 @@ fn test_audit_trail_created_with_flag() {
 - `rust-executor` - Running tests
 - `architecture-validator` - Test organization
 
-## Files to Create
+## Files to Create (historical, ggen-core -- frozen, not a growth target; see notice above)
 - `crates/ggen-core/tests/common/mod.rs` (already exists)
 - `crates/ggen-core/tests/fixtures/` (already exists — ontology, toml, templates)
 - `crates/ggen-core/tests/audit_trail_integration_tests.rs` (already exists)
@@ -118,13 +133,24 @@ fn test_audit_trail_created_with_flag() {
 - `crates/ggen-core/tests/conditional_execution_tests.rs` (already exists)
 - `crates/ggen-core/tests/validation_tests.rs` (already exists)
 
+New Chicago TDD coverage lands under `crates/ggen-engine/tests/` instead. Real, current files
+covering the same intent (verified to exist, 2026-07-17): `receipt_chain_e2e.rs` (audit trail /
+receipt equivalent), `lint_validate_e2e.rs` + `sparql_refusals_e2e.rs` (validation), `sync_e2e.rs`
++ `generation_rules_e2e.rs` (core sync/generation), `frontmatter_fields_e2e.rs` +
+`frontmatter_rdf_e2e.rs` (frontmatter), `determinism_query_reexecution_e2e.rs` +
+`multi_template_determinism.rs` (determinism/watch-equivalent), `cli_boundary.rs` +
+`cli_read_only_invariant_matrix.rs` (CLI flag matrices).
+
 ## Test Execution
 ```bash
 # Run all tests (mandated entry point per CLAUDE.md -- never bare cargo/cargo make)
 just test
 
-# Run a specific test file (scoped cargo test is fine for fast iteration)
-cargo test -p ggen-core --test audit_trail_integration_tests
+# Run a specific test file (scoped cargo test is fine for fast iteration) --
+# ggen-engine, the live crate. -p ggen-core no longer resolves at all (confirmed
+# live, 2026-07-17: "package ID specification did not match any packages" -- see
+# notice above), so don't use it even for the historical files it still names.
+cargo test -p ggen-engine --test receipt_chain_e2e
 
 # Coverage: no working command exists today (see Coverage Target above) -- this
 # section previously listed `cargo make test-coverage`/`coverage-report`, neither

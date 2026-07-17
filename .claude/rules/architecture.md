@@ -62,8 +62,19 @@ reason — see `crates/ggen-cli/src/cmds/mod.rs`'s comments on both for the full
 ### Praxis kernel (ggen-engine's direct dependencies)
 
 Vendored alongside `ggen-engine` in the same migration pass — renamed copies of
-`~/praxis/crates/{praxis-core,praxis-graphlaw}`, not live path dependencies back to `~/praxis`.
-Both `publish = false`.
+`~/praxis/crates/{praxis-core,praxis-graphlaw}`. Both `publish = false`.
+
+**Correction (2026-07-17, verified live):** the "not live path dependencies back to `~/praxis`"
+claim in an earlier version of this note was wrong. `praxis-core/Cargo.toml` and
+`praxis-graphlaw/Cargo.toml` both have real `path = "/Users/sac/praxis/crates/..."` dependency
+entries (`powl2-decompose` in both; `wasm4pm-arazzo` and the optional `chatman-common` in
+`praxis-core` only) — confirmed by grepping both manifests directly. This is not cosmetic: it
+means `cargo metadata`'s full (non-`--no-deps`) resolution transitively reaches into
+`/Users/sac/praxis`'s own workspace, including unrelated sibling members — this is exactly what
+made `cargo fmt --all` crash after the `ggen-core` disconnect (see `justfile`'s `fmt-check`
+recipe comment and `specs/014-ggen-core-replacement/tasks.md`'s T058 follow-up notes for the full
+chain). Anything in this workspace that walks the full dependency graph by name or via `--all`
+should be assumed to reach `~/praxis` unless proven otherwise.
 
 | Crate | Purpose (from Cargo.toml / lib.rs) |
 |-------|-------------------------------------|
