@@ -10,39 +10,11 @@ use praxis_core::{
     Admit, DefaultLaw, Judge, LawObject, ReceiptStore,
 };
 
-/// Fixed 64-hex-char (32-byte) ed25519 seed used only by these tests. Not
-/// security-sensitive: it exists so `receipt_with_record()`'s `#[cfg(feature
-/// = "signed")]` path has a deterministic `PRAXIS_SIGNING_KEY` to sign
-/// against when this crate is built `--features signed`.
-#[cfg(feature = "signed")]
-const TEST_SIGNING_KEY_HEX: &str =
-    "c1c2c3c4c5c6c7c8c9caccbdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf1234";
-
-/// Set `PRAXIS_SIGNING_KEY` for the duration of the returned guard when the
-/// `signed` feature is enabled (`receipt()`/`receipt_with_record()` sign the
-/// chain hash and fail closed without a key). This is a self-contained
-/// mutex/env guard (integration tests are a separate crate from
-/// `praxis_core`, so they cannot reach its `#[cfg(test)] pub(crate)`
-/// `signing::test_support` helper) — same pattern `src/ops.rs`'s own tests use.
-///
-/// Returns `Option<MutexGuard>` rather than a bare `()` in the `not(signed)`
-/// case so callers can still write `let _guard = signing_guard();` without
-/// tripping clippy's `let_unit_value` lint (a unit-typed `let` binding would).
-#[cfg(feature = "signed")]
-fn signing_guard() -> Option<std::sync::MutexGuard<'static, ()>> {
-    use std::sync::{Mutex, MutexGuard, OnceLock};
-    fn env_lock() -> MutexGuard<'static, ()> {
-        static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
-        LOCK.get_or_init(|| Mutex::new(()))
-            .lock()
-            .unwrap_or_else(|e| e.into_inner())
-    }
-    let guard = env_lock();
-    std::env::set_var("PRAXIS_SIGNING_KEY", TEST_SIGNING_KEY_HEX);
-    Some(guard)
-}
-
-#[cfg(not(feature = "signed"))]
+/// The `signed` feature (and `praxis-core/src/signing.rs`) was removed
+/// 2026-07-17 alongside this workspace's absolute-path-dependency cleanup
+/// (PR #255) — `chatman-common`, its sole consumer, was dead weight (no
+/// dependent ever enabled it). This helper is now a permanent no-op, kept so
+/// call sites below don't need touching.
 fn signing_guard() -> Option<()> {
     None
 }

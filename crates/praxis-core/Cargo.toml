@@ -11,7 +11,6 @@ publish = false
 
 [features]
 default = []
-signed = ["chatman-common/signed-receipts"]
 ocel = []
 
 [dependencies]
@@ -19,9 +18,8 @@ blake3 = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
-chatman-common = { path = "/Users/sac/praxis/crates/chatman-common", optional = true }
-bcinr-powl-receipt = { path = "/Users/sac/bcinr/crates/bcinr-powl-receipt" }
-wasm4pm-compat = { path = "/Users/sac/wasm4pm-compat" }
+bcinr-powl-receipt = "26.6.24"
+wasm4pm-compat = "26.6.29"
 hex = "0.4"
 chrono = { version = "0.4", features = ["serde"] }
 # PROJ-752 (PRD.md sec.7.4-7.5, A_z = T(Q(W))): real Tera template engine for
@@ -34,27 +32,7 @@ tera = "1.20.0"
 # depend on praxis-core (checked: no path back-edge), so this is a one-way
 # addition, not a cycle.
 praxis-graphlaw = { path = "../praxis-graphlaw", version = "26.7.9" }
-# PROJ-796: real `[dependencies]`, not `[dev-dependencies]` -- promoted
-# because `ArazzoProjectionReceipt::project_and_compile`'s production code
-# path (not just tests) now constructs `Powl::ExternalCut` fixtures and
-# drives the Rail A/B pipeline through `wasm4pm-arazzo`'s real parser,
-# resolver, lowering, normalizer, and `AirCompiler`.
-powl2-decompose = { path = "/Users/sac/praxis/crates/powl2-decompose" }
-wasm4pm-arazzo = { path = "/Users/sac/praxis/crates/wasm4pm-arazzo" }
-# Allocator for wasm4pm-arazzo's bumpalo-arena-typed AirProgram, needed to
-# drive lower::lower_description/AirCompiler from production code. Same
-# version pinned as crates/wasm4pm-arazzo itself.
-bumpalo = "3.20.3"
 
 [dev-dependencies]
 tempfile = "3"
 proptest = "1"
-
-# PROJ-796 reachability closure (docs/jira/v26.7.11/PATH_TO_100.md sec.2.3
-# W1): a real, non-test entry point for
-# `ChatmanEngine::admit_transition_with_external_cut`, which otherwise has
-# zero callers outside `tests/rail_ab_external_cut_wiring.rs` and
-# `praxis-graphlaw/src/chatman/engine_test.rs`.
-[[bin]]
-name = "admit-external-cut"
-path = "src/bin/admit-external-cut.rs"

@@ -81,23 +81,11 @@ use praxis_core::{
     Admit, DefaultLaw, Judge, LawObject, ReceiptRecord,
 };
 
-/// Fixed 64-hex-char (32-byte) ed25519 seed. Only consulted when this crate is
-/// built `--features signed` (then `receipt_with_record` signs the chain hash
-/// fail-closed and needs a key). `cargo mutants -p praxis-core` runs with
-/// default (unsigned) features, so this is inert there; it exists so the
-/// fixtures also work under `--features signed`. Same pattern as
-/// `tests/receipt_lane.rs`.
-#[cfg(feature = "signed")]
-const TEST_SIGNING_KEY_HEX: &str =
-    "d1d2d3d4d5d6d7d8d9dadbdcdddedff0f1f2f3f4f5f6f7f8f9fafbfcfdfe9876";
-
-fn ensure_signing_key() {
-    #[cfg(feature = "signed")]
-    {
-        static ONCE: std::sync::OnceLock<()> = std::sync::OnceLock::new();
-        ONCE.get_or_init(|| std::env::set_var("PRAXIS_SIGNING_KEY", TEST_SIGNING_KEY_HEX));
-    }
-}
+/// The `signed` feature was removed 2026-07-17 alongside this workspace's
+/// absolute-path-dependency cleanup (PR #255) — see `tests/receipt_lane.rs`'s
+/// `signing_guard` comment. This is now a permanent no-op, kept so call
+/// sites below don't need touching.
+fn ensure_signing_key() {}
 
 // ── Fixtures ────────────────────────────────────────────────────────────────
 

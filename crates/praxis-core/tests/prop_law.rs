@@ -15,26 +15,11 @@ use praxis_core::{
 };
 use proptest::prelude::*;
 
-/// Fixed 64-hex-char (32-byte) ed25519 seed used only by these tests. Not
-/// security-sensitive: under `--features signed` (enabled by workspace
-/// `--all-features`) `receipt()` signs the chain hash fail-closed, so every
-/// receipt-producing property needs a deterministic `PRAXIS_SIGNING_KEY` —
-/// same house pattern as `tests/receipt_lane.rs`'s `signing_guard`.
-#[cfg(feature = "signed")]
-const PROP_TEST_SIGNING_KEY_HEX: &str =
-    "e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfe4321";
-
-/// Ensure `PRAXIS_SIGNING_KEY` is set before receipting. The value is a
-/// process-wide constant and no test in this binary ever removes it, so a
-/// set-once is race-free across parallel tests and proptest iterations
-/// (no mutex needed, unlike guards that also *unset*).
-fn ensure_signing_key() {
-    #[cfg(feature = "signed")]
-    {
-        static ONCE: std::sync::OnceLock<()> = std::sync::OnceLock::new();
-        ONCE.get_or_init(|| std::env::set_var("PRAXIS_SIGNING_KEY", PROP_TEST_SIGNING_KEY_HEX));
-    }
-}
+/// The `signed` feature was removed 2026-07-17 alongside this workspace's
+/// absolute-path-dependency cleanup (PR #255) — see `tests/receipt_lane.rs`'s
+/// `signing_guard` comment. This is now a permanent no-op, kept so call
+/// sites below don't need touching.
+fn ensure_signing_key() {}
 
 /// Build a fresh `Admitted` law object wrapping `payload`, with no
 /// obligations — judge/admit always succeed unconditionally, so every

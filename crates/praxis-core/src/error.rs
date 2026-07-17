@@ -87,7 +87,7 @@ pub enum CoreError {
     /// without an admitted POWL source and projection receipt SHALL be
     /// refused" made concrete (acceptance scenario 19.3, "Handwritten
     /// Arazzo Is Refused"). Wired at
-    /// [`crate::arazzo::admit_manufactured_arazzo`].
+    /// Was wired at `crate::arazzo::admit_manufactured_arazzo` (module removed 2026-07-17 with the ~/praxis path-dependency cleanup -- this variant is now unreachable, kept as a documented catalog entry).
     #[error("ARAZZO_UNMANUFACTURED: {0}")]
     ArazzoUnmanufactured(String),
 
@@ -96,7 +96,7 @@ pub enum CoreError {
     /// an admitted POWL source (`source_powl_digest_hex`/
     /// `external_cut_identity` empty) -- a receipt shape that attests no
     /// real source material. Wired at
-    /// [`crate::arazzo::admit_manufactured_arazzo`].
+    /// Was wired at `crate::arazzo::admit_manufactured_arazzo` (module removed 2026-07-17 with the ~/praxis path-dependency cleanup -- this variant is now unreachable, kept as a documented catalog entry).
     #[error("ARAZZO_SOURCE_RECEIPT_MISSING: {0}")]
     ArazzoSourceReceiptMissing(String),
 
@@ -106,7 +106,7 @@ pub enum CoreError {
     /// receipt attests different material than what is actually being
     /// presented (a stale, substituted, or hand-edited document wearing a
     /// real receipt). Wired at
-    /// [`crate::arazzo::admit_manufactured_arazzo`].
+    /// Was wired at `crate::arazzo::admit_manufactured_arazzo` (module removed 2026-07-17 with the ~/praxis path-dependency cleanup -- this variant is now unreachable, kept as a documented catalog entry).
     #[error("ARAZZO_PROJECTION_DIGEST_MISMATCH: {0}")]
     ArazzoProjectionDigestMismatch(String),
 
@@ -119,7 +119,7 @@ pub enum CoreError {
     /// route content through the Arazzo manufacture gate). Not a PRD
     /// section-18 catalog code; this crate's own typed refusal for the
     /// dialect-name check at
-    /// [`crate::arazzo::admit_manufactured_arazzo_for_dialect`].
+    /// Was wired at `crate::arazzo::admit_manufactured_arazzo_for_dialect` (module removed 2026-07-17 with the ~/praxis path-dependency cleanup -- this variant is now unreachable, kept as a documented catalog entry).
     #[error(
         "dialect authority mismatch: declared dialect {declared:?} does not hold {expected:?}'s \
          authority ({reason})"

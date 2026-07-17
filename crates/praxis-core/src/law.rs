@@ -361,16 +361,6 @@ impl<Payload: Serialize, Law> LawObject<Payload, Admitted, Law> {
         let (_payload_hash, _ts_ns, chain_hash) = self.resolve_receipt(prev_chain_hash, &meta)?;
         self.chain_hash = Some(chain_hash);
 
-        // If the `signed` feature is enabled, sign the chain hash and fail
-        // closed: a missing/invalid signing key must abort the receipt
-        // rather than silently emitting an unsigned one. The feature exists
-        // to *guarantee* a signature, so a soft failure here would defeat
-        // the point.
-        #[cfg(feature = "signed")]
-        {
-            self.signature = Some(crate::signing::sign_chain_hash(&chain_hash)?);
-        }
-
         Ok(LawObject {
             payload: self.payload,
             obligations: self.obligations,
@@ -415,11 +405,6 @@ impl<Payload: Serialize, Law> LawObject<Payload, Admitted, Law> {
 
         let (_payload_hash, ts_ns, chain_hash) = self.resolve_receipt(prev_chain_hash, &meta)?;
         self.chain_hash = Some(chain_hash);
-
-        #[cfg(feature = "signed")]
-        {
-            self.signature = Some(crate::signing::sign_chain_hash(&chain_hash)?);
-        }
 
         let record = crate::receipt_record::ReceiptRecord {
             version: crate::receipt_record::RECEIPT_RECORD_VERSION,
@@ -547,17 +532,8 @@ mod tests {
         }
     }
 
-    /// Set `PRAXIS_SIGNING_KEY` for the duration of the returned guard; see
-    /// `signing::test_support::with_test_signing_key`.
-    #[cfg(feature = "signed")]
-    fn test_signing_env() -> std::sync::MutexGuard<'static, ()> {
-        crate::signing::test_support::with_test_signing_key()
-    }
-
     #[test]
     fn receipt_is_deterministic_for_identical_inputs() {
-        #[cfg(feature = "signed")]
-        let _guard = test_signing_env();
         let meta = fixed_meta(1);
         let prev = [7u8; 32];
         let r1 = admitted(serde_json::json!({"a": 1}))
@@ -575,8 +551,6 @@ mod tests {
     /// hashes. This must now fail (i.e. the hashes must differ).
     #[test]
     fn receipt_differs_for_different_payloads() {
-        #[cfg(feature = "signed")]
-        let _guard = test_signing_env();
         let meta = fixed_meta(1);
         let prev = [7u8; 32];
         let r1 = admitted(serde_json::json!({"a": 1}))
@@ -590,8 +564,6 @@ mod tests {
 
     #[test]
     fn receipt_differs_for_different_prev_hash() {
-        #[cfg(feature = "signed")]
-        let _guard = test_signing_env();
         let meta = fixed_meta(1);
         let r1 = admitted(serde_json::json!({"a": 1}))
             .receipt(&[1u8; 32], meta.clone())
@@ -604,8 +576,6 @@ mod tests {
 
     #[test]
     fn receipt_differs_for_different_instruction_id() {
-        #[cfg(feature = "signed")]
-        let _guard = test_signing_env();
         let prev = [7u8; 32];
         let r1 = admitted(serde_json::json!({"a": 1}))
             .receipt(&prev, fixed_meta(1))
@@ -616,65 +586,12 @@ mod tests {
         assert_ne!(r1.chain_hash(), r2.chain_hash());
     }
 
-    /// When the `signed` feature is enabled, `receipt()` must populate
-    /// `signature` with something that verifies against the chain hash it
-    /// just computed (fail-open would be silently useless; this confirms
-    /// the wiring actually happened rather than leaving `signature: None`).
-    #[cfg(feature = "signed")]
-    #[test]
-    fn receipt_sets_verifiable_signature_when_signed() {
-        let _guard = test_signing_env();
-        let meta = fixed_meta(1);
-        let prev = [7u8; 32];
-        let r = admitted(serde_json::json!({"a": 1}))
-            .receipt(&prev, meta)
-            .expect("receipt should succeed");
-        let sig = r
-            .signature
-            .as_ref()
-            .expect("signature must be set when `signed` is enabled");
-        let hash = r
-            .chain_hash()
-            .expect("chain hash must be set on a receipted object");
-        assert!(crate::signing::verify_chain_hash(hash, sig).is_ok());
-    }
-
-    /// Fail-closed: if `receipt()` is asked to sign but no key is available,
-    /// the whole receipt operation must fail rather than silently emitting
-    /// an unsigned receipt.
-    #[cfg(feature = "signed")]
-    #[test]
-    fn receipt_fails_closed_when_signing_key_missing() {
-        let guard = crate::signing::test_support::env_lock();
-        let had_key = std::env::var("PRAXIS_SIGNING_KEY").ok();
-        let had_file = std::env::var("PRAXIS_SIGNING_KEY_FILE").ok();
-        std::env::remove_var("PRAXIS_SIGNING_KEY");
-        std::env::remove_var("PRAXIS_SIGNING_KEY_FILE");
-
-        let result = admitted(serde_json::json!({"a": 1})).receipt(&[7u8; 32], fixed_meta(1));
-
-        if let Some(v) = had_key {
-            std::env::set_var("PRAXIS_SIGNING_KEY", v);
-        }
-        if let Some(v) = had_file {
-            std::env::set_var("PRAXIS_SIGNING_KEY_FILE", v);
-        }
-        drop(guard);
-
-        assert!(matches!(
-            result,
-            Err(crate::error::CoreError::SigningFailed(_))
-        ));
-    }
-
     /// `receipt()` must honor `meta.denial`: a non-`ADMITTED` denial must
     /// produce a non-zero `fired_mask`/`denial` on the frame, not the
     /// previously-hardcoded `ADMITTED`. Determinism (same inputs -> same
     /// chain hash) is unaffected by which denial is set.
     #[test]
     fn receipt_uses_meta_denial() {
-        #[cfg(feature = "signed")]
-        let _guard = test_signing_env();
         use bcinr_powl_receipt::denial::DenialPolarity;
 
         let mut meta = fixed_meta(1);
