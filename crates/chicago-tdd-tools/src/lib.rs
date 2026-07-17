@@ -139,7 +139,10 @@
 #![allow(clippy::unnecessary_sort_by)]
 #![warn(missing_docs)]
 // Poka-Yoke: pub use is necessary for procedural macro re-exports
-#![allow(clippy::pub_use, reason = "Procedural macros must be re-exported via pub use")]
+#![allow(
+    clippy::pub_use,
+    reason = "Procedural macros must be re-exported via pub use"
+)]
 #![cfg_attr(
     test,
     allow(

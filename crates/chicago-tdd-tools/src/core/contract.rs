@@ -48,10 +48,7 @@ impl ResourceEnvelope {
     /// Create a new resource envelope with specified constraints
     #[must_use]
     pub const fn new(
-        max_ticks: u64,
-        max_memory_bytes: u64,
-        requires_network: bool,
-        requires_storage: bool,
+        max_ticks: u64, max_memory_bytes: u64, requires_network: bool, requires_storage: bool,
         requires_privileged: bool,
     ) -> Self {
         Self {
@@ -182,13 +179,16 @@ impl TestContract {
     /// Create a new test contract
     #[must_use]
     pub const fn new(
-        name: &'static str,
-        coverage: &'static [&'static str],
-        invariants: &'static [&'static str],
-        resources: ResourceEnvelope,
-        environment: &'static [&'static str],
+        name: &'static str, coverage: &'static [&'static str], invariants: &'static [&'static str],
+        resources: ResourceEnvelope, environment: &'static [&'static str],
     ) -> Self {
-        Self { name, coverage, invariants, resources, environment }
+        Self {
+            name,
+            coverage,
+            invariants,
+            resources,
+            environment,
+        }
     }
 
     /// Create a hot path test contract
@@ -212,19 +212,21 @@ impl TestContract {
     /// Create a warm path test contract
     #[must_use]
     pub const fn warm_path(
-        name: &'static str,
-        coverage: &'static [&'static str],
-        invariants: &'static [&'static str],
+        name: &'static str, coverage: &'static [&'static str], invariants: &'static [&'static str],
     ) -> Self {
-        Self { name, coverage, invariants, resources: ResourceEnvelope::warm(), environment: &[] }
+        Self {
+            name,
+            coverage,
+            invariants,
+            resources: ResourceEnvelope::warm(),
+            environment: &[],
+        }
     }
 
     /// Create a cold path test contract
     #[must_use]
     pub const fn cold_path(
-        name: &'static str,
-        coverage: &'static [&'static str],
-        environment: &'static [&'static str],
+        name: &'static str, coverage: &'static [&'static str], environment: &'static [&'static str],
     ) -> Self {
         Self {
             name,
@@ -299,37 +301,55 @@ impl TestContractRegistry {
     /// Get all hot path tests
     #[must_use]
     pub fn hot_path_tests(&self) -> Vec<&'static TestContract> {
-        self.contracts.iter().filter(|c| c.resources.is_hot_path()).collect()
+        self.contracts
+            .iter()
+            .filter(|c| c.resources.is_hot_path())
+            .collect()
     }
 
     /// Get all warm path tests
     #[must_use]
     pub fn warm_path_tests(&self) -> Vec<&'static TestContract> {
-        self.contracts.iter().filter(|c| c.resources.is_warm_path()).collect()
+        self.contracts
+            .iter()
+            .filter(|c| c.resources.is_warm_path())
+            .collect()
     }
 
     /// Get all cold path tests
     #[must_use]
     pub fn cold_path_tests(&self) -> Vec<&'static TestContract> {
-        self.contracts.iter().filter(|c| c.resources.is_cold_path()).collect()
+        self.contracts
+            .iter()
+            .filter(|c| c.resources.is_cold_path())
+            .collect()
     }
 
     /// Get all tests that cover a specific module
     #[must_use]
     pub fn tests_covering_module(&self, module: &str) -> Vec<&'static TestContract> {
-        self.contracts.iter().filter(|c| c.covers_module_runtime(module)).collect()
+        self.contracts
+            .iter()
+            .filter(|c| c.covers_module_runtime(module))
+            .collect()
     }
 
     /// Get all tests that verify a specific invariant
     #[must_use]
     pub fn tests_verifying_invariant(&self, invariant: &str) -> Vec<&'static TestContract> {
-        self.contracts.iter().filter(|c| c.verifies_invariant(invariant)).collect()
+        self.contracts
+            .iter()
+            .filter(|c| c.verifies_invariant(invariant))
+            .collect()
     }
 
     /// Get all tests that require a specific environment
     #[must_use]
     pub fn tests_requiring_environment(&self, env: &str) -> Vec<&'static TestContract> {
-        self.contracts.iter().filter(|c| c.environment.contains(&env)).collect()
+        self.contracts
+            .iter()
+            .filter(|c| c.environment.contains(&env))
+            .collect()
     }
 
     /// Check coverage: do we have at least one test for each invariant?
@@ -351,7 +371,12 @@ impl TestContractRegistry {
     pub fn uncovered_modules<'a>(&self, required_modules: &[&'a str]) -> Vec<&'a str> {
         required_modules
             .iter()
-            .filter(|&&module| !self.contracts.iter().any(|c| c.covers_module_runtime(module)))
+            .filter(|&&module| {
+                !self
+                    .contracts
+                    .iter()
+                    .any(|c| c.covers_module_runtime(module))
+            })
             .copied()
             .collect()
     }

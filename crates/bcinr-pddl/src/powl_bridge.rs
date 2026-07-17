@@ -123,9 +123,7 @@ mod tests {
     use super::*;
 
     fn step(
-        action_name: &str,
-        start_time: f64,
-        duration: f64,
+        action_name: &str, start_time: f64, duration: f64,
     ) -> wasm4pm_compat::pddl::TemporalPlanStep {
         wasm4pm_compat::pddl::TemporalPlanStep {
             action_name: action_name.to_string(),

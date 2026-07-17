@@ -152,7 +152,11 @@ pub fn close_channel() -> Result<RunSummary, String> {
 
     let evaluated = diagnostics.len();
     let admitted = evaluated.saturating_sub(andon_count);
-    let p_admitted = if evaluated > 0 { admitted as f64 / evaluated as f64 } else { 1.0 };
+    let p_admitted = if evaluated > 0 {
+        admitted as f64 / evaluated as f64
+    } else {
+        1.0
+    };
 
     let summary = RunSummary {
         run_id,

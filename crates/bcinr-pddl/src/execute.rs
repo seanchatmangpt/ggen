@@ -126,11 +126,8 @@ impl Ctx {
 /// `policy_rules` are `(head_label, [body_labels])` May-fire Horn rules.
 /// If empty, every scheduled op is pre-admitted via a fact.
 pub fn execute_tape(
-    tape: &Pddl8Tape,
-    initial_state: &BTreeSet<Pddl8GroundAtom>,
-    goal: &[Pddl8GroundAtom],
-    case_id: &str,
-    policy_rules: &[(&str, Vec<&str>)],
+    tape: &Pddl8Tape, initial_state: &BTreeSet<Pddl8GroundAtom>, goal: &[Pddl8GroundAtom],
+    case_id: &str, policy_rules: &[(&str, Vec<&str>)],
 ) -> Result<(Pddl8ExecutionLog, Pddl8ExecutionReceipt, OCEL), Pddl8Error> {
     validate_case_id(case_id)?;
     let mut ctx = Ctx::new();
@@ -331,10 +328,7 @@ pub fn execute_tape(
 }
 
 fn load_may_fire_rule(
-    ctx: &mut Ctx,
-    _id: u32,
-    head: &str,
-    body: &[&str],
+    ctx: &mut Ctx, _id: u32, head: &str, body: &[&str],
 ) -> Result<(), Pddl8Error> {
     if body.len() > 8 {
         return Err(Pddl8Error::BoundExceeded {
@@ -426,9 +420,7 @@ fn atom_key(pred: &str, args: &[String]) -> String {
 /// (like its classical-action counterpart above) only tracks propositional
 /// atoms, not numeric fluents.
 fn apply_pddl_effect_propositional(
-    eff: &PddlEffect,
-    subst: &HashMap<&str, &str>,
-    state: &mut BTreeSet<String>,
+    eff: &PddlEffect, subst: &HashMap<&str, &str>, state: &mut BTreeSet<String>,
 ) {
     use wasm4pm_compat::pddl::Pddl8Atom;
     let ground_args = |args: &[String]| -> Vec<String> {
@@ -526,10 +518,7 @@ pub struct SubstageNs {
 /// Keep this in sync with `execute_temporal_plan` if that function's
 /// structure changes.
 pub fn execute_temporal_plan_instrumented(
-    plan: &TemporalPlan,
-    domain: &Pddl8Domain,
-    problem: &Pddl8Problem,
-    case_id: &str,
+    plan: &TemporalPlan, domain: &Pddl8Domain, problem: &Pddl8Problem, case_id: &str,
     policy_rules: &[(&str, Vec<&str>)],
 ) -> Result<(TemporalExecutionReceipt, OCEL, SubstageNs), Pddl8Error> {
     use blake3::Hasher;
@@ -816,10 +805,7 @@ pub fn execute_temporal_plan_instrumented(
 /// `policy_rules` are `(head_label, [body_labels])` Horn rules. Empty slice = permissive
 /// (every unique action name is pre-admitted as a ground fact, identical to today's behavior).
 pub fn execute_temporal_plan(
-    plan: &TemporalPlan,
-    domain: &Pddl8Domain,
-    problem: &Pddl8Problem,
-    case_id: &str,
+    plan: &TemporalPlan, domain: &Pddl8Domain, problem: &Pddl8Problem, case_id: &str,
     policy_rules: &[(&str, Vec<&str>)],
 ) -> Result<(TemporalExecutionReceipt, OCEL), Pddl8Error> {
     use blake3::Hasher;

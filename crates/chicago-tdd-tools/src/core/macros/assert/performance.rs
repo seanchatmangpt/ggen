@@ -109,7 +109,11 @@ macro_rules! assert_in_range {
 #[macro_export]
 macro_rules! assert_guard_constraint {
     ($condition:expr, $constraint_name:expr) => {
-        assert!($condition, "Guard constraint violation: {}", $constraint_name);
+        assert!(
+            $condition,
+            "Guard constraint violation: {}",
+            $constraint_name
+        );
     };
 }
 

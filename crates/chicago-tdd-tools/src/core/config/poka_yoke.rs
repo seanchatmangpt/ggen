@@ -778,7 +778,9 @@ mod tests {
 
     #[test]
     fn test_config_builder_incomplete() {
-        let config = ConfigBuilder::new().unit_timeout(PositiveTimeout::new(1).unwrap()).build();
+        let config = ConfigBuilder::new()
+            .unit_timeout(PositiveTimeout::new(1).unwrap())
+            .build();
         assert!(config.is_none());
     }
 

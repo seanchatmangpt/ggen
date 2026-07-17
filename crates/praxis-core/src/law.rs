@@ -249,10 +249,7 @@ impl Default for ReceiptMeta {
 /// non-fatal refusals honestly records which lanes fired instead of always
 /// claiming a clean admission.
 pub(crate) fn build_admission_frame(
-    payload_hash: &[u8; 32],
-    prev_chain_hash: &[u8; 32],
-    meta: &ReceiptMeta,
-    ts_ns: u64,
+    payload_hash: &[u8; 32], prev_chain_hash: &[u8; 32], meta: &ReceiptMeta, ts_ns: u64,
 ) -> OcelCausalFrame {
     let meta_json =
         serde_json::to_vec(&(&meta.andon, &meta.object_ids, &meta.obligation_count)).unwrap();
@@ -308,9 +305,7 @@ impl<Payload: Serialize, Law> LawObject<Payload, Admitted, Law> {
     /// methods below share this so they can never compute different chain
     /// hashes for the same inputs.
     fn resolve_receipt(
-        &self,
-        prev_chain_hash: &[u8; 32],
-        meta: &ReceiptMeta,
+        &self, prev_chain_hash: &[u8; 32], meta: &ReceiptMeta,
     ) -> Result<([u8; 32], u64, [u8; 32]), crate::error::CoreError> {
         // Serialize payload to canonical bytes via JSON, then bind it into the
         // frame by hashing it with blake3. Without this, two receipts for
@@ -354,9 +349,7 @@ impl<Payload: Serialize, Law> LawObject<Payload, Admitted, Law> {
     ///
     /// Consumes self so an Admitted object cannot be receipted twice.
     pub fn receipt(
-        mut self,
-        prev_chain_hash: &[u8; 32],
-        meta: ReceiptMeta,
+        mut self, prev_chain_hash: &[u8; 32], meta: ReceiptMeta,
     ) -> Result<LawObject<Payload, Receipted, Law>, crate::error::CoreError> {
         let (_payload_hash, _ts_ns, chain_hash) = self.resolve_receipt(prev_chain_hash, &meta)?;
         self.chain_hash = Some(chain_hash);
@@ -382,9 +375,7 @@ impl<Payload: Serialize, Law> LawObject<Payload, Admitted, Law> {
     /// [`LawObject::resolve_receipt`], so they can never compute different
     /// chain hashes for the same inputs.
     pub fn receipt_with_record(
-        mut self,
-        prev_chain_hash: &[u8; 32],
-        meta: ReceiptMeta,
+        mut self, prev_chain_hash: &[u8; 32], meta: ReceiptMeta,
     ) -> Result<
         (
             LawObject<Payload, Receipted, Law>,

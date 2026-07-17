@@ -112,9 +112,7 @@ impl ConcurrencyAnalyzer for PddlConcurrencyAnalyzer {
     type Error = ConcurrencyAnalysisError;
 
     fn analyze(
-        &self,
-        _epoch: &GroundedPlanningEpoch,
-        causal: &CausalPlan,
+        &self, _epoch: &GroundedPlanningEpoch, causal: &CausalPlan,
     ) -> Result<ExecutableConcurrencyComplex, ConcurrencyAnalysisError> {
         if causal.occurrences.len() > MAX_EPOCH_EVENTS {
             return Err(ConcurrencyAnalysisError::TooManyOccurrences(

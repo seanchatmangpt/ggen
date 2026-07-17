@@ -54,8 +54,7 @@ impl WfNet {
         places: impl IntoIterator<Item = String>,
         transitions: impl IntoIterator<Item = (String, Label)>,
         pt: impl IntoIterator<Item = (String, String)>,
-        tp: impl IntoIterator<Item = (String, String)>,
-        source: impl Into<String>,
+        tp: impl IntoIterator<Item = (String, String)>, source: impl Into<String>,
         sink: impl Into<String>,
     ) -> Result<Self, NetError> {
         let net = WfNet {

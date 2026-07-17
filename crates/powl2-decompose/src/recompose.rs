@@ -77,9 +77,7 @@ impl Builder {
     }
 
     fn build_partial_order(
-        &mut self,
-        children: &[Powl],
-        order: &BTreeSet<(usize, usize)>,
+        &mut self, children: &[Powl], order: &BTreeSet<(usize, usize)>,
     ) -> (String, String) {
         let n = children.len();
         let subs: Vec<(String, String)> = children.iter().map(|c| self.build(c)).collect();

@@ -134,7 +134,11 @@ mod tests {
         let mut generator = TestGenerator::new();
         assert_eq!(generator.get_tests().len(), 0, "starts empty");
         generator.generate_test("test_foo", "foo spec");
-        assert_eq!(generator.get_tests().len(), 1, "each generate_test call stores the result");
+        assert_eq!(
+            generator.get_tests().len(),
+            1,
+            "each generate_test call stores the result"
+        );
     }
 
     #[test]

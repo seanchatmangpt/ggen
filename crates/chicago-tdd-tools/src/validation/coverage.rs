@@ -354,7 +354,11 @@ impl CoverageReport {
         keys.sort();
         for name in keys {
             let covered = self.details.get(name).unwrap_or(&false);
-            let status = if *covered { "[x] covered" } else { "[ ] uncovered" };
+            let status = if *covered {
+                "[x] covered"
+            } else {
+                "[ ] uncovered"
+            };
             let _ = writeln!(markdown, "- {name}: {status}");
         }
         markdown

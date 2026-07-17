@@ -178,8 +178,7 @@ impl<K> WeightedDistribution<K> {
 /// `powf` + collect, one normalize), each entry doing one `powf()` call
 /// and one division.
 pub fn q_lens<K: Clone>(
-    q: QValue,
-    distribution: &PositiveDistribution<K>,
+    q: QValue, distribution: &PositiveDistribution<K>,
 ) -> Result<WeightedDistribution<K>, QLensError> {
     let q_raw = q.get();
     let powered: Vec<(K, f64)> = distribution

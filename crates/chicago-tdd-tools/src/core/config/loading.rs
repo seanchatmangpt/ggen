@@ -543,7 +543,11 @@ fn read_config_value_u16(section: &str, key: &str, default: u16) -> u16 {
 /// **Kaizen improvement**: Uses named constant instead of magic number.
 #[must_use]
 pub fn unit_test_timeout_seconds() -> u64 {
-    read_config_value("test", "unit_timeout_seconds", DEFAULT_UNIT_TEST_TIMEOUT_SECONDS)
+    read_config_value(
+        "test",
+        "unit_timeout_seconds",
+        DEFAULT_UNIT_TEST_TIMEOUT_SECONDS,
+    )
 }
 
 /// Get integration test timeout from config (with fallback to constant)
@@ -563,7 +567,11 @@ pub fn integration_test_timeout_seconds() -> u64 {
 /// **Kaizen improvement**: Uses named constant instead of magic number.
 #[must_use]
 pub fn property_test_cases() -> u32 {
-    read_config_value_u32("property", "default_test_cases", DEFAULT_PROPERTY_TEST_CASES)
+    read_config_value_u32(
+        "property",
+        "default_test_cases",
+        DEFAULT_PROPERTY_TEST_CASES,
+    )
 }
 
 /// Get hot path tick budget from config (with fallback to constant)
@@ -571,7 +579,11 @@ pub fn property_test_cases() -> u32 {
 /// **Kaizen improvement**: Uses named constant instead of magic number.
 #[must_use]
 pub fn hot_path_tick_budget() -> u64 {
-    read_config_value("performance", "hot_path_tick_budget", DEFAULT_HOT_PATH_TICK_BUDGET)
+    read_config_value(
+        "performance",
+        "hot_path_tick_budget",
+        DEFAULT_HOT_PATH_TICK_BUDGET,
+    )
 }
 
 /// Get max run length from config (with fallback to constant)
@@ -728,7 +740,11 @@ pub fn testcontainers_default_https_port() -> u16 {
 /// ```
 #[must_use]
 pub fn testcontainers_default_http_alt_port() -> u16 {
-    read_config_value_u16("testcontainers", "default_http_alt_port", DEFAULT_HTTP_ALT_PORT)
+    read_config_value_u16(
+        "testcontainers",
+        "default_http_alt_port",
+        DEFAULT_HTTP_ALT_PORT,
+    )
 }
 
 /// Get concurrent containers count from config (with fallback to constant)
@@ -854,7 +870,11 @@ pub fn testcontainers_commands_per_container() -> usize {
 /// See [Poka-Yoke Guide](../../../docs/POKA_YOKE_GUIDE.md) for more examples.
 #[must_use]
 pub fn weaver_otlp_grpc_port() -> u16 {
-    read_config_value_u16("observability.weaver", "otlp_grpc_port", DEFAULT_OTLP_GRPC_PORT)
+    read_config_value_u16(
+        "observability.weaver",
+        "otlp_grpc_port",
+        DEFAULT_OTLP_GRPC_PORT,
+    )
 }
 
 /// Get Weaver startup wait time from config (with fallback to constant)
@@ -964,7 +984,11 @@ max_batch_size = 2000
         }
 
         // Assert: Verify config values are parsed correctly
-        assert_eq!(found_unit_timeout, Some(5), "Config file should be parsed correctly");
+        assert_eq!(
+            found_unit_timeout,
+            Some(5),
+            "Config file should be parsed correctly"
+        );
 
         // Cleanup: Restore original CARGO_MANIFEST_DIR
         if let Some(dir) = original_manifest_dir {
@@ -1023,8 +1047,15 @@ otlp_grpc_port = 9999
         }
 
         // Assert: Verify nested section is parsed correctly
-        assert!(found_nested_section, "Nested section [observability.weaver] should be detected");
-        assert_eq!(found_unit_timeout, Some(2), "Config value should be parsed correctly");
+        assert!(
+            found_nested_section,
+            "Nested section [observability.weaver] should be detected"
+        );
+        assert_eq!(
+            found_unit_timeout,
+            Some(2),
+            "Config value should be parsed correctly"
+        );
     }
 
     /// **Gemba Fix**: Test that defaults are used when config file doesn't exist
@@ -1097,8 +1128,15 @@ integration_timeout_seconds = 30
         }
 
         // Assert: Invalid value returns None, valid value is parsed
-        assert_eq!(found_unit_timeout, None, "Invalid value should fail to parse");
-        assert_eq!(found_integration_timeout, Some(30), "Valid value should be parsed");
+        assert_eq!(
+            found_unit_timeout, None,
+            "Invalid value should fail to parse"
+        );
+        assert_eq!(
+            found_integration_timeout,
+            Some(30),
+            "Valid value should be parsed"
+        );
     }
 
     /// **Poka-Yoke Fix**: Test that invalid zero values are rejected and fall back to defaults
@@ -1134,21 +1172,44 @@ max_batch_size = 0
         // starts from temp directory and doesn't search up to find project root config
         let original_manifest_dir = std::env::var("CARGO_MANIFEST_DIR").ok();
         let original_current_dir = std::env::current_dir().ok();
-        std::env::set_var("CARGO_MANIFEST_DIR", temp_dir.path().to_string_lossy().as_ref());
+        std::env::set_var(
+            "CARGO_MANIFEST_DIR",
+            temp_dir.path().to_string_lossy().as_ref(),
+        );
         std::env::set_current_dir(temp_dir.path()).expect("Failed to change to temp directory");
 
         // Assert: Invalid zero values should fall back to defaults (poka-yoke prevention)
         // Poka-yoke types prevent 0 values, so defaults are used
-        assert_eq!(unit_test_timeout_seconds(), 1, "Zero timeout should use default (poka-yoke)");
+        assert_eq!(
+            unit_test_timeout_seconds(),
+            1,
+            "Zero timeout should use default (poka-yoke)"
+        );
         assert_eq!(
             integration_test_timeout_seconds(),
             30,
             "Zero timeout should use default (poka-yoke)"
         );
-        assert_eq!(property_test_cases(), 100, "Zero test cases should use default (poka-yoke)");
-        assert_eq!(hot_path_tick_budget(), 8, "Zero budget should use default (poka-yoke)");
-        assert_eq!(max_run_len(), 8, "Zero run len should use default (poka-yoke)");
-        assert_eq!(max_batch_size(), 1000, "Zero batch size should use default (poka-yoke)");
+        assert_eq!(
+            property_test_cases(),
+            100,
+            "Zero test cases should use default (poka-yoke)"
+        );
+        assert_eq!(
+            hot_path_tick_budget(),
+            8,
+            "Zero budget should use default (poka-yoke)"
+        );
+        assert_eq!(
+            max_run_len(),
+            8,
+            "Zero run len should use default (poka-yoke)"
+        );
+        assert_eq!(
+            max_batch_size(),
+            1000,
+            "Zero batch size should use default (poka-yoke)"
+        );
 
         // Cleanup: Restore original CARGO_MANIFEST_DIR and current directory
         if let Some(dir) = original_manifest_dir {
@@ -1202,7 +1263,10 @@ max_batch_size = 0
             // Weaver section
             ("observability.weaver", "otlp_grpc_port"),
             ("observability.weaver", "startup_wait_milliseconds"),
-            ("observability.weaver", "telemetry_processing_wait_milliseconds"),
+            (
+                "observability.weaver",
+                "telemetry_processing_wait_milliseconds",
+            ),
         ];
 
         // Parse config file and extract all key=value pairs

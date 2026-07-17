@@ -363,7 +363,7 @@ impl WeaverLiveCheck {
             }
         } else {
             return Err(
-                "Neither curl nor wget found. Please install one to download weaver.".to_string()
+                "Neither curl nor wget found. Please install one to download weaver.".to_string(),
             );
         }
 
@@ -511,8 +511,11 @@ impl WeaverLiveCheck {
         use std::net::{TcpStream, ToSocketAddrs};
         use std::time::Duration;
 
-        let ip_addr =
-            if self.otlp_grpc_address == "0.0.0.0" { "127.0.0.1" } else { &self.otlp_grpc_address };
+        let ip_addr = if self.otlp_grpc_address == "0.0.0.0" {
+            "127.0.0.1"
+        } else {
+            &self.otlp_grpc_address
+        };
         let addr_str = format!("{ip_addr}:{}", self.admin_port);
         let socket_addr = addr_str
             .to_socket_addrs()
@@ -678,7 +681,9 @@ mod tests {
     #[test]
     fn test_weaver_live_check_port_boundaries() {
         // Test port boundaries (u16: 0-65535)
-        let check = WeaverLiveCheck::new().with_otlp_port(0).with_admin_port(65535);
+        let check = WeaverLiveCheck::new()
+            .with_otlp_port(0)
+            .with_admin_port(65535);
         assert_eq!(check.otlp_grpc_port, 0);
         assert_eq!(check.admin_port, 65535);
     }

@@ -82,7 +82,12 @@ impl Wave {
     /// Create a new wave.
     #[must_use]
     pub fn new(id: String) -> Self {
-        Self { id, phases: Vec::new(), status: WaveStatus::Queued, metadata: HashMap::new() }
+        Self {
+            id,
+            phases: Vec::new(),
+            status: WaveStatus::Queued,
+            metadata: HashMap::new(),
+        }
     }
 
     /// Add a phase to the wave.
@@ -127,7 +132,10 @@ impl Wave {
                 task_receipts.push(receipt);
             }
 
-            phase_receipts.push(PhaseReceipt { phase_name: phase.name.clone(), task_receipts });
+            phase_receipts.push(PhaseReceipt {
+                phase_name: phase.name.clone(),
+                task_receipts,
+            });
 
             if failed {
                 self.status = WaveStatus::Failed;
@@ -169,6 +177,9 @@ impl WaveReceipt {
     /// Returns the total number of tasks.
     #[must_use]
     pub fn total_tasks(&self) -> usize {
-        self.phase_receipts.iter().flat_map(|p| &p.task_receipts).count()
+        self.phase_receipts
+            .iter()
+            .flat_map(|p| &p.task_receipts)
+            .count()
     }
 }

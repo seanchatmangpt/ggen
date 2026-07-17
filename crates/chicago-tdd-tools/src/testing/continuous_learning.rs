@@ -91,7 +91,12 @@ impl ContinuousLearner {
     /// Create a new continuous learner
     #[must_use]
     pub fn new() -> Self {
-        Self { history: Vec::new(), patterns: HashMap::new(), timestamp: 0, min_observations: 5 }
+        Self {
+            history: Vec::new(),
+            patterns: HashMap::new(),
+            timestamp: 0,
+            min_observations: 5,
+        }
     }
 
     /// Record a test execution
@@ -131,8 +136,10 @@ impl ContinuousLearner {
             #[allow(clippy::cast_precision_loss)]
             let average_tau = total_tau as f64 / entries.len() as f64;
 
-            let failures =
-                entries.iter().filter(|e| matches!(e.outcome, TestOutcome::Fail)).count();
+            let failures = entries
+                .iter()
+                .filter(|e| matches!(e.outcome, TestOutcome::Fail))
+                .count();
             // Precision loss acceptable for statistical rate calculations
             #[allow(clippy::cast_precision_loss)]
             let failure_rate = failures as f64 / entries.len() as f64;
@@ -204,7 +211,10 @@ impl ContinuousLearner {
     /// Orders tests by predicted failure probability (highest first)
     #[must_use]
     pub fn optimize_execution_order(&self, contracts: &[TestContract]) -> Vec<String> {
-        let mut predictions: Vec<_> = contracts.iter().map(|c| (c.name, self.predict(c))).collect();
+        let mut predictions: Vec<_> = contracts
+            .iter()
+            .map(|c| (c.name, self.predict(c)))
+            .collect();
 
         // Sort by failure probability (descending) then by predicted tau (ascending)
         // Note: partial_cmp can return None for NaN, but failure_probability should never be NaN
@@ -216,7 +226,10 @@ impl ContinuousLearner {
                 .then(a.1.predicted_tau.cmp(&b.1.predicted_tau))
         });
 
-        predictions.into_iter().map(|(name, _)| name.to_string()).collect()
+        predictions
+            .into_iter()
+            .map(|(name, _)| name.to_string())
+            .collect()
     }
 
     /// Suggest preventive tests for changed modules
@@ -226,8 +239,10 @@ impl ContinuousLearner {
 
         for pattern in self.patterns.values() {
             // Check if any changed module is in this pattern
-            let has_changed_module =
-                pattern.modules.iter().any(|m| changed_modules.iter().any(|cm| m.contains(cm)));
+            let has_changed_module = pattern
+                .modules
+                .iter()
+                .any(|m| changed_modules.iter().any(|cm| m.contains(cm)));
 
             if has_changed_module && pattern.failure_rate > 0.05 {
                 suggested.push(pattern.id.clone());
@@ -280,14 +295,20 @@ impl AdaptiveTestSelector {
     #[must_use]
     #[allow(clippy::missing_const_for_fn)]
     pub fn new(learner: ContinuousLearner) -> Self {
-        Self { learner, max_tests: 100, min_failure_prob: 0.01 }
+        Self {
+            learner,
+            max_tests: 100,
+            min_failure_prob: 0.01,
+        }
     }
 
     /// Select optimal test subset
     #[must_use]
     pub fn select_tests(&self, contracts: &[TestContract]) -> Vec<String> {
-        let mut predictions: Vec<_> =
-            contracts.iter().map(|c| (c.name, self.learner.predict(c))).collect();
+        let mut predictions: Vec<_> = contracts
+            .iter()
+            .map(|c| (c.name, self.learner.predict(c)))
+            .collect();
 
         // Filter by minimum failure probability
         predictions.retain(|(_, pred)| pred.failure_probability >= self.min_failure_prob);

@@ -83,7 +83,10 @@ impl<T> BehaviorVerification<AssertOkCalled, T> {
     /// **Poka-yoke**: This is called after `assert_ok!()` to track that
     /// behavior verification is required.
     pub const fn new(value: T) -> Self {
-        Self { value, _state: PhantomData }
+        Self {
+            value,
+            _state: PhantomData,
+        }
     }
 
     /// Verify behavior by checking observable outputs
@@ -104,8 +107,15 @@ impl<T> BehaviorVerification<AssertOkCalled, T> {
         F: FnOnce(&T) -> bool,
         T: std::fmt::Debug,
     {
-        assert!(predicate(&self.value), "Behavior verification failed for value: {:?}", self.value);
-        BehaviorVerification { value: self.value, _state: PhantomData }
+        assert!(
+            predicate(&self.value),
+            "Behavior verification failed for value: {:?}",
+            self.value
+        );
+        BehaviorVerification {
+            value: self.value,
+            _state: PhantomData,
+        }
     }
 }
 

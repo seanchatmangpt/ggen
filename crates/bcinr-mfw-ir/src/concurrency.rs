@@ -116,9 +116,7 @@ pub trait ConcurrencyAnalyzer {
     type Error;
 
     fn analyze(
-        &self,
-        epoch: &Self::Epoch,
-        causal: &CausalPlan,
+        &self, epoch: &Self::Epoch, causal: &CausalPlan,
     ) -> Result<ExecutableConcurrencyComplex, Self::Error>;
 }
 

@@ -45,7 +45,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 KeyValue::new("process.workflow.id", "wf-123"),
                 KeyValue::new("process.object.id", "obj-456"),
                 KeyValue::new("process.object.type", "Invoice"),
-                KeyValue::new("process.activity.iri", "http://chatman-equation.org/core/Execute"),
+                KeyValue::new(
+                    "process.activity.iri",
+                    "http://chatman-equation.org/core/Execute",
+                ),
                 KeyValue::new("process.outcome", "completed"),
             ],
         );

@@ -64,7 +64,11 @@ impl CliCommandBuilder {
     /// * `binary` - Name or path of the binary to run
     #[must_use]
     pub fn new(binary: &str) -> Self {
-        Self { binary: binary.to_string(), args: Vec::new(), env: HashMap::new() }
+        Self {
+            binary: binary.to_string(),
+            args: Vec::new(),
+            env: HashMap::new(),
+        }
     }
 
     /// Add an argument to the command
@@ -157,7 +161,10 @@ impl CliAssertions {
     ///
     /// Panics if output does not end with the expected suffix
     pub fn assert_output_ends_with(output: &str, suffix: &str) {
-        assert!(output.ends_with(suffix), "Output does not end with '{suffix}'. Output: {output}");
+        assert!(
+            output.ends_with(suffix),
+            "Output does not end with '{suffix}'. Output: {output}"
+        );
     }
 
     /// Assert output lines contain all of the given strings
@@ -180,7 +187,10 @@ impl CliAssertions {
     ///
     /// Panics if exit code is not 0
     pub fn assert_success(exit_code: i32) {
-        assert_eq!(exit_code, 0, "Expected success (exit code 0), got {exit_code}");
+        assert_eq!(
+            exit_code, 0,
+            "Expected success (exit code 0), got {exit_code}"
+        );
     }
 
     /// Assert exit code is failure (v1.3.0)
@@ -189,7 +199,10 @@ impl CliAssertions {
     ///
     /// Panics if exit code is 0
     pub fn assert_failure(exit_code: i32) {
-        assert_ne!(exit_code, 0, "Expected failure (non-zero exit code), got {exit_code}");
+        assert_ne!(
+            exit_code, 0,
+            "Expected failure (non-zero exit code), got {exit_code}"
+        );
     }
 
     /// Assert specific exit code (v1.3.0)
@@ -198,7 +211,10 @@ impl CliAssertions {
     ///
     /// Panics if exit code doesn't match expected
     pub fn assert_exit_code(actual: i32, expected: i32) {
-        assert_eq!(actual, expected, "Expected exit code {expected}, got {actual}");
+        assert_eq!(
+            actual, expected,
+            "Expected exit code {expected}, got {actual}"
+        );
     }
 
     /// Assert output matches help pattern (v1.3.0)
@@ -209,10 +225,21 @@ impl CliAssertions {
     ///
     /// Panics if output doesn't look like help text
     pub fn assert_is_help(output: &str) {
-        let help_indicators =
-            ["Usage:", "USAGE:", "Options:", "OPTIONS:", "Commands:", "COMMANDS:"];
-        let contains_help = help_indicators.iter().any(|indicator| output.contains(indicator));
-        assert!(contains_help, "Output does not appear to be help text. Output: {output}");
+        let help_indicators = [
+            "Usage:",
+            "USAGE:",
+            "Options:",
+            "OPTIONS:",
+            "Commands:",
+            "COMMANDS:",
+        ];
+        let contains_help = help_indicators
+            .iter()
+            .any(|indicator| output.contains(indicator));
+        assert!(
+            contains_help,
+            "Output does not appear to be help text. Output: {output}"
+        );
     }
 
     /// Assert output matches version pattern (v1.3.0)
@@ -226,7 +253,10 @@ impl CliAssertions {
         // Check for common version patterns: "1.0.0", "v1.0.0", "version 1.0.0"
         let has_version = output.contains(char::is_numeric)
             && (output.contains('.') || output.to_lowercase().contains("version"));
-        assert!(has_version, "Output does not appear to contain version info. Output: {output}");
+        assert!(
+            has_version,
+            "Output does not appear to contain version info. Output: {output}"
+        );
     }
 
     /// Assert output is empty (v1.3.0)
@@ -235,7 +265,10 @@ impl CliAssertions {
     ///
     /// Panics if output is not empty
     pub fn assert_empty(output: &str) {
-        assert!(output.trim().is_empty(), "Expected empty output, got: {output}");
+        assert!(
+            output.trim().is_empty(),
+            "Expected empty output, got: {output}"
+        );
     }
 
     /// Assert stderr is empty (v1.3.0)
@@ -267,7 +300,10 @@ impl CliEnvironment {
     /// Create a new CLI environment
     #[must_use]
     pub fn new() -> Self {
-        Self { vars: HashMap::new(), original_vars: HashMap::new() }
+        Self {
+            vars: HashMap::new(),
+            original_vars: HashMap::new(),
+        }
     }
 
     /// Set an environment variable
@@ -282,7 +318,10 @@ impl CliEnvironment {
     /// Sets common CI environment variables.
     #[must_use]
     pub fn ci() -> Self {
-        Self::new().set("CI", "true").set("TERM", "dumb").set("NO_COLOR", "1")
+        Self::new()
+            .set("CI", "true")
+            .set("TERM", "dumb")
+            .set("NO_COLOR", "1")
     }
 
     /// Create environment for development (v1.3.0)
@@ -290,7 +329,9 @@ impl CliEnvironment {
     /// Sets common development environment variables.
     #[must_use]
     pub fn development() -> Self {
-        Self::new().set("RUST_LOG", "debug").set("RUST_BACKTRACE", "1")
+        Self::new()
+            .set("RUST_LOG", "debug")
+            .set("RUST_BACKTRACE", "1")
     }
 
     /// Create environment for production (v1.3.0)
@@ -298,7 +339,9 @@ impl CliEnvironment {
     /// Sets common production environment variables.
     #[must_use]
     pub fn production() -> Self {
-        Self::new().set("RUST_LOG", "info").set("RUST_BACKTRACE", "0")
+        Self::new()
+            .set("RUST_LOG", "info")
+            .set("RUST_BACKTRACE", "0")
     }
 
     /// Create clean environment (v1.3.0)
@@ -308,9 +351,11 @@ impl CliEnvironment {
     pub fn clean() -> Self {
         let mut env = Self::new();
         // Clear common variables that might interfere with tests
-        env.vars.insert("HOME".to_string(), "/tmp/test-home".to_string());
+        env.vars
+            .insert("HOME".to_string(), "/tmp/test-home".to_string());
         env.vars.insert("USER".to_string(), "test-user".to_string());
-        env.vars.insert("PATH".to_string(), "/usr/bin:/bin".to_string());
+        env.vars
+            .insert("PATH".to_string(), "/usr/bin:/bin".to_string());
         env
     }
 
@@ -326,7 +371,8 @@ impl CliEnvironment {
     /// Apply environment variables
     pub fn apply(&mut self) {
         for (key, value) in &self.vars {
-            self.original_vars.insert(key.clone(), std::env::var(key).ok());
+            self.original_vars
+                .insert(key.clone(), std::env::var(key).ok());
             std::env::set_var(key, value);
         }
     }
@@ -458,7 +504,9 @@ mod tests {
     #[test]
     fn test_cli_command_builder_with_args() {
         // Arrange: Create builder and add arguments
-        let cmd = CliCommandBuilder::new("test-cli").arg("init").arg("--config=app.toml");
+        let cmd = CliCommandBuilder::new("test-cli")
+            .arg("init")
+            .arg("--config=app.toml");
         // Act: Build command
         let command_str = cmd.build();
         // Assert: Command contains all arguments
@@ -481,7 +529,9 @@ mod tests {
     #[test]
     fn test_cli_command_builder_with_env() {
         // Arrange: Create builder with environment variables
-        let cmd = CliCommandBuilder::new("test-cli").env("RUST_LOG", "debug").env("MODE", "test");
+        let cmd = CliCommandBuilder::new("test-cli")
+            .env("RUST_LOG", "debug")
+            .env("MODE", "test");
         // Act: Get environment variables
         let env_vars = cmd.env_vars();
         // Assert: Environment variables are stored
@@ -582,7 +632,10 @@ mod tests {
         // Act: Verify creation
         let env_default = CliEnvironment::default();
         // Assert: Both methods work
-        assert_eq!(std::mem::size_of_val(&env), std::mem::size_of_val(&env_default));
+        assert_eq!(
+            std::mem::size_of_val(&env),
+            std::mem::size_of_val(&env_default)
+        );
     }
 
     #[test]
@@ -592,7 +645,10 @@ mod tests {
         // Act: Apply environment
         env.apply();
         // Assert: Variable is set
-        assert_eq!(std::env::var("TEST_VAR").ok(), Some("test_value".to_string()));
+        assert_eq!(
+            std::env::var("TEST_VAR").ok(),
+            Some("test_value".to_string())
+        );
         // Cleanup: Restore happens in drop
         drop(env);
     }
@@ -841,7 +897,9 @@ mod tests {
     #[test]
     fn test_environment_with_vars_chaining() {
         // Arrange: Chain with_vars with additional set calls
-        let env = CliEnvironment::new().with_vars(&[("A", "1"), ("B", "2")]).set("C", "3");
+        let env = CliEnvironment::new()
+            .with_vars(&[("A", "1"), ("B", "2")])
+            .set("C", "3");
         // Act: Get environment variables
         let vars = &env.vars;
         // Assert: All variables are set

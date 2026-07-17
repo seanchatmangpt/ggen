@@ -94,7 +94,10 @@ fn main() {
         println!("cargo:warning=Failed to clone registry: {e}");
         println!("cargo:warning=Registry will be cloned at runtime if not found");
     } else {
-        println!("cargo:warning=Registry cloned successfully to {}", registry_path.display());
+        println!(
+            "cargo:warning=Registry cloned successfully to {}",
+            registry_path.display()
+        );
     }
 }
 
@@ -159,7 +162,7 @@ fn download_weaver(url: &str, output_path: &PathBuf) -> Result<(), String> {
         }
     } else {
         return Err(
-            "Neither curl nor wget found. Please install one to download weaver.".to_string()
+            "Neither curl nor wget found. Please install one to download weaver.".to_string(),
         );
     }
 
@@ -301,12 +304,22 @@ fn clone_registry(registry_path: &Path) -> Result<(), String> {
         .ok_or_else(|| "Registry path is not valid UTF-8".to_string())?;
 
     println!("cargo:warning=Cloning registry from: {registry_url}");
-    println!("cargo:warning=Target directory: {}", registry_path.display());
+    println!(
+        "cargo:warning=Target directory: {}",
+        registry_path.display()
+    );
 
     // Clone with shallow clone for faster download
     // Use --depth 1 to only clone the latest commit
     let status = Command::new("git")
-        .args(["clone", "--depth", "1", "--single-branch", registry_url, registry_str])
+        .args([
+            "clone",
+            "--depth",
+            "1",
+            "--single-branch",
+            registry_url,
+            registry_str,
+        ])
         .status()
         .map_err(|e| format!("Failed to execute git clone: {e}"))?;
 

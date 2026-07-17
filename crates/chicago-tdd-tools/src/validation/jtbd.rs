@@ -195,11 +195,8 @@ impl JtbdValidationResult {
     #[must_use]
     #[allow(clippy::missing_const_for_fn)] // Cannot be const - takes String and Vec parameters
     pub fn failure(
-        scenario_name: String,
-        execution_success: bool,
-        expected_behavior: String,
-        actual_behavior: String,
-        details: Vec<String>,
+        scenario_name: String, execution_success: bool, expected_behavior: String,
+        actual_behavior: String, details: Vec<String>,
     ) -> Self {
         Self {
             scenario_name,
@@ -237,7 +234,11 @@ impl ExecutionResult {
     /// Create a successful result
     #[must_use]
     pub fn ok(variables: HashMap<String, String>) -> Self {
-        Self { success: true, variables, metadata: HashMap::new() }
+        Self {
+            success: true,
+            variables,
+            metadata: HashMap::new(),
+        }
     }
 
     /// Create a failed result
@@ -245,7 +246,11 @@ impl ExecutionResult {
     pub fn err(message: String) -> Self {
         let mut metadata = HashMap::new();
         metadata.insert("error".to_string(), message);
-        Self { success: false, variables: HashMap::new(), metadata }
+        Self {
+            success: false,
+            variables: HashMap::new(),
+            metadata,
+        }
     }
 }
 
@@ -277,7 +282,9 @@ impl JtbdValidator {
     #[must_use]
     #[allow(clippy::missing_const_for_fn)] // Cannot be const - contains Vec field
     pub fn new() -> Self {
-        Self { scenarios: Vec::new() }
+        Self {
+            scenarios: Vec::new(),
+        }
     }
 
     /// Register a JTBD scenario
@@ -328,7 +335,10 @@ impl JtbdValidator {
                 scenario_name,
                 execution_result.success,
                 scenario.expected_behavior.clone(),
-                format!("Execution: {}, JTBD: {jtbd_valid}", execution_result.success),
+                format!(
+                    "Execution: {}, JTBD: {jtbd_valid}",
+                    execution_result.success
+                ),
                 details,
             ))
         }

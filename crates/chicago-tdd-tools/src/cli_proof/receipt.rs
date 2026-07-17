@@ -27,7 +27,11 @@ impl ReceiptAssertions {
         // Collect (mtime, path) pairs for *.json files.
         let mut entries: Vec<(std::time::SystemTime, PathBuf)> = fs::read_dir(&dir)?
             .filter_map(|e| e.ok())
-            .filter(|e| e.path().extension().is_some_and(|ext| ext.eq_ignore_ascii_case("json")))
+            .filter(|e| {
+                e.path()
+                    .extension()
+                    .is_some_and(|ext| ext.eq_ignore_ascii_case("json"))
+            })
             .filter_map(|e| {
                 let mtime = e.metadata().ok()?.modified().ok()?;
                 Some((mtime, e.path()))
@@ -65,7 +69,10 @@ impl ReceiptAssertions {
         let receipt = self
             .latest()
             .unwrap_or_else(|| panic!("no receipts found in {}", self.dir.display()));
-        let is_valid = receipt.get("is_valid").and_then(Value::as_bool).unwrap_or(false);
+        let is_valid = receipt
+            .get("is_valid")
+            .and_then(Value::as_bool)
+            .unwrap_or(false);
         if !is_valid {
             panic!(
                 "expected latest receipt to have is_valid=true\nreceipt:\n{}",
@@ -80,7 +87,10 @@ impl ReceiptAssertions {
         let receipt = self
             .latest()
             .unwrap_or_else(|| panic!("no receipts found in {}", self.dir.display()));
-        let sig = receipt.get("signature").and_then(Value::as_str).unwrap_or("");
+        let sig = receipt
+            .get("signature")
+            .and_then(Value::as_str)
+            .unwrap_or("");
         if sig.is_empty() {
             panic!(
                 "expected latest receipt to have a non-empty 'signature' field\nreceipt:\n{}",
@@ -96,13 +106,19 @@ impl ReceiptAssertions {
         let receipt = self
             .latest()
             .unwrap_or_else(|| panic!("no receipts found in {}", self.dir.display()));
-        let hashes = receipt.get("input_hashes").and_then(Value::as_array).unwrap_or_else(|| {
-            panic!(
-                "latest receipt has no 'input_hashes' array\nreceipt:\n{}",
-                serde_json::to_string_pretty(receipt).unwrap_or_default()
-            )
-        });
-        let found = hashes.iter().filter_map(Value::as_str).any(|s| predicate(s));
+        let hashes = receipt
+            .get("input_hashes")
+            .and_then(Value::as_array)
+            .unwrap_or_else(|| {
+                panic!(
+                    "latest receipt has no 'input_hashes' array\nreceipt:\n{}",
+                    serde_json::to_string_pretty(receipt).unwrap_or_default()
+                )
+            });
+        let found = hashes
+            .iter()
+            .filter_map(Value::as_str)
+            .any(|s| predicate(s));
         if !found {
             panic!(
                 "no entry in latest receipt's 'input_hashes' matched the predicate\nhashes: {:?}",
@@ -126,20 +142,25 @@ impl ReceiptAssertions {
         let latest = &self.receipts[0];
         let second = &self.receipts[1];
 
-        let prev_hash =
-            latest.get("previous_receipt_hash").and_then(Value::as_str).unwrap_or_else(|| {
+        let prev_hash = latest
+            .get("previous_receipt_hash")
+            .and_then(Value::as_str)
+            .unwrap_or_else(|| {
                 panic!(
                     "latest receipt missing 'previous_receipt_hash'\nreceipt:\n{}",
                     serde_json::to_string_pretty(latest).unwrap_or_default()
                 )
             });
 
-        let second_hash = second.get("hash").and_then(Value::as_str).unwrap_or_else(|| {
-            panic!(
-                "second receipt missing 'hash' field\nreceipt:\n{}",
-                serde_json::to_string_pretty(second).unwrap_or_default()
-            )
-        });
+        let second_hash = second
+            .get("hash")
+            .and_then(Value::as_str)
+            .unwrap_or_else(|| {
+                panic!(
+                    "second receipt missing 'hash' field\nreceipt:\n{}",
+                    serde_json::to_string_pretty(second).unwrap_or_default()
+                )
+            });
 
         if prev_hash != second_hash {
             panic!(
@@ -162,7 +183,12 @@ impl ReceiptAssertions {
                 self.receipts.len()
             );
         }
-        let hash_of = |r: &Value| r.get("hash").and_then(Value::as_str).unwrap_or("").to_owned();
+        let hash_of = |r: &Value| {
+            r.get("hash")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .to_owned()
+        };
         let latest_hash = hash_of(&self.receipts[0]);
         let prev_hash = hash_of(&self.receipts[1]);
 

@@ -46,7 +46,10 @@ impl MutationTester {
     /// Create new mutation tester
     #[must_use]
     pub const fn new(original: HashMap<String, String>) -> Self {
-        Self { original, mutations: vec![] }
+        Self {
+            original,
+            mutations: vec![],
+        }
     }
 
     /// Apply mutation operator
@@ -57,9 +60,7 @@ impl MutationTester {
 
     #[allow(clippy::unused_self)] // Part of API - self required for consistency
     fn mutate_data(
-        &self,
-        data: &HashMap<String, String>,
-        mutation: MutationOperator,
+        &self, data: &HashMap<String, String>, mutation: MutationOperator,
     ) -> HashMap<String, String> {
         let mut mutated = data.clone();
 
@@ -175,9 +176,17 @@ impl MutationScore {
     pub fn calculate(caught: usize, total: usize) -> Self {
         #[allow(clippy::cast_precision_loss)]
         // Percentage calculation - precision loss acceptable for mutation scores
-        let score = if total > 0 { (caught as f64 / total as f64) * 100.0 } else { 0.0 };
+        let score = if total > 0 {
+            (caught as f64 / total as f64) * 100.0
+        } else {
+            0.0
+        };
 
-        Self { total, caught, score }
+        Self {
+            total,
+            caught,
+            score,
+        }
     }
 
     /// Get score percentage
@@ -256,7 +265,11 @@ mod tests {
         let mut data = HashMap::new();
         data.insert("key1".to_string(), "value1".to_string());
         let tester = MutationTester::new(data);
-        assert_eq!(tester.original.len(), 1, "Original data should have 1 entry");
+        assert_eq!(
+            tester.original.len(),
+            1,
+            "Original data should have 1 entry"
+        );
         assert_eq!(tester.mutations.len(), 0, "Should start with no mutations");
     }
 
@@ -281,11 +294,17 @@ mod tests {
         data.insert("key1".to_string(), "value1".to_string());
 
         let mut tester = MutationTester::new(data);
-        let mutated = tester
-            .apply_mutation(MutationOperator::AddKey("key2".to_string(), "value2".to_string()));
+        let mutated = tester.apply_mutation(MutationOperator::AddKey(
+            "key2".to_string(),
+            "value2".to_string(),
+        ));
 
         assert_eq!(mutated.len(), 2, "Mutated data should have 2 entries");
-        assert_eq!(mutated.get("key2"), Some(&"value2".to_string()), "key2 should be added");
+        assert_eq!(
+            mutated.get("key2"),
+            Some(&"value2".to_string()),
+            "key2 should be added"
+        );
     }
 
     #[test]
@@ -299,7 +318,11 @@ mod tests {
             "new_value".to_string(),
         ));
 
-        assert_eq!(mutated.get("key1"), Some(&"new_value".to_string()), "value should be changed");
+        assert_eq!(
+            mutated.get("key1"),
+            Some(&"new_value".to_string()),
+            "value should be changed"
+        );
     }
 
     #[test]
@@ -329,7 +352,10 @@ mod tests {
 
         let mut tester = MutationTester::new(data);
         tester.apply_mutation(MutationOperator::RemoveKey("key1".to_string()));
-        tester.apply_mutation(MutationOperator::AddKey("key3".to_string(), "value3".to_string()));
+        tester.apply_mutation(MutationOperator::AddKey(
+            "key3".to_string(),
+            "value3".to_string(),
+        ));
 
         // Test function that checks for both keys
         let test_fn = |d: &HashMap<String, String>| {
@@ -346,7 +372,10 @@ mod tests {
         data.insert("key1".to_string(), "value1".to_string());
 
         let mut tester = MutationTester::new(data);
-        tester.apply_mutation(MutationOperator::AddKey("key2".to_string(), "value2".to_string()));
+        tester.apply_mutation(MutationOperator::AddKey(
+            "key2".to_string(),
+            "value2".to_string(),
+        ));
 
         // Test function that doesn't check for key2
         let test_fn = |d: &HashMap<String, String>| d.contains_key("key1");
@@ -384,12 +413,22 @@ mod tests {
         let mut tester = MutationTester::new(data);
 
         // Act
-        let mutated = tester
-            .apply_mutation(MutationOperator::SwapValues("key1".to_string(), "key2".to_string()));
+        let mutated = tester.apply_mutation(MutationOperator::SwapValues(
+            "key1".to_string(),
+            "key2".to_string(),
+        ));
 
         // Assert
-        assert_eq!(mutated.get("key1"), Some(&"value2".to_string()), "key1 should have value2");
-        assert_eq!(mutated.get("key2"), Some(&"value1".to_string()), "key2 should have value1");
+        assert_eq!(
+            mutated.get("key1"),
+            Some(&"value2".to_string()),
+            "key1 should have value2"
+        );
+        assert_eq!(
+            mutated.get("key2"),
+            Some(&"value1".to_string()),
+            "key2 should have value1"
+        );
     }
 
     #[test]
@@ -426,7 +465,11 @@ mod tests {
         let mutated = tester.apply_mutation(MutationOperator::ToggleBoolean("flag".to_string()));
 
         // Assert
-        assert_eq!(mutated.get("flag"), Some(&"false".to_string()), "true should toggle to false");
+        assert_eq!(
+            mutated.get("flag"),
+            Some(&"false".to_string()),
+            "true should toggle to false"
+        );
     }
 
     #[test]
@@ -441,7 +484,11 @@ mod tests {
         let mutated = tester.apply_mutation(MutationOperator::ToggleBoolean("flag".to_string()));
 
         // Assert
-        assert_eq!(mutated.get("flag"), Some(&"true".to_string()), "false should toggle to true");
+        assert_eq!(
+            mutated.get("flag"),
+            Some(&"true".to_string()),
+            "false should toggle to true"
+        );
     }
 
     #[test]
@@ -456,7 +503,11 @@ mod tests {
         let mutated = tester.apply_mutation(MutationOperator::ToggleBoolean("flag".to_string()));
 
         // Assert: Should handle uppercase
-        assert_eq!(mutated.get("flag"), Some(&"false".to_string()), "TRUE should toggle to false");
+        assert_eq!(
+            mutated.get("flag"),
+            Some(&"false".to_string()),
+            "TRUE should toggle to false"
+        );
     }
 
     #[test]
@@ -490,7 +541,11 @@ mod tests {
         let mutated = tester.apply_mutation(MutationOperator::NumericDelta("count".to_string(), 5));
 
         // Assert
-        assert_eq!(mutated.get("count"), Some(&"15".to_string()), "10 + 5 should be 15");
+        assert_eq!(
+            mutated.get("count"),
+            Some(&"15".to_string()),
+            "10 + 5 should be 15"
+        );
     }
 
     #[test]
@@ -506,7 +561,11 @@ mod tests {
             tester.apply_mutation(MutationOperator::NumericDelta("count".to_string(), -3));
 
         // Assert
-        assert_eq!(mutated.get("count"), Some(&"7".to_string()), "10 - 3 should be 7");
+        assert_eq!(
+            mutated.get("count"),
+            Some(&"7".to_string()),
+            "10 - 3 should be 7"
+        );
     }
 
     #[test]
@@ -537,11 +596,17 @@ mod tests {
         let mut tester = MutationTester::new(data);
 
         // Act
-        let mutated = tester
-            .apply_mutation(MutationOperator::StringCase("text".to_string(), CaseMode::Upper));
+        let mutated = tester.apply_mutation(MutationOperator::StringCase(
+            "text".to_string(),
+            CaseMode::Upper,
+        ));
 
         // Assert
-        assert_eq!(mutated.get("text"), Some(&"HELLO".to_string()), "should convert to uppercase");
+        assert_eq!(
+            mutated.get("text"),
+            Some(&"HELLO".to_string()),
+            "should convert to uppercase"
+        );
     }
 
     #[test]
@@ -553,11 +618,17 @@ mod tests {
         let mut tester = MutationTester::new(data);
 
         // Act
-        let mutated = tester
-            .apply_mutation(MutationOperator::StringCase("text".to_string(), CaseMode::Lower));
+        let mutated = tester.apply_mutation(MutationOperator::StringCase(
+            "text".to_string(),
+            CaseMode::Lower,
+        ));
 
         // Assert
-        assert_eq!(mutated.get("text"), Some(&"hello".to_string()), "should convert to lowercase");
+        assert_eq!(
+            mutated.get("text"),
+            Some(&"hello".to_string()),
+            "should convert to lowercase"
+        );
     }
 
     #[test]
@@ -569,8 +640,10 @@ mod tests {
         let mut tester = MutationTester::new(data);
 
         // Act
-        let mutated = tester
-            .apply_mutation(MutationOperator::StringCase("text".to_string(), CaseMode::Title));
+        let mutated = tester.apply_mutation(MutationOperator::StringCase(
+            "text".to_string(),
+            CaseMode::Title,
+        ));
 
         // Assert
         assert_eq!(
@@ -589,11 +662,17 @@ mod tests {
         let mut tester = MutationTester::new(data);
 
         // Act
-        let mutated = tester
-            .apply_mutation(MutationOperator::StringCase("text".to_string(), CaseMode::Title));
+        let mutated = tester.apply_mutation(MutationOperator::StringCase(
+            "text".to_string(),
+            CaseMode::Title,
+        ));
 
         // Assert: Empty string should remain empty
-        assert_eq!(mutated.get("text"), Some(&"".to_string()), "empty string should remain empty");
+        assert_eq!(
+            mutated.get("text"),
+            Some(&"".to_string()),
+            "empty string should remain empty"
+        );
     }
 
     #[test]

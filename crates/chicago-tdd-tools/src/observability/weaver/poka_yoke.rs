@@ -87,7 +87,9 @@ impl ValidRegistryPath {
             return None;
         }
 
-        Some(Self { path: path.to_path_buf() })
+        Some(Self {
+            path: path.to_path_buf(),
+        })
     }
 
     /// Create a new valid registry path without existence check
@@ -107,7 +109,9 @@ impl ValidRegistryPath {
             return None;
         }
 
-        Some(Self { path: path.to_path_buf() })
+        Some(Self {
+            path: path.to_path_buf(),
+        })
     }
 
     /// Get the path as `&Path`
@@ -186,7 +190,9 @@ impl RegistryVersion {
             return None;
         }
 
-        Some(Self { version: version.to_string() })
+        Some(Self {
+            version: version.to_string(),
+        })
     }
 
     /// Get the version as `&str`

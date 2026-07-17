@@ -80,9 +80,7 @@ impl PlanningResult {
     /// `initial_state` — a real state simulation (add/del effects applied in
     /// order), not an assumption that the tape reached the goal.
     pub fn from_classical_tape(
-        initial_state: &BTreeSet<Pddl8GroundAtom>,
-        goal: &[Pddl8GroundAtom],
-        tape: &Pddl8Tape,
+        initial_state: &BTreeSet<Pddl8GroundAtom>, goal: &[Pddl8GroundAtom], tape: &Pddl8Tape,
     ) -> Self {
         let mut state = initial_state.clone();
         for op in &tape.ops {
@@ -110,9 +108,7 @@ impl PlanningResult {
     /// does not expose a step-by-step replay hook, so the caller supplies the
     /// final state it already computed).
     pub fn new(
-        final_state: BTreeSet<Pddl8GroundAtom>,
-        goal: Vec<Pddl8GroundAtom>,
-        step_count: usize,
+        final_state: BTreeSet<Pddl8GroundAtom>, goal: Vec<Pddl8GroundAtom>, step_count: usize,
         makespan_seconds: f64,
     ) -> Self {
         Self {
@@ -261,10 +257,7 @@ impl<H: ConsequenceHorizon> StandingConsequenceCache<H> {
     /// `(state_digest, theory_digest)`, returning the consequence that was
     /// stored.
     pub fn admit(
-        &mut self,
-        state_digest: Digest,
-        theory_digest: Digest,
-        result: &PlanningResult,
+        &mut self, state_digest: Digest, theory_digest: Digest, result: &PlanningResult,
     ) -> H::Consequence {
         let consequence = self.horizon.observe(result);
         let key = self.key(state_digest, theory_digest);
@@ -291,11 +284,8 @@ impl<H: ConsequenceHorizon> StandingConsequenceCache<H> {
 /// Returns `None` if there is neither a standing hit nor a found plan (a
 /// real search miss — `search` returned something other than `Found`).
 pub fn plan_with_standing_cache<H: ConsequenceHorizon>(
-    cache: &mut StandingConsequenceCache<H>,
-    state_digest: Digest,
-    theory_digest: Digest,
-    initial_state: &BTreeSet<Pddl8GroundAtom>,
-    goal: &[Pddl8GroundAtom],
+    cache: &mut StandingConsequenceCache<H>, state_digest: Digest, theory_digest: Digest,
+    initial_state: &BTreeSet<Pddl8GroundAtom>, goal: &[Pddl8GroundAtom],
     mut search: impl FnMut() -> PlannerOutcome<Pddl8Tape>,
 ) -> Option<H::Consequence> {
     if let Some(hit) = cache.lookup(state_digest, theory_digest) {
@@ -379,9 +369,7 @@ impl Residualizer<GoalReachabilityHorizon> {
     /// atoms, and name exactly those candidates in the returned
     /// `ResidualObligation` — never the whole `actions` slice unfiltered.
     pub fn residualize(
-        &self,
-        initial_state: &BTreeSet<Pddl8GroundAtom>,
-        goal: &[Pddl8GroundAtom],
+        &self, initial_state: &BTreeSet<Pddl8GroundAtom>, goal: &[Pddl8GroundAtom],
         actions: &[Pddl8GroundAction],
     ) -> ResidualDecision {
         let unsatisfied: Vec<Pddl8GroundAtom> = goal

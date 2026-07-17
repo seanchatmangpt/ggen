@@ -90,9 +90,7 @@ impl LifecycleStep {
 /// Build the [`PowlReplayFrame`] for one lifecycle step.
 #[must_use]
 pub fn lifecycle_frame(
-    step: LifecycleStep,
-    ts_ns: u64,
-    object_ids: Vec<String>,
+    step: LifecycleStep, ts_ns: u64, object_ids: Vec<String>,
 ) -> PowlReplayFrame {
     PowlReplayFrame {
         node_id: step.node_id(),

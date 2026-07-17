@@ -58,7 +58,11 @@ impl WeaverTestFixture {
 
         let capture = TelemetryCapture::new(observability.otlp_endpoint());
 
-        Ok(Self { observability, capture, output_dir })
+        Ok(Self {
+            observability,
+            capture,
+            output_dir,
+        })
     }
 
     /// Acquire a tracer that exports spans to the Weaver live-check instance.
@@ -70,9 +74,7 @@ impl WeaverTestFixture {
     ///
     /// Returns an error if the tracer cannot be created.
     pub fn tracer(
-        &self,
-        instrumentation_name: &str,
-        service_name: &str,
+        &self, instrumentation_name: &str, service_name: &str,
     ) -> ObservabilityResult<TelemetryTracer> {
         self.capture.tracer(instrumentation_name, service_name)
     }

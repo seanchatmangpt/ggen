@@ -124,10 +124,8 @@ pub struct SemanticOptimizationContract {
 impl SemanticOptimizationContract {
     /// Construct a contract, refusing if `law.standing` is not `Proven`.
     pub fn new(
-        law: FormalLawRef,
-        consequence_horizon: ConsequenceHorizonId,
-        transformation: TransformationProfileId,
-        assumptions: Vec<String>,
+        law: FormalLawRef, consequence_horizon: ConsequenceHorizonId,
+        transformation: TransformationProfileId, assumptions: Vec<String>,
     ) -> Result<Self, ContractError> {
         if !law.standing.permits_optimization() {
             return Err(ContractError::LawNotProven(law.standing));

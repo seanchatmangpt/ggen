@@ -167,13 +167,18 @@ impl<'de> Deserialize<'de> for SourceLocation {
         impl<'de> Visitor<'de> for LocVisitor {
             type Value = SourceLocation;
             fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                write!(f, "a SourceLocation as 'file:line:col' string or {{file,line,column}} map")
+                write!(
+                    f,
+                    "a SourceLocation as 'file:line:col' string or {{file,line,column}} map"
+                )
             }
             // String format: "file.rs:42:10"
             fn visit_str<E: de::Error>(self, v: &str) -> Result<SourceLocation, E> {
                 let parts: Vec<&str> = v.splitn(3, ':').collect();
                 if parts.len() != 3 {
-                    return Err(de::Error::custom(format!("expected 'file:line:col', got '{v}'")));
+                    return Err(de::Error::custom(format!(
+                        "expected 'file:line:col', got '{v}'"
+                    )));
                 }
                 let line: u32 = parts[1].parse().map_err(|_| {
                     de::Error::custom(format!("invalid line number '{}'", parts[1]))
@@ -182,7 +187,13 @@ impl<'de> Deserialize<'de> for SourceLocation {
                     de::Error::custom(format!("invalid column number '{}'", parts[2]))
                 })?;
                 let file = parts[0].to_string();
-                Ok(SourceLocation { uri: file.clone(), file, line, column, character: column })
+                Ok(SourceLocation {
+                    uri: file.clone(),
+                    file,
+                    line,
+                    column,
+                    character: column,
+                })
             }
             // Map format: {"file": ..., "line": ..., "column": ...} or {"uri": ..., "character": ...}
             fn visit_map<M: MapAccess<'de>>(self, mut map: M) -> Result<SourceLocation, M::Error> {
@@ -234,7 +245,11 @@ pub struct DiagnosticCode {
 
 impl DiagnosticCode {
     pub fn new(domain: impl Into<String>, category: DiagnosticCategory, ordinal: u16) -> Self {
-        Self { domain: domain.into(), category, ordinal }
+        Self {
+            domain: domain.into(),
+            category,
+            ordinal,
+        }
     }
 
     /// Parse a diagnostic code string.
@@ -257,14 +272,22 @@ impl DiagnosticCode {
                 // 2-part: CATEGORY-NNN
                 let category = Self::parse_category(cat)?;
                 let ordinal = Self::parse_ordinal(ord)?;
-                Ok(Self { domain: "CORE".to_string(), category, ordinal })
+                Ok(Self {
+                    domain: "CORE".to_string(),
+                    category,
+                    ordinal,
+                })
             }
             [dom, cat, ord] => {
                 // 3-part: DOMAIN-CATEGORY-NNN
                 Self::validate_domain(dom)?;
                 let category = Self::parse_category(cat)?;
                 let ordinal = Self::parse_ordinal(ord)?;
-                Ok(Self { domain: dom.to_string(), category, ordinal })
+                Ok(Self {
+                    domain: dom.to_string(),
+                    category,
+                    ordinal,
+                })
             }
             _ => Err(format!(
                 "expected 'CAT-NNN' or 'DOM-CAT-NNN', got {} part(s) in '{s}'",
@@ -311,13 +334,20 @@ impl DiagnosticCode {
         if s.starts_with('-') {
             return Err(format!("ordinal cannot be negative: '{s}'"));
         }
-        s.parse::<u16>().map_err(|_| format!("invalid ordinal '{s}': must be 0–65535"))
+        s.parse::<u16>()
+            .map_err(|_| format!("invalid ordinal '{s}': must be 0–65535"))
     }
 }
 
 impl Display for DiagnosticCode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}-{}-{:03}", self.domain, self.category.prefix(), self.ordinal)
+        write!(
+            f,
+            "{}-{}-{:03}",
+            self.domain,
+            self.category.prefix(),
+            self.ordinal
+        )
     }
 }
 
@@ -554,14 +584,21 @@ fn sha256_simple(input: &[u8]) -> Vec<u8> {
         for i in 16..64 {
             let s0 = w[i - 15].rotate_right(7) ^ w[i - 15].rotate_right(18) ^ (w[i - 15] >> 3);
             let s1 = w[i - 2].rotate_right(17) ^ w[i - 2].rotate_right(19) ^ (w[i - 2] >> 10);
-            w[i] = w[i - 16].wrapping_add(s0).wrapping_add(w[i - 7]).wrapping_add(s1);
+            w[i] = w[i - 16]
+                .wrapping_add(s0)
+                .wrapping_add(w[i - 7])
+                .wrapping_add(s1);
         }
         let [mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut hh] =
             [h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7]];
         for i in 0..64 {
             let s1 = e.rotate_right(6) ^ e.rotate_right(11) ^ e.rotate_right(25);
             let ch = (e & f) ^ (!e & g);
-            let temp1 = hh.wrapping_add(s1).wrapping_add(ch).wrapping_add(K[i]).wrapping_add(w[i]);
+            let temp1 = hh
+                .wrapping_add(s1)
+                .wrapping_add(ch)
+                .wrapping_add(K[i])
+                .wrapping_add(w[i]);
             let s0 = a.rotate_right(2) ^ a.rotate_right(13) ^ a.rotate_right(22);
             let maj = (a & b) ^ (a & c) ^ (b & c);
             let temp2 = s0.wrapping_add(maj);

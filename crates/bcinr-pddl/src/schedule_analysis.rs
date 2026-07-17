@@ -71,8 +71,7 @@ pub struct ScheduleAnalysis64 {
 ///
 /// `resource_keys` is capped at 64 entries (bitmask width); extras are ignored.
 pub fn analyze_schedule(
-    gtp: &GroundTemporalProblem,
-    resource_keys: &[String],
+    gtp: &GroundTemporalProblem, resource_keys: &[String],
 ) -> Result<ScheduleAnalysis64, Pddl8Error> {
     analyze_schedule_instrumented(gtp, resource_keys).map(|(result, _substage)| result)
 }
@@ -84,8 +83,7 @@ pub fn analyze_schedule(
 /// bench-only duplicate to avoid adding overhead) — `analyze_schedule`
 /// delegates to this function directly rather than duplicating it.
 pub fn analyze_schedule_instrumented(
-    gtp: &GroundTemporalProblem,
-    resource_keys: &[String],
+    gtp: &GroundTemporalProblem, resource_keys: &[String],
 ) -> Result<(ScheduleAnalysis64, AnalysisSubstageNs), Pddl8Error> {
     use std::time::Instant;
     let mut substage = AnalysisSubstageNs::default();
@@ -229,9 +227,7 @@ fn max_parallelism(earliest_start: &[f64], earliest_finish: &[f64], n: usize) ->
 /// perturb one numeric fluent — only the small fn_values map gets cloned,
 /// by `find_temporal_plan_with_fn_overrides` itself.
 fn replan_with_perturbed_capacity(
-    gtp: &GroundTemporalProblem,
-    resource_key: &str,
-    delta: f64,
+    gtp: &GroundTemporalProblem, resource_key: &str, delta: f64,
 ) -> Option<f64> {
     let base = *gtp.initial_fn_values.get(resource_key).unwrap_or(&0.0);
     let mut overrides = std::collections::HashMap::with_capacity(1);

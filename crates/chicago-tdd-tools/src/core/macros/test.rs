@@ -643,7 +643,10 @@ mod tests {
         assert_that_with_msg(
             &(elapsed < Duration::from_millis(150)),
             |v| *v,
-            &format!("Timeout should trigger within 150ms, but took {:?}", elapsed),
+            &format!(
+                "Timeout should trigger within 150ms, but took {:?}",
+                elapsed
+            ),
         );
     });
 

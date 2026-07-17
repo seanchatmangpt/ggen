@@ -135,7 +135,9 @@ where
                 LEN
             )));
         }
-        Ok(Self { inner: Validated::new(data) })
+        Ok(Self {
+            inner: Validated::new(data),
+        })
     }
 
     /// Get the run length
@@ -249,7 +251,9 @@ where
                 SIZE
             )));
         }
-        Ok(Self { inner: Validated::new(data) })
+        Ok(Self {
+            inner: Validated::new(data),
+        })
     }
 
     /// Get the batch size

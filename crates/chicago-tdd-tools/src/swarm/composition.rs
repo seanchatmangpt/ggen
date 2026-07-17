@@ -29,7 +29,14 @@ impl CompositionStep {
     #[must_use]
     #[allow(clippy::missing_const_for_fn)] // Cannot be const: uses String::new()
     pub fn new(id: String, sector: String, operation: String, input: String) -> Self {
-        Self { id, sector, operation, input, output: String::new(), order: 0 }
+        Self {
+            id,
+            sector,
+            operation,
+            input,
+            output: String::new(),
+            order: 0,
+        }
     }
 
     /// Set execution order
@@ -130,7 +137,11 @@ impl OperationChain {
     /// Get sectors involved
     #[must_use]
     pub fn sectors(&self) -> Vec<String> {
-        let mut sectors = self.steps.iter().map(|s| s.sector.clone()).collect::<Vec<_>>();
+        let mut sectors = self
+            .steps
+            .iter()
+            .map(|s| s.sector.clone())
+            .collect::<Vec<_>>();
         sectors.sort();
         sectors.dedup();
         sectors

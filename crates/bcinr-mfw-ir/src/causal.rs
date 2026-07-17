@@ -271,9 +271,7 @@ pub trait CausalAnalyzer {
     type Error;
 
     fn analyze(
-        &self,
-        epoch: &Self::Epoch,
-        occurrences: &[ActionOccurrence],
+        &self, epoch: &Self::Epoch, occurrences: &[ActionOccurrence],
     ) -> Result<CausalPlan, Self::Error>;
 }
 
@@ -325,9 +323,7 @@ mod tests {
         type Error = MockError;
 
         fn analyze(
-            &self,
-            _epoch: &(),
-            occurrences: &[ActionOccurrence],
+            &self, _epoch: &(), occurrences: &[ActionOccurrence],
         ) -> Result<CausalPlan, MockError> {
             Ok(CausalPlan {
                 epoch: PlanningEpochId(0),

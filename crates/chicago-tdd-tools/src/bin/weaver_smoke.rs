@@ -46,17 +46,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let weaver_binary = WeaverLiveCheck::find_weaver_binary().ok_or_else(|| {
         Box::new(WeaverValidationError::BinaryNotFound) as Box<dyn std::error::Error>
     })?;
-    let version_output = Command::new(&weaver_binary).arg("--version").output().map_err(|e| {
-        Box::new(WeaverValidationError::ProcessStartFailed(format!(
-            "Failed to execute {} --version: {e}",
-            weaver_binary.display()
-        ))) as Box<dyn std::error::Error>
-    })?;
+    let version_output = Command::new(&weaver_binary)
+        .arg("--version")
+        .output()
+        .map_err(|e| {
+            Box::new(WeaverValidationError::ProcessStartFailed(format!(
+                "Failed to execute {} --version: {e}",
+                weaver_binary.display()
+            ))) as Box<dyn std::error::Error>
+        })?;
     if !version_output.status.success() {
-        return Err(Box::new(WeaverValidationError::ProcessStartFailed(format!(
-            "Weaver --version exited with status {}",
-            version_output.status
-        ))));
+        return Err(Box::new(WeaverValidationError::ProcessStartFailed(
+            format!(
+                "Weaver --version exited with status {}",
+                version_output.status
+            ),
+        )));
     }
 
     let mut validator = WeaverValidator::new(registry_path);

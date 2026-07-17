@@ -69,13 +69,19 @@ impl GuardValidator {
     /// Create a new guard validator with default constraints
     #[must_use]
     pub const fn new() -> Self {
-        Self { max_run_len: MAX_RUN_LEN, max_batch_size: MAX_BATCH_SIZE }
+        Self {
+            max_run_len: MAX_RUN_LEN,
+            max_batch_size: MAX_BATCH_SIZE,
+        }
     }
 
     /// Create a guard validator with custom constraints
     #[must_use]
     pub const fn with_constraints(max_run_len: usize, max_batch_size: usize) -> Self {
-        Self { max_run_len, max_batch_size }
+        Self {
+            max_run_len,
+            max_batch_size,
+        }
     }
 
     /// Validate run length at ingress
@@ -101,7 +107,10 @@ impl GuardValidator {
     /// Returns an error if run length exceeds maximum allowed length.
     pub const fn validate_run_len(&self, len: usize) -> GuardConstraintResult<()> {
         if len > self.max_run_len {
-            return Err(GuardConstraintError::MaxRunLengthExceeded(len, self.max_run_len));
+            return Err(GuardConstraintError::MaxRunLengthExceeded(
+                len,
+                self.max_run_len,
+            ));
         }
         Ok(())
     }
@@ -128,7 +137,10 @@ impl GuardValidator {
     /// Returns an error if batch size exceeds maximum allowed size.
     pub const fn validate_batch_size(&self, size: usize) -> GuardConstraintResult<()> {
         if size > self.max_batch_size {
-            return Err(GuardConstraintError::MaxBatchSizeExceeded(size, self.max_batch_size));
+            return Err(GuardConstraintError::MaxBatchSizeExceeded(
+                size,
+                self.max_batch_size,
+            ));
         }
         Ok(())
     }
@@ -309,7 +321,10 @@ mod tests {
                 || display.contains("Invalid")
                 || display.contains("constraint")
                 || display.contains("Chatman");
-            assert!(is_descriptive, "Error message should be descriptive: {display}");
+            assert!(
+                is_descriptive,
+                "Error message should be descriptive: {display}"
+            );
         }
     }
 

@@ -88,18 +88,25 @@ impl SpanContext {
     /// Create a new root span context
     #[must_use]
     pub const fn root(trace_id: TraceId, span_id: SpanId, flags: u8) -> Self {
-        Self { trace_id, span_id, relationship: SpanRelationship::Root, flags }
+        Self {
+            trace_id,
+            span_id,
+            relationship: SpanRelationship::Root,
+            flags,
+        }
     }
 
     /// Create a new child span context
     #[must_use]
     pub const fn child(
-        trace_id: TraceId,
-        span_id: SpanId,
-        parent_span_id: SpanId,
-        flags: u8,
+        trace_id: TraceId, span_id: SpanId, parent_span_id: SpanId, flags: u8,
     ) -> Self {
-        Self { trace_id, span_id, relationship: SpanRelationship::Child { parent_span_id }, flags }
+        Self {
+            trace_id,
+            span_id,
+            relationship: SpanRelationship::Child { parent_span_id },
+            flags,
+        }
     }
 
     /// Get the parent span ID (if this is a child span)
@@ -225,7 +232,10 @@ impl SpanState {
                         "End time {end_time_ms} must be >= start time {start_time_ms}"
                     ));
                 }
-                Ok(Self::Completed { start_time_ms, end_time_ms })
+                Ok(Self::Completed {
+                    start_time_ms,
+                    end_time_ms,
+                })
             }
             Self::Completed { .. } => Err("Span is already completed".to_string()),
         }
@@ -254,12 +264,8 @@ impl Span {
     /// Create a new active span
     #[must_use]
     pub const fn new_active(
-        context: SpanContext,
-        name: String,
-        start_time_ms: u64,
-        attributes: Attributes,
-        events: Vec<SpanEvent>,
-        status: SpanStatus,
+        context: SpanContext, name: String, start_time_ms: u64, attributes: Attributes,
+        events: Vec<SpanEvent>, status: SpanStatus,
     ) -> Self {
         Self {
             context,
@@ -277,21 +283,21 @@ impl Span {
     ///
     /// Returns an error if span creation fails.
     pub fn new_completed(
-        context: SpanContext,
-        name: String,
-        start_time_ms: u64,
-        end_time_ms: u64,
-        attributes: Attributes,
-        events: Vec<SpanEvent>,
-        status: SpanStatus,
+        context: SpanContext, name: String, start_time_ms: u64, end_time_ms: u64,
+        attributes: Attributes, events: Vec<SpanEvent>, status: SpanStatus,
     ) -> Result<Self, String> {
         if end_time_ms < start_time_ms {
-            return Err(format!("End time {end_time_ms} must be >= start time {start_time_ms}"));
+            return Err(format!(
+                "End time {end_time_ms} must be >= start time {start_time_ms}"
+            ));
         }
         Ok(Self {
             context,
             name,
-            state: SpanState::Completed { start_time_ms, end_time_ms },
+            state: SpanState::Completed {
+                start_time_ms,
+                end_time_ms,
+            },
             attributes,
             events,
             status,
@@ -401,26 +407,42 @@ mod tests {
         let relationship = SpanRelationship::Root;
         assert!(relationship.is_root(), "Root should be root");
         assert!(!relationship.is_child(), "Root should not be child");
-        assert_eq!(relationship.parent_span_id(), None, "Root should have no parent");
+        assert_eq!(
+            relationship.parent_span_id(),
+            None,
+            "Root should have no parent"
+        );
     }
 
     #[test]
     fn test_span_relationship_child() {
         let parent_id = SpanId(12345);
-        let relationship = SpanRelationship::Child { parent_span_id: parent_id };
+        let relationship = SpanRelationship::Child {
+            parent_span_id: parent_id,
+        };
         assert!(!relationship.is_root(), "Child should not be root");
         assert!(relationship.is_child(), "Child should be child");
-        assert_eq!(relationship.parent_span_id(), Some(parent_id), "Child should have parent");
+        assert_eq!(
+            relationship.parent_span_id(),
+            Some(parent_id),
+            "Child should have parent"
+        );
     }
 
     #[test]
     fn test_span_relationship_parent_span_id() {
         let parent_id = SpanId(12345);
         let root = SpanRelationship::Root;
-        let child = SpanRelationship::Child { parent_span_id: parent_id };
+        let child = SpanRelationship::Child {
+            parent_span_id: parent_id,
+        };
 
         assert_eq!(root.parent_span_id(), None, "Root should return None");
-        assert_eq!(child.parent_span_id(), Some(parent_id), "Child should return parent ID");
+        assert_eq!(
+            child.parent_span_id(),
+            Some(parent_id),
+            "Child should return parent ID"
+        );
     }
 
     // ========================================================================
@@ -437,7 +459,11 @@ mod tests {
         assert_eq!(context.span_id.0, 67890, "SpanId should match");
         assert!(context.is_root(), "Context should be root");
         assert!(!context.is_child(), "Context should not be child");
-        assert_eq!(context.parent_span_id(), None, "Root context should have no parent");
+        assert_eq!(
+            context.parent_span_id(),
+            None,
+            "Root context should have no parent"
+        );
     }
 
     #[test]
@@ -451,7 +477,11 @@ mod tests {
         assert_eq!(context.span_id.0, 67890, "SpanId should match");
         assert!(!context.is_root(), "Context should not be root");
         assert!(context.is_child(), "Context should be child");
-        assert_eq!(context.parent_span_id(), Some(parent_id), "Child context should have parent");
+        assert_eq!(
+            context.parent_span_id(),
+            Some(parent_id),
+            "Child context should have parent"
+        );
     }
 
     // ========================================================================
@@ -460,16 +490,25 @@ mod tests {
 
     #[test]
     fn test_span_state_active() {
-        let state = SpanState::Active { start_time_ms: 1000 };
+        let state = SpanState::Active {
+            start_time_ms: 1000,
+        };
         assert!(state.is_active(), "State should be active");
         assert!(!state.is_completed(), "State should not be completed");
         assert_eq!(state.start_time_ms(), 1000, "Start time should match");
-        assert_eq!(state.end_time_ms(), None, "Active span should have no end time");
+        assert_eq!(
+            state.end_time_ms(),
+            None,
+            "Active span should have no end time"
+        );
     }
 
     #[test]
     fn test_span_state_completed() {
-        let state = SpanState::Completed { start_time_ms: 1000, end_time_ms: 2000 };
+        let state = SpanState::Completed {
+            start_time_ms: 1000,
+            end_time_ms: 2000,
+        };
         assert!(!state.is_active(), "State should not be active");
         assert!(state.is_completed(), "State should be completed");
         assert_eq!(state.start_time_ms(), 1000, "Start time should match");
@@ -478,17 +517,30 @@ mod tests {
 
     #[test]
     fn test_span_state_complete_success() {
-        let active = SpanState::Active { start_time_ms: 1000 };
+        let active = SpanState::Active {
+            start_time_ms: 1000,
+        };
         let completed = active.complete(2000).expect("Should complete successfully");
 
         assert!(completed.is_completed(), "Should be completed");
-        assert_eq!(completed.start_time_ms(), 1000, "Start time should be preserved");
-        assert_eq!(completed.end_time_ms(), Some(2000), "End time should be set");
+        assert_eq!(
+            completed.start_time_ms(),
+            1000,
+            "Start time should be preserved"
+        );
+        assert_eq!(
+            completed.end_time_ms(),
+            Some(2000),
+            "End time should be set"
+        );
     }
 
     #[test]
     fn test_span_state_complete_already_completed() {
-        let completed = SpanState::Completed { start_time_ms: 1000, end_time_ms: 2000 };
+        let completed = SpanState::Completed {
+            start_time_ms: 1000,
+            end_time_ms: 2000,
+        };
         let result = completed.complete(3000);
 
         assert!(result.is_err(), "Should fail if already completed");
@@ -500,11 +552,16 @@ mod tests {
 
     #[test]
     fn test_span_state_complete_invalid_time() {
-        let active = SpanState::Active { start_time_ms: 2000 };
+        let active = SpanState::Active {
+            start_time_ms: 2000,
+        };
         let result = active.complete(1000);
 
         assert!(result.is_err(), "Should fail if end_time < start_time");
-        assert!(result.unwrap_err().contains("must be >="), "Error should mention time constraint");
+        assert!(
+            result.unwrap_err().contains("must be >="),
+            "Error should mention time constraint"
+        );
     }
 
     // ========================================================================
@@ -514,9 +571,21 @@ mod tests {
     #[test]
     fn test_span_status_variants() {
         assert_eq!(SpanStatus::Ok, SpanStatus::Ok, "Ok should equal Ok");
-        assert_eq!(SpanStatus::Error, SpanStatus::Error, "Error should equal Error");
-        assert_eq!(SpanStatus::Unset, SpanStatus::Unset, "Unset should equal Unset");
-        assert_ne!(SpanStatus::Ok, SpanStatus::Error, "Ok should not equal Error");
+        assert_eq!(
+            SpanStatus::Error,
+            SpanStatus::Error,
+            "Error should equal Error"
+        );
+        assert_eq!(
+            SpanStatus::Unset,
+            SpanStatus::Unset,
+            "Unset should equal Unset"
+        );
+        assert_ne!(
+            SpanStatus::Ok,
+            SpanStatus::Error,
+            "Ok should not equal Error"
+        );
     }
 
     // ========================================================================
@@ -544,7 +613,11 @@ mod tests {
         assert!(span.is_active(), "Span should be active");
         assert!(!span.is_completed(), "Span should not be completed");
         assert_eq!(span.start_time_ms(), 1000, "Start time should match");
-        assert_eq!(span.end_time_ms(), None, "Active span should have no end time");
+        assert_eq!(
+            span.end_time_ms(),
+            None,
+            "Active span should have no end time"
+        );
         assert_eq!(span.status, SpanStatus::Ok, "Status should match");
     }
 
@@ -593,7 +666,10 @@ mod tests {
         );
 
         assert!(result.is_err(), "Should fail if end_time < start_time");
-        assert!(result.unwrap_err().contains("must be >="), "Error should mention time constraint");
+        assert!(
+            result.unwrap_err().contains("must be >="),
+            "Error should mention time constraint"
+        );
     }
 
     #[test]
@@ -651,7 +727,11 @@ mod tests {
         let mut attributes = Attributes::new();
         attributes.insert("key1".to_string(), "value1".to_string());
 
-        let event = SpanEvent { name: "test_event".to_string(), timestamp_ms: 1000, attributes };
+        let event = SpanEvent {
+            name: "test_event".to_string(),
+            timestamp_ms: 1000,
+            attributes,
+        };
 
         assert_eq!(event.name, "test_event", "Event name should match");
         assert_eq!(event.timestamp_ms, 1000, "Timestamp should match");

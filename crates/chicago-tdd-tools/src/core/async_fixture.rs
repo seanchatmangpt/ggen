@@ -218,7 +218,9 @@ mod tests {
         type Error = FixtureError;
 
         async fn create_fixture(&self) -> Result<Self::Fixture<'_>, Self::Error> {
-            Ok(TestAsyncFixture { data: "test".to_string() })
+            Ok(TestAsyncFixture {
+                data: "test".to_string(),
+            })
         }
     }
 
@@ -233,7 +235,11 @@ mod tests {
         let fixture = fixture_result.expect("Fixture should be Ok");
 
         // Assert: Verify fixture created
-        assert_eq_msg!(&fixture.data, &"test".to_string(), "Fixture data should match");
+        assert_eq_msg!(
+            &fixture.data,
+            &"test".to_string(),
+            "Fixture data should match"
+        );
     });
 
     async_test!(test_default_async_fixture_provider, {
@@ -261,7 +267,9 @@ mod tests {
             type Error = FixtureError;
 
             async fn create_fixture(&self) -> Result<Self::Fixture<'_>, Self::Error> {
-                Err(FixtureError::CreationFailed("Intentional failure for testing".to_string()))
+                Err(FixtureError::CreationFailed(
+                    "Intentional failure for testing".to_string(),
+                ))
             }
         }
 

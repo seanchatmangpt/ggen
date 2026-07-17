@@ -24,7 +24,11 @@ use std::time::{SystemTime, UNIX_EPOCH};
 ///
 /// Panics if the result is an error, with a message showing the error.
 pub fn assert_success<T, E: std::fmt::Debug>(result: &Result<T, E>) {
-    assert!(result.is_ok(), "Expected success, but got error: {:?}", result.as_ref().err());
+    assert!(
+        result.is_ok(),
+        "Expected success, but got error: {:?}",
+        result.as_ref().err()
+    );
 }
 
 /// Assert that a result is an error
@@ -33,7 +37,11 @@ pub fn assert_success<T, E: std::fmt::Debug>(result: &Result<T, E>) {
 ///
 /// Panics if the result is successful, with a message showing the value.
 pub fn assert_error<T: std::fmt::Debug, E>(result: &Result<T, E>) {
-    assert!(result.is_err(), "Expected error, but got success: {:?}", result.as_ref().ok());
+    assert!(
+        result.is_err(),
+        "Expected error, but got success: {:?}",
+        result.as_ref().ok()
+    );
 }
 
 /// Assert that two values are equal with a custom message
@@ -42,7 +50,10 @@ pub fn assert_error<T: std::fmt::Debug, E>(result: &Result<T, E>) {
 ///
 /// Panics if `actual` and `expected` are not equal, with a message showing both values.
 pub fn assert_eq_with_msg<T: std::fmt::Debug + PartialEq>(actual: &T, expected: &T, msg: &str) {
-    assert_eq!(actual, expected, "{msg}: expected {expected:?}, got {actual:?}");
+    assert_eq!(
+        actual, expected,
+        "{msg}: expected {expected:?}, got {actual:?}"
+    );
 }
 
 /// Assert that a value is within a range
@@ -51,7 +62,10 @@ pub fn assert_eq_with_msg<T: std::fmt::Debug + PartialEq>(actual: &T, expected: 
 ///
 /// Panics if `value` is not within the range `[min, max]`, with a message showing the value and range.
 pub fn assert_in_range<T: PartialOrd + std::fmt::Debug>(value: &T, min: &T, max: &T, msg: &str) {
-    assert!(value >= min && value <= max, "{msg}: value {value:?} not in range [{min:?}, {max:?}]");
+    assert!(
+        value >= min && value <= max,
+        "{msg}: value {value:?} not in range [{min:?}, {max:?}]"
+    );
 }
 
 /// Assert that a value satisfies a predicate using Higher-Ranked Trait Bounds (HRTB)
@@ -94,7 +108,10 @@ where
     // Poka-Yoke: HRTB requires single-character lifetime for flexibility
     F: for<'value> Fn(&'value T) -> bool,
 {
-    assert!(predicate(value), "{msg}: Assertion failed for value: {value:?}");
+    assert!(
+        predicate(value),
+        "{msg}: Assertion failed for value: {value:?}"
+    );
 }
 
 // ============================================================================
@@ -179,7 +196,11 @@ impl<T: std::fmt::Debug> AssertionBuilder<T> {
         // Poka-Yoke: HRTB requires single-character lifetime for flexibility
         F: for<'value> Fn(&'value T) -> bool,
     {
-        assert!(predicate(&self.value), "Assertion failed for value: {:?}", self.value);
+        assert!(
+            predicate(&self.value),
+            "Assertion failed for value: {:?}",
+            self.value
+        );
         self
     }
 
@@ -208,7 +229,11 @@ impl<T: std::fmt::Debug> AssertionBuilder<T> {
         // Poka-Yoke: HRTB requires single-character lifetime for flexibility
         F: for<'value> Fn(&'value T) -> bool,
     {
-        assert!(predicate(&self.value), "{msg}: Assertion failed for value: {:?}", self.value);
+        assert!(
+            predicate(&self.value),
+            "{msg}: Assertion failed for value: {:?}",
+            self.value
+        );
         self
     }
 
@@ -307,7 +332,11 @@ impl<T: std::fmt::Debug> ValidatedAssertion<T> {
             SpanStatus::Unset,
         );
 
-        Self { value, span, metric: None }
+        Self {
+            value,
+            span,
+            metric: None,
+        }
     }
 
     /// Assert that the value satisfies a predicate (validated)
@@ -338,9 +367,15 @@ impl<T: std::fmt::Debug> ValidatedAssertion<T> {
             #[cfg(not(feature = "logging"))]
             eprintln!("Warning: Failed to complete span: {e}");
         } else {
-            self.span.status = if success { SpanStatus::Ok } else { SpanStatus::Error };
+            self.span.status = if success {
+                SpanStatus::Ok
+            } else {
+                SpanStatus::Error
+            };
         }
-        self.span.attributes.insert("assertion_result".to_string(), success.to_string());
+        self.span
+            .attributes
+            .insert("assertion_result".to_string(), success.to_string());
 
         // Create metric
         #[allow(clippy::expect_used)] // SystemTime should always be after UNIX_EPOCH
@@ -360,7 +395,9 @@ impl<T: std::fmt::Debug> ValidatedAssertion<T> {
 
         // Safe to unwrap here because we just set metric to Some above
         if let Some(ref mut metric) = self.metric {
-            metric.attributes.insert("success".to_string(), success.to_string());
+            metric
+                .attributes
+                .insert("success".to_string(), success.to_string());
         }
 
         assert!(success, "Assertion failed for value: {:?}", self.value);

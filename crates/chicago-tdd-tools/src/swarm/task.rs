@@ -108,11 +108,7 @@ impl TaskReceipt {
     /// Create a new task receipt
     #[must_use]
     pub fn new(
-        task_id: String,
-        agent_id: String,
-        sectors: Vec<String>,
-        status: TaskStatus,
-        result: String,
+        task_id: String, agent_id: String, sectors: Vec<String>, status: TaskStatus, result: String,
     ) -> Self {
         Self {
             task_id,
@@ -168,7 +164,10 @@ impl TaskQueue {
     /// Create a new task queue
     #[must_use]
     pub const fn new() -> Self {
-        Self { tasks: Vec::new(), receipts: Vec::new() }
+        Self {
+            tasks: Vec::new(),
+            receipts: Vec::new(),
+        }
     }
 
     /// Enqueue a task

@@ -203,7 +203,11 @@ impl TestOrchestrator {
     #[must_use]
     #[allow(clippy::missing_const_for_fn)]
     pub fn new(registry: TestContractRegistry) -> Self {
-        Self { registry, pending: VecDeque::new(), executed: Vec::new() }
+        Self {
+            registry,
+            pending: VecDeque::new(),
+            executed: Vec::new(),
+        }
     }
 
     /// Submit a test plan
@@ -245,7 +249,11 @@ impl TestOrchestrator {
         let summary = ExecutionSummary::new();
         let receipts = Vec::new(); // Would be populated by actual test execution
 
-        let result = TestExecutionResult { plan_id: plan.plan_id.clone(), receipts, summary };
+        let result = TestExecutionResult {
+            plan_id: plan.plan_id.clone(),
+            receipts,
+            summary,
+        };
 
         self.executed.push(result.clone());
         result
@@ -276,9 +284,7 @@ impl TestOrchestrator {
     /// Analyzes current coverage and suggests tests to fill gaps.
     #[must_use]
     pub fn suggest_tests_for_coverage(
-        &self,
-        required_invariants: &[&str],
-        current_coverage: &[&str],
+        &self, required_invariants: &[&str], current_coverage: &[&str],
     ) -> Vec<&'static TestContract> {
         let mut suggested = Vec::new();
 
@@ -362,9 +368,7 @@ impl TestPlanningAPI {
     /// Returns modules and invariants that lack coverage.
     #[must_use]
     pub fn coverage_gap<'a>(
-        &self,
-        required_modules: &[&'a str],
-        required_invariants: &[&'a str],
+        &self, required_modules: &[&'a str], required_invariants: &[&'a str],
     ) -> CoverageGap<'a> {
         CoverageGap {
             uncovered_modules: self.registry.uncovered_modules(required_modules),

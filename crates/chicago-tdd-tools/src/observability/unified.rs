@@ -212,10 +212,7 @@ impl WeaverValidator {
     }
 
     fn start(
-        &mut self,
-        registry_path: &std::path::Path,
-        otlp_port: u16,
-        admin_port: u16,
+        &mut self, registry_path: &std::path::Path, otlp_port: u16, admin_port: u16,
         output_dir: Option<&std::path::Path>,
     ) -> ObservabilityResult<Child> {
         use crate::observability::weaver::types::WeaverLiveCheck;
@@ -248,7 +245,9 @@ impl WeaverValidator {
             live_check = live_check.with_output("./weaver-reports".to_string());
         }
 
-        let process = live_check.start().map_err(ObservabilityError::WeaverStartFailed)?;
+        let process = live_check
+            .start()
+            .map_err(ObservabilityError::WeaverStartFailed)?;
 
         self.live_check = Some(live_check);
 
@@ -257,7 +256,9 @@ impl WeaverValidator {
 
     fn stop(&mut self) -> ObservabilityResult<()> {
         if let Some(ref live_check) = self.live_check {
-            live_check.stop().map_err(ObservabilityError::WeaverStopFailed)?;
+            live_check
+                .stop()
+                .map_err(ObservabilityError::WeaverStopFailed)?;
         }
         self.live_check = None;
         Ok(())
@@ -298,8 +299,11 @@ impl ObservabilityTest {
         let otel_validator = OtelValidator::new();
 
         #[cfg(feature = "weaver")]
-        let mut weaver_validator =
-            if config.weaver_enabled { Some(WeaverValidator::new()) } else { None };
+        let mut weaver_validator = if config.weaver_enabled {
+            Some(WeaverValidator::new())
+        } else {
+            None
+        };
         #[cfg(feature = "weaver")]
         let mut weaver_process = None;
         #[cfg(feature = "weaver")]
@@ -441,7 +445,9 @@ impl ObservabilityTest {
             if let Some(dir) = &self.weaver_output_dir {
                 let results = ValidationResults::from_report_dir(dir)?;
                 if results.has_violations() {
-                    return Err(ObservabilityError::ValidationFailed(results.violations_summary()));
+                    return Err(ObservabilityError::ValidationFailed(
+                        results.violations_summary(),
+                    ));
                 }
             }
         }
@@ -472,7 +478,9 @@ impl ObservabilityTest {
             if let Some(dir) = &self.weaver_output_dir {
                 let results = ValidationResults::from_report_dir(dir)?;
                 if results.has_violations() {
-                    return Err(ObservabilityError::ValidationFailed(results.violations_summary()));
+                    return Err(ObservabilityError::ValidationFailed(
+                        results.violations_summary(),
+                    ));
                 }
             }
         }
@@ -569,7 +577,14 @@ impl ObservabilityTest {
 
         // Clone with shallow clone for faster download
         let status = Command::new("git")
-            .args(["clone", "--depth", "1", "--single-branch", registry_url, &registry_str])
+            .args([
+                "clone",
+                "--depth",
+                "1",
+                "--single-branch",
+                registry_url,
+                &registry_str,
+            ])
             .status()
             .map_err(|e| {
                 ObservabilityError::RegistryNotFound(format!(
@@ -682,7 +697,10 @@ mod tests {
         // This is expected behavior - use with_config() with weaver_enabled: false for unit tests
         let result = ObservabilityTest::new();
         // Assert: Method returns Result (behavior test, not existence test)
-        assert!(result.is_ok() || result.is_err(), "new() should return Result");
+        assert!(
+            result.is_ok() || result.is_err(),
+            "new() should return Result"
+        );
     }
 
     #[test]
@@ -694,7 +712,10 @@ mod tests {
         };
         let result = ObservabilityTest::with_config(config);
         // Assert: Method returns Result (behavior test)
-        assert!(result.is_ok() || result.is_err(), "with_config() should return Result");
+        assert!(
+            result.is_ok() || result.is_err(),
+            "with_config() should return Result"
+        );
     }
 
     #[test]
@@ -737,7 +758,10 @@ mod tests {
 
             // Test validation (may fail if span is invalid, that's OK)
             let result = test.validate_span(&span);
-            assert!(result.is_ok() || result.is_err(), "validate_span() should return Result");
+            assert!(
+                result.is_ok() || result.is_err(),
+                "validate_span() should return Result"
+            );
         }
     }
 
@@ -761,7 +785,10 @@ mod tests {
 
             // Test validation (may fail if metric is invalid, that's OK)
             let result = test.validate_metric(&metric);
-            assert!(result.is_ok() || result.is_err(), "validate_metric() should return Result");
+            assert!(
+                result.is_ok() || result.is_err(),
+                "validate_metric() should return Result"
+            );
         }
     }
 }

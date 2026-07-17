@@ -51,9 +51,7 @@ impl TelemetryCapture {
     ///
     /// Returns an error if the OTLP exporter cannot be created.
     pub fn tracer(
-        &self,
-        instrumentation_name: &str,
-        service_name: &str,
+        &self, instrumentation_name: &str, service_name: &str,
     ) -> ObservabilityResult<TelemetryTracer> {
         let _guard = self._rt.enter();
         let exporter = opentelemetry_otlp::SpanExporter::builder()
@@ -66,7 +64,9 @@ impl TelemetryCapture {
                 ))
             })?;
 
-        let resource = Resource::builder().with_service_name(service_name.to_string()).build();
+        let resource = Resource::builder()
+            .with_service_name(service_name.to_string())
+            .build();
 
         let provider = SdkTracerProvider::builder()
             .with_simple_exporter(exporter)
@@ -99,7 +99,12 @@ impl TelemetryCapture {
     /// Returns an error if flushing any tracer fails.
     pub fn flush(&self) -> ObservabilityResult<()> {
         #[allow(clippy::expect_used)] // Mutex should never be poisoned in normal operation
-        for tracer in self.tracers.lock().expect("TelemetryCapture mutex poisoned").iter() {
+        for tracer in self
+            .tracers
+            .lock()
+            .expect("TelemetryCapture mutex poisoned")
+            .iter()
+        {
             tracer.force_flush()?;
         }
 

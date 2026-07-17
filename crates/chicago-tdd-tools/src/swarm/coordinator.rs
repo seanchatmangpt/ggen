@@ -21,7 +21,10 @@ impl SwarmMembership {
     /// Create a new swarm membership
     #[must_use]
     pub fn new() -> Self {
-        Self { swarm_id: format!("swarm-{}", uuid::Uuid::new_v4()), members: HashMap::new() }
+        Self {
+            swarm_id: format!("swarm-{}", uuid::Uuid::new_v4()),
+            members: HashMap::new(),
+        }
     }
 
     /// Add a member to the swarm
@@ -54,7 +57,10 @@ impl SwarmMembership {
     /// Get members handling a specific sector
     #[must_use]
     pub fn members_for_sector(&self, sector: &str) -> Vec<&SwarmMember> {
-        self.members.values().filter(|m| m.can_handle(sector)).collect()
+        self.members
+            .values()
+            .filter(|m| m.can_handle(sector))
+            .collect()
     }
 
     /// Get member count
@@ -140,7 +146,8 @@ impl SwarmCoordinator {
             member.assign_task()?;
         }
 
-        self.task_assignments.insert(task.id.clone(), member_id.clone());
+        self.task_assignments
+            .insert(task.id.clone(), member_id.clone());
 
         Ok((task.id, member_id))
     }

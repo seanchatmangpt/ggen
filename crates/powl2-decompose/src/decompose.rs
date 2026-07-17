@@ -186,11 +186,8 @@ fn convert_rec(net: &WfNet, depth: usize, budget: usize) -> Result<Powl, Refusal
 /// projection would otherwise reproduce a bare-loop sub-net indefinitely).
 /// Larger parts are projected and recursed per Algorithm 3.
 fn convert_child(
-    net: &WfNet,
-    part: &BTreeSet<String>,
-    project: fn(&WfNet, &BTreeSet<String>) -> WfNet,
-    depth: usize,
-    budget: usize,
+    net: &WfNet, part: &BTreeSet<String>, project: fn(&WfNet, &BTreeSet<String>) -> WfNet,
+    depth: usize, budget: usize,
 ) -> Result<Powl, Refusal> {
     if part.len() == 1 {
         let t = part.iter().next().expect("singleton");
@@ -599,12 +596,8 @@ fn project_sm(net: &WfNet, part: &BTreeSet<String>) -> WfNet {
 /// incoming arcs, and a fresh sink if `pe` has outgoing arcs, so the result
 /// is a valid WF-net (Def 3.3).
 fn normalize(
-    mut places: BTreeSet<String>,
-    mut transitions: BTreeMap<String, crate::net::Label>,
-    mut pt: BTreeSet<(String, String)>,
-    mut tp: BTreeSet<(String, String)>,
-    ps: String,
-    pe: String,
+    mut places: BTreeSet<String>, mut transitions: BTreeMap<String, crate::net::Label>,
+    mut pt: BTreeSet<(String, String)>, mut tp: BTreeSet<(String, String)>, ps: String, pe: String,
 ) -> WfNet {
     let ps_has_in = tp.iter().any(|(_, p)| p == &ps);
     let pe_has_out = pt.iter().any(|(p, _)| p == &pe);
@@ -649,9 +642,7 @@ fn fresh(net: &WfNet, stem: &str) -> String {
 }
 
 fn uniq(
-    places: &BTreeSet<String>,
-    transitions: &BTreeMap<String, crate::net::Label>,
-    stem: &str,
+    places: &BTreeSet<String>, transitions: &BTreeMap<String, crate::net::Label>, stem: &str,
 ) -> String {
     let mut i = 0;
     loop {

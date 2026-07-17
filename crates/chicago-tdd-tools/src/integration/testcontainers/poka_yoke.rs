@@ -86,9 +86,7 @@ impl Container<state::Stopped> {
     ///
     /// Returns `Err` if `image` or `tag` is empty.
     pub fn new(
-        client: crate::testcontainers::ContainerClient,
-        image: &str,
-        tag: &str,
+        client: crate::testcontainers::ContainerClient, image: &str, tag: &str,
     ) -> crate::testcontainers::TestcontainersResult<Self> {
         if image.trim().is_empty() {
             return Err(crate::testcontainers::TestcontainersError::OperationFailed(
@@ -152,9 +150,7 @@ impl Container<state::Running> {
     /// Returns error if command execution fails or the inner container handle
     /// is unexpectedly absent (indicates an internal logic bug).
     pub fn exec(
-        &self,
-        command: &str,
-        args: &[&str],
+        &self, command: &str, args: &[&str],
     ) -> crate::testcontainers::TestcontainersResult<crate::testcontainers::exec::ExecResult> {
         let container = self.running.as_ref().ok_or_else(|| {
             crate::testcontainers::TestcontainersError::OperationFailed(
@@ -173,8 +169,7 @@ impl Container<state::Running> {
     ///
     /// Returns error if port mapping fails or the port is not exposed.
     pub fn get_host_port(
-        &self,
-        container_port: u16,
+        &self, container_port: u16,
     ) -> crate::testcontainers::TestcontainersResult<u16> {
         let container = self.running.as_ref().ok_or_else(|| {
             crate::testcontainers::TestcontainersError::OperationFailed(
@@ -244,7 +239,12 @@ impl ValidContainerConfig {
             return None;
         }
 
-        Some(Self { image: image.to_string(), tag: tag.to_string(), _command: None, _args: None })
+        Some(Self {
+            image: image.to_string(),
+            tag: tag.to_string(),
+            _command: None,
+            _args: None,
+        })
     }
 
     /// Get image name

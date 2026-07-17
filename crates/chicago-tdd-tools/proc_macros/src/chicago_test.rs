@@ -19,7 +19,10 @@ impl Parse for ChicagoTestArgs {
     fn parse(input: ParseStream) -> Result<Self> {
         let ticket_key: Ident = input.parse()?;
         if ticket_key != "ticket" {
-            return Err(syn::Error::new(ticket_key.span(), "expected `ticket = \"...\"`"));
+            return Err(syn::Error::new(
+                ticket_key.span(),
+                "expected `ticket = \"...\"`",
+            ));
         }
         let _eq: Token![=] = input.parse()?;
         let ticket_lit: LitStr = input.parse()?;
@@ -27,13 +30,19 @@ impl Parse for ChicagoTestArgs {
 
         let sfn_key: Ident = input.parse()?;
         if sfn_key != "scaffold_fn" {
-            return Err(syn::Error::new(sfn_key.span(), "expected `scaffold_fn = \"...\"`"));
+            return Err(syn::Error::new(
+                sfn_key.span(),
+                "expected `scaffold_fn = \"...\"`",
+            ));
         }
         let _eq2: Token![=] = input.parse()?;
         let scaffold_fn_lit: LitStr = input.parse()?;
         let _: Option<Token![,]> = input.parse()?;
 
-        Ok(ChicagoTestArgs { ticket_lit, scaffold_fn_lit })
+        Ok(ChicagoTestArgs {
+            ticket_lit,
+            scaffold_fn_lit,
+        })
     }
 }
 

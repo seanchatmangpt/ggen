@@ -323,8 +323,11 @@ pub mod implementation {
     /// **Kaizen improvement**: Extracted duplicated error detection strings to named constants.
     /// Pattern: Use constants for repeated string patterns to reduce duplication and improve maintainability.
     /// Benefits: Single source of truth, easier to maintain, consistent error detection.
-    const DOCKER_CONNECTION_ERROR_PATTERNS: &[&str] =
-        &["Cannot connect to the Docker daemon", "docker daemon", "connection refused"];
+    const DOCKER_CONNECTION_ERROR_PATTERNS: &[&str] = &[
+        "Cannot connect to the Docker daemon",
+        "docker daemon",
+        "connection refused",
+    ];
 
     /// Check if an error message indicates Docker daemon is unavailable
     ///
@@ -368,7 +371,13 @@ pub mod implementation {
         for attempt in 0..=CONTAINER_STARTUP_MAX_RETRIES {
             // Check if container is running using docker ps
             let output = Command::new("docker")
-                .args(["ps", "--filter", &format!("id={container_id}"), "--format", "{{.State}}"])
+                .args([
+                    "ps",
+                    "--filter",
+                    &format!("id={container_id}"),
+                    "--format",
+                    "{{.State}}",
+                ])
                 .output();
 
             if let Ok(out) = output {
@@ -476,9 +485,7 @@ pub mod implementation {
         ///
         /// Returns error if container creation fails (Docker not running, image not found, etc.)
         pub fn new(
-            _client: &ContainerClient,
-            image: &str,
-            tag: &str,
+            _client: &ContainerClient, image: &str, tag: &str,
         ) -> TestcontainersResult<Self> {
             // 🚨 Verify Docker is still available before container operations
             check_docker_available()?;
@@ -497,7 +504,10 @@ pub mod implementation {
             })?;
 
             // ✅ Container created successfully
-            Ok(Self { container: Some(container), docker_cli_container_id: None })
+            Ok(Self {
+                container: Some(container),
+                docker_cli_container_id: None,
+            })
         }
 
         /// Create a `GenericContainer` from an existing Container
@@ -505,13 +515,19 @@ pub mod implementation {
         /// This is used internally by other methods (e.g., `with_wait_for`) to construct
         /// a `GenericContainer` from a Container that was created with additional configuration.
         pub(crate) const fn from_container(container: Container<GenericImage>) -> Self {
-            Self { container: Some(container), docker_cli_container_id: None }
+            Self {
+                container: Some(container),
+                docker_cli_container_id: None,
+            }
         }
 
         /// Create a `GenericContainer` from a Docker CLI-created container ID
         /// This is used for entrypoint override workaround when testcontainers doesn't support it
         pub(crate) const fn from_docker_cli_container_id(container_id: String) -> Self {
-            Self { container: None, docker_cli_container_id: Some(container_id) }
+            Self {
+                container: None,
+                docker_cli_container_id: Some(container_id),
+            }
         }
 
         /// Create a new generic container with environment variables and optional command
@@ -528,10 +544,7 @@ pub mod implementation {
         ///
         /// Returns error if container creation fails
         pub fn with_env_and_command(
-            _client: &ContainerClient,
-            image: &str,
-            tag: &str,
-            env_vars: HashMap<String, String>,
+            _client: &ContainerClient, image: &str, tag: &str, env_vars: HashMap<String, String>,
             command: Option<(&str, &[&str])>,
         ) -> TestcontainersResult<Self> {
             // 🚨 Verify Docker is still available
@@ -560,7 +573,10 @@ pub mod implementation {
                 }
             })?;
 
-            Ok(Self { container: Some(container), docker_cli_container_id: None })
+            Ok(Self {
+                container: Some(container),
+                docker_cli_container_id: None,
+            })
         }
 
         /// Create a new generic container with environment variables
@@ -576,10 +592,7 @@ pub mod implementation {
         ///
         /// Returns error if container creation fails
         pub fn with_env(
-            _client: &ContainerClient,
-            image: &str,
-            tag: &str,
-            env_vars: HashMap<String, String>,
+            _client: &ContainerClient, image: &str, tag: &str, env_vars: HashMap<String, String>,
         ) -> TestcontainersResult<Self> {
             // 🚨 Verify Docker is still available
             check_docker_available()?;
@@ -588,7 +601,9 @@ pub mod implementation {
             // Build container request with all env vars
             let request: testcontainers::core::ContainerRequest<GenericImage> = env_vars
                 .into_iter()
-                .fold(image.into(), |req, (key, value)| req.with_env_var(key, value));
+                .fold(image.into(), |req, (key, value)| {
+                    req.with_env_var(key, value)
+                });
             let container = request.start().map_err(|e| {
                 let error_msg = format!("{e}");
                 if is_docker_unavailable_error(&error_msg) {
@@ -600,7 +615,10 @@ pub mod implementation {
                 }
             })?;
 
-            Ok(Self { container: Some(container), docker_cli_container_id: None })
+            Ok(Self {
+                container: Some(container),
+                docker_cli_container_id: None,
+            })
         }
 
         /// Create a new generic container with command (and optional entrypoint override)
@@ -662,11 +680,7 @@ pub mod implementation {
         /// container.exec("weaver", &["--version"])?; // Success: container stays running
         /// ```
         pub fn with_command(
-            _client: &ContainerClient,
-            image: &str,
-            tag: &str,
-            command: &str,
-            args: &[&str],
+            _client: &ContainerClient, image: &str, tag: &str, command: &str, args: &[&str],
             entrypoint: Option<&[&str]>,
         ) -> TestcontainersResult<Self> {
             // 🚨 Verify Docker is still available
@@ -753,8 +767,9 @@ pub mod implementation {
                     let stderr = String::from_utf8_lossy(&start_output.stderr);
                     // Clean up the created container on failure
                     // **Gemba Fix**: Log cleanup attempt (non-critical, but useful for debugging)
-                    let cleanup_result =
-                        Command::new("docker").args(["rm", "-f", &container_id]).output();
+                    let cleanup_result = Command::new("docker")
+                        .args(["rm", "-f", &container_id])
+                        .output();
                     if let Err(e) = cleanup_result {
                         // Log cleanup failure but don't fail the operation (container creation already failed)
                         eprintln!(
@@ -798,7 +813,10 @@ pub mod implementation {
                 }
             })?;
 
-            Ok(Self { container: Some(container), docker_cli_container_id: None })
+            Ok(Self {
+                container: Some(container),
+                docker_cli_container_id: None,
+            })
         }
 
         /// Create a new generic container with entrypoint override and command
@@ -825,11 +843,7 @@ pub mod implementation {
         #[deprecated(note = "Use with_command() with entrypoint parameter instead")]
         #[allow(clippy::used_underscore_binding)] // Deprecated function, client parameter intentionally unused
         pub fn with_entrypoint_and_command(
-            _client: &ContainerClient,
-            image: &str,
-            tag: &str,
-            entrypoint: &[&str],
-            command: &str,
+            _client: &ContainerClient, image: &str, tag: &str, entrypoint: &[&str], command: &str,
             args: &[&str],
         ) -> TestcontainersResult<Self> {
             Self::with_command(_client, image, tag, command, args, Some(entrypoint))
@@ -848,10 +862,7 @@ pub mod implementation {
         ///
         /// Returns error if container creation fails
         pub fn with_ports(
-            _client: &ContainerClient,
-            image: &str,
-            tag: &str,
-            ports: &[u16],
+            _client: &ContainerClient, image: &str, tag: &str, ports: &[u16],
         ) -> TestcontainersResult<Self> {
             // 🚨 Verify Docker is still available
             check_docker_available()?;
@@ -871,7 +882,10 @@ pub mod implementation {
                 }
             })?;
 
-            Ok(Self { container: Some(container), docker_cli_container_id: None })
+            Ok(Self {
+                container: Some(container),
+                docker_cli_container_id: None,
+            })
         }
 
         /// Get the host port for a container port
@@ -931,8 +945,9 @@ pub mod implementation {
                 // Use -f flag to force remove even if container is running
                 // This ensures cleanup even if container didn't stop properly
                 // **Gemba Fix**: Log cleanup failures for debugging (non-critical but useful)
-                let cleanup_result =
-                    Command::new("docker").args(["rm", "-f", container_id]).output();
+                let cleanup_result = Command::new("docker")
+                    .args(["rm", "-f", container_id])
+                    .output();
                 if let Err(e) = cleanup_result {
                     // Log cleanup failure but don't panic (Drop must not panic)
                     eprintln!(
@@ -982,9 +997,7 @@ mod stubs {
 
     impl GenericContainer {
         pub fn new(
-            _client: &ContainerClient,
-            _image: &str,
-            _tag: &str,
+            _client: &ContainerClient, _image: &str, _tag: &str,
         ) -> TestcontainersResult<Self> {
             Err(TestcontainersError::InvalidConfig(
                 "testcontainers feature is not enabled".to_string(),
@@ -992,10 +1005,7 @@ mod stubs {
         }
 
         pub fn with_env(
-            _client: &ContainerClient,
-            _image: &str,
-            _tag: &str,
-            _env_vars: HashMap<String, String>,
+            _client: &ContainerClient, _image: &str, _tag: &str, _env_vars: HashMap<String, String>,
         ) -> TestcontainersResult<Self> {
             Err(TestcontainersError::InvalidConfig(
                 "testcontainers feature is not enabled".to_string(),
@@ -1003,10 +1013,7 @@ mod stubs {
         }
 
         pub fn with_ports(
-            _client: &ContainerClient,
-            _image: &str,
-            _tag: &str,
-            _ports: &[u16],
+            _client: &ContainerClient, _image: &str, _tag: &str, _ports: &[u16],
         ) -> TestcontainersResult<Self> {
             Err(TestcontainersError::InvalidConfig(
                 "testcontainers feature is not enabled".to_string(),
@@ -1060,8 +1067,16 @@ mod tests {
         // Act & Assert: Verify all error variants display correctly
         for error in errors {
             let display = format!("{error}");
-            assert_that_with_msg(&!display.is_empty(), |v| *v, "Error should have display message");
-            assert_that_with_msg(&display.contains("test"), |v| *v, "Error should contain message");
+            assert_that_with_msg(
+                &!display.is_empty(),
+                |v| *v,
+                "Error should have display message",
+            );
+            assert_that_with_msg(
+                &display.contains("test"),
+                |v| *v,
+                "Error should contain message",
+            );
         }
     });
 
@@ -1076,7 +1091,11 @@ mod tests {
         // Act & Assert: Verify ExecResult structure
         assert_eq_msg!(&result.stdout, &"output".to_string(), "Stdout should match");
         assert_eq_msg!(&result.stderr, &"error".to_string(), "Stderr should match");
-        assert_eq_msg!(&result.exit_code, &exec::SUCCESS_EXIT_CODE, "Exit code should match");
+        assert_eq_msg!(
+            &result.exit_code,
+            &exec::SUCCESS_EXIT_CODE,
+            "Exit code should match"
+        );
     });
 
     test!(test_exec_result_clone, {
@@ -1091,9 +1110,21 @@ mod tests {
         let result2 = result1.clone();
 
         // Assert: Verify cloned fields match original
-        assert_eq_msg!(&result1.stdout, &result2.stdout, "Cloned stdout should match");
-        assert_eq_msg!(&result1.stderr, &result2.stderr, "Cloned stderr should match");
-        assert_eq_msg!(&result1.exit_code, &result2.exit_code, "Cloned exit code should match");
+        assert_eq_msg!(
+            &result1.stdout,
+            &result2.stdout,
+            "Cloned stdout should match"
+        );
+        assert_eq_msg!(
+            &result1.stderr,
+            &result2.stderr,
+            "Cloned stderr should match"
+        );
+        assert_eq_msg!(
+            &result1.exit_code,
+            &result2.exit_code,
+            "Cloned exit code should match"
+        );
     });
 
     test!(test_exec_result_debug, {
@@ -1108,9 +1139,21 @@ mod tests {
         let debug = format!("{result:?}");
 
         // Assert: Verify debug output contains expected fields
-        assert_that_with_msg(&debug.contains("output"), |v| *v, "Debug should contain stdout");
-        assert_that_with_msg(&debug.contains("error"), |v| *v, "Debug should contain stderr");
-        assert_that_with_msg(&debug.contains("0"), |v| *v, "Debug should contain exit code");
+        assert_that_with_msg(
+            &debug.contains("output"),
+            |v| *v,
+            "Debug should contain stdout",
+        );
+        assert_that_with_msg(
+            &debug.contains("error"),
+            |v| *v,
+            "Debug should contain stderr",
+        );
+        assert_that_with_msg(
+            &debug.contains("0"),
+            |v| *v,
+            "Debug should contain exit code",
+        );
     });
 
     // ========================================================================

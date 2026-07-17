@@ -22,7 +22,10 @@ macro_rules! assert_eq_msg {
         let actual_val = &$actual;
         let expected_val = &$expected;
         if actual_val != expected_val {
-            panic!("{}: expected {:?}, got {:?}", $msg, expected_val, actual_val);
+            panic!(
+                "{}: expected {:?}, got {:?}",
+                $msg, expected_val, actual_val
+            );
         }
     }};
 }
@@ -149,7 +152,12 @@ mod tests {
         // Act & Assert: Verify assert_approx_eq! macro works
         assert_approx_eq!(pi, approx_pi, 0.01);
         assert_approx_eq!(calculated, expected, 0.0001);
-        assert_approx_eq!(calculated, expected, 0.0001, "Division result should be close");
+        assert_approx_eq!(
+            calculated,
+            expected,
+            0.0001,
+            "Division result should be close"
+        );
     });
 
     #[test]

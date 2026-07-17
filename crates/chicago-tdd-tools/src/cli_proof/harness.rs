@@ -25,7 +25,10 @@ impl std::fmt::Display for CliHarnessError {
         match self {
             Self::Io(e) => write!(f, "I/O error running CLI harness: {e}"),
             Self::BinaryNotFound(name) => {
-                write!(f, "binary not found: '{name}' (checked CARGO_BIN_EXE_* and PATH)")
+                write!(
+                    f,
+                    "binary not found: '{name}' (checked CARGO_BIN_EXE_* and PATH)"
+                )
             }
         }
     }
@@ -116,7 +119,8 @@ impl CliHarness {
         I: IntoIterator<Item = S>,
         S: AsRef<str>,
     {
-        self.args.extend(args.into_iter().map(|s| s.as_ref().to_owned()));
+        self.args
+            .extend(args.into_iter().map(|s| s.as_ref().to_owned()));
         self
     }
 
@@ -169,7 +173,12 @@ impl CliHarness {
         let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
         let exit_code = output.status.code().unwrap_or(-1);
 
-        Ok(CliOutput { stdout, stderr, exit_code, duration })
+        Ok(CliOutput {
+            stdout,
+            stderr,
+            exit_code,
+            duration,
+        })
     }
 
     /// Resolve the binary path from the spec.
@@ -194,8 +203,9 @@ impl CliHarness {
                 // 2. Look in the Cargo workspace target directory.
                 //    Walk from CARGO_MANIFEST_DIR up to find Cargo.lock (workspace root),
                 //    then check target/debug/<name> and target/release/<name>.
-                let target_root =
-                    std::env::var_os("CARGO_TARGET_DIR").map(PathBuf::from).or_else(|| {
+                let target_root = std::env::var_os("CARGO_TARGET_DIR")
+                    .map(PathBuf::from)
+                    .or_else(|| {
                         let manifest_dir =
                             std::env::var_os("CARGO_MANIFEST_DIR").map(PathBuf::from)?;
                         let mut dir: &std::path::Path = manifest_dir.as_path();
@@ -350,7 +360,10 @@ impl CliOutput {
             panic!("stdout is not valid JSON ({})\nstdout:\n{}", e, self.stdout)
         });
         let actual = parsed.get(key).unwrap_or_else(|| {
-            panic!("JSON field {:?} not found in stdout\nstdout:\n{}", key, self.stdout)
+            panic!(
+                "JSON field {:?} not found in stdout\nstdout:\n{}",
+                key, self.stdout
+            )
         });
         let actual_str = match actual {
             serde_json::Value::String(s) => s.clone(),

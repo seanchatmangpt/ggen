@@ -128,7 +128,9 @@ impl ValidAttributeName {
         if name.trim().is_empty() {
             return None;
         }
-        Some(Self { name: name.to_string() })
+        Some(Self {
+            name: name.to_string(),
+        })
     }
 
     /// Get the name as `&str`
@@ -322,8 +324,10 @@ mod tests {
 
     #[test]
     fn test_valid_attribute() {
-        let attr =
-            ValidAttribute::new("key", ValidAttributeValue::string("value").expect("test data"));
+        let attr = ValidAttribute::new(
+            "key",
+            ValidAttributeValue::string("value").expect("test data"),
+        );
         assert!(attr.is_some());
     }
 
@@ -340,9 +344,11 @@ mod tests {
         let mut span = Span::<state::Active>::new("test").expect("test span");
 
         // Add attribute (only works on active span)
-        let attr =
-            ValidAttribute::new("key", ValidAttributeValue::string("value").expect("test data"))
-                .expect("test attribute");
+        let attr = ValidAttribute::new(
+            "key",
+            ValidAttributeValue::string("value").expect("test data"),
+        )
+        .expect("test attribute");
         span.add_attribute(attr);
 
         // Complete span (changes type)

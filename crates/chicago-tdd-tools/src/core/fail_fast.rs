@@ -132,8 +132,7 @@ impl StrictExecutionContext {
     ///
     /// Returns `Err(UnrecoverableInvariantViolation)` if the contract is malformed or phase count is invalid.
     pub fn phase_1_contract_definition(
-        &mut self,
-        phase_count: usize,
+        &mut self, phase_count: usize,
     ) -> InvariantResult<PhaseResult> {
         ContractValidator::validate(&self.contract_id, phase_count)?;
         self.phases_completed.push(PhaseLabel::ContractDefinition);
@@ -147,17 +146,17 @@ impl StrictExecutionContext {
     ///
     /// Returns `Err(UnrecoverableInvariantViolation)` if τ measurement violates monotonicity or exceeds bounds.
     pub fn phase_2_thermal_testing(
-        &mut self,
-        tau: u64,
-        max_tau_bound: u64,
+        &mut self, tau: u64, max_tau_bound: u64,
     ) -> InvariantResult<PhaseResult> {
         self.thermal_validator.validate_tau(tau)?;
 
         // Check τ against configured bound
         if tau > max_tau_bound {
-            return Ok(PhaseResult::Violation(UnrecoverableInvariantViolation::Other(format!(
-                "Thermal bound exceeded: {tau} > {max_tau_bound}"
-            ))));
+            return Ok(PhaseResult::Violation(
+                UnrecoverableInvariantViolation::Other(format!(
+                    "Thermal bound exceeded: {tau} > {max_tau_bound}"
+                )),
+            ));
         }
 
         self.phases_completed.push(PhaseLabel::ThermalTesting);
@@ -171,9 +170,7 @@ impl StrictExecutionContext {
     ///
     /// Returns `Err(UnrecoverableInvariantViolation)` if observed effects are not a subset of declared effects.
     pub fn phase_3_effects_tracking(
-        &mut self,
-        declared: Vec<String>,
-        observed: &[String],
+        &mut self, declared: Vec<String>, observed: &[String],
     ) -> InvariantResult<PhaseResult> {
         let validator = EffectValidator::new(declared)?;
         validator.validate_observed(observed)?;
@@ -189,9 +186,7 @@ impl StrictExecutionContext {
     ///
     /// Returns `Err(UnrecoverableInvariantViolation)` if the initial state is invalid or not in the set of all states.
     pub fn phase_4_state_machine(
-        &mut self,
-        initial_state: String,
-        all_states: Vec<String>,
+        &mut self, initial_state: String, all_states: Vec<String>,
     ) -> InvariantResult<PhaseResult> {
         let validator = StateValidator::new(initial_state, all_states)?;
         self.state_validator = Some(validator);
@@ -206,16 +201,19 @@ impl StrictExecutionContext {
     ///
     /// Returns `Err(UnrecoverableInvariantViolation)` if receipt version mismatch or checksum validation fails.
     pub fn phase_5_receipt_generation(
-        &mut self,
-        version: u32,
-        checksum: u32,
-        computed: u32,
+        &mut self, version: u32, checksum: u32, computed: u32,
     ) -> InvariantResult<PhaseResult> {
-        self.receipt_validator.validate_receipt(version, checksum, computed)?;
+        self.receipt_validator
+            .validate_receipt(version, checksum, computed)?;
 
-        let receipt = ReceiptData { version, checksum, phase_label: PhaseLabel::ReceiptGeneration };
+        let receipt = ReceiptData {
+            version,
+            checksum,
+            phase_label: PhaseLabel::ReceiptGeneration,
+        };
 
-        self.receipts.insert(format!("receipt_{}", self.receipts.len()), receipt);
+        self.receipts
+            .insert(format!("receipt_{}", self.receipts.len()), receipt);
 
         self.phases_completed.push(PhaseLabel::ReceiptGeneration);
         Ok(PhaseResult::Ok)
@@ -228,9 +226,7 @@ impl StrictExecutionContext {
     ///
     /// Returns `Err(UnrecoverableInvariantViolation)` if fewer tests were executed than scheduled.
     pub fn phase_6_swarm_orchestration(
-        &mut self,
-        scheduled: usize,
-        executed: usize,
+        &mut self, scheduled: usize, executed: usize,
     ) -> InvariantResult<PhaseResult> {
         if executed < scheduled {
             return Err(UnrecoverableInvariantViolation::AbandonedTest(format!(
@@ -249,14 +245,13 @@ impl StrictExecutionContext {
     ///
     /// Returns `Err(UnrecoverableInvariantViolation)` if any expected phase was not executed.
     pub fn phase_7_verification_pipeline(
-        &mut self,
-        expected_phases: &[PhaseLabel],
+        &mut self, expected_phases: &[PhaseLabel],
     ) -> InvariantResult<PhaseResult> {
         for expected in expected_phases {
             if !self.phases_completed.contains(expected) {
-                return Err(UnrecoverableInvariantViolation::PipelinePhaseSkipped(format!(
-                    "Expected phase {expected:?} was not executed"
-                )));
+                return Err(UnrecoverableInvariantViolation::PipelinePhaseSkipped(
+                    format!("Expected phase {expected:?} was not executed"),
+                ));
             }
         }
 
@@ -271,22 +266,20 @@ impl StrictExecutionContext {
     ///
     /// Returns `Err(UnrecoverableInvariantViolation)` if sample count is insufficient, prediction is out of range, or contains NaN/Inf.
     pub fn phase_8_continuous_learning(
-        &mut self,
-        sample_count: usize,
-        prediction: f64,
+        &mut self, sample_count: usize, prediction: f64,
     ) -> InvariantResult<PhaseResult> {
         // Minimum observations required
         if sample_count < 5 {
-            return Err(UnrecoverableInvariantViolation::LearnerMathCorrupted(format!(
-                "Insufficient observations: {sample_count} < 5"
-            )));
+            return Err(UnrecoverableInvariantViolation::LearnerMathCorrupted(
+                format!("Insufficient observations: {sample_count} < 5"),
+            ));
         }
 
         // Verify prediction is in valid range [0.0, 1.0]
         if !(0.0..=1.0).contains(&prediction) {
-            return Err(UnrecoverableInvariantViolation::LearnerMathCorrupted(format!(
-                "Invalid prediction probability: {prediction}"
-            )));
+            return Err(UnrecoverableInvariantViolation::LearnerMathCorrupted(
+                format!("Invalid prediction probability: {prediction}"),
+            ));
         }
 
         // Check for NaN/Inf
@@ -307,9 +300,7 @@ impl StrictExecutionContext {
     ///
     /// Returns `Err(UnrecoverableInvariantViolation)` if approval votes are insufficient for 2/3 Byzantine quorum.
     pub fn phase_9_distributed_consensus(
-        &mut self,
-        approval_votes: usize,
-        total_votes: usize,
+        &mut self, approval_votes: usize, total_votes: usize,
     ) -> InvariantResult<PhaseResult> {
         // Require 2/3 Byzantine Fault Tolerant quorum
         let required_quorum = (total_votes * 2) / 3 + 1;
@@ -331,15 +322,15 @@ impl StrictExecutionContext {
     ///
     /// Returns `Err(UnrecoverableInvariantViolation)` if snapshot version doesn't match expected version.
     pub fn phase_10_time_travel_debugging(
-        &mut self,
-        snapshot_version: u32,
-        expected_version: u32,
+        &mut self, snapshot_version: u32, expected_version: u32,
     ) -> InvariantResult<PhaseResult> {
         if snapshot_version != expected_version {
-            return Err(UnrecoverableInvariantViolation::SnapshotSchemaVersionMismatch {
-                expected: expected_version,
-                found: snapshot_version,
-            });
+            return Err(
+                UnrecoverableInvariantViolation::SnapshotSchemaVersionMismatch {
+                    expected: expected_version,
+                    found: snapshot_version,
+                },
+            );
         }
 
         self.phases_completed.push(PhaseLabel::TimeTravelDebugging);
@@ -353,9 +344,7 @@ impl StrictExecutionContext {
     ///
     /// Returns `Err(UnrecoverableInvariantViolation)` if predicted τ is zero, confidence is out of range, or contains NaN/Inf.
     pub fn phase_11_performance_prophet(
-        &mut self,
-        predicted_tau: u64,
-        confidence: f64,
+        &mut self, predicted_tau: u64, confidence: f64,
     ) -> InvariantResult<PhaseResult> {
         // Verify prediction is physically possible
         if predicted_tau == 0 {
@@ -366,9 +355,9 @@ impl StrictExecutionContext {
 
         // Verify confidence interval is valid
         if !(0.0..=1.0).contains(&confidence) {
-            return Err(UnrecoverableInvariantViolation::ProphetSelfCheckFailed(format!(
-                "Invalid confidence interval: {confidence}"
-            )));
+            return Err(UnrecoverableInvariantViolation::ProphetSelfCheckFailed(
+                format!("Invalid confidence interval: {confidence}"),
+            ));
         }
 
         if !confidence.is_finite() {
@@ -388,16 +377,13 @@ impl StrictExecutionContext {
     ///
     /// Returns `Err(UnrecoverableInvariantViolation)` if dashboard totals don't match (passed + failed ≠ total).
     pub fn phase_12_quality_dashboard(
-        &mut self,
-        total: usize,
-        passed: usize,
-        failed: usize,
+        &mut self, total: usize, passed: usize, failed: usize,
     ) -> InvariantResult<PhaseResult> {
         // Verify totals add up
         if passed + failed != total {
-            return Err(UnrecoverableInvariantViolation::DashboardInconsistency(format!(
-                "Totals don't match: {passed} + {failed} ≠ {total}"
-            )));
+            return Err(UnrecoverableInvariantViolation::DashboardInconsistency(
+                format!("Totals don't match: {passed} + {failed} ≠ {total}"),
+            ));
         }
 
         // usize is unsigned, so negative check is not needed
@@ -422,9 +408,9 @@ impl StrictExecutionContext {
 
         for required in &required_phases {
             if !self.phases_completed.contains(required) {
-                return Err(UnrecoverableInvariantViolation::PartialPipelineSuccess(format!(
-                    "Required phase {required:?} not completed"
-                )));
+                return Err(UnrecoverableInvariantViolation::PartialPipelineSuccess(
+                    format!("Required phase {required:?} not completed"),
+                ));
             }
         }
 
@@ -439,8 +425,7 @@ impl StrictExecutionContext {
 ///
 /// Returns `Err(UnrecoverableInvariantViolation)` if the condition is false.
 pub fn assert_invariant(
-    condition: bool,
-    violation: UnrecoverableInvariantViolation,
+    condition: bool, violation: UnrecoverableInvariantViolation,
 ) -> InvariantResult<()> {
     if condition {
         Ok(())

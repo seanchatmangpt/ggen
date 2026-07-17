@@ -34,7 +34,11 @@ pub struct RetryConfig {
 
 impl Default for RetryConfig {
     fn default() -> Self {
-        Self { max_attempts: 3, delay: Duration::from_millis(100), exponential_backoff: false }
+        Self {
+            max_attempts: 3,
+            delay: Duration::from_millis(100),
+            exponential_backoff: false,
+        }
     }
 }
 
@@ -184,7 +188,9 @@ impl TestTimer {
     /// Start a new timer
     #[must_use]
     pub fn start() -> Self {
-        Self { start: Instant::now() }
+        Self {
+            start: Instant::now(),
+        }
     }
 
     /// Get elapsed time since timer started
@@ -304,8 +310,9 @@ mod tests {
 
     test!(test_retry_config_all_failures, {
         // Arrange
-        let config =
-            RetryConfig::default().with_max_attempts(2).with_delay(Duration::from_millis(1));
+        let config = RetryConfig::default()
+            .with_max_attempts(2)
+            .with_delay(Duration::from_millis(1));
         let mut attempts = 0;
 
         // Act

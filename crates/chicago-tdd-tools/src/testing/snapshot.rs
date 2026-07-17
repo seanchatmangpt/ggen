@@ -153,7 +153,13 @@ impl SnapshotAssert {
         let name = thread.name().unwrap_or("default");
         let sanitized: String = name
             .chars()
-            .map(|c| if c.is_alphanumeric() || c == '-' || c == '_' { c } else { '_' })
+            .map(|c| {
+                if c.is_alphanumeric() || c == '-' || c == '_' {
+                    c
+                } else {
+                    '_'
+                }
+            })
             .collect();
         let mut settings = Settings::clone_current();
         settings.set_snapshot_suffix(sanitized);
@@ -170,7 +176,13 @@ impl SnapshotAssert {
         let name = thread.name().unwrap_or("default");
         let sanitized: String = name
             .chars()
-            .map(|c| if c.is_alphanumeric() || c == '-' || c == '_' { c } else { '_' })
+            .map(|c| {
+                if c.is_alphanumeric() || c == '-' || c == '_' {
+                    c
+                } else {
+                    '_'
+                }
+            })
             .collect();
         let mut settings = Settings::clone_current();
         settings.set_snapshot_suffix(sanitized);
@@ -187,7 +199,13 @@ impl SnapshotAssert {
         let name = thread.name().unwrap_or("default");
         let sanitized: String = name
             .chars()
-            .map(|c| if c.is_alphanumeric() || c == '-' || c == '_' { c } else { '_' })
+            .map(|c| {
+                if c.is_alphanumeric() || c == '-' || c == '_' {
+                    c
+                } else {
+                    '_'
+                }
+            })
             .collect();
         let mut settings = Settings::clone_current();
         settings.set_snapshot_suffix(sanitized);
@@ -237,9 +255,7 @@ impl SnapshotAssert {
     /// // SnapshotAssert::assert_with_redaction(&data, "test_redacted", &redactions);
     /// ```
     pub fn assert_with_redaction(
-        value: &serde_json::Value,
-        snapshot_name: &str,
-        redactions: &HashMap<String, String>,
+        value: &serde_json::Value, snapshot_name: &str, redactions: &HashMap<String, String>,
     ) {
         // Apply redactions by modifying the JSON value before snapshotting
         let mut redacted_value = value.clone();
@@ -325,9 +341,7 @@ impl SnapshotAssert {
     /// // Snapshot will be stored in snapshots/ci/ directory
     /// ```
     pub fn assert_with_profile<T: std::fmt::Display>(
-        value: &T,
-        snapshot_name: &str,
-        profile: &str,
+        value: &T, snapshot_name: &str, profile: &str,
     ) {
         Self::with_settings(
             |settings| {
@@ -479,7 +493,13 @@ mod tests {
 
         impl Outer {
             pub fn new() -> Self {
-                Self { inner: Inner { value: 42, name: "test".to_string() }, count: 10 }
+                Self {
+                    inner: Inner {
+                        value: 42,
+                        name: "test".to_string(),
+                    },
+                    count: 10,
+                }
             }
         }
 

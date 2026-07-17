@@ -24,8 +24,7 @@ pub enum TestEventRefusal {
 
 impl OcelCollector {
     pub(crate) fn admit_event(
-        &self,
-        raw: &Evidence<TestOcelEvent, Raw, TestSuiteWitness>,
+        &self, raw: &Evidence<TestOcelEvent, Raw, TestSuiteWitness>,
     ) -> Result<Evidence<TestOcelEvent, Admitted, TestSuiteWitness>, TestEventRefusal> {
         let event = raw.inner();
 
@@ -38,7 +37,8 @@ impl OcelCollector {
                 return Err(TestEventRefusal::NonMonotonicTimestamp);
             }
         }
-        self.last_timestamps.insert(event.case_id.clone(), event.timestamp_ns);
+        self.last_timestamps
+            .insert(event.case_id.clone(), event.timestamp_ns);
 
         for (obj_id, _) in &event.objects {
             if !self.known_objects.contains(obj_id) {
@@ -56,8 +56,7 @@ impl OcelCollector {
 /// # Errors
 /// Returns an error if the log cannot be sealed.
 pub fn seal_run(
-    collector: &OcelCollector,
-    _run_id: RunId,
+    collector: &OcelCollector, _run_id: RunId,
 ) -> Result<(Evidence<OcelLog, Receipted, TestSuiteWitness>, String), String> {
     let mut log = OcelLog::new();
     {
@@ -88,11 +87,13 @@ pub fn seal_run(
     }
 
     let digest_bytes: [u8; 32] = *hasher.finalize().as_bytes();
-    let digest_hex = digest_bytes.iter().fold(String::with_capacity(64), |mut acc, b| {
-        use std::fmt::Write as _;
-        let _ = write!(acc, "{b:02x}");
-        acc
-    });
+    let digest_hex = digest_bytes
+        .iter()
+        .fold(String::with_capacity(64), |mut acc, b| {
+            use std::fmt::Write as _;
+            let _ = write!(acc, "{b:02x}");
+            acc
+        });
 
     let admitted = Admission::<_, TestSuiteWitness>::new(log).into_evidence();
     let receipted = admitted.into_receipted();
@@ -141,7 +142,10 @@ mod tests {
         let b = collector_with_two_events();
         let (_, digest_a) = seal_run(&a, "run-determinism".to_string()).unwrap();
         let (_, digest_b) = seal_run(&b, "run-determinism".to_string()).unwrap();
-        assert_eq!(digest_a, digest_b, "identical logs produced different digests");
+        assert_eq!(
+            digest_a, digest_b,
+            "identical logs produced different digests"
+        );
     }
 
     /// Known-answer digest for a fixed synthetic 2-event log. If this changes,

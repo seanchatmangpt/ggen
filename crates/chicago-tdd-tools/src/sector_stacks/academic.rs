@@ -114,7 +114,11 @@ impl AcademicOperation {
     #[must_use]
     pub fn new(paper: PaperSubmission, reviews: Vec<Review>) -> Self {
         let decision = Decision::from_reviews(&reviews);
-        Self { paper, reviews, decision }
+        Self {
+            paper,
+            reviews,
+            decision,
+        }
     }
 
     /// Get decision

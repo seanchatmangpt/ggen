@@ -185,8 +185,15 @@ impl Display for UnrecoverableInvariantViolation {
             Self::ClockBackward { prev, current } => {
                 write!(f, "Clock went backward: {prev} -> {current}")
             }
-            Self::ClockMonsterJump { prev, current, threshold } => {
-                write!(f, "Clock monster jump: {prev} -> {current} (threshold: {threshold})")
+            Self::ClockMonsterJump {
+                prev,
+                current,
+                threshold,
+            } => {
+                write!(
+                    f,
+                    "Clock monster jump: {prev} -> {current} (threshold: {threshold})"
+                )
             }
             Self::ThermalCannotMeasure(msg) => write!(f, "Cannot measure thermal: {msg}"),
             Self::ThermalComputationCorrupted(msg) => {
@@ -210,7 +217,10 @@ impl Display for UnrecoverableInvariantViolation {
             Self::CorruptedReceipt(msg) => write!(f, "Corrupted receipt: {msg}"),
             Self::PartialReceipt(msg) => write!(f, "Partial receipt: {msg}"),
             Self::ReceiptVersionMismatch { expected, found } => {
-                write!(f, "Receipt version mismatch: expected {expected}, found {found}")
+                write!(
+                    f,
+                    "Receipt version mismatch: expected {expected}, found {found}"
+                )
             }
             Self::ReceiptPersistenceFailure(msg) => write!(f, "Receipt persistence failure: {msg}"),
 
@@ -235,7 +245,10 @@ impl Display for UnrecoverableInvariantViolation {
             Self::ConsensusDeadlock(msg) => write!(f, "Consensus deadlock: {msg}"),
 
             Self::SnapshotSchemaVersionMismatch { expected, found } => {
-                write!(f, "Snapshot schema version mismatch: expected {expected}, found {found}")
+                write!(
+                    f,
+                    "Snapshot schema version mismatch: expected {expected}, found {found}"
+                )
             }
             Self::ReplayDiverges(msg) => write!(f, "Replay diverges: {msg}"),
             Self::SnapshotLost(msg) => write!(f, "Snapshot lost: {msg}"),
@@ -357,7 +370,10 @@ impl ThermalValidator {
     /// Create a new thermal validator with configured jump threshold.
     #[must_use]
     pub const fn new(max_jump_threshold: u64) -> Self {
-        Self { last_tau: None, max_jump_threshold }
+        Self {
+            last_tau: None,
+            max_jump_threshold,
+        }
     }
 
     /// Validate new τ measurement for monotonicity and bounds.
@@ -370,7 +386,10 @@ impl ThermalValidator {
         if let Some(prev) = self.last_tau {
             ensure_invariant!(
                 current_tau >= prev,
-                UnrecoverableInvariantViolation::ClockBackward { prev, current: current_tau }
+                UnrecoverableInvariantViolation::ClockBackward {
+                    prev,
+                    current: current_tau
+                }
             );
 
             let jump = current_tau.saturating_sub(prev);
@@ -408,7 +427,9 @@ impl EffectValidator {
             )
         );
 
-        Ok(Self { declared_effects: declared.into_iter().collect() })
+        Ok(Self {
+            declared_effects: declared.into_iter().collect(),
+        })
     }
 
     /// Verify observed effects are a subset of declared effects.
@@ -489,7 +510,9 @@ impl ReceiptValidator {
     /// Create a new receipt validator expecting a specific schema version.
     #[must_use]
     pub const fn new(version: u32) -> Self {
-        Self { expected_version: version }
+        Self {
+            expected_version: version,
+        }
     }
 
     /// Verify receipt has all required fields and valid version.
@@ -498,10 +521,7 @@ impl ReceiptValidator {
     ///
     /// Returns an error if the version doesn't match or checksums don't match.
     pub fn validate_receipt(
-        &self,
-        version: u32,
-        checksum: u32,
-        computed: u32,
+        &self, version: u32, checksum: u32, computed: u32,
     ) -> InvariantResult<()> {
         ensure_invariant!(
             version == self.expected_version,
@@ -544,15 +564,23 @@ mod tests {
     #[test]
     fn test_effect_validator_observed_outside_declared() {
         let ev = EffectValidator::new(vec!["A".to_string(), "B".to_string()]).unwrap();
-        assert!(ev.validate_observed(&["A".to_string(), "B".to_string()]).is_ok());
-        assert!(ev.validate_observed(&["A".to_string(), "C".to_string()]).is_err());
+        assert!(ev
+            .validate_observed(&["A".to_string(), "B".to_string()])
+            .is_ok());
+        assert!(ev
+            .validate_observed(&["A".to_string(), "C".to_string()])
+            .is_err());
     }
 
     #[test]
     fn test_state_validator_transition() {
         let mut sv = StateValidator::new(
             "Init".to_string(),
-            vec!["Init".to_string(), "Running".to_string(), "Done".to_string()],
+            vec![
+                "Init".to_string(),
+                "Running".to_string(),
+                "Done".to_string(),
+            ],
         )
         .unwrap();
         assert!(sv.validate_transition("Running").is_ok());

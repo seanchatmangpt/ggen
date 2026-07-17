@@ -82,13 +82,19 @@ impl ValidationResults {
             }
         }
 
-        Ok(Self { advices, statistics, report_path })
+        Ok(Self {
+            advices,
+            statistics,
+            report_path,
+        })
     }
 
     /// Whether any `violation` level advice is present.
     #[must_use]
     pub fn has_violations(&self) -> bool {
-        self.advices.iter().any(|advice| matches!(advice.level, AdviceLevel::Violation))
+        self.advices
+            .iter()
+            .any(|advice| matches!(advice.level, AdviceLevel::Violation))
     }
 
     /// Iterator over all advice records.
@@ -105,7 +111,11 @@ impl ValidationResults {
 
         let mut lines = vec!["Weaver live-check detected violations:".to_string()];
 
-        for advice in self.advices.iter().filter(|a| matches!(a.level, AdviceLevel::Violation)) {
+        for advice in self
+            .advices
+            .iter()
+            .filter(|a| matches!(a.level, AdviceLevel::Violation))
+        {
             lines.push(format!(
                 "- [{}] {} :: {}",
                 advice.signal_descriptor(),

@@ -274,11 +274,7 @@ where
     /// already-landed Phase 2b code for this integration phase's
     /// convenience alone.
     pub fn new(
-        horizon: H,
-        projector: PJ,
-        bounds: EpochBounds,
-        exploit_q: QValue,
-        max_gap: usize,
+        horizon: H, projector: PJ, bounds: EpochBounds, exploit_q: QValue, max_gap: usize,
         max_ticks: usize,
     ) -> Self {
         Self {
@@ -315,10 +311,7 @@ where
     /// no `Pddl31Domain` -> `Pddl8Domain` conversion anywhere in this crate;
     /// grep-confirmed).
     pub fn plan(
-        &mut self,
-        domain_text: &str,
-        problem_text: &str,
-        profile: &dyn CapabilityProfile,
+        &mut self, domain_text: &str, problem_text: &str, profile: &dyn CapabilityProfile,
     ) -> Result<PlannedWorkflow, MfwPlanError> {
         // --- Parse (both paths) ---
         let domain31 = domain31_from_pddl(domain_text).map_err(MfwPlanError::Parse)?;
@@ -583,8 +576,7 @@ fn bcinr_pddl_positive_distribution(mass: PositiveMass) -> crate::mfw::PositiveD
 /// `schema_name(arg0,arg1,...)` — so this lookup is exact, not
 /// approximate).
 fn occurrences_from_tape(
-    tape: &Pddl8Tape,
-    epoch_actions: &[Pddl8GroundAction],
+    tape: &Pddl8Tape, epoch_actions: &[Pddl8GroundAction],
 ) -> Vec<bcinr_mfw_ir::ActionOccurrence> {
     let index_by_label: BTreeMap<&str, u64> = epoch_actions
         .iter()

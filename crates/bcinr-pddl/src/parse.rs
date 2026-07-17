@@ -481,9 +481,7 @@ fn lower_effects(
 }
 
 fn collect_conditional_effect(
-    ce: &ConditionalEffect,
-    adds: &mut Vec<Pddl8Atom>,
-    dels: &mut Vec<Pddl8Atom>,
+    ce: &ConditionalEffect, adds: &mut Vec<Pddl8Atom>, dels: &mut Vec<Pddl8Atom>,
 ) {
     match ce {
         ConditionalEffect::Effect(pe) => collect_primitive_effect(pe, adds, dels),
@@ -501,9 +499,7 @@ fn collect_conditional_effect(
 }
 
 fn collect_primitive_effect(
-    pe: &PrimitiveEffect,
-    adds: &mut Vec<Pddl8Atom>,
-    dels: &mut Vec<Pddl8Atom>,
+    pe: &PrimitiveEffect, adds: &mut Vec<Pddl8Atom>, dels: &mut Vec<Pddl8Atom>,
 ) {
     match pe {
         PrimitiveEffect::AtomicFormula(af) => {

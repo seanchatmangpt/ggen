@@ -93,10 +93,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 #[cfg(feature = "git-hooks")]
 fn install_hook_binary(
-    hooks_dir: &std::path::Path,
-    hook_name: &str,
-    binary_dir: &std::path::Path,
-    binary_name: &str,
+    hooks_dir: &std::path::Path, hook_name: &str, binary_dir: &std::path::Path, binary_name: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
     use std::fs;
     use std::os::unix::fs::PermissionsExt;

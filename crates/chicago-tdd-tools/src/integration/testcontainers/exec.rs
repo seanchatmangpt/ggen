@@ -211,7 +211,11 @@ mod implementation {
                 TestcontainersError::ExitCodeFailed("⚠️  Exit code out of i32 range\n   ⚠️  WARNING: Exit code conversion failed\n   💡 FIX: Check command exit code is within valid range".to_string())
             })?;
 
-            Ok(ExecResult { stdout, stderr, exit_code })
+            Ok(ExecResult {
+                stdout,
+                stderr,
+                exit_code,
+            })
         }
 
         /// Execute command in Docker CLI-created container using docker exec
@@ -222,9 +226,7 @@ mod implementation {
         /// This method is used for containers created with entrypoint override workaround
         /// (when `with_command()` is called with `entrypoint = Some(...)`).
         fn exec_docker_cli(
-            container_id: &str,
-            command: &str,
-            args: &[&str],
+            container_id: &str, command: &str, args: &[&str],
         ) -> TestcontainersResult<ExecResult> {
             use std::process::Command;
 
@@ -259,7 +261,11 @@ mod implementation {
             // Use SIGNAL_TERMINATED_EXIT_CODE for signal-terminated processes
             let exit_code = output.status.code().unwrap_or(SIGNAL_TERMINATED_EXIT_CODE);
 
-            Ok(ExecResult { stdout, stderr, exit_code })
+            Ok(ExecResult {
+                stdout,
+                stderr,
+                exit_code,
+            })
         }
     }
 }

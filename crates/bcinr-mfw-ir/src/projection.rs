@@ -82,9 +82,7 @@ pub trait PowlProjector {
     type Error;
 
     fn project(
-        &self,
-        causal: &CausalPlan,
-        concurrency: &ExecutableConcurrencyComplex,
+        &self, causal: &CausalPlan, concurrency: &ExecutableConcurrencyComplex,
     ) -> Result<(Self::Model, PowlProjectionWitness), Self::Error>;
 }
 
@@ -112,9 +110,7 @@ mod tests {
         type Error = MockError;
 
         fn project(
-            &self,
-            causal: &CausalPlan,
-            _concurrency: &ExecutableConcurrencyComplex,
+            &self, causal: &CausalPlan, _concurrency: &ExecutableConcurrencyComplex,
         ) -> Result<(Self::Model, PowlProjectionWitness), Self::Error> {
             let mut action_to_node = BTreeMap::new();
             let mut node_to_action = BTreeMap::new();

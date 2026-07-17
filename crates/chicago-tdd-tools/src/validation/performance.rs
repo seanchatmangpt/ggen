@@ -65,7 +65,9 @@ impl TickCounter {
     /// Create a new tick counter and start counting
     #[must_use]
     pub fn start() -> Self {
-        Self { start_ticks: Self::read_ticks() }
+        Self {
+            start_ticks: Self::read_ticks(),
+        }
     }
 
     /// Read current tick count
@@ -126,7 +128,9 @@ impl TickCounter {
         // τ enforcement is uniform across debug and release builds — see Chatman Constant
         let elapsed = self.elapsed_ticks();
         if elapsed > budget {
-            return Err(PerformanceValidationError::TickBudgetExceeded(elapsed, budget));
+            return Err(PerformanceValidationError::TickBudgetExceeded(
+                elapsed, budget,
+            ));
         }
         Ok(())
     }
@@ -184,7 +188,9 @@ impl<const BUDGET: u64> ValidatedTickBudget<BUDGET> {
     /// The budget is validated at compile time through the const generic parameter.
     #[must_use]
     pub const fn new() -> Self {
-        Self { _inner: Validated::new(BUDGET) }
+        Self {
+            _inner: Validated::new(BUDGET),
+        }
     }
 
     /// Get the budget value
@@ -368,7 +374,11 @@ impl BenchmarkResult {
     /// Format benchmark result as string
     #[must_use]
     pub fn format(&self) -> String {
-        let compliant = if self.meets_hot_path_budget() { "YES" } else { "NO" };
+        let compliant = if self.meets_hot_path_budget() {
+            "YES"
+        } else {
+            "NO"
+        };
         format!(
             "Operation: {}\n  Iterations: {}\n  Avg ticks: {:.2}\n  Min: {} | Max: {} | P50: {} | P95: {} | P99: {}\n  Hot path compliant: {}",
             self.operation,

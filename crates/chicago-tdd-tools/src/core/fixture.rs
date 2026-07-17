@@ -59,10 +59,15 @@ impl FixtureMetadata {
     /// Create new fixture metadata with current timestamp
     #[must_use]
     pub fn new() -> Self {
-        let created_at =
-            SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0);
+        let created_at = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|d| d.as_secs())
+            .unwrap_or(0);
 
-        Self { created_at, snapshots: Vec::new() }
+        Self {
+            created_at,
+            snapshots: Vec::new(),
+        }
     }
 
     /// Get fixture creation timestamp (seconds since UNIX epoch)
@@ -358,9 +363,7 @@ impl<T> TestFixture<T> {
     /// assert_eq!(fixture.get_metadata("phase"), None);
     /// ```
     pub fn with_scoped_metadata(
-        &mut self,
-        key: impl Into<String>,
-        value: impl Into<String>,
+        &mut self, key: impl Into<String>, value: impl Into<String>,
     ) -> ScopedMetadata<'_, T> {
         ScopedMetadata::new(self, key.into(), value.into())
     }
@@ -673,7 +676,10 @@ mod tests {
 
         // Assert: Scoped metadata removed, but permanent metadata remains
         assert_eq!(fixture.get_metadata("phase"), None);
-        assert_eq!(fixture.get_metadata("permanent"), Some(&"stays".to_string()));
+        assert_eq!(
+            fixture.get_metadata("permanent"),
+            Some(&"stays".to_string())
+        );
     });
 
     test!(test_scoped_metadata_cleanup_on_drop, {

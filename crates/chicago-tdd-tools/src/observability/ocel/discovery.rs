@@ -17,11 +17,16 @@ pub struct ProcessModelStore {
 impl ProcessModelStore {
     #[must_use]
     pub fn new() -> Self {
-        Self { models: Mutex::new(HashMap::new()) }
+        Self {
+            models: Mutex::new(HashMap::new()),
+        }
     }
 
     pub fn store(&self, name: &str, model: Vec<u8>) {
-        let mut models = self.models.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        let mut models = self
+            .models
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         let _ = models.insert(name.to_string(), model);
     }
 }

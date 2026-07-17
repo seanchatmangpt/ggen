@@ -148,13 +148,16 @@ impl TimingMeasurement {
     /// Create a new timing measurement
     #[must_use]
     pub const fn new(
-        total_ticks: u64,
-        wall_clock_ms: u64,
-        thermal_class: String,
-        budget_met: bool,
+        total_ticks: u64, wall_clock_ms: u64, thermal_class: String, budget_met: bool,
         expected_budget: u64,
     ) -> Self {
-        Self { total_ticks, wall_clock_ms, thermal_class, budget_met, expected_budget }
+        Self {
+            total_ticks,
+            wall_clock_ms,
+            thermal_class,
+            budget_met,
+            expected_budget,
+        }
     }
 
     /// Check if this violates τ (for hot path)
@@ -193,19 +196,17 @@ impl TestReceipt {
     #[must_use]
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        contract_name: String,
-        code_hash: String,
-        environment: EnvironmentFingerprint,
-        invariants_checked: Vec<String>,
-        timing: TimingMeasurement,
-        effects_exercised: Vec<String>,
+        contract_name: String, code_hash: String, environment: EnvironmentFingerprint,
+        invariants_checked: Vec<String>, timing: TimingMeasurement, effects_exercised: Vec<String>,
         result: TestOutcome,
     ) -> Self {
         let receipt_id = Self::generate_receipt_id(&contract_name);
         #[allow(clippy::cast_possible_truncation)]
         // Timestamp truncation acceptable for receipt IDs
-        let timestamp =
-            SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_millis() as u64;
+        let timestamp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis() as u64;
 
         Self {
             receipt_id,
@@ -225,14 +226,15 @@ impl TestReceipt {
     /// Create a receipt from a test contract
     #[must_use]
     pub fn from_contract(
-        contract: &TestContract,
-        timing: TimingMeasurement,
-        result: TestOutcome,
+        contract: &TestContract, timing: TimingMeasurement, result: TestOutcome,
     ) -> Self {
         let code_hash = Self::compute_code_hash(contract);
         let environment = EnvironmentFingerprint::capture();
-        let invariants_checked =
-            contract.invariants.iter().map(std::string::ToString::to_string).collect();
+        let invariants_checked = contract
+            .invariants
+            .iter()
+            .map(std::string::ToString::to_string)
+            .collect();
         let effects_exercised = Vec::new(); // Effects are tracked via the effect system when using fixture_test! macro
 
         Self::new(
@@ -248,8 +250,10 @@ impl TestReceipt {
 
     /// Generate a unique receipt ID
     fn generate_receipt_id(contract_name: &str) -> String {
-        let timestamp =
-            SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_millis();
+        let timestamp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis();
         let mut hasher = Sha256::new();
         hasher.update(contract_name.as_bytes());
         hasher.update(timestamp.to_string().as_bytes());
@@ -307,7 +311,10 @@ impl TestReceipt {
     /// Get metadata value
     #[must_use]
     pub fn get_metadata(&self, key: &str) -> Option<&str> {
-        self.metadata.iter().find(|(k, _)| k == key).map(|(_, v)| v.as_str())
+        self.metadata
+            .iter()
+            .find(|(k, _)| k == key)
+            .map(|(_, v)| v.as_str())
     }
 
     /// Serialize to JSON
@@ -341,7 +348,9 @@ impl TestReceiptRegistry {
     /// Create a new receipt registry
     #[must_use]
     pub const fn new() -> Self {
-        Self { receipts: Vec::new() }
+        Self {
+            receipts: Vec::new(),
+        }
     }
 
     /// Add a receipt to the registry
@@ -358,7 +367,10 @@ impl TestReceiptRegistry {
     /// Get receipts for a specific test
     #[must_use]
     pub fn receipts_for_test(&self, test_name: &str) -> Vec<&TestReceipt> {
-        self.receipts.iter().filter(|r| r.contract_name == test_name).collect()
+        self.receipts
+            .iter()
+            .filter(|r| r.contract_name == test_name)
+            .collect()
     }
 
     /// Get receipts that verified a specific invariant
@@ -382,13 +394,19 @@ impl TestReceiptRegistry {
     /// Get failed test receipts
     #[must_use]
     pub fn failed_receipts(&self) -> Vec<&TestReceipt> {
-        self.receipts.iter().filter(|r| r.result == TestOutcome::Fail).collect()
+        self.receipts
+            .iter()
+            .filter(|r| r.result == TestOutcome::Fail)
+            .collect()
     }
 
     /// Get receipts that violated τ
     #[must_use]
     pub fn tau_violations(&self) -> Vec<&TestReceipt> {
-        self.receipts.iter().filter(|r| r.timing.violates_tau()).collect()
+        self.receipts
+            .iter()
+            .filter(|r| r.timing.violates_tau())
+            .collect()
     }
 
     /// Total number of receipts
@@ -467,7 +485,9 @@ fn capture_enabled_features() -> String {
 
     if features.is_empty() {
         // Fall back to CARGO_FEATURES env var set at build time, or "default"
-        option_env!("CARGO_FEATURES").unwrap_or("default").to_string()
+        option_env!("CARGO_FEATURES")
+            .unwrap_or("default")
+            .to_string()
     } else {
         features.join(",")
     }

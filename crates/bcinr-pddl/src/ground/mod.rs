@@ -143,9 +143,7 @@ impl QuantifierDomain {
 
 impl GroundProblem {
     pub fn build(
-        domain: &Pddl8Domain,
-        problem: &Pddl8Problem,
-        max_ground: Option<usize>,
+        domain: &Pddl8Domain, problem: &Pddl8Problem, max_ground: Option<usize>,
     ) -> Result<Self, Pddl8Error> {
         let limit = max_ground.unwrap_or(PDDL8_MAX_GROUND);
 
@@ -604,8 +602,7 @@ impl GroundTemporalProblem {
     /// cloning the whole `GroundTemporalProblem` (grounded actions,
     /// conditions, atoms), just the small fn_values map.
     pub fn find_temporal_plan_with_fn_overrides(
-        &self,
-        overrides: &HashMap<String, f64>,
+        &self, overrides: &HashMap<String, f64>,
     ) -> PlannerOutcome<TemporalPlan> {
         let mut state = self.initial_atoms.clone();
         let mut fn_vals = self.initial_fn_values.clone();
@@ -847,9 +844,7 @@ impl GroundTemporalProblem {
 /// threading the new `quant_domain` parameter through is not a breaking
 /// change to any real caller.
 pub(crate) fn eval_condition(
-    cond: &PddlCondition,
-    state: &BTreeSet<Pddl8GroundAtom>,
-    fn_vals: &HashMap<String, f64>,
+    cond: &PddlCondition, state: &BTreeSet<Pddl8GroundAtom>, fn_vals: &HashMap<String, f64>,
     quant_domain: &QuantifierDomain,
 ) -> bool {
     match cond {
@@ -924,12 +919,8 @@ pub(crate) fn eval_condition(
 /// `ground_condition` helper). See `crate::capability`'s module doc comment
 /// for the full per-feature accounting.
 fn eval_quantifier(
-    vars: &[(String, String)],
-    body: &PddlCondition,
-    state: &BTreeSet<Pddl8GroundAtom>,
-    fn_vals: &HashMap<String, f64>,
-    quant_domain: &QuantifierDomain,
-    require_all: bool,
+    vars: &[(String, String)], body: &PddlCondition, state: &BTreeSet<Pddl8GroundAtom>,
+    fn_vals: &HashMap<String, f64>, quant_domain: &QuantifierDomain, require_all: bool,
 ) -> bool {
     // 8 params: threading (idx, vars, binding) for the recursive-bind state
     // plus (body, state, fn_vals, quant_domain, require_all) unchanged
@@ -938,14 +929,9 @@ fn eval_quantifier(
     // not worth it here.
     #[allow(clippy::too_many_arguments)]
     fn recurse(
-        idx: usize,
-        vars: &[(String, String)],
-        binding: &mut HashMap<String, String>,
-        body: &PddlCondition,
-        state: &BTreeSet<Pddl8GroundAtom>,
-        fn_vals: &HashMap<String, f64>,
-        quant_domain: &QuantifierDomain,
-        require_all: bool,
+        idx: usize, vars: &[(String, String)], binding: &mut HashMap<String, String>,
+        body: &PddlCondition, state: &BTreeSet<Pddl8GroundAtom>, fn_vals: &HashMap<String, f64>,
+        quant_domain: &QuantifierDomain, require_all: bool,
     ) -> bool {
         if idx == vars.len() {
             let bound_body = subst_condition(body, binding);
@@ -1001,9 +987,7 @@ fn eval_quantifier(
 }
 
 fn apply_effect_at_start(
-    eff: &PddlEffect,
-    state: &mut BTreeSet<Pddl8GroundAtom>,
-    fn_vals: &mut HashMap<String, f64>,
+    eff: &PddlEffect, state: &mut BTreeSet<Pddl8GroundAtom>, fn_vals: &mut HashMap<String, f64>,
 ) {
     use wasm4pm_compat::pddl::TimeSpecifier;
     match eff {
@@ -1016,9 +1000,7 @@ fn apply_effect_at_start(
 }
 
 fn apply_effect_at_end(
-    eff: &PddlEffect,
-    state: &mut BTreeSet<Pddl8GroundAtom>,
-    fn_vals: &mut HashMap<String, f64>,
+    eff: &PddlEffect, state: &mut BTreeSet<Pddl8GroundAtom>, fn_vals: &mut HashMap<String, f64>,
 ) {
     use wasm4pm_compat::pddl::TimeSpecifier;
     if let PddlEffect::Timed(TimeSpecifier::AtEnd, inner) = eff {
@@ -1027,9 +1009,7 @@ fn apply_effect_at_end(
 }
 
 fn apply_effect_ground(
-    eff: &PddlEffect,
-    state: &mut BTreeSet<Pddl8GroundAtom>,
-    fn_vals: &mut HashMap<String, f64>,
+    eff: &PddlEffect, state: &mut BTreeSet<Pddl8GroundAtom>, fn_vals: &mut HashMap<String, f64>,
 ) {
     match eff {
         PddlEffect::Add(a) => {
@@ -1060,8 +1040,7 @@ fn apply_effect_ground(
 }
 
 fn apply_numeric_effect(
-    ne: &wasm4pm_compat::pddl::NumericEffect,
-    fn_vals: &mut HashMap<String, f64>,
+    ne: &wasm4pm_compat::pddl::NumericEffect, fn_vals: &mut HashMap<String, f64>,
 ) {
     use wasm4pm_compat::pddl::NumericEffect;
     match ne {
@@ -1161,9 +1140,7 @@ fn fn_key(f: &PddlFunction) -> String {
 }
 
 fn ground_schema(
-    schema: &Pddl8ActionSchema,
-    objects: &[String],
-    type_index: &TypeIndex,
+    schema: &Pddl8ActionSchema, objects: &[String], type_index: &TypeIndex,
     out: &mut Vec<Pddl8GroundAction>,
 ) -> Result<(), Pddl8Error> {
     let n = schema.params.len();
@@ -1231,9 +1208,7 @@ fn ground_schema(
 /// and substitute the bound object names into the schema's conditions and
 /// effects. A zero-param schema collapses to exactly one ground instance.
 fn ground_durative_schema(
-    da: &DurativeAction,
-    objects: &[String],
-    type_index: &TypeIndex,
+    da: &DurativeAction, objects: &[String], type_index: &TypeIndex,
     out: &mut Vec<GroundDurativeAction>,
 ) -> Result<(), Pddl8Error> {
     let n = da.params.len();
@@ -1414,8 +1389,7 @@ fn subst_condition(cond: &PddlCondition, binding: &HashMap<String, String>) -> P
 }
 
 fn subst_numeric_effect(
-    ne: &wasm4pm_compat::pddl::NumericEffect,
-    binding: &HashMap<String, String>,
+    ne: &wasm4pm_compat::pddl::NumericEffect, binding: &HashMap<String, String>,
 ) -> wasm4pm_compat::pddl::NumericEffect {
     use wasm4pm_compat::pddl::NumericEffect;
     match ne {
@@ -1457,8 +1431,7 @@ fn subst_effect(eff: &PddlEffect, binding: &HashMap<String, String>) -> PddlEffe
 }
 
 fn instantiate(
-    schema: &Pddl8ActionSchema,
-    binding: &HashMap<String, String>,
+    schema: &Pddl8ActionSchema, binding: &HashMap<String, String>,
 ) -> Option<Pddl8GroundAction> {
     fn ground_atom(a: &Pddl8Atom, binding: &HashMap<String, String>) -> Option<Pddl8GroundAtom> {
         let args: Option<Vec<String>> = a
@@ -1516,9 +1489,7 @@ fn instantiate(
 }
 
 fn ground_derived_schema(
-    dp: &DerivedPredicate,
-    objects: &[(String, String)],
-    type_index: &TypeIndex,
+    dp: &DerivedPredicate, objects: &[(String, String)], type_index: &TypeIndex,
     out: &mut Vec<GroundDerivedPredicate>,
 ) -> Result<(), crate::error::Pddl8Error> {
     let mut vars = Vec::new();
@@ -1544,8 +1515,7 @@ fn ground_derived_schema(
     }
 
     fn ground_condition(
-        c: &PddlCondition,
-        binding: &HashMap<String, String>,
+        c: &PddlCondition, binding: &HashMap<String, String>,
     ) -> Option<PddlCondition> {
         match c {
             PddlCondition::Atom(a) => {
@@ -1588,13 +1558,9 @@ fn ground_derived_schema(
     }
 
     fn recurse(
-        param_idx: usize,
-        bindings: &mut HashMap<String, String>,
-        dp: &DerivedPredicate,
-        objects: &[(String, String)],
-        type_index: &TypeIndex,
-        out: &mut Vec<GroundDerivedPredicate>,
-        vars: &[(String, String)],
+        param_idx: usize, bindings: &mut HashMap<String, String>, dp: &DerivedPredicate,
+        objects: &[(String, String)], type_index: &TypeIndex,
+        out: &mut Vec<GroundDerivedPredicate>, vars: &[(String, String)],
     ) -> Result<(), crate::error::Pddl8Error> {
         if param_idx == vars.len() {
             if let Some(ground_head) = ground_atom(&dp.head, bindings) {
@@ -1628,10 +1594,8 @@ fn ground_derived_schema(
 /// `eval_condition` (see that function's doc comment) — no external caller
 /// referenced it.
 pub(crate) fn compute_derived_closure(
-    state: &mut BTreeSet<Pddl8GroundAtom>,
-    derived: &[GroundDerivedPredicate],
-    fn_vals: &HashMap<String, f64>,
-    quant_domain: &QuantifierDomain,
+    state: &mut BTreeSet<Pddl8GroundAtom>, derived: &[GroundDerivedPredicate],
+    fn_vals: &HashMap<String, f64>, quant_domain: &QuantifierDomain,
 ) {
     let mut changed = true;
     while changed {

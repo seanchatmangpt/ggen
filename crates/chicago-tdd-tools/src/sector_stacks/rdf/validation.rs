@@ -49,7 +49,10 @@ impl std::fmt::Display for RdfValidationError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::OperationNotDefined { operation, sector } => {
-                write!(f, "Operation '{operation}' not defined in {sector} ontology")
+                write!(
+                    f,
+                    "Operation '{operation}' not defined in {sector} ontology"
+                )
             }
             Self::GuardViolation { guard, operation } => {
                 write!(f, "Guard '{guard}' violated by operation '{operation}'")
@@ -57,8 +60,15 @@ impl std::fmt::Display for RdfValidationError {
             Self::InvalidStageTransition { from, to } => {
                 write!(f, "Invalid stage transition from {from} to {to}")
             }
-            Self::LatencyBudgetExceeded { stage, actual, budgeted } => {
-                write!(f, "Stage '{stage}' latency {actual} exceeds budget {budgeted}")
+            Self::LatencyBudgetExceeded {
+                stage,
+                actual,
+                budgeted,
+            } => {
+                write!(
+                    f,
+                    "Stage '{stage}' latency {actual} exceeds budget {budgeted}"
+                )
             }
             Self::OntologyNotLoaded => {
                 write!(f, "Ontology not loaded")
@@ -94,7 +104,10 @@ impl RdfOperationValidator {
     ///
     /// Returns an error if the ontology is not loaded or the operation is not defined.
     pub fn validate_operation_defined(&self, operation: &str) -> RdfValidationResult {
-        let ontology = self.ontology.as_ref().ok_or(RdfValidationError::OntologyNotLoaded)?;
+        let ontology = self
+            .ontology
+            .as_ref()
+            .ok_or(RdfValidationError::OntologyNotLoaded)?;
 
         // Check if operation exists in hooks
         if ontology.hooks.contains_key(operation) {
@@ -113,11 +126,12 @@ impl RdfOperationValidator {
     ///
     /// Returns an error if the ontology is not loaded, stages are not found, or transition is invalid.
     pub fn validate_stage_transition(
-        &self,
-        from_stage: &str,
-        to_stage: &str,
+        &self, from_stage: &str, to_stage: &str,
     ) -> RdfValidationResult {
-        let ontology = self.ontology.as_ref().ok_or(RdfValidationError::OntologyNotLoaded)?;
+        let ontology = self
+            .ontology
+            .as_ref()
+            .ok_or(RdfValidationError::OntologyNotLoaded)?;
 
         let from = ontology.get_stage(from_stage).ok_or_else(|| {
             RdfValidationError::OperationNotDefined {
@@ -150,7 +164,10 @@ impl RdfOperationValidator {
     ///
     /// Returns an error if the ontology is not loaded, stage is not found, or latency exceeds budget.
     pub fn validate_latency_budget(&self, stage: &str, latency_ms: u32) -> RdfValidationResult {
-        let ontology = self.ontology.as_ref().ok_or(RdfValidationError::OntologyNotLoaded)?;
+        let ontology = self
+            .ontology
+            .as_ref()
+            .ok_or(RdfValidationError::OntologyNotLoaded)?;
 
         let stage_def =
             ontology
@@ -177,7 +194,10 @@ impl RdfOperationValidator {
     ///
     /// Returns an error if the ontology is not loaded.
     pub fn get_guards(&self) -> Result<Vec<GuardConstraint>, RdfValidationError> {
-        let ontology = self.ontology.as_ref().ok_or(RdfValidationError::OntologyNotLoaded)?;
+        let ontology = self
+            .ontology
+            .as_ref()
+            .ok_or(RdfValidationError::OntologyNotLoaded)?;
 
         Ok(ontology.guards.values().cloned().collect())
     }
@@ -188,7 +208,10 @@ impl RdfOperationValidator {
     ///
     /// Returns an error if the ontology is not loaded.
     pub fn all_stages_deterministic(&self) -> Result<bool, RdfValidationError> {
-        let ontology = self.ontology.as_ref().ok_or(RdfValidationError::OntologyNotLoaded)?;
+        let ontology = self
+            .ontology
+            .as_ref()
+            .ok_or(RdfValidationError::OntologyNotLoaded)?;
 
         Ok(ontology.deterministic_stages().len() == ontology.stage_count())
     }
@@ -252,10 +275,14 @@ mod tests {
         let validator = RdfOperationValidator::new().with_ontology(ontology);
 
         // Forward transition should succeed
-        assert!(validator.validate_stage_transition("stage1", "stage2").is_ok());
+        assert!(validator
+            .validate_stage_transition("stage1", "stage2")
+            .is_ok());
 
         // Backward transition should fail
-        assert!(validator.validate_stage_transition("stage2", "stage1").is_err());
+        assert!(validator
+            .validate_stage_transition("stage2", "stage1")
+            .is_err());
     }
 
     #[test]

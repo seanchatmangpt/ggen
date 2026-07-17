@@ -88,13 +88,21 @@ pub enum ChainError {
 impl std::fmt::Display for ChainError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::HashMismatch { index, stored, computed } => write!(
+            Self::HashMismatch {
+                index,
+                stored,
+                computed,
+            } => write!(
                 f,
                 "hash mismatch at entry {index}: stored={} computed={}",
                 hex_encode(stored),
                 hex_encode(computed)
             ),
-            Self::PrevHashMismatch { index, expected, actual } => write!(
+            Self::PrevHashMismatch {
+                index,
+                expected,
+                actual,
+            } => write!(
                 f,
                 "prev_hash mismatch at entry {index}: expected={} actual={}",
                 hex_encode(expected),
@@ -152,7 +160,11 @@ impl Blake3ChainValidator {
             let computed: [u8; 32] = *h.finalize().as_bytes();
             let stored = entry.stored_hash();
             if computed != stored {
-                return Err(ChainError::HashMismatch { index: i, stored, computed });
+                return Err(ChainError::HashMismatch {
+                    index: i,
+                    stored,
+                    computed,
+                });
             }
 
             expected_prev = stored;
@@ -179,7 +191,11 @@ impl Blake3ChainValidator {
     /// A valid chain with ≥ 2 entries demonstrates that `prev_hash` threading
     /// is active — entry 1's hash depends on entry 0's hash.
     pub fn assert_tamper_evident<E: Blake3ReceiptEntry>(entries: &[E]) {
-        assert!(entries.len() >= 2, "tamper-evidence requires ≥ 2 entries; got {}", entries.len());
+        assert!(
+            entries.len() >= 2,
+            "tamper-evidence requires ≥ 2 entries; got {}",
+            entries.len()
+        );
         Self::assert_chain_valid(entries);
 
         // Verify that entries[1].prev_hash == entries[0].stored_hash —
@@ -238,7 +254,14 @@ impl RawReceiptEntry {
         chain_hash.copy_from_slice(&raw[17..49]);
         let mut replay_ptr_bytes = [0u8; 8];
         replay_ptr_bytes.copy_from_slice(&raw[49..57]);
-        Self { prev: prev_hash, run_id_le, op_trace_le, topo_tag, chain_hash, replay_ptr_bytes }
+        Self {
+            prev: prev_hash,
+            run_id_le,
+            op_trace_le,
+            topo_tag,
+            chain_hash,
+            replay_ptr_bytes,
+        }
     }
 
     /// Build a Vec of `RawReceiptEntry` from a bcinr-powl `ReceiptLog`-style
@@ -298,7 +321,10 @@ pub struct ReceiptChainBuilder {
 impl ReceiptChainBuilder {
     /// Create a new builder with a zeroed initial chain hash.
     pub fn new() -> Self {
-        Self { entries: Vec::new(), prev_hash: [0u8; 32] }
+        Self {
+            entries: Vec::new(),
+            prev_hash: [0u8; 32],
+        }
     }
 
     /// Append an entry with the given run_id, op_trace, and topo_tag.

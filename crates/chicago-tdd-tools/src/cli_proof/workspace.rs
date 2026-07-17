@@ -19,7 +19,9 @@ impl TempWorkspace {
     ///
     /// Propagates any I/O error from [`tempfile::TempDir::new`].
     pub fn new() -> Result<Self, std::io::Error> {
-        Ok(Self { dir: tempfile::TempDir::new()? })
+        Ok(Self {
+            dir: tempfile::TempDir::new()?,
+        })
     }
 
     /// Create a workspace pre-populated with a fixture directory.
@@ -88,7 +90,10 @@ impl TempWorkspace {
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent)?;
         }
-        let mut file = std::fs::OpenOptions::new().create(true).append(true).open(&path)?;
+        let mut file = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(&path)?;
         file.write_all(bytes)?;
         Ok(self)
     }
@@ -101,9 +106,7 @@ impl TempWorkspace {
     ///
     /// Propagates any I/O error.
     pub fn corrupt_file(
-        &self,
-        rel: &str,
-        f: impl Fn(Vec<u8>) -> Vec<u8>,
+        &self, rel: &str, f: impl Fn(Vec<u8>) -> Vec<u8>,
     ) -> Result<&Self, std::io::Error> {
         let path = self.resolve(rel);
         let original = fs::read(&path)?;
@@ -147,7 +150,10 @@ impl TempWorkspace {
     pub fn assert_file_absent(&self, rel: &str) -> &Self {
         let path = self.resolve(rel);
         if path.exists() {
-            panic!("expected file to be absent but it exists: {}", path.display());
+            panic!(
+                "expected file to be absent but it exists: {}",
+                path.display()
+            );
         }
         self
     }

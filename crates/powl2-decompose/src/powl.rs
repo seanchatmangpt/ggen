@@ -419,9 +419,7 @@ impl ParentChildClosure {
 
     /// DFS helper for [`Self::from_model`]; see that method for complexity.
     fn walk(
-        node: &Powl,
-        path: &SocketPath,
-        edges: &mut BTreeSet<ParentChildEdge>,
+        node: &Powl, path: &SocketPath, edges: &mut BTreeSet<ParentChildEdge>,
         children_index: &mut std::collections::BTreeMap<
             WorkflowSocketId,
             BTreeSet<WorkflowSocketId>,
@@ -589,9 +587,7 @@ fn choice_language(child_langs: &[Language], graph: &ChoiceGraph, max_len: usize
 /// `L(≺(ψ₁,…))` bounded: for every choice of one trace per child, all
 /// order-preserving interleavings (Def 3.8), keeping length `≤ max_len`.
 fn shuffle_language(
-    child_langs: &[Language],
-    order: &BTreeSet<(usize, usize)>,
-    max_len: usize,
+    child_langs: &[Language], order: &BTreeSet<(usize, usize)>, max_len: usize,
 ) -> Language {
     let mut out = Language::new();
     let choices: Vec<Vec<Trace>> = child_langs
@@ -608,10 +604,7 @@ fn shuffle_language(
 /// Enumerate the cartesian product of one trace per child, invoking `f` on
 /// each full selection.
 fn cartesian(
-    choices: &[Vec<Trace>],
-    idx: usize,
-    selection: &mut Vec<Trace>,
-    f: &mut impl FnMut(&[Trace]),
+    choices: &[Vec<Trace>], idx: usize, selection: &mut Vec<Trace>, f: &mut impl FnMut(&[Trace]),
 ) {
     if idx == choices.len() {
         f(selection);
@@ -626,10 +619,7 @@ fn cartesian(
 /// Order-preserving shuffle (Def 3.8): child `i`'s next element may be emitted
 /// only when every predecessor `j ≺ i` has been fully emitted.
 fn interleave(
-    seqs: &[Trace],
-    order: &BTreeSet<(usize, usize)>,
-    max_len: usize,
-    out: &mut Language,
+    seqs: &[Trace], order: &BTreeSet<(usize, usize)>, max_len: usize, out: &mut Language,
 ) {
     let n = seqs.len();
     let mut pos = vec![0usize; n];
@@ -638,12 +628,8 @@ fn interleave(
 }
 
 fn interleave_rec(
-    seqs: &[Trace],
-    order: &BTreeSet<(usize, usize)>,
-    pos: &mut [usize],
-    acc: &mut Trace,
-    max_len: usize,
-    out: &mut Language,
+    seqs: &[Trace], order: &BTreeSet<(usize, usize)>, pos: &mut [usize], acc: &mut Trace,
+    max_len: usize, out: &mut Language,
 ) {
     if acc.len() > max_len {
         return;
@@ -956,9 +942,7 @@ mod socket_tests {
     /// not part of the crate's production surface.
     fn graph_has_cycle(graph: &ChoiceGraph) -> bool {
         fn visit(
-            node: GNode,
-            graph: &ChoiceGraph,
-            visiting: &mut BTreeSet<GNode>,
+            node: GNode, graph: &ChoiceGraph, visiting: &mut BTreeSet<GNode>,
             done: &mut BTreeSet<GNode>,
         ) -> bool {
             if done.contains(&node) {

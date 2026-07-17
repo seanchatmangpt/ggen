@@ -169,9 +169,7 @@ impl VerificationPipeline {
     /// Returns error if any pipeline phase fails according to configuration
     #[allow(clippy::cast_precision_loss)] // Precision loss acceptable for statistical calculations
     pub fn execute_test<F, T>(
-        &mut self,
-        contract: &TestContract,
-        test_fn: F,
+        &mut self, contract: &TestContract, test_fn: F,
     ) -> Result<PipelineResult, String>
     where
         F: FnOnce() -> T,
@@ -263,9 +261,7 @@ impl VerificationPipeline {
     }
 
     fn run_phase3_effect_validation(
-        &mut self,
-        contract: &TestContract,
-        ticks: u64,
+        &mut self, contract: &TestContract, ticks: u64,
     ) -> Result<(), String> {
         let mut violations: Vec<&'static str> = Vec::new();
         for invariant in contract.invariants {
@@ -291,7 +287,10 @@ impl VerificationPipeline {
         }
         self.metrics.effect_violations += violations.len();
         if !violations.is_empty() && self.config.fail_on_effect_violation {
-            return Err(format!("Effect violations for '{}': {:?}", contract.name, violations));
+            return Err(format!(
+                "Effect violations for '{}': {:?}",
+                contract.name, violations
+            ));
         }
         alert_info!(
             "Phase 3: effect validation for '{}' — {} checked, {} violations",
@@ -307,7 +306,12 @@ impl VerificationPipeline {
         for prereq in contract.environment {
             let env_key = prereq.to_uppercase().replace(['-', ' '], "_");
             let present = std::env::var(&env_key)
-                .map(|v| matches!(v.to_lowercase().as_str(), "1" | "true" | "yes" | "available"))
+                .map(|v| {
+                    matches!(
+                        v.to_lowercase().as_str(),
+                        "1" | "true" | "yes" | "available"
+                    )
+                })
                 .unwrap_or(false)
                 || std::env::var(format!("{env_key}_AVAILABLE"))
                     .map(|v| !v.is_empty())
@@ -338,8 +342,7 @@ impl VerificationPipeline {
     ///
     /// Returns error if pipeline execution fails
     pub fn execute_batch(
-        &mut self,
-        tests: Vec<(TestContract, Box<dyn FnOnce()>)>,
+        &mut self, tests: Vec<(TestContract, Box<dyn FnOnce()>)>,
     ) -> Result<Vec<PipelineResult>, String> {
         let mut results = Vec::new();
 
@@ -354,12 +357,12 @@ impl VerificationPipeline {
     /// Get coverage gaps
     #[must_use]
     pub fn coverage_gaps<'a>(
-        &self,
-        required_modules: &'a [&'a str],
-        required_invariants: &'a [&'a str],
+        &self, required_modules: &'a [&'a str], required_invariants: &'a [&'a str],
     ) -> (Vec<&'a str>, Vec<&'a str>) {
         let uncovered_modules = self.contract_registry.uncovered_modules(required_modules);
-        let uncovered_invariants = self.contract_registry.uncovered_invariants(required_invariants);
+        let uncovered_invariants = self
+            .contract_registry
+            .uncovered_invariants(required_invariants);
         (uncovered_modules, uncovered_invariants)
     }
 
@@ -477,7 +480,10 @@ impl DeploymentDecision {
         }
 
         if self.passing_ratio < 1.0 {
-            blockers.push(format!("Only {:.1}% tests passing", self.passing_ratio * 100.0));
+            blockers.push(format!(
+                "Only {:.1}% tests passing",
+                self.passing_ratio * 100.0
+            ));
         }
 
         blockers

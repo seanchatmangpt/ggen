@@ -87,7 +87,10 @@ impl DistributedConsensus {
 
     /// Record a vote from another node
     pub fn record_vote(&mut self, vote: ConsensusVote) {
-        self.votes.entry(vote.receipt_id.clone()).or_default().push(vote);
+        self.votes
+            .entry(vote.receipt_id.clone())
+            .or_default()
+            .push(vote);
     }
 
     /// Check if consensus reached for a receipt
@@ -181,7 +184,11 @@ impl TimeTravelDebugger {
     #[must_use]
     #[allow(clippy::missing_const_for_fn)]
     pub fn new() -> Self {
-        Self { snapshots: Vec::new(), current_index: 0, recording: true }
+        Self {
+            snapshots: Vec::new(),
+            current_index: 0,
+            recording: true,
+        }
     }
 
     /// Start recording snapshots
@@ -294,7 +301,10 @@ impl PerformanceProphet {
     #[must_use]
     #[allow(clippy::missing_const_for_fn)] // Vec initialization is not const
     pub fn new() -> Self {
-        Self { history: Vec::new(), window_size: 10 }
+        Self {
+            history: Vec::new(),
+            window_size: 10,
+        }
     }
 
     /// Record a performance measurement
@@ -324,8 +334,12 @@ impl PerformanceProphet {
         }
 
         // Use moving average of recent executions
-        let recent: Vec<u64> =
-            contract_history.iter().rev().take(self.window_size).copied().collect();
+        let recent: Vec<u64> = contract_history
+            .iter()
+            .rev()
+            .take(self.window_size)
+            .copied()
+            .collect();
 
         let sum: u64 = recent.iter().sum();
         let avg = sum / recent.len() as u64;
@@ -405,7 +419,10 @@ impl QualityMetrics {
     /// Create new quality metrics
     #[must_use]
     pub fn new() -> Self {
-        Self { min_tau: u64::MAX, ..Default::default() }
+        Self {
+            min_tau: u64::MAX,
+            ..Default::default()
+        }
     }
 
     /// Update metrics with a test receipt
@@ -499,7 +516,11 @@ impl QualityMetrics {
             self.failure_rate() * 100.0,
             self.average_tau,
             self.max_tau,
-            if self.min_tau == u64::MAX { 0 } else { self.min_tau },
+            if self.min_tau == u64::MAX {
+                0
+            } else {
+                self.min_tau
+            },
             self.tau_violations,
             self.tau_violation_rate() * 100.0,
             self.coverage_percent,
@@ -521,7 +542,10 @@ mod tests {
         // Byzantine FT threshold is 0.67, so for 3 nodes: ceil(3 * 0.67) = 3 votes needed
         assert_eq!(
             consensus.consensus_status(&receipt_id),
-            ConsensusStatus::Pending { votes: 1, needed: 3 }
+            ConsensusStatus::Pending {
+                votes: 1,
+                needed: 3
+            }
         );
 
         let vote2 = ConsensusVote {
@@ -536,7 +560,10 @@ mod tests {
         // Still pending with 2/3 votes
         assert_eq!(
             consensus.consensus_status(&receipt_id),
-            ConsensusStatus::Pending { votes: 2, needed: 3 }
+            ConsensusStatus::Pending {
+                votes: 2,
+                needed: 3
+            }
         );
 
         // Add third vote to reach consensus
@@ -550,7 +577,10 @@ mod tests {
         consensus.record_vote(vote3);
 
         // Now we have consensus
-        assert_eq!(consensus.consensus_status(&receipt_id), ConsensusStatus::Approved);
+        assert_eq!(
+            consensus.consensus_status(&receipt_id),
+            ConsensusStatus::Approved
+        );
     }
 
     #[test]

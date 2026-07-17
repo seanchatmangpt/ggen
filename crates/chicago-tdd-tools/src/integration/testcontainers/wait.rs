@@ -41,10 +41,7 @@ mod implementation {
         /// )?;
         /// ```
         pub fn with_wait_for(
-            _client: &ContainerClient,
-            image: &str,
-            tag: &str,
-            wait_for: WaitFor,
+            _client: &ContainerClient, image: &str, tag: &str, wait_for: WaitFor,
         ) -> TestcontainersResult<Self> {
             let image = GenericImage::new(image, tag).with_wait_for(wait_for);
             // Convert GenericImage to ContainerRequest before starting
@@ -68,10 +65,7 @@ mod stubs {
 
     impl GenericContainer {
         pub fn with_wait_for(
-            _client: &ContainerClient,
-            _image: &str,
-            _tag: &str,
-            _wait_for: (),
+            _client: &ContainerClient, _image: &str, _tag: &str, _wait_for: (),
         ) -> TestcontainersResult<Self> {
             Err(TestcontainersError::InvalidConfig(
                 "testcontainers feature is not enabled".to_string(),

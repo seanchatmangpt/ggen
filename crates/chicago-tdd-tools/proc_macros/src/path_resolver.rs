@@ -27,7 +27,9 @@ pub fn extract_ticket_id(filename: &str) -> Option<String> {
         return None;
     }
     let digits_rest = &stem[after_prefix..];
-    let end = digits_rest.find(|c: char| !c.is_ascii_digit()).unwrap_or(digits_rest.len());
+    let end = digits_rest
+        .find(|c: char| !c.is_ascii_digit())
+        .unwrap_or(digits_rest.len());
     let digits = &digits_rest[..end];
     if digits.is_empty() {
         None

@@ -111,8 +111,7 @@ impl SimpleRng {
 
 /// Property: All generated data is valid
 pub fn property_all_data_valid<const MAX_ITEMS: usize, const MAX_DEPTH: usize>(
-    generator: &mut PropertyTestGenerator<MAX_ITEMS, MAX_DEPTH>,
-    num_tests: usize,
+    generator: &mut PropertyTestGenerator<MAX_ITEMS, MAX_DEPTH>, num_tests: usize,
 ) -> bool {
     for _ in 0..num_tests {
         let data = generator.generate_test_data();
@@ -163,7 +162,10 @@ impl ProptestStrategy {
     /// Create a new proptest strategy with default configuration
     #[must_use]
     pub fn new() -> Self {
-        Self { config: Config::default(), seed: None }
+        Self {
+            config: Config::default(),
+            seed: None,
+        }
     }
 
     /// Set the number of test cases to run
@@ -415,7 +417,9 @@ mod proptest_tests {
         // DMAIC Fix: Changed from `x + y` to `x.wrapping_add(y)` to prevent integer overflow
         // Root cause: Debug mode panics on overflow when adding large u32 values
         // Solution: Use wrapping arithmetic which maintains mathematical properties
-        strategy.test(any::<(u32, u32)>(), |(x, y)| x.wrapping_add(y) == y.wrapping_add(x));
+        strategy.test(any::<(u32, u32)>(), |(x, y)| {
+            x.wrapping_add(y) == y.wrapping_add(x)
+        });
     }
 
     #[test]

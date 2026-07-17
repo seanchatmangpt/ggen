@@ -111,8 +111,7 @@ pub fn admit_candidate_domain(text: &str) -> Result<AdmittedDomain, Pddl8Error> 
 
 /// Validate and admit an LLM-generated PDDL 3.1 problem text against an admitted domain.
 pub fn admit_candidate_problem(
-    text: &str,
-    domain: &AdmittedDomain,
+    text: &str, domain: &AdmittedDomain,
 ) -> Result<AdmittedProblem, Pddl8Error> {
     let problem31 = problem31_from_pddl(text)?;
     let problem8 = problem_from_pddl(text)?;
@@ -144,10 +143,7 @@ pub fn admit_candidate_problem(
 /// Returns a WorldManufactureReceipt whether or not planning succeeds —
 /// the receipt records admitted=false with a refusal_reason if planning fails.
 pub fn manufacture_world(
-    domain_text: &str,
-    problem_text: &str,
-    case_id: &str,
-    policy_rules: &[(&str, Vec<&str>)],
+    domain_text: &str, problem_text: &str, case_id: &str, policy_rules: &[(&str, Vec<&str>)],
 ) -> WorldManufactureReceipt {
     // Admit domain
     let admitted_domain = match admit_candidate_domain(domain_text) {
@@ -296,9 +292,7 @@ pub fn build_ocel_export(plan: &TemporalPlan, case_id: &str) -> Value {
 // ─── Internal helpers ────────────────────────────────────────────────────────
 
 fn ground_and_plan(
-    domain: &AdmittedDomain,
-    problem: &AdmittedProblem,
-    case_id: &str,
+    domain: &AdmittedDomain, problem: &AdmittedProblem, case_id: &str,
     policy_rules: &[(&str, Vec<&str>)],
 ) -> Result<(TemporalPlan, TemporalExecutionReceipt), Pddl8Error> {
     // Try temporal planning if there are durative actions
@@ -389,20 +383,13 @@ fn chain_witnesses(domain_w: &str, problem_w: &str, plan_chain: &str) -> String 
 }
 
 pub fn chain_witnesses_with_goal(
-    domain_w: &str,
-    problem_w: &str,
-    plan_chain: &str,
-    goal_reached: bool,
+    domain_w: &str, problem_w: &str, plan_chain: &str, goal_reached: bool,
 ) -> String {
     chain_witnesses_full(domain_w, problem_w, plan_chain, goal_reached, 0)
 }
 
 pub fn chain_witnesses_full(
-    domain_w: &str,
-    problem_w: &str,
-    plan_chain: &str,
-    goal_reached: bool,
-    step_count: u64,
+    domain_w: &str, problem_w: &str, plan_chain: &str, goal_reached: bool, step_count: u64,
 ) -> String {
     let mut h = Hasher::new();
     h.update(domain_w.as_bytes());

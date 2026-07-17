@@ -65,7 +65,10 @@ impl SpanValidator {
     /// Create a new span validator
     #[must_use]
     pub const fn new() -> Self {
-        Self { required_attributes: Vec::new(), validate_non_zero_ids: true }
+        Self {
+            required_attributes: Vec::new(),
+            validate_non_zero_ids: true,
+        }
     }
 
     /// Require specific attributes
@@ -90,12 +93,16 @@ impl SpanValidator {
     pub fn validate(&self, span: &Span) -> OtelValidationResult<()> {
         // Validate span ID is not zero (if enabled)
         if self.validate_non_zero_ids && span.context.span_id.0 == 0 {
-            return Err(OtelValidationError::InvalidSpanId("Span ID cannot be zero".to_string()));
+            return Err(OtelValidationError::InvalidSpanId(
+                "Span ID cannot be zero".to_string(),
+            ));
         }
 
         // Validate trace ID is not zero
         if span.context.trace_id.0 == 0 {
-            return Err(OtelValidationError::InvalidTraceId("Trace ID cannot be zero".to_string()));
+            return Err(OtelValidationError::InvalidTraceId(
+                "Trace ID cannot be zero".to_string(),
+            ));
         }
 
         // Validate span name is not empty
@@ -163,7 +170,9 @@ impl MetricValidator {
     /// Create a new metric validator
     #[must_use]
     pub const fn new() -> Self {
-        Self { required_attributes: Vec::new() }
+        Self {
+            required_attributes: Vec::new(),
+        }
     }
 
     /// Require specific attributes
@@ -259,7 +268,10 @@ impl OtelTestHelper {
     /// Create a new OTEL test helper
     #[must_use]
     pub const fn new() -> Self {
-        Self { span_validator: SpanValidator::new(), metric_validator: MetricValidator::new() }
+        Self {
+            span_validator: SpanValidator::new(),
+            metric_validator: MetricValidator::new(),
+        }
     }
 
     /// Validate spans from a tracer
@@ -351,8 +363,16 @@ pub mod test_helpers {
         let status = SpanStatus::Ok;
 
         #[allow(clippy::panic)] // Test helper - panic is appropriate
-        Span::new_completed(context, name, start_time_ms, end_time_ms, attributes, events, status)
-            .unwrap_or_else(|e| panic!("Failed to create test span: {e}"))
+        Span::new_completed(
+            context,
+            name,
+            start_time_ms,
+            end_time_ms,
+            attributes,
+            events,
+            status,
+        )
+        .unwrap_or_else(|e| panic!("Failed to create test span: {e}"))
     }
 
     /// Create a test span with custom attributes
@@ -374,8 +394,7 @@ pub mod test_helpers {
     ///
     /// Panics if creating the span fails.
     pub fn create_test_span_with_attributes(
-        name: impl Into<String>,
-        attributes: Attributes,
+        name: impl Into<String>, attributes: Attributes,
     ) -> Span {
         let name = name.into();
         let trace_id = TraceId(12345);
@@ -387,8 +406,16 @@ pub mod test_helpers {
         let status = SpanStatus::Ok;
 
         #[allow(clippy::panic)] // Test helper - panic is appropriate
-        Span::new_completed(context, name, start_time_ms, end_time_ms, attributes, events, status)
-            .unwrap_or_else(|e| panic!("Failed to create test span with attributes: {e}"))
+        Span::new_completed(
+            context,
+            name,
+            start_time_ms,
+            end_time_ms,
+            attributes,
+            events,
+            status,
+        )
+        .unwrap_or_else(|e| panic!("Failed to create test span with attributes: {e}"))
     }
 
     /// Create a test metric with default values
@@ -410,7 +437,12 @@ pub mod test_helpers {
         let timestamp_ms = 1000;
         let attributes = Attributes::new();
 
-        Metric { name, value, timestamp_ms, attributes }
+        Metric {
+            name,
+            value,
+            timestamp_ms,
+            attributes,
+        }
     }
 
     /// Create a test metric with custom attributes
@@ -428,15 +460,18 @@ pub mod test_helpers {
     /// let metric = create_test_metric_with_attributes("test.counter", 42, attrs);
     /// ```
     pub fn create_test_metric_with_attributes(
-        name: impl Into<String>,
-        value: u64,
-        attributes: Attributes,
+        name: impl Into<String>, value: u64, attributes: Attributes,
     ) -> Metric {
         let name = name.into();
         let value = MetricValue::Counter(value);
         let timestamp_ms = 1000;
 
-        Metric { name, value, timestamp_ms, attributes }
+        Metric {
+            name,
+            value,
+            timestamp_ms,
+            attributes,
+        }
     }
 }
 

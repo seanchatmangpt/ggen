@@ -99,7 +99,10 @@ impl SectorOntology {
     /// Get all deterministic stages
     #[must_use]
     pub fn deterministic_stages(&self) -> Vec<&WorkflowStage> {
-        self.stages.values().filter(|s| s.is_deterministic).collect()
+        self.stages
+            .values()
+            .filter(|s| s.is_deterministic)
+            .collect()
     }
 
     /// Count total stages

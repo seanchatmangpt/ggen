@@ -63,8 +63,7 @@ impl SabotageFixture {
     /// Returns an error if the file cannot be read, contains invalid JSON,
     /// or cannot be re-serialised / written.
     pub fn corrupt_json(
-        path: impl AsRef<Path>,
-        f: impl Fn(serde_json::Value) -> serde_json::Value,
+        path: impl AsRef<Path>, f: impl Fn(serde_json::Value) -> serde_json::Value,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let content = fs::read_to_string(path.as_ref())?;
         let value: serde_json::Value = serde_json::from_str(&content)?;

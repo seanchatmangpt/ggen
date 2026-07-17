@@ -131,10 +131,7 @@ struct SchemaPlan<'a> {
 
 impl<'a> SchemaPlan<'a> {
     fn build(
-        schema: &'a Pddl8ActionSchema,
-        objects: &[String],
-        type_index: &TypeIndex,
-        dict: &mut Dict,
+        schema: &'a Pddl8ActionSchema, objects: &[String], type_index: &TypeIndex, dict: &mut Dict,
     ) -> Self {
         let typed: HashMap<&str, &str> = schema
             .typed_params
@@ -211,9 +208,7 @@ impl IndexedGroundProblem {
     /// set, so a domain whose naive product blows past the ceiling can still be
     /// grounded here as long as its reachable subset fits.
     pub fn build(
-        domain: &Pddl8Domain,
-        problem: &Pddl8Problem,
-        max_ground: Option<usize>,
+        domain: &Pddl8Domain, problem: &Pddl8Problem, max_ground: Option<usize>,
     ) -> Result<Self, crate::error::Pddl8Error> {
         let limit = max_ground.unwrap_or(PDDL8_MAX_GROUND);
         let mut dict = Dict::new();
@@ -541,10 +536,7 @@ fn atom_is_closed(atom: &Pddl8Atom, b: &Binding, param_index: &HashMap<String, u
 
 /// Resolve a closed atom's argument IDs, or `None` if a constant is unknown.
 fn close_atom(
-    atom: &Pddl8Atom,
-    b: &Binding,
-    param_index: &HashMap<String, usize>,
-    dict: &Dict,
+    atom: &Pddl8Atom, b: &Binding, param_index: &HashMap<String, usize>, dict: &Dict,
 ) -> Option<Vec<u32>> {
     atom.args
         .iter()
@@ -561,11 +553,7 @@ fn close_atom(
 /// Extend `b` so `atom` matches `tuple`, or `None` on any conflict / off-type
 /// binding.
 fn try_extend(
-    b: &Binding,
-    atom: &Pddl8Atom,
-    tuple: &[u32],
-    plan: &SchemaPlan,
-    dict: &Dict,
+    b: &Binding, atom: &Pddl8Atom, tuple: &[u32], plan: &SchemaPlan, dict: &Dict,
 ) -> Option<Binding> {
     let mut nb = b.clone();
     for (j, arg) in atom.args.iter().enumerate() {
@@ -609,10 +597,7 @@ fn expand_unbound(b: &Binding, plan: &SchemaPlan, out: &mut Vec<Vec<u32>>) {
 /// Build a ground atom's `(pred_id, arg_ids)` from a complete `binding`, or
 /// `None` if a constant is unknown.
 fn ground_atom_ids(
-    atom: &Pddl8Atom,
-    binding: &[u32],
-    plan: &SchemaPlan,
-    dict: &Dict,
+    atom: &Pddl8Atom, binding: &[u32], plan: &SchemaPlan, dict: &Dict,
 ) -> Option<(SymId, Vec<SymId>)> {
     let pred = dict.get(&atom.pred)?;
     let args: Option<Vec<SymId>> = atom

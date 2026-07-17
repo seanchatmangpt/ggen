@@ -155,13 +155,8 @@ impl OperatorDescriptor {
     /// Create a new operator descriptor
     #[must_use]
     pub fn new(
-        hook_id: &str,
-        pattern_number: u32,
-        pattern_name: &str,
-        pattern_category: &str,
-        properties: OperatorProperties,
-        max_latency_ns: i64,
-        required_guards: Vec<GuardType>,
+        hook_id: &str, pattern_number: u32, pattern_name: &str, pattern_category: &str,
+        properties: OperatorProperties, max_latency_ns: i64, required_guards: Vec<GuardType>,
     ) -> Self {
         Self {
             hook_id: hook_id.to_string(),
@@ -612,7 +607,11 @@ impl OperatorRegistry {
                     bounded: true,
                 },
                 10_000_000_000,
-                vec![GuardType::Causality, GuardType::Chronology, GuardType::Budget],
+                vec![
+                    GuardType::Causality,
+                    GuardType::Chronology,
+                    GuardType::Budget,
+                ],
             ),
         );
 
@@ -794,7 +793,11 @@ impl OperatorRegistry {
                     bounded: true,
                 },
                 10_000_000_000,
-                vec![GuardType::Legality, GuardType::Causality, GuardType::Chronology],
+                vec![
+                    GuardType::Legality,
+                    GuardType::Causality,
+                    GuardType::Chronology,
+                ],
             ),
         );
 
@@ -1068,25 +1071,37 @@ impl OperatorRegistry {
     /// Count operators with each property
     #[must_use]
     pub fn count_deterministic(&self) -> usize {
-        self.operators.values().filter(|op| op.properties.deterministic).count()
+        self.operators
+            .values()
+            .filter(|op| op.properties.deterministic)
+            .count()
     }
 
     /// Count operators with idempotence property
     #[must_use]
     pub fn count_idempotent(&self) -> usize {
-        self.operators.values().filter(|op| op.properties.idempotent).count()
+        self.operators
+            .values()
+            .filter(|op| op.properties.idempotent)
+            .count()
     }
 
     /// Count operators with type preservation property
     #[must_use]
     pub fn count_type_preserving(&self) -> usize {
-        self.operators.values().filter(|op| op.properties.type_preserving).count()
+        self.operators
+            .values()
+            .filter(|op| op.properties.type_preserving)
+            .count()
     }
 
     /// Count operators with boundedness property
     #[must_use]
     pub fn count_bounded(&self) -> usize {
-        self.operators.values().filter(|op| op.properties.bounded).count()
+        self.operators
+            .values()
+            .filter(|op| op.properties.bounded)
+            .count()
     }
 
     /// Get operators requiring a specific guard
@@ -1101,7 +1116,10 @@ impl OperatorRegistry {
     /// Get operators satisfying all four properties
     #[must_use]
     pub fn operators_fully_deterministic(&self) -> Vec<&OperatorDescriptor> {
-        self.operators.values().filter(|op| op.satisfies_all_properties()).collect()
+        self.operators
+            .values()
+            .filter(|op| op.satisfies_all_properties())
+            .collect()
     }
 }
 

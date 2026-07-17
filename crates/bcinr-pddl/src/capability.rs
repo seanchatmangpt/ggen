@@ -451,9 +451,7 @@ pub struct AdmittedPlanningTask {
 /// before either, so a domain requiring an unsupported feature never reaches
 /// `GroundProblem::build`/`GroundTemporalProblem::build` at all.
 pub fn admit_planning_task(
-    domain: &Pddl31Domain,
-    problem: &Pddl31Problem,
-    profile: &dyn CapabilityProfile,
+    domain: &Pddl31Domain, problem: &Pddl31Problem, profile: &dyn CapabilityProfile,
 ) -> PlannerOutcome<AdmittedPlanningTask> {
     if domain.name.is_empty() {
         return PlannerOutcome::Inconsistent(InconsistencyWitness {
@@ -967,9 +965,7 @@ impl GroundedPlanningEpoch {
     /// for a cache-hit to mean "the same planning epoch, not just a
     /// coincidentally-equal state."
     pub fn from_ground_problem(
-        gp: &GroundProblem,
-        theory_digest: Digest,
-        bounds: EpochBounds,
+        gp: &GroundProblem, theory_digest: Digest, bounds: EpochBounds,
     ) -> Self {
         let mut id_bytes = [0u8; 16];
         id_bytes.copy_from_slice(&theory_digest.as_bytes()[..16]);

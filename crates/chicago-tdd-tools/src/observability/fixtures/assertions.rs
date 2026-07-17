@@ -13,7 +13,9 @@ use super::ValidationResults;
 /// Returns an error if any violations were detected.
 pub fn assert_telemetry_valid(results: &ValidationResults) -> ObservabilityResult<()> {
     if results.has_violations() {
-        Err(ObservabilityError::ValidationFailed(results.violations_summary()))
+        Err(ObservabilityError::ValidationFailed(
+            results.violations_summary(),
+        ))
     } else {
         Ok(())
     }
@@ -25,8 +27,7 @@ pub fn assert_telemetry_valid(results: &ValidationResults) -> ObservabilityResul
 ///
 /// Returns an error if the violation count doesn't match the expected value.
 pub fn assert_violation_count(
-    results: &ValidationResults,
-    expected: usize,
+    results: &ValidationResults, expected: usize,
 ) -> ObservabilityResult<()> {
     let actual = results
         .advices()

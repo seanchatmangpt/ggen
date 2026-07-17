@@ -30,7 +30,10 @@ static SPAN_ID_COUNTER: AtomicU64 = AtomicU64::new(1);
 
 #[cfg(feature = "otel")]
 fn generate_trace_id() -> TraceId {
-    let nanos = SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(1);
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_nanos())
+        .unwrap_or(1);
     let counter = u128::from(SPAN_ID_COUNTER.fetch_add(1, Ordering::Relaxed));
     // Mix time and counter to produce a unique 128-bit trace ID
     TraceId(nanos ^ counter.wrapping_mul(0x9e37_79b9_7f4a_7c15_9e37_79b9_7f4a_7c15))
@@ -103,7 +106,10 @@ impl std::fmt::Debug for TestDataBuilder {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("TestDataBuilder")
             .field("data", &self.data)
-            .field("validations", &format!("{} validation(s)", self.validations.len()))
+            .field(
+                "validations",
+                &format!("{} validation(s)", self.validations.len()),
+            )
             .finish()
     }
 }
@@ -112,7 +118,10 @@ impl TestDataBuilder {
     /// Create a new test data builder
     #[must_use]
     pub fn new() -> Self {
-        Self { data: HashMap::new(), validations: Vec::new() }
+        Self {
+            data: HashMap::new(),
+            validations: Vec::new(),
+        }
     }
 
     /// Register a named preset for reusable test data configurations
@@ -152,8 +161,9 @@ impl TestDataBuilder {
     {
         let registry = preset_registry();
         {
-            let mut registry_guard =
-                registry.lock().map_err(|e| format!("Failed to lock preset registry: {e}"))?;
+            let mut registry_guard = registry
+                .lock()
+                .map_err(|e| format!("Failed to lock preset registry: {e}"))?;
             registry_guard.insert(name.into(), Box::new(preset_fn));
         }
         Ok(())
@@ -188,8 +198,9 @@ impl TestDataBuilder {
     /// Returns an error if the preset is not found or if the registry lock is poisoned.
     pub fn preset(name: impl AsRef<str>) -> Result<Self, String> {
         let registry = preset_registry();
-        let registry_guard =
-            registry.lock().map_err(|e| format!("Failed to lock preset registry: {e}"))?;
+        let registry_guard = registry
+            .lock()
+            .map_err(|e| format!("Failed to lock preset registry: {e}"))?;
 
         let preset_fn = registry_guard
             .get(name.as_ref())
@@ -243,36 +254,38 @@ impl TestDataBuilder {
     /// Add order data (common business scenario)
     #[must_use]
     pub fn with_order_data(
-        mut self,
-        order_id: impl Into<String>,
-        amount: impl Into<String>,
+        mut self, order_id: impl Into<String>, amount: impl Into<String>,
     ) -> Self {
         self.data.insert("order_id".to_string(), order_id.into());
         self.data.insert("total_amount".to_string(), amount.into());
         self.data.insert("currency".to_string(), "USD".to_string());
-        self.data.insert("order_status".to_string(), "pending".to_string());
+        self.data
+            .insert("order_status".to_string(), "pending".to_string());
         self
     }
 
     /// Add customer data
     #[must_use]
     pub fn with_customer_data(mut self, customer_id: impl Into<String>) -> Self {
-        self.data.insert("customer_id".to_string(), customer_id.into());
         self.data
-            .insert("customer_email".to_string(), "customer@example.com".to_string());
+            .insert("customer_id".to_string(), customer_id.into());
+        self.data.insert(
+            "customer_email".to_string(),
+            "customer@example.com".to_string(),
+        );
         self
     }
 
     /// Add approval data
     #[must_use]
     pub fn with_approval_data(
-        mut self,
-        request_id: impl Into<String>,
-        amount: impl Into<String>,
+        mut self, request_id: impl Into<String>, amount: impl Into<String>,
     ) -> Self {
-        self.data.insert("request_id".to_string(), request_id.into());
+        self.data
+            .insert("request_id".to_string(), request_id.into());
         self.data.insert("amount".to_string(), amount.into());
-        self.data.insert("condition".to_string(), "true".to_string());
+        self.data
+            .insert("condition".to_string(), "true".to_string());
         self
     }
 
@@ -280,7 +293,8 @@ impl TestDataBuilder {
     /// Add fake email address
     #[must_use]
     pub fn with_fake_email(mut self) -> Self {
-        self.data.insert("email".to_string(), Faker.fake::<String>());
+        self.data
+            .insert("email".to_string(), Faker.fake::<String>());
         self
     }
 
@@ -304,7 +318,8 @@ impl TestDataBuilder {
     /// Add fake phone number
     #[must_use]
     pub fn with_fake_phone(mut self) -> Self {
-        self.data.insert("phone".to_string(), Faker.fake::<String>());
+        self.data
+            .insert("phone".to_string(), Faker.fake::<String>());
         self
     }
 
@@ -312,7 +327,8 @@ impl TestDataBuilder {
     /// Add fake address
     #[must_use]
     pub fn with_fake_address(mut self) -> Self {
-        self.data.insert("address".to_string(), Faker.fake::<String>());
+        self.data
+            .insert("address".to_string(), Faker.fake::<String>());
         self
     }
 
@@ -320,7 +336,8 @@ impl TestDataBuilder {
     /// Add fake company name
     #[must_use]
     pub fn with_fake_company(mut self) -> Self {
-        self.data.insert("company".to_string(), Faker.fake::<String>());
+        self.data
+            .insert("company".to_string(), Faker.fake::<String>());
         self
     }
 
@@ -328,11 +345,15 @@ impl TestDataBuilder {
     /// Add fake order data with realistic values
     #[must_use]
     pub fn with_fake_order_data(mut self) -> Self {
-        self.data.insert("order_id".to_string(), Faker.fake::<String>());
         self.data
-            .insert("total_amount".to_string(), format!("{:.2}", Faker.fake::<f64>() * 1000.0));
+            .insert("order_id".to_string(), Faker.fake::<String>());
+        self.data.insert(
+            "total_amount".to_string(),
+            format!("{:.2}", Faker.fake::<f64>() * 1000.0),
+        );
         self.data.insert("currency".to_string(), "USD".to_string());
-        self.data.insert("order_status".to_string(), Faker.fake::<String>());
+        self.data
+            .insert("order_status".to_string(), Faker.fake::<String>());
         self
     }
 
@@ -340,9 +361,12 @@ impl TestDataBuilder {
     /// Add fake customer data with realistic values
     #[must_use]
     pub fn with_fake_customer_data(mut self) -> Self {
-        self.data.insert("customer_id".to_string(), Faker.fake::<String>());
-        self.data.insert("customer_email".to_string(), Faker.fake::<String>());
-        self.data.insert("customer_name".to_string(), Faker.fake::<String>());
+        self.data
+            .insert("customer_id".to_string(), Faker.fake::<String>());
+        self.data
+            .insert("customer_email".to_string(), Faker.fake::<String>());
+        self.data
+            .insert("customer_name".to_string(), Faker.fake::<String>());
         self
     }
 
@@ -578,8 +602,10 @@ where
             SpanStatus::Unset,
         );
 
-        span.attributes.insert("operation".to_string(), "build_test_data".to_string());
-        span.attributes.insert("item_count".to_string(), self.data.len().to_string());
+        span.attributes
+            .insert("operation".to_string(), "build_test_data".to_string());
+        span.attributes
+            .insert("item_count".to_string(), self.data.len().to_string());
 
         #[allow(clippy::expect_used)] // SystemTime should always be after UNIX_EPOCH
         #[allow(clippy::cast_possible_truncation)]
@@ -730,9 +756,12 @@ impl<T> ValidatedTestDataBuilder<T> {
             } else {
                 s.status = SpanStatus::Ok;
             }
-            s.attributes.insert("item_count".to_string(), self.data.len().to_string());
             s.attributes
-                .insert("operation".to_string(), "build_validated_test_data".to_string());
+                .insert("item_count".to_string(), self.data.len().to_string());
+            s.attributes.insert(
+                "operation".to_string(),
+                "build_validated_test_data".to_string(),
+            );
         }
 
         (self.data, span)
@@ -942,7 +971,10 @@ mod tests {
 
         // Assert: Verify customer data fields
         assert_eq!(data.get("customer_id"), Some(&"customer-456".to_string()));
-        assert_eq!(data.get("customer_email"), Some(&"customer@example.com".to_string()));
+        assert_eq!(
+            data.get("customer_email"),
+            Some(&"customer@example.com".to_string())
+        );
     });
 
     test!(test_test_data_builder_with_approval_data, {
@@ -1104,7 +1136,9 @@ mod tests {
 
     test!(test_test_data_builder_overwrite, {
         // Arrange: Create builder with overwriting vars
-        let builder = TestDataBuilder::new().with_var("key", "value1").with_var("key", "value2");
+        let builder = TestDataBuilder::new()
+            .with_var("key", "value1")
+            .with_var("key", "value2");
 
         // Act: Build data
         let data = builder.build();
@@ -1163,7 +1197,9 @@ mod tests {
         // Arrange: Register a preset
         let preset_name = "test_base_order_002";
         let result = TestDataBuilder::register_preset(preset_name, |builder| {
-            builder.with_var("order_id", "ORD-002").with_var("status", "pending")
+            builder
+                .with_var("order_id", "ORD-002")
+                .with_var("status", "pending")
         });
         assert!(result.is_ok());
 

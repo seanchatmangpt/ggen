@@ -100,9 +100,7 @@ impl CausalAnalyzer for PddlCausalAnalyzer {
     type Error = CausalAnalysisError;
 
     fn analyze(
-        &self,
-        epoch: &GroundedPlanningEpoch,
-        occurrences: &[ActionOccurrence],
+        &self, epoch: &GroundedPlanningEpoch, occurrences: &[ActionOccurrence],
     ) -> Result<CausalPlan, CausalAnalysisError> {
         // Resolve each occurrence's ground action.
         let actions: Vec<&Pddl8GroundAction> = occurrences
@@ -217,9 +215,7 @@ impl CausalAnalyzer for PddlCausalAnalyzer {
 /// Simulate applying `first` then `second` starting from `base`; `None` if
 /// either action's preconditions do not hold at the point it would fire.
 fn simulate_two(
-    first: &Pddl8GroundAction,
-    second: &Pddl8GroundAction,
-    base: &BTreeSet<Pddl8GroundAtom>,
+    first: &Pddl8GroundAction, second: &Pddl8GroundAction, base: &BTreeSet<Pddl8GroundAtom>,
 ) -> Option<BTreeSet<Pddl8GroundAtom>> {
     if !first.preconditions.iter().all(|p| base.contains(p)) {
         return None;
@@ -256,11 +252,8 @@ fn simulate_two(
 /// no directly identified atom) — the `Dependent`-side mirror of
 /// `CausalSupportEdge`'s provenance for `DependenceReason::CausalSupport`.
 fn analyze_pair(
-    id_a: bcinr_mfw_ir::ActionOccurrenceId,
-    id_b: bcinr_mfw_ir::ActionOccurrenceId,
-    action_a: &Pddl8GroundAction,
-    action_b: &Pddl8GroundAction,
-    base: &BTreeSet<Pddl8GroundAtom>,
+    id_a: bcinr_mfw_ir::ActionOccurrenceId, id_b: bcinr_mfw_ir::ActionOccurrenceId,
+    action_a: &Pddl8GroundAction, action_b: &Pddl8GroundAction, base: &BTreeSet<Pddl8GroundAtom>,
 ) -> (
     Option<IndependenceWitness>,
     BTreeSet<DependenceReason>,

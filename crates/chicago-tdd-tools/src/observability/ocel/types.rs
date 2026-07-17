@@ -9,8 +9,12 @@ use std::collections::HashMap;
 pub enum TestActivity {
     // ── Test lifecycle ────────────────────────────────────────────────────────
     TestStarted,
-    TestCompleted { passed: bool },
-    TestSkipped { reason: String },
+    TestCompleted {
+        passed: bool,
+    },
+    TestSkipped {
+        reason: String,
+    },
 
     // ── Fixture lifecycle ─────────────────────────────────────────────────────
     FixtureSetup,
@@ -18,8 +22,12 @@ pub enum TestActivity {
     FixtureComposed,
 
     // ── Assertion events ──────────────────────────────────────────────────────
-    AssertionPassed { macro_name: String },
-    AssertionFailed { macro_name: String },
+    AssertionPassed {
+        macro_name: String,
+    },
+    AssertionFailed {
+        macro_name: String,
+    },
 
     // ── Domain law events ────────────────────────────────────────────────────
     ArtifactAdmitted,
@@ -29,26 +37,55 @@ pub enum TestActivity {
     DriftZero,
     DriftDetected,
     BypassDetected,
-    ConformanceChecked { fitness: f64 },
-    ConformanceFailed { fitness: f64, first_deviation_step: usize },
-    SubstrateGrew { rank: u8 },
+    ConformanceChecked {
+        fitness: f64,
+    },
+    ConformanceFailed {
+        fitness: f64,
+        first_deviation_step: usize,
+    },
+    SubstrateGrew {
+        rank: u8,
+    },
     SubstrateLabor,
     OntologyConsistent,
     OntologyViolation,
 
     // ── Diagnostic events ────────────────────────────────────────────────────
-    DiagnosticEmitted { category: DiagnosticCategory, severity: Severity },
+    DiagnosticEmitted {
+        category: DiagnosticCategory,
+        severity: Severity,
+    },
 
     // ── Wave orchestration (CA-8) ─────────────────────────────────────────────
-    WavePhaseStarted { phase: u8, task_count: usize },
-    WavePhaseCompleted { phase: u8, admitted: usize, refused: usize },
-    WaveTaskStarted { phase: u8, task_index: usize },
-    WaveTaskCompleted { phase: u8, task_index: usize, receipt_present: bool },
+    WavePhaseStarted {
+        phase: u8,
+        task_count: usize,
+    },
+    WavePhaseCompleted {
+        phase: u8,
+        admitted: usize,
+        refused: usize,
+    },
+    WaveTaskStarted {
+        phase: u8,
+        task_index: usize,
+    },
+    WaveTaskCompleted {
+        phase: u8,
+        task_index: usize,
+        receipt_present: bool,
+    },
     WaveConflictDetected,
 
     // ── Run lifecycle ─────────────────────────────────────────────────────────
-    RunStarted { registered_domain: String },
-    RunCompleted { p_admitted: f64, andon_count: usize },
+    RunStarted {
+        registered_domain: String,
+    },
+    RunCompleted {
+        p_admitted: f64,
+        andon_count: usize,
+    },
 }
 
 /// OCEL 2.0 object types for the testing domain.
@@ -99,6 +136,10 @@ impl OcelLog {
     pub fn new() -> Self {
         let mut global_log = HashMap::new();
         let _ = global_log.insert("ocel:version".to_string(), serde_json::json!("2.0"));
-        Self { global_log, events: HashMap::new(), objects: HashMap::new() }
+        Self {
+            global_log,
+            events: HashMap::new(),
+            objects: HashMap::new(),
+        }
     }
 }

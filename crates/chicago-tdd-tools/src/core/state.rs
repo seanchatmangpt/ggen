@@ -87,7 +87,10 @@ impl TestState<Arrange> {
     /// Create a new test state in Arrange phase
     #[must_use]
     pub fn new() -> Self {
-        Self { _phase: std::marker::PhantomData, data: TestData::default() }
+        Self {
+            _phase: std::marker::PhantomData,
+            data: TestData::default(),
+        }
     }
 
     /// Add arrange data
@@ -103,7 +106,10 @@ impl TestState<Arrange> {
     /// This ensures that Act can only be called after Arrange.
     #[must_use]
     pub fn act(self) -> TestState<Act> {
-        TestState { _phase: std::marker::PhantomData, data: self.data }
+        TestState {
+            _phase: std::marker::PhantomData,
+            data: self.data,
+        }
     }
 }
 
@@ -114,7 +120,11 @@ impl TestState<Act> {
     where
         F: FnOnce(Option<Vec<u8>>) -> Vec<u8>,
     {
-        let input = self.data.act_result.clone().or_else(|| self.data.arrange_data.clone());
+        let input = self
+            .data
+            .act_result
+            .clone()
+            .or_else(|| self.data.arrange_data.clone());
         let result = f(input);
         self.data.act_result = Some(result);
         self
@@ -126,7 +136,10 @@ impl TestState<Act> {
     /// This ensures that Assert can only be called after Act.
     #[must_use]
     pub fn assert(self) -> TestState<Assert> {
-        TestState { _phase: std::marker::PhantomData, data: self.data }
+        TestState {
+            _phase: std::marker::PhantomData,
+            data: self.data,
+        }
     }
 }
 

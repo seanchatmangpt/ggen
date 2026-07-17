@@ -92,7 +92,10 @@ dir = "templates"
         assert!(record["object_ids"].is_array(), "record.object_ids missing");
 
         let payload = &receipt["payload"];
-        assert!(payload["graph_hash"].is_string(), "payload.graph_hash missing");
+        assert!(
+            payload["graph_hash"].is_string(),
+            "payload.graph_hash missing"
+        );
         assert!(payload["outputs"].is_object(), "payload.outputs missing");
         Ok(())
     }
@@ -169,7 +172,10 @@ dir = "templates"
             16,
             "law: identifier must carry a 16-hex-char (8-byte) suffix, got {id:?}"
         );
-        assert!(is_hex(hex_part), "law: identifier suffix must be hex-only, got {id:?}");
+        assert!(
+            is_hex(hex_part),
+            "law: identifier suffix must be hex-only, got {id:?}"
+        );
         Ok(())
     }
 
@@ -202,15 +208,23 @@ dir = "templates"
         let receipt = sync_and_load_receipt(&temp_dir)?;
 
         for (field, value) in [
-            ("record.payload_hash_hex", &receipt["record"]["payload_hash_hex"]),
-            ("record.chain_hash_hex", &receipt["record"]["chain_hash_hex"]),
+            (
+                "record.payload_hash_hex",
+                &receipt["record"]["payload_hash_hex"],
+            ),
+            (
+                "record.chain_hash_hex",
+                &receipt["record"]["chain_hash_hex"],
+            ),
             (
                 "record.prev_chain_hash_hex",
                 &receipt["record"]["prev_chain_hash_hex"],
             ),
             ("payload.graph_hash", &receipt["payload"]["graph_hash"]),
         ] {
-            let hash_str = value.as_str().unwrap_or_else(|| panic!("{field} should be string"));
+            let hash_str = value
+                .as_str()
+                .unwrap_or_else(|| panic!("{field} should be string"));
             assert_eq!(hash_str.len(), 64, "{field} must be 64 hex characters");
             assert!(is_hex(hash_str), "{field} must contain only hex digits");
         }
@@ -262,8 +276,16 @@ dir = "templates"
 
         // Note: hash1 vs hash2 may differ due to JSON formatting, so verify
         // both are valid SHA-256 digests.
-        assert_eq!(hash1.len(), 64, "hash1 should be valid SHA-256 (64 hex chars)");
-        assert_eq!(hash2.len(), 64, "hash2 should be valid SHA-256 (64 hex chars)");
+        assert_eq!(
+            hash1.len(),
+            64,
+            "hash1 should be valid SHA-256 (64 hex chars)"
+        );
+        assert_eq!(
+            hash2.len(),
+            64,
+            "hash2 should be valid SHA-256 (64 hex chars)"
+        );
 
         // Verify that re-reading the file produces the same hash.
         let file_bytes_2 = fs::read_to_string(&receipt_path)?;

@@ -128,11 +128,7 @@ fn lawful_chain(n: u64) -> Vec<ReceiptRecord> {
 /// (→ default `0`) would be a silent no-op and survive. (cargo-mutants found
 /// exactly that; non-zero fixtures turn it into a kill.)
 fn emit(
-    instruction_id: u64,
-    activity_idx: u16,
-    node_kind: u8,
-    ts_ns: u64,
-    prev: &[u8; 32],
+    instruction_id: u64, activity_idx: u16, node_kind: u8, ts_ns: u64, prev: &[u8; 32],
 ) -> ([u8; 32], ReceiptRecord) {
     ensure_signing_key();
     let raw = LawObject::<serde_json::Value, Raw, DefaultLaw>::new(

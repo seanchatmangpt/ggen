@@ -29,13 +29,8 @@ pub fn language_upto(net: &WfNet, max_len: usize) -> Language {
 }
 
 fn explore(
-    net: &WfNet,
-    marking: &BTreeSet<String>,
-    sink_marking: &BTreeSet<String>,
-    trace: &mut Vec<String>,
-    fired: usize,
-    max_len: usize,
-    out: &mut Language,
+    net: &WfNet, marking: &BTreeSet<String>, sink_marking: &BTreeSet<String>,
+    trace: &mut Vec<String>, fired: usize, max_len: usize, out: &mut Language,
 ) {
     if marking == sink_marking {
         out.insert(trace.clone());

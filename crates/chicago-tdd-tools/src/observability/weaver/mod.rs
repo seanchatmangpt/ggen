@@ -158,7 +158,11 @@ pub mod lifecycle {
         /// **Poka-yoke**: Only available on `WeaverValidator<Running>`.
         #[must_use]
         pub fn otlp_endpoint(&self) -> String {
-            format!("http://{}:{}", crate::observability::weaver::LOCALHOST, self.otlp_grpc_port)
+            format!(
+                "http://{}:{}",
+                crate::observability::weaver::LOCALHOST,
+                self.otlp_grpc_port
+            )
         }
 
         /// Check if Weaver process is still alive
@@ -309,7 +313,13 @@ impl WeaverValidator {
     /// Create a Weaver validator with custom configuration
     #[must_use]
     pub const fn with_config(registry_path: PathBuf, otlp_grpc_port: u16, admin_port: u16) -> Self {
-        Self { live_check: None, process: None, registry_path, otlp_grpc_port, admin_port }
+        Self {
+            live_check: None,
+            process: None,
+            registry_path,
+            otlp_grpc_port,
+            admin_port,
+        }
     }
 
     /// Check if Weaver binary is available
@@ -350,7 +360,14 @@ impl WeaverValidator {
         // Clone with shallow clone for faster download
         // Use --depth 1 to only clone the latest commit
         let status = Command::new("git")
-            .args(["clone", "--depth", "1", "--single-branch", registry_url, registry_str])
+            .args([
+                "clone",
+                "--depth",
+                "1",
+                "--single-branch",
+                registry_url,
+                registry_str,
+            ])
             .status()
             .map_err(|e| {
                 WeaverValidationError::RegistryNotFound(format!(
@@ -427,7 +444,9 @@ impl WeaverValidator {
             .with_output("./weaver-reports".to_string()); // Output to directory for parsing
 
         // Start Weaver live-check process
-        let process = live_check.start().map_err(WeaverValidationError::ProcessStartFailed)?;
+        let process = live_check
+            .start()
+            .map_err(WeaverValidationError::ProcessStartFailed)?;
 
         self.live_check = Some(live_check);
         self.process = Some(process);
@@ -442,7 +461,9 @@ impl WeaverValidator {
     /// Returns an error if stopping the process fails.
     pub fn stop(&mut self) -> WeaverValidationResult<()> {
         if let Some(ref live_check) = self.live_check {
-            live_check.stop().map_err(WeaverValidationError::ProcessStopFailed)?;
+            live_check
+                .stop()
+                .map_err(WeaverValidationError::ProcessStopFailed)?;
         }
 
         if let Some(mut process) = self.process.take() {
@@ -507,8 +528,7 @@ impl Drop for WeaverValidator {
 /// Returns an error if sending the span to Weaver fails.
 #[cfg(feature = "weaver")]
 pub fn send_test_span_to_weaver(
-    endpoint: &str,
-    span_name: &str,
+    endpoint: &str, span_name: &str,
 ) -> Result<(), WeaverValidationError> {
     // Weaver live check ONLY listens on gRPC (no HTTP endpoint).
     // We MUST use `grpc-tonic` which requires a Tokio runtime.
@@ -627,7 +647,9 @@ pub fn validate_schema_static(registry_path: &std::path::Path) -> WeaverValidati
 
     // Verify registry path exists
     if !registry_path.exists() {
-        return Err(WeaverValidationError::RegistryNotFound(registry_path.display().to_string()));
+        return Err(WeaverValidationError::RegistryNotFound(
+            registry_path.display().to_string(),
+        ));
     }
 
     let mut actual_registry_path = registry_path.to_path_buf();
@@ -677,7 +699,10 @@ mod tests {
     fn test_weaver_module_not_accessible_without_feature() {
         // Verify weaver module is not accessible without feature
         // This test should compile and pass when weaver feature is disabled
-        assert!(true, "weaver module should not be accessible without feature");
+        assert!(
+            true,
+            "weaver module should not be accessible without feature"
+        );
     }
 
     #[cfg(feature = "weaver")]
@@ -810,7 +835,10 @@ mod tests {
         let result = WeaverValidator::check_weaver_available();
         // Assert: Method returns Result (behavior test, not existence test)
         // We don't assert success because Weaver may not be installed in test environment
-        assert!(result.is_ok() || result.is_err(), "check_weaver_available should return Result");
+        assert!(
+            result.is_ok() || result.is_err(),
+            "check_weaver_available should return Result"
+        );
     }
 
     #[cfg(feature = "weaver")]
@@ -849,7 +877,10 @@ mod tests {
         let start_result = validator.start();
 
         // Should fail (either BinaryNotFound, RegistryNotFound, or DockerUnavailable)
-        assert_err!(&start_result, "Start should fail with invalid registry path");
+        assert_err!(
+            &start_result,
+            "Start should fail with invalid registry path"
+        );
         match start_result {
             Err(WeaverValidationError::RegistryNotFound(_)) => {
                 // Expected error variant (when Weaver binary is available and registry path is invalid)
@@ -929,7 +960,10 @@ mod tests {
         let validator = WeaverValidator::new(registry_path);
 
         // Initially not running
-        assert!(!validator.is_running(), "Validator should not be running initially");
+        assert!(
+            !validator.is_running(),
+            "Validator should not be running initially"
+        );
     }
 
     // **Poka-yoke**: Integration test moved to tests/weaver_integration.rs

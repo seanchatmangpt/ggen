@@ -20,7 +20,10 @@ impl Parse for ScaffoldArgs {
         // Parse: ticket = "...", test = "..."
         let ticket_key: syn::Ident = input.parse()?;
         if ticket_key != "ticket" {
-            return Err(syn::Error::new(ticket_key.span(), "expected `ticket = \"...\"`"));
+            return Err(syn::Error::new(
+                ticket_key.span(),
+                "expected `ticket = \"...\"`",
+            ));
         }
         let _eq: Token![=] = input.parse()?;
         let ticket_lit: LitStr = input.parse()?;
@@ -28,14 +31,20 @@ impl Parse for ScaffoldArgs {
 
         let test_key: syn::Ident = input.parse()?;
         if test_key != "test" {
-            return Err(syn::Error::new(test_key.span(), "expected `test = \"...\"`"));
+            return Err(syn::Error::new(
+                test_key.span(),
+                "expected `test = \"...\"`",
+            ));
         }
         let _eq2: Token![=] = input.parse()?;
         let test_lit: LitStr = input.parse()?;
         // optional trailing comma
         let _: Option<Token![,]> = input.parse()?;
 
-        Ok(ScaffoldArgs { ticket_lit, test_lit })
+        Ok(ScaffoldArgs {
+            ticket_lit,
+            test_lit,
+        })
     }
 }
 

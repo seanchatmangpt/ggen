@@ -13,12 +13,7 @@ type Arc = (&'static str, &'static str);
 /// Build a WF-net from string literals; labels default to the transition id,
 /// unless the id starts with `tau` (silent `τ`).
 fn net(
-    places: &[&str],
-    transitions: &[&str],
-    pt: &[Arc],
-    tp: &[Arc],
-    source: &str,
-    sink: &str,
+    places: &[&str], transitions: &[&str], pt: &[Arc], tp: &[Arc], source: &str, sink: &str,
 ) -> WfNet {
     let ts = transitions.iter().map(|t| {
         let label = if t.starts_with("tau") {

@@ -343,9 +343,7 @@ fn validate_unresolvable_pack_is_invalid() {
     let json: Value = serde_json::from_str(&stdout).expect("stdout must be valid JSON");
 
     assert_eq!(json["is_valid"], false, "got: {json}");
-    let errors = json["errors"]
-        .as_array()
-        .expect("errors must be an array");
+    let errors = json["errors"].as_array().expect("errors must be an array");
     assert!(
         !errors.is_empty(),
         "errors array must be non-empty for an unresolvable pack, got: {json}"

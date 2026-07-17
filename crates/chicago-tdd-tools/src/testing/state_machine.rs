@@ -87,7 +87,9 @@ impl<S: State> StateMachine<S> {
     /// Create a new state machine in the given state
     #[must_use]
     pub const fn new() -> Self {
-        Self { _state: PhantomData }
+        Self {
+            _state: PhantomData,
+        }
     }
 
     /// Transition to a new state
@@ -133,7 +135,10 @@ impl<S: State> Actor<S> {
     /// Create a new actor with the given ID
     #[must_use]
     pub fn new(id: impl Into<String>) -> Self {
-        Self { id: id.into(), state_machine: StateMachine::new() }
+        Self {
+            id: id.into(),
+            state_machine: StateMachine::new(),
+        }
     }
 
     /// Get actor ID
@@ -152,7 +157,10 @@ impl<S: State> Actor<S> {
         T: Transition<S, To>,
     {
         self.state_machine.transition::<To, T>()?;
-        Ok(Actor { id: self.id, state_machine: StateMachine::new() })
+        Ok(Actor {
+            id: self.id,
+            state_machine: StateMachine::new(),
+        })
     }
 }
 
@@ -309,7 +317,9 @@ impl ModelChecker {
     /// Create a new model checker with bounded depth
     #[must_use]
     pub const fn new(max_depth: usize) -> Self {
-        Self { generator: ScheduleGenerator::new(max_depth) }
+        Self {
+            generator: ScheduleGenerator::new(max_depth),
+        }
     }
 
     /// Check if an invariant holds for all schedules

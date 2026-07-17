@@ -82,7 +82,9 @@ impl<E> Effects<E> {
     /// Create a new effect set
     #[must_use]
     pub const fn new() -> Self {
-        Self { _marker: PhantomData }
+        Self {
+            _marker: PhantomData,
+        }
     }
 }
 
@@ -177,7 +179,10 @@ impl<E> EffectTest<E> {
     /// Create a new effect-typed test
     #[must_use]
     pub fn new(name: impl Into<String>) -> Self {
-        Self { name: name.into(), _effects: PhantomData }
+        Self {
+            name: name.into(),
+            _effects: PhantomData,
+        }
     }
 
     /// Get test name
@@ -260,7 +265,10 @@ impl FileWrite {
     /// Create a new file write operation
     #[must_use]
     pub fn new(path: impl Into<String>, content: impl Into<String>) -> Self {
-        Self { path: path.into(), content: content.into() }
+        Self {
+            path: path.into(),
+            content: content.into(),
+        }
     }
 }
 
@@ -292,7 +300,11 @@ impl EffectCoverage {
     /// Create a new effect coverage report
     #[must_use]
     pub fn new(effect_name: impl Into<String>) -> Self {
-        Self { effect_name: effect_name.into(), test_count: 0, invariants: Vec::new() }
+        Self {
+            effect_name: effect_name.into(),
+            test_count: 0,
+            invariants: Vec::new(),
+        }
     }
 
     /// Add a test to this coverage
@@ -325,7 +337,9 @@ impl EffectCoverageRegistry {
     /// Create a new effect coverage registry
     #[must_use]
     pub const fn new() -> Self {
-        Self { effects: Vec::new() }
+        Self {
+            effects: Vec::new(),
+        }
     }
 
     /// Register a test that uses a specific effect
@@ -333,7 +347,11 @@ impl EffectCoverageRegistry {
         let effect_str = effect_name.into();
 
         // Find or create effect coverage entry
-        if let Some(coverage) = self.effects.iter_mut().find(|e| e.effect_name == effect_str) {
+        if let Some(coverage) = self
+            .effects
+            .iter_mut()
+            .find(|e| e.effect_name == effect_str)
+        {
             coverage.add_test(invariant);
         } else {
             let mut coverage = EffectCoverage::new(effect_str);
@@ -351,7 +369,10 @@ impl EffectCoverageRegistry {
     /// Get all effects with inadequate coverage
     #[must_use]
     pub fn inadequate_coverage(&self, min_tests: usize) -> Vec<&EffectCoverage> {
-        self.effects.iter().filter(|e| !e.has_adequate_coverage(min_tests)).collect()
+        self.effects
+            .iter()
+            .filter(|e| !e.has_adequate_coverage(min_tests))
+            .collect()
     }
 
     /// Generate a coverage report
@@ -403,7 +424,10 @@ mod tests {
         // must fail with an explanatory error rather than silently succeed.
         assert!(result.is_err());
         let msg = result.unwrap_err();
-        assert!(msg.contains("HTTP effects require"), "unexpected error message: {msg}");
+        assert!(
+            msg.contains("HTTP effects require"),
+            "unexpected error message: {msg}"
+        );
     }
 
     #[test]

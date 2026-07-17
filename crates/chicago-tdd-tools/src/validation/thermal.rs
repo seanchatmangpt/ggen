@@ -99,13 +99,21 @@ impl HotPathConfig {
     /// Create default hot path configuration
     #[must_use]
     pub const fn new() -> Self {
-        Self { max_ticks: HOT_PATH_TICK_BUDGET, enforce_no_alloc: true, enforce_no_syscall: true }
+        Self {
+            max_ticks: HOT_PATH_TICK_BUDGET,
+            enforce_no_alloc: true,
+            enforce_no_syscall: true,
+        }
     }
 
     /// Create relaxed hot path configuration (for testing/development)
     #[must_use]
     pub const fn relaxed() -> Self {
-        Self { max_ticks: HOT_PATH_TICK_BUDGET, enforce_no_alloc: false, enforce_no_syscall: false }
+        Self {
+            max_ticks: HOT_PATH_TICK_BUDGET,
+            enforce_no_alloc: false,
+            enforce_no_syscall: false,
+        }
     }
 }
 
@@ -387,8 +395,11 @@ mod tests {
         // Note: On some platforms (especially macOS ARM64), tick counters may have higher overhead
         // Use a very generous budget for test environment to account for measurement overhead
         // CNTVCT_EL0 on macOS may have different characteristics than expected
-        let relaxed_config =
-            HotPathConfig { max_ticks: 50_000, enforce_no_alloc: false, enforce_no_syscall: false };
+        let relaxed_config = HotPathConfig {
+            max_ticks: 50_000,
+            enforce_no_alloc: false,
+            enforce_no_syscall: false,
+        };
         let test = HotPathTest::new(relaxed_config);
         let result = test.run(|| {
             // Fast operation
@@ -476,8 +487,14 @@ mod tests {
             ThermalTestError::WarmPathViolation("test".to_string()),
             ThermalTestError::AllocationDetected(1024),
             ThermalTestError::SyscallDetected("read".to_string()),
-            ThermalTestError::TickBudgetExceeded { actual: 10, budget: 8 },
-            ThermalTestError::MemoryBudgetExceeded { actual: 2048, budget: 1024 },
+            ThermalTestError::TickBudgetExceeded {
+                actual: 10,
+                budget: 8,
+            },
+            ThermalTestError::MemoryBudgetExceeded {
+                actual: 2048,
+                budget: 1024,
+            },
         ];
 
         for error in errors {

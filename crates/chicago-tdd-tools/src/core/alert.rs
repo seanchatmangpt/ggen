@@ -415,11 +415,7 @@ macro_rules! alert {
 ///
 /// Returns an error if writing to the writer fails.
 pub fn write_alert<W: Write>(
-    writer: &mut W,
-    severity: &str,
-    message: &str,
-    stop: Option<&str>,
-    fix: Option<&str>,
+    writer: &mut W, severity: &str, message: &str, stop: Option<&str>, fix: Option<&str>,
 ) -> io::Result<()> {
     if let Some(stop_msg) = stop {
         if let Some(fix_msg) = fix {
@@ -506,9 +502,11 @@ impl log::Log for AlertLogger {
         }
 
         let (emoji, stop_msg, fix_msg) = match record.level() {
-            log::Level::Error => {
-                ("🚨", Some("STOP: Cannot proceed"), Some("FIX: Investigate and resolve"))
-            }
+            log::Level::Error => (
+                "🚨",
+                Some("STOP: Cannot proceed"),
+                Some("FIX: Investigate and resolve"),
+            ),
             log::Level::Warn => (
                 "⚠️",
                 Some("WARNING: Investigate before proceeding"),
@@ -519,7 +517,14 @@ impl log::Log for AlertLogger {
         };
 
         if let (Some(stop), Some(fix)) = (stop_msg, fix_msg) {
-            eprintln!("{} {}\n   {} {}\n   💡 {}", emoji, record.args(), emoji, stop, fix);
+            eprintln!(
+                "{} {}\n   {} {}\n   💡 {}",
+                emoji,
+                record.args(),
+                emoji,
+                stop,
+                fix
+            );
         } else {
             eprintln!("{} {}", emoji, record.args());
         }
@@ -553,11 +558,17 @@ mod logging_tests {
         log::set_max_level(log::LevelFilter::Info);
 
         // Test enabled for info level
-        let metadata = log::Metadata::builder().level(log::Level::Info).target("test").build();
+        let metadata = log::Metadata::builder()
+            .level(log::Level::Info)
+            .target("test")
+            .build();
         assert!(logger.enabled(&metadata));
 
         // Test disabled for debug level when max is info
-        let metadata = log::Metadata::builder().level(log::Level::Debug).target("test").build();
+        let metadata = log::Metadata::builder()
+            .level(log::Level::Debug)
+            .target("test")
+            .build();
         assert!(!logger.enabled(&metadata));
     }
 }
@@ -624,7 +635,12 @@ mod tests {
         alert!("🚨", "Custom critical");
 
         // Test custom alert with stop and fix
-        alert!("🚨", "Custom critical", "STOP: Cannot proceed", "FIX: Resolve issue");
+        alert!(
+            "🚨",
+            "Custom critical",
+            "STOP: Cannot proceed",
+            "FIX: Resolve issue"
+        );
 
         // Test custom alert with stop, fix, and actions
         alert!(
@@ -649,7 +665,14 @@ mod tests {
 
         // Test write alert with stop
         buffer.clear();
-        write_alert(&mut buffer, "🚨", "Test error", Some("STOP: Cannot proceed"), None).unwrap();
+        write_alert(
+            &mut buffer,
+            "🚨",
+            "Test error",
+            Some("STOP: Cannot proceed"),
+            None,
+        )
+        .unwrap();
         let output = String::from_utf8_lossy(&buffer);
         assert!(output.contains("🚨 Test error"));
         assert!(output.contains("STOP: Cannot proceed"));
