@@ -419,9 +419,10 @@ echo "   using schema.org in 5 minutes. Stay disciplined. Use standards first."
 ///
 /// ## Flags
 ///
-/// --path PATH               Project directory (default: current directory)
-/// --force                   Overwrite existing files
-/// --skip-hooks              Skip git hooks installation
+/// --path PATH                Project directory (default: current directory)
+/// --force <true|false>       Overwrite existing files (value required, e.g. `--force true` --
+///                             a bare `--force` errors "a value is required")
+/// --skip-hooks <true|false>  Skip git hooks installation (same: value required)
 ///
 /// ## Output
 ///

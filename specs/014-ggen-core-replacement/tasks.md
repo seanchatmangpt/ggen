@@ -1789,6 +1789,34 @@ Not a new gap introduced by this fix — this session's own commits were never a
 tonight (visible throughout this file's own evidence trail), independent of whether the git
 hook itself fired. The finding is purely about CLAUDE.md's prose accuracy, now fixed.
 
+**Seventh follow-up finding (2026-07-17, found via a live end-to-end golden-path walkthrough,
+not source reading):** ran the full documented workflow in a fresh scratch project —
+`graph validate` → template + `ggen.toml` → `sync run --dry-run` (writes nothing, confirmed) →
+real `sync run` (correct sorted output) → `receipt verify` (signed, valid) → a genuine tamper
+against the on-disk `.ggen-v2/receipt.json` → `receipt verify` again (fails closed, real error,
+exit 1). Every step of the documented golden path worked exactly as documented — no gap found
+in the sync/receipt pipeline itself.
+
+While walking the equally-documented Phase-3 noun re-points (`init`/`doctor`/`ontology`/`pack`)
+the same way, found one real, pre-existing (not migration-caused) UX/docs mismatch: `ggen init`'s
+own `--help` output and `crates/ggen-cli/README.md` both showed `--force`/`--skip-hooks` as bare
+flags, but both are `Option<bool>`-typed clap-noun-verb arguments that require an explicit value
+— confirmed live: bare `--force` errors `a value is required for '--force <FORCE>' but none was
+supplied`; `--force true` works. (`ggen sync run --dry-run` genuinely IS a bare flag — that
+verb's `dry_run` param is a plain `bool`, not `Option<bool>`; the two flag styles coexist in this
+codebase and aren't interchangeable.) Root-caused to the clap-noun-verb auto-discovery macro's
+handling of `Option<bool>` vs `bool` function parameters, not anything this migration touched.
+
+Fixed the docs (both `init.rs`'s doc comment, which is the literal source of the `--help` text —
+verified live by rebuilding and re-running `--help` before and after — and `README.md`) to show
+`--force <true|false>`/`--skip-hooks <true|false>` with the value-required note. Did NOT change
+the underlying `Option<bool>` signature to make these bare switches: that would be a real
+behavior change to the auto-generated CLI surface, carries a wider blast radius than a doc fix,
+and is outside this migration's own scope (matches the same fix-docs-not-behavior disposition
+already applied to the `just lint`/`fmt-check` scoping findings above). `ggen doctor run` was
+also live-checked against an empty scratch dir and correctly fails closed with a clear
+`[FM-CONFIG-001]` error (exit 1) rather than crashing or silently no-op'ing.
+
 **Checkpoint**: User Story 1's independent test passes — full suite green, `ggen-core`
 fully retired, command-surface diff against the T003 baseline shows zero regressions.
 

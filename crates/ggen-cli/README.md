@@ -74,12 +74,13 @@ Initialize a new ggen project in the current directory (or a named path).
 ggen init [OPTIONS]
 
 OPTIONS:
-  --path <PATH>          Project directory (default: current directory)
-  --force                Overwrite existing ggen files
-  --skip-hooks           Skip git hooks installation
-  --name <NAME>          Project name written into ggen.toml
-  --version <VERSION>    Project version written into ggen.toml
-  --description <TEXT>   Project description written into ggen.toml
+  --path <PATH>              Project directory (default: current directory)
+  --force <true|false>       Overwrite existing ggen files (value required: `--force true`,
+                              not a bare `--force`; confirmed live 2026-07-17)
+  --skip-hooks <true|false>  Skip git hooks installation (same: value required)
+  --name <NAME>               Project name written into ggen.toml
+  --version <VERSION>         Project version written into ggen.toml
+  --description <TEXT>        Project description written into ggen.toml
 ```
 
 Initialization is atomic: a `FileTransaction` backs up any existing files before overwriting. On failure, all changes roll back automatically.
