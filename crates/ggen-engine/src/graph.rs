@@ -231,11 +231,19 @@ fn graph_pattern_has_graph_clause(pattern: &spargebra::algebra::GraphPattern) ->
         GP::Extend {
             inner, expression, ..
         } => graph_pattern_has_graph_clause(inner) || expression_has_graph_clause(expression),
+        // `Service`'s own `inner` pattern (the block sent to the remote
+        // endpoint) can itself contain a `GRAPH` clause; SERVICE handling
+        // itself is a separate, already-fail-closed concern (see
+        // `DeterministicGraph::query`'s doc comment) -- grouped into this
+        // arm (identical body to OrderBy/Project/Distinct/Reduced/Slice)
+        // only to make sure a nested GRAPH inside a SERVICE block is still
+        // caught, not because it shares their semantics.
         GP::OrderBy { inner, .. }
         | GP::Project { inner, .. }
         | GP::Distinct { inner }
         | GP::Reduced { inner }
-        | GP::Slice { inner, .. } => graph_pattern_has_graph_clause(inner),
+        | GP::Slice { inner, .. }
+        | GP::Service { inner, .. } => graph_pattern_has_graph_clause(inner),
         GP::Group {
             inner, aggregates, ..
         } => {
@@ -244,12 +252,6 @@ fn graph_pattern_has_graph_clause(pattern: &spargebra::algebra::GraphPattern) ->
                     .iter()
                     .any(|(_, agg)| aggregate_expression_has_graph_clause(agg))
         }
-        // A `SERVICE` clause's own `inner` pattern (the block sent to the
-        // remote endpoint) can itself contain a `GRAPH` clause; SERVICE
-        // handling itself is a separate, already-fail-closed concern (see
-        // `DeterministicGraph::query`'s doc comment) -- this arm only makes
-        // sure a nested GRAPH inside a SERVICE block is still caught.
-        GP::Service { inner, .. } => graph_pattern_has_graph_clause(inner),
     }
 }
 
