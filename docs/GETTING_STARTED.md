@@ -1,6 +1,14 @@
 # Getting Started with ggen Ontology Embedding
 
-Welcome to ggen v26.5.28! This guide will help you use embedded ontologies to generate code with zero network dependency.
+Welcome to ggen! This guide will help you use embedded ontologies to generate code with zero network dependency.
+
+> Command syntax below is verified live against the current CLI (`ggen --help`, post
+> `2026-ggen-core-replacement` migration, PR #255). `ggen sync` requires the `run` subcommand
+> (`ggen sync run`, not bare `ggen sync`); there is no `--offline` flag on `sync run`; there is
+> no `ggen validate-sparql` command. The ontology/marketplace conceptual content below (embedded
+> ontologies, package installation) was not re-verified end-to-end in this pass — see
+> `docs/reference/ggen_sync_manual.md` and `ggen ontology --help` for the current authoritative
+> surface if something here doesn't match.
 
 ## What is ggen?
 
@@ -92,13 +100,13 @@ format = "json"
 ### Step 5: Generate Code
 
 ```bash
-ggen sync --dry-run
+ggen sync run --dry-run
 ```
 
 This shows what will be generated without writing files.
 
 ```bash
-ggen sync
+ggen sync run
 ```
 
 This generates your code. Check the generated artifacts in your project.
@@ -108,7 +116,7 @@ This generates your code. Check the generated artifacts in your project.
 Run the same command again:
 
 ```bash
-ggen sync
+ggen sync run
 ```
 
 You'll see the exact same output hash (deterministic generation). This proves the code generation is reproducible.
@@ -124,8 +132,8 @@ Perfect for environments without internet access.
 ggen ontology status http://www.w3.org/2002/07/owl#
 # Output: EMBEDDED (available offline)
 
-# Generate code entirely offline
-ggen sync --offline
+# Generate code (embedded ontologies resolve locally; no --offline flag exists on `sync run`)
+ggen sync run
 ```
 
 ### Workflow 2: Mix Embedded + Marketplace Packages
@@ -137,7 +145,7 @@ Start with embedded ontologies, add domain-specific packages.
 ggen ontology install financial/banking@1.0.0
 
 # Use it in your pipeline
-ggen sync
+ggen sync run
 ```
 
 ### Workflow 3: Multi-Domain Code Generation
@@ -152,7 +160,7 @@ ggen ontology search financial
 ggen ontology lock
 
 # Generate code
-ggen sync
+ggen sync run
 ```
 
 ## Hello World Examples
@@ -196,7 +204,7 @@ template = "json_schema.tera"
 
 Run:
 ```bash
-ggen sync
+ggen sync run
 cat schema.json
 ```
 
@@ -277,7 +285,7 @@ strict_mode = true
 ### "Ontology not found" Error
 
 ```bash
-$ ggen sync
+$ ggen sync run
 Error: Ontology http://example.com/custom.ttl not found
 ```
 
@@ -297,21 +305,23 @@ Or load from file:
 ```bash
 # In ggen.toml, use file:// URI
 ontology_uri = "file:///home/user/my-ontology.ttl"
-ggen sync
+ggen sync run
 ```
 
 ### "SPARQL Query Error" Error
 
 ```bash
-$ ggen sync
+$ ggen sync run
 Error: SPARQL parse error: unexpected token
 ```
 
-**Solution**: Validate your SPARQL syntax.
+**Solution**: Validate your SPARQL syntax. There is no standalone `ggen validate-sparql`
+command — `ggen graph validate` validates a Turtle ontology graph (not a raw SPARQL string), and
+`ggen sync run --dry-run` will surface SPARQL parse errors from your `ggen.toml` pipeline steps
+without writing files:
 
 ```bash
-# Use ggen's SPARQL validator
-ggen validate-sparql "SELECT ?x WHERE { ?x a rdf:Property . }"
+ggen sync run --dry-run
 ```
 
 Most common issues:
@@ -329,17 +339,18 @@ Error: Permission denied: .ggen/cache
 
 ```bash
 chmod -R u+w .ggen/cache
-ggen sync
+ggen sync run
 ```
 
 ## Performance Tips
 
-### Tip 1: Use `--offline` for Embedded Ontologies
+### Tip 1: Embedded Ontologies Resolve Without Network Calls
 
-Embedding ontologies is fast (<1 microsecond lookup), but saving the flag prevents any network attempts:
+Embedded ontologies are compiled into the binary and looked up locally — no flag is needed to
+avoid network access for them (there is no `--offline` flag on `ggen sync run`):
 
 ```bash
-ggen sync --offline
+ggen sync run
 ```
 
 ### Tip 2: Create Lock Files for Reproducibility
@@ -348,7 +359,7 @@ Lock files pin package versions and prevent upgrades:
 
 ```bash
 ggen ontology lock
-ggen sync
+ggen sync run
 ```
 
 Lock files ensure the same code generation in CI/CD.
@@ -361,7 +372,7 @@ Once installed, packages are cached locally:
 ggen ontology install financial/banking@1.0.0
 # First run: downloads from marketplace (~500 ms)
 
-ggen sync
+ggen sync run
 # Subsequent runs: uses cache (<10 ms)
 ```
 
@@ -412,7 +423,7 @@ Domain-specific ontologies you install separately. Perfect for financial, health
 
 ### Deterministic Generation
 
-Every `ggen sync` produces identical output for the same inputs. Verified with SHA-256 hashes.
+Every `ggen sync run` produces identical output for the same inputs. Verified with SHA-256 hashes.
 
 **Benefits:**
 - Reproducible CI/CD

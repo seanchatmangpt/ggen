@@ -32,7 +32,7 @@ dashmap = "5.5"
 
 # ggen integration crates
 a2a-generated = { path = "../../crates/a2a-generated" }
-ggen-a2a-mcp = { path = "../../crates/ggen-a2a-mcp" }
+# ggen-a2a-mcp = { path = "../../crates/ggen-a2a-mcp" }  # crate removed (absorbed into ggen-lsp's mcp/a2a features)
 toml = "1.1.0"
 oxigraph = { version = "0.5.8", features = ["rdf-12"] }
 

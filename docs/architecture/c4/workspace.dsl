@@ -37,7 +37,7 @@ workspace "ggen Living LSP" "Receipted manufacturing: open-ontology source law, 
 
             sync = container "ggen sync" "The ONLY lawful actuation boundary. Materializes outputs from admitted source law; emits boundary receipts." "Rust CLI"
 
-            core = container "ggen-core" "Rule loading, manifest parsing, orchestration, sync execution laws." "Rust"
+            core = container "ggen-engine" "Rule loading, manifest parsing, orchestration, sync execution laws (retired: ggen-core; live since the 2026-ggen-core-replacement migration, PR #255)." "Rust"
 
             graph = container "ggen-graph" "Indexes project relations; holds OCEL/event-related domain structures. (Carries a duplicate PM stack slated to retire onto wasm4pm.)" "Rust"
 

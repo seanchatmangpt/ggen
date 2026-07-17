@@ -2914,6 +2914,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "ggen-cheat-scanner"
+version = "26.7.4"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.118",
+ "walkdir",
+]
+
+[[package]]
 name = "ggen-cli-lib"
 version = "26.7.4"
 dependencies = [

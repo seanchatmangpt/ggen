@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 # ggen Self-Play Demo Script
 # Demonstrates recursive self-generation: ggen → ggen-server → ggen-server generates more ggen-servers
+#
+# BROKEN as of 2026-07-17 (post PR #255): the `ggen sync --ontology ... --output-dir ... --audit
+# true` invocation below uses flags that do not exist on the current CLI. `ggen sync` requires a
+# `run` subcommand, and `sync run --help` only lists `--dry-run`/`--watch` (plus common
+# format/select/introspect flags) — no `--ontology`, `--output-dir`, or `--audit`. This was not
+# rewritten in this pass because the real replacement (how ontology path / output dir are meant
+# to be supplied under the current `ggen.toml`-driven config model) has not been verified.
 
 set -e  # Exit on error
 set -o pipefail  # Exit on pipe failure

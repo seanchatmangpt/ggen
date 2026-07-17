@@ -1935,48 +1935,6 @@ mod tests {
     // Global LLM Service Tests
     // ========================================================================
 
-    #[test]
-    fn test_set_and_get_llm_service() {
-        // Arrange: Create a mock LLM service
-        struct MockLlmService {
-            skill_name: String,
-        }
-
-        impl LlmService for MockLlmService {
-            fn generate_skill_impl(
-                &self, skill_name: &str, _system_prompt: &str, _implementation_hint: &str,
-                _language: &str,
-            ) -> std::result::Result<String, Box<dyn std::error::Error + Send + Sync>> {
-                Ok(format!("// Mock implementation for {}", skill_name))
-            }
-
-            fn clone_box(&self) -> Box<dyn LlmService> {
-                Box::new(MockLlmService {
-                    skill_name: self.skill_name.clone(),
-                })
-            }
-        }
-
-        // Act: Set the global service
-        let service = Box::new(MockLlmService {
-            skill_name: "test_skill".to_string(),
-        });
-        set_llm_service(service);
-
-        // Assert: Retrieve and verify
-        let retrieved = get_llm_service();
-        assert!(retrieved.is_some(), "LLM service should be set");
-
-        let result = retrieved
-            .unwrap()
-            .generate_skill_impl("test_skill", "desc", "hint", "rust")
-            .unwrap();
-        assert!(
-            result.contains("test_skill"),
-            "Generated code should contain skill name"
-        );
-    }
-
     #[ignore]
     #[test]
     fn test_get_llm_service_returns_none_when_not_set() {

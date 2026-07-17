@@ -343,14 +343,12 @@ Issues:
 
 ```
 1. Update RDF specification (.ttl)
-2. Run ggen validate (SHACL constraints)
-3. Run ggen generate (code generation)
-4. Run cargo make pre-commit (all tests pass)
-5. Run ggen sync --audit true (full pipeline)
-   └─ Byzantine consensus verification
-   └─ Receipt generation
-   └─ Audit trail creation
-6. Deploy with receipt
+2. Run ggen graph validate --files <spec>.ttl (SHACL constraints; bare `ggen validate` no longer exists)
+3. Run ggen sync run --dry-run (preview code generation; `ggen generate` is not a real noun)
+4. Run just pre-commit (all tests pass; this project uses `just`, not `cargo make`)
+5. Run ggen sync run (full pipeline; there is no `--audit` flag)
+   └─ Receipt generation (.ggen-v2/receipt.json, BLAKE3-chained)
+6. Run ggen receipt verify (verifies the receipt chain)
    └─ Cryptographic proof of what ran
    └─ Immutable audit trail
 7. Monitor + automatic rollback on SLO breach

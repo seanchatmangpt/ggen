@@ -4,11 +4,12 @@
 
 - [Workspace Crates (Reference)](#workspace-crates-reference)
   - [Code-generation core](#code-generation-core)
+  - [Praxis kernel](#praxis-kernel)
+  - [Testing infrastructure](#testing-infrastructure)
   - [Agent & LSP surface](#agent--lsp-surface)
   - [Genesis / KNHK V2 kernel](#genesis--knhk-v2-kernel)
   - [Mapping & stewardship](#mapping--stewardship)
-  - [Example member](#example-member)
-  - [Dormant (on disk, NOT workspace members — do not compile)](#dormant-on-disk-not-workspace-members--do-not-compile)
+  - [Disconnected (on disk, excluded from workspace members)](#disconnected-on-disk-excluded-from-workspace-members)
   - [See also](#see-also)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -17,38 +18,54 @@
 
 > Reference. Factual lookup. This table is the **real** workspace, derived from
 > `Cargo.toml` `members = [...]`. If it disagrees with any other doc, this is correct and
-> the other doc is drift. ggen v26.5.28.
+> the other doc is drift. ggen v26.7.17-track, post `2026-ggen-core-replacement` migration
+> (PR #255, merged to `main`).
 
-The ggen workspace has **15 library/binary crates** plus one example crate that is a
-workspace member for CI. Older architecture docs once described ~68 crates; those were
-phantom or future bodies and have been removed. **Trust `Cargo.toml`, not prose.**
+The ggen workspace has **16 members** (15 crates under `crates/` + the root `ggen` package).
+`ggen-core` was retired from the default pipeline in this migration: it moved from
+`members` to `exclude` in root `Cargo.toml`, no longer compiles standalone, and has zero
+in-workspace dependents. It is kept on disk (fix-forward/non-deletion doctrine), not deleted.
+**Trust `Cargo.toml`, not prose.**
 
 ## Code-generation core
 
 | Crate | Purpose |
 |-------|---------|
-| `ggen-core` | Core graph-aware code-generation engine; the μ₁–μ₅ deterministic pipeline |
-| `ggen-cli` | CLI interface (binary + library `ggen-cli-lib`) |
-| `ggen-config` | Parser and validator for `ggen.toml`; telemetry config schema |
+| `ggen-engine` | The **live** code-generation pipeline behind `ggen sync`/`doctor`/`graph`/`receipt` (vendored from `~/praxis/crates/ggen`). Five stages in `src/sync.rs`: Resolve → Enrich → Extract → Render → Write (OTEL spans `pipeline.load`/`extract`/`validate`/`generate`/`emit`). GENERATED clap-noun-verb CLI routing in `src/verbs/`. `publish = false` |
+| `ggen-cli` | CLI interface (binary + library `ggen-cli-lib`); routes `sync`/`doctor`/`graph`/`receipt` to `ggen-engine`'s nouns |
+| `ggen-config` | One of `ggen.toml`'s two schemas — the "declarative-rules" `GgenManifest` (see [ggen.toml has two schemas](#see-also)) |
 | `ggen-graph` | Deterministic RDF graph — Oxigraph wrapper with deterministic hashing, state-change deltas, validation hooks, transition receipts |
 | `ggen-marketplace` | Marketplace / pack management (typestate `Draft`/`Published`, profile enforcement) |
+
+## Praxis kernel
+
+`ggen-engine`'s direct dependencies, vendored from `~/praxis/crates/*`. All `publish = false`.
+
+| Crate | Purpose |
+|-------|---------|
+| `praxis-core` | Fused Law Object abstraction: obligation + lifecycle + receipt + OCEL (`LawObject`, `Obligation`, `Andon`, `ReceiptRecord`) |
+| `praxis-graphlaw` | Native N3/Datalog/SPARQL 1.1/SHACL/ShEx law-state engine (fork of `pbonte/roxi`) — `ggen-engine`'s default graph backend |
+| `powl2-decompose` | Vendored Kourani et al. Stage-1 WF-net → POWL 2.0 decomposition; `praxis-graphlaw`'s dependency |
+| `bcinr-pddl` | Vendored PDDL8 → POWL tape → Prolog8 admission → OCEL → BLAKE3 receipt planner |
+| `bcinr-mfw-ir` | Shared IR types/trait contracts for the multifractal-workflow planner (`bcinr-pddl`'s dependency) |
+
+## Testing infrastructure
+
+| Crate | Purpose |
+|-------|---------|
+| `chicago-tdd-tools` | Dev/test-only Chicago-TDD utilities (property/snapshot/parameterized/mutation/concurrency testing, `cli-proof`) for `ggen-engine`/`praxis-graphlaw`'s own test suites. `publish = false`. Its optional `wasm4pm-cognition` re-export path carries a BUSL-1.1 (non-OSI) license — optional and off by default |
 
 ## Agent & LSP surface
 
 | Crate | Purpose |
 |-------|---------|
-| `ggen-a2a-mcp` | A2A protocol + MCP server for agent-to-agent communication |
-| `ggen-lsp` | Language server for ggen surfaces (analyzers, check, intel/mining, pack, route/repair); also a library API. **Behind the `lsp` feature.** |
-| `ggen-lsp-mcp` | MCP server exposing `ggen-lsp` repair routes as a tool (leaf crate — avoids the `ggen-core`↔`ggen-a2a-mcp` cycle) |
-| `ggen-lsp-a2a` | A2A bridge exposing the `ggen-lsp-mcp` route engine as an A2A agent (leaf crate, cycle-free) |
+| `ggen-lsp` | Language server for ggen surfaces (analyzers, check, intel/mining, pack, route/repair); also a library API. Absorbed `ggen-lsp-mcp`, `ggen-a2a-mcp`, and `ggen-lsp-a2a` as feature-gated modules (`mcp`, `a2a`) — those three crates no longer exist standalone |
 
 ## Genesis / KNHK V2 kernel
 
 | Crate | Purpose |
 |-------|---------|
-| `genesis-core` | Pure mathematical foundation for interchangeable-parts architecture (A = μ(O)); no_std variant for wasm32 targets |
-| `genesis-types-v2` | KNHK V2 type system — workflow/pattern definitions, execution state/events, error and config types |
-| `genesis-schema-v2` | KNHK V2 schema system — OpenAPI specs, RDF ontology, 43 YAWL pattern definitions, schema validation |
+| `genesis-types-v2` | KNHK V2 type system — workflow/pattern definitions, execution state/events, error and config types. Absorbed `genesis-schema-v2` as its `schema` module (OpenAPI specs, RDF ontology, 43 YAWL pattern definitions) |
 | `genesis-core-v2` | KNHK V2 core — `Pattern` trait system, registry, composition, zero-copy/zero-alloc execution |
 
 ## Mapping & stewardship
@@ -56,22 +73,21 @@ phantom or future bodies and have been removed. **Trust `Cargo.toml`, not prose.
 | Crate | Purpose |
 |-------|---------|
 | `cpmp` | Computer Project Mapping Protocol (Open Ontologies Catalog) — scanner, capability classification, projection, receipts |
-| `stpnt` | Stewards of the Pentecost — Canonical Stewardship Cell (canon, cells, governance, membrane, projections, proof) |
 
-## Example member
+## Disconnected (on disk, excluded from workspace members)
 
-| Member | Purpose |
-|--------|---------|
-| `examples/7-agent-validation` | Workspace-member example used in CI |
+| Path | Status |
+|------|--------|
+| `crates/ggen-core` | Excluded via root `Cargo.toml`'s `exclude = [...]`. Does not compile standalone (inherits `workspace = true` fields with no workspace to inherit from). Zero in-workspace dependents. Kept on disk, not deleted |
 
-## Dormant (on disk, NOT workspace members — do not compile)
-
-`genesis-construct8`, `genesis-lockchain`, `genesis-wasm-shell`, `ggen-membrane`,
-`ggen-projection`. These directories exist under `crates/` but are excluded from
-`Cargo.toml` `members`. Treat as non-compiled reference material until activated.
+Dormant, non-member directories from earlier eras (`genesis-construct8`, `genesis-lockchain`,
+`genesis-wasm-shell`, `ggen-daemon`, `ggen-membrane`, `ggen-projection`,
+`ggen-pack-clap-noun-verb`, `ggen-pack-lsp-max`, `stpnt`, `genesis-core`) were deleted in the
+2026-07 crate-consolidation pass — see git history, not this doc, for their content.
 
 ## See also
 
 - [Feature flags](feature-flags.md) — which crates are gated, and behind what
 - [Command-proof matrix](../cli/command-proof-matrix.md) — what each CLI noun delivers
-- [v26.5.28 boundary](../release/v26-5-28-boundary.md) — the release boundary
+- `CLAUDE.md` and `.claude/rules/architecture.md` — the actively-maintained sources this table
+  is derived from; ggen.toml's two-schema split is documented there

@@ -483,15 +483,6 @@ mod tests {
     use super::{CliAssertions, CliCommandBuilder, CliEnvironment, CliTest};
 
     #[test]
-    fn test_cli_test_struct_available() {
-        // Arrange: Verify CliTest struct is available
-        // Act: Create a reference (compile-time check)
-        let _test = CliTest;
-        // Assert: Struct compiles and is available
-        assert!(true);
-    }
-
-    #[test]
     fn test_cli_command_builder_creation() {
         // Arrange: Create a command builder
         let cmd = CliCommandBuilder::new("test-cli");
