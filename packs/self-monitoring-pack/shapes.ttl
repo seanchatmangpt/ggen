@@ -1,0 +1,97 @@
+# shapes.ttl -- SHACL shapes for a self-monitoring-pack turn log, mirroring
+# packs/dogfood-lifecycle-pack/shapes.ttl's own structure exactly (a
+# TurnShape targeting smon:Turn, requiring a session ref, a grounding topic,
+# an ordering ordinal, and a closed-vocabulary classification -- a node
+# missing any required property is a violation) plus a companion
+# EscalationObligationShape for the derived-fact node hook.ttl produces.
+#
+# Closed enumerations are expressed with sh:in against the resource
+# individuals themselves (self-contained: it does not depend on the value
+# node's rdf:type being co-loaded), matching
+# packs/dogfood-lifecycle-pack/shapes.ttl's dfl:outcome sh:in convention. The
+# smon:turnKind sh:in list MUST be kept in step with ontology.ttl's
+# smon:TurnKindScheme.
+
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix smon:    <http://seanchatmangpt.github.io/packs/self-monitoring#> .
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# Every turn node must carry a session ref, a grounding topic, an ordering
+# ordinal, and a closed-vocabulary turn kind. smon:immediatelyFollows is
+# intentionally NOT required here (sh:minCount 0, the SHACL default) -- most
+# turns in a real session have no meaningful "immediately follows a
+# GroundingQuestion" fact to assert; only survey/run/blocker responses that
+# directly follow a grounding question need it, and hook.ttl's WHERE clause
+# only reads it where present.
+smon:TurnShape
+    a sh:NodeShape ;
+    sh:targetClass smon:Turn ;
+
+    # session ref -- reuses dfl:Session (packs/dogfood-lifecycle-pack), not a
+    # re-minted smon:Session; see ontology.ttl's header for the rationale.
+    sh:property [
+        sh:path        dcterms:isPartOf ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:class       dfl:Session ;
+        sh:message     "A turn must reference its session via dcterms:isPartOf, typed dfl:Session." ;
+    ] ;
+
+    # grounding topic -- the task brief's "grounding_topic"; free-text or IRI
+    # tag, so no sh:datatype/sh:nodeKind restriction, just presence.
+    sh:property [
+        sh:path        dcterms:subject ;
+        sh:minCount    1 ;
+        sh:message     "A turn must carry a grounding topic via dcterms:subject (free text or an IRI tag naming which system/capability the turn concerns)." ;
+    ] ;
+
+    # ordering -- monotonic per-session ordinal.
+    sh:property [
+        sh:path        smon:sequenceIndex ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:datatype    xsd:integer ;
+        sh:message     "A turn must carry exactly one smon:sequenceIndex (xsd:integer)." ;
+    ] ;
+
+    # turn kind -- required, closed to the 5-concept scheme by resource identity.
+    sh:property [
+        sh:path        smon:turnKind ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:in          ( smon:GroundingQuestion smon:SurveyResponse smon:RunResponse smon:BlockerResponse smon:Other ) ;
+        sh:message     "A turn must carry exactly one smon:turnKind from the closed 5-concept scheme." ;
+    ] .
+
+# The derived-fact node hook.ttl's CONSTRUCT query produces. Not a fixture
+# input (see ontology.ttl's CLASSIFICATION-IS-INPUT FENCE) -- this shape
+# exists to validate hook.ttl's OWN output, should a caller choose to run
+# `ggen graph validate` over a post-materialize() dump.
+smon:EscalationObligationShape
+    a sh:NodeShape ;
+    sh:targetClass smon:EscalationObligation ;
+
+    sh:property [
+        sh:path        smon:hasPriorGroundingQuestion ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:class       smon:Turn ;
+        sh:message     "An EscalationObligation must link exactly one prior GroundingQuestion turn via smon:hasPriorGroundingQuestion." ;
+    ] ;
+    sh:property [
+        sh:path        smon:hasGroundingQuestion ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:class       smon:Turn ;
+        sh:message     "An EscalationObligation must link exactly one repeat GroundingQuestion turn via smon:hasGroundingQuestion." ;
+    ] ;
+    sh:property [
+        sh:path        smon:reason ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:datatype    xsd:string ;
+        sh:message     "An EscalationObligation must carry exactly one smon:reason (xsd:string)." ;
+    ] .

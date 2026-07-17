@@ -1,0 +1,85 @@
+# adversarial-negative.ttl -- the G_x- component of Section 33.11's semantic
+# admission proof obligation W(x) = (t_x, S_x, Q_x, G_x-, G_x+, r_x) for this
+# pack's regulatory-filing Knowledge Hook (fixtures/hook.ttl) and the SHACL
+# shapes (../shapes.ttl) it depends on. A DIFFERENT, smaller, self-contained
+# deal from both case.ttl's main scenario and adversarial-positive.ttl's
+# deal -- same separate-IRI negative-control convention
+# crates/multifractal-workflow/fixtures/bribery-case/hook.ttl's own
+# `hook_does_not_fire_for_a_domestic_contractor` negative control uses.
+#
+# WHAT THIS FILE PROVES, PRECISELY (see
+# crates/praxis-graphlaw/tests/ma_case_hook_actuation.rs):
+#   1. fixtures/hook.ttl's derive_ma_regulatory_filing_obligation hook does
+#      NOT fire: the deal's schema:amount (42000000, USD) is BELOW the
+#      hook's 100000000 threshold -- this is the condition the Rust test
+#      actually loads this file and asserts against materialize()'s output.
+#   2. This graph also fails two REAL (non-vacuous) SHACL constraints from
+#      ../shapes.ttl, disclosed here rather than silently left for a future
+#      pass to discover:
+#      - ma:RelationshipRecordShape's sh:maxInclusive 100 on
+#        hasOwnershipPercentage: this fixture asserts "115.00", an
+#        impossible ownership percentage, deliberately out of [0, 100].
+#      - ma:MergerAcquisitionShape's sh:minCount 1 on cmns-cls:isClassifiedBy:
+#        this fixture's deal carries NO ma:DealStatus classification at all.
+#   3. This graph also illustrates a THIRD gap, disclosed honestly rather
+#      than overclaimed: the target counterparty below carries no
+#      cmns-id:isIdentifiedBy LEI link at all (the task's own suggested
+#      "missing required LEI on a counterparty" example). As shipped,
+#      ../shapes.ttl's ma:LEIRegisteredEntityShape does NOT actually bind
+#      this -- both of its sh:property blocks use sh:minCount 0 (see that
+#      file's own comments), so this omission would NOT currently trip a
+#      real SHACL evaluator. This is a genuine, disclosed gap in the shapes
+#      pass this task inherited, not something this fixture pass is in
+#      scope to silently paper over by pretending the omission bites; it
+#      illustrates the missing-LEI scenario narratively (per the task's own
+#      example) while items 1-2 above are this fixture's actually-enforced,
+#      actually-tested negative signals.
+#
+# SCENARIO: Meridian Holdings Group, Inc. floats a much smaller, incomplete
+# term sheet for Fenwick Analytics, Inc. (fictional) -- below the filing
+# threshold, with a malformed ownership percentage, no deal-status
+# classification yet, and no LEI on record yet for the target. Same
+# fictional-entity convention as case.ttl's header states.
+
+@prefix rdf:              <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:               <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms:           <http://purl.org/dc/terms/> .
+@prefix schema:            <https://schema.org/> .
+@prefix cmns-id:           <https://www.omg.org/spec/Commons/Identifiers/> .
+@prefix fibo-be-le-lei:    <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LEIEntities/> .
+@prefix fibo-cae-ce-act:   <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/> .
+@prefix ma:                <http://seanchatmangpt.github.io/packs/ma-case-study#> .
+
+<https://deals.meridian-holdings.example.org/identifier/lei-meridian-holdings-group>
+    a fibo-be-le-lei:LegalEntityIdentifier ;
+    dcterms:identifier "5493001234MERIDIANHG" .
+
+<https://deals.meridian-holdings.example.org/entity/acquirer-meridian-holdings-group>
+    a fibo-be-le-lei:LEIRegisteredEntity ;
+    cmns-id:isIdentifiedBy <https://deals.meridian-holdings.example.org/identifier/lei-meridian-holdings-group> .
+
+# Deliberately missing cmns-id:isIdentifiedBy -- see this file's header,
+# item 3.
+<https://deals.meridian-holdings.example.org/entity/target-fenwick-analytics>
+    a fibo-be-le-lei:LEIRegisteredEntity ;
+    dcterms:description "Target: Fenwick Analytics, Inc., a fictional data-analytics company. No LEI on record yet at this early term-sheet stage." .
+
+# Deliberately out of [0, 100] -- violates ma:RelationshipRecordShape's
+# sh:maxInclusive 100 (see this file's header, item 2).
+<https://deals.meridian-holdings.example.org/relationship/MHC-2026-0203-ownership>
+    a fibo-be-le-lei:RelationshipRecord ;
+    fibo-be-le-lei:hasOwnershipPercentage "115.00"^^xsd:decimal ;
+    dcterms:description "Malformed draft ownership percentage recorded in error during early term-sheet drafting (impossible value, deliberately left uncorrected for this negative fixture)." .
+
+# Deliberately missing cmns-cls:isClassifiedBy -- violates
+# ma:MergerAcquisitionShape's sh:minCount 1 (see this file's header, item
+# 2). schema:amount is also below fixtures/hook.ttl's 100000000 threshold
+# -- see this file's header, item 1.
+<https://deals.meridian-holdings.example.org/deal/MHC-2026-0203>
+    a fibo-cae-ce-act:MergerAcquisition ;
+    schema:amount [
+        a schema:MonetaryAmount ;
+        schema:value 42000000 ;
+        schema:currency "USD"
+    ] ;
+    dcterms:description "Meridian Holdings Group, Inc. non-binding term sheet for Fenwick Analytics, Inc., aggregate consideration USD 42,000,000 -- below the HSR-style filing threshold and not yet formally classified." .

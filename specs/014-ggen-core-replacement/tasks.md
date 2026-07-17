@@ -1676,6 +1676,23 @@ directly (`cargo fmt`, pure mechanical rustfmt output, zero semantic change) sin
 such policy ambiguity. `just pre-commit` now passes clean end-to-end (fmt, check, lint, tests,
 coherence, boundary guard) for the first time since the disconnect commit landed.
 
+**Third follow-up finding (2026-07-17, same investigation):** `just test` (the full
+`cargo test --workspace --tests` suite, distinct from `pre-commit`'s faster `test-lib` subset)
+had never actually completed this entire session — it hard-failed at COMPILE time (not test
+time), unrelated to either finding above. `crates/praxis-graphlaw/tests/{ma_case_hook_actuation,
+self_monitoring_real_session_actuation}.rs` (vendored alongside `praxis-graphlaw` itself, Phase 5,
+`60132d11f`) `include_str!` fixture files under a sibling `packs/{ma-case-study-pack,
+self-monitoring-pack}/` directory relative to the crate — that directory never got copied over
+during vendoring (`/Users/sac/ggen/packs/` had only `dogfood-lifecycle-pack`; the original
+`/Users/sac/praxis/packs/{ma-case-study-pack,self-monitoring-pack}/` had both, confirmed present
+there). `self_monitoring_real_session_actuation.rs`'s breakage was already flagged as a known,
+unfixed gap in T058's own evidence above; `ma_case_hook_actuation.rs`'s identical breakage was
+not previously named. Fix: copied both pack directories from `/Users/sac/praxis/packs/` into
+`/Users/sac/ggen/packs/` (28 files, `rsync --exclude=__pycache__`, read-only from the sibling
+repo, nothing in `/Users/sac/praxis` touched). Re-verified live: both test files now compile and
+pass in full (4/4 and 6/6); the full `just test` now completes end-to-end for the first time this
+session (exit 0, 215 passed / 0 failed / 14 ignored across all 29 integration test binaries).
+
 **Checkpoint**: User Story 1's independent test passes — full suite green, `ggen-core`
 fully retired, command-surface diff against the T003 baseline shows zero regressions.
 

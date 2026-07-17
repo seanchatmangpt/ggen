@@ -1,0 +1,313 @@
+# pddl-domain.ttl -- STRIPS8-safe M&A deal-progression + multi-org-merge
+# domain, grounded in the SAME real `pddl:` instance vocabulary and the SAME
+# STRIPS8 constraints as
+# crates/multifractal-workflow/fixtures/bribery-case/pddl-domain.ttl (positive
+# conjunctive preconditions only; arity <= 8; precondition/effect conjuncts
+# <= 8; action params <= 8 -- `wasm4pm_compat::pddl::PDDL8_MAX_*`).
+#
+# NOT hand-written PDDL text: this file is `pddl:` RDF instance data that
+# `my_conforming_project::mfg::manufacture` (src/mfg.rs, the same real
+# SPARQL-extraction + `enforce_pddl8` bound-checking pipeline bribery-case's
+# own pddl-domain.ttl and packs/azure-terraform-pack/pddl-domain.ttl already
+# prove) turns into REAL PDDL8 domain text via SPARQL extraction, which is
+# then round-tripped through the REAL `bcinr_pddl::domain_from_pddl` /
+# `GroundProblem::build` / `GroundProblem::find_plan` grounder+solver -- not
+# merely resembling that pipeline's output. Proven live by
+# `crates/multifractal-workflow/tests/ma_case_pddl.rs` (concatenates this
+# file with pddl-problem-closable.ttl or pddl-problem-blocked.ttl -- see
+# bribery-case's own DESIGN.md for why the domain/problem split is separate
+# files: `mfg::extract_problem` assumes exactly one `pddl:Problem` instance
+# per graph).
+#
+# TWO THINGS THIS DOMAIN MODELS TOGETHER (this task's explicit requirement):
+#
+# 1. THE MULTI-ORG-MERGE STAGE (`crates/multifractal-workflow/src/
+#    f31_org_merge.rs`, tested by `crates/multifractal-workflow/tests/
+#    ma_org_merge.rs`): `admit-acquirer-graph` / `admit-target-graph` model
+#    each organization's independent real F02 6-gate admission
+#    (`f31_org_merge.rs`'s own `admit_org_graph`); `merge-organizations`
+#    models the real `merge_org_graphs` call.
+#
+# 2. THE DEAL-PROGRESSION OBLIGATIONS (`packs/ma-case-study-pack/fixtures/
+#    case.ttl` + `hook.ttl`, already partially covered by hook.ttl's
+#    `derive_ma_regulatory_filing_obligation` Knowledge Hook, proven by
+#    `crates/praxis-graphlaw/tests/ma_case_hook_actuation.rs`):
+#    `satisfy-due-diligence-items`, `clear-regulatory-filing-obligation`,
+#    `obtain-board-authorization`, `hold-shareholder-vote`, `close-deal`.
+#    `clear-regulatory-filing-obligation` reuses the EXACT local name
+#    hook.ttl's derived catalog individual carries
+#    (`hsr-act-notification-obligation`) as a `has-regulatory-obligation`
+#    `:init` atom, the same "Stage 1: hand-project the hook-derived local
+#    name into `pddl:init`, do not (yet) build a live RDF -> PDDL projector"
+#    scope bribery-case's own DESIGN.md discloses for its 3 obligation
+#    atoms -- a live `sc:hasObligation`/`ma:hasRegulatoryFilingObligation`
+#    RDF-triple -> `pddl:init` atom-literal projector remains unbuilt Stage 2
+#    work here too (see `packs/ma-case-study-pack/STANDING.md`'s M&A-C4 row).
+#
+# NO SEPARATE `resolve-identifier-conflicts` ACTION (this task's explicit
+# "check and match" instruction): `f31_org_merge.rs::merge_org_graphs`
+# (lines 458-462) calls `detect_identifier_collisions` AUTOMATICALLY, as the
+# very first step inside one atomic Rust call -- it is not a separately
+# invocable, separately schedulable step a caller could choose to skip or
+# reorder. A STRIPS8 action can only represent something a planner chooses
+# to invoke; since collision detection is never independently invoked, this
+# domain folds it into `merge-organizations`'s single atomic transition
+# instead of inventing a decorative action with no real counterpart. The
+# real Rust mechanism still typed-refuses on a genuine collision
+# (`OrgMergeRefused::IdentifierCollision`, proven by
+# `ma_org_merge.rs::merge_detects_and_refuses_colliding_azure_resource_identifiers`)
+# -- this domain's `merge-organizations` action represents only the SUCCESS
+# path of that real call, exactly as bribery-case's own actions represent
+# only the paths a real gate can actually take.
+#
+# DUE DILIGENCE SCOPE, DISCLOSED: `case.ttl` asserts 3 distinct
+# `ma:DueDiligenceItem` individuals in 3 different dispositions (Satisfied /
+# Open / Waived). STRIPS8 has no forall/counting (ADL only), so a per-item
+# model would need bribery-case's own 3-distinct-predicate-names trick
+# (see that file's "BUG FOUND AND FIXED THIS SESSION" comment). This task's
+# own action list names exactly ONE action, `satisfy-due-diligence-items`
+# (singular schema, not 3 role-specific schemas), so this domain models due
+# diligence sign-off as ONE atomic milestone gate for the deal as a whole
+# (matching how a real deal's diligence sign-off is a single Go/No-Go
+# decision by deal counsel, even though it aggregates several checklist
+# items) -- a narrower, disclosed scope than a genuine per-item STRIPS8
+# model would need, not a silently-assumed one.
+#
+# TYPED NON-CLOSURE PATH (this task's explicit requirement: a genuinely
+# blocked case -- e.g. missing regulatory clearance -- must produce a typed
+# block, not a fabricated success): `block-for-missing-regulatory-clearance`
+# transitions `diligence-complete -> blocked` in parallel with (not through)
+# `clear-regulatory-filing-obligation`, whenever a positive
+# `(regulatory-clearance-unavailable ?ob)` fact is present -- a POSITIVE
+# STRIPS8-legal fact (not a negation-as-failure inference), mirroring
+# bribery-case's own `block-for-missing-evidence` design exactly (see that
+# file's header for the same "TYPED NON-CLOSURE PATH" discipline). See
+# pddl-problem-blocked.ttl for the worked example.
+
+@prefix pddl: <http://seanchatmangpt.github.io/praxis/pddl#> .
+
+# ---------------------------------------------------------------------------
+# Domain
+# ---------------------------------------------------------------------------
+
+pddl:domain_ma_deal_progression
+    a pddl:Domain ;
+    pddl:name "ma-deal-progression-pddl8" .
+
+# ---------------------------------------------------------------------------
+# Types
+# ---------------------------------------------------------------------------
+
+pddl:type_deal         a pddl:Type ; pddl:name "deal" .
+pddl:type_organization a pddl:Type ; pddl:name "organization" .
+pddl:type_obligation   a pddl:Type ; pddl:name "obligation" .
+pddl:type_authority    a pddl:Type ; pddl:name "authority" .
+pddl:type_vote         a pddl:Type ; pddl:name "vote" .
+pddl:type_stage        a pddl:Type ; pddl:name "lifecycle-stage" .
+pddl:type_chaintoken   a pddl:Type ; pddl:name "chain-token" .
+
+# ---------------------------------------------------------------------------
+# Predicates (all positive-checkable; STRIPS8-safe; arity <= 2)
+# ---------------------------------------------------------------------------
+
+pddl:pred_in_stage
+    a pddl:Predicate ;
+    pddl:name "in-stage" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?deal" ; pddl:ofType "deal" ] ,
+              [ pddl:index 1 ; pddl:var "?stage" ; pddl:ofType "lifecycle-stage" ] .
+
+pddl:pred_acquirer_admitted
+    a pddl:Predicate ;
+    pddl:name "acquirer-admitted" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?org" ; pddl:ofType "organization" ] .
+
+pddl:pred_target_admitted
+    a pddl:Predicate ;
+    pddl:name "target-admitted" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?org" ; pddl:ofType "organization" ] .
+
+pddl:pred_merged_graph_exists
+    a pddl:Predicate ;
+    pddl:name "merged-graph-exists" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?deal" ; pddl:ofType "deal" ] .
+
+pddl:pred_due_diligence_complete
+    a pddl:Predicate ;
+    pddl:name "due-diligence-complete" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?deal" ; pddl:ofType "deal" ] .
+
+pddl:pred_has_regulatory_obligation
+    a pddl:Predicate ;
+    pddl:name "has-regulatory-obligation" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?deal" ; pddl:ofType "deal" ] ,
+              [ pddl:index 1 ; pddl:var "?ob" ; pddl:ofType "obligation" ] .
+
+pddl:pred_regulatory_clearance_obtained
+    a pddl:Predicate ;
+    pddl:name "regulatory-clearance-obtained" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?ob" ; pddl:ofType "obligation" ] .
+
+pddl:pred_regulatory_clearance_unavailable
+    a pddl:Predicate ;
+    pddl:name "regulatory-clearance-unavailable" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?ob" ; pddl:ofType "obligation" ] .
+
+pddl:pred_deal_blocked_on
+    a pddl:Predicate ;
+    pddl:name "deal-blocked-on" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?deal" ; pddl:ofType "deal" ] ,
+              [ pddl:index 1 ; pddl:var "?ob" ; pddl:ofType "obligation" ] .
+
+pddl:pred_board_authorization_obtained
+    a pddl:Predicate ;
+    pddl:name "board-authorization-obtained" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?deal" ; pddl:ofType "deal" ] .
+
+pddl:pred_shareholder_vote_passed
+    a pddl:Predicate ;
+    pddl:name "shareholder-vote-passed" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?deal" ; pddl:ofType "deal" ] .
+
+pddl:pred_deal_closed
+    a pddl:Predicate ;
+    pddl:name "deal-closed" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?deal" ; pddl:ofType "deal" ] .
+
+pddl:pred_prev_chain_valid
+    a pddl:Predicate ;
+    pddl:name "prev-chain-valid" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?tok" ; pddl:ofType "chain-token" ] .
+
+pddl:pred_chain_hash_computed
+    a pddl:Predicate ;
+    pddl:name "chain-hash-computed" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?deal" ; pddl:ofType "deal" ] ,
+              [ pddl:index 1 ; pddl:var "?tok" ; pddl:ofType "chain-token" ] .
+
+# ---------------------------------------------------------------------------
+# Actions
+# ---------------------------------------------------------------------------
+
+# 1. admit-acquirer-graph(?org) -- models `f31_org_merge::admit_org_graph`
+#    for the acquirer's own real F02 6-gate admission (independent of the
+#    target's; each org gets its own receipt -- see
+#    `ma_org_merge.rs::acquirer_and_target_admit_independently_with_their_own_receipts`).
+pddl:action_admit_acquirer_graph
+    a pddl:Action ;
+    pddl:name "admit-acquirer-graph" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?org" ; pddl:ofType "organization" ] ;
+    pddl:add "(acquirer-admitted ?org)" .
+
+# 2. admit-target-graph(?org) -- the target's own independent F02 admission.
+pddl:action_admit_target_graph
+    a pddl:Action ;
+    pddl:name "admit-target-graph" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?org" ; pddl:ofType "organization" ] ;
+    pddl:add "(target-admitted ?org)" .
+
+# 3. merge-organizations(?acq, ?tgt, ?deal) -- models `merge_org_graphs`
+#    (`f31_org_merge.rs:458-462`): both orgs admitted, then identifier
+#    collision detection + union-of-shapes re-validation happen
+#    automatically inside this one atomic transition (see this file's
+#    header for why no separate `resolve-identifier-conflicts` action
+#    exists).
+pddl:action_merge_organizations
+    a pddl:Action ;
+    pddl:name "merge-organizations" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?acq" ; pddl:ofType "organization" ] ,
+              [ pddl:index 1 ; pddl:var "?tgt" ; pddl:ofType "organization" ] ,
+              [ pddl:index 2 ; pddl:var "?deal" ; pddl:ofType "deal" ] ;
+    pddl:pre "(in-stage ?deal raw)" ,
+            "(acquirer-admitted ?acq)" ,
+            "(target-admitted ?tgt)" ;
+    pddl:add "(in-stage ?deal orgs-merged)" ,
+            "(merged-graph-exists ?deal)" ;
+    pddl:del "(in-stage ?deal raw)" .
+
+# 4. satisfy-due-diligence-items(?deal) -- one atomic milestone gate for the
+#    deal's diligence checklist as a whole (see this file's header's "DUE
+#    DILIGENCE SCOPE, DISCLOSED" note for why this is not per-item).
+pddl:action_satisfy_due_diligence_items
+    a pddl:Action ;
+    pddl:name "satisfy-due-diligence-items" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?deal" ; pddl:ofType "deal" ] ;
+    pddl:pre "(in-stage ?deal orgs-merged)" ;
+    pddl:add "(in-stage ?deal diligence-complete)" ,
+            "(due-diligence-complete ?deal)" ;
+    pddl:del "(in-stage ?deal orgs-merged)" .
+
+# 5. clear-regulatory-filing-obligation(?deal, ?ob) -- reuses the exact
+#    local name hook.ttl's derived `ma:hasRegulatoryFilingObligation`
+#    catalog individual carries (`hsr-act-notification-obligation`) as the
+#    `has-regulatory-obligation` :init atom's object (see
+#    pddl-problem-closable.ttl).
+pddl:action_clear_regulatory_filing_obligation
+    a pddl:Action ;
+    pddl:name "clear-regulatory-filing-obligation" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?deal" ; pddl:ofType "deal" ] ,
+              [ pddl:index 1 ; pddl:var "?ob" ; pddl:ofType "obligation" ] ;
+    pddl:pre "(in-stage ?deal diligence-complete)" ,
+            "(has-regulatory-obligation ?deal ?ob)" ;
+    pddl:add "(in-stage ?deal regulatory-cleared)" ,
+            "(regulatory-clearance-obtained ?ob)" ;
+    pddl:del "(in-stage ?deal diligence-complete)" .
+
+# 6. block-for-missing-regulatory-clearance(?deal, ?ob) -- the typed
+#    non-closure terminal path (see this file's header). A sibling
+#    transition out of `diligence-complete`, NOT reachable through
+#    clear-regulatory-filing-obligation/obtain-board-authorization/
+#    hold-shareholder-vote/close-deal.
+pddl:action_block_for_missing_regulatory_clearance
+    a pddl:Action ;
+    pddl:name "block-for-missing-regulatory-clearance" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?deal" ; pddl:ofType "deal" ] ,
+              [ pddl:index 1 ; pddl:var "?ob" ; pddl:ofType "obligation" ] ;
+    pddl:pre "(in-stage ?deal diligence-complete)" ,
+            "(has-regulatory-obligation ?deal ?ob)" ,
+            "(regulatory-clearance-unavailable ?ob)" ;
+    pddl:add "(in-stage ?deal blocked)" ,
+            "(deal-blocked-on ?deal ?ob)" ;
+    pddl:del "(in-stage ?deal diligence-complete)" .
+
+# 7. obtain-board-authorization(?deal, ?board, ?signatory) -- models
+#    case.ttl's `ma:BoardResolution` (`cmns-bauth:hasAuthorizingParty`
+#    the board, `cmns-bauth:hasAuthorizedParty` the signatory).
+pddl:action_obtain_board_authorization
+    a pddl:Action ;
+    pddl:name "obtain-board-authorization" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?deal" ; pddl:ofType "deal" ] ,
+              [ pddl:index 1 ; pddl:var "?board" ; pddl:ofType "authority" ] ,
+              [ pddl:index 2 ; pddl:var "?signatory" ; pddl:ofType "authority" ] ;
+    pddl:pre "(in-stage ?deal regulatory-cleared)" ;
+    pddl:add "(in-stage ?deal board-authorized)" ,
+            "(board-authorization-obtained ?deal)" ;
+    pddl:del "(in-stage ?deal regulatory-cleared)" .
+
+# 8. hold-shareholder-vote(?deal, ?vote) -- models case.ttl's
+#    `ma:ShareholderVote` (quorum + outcome; the 3 individual `ma:Ballot`s
+#    are aggregated into this one vote object, the same STRIPS8-safe
+#    single-milestone treatment `satisfy-due-diligence-items` uses).
+pddl:action_hold_shareholder_vote
+    a pddl:Action ;
+    pddl:name "hold-shareholder-vote" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?deal" ; pddl:ofType "deal" ] ,
+              [ pddl:index 1 ; pddl:var "?vote" ; pddl:ofType "vote" ] ;
+    pddl:pre "(in-stage ?deal board-authorized)" ;
+    pddl:add "(in-stage ?deal shareholder-approved)" ,
+            "(shareholder-vote-passed ?deal)" ;
+    pddl:del "(in-stage ?deal board-authorized)" .
+
+# 9. close-deal(?deal, ?tok) -- the terminal lawful-closure transition,
+#    mirroring bribery-case's own `receipt(?obj, ?tok)` chain-token shape
+#    exactly (`prev-chain-valid` / `chain-hash-computed`).
+pddl:action_close_deal
+    a pddl:Action ;
+    pddl:name "close-deal" ;
+    pddl:param [ pddl:index 0 ; pddl:var "?deal" ; pddl:ofType "deal" ] ,
+              [ pddl:index 1 ; pddl:var "?tok" ; pddl:ofType "chain-token" ] ;
+    pddl:pre "(in-stage ?deal shareholder-approved)" ,
+            "(prev-chain-valid ?tok)" ;
+    pddl:add "(in-stage ?deal closed)" ,
+            "(deal-closed ?deal)" ,
+            "(chain-hash-computed ?deal ?tok)" ;
+    pddl:del "(in-stage ?deal shareholder-approved)" .

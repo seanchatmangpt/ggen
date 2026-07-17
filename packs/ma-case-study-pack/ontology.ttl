@@ -1,0 +1,571 @@
+# ma-case-study-pack ontology — PUBLIC-ONTOLOGY-FIRST, disclosed private
+# bridge terms only where a real search came up short.
+#
+# SCOPE: an M&A / deal-desk case study (acquiring/target legal entities,
+# equity stakes, due-diligence checklists, representations & warranties and
+# their disclosed exceptions, antitrust/regulatory filing obligations,
+# board authorization, shareholder votes, negotiated deal terms and
+# counter-offers, financing conditions, and deal closing/termination
+# status). This file is a VOCABULARY pack (classes + properties + closed
+# enumerations), mirroring packs/jira-tracking-pack/ontology.ttl and
+# packs/dogfood-lifecycle-pack/ontology.ttl's own TBox-only shape — no
+# case-study instance data (no fictional Acquirer/Target company
+# individuals) is committed here, matching the task's explicit 4-file
+# scope (ontology.ttl, shapes.ttl, COMPETENCY_QUESTIONS.md, pack.toml; no
+# fixtures/instances.ttl was requested).
+#
+# GROUNDING METHOD: every FIBO class/property cited below was independently
+# re-read this session from the FIBO ontology actually vendored in this
+# repo at crates/praxis-graphlaw/ontologies/industry/financial/fibo-master/
+# (file path + line number given per term) — not merely trusted from the
+# upstream vocabulary-fit research prompt. One correction the research
+# itself already flagged was re-confirmed by this direct read: FIBO's
+# BE/OwnershipAndControl/CorporateOwnership.rdf Shareholding class (line
+# 173) has NO percentage-ownership property (only
+# cown:consistsOfNumberOfUnits, a share-count, line 205-212); the real
+# hasOwnershipPercentage property lives in BE/LegalEntities/LEIEntities.rdf
+# (line 407), adapted from the GLEIF LEI Common Data Format 2.1 — confirmed
+# by reading LEIEntities.rdf directly, not by trusting the earlier summary.
+# OMG Commons (cmns-*) terms are not separately vendored in this repo; their
+# namespace IRIs and shapes are cross-confirmed via FIBO's own XML entity
+# declarations and, for the BusinessAuthorizations terms specifically, via
+# FIBO's live owl:deprecated + owl:equivalentClass/equivalentProperty
+# pointers (FIBO deprecated its OWN local Authorization/AuthorizingParty/
+# AuthorizedParty/authorizes/hasAuthorizedParty/hasAuthorizingParty terms in
+# BE/OwnershipAndControl/Executives.rdf in favor of the Commons versions —
+# a positive signal the Commons terms are the live, maintained vocabulary,
+# not merely trusted spec-page prose).
+#
+# ============================================================================
+# PUBLIC VOCABULARIES REUSED BY IRI (not redefined here; used directly on
+# instance data and as sh:targetClass in shapes.ttl — same discipline as
+# packs/soc2-audit-pack/ontology.ttl and the bribery-case fixture, which
+# never re-declare prov:Activity or skos:Concept either):
+#
+#  1. Acquiring/target legal entity + LEI — CLEAN_FIT.
+#     fibo-be-le-lei:LEIRegisteredEntity (BE/LegalEntities/LEIEntities.rdf:260,
+#       "a legal person that has registered for and is identified by a legal
+#       entity identifier"; rdfs:subClassOf cmns-org:LegalPerson)
+#     fibo-be-le-lei:LegalEntityIdentifier (LEIEntities.rdf:273, ISO 17442
+#       organization identifier)
+#     cmns-id:isIdentifiedBy (the object property LEIEntities.rdf:264-268
+#       uses to link a LEIRegisteredEntity to its LegalEntityIdentifier)
+#     Independently corroborated (per the research this pack implements) by
+#     GLEIF's own LEI RDF ontology (gleif.org/ontology/L1: RegisteredEntity,
+#     LegalEntity, LegalEntityIdentifier, gleif-L1:LEI) — not re-fetched or
+#     re-vendored this session; FIBO's own vendored copy is the grounding
+#     source actually read.
+#
+#  2. Equity stake / ownership percentage — CLEAN_FIT.
+#     fibo-be-le-lei:RelationshipRecord (LEIEntities.rdf:330, "a record
+#       describing relationships between legal entities"; adapted from the
+#       GLEIF Level 2 Relationship Record CDF)
+#     fibo-be-le-lei:hasOwnershipPercentage (LEIEntities.rdf:407,
+#       subPropertyOf isQuantifiedBy, xsd:decimal range, "the percentage
+#       ownership interest in the owned entity owned by owning entity, if
+#       known" — used on a RelationshipRecord instance)
+#     Companions (also confirmed): fibo-fnd-law-lcap:hasFractionalInterest
+#       (FND/Law/LegalCapacity.rdf:563, "has proportionate, non-exclusive
+#       entitlement to") and fibo-be-oac-cown:Shareholding
+#       (BE/OwnershipAndControl/CorporateOwnership.rdf:173, "ownership
+#       interest in the equity of a company, represented by shares") for the
+#       equity-stake-as-asset framing. This pack does not assert a specific
+#       RelationshipRecord-to-owning/owned-entity linking property beyond
+#       hasOwnershipPercentage/isQuantifiedBy/isQualifiedBy: those are the
+#       only LEIEntities.rdf properties independently re-verified this
+#       session against the vendored file; the full LEI-CDF start-node/
+#       end-node property pair was not re-verified and is not asserted here.
+#
+#  4. (half) Representation & Warranty clause — CLEAN_FIT.
+#     fibo-fnd-agr-ctr:Representation (FND/Agreements/Contracts.rdf:567,
+#       rdfs:subClassOf ContractualCommitment, "a statement made by a party
+#       to the contract... which the counterparty(ies) rely on")
+#     fibo-fnd-agr-ctr:Warranty (Contracts.rdf:644, rdfs:subClassOf
+#       ContractualCommitment, "a statement of fact")
+#     fibo-fnd-agr-ctr:DisclosureProvision (Contracts.rdf:416,
+#       rdfs:subClassOf ContractualCommitment, "contractual provision that
+#       outlines the requirements and responsibilities of one or both
+#       parties to reveal certain information to each other") — reused for
+#       the generic disclosure-duty half of concept 4; see ma:
+#       DisclosureScheduleItem below for the disclosed private extension
+#       (linking a specific disclosure to the specific clause it qualifies).
+#
+#  5. (partial) Regulatory filing scaffold — reused, threshold/trigger is
+#     the disclosed gap (see ma:RegulatoryFilingObligation below).
+#     cmns-rga:RegulatoryReport (vendored at
+#       FBC/FunctionalEntities/RegulatoryAgencies.rdf:240, rdfs:subClassOf
+#       fibo-fnd-arr-rep:Report, "document required to support operational
+#       transparency that demonstrates compliance with some specification,
+#       law, policy, restriction, or other rule specified by a regulatory
+#       agency" — this Commons term IS vendored in this repo's FIBO copy,
+#       unlike most other cmns-* terms cited here)
+#     fibo-cae-ce-act:RegulatoryAction (CAE/CorporateEvents/
+#       CorporateActions.rdf:303, rdfs:subClassOf Action, "action initiated
+#       by a regulatory agency that affects a legal entity... and may have
+#       a material impact on that entity's stakeholders")
+#     Checked and rejected as term sources for the threshold/trigger itself:
+#     ELI (op.europa.eu/.../eli.owl — a FRBR-style legislation citation
+#     ontology: LegalResource/LegalExpression/Work/Expression/Manifestation,
+#     no obligation or threshold class) and LegalRuleML (an XML/XSD deontic
+#     rule-markup language with only an RDFS metamodel, not a reusable RDF
+#     domain-term vocabulary) — per the research this pack implements; not
+#     independently re-fetched this session (no local vendor copy of either
+#     exists in this repo to re-check against).
+#
+#  6. (partial) Board authorization — reused, BoardResolution document class
+#     is the disclosed gap (see ma:BoardResolution below).
+#     cmns-bauth:Authorization / cmns-bauth:AuthorizingParty /
+#       cmns-bauth:AuthorizedParty / cmns-bauth:authorizes /
+#       cmns-bauth:hasAuthorizedParty / cmns-bauth:hasAuthorizingParty — the
+#       live OMG Commons Business Authorizations terms FIBO's OWN local
+#       copies (Authorization, AuthorizingParty, AuthorizedParty, authorizes,
+#       hasAuthorizedParty, hasAuthorizingParty) are deprecated in favor of;
+#       see BE/OwnershipAndControl/Executives.rdf:165-167, 183-190,
+#       522-524, 553-563.
+#     fibo-be-oac-exec:BoardOfDirectors (Executives.rdf:315, rdfs:subClassOf
+#       EntityControllingParty; live, non-deprecated class) as the
+#       AuthorizingParty.
+#     FALSE FRIEND CHECKED AND REJECTED:
+#       fibo-be-le-cb:BoardAgreement (BE/LegalEntities/CorporateBodies.rdf:97,
+#       "formal, legally binding agreement between members of the Board of
+#       Directors of the organization") sounds like "board resolution" but
+#       is defined as an agreement AMONG the directors themselves (e.g. a
+#       voting or buy-sell agreement), not a resolution by which the board
+#       authorizes a corporate action. NOT used for ma:BoardResolution.
+#
+#  7. (partial) Shareholder vote — reused only for the party-role half.
+#     fibo-be-oac-cctl:VotingShareholder
+#       (BE/OwnershipAndControl/CorporateControl.rdf:187) — a shareholder
+#       who has voting rights, a party-role class only. No vote/ballot/
+#       outcome class exists anywhere in the FIBO modules checked (per the
+#       research this pack implements: a targeted grep of all downloaded
+#       FIBO source files for "vote"/"voting" found none); see
+#       ma:ShareholderVote below.
+#
+#  8. (partial) Negotiated deal term / counter-offer — reused for the
+#     term-sheet/tender-offer containers; sequencing + typed line items are
+#     the disclosed gap (see ma:CounterOffer / ma:DealTermLineItem below).
+#     fibo-fnd-agr-ctr:TermSheet (Contracts.rdf:591, "nonbinding agreement
+#       setting forth the basic terms and conditions under which a proposed
+#       business deal may be made")
+#     fibo-fnd-agr-ctr:NonBindingTerm (Contracts.rdf:525, "contractual
+#       element that is not legally binding on any party to the agreement")
+#     fibo-fnd-agr-ctr:hasNonBindingTerm (Contracts.rdf:838, links a
+#       TermSheet to its NonBindingTerm elements)
+#     fibo-cae-ce-srca:TenderOffer / fibo-cae-ce-srca:FormalOffer
+#       (CAE/CorporateEvents/SecurityRelatedCorporateActions.rdf:260,465)
+#       for the formal-public-offer path.
+#     FALSE FRIEND CHECKED AND REJECTED: fibo-fnd-agr-ctr:hasTerm
+#       (Contracts.rdf:856) is NOT "deal term" in the negotiation sense —
+#       it is rdfs:subPropertyOf cmns-dt:hasDuration, i.e. it means the TIME
+#       PERIOD a contract/offer lasts, not a negotiated substantive term.
+#       Not used for ma:DealTermLineItem.
+#
+#  9. (partial) Financing commitment / condition — reused for both generic
+#     halves; the M&A-specific composition is the disclosed gap (see
+#     ma:FinancingCommitment / ma:FinancingOutCondition below).
+#     fibo-fnd-agr-agr:Commitment (FND/Agreements/Agreements.rdf:121,
+#       "promise made by some party to act or refrain from acting in some
+#       manner")
+#     fibo-fnd-agr-ctr:ConditionPrecedent (Contracts.rdf:263, "stipulation
+#       that specifies conditions that must be met before some aspect of a
+#       contract takes effect")
+#
+# 10. (partial) Deal closing / termination status — reused for the deal
+#     event, the abstract status class, and termination provisions;
+#     concrete status VALUES are the disclosed gap (see ma:DealStatus
+#     below).
+#     fibo-cae-ce-act:MergerAcquisition (CorporateActions.rdf:270,
+#       rdfs:subClassOf MandatoryCorporateAction, "corporate action
+#       involving the consolidation of legal entities or assets")
+#     fibo-cae-ce-act:ActionStatus (CorporateActions.rdf:161,
+#       rdfs:subClassOf fibo-fnd-arr-lif:LifecycleStatus, restricted via
+#       cmns-cls:classifies someValuesFrom Action; "state of some action at
+#       some point in time" — an ABSTRACT class with no enumerated
+#       individuals anywhere in FND/Arrangements/Lifecycles.rdf or
+#       CorporateActions.rdf as read this session)
+#     cmns-cls:isClassifiedBy (the inverse of cmns-cls:classifies, used at
+#       CorporateActions.rdf:82 in this same ontology's own restriction
+#       pattern — the property this pack reuses to link a MergerAcquisition
+#       instance to its ma:DealStatus individual, avoiding a private
+#       "ma:dealStatus" property entirely)
+#     fibo-fnd-agr-ctr:TerminationProvision / EarlyTerminationProvision
+#       (Contracts.rdf:604, 424) for contractual termination.
+#     fibo-fnd-dt-fd:hasClosingDateTime (FND/DatesAndTimes/
+#       FinancialDates.rdf:522, "the day and time at which something
+#       closes") — a plausible, not a documented, reuse: defined generically
+#       inside a market/trading-session-oriented ontology, not scoped to
+#       M&A deal closings specifically. Flagged as a stretch, not a false
+#       friend, per the research this pack implements.
+#
+#  W3C ODRL (http://www.w3.org/ns/odrl/2/, W3C Recommendation) —
+#     odrl:Duty ("the obligation to perform an Action") as the superclass
+#     for ma:DueDiligenceItem and ma:RegulatoryFilingObligation below: the
+#     closest public analog the research found for "a checklist item /
+#     obligation with a lifecycle" — real and correctly shaped (an
+#     obligation), but ODRL defines no fulfilled/satisfied/waived/violated
+#     status enumeration for a Duty, which is exactly the disclosed gap.
+#
+#  PROV-O (http://www.w3.org/ns/prov#) — reused directly (not redefined)
+#     for provenance-shaped minted classes/properties below:
+#     prov:Activity (superclass of ma:ShareholderVote — a vote is an
+#       event), prov:Entity (superclass of ma:BoardResolution — a
+#       resolution is a document), prov:generatedAtTime (resolution
+#       adoption timestamp — no private date property minted),
+#       prov:wasAttributedTo (Entity->Agent attribution, reused for
+#       ma:Ballot -> fibo-be-oac-cctl:VotingShareholder and for
+#       ma:CounterOffer -> the party that proposed it, exactly as the
+#       bribery-case fixture reuses it for transaction -> contractor).
+#     dcterms:isPartOf (reused for ma:Ballot -> ma:ShareholderVote, the
+#       same part-of pattern packs/dogfood-lifecycle-pack/ontology.ttl uses
+#       for dfl:ToolEvent -> dfl:Session).
+#
+# ============================================================================
+# DISCLOSED MINTED TERMS (ma:, capability-justified — no public equivalent
+# found across FIBO, the GLEIF LEI ontology, ELI, LegalRuleML, W3C ORG,
+# ODRL, or PROV-O, per the research this pack implements; each below names
+# the public terms checked and why they do not fit, same discipline as
+# case.ttl's sc: disclosure and dogfood-lifecycle-pack's dfl: disclosure):
+#
+#   ma:DueDiligenceItem, ma:DueDiligenceDisposition (+ ma:Open/ma:Satisfied/
+#     ma:Waived) — concept 3. No public analog at all: PROV-O has no
+#     status/disposition vocabulary (confirmed directly against the W3C
+#     PROV-O spec text per the research); FIBO's only "assessment"-shaped
+#     ontology (FND/Arrangements/Assessments.rdf) models asset VALUATION
+#     (Appraisal/AppraisedValue/FairValue/MarketValue), not compliance-
+#     checklist item state. odrl:Duty is the right SHAPE (an obligation)
+#     but carries no disposition enum, so ma:DueDiligenceItem is minted as
+#     a subclass of odrl:Duty and only the closed disposition vocabulary is
+#     genuinely new.
+#
+#   ma:RegulatoryFilingObligation, ma:filingThresholdAmount,
+#     ma:triggeringStatute, ma:statutoryWaitingPeriodDays — concept 5. No
+#     public term models a filing THRESHOLD, TRIGGER, or WAITING PERIOD
+#     (e.g. the HSR Act's transaction-value threshold and its statutory
+#     waiting period): cmns-rga:RegulatoryReport/fibo-cae-ce-act:
+#     RegulatoryAction give only a generic "this is a regulator-facing
+#     filing/action" shell. Modeled as a subclass of odrl:Duty (the
+#     obligation to file), parallel to ma:DueDiligenceItem, with the
+#     threshold/trigger/waiting-period as new datatype properties (the
+#     genuinely missing vocabulary) and a comment noting that the
+#     filing document itself, once submitted, would be typed
+#     cmns-rga:RegulatoryReport (reused, not re-minted).
+#
+#   ma:BoardResolution, ma:authorizesTransaction — concept 6.
+#     ma:BoardResolution is minted as a subclass of BOTH cmns-bauth:
+#     Authorization (the documented instance of the board's authorization
+#     situation) and prov:Entity (it is a document); NOT a subclass of the
+#     false-friend fibo-be-le-cb:BoardAgreement (see disclosure above).
+#     ma:authorizesTransaction links a resolution to the specific
+#     fibo-cae-ce-act:MergerAcquisition it approves — no public property
+#     was found in FND/Agreements/Agreements.rdf or FND/Agreements/
+#     Contracts.rdf for "this authorization instance targets this specific
+#     corporate-action instance" (cmns-bauth:hasAuthorizedParty/
+#     hasAuthorizingParty link PARTIES to the situation, not the corporate
+#     action being authorized).
+#
+#   ma:ShareholderVote, ma:Ballot, ma:voteOutcome, ma:VoteOutcome (+
+#     ma:Passed/ma:Failed/ma:Withdrawn), ma:quorumPercentage,
+#     ma:ballotDirection, ma:BallotDirection (+ ma:For/ma:Against/
+#     ma:Abstain) — concept 7. No public analog found at all across FIBO,
+#     W3C ORG (checked directly per the research: org:Organization/Role/
+#     Membership/Post/ChangeEvent is generic organizational-structure
+#     vocabulary; org:ChangeEvent models a resulting change event, not a
+#     vote/ballot/quorum/outcome structure), or any of the other five
+#     candidates.
+#
+#   ma:CounterOffer, ma:DealTermLineItem, ma:DealTermType (+
+#     ma:PricePerShare/ma:ExchangeRatio/ma:Earnout/ma:EscrowPercentage),
+#     ma:termValue, ma:supersedes — concept 8. TermSheet/NonBindingTerm is a
+#     real container for pre-signing negotiated terms but models no
+#     counter-offer as a distinct negotiation move (offer -> counter-offer
+#     -> counter-counter-offer, with a responding party and a supersedes/
+#     amends relation) and no typed line items (price per share, exchange
+#     ratio, earnout, escrow percentage).
+#
+#   ma:FinancingCommitment, ma:FinancingOutCondition, ma:subjectToCondition
+#     — concept 9. fibo-fnd-agr-agr:Commitment and fibo-fnd-agr-ctr:
+#     ConditionPrecedent are real and correctly shaped generically, but no
+#     FinancingCommitment, CommitmentLetter, or financing-out/MAC-clause
+#     subclass was found across FIBO's LOAN, DER, or FBC/DebtAndEquities
+#     modules (per the research this pack implements) — the terms found are
+#     domain-general, not M&A-financing-specific. ma:subjectToCondition
+#     links a FinancingCommitment to its FinancingOutCondition: no
+#     "commitment has condition precedent" property was found in
+#     FND/Agreements/Agreements.rdf or FND/Agreements/Contracts.rdf as
+#     checked this session (only hasObligation/isObligationOf and the
+#     Representation/Warranty/DisclosureProvision/TerminationProvision
+#     family were confirmed there).
+#
+#   ma:DealStatus (+ ma:Signed/ma:PendingRegulatoryApproval/ma:Closed/
+#     ma:Terminated/ma:Abandoned) — concept 10. fibo-cae-ce-act:ActionStatus
+#     is a real, correctly-shaped abstract class (subClassOf
+#     fibo-fnd-arr-lif:LifecycleStatus) but carries NO enumerated
+#     individuals anywhere in the public ontology as read this session —
+#     ma:DealStatus is minted as a concrete rdfs:subClassOf ActionStatus
+#     carrying exactly the 5 closed individuals a deal-desk case study
+#     needs, linked to a fibo-cae-ce-act:MergerAcquisition instance via the
+#     REUSED cmns-cls:isClassifiedBy property (no private linking property
+#     minted).
+#
+# OVERCLAIM FENCE: this pack models the DEAL-DESK RECORD-KEEPING domain
+# (entities, stakes, checklist items, clauses, filings, authorizations,
+# votes, terms, financing conditions, status) — it never asserts, computes,
+# or implies that a deal actually closed, that a regulatory filing was
+# actually cleared, or that a vote actually passed in the real world; those
+# are facts a real case study's instance data would assert about a specific
+# transaction, not something this vocabulary computes.
+
+@prefix rdf:            <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:           <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:            <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:            <http://www.w3.org/2002/07/owl#> .
+@prefix skos:           <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov:           <http://www.w3.org/ns/prov#> .
+@prefix dcterms:        <http://purl.org/dc/terms/> .
+@prefix odrl:           <http://www.w3.org/ns/odrl/2/> .
+@prefix cmns-bauth:     <https://www.omg.org/spec/Commons/BusinessAuthorizations/> .
+@prefix cmns-rga:       <https://www.omg.org/spec/Commons/RegulatoryAgencies/> .
+@prefix cmns-cls:       <https://www.omg.org/spec/Commons/Classifiers/> .
+@prefix fibo-be-le-lei: <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LEIEntities/> .
+@prefix fibo-be-le-cb:  <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/CorporateBodies/> .
+@prefix fibo-be-oac-exec: <https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/Executives/> .
+@prefix fibo-be-oac-cctl: <https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/CorporateControl/> .
+@prefix fibo-be-oac-cown: <https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/CorporateOwnership/> .
+@prefix fibo-fnd-agr-agr: <https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Agreements/> .
+@prefix fibo-fnd-agr-ctr: <https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/> .
+@prefix fibo-fnd-law-lcap: <https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCapacity/> .
+@prefix fibo-fnd-arr-lif: <https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Lifecycles/> .
+@prefix fibo-fnd-dt-fd: <https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/> .
+@prefix fibo-cae-ce-act: <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/> .
+@prefix fibo-cae-ce-srca: <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/SecurityRelatedCorporateActions/> .
+@prefix ma:             <http://seanchatmangpt.github.io/packs/ma-case-study#> .
+
+# ── Concept 3: due-diligence checklist item + disposition ──────────────────
+
+ma:DueDiligenceItem
+    a               rdfs:Class ;
+    rdfs:subClassOf odrl:Duty ;
+    rdfs:label      "DueDiligenceItem" ;
+    rdfs:comment    "A due-diligence checklist item to be cleared before closing. Minted subclass of odrl:Duty (W3C ODRL: 'the obligation to perform an Action') -- ODRL supplies the right shape but no fulfilled/satisfied/waived status enumeration; see this file's header disclosure. Reuses odrl:action and odrl:target for what must be verified and against what; ma:dueDiligenceDisposition is the genuinely new part." .
+
+ma:dueDiligenceDisposition
+    a            rdf:Property ;
+    rdfs:label   "dueDiligenceDisposition" ;
+    rdfs:domain  ma:DueDiligenceItem ;
+    rdfs:range   ma:DueDiligenceDisposition ;
+    rdfs:comment "The item's current lifecycle disposition, restricted to the closed 3-concept ma:DueDiligenceDisposition scheme below." .
+
+ma:DueDiligenceDisposition
+    a            rdfs:Class ;
+    rdfs:label   "DueDiligenceDisposition" ;
+    rdfs:comment "Closed 3-concept disposition vocabulary for a due-diligence item: no public ontology (checked: ODRL Duty, PROV-O, FIBO Assessments) models an obligation-fulfillment status enumeration; mirrors packs/jira-tracking-pack's closed jira:Status pattern and the bribery-case fixture's sc:CaseStatus pattern." .
+
+ma:Open          a ma:DueDiligenceDisposition ; rdfs:label "Open" ;
+    rdfs:comment "Checklist item raised, not yet cleared." .
+ma:Satisfied     a ma:DueDiligenceDisposition ; rdfs:label "Satisfied" ;
+    rdfs:comment "Required evidence supplied and the item is cleared." .
+ma:Waived        a ma:DueDiligenceDisposition ; rdfs:label "Waived" ;
+    rdfs:comment "The parties agreed the item need not be cleared before closing." .
+
+# ── Concept 4 (exception half): disclosure-schedule item ────────────────────
+
+ma:DisclosureScheduleItem
+    a               rdfs:Class ;
+    rdfs:subClassOf fibo-fnd-agr-ctr:DisclosureProvision ;
+    rdfs:label      "DisclosureScheduleItem" ;
+    rdfs:comment    "A specific, numbered disclosure-schedule entry that carves an exception into a specific Representation or Warranty clause. fibo-fnd-agr-ctr:DisclosureProvision (FND/Agreements/Contracts.rdf:416) models the generic duty to disclose but has no property or subclass for the precise M&A artifact (a disclosure schedule cross-referenced against R&W section numbers); minted narrowly as a subclass, adding only ma:qualifiesClause and ma:scheduleItemNumber." .
+
+ma:qualifiesClause
+    a            rdf:Property ;
+    rdfs:label   "qualifiesClause" ;
+    rdfs:domain  ma:DisclosureScheduleItem ;
+    rdfs:comment "Links a disclosure-schedule item to the specific fibo-fnd-agr-ctr:Representation or fibo-fnd-agr-ctr:Warranty instance it qualifies. No public property was found for this specific cross-reference in FND/Agreements/Contracts.rdf as read this session." .
+
+ma:scheduleItemNumber
+    a           rdf:Property ;
+    rdfs:label  "scheduleItemNumber" ;
+    rdfs:domain ma:DisclosureScheduleItem ;
+    rdfs:range  xsd:string ;
+    rdfs:comment "The disclosure schedule's own item identifier (e.g. \"Schedule 3.14(b)\"), needed to trace a specific carve-out back to the source document, not modeled by any checked public term." .
+
+# ── Concept 5: regulatory filing obligation + threshold ─────────────────────
+
+ma:RegulatoryFilingObligation
+    a               rdfs:Class ;
+    rdfs:subClassOf odrl:Duty ;
+    rdfs:label      "RegulatoryFilingObligation" ;
+    rdfs:comment    "The obligation to submit a regulatory filing before closing (e.g. an HSR Act antitrust notification). Modeled as a subclass of odrl:Duty, parallel to ma:DueDiligenceItem. cmns-rga:RegulatoryReport (FBC/FunctionalEntities/RegulatoryAgencies.rdf:240) and fibo-cae-ce-act:RegulatoryAction (CAE/CorporateEvents/CorporateActions.rdf:303) give only a generic filing-document/regulator-action shell with no threshold, trigger, or waiting-period semantics -- checked and confirmed absent this session. Once actually submitted, the filing document itself would be typed cmns-rga:RegulatoryReport directly (reused, not re-minted)." .
+
+ma:filingThresholdAmount
+    a            rdf:Property ;
+    rdfs:label   "filingThresholdAmount" ;
+    rdfs:domain  ma:RegulatoryFilingObligation ;
+    rdfs:range   xsd:decimal ;
+    rdfs:comment "The transaction-value threshold above which the filing is legally required (e.g. the HSR Act's size-of-transaction threshold). No public term models a filing threshold value; checked ELI (citation/metadata ontology, no obligation/threshold class) and LegalRuleML (deontic rule-markup XML language, not a reusable RDF domain-term vocabulary)." .
+
+ma:triggeringStatute
+    a            rdf:Property ;
+    rdfs:label   "triggeringStatute" ;
+    rdfs:domain  ma:RegulatoryFilingObligation ;
+    rdfs:range   xsd:string ;
+    rdfs:comment "The statutory citation that triggers the obligation (e.g. \"15 U.S.C. § 18a\"), recorded as a plain literal -- ELI could in principle cite this as an eli:LegalResource but ELI was confirmed (by reading its OWL file) to have no obligation-linking property, so a literal citation is used instead of a false-fit resource link." .
+
+ma:statutoryWaitingPeriodDays
+    a            rdf:Property ;
+    rdfs:label   "statutoryWaitingPeriodDays" ;
+    rdfs:domain  ma:RegulatoryFilingObligation ;
+    rdfs:range   xsd:integer ;
+    rdfs:comment "The statutory waiting period (in days) after filing before the transaction may close absent early termination or a second request. No public term models this; not modeled as an OWL-Time duration because the case study needs a single plain integer, not a temporal-entity graph." .
+
+# ── Concept 6: board resolution ─────────────────────────────────────────────
+
+ma:BoardResolution
+    a               rdfs:Class ;
+    rdfs:subClassOf cmns-bauth:Authorization , prov:Entity ;
+    rdfs:label      "BoardResolution" ;
+    rdfs:comment    "The documented instance of a board's authorization of a specific corporate action. rdfs:subClassOf cmns-bauth:Authorization (the live OMG Commons term FIBO's own local Authorization class defers to, per BE/OwnershipAndControl/Executives.rdf:165-167) and prov:Entity (it is a document; reuses prov:generatedAtTime for its adoption date, no private date property minted). Deliberately NOT a subclass of fibo-be-le-cb:BoardAgreement (BE/LegalEntities/CorporateBodies.rdf:97) -- that class is an agreement AMONG directors themselves (e.g. a voting or buy-sell agreement), not a resolution by which the board authorizes a corporate action; using it here would be exactly the term-exists-but-wrong-mapping error this file's header warns against. Parties are linked via the REUSED cmns-bauth:hasAuthorizingParty (-> fibo-be-oac-exec:BoardOfDirectors) and cmns-bauth:hasAuthorizedParty properties; no private party-linking property is minted." .
+
+ma:authorizesTransaction
+    a            rdf:Property ;
+    rdfs:label   "authorizesTransaction" ;
+    rdfs:domain  ma:BoardResolution ;
+    rdfs:range   fibo-cae-ce-act:MergerAcquisition ;
+    rdfs:comment "Links a board resolution to the specific merger/acquisition corporate action it approves. No public property was found for 'this authorization situation targets this specific corporate action' in FND/Agreements/Agreements.rdf or FND/Agreements/Contracts.rdf as checked this session -- cmns-bauth:hasAuthorizedParty/hasAuthorizingParty link PARTIES to the authorization situation, not the transaction being authorized." .
+
+# ── Concept 7: shareholder vote + ballots ───────────────────────────────────
+
+ma:ShareholderVote
+    a               rdfs:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label      "ShareholderVote" ;
+    rdfs:comment    "A shareholder vote event on a proposed corporate action. No public analog found across FIBO (a targeted grep of all downloaded FIBO source files for \"vote\"/\"voting\" found only fibo-be-oac-cctl:VotingShareholder, a party-role class, no vote/ballot/outcome event) or W3C ORG (org:ChangeEvent models the resulting organizational change, not the vote itself). Minted as a subclass of prov:Activity, mirroring ma:BoardResolution's reuse discipline." .
+
+ma:quorumPercentage
+    a            rdf:Property ;
+    rdfs:label   "quorumPercentage" ;
+    rdfs:domain  ma:ShareholderVote ;
+    rdfs:range   xsd:decimal ;
+    rdfs:comment "The percentage of eligible voting shares represented at the vote, required to determine whether the vote was validly held. No public analog found." .
+
+ma:voteOutcome
+    a            rdf:Property ;
+    rdfs:label   "voteOutcome" ;
+    rdfs:domain  ma:ShareholderVote ;
+    rdfs:range   ma:VoteOutcome ;
+    rdfs:comment "The vote's outcome, restricted to the closed 3-concept ma:VoteOutcome scheme below." .
+
+ma:VoteOutcome
+    a            rdfs:Class ;
+    rdfs:label   "VoteOutcome" ;
+    rdfs:comment "Closed 3-concept outcome vocabulary for a shareholder vote." .
+
+ma:Passed    a ma:VoteOutcome ; rdfs:label "Passed" .
+ma:Failed    a ma:VoteOutcome ; rdfs:label "Failed" .
+ma:Withdrawn a ma:VoteOutcome ; rdfs:label "Withdrawn" ;
+    rdfs:comment "The matter was withdrawn from a vote before a result was reached." .
+
+ma:Ballot
+    a               rdfs:Class ;
+    rdfs:label      "Ballot" ;
+    rdfs:comment    "One shareholder's individual ballot record within a ma:ShareholderVote. Linked to its vote via the REUSED dcterms:isPartOf (same part-of pattern packs/dogfood-lifecycle-pack/ontology.ttl uses for dfl:ToolEvent -> dfl:Session) and to the casting shareholder via the REUSED prov:wasAttributedTo (Entity -> Agent, the same property the bribery-case fixture uses for transaction -> contractor); no private party-linking property is minted for either edge." .
+
+ma:ballotDirection
+    a            rdf:Property ;
+    rdfs:label   "ballotDirection" ;
+    rdfs:domain  ma:Ballot ;
+    rdfs:range   ma:BallotDirection ;
+    rdfs:comment "How the ballot was cast, restricted to the closed 3-concept ma:BallotDirection scheme below." .
+
+ma:BallotDirection
+    a            rdfs:Class ;
+    rdfs:label   "BallotDirection" ;
+    rdfs:comment "Closed 3-concept direction vocabulary for one shareholder's ballot." .
+
+ma:For     a ma:BallotDirection ; rdfs:label "For" .
+ma:Against a ma:BallotDirection ; rdfs:label "Against" .
+ma:Abstain a ma:BallotDirection ; rdfs:label "Abstain" .
+
+# ── Concept 8: negotiated deal terms + counter-offer sequencing ─────────────
+
+ma:DealTermType
+    a            rdfs:Class ;
+    rdfs:label   "DealTermType" ;
+    rdfs:comment "Closed 4-concept vocabulary for the kind of a typed deal-term line item. No public term enumerates M&A deal-term kinds; fibo-fnd-agr-ctr:hasTerm was checked and rejected (it means contract DURATION, not a negotiated substantive term -- see this file's header false-friend disclosure)." .
+
+ma:PricePerShare     a ma:DealTermType ; rdfs:label "PricePerShare" .
+ma:ExchangeRatio     a ma:DealTermType ; rdfs:label "ExchangeRatio" .
+ma:Earnout           a ma:DealTermType ; rdfs:label "Earnout" .
+ma:EscrowPercentage  a ma:DealTermType ; rdfs:label "EscrowPercentage" .
+
+ma:DealTermLineItem
+    a               rdfs:Class ;
+    rdfs:subClassOf fibo-fnd-agr-ctr:NonBindingTerm ;
+    rdfs:label      "DealTermLineItem" ;
+    rdfs:comment    "One typed, valued line item within a fibo-fnd-agr-ctr:TermSheet (e.g. a specific price-per-share figure). fibo-fnd-agr-ctr:NonBindingTerm (Contracts.rdf:525) is the real, correctly-shaped container class; it has no typed sub-structure for price/ratio/earnout/escrow line items, which is the genuinely missing vocabulary." .
+
+ma:termType
+    a           rdf:Property ;
+    rdfs:label  "termType" ;
+    rdfs:domain ma:DealTermLineItem ;
+    rdfs:range  ma:DealTermType .
+
+ma:termValue
+    a           rdf:Property ;
+    rdfs:label  "termValue" ;
+    rdfs:domain ma:DealTermLineItem ;
+    rdfs:range  xsd:decimal ;
+    rdfs:comment "The line item's numeric value (a currency amount for PricePerShare/Earnout, a ratio for ExchangeRatio, a percentage for EscrowPercentage). No unit-of-measure vocabulary is minted; unit is implied by ma:termType, disclosed here rather than silently assumed." .
+
+ma:CounterOffer
+    a               rdfs:Class ;
+    rdfs:subClassOf fibo-fnd-agr-ctr:NonBindingTerm ;
+    rdfs:label      "CounterOffer" ;
+    rdfs:comment    "One move in an offer -> counter-offer -> counter-counter-offer negotiation sequence. fibo-fnd-agr-ctr:TermSheet/NonBindingTerm model the CONTENT of negotiated terms but no negotiation-move sequencing; ma:supersedes is the genuinely missing relation. The responding party is recorded via the REUSED prov:wasAttributedTo, not a private property." .
+
+ma:supersedes
+    a            rdf:Property ;
+    rdfs:label   "supersedes" ;
+    rdfs:domain  ma:CounterOffer ;
+    rdfs:range   fibo-fnd-agr-ctr:NonBindingTerm ;
+    rdfs:comment "Links a counter-offer to the prior offer or counter-offer it replaces, forming the negotiation chain. No public property models an offer-supersession relation across FIBO's Agreements/Contracts modules as checked this session." .
+
+# ── Concept 9: financing commitment + condition ─────────────────────────────
+
+ma:FinancingCommitment
+    a               rdfs:Class ;
+    rdfs:subClassOf fibo-fnd-agr-agr:Commitment ;
+    rdfs:label      "FinancingCommitment" ;
+    rdfs:comment    "A lender's commitment (e.g. a debt-commitment letter) to fund the acquisition. fibo-fnd-agr-agr:Commitment (FND/Agreements/Agreements.rdf:121) is real and correctly shaped generically ('promise made by some party to act or refrain from acting'); no FinancingCommitment/CommitmentLetter subclass was found across FIBO's LOAN, DER, or FBC/DebtAndEquities modules as checked this session -- minted narrowly for the M&A-specific pattern." .
+
+ma:FinancingOutCondition
+    a               rdfs:Class ;
+    rdfs:subClassOf fibo-fnd-agr-ctr:ConditionPrecedent ;
+    rdfs:label      "FinancingOutCondition" ;
+    rdfs:comment    "A condition precedent specifically tied to the availability of the financing commitment (a 'financing-out' or MAC-clause-style condition to closing). fibo-fnd-agr-ctr:ConditionPrecedent (Contracts.rdf:263) is real and generically shaped; the financing-specific subtype is not modeled publicly." .
+
+ma:subjectToCondition
+    a            rdf:Property ;
+    rdfs:label   "subjectToCondition" ;
+    rdfs:domain  ma:FinancingCommitment ;
+    rdfs:range   ma:FinancingOutCondition ;
+    rdfs:comment "Links a financing commitment to the condition precedent it is subject to. No 'commitment has condition precedent' property was found in FND/Agreements/Agreements.rdf or FND/Agreements/Contracts.rdf as checked this session (only hasObligation/isObligationOf and the Representation/Warranty/DisclosureProvision/TerminationProvision family were confirmed there)." .
+
+# ── Concept 10: deal closing / termination status ───────────────────────────
+
+ma:DealStatus
+    a               rdfs:Class ;
+    rdfs:subClassOf fibo-cae-ce-act:ActionStatus ;
+    rdfs:label      "DealStatus" ;
+    rdfs:comment    "Concrete closed disposition vocabulary for a fibo-cae-ce-act:MergerAcquisition instance's lifecycle position. fibo-cae-ce-act:ActionStatus (CorporateActions.rdf:161) is a real, correctly-shaped abstract class (subClassOf fibo-fnd-arr-lif:LifecycleStatus, restricted via cmns-cls:classifies someValuesFrom Action) but carries NO enumerated individuals anywhere in FND/Arrangements/Lifecycles.rdf or CAE/CorporateEvents/CorporateActions.rdf as read this session -- ma:DealStatus supplies exactly the 5 closed individuals a deal-desk case study needs. Linked to a MergerAcquisition instance via the REUSED cmns-cls:isClassifiedBy property (the inverse of cmns-cls:classifies, itself used in this same public ontology's own restriction pattern at CorporateActions.rdf:82); no private linking property is minted." .
+
+ma:Signed                  a ma:DealStatus ; rdfs:label "Signed" ;
+    rdfs:comment "Definitive agreement executed; conditions to closing not yet satisfied." .
+ma:PendingRegulatoryApproval a ma:DealStatus ; rdfs:label "PendingRegulatoryApproval" ;
+    rdfs:comment "Signed and awaiting clearance of a ma:RegulatoryFilingObligation's statutory waiting period." .
+ma:Closed                  a ma:DealStatus ; rdfs:label "Closed" ;
+    rdfs:comment "All conditions precedent satisfied and the transaction has closed (see fibo-fnd-dt-fd:hasClosingDateTime)." .
+ma:Terminated               a ma:DealStatus ; rdfs:label "Terminated" ;
+    rdfs:comment "Terminated per a fibo-fnd-agr-ctr:TerminationProvision or EarlyTerminationProvision before closing." .
+ma:Abandoned                 a ma:DealStatus ; rdfs:label "Abandoned" ;
+    rdfs:comment "Discontinued without formal invocation of a termination provision (e.g. mutual agreement to walk away, or expiration without extension)." .

@@ -1,0 +1,74 @@
+# target-org.ttl -- Corvantis Systems, Inc. (Target): independently admitted
+# TOGAF enterprise-architecture facts + Azure infrastructure facts. The
+# Target-side counterpart to acquirer-org.ttl -- see that file's header for
+# the shared design rationale (this is a SEPARATE, independently admitted
+# graph, not case.ttl's deal-level FIBO facts).
+#
+# Deliberately architecturally DIFFERENT from the Acquirer, not a palette
+# swap: Corvantis is a smaller industrial-automation software company still
+# running legacy on-prem SCADA integration alongside a newer cloud bridge --
+# a realistic asymmetry an M&A architecture-fusion merge has to reconcile,
+# not two identically-shaped orgs.
+#
+# Same FICTIONAL-ENTITY CONVENTION as acquirer-org.ttl / case.ttl: every
+# organization, capability, and resource identifier below is invented for
+# this fixture.
+
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix togaf:   <http://www.semanticweb.org/ontologies/2020/4/OntologyTOGAFContentMetamodel.owl#> .
+@prefix aztf:    <https://ggen.io/ontology/azure-terraform#> .
+
+# ── Root: the Target organization (F02 declared_subject) ───────────────────
+
+<https://target-corvantis.example.org/entity/corvantis-systems>
+    rdf:type org:Organization, prov:Agent ;
+    prov:wasDerivedFrom <https://intake.target-corvantis.example.org/ea-intake-1> ;
+    skos:notation "ENT-CORVANTIS" ;
+    dcterms:description "Corvantis Systems, Inc. -- fictional industrial-automation software company, Target in deal MHC-2026-0091." .
+
+# ── TOGAF enterprise-architecture capabilities (blank nodes + skos:notation,
+#    distinct notation values and distinct blank-node labels from
+#    acquirer-org.ttl -- the happy-path merge has no locally-scoped
+#    identifier collision) ───────────────────────────────────────────────────
+
+_:capIndustrialAutomationPlatformTarget
+    rdf:type togaf:Capability ;
+    skos:notation "CAP-INDUSTRIAL-AUTOMATION-PLATFORM" ;
+    dcterms:description "Core industrial-automation product platform (Corvantis's primary revenue-generating capability)." ;
+    prov:wasAttributedTo <https://target-corvantis.example.org/entity/corvantis-systems> .
+
+_:capOnPremScadaIntegrationTarget
+    rdf:type togaf:Capability ;
+    skos:notation "CAP-ONPREM-SCADA-INTEGRATION" ;
+    dcterms:description "Legacy on-premises SCADA integration layer, not yet migrated to the cloud." ;
+    prov:wasAttributedTo <https://target-corvantis.example.org/entity/corvantis-systems> .
+
+_:capLegacyErpIntegrationTarget
+    rdf:type togaf:Capability ;
+    skos:notation "CAP-LEGACY-ERP-INTEGRATION" ;
+    dcterms:description "Point-to-point integration with a legacy on-premises ERP system." ;
+    prov:wasAttributedTo <https://target-corvantis.example.org/entity/corvantis-systems> .
+
+# ── Azure infrastructure (packs/azure-terraform-pack/ontology.ttl's aztf:
+#    vocabulary, org-scoped IRIs under the Target's own base -- does NOT
+#    collide with acquirer-org.ttl's resource IRIs) ─────────────────────────
+
+<https://target-corvantis.example.org/azure/container-group/scada-bridge>
+    rdf:type aztf:ContainerGroup ;
+    aztf:osType "Linux" ;
+    aztf:restartPolicy "OnFailure" ;
+    aztf:ipAddressType "Private" ;
+    aztf:hasContainer <https://target-corvantis.example.org/azure/container/scada-bridge-runtime> .
+
+<https://target-corvantis.example.org/azure/container/scada-bridge-runtime>
+    rdf:type aztf:Container ;
+    aztf:containerOrder 0 ;
+    aztf:containerName "corvantis-scada-bridge-runtime" ;
+    aztf:cpuCores 4.0 ;
+    aztf:memoryGb 8.0 ;
+    aztf:command "/app/corvantis-scada-bridge" .

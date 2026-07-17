@@ -1,0 +1,165 @@
+# target-org-shapes.ttl -- Target's OWN copy of the shared TOGAF/Azure
+# enterprise-architecture SHACL profile used by F02 gate 4 (Shape Validator)
+# for target-org.ttl / target-org-colliding.ttl.
+#
+# Byte-identical to acquirer-org-shapes.ttl (both organizations independently
+# adopted the same public-vocabulary shape profile) -- kept as TWO separate
+# files rather than one shared constant so crates/multifractal-workflow's
+# F02 admission for each org genuinely validates against its OWN copy (per
+# BOOTSTRAP_COLD_START_LIMITATIONS.md item 14: "each graph was validated
+# under its own shapes"), not a single object both orgs alias. This is a
+# disclosed simplification of item 14's harder case (two orgs whose shapes
+# GENUINELY DIFFER for the same target class): this fixture pair does not
+# exercise that harder case, only the identifier-collision and
+# receipt-chain-relation parts of item 14 -- see
+# crates/multifractal-workflow/src/f31_org_merge.rs's module doc for what
+# is and is not proven.
+#
+# NOT a byte copy of packs/azure-terraform-pack/shapes.ttl: that pack's
+# ContainerShape requires aztf:hasEvidence citing real Rust source-code
+# file:line pairs grounding a specific deployment (crown-bribery-case's own
+# runtime) -- a provenance discipline that does not apply to an
+# enterprise-architecture / M&A due-diligence description with no source
+# code to cite. This shape reuses aztf:'s vocabulary (classes/properties)
+# but drops the hasEvidence requirement rather than fabricate a citation.
+# Adds two new NodeShapes (OrganizationShape, CapabilityShape) over the
+# PUBLIC org:/togaf: vocabulary this pack does not own -- left OPEN
+# (no sh:closed), matching packs/togaf-adm-pack/ontology.ttl's own
+# public-ontology-first doctrine of not closing shapes over vocabulary this
+# pack does not mint.
+
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix togaf:   <http://www.semanticweb.org/ontologies/2020/4/OntologyTOGAFContentMetamodel.owl#> .
+@prefix aztf:    <https://ggen.io/ontology/azure-terraform#> .
+@prefix maorg:   <https://ggen.io/ontology/ma-org-merge#> .
+
+# ── OPEN shapes over reused public vocabulary ───────────────────────────────
+
+maorg:OrganizationShape
+    a sh:NodeShape ;
+    sh:targetClass org:Organization ;
+    sh:property [
+        sh:path     skos:notation ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message  "An org:Organization must carry exactly one skos:notation handle." ;
+    ] ;
+    sh:property [
+        sh:path     dcterms:description ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message  "An org:Organization must carry at least one dcterms:description." ;
+    ] .
+
+maorg:CapabilityShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:Capability ;
+    sh:property [
+        sh:path     skos:notation ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message  "A togaf:Capability must carry exactly one skos:notation handle." ;
+    ] ;
+    sh:property [
+        sh:path     dcterms:description ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message  "A togaf:Capability must carry at least one dcterms:description." ;
+    ] ;
+    sh:property [
+        sh:path     prov:wasAttributedTo ;
+        sh:minCount 1 ;
+        sh:class    org:Organization ;
+        sh:message  "A togaf:Capability must be prov:wasAttributedTo an org:Organization." ;
+    ] .
+
+# ── CLOSED shapes reusing packs/azure-terraform-pack/ontology.ttl's
+#    pack-owned aztf: classes (hasEvidence deliberately not required --
+#    see this file's header) ──────────────────────────────────────────────
+
+maorg:ContainerGroupShape
+    a sh:NodeShape ;
+    sh:targetClass aztf:ContainerGroup ;
+    sh:closed true ;
+    sh:ignoredProperties ( rdf:type ) ;
+    sh:property [
+        sh:path     aztf:osType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in       ( "Linux" "Windows" ) ;
+        sh:message  "A ContainerGroup must carry exactly one aztf:osType." ;
+    ] ;
+    sh:property [
+        sh:path     aztf:restartPolicy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in       ( "Always" "Never" "OnFailure" ) ;
+        sh:message  "A ContainerGroup must carry exactly one aztf:restartPolicy." ;
+    ] ;
+    sh:property [
+        sh:path     aztf:ipAddressType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in       ( "Public" "Private" "None" ) ;
+        sh:message  "A ContainerGroup must carry exactly one aztf:ipAddressType." ;
+    ] ;
+    sh:property [
+        sh:path     aztf:hasContainer ;
+        sh:minCount 1 ;
+        sh:class    aztf:Container ;
+        sh:message  "A ContainerGroup must have at least one aztf:hasContainer member." ;
+    ] .
+
+maorg:ContainerShape
+    a sh:NodeShape ;
+    sh:targetClass aztf:Container ;
+    sh:closed true ;
+    sh:ignoredProperties ( rdf:type ) ;
+    sh:property [
+        sh:path     aztf:containerOrder ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message  "A Container must carry exactly one aztf:containerOrder." ;
+    ] ;
+    sh:property [
+        sh:path     aztf:containerName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message  "A Container must carry exactly one aztf:containerName." ;
+    ] ;
+    sh:property [
+        sh:path         aztf:cpuCores ;
+        sh:minCount     1 ;
+        sh:maxCount     1 ;
+        sh:datatype     xsd:decimal ;
+        sh:minExclusive 0 ;
+        sh:message      "A Container must carry exactly one aztf:cpuCores > 0." ;
+    ] ;
+    sh:property [
+        sh:path         aztf:memoryGb ;
+        sh:minCount     1 ;
+        sh:maxCount     1 ;
+        sh:datatype     xsd:decimal ;
+        sh:minExclusive 0 ;
+        sh:message      "A Container must carry exactly one aztf:memoryGb > 0." ;
+    ] ;
+    sh:property [
+        sh:path     aztf:command ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message  "A Container must carry exactly one aztf:command." ;
+    ] .
