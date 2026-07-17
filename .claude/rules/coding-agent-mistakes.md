@@ -1,5 +1,5 @@
 ---
-version: 26.7.3
+version: 26.7.4
 last_updated: 2026-07-17
 gate: mandatory — read before every agent dispatch
 ---
@@ -20,6 +20,13 @@ gate: mandatory — read before every agent dispatch
 2. **Epistemic Bypass** — logic that should come from the RDF ontology/SPARQL
    query is hardcoded inline instead (the code "knows" something it should
    only "ask" `.specify/*.ttl` for).
+   **Reviewed exception:** `resolve_capability_to_packs`
+   (`crates/ggen-marketplace/src/packs_registry/capability_registry.rs:23-61`) is a hardcoded
+   7-arm `match` (`mcp`/`compliance-soc2`/`web`/`devops`/`data-science`/`startup`/`enterprise`)
+   from capability surface to pack ID, not an RDF/SPARQL lookup. This is legitimate, not
+   Epistemic Bypass: the mapping is a small, closed, human-curated marketplace taxonomy, not a
+   derived fact that should come from the ontology — see v26.7.17 plan item F. Not a template
+   for new capability logic; a genuinely-derived mapping still belongs in RDF/SPARQL.
 3. **Fail-Open Behavior** — a missing required resource or violated
    constraint is logged as a warning instead of returning `Err(...)`.
 4. **Legacy Path Contamination** — a new authoritative path was built, but
