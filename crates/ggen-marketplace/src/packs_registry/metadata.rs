@@ -1,7 +1,7 @@
 //! Pack metadata loading and management
 
-use crate::packs_registry::types::{Pack, PackFile};
 use crate::marketplace::error::Result;
+use crate::packs_registry::types::{Pack, PackFile};
 use std::fs;
 use std::path::PathBuf;
 
@@ -61,7 +61,10 @@ pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
 
     let content = fs::read_to_string(&pack_path)?;
     let pack_file: PackFile = toml::from_str(&content).map_err(|e| {
-        crate::marketplace::error::Error::Other(format!("Failed to parse pack '{}': {}", pack_id, e))
+        crate::marketplace::error::Error::Other(format!(
+            "Failed to parse pack '{}': {}",
+            pack_id, e
+        ))
     })?;
 
     Ok(pack_file.pack)

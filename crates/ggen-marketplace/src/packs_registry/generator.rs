@@ -1,7 +1,7 @@
 //! Pack template generation logic
 
-use crate::packs_registry::metadata::load_pack_metadata;
 use crate::marketplace::error::Result;
+use crate::packs_registry::metadata::load_pack_metadata;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::PathBuf;

@@ -1,8 +1,8 @@
 //! Pack composition logic for combining multiple packs
 
+use crate::marketplace::error::Result;
 use crate::packs_registry::metadata::load_pack_metadata;
 use crate::packs_registry::types::{CompositionStrategy, Pack};
-use crate::marketplace::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
@@ -129,7 +129,9 @@ fn resolve_dependencies(packs: &[Pack]) -> Result<Vec<Pack>> {
 /// Merge packs by combining all packages and templates
 fn merge_packs(packs: &[Pack]) -> Result<Pack> {
     if packs.is_empty() {
-        return Err(crate::marketplace::error::Error::Other("No packs to merge".to_string()));
+        return Err(crate::marketplace::error::Error::Other(
+            "No packs to merge".to_string(),
+        ));
     }
 
     let first = &packs[0];

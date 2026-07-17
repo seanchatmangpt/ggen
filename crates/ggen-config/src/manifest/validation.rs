@@ -536,7 +536,9 @@ rules = []
         // without going through the ManifestValidator wrapper.
         let manifest = create_test_manifest();
         assert!(manifest.validate_paths(Path::new(".")).is_ok());
-        assert!(manifest.validate_paths(Path::new("/nonexistent/path")).is_err());
+        assert!(manifest
+            .validate_paths(Path::new("/nonexistent/path"))
+            .is_err());
     }
 
     #[test]

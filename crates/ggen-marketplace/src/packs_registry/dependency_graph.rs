@@ -5,8 +5,8 @@
 //! - Topological sorting for install order
 //! - Conflict detection
 
-use crate::packs_registry::types::Pack;
 use crate::marketplace::error::{Error, Result};
+use crate::packs_registry::types::Pack;
 use std::collections::{HashMap, HashSet, VecDeque};
 
 /// Dependency graph for resolving pack installation order

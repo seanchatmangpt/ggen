@@ -39,7 +39,9 @@ impl CliLayerGenerator {
             GgenError::InvalidInput("CLI crate name is required but was not provided".to_string())
         })?;
         let core_crate = project.domain_crate.as_ref().ok_or_else(|| {
-            GgenError::InvalidInput("Domain crate name is required but was not provided".to_string())
+            GgenError::InvalidInput(
+                "Domain crate name is required but was not provided".to_string(),
+            )
         })?;
         let cli_dir = output_dir.join("crates").join(cli_crate);
         let cli_src = cli_dir.join("src");
@@ -144,7 +146,9 @@ impl CliLayerGenerator {
 
         // Extract domain function path
         let core_crate_name = project.domain_crate.as_ref().ok_or_else(|| {
-            GgenError::InvalidInput("Domain crate name is required but was not provided".to_string())
+            GgenError::InvalidInput(
+                "Domain crate name is required but was not provided".to_string(),
+            )
         })?;
         let domain_function = verb.domain_function.clone().unwrap_or_else(|| {
             // Default: core_crate::noun::verb

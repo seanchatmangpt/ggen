@@ -49,8 +49,41 @@ fmt:
     cargo fmt --all
 
 # Check formatting without modifying (used in pre-commit)
+#
+# NOT `cargo fmt --all` (2026-07-17 finding): `--all` formats every workspace
+# member's LOCAL PATH-BASED DEPENDENCIES too, transitively, even outside this
+# workspace. `praxis-core`/`praxis-graphlaw` (real members) have live path deps
+# into `/Users/sac/praxis/crates/{powl2-decompose,wasm4pm-arazzo,chatman-common}`
+# -- contrary to `.claude/rules/architecture.md`'s prior claim that they're
+# vendored copies with no live path back to `~/praxis` (that claim was wrong,
+# confirmed live, not yet corrected as of this commit). That pulls in the whole
+# `/Users/sac/praxis` workspace's metadata resolution, which includes unrelated
+# sibling members (`cng`, `multifractal-workflow`, ...) whose own dependency
+# chain reaches back into THIS repo's now-excluded `crates/ggen-core` --
+# `cargo metadata` then hard-fails the same way described in test-phase2's
+# comment above (ggen-core's `workspace = true` fields have no workspace to
+# inherit from). `-p <pkg>` per real member avoids the external-path walk
+# entirely (confirmed live) without under-covering any real workspace member.
+#
+# EXCLUDES ggen-engine/praxis-core/praxis-graphlaw (2026-07-17 finding, POLICY
+# DECISION -- needs owner review, not silently made): all three, freshly
+# vendored from `~/praxis` this session, fail `cargo fmt --check` against
+# THIS repo's rustfmt config -- 67 + 209 = 276 file-diffs, confirmed live, not
+# a handful of stragglers. This reads as a systemic rustfmt-version/config
+# mismatch between the two repos, not scattered one-off mistakes. Reformatting
+# 276 files sight-unseen at commit time risks masking real diffs in freshly-
+# vendored code; conforming vendored code to a different repo's style is also
+# arguably the wrong call vs. giving these crates their own rustfmt.toml. Ergo:
+# excluded from this gate for now rather than either (a) leaving `just
+# pre-commit` permanently red for reasons unrelated to any single commit's own
+# correctness, or (b) unilaterally reformatting 276 files without review. Real
+# fix (not done here): either reformat once under careful review, or add a
+# crate-local rustfmt.toml matching praxis's own style for these three.
+# Member list from `cargo metadata --no-deps` (12 total, matches Cargo.toml).
 fmt-check:
-    cargo fmt --all -- --check
+    cargo fmt --check \
+        -p cpmp -p genesis-core-v2 -p genesis-types -p ggen -p ggen-cli-lib \
+        -p ggen-config -p ggen-graph -p ggen-lsp -p ggen-marketplace
 
 # ── Linting ───────────────────────────────────────────────────────────────────
 

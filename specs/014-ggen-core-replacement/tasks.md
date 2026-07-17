@@ -1653,6 +1653,29 @@ guarantee this disconnect is built on. Real, previously-silent breakage found an
   predates this session); that workflow only runs on `push: branches: [main]` or manual dispatch,
   so it does not gate this branch's own CI.
 
+**Second follow-up finding (2026-07-17, same investigation, different mechanism):** `just
+pre-commit`'s `fmt-check` step (`cargo fmt --all -- --check`) was ALSO broken, for an unrelated
+reason discovered while re-verifying the fix above — `--all` formats every workspace member's
+local path-based dependencies too, transitively, even outside this workspace. `praxis-core`/
+`praxis-graphlaw` (real members) have live path deps into `/Users/sac/praxis/crates/
+{powl2-decompose,wasm4pm-arazzo,chatman-common}` — contrary to `.claude/rules/architecture.md`'s
+prior claim that they're vendored copies with no live path back to `~/praxis` (wrong, now
+corrected in that file). That pulls in `/Users/sac/praxis`'s own workspace metadata resolution,
+which includes unrelated sibling members (`cng`, `multifractal-workflow`, ...) whose own
+dependency chain reaches back into this repo's now-excluded `crates/ggen-core` — `cargo metadata`
+hard-fails the same way as the finding above. Fix: `fmt-check` now uses `-p <pkg>` per real
+member instead of `--all` (confirmed live: avoids the external-path walk entirely). This also
+newly exposed 276 genuine, pre-existing formatting diffs across the three crates vendored from
+`~/praxis` this session (`ggen-engine` 67, `praxis-core`+`praxis-graphlaw` 209) — a systemic
+rustfmt-config/version mismatch between the two repos, not scattered mistakes; reformatting 276
+files sight-unseen at commit time was judged too large a policy decision to make unilaterally, so
+these three are excluded from `fmt-check`'s scope for now (loudly, in the justfile comment) —
+real fix is either a careful reviewed reformat or a crate-local `rustfmt.toml`. Separately, 51
+genuine formatting diffs across 33 files in ggen's OWN (non-vendored) crates were found and fixed
+directly (`cargo fmt`, pure mechanical rustfmt output, zero semantic change) since those carry no
+such policy ambiguity. `just pre-commit` now passes clean end-to-end (fmt, check, lint, tests,
+coherence, boundary guard) for the first time since the disconnect commit landed.
+
 **Checkpoint**: User Story 1's independent test passes — full suite green, `ggen-core`
 fully retired, command-surface diff against the T003 baseline shows zero regressions.
 

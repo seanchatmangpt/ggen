@@ -67,9 +67,7 @@ pub enum A2aError {
 impl From<A2aError> for ConfigError {
     fn from(err: A2aError) -> Self {
         match err {
-            A2aError::Connection(msg) => {
-                ConfigError::Other(format!("Network error: {msg}"))
-            }
+            A2aError::Connection(msg) => ConfigError::Other(format!("Network error: {msg}")),
             A2aError::Authentication(msg) => ConfigError::Validation(msg),
             A2aError::AgentNotFound(msg) => {
                 ConfigError::FileNotFound(std::path::PathBuf::from(msg))
@@ -128,15 +126,11 @@ pub enum McpError {
 impl From<McpError> for ConfigError {
     fn from(err: McpError) -> Self {
         match err {
-            McpError::ServerConnection(msg) => {
-                ConfigError::Other(format!("Network error: {msg}"))
-            }
+            McpError::ServerConnection(msg) => ConfigError::Other(format!("Network error: {msg}")),
             McpError::ServerNotFound(msg) => {
                 ConfigError::FileNotFound(std::path::PathBuf::from(msg))
             }
-            McpError::ToolNotFound(msg) => {
-                ConfigError::FileNotFound(std::path::PathBuf::from(msg))
-            }
+            McpError::ToolNotFound(msg) => ConfigError::FileNotFound(std::path::PathBuf::from(msg)),
             McpError::RequestFailed(msg) => ConfigError::Other(format!("Request failed: {msg}")),
             McpError::ResponseParse(msg) => {
                 ConfigError::Other(format!("Response parsing failed: {msg}"))
@@ -181,12 +175,8 @@ pub enum AgentError {
 impl From<AgentError> for ConfigError {
     fn from(err: AgentError) -> Self {
         match err {
-            AgentError::StartupFailed(msg) => {
-                ConfigError::Other(format!("Invalid state: {msg}"))
-            }
-            AgentError::ShutdownFailed(msg) => {
-                ConfigError::Other(format!("Invalid state: {msg}"))
-            }
+            AgentError::StartupFailed(msg) => ConfigError::Other(format!("Invalid state: {msg}")),
+            AgentError::ShutdownFailed(msg) => ConfigError::Other(format!("Invalid state: {msg}")),
             AgentError::CommunicationFailed(msg) => {
                 ConfigError::Other(format!("Network error: {msg}"))
             }

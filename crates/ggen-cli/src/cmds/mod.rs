@@ -74,17 +74,17 @@ pub mod init;
 pub mod a2a;
 pub mod agent; // AGI-facing lifecycle surface (`ggen agent <verb>`) over crate::agent::PackAgent (ported from ggen_core, T041)
 pub mod capability; // capability surfaces → atomic packs (`ggen capability enable/list/inspect`)
-// ARCHIVED (v26.7.16 routing flip): replaced by ggen-engine's `doctor` noun
-// (verb `run`). Same root-flat-verb-vs-noun collision as `sync` above. File
-// retained on disk at cmds/doctor.rs, not deleted, per this project's
-// fix-forward doctrine.
-// pub mod doctor;
+                    // ARCHIVED (v26.7.16 routing flip): replaced by ggen-engine's `doctor` noun
+                    // (verb `run`). Same root-flat-verb-vs-noun collision as `sync` above. File
+                    // retained on disk at cmds/doctor.rs, not deleted, per this project's
+                    // fix-forward doctrine.
+                    // pub mod doctor;
 #[cfg(feature = "experimental")]
 pub mod framework; // Framework bridge commands (LangChain, etc.)
-// ARCHIVED (v26.7.16 routing flip): replaced by ggen-engine's `graph` noun
-// (verb `validate`). File retained on disk at cmds/graph.rs, not deleted,
-// per this project's fix-forward doctrine.
-// pub mod graph;
+                   // ARCHIVED (v26.7.16 routing flip): replaced by ggen-engine's `graph` noun
+                   // (verb `validate`). File retained on disk at cmds/graph.rs, not deleted,
+                   // per this project's fix-forward doctrine.
+                   // pub mod graph;
 #[cfg(feature = "lsp")]
 pub mod lsp; // ggen lsp noun (start/check/init/serve/mine/metrics/replay/field-status/emit_pack/verify_pack) — opt-in: --features lsp
 #[cfg(feature = "experimental")]

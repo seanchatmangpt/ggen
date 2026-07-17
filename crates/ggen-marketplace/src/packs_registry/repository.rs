@@ -3,8 +3,8 @@
 //! This module provides abstraction for pack storage and retrieval,
 //! allowing multiple backends (filesystem, remote registry, etc.)
 
-use crate::packs_registry::types::Pack;
 use crate::marketplace::error::{Error, Result};
+use crate::packs_registry::types::Pack;
 use async_trait::async_trait;
 use std::path::PathBuf;
 
@@ -87,7 +87,8 @@ impl FileSystemRepository {
         // Prevent path traversal
         if pack_id.contains("..") || pack_id.contains('/') || pack_id.contains('\\') {
             return Err(Error::Other(
-                "Invalid pack ID: must not contain path separators or traversal sequences".to_string(),
+                "Invalid pack ID: must not contain path separators or traversal sequences"
+                    .to_string(),
             ));
         }
 
@@ -146,12 +147,12 @@ impl PackRepository for FileSystemRepository {
                 })?;
                 let pack_file = toml::from_str::<crate::packs_registry::types::PackFile>(&content)
                     .map_err(|e| {
-                    crate::marketplace::error::Error::Other(format!(
-                        "Failed to parse pack {}: {}",
-                        path.display(),
-                        e
-                    ))
-                })?;
+                        crate::marketplace::error::Error::Other(format!(
+                            "Failed to parse pack {}: {}",
+                            path.display(),
+                            e
+                        ))
+                    })?;
                 let pack = pack_file.pack;
                 if let Some(cat) = category {
                     if pack.category == cat {

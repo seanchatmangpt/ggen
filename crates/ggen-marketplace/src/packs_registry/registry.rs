@@ -2,9 +2,9 @@
 //!
 //! This module provides a registry interface for pack publishing, search, and version management.
 
+use crate::marketplace::error::{Error, Result};
 use crate::packs_registry::repository::PackRepository;
 use crate::packs_registry::types::Pack;
-use crate::marketplace::error::{Error, Result};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

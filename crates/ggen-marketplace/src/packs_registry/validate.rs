@@ -1,7 +1,7 @@
 //! Pack validation logic
 
-use crate::packs_registry::metadata::load_pack_metadata;
 use crate::marketplace::error::Result;
+use crate::packs_registry::metadata::load_pack_metadata;
 use serde::{Deserialize, Serialize};
 
 /// Validation result

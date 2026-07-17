@@ -1630,9 +1630,11 @@ async fn unpack_external_pack(
     let mut archive = Archive::new(tar);
 
     // Extract to the install path
-    archive.unpack(install_path).map_err(|e| Error::InstallationFailed {
-        reason: format!("Failed to unpack artifact: {}", e),
-    })?;
+    archive
+        .unpack(install_path)
+        .map_err(|e| Error::InstallationFailed {
+            reason: format!("Failed to unpack artifact: {}", e),
+        })?;
 
     // Generate package.toml for compatibility
     let package_toml_path = install_path.join("package.toml");

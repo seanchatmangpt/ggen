@@ -36,7 +36,9 @@ impl DomainLayerGenerator {
     /// - Domain modules ({domain}/mod.rs, {domain}/{verb}.rs)
     pub fn generate(&self, project: &CliProject, output_dir: &Path) -> Result<()> {
         let core_crate = project.domain_crate.as_ref().ok_or_else(|| {
-            GgenError::InvalidInput("domain_crate is required for domain layer generation".to_string())
+            GgenError::InvalidInput(
+                "domain_crate is required for domain layer generation".to_string(),
+            )
         })?;
         let core_dir = output_dir.join("crates").join(core_crate);
         let core_src = core_dir.join("src");

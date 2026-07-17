@@ -33,9 +33,7 @@ use crate::agent::types::{
 };
 use crate::marketplace::install::{install_pack_by_id, InstallByIdInput};
 use crate::packs::lockfile::PackLockfile;
-use crate::packs_registry::capability_registry::{
-    list_capabilities, resolve_capability_to_packs,
-};
+use crate::packs_registry::capability_registry::{list_capabilities, resolve_capability_to_packs};
 use crate::packs_registry::check_packs_compatibility;
 use crate::packs_registry::metadata::{list_packs, load_pack_metadata, show_pack};
 use crate::packs_registry::types::Pack;

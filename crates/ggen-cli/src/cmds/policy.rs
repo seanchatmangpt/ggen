@@ -99,15 +99,15 @@ fn load_pack_contexts_from_project() -> crate::Result<Vec<PackContext>> {
         ));
     }
 
-    let lockfile = PackLockfile::from_file(lockfile_path).map_err(|e| {
-        crate::utils::error::Error::new(&format!("Failed to load lockfile: {}", e))
-    })?;
+    let lockfile = PackLockfile::from_file(lockfile_path)
+        .map_err(|e| crate::utils::error::Error::new(&format!("Failed to load lockfile: {}", e)))?;
 
     let mut pack_contexts = Vec::new();
     for (pack_id, locked_pack) in &lockfile.packs {
-        let package_id = ggen_marketplace::marketplace::models::PackageId::new(pack_id).map_err(|e| {
-            crate::utils::error::Error::new(&format!("Invalid package ID {}: {}", pack_id, e))
-        })?;
+        let package_id =
+            ggen_marketplace::marketplace::models::PackageId::new(pack_id).map_err(|e| {
+                crate::utils::error::Error::new(&format!("Invalid package ID {}: {}", pack_id, e))
+            })?;
 
         let cache_dir = get_pack_cache_dir(&package_id, &locked_pack.version);
 
@@ -212,9 +212,10 @@ pub fn list(verbose: bool) -> VerbResult<ListOutput> {
 #[verb]
 pub fn validate(profile: String) -> VerbResult<ValidateOutput> {
     // Get the profile
-    let profile_obj = ggen_marketplace::marketplace::profile::get_profile(&profile).map_err(|e| {
-        clap_noun_verb::NounVerbError::argument_error(format!("Profile not found: {}", e))
-    })?;
+    let profile_obj =
+        ggen_marketplace::marketplace::profile::get_profile(&profile).map_err(|e| {
+            clap_noun_verb::NounVerbError::argument_error(format!("Profile not found: {}", e))
+        })?;
 
     // Load pack contexts from project
     let pack_contexts = load_pack_contexts_from_project()
@@ -258,9 +259,10 @@ pub fn validate(profile: String) -> VerbResult<ValidateOutput> {
 /// Show detailed profile information
 #[verb]
 pub fn show(profile_id: String) -> VerbResult<ShowOutput> {
-    let profile = ggen_marketplace::marketplace::profile::get_profile(&profile_id).map_err(|e| {
-        clap_noun_verb::NounVerbError::argument_error(format!("Profile not found: {}", e))
-    })?;
+    let profile =
+        ggen_marketplace::marketplace::profile::get_profile(&profile_id).map_err(|e| {
+            clap_noun_verb::NounVerbError::argument_error(format!("Profile not found: {}", e))
+        })?;
 
     log::info!("Profile: {} ({})", profile.id.as_str(), profile.name);
     log::info!("Description: {}", profile.description);
@@ -319,8 +321,8 @@ pub fn show(profile_id: String) -> VerbResult<ShowOutput> {
 #[verb]
 pub fn check() -> VerbResult<ValidateOutput> {
     // Use Production as the default profile
-    let profile_obj =
-        ggen_marketplace::marketplace::profile::get_profile("enterprise-strict").map_err(|e| {
+    let profile_obj = ggen_marketplace::marketplace::profile::get_profile("enterprise-strict")
+        .map_err(|e| {
             clap_noun_verb::NounVerbError::argument_error(format!(
                 "Default profile not found: {}",
                 e

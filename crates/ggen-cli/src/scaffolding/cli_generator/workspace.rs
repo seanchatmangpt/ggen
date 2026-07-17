@@ -185,10 +185,7 @@ impl WorkspaceGenerator {
         let workspace_cargo = output_dir.join("Cargo.toml");
         self.render_template(WORKSPACE_CARGO_TEMPLATE, &context, &workspace_cargo)
             .map_err(|e| {
-                GgenError::TemplateError(format!(
-                    "Failed to generate workspace Cargo.toml: {}",
-                    e
-                ))
+                GgenError::TemplateError(format!("Failed to generate workspace Cargo.toml: {}", e))
             })?;
 
         // Create crates directory
@@ -217,11 +214,7 @@ impl WorkspaceGenerator {
         }
 
         std::fs::write(output, content).map_err(|e| {
-            GgenError::FileError(format!(
-                "Failed to write file: {}: {}",
-                output.display(),
-                e
-            ))
+            GgenError::FileError(format!("Failed to write file: {}: {}", output.display(), e))
         })?;
 
         Ok(())

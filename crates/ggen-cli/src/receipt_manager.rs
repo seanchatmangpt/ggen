@@ -3,9 +3,9 @@
 //! This module provides utilities for generating cryptographic receipts
 //! after CLI operations like pack installation.
 
+use crate::utils::error::Result;
 use ed25519_dalek::{SigningKey, VerifyingKey};
 use ggen_config::receipt::{hash_data, Receipt};
-use crate::utils::error::Result;
 use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
@@ -222,8 +222,9 @@ impl ReceiptManager {
         let verifying_key = self.read_verifying_key(&public_key_path)?;
 
         // Read receipt file
-        let receipt_content = fs::read_to_string(receipt_path)
-            .map_err(|e| crate::utils::error::Error::new(&format!("Failed to read receipt: {}", e)))?;
+        let receipt_content = fs::read_to_string(receipt_path).map_err(|e| {
+            crate::utils::error::Error::new(&format!("Failed to read receipt: {}", e))
+        })?;
 
         // Parse receipt
         let receipt: Receipt = serde_json::from_str(&receipt_content).map_err(|e| {

@@ -880,9 +880,8 @@ pub fn write_mcp_config(path: &Path, config: &McpConfigFile) -> Result<()> {
         })?;
     }
 
-    let content = serde_json::to_string_pretty(config).map_err(|e| {
-        ConfigError::Validation(format!("Failed to serialize MCP config: {}", e))
-    })?;
+    let content = serde_json::to_string_pretty(config)
+        .map_err(|e| ConfigError::Validation(format!("Failed to serialize MCP config: {}", e)))?;
 
     fs::write(path, content).map_err(|e| {
         ConfigError::Validation(format!(
@@ -912,9 +911,8 @@ pub fn write_a2a_config(path: &Path, config: &A2aConfig) -> Result<()> {
         })?;
     }
 
-    let content = toml::to_string_pretty(config).map_err(|e| {
-        ConfigError::Validation(format!("Failed to serialize A2A config: {}", e))
-    })?;
+    let content = toml::to_string_pretty(config)
+        .map_err(|e| ConfigError::Validation(format!("Failed to serialize A2A config: {}", e)))?;
 
     fs::write(path, content).map_err(|e| {
         ConfigError::Validation(format!(
@@ -1034,9 +1032,10 @@ pub fn get_server_status(project_dir: Option<&Path>) -> Result<ServerStatus> {
         ))
     })?;
 
-    let pid: u32 = pid_str.trim().parse().map_err(|_| {
-        ConfigError::Validation(format!("Invalid PID in file: {}", pid_str))
-    })?;
+    let pid: u32 = pid_str
+        .trim()
+        .parse()
+        .map_err(|_| ConfigError::Validation(format!("Invalid PID in file: {}", pid_str)))?;
 
     // Check if process is running
     let is_running = is_process_running(pid);
@@ -1180,9 +1179,7 @@ fn terminate_process(pid: u32, force: bool) -> Result<()> {
         .arg(format!("-{}", signal))
         .arg(pid.to_string())
         .output()
-        .map_err(|e| {
-            ConfigError::Validation(format!("Failed to terminate process: {}", e))
-        })?;
+        .map_err(|e| ConfigError::Validation(format!("Failed to terminate process: {}", e)))?;
 
     if !output.status.success() {
         return Err(ConfigError::Validation(format!(

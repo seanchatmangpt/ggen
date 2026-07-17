@@ -191,7 +191,9 @@ impl GitInitializer {
             .arg("init")?
             .current_dir(path)?
             .execute()
-            .map_err(|e| GgenError::ExternalServiceError(format!("Failed to run git init: {}", e)))?;
+            .map_err(|e| {
+                GgenError::ExternalServiceError(format!("Failed to run git init: {}", e))
+            })?;
 
         if !output.status.success() {
             return Err(GgenError::ExternalServiceError(format!(

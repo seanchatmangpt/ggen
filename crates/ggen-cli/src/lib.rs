@@ -203,9 +203,9 @@ pub async fn cli_match() -> crate::utils::error::Result<()> {
     let registry = registry_mutex.lock().map_err(|e| {
         crate::utils::error::Error::new(&format!("Failed to lock CLI registry: {}", e))
     })?;
-    registry.run(args).map_err(|e| {
-        crate::utils::error::Error::new(&format!("CLI execution failed: {}", e))
-    })?;
+    registry
+        .run(args)
+        .map_err(|e| crate::utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
     Ok(())
 }
 
@@ -255,7 +255,10 @@ mod inject_default_verbs_tests {
 
     #[test]
     fn bare_sync_gets_default_verb_run() {
-        assert_eq!(inject_default_verbs(v(&["ggen", "sync"])), v(&["ggen", "sync", "run"]));
+        assert_eq!(
+            inject_default_verbs(v(&["ggen", "sync"])),
+            v(&["ggen", "sync", "run"])
+        );
     }
 
     #[test]
@@ -310,7 +313,10 @@ mod inject_default_verbs_tests {
 
     #[test]
     fn graph_has_no_default_verb_mapping_and_is_untouched() {
-        assert_eq!(inject_default_verbs(v(&["ggen", "graph"])), v(&["ggen", "graph"]));
+        assert_eq!(
+            inject_default_verbs(v(&["ggen", "graph"])),
+            v(&["ggen", "graph"])
+        );
     }
 }
 

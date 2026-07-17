@@ -104,10 +104,7 @@ impl ExternalRegistryFetcher for CratesIoFetcher {
         })?;
 
         let response = self.client.get(url).send().await.map_err(|e| {
-            Error::Other(format!(
-                "Failed to download artifact from crates.io: {}",
-                e
-            ))
+            Error::Other(format!("Failed to download artifact from crates.io: {}", e))
         })?;
 
         if !response.status().is_success() {
@@ -132,9 +129,9 @@ impl ExternalRegistryFetcher for CratesIoFetcher {
 
 impl CratesIoFetcher {
     pub fn parse_cratesio_response(package_id: &str, data: serde_json::Value) -> Result<Package> {
-        let crate_data = data
-            .get("crate")
-            .ok_or_else(|| Error::Other("Missing 'crate' field in crates.io response".to_string()))?;
+        let crate_data = data.get("crate").ok_or_else(|| {
+            Error::Other("Missing 'crate' field in crates.io response".to_string())
+        })?;
         let name = crate_data
             .get("name")
             .and_then(|v| v.as_str())
@@ -307,12 +304,10 @@ impl ExternalRegistryFetcher for NpmFetcher {
             Error::Other(format!("Download URL not found for version {}", version))
         })?;
 
-        let response = self
-            .client
-            .get(url)
-            .send()
-            .await
-            .map_err(|e| Error::Other(format!("Failed to download artifact from npm: {}", e)))?;
+        let response =
+            self.client.get(url).send().await.map_err(|e| {
+                Error::Other(format!("Failed to download artifact from npm: {}", e))
+            })?;
 
         let bytes = response
             .bytes()

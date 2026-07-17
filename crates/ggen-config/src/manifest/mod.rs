@@ -21,8 +21,8 @@ pub mod validation;
 
 pub use parser::ManifestParser;
 pub use types::{
-    GenerationConfig, GenerationMode, GenerationRule, GgenManifest, InferenceConfig,
-    InferenceRule, Law, OntologyConfig, PackRef, PackSection, PackageToml, ProjectConfig,
-    QuerySource, TemplateSource, ValidationConfig, ValidationRule, ValidationSeverity,
+    GenerationConfig, GenerationMode, GenerationRule, GgenManifest, InferenceConfig, InferenceRule,
+    Law, OntologyConfig, PackRef, PackSection, PackageToml, ProjectConfig, QuerySource,
+    TemplateSource, ValidationConfig, ValidationRule, ValidationSeverity,
 };
 pub use validation::{query_contains_values, query_has_order_by, ManifestValidator};

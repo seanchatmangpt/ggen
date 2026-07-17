@@ -72,14 +72,13 @@ impl GgenMcpServer {
         // itself and handles BOTH the frontmatter-per-template schema and the
         // `[[generation.rules]]` declarative schema automatically (T070), so
         // the separate manifest-parse step is subsumed, not preserved.
-        let report =
-            ggen_engine::sync::sync(&base_path, ggen_engine::sync::SyncOptions::default())
-                .map_err(|e| {
-                    rmcp::model::ErrorData::internal_error(
-                        format!("Generation pipeline failed: {}", e),
-                        None,
-                    )
-                })?;
+        let report = ggen_engine::sync::sync(&base_path, ggen_engine::sync::SyncOptions::default())
+            .map_err(|e| {
+                rmcp::model::ErrorData::internal_error(
+                    format!("Generation pipeline failed: {}", e),
+                    None,
+                )
+            })?;
 
         // NOTE: no LLM-service hook here. The old handler connected an
         // optional `Box<dyn LlmService>` via `ggen_core::codegen::pipeline::

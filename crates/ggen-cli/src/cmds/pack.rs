@@ -348,7 +348,9 @@ pub fn doctor() -> Result<serde_json::Value> {
 /// Split out of the `#[verb] doctor()` function to satisfy the CLI layer's Poka-Yoke verb
 /// complexity guard (FM-1.1, max complexity 5) — the verb function itself stays a thin
 /// resolve-args + delegate + return shell.
-fn pack_doctor_report(cache_dir: &std::path::Path, lock_path: &std::path::Path) -> serde_json::Value {
+fn pack_doctor_report(
+    cache_dir: &std::path::Path, lock_path: &std::path::Path,
+) -> serde_json::Value {
     let mut checks: Vec<String> = Vec::new();
     let mut healthy = true;
 
@@ -434,8 +436,8 @@ fn lockfile_check(lock_path: &std::path::Path) -> std::result::Result<(String, u
         ));
     }
 
-    let lockfile = PackLockfile::from_file(lock_path)
-        .map_err(|e| format!("packs.lock unreadable: {}", e))?;
+    let lockfile =
+        PackLockfile::from_file(lock_path).map_err(|e| format!("packs.lock unreadable: {}", e))?;
     let pack_count = lockfile.packs.len();
     lockfile
         .validate()

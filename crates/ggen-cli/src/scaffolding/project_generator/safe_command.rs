@@ -251,7 +251,11 @@ mod tests {
     #[test]
     fn test_executor_git() {
         // This will fail if git is not installed, but tests the API
-        let result = SafeCommand::new("git").unwrap().arg("--version").unwrap().execute();
+        let result = SafeCommand::new("git")
+            .unwrap()
+            .arg("--version")
+            .unwrap()
+            .execute();
         // Just ensure it returns a Result
         let _ = result;
     }

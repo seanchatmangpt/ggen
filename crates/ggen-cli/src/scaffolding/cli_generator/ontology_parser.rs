@@ -30,8 +30,7 @@ impl OntologyParser {
         // FUTURE: Implement using ggen-ai RDF parser when integrated
         // For now, return error indicating integration needed
         Err(GgenError::Internal(
-            "RDF parsing not yet integrated. Use ggen-ai::rdf::QueryExecutor directly."
-                .to_string(),
+            "RDF parsing not yet integrated. Use ggen-ai::rdf::QueryExecutor directly.".to_string(),
         ))
     }
 }

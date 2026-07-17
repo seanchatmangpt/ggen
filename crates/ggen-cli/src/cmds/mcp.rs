@@ -21,9 +21,9 @@ fn start_server(transport: Option<String>) -> Result<McpOutput> {
     if transport_val == "stdio" {
         // Run async code synchronously via runtime block_on
         crate::runtime::block_on(async move {
-            GgenMcpServer::start_stdio().await.map_err(|e| {
-                crate::utils::error::Error::new(&format!("MCP Server failed: {}", e))
-            })
+            GgenMcpServer::start_stdio()
+                .await
+                .map_err(|e| crate::utils::error::Error::new(&format!("MCP Server failed: {}", e)))
         })
         .map_err(|e: crate::utils::error::Error| {
             clap_noun_verb::NounVerbError::execution_error(e.to_string())
