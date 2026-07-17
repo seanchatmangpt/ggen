@@ -97,9 +97,17 @@ lsp = ["dep:ggen-lsp", "ggen-lsp/mcp"]
 # Pulls in ggen-lsp's `a2a` feature (which implies `mcp`) for cmds/a2a.rs and cmds/mcp.rs.
 experimental = ["dep:ggen-lsp", "ggen-lsp/a2a"]
 # Gate for test files exercising CLI surfaces retired by the v26.7.16 sync/
-# doctor/graph/receipt routing flip to ggen-engine (see cmds/mod.rs). Empty
-# by design -- enabling it does not restore the old behavior, it only
-# compiles the archived test file back in for historical reference.
+# doctor/graph/receipt routing flip to ggen-engine (see cmds/mod.rs), plus
+# (2026-07-16, ggen-core disconnect) `inverse_sync`, `mcp_command_test`,
+# `coherence_gate_test`, `sync_command_test`, `ontology_command_test`,
+# `utils_command_test`, and `graph_command_test` -- the remaining real
+# ggen-core consumers, none of which have a ggen-engine/ggen-graph port
+# destination (verified via workspace-wide search). Empty by design --
+# enabling it does not restore the old behavior. ggen-core is no longer a
+# dependency of this crate (see [dependencies] above), so enabling this
+# feature now produces a broken build; it exists only so the
+# `#![cfg(...)]` gates on the archived files compile cleanly with the
+# feature off.
 ggen-core-retired = []
 default = []
 
@@ -188,10 +196,6 @@ workspace = true
 [dependencies.async-trait]
 workspace = true
 
-[dependencies.ggen-core]
-workspace = true
-features = ["otel"]
-
 [dependencies.ggen-graph]
 workspace = true
 
@@ -216,10 +220,11 @@ workspace = true
 workspace = true
 
 # OTLP telemetry (ported from ggen-core/src/telemetry.rs, T034). Unconditional:
-# ggen-cli's own [dependencies.ggen-core] above has always hardcoded
-# features = ["otel"], so every ggen-cli build has always compiled OTEL in
-# regardless of ggen-cli's own feature selection — this port keeps that same
-# always-on behavior directly rather than fabricating a new toggle.
+# ggen-cli's now-removed [dependencies.ggen-core] (2026-07-16, ggen-core
+# disconnect, T054-T058) had always hardcoded features = ["otel"], so every
+# ggen-cli build had always compiled OTEL in regardless of ggen-cli's own
+# feature selection — this port keeps that same always-on behavior directly
+# rather than fabricating a new toggle.
 [dependencies.opentelemetry]
 workspace = true
 

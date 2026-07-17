@@ -12,6 +12,16 @@
 //! - Named graph operations
 //! - Persistent storage operations
 
+// ARCHIVED (ggen-core disconnect, 2026-07-16): drives
+// `ggen_core::graph::{build_prolog, Graph, GraphStore}` and
+// `ggen_core::graph::types::CachedResult` directly. `ggen-graph` has no
+// `Graph`/`GraphStore` struct at all (its public surface is
+// coherence.rs/shacl.rs/sparql.rs/dialect.rs/interchangeable.rs) -- no port
+// destination exists (verified via workspace-wide search, 2026-07-16
+// investigation). Gated as a whole file rather than deleted, per this
+// project's fix-forward doctrine.
+#![cfg(feature = "ggen-core-retired")]
+
 use ggen_core::graph::{build_prolog, Graph, GraphStore};
 use oxigraph::model::{GraphName, NamedNode, Quad};
 use serial_test::serial;

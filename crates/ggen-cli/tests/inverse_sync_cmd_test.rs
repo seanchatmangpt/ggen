@@ -1,14 +1,24 @@
-//! Chicago TDD Integration Tests for `ggen inverse-sync` Command
-//!
-//! Tests verify the complete inverse-sync pipeline with real artifacts, real ontology,
-//! and real Ed25519 key pairs. No mocks, no test doubles — Chicago TDD only.
-
+// ARCHIVED (ggen-core disconnect, 2026-07-16): drives `crate::cmds::inverse_sync`,
+// itself archived in crates/ggen-cli/src/cmds/mod.rs (see that file's comment) --
+// `inverse_sync` was the sole production-code consumer of ggen-core outside
+// tests (ProvenanceEnvelope, InversePipeline, receipt::provenance_envelope::
+// CoherenceReport), and no ggen-engine/ggen-graph equivalent exists for any of
+// these types (verified via workspace-wide search, 2026-07-16 investigation).
+// Zero other consumers of InversePipeline/ProvenanceEnvelope exist workspace-wide.
+// Gated as a whole file rather than deleted, per this project's fix-forward
+// doctrine.
+#![cfg(feature = "ggen-core-retired")]
 #![allow(
     clippy::unwrap_used,
     clippy::expect_used,
     clippy::panic,
     clippy::needless_raw_string_hashes
 )]
+
+//! Chicago TDD Integration Tests for `ggen inverse-sync` Command
+//!
+//! Tests verify the complete inverse-sync pipeline with real artifacts, real ontology,
+//! and real Ed25519 key pairs. No mocks, no test doubles — Chicago TDD only.
 
 use ed25519_dalek::{Signer, SigningKey};
 use std::fs;

@@ -1,3 +1,9 @@
+// ARCHIVED (ggen-core disconnect, 2026-07-16): `create_tera()` calls
+// `ggen_core::register::register_all` to populate a Tera instance with ggen's
+// template filters/functions. No ggen-engine/ggen-graph equivalent exists
+// (verified via workspace-wide search, 2026-07-16 investigation). Gated as a
+// whole file rather than deleted, per this project's fix-forward doctrine.
+#![cfg(feature = "ggen-core-retired")]
 #![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
 #![allow(
     clippy::unwrap_used,

@@ -1,3 +1,9 @@
+// ARCHIVED (ggen-core disconnect, 2026-07-16): `validator` re-exports
+// `ggen_core::validation::syntax_validator::{detect_language,
+// validate_syntax}` directly. No ggen-engine/ggen-graph equivalent exists
+// (verified via workspace-wide search, 2026-07-16 investigation). Gated as a
+// whole file rather than deleted, per this project's fix-forward doctrine.
+#![cfg(feature = "ggen-core-retired")]
 #![allow(
     clippy::unwrap_used,
     clippy::expect_used,

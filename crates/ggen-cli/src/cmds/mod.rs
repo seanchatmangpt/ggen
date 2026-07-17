@@ -30,7 +30,19 @@ pub mod helpers;
 // Core commands: ggen sync & ggen init
 pub mod git_hooks;
 pub mod init;
-pub mod inverse_sync;
+// ARCHIVED (ggen-core disconnect, 2026-07-16): `inverse_sync` is the sole
+// production-code consumer of ggen-core outside tests (ProvenanceEnvelope,
+// InversePipeline, receipt::provenance_envelope::CoherenceReport -- a
+// 3,715-line transitive dependency chain rooted in
+// crates/ggen-core/src/{reverse_sync,receipt,utils/error.rs}). No
+// ggen-engine/ggen-graph equivalent exists for any of these types (verified
+// via workspace-wide search, 2026-07-16 investigation) and there are zero
+// other consumers of InversePipeline/ProvenanceEnvelope outside this file
+// and its own test (crates/ggen-cli/tests/inverse_sync_cmd_test.rs, archived
+// alongside this behind the `ggen-core-retired` feature). File retained on
+// disk at cmds/inverse_sync.rs, not deleted, per this project's fix-forward
+// doctrine.
+// pub mod inverse_sync;
 // ARCHIVED (v26.7.16 routing flip): replaced by ggen-engine's `sync` noun
 // (verb `run`). A root FLAT verb named "sync" here and a noun named "sync"
 // registered by ggen-engine both become top-level clap subcommands named

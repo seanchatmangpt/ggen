@@ -1,7 +1,12 @@
 # ggen task runner — single entry point for all dev commands
 # Delegates directly to cargo; Makefile.toml is kept as historical reference only.
 
-GGEN := "cargo run --bin ggen --"
+# -p ggen-cli-lib is required (not optional): since the v26.7.16 publish-safety
+# fix removed root's own duplicate [[bin]] "ggen" (commit 3862fe000,
+# `autobins = false`), ggen-cli-lib is the sole remaining package producing a
+# "ggen" binary -- a bare `cargo run --bin ggen --` is now ambiguous/fails
+# ("no bin target named `ggen` in default-run packages").
+GGEN := "cargo run -p ggen-cli-lib --bin ggen --"
 
 _default:
     @just --list
@@ -29,7 +34,9 @@ build:
 
 # Build release binary
 build-release:
-    timeout 600s cargo build --release -p ggen-cli --bin ggen
+    # -p ggen-cli-lib (not ggen-cli, which isn't a real package name -- confirmed
+    # broken via `cargo metadata`, the actual package is named ggen-cli-lib).
+    timeout 600s cargo build --release -p ggen-cli-lib --bin ggen
 
 # Remove build artifacts
 clean:

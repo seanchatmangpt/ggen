@@ -49,7 +49,6 @@ autobins = false
 members = [
   "crates/ggen-config",
   "crates/ggen-marketplace",
-  "crates/ggen-core",
   "crates/ggen-cli",
   "crates/ggen-graph",
   "crates/ggen-lsp",
@@ -73,7 +72,16 @@ members = [
   # on disk (non-deletion doctrine); re-add after repair.
   # "examples/7-agent-validation",
   ]
-exclude = ["examples/7-agent-validation"]
+# `crates/ggen-core` (2026-07-16, ggen-core disconnect, T054-T058): removed from
+# `members` above -- ggen-core is being disconnected from the workspace, not
+# deleted. Every real dependent has been ported or gated (see cmds/mod.rs and
+# the `ggen-core-retired` features in this file and crates/ggen-cli/Cargo.toml).
+# Listed here in `exclude` (not just dropped from `members`) so that running
+# `cargo` commands directly inside crates/ggen-core/ treats it as a fully
+# standalone crate rather than erroring with "current package believes it's in
+# a workspace when it's not" -- crates/ggen-core/ itself is untouched, on disk,
+# per this project's fix-forward / non-deletion doctrine.
+exclude = ["examples/7-agent-validation", "crates/ggen-core"]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
@@ -136,7 +144,12 @@ rig-core = "0.15.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
 # NOTE: v26.5.29 unified release
-ggen-core = { path = "crates/ggen-core", version = "26.7.2" }
+# ggen-core (2026-07-16, ggen-core disconnect, T054-T058): removed. ggen-core
+# is no longer a workspace member (see [workspace] exclude above) and no
+# remaining workspace member has a real dependency edge on it -- every real
+# consumer was ported or gated behind the `ggen-core-retired` feature (see
+# cmds/mod.rs and crates/ggen-cli/Cargo.toml). crates/ggen-core/ itself is
+# untouched on disk, per this project's fix-forward / non-deletion doctrine.
 ggen-cli-lib = { path = "crates/ggen-cli", version = "26.7.2" }
 ggen-graph = { path = "crates/ggen-graph", version = "26.7.2" }
 # ggen-core replacement engine dependencies (specs/014-ggen-core-replacement,
@@ -569,14 +582,37 @@ root-ggen-cli-lib-tests = []
 # their real home is crates/ggen-lsp/tests or crates/ggen-lsp/benches, where ggen-lsp's a2a
 # feature is native/local and doesn't need external registry resolution to test.
 a2a-integration-tests = []
+# Gates the root tests/ files that exercise ggen-core's internal library
+# surface directly (Graph/GraphStore, Pipeline, Generator, Template,
+# SimpleTracer, pipeline_engine::pipeline, syntax_validator, etc.) rather
+# than through any CLI noun. ggen-core is being disconnected from the
+# workspace (root [workspace] members no longer lists crates/ggen-core;
+# root's own [dependencies] no longer has a real ggen-core edge) and no
+# ggen-engine/ggen-graph equivalent exists for the large majority of these
+# symbols (verified via workspace-wide search, 2026-07-16 investigation).
+# Off by default; there is currently no working implementation behind this
+# feature to enable, it exists only so the `#![cfg(...)]` gates on the
+# archived files compile cleanly. Mirrors ggen-cli's own
+# `ggen-core-retired` feature (crates/ggen-cli/Cargo.toml).
+ggen-core-retired = []
 # OpenTelemetry instrumentation (optional - adds ~200 dependencies)
-# Enable with: cargo build --features otel
-# Only forward to ggen-core, which handles its own otel dependencies
-otel = [
-  "ggen-core/otel",
-]
+# Previously forwarded to `ggen-core/otel`; ggen-core is no longer a
+# dependency of this package (2026-07-16, ggen-core disconnect, T054-T058;
+# see [dependencies] below and the `ggen-core-retired` feature above), so
+# that forward is removed. Kept as an empty placeholder so existing
+# `--features otel` invocations don't hard-error, just no longer do
+# anything here -- no other workspace member forwards its own `otel`
+# feature from this package's `otel` name today.
+otel = []
 [dependencies]
-ggen-core = { workspace = true }
+# ggen-core (2026-07-16, ggen-core disconnect, T054-T058): removed. Every
+# ggen_core::-referencing root test file (tracing.rs, graph_core_tests.rs,
+# template_systems_tests.rs, validate_marketplace_rdf.rs,
+# generator_core_tests.rs, fixture_validation_proof.rs, contract/pipeline.rs)
+# is now gated behind the `ggen-core-retired` feature (see [features] above)
+# -- none had a ggen-engine/ggen-graph port destination (verified via
+# workspace-wide search). crates/ggen-core/ itself is untouched on disk, per
+# this project's fix-forward / non-deletion doctrine.
 # ggen-cli-lib intentionally NOT a dependency here (removed 2026-07-16, publish-safety fix):
 # it was needed only for root's own `[[bin]] "ggen"` (a byte-identical duplicate of
 # ggen-cli-lib's own binary, now removed -- see `autobins = false` comment above) and a
@@ -584,16 +620,13 @@ ggen-core = { workspace = true }
 # ggen-cli-lib is now `publish = false` (real dependency on ggen-engine, which can never
 # resolve on crates.io), so a real dependency edge here would make `cargo publish --dry-run
 # -p ggen` unresolvable forever, the same class of failure this whole fix chain started from.
-# Re-point targets for tests/examples/benches (T051-T053): ggen-core is still
-# present above -- most of the 82 ggen_core::-referencing files depend on
-# ggen-core modules (graph, gpack, generator, pipeline, template, lifecycle,
-# cache, rdf, registry, resolver, snapshot, ontology*, github, metrics, merge,
-# pki, pqc, simple_tracing, security, template_cache, canonical, prevention,
-# a2a*, validation, streaming_generator, telemetry, domain::{graph,template,
-# error,mcp_config,ontology,rdf,generation,project,audit,config,shell,ci})
-# that have NO port destination anywhere in this migration (see tasks.md
-# T053 notes) -- ggen-core cannot be dropped from here until those are
-# ported by a future task.
+# Re-point targets for tests/examples/benches (T051-T053, superseded
+# 2026-07-16 by the ggen-core disconnect, T054-T058): the ggen_core::
+# -referencing root test files that had no port destination (graph, generator,
+# pipeline, template, simple_tracing, syntax_validator, pipeline_engine, etc.)
+# are now gated behind the `ggen-core-retired` feature (see [features] above)
+# instead of waiting on a future port -- ggen-core is disconnected from the
+# workspace, not deleted; re-enable that feature once a real port lands.
 ggen-config = { workspace = true }
 ggen-marketplace = { workspace = true }
 # ggen-engine intentionally NOT a dependency here (removed 2026-07-16, discovered via
@@ -748,6 +781,29 @@ required-features = ["a2a-integration-tests"]
 [[bench]]
 name = "canonical_bench"
 harness = false
+# ARCHIVED (ggen-core disconnect, 2026-07-16): drives
+# `ggen_core::{generator::GenContext, pipeline::Pipeline, template::Template,
+# graph::Graph}` directly (benches/ggen_benchmarks.rs). No
+# ggen-engine/ggen-graph equivalent exists (verified via workspace-wide
+# search, 2026-07-16 investigation). Gated the same way `a2a_bench` above is
+# -- required-features, permanently off by default -- rather than deleted,
+# per this project's fix-forward doctrine. File retained on disk untouched.
+[[bench]]
+name = "ggen_benchmarks"
+harness = false
+required-features = ["ggen-core-retired"]
+[[example]]
+name = "drift-detection-example"
+required-features = ["ggen-core-retired"]
+[[example]]
+name = "rdf_template_integration"
+required-features = ["ggen-core-retired"]
+[[example]]
+name = "path_validation_example"
+required-features = ["ggen-core-retired"]
+[[example]]
+name = "rdf_metadata_example"
+required-features = ["ggen-core-retired"]
 [[test]]
 name = "testcontainer_marketplace_git_hooks"
 path = "tests/integration/testcontainer_marketplace_git_hooks.rs"

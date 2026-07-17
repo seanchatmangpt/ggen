@@ -1,3 +1,11 @@
+// ARCHIVED (ggen-core disconnect, 2026-07-16): drives
+// `ggen_core::{generator::{GenContext, Generator}, pipeline::Pipeline,
+// streaming_generator::{GenerationResult, StreamingGenerator},
+// utils::error::Result}` directly. No ggen-engine/ggen-graph equivalent
+// exists for any of these (verified via workspace-wide search, 2026-07-16
+// investigation). Gated as a whole file rather than deleted, per this
+// project's fix-forward doctrine.
+#![cfg(feature = "ggen-core-retired")]
 #![allow(
     dead_code,
     unused_imports,

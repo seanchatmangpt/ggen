@@ -1,3 +1,12 @@
+// ARCHIVED (ggen-core disconnect, 2026-07-16): drives
+// `ggen_core::sync::{CoherenceGate, CoherenceGateConfig, SyncError}` directly.
+// No ggen-engine/ggen-graph equivalent exists for these types (verified via
+// workspace-wide search, 2026-07-16 investigation); ggen-graph has its own,
+// unrelated `CoherenceReport`/`CoherenceChecker` (crates/ggen-graph/src/
+// coherence.rs) that is not a drop-in port target for ggen-core's
+// sync-pipeline-specific gate. Gated as a whole file rather than deleted,
+// per this project's fix-forward doctrine.
+#![cfg(feature = "ggen-core-retired")]
 //! Coherence Gate Integration Tests (Chicago TDD)
 //!
 //! Tests the coherence gate (Stage 4.5) wired into the sync pipeline.

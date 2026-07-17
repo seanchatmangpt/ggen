@@ -1,3 +1,10 @@
+// ARCHIVED (ggen-core disconnect, 2026-07-16): drives
+// `ggen_core::ontology::{..., OntologySchema}`, `ggen_core::ontology_core::
+// validators`, and `ggen_core::codegen::TypeScriptGenerator` directly. No
+// ggen-engine/ggen-graph equivalent exists for any of these (verified via
+// workspace-wide search, 2026-07-16 investigation). Gated as a whole file
+// rather than deleted, per this project's fix-forward doctrine.
+#![cfg(feature = "ggen-core-retired")]
 #![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
 #![allow(
     clippy::unwrap_used,

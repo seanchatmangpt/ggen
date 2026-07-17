@@ -8,11 +8,23 @@
 //! Default values are used if config file is missing or values are invalid.
 
 // Submodules for test utilities
+// ARCHIVED (ggen-core disconnect, 2026-07-16): `fixtures` drives
+// `ggen_core::lifecycle::{Context, Make, Phase, PhaseBuilder, Project}`
+// directly. No ggen-engine/ggen-graph equivalent exists (verified via
+// workspace-wide search, 2026-07-16 investigation). This module is pulled in
+// unconditionally by tests/e2e_production_marketplace.rs's
+// `#[path = "common/mod.rs"] mod test_config;` -- that file only consumes
+// `test_config::integration_timeout` (defined directly in this file, not in
+// `fixtures`), so gating `fixtures` out does not affect it. File retained on
+// disk at tests/common/fixtures.rs, not deleted, per this project's
+// fix-forward doctrine.
+#[cfg(feature = "ggen-core-retired")]
 pub mod fixtures;
 pub mod helpers;
 
 // Re-export commonly used items
 // These re-exports enable the `use common::{...}` pattern in tests
+#[cfg(feature = "ggen-core-retired")]
 #[allow(unused_imports)]
 pub use fixtures::*;
 #[allow(unused_imports)]

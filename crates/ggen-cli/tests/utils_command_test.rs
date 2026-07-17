@@ -1,3 +1,13 @@
+// ARCHIVED (ggen-core disconnect, 2026-07-16): drives
+// `ggen_core::domain::utils::{execute_doctor, CheckResult, CheckStatus,
+// DoctorInput, DoctorResult, EnvironmentInfo}` directly. The live `ggen
+// doctor` noun (crates/ggen-engine/src/verbs/doctor.rs ->
+// handlers::handle_doctor) does not use this domain module -- it is its own,
+// unrelated implementation -- so there is no port destination for this
+// test's assertions (verified via workspace-wide search, 2026-07-16
+// investigation). Gated as a whole file rather than deleted, per this
+// project's fix-forward doctrine.
+#![cfg(feature = "ggen-core-retired")]
 #![allow(
     dead_code,
     unused_imports,

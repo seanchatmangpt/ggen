@@ -1,3 +1,13 @@
+// ARCHIVED (ggen-core disconnect, 2026-07-16): drives
+// `ggen_core::domain::graph::{ExportInput, ExportOutput, LoadInput,
+// LoadOutput, QueryInput, QueryResult, RdfFormat, VisualizeInput,
+// VisualizeOutput}` directly. `ggen-graph` has no `Graph`/`GraphStore` struct
+// or matching domain-input surface at all (its public API is
+// coherence.rs/shacl.rs/sparql.rs/dialect.rs/interchangeable.rs) -- no port
+// destination exists (verified via workspace-wide search, 2026-07-16
+// investigation). Gated as a whole file rather than deleted, per this
+// project's fix-forward doctrine.
+#![cfg(feature = "ggen-core-retired")]
 #![allow(
     clippy::unwrap_used,
     clippy::expect_used,
