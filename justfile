@@ -84,9 +84,15 @@ test-doc:
 #   cargo mutants --workspace                                  (mutation score)
 # Phase-2 / coherence / round-trip checks — same commands CI's `phase2` job runs:
 #   {{GGEN}} graph validate --files .specify/specs/post-chatman/post_chatman.ttl
-#   cargo test -p ggen-core --test ast_extractor_70pct_test
-#   cargo test -p ggen-core --test inverse_receipt_chain_test
-#   cargo test -p ggen-core --test provenance_envelope_test
+#   cargo test -p ggen-core --test ast_extractor_70pct_test    (no ggen-engine/ggen-graph
+#     equivalent exists yet -- reverse_sync::ast_extractor was never ported off ggen-core;
+#     left targeting ggen-core until that port happens, see T067 follow-up)
+#   cargo test -p ggen-engine --test receipt_chain_e2e         (retargeted from ggen-core's
+#     inverse_receipt_chain_test, T067 -- ggen-core is being disconnected from the workspace)
+#   cargo test -p ggen-core --test provenance_envelope_test    (no ggen-engine/ggen-graph
+#     equivalent exists yet -- ProvenanceEnvelope lives only in ggen-core::receipt; its only
+#     other consumer is ggen-cli's inverse_sync command, itself still ggen-core-backed; left
+#     targeting ggen-core until that port happens, see T067 follow-up)
 #   cargo test -p ggen-graph --test coherence_hash_expectations_test
 #   cargo test -p ggen-graph --test post_chatman_coherence_integration
 
@@ -97,12 +103,21 @@ test-phase2:
     echo "Running Phase 2 test suite..."
 
     # Core AST extraction tests
+    # T067: left on ggen-core deliberately -- reverse_sync::ast_extractor has no
+    # ggen-engine/ggen-graph equivalent yet (verified via workspace-wide search,
+    # 2026-07-16). Retarget when that module is ported off ggen-core.
     cargo test -p ggen-core --test ast_extractor_70pct_test || exit 1
 
-    # Inverse receipt chain validation
-    cargo test -p ggen-core --test inverse_receipt_chain_test || exit 1
+    # Receipt chain validation (T067: retargeted from ggen-core's
+    # inverse_receipt_chain_test -- ggen-core is being disconnected from the
+    # workspace; ggen-engine::sync + receipt_chain_e2e is the live equivalent)
+    cargo test -p ggen-engine --test receipt_chain_e2e || exit 1
 
     # Provenance envelope (O→A bridge)
+    # T067: left on ggen-core deliberately -- ProvenanceEnvelope lives only in
+    # ggen-core::receipt::provenance_envelope; its only other consumer
+    # (ggen-cli's inverse_sync command) is itself still ggen-core-backed, so
+    # there is no ggen-engine/ggen-graph equivalent to retarget to yet.
     cargo test -p ggen-core --test provenance_envelope_test || exit 1
 
     # Coherence hash expectations
@@ -157,11 +172,55 @@ slo-check:
     cargo bench --bench cli_startup_performance -- --test
 
     echo "Running Phase 2 SLO checks..."
-    # Phase 2: Inverse pipeline + coherence checker performance
-    # InversePipeline::run_signed() must complete in <5s for typical artifact sets
-    # CoherenceChecker::check() must complete in <2s for 3-pole validation
-    # These are measured via integration tests that include timing assertions
-    cargo test -p ggen-core --test inverse_receipt_chain_test -- --nocapture || exit 1
+    # Phase 2: receipt-chain + coherence checker performance.
+    # T067 (2026-07-16): retargeted from ggen-core's inverse_receipt_chain_test to
+    # ggen-engine's receipt_chain_e2e -- ggen-core is being disconnected from the
+    # workspace; receipt_chain_e2e is the live equivalent (real sync + real BLAKE3
+    # chain recomputation + real `ggen receipt history` CLI boundary, no mocks).
+    #
+    # Real wall-clock timing assertion (closes the Decorative-Completion gap flagged
+    # in docs/jira/v26.7.16/11-DELETION-AND-DEFINITION-OF-DONE.md: the old comment
+    # here claimed "measured via integration tests that include timing assertions"
+    # while neither test file actually contained a Duration/Instant/elapsed check --
+    # confirmed false via grep returning zero matches on both files, 2026-07-16
+    # investigation). This measures real date-based wall-clock elapsed time around
+    # the actual `cargo test` invocation (compile + run) and fails loudly if it
+    # exceeds the threshold below -- a genuine, executing assertion, not a printed
+    # claim; it runs (and reports elapsed time) whether or not the test itself
+    # passes, so the measurement never gets silently skipped.
+    #
+    # Threshold: 180s. Reasoning: a cold `cargo test -p ggen-engine --test
+    # receipt_chain_e2e` run on this hardware (Darwin/arm64, pinned nightly
+    # toolchain) measured 45s wall-clock end-to-end (2026-07-16, `date +%s`
+    # before/after, verified reproducible across two consecutive runs). 180s is 4x
+    # that observed cold-compile baseline -- generous enough to absorb CI machine
+    # variance and concurrent-build contention, while still catching a genuine
+    # multi-minute regression or hang.
+    #
+    # Scope note: this bounds the *test invocation* (compile + run), not an
+    # isolated in-process sync+verify cycle -- a finer-grained std::time::Instant
+    # assertion around just the sync+verify logic (excluding compile), as originally
+    # requested, would need to live inside
+    # crates/ggen-engine/tests/receipt_chain_e2e.rs itself. That file is outside
+    # this task's edit boundary (scripts/ci/ + justfile only) and is tracked as a
+    # follow-up for whoever owns crates/ggen-engine/tests/.
+    receipt_chain_start=$(date +%s)
+    if cargo test -p ggen-engine --test receipt_chain_e2e -- --nocapture; then
+      receipt_chain_status=0
+    else
+      receipt_chain_status=$?
+    fi
+    receipt_chain_end=$(date +%s)
+    receipt_chain_elapsed=$((receipt_chain_end - receipt_chain_start))
+    echo "receipt_chain_e2e wall-clock: ${receipt_chain_elapsed}s (SLO threshold: 180s)"
+    if [ "$receipt_chain_elapsed" -gt 180 ]; then
+      echo "❌ SLO VIOLATION: receipt_chain_e2e took ${receipt_chain_elapsed}s, exceeds 180s threshold" >&2
+      exit 1
+    fi
+    if [ "$receipt_chain_status" -ne 0 ]; then
+      echo "❌ receipt_chain_e2e reported test failures (see output above); timing SLO was measured (${receipt_chain_elapsed}s, within threshold) but the test itself did not pass" >&2
+      exit 1
+    fi
     cargo test -p ggen-graph --test coherence_hash_expectations_test -- --nocapture || exit 1
 
     echo "✅ Phase 1 + Phase 2 SLO checks complete"
@@ -192,6 +251,11 @@ guard-publish-target:
 # evidence, never analyze it. Cheap and always green -- safe to run every commit.
 guard-process-intelligence-boundary:
     ./scripts/ci/guard-process-intelligence-boundary.sh
+
+# Short alias for guard-process-intelligence-boundary (T065,
+# specs/014-ggen-core-replacement/tasks.md -- named exactly this way there).
+# Delegates to the same recipe/script rather than duplicating the call.
+guard-process-boundary: guard-process-intelligence-boundary
 
 # ── Documentation ─────────────────────────────────────────────────────────────
 
