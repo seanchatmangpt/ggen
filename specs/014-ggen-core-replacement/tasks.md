@@ -1403,8 +1403,22 @@ per this repo's guidance).
   - **Genuinely still open, not resolved by this task**: `utils/doctor.rs`'s port (concrete plan
     above, blocked on the concurrent `ggen-engine` session finishing first, not on missing
     information); `graph/`/`ontology/`'s architecture-level rewrite-vs-port call (T028/T043's
-    pre-existing open question, unchanged); the `SafePath`/`SafeCommand` duplicate-definition
-    question (out of this task's scope, tracked separately per `12-OPEN-QUESTIONS.md` item 2).
+    pre-existing open question, unchanged).
+
+- **RESOLVED (2026-07-17): `SafePath`/`SafeCommand` duplicate-definition question**
+  (`docs/jira/v26.7.16/12-OPEN-QUESTIONS.md` item 2). That doc flagged 4 independent
+  definitions (`SafePath` #1 `utils/safe_path.rs:40`, #2 `utils/path_validator.rs:133`;
+  `SafeCommand` #1 `utils/safe_command.rs:317`, #2 `security/command.rs:66`) and asked
+  "which of each pair (if either) is actually called internally before deciding what to
+  port, or risk porting/deleting the wrong one." That question is now moot, not answered
+  by further investigation: as of this session's ggen-core disconnection (T054-T058,
+  commit `426066dac`), ggen-core is disconnected from the workspace but never deleted or
+  edited — nothing is being ported OR deleted from it, so there is no "wrong one" to
+  accidentally pick. Whatever internal call relationship exists between each duplicate
+  pair remains ggen-core's own internal business, fully intact and unaffected by
+  disconnection. Re-confirmed zero external call sites in `ggen-cli`/`ggen-lsp`/
+  `ggen-marketplace`/`cpmp`/`genesis-core-v2` for all 4 definitions this session
+  (consistent with the original finding). No code changes needed or made.
 
 - [x] T070 [US1] Wire `[[generation.rules]]` into `ggen-engine`'s `sync()` pipeline — resolves
   the "Engine wiring" half of T023's still-open gap (see that entry's update below)
