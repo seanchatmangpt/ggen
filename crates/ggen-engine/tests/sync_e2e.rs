@@ -188,6 +188,10 @@ fn render_failure_names_available_context_keys() {
     .expect_err("typo must fail render");
     let msg = err.to_string();
     assert!(msg.contains("render failed"), "{msg}");
+    // FM-TPL-017 (2026-07-17): sync.rs's own render-failure code, split off the
+    // shared FM-TPL-005 it used to reuse with lint.rs's identity-CONSTRUCT check
+    // -- see specs/014-ggen-core-replacement/tasks.md's FM-TPL-004/005/010 note.
+    assert!(msg.contains("FM-TPL-017"), "{msg}");
     assert!(
         msg.contains("Available top-level context keys"),
         "error should name available context keys: {msg}"
@@ -195,6 +199,41 @@ fn render_failure_names_available_context_keys() {
     assert!(
         msg.contains("results"),
         "should list the `results` key: {msg}"
+    );
+}
+
+#[test]
+fn when_guard_that_is_not_an_ask_query_is_refused_with_fm_tpl_016() {
+    let dir = TempDir::new().expect("tempdir");
+    std::fs::write(dir.path().join("ggen.toml"), GGEN_TOML).expect("write ggen.toml");
+    std::fs::write(dir.path().join("ontology.ttl"), ONTOLOGY).expect("write ontology");
+    std::fs::create_dir_all(dir.path().join("templates")).expect("mkdir templates");
+    // `when:` must be an ASK query; a SELECT is a genuine, adversarial misuse --
+    // it runs but returns a non-boolean EngineQueryResults, which sync.rs must
+    // refuse loudly rather than silently coercing or panicking.
+    std::fs::write(
+        dir.path().join("templates/bad_when.tmpl"),
+        "---\nto: out.txt\nwhen: \"SELECT ?name WHERE { ?s <http://example.org/name> ?name }\"\n---\nbody",
+    )
+    .expect("write template");
+
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect_err("a SELECT `when:` guard must be refused, not silently coerced");
+    let msg = err.to_string();
+    // FM-TPL-016 (2026-07-17): sync.rs's own when-not-ASK code, split off the
+    // shared FM-TPL-004 it used to reuse with lint.rs's unbound-to:-var check --
+    // see specs/014-ggen-core-replacement/tasks.md's FM-TPL-004/005/010 note.
+    assert!(msg.contains("FM-TPL-016"), "{msg}");
+    assert!(msg.contains("ASK query"), "{msg}");
+    assert!(
+        !dir.path().join("out.txt").exists(),
+        "the refused template must not have been written"
     );
 }
 

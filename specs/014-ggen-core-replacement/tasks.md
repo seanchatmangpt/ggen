@@ -1796,21 +1796,31 @@ from whoever owns the CLAUDE.md boundary rule.
     exist only under ggen-core with zero port destination in ggen-engine/ggen-graph (grep,
     LSP degraded this session so corroborated but not LSP-verified). Committed in `1255c061d`.
 
-- **KNOWN, FLAGGED, NOT FIXED (2026-07-17): `FM-TPL-004`/`FM-TPL-005`/`FM-TPL-010` code reuse.**
-  Independent verification of the `FM-TPL-001`/`FM-TPL-008` split (commit `c01a3c1ff`, see
-  T067's own commit above) audited every `AppError::fm_tpl(...)` call site in
-  `crates/ggen-engine/src` and found the *same* class of defect on 3 more codes, none of
-  which were in that task's scope (which was specifically 001/008): `FM-TPL-004` is shared
-  between `lint.rs` (`to:` path consumes an unbound `{{ var }}`) and `sync.rs` (`when:` is
-  not an ASK query) — confirmed both fire live via real `ggen graph validate`/`ggen sync run`
-  commands; `FM-TPL-005` is shared between `lint.rs` (identity `CONSTRUCT`, no-op) and
-  `sync.rs` (Tera render failure); `FM-TPL-010` is shared between `lint.rs` (`SELECT` without
-  `ORDER BY`) and `sync.rs` (`rdf:` path traversal) — both confirmed by source read, not
-  live-fired. `lint_template` is reachable in production via `handle_graph_validate`
-  (`ggen graph validate`), so this is live code, not dead code — a user grepping
-  `[FM-TPL-004]` across `graph validate` and `sync run` output would see one code meaning two
-  unrelated things. No task in this list currently owns closing this out; tracked here so it
-  isn't lost.
+- **FIXED (2026-07-17): `FM-TPL-004`/`FM-TPL-005`/`FM-TPL-010` code reuse.** Independent
+  verification of the `FM-TPL-001`/`FM-TPL-008` split (commit `c01a3c1ff`, see T067's own
+  commit above) had audited every `AppError::fm_tpl(...)` call site and found the *same*
+  class of defect on 3 more codes, none of which were in that task's scope (which was
+  specifically 001/008): `FM-TPL-004` shared between `lint.rs` (`to:` path consumes an
+  unbound `{{ var }}`) and `sync.rs` (`when:` is not an ASK query); `FM-TPL-005` shared
+  between `lint.rs` (identity `CONSTRUCT`, no-op) and `sync.rs` (Tera render failure);
+  `FM-TPL-010` shared between `lint.rs` (`SELECT` without `ORDER BY`) and `sync.rs` (`rdf:`
+  path traversal). `lint_template` is reachable in production via `handle_graph_validate`
+  (`ggen graph validate`), so this was live code, not dead code.
+
+  Fix: `sync.rs`'s three colliding call sites moved to new, previously-unused codes —
+  `when:`-not-ASK → `FM-TPL-016`, Tera render failure → `FM-TPL-017`, `rdf:` path traversal →
+  `FM-TPL-018` (next available after the existing 1–15 range, confirmed via a full
+  regex scan of every `fm_tpl(...)` call site across `lint.rs`/`sync.rs`/`template.rs`/
+  `graph.rs`). `lint.rs`'s own 004/005/010 are untouched — they were never the reused side,
+  `sync.rs`'s calls were. One existing test (`frontmatter_rdf_e2e.rs::
+  rdf_path_traversal_escape_is_refused`) updated from asserting `FM-TPL-010` to `FM-TPL-018`.
+  Two of the three sync.rs paths had **zero** test coverage of their specific error code
+  before this fix (only message-substring assertions, or none at all) — added real,
+  adversarial coverage: `sync_e2e.rs::when_guard_that_is_not_an_ask_query_is_refused_with_fm_tpl_016`
+  (a genuine `SELECT` `when:` guard, not a synthetic error) and strengthened
+  `render_failure_names_available_context_keys` with an explicit `FM-TPL-017` assertion.
+  Verified live: `cargo test -p ggen-engine --test sync_e2e --test frontmatter_rdf_e2e --test
+  lint_validate_e2e` → 25/25 passed, 0 failed, including the 2 new/strengthened tests.
 
 ---
 

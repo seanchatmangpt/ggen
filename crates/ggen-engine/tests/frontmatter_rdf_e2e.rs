@@ -142,7 +142,7 @@ fn rdf_path_traversal_escape_is_refused() {
     )
     .expect_err("traversal outside the template's own directory must be refused");
     let msg = err.to_string();
-    assert!(msg.contains("FM-TPL-010"), "{msg}");
+    assert!(msg.contains("FM-TPL-018"), "{msg}");
     assert!(
         msg.contains("rdf:"),
         "error should name the rdf: field: {msg}"

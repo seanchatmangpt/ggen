@@ -677,7 +677,7 @@ fn extract_query_results(
             EngineQueryResults::Boolean(false) => return Ok(None),
             _ => {
                 return Err(AppError::fm_tpl(
-                    4,
+                    16,
                     format!(
                         "`when:` in {} must be an ASK query. \
                          Remediation: use ASK {{ … }}.",
@@ -717,7 +717,7 @@ fn base_context(named: &BTreeMap<String, Value>, results: &[Value]) -> tera::Con
     ctx
 }
 
-/// Render a Tera string, mapping errors to `[FM-TPL-005]`.
+/// Render a Tera string, mapping errors to `[FM-TPL-017]`.
 fn render_str(
     tera: &mut tera::Tera,
     template: &str,
@@ -726,7 +726,7 @@ fn render_str(
 ) -> Result<String> {
     tera.render_str(template, ctx).map_err(|e| {
         AppError::fm_tpl(
-            5,
+            17,
             format!(
                 "render failed for {}: {e}. Available top-level context keys: {}.",
                 tpl_path.display(),
@@ -1179,7 +1179,7 @@ fn build_rdf_overlay(
     for rdf_file in &fm.rdf {
         let rdf_path = crate::write::resolve_target(template_dir, rdf_file).map_err(|e| {
             AppError::fm_tpl(
-                10,
+                18,
                 format!(
                     "{}: `rdf: {rdf_file}` is not a safe path (must stay inside the \
                      template's own directory): {e}",
