@@ -1,0 +1,120 @@
+timeout 300s cargo check --workspace
+[1m[33mwarning[0m: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/sac/ggen/crates/ggen-engine/Cargo.toml
+workspace: /Users/sac/ggen/Cargo.toml
+[1m[33mwarning[0m: /Users/sac/praxis/Cargo.toml: `panic` setting is ignored for `bench` profile
+[1m[33mwarning[0m: `my-conforming-project` (manifest) generated 1 warning
+[1m[33mwarning[0m: /Users/sac/bcinr/crates/bcinr-pddl/Cargo.toml: unused manifest key: test.3.divan
+[1m[33mwarning[0m: `bcinr-pddl` (manifest) generated 1 warning
+[1m[92m    Checking[0m ring v0.17.14
+[1m[33mwarning[0m[1m: function `full_mask` is never used[0m
+   [1m[94m--> [0m/Users/sac/bcinr/crates/bcinr-powl/src/typestate.rs:926:10
+    [1m[94m|[0m
+[1m[94m926[0m [1m[94m|[0m const fn full_mask(n: usize) -> u64 {
+    [1m[94m|[0m          [1m[33m^^^^^^^^^[0m
+    [1m[94m|[0m
+    [1m[94m= [0m[1mnote[0m: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+[1m[33mwarning[0m: `bcinr-powl` (lib) generated 1 warning
+[1m[33mwarning[0m: ggen@26.7.4: Discovered 335 templates
+[1m[33mwarning[0m: ggen@26.7.4: Discovered 12 core ontologies
+[1m[92m    Checking[0m rustls-webpki v0.103.13
+[1m[92m    Checking[0m rustls v0.23.41
+[1m[92m    Checking[0m tokio-rustls v0.26.4
+[1m[92m    Checking[0m rustls-platform-verifier v0.7.0
+[1m[92m    Checking[0m ureq v3.3.0
+[1m[92m    Checking[0m hyper-rustls v0.27.9
+[1m[92m    Checking[0m lsp-max-agent v26.6.24
+[1m[92m    Checking[0m reqwest v0.12.28
+[1m[92m    Checking[0m reqwest v0.13.4
+[1m[92m    Checking[0m lsp-max v26.6.24
+[1m[92m    Checking[0m genai v0.5.3
+[1m[92m    Checking[0m ggen-marketplace v26.7.4 (/Users/sac/ggen/crates/ggen-marketplace)
+[1m[92m    Checking[0m opentelemetry-http v0.31.0
+[1m[92m    Checking[0m curies v0.1.3
+[1m[92m    Checking[0m opentelemetry-otlp v0.31.1
+[1m[92m    Checking[0m qlue-ls v2.8.2
+[1m[92m    Checking[0m ggen-engine v26.7.13 (/Users/sac/ggen/crates/ggen-engine)
+[1m[92m    Checking[0m ggen v26.7.4 (/Users/sac/ggen)
+[1m[33mwarning[0m[1m: associated function `validate_unchecked` is never used[0m
+   [1m[94m--> [0mcrates/ggen-engine/src/types.rs:373:19
+    [1m[94m|[0m
+[1m[94m366[0m [1m[94m|[0m impl<T, Witness> Evidence<T, Validated, Witness> {
+    [1m[94m|[0m [1m[94m------------------------------------------------[0m [1m[94massociated function in this implementation[0m
+[1m[94m...[0m
+[1m[94m373[0m [1m[94m|[0m     pub(crate) fn validate_unchecked(inner: T) -> Self {
+    [1m[94m|[0m                   [1m[33m^^^^^^^^^^^^^^^^^^[0m
+    [1m[94m|[0m
+    [1m[94m= [0m[1mnote[0m: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+[1m[33mwarning[0m[1m: associated function `new` is never used[0m
+   [1m[94m--> [0mcrates/ggen-engine/src/types.rs:437:19
+    [1m[94m|[0m
+[1m[94m435[0m [1m[94m|[0m impl AdmittedReceipt {
+    [1m[94m|[0m [1m[94m--------------------[0m [1m[94massociated function in this implementation[0m
+[1m[94m436[0m [1m[94m|[0m     /// Create a new sealed receipt. Restricted to crate/module validator authority.
+[1m[94m437[0m [1m[94m|[0m     pub(crate) fn new(chain_hash: [u8; 32], timestamp: u64) -> Self {
+    [1m[94m|[0m                   [1m[33m^^^[0m
+
+[1m[33mwarning[0m[1m: missing documentation for a variant[0m
+  [1m[94m--> [0mcrates/ggen-engine/src/error.rs:10:5
+   [1m[94m|[0m
+[1m[94m10[0m [1m[94m|[0m     Io(#[from] std::io::Error),
+   [1m[94m|[0m     [1m[33m^^[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: requested on the command line with `-W missing-docs`
+
+[1m[33mwarning[0m[1m: missing documentation for a variant[0m
+  [1m[94m--> [0mcrates/ggen-engine/src/error.rs:13:5
+   [1m[94m|[0m
+[1m[94m13[0m [1m[94m|[0m     Serde(#[from] serde_json::Error),
+   [1m[94m|[0m     [1m[33m^^^^^[0m
+
+[1m[33mwarning[0m[1m: missing documentation for an associated type[0m
+   [1m[94m--> [0mcrates/ggen-engine/src/types.rs:404:5
+    [1m[94m|[0m
+[1m[94m404[0m [1m[94m|[0m     type Input;
+    [1m[94m|[0m     [1m[33m^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: missing documentation for an associated type[0m
+   [1m[94m--> [0mcrates/ggen-engine/src/types.rs:405:5
+    [1m[94m|[0m
+[1m[94m405[0m [1m[94m|[0m     type Witness;
+    [1m[94m|[0m     [1m[33m^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: missing documentation for an associated type[0m
+   [1m[94m--> [0mcrates/ggen-engine/src/types.rs:406:5
+    [1m[94m|[0m
+[1m[94m406[0m [1m[94m|[0m     type Error;
+    [1m[94m|[0m     [1m[33m^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: missing documentation for an associated function[0m
+   [1m[94m--> [0mcrates/ggen-engine/src/types.rs:408:5
+    [1m[94m|[0m
+[1m[94m408[0m [1m[94m|[0m [1m[33m/[0m     fn admit(
+[1m[94m409[0m [1m[94m|[0m [1m[33m|[0m         input: Evidence<Self::Input, Raw, Self::Witness>,
+[1m[94m410[0m [1m[94m|[0m [1m[33m|[0m     ) -> Result<Evidence<Self::Input, Admitted, Self::Witness>, Self::Error>;
+    [1m[94m|[0m [1m[33m|_____________________________________________________________________________^[0m
+
+[1m[33mwarning[0m[1m: missing documentation for a variant[0m
+   [1m[94m--> [0mcrates/ggen-engine/src/types.rs:493:5
+    [1m[94m|[0m
+[1m[94m493[0m [1m[94m|[0m     Pass,
+    [1m[94m|[0m     [1m[33m^^^^[0m
+
+[1m[33mwarning[0m[1m: missing documentation for a variant[0m
+   [1m[94m--> [0mcrates/ggen-engine/src/types.rs:494:5
+    [1m[94m|[0m
+[1m[94m494[0m [1m[94m|[0m     Warn,
+    [1m[94m|[0m     [1m[33m^^^^[0m
+
+[1m[33mwarning[0m[1m: missing documentation for a variant[0m
+   [1m[94m--> [0mcrates/ggen-engine/src/types.rs:495:5
+    [1m[94m|[0m
+[1m[94m495[0m [1m[94m|[0m     Suggest,
+    [1m[94m|[0m     [1m[33m^^^^^^^[0m
+
+[1m[33mwarning[0m: `ggen-engine` (lib) generated 11 warnings
+[1m[92m    Checking[0m ggen-cli-lib v26.7.4 (/Users/sac/ggen/crates/ggen-cli)
+[1m[92m    Checking[0m ggen-lsp v26.7.4 (/Users/sac/ggen/crates/ggen-lsp)
+[1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 6.43s

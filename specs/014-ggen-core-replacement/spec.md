@@ -2,7 +2,8 @@
 
 **Feature Branch**: `2026-ggen-core-replacement`
 **Created**: 2026-07-16
-**Status**: Draft
+**Status**: Complete
+**Completed**: 2026-07-17
 **Input**: User description: "Retire ggen-core in favor of a first-principles engine built from praxis/crates/ggen, per the full 13-ticket scope in docs/jira/v26.7.16/ (00-OVERVIEW through 13-CLAUDE-MD-REFACTOR)"
 
 ## User Scenarios & Testing *(mandatory)*
