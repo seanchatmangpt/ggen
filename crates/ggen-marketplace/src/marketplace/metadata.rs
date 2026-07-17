@@ -108,7 +108,11 @@ struct MetadataJson {
 ///
 /// # Arguments
 ///
-/// * `cache_dir` - The pack cache directory (e.g., `~/.cache/ggen/packs/{pack_id}/{version}/`)
+/// * `cache_dir` - The pack cache directory, e.g. the path returned by
+///   [`pack_cache_dir`] (env-overridable via `GGEN_PACK_CACHE_DIR`, else the
+///   platform cache directory joined with `ggen/packs/{pack_id}/{version}/`
+///   -- `~/Library/Caches/ggen/packs/...` on macOS, `~/.cache/ggen/packs/...`
+///   on Linux)
 ///
 /// # Errors
 ///
@@ -284,6 +288,51 @@ pub fn parse_trust_tier(s: &str) -> Option<TrustTier> {
     }
 }
 
+/// Canonical root directory for the transient pack download/extract cache.
+///
+/// Resolution order (first match wins):
+/// 1. `GGEN_PACK_CACHE_DIR` environment variable -- an unconditional override
+///    (no existence check), matching the one resolver of the previously
+///    three independent implementations that already honored this var
+///    ([`crate::marketplace::install::Installer::persistent_cache_path`]).
+/// 2. The platform cache directory (`dirs::cache_dir()`) joined with
+///    `ggen/packs` -- e.g. `~/Library/Caches/ggen/packs` on macOS,
+///    `~/.cache/ggen/packs` on Linux. Falls back to a bare `.cache` root if
+///    the platform cache directory cannot be determined, matching this
+///    module's and [`crate::marketplace::cache::CacheConfig::default`]'s
+///    pre-existing fallback convention.
+///
+/// This is the single canonical resolver for the transient pack cache root.
+/// [`get_pack_cache_dir`], `Installer::persistent_cache_path`, and
+/// `CacheConfig::default` all delegate to this function so those three
+/// previously-independent resolvers (which used to disagree on both the
+/// default directory and whether the env override was honored) cannot drift
+/// apart again.
+///
+/// Not to be confused with `~/.ggen/packs` (the separate installed-pack
+/// catalog root used by `install_pack_by_id`/`get_packs_dir` in
+/// `packs_registry`/`ggen-cli`) -- that is an architecturally distinct
+/// concern (the durable installed-pack catalog vs. this transient
+/// download/extract cache) and is untouched by this function.
+#[must_use]
+pub fn pack_cache_root() -> PathBuf {
+    std::env::var("GGEN_PACK_CACHE_DIR")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| {
+            dirs::cache_dir()
+                .unwrap_or_else(|| PathBuf::from(".cache"))
+                .join("ggen")
+                .join("packs")
+        })
+}
+
+/// Canonical per-pack-version cache directory: [`pack_cache_root`] joined
+/// with `<id>/<version>`.
+#[must_use]
+pub fn pack_cache_dir(id: &str, version: &str) -> PathBuf {
+    pack_cache_root().join(id).join(version)
+}
+
 /// Get the cache directory for a specific pack version
 ///
 /// # Arguments
@@ -293,20 +342,20 @@ pub fn parse_trust_tier(s: &str) -> Option<TrustTier> {
 ///
 /// # Returns
 ///
-/// The path to the pack cache directory
+/// The path to the pack cache directory -- see [`pack_cache_root`] for the
+/// resolution order (env-overridable via `GGEN_PACK_CACHE_DIR`, else the
+/// platform cache directory). Thin wrapper around [`pack_cache_dir`], kept as
+/// a separate function so existing callers (which pass a [`PackageId`], not
+/// a bare `&str`) don't need to change.
 #[must_use]
 pub fn get_pack_cache_dir(package_id: &PackageId, version: &str) -> PathBuf {
-    dirs::cache_dir()
-        .unwrap_or_else(|| PathBuf::from(".cache"))
-        .join("ggen")
-        .join("packs")
-        .join(package_id.as_str())
-        .join(version)
+    pack_cache_dir(package_id.as_str(), version)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
     use tempfile::TempDir;
 
     #[test]
@@ -427,8 +476,15 @@ trust_tier = "EnterpriseCertified"
         );
     }
 
+    /// `#[serial]`: `get_pack_cache_dir` now delegates through
+    /// `pack_cache_root`, which reads `GGEN_PACK_CACHE_DIR` -- without
+    /// serialization this races against other tests (e.g. the E2 drift-guard
+    /// tests in `marketplace::install::tests`) that set/unset that same
+    /// process-wide env var.
     #[test]
+    #[serial]
     fn test_get_pack_cache_dir() {
+        std::env::remove_var("GGEN_PACK_CACHE_DIR");
         let package_id = PackageId::new("test-package").unwrap();
         let version = "1.0.0";
 

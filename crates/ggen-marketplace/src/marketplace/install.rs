@@ -84,19 +84,18 @@ impl<R: AsyncRepository> Installer<R> {
         self
     }
 
-    /// Get persistent cache path for a pack
+    /// Get persistent cache path for a pack.
+    ///
+    /// Delegates to [`crate::marketplace::metadata::pack_cache_dir`], the
+    /// single canonical resolver for the transient pack cache root (see that
+    /// function's docs for the full resolution order). This used to be one
+    /// of three independently-hardcoded resolvers that disagreed with each
+    /// other on both the default directory and `GGEN_PACK_CACHE_DIR`
+    /// support; unifying them here keeps this call site in lockstep with
+    /// [`crate::marketplace::metadata::get_pack_cache_dir`] and
+    /// [`crate::marketplace::cache::CacheConfig::default`].
     fn persistent_cache_path(&self, package_id: &PackageId, version: &PackageVersion) -> PathBuf {
-        std::env::var("GGEN_PACK_CACHE_DIR")
-            .map(PathBuf::from)
-            .unwrap_or_else(|_| {
-                dirs::home_dir()
-                    .unwrap_or_else(|| std::env::temp_dir())
-                    .join(".cache")
-                    .join("ggen")
-                    .join("packs")
-            })
-            .join(package_id.as_str())
-            .join(version.as_str())
+        crate::marketplace::metadata::pack_cache_dir(package_id.as_str(), version.as_str())
     }
 
     /// Get a reference to the cache
@@ -1485,6 +1484,69 @@ fn write_lockfile_entry(
     Ok(lockfile_path)
 }
 
+/// Materialize a local pack's real content into its install directory.
+///
+/// External (`<prefix>:id`) packs get real content via
+/// [`download_and_verify_external_pack`]/[`unpack_external_pack`] in
+/// [`install_pack_by_id`]; local (bare-id) packs previously only got a bare
+/// `create_dir_all` with nothing copied in, which left the install
+/// directory empty. `crate::agent::receipt::read_artifact_bytes` hashes an
+/// empty directory's entry manifest as the empty string, so the signed
+/// install receipt attested a real cryptographic proof of nothing -- this
+/// closes that gap.
+///
+/// Copies two things:
+/// 1. The pack's own source TOML (`<packs_dir>/<id>.toml`), read as raw
+///    bytes and written byte-for-byte (not re-serialized from the parsed
+///    [`Pack`](crate::packs_registry::types::Pack) struct), so any fields the
+///    `Pack` type doesn't model survive the round trip.
+/// 2. Each in-memory `pack.sparql_queries` entry, written to
+///    `queries/<name>.rq` (no I/O needed to obtain these -- they're already
+///    parsed into the `Pack`).
+///
+/// Deliberately does NOT materialize `pack.templates`: investigation found
+/// template source files are unreachable through any code path outside a
+/// dev checkout (no embedding, ambiguous root resolution) -- a bounded scope
+/// decision, not an oversight.
+///
+/// Does not touch [`compute_pack_digest`], which hashes only pack identity
+/// (id/version/packages/dependency ids), never file content -- adding real
+/// files here does not change the digest `sync --locked` re-derives.
+fn materialize_local_pack(
+    pack: &crate::packs_registry::types::Pack, packs_dir: &Path, install_path: &Path,
+) -> Result<()> {
+    let src_toml_path = packs_dir.join(format!("{}.toml", pack.id));
+    let raw_toml_bytes = fs::read(&src_toml_path).map_err(|e| Error::InstallationFailed {
+        reason: format!(
+            "Failed to read pack source '{}': {}",
+            src_toml_path.display(),
+            e
+        ),
+    })?;
+    fs::write(
+        install_path.join(format!("{}.toml", pack.id)),
+        &raw_toml_bytes,
+    )
+    .map_err(|e| Error::InstallationFailed {
+        reason: format!("Failed to write pack TOML to install dir: {}", e),
+    })?;
+
+    if !pack.sparql_queries.is_empty() {
+        let queries_dir = install_path.join("queries");
+        fs::create_dir_all(&queries_dir).map_err(|e| Error::InstallationFailed {
+            reason: format!("Failed to create queries dir: {}", e),
+        })?;
+        for (name, query) in &pack.sparql_queries {
+            let query_path = queries_dir.join(format!("{}.rq", name));
+            fs::write(&query_path, query).map_err(|e| Error::InstallationFailed {
+                reason: format!("Failed to write query '{}': {}", name, e),
+            })?;
+        }
+    }
+
+    Ok(())
+}
+
 /// Install a pack by bare string ID -- local registry lookup, or an external
 /// registry fetch when `pack_id` contains a `<prefix>:` (e.g. `npm:lodash`).
 ///
@@ -1525,6 +1587,9 @@ pub async fn install_pack_by_id(input: &InstallByIdInput) -> Result<InstallByIdO
         if input.pack_id.contains(':') {
             download_and_verify_external_pack(&input.pack_id, &pack, &install_path).await?;
             unpack_external_pack(&input.pack_id, &pack, &install_path).await?;
+        } else {
+            let packs_dir = crate::packs_registry::metadata::get_packs_dir()?;
+            materialize_local_pack(&pack, &packs_dir, &install_path)?;
         }
     }
 
@@ -1673,6 +1738,7 @@ mod tests {
     use super::*;
     use crate::marketplace::cache::CacheConfig;
     use crate::marketplace::registry::Registry;
+    use serial_test::serial;
     use tempfile::TempDir;
 
     #[tokio::test]
@@ -2127,5 +2193,119 @@ mod tests {
 
         // This test verifies the callback signature is correct and compiles
         // Callback type is ProgressCallback = Box<dyn Fn(usize, usize, &str) + Send + Sync>
+    }
+
+    /// Drift guard (default branch, `GGEN_PACK_CACHE_DIR` unset): before the
+    /// E2 fix, `Installer::persistent_cache_path` resolved
+    /// `home_dir()/.cache/ggen/packs/<id>/<version>` while
+    /// `get_pack_cache_dir`/`CacheConfig::default` resolved
+    /// `dirs::cache_dir()/ggen/packs/<id>/<version>` -- genuinely different
+    /// directories on macOS (`~/.cache/...` vs `~/Library/Caches/...`). All
+    /// three now delegate to [`crate::marketplace::metadata::pack_cache_root`]
+    /// / [`crate::marketplace::metadata::pack_cache_dir`] and must agree.
+    /// `#[serial]` plus explicit `remove_var` guards against races with the
+    /// override-branch test below (both mutate the same process-wide env var).
+    #[test]
+    #[serial]
+    fn test_pack_cache_resolvers_agree_default() {
+        std::env::remove_var("GGEN_PACK_CACHE_DIR");
+
+        let registry = Registry::new(100);
+        let temp_dir = TempDir::new().unwrap();
+        let cache_config = CacheConfig {
+            cache_dir: temp_dir.path().join("cache"),
+            ..Default::default()
+        };
+        let cache = PackCache::new(cache_config).unwrap();
+        let installer = Installer::new(registry, cache);
+
+        let package_id = PackageId::new("drift-guard-pack").unwrap();
+        let version = PackageVersion::new("1.2.3").unwrap();
+
+        let via_installer = installer.persistent_cache_path(&package_id, &version);
+        let via_get_pack_cache_dir =
+            crate::marketplace::metadata::get_pack_cache_dir(&package_id, version.as_str());
+        let via_pack_cache_dir =
+            crate::marketplace::metadata::pack_cache_dir(package_id.as_str(), version.as_str());
+        let via_cache_config_root = CacheConfig::default().cache_dir;
+        let via_pack_cache_root = crate::marketplace::metadata::pack_cache_root();
+
+        assert_eq!(
+            via_installer, via_get_pack_cache_dir,
+            "Installer::persistent_cache_path and get_pack_cache_dir must agree"
+        );
+        assert_eq!(
+            via_installer, via_pack_cache_dir,
+            "Installer::persistent_cache_path and pack_cache_dir must agree"
+        );
+        assert_eq!(
+            via_cache_config_root, via_pack_cache_root,
+            "CacheConfig::default's cache_dir and pack_cache_root must agree"
+        );
+        assert_eq!(
+            via_installer,
+            via_cache_config_root
+                .join(package_id.as_str())
+                .join(version.as_str()),
+            "the per-version path must equal the root joined with id/version"
+        );
+
+        std::env::remove_var("GGEN_PACK_CACHE_DIR");
+    }
+
+    /// Drift guard (override branch, `GGEN_PACK_CACHE_DIR` set): before the
+    /// E2 fix, setting this env var only redirected
+    /// `Installer::persistent_cache_path` -- `get_pack_cache_dir` and
+    /// `CacheConfig::default` silently ignored it. All three must now honor
+    /// the override identically.
+    #[test]
+    #[serial]
+    fn test_pack_cache_resolvers_agree_env_override() {
+        let scratch = TempDir::new().unwrap();
+        let override_dir = scratch.path().join("ggen-pack-cache-override");
+        std::env::set_var("GGEN_PACK_CACHE_DIR", &override_dir);
+
+        let registry = Registry::new(100);
+        let temp_dir = TempDir::new().unwrap();
+        let cache_config = CacheConfig {
+            cache_dir: temp_dir.path().join("cache"),
+            ..Default::default()
+        };
+        let cache = PackCache::new(cache_config).unwrap();
+        let installer = Installer::new(registry, cache);
+
+        let package_id = PackageId::new("drift-guard-pack").unwrap();
+        let version = PackageVersion::new("1.2.3").unwrap();
+
+        let via_installer = installer.persistent_cache_path(&package_id, &version);
+        let via_get_pack_cache_dir =
+            crate::marketplace::metadata::get_pack_cache_dir(&package_id, version.as_str());
+        let via_pack_cache_dir =
+            crate::marketplace::metadata::pack_cache_dir(package_id.as_str(), version.as_str());
+        let via_cache_config_root = CacheConfig::default().cache_dir;
+        let via_pack_cache_root = crate::marketplace::metadata::pack_cache_root();
+
+        assert_eq!(
+            via_pack_cache_root, override_dir,
+            "pack_cache_root must honor GGEN_PACK_CACHE_DIR"
+        );
+        assert_eq!(
+            via_cache_config_root, override_dir,
+            "CacheConfig::default must now honor GGEN_PACK_CACHE_DIR (previously ignored it)"
+        );
+        assert_eq!(
+            via_installer,
+            override_dir
+                .join(package_id.as_str())
+                .join(version.as_str()),
+            "Installer::persistent_cache_path must honor GGEN_PACK_CACHE_DIR"
+        );
+        assert_eq!(
+            via_installer, via_get_pack_cache_dir,
+            "get_pack_cache_dir must now honor GGEN_PACK_CACHE_DIR (previously ignored it)"
+        );
+        assert_eq!(via_installer, via_pack_cache_dir);
+
+        std::env::remove_var("GGEN_PACK_CACHE_DIR");
     }
 }
