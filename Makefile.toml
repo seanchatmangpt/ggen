@@ -115,12 +115,18 @@ echo "🔍 Running clippy linting (strict mode, single pass)..."
 
 # Single clippy run with generous timeout
 # First compilation pass compiles all deps, subsequent runs use cache (fast)
+# NOTE: `exit_code=$?` must be captured in the else-branch -- after
+# `if cmd; then ...; fi` with no intervening fallthrough, `$?` on a later
+# line is the if-statement's own exit (0), not the command's (found 2026-07-17,
+# same bug as justfile's `test:`/`test-doc:` recipes -- this task always
+# reported success even on real clippy failures or timeouts).
 if timeout 90s cargo clippy --all-targets --all-features -- -D warnings; then
     echo "✅ Clippy linting passed"
     exit 0
+else
+    exit_code=$?
 fi
 
-exit_code=$?
 if [ "$exit_code" -eq 124 ]; then
     echo "⚠️  Clippy timed out after 90s (likely large workspace rebuild)"
     echo "   Try faster variant: cargo clippy --lib -- -D warnings"
@@ -345,8 +351,13 @@ script = '''
 #!/bin/bash
 set -euo pipefail
 # --tests: integration tests only (skips doctest compilation and the blocking lib test)
-if timeout 30s cargo test --workspace --tests; then exit 0; fi
-status=$?
+# NOTE: `status=$?` must be captured in the else-branch -- see the clippy task's
+# note above (found 2026-07-17).
+if timeout 30s cargo test --workspace --tests; then
+    exit 0
+else
+    status=$?
+fi
 [ "$status" -eq 124 ] || exit "$status"
 echo "⚠️  First compile > 30s, escalating to 120s..."
 timeout 120s cargo test --workspace --tests
@@ -367,11 +378,14 @@ if [ "$#" -gt 0 ]; then
   TEST_CMD+=("$@")
 fi
 
+# NOTE: `status=$?` must be captured in the else-branch -- see [tasks.lint]'s
+# note above (found 2026-07-17).
 if timeout 30s "${TEST_CMD[@]}"; then
   exit 0
+else
+  status=$?
 fi
 
-status=$?
 if [ "$status" -eq 124 ]; then
   echo "⚠️  Quick test run exceeded 30s timeout; rerunning with 120s timeout (stop-the-line escalation)..."
   timeout 120s "${TEST_CMD[@]}"
@@ -419,11 +433,14 @@ set -euo pipefail
 
 DOC_CMD=(cargo test --doc --workspace --exclude ggen-node --exclude ggen-core)
 
+# NOTE: `status=$?` must be captured in the else-branch -- see [tasks.lint]'s
+# note above (found 2026-07-17).
 if timeout 60s "${DOC_CMD[@]}"; then
   exit 0
+else
+  status=$?
 fi
 
-status=$?
 if [ "$status" -eq 124 ]; then
   echo "⚠️  Doc tests exceeded 60s timeout; rerunning with 180s timeout..."
   timeout 180s "${DOC_CMD[@]}"
@@ -1268,11 +1285,14 @@ set -euo pipefail
 
 DOCS_CMD=(cargo doc --no-deps --all)
 
+# NOTE: `status=$?` must be captured in the else-branch -- see [tasks.lint]'s
+# note above (found 2026-07-17).
 if timeout 30s "${DOCS_CMD[@]}"; then
   exit 0
+else
+  status=$?
 fi
 
-status=$?
 if [ "$status" -eq 124 ]; then
   echo "⚠️  Docs build exceeded 30s timeout; rerunning with 180s timeout..."
   timeout 180s "${DOCS_CMD[@]}"

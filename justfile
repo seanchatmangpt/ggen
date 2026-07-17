@@ -123,11 +123,17 @@ lint:
 test:
     #!/usr/bin/env bash
     set -euo pipefail
-    if timeout 30s cargo test --workspace --tests; then exit 0; fi
-    status=$?
+    # NOTE: `status=$?` must be captured in the else-branch — after `if cmd; then exit 0; fi`,
+    # `$?` is the if-statement's own exit (0), which silently turned every timeout kill into a
+    # green gate (found 2026-07-17: exit 0 with the run killed mid-compile).
+    if timeout 30s cargo test --workspace --tests; then
+        exit 0
+    else
+        status=$?
+    fi
     [ "$status" -eq 124 ] || exit "$status"
-    echo "⚠️  First compile >30s, escalating to 120s..."
-    timeout 120s cargo test --workspace --tests
+    echo "⚠️  First compile >30s, escalating to 600s..."
+    timeout 600s cargo test --workspace --tests
 
 # Unit/lib tests inside each crate
 test-lib:
@@ -145,8 +151,13 @@ test-lib:
 test-doc:
     #!/usr/bin/env bash
     set -euo pipefail
-    if timeout 60s cargo test --doc --workspace; then exit 0; fi
-    status=$?
+    # See the `test:` recipe's note above on why `status=$?` must be captured
+    # inside an explicit `else` — the same bug was found here 2026-07-17.
+    if timeout 60s cargo test --doc --workspace; then
+        exit 0
+    else
+        status=$?
+    fi
     [ "$status" -eq 124 ] || exit "$status"
     echo "⚠️  Doc tests >60s, escalating to 180s..."
     timeout 180s cargo test --doc --workspace
