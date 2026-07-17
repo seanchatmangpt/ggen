@@ -18,6 +18,7 @@ use ggen_marketplace::packs_registry::metadata::{list_packs, load_pack_metadata,
 
 #[derive(Serialize)]
 pub struct AddOutput {
+    pub pack_id: String,
     pub pack_name: String,
     pub status: String,
     pub message: String,
@@ -97,6 +98,7 @@ pub fn add(#[arg(index = 1)] pack_name: String, force: Option<bool>) -> Result<A
     // Verify the pack exists before attempting installation
     if let Err(e) = load_pack_metadata(&pack_name) {
         return Ok(AddOutput {
+            pack_id: pack_name.clone(),
             pack_name: pack_name.clone(),
             status: "not_found".to_string(),
             message: format!(
@@ -148,7 +150,8 @@ pub fn add(#[arg(index = 1)] pack_name: String, force: Option<bool>) -> Result<A
         })?;
 
     Ok(AddOutput {
-        pack_name: output.pack_id.clone(),
+        pack_id: output.pack_id.clone(),
+        pack_name: output.pack_name.clone(),
         status: "installed".to_string(),
         message: format!(
             "Pack '{}' ({}) installed successfully. {} package(s) recorded, {} template(s) available. Lockfile: .ggen/packs.lock. Receipt: {}",
@@ -256,8 +259,8 @@ pub fn list(verbose: Option<bool>, category: Option<String>) -> Result<ListOutpu
                 description: pkg.description,
                 version: pkg.version,
                 category: default_category.clone(),
-                package_count: 0,
-                template_count: 0,
+                package_count: pkg.packages.len(),
+                template_count: pkg.templates.len(),
                 production_ready: pkg.production_ready,
                 registry_type: pkg.registry_type.unwrap_or_else(|| "local".to_string()),
             }

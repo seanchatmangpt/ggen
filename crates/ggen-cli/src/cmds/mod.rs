@@ -108,6 +108,125 @@ pub mod policy;
 // pub mod sigma;
 pub mod utils;
 
+// ---------------------------------------------------------------------
+// Noun `--help` descriptions, registered explicitly for the same reason
+// `ggen-engine/src/verbs/mod.rs` (lines 18-32 there) registers its own 5
+// nouns this way: clap-noun-verb's `#[verb]` macro can ALSO auto-scrape a
+// noun's `about` text by re-reading its source file's `//!` doc comment
+// from disk at runtime via a `file!()`-derived path — but that path only
+// resolves when the process's current directory happens to be this repo
+// checkout. Since `ggen` is invoked from arbitrary target-project
+// directories, that scrape silently fails there and the noun `--help`
+// line comes back blank. Registering here instead is robust regardless of
+// working directory: `__NOUN_REGISTRY` entries all run before
+// `__VERB_REGISTRY` entries at first access, and
+// `CommandRegistry::register_noun` is first-writer-wins
+// (`entry(..).or_insert_with(..)`), so this registration always wins over
+// the macro's own runtime scrape attempt. `ggen-cli` is the binary crate
+// itself, so no extra force-link shim (like ggen-engine needed) is
+// required for these distributed-slice statics to be linked in.
+//
+// Each `about` string below is copied verbatim from the corresponding
+// file's own leading `//!` module doc comment (joined across a
+// same-sentence line wrap only where the source has no blank `//!` line
+// between them); see that file's own doc comment for authorship. Noun
+// keys are the raw file stem with NO kebab-case normalization (confirmed
+// in clap-noun-verb-macros 26.7.4's `__auto__` noun-inference branch,
+// `Path::file_stem()`).
+//
+// Only 7 of the 9 files this was originally scoped to are real nouns.
+// Confirmed by grepping every `#[verb(...)]`/`#[verb]` attribute in each
+// file (bare `#[verb]` = auto-inferred noun = file stem; explicit
+// `#[verb(verb_name, noun_name)]` = whatever noun_name says):
+//
+//   - `init.rs` declares its single verb as `#[verb("init", "root")]` —
+//     an explicit ROOT-LEVEL (flat) verb, not a noun. Its `--help` about
+//     text already comes from the verb function's own `///` doc comment,
+//     parsed by the macro from the AST at COMPILE TIME (`extract_docstring`
+//     in clap-noun-verb-macros 26.7.4's `lib.rs`) — never re-read from disk
+//     at runtime, so it does not suffer the CWD-dependent bug this block
+//     exists to fix. Registering a noun ALSO named "init" here would add a
+//     second top-level `ggen init` subcommand alongside the existing root
+//     verb of the same name; confirmed live, this hard-panics at startup
+//     (`clap_builder`'s `debug_asserts::assert_app`: "Command cli: command
+//     name `init` is duplicated"), reproduced both inside this checkout and
+//     from `/tmp` before this comment was written. Deliberately omitted.
+//   - `git_hooks.rs` has ZERO `#[verb]` functions anywhere in it (confirmed:
+//     `grep -n '#\[verb' crates/ggen-cli/src/cmds/git_hooks.rs` returns
+//     nothing) — it is a plain helper module (`install_git_hooks` etc.)
+//     called from `init.rs`'s `perform_init`, not a CLI noun at all. `ggen
+//     git_hooks` is not a real command; registering a noun for it would
+//     fabricate a top-level subcommand with no verbs under it. Deliberately
+//     omitted. (`crate::run_for_node`'s `KNOWN_NOUNS` list in
+//     `crates/ggen-cli/src/lib.rs` includes the hyphenated `"git-hooks"` —
+//     that list also includes several other nouns archived out of the
+//     default build, e.g. `market`/`lifecycle`/`ci`/`template`/`wizard`; it
+//     is a stale aspirational whitelist, not evidence this noun exists.)
+// ---------------------------------------------------------------------
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_AGENT_NOUN: fn() = register_agent_noun;
+fn register_agent_noun() {
+    ::clap_noun_verb::cli::registry::CommandRegistry::register_noun(
+        "agent",
+        "Agent noun — the AGI-facing CLI surface over `crate::agent::PackAgent`.",
+    );
+}
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_CAPABILITY_NOUN: fn() = register_capability_noun;
+fn register_capability_noun() {
+    ::clap_noun_verb::cli::registry::CommandRegistry::register_noun(
+        "capability",
+        "Capability noun — resolve and enable capability surfaces (`ggen capability <verb>`).",
+    );
+}
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_ONTOLOGY_NOUN: fn() = register_ontology_noun;
+fn register_ontology_noun() {
+    ::clap_noun_verb::cli::registry::CommandRegistry::register_noun(
+        "ontology",
+        "Ontology Commands - Embedded and Marketplace Ontology Management",
+    );
+}
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_PACK_NOUN: fn() = register_pack_noun;
+fn register_pack_noun() {
+    ::clap_noun_verb::cli::registry::CommandRegistry::register_noun(
+        "pack",
+        "Pack Commands (singular alias for `packs`)",
+    );
+}
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_PACKS_NOUN: fn() = register_packs_noun;
+fn register_packs_noun() {
+    ::clap_noun_verb::cli::registry::CommandRegistry::register_noun(
+        "packs",
+        "Packs noun — lockfile-oriented, multi-pack project management (`ggen packs <verb>`).",
+    );
+}
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_POLICY_NOUN: fn() = register_policy_noun;
+fn register_policy_noun() {
+    ::clap_noun_verb::cli::registry::CommandRegistry::register_noun(
+        "policy",
+        "This module provides policy management commands wired to the marketplace layer.",
+    );
+}
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_UTILS_NOUN: fn() = register_utils_noun;
+fn register_utils_noun() {
+    ::clap_noun_verb::cli::registry::CommandRegistry::register_noun(
+        "utils",
+        "Utils Commands - clap-noun-verb v3.4.0 Migration",
+    );
+}
+
 use crate::prelude::*;
 
 /// Setup and run the command router using clap-noun-verb v26.5.19 auto-discovery
