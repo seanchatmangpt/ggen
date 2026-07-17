@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://praxis.chatman.io/schemas/static_gate_scenario.schema.json",
+  "title": "Static gate scenario",
+  "description": "Chatman engine acceptance/falsification scenario. The expected_refusal enum mirrors Refusal::name() in crates/praxis-graphlaw/src/chatman/abi.rs exactly; tests/chatman_static_gates.rs asserts set-equality.",
+  "type": "object",
+  "required": [
+    "case",
+    "kind",
+    "seed",
+    "input"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "case": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique scenario identifier (kebab-case)."
+    },
+    "kind": {
+      "enum": [
+        "acceptance",
+        "falsification"
+      ],
+      "description": "acceptance: input must be admitted; falsification: input must be refused with expected_refusal."
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Deterministic seed; same seed => same bytes."
+    },
+    "mutation": {
+      "type": "string",
+      "description": "Optional named mutation applied to the acceptance base case to produce this falsification case."
+    },
+    "expected_refusal": {
+      "enum": [
+        "ValidationFailed",
+        "PlanInfeasible",
+        "TraceUnlawful",
+        "HookUnpermitted",
+        "MissingReceipt",
+        "SnapshotNotFound",
+        "BoundaryRequestMissingReceipt",
+        "Triple8UniverseOverflow",
+        "TermNotInTriple8Universe",
+        "ProfileSymbolTableMismatch",
+        "ProjectionHashMismatch",
+        "WarmPathRequired",
+        "AdmissionTableMismatch",
+        "HookPatternNotAdmitted",
+        "OcelEventNotAdmitted",
+        "LeastExpressiveRouteViolation",
+        "UnsupportedDialect",
+        "N3UnavailableByProfile",
+        "N3ActuationRefused",
+        "N3CostBoundExceeded",
+        "N3BuiltinRefused",
+        "N3DirectActuationRefused",
+        "RouteDecisionMismatch",
+        "GraphSnapshotMismatch",
+        "ProfileHashMismatch",
+        "AgentOverrideDenied",
+        "WitnessNotAuthority",
+        "BreedUnpermitted",
+        "NondeterministicOperatorRequiresReceipt",
+        "ProcessReceiptShadowType",
+        "DuplicateCanonicalTapeType",
+        "TripleTermInSnapshot",
+        "StageSealMismatch",
+        "UnlawfulActuation",
+        "PowlRegionNotAdmitted",
+        "ExternalCutUndeclared",
+        "ExternalCutTypeMismatch",
+        "ExternalCutAuthorityMismatch",
+        "ClosureLawNoChildren",
+        "ClosureLawQuorumOutOfRange",
+        "ClosureLawUnknownChild",
+        "ClosureLawOrderedSubsetInvalid",
+        "ClosureLawPolicyNotDeclared",
+        "ChildConformanceRefused",
+        "ChildCompletionUnadmitted",
+        "ParentClosureUnsatisfied"
+      ],
+      "description": "Required for kind=falsification: the Refusal::name() value the engine must return."
+    },
+    "expected_behavior": {
+      "type": "string",
+      "description": "Human-readable statement of the admitted behavior (kind=acceptance)."
+    },
+    "input": {
+      "description": "Static source-gate scanner input.",
+      "type": "object",
+      "required": [
+        "gate",
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "gate": {
+          "enum": [
+            "forbidden_tokens",
+            "duplicate_canonical_types",
+            "broad_allow",
+            "n3_not_default",
+            "silent_fallback"
+          ],
+          "description": "Which static gate scanner this scenario exercises."
+        },
+        "source": {
+          "type": "string",
+          "description": "Inline Rust source text the named gate scanner is run against."
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "falsification"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "expected_refusal"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "acceptance"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "expected_behavior"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix string: <http://www.w3.org/2000/10/swap/string#>.
+@prefix : <http://example.org/#>.
+
+:x :hasText "<http://example.org/#a> <http://example.org/#b> <http://example.org/#c>." .
+
+{
+  :x :hasText ?t .
+  ?t log:parsedAsN3 ?g .
+  ?g log:n3String ?s .
+  ?s string:contains "#c" .
+} => {
+  :x :parsedOk true
+}.

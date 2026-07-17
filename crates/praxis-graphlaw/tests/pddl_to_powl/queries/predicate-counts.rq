@@ -1,0 +1,9 @@
+# predicate-counts.rq — test-fixture query.
+# Inputs: any RDF store.
+# Outputs: rows (?p, ?count) — triple count per predicate, ordered.
+# Tests load this file and look up the IRI they assert on; no SPARQL text
+# lives in Rust sources (query-authority boundary).
+SELECT ?p (COUNT(?s) AS ?count)
+WHERE { ?s ?p ?o }
+GROUP BY ?p
+ORDER BY ?p

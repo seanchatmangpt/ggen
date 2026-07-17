@@ -1,0 +1,22 @@
+# Joseph as chief administrator of Egypt — national famine-management plan.
+# Phase artifact: inventory-control (domain fragment). storehouse inventory is measured and recorded.
+# One admitted PDDL Turtle planning artifact; fragments across all phase
+# artifacts merge structurally into ONE combined plan (domain name
+# 'joseph-famine' shared by every fragment). Formal planning-to-workflow
+# demonstration domain; argues no doctrine, claims no historicity.
+@prefix ex: <http://example.org/joseph#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:storehouse-officials ex:record ex:inventory .
+
+ex:inventory-control ceng:pddlDomain """
+(define (domain joseph-famine)
+  (:requirements :strips)
+  (:predicates
+    (grain-stored ?x)
+    (inventory-recorded ?x))
+  (:action record-inventory
+    :parameters (?x)
+    :precondition (and (grain-stored ?x))
+    :effect (and (inventory-recorded ?x))))
+""" .

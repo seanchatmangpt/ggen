@@ -1,0 +1,28 @@
+# Joseph as chief administrator of Egypt — national famine-management plan.
+# Phase artifact: abundance-collection (domain fragment). collection policy is activated; a fifth of produce is collected in abundance years.
+# One admitted PDDL Turtle planning artifact; fragments across all phase
+# artifacts merge structurally into ONE combined plan (domain name
+# 'joseph-famine' shared by every fragment). Formal planning-to-workflow
+# demonstration domain; argues no doctrine, claims no historicity.
+@prefix ex: <http://example.org/joseph#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:joseph ex:governs ex:collection-policy .
+ex:farmers ex:supply ex:grain .
+
+ex:abundance-collection ceng:pddlDomain """
+(define (domain joseph-famine)
+  (:requirements :strips)
+  (:predicates
+    (joseph-appointed ?x)
+    (collection-policy-active ?x)
+    (grain-collected ?x))
+  (:action activate-collection-policy
+    :parameters (?x)
+    :precondition (and (joseph-appointed ?x))
+    :effect (and (collection-policy-active ?x)))
+  (:action collect-fifth-of-produce
+    :parameters (?x)
+    :precondition (and (collection-policy-active ?x))
+    :effect (and (grain-collected ?x))))
+""" .

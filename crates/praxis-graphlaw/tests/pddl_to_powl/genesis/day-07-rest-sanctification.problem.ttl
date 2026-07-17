@@ -1,0 +1,21 @@
+# Genesis Creation Week, day-07-rest-sanctification (problem fragment): the work is complete; rest is blessed and sanctified.
+# One admitted PDDL Turtle planning artifact. Days are planning sources, not
+# workflows: every fragment shares the domain name 'creation-week' and merges
+# structurally into ONE combined seven-day plan whose projection is the one
+# creation-week POWL v2 workflow. Formal process example; argues no doctrine,
+# claims no historicity.
+@prefix ex: <http://example.org/genesis#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:day-07-rest-sanctification a ex:CreationDay ;
+  ex:daySequence 7 ;
+  ex:intends ex:complete-work, ex:bless-seventh-day, ex:rest .
+
+ex:day-07-rest-sanctification ceng:pddlProblem """
+(define (problem creation-week-day-07-rest-sanctification)
+  (:domain creation-week)
+  (:objects creation)
+  (:init (formless-void creation))
+  (:goal (rest-taken creation))
+)
+""" .

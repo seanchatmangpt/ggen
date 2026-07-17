@@ -1,0 +1,4 @@
+[
+  {"s": "<http://example.org/a>", "label": "Alice"},
+  {"s": "<http://example.org/b>", "label": "Bob's Book"}
+]

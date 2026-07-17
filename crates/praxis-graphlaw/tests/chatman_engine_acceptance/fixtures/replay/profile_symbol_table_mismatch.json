@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_ProfileSymbolTableMismatch",
+  "kind": "falsification",
+  "seed": 5986879006288946682,
+  "mutation": "Swap two symbol ids in the profile symbol table against the pinned interning.",
+  "expected_refusal": "ProfileSymbolTableMismatch",
+  "input": {"envelope": {"invocation_id": "urn:chatman:invocation:symtab-1", "snapshot_id": "urn:chatman:snapshot:symtab-1", "profile_id": "urn:chatman:profile:symtab-1", "operator_id": "urn:chatman:operator:symtab-1", "input_handles": {"nodes": ["urn:chatman:node:a"], "events": [], "plan_steps": []}}, "receipts": [], "recorded_envelope_hash": "fc166bfd24f97f25ad9f96c4074290f8b98defc5730e2edaac26af4e3d0c834f", "symbol_universe": ["<urn:chatman:t0>", "<urn:chatman:t1>"], "recorded_symbol_table_hash": "0000000000000000000000000000000000000000000000000000000000000000"}
+}

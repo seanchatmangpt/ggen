@@ -1,0 +1,7 @@
+{
+  "case": "Accept_SnapshotContainsOnlyAtomicTerms",
+  "kind": "acceptance",
+  "seed": 14992396563440703197,
+  "expected_behavior": "snapshot_atomic_terms_only",
+  "input": {"universe": ["<urn:chatman:triple8:atomic1>", "<urn:chatman:triple8:atomic2>", "<urn:chatman:triple8:atomic3>", "<urn:chatman:triple8:atomic4>"], "terms": ["<urn:chatman:triple8:atomic1>", "<urn:chatman:triple8:atomic2>", "<urn:chatman:triple8:atomic3>", "<urn:chatman:triple8:atomic4>"]}
+}

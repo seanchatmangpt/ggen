@@ -1,0 +1,7 @@
+---
+to: out/instances.txt
+sparql:
+  widgets: "SELECT ?name WHERE { ?w a <http://example.com/ontology#Widget> ; <http://example.com/ontology#hasName> ?name } ORDER BY ?name"
+---
+{% for row in results %}{{ row.name }}
+{% endfor %}

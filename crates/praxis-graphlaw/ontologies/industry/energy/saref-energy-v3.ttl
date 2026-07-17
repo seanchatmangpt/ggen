@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en-GB" dir="ltr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="generator" content="saref-pypeline">
+    <title>404 Not Found</title>
+    <link rel="stylesheet" href="/files/bundle.min.css">
+</head>
+
+<body>
+    <nav id="siteNav" class="navbar navbar-expand-lg navbar-light bg-white py-3">
+        <div class="container d-flex justify-content-between">
+            <div class="navbar-brand">
+                <a href="https://www.etsi.org/" title="ETSI home">
+                    <img src="/files/images/etsi.svg" alt="ETSI logo">
+                </a>
+            </div>
+            <div class="navbar-brand">
+                <a class="d-lg-none saref-text" href="https://saref.etsi.org/" rel="home">SAREF</a>
+            </div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav mb-2 mb-lg-0">
+                    <li class="nav-item d-none d-lg-inline">
+                        <a class="nav-link saref-text" href="/index.html">SAREF</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/core/">Core</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">Extensions</a>
+                        <ul class="dropdown-menu">
+                          <li>
+                            <a class="dropdown-item nav-link" href="/saref4agri/">SAREF4AGRI</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item nav-link" href="/saref4auto/">SAREF4AUTO</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item nav-link" href="/saref4bldg/">SAREF4BLDG</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item nav-link" href="/saref4city/">SAREF4CITY</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item nav-link" href="/saref4dmgt/">SAREF4DMGT</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item nav-link" href="/saref4ehaw/">SAREF4EHAW</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item nav-link" href="/saref4ener/">SAREF4ENER</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item nav-link" href="/saref4envi/">SAREF4ENVI</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item nav-link" href="/saref4grid/">SAREF4GRID</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item nav-link" href="/saref4inma/">SAREF4INMA</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item nav-link" href="/saref4lift/">SAREF4LIFT</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item nav-link" href="/saref4mari/">SAREF4MARI</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item nav-link" href="/saref4syst/">SAREF4SYST</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item nav-link" href="/saref4watr/">SAREF4WATR</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item nav-link" href="/saref4wear/">SAREF4WEAR</a>
+                          </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center ms-auto">
+                    <input class="form-control form-control-sm me-2"
+                        id="search-box"
+                        type="search"
+                        placeholder="🔍 ex., device"
+                        data-bs-toggle="modal"
+                        data-bs-target="#searchModal"
+                        readonly>
+                    <div id="social" class="d-flex">
+                        <a href="https://www.facebook.com/etsi.standards" target="_blank" aria-label="ETSI Standards on Facebook">
+                            <i class="fa fa-facebook-official" aria-hidden="true"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/company/etsi?trk=biz-companies-cym" target="_blank" aria-label="ETSI Standards on LinkedIn">
+                            <i class="fa fa-linkedin-square" aria-hidden="true"></i>
+                        </a>
+                        <a href="https://www.youtube.com/user/ETSIstandards" target="_blank" aria-label="ETSI Standards on Youtube">
+                            <i class="fa fa-youtube-play" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="searchModalLabel">Search SAREF</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input id="searchInput" class="form-control form-control-lg mb-3" type="search" placeholder="Type to search…" autocomplete="off">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Pages & Sections</h6>
+                            <ul id="pagesResults" class="list-group list-group-flush small"></ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Important Terms</h6>
+                            <ul id="termsResults" class="list-group list-group-flush small"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <header class="text-light py-3 mx-0">
+        <div class="container">
+                        <h1><strong>404 Not Found.</strong> That's an error.</h1>
+                        <div id="summary">
+            <p>The requested URL /saref/v3.0.0/saref.ttl was not found on this server.</p>
+            </div>
+        </div>
+    </header>
+
+
+    <main id="pageContent" class="container-md">
+        
+    </main>
+
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="news-2024-10" class="toast border-0 mb-3" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-primary text-light">
+                <strong class="me-auto">SAREF is a European Norm!</strong>
+                <small>2024-10</small>
+                <!-- <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button> -->
+            </div>
+            <div class="toast-body">
+                <p>ETSI EN 303 760 provides guidance for developing IoT smart applications and products that are interoperable at the semantic level using the SAREF framework. It details how to apply SAREF, outlines a methodology to demonstrate compliance, and describes optional steps for contributing to a new SAREF extension.</p>
+                <p><small><a href="https://www.etsi.org/deliver/etsi_en/303700_303799/303760/">ETSI EN 303 760</a>: "SmartM2M; SAREF Guidelines for IoT Semantic Interoperability; Develop, apply and evolve Smart Applications ontologies".</small></p>
+                <div class="mt-2 pt-2 border-top  d-flex justify-content-end">
+                    <button type="button" class="btn btn-primary text-light btn-sm" data-bs-dismiss="toast">Dismiss</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="news-2025-09" class="toast border-0 mb-3" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-primary text-light">
+                <strong class="me-auto">New SAREF Website Launched!</strong>
+                <small>2025-09</small>
+                <!-- <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button> -->
+            </div>
+            <div class="toast-body">
+                <p>The SAREF website has been fully redesigned with a modern look, improved ontology browsing, and site-wide term-based search to enhance navigation and usability.</p>
+                <p><small>StandICT.eu 2026 grant: "Improving the ETSI TC SmartM2M SAREF publication framework and workflow"</small></p>
+                <div class="mt-2 pt-2 border-top  d-flex justify-content-end">
+                    <button type="button" class="btn btn-primary text-light btn-sm" data-bs-dismiss="toast">Dismiss</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="news-2026-03" class="toast border-0 mb-3" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-primary text-light">
+                <strong class="me-auto">SAREF has a new home!</strong>
+                <small>2025-09</small>
+                <!-- <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button> -->
+            </div>
+            <div class="toast-body">
+                <p>The SAREF development and maintenance activities were transferred to the new ETSI Technical Committee Data Solutions (<a href="https://www.etsi.org/committee/data">DATA</a>)</p>
+                <div class="mt-2 pt-2 border-top  d-flex justify-content-end">
+                    <button type="button" class="btn btn-primary text-light btn-sm" data-bs-dismiss="toast">Dismiss</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+<footer class="bg-dark text-light container-fluid">
+        <div class="row align-items-top py-1">
+
+            <!-- Logo -->
+            <div class="col-md-2 text-start text-md-center py-1">
+                <a href="https://www.etsi.org/" title="Visit ETSI">
+                    <img src="https://forge.etsi.org/files/ETSI-Logo_BW_S_Office1.png" alt="ETSI Logo" class="img-fluid" style="max-height:40px;">
+                </a>
+            </div>
+
+            <!-- Text -->
+            <div class="col-md-3 text-start text-md-center py-1">
+                © ETSI 2026 <br>
+                <a href="https://www.etsi.org/" class="small text-white">
+                    Visit ETSI website for more information on Terms &amp; Conditions.
+                </a>
+            </div>
+
+            <!-- Navigation -->
+            <div class="col-md-5 text-end text-md-center py-1">
+                <nav class="nav">
+                    <a class="nav-link text-light mx-2 p-0" href="https://forge.etsi.org/index.php/legal-matters">
+                        Legal matters
+                    </a>
+                    <a class="nav-link text-light mx-2 p-0" href="mailto:cti_support@etsi.org?subject=[SAREF]">
+                        Contact &amp; Support
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Back to top -->
+            <div class="col-md-2 text-end text-md-center py-1">
+                <a href="#" id="back-to-top" class="text-light">
+                    Back to top <i class="fa fa-chevron-up" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+    <script src="/files/bundle.min.js"></script>
+</body>
+
+</html>

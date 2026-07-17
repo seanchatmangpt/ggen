@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_ProjectionHashMismatch",
+  "kind": "falsification",
+  "seed": 8573149442324892097,
+  "mutation": "Flip one byte of the projection payload after its hash was recorded.",
+  "expected_refusal": "ProjectionHashMismatch",
+  "input": {"subject": "urn:chatman:subject:receipt-1", "witness": "urn:chatman:witness:receipt-1", "replay_hint": "replay-hint-receipt-1", "canon_nquads": "<urn:chatman:s1> <urn:chatman:p1> \"v1\" .\n<urn:chatman:s2> <urn:chatman:p2> \"v2\" .", "projection_hash_check": {"snapshot_id": "urn:chatman:snapshot:receipt-1", "universe": ["<urn:chatman:t0>", "<urn:chatman:t1>"], "triples": [["<urn:chatman:t0>", "<urn:chatman:t1>", "<urn:chatman:t0>"]], "recorded_hash": "0000000000000000000000000000000000000000000000000000000000000000"}}
+}

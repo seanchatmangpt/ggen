@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_UnsupportedDialect",
+  "kind": "falsification",
+  "seed": 6143065090694393756,
+  "mutation": "Name a dialect outside the closed dialect vocabulary.",
+  "expected_refusal": "UnsupportedDialect",
+  "input": {"profile_id": "profile-unsupported-dialect", "requested_dialect": "triple8-pattern", "admitted_dialects": []}
+}

@@ -1,0 +1,165 @@
+# Vendored verbatim (concatenated, unmodified) from
+# https://github.com/eyereasoner/eye/blob/master/reasoning/restpath/initial.n3
+# and
+# https://github.com/eyereasoner/eye/blob/master/reasoning/restpath/path-9-3.n3
+# (no truncation needed -- both upstream files are already small; 145 + 3
+# lines). Distinct mechanism from any of the 15 previously-vendored cases:
+# a *10-deep chain* of independent forward `=>` rules (`ex:rel1` triggers a
+# rule deriving `ex:rel2` facts, which triggers a rule deriving `ex:rel3`,
+# ... through `ex:rel10`, whose consequent finally derives the goal
+# predicate `ex:relGoal`), stress-testing fixpoint-loop chaining depth --
+# distinct from `deep_taxonomy`/`edt` (which chain a single repeated
+# `subClassOf`-style predicate through instance/class facts, not 10
+# independently-named predicates each requiring its own rule to fire) and
+# from `backward_more`/`peano` (backward `<=` chaining, not forward `=>`).
+# Confirmed by actually running `TripleStore::materialize()` on this exact
+# concatenation: it derives `<x> ex:relGoal <y>` (matching the real upstream
+# `reasoning/restpath/goal.n3` query/expected fact) from the sole ground
+# input fact `<x> ex:rel1 <y>`.
+@prefix ex: <http://example.org/#>.
+
+<x> ex:rel1 <y>.
+@prefix http: <http://www.w3.org/2011/http#>.
+
+{
+    ?a1 ex:rel1 ?b1.
+}
+=>
+{
+    ?request http:methodName "GET".
+    ?request http:requestURI ?a1.
+    ?request http:resp ?resp.
+    ?resp http:body ?b1.
+    ?a1 ex:rel2 ?b1.
+    ?a2 ex:rel2 ?b2.
+    ?a3 ex:rel2 ?b3.
+}.
+
+{
+    ?a1 ex:rel2 ?b1.
+    ?a2 ex:rel2 ?b2.
+    ?a3 ex:rel2 ?b3.
+}
+=>
+{
+    ?request http:methodName "GET".
+    ?request http:requestURI ?a1.
+    ?request http:resp ?resp.
+    ?resp http:body ?b1.
+    ?a1 ex:rel3 ?b1.
+    ?a2 ex:rel3 ?b2.
+    ?a3 ex:rel3 ?b3.
+}.
+
+{
+    ?a1 ex:rel3 ?b1.
+    ?a2 ex:rel3 ?b2.
+    ?a3 ex:rel3 ?b3.
+}
+=>
+{
+    ?request http:methodName "GET".
+    ?request http:requestURI ?a1.
+    ?request http:resp ?resp.
+    ?resp http:body ?b1.
+    ?a1 ex:rel4 ?b1.
+    ?a2 ex:rel4 ?b2.
+    ?a3 ex:rel4 ?b3.
+}.
+
+{
+    ?a1 ex:rel4 ?b1.
+    ?a2 ex:rel4 ?b2.
+    ?a3 ex:rel4 ?b3.
+}
+=>
+{
+    ?request http:methodName "GET".
+    ?request http:requestURI ?a1.
+    ?request http:resp ?resp.
+    ?resp http:body ?b1.
+    ?a1 ex:rel5 ?b1.
+    ?a2 ex:rel5 ?b2.
+    ?a3 ex:rel5 ?b3.
+}.
+
+{
+    ?a1 ex:rel5 ?b1.
+    ?a2 ex:rel5 ?b2.
+    ?a3 ex:rel5 ?b3.
+}
+=>
+{
+    ?request http:methodName "GET".
+    ?request http:requestURI ?a1.
+    ?request http:resp ?resp.
+    ?resp http:body ?b1.
+    ?a1 ex:rel6 ?b1.
+    ?a2 ex:rel6 ?b2.
+    ?a3 ex:rel6 ?b3.
+}.
+
+{
+    ?a1 ex:rel6 ?b1.
+    ?a2 ex:rel6 ?b2.
+    ?a3 ex:rel6 ?b3.
+}
+=>
+{
+    ?request http:methodName "GET".
+    ?request http:requestURI ?a1.
+    ?request http:resp ?resp.
+    ?resp http:body ?b1.
+    ?a1 ex:rel7 ?b1.
+    ?a2 ex:rel7 ?b2.
+    ?a3 ex:rel7 ?b3.
+}.
+
+{
+    ?a1 ex:rel7 ?b1.
+    ?a2 ex:rel7 ?b2.
+    ?a3 ex:rel7 ?b3.
+}
+=>
+{
+    ?request http:methodName "GET".
+    ?request http:requestURI ?a1.
+    ?request http:resp ?resp.
+    ?resp http:body ?b1.
+    ?a1 ex:rel8 ?b1.
+    ?a2 ex:rel8 ?b2.
+    ?a3 ex:rel8 ?b3.
+}.
+
+{
+    ?a1 ex:rel8 ?b1.
+    ?a2 ex:rel8 ?b2.
+    ?a3 ex:rel8 ?b3.
+}
+=>
+{
+    ?request http:methodName "GET".
+    ?request http:requestURI ?a1.
+    ?request http:resp ?resp.
+    ?resp http:body ?b1.
+    ?a1 ex:rel9 ?b1.
+    ?a2 ex:rel9 ?b2.
+    ?a3 ex:rel9 ?b3.
+}.
+
+{
+    ?a1 ex:rel9 ?b1.
+    ?a2 ex:rel9 ?b2.
+    ?a3 ex:rel9 ?b3.
+}
+=>
+{
+    ?request http:methodName "GET".
+    ?request http:requestURI ?a1.
+    ?request http:resp ?resp.
+    ?resp http:body ?b1.
+    ?a1 ex:rel10 ?b1.
+    ?a2 ex:rel10 ?b2.
+    ?a3 ex:rel10 ?b3.
+    ?a1 ex:relGoal ?b1.
+}.

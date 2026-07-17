@@ -1,0 +1,19 @@
+# Adapted from https://github.com/eyereasoner/eye/blob/master/reasoning/deep-taxonomy/
+# (test-rules.n3's backward subClassOf rule, unmodified) combined with a
+# heavily truncated slice of test-dl.ttl + test-facts.ttl: upstream's
+# benchmark chains :N0 all the way through :N10000 down to :A2 (a
+# 10000-level-deep, ~30000-triple scalability stress test); this keeps only
+# a 3-level chain (:N0 -> :N1 -> :N2 -> :A2) to exercise the same
+# rdfs:subClassOf backward-chaining transitivity rule as a fast conformance
+# check rather than a scale benchmark.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix : <http://eulersharp.sourceforge.net/2009/12dtb/test#>.
+
+:TestVariable rdf:type :N0.
+
+:N0 rdfs:subClassOf :N1.
+:N1 rdfs:subClassOf :N2.
+:N2 rdfs:subClassOf :A2.
+
+{?X a ?D} <= {?C rdfs:subClassOf ?D. ?X a ?C}.

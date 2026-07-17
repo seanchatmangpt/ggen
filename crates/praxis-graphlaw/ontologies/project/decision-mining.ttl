@@ -1,0 +1,396 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ocel:    <https://www.ocel-standard.org/2.0/> .
+@prefix dm:      <https://ggen.io/ontology/decision-mining#> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Ontology header
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<https://ggen.io/ontology/decision-mining>
+    a owl:Ontology ;
+    dcterms:title "Decision Mining Ontology" ;
+    dcterms:description """OWL ontology for Decision Mining as developed by Van der
+Aalst et al. Decision mining extracts the routing logic that governs XOR-split
+(exclusive choice) points in a discovered or given process model. At each
+XOR-split, the actual branch taken is determined by case-level data attributes
+(e.g. loan amount, customer tier, claim type). Decision mining applies supervised
+classification — most commonly decision tree induction — to learn IF-THEN rules
+that predict which branch a case will take, given its attribute values at the
+moment of the decision.
+
+This ontology models the full decision mining artefact hierarchy: the
+DecisionModel (one per process), the DecisionPoint (one per XOR-split), the
+DecisionTree (learned classifier), individual DecisionRules (IF condition THEN
+branch), Conditions (attribute predicates), Branches (outgoing edges), Features
+(important data attributes), and DecisionOutcomes (observed routing facts from
+the log).
+
+References:
+  Van der Aalst, W.M.P., Weijters, T., Maruster, L. (2004). Workflow Mining:
+  Discovering Process Models from Event Logs. IEEE TKDE 16(9), pp. 1128-1142.
+
+  De Leoni, M., Van der Aalst, W.M.P. (2013). Data-Aware Process Mining:
+  Discovering Decisions in Processes using Alignments. In: SAC 2013, pp. 1454-1461.""" ;
+    owl:versionInfo "1.0.0" ;
+    dcterms:creator <https://github.com/seanchatmangpt> ;
+    dcterms:license <https://spdx.org/licenses/MIT> ;
+    owl:imports <https://www.ocel-standard.org/2.0/> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 1. Core structural classes
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dm:DecisionModel a owl:Class ;
+    rdfs:label "DecisionModel" ;
+    rdfs:comment """The complete set of decision trees learned for all XOR-split
+points in a process model. A DecisionModel is the top-level artefact produced by
+a decision mining run: it is linked to its source event log via dm:discoveredFrom
+and contains one DecisionPoint (and its associated DecisionTree) per XOR-split
+in the process. The DecisionModel enables analysts to understand not only what
+the process does (the control flow) but why it does it (the data-driven routing
+logic). It is the data counterpart to the structural process model.""" .
+
+dm:DecisionPoint a owl:Class ;
+    rdfs:label "DecisionPoint" ;
+    rdfs:comment """An XOR-split gateway in the process model at which exactly one
+outgoing Branch is taken per case execution, and where the selection is
+determined by case data attributes rather than by arbitrary or stochastic choice.
+Each DecisionPoint is identified by dm:decisionPointActivity (the activity after
+which the split occurs) and is associated with a set of Branch instances
+(the outgoing paths) and one DecisionTree (the learned classifier). Decision
+mining aims to explain, for each past execution, which branch was taken and why —
+and to predict, for future cases, which branch they will take.""" .
+
+dm:DecisionTree a owl:Class ;
+    rdfs:label "DecisionTree" ;
+    rdfs:comment """A tree-structured classifier learned from historical event-log
+data for a specific DecisionPoint. The tree is built by inductive decision tree
+algorithms (C4.5, CART, ID3 or their successors in PM4Py and ProM). Each
+internal node splits on an AttributeCondition; each leaf node predicts a Branch.
+The DecisionTree as a whole is a set of DecisionRule instances, one per
+root-to-leaf path. It is the central explanation mechanism in decision mining:
+a business analyst can read each rule as a natural-language policy statement.""" .
+
+dm:Branch a owl:Class ;
+    rdfs:label "Branch" ;
+    rdfs:comment """One outgoing sequence flow (edge) from a DecisionPoint XOR-split.
+In BPMN terms, this is one of the sequence flow lines leaving the exclusive
+gateway. Each Branch is identified by dm:branchLabel (e.g. "approved",
+"rejected", "escalated") and annotated with dm:branchFrequency (number of
+historical executions that took this branch). Branches are the prediction targets
+for the DecisionTree classifier.""" .
+
+dm:Condition a owl:Class ;
+    rdfs:label "Condition" ;
+    rdfs:comment """An abstract predicate evaluated on case attributes to determine
+which branch a case takes at a DecisionPoint. Conditions are the building blocks
+of DecisionRules. Two specialisations exist: dm:AttributeCondition (a single
+attribute comparison) and dm:CompoundCondition (a logical AND or OR of
+sub-conditions). The Condition hierarchy supports arbitrarily complex rule
+antecedents while keeping simple single-attribute conditions as the common case.""" .
+
+dm:AttributeCondition a owl:Class ;
+    rdfs:subClassOf dm:Condition ;
+    rdfs:label "AttributeCondition" ;
+    rdfs:comment """A Condition that evaluates a single case data attribute against a
+threshold or value using a comparison operator. The canonical form is:
+  dm:attributeName OPERATOR dm:attributeValue
+where OPERATOR is one of: ">", ">=", "=", "<=", "<", "in", "contains" (see
+dm:operator). AttributeConditions are the leaf predicates in decision trees;
+each internal node in the tree corresponds to one AttributeCondition split.
+Examples: "amount >= 10000", "customerTier = 'Gold'", "region in ['EU','US']".""" .
+
+dm:CompoundCondition a owl:Class ;
+    rdfs:subClassOf dm:Condition ;
+    rdfs:label "CompoundCondition" ;
+    rdfs:comment """A Condition formed by combining two or more sub-conditions with a
+logical connective (AND or OR). CompoundConditions represent complete root-to-leaf
+paths in a decision tree when expressed in conjunctive normal form, or more
+complex rule antecedents when disjunctions are included. The logical connective
+is recorded as a string literal (e.g. "AND", "OR") on the compound condition
+instance via dm:logicalConnective.""" .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 2. Rule and outcome classes
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dm:DecisionRule a owl:Class ;
+    rdfs:label "DecisionRule" ;
+    rdfs:comment """A single IF-THEN rule derived from a root-to-leaf path in a
+DecisionTree: IF dm:ruleCondition THEN dm:ruleBranch. The rule is annotated with
+dm:rulePriority (lower integer = higher priority, used for conflict resolution
+when multiple rules fire) and dm:ruleAccuracy (fraction of training cases
+correctly classified by this rule on its coverage set, in [0.0, 1.0]).
+DecisionRules are the human-interpretable unit of decision mining output: an
+analyst reads each rule as a routing policy statement.""" .
+
+dm:DecisionOutcome a owl:Class ;
+    rdfs:label "DecisionOutcome" ;
+    rdfs:comment """A recorded fact from the event log that at a specific execution of
+a DecisionPoint, a specific Branch was taken. DecisionOutcome instances are
+derived from the event log during the decision mining preprocessing step by
+aligning each case trace with the process model at each XOR-split and reading off
+the actual outgoing branch. They form the labelled training set for the
+DecisionTree classifier: (case attributes at decision time) → (branch taken).""" .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 3. Feature class
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dm:Feature a owl:Class ;
+    rdfs:label "Feature" ;
+    rdfs:comment """A data attribute that is used as an input variable in decision
+mining — i.e., a case-level or event-level attribute that the DecisionTree
+classifier may split on when learning routing rules. Each Feature instance
+records dm:featureName (the attribute name as it appears in the event log) and
+dm:featureImportance (a normalised importance score in [0.0, 1.0] reflecting how
+much the attribute contributes to classification accuracy across all splits that
+use it). Feature importance enables analysts to identify which data attributes
+most strongly determine routing decisions in the process.""" .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 4. Datatype properties — DecisionPoint
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dm:decisionPointActivity a owl:DatatypeProperty ;
+    rdfs:label "decisionPointActivity" ;
+    rdfs:comment """The label of the activity (ocel:activity value) in the process
+model after which this XOR-split occurs. In a BPMN model, this is the activity
+that immediately precedes the exclusive gateway. In a Petri net, it is the
+transition whose post-place fans out to multiple output transitions. Used to
+align the DecisionPoint with its location in the process structure.""" ;
+    rdfs:domain dm:DecisionPoint ;
+    rdfs:range  xsd:string .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 5. Datatype properties — DecisionRule
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dm:rulePriority a owl:DatatypeProperty ;
+    rdfs:label "rulePriority" ;
+    rdfs:comment """An integer rank indicating this rule's position in the ordered
+rule list for its DecisionTree. Priority 1 is highest; a lower priority number
+means this rule is checked before rules with higher numbers. Priority ordering is
+used during inference to resolve conflicts: the first rule whose condition is
+satisfied by a case's attributes determines the predicted branch. In C4.5-style
+trees, rules derived from higher-coverage paths typically receive lower (better)
+priority numbers.""" ;
+    rdfs:domain dm:DecisionRule ;
+    rdfs:range  xsd:integer .
+
+dm:ruleAccuracy a owl:DatatypeProperty ;
+    rdfs:label "ruleAccuracy" ;
+    rdfs:comment """The fraction of cases in the training set (the event log subset
+covered by this rule's condition) that were correctly classified by this rule, in
+[0.0, 1.0]. A ruleAccuracy of 1.0 means the rule is a perfect discriminator on
+its coverage set; values below 0.7 indicate substantial impurity in the
+corresponding decision tree leaf and suggest that the attribute split is
+insufficient to fully explain routing at this point. Computed as the leaf purity
+in the induction algorithm.""" ;
+    rdfs:domain dm:DecisionRule ;
+    rdfs:range  xsd:decimal .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 6. Datatype properties — AttributeCondition
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dm:attributeName a owl:DatatypeProperty ;
+    rdfs:label "attributeName" ;
+    rdfs:comment """The name of the case or event attribute that this
+AttributeCondition tests. Must match an attribute key present in the event log.
+Examples: "loanAmount", "customerTier", "claimType", "processingRegion".
+The attribute name is used to look up the attribute value in a case at routing
+time and to label the corresponding node in the DecisionTree visualisation.""" ;
+    rdfs:domain dm:AttributeCondition ;
+    rdfs:range  xsd:string .
+
+dm:operator a owl:DatatypeProperty ;
+    rdfs:label "operator" ;
+    rdfs:comment """The comparison operator used in this AttributeCondition to
+compare the case attribute value (dm:attributeName) against the threshold or
+reference value (dm:attributeValue). Permitted string values: ">" (strictly
+greater than), ">=" (greater than or equal), "=" (equality), "<=" (less than or
+equal), "<" (strictly less than), "in" (value is a member of the set given as
+dm:attributeValue), "contains" (string or collection containment). The operator
+semantics are applied at decision time using the attribute's declared datatype.""" ;
+    rdfs:domain dm:AttributeCondition ;
+    rdfs:range  xsd:string .
+
+dm:attributeValue a owl:DatatypeProperty ;
+    rdfs:label "attributeValue" ;
+    rdfs:comment """The threshold or reference value against which the case attribute
+(dm:attributeName) is compared using dm:operator. Stored as xsd:string to support
+heterogeneous attribute types (numeric, categorical, set-valued). For numeric
+comparisons (">", ">=", "<=", "<"), the string encodes a decimal number. For
+equality ("="), an exact match string. For set membership ("in"), a
+comma-separated list enclosed in brackets, e.g. "[EU, US, APAC]". For containment
+("contains"), a substring pattern.""" ;
+    rdfs:domain dm:AttributeCondition ;
+    rdfs:range  xsd:string .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 7. Datatype properties — CompoundCondition
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dm:logicalConnective a owl:DatatypeProperty ;
+    rdfs:label "logicalConnective" ;
+    rdfs:comment """The logical connective used to combine sub-conditions in a
+CompoundCondition. Permitted values: "AND" (all sub-conditions must hold),
+"OR" (at least one sub-condition must hold). Enables modelling of both conjunctive
+rule antecedents (the standard case for decision tree paths) and disjunctive
+rules (produced by rule-set learners or by merging equivalent leaves).""" ;
+    rdfs:domain dm:CompoundCondition ;
+    rdfs:range  xsd:string .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 8. Datatype properties — Branch
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dm:branchLabel a owl:DatatypeProperty ;
+    rdfs:label "branchLabel" ;
+    rdfs:comment """A human-readable label for this Branch, matching the sequence
+flow label on the XOR-split gateway in the process model. Examples: "approved",
+"rejected", "needs-review", "escalate-to-manager". Used as the class label in the
+DecisionTree classifier: the tree predicts the branchLabel for each case.""" ;
+    rdfs:domain dm:Branch ;
+    rdfs:range  xsd:string .
+
+dm:branchFrequency a owl:DatatypeProperty ;
+    rdfs:label "branchFrequency" ;
+    rdfs:comment """The number of cases in the source event log that took this Branch
+at the parent DecisionPoint. Used to assess class imbalance before training the
+decision tree: heavily imbalanced branches may require resampling or
+cost-sensitive learning to produce accurate minority-class rules. Also provides
+the raw empirical probability of each routing outcome.""" ;
+    rdfs:domain dm:Branch ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 9. Datatype properties — Feature
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dm:featureName a owl:DatatypeProperty ;
+    rdfs:label "featureName" ;
+    rdfs:comment """The name of the data attribute this Feature instance represents,
+matching the attribute key in the event log. Identical to dm:attributeName when
+the feature corresponds to an AttributeCondition split, but Feature instances
+exist independently of any specific rule — they describe the overall attribute
+population used in the decision mining run.""" ;
+    rdfs:domain dm:Feature ;
+    rdfs:range  xsd:string .
+
+dm:featureImportance a owl:DatatypeProperty ;
+    rdfs:label "featureImportance" ;
+    rdfs:comment """A normalised importance score in [0.0, 1.0] quantifying how much
+this Feature contributes to the predictive accuracy of the decision model. For
+tree-based classifiers, importance is typically computed as the total weighted
+information gain (or Gini reduction) across all tree splits that use this feature,
+normalised so the sum over all features equals 1.0. A score of 0.0 means the
+attribute is never used in any split; a score close to 1.0 means it is the
+dominant predictor across all DecisionPoints.""" ;
+    rdfs:domain dm:Feature ;
+    rdfs:range  xsd:decimal .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 10. Object properties
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dm:discoveredFrom a owl:ObjectProperty ;
+    rdfs:label "discoveredFrom" ;
+    rdfs:comment """Links a DecisionModel to the OCEL 2.0 event log from which it
+was discovered. Provides provenance: the decision trees in the model are learned
+from the routing decisions observed in this log. Changes to the log (additional
+cases, different time window) may produce a different DecisionModel.""" ;
+    rdfs:domain dm:DecisionModel ;
+    rdfs:range  ocel:EventLog .
+
+dm:hasDecisionPoint a owl:ObjectProperty ;
+    rdfs:label "hasDecisionPoint" ;
+    rdfs:comment """Associates a DecisionModel with one of its DecisionPoint
+instances. A complete DecisionModel has one DecisionPoint per XOR-split gateway
+in the underlying process model for which sufficient data exists to learn a
+classifier.""" ;
+    rdfs:domain dm:DecisionModel ;
+    rdfs:range  dm:DecisionPoint .
+
+dm:hasDecisionTree a owl:ObjectProperty ;
+    rdfs:label "hasDecisionTree" ;
+    rdfs:comment """Associates a DecisionPoint with the DecisionTree learned to
+classify routing at that point. Each DecisionPoint has at most one DecisionTree
+per mining run; re-mining may produce an updated tree.""" ;
+    rdfs:domain dm:DecisionPoint ;
+    rdfs:range  dm:DecisionTree .
+
+dm:hasBranch a owl:ObjectProperty ;
+    rdfs:label "hasBranch" ;
+    rdfs:comment """Associates a DecisionPoint with one of its outgoing Branch
+instances. All branches of a given XOR-split are linked via this property; their
+dm:branchFrequency values should sum to the total number of executions of the
+DecisionPoint in the training log.""" ;
+    rdfs:domain dm:DecisionPoint ;
+    rdfs:range  dm:Branch .
+
+dm:hasRule a owl:ObjectProperty ;
+    rdfs:label "hasRule" ;
+    rdfs:comment """Associates a DecisionTree with one of its DecisionRule instances.
+The complete set of rules linked from a DecisionTree via hasRule covers all
+root-to-leaf paths in the tree. Rules are applied in dm:rulePriority order during
+inference.""" ;
+    rdfs:domain dm:DecisionTree ;
+    rdfs:range  dm:DecisionRule .
+
+dm:ruleCondition a owl:ObjectProperty ;
+    rdfs:label "ruleCondition" ;
+    rdfs:comment """Links a DecisionRule to its antecedent Condition (the IF part of
+the rule). The condition may be a single AttributeCondition (for a single-split
+path) or a CompoundCondition aggregating the sequence of splits from root to leaf
+in the decision tree.""" ;
+    rdfs:domain dm:DecisionRule ;
+    rdfs:range  dm:Condition .
+
+dm:ruleBranch a owl:ObjectProperty ;
+    rdfs:label "ruleBranch" ;
+    rdfs:comment """Links a DecisionRule to the Branch it predicts (the THEN part of
+the rule). When the dm:ruleCondition is satisfied by a case's attribute values,
+the case is routed to this Branch at the parent DecisionPoint.""" ;
+    rdfs:domain dm:DecisionRule ;
+    rdfs:range  dm:Branch .
+
+dm:hasSubCondition a owl:ObjectProperty ;
+    rdfs:label "hasSubCondition" ;
+    rdfs:comment """Associates a CompoundCondition with one of its constituent
+sub-conditions. Multiple sub-conditions are combined using dm:logicalConnective.
+Sub-conditions may themselves be AttributeConditions or nested
+CompoundConditions, enabling arbitrarily deep condition trees.""" ;
+    rdfs:domain dm:CompoundCondition ;
+    rdfs:range  dm:Condition .
+
+dm:hasFeature a owl:ObjectProperty ;
+    rdfs:label "hasFeature" ;
+    rdfs:comment """Associates a DecisionModel with a Feature instance describing a
+data attribute used in the decision mining run. The full set of Feature instances
+linked from a DecisionModel via hasFeature represents the complete attribute space
+considered during tree induction, together with their importance rankings.""" ;
+    rdfs:domain dm:DecisionModel ;
+    rdfs:range  dm:Feature .
+
+dm:observedAt a owl:ObjectProperty ;
+    rdfs:label "observedAt" ;
+    rdfs:comment """Links a DecisionOutcome to the DecisionPoint at which the routing
+was observed. Used to reconstruct, for each historical case execution, which
+XOR-split was reached and which branch was taken, forming the labelled dataset for
+classifier training.""" ;
+    rdfs:domain dm:DecisionOutcome ;
+    rdfs:range  dm:DecisionPoint .
+
+dm:selectedBranch a owl:ObjectProperty ;
+    rdfs:label "selectedBranch" ;
+    rdfs:comment """Links a DecisionOutcome to the Branch that was actually taken in
+this case execution. Together with the case's attribute values at the time of
+routing, this constitutes one training example: (attributes) → selectedBranch.""" ;
+    rdfs:domain dm:DecisionOutcome ;
+    rdfs:range  dm:Branch .

@@ -1,0 +1,4 @@
+@prefix : <http://example.org/> .
+
+:item :fullySpecified true .
+:escapes :allEscapesVerified true .

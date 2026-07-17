@@ -1,0 +1,50 @@
+# ontology/domain.ttl — minimal domain ontology stub.
+#
+# Replace the example namespace, class, and properties with your own domain.
+# This file is the single source of truth that ggen reads to generate source.
+#
+# Conventions:
+#   - One class per significant domain concept.
+#   - Every class carries rdfs:label (used as the generated Rust struct name).
+#   - Every property carries rdfs:label and rdfs:domain / rdfs:range.
+#   - Use xsd: types for data properties; reference domain classes for object
+#     properties.
+#
+# After editing this file run `ggen sync` from the project root to regenerate
+# all outputs declared in ggen.toml.
+
+@prefix dom:  <http://example.com/ontology#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ---------------------------------------------------------------------------
+# Class
+# ---------------------------------------------------------------------------
+
+dom:Widget
+    a               dom:DomainClass ;
+    rdfs:label      "Widget" ;
+    rdfs:comment    "A placeholder domain concept. Rename or replace this." .
+
+# ---------------------------------------------------------------------------
+# Data property — a scalar value carried by Widget
+# ---------------------------------------------------------------------------
+
+dom:hasName
+    a            rdf:Property ;
+    rdfs:label   "name" ;
+    rdfs:comment "Human-readable name for a Widget instance." ;
+    rdfs:domain  dom:Widget ;
+    rdfs:range   xsd:string .
+
+# ---------------------------------------------------------------------------
+# Data property — a second scalar to show the pattern
+# ---------------------------------------------------------------------------
+
+dom:hasCount
+    a            rdf:Property ;
+    rdfs:label   "count" ;
+    rdfs:comment "Quantity associated with a Widget instance." ;
+    rdfs:domain  dom:Widget ;
+    rdfs:range   xsd:integer .

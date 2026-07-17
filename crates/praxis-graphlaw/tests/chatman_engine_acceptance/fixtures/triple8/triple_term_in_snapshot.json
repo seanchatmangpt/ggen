@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_TripleTermInSnapshot",
+  "kind": "falsification",
+  "seed": 16097978775244591559,
+  "mutation": "Embed one RDF-star triple term inside the snapshot term list.",
+  "expected_refusal": "TripleTermInSnapshot",
+  "input": {"universe": ["<urn:chatman:triple8:atomic1>", "<urn:chatman:triple8:atomic2>", "<urn:chatman:triple8:atomic3>"], "terms": ["<<<urn:chatman:triple8:atomic1> <urn:chatman:triple8:atomic2> <urn:chatman:triple8:atomic3>>>"]}
+}

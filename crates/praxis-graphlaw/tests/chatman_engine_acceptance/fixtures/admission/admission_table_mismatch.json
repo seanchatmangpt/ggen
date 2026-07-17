@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_AdmissionTableMismatch",
+  "kind": "falsification",
+  "seed": 17011249568941997419,
+  "mutation": "Remove one row from the admission table after its digest was pinned.",
+  "expected_refusal": "AdmissionTableMismatch",
+  "input": {"table_hash": "c0fdc5182038b711cd0149711ff70d9ee7201f57bc55abff0e3f769f6fa7ad70", "entries": [{"pattern": "pattern-a", "admitted": true}, {"pattern": "pattern-b", "admitted": true}, {"pattern": "pattern-c", "admitted": false}]}
+}

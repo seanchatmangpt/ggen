@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rdf:RDF
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:ns5="http://creativecommons.org/ns#"
+	xmlns:ns6="http://purl.org/vocab/vann/" >
+  <rdf:Description rdf:about="https://dbpedia.org/ontology/">
+    <rdf:type rdf:resource="http://purl.org/vocommons/voaf#Vocabulary" />
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology" />
+    <rdfs:comment xml:lang="en">
+              This ontology is generated from the manually created specifications in the DBpedia Mappings
+              Wiki. Each release of this ontology corresponds to a new release of the DBpedia data set which
+              contains instance data extracted from the different language versions of Wikipedia. For
+              information regarding changes in this ontology, please refer to the DBpedia Mappings Wiki.
+            </rdfs:comment>
+    <owl:versionInfo xml:lang="en">latest-snapshot</owl:versionInfo>
+    <owl:sameAs rdf:resource="http://dbpedia.org/ontology/" />
+    <foaf:homepage rdf:resource="http://wiki.dbpedia.org/Ontology" />
+    <dct:title xml:lang="en">The DBpedia Ontology</dct:title>
+    <dct:description xml:lang="en">
+              The DBpedia ontology provides the classes and properties used in the DBpedia data set.
+            </dct:description>
+    <dct:creator>DBpedia Maintainers and Contributors</dct:creator>
+    <dct:source rdf:resource="http://mappings.dbpedia.org" />
+    <dct:publisher>DBpedia Maintainers</dct:publisher>
+    <ns5:license rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
+    <dct:issued>2008-11-17T12:00Z</dct:issued>
+    <dct:license rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
+    <ns6:preferredNamespacePrefix>dbo</ns6:preferredNamespacePrefix>
+    <ns6:preferredNamespaceUri>http://dbpedia.org/ontology/</ns6:preferredNamespaceUri>
+  </rdf:Description>
+</rdf:RDF>

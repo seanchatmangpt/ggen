@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+
+:a :y 0 .
+:a :x 1 .
+
+{ ?p :y ?y . ?p :x ?x . ( ?y ?x ) math:atan2 ?a } => { ?p :atan2Value ?a }.

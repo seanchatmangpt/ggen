@@ -1,0 +1,23 @@
+# Joseph as chief administrator of Egypt — national famine-management plan.
+# Phase artifact: land-livestock-policy (domain fragment). livestock and land are transferred as payment capacity is exhausted.
+# One admitted PDDL Turtle planning artifact; fragments across all phase
+# artifacts merge structurally into ONE combined plan (domain name
+# 'joseph-famine' shared by every fragment). Formal planning-to-workflow
+# demonstration domain; argues no doctrine, claims no historicity.
+@prefix ex: <http://example.org/joseph#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:households ex:transfer ex:land .
+ex:households ex:transfer ex:livestock .
+
+ex:land-livestock-policy ceng:pddlDomain """
+(define (domain joseph-famine)
+  (:requirements :strips)
+  (:predicates
+    (family-provisioned ?x)
+    (land-livestock-transferred ?x))
+  (:action transfer-land-livestock
+    :parameters (?x)
+    :precondition (and (family-provisioned ?x))
+    :effect (and (land-livestock-transferred ?x))))
+""" .

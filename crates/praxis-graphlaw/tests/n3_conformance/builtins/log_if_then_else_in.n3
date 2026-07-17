@@ -1,0 +1,10 @@
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix : <http://example.org/#>.
+
+:Alice a :Person.
+
+{
+  ( { :Alice a :Person } "yes" "no" ) log:ifThenElseIn ?answer.
+} => {
+  : :answerIs ?answer.
+}.

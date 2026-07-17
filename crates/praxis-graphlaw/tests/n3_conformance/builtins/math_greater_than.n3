@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+
+:alice :age 25 .
+:bob :age 18 .
+
+{ ?person :age ?a . ?a math:greaterThan 21 } => { ?person a :Adult }.

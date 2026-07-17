@@ -1,0 +1,41 @@
+# Temporal-concurrency PDDL/POWL fixture: two genuinely concurrent
+# :durative-action chores (wash-dishes, sweep-floor) sharing no predicate
+# and no precondition on each other, plus a third durative action
+# (inspect-house) whose precondition requires BOTH chores finished. Proves
+# `chatman::powl_projection::project_temporal_plan_to_powl` captures real
+# concurrency (wash-dishes/sweep-floor as siblings) as well as real
+# sequential edges (both chores -> inspect-house), rather than the
+# classical `project_pddl_tape_to_powl` path's total-order-only encoding.
+@prefix ex: <http://example.org/temporal-concurrency#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:temporal-concurrency-demo a ex:TemporalPlanningDemo .
+
+ex:temporal-concurrency-demo ceng:pddlDomain """
+(define (domain concurrent-chores)
+  (:requirements :durative-actions)
+  (:predicates (dishes-clean) (floor-swept) (house-inspected))
+  (:durative-action wash-dishes
+    :parameters ()
+    :duration (= ?duration 2)
+    :condition (at start (not (dishes-clean)))
+    :effect (at end (dishes-clean)))
+  (:durative-action sweep-floor
+    :parameters ()
+    :duration (= ?duration 3)
+    :condition (at start (not (floor-swept)))
+    :effect (at end (floor-swept)))
+  (:durative-action inspect-house
+    :parameters ()
+    :duration (= ?duration 1)
+    :condition (and (at start (dishes-clean)) (at start (floor-swept)))
+    :effect (at end (house-inspected))))
+""" .
+
+ex:temporal-concurrency-demo ceng:pddlProblem """
+(define (problem concurrent-chores-p1)
+  (:domain concurrent-chores)
+  (:init)
+  (:goal (house-inspected))
+)
+""" .

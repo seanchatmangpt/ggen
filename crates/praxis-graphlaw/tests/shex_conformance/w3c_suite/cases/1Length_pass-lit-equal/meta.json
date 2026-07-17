@@ -1,0 +1,9 @@
+{
+  "shape": "http://a.example/S1",
+  "focus": "http://a.example/s1",
+  "expected": "conformant",
+  "source_schema": "schemas/1Length.shex",
+  "source_shexc": "<http://a.example/S1> {\n   <http://a.example/p1> LENGTH 5\n}",
+  "source_data": "validation/Is1_Ip1_Labcde.ttl",
+  "comment": "<S1> { <p1> LENGTH 5 } on { <s1> <p1> \"abcde\" }"
+}

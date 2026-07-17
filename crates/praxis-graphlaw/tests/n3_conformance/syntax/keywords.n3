@@ -1,0 +1,19 @@
+@prefix : <http://example.org/> .
+
+# @keywords declares which bare words are recognized as keywords instead of
+# requiring a `prefix:` qualification -- real N3/EYE idiom. This engine
+# always recognizes exactly this fixed set (a, is, of, true, false), so
+# declaring them here is validated (not silently ignored) and the keyword
+# sugars below (rdf:type shorthand "a", inverse "is ... of", the bare `true`
+# body, and the bare `false` denial head) all continue to work exactly as
+# they do without the directive.
+@keywords a, is, of, true, false .
+
+:socrates a :Human .
+:human :subClassOf :mortal .
+
+{ :socrates a :Human } => { :socrates a :SubjectOfKeywordsTest } .
+
+{ (?A 0) :add ?A } <= true .
+
+{ :socrates a :Human , :Mortal } => false .

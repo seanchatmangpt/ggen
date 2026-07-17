@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_TermNotInTriple8Universe",
+  "kind": "falsification",
+  "seed": 6467944236380922065,
+  "mutation": "Reference one term IRI that was never interned into the Triple8 universe.",
+  "expected_refusal": "TermNotInTriple8Universe",
+  "input": {"universe": ["<urn:chatman:triple8:u1>", "<urn:chatman:triple8:u2>", "<urn:chatman:triple8:u3>", "<urn:chatman:triple8:u4>"], "terms": ["<urn:chatman:triple8:u1>", "<urn:chatman:triple8:not-in-universe>"]}
+}

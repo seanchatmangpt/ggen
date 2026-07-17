@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_WarmPathRequired",
+  "kind": "falsification",
+  "seed": 6453009526971296488,
+  "mutation": "Raise the pattern constraint count above the HotPath maxConstraints of eight.",
+  "expected_refusal": "WarmPathRequired",
+  "input": {"profile_id": "profile-warm-path-required", "requested_dialect": "triple8-pattern", "admitted_dialects": ["triple8-pattern"], "constraint_count": 9}
+}

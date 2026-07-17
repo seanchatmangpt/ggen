@@ -1,0 +1,3 @@
+<http://a.example/x> <http://a.example/p1> "p1-0" ;
+                     <http://a.example/p2> "p2-0" ;
+                     <http://a.example/p3> "p3-0" .

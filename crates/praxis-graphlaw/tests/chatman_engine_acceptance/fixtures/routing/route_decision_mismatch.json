@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_RouteDecisionMismatch",
+  "kind": "falsification",
+  "seed": 9768087245736037886,
+  "mutation": "Alter the recorded route decision literal so it disagrees with the recomputed route.",
+  "expected_refusal": "RouteDecisionMismatch",
+  "input": {"profile_id": "profile-route-mismatch", "requested_dialect": "sparql-select", "admitted_dialects": ["sparql-select"], "recorded_route": "shacl-core"}
+}

@@ -1,0 +1,18 @@
+# Vendored verbatim from
+# https://github.com/eyereasoner/eye/blob/master/reasoning/entail/socrates.n3
+# No truncation needed (7 lines upstream). This is a distinct EYE corpus
+# directory from the already-vendored `socrates` case (reasoning/socrates/):
+# same rdfs:subClassOf forward-chaining mechanism, but this file is EYE's
+# `entail/` example specifically demonstrating single-step "logic entailment"
+# (subclass -> membership) rather than the multi-level dog/nixon-diamond
+# style hierarchies already covered -- kept because it exercises the same
+# distinct minimal entailment shape the upstream `entail` directory targets,
+# with its own EYE-checked claim file (`entail/socrates-claim.n3`) confirming
+# the answer below.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix : <http://example.org/socrates#>.
+
+:Socrates a :Man.
+:Man rdfs:subClassOf :Mortal.
+
+{?A rdfs:subClassOf ?B. ?S a ?A} => {?S a ?B}.

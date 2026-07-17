@@ -1,0 +1,134 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix obs:  <https://ggen.io/ontology/bench-obs#> .
+
+# ===========================================================================
+# bench-obs — Recursive Workflow benchmark observation vocabulary
+# Bridge/instrumentation vocabulary: one term per primitive fact the
+# rwai-bench records. Observations are logical (obs:obsSeq counter), never
+# wall-clock. OCEL 2.0 projection is performed by the CONSTRUCT queries in
+# packs/ocel-bench-pack (generated into crates/cng/queries/).
+# ===========================================================================
+
+<https://ggen.io/ontology/bench-obs#>
+    a owl:Ontology ;
+    rdfs:label "rwai-bench observation vocabulary" ;
+    rdfs:comment "Instrumentation vocabulary for the Recursive Workflow benchmark. Each observation fact carries obs:obsKind plus the kind-specific properties below. No wall-clock time: ordering is the logical obs:obsSeq counter." ;
+    owl:versionInfo "26.7.9" .
+
+obs:Observation
+    a owl:Class ;
+    rdfs:label "Observation" ;
+    rdfs:comment "A single primitive fact recorded by the benchmark harness. Its obs:obsKind literal names which of the ten primitive fact kinds it is: imported, planned, projected, shape_validated, transition_fired, receipted, refused, roster_admitted, socket_attached, or role_derived." .
+
+obs:obsKind
+    a owl:DatatypeProperty ;
+    rdfs:label "observation kind" ;
+    rdfs:comment "Which primitive fact this observation records. Closed value set: imported | planned | projected | shape_validated | transition_fired | receipted | refused | roster_admitted | socket_attached | role_derived." ;
+    rdfs:domain obs:Observation ;
+    rdfs:range  xsd:string .
+
+obs:obsSeq
+    a owl:DatatypeProperty ;
+    rdfs:label "logical sequence number" ;
+    rdfs:comment "Deterministic logical sequence counter assigned by the harness in emission order. This is the only ordering signal; there is no wall-clock time anywhere in the vocabulary. OCEL timestamps are derived as epoch 2000-01-01T00:00:00Z + obsSeq seconds." ;
+    rdfs:domain obs:Observation ;
+    rdfs:range  xsd:integer .
+
+obs:obsSetId
+    a owl:DatatypeProperty ;
+    rdfs:label "observation set id" ;
+    rdfs:comment "Identifier of the benchmark run / artifact set this observation belongs to. Combined with obs:obsSeq it forms the unique OCEL event id (setId-seq)." ;
+    rdfs:domain obs:Observation ;
+    rdfs:range  xsd:string .
+
+obs:obsWorkerId
+    a owl:DatatypeProperty ;
+    rdfs:label "worker id" ;
+    rdfs:comment "Identifier of the roster worker involved in this observation (admitted, executing, or deriving a role)." ;
+    rdfs:domain obs:Observation ;
+    rdfs:range  xsd:string .
+
+obs:obsRole
+    a owl:DatatypeProperty ;
+    rdfs:label "worker role" ;
+    rdfs:comment "Role label of a worker, as admitted (roster_admitted) or inferred (role_derived)." ;
+    rdfs:domain obs:Observation ;
+    rdfs:range  xsd:string .
+
+obs:obsDepartment
+    a owl:DatatypeProperty ;
+    rdfs:label "worker department" ;
+    rdfs:comment "Department label of a roster worker at admission." ;
+    rdfs:domain obs:Observation ;
+    rdfs:range  xsd:string .
+
+obs:obsStanding
+    a owl:DatatypeProperty ;
+    rdfs:label "worker standing" ;
+    rdfs:comment "Standing label of a roster worker at admission (e.g. good, probation)." ;
+    rdfs:domain obs:Observation ;
+    rdfs:range  xsd:string .
+
+obs:obsWorkflowId
+    a owl:DatatypeProperty ;
+    rdfs:label "workflow id" ;
+    rdfs:comment "Identifier of the workflow execution this observation belongs to. Projected to an OCEL Object of type WorkflowExecution." ;
+    rdfs:domain obs:Observation ;
+    rdfs:range  xsd:string .
+
+obs:obsActivityLabel
+    a owl:DatatypeProperty ;
+    rdfs:label "activity label" ;
+    rdfs:comment "Human-readable activity name for event-like observations (transition_fired, receipted, refused). Projected to ocel:activityName." ;
+    rdfs:domain obs:Observation ;
+    rdfs:range  xsd:string .
+
+obs:obsParentActivity
+    a owl:ObjectProperty ;
+    rdfs:label "parent activity" ;
+    rdfs:comment "IRI of the parent workflow activity to which a child workflow is attached (socket_attached observations). Object property: the value is the activity node itself." ;
+    rdfs:domain obs:Observation .
+
+obs:obsChildWorkflow
+    a owl:ObjectProperty ;
+    rdfs:label "child workflow" ;
+    rdfs:comment "IRI of the child workflow attached under a parent activity socket (socket_attached observations). Object property: the value is the child workflow node itself." ;
+    rdfs:domain obs:Observation .
+
+obs:obsDigest
+    a owl:DatatypeProperty ;
+    rdfs:label "receipt digest" ;
+    rdfs:comment "BLAKE3 receipt digest (hex) recorded by a receipted observation. Projected to an OCEL Attribute with attributeKey 'receipt.digest'." ;
+    rdfs:domain obs:Observation ;
+    rdfs:range  xsd:string .
+
+obs:obsRefusalCode
+    a owl:DatatypeProperty ;
+    rdfs:label "refusal code" ;
+    rdfs:comment "Typed Refusal variant name recorded by a refused observation (e.g. UnknownVocabulary). Used to synthesize the 'refused:<code>' activity name when no label is present." ;
+    rdfs:domain obs:Observation ;
+    rdfs:range  xsd:string .
+
+obs:obsPlanId
+    a owl:DatatypeProperty ;
+    rdfs:label "plan id" ;
+    rdfs:comment "Identifier of the PDDL plan produced by a planned observation and consumed by projected/transition observations." ;
+    rdfs:domain obs:Observation ;
+    rdfs:range  xsd:string .
+
+obs:obsTapeOps
+    a owl:DatatypeProperty ;
+    rdfs:label "tape operations" ;
+    rdfs:comment "Number of operations on the admitted tape (logical op count, not time) for the observation's plan or workflow." ;
+    rdfs:domain obs:Observation ;
+    rdfs:range  xsd:integer .
+
+obs:obsExecutedOps
+    a owl:DatatypeProperty ;
+    rdfs:label "executed operations" ;
+    rdfs:comment "Number of operations actually executed (logical op count, not time). Compared against obs:obsTapeOps for conformance accounting." ;
+    rdfs:domain obs:Observation ;
+    rdfs:range  xsd:integer .

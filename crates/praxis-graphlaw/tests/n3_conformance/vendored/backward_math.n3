@@ -1,0 +1,22 @@
+# Vendored from https://github.com/eyereasoner/eye/blob/master/reasoning/backward/backward.n3
+# Unmodified rule content. Previously blocked on having no goal-directed
+# query mechanism at all (pure forward-chaining materialize() can never
+# bind `?X math:greaterThan ?Y` with no facts to iterate candidates over).
+# Now closed via `TripleStore::prove`/`BackwardChainer::prove`
+# (lib/src/backwardchaining.rs): the concrete goal EYE's own
+# `backward-query.n3` companion file seeds (`5 :moreInterestingThan 3`) is
+# supplied by this suite's manifest entry's `prove_goal` field instead of
+# being embedded in this fixture, since this crate's manifest-driven runner
+# has no separate "query file" concept -- the goal is proved directly
+# against this document's rules via goal-directed backward chaining, with
+# real builtin dispatch (math:greaterThan) reused from the ordinary
+# forward-chaining query engine.
+@prefix math: <http://www.w3.org/2000/10/swap/math#>.
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix : <http://example.org/#>.
+
+{
+    ?X :moreInterestingThan ?Y.
+} <= {
+    ?X math:greaterThan ?Y.
+}.

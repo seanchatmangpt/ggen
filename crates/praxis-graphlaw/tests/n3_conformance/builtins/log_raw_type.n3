@@ -1,0 +1,7 @@
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix : <http://example.org/#>.
+
+:x :hasValue 42 .
+
+{ :x :hasValue ?v . ?v log:rawType ?t . } => { :x :valueType ?t }.

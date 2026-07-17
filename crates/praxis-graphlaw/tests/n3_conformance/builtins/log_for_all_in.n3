@@ -1,0 +1,12 @@
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix : <http://example.org/#>.
+
+:dog1 a :Dog.
+:dog2 a :Dog.
+:dog3 a :Dog.
+
+{
+  ( :dog1 :dog2 :dog3 ) log:forAllIn { ?d a :Dog }.
+} => {
+  : :allAreDogs true.
+}.

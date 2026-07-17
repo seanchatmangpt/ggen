@@ -1,0 +1,104 @@
+{
+  "provenance": {
+    "source": "W3C SPARQL 1.1 Query Evaluation Test Suite (Subset)",
+    "description": "Proposed conformance test cases covering query evaluation features.",
+    "last_synced": "2026-07-04"
+  },
+  "conformance_suites": [
+    {
+      "suite_name": "SPARQL 1.1 Query Evaluation",
+      "test_cases": [
+        {
+          "id": "filter_ebv",
+          "name": "FILTER with Effective Boolean Value (EBV)",
+          "features": ["filter", "ebv"],
+          "data": "filter_ebv/data.ttl",
+          "query": "filter_ebv/query.rq",
+          "expected": "filter_ebv/expected.json",
+          "status": "planned"
+        },
+        {
+          "id": "filter_equality",
+          "name": "FILTER with Equality and Inequality",
+          "features": ["filter", "equality"],
+          "data": "filter_equality/data.ttl",
+          "query": "filter_equality/query.rq",
+          "expected": "filter_equality/expected.json",
+          "status": "planned"
+        },
+        {
+          "id": "filter_logical",
+          "name": "FILTER with Logical Operators AND, OR, NOT",
+          "features": ["filter", "logical"],
+          "data": "filter_logical/data.ttl",
+          "query": "filter_logical/query.rq",
+          "expected": "filter_logical/expected.json",
+          "status": "planned"
+        },
+        {
+          "id": "bind_simple",
+          "name": "BIND with arithmetic and literals",
+          "features": ["bind", "extend"],
+          "data": "bind_simple/data.ttl",
+          "query": "bind_simple/query.rq",
+          "expected": "bind_simple/expected.json",
+          "status": "planned"
+        },
+        {
+          "id": "optional_simple",
+          "name": "Simple OPTIONAL (LeftJoin)",
+          "features": ["optional", "left-join"],
+          "data": "optional_simple/data.ttl",
+          "query": "optional_simple/query.rq",
+          "expected": "optional_simple/expected.json",
+          "status": "planned"
+        },
+        {
+          "id": "optional_unbound",
+          "name": "OPTIONAL with Unbound Variable",
+          "features": ["optional", "left-join", "unbound"],
+          "data": "optional_unbound/data.ttl",
+          "query": "optional_unbound/query.rq",
+          "expected": "optional_unbound/expected.json",
+          "status": "planned"
+        },
+        {
+          "id": "union_simple",
+          "name": "Simple UNION",
+          "features": ["union"],
+          "data": "union_simple/data.ttl",
+          "query": "union_simple/query.rq",
+          "expected": "union_simple/expected.json",
+          "status": "planned"
+        },
+        {
+          "id": "minus_simple",
+          "name": "Simple MINUS",
+          "features": ["minus"],
+          "data": "minus_simple/data.ttl",
+          "query": "minus_simple/query.rq",
+          "expected": "minus_simple/expected.json",
+          "status": "planned"
+        },
+        {
+          "id": "subquery_simple",
+          "name": "Simple Select Subquery",
+          "features": ["subquery"],
+          "data": "subquery_simple/data.ttl",
+          "query": "subquery_simple/query.rq",
+          "expected": "subquery_simple/expected.json",
+          "status": "planned"
+        },
+        {
+          "id": "aggregate_multiple",
+          "name": "Multiple Aggregates (COUNT and SUM)",
+          "features": ["aggregate", "group-by"],
+          "data": "aggregate_multiple/data.ttl",
+          "query": "aggregate_multiple/query.rq",
+          "expected": "aggregate_multiple/expected.json",
+          "status": "planned"
+        }
+      ]
+    }
+  ]
+}

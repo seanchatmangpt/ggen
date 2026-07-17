@@ -1,0 +1,18 @@
+# Vendored from https://github.com/eyereasoner/eye/blob/master/reasoning/snaf/
+# (rules.n3 + demo.n3 combined into a single document). Unmodified besides
+# combining the two upstream files: exercises log:notIncludes (SNAF
+# negation-as-failure guard).
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix : <http://example.org/>.
+
+:Alice :loves :Bob.
+:Bob a :Person.
+
+{
+  ?SCOPE log:notIncludes { :Alice :hates ?x }.
+  ?x a :Person.
+}
+=>
+{
+  :Alice :hates :Nobody.
+}.

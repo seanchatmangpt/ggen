@@ -1,0 +1,318 @@
+// ============================================================================
+// IRI grammar (RFC 3987)
+// ============================================================================
+
+Iri = @{ IriScheme ~ ":" ~ IriHierPart ~ ("?" ~ IriQuery)? ~ ("#" ~ IriFragment)? }
+
+IriHierPart = {
+    ("//" ~ IriAuthority ~ IriPathAbempty)
+  | IriPathAbsolute
+  | IriPathRootless
+  | IriPathEmpty
+}
+
+IriAuthority = ${ (IriUserInfo ~ "@")? ~ IriHost ~ (":" ~ IriPort)? }
+IriUserInfo  = ${ (IriUnreserved | IriPctEncoded | IriSubDelims | ":")* }
+IriHost      = ${ IriIpLiteral | IriIpv4Address | IriRegName }
+IriRegName   = ${ (IriUnreserved | IriPctEncoded | IriSubDelims)* }
+
+IriPath         = ${ IriPathAbsolute | IriPathNoScheme | IriPathRootless | IriPathAbempty }
+// RFC 3986 sec. 3.3: path-abempty = *( "/" segment ) -- zero or more, so an
+// authority with NO path at all (e.g. "http://example.org" followed
+// immediately by "?query", "#fragment", or the closing ">") is valid. (A
+// `+` here would wrongly require at least one "/segment", which is why the
+// two call sites below previously had to special-case real end-of-input as
+// a substitute -- that only covered the true-EOF case, not "authority
+// immediately followed by a fragment/query/closing delimiter".)
+IriPathAbempty  = ${ ("/" ~ IriSegment)* }
+IriPathAbsolute = ${ "/" ~ (IriSegmentNz ~ ("/" ~ IriSegment)*)? }
+IriPathNoScheme = ${ IriSegmentNzNc ~ ("/" ~ IriSegment)* }
+IriPathRootless = ${ IriSegmentNz ~ ("/" ~ IriSegment)* }
+IriPathEmpty    = ${ "" }
+
+IriSegment     = @{ IriIpChar* }
+IriSegmentNz   = @{ IriIpChar+ }
+IriSegmentNzNc = @{ (IriUnreserved | IriPctEncoded | IriSubDelims | "@")+ }
+
+IriQuery    = @{ (IriIpChar | IriPrivate | "/" | "?")* }
+IriFragment = @{ (IriIpChar | "/" | "?")* }
+
+IriScheme     = @{ ASCII_ALPHA ~ (ASCII_ALPHA | ASCII_DIGIT | "+" | "-" | ".")* }
+IriPort       = @{ ASCII_DIGIT* }
+
+IriPrivate    = ${ '\u{E000}'..'\u{F8FF}' | '\u{F0000}'..'\u{FFFFD}' | '\u{100000}'..'\u{10FFFD}' }
+IriPctEncoded = ${ "%" ~ ASCII_HEX_DIGIT ~ ASCII_HEX_DIGIT }
+IriUnreserved = @{ ASCII_ALPHA | ASCII_DIGIT | "-" | "." | "_" | "~" }
+IriReserved   = @{ IriGenDelims | IriSubDelims }
+IriGenDelims  = @{ ":" | "/" | "?" | "#" | "[" | "]" | "@" }
+IriSubDelims  = @{ "!" | "$" | "&" | "'" | "(" | ")" | "*" | "+" | "," | ";" | "=" }
+IriDecOctet   = ${
+    ASCII_DIGIT
+  | (('1' .. '9') ~ ASCII_DIGIT)
+  | ("1" ~ ASCII_DIGIT ~ ASCII_DIGIT)
+  | ("2" ~ ('0' .. '4') ~ ASCII_DIGIT)
+  | ("25" ~ ('0' .. '5'))
+}
+
+IriIpChar       = { IriUnreserved | IriPctEncoded | IriSubDelims | ":" | "@" }
+IriIpLiteral    = { "[" ~ (IriIpv6Address | IriIpvFutureAddress) ~ "]" }
+
+IriIpv6H16      = ${ ASCII_HEX_DIGIT{1,4} }
+IriIpv6Ls32     = { (IriIpv6H16 ~ ":" ~ IriIpv6H16) | IriIpv4Address }
+
+IriIpv4Address      = ${ IriDecOctet ~ "." ~ IriDecOctet ~ "." ~ IriDecOctet ~ "." ~ IriDecOctet }
+IriIpvFutureAddress = ${ "v" ~ ASCII_HEX_DIGIT+ ~ "." ~ (IriUnreserved | IriSubDelims | ":")+ }
+IriIpv6Address      = ${
+    ((IriIpv6H16 ~ ":"){6} ~ IriIpv6Ls32)
+  | ("::" ~ (IriIpv6H16 ~ ":"){5} ~ IriIpv6Ls32)
+  | (IriIpv6H16? ~ "::" ~ (IriIpv6H16 ~ ":"){4} ~ IriIpv6Ls32)
+  | (((IriIpv6H16 ~ ":"){1} ~ IriIpv6H16)? ~ "::" ~ (IriIpv6H16 ~ ":"){3} ~ IriIpv6Ls32)
+  | (((IriIpv6H16 ~ ":"){2} ~ IriIpv6H16)? ~ "::" ~ (IriIpv6H16 ~ ":"){2} ~ IriIpv6Ls32)
+  | (((IriIpv6H16 ~ ":"){3} ~ IriIpv6H16)? ~ "::" ~ IriIpv6H16 ~ ":" ~ IriIpv6Ls32)
+  | (((IriIpv6H16 ~ ":"){4} ~ IriIpv6H16)? ~ "::" ~ IriIpv6Ls32)
+  | (((IriIpv6H16 ~ ":"){5} ~ IriIpv6H16)? ~ "::" ~ IriIpv6H16)
+  | (((IriIpv6H16 ~ ":"){6} ~ IriIpv6H16)? ~ "::")
+}
+
+// ----------------------------------------------------------------------------
+// IRI *references* (RFC 3986 sec. 4.1): either an absolute `Iri` (with a
+// scheme) or a `RelativeRef` (no scheme). Used inside `<...>` wherever a bare
+// `<IRI>` was previously required, so relative references like `<foo/bar>`,
+// `<../baz>`, `<#frag>` parse; n3rule_parser.rs's `PrefixMapper::resolve`
+// resolves them against the current `@base`/BASE at parse time.
+// ----------------------------------------------------------------------------
+
+RelativeRefPart = {
+    ("//" ~ IriAuthority ~ IriPathAbempty)
+  | IriPathAbsolute
+  | IriPathNoScheme
+  | IriPathEmpty
+}
+
+RelativeRef  = @{ RelativeRefPart ~ ("?" ~ IriQuery)? ~ ("#" ~ IriFragment)? }
+IriReference = @{ Iri | RelativeRef }
+
+// `"<" ~ IriReference ~ ">"`, compound-atomic (not just IriReference's own
+// atomicity) so pest's implicit `(WHITESPACE | COMMENT)*` insertion at the
+// concatenation boundaries around `IriReference` is disabled here. Without
+// this, e.g. `<#foo>` -- a completely ordinary fragment-only relative IRI --
+// would have its `#...` swallowed as a `COMMENT` at the boundary right after
+// `<`, silently eating the closing `>` along with it. `$` (not `@`) so the
+// inner `IriReference` pair is still exposed to n3rule_parser.rs.
+BracketedIri = ${ "<" ~ IriReference ~ ">" }
+
+// ============================================================================
+// Whitespace and comments
+// ============================================================================
+
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+COMMENT    = _{ "#" ~ (!"\n" ~ ANY)* }
+
+// ============================================================================
+// N3 / Datalog rule grammar
+// ============================================================================
+
+// Variables: ?name
+Var = @{ "?" ~ ASCII_ALPHA ~ (ASCII_ALPHA | ASCII_DIGIT | "_")* }
+
+// Prefix declarations: @prefix prefix: <IRI> .
+PrefixIdentifier = @{ ASCII_ALPHANUMERIC* }
+Prefix = { "@prefix" ~ PrefixIdentifier ~ ":" ~ BracketedIri ~ "." }
+
+// Base declaration: @base <IRI> . -- the IRI may itself be relative, resolved
+// against whatever base was in effect beforehand (RFC 3986).
+Base = { "@base" ~ BracketedIri ~ "." }
+
+// SPARQL-style directives, accepted as alternatives to `@prefix`/`@base`:
+// case-insensitive keyword, no leading `@`, no trailing `.`.
+SparqlPrefix = { ^"PREFIX" ~ PrefixIdentifier ~ ":" ~ BracketedIri }
+SparqlBase   = { ^"BASE" ~ BracketedIri }
+
+// Quantifier declarations: @forAll ?x, ?y . / @forSome ?z .
+// Real per-formula scoping (see n3rule_parser.rs's `ScopeStack`): a variable
+// named in an `@forAll` is universally quantified and renamed to a fresh
+// symbol scoped to the formula (document-root or nested `{ }`) the
+// declaration appears in, so the same bare name reused in an unrelated
+// sibling formula that *also* explicitly quantifies it is a genuinely
+// distinct variable. A variable named in `@forSome` is existentially
+// quantified and skolemized to a fresh blank node at parse time, scoped the
+// same way. Declarations may appear at the document root (as before) or
+// nested inside a `Formula` (see the `Formula` rule below), matching real
+// N3/EYE where quantifiers commonly appear inside the quoted graph whose
+// variables they scope.
+ForAll  = { "@forAll" ~ Var ~ ("," ~ Var)* ~ "." }
+ForSome = { "@forSome" ~ Var ~ ("," ~ Var)* ~ "." }
+
+// Keyword declarations: @keywords a, is, of, true, false .
+// Real N3/EYE uses @keywords to declare which bare words (normally requiring
+// a `prefix:` qualification) are recognized as keywords instead of ordinary
+// prefixed names. This engine already always recognizes the fixed set
+// {a, is, of, true, false} as keywords (see RdfType/InverseTP/HasTP/
+// TrueBody/DenyHead below), so -- exactly like ForAll/ForSome above --
+// @keywords is accepted syntactically and validated (in n3rule_parser.rs)
+// against that known set rather than driving a dynamic grammar toggle.
+KeywordWord = @{ ASCII_ALPHA+ }
+KeywordList = { KeywordWord ~ ("," ~ KeywordWord)* }
+Keywords    = { "@keywords" ~ KeywordList? ~ "." }
+
+// Local names may contain alphanumerics, underscore, hyphen, dot in the middle.
+// Local names CANNOT end with a dot (dots are triple-terminators in Notation3).
+// LocalNameEnd = any non-dot char; LocalNameBody = (non-dot | (dot ~ non-dot))* ~ non-dot
+// This grammar prevents trailing dots without backtracking.
+LocalNameEnd  = @{ ASCII_ALPHANUMERIC | "_" | "-" }
+LocalNameBody = @{ LocalNameEnd ~ ("." ~ LocalNameEnd | LocalNameEnd)* }
+Prefixed      = @{ PrefixIdentifier ~ ":" ~ LocalNameBody? }
+
+// Blank nodes: _:label
+BlankNodeLabel = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_" | "-" | ".")* }
+BlankNode      = @{ "_:" ~ BlankNodeLabel }
+
+// String literals (single-line and triple-quoted)
+StringEscape       = @{ "\\" ~ ANY }
+StringTripleDouble = @{ "\"\"\"" ~ (StringEscape | (!"\"\"\"" ~ ANY))* ~ "\"\"\"" }
+StringDouble       = @{ "\"" ~ (StringEscape | (!"\"" ~ !"\n" ~ ANY))* ~ "\"" }
+StringTripleSingle = @{ "'''" ~ (StringEscape | (!"'''" ~ ANY))* ~ "'''" }
+StringSingle       = @{ "'" ~ (StringEscape | (!"'" ~ !"\n" ~ ANY))* ~ "'" }
+StringValue        = @{ StringTripleDouble | StringDouble | StringTripleSingle | StringSingle }
+
+// Language tags: @en, @en-US
+LangTag = @{ "@" ~ ASCII_ALPHA+ ~ ("-" ~ (ASCII_ALPHA | ASCII_DIGIT)+)* }
+
+// Datatype: ^^<IRI> or ^^prefix:local
+DatatypeAnnotation = { "^^" ~ (BracketedIri | Prefixed) }
+
+// Numeric literals
+IntegerLiteral = @{ ("+" | "-")? ~ ASCII_DIGIT+ }
+DecimalLiteral = @{ ("+" | "-")? ~ ASCII_DIGIT* ~ "." ~ ASCII_DIGIT+ }
+DoubleLiteral  = @{ ("+" | "-")? ~ (ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT* | "." ~ ASCII_DIGIT+) ~ (("e" | "E") ~ ("+" | "-")? ~ ASCII_DIGIT+) }
+BoolLiteral    = @{ "true" | "false" }
+
+// Full literal: string with optional lang/datatype, or numeric/boolean
+Literal = {
+    StringValue ~ (LangTag | DatatypeAnnotation)?
+  | DoubleLiteral
+  | DecimalLiteral
+  | IntegerLiteral
+  | BoolLiteral
+}
+
+// Named nodes: <IRI>, prefixed, or rdf:type shorthand "a"
+RdfType = { "a" }
+IriRef  = { BracketedIri }
+Term    = { IriRef | Prefixed }
+
+// Any term position: IRI, prefixed, blank node, or literal
+varOrTerm = { Term | Var | BlankNode | Literal }
+
+// Quoted graph ("formula") used as a term: { TP TP ... }. May be empty.
+// Reuses TP, so a Formula can itself contain nested Lists/Formulas. May also
+// contain its own `@forAll`/`@forSome` declarations, scoping those variables
+// to this formula (see the `ForAll`/`ForSome` comment above).
+Formula = { "{" ~ (ForAll | ForSome | TP)* ~ "}" }
+
+// RDF list ("collection") syntax: ( item item ... ). May be empty (rdf:nil).
+// Members reuse the same alternatives as Object, plus Formula -- needed for
+// e.g. `log:collectAllIn`'s `(?Var {quoted graph} ?List)` subject shape.
+// List as its own alternative supports NESTED lists (e.g. the real EYE
+// `peano` corpus case's `(:s ?B)` nested inside `(?A (:s ?B))`) --
+// pest supports this self-referential rule fine.
+ListItem = { IriRef | Prefixed | Var | BlankNode | Literal | List | Formula | BNodeProps }
+List     = { "(" ~ ListItem* ~ ")" }
+
+// Anonymous blank-node property list: "[ p1 o1 ; p2 o2 ]", usable as a
+// Subject or Object (real Turtle/N3 idiom). Desugars (in n3rule_parser.rs)
+// to a fresh synthetic blank node plus one triple per property/object pair
+// -- exactly as if the bnode had been given an explicit `_:b` label and
+// written as its own separate TP. An empty "[]" is just a fresh blank node
+// with no additional triples (PredicateObjectList is optional). Self-
+// referential via Object (in PredicateObjectList's ObjectList), so nested
+// "[ p [ q o ] ]" and bnode-props-inside-a-List both fall out for free.
+BNodeProps = { "[" ~ PredicateObjectList? ~ "]" }
+
+// Path syntax sugar (real N3 idiom): "x!p" (forward path) desugars to a
+// fresh existential blank node `_:v` plus the triple (x, p, _:v); the path
+// expression itself evaluates to `_:v`, so it can be used as a term
+// anywhere a term is expected, including chained further ("x!p!q" desugars
+// through two fresh existentials). "x^p" (inverse path) desugars to a fresh
+// existential `_:v` plus the triple (_:v, p, x). Segments chain and may mix
+// `!`/`^` freely. `PathInverse`'s negative lookahead (`!"^"`) keeps a single
+// `^` from being misparsed as the start of a `^^` datatype annotation --
+// datatype annotations only ever follow a `Literal`, which is not a valid
+// `PathHead`, but the lookahead makes that non-collision explicit/robust
+// rather than incidental.
+PathForward   = { "!" }
+PathInverse   = { "^" ~ !"^" }
+PathPredicate = { IriRef | Prefixed | Var }
+PathSegment   = { (PathForward | PathInverse) ~ PathPredicate }
+PathHead      = { IriRef | Prefixed | Var | BlankNode }
+PathExpr      = { PathHead ~ PathSegment+ }
+
+// Triple pattern positions
+// `SameAs` ("=") is Property-position sugar for owl:sameAs (real N3 idiom,
+// e.g. `:a = :b .` meaning `:a owl:sameAs :b .`).
+SameAs   = { "=" }
+Subject  = { PathExpr | IriRef | Prefixed | Var | BlankNode | Literal | List | Formula | BNodeProps }
+Property = { IriRef | Prefixed | Var | RdfType | SameAs }
+Object   = { PathExpr | IriRef | Prefixed | Var | BlankNode | Literal | List | Formula | BNodeProps }
+
+// Comma-separated object list sugar: "s p o1, o2, o3 ." desugars to one triple
+// per object, all sharing the same subject/property.
+ObjectList = { Object ~ ("," ~ Object)* }
+
+// Semicolon-separated predicate-object-list sugar: "s p1 o1; p2 o2 ."
+// desugars to one triple per (property, object) pair, all sharing the same
+// subject -- real Turtle/N3 idiom (e.g. the real EYE `skos` corpus case's
+// `?c skos:prefLabel ?l; skos:altLabel ?l`).
+PredicateObjectList = { Property ~ ObjectList ~ (";" ~ Property ~ ObjectList)* }
+
+// Inverse-predicate sugar (real N3/EYE idiom): "object is predicate of
+// subject ." is equivalent to "subject predicate object .". `is`/`of` are
+// bare keywords (part of the same fixed keyword set as `a`/`true`/`false`),
+// not ordinary prefixed names, so this is unambiguous with normal TPs (which
+// require a `prefix:` or `<IRI>` or `?var` in Property position).
+InverseTP = { Object ~ "is" ~ Property ~ "of" ~ Subject ~ "."? }
+
+// `has` sugar (real N3/EYE idiom): "subject has predicate object ." is
+// equivalent to "subject predicate object ." -- `has` is purely a readability
+// filler word with no effect on the resulting triple.
+HasTP = { Subject ~ "has" ~ Property ~ Object ~ "."? }
+
+// Triple pattern (TP): "subject property object[, object]* [; property object[, object]*]* ."
+TP = { InverseTP | HasTP | (Subject ~ PredicateObjectList ~ "."?) }
+
+// Body literal: optionally negated TP
+BodyLiteral = { ("not" ~ "{" ~ TP ~ "}") | TP }
+
+// Rule body: one or more body literals in braces, OR the bare keyword
+// `true` (a real EYE corpus idiom -- e.g. `{(?A 0) :add ?A} <= true.` --
+// meaning "unconditionally, no antecedent constraints"; TrueBody is its
+// own named rule so n3rule_parser.rs can tell it apart from an ordinary
+// braced body when building the Rule's (empty) body Vec).
+Body = { ("{" ~ (ForAll | ForSome | BodyLiteral)+ ~ "}") | TrueBody }
+TrueBody = { "true" }
+
+// Rule head: one or more TPs in braces (multi-head support), or the bare
+// keyword `false` -- a real N3/RIF idiom for a denial/consistency-check
+// rule (e.g. the real EYE `skos` corpus case's disjointness constraints:
+// `{?x a skos:ConceptScheme, skos:Concept} => false.`), meaning "the body
+// must never hold" rather than "derive this fact". DenyHead is its own
+// named rule so n3rule_parser.rs can build a denial `Rule` (see
+// `Rule::new_denial`/`Rule::is_denial` in triples.rs) instead of an
+// ordinary fact-asserting one.
+Head = { ("{" ~ TP+ ~ "}") | DenyHead }
+DenyHead = { "false" }
+
+// A complete rule: {body} => {head} . -- or, as backward-implication sugar,
+// {head} <= {body} . (both sides just swap textual position; semantically
+// identical to the forward form). `<=>` is biconditional sugar for both
+// directions at once: "{A} <=> {B} ." means "{A} => {B} ." AND "{B} => {A} .";
+// both sides reuse `Head`'s "one or more TPs in braces" shape since neither
+// side plays a body-only (negation-capable) role here.
+forward_rule       = { Body ~ "=>" ~ Head ~ "."? }
+backward_rule      = { Head ~ "<=" ~ Body ~ "."? }
+biconditional_rule = { Head ~ "<=>" ~ Head ~ "."? }
+rule = { biconditional_rule | forward_rule | backward_rule }
+
+// Document: prefix/quantifier declarations, rules, and plain (non-rule) fact
+// triples may all be interleaved at the top level.
+document = { SOI ~ (Prefix | Base | SparqlPrefix | SparqlBase | Keywords | ForAll | ForSome | rule | TP)* ~ EOI }

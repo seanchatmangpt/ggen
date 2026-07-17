@@ -1,0 +1,7 @@
+{
+  "case": "Accept_OcelEventAdmitted",
+  "kind": "acceptance",
+  "seed": 5501443645852634006,
+  "expected_behavior": "ocel_event_admitted",
+  "input": {"table_hash": "0edfb0856638e5556934c094ad4c0a5efde9cff24c8a989fa959af1fae1345fc", "entries": [{"pattern": "ocel-event-a", "admitted": true}, {"pattern": "ocel-event-b", "admitted": false}]}
+}

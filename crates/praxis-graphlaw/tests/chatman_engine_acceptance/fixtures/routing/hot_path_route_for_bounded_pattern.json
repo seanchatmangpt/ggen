@@ -1,0 +1,7 @@
+{
+  "case": "Accept_HotPathRouteForBoundedPattern",
+  "kind": "acceptance",
+  "seed": 11814625297439261247,
+  "expected_behavior": "hot_path_routed",
+  "input": {"profile_id": "profile-hot-path", "requested_dialect": "triple8-pattern", "admitted_dialects": ["triple8-pattern"]}
+}

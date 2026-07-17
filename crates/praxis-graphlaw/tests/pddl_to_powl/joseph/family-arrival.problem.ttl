@@ -1,0 +1,17 @@
+# Joseph as chief administrator of Egypt — national famine-management plan.
+# Phase artifact: family-arrival (problem fragment). Joseph's family arrives and is received and provisioned (exception path).
+# One admitted PDDL Turtle planning artifact; fragments across all phase
+# artifacts merge structurally into ONE combined plan (domain name
+# 'joseph-famine' shared by every fragment). Formal planning-to-workflow
+# demonstration domain; argues no doctrine, claims no historicity.
+@prefix ex: <http://example.org/joseph#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:family-arrival ceng:pddlProblem """
+(define (problem joseph-famine-family-arrival)
+  (:domain joseph-famine)
+  (:objects egypt)
+  (:init (dreams-received egypt))
+  (:goal (family-provisioned egypt))
+)
+""" .

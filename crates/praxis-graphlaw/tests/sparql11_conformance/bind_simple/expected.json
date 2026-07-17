@@ -1,0 +1,4 @@
+[
+  {"s": "<http://example.org/a>", "price": "10", "discount": "5"},
+  {"s": "<http://example.org/b>", "price": "20", "discount": "5"}
+]

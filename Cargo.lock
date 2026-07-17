@@ -3147,6 +3147,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_yaml",
+ "spargebra",
  "star-toml",
  "tempfile",
  "tera",

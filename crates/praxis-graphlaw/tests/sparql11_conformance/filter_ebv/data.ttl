@@ -1,0 +1,5 @@
+@prefix ex: <http://example.org/> .
+ex:a ex:val 1 ; ex:label "A" .
+ex:b ex:val 0 ; ex:label "B" .
+ex:c ex:val "true" ; ex:label "C" .
+ex:d ex:val "" ; ex:label "D" .

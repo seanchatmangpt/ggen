@@ -1,0 +1,34 @@
+# Vendored from https://github.com/eyereasoner/eye/blob/master/reasoning/nixon-diamond/nixon-diamond.n3
+# Unmodified besides dropping the trailing `log:impliesAnswer` query line
+# (this engine has no query/goal-extraction mechanism -- see main.rs, this
+# suite only ever runs full materialize() and checks derived facts).
+#
+# This is a *rule-priority* example -- Rule 2 (Republicans are NonPacifist)
+# must be fully evaluated before Rule 1 (Quakers are Pacifist, guarded by
+# `log:notIncludes { ?x a ex:NonPacifist }`) so the SNAF guard can see the
+# NonPacifist fact and block Rule 1. Closed two ways, both in `datalog.rs`/
+# `reasoner.rs`:
+# 1. `datalog::validate_rules`'s stratification analysis now looks *inside*
+#    a `log:notIncludes` literal's quoted-formula argument (the same way
+#    `collect_formula_vars` already did for `log:implies`) and adds a
+#    genuine negative dependency edge on whatever relation that inner
+#    pattern names -- here, Rule 1 (deriving ex:Pacifist) is forced into a
+#    stratum strictly greater than Rule 2 (deriving ex:NonPacifist), so
+#    Rule 2's stratum runs to a full fixpoint before Rule 1's stratum
+#    starts at all.
+# 2. `Reasoner::materialize`'s fixpoint also now applies each rule's
+#    derivations to the live `TripleIndex` immediately (in declaration
+#    order) rather than batching until the whole iteration finishes, so
+#    even within one stratum/iteration a later rule can observe an
+#    earlier rule's same-iteration output.
+# Only `ex:NonPacifist` is derived, matching upstream EYE.
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
+@prefix ex:  <http://example.org/nixon#> .
+
+ex:RichardNixon  a ex:Quaker, ex:Republican .
+
+{ ?x a ex:Quaker .
+  ?SCOPE log:notIncludes { ?x a ex:NonPacifist } .
+}  =>  { ?x a ex:Pacifist } .
+
+{ ?x a ex:Republican }  =>  { ?x a ex:NonPacifist } .

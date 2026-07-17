@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+
+:a :angle 0 .
+
+{ ?x :angle ?a . ?a math:tan ?t } => { ?x :tanValue ?t }.

@@ -1,0 +1,9 @@
+# type-counts.rq — test-fixture query.
+# Inputs: any RDF store.
+# Outputs: rows (?type, ?count) — instance count per rdf:type, ordered.
+# Tests load this file and look up the IRI they assert on; no SPARQL text
+# lives in Rust sources (query-authority boundary).
+SELECT ?type (COUNT(?s) AS ?count)
+WHERE { ?s a ?type }
+GROUP BY ?type
+ORDER BY ?type

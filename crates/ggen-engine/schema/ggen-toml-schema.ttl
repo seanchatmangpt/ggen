@@ -1,0 +1,177 @@
+# schema/ggen-toml-schema.ttl — closed-vocabulary definition of `ggen.toml`.
+#
+# This is a meta-ontology: it describes the SHAPE of the `ggen.toml` manifest
+# itself (crate::config::GgenConfig and its nested sections), not a domain
+# ontology fed to a generation rule. It is the single source of truth this
+# crate's `deny_unknown_fields` structs must match exactly — enforced by
+# tests/ggen_toml_schema_match.rs.
+#
+# PROJ-302 (no-private-abstraction gate) extended to crates/ggen: every field
+# accepted by GgenConfig is enumerated here with its required/optional status;
+# every field considered but excluded is recorded in
+# docs/v26.7.4/GGEN_TOML_SCHEMA_MAPPING.md with the reason it was left out.
+#
+# Fields marked `ggenspec:pathSafe true` / `ggenspec:nonEmpty true` are not
+# just documented constraints: they are enforced at load time by
+# `crate::config`'s `star_toml::Validate` impls (see config.rs), which run
+# after `deny_unknown_fields` deserialization succeeds. Each such field has a
+# corresponding negative-case assertion in
+# tests/ggen_toml_semantic_validation.rs, so a constraint declared here
+# without real enforcement — the exact "accepted but never validated"
+# anti-pattern found in every sibling schema surveyed — cannot go unnoticed.
+
+@prefix ggenspec: <https://praxis.dev/ggen/schema#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+
+# ---------------------------------------------------------------------------
+# Root: [GgenConfig] — the whole ggen.toml document
+# ---------------------------------------------------------------------------
+
+ggenspec:GgenConfig
+    a               ggenspec:Section ;
+    rdfs:label      "GgenConfig" ;
+    rdfs:comment    "Root model of a ggen.toml manifest (crate::config::GgenConfig)." ;
+    ggenspec:hasField
+        ggenspec:GgenConfig-project ,
+        ggenspec:GgenConfig-ontology ,
+        ggenspec:GgenConfig-packs ,
+        ggenspec:GgenConfig-templates ,
+        ggenspec:GgenConfig-law .
+
+ggenspec:GgenConfig-project
+    a ggenspec:Field ; ggenspec:name "project" ; ggenspec:type ggenspec:Project ;
+    ggenspec:required true ; rdfs:comment "`[project]` table." .
+
+ggenspec:GgenConfig-ontology
+    a ggenspec:Field ; ggenspec:name "ontology" ; ggenspec:type ggenspec:Ontology ;
+    ggenspec:required true ; rdfs:comment "`[ontology]` table." .
+
+ggenspec:GgenConfig-packs
+    a ggenspec:Field ; ggenspec:name "packs" ; ggenspec:type ggenspec:MapOfPackRef ;
+    ggenspec:required false ; rdfs:comment "`[packs]` table: pack name -> source reference. Defaults to empty." .
+
+ggenspec:GgenConfig-templates
+    a ggenspec:Field ; ggenspec:name "templates" ; ggenspec:type ggenspec:Templates ;
+    ggenspec:required true ; rdfs:comment "`[templates]` table." .
+
+ggenspec:GgenConfig-law
+    a ggenspec:Field ; ggenspec:name "law" ; ggenspec:type ggenspec:Law ;
+    ggenspec:required false ; rdfs:comment "`[law]` table: N3/Datalog rule files and SHACL shapes gating a sync. Defaults to empty (no law stage)." .
+
+# ---------------------------------------------------------------------------
+# [project]
+# ---------------------------------------------------------------------------
+
+ggenspec:Project
+    a ggenspec:Section ; rdfs:label "Project" ;
+    rdfs:comment "Identity of the generating project (crate::config::Project)." ;
+    ggenspec:hasField ggenspec:Project-name .
+
+ggenspec:Project-name
+    a ggenspec:Field ; ggenspec:name "name" ; ggenspec:type xsd:string ;
+    ggenspec:required true ; ggenspec:nonEmpty true ;
+    rdfs:comment "Project name. Must be non-empty (Validator::check_non_empty)." .
+
+# ---------------------------------------------------------------------------
+# [ontology]
+# ---------------------------------------------------------------------------
+
+ggenspec:Ontology
+    a ggenspec:Section ; rdfs:label "Ontology" ;
+    rdfs:comment "The RDF source of truth and its namespace prefixes (crate::config::Ontology)." ;
+    ggenspec:hasField ggenspec:Ontology-source , ggenspec:Ontology-prefixes .
+
+ggenspec:Ontology-source
+    a ggenspec:Field ; ggenspec:name "source" ; ggenspec:type ggenspec:Path ;
+    ggenspec:required true ; ggenspec:pathSafe true ; ggenspec:pathMustBeRelative true ;
+    rdfs:comment "Path to the ontology file (Turtle), relative to the manifest. No traversal ('..'), no null bytes (Validator::check_path)." .
+
+ggenspec:Ontology-prefixes
+    a ggenspec:Field ; ggenspec:name "prefixes" ; ggenspec:type ggenspec:MapOfString ;
+    ggenspec:required false ; rdfs:comment "Prefix -> namespace IRI map. Defaults to empty." .
+
+# ---------------------------------------------------------------------------
+# [packs.<name>] — PackRef (untagged: Path | Git)
+# ---------------------------------------------------------------------------
+
+ggenspec:MapOfPackRef
+    a ggenspec:MapType ; ggenspec:valueType ggenspec:PackRef .
+
+ggenspec:PackRef
+    a ggenspec:UntaggedUnion ; rdfs:label "PackRef" ;
+    rdfs:comment "A pack source reference: either a local path or a git coordinate." ;
+    ggenspec:hasVariant ggenspec:PackRef-Path , ggenspec:PackRef-Git .
+
+ggenspec:PackRef-Path
+    a ggenspec:Variant ; rdfs:label "Path" ;
+    ggenspec:hasField ggenspec:PackRef-Path-path , ggenspec:PackRef-Path-extra_ontologies ,
+        ggenspec:PackRef-Path-lock .
+
+ggenspec:PackRef-Path-path
+    a ggenspec:Field ; ggenspec:name "path" ; ggenspec:type ggenspec:Path ;
+    ggenspec:required true ; ggenspec:nonEmpty true ;
+    rdfs:comment "Filesystem path to the pack directory. Legitimately traverses to sibling directories (e.g. '../foo-pack'), so only non-emptiness is enforced (Validator::check_non_empty), not path-traversal rejection." .
+
+ggenspec:PackRef-Path-extra_ontologies
+    a ggenspec:Field ; ggenspec:name "extra_ontologies" ; ggenspec:type ggenspec:ListOfPath ;
+    ggenspec:required false ;
+    rdfs:comment "Additional ontology Turtle files unioned into the pack graph after its own ontology.ttl, resolved relative to the manifest and confined to the project (Validator::check_path). Each joins the pack content hash (ggen.lock) and the sync input closure — the in-manifest replacement for per-pack make-ontology.sh committed unions." .
+
+ggenspec:PackRef-Path-lock
+    a ggenspec:Field ; ggenspec:name "lock" ; ggenspec:type xsd:boolean ;
+    ggenspec:required false ;
+    rdfs:comment "Whether this pack participates in ggen.lock content-hash pinning. Defaults to true (existing behavior). Set to false to opt a pack out of locking entirely when its ontology.ttl is a regenerated output projection rather than a stable source (e.g. a sibling checkout rewritten by another tool on every run) — content-hash pinning is the wrong contract for such a pack, since every regeneration would otherwise trip a spurious FM-PACK-008 content-hash-mismatch refusal. An unlocked pack is never checked against ggen.lock and never written to it." .
+
+ggenspec:PackRef-Git
+    a ggenspec:Variant ; rdfs:label "Git" ;
+    ggenspec:hasField ggenspec:PackRef-Git-git , ggenspec:PackRef-Git-version .
+
+ggenspec:PackRef-Git-git
+    a ggenspec:Field ; ggenspec:name "git" ; ggenspec:type xsd:string ;
+    ggenspec:required true ; ggenspec:nonEmpty true ; rdfs:comment "Git repository URL. Must be non-empty." .
+
+ggenspec:PackRef-Git-version
+    a ggenspec:Field ; ggenspec:name "version" ; ggenspec:type xsd:string ;
+    ggenspec:required true ; ggenspec:nonEmpty true ; rdfs:comment "Version requirement (tag or semver). Must be non-empty." .
+
+# ---------------------------------------------------------------------------
+# [templates]
+# ---------------------------------------------------------------------------
+
+ggenspec:Templates
+    a ggenspec:Section ; rdfs:label "Templates" ;
+    rdfs:comment "Where Tera templates live (crate::config::Templates)." ;
+    ggenspec:hasField ggenspec:Templates-dir .
+
+ggenspec:Templates-dir
+    a ggenspec:Field ; ggenspec:name "dir" ; ggenspec:type ggenspec:Path ;
+    ggenspec:required true ; ggenspec:pathSafe true ; ggenspec:pathMustBeRelative true ;
+    rdfs:comment "Template directory, relative to the manifest. No traversal, no null bytes (Validator::check_path)." .
+
+# ---------------------------------------------------------------------------
+# [law]
+# ---------------------------------------------------------------------------
+
+ggenspec:Law
+    a ggenspec:Section ; rdfs:label "Law" ;
+    rdfs:comment "Law-state inputs for the sync pipeline (crate::config::Law): rules are materialized after Enrich; shapes gate rendering." ;
+    ggenspec:hasField ggenspec:Law-rules , ggenspec:Law-shapes .
+
+ggenspec:Law-rules
+    a ggenspec:Field ; ggenspec:name "rules" ; ggenspec:type ggenspec:ListOfPath ;
+    ggenspec:required false ; ggenspec:pathSafe true ; ggenspec:pathMustBeRelative true ;
+    rdfs:comment "N3/Datalog rule file paths, relative to the manifest, loaded in listed order. No traversal, no null bytes (Validator::check_path)." .
+
+ggenspec:Law-shapes
+    a ggenspec:Field ; ggenspec:name "shapes" ; ggenspec:type ggenspec:ListOfPath ;
+    ggenspec:required false ; ggenspec:pathSafe true ; ggenspec:pathMustBeRelative true ;
+    rdfs:comment "Turtle SHACL shapes file paths, relative to the manifest, each validated against the post-materialization graph. No traversal, no null bytes (Validator::check_path)." .
+
+# ---------------------------------------------------------------------------
+# Shared scalar/collection type markers
+# ---------------------------------------------------------------------------
+
+ggenspec:Path        a ggenspec:ScalarType ; rdfs:comment "Filesystem path (serde PathBuf)." .
+ggenspec:MapOfString  a ggenspec:MapType ; ggenspec:valueType xsd:string .
+ggenspec:ListOfPath   a ggenspec:ListType ; ggenspec:valueType ggenspec:Path .

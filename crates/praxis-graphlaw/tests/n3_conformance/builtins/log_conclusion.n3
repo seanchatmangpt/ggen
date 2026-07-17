@@ -1,0 +1,13 @@
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix string: <http://www.w3.org/2000/10/swap/string#>.
+@prefix : <http://example.org/#>.
+
+:x :p 1 .
+
+{
+  { :a a :Thing . { :a a :Thing } log:implies { :a :derived true } . } log:conclusion ?result .
+  ?result log:n3String ?s .
+  ?s string:contains "#derived" .
+} => {
+  :x :conclusionOk true
+}.

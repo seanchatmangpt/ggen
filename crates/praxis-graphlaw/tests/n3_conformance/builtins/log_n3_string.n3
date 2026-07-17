@@ -1,0 +1,6 @@
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix : <http://example.org/#>.
+
+:x :p 1 .
+
+{ ( { :a :b :c } ) log:conjunction ?g . ?g log:n3String ?s . } => { :x :formulaText ?s }.

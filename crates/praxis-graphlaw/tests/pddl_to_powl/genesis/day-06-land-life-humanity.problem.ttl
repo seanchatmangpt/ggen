@@ -1,0 +1,21 @@
+# Genesis Creation Week, day-06-land-life-humanity (problem fragment): land animals and humanity are created.
+# One admitted PDDL Turtle planning artifact. Days are planning sources, not
+# workflows: every fragment shares the domain name 'creation-week' and merges
+# structurally into ONE combined seven-day plan whose projection is the one
+# creation-week POWL v2 workflow. Formal process example; argues no doctrine,
+# claims no historicity.
+@prefix ex: <http://example.org/genesis#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:day-06-land-life-humanity a ex:CreationDay ;
+  ex:daySequence 6 ;
+  ex:intends ex:create-land-animals, ex:create-humanity .
+
+ex:day-06-land-life-humanity ceng:pddlProblem """
+(define (problem creation-week-day-06-land-life-humanity)
+  (:domain creation-week)
+  (:objects creation)
+  (:init (formless-void creation))
+  (:goal (humanity-created creation))
+)
+""" .

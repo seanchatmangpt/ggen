@@ -1,0 +1,9 @@
+{
+  "shape": "http://a.example/S1",
+  "focus": "http://a.example/s1",
+  "expected": "conformant",
+  "source_schema": "schemas/1dotExtra1.shex",
+  "source_shexc": "<http://a.example/S1> EXTRA <http://a.example/p1> {\n   <http://a.example/p1> .\n}",
+  "source_data": "validation/Is1_Ip1_Io1.ttl",
+  "comment": "<S> EXTRA <p1> { <p1> . } on { <s1> <p1> <o1> }"
+}

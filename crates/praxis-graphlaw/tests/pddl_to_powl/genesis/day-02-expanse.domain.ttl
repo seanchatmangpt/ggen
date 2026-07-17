@@ -1,0 +1,29 @@
+# Genesis Creation Week, day-02-expanse (domain fragment): the expanse separates waters.
+# One admitted PDDL Turtle planning artifact. Days are planning sources, not
+# workflows: every fragment shares the domain name 'creation-week' and merges
+# structurally into ONE combined seven-day plan whose projection is the one
+# creation-week POWL v2 workflow. Formal process example; argues no doctrine,
+# claims no historicity.
+@prefix ex: <http://example.org/genesis#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:day-02-expanse a ex:CreationDay ;
+  ex:daySequence 2 ;
+  ex:intends ex:form-expanse, ex:separate-waters .
+
+ex:day-02-expanse ceng:pddlDomain """
+(define (domain creation-week)
+  (:requirements :strips)
+  (:predicates
+    (light-separated ?x)
+    (expanse-formed ?x)
+    (waters-separated ?x))
+  (:action form-expanse
+    :parameters (?x)
+    :precondition (and (light-separated ?x))
+    :effect (and (expanse-formed ?x)))
+  (:action separate-waters
+    :parameters (?x)
+    :precondition (and (expanse-formed ?x))
+    :effect (and (waters-separated ?x))))
+""" .

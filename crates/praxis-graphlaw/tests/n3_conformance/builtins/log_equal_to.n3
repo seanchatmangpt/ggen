@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
+
+:itemA :value 42 .
+:itemB :value 42 .
+
+{ ?x :value ?val1 . ?y :value ?val2 . ?val1 log:equalTo ?val2 } => { ?x :sameValueAs ?y }.

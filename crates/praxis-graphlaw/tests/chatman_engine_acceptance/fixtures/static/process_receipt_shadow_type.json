@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_ProcessReceiptShadowType",
+  "kind": "falsification",
+  "seed": 5526151339717340783,
+  "mutation": "Declare a second struct named ProcessReceipt shadowing the canonical type.",
+  "expected_refusal": "ProcessReceiptShadowType",
+  "input": {"gate": "duplicate_canonical_types", "source": "pub struct ProcessReceipt { pub x: u8 }\n"}
+}

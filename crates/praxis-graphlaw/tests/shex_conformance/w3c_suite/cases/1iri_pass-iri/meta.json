@@ -1,0 +1,9 @@
+{
+  "shape": "http://a.example/S1",
+  "focus": "http://a.example/s1",
+  "expected": "conformant",
+  "source_schema": "schemas/1iri.shex",
+  "source_shexc": "<http://a.example/S1> {\n  <http://a.example/p1> IRI\n}",
+  "source_data": "validation/Is1_Ip1_Io1.ttl",
+  "comment": "<S1> { <p1> IRI } on { <s1> <p1> <o1> }"
+}

@@ -1,0 +1,28 @@
+# Joseph as chief administrator of Egypt — national famine-management plan.
+# Phase artifact: payment-treasury (domain fragment). payment is received for grain and the treasury is updated.
+# One admitted PDDL Turtle planning artifact; fragments across all phase
+# artifacts merge structurally into ONE combined plan (domain name
+# 'joseph-famine' shared by every fragment). Formal planning-to-workflow
+# demonstration domain; argues no doctrine, claims no historicity.
+@prefix ex: <http://example.org/joseph#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:treasury-officials ex:record ex:payment .
+ex:buyers ex:pay ex:silver .
+
+ex:payment-treasury ceng:pddlDomain """
+(define (domain joseph-famine)
+  (:requirements :strips)
+  (:predicates
+    (grain-allocated ?x)
+    (payment-received ?x)
+    (treasury-updated ?x))
+  (:action receive-payment
+    :parameters (?x)
+    :precondition (and (grain-allocated ?x))
+    :effect (and (payment-received ?x)))
+  (:action update-treasury
+    :parameters (?x)
+    :precondition (and (payment-received ?x))
+    :effect (and (treasury-updated ?x))))
+""" .

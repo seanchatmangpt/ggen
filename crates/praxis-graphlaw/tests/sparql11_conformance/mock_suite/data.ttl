@@ -1,0 +1,2 @@
+<http://example.org/book1> <http://purl.org/dc/elements/1.1/title> "SPARQL Tutorial" .
+<http://example.org/book1> <http://purl.org/dc/elements/1.1/price> "42"^^<http://www.w3.org/2001/XMLSchema#integer> .

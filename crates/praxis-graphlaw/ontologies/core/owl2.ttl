@@ -1,0 +1,218 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<http://www.w3.org/2002/07/owl#>
+    a owl:Ontology ;
+    dcterms:title "OWL 2 Vocabulary" ;
+    dcterms:description "Web Ontology Language (OWL) 2 RDF-based vocabulary (W3C Recommendation 2012)" ;
+    owl:versionInfo "2.0" .
+
+owl:Class a rdfs:Class ;
+    rdfs:subClassOf rdfs:Class ;
+    rdfs:label "Class" .
+
+owl:Ontology a owl:Class ;
+    rdfs:label "Ontology" .
+
+owl:Individual a owl:Class ;
+    rdfs:label "Individual" .
+
+owl:ObjectProperty a rdfs:Class ;
+    rdfs:subClassOf rdf:Property ;
+    rdfs:label "ObjectProperty" .
+
+owl:DatatypeProperty a rdfs:Class ;
+    rdfs:subClassOf rdf:Property ;
+    rdfs:label "DatatypeProperty" .
+
+owl:AnnotationProperty a rdfs:Class ;
+    rdfs:subClassOf rdf:Property ;
+    rdfs:label "AnnotationProperty" .
+
+owl:FunctionalProperty a owl:Class ;
+    rdfs:subClassOf rdf:Property ;
+    rdfs:label "FunctionalProperty" .
+
+owl:InverseFunctionalProperty a owl:Class ;
+    rdfs:label "InverseFunctionalProperty" .
+
+owl:SymmetricProperty a owl:Class ;
+    rdfs:label "SymmetricProperty" .
+
+owl:AsymmetricProperty a owl:Class ;
+    rdfs:label "AsymmetricProperty" .
+
+owl:TransitiveProperty a owl:Class ;
+    rdfs:label "TransitiveProperty" .
+
+owl:ReflexiveProperty a owl:Class ;
+    rdfs:label "ReflexiveProperty" .
+
+owl:IrreflexiveProperty a owl:Class ;
+    rdfs:label "IrreflexiveProperty" .
+
+owl:Restriction a owl:Class ;
+    rdfs:label "Restriction" .
+
+owl:NamedIndividual a owl:Class ;
+    rdfs:label "NamedIndividual" .
+
+owl:Thing a owl:Class ;
+    rdfs:label "Thing" .
+
+owl:Nothing a owl:Class ;
+    rdfs:subClassOf owl:Thing ;
+    rdfs:label "Nothing" .
+
+owl:AllDisjointClasses a owl:Class ;
+    rdfs:label "AllDisjointClasses" .
+
+owl:AllDisjointProperties a owl:Class ;
+    rdfs:label "AllDisjointProperties" .
+
+owl:AllDifferent a owl:Class ;
+    rdfs:label "AllDifferent" .
+
+owl:NegativePropertyAssertion a owl:Class ;
+    rdfs:label "NegativePropertyAssertion" .
+
+owl:Axiom a owl:Class ;
+    rdfs:label "Axiom" .
+
+owl:Annotation a owl:Class ;
+    rdfs:label "Annotation" .
+
+owl:equivalentClass a owl:ObjectProperty ;
+    rdfs:label "equivalentClass" .
+
+owl:equivalentProperty a owl:ObjectProperty ;
+    rdfs:label "equivalentProperty" .
+
+owl:sameAs a owl:ObjectProperty ;
+    rdfs:label "sameAs" .
+
+owl:differentFrom a owl:ObjectProperty ;
+    rdfs:label "differentFrom" .
+
+owl:inverseOf a owl:ObjectProperty ;
+    rdfs:label "inverseOf" .
+
+owl:imports a owl:ObjectProperty ;
+    rdfs:label "imports" .
+
+owl:onProperty a owl:ObjectProperty ;
+    rdfs:label "onProperty" .
+
+owl:hasValue a owl:ObjectProperty ;
+    rdfs:label "hasValue" .
+
+owl:someValuesFrom a owl:ObjectProperty ;
+    rdfs:label "someValuesFrom" .
+
+owl:allValuesFrom a owl:ObjectProperty ;
+    rdfs:label "allValuesFrom" .
+
+owl:unionOf a owl:ObjectProperty ;
+    rdfs:label "unionOf" .
+
+owl:intersectionOf a owl:ObjectProperty ;
+    rdfs:label "intersectionOf" .
+
+owl:complementOf a owl:ObjectProperty ;
+    rdfs:label "complementOf" .
+
+owl:disjointWith a owl:ObjectProperty ;
+    rdfs:label "disjointWith" .
+
+owl:propertyDisjointWith a owl:ObjectProperty ;
+    rdfs:label "propertyDisjointWith" .
+
+owl:members a owl:ObjectProperty ;
+    rdfs:label "members" .
+
+owl:distinctMembers a owl:ObjectProperty ;
+    rdfs:label "distinctMembers" .
+
+owl:sourceIndividual a owl:ObjectProperty ;
+    rdfs:label "sourceIndividual" .
+
+owl:assertionProperty a owl:ObjectProperty ;
+    rdfs:label "assertionProperty" .
+
+owl:targetIndividual a owl:ObjectProperty ;
+    rdfs:label "targetIndividual" .
+
+owl:targetValue a owl:DatatypeProperty ;
+    rdfs:label "targetValue" .
+
+owl:onDatatype a owl:ObjectProperty ;
+    rdfs:label "onDatatype" .
+
+owl:withRestrictions a owl:ObjectProperty ;
+    rdfs:label "withRestrictions" .
+
+owl:onClass a owl:ObjectProperty ;
+    rdfs:label "onClass" .
+
+owl:onDataRange a owl:ObjectProperty ;
+    rdfs:label "onDataRange" .
+
+owl:hasKey a owl:ObjectProperty ;
+    rdfs:label "hasKey" .
+
+owl:hasSelf a owl:DatatypeProperty ;
+    rdfs:label "hasSelf" .
+
+owl:minCardinality a owl:DatatypeProperty ;
+    rdfs:label "minCardinality" ;
+    rdfs:range xsd:nonNegativeInteger .
+
+owl:maxCardinality a owl:DatatypeProperty ;
+    rdfs:label "maxCardinality" ;
+    rdfs:range xsd:nonNegativeInteger .
+
+owl:cardinality a owl:DatatypeProperty ;
+    rdfs:label "cardinality" ;
+    rdfs:range xsd:nonNegativeInteger .
+
+owl:minQualifiedCardinality a owl:DatatypeProperty ;
+    rdfs:label "minQualifiedCardinality" ;
+    rdfs:range xsd:nonNegativeInteger .
+
+owl:maxQualifiedCardinality a owl:DatatypeProperty ;
+    rdfs:label "maxQualifiedCardinality" ;
+    rdfs:range xsd:nonNegativeInteger .
+
+owl:qualifiedCardinality a owl:DatatypeProperty ;
+    rdfs:label "qualifiedCardinality" ;
+    rdfs:range xsd:nonNegativeInteger .
+
+owl:versionInfo a owl:AnnotationProperty ;
+    rdfs:label "versionInfo" .
+
+owl:versionIRI a owl:AnnotationProperty ;
+    rdfs:label "versionIRI" .
+
+owl:deprecated a owl:AnnotationProperty ;
+    rdfs:label "deprecated" .
+
+owl:priorVersion a owl:AnnotationProperty ;
+    rdfs:label "priorVersion" .
+
+owl:backwardCompatibleWith a owl:AnnotationProperty ;
+    rdfs:label "backwardCompatibleWith" .
+
+owl:incompatibleWith a owl:AnnotationProperty ;
+    rdfs:label "incompatibleWith" .
+
+owl:annotatedSource a owl:ObjectProperty ;
+    rdfs:label "annotatedSource" .
+
+owl:annotatedProperty a owl:ObjectProperty ;
+    rdfs:label "annotatedProperty" .
+
+owl:annotatedTarget a owl:DatatypeProperty ;
+    rdfs:label "annotatedTarget" .

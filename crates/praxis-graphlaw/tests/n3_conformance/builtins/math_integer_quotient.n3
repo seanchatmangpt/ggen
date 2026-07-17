@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+
+:a :dividend 17 .
+:a :divisor 5 .
+
+{ ?x :dividend ?n . ?x :divisor ?d . ( ?n ?d ) math:integerQuotient ?q } => { ?x :quotientInt ?q }.

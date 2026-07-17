@@ -1,0 +1,9 @@
+{
+  "shape": "http://a.example/S1",
+  "focus": "http://a.example/n1",
+  "expected": "conformant",
+  "source_schema": "schemas/1dotRefAND3.json (used verbatim -- upstream already ships a compiled ShExJ schema, no ShExC translation needed)",
+  "source_shexc": "<http://a.example/S1> {\n   <http://a.example/p1> @<http://a.example/S2>\n                     AND @<http://a.example/S3>\n                     AND @<http://a.example/S4>\n}\n\n<http://a.example/S2> { <http://a.example/p2> . }\n\n<http://a.example/S3> { <http://a.example/p3> . }\n\n<http://a.example/S4> { <http://a.example/p4> . }",
+  "source_data": "validation/In1_Ip1_In2.In2_Ipx_LXX3.ttl (verbatim)",
+  "comment": "1dotRefAND3_passShape1Shape2Shape3: on { <n1> <p1> <n2> . <n2> <p2> \"X\" . <n2> <p3> \"X\" . <n2> <p4> \"X\" } -- n2 satisfies all three ANDed shape references (S2, S3, S4 each require a distinct predicate, and n2 has all three), so the ShapeAnd conforms; the positive counterpart to 1dotRefAND3_failAll."
+}

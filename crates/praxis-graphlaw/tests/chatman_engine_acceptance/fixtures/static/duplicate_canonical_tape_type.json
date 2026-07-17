@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_DuplicateCanonicalTapeType",
+  "kind": "falsification",
+  "seed": 18269123919064366569,
+  "mutation": "Register the CanonicalTape type identifier twice in the type registry.",
+  "expected_refusal": "DuplicateCanonicalTapeType",
+  "input": {"gate": "duplicate_canonical_types", "source": "pub struct CanonicalTape { pub bytes: Vec<u8> }\npub struct CanonicalTape { pub other: u8 }\n"}
+}

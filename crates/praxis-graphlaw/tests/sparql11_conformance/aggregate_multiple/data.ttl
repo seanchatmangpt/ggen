@@ -1,0 +1,4 @@
+@prefix ex: <http://example.org/> .
+ex:item1 ex:category "A" ; ex:price 10 .
+ex:item2 ex:category "A" ; ex:price 20 .
+ex:item3 ex:category "B" ; ex:price 5 .

@@ -1,0 +1,27 @@
+# Joseph as chief administrator of Egypt — national famine-management plan.
+# Phase artifact: foreign-buyers (domain fragment). foreign buyers are registered after local scarcity and supplied.
+# One admitted PDDL Turtle planning artifact; fragments across all phase
+# artifacts merge structurally into ONE combined plan (domain name
+# 'joseph-famine' shared by every fragment). Formal planning-to-workflow
+# demonstration domain; argues no doctrine, claims no historicity.
+@prefix ex: <http://example.org/joseph#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:foreign-buyers ex:request ex:grain .
+
+ex:foreign-buyers ceng:pddlDomain """
+(define (domain joseph-famine)
+  (:requirements :strips)
+  (:predicates
+    (treasury-updated ?x)
+    (foreign-buyers-registered ?x)
+    (foreign-buyers-supplied ?x))
+  (:action register-foreign-buyers
+    :parameters (?x)
+    :precondition (and (treasury-updated ?x))
+    :effect (and (foreign-buyers-registered ?x)))
+  (:action supply-foreign-buyers
+    :parameters (?x)
+    :precondition (and (foreign-buyers-registered ?x))
+    :effect (and (foreign-buyers-supplied ?x))))
+""" .

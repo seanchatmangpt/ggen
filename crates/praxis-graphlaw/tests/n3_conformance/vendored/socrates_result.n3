@@ -1,0 +1,5 @@
+# Delta vs. EYE's reasoning/socrates/socrates-answer.n3 (that file also lists
+# the already-given `:Socrates a :Human`, which is input, not a derived fact).
+@prefix : <http://example.org/socrates#>.
+
+:Socrates a :Mortal.

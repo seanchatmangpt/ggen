@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc aad56b4028e656366d361e4a2e8e3154bcb26e2ba5c887369eddeef8310d7c8f # shrinks to triples = [(0, 0, 0)], int_vals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], str_vals = ["a", "a", "a", "A", "a", "A", "a", "a", "A", "A", "a", "A"]

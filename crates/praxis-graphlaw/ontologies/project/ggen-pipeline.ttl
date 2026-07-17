@@ -1,0 +1,131 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix ggen: <https://ggen.io/ontology/core#> .
+@prefix pipe: <https://ggen.io/ontology/pipeline#> .
+
+<https://ggen.io/ontology/pipeline>
+    a owl:Ontology ;
+    dcterms:title "ggen Pipeline Ontology" ;
+    dcterms:description "Formalises the μ₁–μ₅ five-stage deterministic code-generation pipeline, receipts, and provenance." ;
+    owl:versionInfo "26.5.28" ;
+    owl:imports <https://ggen.io/ontology/core> .
+
+# ───── Pipeline Run ─────
+
+pipe:PipelineRun a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "PipelineRun" ;
+    rdfs:comment "A complete deterministic execution of the μ₁–μ₅ code-generation pipeline." .
+
+pipe:StageRun a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "StageRun" .
+
+pipe:Mu1LoadRun a owl:Class ;
+    rdfs:subClassOf pipe:StageRun ;
+    rdfs:label "Mu1LoadRun" .
+
+pipe:Mu2ExtractRun a owl:Class ;
+    rdfs:subClassOf pipe:StageRun ;
+    rdfs:label "Mu2ExtractRun" .
+
+pipe:Mu3GenerateRun a owl:Class ;
+    rdfs:subClassOf pipe:StageRun ;
+    rdfs:label "Mu3GenerateRun" .
+
+pipe:Mu4ValidateRun a owl:Class ;
+    rdfs:subClassOf pipe:StageRun ;
+    rdfs:label "Mu4ValidateRun" .
+
+pipe:Mu5EmitRun a owl:Class ;
+    rdfs:subClassOf pipe:StageRun ;
+    rdfs:label "Mu5EmitRun" .
+
+# ───── Receipt ─────
+
+pipe:Receipt a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Receipt" ;
+    rdfs:comment "A cryptographic transition receipt (BLAKE3 + Ed25519) produced by μ₅ Emit, binding all input and output hashes." .
+
+pipe:operationId a owl:DatatypeProperty ;
+    rdfs:label "operationId" ;
+    rdfs:domain pipe:Receipt ;
+    rdfs:range xsd:string .
+
+pipe:blake3Hash a owl:DatatypeProperty ;
+    rdfs:label "blake3Hash" ;
+    rdfs:comment "BLAKE3 cryptographic hash of content" ;
+    rdfs:range xsd:string .
+
+pipe:ed25519Signature a owl:DatatypeProperty ;
+    rdfs:label "ed25519Signature" ;
+    rdfs:domain pipe:Receipt ;
+    rdfs:range xsd:string .
+
+pipe:inputOntologyHash a owl:DatatypeProperty ;
+    rdfs:label "inputOntologyHash" ;
+    rdfs:range xsd:string .
+
+pipe:outputArtefactHash a owl:DatatypeProperty ;
+    rdfs:label "outputArtefactHash" ;
+    rdfs:range xsd:string .
+
+pipe:durationMs a owl:DatatypeProperty ;
+    rdfs:label "durationMs" ;
+    rdfs:range xsd:decimal .
+
+pipe:filesGenerated a owl:DatatypeProperty ;
+    rdfs:label "filesGenerated" ;
+    rdfs:range xsd:integer .
+
+pipe:triplesLoaded a owl:DatatypeProperty ;
+    rdfs:label "triplesLoaded" ;
+    rdfs:range xsd:integer .
+
+pipe:bindingsExtracted a owl:DatatypeProperty ;
+    rdfs:label "bindingsExtracted" ;
+    rdfs:range xsd:integer .
+
+pipe:stageOrder a owl:ObjectProperty ;
+    rdfs:label "stageOrder" ;
+    rdfs:domain pipe:PipelineRun ;
+    rdfs:range pipe:StageRun .
+
+pipe:hasReceipt a owl:ObjectProperty ;
+    rdfs:label "hasReceipt" ;
+    rdfs:domain pipe:PipelineRun ;
+    rdfs:range pipe:Receipt .
+
+pipe:stageIndex a owl:DatatypeProperty ;
+    rdfs:label "stageIndex" ;
+    rdfs:domain pipe:StageRun ;
+    rdfs:range xsd:integer .
+
+# ───── Quality Gate ─────
+
+pipe:QualityGate a owl:Class ;
+    rdfs:label "QualityGate" ;
+    rdfs:comment "A validation check that must pass before μ₅ Emit may proceed." .
+
+pipe:ShaclGate a owl:Class ;
+    rdfs:subClassOf pipe:QualityGate ;
+    rdfs:label "ShaclGate" .
+
+pipe:SloGate a owl:Class ;
+    rdfs:subClassOf pipe:QualityGate ;
+    rdfs:label "SloGate" .
+
+pipe:gateResult a owl:DatatypeProperty ;
+    rdfs:label "gateResult" ;
+    rdfs:domain pipe:QualityGate ;
+    rdfs:range xsd:boolean .
+
+pipe:gateName a owl:DatatypeProperty ;
+    rdfs:label "gateName" ;
+    rdfs:domain pipe:QualityGate ;
+    rdfs:range xsd:string .

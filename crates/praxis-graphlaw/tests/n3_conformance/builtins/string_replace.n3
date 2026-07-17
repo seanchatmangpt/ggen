@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+@prefix string: <http://www.w3.org/2000/10/swap/string#> .
+
+:doc :text "hello world" .
+
+{ ?d :text ?t . ( ?t "world" "there" ) string:replace ?r } => { ?d :replaced ?r }.

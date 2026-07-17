@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+
+:a :score 2.1 .
+:b :score 2.9 .
+
+{ ?x :score ?s . ?s math:floor ?f } => { ?x :floorScore ?f }.

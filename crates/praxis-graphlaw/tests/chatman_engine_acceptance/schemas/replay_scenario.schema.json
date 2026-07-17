@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://praxis.chatman.io/schemas/replay_scenario.schema.json",
+  "title": "Replay scenario",
+  "description": "Chatman engine acceptance/falsification scenario. The expected_refusal enum mirrors Refusal::name() in crates/praxis-graphlaw/src/chatman/abi.rs exactly; tests/chatman_static_gates.rs asserts set-equality.",
+  "type": "object",
+  "required": [
+    "case",
+    "kind",
+    "seed",
+    "input"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "case": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique scenario identifier (kebab-case)."
+    },
+    "kind": {
+      "enum": [
+        "acceptance",
+        "falsification"
+      ],
+      "description": "acceptance: input must be admitted; falsification: input must be refused with expected_refusal."
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Deterministic seed; same seed => same bytes."
+    },
+    "mutation": {
+      "type": "string",
+      "description": "Optional named mutation applied to the acceptance base case to produce this falsification case."
+    },
+    "expected_refusal": {
+      "enum": [
+        "ValidationFailed",
+        "PlanInfeasible",
+        "TraceUnlawful",
+        "HookUnpermitted",
+        "MissingReceipt",
+        "SnapshotNotFound",
+        "BoundaryRequestMissingReceipt",
+        "Triple8UniverseOverflow",
+        "TermNotInTriple8Universe",
+        "ProfileSymbolTableMismatch",
+        "ProjectionHashMismatch",
+        "WarmPathRequired",
+        "AdmissionTableMismatch",
+        "HookPatternNotAdmitted",
+        "OcelEventNotAdmitted",
+        "LeastExpressiveRouteViolation",
+        "UnsupportedDialect",
+        "N3UnavailableByProfile",
+        "N3ActuationRefused",
+        "N3CostBoundExceeded",
+        "N3BuiltinRefused",
+        "N3DirectActuationRefused",
+        "RouteDecisionMismatch",
+        "GraphSnapshotMismatch",
+        "ProfileHashMismatch",
+        "AgentOverrideDenied",
+        "WitnessNotAuthority",
+        "BreedUnpermitted",
+        "NondeterministicOperatorRequiresReceipt",
+        "ProcessReceiptShadowType",
+        "DuplicateCanonicalTapeType",
+        "TripleTermInSnapshot",
+        "StageSealMismatch",
+        "UnlawfulActuation",
+        "PowlRegionNotAdmitted",
+        "ExternalCutUndeclared",
+        "ExternalCutTypeMismatch",
+        "ExternalCutAuthorityMismatch",
+        "ClosureLawNoChildren",
+        "ClosureLawQuorumOutOfRange",
+        "ClosureLawUnknownChild",
+        "ClosureLawOrderedSubsetInvalid",
+        "ClosureLawPolicyNotDeclared",
+        "ChildConformanceRefused",
+        "ChildCompletionUnadmitted",
+        "ParentClosureUnsatisfied"
+      ],
+      "description": "Required for kind=falsification: the Refusal::name() value the engine must return."
+    },
+    "expected_behavior": {
+      "type": "string",
+      "description": "Human-readable statement of the admitted behavior (kind=acceptance)."
+    },
+    "input": {
+      "description": "Deterministic replay input: envelope plus covering receipts.",
+      "type": "object",
+      "required": [
+        "envelope",
+        "receipts"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "envelope": {
+          "type": "object",
+          "required": [
+            "invocation_id",
+            "snapshot_id",
+            "profile_id",
+            "operator_id",
+            "input_handles"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "invocation_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "snapshot_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "profile_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "operator_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "input_handles": {
+              "type": "object",
+              "required": [
+                "nodes",
+                "events",
+                "plan_steps"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "nodes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "plan_steps": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "receipts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "subject",
+              "digest"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "subject": {
+                "type": "string",
+                "minLength": 1
+              },
+              "digest": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        },
+        "recorded_envelope_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Optional recorded envelope hash; replay recomputes and refuses on mismatch."
+        },
+        "symbol_universe": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Optional ordered term universe; when present, replay builds a ProfileSymbolTable from it and verifies recorded_symbol_table_hash before the envelope-hash check."
+        },
+        "recorded_symbol_table_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Optional recorded ProfileSymbolTable hash; required alongside symbol_universe, refuses with ProfileSymbolTableMismatch on drift."
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "falsification"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "expected_refusal"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "acceptance"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "expected_behavior"
+        ]
+      }
+    }
+  ]
+}

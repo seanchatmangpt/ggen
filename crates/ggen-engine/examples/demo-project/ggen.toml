@@ -1,0 +1,11 @@
+[project]
+name = "demo-project"
+
+[ontology]
+source = "ontology.ttl"
+
+[packs]
+widget = { path = "../demo-pack" }
+
+[templates]
+dir = "templates"

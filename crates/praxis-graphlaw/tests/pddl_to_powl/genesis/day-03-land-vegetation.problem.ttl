@@ -1,0 +1,21 @@
+# Genesis Creation Week, day-03-land-vegetation (problem fragment): waters gather, dry land appears, vegetation is brought forth.
+# One admitted PDDL Turtle planning artifact. Days are planning sources, not
+# workflows: every fragment shares the domain name 'creation-week' and merges
+# structurally into ONE combined seven-day plan whose projection is the one
+# creation-week POWL v2 workflow. Formal process example; argues no doctrine,
+# claims no historicity.
+@prefix ex: <http://example.org/genesis#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:day-03-land-vegetation a ex:CreationDay ;
+  ex:daySequence 3 ;
+  ex:intends ex:gather-waters, ex:reveal-land, ex:bring-forth-vegetation .
+
+ex:day-03-land-vegetation ceng:pddlProblem """
+(define (problem creation-week-day-03-land-vegetation)
+  (:domain creation-week)
+  (:objects creation)
+  (:init (formless-void creation))
+  (:goal (vegetation-brought-forth creation))
+)
+""" .

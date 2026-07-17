@@ -1,0 +1,9 @@
+@prefix icd: <https://id.who.int/icd/release/11/mms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://id.who.int/icd/release/11/ontology>
+  a owl:Ontology ;
+  rdfs:label "ICD-11 WHO Classification" ;
+  rdfs:comment "International Classification of Diseases, 11th Revision" ;
+  owl:versionInfo "2024-01" .

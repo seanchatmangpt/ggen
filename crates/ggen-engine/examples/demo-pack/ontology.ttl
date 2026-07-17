@@ -1,0 +1,25 @@
+# demo-pack ontology — the Widget domain (reused from crates/ggen/ontology/domain.ttl).
+
+@prefix dom:  <http://example.com/ontology#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+dom:Widget
+    a               dom:DomainClass ;
+    rdfs:label      "Widget" ;
+    rdfs:comment    "A placeholder domain concept." .
+
+dom:hasName
+    a            rdf:Property ;
+    rdfs:label   "name" ;
+    rdfs:comment "Human-readable name for a Widget instance." ;
+    rdfs:domain  dom:Widget ;
+    rdfs:range   xsd:string .
+
+dom:hasCount
+    a            rdf:Property ;
+    rdfs:label   "count" ;
+    rdfs:comment "Quantity associated with a Widget instance." ;
+    rdfs:domain  dom:Widget ;
+    rdfs:range   xsd:integer .

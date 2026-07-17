@@ -1,0 +1,13 @@
+@prefix cto: <http://purl.org/ontology/clinical-trial/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://purl.org/ontology/clinical-trial/ontology>
+  a owl:Ontology ;
+  rdfs:label "Clinical Trial Ontology" ;
+  rdfs:comment "Formal ontology for clinical trial conceptualization" ;
+  owl:versionInfo "1.0" .
+
+cto:ClinicalTrial a owl:Class ;
+  rdfs:label "Clinical Trial" ;
+  rdfs:comment "A research study prospectively assigned human participants or groups of humans to one or more health-related interventions." .

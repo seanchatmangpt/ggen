@@ -1,0 +1,21 @@
+# Genesis Creation Week, day-05-sea-sky-life (problem fragment): sea creatures and birds fill their domains.
+# One admitted PDDL Turtle planning artifact. Days are planning sources, not
+# workflows: every fragment shares the domain name 'creation-week' and merges
+# structurally into ONE combined seven-day plan whose projection is the one
+# creation-week POWL v2 workflow. Formal process example; argues no doctrine,
+# claims no historicity.
+@prefix ex: <http://example.org/genesis#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:day-05-sea-sky-life a ex:CreationDay ;
+  ex:daySequence 5 ;
+  ex:intends ex:fill-waters, ex:fill-sky .
+
+ex:day-05-sea-sky-life ceng:pddlProblem """
+(define (problem creation-week-day-05-sea-sky-life)
+  (:domain creation-week)
+  (:objects creation)
+  (:init (formless-void creation))
+  (:goal (sky-filled creation))
+)
+""" .

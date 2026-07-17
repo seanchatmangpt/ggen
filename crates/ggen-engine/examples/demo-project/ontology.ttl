@@ -1,0 +1,6 @@
+# demo-project ontology — one Widget instance layered on the pack's domain.
+
+@prefix dom: <http://example.com/ontology#> .
+
+dom:w1 a dom:Widget ;
+    dom:hasName "demo" .

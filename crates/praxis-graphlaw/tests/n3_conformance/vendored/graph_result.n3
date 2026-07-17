@@ -1,0 +1,14 @@
+# Real facts derived by materialize()-ing graph.n3 with this engine (a
+# subset -- the full derived set is 23 triples; this is the ones that
+# demonstrate the transitive-closure query goal from upstream's
+# graph.filter.n3, `{:paris :path :nantes} => {:paris :path :nantes}.`,
+# plus the generic rdfs:domain-driven typing of the :oneway/:path
+# properties themselves).
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix : <http://www.agfa.com/w3c/euler/graph.axiom#>.
+
+:oneway a rdf:Property.
+:path a rdf:Property.
+:paris :path :nantes.
+:paris :path :tours.
+:paris :path :orleans.

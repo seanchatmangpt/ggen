@@ -1,0 +1,4 @@
+@prefix : <http://example.org/> .
+
+:a :negatedBalance -5 .
+:b :negatedBalance 2 .

@@ -1,0 +1,6 @@
+PREFIX ex: <http://example.org/>
+SELECT ?cat (COUNT(?item) AS ?count) (SUM(?price) AS ?total) WHERE {
+  ?item ex:category ?cat .
+  ?item ex:price ?price .
+}
+GROUP BY ?cat

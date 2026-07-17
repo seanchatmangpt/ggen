@@ -1,0 +1,7 @@
+{
+  "case": "Accept_SingleProcessReceiptType",
+  "kind": "acceptance",
+  "seed": 5999910111379131742,
+  "expected_behavior": "process_receipt_type_unique",
+  "input": {"gate": "duplicate_canonical_types", "source": "pub struct Foo { pub x: u8 }\npub struct Bar { pub y: u8 }\n"}
+}

@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+
+:a :score 2.4 .
+:b :score 2.6 .
+
+{ ?x :score ?s . ?s math:rounded ?r } => { ?x :roundedScore ?r }.

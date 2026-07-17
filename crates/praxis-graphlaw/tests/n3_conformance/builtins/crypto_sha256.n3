@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+@prefix crypto: <http://www.w3.org/2000/10/swap/crypto#> .
+
+:msg :text "hello" .
+
+{ ?m :text ?t . ?t crypto:sha256 ?digest } => { ?m :digest ?digest }.

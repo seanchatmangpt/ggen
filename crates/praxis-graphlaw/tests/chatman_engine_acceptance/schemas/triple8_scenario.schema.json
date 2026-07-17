@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://praxis.chatman.io/schemas/triple8_scenario.schema.json",
+  "title": "Triple8 scenario",
+  "description": "Chatman engine acceptance/falsification scenario. The expected_refusal enum mirrors Refusal::name() in crates/praxis-graphlaw/src/chatman/abi.rs exactly; tests/chatman_static_gates.rs asserts set-equality.",
+  "type": "object",
+  "required": [
+    "case",
+    "kind",
+    "seed",
+    "input"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "case": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique scenario identifier (kebab-case)."
+    },
+    "kind": {
+      "enum": [
+        "acceptance",
+        "falsification"
+      ],
+      "description": "acceptance: input must be admitted; falsification: input must be refused with expected_refusal."
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Deterministic seed; same seed => same bytes."
+    },
+    "mutation": {
+      "type": "string",
+      "description": "Optional named mutation applied to the acceptance base case to produce this falsification case."
+    },
+    "expected_refusal": {
+      "enum": [
+        "ValidationFailed",
+        "PlanInfeasible",
+        "TraceUnlawful",
+        "HookUnpermitted",
+        "MissingReceipt",
+        "SnapshotNotFound",
+        "BoundaryRequestMissingReceipt",
+        "Triple8UniverseOverflow",
+        "TermNotInTriple8Universe",
+        "ProfileSymbolTableMismatch",
+        "ProjectionHashMismatch",
+        "WarmPathRequired",
+        "AdmissionTableMismatch",
+        "HookPatternNotAdmitted",
+        "OcelEventNotAdmitted",
+        "LeastExpressiveRouteViolation",
+        "UnsupportedDialect",
+        "N3UnavailableByProfile",
+        "N3ActuationRefused",
+        "N3CostBoundExceeded",
+        "N3BuiltinRefused",
+        "N3DirectActuationRefused",
+        "RouteDecisionMismatch",
+        "GraphSnapshotMismatch",
+        "ProfileHashMismatch",
+        "AgentOverrideDenied",
+        "WitnessNotAuthority",
+        "BreedUnpermitted",
+        "NondeterministicOperatorRequiresReceipt",
+        "ProcessReceiptShadowType",
+        "DuplicateCanonicalTapeType",
+        "TripleTermInSnapshot",
+        "StageSealMismatch",
+        "UnlawfulActuation",
+        "PowlRegionNotAdmitted",
+        "ExternalCutUndeclared",
+        "ExternalCutTypeMismatch",
+        "ExternalCutAuthorityMismatch",
+        "ClosureLawNoChildren",
+        "ClosureLawQuorumOutOfRange",
+        "ClosureLawUnknownChild",
+        "ClosureLawOrderedSubsetInvalid",
+        "ClosureLawPolicyNotDeclared",
+        "ChildConformanceRefused",
+        "ChildCompletionUnadmitted",
+        "ParentClosureUnsatisfied"
+      ],
+      "description": "Required for kind=falsification: the Refusal::name() value the engine must return."
+    },
+    "expected_behavior": {
+      "type": "string",
+      "description": "Human-readable statement of the admitted behavior (kind=acceptance)."
+    },
+    "input": {
+      "description": "Bounded Triple8 universe membership input.",
+      "type": "object",
+      "required": [
+        "universe",
+        "terms"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "universe": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxItems": 8,
+          "uniqueItems": true,
+          "description": "Bounded Triple8 term universe (at most 8 terms)."
+        },
+        "terms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Terms the scenario references; each must be in the universe or the engine refuses."
+        },
+        "overflow_terms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Optional extra terms a falsification case tries to admit past the 8-term bound."
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "falsification"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "expected_refusal"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "acceptance"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "expected_behavior"
+        ]
+      }
+    }
+  ]
+}

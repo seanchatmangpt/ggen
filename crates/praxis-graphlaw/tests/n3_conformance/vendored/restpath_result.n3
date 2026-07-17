@@ -1,0 +1,6 @@
+# Real derived output of `TripleStore::materialize()` against
+# `restpath.n3` (subset-checked -- see README.md), matching the real
+# upstream `reasoning/restpath/goal.n3` expected fact.
+@prefix ex: <http://example.org/#>.
+
+<x> ex:relGoal <y>.

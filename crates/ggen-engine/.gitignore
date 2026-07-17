@@ -1,0 +1,32 @@
+# Rust build artifacts
+/target/
+**/target/
+
+# Stray editor/agent backups (house: never commit these)
+**/*.rs.backup
+**/*.orig
+
+# NOTE: Cargo.lock IS committed in this house (bins and libs alike) so CI can
+# use --locked for reproducible builds. Do not add it here.
+
+# Secrets & local env
+*.pem
+*.key
+.env
+.env.*
+/.ggen/keys/
+
+# Editor / OS cruft
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+
+# Local agent state
+/.claude/
+
+# LaTeX build artifacts (repos that carry papers)
+*.aux
+*.bbl
+*.blg
+*.synctex.gz

@@ -1,0 +1,34 @@
+# Vendored from https://github.com/eyereasoner/eye/blob/master/reasoning/good-cobbler/
+# (cobbler.n3 facts + cobbler-query.n3 rule combined). Unmodified besides
+# combining the two upstream files and adding a second, decomposing rule
+# (see below).
+#
+# Previously blocked on list-pattern structural unification (see
+# manifest.json's history and triples.rs's `unify_list_pattern`/
+# `is_nonground_list_pattern`, now implemented) -- closed by
+# `TripleIndex::query`'s new `query_list_pattern` fallback, which unifies
+# a variable-containing list pattern like `(:good ?Y)` against a
+# separately-parsed ground list `(:good :Cobbler)` member-by-member.
+@prefix : <https://eyereasoner.github.io/ns#>.
+@prefix list: <http://www.w3.org/2000/10/swap/list#>.
+
+:joe :is (:good :Cobbler).
+
+{
+    ?X :is (:good ?Y).
+} => {
+    ?X :is (:good ?Y).
+}.
+
+# A second rule decomposing the list-unification result into a scalar fact
+# -- the original list-to-list rule above IS the real EYE test, but its
+# derived fact (`?X :is (fresh list)`) isn't directly comparable via this
+# suite's simple textual fact-set check (each parse assigns a fresh,
+# non-comparable opaque list-term id -- see filter.n3's identical note).
+# This rule's output (`?X :hasGoodTrait ?Y`) is a plain scalar triple, so
+# it's what the vendored `_result.n3` actually checks.
+{
+    ?X :is (:good ?Y).
+} => {
+    ?X :hasGoodTrait ?Y.
+}.

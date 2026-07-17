@@ -140,10 +140,40 @@ pub async fn cli_match() -> crate::utils::error::Result<()> {
         }
     }
 
-    // Initialize OTLP telemetry only if configured in ggen.toml
+    // Initialize OTLP telemetry only if configured in ggen.toml; otherwise
+    // install a plain console `tracing_subscriber` (EnvFilter-driven, honors
+    // `RUST_LOG`) so `pipeline.{load,extract,generate,validate,emit}` spans
+    // (and any other tracing output) are observable without requiring a
+    // running OTLP collector -- the common case for local/CI runs and the
+    // one `docs/.../quickstart.md`'s `RUST_LOG=trace` step exercises.
+    // `try_init()` is idempotent-safe: it returns an `Err` (silently
+    // ignored) rather than panicking if a global subscriber is already set.
     let _telemetry_guard = if let Some(cfg) = telemetry_config {
         crate::telemetry::init_telemetry(cfg).ok()
     } else {
+        let _ = tracing_subscriber::fmt()
+            .with_env_filter(
+                tracing_subscriber::EnvFilter::try_from_default_env()
+                    .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
+            )
+            // Span field values (e.g. `pipeline.duration_ms`, set via
+            // `Span::record` after the fields start `Empty`) only print when
+            // an event fires inside the span or the span closes -- most
+            // pipeline stages emit no inner log line, so without `CLOSE`
+            // their recorded fields would never actually reach stdout/stderr.
+            .with_span_events(tracing_subscriber::fmt::format::FmtSpan::CLOSE)
+            // Plain text, not ANSI-colored: this stream is meant to be
+            // `grep`/`tee`d (see docs quickstart's `grep -E
+            // "pipeline\.duration_ms="` step) -- colored output splits
+            // `key=value` pairs across escape codes and silently breaks that
+            // exact substring match even though the field is really there.
+            .with_ansi(false)
+            // stderr, not the default stdout: every verb here prints its
+            // real result (JSON) to stdout, and `cli_boundary.rs`'s own
+            // tests parse that stdout as strict JSON -- tracing output on
+            // stdout would silently corrupt every one of those parses.
+            .with_writer(std::io::stderr)
+            .try_init();
         None
     };
 

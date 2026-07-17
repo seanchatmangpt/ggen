@@ -1,0 +1,10 @@
+# Matches https://github.com/eyereasoner/eye/blob/master/reasoning/defeasable-logic/defeasable-logic-answer.n3
+# exactly (EYE's own hand-verified answer for this case) -- confirmed by
+# actually running materialize() on defeasable_logic.n3: this crate's engine
+# derives these two facts (plus two intermediate facts, :polly a :Bird and
+# :polly :abnormal true, not restated here since the runner does a subset
+# check, matching how the other vendored SNAF-style cases are checked).
+@prefix : <http://example.org/defeasible#>.
+
+:tweety :flies true.
+:polly :flies false.

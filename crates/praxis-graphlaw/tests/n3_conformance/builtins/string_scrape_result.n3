@@ -1,0 +1,3 @@
+@prefix : <http://example.org/> .
+
+:doc :orderNumber "12345" .

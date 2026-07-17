@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
+
+:bob a :GoodCitizen .
+:alice :says { ?citizen a :GoodCitizen } .
+
+{ ?speaker :says ?formula . ?formula log:implies { ?citizen a :TaxPayer } } => { ?citizen a :TaxPayer }.

@@ -1,0 +1,9 @@
+{
+  "shape": "http://a.example/S1",
+  "focus": "http://a.example/n1",
+  "expected": "conformant",
+  "source_schema": "schemas/1dotRef1.json (used verbatim -- upstream already ships a compiled ShExJ schema, no ShExC translation needed)",
+  "source_shexc": "<http://a.example/S1> {\n   <http://a.example/p1> @<http://a.example/S2>\n}\n\n<http://a.example/S2> {\n   <http://a.example/p2> .\n}",
+  "source_data": "validation/In1_Ip1_In1.In1_Ip2_LX.ttl (verbatim)",
+  "comment": "1dotRef1_selfReference: <n1> in { <n1> <p1> <n1> . <n1> <p2> \"X\" } as <S1> in <S1> { <p1> @<S2> } <S2> { <p2> . } -- a shape reference where the referenced node is the SAME node as the referrer (self-reference); exercises the (focus,shape) cycle guard in validate_ref/validate_node without infinite-looping, since S1's <p1> value (n1) must itself conform to S2, and n1 does have <p2> \"X\"."
+}

@@ -1,0 +1,28 @@
+# Joseph as chief administrator of Egypt — national famine-management plan.
+# Phase artifact: grain-distribution (domain fragment). storehouses are opened and grain is allocated to households.
+# One admitted PDDL Turtle planning artifact; fragments across all phase
+# artifacts merge structurally into ONE combined plan (domain name
+# 'joseph-famine' shared by every fragment). Formal planning-to-workflow
+# demonstration domain; argues no doctrine, claims no historicity.
+@prefix ex: <http://example.org/joseph#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:storehouse-officials ex:open ex:storehouses .
+ex:households ex:receive ex:grain .
+
+ex:grain-distribution ceng:pddlDomain """
+(define (domain joseph-famine)
+  (:requirements :strips)
+  (:predicates
+    (rationing-active ?x)
+    (storehouses-open ?x)
+    (grain-allocated ?x))
+  (:action open-storehouses
+    :parameters (?x)
+    :precondition (and (rationing-active ?x))
+    :effect (and (storehouses-open ?x)))
+  (:action allocate-grain
+    :parameters (?x)
+    :precondition (and (storehouses-open ?x))
+    :effect (and (grain-allocated ?x))))
+""" .

@@ -1,0 +1,4 @@
+@prefix : <http://example.org/> .
+
+:a :roundedScore 2 .
+:b :roundedScore 3 .

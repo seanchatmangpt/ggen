@@ -1,0 +1,4 @@
+@prefix : <http://example.org/> .
+
+:a :magnitude 5 .
+:b :magnitude 3 .

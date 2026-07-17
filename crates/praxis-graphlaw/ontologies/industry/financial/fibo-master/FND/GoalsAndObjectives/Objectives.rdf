@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-col "https://www.omg.org/spec/Commons/Collections/">
+	<!ENTITY cmns-cxtdsg "https://www.omg.org/spec/Commons/ContextualDesignators/">
+	<!ENTITY cmns-cxtid "https://www.omg.org/spec/Commons/ContextualIdentifiers/">
+	<!ENTITY cmns-dsg "https://www.omg.org/spec/Commons/Designators/">
+	<!ENTITY cmns-dt "https://www.omg.org/spec/Commons/DatesAndTimes/">
+	<!ENTITY cmns-id "https://www.omg.org/spec/Commons/Identifiers/">
+	<!ENTITY cmns-pts "https://www.omg.org/spec/Commons/PartiesAndSituations/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-fnd-dt-oc "https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/Occurrences/">
+	<!ENTITY fibo-fnd-gao-obj "https://spec.edmcouncil.org/fibo/ontology/FND/GoalsAndObjectives/Objectives/">
+	<!ENTITY fibo-fnd-rel-rel "https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/FND/GoalsAndObjectives/Objectives/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-col="https://www.omg.org/spec/Commons/Collections/"
+	xmlns:cmns-cxtdsg="https://www.omg.org/spec/Commons/ContextualDesignators/"
+	xmlns:cmns-cxtid="https://www.omg.org/spec/Commons/ContextualIdentifiers/"
+	xmlns:cmns-dsg="https://www.omg.org/spec/Commons/Designators/"
+	xmlns:cmns-dt="https://www.omg.org/spec/Commons/DatesAndTimes/"
+	xmlns:cmns-id="https://www.omg.org/spec/Commons/Identifiers/"
+	xmlns:cmns-pts="https://www.omg.org/spec/Commons/PartiesAndSituations/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-fnd-dt-oc="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/Occurrences/"
+	xmlns:fibo-fnd-gao-obj="https://spec.edmcouncil.org/fibo/ontology/FND/GoalsAndObjectives/Objectives/"
+	xmlns:fibo-fnd-rel-rel="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/FND/GoalsAndObjectives/Objectives/">
+		<rdfs:label>Objectives Ontology</rdfs:label>
+		<dct:abstract>This ontology defines concepts including goal, objective, program, and strategy. Objectives are defined as being distinct from goals, in that they constitute time limited and measurable targets which some entity may seek to attain in pursuit of its goals.</dct:abstract>
+		<dct:license>Copyright (c) 2013-2025 EDM Council, Inc.
+Copyright (c) 2013-2025 Object Management Group, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/Occurrences/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Collections/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/ContextualDesignators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/ContextualIdentifiers/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/DatesAndTimes/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Designators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Identifiers/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/PartiesAndSituations/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/20251201/GoalsAndObjectives/Objectives/"/>
+		<skos:changeNote>The http://www.omg.org/spec/FIBO/Foundations/20130601/GoalsAndObjectives/Objectives.owl version of the ontology was revised in advance of the September 2013 New Brunswick, NJ meeting, as follows:
+	(1) to use slash style URI/IRIss (also called 303 URIs, vs. hash style) as required to support server side processing 
+	(2) to use version-independent IRIs for all definitions internally as opposed to version-specific IRIs
+	(3) to change the file suffix from .owl to .rdf to increase usability in RDF tools
+	(4) to use 4-level abbreviations and corresponding namespace prefixes for all FIBO ontologies, reflecting a family/specification/module/ontology structure
+	(5) to incorporate changes to the specification metadata to support documentation at the family, specification, module, and ontology level, similar to the abbreviations
+	(6) to eliminate an unnecessary hasObjectives property and related imports dependencies.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20130801/GoalsAndObjectives/Objectives.rdf version of this ontology was modified per the issue resolutions identified in the FIBO FND 1.0 FTF report and in https://spec.edmcouncil.org/fibo/ontology/FND/1.0/AboutFND-1.0/.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20180801/GoalsAndObjectives/Objectives.rdf version of this ontology was modified to integrate concepts such as investment objective, business objective, strategy, and related properties.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20190401/GoalsAndObjectives/Objectives.rdf version of this ontology was modified to integrate concepts such as distribution and sales strategy, and to eliminate duplication of concepts in LCC.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20200201/GoalsAndObjectives/Objectives.rdf version of this ontology was modified to add the concept of a program, required for IND but also to represent compliance, and other kinds of programs.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20201101/GoalsAndObjectives/Objectives.rdf version of this ontology was modified to address hygiene issues with respect to text formatting.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20220701/GoalsAndObjectives/Objectives.rdf version of this ontology was modified to add the property &apos;has strategy&apos; for use in linking to pricing, quotation, distribution, delivery, and other strategies or methods.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20221001/GoalsAndObjectives/Objectives.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary and eliminate unnecessary references to LCC.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20230101/GoalsAndObjectives/Objectives.rdf version of this ontology was modified to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC), eliminating redundancies in FIBO as appropriate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20230301/GoalsAndObjectives/Objectives.rdf version of this ontology was modified to add the concept of a project and related attributes (LOAN-169).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20241101/GoalsAndObjectives/Objectives.rdf version of this ontology was modified to add the concept of a method (SEC-200) and add nonprofit investment objectives (SEC-208).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20250901/GoalsAndObjectives/Objectives.rdf version of this ontology was modified to add a parent concept for goal and objective, and a parent concept for strategy and method, and adjust definitions accordingly (FND-402) and add the concept of a study (FND-400).</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2013-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2013-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;Aim">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-gao-obj;isAddressedBy"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;Approach"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>aim</rdfs:label>
+		<skos:definition>intention specifying a desired direction, condition, or situation toward which an agent&apos;s actions are directed, without requiring precise scope or measurable criteria</skos:definition>
+		<cmns-av:explanatoryNote>Business aims are sometimes considered broad, long-term goals, and in such cases, the term &apos;aim&apos; is used interchangeably with goal. Here, however we differentiate between qualitative goals and quantitative objectives, both of which are kinds of aims, with the critical differences including measurability and time frame. Goals tend to have a much longer trajectory, provide the basis for determining objectives, and are often aligned with an organization&apos;s mission, whereas objectives are short term and measurable.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;Approach">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-gao-obj;addresses"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;Aim"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-gao-obj;hasObjective"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;Objective"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>approach</rdfs:label>
+		<skos:definition>way of addressing an aim or problem characterized by high-level planning and systematic execution, without presupposing scope or granularity</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;BusinessObjective">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-gao-obj;Objective"/>
+		<rdfs:label>business objective</rdfs:label>
+		<skos:definition>objective that reflects the strategic goals and direction of a business within a time frame and available resources</skos:definition>
+		<cmns-av:explanatoryNote>Business objectives allow an organization to define its goals and direction. A company uses strategy and tactics at every level of its operation to achieve its objectives. These define the way a company allocates its resources and the strengths, weaknesses and opportunities it may have. Companies usually do not alter their objectives once they are implemented, unless changes in circumstances arise. Setting a clear course for the organization is key to its success.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote>In general, objectives are more specific and easier to measure than goals. Objectives are basic tools that underlie all planning and strategic activities. They serve as the basis for creating policy and evaluating performance. Some examples of business objectives include minimizing expenses, expanding internationally, or making a profit.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;BusinessStrategy">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-gao-obj;Strategy"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-gao-obj;hasObjective"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-gao-obj;BusinessObjective"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>business strategy</rdfs:label>
+		<skos:definition>strategy for achieving a specific business goal, objective, solution or outcome</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;DistributionStrategy">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-gao-obj;Strategy"/>
+		<rdfs:label>distribution strategy</rdfs:label>
+		<skos:definition>strategy for making a product or service available, or for distributing funds, such as in the form of a dividend or coupon</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;FinancialObjective">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-gao-obj;Objective"/>
+		<rdfs:label>financial objective</rdfs:label>
+		<skos:definition>objective that reflects the strategic financial goals and direction of a party within a time frame and available resources</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;Goal">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-gao-obj;Aim"/>
+		<rdfs:label>goal</rdfs:label>
+		<skos:definition>aim distinguished by broad scope and aspirational character, often qualitative and long-term, in order to achieve a desired state</skos:definition>
+		<cmns-av:explanatoryNote>Many people endeavor to reach goals within a finite time by setting deadlines.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;InvestmentObjective">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-gao-obj;FinancialObjective"/>
+		<rdfs:label>investment objective</rdfs:label>
+		<skos:definition>financial objective used by an investor to determine whether or not a given potential investment is appropriate for themselves or on behalf of another party</skos:definition>
+		<skos:example>An investor whose objective is capital growth might choose to invest in more aggressive, growth-oriented mutual funds and/or stocks, over income-generating mutual funds and/or bonds.</skos:example>
+		<cmns-av:explanatoryNote>The combination of investment objectives and risk tolerance are typically used to identify appropriate investment options.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;LocalInvestmentObjective">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-gao-obj;InvestmentObjective"/>
+		<rdfs:label>local investment objective</rdfs:label>
+		<skos:definition>financial objective that aims to support geographically centralized, community development needs</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;Method">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-gao-obj;Approach"/>
+		<rdfs:label>method</rdfs:label>
+		<skos:definition>approach distinguished by systematic, repeatable procedures and operational specificity for doing or calculating something, consisting of defined steps or rules to achieve a result</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;Objective">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-gao-obj;Aim"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;appliesTo"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;Goal"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dt;hasDatePeriod"/>
+				<owl:onClass rdf:resource="&cmns-dt;DatePeriod"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>objective</rdfs:label>
+		<skos:definition>aim distinguished by specific scope and measurable criteria, often quantitative and short-term that a party seeks to attain, typically in order to achieve its long-term goals</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;Program">
+		<rdfs:subClassOf rdf:resource="&cmns-pts;Situation"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-gao-obj;hasGoal"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;Goal"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-gao-obj;hasObjective"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;Objective"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-id;isIdentifiedBy"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;ProgramIdentifier"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dsg;hasName"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;ProgramName"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;hasMember"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;Project"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dsg;hasDescription"/>
+				<owl:someValuesFrom rdf:resource="&xsd;string"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en-US">program</rdfs:label>
+		<rdfs:label xml:lang="en-GB">programme</rdfs:label>
+		<skos:definition>state of affairs and coordinated set of activities designed to obtain benefits not available from managing them individually</skos:definition>
+		<cmns-av:adaptedFrom rdf:datatype="&xsd;anyURI">https://www.prince2.com/usa/blog/project-vs-programme</cmns-av:adaptedFrom>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;ProgramIdentifier">
+		<rdfs:subClassOf rdf:resource="&cmns-cxtid;ContextualIdentifier"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-id;identifies"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-gao-obj;Program"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en-US">program identifier</rdfs:label>
+		<rdfs:label xml:lang="en-GB">programme identifier</rdfs:label>
+		<skos:definition>sequence of characters uniquely identifying a specific program within the context in which that program is administered</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;ProgramName">
+		<rdfs:subClassOf rdf:resource="&cmns-cxtdsg;ContextualName"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dsg;isNameOf"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-gao-obj;Program"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en-US">program name</rdfs:label>
+		<rdfs:label xml:lang="en-GB">programme name</rdfs:label>
+		<skos:definition>contextual designation for a program within the context in which that program is administered</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;Project">
+		<rdfs:subClassOf rdf:resource="&cmns-pts;Situation"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-oc;hasInput"/>
+				<owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-oc;hasOutput"/>
+				<owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-gao-obj;hasGoal"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;Goal"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-gao-obj;hasObjective"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;Objective"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;isMemberOf"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;Program"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-id;isIdentifiedBy"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;ProjectIdentifier"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dsg;hasName"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;ProjectName"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dsg;hasDescription"/>
+				<owl:someValuesFrom rdf:resource="&xsd;string"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>project</rdfs:label>
+		<skos:definition>state of affairs and unique and temporary organization, designed to deliver a tangible output</skos:definition>
+		<cmns-av:adaptedFrom rdf:datatype="&xsd;anyURI">https://www.prince2.com/usa/blog/project-vs-programme</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote xml:lang="en">A project has a fixed - generally fairly short - timeframe, and a project manager is responsible for delivering the output on time and on budget.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;ProjectIdentifier">
+		<rdfs:subClassOf rdf:resource="&cmns-cxtid;ContextualIdentifier"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-id;identifies"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-gao-obj;Project"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>project identifier</rdfs:label>
+		<skos:definition>sequence of characters uniquely identifying a specific project within the context in which that project or an overarching program is administered</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;ProjectName">
+		<rdfs:subClassOf rdf:resource="&cmns-cxtdsg;ContextualName"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dsg;isNameOf"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-gao-obj;Project"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>project name</rdfs:label>
+		<skos:definition>contextual designation for a project</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;SalesStrategy">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-gao-obj;BusinessStrategy"/>
+		<rdfs:label>sales strategy</rdfs:label>
+		<skos:definition>strategy for selling something, including allocating resources to the sales process, reducing costs, and optimizing revenues</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;Strategy">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-gao-obj;Approach"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-gao-obj;hasGoal"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;Goal"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>strategy</rdfs:label>
+		<skos:definition>high-level approach that guides decision-making and the coordination of actions and plans in pursuit of some aim</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">A strategy is a high-level plan or approach designed to achieve a long-term goal or outcome, often by choosing among different possible methods or courses of action. A strategy may involve activities that are needed in order to achieve specific goals or objectives. It may take into account one or more policies or any number of restrictions and constraints. Strategies are typically distinguished by long-term orientation, adaptive planning, and broad scope.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;Study">
+		<rdfs:subClassOf rdf:resource="&cmns-pts;Situation"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-gao-obj;hasGoal"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;Goal"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;isApplicableIn"/>
+				<owl:onClass rdf:resource="&cmns-cxtdsg;Context"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>study</rdfs:label>
+		<skos:definition>analytical activity that investigates a specified area of interest, to determine its characteristics, relationships, constraints, or implications</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">Studies involve exploration, analysis, sometimes modeling, and sometimes evaluation, but are not necessarily focused on evaluation and may or may not be criteria-based, which distinguishes it from the concept of an assessment. In a business context, a study might map capabilities, analyze value streams, or model information flows. Only some studies produce an assessment (e.g., capability maturity assessment). A clinical research study may observe, test, or model phenomena, and may or may not result in a clinical or risk assessment. A study conducted as part of a project or larger programme may explore feasibility, options, impacts, or requirements.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-gao-obj;TripleBottomLineObjective">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-gao-obj;InvestmentObjective"/>
+		<rdfs:label>triple bottom line objective</rdfs:label>
+		<skos:definition>financial objective that integrates economic performance, environmental stewardship, and social responsibility as co-equal criteria for success</skos:definition>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-gao-obj;addresses">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-rel-rel;involves"/>
+		<rdfs:label>addresses</rdfs:label>
+		<skos:definition>deals with, handles, or gives attention to</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-gao-obj;hasGoal">
+		<rdfs:label>has goal</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fnd-gao-obj;Goal"/>
+		<skos:definition>has long-term, desired outcome</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-gao-obj;hasObjective">
+		<rdfs:label>has objective</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fnd-gao-obj;Objective"/>
+		<skos:definition>aims to achieve within a time frame and with available resources</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-gao-obj;hasStrategy">
+		<rdfs:subPropertyOf rdf:resource="&cmns-cxtdsg;uses"/>
+		<rdfs:label>has strategy</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fnd-gao-obj;Strategy"/>
+		<skos:definition>applies strategy</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-gao-obj;isAddressedBy">
+		<rdfs:label>is addressed by</rdfs:label>
+		<owl:inverseOf rdf:resource="&fibo-fnd-gao-obj;addresses"/>
+		<skos:definition>indicates something, such a goal or objective, that is dealt with by</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-gao-obj;usesMethod">
+		<rdfs:subPropertyOf rdf:resource="&cmns-cxtdsg;uses"/>
+		<rdfs:label>uses method</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fnd-gao-obj;Method"/>
+		<skos:definition>employs method</skos:definition>
+	</owl:ObjectProperty>
+
+</rdf:RDF>

@@ -1,0 +1,71 @@
+# Template for the PDDL→POWL projection test snapshot. Placeholders
+# ({{DOMAIN_NAME}}, {{PROBLEM_NAME}}, {{CASE_OBJECT}}, {{PRED_0}}..{{PRED_8}},
+# {{ACTION_0}}..{{ACTION_7}}) are substituted with seeded fake-generated names
+# by tests/chatman_pddl_to_powl_projection.rs before import; the rendered
+# fixture is written under target/chatman/powl/fixtures/ and loaded from disk.
+# The PDDL is a strict linear 8-step chain (STRIPS8-bounded: unary predicates,
+# no ADL/derived-predicates/quantifiers/durative-actions): each action's
+# precondition is exactly the previous step's effect, matching
+# Pddl8Tape::from_plan's total-order-chain encoding.
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:bob ex:knows ex:alice .
+ex:Matter rdfs:subClassOf ex:PlannedMatter .
+ex:{{CASE_OBJECT}} a ex:Matter .
+
+ex:world ceng:pddlDomain """
+(define (domain {{DOMAIN_NAME}})
+  (:requirements :strips)
+  (:predicates
+    ({{PRED_0}} ?x)
+    ({{PRED_1}} ?x)
+    ({{PRED_2}} ?x)
+    ({{PRED_3}} ?x)
+    ({{PRED_4}} ?x)
+    ({{PRED_5}} ?x)
+    ({{PRED_6}} ?x)
+    ({{PRED_7}} ?x)
+    ({{PRED_8}} ?x))
+  (:action {{ACTION_0}}
+    :parameters (?x)
+    :precondition (and ({{PRED_0}} ?x))
+    :effect (and ({{PRED_1}} ?x) (not ({{PRED_0}} ?x))))
+  (:action {{ACTION_1}}
+    :parameters (?x)
+    :precondition (and ({{PRED_1}} ?x))
+    :effect (and ({{PRED_2}} ?x) (not ({{PRED_1}} ?x))))
+  (:action {{ACTION_2}}
+    :parameters (?x)
+    :precondition (and ({{PRED_2}} ?x))
+    :effect (and ({{PRED_3}} ?x) (not ({{PRED_2}} ?x))))
+  (:action {{ACTION_3}}
+    :parameters (?x)
+    :precondition (and ({{PRED_3}} ?x))
+    :effect (and ({{PRED_4}} ?x) (not ({{PRED_3}} ?x))))
+  (:action {{ACTION_4}}
+    :parameters (?x)
+    :precondition (and ({{PRED_4}} ?x))
+    :effect (and ({{PRED_5}} ?x) (not ({{PRED_4}} ?x))))
+  (:action {{ACTION_5}}
+    :parameters (?x)
+    :precondition (and ({{PRED_5}} ?x))
+    :effect (and ({{PRED_6}} ?x) (not ({{PRED_5}} ?x))))
+  (:action {{ACTION_6}}
+    :parameters (?x)
+    :precondition (and ({{PRED_6}} ?x))
+    :effect (and ({{PRED_7}} ?x) (not ({{PRED_6}} ?x))))
+  (:action {{ACTION_7}}
+    :parameters (?x)
+    :precondition (and ({{PRED_7}} ?x))
+    :effect (and ({{PRED_8}} ?x) (not ({{PRED_7}} ?x)))))
+""" .
+ex:world ceng:pddlProblem """
+(define (problem {{PROBLEM_NAME}})
+  (:domain {{DOMAIN_NAME}})
+  (:objects {{CASE_OBJECT}})
+  (:init ({{PRED_0}} {{CASE_OBJECT}}))
+  (:goal ({{PRED_8}} {{CASE_OBJECT}}))
+)
+""" .

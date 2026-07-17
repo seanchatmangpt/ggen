@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE RDF [
+   <!ENTITY dcterms "http://purl.org/dc/terms">  
+   <!ENTITY owl "http://www.w3.org/2002/07/owl">  
+   <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns">  
+   <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema">  
+   <!ENTITY xs "http://www.w3.org/2001/XMLSchema">    
+   <!ENTITY rulemm "http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel">  
+   <!ENTITY lrmlmm "http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel">  
+ ]>
+<rdf:RDF   xmlns:owl="&owl;#" 
+  xmlns:dc="&dcterms;/"
+  xmlns:rdf="&rdf;#" xmlns:rdfs="&rdfs;#" xmlns:xs="&xs;"
+  xmlns:rulemm="&rulemm;#" xmlns:lrmlmm="&lrmlmm;#" xml:base="&lrmlmm;">
+  <!--<owl:Ontology rdf:about="&lrmlmm;/modules/upper.rdfs" dc:title="The LegalRuleML MetaModel Upper vocabulary"/>-->
+  
+  
+  <rdfs:Class rdf:about="#Comment">
+    <rdfs:label>comment</rdfs:label>
+    <rdfs:comment>a comment, which has no semantic effect.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#XMLLiteralWrapper"/>
+  </rdfs:Class>  
+  
+  
+  <rdfs:Class rdf:about="#Wrapper">
+    <rdfs:label>wrapper</rdfs:label>
+    <rdfs:comment>a conceptual container.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#Thing"/>
+  </rdfs:Class>  
+  
+  <rdfs:Class rdf:about="#XMLLiteralWrapper">
+    <rdfs:label>XML literal wrapper</rdfs:label>
+    <rdfs:comment>a container for an XMLLiteral.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#Wrapper"/>
+  </rdfs:Class>  
+      
+  <rdf:Property rdf:about="#symbol">
+    <rdfs:label>symbol</rdfs:label>
+    <rdfs:comment>an XML literal that is the symbolic representation of the XMLLiteral wrapper.</rdfs:comment>
+    <rdfs:domain rdf:resource="#XMLLiteralWrapper"/>
+    <rdfs:range rdf:resource="rdfs:XMLLiteral"/>
+    <rdfs:subPropertyOf rdf:resource="#wraps"/>        
+  </rdf:Property>
+
+  <rdf:Property rdf:about="#wraps">
+    <rdfs:label>wraps</rdfs:label>
+    <rdfs:comment>an entity contained by the wrapper.</rdfs:comment>
+    <rdfs:domain rdf:resource="#Wrapper"/>
+    <rdfs:range rdf:resource="#Thing"/>
+  </rdf:Property>
+
+  
+</rdf:RDF>

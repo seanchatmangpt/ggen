@@ -1,0 +1,7 @@
+{
+  "case": "Accept_Triple8UniverseWithinBounds",
+  "kind": "acceptance",
+  "seed": 6950375996180712094,
+  "expected_behavior": "triple8_universe_admitted",
+  "input": {"universe": ["<urn:chatman:triple8:t1>", "<urn:chatman:triple8:t2>", "<urn:chatman:triple8:t3>", "<urn:chatman:triple8:t4>", "<urn:chatman:triple8:t5>"], "terms": ["<urn:chatman:triple8:t1>", "<urn:chatman:triple8:t2>", "<urn:chatman:triple8:t3>"]}
+}

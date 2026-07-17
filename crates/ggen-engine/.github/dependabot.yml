@@ -1,0 +1,32 @@
+version: 2
+updates:
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "cargo"
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "ci"
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+
+  # Uncomment if the repo ships a web/ frontend.
+  # - package-ecosystem: "npm"
+  #   directory: "/web"
+  #   schedule:
+  #     interval: "weekly"
+  #   open-pull-requests-limit: 10
+  #   commit-message:
+  #     prefix: "npm"

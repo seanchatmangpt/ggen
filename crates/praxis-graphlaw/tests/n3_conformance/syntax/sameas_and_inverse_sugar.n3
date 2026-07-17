@@ -1,0 +1,21 @@
+@prefix : <http://example.org/> .
+
+# "=" sugar for owl:sameAs in Property position.
+:earth = :terra .
+
+# "has" sugar: "subject has predicate object ." === "subject predicate object .".
+:alice has :spouse :bob .
+
+# Inverse-predicate sugar: "object is predicate of subject ." ===
+# "subject predicate object .".
+:carol is :parentOf of :dave .
+
+# "<=>" biconditional sugar: "{A} <=> {B} ." means both "{A} => {B} ." and
+# "{B} => {A} .".
+{ :eve :status :happy } <=> { :eve :status :content } .
+
+:eve :status :happy .
+
+{ :earth :owlSameAs ?x } <= { :earth = ?x } .
+{ :hasCase :verified true } <= { :alice :spouse :bob } .
+{ :inverseCase :verified true } <= { :dave :parentOf :carol } .

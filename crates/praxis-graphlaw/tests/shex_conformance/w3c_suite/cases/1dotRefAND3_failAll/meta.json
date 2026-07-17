@@ -1,0 +1,9 @@
+{
+  "shape": "http://a.example/S1",
+  "focus": "http://a.example/n1",
+  "expected": "nonconformant",
+  "source_schema": "schemas/1dotRefAND3.json (used verbatim -- upstream already ships a compiled ShExJ schema, no ShExC translation needed)",
+  "source_shexc": "<http://a.example/S1> {\n   <http://a.example/p1> @<http://a.example/S2>\n                     AND @<http://a.example/S3>\n                     AND @<http://a.example/S4>\n}\n\n<http://a.example/S2> { <http://a.example/p2> . }\n\n<http://a.example/S3> { <http://a.example/p3> . }\n\n<http://a.example/S4> { <http://a.example/p4> . }",
+  "source_data": "validation/In1_Ip1_In2.ttl (verbatim)",
+  "comment": "1dotRefAND3_failAll: on { <n1> <p1> <n2> } -- n2 has none of p2/p3/p4, so it fails all three ANDed shape references (ShapeAnd of 3 by-label refs as a TripleConstraint's valueExpr); exercises ShapeAnd with more than 2 alternatives, all by string-label reference rather than inline."
+}

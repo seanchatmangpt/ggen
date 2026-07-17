@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+
+:order :prices ( 10 4 7 ) .
+
+{ ?o :prices ?list . ?list math:max ?m } => { ?o :maxPrice ?m }.

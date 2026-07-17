@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_N3ActuationRefused",
+  "kind": "falsification",
+  "seed": 9811971210384899196,
+  "mutation": "Mark the N3 request as an actuation attempt, which no profile may actuate.",
+  "expected_refusal": "N3ActuationRefused",
+  "input": {"profile_id": "profile-n3-actuation", "requested_dialect": "n3", "admitted_dialects": ["n3"], "wants_actuation": true}
+}

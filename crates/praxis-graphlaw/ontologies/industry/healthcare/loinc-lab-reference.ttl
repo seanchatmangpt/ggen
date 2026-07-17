@@ -1,0 +1,9 @@
+@prefix loinc: <http://loinc.org/rdf#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://loinc.org/ontology>
+  a owl:Ontology ;
+  rdfs:label "LOINC - Laboratory Ontology" ;
+  rdfs:comment "Logical Observation Identifiers Names and Codes" ;
+  owl:versionInfo "2.76" .

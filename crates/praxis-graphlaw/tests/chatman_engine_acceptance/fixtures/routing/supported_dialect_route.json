@@ -1,0 +1,7 @@
+{
+  "case": "Accept_SupportedDialectRoute",
+  "kind": "acceptance",
+  "seed": 12348750987882818592,
+  "expected_behavior": "supported_dialect_routed",
+  "input": {"profile_id": "profile-supported-dialect", "requested_dialect": "triple8-pattern", "admitted_dialects": ["triple8-pattern"]}
+}
