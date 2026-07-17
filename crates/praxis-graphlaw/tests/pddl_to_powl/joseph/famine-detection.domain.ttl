@@ -1,0 +1,22 @@
+# Joseph as chief administrator of Egypt — national famine-management plan.
+# Phase artifact: famine-detection (domain fragment). the famine years arrive and are detected.
+# One admitted PDDL Turtle planning artifact; fragments across all phase
+# artifacts merge structurally into ONE combined plan (domain name
+# 'joseph-famine' shared by every fragment). Formal planning-to-workflow
+# demonstration domain; argues no doctrine, claims no historicity.
+@prefix ex: <http://example.org/joseph#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:administrators ex:observe ex:famine .
+
+ex:famine-detection ceng:pddlDomain """
+(define (domain joseph-famine)
+  (:requirements :strips)
+  (:predicates
+    (inventory-recorded ?x)
+    (famine-detected ?x))
+  (:action detect-famine
+    :parameters (?x)
+    :precondition (and (inventory-recorded ?x))
+    :effect (and (famine-detected ?x))))
+""" .

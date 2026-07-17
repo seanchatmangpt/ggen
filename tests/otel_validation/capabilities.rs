@@ -10,6 +10,18 @@
 //!
 //! Each test validates a specific capability mentioned in the README
 //! using OpenTelemetry traces as proof.
+//!
+//! ARCHIVED (2026-07-16, v26.7.16 CLI-routing flip + publish-safety fix): calls
+//! `ggen_cli_lib::cmds::{sync,doctor}::*` directly, which no longer exist -- those
+//! modules were removed from ggen-cli-lib's build (routed to ggen-engine's verbs
+//! instead, see crates/ggen-cli/src/cmds/mod.rs). Root also no longer depends on
+//! ggen-cli-lib at all (see root Cargo.toml's `autobins = false` comment). Gated
+//! at the test-binary root (tests/otel_validation_tests.rs), not here, since a
+//! sibling module (validators.rs) does `use capabilities::*;` unconditionally --
+//! an inner `#![cfg]` here alone would break that reference instead of cleanly
+//! removing the whole test binary. This predates gating: `just check`/`cargo
+//! check --workspace` never compiles test targets by default, so this breakage
+//! went undetected until a full `cargo test --workspace --no-run` was run.
 
 use super::*;
 use std::time::Instant;
@@ -162,7 +174,7 @@ pub async fn validate_doctor(ctx: &ValidationContext) -> Result<ValidationResult
     }
     {
         let _enter = span.enter();
-        let res = ggen_cli_lib::cmds::doctor::run();
+        let res = ggen_cli_lib::cmds::doctor::doctor(false, None);
         if let Err(e) = res {
             errors.push(format!("Doctor failed: {}", e));
         }

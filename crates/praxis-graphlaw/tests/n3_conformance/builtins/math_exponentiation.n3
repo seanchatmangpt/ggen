@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+
+:a :base 2 .
+:a :exp 10 .
+
+{ ?x :base ?b . ?x :exp ?e . ( ?b ?e ) math:exponentiation ?r } => { ?x :power ?r }.

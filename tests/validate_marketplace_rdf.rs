@@ -3,6 +3,14 @@
 //! This test validates that all RDF ontology files in marketplace packages
 //! are syntactically valid Turtle files that can be loaded by Oxigraph.
 
+// ARCHIVED (ggen-core disconnect, 2026-07-16): drives `ggen_core::Graph`
+// directly. `ggen-graph` has no `Graph` struct at all (its public surface is
+// coherence.rs/shacl.rs/sparql.rs/dialect.rs/interchangeable.rs) -- no port
+// destination exists (verified via workspace-wide search, 2026-07-16
+// investigation). Gated as a whole file rather than deleted, per this
+// project's fix-forward doctrine.
+#![cfg(feature = "ggen-core-retired")]
+
 #[cfg(test)]
 mod tests {
     use ggen_core::Graph;

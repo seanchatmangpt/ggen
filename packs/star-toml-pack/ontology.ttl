@@ -1,0 +1,80 @@
+# star-toml-pack ontology — config-admission surface for the star-toml
+# framework ("configuration is operational law"). ConfigSection individuals
+# become deny_unknown_fields serde structs; ConfigField individuals become
+# their typed fields. Loaded via star_toml::load_file in the generated module.
+
+@prefix stp:  <http://seanchatmangpt.github.io/packs/star-toml#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+stp:ConfigSection
+    a            rdfs:Class ;
+    rdfs:label   "ConfigSection" ;
+    rdfs:comment "A [table] in an admitted *.toml file; one serde struct." .
+
+stp:ConfigField
+    a            rdfs:Class ;
+    rdfs:label   "ConfigField" ;
+    rdfs:comment "A typed key inside a ConfigSection." .
+
+stp:inSection
+    a            rdf:Property ;
+    rdfs:label   "inSection" ;
+    rdfs:domain  stp:ConfigField ;
+    rdfs:range   stp:ConfigSection .
+
+stp:fieldName
+    a            rdf:Property ;
+    rdfs:label   "fieldName" ;
+    rdfs:range   xsd:string .
+
+stp:rustType
+    a            rdf:Property ;
+    rdfs:label   "rustType" ;
+    rdfs:range   xsd:string .
+
+stp:doc
+    a            rdf:Property ;
+    rdfs:label   "doc" ;
+    rdfs:range   xsd:string .
+
+# ── Individuals ─────────────────────────────────────────────────────────
+
+stp:AdmissionSection
+    a          stp:ConfigSection ;
+    rdfs:label "admission" ;
+    stp:doc    "Config-admission gate: witness storage and standing policy." .
+
+stp:TelemetrySection
+    a          stp:ConfigSection ;
+    rdfs:label "telemetry" ;
+    stp:doc    "OCEL/OTel export settings for the admission pipeline." .
+
+stp:WitnessDirField
+    a             stp:ConfigField ;
+    stp:inSection stp:AdmissionSection ;
+    stp:fieldName "witness_dir" ;
+    stp:rustType  "std::path::PathBuf" ;
+    stp:doc       "Directory where BLAKE3 ConfigWitness envelopes are persisted." .
+
+stp:FailClosedField
+    a             stp:ConfigField ;
+    stp:inSection stp:AdmissionSection ;
+    stp:fieldName "fail_closed" ;
+    stp:rustType  "bool" ;
+    stp:doc       "Refuse standing (q_config = 0) when any validator is unreachable." .
+
+stp:ExporterEndpointField
+    a             stp:ConfigField ;
+    stp:inSection stp:TelemetrySection ;
+    stp:fieldName "exporter_endpoint" ;
+    stp:rustType  "String" ;
+    stp:doc       "OCEL export endpoint recording the admission process history." .
+
+stp:SampleRateField
+    a             stp:ConfigField ;
+    stp:inSection stp:TelemetrySection ;
+    stp:fieldName "sample_rate" ;
+    stp:rustType  "f64" ;
+    stp:doc       "Fraction of admission decisions exported as OCEL events." .

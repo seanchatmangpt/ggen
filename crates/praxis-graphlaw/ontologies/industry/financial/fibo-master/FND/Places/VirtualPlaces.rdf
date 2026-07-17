@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-id "https://www.omg.org/spec/Commons/Identifiers/">
+	<!ENTITY cmns-loc "https://www.omg.org/spec/Commons/Locations/">
+	<!ENTITY cmns-org "https://www.omg.org/spec/Commons/Organizations/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-fnd-plc-adr "https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/">
+	<!ENTITY fibo-fnd-plc-vrt "https://spec.edmcouncil.org/fibo/ontology/FND/Places/VirtualPlaces/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/FND/Places/VirtualPlaces/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-id="https://www.omg.org/spec/Commons/Identifiers/"
+	xmlns:cmns-loc="https://www.omg.org/spec/Commons/Locations/"
+	xmlns:cmns-org="https://www.omg.org/spec/Commons/Organizations/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-fnd-plc-adr="https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/"
+	xmlns:fibo-fnd-plc-vrt="https://spec.edmcouncil.org/fibo/ontology/FND/Places/VirtualPlaces/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/FND/Places/VirtualPlaces/">
+		<rdfs:label>Virtual Places Ontology</rdfs:label>
+		<dct:abstract>This ontology provides scaffolding for use in describing virtual location-oriented concepts.</dct:abstract>
+		<dct:license>Copyright (c) 2013-2025 EDM Council, Inc.
+Copyright (c) 2013-2025 Object Management Group, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Identifiers/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Locations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Organizations/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/20251201/Places/VirtualPlaces/"/>
+		<skos:changeNote>The http://www.omg.org/spec/EDMC-FIBO/FND/20141101/Places/VirtualPlaces.rdf version of this ontology was modified for the FIBO 2.0 RFC to integrate it with LCC.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20180801/Places/VirtualPlaces.rdf version of this ontology was modified to eliminate duplication of concepts in LCC and email address and telephone number.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20200301/Places/VirtualPlaces.rdf version of this ontology was modified to address hygiene issues with respect to text formatting.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20220301/Places/VirtualPlaces.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20230101/Places/VirtualPlaces.rdf version of this ontology was modified to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC), eliminating redundancies in FIBO as appropriate, and to replace additional content that is now available in the OMG Commons Ontology Library (Commons) v1.2 (FND-389).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20230301/Places/VirtualPlaces.rdf version of the ontology was modified to remove long deprecated elements (FND-399).</skos:changeNote>
+		<skos:changeNote>This ontology was added to Foundations in advance of the December 2014 Long Beach meeting in support of the SEC specification.</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2013-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2013-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-fnd-plc-vrt;ElectronicMailAddress">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-plc-adr;VirtualAddress"/>
+		<rdfs:label>electronic mail address</rdfs:label>
+		<skos:definition>virtual address that defines an electronic messaging endpoint to which email messages can be delivered, typically via an Simple Mail Transfer Protocol (SMTP) based communications system</skos:definition>
+		<cmns-av:abbreviation>e-mail address</cmns-av:abbreviation>
+		<cmns-av:abbreviation>email address</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote>Electronic mail, abbreviated e-mail or email, is a method of composing, sending, and receiving messages over electronic communication systems. The term e-mail applies both to the Internet e-mail system based on the Simple Mail Transfer Protocol (SMTP) and to intranet systems allowing users within one company or organization to send messages to each other. Often these workgroup collaboration systems natively use non-standard protocols but have some form of gateway to allow them to send and receive Internet e-mail. Some organizations may use the Internet protocols for internal e-mail service.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-plc-vrt;NetworkLocation">
+		<rdfs:subClassOf rdf:resource="&cmns-loc;VirtualLocation"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-id;isIdentifiedBy"/>
+				<owl:onClass rdf:resource="&fibo-fnd-plc-adr;Address"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>network location</rdfs:label>
+		<skos:definition>a virtual location that may be identified by a network address (an identifier for a node or interface)</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-plc-vrt;NotionalPlace">
+		<rdfs:subClassOf rdf:resource="&cmns-loc;Location"/>
+		<rdfs:label>notional place</rdfs:label>
+		<skos:definition>an abstract place; one of many commonly understood concepts such as domestic, Eurozone etc.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-plc-vrt;TelephoneNumber">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-plc-adr;VirtualAddress"/>
+		<rdfs:label>telephone number</rdfs:label>
+		<skos:definition>virtual address that may be assigned to a fixed-line telephone subscriber station connected to a telephone line or to a wireless electronic telephony device, such as a radio telephone or a mobile telephone, or to other devices or services for data transmission via the public switched telephone network (PSTN) or other public and private networks</skos:definition>
+		<cmns-av:abbreviation>phone number</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote>Telephone numbers are assigned within the framework of a national or regional telephone numbering plan to subscribers by telephone service operators, which may be commercial entities, state-controlled administrations, or other telecommunication industry associations.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-plc-vrt;hasElectronicMailAddress">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-plc-adr;hasAddress"/>
+		<rdfs:label>has electronic mail address</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fnd-plc-vrt;ElectronicMailAddress"/>
+		<skos:definition>specifies an electronic messaging endpoint at which some entity may be located or contacted or may receive correspondence</skos:definition>
+		<cmns-av:abbreviation>has e-mail address</cmns-av:abbreviation>
+		<cmns-av:abbreviation>has email address</cmns-av:abbreviation>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-plc-vrt;hasTelephoneNumber">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-plc-adr;hasAddress"/>
+		<rdfs:label>has telephone number</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fnd-plc-vrt;TelephoneNumber"/>
+		<skos:definition>indicates a virtual address composed of a sequence of digits and symbols that may be assigned to a fixed-line telephone subscriber station, a wireless electronic telephony device, such as a radio telephone or a mobile telephone, or other similar device or service</skos:definition>
+	</owl:ObjectProperty>
+
+</rdf:RDF>

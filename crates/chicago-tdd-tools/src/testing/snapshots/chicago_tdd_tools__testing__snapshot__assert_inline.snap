@@ -1,0 +1,5 @@
+---
+source: src/testing/snapshot.rs
+expression: "format!(\"{value}\")"
+---
+User: "user@example.com", Session active: true

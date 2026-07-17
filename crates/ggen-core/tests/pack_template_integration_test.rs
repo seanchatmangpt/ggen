@@ -24,7 +24,12 @@
 //! Pack template integration test
 //!
 //! Tests the μ₃ emission pass with pack_id:template_path syntax.
-//! Templates are loaded from pack cache at ~/.cache/ggen/packs/<pack-id>/templates/
+//! Templates are loaded from pack cache at `<pack_cache_root>/<pack-id>/templates/`,
+//! where `pack_cache_root` is `$GGEN_PACK_CACHE_DIR` if set, else the platform
+//! cache directory joined with `ggen/packs` (`~/Library/Caches/ggen/packs` on
+//! macOS, `~/.cache/ggen/packs` on Linux -- see `resolver::TemplateResolver::new`,
+//! which matches `ggen_marketplace::marketplace::metadata::pack_cache_root`'s
+//! resolution order).
 //!
 //! GATED: EmissionRule::inline_template doesn't exist; TemplateResolver::new() API diverged.
 

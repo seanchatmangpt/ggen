@@ -1,0 +1,9 @@
+{
+  "shape": "http://a.example/S1",
+  "focus": "_:abcd",
+  "expected": "conformant",
+  "source_schema": "schemas/0.shex",
+  "source_shexc": "<http://a.example/S1> {\n}",
+  "source_data": "validation/Babcd_Ip1_Io1.ttl",
+  "comment": "<S1> {  } on { _:abcd <p1> <o1> }"
+}

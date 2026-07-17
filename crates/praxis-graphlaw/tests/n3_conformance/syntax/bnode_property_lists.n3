@@ -1,0 +1,21 @@
+@prefix : <http://example.org/> .
+
+# Subject position: "[ p1 o1 ; p2 o2 ] p o ." desugars to a fresh bnode plus
+# its property triples, and the fresh bnode is also used as the subject of
+# the enclosing TP.
+[ :name "Alice" ; :age 30 ] :status :active .
+
+# Object position: "s p [ p1 o1 ] ." desugars similarly, with the fresh
+# bnode used as the object of the enclosing TP.
+:bob :spouse [ :name "Carol" ] .
+
+# Nesting: a "[ ]" property value that is itself a "[ ]".
+:dave :employer [ :name "Acme" ; :location [ :city "Springfield" ] ] .
+
+# Empty "[]": just a fresh blank node with no additional triples.
+:eve :hasAnonymousFriend [] .
+
+{ ?x :name "Alice" . ?x :age 30 . ?x :status :active } => { :subjectCase :verified true }.
+{ :bob :spouse ?s . ?s :name "Carol" } => { :objectCase :verified true }.
+{ :dave :employer ?emp . ?emp :name "Acme" . ?emp :location ?loc . ?loc :city "Springfield" } => { :nestedCase :verified true }.
+{ :eve :hasAnonymousFriend ?f } => { :emptyCase :verified true }.

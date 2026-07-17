@@ -1,0 +1,2 @@
+@prefix : <http://example.org/#>.
+# placeholder -- case is blocked/ignored, never executed.

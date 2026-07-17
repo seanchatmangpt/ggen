@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_BoundaryRequestMissingReceipt",
+  "kind": "falsification",
+  "seed": 5691495813258663189,
+  "mutation": "Strip the receipt field from an otherwise well-formed boundary request.",
+  "expected_refusal": "BoundaryRequestMissingReceipt",
+  "input": {"subject": "urn:chatman:subject:boundary-missing", "witness": "urn:chatman:witness:boundary-missing", "replay_hint": "replay-hint-boundary-missing", "canon_nquads": ""}
+}

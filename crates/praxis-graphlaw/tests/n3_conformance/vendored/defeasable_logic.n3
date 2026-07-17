@@ -1,0 +1,63 @@
+# Vendored verbatim from
+# https://github.com/eyereasoner/eye/blob/master/reasoning/defeasable-logic/defeasable-logic.n3
+# No truncation needed (51 lines upstream, reproduced unmodified below,
+# including the upstream corpus's own spelling "defeasable" rather than the
+# dictionary "defeasible"). Distinct mechanism vs. the already-vendored
+# `snaf` case: `snaf` demonstrates a single `log:notIncludes` SNAF guard;
+# this case chains TWO separate defeasible rules through the same closed-
+# world-assumption mechanism (a defeater rule that marks penguins
+# `:abnormal true`, then a default-flies rule guarded by
+# `log:notIncludes { ?X :abnormal true }`, then a *second*, independent
+# closed-world rule guarded by `log:notIncludes { ?X :flies true }`) --
+# exercising interaction between two competing SNAF-guarded defaults over
+# the same predicate, which `snaf` alone does not cover.
+@prefix :     <http://example.org/defeasible#> .
+@prefix log:  <http://www.w3.org/2000/10/swap/log#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# --------------------------------------------------------------------------
+#  Strict facts
+# --------------------------------------------------------------------------
+:tweety  a :Bird .
+:polly   a :Penguin .
+
+# --------------------------------------------------------------------------
+#  Taxonomy: every penguin is a bird
+# --------------------------------------------------------------------------
+{ ?X a :Penguin }  =>  { ?X a :Bird } .
+
+# --------------------------------------------------------------------------
+#  Defeater: penguins are abnormal with respect to flying
+# --------------------------------------------------------------------------
+{ ?X a :Penguin }  =>  { ?X :abnormal true } .
+
+# --------------------------------------------------------------------------
+#  Defeasible default: birds (normally) fly
+#  ----------------------------------------------------
+#  The rule fires **only if** the current KB *does not* include
+#  { ?X :abnormal true }  — that is SNAF via log:notIncludes.
+# --------------------------------------------------------------------------
+{
+    ?X a :Bird .
+    ?SCOPE log:notIncludes { ?X :abnormal true } .
+}
+=>
+{
+    ?X :flies true .
+} .
+
+# --------------------------------------------------------------------------
+#  Closed-world *no-fly* conclusion
+#  “If X is a bird and the current knowledge base does NOT already
+#   contain { X :flies true } then assert { X :flies false }.”
+# --------------------------------------------------------------------------
+{
+    ?X     a :Bird .
+    ?SCOPE log:notIncludes { ?X :flies true } .
+}
+=>
+{ ?X :flies false } .
+
+# query
+{ ?X :flies ?Y } log:impliesAnswer { ?X :flies ?Y }.

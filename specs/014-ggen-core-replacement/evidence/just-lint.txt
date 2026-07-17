@@ -1,0 +1,26 @@
+timeout 180s cargo clippy --all-targets -- -D warnings
+[1m[33mwarning[0m: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/sac/ggen/crates/ggen-engine/Cargo.toml
+workspace: /Users/sac/ggen/Cargo.toml
+[1m[33mwarning[0m: /Users/sac/bcinr/crates/bcinr-pddl/Cargo.toml: unused manifest key: test.3.divan
+[1m[33mwarning[0m: `bcinr-pddl` (manifest) generated 1 warning
+[1m[33mwarning[0m: /Users/sac/praxis/Cargo.toml: `panic` setting is ignored for `bench` profile
+[1m[33mwarning[0m: `my-conforming-project` (manifest) generated 1 warning
+[1m[92m    Checking[0m tokio-rustls v0.26.4
+[1m[92m    Checking[0m ureq v3.3.0
+[1m[92m    Checking[0m rustls-platform-verifier v0.7.0
+[1m[33mwarning[0m: ggen@26.7.4: Discovered 335 templates
+[1m[33mwarning[0m: ggen@26.7.4: Discovered 12 core ontologies
+[1m[92m    Checking[0m hyper-rustls v0.27.9
+[1m[92m    Checking[0m bollard-buildkit-proto v0.7.0
+[1m[92m    Checking[0m reqwest v0.13.4
+[1m[92m    Checking[0m reqwest v0.12.28
+[1m[92m    Checking[0m bollard-stubs v1.52.1-rc.29.1.3
+[1m[92m    Checking[0m genai v0.5.3
+[1m[92m    Checking[0m ggen-marketplace v26.7.4 (/Users/sac/ggen/crates/ggen-marketplace)
+[1m[92m    Checking[0m bollard v0.20.2
+[1m[92m    Checking[0m testcontainers v0.27.3
+[1m[92m    Checking[0m chicago-tdd-tools v26.7.1 (/Users/sac/chicago-tdd-tools)
+[1m[92m    Checking[0m testcontainers-modules v0.15.0
+[1m[92m    Checking[0m ggen v26.7.4 (/Users/sac/ggen)
+[1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 6.88s

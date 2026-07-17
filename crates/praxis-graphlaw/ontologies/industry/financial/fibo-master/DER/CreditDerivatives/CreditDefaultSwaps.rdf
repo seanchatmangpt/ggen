@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-col "https://www.omg.org/spec/Commons/Collections/">
+	<!ENTITY cmns-doc "https://www.omg.org/spec/Commons/Documents/">
+	<!ENTITY cmns-dt "https://www.omg.org/spec/Commons/DatesAndTimes/">
+	<!ENTITY cmns-org "https://www.omg.org/spec/Commons/Organizations/">
+	<!ENTITY cmns-pts "https://www.omg.org/spec/Commons/PartiesAndSituations/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-fct-pub "https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/Publishers/">
+	<!ENTITY fibo-der-cr-cds "https://spec.edmcouncil.org/fibo/ontology/DER/CreditDerivatives/CreditDefaultSwaps/">
+	<!ENTITY fibo-der-drc-bsc "https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/DerivativesBasics/">
+	<!ENTITY fibo-der-drc-swp "https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/Swaps/">
+	<!ENTITY fibo-fbc-dae-cre "https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/CreditEvents/">
+	<!ENTITY fibo-fbc-dae-dbt "https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/">
+	<!ENTITY fibo-fbc-fct-mkt "https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/Markets/">
+	<!ENTITY fibo-fbc-fi-ip "https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/InstrumentPricing/">
+	<!ENTITY fibo-fbc-fi-stl "https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/Settlement/">
+	<!ENTITY fibo-fbc-pas-fpas "https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/">
+	<!ENTITY fibo-fnd-acc-cur "https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/">
+	<!ENTITY fibo-fnd-agr-ctr "https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/">
+	<!ENTITY fibo-fnd-arr-doc "https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Documents/">
+	<!ENTITY fibo-fnd-dt-fd "https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/">
+	<!ENTITY fibo-fnd-dt-oc "https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/Occurrences/">
+	<!ENTITY fibo-fnd-oac-own "https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/">
+	<!ENTITY fibo-fnd-pas-pas "https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/">
+	<!ENTITY fibo-fnd-rel-rel "https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY fibo-ind-mkt-bas "https://spec.edmcouncil.org/fibo/ontology/IND/MarketIndices/BasketIndices/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/DER/CreditDerivatives/CreditDefaultSwaps/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-col="https://www.omg.org/spec/Commons/Collections/"
+	xmlns:cmns-doc="https://www.omg.org/spec/Commons/Documents/"
+	xmlns:cmns-dt="https://www.omg.org/spec/Commons/DatesAndTimes/"
+	xmlns:cmns-org="https://www.omg.org/spec/Commons/Organizations/"
+	xmlns:cmns-pts="https://www.omg.org/spec/Commons/PartiesAndSituations/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-fct-pub="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/Publishers/"
+	xmlns:fibo-der-cr-cds="https://spec.edmcouncil.org/fibo/ontology/DER/CreditDerivatives/CreditDefaultSwaps/"
+	xmlns:fibo-der-drc-bsc="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/DerivativesBasics/"
+	xmlns:fibo-der-drc-swp="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/Swaps/"
+	xmlns:fibo-fbc-dae-cre="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/CreditEvents/"
+	xmlns:fibo-fbc-dae-dbt="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/"
+	xmlns:fibo-fbc-fct-mkt="https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/Markets/"
+	xmlns:fibo-fbc-fi-ip="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/InstrumentPricing/"
+	xmlns:fibo-fbc-fi-stl="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/Settlement/"
+	xmlns:fibo-fbc-pas-fpas="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/"
+	xmlns:fibo-fnd-acc-cur="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"
+	xmlns:fibo-fnd-agr-ctr="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"
+	xmlns:fibo-fnd-arr-doc="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Documents/"
+	xmlns:fibo-fnd-dt-fd="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"
+	xmlns:fibo-fnd-dt-oc="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/Occurrences/"
+	xmlns:fibo-fnd-oac-own="https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/"
+	xmlns:fibo-fnd-pas-pas="https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/"
+	xmlns:fibo-fnd-rel-rel="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:fibo-ind-mkt-bas="https://spec.edmcouncil.org/fibo/ontology/IND/MarketIndices/BasketIndices/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/DER/CreditDerivatives/CreditDefaultSwaps/">
+		<rdfs:label xml:lang="en">Credit Default Swaps Ontology</rdfs:label>
+		<dct:abstract>Credit default swaps are financial instruments that allow the transfer of credit risk among market participants, potentially facilitating greater efficiency in the pricing and distribution/offset of credit risk. They are bilateral contracts in which one party (the protection seller) agrees to provide payment(s) to the other party (the protection buyer) should a credit event occur against the underlying. The underlier for a CDS may be a specified debt (the reference obligation), a specific debt issuer (reference entity), in which case the credit events involving the entity is what triggers the payment, a basket of reference entities and/or reference obligations, or a credit index (reference index). This ontology defines the concept of a basic credit default swap as well as more specific kinds of CDS and specifies related details.</dct:abstract>
+		<dct:license>Copyright (c) 2013-2025 EDM Council, Inc.
+Copyright (c) 2013-2025 Object Management Group, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/Publishers/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/DerivativesBasics/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/Swaps/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/CreditEvents/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/InstrumentPricing/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/Settlement/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/Markets/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Documents/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/Occurrences/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/MarketIndices/BasketIndices/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Collections/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/DatesAndTimes/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Documents/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Organizations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/PartiesAndSituations/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/20250801/CreditDerivatives/CreditDefaultSwaps/"/>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/DER/20221201/CreditDerivatives/CreditDefaultSwaps.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/DER/20230201/CreditDerivatives/CreditDefaultSwaps.rdf version of this ontology was modified to move the property, &apos;is conferred on&apos; to the Legal Capacity ontology and to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC), eliminating redundancies in FIBO as appropriate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/DER/20230301/CreditDerivatives/CreditDefaultSwaps.rdf version of this ontology was modified to add the concept of a credit default swap index.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/DER/20231001/CreditDerivatives/CreditDefaultSwaps.rdf version of this ontology was modified to move the nominal for auction market from CDS to the pricing ontology (its IRI was that of the instrument pricing ontology but it was mistakenly in the CDS ontology) and simplify the definition (DER-140).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/DER/20231101/CreditDerivatives/CreditDefaultSwaps.rdf version of the ontology was modified to eliminate a subproperty relationship between the contract price and notional amount, which may not be appropriate (DER-127), and to replace concepts from several FIBO FND ontologies with their counterparts added to the Commons Ontology Library (Commons) v1.1.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/DER/20231201/CreditDerivatives/CreditDefaultSwaps.rdf version of the ontology was modified to replace additional concepts from FIBO FND with their counterparts in the Commons Ontology Library (Commons) v1.1.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/DER/20240101/CreditDerivatives/CreditDefaultSwaps.rdf version of the ontology was modified to replace additional content that is now available in the OMG Commons Ontology Library (Commons) v1.2 (FND-389).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/DER/20250301/CreditDerivatives/CreditDefaultSwaps.rdf version of the ontology was modified to replace hasConstituent with hasMember for better semantic consistency (FND-396) and to correct a label on has scheduled termination date (SEC-200).</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2013-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2013-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;AssetBackedCreditDefaultSwap">
+		<rdfs:subClassOf rdf:resource="&fibo-der-cr-cds;CreditDefaultSwap"/>
+		<rdfs:label xml:lang="en">asset-backed credit default swap</rdfs:label>
+		<skos:definition xml:lang="en">credit default swap whose underlying reference obligation is an asset-backed security rather than corporate credit</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">ABCDS</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">In the case of an ABCDS, the buyer receives protection for defaults on asset-backed securities or tranches of securities, rather than protecting against the default of a particular issuer. Asset-backed securities are securities backed by a pool of loans or receivables, such as auto loans, home equity loans or credit cards loans.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;BasketCreditDefaultSwap">
+		<rdfs:subClassOf rdf:resource="&fibo-der-cr-cds;MultiNameCreditDefaultSwap"/>
+		<rdfs:label xml:lang="en">basket credit default swap</rdfs:label>
+		<skos:definition xml:lang="en">credit default swap that references a bespoke, synthetic portfolio of underlying assets whose components have been agreed to for a specific OTC derivative by the parties to the transaction</skos:definition>
+		<cmns-av:adaptedFrom>Draft paper on Credit Default Swaps from the Federal Reserve Board, available at https://www.federalreserve.gov/econres/feds/files/2022023pap.pdf</cmns-av:adaptedFrom>
+		<cmns-av:adaptedFrom>ISO 10962:2019, Securities and related financial instruments - Classification of financial instruments (CFI) code</cmns-av:adaptedFrom>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;BasketOfCreditDefaultSwaps">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-fpas;WeightedBasket"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-fd;DatedStructuredCollection"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;hasMember"/>
+				<owl:someValuesFrom rdf:resource="&fibo-der-cr-cds;CreditDefaultSwap"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">basket of credit default swaps</rdfs:label>
+		<skos:definition xml:lang="en">basket of reference obligations are credit default swap instruments</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">Note that the CDS Index is broken down into tranches depending on different types of credits, for example, investment grade and high yield. Tranches are defined by attachment and detachment points for the index loss distribution. It means that when default events occur the lower-level tranches absorb the loss up to the detachment point, before moving to the next senior tranche.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;CashSettlementMethod">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fi-ip;PriceDeterminationMethod"/>
+		<rdfs:label xml:lang="en">cash settlement method</rdfs:label>
+		<skos:definition xml:lang="en">strategy for calculating or otherwise establishing a reference final price for the contract</skos:definition>
+		<cmns-av:adaptedFrom>ISO 10962:2019, Securities and related financial instruments - Classification of financial instruments (CFI) code</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote xml:lang="en">The method may include an independently administered synthetic auction process that sets the reference final price.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;ContingentCreditDefaultSwap">
+		<rdfs:subClassOf rdf:resource="&fibo-der-cr-cds;CreditDefaultSwap"/>
+		<rdfs:label xml:lang="en">contingent credit default swap</rdfs:label>
+		<skos:definition xml:lang="en">credit default swap in which an additional triggering event is required</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">CCDS</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">In a contingent credit default swap, the trigger requires both a credit event (as in a traditional credit default swap) and another specified event. The additional specified event is usually a significant movement in an index covering equities, commodities, interest rates, or some other overall measure of the economy or relevant industry.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;CreditDefaultSwap">
+		<rdfs:subClassOf rdf:resource="&fibo-der-drc-bsc;CreditDerivative"/>
+		<rdfs:subClassOf rdf:resource="&fibo-der-drc-swp;Swap"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-oc;hasOccurrence"/>
+				<owl:onClass rdf:resource="&fibo-der-cr-cds;SettlementAuction"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-der-cr-cds;hasContractPrice"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-acc-cur;MonetaryPrice"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-agr-ctr;hasContractualElement"/>
+				<owl:someValuesFrom rdf:resource="&fibo-der-cr-cds;CreditProtectionTerms"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;specifies"/>
+				<owl:someValuesFrom rdf:resource="&fibo-der-cr-cds;TriggeringEvent"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">credit default swap</rdfs:label>
+		<skos:definition xml:lang="en">bilateral contract in which one party (protection seller) agrees to provide payment to the other party (protection buyer) should a credit event occur against the underlying, which could be a specified debt (the reference obligation), a specific debt issuer (reference entity), a basket of reference entities and/or reference obligations, or a credit index (reference index)</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">CDS</cmns-av:abbreviation>
+		<cmns-av:adaptedFrom>ISO 10962:2019, Securities and related financial instruments - Classification of financial instruments (CFI) code</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote xml:lang="en">According to a 2022 working paper from the Federal Reserve, &quot;credit default swaps (CDS) are, by far, the most common type of credit derivative. They are financial instruments that allow the transfer of credit risk among market participants, potentially facilitating greater efficiency in the pricing and distribution of credit risk. In its most basic form, a CDS is a contract where a &apos;protection buyer&apos; agrees to make periodic payments (the CDS &apos;spread&apos; or premium) over a predetermined number of years (the maturity or term of the CDS) to a &apos;protection seller&apos; in exchange for a payment from the protection seller in the event of default by a &apos;reference entity.&apos; CDS premiums tend to be paid quarterly and are set as a percentage of the total amount of protection bought (the &apos;notional amount&apos; of the contract). CDS maturities generally range from one to ten years, with the five-year maturity being particularly common.&quot; See https://www.federalreserve.gov/econres/feds/files/2022023pap.pdf for more detail.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote xml:lang="en">Note that the effective date of the contract indicates the starting date of the credit protection defined therein.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;CreditDefaultSwapIndex">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-mkt-bas;ReferenceIndex"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;isBasedOn"/>
+				<owl:someValuesFrom rdf:resource="&fibo-der-cr-cds;BasketOfCreditDefaultSwaps"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">credit default swap index</rdfs:label>
+		<skos:definition xml:lang="en">index whose underlying reference obligations are credit default swap instruments</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;CreditEventNotice">
+		<rdfs:subClassOf rdf:resource="&cmns-doc;Notice"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;isAbout"/>
+				<owl:someValuesFrom rdf:resource="&fibo-der-cr-cds;TriggeringEvent"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;isProvidedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-der-cr-cds;NotifyingParty"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">credit event notice</rdfs:label>
+		<skos:definition xml:lang="en">irrevocable written or verbal notice that states that a triggering event has occurred</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">Notices of certain kinds of credit events are required as a condition of a credit default swap. Such notices are sent from a notifying party (either the buyer or the seller) to the counterparty. They provide information that assists the contract parties in determining whether a triggering credit event has occurred.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;CreditProtectionTerms">
+		<rdfs:subClassOf rdf:resource="&fibo-der-drc-bsc;DerivativeTerms"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-der-cr-cds;hasScheduledTerminationDate"/>
+				<owl:onClass rdf:resource="&cmns-dt;ExplicitDate"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-der-cr-cds;allowsSubstitution"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+				<owl:onDataRange rdf:resource="&xsd;boolean"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-pas-pas;hasBuyer"/>
+				<owl:someValuesFrom rdf:resource="&fibo-der-cr-cds;DeliverableObligationBuyer"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-pas-pas;hasSeller"/>
+				<owl:someValuesFrom rdf:resource="&fibo-der-cr-cds;DeliverableObligationSeller"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;specifies"/>
+				<owl:someValuesFrom rdf:resource="&fibo-der-cr-cds;DeliverableObligation"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;specifies"/>
+				<owl:someValuesFrom rdf:resource="&fibo-der-cr-cds;TriggeringEvent"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">credit protection terms</rdfs:label>
+		<skos:definition xml:lang="en">legal terms that define triggering events and associated conditions related to settlement</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">Note that there may be additional payment schedules or a more complex calculation formula required depending on the terms of the contract.</cmns-av:explanatoryNote>
+		<cmns-av:synonym xml:lang="en">contingent leg</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;DeliverableObligation">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-oac-own;Asset"/>
+		<rdfs:label xml:lang="en">deliverable asset</rdfs:label>
+		<skos:definition xml:lang="en">asset that must be delivered as a part of the process of settling a credit default swap</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">If the reference obligation is a bond, the deliverable asset (obligation) may be a different bond. If it is a loan, the deliverable asset may involve assigment of a loan.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;DeliverableObligationBuyer">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-agr-ctr;ContractParty"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-pas-pas;Buyer"/>
+		<rdfs:label xml:lang="en">deliverable obligation buyer</rdfs:label>
+		<skos:definition xml:lang="en">contract party that is obliged to purchase a deliverable obligation (asset) if a triggering event occurs, depending on the event and the contract</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;DeliverableObligationSeller">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-agr-ctr;ContractParty"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-pas-pas;Seller"/>
+		<rdfs:label xml:lang="en">deliverable obligation seller</rdfs:label>
+		<skos:definition xml:lang="en">contract party that is obliged to sell a deliverable obligation (asset) if a triggering event occurs, depending on the event and the contract</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;EscrowAgent">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-fpas;RegisteredAgent"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-agr-ctr;ContractThirdParty"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;holds"/>
+				<owl:someValuesFrom rdf:resource="&fibo-der-cr-cds;DeliverableObligation"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">escrow agent</rdfs:label>
+		<skos:definition xml:lang="en">third party that holds an asset or funds before they are formally transferred from one party to another party, per the terms of a contract, within some specified time period and/or when a triggering event occurs</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">Use of an escrow agent is one possible mechanism that may be used in some cases, as specified in a credit default swap contract, for delivery purposes.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;IndexCreditDefaultSwap">
+		<rdfs:subClassOf rdf:resource="&fibo-der-cr-cds;MultiNameCreditDefaultSwap"/>
+		<rdfs:label xml:lang="en">index credit default swap</rdfs:label>
+		<skos:definition xml:lang="en">credit default swap that references a family of standardized credit derivative indices, where the underlying reference entities are a defined basket of credit from a particular geographic region (e.g. Asia, North America, Europe), and/or credit rating level (e.g. emerging markets, high yield, investment grade)</skos:definition>
+		<cmns-av:adaptedFrom>Draft paper on Credit Default Swaps from the Federal Reserve Board, available at https://www.federalreserve.gov/econres/feds/files/2022023pap.pdf</cmns-av:adaptedFrom>
+		<cmns-av:adaptedFrom>ISO 10962:2019, Securities and related financial instruments - Classification of financial instruments (CFI) code</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote xml:lang="en">Credit default indices trade in standard maturities, and the reference entities are typically the most liquid; the reference portfolio is reassessed periodically to maintain this.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;IndexTrancheCreditDefaultSwap">
+		<rdfs:subClassOf rdf:resource="&fibo-der-cr-cds;MultiNameCreditDefaultSwap"/>
+		<rdfs:label xml:lang="en">index tranche credit default swap</rdfs:label>
+		<skos:definition xml:lang="en">credit default swap that references a synthetic collateralized debt obligation (CDO) based on a credit index where each tranche references a different segment of the loss distribution of the underlying index</skos:definition>
+		<cmns-av:adaptedFrom>ISO 10962:2019, Securities and related financial instruments - Classification of financial instruments (CFI) code</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote xml:lang="en">Each tranche has a different priority of claims on the principal and interest flows from the collateral pool, and is traditionally portioned into rising levels of seniority.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;LoanCreditDefaultSwap">
+		<rdfs:subClassOf rdf:resource="&fibo-der-cr-cds;CreditDefaultSwap"/>
+		<rdfs:label xml:lang="en">loan credit default swap</rdfs:label>
+		<skos:definition xml:lang="en">credit default swap whose underlying reference obligation is limited strictly to syndicated secured loans, rather than any type of corporate debt</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">LCDS</cmns-av:abbreviation>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;MultiNameCreditDefaultSwap">
+		<rdfs:subClassOf rdf:resource="&fibo-der-cr-cds;CreditDefaultSwap"/>
+		<rdfs:label xml:lang="en">multi-name credit default swap</rdfs:label>
+		<skos:definition xml:lang="en">credit default swap that references more than one obligation or borrower</skos:definition>
+		<cmns-av:adaptedFrom>Draft paper on Credit Default Swaps from the Federal Reserve Board, available at https://www.federalreserve.gov/econres/feds/files/2022023pap.pdf</cmns-av:adaptedFrom>
+		<cmns-av:adaptedFrom>ISO 10962:2019, Securities and related financial instruments - Classification of financial instruments (CFI) code</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote xml:lang="en">For instance, a multiname contract could be written to cover defaults in a reference portfolio (such as in the case of a basket credit default swap) or, as has been increasingly common over the past couple of decades,be based on an index of commonly negotiated single-name CDS. The latter are generally called CDS indexes.</cmns-av:explanatoryNote>
+		<cmns-av:synonym>multiname credit default swap</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;NotifyingParty">
+		<rdfs:subClassOf rdf:resource="&cmns-pts;PartyRole"/>
+		<rdfs:subClassOf>
+			<owl:Class>
+				<owl:unionOf rdf:parseType="Collection">
+					<rdf:Description rdf:about="&fibo-fnd-agr-ctr;ContractParty">
+					</rdf:Description>
+					<rdf:Description rdf:about="&fibo-fnd-agr-ctr;ContractThirdParty">
+					</rdf:Description>
+				</owl:unionOf>
+			</owl:Class>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">notifying party</rdfs:label>
+		<skos:definition xml:lang="en">party responsible for issuing one or more formal notices indicating that an event that is relevant to a given contract has taken place</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">The notifying party is the party that notifies the other party when a credit or other triggering event has occurred by means of a credit event notice. If more than one party is referenced as being the notifying party then either party may notify the other of such an occurrence.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;SettlementAuction">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fi-stl;SettlementEvent"/>
+		<rdfs:label xml:lang="en">settlement auction</rdfs:label>
+		<skos:definition xml:lang="en">independently administered synthetic auction process on a set of defined deliverable obligations that sets the reference final price that can be used to facilitate cash settlement of all covered transactions following a credit event</skos:definition>
+		<cmns-av:adaptedFrom>ISO 10962:2019, Securities and related financial instruments - Classification of financial instruments (CFI) code</cmns-av:adaptedFrom>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;SingleNameCreditDefaultSwap">
+		<rdfs:subClassOf rdf:resource="&fibo-der-cr-cds;CreditDefaultSwap"/>
+		<rdfs:label xml:lang="en">single name credit default swap</rdfs:label>
+		<skos:definition xml:lang="en">credit default swap whose underlying risk is a single reference obligation, or a single reference entity, such as a corporation or a sovereign borrower</skos:definition>
+		<cmns-av:adaptedFrom>Draft paper on Credit Default Swaps from the Federal Reserve Board, available at https://www.federalreserve.gov/econres/feds/files/2022023pap.pdf</cmns-av:adaptedFrom>
+		<cmns-av:adaptedFrom>ISO 10962:2019, Securities and related financial instruments - Classification of financial instruments (CFI) code</cmns-av:adaptedFrom>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-der-cr-cds;TriggeringEvent">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-oc;Occurrence"/>
+		<rdfs:label xml:lang="en">triggering event</rdfs:label>
+		<skos:definition xml:lang="en">event that relates to or triggers some aspect of a credit default swap</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">A triggering event is typically a credit event, but could be anything that happens in the marketplace. For example, a weather-specific contract could be triggered by a hurricane - which wouldn&apos;t be considered a credit event per se.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-der-cr-cds;allowsSubstitution">
+		<rdfs:label xml:lang="en">allows substitution</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-der-cr-cds;CreditProtectionTerms"/>
+		<rdfs:range rdf:resource="&xsd;boolean"/>
+		<skos:definition xml:lang="en">indicates whether it is possible to substitute other obligations in place of the specified deliverable obligation</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-der-cr-cds;hasContractPrice">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-acc-cur;hasPrice"/>
+		<rdfs:label xml:lang="en">has contract price</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fnd-acc-cur;MonetaryPrice"/>
+		<skos:definition xml:lang="en">specifies a predetermined price at which the buyer purchases the credit default swap contract</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-der-cr-cds;hasMinimumQuotationAmount">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-acc-cur;hasMonetaryAmount"/>
+		<rdfs:label xml:lang="en">has minimum quotation amount</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-fi-stl;CashSettlementTerms"/>
+		<rdfs:range rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+		<skos:definition xml:lang="en">indicates a minimum intended threshold amount of outstanding principal balance of the reference obligation for which the quote should be obtained</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-der-cr-cds;hasQuotationMethod">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fbc-fi-ip;hasPriceDeterminationMethod"/>
+		<rdfs:label xml:lang="en">has quotation method</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-fi-stl;CashSettlementTerms"/>
+		<rdfs:range rdf:resource="&fibo-der-cr-cds;CashSettlementMethod"/>
+		<skos:definition xml:lang="en">indicates the nature of the pricing quotations to be requested from banks and/or dealers when determining the market value of the reference obligation for purposes of cash settlement</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-der-cr-cds;hasScheduledTerminationDate">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-arr-doc;hasTerminationDate"/>
+		<rdfs:label xml:lang="en">has scheduled termination date</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-der-cr-cds;CreditProtectionTerms"/>
+		<rdfs:range rdf:resource="&cmns-dt;ExplicitDate"/>
+		<skos:definition xml:lang="en">date on which credit protection is due to expire as agreed by both parties</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;ObligationSpecificCreditEvent">
+		<rdfs:subClassOf rdf:resource="&fibo-der-cr-cds;TriggeringEvent"/>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-fi-stl;CashSettlementTerms">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-der-cr-cds;hasQuotationMethod"/>
+				<owl:onClass rdf:resource="&fibo-der-cr-cds;CashSettlementMethod"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+				<owl:onClass rdf:resource="&fibo-der-drc-bsc;ValuationTerms"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-der-cr-cds;hasMinimumQuotationAmount"/>
+				<owl:onClass rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-fi-ip;hasPricingSource"/>
+				<owl:someValuesFrom>
+					<owl:Class>
+						<owl:unionOf rdf:parseType="Collection">
+							<rdf:Description rdf:about="&fibo-be-fct-pub;Publisher">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-fbc-pas-fpas;FinancialServiceProvider">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-fbc-pas-fpas;Dealer">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-fbc-fi-ip;PricingModel">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-fbc-fct-mkt;Exchange">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-fbc-fi-ip;CompositeMarket">
+							</rdf:Description>
+						</owl:unionOf>
+					</owl:Class>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<cmns-av:explanatoryNote xml:lang="en">Note that the valuation determined via the appraisal of the underlying asset may include a quotation that is either an upper limit to the outstanding principal balance of the reference obligation for which the quote should be obtained, or a floating rate payer calculation amount.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-fi-stl;PhysicalSettlementTerms">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;specifies"/>
+				<owl:onClass rdf:resource="&fibo-der-cr-cds;EscrowAgent"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+
+</rdf:RDF>

@@ -1,0 +1,7 @@
+{
+  "case": "Accept_AdmissionTableMatches",
+  "kind": "acceptance",
+  "seed": 6200128628193125215,
+  "expected_behavior": "admission_table_verified",
+  "input": {"table_hash": "c0fdc5182038b711cd0149711ff70d9ee7201f57bc55abff0e3f769f6fa7ad7e", "entries": [{"pattern": "pattern-a", "admitted": true}, {"pattern": "pattern-b", "admitted": true}, {"pattern": "pattern-c", "admitted": false}]}
+}

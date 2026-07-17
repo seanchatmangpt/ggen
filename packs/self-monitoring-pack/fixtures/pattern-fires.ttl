@@ -1,0 +1,67 @@
+# fixtures/pattern-fires.ttl -- POSITIVE fixture: the hook MUST fire.
+#
+# Session shape: turn-1 (GroundingQuestion, topic "cng CLI publish
+# workflow") is immediately followed by turn-2 (SurveyResponse) -- a mere
+# survey, no run. An unrelated filler turn-3 intervenes. turn-4 repeats the
+# SAME grounding topic as a fresh GroundingQuestion. This is exactly the
+# pattern: grounding_question(Q=turn-4) ∧ same_system(turn-4, turn-1) ∧
+# prior_response_was_survey(turn-1) → derive(escalate_to_build).
+#
+# Every smon:turnKind/dcterms:subject/smon:immediatelyFollows value below is
+# HAND-ASSERTED input data (see ontology.ttl's CLASSIFICATION-IS-INPUT
+# FENCE) -- this fixture does not run any classifier; it stands in for what
+# an already-classified session log would contain.
+#
+# Expected result of `store.load_hook_pack(hook.ttl); store.load_triples(this);
+# store.materialize()`: exactly ONE smon:EscalationObligation node, with
+# smon:hasPriorGroundingQuestion -> <#turn-1> and
+# smon:hasGroundingQuestion -> <#turn-4>.
+
+@prefix smon:    <http://seanchatmangpt.github.io/packs/self-monitoring#> .
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@base <http://seanchatmangpt.github.io/packs/self-monitoring/fixtures/pattern-fires#> .
+
+<#operator>
+    a prov:Agent , prov:SoftwareAgent ;
+    dcterms:description "The Claude Code agent instance for this sample session." .
+
+<#session>
+    a                      dfl:Session ;
+    dcterms:identifier     "demo-pattern-fires-1" ;
+    prov:wasAssociatedWith <#operator> ;
+    dcterms:description    "Sample session demonstrating the repeat-grounding-question-after-survey-only-response pattern." .
+
+<#turn-1>
+    a                  smon:Turn ;
+    dcterms:isPartOf   <#session> ;
+    dcterms:subject    "cng CLI publish workflow" ;
+    smon:sequenceIndex 1 ;
+    smon:turnKind      smon:GroundingQuestion ;
+    dcterms:description "\"Does the cng CLI already support a dry-run publish path, or do I need to build one?\"" .
+
+<#turn-2>
+    a                       smon:Turn ;
+    dcterms:isPartOf        <#session> ;
+    dcterms:subject         "cng CLI publish workflow" ;
+    smon:sequenceIndex      2 ;
+    smon:turnKind           smon:SurveyResponse ;
+    smon:immediatelyFollows <#turn-1> ;
+    dcterms:description     "A survey-only reply: greps the CLI source, reports what exists, runs nothing new." .
+
+<#turn-3>
+    a                  smon:Turn ;
+    dcterms:isPartOf   <#session> ;
+    dcterms:subject    "unrelated topic: wasm4pm role inference" ;
+    smon:sequenceIndex 3 ;
+    smon:turnKind      smon:Other ;
+    dcterms:description "An intervening turn on a different topic; present to prove the pattern still isolates the correct pair." .
+
+<#turn-4>
+    a                  smon:Turn ;
+    dcterms:isPartOf   <#session> ;
+    dcterms:subject    "cng CLI publish workflow" ;
+    smon:sequenceIndex 4 ;
+    smon:turnKind      smon:GroundingQuestion ;
+    dcterms:description "\"So does cng dry-run publish exist yet, or should I build it?\" -- the SAME grounding_topic asked again." .

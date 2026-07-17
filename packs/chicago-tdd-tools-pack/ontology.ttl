@@ -1,0 +1,57 @@
+# chicago-tdd-tools pack ontology — CLI boundary proofs.
+#
+# Modeled on the CliProofTest shape: each individual describes one
+# Chicago-style test that spawns a real binary via
+# chicago_tdd_tools::cli_proof::CliHarness and asserts on observable
+# exit codes and output (no mocks, no behavior verification).
+
+@prefix ctt:  <http://seanchatmangpt.github.io/packs/chicago-tdd-tools#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Schema ──────────────────────────────────────────────────────────
+
+ctt:CliBoundaryTest
+  a rdfs:Class ;
+  rdfs:label "CLI Boundary Test" ;
+  rdfs:comment "A test that crosses a real CLI binary boundary via CliHarness and asserts on exit code / stdout / stderr." .
+
+ctt:testName      a rdfs:Property ; rdfs:label "test function name" ; rdfs:range xsd:string .
+ctt:binary        a rdfs:Property ; rdfs:label "cargo binary name"  ; rdfs:range xsd:string .
+ctt:args          a rdfs:Property ; rdfs:label "space-separated argv" ; rdfs:range xsd:string .
+ctt:expectExitCode a rdfs:Property ; rdfs:label "expected exit code" ; rdfs:range xsd:integer .
+ctt:stdoutNeedle  a rdfs:Property ; rdfs:label "required stdout substring" ; rdfs:range xsd:string .
+ctt:stderrNeedle  a rdfs:Property ; rdfs:label "required stderr substring" ; rdfs:range xsd:string .
+ctt:coversAxiom   a rdfs:Property ; rdfs:label "axiom this proof covers" ; rdfs:range xsd:string .
+
+# ── Individuals ─────────────────────────────────────────────────────
+
+ctt:receiptctl-help
+  a ctt:CliBoundaryTest ;
+  rdfs:label "receiptctl --help boundary proof" ;
+  ctt:testName "receiptctl_help_lists_verbs" ;
+  ctt:binary "receiptctl" ;
+  ctt:args "--help" ;
+  ctt:expectExitCode 0 ;
+  ctt:stdoutNeedle "Usage" ;
+  ctt:coversAxiom "receiptctl --help exits 0 with usage text" .
+
+ctt:receiptctl-version
+  a ctt:CliBoundaryTest ;
+  rdfs:label "receiptctl --version boundary proof" ;
+  ctt:testName "receiptctl_version_emits_name" ;
+  ctt:binary "receiptctl" ;
+  ctt:args "--version" ;
+  ctt:expectExitCode 0 ;
+  ctt:stdoutNeedle "receiptctl" ;
+  ctt:coversAxiom "receiptctl --version prints the binary name and a version" .
+
+ctt:receiptctl-unknown-verb
+  a ctt:CliBoundaryTest ;
+  rdfs:label "receiptctl unknown-verb boundary proof" ;
+  ctt:testName "receiptctl_unknown_verb_fails_closed" ;
+  ctt:binary "receiptctl" ;
+  ctt:args "frobnicate" ;
+  ctt:expectExitCode 2 ;
+  ctt:stderrNeedle "error" ;
+  ctt:coversAxiom "an unknown subcommand exits nonzero with a clap error on stderr" .

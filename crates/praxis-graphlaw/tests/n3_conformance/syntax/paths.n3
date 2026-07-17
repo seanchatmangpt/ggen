@@ -1,0 +1,20 @@
+@prefix : <http://example.org/> .
+
+# Forward path: "x!p" desugars to a fresh existential `_:v` plus the triple
+# `x p _:v`, and the path expression itself evaluates to `_:v` -- usable as
+# a term anywhere, including chaining further ("x!p!q" desugars through two
+# fresh existentials, one per segment).
+:alice!:knows :status :forwardPath .
+
+# Inverse path: "x^p" desugars to a fresh existential `_:v` plus the triple
+# `_:v p x`.
+:bob^:knows :status :inversePath .
+
+# Chained path mixing "!" and "^": "x!p^q" folds left-to-right -- the fresh
+# existential from the "!" segment becomes the base term for the "^"
+# segment.
+:carol!:knows^:trusts :status :chainedPath .
+
+{ :alice :knows ?v . ?v :status :forwardPath } => { :forwardCase :verified true }.
+{ ?v :knows :bob . ?v :status :inversePath } => { :inverseCase :verified true }.
+{ :carol :knows ?v1 . ?v2 :trusts ?v1 . ?v2 :status :chainedPath } => { :chainedCase :verified true }.

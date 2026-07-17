@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_N3UnavailableByProfile",
+  "kind": "falsification",
+  "seed": 13015373523816377526,
+  "mutation": "Route through the N3 dialect while the profile keeps defaultEnabled false.",
+  "expected_refusal": "N3UnavailableByProfile",
+  "input": {"profile_id": "profile-n3-unavailable", "requested_dialect": "n3", "admitted_dialects": ["triple8-pattern"]}
+}

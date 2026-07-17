@@ -1,0 +1,56 @@
+# fixtures/pattern-does-not-fire.ttl -- NEGATIVE fixture (case 1): the hook
+# must NOT fire. Isolates the "prior_response_was_survey(Q_prev)" conjunct:
+# the turn immediately following the first GroundingQuestion is a
+# RunResponse (an actual run happened), not a SurveyResponse, even though a
+# second GroundingQuestion on the SAME topic follows later.
+#
+# Session shape: turn-1 (GroundingQuestion, topic "cng CLI publish
+# workflow") is immediately followed by turn-2 (RunResponse -- something was
+# actually run/built). turn-3 repeats the same grounding topic. Because the
+# hook's WHERE clause only matches ?resp with turnKind EXACTLY
+# smon:SurveyResponse (a positive existence check, per hook.ttl's ENGINE
+# LIMITATION note on why this is positive-not-negated), turn-2 never
+# satisfies that triple pattern and no row is produced.
+#
+# Expected result: ZERO smon:EscalationObligation nodes after materialize().
+
+@prefix smon:    <http://seanchatmangpt.github.io/packs/self-monitoring#> .
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@base <http://seanchatmangpt.github.io/packs/self-monitoring/fixtures/pattern-does-not-fire#> .
+
+<#operator>
+    a prov:Agent , prov:SoftwareAgent ;
+    dcterms:description "The Claude Code agent instance for this sample session." .
+
+<#session>
+    a                      dfl:Session ;
+    dcterms:identifier     "demo-pattern-does-not-fire-1" ;
+    prov:wasAssociatedWith <#operator> ;
+    dcterms:description    "Sample session where the first GroundingQuestion's response was an actual RunResponse, not a survey -- must not escalate." .
+
+<#turn-1>
+    a                  smon:Turn ;
+    dcterms:isPartOf   <#session> ;
+    dcterms:subject    "cng CLI publish workflow" ;
+    smon:sequenceIndex 1 ;
+    smon:turnKind      smon:GroundingQuestion ;
+    dcterms:description "\"Does the cng CLI already support a dry-run publish path, or do I need to build one?\"" .
+
+<#turn-2>
+    a                       smon:Turn ;
+    dcterms:isPartOf        <#session> ;
+    dcterms:subject         "cng CLI publish workflow" ;
+    smon:sequenceIndex      2 ;
+    smon:turnKind           smon:RunResponse ;
+    smon:immediatelyFollows <#turn-1> ;
+    dcterms:description     "Actually ran `cng publish --dry-run` and reported the real output -- not a mere survey." .
+
+<#turn-3>
+    a                  smon:Turn ;
+    dcterms:isPartOf   <#session> ;
+    dcterms:subject    "cng CLI publish workflow" ;
+    smon:sequenceIndex 3 ;
+    smon:turnKind      smon:GroundingQuestion ;
+    dcterms:description "A later, unrelated follow-up grounding question on the same topic; must not retroactively trigger escalation since the FIRST response was already a real run." .

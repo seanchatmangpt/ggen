@@ -1,0 +1,33 @@
+---
+source: src/testing/snapshot.rs
+expression: value
+---
+ValidationFailed
+PlanInfeasible
+TraceUnlawful
+HookUnpermitted
+MissingReceipt
+SnapshotNotFound
+BoundaryRequestMissingReceipt
+Triple8UniverseOverflow
+TermNotInTriple8Universe
+ProfileSymbolTableMismatch
+ProjectionHashMismatch
+WarmPathRequired
+AdmissionTableMismatch
+HookPatternNotAdmitted
+OcelEventNotAdmitted
+LeastExpressiveRouteViolation
+UnsupportedDialect
+N3UnavailableByProfile
+N3ActuationRefused
+RouteDecisionMismatch
+GraphSnapshotMismatch
+ProfileHashMismatch
+AgentOverrideDenied
+WitnessNotAuthority
+BreedUnpermitted
+NondeterministicOperatorRequiresReceipt
+ProcessReceiptShadowType
+DuplicateCanonicalTapeType
+TripleTermInSnapshot

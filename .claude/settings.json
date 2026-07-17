@@ -7,7 +7,7 @@
   "permissions": {
     "mode": "acceptEdits"
   },
-  "model": "claude-sonnet-4-6",
+  "model": "claude-sonnet-5",
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
       "source": {

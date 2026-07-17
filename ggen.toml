@@ -9,6 +9,7 @@ repository = "https://github.com/seanchatmangpt/ggen"
 [ontology]
 source = ".specify/cli-commands.ttl"
 base_iri = "http://ggen.org/cli#"
+imports = [".specify/cli-proof-tests.ttl"]
 
 [ontology.prefixes]
 cli     = "http://ggen.org/cli#"
@@ -59,6 +60,14 @@ ORDER BY ?label
 template = { file = ".specify/templates/cli/commands-reference.rs.tera" }
 output_file = "crates/ggen-cli/src/generated_commands.rs"
 mode = "Overwrite"
+
+[[generation.rules]]
+name         = "cli-proof-tests"
+query        = { file = ".specify/queries/cli-proof-tests.rq" }
+template     = { file = ".specify/templates/cli/cli_proof_test.rs.tera" }
+output_file  = "crates/ggen-cli/tests/generated/cli_proof_tests.rs"
+skip_empty   = false
+mode         = "Overwrite"
 
 [sync]
 enabled = true

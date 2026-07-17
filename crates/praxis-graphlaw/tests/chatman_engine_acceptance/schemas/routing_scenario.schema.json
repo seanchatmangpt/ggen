@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://praxis.chatman.io/schemas/routing_scenario.schema.json",
+  "title": "Routing scenario",
+  "description": "Chatman engine acceptance/falsification scenario. The expected_refusal enum mirrors Refusal::name() in crates/praxis-graphlaw/src/chatman/abi.rs exactly; tests/chatman_static_gates.rs asserts set-equality.",
+  "type": "object",
+  "required": [
+    "case",
+    "kind",
+    "seed",
+    "input"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "case": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique scenario identifier (kebab-case)."
+    },
+    "kind": {
+      "enum": [
+        "acceptance",
+        "falsification"
+      ],
+      "description": "acceptance: input must be admitted; falsification: input must be refused with expected_refusal."
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Deterministic seed; same seed => same bytes."
+    },
+    "mutation": {
+      "type": "string",
+      "description": "Optional named mutation applied to the acceptance base case to produce this falsification case."
+    },
+    "expected_refusal": {
+      "enum": [
+        "ValidationFailed",
+        "PlanInfeasible",
+        "TraceUnlawful",
+        "HookUnpermitted",
+        "MissingReceipt",
+        "SnapshotNotFound",
+        "BoundaryRequestMissingReceipt",
+        "Triple8UniverseOverflow",
+        "TermNotInTriple8Universe",
+        "ProfileSymbolTableMismatch",
+        "ProjectionHashMismatch",
+        "WarmPathRequired",
+        "AdmissionTableMismatch",
+        "HookPatternNotAdmitted",
+        "OcelEventNotAdmitted",
+        "LeastExpressiveRouteViolation",
+        "UnsupportedDialect",
+        "N3UnavailableByProfile",
+        "N3ActuationRefused",
+        "N3CostBoundExceeded",
+        "N3BuiltinRefused",
+        "N3DirectActuationRefused",
+        "RouteDecisionMismatch",
+        "GraphSnapshotMismatch",
+        "ProfileHashMismatch",
+        "AgentOverrideDenied",
+        "WitnessNotAuthority",
+        "BreedUnpermitted",
+        "NondeterministicOperatorRequiresReceipt",
+        "ProcessReceiptShadowType",
+        "DuplicateCanonicalTapeType",
+        "TripleTermInSnapshot",
+        "StageSealMismatch",
+        "UnlawfulActuation",
+        "PowlRegionNotAdmitted",
+        "ExternalCutUndeclared",
+        "ExternalCutTypeMismatch",
+        "ExternalCutAuthorityMismatch",
+        "ClosureLawNoChildren",
+        "ClosureLawQuorumOutOfRange",
+        "ClosureLawUnknownChild",
+        "ClosureLawOrderedSubsetInvalid",
+        "ClosureLawPolicyNotDeclared",
+        "ChildConformanceRefused",
+        "ChildCompletionUnadmitted",
+        "ParentClosureUnsatisfied"
+      ],
+      "description": "Required for kind=falsification: the Refusal::name() value the engine must return."
+    },
+    "expected_behavior": {
+      "type": "string",
+      "description": "Human-readable statement of the admitted behavior (kind=acceptance)."
+    },
+    "input": {
+      "description": "Least-expressive dialect routing input.",
+      "type": "object",
+      "required": [
+        "profile_id",
+        "requested_dialect",
+        "admitted_dialects"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "profile_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requested_dialect": {
+          "type": "string",
+          "minLength": 1
+        },
+        "admitted_dialects": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Dialects the profile admits, ordered least-expressive first; the router must choose the least expressive sufficient dialect."
+        },
+        "recorded_route": {
+          "type": "string",
+          "description": "Optional previously recorded route decision for replay comparison."
+        },
+        "wants_actuation": {
+          "type": "boolean",
+          "description": "Optional; whether the requested query intends to drive actuation (side effects). Defaults to false."
+        },
+        "constraint_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "description": "Optional; number of triple constraints in the requested query, compared against the profile's hot-path max_hot_constraints. Defaults to 1."
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "falsification"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "expected_refusal"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "acceptance"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "expected_behavior"
+        ]
+      }
+    }
+  ]
+}

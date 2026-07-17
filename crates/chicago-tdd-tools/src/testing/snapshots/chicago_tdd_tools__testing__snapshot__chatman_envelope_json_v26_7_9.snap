@@ -1,0 +1,22 @@
+---
+source: src/testing/snapshot.rs
+expression: "serde_json::to_string_pretty(value).unwrap_or_else(|_|\n\"invalid json\".to_string())"
+---
+{
+  "invocation_id": "inv:snapshot",
+  "snapshot_id": "snap:snapshot",
+  "profile_id": "profile:snapshot",
+  "operator_id": "op:snapshot",
+  "input_handles": {
+    "nodes": [
+      "<urn:snapshot:n1>",
+      "<urn:snapshot:n2>"
+    ],
+    "events": [
+      "ocel:snapshot:e1"
+    ],
+    "plan_steps": [
+      "plan:snapshot:s1"
+    ]
+  }
+}

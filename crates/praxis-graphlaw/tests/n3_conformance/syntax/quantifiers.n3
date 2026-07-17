@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+
+@forAll ?x, ?y .
+
+:alice :knows :bob .
+
+{ ?x :knows ?y } => { ?x :hasConnection ?y }.

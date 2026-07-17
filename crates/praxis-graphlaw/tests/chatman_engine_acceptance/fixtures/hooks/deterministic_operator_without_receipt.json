@@ -1,0 +1,7 @@
+{
+  "case": "Accept_DeterministicOperatorWithoutReceipt",
+  "kind": "acceptance",
+  "seed": 13811488017154217999,
+  "expected_behavior": "deterministic_operator_admitted",
+  "input": {"hook_iri": "urn:chatman:hook:2", "pattern": "pattern-c", "admitted_patterns": ["pattern-c"]}
+}

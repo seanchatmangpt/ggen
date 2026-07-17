@@ -1,0 +1,9 @@
+PREFIX ex: <http://example.org/>
+SELECT ?s ?name WHERE {
+  ?s ex:name ?name .
+  {
+    SELECT ?s WHERE {
+      ?s ex:age 30 .
+    }
+  }
+}

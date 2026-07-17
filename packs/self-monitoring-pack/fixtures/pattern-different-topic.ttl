@@ -1,0 +1,53 @@
+# fixtures/pattern-different-topic.ttl -- NEGATIVE fixture (case 2):
+# isolates the "same_system(Q, Q_prev)" conjunct. turn-1 (GroundingQuestion,
+# topic "cng CLI publish workflow") is immediately followed by turn-2
+# (SurveyResponse) -- so far identical to fixtures/pattern-fires.ttl. But
+# turn-3, the SECOND GroundingQuestion, is tagged a DIFFERENT
+# dcterms:subject ("wasm4pm role inference"). Because hook.ttl's WHERE
+# clause binds BOTH GroundingQuestion turns to the SAME ?topic variable
+# (that shared-variable join IS same_system(Q, Q_prev)), turn-1 and turn-3
+# never unify and no row is produced -- proving grounding_topic equality is
+# a genuine, load-bearing join condition, not decorative.
+#
+# Expected result: ZERO smon:EscalationObligation nodes after materialize().
+
+@prefix smon:    <http://seanchatmangpt.github.io/packs/self-monitoring#> .
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@base <http://seanchatmangpt.github.io/packs/self-monitoring/fixtures/pattern-different-topic#> .
+
+<#operator>
+    a prov:Agent , prov:SoftwareAgent ;
+    dcterms:description "The Claude Code agent instance for this sample session." .
+
+<#session>
+    a                      dfl:Session ;
+    dcterms:identifier     "demo-pattern-different-topic-1" ;
+    prov:wasAssociatedWith <#operator> ;
+    dcterms:description    "Sample session where a second GroundingQuestion exists but on a DIFFERENT grounding_topic -- must not escalate." .
+
+<#turn-1>
+    a                  smon:Turn ;
+    dcterms:isPartOf   <#session> ;
+    dcterms:subject    "cng CLI publish workflow" ;
+    smon:sequenceIndex 1 ;
+    smon:turnKind      smon:GroundingQuestion ;
+    dcterms:description "\"Does the cng CLI already support a dry-run publish path, or do I need to build one?\"" .
+
+<#turn-2>
+    a                       smon:Turn ;
+    dcterms:isPartOf        <#session> ;
+    dcterms:subject         "cng CLI publish workflow" ;
+    smon:sequenceIndex      2 ;
+    smon:turnKind           smon:SurveyResponse ;
+    smon:immediatelyFollows <#turn-1> ;
+    dcterms:description     "A survey-only reply: greps the CLI source, reports what exists, runs nothing new." .
+
+<#turn-3>
+    a                  smon:Turn ;
+    dcterms:isPartOf   <#session> ;
+    dcterms:subject    "wasm4pm role inference" ;
+    smon:sequenceIndex 3 ;
+    smon:turnKind      smon:GroundingQuestion ;
+    dcterms:description "A second GroundingQuestion, but about an UNRELATED system -- same_system(turn-3, turn-1) is false." .

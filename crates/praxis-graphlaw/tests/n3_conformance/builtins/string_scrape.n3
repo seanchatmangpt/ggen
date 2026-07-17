@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+@prefix string: <http://www.w3.org/2000/10/swap/string#> .
+
+:doc :text "order #12345 shipped" .
+
+{ ?d :text ?t . ( ?t "#([0-9]+)" ) string:scrape ?num } => { ?d :orderNumber ?num }.

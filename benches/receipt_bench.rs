@@ -1,7 +1,13 @@
 #![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_core::receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
+// Re-pointed from `ggen_core::receipt::{...}` to `ggen_config::{...}` (T052,
+// specs/014-ggen-core-replacement): ggen-core's own `receipt` module is
+// itself just `pub use ggen_config::*` (crates/ggen-core/src/lib.rs) plus a
+// `provenance_envelope`/`chain_linking` extension this file never used, so
+// this is a direct, verified-identical-API move, not a guess -- confirmed via
+// `cargo bench --bench receipt_bench` after the change (see tasks.md).
+use ggen_config::{generate_keypair, hash_data, Receipt, ReceiptChain};
 
 fn bench_keypair_generation(c: &mut Criterion) {
     c.bench_function("keypair_generation", |b| {

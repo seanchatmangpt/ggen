@@ -1,0 +1,4 @@
+[pack]
+name = "wasm4pm-algorithms-pack"
+version = "0.1.0"
+description = "Typed Rust catalog + reference doc for the wasm4pm process-intelligence ALGORITHM surface (catalog/caller surface only; all analysis stays in wasm4pm)"

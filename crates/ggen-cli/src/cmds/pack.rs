@@ -8,9 +8,9 @@ use clap_noun_verb_macros::verb;
 use serde::Serialize;
 use std::path::PathBuf;
 
-use ggen_core::domain::packs::install::{install_pack, InstallInput};
-use ggen_core::domain::packs::metadata::{list_packs, load_pack_metadata, show_pack};
-use ggen_core::packs::lockfile::PackLockfile;
+use ggen_marketplace::marketplace::install::{install_pack_by_id, InstallByIdInput};
+use ggen_marketplace::packs::lockfile::PackLockfile;
+use ggen_marketplace::packs_registry::metadata::{list_packs, load_pack_metadata, show_pack};
 
 // ============================================================================
 // Output Types
@@ -18,6 +18,7 @@ use ggen_core::packs::lockfile::PackLockfile;
 
 #[derive(Serialize)]
 pub struct AddOutput {
+    pub pack_id: String,
     pub pack_name: String,
     pub status: String,
     pub message: String,
@@ -97,6 +98,7 @@ pub fn add(#[arg(index = 1)] pack_name: String, force: Option<bool>) -> Result<A
     // Verify the pack exists before attempting installation
     if let Err(e) = load_pack_metadata(&pack_name) {
         return Ok(AddOutput {
+            pack_id: pack_name.clone(),
             pack_name: pack_name.clone(),
             status: "not_found".to_string(),
             message: format!(
@@ -107,15 +109,15 @@ pub fn add(#[arg(index = 1)] pack_name: String, force: Option<bool>) -> Result<A
         });
     }
 
-    // Run the real installation via the domain layer
-    let input = InstallInput {
+    // Run the real installation via the marketplace layer
+    let input = InstallByIdInput {
         pack_id: pack_name.clone(),
         target_dir: None,
         force: force.unwrap_or(false),
         dry_run: false,
     };
 
-    let install_result = crate::runtime::block_on(install_pack(&input)).map_err(|e| {
+    let install_result = crate::runtime::block_on(install_pack_by_id(&input)).map_err(|e| {
         NounVerbError::execution_error(format!("Failed to install pack '{}': {}", pack_name, e))
     })?;
     let output = install_result.map_err(|e| {
@@ -148,7 +150,8 @@ pub fn add(#[arg(index = 1)] pack_name: String, force: Option<bool>) -> Result<A
         })?;
 
     Ok(AddOutput {
-        pack_name: output.pack_id.clone(),
+        pack_id: output.pack_id.clone(),
+        pack_name: output.pack_name.clone(),
         status: "installed".to_string(),
         message: format!(
             "Pack '{}' ({}) installed successfully. {} package(s) recorded, {} template(s) available. Lockfile: .ggen/packs.lock. Receipt: {}",
@@ -256,8 +259,8 @@ pub fn list(verbose: Option<bool>, category: Option<String>) -> Result<ListOutpu
                 description: pkg.description,
                 version: pkg.version,
                 category: default_category.clone(),
-                package_count: 0,
-                template_count: 0,
+                package_count: pkg.packages.len(),
+                template_count: pkg.templates.len(),
                 production_ready: pkg.production_ready,
                 registry_type: pkg.registry_type.unwrap_or_else(|| "local".to_string()),
             }
@@ -311,20 +314,155 @@ pub fn search(#[arg(index = 1)] query: String, limit: Option<usize>) -> Result<S
 }
 
 /// Run health check on installed packs and lockfile
+//
+// Rewritten (Phase 3 "non-colliding noun re-points" of the ggen-core retirement migration,
+// `specs/014-ggen-core-replacement`) as an inline, marketplace-native cache + lockfile health
+// check. The former body called `ggen_core::domain::utils::execute_doctor(DoctorInput {
+// check: Some("cache"), env: false, all: false, .. })`, which — per prior investigation of
+// `ggen-core/src/domain/utils/doctor.rs` — only ever reaches `execute_doctor`'s
+// `check_cache()` branch for this exact call site (every other check is gated on `check`
+// matching a different name, and `all`/`env` are both `false`); `check_cache()` itself was a
+// ~20-line function using only `dirs::home_dir()` + `std::fs::read_dir` on `~/.ggen/packs`.
+// There is no other ggen-core call site or shared logic in that reachable slice worth
+// preserving a dependency on ggen-core for.
+//
+// This rewrite checks the same cache directory (via `resolve_cache_dir()`, the convention
+// already used by `pack add`/`pack remove` in this file and by
+// `ggen_marketplace::marketplace::install::install_pack_by_id`'s default install path — both
+// resolve to `$GGEN_PACK_CACHE_DIR` or `~/.ggen/packs`, confirmed via grep, matching
+// ggen-core's own `check_cache()` convention) and additionally parses+validates
+// `.ggen/packs.lock` via `ggen_marketplace::packs::lockfile::PackLockfile` (already a
+// dependency of this file, used by `pack remove`) — a strictly stronger check than the
+// ggen-core original, which only looked at the cache directory and never touched the
+// lockfile.
+//
+// NOTE: kept as a plain `//` comment (not `///`) intentionally — the clap-noun-verb macro
+// derives this verb's `--help` text from its doc comment, and earlier drafts with a long `///`
+// block leaked this whole rationale into `ggen pack --help`'s subcommand listing, out of step
+// with sibling verbs' one-line summaries.
 #[verb]
 pub fn doctor() -> Result<serde_json::Value> {
-    use ggen_core::domain::utils::{execute_doctor, DoctorInput};
+    let cache_dir = resolve_cache_dir()?;
+    let lock_path = resolve_lockfile_path()?;
+    Ok(pack_doctor_report(&cache_dir, &lock_path))
+}
 
-    let result = crate::runtime::block_on(execute_doctor(DoctorInput {
-        verbose: true,
-        check: Some("cache".to_string()),
-        env: false,
-        all: false,
-    }))
-    .map_err(|e| NounVerbError::execution_error(format!("Runtime error: {}", e)))?
-    .map_err(|e| NounVerbError::execution_error(format!("Doctor execution failed: {}", e)))?;
+/// Domain logic for `pack doctor`: checks cache-directory health and lockfile validity.
+/// Split out of the `#[verb] doctor()` function to satisfy the CLI layer's Poka-Yoke verb
+/// complexity guard (FM-1.1, max complexity 5) — the verb function itself stays a thin
+/// resolve-args + delegate + return shell.
+fn pack_doctor_report(
+    cache_dir: &std::path::Path, lock_path: &std::path::Path,
+) -> serde_json::Value {
+    let mut checks: Vec<String> = Vec::new();
+    let mut healthy = true;
 
-    Ok(serde_json::to_value(result).unwrap_or(serde_json::Value::Null))
+    // Check 1: cache directory exists and is readable.
+    match cache_dir_check(cache_dir) {
+        Ok(msg) => checks.push(msg),
+        Err(msg) => {
+            healthy = false;
+            checks.push(msg);
+        }
+    }
+
+    // Check 2: .ggen/packs.lock parses and its declared invariants hold (dependency closure,
+    // no circular deps — see `PackLockfile::validate`).
+    let pack_count = match lockfile_check(lock_path) {
+        Ok((msg, count)) => {
+            checks.push(msg);
+            count
+        }
+        Err(msg) => {
+            healthy = false;
+            checks.push(msg);
+            0
+        }
+    };
+
+    let message = if healthy {
+        format!("OK: {} packs cached, lockfile valid", pack_count)
+    } else {
+        format!("FAIL: {}", checks.join("; "))
+    };
+
+    serde_json::json!({
+        "healthy": healthy,
+        "cache_dir": cache_dir.display().to_string(),
+        "lockfile_path": lock_path.display().to_string(),
+        "pack_count": pack_count,
+        "checks": checks,
+        "message": message,
+    })
+}
+
+/// Check 1 of `pack doctor`: does the pack cache directory exist and is it readable?
+/// Returns `Ok(summary)` on success, `Err(summary)` on failure — both are human-readable and
+/// pushed straight into the doctor report's `checks` list.
+fn cache_dir_check(cache_dir: &std::path::Path) -> std::result::Result<String, String> {
+    if !cache_dir.exists() {
+        return Err(format!("cache dir missing at {}", cache_dir.display()));
+    }
+
+    match std::fs::read_dir(cache_dir) {
+        Ok(entries) => {
+            let pack_dirs = entries
+                .filter_map(std::result::Result::ok)
+                .filter(|e| e.path().is_dir())
+                .count();
+            Ok(format!(
+                "cache dir OK at {} ({} pack dir(s))",
+                cache_dir.display(),
+                pack_dirs
+            ))
+        }
+        Err(e) => Err(format!(
+            "cache dir unreadable at {}: {}",
+            cache_dir.display(),
+            e
+        )),
+    }
+}
+
+/// Check 2 of `pack doctor`: does `.ggen/packs.lock` parse and validate? Returns
+/// `Ok((summary, pack_count))` on success (including the "not found yet" case, which is not a
+/// failure — a fresh project has no packs installed), `Err(summary)` on a real problem
+/// (unreadable file or a failed `PackLockfile::validate`).
+fn lockfile_check(lock_path: &std::path::Path) -> std::result::Result<(String, usize), String> {
+    if !lock_path.exists() {
+        return Ok((
+            format!(
+                "packs.lock not found at {} (no packs installed yet)",
+                lock_path.display()
+            ),
+            0,
+        ));
+    }
+
+    let lockfile =
+        PackLockfile::from_file(lock_path).map_err(|e| format!("packs.lock unreadable: {}", e))?;
+    let pack_count = lockfile.packs.len();
+    lockfile
+        .validate()
+        .map_err(|e| format!("packs.lock invalid: {}", e))?;
+
+    Ok((
+        format!(
+            "packs.lock valid: {} pack(s), no dependency violations",
+            pack_count
+        ),
+        pack_count,
+    ))
+}
+
+/// Resolve `<cwd>/.ggen/packs.lock` — the same path `pack remove` reads/writes.
+fn resolve_lockfile_path() -> Result<PathBuf> {
+    Ok(std::env::current_dir()
+        .map_err(|e| {
+            NounVerbError::execution_error(format!("Cannot resolve project directory: {}", e))
+        })?
+        .join(".ggen")
+        .join("packs.lock"))
 }
 
 // ============================================================================

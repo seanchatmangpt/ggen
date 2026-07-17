@@ -1,0 +1,9 @@
+{
+  "shape": "http://a.example/S1",
+  "focus": "http://a.example/s1",
+  "expected": "nonconformant",
+  "source_schema": "schemas/1dot.shex",
+  "source_shexc": "<http://a.example/S1> { <http://a.example/p1> . }",
+  "source_data": "validation/empty.ttl",
+  "comment": "<S1> { <p1> . } on {  }"
+}

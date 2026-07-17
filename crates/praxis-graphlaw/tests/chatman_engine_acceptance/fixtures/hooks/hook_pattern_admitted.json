@@ -1,0 +1,7 @@
+{
+  "case": "Accept_HookPatternAdmitted",
+  "kind": "acceptance",
+  "seed": 6179056753144547430,
+  "expected_behavior": "hook_pattern_admitted",
+  "input": {"hook_iri": "urn:chatman:hook:1", "pattern": "pattern-a", "admitted_patterns": ["pattern-a", "pattern-b"]}
+}

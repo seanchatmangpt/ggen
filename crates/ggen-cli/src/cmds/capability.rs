@@ -13,10 +13,10 @@ use clap_noun_verb_macros::verb;
 use serde_json::{json, Value};
 use std::path::PathBuf;
 
-use ggen_core::domain::packs::capability_registry::{
+use ggen_marketplace::packs::lockfile::{LockedPack, PackLockfile, PackSource};
+use ggen_marketplace::packs_registry::capability_registry::{
     list_capabilities, resolve_capability_to_packs,
 };
-use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
@@ -68,7 +68,7 @@ pub fn enable(
         PackLockfile::new(env!("CARGO_PKG_VERSION"))
     };
     for pid in &packs {
-        let digest = ggen_core::calculate_sha256(format!("{}@0.0.0", pid).as_bytes());
+        let digest = crate::utils::sha256_hex(format!("{}@0.0.0", pid).as_bytes());
         lockfile.add_pack(
             pid,
             LockedPack {

@@ -1,0 +1,3 @@
+@prefix ex: <http://example.org/> .
+ex:a ex:price 10 .
+ex:b ex:price 20 .

@@ -1,0 +1,9 @@
+{
+  "shape": "http://a.example/S1",
+  "focus": "http://a.example/n1",
+  "expected": "conformant",
+  "source_schema": "schemas/NOT1dotOR2dot.shex",
+  "source_shexc": "<http://a.example/S1> NOT {\n   <http://a.example/p1> .\n} OR {\n   <http://a.example/p1> .;\n   <http://a.example/p2> .\n}",
+  "source_data": "validation/empty.ttl",
+  "comment": "<S1> NOT { <p1> . } OR { <p1> .; <p2> . } on {  }"
+}

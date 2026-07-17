@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-doc "https://www.omg.org/spec/Commons/Documents/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-fct-pub "https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/Publishers/">
+	<!ENTITY fibo-der-drc-bsc "https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/DerivativesBasics/">
+	<!ENTITY fibo-der-drc-opt "https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/Options/">
+	<!ENTITY fibo-fbc-fct-mkt "https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/Markets/">
+	<!ENTITY fibo-fbc-fi-ip "https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/InstrumentPricing/">
+	<!ENTITY fibo-fnd-acc-cur "https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY fibo-ind-ind-ind "https://spec.edmcouncil.org/fibo/ontology/IND/Indicators/Indicators/">
+	<!ENTITY fibo-md-derx-eto "https://spec.edmcouncil.org/fibo/ontology/MD/DerivativesTemporal/ETOptionsTemporal/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/MD/DerivativesTemporal/ETOptionsTemporal/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-doc="https://www.omg.org/spec/Commons/Documents/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-fct-pub="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/Publishers/"
+	xmlns:fibo-der-drc-bsc="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/DerivativesBasics/"
+	xmlns:fibo-der-drc-opt="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/Options/"
+	xmlns:fibo-fbc-fct-mkt="https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/Markets/"
+	xmlns:fibo-fbc-fi-ip="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/InstrumentPricing/"
+	xmlns:fibo-fnd-acc-cur="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:fibo-ind-ind-ind="https://spec.edmcouncil.org/fibo/ontology/IND/Indicators/Indicators/"
+	xmlns:fibo-md-derx-eto="https://spec.edmcouncil.org/fibo/ontology/MD/DerivativesTemporal/ETOptionsTemporal/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/MD/DerivativesTemporal/ETOptionsTemporal/">
+		<rdfs:label xml:lang="en">Exchange-Traded Options Temporal</rdfs:label>
+		<dct:abstract>Exchange traded options date and time dependent terms such as pricing and other analytics, including greeks (deltas, thetas etc.)</dct:abstract>
+		<dct:license>Copyright (c) 2015-2025 EDM Council, Inc.
+Copyright (c) 2015-2025 Object Management Group, Inc.
+		
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/Publishers/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/DerivativesBasics/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/Options/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/InstrumentPricing/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/Markets/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/Indicators/Indicators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Documents/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/MD/DerivativesTemporal/ETOptionsTemporal/"/>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Provisional"/>
+		<cmns-av:copyright>Copyright (c) 2015-2025 EDM Council, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-md-derx-eto;Delta">
+		<rdfs:subClassOf rdf:resource="&fibo-md-derx-eto;OptionsGreek"/>
+		<rdfs:label xml:lang="en">delta</rdfs:label>
+		<skos:definition xml:lang="en">First derivative of option value with respect to theoretical price is a delta (or on a position). Theoretical price</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">Delta tells you what options to buy to get the equivalent price sensitivity to the underlying. How many at that price to get that hedge. So for example an at the money option has a delta of 50. Units</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-derx-eto;OptionDailySettlementPrice">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fi-ip;ClosingPrice"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fi-ip;SecurityPrice"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-fct-pub;hasPublisher"/>
+				<owl:someValuesFrom>
+					<owl:Class>
+						<owl:unionOf rdf:parseType="Collection">
+							<rdf:Description rdf:about="&fibo-fbc-fct-mkt;DesignatedContractMarket">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-der-drc-bsc;DerivativesClearingOrganization">
+							</rdf:Description>
+						</owl:unionOf>
+					</owl:Class>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">option daily settlement price</rdfs:label>
+		<skos:definition xml:lang="en">The official price at the end of a trading session. This price is established by The Options Clearing Corporation and is used to determine changes in account equity, margin requirements, and for other purposes.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-derx-eto;OptionTheoreticalValue">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;refersTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-fi-ip;PricingModel"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">option theoretical value</rdfs:label>
+		<skos:definition xml:lang="en">fair value of the option as determined by an option pricing model</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">The pricing model (such as the Black-Scholes model) takes into account current values such as implied volatility, the price of the underlying, the strike price, and time to expiration to determine what an option should be worth. Each of the input values fluctuate, which means theoretical price will also be a fluctuating value.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-derx-eto;OptionsGreek">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fi-ip;PriceAnalytic"/>
+		<rdfs:label xml:lang="en">options greek</rdfs:label>
+		<skos:definition xml:lang="en">quantity representing the sensitivity of the price of an option or options to a change in underlying parameters on which the value depends</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-derx-eto;OptionsTheta">
+		<rdfs:subClassOf rdf:resource="&fibo-md-derx-eto;OptionsGreek"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;refersTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-derx-eto;OptionTheoreticalValue"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">options theta</rdfs:label>
+		<skos:definition xml:lang="en">A measure of the rate of change in an option&apos;s theoretical value for a one-unit change in time to the option&apos;s expiration date. Action: add terms that define or influence this.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-derx-eto;OptionsVega">
+		<rdfs:subClassOf rdf:resource="&fibo-md-derx-eto;OptionsGreek"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;refersTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-derx-eto;OptionTheoreticalValue"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">options vega</rdfs:label>
+		<skos:definition xml:lang="en">A measure of the rate of change in an option&apos;s theoretical value for a one-unit change in the volatility assumption. Action: add terms that define or influence this.</skos:definition>
+	</owl:Class>
+
+</rdf:RDF>

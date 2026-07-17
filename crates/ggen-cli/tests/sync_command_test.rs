@@ -1,3 +1,12 @@
+// ARCHIVED (ggen-core disconnect, 2026-07-16): drives
+// `ggen_core::codegen::{BehaviorFlags, ModeFlags, OutputFormat, SyncExecutor,
+// SyncFlags, SyncOptions, SyncResult, SyncedFileInfo, ValidationCheck}`
+// directly. `ggen-engine/src/sync.rs` has its own `SyncOptions`, but a
+// different shape (no `BehaviorFlags`/`ModeFlags`/`SyncFlags` fields this
+// test asserts on) -- not a drop-in port (verified via workspace-wide
+// search, 2026-07-16 investigation). Gated as a whole file rather than
+// deleted, per this project's fix-forward doctrine.
+#![cfg(feature = "ggen-core-retired")]
 #![allow(
     dead_code,
     unused_imports,

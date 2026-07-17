@@ -1,0 +1,4 @@
+[pack]
+name = "praxis-core-pack"
+version = "0.1.0"
+description = "praxis-core pack: generates the refusal-taxonomy reference table (Rust const table + markdown doc) from RefusalScenario individuals mirroring praxis_core::refusal."

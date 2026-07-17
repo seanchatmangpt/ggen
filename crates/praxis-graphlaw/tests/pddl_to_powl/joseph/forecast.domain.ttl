@@ -1,0 +1,28 @@
+# Joseph as chief administrator of Egypt — national famine-management plan.
+# Phase artifact: forecast (domain fragment). Pharaoh's dreams are received and interpreted as a fourteen-year forecast.
+# One admitted PDDL Turtle planning artifact; fragments across all phase
+# artifacts merge structurally into ONE combined plan (domain name
+# 'joseph-famine' shared by every fragment). Formal planning-to-workflow
+# demonstration domain; argues no doctrine, claims no historicity.
+@prefix ex: <http://example.org/joseph#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:pharaoh ex:reports ex:dreams .
+ex:joseph ex:interprets ex:forecast .
+
+ex:forecast ceng:pddlDomain """
+(define (domain joseph-famine)
+  (:requirements :strips)
+  (:predicates
+    (dreams-received ?x)
+    (forecast-received ?x)
+    (forecast-interpreted ?x))
+  (:action receive-forecast
+    :parameters (?x)
+    :precondition (and (dreams-received ?x))
+    :effect (and (forecast-received ?x)))
+  (:action interpret-forecast
+    :parameters (?x)
+    :precondition (and (forecast-received ?x))
+    :effect (and (forecast-interpreted ?x))))
+""" .

@@ -5,9 +5,11 @@
 //! - Pack metadata loading and validation
 //! - Type conversions and serialization
 
-use ggen_core::domain::packs::{
-    list_packs, load_pack_metadata, show_pack, Pack, PackDependency, PackTemplate,
-};
+// Re-pointed to ggen_marketplace::packs_registry (T053; see
+// tests/integration/packs/user_workflow_multi_pack_test.rs's comment for the
+// full rationale -- same orphaned-file, submodule-qualified-path situation).
+use ggen_marketplace::packs_registry::metadata::{list_packs, load_pack_metadata, show_pack};
+use ggen_marketplace::packs_registry::types::{Pack, PackDependency, PackTemplate};
 use std::collections::HashMap;
 
 #[test]
@@ -105,6 +107,10 @@ fn test_pack_type_serialization() {
         author: Some("test-author".to_string()),
         repository: Some("https://github.com/test/test".to_string()),
         license: Some("MIT".to_string()),
+        // `registry_type` added to `Pack` after this test was written
+        // (pre-existing drift, fixed opportunistically -- see the other
+        // `Pack` literal in this file for the fuller note).
+        registry_type: None,
         packages: vec!["package1".to_string(), "package2".to_string()],
         templates: vec![PackTemplate {
             name: "test-template".to_string(),
@@ -152,6 +158,11 @@ fn test_pack_with_optional_fields() {
         author: None,
         repository: None,
         license: None,
+        // `registry_type` added to `Pack` after this test was written
+        // (pre-existing drift, same class as the `False`/`false` typo in
+        // pack_generator_test.rs/pack_validator_test.rs -- fixed opportunistically
+        // while compile-verifying the T053 re-point, not a migration regression).
+        registry_type: None,
         packages: vec![],
         templates: vec![],
         sparql_queries: HashMap::new(),
@@ -227,7 +238,7 @@ fn test_list_packs_empty_category() {
 
 #[test]
 fn test_pack_metadata_defaults() {
-    use ggen_core::domain::packs::types::PackMetadata;
+    use ggen_marketplace::packs_registry::types::PackMetadata;
 
     // Arrange
     let metadata = PackMetadata::default();

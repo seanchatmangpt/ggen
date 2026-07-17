@@ -21,12 +21,29 @@ required-features = [ "integration",]
 name = "packs"
 path = "tests/packs/mod.rs"
 
+[[test]]
+name = "cli_proof_tests"
+path = "tests/generated/cli_proof_tests.rs"
 
 [package]
 name = "ggen-cli-lib"
 description = "CLI interface for ggen"
 keywords = [ "cli", "code-generation", "rdf", "templates",]
 categories = [ "development-tools", "command-line-utilities",]
+# publish = false (2026-07-16, v26.7.16 CLI-routing flip): this crate's sync/graph/receipt/
+# doctor/law commands now dispatch through ggen-engine (see src/lib.rs's `use ggen_engine as
+# _;` and the removed cmds/{sync,doctor,graph,receipt}.rs mod decls), which is itself
+# `publish = false` -- praxis-core/praxis-graphlaw carry hard absolute-path deps on sibling
+# repos (/Users/sac/bcinr/crates/*, /Users/sac/wasm4pm-compat) that only exist on this
+# machine, so it can never resolve on crates.io. That dependency is real and functional now
+# (not a leaf/unused re-export like root's formerly-was), so `cargo publish --dry-run -p
+# ggen-cli-lib` can never pass while it exists, confirmed via `cargo publish --dry-run`.
+# `ggen` (the root library crate, `cargo add ggen`) stays independently publishable -- its own
+# now-dead ggen-engine re-export was already removed. Only this crate's CLI binary is affected:
+# the full "ggen" CLI remains available by building from the git repo, just not via
+# `cargo install ggen-cli-lib` from crates.io going forward. See task #35 in the migration
+# session tracker and docs/jira/v26.7.16/ tickets 01/02 for the full reasoning.
+publish = false
 
 [lib]
 name = "ggen_cli_lib"
@@ -58,6 +75,12 @@ md5 = "0.8"
 # crate-consolidation pass — see CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md.
 ggen-lsp = { version = "26.7.2", path = "../ggen-lsp", optional = true }
 blake3.workspace = true
+# Used by scaffolding::transaction::FileTransaction (ported from ggen-core/src/codegen/
+# transaction.rs, Phase 3 non-colliding noun re-points). Was previously only a dev-dependency
+# (see [dev-dependencies] below) — FileTransaction is production code, not test-only, so it
+# needs to be a regular dependency now.
+parking_lot = { workspace = true }
+tempfile = "3.23"
 
 [features]
 autonomic = []
@@ -73,6 +96,23 @@ lsp = ["dep:ggen-lsp", "ggen-lsp/mcp"]
 # fossil evidence (non-deletion doctrine). See docs/reference/release/v26-5-28-boundary.md.
 # Pulls in ggen-lsp's `a2a` feature (which implies `mcp`) for cmds/a2a.rs and cmds/mcp.rs.
 experimental = ["dep:ggen-lsp", "ggen-lsp/a2a"]
+# Gate for test files exercising CLI surfaces retired by the v26.7.16 sync/
+# doctor/graph/receipt routing flip to ggen-engine (see cmds/mod.rs), plus
+# (2026-07-16, ggen-core disconnect) `inverse_sync`, `mcp_command_test`,
+# `coherence_gate_test`, `sync_command_test`, `ontology_command_test`,
+# `utils_command_test`, `graph_command_test`, and (2026-07-17) `pack_cache_test`
+# -- the remaining real ggen-core consumers. Most have no ggen-engine/
+# ggen-graph port destination (verified via workspace-wide search);
+# `pack_cache_test` is the one exception -- ggen_marketplace::marketplace::
+# {cache,models} already exposes a structurally-matching API and is a live
+# dependency of this crate, but porting it has not been done (see that
+# file's own header). Empty by design --
+# enabling it does not restore the old behavior. ggen-core is no longer a
+# dependency of this crate (see [dependencies] above), so enabling this
+# feature now produces a broken build; it exists only so the
+# `#![cfg(...)]` gates on the archived files compile cleanly with the
+# feature off.
+ggen-core-retired = []
 default = []
 
 [dev-dependencies]
@@ -160,12 +200,19 @@ workspace = true
 [dependencies.async-trait]
 workspace = true
 
-[dependencies.ggen-core]
-workspace = true
-features = ["otel"]
-
 [dependencies.ggen-graph]
 workspace = true
+
+[dependencies.ggen-engine]
+workspace = true
+
+[dependencies.ggen-config]
+path = "../ggen-config"
+version = "26.7.4"
+
+[dependencies.ggen-marketplace]
+path = "../ggen-marketplace"
+version = "26.7.4"
 
 [dependencies.clap-noun-verb-macros]
 workspace = true
@@ -174,6 +221,27 @@ workspace = true
 workspace = true
 
 [dependencies.base64]
+workspace = true
+
+# OTLP telemetry (ported from ggen-core/src/telemetry.rs, T034). Unconditional:
+# ggen-cli's now-removed [dependencies.ggen-core] (2026-07-16, ggen-core
+# disconnect, T054-T058) had always hardcoded features = ["otel"], so every
+# ggen-cli build had always compiled OTEL in regardless of ggen-cli's own
+# feature selection — this port keeps that same always-on behavior directly
+# rather than fabricating a new toggle.
+[dependencies.opentelemetry]
+workspace = true
+
+[dependencies.opentelemetry-otlp]
+workspace = true
+
+[dependencies.opentelemetry_sdk]
+workspace = true
+
+[dependencies.tracing-opentelemetry]
+workspace = true
+
+[dependencies.tracing-subscriber]
 workspace = true
 
 [dependencies.reqwest]
@@ -196,7 +264,29 @@ version = "0.5"
 features = [ "async_tokio", "html_reports",]
 
 [dev-dependencies.chicago-tdd-tools]
+# `features = ["cli-proof"]` added on top of the workspace-inherited base spec (2026-07-16,
+# fixes a real self-inflicted regression from commit 3862fe000): that commit both added
+# tests/generated/cli_proof_tests.rs's [[test]] registration (needs chicago_tdd_tools::
+# cli_proof) AND removed `cli-proof` from the SHARED workspace.dependencies chicago-tdd-tools
+# entry (correctly -- root doesn't need it and it was blocking `cargo publish --dry-run -p
+# ggen`), breaking this crate's own test compile in the same commit. Safe to add back here
+# specifically: ggen-cli-lib is `publish = false` (see [package] above), so it no longer has
+# any publish-dry-run exposure to worry about -- `cargo publish --dry-run -p ggen-cli-lib`
+# reports "cannot be published" before ever resolving dev-dependencies.
+#
+# Correction (2026-07-17, PR #255): the `[patch.crates-io]` override this comment used to cite
+# is gone. `chicago-tdd-tools` is now a vendored workspace member (crates/chicago-tdd-tools,
+# publish = false) and this `workspace = true` entry resolves straight to it via a plain path
+# dependency -- no patch indirection needed anymore.
+#
+# Separate, still-open gap (not caused by the above): `tests/generated/cli_proof_tests.rs`
+# (line 26's [[test]] entry) is gitignored (.gitignore:157) and not tracked in git -- nothing
+# in this repo currently generates it, so a fresh checkout's `cargo fmt --check`/`cargo test`
+# fails with "file ... does not exist" unless it happens to already exist locally. Predates
+# this PR (comment above cites its origin as commit 3862fe000); confirmed via this branch's
+# first-ever CI run. Not fixed here -- tracked in tasks.md.
 workspace = true
+features = ["cli-proof"]
 
 [dev-dependencies.oxigraph]
 version = "0.5.6"
@@ -212,3 +302,14 @@ workspace = true
 
 [lints]
 workspace = true
+
+# Used by scaffolding::preflight::PreFlightValidator's get_available_disk_space (ported from
+# ggen-core/src/validation/preflight.rs, Phase 3 non-colliding noun re-points) — same platform
+# split as the ggen-core original.
+[target."cfg(unix)".dependencies.nix]
+version = "0.29"
+features = [ "fs"]
+
+[target."cfg(windows)".dependencies.windows]
+version = "0.58"
+features = [ "Win32_Storage_FileSystem"]

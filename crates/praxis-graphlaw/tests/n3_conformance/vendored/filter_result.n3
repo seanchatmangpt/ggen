@@ -1,0 +1,4 @@
+@prefix : <http://example.org/#>.
+
+:Let :hasFilteredParam "Andy".
+:Let :hasFilteredParam "Bobby".

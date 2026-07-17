@@ -3,7 +3,7 @@
 //! This module provides utilities for executing async code in sync contexts,
 //! particularly for CLI commands that need to call async domain functions.
 
-use ggen_core::utils::error::Result;
+use crate::utils::error::Result;
 use std::future::Future;
 
 /// Execute an async function in a sync context
@@ -14,7 +14,7 @@ use std::future::Future;
 /// # Examples
 ///
 /// ```ignore
-/// use ggen_core::utils::error::Result;
+/// use ggen_cli_lib::utils::error::Result;
 ///
 /// fn sync_command() -> Result<()> {
 ///     crate::runtime::execute(async {
@@ -32,7 +32,7 @@ where
         Err(e) => {
             let msg = format!("Failed to create Tokio runtime: {}", e);
             log::error!("{}", msg);
-            return Err(ggen_core::utils::error::Error::new(&msg));
+            return Err(crate::utils::error::Error::new(&msg));
         }
     };
 
@@ -47,7 +47,7 @@ where
 /// # Examples
 ///
 /// ```ignore
-/// use ggen_core::utils::error::Result;
+/// use ggen_cli_lib::utils::error::Result;
 ///
 /// fn get_data() -> Result<String> {
 ///     crate::runtime::block_on(async {
@@ -71,13 +71,13 @@ where
                         Err(e) => {
                             let msg = format!("Failed to create Tokio runtime: {}", e);
                             log::error!("{}", msg);
-                            return Err(ggen_core::utils::error::Error::new(&msg));
+                            return Err(crate::utils::error::Error::new(&msg));
                         }
                     };
                     Ok(rt.block_on(async_op))
                 })
                 .join()
-                .map_err(|_| ggen_core::utils::error::Error::new("Runtime thread panicked"))?
+                .map_err(|_| crate::utils::error::Error::new("Runtime thread panicked"))?
             })
         }
         Err(_) => {
@@ -87,7 +87,7 @@ where
                 Err(e) => {
                     let msg = format!("Failed to create Tokio runtime: {}", e);
                     log::error!("{}", msg);
-                    Err(ggen_core::utils::error::Error::new(&msg))
+                    Err(crate::utils::error::Error::new(&msg))
                 }
             }
         }

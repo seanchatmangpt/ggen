@@ -1,0 +1,6 @@
+---
+source: src/testing/snapshot.rs
+assertion_line: 53
+expression: value
+---
+Hello 世界 🌍

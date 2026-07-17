@@ -1,0 +1,157 @@
+// ============================================================================
+// ShExC (ShEx Compact syntax) grammar -- an 80/20 subset targeting exactly
+// the ShExJ AST already defined in `shex_native.rs` (Schema/ShapeDecl/
+// ShapeExprOrRef/ShapeExpr/TripleExpr/ValueSetValue). Not a full RFC3987 IRI
+// grammar or a full ShExC grammar (no semantic actions, imports, triple-
+// expression labels `$label`/inclusion `&label`, shape maps, stem
+// exclusions, or annotations -- see shexc_parser.rs's module doc for the
+// full, honest scope-limit list). IRIs are parsed permissively (anything
+// but `>`/whitespace inside `<...>`) since the resulting AST only ever
+// stores them as plain strings -- full RFC3987 validation is not needed for
+// this parser's job of building the same structs the JSON path already
+// builds.
+// ============================================================================
+
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+COMMENT    = _{ "#" ~ (!"\n" ~ ANY)* }
+
+// ----------------------------------------------------------------------------
+// IRIs and prefixed names
+// ----------------------------------------------------------------------------
+
+IriRef = @{ "<" ~ (!(">" | " " | "\t" | "\r" | "\n") ~ ANY)* ~ ">" }
+
+PnPrefix = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "-" | "_" | ".")* }
+PnLocal  = @{ (ASCII_ALPHANUMERIC | "_" | "-" | ".")+ }
+PrefixedName = @{ PnPrefix? ~ ":" ~ PnLocal? }
+
+Iri = { IriRef | PrefixedName }
+
+// ----------------------------------------------------------------------------
+// Strings, numbers, language tags
+// ----------------------------------------------------------------------------
+
+StringEscape = @{ "\\" ~ ANY }
+StringDouble = @{ "\"" ~ (StringEscape | (!"\"" ~ !"\n" ~ ANY))* ~ "\"" }
+StringSingle = @{ "'" ~ (StringEscape | (!"'" ~ !"\n" ~ ANY))* ~ "'" }
+StringLiteral = @{ StringDouble | StringSingle }
+
+LangTag = @{ "@" ~ ASCII_ALPHA+ ~ ("-" ~ (ASCII_ALPHA | ASCII_DIGIT)+)* }
+
+NumericLiteral = @{ ("+" | "-")? ~ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
+Integer = @{ ("+" | "-")? ~ ASCII_DIGIT+ }
+
+// Regex pattern facet: /pattern/flags -- `\/` is an escaped literal slash
+// inside the pattern, not a terminator.
+RegexChar    = @{ "\\/" | (!"/" ~ ANY) }
+RegexFlags   = @{ ASCII_ALPHA* }
+RegexLiteral = @{ "/" ~ RegexChar* ~ "/" ~ RegexFlags }
+
+// ----------------------------------------------------------------------------
+// Prefix / base declarations
+// ----------------------------------------------------------------------------
+
+PrefixDecl = { ^"PREFIX" ~ PnPrefix? ~ ":" ~ IriRef }
+BaseDecl   = { ^"BASE" ~ IriRef }
+Directive  = { PrefixDecl | BaseDecl }
+
+// ----------------------------------------------------------------------------
+// Value sets
+// ----------------------------------------------------------------------------
+
+LanguageValue = { ^"LANGUAGE" ~ StringLiteral }
+IriStemValue  = { Iri ~ "~" }
+IriValue      = { Iri }
+LiteralValue  = { StringLiteral ~ LangTag? }
+ValueSetValue = { LanguageValue | IriStemValue | IriValue | LiteralValue }
+ValueSet      = { "[" ~ ValueSetValue* ~ "]" }
+
+// ----------------------------------------------------------------------------
+// Node constraints (nodeKind + datatype/valueSet + facets, ANDable via the
+// outer ShapeAnd grammar -- each `AND` operand is its own NodeConstraint, no
+// merging needed since `ShapeExpr::ShapeAnd` already validates each
+// sub-expression independently).
+// ----------------------------------------------------------------------------
+
+NodeKindWord = @{ ^"NONLITERAL" | ^"LITERAL" | ^"BNODE" | ^"IRI" }
+
+LengthFacet        = { ^"LENGTH" ~ Integer }
+MinLengthFacet      = { ^"MINLENGTH" ~ Integer }
+MaxLengthFacet      = { ^"MAXLENGTH" ~ Integer }
+MinInclusiveFacet   = { ^"MININCLUSIVE" ~ NumericLiteral }
+MaxInclusiveFacet   = { ^"MAXINCLUSIVE" ~ NumericLiteral }
+MinExclusiveFacet   = { ^"MINEXCLUSIVE" ~ NumericLiteral }
+MaxExclusiveFacet   = { ^"MAXEXCLUSIVE" ~ NumericLiteral }
+PatternFacet        = { RegexLiteral }
+
+Facet = {
+    LengthFacet | MinLengthFacet | MaxLengthFacet
+  | MinInclusiveFacet | MaxInclusiveFacet | MinExclusiveFacet | MaxExclusiveFacet
+  | PatternFacet
+}
+
+// A datatype spec is a bare `Iri` not followed by `~` (which would make it
+// an IriStemValue inside a ValueSet instead); disambiguated structurally
+// since DatatypeSpec only appears directly inside NodeConstraint, never
+// inside a ValueSet.
+DatatypeSpec = { Iri }
+
+NodeConstraint = {
+    NodeKindWord ~ Facet*
+  | DatatypeSpec ~ Facet*
+  | ValueSet ~ Facet*
+  | Facet+
+}
+
+// ----------------------------------------------------------------------------
+// Shape expressions (OR binds loosest, then AND, then NOT, then atoms)
+// ----------------------------------------------------------------------------
+
+ShapeRef = { "@" ~ Iri }
+AnyNode  = { "." }
+
+Closed = { ^"CLOSED" }
+Extra  = { ^"EXTRA" ~ Iri+ }
+Qualifier = { Closed | Extra }
+
+ShapeDefinition = { Qualifier* ~ "{" ~ TripleExpr? ~ "}" }
+
+ShapeAtom = {
+    AnyNode
+  | ShapeRef
+  | NodeConstraint
+  | ShapeDefinition
+  | ("(" ~ ShapeOr ~ ")")
+}
+
+NotKeyword = { ^"NOT" }
+ShapeNot = { (NotKeyword ~ ShapeAtom) | ShapeAtom }
+ShapeAnd = { ShapeNot ~ (^"AND" ~ ShapeNot)* }
+ShapeOr  = { ShapeAnd ~ (^"OR" ~ ShapeAnd)* }
+
+// ----------------------------------------------------------------------------
+// Triple expressions
+// ----------------------------------------------------------------------------
+
+Star = { "*" }
+Plus = { "+" }
+Question = { "?" }
+Cardinality = { Star | Plus | Question | RepeatRange }
+RepeatRange = { "{" ~ Integer ~ ("," ~ Integer?)? ~ "}" }
+
+Predicate = { Iri | "a" }
+TripleConstraint = { Predicate ~ ShapeOr ~ Cardinality? }
+
+UnaryTripleExpr = { TripleConstraint | ("(" ~ OneOfTripleExpr ~ ")") }
+EachOfTripleExpr = { UnaryTripleExpr ~ (";" ~ UnaryTripleExpr)* }
+OneOfTripleExpr  = { EachOfTripleExpr ~ ("|" ~ EachOfTripleExpr)* }
+TripleExpr = { OneOfTripleExpr }
+
+// ----------------------------------------------------------------------------
+// Schema
+// ----------------------------------------------------------------------------
+
+StartDecl = { ^"start" ~ "=" ~ ShapeOr }
+ShapeExprDecl = { Iri ~ ShapeOr }
+
+Schema = { SOI ~ Directive* ~ (StartDecl | ShapeExprDecl)* ~ EOI }

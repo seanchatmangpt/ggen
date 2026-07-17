@@ -3,9 +3,9 @@
 //! This module provides utilities for generating cryptographic receipts
 //! after CLI operations like pack installation.
 
+use crate::utils::error::Result;
 use ed25519_dalek::{SigningKey, VerifyingKey};
-use ggen_core::receipt::{hash_data, Receipt};
-use ggen_core::utils::Result;
+use ggen_config::receipt::{hash_data, Receipt};
 use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
@@ -48,11 +48,11 @@ impl ReceiptManager {
 
         // Create directories if they don't exist
         fs::create_dir_all(&receipts_dir).map_err(|e| {
-            ggen_core::utils::Error::new(&format!("Failed to create receipts directory: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to create receipts directory: {}", e))
         })?;
 
         fs::create_dir_all(&keys_dir).map_err(|e| {
-            ggen_core::utils::Error::new(&format!("Failed to create keys directory: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to create keys directory: {}", e))
         })?;
 
         Ok(Self {
@@ -77,33 +77,33 @@ impl ReceiptManager {
             info!("Loading existing keys from {:?}", self.keys_dir);
 
             let private_key_hex = fs::read_to_string(&private_key_path).map_err(|e| {
-                ggen_core::utils::Error::new(&format!("Failed to read private key: {}", e))
+                crate::utils::error::Error::new(&format!("Failed to read private key: {}", e))
             })?;
 
             let public_key_hex = fs::read_to_string(&public_key_path).map_err(|e| {
-                ggen_core::utils::Error::new(&format!("Failed to read public key: {}", e))
+                crate::utils::error::Error::new(&format!("Failed to read public key: {}", e))
             })?;
 
             // Decode hex keys
             let signing_key_bytes = hex::decode(private_key_hex.trim()).map_err(|e| {
-                ggen_core::utils::Error::new(&format!("Failed to decode private key: {}", e))
+                crate::utils::error::Error::new(&format!("Failed to decode private key: {}", e))
             })?;
 
             let verifying_key_bytes = hex::decode(public_key_hex.trim()).map_err(|e| {
-                ggen_core::utils::Error::new(&format!("Failed to decode public key: {}", e))
+                crate::utils::error::Error::new(&format!("Failed to decode public key: {}", e))
             })?;
 
             // Parse keys - convert slices to fixed arrays for ed25519-dalek 2.x
             let signing_key_array: [u8; 32] = signing_key_bytes[..32]
                 .try_into()
-                .map_err(|_| ggen_core::utils::Error::new("Invalid signing key length"))?;
+                .map_err(|_| crate::utils::error::Error::new("Invalid signing key length"))?;
             let verifying_key_array: [u8; 32] = verifying_key_bytes[..32]
                 .try_into()
-                .map_err(|_| ggen_core::utils::Error::new("Invalid verifying key length"))?;
+                .map_err(|_| crate::utils::error::Error::new("Invalid verifying key length"))?;
 
             let signing_key = SigningKey::from_bytes(&signing_key_array);
             let verifying_key = VerifyingKey::from_bytes(&verifying_key_array).map_err(|e| {
-                ggen_core::utils::Error::new(&format!("Invalid verifying key: {}", e))
+                crate::utils::error::Error::new(&format!("Invalid verifying key: {}", e))
             })?;
 
             self.signing_key = Some(signing_key);
@@ -114,18 +114,18 @@ impl ReceiptManager {
 
         // Generate new keys
         info!("Generating new Ed25519 keypair");
-        let (signing_key, verifying_key) = ggen_core::receipt::generate_keypair();
+        let (signing_key, verifying_key) = ggen_config::receipt::generate_keypair();
 
         // Store keys
         let private_key_hex = hex::encode(signing_key.to_bytes());
         let public_key_hex = hex::encode(verifying_key.to_bytes());
 
         fs::write(&private_key_path, private_key_hex).map_err(|e| {
-            ggen_core::utils::Error::new(&format!("Failed to write private key: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to write private key: {}", e))
         })?;
 
         fs::write(&public_key_path, public_key_hex).map_err(|e| {
-            ggen_core::utils::Error::new(&format!("Failed to write public key: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to write public key: {}", e))
         })?;
 
         info!(
@@ -184,18 +184,18 @@ impl ReceiptManager {
                 .as_ref()
                 .expect("signing_key must be initialized before generating receipt"),
         )
-        .map_err(|e| ggen_core::utils::Error::new(&format!("Failed to sign receipt: {}", e)))?;
+        .map_err(|e| crate::utils::error::Error::new(&format!("Failed to sign receipt: {}", e)))?;
 
         // Write receipt to file
         let receipt_filename = format!("{}.json", operation_id);
         let receipt_path = self.receipts_dir.join(receipt_filename);
 
         let receipt_json = serde_json::to_string_pretty(&receipt).map_err(|e| {
-            ggen_core::utils::Error::new(&format!("Failed to serialize receipt: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to serialize receipt: {}", e))
         })?;
 
         fs::write(&receipt_path, receipt_json).map_err(|e| {
-            ggen_core::utils::Error::new(&format!("Failed to write receipt: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to write receipt: {}", e))
         })?;
 
         info!(
@@ -222,12 +222,13 @@ impl ReceiptManager {
         let verifying_key = self.read_verifying_key(&public_key_path)?;
 
         // Read receipt file
-        let receipt_content = fs::read_to_string(receipt_path)
-            .map_err(|e| ggen_core::utils::Error::new(&format!("Failed to read receipt: {}", e)))?;
+        let receipt_content = fs::read_to_string(receipt_path).map_err(|e| {
+            crate::utils::error::Error::new(&format!("Failed to read receipt: {}", e))
+        })?;
 
         // Parse receipt
         let receipt: Receipt = serde_json::from_str(&receipt_content).map_err(|e| {
-            ggen_core::utils::Error::new(&format!("Failed to parse receipt: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to parse receipt: {}", e))
         })?;
 
         // Verify signature
@@ -260,18 +261,18 @@ impl ReceiptManager {
     /// Read verifying key from file
     fn read_verifying_key(&self, key_path: &PathBuf) -> Result<VerifyingKey> {
         let content = fs::read_to_string(key_path).map_err(|e| {
-            ggen_core::utils::Error::new(&format!("Failed to read public key: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to read public key: {}", e))
         })?;
 
         let key_bytes = hex::decode(content.trim()).map_err(|e| {
-            ggen_core::utils::Error::new(&format!("Failed to decode public key: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to decode public key: {}", e))
         })?;
 
         let key_array: [u8; 32] = key_bytes[..32]
             .try_into()
-            .map_err(|_| ggen_core::utils::Error::new("Invalid key length"))?;
+            .map_err(|_| crate::utils::error::Error::new("Invalid key length"))?;
         VerifyingKey::from_bytes(&key_array)
-            .map_err(|e| ggen_core::utils::Error::new(&format!("Invalid verifying key: {}", e)))
+            .map_err(|e| crate::utils::error::Error::new(&format!("Invalid verifying key: {}", e)))
     }
 
     /// Get path to receipts directory
@@ -327,18 +328,18 @@ impl ReceiptManager {
                 .as_ref()
                 .expect("signing_key must be initialized before generating receipt"),
         )
-        .map_err(|e| ggen_core::utils::Error::new(&format!("Failed to sign receipt: {}", e)))?;
+        .map_err(|e| crate::utils::error::Error::new(&format!("Failed to sign receipt: {}", e)))?;
 
         // Write receipt to file
         let receipt_filename = format!("{}.json", operation_id);
         let receipt_path = self.receipts_dir.join(receipt_filename);
 
         let receipt_json = serde_json::to_string_pretty(&receipt).map_err(|e| {
-            ggen_core::utils::Error::new(&format!("Failed to serialize receipt: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to serialize receipt: {}", e))
         })?;
 
         fs::write(&receipt_path, receipt_json).map_err(|e| {
-            ggen_core::utils::Error::new(&format!("Failed to write receipt: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to write receipt: {}", e))
         })?;
 
         info!(

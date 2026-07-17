@@ -1,0 +1,113 @@
+[package]
+name = "praxis-graphlaw"
+version = "26.7.9"
+edition = "2021"
+description = "Praxis GraphLaw law-state engine: native N3, Datalog, SPARQL 1.1, SHACL, ShEx (fork of pbonte/roxi)"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies]
+deepmesa-collections = "0.14.0"
+bencher = "0.1.5"
+log = { version = "0.4"}
+env_logger = "0.11.11"
+spargebra = "=0.4.6"
+sparesults = "=0.3.3"
+
+
+rio_api = "0.8.6"
+rio_turtle = "0.8.6"
+rio_xml = "0.8.6"
+pest = "2.8.7"
+pest_derive = "2.8.7"
+either = "1.16.0"
+once_cell = "1.21.4"
+oxrdf = { version = "=0.3.3", features = ["rdfc-10"] }
+regex = "1.10"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha1 = "0.11.0"
+sha2 = "0.11.0"
+blake3 = "1"
+md5 = "0.8.0"
+rustc-hash = "2"
+smallvec = { version = "1", features = ["serde"] }
+fixedbitset = "0.5"
+oxigraph = { version = "0.5.9", features = ["rdf-12"] }
+powl2-decompose = { path = "../powl2-decompose" }
+bcinr-pddl = { path = "../bcinr-pddl", version = "26.6.26" }
+bcinr-powl = "26.6.25"
+bcinr-powl-receipt = "26.6.24"
+thiserror = "2"
+# compat owns receipt identity; all chatman hashing routes through wasm4pm_compat::hash.
+wasm4pm-compat = "26.6.29"
+# LICENSE WARNING (2026-07-17, PR #255 license audit): the published 26.7.1
+# is BUSL-1.1 (Business Source License), not MIT/Apache -- non-OSI,
+# source-available with a use restriction until its Change Date (converts to
+# AGPL-3.0-only), no Additional Use Grant. Incompatible with this workspace's
+# MIT license if ever bundled into a distributed build. Mitigated today only
+# because `cognition` is optional and not in any default feature set -- grep
+# confirms nothing in this workspace enables it. Do NOT add `cognition` to
+# any default feature list without re-clearing this license first. Not yet
+# recorded in docs/jira/v26.7.16/02-CROSS-REPO-DEPENDENCY-RISKS.md item 4
+# (that item covers MIT/Apache-2.0 mismatches only) -- flagged as a doc gap.
+wasm4pm-cognition = { version = "26.7.1", optional = true }
+
+[features]
+cognition = ["dep:wasm4pm-cognition"]
+
+[lib]
+name = "praxis_graphlaw"
+
+[[bench]]
+name = "bench"
+harness = false
+
+[[bench]]
+name = "hierarchies"
+harness = false
+
+[[bench]]
+name = "dialects"
+harness = false
+
+[[bench]]
+name = "blue_river_dam"
+harness = false
+
+[[bench]]
+name = "owlrl"
+harness = false
+
+[[bench]]
+name = "daily_standing"
+harness = false
+
+[[bench]]
+name = "business_logic_replacement"
+harness = false
+
+[dev-dependencies]
+divan = "0.1"
+# Seeded fake-data generation for test fixtures only (anti-hardcoding proof in
+# chatman_pddl_to_powl_projection); never a production dependency.
+fake = "4"
+rand = "0.9"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+proptest = "1.5"
+# Required for chicago_tdd_tools::async_test! (expands to #[tokio::test]).
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+# otel/weaver features left OFF: they drag network deps into the required build.
+chicago-tdd-tools = { path = "../chicago-tdd-tools", features = [
+    "property-testing",
+    "snapshot-testing",
+    "parameterized-testing",
+    "mutation-testing",
+    "concurrency-testing",
+    "cli-proof",
+    "receipt-validation",
+    "ocel-generation",
+] }

@@ -1,0 +1,6 @@
+---
+source: src/testing/snapshot.rs
+assertion_line: 55
+expression: value
+---
+ci_profile_test

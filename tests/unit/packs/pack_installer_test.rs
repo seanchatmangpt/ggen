@@ -6,13 +6,32 @@
 //! - Dry run mode
 //! - Force reinstall
 
-use ggen_core::domain::packs::{install_pack, InstallInput};
+// Re-pointed from `ggen_core::domain::packs::{install_pack, InstallInput}`
+// (T053, specs/014-ggen-core-replacement). T024 deliberately renamed these
+// during the marketplace merge (`ggen-core`'s free-function install path vs.
+// `ggen-marketplace`'s own signed-registry `Installer::install_pack` method
+// are genuinely different install paths, not unifiable without redesign --
+// see T024's tasks.md notes): `install_pack` -> `install_pack_by_id`,
+// `InstallInput` -> `InstallByIdInput`. `InstallByIdOutput`'s field set is a
+// superset of what this test needs (pack_id, packages_installed,
+// total_packages, install_path, templates_available, sparql_queries all
+// present, confirmed via crates/ggen-marketplace/src/marketplace/install.rs).
+//
+// KNOWN GAP (pre-existing, not a migration regression): `InstallByIdInput`
+// has no `#[derive(Serialize, Deserialize)]` -- confirmed neither did the
+// original `ggen_core::domain::packs::install::InstallInput`
+// (crates/ggen-core/src/domain/packs/install.rs:13, no derive at all) -- so
+// `test_install_input_serialization`/`test_install_input_defaults` below
+// were already broken pre-migration (this file was orphaned, never
+// compiled). Adding the derive is a one-line ggen-marketplace source change,
+// out of this task's file scope (root package only).
+use ggen_marketplace::marketplace::install::{install_pack_by_id, InstallByIdInput};
 use std::path::PathBuf;
 
 #[tokio::test]
 async fn test_install_pack_dry_run_mode() {
     // Arrange
-    let input = InstallInput {
+    let input = InstallByIdInput {
         pack_id: "startup-essentials".to_string(),
         target_dir: Some(PathBuf::from("/tmp/test-install-dry")),
         force: false,
@@ -20,7 +39,7 @@ async fn test_install_pack_dry_run_mode() {
     };
 
     // Act
-    let result = install_pack(&input).await;
+    let result = install_pack_by_id(&input).await;
 
     // Assert
     match result {
@@ -42,7 +61,7 @@ async fn test_install_pack_dry_run_mode() {
 async fn test_install_pack_with_target_dir() {
     // Arrange
     let test_dir = PathBuf::from("/tmp/test-install-target");
-    let input = InstallInput {
+    let input = InstallByIdInput {
         pack_id: "startup-essentials".to_string(),
         target_dir: Some(test_dir.clone()),
         force: false,
@@ -50,7 +69,7 @@ async fn test_install_pack_with_target_dir() {
     };
 
     // Act
-    let result = install_pack(&input).await;
+    let result = install_pack_by_id(&input).await;
 
     // Assert
     if let Ok(output) = result {
@@ -61,7 +80,7 @@ async fn test_install_pack_with_target_dir() {
 #[tokio::test]
 async fn test_install_pack_default_location() {
     // Arrange
-    let input = InstallInput {
+    let input = InstallByIdInput {
         pack_id: "startup-essentials".to_string(),
         target_dir: None,
         force: false,
@@ -69,7 +88,7 @@ async fn test_install_pack_default_location() {
     };
 
     // Act
-    let result = install_pack(&input).await;
+    let result = install_pack_by_id(&input).await;
 
     // Assert
     if let Ok(output) = result {
@@ -81,7 +100,7 @@ async fn test_install_pack_default_location() {
 #[tokio::test]
 async fn test_install_nonexistent_pack_fails() {
     // Arrange
-    let input = InstallInput {
+    let input = InstallByIdInput {
         pack_id: "nonexistent-pack-xyz-123".to_string(),
         target_dir: None,
         force: false,
@@ -89,7 +108,7 @@ async fn test_install_nonexistent_pack_fails() {
     };
 
     // Act
-    let result = install_pack(&input).await;
+    let result = install_pack_by_id(&input).await;
 
     // Assert - Should fail
     assert!(result.is_err(), "Should fail for nonexistent pack");
@@ -103,7 +122,7 @@ async fn test_install_nonexistent_pack_fails() {
 #[tokio::test]
 async fn test_install_pack_force_flag() {
     // Arrange
-    let input = InstallInput {
+    let input = InstallByIdInput {
         pack_id: "startup-essentials".to_string(),
         target_dir: None,
         force: true,
@@ -111,7 +130,7 @@ async fn test_install_pack_force_flag() {
     };
 
     // Act
-    let result = install_pack(&input).await;
+    let result = install_pack_by_id(&input).await;
 
     // Assert - Force flag should be accepted
     match result {
@@ -128,7 +147,7 @@ async fn test_install_pack_force_flag() {
 #[tokio::test]
 async fn test_install_pack_returns_template_info() {
     // Arrange
-    let input = InstallInput {
+    let input = InstallByIdInput {
         pack_id: "startup-essentials".to_string(),
         target_dir: None,
         force: false,
@@ -136,7 +155,7 @@ async fn test_install_pack_returns_template_info() {
     };
 
     // Act
-    let result = install_pack(&input).await;
+    let result = install_pack_by_id(&input).await;
 
     // Assert
     if let Ok(output) = result {
@@ -148,7 +167,7 @@ async fn test_install_pack_returns_template_info() {
 #[tokio::test]
 async fn test_install_pack_with_packages() {
     // Arrange - Use data-science pack which has multiple packages
-    let input = InstallInput {
+    let input = InstallByIdInput {
         pack_id: "data-science-toolkit".to_string(),
         target_dir: None,
         force: false,
@@ -156,7 +175,7 @@ async fn test_install_pack_with_packages() {
     };
 
     // Act
-    let result = install_pack(&input).await;
+    let result = install_pack_by_id(&input).await;
 
     // Assert
     if let Ok(output) = result {
@@ -165,7 +184,7 @@ async fn test_install_pack_with_packages() {
             "Data science toolkit should have packages"
         );
         assert!(
-            output.templates_available.is_empty() == False,
+            output.templates_available.is_empty() == false,
             "Data science toolkit should have templates"
         );
     }
@@ -174,7 +193,7 @@ async fn test_install_pack_with_packages() {
 #[test]
 fn test_install_input_serialization() {
     // Arrange
-    let input = InstallInput {
+    let input = InstallByIdInput {
         pack_id: "test-pack".to_string(),
         target_dir: Some(PathBuf::from("/test/path")),
         force: true,
@@ -183,7 +202,7 @@ fn test_install_input_serialization() {
 
     // Act
     let json = serde_json::to_string(&input).expect("Should serialize");
-    let deserialized: InstallInput = serde_json::from_str(&json).expect("Should deserialize");
+    let deserialized: InstallByIdInput = serde_json::from_str(&json).expect("Should deserialize");
 
     // Assert
     assert_eq!(deserialized.pack_id, "test-pack");
@@ -198,7 +217,7 @@ fn test_install_input_defaults() {
     let json = r#"{"pack_id": "test-pack"}"#;
 
     // Act
-    let input: InstallInput = serde_json::from_str(json).expect("Should deserialize");
+    let input: InstallByIdInput = serde_json::from_str(json).expect("Should deserialize");
 
     // Assert - force and dry_run should default to false
     assert_eq!(input.pack_id, "test-pack");
@@ -213,14 +232,14 @@ async fn test_install_multiple_packs_sequentially() {
 
     // Act - Install each pack
     for pack_id in packs {
-        let input = InstallInput {
+        let input = InstallByIdInput {
             pack_id: pack_id.to_string(),
             target_dir: Some(PathBuf::from(format!("/tmp/test-install-{}", pack_id))),
             force: false,
             dry_run: true,
         };
 
-        let result = install_pack(&input).await;
+        let result = install_pack_by_id(&input).await;
 
         // Assert - Each should install independently
         if result.is_ok() {

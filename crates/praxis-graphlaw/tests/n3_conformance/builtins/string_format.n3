@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix string: <http://www.w3.org/2000/10/swap/string#> .
+
+:doc :firstName "John" .
+:doc :lastName "Doe" .
+
+{ ?d :firstName ?fn . ?d :lastName ?ln . ( "%s %s" ?fn ?ln ) string:format ?full } => { ?d :fullName ?full }.

@@ -1,0 +1,7 @@
+{
+  "case": "Accept_TermsResolveInTriple8Universe",
+  "kind": "acceptance",
+  "seed": 11661226262330688746,
+  "expected_behavior": "triple8_terms_resolved",
+  "input": {"universe": ["<urn:chatman:triple8:u1>", "<urn:chatman:triple8:u2>", "<urn:chatman:triple8:u3>", "<urn:chatman:triple8:u4>", "<urn:chatman:triple8:u5>"], "terms": ["<urn:chatman:triple8:u1>", "<urn:chatman:triple8:u2>", "<urn:chatman:triple8:u3>", "<urn:chatman:triple8:u4>", "<urn:chatman:triple8:u5>"]}
+}

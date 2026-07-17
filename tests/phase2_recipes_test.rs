@@ -281,7 +281,9 @@ fn test_ontology_ggen_validate() {
     let output = Command::new(get_ggen_binary_path())
         .arg("graph")
         .arg("validate")
-        .arg("--schema-file")
+        // ggen-engine's graph validate takes repeatable --files (not the old
+        // ggen-core positional --schema-file), per the v26.7.16 CLI-routing flip.
+        .arg("--files")
         .arg(".specify/specs/post-chatman/post_chatman.ttl")
         .current_dir(workspace_root())
         .output()
@@ -300,7 +302,9 @@ fn test_shapes_ggen_validate() {
     let output = Command::new(get_ggen_binary_path())
         .arg("graph")
         .arg("validate")
-        .arg("--schema-file")
+        // ggen-engine's graph validate takes repeatable --files (not the old
+        // ggen-core positional --schema-file), per the v26.7.16 CLI-routing flip.
+        .arg("--files")
         .arg(".specify/specs/post-chatman/post_chatman_shapes.ttl")
         .current_dir(workspace_root())
         .output()

@@ -1,0 +1,9 @@
+{
+  "shape": "http://a.example/S1",
+  "focus": "http://a.example/x",
+  "expected": "conformant",
+  "source_schema": "schemas/1dotOne2dot.shex",
+  "source_shexc": "<http://a.example/S1> {\n    <http://a.example/p1> .\n  | <http://a.example/p2> .;\n    <http://a.example/p3> .\n}",
+  "source_data": "validation/p1.ttl (relative <x>/:p1 expanded to http://a.example/x, http://a.example/p1)",
+  "comment": ":S1 {:p1 .|:p2 .; :p3 .} / { :s1 :p1 \"p1-0\" . }"
+}

@@ -1,0 +1,4 @@
+[pack]
+name = "widget"
+version = "0.1.0"
+description = "Demo pack: generates a Widget struct from the Widget domain ontology."

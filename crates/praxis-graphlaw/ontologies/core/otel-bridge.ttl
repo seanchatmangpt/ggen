@@ -1,0 +1,232 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix ocel:    <https://www.ocel-standard.org/2.0/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix ob:      <https://ggen.io/ontology/otel-bridge#> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# OTEL Bridge Ontology — Weaver semantic-convention registry source
+# ═══════════════════════════════════════════════════════════════════════════════
+# Single public semantic source from which ggen generates:
+#   (a) an OTel Weaver semantic-convention registry YAML
+#   (b) Rust telemetry bindings (chicago-tdd-tools OTel Weaver live-check)
+#
+# Shape is intentionally flat for SPARQL SELECT extraction: one node per
+# attribute carrying datatype properties (ob:attributeId, ob:attributeType,
+# ob:requirementLevel, ob:brief) plus one object property (ob:memberOf) to
+# the event-group node. Public-ontology mappings are annotations
+# (skos:closeMatch / rdfs:seeAlso) and never replace the flat literals.
+#
+# Public-ontology-first: attribute concepts map to OCEL 2.0
+# (core/ocel2.ttl, prefix https://www.ocel-standard.org/2.0/) and PROV-O
+# (core/prov-o.ttl, prefix http://www.w3.org/ns/prov#) where terms exist.
+# Only ob:Outcome and its two concepts are minted bridge terms (see comment).
+
+<https://ggen.io/ontology/otel-bridge>
+    a owl:Ontology ;
+    dcterms:title "OTEL Bridge Ontology — praxis Weaver registry source" ;
+    dcterms:description "Declares the event.praxis.activity_executed OTEL event semantic convention and its five required attributes, mapped to OCEL 2.0 and PROV-O public terms." ;
+    owl:versionInfo "26.7.11" .
+
+# ───── Vocabulary (classes + properties for the flat shape) ─────
+
+ob:EventGroup a owl:Class ;
+    rdfs:label "OTEL Event Group" ;
+    rdfs:comment "An OTEL semantic-convention group of type 'event'." .
+
+ob:Attribute a owl:Class ;
+    rdfs:label "OTEL Attribute" ;
+    rdfs:comment "A single OTEL semantic-convention attribute declaration." .
+
+ob:groupId a owl:DatatypeProperty ;
+    rdfs:domain ob:EventGroup ; rdfs:range xsd:string ;
+    rdfs:label "group id" .
+
+ob:stability a owl:DatatypeProperty ;
+    rdfs:domain ob:EventGroup ; rdfs:range xsd:string ;
+    rdfs:label "stability" .
+
+ob:attributeId a owl:DatatypeProperty ;
+    rdfs:domain ob:Attribute ; rdfs:range xsd:string ;
+    rdfs:label "attribute id" .
+
+ob:attributeType a owl:DatatypeProperty ;
+    rdfs:domain ob:Attribute ; rdfs:range xsd:string ;
+    rdfs:label "attribute type" .
+
+ob:requirementLevel a owl:DatatypeProperty ;
+    rdfs:domain ob:Attribute ; rdfs:range xsd:string ;
+    rdfs:label "requirement level" .
+
+ob:brief a owl:DatatypeProperty ;
+    rdfs:domain ob:Attribute ; rdfs:range xsd:string ;
+    rdfs:label "brief" .
+
+ob:memberOf a owl:ObjectProperty ;
+    rdfs:domain ob:Attribute ; rdfs:range ob:EventGroup ;
+    rdfs:label "member of" .
+
+# ───── Event group ─────
+
+ob:ActivityExecutedEvent a ob:EventGroup ;
+    rdfs:label "activity executed event" ;
+    ob:groupId "event.praxis.activity_executed" ;
+    ob:stability "development" ;
+    ob:brief "Records an observed process activity occurrence" ;
+    rdfs:seeAlso prov:Activity , ocel:Event .
+
+# ───── Attributes ─────
+
+ob:WorkflowIdAttr a ob:Attribute ;
+    ob:attributeId "process.workflow.id" ;
+    rdfs:label "workflow id" ;
+    rdfs:comment "Identifier of the workflow (process instance) this activity occurrence belongs to." ;
+    ob:brief "Identifier of the workflow (process instance) this activity occurrence belongs to." ;
+    ob:attributeType "string" ;
+    ob:requirementLevel "required" ;
+    ob:memberOf ob:ActivityExecutedEvent ;
+    skos:closeMatch ocel:Case ;
+    rdfs:seeAlso ocel:hasCase .
+
+ob:ObjectIdAttr a ob:Attribute ;
+    ob:attributeId "process.object.id" ;
+    rdfs:label "object id" ;
+    rdfs:comment "Unique identifier of the business object the activity touched." ;
+    ob:brief "Unique identifier of the business object the activity touched." ;
+    ob:attributeType "string" ;
+    ob:requirementLevel "required" ;
+    ob:memberOf ob:ActivityExecutedEvent ;
+    skos:closeMatch ocel:objectId .
+
+ob:ObjectTypeAttr a ob:Attribute ;
+    ob:attributeId "process.object.type" ;
+    rdfs:label "object type" ;
+    rdfs:comment "Named category of the business object (OCEL 2.0 object type)." ;
+    ob:brief "Named category of the business object (OCEL 2.0 object type)." ;
+    ob:attributeType "string" ;
+    ob:requirementLevel "required" ;
+    ob:memberOf ob:ActivityExecutedEvent ;
+    skos:closeMatch ocel:ObjectType .
+
+ob:ActivityIriAttr a ob:Attribute ;
+    ob:attributeId "process.activity.iri" ;
+    rdfs:label "activity IRI" ;
+    rdfs:comment "IRI of the executed activity; the activity label concept is OCEL 2.0 activityName, the occurrence concept is a PROV-O Activity." ;
+    ob:brief "IRI of the executed activity." ;
+    ob:attributeType "string" ;
+    ob:requirementLevel "required" ;
+    ob:memberOf ob:ActivityExecutedEvent ;
+    skos:closeMatch ocel:activityName ;
+    rdfs:seeAlso prov:Activity .
+
+ob:OutcomeAttr a ob:Attribute ;
+    ob:attributeId "process.outcome" ;
+    rdfs:label "outcome" ;
+    rdfs:comment "Typed completion outcome of the activity occurrence. Bridge term: verified against OCEL 2.0 (has generic event/object attributes but no outcome/status vocabulary), PROV-O (models generation/invalidation of entities but not typed completion outcomes of activities), and schema.org (actionStatus is scoped to web Actions, not process-mining activity occurrences). No public term fits, so it is minted here with a closed value vocabulary." ;
+    ob:brief "Typed completion outcome of the activity occurrence." ;
+    ob:attributeType "string" ;
+    ob:requirementLevel "required" ;
+    ob:memberOf ob:ActivityExecutedEvent .
+
+# Closed value vocabulary for process.outcome
+ob:OutcomeScheme a skos:ConceptScheme ;
+    rdfs:label "process outcome values" ;
+    rdfs:comment "Closed enumeration of permitted process.outcome values." .
+
+ob:OutcomeCompleted a skos:Concept ;
+    skos:inScheme ob:OutcomeScheme ;
+    skos:prefLabel "completed" ;
+    skos:notation "completed" ;
+    rdfs:comment "The activity ran to completion under the governed engine." .
+
+ob:OutcomeRefused a skos:Concept ;
+    skos:inScheme ob:OutcomeScheme ;
+    skos:prefLabel "refused" ;
+    skos:notation "refused" ;
+    rdfs:comment "The engine refused execution with a typed Refusal." .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Span-occurrence instance vocabulary (PROJ-763, closes gap G11)
+# ═══════════════════════════════════════════════════════════════════════════════
+# Everything above this section describes the *schema* (the registry group and
+# its attribute declarations) — it is never asserted about a concrete admitted
+# span. The properties below are asserted per span, once admitted, on the
+# occurrence node in the named graph `urn:graph:otel`
+# (`docs/otel-rdf-handoff.md`). The occurrence node itself carries no minted
+# class: it is typed directly with the two public classes already named by
+# `rdfs:seeAlso` above (`a prov:Activity, ocel:Event`), so no
+# `ob:SpanOccurrence` wrapper class is introduced.
+#
+# Public-ontology-first, same discipline as above: process.object.id /
+# process.object.type / process.activity.iri project onto real OCEL 2.0
+# instance-level properties (`ocel:objectId`, `ocel:objectTypeName`,
+# `ocel:hasObjectType`, `ocel:relatesTo`) with no minting needed. Two
+# attribute concepts stay bridge-minted at the instance level, each with a
+# stated reason: `ob:workflowId` (OCEL 2.0's `ocel:Case` has no direct
+# Event-level linking property — `ocel:hasCase` links EventLog → Case, not
+# Event → Case, so forcing a `ocel:Case` individual with no lawful edge back
+# to the event would be worse than a direct bridge property) and
+# `ob:hasOutcome` (already justified above: no public vocabulary models a
+# typed completion outcome). The five raw OTLP protocol fields (trace id,
+# span id, parent span id, span name, start/end time, status) have no OCEL or
+# PROV-O equivalents at all — OCEL/PROV model business-process semantics, not
+# wire-protocol span structure — so all seven are minted here.
+
+ob:traceId a owl:DatatypeProperty ;
+    rdfs:domain prov:Activity ; rdfs:range xsd:string ;
+    rdfs:label "trace id" ;
+    rdfs:comment "OTLP trace ID (lowercase hex) of the span occurrence." .
+
+ob:spanId a owl:DatatypeProperty ;
+    rdfs:domain prov:Activity ; rdfs:range xsd:string ;
+    rdfs:label "span id" ;
+    rdfs:comment "OTLP span ID (lowercase hex) of the span occurrence." .
+
+ob:parentSpanId a owl:DatatypeProperty ;
+    rdfs:domain prov:Activity ; rdfs:range xsd:string ;
+    rdfs:label "parent span id" ;
+    rdfs:comment "OTLP parent span ID (lowercase hex); absent (no triple) for a root span." .
+
+ob:spanName a owl:DatatypeProperty ;
+    rdfs:domain prov:Activity ; rdfs:range xsd:string ;
+    rdfs:label "span name" ;
+    rdfs:comment "OTLP span name (e.g. the Weaver registry group id)." .
+
+ob:startTimeUnixNano a owl:DatatypeProperty ;
+    rdfs:domain prov:Activity ; rdfs:range xsd:long ;
+    rdfs:label "start time (unix nanoseconds)" ;
+    rdfs:comment "OTLP span start time, nanoseconds since the Unix epoch. Asserted OTLP payload data supplied by the producer — never a wall-clock read taken by the mapper itself (see crates/cng/src/otel_rdf.rs)." .
+
+ob:endTimeUnixNano a owl:DatatypeProperty ;
+    rdfs:domain prov:Activity ; rdfs:range xsd:long ;
+    rdfs:label "end time (unix nanoseconds)" ;
+    rdfs:comment "OTLP span end time, nanoseconds since the Unix epoch. Asserted OTLP payload data supplied by the producer — never a wall-clock read taken by the mapper itself (see crates/cng/src/otel_rdf.rs)." .
+
+ob:spanStatusCode a owl:DatatypeProperty ;
+    rdfs:domain prov:Activity ; rdfs:range xsd:string ;
+    rdfs:label "span status code" ;
+    rdfs:comment "OTLP span status code, one of: unset | ok | error." .
+
+ob:spanStatusMessage a owl:DatatypeProperty ;
+    rdfs:domain prov:Activity ; rdfs:range xsd:string ;
+    rdfs:label "span status message" ;
+    rdfs:comment "OTLP span status message; asserted only when the producer supplied one." .
+
+ob:activityIri a owl:ObjectProperty ;
+    rdfs:domain prov:Activity ;
+    rdfs:label "activity IRI" ;
+    rdfs:comment "The process.activity.iri attribute value, asserted as a resource reference rather than a string literal — the attribute's own brief is \"IRI of the executed activity\", so the value is itself an IRI." .
+
+ob:workflowId a owl:DatatypeProperty ;
+    rdfs:domain prov:Activity ; rdfs:range xsd:string ;
+    rdfs:label "workflow id" ;
+    rdfs:comment "The process.workflow.id attribute value, asserted directly on the occurrence. skos:closeMatch on ob:WorkflowIdAttr documents the closest public alignment (ocel:Case), but OCEL 2.0 has no Event-level linking property to ocel:Case (ocel:hasCase links EventLog to Case, not Event to Case), so the value is asserted as a bridge-minted property here instead of forcing an ocel:Case individual with no lawful edge to the event." .
+
+ob:hasOutcome a owl:ObjectProperty ;
+    rdfs:domain prov:Activity ; rdfs:range skos:Concept ;
+    rdfs:label "has outcome" ;
+    rdfs:comment "Links the occurrence to its closed-vocabulary outcome concept (ob:OutcomeCompleted or ob:OutcomeRefused)." .

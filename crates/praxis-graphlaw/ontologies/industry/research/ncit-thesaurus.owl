@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" data-beasties-container>
+  <head>
+    <meta charset="utf-8">
+    <title>EVS Explore</title>
+    <base href="/evsexplore/">
+
+    <meta charset="utf-8">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta name="robots" content="INDEX, FOLLOW">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="NCI Thesaurus (NCIt) provides reference terminology 
+  for many NCI and other systems. It covers vocabulary for clinical care, translational 
+  and basic research, and public information and administrative activities.">
+    <link rel="icon" type="image/x-icon" href="https://www.cancer.gov/profiles/custom/cgov_site/themes/custom/cgov/static/images/design-elements/icons/favicons/favicon.ico">
+
+    <!-- inline spinner styles to be able to display spinner right away -->
+    <style type="text/css">
+      body,
+      html {
+        height: 100%;
+      }
+
+      .indexLoading {
+        font-size: 20px;
+        color: #212121;
+        font-family: Roboto, Trebuchet MS, Arial, Helvetica, sans-serif;
+      }
+    </style>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <!-- The rest of the configuration is in app.component.ts -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+    </script>
+
+    <!-- NCI Banner JS -->
+    <script src="https://cbiit.github.io/nci-softwaresolutions-elements/components/include-html.js"></script>
+    <script async src="https://assets.adobedtm.com/6a4249cd0a2c/785de09de161/launch-70d67a6a40a8.min.js"></script>
+  <style>:root{--blue:#007bff;--indigo:#6610f2;--purple:#6f42c1;--pink:#e83e8c;--red:#dc3545;--orange:#fd7e14;--yellow:#ffc107;--green:#28a745;--teal:#20c997;--cyan:#17a2b8;--white:#fff;--gray:#6c757d;--gray-dark:#343a40;--primary:#007bff;--secondary:#6c757d;--success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545;--light:#f8f9fa;--dark:#343a40;--breakpoint-xs:0;--breakpoint-sm:576px;--breakpoint-md:768px;--breakpoint-lg:992px;--breakpoint-xl:1200px;--font-family-sans-serif:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";--font-family-monospace:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}*,:after,:before{box-sizing:border-box}html{font-family:sans-serif;line-height:1.15;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,"Apple Color Emoji","Segoe UI Emoji",Segoe UI Symbol,"Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;text-align:left;background-color:#fff}@media print{*,:after,:before{text-shadow:none!important;box-shadow:none!important}@page{size:a3}body{min-width:992px!important}}</style><link rel="stylesheet" href="styles.9ea5d466a90b2c64.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="styles.9ea5d466a90b2c64.css"></noscript></head>
+
+  <body>
+    <!-- NCI Banner HTML -->
+    <include-html src="https://cbiit.github.io/nci-softwaresolutions-elements/banners/government-shutdown.html"></include-html>
+
+    <app-root>
+    </app-root>
+  <script src="runtime.11d41a8e09bd0553.js" type="module"></script><script src="polyfills.353421bcd9aa15a5.js" type="module"></script><script src="scripts.8fae6c4c2caf4e10.js" defer></script><script src="main.f4a4f49da7a95629.js" type="module"></script></body>
+</html>

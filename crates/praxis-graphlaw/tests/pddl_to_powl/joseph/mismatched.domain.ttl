@@ -1,0 +1,22 @@
+# Joseph as chief administrator of Egypt — national famine-management plan.
+# Phase artifact: mismatched (domain fragment). refusal fixture: declares a different domain name.
+# One admitted PDDL Turtle planning artifact; fragments across all phase
+# artifacts merge structurally into ONE combined plan (domain name
+# 'not-joseph-famine' shared by every fragment). Formal planning-to-workflow
+# demonstration domain; argues no doctrine, claims no historicity.
+@prefix ex: <http://example.org/joseph#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:mismatched a ex:RefusalFixture .
+
+ex:mismatched ceng:pddlDomain """
+(define (domain not-joseph-famine)
+  (:requirements :strips)
+  (:predicates
+    (stray-pre ?x)
+    (stray-eff ?x))
+  (:action stray-action
+    :parameters (?x)
+    :precondition (and (stray-pre ?x))
+    :effect (and (stray-eff ?x))))
+""" .

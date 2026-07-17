@@ -1,0 +1,9 @@
+{
+  "shape": "http://a.example/S1",
+  "focus": "http://a.example/n1",
+  "expected": "conformant",
+  "source_schema": "schemas/1dotRefOR3.shex",
+  "source_shexc": "<http://a.example/S1> {\n   <http://a.example/p1> @<http://a.example/S2>\n                      OR @<http://a.example/S3>\n                      OR @<http://a.example/S4>\n}\n\n<http://a.example/S2> { <http://a.example/p2> . }\n\n<http://a.example/S3> { <http://a.example/p3> . }\n\n<http://a.example/S4> { <http://a.example/p4> . }",
+  "source_data": "validation/In1_Ip1_In2.In2_Ip2_LX.ttl",
+  "comment": "<S1> { <p1> @<S2> OR @<S3> OR @<S4> } <S2> { <p2> . } <S3> { <p3> . } <S4> { <p4> . } on { <s1> <p1> <n2> . <n2> <p2> \"X\" }"
+}

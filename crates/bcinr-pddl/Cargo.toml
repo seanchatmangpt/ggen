@@ -1,0 +1,99 @@
+[package]
+name = "bcinr-pddl"
+version = "26.6.26"
+edition = "2021"
+description = "PDDL8 → POWL tape → Prolog8 admission → OCEL → BLAKE3 receipt: the BRCE candidate-future execution loop"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/bcinr"
+keywords = ["pddl", "planning", "workflow", "prolog", "receipt"]
+# Vendored copy (2026-07-17, PR #255): not published from this repo under this
+# name -- see praxis-core/praxis-graphlaw's own `publish = false` for the
+# established pattern this follows.
+publish = false
+categories = ["algorithms"]
+
+# No path deps on bcinr-powl or wasm4pm-cognition — PDDL must not bleed into
+# every consumer. Opt-in only via this crate.
+
+[dependencies]
+# PDDL 3.1 parser — strongly typed AST, nom-based, no planner bundled.
+pddl = { version = "0.2", features = ["parser"] }
+# BLAKE3 for receipt chaining
+blake3 = "1"
+# Prolog8 kernel — admission gate (R ⊢ A). Pulled from crates.io, not a
+# local path, so only one copy of the crate is ever resolved workspace-wide.
+prolog8 = { version = "26.6.25" }
+# wasm4pm-compat — canonical OCEL types + PDDL types.
+# The prior path-pin exception (published 26.6.28 was missing fn_values/
+# preferences/metric/object_types/typed_params/condition/effects/
+# numeric_effects) is resolved: 26.6.29 has all of them (confirmed
+# 2026-07-03). Path kept alongside version for local dev; praxis's own
+# [patch.crates-io] unifies this with its own wasm4pm-compat resolution
+# when bcinr-pddl is pulled in as a path dependency there.
+wasm4pm-compat = "26.6.29"
+# Serde for serialization (wasm4pm-compat re-exports most of what's needed)
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+# bcinr-mfw-ir — shared IR types/trait contracts for the multifractal
+# planner (witness algebra, formal-law contracts, causal/concurrency IR).
+# bcinr-pddl depends on it, never the reverse (see bcinr-mfw-ir's own
+# Cargo.toml comment).
+bcinr-mfw-ir = { path = "../bcinr-mfw-ir", version = "26.6.26" }
+# bcinr-powl / bcinr-powl-receipt (optional, `mfw-planner` feature) and the
+# feature itself are dropped from this vendored copy (2026-07-17, PR #255):
+# `src/mfw/planner.rs`, their one consumer, is `#[cfg(feature = "mfw-planner")]`
+# and nothing in this workspace enables it -- ggen's own bcinr-powl/
+# bcinr-powl-receipt are separate crates.io dependencies elsewhere in this
+# workspace, not vendored copies at a sibling path, so `../bcinr-powl` /
+# `../bcinr-powl-receipt` wouldn't resolve here anyway.
+
+[features]
+# Surface 7 (docs/DFCM_CONTRACT.md): per-stage allocation attribution for the
+# DfCM crown suite via a global counting allocator (see src/alloc_counter.rs).
+# No extra dependency — std-only. Off by default; normal builds/tests never
+# install a non-default global allocator.
+dhat-heap = []
+
+[dev-dependencies]
+# Nothing from bcinr-powl or wasm4pm-cognition in dev-deps either.
+# chicago-tdd-tools: Chicago-style (state-based, real-collaborator) test
+# tooling, used only for its `ocel-generation` feature's OcelCollector to
+# emit an OCEL trace of the propose->admit->schedule->receipt pipeline in
+# tests/proposer_substrate.rs. Registry version, matching bcinr-powl's dep.
+chicago-tdd-tools = { version = "26.7.1", features = ["ocel-generation"] }
+divan = "0.1.21"
+# Property-based testing for q_lens's normalization/ordering invariants
+# (LAW_QLENS_RATIO) — same major version already pinned in bcinr-logic and
+# bcinr-powl.
+proptest = "1"
+
+[[test]]
+name = "logistics"
+path = "tests/logistics.rs"
+
+[[test]]
+name = "brce_loop"
+path = "tests/brce_loop.rs"
+
+[[test]]
+name = "vision2030"
+path = "tests/vision2030.rs"
+
+[[example]]
+name = "dfcm_alloc_profile"
+required-features = ["dhat-heap"]
+
+[[test]]
+name = "indexed_grounding"
+path = "tests/indexed_grounding.rs"
+
+[[bench]]
+name = "pddl_80_20"
+path = "benches/pddl_80_20.rs"
+harness = false
+
+[[bench]]
+name = "scaling"
+path = "benches/scaling.rs"
+harness = false

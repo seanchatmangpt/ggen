@@ -1,0 +1,24 @@
+# Vendored (adapted) from
+# https://github.com/eyereasoner/eye/blob/master/reasoning/path/path.n3
+# Adaptation: dropped the leading "[] log:table :path." tabling hint (a pure
+# performance directive using the "[...]" anonymous blank-node-property-list
+# shorthand, which this crate's grammar does not target -- see n3_parser.rs's
+# test_parse_blank_nodes). It has no effect on which facts are entailed.
+#
+# EYE's own query for this case is the ground pattern "{ :b :path :b } => { :b
+# :path :b }", i.e. "does this one specific fact hold", so EYE's answer file
+# (reasoning/path/path-answer.n3) is only a *subset* of the full closure
+# materialize() computes (the :path relation here is the full symmetric-
+# transitive closure of the :road graph, i.e. many more pairs than just
+# `:b :path :b`) -- the expected file below asserts that one EYE-verified fact
+# as a subset check, consistent with how this runner compares results.
+@prefix : <urn:example:>.
+
+:a :road :b.
+:a :road :c.
+:b :road :d.
+:c :road :d.
+
+{ ?X :path ?Y } <= { ?X :path ?Z. ?Z :path ?Y }.
+{ ?X :path ?Y } <= { ?X :road ?Y }.
+{ ?X :path ?Y } <= { ?Y :road ?X }.

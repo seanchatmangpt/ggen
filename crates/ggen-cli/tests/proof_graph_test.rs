@@ -1,3 +1,13 @@
+// ARCHIVED (v26.7.16 routing flip): every test in this file drives `ggen
+// graph load/query/export/visualize` and `graph validate --schema_file`.
+// ggen-engine's `graph` noun (crates/ggen-engine/src/verbs/graph.rs) exposes
+// exactly one verb, `validate`, taking repeatable `--files`/`--shapes`
+// flags -- `load`, `query`, `export`, and `visualize` have no equivalent
+// (REFUSED, no flag/verb mapping), and even `validate`'s own flag name
+// changed (`--schema_file` -> `--files`). All 10 tests here fail at argument
+// parsing before any Oxigraph logic under test runs. Gated as a whole file
+// rather than deleted, per this project's fix-forward doctrine.
+#![cfg(feature = "ggen-core-retired")]
 #![allow(
     clippy::unwrap_used,
     clippy::expect_used,

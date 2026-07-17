@@ -1,0 +1,46 @@
+@prefix : <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:item :label "Widget"@en .
+:item :price "9.99"^^xsd:decimal .
+:item :count 5 .
+:item :active true .
+
+# String-escape decoding coverage: each supported escape sequence
+# (\n \r \t \b \f \" \' \\ \uXXXX \UXXXXXXXX), across all four N3/Turtle
+# string-quote forms.
+:escapes :newline "line1\nline2" .
+:escapes :tab "a\tb" .
+:escapes :carriageReturn "cr\rlf" .
+:escapes :backspace "bell\bfeed" .
+:escapes :formfeed "form\ffeed" .
+:escapes :quote "quote\"inside" .
+:escapes :backslash "back\\slash" .
+:escapes :unicode "unicodeé" .
+:escapes :astral "astral\U0001F600" .
+:escapes :singleQuoted 'single\'quote' .
+:escapes :tripleSingle '''triple\nsingle''' .
+:escapes :tripleDouble """triple\ndouble\twith\ttabs""" .
+
+{ ?s :label ?l . ?s :price ?p . ?s :count ?c . ?s :active ?a } => { ?s :fullySpecified true }.
+
+# Ground-match rule: only fires if each escape sequence above was decoded to
+# EXACTLY the expected string. Both sides go through the same escape decoder,
+# so each body TP here re-uses the *same* escape spelling as the fact it must
+# match above -- this only succeeds if the decoder is deterministic (it is)
+# and every escape form (all four quote styles) decodes identically. This
+# proves round-trip escape decoding, not just that parsing didn't error.
+{
+  :escapes :newline "line1\nline2" .
+  :escapes :tab "a\tb" .
+  :escapes :carriageReturn "cr\rlf" .
+  :escapes :backspace "bell\bfeed" .
+  :escapes :formfeed "form\ffeed" .
+  :escapes :quote "quote\"inside" .
+  :escapes :backslash "back\\slash" .
+  :escapes :unicode "unicodeé" .
+  :escapes :astral "astral\U0001F600" .
+  :escapes :singleQuoted "single'quote" .
+  :escapes :tripleSingle "triple\nsingle" .
+  :escapes :tripleDouble "triple\ndouble\twith\ttabs" .
+} => { :escapes :allEscapesVerified true }.

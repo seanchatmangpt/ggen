@@ -1,0 +1,4 @@
+[pack]
+name = "clap-noun-verb-pack"
+version = "0.1.0"
+description = "Generates clap-noun-verb route skeletons (noun-verb #[verb] fns calling handler stubs) from cnv:Command individuals in the pack ontology."

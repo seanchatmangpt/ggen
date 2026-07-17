@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix string: <http://www.w3.org/2000/10/swap/string#> .
+
+:itemA :value "Hello" .
+:itemB :value "World" .
+
+{ ?x :value ?v1 . ?y :value ?v2 . ?v1 string:notEqualIgnoringCase ?v2 } => { ?x :differsFrom ?y }.

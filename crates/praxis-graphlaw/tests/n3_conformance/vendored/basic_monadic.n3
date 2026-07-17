@@ -1,0 +1,37 @@
+# From https://github.com/eyereasoner/eye/blob/master/reasoning/basic-monadic/query.n3
+# Rule unmodified; the accompanying graphgen.n3-generated `1tt*.ttl` fixture
+# (randomly-generated 10^n-triple benchmark data) is replaced with a small,
+# hand-authored 10-node directed cycle so this is runnable as a fast
+# conformance case rather than a scalability benchmark -- matching this
+# suite's `deep_taxonomy` precedent of truncating a 10000-level EYE fixture
+# to a small illustrative chain. Closes: structural unification of a list
+# pattern with a REPEATED variable (`?D0` appears at both the first and last
+# position, closing the cycle) -- `TripleIndex::query_list_pattern` now
+# rejects a candidate triple if any variable would bind to two different
+# values within the same list-pattern match (see the fix's comment there).
+@prefix : <http://eulersharp.sourceforge.net/2007/07test/graph#>.
+
+{   ?R :cycle (?D0 ?D1 ?D2 ?D3 ?D4 ?D5 ?D6 ?D7 ?D8 ?D9 ?D0).
+} <=
+{   ?D0 ?R ?D1.
+    ?D1 ?R ?D2.
+    ?D2 ?R ?D3.
+    ?D3 ?R ?D4.
+    ?D4 ?R ?D5.
+    ?D5 ?R ?D6.
+    ?D6 ?R ?D7.
+    ?D7 ?R ?D8.
+    ?D8 ?R ?D9.
+    ?D9 ?R ?D0.
+}.
+
+:d0 :R :d1.
+:d1 :R :d2.
+:d2 :R :d3.
+:d3 :R :d4.
+:d4 :R :d5.
+:d5 :R :d6.
+:d6 :R :d7.
+:d7 :R :d8.
+:d8 :R :d9.
+:d9 :R :d0.

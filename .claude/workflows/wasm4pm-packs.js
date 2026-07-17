@@ -1,0 +1,45 @@
+export const meta = {
+  name: 'wasm4pm-packs',
+  description: 'Make wasm4pm algorithms and cognition pack-accessible: two packs from the existing authoritative TTLs',
+  phases: [
+    { title: 'Packs', detail: 'algorithms pack + cognition pack, parallel, from existing ontologies' },
+    { title: 'Gate', detail: 'cross-pack integration, full suite, commit' },
+  ],
+}
+
+const COMMON =
+  'Working crate: /Users/sac/praxis/crates/ggen (the NEW ggen engine, v26.7.4). Packs live in /Users/sac/praxis/packs/. Read /Users/sac/praxis/packs/wasm4pm-compat-pack/ (existing, working) and /Users/sac/praxis/crates/ggen/tests/framework_packs_e2e.rs FIRST as the proven pattern to follow. HEAD is 71699f8 — do not commit in the Packs phase.\n\n' +
+  'HARD RULES: pack.toml closed schema ([pack] name/version/description only); templates use the closed frontmatter vocabulary (to/sparql/construct/inject/before/after/at_line/skip_if/unless_exists/force/when/skip_empty — NO vars/sh_*/backup); no unbound {{vars}} (ggen graph validate will fail the pack); outputs land where such code really lives (src/..., docs/...), namespaced to avoid collisions with the 6 existing packs; Chicago tests only (real binary via CliHarness, TempDir).\n' +
+  'AUTHORITY RULES (from the wasm4pm exploration, treat as law): (1) REUSE the existing authoritative TTLs, do not re-author — copy/adapt instances from the source files listed per pack below, preserving IRIs, labels, citations; trim to a representative subset if the full set is huge (say exactly how many you carried over). (2) NEVER assert breedStatus/algorithmStatus/standing/measuredFitness — those are CONSTRUCT-derived-from-evidence by design; omit them entirely. (3) Never expose bare ocel/dfg/powl names — namespace outputs by tier (e.g. w4pm_algorithms_*, w4pm_cognition_*). (4) Evidence/witness/receipt vocabulary belongs to the compat family; these packs generate CATALOG/CALLER surfaces, not evidence schemas.\n\n'
+
+phase('Packs')
+const packs = await parallel([
+  () => agent(COMMON +
+    'Author /Users/sac/praxis/packs/wasm4pm-algorithms-pack/ — makes the wasm4pm ALGORITHM surface pack-accessible.\n\n' +
+    'SOURCE ONTOLOGY (reuse verbatim-adapted): /Users/sac/wasm4pm/ggen/ontology/algorithms.ttl (60 pi:ProcessIntelligenceAlgorithm instances: algorithmId, algorithmLabel, algorithmDoc, citation, outputType, category, speedTier, qualityTier, wasmExport, cliAlias, inputFormat) + the vocabulary at /Users/sac/wasm4pm/ggen/ontology-algorithms/algorithm-vocabulary.ttl. Read both. Build the pack ontology.ttl as: the pi: vocabulary class/property declarations (self-contained, like breed-vocabulary.ttl does for breeds) + a representative subset of AT LEAST 12 algorithm instances spanning categories (discovery: dfg/inductive/alpha/heuristic; conformance: token-replay/alignments/precision; prediction: next-activity/remaining-time; plus 2-3 more) with their real labels/citations/wasmExport names carried over EXACTLY. Do NOT carry standing/status properties.\n\n' +
+    'TEMPLATES (2): (a) src/w4pm_algorithms_catalog.rs — a typed Rust catalog: an AlgorithmId enum (one variant per instance, PascalCase from algorithmId), a const CATALOG table (id, label, category, wasm_export, cli_alias) generated per-row from a SELECT over the pack ontology, plus a fn by_wasm_export(&str) -> Option<AlgorithmId> lookup. Model the shape on /Users/sac/wasm4pm/packs/wasm4pm-breeds-rust/ (read its README/static files for the proven catalog pattern). (b) docs/w4pm_algorithms.md — a generated reference table (label | category | speed tier | wasm export | citation) from the same rows. Both templates: ORDER BY in every SELECT, force: true is acceptable for pure projections.\n\n' +
+    'PROVE: add test wasm4pm_algorithms_pack_syncs to /Users/sac/praxis/crates/ggen/tests/framework_packs_e2e.rs (APPEND, re-read the file right before editing — another agent may edit it concurrently): TempDir consumer project referencing the pack, real binary sync exit 0, generated catalog contains a distinctive algorithm label that could only come from the ontology (e.g. the inductive miner citation year), ggen.lock has the pack, graph validate exit 0, second sync idempotent at the byte level. cargo test -p ggen --test framework_packs_e2e green before finishing.\n\n' +
+    'Report: instance count carried over, the exact SELECT used, a generated-catalog excerpt, test name + pass.',
+    { label: 'algorithms-pack', phase: 'Packs' }),
+  () => agent(COMMON +
+    'Author /Users/sac/praxis/packs/wasm4pm-cognition-pack/ — makes the wasm4pm COGNITION breed surface pack-accessible.\n\n' +
+    'SOURCE ONTOLOGY (reuse verbatim-adapted): /Users/sac/wasm4pm/packs/wasm4pm-breeds-rust/ggen/ontology/breed-vocabulary.ttl (self-contained compat:CognitionBreed class/properties — purpose-built for pack redistribution, reuse nearly as-is) + instances from /Users/sac/wasm4pm/ggen/ontology/breeds.ttl (55 compat:CognitionBreed: breedId, breedLabel, breedDoc, citation, modulePath). Read both. Carry over AT LEAST 15 representative breed instances spanning the families (planning: Strips/Gps/HtnPlanning/PartialOrderPlan; reasoning: Prolog/DefaultLogic/Circumscription/DescriptionLogic; uncertainty: BayesianNetwork/DempsterShafer/FuzzyLogic; classic systems: Mycin/Eliza/Soar/ActR/Hearsay) with labels/citations EXACT. Do NOT carry breedStatus — it is CONSTRUCT-derived by design; the pack ontology must not assert it.\n\n' +
+    'TEMPLATES (2): (a) src/w4pm_cognition_catalog.rs — typed Rust: a CognitionBreedId enum (variant per instance), const BREED_CATALOG table (id, label, citation), fn from_breed_id(&str) -> Option<CognitionBreedId> — the same catalog pattern as /Users/sac/wasm4pm/packs/wasm4pm-breeds-rust (read it). (b) src/w4pm_cognition_dispatch.rs — a typed dispatch-surface skeleton over the curated stable 6-verb ABI (cognition_show/run/verify/replay, system_build/verify — from /Users/sac/wasm4pm/crates/wasm4pm-cognition/src/wasm.rs): generate one documented stub fn per breed (fn run_<snake_id>(input_json: &str) -> Result<String, String> with a doc comment carrying the breed label + citation, body delegating to a single hand-completable dispatch helper declared once at top via a non-per-row block). Keep it compilable as standalone text (it does not need to link against wasm4pm — it is generated source for a consumer who has the dep; but it MUST be syntactically valid Rust).\n\n' +
+    'PROVE: same pattern — append test wasm4pm_cognition_pack_syncs to framework_packs_e2e.rs (re-read file just before editing to avoid clobbering the concurrent algorithms-pack agent; your test fn name is unique), real binary sync in TempDir, distinctive breed citation visible in output, lock + validate + idempotence. cargo test -p ggen --test framework_packs_e2e green before finishing.\n\n' +
+    'Report: instance count carried over, generated file excerpts, test name + pass.',
+    { label: 'cognition-pack', phase: 'Packs' }),
+])
+log('wasm4pm packs done: ' + packs.filter(Boolean).length + '/2')
+
+phase('Gate')
+const gate = await agent(COMMON +
+  'GATE + integrate + commit. The two new packs (wasm4pm-algorithms-pack, wasm4pm-cognition-pack) just landed alongside the 6 existing packs. Verify cold:\n' +
+  '1. Extend /Users/sac/praxis/crates/ggen/tests/cross_pack_matrix.rs: the ALL-PACKS mega-project test and the pairwise loop should now cover 8 packs (28 pairs) — update the pack list/glob it uses (read the file; if it discovers packs dynamically from /Users/sac/praxis/packs/, confirm it picked up 8; if hardcoded, extend the list). Re-run and ensure: mega-project sync exit 0 with all 8 outputs, lock lists 8, receipt+doctor pass, pairwise loop green, corruption sweep still passes.\n' +
+  '2. cargo test -p ggen FULL suite (expect 180 + new tests, all green). cargo clippy -p ggen --all-targets: no new production warnings. Invariant greps: no wall-clock, no unwrap/expect outside tests in anything new.\n' +
+  '3. Spot-check authority rules in both new pack ontologies: grep for breedStatus/algorithmStatus/standing/measuredFitness — MUST be absent; confirm citations/labels match the source TTLs for 3 sampled instances each (diff against /Users/sac/wasm4pm/ggen/ontology/{algorithms,breeds}.ttl).\n' +
+  '4. just check (workspace) then commit: stage exactly packs/wasm4pm-algorithms-pack/ packs/wasm4pm-cognition-pack/ and the modified test files under crates/ggen/tests/. Message: "feat(packs): wasm4pm algorithms and cognition surfaces pack-accessible" with a body noting the reused authoritative TTLs (algorithms.ttl / breeds.ttl / breed-vocabulary.ttl), the carried instance counts, the never-assert-status rule honored, and the 8-pack cross-composition proof. Heredoc pattern. Abort rather than commit if anything is red.\n' +
+  'Report: final test counts, 8-pack matrix results, authority spot-check results, commit hash + stat.',
+  { label: 'gate', phase: 'Gate' })
+log(gate.slice(0, 2500))
+
+return { packs: packs.filter(Boolean).length + '/2 packs', gate }

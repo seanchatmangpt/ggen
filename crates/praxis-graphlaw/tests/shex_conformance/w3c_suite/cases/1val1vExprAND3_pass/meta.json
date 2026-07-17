@@ -1,0 +1,9 @@
+{
+  "shape": "http://a.example/S1",
+  "focus": "http://a.example/s1",
+  "expected": "conformant",
+  "source_schema": "schemas/1val1vExprAND3.shex",
+  "source_shexc": "<http://a.example/S1> {\n   <http://a.example/p1> LITERAL minlength 4\n                     AND LITERAL maxlength 5\n                     AND LITERAL /^(ab)+$/\n}",
+  "source_data": "validation/Is1_Ip1_Labab.ttl",
+  "comment": "<S> { <p1> MINLENGTH 4 AND MAXLENGTH 5 AND ~ '(ab)+' } on { <s1> <p1> 'abab' }"
+}

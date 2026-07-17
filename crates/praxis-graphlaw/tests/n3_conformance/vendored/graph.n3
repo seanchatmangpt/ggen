@@ -1,0 +1,99 @@
+# Vendored from https://github.com/eyereasoner/eye/blob/master/reasoning/graph/
+# (graph.axiom.n3 + rpo-rules.n3 combined into a single document). Upstream
+# runs these as two separate documents each with their own local `@prefix :`
+# (graph.axiom.n3's `:` = .../graph.axiom#, rpo-rules.n3's `:` =
+# .../rpo-rules#, unrelated namespaces that happen to share the empty
+# prefix name). Combined into one file here, rpo-rules.n3's own
+# `:subListOf`/`:in`/`:inAllOf`/`:inSomeOf` local names were renamed to use
+# an `rpo:` prefix instead of `:` (rebinding `:` mid-document to a second,
+# unrelated namespace and back would silently corrupt the already-parsed
+# graph.axiom.n3 triples above it) -- this is the only change from
+# upstream; every triple pattern, rule, and rule shape is otherwise
+# character-for-character as published. Distinct mechanism from the other
+# vendored
+# cases: a *generic* RDFS/OWL meta-rule set (rpo-rules.n3) that propagates
+# `rdfs:domain`/`rdfs:range`, `rdfs:subClassOf`/`rdfs:subPropertyOf`, and
+# `owl:TransitiveProperty`/`owl:SymmetricProperty`/`owl:inverseOf`
+# characteristics generically via the *asserted* schema triples
+# (`:oneway rdfs:subPropertyOf :path.` / `:path a owl:TransitiveProperty.`)
+# rather than a domain-specific hand-written recursive rule -- i.e. the
+# transitive closure of `:path` over the `:oneway` road-graph facts is
+# derived purely from generic property-characteristic rules matching the
+# schema declarations, not from a bespoke `{?X :path ?Y. ?Y :path ?Z} =>
+# {?X :path ?Z}` rule as in other vendored cases. This exercises multi-hop
+# rule chaining across a much larger generic ruleset (rpo-rules.n3 has ~20
+# rules covering several distinct OWL property characteristics at once)
+# than any of the other 18 vendored cases.
+#
+# graph.filter.n3 (the upstream query file) is the identity rule `{:paris
+# :path :nantes} => {:paris :path :nantes}.`, confirming the upstream's
+# intended query goal; folded into the expected-result check below rather
+# than kept as a separate file (matching this suite's existing convention
+# for cases like `snaf`/`good_cobbler`).
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix math: <http://www.w3.org/2000/10/swap/math#>.
+@prefix list: <http://www.w3.org/2000/10/swap/list#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix : <http://www.agfa.com/w3c/euler/graph.axiom#>.
+@prefix rpo: <http://eulersharp.sourceforge.net/2003/03swap/rpo-rules#>.
+
+:paris :oneway :orleans.
+:paris :oneway :chartres.
+:paris :oneway :amiens.
+:orleans :oneway :blois.
+:orleans :oneway :bourges.
+:blois :oneway :tours.
+:chartres :oneway :lemans.
+:lemans :oneway :angers.
+:lemans :oneway :tours.
+:angers :oneway :nantes.
+
+:oneway rdfs:subPropertyOf :path.
+:path a owl:TransitiveProperty.
+
+### RDF plus OWL rules (rpo-rules.n3, unmodified)
+
+rdf:first a rdf:Property; rdfs:domain rdf:List.
+rdf:rest a rdf:Property; rdfs:domain rdf:List; rdfs:range rdf:List.
+rdfs:subClassOf a rdf:Property; rdfs:domain rdfs:Class; rdfs:range rdfs:Class; a owl:TransitiveProperty.
+rdfs:subPropertyOf a rdf:Property; rdfs:domain rdf:Property; rdfs:range rdf:Property; a owl:TransitiveProperty.
+owl:equivalentClass a rdf:Property; rdfs:domain rdfs:Class; rdfs:range rdfs:Class; rdfs:subPropertyOf rdfs:subClassOf; a owl:SymmetricProperty.
+owl:equivalentProperty a rdf:Property; rdfs:domain rdf:Property; rdfs:range rdf:Property; rdfs:subPropertyOf rdfs:subPropertyOf; a owl:SymmetricProperty.
+owl:sameAs a rdf:Property; a owl:SymmetricProperty, owl:TransitiveProperty.
+owl:inverseOf a rdf:Property; rdfs:domain owl:ObjectProperty; rdfs:range owl:ObjectProperty; a owl:SymmetricProperty.
+owl:differentFrom a rdf:Property; a owl:SymmetricProperty.
+owl:distinctMembers a rdf:Property; rdfs:domain owl:AllDifferent; rdfs:range rdf:List.
+owl:oneOf a rdf:Property; rdfs:domain rdfs:Class; rdfs:range rdf:List.
+owl:intersectionOf a rdf:Property; rdfs:domain rdfs:Class; rdfs:range rdf:List.
+owl:unionOf a rdf:Property; rdfs:domain rdfs:Class; rdfs:range rdf:List.
+owl:complementOf a rdf:Property; rdfs:domain rdfs:Class; rdfs:range rdfs:Class.
+rpo:subListOf a rdf:Property; rdfs:domain rdf:List; rdfs:range rdf:List.
+rpo:inAllOf a rdf:Property; rdfs:range rdf:List.
+rpo:inSomeOf a rdf:Property; rdfs:range rdf:List.
+
+{?P rdfs:domain ?C. ?S ?P ?O} => {?S a ?C}.
+{?P rdfs:range ?C. ?S ?P ?O} => {?O a ?C}.
+{?A rdfs:subClassOf ?B. ?S a ?A} => {?S a ?B}.
+{?P rdfs:subPropertyOf ?R. ?S ?P ?O} => {?S ?R ?O}.
+{?P owl:inverseOf ?Q. ?S ?P ?O} => {?O ?Q ?S}.
+{?P a owl:SymmetricProperty. ?S ?P ?O} => {?O ?P ?S}.
+{?P a owl:TransitiveProperty. ?X ?P ?O. ?S ?P ?X} => {?S ?P ?O}.
+{?P a owl:FunctionalProperty. ?S ?P ?X. ?S ?P ?Y} => {?X owl:sameAs ?Y}.
+{?P a owl:InverseFunctionalProperty. ?X ?P ?O. ?Y ?P ?O} => {?X owl:sameAs ?Y}.
+{?A owl:distinctMembers ?D. ?D rdf:rest ?R} => {?A owl:distinctMembers ?R}.
+{?A owl:distinctMembers ?D. ?L rpo:subListOf ?D. ?L rdf:first ?X; rdf:rest ?R. ?Y rpo:in ?R} => {?X owl:differentFrom ?Y}.
+{?C owl:oneOf ?L. ?X rpo:in ?L} => {?X a ?C}.
+{?C owl:intersectionOf ?L. ?X rpo:inAllOf ?L} => {?X a ?C}.
+{?C owl:unionOf ?L. ?X rpo:inSomeOf ?L} => {?X a ?C}.
+
+{?L rdf:first ?I; a rdf:List} => {?I rpo:in ?L}.
+{?L rdf:rest ?R; a rdf:List. ?I rpo:in ?R} => {?I rpo:in ?L}.
+{?L a rdf:List} => {?L rpo:subListOf ?L}.
+{?L rdf:rest ?R; a rdf:List. ?X rpo:subListOf ?R} => {?X rpo:subListOf ?L}.
+{?L rdf:first ?A; a rdf:List. ?X a ?A. ?L rdf:rest rdf:nil} => {?X rpo:inAllOf ?L}.
+{?L rdf:first ?A; a rdf:List. ?X a ?A. ?L rdf:rest ?R. ?X rpo:inAllOf ?R} => {?X rpo:inAllOf ?L}.
+{?L rdf:first ?A; a rdf:List. ?X a ?A} => {?X rpo:inSomeOf ?L}.
+{?L rdf:rest ?R; a rdf:List. ?X rpo:inSomeOf ?R} => {?X rpo:inSomeOf ?L}.

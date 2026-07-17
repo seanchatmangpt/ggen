@@ -1,0 +1,26 @@
+---
+source: src/testing/snapshot.rs
+expression: "serde_json::to_string_pretty(value).unwrap_or_else(|_|\n\"invalid json\".to_string())"
+---
+{
+  "created_at": "[TIMESTAMP]",
+  "id": "[UUID]",
+  "password": "[PASSWORD]",
+  "secret": "[SECRET]",
+  "session": {
+    "created_at": "[TIMESTAMP]",
+    "token": "jwt-token-secret"
+  },
+  "timestamp": "[TIMESTAMP]",
+  "token": "[TOKEN]",
+  "updated_at": "[TIMESTAMP]",
+  "user": {
+    "authenticated": "true",
+    "created_at": "[TIMESTAMP]",
+    "department": "engineering",
+    "email": "enterprise.user@example.com",
+    "role": "admin",
+    "user_id": "[UUID]"
+  },
+  "uuid": "[UUID]"
+}

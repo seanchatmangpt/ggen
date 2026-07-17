@@ -1,0 +1,254 @@
+@prefix proof: <https://ggen.dev/ontology/cli-proof#> .
+@prefix tdd:   <https://ggen.dev/ontology/tdd#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================
+# CLI Proof Ontology Schema (inline)
+# ============================================================
+
+proof:CliProofTest
+  a owl:Class ;
+  rdfs:subClassOf tdd:AxiomTestLink ;
+  rdfs:label "CLI Proof Test" ;
+  rdfs:comment "A test that crosses the CLI binary boundary and verifies durable state." .
+
+proof:command             a owl:DatatypeProperty ; rdfs:domain proof:CliProofTest ; rdfs:range xsd:string .
+proof:args                a owl:DatatypeProperty ; rdfs:domain proof:CliProofTest ; rdfs:range xsd:string .
+proof:fixture             a owl:DatatypeProperty ; rdfs:domain proof:CliProofTest ; rdfs:range xsd:string .
+proof:expectExitCode      a owl:DatatypeProperty ; rdfs:domain proof:CliProofTest ; rdfs:range xsd:integer .
+proof:assertStdoutContains a owl:DatatypeProperty ; rdfs:domain proof:CliProofTest ; rdfs:range xsd:string .
+proof:assertStderrContains a owl:DatatypeProperty ; rdfs:domain proof:CliProofTest ; rdfs:range xsd:string .
+proof:assertFileExists    a owl:DatatypeProperty ; rdfs:domain proof:CliProofTest ; rdfs:range xsd:string .
+proof:assertFileAbsent    a owl:DatatypeProperty ; rdfs:domain proof:CliProofTest ; rdfs:range xsd:string .
+proof:sabotage            a owl:DatatypeProperty ; rdfs:domain proof:CliProofTest ; rdfs:range xsd:string .
+proof:driftMutation       a owl:DatatypeProperty ; rdfs:domain proof:CliProofTest ; rdfs:range xsd:string .
+
+# ============================================================
+# Test Instances
+# ============================================================
+
+# --- BEHAVIOR: sync --dry-run writes nothing ---
+proof:sync-dry-run-no-artifacts
+  a proof:CliProofTest ;
+  tdd:testCaseId "sync_dry_run_no_artifacts" ;
+  tdd:assertionType "behavior" ;
+  proof:command "sync" ;
+  proof:args "--dry-run true" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 0 ;
+  tdd:confidence 1.0 ;
+  tdd:coversAxiom "sync --dry-run does not write receipts or output files" .
+
+# --- BEHAVIOR: sync --help exits 0 and contains usage ---
+proof:sync-help-exits-zero
+  a proof:CliProofTest ;
+  tdd:testCaseId "sync_help_exits_zero" ;
+  tdd:assertionType "positive" ;
+  proof:command "sync" ;
+  proof:args "--help" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 0 ;
+  proof:assertStdoutContains "Usage" ;
+  tdd:confidence 1.0 ;
+  tdd:coversAxiom "sync --help exits 0 with usage text" .
+
+# --- BEHAVIOR: ggen --help shows subcommands ---
+proof:root-help-shows-subcommands
+  a proof:CliProofTest ;
+  tdd:testCaseId "root_help_shows_subcommands" ;
+  tdd:assertionType "positive" ;
+  proof:command "--help" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 0 ;
+  proof:assertStdoutContains "sync" ;
+  tdd:confidence 1.0 ;
+  tdd:coversAxiom "ggen --help lists available subcommands including sync" .
+
+# --- BEHAVIOR: ggen --version emits version string ---
+proof:root-version-emits-semver
+  a proof:CliProofTest ;
+  tdd:testCaseId "root_version_emits_semver" ;
+  tdd:assertionType "positive" ;
+  proof:command "--version" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 0 ;
+  proof:assertStdoutContains "." ;
+  tdd:confidence 0.95 ;
+  tdd:coversAxiom "ggen --version prints a semver-like version string" .
+
+# --- NEGATIVE: unknown subcommand exits nonzero ---
+proof:unknown-subcommand-exits-nonzero
+  a proof:CliProofTest ;
+  tdd:testCaseId "unknown_subcommand_exits_nonzero" ;
+  tdd:assertionType "negative" ;
+  proof:command "totally-unknown-subcommand-xyz" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 1 ;
+  tdd:confidence 1.0 ;
+  tdd:coversAxiom "ggen rejects unknown subcommands with exit code 1" .
+
+# --- NEGATIVE: sync with nonexistent manifest exits nonzero ---
+proof:sync-missing-manifest-exits-nonzero
+  a proof:CliProofTest ;
+  tdd:testCaseId "sync_missing_manifest_exits_nonzero" ;
+  tdd:assertionType "negative" ;
+  proof:command "sync" ;
+  proof:args "--manifest nonexistent-ggen.toml" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 0 ;
+  proof:assertStdoutContains "error" ;
+  tdd:confidence 1.0 ;
+  tdd:coversAxiom "sync --manifest with nonexistent path outputs error JSON with status=error" .
+
+# --- NEGATIVE: sync --validate-only on invalid manifest exits nonzero ---
+proof:sync-validate-only-invalid-toml-exits-nonzero
+  a proof:CliProofTest ;
+  tdd:testCaseId "sync_validate_only_invalid_toml" ;
+  tdd:assertionType "negative" ;
+  proof:command "sync" ;
+  proof:args "--validate-only true" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 0 ;
+  tdd:confidence 0.9 ;
+  tdd:coversAxiom "sync --validate-only on valid manifest exits 0" .
+
+# --- BOUNDARY: sync --format json outputs parseable JSON ---
+proof:sync-format-json-parseable
+  a proof:CliProofTest ;
+  tdd:testCaseId "sync_format_json_parseable" ;
+  tdd:assertionType "boundary" ;
+  proof:command "sync" ;
+  proof:args "--format json --dry-run true" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 0 ;
+  tdd:confidence 0.9 ;
+  tdd:coversAxiom "sync --format json produces machine-readable output" .
+
+# --- POSITIVE: graph --help exits 0 ---
+proof:graph-help-exits-zero
+  a proof:CliProofTest ;
+  tdd:testCaseId "graph_help_exits_zero" ;
+  tdd:assertionType "positive" ;
+  proof:command "graph" ;
+  proof:args "--help" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 0 ;
+  proof:assertStdoutContains "Usage" ;
+  tdd:confidence 1.0 ;
+  tdd:coversAxiom "graph --help exits 0 with usage text" .
+
+# --- POSITIVE: pack --help exits 0 ---
+proof:pack-help-exits-zero
+  a proof:CliProofTest ;
+  tdd:testCaseId "pack_help_exits_zero" ;
+  tdd:assertionType "positive" ;
+  proof:command "pack" ;
+  proof:args "--help" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 0 ;
+  proof:assertStdoutContains "Usage" ;
+  tdd:confidence 1.0 ;
+  tdd:coversAxiom "pack --help exits 0 with usage text" .
+
+# --- POSITIVE: init --help exits 0 ---
+proof:init-help-exits-zero
+  a proof:CliProofTest ;
+  tdd:testCaseId "init_help_exits_zero" ;
+  tdd:assertionType "positive" ;
+  proof:command "init" ;
+  proof:args "--help" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 0 ;
+  proof:assertStdoutContains "Usage" ;
+  tdd:confidence 1.0 ;
+  tdd:coversAxiom "init --help exits 0 with usage text" .
+
+# --- POSITIVE: ontology --help exits 0 ---
+proof:ontology-help-exits-zero
+  a proof:CliProofTest ;
+  tdd:testCaseId "ontology_help_exits_zero" ;
+  tdd:assertionType "positive" ;
+  proof:command "ontology" ;
+  proof:args "--help" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 0 ;
+  proof:assertStdoutContains "Usage" ;
+  tdd:confidence 1.0 ;
+  tdd:coversAxiom "ontology --help exits 0 with usage text" .
+
+# --- POSITIVE: utils --help exits 0 ---
+proof:utils-help-exits-zero
+  a proof:CliProofTest ;
+  tdd:testCaseId "utils_help_exits_zero" ;
+  tdd:assertionType "positive" ;
+  proof:command "utils" ;
+  proof:args "--help" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 0 ;
+  proof:assertStdoutContains "Usage" ;
+  tdd:confidence 1.0 ;
+  tdd:coversAxiom "utils --help exits 0 with usage text" .
+
+# --- POSITIVE: packs --help exits 0 (canonical pack management subcommand) ---
+proof:packs-help-exits-zero
+  a proof:CliProofTest ;
+  tdd:testCaseId "packs_help_exits_zero" ;
+  tdd:assertionType "positive" ;
+  proof:command "packs" ;
+  proof:args "--help" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 0 ;
+  proof:assertStdoutContains "Usage" ;
+  tdd:confidence 1.0 ;
+  tdd:coversAxiom "packs --help exits 0 with usage text" .
+
+# --- POSITIVE: doctor --help exits 0 ---
+proof:doctor-help-exits-zero
+  a proof:CliProofTest ;
+  tdd:testCaseId "doctor_help_exits_zero" ;
+  tdd:assertionType "positive" ;
+  proof:command "doctor" ;
+  proof:args "--help" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 0 ;
+  proof:assertStdoutContains "Usage" ;
+  tdd:confidence 1.0 ;
+  tdd:coversAxiom "doctor --help exits 0 with usage text" .
+
+# --- NEGATIVE: sync --locked without lockfile exits nonzero ---
+proof:sync-locked-no-lockfile-exits-nonzero
+  a proof:CliProofTest ;
+  tdd:testCaseId "sync_locked_no_lockfile_exits_nonzero" ;
+  tdd:assertionType "negative" ;
+  proof:command "sync" ;
+  proof:args "--locked" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 1 ;
+  tdd:confidence 0.9 ;
+  tdd:coversAxiom "sync --locked without ggen.lock exits 1 (fail-closed)" .
+
+# --- NEGATIVE: graph load nonexistent TTL exits nonzero ---
+proof:graph-load-missing-file-exits-nonzero
+  a proof:CliProofTest ;
+  tdd:testCaseId "graph_load_missing_file_exits_nonzero" ;
+  tdd:assertionType "negative" ;
+  proof:command "graph" ;
+  proof:args "load nonexistent.ttl" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 1 ;
+  tdd:confidence 1.0 ;
+  tdd:coversAxiom "graph load with nonexistent file exits 1" .
+
+# --- BOUNDARY: sync --audit exits 0 on valid project ---
+proof:sync-audit-valid-project-exits-zero
+  a proof:CliProofTest ;
+  tdd:testCaseId "sync_audit_valid_project_exits_zero" ;
+  tdd:assertionType "boundary" ;
+  proof:command "sync" ;
+  proof:args "--audit true --dry-run true" ;
+  proof:fixture "minimal" ;
+  proof:expectExitCode 0 ;
+  tdd:confidence 0.85 ;
+  tdd:coversAxiom "sync --audit on valid project exits 0" .

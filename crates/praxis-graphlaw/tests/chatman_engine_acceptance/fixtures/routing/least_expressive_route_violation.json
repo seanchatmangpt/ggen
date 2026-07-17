@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_LeastExpressiveRouteViolation",
+  "kind": "falsification",
+  "seed": 184724249555290092,
+  "mutation": "Request the ColdPath route for a pattern the HotPath already admits.",
+  "expected_refusal": "LeastExpressiveRouteViolation",
+  "input": {"profile_id": "profile-hot-path", "requested_dialect": "triple8-pattern", "admitted_dialects": ["triple8-pattern", "sparql-construct"], "recorded_route": "sparql-construct"}
+}

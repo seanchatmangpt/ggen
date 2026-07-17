@@ -1,0 +1,21 @@
+# Genesis Creation Week, day-01-light (problem fragment): light is created and separated from darkness.
+# One admitted PDDL Turtle planning artifact. Days are planning sources, not
+# workflows: every fragment shares the domain name 'creation-week' and merges
+# structurally into ONE combined seven-day plan whose projection is the one
+# creation-week POWL v2 workflow. Formal process example; argues no doctrine,
+# claims no historicity.
+@prefix ex: <http://example.org/genesis#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:day-01-light a ex:CreationDay ;
+  ex:daySequence 1 ;
+  ex:intends ex:begin-creation, ex:create-light, ex:separate-light-darkness .
+
+ex:day-01-light ceng:pddlProblem """
+(define (problem creation-week-day-01-light)
+  (:domain creation-week)
+  (:objects creation)
+  (:init (formless-void creation))
+  (:goal (light-separated creation))
+)
+""" .

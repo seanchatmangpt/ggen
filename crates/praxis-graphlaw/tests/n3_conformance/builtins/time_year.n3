@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+@prefix time: <http://www.w3.org/2000/10/swap/time#> .
+
+:event :timestamp "2026-07-04T10:30:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+
+{ ?e :timestamp ?t . ?t time:year ?y } => { ?e :year ?y }.

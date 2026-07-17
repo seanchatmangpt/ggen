@@ -85,20 +85,39 @@ runs:
 
     # STEP 2 — Install the pinned nightly toolchain.
     #
-    # rust-toolchain.toml pins `channel = "nightly-2026-04-15"`. This is the ONLY
+    # rust-toolchain.toml pins `channel = "nightly-2026-06-22"`. This is the ONLY
     # channel that compiles the workspace; a stable/beta matrix cannot. We pin the
     # toolchain explicitly (matching rust-toolchain.toml) so the installed components
     # land on the right channel, and add the requested components. dtolnay/rust-toolchain
     # is SHA-pinned for supply-chain safety (it publishes mutable channel tags, not
     # immutable release tags).
+    #
+    # Correction (2026-07-17, PR #255, verified live): this was drifted to
+    # nightly-2026-04-15, stale against rust-toolchain.toml's real, current pin --
+    # exactly the lockstep failure this comment warns against. Harmless in practice
+    # (cargo always honors the nearest rust-toolchain.toml regardless of this input,
+    # so builds were correct) but wasteful: rustup silently fetched a second,
+    # unused nightly on every run. Re-synced.
     - name: Install pinned nightly toolchain
       # dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b == tag "stable" (2024-06)
       uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
       with:
-        # Channel mirrors rust-toolchain.toml exactly (nightly-2026-04-15). If that
+        # Channel mirrors rust-toolchain.toml exactly (nightly-2026-06-22). If that
         # file's channel changes, update this line in lockstep.
-        toolchain: nightly-2026-04-15
+        toolchain: nightly-2026-06-22
         components: ${{ inputs.components }}
+
+    # STEP 2a — Install sccache, required by .cargo/config.toml's unconditional
+    # `[build] rustc-wrapper = "sccache"`. Without it every cargo invocation in CI
+    # fails immediately: `error: could not execute process 'sccache ... rustc -vV'
+    # (never executed) ... No such file or directory` (found 2026-07-17, PR #255 --
+    # this branch's very first real CI run, since it had never been pushed before).
+    # taiki-e/install-action fetches a prebuilt binary (no compile), matching the
+    # `just`/`cargo-audit` install pattern already used elsewhere in this file/repo.
+    - name: Install sccache
+      uses: taiki-e/install-action@81ecf985428d5c2ea81dbf079bceca32bc9604ab  # v2.62.43
+      with:
+        tool: sccache
 
     # STEP 2b — Install `just`, the project's task runner and CI entry point.
     # Every CI job invokes `just <recipe>` (check/build/test/lint/...), but `just`

@@ -1,0 +1,27 @@
+# EditorConfig — https://editorconfig.org
+# Sensible cross-editor defaults for the affidavit repo.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+# Rust uses 4-space indentation (matches rustfmt defaults).
+[*.rs]
+indent_size = 4
+
+# TOML uses 4-space indentation.
+[*.toml]
+indent_size = 4
+
+# Web sources and data formats use 2-space indentation.
+[*.{ts,tsx,js,jsx,json,yaml,yml,css}]
+indent_size = 2
+
+# Markdown: keep trailing whitespace (it is significant — two trailing
+# spaces mean a hard line break), so do not trim it here.
+[*.md]
+trim_trailing_whitespace = false

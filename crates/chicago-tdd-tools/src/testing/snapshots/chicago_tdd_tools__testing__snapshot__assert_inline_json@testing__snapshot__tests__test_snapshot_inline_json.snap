@@ -1,0 +1,8 @@
+---
+source: src/testing/snapshot.rs
+expression: "serde_json::to_string_pretty(value).unwrap_or_else(|_|\n\"invalid json\".to_string())"
+---
+{
+  "key": "value",
+  "number": 42
+}

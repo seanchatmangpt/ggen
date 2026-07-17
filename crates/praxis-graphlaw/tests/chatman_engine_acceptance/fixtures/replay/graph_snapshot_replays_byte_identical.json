@@ -1,0 +1,7 @@
+{
+  "case": "Accept_GraphSnapshotReplaysByteIdentical",
+  "kind": "acceptance",
+  "seed": 7457744508056102497,
+  "expected_behavior": "snapshot_replay_verified",
+  "input": {"envelope": {"invocation_id": "urn:chatman:invocation:replay-1", "snapshot_id": "urn:chatman:snapshot:replay-1", "profile_id": "urn:chatman:profile:replay-1", "operator_id": "urn:chatman:operator:replay-1", "input_handles": {"nodes": ["urn:chatman:node:1", "urn:chatman:node:2"], "events": ["urn:chatman:event:1"], "plan_steps": ["urn:chatman:plan-step:1"]}}, "receipts": [{"subject": "urn:chatman:subject:boundary-1", "digest": "a55727e5481faa3afdb44c4bc15c5d7feaabc39925c2a5ba0480fa9be37babca"}], "recorded_envelope_hash": "d42a67b3de5041b94d40ea04b1aa5d3d8750621c9425d6b25459a07601017c3b"}
+}

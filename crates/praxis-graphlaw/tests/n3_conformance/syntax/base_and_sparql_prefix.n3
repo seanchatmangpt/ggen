@@ -1,0 +1,28 @@
+@base <http://example.org/data/> .
+@prefix : <#> .
+
+# Relative IRI resolved against @base (RFC 3986): "sub/child" resolves to
+# "http://example.org/data/sub/child".
+<sub/child> :label "relative under base" .
+
+# @base with a *relative* IRI: resolved against whatever base was in effect
+# beforehand ("http://example.org/data/" + "nested/" -> ".../data/nested/").
+@base <nested/> .
+<leaf> :label "relative under nested base" .
+
+# SPARQL-style BASE (no leading "@", no trailing "."), same resolution rules:
+# resolved against the previous base ("http://example.org/data/nested/" +
+# "../other/" -> "http://example.org/data/other/").
+BASE <../other/>
+
+# SPARQL-style PREFIX (no leading "@", no trailing "."), case-insensitive
+# keyword, IRI resolved against the current base.
+PREFIX ex: <sparql#>
+
+<thing> ex:label "relative under sparql BASE" .
+ex:Marker a ex:Thing .
+
+{ <http://example.org/data/sub/child> :label "relative under base" } => { :subjectCase :verified true }.
+{ <http://example.org/data/nested/leaf> :label "relative under nested base" } => { :nestedBaseCase :verified true }.
+{ <http://example.org/data/other/thing> <http://example.org/data/other/sparql#label> "relative under sparql BASE" } => { :sparqlBaseCase :verified true }.
+{ <http://example.org/data/other/sparql#Marker> a <http://example.org/data/other/sparql#Thing> } => { :sparqlPrefixCase :verified true }.

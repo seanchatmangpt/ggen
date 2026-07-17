@@ -1,0 +1,17 @@
+---
+source: src/testing/snapshot.rs
+expression: "serde_json::to_string_pretty(value).unwrap_or_else(|_|\n\"invalid json\".to_string())"
+---
+{
+  "customer_id": "cust_snap",
+  "items": [
+    {
+      "item_id": "item_snap",
+      "price": 29.99,
+      "quantity": 1
+    }
+  ],
+  "order_id": "ord-f4e5bf53-adf4-422a-aa4d-22e83137332c",
+  "status": "Created",
+  "total_amount": 29.99
+}

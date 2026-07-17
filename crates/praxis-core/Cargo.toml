@@ -1,0 +1,38 @@
+[package]
+name = "praxis-core"
+version = "26.7.2"
+edition = "2021"
+# Dropped "OR Apache-2.0": no LICENSE-APACHE text backs it anywhere in the
+# source repo. See docs/jira/v26.7.16/02-CROSS-REPO-DEPENDENCY-RISKS.md item 4.
+license = "MIT"
+description = "Fused Law Object abstraction: obligation + lifecycle + receipt + OCEL."
+repository = "https://github.com/seanchatmangpt/ggen"
+publish = false
+
+[features]
+default = []
+ocel = []
+
+[dependencies]
+blake3 = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+bcinr-powl-receipt = "26.6.24"
+wasm4pm-compat = "26.6.29"
+hex = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
+# PROJ-752 (PRD.md sec.7.4-7.5, A_z = T(Q(W))): real Tera template engine for
+# the T stage. Already a real workspace dependency via crates/ggen (see
+# root Cargo.toml `tera = { version = "1.20.0", optional = true }`) -- same
+# version pinned here, not a new crate evaluation.
+tera = "1.20.0"
+# Consumes ProjectionRow / run_render_model_projection (PROJ-751's real
+# Q-stage SPARQL execution) as the T stage's input; praxis-graphlaw does not
+# depend on praxis-core (checked: no path back-edge), so this is a one-way
+# addition, not a cycle.
+praxis-graphlaw = { path = "../praxis-graphlaw", version = "26.7.9" }
+
+[dev-dependencies]
+tempfile = "3"
+proptest = "1"

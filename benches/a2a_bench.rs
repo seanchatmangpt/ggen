@@ -1,4 +1,12 @@
 #![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+// ARCHIVED (2026-07-16, publish-safety fix): root no longer depends on ggen-lsp at
+// all -- its `a2a` feature isn't published to crates.io yet, and referencing it
+// anywhere in root's manifest (even inactive/optional) blocks
+// `cargo publish --dry-run -p ggen`. Already gated behind
+// `required-features = ["a2a-integration-tests"]` in Cargo.toml (permanently off).
+// Retained on disk, not deleted, per fix-forward doctrine -- its real home is
+// crates/ggen-lsp/benches, where ggen-lsp's own a2a feature is native/local and
+// doesn't need external registry resolution to bench.
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use ggen_lsp::a2a_mcp::a2a::{

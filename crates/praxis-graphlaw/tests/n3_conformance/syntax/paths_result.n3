@@ -1,0 +1,5 @@
+@prefix : <http://example.org/> .
+
+:forwardCase :verified true .
+:inverseCase :verified true .
+:chainedCase :verified true .

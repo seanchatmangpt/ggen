@@ -1,0 +1,22 @@
+# Adapted from https://github.com/eyereasoner/eye/blob/master/reasoning/edt/
+# `edt` uses the exact same `{?X a ?D} <= {?C rdfs:subClassOf ?D. ?X a ?C}`
+# backward subClassOf rule as `deep-taxonomy` (see deep_taxonomy.n3 above),
+# just over a differently-named 10000-level chain (30002 rdfs:subClassOf
+# triples in test-dl.ttl) -- i.e. a scale/perf duplicate of the exact same
+# feature, not a new one. Truncated here to a 3-level chain for the same
+# reason deep_taxonomy.n3 is truncated: a fast conformance check rather than
+# a scalability benchmark. Kept as its own case (distinct namespace/entity
+# names) purely for provenance/traceability back to the separate upstream
+# `edt` corpus directory, not because it exercises anything deep_taxonomy
+# doesn't already cover.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix : <http://eulersharp.sourceforge.net/2009/12dtb/edt#>.
+
+:EdtVariable rdf:type :D0.
+
+:D0 rdfs:subClassOf :D1.
+:D1 rdfs:subClassOf :D2.
+:D2 rdfs:subClassOf :B2.
+
+{?X a ?D} <= {?C rdfs:subClassOf ?D. ?X a ?C}.

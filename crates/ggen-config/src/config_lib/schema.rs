@@ -71,14 +71,15 @@ pub struct GgenConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub package: Option<PackageMetadata>,
 
-    /// Inference configuration (optional)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub inference: Option<InferenceConfig>,
-
-    /// Generation configuration (optional)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub generation: Option<GenerationConfig>,
-
+    // `inference`/`generation` fields intentionally absent: this schema's own versions
+    // (formerly here, `Option<InferenceConfig>`/`Option<GenerationConfig>` with an untyped
+    // `rules: Vec<serde_json::Value>` passthrough) were dead -- nothing in the workspace ever
+    // read them (confirmed via grep, 2026-07-16); the real, actively-consumed typed schema for
+    // `[inference]`/`[generation]` is `ggen_config::manifest::{InferenceConfig,
+    // GenerationConfig}` (ported from `ggen-core`, consumed by `ggen-lsp`'s `project_index.rs`/
+    // `rule_index.rs` and `ggen-cli`'s `cmds/sync.rs`). Retired per
+    // specs/014-ggen-core-replacement/tasks.md T023 / FR-009, rather than relocating the
+    // duplication. See docs/jira/v26.7.16/05-MANIFEST-CONFIG-PORT.md.
     /// MCP configuration (optional)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mcp: Option<McpConfig>,
@@ -729,38 +730,10 @@ pub struct A2AOrchestrationConfig {
     pub consensus_algorithm: Option<String>,
 }
 
-/// Inference configuration for graph modifications
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct InferenceConfig {
-    /// List of inference rules
-    #[serde(default)]
-    pub rules: Vec<InferenceRule>,
-}
-
-/// A single inference rule
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct InferenceRule {
-    /// Rule name
-    pub name: String,
-    /// CONSTRUCT query
-    pub construct: String,
-    /// Optional execution order
-    #[serde(default)]
-    pub order: i32,
-    /// Optional ASK query condition
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub when: Option<String>,
-}
-
-/// Generation configuration
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct GenerationConfig {
-    /// Output directory
-    pub output_dir: String,
-    /// Generation rules
-    #[serde(default)]
-    pub rules: Vec<serde_json::Value>,
-}
+// `InferenceConfig`/`InferenceRule`/`GenerationConfig` (formerly here) retired: dead,
+// untyped-passthrough duplicates of the real schema now at `ggen_config::manifest::{
+// InferenceConfig, InferenceRule, GenerationConfig}` -- see the removal note on
+// `GgenConfig`'s struct fields above.
 
 // Default value functions for serde
 const fn default_temperature() -> f32 {
@@ -836,8 +809,6 @@ impl Default for GgenConfig {
             build: None,
             test: None,
             package: None,
-            inference: None,
-            generation: None,
             mcp: None,
             a2a: None,
         }

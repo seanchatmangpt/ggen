@@ -1,0 +1,82 @@
+# adversarial-positive.ttl -- the G_x+ component of Section 33.11's semantic
+# admission proof obligation W(x) = (t_x, S_x, Q_x, G_x-, G_x+, r_x) for this
+# pack's regulatory-filing Knowledge Hook (fixtures/hook.ttl) and the SHACL
+# shapes (../shapes.ttl) it depends on. A DIFFERENT, smaller, self-contained
+# deal from case.ttl's main Meridian/Corvantis scenario -- deliberately a
+# separate deal IRI, not a copy of case.ttl's, mirroring
+# crates/multifractal-workflow/fixtures/bribery-case/hook.ttl's own
+# negative-control convention (bribery_case_fixture.rs's
+# `hook_does_not_fire_for_a_domestic_contractor` test uses a wholly separate
+# case IRI, DOM-2026-0099, rather than a mutated copy of the main case).
+#
+# WHAT THIS FILE PROVES, PRECISELY (see
+# crates/praxis-graphlaw/tests/ma_case_hook_actuation.rs):
+#   1. Every shape this graph touches is satisfied:
+#      - ma:LEIRegisteredEntityShape (open) -- both counterparties carry a
+#        real cmns-id:isIdentifiedBy LEI link (this is the property missing
+#        in adversarial-negative.ttl's counterparty).
+#      - ma:RelationshipRecordShape -- hasOwnershipPercentage is present,
+#        exactly 1, and in [0, 100] ("55.00").
+#      - ma:MergerAcquisitionShape -- cmns-cls:isClassifiedBy is present and
+#        exactly 1 (ma:Signed).
+#   2. fixtures/hook.ttl's derive_ma_regulatory_filing_obligation hook FIRES:
+#      the deal's schema:amount (150000000, USD) is >= the hook's
+#      100000000 threshold, so materialize() derives exactly 1
+#      ma:hasRegulatoryFilingObligation triple linking this deal to
+#      ma:hsr-act-notification-obligation.
+#
+# SCENARIO: Meridian Holdings Group, Inc. (see case.ttl for its LEI/entity
+# data) proposes a second, smaller acquisition -- Solenne Robotics, Inc., a
+# fictional industrial-robotics company -- for USD 150,000,000, well above
+# the illustrative filing threshold. Same fictional-entity convention as
+# case.ttl's header states; "Solenne Robotics, Inc." does not refer to any
+# real company.
+
+@prefix rdf:              <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:               <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms:           <http://purl.org/dc/terms/> .
+@prefix schema:            <https://schema.org/> .
+@prefix cmns-cls:          <https://www.omg.org/spec/Commons/Classifiers/> .
+@prefix cmns-id:           <https://www.omg.org/spec/Commons/Identifiers/> .
+@prefix fibo-be-le-lei:    <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LEIEntities/> .
+@prefix fibo-cae-ce-act:   <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/> .
+@prefix ma:                <http://seanchatmangpt.github.io/packs/ma-case-study#> .
+
+# Vocabulary restatement, disclosed: see case.ttl's header for why this
+# single already-true TBox fact (declared in ../ontology.ttl) is repeated
+# here -- `ggen graph validate --files` validates each file independently,
+# not as a union, so ma:MergerAcquisitionShape's sh:class check needs it
+# present in this file too.
+ma:Signed a ma:DealStatus .
+
+<https://deals.meridian-holdings.example.org/identifier/lei-meridian-holdings-group>
+    a fibo-be-le-lei:LegalEntityIdentifier ;
+    dcterms:identifier "5493001234MERIDIANHG" .
+
+<https://deals.meridian-holdings.example.org/entity/acquirer-meridian-holdings-group>
+    a fibo-be-le-lei:LEIRegisteredEntity ;
+    cmns-id:isIdentifiedBy <https://deals.meridian-holdings.example.org/identifier/lei-meridian-holdings-group> .
+
+<https://deals.meridian-holdings.example.org/identifier/lei-solenne-robotics>
+    a fibo-be-le-lei:LegalEntityIdentifier ;
+    dcterms:identifier "5493009876SOLENNERBX" .
+
+<https://deals.meridian-holdings.example.org/entity/target-solenne-robotics>
+    a fibo-be-le-lei:LEIRegisteredEntity ;
+    cmns-id:isIdentifiedBy <https://deals.meridian-holdings.example.org/identifier/lei-solenne-robotics> ;
+    dcterms:description "Target: Solenne Robotics, Inc., a fictional industrial-robotics company." .
+
+<https://deals.meridian-holdings.example.org/relationship/MHC-2026-0142-ownership>
+    a fibo-be-le-lei:RelationshipRecord ;
+    fibo-be-le-lei:hasOwnershipPercentage "55.00"^^xsd:decimal ;
+    dcterms:description "Majority (55%) ownership interest in Solenne Robotics, Inc. to be acquired by Meridian Holdings Group, Inc. upon closing." .
+
+<https://deals.meridian-holdings.example.org/deal/MHC-2026-0142>
+    a fibo-cae-ce-act:MergerAcquisition ;
+    cmns-cls:isClassifiedBy ma:Signed ;
+    schema:amount [
+        a schema:MonetaryAmount ;
+        schema:value 150000000 ;
+        schema:currency "USD"
+    ] ;
+    dcterms:description "Meridian Holdings Group, Inc. definitive agreement to acquire a 55% majority interest in Solenne Robotics, Inc. for aggregate consideration of USD 150,000,000." .

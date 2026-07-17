@@ -1,0 +1,7 @@
+# Matches https://github.com/eyereasoner/eye/blob/master/reasoning/entail/socrates-claim.n3
+# exactly (EYE's own hand-verified claim for this case) -- confirmed by
+# actually running materialize() on entail.n3 (this crate's engine derives
+# precisely this one additional triple beyond the input facts).
+@prefix : <http://example.org/socrates#>.
+
+:Socrates a :Mortal.

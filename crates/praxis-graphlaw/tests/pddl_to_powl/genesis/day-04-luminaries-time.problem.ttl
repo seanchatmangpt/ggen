@@ -1,0 +1,21 @@
+# Genesis Creation Week, day-04-luminaries-time (problem fragment): lights govern days, seasons, and years.
+# One admitted PDDL Turtle planning artifact. Days are planning sources, not
+# workflows: every fragment shares the domain name 'creation-week' and merges
+# structurally into ONE combined seven-day plan whose projection is the one
+# creation-week POWL v2 workflow. Formal process example; argues no doctrine,
+# claims no historicity.
+@prefix ex: <http://example.org/genesis#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:day-04-luminaries-time a ex:CreationDay ;
+  ex:daySequence 4 ;
+  ex:intends ex:appoint-luminaries .
+
+ex:day-04-luminaries-time ceng:pddlProblem """
+(define (problem creation-week-day-04-luminaries-time)
+  (:domain creation-week)
+  (:objects creation)
+  (:init (formless-void creation))
+  (:goal (luminaries-appointed creation))
+)
+""" .

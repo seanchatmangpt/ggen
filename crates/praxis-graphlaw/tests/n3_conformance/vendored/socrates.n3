@@ -1,0 +1,19 @@
+# Vendored (lightly reformatted) from
+# https://github.com/eyereasoner/eye/blob/master/reasoning/socrates/socrates.n3
+# EYE's own query for this case is the fully-generic
+# "{ ?WHO a ?WHAT } => { ?WHO a ?WHAT }" (i.e. "select every rdf:type fact
+# from the closure"), so EYE's own answer file
+# (reasoning/socrates/socrates-answer.n3) IS the full closure for this
+# predicate, matching what materialize() computes directly.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix : <http://example.org/socrates#>.
+
+:Socrates a :Human.
+:Human rdfs:subClassOf :Mortal.
+
+{
+    ?A rdfs:subClassOf ?B.
+    ?S a ?A.
+} => {
+    ?S a ?B.
+}.

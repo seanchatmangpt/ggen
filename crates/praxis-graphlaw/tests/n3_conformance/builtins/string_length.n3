@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+@prefix string: <http://www.w3.org/2000/10/swap/string#> .
+
+:user :username "johndoe123" .
+
+{ ?u :username ?name . ?name string:length ?len } => { ?u :usernameLength ?len }.

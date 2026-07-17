@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix string: <http://www.w3.org/2000/10/swap/string#> .
+
+:user :firstName "John" .
+:user :lastName "Doe" .
+
+{ ?u :firstName ?fn . ?u :lastName ?ln . ( ?fn " " ?ln ) string:concat ?fullName } => { ?u :name ?fullName }.

@@ -1,0 +1,23 @@
+# Joseph as chief administrator of Egypt — national famine-management plan.
+# Phase artifact: storage-logistics (domain fragment). collected grain is stored in the cities.
+# One admitted PDDL Turtle planning artifact; fragments across all phase
+# artifacts merge structurally into ONE combined plan (domain name
+# 'joseph-famine' shared by every fragment). Formal planning-to-workflow
+# demonstration domain; argues no doctrine, claims no historicity.
+@prefix ex: <http://example.org/joseph#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:storehouse-officials ex:execute ex:storage .
+ex:cities ex:hold ex:storehouses .
+
+ex:storage-logistics ceng:pddlDomain """
+(define (domain joseph-famine)
+  (:requirements :strips)
+  (:predicates
+    (grain-collected ?x)
+    (grain-stored ?x))
+  (:action store-grain-in-cities
+    :parameters (?x)
+    :precondition (and (grain-collected ?x))
+    :effect (and (grain-stored ?x))))
+""" .

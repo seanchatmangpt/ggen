@@ -1,0 +1,36 @@
+# Vendored from https://github.com/eyereasoner/eye/blob/master/reasoning/peano/peano.n3
+# Unmodified.
+#
+# Peano arithmetic encoded entirely as nested nullary/backward rules over
+# nested list terms, e.g. `{(?A 0) :add ?A} <= true.` and `{(?A (:s ?B)) :add
+# (:s ?C)} <= {(?A ?B) :add ?C.}`. Proved goal-directed via `TripleStore::prove`
+# (see manifest.json's `prove_goal_n3`), which recursively unifies nested
+# list-term patterns (`VarOrTerm::unify_list_pattern`) against nested
+# list-term goal values as it works backward through the recursive `:add`
+# rule -- see `backwardchaining.rs`'s `unify_ground`/`prove_inner`.
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix : <http://example.org/#>.
+
+{(?A 0) :add ?A} <= true.
+
+{(?A (:s ?B)) :add (:s ?C)} <= {
+    (?A ?B) :add ?C.
+}.
+
+{(?A 0) :multiply 0} <= true.
+
+{(?A (:s ?B)) :multiply ?C} <= {
+    (?A ?B) :multiply ?D.
+    (?A ?D) :add ?C.
+}.
+
+{?A :factorial ?B} <= {
+    (?A (:s 0)) :fac ?B.
+}.
+
+{(0 ?A) :fac ?A} <= true.
+
+{((:s ?A) ?B) :fac ?C} <= {
+    (?B (:s ?A)) :multiply ?D.
+    (?A ?D) :fac ?C.
+}.

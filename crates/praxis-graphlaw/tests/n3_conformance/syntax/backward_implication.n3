@@ -1,0 +1,5 @@
+@prefix : <http://example.org/> .
+
+:alice :status :rich .
+
+{ ?x :status :happy } <= { ?x :status :rich }.

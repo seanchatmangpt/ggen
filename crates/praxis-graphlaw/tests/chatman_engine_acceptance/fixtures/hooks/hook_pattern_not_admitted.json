@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_HookPatternNotAdmitted",
+  "kind": "falsification",
+  "seed": 15714217236346987414,
+  "mutation": "Register a hook whose trigger pattern uses a predicate outside the admitted set.",
+  "expected_refusal": "HookPatternNotAdmitted",
+  "input": {"hook_iri": "urn:chatman:hook:1", "pattern": "pattern-z", "admitted_patterns": ["pattern-a", "pattern-b"]}
+}

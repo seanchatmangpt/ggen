@@ -119,11 +119,11 @@ fn is_healthy(checks: &[CheckItem]) -> bool {
 // Verb Functions
 // ============================================================================
 
-/// Health check: ggen.toml presence, binary version, workspace state, and
-/// toolchain (rust/cargo/git/marketplace/cache). Fast, local-only by
-/// default — pass `all` to also run SLO microbenchmarks and probe the
-/// observability stack (Tempo/OTel/Jaeger), or `check` to run a single
-/// named check (e.g. "rust", "slo", "observability").
+/// Health check: `ggen.toml` presence, binary version, workspace state, and toolchain.
+///
+/// Covers rust/cargo/git/marketplace/cache. Fast, local-only by default — pass `all` to
+/// also run SLO microbenchmarks and probe the observability stack (Tempo/OTel/Jaeger), or
+/// `check` to run a single named check (e.g. "rust", "slo", "observability").
 #[verb("doctor", "root")]
 pub fn doctor(all: bool, check: Option<String>) -> Result<DoctorOutput> {
     let cwd = std::env::current_dir()

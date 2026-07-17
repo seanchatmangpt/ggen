@@ -1,0 +1,34 @@
+@prefix schema: <http://schema.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+<http://schema.org> a owl:Ontology ;
+    dct:title "Schema.org Thing and Property Classes"@en ;
+    dct:description "A type system for marking up web pages" ;
+    owl:versionInfo "13.0" .
+
+schema:Thing a owl:Class ;
+    rdfs:label "Thing"@en ;
+    rdfs:comment "The most generic type of item" .
+
+schema:Property a owl:Class ;
+    rdfs:label "Property"@en ;
+    rdfs:subClassOf schema:Thing ;
+    rdfs:comment "A property of a real or virtual thing" .
+
+schema:RealEstateAgent a owl:Class ;
+    rdfs:subClassOf schema:Thing ;
+    rdfs:label "RealEstateAgent"@en .
+
+schema:Residence a owl:Class ;
+    rdfs:subClassOf schema:Thing ;
+    rdfs:label "Residence"@en .
+
+schema:House a owl:Class ;
+    rdfs:subClassOf schema:Residence ;
+    rdfs:label "House"@en .
+
+schema:Apartment a owl:Class ;
+    rdfs:subClassOf schema:Residence ;
+    rdfs:label "Apartment"@en .

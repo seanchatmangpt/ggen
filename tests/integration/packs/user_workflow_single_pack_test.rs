@@ -6,9 +6,15 @@
 //! Workflow 1: Single-pack web API project
 //! Workflow 2: Single-pack data science project
 
-use ggen_core::domain::packs::{
-    generate_from_pack, install_pack, list_packs, show_pack, GenerateInput, InstallInput,
-};
+// Re-pointed to ggen_marketplace (T053; see
+// tests/unit/packs/pack_installer_test.rs's comment for the full
+// `install_pack`->`install_pack_by_id`/`InstallInput`->`InstallByIdInput`
+// rename rationale from T024, and
+// tests/integration/packs/user_workflow_multi_pack_test.rs's comment for the
+// orphaned-file/submodule-qualified-path situation).
+use ggen_marketplace::marketplace::install::{install_pack_by_id, InstallByIdInput};
+use ggen_marketplace::packs_registry::generator::{generate_from_pack, GenerateInput};
+use ggen_marketplace::packs_registry::metadata::{list_packs, show_pack};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
@@ -27,7 +33,7 @@ async fn test_workflow_1_web_api_pack_complete_flow() {
     match list_result {
         Ok(packs) => {
             // Should have some packs
-            assert!(packs.is_empty() == False, "Should have at least one pack");
+            assert!(packs.is_empty() == false, "Should have at least one pack");
 
             // Find startup pack (closest to web API)
             let web_packs: Vec<_> = packs
@@ -52,19 +58,19 @@ async fn test_workflow_1_web_api_pack_complete_flow() {
             let pack = show_result.unwrap();
             assert!(!pack.packages.is_empty(), "Pack should have packages");
             assert!(
-                !pack.templates.is_empty() || pack.packages.is_empty() == False,
+                !pack.templates.is_empty() || pack.packages.is_empty() == false,
                 "Pack should have templates or packages"
             );
 
             // Step 3: Install pack (dry run)
-            let install_input = InstallInput {
+            let install_input = InstallByIdInput {
                 pack_id: pack_id.clone(),
                 target_dir: Some(PathBuf::from(format!("/tmp/test-workflow1-{}", pack_id))),
                 force: false,
                 dry_run: true,
             };
 
-            let install_result = install_pack(&install_input).await;
+            let install_result = install_pack_by_id(&install_input).await;
             assert!(install_result.is_ok(), "Should install pack (dry run)");
 
             let install_output = install_result.unwrap();
@@ -135,7 +141,7 @@ async fn test_workflow_2_data_science_pack_complete_flow() {
                 test_pack_workflow(pack_id, "ml-project").await;
             } else {
                 // Found ML packs
-                assert!(packs.is_empty() == False, "Should have ML packs");
+                assert!(packs.is_empty() == false, "Should have ML packs");
                 let pack_id = &packs[0].id;
 
                 // Step 2: Show pack
@@ -146,14 +152,14 @@ async fn test_workflow_2_data_science_pack_complete_flow() {
                 assert_eq!(pack.category, "ml", "Should be ML category");
 
                 // Step 3: Install (dry run)
-                let install_input = InstallInput {
+                let install_input = InstallByIdInput {
                     pack_id: pack_id.clone(),
                     target_dir: Some(PathBuf::from(format!("/tmp/test-workflow2-{}", pack_id))),
                     force: false,
                     dry_run: true,
                 };
 
-                let install_result = install_pack(&install_input).await;
+                let install_result = install_pack_by_id(&install_input).await;
                 assert!(install_result.is_ok(), "Should install ML pack");
 
                 // Step 4: Generate ML project
@@ -178,7 +184,7 @@ async fn test_workflow_2_data_science_pack_complete_flow() {
 
                     let gen_output = gen_result.unwrap();
                     assert!(
-                        gen_output.templates_generated.is_empty() == False,
+                        gen_output.templates_generated.is_empty() == false,
                         "Should generate ML templates"
                     );
                 }
@@ -205,14 +211,14 @@ async fn test_pack_workflow(pack_id: &str, project_name: &str) {
     let pack = show_result.unwrap();
 
     // Install
-    let install_input = InstallInput {
+    let install_input = InstallByIdInput {
         pack_id: pack_id.to_string(),
         target_dir: Some(PathBuf::from(format!("/tmp/test-workflow-{}", pack_id))),
         force: false,
         dry_run: true,
     };
 
-    let install_result = install_pack(&install_input).await;
+    let install_result = install_pack_by_id(&install_input).await;
     assert!(install_result.is_ok(), "Should install pack");
 
     // Generate if templates available
@@ -255,14 +261,14 @@ async fn test_single_pack_list_show_install_chain() {
     assert_eq!(&pack.id, pack_id);
 
     // Install dry run
-    let install_input = InstallInput {
+    let install_input = InstallByIdInput {
         pack_id: pack_id.clone(),
         target_dir: None,
         force: false,
         dry_run: true,
     };
 
-    let install_output = install_pack(&install_input).await.expect("Should install");
+    let install_output = install_pack_by_id(&install_input).await.expect("Should install");
     assert_eq!(&install_output.pack_id, pack_id);
 
     println!("✓ list -> show -> install chain works");
@@ -282,14 +288,14 @@ async fn test_pack_with_all_metadata_fields() {
             assert!(!pack.description.is_empty());
 
             // Install should handle all metadata
-            let install_input = InstallInput {
+            let install_input = InstallByIdInput {
                 pack_id: pack_id.to_string(),
                 target_dir: None,
                 force: false,
                 dry_run: true,
             };
 
-            let result = install_pack(&install_input).await;
+            let result = install_pack_by_id(&install_input).await;
             assert!(result.is_ok(), "Should handle pack with full metadata");
         }
         Err(_) => {

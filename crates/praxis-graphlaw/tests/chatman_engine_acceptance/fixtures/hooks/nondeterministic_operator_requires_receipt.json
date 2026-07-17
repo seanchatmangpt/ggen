@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_NondeterministicOperatorRequiresReceipt",
+  "kind": "falsification",
+  "seed": 4497868999225016439,
+  "mutation": "Invoke a nondeterministic operator without attaching the required receipt.",
+  "expected_refusal": "NondeterministicOperatorRequiresReceipt",
+  "input": {"hook_iri": "urn:chatman:hook:3", "pattern": "pattern-c", "admitted_patterns": ["pattern-c"], "nondeterministic": true, "has_receipt": false}
+}

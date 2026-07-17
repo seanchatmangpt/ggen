@@ -1,0 +1,47 @@
+{#-
+  PROJ-752 (PRD.md sec.7.4-7.5): the T stage of Rail A's A_z = T(Q(W)).
+
+  Renders the ordered `steps` context value (built by
+  crates/praxis-core/src/arazzo.rs::render_arazzo_document from PROJ-751's
+  real Q-stage SPARQL projection rows) into a manufactured Arazzo 1.1.x JSON
+  document deserializable by wasm4pm_compat::arazzo::ArazzoDescription.
+
+  Every value is passed through the `json_encode` filter rather than
+  interpolated raw: it is Tera's own JSON serializer (serde_json::to_string
+  on the value), so quoting/escaping of activity labels, IRIs, and the
+  embedded SPARQL/Tera source text is correct by construction, not by
+  hand-escaping.
+-#}
+{
+  "arazzo": "1.1.0",
+  "info": {
+    "title": {{ title | json_encode }},
+    "version": "26.7.11"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "powl-projection-source",
+      "url": {{ source_url | json_encode }}
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": {{ workflow_id | json_encode }},
+      "summary": "Manufactured by Rail A Tera renderer T from the Q-stage SPARQL projection of an admitted POWL region (PRD.md sec.7.4: A_z = T(Q(W))).",
+      "steps": [
+        {% for step in steps -%}
+        {
+          "stepId": {{ step.step_id | json_encode }},
+          "description": {{ step.description | json_encode }},
+          "operationId": {{ step.operation_id | json_encode }}{% if step.is_external_cut %},
+          "x-powl-external-cut": true,
+          "x-powl-region-id": {{ step.region_id | json_encode }},
+          "x-sparql-projection": {{ step.sparql_projection | json_encode }},
+          "x-tera-renderer": {{ step.tera_renderer | json_encode }}{% endif %}
+
+        }{% if not loop.last %},{% endif %}
+        {% endfor -%}
+      ]
+    }
+  ]
+}

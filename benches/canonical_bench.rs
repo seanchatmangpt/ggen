@@ -1,9 +1,15 @@
 #![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
 
+// NOTE: originally `ggen_core::canonical::{hash::compute_hash, json::*, Canonicalizer}`.
+// Re-pointed during the ggen-core retirement migration (specs/014-ggen-core-replacement/):
+// `compute_hash` -> `ggen_config::receipt::hash_data` (byte-for-byte identical SHA-256 hex
+// implementation, confirmed during research, not re-ported); `json`/`Canonicalizer` ->
+// `ggen_config::canonical` (the one piece of `ggen_core::canonical` with no equivalent
+// anywhere else in the workspace, ported verbatim).
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_core::canonical::hash::compute_hash;
-use ggen_core::canonical::json::{canonicalize_json, canonicalize_json_str, JsonCanonicalizer};
-use ggen_core::canonical::Canonicalizer;
+use ggen_config::canonical::json::{canonicalize_json, canonicalize_json_str, JsonCanonicalizer};
+use ggen_config::canonical::Canonicalizer;
+use ggen_config::receipt::hash_data;
 use serde_json::{json, Value};
 use std::hint::black_box;
 
@@ -124,7 +130,7 @@ fn bench_hash_computation(c: &mut Criterion) {
         group.throughput(Throughput::Bytes(*size as u64));
         group.bench_with_input(BenchmarkId::from_parameter(size), &data, |b, data| {
             b.iter(|| {
-                black_box(compute_hash(data).unwrap());
+                black_box(hash_data(data));
             });
         });
     }

@@ -74,7 +74,7 @@ RUST_LOG=trace,ggen_ai=trace cargo test <test_name> 2>&1 | grep -E "llm\.|mcp\."
 ## 🏗️ Project Context
 
 - **Stack**: Rust (nightly, pinned) | Tokio | Oxigraph | Tera | Clap
-- **Architecture**: 10-crate workspace (see [architecture.md](architecture.md))
+- **Architecture**: 12-crate workspace (see [architecture.md](architecture.md))
 - **Testing**: Chicago TDD ONLY (no mocks, no test doubles)
 - **Paradigm**: Specification-driven | RDF ontologies → Code
 

@@ -1,0 +1,13 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 8714df9e33ae67e54d5b5732ac3f1fa96623834a3da13a3d49285094c92859ee # shrinks to a = 0, b = 1
+cc f85f9d996942e511f1547cca29eb0d35f83f4c65f746afb2c46648e2581408a1 # shrinks to a = 0, b = 1
+cc 34afa8dc0fea427114a1313d1c9c17e6659bc6bf211d1cbbee4ad2b30385ac09 # shrinks to a = 0, b = -1
+cc d7d1a6f3bc9ba98147accb30952fcc40e53a6f77a8549ee25133d388f60049b8 # shrinks to a = 0, b = 1
+cc e68111a8f22958abc869c618c3cc333950b56d7eca9569d03a5500fdfaaf6fe1 # shrinks to a = 0, b = 1
+cc b5fcfa7f5216538706969d7f74eeceb69217dcbc8fad489c0af77979aa407f4c # shrinks to v = 0, ts = 0
+cc 12d3a30c8270e5fb8ed32bd3c1a4c609c0e38465e7f2786ee9c41ce8e1ffaad7 # shrinks to a = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], b = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]

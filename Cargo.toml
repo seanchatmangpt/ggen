@@ -28,19 +28,42 @@ include = [
     "README.md",
     "CHANGELOG.md",
 ]
-
-[[bin]]
-name = "ggen"
-path = "src/main.rs"
+# autobins = false (2026-07-16, v26.7.16 CLI-routing flip): this package's own `[[bin]]
+# name = "ggen"` (formerly here, now removed) was a byte-identical duplicate of
+# ggen-cli-lib's `[[bin]] name = "ggen"` -- both `main.rs` files just delegated to
+# `ggen_cli_lib::cli_match()`. That duplicate was a real, pre-existing bin-name collision
+# within this workspace (harmless for local `cargo build`, but meant the two packages raced
+# for `target/debug/ggen`). It also meant this package's OWN publish required resolving
+# `ggen-cli-lib` from the registry -- and ggen-cli-lib is now correctly `publish = false`
+# (it has a real, functional dependency on ggen-engine, which can never be published; see
+# ggen-cli-lib's own Cargo.toml comment and task #35 in the migration session tracker), so
+# a real bin target here made `cargo publish --dry-run -p ggen` unresolvable forever.
+# `src/main.rs` stays on disk (fix-forward doctrine, not deleted) but is no longer built from
+# this package -- the canonical "ggen" binary is now built solely from ggen-cli-lib
+# (`cargo build -p ggen-cli-lib --bin ggen`, wired into the `GGEN` justfile variable). This
+# package (`ggen` on crates.io) is now a pure library crate: `cargo add ggen` continues to
+# work; `cargo install ggen` no longer builds a CLI binary from this specific package.
+autobins = false
 
 [workspace]
 members = [
   "crates/ggen-config",
   "crates/ggen-marketplace",
-  "crates/ggen-core",
   "crates/ggen-cli",
   "crates/ggen-graph",
   "crates/ggen-lsp",
+  # ggen-core replacement engine (docs/jira/v26.7.16/): vendored, renamed copy
+  # of ~/praxis/crates/ggen (see 01-PUBLISH-SAFETY-AND-CRATE-RENAME.md) plus
+  # its two direct dependencies, also vendored so migration-specific edits
+  # (e.g. ReceiptRecord.signature_hex) land here, not upstream in ~/praxis.
+  # Landed inert in this pass -- no consumer references them yet.
+  "crates/ggen-engine",
+  "crates/praxis-core",
+  "crates/praxis-graphlaw",
+  "crates/powl2-decompose",
+  "crates/chicago-tdd-tools",
+  "crates/bcinr-pddl",
+  "crates/bcinr-mfw-ir",
   # Genesis kernel crates (pure Rust, IO-free)
   "crates/genesis-types-v2",
   "crates/genesis-core-v2",
@@ -53,7 +76,16 @@ members = [
   # on disk (non-deletion doctrine); re-add after repair.
   # "examples/7-agent-validation",
   ]
-exclude = ["examples/7-agent-validation"]
+# `crates/ggen-core` (2026-07-16, ggen-core disconnect, T054-T058): removed from
+# `members` above -- ggen-core is being disconnected from the workspace, not
+# deleted. Every real dependent has been ported or gated (see cmds/mod.rs and
+# the `ggen-core-retired` features in this file and crates/ggen-cli/Cargo.toml).
+# Listed here in `exclude` (not just dropped from `members`) so that running
+# `cargo` commands directly inside crates/ggen-core/ treats it as a fully
+# standalone crate rather than erroring with "current package believes it's in
+# a workspace when it's not" -- crates/ggen-core/ itself is untouched, on disk,
+# per this project's fix-forward / non-deletion doctrine.
+exclude = ["examples/7-agent-validation", "crates/ggen-core"]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
@@ -77,8 +109,8 @@ tracing-subscriber = { version = "0.3", features = [
   "ansi",
 ] }
 clap = { version = "4.5", features = ["derive"] }
-clap-noun-verb = "=26.6.2"
-clap-noun-verb-macros = "=26.6.2"
+clap-noun-verb = "=26.7.4"
+clap-noun-verb-macros = "=26.7.4"
 once_cell = "1.19"
 reqwest = { version = "0.12", features = ["blocking", "json", "rustls-tls"] }
 tempfile = "3.23"
@@ -116,9 +148,21 @@ rig-core = "0.15.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
 # NOTE: v26.5.29 unified release
-ggen-core = { path = "crates/ggen-core", version = "26.7.2" }
+# ggen-core (2026-07-16, ggen-core disconnect, T054-T058): removed. ggen-core
+# is no longer a workspace member (see [workspace] exclude above) and no
+# remaining workspace member has a real dependency edge on it -- every real
+# consumer was ported or gated behind the `ggen-core-retired` feature (see
+# cmds/mod.rs and crates/ggen-cli/Cargo.toml). crates/ggen-core/ itself is
+# untouched on disk, per this project's fix-forward / non-deletion doctrine.
 ggen-cli-lib = { path = "crates/ggen-cli", version = "26.7.2" }
 ggen-graph = { path = "crates/ggen-graph", version = "26.7.2" }
+# ggen-core replacement engine dependencies (specs/014-ggen-core-replacement,
+# docs/jira/v26.7.16/10-ROOT-PACKAGE-TEST-MIGRATION.md, T051-T053): root
+# package/tests/examples/benches re-point away from ggen_core:: onto these,
+# file by file, as each file's specific symbols land a real port destination.
+ggen-config = { path = "crates/ggen-config", version = "26.7.2" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "26.7.2" }
+ggen-engine = { path = "crates/ggen-engine", version = "26.7.13" }
 
 # Genesis kernel crates (pure Rust, IO-free — A = μ(O) foundation)
 genesis-types = { path = "crates/genesis-types-v2", version = "26.7.2" }
@@ -148,7 +192,23 @@ console = "0.16"
 
 # Testing libraries
 proptest = "1.8"
-chicago-tdd-tools = { version = "26.7.1", features = ["testing-extras", "testcontainers"] }
+# `cli-proof` deliberately dropped from this shared feature set (2026-07-16, discovered via
+# `cargo publish --dry-run -p ggen`): the published chicago-tdd-tools 26.7.1 doesn't have that
+# feature yet. Root package is the ONLY consumer of this shared `{ workspace = true }`
+# definition (confirmed via grep) and has zero cli_proof/CliHarness usage in its own tests/ --
+# every real cli-proof consumer (ggen-engine, ggen-cli, praxis-graphlaw) declares its own
+# separate chicago-tdd-tools dependency directly, not through this shared entry. Keeping
+# `cli-proof` here served no one and blocked `cargo publish --dry-run -p ggen` on a feature
+# root never uses.
+#
+# 2026-07-17: switched from the published registry version to the vendored local copy at
+# crates/chicago-tdd-tools (copied from /Users/sac/chicago-tdd-tools's library source only --
+# not its tests/examples/benches/docs -- as part of removing every absolute machine-local
+# Cargo path dependency from this workspace, PR #255). This crate is `publish = false`, so it
+# never risks the real chicago-tdd-tools' crates.io identity. Once cli-proof is published
+# upstream, this can point back at a plain `version = "..."` and the vendored copy can be
+# dropped -- tracked in tasks.md.
+chicago-tdd-tools = { path = "crates/chicago-tdd-tools", version = "26.7.1", features = ["testing-extras", "testcontainers"] }
 fake = "2.9"
 tokio-test = "0.4"
 
@@ -505,19 +565,92 @@ journald = []
 syslog = []
 london_tdd = []
 integration = []  # Enable workspace-level integration tests (requires external services/missing crates)
-# Forwards the ggen-cli archive gate: compiles the archived nouns (a2a/framework/
-# mcp/sigma/wizard) so experimental-only tests (e.g. the wizard quickstart OTEL
-# validation) can reference them. Off by default — they are out of the v26.5.28 boundary.
-experimental = ["ggen-cli-lib/experimental"]
+# `experimental` no longer forwards to ggen-cli-lib (2026-07-16, publish-safety fix): root
+# dropped its ggen-cli-lib dependency entirely (see `autobins = false` comment above), so a
+# `pkg/feature` forward to a package that's no longer a dependency would be a hard Cargo.toml
+# error. The one real consumer (tests/otel_validation/capabilities.rs) is now gated behind
+# `root-ggen-cli-lib-tests` instead (see that feature below) pending a real rewrite against
+# ggen_engine::verbs::handlers. Kept as an empty placeholder so existing
+# `--features experimental` invocations don't hard-error, just no longer do anything here.
+experimental = []
+# Gates the handful of root tests/ files that used to call ggen_cli_lib::* directly (now
+# archived, see their own file-header comments) -- root no longer depends on ggen-cli-lib at
+# all, since ggen-cli-lib is `publish = false` (real dependency on ggen-engine) and root must
+# stay publishable. Off by default; there is currently no working implementation behind this
+# feature to enable, it exists only so the `#![cfg(...)]` gates compile cleanly.
+root-ggen-cli-lib-tests = []
+# `a2a-integration-tests` empty placeholder (2026-07-16, publish-safety fix, revised): a
+# previous version of this comment forwarded `ggen-lsp/a2a` here, off-by-default, on the
+# theory that an optional/inactive feature-forward wouldn't block publish. Empirically wrong,
+# verified via `cargo publish --dry-run -p ggen`: it failed identically with the forward
+# present but disabled -- Cargo's publish resolver checks every possible feature/dependency
+# combination the manifest COULD produce, not just the active defaults, so ANY mention of
+# `ggen-lsp/a2a` anywhere in this manifest blocks publish for as long as the published
+# ggen-lsp lacks that feature. There is no Cargo.toml-only way to keep this reachable from
+# root while staying publishable. Root's `ggen-lsp` dependency (and the a2a feature request)
+# is removed entirely; `tests/integration/test_telco_routing.rs` and `benches/a2a_bench.rs`
+# are gated behind this now-permanently-empty feature (their own file headers explain why) --
+# their real home is crates/ggen-lsp/tests or crates/ggen-lsp/benches, where ggen-lsp's a2a
+# feature is native/local and doesn't need external registry resolution to test.
+a2a-integration-tests = []
+# Gates the root tests/ files that exercise ggen-core's internal library
+# surface directly (Graph/GraphStore, Pipeline, Generator, Template,
+# SimpleTracer, pipeline_engine::pipeline, syntax_validator, etc.) rather
+# than through any CLI noun. ggen-core is being disconnected from the
+# workspace (root [workspace] members no longer lists crates/ggen-core;
+# root's own [dependencies] no longer has a real ggen-core edge) and no
+# ggen-engine/ggen-graph equivalent exists for the large majority of these
+# symbols (verified via workspace-wide search, 2026-07-16 investigation).
+# Off by default; there is currently no working implementation behind this
+# feature to enable, it exists only so the `#![cfg(...)]` gates on the
+# archived files compile cleanly. Mirrors ggen-cli's own
+# `ggen-core-retired` feature (crates/ggen-cli/Cargo.toml).
+ggen-core-retired = []
 # OpenTelemetry instrumentation (optional - adds ~200 dependencies)
-# Enable with: cargo build --features otel
-# Only forward to ggen-core, which handles its own otel dependencies
-otel = [
-  "ggen-core/otel",
-]
+# Previously forwarded to `ggen-core/otel`; ggen-core is no longer a
+# dependency of this package (2026-07-16, ggen-core disconnect, T054-T058;
+# see [dependencies] below and the `ggen-core-retired` feature above), so
+# that forward is removed. Kept as an empty placeholder so existing
+# `--features otel` invocations don't hard-error, just no longer do
+# anything here -- no other workspace member forwards its own `otel`
+# feature from this package's `otel` name today.
+otel = []
 [dependencies]
-ggen-core = { workspace = true }
-ggen-cli-lib = { workspace = true }
+# ggen-core (2026-07-16, ggen-core disconnect, T054-T058): removed. Every
+# ggen_core::-referencing root test file (tracing.rs, graph_core_tests.rs,
+# template_systems_tests.rs, validate_marketplace_rdf.rs,
+# generator_core_tests.rs, fixture_validation_proof.rs, contract/pipeline.rs)
+# is now gated behind the `ggen-core-retired` feature (see [features] above)
+# -- none had a ggen-engine/ggen-graph port destination (verified via
+# workspace-wide search). crates/ggen-core/ itself is untouched on disk, per
+# this project's fix-forward / non-deletion doctrine.
+# ggen-cli-lib intentionally NOT a dependency here (removed 2026-07-16, publish-safety fix):
+# it was needed only for root's own `[[bin]] "ggen"` (a byte-identical duplicate of
+# ggen-cli-lib's own binary, now removed -- see `autobins = false` comment above) and a
+# handful of root tests/ files (now gated behind `root-ggen-cli-lib-tests`, see [features]).
+# ggen-cli-lib is now `publish = false` (real dependency on ggen-engine, which can never
+# resolve on crates.io), so a real dependency edge here would make `cargo publish --dry-run
+# -p ggen` unresolvable forever, the same class of failure this whole fix chain started from.
+# Re-point targets for tests/examples/benches (T051-T053, superseded
+# 2026-07-16 by the ggen-core disconnect, T054-T058): the ggen_core::
+# -referencing root test files that had no port destination (graph, generator,
+# pipeline, template, simple_tracing, syntax_validator, pipeline_engine, etc.)
+# are now gated behind the `ggen-core-retired` feature (see [features] above)
+# instead of waiting on a future port -- ggen-core is disconnected from the
+# workspace, not deleted; re-enable that feature once a real port lands.
+ggen-config = { workspace = true }
+ggen-marketplace = { workspace = true }
+# ggen-engine intentionally NOT a dependency here (removed 2026-07-16, discovered via
+# `cargo publish --dry-run -p ggen`): ggen-engine -> praxis-core/praxis-graphlaw carry hard
+# absolute-path deps on sibling repos (/Users/sac/bcinr/crates/*, /Users/sac/wasm4pm-compat)
+# that only exist on this machine, so ggen-engine is `publish = false` and can never resolve
+# on crates.io. A real dependency edge here broke `cargo publish --dry-run -p ggen` with
+# "no matching package named `ggen-engine` found". Confirmed zero internal consumers (grep
+# for `ggen::core::` across src/tests/examples/benches/crates returned nothing) before
+# removing -- the T051 `pub use ggen_engine as core;` re-export in src/lib.rs is reverted
+# alongside this for the same reason. ggen-cli (workspace = true below) still needs
+# ggen-engine directly for the CLI routing flip; that crate's own publishability is a
+# separate, still-open question (see docs/jira/v26.7.16/ tickets 01/02).
 chrono = { workspace = true }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
@@ -538,7 +671,17 @@ tracing-subscriber = "0.3"
 # Enable OTEL via: cargo build --features otel (which forwards to ggen-core/otel)
 # Example definitions removed - examples now discovered automatically by Cargo
 [dev-dependencies]
-ggen-lsp = { path = "crates/ggen-lsp", version = "26.7.2", features = ["a2a"] }
+# ggen-lsp intentionally NOT a dependency here (removed 2026-07-16, publish-safety fix): its
+# only real consumers were tests/integration/test_telco_routing.rs and benches/a2a_bench.rs
+# (both import ggen_lsp::a2a_mcp::*, confirmed via grep -- nothing else in root's src/tests/
+# examples/benches touches ggen_lsp:: at all), and BOTH need the `a2a` feature, which isn't
+# published to crates.io yet for ggen-lsp 26.7.2/26.7.3. A path+version dependency on
+# ggen-lsp with `a2a` requested anywhere in this manifest (even behind an inactive optional
+# feature-forward -- empirically tested, see the `a2a-integration-tests` [features] comment)
+# makes `cargo publish --dry-run -p ggen` unresolvable for as long as that external gap
+# persists. Both files are gated behind the now-permanently-empty `a2a-integration-tests`
+# feature with their own ARCHIVED headers -- their real home is crates/ggen-lsp's own
+# tests/benches, where ggen-lsp's a2a feature is native/local, not a registry dependency.
 assert_cmd = "2.0.17"
 predicates = "3.1.3"
 serde_json = "1.0"
@@ -645,9 +788,33 @@ harness = false
 [[bench]]
 name = "a2a_bench"
 harness = false
+required-features = ["a2a-integration-tests"]
 [[bench]]
 name = "canonical_bench"
 harness = false
+# ARCHIVED (ggen-core disconnect, 2026-07-16): drives
+# `ggen_core::{generator::GenContext, pipeline::Pipeline, template::Template,
+# graph::Graph}` directly (benches/ggen_benchmarks.rs). No
+# ggen-engine/ggen-graph equivalent exists (verified via workspace-wide
+# search, 2026-07-16 investigation). Gated the same way `a2a_bench` above is
+# -- required-features, permanently off by default -- rather than deleted,
+# per this project's fix-forward doctrine. File retained on disk untouched.
+[[bench]]
+name = "ggen_benchmarks"
+harness = false
+required-features = ["ggen-core-retired"]
+[[example]]
+name = "drift-detection-example"
+required-features = ["ggen-core-retired"]
+[[example]]
+name = "rdf_template_integration"
+required-features = ["ggen-core-retired"]
+[[example]]
+name = "path_validation_example"
+required-features = ["ggen-core-retired"]
+[[example]]
+name = "rdf_metadata_example"
+required-features = ["ggen-core-retired"]
 [[test]]
 name = "testcontainer_marketplace_git_hooks"
 path = "tests/integration/testcontainer_marketplace_git_hooks.rs"
@@ -734,7 +901,7 @@ required-features = ["integration"]
 [[test]]
 name = "test_telco_routing"
 path = "tests/integration/test_telco_routing.rs"
-required-features = ["integration"]
+required-features = ["integration", "a2a-integration-tests"]
 
 # ProofPack release-gate tests — run by default, no feature flag required.
 # Covers: smoke (CLI boot), invariants (manifest rules), refusal (negative
@@ -791,3 +958,9 @@ unused-shlibs = []
 # a wide blast radius unsuitable for the release foundation. Land kebab via a
 # MINIMAL published clap-noun-verb release on top of the stable 26.5.x line, then
 # bump the dep. ggen works today on published 26.5.19 (snake flags).
+
+# 2026-07-17: the [patch.crates-io] override that used to live here (redirecting
+# chicago-tdd-tools to /Users/sac/chicago-tdd-tools for the unpublished cli-proof
+# feature) is gone -- every real consumer now depends on the vendored copy at
+# crates/chicago-tdd-tools directly (a plain path dependency, no patch needed;
+# see the workspace.dependencies entry above and PR #255).

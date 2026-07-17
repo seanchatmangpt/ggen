@@ -1,0 +1,25 @@
+---
+to: docs/lsp_max_rule_pack.md
+sparql:
+  rules: >
+    PREFIX lm: <http://seanchatmangpt.github.io/packs/lsp-max#>
+    SELECT ?ruleId ?name ?severity ?message
+    WHERE {
+      ?rule a lm:LintRule ;
+            lm:ruleId   ?ruleId ;
+            lm:name     ?name ;
+            lm:severity ?severity ;
+            lm:message  ?message .
+    }
+    ORDER BY ?ruleId
+---
+# lsp-max RulePackServer rule index
+
+Generated from the `lsp-max-pack` ontology. Each rule ships as its own
+`rules/lsp_max_*.toml` file and is loaded by the `RulePackServer` trait
+implementation at server startup.
+
+| Rule ID | Name | Severity | Message |
+|---------|------|----------|---------|
+{% for row in results %}| `{{ row.ruleId }}` | {{ row.name }} | {{ row.severity }} | {{ row.message }} |
+{% endfor %}

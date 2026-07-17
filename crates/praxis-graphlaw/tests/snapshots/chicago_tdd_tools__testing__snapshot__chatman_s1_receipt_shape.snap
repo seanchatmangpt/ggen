@@ -1,0 +1,24 @@
+---
+source: src/testing/snapshot.rs
+assertion_line: 55
+expression: value
+---
+canon_nquads (sorted lines):
+<http://example.org/Employee> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/Person> <urn:chatman:snapshot:snapshot-semantics-test> .
+<http://example.org/alice> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Employee> <urn:chatman:snapshot:snapshot-semantics-test> .
+<http://example.org/bob> <http://example.org/knows> <http://example.org/alice> <urn:chatman:snapshot:snapshot-semantics-test> .
+<http://example.org/world> <urn:chatman:engine#ocelLog> "{\"run_id\":1,\"sealed\":true,\"objects\":[{\"id\":\"case-1\",\"otype\":\"case\"}],\"events\":[{\"id\":\"e1\",\"activity\":\"finish(a)\",\"op_index\":0,\"at_ns\":1,\"objects\":[\"case-1\"]}]}" <urn:chatman:snapshot:snapshot-semantics-test> .
+<http://example.org/world> <urn:chatman:engine#pddlDomain> "\n(define (domain chatman-min)\n  (:requirements :strips)\n  (:predicates (ready ?x) (done ?x))\n  (:action finish\n    :parameters (?x)\n    :precondition (and (ready ?x))\n    :effect (and (done ?x) (not (ready ?x)))))\n" <urn:chatman:snapshot:snapshot-semantics-test> .
+<http://example.org/world> <urn:chatman:engine#pddlProblem> "\n(define (problem chatman-min-p)\n  (:domain chatman-min)\n  (:objects a)\n  (:init (ready a))\n  (:goal (done a))\n)\n" <urn:chatman:snapshot:snapshot-semantics-test> .
+
+digest field lengths (hex chars):
+graph_snapshot: 64
+profile: 64
+symbol_table: 64
+projection: 64
+admission_table: 64
+route_decision: 64
+tape: 64
+hook_event: 64
+engine_version: 64
+receipt_root: 64

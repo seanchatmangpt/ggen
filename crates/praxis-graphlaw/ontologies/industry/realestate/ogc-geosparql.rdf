@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xmlns:sf="http://www.opengis.net/ont/sf#"
+         xmlns:dct="http://purl.org/dc/terms/">
+  <rdf:Description rdf:about="http://www.opengis.net/ont/sf">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
+    <dct:title xml:lang="en">GeoSPARQL Geography Markup Language</dct:title>
+    <dct:description>An RDF/OWL vocabulary for representing geographic information</dct:description>
+    <owl:versionInfo>2.1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.opengis.net/ont/sf#Geometry">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label>Geometry</rdfs:label>
+    <rdfs:comment>The class represents the geometric aspects of a GIS Feature</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.opengis.net/ont/sf#Point">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://www.opengis.net/ont/sf#Geometry"/>
+    <rdfs:label>Point</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.opengis.net/ont/sf#LineString">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://www.opengis.net/ont/sf#Geometry"/>
+    <rdfs:label>LineString</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.opengis.net/ont/sf#Polygon">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://www.opengis.net/ont/sf#Geometry"/>
+    <rdfs:label>Polygon</rdfs:label>
+  </rdf:Description>
+</rdf:RDF>

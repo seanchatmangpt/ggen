@@ -1,3 +1,13 @@
+// ARCHIVED (ggen-core disconnect, 2026-07-16): drives
+// `ggen_core::domain::utils::{execute_doctor, CheckResult, CheckStatus,
+// DoctorInput, DoctorResult, EnvironmentInfo}` directly. The live `ggen
+// doctor` noun (crates/ggen-engine/src/verbs/doctor.rs ->
+// handlers::handle_doctor) does not use this domain module -- it is its own,
+// unrelated implementation -- so there is no port destination for this
+// test's assertions (verified via workspace-wide search, 2026-07-16
+// investigation). Gated as a whole file rather than deleted, per this
+// project's fix-forward doctrine.
+#![cfg(feature = "ggen-core-retired")]
 #![allow(
     dead_code,
     unused_imports,
@@ -172,6 +182,7 @@ mod doctor_input_tests {
             verbose: true,
             check: None,
             env: false,
+            all: false,
         };
 
         assert!(input.verbose);
@@ -184,6 +195,7 @@ mod doctor_input_tests {
             verbose: false,
             check: Some("rust".to_string()),
             env: false,
+            all: false,
         };
 
         assert_eq!(input.check, Some("rust".to_string()));
@@ -196,6 +208,7 @@ mod doctor_input_tests {
             verbose: false,
             check: None,
             env: true,
+            all: false,
         };
 
         assert!(input.env);
@@ -208,6 +221,7 @@ mod doctor_input_tests {
             verbose: true,
             check: Some("cargo".to_string()),
             env: true,
+            all: true,
         };
 
         assert!(input.verbose);
@@ -495,6 +509,7 @@ mod integration_tests {
                 verbose: false,
                 check: Some(check_type.to_string()),
                 env: false,
+                all: false,
             };
 
             assert_eq!(input.check, Some(check_type.to_string()));

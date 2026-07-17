@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+@prefix string: <http://www.w3.org/2000/10/swap/string#> .
+
+:doc :text "the quick brown fox" .
+
+{ ?d :text ?t . ?t string:contains "quick" } => { ?d :hasQuick true }.

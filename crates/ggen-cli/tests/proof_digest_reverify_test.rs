@@ -1,3 +1,16 @@
+// ARCHIVED (v26.7.16 routing flip): this entire file's subject is `ggen sync
+// --locked`, which is REFUSED at the CLI layer on the new `sync run` shape
+// (see docs/reference/ggen_sync_manual.md#0-migration-the-v26716-cli-routing-flip
+// -- "engine natively checks ggen.lock; lock drift is instead surfaced via
+// `ggen doctor run`"). All three tests below pass `--locked` to `world.sync()`;
+// with the flag gone, argument parsing fails before any sabotage logic runs.
+// Worse than an honest failure: `test_sync_locked_passes_for_unmodified_pack`
+// (the one test that still reported "ok" under `cargo test -p ggen-cli-lib`)
+// only asserts stdout/stderr does NOT contain certain substrings, which is
+// vacuously true of a clap "unexpected argument" error too -- it was passing
+// for the wrong reason, not exercising re-verification at all. Gated as a
+// whole file rather than leaving that false-positive running by default.
+#![cfg(feature = "ggen-core-retired")]
 #![allow(
     dead_code,
     unused_imports,

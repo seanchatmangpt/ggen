@@ -1,0 +1,27 @@
+# Joseph as chief administrator of Egypt — national famine-management plan.
+# Phase artifact: closure-stabilization (domain fragment). the famine response stabilizes Egypt and the program closes.
+# One admitted PDDL Turtle planning artifact; fragments across all phase
+# artifacts merge structurally into ONE combined plan (domain name
+# 'joseph-famine' shared by every fragment). Formal planning-to-workflow
+# demonstration domain; argues no doctrine, claims no historicity.
+@prefix ex: <http://example.org/joseph#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:egypt ex:preserved ex:through-famine .
+
+ex:closure-stabilization ceng:pddlDomain """
+(define (domain joseph-famine)
+  (:requirements :strips)
+  (:predicates
+    (land-livestock-transferred ?x)
+    (famine-stabilized ?x)
+    (program-closed ?x))
+  (:action stabilize-famine-response
+    :parameters (?x)
+    :precondition (and (land-livestock-transferred ?x))
+    :effect (and (famine-stabilized ?x)))
+  (:action close-program
+    :parameters (?x)
+    :precondition (and (famine-stabilized ?x))
+    :effect (and (program-closed ?x))))
+""" .

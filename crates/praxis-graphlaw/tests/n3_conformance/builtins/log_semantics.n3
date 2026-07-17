@@ -1,0 +1,9 @@
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix : <http://example.org/#>.
+
+# log:semantics is documented as UNSUPPORTED: correct N3 semantics
+# requires fetching and parsing a remote document by URI (network I/O),
+# which this engine never performs (see lib/src/builtins/mod.rs's
+# LOG_SEMANTICS comment). This fixture is a placeholder, marked
+# "ignored" in manifest.json with an honest blocked_reason.
+<http://example.org/somewhere.n3> log:semantics ?g .

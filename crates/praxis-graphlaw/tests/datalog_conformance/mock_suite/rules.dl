@@ -1,0 +1,2 @@
+hasName(X, Y) :- name(X, Y).
+name(alice, "Alice").

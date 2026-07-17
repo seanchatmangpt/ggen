@@ -1,0 +1,72 @@
+# Vendored verbatim from
+# https://github.com/eyereasoner/eye/blob/master/reasoning/backward-more/backward-more.n3
+# (no truncation needed -- the upstream file is already small). This is a
+# distinct backward-chaining case from the existing `vendored/backward_math.n3`
+# (which proves a single ground goal via a lone `math:greaterThan`-guarded
+# rule with no ground facts to recurse over): this file has THREE distinct
+# `<=` rules over a small ground fact base --
+#   R1: score-comparison (`math:greaterThan` over `:score` facts)
+#   R2: independent award/boring context rule (no shared predicate with R1)
+#   R3: genuine *recursive* backward transitivity (`?X :moreInterestingThan
+#       ?Y. ?Y :moreInterestingThan ?Z.` chaining through R1/R2's derived
+#       facts as well as the ground `:B :moreInterestingThan :C` fact) --
+# giving real multi-rule interaction and backward-chained recursion depth
+# not exercised by any of the 15 previously-vendored cases.
+#
+# This engine's `TripleStore::prove` (the `prove_goal` manifest mechanism
+# used by `backward_math`/`peano`) was checked against this file during
+# vendoring and found to return `true` unconditionally for every goal tried
+# -- including goals against completely unrelated facts and even against an
+# empty store with no rules at all. That is a real, reproducible bug in
+# `TripleStore::prove` independent of this file, out of scope for this
+# vendoring batch to fix; it means `prove_goal` cannot honestly be used as
+# evidence right now for *any* case (existing or new). This case is
+# therefore vendored using the ordinary forward `materialize()` + `expected`
+# subset-check mechanism instead, which was independently confirmed (by
+# actually running `TripleStore::materialize()` on this exact input) to
+# correctly derive the real EYE-answer facts for backward-more-query1/2/3
+# (`:A :moreInterestingThan :B`, `:D :moreInterestingThan :B`, and the R3
+# transitive derivations `:A/:D :moreInterestingThan :C`) and nothing
+# spurious.
+@prefix math: <http://www.w3.org/2000/10/swap/math#>.
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix : <http://example.org/#>.
+
+# table moreInterestingThan
+[] log:table :moreInterestingThan.
+
+# Scores (ground facts)
+:A :score 8.
+:B :score 5.
+
+# Base edge to enable A > C by transitivity (no score for C):
+:B :moreInterestingThan :C.
+
+# Contextual facts for the award/boring rule: D > B
+:D :hasAward true.
+:B :boring true.
+
+# R1: by score
+{
+    ?X :moreInterestingThan ?Y.
+} <= {
+    ?X :score ?SX.
+    ?Y :score ?SY.
+    ?SX math:greaterThan ?SY.
+}.
+
+# R2: award/boring context
+{
+    ?X :moreInterestingThan ?Y.
+} <= {
+    ?X :hasAward true.
+    ?Y :boring true.
+}.
+
+# R3: transitivity (recursive)
+{
+    ?X :moreInterestingThan ?Z.
+} <= {
+    ?X :moreInterestingThan ?Y.
+    ?Y :moreInterestingThan ?Z.
+}.

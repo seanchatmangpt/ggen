@@ -1,0 +1,76 @@
+# target-org-colliding.ttl -- ADVERSARIAL fixture: the same Target
+# (Corvantis Systems, Inc.) as target-org.ttl, EXCEPT its Azure Container
+# Group / Container resource IRIs have been (deliberately, for this fixture)
+# copy-pasted verbatim from acquirer-org.ttl's own Azure resource IRIs
+# instead of minted under Corvantis's own base namespace.
+#
+# This models a genuinely realistic M&A integration failure mode: a target
+# company's infrastructure-as-code team clones the acquirer's Terraform/RDF
+# module as a starting template during pre-close integration planning and
+# forgets to re-key the resource identifiers -- a "locally-scoped ID scheme
+# that happens to collide" (docs/standing/BOOTSTRAP_COLD_START_LIMITATIONS.md
+# item 14's own phrase) in exactly the form that item names as unsolved.
+#
+# Both target-org.ttl's own root organization facts (identity, provenance,
+# authority, TOGAF capabilities) are UNCHANGED here -- this fixture still
+# passes F02 admission on its own, standalone, exactly as target-org.ttl
+# does (its own shapes/authority/vocabulary checks never inspect the
+# Azure resource IRIs' organizational ownership). The collision is
+# invisible to F02 admission entirely; it is only detectable at MERGE time,
+# which is exactly the mechanism crates/multifractal-workflow/src/f31_org_merge.rs
+# adds and crates/multifractal-workflow/tests/ma_org_merge.rs proves.
+
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix togaf:   <http://www.semanticweb.org/ontologies/2020/4/OntologyTOGAFContentMetamodel.owl#> .
+@prefix aztf:    <https://ggen.io/ontology/azure-terraform#> .
+
+<https://target-corvantis.example.org/entity/corvantis-systems>
+    rdf:type org:Organization, prov:Agent ;
+    prov:wasDerivedFrom <https://intake.target-corvantis.example.org/ea-intake-1> ;
+    skos:notation "ENT-CORVANTIS" ;
+    dcterms:description "Corvantis Systems, Inc. -- fictional industrial-automation software company, Target in deal MHC-2026-0091." .
+
+_:capIndustrialAutomationPlatformTargetColliding
+    rdf:type togaf:Capability ;
+    skos:notation "CAP-INDUSTRIAL-AUTOMATION-PLATFORM" ;
+    dcterms:description "Core industrial-automation product platform (Corvantis's primary revenue-generating capability)." ;
+    prov:wasAttributedTo <https://target-corvantis.example.org/entity/corvantis-systems> .
+
+_:capOnPremScadaIntegrationTargetColliding
+    rdf:type togaf:Capability ;
+    skos:notation "CAP-ONPREM-SCADA-INTEGRATION" ;
+    dcterms:description "Legacy on-premises SCADA integration layer, not yet migrated to the cloud." ;
+    prov:wasAttributedTo <https://target-corvantis.example.org/entity/corvantis-systems> .
+
+_:capLegacyErpIntegrationTargetColliding
+    rdf:type togaf:Capability ;
+    skos:notation "CAP-LEGACY-ERP-INTEGRATION" ;
+    dcterms:description "Point-to-point integration with a legacy on-premises ERP system." ;
+    prov:wasAttributedTo <https://target-corvantis.example.org/entity/corvantis-systems> .
+
+# ── COLLIDING Azure resources: these two IRIs are byte-identical to
+#    acquirer-org.ttl's own aztf:ContainerGroup / aztf:Container individuals
+#    (base https://acquirer-meridian.example.org/..., not
+#    https://target-corvantis.example.org/...), with DIFFERENT property
+#    values -- proving this is a genuine accidental collision between two
+#    distinct real-world resources, not an intentionally shared node.
+
+<https://acquirer-meridian.example.org/azure/container-group/ea-platform>
+    rdf:type aztf:ContainerGroup ;
+    aztf:osType "Linux" ;
+    aztf:restartPolicy "OnFailure" ;
+    aztf:ipAddressType "None" ;
+    aztf:hasContainer <https://acquirer-meridian.example.org/azure/container/ea-platform-runtime> .
+
+<https://acquirer-meridian.example.org/azure/container/ea-platform-runtime>
+    rdf:type aztf:Container ;
+    aztf:containerOrder 0 ;
+    aztf:containerName "corvantis-scada-bridge-runtime" ;
+    aztf:cpuCores 4.0 ;
+    aztf:memoryGb 8.0 ;
+    aztf:command "/app/corvantis-scada-bridge" .

@@ -1,0 +1,112 @@
+# fixtures/session-good.ttl — a well-formed sample Claude Code session log
+# under dogfood-lifecycle-pack/ontology.ttl, fully conformant to
+# ../shapes.ttl. Four tool events: a Bash, an Edit, a subagent-spawned Read,
+# and a Bash that was blocked by a governed surface (outcome dfl:Blocked).
+#
+# Each urn:blake3:<hex> node is the real BLAKE3 content address (b3sum) of a
+# representative input/output payload — the same scheme crates/chatman-common
+# provenance::content_address and crates/cng pipeline.rs use. These are honest
+# digests of the strings named in each entity's dcterms:description, not
+# placeholder hex.
+#
+# Every tool event carries BOTH dfl:sequenceIndex and time:inXSDDateTimeStamp
+# so it satisfies the shape's sh:or ordering constraint unambiguously. The
+# timestamps are graph-carried OWL-Time literals (invariant 3: never a
+# wall-clock read at hash time).
+
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@base <http://seanchatmangpt.github.io/packs/dogfood-lifecycle/fixtures/session-good#> .
+
+# ── Agents ────────────────────────────────────────────────────────────────
+
+<#operator>
+    a            prov:Agent , prov:Person ;
+    dcterms:description "The human operator on whose behalf the session's agents act." .
+
+<#mainAgent>
+    a            prov:Agent , prov:SoftwareAgent ;
+    prov:actedOnBehalfOf <#operator> ;
+    dcterms:description "The primary Claude Code agent driving this session." .
+
+<#subagentReader>
+    a            prov:Agent , prov:SoftwareAgent ;
+    prov:actedOnBehalfOf <#mainAgent> ;
+    dcterms:description "A subagent (session sidechain) spawned by the Task tool to read a file." .
+
+# ── Session ───────────────────────────────────────────────────────────────
+
+<#session>
+    a                     dfl:Session ;
+    dcterms:identifier    "1f9798ec-f62d-48bb-80a0-e9817fafdb71" ;
+    prov:wasAssociatedWith <#mainAgent> ;
+    dcterms:description    "Operation Dogfood sample session." .
+
+# ── Content-addressed tool inputs / outputs (urn:blake3:<hex>) ─────────────
+
+<urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae>
+    a prov:Entity ; dcterms:description "Bash input: 'just verify-all'." .
+<urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8>
+    a prov:Entity ; dcterms:description "Bash output: 'DoD gate: 128 passed; 0 failed'." .
+<urn:blake3:87d2eb610c0f4bae0f2f7b0aa80572391671c1c1cc9bf808b66d2601b160f1be>
+    a prov:Entity ; dcterms:description "Edit input: old/new string payload." .
+<urn:blake3:4eb103735249a2484d4e2c5b8a0e164200865ef7575a8efecffefe7ae7499227>
+    a prov:Entity ; dcterms:description "Edit output: file at revision after edit." .
+<urn:blake3:4307b0baffb0b6cf9755add59b6f1a57a9b6fc49eee1f52fee155de4be2bf353>
+    a prov:Entity ; dcterms:description "Read input: crates/cng/src/pipeline.rs offset=0 limit=200." .
+<urn:blake3:e6b95989b82bf65d707c07c5cd9c775c54b00f254ad156c54ea15ebd2d93805d>
+    a prov:Entity ; dcterms:description "Read output: file contents (200 lines)." .
+
+# ── Tool events ───────────────────────────────────────────────────────────
+
+<#event-1>
+    a                       dfl:ToolEvent ;
+    dcterms:isPartOf        <#session> ;
+    skos:notation           "Bash" ;
+    dfl:sequenceIndex       1 ;
+    time:inXSDDateTimeStamp "2026-07-13T15:30:00Z"^^xsd:dateTimeStamp ;
+    dfl:outcome             dfl:Ok ;
+    prov:wasAssociatedWith  <#mainAgent> ;
+    prov:used               <urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae> ;
+    prov:generated          <urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8> ;
+    dcterms:description     "Ran the DoD gate." .
+
+<#event-2>
+    a                       dfl:ToolEvent ;
+    dcterms:isPartOf        <#session> ;
+    skos:notation           "Edit" ;
+    dfl:sequenceIndex       2 ;
+    time:inXSDDateTimeStamp "2026-07-13T15:31:12Z"^^xsd:dateTimeStamp ;
+    dfl:outcome             dfl:Ok ;
+    prov:wasAssociatedWith  <#mainAgent> ;
+    prov:used               <urn:blake3:87d2eb610c0f4bae0f2f7b0aa80572391671c1c1cc9bf808b66d2601b160f1be> ;
+    prov:generated          <urn:blake3:4eb103735249a2484d4e2c5b8a0e164200865ef7575a8efecffefe7ae7499227> ;
+    dcterms:description     "Edited a source file." .
+
+<#event-3>
+    a                       dfl:ToolEvent ;
+    dcterms:isPartOf        <#session> ;
+    skos:notation           "Read" ;
+    dfl:sequenceIndex       3 ;
+    time:inXSDDateTimeStamp "2026-07-13T15:32:40Z"^^xsd:dateTimeStamp ;
+    dfl:outcome             dfl:Ok ;
+    prov:wasAssociatedWith  <#subagentReader> ;
+    prov:used               <urn:blake3:4307b0baffb0b6cf9755add59b6f1a57a9b6fc49eee1f52fee155de4be2bf353> ;
+    prov:generated          <urn:blake3:e6b95989b82bf65d707c07c5cd9c775c54b00f254ad156c54ea15ebd2d93805d> ;
+    dcterms:description     "Subagent read a file to gather context." .
+
+<#event-4>
+    a                       dfl:ToolEvent ;
+    dcterms:isPartOf        <#session> ;
+    skos:notation           "Bash" ;
+    dfl:sequenceIndex       4 ;
+    time:inXSDDateTimeStamp "2026-07-13T15:33:05Z"^^xsd:dateTimeStamp ;
+    dfl:outcome             dfl:Blocked ;
+    prov:wasAssociatedWith  <#mainAgent> ;
+    prov:used               <urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae> ;
+    prov:generated          <urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8> ;
+    dcterms:description     "A second Bash call stopped by a governed surface before completion (observation only)." .

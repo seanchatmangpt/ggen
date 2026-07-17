@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+@prefix string: <http://www.w3.org/2000/10/swap/string#> .
+
+:doc :text "abc123" .
+
+{ ?d :text ?t . ?t string:matches "^[a-z]+[0-9]+$" } => { ?d :isAlnum true }.

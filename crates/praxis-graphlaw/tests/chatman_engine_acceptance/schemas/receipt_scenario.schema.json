@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://praxis.chatman.io/schemas/receipt_scenario.schema.json",
+  "title": "Receipt scenario",
+  "description": "Chatman engine acceptance/falsification scenario. The expected_refusal enum mirrors Refusal::name() in crates/praxis-graphlaw/src/chatman/abi.rs exactly; tests/chatman_static_gates.rs asserts set-equality.",
+  "type": "object",
+  "required": [
+    "case",
+    "kind",
+    "seed",
+    "input"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "case": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique scenario identifier (kebab-case)."
+    },
+    "kind": {
+      "enum": [
+        "acceptance",
+        "falsification"
+      ],
+      "description": "acceptance: input must be admitted; falsification: input must be refused with expected_refusal."
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Deterministic seed; same seed => same bytes."
+    },
+    "mutation": {
+      "type": "string",
+      "description": "Optional named mutation applied to the acceptance base case to produce this falsification case."
+    },
+    "expected_refusal": {
+      "enum": [
+        "ValidationFailed",
+        "PlanInfeasible",
+        "TraceUnlawful",
+        "HookUnpermitted",
+        "MissingReceipt",
+        "SnapshotNotFound",
+        "BoundaryRequestMissingReceipt",
+        "Triple8UniverseOverflow",
+        "TermNotInTriple8Universe",
+        "ProfileSymbolTableMismatch",
+        "ProjectionHashMismatch",
+        "WarmPathRequired",
+        "AdmissionTableMismatch",
+        "HookPatternNotAdmitted",
+        "OcelEventNotAdmitted",
+        "LeastExpressiveRouteViolation",
+        "UnsupportedDialect",
+        "N3UnavailableByProfile",
+        "N3ActuationRefused",
+        "N3CostBoundExceeded",
+        "N3BuiltinRefused",
+        "N3DirectActuationRefused",
+        "RouteDecisionMismatch",
+        "GraphSnapshotMismatch",
+        "ProfileHashMismatch",
+        "AgentOverrideDenied",
+        "WitnessNotAuthority",
+        "BreedUnpermitted",
+        "NondeterministicOperatorRequiresReceipt",
+        "ProcessReceiptShadowType",
+        "DuplicateCanonicalTapeType",
+        "TripleTermInSnapshot",
+        "StageSealMismatch",
+        "UnlawfulActuation",
+        "PowlRegionNotAdmitted",
+        "ExternalCutUndeclared",
+        "ExternalCutTypeMismatch",
+        "ExternalCutAuthorityMismatch",
+        "ClosureLawNoChildren",
+        "ClosureLawQuorumOutOfRange",
+        "ClosureLawUnknownChild",
+        "ClosureLawOrderedSubsetInvalid",
+        "ClosureLawPolicyNotDeclared",
+        "ChildConformanceRefused",
+        "ChildCompletionUnadmitted",
+        "ParentClosureUnsatisfied"
+      ],
+      "description": "Required for kind=falsification: the Refusal::name() value the engine must return."
+    },
+    "expected_behavior": {
+      "type": "string",
+      "description": "Human-readable statement of the admitted behavior (kind=acceptance)."
+    },
+    "input": {
+      "description": "Receipt construction and verification input.",
+      "type": "object",
+      "required": [
+        "subject",
+        "witness",
+        "replay_hint",
+        "canon_nquads"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "subject": {
+          "type": "string",
+          "minLength": 1
+        },
+        "witness": {
+          "type": "string",
+          "minLength": 1
+        },
+        "replay_hint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "canon_nquads": {
+          "type": "string",
+          "description": "Canonical N-Quads material, one quad per line, lines sorted; the digest is computed over these bytes with BLAKE3."
+        },
+        "carried_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Optional digest a mutated scenario carries; verify() must recompute and refuse on mismatch."
+        },
+        "profile_hash_check": {
+          "type": "object",
+          "description": "Optional profile-identity check mirroring ChatmanEngine::admit_transition (engine.rs): the envelope's claimed profile is checked against the engine's routed profile; mismatch refuses with ProfileHashMismatch. When present, this check runs instead of the plain carried_digest comparison.",
+          "required": [
+            "claimed_profile_id",
+            "engine_profile_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "claimed_profile_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Profile id the invocation envelope names (envelope.profile_id)."
+            },
+            "engine_profile_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Profile id this engine instance actually runs (router.gates().profile_id)."
+            }
+          }
+        },
+        "projection_hash_check": {
+          "type": "object",
+          "description": "Optional Triple8 projection-hash check mirroring ProfileSymbolTable::verify_projection (triple8.rs): triples are resolved against a bounded symbol universe, hashed, and compared against recorded_hash; mismatch refuses with ProjectionHashMismatch. When present, this check runs instead of the plain carried_digest comparison.",
+          "required": [
+            "snapshot_id",
+            "universe",
+            "triples",
+            "recorded_hash"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "snapshot_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Graph snapshot id the projection is scoped to."
+            },
+            "universe": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 256,
+              "description": "Bounded closed-world term universe (ProfileSymbolTable::build)."
+            },
+            "triples": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "description": "Triples as [subject, predicate, object]; each term must be a member of universe."
+            },
+            "recorded_hash": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$",
+              "description": "The recorded projection hash to verify against the recomputed one."
+            }
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "falsification"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "expected_refusal"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "acceptance"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "expected_behavior"
+        ]
+      }
+    }
+  ]
+}

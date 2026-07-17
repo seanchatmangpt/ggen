@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+
+:order :items ( :milk :bread :eggs ) .
+
+{ ?o :items ?list . ?list math:memberCount ?n } => { ?o :itemTotal ?n }.

@@ -28,7 +28,7 @@
 //! ```rust,no_run
 //! use ggen_cli_lib::cli_match;
 //!
-//! # async fn example() -> ggen_core::utils::error::Result<()> {
+//! # async fn example() -> ggen_cli_lib::utils::error::Result<()> {
 //! // Execute CLI with auto-discovered commands
 //! cli_match().await?;
 //! # Ok(())
@@ -40,7 +40,7 @@
 //! ```rust,ignore
 //! use ggen_cli_lib::run_for_node;
 //!
-//! # async fn example() -> ggen_core::utils::error::Result<()> {
+//! # async fn example() -> ggen_cli_lib::utils::error::Result<()> {
 //! let args = vec!["template".to_string(), "generate".to_string()];
 //! let result = run_for_node(args).await?;
 //! println!("Exit code: {}", result.code);
@@ -73,11 +73,15 @@
     clippy::unused_async_trait_impl,
     clippy::needless_pass_by_ref_mut
 )]
+pub mod agent; // Agent-facing PackAgent facade (ported from ggen-core/src/agent/, T041)
 pub mod config_clap;
 pub mod error;
 pub mod pack_install;
 pub mod prelude;
 pub mod progress;
+pub mod scaffolding; // Project scaffolding (ported from ggen-core cli_generator/project_generator); backs `ggen init`/`ggen wizard` once re-pointed (T043)
+pub mod telemetry; // OTLP telemetry (ported from ggen-core/src/telemetry.rs, T034)
+pub mod utils; // Native error apparatus (ported from ggen-core/src/utils/error.rs, T035)
 pub mod validation_lib;
 pub mod version_checker;
 
@@ -90,18 +94,25 @@ pub mod receipt_manager; // Cryptographic receipt generation for CLI operations
 pub mod runtime; // Async/sync bridge utilities
 pub mod runtime_helper; // Sync CLI wrapper utilities for async operations // Common imports for commands
 
+// Force-links ggen-engine's `#[linkme::distributed_slice]` noun/verb
+// registrations (sync/graph/receipt/doctor/law) into this binary. Rust
+// drops an extern crate's code that nothing references, and nothing in
+// ggen-cli's own source calls into ggen-engine directly -- the `as _`
+// import keeps the crate linked without importing any of its names.
+use ggen_engine as _;
+
 // Re-export clap-noun-verb for auto-discovery
 pub use clap_noun_verb::{run, Result as ClapNounVerbResult};
 
 // Re-export Result type for use in cmds
-pub use ggen_core::utils::error::Result;
+pub use crate::utils::error::Result;
 
 /// Main entry point using clap-noun-verb v26.5.19 auto-discovery
 ///
 /// This function delegates to clap-noun-verb::run() which automatically discovers
 /// all `\[verb\]` functions in the cmds module and its submodules.
 /// The version flag is handled automatically by clap-noun-verb.
-pub async fn cli_match() -> ggen_core::utils::error::Result<()> {
+pub async fn cli_match() -> crate::utils::error::Result<()> {
     version_checker::check_outdated_binary();
 
     // Find manifest path from CLI args to check if telemetry is configured in ggen.toml
@@ -117,9 +128,9 @@ pub async fn cli_match() -> ggen_core::utils::error::Result<()> {
     let mut telemetry_config = None;
     if std::path::Path::new(&manifest_path).exists() {
         if let Ok(content) = std::fs::read_to_string(&manifest_path) {
-            if let Ok(config) = toml::from_str::<ggen_core::config_lib::GgenConfig>(&content) {
+            if let Ok(config) = toml::from_str::<ggen_config::config_lib::GgenConfig>(&content) {
                 if let Some(ref tel) = config.telemetry {
-                    telemetry_config = Some(ggen_core::telemetry::TelemetryConfig {
+                    telemetry_config = Some(crate::telemetry::TelemetryConfig {
                         endpoint: tel.endpoint.clone(),
                         service_name: tel.service_name.clone(),
                         console_output: tel.console_output,
@@ -129,10 +140,40 @@ pub async fn cli_match() -> ggen_core::utils::error::Result<()> {
         }
     }
 
-    // Initialize OTLP telemetry only if configured in ggen.toml
+    // Initialize OTLP telemetry only if configured in ggen.toml; otherwise
+    // install a plain console `tracing_subscriber` (EnvFilter-driven, honors
+    // `RUST_LOG`) so `pipeline.{load,extract,generate,validate,emit}` spans
+    // (and any other tracing output) are observable without requiring a
+    // running OTLP collector -- the common case for local/CI runs and the
+    // one `docs/.../quickstart.md`'s `RUST_LOG=trace` step exercises.
+    // `try_init()` is idempotent-safe: it returns an `Err` (silently
+    // ignored) rather than panicking if a global subscriber is already set.
     let _telemetry_guard = if let Some(cfg) = telemetry_config {
-        ggen_core::telemetry::init_telemetry(cfg).ok()
+        crate::telemetry::init_telemetry(cfg).ok()
     } else {
+        let _ = tracing_subscriber::fmt()
+            .with_env_filter(
+                tracing_subscriber::EnvFilter::try_from_default_env()
+                    .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
+            )
+            // Span field values (e.g. `pipeline.duration_ms`, set via
+            // `Span::record` after the fields start `Empty`) only print when
+            // an event fires inside the span or the span closes -- most
+            // pipeline stages emit no inner log line, so without `CLOSE`
+            // their recorded fields would never actually reach stdout/stderr.
+            .with_span_events(tracing_subscriber::fmt::format::FmtSpan::CLOSE)
+            // Plain text, not ANSI-colored: this stream is meant to be
+            // `grep`/`tee`d (see docs quickstart's `grep -E
+            // "pipeline\.duration_ms="` step) -- colored output splits
+            // `key=value` pairs across escape codes and silently breaks that
+            // exact substring match even though the field is really there.
+            .with_ansi(false)
+            // stderr, not the default stdout: every verb here prints its
+            // real result (JSON) to stdout, and `cli_boundary.rs`'s own
+            // tests parse that stdout as strict JSON -- tracing output on
+            // stdout would silently corrupt every one of those parses.
+            .with_writer(std::io::stderr)
+            .try_init();
         None
     };
 
@@ -148,11 +189,135 @@ pub async fn cli_match() -> ggen_core::utils::error::Result<()> {
         return Ok(());
     }
 
-    // Use clap-noun-verb auto-discovery (handles --version automatically, but we preempted it)
-    clap_noun_verb::run().map_err(|e| {
-        ggen_core::utils::error::Error::new(&format!("CLI execution failed: {}", e))
+    // Use clap-noun-verb auto-discovery (handles --version automatically, but we
+    // preempted it). Route the raw argv through `inject_default_verbs()` first so
+    // muscle-memory bare commands (`ggen sync`, `ggen doctor`, `ggen receipt` with
+    // no explicit verb) keep working after the v26.7.16 flip from ggen-cli's own
+    // flat `sync`/`doctor`/`graph`/`receipt` verbs (removed -- see cmds/mod.rs) to
+    // ggen-engine's nouns of the same names. `clap_noun_verb::run()` reads
+    // `std::env::args()` itself with no way to pass a rewritten vector, so this
+    // calls the registry directly with the rewritten args, same as
+    // `clap_noun_verb::cli::run()`'s own body.
+    let args = inject_default_verbs(std::env::args().collect());
+    let registry_mutex = clap_noun_verb::cli::CommandRegistry::get();
+    let registry = registry_mutex.lock().map_err(|e| {
+        crate::utils::error::Error::new(&format!("Failed to lock CLI registry: {}", e))
     })?;
+    registry
+        .run(args)
+        .map_err(|e| crate::utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
     Ok(())
+}
+
+/// Map bare nouns (no verb given) to their default verb, so muscle-memory
+/// commands from the pre-v26.7.16 flat-verb CLI keep working now that
+/// `sync`/`doctor`/`graph`/`receipt` are routed to ggen-engine's nouns:
+/// - `ggen sync`    -> `ggen sync run`
+/// - `ggen doctor`  -> `ggen doctor run`
+/// - `ggen receipt` -> `ggen receipt verify`
+///
+/// `graph` is intentionally NOT covered here: it has no single obvious
+/// default verb the way sync/doctor/receipt do.
+///
+/// Modeled on ggen-engine's own `inject_default_verbs` in
+/// `crates/ggen-engine/src/main.rs` (not copy-pasted -- ggen-cli's dispatch
+/// preamble already differs, see `cli_match` above).
+fn inject_default_verbs(mut args: Vec<String>) -> Vec<String> {
+    let noun = args.get(1).cloned().unwrap_or_default();
+    // A bare `--help`/`-h` right after the noun (e.g. `ggen sync --help`) must
+    // list the noun's own subcommands, not get rewritten into the default
+    // verb's own help. Only treat the arg slot as "missing a verb" when it
+    // isn't a help flag.
+    let next = args.get(2).map(String::as_str);
+    let is_help_flag = matches!(next, Some("--help" | "-h"));
+    let has_verb = next.map(|a| !a.starts_with('-')).unwrap_or(false);
+    if !has_verb && !is_help_flag {
+        let default_verb = match noun.as_str() {
+            "sync" => Some("run"),
+            "doctor" => Some("run"),
+            "receipt" => Some("verify"),
+            _ => None,
+        };
+        if let Some(verb) = default_verb {
+            args.insert(2, verb.to_string());
+        }
+    }
+    args
+}
+
+#[cfg(test)]
+mod inject_default_verbs_tests {
+    use super::inject_default_verbs;
+
+    fn v(args: &[&str]) -> Vec<String> {
+        args.iter().map(|s| s.to_string()).collect()
+    }
+
+    #[test]
+    fn bare_sync_gets_default_verb_run() {
+        assert_eq!(
+            inject_default_verbs(v(&["ggen", "sync"])),
+            v(&["ggen", "sync", "run"])
+        );
+    }
+
+    #[test]
+    fn bare_doctor_gets_default_verb_run() {
+        assert_eq!(
+            inject_default_verbs(v(&["ggen", "doctor"])),
+            v(&["ggen", "doctor", "run"])
+        );
+    }
+
+    #[test]
+    fn bare_receipt_gets_default_verb_verify() {
+        assert_eq!(
+            inject_default_verbs(v(&["ggen", "receipt"])),
+            v(&["ggen", "receipt", "verify"])
+        );
+    }
+
+    #[test]
+    fn sync_flag_with_no_verb_gets_run_inserted_before_the_flag() {
+        assert_eq!(
+            inject_default_verbs(v(&["ggen", "sync", "--dry-run"])),
+            v(&["ggen", "sync", "run", "--dry-run"])
+        );
+    }
+
+    #[test]
+    fn noun_with_explicit_verb_is_untouched() {
+        assert_eq!(
+            inject_default_verbs(v(&["ggen", "receipt", "history"])),
+            v(&["ggen", "receipt", "history"])
+        );
+    }
+
+    #[test]
+    fn noun_help_flag_is_not_rewritten_into_default_verb_help() {
+        // Regression: `ggen sync --help` must list sync's own subcommands
+        // (i.e. `run`), not silently become `ggen sync run --help`.
+        assert_eq!(
+            inject_default_verbs(v(&["ggen", "sync", "--help"])),
+            v(&["ggen", "sync", "--help"])
+        );
+    }
+
+    #[test]
+    fn noun_short_help_flag_is_not_rewritten_into_default_verb_help() {
+        assert_eq!(
+            inject_default_verbs(v(&["ggen", "doctor", "-h"])),
+            v(&["ggen", "doctor", "-h"])
+        );
+    }
+
+    #[test]
+    fn graph_has_no_default_verb_mapping_and_is_untouched() {
+        assert_eq!(
+            inject_default_verbs(v(&["ggen", "graph"])),
+            v(&["ggen", "graph"])
+        );
+    }
 }
 
 /// Structured result for programmatic CLI execution (used by Node addon)
@@ -165,7 +330,7 @@ pub struct RunResult {
 
 /// Programmatic entrypoint to execute the CLI with provided arguments and capture output.
 /// This avoids spawning a new process and preserves deterministic behavior.
-pub async fn run_for_node(args: Vec<String>) -> ggen_core::utils::error::Result<RunResult> {
+pub async fn run_for_node(args: Vec<String>) -> crate::utils::error::Result<RunResult> {
     use std::sync::Arc;
     use std::sync::Mutex;
 
@@ -180,6 +345,7 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_core::utils::error::Result<
         "capability",
         "graph",
         "receipt",
+        "law",
         "utils",
         "policy",
         "market",
@@ -262,7 +428,7 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_core::utils::error::Result<
         code
     })
     .await
-    .map_err(|e| ggen_core::utils::error::Error::new(&format!("Failed to execute CLI: {}", e)))?;
+    .map_err(|e| crate::utils::error::Error::new(&format!("Failed to execute CLI: {}", e)))?;
 
     // Retrieve captured output, handle mutex poisoning gracefully
     let stdout = match stdout_buffer.lock() {

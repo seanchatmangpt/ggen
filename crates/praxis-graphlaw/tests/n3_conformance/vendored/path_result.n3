@@ -1,0 +1,3 @@
+@prefix : <urn:example:>.
+
+:b :path :b.

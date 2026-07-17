@@ -1,0 +1,4 @@
+@prefix : <http://example.org/> .
+
+:a :floorScore 2 .
+:b :floorScore 2 .

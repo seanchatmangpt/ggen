@@ -1,0 +1,69 @@
+# ART cross-story-dependency PDDL/POWL fixture: a small SAFe Agile-Release-Train
+# shaped work breakdown -- an epic decomposing into three features
+# (checkout-v2, admin-portal, reporting-dashboard) plus one shared/cross-cutting
+# story (auth-migration) that TWO of those three features (checkout-v2 and
+# admin-portal) each genuinely depend on before their own downstream work can
+# start, while the third feature (reporting-dashboard) is fully independent of
+# auth-migration. checkout-v2 (dur 5) and admin-portal (dur 2) are of unequal
+# duration -- both gated on auth-migration's completion at t=4, they still run
+# genuinely concurrently from that shared start, proving real max()-driven
+# scheduling rather than incidental sequencing. A fifth durative action,
+# integration-milestone, requires ALL THREE features finished (a genuine
+# multi-parent convergence node, in-degree 3 direct / 4 transitive -- the same
+# shape as `temporal-concurrency-snapshot.ttl`'s inspect-house, scaled up),
+# which together with auth-migration's shared fan-out produces a real diamond:
+# auth-migration reaches integration-milestone via two distinct paths (through
+# checkout-v2, and through admin-portal) -- a shape no strict tree can express,
+# since a tree admits at most one path between any two nodes.
+#
+# Companion to `temporal-concurrency-snapshot.ttl`; same fixture conventions
+# (embedded PDDL as `ceng:pddlDomain`/`ceng:pddlProblem` literals, zero-param
+# durative actions, `:condition (at start ...)`/`:effect (at end ...)`).
+@prefix ex: <http://example.org/art-cross-story-dag#> .
+@prefix ceng: <urn:chatman:engine#> .
+
+ex:art-cross-story-dag-demo a ex:TemporalPlanningDemo .
+
+ex:art-cross-story-dag-demo ceng:pddlDomain """
+(define (domain art-cross-story-dag)
+  (:requirements :durative-actions)
+  (:predicates
+    (auth-migration-done)
+    (reporting-dashboard-done)
+    (checkout-v2-done)
+    (admin-portal-done)
+    (integration-milestone-done))
+  (:durative-action auth-migration
+    :parameters ()
+    :duration (= ?duration 4)
+    :condition (at start (not (auth-migration-done)))
+    :effect (at end (auth-migration-done)))
+  (:durative-action reporting-dashboard
+    :parameters ()
+    :duration (= ?duration 6)
+    :condition (at start (not (reporting-dashboard-done)))
+    :effect (at end (reporting-dashboard-done)))
+  (:durative-action checkout-v2
+    :parameters ()
+    :duration (= ?duration 5)
+    :condition (and (at start (not (checkout-v2-done))) (at start (auth-migration-done)))
+    :effect (at end (checkout-v2-done)))
+  (:durative-action admin-portal
+    :parameters ()
+    :duration (= ?duration 2)
+    :condition (and (at start (not (admin-portal-done))) (at start (auth-migration-done)))
+    :effect (at end (admin-portal-done)))
+  (:durative-action integration-milestone
+    :parameters ()
+    :duration (= ?duration 1)
+    :condition (and (at start (checkout-v2-done)) (at start (admin-portal-done)) (at start (reporting-dashboard-done)))
+    :effect (at end (integration-milestone-done))))
+""" .
+
+ex:art-cross-story-dag-demo ceng:pddlProblem """
+(define (problem art-cross-story-dag-p1)
+  (:domain art-cross-story-dag)
+  (:init)
+  (:goal (integration-milestone-done))
+)
+""" .

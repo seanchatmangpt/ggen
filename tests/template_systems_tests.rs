@@ -9,6 +9,16 @@
 //! - Frozen sections
 //! - Format detection
 
+// ARCHIVED (ggen-core disconnect, 2026-07-16): drives
+// `ggen_core::{pipeline::Pipeline, template::Template,
+// templates::frozen::FrozenMerger, utils::error::Result}` directly.
+// `ggen-engine/src/template.rs` has a `Template`-named item but it is not a
+// verified drop-in port for this test's assertions, and no equivalent exists
+// for `Pipeline`/`FrozenMerger` (verified via workspace-wide search,
+// 2026-07-16 investigation). Gated as a whole file rather than deleted, per
+// this project's fix-forward doctrine.
+#![cfg(feature = "ggen-core-retired")]
+
 use ggen_core::pipeline::Pipeline;
 use ggen_core::template::Template;
 use ggen_core::templates::frozen::FrozenMerger;

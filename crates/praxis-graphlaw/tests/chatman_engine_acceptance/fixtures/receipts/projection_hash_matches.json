@@ -1,0 +1,7 @@
+{
+  "case": "Accept_ProjectionHashMatches",
+  "kind": "acceptance",
+  "seed": 3698577092388709690,
+  "expected_behavior": "projection_hash_verified",
+  "input": {"subject": "urn:chatman:subject:receipt-1", "witness": "urn:chatman:witness:receipt-1", "replay_hint": "replay-hint-receipt-1", "canon_nquads": "<urn:chatman:s1> <urn:chatman:p1> \"v1\" .\n<urn:chatman:s2> <urn:chatman:p2> \"v2\" .", "carried_digest": "853f86a0e79d737a84df0cd75c0f355b7ba2583bf51277083b68201d122906ed"}
+}

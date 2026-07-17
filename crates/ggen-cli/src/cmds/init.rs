@@ -23,9 +23,10 @@
 #![allow(clippy::unused_unit)] // clap-noun-verb macro generates this
 
 use crate::error::GgenError;
+use crate::scaffolding::preflight::PreFlightValidator;
+use crate::scaffolding::transaction::FileTransaction;
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
-use ggen_core::codegen::FileTransaction;
 use serde::Serialize;
 use std::fs;
 use std::path::Path;
@@ -418,9 +419,10 @@ echo "   using schema.org in 5 minutes. Stay disciplined. Use standards first."
 ///
 /// ## Flags
 ///
-/// --path PATH               Project directory (default: current directory)
-/// --force                   Overwrite existing files
-/// --skip-hooks              Skip git hooks installation
+/// --path PATH                Project directory (default: current directory)
+/// --force <true|false>       Overwrite existing files (value required, e.g. `--force true` --
+///                             a bare `--force` errors "a value is required")
+/// --skip-hooks <true|false>  Skip git hooks installation (same: value required)
 ///
 /// ## Output
 ///
@@ -535,8 +537,8 @@ fn perform_init(
     }
 
     // Pre-flight validation: Check disk space and basic environment
-    let preflight = ggen_core::validation::PreFlightValidator::for_init(base_path);
-    if let Err(e) = preflight.validate(None) {
+    let preflight = PreFlightValidator::for_init(base_path);
+    if let Err(e) = preflight.validate() {
         return Ok(InitOutput {
             status: "error".to_string(),
             project_dir: project_dir.to_string(),

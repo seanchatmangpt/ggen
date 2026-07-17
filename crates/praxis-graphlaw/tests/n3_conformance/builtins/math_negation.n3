@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+
+:a :balance 5 .
+:b :balance -2 .
+
+{ ?x :balance ?v . ?v math:negation ?n } => { ?x :negatedBalance ?n }.

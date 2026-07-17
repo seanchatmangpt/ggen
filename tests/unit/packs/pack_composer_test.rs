@@ -6,8 +6,12 @@
 //! - Resolving dependencies
 //! - Conflict detection
 
-use ggen_core::domain::packs::{
-    compose_packs, ComposePacksInput, CompositionStrategy, Pack, PackDependency, PackMetadata,
+// Re-pointed to ggen_marketplace::packs_registry (T053; see
+// tests/integration/packs/user_workflow_multi_pack_test.rs's comment for the
+// full rationale -- same orphaned-file, submodule-qualified-path situation).
+use ggen_marketplace::packs_registry::compose::{compose_packs, ComposePacksInput};
+use ggen_marketplace::packs_registry::types::{
+    CompositionStrategy, Pack, PackDependency, PackMetadata,
 };
 use std::collections::HashMap;
 use std::path::PathBuf;

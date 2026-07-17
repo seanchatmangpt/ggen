@@ -1,0 +1,91 @@
+# acquirer-org.ttl -- Meridian Holdings Group, Inc. (Acquirer): independently
+# admitted TOGAF enterprise-architecture facts + Azure infrastructure facts,
+# the instance-data half of the multi-org merge mechanism
+# (crates/multifractal-workflow/src/f31_org_merge.rs), closing
+# docs/standing/BOOTSTRAP_COLD_START_LIMITATIONS.md item 14's first real
+# instance.
+#
+# Reuses the same fictional entity ("Meridian Holdings Group, Inc.") and
+# deal context (MHC-2026-0091) as packs/ma-case-study-pack/fixtures/case.ttl
+# for narrative continuity, but this file is a SEPARATE, independently
+# admitted graph -- its own TOGAF/Azure enterprise-architecture description,
+# not the deal-level FIBO facts case.ttl already carries. Same
+# FICTIONAL-ENTITY CONVENTION as that file: every organization, capability,
+# and resource identifier below is invented for this fixture.
+#
+# VOCABULARY: TOGAF facts follow packs/togaf-adm-pack/ontology.ttl's own
+# convention exactly -- togaf:Capability individuals are blank nodes with a
+# skos:notation handle, prov:wasAttributedTo the owning org:Organization
+# (real IRI, not a blank node, since F02's Identity Resolver requires the
+# declared subject to be a well-formed IRI actually present in the payload).
+# Azure facts reuse packs/azure-terraform-pack/ontology.ttl's aztf:
+# vocabulary verbatim (real hashicorp/azurerm-grounded terms), with
+# org-scoped resource IRIs under THIS org's own base namespace --
+# deliberately NOT reusing azure-terraform-pack's own example individual
+# IRIs (aztf:crownBriberyCaseGroup etc.), so this graph and
+# target-org.ttl's own Azure resources do not collide (see
+# target-org-colliding.ttl for the deliberate adversarial counter-example
+# where that discipline is violated).
+#
+# SHAPES: validated (F02 gate 4) against fixtures/acquirer-org-shapes.ttl --
+# this org's own copy of the shared TOGAF/Azure infrastructure shape
+# profile (see that file's header for why it is a NEW shape, not a byte
+# copy of azure-terraform-pack/shapes.ttl).
+
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix togaf:   <http://www.semanticweb.org/ontologies/2020/4/OntologyTOGAFContentMetamodel.owl#> .
+@prefix aztf:    <https://ggen.io/ontology/azure-terraform#> .
+
+# ── Root: the Acquirer organization (F02 declared_subject) ─────────────────
+
+<https://acquirer-meridian.example.org/entity/meridian-holdings-group>
+    rdf:type org:Organization, prov:Agent ;
+    prov:wasDerivedFrom <https://intake.acquirer-meridian.example.org/ea-intake-1> ;
+    skos:notation "ENT-MERIDIAN" ;
+    dcterms:description "Meridian Holdings Group, Inc. -- fictional diversified industrial holding company, Acquirer in deal MHC-2026-0091." .
+
+# ── TOGAF enterprise-architecture capabilities (blank nodes + skos:notation,
+#    per packs/togaf-adm-pack/ontology.ttl's own convention; notation values
+#    reused verbatim from that pack's meridian-case-study.ttl.tmpl for
+#    continuity) ─────────────────────────────────────────────────────────────
+
+_:capCloudLandingZonesAcquirer
+    rdf:type togaf:Capability ;
+    skos:notation "CAP-CLOUD-LANDING-ZONES" ;
+    dcterms:description "Standardized multi-cloud landing zones with policy-as-code admission." ;
+    prov:wasAttributedTo <https://acquirer-meridian.example.org/entity/meridian-holdings-group> .
+
+_:capZeroTrustAcquirer
+    rdf:type togaf:Capability ;
+    skos:notation "CAP-ZERO-TRUST" ;
+    dcterms:description "Zero-trust identity and network segmentation across the digitized platform." ;
+    prov:wasAttributedTo <https://acquirer-meridian.example.org/entity/meridian-holdings-group> .
+
+_:capFinOpsAcquirer
+    rdf:type togaf:Capability ;
+    skos:notation "CAP-FINOPS" ;
+    dcterms:description "FinOps cost governance for migration sequencing." ;
+    prov:wasAttributedTo <https://acquirer-meridian.example.org/entity/meridian-holdings-group> .
+
+# ── Azure infrastructure (packs/azure-terraform-pack/ontology.ttl's aztf:
+#    vocabulary, org-scoped IRIs under the Acquirer's own base) ─────────────
+
+<https://acquirer-meridian.example.org/azure/container-group/ea-platform>
+    rdf:type aztf:ContainerGroup ;
+    aztf:osType "Linux" ;
+    aztf:restartPolicy "Always" ;
+    aztf:ipAddressType "Private" ;
+    aztf:hasContainer <https://acquirer-meridian.example.org/azure/container/ea-platform-runtime> .
+
+<https://acquirer-meridian.example.org/azure/container/ea-platform-runtime>
+    rdf:type aztf:Container ;
+    aztf:containerOrder 0 ;
+    aztf:containerName "acquirer-ea-platform-runtime" ;
+    aztf:cpuCores 2.0 ;
+    aztf:memoryGb 4.0 ;
+    aztf:command "/app/acquirer-ea-platform" .

@@ -60,6 +60,9 @@ ggen-config = { path = "../ggen-config", version = "26.7.1" }
 
 [dev-dependencies]
 tempfile = "3"
+# packs_registry::metadata's tests serialize access to a shared env var / packs dir --
+# ported from ggen-core, which already had this exact dependency for the same reason.
+serial_test = { workspace = true }
 
 [lints]
 workspace = true

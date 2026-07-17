@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+
+:cart :entryIndex 0 .
+:cart :entryIndex 1 .
+:cart :entryItem :milk .
+:cart :entryItem :bread .

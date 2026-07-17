@@ -1,0 +1,4 @@
+[pack]
+name = "star-toml-pack"
+version = "0.1.0"
+description = "Generates a star_toml config-admission module: deny_unknown_fields serde structs per ConfigSection, loaded via star_toml::load_file, plus per-section admission docs."

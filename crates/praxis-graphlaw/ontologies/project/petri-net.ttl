@@ -1,0 +1,424 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix pn:      <https://ggen.io/ontology/petri-net#> .
+
+# ============================================================
+# Ontology Declaration
+# ============================================================
+
+<https://ggen.io/ontology/petri-net>
+    a owl:Ontology ;
+    rdfs:label "Petri Net Ontology"@en ;
+    dcterms:title "Formal Petri Net OWL Ontology for ggen"@en ;
+    dcterms:description """Formalizes the mathematical foundation of Petri Net theory as used throughout
+Prof. Wil van der Aalst's body of work: YAWL, process mining, and workflow nets.
+A Petri Net is a tuple N = (P, T, F) where P is a finite set of places,
+T is a finite set of transitions (P ∩ T = ∅), and F ⊆ (P×T) ∪ (T×P) is
+the flow relation. A marking M: P → ℕ assigns tokens to places."""@en ;
+    dcterms:creator "ggen project — seanchatmangpt/ggen"@en ;
+    dcterms:created "2026-06-20"^^xsd:date ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
+    owl:versionIRI <https://ggen.io/ontology/petri-net/1.0.0> ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================
+# §1  Core Petri Net Classes
+# ============================================================
+
+pn:PetriNet
+    a owl:Class ;
+    rdfs:label "Petri Net"@en ;
+    rdfs:comment """A Petri Net is a bipartite directed graph N = (P, T, F) where P is a
+finite non-empty set of places, T is a finite non-empty set of transitions
+with P ∩ T = ∅, and F ⊆ (P×T) ∪ (T×P) is the flow relation. Together with
+an initial marking M₀: P → ℕ it forms a marked Petri Net (N, M₀)."""@en .
+
+pn:Place
+    a owl:Class ;
+    rdfs:label "Place"@en ;
+    rdfs:comment """A place p ∈ P in a Petri Net represents a condition, state, or resource.
+At any moment a place holds a non-negative integer number of tokens. The
+distribution of tokens across all places constitutes the marking."""@en .
+
+pn:Transition
+    a owl:Class ;
+    rdfs:label "Transition"@en ;
+    rdfs:comment """A transition t ∈ T in a Petri Net represents an activity or event.
+A transition is enabled in marking M if every input place (pre-set •t) contains
+at least arcWeight(p, t) tokens. Firing a transition t removes arcWeight tokens
+from each p ∈ •t and adds arcWeight tokens to each p ∈ t•."""@en .
+
+pn:Arc
+    a owl:Class ;
+    rdfs:label "Arc"@en ;
+    rdfs:comment """A directed arc belonging to the flow relation F ⊆ (P×T) ∪ (T×P).
+Each arc connects either a place to a transition (input arc) or a transition
+to a place (output arc). The arc carries a positive integer weight (default 1)."""@en .
+
+pn:Marking
+    a owl:Class ;
+    rdfs:label "Marking"@en ;
+    rdfs:comment """A marking M: P → ℕ is a function that assigns a non-negative integer
+number of tokens to each place. The initial marking M₀ is the starting state
+of the system. A marking M′ is reachable from M if there exists a firing
+sequence σ such that M [σ⟩ M′."""@en .
+
+pn:Token
+    a owl:Class ;
+    rdfs:label "Token"@en ;
+    rdfs:comment """A black token — the atomic unit of Petri Net semantics. The number of tokens
+in a place under a marking represents the multiplicity of the corresponding
+condition holding at that moment."""@en .
+
+pn:Flow
+    a owl:Class ;
+    rdfs:label "Flow Relation"@en ;
+    rdfs:comment """The flow relation F ⊆ (P×T) ∪ (T×P) is the set of all arcs in the net.
+It is the union of the input function (P×T) and the output function (T×P)."""@en .
+
+pn:PlaceToTransitionArc
+    a owl:Class ;
+    rdfs:subClassOf pn:Arc ;
+    rdfs:label "Place-to-Transition Arc (Input Arc)"@en ;
+    rdfs:comment """An arc (p, t) ∈ F with p ∈ P and t ∈ T. Consuming arcWeight(p,t) tokens
+from place p is a precondition for transition t to fire."""@en .
+
+pn:TransitionToPlaceArc
+    a owl:Class ;
+    rdfs:subClassOf pn:Arc ;
+    rdfs:label "Transition-to-Place Arc (Output Arc)"@en ;
+    rdfs:comment """An arc (t, p) ∈ F with t ∈ T and p ∈ P. Firing transition t deposits
+arcWeight(t,p) tokens into place p."""@en .
+
+pn:WeightedArc
+    a owl:Class ;
+    rdfs:subClassOf pn:Arc ;
+    rdfs:label "Weighted Arc"@en ;
+    rdfs:comment "An arc whose weight is strictly greater than 1, generalizing the standard net to allow batch consumption or production of tokens." .
+
+# ============================================================
+# §2  Workflow Net Classes (Van der Aalst specialization)
+# ============================================================
+
+pn:WorkflowNet
+    a owl:Class ;
+    rdfs:subClassOf pn:PetriNet ;
+    rdfs:label "Workflow Net"@en ;
+    rdfs:comment """A Workflow Net (WF-net) is a Petri Net N = (P, T, F) satisfying three
+structural conditions introduced by Van der Aalst (1998):
+  (1) There is exactly one source place i ∈ P with •i = ∅.
+  (2) There is exactly one sink place o ∈ P with o• = ∅.
+  (3) Every node x ∈ P ∪ T lies on a directed path from i to o.
+WF-nets model business processes where a case (token in i) flows to completion
+(token in o)."""@en .
+
+pn:SourcePlace
+    a owl:Class ;
+    rdfs:subClassOf pn:Place ;
+    rdfs:label "Source Place"@en ;
+    rdfs:comment "The unique input place i of a Workflow Net. It has no incoming arcs (•i = ∅) and holds exactly one token in the initial marking representing the start of a new case." .
+
+pn:SinkPlace
+    a owl:Class ;
+    rdfs:subClassOf pn:Place ;
+    rdfs:label "Sink Place"@en ;
+    rdfs:comment "The unique output place o of a Workflow Net. It has no outgoing arcs (o• = ∅). A completed case is represented by a token in o with no tokens elsewhere." .
+
+pn:FreeChoiceNet
+    a owl:Class ;
+    rdfs:subClassOf pn:PetriNet ;
+    rdfs:label "Free-Choice Net"@en ;
+    rdfs:comment """A Petri Net in which conflict and concurrency are independent. Formally:
+for all (p₁, t₁), (p₂, t₂) ∈ F: if p₁• ∩ p₂• ≠ ∅ then •t₁ = •t₂ = {p}.
+Free-choice nets have desirable analysis properties: their liveness and
+boundedness can be decided in polynomial time via the Rank Theorem."""@en .
+
+pn:SoundWorkflowNet
+    a owl:Class ;
+    rdfs:subClassOf pn:WorkflowNet ;
+    rdfs:label "Sound Workflow Net"@en ;
+    rdfs:comment """A Workflow Net N is sound if and only if all three of the following hold:
+  (1) Option to complete — for every marking M reachable from [i], the marking [o] is reachable from M.
+  (2) Proper completion  — if [o] is reached, no other place holds a token.
+  (3) No dead transitions — every transition t ∈ T can fire in some reachable marking.
+Soundness is the correctness criterion for WF-nets corresponding to
+deadlock-freedom and proper termination of business processes."""@en .
+
+# ============================================================
+# §3  Colored Petri Net Extension
+# ============================================================
+
+pn:ColoredPetriNet
+    a owl:Class ;
+    rdfs:subClassOf pn:PetriNet ;
+    rdfs:label "Colored Petri Net"@en ;
+    rdfs:comment """A Colored Petri Net (CPN) is a high-level Petri Net in which tokens carry
+data values (colors). Each place has an associated color set, each arc carries
+an arc expression evaluated against a binding, and each transition has a guard
+predicate. CPNs were developed by Kurt Jensen as a pragmatic notation for
+modeling complex concurrent systems, and are used in Van der Aalst's early
+process-mining work for instance-level analysis."""@en .
+
+pn:ColorSet
+    a owl:Class ;
+    rdfs:label "Color Set"@en ;
+    rdfs:comment "A data type (color set) associated with a place or arc in a Colored Petri Net. All tokens in a place must be elements of its color set. Examples: INT, STRING, UNIT (for plain tokens), product types, list types." .
+
+pn:Binding
+    a owl:Class ;
+    rdfs:label "Binding"@en ;
+    rdfs:comment "An assignment of values to the variables appearing in the arc expressions and guard of a transition. A binding together with the current marking determines whether a transition is enabled and how it fires." .
+
+# ============================================================
+# §4  Object Properties
+# ============================================================
+
+pn:hasPlace
+    a owl:ObjectProperty ;
+    rdfs:label "has place"@en ;
+    rdfs:comment "Relates a Petri Net to one of its places (p ∈ P)." ;
+    rdfs:domain pn:PetriNet ;
+    rdfs:range  pn:Place .
+
+pn:hasTransition
+    a owl:ObjectProperty ;
+    rdfs:label "has transition"@en ;
+    rdfs:comment "Relates a Petri Net to one of its transitions (t ∈ T)." ;
+    rdfs:domain pn:PetriNet ;
+    rdfs:range  pn:Transition .
+
+pn:hasArc
+    a owl:ObjectProperty ;
+    rdfs:label "has arc"@en ;
+    rdfs:comment "Relates a Petri Net to one of its arcs (f ∈ F)." ;
+    rdfs:domain pn:PetriNet ;
+    rdfs:range  pn:Arc .
+
+pn:arcSource
+    a owl:ObjectProperty ;
+    rdfs:label "arc source"@en ;
+    rdfs:comment "The source node of an arc — either a Place (for input arcs) or a Transition (for output arcs)." ;
+    rdfs:domain pn:Arc .
+
+pn:arcTarget
+    a owl:ObjectProperty ;
+    rdfs:label "arc target"@en ;
+    rdfs:comment "The target node of an arc — either a Transition (for input arcs) or a Place (for output arcs)." ;
+    rdfs:domain pn:Arc .
+
+pn:initialMarking
+    a owl:ObjectProperty ;
+    rdfs:label "initial marking"@en ;
+    rdfs:comment "The initial marking M₀ of a Petri Net, specifying how many tokens each place holds at the start." ;
+    rdfs:domain pn:PetriNet ;
+    rdfs:range  pn:Marking .
+
+pn:hasSourcePlace
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf pn:hasPlace ;
+    rdfs:label "has source place"@en ;
+    rdfs:comment "The unique source place i of a Workflow Net (•i = ∅)." ;
+    rdfs:domain pn:WorkflowNet ;
+    rdfs:range  pn:SourcePlace .
+
+pn:hasSinkPlace
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf pn:hasPlace ;
+    rdfs:label "has sink place"@en ;
+    rdfs:comment "The unique sink place o of a Workflow Net (o• = ∅)." ;
+    rdfs:domain pn:WorkflowNet ;
+    rdfs:range  pn:SinkPlace .
+
+pn:preSet
+    a owl:ObjectProperty ;
+    rdfs:label "pre-set"@en ;
+    rdfs:comment "The pre-set •t of a transition t: the set of all input places p such that (p, t) ∈ F." ;
+    rdfs:domain pn:Transition ;
+    rdfs:range  pn:Place .
+
+pn:postSet
+    a owl:ObjectProperty ;
+    rdfs:label "post-set"@en ;
+    rdfs:comment "The post-set t• of a transition t: the set of all output places p such that (t, p) ∈ F." ;
+    rdfs:domain pn:Transition ;
+    rdfs:range  pn:Place .
+
+pn:hasMarking
+    a owl:ObjectProperty ;
+    rdfs:label "has marking"@en ;
+    rdfs:comment "Associates a reachable marking with the Petri Net that produced it." ;
+    rdfs:domain pn:PetriNet ;
+    rdfs:range  pn:Marking .
+
+pn:hasColorSet
+    a owl:ObjectProperty ;
+    rdfs:label "has color set"@en ;
+    rdfs:comment "Associates a color set (data type) with a place or arc in a Colored Petri Net." ;
+    rdfs:range  pn:ColorSet .
+
+pn:hasBinding
+    a owl:ObjectProperty ;
+    rdfs:label "has binding"@en ;
+    rdfs:comment "Associates a variable binding with a transition firing in a Colored Petri Net." ;
+    rdfs:domain pn:Transition ;
+    rdfs:range  pn:Binding .
+
+# ============================================================
+# §5  Datatype Properties
+# ============================================================
+
+pn:arcWeight
+    a owl:DatatypeProperty ;
+    rdfs:label "arc weight"@en ;
+    rdfs:comment "The weight W(f) of an arc f ∈ F. In a standard net all weights are 1; in a weighted net W: F → ℕ⁺. A transition t is enabled in M only if M(p) ≥ W(p,t) for every p ∈ •t." ;
+    rdfs:domain pn:Arc ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+pn:tokenCount
+    a owl:DatatypeProperty ;
+    rdfs:label "token count"@en ;
+    rdfs:comment "The number of tokens held by a place under the current marking: M(p) ∈ ℕ." ;
+    rdfs:domain pn:Place ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+pn:isEnabled
+    a owl:DatatypeProperty ;
+    rdfs:label "is enabled"@en ;
+    rdfs:comment "True iff transition t is enabled in the current marking M, i.e., ∀p ∈ •t: M(p) ≥ W(p,t)." ;
+    rdfs:domain pn:Transition ;
+    rdfs:range  xsd:boolean .
+
+pn:fires
+    a owl:DatatypeProperty ;
+    rdfs:label "fires"@en ;
+    rdfs:comment "True iff transition t has been selected to fire, consuming tokens from •t and producing tokens in t•, yielding a new marking M′." ;
+    rdfs:domain pn:Transition ;
+    rdfs:range  xsd:boolean .
+
+pn:label
+    a owl:DatatypeProperty ;
+    rdfs:label "label"@en ;
+    rdfs:comment "The visible activity name assigned to a transition. Used in process mining to correlate transitions with event-log activities. Unlabeled (silent) transitions carry the conventional label τ." ;
+    rdfs:domain pn:Transition ;
+    rdfs:range  xsd:string .
+
+pn:isSilent
+    a owl:DatatypeProperty ;
+    rdfs:label "is silent"@en ;
+    rdfs:comment "True iff the transition is a silent (τ) transition — one that has no corresponding event in the event log. Silent transitions are used for routing without observable actions." ;
+    rdfs:domain pn:Transition ;
+    rdfs:range  xsd:boolean .
+
+pn:isSound
+    a owl:DatatypeProperty ;
+    rdfs:label "is sound"@en ;
+    rdfs:comment "True iff the Workflow Net satisfies the soundness criterion: option to complete, proper completion, and no dead transitions." ;
+    rdfs:domain pn:WorkflowNet ;
+    rdfs:range  xsd:boolean .
+
+pn:isReachable
+    a owl:DatatypeProperty ;
+    rdfs:label "is reachable"@en ;
+    rdfs:comment "True iff this marking M is reachable from the initial marking M₀ via some firing sequence σ: M₀ [σ⟩ M." ;
+    rdfs:domain pn:Marking ;
+    rdfs:range  xsd:boolean .
+
+pn:isLive
+    a owl:DatatypeProperty ;
+    rdfs:label "is live"@en ;
+    rdfs:comment """True iff the Petri Net is live: for every reachable marking M and every
+transition t ∈ T there exists a reachable marking M′ from M in which t is enabled.
+Liveness guarantees the absence of deadlocks and that no transition becomes
+permanently disabled."""@en ;
+    rdfs:domain pn:PetriNet ;
+    rdfs:range  xsd:boolean .
+
+pn:isBounded
+    a owl:DatatypeProperty ;
+    rdfs:label "is bounded"@en ;
+    rdfs:comment "True iff the Petri Net is bounded: there exists a natural number k such that for every reachable marking M and every place p, M(p) ≤ k. Boundedness ensures finite state space." ;
+    rdfs:domain pn:PetriNet ;
+    rdfs:range  xsd:boolean .
+
+pn:isSafe
+    a owl:DatatypeProperty ;
+    rdfs:label "is safe"@en ;
+    rdfs:comment "True iff the Petri Net is 1-bounded (safe): in every reachable marking every place holds at most one token. Safe nets model purely boolean conditions." ;
+    rdfs:domain pn:PetriNet ;
+    rdfs:range  xsd:boolean .
+
+# ============================================================
+# §6  Control-Flow Pattern Classes
+# ============================================================
+#
+# The following classes represent the structural Petri Net
+# subgraphs that correspond to the YAWL / workflow patterns
+# catalogued by Van der Aalst, ter Hofstede, Kiepuszewski,
+# and Barros (2003). Each is a specialization of PetriNet
+# representing a canonical sub-net fragment.
+
+pn:ControlFlowPattern
+    a owl:Class ;
+    rdfs:subClassOf pn:PetriNet ;
+    rdfs:label "Control-Flow Pattern"@en ;
+    rdfs:comment "Abstract superclass for structural Petri Net fragments corresponding to workflow control-flow patterns from the Van der Aalst / ter Hofstede pattern catalogue." .
+
+pn:SequencePattern
+    a owl:Class ;
+    rdfs:subClassOf pn:ControlFlowPattern ;
+    rdfs:label "Sequence Pattern"@en ;
+    rdfs:comment """WF-Pattern 1 — Sequence. A place p between two transitions t₁ and t₂ such that
+t₁• = {p} and •t₂ = {p}. The firing of t₁ enables t₂ unconditionally.
+Represented in Petri Nets as: t₁ → p → t₂."""@en .
+
+pn:ChoicePattern
+    a owl:Class ;
+    rdfs:subClassOf pn:ControlFlowPattern ;
+    rdfs:label "XOR-Choice Pattern"@en ;
+    rdfs:comment """WF-Pattern 4 — Exclusive Choice (XOR-split). A place p with multiple output arcs
+to transitions t₁ … tₙ (n ≥ 2) such that •tᵢ = {p} for all i. When p holds a token
+exactly one tᵢ fires, consuming the token. The choice may be implicit (conflict)
+or explicit (guard-driven in colored nets)."""@en .
+
+pn:ParallelPattern
+    a owl:Class ;
+    rdfs:subClassOf pn:ControlFlowPattern ;
+    rdfs:label "AND-Split (Parallel) Pattern"@en ;
+    rdfs:comment """WF-Pattern 2 — Parallel Split (AND-split). A transition t with multiple output
+places p₁ … pₙ (n ≥ 2) such that t• = {p₁, …, pₙ}. Firing t deposits one token
+into each pᵢ simultaneously, enabling concurrent execution of subsequent branches."""@en .
+
+pn:LoopPattern
+    a owl:Class ;
+    rdfs:subClassOf pn:ControlFlowPattern ;
+    rdfs:label "Loop Pattern"@en ;
+    rdfs:comment """WF-Pattern 21 — Structured Loop. A cycle in the net containing at least one
+transition on the forward path and a back-arc that returns a token to an earlier
+place, allowing repeated execution. Corresponds to while-do and repeat-until
+constructs in structured process models."""@en .
+
+pn:SynchronizationPattern
+    a owl:Class ;
+    rdfs:subClassOf pn:ControlFlowPattern ;
+    rdfs:label "AND-Join (Synchronization) Pattern"@en ;
+    rdfs:comment """WF-Pattern 3 — Synchronization (AND-join). A transition t with multiple input
+places p₁ … pₙ (n ≥ 2) such that •t = {p₁, …, pₙ}. Transition t fires only when
+each pᵢ holds at least one token, synchronizing all concurrent branches before
+proceeding."""@en .
+
+# ============================================================
+# §7  Annotation of Key Individuals / Constants
+# ============================================================
+
+pn:TauTransitionConvention
+    a owl:NamedIndividual, pn:Transition ;
+    rdfs:label "Tau Transition (τ)"@en ;
+    rdfs:comment "Conventional named individual representing a silent transition τ. Silent transitions model internal routing steps that produce no observable event and therefore leave no trace in an event log." ;
+    pn:isSilent "true"^^xsd:boolean .
+
+# ============================================================
+# End of petri-net.ttl
+# ============================================================

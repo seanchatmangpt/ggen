@@ -12,8 +12,11 @@
 //! - Receipt chains and envelopes for operation provenance
 //! - Rich error handling
 
+pub mod canonical;
 pub mod config;
 pub mod config_lib;
+pub mod domain;
+pub mod manifest;
 pub mod receipt;
 
 pub use config_lib::{

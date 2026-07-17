@@ -11,40 +11,35 @@ use tempfile::TempDir;
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 
-/// Helper: Create a minimal ggen.toml in a temp directory
+/// Helper: Create a minimal ggen.toml in a temp directory.
+///
+/// Uses the live engine's frontmatter schema (`ggen_engine::config::GgenConfig`,
+/// `deny_unknown_fields`: `[project]` is name-only, `[templates]` is required) —
+/// the previous fixture here used the pre-v26.7.16 declarative-rules shape and
+/// was rejected by `ggen doctor` with `[FM-CONFIG-002]`.
 fn setup_minimal_ggen_toml(dir: &TempDir) -> TestResult {
-    // description is required by the DMAIC Phase 1: Define quality gate
-    // inference.rules with CONSTRUCT queries required by DMAIC Phase 2: Measure quality gate
-    // generation section is required by ggen sync (preflight validates at least one rule)
     let ggen_toml = r#"[project]
 name = "test-project"
-version = "0.1.0"
-description = "Minimal test project for proof invariant validation"
 
 [ontology]
 source = "ontology.ttl"
 
-[inference]
-rules = [
-    { name = "standard-normalization", construct = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }" }
-]
-
-[[generation.rules]]
-name = "test-rule"
-query = { inline = "SELECT ?s WHERE { ?s a ?t } LIMIT 1" }
-template = { inline = "{{results}}" }
-output_file = "test-output.txt"
+[templates]
+dir = "templates"
 "#;
     fs::write(dir.path().join("ggen.toml"), ggen_toml)?;
+    fs::create_dir_all(dir.path().join("templates"))?;
+    fs::write(
+        dir.path().join("templates/one.tmpl"),
+        "---\nto: out/names.txt\nforce: true\nsparql:\n  people: SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\n---\n{% for row in results %}{{ row.name }}\n{% endfor %}",
+    )?;
     Ok(())
 }
 
 /// Helper: Create a minimal valid TTL file
 fn setup_minimal_ttl(dir: &TempDir) -> TestResult {
-    // rdfs: prefix must be declared before use; ex:Thing is a plain resource
     let ttl = r#"@prefix ex: <http://example.org/> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-ex:Thing a rdfs:Class .
+ex:Alice ex:name "Alice" .
 "#;
     fs::write(dir.path().join("ontology.ttl"), ttl)?;
     Ok(())
@@ -71,12 +66,9 @@ fn cli_01_sync_exits_zero_with_receipt() -> TestResult {
         .success();
 
     // Act: run sync and check for receipt
-    // Assert: .ggen/receipts/latest.json exists
-    let receipt_path = temp
-        .path()
-        .join(".ggen")
-        .join("receipts")
-        .join("latest.json");
+    // Assert: .ggen-v2/receipt.json exists (live engine receipt path,
+    // `ggen_engine::sync::RECEIPT_REL_PATH`)
+    let receipt_path = temp.path().join(".ggen-v2").join("receipt.json");
     assert!(
         receipt_path.exists(),
         "Receipt must be written at {} when sync succeeds",
@@ -217,11 +209,12 @@ fn pipe_02_validate_succeeds_on_valid_ttl() -> TestResult {
     let temp = TempDir::new()?;
     setup_minimal_ttl(&temp)?;
 
-    // Act: run graph validate on valid TTL (--schema_file flag required; positional arg no longer accepted)
+    // Act: run graph validate on valid TTL (live verb takes `--files`,
+    // crates/ggen-engine/src/verbs/graph.rs)
     let _ = Command::cargo_bin("ggen")?
         .arg("graph")
         .arg("validate")
-        .arg("--schema_file")
+        .arg("--files")
         .arg(temp.path().join("ontology.ttl"))
         .assert()
         .success();
@@ -250,23 +243,24 @@ fn rcpt_01_sync_writes_receipt_directory() -> TestResult {
         .assert()
         .success();
 
-    // Assert: .ggen/receipts/ directory exists and contains latest.json
-    let receipts_dir = temp.path().join(".ggen").join("receipts");
+    // Assert: .ggen-v2/ exists with receipt.json and the append-only
+    // receipt-log.jsonl (live engine layout, ggen-engine/src/sync.rs)
+    let receipts_dir = temp.path().join(".ggen-v2");
     assert!(
         receipts_dir.exists(),
-        ".ggen/receipts directory must exist after sync at {}",
+        ".ggen-v2 directory must exist after sync at {}",
         receipts_dir.display()
     );
 
-    let latest_path = receipts_dir.join("latest.json");
+    let latest_path = receipts_dir.join("receipt.json");
     assert!(
         latest_path.exists(),
-        "latest.json must exist in receipts directory at {}",
+        "receipt.json must exist at {}",
         latest_path.display()
     );
 
     let content = fs::read_to_string(&latest_path)?;
-    assert!(!content.trim().is_empty(), "latest.json must not be empty");
+    assert!(!content.trim().is_empty(), "receipt.json must not be empty");
     Ok(())
 }
 
@@ -286,21 +280,19 @@ fn rcpt_02_receipt_has_non_empty_signature() -> TestResult {
         .assert()
         .success();
 
-    // Assert: latest.json contains valid JSON with non-empty signature
-    let receipt_path = temp
-        .path()
-        .join(".ggen")
-        .join("receipts")
-        .join("latest.json");
+    // Assert: receipt.json contains valid JSON with non-empty signature_hex
+    // (praxis_core::ReceiptRecord; keys auto-generate under <cwd>/.ggen/keys/
+    // on first real sync, so a fresh TempDir sync is always signed)
+    let receipt_path = temp.path().join(".ggen-v2").join("receipt.json");
     let receipt_json = fs::read_to_string(&receipt_path)?;
     let receipt: serde_json::Value = serde_json::from_str(&receipt_json)?;
 
-    let sig = receipt["signature"]
+    let sig = receipt["record"]["signature_hex"]
         .as_str()
-        .expect("signature field must be a string");
+        .expect("signature_hex field must be a string");
     assert!(
         !sig.is_empty(),
-        "receipt signature must not be empty, got: {:?}",
+        "receipt signature_hex must not be empty, got: {:?}",
         sig
     );
     Ok(())
@@ -353,18 +345,18 @@ fn graph_01_deterministic_validate_output() -> TestResult {
 
     let ttl_path = temp.path().join("ontology.ttl");
 
-    // Act: run validate twice (--schema_file flag required; positional arg no longer accepted)
+    // Act: run validate twice (live verb takes `--files`)
     let output1 = Command::cargo_bin("ggen")?
         .arg("graph")
         .arg("validate")
-        .arg("--schema_file")
+        .arg("--files")
         .arg(&ttl_path)
         .output()?;
 
     let output2 = Command::cargo_bin("ggen")?
         .arg("graph")
         .arg("validate")
-        .arg("--schema_file")
+        .arg("--files")
         .arg(&ttl_path)
         .output()?;
 

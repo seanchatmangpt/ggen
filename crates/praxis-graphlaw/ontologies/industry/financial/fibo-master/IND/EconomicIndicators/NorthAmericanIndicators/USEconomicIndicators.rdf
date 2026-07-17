@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-col "https://www.omg.org/spec/Commons/Collections/">
+	<!ENTITY cmns-cxtdsg "https://www.omg.org/spec/Commons/ContextualDesignators/">
+	<!ENTITY cmns-doc "https://www.omg.org/spec/Commons/Documents/">
+	<!ENTITY cmns-loc "https://www.omg.org/spec/Commons/Locations/">
+	<!ENTITY cmns-qtu "https://www.omg.org/spec/Commons/QuantitiesAndUnits/">
+	<!ENTITY cmns-ra "https://www.omg.org/spec/Commons/RegistrationAuthorities/">
+	<!ENTITY cmns-rga "https://www.omg.org/spec/Commons/RegulatoryAgencies/">
+	<!ENTITY cmns-rlcmp "https://www.omg.org/spec/Commons/RolesAndCompositions/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-fct-pub "https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/Publishers/">
+	<!ENTITY fibo-be-ge-ge "https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/GovernmentEntities/">
+	<!ENTITY fibo-be-ge-usj "https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/NorthAmericanJurisdiction/USGovernmentEntitiesAndJurisdictions/">
+	<!ENTITY fibo-fbc-pas-fpas "https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/">
+	<!ENTITY fibo-fnd-utl-alx "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/Analytics/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY fibo-ind-ei-ei "https://spec.edmcouncil.org/fibo/ontology/IND/EconomicIndicators/EconomicIndicators/">
+	<!ENTITY fibo-ind-ei-usei "https://spec.edmcouncil.org/fibo/ontology/IND/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators/">
+	<!ENTITY lcc-3166-1 "https://www.omg.org/spec/LCC/Countries/ISO3166-1-CountryCodes/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/IND/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-col="https://www.omg.org/spec/Commons/Collections/"
+	xmlns:cmns-cxtdsg="https://www.omg.org/spec/Commons/ContextualDesignators/"
+	xmlns:cmns-doc="https://www.omg.org/spec/Commons/Documents/"
+	xmlns:cmns-loc="https://www.omg.org/spec/Commons/Locations/"
+	xmlns:cmns-qtu="https://www.omg.org/spec/Commons/QuantitiesAndUnits/"
+	xmlns:cmns-ra="https://www.omg.org/spec/Commons/RegistrationAuthorities/"
+	xmlns:cmns-rga="https://www.omg.org/spec/Commons/RegulatoryAgencies/"
+	xmlns:cmns-rlcmp="https://www.omg.org/spec/Commons/RolesAndCompositions/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-fct-pub="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/Publishers/"
+	xmlns:fibo-be-ge-ge="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/GovernmentEntities/"
+	xmlns:fibo-be-ge-usj="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/NorthAmericanJurisdiction/USGovernmentEntitiesAndJurisdictions/"
+	xmlns:fibo-fbc-pas-fpas="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/"
+	xmlns:fibo-fnd-utl-alx="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/Analytics/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:fibo-ind-ei-ei="https://spec.edmcouncil.org/fibo/ontology/IND/EconomicIndicators/EconomicIndicators/"
+	xmlns:fibo-ind-ei-usei="https://spec.edmcouncil.org/fibo/ontology/IND/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators/"
+	xmlns:lcc-3166-1="https://www.omg.org/spec/LCC/Countries/ISO3166-1-CountryCodes/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/IND/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators/">
+		<rdfs:label>American Economic Indicators Ontology</rdfs:label>
+		<dct:abstract>This ontology provides specific parameters which make up the various types of market economic indicators applicable to the American economy.</dct:abstract>
+		<dct:license>Copyright (c) 2016-2025 EDM Council, Inc.
+Copyright (c) 2016-2025 Object Management Group, Inc.
+		
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/Publishers/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/GovernmentEntities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/NorthAmericanJurisdiction/USGovernmentEntitiesAndJurisdictions/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/Analytics/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/EconomicIndicators/EconomicIndicators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Collections/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/ContextualDesignators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Documents/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Locations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/QuantitiesAndUnits/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RegistrationAuthorities/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RolesAndCompositions/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/LCC/Countries/ISO3166-1-CountryCodes/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/20251001/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators/"/>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20160801/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators.rdf version of this ontology was added to the IND specification per the issue resolutions identified in the FIBO IND 1.0 FTF 3 report.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20160801/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators.rdf version of this ontology was revised per the FIBO 2.0 RFC.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20180801/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators.rdf version of this ontology was revised to reflect the new hasCoverageArea property and migration of statistical measures in FND.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20190501/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators.rdf version of this ontology was revised to eliminate duplication of concepts in LCC, merge countries with locations in FND, and eliminate a redundant superclass declaration on UrbanConsumerPriceIndex.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20200401/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators.rdf version of this ontology was revised to merge statistical information publisher with economic indicators.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20210301/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators.rdf version of this ontology was revised to correct out of date links.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20220801/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20230201/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators.rdf version of this ontology was modified to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC), eliminating redundancies in FIBO as appropriate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20230301/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators.rdf version of this ontology was modified to replace content that is now available in the OMG Commons Ontology Library (Commons) v1.1 (FND-380).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20231201/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators.rdf version of this ontology was modified to replace additional content that is now available in the OMG Commons Ontology Library (Commons) v1.1 (FND-380).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20240101/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators.rdf version of the ontology was modified to replace additional content that is now available in the OMG Commons Ontology Library (Commons) v1.2 (FND-389).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20250301/EconomicIndicators/NorthAmericanIndicators/USEconomicIndicators.rdf version of the ontology was modified to further reflect changes made in Commons v1.2 (FBC-338).</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2016-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2016-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-ind-ei-usei;AmericanStatisticsPublisher">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-ei-ei;StatisticalInformationPublisher"/>
+		<rdfs:label>American statistics publisher</rdfs:label>
+		<skos:definition>statistical information publisher comprised of the government agencies and departments that publish statistical information on behalf of the U.S. Federal Government</skos:definition>
+		<skos:example>Examples of American statistical information publishers include the Department of Commerce, Bureau of Economic Analysis (Commerce), Census Bureau (Commerce), Bureau of Labor Statistics (Labor), Department of the Treasury, and the Federal Reserve Board, among others.</skos:example>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-ind-ei-usei;BureauOfLaborStatistics">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;GovernmentAgency"/>
+		<rdfs:label>Bureau of Labor Statistics</rdfs:label>
+		<rdfs:seeAlso rdf:resource="http://www.bls.gov/"/>
+		<skos:definition>the Bureau of Labor Statistics, the principal Federal agency responsible for measuring labor market activity, working conditions, and price changes in the economy</skos:definition>
+		<cmns-av:abbreviation>BLS</cmns-av:abbreviation>
+		<cmns-av:adaptedFrom rdf:datatype="&xsd;anyURI">http://www.bls.gov/bls/infohome.htm</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote>Its mission is to collect, analyze, and disseminate essential economic information to support public and private decision-making. As an independent statistical agency, BLS serves its diverse user communities by providing products and services that are objective, timely, accurate, and relevant.</cmns-av:explanatoryNote>
+		<cmns-col:isPartOf rdf:resource="&fibo-ind-ei-usei;UnitedStatesDepartmentOfLabor"/>
+		<cmns-loc:hasCoverageArea rdf:resource="&lcc-3166-1;UnitedStatesOfAmerica"/>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-ind-ei-usei;ConsumerExpenditureSurvey">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;StatisticalProgram"/>
+		<rdfs:label>consumer expenditure survey</rdfs:label>
+		<skos:definition>statistical program conducted on a regular basis that provides information on the buying habits of consumers, including data on their expenditures, income, and consumer unit (families and single consumers) characteristics</skos:definition>
+		<cmns-av:adaptedFrom rdf:resource="http://www.bls.gov/cex/"/>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-ei-usei;CurrentEmploymentStatistics">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;StatisticalProgram"/>
+		<rdfs:label>current employment statistics</rdfs:label>
+		<skos:definition>survey conducted on a regular basis that presents analytical information related to businesses and government agencies, in order to provide detailed industry data on employment, hours, and earnings of workers</skos:definition>
+		<cmns-av:adaptedFrom rdf:resource="http://www.bls.gov/ces/"/>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-ei-usei;CurrentPopulationSurvey">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;StatisticalProgram"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;specifies"/>
+				<owl:someValuesFrom rdf:resource="&fibo-ind-ei-ei;CivilianNonInstitutionalPopulation"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>current population survey</rdfs:label>
+		<skos:definition>survey conducted on a regular basis that presents analytical information related to the general population of a given statistical area with respect to labor force, employment, unemployment, persons not in the labor force, hours of work, earnings, and other demographic and labor force characteristics</skos:definition>
+		<cmns-av:adaptedFrom rdf:resource="http://www.bls.gov/cps/"/>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-ei-usei;EmploymentSituationEstablishmentSurvey">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-ei-usei;EmploymentSituationSurvey"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;isApplicableIn"/>
+				<owl:someValuesFrom rdf:resource="&fibo-ind-ei-ei;Establishment"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>employment situation establishment survey</rdfs:label>
+		<rdfs:seeAlso rdf:resource="https://www.bls.gov/news.release/empsit.tn.htm"/>
+		<skos:definition>survey conducted on a regular basis that presents analytical information related to the labor force of a given statistical area, surveyed with respect to businesses, and is, for the most part, seasonally adjusted</skos:definition>
+		<cmns-av:adaptedFrom>U.S. Bureau of Labor Statistics and Statistics Canada reference definitions - https://wiki.edmcouncil.org/pages/viewpage.action?pageId=6358041</cmns-av:adaptedFrom>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-ei-usei;EmploymentSituationHouseholdSurvey">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-ei-usei;EmploymentSituationSurvey"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;isApplicableIn"/>
+				<owl:someValuesFrom rdf:resource="&fibo-ind-ei-ei;Household"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>employment situation household survey</rdfs:label>
+		<rdfs:seeAlso rdf:resource="https://www.bls.gov/news.release/empsit.tn.htm"/>
+		<skos:definition>a survey conducted on a regular basis that presents analytical information related to the labor force of a given statistical area, surveyed with respect to households, and is, for the most part, seasonally adjusted</skos:definition>
+		<cmns-av:adaptedFrom>U.S. Bureau of Labor Statistics and Statistics Canada reference definitions - https://wiki.edmcouncil.org/pages/viewpage.action?pageId=6358041</cmns-av:adaptedFrom>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-ei-usei;EmploymentSituationSurvey">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-ei-usei;CurrentEmploymentStatistics"/>
+		<rdfs:subClassOf rdf:resource="&fibo-ind-ei-usei;CurrentPopulationSurvey"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-ind-ei-ei;isSeasonallyAdjusted"/>
+				<owl:onDataRange rdf:resource="&xsd;boolean"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>employment situation survey</rdfs:label>
+		<skos:definition>a survey conducted on a regular basis that presents analytical information focused on the employment characteristics of a given statistical area</skos:definition>
+		<cmns-av:adaptedFrom rdf:resource="http://www.bls.gov/opub/reports/about.htm"/>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-ei-usei;PointOfPurchaseSurvey">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;StatisticalProgram"/>
+		<rdfs:label>point of purchase survey</rdfs:label>
+		<skos:definition>a program conducted on a regular basis that provides information on purchases of various items and services by consumers</skos:definition>
+		<cmns-av:adaptedFrom rdf:resource="http://www.bls.gov/respondents/cpi/tpops/"/>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-ei-usei;USProducerPriceIndex">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-ei-ei;ProducerPriceIndex"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-fct-pub;isPublishedBy"/>
+				<owl:hasValue rdf:resource="&fibo-ind-ei-usei;BureauOfLaborStatistics"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-fct-pub;hasPublisher"/>
+				<owl:someValuesFrom rdf:resource="&fibo-ind-ei-usei;AmericanStatisticsPublisher"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>U.S. producer price index</rdfs:label>
+		<skos:definition>an economic indicator representing a measure of the change over time in the selling prices received by domestic producers for their output</skos:definition>
+		<cmns-av:adaptedFrom rdf:datatype="&xsd;anyURI">http://www.bls.gov/ppi/</cmns-av:adaptedFrom>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-ind-ei-usei;UnitedStatesDepartmentOfLabor">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;GovernmentDepartment"/>
+		<rdfs:label>United States Department of Labor</rdfs:label>
+		<rdfs:seeAlso rdf:resource="https://www.dol.gov/"/>
+		<skos:definition>individual representing the U.S. Department of Labor, a government department whose mission is to foster, promote, and develop the welfare of the wage earners, job seekers, and retirees of the United States; improve working conditions; advance opportunities for profitable employment; and assure work-related benefits and rights</skos:definition>
+		<cmns-av:abbreviation>DOL</cmns-av:abbreviation>
+		<cmns-av:adaptedFrom rdf:datatype="&xsd;anyURI">https://www.dol.gov/general/aboutdol</cmns-av:adaptedFrom>
+		<cmns-col:isPartOf rdf:resource="&fibo-be-ge-usj;UnitedStatesGovernment"/>
+		<cmns-loc:hasCoverageArea rdf:resource="&lcc-3166-1;UnitedStatesOfAmerica"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-usj;UnitedStatesJurisdiction"/>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-ind-ei-usei;UrbanConsumerPriceIndex">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-ei-ei;ConsumerPriceIndex"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-fct-pub;isPublishedBy"/>
+				<owl:hasValue rdf:resource="&fibo-ind-ei-usei;BureauOfLaborStatistics"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-qtu;hasArgument"/>
+				<owl:onClass rdf:resource="&fibo-ind-ei-usei;UrbanConsumersUniverse"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-fct-pub;hasPublisher"/>
+				<owl:someValuesFrom rdf:resource="&fibo-ind-ei-usei;AmericanStatisticsPublisher"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;appliesTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-ind-ei-usei;UrbanConsumersUniverse"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-qtu;hasArgument"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-fpas;Basket"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>urban consumer price index</rdfs:label>
+		<skos:definition>an economic indicator representing a measure of the average change over time in the prices paid by urban consumers for a market basket of consumer goods and services</skos:definition>
+		<cmns-av:abbreviation>CPI-U</cmns-av:abbreviation>
+		<cmns-av:adaptedFrom rdf:datatype="&xsd;anyURI">http://www.bls.gov/cpi/</cmns-av:adaptedFrom>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-ei-usei;UrbanConsumersUniverse">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-ei-ei;CivilianNonInstitutionalPopulation"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;hasMember"/>
+				<owl:someValuesFrom>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&cmns-rlcmp;playsRole"/>
+						<owl:someValuesFrom rdf:resource="&fibo-ind-ei-ei;UltimateConsumer"/>
+					</owl:Restriction>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;isApplicableIn"/>
+				<owl:someValuesFrom rdf:resource="&fibo-ind-ei-usei;ConsumerExpenditureSurvey"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;isApplicableIn"/>
+				<owl:someValuesFrom rdf:resource="&fibo-ind-ei-usei;PointOfPurchaseSurvey"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>urban consumers universe</rdfs:label>
+		<skos:definition>a statistical universe for consumer expenditure surveys consisting of people within a household that make joint expenditure decisions</skos:definition>
+		<cmns-av:adaptedFrom>U.S. Bureau of Labor Statistics, http://www.bls.gov/cpi/</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote>In the United States, the CPI-U population, which covers about 88 percent of the U.S. population, covers households in all areas of the United States except people living in rural nonmetropolitan areas, in farm households, on military installations, in religious communities, and in institutions such as prisons and mental hospitals.</cmns-av:explanatoryNote>
+	</owl:Class>
+
+</rdf:RDF>

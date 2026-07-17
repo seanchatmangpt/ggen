@@ -1,3 +1,28 @@
+// ARCHIVED (v26.7.16 routing flip): every test here invokes the retired flat
+// `ggen sync --manifest <path> --dry_run true` shape. `--manifest` is
+// REFUSED on the new `sync run` (ggen-engine resolves the project root as
+// cwd -- see docs/reference/ggen_sync_manual.md#0-migration-the-v26716-cli-routing-flip).
+// Worse than an honest failure: the two tests that assert `.failure()`
+// (`gall_sync_gates_before_actuating_and_refuses_incapable_boundary`,
+// `gall_refused_sync_emits_no_phantom_receipt_or_artifact`) still report
+// "ok" under `cargo test -p ggen-cli-lib` -- but only because a clap
+// "unexpected argument '--manifest'" parse error is *also* a nonzero exit,
+// not because the incapable-boundary refusal logic under test ran at all.
+// They were passing for the wrong reason.
+//
+// Beyond the flag, this file also asserts on the OLD ggen-core receipt
+// shape (`.ggen/receipts/latest.json` with top-level `input_hashes`/
+// `output_hashes`/`signature` fields -- see
+// docs/reference/ggen_sync_manual.md#8-cryptographic-receipts), which
+// differs from ggen-engine's receipt (`.ggen-v2/receipt.json`, see
+// crates/ggen-engine/tests/cli_boundary.rs). Re-deriving this file's O*
+// -closure-binding assertions against ggen-engine's actual receipt schema
+// is real work beyond a flag rename, and that schema is under active
+// development in this workspace concurrently with this change (see
+// `crates/ggen-engine/src/{sync,template}.rs`) -- attempting it here risked
+// asserting on soon-to-be-stale internals. Left gated and BLOCKED rather
+// than guessed at.
+#![cfg(feature = "ggen-core-retired")]
 #![allow(
     clippy::unwrap_used,
     clippy::expect_used,

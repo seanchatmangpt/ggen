@@ -1,0 +1,5 @@
+PREFIX ex: <http://example.org/>
+SELECT ?s WHERE {
+  ?s ex:val ?val .
+  FILTER (?val = 1)
+}

@@ -1,0 +1,102 @@
+# hook.ttl -- the Knowledge Hook that DERIVES whether a merger/acquisition
+# owes an HSR Act antitrust-notification filing, given the pattern "the
+# deal's aggregate consideration meets or exceeds the statutory
+# size-of-transaction filing threshold". Same real, tested `kh:` hook-pack
+# mechanism `crates/multifractal-workflow/fixtures/bribery-case/hook.ttl`
+# and `crates/praxis-graphlaw/tests/soc2_hook_actuation.rs` already exercise
+# in production-shaped form (`kh:kind "sparql"` trigger + `kh:action` ->
+# `kh:handler <.../handler#sparql-construct>`), run here via the real
+# `praxis_graphlaw::TripleStore::load_hook_pack` + `.materialize()` pipeline
+# -- not a hand-simulated mechanism. Proven live by
+# `crates/praxis-graphlaw/tests/ma_case_hook_actuation.rs`.
+#
+# WHAT THIS HOOK DOES, PRECISELY: fires (kh:effect "emit-delta") whenever an
+# admitted graph contains
+#   ?deal a fibo-cae-ce-act:MergerAcquisition .
+#   ?deal schema:amount ?amt .
+#   ?amt schema:value ?val .
+#   FILTER(?val >= 100000000)   -- the deal's aggregate consideration meets
+#                                   or exceeds this fixture's illustrative
+#                                   $100,000,000 filing-threshold figure
+#                                   (see case.ttl's header for why this is
+#                                   NOT asserted as the exact, annually
+#                                   adjusted current HSR Act threshold)
+# and, when it fires, CONSTRUCTs exactly 1 `ma:hasRegulatoryFilingObligation`
+# triple linking the deal to the static `ma:hsr-act-notification-obligation`
+# catalog individual below -- the RDF-level fact that a future PDDL-planning
+# stage (out of scope for this pass, per the task's own carve-out) would
+# project into a `(has-obligation ...)` :init atom, exactly the same
+# obligation-derivation shape bribery-case/hook.ttl already established for
+# `sc:hasObligation`.
+#
+# ENGINE LIMITATION WORKED AROUND (disclosed, not hidden -- the SAME one
+# bribery-case/hook.ttl's own header discloses in detail):
+# `crates/praxis-graphlaw/src/hooks/construct.rs::instantiate_term_pattern`
+# echoes a CONSTRUCT template's blank-node label verbatim per solution row
+# rather than minting a fresh blank node per binding, so a CONSTRUCT using a
+# shared blank-node label would alias every matching deal onto the SAME
+# blank node across a graph with multiple admitted deals. This hook's
+# CONSTRUCT below uses NO blank nodes: the derived triple links the deal (a
+# real, distinct IRI per deal) directly to the FIXED, shared
+# ma:hsr-act-notification-obligation individual, safe under this engine's
+# per-row blank-node aliasing because no blank node is ever produced.
+#
+# PUBLIC-ONTOLOGY-FIRST: see case.ttl's header for the fibo-cae-ce-act: /
+# schema: usage this file's WHERE clause queries against. No new public
+# vocabulary is introduced here.
+#
+# DISCLOSED MINTED TERM (ma:, in addition to ontology.ttl's disclosed list):
+#   ma:hasRegulatoryFilingObligation  MergerAcquisition -> RegulatoryFilingObligation
+#     link, the fact this hook exists to derive. ontology.ttl's own header
+#     already discloses ma:RegulatoryFilingObligation itself (as a subclass
+#     of odrl:Duty) but does not mint a property linking a specific deal to
+#     a specific filing-obligation catalog entry -- no public property was
+#     found for that link either (cmns-rga:RegulatoryReport and
+#     fibo-cae-ce-act:RegulatoryAction give only a generic filing-document/
+#     regulator-action shell, per ontology.ttl's own disclosure), so this
+#     hook mints the linking property at the point it is first needed,
+#     exactly the same "hook.ttl mints its own additional catalog terms
+#     beyond ontology.ttl's TBox pass" pattern
+#     bribery-case/hook.ttl establishes for sc:hasObligation.
+
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix kh:      <http://seanchatmangpt.github.io/praxis/kh#> .
+@prefix ma:      <http://seanchatmangpt.github.io/packs/ma-case-study#> .
+
+# ── ma: term this file mints (beyond ontology.ttl's own disclosed set) ────
+
+ma:hasRegulatoryFilingObligation
+    a rdf:Property ; rdfs:label "hasRegulatoryFilingObligation" ;
+    rdfs:domain <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/MergerAcquisition> ;
+    rdfs:range ma:RegulatoryFilingObligation ;
+    rdfs:comment "Deal acquired this regulatory filing obligation -- the fact ma:derive_ma_regulatory_filing_obligation derives. See this file's header disclosure." .
+
+# ── Static catalog: the one HSR Act filing-obligation individual this
+#    fixture's deals can acquire (matches ontology.ttl's
+#    RegulatoryFilingObligationShape's closed property set exactly:
+#    rdf:type + filingThresholdAmount + triggeringStatute +
+#    statutoryWaitingPeriodDays, nothing else) ───────────────────────────────
+
+ma:hsr-act-notification-obligation
+    a ma:RegulatoryFilingObligation ;
+    ma:filingThresholdAmount "100000000.00"^^xsd:decimal ;
+    ma:triggeringStatute "15 U.S.C. §18a (Hart-Scott-Rodino Antitrust Improvements Act)" ;
+    ma:statutoryWaitingPeriodDays 30 .
+
+# ── The hook itself ─────────────────────────────────────────────────────
+
+ma:derive_ma_regulatory_filing_obligation
+    a kh:Hook ;
+    kh:name "derive_ma_regulatory_filing_obligation" ;
+    kh:kind "sparql" ;
+    kh:query """SELECT ?deal WHERE { ?deal a <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/MergerAcquisition> . ?deal <https://schema.org/amount> ?amt . ?amt <https://schema.org/value> ?val . FILTER(?val >= 100000000) }""" ;
+    kh:effect "emit-delta" ;
+    kh:action ma:derive_ma_regulatory_filing_obligation_action ;
+    kh:priority 1 .
+
+ma:derive_ma_regulatory_filing_obligation_action
+    a kh:Action ;
+    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:query """CONSTRUCT { ?deal <http://seanchatmangpt.github.io/packs/ma-case-study#hasRegulatoryFilingObligation> <http://seanchatmangpt.github.io/packs/ma-case-study#hsr-act-notification-obligation> . } WHERE { ?deal a <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/MergerAcquisition> . ?deal <https://schema.org/amount> ?amt . ?amt <https://schema.org/value> ?val . FILTER(?val >= 100000000) }""" .

@@ -1,8 +1,9 @@
-//! Agent noun — the AGI-facing CLI surface over `ggen_core::agent::PackAgent`.
+//! Agent noun — the AGI-facing CLI surface over `crate::agent::PackAgent`.
 //!
 //! `ggen agent <verb>` is the third transport over the one authoritative pack
-//! lifecycle facade, alongside the Rust library API (`ggen_core::agent`) and the
-//! `ggen.packs.*` MCP/A2A tools (`ggen-a2a-mcp`). Every verb emits structured
+//! lifecycle facade, alongside the Rust library API (`crate::agent`, ported from
+//! `ggen_core::agent` — see that module's doc comment) and the `ggen.packs.*`
+//! MCP/A2A tools (`ggen-a2a-mcp`). Every verb emits structured
 //! JSON an autonomous agent can parse and chain, covering the full
 //! project-bring-up lifecycle an AGI drives to complete a project:
 //!
@@ -20,7 +21,7 @@
 use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
 
-use ggen_core::agent::{InstallRequest, PackAgent};
+use crate::agent::{InstallRequest, PackAgent};
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
@@ -41,7 +42,7 @@ fn agent_at(root: Option<String>) -> Result<PackAgent> {
 }
 
 /// Lift a facade error into a CLI error, preserving the message.
-fn lift<T>(r: ggen_core::agent::AgentResult<T>) -> Result<T> {
+fn lift<T>(r: crate::agent::AgentResult<T>) -> Result<T> {
     r.map_err(|e| NounVerbError::execution_error(e.to_string()))
 }
 

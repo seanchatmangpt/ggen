@@ -1,0 +1,268 @@
+# case.ttl -- the concrete Meridian Holdings Group / Corvantis Systems
+# acquisition scenario, the instance-data companion to
+# packs/ma-case-study-pack/ontology.ttl + shapes.ttl (built the same session,
+# see this pack's pack.toml for the vocabulary-fit research those two files
+# implement). Per docs/releases/v26.7.14/THESIS.md Section 33.12: unlike the
+# bribery case's single allegation spine
+# (crates/multifractal-workflow/fixtures/bribery-case/case.ttl), an
+# acquisition contains SEVERAL INDEPENDENT external service processes; this
+# file asserts real instance data across all 6 named in that section, not
+# just the 4-of-6 floor the task set:
+#
+#   1. buyer diligence            -> 3 ma:DueDiligenceItem individuals
+#   2. seller disclosure           -> 1 ma:DisclosureScheduleItem qualifying
+#                                      the no-material-litigation Warranty
+#   3. financing                   -> 1 ma:FinancingCommitment + its
+#                                      ma:FinancingOutCondition
+#   4. regulatory review           -> the raw schema:amount fact this pack's
+#                                      fixtures/hook.ttl pattern-matches to
+#                                      DERIVE the HSR filing obligation (see
+#                                      that file -- the obligation link is
+#                                      NOT asserted here, only observed raw
+#                                      facts are; see OBSERVATION-ONLY FENCE
+#                                      below)
+#   5. board authority             -> 1 ma:BoardResolution authorizing the
+#                                      MergerAcquisition
+#   6. shareholder action          -> 1 ma:ShareholderVote + 3 ma:Ballot
+#
+# SCOPE, HONESTLY STATED: this file is NOT run through F02 observation
+# admission (multifractal_workflow::f02_observation_admission) the way
+# bribery-case/case.ttl is -- that mechanism was purpose-built for a single
+# admitted-case-per-allegation shape and standing up an equivalent
+# AdmissionPolicy for a 6-process M&A case is real, non-trivial design work
+# this task's own scope carve-out excludes ("this session's job is real
+# vocabulary+ontology+case+hook progress, not the full crown chain"). This
+# file is proven instead via the same `TripleStore::load_hook_pack` +
+# `.materialize()` mechanism `packs/soc2-audit-pack`'s own
+# `soc2_hook_actuation.rs` and bribery-case's `hook.ttl` already exercise in
+# production-shaped form -- see
+# `crates/praxis-graphlaw/tests/ma_case_hook_actuation.rs`, which loads this
+# exact file (via `include_str!`) together with `hook.ttl` and shows the
+# regulatory-filing-obligation hook fires over it.
+#
+# INSTANCE-IRI STYLE: mirrors bribery-case/case.ttl exactly -- every instance
+# below is a full angle-bracket IRI, not a prefixed name, because Turtle's
+# PN_LOCAL grammar does not allow an unescaped `/` inside a prefixed local
+# name (the natural `<base>/kind/local-name` path shape this fixture and
+# bribery-case's own case.ttl both use). Only VOCABULARY terms (ma:, FIBO,
+# OMG Commons, PROV-O, schema.org, Dublin Core) are prefixed.
+#
+# FICTIONAL-ENTITY CONVENTION (same discipline
+# crates/multifractal-workflow/fixtures/bribery-case/case.ttl states in its
+# own header for "Solvane Global"/"Nilsson Consulting AB"): every company,
+# person, and LEI code below is invented for this fixture. "Meridian
+# Holdings Group, Inc.", "Corvantis Systems, Inc.", "FirstCap Partners",
+# "Alpha Capital Partners", "Beta Pension Trust", and "Gamma Family Office"
+# do not refer to any real acquirer, target, lender, or shareholder; the LEI
+# codes below are synthetic 20-character strings in the right SHAPE (per
+# ISO 17442) but are not registered GLEIF identifiers and must never be
+# treated as real ones. The Hart-Scott-Rodino Act citation (15 U.S.C. §18a)
+# and its 30-day standard waiting period are real, publicly documented facts
+# about U.S. antitrust law reused for narrative realism; the specific
+# ma:filingThresholdAmount value ($100,000,000) is this fixture's own
+# ILLUSTRATIVE round figure, not asserted as the exact, annually-adjusted
+# current HSR Act size-of-transaction threshold (a real number this pack
+# does not track and this fixture does not depend on being current).
+#
+# PUBLIC-ONTOLOGY-FIRST: every class/property below is either reused
+# directly from FIBO/OMG-Commons/ODRL/PROV-O/schema.org/Dublin Core (see
+# ontology.ttl's header for the full grounding citations) or one of this
+# pack's own disclosed ma: bridge terms -- no new vocabulary is minted in
+# this file. schema:amount + schema:MonetaryAmount (schema:value +
+# schema:currency) model the deal's aggregate consideration, the same
+# public-term choice bribery-case/case.ttl makes for its transaction amount
+# (schema:amount's own domainIncludes is permissive; schema.org properties
+# are usable on any type by design). dcterms:identifier carries the LEI
+# code's literal value on each fibo-be-le-lei:LegalEntityIdentifier
+# individual: cmns-id: is not vendored in this repo (ontology.ttl's header
+# already discloses this), so the literal-carrying property on that OMG
+# Commons class could not be independently re-verified this session;
+# dcterms:identifier is reused instead (the same property bribery-case's
+# case.ttl already uses for its own human-facing case number), not a new
+# minted property.
+#
+# OBSERVATION-ONLY FENCE (mirrors bribery-case/case.ttl's own fence): this
+# file records what is KNOWN about the deal as of the case's signing +
+# board/shareholder actions -- it never asserts a hook-derived fact directly
+# (no ma:hasRegulatoryFilingObligation triple appears below; that link is
+# exactly what fixtures/hook.ttl's Knowledge Hook exists to derive). The
+# deal's ma:DealStatus is ma:PendingRegulatoryApproval, consistent with a
+# signed-but-not-yet-closed transaction still inside its HSR waiting period.
+
+@prefix rdf:              <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:               <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov:              <http://www.w3.org/ns/prov#> .
+@prefix dcterms:           <http://purl.org/dc/terms/> .
+@prefix schema:            <https://schema.org/> .
+@prefix odrl:              <http://www.w3.org/ns/odrl/2/> .
+@prefix cmns-bauth:        <https://www.omg.org/spec/Commons/BusinessAuthorizations/> .
+@prefix cmns-cls:          <https://www.omg.org/spec/Commons/Classifiers/> .
+@prefix cmns-id:           <https://www.omg.org/spec/Commons/Identifiers/> .
+@prefix fibo-be-le-lei:    <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LEIEntities/> .
+@prefix fibo-be-oac-exec:  <https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/Executives/> .
+@prefix fibo-be-oac-cctl:  <https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/CorporateControl/> .
+@prefix fibo-fnd-agr-ctr:  <https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/> .
+@prefix fibo-cae-ce-act:   <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/> .
+@prefix ma:                <http://seanchatmangpt.github.io/packs/ma-case-study#> .
+
+# ── Vocabulary restatement, disclosed: `ggen graph validate --files` (the
+#    version available this session) validates each --files entry AGAINST
+#    THE SHAPES INDEPENDENTLY, not as a union with the other --files
+#    entries -- confirmed empirically this session (a merged
+#    ontology.ttl+case.ttl temp file validates shapes_conform: true; the
+#    same two files passed side-by-side via --files do not, because
+#    ma:MergerAcquisitionShape's `sh:class ma:DealStatus` check on the
+#    cmns-cls:isClassifiedBy value needs that value's `a ma:DealStatus`
+#    triple present IN THE SAME VALIDATED FILE, and ontology.ttl (where
+#    ma:PendingRegulatoryApproval's type lives) is a separate file). The one
+#    line below restates that single, already-true TBox fact so this file
+#    passes real SHACL evaluation standalone -- exactly the same choice
+#    bribery-case/case.ttl makes by declaring its OWN sc:CaseStatusScheme
+#    individuals inline rather than in a separate file, not a new mint.
+
+ma:PendingRegulatoryApproval a ma:DealStatus .
+
+# ── Concept 1: LEI-registered legal entities (acquirer + target) ──────────
+
+<https://deals.meridian-holdings.example.org/identifier/lei-meridian-holdings-group>
+    a fibo-be-le-lei:LegalEntityIdentifier ;
+    dcterms:identifier "5493001234MERIDIANHG" .
+
+<https://deals.meridian-holdings.example.org/entity/acquirer-meridian-holdings-group>
+    a fibo-be-le-lei:LEIRegisteredEntity ;
+    fibo-be-le-lei:hasLegalFormAbbreviation "INC" ;
+    cmns-id:isIdentifiedBy <https://deals.meridian-holdings.example.org/identifier/lei-meridian-holdings-group> ;
+    dcterms:description "Acquirer: Meridian Holdings Group, Inc. (Delaware), a fictional diversified industrial holding company." .
+
+<https://deals.meridian-holdings.example.org/identifier/lei-corvantis-systems>
+    a fibo-be-le-lei:LegalEntityIdentifier ;
+    dcterms:identifier "5493005678CORVANTISX" .
+
+<https://deals.meridian-holdings.example.org/entity/target-corvantis-systems>
+    a fibo-be-le-lei:LEIRegisteredEntity ;
+    fibo-be-le-lei:hasLegalFormAbbreviation "INC" ;
+    cmns-id:isIdentifiedBy <https://deals.meridian-holdings.example.org/identifier/lei-corvantis-systems> ;
+    dcterms:description "Target: Corvantis Systems, Inc. (California), a fictional industrial-automation software company." .
+
+# ── Concept 2: the ownership interest to be acquired ───────────────────────
+
+<https://deals.meridian-holdings.example.org/relationship/MHC-2026-0091-ownership>
+    a fibo-be-le-lei:RelationshipRecord ;
+    fibo-be-le-lei:hasOwnershipPercentage "100.00"^^xsd:decimal ;
+    dcterms:description "Full (100%) ownership interest in Corvantis Systems, Inc. to be acquired by Meridian Holdings Group, Inc. upon closing." .
+
+# ── The deal itself (reused fibo-cae-ce-act:MergerAcquisition + ma:DealStatus) ──
+
+<https://deals.meridian-holdings.example.org/deal/MHC-2026-0091>
+    a fibo-cae-ce-act:MergerAcquisition ;
+    cmns-cls:isClassifiedBy ma:PendingRegulatoryApproval ;
+    schema:amount [
+        a schema:MonetaryAmount ;
+        schema:value 725000000 ;
+        schema:currency "USD"
+    ] ;
+    dcterms:description "Meridian Holdings Group, Inc. definitive agreement to acquire 100% of Corvantis Systems, Inc. for aggregate consideration of USD 725,000,000, signed 2026-03-28." .
+
+# ── Process 2 (setup): the Representation and Warranty this deal's
+#    disclosure schedule qualifies -- concept 4 ─────────────────────────────
+
+<https://deals.meridian-holdings.example.org/clause/rep-target-financial-statements>
+    a fibo-fnd-agr-ctr:Representation ;
+    dcterms:description "Corvantis Systems, Inc. represents that its audited FY2025 financial statements fairly present its financial condition in all material respects." .
+
+<https://deals.meridian-holdings.example.org/clause/warranty-target-no-material-litigation>
+    a fibo-fnd-agr-ctr:Warranty ;
+    dcterms:description "Corvantis Systems, Inc. warrants that there is no pending or threatened litigation that would have a material adverse effect on the business, except as set forth on the disclosure schedule." .
+
+# ── Process 2: seller disclosure -- the one carve-out into the warranty
+#    above (concept 4, private half) ────────────────────────────────────────
+
+<https://deals.meridian-holdings.example.org/disclosure/schedule-3-14-b-pending-litigation>
+    a ma:DisclosureScheduleItem ;
+    ma:qualifiesClause <https://deals.meridian-holdings.example.org/clause/warranty-target-no-material-litigation> ;
+    ma:scheduleItemNumber "Schedule 3.14(b)" .
+
+# ── Process 1: buyer diligence -- 3 checklist items in 3 different
+#    dispositions (concept 3) ───────────────────────────────────────────────
+
+<https://deals.meridian-holdings.example.org/ddi/ip-assignment-review>
+    a ma:DueDiligenceItem ;
+    odrl:target <https://deals.meridian-holdings.example.org/entity/target-corvantis-systems> ;
+    ma:dueDiligenceDisposition ma:Satisfied .
+
+<https://deals.meridian-holdings.example.org/ddi/customer-contract-consent-assignments>
+    a ma:DueDiligenceItem ;
+    odrl:target <https://deals.meridian-holdings.example.org/entity/target-corvantis-systems> ;
+    ma:dueDiligenceDisposition ma:Open .
+
+<https://deals.meridian-holdings.example.org/ddi/environmental-phase-2-survey>
+    a ma:DueDiligenceItem ;
+    odrl:target <https://deals.meridian-holdings.example.org/entity/target-corvantis-systems> ;
+    ma:dueDiligenceDisposition ma:Waived .
+
+# ── Process 3: financing -- a debt-commitment letter subject to a
+#    financing-out condition (concept 9) ────────────────────────────────────
+
+<https://deals.meridian-holdings.example.org/financing/condition-no-material-adverse-change>
+    a ma:FinancingOutCondition ;
+    dcterms:description "The debt commitment is contingent on no Material Adverse Change occurring in Corvantis Systems, Inc.'s business between signing and closing." .
+
+<https://deals.meridian-holdings.example.org/financing/debt-commitment-firstcap-partners>
+    a ma:FinancingCommitment ;
+    dcterms:description "FirstCap Partners debt-commitment letter for USD 400,000,000 of acquisition financing." ;
+    ma:subjectToCondition <https://deals.meridian-holdings.example.org/financing/condition-no-material-adverse-change> .
+
+# ── Process 5: board authority -- Meridian's board resolution authorizing
+#    the transaction (concept 6) ────────────────────────────────────────────
+
+<https://deals.meridian-holdings.example.org/agent/board-of-directors-meridian>
+    a fibo-be-oac-exec:BoardOfDirectors .
+
+<https://deals.meridian-holdings.example.org/agent/ceo-meridian-authorized-signatory>
+    a cmns-bauth:AuthorizedParty ;
+    dcterms:description "Chief Executive Officer of Meridian Holdings Group, Inc., authorized by board resolution to execute the definitive agreement." .
+
+<https://deals.meridian-holdings.example.org/authorization/board-resolution-meridian-2026-03-28>
+    a ma:BoardResolution ;
+    cmns-bauth:hasAuthorizingParty <https://deals.meridian-holdings.example.org/agent/board-of-directors-meridian> ;
+    cmns-bauth:hasAuthorizedParty <https://deals.meridian-holdings.example.org/agent/ceo-meridian-authorized-signatory> ;
+    ma:authorizesTransaction <https://deals.meridian-holdings.example.org/deal/MHC-2026-0091> ;
+    prov:generatedAtTime "2026-03-28T16:00:00Z"^^xsd:dateTime .
+
+# ── Process 6: shareholder action -- Corvantis's shareholder vote approving
+#    the transaction (concept 7) ────────────────────────────────────────────
+
+<https://deals.meridian-holdings.example.org/agent/shareholder-alpha-capital-partners>
+    a fibo-be-oac-cctl:VotingShareholder ;
+    dcterms:description "Alpha Capital Partners, a fictional institutional shareholder of Corvantis Systems, Inc." .
+
+<https://deals.meridian-holdings.example.org/agent/shareholder-beta-pension-trust>
+    a fibo-be-oac-cctl:VotingShareholder ;
+    dcterms:description "Beta Pension Trust, a fictional institutional shareholder of Corvantis Systems, Inc." .
+
+<https://deals.meridian-holdings.example.org/agent/shareholder-gamma-family-office>
+    a fibo-be-oac-cctl:VotingShareholder ;
+    dcterms:description "Gamma Family Office, a fictional institutional shareholder of Corvantis Systems, Inc." .
+
+<https://deals.meridian-holdings.example.org/vote/target-shareholder-vote-2026-05-15>
+    a ma:ShareholderVote ;
+    ma:quorumPercentage "82.50"^^xsd:decimal ;
+    ma:voteOutcome ma:Passed .
+
+<https://deals.meridian-holdings.example.org/ballot/ballot-001-alpha>
+    a ma:Ballot ;
+    dcterms:isPartOf <https://deals.meridian-holdings.example.org/vote/target-shareholder-vote-2026-05-15> ;
+    prov:wasAttributedTo <https://deals.meridian-holdings.example.org/agent/shareholder-alpha-capital-partners> ;
+    ma:ballotDirection ma:For .
+
+<https://deals.meridian-holdings.example.org/ballot/ballot-002-beta>
+    a ma:Ballot ;
+    dcterms:isPartOf <https://deals.meridian-holdings.example.org/vote/target-shareholder-vote-2026-05-15> ;
+    prov:wasAttributedTo <https://deals.meridian-holdings.example.org/agent/shareholder-beta-pension-trust> ;
+    ma:ballotDirection ma:For .
+
+<https://deals.meridian-holdings.example.org/ballot/ballot-003-gamma>
+    a ma:Ballot ;
+    dcterms:isPartOf <https://deals.meridian-holdings.example.org/vote/target-shareholder-vote-2026-05-15> ;
+    prov:wasAttributedTo <https://deals.meridian-holdings.example.org/agent/shareholder-gamma-family-office> ;
+    ma:ballotDirection ma:Against .

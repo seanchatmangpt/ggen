@@ -1,0 +1,28 @@
+# Adapted from https://github.com/eyereasoner/eye/blob/master/reasoning/filter/
+# (filter.n3 facts + filter-query.n3 rule, merged into one runnable document).
+#
+# Previously blocked on a missing string:lessThan builtin (see
+# manifest.json's history) -- now implemented (queryengine.rs
+# BuiltinKind::StringLessThan), so this case is vendored as a real,
+# runnable fixture: collect every :param value lexically less than
+# "Louie" into a list via log:collectAllIn + string:lessThan together,
+# then decompose the collected list back into scalar per-member facts
+# (list:in) so the result is comparable via this suite's simple textual
+# fact-set check (a list-valued derived triple itself isn't, since each
+# parse produces a fresh, non-comparable opaque list-term id).
+@prefix : <http://example.org/#>.
+@prefix string: <http://www.w3.org/2000/10/swap/string#>.
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix list: <http://www.w3.org/2000/10/swap/list#>.
+
+:Let :param "Andy".
+:Let :param "Bobby".
+:Let :param "Louie".
+:Let :param "Zoe".
+
+{
+    (?param { :Let :param ?param. ?param string:lessThan "Louie". } ?filteredParams) log:collectAllIn ?scope.
+    ?item list:in ?filteredParams.
+} => {
+    :Let :hasFilteredParam ?item.
+}.

@@ -1,0 +1,57 @@
+# clap-noun-verb-pack ontology — CLI command individuals for the
+# clap-noun-verb framework (noun = resource, verb = action).
+# Namespace is unique to this pack.
+
+@prefix cnv:  <http://seanchatmangpt.github.io/packs/clap-noun-verb#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Classes ──────────────────────────────────────────────────────────
+
+cnv:Noun
+    a            rdfs:Class ;
+    rdfs:label   "Noun" ;
+    rdfs:comment "A CLI resource/entity (session, user) in the noun-verb pattern." .
+
+cnv:Command
+    a            rdfs:Class ;
+    rdfs:label   "Command" ;
+    rdfs:comment "A noun-verb CLI command registered via #[clap_noun_verb_macros::verb]." .
+
+# ── Properties ───────────────────────────────────────────────────────
+
+cnv:noun     a rdf:Property ; rdfs:label "noun"    ; rdfs:domain cnv:Command ; rdfs:range xsd:string .
+cnv:verb     a rdf:Property ; rdfs:label "verb"    ; rdfs:domain cnv:Command ; rdfs:range xsd:string .
+cnv:handler  a rdf:Property ; rdfs:label "handler" ; rdfs:domain cnv:Command ; rdfs:range xsd:string .
+cnv:doc      a rdf:Property ; rdfs:label "doc"     ; rdfs:domain cnv:Command ; rdfs:range xsd:string .
+
+# ── Nouns ────────────────────────────────────────────────────────────
+
+cnv:SessionNoun a cnv:Noun ; rdfs:label "session" ;
+    rdfs:comment "Manage authenticated session tokens." .
+cnv:UserNoun    a cnv:Noun ; rdfs:label "user" ;
+    rdfs:comment "Manage user resources." .
+
+# ── Command individuals ──────────────────────────────────────────────
+
+cnv:SessionLogin
+    a           cnv:Command ;
+    cnv:noun    "session" ;
+    cnv:verb    "login" ;
+    cnv:handler "session_login_handler" ;
+    cnv:doc     "Start an authenticated session and persist the token." .
+
+cnv:SessionVerify
+    a           cnv:Command ;
+    cnv:noun    "session" ;
+    cnv:verb    "verify" ;
+    cnv:handler "session_verify_handler" ;
+    cnv:doc     "Verify the active session token against the stored keyring credential." .
+
+cnv:UserCreate
+    a           cnv:Command ;
+    cnv:noun    "user" ;
+    cnv:verb    "create" ;
+    cnv:handler "user_create_handler" ;
+    cnv:doc     "Create a user resource and emit its serialized record." .

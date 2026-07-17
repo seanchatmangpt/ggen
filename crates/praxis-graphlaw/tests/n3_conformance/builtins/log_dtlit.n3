@@ -1,0 +1,7 @@
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix : <http://example.org/#>.
+
+:x :hasLexical "42" .
+
+{ :x :hasLexical ?lex . ( ?lex xsd:integer ) log:dtlit ?typed . } => { :x :typedValue ?typed }.

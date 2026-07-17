@@ -1,0 +1,5 @@
+@prefix : <http://example.org/> .
+
+:alice :believes { :bob :status :happy } .
+
+{ ?p :believes ?f } => { ?p :hasBelief true }.

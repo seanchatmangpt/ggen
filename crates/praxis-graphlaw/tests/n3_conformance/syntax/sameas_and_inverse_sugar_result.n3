@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+
+:eve :status :content .
+:earth :owlSameAs :terra .
+:hasCase :verified true .
+:inverseCase :verified true .

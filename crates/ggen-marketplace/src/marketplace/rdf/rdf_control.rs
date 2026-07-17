@@ -1,14 +1,21 @@
-//! RDF Control Plane
+//! RDF Control Plane (experimental, not wired into production)
 //!
-//! This module provides the main control plane for RDF-based marketplace operations.
-//! It integrates:
+//! This module provides an RDF-based marketplace control plane. It integrates:
 //! - POKA YOKE type-safe RDF operations
 //! - SPARQL query execution
 //! - FMEA mitigation and recovery
 //! - Turtle configuration loading
 //! - State machine transitions
 //!
-//! This is the single entry point for all RDF operations in the marketplace.
+//! This `RdfControlPlane` is a distinct type from the crate's canonical control
+//! plane, `super::control::RdfControlPlane` (re-exported at `marketplace::rdf::RdfControlPlane`);
+//! it has zero production call sites and is reachable only via the full path
+//! `marketplace::rdf::rdf_control::RdfControlPlane`. Two methods are no-op stubs:
+//! `search_packages` (~line 156-182) executes a query but discards it, returning a
+//! hardcoded `vec![]`, and `record_installation` (~line 331-341) builds an INSERT
+//! query and never executes it, always returning `Ok(())`. Its only current
+//! consumers are the `m2_challenger_tests` and `m2_challenger_stress_tests`
+//! integration tests.
 
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};

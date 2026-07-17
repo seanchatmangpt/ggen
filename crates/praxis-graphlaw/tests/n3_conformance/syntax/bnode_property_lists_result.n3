@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+
+:subjectCase :verified true .
+:objectCase :verified true .
+:nestedCase :verified true .
+:emptyCase :verified true .

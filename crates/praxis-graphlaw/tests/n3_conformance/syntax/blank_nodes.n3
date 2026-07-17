@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+
+_:x :type :Anonymous .
+:registry :contains _:x .
+
+{ ?r :contains ?b . ?b :type :Anonymous } => { ?r :hasAnonymousMember true }.

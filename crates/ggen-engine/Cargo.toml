@@ -1,0 +1,170 @@
+[package]
+# Renamed from "ggen" -- that name collides with this workspace's own root
+# package (also "ggen"), already published on crates.io. See
+# docs/jira/v26.7.16/01-PUBLISH-SAFETY-AND-CRATE-RENAME.md. This crate is a
+# vendored copy (not a live path dependency back to ~/praxis) and must never
+# be published under any name from this workspace.
+name = "ggen-engine"
+version = "26.7.13"                      # CalVer YY.M.patch
+edition = "2021"
+rust-version = "1.82"
+authors = ["Sean Chatman <xpointsh@gmail.com>"]
+# Dropped the "OR Apache-2.0" option: no LICENSE-APACHE text backs it anywhere
+# in the source repo, and the workspace root package is MIT-only. See
+# docs/jira/v26.7.16/02-CROSS-REPO-DEPENDENCY-RISKS.md item 4.
+license = "MIT"
+description = "SPARQL-in-Tera code generation engine (vendored, renamed from praxis/crates/ggen)"
+repository = "https://github.com/seanchatmangpt/ggen"
+homepage = "https://github.com/seanchatmangpt/ggen"
+readme = "README.md"
+keywords = ["codegen", "rdf", "sparql", "tera"]
+categories = ["development-tools"]
+exclude = ["/.github", "/fixtures", "/docs"]
+publish = false
+# `main.rs`/the clap-noun-verb CLI-dispatch layer are not built here -- see
+# the `verbs` module comment in src/lib.rs. Without autobins = false, Cargo
+# would still auto-discover src/main.rs as an implicit `ggen-engine` binary
+# target and require clap-noun-verb to resolve even though nothing calls it.
+autobins = false
+
+# Lints are defined inline for a single crate. A multi-crate workspace should
+# instead use [workspace.lints] (see Cargo.workspace.toml) and put
+# `[lints] workspace = true` in each member.
+[lints.rust]
+unsafe_code = "warn"                    # linkme's #[distributed_slice] macro expands to unsafe code
+missing_docs = "warn"
+unreachable_pub = "warn"
+unexpected_cfgs = "warn"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+todo = "deny"
+unimplemented = "deny"
+dbg_macro = "deny"
+# In libraries, prefer "deny"; in binary-only crates "warn" is fine.
+unwrap_used = "warn"
+expect_used = "warn"
+
+[features]
+default = []
+repl  = ["dep:rustyline"]                                            # interactive REPL with tab-completion
+mcp   = ["dep:rmcp", "dep:rmcp-macros", "dep:tokio"]                 # MCP server (LLM tool-call targets)
+
+[dependencies]
+once_cell = "1"
+rustyline = { version = "14", optional = true }
+# House shared crate — pick one source:
+# chatman-common = "26.6"                                              # once published
+# chatman-common = { git = "https://github.com/seanchatmangpt/chatman-common" }
+# chatman-common = { path = "../chatman-common" }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["raw_value"] }
+thiserror = "2"
+anyhow = "1"
+blake3 = "1"
+clap = { version = "4", features = ["derive", "env"] }               # CLI parsing
+camino = "1"                                                         # UTF-8 paths for graph-validate multi-file args
+tokio = { version = "1", features = ["full"], optional = true }      # async runtime (required by mcp feature)
+hex = { workspace = true }                                            # receipt-signing key/signature hex encoding (T059/T063)
+ed25519-dalek = { workspace = true }                                  # receipt signing/verification (T063) -- no chatman-common envelope, raw signature over chain_hash_hex
+rand = "0.8"                                                          # CSPRNG for fresh ed25519 keypair generation (T063)
+tracing = { workspace = true }                                        # pipeline.{load,extract,generate,validate,emit} spans (T060/T061)
+# Engine deps (unconditional — the whole point of this crate is the SPARQL+Tera pipeline)
+oxigraph = "0.5.9"
+tera = "1.20.0"
+notify = "7.0"
+notify-debouncer-full = "0.4"
+serde_yaml = "0.9"
+star-toml = "26.7.3"
+# Direct dep purely for structural (AST-level) pre-flight query inspection
+# in `graph::DeterministicGraph::query()` (GRAPH/SERVICE-clause detection,
+# specs/014-ggen-core-replacement Phase 7): oxigraph 0.5.9 depends on this
+# exact version transitively but keeps its own parsed `spargebra::Query`
+# private (`PreparedSparqlQuery.query` has no accessor), so there is no way
+# to inspect the AST oxigraph already built -- the only route is a second,
+# independent parse via spargebra's own public `SparqlParser::parse_query`.
+# Pinned to the exact version oxigraph 0.5.9 already resolves (see
+# Cargo.lock) so this never becomes a duplicate-version dependency graph.
+spargebra = "0.4.6"
+praxis-core = { path = "../praxis-core" }
+praxis-graphlaw = { path = "../praxis-graphlaw" }
+# New, deliberate edge (not an undocumented re-export): resolving a `GenerationRule`'s
+# `QuerySource::Pack`/`TemplateSource::Pack` variant means asking "where is this pack
+# installed" -- that knowledge lives in ggen-marketplace's pack registry/lockfile after
+# docs/jira/v26.7.16/06-MARKETPLACE-PACK-REGISTRY-MERGE.md's merge (risk 1). Directionally
+# safe: ggen-marketplace has no dependency back on this crate.
+ggen-marketplace = { path = "../ggen-marketplace" }
+# New, deliberate edge (specs/014-ggen-core-replacement, T070): `crate::generation_rules`
+# consumes `ggen_config::manifest::GgenManifest`/`GenerationRule`/`QuerySource`/
+# `TemplateSource`/`GenerationMode` to run the declarative `[[generation.rules]]` sync path
+# alongside (not replacing) the existing frontmatter-per-template-file convention. Directionally
+# safe: ggen-config has no dependency back on this crate.
+ggen-config = { path = "../ggen-config", version = "26.7.4" }
+# Raw pre-parse of ggen.toml (`crate::generation_rules::has_generation_rules`) to decide, before
+# any typed parse, whether a project's ggen.toml belongs to this module's declarative-rules
+# schema or `crate::config::GgenConfig`'s frontmatter schema -- same version ggen-config itself
+# already depends on.
+toml = "1.1.0"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+schemars = { version = "1.0", features = ["derive"] }
+rmcp = { version = "0.11.0", features = ["transport-io"], optional = true }
+rmcp-macros = { version = "0.11.0", optional = true }
+# `verbs/` — the ontology-generated clap-noun-verb CLI dispatch layer (specs/014-ggen-core-replacement).
+# Re-enabled now that the workspace-wide clap-noun-verb pin (Cargo.toml) is bumped to the
+# published 26.7.4 (kebab-case-with-snake_case-alias release), matching what this crate
+# originally required -- see verbs/mod.rs's own module doc for why it was disabled before.
+clap-noun-verb = { workspace = true }
+clap-noun-verb-macros = { workspace = true }
+linkme = "0.3" # required by clap-noun-verb's #[verb] for distributed verb registration
+
+[dev-dependencies]
+chicago-tdd-tools = { path = "../chicago-tdd-tools", features = ["cli-proof"] }
+assert_cmd = "2"
+predicates = "3"
+tempfile = "3"
+insta = { version = "1", features = ["json"] }
+proptest = "1"
+criterion = { version = "0.5", features = ["html_reports"] }
+divan = "0.1"
+
+[[bin]]
+name = "dod"
+path = "src/bin/dod.rs"
+
+[[bin]]
+name = "mcp_server"
+path = "src/bin/mcp_server.rs"
+required-features = ["mcp"]
+
+[[bench]]
+name = "bench_main"
+harness = false
+
+[[bench]]
+name = "blue_river_dam"
+harness = false
+
+# ── Workspace path overrides ──────────────────────────────────────────────────
+# Use [patch.crates-io] to redirect a published crate to a local checkout during
+# development. This lets you work against an unreleased version without publishing.
+# Remove the block (or comment it out) before cutting a release.
+#
+# Example (monorepo sibling):
+#   [patch.crates-io]
+#   chatman-common = { path = "../chatman-common" }
+#
+# Example (git branch):
+#   [patch.crates-io]
+#   chatman-common = { git = "https://github.com/seanchatmangpt/chatman-common", branch = "dev" }
+#
+# Note: patches are not transitive — each workspace member that needs the
+# override must be covered by the same [patch] block (or the workspace root's).
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+# strip = false by default: wasm32 targets require wasm-opt for stripping (strip=true
+# corrupts WASM binaries). Native binaries are stripped by the linker or packaging step.
+# Override per-package in WASM crates: [profile.release.package."mycrate"] strip = false

@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+
+:a :delta -5 .
+:b :delta 3 .
+
+{ ?x :delta ?d . ?d math:absoluteValue ?abs } => { ?x :magnitude ?abs }.

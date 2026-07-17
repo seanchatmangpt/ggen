@@ -1,5 +1,0 @@
-Archetype: teamwork_preview_auditor
-Role: Forensic Auditor (Truthfulness Integrity Audit)
-Milestone: truthfulness
-Working directory: /Users/sac/ggen/.agents/teamwork_preview_auditor_truthfulness_1
-Parent Orchestrator: /Users/sac/ggen/.agents/teamwork_preview_orchestrator_truthfulness_1

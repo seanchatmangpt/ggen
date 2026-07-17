@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix func: <http://www.w3.org/2007/rif-builtin-function#> .
+
+:order :itemPrice 10 .
+:order :taxPrice 2 .
+
+{ ?o :itemPrice ?p1 . ?o :taxPrice ?p2 . (?p1 ?p2) func:numeric-add ?total } => { ?o :totalPrice ?total }.

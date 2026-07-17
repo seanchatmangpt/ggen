@@ -67,11 +67,14 @@ fn validate(schema_file: String, strict: bool) -> Result<ValidateOutput> {
             let schema = ontology::extract_ontology_schema(&schema_path, "http://example.org#")
                 .await
                 .map_err(|e| {
-                    ggen_core::utils::error::Error::new(&format!("Extraction failed: {}", e))
+                    crate::utils::error::Error::new(&format!("Extraction failed: {}", e))
                 })?;
 
-            let (valid, warnings, errors) =
-                ontology::validate_ontology_schema(&schema, strict).await?;
+            let (valid, warnings, errors) = ontology::validate_ontology_schema(&schema, strict)
+                .await
+                .map_err(|e| {
+                    crate::utils::error::Error::new(&format!("Validation failed: {}", e))
+                })?;
             Ok((
                 valid,
                 warnings,
@@ -80,10 +83,10 @@ fn validate(schema_file: String, strict: bool) -> Result<ValidateOutput> {
                 schema.properties.len(),
             ))
         })
-        .map_err(|e: ggen_core::utils::Error| {
+        .map_err(|e: crate::utils::error::Error| {
             clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e))
         })?
-        .map_err(|e: ggen_core::utils::Error| {
+        .map_err(|e: crate::utils::error::Error| {
             clap_noun_verb::NounVerbError::execution_error(format!("Validation failed: {}", e))
         })?;
 
@@ -111,12 +114,12 @@ fn load(file: String, format: Option<String>) -> Result<LoadOutput> {
     let result = crate::runtime::block_on(async move {
         execute_load(input)
             .await
-            .map_err(|e| ggen_core::utils::error::Error::new(&format!("Load failed: {}", e)))
+            .map_err(|e| crate::utils::error::Error::new(&format!("Load failed: {}", e)))
     })
-    .map_err(|e: ggen_core::utils::Error| {
+    .map_err(|e: crate::utils::error::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?
-    .map_err(|e: ggen_core::utils::Error| {
+    .map_err(|e: crate::utils::error::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
 
@@ -144,12 +147,12 @@ fn query(
     let result = crate::runtime::block_on(async move {
         execute_query(input)
             .await
-            .map_err(|e| ggen_core::utils::error::Error::new(&format!("Query failed: {}", e)))
+            .map_err(|e| crate::utils::error::Error::new(&format!("Query failed: {}", e)))
     })
-    .map_err(|e: ggen_core::utils::Error| {
+    .map_err(|e: crate::utils::error::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?
-    .map_err(|e: ggen_core::utils::Error| {
+    .map_err(|e: crate::utils::error::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
 
@@ -175,12 +178,12 @@ fn export(input_file: String, output: String, format: String) -> Result<ExportOu
     let result = crate::runtime::block_on(async move {
         execute_export(input_data)
             .await
-            .map_err(|e| ggen_core::utils::error::Error::new(&format!("Export failed: {}", e)))
+            .map_err(|e| crate::utils::error::Error::new(&format!("Export failed: {}", e)))
     })
-    .map_err(|e: ggen_core::utils::Error| {
+    .map_err(|e: crate::utils::error::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?
-    .map_err(|e: ggen_core::utils::Error| {
+    .map_err(|e: crate::utils::error::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
 
@@ -209,12 +212,12 @@ fn visualize(input_file: String, format: Option<String>) -> Result<VisualizeOutp
     let result = crate::runtime::block_on(async move {
         execute_visualize(input_data)
             .await
-            .map_err(|e| ggen_core::utils::error::Error::new(&format!("Visualize failed: {}", e)))
+            .map_err(|e| crate::utils::error::Error::new(&format!("Visualize failed: {}", e)))
     })
-    .map_err(|e: ggen_core::utils::Error| {
+    .map_err(|e: crate::utils::error::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?
-    .map_err(|e: ggen_core::utils::Error| {
+    .map_err(|e: crate::utils::error::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
 

@@ -20,7 +20,11 @@
 //! use crate::cache::CacheManager;
 //!
 //! # fn main() -> crate::utils::error::Result<()> {
-//! // Use default cache directory (~/.cache/ggen/gpacks)
+//! // Use default cache directory: dirs::cache_dir()/ggen/gpacks -- e.g.
+//! // ~/Library/Caches/ggen/gpacks on macOS, ~/.cache/ggen/gpacks on Linux.
+//! // NOT `~/.cache` on every platform, and (unlike the live marketplace
+//! // crate's `pack_cache_root`) this legacy gpack cache does not check
+//! // `GGEN_PACK_CACHE_DIR`.
 //! let cache = CacheManager::new()?;
 //!
 //! // Or use a custom directory (useful for testing)
@@ -97,7 +101,12 @@ pub struct CachedPack {
 impl CacheManager {
     /// Create a new cache manager
     ///
-    /// Uses the default cache directory (`~/.cache/ggen/gpacks` on Unix systems).
+    /// Uses the default cache directory: `dirs::cache_dir()/ggen/gpacks` --
+    /// `~/.cache/ggen/gpacks` on Linux, `~/Library/Caches/ggen/gpacks` on
+    /// macOS (not literally `~/.cache` on every platform). This legacy gpack
+    /// cache is a distinct concern from the live marketplace crate's pack
+    /// cache (`ggen_marketplace::marketplace::metadata::pack_cache_root`,
+    /// `ggen/packs`) and, unlike it, does not check `GGEN_PACK_CACHE_DIR`.
     ///
     /// # Example
     ///

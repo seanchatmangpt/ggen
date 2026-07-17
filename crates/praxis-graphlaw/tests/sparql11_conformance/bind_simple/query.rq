@@ -1,0 +1,5 @@
+PREFIX ex: <http://example.org/>
+SELECT ?s ?price ?discount WHERE {
+  ?s ex:price ?price .
+  BIND(5 AS ?discount)
+}

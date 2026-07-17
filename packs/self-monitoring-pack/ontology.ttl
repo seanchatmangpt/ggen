@@ -1,0 +1,264 @@
+# self-monitoring-pack ontology -- vocabulary for treating one Claude Code
+# CONVERSATIONAL TURN (not a tool event; see packs/dogfood-lifecycle-pack for
+# that) as PROV-O provenance, so that a real `kh:` Knowledge Hook
+# (hook.ttl, this pack) can pattern-match over a session's turn history and
+# derive an escalation obligation -- dogfooding the EXACT mechanism already
+# proven this session for the Solvane Global bribery case's obligation
+# derivation (crates/multifractal-workflow/fixtures/bribery-case/hook.ttl +
+# crates/multifractal-workflow/tests/bribery_case_fixture.rs), applied here
+# to Claude Code's own answer-format pattern instead of a compliance case.
+#
+# SIBLING PACK, SAME DISCIPLINE as packs/dogfood-lifecycle-pack/ontology.ttl:
+# public-ontology-first, PROV-O for the activity shape, closed SKOS schemes
+# for enumerations, every minted term disclosed with the public ontologies
+# checked and why they do not fit.
+#
+# ============================================================================
+# CLASSIFICATION-IS-INPUT FENCE (read this before using this pack for
+# anything) -- the single most important scope boundary in this pack, and the
+# discipline this whole exercise exists to demonstrate:
+#
+#   The turn-kind classification (is this turn a GroundingQuestion? was the
+#   turn that followed it a SurveyResponse or a RunResponse?) is an INPUT
+#   FACT this vocabulary's properties CARRY -- smon:turnKind is asserted BY
+#   SOMETHING ELSE (a human, an upstream classifier, a disclosed manual
+#   annotation pass) before hook.ttl's Knowledge Hook ever runs. Datalog/
+#   SPARQL-CONSTRUCT pattern-matches over ALREADY-CLASSIFIED facts; it does
+#   not classify raw natural-language turn text itself. Building an NLP
+#   classifier that reads free-text Claude Code output and outputs
+#   smon:turnKind values is a SEPARATE, OUT-OF-SCOPE problem this pack does
+#   not attempt, does not stub, and does not claim to solve. Every fixture in
+#   fixtures/ hand-asserts smon:turnKind directly (exactly as hook.ttl's own
+#   precedent, the bribery case's case.ttl, hand-asserts
+#   sc:allegesImproperPayment rather than deriving "improper" from an email
+#   body) -- the CONSTRUCT query in hook.ttl only ever reads smon:turnKind,
+#   dcterms:subject, and smon:immediatelyFollows; it never reads or reasons
+#   over a turn's actual text content (no turn-content literal is even
+#   modeled in this vocabulary).
+# ============================================================================
+#
+# Public vocabularies used (NOT redefined here -- used by IRI):
+#   prov:    a conversational TURN is a prov:Activity (smon:Turn subclass,
+#            disclosed below), matching packs/dogfood-lifecycle-pack's own
+#            dfl:Session/dfl:ToolEvent-as-prov:Activity pattern and
+#            crates/multifractal-workflow/fixtures/bribery-case/case.ttl's
+#            sc:ComplianceCase-as-prov:Activity pattern.
+#   dcterms: dcterms:isPartOf   turn -> the session it belongs to (the
+#            "session reference"; PROV core has no sub-activity predicate,
+#            so, exactly as packs/dogfood-lifecycle-pack/ontology.ttl's
+#            header already argues for dfl:ToolEvent, the public DCMI
+#            part/whole relation carries it). THE RANGE OF THIS PROPERTY, ON
+#            A smon:Turn, IS dfl:Session -- this pack does NOT re-mint its
+#            own session class; it reuses packs/dogfood-lifecycle-pack's
+#            dfl:Session directly (same Claude Code session concept, same
+#            IRI-reuse discipline this whole task's doctrine requires:
+#            "instance data reuses IRIs across files, never re-mints" --
+#            applied here one level up, at the VOCABULARY layer, by pointing
+#            the range at the already-disclosed dfl:Session class rather
+#            than inventing a parallel smon:Session).
+#            dcterms:subject   THIS IS THE TASK BRIEF'S "grounding_topic":
+#            "the topic of the resource" is exactly "which system/capability
+#            this turn is asking about" -- checked and used DIRECTLY, no
+#            minting needed. dcterms:subject's own definition permits either
+#            a free-text keyword/phrase or a controlled-vocabulary IRI term
+#            as its value, matching the task brief's "free-text or IRI tag"
+#            requirement without any bridge term.
+#   skos:    skos:ConceptScheme + skos:Concept + skos:notation + skos:inScheme
+#            model the closed turn-kind vocabulary exactly as
+#            packs/dogfood-lifecycle-pack/ontology.ttl's dfl:OutcomeScheme
+#            models tool-event outcomes (closed SKOS concepts, not a minted
+#            class hierarchy).
+#
+# DISCLOSED MINTED TERMS (smon:, capability-justified -- no public equivalent):
+#   smon:Turn  rdfs:subClassOf prov:Activity. PROV has no subtype for "one
+#     conversational turn within a session, requiring a turn-kind
+#     classification and a topic tag"; checked prov: (no such subtype) and
+#     schema.org Action/Message/CommunicateAction (models a completed
+#     communicative act generically, but pulls in an unrelated commercial
+#     vocabulary and has no closed-vocabulary "kind" slot the way SHACL needs
+#     a precise sh:targetClass to constrain). Mirrors dfl:ToolEvent's and
+#     sc:ComplianceCase's identical minted-subclass-of-prov:Activity
+#     rationale (both already disclosed in their own files).
+#   smon:sequenceIndex  monotonic per-session ordinal (xsd:integer),
+#     mirroring dfl:sequenceIndex's IDENTICAL disclosed rationale in
+#     packs/dogfood-lifecycle-pack/ontology.ttl (OLO's olo:index requires a
+#     fully materialized olo:OrderedList; a capture hook emitting an
+#     incrementing counter is far lighter). Not reused directly as the SAME
+#     property because dfl:sequenceIndex's rdfs:domain is dfl:ToolEvent, a
+#     different activity subtype than smon:Turn; minting the domain-scoped
+#     analogue keeps each pack's SHACL shape precise without weakening
+#     dfl:ToolEventShape's own domain assumption.
+#   smon:immediatelyFollows  Turn -> Turn, "the subject turn is the very
+#     next turn, in session order, after the object turn." Checked OLO
+#     (olo:index gives ordinal POSITION within a materialized ordered list,
+#     not a direct pairwise adjacency edge a capture hook can assert cheaply
+#     per new turn) and rejected for the same reason dfl:sequenceIndex
+#     rejects it. This property exists so hook.ttl's CONSTRUCT query can
+#     express "the turn immediately following turn X" as a plain graph-
+#     pattern join (?resp smon:immediatelyFollows ?x) instead of SPARQL
+#     arithmetic on sequenceIndex (?ir = ?i1 + 1) -- confirmed by reading
+#     crates/praxis-graphlaw/src/sparql/plan.rs::extract_expression this
+#     session: `Expression::Add`/`Subtract` are NOT matched by that function
+#     (they fall through to the `_ => PlanExpression::Done` catch-all), so
+#     arithmetic FILTER expressions are NOT a proven capability of this
+#     engine. Using a direct adjacency edge instead of `+1` arithmetic keeps
+#     hook.ttl within confirmed-supported SPARQL (BGP joins + Greater/
+#     NotEqual comparisons, both exercised live by
+#     crates/praxis-graphlaw/tests/soc2_hook_actuation.rs and
+#     crates/multifractal-workflow/fixtures/bribery-case/hook.ttl already).
+#   smon:turnKind + smon:TurnKind  a turn's classification, drawn from the
+#     CLOSED 5-concept vocabulary below (smon:TurnKindScheme). No public
+#     ontology enumerates conversational-turn-answer-format classifications;
+#     mirrors dfl:outcome + dfl:Outcome's IDENTICAL closed-scheme pattern.
+#     dcterms:type was checked and rejected for the same reason
+#     packs/dogfood-lifecycle-pack/ontology.ttl's header already rejects it
+#     for dfl:outcome: it names a resource's genre, not an observed
+#     classification of a specific process step.
+#   smon:EscalationObligation  the derived-fact node hook.ttl's CONSTRUCT
+#     query produces. No public ontology models "a pattern-match finding
+#     linking two triggering activities with role-distinguishing
+#     predicates" -- PROV's prov:wasDerivedFrom/prov:wasInformedBy were
+#     checked and rejected: prov:wasDerivedFrom's domain and range are both
+#     prov:Entity, but smon:Turn is deliberately modeled as a prov:Activity
+#     (an occurrence with duration and a kind classification, not a static
+#     entity), so asserting wasDerivedFrom FROM a Turn is a type mismatch,
+#     not merely an unfashionable choice; prov:wasInformedBy relates two
+#     Activities directly (no intervening derived-fact node), which cannot
+#     carry this pack's smon:reason literal or distinguish "prior" from
+#     "repeat" turn roles the way this pack's two role-scoped properties do.
+#     A plain rdfs:Class (not subclassed under prov: at all), mirroring
+#     crates/multifractal-workflow/fixtures/bribery-case/hook.ttl's
+#     sc:Obligation -- a category/fact-marker node, not a temporally-extended
+#     PROV activity or entity in its own right.
+#   smon:hasPriorGroundingQuestion  EscalationObligation -> the FIRST
+#     GroundingQuestion turn (the one whose immediately-following response
+#     was a SurveyResponse). No public equivalent -- see smon:EscalationObligation
+#     disclosure above.
+#   smon:hasGroundingQuestion  EscalationObligation -> the REPEAT
+#     GroundingQuestion turn (the later, same-topic turn that reveals the
+#     system was asked about again). No public equivalent -- see above.
+#   smon:reason  EscalationObligation -> an xsd:string literal explaining
+#     the derivation. Mirrors kh:reason's already-established, repo-wide
+#     "a literal naming why a governed fact was produced" pattern
+#     (crates/praxis-graphlaw/src/hooks/mod.rs's kh:reason on refusing
+#     hooks), scoped to this pack's derived-fact node rather than a hook
+#     definition (different domain, same rationale). dcterms:description was
+#     checked and rejected: it is a generic "account of the resource," not
+#     specifically the causal rationale a pattern-derivation exists to name.
+#
+# CLASSIFICATION-IS-INPUT FENCE: see the block above this header's public-
+# vocabulary list. Repeated here at the end because it is the load-bearing
+# constraint of this entire pack.
+
+@prefix smon:    <http://seanchatmangpt.github.io/packs/self-monitoring#> .
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Classes (minted subclass of prov:Activity -- disclosed above) ─────────
+
+smon:Turn
+    a               rdfs:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label      "Turn" ;
+    rdfs:comment    "One conversational turn (a single Claude Code reply) within a session, as a prov:Activity. Required attributes enforced by shapes.ttl: dcterms:isPartOf (session ref, sh:class dfl:Session), dcterms:subject (the grounding topic), smon:sequenceIndex, smon:turnKind (closed vocabulary). smon:immediatelyFollows is optional (asserted when the capture mechanism records direct adjacency). turnKind is an INPUT to this pack, never derived from turn text -- see this file's header CLASSIFICATION-IS-INPUT FENCE." .
+
+smon:TurnKind
+    a            rdfs:Class ;
+    rdfs:label   "TurnKind" ;
+    rdfs:comment "The closed class of conversational-turn classifications. Exactly five individuals exist (smon:GroundingQuestion, smon:SurveyResponse, smon:RunResponse, smon:BlockerResponse, smon:Other); do not add more without updating shapes.ttl's sh:in list in the same edit. Mirrors dfl:Outcome's closed-scheme pattern (packs/dogfood-lifecycle-pack/ontology.ttl)." .
+
+smon:EscalationObligation
+    a            rdfs:Class ;
+    rdfs:label   "EscalationObligation" ;
+    rdfs:comment "A derived fact: a repeated GroundingQuestion on the same topic, where the FIRST GroundingQuestion's immediately-following response was a SurveyResponse (not a RunResponse/BlockerResponse), warrants escalating to an actual build/run rather than another survey. Produced ONLY by hook.ttl's kh:Hook CONSTRUCT query -- never hand-asserted in fixture data. See this file's header for why this is a plain rdfs:Class, not subclassed under prov:." .
+
+# ── Minted properties (disclosed above) ───────────────────────────────────
+
+smon:sequenceIndex
+    a            rdf:Property ;
+    rdfs:label   "sequenceIndex" ;
+    rdfs:domain  smon:Turn ;
+    rdfs:range   xsd:integer ;
+    rdfs:comment "Monotonic per-session ordinal of this turn (0-based or 1-based; strictly increasing within one session). Mirrors dfl:sequenceIndex's identical disclosed rationale, domain-scoped to smon:Turn instead of dfl:ToolEvent." .
+
+smon:immediatelyFollows
+    a            rdf:Property ;
+    rdfs:label   "immediatelyFollows" ;
+    rdfs:domain  smon:Turn ;
+    rdfs:range   smon:Turn ;
+    rdfs:comment "The subject turn is the very next turn, in session order, after the object turn. Exists so hook.ttl's CONSTRUCT query can express turn-adjacency as a plain graph-pattern join instead of SPARQL arithmetic on smon:sequenceIndex -- see this file's header for the confirmed engine-capability finding (Expression::Add is not implemented in crates/praxis-graphlaw/src/sparql/plan.rs::extract_expression) that this property exists to work around." .
+
+smon:turnKind
+    a            rdf:Property ;
+    rdfs:label   "turnKind" ;
+    rdfs:domain  smon:Turn ;
+    rdfs:range   smon:TurnKind ;
+    rdfs:comment "Links a turn to its classification individual (smon:GroundingQuestion / smon:SurveyResponse / smon:RunResponse / smon:BlockerResponse / smon:Other). Mirrors dfl:outcome. ALWAYS AN INPUT FACT, never computed by any hook in this pack -- see this file's header CLASSIFICATION-IS-INPUT FENCE." .
+
+smon:hasPriorGroundingQuestion
+    a            rdf:Property ;
+    rdfs:label   "hasPriorGroundingQuestion" ;
+    rdfs:domain  smon:EscalationObligation ;
+    rdfs:range   smon:Turn ;
+    rdfs:comment "Links a derived EscalationObligation to the FIRST (earlier) GroundingQuestion turn in the pair -- the one whose immediately-following response was a SurveyResponse. No public equivalent; see this file's header." .
+
+smon:hasGroundingQuestion
+    a            rdf:Property ;
+    rdfs:label   "hasGroundingQuestion" ;
+    rdfs:domain  smon:EscalationObligation ;
+    rdfs:range   smon:Turn ;
+    rdfs:comment "Links a derived EscalationObligation to the REPEAT (later) GroundingQuestion turn on the same grounding topic -- the turn whose existence, combined with the prior turn's survey-only response, triggers the escalation. No public equivalent; see this file's header." .
+
+smon:reason
+    a            rdf:Property ;
+    rdfs:label   "reason" ;
+    rdfs:domain  smon:EscalationObligation ;
+    rdfs:range   xsd:string ;
+    rdfs:comment "Free-text explanation of why the escalation was derived. Mirrors kh:reason's repo-wide pattern for a governed-fact rationale literal, scoped to this pack's derived-fact node. No public equivalent; see this file's header." .
+
+# ── Closed turn-kind vocabulary (SKOS; INPUT classification only) ────────
+
+smon:TurnKindScheme
+    a            skos:ConceptScheme ;
+    rdfs:label   "Conversational turn-kind scheme" ;
+    rdfs:comment "Closed 5-concept scheme of conversational-turn classifications. Every individual below is an INPUT tag a turn is hand- or upstream-classified with; hook.ttl's CONSTRUCT query only ever READS these, never assigns them from turn text." .
+
+smon:GroundingQuestion
+    a             smon:TurnKind , skos:Concept ;
+    skos:inScheme smon:TurnKindScheme ;
+    skos:notation "grounding-question" ;
+    skos:prefLabel "GroundingQuestion" ;
+    rdfs:comment  "A turn asking a clarifying/scoping question about which system or capability is in play, before committing to an approach." .
+
+smon:SurveyResponse
+    a             smon:TurnKind , skos:Concept ;
+    skos:inScheme smon:TurnKindScheme ;
+    skos:notation "survey-response" ;
+    skos:prefLabel "SurveyResponse" ;
+    rdfs:comment  "A turn that only surveys/summarizes the current state (reads code, greps, reports findings) without running or building anything new." .
+
+smon:RunResponse
+    a             smon:TurnKind , skos:Concept ;
+    skos:inScheme smon:TurnKindScheme ;
+    skos:notation "run-response" ;
+    skos:prefLabel "RunResponse" ;
+    rdfs:comment  "A turn that actually runs/builds/executes something (a test, a command, a real artifact change) rather than merely surveying." .
+
+smon:BlockerResponse
+    a             smon:TurnKind , skos:Concept ;
+    skos:inScheme smon:TurnKindScheme ;
+    skos:notation "blocker-response" ;
+    skos:prefLabel "BlockerResponse" ;
+    rdfs:comment  "A turn reporting that further progress is blocked on something outside the responder's control (a missing credential, an external approval, a genuinely underdetermined product decision)." .
+
+smon:Other
+    a             smon:TurnKind , skos:Concept ;
+    skos:inScheme smon:TurnKindScheme ;
+    skos:notation "other" ;
+    skos:prefLabel "Other" ;
+    rdfs:comment  "Any turn not classified as one of the four kinds above." .

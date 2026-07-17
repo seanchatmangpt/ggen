@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+@prefix list: <http://www.w3.org/2000/10/swap/list#> .
+
+:cart :nums ( 1 2 1 3 2 ) .
+
+{ ?cart :nums ?list . ?list list:unique ?uniq . ?uniq list:length ?len } => { ?cart :uniqueCount ?len }.

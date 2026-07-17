@@ -1,0 +1,4 @@
+[pack]
+name = "lsp-max-pack"
+version = "0.1.0"
+description = "Generates lsp-max RulePackServer rules/*.toml regex rule-pack files from LintRule individuals in the pack ontology."

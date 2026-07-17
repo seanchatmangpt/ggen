@@ -1,0 +1,177 @@
+# schema/frontmatter-schema.ttl — closed-vocabulary definition of template
+# frontmatter (crate::template::Frontmatter).
+#
+# Meta-ontology of the frontmatter block's own shape, not a domain ontology
+# rendered by a template. Single source of truth this crate's
+# `deny_unknown_fields` Frontmatter struct must match exactly — enforced by
+# tests/frontmatter_schema_match.rs.
+#
+# PROJ-302 (no-private-abstraction gate) extended to crates/ggen. This is the
+# full field set found across sibling implementations (~/ggen's Frontmatter,
+# and the kgen/unjucks SHACL prior art) — every field is either implemented
+# with real, enforced behavior (see the per-field comments and
+# docs/v26.7.4/GGEN_TOML_SCHEMA_MAPPING.md) or, where noted, structurally
+# accepted with an explicitly stated behavioral limitation (never silently
+# claimed as fully enforced when it is not).
+
+@prefix ggenspec: <https://praxis.dev/ggen/schema#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+
+ggenspec:Frontmatter
+    a               ggenspec:Section ;
+    rdfs:label      "Frontmatter" ;
+    rdfs:comment    "Closed frontmatter key set for a ggen template, Hygen semantics (crate::template::Frontmatter)." ;
+    ggenspec:hasField
+        ggenspec:Frontmatter-to ,
+        ggenspec:Frontmatter-sparql ,
+        ggenspec:Frontmatter-construct ,
+        ggenspec:Frontmatter-inject ,
+        ggenspec:Frontmatter-before ,
+        ggenspec:Frontmatter-after ,
+        ggenspec:Frontmatter-at_line ,
+        ggenspec:Frontmatter-skip_if ,
+        ggenspec:Frontmatter-unless_exists ,
+        ggenspec:Frontmatter-force ,
+        ggenspec:Frontmatter-when ,
+        ggenspec:Frontmatter-skip_empty ,
+        ggenspec:Frontmatter-from ,
+        ggenspec:Frontmatter-sh_before ,
+        ggenspec:Frontmatter-sh_after ,
+        ggenspec:Frontmatter-backup ,
+        ggenspec:Frontmatter-shape ,
+        ggenspec:Frontmatter-determinism ,
+        ggenspec:Frontmatter-freeze_policy ,
+        ggenspec:Frontmatter-freeze_slots_dir ,
+        ggenspec:Frontmatter-rdf ,
+        ggenspec:Frontmatter-rdf_inline ,
+        ggenspec:Frontmatter-prefixes ,
+        ggenspec:Frontmatter-base .
+
+ggenspec:Frontmatter-to
+    a ggenspec:Field ; ggenspec:name "to" ; ggenspec:type xsd:string ;
+    ggenspec:required true ;
+    rdfs:comment "Output path relative to the project root (Tera-renderable)." .
+
+ggenspec:Frontmatter-sparql
+    a ggenspec:Field ; ggenspec:name "sparql" ; ggenspec:type ggenspec:MapOfString ;
+    ggenspec:required false ;
+    rdfs:comment "Named SPARQL queries available to the template body. Defaults to empty." .
+
+ggenspec:Frontmatter-construct
+    a ggenspec:Field ; ggenspec:name "construct" ; ggenspec:type xsd:string ;
+    ggenspec:required false ;
+    rdfs:comment "Optional CONSTRUCT query whose result feeds the template." .
+
+ggenspec:Frontmatter-inject
+    a ggenspec:Field ; ggenspec:name "inject" ; ggenspec:type xsd:boolean ;
+    ggenspec:required false ;
+    rdfs:comment "Inject into an existing file instead of creating a new one. Defaults to false." .
+
+ggenspec:Frontmatter-before
+    a ggenspec:Field ; ggenspec:name "before" ; ggenspec:type xsd:string ;
+    ggenspec:required false ;
+    rdfs:comment "Inject before the first line containing this marker." .
+
+ggenspec:Frontmatter-after
+    a ggenspec:Field ; ggenspec:name "after" ; ggenspec:type xsd:string ;
+    ggenspec:required false ;
+    rdfs:comment "Inject after the first line containing this marker." .
+
+ggenspec:Frontmatter-at_line
+    a ggenspec:Field ; ggenspec:name "at_line" ; ggenspec:type xsd:nonNegativeInteger ;
+    ggenspec:required false ;
+    rdfs:comment "Inject at this 1-based line number." .
+
+ggenspec:Frontmatter-skip_if
+    a ggenspec:Field ; ggenspec:name "skip_if" ; ggenspec:type xsd:string ;
+    ggenspec:required false ;
+    rdfs:comment "Skip the write when the existing file already contains this substring." .
+
+ggenspec:Frontmatter-unless_exists
+    a ggenspec:Field ; ggenspec:name "unless_exists" ; ggenspec:type xsd:boolean ;
+    ggenspec:required false ;
+    rdfs:comment "Skip the write entirely when the target file already exists. Defaults to false." .
+
+ggenspec:Frontmatter-force
+    a ggenspec:Field ; ggenspec:name "force" ; ggenspec:type xsd:boolean ;
+    ggenspec:required false ;
+    rdfs:comment "Overwrite an existing, differing file instead of failing closed. Defaults to false." .
+
+ggenspec:Frontmatter-when
+    a ggenspec:Field ; ggenspec:name "when" ; ggenspec:type xsd:string ;
+    ggenspec:required false ;
+    rdfs:comment "SPARQL ASK guard: generate only when the graph satisfies it." .
+
+ggenspec:Frontmatter-skip_empty
+    a ggenspec:Field ; ggenspec:name "skip_empty" ; ggenspec:type xsd:boolean ;
+    ggenspec:required false ;
+    rdfs:comment "Skip the write when the rendered body is empty. Defaults to false." .
+
+ggenspec:Frontmatter-from
+    a ggenspec:Field ; ggenspec:name "from" ; ggenspec:type xsd:string ;
+    ggenspec:required false ;
+    rdfs:comment "Load the Tera body from this path instead (relative to the template file's own directory); frontmatter fields still come from this file. Implemented in sync.rs::parse_template_file." .
+
+ggenspec:Frontmatter-sh_before
+    a ggenspec:Field ; ggenspec:name "sh_before" ; ggenspec:type xsd:string ;
+    ggenspec:required false ;
+    rdfs:comment "Shell command run before the write decision, cwd = project root. Refused (not executed) if it matches shell_safety::check_shell_command_safe's denylist — a bounded denylist, not a sandbox." .
+
+ggenspec:Frontmatter-sh_after
+    a ggenspec:Field ; ggenspec:name "sh_after" ; ggenspec:type xsd:string ;
+    ggenspec:required false ;
+    rdfs:comment "Shell command run after a successful Written/Injected outcome (never after Skipped). Same denylist and cwd as sh_before." .
+
+ggenspec:Frontmatter-backup
+    a ggenspec:Field ; ggenspec:name "backup" ; ggenspec:type xsd:boolean ;
+    ggenspec:required false ;
+    rdfs:comment "Before overwriting an existing file (force or inject), copy it to <path>.bak first. Defaults to false." .
+
+ggenspec:Frontmatter-shape
+    a ggenspec:Field ; ggenspec:name "shape" ; ggenspec:type ggenspec:ListOfString ;
+    ggenspec:required false ;
+    rdfs:comment "SHACL shape file paths (relative to the project root) declared as governing this output. LIMITATION: existence-checked only — no SHACL engine runs in this crate yet, so listed shapes are not evaluated against rendered output." .
+
+ggenspec:Frontmatter-determinism
+    a ggenspec:Field ; ggenspec:name "determinism" ; ggenspec:type xsd:boolean ;
+    ggenspec:required false ;
+    rdfs:comment "When true, the sync pipeline renders this template's body twice with identical inputs and refuses if the bytes differ — a real, enforced assertion, not an opaque/unchecked value as in sibling schemas." .
+
+ggenspec:Frontmatter-freeze_policy
+    a ggenspec:Field ; ggenspec:name "freeze_policy" ; ggenspec:type ggenspec:FreezePolicy ;
+    ggenspec:required false ;
+    rdfs:comment "Freeze policy for this output once written (never|always|checksum). Defaults to never (no freeze behavior) when absent." .
+
+ggenspec:Frontmatter-freeze_slots_dir
+    a ggenspec:Field ; ggenspec:name "freeze_slots_dir" ; ggenspec:type xsd:string ;
+    ggenspec:required false ;
+    rdfs:comment "Directory (relative to the project root) storing per-output BLAKE3 checksums for freeze_policy: checksum. Required when that policy is set; ignored otherwise." .
+
+ggenspec:FreezePolicy
+    a ggenspec:EnumType ;
+    ggenspec:enumValue "never" , "always" , "checksum" ;
+    rdfs:comment "never: no freeze behavior (default). always: skip regeneration once the target exists, unconditionally. checksum: skip only when on-disk content no longer matches ggen's last-recorded checksum (human edit detected); otherwise proceed and record the new checksum." .
+
+ggenspec:Frontmatter-rdf
+    a ggenspec:Field ; ggenspec:name "rdf" ; ggenspec:type ggenspec:ListOfString ;
+    ggenspec:required false ;
+    rdfs:comment "RDF/Turtle file paths loaded into a per-template overlay graph, resolved relative to the template file's own directory (never the project root); same traversal-safety check as from:. Accepts a bare string or a YAML sequence. Defaults to empty." .
+
+ggenspec:Frontmatter-rdf_inline
+    a ggenspec:Field ; ggenspec:name "rdf_inline" ; ggenspec:type ggenspec:ListOfString ;
+    ggenspec:required false ;
+    rdfs:comment "Literal inline Turtle text (not file paths), loaded into the same per-template overlay graph as rdf:. Same string-or-sequence acceptance as rdf:. Defaults to empty." .
+
+ggenspec:Frontmatter-prefixes
+    a ggenspec:Field ; ggenspec:name "prefixes" ; ggenspec:type ggenspec:MapOfString ;
+    ggenspec:required false ;
+    rdfs:comment "Extra Turtle @prefix declarations (prefix name -> IRI) prepended before parsing rdf:/rdf_inline: content. Defaults to empty." .
+
+ggenspec:Frontmatter-base
+    a ggenspec:Field ; ggenspec:name "base" ; ggenspec:type xsd:string ;
+    ggenspec:required false ;
+    rdfs:comment "RDF base IRI (@base) prepended before parsing rdf:/rdf_inline: content." .
+
+ggenspec:MapOfString  a ggenspec:MapType ; ggenspec:valueType xsd:string .
+ggenspec:ListOfString a ggenspec:ListType ; ggenspec:valueType xsd:string .

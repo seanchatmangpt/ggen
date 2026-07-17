@@ -1,0 +1,257 @@
+# schema/ggen-manifest-schema.ttl — closed-vocabulary definition of the declarative
+# `[[generation.rules]]` types this crate's sync pipeline consumes.
+#
+# This is a meta-ontology, the same kind as schema/ggen-toml-schema.ttl: it describes the
+# SHAPE of `ggen_config::manifest::{GenerationConfig, GenerationRule, QuerySource,
+# TemplateSource, GenerationMode}` (a second, additive `ggen.toml` schema dispatched to by
+# `crate::generation_rules::has_generation_rules` — see that module's doc comment for the
+# dispatch rule), not a domain ontology fed to a generation rule. It is the single source of
+# truth those `#[serde(deny_unknown_fields)]` structs must match exactly — enforced by
+# tests/ggen_manifest_schema_match.rs.
+#
+# Scope (specs/014-ggen-core-replacement, T070): only the types this crate's
+# `generation_rules` module actually consumes are covered here. `GgenManifest`'s other
+# sections (`InferenceConfig`, `ValidationConfig`, the reused `config_lib::*` operational
+# types) have no ggen-engine consumer yet and are deliberately NOT enumerated — extending
+# this contract to them is a later, separate task (see the "Engine wiring" note in
+# specs/014-ggen-core-replacement/tasks.md).
+
+@prefix ggenspec: <https://praxis.dev/ggen/schema#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+
+# ---------------------------------------------------------------------------
+# [generation] — GenerationConfig
+# ---------------------------------------------------------------------------
+
+ggenspec:GenerationConfig
+    a               ggenspec:Section ;
+    rdfs:label      "GenerationConfig" ;
+    rdfs:comment    "Code generation configuration (ggen_config::manifest::GenerationConfig)." ;
+    ggenspec:hasField
+        ggenspec:GenerationConfig-rules ,
+        ggenspec:GenerationConfig-max_sparql_timeout_ms ,
+        ggenspec:GenerationConfig-require_audit_trail ,
+        ggenspec:GenerationConfig-determinism_salt ,
+        ggenspec:GenerationConfig-output_dir ,
+        ggenspec:GenerationConfig-enable_llm ,
+        ggenspec:GenerationConfig-llm_provider ,
+        ggenspec:GenerationConfig-llm_model .
+
+ggenspec:GenerationConfig-rules
+    a ggenspec:Field ; ggenspec:name "rules" ; ggenspec:type ggenspec:ListOfGenerationRule ;
+    ggenspec:required true ; rdfs:comment "Code generation rules, run in declared order." .
+
+ggenspec:GenerationConfig-max_sparql_timeout_ms
+    a ggenspec:Field ; ggenspec:name "max_sparql_timeout_ms" ; ggenspec:type xsd:integer ;
+    ggenspec:required false ; rdfs:comment "Maximum SPARQL query timeout (ms). Defaults to 5000." .
+
+ggenspec:GenerationConfig-require_audit_trail
+    a ggenspec:Field ; ggenspec:name "require_audit_trail" ; ggenspec:type xsd:boolean ;
+    ggenspec:required false ; rdfs:comment "Generate audit.json. Defaults to false." .
+
+ggenspec:GenerationConfig-determinism_salt
+    a ggenspec:Field ; ggenspec:name "determinism_salt" ; ggenspec:type xsd:string ;
+    ggenspec:required false ; rdfs:comment "Salt for deterministic IRI generation. Optional." .
+
+ggenspec:GenerationConfig-output_dir
+    a ggenspec:Field ; ggenspec:name "output_dir" ; ggenspec:type ggenspec:Path ;
+    ggenspec:required false ; rdfs:comment "Output directory, relative to ggen.toml. Defaults to '.'." .
+
+ggenspec:GenerationConfig-enable_llm
+    a ggenspec:Field ; ggenspec:name "enable_llm" ; ggenspec:type xsd:boolean ;
+    ggenspec:required false ; rdfs:comment "Enable LLM-based auto-generation for skills. Defaults to false." .
+
+ggenspec:GenerationConfig-llm_provider
+    a ggenspec:Field ; ggenspec:name "llm_provider" ; ggenspec:type xsd:string ;
+    ggenspec:required false ; rdfs:comment "LLM provider (groq, openai, anthropic, etc). Optional." .
+
+ggenspec:GenerationConfig-llm_model
+    a ggenspec:Field ; ggenspec:name "llm_model" ; ggenspec:type xsd:string ;
+    ggenspec:required false ; rdfs:comment "LLM model identifier. Optional." .
+
+# ---------------------------------------------------------------------------
+# [[generation.rules]] — GenerationRule
+# ---------------------------------------------------------------------------
+
+ggenspec:ListOfGenerationRule a ggenspec:ListType ; ggenspec:valueType ggenspec:GenerationRule .
+
+ggenspec:GenerationRule
+    a               ggenspec:Section ;
+    rdfs:label      "GenerationRule" ;
+    rdfs:comment    "A single code generation rule (ggen_config::manifest::GenerationRule)." ;
+    ggenspec:hasField
+        ggenspec:GenerationRule-name ,
+        ggenspec:GenerationRule-query ,
+        ggenspec:GenerationRule-template ,
+        ggenspec:GenerationRule-output_file ,
+        ggenspec:GenerationRule-skip_empty ,
+        ggenspec:GenerationRule-mode ,
+        ggenspec:GenerationRule-when .
+
+ggenspec:GenerationRule-name
+    a ggenspec:Field ; ggenspec:name "name" ; ggenspec:type xsd:string ;
+    ggenspec:required true ; rdfs:comment "Rule identifier." .
+
+ggenspec:GenerationRule-query
+    a ggenspec:Field ; ggenspec:name "query" ; ggenspec:type ggenspec:QuerySource ;
+    ggenspec:required true ; rdfs:comment "SPARQL query source (file, inline, or pack output)." .
+
+ggenspec:GenerationRule-template
+    a ggenspec:Field ; ggenspec:name "template" ; ggenspec:type ggenspec:TemplateSource ;
+    ggenspec:required true ; rdfs:comment "Tera template source (file, inline, git, pack, or package)." .
+
+ggenspec:GenerationRule-output_file
+    a ggenspec:Field ; ggenspec:name "output_file" ; ggenspec:type xsd:string ;
+    ggenspec:required true ; rdfs:comment "Output file pattern; a Tera-renderable path renders once per SELECT row, otherwise once for the whole rule." .
+
+ggenspec:GenerationRule-skip_empty
+    a ggenspec:Field ; ggenspec:name "skip_empty" ; ggenspec:type xsd:boolean ;
+    ggenspec:required false ; rdfs:comment "Skip generation entirely if the query returns zero rows. Defaults to false." .
+
+ggenspec:GenerationRule-mode
+    a ggenspec:Field ; ggenspec:name "mode" ; ggenspec:type ggenspec:GenerationMode ;
+    ggenspec:required false ; rdfs:comment "File generation mode. Defaults to Create." .
+
+ggenspec:GenerationRule-when
+    a ggenspec:Field ; ggenspec:name "when" ; ggenspec:type xsd:string ;
+    ggenspec:required false ; rdfs:comment "Skip this rule if the SPARQL ASK guard is false. Optional." .
+
+# ---------------------------------------------------------------------------
+# QuerySource (untagged: Pack | File | Inline)
+# ---------------------------------------------------------------------------
+
+ggenspec:QuerySource
+    a ggenspec:UntaggedUnion ; rdfs:label "QuerySource" ;
+    rdfs:comment "Source for a SPARQL query: a declared pack's named output, a file, or inline text." ;
+    ggenspec:hasVariant ggenspec:QuerySource-Pack , ggenspec:QuerySource-File , ggenspec:QuerySource-Inline .
+
+ggenspec:QuerySource-Pack
+    a ggenspec:Variant ; rdfs:label "Pack" ;
+    ggenspec:hasField ggenspec:QuerySource-Pack-pack , ggenspec:QuerySource-Pack-output , ggenspec:QuerySource-Pack-file ;
+    rdfs:comment "Not yet implemented in ggen-engine's declarative-rules sync path (typed, loud error naming the pack) -- see the module doc comment in src/generation_rules.rs for the follow-up." .
+
+ggenspec:QuerySource-Pack-pack
+    a ggenspec:Field ; ggenspec:name "pack" ; ggenspec:type xsd:string ;
+    ggenspec:required true ; rdfs:comment "Pack name (must be declared in [[packs]])." .
+
+ggenspec:QuerySource-Pack-output
+    a ggenspec:Field ; ggenspec:name "output" ; ggenspec:type xsd:string ;
+    ggenspec:required true ; rdfs:comment "Named output key from the pack's package.toml." .
+
+ggenspec:QuerySource-Pack-file
+    a ggenspec:Field ; ggenspec:name "file" ; ggenspec:type ggenspec:Path ;
+    ggenspec:required true ; rdfs:comment "File within that output directory." .
+
+ggenspec:QuerySource-File
+    a ggenspec:Variant ; rdfs:label "File" ;
+    ggenspec:hasField ggenspec:QuerySource-File-file ;
+    rdfs:comment "Implemented: query text read from a file, relative to the project root." .
+
+ggenspec:QuerySource-File-file
+    a ggenspec:Field ; ggenspec:name "file" ; ggenspec:type ggenspec:Path ;
+    ggenspec:required true ; rdfs:comment "Path to the .sparql file." .
+
+ggenspec:QuerySource-Inline
+    a ggenspec:Variant ; rdfs:label "Inline" ;
+    ggenspec:hasField ggenspec:QuerySource-Inline-inline ;
+    rdfs:comment "Implemented: inline query text embedded directly in ggen.toml." .
+
+ggenspec:QuerySource-Inline-inline
+    a ggenspec:Field ; ggenspec:name "inline" ; ggenspec:type xsd:string ;
+    ggenspec:required true ; rdfs:comment "SPARQL query text." .
+
+# ---------------------------------------------------------------------------
+# TemplateSource (untagged: Pack | File | Inline | Git | Package)
+# ---------------------------------------------------------------------------
+
+ggenspec:TemplateSource
+    a ggenspec:UntaggedUnion ; rdfs:label "TemplateSource" ;
+    rdfs:comment "Source for a Tera template: a declared pack's named output, a file, inline text, a git repository, or a package-manager package." ;
+    ggenspec:hasVariant
+        ggenspec:TemplateSource-Pack , ggenspec:TemplateSource-File , ggenspec:TemplateSource-Inline ,
+        ggenspec:TemplateSource-Git , ggenspec:TemplateSource-Package .
+
+ggenspec:TemplateSource-Pack
+    a ggenspec:Variant ; rdfs:label "Pack" ;
+    ggenspec:hasField ggenspec:TemplateSource-Pack-pack , ggenspec:TemplateSource-Pack-output , ggenspec:TemplateSource-Pack-file ;
+    rdfs:comment "Not yet implemented -- same follow-up as QuerySource-Pack." .
+
+ggenspec:TemplateSource-Pack-pack
+    a ggenspec:Field ; ggenspec:name "pack" ; ggenspec:type xsd:string ; ggenspec:required true ;
+    rdfs:comment "Pack name (must be declared in [[packs]])." .
+
+ggenspec:TemplateSource-Pack-output
+    a ggenspec:Field ; ggenspec:name "output" ; ggenspec:type xsd:string ; ggenspec:required true ;
+    rdfs:comment "Named output key from the pack's package.toml." .
+
+ggenspec:TemplateSource-Pack-file
+    a ggenspec:Field ; ggenspec:name "file" ; ggenspec:type ggenspec:Path ; ggenspec:required true ;
+    rdfs:comment "File within that output directory." .
+
+ggenspec:TemplateSource-File
+    a ggenspec:Variant ; rdfs:label "File" ;
+    ggenspec:hasField ggenspec:TemplateSource-File-file ;
+    rdfs:comment "Implemented: template text read from a file, relative to the project root." .
+
+ggenspec:TemplateSource-File-file
+    a ggenspec:Field ; ggenspec:name "file" ; ggenspec:type ggenspec:Path ; ggenspec:required true ;
+    rdfs:comment "Path to the .tera file." .
+
+ggenspec:TemplateSource-Inline
+    a ggenspec:Variant ; rdfs:label "Inline" ;
+    ggenspec:hasField ggenspec:TemplateSource-Inline-inline ;
+    rdfs:comment "Implemented: inline template text embedded directly in ggen.toml." .
+
+ggenspec:TemplateSource-Inline-inline
+    a ggenspec:Field ; ggenspec:name "inline" ; ggenspec:type xsd:string ; ggenspec:required true ;
+    rdfs:comment "Tera template text." .
+
+ggenspec:TemplateSource-Git
+    a ggenspec:Variant ; rdfs:label "Git" ;
+    ggenspec:hasField ggenspec:TemplateSource-Git-git , ggenspec:TemplateSource-Git-branch , ggenspec:TemplateSource-Git-path ;
+    rdfs:comment "Not yet implemented in ggen-engine's declarative-rules sync path (typed, loud error naming the repository) -- follow-up work; note crate::pack already has a git-clone-and-cache convention (pack.rs) a future implementation should reuse rather than ggen-core's original one-shot clone." .
+
+ggenspec:TemplateSource-Git-git
+    a ggenspec:Field ; ggenspec:name "git" ; ggenspec:type xsd:string ; ggenspec:required true ;
+    rdfs:comment "Git repository URL." .
+
+ggenspec:TemplateSource-Git-branch
+    a ggenspec:Field ; ggenspec:name "branch" ; ggenspec:type xsd:string ; ggenspec:required false ;
+    rdfs:comment "Optional branch or tag." .
+
+ggenspec:TemplateSource-Git-path
+    a ggenspec:Field ; ggenspec:name "path" ; ggenspec:type ggenspec:Path ; ggenspec:required true ;
+    rdfs:comment "Path within the repository." .
+
+ggenspec:TemplateSource-Package
+    a ggenspec:Variant ; rdfs:label "Package" ;
+    ggenspec:hasField ggenspec:TemplateSource-Package-package , ggenspec:TemplateSource-Package-version , ggenspec:TemplateSource-Package-path ;
+    rdfs:comment "Not yet implemented -- follow-up work (ggen marketplace package resolution)." .
+
+ggenspec:TemplateSource-Package-package
+    a ggenspec:Field ; ggenspec:name "package" ; ggenspec:type xsd:string ; ggenspec:required true ;
+    rdfs:comment "Package name." .
+
+ggenspec:TemplateSource-Package-version
+    a ggenspec:Field ; ggenspec:name "version" ; ggenspec:type xsd:string ; ggenspec:required false ;
+    rdfs:comment "Optional version." .
+
+ggenspec:TemplateSource-Package-path
+    a ggenspec:Field ; ggenspec:name "path" ; ggenspec:type ggenspec:Path ; ggenspec:required true ;
+    rdfs:comment "Path within the package." .
+
+# ---------------------------------------------------------------------------
+# GenerationMode — externally-tagged, fieldless enum
+# ---------------------------------------------------------------------------
+
+ggenspec:GenerationMode
+    a ggenspec:ExternallyTaggedEnum ; rdfs:label "GenerationMode" ;
+    rdfs:comment "File generation mode. Fieldless variants serialize as plain strings (serde's default external tagging); schemars represents this as a top-level `oneOf` array of `{type: string, const: <Variant>}` entries (verified via schemars::schema_for!, not assumed), so this is a set of variant names, not a set of struct-shaped fields." ;
+    ggenspec:variantName "Create" , "Overwrite" , "Merge" .
+
+# ---------------------------------------------------------------------------
+# Shared scalar/collection type markers (mirrors schema/ggen-toml-schema.ttl)
+# ---------------------------------------------------------------------------
+
+ggenspec:Path a ggenspec:ScalarType ; rdfs:comment "Filesystem path (serde PathBuf)." .

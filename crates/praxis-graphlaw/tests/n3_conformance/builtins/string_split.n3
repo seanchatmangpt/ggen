@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix string: <http://www.w3.org/2000/10/swap/string#> .
+@prefix list: <http://www.w3.org/2000/10/swap/list#> .
+
+:doc :text "a,b,c" .
+
+{ ?d :text ?t . ( ?t "," ) string:split ?parts . ?parts list:length ?n } => { ?d :partCount ?n }.

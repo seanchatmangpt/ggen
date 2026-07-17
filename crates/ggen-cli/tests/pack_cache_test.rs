@@ -1,3 +1,16 @@
+// ARCHIVED (ggen-core disconnect, 2026-07-16): drives
+// `ggen_core::marketplace::cache::{CacheConfig, PackCache, CachedPack}` and
+// `ggen_core::marketplace::models::{PackageId, PackageVersion}` directly.
+// Note (2026-07-17): unlike its archived siblings, a structurally-matching
+// port target already exists and is a live dependency of ggen-cli-lib --
+// `ggen_marketplace::marketplace::cache::{CacheConfig, PackCache, CachedPack}`
+// and `ggen_marketplace::marketplace::models::{PackageId, PackageVersion}`
+// expose the same `new`/`stats`/`insert`/`verify_digest` shapes this file
+// exercises (confirmed by reading crates/ggen-marketplace/src/marketplace/
+// cache.rs directly, 2026-07-17). Not ported here -- out of scope for this
+// archival pass; porting to ggen_marketplace remains open work. Gated as a
+// whole file rather than deleted, per this project's fix-forward doctrine.
+#![cfg(feature = "ggen-core-retired")]
 #![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
 #![allow(
     clippy::unwrap_used,
@@ -26,10 +39,6 @@
 //! Pack cache integration tests
 //!
 //! Chicago TDD: Real filesystem, real cache operations, no mocks.
-//!
-//! GATED: references ggen_marketplace crate which is not a dep of ggen-cli-lib.
-
-#![cfg(feature = "integration")]
 
 use std::fs;
 use std::path::PathBuf;

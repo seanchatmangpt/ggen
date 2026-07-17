@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+@prefix list: <http://www.w3.org/2000/10/swap/list#> .
+
+:cart :nums ( 3 1 2 ) .
+
+{ ?cart :nums ?list . ?list list:sort ?sorted . ?sorted list:first ?min } => { ?cart :minNum ?min }.

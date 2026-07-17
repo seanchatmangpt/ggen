@@ -2,7 +2,14 @@
 //!
 //! This module provides template resolution from cached packs.
 //! Templates can be referenced as `pack_id:template_path` in ggen.toml
-//! and will be loaded from the pack cache at `~/.cache/ggen/packs/<pack-id>/templates/`.
+//! and will be loaded from the pack cache at
+//! `<pack_cache_root>/<pack-id>/templates/`, where `pack_cache_root` is
+//! `$GGEN_PACK_CACHE_DIR` if set, else the platform cache directory joined
+//! with `ggen/packs` (`~/Library/Caches/ggen/packs` on macOS,
+//! `~/.cache/ggen/packs` on Linux -- NOT always literally `~/.cache`, see
+//! `TemplateResolver::new`'s own resolution below, which matches
+//! `ggen_marketplace::marketplace::metadata::pack_cache_root`'s resolution
+//! order).
 
 use crate::utils::error::{Error, Result};
 use std::path::PathBuf;

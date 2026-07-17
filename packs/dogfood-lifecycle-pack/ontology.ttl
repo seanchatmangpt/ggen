@@ -1,0 +1,160 @@
+# dogfood-lifecycle-pack ontology — session-lifecycle vocabulary for
+# Operation Dogfood (v26.7.13). Models a Claude Code session's tool events
+# (Bash / Edit / Write / Read / Task / ...) as PROV-O provenance so that a
+# session log (one Turtle node appended per tool event by a PostToolUse
+# hook) can be validated by `ggen graph validate --files <session.ttl>
+# --shapes shapes.ttl`.
+#
+# PUBLIC-ONTOLOGY-FIRST (same doctrine as packs/soc2-audit-pack/ontology.ttl
+# and packs/dry-run-publish-pack/pack.toml): every relationship that a public
+# vocabulary already covers reuses that vocabulary; a private namespace (dfl:)
+# is minted ONLY for terms with no public equivalent, and each such term
+# carries an rdfs:comment naming the public ontologies checked and why they
+# do not fit.
+#
+# Public vocabularies used (NOT redefined here — used by IRI):
+#   prov:    A SESSION is a prov:Activity (dfl:Session subclass, below); each
+#            TOOL EVENT is a prov:Activity (dfl:ToolEvent subclass); the
+#            operator and each subagent are prov:Agent. Reused predicates:
+#              prov:wasAssociatedWith  tool event -> the agent that ran it
+#              prov:actedOnBehalfOf    subagent   -> the session's agent
+#              prov:used               tool event -> its input entity
+#              prov:generated          tool event -> its result entity
+#            Tool inputs/outputs are prov:Entity nodes named by the repo's
+#            existing content-address scheme urn:blake3:<hex> (crates/
+#            chatman-common provenance::content_address; crates/cng
+#            pipeline.rs ImportedArtifact.source_iri).
+#   dcterms: dcterms:identifier  the session id (opaque session/uuid string)
+#            dcterms:isPartOf     tool event -> the session it belongs to
+#                                 (the "session ref"; PROV core has no
+#                                 sub-activity predicate, so the public DCMI
+#                                 part/whole relation carries it)
+#            dcterms:description  human-readable notes on any node
+#   skos:    skos:ConceptScheme + skos:Concept + skos:notation + skos:inScheme
+#            model the two closed vocabularies (tool names, outcomes) exactly
+#            as packs/soc2-audit-pack models the AICPA TSC taxonomy — SKOS
+#            concepts, not a minted class hierarchy. skos:notation is also the
+#            deterministic string handle carried directly on a tool-event node
+#            (its tool name), matching soc2-shapes.ttl.tmpl's use of
+#            skos:notation as a handle on prov:Activity nodes.
+#   time:    time:inXSDDateTimeStamp  the event's timestamp (an OWL-Time
+#            xsd:dateTimeStamp literal — a graph-carried time value, never a
+#            wall-clock read; see CLAUDE.md invariant 3).
+#
+# DISCLOSED MINTED TERMS (dfl:, capability-justified — no public equivalent):
+#   dfl:Session, dfl:ToolEvent  rdfs:subClassOf prov:Activity. PROV models
+#     both a whole session and a single tool invocation as bare prov:Activity
+#     with no subtype to tell them apart; SHACL needs a precise sh:targetClass
+#     so the tool-event shape can require a tool name / sequence / outcome
+#     WITHOUT imposing those on the session node. Checked prov: (no such
+#     subtype) and schema.org Action (models a completed action but not the
+#     session/step distinction, and pulls in an unrelated commercial vocab).
+#   dfl:sequenceIndex  monotonic per-session ordinal (xsd:integer). PROV has
+#     no event ordinal; OLO (olo:index) supplies one but only as a slot in a
+#     fully materialized olo:OrderedList, which is far heavier than a hook
+#     emitting an incrementing counter. Minted as a plain datatype property.
+#   dfl:outcome + dfl:Outcome  a tool event's terminal status drawn from the
+#     CLOSED 3-value vocabulary {ok, error, blocked}. No public ontology
+#     enumerates tool-invocation outcomes; this mirrors packs/jira-tracking-
+#     pack's closed jira:Status scheme (jira:status -> jira:Alive et al.).
+#     dcterms:type was checked and rejected: it names a resource's genre, not
+#     a process step's observed result.
+#
+# OBSERVATION-ONLY FENCE: this vocabulary describes what a tool event
+# OBSERVABLY did; it never asserts authority, permission, or actuation. No
+# term here is named authorize / permit / grant / actuate / execute. The
+# outcome vocabulary records ok / error / blocked as observations, never a
+# grant of permission — admission, hooks, and receipts are separate governed
+# surfaces (crates/praxis-graphlaw/src/chatman).
+
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Classes (minted subclasses of prov:Activity — disclosed above) ────────
+
+dfl:Session
+    a               rdfs:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label      "Session" ;
+    rdfs:comment    "One Claude Code session, as a prov:Activity. Carries dcterms:identifier (the opaque session/uuid) and prov:wasAssociatedWith its acting agent. Minted subtype of prov:Activity so the SHACL tool-event shape can target dfl:ToolEvent without also constraining the session node." .
+
+dfl:ToolEvent
+    a               rdfs:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label      "ToolEvent" ;
+    rdfs:comment    "One tool invocation within a session (Bash / Edit / Write / Read / Task / ...), as a prov:Activity. Required attributes are enforced by shapes.ttl: dcterms:isPartOf (session ref), skos:notation (tool name), dfl:sequenceIndex OR time:inXSDDateTimeStamp (ordering), dfl:outcome (closed status), plus prov:wasAssociatedWith / prov:used / prov:generated." .
+
+dfl:Outcome
+    a            rdfs:Class ;
+    rdfs:label   "Outcome" ;
+    rdfs:comment "The closed class of tool-event terminal statuses. Exactly three individuals exist (dfl:Ok, dfl:Error, dfl:Blocked); do not add more without updating shapes.ttl's sh:in list in the same edit. Mirrors packs/jira-tracking-pack's closed jira:Status. Observation only — records what a tool event did, never that it was permitted to." .
+
+# ── Minted properties (disclosed above) ───────────────────────────────────
+
+dfl:sequenceIndex
+    a           rdf:Property ;
+    rdfs:label  "sequenceIndex" ;
+    rdfs:domain dfl:ToolEvent ;
+    rdfs:range  xsd:integer ;
+    rdfs:comment "Monotonic per-session ordinal of this tool event (0-based or 1-based; strictly increasing within one session). No public ontology offers a lightweight event ordinal — OLO's olo:index requires a materialized ordered list. A hook emits an incrementing counter." .
+
+dfl:outcome
+    a           rdf:Property ;
+    rdfs:label  "outcome" ;
+    rdfs:domain dfl:ToolEvent ;
+    rdfs:range  dfl:Outcome ;
+    rdfs:comment "Links a tool event to its terminal outcome individual (dfl:Ok / dfl:Error / dfl:Blocked). Mirrors jira:status. Observation of the tool's observed result, never a permission grant." .
+
+# ── Closed outcome vocabulary (SKOS; observation only) ────────────────────
+
+dfl:OutcomeScheme
+    a            skos:ConceptScheme ;
+    rdfs:label   "Tool-event outcome scheme" ;
+    rdfs:comment "Closed 3-concept scheme of tool-event terminal outcomes." .
+
+dfl:Ok
+    a            dfl:Outcome , skos:Concept ;
+    skos:inScheme dfl:OutcomeScheme ;
+    skos:notation "ok" ;
+    skos:prefLabel "ok" ;
+    rdfs:comment  "The tool ran and returned a normal result." .
+
+dfl:Error
+    a            dfl:Outcome , skos:Concept ;
+    skos:inScheme dfl:OutcomeScheme ;
+    skos:notation "error" ;
+    skos:prefLabel "error" ;
+    rdfs:comment  "The tool ran and returned an error result (non-zero exit, exception, failed edit)." .
+
+dfl:Blocked
+    a            dfl:Outcome , skos:Concept ;
+    skos:inScheme dfl:OutcomeScheme ;
+    skos:notation "blocked" ;
+    skos:prefLabel "blocked" ;
+    rdfs:comment  "The tool invocation was stopped before completion by a governed surface (a hook, the permission system). An OBSERVATION that the call did not run to completion — not a statement about authority." .
+
+# ── Closed tool-name vocabulary (SKOS) ────────────────────────────────────
+# A tool event carries skos:notation directly (its tool name, e.g. "Bash").
+# These concepts are the authoritative enumeration of valid notations;
+# shapes.ttl's sh:in list must be kept in step with this scheme.
+
+dfl:ToolNameScheme
+    a            skos:ConceptScheme ;
+    rdfs:label   "Claude Code tool-name scheme" ;
+    rdfs:comment "Closed enumeration of the tool names a PostToolUse event may carry as its skos:notation handle." .
+
+dfl:Bash     a skos:Concept ; skos:inScheme dfl:ToolNameScheme ; skos:notation "Bash" ; skos:prefLabel "Bash" .
+dfl:Edit     a skos:Concept ; skos:inScheme dfl:ToolNameScheme ; skos:notation "Edit" ; skos:prefLabel "Edit" .
+dfl:Write    a skos:Concept ; skos:inScheme dfl:ToolNameScheme ; skos:notation "Write" ; skos:prefLabel "Write" .
+dfl:Read     a skos:Concept ; skos:inScheme dfl:ToolNameScheme ; skos:notation "Read" ; skos:prefLabel "Read" .
+dfl:Grep     a skos:Concept ; skos:inScheme dfl:ToolNameScheme ; skos:notation "Grep" ; skos:prefLabel "Grep" .
+dfl:Glob     a skos:Concept ; skos:inScheme dfl:ToolNameScheme ; skos:notation "Glob" ; skos:prefLabel "Glob" .
+dfl:Task     a skos:Concept ; skos:inScheme dfl:ToolNameScheme ; skos:notation "Task" ; skos:prefLabel "Task" .
+dfl:WebFetch  a skos:Concept ; skos:inScheme dfl:ToolNameScheme ; skos:notation "WebFetch" ; skos:prefLabel "WebFetch" .
+dfl:WebSearch a skos:Concept ; skos:inScheme dfl:ToolNameScheme ; skos:notation "WebSearch" ; skos:prefLabel "WebSearch" .

@@ -1,0 +1,7 @@
+{
+  "case": "Accept_BoundaryRequestCarriesReceipt",
+  "kind": "acceptance",
+  "seed": 7916231627521257844,
+  "expected_behavior": "boundary_receipt_present",
+  "input": {"subject": "urn:chatman:subject:boundary-1", "witness": "urn:chatman:witness:boundary-1", "replay_hint": "replay-hint-boundary-1", "canon_nquads": "<urn:chatman:s3> <urn:chatman:p3> \"v3\" .", "carried_digest": "a55727e5481faa3afdb44c4bc15c5d7feaabc39925c2a5ba0480fa9be37babca"}
+}

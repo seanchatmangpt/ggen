@@ -91,10 +91,12 @@ impl Default for CacheConfig {
         Self {
             max_size_bytes: 2_000_000_000, // 2GB default
             max_packs: 100,
-            cache_dir: dirs::cache_dir()
-                .unwrap_or_else(|| PathBuf::from(".cache"))
-                .join("ggen")
-                .join("packs"),
+            // Delegates to the canonical resolver so this agrees with
+            // `Installer::persistent_cache_path` and
+            // `metadata::get_pack_cache_dir` -- see
+            // `crate::marketplace::metadata::pack_cache_root` for the full
+            // resolution order (env-overridable via `GGEN_PACK_CACHE_DIR`).
+            cache_dir: crate::marketplace::metadata::pack_cache_root(),
             persistent: true,
         }
     }

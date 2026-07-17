@@ -1,0 +1,7 @@
+{
+  "case": "Accept_ProfileHashMatches",
+  "kind": "acceptance",
+  "seed": 4931324606387386241,
+  "expected_behavior": "profile_hash_verified",
+  "input": {"subject": "urn:chatman:subject:receipt-2", "witness": "urn:chatman:witness:receipt-2", "replay_hint": "replay-hint-receipt-2", "canon_nquads": "<urn:chatman:s1> <urn:chatman:p1> \"v1\" .", "carried_digest": "0b755f498d4d0613ca6584a4126381239594f04e553dc7c6c2d4d4ba4777fa1d"}
+}
