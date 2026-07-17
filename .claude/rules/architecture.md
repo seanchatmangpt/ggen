@@ -30,12 +30,29 @@ it). As of 2026-07-16, `ggen-cli`'s default `ggen sync`/`doctor`/`graph`/`receip
 already route to `ggen-engine`'s clap-noun-verb nouns instead of `ggen-core` (see
 `crates/ggen-cli/src/lib.rs`'s `inject_default_verbs`/`cli_match`, and `cmds/mod.rs`'s
 `// pub mod sync;` archival note). `ggen-engine` is the growing, actively-developed half of this
-split; `ggen-core` still compiles and is still called directly by other, not-yet-ported paths
-(e.g. the experimental, default-off `ggen wizard` command's initial-sync step).
+split.
+
+**Correction (2026-07-17, verified live, corrects an inaccurate claim in an earlier version of
+this note):** `ggen-core` does **not** compile standalone anymore, and has **zero** remaining
+in-workspace dependents. `ggen-core/Cargo.toml` inherits ~25 fields via `workspace = true`, but
+`ggen-core` moved from `[workspace] members` to root Cargo.toml's `exclude = [...]` — there is no
+workspace left for those fields to inherit from. Confirmed three ways: `cargo test -p ggen-core
+...` → `package ID specification did not match any packages`; `cargo test --manifest-path
+crates/ggen-core/Cargo.toml ...` and `cd crates/ggen-core && cargo test ...` → `failed to find a
+workspace root`. `ggen-cli/Cargo.toml` has zero `ggen-core` dependency entries (grepped; only
+comments referencing the historical port remain), which is *why* plain `cargo check --workspace`
+never touches ggen-core's manifest and stays green. The experimental, default-off `ggen wizard`
+command does **not** currently call into ggen-core either, despite still importing
+`ggen_core::codegen::{executor::{SyncExecutor, SyncOptions}, FileTransaction}` in its source —
+that import is dead/unreachable: `cargo check -p ggen-cli-lib --features experimental` hard-fails
+with E0433 (crate not found) as of the dependency removal above. `cmds/wizard.rs` and
+`cmds/sigma.rs` (same issue, `ggen_core::dflss`/`ggen_core::manifest::ManifestParser`) were
+re-archived (`pub mod` commented out, files retained on disk) on 2026-07-17 for exactly this
+reason — see `crates/ggen-cli/src/cmds/mod.rs`'s comments on both for the full writeup.
 
 | Crate | Purpose (from Cargo.toml / lib.rs) |
 |-------|-------------------------------------|
-| `ggen-core` | Legacy graph-aware code generation engine; μ₁–μ₅ deterministic pipeline. Being disconnected as dependents are ported to `ggen-engine` — see note above. |
+| `ggen-core` | Legacy graph-aware code generation engine; μ₁–μ₅ deterministic pipeline. Disconnected: zero in-workspace dependents, does not compile standalone (see note above). Source untouched on disk. |
 | `ggen-engine` | SPARQL-in-Tera code generation engine (vendored, renamed from `~/praxis/crates/ggen`; `docs/jira/v26.7.16/`). Now the live pipeline behind `ggen sync`: five stages (Resolve → Enrich → Extract → Render → Write) in `src/sync.rs`, GENERATED clap-noun-verb CLI routing in `src/verbs/` (hand-written logic in `verbs::handlers` only), plus `config`/`graph`/`template`/`write`/`watch`/`pack`/`lint`/`law_engine`/`repl` modules. `publish = false`. |
 | `ggen-cli` | CLI interface for ggen (binary + library `ggen-cli-lib`); routes `sync`/`doctor`/`graph`/`receipt` to `ggen-engine`'s nouns |
 | `ggen-config` | Configuration parser and validator for `ggen.toml` files (depends on the published `star-toml` crate, not an embedded copy) |

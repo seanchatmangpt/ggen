@@ -51,9 +51,20 @@ pub mod init;
 // other. File retained on disk at cmds/sync.rs, not deleted, per this
 // project's fix-forward doctrine.
 // pub mod sync;
-// ARCHIVED (v26.5.28): ambiguous noun, gated behind default-off `experimental`.
-#[cfg(feature = "experimental")]
-pub mod wizard;
+// ARCHIVED (v26.5.28, ambiguous noun; RE-ARCHIVED 2026-07-17, ggen-core disconnect):
+// wizard.rs still imports `ggen_core::codegen::executor::{SyncExecutor, SyncOptions}`
+// and `ggen_core::codegen::FileTransaction`. ggen-cli's `[dependencies.ggen-core]` was
+// removed entirely on 2026-07-16 (see Cargo.toml), so `cargo check -p ggen-cli-lib
+// --features experimental` now hard-fails with 2x E0433 "cannot find crate
+// `ggen_core`" -- confirmed live, not hypothetical. No CI job or justfile recipe
+// builds with --features experimental (grepped .github/workflows/*.yml and
+// justfile), so this was a silent gap until this comment. Gated off rather than
+// left broken, matching the sync/doctor/graph/receipt/inverse_sync precedent above.
+// File retained on disk at cmds/wizard.rs, not deleted, per fix-forward doctrine.
+// Real fix (not done here): port SyncExecutor/SyncOptions/FileTransaction usage to
+// ggen-engine equivalents, or delete the module if wizard is fully superseded.
+// #[cfg(feature = "experimental")]
+// pub mod wizard;
 
 // Command modules - clap-noun-verb auto-discovery
 // ARCHIVED (v26.5.28): a2a/framework/mcp/sigma not provable as finished; gated
@@ -87,8 +98,14 @@ pub mod policy;
 // (verbs `verify`/`history`). File retained on disk at cmds/receipt.rs, not
 // deleted, per this project's fix-forward doctrine.
 // pub mod receipt; // ggen receipt verify / info — cryptographic receipt CLI surface (BUG-005)
-#[cfg(feature = "experimental")]
-pub mod sigma;
+// RE-ARCHIVED 2026-07-17 (ggen-core disconnect): sigma.rs still imports
+// `ggen_core::dflss::{execute_dflss, DflssReport}` and
+// `ggen_core::manifest::ManifestParser`. Same root cause and same disposition as
+// `wizard` above (see that comment) -- `cargo check -p ggen-cli-lib --features
+// experimental` now hard-fails with 2x E0433 for this module too, confirmed live.
+// File retained on disk at cmds/sigma.rs, not deleted, per fix-forward doctrine.
+// #[cfg(feature = "experimental")]
+// pub mod sigma;
 pub mod utils;
 
 use crate::prelude::*;

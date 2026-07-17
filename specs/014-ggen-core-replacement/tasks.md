@@ -1617,6 +1617,42 @@ per this repo's guidance).
     by this session's git status). 1516 lib tests passing workspace-wide, 0 failed.
   Committed in `426066dac`; independently structured verification transcript in task tracker #46.
 
+**Follow-up finding (2026-07-17, post-T058 re-verification, not caught by T058's own gate):**
+`just check`/`just lint`/`just test` are all `--workspace`-scoped and never name `ggen-core`
+directly, so they never exercised the specific breakage this finding covers. Empirically
+confirmed: **any** cargo invocation that names `ggen-core` explicitly — `-p ggen-core`,
+`--exclude ggen-core`, or `--manifest-path crates/ggen-core/Cargo.toml` (also reproduced by
+`cd`-ing into `crates/ggen-core/` directly) — now hard-fails, because `ggen-core/Cargo.toml`
+inherits ~25 fields via `workspace = true` and, per T056, there is no longer a workspace willing
+to have it as a member (`exclude`, not `members`). This is stronger than "not deleted, still
+compiles standalone" (a claim made in `CLAUDE.md`/`.claude/rules/architecture.md` earlier
+tonight, now corrected in both files) — it does not compile standalone at all under current
+config, by design of the `exclude` mechanism itself, and fixing that would require literalizing
+`ggen-core/Cargo.toml`'s inherited fields, which conflicts with the byte-identical-on-disk
+guarantee this disconnect is built on. Real, previously-silent breakage found and fixed:
+- `justfile`'s `test-doc` (`--exclude ggen-core`) and `test-phase2`
+  (`-p ggen-core --test {ast_extractor_70pct_test,provenance_envelope_test}`) recipes, and the
+  identical patterns in `.github/workflows/ci.yml`'s `doctest`/`phase2` jobs (the latter also had
+  a stale `--schema-file`→`--files` flag, same bug already fixed elsewhere in T058's evidence).
+  Fix: dropped the `ggen-core` `--exclude`s (Cargo.toml's own `exclude` already keeps it out of
+  `--workspace` runs); the two now-unreachable `test-phase2`/`phase2`-job test targets are loudly
+  skipped with a printed reason (not silently dropped), not deleted or worked around. Re-verified
+  live: `just test-phase2` now completes end-to-end (`receipt_chain_e2e` 16/16, both `ggen-graph`
+  coherence suites green, both skips print); `just test-doc` completes past manifest resolution
+  into real doc-test compilation/execution.
+- `crates/ggen-cli/src/cmds/{wizard.rs,sigma.rs}` (gated behind default-off `experimental`
+  feature): both still `use ggen_core::...` internally with no live dependency edge since T056
+  removed `ggen-cli`'s `[dependencies.ggen-core]` — `cargo check -p ggen-cli-lib --features
+  experimental` hard-failed with 4x E0433 (crate not found). No CI job or justfile recipe builds
+  with `--features experimental` (grepped), so this was silent. Fix: re-archived both (`pub mod`
+  commented out, files retained on disk, matching the sync/doctor/graph/receipt/inverse_sync
+  precedent). Re-verified live: `--features experimental` now builds clean.
+- Deliberately NOT fixed, lower severity, documented not silent: `marketplace-test.yml`'s two
+  `-p ggen-core --lib registry::tests::{test_registry_client_new,test_registry_index_structure}`
+  lines reference test names that do not exist anywhere in the codebase (pre-existing rot,
+  predates this session); that workflow only runs on `push: branches: [main]` or manual dispatch,
+  so it does not gate this branch's own CI.
+
 **Checkpoint**: User Story 1's independent test passes — full suite green, `ggen-core`
 fully retired, command-surface diff against the T003 baseline shows zero regressions.
 
