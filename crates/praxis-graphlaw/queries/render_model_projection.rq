@@ -1,0 +1,132 @@
+PREFIX powl2: <https://truex.io/ontology/powl2#>
+
+# Rail A Projection (PRD.md sec.7.4), vocabulary-corrected -- PROJ-751.
+#
+# Deterministically projects an admitted POWL 2.0 graph region (W) -- emitted
+# by crates/praxis-graphlaw/src/chatman/powl_projection.rs::powl_to_turtle,
+# conforming to the powl2: vocabulary described in that module's doc comment
+# (wasm4pm-compat/ontologies/powlv2.ttl) -- into a flat relational model
+# (Q(W)) for the Tera renderer (T, PROJ-752) to manufacture an Arazzo
+# document (A_z), per PRD.md sec.7.4: A_z = T(Q(W)).
+#
+# Prior iteration (superseded): used powl:/wf:/ext: prefixes and predicates
+# (powl:source, powl:target, powl:closureLaw, powl:socketContract,
+# powl:budgetDepth, wf:retryPolicy, wf:timeout) that the real emitter never
+# produces -- zero overlap, the query matched nothing when run. Every
+# predicate below is read directly from
+# crates/praxis-graphlaw/src/chatman/powl_projection.rs::emit_powl_node.
+#
+# PROJ-751 remediation (Choice-routing gap): an adversarial review found this
+# query's first vocabulary-correction pass covered powl2:Leaf/PartialOrder/
+# ExternalCut but omitted every predicate the Powl::Choice arm of
+# emit_powl_node emits (powl2:startNode, powl2:endNode, powl2:hasNode,
+# powl2:ofChildIndex, powl2:edgeSource, powl2:edgeTarget, powl2:hasEdge) and
+# the root-level powl2:derivedFrom -- silently dropping a Choice (XOR/loop
+# routing) node's entire routing topology from the projection with no error.
+# The ?derivedFrom/?startNode/?endNode/?routingNode/?routingNodeChildIndex/
+# ?edgeId/?edgeSource/?edgeTarget blocks below close that gap.
+#
+# Core Team Discipline:
+# - Deterministic extraction (ORDER BY every bound variable)
+# - Zero ambient state: operates purely on the admitted graph region loaded
+#   into the query's default graph by the caller (no named-graph fallback,
+#   no wildcard dataset scan)
+
+SELECT
+    ?elementId
+    ?elementType
+    ?activityLabel
+    ?childIndex
+    ?childModel
+    ?precedesTarget
+    ?regionId
+    ?sparqlProjection
+    ?teraRenderer
+    ?derivedFrom
+    ?startNode
+    ?endNode
+    ?routingNode
+    ?routingNodeChildIndex
+    ?edgeId
+    ?edgeSource
+    ?edgeTarget
+    ?processInvariant
+    ?exogenousEvent
+    ?resourceAnnotation
+    ?guardCondition
+WHERE {
+    ?elementId a ?elementType .
+
+    # powl2:Leaf, powl2:ActivityLeaf carries the activity name.
+    OPTIONAL { ?elementId powl2:activityLabel ?activityLabel }
+
+    # powl2:PartialOrder / powl2:ChoiceGraph -> powl2:ChildBinding fan-out.
+    OPTIONAL {
+        ?elementId powl2:hasChild ?binding .
+        ?binding powl2:childIndex ?childIndex ;
+                 powl2:childModel ?childModel .
+    }
+
+    # Transitively-closed strict partial order between ChildBindings.
+    OPTIONAL { ?elementId powl2:precedes ?precedesTarget }
+
+    # powl2:ExternalCut -- the A_z = T(Q(W)) projection triple: the admitted
+    # region W, the declared SPARQL projection Q, and the declared Tera
+    # renderer T all hang off the same ExternalCut subject.
+    OPTIONAL {
+        ?elementId powl2:hasRegion ?regionId ;
+                   powl2:sparqlProjection ?sparqlProjection ;
+                   powl2:teraRenderer ?teraRenderer .
+    }
+
+    # powl2:Model root -- provenance back to the PDDL plan source this model
+    # was projected from. Only bound when powl_to_turtle's derived_from
+    # argument was Some(_).
+    OPTIONAL { ?elementId powl2:derivedFrom ?derivedFrom }
+
+    # powl2:ChoiceGraph -- the functional start/end sentinel nodes (Def 3.6
+    # ▷/□).
+    OPTIONAL { ?elementId powl2:startNode ?startNode }
+    OPTIONAL { ?elementId powl2:endNode ?endNode }
+
+    # powl2:ChoiceGraph -- routing-graph node membership: every ▷/□ sentinel
+    # plus each powl2:ChildNode reachable via powl2:hasNode.
+    # ?routingNodeChildIndex is bound only for powl2:ChildNode members (the
+    # ▷/□ sentinels carry no powl2:ofChildIndex) -- distinct from
+    # ?childIndex above, which is the *ChildBinding's* index, not the
+    # routing-graph node's.
+    OPTIONAL {
+        ?elementId powl2:hasNode ?routingNode .
+        OPTIONAL { ?routingNode powl2:ofChildIndex ?routingNodeChildIndex }
+    }
+
+    # powl2:ChoiceGraph -- reified routing edges (powl2:GraphEdge), each
+    # linking two routing-graph nodes (▷/□ sentinels or powl2:ChildNode).
+    OPTIONAL {
+        ?elementId powl2:hasEdge ?edgeId .
+        ?edgeId powl2:edgeSource ?edgeSource ;
+                powl2:edgeTarget ?edgeTarget .
+    }
+
+    OPTIONAL { ?elementId powl2:hasInvariant ?processInvariant }
+    OPTIONAL { ?elementId powl2:hasExogenousEvent ?exogenousEvent }
+    OPTIONAL { ?elementId powl2:hasResourceAnnotation ?resourceAnnotation }
+    OPTIONAL { ?elementId powl2:hasGuard ?guardCondition }
+}
+ORDER BY
+    ASC(?elementId)
+    ASC(?elementType)
+    ASC(?childIndex)
+    ASC(?precedesTarget)
+    ASC(?derivedFrom)
+    ASC(?startNode)
+    ASC(?endNode)
+    ASC(?routingNode)
+    ASC(?routingNodeChildIndex)
+    ASC(?edgeId)
+    ASC(?edgeSource)
+    ASC(?edgeTarget)
+    ASC(?processInvariant)
+    ASC(?exogenousEvent)
+    ASC(?resourceAnnotation)
+    ASC(?guardCondition)

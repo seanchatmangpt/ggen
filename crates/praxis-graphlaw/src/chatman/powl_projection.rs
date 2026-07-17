@@ -795,19 +795,30 @@ fn gnode_iri(base_iri: &str, path: &str, node: GNode) -> String {
 /// iteration used `powl:`/`wf:`/`ext:` predicates this module never emits.
 ///
 /// `pub` (PROJ-752): callers that build an [`crate::chatman::abi`]-external
-/// `ArazzoProjectionReceipt` (`crates/praxis-core/src/arazzo.rs`) need the
-/// exact executed query text to hash as the receipt's
-/// `sparql_projection_digest_hex` -- reading this constant keeps that digest
-/// bound to the query that actually ran, rather than a second copy someone
-/// could let drift.
-// Path rewritten for the ggen-workspace vendored copy of this crate
-// (docs/jira/v26.7.16/01-PUBLISH-SAFETY-AND-CRATE-RENAME.md): wasm4pm-arazzo
-// itself is not vendored (no name collision, no planned modifications --
-// see 02-CROSS-REPO-DEPENDENCY-RISKS.md), so this stays pointed at the one
-// real checked-in copy in ~/praxis rather than creating the "second,
-// driftable copy" the doc comment above explicitly warns against.
+/// Arazzo projection receipt need the exact executed query text to hash as
+/// the receipt's `sparql_projection_digest_hex` -- reading this constant
+/// keeps that digest bound to the query that actually ran, rather than a
+/// second copy someone could let drift. (`praxis-core`'s own
+/// `ArazzoProjectionReceipt`/`arazzo` module, the original caller this note
+/// referenced, was removed 2026-07-17 alongside PR #255's absolute-path
+/// cleanup -- dead weight, zero downstream consumers -- but this constant
+/// stays, since `wasm4pm-arazzo`'s real Rail A/B pipeline is a separate,
+/// still-live consumer.)
+//
+// Correction (2026-07-17, PR #255): this used to `include_str!` an absolute
+// `/Users/sac/praxis/...` path, on the stated reasoning that wasm4pm-arazzo
+// isn't vendored so this should point at the one real checked-in copy
+// rather than create a second, driftable one. That's a real tradeoff, but
+// it also meant `cargo build`/`check` failed on every machine but this one
+// (confirmed: PR #255's first-ever CI run on this branch failed here with
+// "couldn't read /Users/sac/praxis/...: No such file or directory").
+// Portability wins: vendored a copy to queries/render_model_projection.rq
+// (plain file copy, diff-confirmed byte-identical to the ~/praxis source at
+// vendor time). If wasm4pm-arazzo's query ever changes upstream, this copy
+// needs a deliberate re-sync -- the same tracked-drift tradeoff already
+// accepted for every other crate this PR vendored (see architecture.md).
 pub const RENDER_MODEL_PROJECTION_QUERY: &str =
-    include_str!("/Users/sac/praxis/crates/wasm4pm-arazzo/queries/render_model_projection.rq");
+    include_str!("../../queries/render_model_projection.rq");
 
 /// One flattened row of the Q(W) relational projection: the bound values of
 /// one `?elementId` solution of [`RENDER_MODEL_PROJECTION_QUERY`]. Every
