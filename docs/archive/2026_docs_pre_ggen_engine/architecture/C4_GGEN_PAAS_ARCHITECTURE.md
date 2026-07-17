@@ -248,7 +248,15 @@ Shows the internal structure of the most critical containers, revealing the fine
 
 ### Component Boundaries
 
-#### ggen-core Container
+#### ggen-core Container *(retired name — see note)*
+
+> **Note (2026-07-17):** the `ggen-core` crate this section names is now excluded from the
+> workspace and disconnected (see `docs/reference/workspace/crates.md`). Its RDF/graph
+> responsibilities are covered today by `ggen-graph` and `praxis-graphlaw`; its
+> orchestration/sync responsibilities by `ggen-engine`. The component breakdown below has not
+> been individually re-verified against those current crates — treat it as historical
+> reference for the shape of the problem, not a current component map.
+
 **Core RDF and graph processing**
 
 - **Graph** (Rust)

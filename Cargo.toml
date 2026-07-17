@@ -805,15 +805,19 @@ harness = false
 required-features = ["ggen-core-retired"]
 [[example]]
 name = "drift-detection-example"
+path = "examples/archive_ggen_core/stray-rs-files/drift-detection-example.rs"
 required-features = ["ggen-core-retired"]
 [[example]]
 name = "rdf_template_integration"
+path = "examples/archive_ggen_core/stray-rs-files/rdf_template_integration.rs"
 required-features = ["ggen-core-retired"]
 [[example]]
 name = "path_validation_example"
+path = "examples/archive_ggen_core/stray-rs-files/path_validation_example.rs"
 required-features = ["ggen-core-retired"]
 [[example]]
 name = "rdf_metadata_example"
+path = "examples/archive_ggen_core/stray-rs-files/rdf_metadata_example.rs"
 required-features = ["ggen-core-retired"]
 [[test]]
 name = "testcontainer_marketplace_git_hooks"

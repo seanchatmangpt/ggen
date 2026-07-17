@@ -21,6 +21,16 @@
 
 **Purpose:** Single document (~2K tokens) that gives an AI agent the same mental map a senior engineer builds over weeks. All paths verified by LSP survey 2026-04-01.
 
+> ⚠️ **STALE (unverified against current reality, 2026-07-17)**: this document predates the
+> `2026-ggen-core-replacement` migration (PR #255) and describes a crate topology
+> (`ggen-core`/`ggen-utils`/`ggen-canonical`/`ggen-receipt`/`ggen-ai` as the core pipeline path)
+> that no longer matches the workspace. `ggen-core` is now excluded from the workspace and
+> disconnected; the live pipeline is `ggen-engine` (backed by `praxis-core`/`praxis-graphlaw`).
+> A full re-survey of this document (equivalent to the original LSP survey effort) has not been
+> done — the content below is kept for historical/archaeological value, not as a current source.
+> For the current, actively-maintained architecture reference, use `CLAUDE.md` and
+> `.claude/rules/architecture.md` (crate map, cross-cutting patterns) instead of this file.
+
 ---
 
 ## C4 Container Diagram — Actual Dependencies

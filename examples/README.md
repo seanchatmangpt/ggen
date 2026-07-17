@@ -1,12 +1,18 @@
 # ggen Examples
 
-All 30 examples run with `ggen sync` — verified 2026-03-28.
+> ⚠️ The "verified 2026-03-28" claim below predates the `2026-ggen-core-replacement` migration
+> (PR #255, merged 2026-07-17) and has not been re-verified against the current `ggen-engine`
+> pipeline. Several examples were archived post-migration for depending on removed crates or the
+> now-excluded `ggen-core` — see `examples/archive_ggen_core/`. Treat the count/date below as
+> historical, not current.
+
+All 30 examples run with `ggen sync` — verified 2026-03-28 (pre-migration; not re-verified).
 
 ## Quick Start
 
 ```bash
 cd examples/<name>
-ggen sync        # generates files into output/ or generated/
+ggen sync run        # generates files into output/ or generated/ (bare `ggen sync` requires the `run` subcommand)
 ```
 
 ## Learning Path
@@ -107,4 +113,6 @@ rdfs = "http://www.w3.org/2000/01/rdf-schema#"
 - All examples write to `generated/` or `output/`
 - `thesis-gen` and `openapi` have committed generated output as reference
 - `cli-noun-verb` has a `golden/` directory with expected outputs for comparison
-- Run `ggen sync --audit` for a full audit trail in `.ggen/audit/`
+- `ggen sync run --dry-run` previews changes without writing files (there is no `--audit` flag on
+  the current CLI — the sync receipt chain at `.ggen-v2/receipt.json`/`receipt-log.jsonl` is the
+  current audit-trail mechanism; see `docs/reference/ggen_sync_manual.md`)
