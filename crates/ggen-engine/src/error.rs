@@ -36,6 +36,86 @@ impl AppError {
 pub type Result<T> = std::result::Result<T, AppError>;
 
 // ---------------------------------------------------------------------------
+// TemplateFailureCause — typed FM-GEN-008 sub-classification
+// ---------------------------------------------------------------------------
+
+/// Typed causal sub-classification for an `[FM-GEN-008]` failure
+/// (`crate::generation_rules`'s per-rule Tera render/output-path step).
+/// The public `[FM-GEN-008]` string identifier never changes; this enum is
+/// the *typed* cause layered alongside it (see [`AppError::fm_gen_render_failure`]).
+///
+/// `tera::Error`'s own `ErrorKind` is coarse — most failures collapse into
+/// a single `Msg(String)` variant (e.g. tera 1.20.1's
+/// `renderer/processor.rs::process_path` raises "Variable ... not found in
+/// context" as a bare `Error::msg(..)`, not a dedicated `ErrorKind`
+/// variant) — so `crate::template::classify_tera_render_error` combines
+/// `ErrorKind` matching (where Tera *does* give a structured variant) with
+/// message substring matching (the only signal Tera exposes for the rest).
+/// That is a genuine constraint of Tera's error model, not a shortcut this
+/// crate chose — documented here rather than hidden.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TemplateFailureCause {
+    /// The template name itself was never registered (a stale/renamed
+    /// per-rule template name, or `Tera::render`'s own top-level lookup
+    /// failing for the exact name the caller asked to render).
+    TemplateNotFound,
+    /// Tera rejected the template body's or output-file pattern's syntax.
+    TemplateParseFailed,
+    /// `{{ x }}` / `{% if x %}` / etc. referenced a context key that was
+    /// never inserted (the Cluster D `sparql_results` failure mode this
+    /// migration's context-key fix addresses).
+    TemplateVariableMissing,
+    /// A filter/function/test name Tera has no registration for at all
+    /// (distinct from [`Self::TemplateContextInvalid`], where the name
+    /// exists but the call itself failed).
+    TemplateFilterUnknown,
+    /// Hygen-style frontmatter (`crate::template::Frontmatter`) failed to
+    /// parse or validate.
+    TemplateFrontmatterInvalid,
+    /// The render context was malformed for what the template needed (a
+    /// math operation against a non-number, a JSON serialization failure,
+    /// or a registered filter/function/test that exists but was called
+    /// with the wrong argument shape).
+    TemplateContextInvalid,
+    /// The rule's `output_file`/`to` pattern failed to render — wrong
+    /// variable, bad filter, or a syntax error in the pattern itself.
+    TemplateOutputPathInvalid,
+    /// `{% include %}` / `{% extends %}` named a template file that isn't
+    /// registered, or a circular/missing inheritance chain.
+    TemplateIncludeNotFound,
+    /// The template source isn't Tera content at all — e.g. a YAML
+    /// file-tree/meta-spec (`structure:` + `foreach:`) that
+    /// `crate::generation_rules` has no interpreter for (Cluster B,
+    /// `examples/clap-noun-verb-demo`).
+    TemplateSchemaIncompatible,
+    /// Every other Tera failure this classifier has no more specific
+    /// bucket for (I/O, UTF-8 conversion, circular extend at the raw
+    /// `ErrorKind` level).
+    TemplateRenderInternal,
+}
+
+impl TemplateFailureCause {
+    /// The stable, machine-parseable identifier — exactly the ten names
+    /// this migration's Definition of Done specced for FM-GEN-008's typed
+    /// sub-classification.
+    #[must_use]
+    pub fn as_code(self) -> &'static str {
+        match self {
+            Self::TemplateNotFound => "TEMPLATE_NOT_FOUND",
+            Self::TemplateParseFailed => "TEMPLATE_PARSE_FAILED",
+            Self::TemplateVariableMissing => "TEMPLATE_VARIABLE_MISSING",
+            Self::TemplateFilterUnknown => "TEMPLATE_FILTER_UNKNOWN",
+            Self::TemplateFrontmatterInvalid => "TEMPLATE_FRONTMATTER_INVALID",
+            Self::TemplateContextInvalid => "TEMPLATE_CONTEXT_INVALID",
+            Self::TemplateOutputPathInvalid => "TEMPLATE_OUTPUT_PATH_INVALID",
+            Self::TemplateIncludeNotFound => "TEMPLATE_INCLUDE_NOT_FOUND",
+            Self::TemplateSchemaIncompatible => "TEMPLATE_SCHEMA_INCOMPATIBLE",
+            Self::TemplateRenderInternal => "TEMPLATE_RENDER_INTERNAL",
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Poka-yoke CLI validator trait (clnrm poka_yoke pattern)
 // ---------------------------------------------------------------------------
 
@@ -143,6 +223,35 @@ impl AppError {
     /// `QuerySource`/`TemplateSource` variant, or a write-mode/merge failure.
     pub fn fm_gen(code: u16, msg: impl Into<String>) -> Self {
         Self::Validation(format!("[FM-GEN-{code:03}] {}", msg.into()))
+    }
+
+    /// FM-GEN-008, typed: a Tera render/output-path failure inside
+    /// `crate::generation_rules`, sub-classified by [`TemplateFailureCause`].
+    /// The public `[FM-GEN-008]` identifier is retained unchanged (nothing
+    /// downstream that greps for it breaks); a machine-parseable
+    /// `[{CAUSE_CODE}]` tag plus the example project root, the resolved
+    /// template source, and the rule name are embedded alongside it, per
+    /// this repo's evidence-first discipline (a generic "template render
+    /// failed" message with no cause, path, or rule name was exactly the
+    /// defect this constructor exists to close — see
+    /// `docs/releases/v26.7.17/EXAMPLE_FAILURE_MATRIX.md`'s Cluster D/A
+    /// writeup).
+    pub fn fm_gen_render_failure(
+        cause: TemplateFailureCause,
+        example: &str,
+        template: &str,
+        rule: &str,
+        detail: impl Into<String>,
+        location: Option<&str>,
+    ) -> Self {
+        let loc = location
+            .map(|l| format!(" (at {l})"))
+            .unwrap_or_default();
+        Self::Validation(format!(
+            "[FM-GEN-008][{}] example=`{example}` template=`{template}` rule=`{rule}`: {}{loc}",
+            cause.as_code(),
+            detail.into(),
+        ))
     }
 
     /// FM-KEY-* failure: ed25519 signing/verifying-key resolution violation

@@ -421,8 +421,13 @@ echo "   using schema.org in 5 minutes. Stay disciplined. Use standards first."
 ///
 /// --path PATH                Project directory (default: current directory)
 /// --force <true|false>       Overwrite existing files (value required, e.g. `--force true` --
-///                             a bare `--force` errors "a value is required")
-/// --skip-hooks <true|false>  Skip git hooks installation (same: value required)
+///                             a bare `--force` errors "a value is required"). Any value other
+///                             than exactly `true` or `false` (a typo like `ture`, `1`/`0`,
+///                             `yes`/`no`, ...) is REFUSED with a typed error naming the invalid
+///                             value and the accepted values -- it is never silently coerced to
+///                             `false`.
+/// --skip-hooks <true|false>  Skip git hooks installation (same: value required, same strict
+///                             true/false parsing and refusal on malformed values)
 ///
 /// ## Output
 ///
@@ -439,13 +444,27 @@ echo "   using schema.org in 5 minutes. Stay disciplined. Use standards first."
 #[allow(clippy::unused_unit)]
 #[verb("init", "root")]
 pub fn init(
-    path: Option<String>, force: Option<bool>, skip_hooks: Option<bool>, name: Option<String>,
+    path: Option<String>, force: Option<String>, skip_hooks: Option<String>, name: Option<String>,
     version: Option<String>, description: Option<String>,
 ) -> VerbResult<InitOutput> {
-    // Thin CLI layer: parse arguments and delegate to helper
+    // Thin CLI layer: parse arguments and delegate to helper.
     let project_dir = path.unwrap_or_else(|| ".".to_string());
-    let force = force.unwrap_or(false);
-    let skip_hooks = skip_hooks.unwrap_or(false);
+
+    // `force`/`skip_hooks` are bound as raw strings, not `bool` -- deliberately.
+    //
+    // The clap-noun-verb `#[verb]` macro's generated extraction for an
+    // `Option<bool>` parameter is (see the macro's arg-extraction codegen):
+    //   __handler_input.args.get(name).and_then(|v| v.parse::<bool>().ok())
+    // `.ok()` turns a parse failure into `None`, and this fn's old
+    // `force.unwrap_or(false)` then turned that `None` into a quiet, wrong
+    // `false`. Blocker D: `ggen init --force garbage` behaved exactly like
+    // `ggen init --force false` -- no error, no signal, silent coercion.
+    // `Option<String>` makes the macro's extraction `.parse::<String>().ok()`,
+    // which never fails, so the raw value always survives to reach our own
+    // strict `parse_bool_flag` below -- fixed inside this crate, without
+    // patching the external `clap-noun-verb-macros` dependency.
+    let force = parse_bool_flag("force", force.as_deref())?;
+    let skip_hooks = parse_bool_flag("skip-hooks", skip_hooks.as_deref())?;
 
     // Prepare template variables
     let project_name = name.unwrap_or_else(|| "my-ggen-project".to_string());
@@ -453,16 +472,63 @@ pub fn init(
     let project_desc = description
         .unwrap_or_else(|| "A ggen project initialized with default templates".to_string());
 
-    // Delegate to initialization logic
-    perform_init(
+    // Delegate to initialization logic. `perform_init` keeps returning
+    // `Ok(InitOutput { status: "error", .. })` for its internal refusal
+    // branches (already-initialized, preflight failure, no write permission,
+    // ...) -- that shape is the documented JSON payload contract and is what
+    // `perform_init`'s own unit tests below assert on directly.
+    //
+    // This wrapper is the CLI process boundary, and Blocker E lived here: a
+    // `status: "error"` payload was returned as `Ok(..)`, so clap-noun-verb
+    // printed it and the process still exited 0 -- decorative completion at
+    // the process level even though the payload was honest. Promote any
+    // `status: "error"` payload to a real `Err`, after printing the same JSON
+    // body ourselves (clap-noun-verb only auto-prints the `Ok` path), so the
+    // process exit code always agrees with the payload's own status field.
+    let output = perform_init(
         &project_dir,
         force,
         skip_hooks,
         &project_name,
         &project_version,
         &project_desc,
-    )
-    .map_err(|e| e.into())
+    )?;
+
+    if output.status == "error" {
+        if let Ok(json) = serde_json::to_string_pretty(&output) {
+            println!("{json}");
+        }
+        let message = output
+            .error
+            .clone()
+            .unwrap_or_else(|| "ggen init failed".to_string());
+        return Err(GgenError::CommandError(message).into());
+    }
+
+    Ok(output)
+}
+
+/// Strictly parse a CLI boolean flag's raw string value.
+///
+/// Only the exact literals `"true"` and `"false"` are accepted (matching
+/// `str::parse::<bool>()`, and the documented `--force <true|false>` /
+/// `--skip-hooks <true|false>` contract). `None` (flag not passed at all)
+/// means "not set" and defaults to `false`, matching this command's prior
+/// `unwrap_or(false)` default for both flags.
+///
+/// Anything else -- a typo (`ture`), different casing, `1`/`0`, `yes`/`no`,
+/// an empty string -- is REFUSED with a typed [`GgenError::InvalidInput`]
+/// naming both the invalid value and the accepted values. It is never
+/// silently coerced to a default (Blocker D).
+fn parse_bool_flag(flag_name: &str, raw: Option<&str>) -> std::result::Result<bool, GgenError> {
+    match raw {
+        None => Ok(false),
+        Some(s) => s.parse::<bool>().map_err(|_| {
+            GgenError::InvalidInput(format!(
+                "invalid value '{s}' for --{flag_name}: expected 'true' or 'false'"
+            ))
+        }),
+    }
 }
 
 /// Helper function that performs the actual initialization.

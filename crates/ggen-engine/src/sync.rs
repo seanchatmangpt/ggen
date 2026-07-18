@@ -111,7 +111,14 @@ pub struct SyncReceipt {
 }
 
 /// The payload a sync receipt is chained over.
+///
+/// `deny_unknown_fields`: the payload's wire shape is a closed contract —
+/// `#[serde(default)]` fields below are the only sanctioned way to add a
+/// backward-compatible field. An attacker (or a corrupted receipt) that
+/// injects an extra, unauthenticated field into stored payload JSON must
+/// fail to deserialize, never be silently accepted and ignored.
 #[derive(Debug, Clone, Serialize, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ReceiptPayload {
     /// BLAKE3 hex of the post-Enrich canonical graph state.
     pub graph_hash: String,
@@ -143,29 +150,25 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     // A project's `ggen.toml` is either a frontmatter project (this
     // function's own `GgenConfig` schema below, `deny_unknown_fields`) or a
     // declarative-rules project (`ggen_config::manifest::GgenManifest`,
-    // `[[generation.rules]]`) — never both. The raw text is read once here
-    // to decide which; on any read failure (missing file, permissions) this
-    // falls through to `GgenConfig::load` below, which re-reads the same
-    // path and produces the canonical `[FM-CONFIG-001]`/`[FM-CONFIG-002]`
-    // error — so a missing/unreadable `ggen.toml` behaves identically to
-    // before this dispatch existed. See `crate::generation_rules`'s module
-    // doc comment for the full design.
-    let ggen_toml_path = root.join("ggen.toml");
-    if let Ok(raw) = std::fs::read_to_string(&ggen_toml_path) {
-        if crate::generation_rules::has_generation_rules(&raw)? {
-            let manifest = ggen_config::manifest::ManifestParser::parse_str(&raw).map_err(|e| {
-                AppError::fm_config(
-                    3,
-                    format!(
-                        "declarative ggen.toml at `{}` failed to parse: {e}. \
-                         Remediation: fix the reported field(s) under [generation]/[[generation.rules]].",
-                        ggen_toml_path.display()
-                    ),
-                )
-            })?;
+    // `[[generation.rules]]`) — never both. `crate::schema_dispatch::load`
+    // is the ONE shared dispatch point (backed by
+    // `ggen_config::classify_ggen_toml`, the shared structural classifier)
+    // every ggen.toml-reading call site in this crate goes through —
+    // `verbs::handlers::handle_doctor`/`handle_graph_validate`/
+    // `build_law_engine` call the exact same function, not a copy of this
+    // stage's logic. See that module's own doc comment for the full design
+    // and error-behavior contract (missing file falls through to
+    // `GgenConfig::load`'s canonical `[FM-CONFIG-001]`; a structurally
+    // ambiguous/unsupported/malformed document fails closed with a typed
+    // `CONFIG_SCHEMA_*` code instead of a generic TOML deserialization
+    // error).
+    let parsed = crate::schema_dispatch::load(root)?;
+    let config = match parsed {
+        crate::schema_dispatch::ParsedGgenToml::DeclarativeRules(manifest) => {
             return crate::generation_rules::run(root, &manifest, opts);
         }
-    }
+        crate::schema_dispatch::ParsedGgenToml::Frontmatter(config) => *config,
+    };
 
     // ── Stage 1: Resolve ────────────────────────────────────────────────
     let load_start = Instant::now();
@@ -178,7 +181,6 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     );
     let load_guard = load_span.enter();
 
-    let config = GgenConfig::load(&ggen_toml_path)?;
     let ontology_path = root.join(&config.ontology.source);
     let ttl = std::fs::read_to_string(&ontology_path).map_err(|e| {
         AppError::fm_config(
@@ -242,6 +244,18 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     closure.insert(
         "actuator".to_string(),
         concat!("ggen@", env!("CARGO_PKG_VERSION")).to_string(),
+    );
+    // Project identity: binds `[project].name` into the receipt so a receipt
+    // cannot be silently relabeled as belonging to a different project.
+    closure.insert("project".to_string(), config.project.name.clone());
+    // The manifest itself (`ggen.toml`) determines the whole pipeline
+    // (ontology source, templates dir, law rules/shapes, packs) and must be
+    // part of the closure like every other governing input -- previously
+    // omitted, which meant editing ggen.toml left no trace in the receipt.
+    let manifest_path = root.join("ggen.toml");
+    closure.insert(
+        rel_display(root, &manifest_path),
+        hash_file_or_missing(&manifest_path),
     );
     closure.insert(
         rel_display(root, &ontology_path),

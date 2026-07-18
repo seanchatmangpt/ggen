@@ -58,6 +58,21 @@ pub fn enable(
     require_surface(&surface)?;
     let packs = atomic_packs_for(&surface, projection.as_deref(), runtime.as_deref());
 
+    // Reject before touching the lockfile: every atomic pack id -- including
+    // the `projection-<projection>` pack `atomic_packs_for` synthesizes from a
+    // user-supplied `--projection` value -- must be a well-formed PackageId.
+    // `resolve_capability_to_packs` itself only ever returns clean literal
+    // ids, but an unsanitized `--projection` value (e.g. containing a `.`)
+    // would otherwise reach the same `.ggen/packs.lock` that `ggen policy
+    // check`/`validate` read with a strict validator, and crash them (see
+    // `crates/ggen-cli/src/cmds/packs.rs::validate_pack_id` for the same gap
+    // on the `packs install` path).
+    for pid in &packs {
+        ggen_marketplace::marketplace::models::PackageId::new(pid).map_err(|e| {
+            NounVerbError::argument_error(format!("invalid atomic pack id '{}': {}", pid, e))
+        })?;
+    }
+
     // Record each atomic pack as a declared lockfile entry.
     let root = project_root()?;
     let lock_path = root.join(".ggen").join("packs.lock");
@@ -114,8 +129,31 @@ pub fn list() -> Result<Value> {
 }
 
 /// Inspect a capability surface: show the atomic packs it expands to.
+///
+/// Disabled (2026-07-18): `require_surface` only checks for an empty string,
+/// not surface validity, and `atomic_packs_for` swallows
+/// `resolve_capability_to_packs`'s "unknown surface" error via
+/// `unwrap_or_default()` — so an unknown/typo'd surface silently returns
+/// `atomic_packs: []` with exit 0 instead of a typed refusal. Tracked as
+/// GAP-001 in `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`.
+/// Re-enable by routing this verb back to `inspect_impl` once
+/// `resolve_capability_to_packs`'s error is surfaced instead of discarded.
 #[verb]
 pub fn inspect(#[arg(index = 1)] surface: String) -> Result<Value> {
+    let _ = surface;
+    Err(NounVerbError::execution_error(
+        "ggen capability inspect is temporarily disabled: an unknown/typo'd surface name \
+         silently returns atomic_packs: [] with exit 0 instead of a typed error (GAP-001, see \
+         docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md)"
+            .to_string(),
+    ))
+}
+
+/// Real implementation of `inspect`, preserved for re-enabling once GAP-001 is
+/// fixed (fix-forward/non-deletion doctrine — not called while `inspect` above
+/// returns its typed refusal).
+#[allow(dead_code)]
+fn inspect_impl(surface: String) -> Result<Value> {
     require_surface(&surface)?;
     let packs = atomic_packs_for(&surface, None, None);
     Ok(json!({

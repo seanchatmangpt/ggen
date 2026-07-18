@@ -120,7 +120,22 @@ pub fn handle_graph_validate(
     }
 
     let root = project_root()?;
-    let config = GgenConfig::load(&root.join("ggen.toml")).map_err(exec_err)?;
+    match crate::schema_dispatch::load(&root).map_err(exec_err)? {
+        crate::schema_dispatch::ParsedGgenToml::Frontmatter(config) => {
+            graph_validate_frontmatter(&root, &config)
+        }
+        crate::schema_dispatch::ParsedGgenToml::DeclarativeRules(manifest) => {
+            graph_validate_declarative_rules(&root, &manifest)
+        }
+    }
+}
+
+/// `ggen graph validate` project mode for the frontmatter (`GgenConfig`)
+/// schema — byte-for-byte the pre-dispatch-repointing behavior (see
+/// `handle_graph_validate`'s own doc comment above).
+fn graph_validate_frontmatter(
+    root: &std::path::Path, config: &GgenConfig,
+) -> Result<serde_json::Value> {
     let ontology_path = root.join(&config.ontology.source);
     let ttl = std::fs::read_to_string(&ontology_path).map_err(|e| {
         exec_err(format!(
@@ -134,8 +149,8 @@ pub fn handle_graph_validate(
     let hash_hex = crate::sync::hex32(&hash);
 
     // Static template lint over the exact template set a sync would process.
-    let packs = crate::pack::resolve(&config, &root).map_err(exec_err)?;
-    let templates = crate::sync::discover_templates(&root, &config, &packs).map_err(exec_err)?;
+    let packs = crate::pack::resolve(config, root).map_err(exec_err)?;
+    let templates = crate::sync::discover_templates(root, config, &packs).map_err(exec_err)?;
     let violations: Vec<String> = templates
         .iter()
         .flat_map(|(path, tpl)| crate::lint::lint_template(path, tpl))
@@ -153,6 +168,52 @@ pub fn handle_graph_validate(
         "quads": quads,
         "hash": hash_hex,
         "templates_checked": templates.len(),
+    }))
+}
+
+/// `ggen graph validate` project mode for the declarative-rules
+/// (`GgenManifest`) schema.
+///
+/// Only the ontology (+ imports) is validated here: this schema has no
+/// pack-resolution or frontmatter-template-lint equivalent yet
+/// (`crate::pack::resolve` is typed against `crate::config::GgenConfig`
+/// only, and `crate::lint::lint_template` lints `crate::template::
+/// Frontmatter`, a shape `GenerationRule` does not have — the same
+/// documented gap `crate::generation_rules`'s own module doc comment
+/// already names for pack resolution). Reports `templates_checked: 0` with
+/// an explicit note rather than silently omitting the field, so a caller
+/// cannot mistake this for "zero violations found in N templates."
+fn graph_validate_declarative_rules(
+    root: &std::path::Path, manifest: &ggen_config::manifest::GgenManifest,
+) -> Result<serde_json::Value> {
+    let ontology_path = root.join(&manifest.ontology.source);
+    let ttl = std::fs::read_to_string(&ontology_path).map_err(|e| {
+        exec_err(format!(
+            "ontology `{}` unreadable: {e}",
+            ontology_path.display()
+        ))
+    })?;
+    let graph = DeterministicGraph::new().map_err(exec_err)?;
+    let mut quads = graph.insert_turtle(&ttl).map_err(exec_err)?;
+    for import in &manifest.ontology.imports {
+        let import_path = root.join(import);
+        let import_ttl = std::fs::read_to_string(&import_path).map_err(|e| {
+            exec_err(format!(
+                "ontology import `{}` unreadable: {e}",
+                import_path.display()
+            ))
+        })?;
+        quads += graph.insert_turtle(&import_ttl).map_err(exec_err)?;
+    }
+    let hash = graph.state_hash().map_err(exec_err)?;
+
+    Ok(serde_json::json!({
+        "quads": quads,
+        "hash": crate::sync::hex32(&hash),
+        "templates_checked": 0,
+        "note": "declarative-rules ([[generation.rules]]) schema: pack resolution and \
+                 frontmatter template lint are not implemented for this schema yet; only \
+                 the ontology graph (source + imports) was validated.",
     }))
 }
 
@@ -333,6 +394,21 @@ pub fn handle_receipt_verify() -> Result<serde_json::Value> {
         ))
     })?;
 
+    // 0. Schema version: a record written by a schema this binary doesn't
+    //    know how to interpret must be refused before any hash/signature
+    //    check runs -- `recompute_chain_hash`'s `build_admission_frame`
+    //    construction is only guaranteed to match the emission path for the
+    //    version it was built against.
+    if receipt.record.version != praxis_core::receipt_record::RECEIPT_RECORD_VERSION {
+        return Err(exec_err(format!(
+            "receipt invalid: unsupported receipt schema version {} (this binary supports {}). \
+             Remediation: re-sync with a matching ggen version, or upgrade/downgrade to a \
+             binary that supports this receipt's schema version.",
+            receipt.record.version,
+            praxis_core::receipt_record::RECEIPT_RECORD_VERSION
+        )));
+    }
+
     // 1. Payload binding: the stored payload bytes must hash to
     //    payload_hash_hex (raw bytes, not a re-serialization; see
     //    `stored_payload_hash`).
@@ -466,6 +542,20 @@ pub fn handle_receipt_history() -> Result<serde_json::Value> {
     }
 
     for (idx, (receipt, line)) in receipts.iter().enumerate() {
+        // 0. Schema version: refuse a record whose schema this binary
+        //    doesn't know how to interpret before trusting any hash it
+        //    carries (mirrors `handle_receipt_verify`'s check 0).
+        if receipt.record.version != praxis_core::receipt_record::RECEIPT_RECORD_VERSION {
+            return Err(exec_err(AppError::fm_chain(
+                7,
+                format!(
+                    "history invalid at index {idx}: unsupported receipt schema version {} \
+                     (this binary supports {})",
+                    receipt.record.version,
+                    praxis_core::receipt_record::RECEIPT_RECORD_VERSION
+                ),
+            )));
+        }
         // 1. Payload binding: hash the raw stored payload bytes (see
         //    `stored_payload_hash`), never a re-serialization.
         let payload_hash_hex = stored_payload_hash(line)?;
@@ -515,6 +605,47 @@ pub fn handle_receipt_history() -> Result<serde_json::Value> {
     }
 
     let last = &receipts[receipts.len() - 1].0;
+
+    // 4. Head-pointer consistency: `receipt.json` is meant to always mirror
+    //    the log's tail record (see `crate::sync::write_receipt`'s doc
+    //    comment: log append happens first, head-pointer write second). If
+    //    it exists, it must actually equal that tail record's chain hash --
+    //    otherwise the log has been truncated (its most recent entries
+    //    dropped) while the head pointer was left pointing at the removed
+    //    record, which the per-record checks above cannot detect on their
+    //    own since they only verify internal log consistency, never the
+    //    log's length/tail against anything external.
+    let receipt_path = root.join(RECEIPT_REL_PATH);
+    match std::fs::read_to_string(&receipt_path) {
+        Ok(head_raw) => {
+            let head: SyncReceipt = serde_json::from_str(&head_raw).map_err(|e| {
+                exec_err(AppError::fm_chain(
+                    7,
+                    format!("receipt `{}` malformed: {e}", receipt_path.display()),
+                ))
+            })?;
+            if head.record.chain_hash_hex != last.record.chain_hash_hex {
+                return Err(exec_err(AppError::fm_chain(
+                    7,
+                    format!(
+                        "history invalid: `.ggen-v2/receipt.json` chain hash {} does not match \
+                         the log tail's chain hash {} -- the log has been truncated (or \
+                         `receipt.json` was left stale) since this head was recorded. \
+                         Remediation: restore the missing log entries or re-run `ggen sync run`.",
+                        head.record.chain_hash_hex, last.record.chain_hash_hex
+                    ),
+                )));
+            }
+        }
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
+        Err(e) => {
+            return Err(exec_err(format!(
+                "receipt `{}` unreadable: {e}",
+                receipt_path.display()
+            )))
+        }
+    }
+
     Ok(serde_json::json!({
         "valid": true,
         "records": receipts.len(),
@@ -627,23 +758,58 @@ fn orphaned_artifacts_check(
 /// other integrity check in this crate.
 pub fn handle_doctor() -> Result<serde_json::Value> {
     let root = project_root()?;
-    let config = GgenConfig::load(&root.join("ggen.toml")).map_err(exec_err)?;
-    let packs = crate::pack::resolve(&config, &root).map_err(exec_err)?;
-    let lock_entries = crate::pack::lock_entries(&config, &packs).map_err(exec_err)?;
 
-    // Check 1: lockfile_drift.
-    let lockfile_check = match crate::pack::check_lock(&root, &lock_entries) {
-        Ok(()) => {
-            let detail = if lock_entries.is_empty() {
-                "no packs configured".to_string()
-            } else {
-                "ggen.lock matches resolved packs".to_string()
+    // Check 1 (lockfile_drift)'s inputs, and the template set Check 2
+    // (orphaned_artifacts) needs, both depend on which of ggen.toml's two
+    // schemas this project resolves to -- see `crate::schema_dispatch`'s own
+    // doc comment (the shared dispatch point every ggen.toml-reading call
+    // site in this crate now goes through, repointed off the unconditional
+    // `GgenConfig::load` that made this function reject any real
+    // declarative-rules project outright). The frontmatter schema runs both
+    // exactly as before repointing. The declarative-rules
+    // ([[generation.rules]]) schema has no pack-resolution or
+    // template-discovery equivalent yet (`crate::pack::resolve` and
+    // `crate::sync::discover_templates` are typed against the frontmatter
+    // `GgenConfig` only -- the same documented gap
+    // `crate::generation_rules`'s own module doc comment names for pack
+    // resolution), so both checks report an explicit, typed `"skip"` there
+    // -- never a fabricated `"pass"` for something that was never actually
+    // checked.
+    let (lockfile_check, templates_for_orphan_check): (
+        serde_json::Value,
+        Option<Vec<(PathBuf, crate::template::Template)>>,
+    ) = match crate::schema_dispatch::load(&root).map_err(exec_err)? {
+        crate::schema_dispatch::ParsedGgenToml::Frontmatter(config) => {
+            let config = *config;
+            let packs = crate::pack::resolve(&config, &root).map_err(exec_err)?;
+            let lock_entries = crate::pack::lock_entries(&config, &packs).map_err(exec_err)?;
+            let lockfile_check = match crate::pack::check_lock(&root, &lock_entries) {
+                Ok(()) => {
+                    let detail = if lock_entries.is_empty() {
+                        "no packs configured".to_string()
+                    } else {
+                        "ggen.lock matches resolved packs".to_string()
+                    };
+                    serde_json::json!({ "status": "pass", "detail": detail })
+                }
+                Err(e) => serde_json::json!({ "status": "fail", "detail": e.to_string() }),
             };
-            serde_json::json!({ "status": "pass", "detail": detail })
+            let templates =
+                crate::sync::discover_templates(&root, &config, &packs).map_err(exec_err)?;
+            (lockfile_check, Some(templates))
         }
-        Err(e) => serde_json::json!({ "status": "fail", "detail": e.to_string() }),
+        crate::schema_dispatch::ParsedGgenToml::DeclarativeRules(_manifest) => (
+            serde_json::json!({
+                "status": "skip",
+                "detail": "skipped: pack resolution is not implemented for the \
+                    declarative-rules ([[generation.rules]]) schema yet -- \
+                    crate::pack::resolve is typed against the frontmatter GgenConfig \
+                    schema only. See crate::generation_rules's own documented scope gap.",
+            }),
+            None,
+        ),
     };
-    let lockfile_pass = lockfile_check["status"] == "pass";
+    let lockfile_pass = lockfile_check["status"] != "fail";
 
     // Load the receipt, if any. Absence is not an error for doctor.
     let receipt_path = root.join(RECEIPT_REL_PATH);
@@ -664,19 +830,21 @@ pub fn handle_doctor() -> Result<serde_json::Value> {
     };
 
     // Check 2: orphaned_artifacts.
-    let orphaned_check = match &receipt {
-        None => serde_json::json!({
+    let orphaned_check = match (&receipt, &templates_for_orphan_check) {
+        (None, _) => serde_json::json!({
             "status": "pass",
             "detail": "no receipt found; nothing has been generated yet",
             "orphans": Vec::<String>::new(),
         }),
-        Some(receipt) => {
-            let templates =
-                crate::sync::discover_templates(&root, &config, &packs).map_err(exec_err)?;
-            orphaned_artifacts_check(receipt, &templates)
-        }
+        (Some(_), None) => serde_json::json!({
+            "status": "skip",
+            "detail": "skipped: template discovery is not implemented for the \
+                declarative-rules ([[generation.rules]]) schema yet.",
+            "orphans": Vec::<String>::new(),
+        }),
+        (Some(receipt), Some(templates)) => orphaned_artifacts_check(receipt, templates),
     };
-    let orphaned_pass = orphaned_check["status"] == "pass";
+    let orphaned_pass = orphaned_check["status"] != "fail";
 
     // Check 3: receipt_staleness.
     let staleness_check = match &receipt {
@@ -777,41 +945,89 @@ pub fn handle_doctor() -> Result<serde_json::Value> {
 // ---------------------------------------------------------------------------
 
 /// Build the GraphLaw engine over the project's law inputs: `ggen.toml`,
-/// the ontology, every resolved pack ontology, and every `[law].rules`
-/// file (loaded, not yet materialized). Shared by all `ggen law` verbs so
-/// each verb sees the identical fact/rule state a sync's law stage sees
-/// (minus template `construct:` enrichment, which is a sync concern).
+/// the ontology, every resolved pack ontology, and every law-rules file
+/// (loaded, not yet materialized). Shared by all `ggen law` verbs so each
+/// verb sees the identical fact/rule state a sync's law stage sees (minus
+/// template `construct:` enrichment, which is a sync concern).
+///
+/// Repointed through `crate::schema_dispatch::load` (specs/014-ggen-core-replacement,
+/// correction 2 / Blocker A part 2): this function used to unconditionally
+/// call `GgenConfig::load` and reject any real declarative-rules project.
+/// Both schemas' law-rules/law-shapes fields resolve to the exact same
+/// `Vec<PathBuf>` shape (`GgenConfig::law.{rules,shapes}` vs.
+/// `GgenManifest.law.rules` / `GgenManifest.validation.shacl` -- SHACL
+/// shapes deliberately live under `[validation].shacl` on that schema, not
+/// a duplicated `law.shapes` field, see `GgenManifest`'s own struct doc
+/// comment), so the return type is the schema-agnostic shapes list rather
+/// than either concrete config type.
+///
+/// The declarative-rules schema has no pack-resolution equivalent yet (the
+/// same documented gap `crate::generation_rules::run` itself has: it does
+/// not resolve `manifest.packs` either), so that branch loads only the
+/// primary ontology plus its declared imports -- no packs are unioned in.
 fn build_law_engine(
     root: &std::path::Path,
 ) -> Result<(
-    GgenConfig,
+    Vec<PathBuf>,
     crate::graph::GraphLawStore,
     Vec<(String, usize)>,
 )> {
     use crate::graph::GraphEngine as _;
-    let config = GgenConfig::load(&root.join("ggen.toml")).map_err(exec_err)?;
-    let ontology_path = root.join(&config.ontology.source);
-    let ttl = std::fs::read_to_string(&ontology_path).map_err(|e| {
-        exec_err(format!(
-            "ontology `{}` unreadable: {e}",
-            ontology_path.display()
-        ))
-    })?;
     let engine = crate::graph::GraphLawStore::new().map_err(exec_err)?;
-    engine.insert_turtle(&ttl).map_err(exec_err)?;
-    let packs = crate::pack::resolve(&config, root).map_err(exec_err)?;
-    for pack in &packs {
-        let pack_ttl = std::fs::read_to_string(&pack.ontology_path).map_err(|e| {
-            exec_err(format!(
-                "pack `{}`: ontology `{}` unreadable: {e}",
-                pack.name,
-                pack.ontology_path.display()
-            ))
-        })?;
-        engine.insert_turtle(&pack_ttl).map_err(exec_err)?;
-    }
+
+    let (law_rules, law_shapes): (Vec<PathBuf>, Vec<PathBuf>) =
+        match crate::schema_dispatch::load(root).map_err(exec_err)? {
+            crate::schema_dispatch::ParsedGgenToml::Frontmatter(config) => {
+                let config = *config;
+                let ontology_path = root.join(&config.ontology.source);
+                let ttl = std::fs::read_to_string(&ontology_path).map_err(|e| {
+                    exec_err(format!(
+                        "ontology `{}` unreadable: {e}",
+                        ontology_path.display()
+                    ))
+                })?;
+                engine.insert_turtle(&ttl).map_err(exec_err)?;
+                let packs = crate::pack::resolve(&config, root).map_err(exec_err)?;
+                for pack in &packs {
+                    let pack_ttl = std::fs::read_to_string(&pack.ontology_path).map_err(|e| {
+                        exec_err(format!(
+                            "pack `{}`: ontology `{}` unreadable: {e}",
+                            pack.name,
+                            pack.ontology_path.display()
+                        ))
+                    })?;
+                    engine.insert_turtle(&pack_ttl).map_err(exec_err)?;
+                }
+                (config.law.rules, config.law.shapes)
+            }
+            crate::schema_dispatch::ParsedGgenToml::DeclarativeRules(manifest) => {
+                let ontology_path = root.join(&manifest.ontology.source);
+                let ttl = std::fs::read_to_string(&ontology_path).map_err(|e| {
+                    exec_err(format!(
+                        "ontology `{}` unreadable: {e}",
+                        ontology_path.display()
+                    ))
+                })?;
+                engine.insert_turtle(&ttl).map_err(exec_err)?;
+                for import in &manifest.ontology.imports {
+                    let import_path = root.join(import);
+                    let import_ttl = std::fs::read_to_string(&import_path).map_err(|e| {
+                        exec_err(format!(
+                            "ontology import `{}` unreadable: {e}",
+                            import_path.display()
+                        ))
+                    })?;
+                    engine.insert_turtle(&import_ttl).map_err(exec_err)?;
+                }
+                (
+                    manifest.law.rules.clone(),
+                    manifest.validation.shacl.clone(),
+                )
+            }
+        };
+
     let mut loaded: Vec<(String, usize)> = Vec::new();
-    for rel in &config.law.rules {
+    for rel in &law_rules {
         let rule_path = root.join(rel);
         let src = std::fs::read_to_string(&rule_path).map_err(|e| {
             exec_err(format!(
@@ -822,7 +1038,7 @@ fn build_law_engine(
         let n = engine.load_rules(&src).map_err(exec_err)?;
         loaded.push((rel.display().to_string(), n));
     }
-    Ok((config, engine, loaded))
+    Ok((law_shapes, engine, loaded))
 }
 
 /// `ggen law load` — load every `[law].rules` file and report the rule
@@ -847,7 +1063,7 @@ pub fn handle_law_load() -> Result<serde_json::Value> {
 pub fn handle_law_validate() -> Result<serde_json::Value> {
     use crate::graph::GraphEngine as _;
     let root = project_root()?;
-    let (config, engine, _) = build_law_engine(&root)?;
+    let (law_shapes, engine, _) = build_law_engine(&root)?;
     let outcome = engine.materialize().map_err(exec_err)?;
     let denials = engine.check_denials().map_err(exec_err)?;
     if !denials.is_empty() {
@@ -861,7 +1077,7 @@ pub fn handle_law_validate() -> Result<serde_json::Value> {
         )));
     }
     let mut shapes_checked = 0usize;
-    for rel in &config.law.shapes {
+    for rel in &law_shapes {
         let shape_path = root.join(rel);
         let shapes_ttl = std::fs::read_to_string(&shape_path).map_err(|e| {
             exec_err(format!(

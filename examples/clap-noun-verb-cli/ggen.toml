@@ -1,0 +1,14 @@
+[project]
+name = "clap-noun-verb-cli"
+
+[ontology]
+source = "schema/clap-noun-verb-ontology.ttl"
+
+[ontology.prefixes]
+cnv = "http://seanchatmangpt.github.io/packs/clap-noun-verb#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+[templates]
+dir = "templates"

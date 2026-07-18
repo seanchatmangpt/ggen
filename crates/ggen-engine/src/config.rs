@@ -36,10 +36,10 @@ use crate::error::{AppError, Result};
 /// `rules` and `shapes`; `GgenManifest` instead uses `[[packs]]`
 /// array-of-tables with a flat `ggen_config::manifest::PackRef`, and a
 /// rules-only `Law` (shapes live in `validation.shacl` there). Which schema
-/// a given `ggen.toml` parses as is decided by
-/// `generation_rules::has_generation_rules` on the raw TOML text, before
-/// either typed parse runs. There is intentionally no automated
-/// cross-schema equivalence guard between the two.
+/// a given `ggen.toml` parses as is decided by `crate::schema_dispatch::load`
+/// (backed by the shared `ggen_config::classify_ggen_toml` structural
+/// classifier), before either typed parse runs. There is intentionally no
+/// automated cross-schema equivalence guard between the two.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct GgenConfig {

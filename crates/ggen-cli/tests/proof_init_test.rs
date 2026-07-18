@@ -50,11 +50,18 @@
 //! ## OBSERVED real-binary behavior (probed before writing this test — assert ONLY this)
 //! - Fresh init: exit 0, JSON status="success", lays the 7 files + 3 dirs above.
 //! - No-clobber: re-running WITHOUT --force returns JSON status="error"
-//!   ("already initialized") but STILL EXITS 0 (init.rs:502-518 returns
-//!   Ok(InitOutput{status:"error"}) — the refusal is in the payload, not the exit
-//!   code). It does NOT overwrite (no `transaction` field is emitted).
+//!   ("already initialized") on stdout AND now exits NON-ZERO (DoD Blocker E,
+//!   fixed: `init()`'s verb wrapper promotes any `InitOutput{status:"error"}`
+//!   payload returned by `perform_init` into a real `Err` before returning, so
+//!   the process exit code agrees with the payload's own status field instead
+//!   of reporting success at the process level while the payload says
+//!   otherwise). It does NOT overwrite (no `transaction` field is emitted).
 //! - Force: `--force true` overwrites the 5 ggen-owned files but PRESERVES a
 //!   pre-existing user README.md / .gitignore byte-for-byte (init.rs:661-704).
+//!   A malformed `--force`/`--skip-hooks` value (anything other than exactly
+//!   `true`/`false`) is refused with a typed error naming the invalid value and
+//!   the accepted values — see `init_bool_flag_regression_test.rs` (DoD
+//!   Blocker D) for that contract specifically.
 //!
 //! `--skip_hooks true` is passed throughout so the test never depends on git being
 //! present or mutating a real repo's hooks.
@@ -183,9 +190,11 @@ fn init_prepares_real_durable_scaffold_on_disk() {
 // Pier 2: NO-CLOBBER. Re-running init on an already-prepared boundary REFUSES to
 // re-scaffold — it does not silently overwrite the candidate O*.
 //
-// OBSERVED contract: the refusal is reported in the JSON payload (status="error",
-// "already initialized") while the process still exits 0. We assert the REAL
-// behavior: the refusal signal is present AND the scaffold is left untouched.
+// Contract (DoD Blocker E, fixed): the refusal is reported in the JSON payload
+// (status="error", "already initialized") AND the process exits non-zero — the
+// payload and the process-level result now agree. We assert BOTH: the refusal
+// signal is present, the exit code is non-zero, AND the scaffold is left
+// untouched.
 // ─────────────────────────────────────────────────────────────────────────────
 #[test]
 fn init_refuses_to_clobber_existing_boundary_without_force() {
@@ -208,7 +217,8 @@ fn init_refuses_to_clobber_existing_boundary_without_force() {
     let assert = ggen()
         .current_dir(root)
         .args(["init", "--path", ".", "--skip_hooks", "true"])
-        .assert();
+        .assert()
+        .failure(); // Blocker E: a status="error" payload must be a process-level failure too.
     let output = assert.get_output().clone();
 
     // The refusal must be LOUD in the payload (no fake "success").

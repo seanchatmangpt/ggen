@@ -220,6 +220,140 @@ fn proof_policy_check_runs_enterprise_strict_with_real_lockfile() {
 }
 
 // ============================================================================
+// Blocker B regression tests -- BUG-001
+// (crates/ggen-cli/src/cmds/policy.rs::load_pack_contexts_from_project /
+//  run_policy_enforcement)
+//
+// Root cause: `.ggen/packs.lock` can contain a pack identifier that was never
+// validated when written (e.g. "surface-compliance.soc2", a dot is not
+// alphanumeric/hyphen/underscore). The read path used to run every lockfile
+// key through the strict `PackageId::new` validator with `?`, so ONE bad
+// entry aborted `policy check`/`validate` before the real policy engine
+// (`Profile::enforce`) ever ran for anyone -- a crash, not a compliance
+// verdict. The fix makes the loader skip (not abort on) a malformed entry,
+// still runs the engine over the valid subset, and turns both a real policy
+// violation and a malformed-identifier finding into a *typed* nonzero error
+// instead of a raw crash or a silently-passing exit 0.
+// ============================================================================
+
+/// PROOF (Blocker B, bullet 1): `policy check` reaches the real policy engine
+/// for entirely valid input and exits 0.
+///
+/// A stub that faked success without calling `Profile::enforce` could not
+/// reproduce `policies_checked` derived from the REAL `enterprise-strict`
+/// profile's policy count, nor `passed: true` computed from a real (empty)
+/// violation set.
+#[test]
+fn policy_check_reaches_policy_engine() {
+    let tmp = TempDir::new().expect("tempdir");
+    write_empty_lockfile(tmp.path());
+
+    ggen()
+        .current_dir(tmp.path())
+        .arg("policy")
+        .arg("check")
+        .assert()
+        .success()
+        .stdout(
+            predicate::str::contains("\"profile_id\": \"enterprise-strict\"")
+                .and(predicate::str::contains("\"passed\": true"))
+                .and(predicate::str::contains("\"policies_checked\": 4")),
+        );
+}
+
+/// Write a `.ggen/packs.lock` with one syntactically-valid pack ("demo-pack")
+/// alongside the exact malformed identifier that reproduced BUG-001
+/// ("surface-compliance.soc2", written unchecked by a pre-fix write path;
+/// see `crates/ggen-cli/src/cmds/packs.rs::validate_pack_id`'s doc comment).
+fn write_mixed_valid_and_malformed_lockfile(dir: &std::path::Path) {
+    let ggen_dir = dir.join(".ggen");
+    fs::create_dir_all(&ggen_dir).expect("create .ggen dir");
+    let lockfile = ggen_dir.join("packs.lock");
+    fs::write(
+        &lockfile,
+        r#"{
+  "packs": {
+    "demo-pack": {
+      "version": "1.0.0",
+      "source": {"type": "Registry", "url": "https://registry.ggen.io"},
+      "integrity": "sha256-deadbeef",
+      "installed_at": "2026-01-01T00:00:00Z",
+      "dependencies": []
+    },
+    "surface-compliance.soc2": {
+      "version": "1.0.0",
+      "source": {"type": "Registry", "url": "https://registry.ggen.io"},
+      "integrity": "sha256-UNKNOWN-pack-not-found-locally",
+      "installed_at": "2026-01-01T00:00:00Z",
+      "dependencies": []
+    }
+  },
+  "updated_at": "2026-01-01T00:00:00Z",
+  "ggen_version": "26.5.28"
+}"#,
+    )
+    .expect("write packs.lock");
+    assert!(lockfile.exists(), "lockfile must exist after setup");
+}
+
+/// PROOF (Blocker B, bullets 2-4): `policy check` against a lockfile
+/// containing BOTH a well-formed pack and the exact malformed identifier that
+/// reproduced BUG-001 must NOT panic, must NOT print the old crash signature
+/// ("Argument parsing failed: Invalid package ID ... before compliance logic
+/// runs"), and must still reach the policy engine for the valid pack (proven
+/// by a real per-pack violation showing up for "demo-pack" in stderr) before
+/// refusing with a typed, nonzero exit.
+#[test]
+fn policy_check_does_not_panic() {
+    let tmp = TempDir::new().expect("tempdir");
+    write_mixed_valid_and_malformed_lockfile(tmp.path());
+
+    let assert = ggen()
+        .current_dir(tmp.path())
+        .arg("policy")
+        .arg("check")
+        .assert()
+        .failure();
+
+    let output = assert.get_output();
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    // No panic of any kind -- the original bug already didn't panic in the
+    // Rust sense (it returned a typed Err), but this is the explicit,
+    // permanent guard against a regression to an actual panic.
+    assert!(
+        !stderr.contains("panicked at"),
+        "policy check must not panic, got stderr: {stderr}"
+    );
+    assert!(
+        !stderr.to_lowercase().contains("thread 'main' panicked"),
+        "policy check must not panic, got stderr: {stderr}"
+    );
+
+    // The malformed identifier is reported, not silently swallowed.
+    assert!(
+        stderr.contains("surface-compliance.soc2"),
+        "malformed identifier must be named in the refusal, got stderr: {stderr}"
+    );
+
+    // The valid pack was still evaluated by the REAL policy engine despite
+    // the malformed sibling entry -- this is the actual regression proof:
+    // before the fix, the malformed entry aborted `load_pack_contexts_from_project`
+    // via `?` before `Profile::enforce` ever ran for "demo-pack" or anyone else.
+    assert!(
+        stderr.contains("demo-pack"),
+        "the valid pack must still reach the policy engine despite the \
+         malformed sibling entry, got stderr: {stderr}"
+    );
+
+    // Typed, nonzero, not the old misleading crash message.
+    assert!(
+        !stderr.contains("Argument parsing failed: Invalid package ID"),
+        "must not regress to the old pre-fix crash message, got stderr: {stderr}"
+    );
+}
+
+// ============================================================================
 // doctor check  (crates/ggen-cli/src/cmds/doctor.rs:160)
 // ============================================================================
 

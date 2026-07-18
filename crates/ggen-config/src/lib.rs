@@ -15,9 +15,15 @@
 pub mod canonical;
 pub mod config;
 pub mod config_lib;
+pub mod config_schema;
 pub mod domain;
 pub mod manifest;
 pub mod receipt;
+
+pub use config_schema::{
+    classify_ggen_toml, ConfigSchemaClassification, CONFIG_PARSE_FAILED, CONFIG_SCHEMA_AMBIGUOUS,
+    CONFIG_SCHEMA_MIGRATION_REQUIRED, CONFIG_SCHEMA_SUPPORTED, CONFIG_SCHEMA_UNSUPPORTED,
+};
 
 pub use config_lib::{
     A2AConfig, A2AMessagingConfig, A2AOrchestrationConfig, A2ARetryConfig, A2ATransportConfig,

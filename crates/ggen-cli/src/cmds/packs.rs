@@ -40,10 +40,21 @@ fn load_or_new_lockfile(path: &Path) -> Result<PackLockfile> {
     }
 }
 
+/// Validate a pack identifier at the write boundary before it can enter
+/// `.ggen/packs.lock`.
+///
+/// Delegates to the same strict validator (`PackageId::new`: non-empty,
+/// alphanumeric/hyphen/underscore only, no leading/trailing hyphen) that
+/// `ggen policy check`/`validate` later apply when reading the lockfile back
+/// (`crates/ggen-cli/src/cmds/policy.rs::load_pack_contexts_from_project`).
+/// Previously this only rejected an empty string, so a malformed id (e.g. one
+/// containing a `.`) could be written here and would then crash policy
+/// checking on read -- a validation asymmetry between two paths sharing one
+/// lockfile. Enforcing the same rule at the point of entry closes that gap.
 fn validate_pack_id(pack_id: &str) -> Result<()> {
-    if pack_id.trim().is_empty() {
-        return Err(NounVerbError::argument_error("pack id must not be empty"));
-    }
+    ggen_marketplace::marketplace::models::PackageId::new(pack_id).map_err(|e| {
+        NounVerbError::argument_error(format!("invalid pack id '{}': {}", pack_id, e))
+    })?;
     Ok(())
 }
 
