@@ -8,6 +8,8 @@ repository.workspace = true
 homepage = "https://github.com/seanchatmangpt/ggen"
 keywords = ["ontology", "catalog", "scanner", "receipts", "capability"]
 categories = ["development-tools"]
+# publish = false (2026-07-18): experimental crate, not intended for crates.io release.
+publish = false
 
 [dependencies]
 uuid = { workspace = true }

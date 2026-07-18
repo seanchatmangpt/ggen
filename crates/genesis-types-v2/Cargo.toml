@@ -9,6 +9,8 @@ description = "KNHK V2 type system — foundational data structures for workflow
 homepage = "https://github.com/seanchatmangpt/ggen"
 keywords = ["workflow", "types", "pattern", "schema"]
 categories = ["data-structures", "development-tools"]
+# publish = false (2026-07-18): experimental KNHK V2 crate, not intended for crates.io release.
+publish = false
 
 [dependencies]
 serde.workspace = true

@@ -150,7 +150,7 @@ standing = "ALIVE"
 gates = ["publish"]
 falsifier = "cargo package --list -p ggen --allow-dirty && cargo package --list -p ggen-graph --allow-dirty"
 evidence = { commit = "1b32d7b06", date = "2026-07-17", method = "PR #260: root include-pattern leak fixed (855->503 files); ggen-graph audit/ excluded (39.8MB->583KiB); all 7 targets re-verified via cargo publish --dry-run in topological order" }
-notes = "This was a live instance of APS case study 4 (PACKAGE_MISMATCH): package contents diverged from repository reality until the include/exclude fixes landed."
+notes = "This was a live instance of APS case study 4 (PACKAGE_MISMATCH): package contents diverged from repository reality until the include/exclude fixes landed. Publish-target set narrowed 2026-07-18: cpmp, genesis-types-v2, and genesis-core-v2 (which depends on genesis-types) were experimental crates that had no business being publish-eligible -- all three now carry publish = false. The real target count is 4 (ggen, ggen-config, ggen-graph, ggen-marketplace), not the 7 this evidence entry's method field describes as of PR #260 -- that field is left as an accurate historical record, not corrected in place."
 
 [[claims]]
 id = "release.rustsec-quick-xml"

@@ -9,6 +9,9 @@ description = "KNHK V2 core — Pattern trait system, pattern registry, composit
 homepage = "https://github.com/seanchatmangpt/ggen"
 keywords = ["pattern", "workflow", "zero-copy", "yawl", "registry"]
 categories = ["data-structures", "development-tools"]
+# publish = false (2026-07-18): same KNHK V2 experiment cluster as genesis-types-v2, which it
+# depends on (genesis-types is publish=false) -- cannot be published to crates.io as-is.
+publish = false
 
 [dependencies]
 async-trait.workspace = true
