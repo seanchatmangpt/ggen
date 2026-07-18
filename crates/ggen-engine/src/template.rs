@@ -10,6 +10,7 @@
 
 use std::{
     collections::{BTreeMap, HashMap},
+    path::{Path, PathBuf},
     sync::Arc,
 };
 
@@ -18,7 +19,7 @@ use serde::Deserialize;
 use tera::{Tera, Value};
 
 use crate::{
-    error::{AppError, Result},
+    error::{AppError, Result, TemplateFailureCause},
     graph::{EngineQueryResults, EngineRow, EngineValue, GraphEngine},
 };
 
@@ -345,22 +346,16 @@ where
 ///   against).
 ///
 /// # Errors
-/// Returns `[FM-TPL-015]` if the `templates/**/*` glob registration fails
-/// (e.g. a Tera syntax error in a file the glob matches). Previously this
-/// silently fell back to an empty `Tera::default()` — that fallback
-/// downgraded a real, diagnosable parse error into a generic "template not
-/// found" failure at the first `render_str` call, discarding the actual
-/// cause. Now the original error is propagated directly.
+/// Returns `[FM-TPL-015]` only for a structural failure isolating the
+/// `templates/` directory itself (e.g. unreadable, or a genuine
+/// inheritance-chain/macro-import defect spanning multiple files — see
+/// [`load_templates_glob_lenient`]'s doc comment for why a *single* broken
+/// file's parse error no longer reaches this point at all). Previously a
+/// syntax error in ANY file under `templates/**/*` — including one no
+/// active rule/template references — aborted this call entirely; that
+/// collateral failure mode is what [`load_templates_glob_lenient`] fixes.
 pub fn build_tera(graph: Arc<dyn GraphEngine>) -> Result<Tera> {
-    let mut tera = Tera::new("templates/**/*").map_err(|e| {
-        AppError::fm_tpl(
-            15,
-            format!(
-                "Tera template glob registration failed for `templates/**/*`: {e}. \
-                 Remediation: fix the reported template syntax error.",
-            ),
-        )
-    })?;
+    let mut tera = load_templates_glob_lenient(Path::new("templates"))?;
     tera.register_function("sparql", move |args: &HashMap<String, Value>| {
         let query = args
             .get("query")
@@ -392,6 +387,278 @@ pub fn build_tera(graph: Arc<dyn GraphEngine>) -> Result<Tera> {
     tera.register_filter("singularize", singularize_filter);
     tera.register_filter("hex_to_u64", hex_to_u64_filter);
     Ok(tera)
+}
+
+/// Lenient replacement for `Tera::new("templates/**/*")`: parses every file
+/// under `templates_dir` (relative to the current working directory,
+/// matching `Tera::new`'s own glob-then-canonicalize semantics) *individually*.
+///
+/// A file that fails to parse is skipped — never registered — and its path
+/// and error are logged at `WARN`, not silently discarded. This isolates a
+/// broken, unreferenced template file from every unrelated
+/// `[[generation.rules]]` rule or frontmatter template that doesn't
+/// `{% include %}`/`{% extends %}` it: previously `Tera::new`'s own
+/// `load_from_glob` aggregated every file's parse error into one `Err` and
+/// aborted registration entirely — one orphaned file with a syntax error
+/// (e.g. Jinja2-style `default("x")` instead of Tera's `default(value="x")`)
+/// collaterally blocked every active rule in the same project. A file that
+/// something DOES reference still fails loudly, just at the point it's
+/// actually used (Tera's own `TemplateNotFound`/`MissingParent`), not
+/// collaterally for the entire sync.
+///
+/// Returns an empty [`Tera::default`] (matching `Tera::new`'s own behavior
+/// for a glob that matches nothing) when `templates_dir` doesn't exist at
+/// all.
+///
+/// # Errors
+/// `[FM-TPL-015]` if `templates_dir` exists but isn't readable, or if
+/// building the inheritance chain / checking macro imports over the
+/// *successfully-parsed* subset fails (a defect spanning multiple files
+/// that all parsed fine individually — e.g. a child `{% extends %}`ing a
+/// parent that itself failed to parse, or a real circular extend).
+pub(crate) fn load_templates_glob_lenient(templates_dir: &Path) -> Result<Tera> {
+    if !templates_dir.is_dir() {
+        return Ok(Tera::default());
+    }
+    let canonical_root = templates_dir.canonicalize().map_err(|e| {
+        AppError::fm_tpl(
+            15,
+            format!(
+                "`{}` directory unreadable: {e}. Remediation: check its permissions.",
+                templates_dir.display()
+            ),
+        )
+    })?;
+
+    let mut files: Vec<PathBuf> = Vec::new();
+    collect_files_recursive(&canonical_root, &mut files).map_err(|e| {
+        AppError::fm_tpl(
+            15,
+            format!(
+                "walking `{}` failed: {e}. Remediation: check its permissions.",
+                templates_dir.display()
+            ),
+        )
+    })?;
+    // Deterministic registration order (matters for reproducible error
+    // ordering, not for correctness — Tera's inheritance build is a
+    // separate, order-independent pass below).
+    files.sort();
+
+    let mut tera = Tera::default();
+    for path in files {
+        let rel_name = path
+            .strip_prefix(&canonical_root)
+            .unwrap_or(&path)
+            .to_string_lossy()
+            .replace('\\', "/");
+        let content = match std::fs::read_to_string(&path) {
+            Ok(c) => c,
+            Err(e) => {
+                tracing::warn!(
+                    template.path = %rel_name,
+                    template.error = %e,
+                    "templates/**/* glob: skipping unreadable template file \
+                     (it will still fail loudly if a rule or include actually uses it)",
+                );
+                continue;
+            }
+        }; // continue above is deliberate: no further code in this loop body reads `content`
+           // before falling to the next file if it wasn't produced.
+        match tera::Template::new(&rel_name, Some(path.to_string_lossy().to_string()), &content) {
+            Ok(tpl) => {
+                tera.templates.insert(rel_name, tpl);
+            }
+            Err(e) => {
+                tracing::warn!(
+                    template.path = %rel_name,
+                    template.error = %e,
+                    "templates/**/* glob: skipping unparseable template file \
+                     (it will still fail loudly if a rule or include actually uses it)",
+                );
+            }
+        }
+    }
+
+    tera.build_inheritance_chains().map_err(|e| {
+        AppError::fm_tpl(
+            15,
+            format!(
+                "Tera inheritance chain build failed across `{}`: {e}. \
+                 Remediation: fix the reported `extends`/parent relationship.",
+                templates_dir.display()
+            ),
+        )
+    })?;
+    tera.check_macro_files().map_err(|e| {
+        AppError::fm_tpl(
+            15,
+            format!(
+                "Tera macro import check failed across `{}`: {e}. \
+                 Remediation: fix the reported macro import path.",
+                templates_dir.display()
+            ),
+        )
+    })?;
+    Ok(tera)
+}
+
+/// Recursively collect every regular file under `dir` (mirrors
+/// `Tera::new`'s own `templates/**/*` glob scope: every file at any depth,
+/// no extension filter, symlinks followed via `Path::is_dir`/`is_file`
+/// which resolve through them).
+fn collect_files_recursive(dir: &Path, out: &mut Vec<PathBuf>) -> std::io::Result<()> {
+    for entry in std::fs::read_dir(dir)? {
+        let path = entry?.path();
+        if path.is_dir() {
+            collect_files_recursive(&path, out)?;
+        } else if path.is_file() {
+            out.push(path);
+        }
+    }
+    Ok(())
+}
+
+/// Walk a `tera::Error`'s `source()` chain and join every level's `Display`
+/// text with a colon separator. Tera's own `Display` impl prints only the
+/// outermost wrapper message (something like "Failed to render 'x'") and
+/// drops the actual cause (something like "Variable sparql_results not
+/// found in context") — this crate's own
+/// `sparql_functions_reject_both_rows_and_results` test (below) already had
+/// to reach for `{:?}` instead of `{}` for exactly this reason. Used by
+/// `crate::generation_rules` so an `[FM-GEN-008]` message carries the real
+/// cause, not just the wrapper.
+pub(crate) fn tera_error_full_chain(err: &tera::Error) -> String {
+    use std::error::Error as StdError;
+    let mut parts = vec![err.to_string()];
+    let mut cause = StdError::source(err);
+    while let Some(e) = cause {
+        parts.push(e.to_string());
+        cause = e.source();
+    }
+    parts.join(": ")
+}
+
+/// Best-effort extraction of a `<line> | <code>` gutter (Tera's own
+/// pest-derived parse-error formatting) from a Tera error's full chain.
+/// `None` for the overwhelming majority of `[FM-GEN-008]` failures —
+/// render-time semantic errors like "Variable ... not found" carry no
+/// line/col at all; only a genuine parse failure (e.g.
+/// `render_output_file`'s own `render_str` hitting a syntax error inside
+/// `output_file` itself) does.
+pub(crate) fn tera_error_location(err: &tera::Error) -> Option<String> {
+    tera_error_full_chain(err).lines().find_map(|line| {
+        let trimmed = line.trim_start();
+        let digits: String = trimmed.chars().take_while(char::is_ascii_digit).collect();
+        if digits.is_empty() {
+            return None;
+        }
+        let rest = trimmed[digits.len()..].trim_start();
+        rest.starts_with('|').then(|| format!("line {digits}"))
+    })
+}
+
+/// Classify a Tera render/parse failure into a [`TemplateFailureCause`],
+/// combining `tera::ErrorKind` matching (where Tera gives a structured
+/// variant) with message substring matching on the `Msg` catch-all (the
+/// only signal Tera's 1.20.1 error model exposes for the rest — see
+/// [`TemplateFailureCause`]'s own doc comment). `own_template_name` is the
+/// name the caller registered/is rendering (e.g. `generation_rule::agent-rs`)
+/// — used to tell a top-level `TemplateNotFound` (this template itself was
+/// never registered) apart from one raised for a *different* name (an
+/// `{% include %}`/`{% extends %}` target that's missing).
+///
+/// Tera 1.20.1's `Processor::render` (`renderer/processor.rs::render`)
+/// unconditionally wraps EVERY render-time error one level deep —
+/// `Error::chain(self.get_error_location(), e)`, i.e. an outer
+/// `ErrorKind::Msg("Failed to render '<name>'")` whose `source()` is the
+/// real cause — confirmed empirically: even a bare "Variable ... not found"
+/// or `FilterNotFound` arrives wrapped this way. Classifying on `err.kind`
+/// directly (the first version of this function did) therefore always saw
+/// the generic wrapper and always fell through to
+/// [`TemplateFailureCause::TemplateRenderInternal`]. This walks past that
+/// one (or more) wrapper layer(s) to the real cause before classifying.
+pub(crate) fn classify_tera_render_error(
+    err: &tera::Error,
+    own_template_name: &str,
+) -> TemplateFailureCause {
+    use std::error::Error as StdError;
+    let mut current = err;
+    loop {
+        match &current.kind {
+            tera::ErrorKind::Msg(_) => {
+                match StdError::source(current).and_then(|s| s.downcast_ref::<tera::Error>()) {
+                    // A generic wrapper around a further tera::Error --
+                    // unwrap one level and re-classify on the real cause.
+                    Some(inner) => {
+                        current = inner;
+                        continue;
+                    }
+                    // No further tera::Error inside: THIS Msg text is the
+                    // real leaf cause (e.g. a bare
+                    // `Error::msg("Variable ... not found ...")`, which
+                    // carries no source at all).
+                    None => return classify_msg(&current.to_string()),
+                }
+            }
+            other => return classify_kind(other, own_template_name),
+        }
+    }
+}
+
+/// The non-`Msg` half of [`classify_tera_render_error`]'s match, extracted
+/// so the unwrap loop above can re-invoke it at whatever depth the real
+/// cause turns out to live at.
+fn classify_kind(kind: &tera::ErrorKind, own_template_name: &str) -> TemplateFailureCause {
+    match kind {
+        tera::ErrorKind::TemplateNotFound(name) => {
+            if name == own_template_name {
+                TemplateFailureCause::TemplateNotFound
+            } else {
+                TemplateFailureCause::TemplateIncludeNotFound
+            }
+        }
+        tera::ErrorKind::MissingParent { .. } | tera::ErrorKind::CircularExtend { .. } => {
+            TemplateFailureCause::TemplateIncludeNotFound
+        }
+        tera::ErrorKind::FilterNotFound(_)
+        | tera::ErrorKind::FunctionNotFound(_)
+        | tera::ErrorKind::TestNotFound(_) => TemplateFailureCause::TemplateFilterUnknown,
+        // The filter/function/test name WAS found; it failed when invoked
+        // (wrong argument shape, wrong value type) — a context problem,
+        // not an unknown-identifier problem. `Json` (a context value that
+        // failed to serialize) is the same class of problem.
+        tera::ErrorKind::CallFunction(_)
+        | tera::ErrorKind::CallFilter(_)
+        | tera::ErrorKind::CallTest(_)
+        | tera::ErrorKind::Json(_) => TemplateFailureCause::TemplateContextInvalid,
+        tera::ErrorKind::Io(_) | tera::ErrorKind::Utf8Conversion { .. } => {
+            TemplateFailureCause::TemplateRenderInternal
+        }
+        tera::ErrorKind::InvalidMacroDefinition(_) => TemplateFailureCause::TemplateParseFailed,
+        // Reached only if a `Msg` variant's `source()` downcast to
+        // `tera::Error` but that inner error's OWN kind is again `Msg` with
+        // no further tera::Error source — handled by the loop above, never
+        // this arm directly; kept for exhaustiveness against Tera's
+        // `#[non_exhaustive]`-style `ErrorKind`.
+        tera::ErrorKind::Msg(msg) => classify_msg(msg),
+        _ => TemplateFailureCause::TemplateRenderInternal,
+    }
+}
+
+/// Substring classification for `tera::ErrorKind::Msg` — the catch-all
+/// variant every render-time semantic error (variable lookup, math
+/// operation, parse-error wrapper text) actually arrives as in Tera 1.20.1.
+fn classify_msg(msg: &str) -> TemplateFailureCause {
+    if msg.contains("not found in context") {
+        TemplateFailureCause::TemplateVariableMissing
+    } else if msg.contains("Failed to parse") || msg.contains("expected") {
+        TemplateFailureCause::TemplateParseFailed
+    } else if msg.contains("is not a number") || msg.contains("can not be evaluated") {
+        TemplateFailureCause::TemplateContextInvalid
+    } else {
+        TemplateFailureCause::TemplateRenderInternal
+    }
 }
 
 /// Execute `query` and convert the engine-neutral results into a Tera

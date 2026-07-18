@@ -4,13 +4,18 @@
 //! frontmatter-per-template-file convention (`crate::config::GgenConfig` +
 //! `crate::template::Frontmatter`): a project's `ggen.toml` is either a
 //! frontmatter project or a declarative-rules project, decided once by
-//! [`has_generation_rules`] on the raw TOML text before any typed parse
-//! runs. `crate::config::GgenConfig` (`deny_unknown_fields`) would refuse a
-//! `[[generation.rules]]` project outright; this module never sees a
-//! frontmatter project. An existing frontmatter project (no `[generation]`
-//! table, or one with an empty/absent `rules` array) is entirely
-//! unaffected — [`has_generation_rules`] returns `false` and
-//! [`crate::sync::sync`] falls through to the unchanged original path.
+//! `crate::schema_dispatch::load` (backed by the shared
+//! `ggen_config::classify_ggen_toml` structural classifier) before any
+//! typed parse runs — see that module's own doc comment for the full
+//! dispatch design (it replaced this module's original narrower
+//! `has_generation_rules` raw-text pre-parse, specs/014-ggen-core-replacement
+//! correction 2 / Blocker A part 2). `crate::config::GgenConfig`
+//! (`deny_unknown_fields`) would refuse a `[[generation.rules]]` project
+//! outright; this module never sees a frontmatter project. An existing
+//! frontmatter project (no `[generation]` table, or one with an
+//! empty/absent `rules` array) is entirely unaffected — the classifier
+//! reports `Frontmatter` and [`crate::sync::sync`] falls through to the
+//! unchanged original path.
 //!
 //! # Design (specs/014-ggen-core-replacement, T070)
 //!
@@ -86,50 +91,14 @@ use ggen_config::manifest::{
 use tera::Value;
 
 use crate::{
-    error::{AppError, Result},
+    error::{AppError, Result, TemplateFailureCause},
     graph::{DeterministicGraph, EngineQueryResults, GraphEngine, GraphLawStore},
     sync::{hash_file_or_missing, hex32, rel_display, write_receipt, EngineKind, SyncOptions, SyncReport},
-    template::{build_tera, solutions_to_values},
+    template::{
+        build_tera, classify_tera_render_error, solutions_to_values, tera_error_full_chain,
+        tera_error_location,
+    },
 };
-
-/// Cheap structural pre-parse: does `raw_toml` declare a non-empty
-/// `[[generation.rules]]`? Used by [`crate::sync::sync`] to decide, before
-/// any typed parse, whether a project's `ggen.toml` belongs to this
-/// module's declarative-rules schema or `crate::config::GgenConfig`'s
-/// frontmatter schema.
-///
-/// A TOML syntax error here is surfaced (not swallowed to `Ok(false)`):
-/// swallowing it would silently route a malformed file to the frontmatter
-/// path, which would then report a *different*, potentially confusing
-/// error for the same root cause.
-///
-/// # Errors
-/// `[FM-CONFIG-002]` if `raw_toml` is not syntactically valid TOML.
-pub(crate) fn has_generation_rules(raw_toml: &str) -> Result<bool> {
-    // `toml::Value: FromStr` parses a single bare *value* expression (see
-    // `toml::Value::from_str`'s `ValueDeserializer::parse`), not a whole
-    // multi-table document -- it fails on any real `ggen.toml` starting with
-    // a `[table]` header ("unexpected content, expected nothing"). A TOML
-    // *document* is a `Table` (`toml::Table: FromStr` calls the real
-    // document parser, `toml::from_str`, per the crate's own top-level
-    // "easiest way to parse a TOML document" example) -- parse into that
-    // instead. `Table` derefs the same `.get(&str) -> Option<&Value>` API
-    // this function's chained lookup relies on.
-    let value: toml::Table = raw_toml.parse().map_err(|e| {
-        AppError::fm_config(
-            2,
-            format!(
-                "invalid ggen.toml document: {e}. \
-                 Remediation: fix the TOML syntax or remove unknown keys."
-            ),
-        )
-    })?;
-    Ok(value
-        .get("generation")
-        .and_then(|g| g.get("rules"))
-        .and_then(toml::Value::as_array)
-        .is_some_and(|a| !a.is_empty()))
-}
 
 /// Run every `[[generation.rules]]` entry in `manifest` against a fresh
 /// graph loaded from `manifest.ontology`, producing the same
@@ -373,6 +342,10 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
     let mut skipped: Vec<(PathBuf, String)> = Vec::new();
     let mut decisions: BTreeMap<String, String> = BTreeMap::new();
     let mut pending: Vec<PendingGenWrite> = Vec::new();
+    // Reported in every `[FM-GEN-008]` message this loop produces (see
+    // `AppError::fm_gen_render_failure`) — the project root every rule's
+    // `TemplateSource`/`QuerySource` is resolved against.
+    let root_display = root.display().to_string();
 
     for rule in &manifest.generation.rules {
         if let Some(ask) = rule.when.as_deref() {
@@ -431,15 +404,45 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
 
         let row_values = solutions_to_values(rows);
         let template_text = resolve_template_source(root, rule, &rule.template, &mut closure)?;
+        let template_descriptor = template_source_descriptor(&rule.template);
+
+        // Cluster B structural guard: a YAML file-tree meta-spec
+        // (`structure:` + `foreach:`) is not Tera content, but Tera happily
+        // parses it anyway (its literal `{{ project.name }}` markers ARE
+        // syntactically valid Tera expressions) and only fails at RENDER
+        // time with a plain "Variable ... not found" message —
+        // indistinguishable on the surface from Cluster D's real bug.
+        // Detect the shape structurally, before Tera ever sees the text, so
+        // the typed cause names the actual capability gap instead of
+        // misclassifying it as a missing context key.
+        if detect_file_tree_meta_spec(&template_text) {
+            return Err(AppError::fm_gen_render_failure(
+                TemplateFailureCause::TemplateSchemaIncompatible,
+                &root_display,
+                &template_descriptor,
+                &rule.name,
+                "template is a YAML file-tree meta-spec (`structure:` + `foreach:` \
+                 directives), not Tera content — ggen-engine's declarative-rules path \
+                 has no file-tree/foreach interpreter yet. Remediation: rewrite the rule \
+                 as one flat Tera template per output file, or track the interpreter as \
+                 a follow-up (see specs/014-ggen-core-replacement/tasks.md).",
+                None,
+            ));
+        }
+
         // Ephemeral per-rule template name so Tera errors can point back at
         // the rule; the body itself is registered fresh for each rule (an
         // inline/file template has no stable path to reuse as a Tera name
         // across rules).
         let tpl_name = format!("generation_rule::{}", rule.name);
         tera.add_raw_template(&tpl_name, &template_text).map_err(|e| {
-            AppError::fm_gen(
-                3,
-                format!("rule `{}`: template rejected by Tera: {e}", rule.name),
+            AppError::fm_gen_render_failure(
+                TemplateFailureCause::TemplateParseFailed,
+                &root_display,
+                &template_descriptor,
+                &rule.name,
+                format!("template rejected by Tera: {}", tera_error_full_chain(&e)),
+                tera_error_location(&e).as_deref(),
             )
         })?;
 
@@ -448,14 +451,33 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
             for row in &row_values {
                 let mut ctx = tera::Context::new();
                 ctx.insert("results", &row_values);
+                // Alias for templates authored against the (documented but
+                // never actually supplied — see Cluster D's root-cause
+                // writeup) `sparql_results` binding name. Both names carry
+                // identical row data; templates may use either.
+                ctx.insert("sparql_results", &row_values);
                 ctx.insert("row", row);
                 if let Value::Object(map) = row {
                     for (k, v) in map {
                         ctx.insert(k, v);
                     }
                 }
-                let to = render_output_file(&mut tera, &rule.output_file, &ctx, &rule.name)?;
-                let body = render_template(&mut tera, &tpl_name, &ctx, &rule.name)?;
+                let to = render_output_file(
+                    &mut tera,
+                    &rule.output_file,
+                    &ctx,
+                    &rule.name,
+                    &root_display,
+                    &template_descriptor,
+                )?;
+                let body = render_template(
+                    &mut tera,
+                    &tpl_name,
+                    &ctx,
+                    &rule.name,
+                    &root_display,
+                    &template_descriptor,
+                )?;
                 validate_rendered_body(&rule.name, &to, &body)?;
                 pending.push(PendingGenWrite {
                     to,
@@ -466,7 +488,27 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
         } else {
             let mut ctx = tera::Context::new();
             ctx.insert("results", &row_values);
-            let body = render_template(&mut tera, &tpl_name, &ctx, &rule.name)?;
+            ctx.insert("sparql_results", &row_values);
+            // Static (non-per-row) rules never flattened a single row's
+            // columns onto the top-level context before this fix — only
+            // the per-row branch above did. Flatten the FIRST row's
+            // columns (same "first row wins" convention `sparql_first()`
+            // already uses), matching the per-row branch's behavior for
+            // the common one-row/static-output-file case (Cluster D,
+            // `examples/llm-full-integration`'s bare `{{ agent_name }}`).
+            if let Some(Value::Object(map)) = row_values.first() {
+                for (k, v) in map {
+                    ctx.insert(k, v);
+                }
+            }
+            let body = render_template(
+                &mut tera,
+                &tpl_name,
+                &ctx,
+                &rule.name,
+                &root_display,
+                &template_descriptor,
+            )?;
             validate_rendered_body(&rule.name, &rule.output_file, &body)?;
             pending.push(PendingGenWrite {
                 to: rule.output_file.clone(),
@@ -666,33 +708,102 @@ fn resolve_template_source(
     }
 }
 
+/// A friendly, error-reportable descriptor for a [`TemplateSource`] — the
+/// "template path" field every `[FM-GEN-008]` message reports (see
+/// [`AppError::fm_gen_render_failure`]). Never used for resolution (that's
+/// still [`resolve_template_source`]'s job) — purely for diagnostics.
+fn template_source_descriptor(source: &TemplateSource) -> String {
+    match source {
+        TemplateSource::File { file } => file.display().to_string(),
+        TemplateSource::Inline { .. } => "<inline>".to_string(),
+        TemplateSource::Pack { pack, output, file } => {
+            format!("pack:{pack}/{output}/{}", file.display())
+        }
+        TemplateSource::Git { git, path, .. } => format!("git:{git}/{}", path.display()),
+        TemplateSource::Package { package, .. } => format!("package:{package}"),
+    }
+}
+
+/// Structural pre-check: is `template_text` actually a YAML file-tree
+/// meta-spec (Cluster B's `examples/clap-noun-verb-demo` gap — a
+/// `structure:` list of per-file sub-templates with `foreach:` loop
+/// directives) rather than literal Tera content?
+/// [`crate::generation_rules`] has no interpreter for this shape (see the
+/// module's own scope doc comment) — detecting it structurally, before
+/// Tera ever sees the text, avoids misclassifying the resulting runtime
+/// failure as a plain [`TemplateFailureCause::TemplateVariableMissing`]:
+/// Tera happily parses the file's literal `{{ project.name }}` markers as
+/// real expressions (they ARE syntactically valid Tera) and only fails at
+/// render time, which looks identical to the Cluster D bug on the surface
+/// — confirmed live for `examples/clap-noun-verb-demo`'s
+/// `cli-template.yaml`. Structural, not a fragile `contains("foreach:")`
+/// substring check: requires a top-level YAML mapping with a `structure:`
+/// sequence where at least one entry is itself a mapping containing a
+/// `foreach` key — the exact shape that file uses.
+fn detect_file_tree_meta_spec(template_text: &str) -> bool {
+    let Ok(serde_yaml::Value::Mapping(map)) = serde_yaml::from_str(template_text) else {
+        return false;
+    };
+    let structure_key = serde_yaml::Value::String("structure".to_string());
+    let Some(serde_yaml::Value::Sequence(structure)) = map.get(&structure_key) else {
+        return false;
+    };
+    let foreach_key = serde_yaml::Value::String("foreach".to_string());
+    structure.iter().any(|entry| {
+        matches!(entry, serde_yaml::Value::Mapping(m) if m.contains_key(&foreach_key))
+    })
+}
+
 /// Render `rule.output_file` through Tera (it may reference the same
 /// context as the body, e.g. a per-row `{{name}}` path segment).
+///
+/// Always classified as [`TemplateFailureCause::TemplateOutputPathInvalid`]
+/// regardless of the underlying `tera::ErrorKind`: from the operator's
+/// perspective "your `output_file`/`to` pattern is broken" is the
+/// actionable class whether the concrete cause is a missing variable, an
+/// unknown filter, or a syntax error in the pattern itself (`render_str`
+/// re-parses `output_file` on every call, so a parse failure surfaces
+/// here, not at the one-time `add_raw_template` above).
 fn render_output_file(
     tera: &mut tera::Tera,
     output_file: &str,
     ctx: &tera::Context,
     rule_name: &str,
+    example: &str,
+    template: &str,
 ) -> Result<String> {
     tera.render_str(output_file, ctx).map_err(|e| {
-        AppError::fm_gen(
-            8,
-            format!("rule `{rule_name}`: output_file render failed: {e}"),
+        AppError::fm_gen_render_failure(
+            TemplateFailureCause::TemplateOutputPathInvalid,
+            example,
+            template,
+            rule_name,
+            format!("output_file render failed: {}", tera_error_full_chain(&e)),
+            tera_error_location(&e).as_deref(),
         )
     })
 }
 
-/// Render the rule's registered template body through Tera.
+/// Render the rule's registered template body through Tera, sub-classified
+/// via [`classify_tera_render_error`] (see [`TemplateFailureCause`]'s own
+/// doc comment for the taxonomy this maps onto).
 fn render_template(
     tera: &mut tera::Tera,
     tpl_name: &str,
     ctx: &tera::Context,
     rule_name: &str,
+    example: &str,
+    template: &str,
 ) -> Result<String> {
     tera.render(tpl_name, ctx).map_err(|e| {
-        AppError::fm_gen(
-            8,
-            format!("rule `{rule_name}`: template render failed: {e}"),
+        let cause = classify_tera_render_error(&e, tpl_name);
+        AppError::fm_gen_render_failure(
+            cause,
+            example,
+            template,
+            rule_name,
+            format!("template render failed: {}", tera_error_full_chain(&e)),
+            tera_error_location(&e).as_deref(),
         )
     })
 }
@@ -972,39 +1083,13 @@ mod merge {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn has_generation_rules_false_for_frontmatter_project() {
-        let toml = "[project]\nname = \"x\"\n\n[ontology]\nsource = \"o.ttl\"\n\n[templates]\ndir = \"t\"\n";
-        assert!(!has_generation_rules(toml).expect("parse"));
-    }
-
-    #[test]
-    fn has_generation_rules_false_when_rules_array_is_empty() {
-        let toml = "[generation]\nrules = []\n";
-        assert!(!has_generation_rules(toml).expect("parse"));
-    }
-
-    #[test]
-    fn has_generation_rules_true_when_rules_non_empty() {
-        let toml = r#"
-[generation]
-
-[[generation.rules]]
-name = "x"
-query = { inline = "SELECT * WHERE { ?s ?p ?o }" }
-template = { inline = "hi" }
-output_file = "out.txt"
-"#;
-        assert!(has_generation_rules(toml).expect("parse"));
-    }
-
-    #[test]
-    fn has_generation_rules_surfaces_toml_syntax_errors() {
-        let err = has_generation_rules("not [ valid toml").expect_err("must fail");
-        assert!(err.to_string().contains("FM-CONFIG-002"), "{err}");
-    }
-}
+// The narrower `has_generation_rules` raw-text pre-parse this module used to
+// export here (and its dedicated tests) were removed
+// (specs/014-ggen-core-replacement, correction 2 / Blocker A part 2): it is
+// fully superseded by the shared `ggen_config::classify_ggen_toml`
+// classifier via `crate::schema_dispatch::load`, which every ggen.toml
+// dispatch call site in this crate now goes through -- see that module's
+// own doc comment. Equivalent coverage (empty-rules-array,
+// non-empty-rules, frontmatter-shaped, malformed-TOML) lives in
+// `ggen_config::config_schema`'s own test module and
+// `crate::schema_dispatch`'s test module.

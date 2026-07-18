@@ -799,22 +799,24 @@ harness = false
 name = "ggen_benchmarks"
 harness = false
 required-features = ["ggen-core-retired"]
-[[example]]
-name = "drift-detection-example"
-path = "examples/archive_ggen_core/stray-rs-files/drift-detection-example.rs"
-required-features = ["ggen-core-retired"]
-[[example]]
-name = "rdf_template_integration"
-path = "examples/archive_ggen_core/stray-rs-files/rdf_template_integration.rs"
-required-features = ["ggen-core-retired"]
-[[example]]
-name = "path_validation_example"
-path = "examples/archive_ggen_core/stray-rs-files/path_validation_example.rs"
-required-features = ["ggen-core-retired"]
-[[example]]
-name = "rdf_metadata_example"
-path = "examples/archive_ggen_core/stray-rs-files/rdf_metadata_example.rs"
-required-features = ["ggen-core-retired"]
+# 4 [[example]] blocks removed here (drift-detection-example,
+# rdf_template_integration, path_validation_example, rdf_metadata_example;
+# 2026-07-17 investigation): all required-features = ["ggen-core-retired"]
+# and all imported `ggen_core::` symbols from the crate deleted outright by
+# PR #259 ("remove ggen-core, rewrite README from first principles"), which
+# left root Cargo.toml's `[[example]]` entries as residue its sweep missed.
+# Confirmed zero supported consumers (no test invokes `cargo run/test
+# --example` on these names; grep across docs/specs finds only historical
+# migration-record mentions, none depending on them working) and confirmed
+# each failed to compile with error[E0433] "cannot find module or crate
+# `ggen_core`" even with the feature enabled. Source files deleted from
+# examples/archive_ggen_core/stray-rs-files/. The `ggen-core-retired`
+# feature declaration itself is NOT removed -- it still gates the
+# `ggen_benchmarks` bench above and 6 root tests/*.rs files (tracing.rs,
+# graph_core_tests.rs, template_systems_tests.rs, validate_marketplace_rdf.rs,
+# generator_core_tests.rs, fixture_validation_proof.rs), all of which are the
+# same class of ggen_core-referencing dead-by-construction code but were out
+# of scope for this pass.
 [[test]]
 name = "testcontainer_marketplace_git_hooks"
 path = "tests/integration/testcontainer_marketplace_git_hooks.rs"

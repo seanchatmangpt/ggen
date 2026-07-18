@@ -10,9 +10,10 @@ pub mod config;
 pub mod error;
 // Declarative `[[generation.rules]]` sync path (specs/014-ggen-core-replacement, T070),
 // wired into `sync::sync` additively alongside the pre-existing frontmatter convention. Not
-// `pub`: its two entry points (`has_generation_rules`/`run`) are `pub(crate)` and consumed
-// only by `sync::sync` -- external callers use `sync::sync` the same way regardless of which
-// schema a project's ggen.toml uses. See the module's own doc comment for the full design.
+// `pub`: its entry point (`run`) is `pub(crate)` and consumed only by `sync::sync` -- external
+// callers use `sync::sync` the same way regardless of which schema a project's ggen.toml uses.
+// Schema dispatch itself lives in `crate::schema_dispatch`, not here. See the module's own doc
+// comment for the full design.
 mod generation_rules;
 pub mod graph;
 pub mod law_engine;
@@ -24,6 +25,12 @@ pub mod lint;
 // module directly. See the module's own doc comment for the key policy.
 mod keys;
 pub mod pack;
+// The single dispatch point deciding which of ggen.toml's two schemas a project uses
+// (specs/014-ggen-core-replacement, correction 2 / Blocker A part 2). Not `pub`: consumed by
+// `sync::sync` and `verbs::handlers` only -- every other caller already goes through one of
+// those. See the module's own doc comment for the full design and why it replaces each call
+// site's previously ad-hoc dispatch logic.
+mod schema_dispatch;
 pub mod shell_safety;
 pub mod sync;
 pub mod template;

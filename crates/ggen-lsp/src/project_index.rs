@@ -4,10 +4,36 @@
 //! GGEN-TPL-001 — Living LSP. This is the entry point the rest of the LSP uses
 //! to obtain a resolved, queryable view of a project's generation rules.
 //! Manifest parsing is delegated to `ggen_config::manifest` (no hand-rolled TOML).
+//!
+//! # Schema dispatch (specs/014-ggen-core-replacement, correction 2 / Blocker A part 2)
+//!
+//! `ggen.toml` recognizes two independently-defined schemas (see
+//! `ggen_config::config_schema`'s own module doc comment for the full
+//! design): the declarative-rules schema (`ggen_config::manifest::
+//! GgenManifest`, `[[generation.rules]]`) this index covers, and a
+//! frontmatter-per-template-file schema this index has nothing to say
+//! about. Before this repointing, [`ProjectIndex::from_root_with_overlay`]
+//! hardcoded [`ManifestParser::parse`] unconditionally, so a real,
+//! syntactically-valid frontmatter-schema project was rejected with the
+//! *same* [`IndexError::ManifestParse`] a genuinely broken manifest would
+//! produce — every one of this crate's ~11 best-effort call sites (`let
+//! Ok(project) = ProjectIndex::from_root(root) else { return Vec::new() }`)
+//! could not tell "this project legitimately uses the other schema" apart
+//! from "this manifest has a typo." Now the shared
+//! [`ggen_config::classify_ggen_toml`] classifier runs first: a
+//! `Frontmatter` classification returns an explicit, honest *empty* index
+//! (`Ok` with zero rule entries — this project's ggen.toml is valid, it is
+//! simply out of this index's scope), and `Ambiguous`/`Unsupported`
+//! classifications return their own typed [`IndexError`] variants rather
+//! than being folded into `ManifestParse`. Only a `DeclarativeRules`
+//! classification proceeds to the real [`ManifestParser::parse_str`] call
+//! (a `Malformed` classification -- not syntactically valid TOML at all --
+//! still surfaces as `ManifestParse`, unchanged: that outcome always meant
+//! "could not even parse as TOML").
 
 use std::path::{Path, PathBuf};
 
-use ggen_config::manifest::ManifestParser;
+use ggen_config::{manifest::ManifestParser, ConfigSchemaClassification};
 
 use crate::rule_index::RuleIndexEntry;
 
@@ -26,7 +52,11 @@ pub type BufferOverlay = std::collections::HashMap<PathBuf, String>;
 ///
 /// Index-level *rule* problems (missing query/template files, unsupported
 /// sources) are non-fatal and recorded in [`RuleIndexEntry::issues`]. The
-/// errors here are the ones that prevent building an index at all.
+/// errors here are the ones that prevent building an index at all. Note
+/// that a `ggen.toml` classified as `Frontmatter` (the other, non-rules
+/// schema) is *not* an error at all -- see [`ProjectIndex::
+/// from_root_with_overlay`]'s doc comment -- it produces an explicit empty
+/// [`ProjectIndex`] instead.
 #[derive(Debug)]
 pub enum IndexError {
     /// No `ggen.toml` was found at `<root>/ggen.toml`.
@@ -34,12 +64,37 @@ pub enum IndexError {
         /// The path that was probed.
         path: PathBuf,
     },
-    /// The `ggen.toml` existed but could not be parsed by `ggen_config::manifest`.
+    /// The `ggen.toml` either failed to parse as TOML at all
+    /// (`ggen_config::classify_ggen_toml`'s `Malformed` outcome) or
+    /// classified as the declarative-rules schema but still failed
+    /// `ManifestParser::parse_str` (e.g. a missing required field).
     ManifestParse {
         /// The manifest path that failed to parse.
         path: PathBuf,
         /// Human-readable parse error message.
         message: String,
+    },
+    /// `ggen_config::classify_ggen_toml` found structural markers for more
+    /// than one recognized schema at once -- distinct from `ManifestParse`:
+    /// the document parses fine as TOML, it is just genuinely ambiguous
+    /// which schema it belongs to.
+    AmbiguousSchema {
+        /// The manifest path.
+        path: PathBuf,
+        /// Every conflicting structural marker the classifier observed
+        /// (see [`ggen_config::ConfigSchemaClassification::Ambiguous`]).
+        matched: Vec<String>,
+    },
+    /// `ggen_config::classify_ggen_toml` found no recognized schema's
+    /// structural markers at all -- distinct from `ManifestParse`: the
+    /// document parses fine as TOML, it simply does not resemble either
+    /// schema this workspace recognizes.
+    UnsupportedSchema {
+        /// The manifest path.
+        path: PathBuf,
+        /// The document's top-level tables, as a diagnostic breadcrumb
+        /// (see [`ggen_config::ConfigSchemaClassification::Unsupported`]).
+        observed_markers: Vec<String>,
     },
 }
 
@@ -51,6 +106,27 @@ impl std::fmt::Display for IndexError {
             }
             IndexError::ManifestParse { path, message } => {
                 write!(f, "failed to parse {}: {}", path.display(), message)
+            }
+            IndexError::AmbiguousSchema { path, matched } => {
+                write!(
+                    f,
+                    "[{}] {} is ambiguous between the declarative-rules and frontmatter \
+                     schemas: conflicting markers {matched:?}",
+                    ggen_config::CONFIG_SCHEMA_AMBIGUOUS,
+                    path.display()
+                )
+            }
+            IndexError::UnsupportedSchema {
+                path,
+                observed_markers,
+            } => {
+                write!(
+                    f,
+                    "[{}] {} matches neither the declarative-rules nor the frontmatter \
+                     schema: observed top-level tables {observed_markers:?}",
+                    ggen_config::CONFIG_SCHEMA_UNSUPPORTED,
+                    path.display()
+                )
             }
         }
     }
@@ -96,9 +172,19 @@ impl ProjectIndex {
     /// rule **query/template** reads are overlay-aware, which is exactly the
     /// producer-surface gap the living loop closes.
     ///
+    /// Dispatches through the shared [`ggen_config::classify_ggen_toml`]
+    /// classifier before attempting any typed parse (see this module's own
+    /// doc comment for the full design): a `Frontmatter`-classified
+    /// manifest returns an explicit *empty* index (`Ok`, zero rule
+    /// entries), never [`IndexError::ManifestParse`].
+    ///
     /// # Errors
     /// - [`IndexError::ManifestNotFound`] if `<root>/ggen.toml` does not exist.
-    /// - [`IndexError::ManifestParse`] if the manifest cannot be parsed.
+    /// - [`IndexError::ManifestParse`] if the document is not syntactically
+    ///   valid TOML, or classifies as declarative-rules but still fails
+    ///   [`ManifestParser::parse_str`] (e.g. a missing required field).
+    /// - [`IndexError::AmbiguousSchema`] / [`IndexError::UnsupportedSchema`]
+    ///   for the classifier's own `Ambiguous`/`Unsupported` outcomes.
     pub fn from_root_with_overlay(
         root: &Path, overlay: &BufferOverlay,
     ) -> Result<ProjectIndex, IndexError> {
@@ -109,11 +195,46 @@ impl ProjectIndex {
             });
         }
 
-        let manifest =
-            ManifestParser::parse(&manifest_path).map_err(|err| IndexError::ManifestParse {
+        let raw =
+            std::fs::read_to_string(&manifest_path).map_err(|e| IndexError::ManifestParse {
                 path: manifest_path.clone(),
-                message: err.to_string(),
+                message: e.to_string(),
             })?;
+
+        let manifest = match ggen_config::classify_ggen_toml(&raw) {
+            ConfigSchemaClassification::DeclarativeRules => ManifestParser::parse_str(&raw)
+                .map_err(|err| IndexError::ManifestParse {
+                    path: manifest_path.clone(),
+                    message: err.to_string(),
+                })?,
+            ConfigSchemaClassification::Frontmatter => {
+                // Not this index's schema, but a perfectly valid project --
+                // an explicit empty index, not an error (see module doc
+                // comment).
+                return Ok(ProjectIndex {
+                    root: root.to_path_buf(),
+                    rule_entries: Vec::new(),
+                });
+            }
+            ConfigSchemaClassification::Ambiguous { matched } => {
+                return Err(IndexError::AmbiguousSchema {
+                    path: manifest_path,
+                    matched,
+                });
+            }
+            ConfigSchemaClassification::Unsupported { observed_markers } => {
+                return Err(IndexError::UnsupportedSchema {
+                    path: manifest_path,
+                    observed_markers,
+                });
+            }
+            ConfigSchemaClassification::Malformed { diagnostic } => {
+                return Err(IndexError::ManifestParse {
+                    path: manifest_path,
+                    message: diagnostic,
+                });
+            }
+        };
 
         // `generation` is a required, non-optional field on `GgenManifest`.
         let rule_entries = manifest
@@ -298,5 +419,97 @@ template = { file = "nope.tera" }
             "expected template-missing issue, got: {:?}",
             entry.issues
         );
+    }
+
+    #[test]
+    fn frontmatter_schema_project_yields_explicit_empty_index_not_a_parse_error() {
+        // Arrange — a real, valid frontmatter-schema ggen.toml (no
+        // [[generation.rules]] at all): before the classifier repointing
+        // this hit ManifestParser::parse's deny_unknown_fields rejection
+        // and surfaced as IndexError::ManifestParse, indistinguishable
+        // from a genuinely broken manifest.
+        let dir = TempDir::new().expect("create temp dir");
+        let manifest = r#"
+[project]
+name = "demo"
+
+[ontology]
+source = "model.ttl"
+
+[templates]
+dir = "templates"
+"#;
+        std::fs::write(dir.path().join("ggen.toml"), manifest).expect("write manifest");
+
+        // Act
+        let index = ProjectIndex::from_root(dir.path())
+            .expect("a frontmatter-schema project must build an index, not error");
+
+        // Assert — explicit empty, not an error.
+        assert!(index.rule_entries.is_empty());
+        assert_eq!(index.root, dir.path());
+    }
+
+    #[test]
+    fn ambiguous_schema_project_yields_typed_ambiguous_error() {
+        let dir = TempDir::new().expect("create temp dir");
+        // Frontmatter-shaped ([project] without version) but also carries
+        // [ai], a GgenManifest-only table.
+        let manifest = "[project]\nname = \"x\"\n\n[ontology]\nsource = \"o.ttl\"\n\n[templates]\ndir = \"t\"\n\n[ai]\nprovider = \"openai\"\n";
+        std::fs::write(dir.path().join("ggen.toml"), manifest).expect("write manifest");
+
+        let err = ProjectIndex::from_root(dir.path()).expect_err("must be ambiguous");
+        match &err {
+            IndexError::AmbiguousSchema { matched, .. } => {
+                assert!(!matched.is_empty(), "{matched:?}");
+            }
+            other => panic!("expected AmbiguousSchema, got {other:?}"),
+        }
+        assert!(err_contains_code(
+            &err,
+            ggen_config::CONFIG_SCHEMA_AMBIGUOUS
+        ));
+    }
+
+    #[test]
+    fn unsupported_schema_project_yields_typed_unsupported_error() {
+        let dir = TempDir::new().expect("create temp dir");
+        let manifest = "[some_other_tool]\nkey = \"value\"\n";
+        std::fs::write(dir.path().join("ggen.toml"), manifest).expect("write manifest");
+
+        let err = ProjectIndex::from_root(dir.path()).expect_err("must be unsupported");
+        match &err {
+            IndexError::UnsupportedSchema {
+                observed_markers, ..
+            } => {
+                assert!(
+                    observed_markers
+                        .iter()
+                        .any(|m| m.contains("some_other_tool")),
+                    "{observed_markers:?}"
+                );
+            }
+            other => panic!("expected UnsupportedSchema, got {other:?}"),
+        }
+        assert!(err_contains_code(
+            &err,
+            ggen_config::CONFIG_SCHEMA_UNSUPPORTED
+        ));
+    }
+
+    #[test]
+    fn malformed_toml_still_yields_manifest_parse_error() {
+        let dir = TempDir::new().expect("create temp dir");
+        std::fs::write(dir.path().join("ggen.toml"), "not [ valid toml").expect("write manifest");
+
+        let err = ProjectIndex::from_root(dir.path()).expect_err("must fail");
+        match err {
+            IndexError::ManifestParse { .. } => {}
+            other => panic!("expected ManifestParse, got {other:?}"),
+        }
+    }
+
+    fn err_contains_code(err: &IndexError, code: &str) -> bool {
+        err.to_string().contains(code)
     }
 }

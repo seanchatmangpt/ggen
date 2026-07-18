@@ -13,6 +13,40 @@ use super::Vocab;
 use crate::tripleindex::TripleIndex;
 use std::collections::HashSet;
 
+/// Maximum recursion depth across the mutually-recursive `validate_shape` /
+/// `conforms_to_shape` / `validate_property_shape` trio.
+///
+/// SHACL shapes graphs are arbitrary user-supplied RDF and can encode
+/// arbitrarily long `sh:node`/`sh:and`/`sh:or`/`sh:xone`/`sh:not` chains, or
+/// nested `sh:property` chains. The existing `visited` cycle detection in
+/// `validate_shape` only catches a shape being revisited (directly or via a
+/// true cycle) for the *same* focus node -- it does not bound a long
+/// *acyclic* chain of distinct shapes, and `validate_property_shape`'s
+/// nested-`sh:property` recursion has no cycle detection at all.
+///
+/// Confirmed by direct adversarial testing (2026-07-17, via `ggen graph
+/// validate --shapes`): an acyclic chain of ~500-1000 distinct
+/// `sh:node`-linked shapes, or ~200-500 nested `sh:property` shapes, crashes
+/// the whole process with a real stack overflow (SIGABRT) on an 8MB default
+/// *main*-thread stack -- not a `panic!` that `catch_unwind` could
+/// intercept.
+///
+/// Critically, this bound must hold regardless of which thread reaches
+/// this code, and thread stack sizes vary widely: a `cargo test` worker
+/// thread defaults to roughly 2MB, a fraction of a typical process main
+/// thread. An initial guard set to 128 (safe on the 8MB main thread, per
+/// the thresholds above) was directly observed to *still* stack-overflow
+/// when the exact same adversarial shapes graphs were validated from a
+/// `cargo test` worker thread (see `ggen-engine`'s
+/// `validate_hardening_test.rs`) -- proving a depth bound calibrated
+/// against one thread's stack is not portable. This constant is
+/// deliberately conservative -- comfortably below the extrapolated
+/// small-thread crash threshold with a large safety margin, and far more
+/// than any legitimate hand-written SHACL ontology nests in practice (real
+/// shapes graphs nest single digits to low tens of levels deep, not
+/// hundreds) -- rather than tuned tightly to any one observed threshold.
+pub(crate) const MAX_SHACL_VALIDATION_DEPTH: usize = 32;
+
 /// Returns true if the node conforms to the given shape (no violations).
 pub(crate) fn conforms_to_shape(
     data: &TripleIndex,
@@ -22,10 +56,11 @@ pub(crate) fn conforms_to_shape(
     shape_node: usize,
     visited: &mut HashSet<(usize, usize)>,
     closure: &SubclassClosure,
+    depth: usize,
 ) -> bool {
     let mut temp = Vec::new();
     validate_shape(
-        data, shapes, vocab, node, shape_node, &mut temp, visited, closure,
+        data, shapes, vocab, node, shape_node, &mut temp, visited, closure, depth,
     );
     temp.is_empty()
 }
@@ -40,6 +75,7 @@ pub(crate) fn validate_shape(
     results: &mut Vec<ValidationResult>,
     visited: &mut HashSet<(usize, usize)>,
     closure: &SubclassClosure,
+    depth: usize,
 ) {
     use super::closure::has_class;
     use super::index_utils::{is_blank_node, is_iri, is_literal, is_shape_deactivated};
@@ -47,6 +83,27 @@ pub(crate) fn validate_shape(
 
     // Cycle detection: if we are already validating (focus, shape), skip.
     if !visited.insert((focus_node, shape_node)) {
+        return;
+    }
+
+    // Depth guard: see `MAX_SHACL_VALIDATION_DEPTH` -- an acyclic chain of
+    // distinct shapes is not caught by the cycle check above and would
+    // otherwise recurse until the process stack-overflows. Fail closed
+    // (a real violation, not a silent pass) rather than keep recursing.
+    if depth > MAX_SHACL_VALIDATION_DEPTH {
+        results.push(make_result(
+            focus_node,
+            None,
+            Some(focus_node),
+            vocab.sh_node_constraint_component,
+            shape_node,
+            vocab.sh_violation,
+            Some(format!(
+                "shapes graph exceeded the maximum safe validation depth ({MAX_SHACL_VALIDATION_DEPTH}); \
+                 refusing further recursive evaluation to avoid a stack overflow"
+            )),
+        ));
+        visited.remove(&(focus_node, shape_node));
         return;
     }
 
@@ -73,7 +130,7 @@ pub(crate) fn validate_shape(
     // -----------------------------------------------------------------------
     if !get_objects(shapes, shape_node, vocab.sh_path).is_empty() {
         validate_property_shape(
-            data, shapes, vocab, focus_node, shape_node, results, visited, closure,
+            data, shapes, vocab, focus_node, shape_node, results, visited, closure, depth + 1,
         );
     }
 
@@ -296,9 +353,9 @@ pub(crate) fn validate_shape(
     // sh:and (node-level)
     for and_list in get_objects(shapes, shape_node, vocab.sh_and) {
         let sub_shapes = super::index_utils::get_rdf_list(shapes, and_list);
-        let conforms = sub_shapes
-            .iter()
-            .all(|&sub| conforms_to_shape(data, shapes, vocab, focus_node, sub, visited, closure));
+        let conforms = sub_shapes.iter().all(|&sub| {
+            conforms_to_shape(data, shapes, vocab, focus_node, sub, visited, closure, depth + 1)
+        });
         if !conforms {
             results.push(make_result(
                 focus_node,
@@ -315,9 +372,9 @@ pub(crate) fn validate_shape(
     // sh:or (node-level)
     for or_list in get_objects(shapes, shape_node, vocab.sh_or) {
         let sub_shapes = super::index_utils::get_rdf_list(shapes, or_list);
-        let conforms = sub_shapes
-            .iter()
-            .any(|&sub| conforms_to_shape(data, shapes, vocab, focus_node, sub, visited, closure));
+        let conforms = sub_shapes.iter().any(|&sub| {
+            conforms_to_shape(data, shapes, vocab, focus_node, sub, visited, closure, depth + 1)
+        });
         if !conforms {
             results.push(make_result(
                 focus_node,
@@ -337,7 +394,9 @@ pub(crate) fn validate_shape(
         let count = sub_shapes
             .iter()
             .filter(|&&sub| {
-                conforms_to_shape(data, shapes, vocab, focus_node, sub, visited, closure)
+                conforms_to_shape(
+                    data, shapes, vocab, focus_node, sub, visited, closure, depth + 1,
+                )
             })
             .count();
         if count != 1 {
@@ -355,7 +414,9 @@ pub(crate) fn validate_shape(
 
     // sh:not (node-level)
     for not_shape in get_objects(shapes, shape_node, vocab.sh_not) {
-        if conforms_to_shape(data, shapes, vocab, focus_node, not_shape, visited, closure) {
+        if conforms_to_shape(
+            data, shapes, vocab, focus_node, not_shape, visited, closure, depth + 1,
+        ) {
             results.push(make_result(
                 focus_node,
                 None,
@@ -371,7 +432,7 @@ pub(crate) fn validate_shape(
     // sh:node (node-level)
     for node_shape in get_objects(shapes, shape_node, vocab.sh_node) {
         if !conforms_to_shape(
-            data, shapes, vocab, focus_node, node_shape, visited, closure,
+            data, shapes, vocab, focus_node, node_shape, visited, closure, depth + 1,
         ) {
             results.push(make_result(
                 focus_node,
@@ -494,7 +555,7 @@ pub(crate) fn validate_shape(
     // -----------------------------------------------------------------------
     for ps in get_objects(shapes, shape_node, vocab.sh_property) {
         validate_property_shape(
-            data, shapes, vocab, focus_node, ps, results, visited, closure,
+            data, shapes, vocab, focus_node, ps, results, visited, closure, depth + 1,
         );
     }
 
@@ -521,9 +582,35 @@ pub(crate) fn validate_property_shape(
     results: &mut Vec<ValidationResult>,
     visited: &mut HashSet<(usize, usize)>,
     closure: &SubclassClosure,
+    depth: usize,
 ) {
     use super::closure::has_class;
     use super::values::{compare_numeric, get_lang_tag, match_regex};
+
+    // Depth guard: unlike `validate_shape`, nested `sh:property` recursion
+    // (below) has no `visited`-based cycle detection at all -- a shape
+    // referencing itself via `sh:property` (directly or through a cycle of
+    // property shapes), or simply a long nested chain, would otherwise
+    // recurse until the process stack-overflows. See
+    // `MAX_SHACL_VALIDATION_DEPTH`; confirmed by direct testing that this
+    // path crashes at a *lower* chain length than `validate_shape`'s
+    // sh:node chain does. Fail closed with a violation rather than recurse
+    // further.
+    if depth > MAX_SHACL_VALIDATION_DEPTH {
+        results.push(make_result(
+            focus_node,
+            None,
+            None,
+            vocab.sh_node_constraint_component,
+            ps,
+            vocab.sh_violation,
+            Some(format!(
+                "shapes graph exceeded the maximum safe validation depth ({MAX_SHACL_VALIDATION_DEPTH}); \
+                 refusing further recursive sh:property evaluation to avoid a stack overflow"
+            )),
+        ));
+        return;
+    }
 
     let paths = get_objects(shapes, ps, vocab.sh_path);
     if paths.is_empty() {
@@ -985,7 +1072,7 @@ pub(crate) fn validate_property_shape(
         let qvs = qvs_list[0];
         let conforming_count = v_nodes
             .iter()
-            .filter(|&&v| conforms_to_shape(data, shapes, vocab, v, qvs, visited, closure))
+            .filter(|&&v| conforms_to_shape(data, shapes, vocab, v, qvs, visited, closure, depth + 1))
             .count() as i64;
         for qmin in get_objects(shapes, ps, vocab.sh_qualified_min_count) {
             if let Ok(min) = get_integer_value(qmin) {
@@ -1023,9 +1110,9 @@ pub(crate) fn validate_property_shape(
     for and_list in get_objects(shapes, ps, vocab.sh_and) {
         let sub_shapes = super::index_utils::get_rdf_list(shapes, and_list);
         for &v in &v_nodes {
-            let conforms = sub_shapes
-                .iter()
-                .all(|&sub| conforms_to_shape(data, shapes, vocab, v, sub, visited, closure));
+            let conforms = sub_shapes.iter().all(|&sub| {
+                conforms_to_shape(data, shapes, vocab, v, sub, visited, closure, depth + 1)
+            });
             if !conforms {
                 results.push(make_result(
                     focus_node,
@@ -1043,9 +1130,9 @@ pub(crate) fn validate_property_shape(
     for or_list in get_objects(shapes, ps, vocab.sh_or) {
         let sub_shapes = super::index_utils::get_rdf_list(shapes, or_list);
         for &v in &v_nodes {
-            let conforms = sub_shapes
-                .iter()
-                .any(|&sub| conforms_to_shape(data, shapes, vocab, v, sub, visited, closure));
+            let conforms = sub_shapes.iter().any(|&sub| {
+                conforms_to_shape(data, shapes, vocab, v, sub, visited, closure, depth + 1)
+            });
             if !conforms {
                 results.push(make_result(
                     focus_node,
@@ -1065,7 +1152,9 @@ pub(crate) fn validate_property_shape(
         for &v in &v_nodes {
             let count = sub_shapes
                 .iter()
-                .filter(|&&sub| conforms_to_shape(data, shapes, vocab, v, sub, visited, closure))
+                .filter(|&&sub| {
+                    conforms_to_shape(data, shapes, vocab, v, sub, visited, closure, depth + 1)
+                })
                 .count();
             if count != 1 {
                 results.push(make_result(
@@ -1083,7 +1172,9 @@ pub(crate) fn validate_property_shape(
 
     for not_shape in get_objects(shapes, ps, vocab.sh_not) {
         for &v in &v_nodes {
-            if conforms_to_shape(data, shapes, vocab, v, not_shape, visited, closure) {
+            if conforms_to_shape(
+                data, shapes, vocab, v, not_shape, visited, closure, depth + 1,
+            ) {
                 results.push(make_result(
                     focus_node,
                     Some(path),
@@ -1099,7 +1190,9 @@ pub(crate) fn validate_property_shape(
 
     for node_shape in get_objects(shapes, ps, vocab.sh_node) {
         for &v in &v_nodes {
-            if !conforms_to_shape(data, shapes, vocab, v, node_shape, visited, closure) {
+            if !conforms_to_shape(
+                data, shapes, vocab, v, node_shape, visited, closure, depth + 1,
+            ) {
                 results.push(make_result(
                     focus_node,
                     Some(path),
@@ -1116,7 +1209,9 @@ pub(crate) fn validate_property_shape(
     // sh:property nested inside a property shape
     for ps_nested in get_objects(shapes, ps, vocab.sh_property) {
         for &v in &v_nodes {
-            validate_property_shape(data, shapes, vocab, v, ps_nested, results, visited, closure);
+            validate_property_shape(
+                data, shapes, vocab, v, ps_nested, results, visited, closure, depth + 1,
+            );
         }
     }
 }

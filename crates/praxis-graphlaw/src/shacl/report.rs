@@ -234,6 +234,7 @@ impl Validator {
                     &mut results,
                     &mut visited,
                     &closure,
+                    0,
                 );
             }
         }
