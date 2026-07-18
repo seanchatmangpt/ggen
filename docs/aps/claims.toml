@@ -131,9 +131,9 @@ notes = "Zero pre-existing real test coverage (all prior tests targeted verbs th
 id = "cli.policy"
 standing = "BLOCKED"
 gates = []
-falsifier = "target/debug/ggen policy check --profile enterprise-strict"
+falsifier = "target/debug/ggen policy validate --profile enterprise-strict"
 evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow, deterministic reproduction across isolated HOME environments" }
-notes = "list/show ALIVE; check/validate — the noun's core enforcement JTBD — fail 100% of invocations on an internally-composed invalid package ID (BUG-001, root cause not yet localized). See docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md."
+notes = "list/show ALIVE; check/validate — the noun's core enforcement JTBD — fail 100% of invocations on an internally-composed invalid package ID (BUG-001, root cause not yet localized). See docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md. Falsifier fixed 2026-07-18: `ggen policy check` has no --profile flag at all (confirmed via --help), so the original falsifier failed on clap argument parsing before reaching the real bug; `policy validate` does take --profile and reproduces the described crash. `ggen policy check` (no flags) reproduces the same underlying error without --profile."
 
 # ── Release-level claims ─────────────────────────────────────────────────────
 

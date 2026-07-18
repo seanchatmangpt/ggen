@@ -21,8 +21,9 @@
 > the other doc is drift. ggen v26.7.17-track, post `2026-ggen-core-replacement` migration
 > (PR #255, merged to `main`).
 
-The ggen workspace has **16 members** (15 crates under `crates/` + the root `ggen` package).
-`ggen-core` was retired from the default pipeline in this migration: it moved from
+The ggen workspace has **17 members** (16 crates under `crates/` + the root `ggen` package).
+`ggen-core` was retired from the default pipeline in this migration, then fully deleted (PR
+#259, 2026-07-17): it moved from
 `members` to `exclude` in root `Cargo.toml`, no longer compiles standalone, and has zero
 in-workspace dependents. It is kept on disk (fix-forward/non-deletion doctrine), not deleted.
 **Trust `Cargo.toml`, not prose.**
@@ -78,7 +79,7 @@ in-workspace dependents. It is kept on disk (fix-forward/non-deletion doctrine),
 
 | Path | Status |
 |------|--------|
-| `crates/ggen-core` | Excluded via root `Cargo.toml`'s `exclude = [...]`. Does not compile standalone (inherits `workspace = true` fields with no workspace to inherit from). Zero in-workspace dependents. Kept on disk, not deleted |
+| `crates/ggen-core` | **Deleted.** Does not exist on disk (PR #259, 2026-07-17). Survives only in git history — do not treat this row as describing current state |
 
 Dormant, non-member directories from earlier eras (`genesis-construct8`, `genesis-lockchain`,
 `genesis-wasm-shell`, `ggen-daemon`, `ggen-membrane`, `ggen-projection`,

@@ -52,11 +52,15 @@ cd my-ggen-project
 ggen init
 ```
 
-This creates:
+This creates 7 files/dirs (confirmed live via `ggen init`'s own JSON output,
+`"total_files": 7`):
 - `ggen.toml` — Project configuration
 - `schema/domain.ttl` — Your RDF ontology (example)
-- `templates/` — Directory for Tera templates
-- `.ggen/` — Build artifacts and cache
+- `templates/example.txt.tera` — Directory + example Tera template
+- `Makefile`, `.gitignore`, `README.md`, `scripts/startup.sh` — supporting project scaffolding
+
+Note: `ggen init` does **not** create a `.ggen/` directory — that only appears as a line inside
+the generated `.gitignore`. `.ggen/` (and `.ggen-v2/`) get created later, on first `ggen sync run`.
 
 ### Step 3: Check Available Embedded Ontologies
 
@@ -78,23 +82,35 @@ Output shows all 12 core ontologies available offline:
 
 ### Step 4: Use an Embedded Ontology
 
-Edit `ggen.toml`:
+Edit `ggen.toml` (this is the real "declarative-rules" schema `ggen init` scaffolds and
+`ggen sync run` parses — confirmed against `crates/ggen-cli/src/cmds/init.rs`'s `GGEN_TOML`
+const; the `[pipeline]`/`ontology_uri`/`[[pipelines.steps]]`/`[output].file` shape shown in an
+earlier version of this doc does not exist anywhere in the codebase):
 
 ```toml
-[pipeline]
-ontology_uri = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+[project]
+name = "my-ggen-project"
+version = "0.1.0"
 
-[[pipelines.steps]]
-sparql = """
+[ontology]
+source = "schema/domain.ttl"
+standard_only = true
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "rdf-properties"
+query = { inline = """
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 SELECT ?resource
 WHERE {
   ?resource rdf:type rdf:Property .
 }
-"""
-
-[output]
-file = "properties.json"
-format = "json"
+""" }
+template = { file = "templates/example.txt.tera" }
+output_file = "properties.json"
+mode = "Overwrite"
 ```
 
 ### Step 5: Generate Code
@@ -169,23 +185,32 @@ ggen sync run
 
 **File: `ggen.toml`**
 ```toml
-[pipeline]
-ontology_uri = "http://www.w3.org/2000/01/rdf-schema#"
+[project]
+name = "json-schema-example"
+version = "0.1.0"
 
-[[pipelines.steps]]
-sparql = """
+[ontology]
+source = "schema/domain.ttl"
+standard_only = true
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "json-schema"
+query = { inline = """
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?class ?label
 WHERE {
   ?class rdf:type rdfs:Class .
   ?class rdfs:label ?label .
 }
 ORDER BY ?label
-"""
-
-[output]
-file = "schema.json"
-format = "json"
-template = "json_schema.tera"
+""" }
+template = { file = "templates/json_schema.tera" }
+output_file = "schema.json"
+mode = "Overwrite"
 ```
 
 **File: `templates/json_schema.tera`**
@@ -212,23 +237,31 @@ cat schema.json
 
 **File: `ggen.toml`**
 ```toml
-[pipeline]
-ontology_uri = "http://www.w3.org/2002/07/owl#"
+[project]
+name = "typescript-types-example"
+version = "0.1.0"
 
-[[pipelines.steps]]
-sparql = """
+[ontology]
+source = "schema/domain.ttl"
+standard_only = true
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "typescript-types"
+query = { inline = """
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
 SELECT ?class ?property ?type
 WHERE {
   ?class a owl:Class .
   ?class a ?property .
   ?property a owl:ObjectProperty | owl:DatatypeProperty .
 }
-"""
-
-[output]
-file = "types.ts"
-format = "typescript"
-template = "typescript_types.tera"
+""" }
+template = { file = "templates/typescript_types.tera" }
+output_file = "types.ts"
+mode = "Overwrite"
 ```
 
 **File: `templates/typescript_types.tera`**
@@ -244,41 +277,61 @@ export interface {{ class.key | title }} {
 
 ## Understanding ggen.toml
 
-The configuration file drives code generation:
+**ggen.toml has two independently-parsed, incompatible schemas** (see
+`.claude/rules/architecture.md`'s "ggen.toml has two schemas" section for the full mechanism).
+What `ggen init` scaffolds, and what this guide's examples use, is the "declarative-rules"
+schema (`ggen_config::manifest::GgenManifest`) — chosen automatically whenever the file has a
+non-empty `[[generation.rules]]` array. The fields below are verified against
+`crates/ggen-cli/src/cmds/init.rs`'s `GGEN_TOML` scaffold const:
 
 ```toml
-[pipeline]
-# Required: RDF ontology to load (embedded or marketplace)
-ontology_uri = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+[project]
+name = "my-ggen-project"
+version = "0.1.0"
 
-# Optional: Base ontology to mix (second ontology in same run)
-ontology_base = "http://www.w3.org/2000/01/rdf-schema#"
+[ontology]
+# Path to your RDF ontology file (Turtle format)
+source = "schema/domain.ttl"
+# Restrict to standard ontologies (schema.org, FOAF, Dublin Core, SKOS, etc.)
+standard_only = true
 
-[[pipelines.steps]]
-# SPARQL query to extract data from the ontology
-sparql = """
+[generation]
+output_dir = "."
+
+# One or more generation rules; each pairs a SPARQL query with a template
+[[generation.rules]]
+name = "example-rule"
+# Inline SPARQL, or { file = "path/to/query.sparql" }
+query = { inline = """
 SELECT ?resource ?label
 WHERE {
   ?resource a rdf:Property .
   ?resource rdfs:label ?label .
 }
 ORDER BY ?label
-"""
+""" }
+# Template file, relative to the project root
+template = { file = "templates/output.tera" }
+# Output file path, relative to output_dir
+output_file = "generated.json"
+# Create | Overwrite — Create silently skips files that already exist
+mode = "Overwrite"
 
-# Optional: Template to transform the SPARQL results
-template = "output.tera"
+[sync]
+enabled = true
+on_change = "manual"
+validate_after = true
+conflict_mode = "fail"
 
-[output]
-# Output file path (relative to project root)
-file = "generated.json"
-
-# Output format (json, yaml, xml, turtle, typescript, python, go, etc.)
-format = "json"
-
-[validation]
-# Enable strict validation (reject profiles that violate constraints)
-strict_mode = true
+[rdf]
+formats = ["turtle"]
+default_format = "turtle"
+strict_validation = false
 ```
+
+There is no `[pipeline]`/`ontology_uri`/`[[pipelines.steps]]`/bare-`sparql`-string shape, and no
+`[validation].strict_mode` field, in either real schema — an earlier version of this doc invented
+one that the codebase has never implemented.
 
 ## Troubleshooting
 
@@ -376,20 +429,25 @@ ggen sync run
 # Subsequent runs: uses cache (<10 ms)
 ```
 
-### Tip 4: Batch Multiple Pipelines
+### Tip 4: Batch Multiple Generation Rules
 
-If you have multiple `[[pipelines.steps]]` in `ggen.toml`, they run sequentially. Combine where possible:
+If you have multiple `[[generation.rules]]` entries in `ggen.toml`, they run sequentially.
+Combine queries where possible rather than adding more rules than you need:
 
 ```toml
-[[pipelines.steps]]
-sparql = """
+[[generation.rules]]
+name = "combined-rule"
+query = { inline = """
 SELECT ?resource ?label ?comment
 WHERE {
   ?resource a rdf:Property .
   ?resource rdfs:label ?label .
   OPTIONAL { ?resource rdfs:comment ?comment . }
 }
-"""
+""" }
+template = { file = "templates/output.tera" }
+output_file = "generated.json"
+mode = "Overwrite"
 ```
 
 ## Next Steps

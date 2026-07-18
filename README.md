@@ -23,7 +23,7 @@ cd ggen
 cargo build -p ggen-cli-lib --bin ggen
 # binary is at target/debug/ggen
 
-# 2. Initialize a project (creates ggen.toml, schema/domain.ttl, templates/)
+# 2. Initialize a project (creates ggen.toml, schema/domain.ttl, templates/, and more — see below)
 mkdir my-project && cd my-project
 /path/to/ggen init
 
@@ -38,9 +38,10 @@ ggen receipt verify
 ```
 
 Every step above was run against a fresh `ggen init` scaffold as part of writing this README. `ggen
-init` creates `ggen.toml`, `schema/domain.ttl` (an example ontology), `templates/example.txt.tera`,
-and a `scripts/startup.sh`. Edit `schema/domain.ttl` with your own domain model and add templates
-under `templates/`, then re-run `ggen sync run`.
+init` creates 7 files: `ggen.toml`, `schema/domain.ttl` (an example ontology),
+`templates/example.txt.tera`, `scripts/startup.sh`, `Makefile`, `.gitignore`, and `README.md`
+(confirmed via the command's own `total_files: 7` JSON output). Edit `schema/domain.ttl` with your
+own domain model and add templates under `templates/`, then re-run `ggen sync run`.
 
 ## What actually works today
 
@@ -57,7 +58,7 @@ Confirmed by direct execution, not by reading source:
 
 Under the hood, the live pipeline is `ggen-engine` (a native SPARQL-in-Tera engine backed by
 `praxis-graphlaw`, an N3/Datalog/SPARQL/SHACL/ShEx implementation) — not the older `ggen-core`
-crate, which is disconnected from the workspace build (see Architecture below).
+crate, which no longer exists in this repo at all (see Architecture below).
 
 ## Maturity & Known Limitations
 
@@ -113,7 +114,7 @@ ggen.toml → RDF ontology (Turtle) → SPARQL extraction → Tera templates →
 The live pipeline (`ggen-engine`) has five stages — Resolve, Enrich, Extract, Render, Write — each
 emitting its own OpenTelemetry span (`pipeline.load`, `.extract`, `.validate`, `.generate`,
 `.emit`). Its default graph backend is `praxis-graphlaw`, a native N3/Datalog/SPARQL/SHACL/ShEx
-engine vendored into this workspace. See `.claude/rules/architecture.md` for the full 16-crate
+engine vendored into this workspace. See `.claude/rules/architecture.md` for the full 17-crate
 breakdown; this README intentionally doesn't duplicate it.
 
 ## Testing
@@ -136,5 +137,6 @@ See [LICENSE](LICENSE) for licensing terms.
 
 Issues and pull requests are welcome at
 [github.com/seanchatmangpt/ggen](https://github.com/seanchatmangpt/ggen). Before submitting a PR,
-run `just pre-commit` (fmt-check → check → lint → test-lib → coherence-check) — see `CLAUDE.md`
-for the full contributor workflow and testing discipline.
+run `just pre-commit` (fmt-check → check → lint → test-lib → coherence-check →
+guard-process-intelligence-boundary → guard-cheat-scan → guard-claims-schema; 8 gates — see
+`CLAUDE.md` for the full contributor workflow and testing discipline).

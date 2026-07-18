@@ -20,7 +20,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **Docs and examples archival** — archived stale `ggen-core`-era documentation and examples; fixed CLI invocations in docs to match live command syntax. (#256)
 
+## [26.7.3] — DX Rewrite and CI Fixes (2026-07-03)
+
+Added retroactively (2026-07-18, docs audit) — this tagged, merged release (#249, #250, #252)
+had no changelog entry.
+
+### Changed
+- **Doctor logic consolidated** — merged duplicated implementations between
+  `ggen-cli/src/cmds/doctor.rs` and `ggen-core`'s doctor module.
+- **`justfile` rewritten from 48 recipes down to 20**, removing dead/duplicate recipes.
+- **`.claude/rules` pruned** of 5 out-of-scope doctrine files not applicable to ggen's scope.
+
+### Fixed
+- **CI workflows** (`ci.yml`, `deploy-docs.yml`, `docker.yml`, `docker-build-push.yml`,
+  `automated-rollback.yml`) — repaired references to stale `ggen` subcommands and steps that no
+  longer matched the current CLI surface.
+- **`cargo-cicd` noun-verb CLI compatibility** — adapted to an upstream `cargo-cicd@main` change
+  requiring an explicit test verb.
+- **semantic-release git-add glob bug** blocking this release from publishing (#250).
+
 ## [Unreleased] — Crate Consolidation (2026-07-02)
+
+Note: despite the "Unreleased" heading, this entry's date is older than every tagged release
+above it (the workspace has since shipped 26.7.2 through 26.7.4) — its changes shipped as part
+of the 26.7.2 lineage, not a separate future release. Left as "Unreleased" rather than
+retroactively re-labeled, since the git history for exactly which tag first contained each item
+wasn't re-verified in this pass.
 
 ### Removed
 - **Workspace trimmed from 17 packages / 24 disk dirs to 10 packages / 9 disk dirs.** A 5-phase consolidation pass (see `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md`) removed dead crates and folded single-consumer/leaf crates into their sole dependent, all behind Cargo features to preserve functionality:

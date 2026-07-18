@@ -43,9 +43,13 @@ on an internal, self-generated package ID before compliance logic runs at all.
 composing the ID, or relax the package-ID format validator to accept the composed shape.
 **Repro:**
 ```bash
-ggen policy check --profile enterprise-strict   # fails identically for every profile
-ggen policy validate --profile development      # fails identically
+ggen policy check                                # no --profile flag exists on `check`; fails identically regardless
+ggen policy validate --profile development       # fails identically for every --profile value
 ```
+(Corrected 2026-07-18: `ggen policy check --profile ...` as originally written here is not
+runnable — `check` has no `--profile` flag at all, so clap rejects it before ever reaching the
+bug. `docs/aps/claims.toml`'s `cli.policy` falsifier had the same error and was fixed alongside
+this.)
 
 ---
 

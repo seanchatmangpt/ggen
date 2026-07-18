@@ -1,3 +1,11 @@
+⚠️ **SUPERSEDED — fully executed.** Every action item this document proposes (delete
+`crates/ggen-core/`, delete `wizard.rs`/`sigma.rs`/`inverse_sync.rs`, remove the
+`ggen-core-retired` feature, retarget the justfile) was carried out by PR #259 ("remove
+ggen-core, rewrite README from first principles", merged 2026-07-17) and subsequent justfile
+edits — neither of which this document was updated to reflect. `crates/ggen-core/` no longer
+exists on disk. Kept for historical context only; do not read the "Current state" section below
+as current.
+
 # ggen-core Removal Proposal
 
 Continuation of [00-OVERVIEW](00-OVERVIEW.md)'s Phase 6/7, which this ticket set always
