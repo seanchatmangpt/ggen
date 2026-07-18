@@ -247,7 +247,7 @@ pi:Algo_optimized_dfg a pi:ProcessIntelligenceAlgorithm ;
   pi:category       "discovery" ;
   pi:speedTier      "2"^^xsd:integer ;
   pi:qualityTier    "35"^^xsd:integer ;
-  pi:wasmExport     "discover_dfg" ;
+  pi:wasmExport     "discover_optimized_dfg" ;
   pi:cliAlias       "dfg-optimized" ;
   pi:inputFormat    "xes" .
 
@@ -324,7 +324,7 @@ pi:Algo_streaming_log a pi:ProcessIntelligenceAlgorithm ;
   pi:category       "discovery" ;
   pi:speedTier      "1"^^xsd:integer ;
   pi:qualityTier    "28"^^xsd:integer ;
-  pi:wasmExport     "discover_dfg" ;
+  pi:wasmExport     "discover_streaming_log" ;
   pi:inputFormat    "xes" .
 
 pi:Algo_transition_system a pi:ProcessIntelligenceAlgorithm ;

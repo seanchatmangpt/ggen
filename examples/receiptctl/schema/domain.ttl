@@ -1,0 +1,43 @@
+# receiptctl project ontology — commands specific to THIS combined CLI,
+# unioned at sync time with every wired pack's own ontology (clap-noun-verb-
+# pack's session/user sample commands included). Uses the same cnv: schema
+# clap-noun-verb-pack's template already queries — no pack modification
+# needed to add project-specific commands.
+
+@prefix cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+cnv:AlgorithmNoun a cnv:Noun ; rdfs:label "algorithm" ;
+    rdfs:comment "Inspect the wasm4pm process-intelligence algorithm catalog." .
+cnv:CognitionNoun a cnv:Noun ; rdfs:label "cognition" ;
+    rdfs:comment "Inspect the wasm4pm cognition breed catalog." .
+cnv:ReceiptNoun a cnv:Noun ; rdfs:label "receipt" ;
+    rdfs:comment "Emit OCEL events for the wasm4pm-compat receipt/pack lifecycle." .
+
+cnv:AlgorithmList
+    a              cnv:Command ;
+    cnv:noun       "algorithm" ;
+    cnv:verb       "list" ;
+    cnv:handler    "algorithm_list_handler" ;
+    cnv:doc        "List every wasm4pm process-intelligence algorithm in the generated catalog." ;
+    cnv:returnType "serde_json::Value" ;
+    cnv:args       "" .
+
+cnv:CognitionList
+    a              cnv:Command ;
+    cnv:noun       "cognition" ;
+    cnv:verb       "list" ;
+    cnv:handler    "cognition_list_handler" ;
+    cnv:doc        "List every wasm4pm cognition breed in the generated catalog." ;
+    cnv:returnType "serde_json::Value" ;
+    cnv:args       "" .
+
+cnv:ReceiptEmit
+    a              cnv:Command ;
+    cnv:noun       "receipt" ;
+    cnv:verb       "emit" ;
+    cnv:handler    "receipt_emit_handler" ;
+    cnv:doc        "Emit a receipt_chained OCEL event for a given sync-receipt id." ;
+    cnv:returnType "serde_json::Value" ;
+    cnv:args       "sync_receipt_id|String|true|The SyncReceipt object id this event relates to." .

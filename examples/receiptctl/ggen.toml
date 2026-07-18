@@ -1,0 +1,21 @@
+[project]
+name = "receiptctl"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+cnv = "http://seanchatmangpt.github.io/packs/clap-noun-verb#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[packs]
+clap-noun-verb-pack = { path = "../../packs/clap-noun-verb-pack" }
+chicago-tdd-tools-pack = { path = "../../packs/chicago-tdd-tools-pack" }
+wasm4pm-algorithms-pack = { path = "../../packs/wasm4pm-algorithms-pack" }
+wasm4pm-cognition-pack = { path = "../../packs/wasm4pm-cognition-pack" }
+wasm4pm-compat-pack = { path = "../../packs/wasm4pm-compat-pack" }
+wasm4pm-facts-pack = { path = "../../packs/wasm4pm-facts-pack" }
+
+[templates]
+dir = "templates"
