@@ -1,0 +1,4 @@
+[pack]
+name = "wasm4pm-pack"
+version = "0.1.0"
+description = "Crate-map vocabulary for the ~/wasm4pm workspace itself (distinct from packs/wasm4pm-{algorithms,cognition,compat,facts}-pack, which model wasm4pm's ANALYSIS ontology surface -- this pack models the workspace's own crate structure). Transcribed from ~/wasm4pm/Cargo.toml's `[workspace] members` list and each member crate's own Cargo.toml `description` field: wasm4pm (core WASM process-mining algorithms), tps-metrics (Toyota Production System metrics), wasm4pm-cli, miniml-core (WASM ML), wasm4pm-cognition (old-AI cognition kernel), prolog8 (proof engine), ocpq (object-centric process querying), bench-tools, wasm4pm-planner (PDDL-subset temporal planner). `wasm4pm-lsp` was removed in v26.7.1 per that Cargo.toml's own comment (unbuildable in a clean checkout) and is intentionally NOT modeled as a live crate here."
