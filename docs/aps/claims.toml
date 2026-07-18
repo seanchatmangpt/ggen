@@ -1,0 +1,164 @@
+# ggen APS claims ledger — machine-readable standing for release-relevant claims.
+#
+# Modeled on the Agile Protocol Specification 2030 claim/falsifier/standing shape
+# (see docs/aps/README.md for provenance), using THIS repo's existing
+# no-overclaiming vocabulary for `standing`:
+#   ALIVE      = falsifier ran and passed at the recorded evidence coordinate
+#   PARTIAL    = some named paths proven, others not (see notes)
+#   BLOCKED    = proven broken, or fix blocked upstream (cite file/bug)
+#   UNVERIFIED = no real evidence either way; never round up
+#
+# Verifier of record: GitHub Actions CI (required gates: Build, Check, Doctest,
+# Phase 2, Test, cargo-cicd workspace health) at the pinned commit of each PR
+# merge, plus the in-repo independent observers (ggen-cheat-scanner,
+# chicago-tdd-tools CliHarness real-subprocess tests).
+#
+# Declared nonclaim (APS "no self-certification" residual): this is a
+# single-maintainer repository. The same human authors the code, the tests, and
+# this ledger. CI provides an independent EXECUTION environment, not an
+# independent human verifier. This ledger therefore proves "the declared
+# falsifiers ran and produced the recorded outcomes at the recorded
+# coordinates" — not third-party certification.
+#
+# Evidence-coordinate honesty note: entries dated 2026-07-17 with method
+# "jtbd-workflow" come from a combinatorial real-execution verification pass
+# (13 agents, one per CLI noun; real subprocess invocations of a binary built
+# from the working tree between commits f39b7972c and a1ecb070d; real exit
+# codes, stdout, and filesystem checks — no mocks). Falsifiers are re-runnable;
+# staleness of a coordinate is a warning, not a refutation ("a failed tool is
+# not a failed claim", and equally, old evidence is not fresh evidence).
+
+schema = "ggen-aps-claims.v1"
+toolchain = "nightly-2026-06-22"
+
+# ── CLI noun JTBD claims ─────────────────────────────────────────────────────
+
+[[claims]]
+id = "cli.sync.run"
+standing = "ALIVE"
+gates = []
+falsifier = "cargo test -p ggen-engine --test cli_boundary"
+evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow + cli_boundary 28/28" }
+notes = "Dry-run writes nothing; real run generates correct file content; idempotent on re-run; corrupt ggen.toml fails with a specific error."
+
+[[claims]]
+id = "cli.graph.validate"
+standing = "ALIVE"
+gates = []
+falsifier = "cargo test -p ggen-engine --test lint_validate_e2e"
+evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow, 11/11 cases" }
+notes = "Valid Turtle passes; invalid Turtle and SHACL violations fail with real diagnostics; missing file fails cleanly."
+
+[[claims]]
+id = "cli.receipt.verify"
+standing = "ALIVE"
+gates = []
+falsifier = "cargo test -p ggen-engine --test receipt_chain_e2e"
+evidence = { commit = "1b32d7b06", date = "2026-07-17", method = "receipt_chain_e2e 16/16 incl. tamper/fail-closed cases" }
+notes = "Verifies after real sync; fails closed on bit-flip/truncation tamper; distinguishes chain failure from signature failure."
+
+[[claims]]
+id = "cli.init"
+standing = "ALIVE"
+gates = []
+falsifier = "cargo test -p ggen-cli-lib --test proof_init_test"
+evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow, 9 cases, real filesystem checks" }
+notes = "Two known FOOTGUN bugs, tracked: malformed --force bool silently coerces to false (BUG-002); exit code 0 despite JSON status:error (BUG-003). See docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md."
+
+[[claims]]
+id = "cli.law"
+standing = "ALIVE"
+gates = []
+falsifier = "target/debug/ggen law --help && cargo test -p ggen-engine --test graphlaw_e2e"
+evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow, all 5 verbs (load/derive/explain/validate/export) incl. a designed-to-fail gate case" }
+
+[[claims]]
+id = "cli.pack"
+standing = "ALIVE"
+gates = []
+falsifier = "cargo test -p ggen-cli-lib --test proof_pack_test"
+evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow, add->list/show->remove->doctor straight-line path with real lockfile+receipt checks" }
+
+[[claims]]
+id = "cli.packs"
+standing = "PARTIAL"
+gates = []
+falsifier = "cargo test -p ggen-cli-lib --test proof_packs_test"
+evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow" }
+notes = "3 of 4 verbs proven (install/validate/list) with real lockfile digest + receipt assertions; 4th verb not fully exercised."
+
+[[claims]]
+id = "cli.agent"
+standing = "ALIVE"
+gates = []
+falsifier = "cargo test -p ggen-cli-lib --test agent_lifecycle_test"
+evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow, full lifecycle re-run fresh with on-disk state checks" }
+notes = "One tracked bug: 'already installed' check reads a fixed global path instead of the project-local lockfile (BUG-004)."
+
+[[claims]]
+id = "cli.doctor"
+standing = "PARTIAL"
+gates = []
+falsifier = "cargo test -p ggen-cli-lib --test doctor_adversarial_tests --features integration"
+evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow, real sabotage scenarios on the frontmatter-schema path" }
+notes = "All three checks correct for the frontmatter (GgenConfig) schema; hard-fails on declarative-rules (GgenManifest) projects incl. this repo's own root ggen.toml — BUG-005, fix at crates/ggen-engine/src/verbs/handlers.rs:630."
+
+[[claims]]
+id = "cli.capability"
+standing = "PARTIAL"
+gates = []
+falsifier = "target/debug/ggen capability list && target/debug/ggen capability inspect mcp"
+evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow, real lockfile side-effect verification" }
+notes = "Happy path (list/inspect/enable) proven with real side effects. Gaps (GAP-001): unknown surface names silently return empty; enable has no wrong-context refusal; --projection unvalidated."
+
+[[claims]]
+id = "cli.utils"
+standing = "PARTIAL"
+gates = []
+falsifier = "target/debug/ggen utils env --list"
+evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow" }
+notes = "Only one real subcommand exists (env, with --list/--get/--set flags); proven against real environment variables. No other verbs exist to verify."
+
+[[claims]]
+id = "cli.ontology"
+standing = "UNVERIFIED"
+gates = []
+falsifier = "target/debug/ggen ontology list --embedded"
+evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow enumerated 7 real verbs; several are network/registry-dependent and could not be exercised end-to-end offline" }
+notes = "Zero pre-existing real test coverage (all prior tests targeted verbs that don't exist or were feature-archived). Verbs exist and parse; JTBD outcomes not proven."
+
+[[claims]]
+id = "cli.policy"
+standing = "BLOCKED"
+gates = []
+falsifier = "target/debug/ggen policy check --profile enterprise-strict"
+evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow, deterministic reproduction across isolated HOME environments" }
+notes = "list/show ALIVE; check/validate — the noun's core enforcement JTBD — fail 100% of invocations on an internally-composed invalid package ID (BUG-001, root cause not yet localized). See docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md."
+
+# ── Release-level claims ─────────────────────────────────────────────────────
+
+[[claims]]
+id = "release.receipt-chain-verifies"
+standing = "ALIVE"
+gates = ["publish"]
+falsifier = "cargo test -p ggen-engine --test receipt_chain_e2e"
+evidence = { commit = "1b32d7b06", date = "2026-07-17", method = "16/16 incl. legacy-unsigned, env-var key precedence, and history tamper cases" }
+
+[[claims]]
+id = "release.package-contents-clean"
+standing = "ALIVE"
+gates = ["publish"]
+falsifier = "cargo package --list -p ggen --allow-dirty && cargo package --list -p ggen-graph --allow-dirty"
+evidence = { commit = "1b32d7b06", date = "2026-07-17", method = "PR #260: root include-pattern leak fixed (855->503 files); ggen-graph audit/ excluded (39.8MB->583KiB); all 7 targets re-verified via cargo publish --dry-run in topological order" }
+notes = "This was a live instance of APS case study 4 (PACKAGE_MISMATCH): package contents diverged from repository reality until the include/exclude fixes landed."
+
+[[claims]]
+id = "release.rustsec-quick-xml"
+standing = "BLOCKED"
+gates = ["publish"]
+falsifier = "cargo audit"
+evidence = { commit = "1b32d7b06", date = "2026-07-17", method = "cargo audit + cargo tree -i per version + two real cargo update --precise 0.41.0 attempts, both refused by upstream version reqs" }
+notes = "RUSTSEC-2026-0194/0195 (quick-xml, severity 7.5 high, DoS-class): fix requires quick-xml >=0.41.0, but all three vulnerable copies (0.31.0, 0.36.2, 0.37.5) are pinned by third parties — oxigraph 0.5.9's oxrdfxml/sparesults (sparesults pinned =0.3.3 by praxis-graphlaw), wasm4pm-compat 26.6.29 via star-toml, and dev-only process_mining. Not fixable in this repo without upstream releases. Exception requires explicit maintainer admission — set exception_admitted_by to record it."
+# exception_admitted_by = ""   # <- intentionally absent until the maintainer decides;
+#                                 guard-publish-standing fails on publish-gated BLOCKED
+#                                 claims without an admitted exception, by design.

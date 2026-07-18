@@ -14,6 +14,9 @@ UX-GAP (works but confusing/inconsistent) | TECH-DEBT (test-quality backlog, not
 **Filed here instead of GitHub Issues** because Issues are disabled on `seanchatmangpt/ggen`
 (confirmed via `gh issue create` → `the 'seanchatmangpt/ggen' repository has disabled issues`).
 Follows the same doc-based tracking convention as `WASM4PM-DISCOVERED-BUGS.md` in this directory.
+**Machine-readable standing** for these bugs' parent claims (per-CLI-noun `ALIVE`/`PARTIAL`/
+`BLOCKED`/`UNVERIFIED` with falsifiers and evidence coordinates) lives in
+`docs/aps/claims.toml` — keep the two in sync.
 
 ---
 

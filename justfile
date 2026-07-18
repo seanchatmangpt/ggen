@@ -325,10 +325,10 @@ slo-check:
 # ── Quality gates ─────────────────────────────────────────────────────────────
 
 # Full pre-commit gate: fmt → check → lint → test-lib → coherence-check → boundary guard → cheat scan (in sequence, fail fast)
-pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan
+pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-claims-schema
     #!/usr/bin/env bash
     set -euo pipefail
-    echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan)"
+    echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan, claims schema)"
 
 # Security vulnerability scan
 audit:
@@ -364,6 +364,18 @@ guard-process-boundary: guard-process-intelligence-boundary
 # until that debt is triaged/fixed, same as any other newly-added real gate.
 guard-cheat-scan:
     cargo run --quiet -p ggen-cheat-scanner --bin ggen-cheat-scanner
+
+# APS claims-ledger schema validation (docs/aps/claims.toml) — structure only;
+# runs in pre-commit. Commits are not publishes, so publish-gate enforcement
+# is deliberately NOT part of this recipe.
+guard-claims-schema:
+    ./scripts/ci/guard-publish-standing.sh --schema-only
+
+# Full publish gate: run before any real `cargo publish`. Fails if any
+# publish-gated claim in docs/aps/claims.toml is BLOCKED without an explicit
+# exception_admitted_by; warns on stale evidence coordinates.
+guard-publish-standing:
+    ./scripts/ci/guard-publish-standing.sh
 
 # ── Documentation ─────────────────────────────────────────────────────────────
 
