@@ -6,6 +6,10 @@ authors.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
+homepage = "https://github.com/seanchatmangpt/ggen"
+keywords = ["rdf", "graph", "sparql", "oxigraph", "code-generation"]
+categories = ["development-tools", "data-structures"]
+exclude = ["audit/"]
 
 [dependencies]
 wasm4pm-compat = { workspace = true }

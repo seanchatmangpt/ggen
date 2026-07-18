@@ -4,6 +4,7 @@ description = "Marketplace plugin for ggen - package management system"
 readme = "README.md"
 keywords = ["marketplace", "package-management", "code-generation"]
 categories = ["development-tools"]
+homepage = "https://github.com/seanchatmangpt/ggen"
 
 [package.version]
 workspace = true

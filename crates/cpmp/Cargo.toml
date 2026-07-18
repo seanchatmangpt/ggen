@@ -5,6 +5,9 @@ edition.workspace = true
 license.workspace = true
 description = "Computer Project Mapping Protocol — scanner, capability classification, projection, receipts."
 repository.workspace = true
+homepage = "https://github.com/seanchatmangpt/ggen"
+keywords = ["ontology", "catalog", "scanner", "receipts", "capability"]
+categories = ["development-tools"]
 
 [dependencies]
 uuid = { workspace = true }
@@ -31,6 +34,11 @@ walkdir = "2.4"
 # sqlite + unstable `cfg_select` and was the cpmp build blocker). The DB layer
 # was unused dead code; gate it until a real persistence backend is wired.
 default = []
+# NOTE: enabling `sqlite` requires a nightly Rust toolchain. It pulls in
+# rusqlite's "bundled" feature, which transitively depends on a libsqlite3-sys
+# version whose build script uses the unstable `cfg_select!` macro. This is
+# not usable on stable Rust; do not enable this feature outside the pinned
+# nightly toolchain configured in `rust-toolchain.toml`.
 sqlite = ["dep:rusqlite"]
 
 [lints]
