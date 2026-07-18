@@ -130,4 +130,5 @@ Existing London TDD tests should either:
 
 - CI will fail if new London TDD patterns are introduced
 - Code review will reject PRs that add mocks/test doubles
-- `cargo make lint` should include checks for forbidden patterns
+- `just lint` should include checks for forbidden patterns (this repo's entry point is `just`,
+  not `cargo make` — see `.claude/rules/_core/absolute.md` rule 4)

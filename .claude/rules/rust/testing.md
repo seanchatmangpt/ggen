@@ -119,10 +119,13 @@ assert_eq!(content, r#"{"key": "value"}"#);
 
 ## Commands
 ```bash
-cargo make test-unit     # Fast (<16s)
-cargo make test          # Full (<30s)
-cargo make slo-check     # Performance validation
+just test-lib     # Unit/lib tests, workspace-wide (30s timeout, fast dev loop)
+just test         # Full test suite (30s hot-cache, escalates to 600s on cold compile)
+just slo-check    # Performance validation
 ```
+
+Note: there is no `cargo make` in this repo — `just` is the entry point (see
+`.claude/rules/_core/absolute.md` rule 4); `Makefile.toml` is historical reference only.
 
 ## 80/20 Focus Areas
 - Error paths and resource cleanup

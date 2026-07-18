@@ -60,11 +60,13 @@ Modular, auto-loading rules for specification-driven Rust code generation.
 
 ## 📋 Definition of Done
 
+The authoritative gate is `just pre-commit` (8 chained checks — see `andon/signals.md` for the
+full list and `justfile`'s `pre-commit:` recipe for ground truth). `just doctor` is a separate,
+optional fast local health check (`ggen doctor` CLI subcommand) — useful for a quick sanity pass,
+but it is not part of the `pre-commit` gate chain.
+
 ```bash
-just check   # No compiler errors
-just test    # All tests pass
-just lint    # No warnings
-just doctor  # Fast local health check
+just pre-commit   # the real Definition of Done
 
 # For LLM/external service features, ALSO verify:
 RUST_LOG=trace,ggen_ai=trace cargo test <test_name> 2>&1 | grep -E "llm\.|mcp\."
@@ -74,7 +76,7 @@ RUST_LOG=trace,ggen_ai=trace cargo test <test_name> 2>&1 | grep -E "llm\.|mcp\."
 ## 🏗️ Project Context
 
 - **Stack**: Rust (nightly, pinned) | Tokio | Oxigraph | Tera | Clap
-- **Architecture**: 12-crate workspace (see [architecture.md](architecture.md))
+- **Architecture**: 17-crate workspace (see [architecture.md](architecture.md))
 - **Testing**: Chicago TDD ONLY (no mocks, no test doubles)
 - **Paradigm**: Specification-driven | RDF ontologies → Code
 
