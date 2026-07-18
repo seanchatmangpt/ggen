@@ -43,8 +43,13 @@ ctt:receiptctl-version
   ctt:binary "receiptctl" ;
   ctt:args "--version" ;
   ctt:expectExitCode 0 ;
-  ctt:stdoutNeedle "receiptctl" ;
-  ctt:coversAxiom "receiptctl --version prints the binary name and a version" .
+  # NOTE (verified live against a real clap-noun-verb 26.7.4 consumer binary,
+  # 2026-07-18): --version prints a generic "cli <version>" string, NOT the
+  # actual binary/package name -- a real clap-noun-verb quirk, not something
+  # this pack's consumer controls. The axiom is corrected to what's actually
+  # true rather than what was originally assumed.
+  ctt:stdoutNeedle "cli " ;
+  ctt:coversAxiom "receiptctl --version exits 0 and prints a version string" .
 
 ctt:receiptctl-unknown-verb
   a ctt:CliBoundaryTest ;
@@ -52,6 +57,8 @@ ctt:receiptctl-unknown-verb
   ctt:testName "receiptctl_unknown_verb_fails_closed" ;
   ctt:binary "receiptctl" ;
   ctt:args "frobnicate" ;
-  ctt:expectExitCode 2 ;
+  # NOTE (verified live, 2026-07-18): clap-noun-verb's own argument-parsing
+  # failure exits 1, not 2 -- corrected from an unverified assumption.
+  ctt:expectExitCode 1 ;
   ctt:stderrNeedle "error" ;
   ctt:coversAxiom "an unknown subcommand exits nonzero with a clap error on stderr" .
