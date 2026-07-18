@@ -1,0 +1,19 @@
+[workspace]
+
+[package]
+name = "clap-noun-verb-cli"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Canonical ggen example: an end-to-end clap-noun-verb CLI generated from an RDF ontology via the clap-noun-verb-pack ggen pack."
+
+[dependencies]
+clap-noun-verb = "=26.7.4"
+clap-noun-verb-macros = "=26.7.4"
+linkme = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[[bin]]
+name = "clap-noun-verb-cli"
+path = "src/main.rs"
