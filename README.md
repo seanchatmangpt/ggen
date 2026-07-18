@@ -79,11 +79,17 @@ discovered by you:
   [--dry-run]` directly instead of the `just` wrappers for sync.
 - **`just lint` and `just bench` only cover the root `ggen` package**, not `--workspace` — passing
   clippy/bench cleanly on `just lint` does not mean every crate in the workspace is clean.
-- **`ggen-core` is disconnected but not deleted.** It's excluded from the Cargo workspace
-  (`members` → `exclude`) and does not compile standalone. It is not on any default command path;
-  treat any doc or comment that still mentions it as historical.
+- **`ggen-core` is deleted.** The legacy engine was disconnected from the workspace and then
+  removed entirely (PR #259, 2026-07-17); it survives only in git history. Treat any doc or
+  comment that still mentions it as historical.
 - **No published crate yet.** Install from source; there is no `cargo install ggen-cli` that
   resolves to this project today.
+
+The machine-readable version of this section — per-command standing (`ALIVE`/`PARTIAL`/
+`BLOCKED`/`UNVERIFIED`), the exact falsifier command for each claim, and the evidence
+coordinates behind them — lives in [`docs/aps/claims.toml`](docs/aps/claims.toml)
+(see [`docs/aps/README.md`](docs/aps/README.md)). If this prose and that ledger disagree, one
+of them is drift: fix the divergence, don't pick a favorite.
 
 If something above is stale by the time you read it, trust a live run over this file — commands are
 the ground truth, not prose.
