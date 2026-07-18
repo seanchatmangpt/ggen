@@ -1,0 +1,48 @@
+# osx-clnr-pack ontology — the real 5-stage plan-bound pipeline described
+# in ~/osx-clnr/README.md's "Architecture & Workflow" section, plus the
+# two confirmed noun groups (snapshot, receipt) grepped from literal
+# "oclnr <noun> <verb>" invocations. Not a full CLI command enumeration
+# (no source audit performed this pass).
+
+@prefix oclnr: <http://seanchatmangpt.github.io/packs/osx-clnr#> .
+@prefix cnv:   <http://seanchatmangpt.github.io/packs/clap-noun-verb#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+oclnr:Stage
+    a rdfs:Class ;
+    rdfs:label "Pipeline stage" ;
+    rdfs:comment "One step of the audit->plan->delete->receipt pipeline; deletion is plan-bound, never a live rescan." .
+
+oclnr:order a rdfs:Property ; rdfs:domain oclnr:Stage ; rdfs:range xsd:integer .
+
+oclnr:Audit
+    a oclnr:Stage ; oclnr:order 1 ;
+    rdfs:label "Audit" ;
+    rdfs:comment "Scans the filesystem with traversal barriers (skips node_modules/target) to inventory hidden tool caches." .
+
+oclnr:Plan
+    a oclnr:Stage ; oclnr:order 2 ;
+    rdfs:label "Plan" ;
+    rdfs:comment "Dry run generates a reviewable JSON plan of cleanup candidates by age/size/tool heuristic." .
+
+oclnr:Review
+    a oclnr:Stage ; oclnr:order 3 ;
+    rdfs:label "Human review" ;
+    rdfs:comment "User inspects the plan or the emitted OCEL v2 event log before anything is deleted." .
+
+oclnr:Delete
+    a oclnr:Stage ; oclnr:order 4 ;
+    rdfs:label "Delete" ;
+    rdfs:comment "Scanner is disabled; only the exact paths in the reviewed plan are deleted -- never a fresh live scan." .
+
+oclnr:Receipt
+    a oclnr:Stage ; oclnr:order 5 ;
+    rdfs:label "Receipt" ;
+    rdfs:comment "Records the result; `oclnr receipt verify` checks measured volume delta against claimed reclaim, surfacing APFS snapshot pinning if space did not come back." .
+
+oclnr:snapshot-audit  a cnv:Command ; cnv:noun "snapshot" ; cnv:verb "audit"  ; rdfs:comment "List all local APFS snapshots." .
+oclnr:snapshot-thin   a cnv:Command ; cnv:noun "snapshot" ; cnv:verb "thin"   ; rdfs:comment "Thin snapshots down to a byte budget." .
+oclnr:snapshot-delete a cnv:Command ; cnv:noun "snapshot" ; cnv:verb "delete" ; rdfs:comment "Delete the oldest, or all, local snapshots." .
+oclnr:receipt-verify  a cnv:Command ; cnv:noun "receipt"  ; cnv:verb "verify" ; rdfs:comment "Verify measured reclaim against the receipt's claim, within tolerance." .
+oclnr:emergency       a cnv:Command ; cnv:noun "emergency" ; cnv:verb "" ; rdfs:comment "Bare noun: dry-run or (--yes) execute deletion of all local snapshots + regenerable-cache sweep, for ENOSPC recovery." .

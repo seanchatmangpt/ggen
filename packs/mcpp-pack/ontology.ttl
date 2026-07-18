@@ -1,0 +1,17 @@
+# mcpp-pack ontology — partial command surface of ~/mcpp, grepped from its
+# README's literal "mcpp <noun> <verb>" invocations (not source-audited;
+# treat as a known-incomplete sample, not the full CLI surface).
+
+@prefix cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#> .
+@prefix mcp: <http://seanchatmangpt.github.io/packs/mcpp#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+mcp:aat-live         a cnv:Command ; cnv:noun "aat"         ; cnv:verb "live"   ; rdfs:comment "Run a live AAT (admissible-action-trace) trace." .
+mcp:aat-run          a cnv:Command ; cnv:noun "aat"         ; cnv:verb "run"    .
+mcp:aat-verify       a cnv:Command ; cnv:noun "aat"         ; cnv:verb "verify" .
+mcp:completions-install a cnv:Command ; cnv:noun "completions" ; cnv:verb "install" .
+mcp:lsp-routes       a cnv:Command ; cnv:noun "lsp"         ; cnv:verb "routes" .
+mcp:receipt-list     a cnv:Command ; cnv:noun "receipt"     ; cnv:verb "list"   .
+mcp:relay-verify     a cnv:Command ; cnv:noun "relay"       ; cnv:verb "verify" .
+mcp:settlement-verify a cnv:Command ; cnv:noun "settlement" ; cnv:verb "verify" .
+mcp:template-lint    a cnv:Command ; cnv:noun "template"    ; cnv:verb "lint"   .

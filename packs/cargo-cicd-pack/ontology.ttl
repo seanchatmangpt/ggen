@@ -1,0 +1,36 @@
+# cargo-cicd-pack ontology — real command surface of ~/cargo-cicd
+# (crates.io `cargo-cicd`), transcribed from its README's "Command overview"
+# table. Reuses cnv:Command/cnv:Noun/cnv:Verb from packs/clap-noun-verb-pack
+# (IRI reuse, not re-minted) because cargo-cicd is itself built on
+# clap-noun-verb 26.6.2 (confirmed: ~/cargo-cicd/Cargo.toml).
+
+@prefix cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#> .
+@prefix cc:  <http://seanchatmangpt.github.io/packs/cargo-cicd#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+cc:status-show    a cnv:Command ; cnv:noun "status"    ; cnv:verb "show"     ; rdfs:comment "Workspace status: dirty files, pending tests, trybuild result, publish readiness." .
+cc:status-audit   a cnv:Command ; cnv:noun "status"    ; cnv:verb "audit"    .
+cc:workspace-doctor  a cnv:Command ; cnv:noun "workspace" ; cnv:verb "doctor"   ; rdfs:comment "Diagnoses Cargo.toml, toolchain, git repo, cicd.toml." .
+cc:workspace-validate a cnv:Command ; cnv:noun "workspace" ; cnv:verb "validate" .
+cc:workspace-list    a cnv:Command ; cnv:noun "workspace" ; cnv:verb "list"    .
+cc:workspace-sync    a cnv:Command ; cnv:noun "workspace" ; cnv:verb "sync"    .
+cc:target-show    a cnv:Command ; cnv:noun "target"    ; cnv:verb "show"     ; rdfs:comment "Reports target/ directory size." .
+cc:target-prune   a cnv:Command ; cnv:noun "target"    ; cnv:verb "prune"    .
+cc:test-changed   a cnv:Command ; cnv:noun "test"      ; cnv:verb "changed"  ; rdfs:comment "Runs only tests for crates whose source changed since the last green commit." .
+cc:test-run       a cnv:Command ; cnv:noun "test"      ; cnv:verb "run"      .
+cc:test-bench     a cnv:Command ; cnv:noun "test"      ; cnv:verb "bench"    .
+cc:git-status     a cnv:Command ; cnv:noun "git"       ; cnv:verb "status"   .
+cc:git-fetch      a cnv:Command ; cnv:noun "git"       ; cnv:verb "fetch"    .
+cc:git-stage      a cnv:Command ; cnv:noun "git"       ; cnv:verb "stage"    .
+cc:git-commit     a cnv:Command ; cnv:noun "git"       ; cnv:verb "commit"   .
+cc:git-diff       a cnv:Command ; cnv:noun "git"       ; cnv:verb "diff"     .
+cc:git-close      a cnv:Command ; cnv:noun "git"       ; cnv:verb "close"    ; rdfs:comment "Lawful branch-close sequence." .
+cc:publish-run      a cnv:Command ; cnv:noun "publish" ; cnv:verb "run"      ; rdfs:comment "Publishes eligible workspace crates to crates.io after verifying release readiness." .
+cc:publish-check    a cnv:Command ; cnv:noun "publish" ; cnv:verb "check"    .
+cc:publish-validate a cnv:Command ; cnv:noun "publish" ; cnv:verb "validate" .
+cc:evidence-doctor a cnv:Command ; cnv:noun "evidence" ; cnv:verb "doctor" ; rdfs:comment "Adjudicates and inspects recorded process evidence (XES/OCEL logs)." .
+cc:evidence-list   a cnv:Command ; cnv:noun "evidence" ; cnv:verb "list"   .
+cc:evidence-audit  a cnv:Command ; cnv:noun "evidence" ; cnv:verb "audit"  .
+cc:evidence-show   a cnv:Command ; cnv:noun "evidence" ; cnv:verb "show"   .
+cc:evidence-reset  a cnv:Command ; cnv:noun "evidence" ; cnv:verb "reset"  .
+cc:doctor a cnv:Command ; cnv:noun "doctor" ; cnv:verb "" ; rdfs:comment "Bare noun, no verb: diagnoses repository health against a recorded baseline and reports evidence drift." .

@@ -1,0 +1,38 @@
+# anti-llm-cheat-lsp-pack ontology — the 6-layer detector stack and the
+# 2 tabulated rules from ~/anti-llm-cheat-lsp/README.md. The README states
+# the rule set is larger than this table; only the tabulated rows are
+# modeled (no rule was invented to round out the set).
+
+@prefix alc:  <http://seanchatmangpt.github.io/packs/anti-llm-cheat-lsp#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+alc:DetectorLayer
+    a rdfs:Class ; rdfs:label "Detector layer" ;
+    rdfs:comment "One layer of the multi-layered detector stack that produces diagnostics." .
+
+alc:order a rdf:Property ; rdfs:domain alc:DetectorLayer ; rdfs:range xsd:integer .
+
+alc:RawTextScanner    a alc:DetectorLayer ; alc:order 1 ; rdfs:label "Raw Text Scanner" ; rdfs:comment "Detects forbidden victory-claim terms, SemVer template defaults, log-based routing indicators." .
+alc:TreeSitterScanner a alc:DetectorLayer ; alc:order 2 ; rdfs:label "Tree-Sitter AST Scanner" ; rdfs:comment "Traverses Rust source for plain tower-lsp imports, unsafe smells (unwrap/panic), direct writes to read-only paths." .
+alc:ManifestParser    a alc:DetectorLayer ; alc:order 3 ; rdfs:label "Cargo Manifest Parser" ; rdfs:comment "Verifies Cargo.toml/Cargo.lock reject plain tower-lsp and enforce CalVer." .
+alc:MarkdownParser    a alc:DetectorLayer ; alc:order 4 ; rdfs:label "Markdown Claims Parser" ; rdfs:comment "Checks docs for overclaim victory words or unverified route claims." .
+alc:TranscriptParser  a alc:DetectorLayer ; alc:order 5 ; rdfs:label "JSON-RPC Transcript Parser" ; rdfs:comment "Validates initialize capability transcripts request LSP 3.18 features, not plain-LSP fallback." .
+alc:ReceiptValidator  a alc:DetectorLayer ; alc:order 6 ; rdfs:label "Receipt JSON Validator" ; rdfs:comment "Inspects BLAKE3-signed receipts to verify mutations carry real admission proof." .
+
+alc:Rule
+    a rdfs:Class ; rdfs:label "Detection rule" ;
+    rdfs:comment "A named, ID'd pattern this canary flags as evidence of LLM-generated cheating." .
+
+alc:ruleId a rdf:Property ; rdfs:domain alc:Rule ; rdfs:range xsd:string .
+
+alc:DeadAlt
+    a alc:Rule ; alc:ruleId "ANTI-LLM-DEAD-ALT-001" ;
+    rdfs:label "Dead alternative functions" ;
+    rdfs:comment "Functions like _v2/_alt/_correct/_fixed/_working defined but never called." .
+
+alc:Hedge
+    a alc:Rule ; alc:ruleId "ANTI-LLM-HEDGE-001" ;
+    rdfs:label "Hedge comments" ;
+    rdfs:comment "Comments admitting incomplete implementation, e.g. 'In a real implementation...', 'For now...'." .
