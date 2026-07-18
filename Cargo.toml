@@ -1,5 +1,5 @@
 [workspace.package]
-version = "26.7.5"
+version = "26.7.6"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
