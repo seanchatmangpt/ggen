@@ -398,7 +398,8 @@ mod tests {
     #[test]
     fn test_core_bundle_copy_trait() {
         let bundle1 = CoreOntologyBundle;
-        let _bundle2 = bundle1; // This is a copy, not a clone
+        let bundle2 = bundle1; // Copy, not move: bundle1 stays usable below.
+        let _ = (bundle1, bundle2); // both bindings used: proves Copy compiled, not just Clone.
 
         assert_eq!(
             CoreOntologyBundle::all().len(),

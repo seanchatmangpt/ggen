@@ -20,13 +20,13 @@ description = """
 ggen is a deterministic, language-agnostic code generation framework that treats software artifacts as projections of knowledge graphs.
 """
 include = [
-    "Cargo.toml",
+    "/Cargo.toml",
     "src/**/*",
     "templates/**/*",
     "build.rs",
-    "LICENSE",
-    "README.md",
-    "CHANGELOG.md",
+    "/LICENSE",
+    "/README.md",
+    "/CHANGELOG.md",
 ]
 # autobins = false (2026-07-16, v26.7.16 CLI-routing flip): this package's own `[[bin]]
 # name = "ggen"` (formerly here, now removed) was a byte-identical duplicate of

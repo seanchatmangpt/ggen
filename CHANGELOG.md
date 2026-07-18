@@ -5,6 +5,21 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.7.4] — ggen-core Retirement and Engine Migration (2026-07-17)
+
+### Removed
+- **`crates/ggen-core` deleted outright** — the legacy μ₁–μ₅ pipeline crate, previously disconnected from the workspace (`members` → `exclude`), has now been removed from disk entirely. `ggen sync`/`doctor`/`graph`/`receipt` route exclusively to `ggen-engine`. (#259)
+- **London-TDD mock tests** — removed `mockall`-based tests and other vacuous/mock-only tests across the workspace; replaced or deleted per Chicago TDD policy. (#257)
+
+### Added
+- **`ggen-engine`, `praxis-core`, `praxis-graphlaw` vendored** — the live code-generation pipeline (Resolve → Enrich → Extract → Render → Write) and its graph/law dependencies, replacing `ggen-core` as the default `ggen sync` path. (#255)
+- **`ggen-cheat-scanner` crate** — new workspace member for detecting test/coverage cheating patterns. (#257)
+- **5 real CLI bugs tracked in-repo** — found via combinatorial JTBD (jobs-to-be-done) verification of the CLI surface; filed as tracked issues (GitHub Issues disabled for this repo) alongside a `ggen-core` removal proposal. (#258)
+- **README rewritten from scratch** — verified against current CLI behavior rather than carried forward from the pre-migration version. (#259)
+
+### Fixed
+- **Docs and examples archival** — archived stale `ggen-core`-era documentation and examples; fixed CLI invocations in docs to match live command syntax. (#256)
+
 ## [Unreleased] — Crate Consolidation (2026-07-02)
 
 ### Removed

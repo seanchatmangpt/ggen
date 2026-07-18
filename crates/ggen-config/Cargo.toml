@@ -4,6 +4,7 @@ description = "Configuration parser and validator for ggen.toml files"
 readme = "README.md"
 keywords = ["config", "toml", "parsing", "validation"]
 categories = ["development-tools", "command-line-utilities"]
+homepage = "https://github.com/seanchatmangpt/ggen"
 
 [package.version]
 workspace = true

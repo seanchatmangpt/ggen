@@ -6,6 +6,9 @@ repository.workspace = true
 authors.workspace = true
 license.workspace = true
 description = "KNHK V2 type system — foundational data structures for workflow engine (workflow/pattern defs, execution state, errors, config)."
+homepage = "https://github.com/seanchatmangpt/ggen"
+keywords = ["workflow", "types", "pattern", "schema"]
+categories = ["data-structures", "development-tools"]
 
 [dependencies]
 serde.workspace = true
