@@ -1,4 +1,4 @@
 [pack]
 name = "osx-clnr-pack"
 version = "0.1.0"
-description = "Domain vocabulary for ~/osx-clnr (crates.io-bound `oclnr`, a plan-bound macOS disk auditor; real dependency: clap-noun-verb 26.6.2). Unlike cargo-cicd/mcpp, its README documents the pipeline in prose rather than a command table, so this pack models the pipeline's real nouns (audit -> plan -> delete -> receipt, plus snapshot/emergency) as oclnr:Stage individuals rather than guessing a full cnv:Command verb enumeration from partial grep matches."
+description = "Typed Rust catalog + reference doc, generated from domain vocabulary for ~/osx-clnr (crates.io-bound `oclnr`, a plan-bound macOS disk auditor; real dependency: clap-noun-verb 26.6.2). Unlike cargo-cicd/mcpp, its README documents the pipeline in prose rather than a command table, so this pack models the pipeline's real nouns (audit -> plan -> delete -> receipt, plus snapshot/emergency) as oclnr:Stage individuals rather than guessing a full cnv:Command verb enumeration from partial grep matches."
