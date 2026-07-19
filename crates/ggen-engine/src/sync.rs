@@ -291,6 +291,70 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         }
     }
 
+    // P2: reflexive receipts (opt-in via `[law].reflexive`). Parses this
+    // project's own `<root>/.ggen-v2/receipt-log.jsonl` (if it exists) and
+    // inserts one fixed-shape `ggenr:Sync` fact cluster per
+    // successfully-parsed line, BEFORE any template renders — so a
+    // template's SPARQL SELECTs can see the project's own sync history
+    // (syncs 0..N-1) as ordinary graph facts. A line this sync itself is
+    // about to append is not yet in the log at this point in the pipeline
+    // (the log is only appended in Stage 5, non-dry-run), so a first sync
+    // with `reflexive = true` sees zero prior `ggenr:Sync` individuals.
+    //
+    // Reflexive off (the default) or on-but-unqueried leaves output
+    // byte-identical to a pre-reflexive project: the extra `ggenr:` facts
+    // only change `graph_hash` (and hence anything that actually SELECTs
+    // them), never the write path itself.
+    if config.law.reflexive {
+        let log_path = root.join(RECEIPT_LOG_REL_PATH);
+        if let Ok(raw) = std::fs::read_to_string(&log_path) {
+            let mut malformed_count: usize = 0;
+            for (idx, line) in raw.lines().enumerate() {
+                if line.trim().is_empty() {
+                    continue;
+                }
+                match serde_json::from_str::<SyncReceipt>(line) {
+                    Ok(receipt) => {
+                        let andon_label = format!("{:?}", receipt.record.andon);
+                        let ttl = format!(
+                            "@prefix ggenr: <http://seanchatmangpt.github.io/ggen/receipt#> .\n\
+                             ggenr:sync-{chain} a ggenr:Sync ;\n\
+                             \x20   ggenr:index {idx} ;\n\
+                             \x20   ggenr:chainHash \"{chain_esc}\" ;\n\
+                             \x20   ggenr:prevChainHash \"{prev_esc}\" ;\n\
+                             \x20   ggenr:graphHash \"{graph_esc}\" ;\n\
+                             \x20   ggenr:andon \"{andon_esc}\" ;\n\
+                             \x20   ggenr:outputCount {outputs} .\n",
+                            chain = receipt.record.chain_hash_hex,
+                            idx = idx,
+                            chain_esc = turtle_escape(&receipt.record.chain_hash_hex),
+                            prev_esc = turtle_escape(&receipt.record.prev_chain_hash_hex),
+                            graph_esc = turtle_escape(&receipt.payload.graph_hash),
+                            andon_esc = turtle_escape(&andon_label),
+                            outputs = receipt.payload.outputs.len(),
+                        );
+                        graph.insert_turtle(&ttl)?;
+                    }
+                    Err(_) => {
+                        // THE ONLY place in this pipeline allowed to
+                        // silently skip bad input: everywhere else fails
+                        // closed on a malformed governing input, but the
+                        // receipt log is history this sync's author does
+                        // not directly control byte-for-byte (an
+                        // older-tool-version or hand-edited line must not
+                        // brick every future sync of the project) — the
+                        // skip is recorded here, never silently hidden.
+                        closure.insert(
+                            format!("receipt-log:MALFORMED-{malformed_count}"),
+                            "MALFORMED".to_string(),
+                        );
+                        malformed_count += 1;
+                    }
+                }
+            }
+        }
+    }
+
     drop(load_guard);
     load_span.record(
         "pipeline.duration_ms",
@@ -345,24 +409,70 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     );
     let validate_guard = validate_span.enter();
 
-    if !config.law.rules.is_empty() {
-        for rel in &config.law.rules {
-            let rule_path = root.join(rel);
-            let src = std::fs::read_to_string(&rule_path).map_err(|e| {
-                AppError::fm_law(
-                    10,
-                    format!(
-                        "rule file `{}` unreadable: {e}. Remediation: fix [law].rules.",
-                        rule_path.display()
-                    ),
-                )
-            })?;
-            closure.insert(
-                rel_display(root, &rule_path),
-                hash_file_or_missing(&rule_path),
-            );
-            graph.load_rules(&src)?;
+    // [law].rules: load every declared N3/Datalog rule file. Always
+    // attempted (an empty `rules` list is simply a no-op loop) — splitting
+    // this out from the materialize/check_denials gate below lets a
+    // hook-only project (no [law].rules at all) still get its hook packs
+    // materialized.
+    for rel in &config.law.rules {
+        let rule_path = root.join(rel);
+        let src = std::fs::read_to_string(&rule_path).map_err(|e| {
+            AppError::fm_law(
+                10,
+                format!(
+                    "rule file `{}` unreadable: {e}. Remediation: fix [law].rules.",
+                    rule_path.display()
+                ),
+            )
+        })?;
+        closure.insert(
+            rel_display(root, &rule_path),
+            hash_file_or_missing(&rule_path),
+        );
+        graph.load_rules(&src)?;
+    }
+
+    // Pack-shipped `kh:` Knowledge Hooks (P1, live pack hooks): any resolved
+    // pack may carry a `hook.ttl` next to its `ontology.ttl`/`shapes.ttl`.
+    // Loaded (and, below, materialized) BEFORE the pack SHACL-shapes loop
+    // runs, so hook-derived facts are visible to that gate too — a hook that
+    // derives a fact violating a pack's own shapes.ttl (or another pack's)
+    // must be catchable, not silently invisible to shape validation. The
+    // hook document joins the receipt closure like every other governing
+    // input.
+    let mut any_hook_loaded = false;
+    for pack in &packs {
+        let hook_path = pack.root.join("hook.ttl");
+        if !hook_path.is_file() {
+            continue;
         }
+        let hook_ttl = std::fs::read_to_string(&hook_path).map_err(|e| {
+            AppError::fm_pack(
+                14,
+                format!(
+                    "pack `{}`: hook.ttl at `{}` exists but is unreadable: {e}. \
+                     Remediation: fix the file's permissions/encoding or remove it.",
+                    pack.name,
+                    hook_path.display()
+                ),
+            )
+        })?;
+        closure.insert(
+            rel_display(root, &hook_path),
+            hash_file_or_missing(&hook_path),
+        );
+        graph.load_hook_pack(&hook_ttl)?;
+        any_hook_loaded = true;
+    }
+
+    // Materialize once whenever there is anything to materialize: either
+    // [law].rules is non-empty, or at least one pack contributed a hook.ttl
+    // this run. A project with neither runs no law stage at all (existing
+    // behavior for pre-law projects is unchanged); a project with only
+    // [law].rules or only hook packs still gets a real materialize +
+    // check_denials pass (previously gated on `[law].rules` alone, which
+    // would have silently skipped materialization for a hook-only project).
+    if !config.law.rules.is_empty() || any_hook_loaded {
         graph.materialize()?;
         let denials = graph.check_denials()?;
         if !denials.is_empty() {
@@ -370,7 +480,8 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 11,
                 format!(
                     "{} denial rule(s) violated after materialization: {}. \
-                     Remediation: fix the facts or the denial rules in [law].rules.",
+                     Remediation: fix the facts or the denial rules in [law].rules \
+                     (or a pack's hook.ttl).",
                     denials.len(),
                     denials.join("; ")
                 ),
@@ -1564,6 +1675,15 @@ pub(crate) fn write_receipt(root: &Path, report: &SyncReport) -> Result<()> {
         })?;
     std::fs::write(&receipt_path, serde_json::to_vec(&receipt)?)?;
     Ok(())
+}
+
+/// Escape a plain string for embedding in a Turtle `"..."` literal
+/// (backslash and double-quote only — the values this is used for, hex
+/// hashes and a `{:?}`-formatted [`praxis_core::Andon`], never contain
+/// literal newlines in the sync-writer's own output, but escaping is
+/// unconditional rather than assumed).
+fn turtle_escape(s: &str) -> String {
+    s.replace('\\', "\\\\").replace('"', "\\\"")
 }
 
 /// Lowercase hex of a 32-byte hash.

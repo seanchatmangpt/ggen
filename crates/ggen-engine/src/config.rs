@@ -73,6 +73,15 @@ pub struct Law {
     /// validated against the post-materialization graph.
     #[serde(default)]
     pub shapes: Vec<PathBuf>,
+    /// Opt-in reflexive receipts: when `true`, `<root>/.ggen-v2/receipt-log.jsonl`
+    /// (if it exists) is parsed at Stage 1 and each successfully-parsed sync
+    /// receipt is inserted into the graph as a fixed-shape `ggenr:Sync`
+    /// fact cluster, before any template renders — so SPARQL SELECTs in
+    /// templates can see the project's own sync history. Defaults `false`:
+    /// existing projects are entirely unaffected (byte-identical output and
+    /// receipt/lock behavior) unless they opt in.
+    #[serde(default)]
+    pub reflexive: bool,
 }
 
 /// `[project]` — identity of the generating project.
