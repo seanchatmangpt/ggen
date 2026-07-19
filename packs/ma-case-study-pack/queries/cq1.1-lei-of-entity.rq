@@ -1,0 +1,22 @@
+# CQ1.1 (COMPETENCY_QUESTIONS.md concept 1): "What is the LEI of the entity
+# identified as <iri>?"
+#
+# Added in the 2026-07-18 L5-push Round 3 pass to widen Question coverage
+# beyond the 3 queries committed in Round 2. General form: every entity paired
+# with its LEI literal code, so a specific-entity answer is a FILTER/binding
+# away without touching this query's shape. Verified live via the scratch
+# consumer at /private/tmp/claude-501/-Users-sac-ggen/70ac08c7-8655-49c4-baa2-018bc441bb4c/
+# scratchpad/l5-round3-ma-case-study-pack/ against fixtures/case.ttl (2 rows:
+# acquirer-meridian-holdings-group -> "5493001234MERIDIANHG",
+# target-corvantis-systems -> "5493005678CORVANTISX") and fixtures/case-2.ttl
+# (2 rows, Solvane/Northgate LEI codes) -- not merely written, executed.
+
+PREFIX cmns-id: <https://www.omg.org/spec/Commons/Identifiers/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX fibo-be-le-lei: <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LEIEntities/>
+
+SELECT ?entity ?leiCode WHERE {
+  ?entity a fibo-be-le-lei:LEIRegisteredEntity ;
+          cmns-id:isIdentifiedBy ?identifier .
+  ?identifier dcterms:identifier ?leiCode .
+}

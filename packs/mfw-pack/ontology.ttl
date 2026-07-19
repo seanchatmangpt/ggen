@@ -49,15 +49,32 @@ mfw:Replay               mfw:nextStage mfw:Observe .
 mfw:AuthoritySurface a rdfs:Class ; rdfs:label "MFW repository authority surface" .
 mfw:path a rdf:Property ; rdfs:domain mfw:AuthoritySurface ; rdfs:range xsd:string .
 
-mfw:OntologySurface a mfw:AuthoritySurface ; mfw:path "ontology/"   ; rdfs:comment "Canonical declarations, observations, claims, obligations, horizons, countermodels." .
-mfw:ProfilesSurface a mfw:AuthoritySurface ; mfw:path "profiles/"   ; rdfs:comment "Explicit capability, bounds, trust, generation, and runtime policies." .
-mfw:TransformSurface a mfw:AuthoritySurface ; mfw:path "transform/" ; rdfs:comment "Queries, mappings, intermediate representations, and ggen templates." .
-mfw:TheorySurface    a mfw:AuthoritySurface ; mfw:path "mfw-theory/" ; rdfs:comment "Constructive Lean definitions and kernel-checked proofs." .
-mfw:RuntimeSurface   a mfw:AuthoritySurface ; mfw:path "runtime/"   ; rdfs:comment "Rust execution, planning, brokerage, receipts, and replay." .
-mfw:VerifierSurface  a mfw:AuthoritySurface ; mfw:path "verifier/"  ; rdfs:comment "Axiom, correspondence, manifest, receipt, and replay validation." .
-mfw:FixturesSurface  a mfw:AuthoritySurface ; mfw:path "fixtures/"  ; rdfs:comment "Positive, negative, integration, chaos, and replay evidence." .
-mfw:DocsSurface      a mfw:AuthoritySurface ; mfw:path "docs/"      ; rdfs:comment "Explanations and projections; never standing authority." .
-mfw:ReceiptsSurface  a mfw:AuthoritySurface ; mfw:path "receipts/"  ; rdfs:comment "Content-addressed evidence or receipt manifests, per repository policy." .
+# mfw:standingAuthority is a real behavior-contract predicate, not another
+# descriptive fact: per ~/mfw/AGENTS.md's own law, `docs/` is EXPLICITLY the
+# one surface that can never carry standing authority ("Explanations and
+# projections; never standing authority" -- already present as a comment on
+# mfw:DocsSurface above; this property makes that specific rule
+# machine-checkable instead of only human-readable prose). Every other
+# authority surface (ontology/, profiles/, transform/, mfw-theory/,
+# runtime/, verifier/, fixtures/, receipts/) DOES carry standing authority
+# per the same document's per-surface descriptions (canonical declarations,
+# explicit policies, kernel-checked proofs, receipted execution, validation,
+# evidence, and content-addressed receipts respectively -- none of those are
+# "explanation" surfaces). A template-generated `is_standing_authority(path)`
+# function (see mfw_catalog.rs.tmpl) is therefore driven by this relation,
+# not a hardcoded `path != "docs/"` special case in Rust.
+mfw:standingAuthority a rdf:Property ; rdfs:domain mfw:AuthoritySurface ; rdfs:range xsd:boolean ;
+    rdfs:comment "Whether this authority surface can be a standing (binding) source of truth, per ~/mfw/AGENTS.md's authority-surface law." .
+
+mfw:OntologySurface a mfw:AuthoritySurface ; mfw:path "ontology/"   ; mfw:standingAuthority true ; rdfs:comment "Canonical declarations, observations, claims, obligations, horizons, countermodels." .
+mfw:ProfilesSurface a mfw:AuthoritySurface ; mfw:path "profiles/"   ; mfw:standingAuthority true ; rdfs:comment "Explicit capability, bounds, trust, generation, and runtime policies." .
+mfw:TransformSurface a mfw:AuthoritySurface ; mfw:path "transform/" ; mfw:standingAuthority true ; rdfs:comment "Queries, mappings, intermediate representations, and ggen templates." .
+mfw:TheorySurface    a mfw:AuthoritySurface ; mfw:path "mfw-theory/" ; mfw:standingAuthority true ; rdfs:comment "Constructive Lean definitions and kernel-checked proofs." .
+mfw:RuntimeSurface   a mfw:AuthoritySurface ; mfw:path "runtime/"   ; mfw:standingAuthority true ; rdfs:comment "Rust execution, planning, brokerage, receipts, and replay." .
+mfw:VerifierSurface  a mfw:AuthoritySurface ; mfw:path "verifier/"  ; mfw:standingAuthority true ; rdfs:comment "Axiom, correspondence, manifest, receipt, and replay validation." .
+mfw:FixturesSurface  a mfw:AuthoritySurface ; mfw:path "fixtures/"  ; mfw:standingAuthority true ; rdfs:comment "Positive, negative, integration, chaos, and replay evidence." .
+mfw:DocsSurface      a mfw:AuthoritySurface ; mfw:path "docs/"      ; mfw:standingAuthority false ; rdfs:comment "Explanations and projections; never standing authority." .
+mfw:ReceiptsSurface  a mfw:AuthoritySurface ; mfw:path "receipts/"  ; mfw:standingAuthority true ; rdfs:comment "Content-addressed evidence or receipt manifests, per repository policy." .
 
 mfw:SourceSnapshot a rdfs:Class ; rdfs:label "dated snapshot of the ~/mfw source this pack was transcribed from" .
 mfw:sourceFile a rdf:Property ; rdfs:domain mfw:SourceSnapshot ; rdfs:range xsd:string .

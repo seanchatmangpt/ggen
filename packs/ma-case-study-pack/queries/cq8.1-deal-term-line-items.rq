@@ -1,0 +1,22 @@
+# CQ8.1 (COMPETENCY_QUESTIONS.md concept 8): "What is the current
+# price-per-share, exchange ratio, earnout, and escrow percentage on the
+# table?"
+#
+# Added in the 2026-07-18 L5-push Round 3 pass -- the first committed query
+# to exercise Concept 8 (ma:DealTermLineItem), which only fixtures/case-2.ttl
+# asserts (case.ttl and the mega-deal fixture do not touch this concept).
+# Verified live against fixtures/case-2.ttl (2 rows:
+# original-offer-price-per-share -> PricePerShare/42.50,
+# original-offer-escrow -> EscrowPercentage/10.00) and confirmed 0 rows
+# against fixtures/case.ttl (a real negative check: that fixture's own
+# header discloses it does not exercise Concept 8) via the scratch consumer
+# at /private/tmp/claude-501/-Users-sac-ggen/70ac08c7-8655-49c4-baa2-018bc441bb4c/
+# scratchpad/l5-round3-ma-case-study-pack/.
+
+PREFIX ma: <http://seanchatmangpt.github.io/packs/ma-case-study#>
+
+SELECT ?term ?termType ?termValue WHERE {
+  ?term a ma:DealTermLineItem ;
+        ma:termType ?termType ;
+        ma:termValue ?termValue .
+}

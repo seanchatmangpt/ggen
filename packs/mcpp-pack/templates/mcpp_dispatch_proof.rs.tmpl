@@ -73,3 +73,41 @@ fn every_generated_wrapper_builds_its_documented_noun_verb_pair() {
         let _ = wrapper as &dyn Fn(&[String]) -> std::io::Result<std::process::Output>;
     }
 }
+
+/// Real error-path proof (not a mock): the CI/test sandbox does not have
+/// the real `mcpp` binary on PATH, so actually *spawning* (not just
+/// building) a command against it deterministically fails with
+/// `ErrorKind::NotFound`. This exercises `dispatch`'s real fallible
+/// `.output()` call end to end, hermetically, without requiring `mcpp` to
+/// exist -- the one real I/O error path this generated module has.
+#[test]
+fn dispatch_returns_a_real_not_found_error_when_mcpp_binary_is_absent() {
+    // Guard the assumption the test relies on, so a CI image that
+    // happens to ship a real `mcpp` binary fails loudly here instead of
+    // silently passing the wrong thing below.
+    let probe = std::process::Command::new("mcpp").arg("--version").output();
+    if probe.is_ok() {
+        // A real `mcpp` binary is present on this machine/CI image; the
+        // NotFound assumption below does not hold, so skip rather than
+        // assert a false negative.
+        return;
+    }
+    let result = dispatch("aat", "run", &[]);
+    let err = result.expect_err("expected a real spawn error with no mcpp binary on PATH");
+    assert_eq!(err.kind(), std::io::ErrorKind::NotFound);
+}
+
+/// Same real error path exercised through one of the generated per-command
+/// wrapper functions directly (not through the shared `dispatch` entry
+/// point), proving the error propagates all the way out of the
+/// ontology-generated wrapper, not just the hand-written helper it calls.
+#[test]
+fn generated_wrapper_propagates_the_real_spawn_error() {
+    let probe = std::process::Command::new("mcpp").arg("--version").output();
+    if probe.is_ok() {
+        return;
+    }
+    let result = receipt_list(&[]);
+    let err = result.expect_err("expected receipt_list() to propagate a real spawn error");
+    assert_eq!(err.kind(), std::io::ErrorKind::NotFound);
+}

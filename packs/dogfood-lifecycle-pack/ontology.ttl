@@ -136,6 +136,29 @@ dfl:dischargedBy
     rdfs:range  dfl:ToolEvent ;
     rdfs:comment "Links a discharged Obligation to the later dfl:Ok ToolEvent (same agent, same session) that discharged it. Asserted by hook.ttl's discharge_review_obligation hook, never by derive_review_obligation." .
 
+# ── Escalation extension (v26.7.19, Obligation-lifecycle L3->L4) ───────────
+# dfl:escalatedBy follows the SAME "optional pointer property, not a status
+# enum value" discipline as dfl:dischargedBy (see hook.ttl's own note on why
+# obligationStatus cannot safely carry a third append-only value): an
+# Obligation that has gone 3+ later same-agent/same-session ToolEvents
+# without being discharged is OVERDUE, and hook.ttl's third hook
+# (escalate_overdue_obligation) CONSTRUCTs dfl:escalatedBy pointing at the
+# ToolEvent whose sequenceIndex crossed that threshold. Deliberately NOT
+# gated on "not yet discharged" (no FILTER NOT EXISTS -- see hook.ttl's own
+# documented parse failure with that construct): both dfl:escalatedBy and
+# dfl:dischargedBy may legitimately coexist on the same Obligation (it
+# escalated for being slow, then was later discharged anyway) -- this is
+# truthful append-only history, not a contradiction, and is why escalation
+# is its own pointer property rather than a mutually-exclusive
+# obligationStatus value that would violate shapes.ttl's existing
+# sh:maxCount 1 on that property.
+dfl:escalatedBy
+    a           rdf:Property ;
+    rdfs:label  "escalatedBy" ;
+    rdfs:domain dfl:Obligation ;
+    rdfs:range  dfl:ToolEvent ;
+    rdfs:comment "Links an overdue Obligation to the later same-agent/same-session ToolEvent whose sequenceIndex first crossed the escalation threshold (derivedFrom's sequenceIndex + 3), asserted by hook.ttl's escalate_overdue_obligation hook. May coexist with dfl:dischargedBy (escalated-then-discharged is truthful history, not a contradiction)." .
+
 dfl:firesAfter
     a           rdf:Property ;
     rdfs:label  "firesAfter" ;

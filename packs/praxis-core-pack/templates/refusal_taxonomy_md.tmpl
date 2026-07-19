@@ -1,5 +1,7 @@
 ---
 to: docs/praxis_core_refusal_taxonomy.md
+freeze_policy: checksum
+freeze_slots_dir: .ggen/freeze/praxis-core-pack
 sparql:
   scenarios: "PREFIX pxc: <http://seanchatmangpt.github.io/packs/praxis-core#> SELECT ?scenario ?categoryLabel ?lane ?kind ?note WHERE { ?s a pxc:RefusalScenario ; pxc:scenarioName ?scenario ; pxc:hasCategory ?cat ; pxc:denialLane ?lane ; pxc:variantKind ?kind ; pxc:note ?note . ?cat pxc:categoryLabel ?categoryLabel } ORDER BY ?scenario"
 ---

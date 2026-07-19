@@ -260,3 +260,52 @@ smon:flag_ungoverned_transition_action
     a kh:Action ;
     kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
     kh:query """CONSTRUCT { _:ungov <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://seanchatmangpt.github.io/packs/self-monitoring#UngovernedTransition> . _:ungov <http://seanchatmangpt.github.io/packs/self-monitoring#hasUngovernedQuestion> ?q . _:ungov <http://seanchatmangpt.github.io/packs/self-monitoring#hasUngovernedResponse> ?resp . } WHERE { ?q a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/isPartOf> ?session . ?resp a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#Other> ; <http://seanchatmangpt.github.io/packs/self-monitoring#immediatelyFollows> ?q ; <http://purl.org/dc/terms/isPartOf> ?session . }""" .
+
+# ============================================================================
+# L5-PUSH (round 3) ADDITION: smon:escalate_overdue_obligation -- closes the
+# Obligation-lifecycle L4 bar ("Overdue/undischarged obligations escalate
+# via the same hook mechanism"). Fires when a High-severity,
+# smon:deadlineHint smon:ActNow smon:PrioritizedEscalationObligation is
+# still smon:status smon:Open (never discharged/refused) at a point where
+# the session has moved on to a LATER turn (MAX(sequenceIndex) in the
+# session > the obligation's originating turn's sequenceIndex). This is the
+# SAME kh:Hook + SPARQL-CONSTRUCT mechanism every hook above uses -- not a
+# new evaluator, a new watchdog process, or wall-clock logic. "Overdue"
+# here is defined structurally (session time advanced past the ActNow
+# obligation without a discharge/refusal fact appearing), which is the only
+# notion of "time" this append-only, replay-driven engine has -- there is
+# no live wall clock inside a materialize() pass. See
+# fixtures/pattern-overdue.ttl for the real firing proof and README.md's
+# "Obligation lifecycle" verification section for the live command/output.
+# ============================================================================
+#
+# ENGINE LIMITATION FOUND LIVE (disclosed, not hidden): an earlier draft of
+# this hook used a `{ SELECT ?session (MAX(?i3) AS ?maxIdx) WHERE {...}
+# GROUP BY ?session }` subquery to compute "the latest turn's index" and
+# FILTER(?maxIdx > ?i2) against it. That subquery ALWAYS returned zero rows
+# once wired into this FILTER, even though MAX(...) itself evaluated fine in
+# isolation -- the aggregate's output binding was an untyped plain literal
+# ("9") instead of an xsd:integer-typed one, so the numeric `>` comparison
+# against ?i2 (which IS xsd:integer, from smon:sequenceIndex's declared
+# range) silently failed to match for every row, confirmed live via a
+# throwaway scratch harness this pass (SELECT-only, both forms compared
+# directly). Neither `xsd:integer(?maxIdx)` casting nor `STR()` recovered a
+# match. Worked around by dropping the aggregate: the condition below
+# instead directly existentially matches "some turn ?later in the same
+# session with a strictly higher sequenceIndex", which needs no aggregate
+# and is exactly as correct for firing purposes (existence of any later
+# turn, not specifically the LATEST one) -- confirmed live to fire.
+
+smon:escalate_overdue_obligation
+    a kh:Hook ;
+    kh:name "escalate_overdue_obligation" ;
+    kh:kind "sparql" ;
+    kh:query """SELECT ?esc ?q2 WHERE { ?esc a <http://seanchatmangpt.github.io/packs/self-monitoring#PrioritizedEscalationObligation> ; <http://seanchatmangpt.github.io/packs/self-monitoring#status> <http://seanchatmangpt.github.io/packs/self-monitoring#Open> ; <http://seanchatmangpt.github.io/packs/self-monitoring#deadlineHint> <http://seanchatmangpt.github.io/packs/self-monitoring#ActNow> ; <http://seanchatmangpt.github.io/packs/self-monitoring#hasGroundingQuestion> ?q2 . ?q2 <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i2 . ?later a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i3 . FILTER(?i3 > ?i2) }""" ;
+    kh:effect "emit-delta" ;
+    kh:action smon:escalate_overdue_obligation_action ;
+    kh:priority 1 .
+
+smon:escalate_overdue_obligation_action
+    a kh:Action ;
+    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:query """CONSTRUCT { _:overdue <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://seanchatmangpt.github.io/packs/self-monitoring#OverdueEscalationObligation> . _:overdue <http://seanchatmangpt.github.io/packs/self-monitoring#escalates> ?esc . _:overdue <http://seanchatmangpt.github.io/packs/self-monitoring#status> <http://seanchatmangpt.github.io/packs/self-monitoring#Open> . _:overdue <http://seanchatmangpt.github.io/packs/self-monitoring#reason> 'a High-severity, ActNow-deadline PrioritizedEscalationObligation remained Open (never discharged or refused) into a later turn of the same session -- the ActNow deadline was structurally violated' . } WHERE { ?esc a <http://seanchatmangpt.github.io/packs/self-monitoring#PrioritizedEscalationObligation> ; <http://seanchatmangpt.github.io/packs/self-monitoring#status> <http://seanchatmangpt.github.io/packs/self-monitoring#Open> ; <http://seanchatmangpt.github.io/packs/self-monitoring#deadlineHint> <http://seanchatmangpt.github.io/packs/self-monitoring#ActNow> ; <http://seanchatmangpt.github.io/packs/self-monitoring#hasGroundingQuestion> ?q2 . ?q2 <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i2 . ?later a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i3 . FILTER(?i3 > ?i2) }""" .

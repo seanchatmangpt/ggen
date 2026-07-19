@@ -316,6 +316,104 @@ fn exactly_the_thirteen_known_scenarios_are_present() {
     }
 }
 
+/// Compiled fidelity check against the REAL `praxis-core` crate: when the
+/// consumer enables the `praxis-core-live` feature and has a dependency on
+/// `praxis-core` (path or version), this module compiles against the real
+/// `RefusalScenario`/`RefusalCategory` types and calls the real
+/// `RefusalScenario::category()` for every one of the 13 variants,
+/// asserting it agrees with this pack's generated table's `category` column
+/// (via `RefusalCategory`'s real `Display` impl, lowercased form). This is a
+/// genuine compiled dependency on the pinned target crate, not a text scan
+/// -- if `praxis-core` renames a variant, changes a category mapping, or
+/// drops a variant, this fails to compile or fails the assertion instead of
+/// silently agreeing with a stale generated table.
+///
+/// Honest scope: this module is shipped by the pack and is exercised here in
+/// a real scratch consumer with a path dependency on `praxis-core`, proving
+/// the mechanism compiles and passes against the live crate today. It is
+/// NOT wired into this repo's own CI pipeline (no workspace consumer
+/// currently enables `praxis-core-live`), so this reaches L3's "compiled
+/// against the pinned target crate in the pack's own [proof]" but not L4's
+/// "version bump ... detected and re-verified automatically" (nothing runs
+/// this on a `praxis-core` version bump without a human invoking it).
+#[cfg(feature = "praxis-core-live")]
+mod live_fidelity {
+    use praxis_core::refusal::{RefusalCategory, RefusalScenario};
+
+    fn category_label(c: RefusalCategory) -> String {
+        c.to_string()
+    }
+
+    #[test]
+    fn every_struct_variant_category_matches_generated_table() {
+        let cases: &[(RefusalScenario, &str)] = &[
+            (
+                RefusalScenario::BlockingConstraint {
+                    reason: "x".to_string(),
+                },
+                "lifecycle",
+            ),
+            (
+                RefusalScenario::MissingEvidence {
+                    evidence_type: "x".to_string(),
+                },
+                "prerequisites",
+            ),
+            (
+                RefusalScenario::UnsatisfiedPrecondition {
+                    predicate_id: "x".to_string(),
+                },
+                "prerequisites",
+            ),
+            (
+                RefusalScenario::KernelDenied { pred_id: 1 },
+                "authorization",
+            ),
+            (
+                RefusalScenario::KernelInvalid {
+                    rejection: "x".to_string(),
+                },
+                "identity",
+            ),
+            (
+                RefusalScenario::AndonInvariantViolated {
+                    invariant_id: "x".to_string(),
+                },
+                "topology",
+            ),
+        ];
+        for (scenario, expected_category) in cases {
+            assert_eq!(
+                category_label(scenario.category()),
+                *expected_category,
+                "real praxis_core::refusal::RefusalScenario::category() for {scenario:?} \
+                 disagrees with this pack's generated table"
+            );
+        }
+    }
+
+    #[test]
+    fn every_unit_variant_category_matches_generated_table() {
+        let cases: &[(RefusalScenario, &str)] = &[
+            (RefusalScenario::WatchdogDrained, "temporal"),
+            (RefusalScenario::PreconditionFailed, "prerequisites"),
+            (RefusalScenario::SlaBreach, "temporal"),
+            (RefusalScenario::AuthorizationDenied, "authorization"),
+            (RefusalScenario::ResourceExhausted, "capacity"),
+            (RefusalScenario::ObjectLifecycleViolation, "lifecycle"),
+            (RefusalScenario::ConformanceGateFailed, "topology"),
+        ];
+        for (scenario, expected_category) in cases {
+            assert_eq!(
+                category_label(scenario.category()),
+                *expected_category,
+                "real praxis_core::refusal::RefusalScenario::category() for {scenario:?} \
+                 disagrees with this pack's generated table"
+            );
+        }
+    }
+}
+
 /// Live drift check against the real `crates/praxis-core/src/refusal.rs`
 /// source in this workspace checkout: counts the distinct `RefusalScenario`
 /// variant arms in its `category()` match and asserts it equals this pack's

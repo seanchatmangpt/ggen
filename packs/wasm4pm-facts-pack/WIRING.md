@@ -13,7 +13,13 @@ wasm4pm-facts-pack = { path = "../../packs/wasm4pm-facts-pack" }
 - `src/wasm4pm_facts_registry.rs` (typed `BREEDS`/`ALGORITHMS` catalog + `lookup_breed`/`lookup_algorithm`/`algorithms_by_category`)
 - `tests/wasm4pm_facts_pack_registry_proof.rs` (spot-check proof, 8 individuals)
 - `tests/wasm4pm_facts_pack_full_coverage_proof.rs` (mechanical proof, all 115 individuals)
-- an injected `mod wasm4pm_facts_registry;` line into the consumer's own `src/lib.rs` -- **note:** `inject: true` requires the target file to already exist (`ggen-engine`'s `write.rs` returns `[FM-WRITE-003]` and refuses the sync otherwise) -- so the consumer's `src/lib.rs` must exist (even if empty) before the first sync.
+- `src/wasm4pm_facts_lib_wiring.rs` -- **not** injected into the consumer's `src/lib.rs` directly. An earlier version of this template used `to: src/lib.rs` with `inject: true`, which works for exactly one pack in isolation but hits this engine's own `FM-WRITE-008` duplicate-output guard the moment a second pack (e.g. `wasm4pm-cognition-pack`) targets the same file in the same real consumer -- confirmed live in `examples/receiptctl`, which wires both. The template now targets this pack-uniquely-named file instead. **The consumer must add one line by hand** to their own `src/lib.rs`:
+
+  ```rust
+  include!("wasm4pm_facts_lib_wiring.rs");
+  ```
+
+  This mounts `mod wasm4pm_facts_registry;` (the file's sole content) without colliding with any other pack's own wiring file. This is a real, disclosed, non-zero consumer-effort step -- not the "consumer wires `ggen.toml`, done" bar of L5.
 
 ## Optional: activate law-derived breed standing
 

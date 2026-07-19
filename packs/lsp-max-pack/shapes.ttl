@@ -1,0 +1,112 @@
+# shapes.ttl -- SHACL shapes constraining lm:LintRule individuals.
+#
+# Round 3 closure attempt on "Ontology expressiveness" (L3 -> partial L4):
+# the ontology previously stated only flat scalar facts with no checked
+# cardinality or enumeration constraints -- an author could add a 4th
+# lm:LintRule with a missing lm:pattern, a typo'd lm:severity ("Error"),
+# or an lm:evalBudget value the real EvalBudget enum doesn't accept
+# ("lazy"), and nothing would catch it before ggen sync silently emitted
+# broken TOML. These shapes make cardinality, non-emptiness, and the two
+# real closed enumerations (severity, eval_budget -- severity re-verified
+# 2026-07-19, eval_budget verified 2026-07-18, both against
+# `~/lsp-max/src/rule_pack_server.rs`) into machine-checked constraints
+# instead of unstated convention. Note: `severity` is not a Rust enum in
+# the real target (it's matched as a raw `&str`, unknown values silently
+# fall back to WARNING) -- the sh:in list below encodes the 4 strings the
+# match arm actually recognizes, not a compiler-enforced closed set.
+# This does not reach the full L4 bar ("behavior contracts, state
+# transitions") -- these are structural/enumeration constraints, not
+# pre/post-conditions over a state machine -- but it is real, checked
+# structure beyond L3's "thin projection" ontology. Run with:
+#   ggen graph validate --files packs/lsp-max-pack/ontology.ttl \
+#                        --shapes packs/lsp-max-pack/shapes.ttl
+
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix lm:   <http://seanchatmangpt.github.io/packs/lsp-max#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+lm:LintRuleShape
+    a sh:NodeShape ;
+    sh:targetClass lm:LintRule ;
+
+    sh:property [
+        sh:path     lm:ruleId ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern  "^LSPMAX-[A-Z]+-[0-9]{3}$" ;
+        sh:message  "A LintRule must carry exactly one lm:ruleId matching LSPMAX-<CODE>-<NNN>." ;
+    ] ;
+    sh:property [
+        sh:path     lm:name ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A LintRule must carry exactly one non-empty lm:name." ;
+    ] ;
+    sh:property [
+        sh:path     lm:severity ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:in       ( "error" "warning" "info" "hint" ) ;
+        sh:message  "lm:severity must be exactly one of \"error\"/\"warning\"/\"info\"/\"hint\" -- the 4 strings rule_pack_server.rs's severity match arm maps to a real DiagnosticSeverity (any other string silently falls back to WARNING there, verified 2026-07-19 by reading rule_pack_server.rs's severity-parsing match)." ;
+    ] ;
+    sh:property [
+        sh:path     lm:pattern ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A LintRule must carry exactly one non-empty lm:pattern (compiled as regex::Regex by the real engine)." ;
+    ] ;
+    sh:property [
+        sh:path     lm:pathGlobs ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A LintRule must carry exactly one non-empty lm:pathGlobs (space-separated glob list)." ;
+    ] ;
+    sh:property [
+        sh:path     lm:excludeGlobs ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A LintRule must carry exactly one non-empty lm:excludeGlobs (space-separated glob list)." ;
+    ] ;
+    sh:property [
+        sh:path     lm:evalBudget ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:in       ( "sync" "background" ) ;
+        sh:message  "lm:evalBudget must be exactly one of \"sync\"/\"background\" (rule_pack_server.rs::EvalBudget, #[serde(rename_all=\"snake_case\")], verified 2026-07-18)." ;
+    ] ;
+    sh:property [
+        sh:path     lm:message ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A LintRule must carry exactly one non-empty lm:message." ;
+    ] ;
+    sh:property [
+        sh:path     lm:rationale ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A LintRule must carry exactly one non-empty lm:rationale." ;
+    ] .
+
+lm:RulePackShape
+    a sh:NodeShape ;
+    sh:targetClass lm:RulePack ;
+
+    sh:property [
+        sh:path     rdfs:label ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A RulePack must carry exactly one non-empty rdfs:label." ;
+    ] ;
+    sh:property [
+        sh:path     lm:packDescription ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A RulePack must carry exactly one non-empty lm:packDescription." ;
+    ] .

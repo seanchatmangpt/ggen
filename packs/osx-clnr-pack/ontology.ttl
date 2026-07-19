@@ -66,6 +66,25 @@ oclnr:snapshot-delete a cnv:Command ; cnv:noun "snapshot" ; cnv:verb "delete" ; 
 oclnr:receipt-verify  a cnv:Command ; cnv:noun "receipt"  ; cnv:verb "verify" ; rdfs:comment "Verify the contents, integrity, and filesystem consistency of a deletion receipt." .
 oclnr:emergency       a cnv:Command ; cnv:noun "emergency" ; cnv:verb "" ; rdfs:comment "Bare noun: dry-run or (--yes) execute deletion of all local snapshots + regenerable-cache sweep, for ENOSPC recovery." .
 
+# --- Handler-gap closure (round 3): oclnr:dispatchesTo names the exact
+# generated function in `osx_clnr_plan.rs` that implements a command's real
+# behavior, or the empty string if no generated behavior exists for it yet.
+# `osx_clnr_dispatch.rs.tmpl` reads this fact to decide, per command,
+# whether to emit a real generated handler (dispatchesTo non-empty) or a
+# method on the hand-write seam trait `OclnrHandlerSeam` (dispatchesTo
+# empty) -- so adding a new command here with an empty dispatchesTo
+# automatically grows the required hand-write surface, and modeling its
+# real algorithm later (non-empty dispatchesTo) automatically shrinks it,
+# with no template edit either way.
+oclnr:dispatchesTo a rdfs:Property ; rdfs:domain cnv:Command ; rdfs:range xsd:string ;
+    rdfs:comment "Name of the osx_clnr_plan.rs function that implements this command's real behavior, or \"\" if none is modeled yet (hand-write seam)." .
+
+oclnr:snapshot-audit  oclnr:dispatchesTo "" .
+oclnr:snapshot-thin   oclnr:dispatchesTo "parse_size_in_bytes" .
+oclnr:snapshot-delete oclnr:dispatchesTo "select_oldest_snapshots" .
+oclnr:receipt-verify  oclnr:dispatchesTo "" .
+oclnr:emergency       oclnr:dispatchesTo "" .
+
 # --- Argument structure (Ontology expressiveness: structural facts, not just
 # two flat strings per command) -- source-verified 2026-07-18 against the
 # real clap `#[derive(Subcommand)]` enums named in the header comment above.

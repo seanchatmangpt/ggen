@@ -2,23 +2,23 @@
 
 [packs.chicago-tdd-tools-pack]
 source = "path:../../packs/chicago-tdd-tools-pack"
-content_hash = "blake3:8904646caf84432de1b2e1a6e393d3fec028e24f3299f16a6749c5c5342797c6"
+content_hash = "blake3:41d82e854794a44ede62264217d1ff7e362f4b8428e13a441c77b1253aa54202"
 
 [packs.clap-noun-verb-pack]
 source = "path:../../packs/clap-noun-verb-pack"
-content_hash = "blake3:7363eae5d047f2bde603eb6b8a5a494f454bbf9d9290339ee7339d15e52c5ecd"
+content_hash = "blake3:46397253b3ce8cb06b39fd849bd236c2b5b4e138fde6e9274d671587f7e0c4ce"
 
 [packs.wasm4pm-algorithms-pack]
 source = "path:../../packs/wasm4pm-algorithms-pack"
-content_hash = "blake3:4850741789b05774e25707a2d8c8f4ad22d0af252fbfbd11de6916de029752ba"
+content_hash = "blake3:e858dc232a12e295631545e85406d5487d31e57be642cac3746c4c73c23ede41"
 
 [packs.wasm4pm-cognition-pack]
 source = "path:../../packs/wasm4pm-cognition-pack"
-content_hash = "blake3:ddacd1c0701a4f905fe3bb53c273b73750eb500a1621ef1a650bb39c0eeec1fa"
+content_hash = "blake3:e673d4965195653c9021e85db833f675083f6673ae27b4cee3c4bc9a084adda9"
 
 [packs.wasm4pm-compat-pack]
 source = "path:../../packs/wasm4pm-compat-pack"
-content_hash = "blake3:c970ceb6017e265cb93d01f6aa2c29d251a1035f7bdd4d161f962265db775398"
+content_hash = "blake3:37399c5ef63dbbfd46dcde9e38261d2bf819913e9f12f4e5dbf0905efbfe86ec"
 
 [packs.wasm4pm-facts-pack]
 source = "path:../../packs/wasm4pm-facts-pack"

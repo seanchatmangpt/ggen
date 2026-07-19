@@ -1,0 +1,65 @@
+# fixtures/session-cross-session-collision.ttl — GAMED input distinct from
+# session-adversarial-discharge.ttl (that fixture isolates the SAME-SESSION,
+# different-agent conjunct; this one isolates the SAME-AGENT,
+# different-session conjunct — the two conjuncts of
+# discharge_review_obligation_action's WHERE clause are same-agent AND
+# same-session, and each must be tested in isolation, not just together).
+#
+# mainAgent is blocked in <#sessionA> (event-4, sequenceIndex 4). The SAME
+# mainAgent later succeeds in a COMPLETELY DIFFERENT session, <#sessionB>
+# (event-9, sequenceIndex 9 -- deliberately higher than 4 and with no
+# relationship to sessionA's numbering other than being a plausible-looking
+# "later" event for the same agent). A naive discharge/escalation rule that
+# joined on agent alone (dropping the same-?session conjunct both
+# discharge_review_obligation_action and escalate_overdue_obligation_action
+# require via `?e1 dcterms:isPartOf ?session` / `?e3 ... isPartOf ?session`)
+# would incorrectly discharge or escalate sessionA's Obligation using
+# sessionB's unrelated event. Both hooks require ?e2/?e3's dcterms:isPartOf
+# to unify with the SAME ?session bound from ?e1, so this fixture must NOT
+# discharge and must NOT escalate: the Obligation derived from
+# <#sessionA-event-4> must end up with neither dfl:dischargedBy nor
+# dfl:escalatedBy. Verified by the scratch consumer test (fails closed).
+
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@base <http://seanchatmangpt.github.io/packs/dogfood-lifecycle/fixtures/session-cross-session-collision#> .
+
+<#operator>  a prov:Agent , prov:Person ; dcterms:description "Operator." .
+<#mainAgent> a prov:Agent , prov:SoftwareAgent ; prov:actedOnBehalfOf <#operator> ; dcterms:description "The SAME agent acts in two unrelated sessions." .
+
+<#sessionA>
+    a                     dfl:Session ;
+    dcterms:identifier    "cross-session-collision-A-001" ;
+    prov:wasAssociatedWith <#mainAgent> ;
+    dcterms:description    "Session A: mainAgent gets blocked here." .
+
+<#sessionB>
+    a                     dfl:Session ;
+    dcterms:identifier    "cross-session-collision-B-001" ;
+    prov:wasAssociatedWith <#mainAgent> ;
+    dcterms:description    "Session B: an entirely unrelated later session for the SAME agent. Must NOT discharge or escalate session A's Obligation." .
+
+<urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae>
+    a prov:Entity ; dcterms:description "Bash input." .
+<urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8>
+    a prov:Entity ; dcterms:description "Bash output." .
+
+<#sessionA-event-4>
+    a dfl:ToolEvent ; dcterms:isPartOf <#sessionA> ; skos:notation "Bash" ;
+    dfl:sequenceIndex 4 ; time:inXSDDateTimeStamp "2026-07-19T12:00:00Z"^^xsd:dateTimeStamp ;
+    dfl:outcome dfl:Blocked ; prov:wasAssociatedWith <#mainAgent> ;
+    prov:used <urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae> ;
+    prov:generated <urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8> ;
+    dcterms:description "mainAgent blocked in session A." .
+
+<#sessionB-event-9>
+    a dfl:ToolEvent ; dcterms:isPartOf <#sessionB> ; skos:notation "Bash" ;
+    dfl:sequenceIndex 9 ; time:inXSDDateTimeStamp "2026-07-19T13:00:00Z"^^xsd:dateTimeStamp ;
+    dfl:outcome dfl:Ok ; prov:wasAssociatedWith <#mainAgent> ;
+    prov:used <urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae> ;
+    prov:generated <urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8> ;
+    dcterms:description "Same agent, UNRELATED session B — must NOT discharge or escalate session A's Obligation." .

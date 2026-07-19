@@ -35,11 +35,13 @@ payload=$(cat 2>/dev/null || true)
   sid=$(printf '%s' "$payload" | jq -r '.session_id // "unknown"' 2>/dev/null || echo unknown)
   tool=$(printf '%s' "$payload" | jq -r '.tool_name // "unknown"' 2>/dev/null || echo unknown)
 
-  # GOVERNANCE COVERAGE: count this invocation as SEEN before the closed
+  # GOVERNANCE COVERAGE: count this invocation as SEEN (both the aggregate
+  # total and, v26.7.19, a per-tool-name breakdown) before the closed
   # tool-name filter below decides whether it gets an admitted ToolEvent.
-  # This is what lets session-end.sh detect a gap between "invocations
-  # this hook observed" and "ToolEvent nodes actually captured".
-  dogfood_bump_invocation_counter "$sid"
+  # This is what lets session-end.sh detect not just THAT a gap exists
+  # between "invocations observed" and "ToolEvent nodes captured", but
+  # WHICH tool name(s) it came from.
+  dogfood_bump_invocation_counter "$sid" "$tool"
 
   # Only the closed tool-name set is admitted by dfl:ToolNameScheme / the shape.
   case "$tool" in

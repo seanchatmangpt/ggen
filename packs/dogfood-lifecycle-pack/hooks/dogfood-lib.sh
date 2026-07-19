@@ -101,7 +101,7 @@ dogfood_append_event() {
 # incremented atomically under the same mkdir lock discipline) so a
 # concurrent burst of tool calls cannot lose increments to a race.
 dogfood_bump_invocation_counter() {
-  local sid="$1"
+  local sid="$1" tool="${2:-unknown}"
   [ -n "$sid" ] || return 0
   local dir f lock tries n
   dir="$(dogfood_lifecycle_dir)"
@@ -118,6 +118,27 @@ dogfood_bump_invocation_counter() {
   n=$((n + 1))
   printf '%s' "$n" > "$f" 2>/dev/null || true
   rmdir "$lock" 2>/dev/null
+
+  # GOVERNANCE COVERAGE (v26.7.19, per-tool-name breakdown -- L3->L4): the
+  # v26.7.18 pass only compared a single aggregate "invocations seen" total
+  # against total captured events, so a governance gap could be DETECTED but
+  # not ATTRIBUTED to a specific tool name. This appends one line per
+  # invocation to session-<sid>.invocations-by-tool.jsonl (best-effort, own
+  # lock so a burst of concurrent calls cannot lose lines) so
+  # session-end.sh can report WHICH tool name(s) accounted for a gap, not
+  # merely that a gap of some size exists. Uses a second, tool-scoped lock
+  # (not the total-counter lock above) so the two counters never contend.
+  local tf tlock ttries
+  tf="$dir/session-${sid}.invocations-by-tool.jsonl"
+  tlock="$tf.lock"
+  ttries=0
+  while ! mkdir "$tlock" 2>/dev/null; do
+    ttries=$((ttries + 1))
+    [ "$ttries" -ge 50 ] && return 0
+    sleep 0.05
+  done
+  printf '{"tool":"%s"}\n' "$tool" >> "$tf" 2>/dev/null || true
+  rmdir "$tlock" 2>/dev/null
   return 0
 }
 

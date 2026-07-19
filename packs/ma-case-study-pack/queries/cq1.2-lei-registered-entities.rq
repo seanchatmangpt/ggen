@@ -1,0 +1,14 @@
+# CQ1.2 (COMPETENCY_QUESTIONS.md concept 1): "Which entities in the graph are
+# LEI-registered?"
+#
+# Added in the 2026-07-18 L5-push Round 3 pass. Verified live against
+# fixtures/case.ttl (2 rows: acquirer + target) and fixtures/case-2.ttl (2
+# rows: Solvane acquirer + Northgate target) via the scratch consumer at
+# /private/tmp/claude-501/-Users-sac-ggen/70ac08c7-8655-49c4-baa2-018bc441bb4c/
+# scratchpad/l5-round3-ma-case-study-pack/.
+
+PREFIX fibo-be-le-lei: <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LEIEntities/>
+
+SELECT ?entity WHERE {
+  ?entity a fibo-be-le-lei:LEIRegisteredEntity .
+}

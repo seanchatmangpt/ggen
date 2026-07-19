@@ -20,8 +20,8 @@ force: true
 mod mfw_catalog;
 
 use mfw_catalog::{
-    is_valid_transition, next_stage, AuthoritySurface, MfwCrate, MFW_AUTHORITY_SURFACES,
-    MFW_CRATES, MFW_CYCLE, NEXT_STAGE,
+    is_standing_authority, is_valid_transition, next_stage, AuthoritySurface, MfwCrate,
+    MFW_AUTHORITY_SURFACES, MFW_CRATES, MFW_CYCLE, NEXT_STAGE,
 };
 
 fn find_surface(path: &str) -> &'static AuthoritySurface {
@@ -239,4 +239,39 @@ fn is_valid_transition_refuses_a_skip_ahead_and_an_unknown_stage() {
     assert!(!is_valid_transition("observe", "verify"));
     assert!(!is_valid_transition("nonexistent-stage", "observe"));
     assert_eq!(next_stage("nonexistent-stage"), None);
+}
+
+/// `mfw:DocsSurface` is the ONE authority surface `ontology.ttl` asserts
+/// `mfw:standingAuthority false` for -- this is the real, named rule from
+/// `~/mfw/AGENTS.md` ("Explanations and projections; never standing
+/// authority"), hand-transcribed here as behavior, not just as the
+/// pre-existing doc-string spot check above.
+#[test]
+fn docs_surface_never_carries_standing_authority() {
+    let s = find_surface("docs/");
+    assert!(!s.standing_authority);
+    assert!(!is_standing_authority("docs/"));
+}
+
+/// Every OTHER authority surface in `ontology.ttl` asserts
+/// `mfw:standingAuthority true` -- hand-checked against each of the 8
+/// remaining individuals by name, not derived from the same enumeration
+/// that produced `MFW_AUTHORITY_SURFACES` in the first place.
+#[test]
+fn every_non_docs_authority_surface_carries_standing_authority() {
+    for path in [
+        "ontology/",
+        "profiles/",
+        "transform/",
+        "mfw-theory/",
+        "runtime/",
+        "verifier/",
+        "fixtures/",
+        "receipts/",
+    ] {
+        assert!(
+            is_standing_authority(path),
+            "{path:?} should carry standing authority per ontology.ttl"
+        );
+    }
 }

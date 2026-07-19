@@ -1,0 +1,23 @@
+# CQ2.2 (COMPETENCY_QUESTIONS.md concept 2): "Are there any relationship
+# records with an ownership percentage outside [0, 100] (a data-quality
+# check ma:RelationshipRecordShape enforces)?" -- a SPARQL-level regression
+# check mirroring the SHACL sh:minInclusive/sh:maxInclusive constraint in
+# shapes.ttl, runnable independently of a SHACL engine.
+#
+# Added in the 2026-07-18 L5-push Round 3 pass. Verified live: 0 rows
+# against both fixtures/case.ttl and fixtures/case-2.ttl (both assert
+# exactly 100.00, well inside range) via the scratch consumer at
+# /private/tmp/claude-501/-Users-sac-ggen/70ac08c7-8655-49c4-baa2-018bc441bb4c/
+# scratchpad/l5-round3-ma-case-study-pack/. Deliberately not exercised
+# against a genuinely out-of-range fixture this round (none exists) -- an
+# honest gap, not a masked one: a future adversarial fixture asserting e.g.
+# `"150.00"^^xsd:decimal` would need to make this query return 1 row to be
+# a real regression guard rather than a vacuously-passing one.
+
+PREFIX fibo-be-le-lei: <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LEIEntities/>
+
+SELECT ?record ?pct WHERE {
+  ?record a fibo-be-le-lei:RelationshipRecord ;
+          fibo-be-le-lei:hasOwnershipPercentage ?pct .
+  FILTER (?pct < 0 || ?pct > 100)
+}

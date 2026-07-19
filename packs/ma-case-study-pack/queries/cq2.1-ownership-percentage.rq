@@ -1,0 +1,14 @@
+# CQ2.1 (COMPETENCY_QUESTIONS.md concept 2): "What percentage of Target does
+# Acquirer own after the transaction, per the recorded relationship record?"
+#
+# Added in the 2026-07-18 L5-push Round 3 pass. Verified live against
+# fixtures/case.ttl (1 row: 100.00) and fixtures/case-2.ttl (1 row: 100.00)
+# via the scratch consumer at /private/tmp/claude-501/-Users-sac-ggen/
+# 70ac08c7-8655-49c4-baa2-018bc441bb4c/scratchpad/l5-round3-ma-case-study-pack/.
+
+PREFIX fibo-be-le-lei: <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LEIEntities/>
+
+SELECT ?record ?pct WHERE {
+  ?record a fibo-be-le-lei:RelationshipRecord ;
+          fibo-be-le-lei:hasOwnershipPercentage ?pct .
+}

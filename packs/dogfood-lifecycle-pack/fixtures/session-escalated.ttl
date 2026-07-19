@@ -1,0 +1,66 @@
+# fixtures/session-escalated.ttl — POSITIVE fire case for hook.ttl's third
+# hook, escalate_overdue_obligation. mainAgent is blocked at event-4
+# (sequenceIndex 4). Three FURTHER same-agent, same-session ToolEvents occur
+# afterward (event-5, event-6, event-7, sequenceIndex 5/6/7) -- i1+3 = 7, so
+# event-7 is the first event whose sequenceIndex crosses the threshold
+# (?i3 >= ?i1 + 3). The Obligation derived from event-4 must end up with
+# dfl:escalatedBy <#event-7> after materialize(). event-5 is ALSO dfl:Ok, so
+# discharge_review_obligation ALSO fires (dfl:dischargedBy <#event-5>,
+# dfl:obligationStatus dfl:Discharged) -- this fixture deliberately
+# demonstrates BOTH firing on the same node (escalated-then-discharged is
+# truthful coexisting history, not a contradiction -- see ontology.ttl's
+# dfl:escalatedBy comment). Verified by the scratch consumer test.
+
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@base <http://seanchatmangpt.github.io/packs/dogfood-lifecycle/fixtures/session-escalated#> .
+
+<#operator>  a prov:Agent , prov:Person ; dcterms:description "Operator." .
+<#mainAgent> a prov:Agent , prov:SoftwareAgent ; prov:actedOnBehalfOf <#operator> ; dcterms:description "Main agent." .
+
+<#session>
+    a                     dfl:Session ;
+    dcterms:identifier    "escalated-session-001" ;
+    prov:wasAssociatedWith <#mainAgent> ;
+    dcterms:description    "Session exercising the escalation path: blocked, then three further events cross the overdue threshold." .
+
+<urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae>
+    a prov:Entity ; dcterms:description "Bash input." .
+<urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8>
+    a prov:Entity ; dcterms:description "Bash output." .
+
+<#event-4>
+    a dfl:ToolEvent ; dcterms:isPartOf <#session> ; skos:notation "Bash" ;
+    dfl:sequenceIndex 4 ; time:inXSDDateTimeStamp "2026-07-19T10:00:00Z"^^xsd:dateTimeStamp ;
+    dfl:outcome dfl:Blocked ; prov:wasAssociatedWith <#mainAgent> ;
+    prov:used <urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae> ;
+    prov:generated <urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8> ;
+    dcterms:description "Blocked; derives the Obligation this fixture escalates." .
+
+<#event-5>
+    a dfl:ToolEvent ; dcterms:isPartOf <#session> ; skos:notation "Bash" ;
+    dfl:sequenceIndex 5 ; time:inXSDDateTimeStamp "2026-07-19T10:01:00Z"^^xsd:dateTimeStamp ;
+    dfl:outcome dfl:Ok ; prov:wasAssociatedWith <#mainAgent> ;
+    prov:used <urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae> ;
+    prov:generated <urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8> ;
+    dcterms:description "Discharges the Obligation (also fires discharge_review_obligation)." .
+
+<#event-6>
+    a dfl:ToolEvent ; dcterms:isPartOf <#session> ; skos:notation "Read" ;
+    dfl:sequenceIndex 6 ; time:inXSDDateTimeStamp "2026-07-19T10:02:00Z"^^xsd:dateTimeStamp ;
+    dfl:outcome dfl:Error ; prov:wasAssociatedWith <#mainAgent> ;
+    prov:used <urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae> ;
+    prov:generated <urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8> ;
+    dcterms:description "Third event after the blocked one; not yet at the threshold (i1+3=7). Deliberately dfl:Error, not dfl:Ok: discharge_review_obligation_action's WHERE clause matches ANY later same-agent/session Ok event independently (no earliest-only/MIN guard -- a real, disclosed precision gap found while building this fixture, see README), so a second Ok event here would ALSO independently discharge, producing a second dfl:dischargedBy triple and violating shapes.ttl's own sh:maxCount 1 on that property. Using Error keeps this fixture to exactly one discharging event while still advancing the sequence count the escalation hook counts (which does not filter by outcome)." .
+
+<#event-7>
+    a dfl:ToolEvent ; dcterms:isPartOf <#session> ; skos:notation "Bash" ;
+    dfl:sequenceIndex 7 ; time:inXSDDateTimeStamp "2026-07-19T10:03:00Z"^^xsd:dateTimeStamp ;
+    dfl:outcome dfl:Error ; prov:wasAssociatedWith <#mainAgent> ;
+    prov:used <urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae> ;
+    prov:generated <urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8> ;
+    dcterms:description "sequenceIndex 7 = i1+3: the escalation threshold crossing event (dfl:Error, for the same single-discharge reason as event-6)." .

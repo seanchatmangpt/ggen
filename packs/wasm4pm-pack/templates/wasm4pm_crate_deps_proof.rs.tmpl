@@ -20,7 +20,9 @@ freeze_slots_dir: .ggen/freeze/wasm4pm-pack
 #[path = "../src/wasm4pm_crate_deps.rs"]
 mod wasm4pm_crate_deps;
 
-use wasm4pm_crate_deps::{depends_on, transitive_dependencies, CrateDepEdge, CRATE_DEPS};
+use wasm4pm_crate_deps::{
+    depends_on, transitive_dependencies, transitive_dependencies_over, CrateDepEdge, CRATE_DEPS,
+};
 
 /// `ontology.ttl` declares exactly 4 `w4c:dependsOn` subjects covering 7
 /// directed edges -- hand count, not a query result.
@@ -104,4 +106,50 @@ fn no_edge_is_a_self_loop() {
     for CrateDepEdge { from, to } in CRATE_DEPS {
         assert_ne!(from, to, "self-loop dependency edge: {from} -> {to}");
     }
+}
+
+/// The real `w4c:dependsOn` graph (7 edges, hand-verified against
+/// ~/wasm4pm's own Cargo.toml files) happens to be acyclic, so nothing above
+/// exercises `transitive_dependencies`'s explicit `visited`-set cycle guard.
+/// This test proves that guard on a hand-built 3-node cycle (a -> b -> c ->
+/// a) via `transitive_dependencies_over`, the same traversal parameterized
+/// over an arbitrary edge slice: it must terminate (not loop forever /
+/// overflow the stack) and visit each reachable node exactly once, even
+/// though the cycle makes the start node itself transitively reachable
+/// (b -> c -> a is a real path back to "a", so "a" legitimately appears in
+/// its own closure here -- this is correct cyclic-graph behavior, not a
+/// bug, and is exactly the case the current 7-edge acyclic `CRATE_DEPS`
+/// graph can never surface).
+#[test]
+fn cycle_guard_terminates_on_a_synthetic_cycle() {
+    const CYCLE: &[CrateDepEdge] = &[
+        CrateDepEdge { from: "a", to: "b" },
+        CrateDepEdge { from: "b", to: "c" },
+        CrateDepEdge { from: "c", to: "a" },
+    ];
+    let closure = transitive_dependencies_over(CYCLE, "a");
+    assert_eq!(
+        closure.len(),
+        3,
+        "cycle guard must visit each of a/b/c exactly once, not loop or under-visit: {closure:?}"
+    );
+    for expect in ["a", "b", "c"] {
+        assert!(closure.contains(&expect), "missing {expect:?}: {closure:?}");
+    }
+    let mut seen = Vec::new();
+    for c in &closure {
+        assert!(!seen.contains(c), "duplicate {c:?}: {closure:?}");
+        seen.push(*c);
+    }
+}
+
+/// `transitive_dependencies` (the real, `CRATE_DEPS`-bound entry point) and
+/// `transitive_dependencies_over(CRATE_DEPS, ..)` must agree -- the former is
+/// defined purely as a call to the latter, so this pins that relationship.
+#[test]
+fn transitive_dependencies_delegates_to_the_parameterized_form() {
+    assert_eq!(
+        transitive_dependencies("wasm4pm-planner"),
+        transitive_dependencies_over(CRATE_DEPS, "wasm4pm-planner")
+    );
 }

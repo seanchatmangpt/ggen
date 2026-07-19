@@ -1,0 +1,16 @@
+# CQ4.1 (COMPETENCY_QUESTIONS.md concept 4): "Which representations or
+# warranties have at least one disclosed exception on file?"
+#
+# Added in the 2026-07-18 L5-push Round 3 pass. Verified live against
+# fixtures/case.ttl (1 row: warranty-target-no-material-litigation, qualified
+# by Schedule 3.14(b)) and fixtures/case-2.ttl (1 row:
+# rep-target-environmental-compliance, qualified by Schedule 4.02) via the
+# scratch consumer at /private/tmp/claude-501/-Users-sac-ggen/
+# 70ac08c7-8655-49c4-baa2-018bc441bb4c/scratchpad/l5-round3-ma-case-study-pack/.
+
+PREFIX ma: <http://seanchatmangpt.github.io/packs/ma-case-study#>
+
+SELECT DISTINCT ?clause ?scheduleItem WHERE {
+  ?scheduleItem a ma:DisclosureScheduleItem ;
+                ma:qualifiesClause ?clause .
+}

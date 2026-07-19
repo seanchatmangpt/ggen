@@ -1,0 +1,18 @@
+# CQ4.2 (COMPETENCY_QUESTIONS.md concept 4): "What is the schedule-item
+# number of the disclosure that qualifies Representation clause 3.14(b)?"
+#
+# General form: every schedule item's number paired with the clause it
+# qualifies (a specific-clause answer is a FILTER/binding on ?clause away).
+# Added in the 2026-07-18 L5-push Round 3 pass. Verified live against
+# fixtures/case.ttl (1 row: "Schedule 3.14(b)") and fixtures/case-2.ttl (1
+# row: "Schedule 4.02") via the scratch consumer at /private/tmp/
+# claude-501/-Users-sac-ggen/70ac08c7-8655-49c4-baa2-018bc441bb4c/scratchpad/
+# l5-round3-ma-case-study-pack/.
+
+PREFIX ma: <http://seanchatmangpt.github.io/packs/ma-case-study#>
+
+SELECT ?clause ?scheduleItemNumber WHERE {
+  ?scheduleItem a ma:DisclosureScheduleItem ;
+                ma:qualifiesClause ?clause ;
+                ma:scheduleItemNumber ?scheduleItemNumber .
+}

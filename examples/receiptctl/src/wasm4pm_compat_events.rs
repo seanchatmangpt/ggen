@@ -51,6 +51,8 @@ pub fn emit_graph_union_hashed(
     ontology_graph_id: String,
     graph_hash: String,
 ) -> OCELEvent {
+    debug_assert!(!id.is_empty(), "w4pm:requiresNonEmptyId: `graph_union_hashed` event id must not be empty");
+    debug_assert!(!graph_hash.is_empty(), "w4pm:requiresNonEmpty: `graph_union_hashed`'s `graph_hash` attribute must not be empty");
     OCELEvent {
         id,
         event_type: "graph_union_hashed".to_string(),
@@ -79,6 +81,8 @@ pub fn emit_pack_lock_verified(
     pack_id: String,
     pack_hash: String,
 ) -> OCELEvent {
+    debug_assert!(!id.is_empty(), "w4pm:requiresNonEmptyId: `pack_lock_verified` event id must not be empty");
+    debug_assert!(!pack_hash.is_empty(), "w4pm:requiresNonEmpty: `pack_lock_verified`'s `pack_hash` attribute must not be empty");
     OCELEvent {
         id,
         event_type: "pack_lock_verified".to_string(),
@@ -107,6 +111,8 @@ pub fn emit_receipt_chained(
     sync_receipt_id: String,
     chain_hash: String,
 ) -> OCELEvent {
+    debug_assert!(!id.is_empty(), "w4pm:requiresNonEmptyId: `receipt_chained` event id must not be empty");
+    debug_assert!(!chain_hash.is_empty(), "w4pm:requiresNonEmpty: `receipt_chained`'s `chain_hash` attribute must not be empty");
     OCELEvent {
         id,
         event_type: "receipt_chained".to_string(),

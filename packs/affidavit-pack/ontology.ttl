@@ -52,6 +52,31 @@ afd:order a rdf:Property ; rdfs:domain afd:CertifyStage ; rdfs:range xsd:integer
 afd:rejectCondition a rdf:Property ; rdfs:domain afd:CertifyStage ; rdfs:range xsd:string ;
     rdfs:comment "The structural predicate that, if false, makes this stage emit REJECT and halt the pipeline (fail-fast, no later stage runs)." .
 
+# Formal structural-predicate flags (round 3, 2026-07-18): afd:rejectCondition
+# above remains prose for human docs, but afd:Continuity's actual check is now
+# ALSO expressed as two independent, composable, machine-readable boolean
+# facts -- afd:checksMonotonic / afd:checksUnique. These name generic,
+# domain-independent structural primitives (strict-monotonicity, set-uniqueness)
+# that a template can dispatch on directly, instead of only reading a free-text
+# sentence a human must translate into code by hand. This does not yet reach
+# a full pre/post-condition calculus (L4 "behavior contracts" bar) -- there is
+# no encoded postcondition, effect, or composition operator beyond AND-of-flags
+# -- but it moves afd:Continuity's specific check from "prose the template
+# author transcribed" to "boolean facts the template composes", which is a
+# real, verifiable step toward ontology expressiveness and shrinks the
+# hand-written seam in affidavit_certify.rs.tmpl to two small, reusable,
+# non-domain-specific primitives (check_strictly_increasing/check_unique)
+# instead of one affidavit-specific check_continuity body. Every other stage
+# below still has no boolean flags -- their rejectCondition remains prose only,
+# because Decode/FormatCheck/ChainIntegrity/CommitmentVerify/ProfileEvaluation/
+# FinalVerdict all require external receipt-format knowledge (see pack.toml)
+# this pack does not have; adding false-by-omission flags for them would be
+# fabrication, not a real fact.
+afd:checksMonotonic a rdf:Property ; rdfs:domain afd:CertifyStage ; rdfs:range xsd:boolean ;
+    rdfs:comment "True iff this stage's rejectCondition includes a strict-monotonicity requirement over afd:sequenceNumber. A composable structural primitive, not affidavit-specific." .
+afd:checksUnique a rdf:Property ; rdfs:domain afd:CertifyStage ; rdfs:range xsd:boolean ;
+    rdfs:comment "True iff this stage's rejectCondition includes a set-uniqueness requirement over afd:sequenceNumber. A composable structural primitive, not affidavit-specific." .
+
 afd:Decode             a afd:CertifyStage ; afd:order 1 ; rdfs:label "Decode" ; rdfs:comment "Structural presence and version parsing." ;
     afd:rejectCondition "receipt bytes deserialize to a well-formed Receipt with a recognized version tag" .
 afd:FormatCheck        a afd:CertifyStage ; afd:order 2 ; rdfs:label "Format Check" ; rdfs:comment "Verification against the core/v1 standard." ;
@@ -59,7 +84,8 @@ afd:FormatCheck        a afd:CertifyStage ; afd:order 2 ; rdfs:label "Format Che
 afd:ChainIntegrity     a afd:CertifyStage ; afd:order 3 ; rdfs:label "Chain Integrity" ; rdfs:comment "Cryptographic re-computation of the rolling hash." ;
     afd:rejectCondition "recomputed BLAKE3 rolling hash over all Events equals the receipt's stored chain seal" .
 afd:Continuity         a afd:CertifyStage ; afd:order 4 ; rdfs:label "Continuity" ; rdfs:comment "Logical sequence and uniqueness validation." ;
-    afd:rejectCondition "afd:sequenceNumber values across all Events are strictly increasing with no duplicates" .
+    afd:rejectCondition "afd:sequenceNumber values across all Events are strictly increasing with no duplicates" ;
+    afd:checksMonotonic true ; afd:checksUnique true .
 afd:CommitmentVerify   a afd:CertifyStage ; afd:order 5 ; rdfs:label "Commitment Verify" ; rdfs:comment "Structural validation of all payload digests." ;
     afd:rejectCondition "every Event's afd:hasCommitment resolves to exactly one well-formed BLAKE3 digest" .
 afd:ProfileEvaluation  a afd:CertifyStage ; afd:order 6 ; rdfs:label "Profile Evaluation" ; rdfs:comment "Conformance scoring against business logic." ;

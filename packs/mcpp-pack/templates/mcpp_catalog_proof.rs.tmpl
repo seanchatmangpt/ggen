@@ -46,6 +46,10 @@ fn first_row_is_aat_live_with_its_doc_comment_and_args() {
         row.args,
         "release|Option<String>|false|CalVer release tag, e.g. v26.5.19."
     );
+    assert_eq!(
+        row.error_case,
+        "Non-zero exit if any LIVE-01..LIVE-16 correlator check fails: bails with verdict!=Accepted, listing failed_checks and refusal_class (aat.rs:82-90, live_impl)."
+    );
 }
 
 /// `mcp:aat-run` has no `rdfs:comment` in the ontology, so `doc` must
@@ -144,6 +148,44 @@ fn catalog_has_no_duplicate_noun_verb_pairs() {
         );
         seen.push(pair);
     }
+}
+
+/// Every row must carry a non-empty `error_case` -- the ontology-expressiveness
+/// L3 bar requires structure/cardinality (covered by `args`) AND error
+/// cases; this invariant catches a future ontology edit that adds a 10th
+/// `cnv:Command` individual without also giving it an `mcp:errorCase`
+/// fact, which would silently regress the pack below that bar.
+#[test]
+fn every_row_has_a_documented_error_case() {
+    for row in MCPP_COMMANDS {
+        assert!(
+            !row.error_case.is_empty(),
+            "row {:?}/{:?} has no mcp:errorCase fact",
+            row.noun,
+            row.verb
+        );
+    }
+}
+
+/// `mcp:receipt-list` and `mcp:settlement-verify` are the two documented
+/// fail-open commands (never bail; degrade to an empty/failed-flag JSON
+/// result instead of a non-zero exit) -- verified against
+/// `receipt.rs:16-27`/`settlement.rs:288-310`. Every other of the 9 rows
+/// documents a real bail!/non-zero-exit condition. This is a real
+/// heterogeneity in the target's error semantics, not a template artifact,
+/// so the proof asserts it explicitly rather than assuming uniform
+/// fail-closed behavior across the whole catalog.
+#[test]
+fn exactly_two_commands_are_documented_fail_open() {
+    let fail_open: Vec<(&str, &str)> = MCPP_COMMANDS
+        .iter()
+        .filter(|r| r.error_case.contains("Fails open") || r.error_case.contains("Never bails"))
+        .map(|r| (r.noun, r.verb))
+        .collect();
+    assert_eq!(
+        fail_open,
+        vec![("receipt", "list"), ("settlement", "verify")]
+    );
 }
 
 /// Every row's `args` string must either be empty or parse cleanly into

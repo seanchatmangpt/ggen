@@ -1,6 +1,7 @@
 ---
 to: tests/anti_llm_cheat_catalog_proof.rs
-force: true
+freeze_policy: checksum
+freeze_slots_dir: .ggen/freeze/anti-llm-cheat-lsp-pack
 sparql:
   layers: |
     PREFIX alc: <http://seanchatmangpt.github.io/packs/anti-llm-cheat-lsp#>

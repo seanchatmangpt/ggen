@@ -419,3 +419,89 @@ smon:hasUngovernedQuestion
     rdfs:domain  smon:UngovernedTransition ;
     rdfs:range   smon:Turn ;
     rdfs:comment "Links an UngovernedTransition to the GroundingQuestion turn whose response was not governed by any known pattern." .
+
+# ── L5-push (round 3) addition: overdue-obligation escalation ─────────────
+#
+# Matrix 2's Obligation-lifecycle L4 bar, verbatim: "Overdue/undischarged
+# obligations escalate via the same hook mechanism." This pack's L3 state
+# (round 2) recorded smon:status and made open/discharged/refused queryable,
+# but nothing re-escalated an obligation that stayed Open. hook.ttl's new
+# smon:escalate_overdue_obligation hook closes this: it fires when a
+# smon:PrioritizedEscalationObligation is still smon:status smon:Open with
+# smon:deadlineHint smon:ActNow (i.e. the policy said "act now") AND the
+# session has since moved on to a later turn without the obligation being
+# discharged or refused -- the SAME derivation mechanism (kh:Hook +
+# SPARQL-CONSTRUCT via praxis_graphlaw's TripleStore::load_hook_pack +
+# .materialize()) every other hook in this file uses, not a new code path.
+
+smon:OverdueEscalationObligation
+    a            rdfs:Class ;
+    rdfs:label   "OverdueEscalationObligation" ;
+    rdfs:comment "Derived by the companion hook smon:escalate_overdue_obligation (hook.ttl): a smon:PrioritizedEscalationObligation that was smon:status smon:Open with smon:deadlineHint smon:ActNow (High severity's ActNow policy) at the time a LATER turn in the same session occurred -- i.e. the deadline was violated because nothing discharged or refused it before the session moved on. This is a second-order escalation OF an existing obligation, not a new independent finding; smon:escalates links back to the original node." .
+
+smon:escalates
+    a            rdf:Property ;
+    rdfs:label   "escalates" ;
+    rdfs:domain  smon:OverdueEscalationObligation ;
+    rdfs:range   smon:PrioritizedEscalationObligation ;
+    rdfs:comment "Links an OverdueEscalationObligation back to the original smon:PrioritizedEscalationObligation whose ActNow deadline it found violated. The original node's own smon:status stays smon:Open (this pack's engine is append-only via kh:effect \"emit-delta\" -- no hook ever retracts a prior CONSTRUCT; overdue-ness is a new, additional derived fact layered on top, not a rewrite of the original)." .
+
+smon:PrioritizedEscalationObligation
+    a            rdfs:Class ;
+    rdfs:label   "PrioritizedEscalationObligation" ;
+    rdfs:subClassOf smon:EscalationObligation ;
+    rdfs:comment "Derived by hook.ttl's smon:prioritize_escalation_obligation_{low,medium,high} hooks (round 2) instead of the older unparameterized smon:derive_escalation_obligation, so severity/deadlineHint/status can be attached without double-CONSTRUCTing the base smon:EscalationObligation shape. Declared formally here (round 3) so shapes.ttl and smon:escalates above have a real rdfs:Class to range/domain against instead of an implicit, undeclared type only ever seen inside hook.ttl's CONSTRUCT text." .
+
+# ── L5-push (round 3) addition: actuation-closure re-observe facts ────────
+#
+# Matrix 2's Actuation-closure L4 bar, verbatim: "Actuation outcomes flow
+# back into the graph as new facts (closed loop)." `scripts/
+# actuate_escalation.py` (round 2) already fires on derivation and writes a
+# JSON receipt, but that receipt lived OUTSIDE the RDF graph -- an artifact
+# on disk, not itself a fact a later `ggen graph validate`/hook run could
+# see or query. `scripts/actuate_escalation.py --emit-receipt-graph` (round
+# 3) additionally renders the SAME receipt as a `smon:ActuationReceipt`
+# individual in a NEW Turtle file, and the script's own `--verify-round-trip`
+# mode re-loads ontology.ttl + the original input + that new receipt file
+# into a FRESH TripleStore-equivalent graph and confirms the receipt fact is
+# there and queryable -- a real re-observe step, not narrated. Honestly
+# scoped: this closes derive -> actuate -> receipt -> re-observe for the
+# RECEIPT record itself (hook-firing outcome, hash, timestamp), not
+# per-derived-individual linkage back to the specific blank-node obligation
+# it actuated (Turtle blank-node identifiers are not stable/referenceable
+# across separate files/parses -- see fixtures/pattern-fires-discharged.ttl's
+# header for this same disclosed constraint) -- see README's "Actuation
+# closure" verification section for the exact scope and remaining gap.
+
+smon:ActuationReceipt
+    a            rdfs:Class ;
+    rdfs:label   "ActuationReceipt" ;
+    rdfs:comment "A re-observable RDF fact recording one scripts/actuate_escalation.py run: which input was actuated, whether any hook fired, and a hash of the derived triples. Written to a NEW Turtle file by --emit-receipt-graph (never appended to hook.ttl/ontology.ttl themselves), then re-loaded by --verify-round-trip to prove it is a queryable graph fact, not merely a JSON artifact on disk." .
+
+smon:receiptHash
+    a            rdf:Property ;
+    rdfs:label   "receiptHash" ;
+    rdfs:domain  smon:ActuationReceipt ;
+    rdfs:range   xsd:string ;
+    rdfs:comment "SHA-256 hex digest of the actuation's derived triples (same value as the JSON receipt's derived_triples_sha256 field -- one shared computation, two representations)." .
+
+smon:actuatedAt
+    a            rdf:Property ;
+    rdfs:label   "actuatedAt" ;
+    rdfs:domain  smon:ActuationReceipt ;
+    rdfs:range   xsd:dateTime ;
+    rdfs:comment "Wall-clock UTC timestamp of the actuation run." .
+
+smon:anyHookFired
+    a            rdf:Property ;
+    rdfs:label   "anyHookFired" ;
+    rdfs:domain  smon:ActuationReceipt ;
+    rdfs:range   xsd:boolean ;
+    rdfs:comment "Whether at least one kh:Hook derived any triple during this actuation run." .
+
+smon:actuatedInput
+    a            rdf:Property ;
+    rdfs:label   "actuatedInput" ;
+    rdfs:domain  smon:ActuationReceipt ;
+    rdfs:range   xsd:string ;
+    rdfs:comment "The input Turtle file path this receipt actuated against (a literal path string, not an IRI -- the input file's own individuals are not re-asserted here, only referenced by name)." .

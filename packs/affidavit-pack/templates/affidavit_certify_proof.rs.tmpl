@@ -27,7 +27,10 @@ sparql:
 #[path = "../src/affidavit_certify.rs"]
 mod affidavit_certify;
 
-use affidavit_certify::{check_continuity, is_terminal, next_stage, ALL_STAGES};
+use affidavit_certify::{
+    check_continuity, check_stage, check_strictly_increasing, check_unique, is_terminal,
+    next_stage, Stage, ALL_STAGES, STAGE_CHECKS,
+};
 
 /// SPARQL-derived (`sparql_count()` over `?s a afd:CertifyStage`), not
 /// hand-copied -- regenerates correctly if the ontology's stage count changes.
@@ -107,4 +110,73 @@ fn reject_condition_text_is_non_empty_for_every_stage() {
     for stage in ALL_STAGES {
         assert!(!stage.reject_condition().is_empty());
     }
+}
+
+// -- Round 3 (2026-07-18): tests for the check_strictly_increasing /
+// check_unique / check_stage composition mechanism itself, independent of
+// check_continuity's own adversarial tests above. These certify the
+// *dispatch* -- that ontology flags actually drive which generic primitive
+// runs -- not just that Continuity happens to reject bad input.
+
+#[test]
+fn only_continuity_has_both_structural_check_flags_set() {
+    // Ontology-derived: exactly one stage (afd:Continuity) currently sets
+    // both afd:checksMonotonic and afd:checksUnique. If a future ontology
+    // edit adds a second stage with flags, this assertion (not this test's
+    // *logic*) must be revisited -- it documents today's real fact, not an
+    // invariant the pack enforces.
+    let flagged: Vec<Stage> = STAGE_CHECKS
+        .iter()
+        .filter(|(_, m, u)| *m || *u)
+        .map(|(s, _, _)| *s)
+        .collect();
+    assert_eq!(flagged, vec![Stage::Continuity]);
+}
+
+#[test]
+fn check_stage_on_an_unflagged_stage_trivially_accepts_any_input() {
+    // Decode has no structural-check flags (this pack does not know how to
+    // check it yet); check_stage must not silently apply Continuity's
+    // checks to a different stage.
+    assert!(check_stage(Stage::Decode, &[5, 1, 1, 0]).is_ok());
+}
+
+#[test]
+fn check_stage_on_continuity_matches_check_continuity_exactly() {
+    // check_continuity is documented as a thin named call into check_stage;
+    // prove the two are actually equivalent, not just similarly named.
+    for seq in [
+        vec![],
+        vec![0u64],
+        vec![0, 1, 2, 3, 100],
+        vec![0, 1, 1, 2],
+        vec![0, 2, 1, 3],
+    ] {
+        assert_eq!(
+            check_stage(Stage::Continuity, &seq).is_ok(),
+            check_continuity(&seq).is_ok(),
+            "seq={seq:?}"
+        );
+    }
+}
+
+#[test]
+fn check_unique_alone_is_silent_about_ordering() {
+    // The generic primitive in isolation: a non-increasing but duplicate-free
+    // sequence must pass check_unique even though it would fail
+    // check_strictly_increasing -- proves the two primitives are genuinely
+    // independent, not one calling the other internally.
+    assert!(check_unique(&[5, 3, 1]).is_ok());
+    assert!(check_strictly_increasing(&[5, 3, 1]).is_err());
+}
+
+#[test]
+fn check_strictly_increasing_alone_is_silent_about_duplicates() {
+    // A duplicate pair (equal, not decreasing) passes check_strictly_increasing
+    // -- its comparison is strict-less-than only, deliberately leaving
+    // equality to check_unique -- but fails check_unique. Proves the two
+    // primitives partition the "strictly increasing, no duplicates"
+    // predicate rather than overlapping.
+    assert!(check_strictly_increasing(&[1, 1]).is_ok());
+    assert!(check_unique(&[1, 1]).is_err());
 }

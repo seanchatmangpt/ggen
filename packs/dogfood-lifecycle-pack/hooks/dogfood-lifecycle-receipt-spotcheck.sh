@@ -78,13 +78,34 @@ while IFS= read -r line; do
   stored_chain=$(printf '%s' "$line" | jq -r '.chain_hash')
 
   # Records written before the v26.7.18 governance-coverage upgrade have no
-  # invocations_seen/governance_gap keys at all -- reconstruct the payload
-  # in whichever of the two shapes this specific record actually used, so
-  # older already-chained records keep recomputing correctly rather than
-  # being broken by a schema change (same non-retroactive discipline as the
-  # original flat->chained upgrade documented above).
+  # invocations_seen/governance_gap keys at all, and records written before
+  # the v26.7.19 per-tool-attribution upgrade have those two keys but no
+  # governance_gap_tools -- reconstruct the payload in whichever of the
+  # THREE shapes this specific record actually used, so older already-
+  # chained records keep recomputing correctly rather than being broken by
+  # a schema change (same non-retroactive discipline as the original
+  # flat->chained upgrade documented above). Tried live this session: NOT
+  # doing this (reconstructing only the v26.7.18 two-shape case) makes this
+  # spotcheck falsely FAIL every v26.7.19 record, since
+  # dogfood-lifecycle-session-end.sh's actual payload now includes
+  # governance_gap_tools and a reconstruction missing that key hashes to a
+  # different payload_hash.
+  has_gap_tools=$(printf '%s' "$line" | jq -r 'has("governance_gap_tools")')
   has_governance_fields=$(printf '%s' "$line" | jq -r 'has("invocations_seen")')
-  if [ "$has_governance_fields" = "true" ]; then
+  if [ "$has_gap_tools" = "true" ]; then
+    invocations_seen=$(printf '%s' "$line" | jq -r '.invocations_seen')
+    governance_gap=$(printf '%s' "$line" | jq -r '.governance_gap')
+    governance_gap_tools=$(printf '%s' "$line" | jq -c '.governance_gap_tools')
+    payload=$(jq -ncS \
+      --arg session_log "$session_log" \
+      --arg blake3 "$blake3" \
+      --argjson tool_events "$tool_events" \
+      --argjson parse_valid "$parse_valid" \
+      --argjson invocations_seen "$invocations_seen" \
+      --argjson governance_gap "$governance_gap" \
+      --argjson governance_gap_tools "$governance_gap_tools" \
+      '{blake3: $blake3, parse_valid: $parse_valid, session_log: $session_log, tool_events: $tool_events, invocations_seen: $invocations_seen, governance_gap: $governance_gap, governance_gap_tools: $governance_gap_tools}')
+  elif [ "$has_governance_fields" = "true" ]; then
     invocations_seen=$(printf '%s' "$line" | jq -r '.invocations_seen')
     governance_gap=$(printf '%s' "$line" | jq -r '.governance_gap')
     payload=$(jq -ncS \

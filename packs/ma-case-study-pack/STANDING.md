@@ -28,6 +28,45 @@ not imply the full PDDL8→POWL v2→Arazzo→Erlang chain (M&A-C4..C6) is real,
 partially started — it is not. The overall case study's status, per `docs/releases/v26.7.14/
 THESIS.md` Section 33.12, remains **PLANNED**.
 
+## Round 3 (2026-07-18) — Question coverage + Reasoner independence progress
+
+Not a new M&A-Cx row (M&A-C1..C3 already cover the vocabulary/shapes/hook triad); this records
+progress on two of the Case-study-corpus-pack maturity dimensions in `docs/packs/
+PACK_MATURITY_MODEL.md`'s Matrix 3, continuing from `docs/packs/L5_PUSH_RESULTS.md`'s Round 2
+entry for this pack:
+
+- **Question coverage**: 19 new `.rq` files committed in `queries/` (CQ1.1, CQ1.2, CQ2.1, CQ2.2,
+  CQ3.2, CQ4.1, CQ4.2, CQ4.3, CQ6.1, CQ6.2, CQ6.3, CQ7.2, CQ7.3, CQ8.1, CQ8.2, CQ8.3, CQ8.4, CQ9.1,
+  CQ9.2), on top of the 3 already committed in Round 2 (CQ3.1, CQ7.1, CQ10.1) — 22 of
+  `COMPETENCY_QUESTIONS.md`'s 31 numbered CQs now have a committed query, each executed for real
+  (not merely written) with an automated row-count assertion against `fixtures/case.ttl` and/or
+  `fixtures/case-2.ttl` via the scratch consumer at `/private/tmp/claude-501/
+  -Users-sac-ggen/70ac08c7-8655-49c4-baa2-018bc441bb4c/scratchpad/l5-round3-ma-case-study-pack/`.
+  Remaining uncovered: CQ3.3 (no `odrl:action` data asserted on any `DueDiligenceItem` fixture),
+  CQ5.1-5.3 (regulatory filing obligation is hook-derived, not directly asserted; not attempted
+  this round), CQ10.2-10.4 (no `hasClosingDateTime`/termination-provision data in any fixture),
+  CQX.1/CQX.2 (cross-concept views need a direct DueDiligenceItem->deal link this pack's ontology
+  does not currently model). This is a real, disclosed remaining gap, not the "every CQ" L3 bar
+  in full.
+- **A real engine limitation was found and worked around, not ignored**: a first draft of CQ4.3
+  and CQ8.3 used SPARQL 1.1 `FILTER NOT EXISTS`; a minimal repro (2-triple fixture, scratch
+  consumer) proved this engine's `query()` path does not correlate the outer variable binding
+  inside `FILTER NOT EXISTS` — it silently returns the same rows as if the filter were absent, no
+  error. Both queries were rewritten to `MINUS`, which the same repro confirmed works correctly.
+  Separately, a first draft of CQ8.2 used the property-path operator `ex:supersedes+`; a repro
+  proved this silently returns 0 rows (not an error) on this engine. Rewritten to explicit UNION
+  hops. See each query file's own header for the specific repro evidence.
+- **Reasoner independence**: all 22 committed queries were re-executed against a SECOND engine
+  (`oxigraph` 0.5.9, a crates.io dependency already used elsewhere in this workspace, not a path
+  dependency back to any shared crate) via `src/bin/oxigraph_check.rs` in the same scratch
+  consumer. All 30 fixture/query row-count checks matched the praxis-graphlaw-verified expected
+  counts exactly, including the two MINUS-based queries and the multi-hop UNION query — a real,
+  executed second-engine reproduction, not a plausibility argument.
+- **No regression**: `cargo test -p praxis-graphlaw --test ma_case_hook_actuation` re-run this
+  round: 4 passed, 0 failed (unchanged from Round 2's own re-run). `ggen graph validate --files
+  ontology.ttl --shapes shapes.ttl` and the same merged with `fixtures/case.ttl`/`case-2.ttl`:
+  `shapes_conform: true` in all three cases (re-run this round).
+
 ## See Also
 
 - `docs/releases/v26.7.14/THESIS.md` Section 33.12 — the source-of-truth PLANNED ruling this

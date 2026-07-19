@@ -163,4 +163,15 @@ dfl:ObligationShape
         sh:maxCount    1 ;
         sh:class       dfl:ToolEvent ;
         sh:message     "If present, dfl:dischargedBy must name exactly one ToolEvent." ;
+    ] ;
+    # v26.7.19: escalatedBy (Obligation-lifecycle L3->L4's third hook, see
+    # hook.ttl's escalate_overdue_obligation). Optional and independent of
+    # dischargedBy/obligationStatus -- both may be present simultaneously
+    # (escalated-then-discharged is truthful append-only history).
+    sh:property [
+        sh:path        dfl:escalatedBy ;
+        sh:minCount    0 ;
+        sh:maxCount    1 ;
+        sh:class       dfl:ToolEvent ;
+        sh:message     "If present, dfl:escalatedBy must name exactly one ToolEvent (the event whose sequenceIndex crossed the escalation threshold)." ;
     ] .

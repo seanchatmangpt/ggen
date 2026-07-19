@@ -201,3 +201,69 @@ fn emitted_pack_lock_verified_event_round_trips_through_json() {
         serde_json::from_str(&json).expect("OCELEvent must deserialize");
     assert_eq!(round_tripped, event);
 }
+
+/// Real error/failure-path proof: `ontology.ttl` now declares
+/// `w4pm:requiresNonEmptyId true` on every `w4pm:EventType`, and
+/// `events.rs.tmpl` compiles that precondition into a real `debug_assert!`
+/// inside each generated `emit_*` fn (not just a doc comment). This test
+/// drives that failure path directly -- an empty `id` must panic in a debug
+/// build (the build profile `cargo test` uses), closing part of the "a real
+/// failure/error path per emitted event" gap named in the maturity audit's
+/// test-generation notes for this pack. Runs `#[cfg(debug_assertions)]`
+/// only, since `debug_assert!` is compiled out entirely in release builds
+/// by design -- asserting a panic in that profile would misrepresent what
+/// the generated code actually does.
+#[test]
+#[cfg(debug_assertions)]
+#[should_panic(expected = "w4pm:requiresNonEmptyId")]
+fn emit_graph_union_hashed_panics_on_empty_id() {
+    let _ = wasm4pm_compat_events::emit_graph_union_hashed(
+        String::new(),
+        literal_time(),
+        "graph-abc".to_string(),
+        "hash-of-graph".to_string(),
+    );
+}
+
+/// Same failure path, exercised via the ontology-declared `graph_hash`
+/// attribute's own `w4pm:requiresNonEmpty` precondition rather than the
+/// event id.
+#[test]
+#[cfg(debug_assertions)]
+#[should_panic(expected = "w4pm:requiresNonEmpty")]
+fn emit_graph_union_hashed_panics_on_empty_attribute() {
+    let _ = wasm4pm_compat_events::emit_graph_union_hashed(
+        "evt-5".to_string(),
+        literal_time(),
+        "graph-abc".to_string(),
+        String::new(),
+    );
+}
+
+/// Same event-id failure path for the second emit fn, proving the
+/// precondition is generated per-EventType from the ontology rather than
+/// hardcoded once for a single function.
+#[test]
+#[cfg(debug_assertions)]
+#[should_panic(expected = "w4pm:requiresNonEmptyId")]
+fn emit_pack_lock_verified_panics_on_empty_id() {
+    let _ = wasm4pm_compat_events::emit_pack_lock_verified(
+        String::new(),
+        literal_time(),
+        "pack-99".to_string(),
+        "hash-of-pack".to_string(),
+    );
+}
+
+/// Same event-id failure path for the third emit fn.
+#[test]
+#[cfg(debug_assertions)]
+#[should_panic(expected = "w4pm:requiresNonEmptyId")]
+fn emit_receipt_chained_panics_on_empty_id() {
+    let _ = wasm4pm_compat_events::emit_receipt_chained(
+        String::new(),
+        literal_time(),
+        "receipt-xyz".to_string(),
+        "hash-of-chain".to_string(),
+    );
+}

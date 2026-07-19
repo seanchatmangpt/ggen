@@ -3,18 +3,20 @@ to: src/wasm4pm_compat_events.rs
 sparql:
   event_types: |
     PREFIX w4pm: <http://seanchatmangpt.github.io/packs/wasm4pm-compat#>
-    SELECT ?event_name ?object_type WHERE {
+    SELECT ?event_name ?object_type ?requires_non_empty_id WHERE {
       ?et a w4pm:EventType ;
           w4pm:eventName ?event_name ;
           w4pm:hasObjectType ?object_type .
+      OPTIONAL { ?et w4pm:requiresNonEmptyId ?requires_non_empty_id . }
     } ORDER BY ?event_name
   attribute_rows: |
     PREFIX w4pm: <http://seanchatmangpt.github.io/packs/wasm4pm-compat#>
-    SELECT ?event_name ?attr_name WHERE {
+    SELECT ?event_name ?attr_name ?requires_non_empty WHERE {
       ?et a w4pm:EventType ;
           w4pm:eventName ?event_name ;
           w4pm:hasAttribute ?attr .
       ?attr w4pm:attrName ?attr_name .
+      OPTIONAL { ?attr w4pm:requiresNonEmpty ?requires_non_empty . }
     } ORDER BY ?event_name ?attr_name
   event_count: |
     PREFIX w4pm: <http://seanchatmangpt.github.io/packs/wasm4pm-compat#>
@@ -69,7 +71,9 @@ pub fn emit_{{ row.event_name }}(
     {{ row.object_type | split(pat="#") | last | snake_case }}_id: String,
 {% if attrs_by_event[row.event_name] %}{% for a in attrs_by_event[row.event_name] %}    {{ a.attr_name }}: String,
 {% endfor %}{% endif %}) -> OCELEvent {
-    OCELEvent {
+{% if row.requires_non_empty_id %}    debug_assert!(!id.is_empty(), "w4pm:requiresNonEmptyId: `{{ row.event_name }}` event id must not be empty");
+{% endif %}{% if attrs_by_event[row.event_name] %}{% for a in attrs_by_event[row.event_name] %}{% if a.requires_non_empty %}    debug_assert!(!{{ a.attr_name }}.is_empty(), "w4pm:requiresNonEmpty: `{{ row.event_name }}`'s `{{ a.attr_name }}` attribute must not be empty");
+{% endif %}{% endfor %}{% endif %}    OCELEvent {
         id,
         event_type: "{{ row.event_name }}".to_string(),
         time,

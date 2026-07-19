@@ -126,7 +126,18 @@ pv=$([ "$rc" -eq 0 ] && echo true || echo false)
 to_rotate=()
 for f in "${files[@]}"; do
   h=$(b3sum --no-names "$f" 2>/dev/null | cut -c1-64)
-  n=$(grep -c 'a dfl:ToolEvent' "$f" 2>/dev/null || echo 0)
+  # NOTE (v26.7.19, real bug found + fixed live this session): `grep -c
+  # PATTERN file || echo 0` double-prints "0" when PATTERN matches ZERO
+  # lines -- `grep -c` already prints "0" to stdout in that case, but GNU
+  # grep's exit status is still 1 (no match), so the `|| echo 0` ALSO
+  # fires, yielding "0\n0" instead of "0" and breaking any numeric
+  # comparison against the captured value. Confirmed live: a governance-gap
+  # per-tool check below hit this exact case (`grep -c '"tool":"Edit"'`
+  # against a log with zero Edit invocations) and failed with `integer
+  # expression expected`. Fixed everywhere in this script by capturing
+  # grep -c's stdout directly (ignoring its exit status) and defaulting
+  # only if the variable ends up EMPTY, not merely nonzero-exit.
+  n=$(grep -c 'a dfl:ToolEvent' "$f" 2>/dev/null); n=${n:-0}
 
   # GOVERNANCE COVERAGE: cross-check invocations-seen vs events-captured.
   sid=$(basename "$f" .ttl)
@@ -134,9 +145,40 @@ for f in "${files[@]}"; do
   invocations_file="$dir/session-${sid}.invocations"
   invocations_seen=$(cat "$invocations_file" 2>/dev/null || echo "$n")
   gap=false
+  gap_tools="[]"
   if [ "$invocations_seen" -gt "$n" ] 2>/dev/null; then
     gap=true
-    echo "dogfood: GOVERNANCE ANOMALY in $f — $invocations_seen invocation(s) seen but only $n dfl:ToolEvent(s) captured (gap=$((invocations_seen - n)))"
+    gapn=$((invocations_seen - n))
+    echo "dogfood: GOVERNANCE ANOMALY in $f — $invocations_seen invocation(s) seen but only $n dfl:ToolEvent(s) captured (gap=$gapn)"
+
+    # PER-TOOL ATTRIBUTION (v26.7.19, L3->L4): name WHICH tool(s) the gap
+    # came from, not just its size. invocations-by-tool.jsonl has one line
+    # per invocation SEEN (before the closed-vocabulary filter); the
+    # captured log's own skos:notation triples tell us how many of each
+    # tool name actually landed. Any tool whose seen-count exceeds its
+    # captured-count is a named, attributable gap.
+    # Uses the DISTINCT tool names actually present in invocations-by-tool.jsonl
+    # (via jq, not a hardcoded candidate list) so a tool name OUTSIDE the closed
+    # vocabulary entirely (e.g. "NotebookEdit", which the capture hook's own
+    # case-statement filter drops before it ever becomes a dfl:ToolEvent) is
+    # still attributed by name -- that is precisely the most common real gap
+    # this mechanism exists to catch, and a fixed candidate list restricted to
+    # the closed dfl:ToolNameScheme names would silently miss it.
+    tool_seen_file="$dir/session-${sid}.invocations-by-tool.jsonl"
+    if [ -f "$tool_seen_file" ] && command -v jq >/dev/null 2>&1; then
+      distinct_tools=$(jq -r '.tool' "$tool_seen_file" 2>/dev/null | sort -u)
+      gap_tools=$(
+        while IFS= read -r t; do
+          [ -n "$t" ] || continue
+          seen_n=$(grep -c "\"tool\":\"$t\"" "$tool_seen_file" 2>/dev/null); seen_n=${seen_n:-0}
+          cap_n=$(grep -c "skos:notation \"$t\"" "$f" 2>/dev/null); cap_n=${cap_n:-0}
+          if [ "$seen_n" -gt "$cap_n" ]; then
+            echo "dogfood:   -> tool=\"$t\" seen=$seen_n captured=$cap_n gap=$((seen_n - cap_n))" >&2
+            printf '%s\n' "$t"
+          fi
+        done <<< "$distinct_tools" | jq -R -s -c 'split("\n") | map(select(length > 0))'
+      )
+    fi
   fi
 
   # Canonical (sorted-key) payload bytes -- the exact bytes payload_hash is
@@ -149,7 +191,8 @@ for f in "${files[@]}"; do
     --argjson parse_valid "$pv" \
     --argjson invocations_seen "${invocations_seen:-$n}" \
     --argjson governance_gap "$gap" \
-    '{blake3: $blake3, parse_valid: $parse_valid, session_log: $session_log, tool_events: $tool_events, invocations_seen: $invocations_seen, governance_gap: $governance_gap}')
+    --argjson governance_gap_tools "$gap_tools" \
+    '{blake3: $blake3, parse_valid: $parse_valid, session_log: $session_log, tool_events: $tool_events, invocations_seen: $invocations_seen, governance_gap: $governance_gap, governance_gap_tools: $governance_gap_tools}')
   payload_hash=$(printf '%s' "$payload" | b3sum --no-names - | cut -c1-64)
   chain_hash=$(printf '%s%s' "$prev_chain" "$payload_hash" | b3sum --no-names - | cut -c1-64)
 
@@ -160,11 +203,12 @@ for f in "${files[@]}"; do
     --argjson parse_valid "$pv" \
     --argjson invocations_seen "${invocations_seen:-$n}" \
     --argjson governance_gap "$gap" \
+    --argjson governance_gap_tools "$gap_tools" \
     --arg payload_hash "$payload_hash" \
     --arg prev_chain_hash "$prev_chain" \
     --arg chain_hash "$chain_hash" \
     '{session_log: $session_log, blake3: $blake3, tool_events: $tool_events, parse_valid: $parse_valid,
-      invocations_seen: $invocations_seen, governance_gap: $governance_gap,
+      invocations_seen: $invocations_seen, governance_gap: $governance_gap, governance_gap_tools: $governance_gap_tools,
       payload_hash: $payload_hash, prev_chain_hash: $prev_chain_hash, chain_hash: $chain_hash}' \
     >> "$recs"
 

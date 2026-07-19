@@ -1,0 +1,20 @@
+# CQ6.3 (COMPETENCY_QUESTIONS.md concept 6, negative/regression question):
+# "Is any fibo-be-le-cb:BoardAgreement individual ever asserted as
+# ma:authorizesTransaction's domain? It must not be."
+#
+# Added in the 2026-07-18 L5-push Round 3 pass -- the first committed query
+# in this pack that encodes one of COMPETENCY_QUESTIONS.md's own
+# false-friend regression guards as an executable, automated check rather
+# than prose. Verified live: 0 rows against fixtures/case.ttl,
+# fixtures/case-2.ttl, and fixtures/mega-deal-second-request.ttl via the
+# scratch consumer at /private/tmp/claude-501/-Users-sac-ggen/
+# 70ac08c7-8655-49c4-baa2-018bc441bb4c/scratchpad/l5-round3-ma-case-study-pack/
+# -- ma:BoardResolution is used everywhere instead, as intended.
+
+PREFIX fibo-be-le-cb: <https://spec.edmcouncil.org/fibo/ontology/BE/Corporations/CorporateBodies/>
+PREFIX ma: <http://seanchatmangpt.github.io/packs/ma-case-study#>
+
+SELECT ?boardAgreement WHERE {
+  ?boardAgreement a fibo-be-le-cb:BoardAgreement ;
+                  ma:authorizesTransaction ?deal .
+}

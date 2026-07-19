@@ -1,0 +1,26 @@
+# CQ8.3 (COMPETENCY_QUESTIONS.md concept 8): "Who proposed the most recent
+# counter-offer?" -- "most recent" = a ma:CounterOffer that is not itself
+# superseded by any other ma:CounterOffer.
+#
+# Added in the 2026-07-18 L5-push Round 3 pass. Uses `MINUS`, not
+# `FILTER NOT EXISTS`: a real repro (see cq4.3's header for the full
+# writeup) proved this engine's FILTER NOT EXISTS does not correlate the
+# outer binding, so a first draft using it wrongly returned BOTH
+# northgate-counter-1 and solvane-counter-2 instead of just the latter.
+#
+# Verified live (post-fix) against fixtures/case-2.ttl (1 row:
+# solvane-counter-2 -> acquirer-solvane-analytics-group; northgate-counter-1
+# is correctly excluded because solvane-counter-2 supersedes it) via the
+# scratch consumer at /private/tmp/claude-501/-Users-sac-ggen/
+# 70ac08c7-8655-49c4-baa2-018bc441bb4c/scratchpad/l5-round3-ma-case-study-pack/.
+
+PREFIX ma: <http://seanchatmangpt.github.io/packs/ma-case-study#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+SELECT ?latest ?proposer WHERE {
+  ?latest a ma:CounterOffer ;
+          prov:wasAttributedTo ?proposer .
+  MINUS {
+    ?later a ma:CounterOffer ; ma:supersedes ?latest .
+  }
+}

@@ -69,6 +69,29 @@ stp:cargoDependency
     rdfs:label   "cargoDependency"  ;
     rdfs:comment "A `name = \"version\"` (or richer) Cargo.toml [dependencies] line the generated module requires. Emitted verbatim into docs/star_toml/CARGO_DEPENDENCIES.md so the exact snippet a consumer must add is ontology-derived, not re-discovered by reading generated source." .
 
+# ── Behavior-contract properties (L5-push round 3): these express a
+# pre-condition on an admitted VALUE, not merely its shape/type. serde's
+# `Deserialize` (the only enforcement round 2 generated) checks that
+# `sample_rate` parses as `f64`; it does not and cannot check that the
+# parsed number is a valid fraction. Without stp:minValue/stp:maxValue this
+# was a template author's tribal knowledge ("sample rates are 0..1") never
+# written down anywhere machine-checkable. Projected into a real generated
+# `validate()` method below -- see star_toml_config.rs.tmpl.
+
+stp:minValue
+    a            rdf:Property ;
+    rdfs:domain  stp:ConfigField ;
+    rdfs:range   xsd:double ;
+    rdfs:label   "minValue" ;
+    rdfs:comment "Inclusive lower bound this field's admitted value must satisfy. Enforced by the generated {{ Section }}Config::validate() method, not by serde -- deserialization succeeds even for an out-of-range value; validate() is the ontology-specified pre-condition check." .
+
+stp:maxValue
+    a            rdf:Property ;
+    rdfs:domain  stp:ConfigField ;
+    rdfs:range   xsd:double ;
+    rdfs:label   "maxValue" ;
+    rdfs:comment "Inclusive upper bound this field's admitted value must satisfy. See stp:minValue." .
+
 stp:StarTomlModule
     a          rdfs:Class ;
     rdfs:label "StarTomlModule" ;
@@ -126,7 +149,9 @@ stp:SampleRateField
     stp:fieldName "sample_rate" ;
     stp:rustType  "f64" ;
     stp:required  true ;
-    stp:doc       "Fraction of admission decisions exported as OCEL events." .
+    stp:minValue  0.0 ;
+    stp:maxValue  1.0 ;
+    stp:doc       "Fraction of admission decisions exported as OCEL events. Must be a valid fraction (stp:minValue/stp:maxValue = 0.0/1.0), checked by the generated validate() method." .
 
 stp:RetryCountField
     a             stp:ConfigField ;

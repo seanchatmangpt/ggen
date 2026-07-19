@@ -1,18 +1,23 @@
 ---
 to: tests/cargo_cicd_catalog_proof.rs
-force: true
+freeze_policy: checksum
+freeze_slots_dir: .ggen/freeze/cargo-cicd-pack
 sparql:
   rows: |
     PREFIX cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#>
     PREFIX cc:  <http://seanchatmangpt.github.io/packs/cargo-cicd#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    SELECT ?noun ?verb ?doc ?src WHERE {
+    SELECT ?noun ?verb ?doc ?src ?argCount ?args WHERE {
       ?c a cnv:Command ; cnv:noun ?noun ; cnv:verb ?verb .
       FILTER(STRSTARTS(STR(?c), "http://seanchatmangpt.github.io/packs/cargo-cicd#"))
       OPTIONAL { ?c rdfs:comment ?comment_raw . }
       BIND(COALESCE(?comment_raw, "") AS ?doc)
       OPTIONAL { ?c cc:sourceFile ?src_raw . }
       BIND(COALESCE(?src_raw, "") AS ?src)
+      OPTIONAL { ?c cc:argCount ?argCount_raw . }
+      BIND(COALESCE(?argCount_raw, 0) AS ?argCount)
+      OPTIONAL { ?c cc:args ?args_raw . }
+      BIND(COALESCE(?args_raw, "") AS ?args)
     } ORDER BY ?noun ?verb
 ---
 //! Proof test for `cargo-cicd-pack`'s generated static catalog
@@ -38,7 +43,8 @@ sparql:
 mod cargo_cicd_catalog;
 
 use cargo_cicd_catalog::{
-    commands_for_noun, distinct_nouns, find_command, is_valid_command, CARGO_CICD_COMMANDS,
+    args_are_consistent, commands_for_noun, distinct_nouns, find_command, is_valid_command,
+    parse_args, CARGO_CICD_COMMANDS,
 };
 
 /// Exact row count, sourced from the same SPARQL query as the catalog
@@ -67,8 +73,51 @@ fn every_queried_row_is_present_with_matching_fields() {
             .unwrap_or_else(|| panic!("missing row noun={:?} verb={:?}", "{{ row.noun }}", "{{ row.verb }}"));
         assert_eq!(row.doc, "{{ row.doc }}", "doc mismatch for {{ row.noun }}/{{ row.verb }}");
         assert_eq!(row.source_file, "{{ row.src }}", "source_file mismatch for {{ row.noun }}/{{ row.verb }}");
+        assert_eq!(row.arg_count, {{ row.argCount }}, "arg_count mismatch for {{ row.noun }}/{{ row.verb }}");
+        assert_eq!(row.args, "{{ row.args }}", "args mismatch for {{ row.noun }}/{{ row.verb }}");
     }
 {% endfor %}}
+
+/// Round-3 addition: `parse_args` must recover exactly `arg_count` pairs for
+/// EVERY row in the catalog, not just a hand-picked sample -- an independent
+/// structural check between the two ontology facts (`cc:argCount`,
+/// `cc:args`), computed in Rust rather than sourced a second time from
+/// SPARQL.
+#[test]
+fn parsed_arg_count_matches_declared_arg_count_for_every_row() {
+    for c in CARGO_CICD_COMMANDS {
+        assert_eq!(
+            parse_args(c).len() as u8,
+            c.arg_count,
+            "parse_args() length disagrees with arg_count for {}/{}",
+            c.noun,
+            c.verb
+        );
+    }
+    assert!(args_are_consistent());
+}
+
+/// Adversarial: a command with `arg_count == 0` must parse to an empty
+/// argument list, not a spurious one-element list from splitting an empty
+/// string.
+#[test]
+fn zero_arg_command_parses_to_empty_arg_list() {
+    let row = find_command("git", "status").expect("git status must exist");
+    assert_eq!(row.arg_count, 0);
+    assert!(parse_args(row).is_empty());
+}
+
+/// Positive: a real multi-argument command (`doctor repo`, 5 args per the
+/// 2026-07-18 source audit) parses to exactly 5 named, typed pairs, and the
+/// first one is `("repo", "Option<String>")` -- checked against the actual
+/// generated data, not a re-invented literal.
+#[test]
+fn doctor_repo_parses_five_typed_arguments() {
+    let row = find_command("doctor", "repo").expect("doctor repo must exist");
+    let parsed = parse_args(row);
+    assert_eq!(parsed.len(), 5);
+    assert_eq!(parsed[0], ("repo", "Option<String>"));
+}
 
 /// Structural invariant, computed independently of the query: no duplicate
 /// (noun, verb) pair exists in the compiled catalog.

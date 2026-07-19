@@ -167,3 +167,23 @@ smon:UngovernedTransitionShape
         sh:class       smon:Turn ;
         sh:message     "An UngovernedTransition must link exactly one smon:Other-classified response turn via smon:hasUngovernedResponse." ;
     ] .
+
+# L5-push (round 3): overdue-escalation's own shape -- must link back to
+# exactly one PrioritizedEscalationObligation it escalates.
+smon:OverdueEscalationObligationShape
+    a sh:NodeShape ;
+    sh:targetClass smon:OverdueEscalationObligation ;
+
+    sh:property [
+        sh:path        smon:escalates ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:class       smon:PrioritizedEscalationObligation ;
+        sh:message     "An OverdueEscalationObligation must link exactly one PrioritizedEscalationObligation via smon:escalates." ;
+    ] ;
+    sh:property [
+        sh:path        smon:status ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:message     "An OverdueEscalationObligation must carry smon:status, same closed vocabulary as smon:EscalationObligation." ;
+    ] .

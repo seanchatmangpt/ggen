@@ -1,0 +1,38 @@
+# CQ4.3 (COMPETENCY_QUESTIONS.md concept 4): "Which representations or
+# warranties have NO disclosed exception at all (the unqualified,
+# full-strength clauses)?" -- the negation of CQ4.1.
+#
+# Added in the 2026-07-18 L5-push Round 3 pass. A first draft used
+# `FILTER NOT EXISTS { ?scheduleItem ... ma:qualifiesClause ?clause }`, which
+# a real repro (scratch consumer, not this pack's fixtures) proved this
+# engine evaluates WITHOUT correlating ?clause to the outer binding -- it
+# silently returned every Representation/Warranty, qualified or not,
+# identical to omitting the FILTER entirely. Rewritten to `MINUS`, which the
+# same repro confirmed correlates correctly. This is a real, disclosed
+# engine limitation (this engine's SPARQL FILTER NOT EXISTS is not usable
+# for correlated negation), not a query-authoring mistake to fix by hand
+# next time -- see also self-monitoring-pack's disclosed sh:sparql/ORDER BY
+# limitations in the same engine.
+#
+# Verified live (post-fix) against fixtures/case.ttl (1 row:
+# rep-target-financial-statements -- the ONE Representation with no
+# ma:qualifiesClause pointing at it; warranty-target-no-material-litigation
+# is correctly excluded because Schedule 3.14(b) qualifies it) and
+# fixtures/case-2.ttl (0 rows -- its only Representation,
+# rep-target-environmental-compliance, IS qualified by Schedule 4.02, so the
+# unqualified set there is empty) via the scratch consumer at
+# /private/tmp/claude-501/-Users-sac-ggen/70ac08c7-8655-49c4-baa2-018bc441bb4c/
+# scratchpad/l5-round3-ma-case-study-pack/.
+
+PREFIX fibo-fnd-agr-ctr: <https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/>
+PREFIX ma: <http://seanchatmangpt.github.io/packs/ma-case-study#>
+
+SELECT ?clause WHERE {
+  { ?clause a fibo-fnd-agr-ctr:Representation . }
+  UNION
+  { ?clause a fibo-fnd-agr-ctr:Warranty . }
+  MINUS {
+    ?scheduleItem a ma:DisclosureScheduleItem ;
+                  ma:qualifiesClause ?clause .
+  }
+}

@@ -6,13 +6,16 @@ sparql:
   rows: |
     PREFIX cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    SELECT ?noun ?verb ?doc ?args WHERE {
+    PREFIX mcp: <http://seanchatmangpt.github.io/packs/mcpp#>
+    SELECT ?noun ?verb ?doc ?args ?error_case WHERE {
       ?c a cnv:Command ; cnv:noun ?noun ; cnv:verb ?verb .
       FILTER(STRSTARTS(STR(?c), "http://seanchatmangpt.github.io/packs/mcpp#"))
       OPTIONAL { ?c rdfs:comment ?comment_raw . }
       OPTIONAL { ?c cnv:args ?args_raw . }
+      OPTIONAL { ?c mcp:errorCase ?error_case_raw . }
       BIND(COALESCE(?comment_raw, "") AS ?doc)
       BIND(COALESCE(?args_raw, "") AS ?args)
+      BIND(COALESCE(?error_case_raw, "") AS ?error_case)
     } ORDER BY ?noun ?verb
 ---
 //! Typed catalog of ~/mcpp's `mcpp <noun> <verb>` commands.
@@ -33,9 +36,14 @@ pub struct McppCommand {
     /// argument of the verified `#[verb]` function signature. Empty string
     /// when the command takes no arguments.
     pub args: &'static str,
+    /// The real non-zero-exit/error condition of the verified `#[verb]`
+    /// function, file:line-cited against `~/mcpp`'s pinned commit. Empty
+    /// string is not a valid value for any of the 9 rows -- every real
+    /// command has at least one documented failure mode.
+    pub error_case: &'static str,
 }
 
 /// The full catalog, ordered by (noun, verb).
 pub const MCPP_COMMANDS: &[McppCommand] = &[
-{% for row in rows %}    McppCommand { noun: "{{ row.noun }}", verb: "{{ row.verb }}", doc: "{{ row.doc }}", args: "{{ row.args }}" },
+{% for row in rows %}    McppCommand { noun: "{{ row.noun }}", verb: "{{ row.verb }}", doc: "{{ row.doc | replace(from='\"', to="'") }}", args: "{{ row.args }}", error_case: "{{ row.error_case | replace(from='\"', to="'") }}" },
 {% endfor %}];

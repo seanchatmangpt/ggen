@@ -158,3 +158,51 @@ dfl:discharge_review_obligation_action
     a kh:Action ;
     kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
     kh:query """CONSTRUCT { ?ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#dischargedBy> ?e2 . ?ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#obligationStatus> <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Discharged> . } WHERE { ?ob a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Obligation> ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#derivedFrom> ?e1 ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#obligationTarget> ?agent . ?e1 <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?i1 . ?e2 a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#ToolEvent> ; <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?i2 ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#outcome> <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Ok> . FILTER(?i2 > ?i1) }""" .
+
+# ── THIRD HOOK (v26.7.19, Obligation-lifecycle L3->L4): escalate_overdue_
+# obligation -- "a third hook chaining off an open+overdue query" (the exact
+# L4 bar text). "Overdue" is modeled as a COUNT-based proxy, not a wall-clock
+# comparison (CLAUDE.md invariant 3, and this pack's own OBSERVATION-ONLY /
+# no-wall-clock-read discipline stated in ontology.ttl): an Obligation is
+# overdue once at least THREE further same-agent/same-session ToolEvents have
+# occurred since the triggering event, whether or not any of them discharged
+# it. This is deliberately NOT gated by "still Open" via FILTER NOT EXISTS --
+# hook.ttl's own note above documents that guard breaking hook-triple
+# extraction when tried live for discharge_review_obligation; escalatedBy
+# and dischargedBy are independent pointer properties that may coexist (see
+# ontology.ttl's dfl:escalatedBy comment), so no negation is needed here.
+#
+# ARITHMETIC-FILTER ENGINE LIMITATION (found live, this session, worked
+# around at the pack level): an earlier version of this action's WHERE used
+# `FILTER(?i3 >= ?i1 + 3)` -- the exact same FILTER-with-arithmetic shape
+# many SPARQL engines support. Confirmed via a standalone scratch-consumer
+# query (`SELECT ?x ?n WHERE { ?x ex:n ?n . FILTER(?n >= 1 + 3) }` against
+# facts n=1/4/7) that THIS engine's FILTER evaluator does not support binary
+# arithmetic expressions in the term position: the query returns ZERO rows
+# (not a parse error -- confirmed n=4 and n=7 should both satisfy `>= 1+3`
+# under standard SPARQL semantics) rather than the expected 2. Reproducing
+# or fixing this is an engine-level SPARQL-evaluator change
+# (crates/praxis-graphlaw), out of scope for a pack-level edit. Worked
+# around with a join-based threshold instead of arithmetic -- a standard
+# Datalog technique, not an engine change: THREE existentially-distinct
+# later same-agent/same-session ToolEvents (?ea < ?eb < ?e3, all strictly
+# after ?e1, ordered by plain `>` comparisons -- the same comparison shape
+# discharge_review_obligation_action already uses successfully) must exist
+# before `?e3` (the third and latest of the three) is asserted as
+# `escalatedBy`. This gives the identical observable behavior to the
+# arithmetic version (escalate once >=3 later events exist) without
+# depending on the unsupported FILTER expression.
+dfl:escalate_overdue_obligation
+    a kh:Hook ;
+    kh:name "escalate_overdue_obligation" ;
+    kh:kind "sparql" ;
+    kh:query """SELECT ?ob WHERE { ?ob a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Obligation> . }""" ;
+    kh:effect "emit-delta" ;
+    kh:action dfl:escalate_overdue_obligation_action ;
+    kh:after dfl:discharge_review_obligation ;
+    kh:priority 3 .
+
+dfl:escalate_overdue_obligation_action
+    a kh:Action ;
+    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:query """CONSTRUCT { ?ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#escalatedBy> ?e3 . } WHERE { ?ob a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Obligation> ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#derivedFrom> ?e1 ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#obligationTarget> ?agent . ?e1 <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?i1 . ?ea a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#ToolEvent> ; <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?ia . ?eb a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#ToolEvent> ; <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?ib . ?e3 a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#ToolEvent> ; <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?i3 . FILTER(?ia > ?i1) FILTER(?ib > ?ia) FILTER(?i3 > ?ib) }""" .

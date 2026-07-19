@@ -135,10 +135,64 @@ def run_actuation(input_path: Path) -> dict:
     return receipt
 
 
+SMON = "http://seanchatmangpt.github.io/packs/self-monitoring#"
+
+
+def render_receipt_graph(receipt: dict, receipt_iri: str) -> str:
+    """Round-3 addition: render the JSON receipt as RDF Turtle -- an
+    `smon:ActuationReceipt` individual -- so it can flow BACK into the
+    graph as a new fact (Matrix 2's Actuation-closure L4 bar), not remain
+    solely a JSON artifact on disk. Deliberately does NOT try to reference
+    the specific blank-node obligation(s) actuated (Turtle blank-node
+    labels are not stable/referenceable across separate parses -- an
+    honestly disclosed scope limit, not an oversight)."""
+    any_fired = "true" if receipt.get("any_hook_fired") else "false"
+    h = receipt.get("derived_triples_sha256", "")
+    ts = receipt.get("actuated_at", "")
+    inp = receipt.get("input_file", "")
+    return (
+        f"@prefix smon: <{SMON}> .\n"
+        f"@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\n"
+        f"<{receipt_iri}>\n"
+        f"    a smon:ActuationReceipt ;\n"
+        f'    smon:receiptHash "{h}"^^xsd:string ;\n'
+        f'    smon:actuatedAt "{ts}"^^xsd:dateTime ;\n'
+        f"    smon:anyHookFired \"{any_fired}\"^^xsd:boolean ;\n"
+        f'    smon:actuatedInput "{inp}"^^xsd:string .\n'
+    )
+
+
+def verify_round_trip(ontology_path: Path, input_path: Path, receipt_graph_path: Path) -> dict:
+    """Round-3 addition: the actual re-observe step. Loads ontology.ttl +
+    the ORIGINAL input + the just-written receipt-graph Turtle file into a
+    FRESH rdflib.Graph and confirms the smon:ActuationReceipt fact is
+    present and queryable -- proving the actuation outcome really did flow
+    back into a graph as a new, re-observable fact, not merely narrated."""
+    g = rdflib.Graph()
+    g.parse(str(ontology_path), format="turtle")
+    g.parse(str(input_path), format="turtle")
+    g.parse(str(receipt_graph_path), format="turtle")
+    rows = list(g.subjects(rdflib.RDF.type, rdflib.URIRef(f"{SMON}ActuationReceipt")))
+    return {
+        "round_trip_verified": len(rows) == 1,
+        "actuation_receipt_count": len(rows),
+    }
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--input", required=True, type=Path, help="Turtle file to actuate against (a fixture or a real capture-script output)")
     ap.add_argument("--receipt-dir", type=Path, default=Path(".smon/receipts"))
+    ap.add_argument(
+        "--emit-receipt-graph",
+        action="store_true",
+        help="Round 3: also render the receipt as an smon:ActuationReceipt RDF individual (Turtle), not only JSON.",
+    )
+    ap.add_argument(
+        "--verify-round-trip",
+        action="store_true",
+        help="Round 3: after --emit-receipt-graph, re-load ontology+input+receipt-graph into a fresh graph and confirm the receipt fact is queryable (the actual re-observe step).",
+    )
     args = ap.parse_args()
 
     receipt = run_actuation(args.input)
@@ -149,8 +203,26 @@ def main() -> int:
     receipt_path = args.receipt_dir / f"{stem}-{ts}.json"
     receipt_path.write_text(json.dumps(receipt, indent=2) + "\n")
 
+    receipt_graph_path = None
+    if args.emit_receipt_graph:
+        receipt_iri = f"http://seanchatmangpt.github.io/packs/self-monitoring/receipts#{stem}-{ts}"
+        ttl = render_receipt_graph(receipt, receipt_iri)
+        receipt_graph_path = args.receipt_dir / f"{stem}-{ts}.receipt.ttl"
+        receipt_graph_path.write_text(ttl)
+        receipt["receipt_graph_file"] = str(receipt_graph_path)
+        receipt["receipt_graph_iri"] = receipt_iri
+
+    if args.verify_round_trip:
+        if receipt_graph_path is None:
+            receipt["round_trip_error"] = "--verify-round-trip requires --emit-receipt-graph"
+        else:
+            ontology_path = PACK_DIR / "ontology.ttl"
+            receipt["round_trip"] = verify_round_trip(ontology_path, args.input, receipt_graph_path)
+
     print(json.dumps(receipt, indent=2))
     print(f"\nreceipt written: {receipt_path}", file=sys.stderr)
+    if receipt_graph_path is not None:
+        print(f"receipt graph written: {receipt_graph_path}", file=sys.stderr)
 
     return 0 if receipt["outcome"] == "actuated" else 1
 

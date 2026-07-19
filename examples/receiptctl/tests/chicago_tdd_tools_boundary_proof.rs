@@ -13,12 +13,23 @@
 //! second by-hand edit to an `EXPECTED` Rust array baked into the template.
 //! `EXPECTED_TEST_COUNT` is `tests.len()` at render time, not a hardcoded `3`.
 //!
-//! What is still NOT closed, and why: the two generated files are
-//! independent Tera+SPARQL renders of the same query, so this proof cannot
-//! call the sibling file's logic in-process (there is no reusable in-process
-//! artifact here — see `pack.toml`'s description). It still reads the
-//! REAL, already-rendered text of `tests/chicago_tdd_tools_boundary.rs` off
-//! disk and asserts the query-derived literals appear in it verbatim. That
+//! Since 2026-07-19 there IS a reusable in-process artifact: the sibling
+//! generated file `tests/chicago_tdd_tools_boundary_runtime.rs` (from
+//! `cli_boundary_runtime.rs.tmpl`) defines `run_boundary_spec`, a real
+//! dispatch function every generated `#[test]` in
+//! `tests/chicago_tdd_tools_boundary.rs` calls via `include!(..)` rather
+//! than duplicating CliHarness-spawn-and-assert logic per row. This proof
+//! asserts on the CALL SITES (the `BoundarySpec { .. }` literals each
+//! generated test builds), not the assertion mechanics themselves — those
+//! now live once, in the runtime module, and are exercised for real every
+//! time `tests/chicago_tdd_tools_boundary.rs`'s own suite runs.
+//!
+//! What is still NOT closed, and why: the two generated files are still
+//! independent Tera+SPARQL renders of the same query (this proof cannot
+//! call `cli_boundary_tests.rs.tmpl`'s OWN render logic in-process — only
+//! the RESULT it produces, read back off disk). It still reads the REAL,
+//! already-rendered text of `tests/chicago_tdd_tools_boundary.rs` off disk
+//! and asserts the query-derived literals appear in it verbatim. That
 //! remaining gap (two renders of one query, not one render checked twice) is
 //! a `ggen-engine` template-composition limitation (no import/no cross-
 //! template artifact reuse today), not something this pack's own files can
@@ -34,12 +45,13 @@ use std::path::PathBuf;
 struct ExpectedBoundaryTest {
     /// Exact `fn <name>(` substring expected in the generated file.
     fn_signature: &'static str,
-    /// Exact `output.assert_exit_code(N);` substring expected.
-    exit_code_call: &'static str,
-    /// Exact `output.assert_stdout_contains("...");` substring expected, if any.
-    stdout_call: Option<&'static str>,
-    /// Exact `output.assert_stderr_contains("...");` substring expected, if any.
-    stderr_call: Option<&'static str>,
+    /// Exact `exit_code: N,` field substring expected inside that fn's
+    /// `BoundarySpec { .. }` literal.
+    exit_code_field: &'static str,
+    /// Exact `stdout_needle: Some("...")` field substring expected, if any.
+    stdout_field: Option<&'static str>,
+    /// Exact `stderr_needle: Some("...")` field substring expected, if any.
+    stderr_field: Option<&'static str>,
     /// Exact `/// Covers: ...` doc-comment substring expected.
     axiom_doc: &'static str,
 }
@@ -53,33 +65,33 @@ const EXPECTED: [ExpectedBoundaryTest; EXPECTED_TEST_COUNT] = [
     // receiptctl_algorithm_list_succeeds
     ExpectedBoundaryTest {
         fn_signature: "fn receiptctl_algorithm_list_succeeds()",
-        exit_code_call: "output.assert_exit_code(0);",
-        stdout_call: Some("output.assert_stdout_contains(\"[\");"),
-        stderr_call: None,
+        exit_code_field: "exit_code: 0,",
+        stdout_field: Some("stdout_needle: Some(\"[\"),"),
+        stderr_field: None,
         axiom_doc: "/// Covers: receiptctl algorithm list (argv composed from clap-noun-verb-pack's AlgorithmList command) exits 0 and prints a JSON array",
     },
     // receiptctl_help_lists_verbs
     ExpectedBoundaryTest {
         fn_signature: "fn receiptctl_help_lists_verbs()",
-        exit_code_call: "output.assert_exit_code(0);",
-        stdout_call: Some("output.assert_stdout_contains(\"Usage\");"),
-        stderr_call: None,
+        exit_code_field: "exit_code: 0,",
+        stdout_field: Some("stdout_needle: Some(\"Usage\"),"),
+        stderr_field: None,
         axiom_doc: "/// Covers: receiptctl --help exits 0 with usage text",
     },
     // receiptctl_unknown_verb_fails_closed
     ExpectedBoundaryTest {
         fn_signature: "fn receiptctl_unknown_verb_fails_closed()",
-        exit_code_call: "output.assert_exit_code(1);",
-        stdout_call: None,
-        stderr_call: Some("output.assert_stderr_contains(\"error\");"),
+        exit_code_field: "exit_code: 1,",
+        stdout_field: None,
+        stderr_field: Some("stderr_needle: Some(\"error\"),"),
         axiom_doc: "/// Covers: an unknown subcommand exits nonzero with a clap error on stderr",
     },
     // receiptctl_version_emits_name
     ExpectedBoundaryTest {
         fn_signature: "fn receiptctl_version_emits_name()",
-        exit_code_call: "output.assert_exit_code(0);",
-        stdout_call: Some("output.assert_stdout_contains(\"cli \");"),
-        stderr_call: None,
+        exit_code_field: "exit_code: 0,",
+        stdout_field: Some("stdout_needle: Some(\"cli \"),"),
+        stderr_field: None,
         axiom_doc: "/// Covers: receiptctl --version exits 0 and prints a version string",
     },
 ];
@@ -132,24 +144,24 @@ fn generated_file_covers_every_query_derived_axiom() {
             expected.fn_signature
         );
         assert!(
-            generated.contains(expected.exit_code_call),
-            "missing expected exit-code assertion {:?} for {:?}",
-            expected.exit_code_call,
+            generated.contains(expected.exit_code_field),
+            "missing expected exit-code field {:?} for {:?}",
+            expected.exit_code_field,
             expected.fn_signature
         );
-        if let Some(stdout_call) = expected.stdout_call {
+        if let Some(stdout_field) = expected.stdout_field {
             assert!(
-                generated.contains(stdout_call),
-                "missing expected stdout assertion {:?} for {:?}",
-                stdout_call,
+                generated.contains(stdout_field),
+                "missing expected stdout_needle field {:?} for {:?}",
+                stdout_field,
                 expected.fn_signature
             );
         }
-        if let Some(stderr_call) = expected.stderr_call {
+        if let Some(stderr_field) = expected.stderr_field {
             assert!(
-                generated.contains(stderr_call),
-                "missing expected stderr assertion {:?} for {:?}",
-                stderr_call,
+                generated.contains(stderr_field),
+                "missing expected stderr_needle field {:?} for {:?}",
+                stderr_field,
                 expected.fn_signature
             );
         }
@@ -162,15 +174,67 @@ fn generated_file_covers_every_query_derived_axiom() {
     }
 }
 
+/// Reads the REAL, already-rendered reusable-dispatch sibling artifact
+/// (`chicago_tdd_tools_boundary_runtime.rs`, from `cli_boundary_runtime.rs.tmpl`)
+/// off disk, produced by the same `ggen sync` run.
+fn read_generated_runtime_file() -> String {
+    let manifest_dir = env::var("CARGO_MANIFEST_DIR")
+        .expect("CARGO_MANIFEST_DIR must be set by cargo when running tests");
+    let path = PathBuf::from(manifest_dir).join("tests/chicago_tdd_tools_boundary_runtime.rs");
+    fs::read_to_string(&path).unwrap_or_else(|e| {
+        panic!(
+            "expected sibling generated runtime file at {} (produced by \
+             cli_boundary_runtime.rs.tmpl in the same ggen sync run): {e}",
+            path.display()
+        )
+    })
+}
+
+/// Proves the "reusable in-process artifact" claim in this file's own doc
+/// comment, rather than merely asserting it in prose: the generated boundary
+/// test file must `include!` the generated runtime module (not duplicate
+/// CliHarness dispatch logic per-test), and that runtime module must
+/// actually define the real, non-panicking `run_boundary_spec` dispatch
+/// function every generated `#[test]` calls.
+#[test]
+fn generated_boundary_tests_reuse_one_dispatch_module_not_per_row_duplication() {
+    let boundary = read_generated_boundary_file();
+    let runtime = read_generated_runtime_file();
+
+    assert!(
+        boundary.contains("include!(\"chicago_tdd_tools_boundary_runtime.rs\");"),
+        "generated boundary test file must include! the generated runtime \
+         module instead of inlining CliHarness dispatch logic per test"
+    );
+    assert!(
+        runtime.contains("pub fn run_boundary_spec(spec: &BoundarySpec) -> Result<(), String>"),
+        "generated runtime module must define the real run_boundary_spec \
+         dispatch function (parse spec -> dispatch via CliHarness -> emit \
+         Result), not a stub"
+    );
+    assert!(
+        runtime.contains("pub struct BoundarySpec"),
+        "generated runtime module must define the BoundarySpec struct the \
+         boundary tests construct"
+    );
+    let call_site_count = boundary.matches("run_boundary_spec(&BoundarySpec {").count();
+    assert_eq!(
+        call_site_count, EXPECTED_TEST_COUNT,
+        "expected exactly {EXPECTED_TEST_COUNT} run_boundary_spec(&BoundarySpec ..) call \
+         sites (one per generated #[test], each dispatching through the shared runtime module), \
+         found {call_site_count}"
+    );
+}
+
 /// Chicago TDD guard: the generated boundary tests must spawn a real
-/// binary via `CliHarness`, never a mock/test double (see
-/// `.claude/rules/rust/testing-forbidden.md`).
+/// binary via `CliHarness` (through the reusable runtime module), never a
+/// mock/test double (see `.claude/rules/rust/testing-forbidden.md`).
 #[test]
 fn generated_file_uses_real_cli_harness_not_a_mock() {
-    let generated = read_generated_boundary_file();
+    let generated = read_generated_runtime_file();
     assert!(
         generated.contains("CliHarness::cargo_bin("),
-        "generated boundary file must spawn a real binary via CliHarness::cargo_bin(...)"
+        "generated runtime module must spawn a real binary via CliHarness::cargo_bin(...)"
     );
     // A blanket `!contains("mock")` is too naive: the generated file's own
     // doc comments explain the Chicago-TDD doctrine using the English word

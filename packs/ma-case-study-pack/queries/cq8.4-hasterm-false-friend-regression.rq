@@ -1,0 +1,20 @@
+# CQ8.4 (COMPETENCY_QUESTIONS.md concept 8, negative/regression question):
+# "Does any query mistake fibo-fnd-agr-ctr:hasTerm for a negotiated
+# deal-term value? It must not."
+#
+# Added in the 2026-07-18 L5-push Round 3 pass -- encodes the false-friend
+# regression guard COMPETENCY_QUESTIONS.md's own concept-8 entry names as an
+# executable check. Verified live: 0 rows against fixtures/case.ttl,
+# fixtures/case-2.ttl, and fixtures/mega-deal-second-request.ttl via the
+# scratch consumer at /private/tmp/claude-501/-Users-sac-ggen/
+# 70ac08c7-8655-49c4-baa2-018bc441bb4c/scratchpad/l5-round3-ma-case-study-pack/
+# -- fibro-fnd-agr-ctr:hasTerm (contract DURATION) is never asserted
+# anywhere alongside ma:DealTermLineItem in this pack's fixtures.
+
+PREFIX fibo-fnd-agr-ctr: <https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/>
+PREFIX ma: <http://seanchatmangpt.github.io/packs/ma-case-study#>
+
+SELECT ?term ?duration WHERE {
+  ?term a ma:DealTermLineItem ;
+        fibo-fnd-agr-ctr:hasTerm ?duration .
+}

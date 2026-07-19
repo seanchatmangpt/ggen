@@ -200,3 +200,72 @@ fn missing_file_is_rejected_not_panicked() {
         "missing config file must return Err, not panic"
     );
 }
+
+/// Behavior-contract proof (round 3): `sample_rate` carries `stp:minValue
+/// 0.0` / `stp:maxValue 1.0` in `ontology.ttl`. `serde::Deserialize` alone
+/// cannot and does not check this -- a syntactically valid TOML file with
+/// `sample_rate = 1.5` parses successfully via `StarTomlConfig::load`.
+/// `validate()` is the ontology-projected pre-condition check that catches
+/// it; this test proves `load()` succeeding is NOT the same as the value
+/// being admissible.
+#[test]
+fn out_of_range_sample_rate_parses_but_fails_validate() {
+    let dir = TempDir::new().expect("real tempdir");
+    let path = write_toml(
+        &dir,
+        "star_toml_out_of_range.toml",
+        r#"
+[admission]
+witness_dir = ".witness"
+fail_closed = true
+
+[telemetry]
+exporter_endpoint = "http://otel-collector:4318"
+sample_rate = 1.5
+"#,
+    );
+
+    let cfg = StarTomlConfig::load(&path)
+        .expect("out-of-range sample_rate is still syntactically valid TOML/type-correct");
+    assert_eq!(cfg.telemetry.sample_rate, 1.5, "load() does not clamp or reject the value");
+
+    let result = cfg.validate();
+    assert!(
+        result.is_err(),
+        "validate() must reject sample_rate=1.5 against stp:minValue=0.0/stp:maxValue=1.0"
+    );
+    assert!(
+        result.unwrap_err().contains("sample_rate"),
+        "error must name the violated field"
+    );
+}
+
+/// Behavior-contract proof: an in-range `sample_rate` must pass `validate()`
+/// on both the leaf section and the aggregate `StarTomlConfig::validate()`.
+#[test]
+fn in_range_sample_rate_passes_validate() {
+    let dir = TempDir::new().expect("real tempdir");
+    let path = write_toml(
+        &dir,
+        "star_toml_in_range.toml",
+        r#"
+[admission]
+witness_dir = ".witness"
+fail_closed = true
+
+[telemetry]
+exporter_endpoint = "http://otel-collector:4318"
+sample_rate = 0.5
+"#,
+    );
+
+    let cfg = StarTomlConfig::load(&path).expect("real admitted config must load");
+    assert!(
+        cfg.telemetry.validate().is_ok(),
+        "sample_rate=0.5 is within [0.0, 1.0] and must pass section-level validate()"
+    );
+    assert!(
+        cfg.validate().is_ok(),
+        "aggregate StarTomlConfig::validate() must also pass when every section passes"
+    );
+}

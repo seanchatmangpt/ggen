@@ -57,14 +57,38 @@ pub fn depends_on(name: &str) -> Vec<&'static str> {
 /// an explicit `visited` set -- a cycle terminates traversal instead of
 /// overflowing the stack, even though the current 7-edge graph is acyclic.
 pub fn transitive_dependencies(name: &str) -> Vec<&'static str> {
+    transitive_dependencies_over(CRATE_DEPS, name)
+}
+
+/// Same traversal as [`transitive_dependencies`], parameterized over an
+/// arbitrary edge slice instead of the fixed, ontology-derived `CRATE_DEPS`.
+/// Exists so the cycle guard can be proven against a hand-built cyclic edge
+/// list in a test -- the real `CRATE_DEPS` graph is acyclic (7 edges, no
+/// cycle), so without this seam the guard's cycle-termination behavior would
+/// be logic that exists in the generated code but is never actually
+/// exercised by any test.
+pub fn transitive_dependencies_over(
+    edges: &[CrateDepEdge],
+    name: &str,
+) -> Vec<&'static str> {
+    fn direct(edges: &[CrateDepEdge], name: &str) -> Vec<&'static str> {
+        let mut out = Vec::new();
+        for edge in edges {
+            if edge.from == name {
+                out.push(edge.to);
+            }
+        }
+        out
+    }
+
     let mut visited: Vec<&'static str> = Vec::new();
-    let mut stack: Vec<&str> = depends_on(name);
+    let mut stack: Vec<&'static str> = direct(edges, name);
     while let Some(dep) = stack.pop() {
         if visited.contains(&dep) {
             continue;
         }
         visited.push(dep);
-        for next in depends_on(dep) {
+        for next in direct(edges, dep) {
             if !visited.contains(&next) {
                 stack.push(next);
             }

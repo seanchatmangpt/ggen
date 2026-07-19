@@ -409,6 +409,100 @@ gaps for this pack (all commands below actually run this pass, not narrated):
   — that would be exactly the "fake it" failure this exercise exists to catch. Composability
   stays at its prior level; the concrete blocker is named, not hidden.
 
+## L5-push, round 3: what changed and honest re-score
+
+Round 2's composability blocker above is now **stale**: `dogfood-lifecycle-pack` gained two real
+`kh:Hook` definitions in the same overall pass (`hook.ttl`, `derive_review_obligation` +
+`discharge_review_obligation`) plus a one-triple additive `hooks/dogfood-self-monitoring-
+precedence.ttl` declaring `dfl:derive_review_obligation kh:after smon:flag_ungoverned_transition`
+— a real cross-pack reference to THIS pack's hook IRI. Rather than trust that pack's own README
+narration of a co-fire test in an uncommitted scratch consumer, this round independently
+reproduced the claim from scratch:
+
+- **Composability (L2 → L3, independently verified, not merely cited):** built a fresh scratch
+  consumer (own `Cargo.toml`, path-dependency on `praxis-graphlaw`, under this session's
+  scratchpad, not committed here) that concatenates `self-monitoring-pack/hook.ttl` +
+  `dogfood-lifecycle-pack/hook.ttl` + `dogfood-lifecycle-pack/hooks/dogfood-self-monitoring-
+  precedence.ttl` into ONE hook pack, loads both packs' `ontology.ttl`, then both packs'
+  `fixtures/pattern-fires.ttl` / `fixtures/session-discharged.ttl`, and calls the real
+  `TripleStore::load_hook_pack` + `.materialize()` + `.query()` pipeline. Confirmed live, this
+  pass:
+  ```text
+  smon:EscalationObligation rows: 1
+  dfl:Obligation rows: 1
+  dfl:Obligation Discharged rows: 1
+  PASS: both packs' hooks derive correctly over one union graph, with the cross-pack
+  kh:after precedence triple loaded and resolved.
+  ```
+  This is the literal L3 bar text: "Proven co-fire behavior: hooks from ≥2 packs derive correctly
+  over one union graph." **Still not L4:** this pack's own `smon:` hooks do not yet reference
+  `dfl:`'s derived facts BY DESIGN (obligation chaining across packs, the L4 bar) — the only
+  cross-pack link that exists is the OTHER pack's `kh:after` naming one of THIS pack's hook IRIs
+  for scheduling order, not a fact-level reference either pack's CONSTRUCT actually consumes.
+- **Obligation lifecycle (L3 → L4):** added `smon:escalate_overdue_obligation` (`hook.ttl`), a
+  new `kh:Hook` — the SAME derivation mechanism every other hook in this file uses, not a new
+  code path — that fires when a High-severity, `smon:deadlineHint smon:ActNow`
+  `smon:PrioritizedEscalationObligation` is still `smon:status smon:Open` at a point where the
+  session has moved on to a later turn (i.e. never discharged/refused before the ActNow deadline
+  was structurally violated). CONSTRUCTs a new `smon:OverdueEscalationObligation` linked back via
+  the new `smon:escalates` property (both new in `ontology.ttl`, plus a matching
+  `smon:OverdueEscalationObligationShape` in `shapes.ttl`). This is the literal L4 bar text:
+  "Overdue/undischarged obligations escalate via the same hook mechanism."
+  **A real engine limitation was found and worked around, disclosed in `hook.ttl`'s own
+  comments:** an earlier draft computed "the latest turn's index" via a `MAX(...)`
+  aggregate subquery and `FILTER`ed against it — this ALWAYS returned zero rows, because the
+  aggregate's output binding was an untyped plain literal rather than `xsd:integer`-typed,
+  silently breaking the numeric `>` comparison. Confirmed via a throwaway scratch harness
+  (isolated `SELECT`-only queries, no hook engine involved) before touching `hook.ttl`. Worked
+  around by dropping the aggregate for a direct existential match (`?later` with
+  `?i3 > ?i2`), confirmed live to fire. `fixtures/pattern-overdue.ttl` (new) is a real hook-
+  derivation INPUT fixture (not hand-asserted) proving the positive fire; the pack's 4
+  pre-existing fixtures (`pattern-fires.ttl`, `pattern-does-not-fire.ttl`,
+  `pattern-different-topic.ttl`, `pattern-ungoverned.ttl`) were all re-run and confirmed to
+  produce ZERO `OverdueEscalationObligation` rows (no false positive):
+  ```text
+  pattern-overdue.ttl: High/Open PrioritizedEscalationObligation rows = 3
+  pattern-overdue.ttl: OverdueEscalationObligation rows = 3
+  pattern-fires.ttl: OverdueEscalationObligation rows = 0
+  pattern-does-not-fire.ttl: OverdueEscalationObligation rows = 0
+  pattern-different-topic.ttl: OverdueEscalationObligation rows = 0
+  pattern-ungoverned.ttl: OverdueEscalationObligation rows = 0
+  PASS: escalate_overdue_obligation fires exactly on the overdue case and nowhere else.
+  ```
+  (The multiplicity of 3 mirrors this pack's own pre-existing severity hooks' combinatorial
+  behavior over multiple same-topic question pairs — not a bug unique to this hook.) **Still not
+  L5:** this is one `materialize()` per invocation over a static input, not a standing governor
+  that re-plans/re-escalates continuously as new turns arrive live.
+- **Actuation closure (partial progress toward L4, disclosed scope):** `scripts/
+  actuate_escalation.py` gained `--emit-receipt-graph` (renders the same JSON receipt as a new
+  `smon:ActuationReceipt` RDF individual — new class + `smon:receiptHash`/`smon:actuatedAt`/
+  `smon:anyHookFired`/`smon:actuatedInput` properties, all new in `ontology.ttl` — in a NEW
+  Turtle file, never appended to `hook.ttl`/`ontology.ttl` themselves) and `--verify-round-trip`
+  (re-loads `ontology.ttl` + the original input + that new receipt file into a FRESH `rdflib`
+  graph and confirms the receipt fact is present and queryable — the actual re-observe step, not
+  narrated). Confirmed live against `fixtures/pattern-fires.ttl`:
+  ```text
+  "receipt_graph_file": ".../pattern-fires-20260719T055317Z.receipt.ttl",
+  "round_trip": { "round_trip_verified": true, "actuation_receipt_count": 1 }
+  ```
+  This is real progress toward the L4 bar ("Actuation outcomes flow back into the graph as new
+  facts"), honestly scoped: it closes the loop for the RECEIPT record itself (which hooks fired,
+  a hash, a timestamp), not per-derived-individual linkage back to the SPECIFIC blank-node
+  obligation actuated — Turtle blank-node labels are not stable/referenceable across separate
+  file parses (the same disclosed constraint `fixtures/pattern-fires-discharged.ttl`'s header
+  already names). **Still not L4/L5:** no unattended trigger (a human/CI job must still invoke
+  the script), and the receipt-graph fact is not automatically fed back into a LIVE session's
+  graph, only proven round-trippable in a fresh, offline re-parse.
+
+**Verification commands actually run this round** (not narrated): `cargo test -p praxis-graphlaw
+--test self_monitoring_hook_actuation --test self_monitoring_real_session_actuation` (all 9
+pre-existing tests still pass, unchanged, after every edit above); `ggen graph validate` against
+`ontology.ttl`/`hook.ttl`/`shapes.ttl`/`fixtures/pattern-overdue.ttl` (parse-valid, and
+`shapes_conform: true` against the new shape); a scratch `cargo run` composability binary and a
+scratch `cargo run --bin overdue_check` binary (both under this session's scratchpad, not
+committed here); and the `actuate_escalation.py --emit-receipt-graph --verify-round-trip`
+invocation shown above.
+
 ## Fence
 
 Observation/derivation only. No class, predicate, or individual is named `authorize` / `permit`
