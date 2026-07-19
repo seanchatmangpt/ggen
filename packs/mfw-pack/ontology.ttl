@@ -1,0 +1,45 @@
+# mfw-pack ontology — the real consequence cycle and authority-surface
+# table from ~/mfw/AGENTS.md's "MFW Monorepo Agent Law", plus the 4
+# workspace crate names from ~/mfw/Cargo.toml's `[workspace] members`.
+
+@prefix mfw:  <http://seanchatmangpt.github.io/packs/mfw#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+mfw:CycleStage a rdfs:Class ; rdfs:label "MFW consequence-cycle stage" ;
+    rdfs:comment "One step of the observe->admit->...->replay->observe circulation. The fundamental unit is a consequential distinction, not a task or file." .
+
+mfw:order a rdf:Property ; rdfs:domain mfw:CycleStage ; rdfs:range xsd:integer .
+
+mfw:Observe             a mfw:CycleStage ; mfw:order 1  ; rdfs:label "observe" .
+mfw:Admit                a mfw:CycleStage ; mfw:order 2  ; rdfs:label "admit" .
+mfw:PreserveStanding     a mfw:CycleStage ; mfw:order 3  ; rdfs:label "preserve standing" .
+mfw:CalculateResidual    a mfw:CycleStage ; mfw:order 4  ; rdfs:label "calculate residual" .
+mfw:ManufactureCandidate a mfw:CycleStage ; mfw:order 5  ; rdfs:label "manufacture candidate" .
+mfw:Verify               a mfw:CycleStage ; mfw:order 6  ; rdfs:label "verify" .
+mfw:Authorize            a mfw:CycleStage ; mfw:order 7  ; rdfs:label "authorize" .
+mfw:Actuate              a mfw:CycleStage ; mfw:order 8  ; rdfs:label "actuate" .
+mfw:Receipt              a mfw:CycleStage ; mfw:order 9  ; rdfs:label "receipt" .
+mfw:Replay               a mfw:CycleStage ; mfw:order 10 ; rdfs:label "replay" ; rdfs:comment "Loops back to observe." .
+
+mfw:AuthoritySurface a rdfs:Class ; rdfs:label "MFW repository authority surface" .
+mfw:path a rdf:Property ; rdfs:domain mfw:AuthoritySurface ; rdfs:range xsd:string .
+
+mfw:OntologySurface a mfw:AuthoritySurface ; mfw:path "ontology/"   ; rdfs:comment "Canonical declarations, observations, claims, obligations, horizons, countermodels." .
+mfw:ProfilesSurface a mfw:AuthoritySurface ; mfw:path "profiles/"   ; rdfs:comment "Explicit capability, bounds, trust, generation, and runtime policies." .
+mfw:TransformSurface a mfw:AuthoritySurface ; mfw:path "transform/" ; rdfs:comment "Queries, mappings, intermediate representations, and ggen templates." .
+mfw:TheorySurface    a mfw:AuthoritySurface ; mfw:path "mfw-theory/" ; rdfs:comment "Constructive Lean definitions and kernel-checked proofs." .
+mfw:RuntimeSurface   a mfw:AuthoritySurface ; mfw:path "runtime/"   ; rdfs:comment "Rust execution, planning, brokerage, receipts, and replay." .
+mfw:VerifierSurface  a mfw:AuthoritySurface ; mfw:path "verifier/"  ; rdfs:comment "Axiom, correspondence, manifest, receipt, and replay validation." .
+mfw:FixturesSurface  a mfw:AuthoritySurface ; mfw:path "fixtures/"  ; rdfs:comment "Positive, negative, integration, chaos, and replay evidence." .
+mfw:DocsSurface      a mfw:AuthoritySurface ; mfw:path "docs/"      ; rdfs:comment "Explanations and projections; never standing authority." .
+mfw:ReceiptsSurface  a mfw:AuthoritySurface ; mfw:path "receipts/"  ; rdfs:comment "Content-addressed evidence or receipt manifests, per repository policy." .
+
+mfw:Crate a rdfs:Class ; rdfs:label "mfw workspace crate" .
+
+mfw:MfwRuntime   a mfw:Crate ; rdfs:label "mfw-runtime" .
+mfw:MfwShacl     a mfw:Crate ; rdfs:label "mfw-shacl" ; rdfs:comment "Nested under mfw-runtime/." .
+mfw:MfwMeaning   a mfw:Crate ; rdfs:label "mfw-meaning" .
+mfw:MfwPlanner   a mfw:Crate ; rdfs:label "mfw-planner" ; rdfs:comment "Shell-free, receipted external planner runner for MFW (only crate with a populated Cargo.toml description this pass)." .
+mfw:MfwPowlMiner a mfw:Crate ; rdfs:label "mfw-powl-miner" .

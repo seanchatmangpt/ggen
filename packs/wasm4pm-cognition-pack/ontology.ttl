@@ -8,8 +8,11 @@
 # Vocabulary reused from wasm4pm/packs/wasm4pm-breeds-rust/ggen/ontology/
 # breed-vocabulary.ttl (self-contained compat:CognitionBreed class + predicates,
 # purpose-built for pack redistribution). Instances carried over verbatim from
-# wasm4pm/ggen/ontology/breeds.ttl (16 of 55 representative breeds spanning
-# planning, reasoning, uncertainty, and classic-systems families).
+# wasm4pm/ggen/ontology/breeds.ttl (ALL 55 breeds spanning planning,
+# reasoning, uncertainty, and classic-systems families -- corrected
+# 2026-07-18: this comment previously said "16 of 55 representative
+# breeds", which undercounted what the file actually carries; verified by
+# `grep -c "a compat:CognitionBreed"` against the file itself).
 #
 # breedStatus is NEVER asserted here — it is CONSTRUCT-derived from evidence
 # via the alive-gate in wasm4pm. This pack generates catalog/caller surfaces

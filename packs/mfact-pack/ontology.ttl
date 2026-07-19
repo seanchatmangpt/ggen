@@ -1,0 +1,39 @@
+# mfact-pack ontology — the real pipeline and authority-directory structure
+# of ~/mfact ("mfact / procint"), transcribed from its README. mfact is a
+# real, in-the-wild ggen consumer: ggen projects a Lean 4 declaration
+# catalog from mfact's own packs/{lean-math-pack,quadrature-pack,
+# post-release-pack}, Lean admits it under a pinned toolchain, and mfact
+# certifies the result -- nothing there is hand-typed prose.
+
+@prefix mfa:  <http://seanchatmangpt.github.io/packs/mfact#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+mfa:PipelineStage a rdfs:Class ; rdfs:label "mfact pipeline stage" .
+mfa:order a rdf:Property ; rdfs:domain mfa:PipelineStage ; rdfs:range xsd:integer .
+mfa:actor a rdf:Property ; rdfs:domain mfa:PipelineStage ; rdfs:range xsd:string .
+
+mfa:Project
+    a mfa:PipelineStage ; mfa:order 1 ; mfa:actor "ggen" ;
+    rdfs:label "Project" ;
+    rdfs:comment "ggen projects a Lean 4 declaration catalog from mfact's own packs/ (lean-math-pack, quadrature-pack, post-release-pack)." .
+
+mfa:Admit
+    a mfa:PipelineStage ; mfa:order 2 ; mfa:actor "Lean" ;
+    rdfs:label "Admit" ;
+    rdfs:comment "Lean admits the projected declaration catalog under the pinned toolchain." .
+
+mfa:Certify
+    a mfa:PipelineStage ; mfa:order 3 ; mfa:actor "mfact" ;
+    rdfs:label "Certify" ;
+    rdfs:comment "mfact certifies the admitted result: every standing claim (proven/stated counts, gate results, fixture status) is computed from a build, axiom audit, or git commit -- never hand-typed prose." .
+
+mfa:AuthorityDir a rdfs:Class ; rdfs:label "mfact top-level authority directory" .
+mfa:path a rdf:Property ; rdfs:domain mfa:AuthorityDir ; rdfs:range xsd:string .
+
+mfa:PacksDir     a mfa:AuthorityDir ; mfa:path "packs/"    ; rdfs:comment "Ontology fragments and Tera templates ggen renders from; the actual math source, never hand-edited downstream." .
+mfa:ProcintDir   a mfa:AuthorityDir ; mfa:path "procint/"  ; rdfs:comment "The rendered Lean 4 package: event logs, process models, conformance checking, Petri nets, OCEL, plus axiom audit and correctness-ladder fixtures." .
+mfa:PaperDir     a mfa:AuthorityDir ; mfa:path "paper/"    ; rdfs:comment "The LaTeX paper; standing-derived numbers are rendered fragments, never hand-typed." .
+mfa:ReleaseDir   a mfa:AuthorityDir ; mfa:path "release/"  ; rdfs:comment "The manifest, gates, and standing artifacts that are the actual authority for any claim about this project's state." .
+mfa:ArtifactLedger a mfa:AuthorityDir ; mfa:path ".mfact/artifacts.toml" ; rdfs:comment "The artifact ledger; authority comes from here, not file paths or headers." .
