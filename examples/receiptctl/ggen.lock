@@ -14,12 +14,12 @@ content_hash = "blake3:e858dc232a12e295631545e85406d5487d31e57be642cac3746c4c73c
 
 [packs.wasm4pm-cognition-pack]
 source = "path:../../packs/wasm4pm-cognition-pack"
-content_hash = "blake3:e673d4965195653c9021e85db833f675083f6673ae27b4cee3c4bc9a084adda9"
+content_hash = "blake3:7bc6122cf0623e6d39f934d0fa811f25b0ad84d0466332bf35968f04a2e10ebc"
 
 [packs.wasm4pm-compat-pack]
 source = "path:../../packs/wasm4pm-compat-pack"
-content_hash = "blake3:37399c5ef63dbbfd46dcde9e38261d2bf819913e9f12f4e5dbf0905efbfe86ec"
+content_hash = "blake3:e51c704de2fb94cc02b8af8e7209a1736d7c9412ff6e0da868ef28dc19b9a6f8"
 
 [packs.wasm4pm-facts-pack]
 source = "path:../../packs/wasm4pm-facts-pack"
-content_hash = "blake3:d5576b5f52a919ce62d4a4d8e4602a8bfad85a5906578469a61ef0c7db7b8f18"
+content_hash = "blake3:20b9cd7ca27ea42693e2840c291dbf77a6db5c9d8f4a4943d17ac259013b17bb"

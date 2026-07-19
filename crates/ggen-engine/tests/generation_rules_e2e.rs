@@ -73,7 +73,11 @@ fn static_rule_with_file_query_and_file_template_renders_real_query_results() {
         report.written,
         vec![std::path::PathBuf::from("out/names.txt")]
     );
-    assert!(report.skipped.is_empty(), "unexpected skips: {:?}", report.skipped);
+    assert!(
+        report.skipped.is_empty(),
+        "unexpected skips: {:?}",
+        report.skipped
+    );
     let content = std::fs::read_to_string(dir.path().join("out/names.txt")).expect("read output");
     assert_eq!(
         content, "alice\nbob\n",
@@ -85,7 +89,13 @@ fn static_rule_with_file_query_and_file_template_renders_real_query_results() {
     // or skipped.
     assert_eq!(
         report.closure.get("queries/names.rq").map(String::as_str),
-        Some(blake3::hash(b"SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name").to_hex().as_str()),
+        Some(
+            blake3::hash(
+                b"SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name"
+            )
+            .to_hex()
+            .as_str()
+        ),
     );
     assert!(report.closure.contains_key("templates/names.tmpl"));
     assert!(report.closure.contains_key("ontology.ttl"));
@@ -95,7 +105,11 @@ fn static_rule_with_file_query_and_file_template_renders_real_query_results() {
     let receipt: SyncReceipt = serde_json::from_str(&raw).expect("receipt parses");
     let file_bytes = std::fs::read(dir.path().join("out/names.txt")).expect("output bytes");
     assert_eq!(
-        receipt.payload.outputs.get("out/names.txt").map(String::as_str),
+        receipt
+            .payload
+            .outputs
+            .get("out/names.txt")
+            .map(String::as_str),
         Some(blake3::hash(&file_bytes).to_hex().as_str()),
         "receipt must bind the real rendered output bytes"
     );
@@ -180,9 +194,18 @@ fn when_guard_false_and_skip_empty_produce_documented_skips_not_writes() {
     assert!(!dir.path().join("out/gated.txt").exists());
     assert!(!dir.path().join("out/empty.txt").exists());
 
-    let gated_decision = report.decisions.get("out/gated.txt").expect("decision recorded");
-    assert!(gated_decision.contains("when guard false"), "{gated_decision}");
-    let empty_decision = report.decisions.get("out/empty.txt").expect("decision recorded");
+    let gated_decision = report
+        .decisions
+        .get("out/gated.txt")
+        .expect("decision recorded");
+    assert!(
+        gated_decision.contains("when guard false"),
+        "{gated_decision}"
+    );
+    let empty_decision = report
+        .decisions
+        .get("out/empty.txt")
+        .expect("decision recorded");
     assert!(empty_decision.contains("skip_empty"), "{empty_decision}");
 }
 
@@ -228,7 +251,10 @@ fn merge_mode_preserves_hand_edits_across_two_syncs_with_changed_query_data() {
         "// Add your manual code here",
         "fn hand_written_helper() -> i32 { 42 }",
     );
-    assert_ne!(hand_edited, after_first, "the placeholder must have been present to replace");
+    assert_ne!(
+        hand_edited, after_first,
+        "the placeholder must have been present to replace"
+    );
     std::fs::write(dir.path().join("src/generated.rs"), &hand_edited).expect("write hand edit");
 
     // Change the ontology so the next sync's generated content differs.
@@ -283,8 +309,11 @@ fn create_mode_writes_once_then_leaves_hand_edits_alone() {
     );
 
     // Hand-complete the scaffold.
-    std::fs::write(dir.path().join("src/scaffold.rs"), "// hand-completed, do not touch\n")
-        .expect("hand-complete");
+    std::fs::write(
+        dir.path().join("src/scaffold.rs"),
+        "// hand-completed, do not touch\n",
+    )
+    .expect("hand-complete");
 
     let second = sync(dir.path(), SyncOptions::default()).expect("second sync");
     assert!(
@@ -293,7 +322,11 @@ fn create_mode_writes_once_then_leaves_hand_edits_alone() {
         second.written
     );
     assert_eq!(second.skipped.len(), 1);
-    assert!(second.skipped[0].1.contains("mode=create"), "{}", second.skipped[0].1);
+    assert!(
+        second.skipped[0].1.contains("mode=create"),
+        "{}",
+        second.skipped[0].1
+    );
     assert_eq!(
         std::fs::read_to_string(dir.path().join("src/scaffold.rs")).expect("read"),
         "// hand-completed, do not touch\n",
@@ -318,7 +351,10 @@ fn overwrite_mode_replaces_content_and_skips_when_unchanged() {
     );
 
     let first = sync(dir.path(), SyncOptions::default()).expect("first sync");
-    assert_eq!(first.written, vec![std::path::PathBuf::from("out/version.txt")]);
+    assert_eq!(
+        first.written,
+        vec![std::path::PathBuf::from("out/version.txt")]
+    );
     assert_eq!(
         std::fs::read_to_string(dir.path().join("out/version.txt")).expect("v1"),
         "v1"
@@ -327,7 +363,11 @@ fn overwrite_mode_replaces_content_and_skips_when_unchanged() {
     // Second sync, unchanged ontology: content is identical -> Skipped.
     let second = sync(dir.path(), SyncOptions::default()).expect("second sync");
     assert!(second.written.is_empty(), "{:?}", second.written);
-    assert!(second.skipped[0].1.contains("unchanged"), "{}", second.skipped[0].1);
+    assert!(
+        second.skipped[0].1.contains("unchanged"),
+        "{}",
+        second.skipped[0].1
+    );
 
     // Third sync, changed ontology: content differs -> Written (overwritten).
     write_ontology(
@@ -335,7 +375,10 @@ fn overwrite_mode_replaces_content_and_skips_when_unchanged() {
         "@prefix ex: <http://example.org/> .\nex:proj ex:version \"v2\" .\n",
     );
     let third = sync(dir.path(), SyncOptions::default()).expect("third sync");
-    assert_eq!(third.written, vec![std::path::PathBuf::from("out/version.txt")]);
+    assert_eq!(
+        third.written,
+        vec![std::path::PathBuf::from("out/version.txt")]
+    );
     assert_eq!(
         std::fs::read_to_string(dir.path().join("out/version.txt")).expect("v2"),
         "v2",
@@ -408,7 +451,10 @@ fn duplicate_render_targets_from_per_row_rule_are_refused() {
     let msg = err.to_string();
     assert!(msg.contains("FM-GEN-004"), "{msg}");
     assert!(msg.contains("same output"), "{msg}");
-    assert!(!dir.path().join("out").exists(), "refusal must precede any write");
+    assert!(
+        !dir.path().join("out").exists(),
+        "refusal must precede any write"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -449,7 +495,10 @@ fn two_generation_rules_syncs_chain_receipts() {
     );
     let recomputed = receipt2.record.recompute_chain_hash().expect("recompute");
     let hex: String = recomputed.iter().map(|b| format!("{b:02x}")).collect();
-    assert_eq!(hex, receipt2.record.chain_hash_hex, "chain head must verify");
+    assert_eq!(
+        hex, receipt2.record.chain_hash_hex,
+        "chain head must verify"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -501,7 +550,10 @@ fn inference_rule_construct_is_visible_to_generation_rule_query() {
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
 
     let report = sync(dir.path(), SyncOptions::default()).expect("sync");
-    assert_eq!(report.written, vec![std::path::PathBuf::from("out/animals.txt")]);
+    assert_eq!(
+        report.written,
+        vec![std::path::PathBuf::from("out/animals.txt")]
+    );
     let content = std::fs::read_to_string(dir.path().join("out/animals.txt")).expect("read output");
     assert_eq!(
         content, "http://example.org/rex\n",
@@ -555,7 +607,10 @@ fn law_gate_denial_violation_refuses_declarative_rules_sync() {
     let msg = err.to_string();
     assert!(msg.contains("FM-LAW-016"), "{msg}");
     assert!(msg.contains("DENIED"), "{msg}");
-    assert!(!dir.path().join("out/static.txt").exists(), "gate must precede writes");
+    assert!(
+        !dir.path().join("out/static.txt").exists(),
+        "gate must precede writes"
+    );
 }
 
 /// A SHACL shapes file (`[validation].shacl`) whose constraint the ontology
@@ -584,6 +639,12 @@ ex:DogShape a sh:NodeShape ;
         .expect_err("unlicensed dog must refuse the SHACL gate");
     let msg = err.to_string();
     assert!(msg.contains("FM-LAW-018"), "{msg}");
-    assert!(msg.contains("rex"), "refusal must name the focus node: {msg}");
-    assert!(!dir.path().join("out/static.txt").exists(), "gate must precede writes");
+    assert!(
+        msg.contains("rex"),
+        "refusal must name the focus node: {msg}"
+    );
+    assert!(
+        !dir.path().join("out/static.txt").exists(),
+        "gate must precede writes"
+    );
 }

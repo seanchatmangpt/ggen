@@ -15,7 +15,9 @@
 
 use std::collections::BTreeSet;
 
-use ggen_config::manifest::{GenerationConfig, GenerationMode, GenerationRule, QuerySource, TemplateSource};
+use ggen_config::manifest::{
+    GenerationConfig, GenerationMode, GenerationRule, QuerySource, TemplateSource,
+};
 use ggen_engine::graph::DeterministicGraph;
 use oxigraph::sparql::QueryResults;
 use schemars::schema_for;

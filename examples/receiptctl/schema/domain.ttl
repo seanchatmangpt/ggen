@@ -8,12 +8,19 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
+# cnv:hasCommand links required by clap-noun-verb-pack's shapes.ttl (a Noun
+# owning zero Commands is dead ontology weight) — enforcement is real: the
+# engine's pack-shapes gate (FM-PACK-013) refused this project's sync until
+# these links existed, which is exactly how the missing links were found.
 cnv:AlgorithmNoun a cnv:Noun ; rdfs:label "algorithm" ;
-    rdfs:comment "Inspect the wasm4pm process-intelligence algorithm catalog." .
+    rdfs:comment "Inspect the wasm4pm process-intelligence algorithm catalog." ;
+    cnv:hasCommand cnv:AlgorithmList .
 cnv:CognitionNoun a cnv:Noun ; rdfs:label "cognition" ;
-    rdfs:comment "Inspect the wasm4pm cognition breed catalog." .
+    rdfs:comment "Inspect the wasm4pm cognition breed catalog." ;
+    cnv:hasCommand cnv:CognitionList .
 cnv:ReceiptNoun a cnv:Noun ; rdfs:label "receipt" ;
-    rdfs:comment "Emit OCEL events for the wasm4pm-compat receipt/pack lifecycle." .
+    rdfs:comment "Emit OCEL events for the wasm4pm-compat receipt/pack lifecycle." ;
+    cnv:hasCommand cnv:ReceiptEmit .
 
 cnv:AlgorithmList
     a              cnv:Command ;

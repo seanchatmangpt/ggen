@@ -136,7 +136,7 @@ Verified against `Cargo.toml`'s `[workspace] members = [...]` array (16 entries)
 | **Batch Operations** | 1 message = ALL related operations. TodoWrite 10+ todos minimum. |
 | **Agent Execution** | Use Claude Code Task tool. MCP only coordinates topology. |
 | **Type-First** | Encode invariants in types. Compiler as design tool. |
-| **Definition of Done** | `just pre-commit` (8 gates — see `.claude/rules/andon/signals.md`) all green, plus OTEL traces for any LLM/external-service feature. No signals. |
+| **Definition of Done** | `just pre-commit` (9 gates — see `.claude/rules/andon/signals.md`) all green, plus OTEL traces for any LLM/external-service feature. No signals. |
 | **OTEL Validation** | Verify spans/traces for LLM calls, external services, pipeline stages. |
 | **Correctness > Speed** | NEVER sacrifice accuracy for speed. Real evidence > fast output. |
 | **Evidence-First** | ALL docs/examples MUST reference actual code, real OTEL output, actual errors. No fabrication. |
@@ -152,7 +152,7 @@ Use `just` as the entry point for all tasks (native cargo recipes; Makefile.toml
 | `just test` | Full test suite (unit + integration + property); escalates from a 30s hot-cache attempt to a 600s cold-compile retry | 30s→600s |
 | `just test-lib` | `timeout 30s cargo test --lib --workspace` (fast dev loop) | 30s |
 | `just lint` | `cargo clippy --all-targets -- -D warnings` — **root `ggen` package only**, not `--workspace`; confirmed 2026-07-17 (`Checking` output names exactly one package). Real, untriaged debt exists in other crates once `--workspace` is added — see the `lint:` recipe's own comment in `justfile` | 180s |
-| `just pre-commit` | `fmt-check` → `check` → `lint` → `test-lib` → `coherence-check` → `guard-process-intelligence-boundary` → `guard-cheat-scan` → `guard-claims-schema` (8 gates; confirmed 2026-07-17 against the justfile's own `pre-commit:` dependency line — do not trust a shorter step count from an older doc). `guard-cheat-scan` currently fails on ~464 pre-existing test-quality findings (tracked as TECH-DEBT-001 in `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`) — a real, tracked-not-fixed failure, not a regression | <2min |
+| `just pre-commit` | `fmt-check` → `check` → `lint` → `test-lib` → `coherence-check` → `guard-process-intelligence-boundary` → `guard-cheat-scan` → `guard-claims-schema` → `guard-pack-proofs` (9 gates; confirmed 2026-07-19 against the justfile's own `pre-commit:` dependency line — do not trust a shorter step count from an older doc; `guard-pack-proofs` re-syncs + re-tests `examples/receiptctl`, making the generated pack proofs a repo-state-checkable gate). `guard-cheat-scan` currently fails on ~464 pre-existing test-quality findings (tracked as TECH-DEBT-001 in `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`) — a real, tracked-not-fixed failure, not a regression | <2min |
 | `just slo-check` | Performance SLOs — real wall-clock `date +%s` deltas around `cargo test -p ggen-engine --test receipt_chain_e2e` (180s threshold) plus a `cargo bench` startup check; see the `slo-check` recipe in `justfile` | - |
 | `just audit` | Security vulnerabilities scan | - |
 | `just doc` | Build HTML docs into `target/doc/` | - |

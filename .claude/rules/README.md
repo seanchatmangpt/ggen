@@ -60,7 +60,7 @@ Modular, auto-loading rules for specification-driven Rust code generation.
 
 ## 📋 Definition of Done
 
-The authoritative gate is `just pre-commit` (8 chained checks — see `andon/signals.md` for the
+The authoritative gate is `just pre-commit` (9 chained checks — see `andon/signals.md` for the
 full list and `justfile`'s `pre-commit:` recipe for ground truth). `just doctor` is a separate,
 optional fast local health check (`ggen doctor` CLI subcommand) — useful for a quick sanity pass,
 but it is not part of the `pre-commit` gate chain.

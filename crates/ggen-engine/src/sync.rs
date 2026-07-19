@@ -292,7 +292,10 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     }
 
     drop(load_guard);
-    load_span.record("pipeline.duration_ms", load_start.elapsed().as_millis() as u64);
+    load_span.record(
+        "pipeline.duration_ms",
+        load_start.elapsed().as_millis() as u64,
+    );
 
     // ── Stage 2: Enrich (single pass; see module docs) ──────────────────
     //
@@ -404,6 +407,54 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         }
     }
 
+    // Pack-shipped SHACL shapes: any resolved pack may carry a `shapes.ttl`
+    // next to its `ontology.ttl`. Each one is evaluated against the same
+    // union graph the templates will render from, and any violation refuses
+    // the sync outright — this is what makes cross-pack data drift (e.g. two
+    // packs mirroring the same subject IRI with diverged property values,
+    // which previously surfaced only as a downstream rustc duplicate-variant
+    // error, or not at all) refusable at sync time instead of detectable
+    // only by whichever consumer happens to compile the union. Packs without
+    // a `shapes.ttl` are unaffected. The shapes file joins the receipt
+    // closure like every other governing input.
+    for pack in &packs {
+        let shape_path = pack.root.join("shapes.ttl");
+        if !shape_path.is_file() {
+            continue;
+        }
+        let shapes_ttl = std::fs::read_to_string(&shape_path).map_err(|e| {
+            AppError::fm_pack(
+                12,
+                format!(
+                    "pack `{}`: shapes.ttl at `{}` exists but is unreadable: {e}. \
+                     Remediation: fix the file's permissions/encoding or remove it.",
+                    pack.name,
+                    shape_path.display()
+                ),
+            )
+        })?;
+        closure.insert(
+            rel_display(root, &shape_path),
+            hash_file_or_missing(&shape_path),
+        );
+        let outcome = graph.validate_shacl(&shapes_ttl)?;
+        if !outcome.conforms {
+            return Err(AppError::fm_pack(
+                13,
+                format!(
+                    "pack `{}` shapes.ttl reports {} violation(s) against the union \
+                     graph: {}. Remediation: fix the offending facts (in this pack, \
+                     another pack, or the project ontology — the shapes gate the \
+                     UNION, so a violation may come from any graph source), or fix \
+                     the shapes.",
+                    pack.name,
+                    outcome.violations.len(),
+                    outcome.violations.join("; ")
+                ),
+            ));
+        }
+    }
+
     drop(validate_guard);
     validate_span.record(
         "pipeline.duration_ms",
@@ -432,6 +483,11 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     let mut tera = build_tera(Arc::clone(&graph))?;
     let mut skipped: Vec<(PathBuf, String)> = Vec::new();
     let mut decisions: BTreeMap<String, String> = BTreeMap::new();
+    // Storage slot for the synthetic module-aggregator template (declared
+    // before `pending` so its borrow can live as long as `pending`'s
+    // entries do; only populated when `[templates] aggregate_modules` is
+    // set — see below, after the render loop).
+    let mut aggregator_slot: Option<Template> = None;
     let mut pending: Vec<PendingWrite<'_>> = Vec::new();
 
     for (tpl_path, tpl) in &templates {
@@ -451,14 +507,13 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             }
         }
         let mut overlay_tera_slot;
-        let (active_graph, active_tera): (&Arc<dyn GraphEngine>, &mut tera::Tera) =
-            match &overlay {
-                Some(og) => {
-                    overlay_tera_slot = build_tera(Arc::clone(og))?;
-                    (og, &mut overlay_tera_slot)
-                }
-                None => (&graph, &mut tera),
-            };
+        let (active_graph, active_tera): (&Arc<dyn GraphEngine>, &mut tera::Tera) = match &overlay {
+            Some(og) => {
+                overlay_tera_slot = build_tera(Arc::clone(og))?;
+                (og, &mut overlay_tera_slot)
+            }
+            None => (&graph, &mut tera),
+        };
 
         // Extract: `when:` ASK guard + named `sparql:` SELECTs → rows.
         let Some((named, results)) =
@@ -477,18 +532,17 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         // the query per row. The common case (`determinism` unset/false)
         // never calls `extract_query_results` a second time: zero extra
         // query cost, zero behavior change.
-        let determinism_recheck: Option<ExtractedRows> = if tpl.frontmatter.determinism
-            == Some(true)
-        {
-            Some(extract_query_results(
-                active_graph.as_ref(),
-                tpl_path,
-                &tpl.frontmatter,
-                "determinism_recheck",
-            )?)
-        } else {
-            None
-        };
+        let determinism_recheck: Option<ExtractedRows> =
+            if tpl.frontmatter.determinism == Some(true) {
+                Some(extract_query_results(
+                    active_graph.as_ref(),
+                    tpl_path,
+                    &tpl.frontmatter,
+                    "determinism_recheck",
+                )?)
+            } else {
+                None
+            };
 
         let per_row = tpl.frontmatter.to.contains("{{");
         if per_row {
@@ -531,6 +585,94 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 to: tpl.frontmatter.to.clone(),
                 body,
                 tpl,
+            });
+        }
+    }
+
+    // `[templates] aggregate_modules = true`: emit one engine-owned
+    // aggregator (`src/ggen_pack_mods.rs`) mounting every generated
+    // `src/*.rs` output, so the consumer's own lib.rs needs exactly one
+    // permanent `include!("ggen_pack_mods.rs");` line rather than one
+    // hand-written mount per pack. Exactly one writer — this stage — so two
+    // packs can never collide on it the way per-pack `to: src/lib.rs`
+    // templates did (the duplicate-target refusal below still guards the
+    // aggregator path itself against a template claiming it directly).
+    // Deterministic: entries sorted by target path; mod names derived from
+    // the file stem. Skipped entirely (no file, not an empty file) when no
+    // `src/*.rs` outputs exist this run.
+    if config.templates.aggregate_modules {
+        const AGGREGATOR_REL_PATH: &str = "src/ggen_pack_mods.rs";
+        let mut mounts: Vec<(String, String)> = pending
+            .iter()
+            .filter(|pw| {
+                pw.to.starts_with("src/") && pw.to.ends_with(".rs") && pw.to != AGGREGATOR_REL_PATH
+            })
+            .map(|pw| {
+                let rel_to_src = pw.to.trim_start_matches("src/").to_string();
+                let mod_name = rel_to_src
+                    .trim_end_matches(".rs")
+                    .chars()
+                    .map(|c| if c.is_ascii_alphanumeric() { c } else { '_' })
+                    .collect::<String>();
+                (mod_name, rel_to_src)
+            })
+            .collect();
+        mounts.sort();
+        mounts.dedup();
+        if !mounts.is_empty() {
+            // Plain `//` comments, NOT `//!` inner docs: the file is meant
+            // to be consumed via `include!(...)` from the consumer's lib.rs,
+            // where pasted-in inner doc comments are a hard E0753 compile
+            // error (found by actually building a real consumer, not
+            // assumed).
+            let mut body = String::from(
+                "// GENERATED by `ggen sync` (`[templates] aggregate_modules = true`).\n\
+                 // One mount per generated `src/*.rs` output this run produced. Do not\n\
+                 // edit by hand — regenerated every sync. Consumer wiring: exactly one\n\
+                 // permanent line in your own lib.rs:\n\
+                 //     include!(\"ggen_pack_mods.rs\");\n\n",
+            );
+            for (mod_name, rel_to_src) in &mounts {
+                body.push_str(&format!(
+                    "#[path = \"{rel_to_src}\"]\npub mod {mod_name};\n"
+                ));
+            }
+            aggregator_slot = Some(Template {
+                frontmatter: Frontmatter {
+                    to: AGGREGATOR_REL_PATH.to_string(),
+                    sparql: BTreeMap::new(),
+                    construct: None,
+                    inject: false,
+                    before: None,
+                    after: None,
+                    at_line: None,
+                    skip_if: None,
+                    unless_exists: false,
+                    force: true,
+                    when: None,
+                    skip_empty: false,
+                    from: None,
+                    sh_before: None,
+                    sh_after: None,
+                    backup: false,
+                    shape: Vec::new(),
+                    determinism: None,
+                    freeze_policy: None,
+                    freeze_slots_dir: None,
+                    rdf: Vec::new(),
+                    rdf_inline: Vec::new(),
+                    prefixes: BTreeMap::new(),
+                    base: None,
+                },
+                body: String::new(),
+            });
+            let tpl_ref: &Template = aggregator_slot
+                .as_ref()
+                .expect("aggregator_slot was assigned Some on the previous statement");
+            pending.push(PendingWrite {
+                to: AGGREGATOR_REL_PATH.to_string(),
+                body,
+                tpl: tpl_ref,
             });
         }
     }
@@ -674,10 +816,7 @@ type ExtractedRows = Option<(BTreeMap<String, Value>, Vec<Value>)>;
 /// `[FM-TPL-004]` if `when:` is present and is not an ASK query.
 /// Propagates `[FM-GRAPH-*]` from the underlying `GraphEngine::query` calls.
 fn extract_query_results(
-    active_graph: &dyn GraphEngine,
-    tpl_path: &Path,
-    frontmatter: &Frontmatter,
-    phase: &'static str,
+    active_graph: &dyn GraphEngine, tpl_path: &Path, frontmatter: &Frontmatter, phase: &'static str,
 ) -> Result<ExtractedRows> {
     if let Some(ask) = frontmatter.when.as_deref() {
         tracing::debug!(
@@ -733,10 +872,7 @@ fn base_context(named: &BTreeMap<String, Value>, results: &[Value]) -> tera::Con
 
 /// Render a Tera string, mapping errors to `[FM-TPL-017]`.
 fn render_str(
-    tera: &mut tera::Tera,
-    template: &str,
-    ctx: &tera::Context,
-    tpl_path: &Path,
+    tera: &mut tera::Tera, template: &str, ctx: &tera::Context, tpl_path: &Path,
 ) -> Result<String> {
     tera.render_str(template, ctx).map_err(|e| {
         AppError::fm_tpl(
@@ -785,13 +921,8 @@ fn value_type_name(v: &Value) -> &'static str {
 /// Apply (or dry-run) one write and record the outcome and its decision.
 #[allow(clippy::too_many_arguments)]
 fn apply(
-    root: &Path,
-    rel_to: &str,
-    body: &str,
-    tpl: &Template,
-    opts: SyncOptions,
-    written: &mut Vec<PathBuf>,
-    skipped: &mut Vec<(PathBuf, String)>,
+    root: &Path, rel_to: &str, body: &str, tpl: &Template, opts: SyncOptions,
+    written: &mut Vec<PathBuf>, skipped: &mut Vec<(PathBuf, String)>,
     decisions: &mut BTreeMap<String, String>,
 ) -> Result<()> {
     if tpl.frontmatter.skip_empty && body.trim().is_empty() {
@@ -893,9 +1024,7 @@ fn run_shell_hook(root: &Path, cmd: &str, which: &str) -> Result<()> {
 /// # Errors
 /// Unreadable templates dir or any template parse failure (fail closed).
 pub fn discover_templates(
-    root: &Path,
-    config: &GgenConfig,
-    packs: &[crate::pack::Pack],
+    root: &Path, config: &GgenConfig, packs: &[crate::pack::Pack],
 ) -> Result<Vec<(PathBuf, Template)>> {
     let mut templates = load_templates(&root.join(&config.templates.dir))?;
     for pack in packs {
@@ -1012,14 +1141,9 @@ fn check_shape_files_exist(root: &Path, tpl_path: &Path, shapes: &[String]) -> R
 /// (`extract_query_results` was never called a second time by the caller).
 #[allow(clippy::too_many_arguments)]
 fn check_determinism(
-    tera: &mut tera::Tera,
-    body_template: &str,
-    tpl_path: &Path,
-    frontmatter: &crate::template::Frontmatter,
-    determinism_recheck: Option<&ExtractedRows>,
-    row_index: Option<usize>,
-    first_render: &str,
-    first_to: &str,
+    tera: &mut tera::Tera, body_template: &str, tpl_path: &Path,
+    frontmatter: &crate::template::Frontmatter, determinism_recheck: Option<&ExtractedRows>,
+    row_index: Option<usize>, first_render: &str, first_to: &str,
 ) -> Result<()> {
     let Some(recheck) = determinism_recheck else {
         return Ok(());
@@ -1169,9 +1293,7 @@ fn build_turtle_prolog(prefixes: &BTreeMap<String, String>, base: Option<&str>) 
 /// - Propagates `[FM-GRAPH-*]` on any Turtle parse failure (the base
 ///   graph's re-serialized triples, or `rdf:`/`rdf_inline:` content).
 fn build_rdf_overlay(
-    base: &Arc<dyn GraphEngine>,
-    tpl_path: &Path,
-    fm: &Frontmatter,
+    base: &Arc<dyn GraphEngine>, tpl_path: &Path, fm: &Frontmatter,
 ) -> Result<Option<Arc<dyn GraphEngine>>> {
     if !declares_rdf_overlay(fm) {
         return Ok(None);

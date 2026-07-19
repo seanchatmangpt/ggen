@@ -221,9 +221,7 @@ fn graph_pattern_has_graph_clause(pattern: &spargebra::algebra::GraphPattern) ->
         } => {
             graph_pattern_has_graph_clause(left)
                 || graph_pattern_has_graph_clause(right)
-                || expression
-                    .as_ref()
-                    .is_some_and(expression_has_graph_clause)
+                || expression.as_ref().is_some_and(expression_has_graph_clause)
         }
         GP::Filter { expr, inner } => {
             expression_has_graph_clause(expr) || graph_pattern_has_graph_clause(inner)
@@ -495,9 +493,7 @@ pub trait GraphEngine: Send + Sync {
     /// Typed refusal when the engine has no ShEx support, or on schema
     /// parse errors.
     fn validate_shex(
-        &self,
-        schema_shexc: &str,
-        shape_map: &[(String, String)],
+        &self, schema_shexc: &str, shape_map: &[(String, String)],
     ) -> Result<ShaclOutcome>;
 
     /// Evaluate every loaded denial rule (`{ body } => false.`) against the
@@ -718,9 +714,7 @@ impl GraphEngine for DeterministicGraph {
     }
 
     fn validate_shex(
-        &self,
-        _schema_shexc: &str,
-        _shape_map: &[(String, String)],
+        &self, _schema_shexc: &str, _shape_map: &[(String, String)],
     ) -> Result<ShaclOutcome> {
         Err(AppError::fm_law(
             3,
@@ -805,8 +799,7 @@ impl GraphLawStore {
     /// Build a fresh GraphLaw `TripleStore` over the mirror's facts and the
     /// loaded rule documents.
     fn build_law_store(
-        &self,
-        rules_src: &[String],
+        &self, rules_src: &[String],
     ) -> Result<(praxis_graphlaw::TripleStore, usize)> {
         use praxis_graphlaw::parser::Syntax;
         let nt = self.mirror_ntriples()?;
@@ -925,9 +918,7 @@ impl GraphEngine for GraphLawStore {
     }
 
     fn validate_shex(
-        &self,
-        schema_shexc: &str,
-        shape_map: &[(String, String)],
+        &self, schema_shexc: &str, shape_map: &[(String, String)],
     ) -> Result<ShaclOutcome> {
         let state = self.law_state()?;
         let (ts, _) = self.build_law_store(&state.rules_src)?;
@@ -1157,8 +1148,7 @@ fn collect_blank_nodes(quads: &[Quad]) -> HashSet<BlankNode> {
 /// for every blank node, then map each to a `c14n{i}` label in signature
 /// order (ties broken by original label for determinism within this graph).
 fn canonical_blank_node_map(
-    quads: &[Quad],
-    blank_nodes: &HashSet<BlankNode>,
+    quads: &[Quad], blank_nodes: &HashSet<BlankNode>,
 ) -> Result<HashMap<BlankNode, BlankNode>> {
     let mut labels: HashMap<BlankNode, String> = blank_nodes
         .iter()
@@ -1209,9 +1199,7 @@ fn quad_touches(quad: &Quad, bnode: &BlankNode) -> bool {
 /// Render one neighborhood line for the signature of `bnode`, substituting
 /// `_:self` for the node itself and current labels for other blank nodes.
 fn neighborhood_line(
-    quad: &Quad,
-    bnode: &BlankNode,
-    labels: &HashMap<BlankNode, String>,
+    quad: &Quad, bnode: &BlankNode, labels: &HashMap<BlankNode, String>,
 ) -> String {
     let blank_repr = |b: &BlankNode| -> String {
         if b == bnode {

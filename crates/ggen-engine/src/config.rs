@@ -153,6 +153,16 @@ fn default_true() -> bool {
 pub struct Templates {
     /// Template directory, relative to the manifest.
     pub dir: PathBuf,
+    /// When `true`, sync emits one engine-owned `src/ggen_pack_mods.rs`
+    /// aggregator listing a `#[path = "..."] pub mod ...;` mount for every
+    /// generated `src/*.rs` output (excluding the aggregator itself), so a
+    /// consumer's own `lib.rs` needs exactly one permanent
+    /// `include!("ggen_pack_mods.rs");` line instead of one hand-written
+    /// mount per pack. Single writer (the engine), so two packs can never
+    /// collide on it the way per-pack `to: src/lib.rs` templates did
+    /// (`FM-WRITE-008`). Default `false`: existing consumers unchanged.
+    #[serde(default)]
+    pub aggregate_modules: bool,
 }
 
 impl GgenConfig {

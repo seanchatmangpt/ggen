@@ -74,11 +74,7 @@ enum Expected {
 /// bad anchor/line → 004, else Injected)  5. force → Written
 /// 6. absent → Written; identical → Skip(unchanged); differs → 005.
 fn reference_model(
-    force: bool,
-    unless_exists: bool,
-    inject: bool,
-    skip_if: SkipIf,
-    state: TargetState,
+    force: bool, unless_exists: bool, inject: bool, skip_if: SkipIf, state: TargetState,
     anchor: Anchor,
 ) -> Expected {
     let exists = state != TargetState::Absent;
@@ -140,11 +136,7 @@ fn classify(actual: &ggen_engine::error::Result<WriteOutcome>) -> Expected {
 }
 
 fn frontmatter_for(
-    force: bool,
-    unless_exists: bool,
-    inject: bool,
-    skip_if: SkipIf,
-    anchor: Anchor,
+    force: bool, unless_exists: bool, inject: bool, skip_if: SkipIf, anchor: Anchor,
 ) -> Frontmatter {
     Frontmatter {
         to: "out.txt".to_string(),

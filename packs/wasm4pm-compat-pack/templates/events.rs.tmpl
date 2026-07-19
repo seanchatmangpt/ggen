@@ -22,7 +22,7 @@ sparql:
     PREFIX w4pm: <http://seanchatmangpt.github.io/packs/wasm4pm-compat#>
     SELECT (COUNT(DISTINCT ?et) AS ?n) WHERE {
       ?et a w4pm:EventType .
-    }
+    } ORDER BY ?n
 ---
 //! OCEL event-type emission surface for `wasm4pm-compat`.
 //!

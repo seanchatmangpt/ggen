@@ -324,11 +324,19 @@ slo-check:
 
 # ── Quality gates ─────────────────────────────────────────────────────────────
 
-# Full pre-commit gate: fmt → check → lint → test-lib → coherence-check → boundary guard → cheat scan (in sequence, fail fast)
-pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-claims-schema
+# Full pre-commit gate: fmt → check → lint → test-lib → coherence-check → boundary guard → cheat scan → claims schema → pack proofs (in sequence, fail fast)
+pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-claims-schema guard-pack-proofs
     #!/usr/bin/env bash
     set -euo pipefail
-    echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan, claims schema)"
+    echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan, claims schema, pack proofs)"
+
+# Pack-proof gate: re-sync the committed multi-pack consumer
+# (examples/receiptctl), verify regeneration is idempotent, and run its full
+# test suite (the generated proofs plus its own). Makes "the generated proof
+# suites pass" a checkable fact from repo state — see
+# scripts/ci/guard-pack-proofs.sh and docs/packs/L5_PUSH_ROUND3_RESULTS.md.
+guard-pack-proofs:
+    ./scripts/ci/guard-pack-proofs.sh
 
 # Security vulnerability scan
 audit:

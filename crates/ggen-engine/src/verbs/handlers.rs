@@ -112,8 +112,7 @@ pub fn handle_sync_run(dry_run: bool, watch: bool) -> Result<serde_json::Value> 
 /// violation (naming focus node, source shape, and message) also exits
 /// non-zero.
 pub fn handle_graph_validate(
-    files: Vec<Utf8PathBuf>,
-    shapes: Vec<Utf8PathBuf>,
+    files: Vec<Utf8PathBuf>, shapes: Vec<Utf8PathBuf>,
 ) -> Result<serde_json::Value> {
     if !files.is_empty() {
         return validate_files(&files, &shapes);
@@ -442,7 +441,9 @@ pub fn handle_receipt_verify() -> Result<serde_json::Value> {
         Some(sig_hex) => {
             let verifying_key = crate::keys::resolve_verifying_key(&root).map_err(exec_err)?;
             let sig_bytes = hex::decode(sig_hex).map_err(|e| {
-                exec_err(format!("receipt invalid: signature_hex is not valid hex: {e}"))
+                exec_err(format!(
+                    "receipt invalid: signature_hex is not valid hex: {e}"
+                ))
             })?;
             let sig_arr: [u8; 64] = sig_bytes.try_into().map_err(|v: Vec<u8>| {
                 exec_err(format!(
@@ -698,8 +699,7 @@ fn templated_to_matches(pattern: &str, path: &str) -> bool {
 /// match via literal-chunk pattern matching, since the concrete path
 /// depends on SPARQL row values not known statically.
 fn orphaned_artifacts_check(
-    receipt: &SyncReceipt,
-    templates: &[(std::path::PathBuf, crate::template::Template)],
+    receipt: &SyncReceipt, templates: &[(std::path::PathBuf, crate::template::Template)],
 ) -> serde_json::Value {
     let mut static_tos: std::collections::BTreeSet<&str> = std::collections::BTreeSet::new();
     let mut templated_tos: Vec<&str> = Vec::new();

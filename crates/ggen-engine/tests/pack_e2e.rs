@@ -770,11 +770,7 @@ fn missing_extra_ontology_refuses_with_a_typed_error() {
 /// Write `root/<project_name>/` referencing `pack_a` (locked, default) and
 /// `pack_b` (with `lock = {lock_b}`) by relative path.
 fn write_two_pack_project_with_lock(
-    root: &Path,
-    project_name: &str,
-    pack_a: &str,
-    pack_b: &str,
-    lock_b: bool,
+    root: &Path, project_name: &str, pack_a: &str, pack_b: &str, lock_b: bool,
 ) -> PathBuf {
     let project = root.join(project_name);
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");

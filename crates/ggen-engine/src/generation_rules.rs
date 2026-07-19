@@ -93,7 +93,10 @@ use tera::Value;
 use crate::{
     error::{AppError, Result, TemplateFailureCause},
     graph::{DeterministicGraph, EngineQueryResults, GraphEngine, GraphLawStore},
-    sync::{hash_file_or_missing, hex32, rel_display, write_receipt, EngineKind, SyncOptions, SyncReport},
+    sync::{
+        hash_file_or_missing, hex32, rel_display, write_receipt, EngineKind, SyncOptions,
+        SyncReport,
+    },
     template::{
         build_tera, classify_tera_render_error, solutions_to_values, tera_error_full_chain,
         tera_error_location,
@@ -166,7 +169,10 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
     }
 
     drop(load_guard);
-    load_span.record("pipeline.duration_ms", load_start.elapsed().as_millis() as u64);
+    load_span.record(
+        "pipeline.duration_ms",
+        load_start.elapsed().as_millis() as u64,
+    );
 
     // ── Inference — `[[inference.rules]]` CONSTRUCT materialization ───────
     //
@@ -435,16 +441,17 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
         // inline/file template has no stable path to reuse as a Tera name
         // across rules).
         let tpl_name = format!("generation_rule::{}", rule.name);
-        tera.add_raw_template(&tpl_name, &template_text).map_err(|e| {
-            AppError::fm_gen_render_failure(
-                TemplateFailureCause::TemplateParseFailed,
-                &root_display,
-                &template_descriptor,
-                &rule.name,
-                format!("template rejected by Tera: {}", tera_error_full_chain(&e)),
-                tera_error_location(&e).as_deref(),
-            )
-        })?;
+        tera.add_raw_template(&tpl_name, &template_text)
+            .map_err(|e| {
+                AppError::fm_gen_render_failure(
+                    TemplateFailureCause::TemplateParseFailed,
+                    &root_display,
+                    &template_descriptor,
+                    &rule.name,
+                    format!("template rejected by Tera: {}", tera_error_full_chain(&e)),
+                    tera_error_location(&e).as_deref(),
+                )
+            })?;
 
         let per_row = rule.output_file.contains("{{");
         if per_row {
@@ -611,9 +618,7 @@ struct PendingGenWrite {
 /// `[FM-GEN-005]` on an unreadable query file; `[FM-GEN-006]` for the
 /// not-yet-implemented `Pack` variant (see the module doc comment).
 fn resolve_query_source(
-    root: &Path,
-    rule: &GenerationRule,
-    source: &QuerySource,
+    root: &Path, rule: &GenerationRule, source: &QuerySource,
     closure: &mut BTreeMap<String, String>,
 ) -> Result<String> {
     match source {
@@ -654,9 +659,7 @@ fn resolve_query_source(
 /// not-yet-implemented `Pack`/`Git`/`Package` variants (see the module doc
 /// comment).
 fn resolve_template_source(
-    root: &Path,
-    rule: &GenerationRule,
-    source: &TemplateSource,
+    root: &Path, rule: &GenerationRule, source: &TemplateSource,
     closure: &mut BTreeMap<String, String>,
 ) -> Result<String> {
     match source {
@@ -749,9 +752,9 @@ fn detect_file_tree_meta_spec(template_text: &str) -> bool {
         return false;
     };
     let foreach_key = serde_yaml::Value::String("foreach".to_string());
-    structure.iter().any(|entry| {
-        matches!(entry, serde_yaml::Value::Mapping(m) if m.contains_key(&foreach_key))
-    })
+    structure
+        .iter()
+        .any(|entry| matches!(entry, serde_yaml::Value::Mapping(m) if m.contains_key(&foreach_key)))
 }
 
 /// Render `rule.output_file` through Tera (it may reference the same
@@ -765,11 +768,7 @@ fn detect_file_tree_meta_spec(template_text: &str) -> bool {
 /// re-parses `output_file` on every call, so a parse failure surfaces
 /// here, not at the one-time `add_raw_template` above).
 fn render_output_file(
-    tera: &mut tera::Tera,
-    output_file: &str,
-    ctx: &tera::Context,
-    rule_name: &str,
-    example: &str,
+    tera: &mut tera::Tera, output_file: &str, ctx: &tera::Context, rule_name: &str, example: &str,
     template: &str,
 ) -> Result<String> {
     tera.render_str(output_file, ctx).map_err(|e| {
@@ -788,11 +787,7 @@ fn render_output_file(
 /// via [`classify_tera_render_error`] (see [`TemplateFailureCause`]'s own
 /// doc comment for the taxonomy this maps onto).
 fn render_template(
-    tera: &mut tera::Tera,
-    tpl_name: &str,
-    ctx: &tera::Context,
-    rule_name: &str,
-    example: &str,
+    tera: &mut tera::Tera, tpl_name: &str, ctx: &tera::Context, rule_name: &str, example: &str,
     template: &str,
 ) -> Result<String> {
     tera.render(tpl_name, ctx).map_err(|e| {
@@ -871,11 +866,7 @@ enum GenWriteOutcome {
 /// `[FM-GEN-009]` if an existing target cannot be read as UTF-8;
 /// propagates [`merge::merge_sections`] failures for `GenerationMode::Merge`.
 fn decide_and_maybe_apply(
-    root: &Path,
-    rel_to: &str,
-    body: &str,
-    mode: &GenerationMode,
-    dry_run: bool,
+    root: &Path, rel_to: &str, body: &str, mode: &GenerationMode, dry_run: bool,
 ) -> Result<GenWriteOutcome> {
     let target = crate::write::resolve_target(root, rel_to)?;
     let existing = match std::fs::read_to_string(&target) {

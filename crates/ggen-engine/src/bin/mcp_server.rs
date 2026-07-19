@@ -71,8 +71,7 @@ mod server {
     impl ServerState {
         #[tool(description = "Emit an operation-event and append it to the working receipt chain.")]
         async fn emit_event(
-            &self,
-            params: Parameters<EmitParams>,
+            &self, params: Parameters<EmitParams>,
         ) -> Result<CallToolResult, rmcp::ErrorData> {
             let p = &params.0;
             let mut cmd = std::process::Command::new("affi");
@@ -102,8 +101,7 @@ mod server {
 
         #[tool(description = "Verify a receipt and return ACCEPT or REJECT verdict.")]
         async fn verify_receipt(
-            &self,
-            params: Parameters<VerifyParams>,
+            &self, params: Parameters<VerifyParams>,
         ) -> Result<CallToolResult, rmcp::ErrorData> {
             let path = &params.0.receipt_path;
             match std::process::Command::new("affi")
@@ -129,8 +127,7 @@ mod server {
 
         #[tool(description = "Show a human-readable dump of a receipt chain.")]
         async fn show_receipt(
-            &self,
-            params: Parameters<ShowParams>,
+            &self, params: Parameters<ShowParams>,
         ) -> Result<CallToolResult, rmcp::ErrorData> {
             let path = &params.0.receipt_path;
             match std::process::Command::new("affi")

@@ -70,9 +70,7 @@ fn snapshot(root: &Path) -> BTreeMap<PathBuf, (SystemTime, String)> {
 
 fn assert_disk_unchanged(
     before: &BTreeMap<PathBuf, (SystemTime, String)>,
-    after: &BTreeMap<PathBuf, (SystemTime, String)>,
-    command: &str,
-    state: &str,
+    after: &BTreeMap<PathBuf, (SystemTime, String)>, command: &str, state: &str,
 ) {
     assert_eq!(
         before.keys().collect::<Vec<_>>(),

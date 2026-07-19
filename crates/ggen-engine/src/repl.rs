@@ -91,10 +91,7 @@ mod inner {
         type Candidate = Pair;
 
         fn complete(
-            &self,
-            line: &str,
-            pos: usize,
-            _ctx: &Context<'_>,
+            &self, line: &str, pos: usize, _ctx: &Context<'_>,
         ) -> rustyline::Result<(usize, Vec<Pair>)> {
             let prefix = &line[..pos];
             let tokens: Vec<&str> = prefix.split_whitespace().collect();

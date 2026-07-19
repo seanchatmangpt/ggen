@@ -505,3 +505,57 @@ per-cell evidence for each:
 Further rounds targeting the SAME 140 cells with the same kind of parallel pack-scoped agents are
 unlikely to produce materially different results without first addressing category 1 through a
 dedicated, non-parallel engine-level effort.
+
+## Addendum (2026-07-19): engine-level gap closure — tracks A1–A3, B
+
+The three blocked categories above were acted on in a dedicated, non-parallel pass
+(branch `feat/close-l5-gaps`), closing the engine-level cluster for real:
+
+**A1 — Pack shapes auto-gating (`FM-PACK-012`/`FM-PACK-013`).** `ggen sync` now evaluates
+every resolved pack's `shapes.ttl` against the union graph during the validate stage and
+refuses the sync on violation (`crates/ggen-engine/src/sync.rs`). This makes the
+mirror-drift bug class rounds 2–3 hit twice (diverged duplicate-subject facts, visible
+only as downstream rustc errors) refusable at sync time. Proven twice over: (1) e2e test
+`pack_shapes_gate_refuses_a_violating_union_graph` (violating consumer fact → refusal
+naming the pack, zero files written; conforming → clean sync); (2) live on
+`examples/receiptctl` — the gate refused its first post-change sync because the project
+ontology's 3 nouns genuinely lacked the `cnv:hasCommand` links clap-noun-verb-pack's
+shape requires; fixing the facts (not silencing the gate) made it pass. The regen
+lifecycle dimension's "drift is refused by construction" is now real for any pack that
+ships a shape.
+
+**A2 — Engine-owned module aggregator.** `[templates] aggregate_modules = true` makes
+sync emit one `src/ggen_pack_mods.rs` mounting every generated `src/*.rs` module —
+single writer, so the 11-pack `FM-WRITE-008` lib.rs collision class is closed at the
+correct layer. `examples/receiptctl` adopted it: its lib.rs went from six hand-written
+per-pack mounts to exactly one permanent `include!("ggen_pack_mods.rs");` line, and the
+two now-redundant per-pack `_lib_wiring` templates it consumed were retired. 148/148
+tests pass, live CLI works, re-sync byte-identical. (One real bug found by building the
+real consumer: the aggregator's first header used `//!` inner docs, illegal when pasted
+via `include!` — E0753 — fixed to plain `//`.) Consumer-effort moves to a genuine
+one-permanent-line story for aggregate-mode consumers.
+
+**A3 — `guard-pack-proofs`, the 9th pre-commit gate.** `just guard-pack-proofs`
+(`scripts/ci/guard-pack-proofs.sh`) re-syncs `examples/receiptctl`, verifies idempotent
+regeneration, and runs its full suite — "the generated proofs pass" is now a
+repo-state-checkable gate, not a session claim. Wired into `just pre-commit` (now 9
+gates; `CLAUDE.md` and `.claude/rules/andon/signals.md` updated). Verified green.
+
+**Engine lint fix (found by the new gates).** `consumed_vars` in
+`crates/ggen-engine/src/lint.rs` didn't recognize `{% set_global %}` bindings, so
+Tera-defined globals false-positived as unprojected SPARQL variables (`FM-TPL-003`)
+against clap-noun-verb-pack's real template. Fixed + regression unit test. Two round-3
+aggregate `SELECT (COUNT...)` queries missing `ORDER BY` (a real `FM-TPL-010`/E0013
+refusal) were also fixed, and four `framework_packs_e2e.rs` assertions that had silently
+gone stale against round-3 template changes were repaired — that suite is green again
+(11/11) and now includes the A1/A2 cases.
+
+**B — Precision ledger.** `packs/self-monitoring-pack/PRECISION_LEDGER.md` +
+`scripts/append_precision_measurement.sh`: each run appends one dated per-session row of
+real firing structure. Row 1 seeded from a real 545-turn session transcript. The
+dimension closes only as rows accumulate across real dates — the instrument is built and
+running; time does the rest, as the ledger's own header states.
+
+**Track C (user's own upstream repos)** remains scoped-not-executed, per the plan: it
+requires changes in `~/star-toml`, `~/chicago-tdd-tools`, and `~/wasm4pm`, which are
+separate repositories.

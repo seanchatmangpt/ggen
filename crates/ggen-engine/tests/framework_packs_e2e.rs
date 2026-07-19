@@ -91,10 +91,14 @@ fn wasm4pm_compat_pack_syncs() {
         events_src.contains("pub fn emit_pack_lock_verified"),
         "{events_src}"
     );
+    // Round 3 widened the import (attributes now ontology-declared), so
+    // assert on the two load-bearing types rather than the exact brace list.
     assert!(
-        events_src.contains("wasm4pm_compat::ocel::{OCELEvent, OCELRelationship}"),
+        events_src.contains("use wasm4pm_compat::ocel::"),
         "{events_src}"
     );
+    assert!(events_src.contains("OCELEvent"), "{events_src}");
+    assert!(events_src.contains("OCELRelationship"), "{events_src}");
 
     // The boundary doc landed too, listing all three ontology event types.
     let doc = std::fs::read_to_string(project.join("docs/wasm4pm_compat_emission.md"))
@@ -345,23 +349,28 @@ fn chicago_tdd_tools_pack_syncs() {
         "pack must write tests/chicago_tdd_tools_boundary.rs"
     );
     let src = std::fs::read_to_string(&boundary).expect("boundary tests");
+    // Round 3 factored the CliHarness plumbing into a sibling generated
+    // runtime module mounted via include!; the boundary file now dispatches
+    // through run_boundary_spec instead of importing CliHarness directly.
     assert!(
-        src.contains("use chicago_tdd_tools::cli_proof::CliHarness;"),
+        src.contains("include!(\"chicago_tdd_tools_boundary_runtime.rs\");"),
         "{src}"
     );
+    assert!(src.contains("run_boundary_spec"), "{src}");
     assert!(src.contains("fn receiptctl_help_lists_verbs()"), "{src}");
     assert!(src.contains("fn receiptctl_version_emits_name()"), "{src}");
     assert!(
         src.contains("fn receiptctl_unknown_verb_fails_closed()"),
         "{src}"
     );
-    assert!(
-        src.contains("CliHarness::cargo_bin(\"receiptctl\")"),
-        "{src}"
-    );
-    assert!(src.contains(".assert_exit_code(2)"), "{src}");
-    assert!(src.contains(".assert_stdout_contains(\"Usage\")"), "{src}");
-    assert!(src.contains(".assert_stderr_contains(\"error\")"), "{src}");
+    // Round 3 replaced the inline CliHarness calls with declarative
+    // BoundarySpec structs dispatched through the runtime module; the
+    // unknown-verb exit code was also corrected 2 -> 1 (live-verified
+    // against real clap-noun-verb behavior earlier this session).
+    assert!(src.contains("binary: \"receiptctl\""), "{src}");
+    assert!(src.contains("exit_code: 1"), "{src}");
+    assert!(src.contains("stdout_needle: Some(\"Usage\")"), "{src}");
+    assert!(src.contains("stderr_needle: Some(\"error\")"), "{src}");
 
     // The companion doc landed too, carrying every ontology-driven axiom.
     let doc = std::fs::read_to_string(project.join("docs/chicago_tdd_tools_boundary.md"))
@@ -436,16 +445,22 @@ fn clap_noun_verb_pack_syncs() {
         routes.contains("Verify the active session token against the stored keyring credential."),
         "distinctive cnv:doc label missing: {routes}"
     );
+    // The attribute form changed twice since this test was written: the
+    // macro is imported (`use clap_noun_verb_macros::verb;`) and invoked
+    // with an explicit noun ("verify", "session") — the noun override that
+    // fixed the filename-based misinference bug.
     assert!(
-        routes.contains(r#"#[clap_noun_verb_macros::verb("verify")]"#),
+        routes.contains(r#"#[verb("verify", "session")]"#),
         "verb attribute missing: {routes}"
     );
+    // The generated signature spans lines (arg list on its own lines), so
+    // assert the parts rather than one exact single-line rendering.
     assert!(
-        routes.contains("fn session_verify() -> Result<serde_json::Value>"),
+        routes.contains("fn session_verify("),
         "route fn missing: {routes}"
     );
     assert!(
-        routes.contains("crate::verbs::handlers::user_create_handler()"),
+        routes.contains("crate::verbs::handlers::user_create_handler("),
         "handler stub call missing: {routes}"
     );
     // Noun `--help` descriptions, generated from cnv:Noun individuals —
@@ -650,9 +665,19 @@ fn wasm4pm_cognition_pack_syncs() {
         "pack must write src/w4pm_cognition_dispatch.rs"
     );
     let dispatch = std::fs::read_to_string(&dispatch_path).expect("dispatch.rs");
+    // Round 3 moved the dispatch seam into its own generated file
+    // (w4pm_cognition_dispatch_handler.rs) so the per-breed wrappers and the
+    // hand-completable handler no longer share one file; assert each half
+    // where it now lives.
+    let handler_path = project.join("src/w4pm_cognition_dispatch_handler.rs");
     assert!(
-        dispatch.contains("pub fn dispatch_cognition_run(breed_id: &str, input_json: &str) -> Result<String, String>"),
-        "{dispatch}"
+        handler_path.is_file(),
+        "pack must write src/w4pm_cognition_dispatch_handler.rs"
+    );
+    let handler = std::fs::read_to_string(&handler_path).expect("dispatch handler");
+    assert!(
+        handler.contains("pub fn dispatch_cognition_run(breed_id: &str, input_json: &str) -> Result<String, String>"),
+        "{handler}"
     );
     assert!(
         dispatch.contains("pub fn run_strips(input_json: &str) -> Result<String, String>"),
@@ -813,5 +838,255 @@ fn wasm4pm_algorithms_pack_syncs() {
     assert_eq!(
         lock, lock2,
         "ggen.lock must be byte-identical across identical runs"
+    );
+}
+
+// ── Gap-closure additions (L5 push, tracks A1/A2) ──────────────────────────
+//
+// A1: pack-shipped `shapes.ttl` files are evaluated against the union graph
+// at sync time and refuse the sync on violation (`FM-PACK-013`) — the
+// engine-level "drift is refused by construction" mechanism the maturity
+// audits repeatedly named as missing.
+//
+// A2: `[templates] aggregate_modules = true` emits one engine-owned
+// `src/ggen_pack_mods.rs` aggregator, closing the per-pack lib.rs-collision
+// class (FM-WRITE-008 across 11 packs) at the correct layer: one writer.
+
+/// Write a minimal synthetic pack (pack.toml + ontology.ttl + one trivial
+/// template) into `dir/<name>/`, returning nothing — the caller wires it via
+/// a relative `{ path = "../<name>" }` like the real scaffold does. The
+/// ontology content is caller-supplied so tests can make it violate or
+/// conform to a caller-supplied shapes.ttl.
+fn write_synthetic_pack(dir: &Path, name: &str, ontology_ttl: &str, shapes_ttl: Option<&str>) {
+    let pack = dir.join(name);
+    std::fs::create_dir_all(pack.join("templates")).expect("mkdir pack templates");
+    std::fs::write(
+        pack.join("pack.toml"),
+        format!(
+            "[pack]\nname = \"{name}\"\nversion = \"0.0.1\"\ndescription = \"synthetic test pack\"\n"
+        ),
+    )
+    .expect("write pack.toml");
+    std::fs::write(pack.join("ontology.ttl"), ontology_ttl).expect("write pack ontology");
+    if let Some(shapes) = shapes_ttl {
+        std::fs::write(pack.join("shapes.ttl"), shapes).expect("write pack shapes");
+    }
+    // One trivial static template so the pack passes FM-PACK-005 (zero
+    // templates refused) without depending on any graph content.
+    std::fs::write(
+        pack.join("templates/marker.txt.tmpl"),
+        format!("---\nto: {name}_marker.txt\nforce: true\n---\npack {name} ran\n"),
+    )
+    .expect("write pack template");
+}
+
+/// Minimal consumer wired to the named synthetic packs, with
+/// `aggregate_modules` controllable.
+fn scaffold_synthetic_consumer(
+    dir: &Path, pack_names: &[&str], aggregate_modules: bool,
+) -> PathBuf {
+    let project = dir.join("consumer");
+    std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
+    std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
+    let packs_lines: String = pack_names
+        .iter()
+        .map(|n| format!("{n} = {{ path = \"../{n}\" }}\n"))
+        .collect();
+    let aggregate_line = if aggregate_modules {
+        "aggregate_modules = true\n"
+    } else {
+        ""
+    };
+    std::fs::write(
+        project.join("ggen.toml"),
+        format!(
+            "[project]\nname = \"consumer\"\n\n\
+             [ontology]\nsource = \"ontology.ttl\"\n\n\
+             [packs]\n{packs_lines}\n\
+             [templates]\ndir = \"templates\"\n{aggregate_line}"
+        ),
+    )
+    .expect("write ggen.toml");
+    project
+}
+
+const SHAPE_MAX_ONE_VAL: &str = r#"
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://example.org/gap#> .
+
+ex:ThingShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Thing ;
+    sh:property [
+        sh:path ex:val ;
+        sh:maxCount 1 ;
+        sh:message "a Thing must carry exactly one ex:val (mirror-drift guard)" ;
+    ] .
+"#;
+
+#[test]
+fn pack_shapes_gate_refuses_a_violating_union_graph() {
+    let dir = TempDir::new().expect("tempdir");
+
+    // The pack's OWN facts conform (one ex:val), and it ships the shape.
+    write_synthetic_pack(
+        dir.path(),
+        "guarded-pack",
+        r#"
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix ex:  <http://example.org/gap#> .
+ex:t1 a ex:Thing ; ex:val "from-pack" .
+"#,
+        Some(SHAPE_MAX_ONE_VAL),
+    );
+    let project = scaffold_synthetic_consumer(dir.path(), &["guarded-pack"], false);
+
+    // The CONSUMER's project ontology asserts a second ex:val on the same
+    // subject — exactly the cross-source mirror-drift shape (a multi-valued
+    // property arising only in the union) that previously surfaced as a
+    // downstream rustc duplicate-variant error, or not at all.
+    std::fs::write(
+        project.join("ontology.ttl"),
+        r#"
+@prefix ex: <http://example.org/gap#> .
+ex:t1 ex:val "diverged-in-consumer" .
+"#,
+    )
+    .expect("write violating consumer ontology");
+
+    let output = CliHarness::cargo_bin("ggen")
+        .args(["sync", "run"])
+        .current_dir(&project)
+        .run()
+        .expect("run sync");
+    output.assert_failure();
+    output.assert_stderr_contains("FM-PACK-013");
+    output.assert_stderr_contains("guarded-pack");
+    // And the refusal happened BEFORE any write: no marker file on disk.
+    assert!(
+        !project.join("guarded-pack_marker.txt").exists(),
+        "a refused sync must not have written any template output"
+    );
+
+    // Remove the divergent consumer fact -> the same project syncs clean.
+    std::fs::write(project.join("ontology.ttl"), "").expect("clear consumer ontology");
+    std::fs::remove_file(project.join("ggen.lock")).ok();
+    CliHarness::cargo_bin("ggen")
+        .args(["sync", "run"])
+        .current_dir(&project)
+        .run()
+        .expect("run sync 2")
+        .assert_success();
+    assert!(project.join("guarded-pack_marker.txt").is_file());
+}
+
+#[test]
+fn aggregate_modules_emits_one_engine_owned_aggregator() {
+    let dir = TempDir::new().expect("tempdir");
+
+    // Two packs, each generating its own src/*.rs module — the exact shape
+    // that used to force 11 packs into hand-rolled per-pack lib-wiring
+    // templates (and an FM-WRITE-008 collision when two targeted lib.rs).
+    write_synthetic_pack(
+        dir.path(),
+        "pack-alpha",
+        "@prefix ex: <http://example.org/gap#> .\n",
+        None,
+    );
+    write_synthetic_pack(
+        dir.path(),
+        "pack-beta",
+        "@prefix ex: <http://example.org/gap#> .\n",
+        None,
+    );
+    for (pack, module) in [
+        ("pack-alpha", "alpha_catalog"),
+        ("pack-beta", "beta_catalog"),
+    ] {
+        std::fs::write(
+            dir.path()
+                .join(pack)
+                .join("templates")
+                .join(format!("{module}.rs.tmpl")),
+            format!(
+                "---\nto: src/{module}.rs\nforce: true\n---\npub const {}: &str = \"{module}\";\n",
+                module.to_uppercase()
+            ),
+        )
+        .expect("write module template");
+    }
+
+    let project = scaffold_synthetic_consumer(dir.path(), &["pack-alpha", "pack-beta"], true);
+    CliHarness::cargo_bin("ggen")
+        .args(["sync", "run"])
+        .current_dir(&project)
+        .run()
+        .expect("run sync")
+        .assert_success();
+
+    // One engine-owned aggregator mounting both packs' modules, sorted.
+    let aggregator_path = project.join("src/ggen_pack_mods.rs");
+    let aggregator = std::fs::read_to_string(&aggregator_path).expect("aggregator");
+    assert!(
+        aggregator.contains("#[path = \"alpha_catalog.rs\"]\npub mod alpha_catalog;"),
+        "{aggregator}"
+    );
+    assert!(
+        aggregator.contains("#[path = \"beta_catalog.rs\"]\npub mod beta_catalog;"),
+        "{aggregator}"
+    );
+    assert!(
+        aggregator.find("alpha_catalog").expect("alpha present")
+            < aggregator.find("beta_catalog").expect("beta present"),
+        "aggregator entries must be deterministically sorted: {aggregator}"
+    );
+    // The aggregator must not mount itself.
+    assert!(
+        !aggregator.contains("ggen_pack_mods.rs\"]"),
+        "aggregator must not self-mount: {aggregator}"
+    );
+
+    // Idempotent: second sync leaves it byte-identical.
+    let before = std::fs::read(&aggregator_path).expect("bytes");
+    CliHarness::cargo_bin("ggen")
+        .args(["sync", "run"])
+        .current_dir(&project)
+        .run()
+        .expect("second sync")
+        .assert_success();
+    assert_eq!(before, std::fs::read(&aggregator_path).expect("bytes 2"));
+}
+
+#[test]
+fn aggregate_modules_off_by_default_emits_no_aggregator() {
+    let dir = TempDir::new().expect("tempdir");
+    write_synthetic_pack(
+        dir.path(),
+        "pack-alpha",
+        "@prefix ex: <http://example.org/gap#> .\n",
+        None,
+    );
+    std::fs::write(
+        dir.path()
+            .join("pack-alpha/templates/alpha_catalog.rs.tmpl"),
+        "---\nto: src/alpha_catalog.rs\nforce: true\n---\npub const A: &str = \"a\";\n",
+    )
+    .expect("write module template");
+
+    let project = scaffold_synthetic_consumer(dir.path(), &["pack-alpha"], false);
+    CliHarness::cargo_bin("ggen")
+        .args(["sync", "run"])
+        .current_dir(&project)
+        .run()
+        .expect("run sync")
+        .assert_success();
+
+    assert!(
+        project.join("src/alpha_catalog.rs").is_file(),
+        "module itself still generated"
+    );
+    assert!(
+        !project.join("src/ggen_pack_mods.rs").exists(),
+        "no aggregator without the opt-in flag (existing consumers unchanged)"
     );
 }

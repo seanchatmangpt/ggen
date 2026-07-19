@@ -237,16 +237,10 @@ impl AppError {
     /// `docs/releases/v26.7.17/EXAMPLE_FAILURE_MATRIX.md`'s Cluster D/A
     /// writeup).
     pub fn fm_gen_render_failure(
-        cause: TemplateFailureCause,
-        example: &str,
-        template: &str,
-        rule: &str,
-        detail: impl Into<String>,
-        location: Option<&str>,
+        cause: TemplateFailureCause, example: &str, template: &str, rule: &str,
+        detail: impl Into<String>, location: Option<&str>,
     ) -> Self {
-        let loc = location
-            .map(|l| format!(" (at {l})"))
-            .unwrap_or_default();
+        let loc = location.map(|l| format!(" (at {l})")).unwrap_or_default();
         Self::Validation(format!(
             "[FM-GEN-008][{}] example=`{example}` template=`{template}` rule=`{rule}`: {}{loc}",
             cause.as_code(),

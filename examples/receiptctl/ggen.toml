@@ -19,3 +19,4 @@ wasm4pm-facts-pack = { path = "../../packs/wasm4pm-facts-pack" }
 
 [templates]
 dir = "templates"
+aggregate_modules = true

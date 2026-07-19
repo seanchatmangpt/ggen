@@ -14,7 +14,7 @@ sparql:
     PREFIX compat: <https://wasm4pm.dev/ns#>
     SELECT (COUNT(DISTINCT ?b) AS ?n) WHERE {
       ?b a compat:CognitionBreed .
-    }
+    } ORDER BY ?n
 ---
 //! Full-coverage round-trip proof for `wasm4pm-cognition-pack`'s generated
 //! catalog (`src/w4pm_cognition_catalog.rs`), covering **all** breeds --

@@ -109,7 +109,10 @@ pub fn consumed_vars(tera_source: &str) -> BTreeSet<String> {
                     consumed.insert(name);
                 }
             }
-        } else if let Some(rest) = inner.strip_prefix("set ") {
+        } else if let Some(rest) = inner
+            .strip_prefix("set ")
+            .or_else(|| inner.strip_prefix("set_global "))
+        {
             let mut parts = rest.splitn(2, '=');
             let name = parts.next().unwrap_or("").trim();
             if is_identifier(name) {
@@ -369,6 +372,23 @@ mod tests {
         assert_eq!(
             vars,
             ["source".to_string()].into_iter().collect::<BTreeSet<_>>()
+        );
+    }
+
+    #[test]
+    fn set_global_binds_local_like_set() {
+        // Regression: `{% set_global x = ... %}` (Tera's cross-scope
+        // assignment, used by real pack templates inside loops) previously
+        // fell through the `set ` prefix check, so `x` was misreported as an
+        // unprojected SPARQL variable (a false FM-TPL-003 against
+        // packs/clap-noun-verb-pack's `ident`/`has_required` globals).
+        let vars = consumed_vars(
+            "{% set_global ident = field %}{{ ident }}{% if has_required %}x{% endif %}\
+             {% set_global has_required = true %}",
+        );
+        assert_eq!(
+            vars,
+            ["field".to_string()].into_iter().collect::<BTreeSet<_>>()
         );
     }
 

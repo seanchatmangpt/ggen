@@ -116,7 +116,10 @@ fn query_with_graph_substring_inside_a_string_literal_is_not_a_false_positive() 
     .expect("must NOT be refused -- no real GRAPH clause is present, only a string literal containing the text");
     assert!(report.written.iter().any(|p| p.ends_with("out.txt")));
     let out = std::fs::read_to_string(dir.path().join("out.txt")).expect("read output");
-    assert_eq!(out, "rows=0", "no match expected, but the query itself must run: {out:?}");
+    assert_eq!(
+        out, "rows=0",
+        "no match expected, but the query itself must run: {out:?}"
+    );
 }
 
 /// A SPARQL UPDATE attempt (`INSERT DATA { ... }`) is refused with a clear,
@@ -172,7 +175,10 @@ fn sparql_delete_update_attempt_is_also_refused_with_a_clear_message() {
     )
     .expect_err("SPARQL UPDATE (DELETE) must be refused");
     assert!(err.to_string().contains("FM-GRAPH-009"), "{err}");
-    assert!(err.to_string().contains("SPARQL UPDATE is not supported"), "{err}");
+    assert!(
+        err.to_string().contains("SPARQL UPDATE is not supported"),
+        "{err}"
+    );
 }
 
 /// A SPARQL 1.1 federated `SERVICE` call fails closed at evaluation time
@@ -197,10 +203,13 @@ fn service_clause_fails_closed_with_a_clear_evaluation_error() {
             ..Default::default()
         },
     )
-    .expect_err("SERVICE call must fail closed (no handler configured, no live network dependency)");
+    .expect_err(
+        "SERVICE call must fail closed (no handler configured, no live network dependency)",
+    );
     assert!(err.to_string().contains("FM-GRAPH-003"), "{err}");
     assert!(
-        err.to_string().contains("not supported") || err.to_string().contains("example.org/remote-endpoint"),
+        err.to_string().contains("not supported")
+            || err.to_string().contains("example.org/remote-endpoint"),
         "error must surface oxigraph's own clear UnsupportedService message: {err}"
     );
 }
