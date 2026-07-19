@@ -1,0 +1,4 @@
+[pack]
+name = "tcps-release-pack"
+version = "0.1.0"
+description = "Release-engineering surface for TCPS: CI workflow YAML (tier-1 build matrix, cross-host verify, supply-chain security policy) and packaging manifests (deb control, npm package.json, NuGet nuspec), plus rustup tier1/tier2 target lists, all driven from ontology individuals (tcps:CiWorkflow/tcps:PackagingTarget/tcps:Tier) whose body/manifest/target-list literals are the real, byte-for-byte content copied from a real product's release engineering, with SHACL requiring every packaging target to declare a non-empty manifest path and every CI workflow to declare at least one trigger event"

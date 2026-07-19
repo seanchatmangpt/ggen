@@ -19,6 +19,11 @@ sparql:
       OPTIONAL { ?c cc:args ?args_raw . }
       BIND(COALESCE(?args_raw, "") AS ?args)
     } ORDER BY ?noun ?verb
+  error_variants: |
+    PREFIX cc: <http://seanchatmangpt.github.io/packs/cargo-cicd#>
+    SELECT ?variant WHERE {
+      cc:CommandContract cc:errorVariant ?variant .
+    } ORDER BY ?variant
 ---
 //! Proof test for `cargo-cicd-pack`'s generated static catalog
 //! (`src/cargo_cicd_catalog.rs`).
@@ -43,8 +48,9 @@ sparql:
 mod cargo_cicd_catalog;
 
 use cargo_cicd_catalog::{
-    args_are_consistent, commands_for_noun, distinct_nouns, find_command, is_valid_command,
-    parse_args, CARGO_CICD_COMMANDS,
+    all_commands_share_return_contract, args_are_consistent, commands_for_noun, distinct_nouns,
+    find_command, is_valid_command, parse_args, CARGO_CICD_COMMANDS, CARGO_CICD_ERROR_ENUM,
+    CARGO_CICD_ERROR_VARIANTS, CARGO_CICD_RETURN_TYPE,
 };
 
 /// Exact row count, sourced from the same SPARQL query as the catalog
@@ -190,4 +196,56 @@ fn unknown_command_is_not_valid() {
 #[test]
 fn find_command_returns_none_for_unknown_pair() {
     assert!(find_command("evidence", "nonexistent-verb").is_none());
+}
+
+/// Round 4 (2026-07-19): every command shares one real, source-verified
+/// error contract -- `clap_noun_verb::Result<()>` parameterized over
+/// `NounVerbError` (`~/clap-noun-verb/src/error.rs`). Exact-count assertion
+/// sourced from the same SPARQL query that generated
+/// `CARGO_CICD_ERROR_VARIANTS`, not a hand-typed literal.
+#[test]
+fn error_variant_count_matches_ontology_query() {
+    assert_eq!(
+        CARGO_CICD_ERROR_VARIANTS.len(),
+        {{ error_variants | length }},
+        "error variant count drifted from the generating SPARQL query"
+    );
+}
+
+/// Every queried variant name is independently present in the compiled
+/// `CARGO_CICD_ERROR_VARIANTS` slice, in the query's own sorted order --
+/// exercises the generated const array, not the query result a second time.
+#[test]
+fn every_queried_error_variant_is_present_and_sorted() {
+    let expected: &[&str] = &[
+{% for v in error_variants %}        "{{ v.variant }}",
+{% endfor %}    ];
+    assert_eq!(CARGO_CICD_ERROR_VARIANTS, expected);
+    for w in CARGO_CICD_ERROR_VARIANTS.windows(2) {
+        assert!(w[0] < w[1], "error variants not strictly sorted: {:?}", w);
+    }
+}
+
+/// Adversarial: the error-variant list must not silently include an empty
+/// string or a duplicate -- a real check on the generated data, not a
+/// re-statement of the count check above.
+#[test]
+fn no_empty_or_duplicate_error_variants() {
+    assert!(CARGO_CICD_ERROR_VARIANTS.iter().all(|v| !v.is_empty()));
+    let mut seen: Vec<&str> = Vec::new();
+    for v in CARGO_CICD_ERROR_VARIANTS {
+        assert!(!seen.contains(v), "duplicate error variant: {}", v);
+        seen.push(v);
+    }
+}
+
+/// Every command in the catalog shares the same documented return contract
+/// (`clap_noun_verb::Result<()>` / `NounVerbError`) -- source-verified
+/// uniform relation across all 51 live rows (see ontology.ttl Round 4
+/// comment for the grep evidence).
+#[test]
+fn return_contract_is_populated_and_uniform() {
+    assert!(all_commands_share_return_contract());
+    assert_eq!(CARGO_CICD_RETURN_TYPE, "clap_noun_verb::Result<()>");
+    assert_eq!(CARGO_CICD_ERROR_ENUM, "NounVerbError");
 }

@@ -1,0 +1,9 @@
+---
+to: src/ポカヨケ.rs
+force: true
+sparql:
+  rows: |
+    PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-core#>
+    SELECT ?source WHERE { tcps:ポカヨケModule tcps:sourceText ?source } ORDER BY ?source
+---
+{{ rows[0].source }}

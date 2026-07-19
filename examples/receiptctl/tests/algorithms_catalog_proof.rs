@@ -639,7 +639,7 @@ fn generated_full_field_assertions_over_every_catalog_row() {
         assert_eq!(row.algorithm_id, "streaming_log");
         assert_eq!(row.label, "StreamingLog");
         assert_eq!(row.category, "discovery");
-        assert_eq!(row.wasm_export, "discover_streaming_log");
+        assert_eq!(row.wasm_export, "streaming_dfg_begin");
         assert_eq!(row.cli_alias, "");
     }
     {

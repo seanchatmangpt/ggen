@@ -25,7 +25,10 @@ sparql:
 #[path = "../src/osx_clnr_plan.rs"]
 mod osx_clnr_plan;
 
-use osx_clnr_plan::{parse_size_in_bytes, parse_snapshot_date, select_oldest_snapshots, BYTE_UNITS};
+use osx_clnr_plan::{
+    identify_thinned_snapshots, parse_size_in_bytes, parse_snapshot_date, select_oldest_snapshots,
+    SnapshotThinReceipt, BYTE_UNITS,
+};
 
 #[test]
 fn byte_unit_table_has_the_ontology_derived_count() {
@@ -136,4 +139,21 @@ fn n_larger_than_available_returns_all_sorted() {
         selected,
         vec!["2026-05-26-135630".to_string(), "2026-05-27-090000".to_string()]
     );
+}
+
+#[test]
+fn identifies_thinned_snapshots_as_set_difference() {
+    let before = vec!["snap1".to_string(), "snap2".to_string()];
+    let after = vec!["snap2".to_string()];
+    assert_eq!(identify_thinned_snapshots(&before, &after), vec!["snap1".to_string()]);
+    assert!(identify_thinned_snapshots(&before, &before).is_empty());
+}
+
+#[test]
+fn snapshot_thin_receipt_derives_thinned_field_from_before_and_after() {
+    let before = vec!["snap1".to_string(), "snap2".to_string()];
+    let after = vec!["snap2".to_string()];
+    let receipt =
+        SnapshotThinReceipt::new("/".to_string(), 1_000_000, 1_716_768_000, before, after);
+    assert_eq!(receipt.snapshots_thinned, vec!["snap1".to_string()]);
 }

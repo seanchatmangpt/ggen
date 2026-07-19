@@ -1,0 +1,4 @@
+[pack]
+name = "tcps-core-pack"
+version = "0.1.0"
+description = "Toyota Production System (TCPS) core ontology: 24-module RDF spec + SHACL shapes + Rust lib.rs template for the 豊田コード生産方式 no_std module set."

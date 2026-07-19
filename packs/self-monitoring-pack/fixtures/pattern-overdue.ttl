@@ -14,12 +14,23 @@
 # the resulting obligation. This is real "the session moved on without
 # discharging it" input data, not a hand-built overdue node.
 #
-# Expected, verified live (see README.md "Obligation lifecycle" section):
+# Expected, verified live (crates/praxis-graphlaw/tests/
+# self_monitoring_lifecycle_hooks_actuation.rs, added 2026-07-19 -- an
+# earlier version of this comment claimed "exactly 1" for both counts,
+# which was never actually run against the real hook mechanism and was
+# WRONG; corrected here to the real, verified multiplicity):
 # after materialize(), the graph contains
-#   - >=1 smon:PrioritizedEscalationObligation (High severity, ActNow, Open)
-#     from prioritize_escalation_obligation_high
-#   - exactly 1 smon:OverdueEscalationObligation from
-#     escalate_overdue_obligation, smon:escalates -> that High obligation
+#   - exactly 3 smon:PrioritizedEscalationObligation nodes (all High
+#     severity, ActNow, Open) from prioritize_escalation_obligation_high --
+#     one per distinct repeat-GroundingQuestion turn (turn-3, turn-4,
+#     turn-5) that pairs with turn-1 (the only turn a SurveyResponse
+#     immediately follows); this is the hook's join semantics working
+#     correctly, not a bug, since the WHERE clause binds ?q2 to every
+#     same-topic GroundingQuestion turn with a higher sequenceIndex than
+#     ?q1, not just the highest one
+#   - exactly 3 smon:OverdueEscalationObligation nodes, each smon:escalates
+#     -> one of those three High obligations (turn-9's sequenceIndex 9 is
+#     higher than all three obligations' originating turns)
 #
 # and NONE of the other fixtures in this directory (pattern-fires.ttl,
 # pattern-fires-discharged.ttl, pattern-does-not-fire.ttl,

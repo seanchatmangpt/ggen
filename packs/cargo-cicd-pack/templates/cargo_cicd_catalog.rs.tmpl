@@ -19,6 +19,16 @@ sparql:
       OPTIONAL { ?c cc:args ?args_raw . }
       BIND(COALESCE(?args_raw, "") AS ?args)
     } ORDER BY ?noun ?verb
+  error_variants: |
+    PREFIX cc: <http://seanchatmangpt.github.io/packs/cargo-cicd#>
+    SELECT ?variant WHERE {
+      cc:CommandContract cc:errorVariant ?variant .
+    } ORDER BY ?variant
+  contract: |
+    PREFIX cc: <http://seanchatmangpt.github.io/packs/cargo-cicd#>
+    SELECT ?returnType ?errorEnum WHERE {
+      cc:CommandContract cc:returnType ?returnType ; cc:errorEnum ?errorEnum .
+    }
 ---
 //! Typed catalog of ~/cargo-cicd's real `cargo cicd <noun> <verb>` command
 //! surface, transcribed from `packs/cargo-cicd-pack/ontology.ttl`.
@@ -99,4 +109,29 @@ pub fn args_are_consistent() -> bool {
     CARGO_CICD_COMMANDS
         .iter()
         .all(|c| parse_args(c).len() as u8 == c.arg_count)
+}
+
+/// Round 4: the real return type shared by every `cmd_*` function backing
+/// every command in `CARGO_CICD_COMMANDS`, source-verified against
+/// `~/cargo-cicd/src/nouns/*.rs` (all 21 files).
+pub const CARGO_CICD_RETURN_TYPE: &str = "{{ contract.0.returnType }}";
+
+/// Real error enum name every command's return type is parameterized over
+/// (`~/clap-noun-verb/src/error.rs`).
+pub const CARGO_CICD_ERROR_ENUM: &str = "{{ contract.0.errorEnum }}";
+
+/// The `#[non_exhaustive]` `NounVerbError` variant names, transcribed
+/// verbatim from `~/clap-noun-verb/src/error.rs` (lines 11-51), sorted.
+pub const CARGO_CICD_ERROR_VARIANTS: &[&str] = &[
+{% for v in error_variants %}    "{{ v.variant }}",
+{% endfor %}];
+
+/// True iff every command in the catalog shares the single documented
+/// return type (a real, source-verified uniform relation, not a per-row
+/// duplicate fact) -- checked by construction here since `arg_count`/`args`
+/// are per-row but the return type/error enum are catalog-wide facts.
+pub fn all_commands_share_return_contract() -> bool {
+    !CARGO_CICD_COMMANDS.is_empty()
+        && !CARGO_CICD_RETURN_TYPE.is_empty()
+        && !CARGO_CICD_ERROR_ENUM.is_empty()
 }

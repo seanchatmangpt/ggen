@@ -1,0 +1,65 @@
+# fixtures/session-iri-collision.ttl — ADVERSARIAL: two semantically DISTINCT
+# real-world tool events accidentally minted under the SAME event IRI
+# (<#event-1>), simulating a capture-hook bug that reuses an IRI (e.g. a
+# sequence-index collision from a counter reset, or two hooks racing on the
+# same nominal slot). This is the "IRI-collision fixture" named as a missing
+# L4 surface in README.md's "Fire precision" section.
+#
+# RDF/Turtle semantics: two blocks describing the same subject IRI do not
+# create two nodes — they MERGE onto one subject, so this file does NOT
+# encode "two events" at the data-model level; it encodes what actually
+# happens on disk when a capture bug produces this. The empirical question
+# this fixture answers is whether dfl:ToolEventShape's own sh:maxCount
+# constraints (skos:notation maxCount 1, dfl:outcome maxCount 1) are
+# sufficient to make the merge SHAPE-INVALID rather than silently accepting
+# a Frankenstein node with two notations / two outcomes.
+#
+# Verified live (see README.md "IRI-collision fixture" for the exact
+# command + output): `ggen graph validate --files
+# fixtures/session-iri-collision.ttl --shapes shapes.ttl` reports
+# shapes_conform: false, naming <#event-1> against BOTH the skos:notation
+# maxCount-1 constraint and the dfl:outcome maxCount-1 constraint — the
+# collision is NOT silently swallowed, it fails closed via ordinary SHACL
+# cardinality, with no bespoke collision-detection code required.
+
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@base <http://seanchatmangpt.github.io/packs/dogfood-lifecycle/fixtures/session-iri-collision#> .
+
+<#operator>  a prov:Agent , prov:Person ; dcterms:description "Operator." .
+<#mainAgent> a prov:Agent , prov:SoftwareAgent ; prov:actedOnBehalfOf <#operator> ; dcterms:description "The agent whose two distinct tool calls collide onto one IRI." .
+
+<#session>
+    a                      dfl:Session ;
+    dcterms:identifier     "iri-collision-session-001" ;
+    prov:wasAssociatedWith <#mainAgent> ;
+    dcterms:description    "Adversarial: two distinct real tool calls minted under the same event IRI." .
+
+<urn:blake3:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa>
+    a prov:Entity ; dcterms:description "First (Bash) call's input." .
+<urn:blake3:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb>
+    a prov:Entity ; dcterms:description "First (Bash) call's output." .
+<urn:blake3:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc>
+    a prov:Entity ; dcterms:description "Second (Write) call's input, colliding onto the same event IRI." .
+<urn:blake3:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd>
+    a prov:Entity ; dcterms:description "Second (Write) call's output, colliding onto the same event IRI." .
+
+# BOTH blocks target <#event-1> — this is the collision. Turtle merges these
+# into one subject with TWO skos:notation values and TWO dfl:outcome values.
+<#event-1>
+    a dfl:ToolEvent ; dcterms:isPartOf <#session> ;
+    skos:notation "Bash" ; dfl:sequenceIndex 1 ;
+    time:inXSDDateTimeStamp "2026-07-19T10:00:00Z"^^xsd:dateTimeStamp ;
+    dfl:outcome dfl:Ok ; prov:wasAssociatedWith <#mainAgent> ;
+    prov:used <urn:blake3:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa> ;
+    prov:generated <urn:blake3:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb> .
+
+<#event-1>
+    skos:notation "Write" ;
+    dfl:outcome dfl:Blocked ;
+    prov:used <urn:blake3:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc> ;
+    prov:generated <urn:blake3:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd> .

@@ -89,7 +89,7 @@ fn bench_tools_matches_ontology() {
 
 /// Structural invariant on the *generated* array itself -- `ORDER BY ?label`
 /// means the catalog must already be sorted ascending by name. Gives
-/// indirect coverage of `wasm4pm-cli`, `miniml-core`, and `prolog8`, the
+/// indirect coverage of `wasm4pm-cli`, `miniml`, and `prolog8`, the
 /// three individuals not spot-checked by name/purpose above: any of them
 /// missing, duplicated, or shuffled out of place would break this check
 /// even though no test above names them directly. Computed by a fresh

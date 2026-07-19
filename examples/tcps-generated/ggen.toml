@@ -1,0 +1,18 @@
+[project]
+name = "tcps-generated"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+tcps = "http://seanchatmangpt.github.io/packs/tcps-core#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[packs]
+tcps-core-pack = { path = "../../packs/tcps-core-pack" }
+tcps-release-pack = { path = "../../packs/tcps-release-pack" }
+
+[templates]
+dir = "templates"
+aggregate_modules = true

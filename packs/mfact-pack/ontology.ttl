@@ -60,3 +60,43 @@ mfa:ProcintDir   a mfa:AuthorityDir ; mfa:path "procint/"  ; rdfs:comment "The r
 mfa:PaperDir     a mfa:AuthorityDir ; mfa:path "paper/"    ; rdfs:comment "The LaTeX paper; standing-derived numbers are rendered fragments, never hand-typed." .
 mfa:ReleaseDir   a mfa:AuthorityDir ; mfa:path "release/"  ; rdfs:comment "The manifest, gates, and standing artifacts that are the actual authority for any claim about this project's state." .
 mfa:ArtifactLedger a mfa:AuthorityDir ; mfa:path ".mfact/artifacts.toml" ; rdfs:comment "The artifact ledger; authority comes from here, not file paths or headers." .
+
+# --- Receipt-engine surface (Target-API-fidelity dimension).
+#
+# Transcribed from a REAL, independently-authored `mfact-core` Rust crate
+# found on this machine at
+# ~/mfact/.claude/worktrees/wf_24b4eb65-119-19/crates/mfact-core (git commit
+# 154b62f956a on branch `worktree-wf_24b4eb65-119-19`; verified via
+# `git log --oneline -- crates/mfact-core` and `git branch -a --contains`).
+#
+# Honest provenance note: this crate does NOT exist on ~/mfact's `main`
+# branch. `main`'s own `docs/MFACT_CORE_DESIGN.md` states the contract is
+# still an "open decision for the domain owner" and that
+# `crates/mfact-core/` "contains only a stale target/ build directory...
+# There is no Cargo.toml, no src/, and no Rust source of any kind." The real
+# source used here lives on an unmerged agent worktree branch -- genuine,
+# independently-authored, same machine, same author as this repo, and
+# directly on-domain (it implements the exact receipted-pipeline surface
+# `mfa:Certify`'s rdfs:comment above already describes: "every standing
+# claim ... is computed from a build, axiom audit, or git commit"), but it
+# is exploratory/unmerged work, not mfact's shipped, canonical API. Scored
+# accordingly below -- see TARGET_VERIFICATION.md.
+#
+# Verbatim copies of the 3 source files (lib.rs, receipt.rs, validate.rs)
+# are checked into reference/mfact-core/src/ in this pack, with matching
+# BLAKE3... actually SHA-256 checksums recorded in TARGET_VERIFICATION.md.
+mfa:ReceiptEngine
+    a rdfs:Class ; rdfs:label "mfact-core's GgenReceiptEngine" ;
+    rdfs:comment "Real Rust struct from ~/mfact's mfact-core crate (unmerged worktree, see provenance note above): computes a deterministic chained-hash receipt over a slice of N-Quads Facts. Fields transcribed verbatim from src/receipt.rs, not paraphrased." .
+mfa:hashAlgorithm a rdf:Property ; rdfs:domain mfa:ReceiptEngine ; rdfs:range xsd:string .
+mfa:orderingStrategy a rdf:Property ; rdfs:domain mfa:ReceiptEngine ; rdfs:range xsd:string .
+mfa:refusesDuplicates a rdf:Property ; rdfs:domain mfa:ReceiptEngine ; rdfs:range xsd:boolean .
+mfa:sourceFile a rdf:Property ; rdfs:domain mfa:ReceiptEngine ; rdfs:range xsd:string .
+
+mfa:GgenReceiptEngine
+    a mfa:ReceiptEngine ;
+    mfa:hashAlgorithm "BLAKE3" ;
+    mfa:orderingStrategy "canonical N-Quads lexicographic sort before chaining" ;
+    mfa:refusesDuplicates true ;
+    mfa:sourceFile "reference/mfact-core/src/receipt.rs" ;
+    rdfs:comment "seed = hash(engine seed); for each sorted, deduplicated N-Quad: acc = hash(acc + hash(nquad)). Duplicate N-Quads after sort refuse with Refusal::DuplicateElement; an empty engine seed refuses with Refusal::ValidationFailed at construction." .

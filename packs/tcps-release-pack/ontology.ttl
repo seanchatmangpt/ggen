@@ -1,0 +1,339 @@
+@prefix tcps: <http://seanchatmangpt.github.io/packs/tcps-release#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# Classes
+#################################################################
+
+tcps:Tier a rdfs:Class ;
+    rdfs:label "Release tier (rustup target-tier grouping)" .
+
+tcps:PackagingTarget a rdfs:Class ;
+    rdfs:label "A packaging ecosystem output (deb/npm/nuget) driven from a manifest template" .
+
+tcps:CiWorkflow a rdfs:Class ;
+    rdfs:label "A GitHub Actions CI workflow definition" .
+
+#################################################################
+# Tier individuals
+#################################################################
+
+tcps:Tier1 a tcps:Tier ;
+    rdfs:label "Tier 1 (guaranteed to build and pass tests)" ;
+    tcps:tierName "tier1" ;
+    tcps:targetList """aarch64-apple-darwin
+aarch64-pc-windows-msvc
+aarch64-unknown-linux-gnu
+i686-pc-windows-msvc
+i686-unknown-linux-gnu
+x86_64-pc-windows-gnu
+x86_64-pc-windows-msvc
+x86_64-unknown-linux-gnu
+""" .
+
+tcps:Tier2 a tcps:Tier ;
+    rdfs:label "Tier 2 (guaranteed to build)" ;
+    tcps:tierName "tier2" ;
+    tcps:targetList """aarch64-apple-ios
+aarch64-apple-ios-macabi
+aarch64-apple-ios-sim
+aarch64-apple-tvos
+aarch64-apple-tvos-sim
+aarch64-apple-visionos
+aarch64-apple-visionos-sim
+aarch64-apple-watchos
+aarch64-apple-watchos-sim
+aarch64-linux-android
+aarch64-pc-windows-gnullvm
+aarch64-unknown-fuchsia
+aarch64-unknown-linux-musl
+aarch64-unknown-linux-ohos
+aarch64-unknown-none
+aarch64-unknown-none-softfloat
+aarch64-unknown-uefi
+arm-linux-androideabi
+arm-unknown-linux-gnueabi
+arm-unknown-linux-gnueabihf
+arm-unknown-linux-musleabi
+arm-unknown-linux-musleabihf
+arm64ec-pc-windows-msvc
+armv5te-unknown-linux-gnueabi
+armv5te-unknown-linux-musleabi
+armv7-linux-androideabi
+armv7-unknown-linux-gnueabi
+armv7-unknown-linux-gnueabihf
+armv7-unknown-linux-musleabi
+armv7-unknown-linux-musleabihf
+armv7-unknown-linux-ohos
+armv7a-none-eabi
+armv7a-none-eabihf
+armv7r-none-eabi
+armv7r-none-eabihf
+armv8r-none-eabihf
+i586-unknown-linux-gnu
+i586-unknown-linux-musl
+i686-linux-android
+i686-pc-windows-gnu
+i686-pc-windows-gnullvm
+i686-unknown-freebsd
+i686-unknown-linux-musl
+i686-unknown-uefi
+loongarch64-unknown-linux-gnu
+loongarch64-unknown-linux-musl
+loongarch64-unknown-none
+loongarch64-unknown-none-softfloat
+nvptx64-nvidia-cuda
+powerpc-unknown-linux-gnu
+powerpc64-unknown-linux-gnu
+powerpc64-unknown-linux-musl
+powerpc64le-unknown-linux-gnu
+powerpc64le-unknown-linux-musl
+riscv32i-unknown-none-elf
+riscv32im-unknown-none-elf
+riscv32imac-unknown-none-elf
+riscv32imafc-unknown-none-elf
+riscv32imc-unknown-none-elf
+riscv64a23-unknown-linux-gnu
+riscv64gc-unknown-linux-gnu
+riscv64gc-unknown-linux-musl
+riscv64gc-unknown-none-elf
+riscv64im-unknown-none-elf
+riscv64imac-unknown-none-elf
+s390x-unknown-linux-gnu
+s390x-unknown-none-softfloat
+sparc64-unknown-linux-gnu
+sparcv9-sun-solaris
+thumbv6m-none-eabi
+thumbv7em-none-eabi
+thumbv7em-none-eabihf
+thumbv7m-none-eabi
+thumbv7neon-linux-androideabi
+thumbv7neon-unknown-linux-gnueabihf
+thumbv8m.base-none-eabi
+thumbv8m.main-none-eabi
+thumbv8m.main-none-eabihf
+wasm32-unknown-emscripten
+wasm32-unknown-unknown
+wasm32-wasip1
+wasm32-wasip1-threads
+wasm32-wasip2
+wasm32v1-none
+x86_64-apple-darwin
+x86_64-apple-ios
+x86_64-apple-ios-macabi
+x86_64-fortanix-unknown-sgx
+x86_64-linux-android
+x86_64-pc-solaris
+x86_64-pc-windows-gnullvm
+x86_64-unknown-freebsd
+x86_64-unknown-fuchsia
+x86_64-unknown-illumos
+x86_64-unknown-linux-gnuasan
+x86_64-unknown-linux-gnumsan
+x86_64-unknown-linux-gnutsan
+x86_64-unknown-linux-gnux32
+x86_64-unknown-linux-musl
+x86_64-unknown-linux-ohos
+x86_64-unknown-netbsd
+x86_64-unknown-none
+x86_64-unknown-redox
+x86_64-unknown-uefi
+""" .
+
+#################################################################
+# PackagingTarget individuals
+#################################################################
+
+tcps:DebPackagingTarget a tcps:PackagingTarget ;
+    rdfs:label "Debian package manifest (control file)" ;
+    tcps:ecosystem "deb" ;
+    tcps:manifestPath "packaging/deb/control.in" ;
+    tcps:manifestBody """Package: tcps
+Version: 26.7.19
+Section: devel
+Priority: optional
+Architecture: @ARCH@
+Maintainer: Sean Chatman
+Description: Toyota Code Production System Rust library and CLI
+ Japanese canonical domain model with Rust production lifecycle tooling.
+""" .
+
+tcps:NpmPackagingTarget a tcps:PackagingTarget ;
+    rdfs:label "npm package manifest (package.json)" ;
+    tcps:ecosystem "npm" ;
+    tcps:manifestPath "packaging/npm/package.json.in" ;
+    tcps:manifestBody """{
+  "name": "@tcps/core",
+  "version": "26.7.19",
+  "description": "Toyota Code Production System WebAssembly capability boundary",
+  "license": "MIT OR Apache-2.0",
+  "files": ["tcps_wasm.wasm", "README.md"]
+}
+""" .
+
+tcps:NugetPackagingTarget a tcps:PackagingTarget ;
+    rdfs:label "NuGet package manifest (nuspec)" ;
+    tcps:ecosystem "nuget" ;
+    tcps:manifestPath "packaging/nuget/tcps.nuspec.in" ;
+    tcps:manifestBody """<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>TCPS.Native</id>
+    <version>26.7.19</version>
+    <authors>Sean Chatman</authors>
+    <description>Toyota Code Production System native Rust library.</description>
+    <license type="expression">MIT OR Apache-2.0</license>
+  </metadata>
+</package>
+""" .
+
+#################################################################
+# CiWorkflow individuals
+#################################################################
+
+tcps:Tier1Workflow a tcps:CiWorkflow ;
+    rdfs:label "tier-1 build matrix workflow" ;
+    tcps:workflowName "tier-1" ;
+    tcps:triggerEvent "push" ;
+    tcps:triggerEvent "pull_request" ;
+    tcps:triggerEvent "workflow_dispatch" ;
+    tcps:workflowBody """name: tier-1
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-24.04
+            target: i686-unknown-linux-gnu
+          - os: ubuntu-24.04
+            target: aarch64-unknown-linux-gnu
+          - os: macos-14
+            target: aarch64-apple-darwin
+          - os: windows-2022
+            target: x86_64-pc-windows-msvc
+          - os: windows-2022
+            target: i686-pc-windows-msvc
+          - os: windows-2022
+            target: aarch64-pc-windows-msvc
+          - os: windows-2022
+            target: x86_64-pc-windows-gnu
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        shell: bash
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Build universal core
+        run: python tools/lifecycle.py build --target ${{ matrix.target }} --product core
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tier1-${{ matrix.target }}
+          path: receipts/
+""" .
+
+tcps:VerifyWorkflow a tcps:CiWorkflow ;
+    rdfs:label "cross-host verify workflow" ;
+    tcps:workflowName "verify" ;
+    tcps:triggerEvent "push" ;
+    tcps:triggerEvent "pull_request" ;
+    tcps:triggerEvent "workflow_dispatch" ;
+    tcps:workflowBody """name: verify
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-verification:
+    name: host-${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-14, windows-2022]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        shell: bash
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rustfmt --component clippy --component rust-src
+          rustup default 1.97.1
+      - name: Verify full workspace
+        run: python tools/lifecycle.py verify
+      - name: Generate target matrix
+        run: python tools/lifecycle.py matrix
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: receipts-${{ matrix.os }}
+          path: |
+            receipts/
+            dist/target-matrix.json
+""" .
+
+tcps:SecurityWorkflow a tcps:CiWorkflow ;
+    rdfs:label "supply-chain security policy workflow" ;
+    tcps:workflowName "security" ;
+    tcps:triggerEvent "pull_request" ;
+    tcps:triggerEvent "push" ;
+    tcps:triggerEvent "schedule" ;
+    tcps:triggerEvent "workflow_dispatch" ;
+    tcps:workflowBody """name: security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "43 3 * * 4"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  supply-chain-policy:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Install quality tools
+        run: ./scripts/ci/install-quality-tools.sh
+      - name: Audit
+        run: cargo audit
+      - name: Dependency and license policy
+        run: cargo deny check
+      - name: Coverage
+        run: cargo llvm-cov --workspace --all-targets --lcov --output-path dist/lcov.info
+      - uses: actions/upload-artifact@v4
+        with:
+          name: security-evidence
+          path: |
+            dist/lcov.info
+            receipts/
+""" .

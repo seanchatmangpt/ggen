@@ -1,0 +1,75 @@
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix compat: <https://wasm4pm.dev/ns#> .
+
+# SHACL shapes for wasm4pm-cognition-pack's compat:CognitionBreed catalog
+# class. These are executable cardinality/range/datatype/enum constraints --
+# not documentation -- runnable via `ggen graph validate` and wireable into
+# a consumer's own `[law].shapes`. Added 2026-07-19 to close the "no
+# shapes.ttl at all" gap this pack previously had (see
+# docs/packs/PACK_MATURITY_MODEL.md's L2 row for this pack): before this
+# file, ontology.ttl's per-breed shape was documentation-only (comments),
+# never machine-checked. Modeled directly on the sibling
+# packs/wasm4pm-facts-pack/shapes.ttl idiom (same repo, same author, same
+# `sh:targetClass` + `sh:property` pattern).
+#
+# sh:in enumeration below is NOT invented -- it is the literal, complete set
+# of `compat:breedFamily` string values actually asserted in this pack's own
+# ontology.ttl, confirmed by:
+#   grep -oE 'compat:breedFamily *"[a-z_]+"' ontology.ttl | sort -u
+# (13 distinct families across all 55 breed instances). Any future breed
+# added with a 14th, misspelled, or typo'd family value now fails
+# `ggen graph validate` instead of silently round-tripping through Tera.
+
+compat:CognitionBreedShape
+  a sh:NodeShape ;
+  sh:targetClass compat:CognitionBreed ;
+  sh:property [
+    sh:path compat:breedId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-z][a-z0-9_]*$" ;
+  ] ;
+  sh:property [
+    sh:path compat:breedLabel ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    # PascalCase enum-arm label consumed verbatim by
+    # cognition_catalog.rs.tmpl's `CognitionBreedId::{{ row.breed_label }}`
+    # Rust identifier interpolation -- must be a valid Rust enum-variant
+    # identifier shape, not merely non-empty.
+    sh:pattern "^[A-Z][A-Za-z0-9]*$" ;
+  ] ;
+  sh:property [
+    sh:path compat:breedDoc ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path compat:citation ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path compat:breedFamily ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+      "planning" "reasoning" "uncertainty" "classic_systems"
+      "classic_systems_ext_meta" "abduction" "temporal_spatial"
+      "constraint_sat" "learning" "analogy_memory" "autoinstinct"
+      "belief_uncertainty_ext" "planning_ext"
+    ) ;
+  ] ;
+  sh:property [
+    sh:path compat:modulePath ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    # optional: 0 or 1, only present when the Rust module name differs from
+    # breedId (documented in ontology.ttl's header comment).
+  ] .

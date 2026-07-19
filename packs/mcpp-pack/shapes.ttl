@@ -1,0 +1,59 @@
+# shapes.ttl -- SHACL shapes constraining mcpp-pack's cnv:Command individuals.
+#
+# Added as a real, checkable step toward the ontology-expressiveness L3 bar
+# ("structure, cardinality, error cases") beyond what was previously only an
+# unstated convention documented in ontology.ttl's own comments. Before this
+# file existed, nothing prevented a malformed row (missing cnv:noun/cnv:verb,
+# an empty mcp:errorCase, a cnv:args literal that doesn't parse into
+# field|type|required|about groups) from silently reaching the templates --
+# `mcpp_catalog_proof.rs`'s `every_row_has_a_documented_error_case` and
+# `every_row_args_string_parses_into_well_formed_groups` tests catch this
+# AFTER generation; these shapes catch it at the ontology itself, before a
+# single line of Rust is rendered. Modeled on
+# packs/clap-noun-verb-pack/shapes.ttl's real CommandShape/NounShape pattern.
+
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix cnv:  <http://seanchatmangpt.github.io/packs/clap-noun-verb#> .
+@prefix mcp:  <http://seanchatmangpt.github.io/packs/mcpp#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+mcp:CommandShape
+    a sh:NodeShape ;
+    sh:targetClass cnv:Command ;
+
+    sh:property [
+        sh:path     cnv:noun ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A mcpp Command must carry exactly one non-empty cnv:noun." ;
+    ] ;
+    sh:property [
+        sh:path     cnv:verb ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A mcpp Command must carry exactly one non-empty cnv:verb." ;
+    ] ;
+    sh:property [
+        sh:path     cnv:args ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        # Real command surface: exactly 2 of 9 rows (lsp routes, receipt
+        # list) take zero arguments (empty string is valid); the rest match
+        # `field|type|required|about` groups joined by `@@`. A single-group
+        # regex covering the common case (no literal `|` or `@@` inside a
+        # field, true for every one of the 9 real rows verified 2026-07-18)
+        # -- catches a malformed literal (wrong pipe count, missing `about`)
+        # without requiring a full grammar in SHACL.
+        sh:pattern  "^$|^[^|@]+\\|[^|@]+\\|(true|false)\\|[^@]*(@@[^|@]+\\|[^|@]+\\|(true|false)\\|[^@]*)*$" ;
+        sh:message  "cnv:args, when non-empty, must be @@-joined groups of exactly 4 pipe-separated fields (field|rust_type|required|about) with required in {true,false}." ;
+    ] ;
+    sh:property [
+        sh:path     mcp:errorCase ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 20 ;
+        sh:message  "A mcpp Command must carry exactly one mcp:errorCase describing its real non-zero-exit or fail-open condition, file:line-cited against ~/mcpp (min 20 chars rules out a placeholder like 'TODO' or 'unknown')." ;
+    ] .

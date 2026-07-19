@@ -1,0 +1,1939 @@
+@prefix tcps: <http://seanchatmangpt.github.io/packs/tcps-core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+tcps:語彙Module a tcps:Module ;
+    tcps:name "語彙" ;
+    tcps:order 0 ;
+    tcps:sourceText """#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 有無<値> {
+    有る(値),
+    無い,
+}
+
+impl<値> 有無<値> {
+    pub const fn 有るか(&self) -> bool {
+        matches!(self, Self::有る(_))
+    }
+
+    pub const fn 無いか(&self) -> bool {
+        !self.有るか()
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 成否<成功, 失敗> {
+    成功(成功),
+    失敗(失敗),
+}
+
+impl<成功, 失敗> 成否<成功, 失敗> {
+    pub const fn 成功か(&self) -> bool {
+        matches!(self, Self::成功(_))
+    }
+
+    pub const fn 失敗か(&self) -> bool {
+        !self.成功か()
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 真偽 {
+    真,
+    偽,
+}
+
+impl 真偽 {
+    pub const fn 値(self) -> bool {
+        matches!(self, Self::真)
+    }
+}
+
+pub type 数量 = u32;
+pub type 時刻 = u64;
+pub type 工程番号 = u16;
+pub type 品目番号 = u32;
+pub type 標準番号 = u32;
+pub type 改善番号 = u32;
+pub type 受領番号 = u64;
+pub type 方策番号 = u32;
+pub type 道具番号 = u16;
+pub type 経路番号 = u16;
+pub type 理由番号 = u16;
+pub type 周期 = u32;
+pub type 質量 = u16;
+pub type 権限印 = u64;
+pub type 準備印 = u64;
+pub type 適格印 = u64;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 範囲外 {
+    pub 値: u64,
+    pub 上限: u64,
+}
+
+pub const fn 小さい方(左: u32, 右: u32) -> u32 {
+    if 左 < 右 { 左 } else { 右 }
+}
+
+pub const fn 大きい方(左: u32, 右: u32) -> u32 {
+    if 左 > 右 { 左 } else { 右 }
+}
+""" .
+
+tcps:語彙Module rdfs:comment "shared vocabulary types and primitives used across all modules" .
+
+tcps:原点Module a tcps:Module ;
+    tcps:name "原点" ;
+    tcps:order 1 ;
+    tcps:sourceText """use crate::語彙::{工程番号, 数量, 時刻};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 原点 {
+    誰かのために,
+    人を楽にする,
+    人を中心に置く,
+    良い品を早く安く届ける,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 生産目的 {
+    pub 原点: 原点,
+    pub 後工程: 工程番号,
+    pub 必要数量: 数量,
+    pub 必要時刻: 時刻,
+}
+
+impl 生産目的 {
+    pub const fn 新規(
+        原点: 原点,
+        後工程: 工程番号,
+        必要数量: 数量,
+        必要時刻: 時刻,
+    ) -> Self {
+        Self {
+            原点,
+            後工程,
+            必要数量,
+            必要時刻,
+        }
+    }
+}
+""" .
+
+tcps:原点Module tcps:dependsOnModule tcps:語彙Module .
+
+tcps:原点Module rdfs:comment "founding purpose and production-intent value objects" .
+
+tcps:系譜Module a tcps:Module ;
+    tcps:name "系譜" ;
+    tcps:order 2 ;
+    tcps:sourceText """use crate::語彙::{成否, 有無};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 人物 {
+    豊田佐吉,
+    豊田喜一郎,
+    豊田英二,
+    大野耐一,
+    現場の作業者,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 原問題 {
+    母の機織りが重労働である,
+    糸切れ後も織機が動き続ける,
+    不良品が連続して作られる,
+    人が機械を見張り続ける,
+    部品が一つ欠けても完成品にならない,
+    資金と資材が不足している,
+    作り過ぎた在庫が停滞する,
+    工程間の歩調が合わない,
+    異常の原因が標準へ戻らない,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 発明 {
+    人力織機,
+    動力織機,
+    糸切れ検知,
+    異常自動停止,
+    流れ作業,
+    必要時生産,
+    後工程引取り,
+    かんばん,
+    標準作業,
+    平準化,
+    アンドン,
+    改善票,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 不変条件 {
+    異常なら止まる,
+    不良を流さない,
+    人を番人にしない,
+    必要量を越えて作らない,
+    後工程の引取りなしに補充しない,
+    引取量と補充量を等しくする,
+    異常の原因を標準へ戻す,
+    標準なき再開を許さない,
+    選択と許可と実行を分ける,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 歴史記録 {
+    pub 人物: 人物,
+    pub 原問題: 原問題,
+    pub 発明: 発明,
+    pub 不変条件: 不変条件,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 台帳満杯;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 系譜台帳<const 上限: usize> {
+    記録: [有無<歴史記録>; 上限],
+    件数: usize,
+}
+
+impl<const 上限: usize> 系譜台帳<上限> {
+    pub const fn 空() -> Self {
+        Self {
+            記録: [有無::無い; 上限],
+            件数: 0,
+        }
+    }
+
+    pub fn 追加する(&mut self, 記録: 歴史記録) -> 成否<usize, 台帳満杯> {
+        if self.件数 >= 上限 {
+            return 成否::失敗(台帳満杯);
+        }
+
+        let 位置 = self.件数;
+        self.記録[位置] = 有無::有る(記録);
+        self.件数 += 1;
+        成否::成功(位置)
+    }
+
+    pub const fn 件数(&self) -> usize {
+        self.件数
+    }
+
+    pub const fn 取得(&self, 位置: usize) -> 有無<歴史記録> {
+        if 位置 < self.件数 {
+            self.記録[位置]
+        } else {
+            有無::無い
+        }
+    }
+}
+
+pub const fn 原初系譜() -> 系譜台帳<8> {
+    系譜台帳 {
+        記録: [
+            有無::有る(歴史記録 {
+                人物: 人物::豊田佐吉,
+                原問題: 原問題::母の機織りが重労働である,
+                発明: 発明::人力織機,
+                不変条件: 不変条件::人を番人にしない,
+            }),
+            有無::有る(歴史記録 {
+                人物: 人物::豊田佐吉,
+                原問題: 原問題::糸切れ後も織機が動き続ける,
+                発明: 発明::異常自動停止,
+                不変条件: 不変条件::異常なら止まる,
+            }),
+            有無::有る(歴史記録 {
+                人物: 人物::豊田喜一郎,
+                原問題: 原問題::資金と資材が不足している,
+                発明: 発明::必要時生産,
+                不変条件: 不変条件::必要量を越えて作らない,
+            }),
+            有無::有る(歴史記録 {
+                人物: 人物::大野耐一,
+                原問題: 原問題::作り過ぎた在庫が停滞する,
+                発明: 発明::後工程引取り,
+                不変条件: 不変条件::後工程の引取りなしに補充しない,
+            }),
+            有無::無い,
+            有無::無い,
+            有無::無い,
+            有無::無い,
+        ],
+        件数: 4,
+    }
+}
+""" .
+
+tcps:系譜Module tcps:dependsOnModule tcps:語彙Module .
+
+tcps:系譜Module rdfs:comment "historical lineage ledger of TPS inventions and invariants" .
+
+tcps:品質Module a tcps:Module ;
+    tcps:name "品質" ;
+    tcps:order 3 ;
+    tcps:sourceText """use crate::語彙::{工程番号, 数量, 時刻};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 異常 {
+    糸切れ,
+    品質不良,
+    設備異常,
+    作業遅れ,
+    部品不足,
+    標準逸脱,
+    権限不足,
+    時間超過,
+    形状不適合,
+    方策矛盾,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 品質判定 {
+    良,
+    異常(異常),
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 異常票 {
+    pub 工程: 工程番号,
+    pub 異常: 異常,
+    pub 発生時刻: 時刻,
+    pub 発生数量: 数量,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 良品 {
+    pub 工程: 工程番号,
+    pub 数量: 数量,
+    pub 完成時刻: 時刻,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 不良品 {
+    pub 工程: 工程番号,
+    pub 数量: 数量,
+    pub 異常: 異常,
+}
+""" .
+
+tcps:品質Module tcps:dependsOnModule tcps:語彙Module .
+
+tcps:品質Module rdfs:comment "quality judgment, defect, and anomaly types" .
+
+tcps:標準作業Module a tcps:Module ;
+    tcps:name "標準作業" ;
+    tcps:order 4 ;
+    tcps:sourceText """use crate::語彙::{周期, 工程番号, 数量, 成否, 有無, 標準番号};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 作業種別 {
+    取る,
+    置く,
+    加工する,
+    検査する,
+    運ぶ,
+    待つ,
+    停止する,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 作業手順 {
+    pub 順番: u8,
+    pub 作業: 作業種別,
+    pub 工程: 工程番号,
+    pub 基準時間: 周期,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 標準手持ち {
+    pub 数量: 数量,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 標準状態 {
+    現行,
+    廃止,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 標準満杯;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 標準作業<const 上限: usize> {
+    pub 標準番号: 標準番号,
+    pub 親標準: 有無<標準番号>,
+    pub 工程: 工程番号,
+    pub 周期: 周期,
+    pub 標準手持ち: 標準手持ち,
+    pub 状態: 標準状態,
+    手順: [有無<作業手順>; 上限],
+    手順数: usize,
+}
+
+impl<const 上限: usize> 標準作業<上限> {
+    pub const fn 新規(
+        標準番号: 標準番号,
+        親標準: 有無<標準番号>,
+        工程: 工程番号,
+        周期: 周期,
+        標準手持ち: 数量,
+    ) -> Self {
+        Self {
+            標準番号,
+            親標準,
+            工程,
+            周期,
+            標準手持ち: 標準手持ち { 数量: 標準手持ち },
+            状態: 標準状態::現行,
+            手順: [有無::無い; 上限],
+            手順数: 0,
+        }
+    }
+
+    pub fn 手順を追加する(&mut self, 作業: 作業種別, 基準時間: 周期) -> 成否<usize, 標準満杯> {
+        if self.手順数 >= 上限 {
+            return 成否::失敗(標準満杯);
+        }
+
+        let 位置 = self.手順数;
+        self.手順[位置] = 有無::有る(作業手順 {
+            順番: 位置 as u8,
+            作業,
+            工程: self.工程,
+            基準時間,
+        });
+        self.手順数 += 1;
+        成否::成功(位置)
+    }
+
+    pub const fn 手順数(&self) -> usize {
+        self.手順数
+    }
+
+    pub const fn 手順(&self, 位置: usize) -> 有無<作業手順> {
+        if 位置 < self.手順数 {
+            self.手順[位置]
+        } else {
+            有無::無い
+        }
+    }
+
+    pub fn 廃止する(&mut self) {
+        self.状態 = 標準状態::廃止;
+    }
+
+    pub const fn 現行か(&self) -> bool {
+        matches!(self.状態, 標準状態::現行)
+    }
+}
+""" .
+
+tcps:標準作業Module tcps:dependsOnModule tcps:語彙Module .
+
+tcps:標準作業Module rdfs:comment "standardized work definitions and procedure sequencing" .
+
+tcps:自働化Module a tcps:Module ;
+    tcps:name "自働化" ;
+    tcps:order 5 ;
+    tcps:sourceText """use core::marker::PhantomData as 状態印;
+
+use crate::品質::{品質判定, 異常票, 良品};
+use crate::語彙::{工程番号, 数量, 時刻};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 稼働中;
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 停止中;
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 対策中;
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 再開可能;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 生産線<状態> {
+    工程: 工程番号,
+    完成数量: 数量,
+    標準番号: u32,
+    状態: 状態印<状態>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 作業結果 {
+    良品完成 {
+        生産線: 生産線<稼働中>,
+        良品: 良品,
+    },
+    異常停止 {
+        生産線: 生産線<停止中>,
+        異常票: 異常票,
+    },
+}
+
+impl 生産線<稼働中> {
+    pub const fn 新設(工程: 工程番号, 標準番号: u32) -> Self {
+        Self {
+            工程,
+            完成数量: 0,
+            標準番号,
+            状態: 状態印,
+        }
+    }
+
+    pub fn 作業する(self, 判定: 品質判定, 現在時刻: 時刻) -> 作業結果 {
+        match 判定 {
+            品質判定::良 => {
+                let 次数量 = self.完成数量.saturating_add(1);
+                作業結果::良品完成 {
+                    生産線: Self {
+                        工程: self.工程,
+                        完成数量: 次数量,
+                        標準番号: self.標準番号,
+                        状態: 状態印,
+                    },
+                    良品: 良品 {
+                        工程: self.工程,
+                        数量: 1,
+                        完成時刻: 現在時刻,
+                    },
+                }
+            }
+            品質判定::異常(異常) => 作業結果::異常停止 {
+                生産線: 生産線 {
+                    工程: self.工程,
+                    完成数量: self.完成数量,
+                    標準番号: self.標準番号,
+                    状態: 状態印,
+                },
+                異常票: 異常票 {
+                    工程: self.工程,
+                    異常,
+                    発生時刻: 現在時刻,
+                    発生数量: self.完成数量,
+                },
+            },
+        }
+    }
+}
+
+impl<状態> 生産線<状態> {
+    pub const fn 工程(&self) -> 工程番号 {
+        self.工程
+    }
+
+    pub const fn 完成数量(&self) -> 数量 {
+        self.完成数量
+    }
+
+    pub const fn 標準番号(&self) -> u32 {
+        self.標準番号
+    }
+
+    pub(crate) const fn 状態を変える<次状態>(self, 標準番号: u32) -> 生産線<次状態> {
+        生産線 {
+            工程: self.工程,
+            完成数量: self.完成数量,
+            標準番号,
+            状態: 状態印,
+        }
+    }
+}
+""" .
+
+tcps:自働化Module tcps:dependsOnModule tcps:品質Module .
+tcps:自働化Module tcps:dependsOnModule tcps:語彙Module .
+
+tcps:自働化Module rdfs:comment "self-working automation state machine (jidoka)" .
+
+tcps:かんばんModule a tcps:Module ;
+    tcps:name "かんばん" ;
+    tcps:order 6 ;
+    tcps:sourceText """use crate::語彙::{工程番号, 品目番号, 数量, 時刻};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum かんばん種別 {
+    引取り,
+    生産指示,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct かんばん {
+    pub 種別: かんばん種別,
+    pub 前工程: 工程番号,
+    pub 後工程: 工程番号,
+    pub 品目: 品目番号,
+    pub 数量: 数量,
+    pub 必要時刻: 時刻,
+    pub 連番: u64,
+}
+
+impl かんばん {
+    pub const fn 引取り(
+        前工程: 工程番号,
+        後工程: 工程番号,
+        品目: 品目番号,
+        数量: 数量,
+        必要時刻: 時刻,
+        連番: u64,
+    ) -> Self {
+        Self {
+            種別: かんばん種別::引取り,
+            前工程,
+            後工程,
+            品目,
+            数量,
+            必要時刻,
+            連番,
+        }
+    }
+
+    pub const fn 生産指示へ変える(self) -> Self {
+        Self {
+            種別: かんばん種別::生産指示,
+            ..self
+        }
+    }
+}
+""" .
+
+tcps:かんばんModule tcps:dependsOnModule tcps:語彙Module .
+
+tcps:かんばんModule rdfs:comment "kanban card types and state transitions" .
+
+tcps:必要時生産Module a tcps:Module ;
+    tcps:name "必要時生産" ;
+    tcps:order 7 ;
+    tcps:sourceText """use crate::かんばん::かんばん;
+use crate::語彙::{工程番号, 品目番号, 数量, 成否, 時刻};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 後工程要求 {
+    pub 後工程: 工程番号,
+    pub 品目: 品目番号,
+    pub 必要数量: 数量,
+    pub 必要時刻: 時刻,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 手持ち {
+    pub 品目: 品目番号,
+    pub 数量: 数量,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 補充指示 {
+    pub 工程: 工程番号,
+    pub 品目: 品目番号,
+    pub 補充数量: 数量,
+    pub 必要時刻: 時刻,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 不足 {
+    pub 必要数量: 数量,
+    pub 現在数量: 数量,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 作り過ぎ {
+    pub 生産数量: 数量,
+    pub 引取数量: 数量,
+    pub 超過数量: 数量,
+}
+
+pub const fn かんばんを発行する(
+    前工程: 工程番号,
+    要求: 後工程要求,
+    連番: u64,
+) -> かんばん {
+    かんばん::引取り(
+        前工程,
+        要求.後工程,
+        要求.品目,
+        要求.必要数量,
+        要求.必要時刻,
+        連番,
+    )
+}
+
+pub fn 引き取る(
+    mut 手持ち: 手持ち,
+    札: かんばん,
+) -> 成否<(手持ち, 補充指示), 不足> {
+    if 手持ち.数量 < 札.数量 {
+        return 成否::失敗(不足 {
+            必要数量: 札.数量,
+            現在数量: 手持ち.数量,
+        });
+    }
+
+    手持ち.数量 -= 札.数量;
+    成否::成功((
+        手持ち,
+        補充指示 {
+            工程: 札.前工程,
+            品目: 札.品目,
+            補充数量: 札.数量,
+            必要時刻: 札.必要時刻,
+        },
+    ))
+}
+
+pub const fn 作り過ぎを判定する(
+    生産数量: 数量,
+    引取数量: 数量,
+) -> 成否<(), 作り過ぎ> {
+    if 生産数量 > 引取数量 {
+        成否::失敗(作り過ぎ {
+            生産数量,
+            引取数量,
+            超過数量: 生産数量 - 引取数量,
+        })
+    } else {
+        成否::成功(())
+    }
+}
+""" .
+
+tcps:必要時生産Module tcps:dependsOnModule tcps:かんばんModule .
+tcps:必要時生産Module tcps:dependsOnModule tcps:語彙Module .
+
+tcps:必要時生産Module rdfs:comment "just-in-time production pull logic" .
+
+tcps:平準化Module a tcps:Module ;
+    tcps:name "平準化" ;
+    tcps:order 8 ;
+    tcps:sourceText """use crate::語彙::{工程番号, 品目番号, 数量, 成否, 有無};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 生産枠 {
+    pub 順番: u16,
+    pub 工程: 工程番号,
+    pub 品目: 品目番号,
+    pub 数量: 数量,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 平準化箱満杯;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 平準化箱<const 上限: usize> {
+    枠: [有無<生産枠>; 上限],
+    件数: usize,
+}
+
+impl<const 上限: usize> 平準化箱<上限> {
+    pub const fn 空() -> Self {
+        Self {
+            枠: [有無::無い; 上限],
+            件数: 0,
+        }
+    }
+
+    pub fn 追加する(
+        &mut self,
+        工程: 工程番号,
+        品目: 品目番号,
+        数量: 数量,
+    ) -> 成否<usize, 平準化箱満杯> {
+        if self.件数 >= 上限 {
+            return 成否::失敗(平準化箱満杯);
+        }
+
+        let 位置 = self.件数;
+        self.枠[位置] = 有無::有る(生産枠 {
+            順番: 位置 as u16,
+            工程,
+            品目,
+            数量,
+        });
+        self.件数 += 1;
+        成否::成功(位置)
+    }
+
+    pub const fn 件数(&self) -> usize {
+        self.件数
+    }
+
+    pub const fn 取得(&self, 位置: usize) -> 有無<生産枠> {
+        if 位置 < self.件数 {
+            self.枠[位置]
+        } else {
+            有無::無い
+        }
+    }
+}
+""" .
+
+tcps:平準化Module tcps:dependsOnModule tcps:語彙Module .
+
+tcps:平準化Module rdfs:comment "production leveling (heijunka) scheduling box" .
+
+tcps:アンドンModule a tcps:Module ;
+    tcps:name "アンドン" ;
+    tcps:order 9 ;
+    tcps:sourceText """use crate::品質::異常;
+use crate::語彙::{工程番号, 時刻, 成否, 有無};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 灯色 {
+    緑,
+    黄,
+    赤,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 呼出し {
+    pub 工程: 工程番号,
+    pub 灯色: 灯色,
+    pub 異常: 有無<異常>,
+    pub 時刻: 時刻,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 呼出し満杯;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct アンドン盤<const 上限: usize> {
+    呼出し: [有無<呼出し>; 上限],
+    件数: usize,
+}
+
+impl<const 上限: usize> アンドン盤<上限> {
+    pub const fn 新規() -> Self {
+        Self {
+            呼出し: [有無::無い; 上限],
+            件数: 0,
+        }
+    }
+
+    pub fn 点灯する(&mut self, 呼出し: 呼出し) -> 成否<usize, 呼出し満杯> {
+        if self.件数 >= 上限 {
+            return 成否::失敗(呼出し満杯);
+        }
+        let 位置 = self.件数;
+        self.呼出し[位置] = 有無::有る(呼出し);
+        self.件数 += 1;
+        成否::成功(位置)
+    }
+
+    pub const fn 件数(&self) -> usize {
+        self.件数
+    }
+}
+""" .
+
+tcps:アンドンModule tcps:dependsOnModule tcps:品質Module .
+tcps:アンドンModule tcps:dependsOnModule tcps:語彙Module .
+
+tcps:アンドンModule rdfs:comment "andon signal board and call escalation" .
+
+tcps:改善Module a tcps:Module ;
+    tcps:name "改善" ;
+    tcps:order 10 ;
+    tcps:sourceText """use crate::品質::異常票;
+use crate::標準作業_impl::標準作業;
+use crate::自働化::{停止中, 再開可能, 対策中, 生産線, 稼働中};
+use crate::語彙::{改善番号, 成否, 標準番号};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 真因 {
+    標準不足,
+    設計不足,
+    検知不足,
+    教育不足,
+    部品供給不足,
+    工程能力不足,
+    権限設計不足,
+    方策設計不足,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 対策 {
+    標準変更,
+    検知追加,
+    ポカヨケ追加,
+    工程分割,
+    能力増強,
+    供給順序変更,
+    権限境界追加,
+    方策再コンパイル,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 改善票 {
+    pub 改善番号: 改善番号,
+    pub 元異常: 異常票,
+    pub 真因: 真因,
+    pub 対策: 対策,
+    pub 旧標準: 標準番号,
+    pub 新標準: 標準番号,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 標準不一致 {
+    pub 生産線標準: 標準番号,
+    pub 改善旧標準: 標準番号,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 対策工程 {
+    pub 生産線: 生産線<対策中>,
+    pub 改善票: 改善票,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 再開工程 {
+    pub 生産線: 生産線<再開可能>,
+    pub 改善票: 改善票,
+}
+
+impl 生産線<停止中> {
+    pub fn 真因対策を登録する(
+        self,
+        改善票: 改善票,
+    ) -> 成否<対策工程, 標準不一致> {
+        if self.標準番号() != 改善票.旧標準 {
+            return 成否::失敗(標準不一致 {
+                生産線標準: self.標準番号(),
+                改善旧標準: 改善票.旧標準,
+            });
+        }
+
+        成否::成功(対策工程 {
+            生産線: self.状態を変える(改善票.旧標準),
+            改善票,
+        })
+    }
+}
+
+impl 対策工程 {
+    pub const fn 対策を完了する(self) -> 再開工程 {
+        再開工程 {
+            生産線: self.生産線.状態を変える(self.改善票.新標準),
+            改善票: self.改善票,
+        }
+    }
+}
+
+impl 再開工程 {
+    pub fn 標準を更新して再開する<const 上限: usize>(
+        self,
+        旧標準: &mut 標準作業<上限>,
+        新標準: &標準作業<上限>,
+    ) -> 成否<生産線<稼働中>, 標準不一致> {
+        if 旧標準.標準番号 != self.改善票.旧標準
+            || 新標準.標準番号 != self.改善票.新標準
+            || 新標準.親標準 != crate::語彙::有無::有る(旧標準.標準番号)
+        {
+            return 成否::失敗(標準不一致 {
+                生産線標準: self.改善票.新標準,
+                改善旧標準: 旧標準.標準番号,
+            });
+        }
+
+        旧標準.廃止する();
+        成否::成功(self.生産線.状態を変える(新標準.標準番号))
+    }
+}
+""" .
+
+tcps:改善Module tcps:dependsOnModule tcps:品質Module .
+tcps:改善Module tcps:dependsOnModule tcps:標準作業Module .
+tcps:改善Module tcps:dependsOnModule tcps:自働化Module .
+tcps:改善Module tcps:dependsOnModule tcps:語彙Module .
+
+tcps:改善Module rdfs:comment "continuous improvement (kaizen) root-cause and countermeasure workflow" .
+
+tcps:受領証Module a tcps:Module ;
+    tcps:name "受領証" ;
+    tcps:order 11 ;
+    tcps:sourceText """use crate::品質::異常;
+use crate::語彙::{受領番号, 工程番号, 時刻, 有無, 標準番号, 道具番号, 理由番号};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 受領種別 {
+    生産,
+    停止,
+    改善,
+    標準更新,
+    引取り,
+    補充,
+    選択,
+    許可,
+    実行,
+    拒否,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 要約値(pub [u8; 32]);
+
+impl 要約値 {
+    pub const fn 零() -> Self {
+        Self([0; 32])
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 受領証 {
+    pub 受領番号: 受領番号,
+    pub 種別: 受領種別,
+    pub 工程: 工程番号,
+    pub 時刻: 時刻,
+    pub 標準番号: 標準番号,
+    pub 異常: 有無<異常>,
+    pub 道具: 有無<道具番号>,
+    pub 理由: 有無<理由番号>,
+    pub 前要約: 要約値,
+    pub 後要約: 要約値,
+}
+
+pub const fn 簡易要約(入力: &[u8]) -> 要約値 {
+    let mut 出力 = [0u8; 32];
+    let mut 位置 = 0usize;
+    let mut 状態 = 0xcbf29ce484222325u64;
+
+    while 位置 < 入力.len() {
+        状態 ^= 入力[位置] as u64;
+        状態 = 状態.wrapping_mul(0x100000001b3);
+        let 箱 = 位置 & 31;
+        出力[箱] = 出力[箱].wrapping_add((状態 >> ((箱 & 7) * 8)) as u8);
+        位置 += 1;
+    }
+
+    要約値(出力)
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 受領台帳<const 上限: usize> {
+    記録: [crate::語彙::有無<受領証>; 上限],
+    件数: usize,
+}
+
+impl<const 上限: usize> 受領台帳<上限> {
+    pub const fn 空() -> Self {
+        Self {
+            記録: [crate::語彙::有無::無い; 上限],
+            件数: 0,
+        }
+    }
+
+    pub fn 追加する(&mut self, 受領証: 受領証) -> crate::語彙::成否<usize, ()> {
+        if self.件数 >= 上限 {
+            return crate::語彙::成否::失敗(());
+        }
+        let 位置 = self.件数;
+        self.記録[位置] = crate::語彙::有無::有る(受領証);
+        self.件数 += 1;
+        crate::語彙::成否::成功(位置)
+    }
+
+    pub const fn 件数(&self) -> usize {
+        self.件数
+    }
+}
+""" .
+
+tcps:受領証Module tcps:dependsOnModule tcps:品質Module .
+tcps:受領証Module tcps:dependsOnModule tcps:語彙Module .
+
+tcps:受領証Module rdfs:comment "cryptographic receipt chain for process steps" .
+
+tcps:自動選択Module a tcps:Module ;
+    tcps:name "自動選択" ;
+    tcps:order 12 ;
+    tcps:sourceText """use crate::受領証_impl::{簡易要約, 受領種別, 受領証, 要約値};
+use crate::語彙::{方策番号, 時刻, 有無, 権限印, 準備印, 理由番号, 質量, 道具番号, 適格印, 経路番号};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 認知品種 {
+    正確なグラフ検索,
+    決定的規則推論,
+    近似意味検索,
+    計画器,
+    検証器,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 測度 {
+    pub 意味適合: u8,
+    pub 証拠適合: u8,
+    pub 権限適合: u8,
+    pub 時間適合: u8,
+    pub 後工程適合: u8,
+    pub 信頼度: u8,
+    pub 費用適合: u8,
+}
+
+impl 測度 {
+    pub const fn 最小値(self) -> u8 {
+        let mut 値 = self.意味適合;
+        if self.証拠適合 < 値 { 値 = self.証拠適合; }
+        if self.権限適合 < 値 { 値 = self.権限適合; }
+        if self.時間適合 < 値 { 値 = self.時間適合; }
+        if self.後工程適合 < 値 { 値 = self.後工程適合; }
+        if self.信頼度 < 値 { 値 = self.信頼度; }
+        if self.費用適合 < 値 { 値 = self.費用適合; }
+        値
+    }
+
+    pub const fn 乗法質量(self) -> 質量 {
+        let 値 = self.最小値() as u16;
+        値.saturating_mul(値)
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 候補 {
+    pub 道具: 道具番号,
+    pub 経路: 経路番号,
+    pub 品種: 認知品種,
+    pub 必要権限: 権限印,
+    pub 必要準備: 準備印,
+    pub 決定的: bool,
+    pub 受領証対応: bool,
+    pub 予測時間: u32,
+    pub 測度: 測度,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 方策<const 上限: usize> {
+    pub 方策番号: 方策番号,
+    pub 候補: [有無<候補>; 上限],
+    pub 件数: usize,
+    pub 方策要約: 要約値,
+}
+
+impl<const 上限: usize> 方策<上限> {
+    pub const fn 空(方策番号: 方策番号, 方策要約: 要約値) -> Self {
+        Self {
+            方策番号,
+            候補: [有無::無い; 上限],
+            件数: 0,
+            方策要約,
+        }
+    }
+
+    pub fn 候補を追加する(&mut self, 候補: 候補) -> crate::語彙::成否<usize, ()> {
+        if self.件数 >= 上限 {
+            return crate::語彙::成否::失敗(());
+        }
+        let 位置 = self.件数;
+        self.候補[位置] = 有無::有る(候補);
+        self.件数 += 1;
+        crate::語彙::成否::成功(位置)
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 選択要求 {
+    pub 取得権限: 権限印,
+    pub 準備完了: 準備印,
+    pub 最大時間: u32,
+    pub 決定性必須: bool,
+    pub 受領証必須: bool,
+    pub 時刻: 時刻,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 拒否理由 {
+    適格候補なし,
+    準備候補なし,
+    権限不足,
+    決定性不足,
+    受領証不足,
+    時間超過,
+    方策矛盾,
+}
+
+impl 拒否理由 {
+    pub const fn 番号(self) -> 理由番号 {
+        match self {
+            Self::適格候補なし => 1,
+            Self::準備候補なし => 2,
+            Self::権限不足 => 3,
+            Self::決定性不足 => 4,
+            Self::受領証不足 => 5,
+            Self::時間超過 => 6,
+            Self::方策矛盾 => 7,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 選択提案 {
+    pub 道具: 道具番号,
+    pub 経路: 経路番号,
+    pub 質量: 質量,
+    pub 適格候補: 適格印,
+    pub 準備候補: 準備印,
+    pub 方策番号: 方策番号,
+    pub 方策要約: 要約値,
+    pub 受領証: 受領証,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 選択結果 {
+    選択(選択提案),
+    拒否 {
+        理由: 拒否理由,
+        適格候補: 適格印,
+        準備候補: 準備印,
+        受領証: 受領証,
+    },
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 作業領域<const 上限: usize> {
+    pub 質量: [質量; 上限],
+}
+
+impl<const 上限: usize> 作業領域<上限> {
+    pub const fn 新規() -> Self {
+        Self { 質量: [0; 上限] }
+    }
+}
+
+pub fn 選択する<const 上限: usize>(
+    方策: &方策<上限>,
+    要求: 選択要求,
+    作業領域: &mut 作業領域<上限>,
+) -> 選択結果 {
+    let mut 適格候補 = 0u64;
+    let mut 準備候補 = 0u64;
+    let mut 最良位置 = 有無::無い;
+    let mut 最良質量 = 0u16;
+    let mut 位置 = 0usize;
+
+    while 位置 < 方策.件数 {
+        if let 有無::有る(候補) = 方策.候補[位置] {
+            let 権限適合 = (要求.取得権限 & 候補.必要権限) == 候補.必要権限;
+            let 決定性適合 = !要求.決定性必須 || 候補.決定的;
+            let 受領証適合 = !要求.受領証必須 || 候補.受領証対応;
+            let 時間適合 = 候補.予測時間 <= 要求.最大時間;
+            let 適格 = 権限適合 && 決定性適合 && 受領証適合 && 時間適合;
+            let 準備 = 適格 && (要求.準備完了 & 候補.必要準備) == 候補.必要準備;
+            let 印 = 1u64 << 位置;
+
+            if 適格 {
+                適格候補 |= 印;
+            }
+            if 準備 {
+                準備候補 |= 印;
+                let 質量 = 候補.測度.乗法質量();
+                作業領域.質量[位置] = 質量;
+                if 質量 > 最良質量 || (質量 == 最良質量 && 最良位置.無いか()) {
+                    最良質量 = 質量;
+                    最良位置 = 有無::有る(位置);
+                }
+            }
+        }
+        位置 += 1;
+    }
+
+    let 入力要約 = 簡易要約(&要求.取得権限.to_le_bytes());
+
+    match 最良位置 {
+        有無::有る(最良位置) => {
+            let 候補 = match 方策.候補[最良位置] {
+                有無::有る(候補) => 候補,
+                有無::無い => {
+                    return 拒否を作る(
+                        方策,
+                        要求,
+                        拒否理由::方策矛盾,
+                        適格候補,
+                        準備候補,
+                        入力要約,
+                    );
+                }
+            };
+            let 受領証 = 受領証 {
+                受領番号: 要求.時刻,
+                種別: 受領種別::選択,
+                工程: 0,
+                時刻: 要求.時刻,
+                標準番号: 方策.方策番号,
+                異常: 有無::無い,
+                道具: 有無::有る(候補.道具),
+                理由: 有無::無い,
+                前要約: 入力要約,
+                後要約: 方策.方策要約,
+            };
+            選択結果::選択(選択提案 {
+                道具: 候補.道具,
+                経路: 候補.経路,
+                質量: 最良質量,
+                適格候補,
+                準備候補,
+                方策番号: 方策.方策番号,
+                方策要約: 方策.方策要約,
+                受領証,
+            })
+        }
+        有無::無い => {
+            let 理由 = if 適格候補 == 0 {
+                拒否理由::適格候補なし
+            } else {
+                拒否理由::準備候補なし
+            };
+            拒否を作る(
+                方策,
+                要求,
+                理由,
+                適格候補,
+                準備候補,
+                入力要約,
+            )
+        }
+    }
+}
+
+fn 拒否を作る<const 上限: usize>(
+    方策: &方策<上限>,
+    要求: 選択要求,
+    理由: 拒否理由,
+    適格候補: 適格印,
+    準備候補: 準備印,
+    入力要約: 要約値,
+) -> 選択結果 {
+    選択結果::拒否 {
+        理由,
+        適格候補,
+        準備候補,
+        受領証: 受領証 {
+            受領番号: 要求.時刻,
+            種別: 受領種別::拒否,
+            工程: 0,
+            時刻: 要求.時刻,
+            標準番号: 方策.方策番号,
+            異常: 有無::無い,
+            道具: 有無::無い,
+            理由: 有無::有る(理由.番号()),
+            前要約: 入力要約,
+            後要約: 方策.方策要約,
+        },
+    }
+}
+""" .
+
+tcps:自動選択Module tcps:dependsOnModule tcps:受領証Module .
+tcps:自動選択Module tcps:dependsOnModule tcps:語彙Module .
+
+tcps:自動選択Module rdfs:comment "automatic tool/route selection policy engine" .
+
+tcps:青い川のダムModule a tcps:Module ;
+    tcps:name "青い川のダム" ;
+    tcps:order 13 ;
+    tcps:sourceText """use crate::受領証_impl::{受領種別, 受領証};
+use crate::自動選択::選択提案;
+use crate::語彙::{成否, 時刻, 有無, 権限印, 道具番号};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 能力札 {
+    pub 許可道具: 道具番号,
+    pub 権限: 権限印,
+    pub 有効期限: 時刻,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 許可済み選択 {
+    提案: 選択提案,
+    能力札: 能力札,
+    許可受領証: 受領証,
+}
+
+impl 許可済み選択 {
+    pub const fn 道具(&self) -> 道具番号 {
+        self.提案.道具
+    }
+
+    pub const fn 提案(&self) -> 選択提案 {
+        self.提案
+    }
+
+    pub const fn 許可受領証(&self) -> 受領証 {
+        self.許可受領証
+    }
+
+    pub const fn 能力札(&self) -> 能力札 {
+        self.能力札
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 許可拒否 {
+    道具不一致,
+    期限切れ,
+    権限なし,
+    方策不一致,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 仲介者 {
+    pub 必要権限: 権限印,
+    pub 方策要約: crate::受領証_impl::要約値,
+}
+
+impl 仲介者 {
+    pub fn 許可する(
+        &self,
+        提案: 選択提案,
+        能力札: 能力札,
+        現在時刻: 時刻,
+    ) -> 成否<許可済み選択, 許可拒否> {
+        if 能力札.許可道具 != 提案.道具 {
+            return 成否::失敗(許可拒否::道具不一致);
+        }
+        if 現在時刻 > 能力札.有効期限 {
+            return 成否::失敗(許可拒否::期限切れ);
+        }
+        if (能力札.権限 & self.必要権限) != self.必要権限 {
+            return 成否::失敗(許可拒否::権限なし);
+        }
+        if 提案.方策要約 != self.方策要約 {
+            return 成否::失敗(許可拒否::方策不一致);
+        }
+
+        let 許可受領証 = 受領証 {
+            受領番号: 現在時刻,
+            種別: 受領種別::許可,
+            工程: 0,
+            時刻: 現在時刻,
+            標準番号: 提案.方策番号,
+            異常: 有無::無い,
+            道具: 有無::有る(提案.道具),
+            理由: 有無::無い,
+            前要約: 提案.受領証.後要約,
+            後要約: self.方策要約,
+        };
+
+        成否::成功(許可済み選択 {
+            提案,
+            能力札,
+            許可受領証,
+        })
+    }
+}
+
+pub trait 実行器 {
+    type 成果;
+    type 失敗;
+
+    fn 実行する(
+        &mut self,
+        許可: 許可済み選択,
+        現在時刻: 時刻,
+    ) -> 成否<(Self::成果, 受領証), Self::失敗>;
+}
+""" .
+
+tcps:青い川のダムModule tcps:dependsOnModule tcps:受領証Module .
+tcps:青い川のダムModule tcps:dependsOnModule tcps:自動選択Module .
+tcps:青い川のダムModule tcps:dependsOnModule tcps:語彙Module .
+
+tcps:青い川のダムModule rdfs:comment "authorization gate mediating selection against capability tokens" .
+
+tcps:全体Module a tcps:Module ;
+    tcps:name "全体" ;
+    tcps:order 14 ;
+    tcps:sourceText """use crate::原点::原点;
+use crate::系譜::{原初系譜, 系譜台帳};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 自働化柱 {
+    pub 異常検知: bool,
+    pub 異常停止: bool,
+    pub 不良流出防止: bool,
+    pub 人を番人にしない: bool,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 必要時生産柱 {
+    pub 必要なものだけ: bool,
+    pub 必要な時だけ: bool,
+    pub 必要な量だけ: bool,
+    pub 停滞させない: bool,
+    pub 売れた速さで作る: bool,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 豊田生産方式 {
+    pub 原点: 原点,
+    pub 自働化: 自働化柱,
+    pub 必要時生産: 必要時生産柱,
+    pub 系譜: 系譜台帳<8>,
+}
+
+impl 豊田生産方式 {
+    pub const fn 原初形() -> Self {
+        Self {
+            原点: 原点::誰かのために,
+            自働化: 自働化柱 {
+                異常検知: true,
+                異常停止: true,
+                不良流出防止: true,
+                人を番人にしない: true,
+            },
+            必要時生産: 必要時生産柱 {
+                必要なものだけ: true,
+                必要な時だけ: true,
+                必要な量だけ: true,
+                停滞させない: true,
+                売れた速さで作る: true,
+            },
+            系譜: 原初系譜(),
+        }
+    }
+
+    pub const fn 二本柱が閉じている(&self) -> bool {
+        self.自働化.異常検知
+            && self.自働化.異常停止
+            && self.自働化.不良流出防止
+            && self.自働化.人を番人にしない
+            && self.必要時生産.必要なものだけ
+            && self.必要時生産.必要な時だけ
+            && self.必要時生産.必要な量だけ
+            && self.必要時生産.停滞させない
+            && self.必要時生産.売れた速さで作る
+    }
+}
+""" .
+
+tcps:全体Module tcps:dependsOnModule tcps:原点Module .
+tcps:全体Module tcps:dependsOnModule tcps:系譜Module .
+
+tcps:全体Module rdfs:comment "whole-system composition of the two TPS pillars" .
+
+tcps:現地現物Module a tcps:Module ;
+    tcps:name "現地現物" ;
+    tcps:order 15 ;
+    tcps:sourceText """use crate::品質::異常;
+use crate::語彙::{工程番号, 時刻, 有無};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 観察種別 {
+    現物確認,
+    作業確認,
+    流れ確認,
+    標準確認,
+    異常確認,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 現地観察 {
+    pub 工程: 工程番号,
+    pub 種別: 観察種別,
+    pub 時刻: 時刻,
+    pub 異常: 有無<異常>,
+    pub 観察者番号: u32,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 観察立脚点 {
+    未確認,
+    現地確認済み(現地観察),
+}
+
+impl 観察立脚点 {
+    pub const fn 現地確認済みか(&self) -> bool {
+        matches!(self, Self::現地確認済み(_))
+    }
+}
+""" .
+
+tcps:現地現物Module tcps:dependsOnModule tcps:品質Module .
+tcps:現地現物Module tcps:dependsOnModule tcps:語彙Module .
+
+tcps:現地現物Module rdfs:comment "go-and-see on-site observation grounding" .
+
+tcps:ポカヨケModule a tcps:Module ;
+    tcps:name "ポカヨケ" ;
+    tcps:order 16 ;
+    tcps:sourceText """use crate::語彙::{成否, 理由番号};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 通過;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 防止理由 {
+    pub 理由番号: 理由番号,
+}
+
+pub trait 防止条件<入力> {
+    fn 検査する(&self, 入力: &入力) -> 成否<通過, 防止理由>;
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 範囲防止 {
+    pub 最小: u32,
+    pub 最大: u32,
+    pub 理由番号: 理由番号,
+}
+
+impl 防止条件<u32> for 範囲防止 {
+    fn 検査する(&self, 入力: &u32) -> 成否<通過, 防止理由> {
+        if *入力 < self.最小 || *入力 > self.最大 {
+            成否::失敗(防止理由 { 理由番号: self.理由番号 })
+        } else {
+            成否::成功(通過)
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 一致防止 {
+    pub 必要印: u64,
+    pub 理由番号: 理由番号,
+}
+
+impl 防止条件<u64> for 一致防止 {
+    fn 検査する(&self, 入力: &u64) -> 成否<通過, 防止理由> {
+        if (*入力 & self.必要印) == self.必要印 {
+            成否::成功(通過)
+        } else {
+            成否::失敗(防止理由 { 理由番号: self.理由番号 })
+        }
+    }
+}
+""" .
+
+tcps:ポカヨケModule tcps:dependsOnModule tcps:語彙Module .
+
+tcps:ポカヨケModule rdfs:comment "poka-yoke mistake-proofing guard conditions" .
+
+tcps:五回なぜModule a tcps:Module ;
+    tcps:name "五回なぜ" ;
+    tcps:order 17 ;
+    tcps:sourceText """use crate::語彙::{成否, 有無};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct なぜ {
+    pub 段: u8,
+    pub 原因番号: u32,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct なぜ満杯;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 五回なぜ {
+    記録: [有無<なぜ>; 5],
+    件数: usize,
+}
+
+impl 五回なぜ {
+    pub const fn 新規() -> Self {
+        Self {
+            記録: [有無::無い; 5],
+            件数: 0,
+        }
+    }
+
+    pub fn 追加する(&mut self, 原因番号: u32) -> 成否<usize, なぜ満杯> {
+        if self.件数 >= 5 {
+            return 成否::失敗(なぜ満杯);
+        }
+        let 位置 = self.件数;
+        self.記録[位置] = 有無::有る(なぜ {
+            段: (位置 + 1) as u8,
+            原因番号,
+        });
+        self.件数 += 1;
+        成否::成功(位置)
+    }
+
+    pub const fn 件数(&self) -> usize {
+        self.件数
+    }
+
+    pub const fn 最後(&self) -> 有無<なぜ> {
+        if self.件数 == 0 {
+            有無::無い
+        } else {
+            self.記録[self.件数 - 1]
+        }
+    }
+}
+""" .
+
+tcps:五回なぜModule tcps:dependsOnModule tcps:語彙Module .
+
+tcps:五回なぜModule rdfs:comment "five-whys root-cause drill-down ledger" .
+
+tcps:人間中心Module a tcps:Module ;
+    tcps:name "人間中心" ;
+    tcps:order 18 ;
+    tcps:sourceText """#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 人の役割 {
+    機械を見張る,
+    標準を実行する,
+    異常を判断する,
+    真因を調べる,
+    標準を改善する,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 人間中心判定 {
+    pub 機械監視から解放: bool,
+    pub 問題解決へ集中: bool,
+    pub 安全確保: bool,
+    pub 技能向上: bool,
+}
+
+impl 人間中心判定 {
+    pub const fn 成立する(&self) -> bool {
+        self.機械監視から解放
+            && self.問題解決へ集中
+            && self.安全確保
+            && self.技能向上
+    }
+}
+""" .
+
+tcps:人間中心Module rdfs:comment "human-centered role and judgment model" .
+
+tcps:ムリムラムダModule a tcps:Module ;
+    tcps:name "ムリムラムダ" ;
+    tcps:order 19 ;
+    tcps:sourceText """use crate::語彙::{工程番号, 数量, 時刻, 有無};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 生産損失 {
+    ムリ,
+    ムラ,
+    ムダ,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ムダ種類 {
+    作り過ぎ,
+    手待ち,
+    運搬,
+    加工そのもの,
+    在庫,
+    動作,
+    不良,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 損失記録 {
+    pub 工程: 工程番号,
+    pub 生産損失: 生産損失,
+    pub ムダ種類: 有無<ムダ種類>,
+    pub 数量: 数量,
+    pub 時刻: 時刻,
+}
+
+pub const fn 作り過ぎ記録(
+    工程: 工程番号,
+    生産数量: 数量,
+    引取数量: 数量,
+    時刻: 時刻,
+) -> 有無<損失記録> {
+    if 生産数量 > 引取数量 {
+        有無::有る(損失記録 {
+            工程,
+            生産損失: 生産損失::ムダ,
+            ムダ種類: 有無::有る(ムダ種類::作り過ぎ),
+            数量: 生産数量 - 引取数量,
+            時刻,
+        })
+    } else {
+        有無::無い
+    }
+}
+""" .
+
+tcps:ムリムラムダModule tcps:dependsOnModule tcps:語彙Module .
+
+tcps:ムリムラムダModule rdfs:comment "overburden/unevenness/waste loss classification" .
+
+tcps:安全Module a tcps:Module ;
+    tcps:name "安全" ;
+    tcps:order 20 ;
+    tcps:sourceText """use crate::語彙::{成否, 理由番号};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 安全状態 {
+    安全,
+    危険,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 安全停止 {
+    pub 理由番号: 理由番号,
+}
+
+pub const fn 安全を確認する(
+    状態: 安全状態,
+    理由番号: 理由番号,
+) -> 成否<(), 安全停止> {
+    match 状態 {
+        安全状態::安全 => 成否::成功(()),
+        安全状態::危険 => 成否::失敗(安全停止 { 理由番号 }),
+    }
+}
+""" .
+
+tcps:安全Module tcps:dependsOnModule tcps:語彙Module .
+
+tcps:安全Module rdfs:comment "safety state confirmation and stop conditions" .
+
+tcps:タクトModule a tcps:Module ;
+    tcps:name "タクト" ;
+    tcps:order 21 ;
+    tcps:sourceText """use crate::語彙::{数量, 周期, 成否};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 稼働可能時間 {
+    pub 時間: 周期,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 顧客必要数 {
+    pub 数量: 数量,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 必要数なし;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct タクト時間 {
+    pub 周期: 周期,
+}
+
+pub const fn タクトを計算する(
+    稼働可能時間: 稼働可能時間,
+    顧客必要数: 顧客必要数,
+) -> 成否<タクト時間, 必要数なし> {
+    if 顧客必要数.数量 == 0 {
+        return 成否::失敗(必要数なし);
+    }
+
+    成否::成功(タクト時間 {
+        周期: 稼働可能時間.時間 / 顧客必要数.数量,
+    })
+}
+""" .
+
+tcps:タクトModule tcps:dependsOnModule tcps:語彙Module .
+
+tcps:タクトModule rdfs:comment "takt time calculation from customer demand" .
+
+tcps:価値流Module a tcps:Module ;
+    tcps:name "価値流" ;
+    tcps:order 22 ;
+    tcps:sourceText """use crate::語彙::{工程番号, 成否, 有無};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 工程関係 {
+    pub 前工程: 工程番号,
+    pub 後工程: 工程番号,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 価値流満杯;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 価値流<const 上限: usize> {
+    関係: [有無<工程関係>; 上限],
+    件数: usize,
+}
+
+impl<const 上限: usize> 価値流<上限> {
+    pub const fn 空() -> Self {
+        Self {
+            関係: [有無::無い; 上限],
+            件数: 0,
+        }
+    }
+
+    pub fn 接続する(
+        &mut self,
+        前工程: 工程番号,
+        後工程: 工程番号,
+    ) -> 成否<usize, 価値流満杯> {
+        if self.件数 >= 上限 {
+            return 成否::失敗(価値流満杯);
+        }
+        let 位置 = self.件数;
+        self.関係[位置] = 有無::有る(工程関係 { 前工程, 後工程 });
+        self.件数 += 1;
+        成否::成功(位置)
+    }
+
+    pub const fn 次工程(
+        &self,
+        前工程: 工程番号,
+    ) -> 有無<工程番号> {
+        let mut 位置 = 0usize;
+        while 位置 < self.件数 {
+            if let 有無::有る(関係) = self.関係[位置] {
+                if 関係.前工程 == 前工程 {
+                    return 有無::有る(関係.後工程);
+                }
+            }
+            位置 += 1;
+        }
+        有無::無い
+    }
+
+    pub const fn 件数(&self) -> usize {
+        self.件数
+    }
+}
+""" .
+
+tcps:価値流Module tcps:dependsOnModule tcps:語彙Module .
+
+tcps:価値流Module rdfs:comment "value stream process linkage graph" .
+
+tcps:工程能力Module a tcps:Module ;
+    tcps:name "工程能力" ;
+    tcps:order 23 ;
+    tcps:sourceText """use crate::語彙::{数量, 周期, 成否};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 工程能力 {
+    pub 最大数量: 数量,
+    pub 最小周期: 周期,
+    pub 最大候補数: u16,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 能力要求 {
+    pub 必要数量: 数量,
+    pub 必要周期: 周期,
+    pub 候補数: u16,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum 能力超過 {
+    数量超過,
+    周期不足,
+    候補過多,
+}
+
+pub const fn 能力を判定する(
+    能力: 工程能力,
+    要求: 能力要求,
+) -> 成否<(), 能力超過> {
+    if 要求.必要数量 > 能力.最大数量 {
+        return 成否::失敗(能力超過::数量超過);
+    }
+    if 要求.必要周期 < 能力.最小周期 {
+        return 成否::失敗(能力超過::周期不足);
+    }
+    if 要求.候補数 > 能力.最大候補数 {
+        return 成否::失敗(能力超過::候補過多);
+    }
+    成否::成功(())
+}
+""" .
+
+tcps:工程能力Module tcps:dependsOnModule tcps:語彙Module .
+
+tcps:工程能力Module rdfs:comment "process capability limits and overcapacity judgment" .
+

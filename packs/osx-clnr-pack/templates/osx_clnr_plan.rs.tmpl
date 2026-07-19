@@ -98,3 +98,51 @@ pub fn select_oldest_snapshots(snapshots: &[String], n: usize) -> Vec<String> {
     dated.truncate(n);
     dated
 }
+
+/// Set-difference of two snapshot-name lists: every name present in `before`
+/// but absent from `after`, order preserved from `before`. Mirrors
+/// `oclnr::domain::time::identify_thinned_snapshots` exactly (source-verified
+/// 2026-07-19) -- this function has no free parameter for the ontology to
+/// supply (see `oclnr:identify-thinned-snapshots`'s comment in
+/// `ontology.ttl`), so it is transcribed here directly rather than templated
+/// from a SPARQL result set.
+pub fn identify_thinned_snapshots(before: &[String], after: &[String]) -> Vec<String> {
+    let after_set: std::collections::HashSet<&String> = after.iter().collect();
+    before.iter().filter(|s| !after_set.contains(s)).cloned().collect()
+}
+
+/// Terminal receipt of a local-snapshot-thinning execution. Mirrors
+/// `oclnr::domain::time::SnapshotThinReceipt` field-for-field (source-verified
+/// 2026-07-19; see `oclnr:SnapshotThinReceipt` in `ontology.ttl`).
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
+pub struct SnapshotThinReceipt {
+    pub volume: String,
+    pub requested_bytes: u64,
+    pub timestamp_unix: i64,
+    pub snapshots_before: Vec<String>,
+    pub snapshots_after: Vec<String>,
+    pub snapshots_thinned: Vec<String>,
+}
+
+impl SnapshotThinReceipt {
+    /// Mirrors `oclnr::domain::time::SnapshotThinReceipt::new` exactly: the
+    /// `snapshots_thinned` field is derived via `identify_thinned_snapshots`,
+    /// never supplied directly by the caller.
+    pub fn new(
+        volume: String,
+        requested_bytes: u64,
+        timestamp_unix: i64,
+        snapshots_before: Vec<String>,
+        snapshots_after: Vec<String>,
+    ) -> Self {
+        let snapshots_thinned = identify_thinned_snapshots(&snapshots_before, &snapshots_after);
+        Self {
+            volume,
+            requested_bytes,
+            timestamp_unix,
+            snapshots_before,
+            snapshots_after,
+            snapshots_thinned,
+        }
+    }
+}

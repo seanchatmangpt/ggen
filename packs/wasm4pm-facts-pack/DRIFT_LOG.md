@@ -67,6 +67,60 @@ once. This needs a `wasm4pm-algorithms-pack` maintainer/agent to apply the
 identical one-line fix in its own `ontology.ttl`; flagging here rather than
 editing that pack's files directly.
 
+## 2026-07-19 (later same day) — L5-push round-4: re-drifted a THIRD time, fixed, and now cross-verified by a fresh scratch consumer (not just the drift script)
+
+Re-ran `scripts/check_upstream_drift.sh ~/wasm4pm` (upstream still pinned at
+`b6fedcbef8d5fbdab4dbb9827226e802fe961a71`) at the start of this round, before
+any edits. Result: the *same* 2 individuals from the two prior entries above
+(`pi:Algo_optimized_dfg`, `pi:Algo_streaming_log`) had drifted back to
+`pi:wasmExport "discover_optimized_dfg"` / `"discover_streaming_log"` again,
+despite the 2026-07-19 entry immediately above claiming both were corrected
+earlier today. Exact same failure signature as the prior round; root cause
+of the *recurrence* (why a committed fix keeps reappearing stale — branch
+rebase, concurrent-session overwrite, or something else) is still not
+determined here, only the observable fact reconfirmed a third time.
+
+Re-fixed both lines in `ontology.ttl` to `pi:wasmExport "discover_dfg"`
+(upstream's actual value, confirmed byte-for-byte against
+`~/wasm4pm/ggen/ontology/algorithms.ttl` lines 190 and 273). Re-ran the
+script:
+
+```
+OK: breed individuals match upstream exactly (55 rows)
+OK: algorithm individuals match upstream exactly (60 rows)
+```
+
+Exit code 0.
+
+This round additionally verified the fix downstream of the ontology, not
+just in the drift script: built `ggen` (`cargo build -p ggen-cli-lib --bin
+ggen`), wired this pack alone into a fresh scratch consumer
+(`ggen.toml` with only `wasm4pm-facts-pack`, no sibling packs), ran
+`ggen sync run` for a real generation, then `cargo test` in that consumer.
+All 18 generated proof tests passed (6 in
+`wasm4pm_facts_pack_full_coverage_proof.rs`, 12 in
+`wasm4pm_facts_pack_registry_proof.rs`), and the generated
+`src/wasm4pm_facts_registry.rs` was grepped directly to confirm both
+`Algo_optimized_dfg`/`Algo_streaming_log` rows now carry
+`wasm_export: "discover_dfg"` — the fix reaches the actual generated
+artifact a consumer would compile against, not only the ontology source.
+
+**Still true, unchanged from the prior entry:** `packs/wasm4pm-algorithms-pack/ontology.ttl`
+still asserts the same two subject IRIs with the stale
+`discover_optimized_dfg`/`discover_streaming_log` values (not re-checked this
+round, but no evidence it was touched) — the cross-pack union-graph
+inconsistency for any consumer wiring both packs together remains open.
+Out of scope for this pack's own directory; flagged again for whichever
+session next touches `wasm4pm-algorithms-pack`.
+
+**Cannot verify against a live `examples/receiptctl` sync this round:** that
+consumer's `ggen.lock` was stale against unrelated concurrent changes to
+`chicago-tdd-tools-pack` in this working tree (a different pack's
+`shapes.ttl` now reports a violation against the receiptctl union graph),
+which blocked a full `ggen sync run` there independent of anything in this
+pack. Not fixed here — editing another pack's files is out of scope for this
+round; the scratch-consumer verification above is the substitute evidence.
+
 ## Known limitation
 
 This script requires a local `~/wasm4pm` checkout and is not wired into CI —

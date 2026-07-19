@@ -1,0 +1,9 @@
+---
+to: src/原点.rs
+force: true
+sparql:
+  rows: |
+    PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-core#>
+    SELECT ?source WHERE { tcps:原点Module tcps:sourceText ?source } ORDER BY ?source
+---
+{{ rows[0].source }}

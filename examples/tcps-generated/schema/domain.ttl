@@ -1,0 +1,9 @@
+# tcps-generated project ontology — this project needs zero project-specific
+# facts: both tcps-core-pack (24 no_std modules) and tcps-release-pack (CI
+# workflow / packaging manifests) are fully self-contained, driven entirely
+# from their own pack ontology.ttl individuals. Prefix declarations only,
+# matching the packs' own tcps: namespace (see ../../packs/tcps-core-pack/ontology.ttl).
+
+@prefix tcps: <http://seanchatmangpt.github.io/packs/tcps-core#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .

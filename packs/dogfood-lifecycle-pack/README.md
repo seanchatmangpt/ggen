@@ -257,10 +257,43 @@ or escalate session A's Obligation — verified by the
 `cross_session_same_agent_does_not_discharge_or_escalate` test above (fails closed: neither
 `dischargedBy` nor `escalatedBy` appears).
 
-Still NOT at L4: no IRI-collision fixture (two distinct real-world entities sharing one minted
-IRI by accident) and no deliberately-malformed-but-still-shape-valid Turtle fixture — this pass
-closes one specific adversarial conjunct (cross-session), not the full L4 "malformed/colliding/
-gamed" surface named by the audit.
+Still NOT at L4: no deliberately-malformed-but-still-shape-valid Turtle fixture — this pass
+closes one specific adversarial conjunct (cross-session) plus the IRI-collision conjunct below,
+not the full L4 "malformed/colliding/gamed" surface named by the audit.
+
+### Fire precision — IRI collision, L3 -> L4 (partial), ALIVE
+
+`fixtures/session-iri-collision.ttl` (new, this pass) closes the other named-missing conjunct
+above: two semantically DISTINCT real-world tool calls (a `Bash`/`Ok` call and a `Write`/
+`Blocked` call) accidentally minted under the SAME event IRI (`<#event-1>`), simulating a
+capture-hook bug (e.g. a sequence-index counter reset racing two hooks onto the same nominal
+slot). Turtle/RDF semantics merge two blocks describing the same subject into one node, so this
+fixture does not literally encode "two events" — it encodes what the merged graph actually looks
+like on disk if that bug occurs, and asks whether `shapes.ttl` catches the resulting
+Frankenstein node.
+
+Verified live, this session:
+
+```text
+$ ggen graph validate --files fixtures/session-iri-collision.ttl --shapes shapes.ttl
+ERROR: ... SHACL validation failed, 2 violation(s): focus node <...#event-1>: A tool event
+must carry exactly one skos:notation from the closed tool-name scheme. (source shape
+_:riog00000002); focus node <...#event-1>: A tool event must carry exactly one dfl:outcome
+from {dfl:Ok, dfl:Error, dfl:Blocked}. (source shape _:riog00000016)
+exit 1
+```
+
+The merge is caught by `dfl:ToolEventShape`'s existing `sh:maxCount 1` constraints on
+`skos:notation` and `dfl:outcome` — no bespoke collision-detection code was required, and no
+new shape was added to make this fail. Re-ran `session-good.ttl` against the same shapes file
+immediately after (`shapes_conform: true`, `exit 0`) to confirm this is a real discriminating
+result, not a broken shapes file failing everything.
+
+Still NOT at L4: this shows the collision is DETECTED (fails closed) once it has already
+happened and been captured; it does not show the capture hook itself is collision-resistant
+(e.g. that `dogfood_bump_invocation_counter`/the event-IRI-minting logic in
+`dogfood-lifecycle-capture.sh` cannot itself produce a collision under concurrent invocation) —
+that would require a concurrency test against the real hook script, not a hand-built fixture.
 
 ### Governance coverage — per-tool attribution, L3 -> L4, ALIVE
 

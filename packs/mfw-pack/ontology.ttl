@@ -46,6 +46,23 @@ mfw:Actuate              mfw:nextStage mfw:Receipt .
 mfw:Receipt              mfw:nextStage mfw:Replay .
 mfw:Replay               mfw:nextStage mfw:Observe .
 
+# Fidelity caveat (added this pass, after a live directory check against
+# ~/mfw): ~/mfw/AGENTS.md's own "Repository Authorities" table (the source
+# these 9 individuals are transcribed from) is explicit that this is a
+# governing authority MODEL, not a directory-existence claim -- "Resolve the
+# actual tree before assuming a listed path exists. Do not manufacture empty
+# directories or speculative subsystems merely to match this table."
+# (AGENTS.md, immediately below the table). A live `[ -d "$path" ]` check
+# against ~/mfw's on-disk tree this pass found only 3 of 9 (mfw-theory/,
+# docs/, receipts/) exist as literal top-level directories today;
+# ontology/, profiles/, transform/, runtime/, verifier/, and fixtures/ do
+# not exist at the repository root (some names appear only nested inside
+# individual crates, e.g. mfw-planner/fixtures/, which is a different path
+# than the top-level fixtures/ this table names). This is consistent with
+# AGENTS.md's own disclaimer, not a bug in this pack's transcription, but it
+# means mfw:path below encodes a normative authority-surface name, not a
+# verified filesystem fact -- do not generate code from this class that
+# treats mfw:path as a guaranteed-to-exist path.
 mfw:AuthoritySurface a rdfs:Class ; rdfs:label "MFW repository authority surface" .
 mfw:path a rdf:Property ; rdfs:domain mfw:AuthoritySurface ; rdfs:range xsd:string .
 

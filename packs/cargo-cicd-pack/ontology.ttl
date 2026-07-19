@@ -164,3 +164,34 @@ cc:release-gate-check a cnv:Command ; cnv:noun "release_gate" ; cnv:verb "check"
 
 # ── claude_context (source: src/nouns/claude_context.rs) -- NEW, added 2026-07-18
 cc:claude-context-show a cnv:Command ; cnv:noun "claude_context" ; cnv:verb "show" ; rdfs:comment "Shows the Claude agent context snapshot for the current repository." ; cc:sourceFile "src/nouns/claude_context.rs" ; cc:argCount 1 ; cc:args "repo:Option<String>" .
+
+# ── ROUND 4 (2026-07-19): error-contract facts, closing part of L3's
+# "error cases" gap that Round 3's header explicitly left open ("no
+# error/exit-code facts are modeled ... NounVerbError variant set was not
+# re-derivable ... in the time budget for this round").
+#
+# Re-audited against the real dependency this time: `~/clap-noun-verb`
+# (v26.6.2+, `src/error.rs`), not `~/cargo-cicd` itself -- confirmed every
+# `#[verb(...)]`-annotated `pub fn cmd_*` across all 21 `~/cargo-cicd/src/nouns/*.rs`
+# files returns exactly `clap_noun_verb::Result<()>` (`type Result<T> =
+# std::result::Result<T, NounVerbError>`), i.e. every one of the 51 live
+# commands can fail with any variant of the SAME error enum -- a real,
+# uniform, source-verified relation between the whole command catalog and
+# one error type, not per-command variance. Verified two ways: (1) grep for
+# "-> Result<()>" directly on the single-line `cmd_*` signatures (49/51
+# match; the other 2 -- doctor.rs's cmd_repo, trace.rs's cmd_profile -- wrap
+# across multiple lines and were checked by hand, same return type); (2) zero
+# occurrences of any OTHER return type across all 21 files.
+#
+# The 10 real `NounVerbError` variants below are transcribed directly from
+# `~/clap-noun-verb/src/error.rs` lines 11-51 (`#[derive(Error, Debug)]`,
+# `#[non_exhaustive]`) -- exact variant names, not paraphrased.
+cc:CommandContract a cc:ErrorContract ;
+  cc:returnType "clap_noun_verb::Result<()>" ;
+  cc:returnTypeSourceFile "src/nouns/*.rs (all 21 files, ~/cargo-cicd v26.7.6)" ;
+  cc:errorEnum "NounVerbError" ;
+  cc:errorEnumSourceFile "src/error.rs (~/clap-noun-verb, lines 11-51)" ;
+  cc:errorEnumNonExhaustive true ;
+  cc:errorVariant "CommandNotFound", "VerbNotFound", "InvalidStructure", "ExecutionError",
+    "ArgumentError", "PluginError", "ValidationFailed", "MiddlewareError", "TelemetryError",
+    "Generic" .

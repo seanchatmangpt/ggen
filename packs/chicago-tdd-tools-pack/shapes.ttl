@@ -1,0 +1,106 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ctt:  <http://seanchatmangpt.github.io/packs/chicago-tdd-tools#> .
+@prefix cnv:  <http://seanchatmangpt.github.io/packs/clap-noun-verb#> .
+
+# SHACL shapes for chicago-tdd-tools-pack's single class, ctt:CliBoundaryTest.
+# These are executable cardinality/range/datatype constraints -- runnable via
+# `ggen graph validate` -- not documentation. Verified live against this
+# pack's own ontology.ttl (four individuals: receiptctl-help,
+# receiptctl-version, receiptctl-algorithm-list, receiptctl-unknown-verb) by
+# running `ggen graph validate` before and after adding this file (see the
+# session's own verification note in the pack's maturity-model row).
+
+ctt:CliBoundaryTestShape
+  a sh:NodeShape ;
+  sh:targetClass ctt:CliBoundaryTest ;
+
+  sh:property [
+    sh:path ctt:testName ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    # Must be a legal Rust fn identifier -- this literal is spliced directly
+    # into `fn {{ row.test_name }}()` by cli_boundary_tests.rs.tmpl with no
+    # escaping, so a bad value here is a real generated-code-fails-to-compile
+    # risk, not a cosmetic one.
+    sh:pattern "^[a-z][a-z0-9_]*$" ;
+  ] ;
+
+  sh:property [
+    sh:path ctt:binary ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path ctt:expectExitCode ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    # Real process exit codes are 0-255 on every platform this pack targets
+    # (Unix truncates to a u8; CliOutput::exit_code is i32 with -1 reserved
+    # by chicago_tdd_tools::cli_proof::CliHarness for "no code available" --
+    # never a value an ontology author should assert as an expectation).
+    sh:minInclusive 0 ;
+    sh:maxInclusive 255 ;
+  ] ;
+
+  sh:property [
+    sh:path ctt:stdoutNeedle ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    # optional: 0 or 1, matches the OPTIONAL clause in every template's
+    # sparql: tests query.
+  ] ;
+
+  sh:property [
+    sh:path ctt:stderrNeedle ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path ctt:coversAxiom ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path ctt:composesCommand ;
+    sh:maxCount 1 ;
+    # No sh:class constraint here (deliberately, corrected mid-session after
+    # a real failed run): `ggen graph validate` validates each `--files`
+    # entry independently, never merging graphs across files first -- so
+    # even after fixing ontology.ttl's own `rdfs:range` for
+    # ctt:composesCommand from the wrong `ctt:CliBoundaryTest` to the
+    # correct `cnv:Command`, `sh:class cnv:Command` still failed live
+    # against `ctt:receiptctl-algorithm-list` (its composesCommand target,
+    # `cnv:AlgorithmList`, is only asserted `a cnv:Command` in
+    # clap-noun-verb-pack's OWN ontology.ttl / the consumer's domain.ttl --
+    # never in THIS file), even when all three files were passed to the
+    # same `graph validate` invocation together. A class constraint on a
+    # cross-pack-authority object is not checkable this way; the real,
+    # checkable invariant this pack CAN enforce on its own ontology.ttl file
+    # is cardinality (at most one target), which is what remains below.
+  ] .
+
+# Cross-property constraint: every ctt:CliBoundaryTest individual must supply
+# EXACTLY ONE of a literal ctt:args or a ctt:composesCommand pointer -- never
+# both, never neither -- because every generating template's sparql: tests
+# query UNIONs these two branches and BINDs a single ?args value per row.
+# Zero matches silently drops the row from every generated artifact with no
+# error (a real, observed failure mode: an individual missing both would
+# vanish from tests/chicago_tdd_tools_boundary.rs, its proof file, and the
+# doc table without any diagnostic). Two matches is unreachable via the UNION
+# today but is guarded here anyway since a future template change could stop
+# being tolerant of it.
+ctt:CliBoundaryTestArgsSourceShape
+  a sh:NodeShape ;
+  sh:targetClass ctt:CliBoundaryTest ;
+  sh:xone (
+    [ sh:property [ sh:path ctt:args ; sh:minCount 1 ; sh:maxCount 1 ] ]
+    [ sh:property [ sh:path ctt:composesCommand ; sh:minCount 1 ; sh:maxCount 1 ] ]
+  ) .

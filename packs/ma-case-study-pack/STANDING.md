@@ -67,6 +67,23 @@ entry for this pack:
   ontology.ttl --shapes shapes.ttl` and the same merged with `fixtures/case.ttl`/`case-2.ttl`:
   `shapes_conform: true` in all three cases (re-run this round).
 
+- **Committed, re-runnable CQ evidence (2026-07-19, L5-push pass)**: every `.rq` file's expected
+  answer up to this point had been verified only in an ephemeral scratch consumer outside this
+  repository (per each query's own header) — a real, disclosed gap named in
+  `docs/packs/L5_VALIDATION_REPORT.md`'s "Question coverage" line. Closed for 6 of the 24
+  committed queries (CQ1.1, CQ1.2, CQ2.1, CQ3.1, CQ3.2, CQ7.1 — concepts 1, 2, 3, 7) by
+  `crates/praxis-graphlaw/tests/ma_case_study_competency_questions.rs`: each query is loaded via
+  `include_str!` (byte-identical to the committed `.rq` file, not retyped) and executed for real
+  via `praxis_graphlaw::TripleStore::query` against `fixtures/case.ttl` and, for the two queries
+  whose own headers already claimed a cross-instance-different-answer property (CQ1.1, CQ7.1),
+  also against `fixtures/case-2.ttl` — asserting the exact literal answer each header claims, not
+  merely that the query parses. `cargo test -p praxis-graphlaw --test
+  ma_case_study_competency_questions`: 9 passed, 0 failed (verified this session; also re-ran
+  `ma_case_hook_actuation`: 4 passed, 0 failed, no regression). REMAINING GAP, disclosed not
+  fixed: 18 of 24 `.rq` files (CQ3.3, CQ4.*, CQ5.*, CQ6.*, CQ8.*, CQ9.*, CQ10.*, CQX.*) are still
+  verified only by header comment/scratch consumer, not by a committed test — this pass closes
+  part of the gap, not all of it.
+
 ## See Also
 
 - `docs/releases/v26.7.14/THESIS.md` Section 33.12 — the source-of-truth PLANNED ruling this

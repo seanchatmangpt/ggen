@@ -1,0 +1,11 @@
+---
+to: infra/ci/verify.yml
+force: true
+sparql:
+  row: |
+    PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-release#>
+    SELECT ?body WHERE {
+      tcps:VerifyWorkflow tcps:workflowBody ?body .
+    } ORDER BY ?body
+---
+{{ row[0].body }}

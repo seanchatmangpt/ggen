@@ -267,3 +267,82 @@ fn emit_receipt_chained_panics_on_empty_id() {
         "hash-of-chain".to_string(),
     );
 }
+
+/// Reference-behavior integration: `wasm4pm-compat` (pinned `=26.6.29`,
+/// confirmed against `/Users/sac/wasm4pm-compat` on this machine) ships TWO
+/// parallel OCEL representations in the same crate -- the JSON/serde
+/// `ocel::{OCELEvent, OCELObject, OCELRelationship}` shape this pack's
+/// `events.rs.tmpl` emits into (tested above), and a separate
+/// admission-control shape (`ocel::{OcelLog, Object, EventObjectLink,
+/// LinkedOcel}`) with its OWN real structural law: every event must carry at
+/// least one event-to-object link, and every link must resolve to a
+/// declared object, or `LinkedOcel::admit` refuses by name
+/// (`OcelRefusal::DanglingEventObjectLink` /
+/// `OcelRefusal::EmptyEventObjectLinks` -- see `wasm4pm_compat::ocel`'s own
+/// `tests/ocel_admission.rs`, sha256
+/// `719ff298d353679cca8d769c1ecc7e42cabc4c6028fa2cbd6b03428d54b8345e` on this
+/// machine, which this test's assertions are modeled on).
+///
+/// The two shapes are not byte-identical types, so `tests/ocel_admission.rs`
+/// cannot be reused verbatim against this pack's ontology-specific event
+/// names (`graph_union_hashed` etc. do not exist in the reference's own
+/// domain vocabulary) -- but the reference's REAL admission function can
+/// still judge a REAL `OcelLog` built directly from this pack's generated
+/// `emit_*` output. This closes the gap a JSON round-trip test alone leaves
+/// open: it proves the generated events are not just serializable, but
+/// admissible under `wasm4pm-compat`'s own object-centricity law.
+#[test]
+fn generated_events_are_admitted_by_the_reference_crates_own_linked_ocel_law() {
+    use wasm4pm_compat::admission::Admit;
+    use wasm4pm_compat::evidence::Evidence;
+    use wasm4pm_compat::ocel::{EventObjectLink, LinkedOcel, Object, OcelLog};
+
+    let event = wasm4pm_compat_events::emit_graph_union_hashed(
+        "evt-6".to_string(),
+        literal_time(),
+        "graph-abc".to_string(),
+        "hash-of-graph".to_string(),
+    );
+    // Project the generated OCELEvent's real relationship onto the
+    // reference's admission-control shape: the object it names must be
+    // declared, and the event must link to it.
+    let object_id = event.relationships[0].object_id.clone();
+    let lawful = OcelLog::new(
+        [Object::new(&object_id, "OntologyGraph")],
+        [wasm4pm_compat::ocel::OcelEvent::new(&event.id, &event.event_type)],
+        [EventObjectLink::new(&event.id, &object_id)],
+        [],
+        [],
+    );
+    LinkedOcel::admit(Evidence::raw(lawful))
+        .expect("a generated emit_graph_union_hashed event, projected onto the reference's own OcelLog, must be admitted by its real LinkedOcel::admit law");
+}
+
+/// Negative-path companion: the reference's real `DanglingEventObjectLink`
+/// refusal fires when a generated event's relationship names an object that
+/// was never declared -- proving `LinkedOcel::admit` is a real gate, not a
+/// rubber stamp, even when fed this pack's own generated output.
+#[test]
+fn generated_event_with_undeclared_object_is_refused_by_the_reference_crates_own_law() {
+    use wasm4pm_compat::admission::Admit;
+    use wasm4pm_compat::evidence::Evidence;
+    use wasm4pm_compat::ocel::{EventObjectLink, LinkedOcel, OcelLog, OcelRefusal};
+
+    let event = wasm4pm_compat_events::emit_pack_lock_verified(
+        "evt-7".to_string(),
+        literal_time(),
+        "pack-99".to_string(),
+        "hash-of-pack".to_string(),
+    );
+    let object_id = event.relationships[0].object_id.clone();
+    let dangling = OcelLog::new(
+        [], // deliberately omit declaring `object_id` as an Object
+        [wasm4pm_compat::ocel::OcelEvent::new(&event.id, &event.event_type)],
+        [EventObjectLink::new(&event.id, &object_id)],
+        [],
+        [],
+    );
+    let refusal = LinkedOcel::admit(Evidence::raw(dangling))
+        .expect_err("an event linking to an undeclared object must be refused");
+    assert_eq!(refusal.reason, OcelRefusal::DanglingEventObjectLink);
+}

@@ -28,3 +28,35 @@ freeze_slots_dir: .ggen/freeze/anti-llm-cheat-lsp-pack
 // zero consumer effort, so it is scored as an incremental improvement to
 // Consumer effort, not as reaching L5 on that dimension.
 pub mod anti_llm_cheat_catalog;
+
+// `config` module: a trimmed port of `~/anti-llm-cheat-lsp/src/config.rs`'s
+// `AntiLlmConfig`, cut down to the one field and one method that
+// `anti_llm_cheat_catalog::evaluate`/`evaluate_hedge` actually call
+// (`allowed_suppression_paths` / `is_suppression_allowed`). The real
+// `AntiLlmConfig` also carries `ClaimConfig`/`SurfaceConfig`/`TestConfig`/
+// `StandingConfig` and a `star_toml`-backed `load_from_dir` loader for rules
+// this pack does not model (CLAIM-004, SURFACE-001, TEST-001, STANDING-000..6)
+// -- porting those would pull in `star-toml` for no behavioral gain here, so
+// they're left out rather than faked. `is_suppression_allowed`'s body below
+// is byte-identical to the target's.
+//
+// Declared inline (not as a separate `src/config.rs` template) so this
+// wiring file is the single include site — a separate generically-named
+// `config.rs` file is exactly the cross-pack collision risk this file's
+// own history note above already describes solving once (round 2's shared
+// `lib.rs`); nesting it here avoids reintroducing that risk under a new name.
+pub mod config {
+    /// Trimmed port of `~/anti-llm-cheat-lsp/src/config.rs`'s `AntiLlmConfig`.
+    #[derive(Debug, Default, Clone)]
+    pub struct AntiLlmConfig {
+        pub allowed_suppression_paths: Vec<String>,
+    }
+
+    impl AntiLlmConfig {
+        /// Byte-identical to the target's
+        /// `AntiLlmConfig::is_suppression_allowed`.
+        pub fn is_suppression_allowed(&self, file_path: &str) -> bool {
+            self.allowed_suppression_paths.iter().any(|path| file_path.contains(path))
+        }
+    }
+}

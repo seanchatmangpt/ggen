@@ -341,7 +341,7 @@ pi:Algo_streaming_log a pi:ProcessIntelligenceAlgorithm ;
   pi:category       "discovery" ;
   pi:speedTier      "1"^^xsd:integer ;
   pi:qualityTier    "28"^^xsd:integer ;
-  pi:wasmExport     "discover_streaming_log" ;
+  pi:wasmExport     "streaming_dfg_begin" ;
   pi:inputFormat    "xes" .
 
 pi:Algo_transition_system a pi:ProcessIntelligenceAlgorithm ;

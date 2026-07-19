@@ -62,7 +62,7 @@ surface only — all process analysis executes inside wasm4pm.
 | `SimdStreamingDfg` | discovery | 1 | `discover_dfg_simd` | van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer. |
 | `SimulatedAnnealing` | discovery | 47 | `discover_simulated_annealing` | van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer. |
 | `SmartEngine` | discovery | 15 | `discover_smart_engine` | van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer. |
-| `StreamingLog` | discovery | 1 | `discover_streaming_log` | van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer. |
+| `StreamingLog` | discovery | 1 | `streaming_dfg_begin` | van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer. |
 | `TransitionSystem` | discovery | 18 | `discover_transition_system` | van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer. |
 | `WorkingTogetherNetwork` | discovery_analytics | 13 | `compute_working_together_network` | van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer. |
 | `YawlExport` | import_export | 10 | `export_yawl` | van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer. |

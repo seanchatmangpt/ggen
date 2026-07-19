@@ -20,3 +20,9 @@ pub use mfact_catalog::{
     MfactAuthorityDir, MfactCatalogError, MfactStage, MFACT_AUTHORITY_DIRS, MFACT_HANDOFFS,
     MFACT_PIPELINE, MFACT_READS, MFACT_WRITES,
 };
+
+// mfact_refusal / mfact_receipt: real Target-API-fidelity surface
+// transcribed from ~/mfact's real (unmerged worktree) mfact-core crate --
+// see ontology.ttl's mfa:GgenReceiptEngine provenance note.
+pub mod mfact_refusal;
+pub mod mfact_receipt;

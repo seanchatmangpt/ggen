@@ -1,0 +1,23 @@
+@prefix tcps: <http://seanchatmangpt.github.io/packs/tcps-release#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+tcps:PackagingTargetShape a sh:NodeShape ;
+    sh:targetClass tcps:PackagingTarget ;
+    sh:property [
+        sh:path tcps:manifestPath ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Every tcps:PackagingTarget must have a non-empty tcps:manifestPath." ;
+    ] .
+
+tcps:CiWorkflowShape a sh:NodeShape ;
+    sh:targetClass tcps:CiWorkflow ;
+    sh:property [
+        sh:path tcps:triggerEvent ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Every tcps:CiWorkflow must have at least one non-empty tcps:triggerEvent." ;
+    ] .

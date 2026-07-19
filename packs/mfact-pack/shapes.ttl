@@ -83,3 +83,42 @@ mfa:AuthorityDirShape
         sh:minLength 1 ;
         sh:message  "An AuthorityDir must carry exactly one non-empty rdfs:comment." ;
     ] .
+
+mfa:ReceiptEngineShape
+    a sh:NodeShape ;
+    sh:targetClass mfa:ReceiptEngine ;
+
+    sh:property [
+        sh:path     mfa:hashAlgorithm ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A ReceiptEngine must carry exactly one non-empty mfa:hashAlgorithm." ;
+    ] ;
+    sh:property [
+        sh:path     mfa:orderingStrategy ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A ReceiptEngine must carry exactly one non-empty mfa:orderingStrategy." ;
+    ] ;
+    sh:property [
+        sh:path     mfa:refusesDuplicates ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message  "A ReceiptEngine must carry exactly one mfa:refusesDuplicates boolean." ;
+    ] ;
+    sh:property [
+        sh:path     mfa:sourceFile ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A ReceiptEngine must carry exactly one non-empty mfa:sourceFile (its real provenance path)." ;
+    ] ;
+    sh:property [
+        sh:path     rdfs:comment ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A ReceiptEngine must carry exactly one non-empty rdfs:comment." ;
+    ] .

@@ -37,7 +37,7 @@ fn direct_dependency_lookup() {
     assert_eq!(depends_on("wasm4pm-cognition"), vec!["prolog8"]);
 }
 
-/// `wasm4pm` depends on two crates directly (`miniml-core`, `wasm4pm-cognition`)
+/// `wasm4pm` depends on two crates directly (`miniml`, `wasm4pm-cognition`)
 /// -- order-independent membership check since SPARQL's `ORDER BY ?from_label
 /// ?to_label` sorts them alphabetically by target label, not by declaration
 /// order in ontology.ttl.
@@ -45,7 +45,7 @@ fn direct_dependency_lookup() {
 fn wasm4pm_has_two_direct_dependencies() {
     let deps = depends_on("wasm4pm");
     assert_eq!(deps.len(), 2);
-    assert!(deps.contains(&"miniml-core"));
+    assert!(deps.contains(&"miniml"));
     assert!(deps.contains(&"wasm4pm-cognition"));
 }
 
@@ -68,14 +68,14 @@ fn unknown_crate_name_returns_empty_not_panic() {
 
 /// Real multi-hop traversal: `wasm4pm-planner` depends directly on `prolog8`,
 /// `wasm4pm`, and `wasm4pm-cognition`; `wasm4pm` itself depends on
-/// `wasm4pm-cognition` and `miniml-core`; `wasm4pm-cognition` depends on
+/// `wasm4pm-cognition` and `miniml`; `wasm4pm-cognition` depends on
 /// `prolog8`. The transitive closure must include every one of those,
 /// deduplicated (`prolog8` and `wasm4pm-cognition` are each reachable via
 /// two paths).
 #[test]
 fn transitive_closure_covers_multi_hop_reachable_set() {
     let closure = transitive_dependencies("wasm4pm-planner");
-    for expect in ["prolog8", "wasm4pm", "wasm4pm-cognition", "miniml-core"] {
+    for expect in ["prolog8", "wasm4pm", "wasm4pm-cognition", "miniml"] {
         assert!(
             closure.contains(&expect),
             "transitive_dependencies(\"wasm4pm-planner\") missing {expect:?}: {closure:?}"

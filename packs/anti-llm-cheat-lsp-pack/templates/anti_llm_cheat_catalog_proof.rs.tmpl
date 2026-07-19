@@ -30,15 +30,37 @@ sparql:
 //! This still isn't a re-query at test time (there is no live triplestore
 //! at `cargo test` time to ask "does the compiled catalog match the graph
 //! right now?") -- it is a compile-time-baked comparison of two independent
-//! renders of one query. The behavioral tests below (`scan_dead_alt`/
-//! `scan_hedge` against adversarial input strings) are what make this a
-//! proof of behavior rather than only of data-transcription fidelity.
+//! renders of one query. The behavioral tests below (`scan_for_dead_alt`/
+//! `scan_for_hedge` against adversarial input strings, plus the
+//! `dead_alt_tests`/`hedge_tests` modules pulled in via `#[path]` below,
+//! which are the real target's own test bodies) are what make this a proof
+//! of behavior rather than only of data-transcription fidelity.
+//!
+//! `mod config` here mirrors `anti_llm_cheat_lib_wiring.rs.tmpl`'s inline
+//! `AntiLlmConfig` port: this file is its own separate crate root (every
+//! file under `tests/` is), so the `crate::config::AntiLlmConfig` references
+//! inside the path-included `dead_alt_tests` module (see
+//! `anti_llm_cheat_catalog.rs`) need a `config` module declared at *this*
+//! crate's root too.
+pub mod config {
+    #[derive(Debug, Default, Clone)]
+    pub struct AntiLlmConfig {
+        pub allowed_suppression_paths: Vec<String>,
+    }
+
+    impl AntiLlmConfig {
+        pub fn is_suppression_allowed(&self, file_path: &str) -> bool {
+            self.allowed_suppression_paths.iter().any(|path| file_path.contains(path))
+        }
+    }
+}
 
 #[path = "../src/anti_llm_cheat_catalog.rs"]
 mod anti_llm_cheat_catalog;
 
 use anti_llm_cheat_catalog::{
-    scan_dead_alt, scan_hedge, DetectionRule, DetectorLayer, DETECTION_RULES, DETECTOR_LAYERS,
+    scan_for_dead_alt, scan_for_hedge, DetectionRule, DetectorLayer, DETECTION_RULES,
+    DETECTOR_LAYERS,
 };
 
 #[test]
@@ -102,46 +124,46 @@ fn rule_ids_follow_the_anti_llm_naming_convention() {
 // transcribed correctly.
 
 #[test]
-fn scan_dead_alt_flags_uncalled_v2_function() {
+fn scan_for_dead_alt_flags_uncalled_v2_function() {
     let src = "fn run_with_timeout_v2(ms: u64) -> bool {\n    true\n}\n";
-    let hits = scan_dead_alt(src);
+    let hits = scan_for_dead_alt("example.rs", src);
     assert_eq!(hits.len(), 1);
-    assert_eq!(hits[0].name, "run_with_timeout_v2");
+    assert_eq!(hits[0].construct, "run_with_timeout_v2");
     assert_eq!(hits[0].line, 1);
 }
 
 #[test]
-fn scan_dead_alt_does_not_flag_a_called_alt_function() {
+fn scan_for_dead_alt_does_not_flag_a_called_alt_function() {
     let src = "fn foo_alt() -> u32 {\n    1\n}\n\nfn main() {\n    let _ = foo_alt();\n}\n";
-    assert!(scan_dead_alt(src).is_empty());
+    assert!(scan_for_dead_alt("example.rs", src).is_empty());
 }
 
 #[test]
-fn scan_dead_alt_ignores_functions_without_a_configured_suffix() {
+fn scan_for_dead_alt_ignores_functions_without_a_configured_suffix() {
     let src = "fn foo_bar() -> u32 {\n    1\n}\n";
-    assert!(scan_dead_alt(src).is_empty());
+    assert!(scan_for_dead_alt("example.rs", src).is_empty());
 }
 
 #[test]
-fn scan_hedge_flags_in_a_real_implementation_comment() {
+fn scan_for_hedge_flags_in_a_real_implementation_comment() {
     let src = "// In a real implementation, this would call the API.\nfn stub() {}\n";
-    let hits = scan_hedge(src);
+    let hits = scan_for_hedge("test.rs", src);
     assert_eq!(hits.len(), 1);
-    assert_eq!(hits[0].0, 1);
+    assert_eq!(hits[0].line, 1);
 }
 
 #[test]
-fn scan_hedge_flags_for_now_comment_case_insensitively() {
+fn scan_for_hedge_flags_for_now_comment_case_insensitively() {
     let src = "// FOR NOW, we skip validation entirely.\n";
-    let hits = scan_hedge(src);
+    let hits = scan_for_hedge("test.rs", src);
     assert_eq!(hits.len(), 1);
 }
 
 #[test]
-fn scan_hedge_ignores_non_comment_lines_containing_hedge_words() {
+fn scan_for_hedge_ignores_non_comment_lines_containing_hedge_words() {
     // The literal phrase appears, but not inside a `//` comment -- the real
-    // target's scanner (and this generated approximation of it) only fires
-    // on comment lines, so this must not be flagged.
+    // target's scanner only fires on comment lines, and this is now the
+    // target's actual regex (via the `regex` crate), not an approximation.
     let src = "let s = \"for now, this is fine\";\n";
-    assert!(scan_hedge(src).is_empty());
+    assert!(scan_for_hedge("test.rs", src).is_empty());
 }

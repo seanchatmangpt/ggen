@@ -148,3 +148,26 @@ oclnr:snapshot-selection-policy
     oclnr:dateSuffixLength 17 ;
     rdfs:comment "A snapshot name segment (split on '.') is a valid date suffix iff it is exactly 17 characters, all ASCII digits or '-' (zero-padded YYYY-MM-DD-HHMMSS, so lexical sort order equals chronological order)." .
 oclnr:dateSuffixLength a rdfs:Property ; rdfs:domain oclnr:SnapshotSelectionPolicy ; rdfs:range xsd:integer .
+
+# --- Thinning-receipt surface (added for the L5 verbatim-reference-test push,
+# 2026-07-19): transcribed line-by-line from ~/osx-clnr/src/domain/time.rs's
+# `identify_thinned_snapshots` and the `SnapshotThinReceipt` struct/`new`
+# ctor. Unlike the byte-unit table/date-suffix-length above, this pair's
+# function bodies are NOT SPARQL-parameterized (there is no free variable to
+# pull from the ontology -- the algorithm is "set difference" and "record
+# with a derived field", already fully specified) -- their presence as named
+# individuals here is what lets the dispatch/handler-gap machinery
+# (oclnr:dispatchesTo) and future template authors discover them without
+# reading ~/osx-clnr/src/domain/time.rs again, and is honestly documented as
+# such in osx_clnr_plan.rs.tmpl rather than dressed up as ontology-driven
+# when it structurally cannot be.
+
+oclnr:identify-thinned-snapshots
+    a rdfs:Class ;
+    rdfs:label "identify_thinned_snapshots" ;
+    rdfs:comment "Set-difference of two snapshot-name lists: every name present in `before` but absent from `after`, order preserved from `before`. Real behavior transcribed from ~/osx-clnr/src/domain/time.rs (source-verified 2026-07-19); not SPARQL-parameterized -- see comment above." .
+
+oclnr:SnapshotThinReceipt
+    a rdfs:Class ;
+    rdfs:label "SnapshotThinReceipt" ;
+    rdfs:comment "Terminal receipt of a local-snapshot-thinning execution: volume, requested_bytes, timestamp_unix, snapshots_before, snapshots_after, and a derived snapshots_thinned field (identify_thinned_snapshots(before, after)). Real struct transcribed from ~/osx-clnr/src/domain/time.rs (source-verified 2026-07-19)." .

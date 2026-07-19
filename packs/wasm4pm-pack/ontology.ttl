@@ -42,8 +42,18 @@ w4c:wasm4pm-cli
     w4c:purpose "The official wasm4pm process mining command-line interface." .
 
 w4c:miniml-core
-    a w4c:Crate ; rdfs:label "miniml-core" ;
+    a w4c:Crate ; rdfs:label "miniml" ;
     w4c:purpose "A minimal, blazing-fast WASM-powered machine learning library with SIMD acceleration." .
+    # NOTE: individual IRI kept as w4c:miniml-core (matches the directory
+    # crates/miniml-core/) but rdfs:label corrected to "miniml" -- that is
+    # the real `[package] name` in crates/miniml-core/Cargo.toml (verified
+    # 2026-07-19 against ~/wasm4pm@b6fedcbef8d5fbdab4dbb9827226e802fe961a71,
+    # line 3: `name = "miniml"`). The prior label "miniml-core" was a
+    # directory-name/package-name conflation: `cargo build -p miniml-core`
+    # fails in the real workspace (no such package); `cargo build -p miniml`
+    # is the real, buildable target. This pack generates `WASM4PM_CRATES`
+    # entries keyed by this label, so the bug was live in generated code,
+    # not just documentation.
 
 w4c:wasm4pm-cognition
     a w4c:Crate ; rdfs:label "wasm4pm-cognition" ;
