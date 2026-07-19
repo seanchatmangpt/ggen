@@ -5,7 +5,53 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [26.7.4] — ggen-core Retirement and Engine Migration (2026-07-17)
+## [26.7.18] — Release Hardening (2026-07-19)
+
+Version-numbering note: this release's version is a **deliberate downgrade** from the
+previously-tagged `v26.8.0` (see the `[26.8.0]` entry below) — a manual choice made when cutting
+this release, not an oversight. `26.8.0` was reached via three automated `semantic-release`
+bumps (`26.7.5`, `26.7.6`, `26.8.0`) that ran ahead of this changelog being kept in sync; this
+entry backfills that gap (see the newly-added `[26.7.4]`/`[26.7.6]`/`[26.8.0]` entries below) and
+resumes numbering at `26.7.18` by explicit decision. Anything sorting releases purely by semver
+value rather than tag chronology should be aware `v26.8.0` is chronologically older than this
+release despite the higher number.
+
+### Fixed
+- **`ggen capability enable`/`inspect` unknown-surface handling (GAP-001)** — `atomic_packs_for` (`crates/ggen-cli/src/cmds/capability.rs`) previously discarded `resolve_capability_to_packs`'s "unknown surface" error via `unwrap_or_default()`, so an unrecognised or typo'd capability surface silently returned `atomic_packs: []` with exit 0 instead of a typed error. Now propagates the error. `enable` also now requires a real ggen project (`ggen.toml` present) before touching the lockfile. `inspect`, disabled since 2026-07-17 pending exactly this fix, is re-enabled.
+- **`ggen.construct` MCP tool response missing `duration_ms`** — dropped when the tool was repointed from the retired `ggen-core` pipeline to `ggen-engine`; restored via local `Instant`/`elapsed()` timing around the sync call (`crates/ggen-lsp/src/a2a_mcp/mcp_server.rs`). This is a transport-layer metric, not receipt content, so it does not affect the sync engine's deterministic-receipt guarantees.
+- **Stale cheat-scan finding count (515 → 464)** — `justfile` and `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md` cited a pre-`ggen-core`-deletion count of 515; the real, reconfirmed count is 464 (7 CHEAT-T01, 456 CHEAT-T03, 1 CHEAT-T04) — the delta was retired along with `ggen-core` in PR #259, not fixed by triage.
+- **Broken pinned-nightly `cargo` component** in the release-build environment — repaired (sandbox/toolchain fix, not a code change).
+
+### Removed
+- **4 dead files still importing the retired `ggen-core` crate** — `crates/ggen-cli/src/cmds/{sync,graph,template,doctor}.rs` were unreachable via the `cmds` module tree (their `mod` declarations were commented out, and `template.rs` had none at all) and `ggen-core` was no longer even a dependency of `ggen-cli`, but the files themselves still lived on disk with live `use ggen_core::...` imports. Deleted outright, matching the existing `wizard.rs`/`sigma.rs`/`inverse_sync.rs` precedent.
+
+### Docs
+- Added `docs/mcp/02-user-guide/tools/construct.md` — the `ggen.construct` MCP tool had no documentation page at all.
+- Resynced `docs/aps/claims.toml` (`cli.policy`, `cli.init`, `cli.doctor`, `cli.capability`, `cli.agent`) to reflect the fixes above and the fixes already landed in `627f84c5`/#265 below. `release.rustsec-quick-xml` left `BLOCKED` (no upstream fix available for the pinned quick-xml RUSTSEC advisories) — this release ships as a tag + binaries only; `cargo publish` was not run for the 4 real crates.io targets this cycle.
+- `CLAUDE.md`'s header corrected from a stale `v26.7.1` to the current version.
+
+## [26.8.0] — receiptctl Example (2026-07-18)
+
+### Added
+- **`examples/receiptctl`** — a multi-pack combined CLI spanning 3 real projects. (#267)
+
+## [26.7.6] — CLI Safety Hardening (2026-07-17)
+
+### Fixed
+- **`ggen policy check`/`ggen policy validate` unconditional crash (BUG-001)** — `load_pack_contexts_from_project` (`crates/ggen-cli/src/cmds/policy.rs`) now skips a malformed `PackageId` lockfile entry and reports it separately, instead of aborting the whole command via `?` before any pack — including valid ones — reached the policy engine.
+- **`ggen init --force <malformed-bool>` silently coercing to `false` (BUG-002)** — `--force`/`--skip-hooks` now strictly parse `"true"`/`"false"` via `parse_bool_flag` and reject anything else with a real clap-level error.
+- **`ggen init` exit code disagreeing with its own JSON body (BUG-003)** — an `InitOutput{status:"error"}` payload now promotes to a real `Err`, so the process exit code always agrees with the reported status.
+- **`ggen doctor run` hard-failing on declarative-rules `ggen.toml` projects (BUG-005)** — including this repo's own root `ggen.toml`. `handle_doctor` now dispatches through the same shared schema classifier `sync()` uses, instead of unconditionally assuming the frontmatter schema.
+
+### Changed
+- **`ggen agent install` and `ggen capability inspect` disabled** — both returned incorrect results (BUG-004, GAP-001) rather than a real answer; now return a typed refusal citing the tracked issue instead of silently misbehaving. Real logic preserved as dead code pending a fix. (`capability inspect` re-enabled in `[26.7.18]` above.)
+- Stale examples archived; a canonical `clap-noun-verb-cli` example added. (#265)
+
+## [26.7.5] — ggen-core Retirement and Engine Migration (2026-07-17)
+
+Corrected 2026-07-18: this content previously carried an incorrect `[26.7.4]` heading — it
+shipped as part of the v26.7.5 tag (`75f080d4`), not v26.7.4 (see the genuinely small `[26.7.4]`
+entry below for what that tag actually contained).
 
 ### Removed
 - **`crates/ggen-core` deleted outright** — the legacy μ₁–μ₅ pipeline crate, previously disconnected from the workspace (`members` → `exclude`), has now been removed from disk entirely. `ggen sync`/`doctor`/`graph`/`receipt` route exclusively to `ggen-engine`. (#259)
@@ -19,6 +65,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **Docs and examples archival** — archived stale `ggen-core`-era documentation and examples; fixed CLI invocations in docs to match live command syntax. (#256)
+
+## [26.7.4] — ggen-lsp Version Inheritance Fix (2026-07-17)
+
+### Fixed
+- **`ggen-lsp`'s `Cargo.toml` now inherits `version.workspace = true`** instead of a hardcoded version pin, keeping it in sync with the rest of the workspace automatically. (#253)
 
 ## [26.7.3] — DX Rewrite and CI Fixes (2026-07-03)
 

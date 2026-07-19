@@ -179,6 +179,10 @@ impl Blake3ChainValidator {
     /// ```rust,ignore
     /// Blake3ChainValidator::assert_chain_valid(&entries);
     /// ```
+    // Same rationale as cli_proof/receipt.rs's file-level allow: this is an
+    // assertion helper (name says so) whose contract is to panic with a
+    // diagnostic message on failure, mirroring stdlib `assert!` semantics.
+    #[allow(clippy::panic)]
     pub fn assert_chain_valid<E: Blake3ReceiptEntry>(entries: &[E]) {
         if let Err(e) = Self::validate_chain(entries) {
             panic!("BLAKE3 chain replay failed: {e}");

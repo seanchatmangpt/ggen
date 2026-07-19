@@ -62,7 +62,7 @@ fn owlrl_transitive_property_chain(max_depth: usize) -> String {
 fn bench_owlrl_subclass_10(b: &mut Bencher) {
     let ttl = owlrl_subclass_hierarchy(10);
     b.iter(|| {
-        let mut store = TripleStore::from(&ttl).expect("failed to load");
+        let mut store = TripleStore::from(&ttl);
         store.materialize_owlrl().expect("materialize failed")
     });
 }
@@ -70,7 +70,7 @@ fn bench_owlrl_subclass_10(b: &mut Bencher) {
 fn bench_owlrl_subclass_100(b: &mut Bencher) {
     let ttl = owlrl_subclass_hierarchy(100);
     b.iter(|| {
-        let mut store = TripleStore::from(&ttl).expect("failed to load");
+        let mut store = TripleStore::from(&ttl);
         store.materialize_owlrl().expect("materialize failed")
     });
 }
@@ -78,7 +78,7 @@ fn bench_owlrl_subclass_100(b: &mut Bencher) {
 fn bench_owlrl_subclass_1000(b: &mut Bencher) {
     let ttl = owlrl_subclass_hierarchy(1000);
     b.iter(|| {
-        let mut store = TripleStore::from(&ttl).expect("failed to load");
+        let mut store = TripleStore::from(&ttl);
         store.materialize_owlrl().expect("materialize failed")
     });
 }
@@ -86,7 +86,7 @@ fn bench_owlrl_subclass_1000(b: &mut Bencher) {
 fn bench_owlrl_subproperty_10(b: &mut Bencher) {
     let ttl = owlrl_subproperty_hierarchy(10);
     b.iter(|| {
-        let mut store = TripleStore::from(&ttl).expect("failed to load");
+        let mut store = TripleStore::from(&ttl);
         store.materialize_owlrl().expect("materialize failed")
     });
 }
@@ -94,7 +94,7 @@ fn bench_owlrl_subproperty_10(b: &mut Bencher) {
 fn bench_owlrl_subproperty_100(b: &mut Bencher) {
     let ttl = owlrl_subproperty_hierarchy(100);
     b.iter(|| {
-        let mut store = TripleStore::from(&ttl).expect("failed to load");
+        let mut store = TripleStore::from(&ttl);
         store.materialize_owlrl().expect("materialize failed")
     });
 }
@@ -102,7 +102,7 @@ fn bench_owlrl_subproperty_100(b: &mut Bencher) {
 fn bench_owlrl_subproperty_1000(b: &mut Bencher) {
     let ttl = owlrl_subproperty_hierarchy(1000);
     b.iter(|| {
-        let mut store = TripleStore::from(&ttl).expect("failed to load");
+        let mut store = TripleStore::from(&ttl);
         store.materialize_owlrl().expect("materialize failed")
     });
 }
@@ -110,7 +110,7 @@ fn bench_owlrl_subproperty_1000(b: &mut Bencher) {
 fn bench_owlrl_transitive_property_10(b: &mut Bencher) {
     let ttl = owlrl_transitive_property_chain(10);
     b.iter(|| {
-        let mut store = TripleStore::from(&ttl).expect("failed to load");
+        let mut store = TripleStore::from(&ttl);
         store.materialize_owlrl().expect("materialize failed")
     });
 }
@@ -118,7 +118,7 @@ fn bench_owlrl_transitive_property_10(b: &mut Bencher) {
 fn bench_owlrl_transitive_property_100(b: &mut Bencher) {
     let ttl = owlrl_transitive_property_chain(100);
     b.iter(|| {
-        let mut store = TripleStore::from(&ttl).expect("failed to load");
+        let mut store = TripleStore::from(&ttl);
         store.materialize_owlrl().expect("materialize failed")
     });
 }
@@ -126,7 +126,7 @@ fn bench_owlrl_transitive_property_100(b: &mut Bencher) {
 fn bench_owlrl_transitive_property_1000(b: &mut Bencher) {
     let ttl = owlrl_transitive_property_chain(1000);
     b.iter(|| {
-        let mut store = TripleStore::from(&ttl).expect("failed to load");
+        let mut store = TripleStore::from(&ttl);
         store.materialize_owlrl().expect("materialize failed")
     });
 }

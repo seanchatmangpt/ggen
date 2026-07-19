@@ -2,6 +2,14 @@
 //!
 //! No mocks. No stubs. The binary must exist on disk.
 
+// Same rationale as cli_proof/receipt.rs and cli_proof/workspace.rs:
+// CliOutput's assert_* methods panic with a descriptive message on an unmet
+// expectation, mirroring stdlib `assert!`/`assert_eq!` semantics (themselves
+// `panic!`-based and exempt from this lint). Allowed here explicitly rather
+// than weakening the crate-wide `#![deny(clippy::panic)]` in lib.rs, which is
+// meant for production logic.
+#![allow(clippy::panic)]
+
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};

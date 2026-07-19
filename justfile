@@ -359,9 +359,13 @@ guard-process-boundary: guard-process-intelligence-boundary
 # no-assertion-test, and CHEAT-T04 mock-import across crates/*/src, crates/*/tests,
 # and tests/. NOTE (2026-07-17): wired into `pre-commit` per the same
 # unconditional pattern as guard-process-intelligence-boundary, but as of this
-# recipe's introduction the scanner reports 515 pre-existing findings across the
+# recipe's introduction the scanner reports 464 pre-existing findings (7
+# CHEAT-T01, 456 CHEAT-T03, 1 CHEAT-T04; reconfirmed 2026-07-18) across the
 # workspace's existing test suites -- this currently makes `just pre-commit` fail
 # until that debt is triaged/fixed, same as any other newly-added real gate.
+# (This count was previously mis-stated as 515 here; that was the pre-ggen-core-
+# deletion figure -- some CHEAT-T03 findings lived under the now-deleted
+# ggen-core/src/*, retired along with the crate in PR #259, not fixed by triage.)
 guard-cheat-scan:
     cargo run --quiet -p ggen-cheat-scanner --bin ggen-cheat-scanner
 
