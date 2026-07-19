@@ -1,4 +1,4 @@
 [pack]
 name = "praxis-core-pack"
 version = "0.1.0"
-description = "praxis-core pack: generates the refusal-taxonomy reference table (Rust const table + markdown doc) from RefusalScenario individuals mirroring praxis_core::refusal."
+description = "praxis-core pack: generates the refusal-taxonomy reference table (Rust const table + markdown doc) from RefusalScenario individuals mirroring praxis_core::refusal. Also generates a proof test (tests/praxis_core_refusal_taxonomy_proof.rs) that checks the two artifacts against literal, hand-transcribed values from ontology.ttl -- no SPARQL re-derivation."

@@ -1,4 +1,4 @@
 [pack]
 name = "star-toml-pack"
 version = "0.1.0"
-description = "Generates a star_toml config-admission module: deny_unknown_fields serde structs per ConfigSection, loaded via star_toml::load_file, plus per-section admission docs."
+description = "Generates a star_toml config-admission module: deny_unknown_fields serde structs per ConfigSection, loaded via star_toml::load_file, plus per-section admission docs. Also generates its own executable proof test (tests/star_toml_config_proof.rs, no sparql: frontmatter) that hardcodes the ontology's section/field literals and exercises the real load_file round-trip plus three fail-closed paths (unknown key, missing field, missing file) against real TempDir-backed TOML files."

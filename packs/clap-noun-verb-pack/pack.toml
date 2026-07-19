@@ -1,4 +1,4 @@
 [pack]
 name = "clap-noun-verb-pack"
 version = "0.1.0"
-description = "Generates clap-noun-verb route skeletons (noun-verb #[verb] fns calling handler stubs) from cnv:Command individuals in the pack ontology."
+description = "Generates clap-noun-verb route skeletons (noun-verb #[verb] fns calling handler stubs) from cnv:Command individuals in the pack ontology. The same template also renders a #[cfg(test)] proof module into the end of that same generated routes file (private-fn visibility requires an in-file test mod, not a separate tests/*.rs -- and a second template targeting the same `to:` path would hit this engine's own FM-WRITE-008 duplicate-output guard) asserting real calls through the generated wrappers plus literal doc/arg-shape checks against the ontology."

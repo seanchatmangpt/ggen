@@ -79,3 +79,170 @@ fn register_{{ row.noun }}_noun() {
     );
 }
 {% endfor %}
+
+#[cfg(test)]
+mod clap_noun_verb_routes_proof_tests {
+    // Proof tests for this pack's own generated routes, in the same file
+    // (not a separate `tests/*.rs` file): the wrapper fns above (e.g.
+    // `session_login`, `session_verify`, `user_create`) and the noun
+    // registration fns are private to this module -- a separate
+    // integration-test crate under `tests/` has zero visibility into them
+    // (Rust privacy is unaffected by `pub mod`/`#[path]` re-mounting from a
+    // sibling or parent module). Only a `#[cfg(test)] mod` declared *inside*
+    // this same file is a descendant of this module and can `use super::*;`
+    // to reach them directly. This also avoids FM-WRITE-008 (two templates
+    // cannot both target `src/clap_noun_verb_routes.rs` in one `ggen sync`
+    // pass, even with `inject: true` on one of them) by construction: there
+    // is only ever one template, one `to:` target, for this file.
+    //
+    // Every expected value below is a literal the author hand-transcribed
+    // from `packs/clap-noun-verb-pack/ontology.ttl`, never re-derived via the
+    // same SPARQL SELECT that produced the wrapper fns/docs above -- so a
+    // dropped, renamed, or mis-typed `cnv:Command`/`cnv:Noun` individual, or
+    // a broken required/optional-arg mapping, fails these tests even though
+    // it would not fail a tautological self-comparison.
+    use super::*;
+
+    // ---- Tier 1: real calls through the generated wrapper into the real,
+    // hand-written `crate::verbs::handlers::*` seam (no mocks/test doubles --
+    // Chicago TDD real collaborator). A required/optional-arg mapping bug
+    // (e.g. `email` generated as `String` instead of `Option<String>`) fails
+    // to COMPILE here, before any assertion runs -- a stronger signal than an
+    // assert. The `.is_ok()` checks are genuine runtime assertions against
+    // the real handler's return value, not a mock interaction.
+
+    #[test]
+    fn session_login_takes_required_token_and_succeeds() {
+        // cnv:SessionLogin cnv:args "token|String|true|..." -> a single
+        // required `String` parameter (no `Option<..>` wrapper).
+        let result = session_login("proof-token".to_string());
+        assert!(
+            result.is_ok(),
+            "session_login(\"proof-token\") should succeed via the real handler: {result:?}"
+        );
+    }
+
+    #[test]
+    fn session_verify_is_zero_arg_and_succeeds() {
+        // cnv:SessionVerify cnv:args "" -> zero-arg function.
+        let result = session_verify();
+        assert!(
+            result.is_ok(),
+            "session_verify() should succeed via the real handler: {result:?}"
+        );
+    }
+
+    #[test]
+    fn user_create_required_name_with_optional_email_present() {
+        // cnv:UserCreate cnv:args
+        // "name|String|true|...@@email|String|false|..." -> `name: String`
+        // required, `email: Option<String>` optional.
+        let result = user_create("Ada".to_string(), Some("ada@example.com".to_string()));
+        assert!(
+            result.is_ok(),
+            "user_create(\"Ada\", Some(email)) should succeed via the real handler: {result:?}"
+        );
+    }
+
+    #[test]
+    fn user_create_optional_email_absent() {
+        let result = user_create("Ada".to_string(), None);
+        assert!(
+            result.is_ok(),
+            "user_create(\"Ada\", None) should succeed via the real handler: {result:?}"
+        );
+    }
+
+    // ---- Tier 2: drift canary. Re-reads this same generated file's own
+    // source text at compile time and checks it against literal
+    // counts/strings hand-transcribed from the ontology. This catches
+    // someone adding/removing a `cnv:Command`/`cnv:Noun` individual without
+    // updating this test, which Tier 1 alone would not (Tier 1 only
+    // exercises the three commands that already exist by name, so it can't
+    // notice a deleted command or noun).
+    //
+    // `src/clap_noun_verb_routes.rs` is this pack's own fixed `to:` path
+    // (see this template's frontmatter) -- not derived from `file!()`, so
+    // this is stable regardless of how the module happens to be mounted
+    // (`#[path = "..."]`, `mod`, etc.) by the consuming project.
+    //
+    // Two things this scan must account for, both discovered by actually
+    // running this test against a real consumer (`examples/receiptctl`),
+    // not assumed:
+    //
+    // 1. `include_str!` reads the WHOLE file, including this test module's
+    //    own source. A naive `.matches("#[verb(")` on the full text counts
+    //    the literal string inside this very assertion's argument as a
+    //    match too (off-by-one). `ROUTES_ONLY` slices `GENERATED_SOURCE` up
+    //    to the `#[cfg(test)]` marker -- text this template always emits
+    //    immediately before the test module -- so counts only look at the
+    //    actually-generated routes, never at this test's own source.
+    // 2. `clap-noun-verb-pack` is a routing pack, not a self-contained-data
+    //    pack: a consuming project's OWN ontology (e.g.
+    //    `examples/receiptctl/schema/domain.ttl`) can assert additional
+    //    `cnv:Command`/`cnv:Noun` individuals in the SAME `cnv:` namespace,
+    //    which the union graph legitimately adds to this file (receiptctl
+    //    itself does exactly this: 3 more commands, 3 more nouns, on top of
+    //    this pack's own 3 commands / 2 nouns). So this pack can only
+    //    guarantee its OWN individuals are present -- never that they are
+    //    the ONLY ones -- and the counts below are `>=`, not `==`.
+    const GENERATED_SOURCE: &str =
+        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/clap_noun_verb_routes.rs"));
+
+    fn routes_only() -> &'static str {
+        GENERATED_SOURCE
+            .split("#[cfg(test)]")
+            .next()
+            .expect("GENERATED_SOURCE is a non-empty &str; split always yields >=1 part")
+    }
+
+    #[test]
+    fn generated_source_has_at_least_this_packs_three_verb_commands() {
+        let count = routes_only().matches("#[verb(").count();
+        assert!(
+            count >= 3,
+            "expected at least the 3 verb commands cnv:SessionLogin/SessionVerify/UserCreate \
+             from this pack's own ontology.ttl, found {count} in the generated routes portion \
+             (a consuming project's own ontology may legitimately add more)"
+        );
+    }
+
+    #[test]
+    fn generated_source_has_at_least_this_packs_two_registered_nouns() {
+        let count = routes_only()
+            .matches("CommandRegistry::register_noun(")
+            .count();
+        assert!(
+            count >= 2,
+            "expected at least the 2 nouns cnv:SessionNoun/UserNoun from this pack's own \
+             ontology.ttl, found {count} in the generated routes portion (a consuming \
+             project's own ontology may legitimately add more)"
+        );
+    }
+
+    #[test]
+    fn generated_source_carries_literal_command_docs_from_ontology() {
+        assert!(GENERATED_SOURCE
+            .contains("Start an authenticated session and persist the token."));
+        assert!(GENERATED_SOURCE.contains(
+            "Verify the active session token against the stored keyring credential."
+        ));
+        assert!(GENERATED_SOURCE
+            .contains("Create a user resource and emit its serialized record."));
+    }
+
+    #[test]
+    fn generated_source_carries_literal_noun_descriptions_from_ontology() {
+        assert!(GENERATED_SOURCE.contains("\"Manage authenticated session tokens.\""));
+        assert!(GENERATED_SOURCE.contains("\"Manage user resources.\""));
+    }
+
+    #[test]
+    fn generated_source_marshals_user_create_args_with_correct_types() {
+        // Asserts the exact generated parameter-list text for `user_create`,
+        // proving `name` stayed required (`String`) and `email` stayed
+        // optional (`Option<String>`) per cnv:UserCreate's `cnv:args` literal.
+        assert!(GENERATED_SOURCE.contains("name: String,"));
+        assert!(GENERATED_SOURCE.contains("email: Option<String>,"));
+    }
+}

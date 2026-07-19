@@ -67,23 +67,58 @@ artifact. `UNVERIFIED` = not re-run/re-audited this session; structure read from
 
 | Pack | Generation depth | Handler gap | Ontology expressiveness | Consumer effort | Test generation | Regen lifecycle | Target-API fidelity |
 |---|---|---|---|---|---|---|---|
-| clap-noun-verb-pack | L2 (route skeletons) | L2 (every verb → hand handler) | L2 (args encoding) | L2 | L1 | L2 (skip_if freeze marker) | L2 (receiptctl build, 26.7.4) |
-| wasm4pm-compat-pack | L2 (emit fns) | L2 (caller supplies ids/time) | L2 | L2 | L1 | L2 | L2 (verified vs 26.6.29 source) |
-| wasm4pm-algorithms-pack | L2 (const catalog) | L2 (catalog only, no calls) | L2 | L2 | L1 | L2 | L2 (receiptctl build) |
-| wasm4pm-cognition-pack | L2 (catalog + dispatch skeleton) | L2 | L2 | L2 | L1 | L2 | L2 (receiptctl build) |
-| wasm4pm-facts-pack | L2 (registry doc) | L1 (doc only) | L2 | L2 | L1 | L2 | L2 (mirror synced this week) |
-| chicago-tdd-tools-pack | L2 (boundary tests for a CLI it doesn't generate) | L2 | L2 | L2 | L2 (it generates tests — its whole point) | L2 | L2 (needles/exit codes live-verified) |
-| praxis-core-pack | L2 | L2 | L2 | L2 | L1 | L2 | UNVERIFIED |
-| star-toml-pack | L2 | L2 | L2 | L2 | L1 | L2 | UNVERIFIED |
-| lsp-max-pack | L2 | L2 | L2 | L2 | L1 | L2 | UNVERIFIED |
-| cargo-cicd-pack | L1→L2 (const table of another CLI's commands) | L1 (nothing callable) | L1 (facts only) | L2 | L1 | L2 (idempotency verified) | L1 (README-derived, not source-audited) |
-| mcpp-pack | L1→L2 | L1 | L1 | L2 | L1 | L2 | L1 (README-grepped, known partial) |
-| osx-clnr-pack | L1→L2 | L1 | L1 | L2 | L1 | L2 | L1 |
-| affidavit-pack | L1→L2 | L1 | L1 | L2 | L1 | L2 | L1 |
-| anti-llm-cheat-lsp-pack | L1→L2 | L1 | L1 | L2 | L1 | L2 | L1 |
-| wasm4pm-pack | L1→L2 (crate map table) | L1 | L1 | L2 | L1 | L2 | L1 (Cargo.toml-derived) |
-| mfact-pack | L1→L2 | L1 | L1 | L2 | L1 | L2 | L1 (README-derived) |
-| mfw-pack | L1→L2 | L1 | L1 | L2 | L1 | L2 | L1 (AGENTS.md-derived) |
+| clap-noun-verb-pack | L2 (route skeletons) | L2 (every verb → hand handler) | L2 (args encoding) | L2 | L3 (in-file `#[cfg(test)]` proof mod, real handler calls + drift canary; 9/9 passing in receiptctl 2026-07-18 — see note below on the `>=` count fix this run required) | L2 (skip_if freeze marker) | L2 (receiptctl build, 26.7.4) |
+| wasm4pm-compat-pack | L2 (emit fns) | L2 (caller supplies ids/time) | L2 | L2 | L3 (6/6 passing generated proof in receiptctl 2026-07-18: behavioral proof with real emit_* calls + real serde_json round-trip against pinned 26.6.29 OCELEvent) | L2 | L2 (verified vs 26.6.29 source) |
+| wasm4pm-algorithms-pack | L2 (const catalog) | L2 (catalog only, no calls) | L2 | L2 | L3 (22/22 passing generated proof in receiptctl 2026-07-18, hand-transcribed spot checks + structural invariants) | L2 | L2 (receiptctl build) |
+| wasm4pm-cognition-pack | L2 (catalog + dispatch skeleton) | L2 | L2 | L2 | L3 (12/12 passing generated proof in receiptctl 2026-07-18) | L2 | L2 (receiptctl build) |
+| wasm4pm-facts-pack | L2 (registry doc) | L1 (doc only) | L2 | L2 | L3 (12/12 passing generated proof in receiptctl 2026-07-18) | L2 | L2 (mirror synced this week) |
+| chicago-tdd-tools-pack | L2 (boundary tests for a CLI it doesn't generate) | L2 | L2 | L2 | L3 (a second generated proof file asserts on the FIRST generated proof's own text — 5/5 passing in receiptctl 2026-07-18, after fixing two real false positives this run surfaced: naive `#[test]`/"mock" substring scans self-matched the generated file's own doc-comment prose) | L2 | L2 (needles/exit codes live-verified) |
+| praxis-core-pack | L2 | L2 | L2 | L2 | L3 (8/8 passing generated proof in pack-verify-2 scratch consumer 2026-07-18, cross-checks both the .rs and .md sibling artifacts) | L2 | UNVERIFIED |
+| star-toml-pack | L2 | L2 | L2 | L2 | L3 (5/5 passing generated proof in pack-verify-2, real TempDir-backed TOML load + 3 fail-closed cases: unknown key, missing field, missing file) | L2 | UNVERIFIED |
+| lsp-max-pack | L2 | L2 | L2 | L2 | L3 (7/7 passing generated proof in pack-verify-2, real `regex`/`toml` crates exercise each rule's pattern against literal positive/negative code snippets) | L2 | UNVERIFIED |
+| cargo-cicd-pack | L1→L2 (const table of another CLI's commands) | L1 (nothing callable) | L1 (facts only) | L2 | L3 (13/13 passing generated proof in pack-verify-2 2026-07-18; the proof template correctly reused this pack's existing IRI-prefix-filtered `cnv:Command` query from PR #271, avoiding a repeat of that earlier cross-pack contamination bug) | L2 (idempotency verified) | L1 (README-derived, not source-audited) |
+| mcpp-pack | L1→L2 | L1 | L1 | L2 | L3 (9/9 passing generated proof in pack-verify-2 2026-07-18) | L2 | L1 (README-grepped, known partial) |
+| osx-clnr-pack | L1→L2 | L1 | L1 | L2 | L3 (9/9 passing generated proof in pack-verify-2 2026-07-18) | L2 | L1 |
+| affidavit-pack | L1→L2 | L1 | L1 | L2 | L3 (15/15 passing generated proof in pack-verify-2 2026-07-18) | L2 | L1 |
+| anti-llm-cheat-lsp-pack | L1→L2 | L1 | L1 | L2 | L3 (12/12 passing generated proof in pack-verify-2 2026-07-18) | L2 | L1 |
+| wasm4pm-pack | L1→L2 (crate map table) | L1 | L1 | L2 | L3 (10/10 passing generated proof in pack-verify-2 2026-07-18) | L2 | L1 (Cargo.toml-derived) |
+| mfact-pack | L1→L2 | L1 | L1 | L2 | L3 (14/14 passing generated proof in pack-verify-2 2026-07-18) | L2 | L1 (README-derived) |
+| mfw-pack | L1→L2 | L1 | L1 | L2 | L3 (13/13 passing generated proof in pack-verify-2 2026-07-18, after fixing a literal `{{ }}` in a doc-comment that Tera tried to render as its own template syntax) | L2 | L1 (AGENTS.md-derived) |
+
+**Why "test generation" moved to L3, not L4/L5, for all 17:** each pack now ships a
+generated proof that runs and passes against the pack's *own* generated artifact with zero
+hand-written glue in the generated lane (the maturity spine's L3 bar: "does its job with
+only consumer configuration"). None reach L4 ("regeneration is the normal way the subsystem
+evolves") because none of these proofs have run in CI yet, are not wired into
+`just pre-commit`, and their expected literals still require a human to update by hand when
+the ontology changes (by design, to keep the proof non-tautological — see "Real bugs this
+verification pass surfaced" below). That hand-update requirement is itself an L3-not-L4
+marker: a human is still in the maintenance loop.
+
+**Real bugs this verification pass surfaced (evidence the L1→L3 claim above is not
+self-graded):**
+1. `clap-noun-verb-pack`'s original proof design used two separate templates (one
+   generating routes, one `inject: true`-ing a test module into the same file) — this
+   engine's own `FM-WRITE-008` duplicate-output guard correctly refused it on the very
+   first real sync. Fixed by merging both into one template. A second real bug then
+   surfaced only when run against `examples/receiptctl` specifically (not the pack in
+   isolation): receiptctl's own project ontology legitimately adds 3 more `cnv:Command`/3
+   more `cnv:Noun` individuals on top of this pack's 3/2, so an exact-count assertion
+   (`== 3`) failed against real data (`== 6`) the first time a real multi-source consumer
+   was tested, not a synthetic one. Fixed by asserting `>= 3` (a floor this pack can
+   actually guarantee) instead of `== 3`, and by scoping the count to exclude the test
+   module's own source text (which otherwise self-matched its own `"#[verb("` literal).
+2. `chicago-tdd-tools-pack`'s new proof counted `"#[test]"` and `"mock"` as raw substrings
+   against the sibling generated file — both false-positived against that file's own
+   legitimate doc-comment prose (`` `#[test]` `` mentioned in an explanatory comment;
+   "No mocks." disavowing mocks). Fixed by counting only lines that are exactly
+   `#[test]`, and by checking for real mock-usage markers (`mockall`, `#[automock]`, ...)
+   instead of the bare word "mock".
+3. `mfw-pack`'s proof template put a literal `{{ row.doc }}` inside an explanatory comment
+   about Tera syntax — since the proof file is itself a `.tmpl` rendered through Tera, that
+   literal was interpreted as a real (unbound) variable reference and failed the render
+   outright on the very first `ggen sync run`. Fixed by rewording the comment to not
+   contain literal Tera delimiters.
 
 "L1→L2" = generation exists (PR #271's verified sync + build) but generates only a
 description of another system — the floor of L2, nowhere near a fragment *of the

@@ -1,4 +1,4 @@
 [pack]
 name = "wasm4pm-algorithms-pack"
 version = "0.1.0"
-description = "Typed Rust catalog + reference doc for the wasm4pm process-intelligence ALGORITHM surface (catalog/caller surface only; all analysis stays in wasm4pm)"
+description = "Typed Rust catalog + reference doc for the wasm4pm process-intelligence ALGORITHM surface (catalog/caller surface only; all analysis stays in wasm4pm); now also generates tests/algorithms_catalog_proof.rs, a literal-value proof test against ontology.ttl for the CATALOG table and by_wasm_export/as_str dispatch"

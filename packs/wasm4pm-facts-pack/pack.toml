@@ -1,4 +1,4 @@
 [pack]
 name = "wasm4pm-facts-pack"
 version = "0.1.0"
-description = "Admitted wasm4pm graph facts: 55 compat:CognitionBreed and 60 pi:ProcessIntelligenceAlgorithm individuals carried verbatim from wasm4pm/ggen/ontology/{breeds,algorithms}.ttl, plus the registry-report template generated from them"
+description = "Admitted wasm4pm graph facts: 55 compat:CognitionBreed and 60 pi:ProcessIntelligenceAlgorithm individuals carried verbatim from wasm4pm/ggen/ontology/{breeds,algorithms}.ttl, plus the registry-report template generated from them; also generates a SPARQL-free artifact-fidelity proof test (tests/wasm4pm_facts_pack_registry_proof.rs) that reads the already-rendered BREED_ALGORITHM_REGISTRY.md and asserts it against literals hand-transcribed from ontology.ttl"

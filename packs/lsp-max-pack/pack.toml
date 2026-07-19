@@ -1,4 +1,4 @@
 [pack]
 name = "lsp-max-pack"
 version = "0.1.0"
-description = "Generates lsp-max RulePackServer rules/*.toml regex rule-pack files from LintRule individuals in the pack ontology."
+description = "Generates lsp-max RulePackServer rules/*.toml regex rule-pack files from LintRule individuals in the pack ontology. Also generates its own proof test (rule_pack_proof.rs.tmpl -> tests/lsp_max_rule_pack_proof.rs) that parses the generated TOML/markdown with real toml/regex crates and checks them against literals hand-transcribed from ontology.ttl, including running each rule's pattern against real positive/negative code snippets."

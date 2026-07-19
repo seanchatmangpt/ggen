@@ -1,4 +1,4 @@
 [pack]
 name = "chicago-tdd-tools-pack"
 version = "0.1.0"
-description = "Generates CliHarness-based Chicago-style CLI boundary tests (#[test] fns crossing a real binary boundary) from ctt:CliBoundaryTest individuals."
+description = "Generates CliHarness-based Chicago-style CLI boundary tests (#[test] fns crossing a real binary boundary) from ctt:CliBoundaryTest individuals. Also generates its own proof test (tests/chicago_tdd_tools_boundary_proof.rs): since the boundary tests exercise an external binary this pack doesn't ship (no reusable in-process artifact to call), the proof carries no sparql: query of its own and instead asserts, via plain substring checks, that the REAL rendered output of tests/chicago_tdd_tools_boundary.rs contains the fn signatures, exit-code assertions, stdout/stderr needles, and axiom doc-comments hand-transcribed from ontology.ttl's 3 ctt:CliBoundaryTest individuals."
