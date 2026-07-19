@@ -1,5 +1,12 @@
 //! [`TempWorkspace`] — hermetic temporary directory with file helpers.
 
+// Same rationale as cli_proof/receipt.rs: this module's assert_* methods panic
+// with a descriptive message on an unmet expectation, mirroring stdlib
+// `assert!`/`assert_eq!` semantics (themselves `panic!`-based and exempt from
+// this lint). Allowed here explicitly rather than weakening the crate-wide
+// `#![deny(clippy::panic)]` in lib.rs, which is meant for production logic.
+#![allow(clippy::panic)]
+
 use std::fs;
 use std::path::{Path, PathBuf};
 

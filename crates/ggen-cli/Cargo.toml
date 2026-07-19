@@ -21,9 +21,18 @@ required-features = [ "integration",]
 name = "packs"
 path = "tests/packs/mod.rs"
 
-[[test]]
-name = "cli_proof_tests"
-path = "tests/generated/cli_proof_tests.rs"
+# [[test]] name = "cli_proof_tests" / path = "tests/generated/cli_proof_tests.rs" removed
+# 2026-07-19 (CI fix, v26.7.18 release-prep follow-up): this target's file is declared
+# `generated/` in .gitignore (line 157) and, per this file's own comment further below
+# (search "Separate, still-open gap"), nothing in this repo currently generates it --
+# every fresh checkout's `cargo fmt --check` and `cargo clippy --all-targets` fail with
+# "can't find integration-test `cli_proof_tests`" before ever reaching real formatting/
+# lint work, entirely independent of any other change in this repo (confirmed via a
+# clean CI run against this exact commit). Re-add this block once the ggen.toml
+# "cli-proof-tests" generation rule (.specify/cli-proof-tests.ttl -> .specify/queries/
+# cli-proof-tests.rq -> .specify/templates/cli/cli_proof_test.rs.tera) has actually been
+# run and its output committed (or un-gitignored) -- tracked as a known gap, not fixed
+# here; see specs/014-ggen-core-replacement/tasks.md.
 
 [package]
 name = "ggen-cli-lib"
