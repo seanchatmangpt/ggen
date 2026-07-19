@@ -1,8 +1,25 @@
 # osx-clnr-pack ontology — the real 5-stage plan-bound pipeline described
-# in ~/osx-clnr/README.md's "Architecture & Workflow" section, plus the
-# two confirmed noun groups (snapshot, receipt) grepped from literal
-# "oclnr <noun> <verb>" invocations. Not a full CLI command enumeration
-# (no source audit performed this pass).
+# in ~/osx-clnr/README.md's "Architecture & Workflow" section, the two
+# confirmed noun groups (snapshot, receipt) grepped from literal
+# "oclnr <noun> <verb>" invocations, PLUS (2026-07-18 dated hand-verification
+# pass, real source read directly, not README/grep-only) argument specs and
+# a snapshot-selection policy transcribed line-by-line from the real
+# ~/osx-clnr source:
+#   - src/nouns/snapshot.rs (SnapshotAction enum: Audit{mount,ocel},
+#     Thin{mount,bytes,receipt,ocel}, Delete{mount,which,oldest_n,receipt,ocel})
+#   - src/nouns/receipt.rs (ReceiptAction::Verify{receipt,plan})
+#   - src/nouns/emergency.rs (handle(mount,yes,receipt))
+#   - src/domain/time.rs (parse_size_in_bytes: SI-decimal byte units b/kb/mb/
+#     gb/tb, multipliers 1/1e3/1e6/1e9/1e12; select_oldest_snapshots: filters
+#     unparsable names via parse_snapshot_date -- a dot-separated segment of
+#     exactly 17 chars, all ASCII digit or '-' -- then lexically sorts the
+#     zero-padded YYYY-MM-DD-HHMMSS date suffix ascending and truncates to n)
+# This is not a full CLI command enumeration (other real nouns exist:
+# audit, plan, delete, brew, docker, xcode, tools, tool_roots, backup,
+# privacy, exclusion, daemon, monitor, ocel, wpm, github, doctor, dev,
+# completion, wizard -- see ~/osx-clnr/src/nouns/mod.rs) but the 5 commands
+# and the selection/parsing policy modeled here are now each individually
+# source-verified, not guessed.
 
 @prefix oclnr: <http://seanchatmangpt.github.io/packs/osx-clnr#> .
 @prefix cnv:   <http://seanchatmangpt.github.io/packs/clap-noun-verb#> .
@@ -15,24 +32,26 @@ oclnr:Stage
     rdfs:comment "One step of the audit->plan->delete->receipt pipeline; deletion is plan-bound, never a live rescan." .
 
 oclnr:order a rdfs:Property ; rdfs:domain oclnr:Stage ; rdfs:range xsd:integer .
+oclnr:nextStage a rdfs:Property ; rdfs:domain oclnr:Stage ; rdfs:range oclnr:Stage ;
+    rdfs:comment "State-transition edge: the pipeline stage that follows this one. Audit->Plan->Review->Delete->Receipt, forming a total order; Receipt has no nextStage (terminal)." .
 
 oclnr:Audit
-    a oclnr:Stage ; oclnr:order 1 ;
+    a oclnr:Stage ; oclnr:order 1 ; oclnr:nextStage oclnr:Plan ;
     rdfs:label "Audit" ;
     rdfs:comment "Scans the filesystem with traversal barriers (skips node_modules/target) to inventory hidden tool caches." .
 
 oclnr:Plan
-    a oclnr:Stage ; oclnr:order 2 ;
+    a oclnr:Stage ; oclnr:order 2 ; oclnr:nextStage oclnr:Review ;
     rdfs:label "Plan" ;
     rdfs:comment "Dry run generates a reviewable JSON plan of cleanup candidates by age/size/tool heuristic." .
 
 oclnr:Review
-    a oclnr:Stage ; oclnr:order 3 ;
+    a oclnr:Stage ; oclnr:order 3 ; oclnr:nextStage oclnr:Delete ;
     rdfs:label "Human review" ;
     rdfs:comment "User inspects the plan or the emitted OCEL v2 event log before anything is deleted." .
 
 oclnr:Delete
-    a oclnr:Stage ; oclnr:order 4 ;
+    a oclnr:Stage ; oclnr:order 4 ; oclnr:nextStage oclnr:Receipt ;
     rdfs:label "Delete" ;
     rdfs:comment "Scanner is disabled; only the exact paths in the reviewed plan are deleted -- never a fresh live scan." .
 
@@ -43,6 +62,70 @@ oclnr:Receipt
 
 oclnr:snapshot-audit  a cnv:Command ; cnv:noun "snapshot" ; cnv:verb "audit"  ; rdfs:comment "List all local APFS snapshots." .
 oclnr:snapshot-thin   a cnv:Command ; cnv:noun "snapshot" ; cnv:verb "thin"   ; rdfs:comment "Thin snapshots down to a byte budget." .
-oclnr:snapshot-delete a cnv:Command ; cnv:noun "snapshot" ; cnv:verb "delete" ; rdfs:comment "Delete the oldest, or all, local snapshots." .
-oclnr:receipt-verify  a cnv:Command ; cnv:noun "receipt"  ; cnv:verb "verify" ; rdfs:comment "Verify measured reclaim against the receipt's claim, within tolerance." .
+oclnr:snapshot-delete a cnv:Command ; cnv:noun "snapshot" ; cnv:verb "delete" ; rdfs:comment "Delete specific local APFS snapshots (by name/date, or the oldest N)." .
+oclnr:receipt-verify  a cnv:Command ; cnv:noun "receipt"  ; cnv:verb "verify" ; rdfs:comment "Verify the contents, integrity, and filesystem consistency of a deletion receipt." .
 oclnr:emergency       a cnv:Command ; cnv:noun "emergency" ; cnv:verb "" ; rdfs:comment "Bare noun: dry-run or (--yes) execute deletion of all local snapshots + regenerable-cache sweep, for ENOSPC recovery." .
+
+# --- Argument structure (Ontology expressiveness: structural facts, not just
+# two flat strings per command) -- source-verified 2026-07-18 against the
+# real clap `#[derive(Subcommand)]` enums named in the header comment above.
+
+oclnr:Argument a rdfs:Class ; rdfs:label "Command argument" ;
+    rdfs:comment "One typed parameter of a cnv:Command, source-verified against the real clap enum variant it maps to." .
+oclnr:hasArgument a rdfs:Property ; rdfs:domain cnv:Command ; rdfs:range oclnr:Argument .
+oclnr:argName     a rdfs:Property ; rdfs:domain oclnr:Argument ; rdfs:range xsd:string .
+oclnr:argType     a rdfs:Property ; rdfs:domain oclnr:Argument ; rdfs:range xsd:string .
+oclnr:argRequired a rdfs:Property ; rdfs:domain oclnr:Argument ; rdfs:range xsd:boolean .
+oclnr:argDefault  a rdfs:Property ; rdfs:domain oclnr:Argument ; rdfs:range xsd:string .
+oclnr:argPosition a rdfs:Property ; rdfs:domain oclnr:Argument ; rdfs:range xsd:integer .
+
+oclnr:snapshot-audit-mount a oclnr:Argument ; oclnr:argName "mount" ; oclnr:argType "String" ; oclnr:argRequired false ; oclnr:argDefault "/" ; oclnr:argPosition 1 .
+oclnr:snapshot-audit-ocel  a oclnr:Argument ; oclnr:argName "ocel"  ; oclnr:argType "Option<PathBuf>" ; oclnr:argRequired false ; oclnr:argPosition 2 .
+oclnr:snapshot-audit oclnr:hasArgument oclnr:snapshot-audit-mount, oclnr:snapshot-audit-ocel .
+
+oclnr:snapshot-thin-mount   a oclnr:Argument ; oclnr:argName "mount"   ; oclnr:argType "String" ; oclnr:argRequired false ; oclnr:argDefault "/" ; oclnr:argPosition 1 .
+oclnr:snapshot-thin-bytes   a oclnr:Argument ; oclnr:argName "bytes"   ; oclnr:argType "String" ; oclnr:argRequired true  ; oclnr:argPosition 2 .
+oclnr:snapshot-thin-receipt a oclnr:Argument ; oclnr:argName "receipt" ; oclnr:argType "Option<PathBuf>" ; oclnr:argRequired false ; oclnr:argPosition 3 .
+oclnr:snapshot-thin-ocel    a oclnr:Argument ; oclnr:argName "ocel"    ; oclnr:argType "Option<PathBuf>" ; oclnr:argRequired false ; oclnr:argPosition 4 .
+oclnr:snapshot-thin oclnr:hasArgument oclnr:snapshot-thin-mount, oclnr:snapshot-thin-bytes, oclnr:snapshot-thin-receipt, oclnr:snapshot-thin-ocel .
+
+oclnr:snapshot-delete-mount    a oclnr:Argument ; oclnr:argName "mount"    ; oclnr:argType "String" ; oclnr:argRequired false ; oclnr:argDefault "/" ; oclnr:argPosition 1 .
+oclnr:snapshot-delete-which    a oclnr:Argument ; oclnr:argName "which"    ; oclnr:argType "String" ; oclnr:argRequired true  ; rdfs:comment "Snapshot name/date suffix, or the literal \"oldest\" or \"all\"." ; oclnr:argPosition 2 .
+oclnr:snapshot-delete-oldest_n a oclnr:Argument ; oclnr:argName "oldest_n" ; oclnr:argType "usize" ; oclnr:argRequired false ; oclnr:argDefault "1" ; oclnr:argPosition 3 .
+oclnr:snapshot-delete-receipt  a oclnr:Argument ; oclnr:argName "receipt"  ; oclnr:argType "Option<PathBuf>" ; oclnr:argRequired false ; oclnr:argPosition 4 .
+oclnr:snapshot-delete-ocel     a oclnr:Argument ; oclnr:argName "ocel"     ; oclnr:argType "Option<PathBuf>" ; oclnr:argRequired false ; oclnr:argPosition 5 .
+oclnr:snapshot-delete oclnr:hasArgument oclnr:snapshot-delete-mount, oclnr:snapshot-delete-which, oclnr:snapshot-delete-oldest_n, oclnr:snapshot-delete-receipt, oclnr:snapshot-delete-ocel .
+
+oclnr:receipt-verify-receipt a oclnr:Argument ; oclnr:argName "receipt" ; oclnr:argType "PathBuf" ; oclnr:argRequired true ; oclnr:argPosition 1 .
+oclnr:receipt-verify-plan    a oclnr:Argument ; oclnr:argName "plan"    ; oclnr:argType "Option<PathBuf>" ; oclnr:argRequired false ; oclnr:argPosition 2 .
+oclnr:receipt-verify oclnr:hasArgument oclnr:receipt-verify-receipt, oclnr:receipt-verify-plan .
+
+oclnr:emergency-mount   a oclnr:Argument ; oclnr:argName "mount"   ; oclnr:argType "String" ; oclnr:argRequired false ; oclnr:argDefault "/" ; oclnr:argPosition 1 .
+oclnr:emergency-yes     a oclnr:Argument ; oclnr:argName "yes"     ; oclnr:argType "bool" ; oclnr:argRequired false ; oclnr:argDefault "false" ; oclnr:argPosition 2 .
+oclnr:emergency-receipt a oclnr:Argument ; oclnr:argName "receipt" ; oclnr:argType "Option<PathBuf>" ; oclnr:argRequired false ; oclnr:argPosition 3 .
+oclnr:emergency oclnr:hasArgument oclnr:emergency-mount, oclnr:emergency-yes, oclnr:emergency-receipt .
+
+# --- Selection/parsing policy (Generation depth + Handler-gap: real
+# computable behavior facts, not just names) -- transcribed line-by-line
+# from ~/osx-clnr/src/domain/time.rs's `select_oldest_snapshots`,
+# `parse_snapshot_date`, and `parse_size_in_bytes` (2026-07-18).
+
+oclnr:ByteUnit a rdfs:Class ; rdfs:comment "One SI-decimal byte-size unit suffix accepted by oclnr's --bytes argument parser." .
+oclnr:unitSuffix     a rdfs:Property ; rdfs:domain oclnr:ByteUnit ; rdfs:range xsd:string .
+oclnr:unitMultiplier a rdfs:Property ; rdfs:domain oclnr:ByteUnit ; rdfs:range xsd:integer .
+
+oclnr:unit-b  a oclnr:ByteUnit ; oclnr:unitSuffix "b"  ; oclnr:unitMultiplier 1 .
+oclnr:unit-kb a oclnr:ByteUnit ; oclnr:unitSuffix "kb" ; oclnr:unitMultiplier 1000 .
+oclnr:unit-mb a oclnr:ByteUnit ; oclnr:unitSuffix "mb" ; oclnr:unitMultiplier 1000000 .
+oclnr:unit-gb a oclnr:ByteUnit ; oclnr:unitSuffix "gb" ; oclnr:unitMultiplier 1000000000 .
+oclnr:unit-tb a oclnr:ByteUnit ; oclnr:unitSuffix "tb" ; oclnr:unitMultiplier 1000000000000 .
+
+oclnr:SnapshotSelectionPolicy
+    a rdfs:Class ;
+    rdfs:comment "The real oldest-N snapshot selection rule used by `oclnr snapshot delete --which oldest`: filter to parseable date-suffixed names, sort ascending (oldest first), truncate to N." .
+
+oclnr:snapshot-selection-policy
+    a oclnr:SnapshotSelectionPolicy ;
+    oclnr:dateSuffixLength 17 ;
+    rdfs:comment "A snapshot name segment (split on '.') is a valid date suffix iff it is exactly 17 characters, all ASCII digits or '-' (zero-padded YYYY-MM-DD-HHMMSS, so lexical sort order equals chronological order)." .
+oclnr:dateSuffixLength a rdfs:Property ; rdfs:domain oclnr:SnapshotSelectionPolicy ; rdfs:range xsd:integer .

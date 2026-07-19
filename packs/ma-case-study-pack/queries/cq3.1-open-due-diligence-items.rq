@@ -1,0 +1,19 @@
+# CQ3.1 (COMPETENCY_QUESTIONS.md concept 3): "Which due-diligence items
+# remain open for acquisition X?"
+#
+# Added in the 2026-07-19 L5-push pass to close part of the disclosed
+# Question coverage gap named in docs/packs/L5_VALIDATION_REPORT.md:
+# "Zero committed SPARQL queries exist anywhere in the pack, so even L2 is
+# unmet." This is the first committed .rq file in this pack. Verified live
+# this session against fixtures/case.ttl via the scratch consumer at
+# /private/tmp/claude-501/-Users-sac-ggen/70ac08c7-8655-49c4-baa2-018bc441bb4c/
+# scratchpad/l5-push-ma-case-study-pack/ (praxis_graphlaw::TripleStore::query),
+# returning exactly the 1 open item case.ttl asserts
+# (customer-contract-consent-assignments) -- not merely written, executed.
+
+PREFIX ma: <http://seanchatmangpt.github.io/packs/ma-case-study#>
+
+SELECT ?item WHERE {
+  ?item a ma:DueDiligenceItem ;
+        ma:dueDiligenceDisposition ma:Open .
+}

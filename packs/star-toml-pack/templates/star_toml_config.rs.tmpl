@@ -1,21 +1,25 @@
 ---
 to: src/star_toml_config.rs
+freeze_policy: checksum
+freeze_slots_dir: .ggen/freeze/star_toml_config
 sparql:
   a_sections: >
     PREFIX stp: <http://seanchatmangpt.github.io/packs/star-toml#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    SELECT ?sectionLabel ?sectionDoc WHERE {
-      ?sec a stp:ConfigSection ; rdfs:label ?sectionLabel ; stp:doc ?sectionDoc .
+    SELECT ?sectionLabel ?sectionDoc ?closedWorld ?loaderFn WHERE {
+      ?sec a stp:ConfigSection ; rdfs:label ?sectionLabel ; stp:doc ?sectionDoc ;
+           stp:closedWorld ?closedWorld ; stp:loaderFn ?loaderFn .
     } ORDER BY ?sectionLabel
   fields: >
     PREFIX stp: <http://seanchatmangpt.github.io/packs/star-toml#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    SELECT ?sectionLabel ?fieldName ?rustType ?fieldDoc WHERE {
+    SELECT ?sectionLabel ?fieldName ?rustType ?fieldDoc ?required WHERE {
       ?f a stp:ConfigField ;
          stp:inSection ?sec ;
          stp:fieldName ?fieldName ;
          stp:rustType ?rustType ;
-         stp:doc ?fieldDoc .
+         stp:doc ?fieldDoc ;
+         stp:required ?required .
       ?sec rdfs:label ?sectionLabel .
     } ORDER BY ?sectionLabel ?fieldName
 ---
@@ -24,16 +28,24 @@ sparql:
 //!
 //! Raw parse != trusted config: these structs are the schema surface; the
 //! admission decision belongs to star_toml's typestate pipeline.
+//!
+//! `#[serde(deny_unknown_fields)]` and the loader delegation below are NOT
+//! template-author assumptions: they are projected from each
+//! `stp:ConfigSection`'s `stp:closedWorld`/`stp:loaderFn` facts in
+//! `ontology.ttl`. Per-field optionality is likewise projected from
+//! `stp:required` rather than every field being unconditionally required.
 
 use serde::Deserialize;
 
 {% for s in a_sections %}/// {{ s.sectionDoc }}
 #[derive(Debug, Clone, PartialEq, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct {{ s.sectionLabel | pascal_case }}Config {
+{% if s.closedWorld %}#[serde(deny_unknown_fields)]
+{% endif %}pub struct {{ s.sectionLabel | pascal_case }}Config {
 {% for f in fields %}{% if f.sectionLabel == s.sectionLabel %}    /// {{ f.fieldDoc }}
-    pub {{ f.fieldName }}: {{ f.rustType }},
-{% endif %}{% endfor %}}
+{% if f.required %}    pub {{ f.fieldName }}: {{ f.rustType }},
+{% else %}    #[serde(default)]
+    pub {{ f.fieldName }}: Option<{{ f.rustType }}>,
+{% endif %}{% endif %}{% endfor %}}
 
 {% endfor %}/// Root of the admitted `*.toml` document (closed key set, fail closed).
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -43,13 +55,16 @@ pub struct StarTomlConfig {
     pub {{ s.sectionLabel | snake_case }}: {{ s.sectionLabel | pascal_case }}Config,
 {% endfor %}}
 
+{% set loader = a_sections | first %}
 impl StarTomlConfig {
-    /// Load and parse a config file via `star_toml` (env-expanded, closed keys).
+    /// Load and parse a config file via `{{ loader.loaderFn }}`
+    /// (env-expanded, closed keys) -- the loader's fully-qualified name
+    /// comes from `stp:loaderFn` in the ontology, not a template literal.
     ///
     /// # Errors
     /// Returns `star_toml::Error` on a missing file, TOML syntax error, or
-    /// any unknown key (deny_unknown_fields on every table).
+    /// any unknown key in a `stp:closedWorld` section.
     pub fn load(path: &std::path::Path) -> Result<Self, star_toml::Error> {
-        star_toml::load_file::<Self>(path)
+        {{ loader.loaderFn }}::<Self>(path)
     }
 }

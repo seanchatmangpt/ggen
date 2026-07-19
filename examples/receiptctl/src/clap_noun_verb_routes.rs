@@ -13,7 +13,8 @@
 //! Rust-reserved-word raw-identifier escaping.
 
 use clap_noun_verb::Result;
-use clap_noun_verb_macros::verb;/// List every wasm4pm process-intelligence algorithm in the generated catalog.
+use clap_noun_verb_macros::verb;
+use serde_json::json;/// List every wasm4pm process-intelligence algorithm in the generated catalog.
 #[verb("list", "algorithm")]
 fn algorithm_list(
 ) -> Result<serde_json::Value> {
@@ -47,6 +48,16 @@ fn session_login(
     crate::verbs::handlers::session_login_handler(
         token,
     )
+}
+
+/// Zero-argument liveness check with a fixed response body -- entirely ontology-specified, no hand-written handler required.
+#[verb("ping", "session")]
+fn session_ping(
+) -> Result<serde_json::Value> {
+    // Zero-handler command: cnv:staticResponse fully specifies this
+    // command's behavior in the ontology. No `crate::verbs::handlers::*`
+    // fn is called or required to exist for `session ping`.
+    Ok(json!({ "status": "alive", "noun": "session", "verb": "ping" }))
 }
 
 /// Verify the active session token against the stored keyring credential.
@@ -146,12 +157,16 @@ mod clap_noun_verb_routes_proof_tests {
     // pass, even with `inject: true` on one of them) by construction: there
     // is only ever one template, one `to:` target, for this file.
     //
-    // Every expected value below is a literal the author hand-transcribed
-    // from `packs/clap-noun-verb-pack/ontology.ttl`, never re-derived via the
-    // same SPARQL SELECT that produced the wrapper fns/docs above -- so a
-    // dropped, renamed, or mis-typed `cnv:Command`/`cnv:Noun` individual, or
-    // a broken required/optional-arg mapping, fails these tests even though
-    // it would not fail a tautological self-comparison.
+    // Tier 1's per-command literals below (token/name/email fixture values)
+    // are still hand-written proof INPUTS -- that's normal Chicago-TDD
+    // arrange-phase data, not a drift risk. Tier 2's EXPECTED_* constants,
+    // by contrast, are rendered by this same template pass from the
+    // `commands`/`nouns` SPARQL projection that also produced the routes
+    // above (see this template's own Tera for-loops in Tier 2 below). A
+    // dropped, renamed, or mis-typed `cnv:Command`/`cnv:Noun` individual
+    // changes the generated routes AND the generated expectations in the
+    // same regen, so this is a real drift canary against the ontology, not
+    // a tautological self-comparison of hand-copied strings.
     use super::*;
 
     // ---- Tier 1: real calls through the generated wrapper into the real,
@@ -183,6 +198,21 @@ mod clap_noun_verb_routes_proof_tests {
         );
     }
 
+    // cnv:SessionPing carries cnv:staticResponse -- its ENTIRE behavior,
+    // not just its signature, is specified in ontology.ttl. This asserts
+    // on actual output CONTENT (not merely `.is_ok()`), and the expected
+    // content below is the literal ontology fact
+    // `json!({ "status": "alive", "noun": "session", "verb": "ping" })`,
+    // reached with zero hand-written `crate::verbs::handlers::*` code:
+    // there is no `session_ping_handler` anywhere in this crate.
+    #[test]
+    fn session_ping_is_zero_handler_and_returns_its_ontology_specified_body() {
+        let result = session_ping().expect("session_ping has no handler dependency; always Ok");
+        assert_eq!(result["status"], "alive");
+        assert_eq!(result["noun"], "session");
+        assert_eq!(result["verb"], "ping");
+    }
+
     #[test]
     fn user_create_required_name_with_optional_email_present() {
         // cnv:UserCreate cnv:args
@@ -206,11 +236,33 @@ mod clap_noun_verb_routes_proof_tests {
 
     // ---- Tier 2: drift canary. Re-reads this same generated file's own
     // source text at compile time and checks it against literal
-    // counts/strings hand-transcribed from the ontology. This catches
-    // someone adding/removing a `cnv:Command`/`cnv:Noun` individual without
-    // updating this test, which Tier 1 alone would not (Tier 1 only
-    // exercises the three commands that already exist by name, so it can't
-    // notice a deleted command or noun).
+    // counts/strings rendered by THIS SAME TEMPLATE PASS from the same
+    // `commands`/`nouns` SPARQL-projected context that produced the routes
+    // above (see this template's own command/noun for-loops that emitted
+    // the wrapper fns and noun registrations) --
+    // NOT hand-transcribed by a human re-reading ontology.ttl. An ontology
+    // edit that adds/removes/renames a `cnv:Command`/`cnv:Noun` individual
+    // therefore regenerates BOTH the production code and these expected
+    // literals in the same `ggen sync` pass: there is no separate manual
+    // transcription step left to drift out of sync with the ontology.
+    const EXPECTED_COMMAND_COUNT: usize = 7;
+    const EXPECTED_NOUN_COUNT: usize = 5;
+    const EXPECTED_DOCS: &[&str] = &[
+        "List every wasm4pm process-intelligence algorithm in the generated catalog.",
+        "List every wasm4pm cognition breed in the generated catalog.",
+        "Emit a receipt_chained OCEL event for a given sync-receipt id.",
+        "Start an authenticated session and persist the token.",
+        "Zero-argument liveness check with a fixed response body -- entirely ontology-specified, no hand-written handler required.",
+        "Verify the active session token against the stored keyring credential.",
+        "Create a user resource and emit its serialized record.",
+    ];
+    const EXPECTED_NOUN_DESCRIPTIONS: &[&str] = &[
+        "Inspect the wasm4pm process-intelligence algorithm catalog.",
+        "Inspect the wasm4pm cognition breed catalog.",
+        "Emit OCEL events for the wasm4pm-compat receipt/pack lifecycle.",
+        "Manage authenticated session tokens.",
+        "Manage user resources.",
+    ];
     //
     // `src/clap_noun_verb_routes.rs` is this pack's own fixed `to:` path
     // (see this template's frontmatter) -- not derived from `file!()`, so
@@ -248,44 +300,52 @@ mod clap_noun_verb_routes_proof_tests {
     }
 
     #[test]
-    fn generated_source_has_at_least_this_packs_three_verb_commands() {
+    fn generated_source_has_at_least_this_packs_verb_commands() {
         let count = routes_only().matches("#[verb(").count();
         assert!(
-            count >= 3,
-            "expected at least the 3 verb commands cnv:SessionLogin/SessionVerify/UserCreate \
-             from this pack's own ontology.ttl, found {count} in the generated routes portion \
-             (a consuming project's own ontology may legitimately add more)"
+            count >= EXPECTED_COMMAND_COUNT,
+            "expected at least the {EXPECTED_COMMAND_COUNT} verb commands from this pack's own \
+             ontology.ttl (count itself rendered from the same `commands` SPARQL projection), \
+             found {count} in the generated routes portion (a consuming project's own ontology \
+             may legitimately add more)"
         );
     }
 
     #[test]
-    fn generated_source_has_at_least_this_packs_two_registered_nouns() {
+    fn generated_source_has_at_least_this_packs_registered_nouns() {
         let count = routes_only()
             .matches("CommandRegistry::register_noun(")
             .count();
         assert!(
-            count >= 2,
-            "expected at least the 2 nouns cnv:SessionNoun/UserNoun from this pack's own \
-             ontology.ttl, found {count} in the generated routes portion (a consuming \
-             project's own ontology may legitimately add more)"
+            count >= EXPECTED_NOUN_COUNT,
+            "expected at least the {EXPECTED_NOUN_COUNT} nouns from this pack's own ontology.ttl \
+             (count itself rendered from the same `nouns` SPARQL projection), found {count} in \
+             the generated routes portion (a consuming project's own ontology may legitimately \
+             add more)"
         );
     }
 
     #[test]
     fn generated_source_carries_literal_command_docs_from_ontology() {
-        assert!(GENERATED_SOURCE
-            .contains("Start an authenticated session and persist the token."));
-        assert!(GENERATED_SOURCE.contains(
-            "Verify the active session token against the stored keyring credential."
-        ));
-        assert!(GENERATED_SOURCE
-            .contains("Create a user resource and emit its serialized record."));
+        for doc in EXPECTED_DOCS {
+            assert!(
+                GENERATED_SOURCE.contains(doc),
+                "generated routes missing doc comment {doc:?} (rendered from the same \
+                 `commands` projection as the routes themselves)"
+            );
+        }
     }
 
     #[test]
     fn generated_source_carries_literal_noun_descriptions_from_ontology() {
-        assert!(GENERATED_SOURCE.contains("\"Manage authenticated session tokens.\""));
-        assert!(GENERATED_SOURCE.contains("\"Manage user resources.\""));
+        for about in EXPECTED_NOUN_DESCRIPTIONS {
+            let needle = format!("\"{about}\"");
+            assert!(
+                GENERATED_SOURCE.contains(&needle),
+                "generated routes missing noun description {needle:?} (rendered from the same \
+                 `nouns` projection as the registrations themselves)"
+            );
+        }
     }
 
     #[test]

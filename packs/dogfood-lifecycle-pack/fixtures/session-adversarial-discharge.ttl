@@ -1,0 +1,51 @@
+# fixtures/session-adversarial-discharge.ttl — GAMED input: identical to
+# session-discharged.ttl EXCEPT event-5 (the later dfl:Ok event) is run by a
+# DIFFERENT agent (#otherAgent, not #mainAgent, the one the Obligation
+# targets). A naive discharge rule that only checked "later Ok event in the
+# same session" (dropping the same-agent conjunct) would incorrectly
+# discharge the Obligation here. hook.ttl's discharge_review_obligation
+# CONSTRUCT requires ?e2's prov:wasAssociatedWith to unify with the SAME
+# ?agent bound by the Obligation's dfl:obligationTarget, so this fixture
+# must NOT discharge: the Obligation derived from event-4 must remain
+# dfl:obligationStatus dfl:Open, with no dfl:dischargedBy triple. Verified
+# by the scratch consumer test (fails closed — see README.md "Obligation
+# derivation — verified").
+
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@base <http://seanchatmangpt.github.io/packs/dogfood-lifecycle/fixtures/session-adversarial-discharge#> .
+
+<#operator>    a prov:Agent , prov:Person ; dcterms:description "Operator." .
+<#mainAgent>   a prov:Agent , prov:SoftwareAgent ; prov:actedOnBehalfOf <#operator> ; dcterms:description "The agent that got blocked." .
+<#otherAgent>  a prov:Agent , prov:SoftwareAgent ; prov:actedOnBehalfOf <#operator> ; dcterms:description "A DIFFERENT agent whose unrelated success must not discharge mainAgent's obligation." .
+
+<#session>
+    a                     dfl:Session ;
+    dcterms:identifier    "adversarial-discharge-session-001" ;
+    prov:wasAssociatedWith <#mainAgent> ;
+    dcterms:description    "Adversarial: a different agent's later success must NOT discharge this obligation." .
+
+<urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae>
+    a prov:Entity ; dcterms:description "Bash input." .
+<urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8>
+    a prov:Entity ; dcterms:description "Bash output." .
+
+<#event-4>
+    a dfl:ToolEvent ; dcterms:isPartOf <#session> ; skos:notation "Bash" ;
+    dfl:sequenceIndex 4 ; time:inXSDDateTimeStamp "2026-07-18T10:01:00Z"^^xsd:dateTimeStamp ;
+    dfl:outcome dfl:Blocked ; prov:wasAssociatedWith <#mainAgent> ;
+    prov:used <urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae> ;
+    prov:generated <urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8> ;
+    dcterms:description "mainAgent blocked." .
+
+<#event-5>
+    a dfl:ToolEvent ; dcterms:isPartOf <#session> ; skos:notation "Bash" ;
+    dfl:sequenceIndex 5 ; time:inXSDDateTimeStamp "2026-07-18T10:02:00Z"^^xsd:dateTimeStamp ;
+    dfl:outcome dfl:Ok ; prov:wasAssociatedWith <#otherAgent> ;
+    prov:used <urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae> ;
+    prov:generated <urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8> ;
+    dcterms:description "otherAgent's unrelated success — must NOT discharge mainAgent's obligation." .

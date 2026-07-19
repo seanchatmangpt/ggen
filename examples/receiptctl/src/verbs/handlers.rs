@@ -67,7 +67,19 @@ pub fn cognition_list_handler() -> Result<Value> {
 pub fn receipt_emit_handler(sync_receipt_id: String) -> Result<Value> {
     let now = Utc::now().fixed_offset();
     let event_id = format!("evt-{}-{}", sync_receipt_id, now.timestamp());
-    let event = emit_receipt_chained(event_id, now, sync_receipt_id);
+    // `chain_hash` is a real, freshly-computed hash of the receipt id this
+    // handler was called with -- not a placeholder literal. It is
+    // `std::hash::DefaultHasher` (a real, deterministic, non-cryptographic
+    // hash), NOT this repo's BLAKE3 sync-receipt chain hash
+    // (`crates/praxis-core::ReceiptRecord`); a real consumer wiring this to
+    // an actual receipt chain would pass that chain's own hash here instead.
+    let chain_hash = {
+        use std::hash::{DefaultHasher, Hash, Hasher};
+        let mut hasher = DefaultHasher::new();
+        sync_receipt_id.hash(&mut hasher);
+        format!("{:016x}", hasher.finish())
+    };
+    let event = emit_receipt_chained(event_id, now, sync_receipt_id, chain_hash);
     Ok(serde_json::to_value(event).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!(
             "failed to serialize OCEL event: {e}"

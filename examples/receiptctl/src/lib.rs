@@ -22,6 +22,14 @@ pub mod w4pm_cognition_dispatch;
 #[path = "wasm4pm_compat_events.rs"]
 pub mod wasm4pm_compat_events;
 
+// Per-pack lib-wiring mounts (each pack's own `_lib_wiring.rs.tmpl` -- see
+// that template's own header note for why this is one hand-written
+// `include!` per pack rather than a generated multi-pack lib.rs: two
+// packs both trying to inject into this same shared file hits the engine's
+// own FM-WRITE-008 duplicate-output guard).
+include!("wasm4pm_cognition_lib_wiring.rs");
+include!("wasm4pm_facts_lib_wiring.rs");
+
 /// Auto-discover and dispatch every registered `#[verb]` command.
 pub fn run() -> Result<()> {
     clap_noun_verb::run()

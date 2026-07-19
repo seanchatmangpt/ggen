@@ -35,8 +35,148 @@ tool call  --PostToolUse hook-->  session-<id>.ttl  --ggen graph validate-->  ch
 | `fixtures/session-good.ttl` | Well-formed sample session log |
 | `fixtures/session-malformed.ttl` | Deliberately broken sample (the parse falsifier) |
 | `hooks/dogfood-lifecycle-capture.sh` | PostToolUse capture hook (canonical copy; the live install lives in `.claude/hooks/`) |
-| `hooks/dogfood-lifecycle-session-end.sh` | Session-end validator + hash-chained receipt writer |
+| `hooks/dogfood-lifecycle-session-end.sh` | Session-end validator + hash-chained receipt writer + governance-coverage check + log rotation |
 | `hooks/dogfood-lifecycle-receipt-spotcheck.sh` | Bash-only recompute smoke test for the receipt chain (not a trust boundary — see follow-ups) |
+| `hooks/dogfood-lib.sh` | Shared helpers (v26.7.18): repo-root resolution, the Turtle-append primitive, the invocation counter, on-ingest validation |
+| `hooks/cng-plan-admission-guard.sh` | PreToolUse guard; on refusal, now also appends a `dfl:Blocked` ToolEvent + a chained refusal receipt (v26.7.18) |
+| `hook.ttl` | Real `kh:` Knowledge Hooks (v26.7.18): `derive_review_obligation` + `discharge_review_obligation`, run through praxis-graphlaw's `TripleStore::load_hook_pack`/`.materialize()` |
+| `hooks/dogfood-self-monitoring-precedence.ttl` | Additive cross-pack `kh:after` declaration (composability; v26.7.18) — see "Composability" below |
+
+## v26.7.18 gap-closing pass (real changes, real verification)
+
+This section documents what changed in this pass against the L5 validation report's named
+gaps for this pack, and exactly what was (and was not) verified. Default assumption for every
+claim below: `UNVERIFIED` unless a command + result is cited.
+
+### Derivation power / Obligation lifecycle — real `kh:` hooks, ALIVE
+
+`ontology.ttl` gained a real `dfl:Obligation` vocabulary (`derivedFrom`, `obligationTarget`,
+`severity`, `deadline`, `obligationStatus`, `dischargedBy`) and `hook.ttl` gained two real
+Knowledge Hooks run through the SAME production mechanism
+`packs/self-monitoring-pack/hook.ttl` uses (`praxis_graphlaw::TripleStore::load_hook_pack` +
+`.materialize()`, not a hand-simulated derivation):
+
+- `derive_review_obligation` — CONSTRUCTs one parameterized `dfl:Obligation` (target agent,
+  `dfl:High` severity, `"PT24H"^^xsd:duration` deadline — a policy constant, never a wall-clock
+  read) per `dfl:Blocked` tool event.
+- `discharge_review_obligation` — CONSTRUCTs `dfl:dischargedBy` + `dfl:obligationStatus
+  dfl:Discharged` when the SAME agent has a LATER `dfl:Ok` event in the same session.
+
+ALIVE, verified by a scratch consumer crate (own `Cargo.toml`, path-dependency on
+`praxis-graphlaw`, under this session's scratchpad — not committed here, per the task's own
+scratch-consumer pattern) with 5 real `#[test]` functions run via `cargo test`, all passing:
+
+```text
+running 5 tests
+test discharges_when_the_same_agent_later_succeeds ... ok
+test derives_one_open_obligation_from_the_blocked_event ... ok
+test does_not_fire_on_the_adjacent_error_outcome ... ok
+test adversarial_different_agent_success_does_not_discharge ... ok
+test cross_pack_precedence_resolves_and_both_packs_derive_over_one_union_graph ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+```
+
+Two real engine limitations were found and worked around live (both disclosed in `hook.ttl`'s
+own comments, not hidden): (1) `kh:effect "emit-delta"` is append-only — a CONSTRUCT that
+asserted `dfl:Open` directly would leave it coexisting permanently alongside a later
+`dfl:Discharged` (never retracted), so `derive_review_obligation` deliberately never asserts
+`dfl:Open` at all; "open" is defined as the absence of a `dfl:Discharged` triple, queried
+directly. (2) embedding `FILTER NOT EXISTS` inside a hook's own `kh:query`/action `CONSTRUCT`
+text broke `HookProps` extraction (`"Unable to parse Query"`) even though the identical query
+text worked fine via a direct `TripleStore::query()` call — worked around by dropping the guard
+entirely, since re-CONSTRUCTing the same triples on a later `materialize()` round is idempotent
+(a set, not a list) and therefore safe without it.
+
+New fixtures exercising fire precision and the obligation lifecycle, all `ggen graph validate
+--shapes shapes.ttl`-conformant: `fixtures/session-discharged.ttl` (positive discharge),
+`fixtures/session-adversarial-discharge.ttl` (a DIFFERENT agent's success must not discharge —
+fails closed), `fixtures/session-error-not-blocked.ttl` (the adjacent `dfl:Error`-not-`Blocked`
+outcome must not fire).
+
+### Composability — real cross-pack `kh:after`, ALIVE, with a disclosed coupling risk
+
+`hooks/dogfood-self-monitoring-precedence.ttl` is a one-triple additive file
+(`dfl:derive_review_obligation kh:after smon:flag_ungoverned_transition .`) that is NOT baked
+into `hook.ttl` itself — baking it in directly would make this pack's OWN derivation fail to
+load standalone (`hooks::compile_hooks` hard-errors "unknown after-dependency" if the named
+hook isn't in the SAME load). The `cross_pack_precedence_resolves_and_both_packs_derive_over_
+one_union_graph` test (passing, cited above) co-loads `hook.ttl` + this precedence file +
+`self-monitoring-pack/hook.ttl` + a fixture from each pack into ONE `TripleStore`, and confirms
+`hooks::schedule_hooks`'s real Kahn's-algorithm topological sort resolves the cross-pack
+dependency and BOTH packs still derive correctly over the union graph.
+
+**Disclosed volatility found live, this session:** `self-monitoring-pack/hook.ttl` (a separate
+pack this change does not edit) was restructured mid-session — most likely by a concurrent
+agent working that pack in parallel — from a single `smon:derive_escalation_obligation` hook
+(the IRI this pack's own ontology.ttl comments originally cited) to four parameterized hooks
+(`smon:prioritize_escalation_obligation_{low,medium,high}`, `smon:flag_ungoverned_transition`).
+The precedence file above was updated to name the hook that actually exists as of this pass. If
+that pack renames/removes `flag_ungoverned_transition` in a later pass, this file's `kh:after`
+will again fail to resolve the next time both packs are co-loaded — a real, disclosed coupling
+risk inherent to naming another pack's hook IRI, not a defect unique to this file.
+
+### Actuation closure — refusal path now reachable and receipted, ALIVE
+
+`hooks/cng-plan-admission-guard.sh`'s block path (exit 2) now (a) appends a real `dfl:Blocked`
+`dfl:ToolEvent` via the shared `dogfood_append_event` primitive (`hooks/dogfood-lib.sh`) — the
+ONLY way one can ever exist, since PostToolUse structurally never fires for a call a PreToolUse
+hook blocked — and (b) appends a hash-chained refusal receipt to the SAME `receipts.jsonl`
+chain `dogfood-lifecycle-session-end.sh` writes to. Verified live this session against a scratch
+fake repo with a stub `cng` binary that always refuses:
+
+```text
+$ echo '{"session_id":"guardtest","tool_input":{"command":"rm -rf /"}}' \
+    | bash hooks/cng-plan-admission-guard.sh
+Blocked: 'cng plan check' refused this Bash command ...
+$ echo $?
+2
+$ ggen graph validate --files .../session-guardtest.ttl --shapes shapes.ttl
+{"shapes_conform": true, ...}          # the Blocked ToolEvent conforms
+$ tail -1 .../receipts.jsonl
+{"kind":"plan-admission-refusal","session_id":"guardtest", ..., "chain_hash":"cc53667f..."}
+```
+
+Still NOT closed: actuation outcomes do not yet flow back into the graph as new OBSERVED facts
+beyond the Blocked event + refusal receipt themselves (no re-observation of e.g. "operator then
+tried a different, permitted command" as a linked follow-up fact) — the full "derive → actuate
+→ receipt → re-observe" loop from the L5 bar is now three-quarters real, not four.
+
+### Input acquisition — parameterized target + on-ingest validation + rotation, PARTIAL
+
+All four hook scripts now resolve their capture/validation root via `hooks/dogfood-lib.sh`'s
+`dogfood_repo_root` (`$DOGFOOD_REPO_ROOT` env var, else derived from the script's own on-disk
+location) instead of a hardcoded `/Users/sac/praxis` path — verified live against a scratch
+fake repo (`DOGFOOD_REPO_ROOT=<scratch>/fake-repo`, real capture + validate + receipt + spot-
+check all ran correctly against that root, shown above and in the "Governance coverage"
+section). `dogfood-lifecycle-capture.sh` now calls `ggen graph validate --shapes` immediately
+after every append (`ingest-validation.jsonl`), not only at session-end. A retention policy
+(`DOGFOOD_MAX_EVENTS`, default 5000) archives an over-grown log to `archived/` and receipts the
+rotation. Still NOT closed: capture (the actual bytes captured per tool call) remains a
+consumer-installed PostToolUse hook, not something this pack runs unattended end to end without
+the parent session wiring `.claude/settings.json` — L5's "consumer points it at a source" bar
+is not fully met.
+
+### Governance coverage — real coverage-detection mechanism, ALIVE
+
+`dogfood-lifecycle-capture.sh` now increments a per-session invocation counter
+(`dogfood_bump_invocation_counter`) for EVERY tool call it observes, before the closed
+tool-name allowlist decides whether a `dfl:ToolEvent` gets admitted. `dogfood-lifecycle-
+session-end.sh` compares that counter against the number of `dfl:ToolEvent` nodes actually
+captured and receipts any gap as `governance_gap: true`. Verified live: 3 simulated tool calls
+(2 supported, 1 unsupported-tool-name) produced `invocations_seen: 3`, `tool_events: 2`, and a
+printed + receipted anomaly:
+
+```text
+dogfood: GOVERNANCE ANOMALY in .../session-testsid1.ttl — 3 invocation(s) seen but only 2
+dfl:ToolEvent(s) captured (gap=1)
+{"session_log":"session-testsid1.ttl", ..., "invocations_seen":3,"governance_gap":true, ...}
+```
+
+Still NOT closed: this detects a gap in COUNT, not WHICH transition was ungoverned or why (no
+per-invocation reason code is retained past the counter increment) — L5's "any ungoverned
+transition is itself detectable and flagged" is met at the count level, not the per-transition
+diagnostic level.
 
 ## Installation (local)
 

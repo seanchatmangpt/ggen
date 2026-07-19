@@ -41,6 +41,150 @@
 #            xsd:dateTimeStamp literal — a graph-carried time value, never a
 #            wall-clock read; see CLAUDE.md invariant 3).
 #
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Obligation-derivation extension (v26.7.18) ─────────────────────────────
+# Adds a minimal but real derived-obligation vocabulary so hook.ttl (sibling
+# file, same directory) can CONSTRUCT a parameterized dfl:Obligation from a
+# dfl:Blocked dfl:ToolEvent via praxis-graphlaw's real `kh:`
+# TripleStore::load_hook_pack + .materialize() mechanism — the SAME engine
+# packs/self-monitoring-pack/hook.ttl already uses in production-shaped form
+# (see that file's own header), not a hand-simulated derivation. Verified by
+# a scratch consumer crate (see this pack's README "Obligation derivation —
+# verified" section) since this pack ships no templates/no ggen.toml wiring
+# of its own to route it through.
+#
+# DISCLOSED MINTED TERMS (this extension, capability-justified):
+#   dfl:Obligation  a node CONSTRUCTed when a dfl:ToolEvent's dfl:outcome is
+#     dfl:Blocked. Checked prov: (no Obligation/duty concept — prov:Activity
+#     models what happened, not what is owed), W3C ODRL (models rights/duties
+#     for licensing/policy exchange, far heavier than a single derived
+#     review-duty node and pulls in an unrelated commercial-rights vocab).
+#     No public equivalent at this weight; mirrors packs/self-monitoring-
+#     pack's smon:EscalationObligation pattern (derived-fact node from a
+#     CONSTRUCT hook).
+#   dfl:derivedFrom  Obligation -> the dfl:ToolEvent that triggered it
+#     (parameter: which fact). No public equivalent found (prov:wasDerivedFrom
+#     is Entity-to-Entity, not Activity-to-Obligation).
+#   dfl:obligationTarget  Obligation -> the prov:Agent responsible for
+#     discharging it (parameter: target). Reuses prov:Agent as range; the
+#     property itself is minted since PROV has no "owes a duty to" predicate.
+#   dfl:severity + dfl:Severity  Obligation -> one of a closed 3-concept SKOS
+#     scheme (dfl:High/dfl:Medium/dfl:Low) (parameter: severity). Mirrors the
+#     dfl:Outcome closed-scheme pattern above.
+#   dfl:deadline  Obligation -> an xsd:duration literal, e.g. "PT24H"
+#     (parameter: deadline). A duration, not a computed timestamp, so no term
+#     here is a wall-clock read (CLAUDE.md invariant 3) — it is a POLICY
+#     CONSTANT the CONSTRUCT template emits verbatim, not `now() + 24h`.
+#   dfl:obligationStatus + dfl:ObligationStatus  Obligation -> one of a
+#     closed 3-concept SKOS scheme (dfl:Open/dfl:Discharged/dfl:Refused).
+#     dfl:Open is what derive_review_obligation.ttl's CONSTRUCT asserts;
+#     dfl:Discharged/dfl:Refused are asserted by the companion
+#     discharge_review_obligation.ttl hook (lifecycle tracking, not merely
+#     emission — see hooks/README note below).
+#   dfl:dischargedBy  Obligation -> the dfl:ToolEvent whose later dfl:Ok
+#     outcome, from the same prov:Agent in the same dfl:Session, discharges
+#     it. Existence of this triple is what makes an obligation queryable as
+#     closed vs still-open.
+#   dfl:firesAfter  a pack-level (not hook-level) rdf:Property asserting this
+#     pack's derivation should be scheduled after another named hook pack's
+#     derivation when co-loaded over one union graph — the COMPOSABILITY
+#     declaration this pack makes in RDF (see the assertion below and
+#     hook.ttl's real kh:after, which is what praxis-graphlaw's
+#     `hooks::schedule_hooks` Kahn's-algorithm topological sort actually
+#     reads; dfl:firesAfter is the human-readable RDF-level disclosure of
+#     that same fact, kept in step with hook.ttl's kh:after value by hand).
+#     No public vocabulary expresses hook-execution precedence.
+
+dfl:Obligation
+    a               rdfs:Class ;
+    rdfs:label      "Obligation" ;
+    rdfs:comment    "A derived duty to review a dfl:Blocked tool event, CONSTRUCTed by hook.ttl's derive_review_obligation hook. Carries dfl:derivedFrom (which event), dfl:obligationTarget (who), dfl:severity, dfl:deadline (all parameters usable by a downstream planner), and dfl:obligationStatus (lifecycle state)." .
+
+dfl:derivedFrom
+    a           rdf:Property ;
+    rdfs:label  "derivedFrom" ;
+    rdfs:domain dfl:Obligation ;
+    rdfs:range  dfl:ToolEvent ;
+    rdfs:comment "Links a derived Obligation back to the ToolEvent fact that triggered its derivation." .
+
+dfl:obligationTarget
+    a           rdf:Property ;
+    rdfs:label  "obligationTarget" ;
+    rdfs:domain dfl:Obligation ;
+    rdfs:range  prov:Agent ;
+    rdfs:comment "Links a derived Obligation to the agent responsible for discharging it." .
+
+dfl:deadline
+    a           rdf:Property ;
+    rdfs:label  "deadline" ;
+    rdfs:domain dfl:Obligation ;
+    rdfs:range  xsd:duration ;
+    rdfs:comment "A policy-constant duration (e.g. \"PT24H\"^^xsd:duration) within which the obligation should be discharged, emitted verbatim by the CONSTRUCT template -- never a computed wall-clock timestamp." .
+
+dfl:dischargedBy
+    a           rdf:Property ;
+    rdfs:label  "dischargedBy" ;
+    rdfs:domain dfl:Obligation ;
+    rdfs:range  dfl:ToolEvent ;
+    rdfs:comment "Links a discharged Obligation to the later dfl:Ok ToolEvent (same agent, same session) that discharged it. Asserted by hook.ttl's discharge_review_obligation hook, never by derive_review_obligation." .
+
+dfl:firesAfter
+    a           rdf:Property ;
+    rdfs:label  "firesAfter" ;
+    rdfs:comment "Pack-level RDF disclosure that this pack's hook.ttl derivation is scheduled after another named hook pack's derivation when both are co-loaded over one union graph via praxis-graphlaw's kh:after + hooks::schedule_hooks topological sort. Kept in step by hand with hook.ttl's actual kh:after triple." .
+
+<http://seanchatmangpt.github.io/packs/dogfood-lifecycle>
+    dfl:firesAfter <http://seanchatmangpt.github.io/packs/self-monitoring> ;
+    rdfs:comment   "Declares dogfood-lifecycle-pack's derive_review_obligation hook fires after self-monitoring-pack's derive_escalation_obligation hook when both packs' hook.ttl + ontology.ttl are co-loaded into one praxis-graphlaw TripleStore -- see hook.ttl's kh:after triple, which is the fact praxis-graphlaw's scheduler actually reads." .
+
+dfl:Severity
+    a            rdfs:Class ;
+    rdfs:label   "Severity" ;
+    rdfs:comment "Closed 3-concept SKOS scheme of Obligation severities. Exactly three individuals exist (dfl:High, dfl:Medium, dfl:Low)." .
+
+dfl:SeverityScheme
+    a            skos:ConceptScheme ;
+    rdfs:label   "Obligation severity scheme" .
+
+dfl:High   a dfl:Severity , skos:Concept ; skos:inScheme dfl:SeverityScheme ; skos:notation "high" ; skos:prefLabel "high" .
+dfl:Medium a dfl:Severity , skos:Concept ; skos:inScheme dfl:SeverityScheme ; skos:notation "medium" ; skos:prefLabel "medium" .
+dfl:Low    a dfl:Severity , skos:Concept ; skos:inScheme dfl:SeverityScheme ; skos:notation "low" ; skos:prefLabel "low" .
+
+dfl:obligationStatus
+    a           rdf:Property ;
+    rdfs:label  "obligationStatus" ;
+    rdfs:domain dfl:Obligation ;
+    rdfs:range  dfl:ObligationStatus ;
+    rdfs:comment "Links an Obligation to its lifecycle state (dfl:Open / dfl:Discharged / dfl:Refused)." .
+
+dfl:severity
+    a           rdf:Property ;
+    rdfs:label  "severity" ;
+    rdfs:domain dfl:Obligation ;
+    rdfs:range  dfl:Severity ;
+    rdfs:comment "Links an Obligation to its severity concept." .
+
+dfl:ObligationStatus
+    a            rdfs:Class ;
+    rdfs:label   "ObligationStatus" ;
+    rdfs:comment "Closed 3-concept SKOS scheme of Obligation lifecycle states. Exactly three individuals exist (dfl:Open, dfl:Discharged, dfl:Refused)." .
+
+dfl:ObligationStatusScheme
+    a            skos:ConceptScheme ;
+    rdfs:label   "Obligation status scheme" .
+
+dfl:Open       a dfl:ObligationStatus , skos:Concept ; skos:inScheme dfl:ObligationStatusScheme ; skos:notation "open" ; skos:prefLabel "open" .
+dfl:Discharged a dfl:ObligationStatus , skos:Concept ; skos:inScheme dfl:ObligationStatusScheme ; skos:notation "discharged" ; skos:prefLabel "discharged" .
+dfl:Refused    a dfl:ObligationStatus , skos:Concept ; skos:inScheme dfl:ObligationStatusScheme ; skos:notation "refused" ; skos:prefLabel "refused" .
+
 # DISCLOSED MINTED TERMS (dfl:, capability-justified — no public equivalent):
 #   dfl:Session, dfl:ToolEvent  rdfs:subClassOf prov:Activity. PROV models
 #     both a whole session and a single tool invocation as bare prov:Activity
@@ -66,15 +210,6 @@
 # outcome vocabulary records ok / error / blocked as observations, never a
 # grant of permission — admission, hooks, and receipts are separate governed
 # surfaces (crates/praxis-graphlaw/src/chatman).
-
-@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
-@prefix prov:    <http://www.w3.org/ns/prov#> .
-@prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
-@prefix time:    <http://www.w3.org/2006/time#> .
-@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
 
 # ── Classes (minted subclasses of prov:Activity — disclosed above) ────────
 

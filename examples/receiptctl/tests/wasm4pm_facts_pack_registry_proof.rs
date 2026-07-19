@@ -41,6 +41,23 @@ fn read_registry() -> String {
         .unwrap_or_else(|e| panic!("read {}: {e}", path.display()))
 }
 
+/// Asserts a breed row appears verbatim in `content`, with `standing`
+/// accepting either the law-derived `EvidenceBound` (when the consumer's
+/// `[law]` table wires `ontology/rules/breed_standing.n3` per this pack's
+/// `WIRING.md`) or the pipeline's `ADMITTED` placeholder (when it does not).
+/// Hardcoding just `ADMITTED` here would make this proof suite itself
+/// regress the moment a consumer correctly activates the law-derivation
+/// path this pack ships -- exactly the "silently substituting a
+/// placeholder" failure mode named in `docs/packs/L5_VALIDATION_REPORT.md`.
+fn assert_breed_row_renders_with_either_standing(content: &str, id: &str, label: &str, citation: &str) {
+    let admitted = format!("| `{id}` | {label} | ADMITTED | {citation} |");
+    let evidence_bound = format!("| `{id}` | {label} | EvidenceBound | {citation} |");
+    assert!(
+        content.contains(&admitted) || content.contains(&evidence_bound),
+        "breed `{id}` row not found under either standing value:\n{content}"
+    );
+}
+
 /// Covers: the rendered breed section header reports exactly 55 rows -- an
 /// independently-obtained count (`grep -c "a compat:CognitionBreed"
 /// ontology.ttl` => 55) mechanically distinct from the template's own SPARQL
@@ -112,11 +129,11 @@ fn algorithm_table_has_60_data_rows() {
 #[test]
 fn breed_eliza_row_renders_verbatim() {
     let content = read_registry();
-    assert!(
-        content.contains(
-            "| `eliza` | Eliza | ADMITTED | Weizenbaum, J. (1966). ELIZA—A computer program for the study of natural language communication between man and machine. Communications of the ACM, 9(1), 36–45. https://doi.org/10.1145/365153.365168 |"
-        ),
-        "eliza row not found verbatim:\n{content}"
+    assert_breed_row_renders_with_either_standing(
+        &content,
+        "eliza",
+        "Eliza",
+        "Weizenbaum, J. (1966). ELIZA—A computer program for the study of natural language communication between man and machine. Communications of the ACM, 9(1), 36–45. https://doi.org/10.1145/365153.365168",
     );
 }
 
@@ -126,11 +143,11 @@ fn breed_eliza_row_renders_verbatim() {
 #[test]
 fn breed_mycin_row_renders_verbatim() {
     let content = read_registry();
-    assert!(
-        content.contains(
-            "| `mycin` | Mycin | ADMITTED | Shortliffe, E. H., & Buchanan, B. G. (1975). A model of inexact reasoning in medicine. Mathematical Biosciences, 23(3–4), 351–379. Reprinted as Chapter 11 in: Buchanan, B. G., & Shortliffe, E. H. (Eds.), Rule-Based Expert Systems. Addison-Wesley, 1984. |"
-        ),
-        "mycin row not found verbatim:\n{content}"
+    assert_breed_row_renders_with_either_standing(
+        &content,
+        "mycin",
+        "Mycin",
+        "Shortliffe, E. H., & Buchanan, B. G. (1975). A model of inexact reasoning in medicine. Mathematical Biosciences, 23(3–4), 351–379. Reprinted as Chapter 11 in: Buchanan, B. G., & Shortliffe, E. H. (Eds.), Rule-Based Expert Systems. Addison-Wesley, 1984.",
     );
 }
 
@@ -138,11 +155,11 @@ fn breed_mycin_row_renders_verbatim() {
 #[test]
 fn breed_strips_row_renders_verbatim() {
     let content = read_registry();
-    assert!(
-        content.contains(
-            "| `strips` | Strips | ADMITTED | Fikes, R. E., & Nilsson, N. J. (1971). STRIPS: A new approach to the application of theorem proving to problem solving. Artificial Intelligence, 2(3–4), 189–208. |"
-        ),
-        "strips row not found verbatim:\n{content}"
+    assert_breed_row_renders_with_either_standing(
+        &content,
+        "strips",
+        "Strips",
+        "Fikes, R. E., & Nilsson, N. J. (1971). STRIPS: A new approach to the application of theorem proving to problem solving. Artificial Intelligence, 2(3–4), 189–208.",
     );
 }
 
@@ -152,11 +169,11 @@ fn breed_strips_row_renders_verbatim() {
 #[test]
 fn breed_soar_row_renders_verbatim() {
     let content = read_registry();
-    assert!(
-        content.contains(
-            "| `soar` | Soar | ADMITTED | Laird, J. E., Newell, A., & Rosenbloom, P. S. (1987). Soar: An architecture for general intelligence. Artificial Intelligence, 33(1), 1–64. https://doi.org/10.1016/0004-3702(87)90050-6 |"
-        ),
-        "soar row not found verbatim:\n{content}"
+    assert_breed_row_renders_with_either_standing(
+        &content,
+        "soar",
+        "Soar",
+        "Laird, J. E., Newell, A., & Rosenbloom, P. S. (1987). Soar: An architecture for general intelligence. Artificial Intelligence, 33(1), 1–64. https://doi.org/10.1016/0004-3702(87)90050-6",
     );
 }
 

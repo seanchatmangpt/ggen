@@ -12,6 +12,18 @@ mfw:CycleStage a rdfs:Class ; rdfs:label "MFW consequence-cycle stage" ;
 
 mfw:order a rdf:Property ; rdfs:domain mfw:CycleStage ; rdfs:range xsd:integer .
 
+# mfw:nextStage is the behavioral transition relation itself, not a derived
+# artifact of mfw:order: it is asserted per-edge so the cycle's
+# observe->admit->...->replay->observe circulation (including the wraparound
+# edge back to observe) is graph structure a SPARQL query can walk directly,
+# rather than something a template must reconstruct by arithmetic
+# (order+1, with a special-cased modulo wrap for the last stage). A
+# transition-validity check (`is_valid_transition`, generated in
+# mfw_catalog.rs.tmpl below) is therefore driven by this relation, i.e. by
+# real ontology data, not by hardcoded Rust control flow.
+mfw:nextStage a rdf:Property ; rdfs:domain mfw:CycleStage ; rdfs:range mfw:CycleStage ;
+    rdfs:comment "The next stage this stage transitions to in the consequence cycle." .
+
 mfw:Observe             a mfw:CycleStage ; mfw:order 1  ; rdfs:label "observe" .
 mfw:Admit                a mfw:CycleStage ; mfw:order 2  ; rdfs:label "admit" .
 mfw:PreserveStanding     a mfw:CycleStage ; mfw:order 3  ; rdfs:label "preserve standing" .
@@ -22,6 +34,17 @@ mfw:Authorize            a mfw:CycleStage ; mfw:order 7  ; rdfs:label "authorize
 mfw:Actuate              a mfw:CycleStage ; mfw:order 8  ; rdfs:label "actuate" .
 mfw:Receipt              a mfw:CycleStage ; mfw:order 9  ; rdfs:label "receipt" .
 mfw:Replay               a mfw:CycleStage ; mfw:order 10 ; rdfs:label "replay" ; rdfs:comment "Loops back to observe." .
+
+mfw:Observe             mfw:nextStage mfw:Admit .
+mfw:Admit                mfw:nextStage mfw:PreserveStanding .
+mfw:PreserveStanding     mfw:nextStage mfw:CalculateResidual .
+mfw:CalculateResidual    mfw:nextStage mfw:ManufactureCandidate .
+mfw:ManufactureCandidate mfw:nextStage mfw:Verify .
+mfw:Verify               mfw:nextStage mfw:Authorize .
+mfw:Authorize            mfw:nextStage mfw:Actuate .
+mfw:Actuate              mfw:nextStage mfw:Receipt .
+mfw:Receipt              mfw:nextStage mfw:Replay .
+mfw:Replay               mfw:nextStage mfw:Observe .
 
 mfw:AuthoritySurface a rdfs:Class ; rdfs:label "MFW repository authority surface" .
 mfw:path a rdf:Property ; rdfs:domain mfw:AuthoritySurface ; rdfs:range xsd:string .
@@ -35,6 +58,25 @@ mfw:VerifierSurface  a mfw:AuthoritySurface ; mfw:path "verifier/"  ; rdfs:comme
 mfw:FixturesSurface  a mfw:AuthoritySurface ; mfw:path "fixtures/"  ; rdfs:comment "Positive, negative, integration, chaos, and replay evidence." .
 mfw:DocsSurface      a mfw:AuthoritySurface ; mfw:path "docs/"      ; rdfs:comment "Explanations and projections; never standing authority." .
 mfw:ReceiptsSurface  a mfw:AuthoritySurface ; mfw:path "receipts/"  ; rdfs:comment "Content-addressed evidence or receipt manifests, per repository policy." .
+
+mfw:SourceSnapshot a rdfs:Class ; rdfs:label "dated snapshot of the ~/mfw source this pack was transcribed from" .
+mfw:sourceFile a rdf:Property ; rdfs:domain mfw:SourceSnapshot ; rdfs:range xsd:string .
+mfw:sourceCommit a rdf:Property ; rdfs:domain mfw:SourceSnapshot ; rdfs:range xsd:string .
+mfw:sourceCommitDate a rdf:Property ; rdfs:domain mfw:SourceSnapshot ; rdfs:range xsd:string .
+
+# Target-API fidelity, L2 floor: "verified by hand against one target version,
+# once (dated note)". This individual IS that dated note, machine-readable
+# instead of prose: the exact commit of ~/mfw's AGENTS.md this ontology was
+# hand-transcribed from, so a future re-check can `git log <sourceCommit>..HEAD
+# -- AGENTS.md` in ~/mfw and know precisely whether it has drifted since.
+# ~/mfw is a separate repository this workspace does not own or control, so
+# this pack cannot (and does not attempt to) import its RDF directly as a
+# live dependency -- see mfw-pack's Target-API fidelity re-score for why that
+# remains the concrete L3+ blocker.
+mfw:Agents2026_07_16 a mfw:SourceSnapshot ;
+    mfw:sourceFile "AGENTS.md" ;
+    mfw:sourceCommit "20e9925bc9e63d3537b91e8c725de85fc6ed2084" ;
+    mfw:sourceCommitDate "2026-07-16T15:57:22-07:00" .
 
 mfw:Crate a rdfs:Class ; rdfs:label "mfw workspace crate" .
 

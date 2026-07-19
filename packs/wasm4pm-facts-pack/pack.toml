@@ -1,4 +1,18 @@
 [pack]
 name = "wasm4pm-facts-pack"
-version = "0.1.0"
-description = "Admitted wasm4pm graph facts: 55 compat:CognitionBreed and 60 pi:ProcessIntelligenceAlgorithm individuals carried verbatim from wasm4pm/ggen/ontology/{breeds,algorithms}.ttl, plus the registry-report template generated from them; also generates a SPARQL-free artifact-fidelity proof test (tests/wasm4pm_facts_pack_registry_proof.rs) that reads the already-rendered BREED_ALGORITHM_REGISTRY.md and asserts it against literals hand-transcribed from ontology.ttl"
+version = "0.2.0"
+description = "Admitted wasm4pm graph facts: 55 compat:CognitionBreed and 60 pi:ProcessIntelligenceAlgorithm individuals carried verbatim from wasm4pm/ggen/ontology/{breeds,algorithms}.ttl (drift-checked against upstream, see DRIFT_LOG.md), plus (1) a SPARQL-projected registry-report template, (2) a generated typed Rust catalog module (src/wasm4pm_facts_registry.rs) with real lookup_breed/lookup_algorithm/algorithms_by_category functions, (3) an inject-mode mod-wiring template for the consumer's src/lib.rs, (4) SHACL cardinality/range/enum shapes (shapes.ttl) executable via `ggen graph validate --shapes`, (5) the bundled law rule (ontology/rules/breed_standing.n3) that CONSTRUCT-derives breed standing from citation presence -- see WIRING.md for the exact consumer [law] table needed to activate it -- and (6) two generated proof suites: a small hand-picked spot-check (tests/wasm4pm_facts_pack_registry_proof.rs) and a full-coverage mechanical proof over all 115 individuals cross-checked between two independently-issued SPARQL projections (tests/wasm4pm_facts_pack_full_coverage_proof.rs)"
+
+# Consumer wiring for the bundled law rule (see WIRING.md for the full
+# rationale): a consumer's own ggen.toml must add
+#
+#   [law]
+#   rules = ["../../packs/wasm4pm-facts-pack/ontology/rules/breed_standing.n3"]
+#
+# to activate CONSTRUCT-derived breed standing (EvidenceBound). Without this,
+# `ggen sync` still succeeds but every breed row silently renders the
+# `ADMITTED` placeholder documented in ontology.ttl/the registry template's
+# header comment as a *derived*, not asserted, value -- this pack cannot
+# force a consumer's [law] table to exist (that table lives in the
+# consumer's own ggen.toml, which this pack's templates cannot write to),
+# so activating it remains a one-line manual step today; see WIRING.md.

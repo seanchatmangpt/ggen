@@ -106,10 +106,74 @@
 # smon:hasPriorGroundingQuestion, smon:hasGroundingQuestion, smon:reason)
 # are all declared and disclosed in ontology.ttl.
 
+# ============================================================================
+# L5-PUSH ADDITION (this pass): smon:prioritize_escalation_obligation_{low,
+# medium,high} -- three mutually-exclusive hook variants that CONSTRUCT the
+# SAME EscalationObligation shape as the base hook above PLUS real,
+# COUNT-aggregate-derived smon:severity/smon:deadlineHint/smon:status
+# parameters (Matrix 2's Derivation-power L3 bar: "Derives obligations with
+# parameters ... usable by a downstream planner").
+#
+# WHY THREE SEPARATE HOOKS, NOT ONE CONSTRUCT WITH A CONDITIONAL: this
+# engine's `crates/praxis-graphlaw/src/hooks/construct.rs::
+# instantiate_term_pattern` mints one blank node per (query text, template
+# label, canonical row bindings) tuple (see the base hook's own "ENGINE
+# LIMITATION FOUND AND FIXED" note above) -- there is no conditional-literal
+# (`IF(...)`) construct in this engine's supported SPARQL surface (confirmed
+# this pass via a standalone probe against the real engine, not assumed: no
+# `Expression::If` arm exists in `crates/praxis-graphlaw/src/sparql/
+# plan.rs::extract_expression`, the same file whose missing `Add`/`Subtract`
+# arms are already disclosed above). Splitting into three fully
+# self-contained CONSTRUCTs -- each producing every EscalationObligation
+# field (including the two turn links + reason) on its OWN blank node,
+# gated by a mutually-exclusive `FILTER` on a real `COUNT(?otherQ)`
+# aggregate computed via a sub-SELECT in the WHERE clause -- stays entirely
+# within CONFIRMED-SUPPORTED SPARQL. Confirmed live, this pass, via a
+# throwaway `praxis-graphlaw`-path-dependency scratch binary (never
+# committed, never touching crates/praxis-graphlaw itself): COUNT
+# aggregates, GROUP BY, sub-SELECTs nested in an outer WHERE, and the `>=`
+# comparison operator ALL evaluate correctly against this real engine.
+#
+# The three variants are mutually exclusive by construction (a given
+# same-topic-repeat GroundingQuestion pair has exactly one total same-topic
+# GroundingQuestion turn count within the session, so exactly one of
+# `?cnt = 2` / `?cnt = 3` / `?cnt >= 4` holds) -- never more than one fires
+# for the same (q1, q2) pair.
+# ============================================================================
+
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix kh:      <http://seanchatmangpt.github.io/praxis/kh#> .
 @prefix smon:    <http://seanchatmangpt.github.io/packs/self-monitoring#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
+
+# NOTE (fixed during the L5-push's cross-pack verification pass,
+# 2026-07-19): the agent that added the three severity-parameterized hooks
+# below REMOVED the original unparameterized `smon:derive_escalation_
+# obligation`/`_action` hook, reasoning that running both together
+# CONSTRUCTs two `smon:EscalationObligation` nodes per firing, which would
+# break `crates/praxis-graphlaw/tests/self_monitoring_hook_actuation.rs`'s
+# `assert_eq!(derived.len(), 1, ...)`. That reasoning was correct, but the
+# removal ALSO broke a second, different pre-existing test the agent's own
+# verification did not check:
+# `crates/praxis-graphlaw/tests/self_monitoring_real_session_actuation.rs`
+# mechanically extracts the CONSTRUCT query by searching hook.ttl for the
+# literal marker "derive_escalation_obligation" + "_action" (written apart
+# here so this instructional comment doesn't itself satisfy that test's own
+# naive substring search before reaching the real definition below) --
+# confirmed live this pass, `cargo test -p praxis-graphlaw --test
+# self_monitoring_real_session_actuation` failed 4/6 with a panic naming
+# that same marker, once that action was removed.
+#
+# Real fix: restore the original hook/action VERBATIM (below), and instead
+# retarget the three severity hooks' CONSTRUCT to a distinct class,
+# `smon:PrioritizedEscalationObligation` (not `smon:EscalationObligation`)
+# -- confirmed live this pass: with this change, both tests pass together
+# (`self_monitoring_hook_actuation.rs`'s `EscalationObligation` count stays
+# exactly 1, contributed only by the restored original hook;
+# `self_monitoring_real_session_actuation.rs` finds its literal marker
+# again), while the severity/deadlineHint/status parameterization is still
+# real, additive derivation -- just under its own class instead of
+# overloading an existing one two other tests depend on the cardinality of.
 
 smon:derive_escalation_obligation
     a kh:Hook ;
@@ -124,3 +188,75 @@ smon:derive_escalation_obligation_action
     a kh:Action ;
     kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
     kh:query """CONSTRUCT { _:esc <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://seanchatmangpt.github.io/packs/self-monitoring#EscalationObligation> . _:esc <http://seanchatmangpt.github.io/packs/self-monitoring#hasPriorGroundingQuestion> ?q1 . _:esc <http://seanchatmangpt.github.io/packs/self-monitoring#hasGroundingQuestion> ?q2 . _:esc <http://seanchatmangpt.github.io/packs/self-monitoring#reason> 'same grounding_topic asked twice by a GroundingQuestion turn, and the turn immediately following the first GroundingQuestion was only a SurveyResponse (not a RunResponse/BlockerResponse) -- escalate to an actual build/run rather than another survey' . } WHERE { ?q1 a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i1 ; <http://purl.org/dc/terms/isPartOf> ?session . ?q2 a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i2 ; <http://purl.org/dc/terms/isPartOf> ?session . ?resp a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#SurveyResponse> ; <http://seanchatmangpt.github.io/packs/self-monitoring#immediatelyFollows> ?q1 ; <http://purl.org/dc/terms/isPartOf> ?session . FILTER(?i2 > ?i1) FILTER(?q1 != ?q2) }""" .
+
+# ---- Low severity: exactly 2 same-topic GroundingQuestion turns total ----
+smon:prioritize_escalation_obligation_low
+    a kh:Hook ;
+    kh:name "prioritize_escalation_obligation_low" ;
+    kh:kind "sparql" ;
+    kh:query """SELECT ?q1 ?q2 WHERE { ?q1 a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i1 ; <http://purl.org/dc/terms/isPartOf> ?session . ?q2 a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i2 ; <http://purl.org/dc/terms/isPartOf> ?session . ?resp a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#SurveyResponse> ; <http://seanchatmangpt.github.io/packs/self-monitoring#immediatelyFollows> ?q1 ; <http://purl.org/dc/terms/isPartOf> ?session . FILTER(?i2 > ?i1) FILTER(?q1 != ?q2) { SELECT ?topic (COUNT(?x) AS ?cnt) WHERE { ?x a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic } GROUP BY ?topic } FILTER(?cnt = 2) }""" ;
+    kh:effect "emit-delta" ;
+    kh:action smon:prioritize_escalation_obligation_low_action ;
+    kh:priority 1 .
+
+smon:prioritize_escalation_obligation_low_action
+    a kh:Action ;
+    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:query """CONSTRUCT { _:escLow <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://seanchatmangpt.github.io/packs/self-monitoring#PrioritizedEscalationObligation> . _:escLow <http://seanchatmangpt.github.io/packs/self-monitoring#hasPriorGroundingQuestion> ?q1 . _:escLow <http://seanchatmangpt.github.io/packs/self-monitoring#hasGroundingQuestion> ?q2 . _:escLow <http://seanchatmangpt.github.io/packs/self-monitoring#reason> 'same grounding_topic asked twice by a GroundingQuestion turn, and the turn immediately following the first GroundingQuestion was only a SurveyResponse (not a RunResponse/BlockerResponse) -- escalate to an actual build/run rather than another survey' . _:escLow <http://seanchatmangpt.github.io/packs/self-monitoring#severity> <http://seanchatmangpt.github.io/packs/self-monitoring#Low> . _:escLow <http://seanchatmangpt.github.io/packs/self-monitoring#deadlineHint> <http://seanchatmangpt.github.io/packs/self-monitoring#NextSession> . _:escLow <http://seanchatmangpt.github.io/packs/self-monitoring#status> <http://seanchatmangpt.github.io/packs/self-monitoring#Open> . } WHERE { ?q1 a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i1 ; <http://purl.org/dc/terms/isPartOf> ?session . ?q2 a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i2 ; <http://purl.org/dc/terms/isPartOf> ?session . ?resp a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#SurveyResponse> ; <http://seanchatmangpt.github.io/packs/self-monitoring#immediatelyFollows> ?q1 ; <http://purl.org/dc/terms/isPartOf> ?session . FILTER(?i2 > ?i1) FILTER(?q1 != ?q2) { SELECT ?topic (COUNT(?x) AS ?cnt) WHERE { ?x a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic } GROUP BY ?topic } FILTER(?cnt = 2) }""" .
+
+# ---- Medium severity: exactly 3 same-topic GroundingQuestion turns total ----
+smon:prioritize_escalation_obligation_medium
+    a kh:Hook ;
+    kh:name "prioritize_escalation_obligation_medium" ;
+    kh:kind "sparql" ;
+    kh:query """SELECT ?q1 ?q2 WHERE { ?q1 a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i1 ; <http://purl.org/dc/terms/isPartOf> ?session . ?q2 a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i2 ; <http://purl.org/dc/terms/isPartOf> ?session . ?resp a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#SurveyResponse> ; <http://seanchatmangpt.github.io/packs/self-monitoring#immediatelyFollows> ?q1 ; <http://purl.org/dc/terms/isPartOf> ?session . FILTER(?i2 > ?i1) FILTER(?q1 != ?q2) { SELECT ?topic (COUNT(?x) AS ?cnt) WHERE { ?x a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic } GROUP BY ?topic } FILTER(?cnt = 3) }""" ;
+    kh:effect "emit-delta" ;
+    kh:action smon:prioritize_escalation_obligation_medium_action ;
+    kh:priority 1 .
+
+smon:prioritize_escalation_obligation_medium_action
+    a kh:Action ;
+    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:query """CONSTRUCT { _:escMed <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://seanchatmangpt.github.io/packs/self-monitoring#PrioritizedEscalationObligation> . _:escMed <http://seanchatmangpt.github.io/packs/self-monitoring#hasPriorGroundingQuestion> ?q1 . _:escMed <http://seanchatmangpt.github.io/packs/self-monitoring#hasGroundingQuestion> ?q2 . _:escMed <http://seanchatmangpt.github.io/packs/self-monitoring#reason> 'same grounding_topic asked twice by a GroundingQuestion turn, and the turn immediately following the first GroundingQuestion was only a SurveyResponse (not a RunResponse/BlockerResponse) -- escalate to an actual build/run rather than another survey' . _:escMed <http://seanchatmangpt.github.io/packs/self-monitoring#severity> <http://seanchatmangpt.github.io/packs/self-monitoring#Medium> . _:escMed <http://seanchatmangpt.github.io/packs/self-monitoring#deadlineHint> <http://seanchatmangpt.github.io/packs/self-monitoring#NextSession> . _:escMed <http://seanchatmangpt.github.io/packs/self-monitoring#status> <http://seanchatmangpt.github.io/packs/self-monitoring#Open> . } WHERE { ?q1 a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i1 ; <http://purl.org/dc/terms/isPartOf> ?session . ?q2 a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i2 ; <http://purl.org/dc/terms/isPartOf> ?session . ?resp a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#SurveyResponse> ; <http://seanchatmangpt.github.io/packs/self-monitoring#immediatelyFollows> ?q1 ; <http://purl.org/dc/terms/isPartOf> ?session . FILTER(?i2 > ?i1) FILTER(?q1 != ?q2) { SELECT ?topic (COUNT(?x) AS ?cnt) WHERE { ?x a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic } GROUP BY ?topic } FILTER(?cnt = 3) }""" .
+
+# ---- High severity: 4 or more same-topic GroundingQuestion turns total ----
+smon:prioritize_escalation_obligation_high
+    a kh:Hook ;
+    kh:name "prioritize_escalation_obligation_high" ;
+    kh:kind "sparql" ;
+    kh:query """SELECT ?q1 ?q2 WHERE { ?q1 a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i1 ; <http://purl.org/dc/terms/isPartOf> ?session . ?q2 a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i2 ; <http://purl.org/dc/terms/isPartOf> ?session . ?resp a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#SurveyResponse> ; <http://seanchatmangpt.github.io/packs/self-monitoring#immediatelyFollows> ?q1 ; <http://purl.org/dc/terms/isPartOf> ?session . FILTER(?i2 > ?i1) FILTER(?q1 != ?q2) { SELECT ?topic (COUNT(?x) AS ?cnt) WHERE { ?x a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic } GROUP BY ?topic } FILTER(?cnt >= 4) }""" ;
+    kh:effect "emit-delta" ;
+    kh:action smon:prioritize_escalation_obligation_high_action ;
+    kh:priority 1 .
+
+smon:prioritize_escalation_obligation_high_action
+    a kh:Action ;
+    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:query """CONSTRUCT { _:escHigh <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://seanchatmangpt.github.io/packs/self-monitoring#PrioritizedEscalationObligation> . _:escHigh <http://seanchatmangpt.github.io/packs/self-monitoring#hasPriorGroundingQuestion> ?q1 . _:escHigh <http://seanchatmangpt.github.io/packs/self-monitoring#hasGroundingQuestion> ?q2 . _:escHigh <http://seanchatmangpt.github.io/packs/self-monitoring#reason> 'same grounding_topic asked twice by a GroundingQuestion turn, and the turn immediately following the first GroundingQuestion was only a SurveyResponse (not a RunResponse/BlockerResponse) -- escalate to an actual build/run rather than another survey' . _:escHigh <http://seanchatmangpt.github.io/packs/self-monitoring#severity> <http://seanchatmangpt.github.io/packs/self-monitoring#High> . _:escHigh <http://seanchatmangpt.github.io/packs/self-monitoring#deadlineHint> <http://seanchatmangpt.github.io/packs/self-monitoring#ActNow> . _:escHigh <http://seanchatmangpt.github.io/packs/self-monitoring#status> <http://seanchatmangpt.github.io/packs/self-monitoring#Open> . } WHERE { ?q1 a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i1 ; <http://purl.org/dc/terms/isPartOf> ?session . ?q2 a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic ; <http://seanchatmangpt.github.io/packs/self-monitoring#sequenceIndex> ?i2 ; <http://purl.org/dc/terms/isPartOf> ?session . ?resp a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#SurveyResponse> ; <http://seanchatmangpt.github.io/packs/self-monitoring#immediatelyFollows> ?q1 ; <http://purl.org/dc/terms/isPartOf> ?session . FILTER(?i2 > ?i1) FILTER(?q1 != ?q2) { SELECT ?topic (COUNT(?x) AS ?cnt) WHERE { ?x a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/subject> ?topic } GROUP BY ?topic } FILTER(?cnt >= 4) }""" .
+
+# ============================================================================
+# L5-PUSH ADDITION (this pass): smon:flag_ungoverned_transition -- the
+# catch-all Governance-coverage detector. Fires on ANY GroundingQuestion
+# turn whose immediately-following response is smon:Other -- neither the
+# ONE pattern this pack governs (-> SurveyResponse, possible escalation
+# above) nor the two kinds README's adversarial check 1 already proves
+# never warrant escalation (RunResponse/BlockerResponse). This is real,
+# positive detection of a transition outside every known pattern, scoped
+# honestly to the one process this pack models (see ontology.ttl's
+# smon:UngovernedTransition disclosure for why this is not a claim of total
+# process coverage).
+# ============================================================================
+
+smon:flag_ungoverned_transition
+    a kh:Hook ;
+    kh:name "flag_ungoverned_transition" ;
+    kh:kind "sparql" ;
+    kh:query """SELECT ?q ?resp WHERE { ?q a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/isPartOf> ?session . ?resp a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#Other> ; <http://seanchatmangpt.github.io/packs/self-monitoring#immediatelyFollows> ?q ; <http://purl.org/dc/terms/isPartOf> ?session . }""" ;
+    kh:effect "emit-delta" ;
+    kh:action smon:flag_ungoverned_transition_action ;
+    kh:priority 1 .
+
+smon:flag_ungoverned_transition_action
+    a kh:Action ;
+    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:query """CONSTRUCT { _:ungov <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://seanchatmangpt.github.io/packs/self-monitoring#UngovernedTransition> . _:ungov <http://seanchatmangpt.github.io/packs/self-monitoring#hasUngovernedQuestion> ?q . _:ungov <http://seanchatmangpt.github.io/packs/self-monitoring#hasUngovernedResponse> ?resp . } WHERE { ?q a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#GroundingQuestion> ; <http://purl.org/dc/terms/isPartOf> ?session . ?resp a <http://seanchatmangpt.github.io/packs/self-monitoring#Turn> ; <http://seanchatmangpt.github.io/packs/self-monitoring#turnKind> <http://seanchatmangpt.github.io/packs/self-monitoring#Other> ; <http://seanchatmangpt.github.io/packs/self-monitoring#immediatelyFollows> ?q ; <http://purl.org/dc/terms/isPartOf> ?session . }""" .

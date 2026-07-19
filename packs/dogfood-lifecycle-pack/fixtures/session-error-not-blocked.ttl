@@ -1,0 +1,40 @@
+# fixtures/session-error-not-blocked.ttl — the ADJACENT-BUT-SHOULDN'T-FIRE
+# fixture for derive_review_obligation's fire precision (Fire precision L3
+# bar: "Adjacent-but-shouldn't-fire cases proven (topic/boundary
+# confusions)"). dfl:Error and dfl:Blocked are adjacent members of the SAME
+# closed dfl:Outcome scheme (both "not dfl:Ok"), so a sloppy CONSTRUCT
+# pattern that matched "outcome != Ok" instead of "outcome = Blocked"
+# exactly would wrongly derive an Obligation from this event. This session
+# has ONE dfl:Error tool event and no dfl:Blocked event at all: zero
+# Obligation nodes must be CONSTRUCTed. Verified by the scratch consumer
+# test (see README.md "Obligation derivation — verified").
+
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@base <http://seanchatmangpt.github.io/packs/dogfood-lifecycle/fixtures/session-error-not-blocked#> .
+
+<#operator>  a prov:Agent , prov:Person ; dcterms:description "Operator." .
+<#mainAgent> a prov:Agent , prov:SoftwareAgent ; prov:actedOnBehalfOf <#operator> ; dcterms:description "Main agent." .
+
+<#session>
+    a                     dfl:Session ;
+    dcterms:identifier    "error-not-blocked-session-001" ;
+    prov:wasAssociatedWith <#mainAgent> ;
+    dcterms:description    "A tool ERRORed (not Blocked) — the adjacent-outcome case that must not fire the review obligation." .
+
+<urn:blake3:c1153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0aaa>
+    a prov:Entity ; dcterms:description "Bash input that caused a real command error." .
+<urn:blake3:d1b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb77abc>
+    a prov:Entity ; dcterms:description "Bash output: non-zero exit, real error." .
+
+<#event-1>
+    a dfl:ToolEvent ; dcterms:isPartOf <#session> ; skos:notation "Bash" ;
+    dfl:sequenceIndex 1 ; time:inXSDDateTimeStamp "2026-07-18T11:00:00Z"^^xsd:dateTimeStamp ;
+    dfl:outcome dfl:Error ; prov:wasAssociatedWith <#mainAgent> ;
+    prov:used <urn:blake3:c1153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0aaa> ;
+    prov:generated <urn:blake3:d1b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb77abc> ;
+    dcterms:description "The tool ran and errored — NOT blocked. Adjacent outcome; must not derive an Obligation." .

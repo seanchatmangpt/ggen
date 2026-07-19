@@ -1,6 +1,7 @@
 ---
 to: tests/wasm4pm_crate_catalog_proof.rs
-force: true
+freeze_policy: checksum
+freeze_slots_dir: .ggen/freeze/wasm4pm-pack
 ---
 //! Data-fidelity proof for `wasm4pm-pack`'s generated catalog
 //! (`src/wasm4pm_crate_catalog.rs`), asserted against literal values

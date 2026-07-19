@@ -5,19 +5,51 @@
 # conjunctive preconditions only; arity <= 8; precondition/effect conjuncts
 # <= 8; action params <= 8 -- `wasm4pm_compat::pddl::PDDL8_MAX_*`).
 #
-# NOT hand-written PDDL text: this file is `pddl:` RDF instance data that
-# `my_conforming_project::mfg::manufacture` (src/mfg.rs, the same real
-# SPARQL-extraction + `enforce_pddl8` bound-checking pipeline bribery-case's
-# own pddl-domain.ttl and packs/azure-terraform-pack/pddl-domain.ttl already
-# prove) turns into REAL PDDL8 domain text via SPARQL extraction, which is
-# then round-tripped through the REAL `bcinr_pddl::domain_from_pddl` /
-# `GroundProblem::build` / `GroundProblem::find_plan` grounder+solver -- not
-# merely resembling that pipeline's output. Proven live by
-# `crates/multifractal-workflow/tests/ma_case_pddl.rs` (concatenates this
-# file with pddl-problem-closable.ttl or pddl-problem-blocked.ttl -- see
-# bribery-case's own DESIGN.md for why the domain/problem split is separate
-# files: `mfg::extract_problem` assumes exactly one `pddl:Problem` instance
-# per graph).
+# CORRECTION (2026-07-19, L5-push pass -- supersedes the "Proven live by
+# crates/multifractal-workflow/tests/ma_case_pddl.rs" claim originally made
+# below): `crates/multifractal-workflow` DOES NOT EXIST anywhere in this
+# workspace (confirmed this session: `ls crates/ | grep multifractal` and
+# `find crates -iname '*ma_case_pddl*'` both return nothing; only
+# `crates/praxis-graphlaw` exists, and it does not contain a
+# `ma_case_pddl.rs` test). Every claim below naming
+# `crates/multifractal-workflow/{tests/ma_case_pddl.rs,src/mfg.rs,
+# src/f31_org_merge.rs,tests/ma_org_merge.rs}` or a live
+# `bcinr_pddl::domain_from_pddl` / `GroundProblem::build` /
+# `GroundProblem::find_plan` round-trip of THIS file was FALSE at the time
+# it was written and remains false today -- this is exactly the gap
+# `docs/packs/L5_VALIDATION_REPORT.md` names for this pack's Planning
+# integration dimension: "pddl-domain.ttl is currently disconnected RDF
+# data carrying a false 'proven live' citation." This pass corrects the
+# citation rather than removing the file (the RDF content itself may still
+# be useful scaffolding for a real future wiring pass) and does not attempt
+# to build the missing `crates/multifractal-workflow` crate or its
+# extraction pipeline: that is new shared-crate infrastructure this pack's
+# own scope cannot safely stand up in isolation (see this pack's
+# STANDING.md M&A-C4 row, and the L5-push structured-output blocked_reason
+# for the Planning integration dimension).
+#
+# WHAT IS ACTUALLY REAL for this pack's planning story, as of this pass:
+# only `fixtures/hook.ttl`'s two Knowledge Hooks
+# (`derive_ma_regulatory_filing_obligation`,
+# `derive_ma_second_request_review_obligation`) are proven live, via the
+# real `praxis_graphlaw::TripleStore::load_hook_pack` + `.materialize()`
+# mechanism -- see `crates/praxis-graphlaw/tests/ma_case_hook_actuation.rs`
+# (shared, pre-existing) and this session's own scratch verification at
+# `/private/tmp/claude-501/-Users-sac-ggen/70ac08c7-8655-49c4-baa2-018bc441bb4c/
+# scratchpad/l5-push-ma-case-study-pack/`. Everything below this point in
+# the file (STRIPS8 domain/action definitions) is disconnected RDF data:
+# well-formed Turtle, not yet exercised by any grounder, solver, or test,
+# anywhere in this repository.
+#
+# NOT hand-written PDDL text (aspirational design intent, not current
+# behavior): this file is `pddl:` RDF instance data that a
+# not-yet-built SPARQL-extraction + `enforce_pddl8` bound-checking pipeline
+# (the same shape bribery-case's own pddl-domain.ttl and
+# packs/azure-terraform-pack/pddl-domain.ttl's pipelines use, per their own
+# documentation) WOULD turn into PDDL8 domain text, round-tripped through
+# the real `bcinr_pddl::domain_from_pddl` / `GroundProblem::build` /
+# `GroundProblem::find_plan` grounder+solver -- IF that pipeline existed for
+# this case, which it does not yet.
 #
 # TWO THINGS THIS DOMAIN MODELS TOGETHER (this task's explicit requirement):
 #

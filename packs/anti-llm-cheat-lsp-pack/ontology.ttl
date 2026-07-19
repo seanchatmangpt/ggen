@@ -2,6 +2,19 @@
 # 2 tabulated rules from ~/anti-llm-cheat-lsp/README.md. The README states
 # the rule set is larger than this table; only the tabulated rows are
 # modeled (no rule was invented to round out the set).
+#
+# Target-fidelity verification pass (2026-07-18): the two rules' `alc:pattern`
+# values below were re-checked directly against the target's own source
+# (not just its README) on this date:
+#   - alc:DeadAlt's alc:altSuffix values == the literal `ALT_SUFFIXES` array
+#     in ~/anti-llm-cheat-lsp/src/rules/dead_alt.rs:3-5.
+#   - alc:Hedge's alc:pattern value == the literal regex in
+#     ~/anti-llm-cheat-lsp/src/rules/hedge.rs:10-12 (`hedge_re()`), including
+#     the `(?i)` case-insensitivity flag.
+# This satisfies L2 target-API fidelity ("verified by hand against one
+# target version, once"). It does not reach L5 ("fidelity is definitional,
+# not checked") -- these are still copied literals that can silently drift
+# from the target's next edit; nothing here re-derives them automatically.
 
 @prefix alc:  <http://seanchatmangpt.github.io/packs/anti-llm-cheat-lsp#> .
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -27,12 +40,27 @@ alc:Rule
 
 alc:ruleId a rdf:Property ; rdfs:domain alc:Rule ; rdfs:range xsd:string .
 
+# alc:pattern carries the ACTUAL detection behavior for the rule -- either a
+# regex (for regex-shaped rules) or a space-separated list of literal suffixes
+# (for suffix-shaped rules; alc:patternKind distinguishes the two so a
+# generated function knows how to interpret the string instead of guessing).
+# Sourced verbatim from the target's own rule modules (see verification note
+# at the top of this file), not invented -- this is what lets the generated
+# catalog carry real, executable detector behavior instead of merely naming
+# that a rule exists.
+alc:pattern     a rdf:Property ; rdfs:domain alc:Rule ; rdfs:range xsd:string .
+alc:patternKind a rdf:Property ; rdfs:domain alc:Rule ; rdfs:range xsd:string .
+
 alc:DeadAlt
     a alc:Rule ; alc:ruleId "ANTI-LLM-DEAD-ALT-001" ;
     rdfs:label "Dead alternative functions" ;
-    rdfs:comment "Functions like _v2/_alt/_correct/_fixed/_working defined but never called." .
+    rdfs:comment "Functions like _v2/_alt/_correct/_fixed/_working defined but never called." ;
+    alc:patternKind "suffix_list" ;
+    alc:pattern "_v2 _v3 _alt _correct _real _proper _fixed _working _new _better" .
 
 alc:Hedge
     a alc:Rule ; alc:ruleId "ANTI-LLM-HEDGE-001" ;
     rdfs:label "Hedge comments" ;
-    rdfs:comment "Comments admitting incomplete implementation, e.g. 'In a real implementation...', 'For now...'." .
+    rdfs:comment "Comments admitting incomplete implementation, e.g. 'In a real implementation...', 'For now...'." ;
+    alc:patternKind "regex" ;
+    alc:pattern "(?i)(in a real implementation|for now,? (we('ll)?|this)|temporary workaround|this is a placeholder|stub implementation|not yet implemented|will be replaced|production implementation would|todo: replace this with a real)" .

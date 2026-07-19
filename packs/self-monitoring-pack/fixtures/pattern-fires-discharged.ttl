@@ -1,0 +1,64 @@
+# fixtures/pattern-fires-discharged.ttl -- L5-push, Obligation-lifecycle
+# demonstration fixture. NOT a hook-derivation input fixture (it is not
+# loaded through hook.ttl) -- this is a hand-built EXAMPLE of what the
+# graph looks like AFTER a human/process has reviewed the real derived
+# EscalationObligation from fixtures/pattern-fires.ttl and discharged it
+# (an actual build/run happened in response), demonstrating the
+# discharge-recording half of Matrix 2's Obligation-lifecycle L3 bar:
+# "Discharge is recorded; open obligations are queryable." (the "open
+# obligations are queryable" half is `queries/open_obligations.rq`, proven
+# against the still-Open node fixtures/pattern-fires.ttl's own hook
+# derivation produces).
+#
+# Mirrors this pack's own CLASSIFICATION-IS-INPUT discipline one level up:
+# exactly as smon:turnKind is always an INPUT fact a hook never assigns,
+# smon:status transitions off Open are always a SEPARATE, later fact
+# assertion -- no hook in this pack ever writes smon:Discharged/smon:Refused
+# itself. This fixture hand-asserts that later fact directly. DISCLOSED, NOT
+# OVERCLAIMED: the blank-node label below (`_:demo-escalation`) is a fresh
+# label scoped to THIS file's own parse -- Turtle blank-node labels are
+# per-document, so it is deliberately NOT claimed to be "the same node" the
+# real hook derivation over fixtures/pattern-fires.ttl mints at
+# materialize()-time (that would require actually re-running the hook and
+# then appending this fixture's discharge facts onto the SAME live store, a
+# genuine actuation/re-observe step -- see hook.ttl's actuation-closure
+# disclosure). This file demonstrates the STATE SHAPE a discharged
+# obligation has and that shapes.ttl's conditional constraint enforces it;
+# it is not, itself, a live re-observe of the real derivation.
+#
+# shapes.ttl's EscalationObligationShape sh:or implication constraint
+# ("if status=Discharged then dischargedAt required") is exercised for
+# real by this fixture: `ggen graph validate --files
+# fixtures/pattern-fires-discharged.ttl --shapes ontology.ttl --shapes
+# shapes.ttl` conforms (dischargedAt present); deleting the
+# smon:dischargedAt triple below and re-running the same command fails
+# closed (confirmed live, this pass -- see README's Verification section
+# for the exact command and output).
+
+@prefix smon: <http://seanchatmangpt.github.io/packs/self-monitoring#> .
+@prefix dfl:  <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@base <http://seanchatmangpt.github.io/packs/self-monitoring/fixtures/pattern-fires#> .
+
+<#session>
+    a dfl:Session ;
+    dcterms:identifier "demo-pattern-fires-1" .
+
+<#turn-1>
+    a smon:Turn ; dcterms:isPartOf <#session> ; dcterms:subject "cng CLI publish workflow" ;
+    smon:sequenceIndex 1 ; smon:turnKind smon:GroundingQuestion .
+
+<#turn-4>
+    a smon:Turn ; dcterms:isPartOf <#session> ; dcterms:subject "cng CLI publish workflow" ;
+    smon:sequenceIndex 4 ; smon:turnKind smon:GroundingQuestion .
+
+_:demo-escalation
+    a smon:EscalationObligation ;
+    smon:hasPriorGroundingQuestion <#turn-1> ;
+    smon:hasGroundingQuestion <#turn-4> ;
+    smon:reason "same grounding_topic asked twice by a GroundingQuestion turn, and the turn immediately following the first GroundingQuestion was only a SurveyResponse (not a RunResponse/BlockerResponse) -- escalate to an actual build/run rather than another survey" ;
+    smon:severity smon:Low ;
+    smon:deadlineHint smon:NextSession ;
+    smon:status smon:Discharged ;
+    smon:dischargedAt "2026-07-19T04:00:00Z"^^xsd:dateTime .

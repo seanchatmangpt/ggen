@@ -1,0 +1,85 @@
+# shapes.ttl -- SHACL shapes constraining mfa:PipelineStage/mfa:AuthorityDir
+# individuals and the mfa:handsOffTo/mfa:readsFrom/mfa:writesTo relations
+# added between them.
+#
+# Closes part of the ontology-expressiveness gap named in
+# docs/packs/L5_VALIDATION_REPORT.md's mfact-pack section: "the ontology
+# encodes only flat, per-class scalar facts... with no relations... no
+# cardinality constraints" (L1->L2). This file makes cardinality and
+# relation typing a checked, machine-verifiable fact instead of an unstated
+# convention -- run with:
+#   ggen graph validate --files packs/mfact-pack/ontology.ttl \
+#                        --shapes packs/mfact-pack/shapes.ttl
+
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix mfa:  <http://seanchatmangpt.github.io/packs/mfact#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+mfa:PipelineStageShape
+    a sh:NodeShape ;
+    sh:targetClass mfa:PipelineStage ;
+
+    sh:property [
+        sh:path     mfa:order ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message  "A PipelineStage must carry exactly one mfa:order, >= 1." ;
+    ] ;
+    sh:property [
+        sh:path     mfa:actor ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A PipelineStage must carry exactly one non-empty mfa:actor." ;
+    ] ;
+    sh:property [
+        sh:path     rdfs:label ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A PipelineStage must carry exactly one non-empty rdfs:label." ;
+    ] ;
+    sh:property [
+        sh:path     rdfs:comment ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "A PipelineStage must carry exactly one non-empty rdfs:comment." ;
+    ] ;
+    sh:property [
+        sh:path     mfa:handsOffTo ;
+        sh:maxCount 1 ;
+        sh:class    mfa:PipelineStage ;
+        sh:message  "mfa:handsOffTo, when present, must point at exactly one other mfa:PipelineStage (the terminal stage carries none)." ;
+    ] ;
+    sh:property [
+        sh:path     mfa:readsFrom ;
+        sh:class    mfa:AuthorityDir ;
+        sh:message  "mfa:readsFrom must point only at mfa:AuthorityDir individuals." ;
+    ] ;
+    sh:property [
+        sh:path     mfa:writesTo ;
+        sh:class    mfa:AuthorityDir ;
+        sh:message  "mfa:writesTo must point only at mfa:AuthorityDir individuals." ;
+    ] .
+
+mfa:AuthorityDirShape
+    a sh:NodeShape ;
+    sh:targetClass mfa:AuthorityDir ;
+
+    sh:property [
+        sh:path     mfa:path ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "An AuthorityDir must carry exactly one non-empty mfa:path." ;
+    ] ;
+    sh:property [
+        sh:path     rdfs:comment ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message  "An AuthorityDir must carry exactly one non-empty rdfs:comment." ;
+    ] .

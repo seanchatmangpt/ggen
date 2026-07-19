@@ -85,6 +85,8 @@
 # refusal text relayed on stderr.
 # ============================================================================
 set -uo pipefail
+# shellcheck source=./dogfood-lib.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/dogfood-lib.sh" 2>/dev/null || true
 
 payload=$(cat 2>/dev/null)
 [ -n "${payload:-}" ] || exit 0
@@ -95,7 +97,12 @@ sid=$(printf '%s' "$payload" | jq -r '.session_id // empty' 2>/dev/null)
 cmd=$(printf '%s' "$payload" | jq -r '.tool_input.command // empty' 2>/dev/null)
 [ -n "${sid:-}" ] && [ -n "${cmd:-}" ] || exit 0
 
-repo_root="/Users/sac/praxis"
+# PARAMETERIZED TARGET (v26.7.18): resolved via dogfood-lib.sh's
+# dogfood_repo_root ($DOGFOOD_REPO_ROOT env var, else derived from this
+# script's own location) -- no hardcoded /Users/sac/... path. Falls back to
+# a bare relative path if the shared lib failed to source (best-effort,
+# same discipline as the rest of this script).
+repo_root="$(dogfood_repo_root 2>/dev/null || printf '.')"
 ledger_dir="$repo_root/.cargo-cicd/lifecycle/session-${sid}/plan-ledger"
 ledger_file="$ledger_dir/plan-ledger.jsonl"
 
@@ -135,4 +142,51 @@ echo "  action:      $cmd" >&2
 echo "$check_err" >&2
 echo "This session has an active plan ledger (opted in via 'cng plan present'), so" >&2
 echo "every Bash command must be the literal next unexecuted plan step." >&2
+
+# ACTUATION CLOSURE (v26.7.18): the block path now REACHES the two things
+# the L5 audit named as missing -- (1) a dfl:Blocked dfl:ToolEvent, the only
+# way one can ever exist (PostToolUse structurally never fires for a
+# blocked call, see dogfood-lib.sh's header); (2) a refusal RECEIPT
+# appended to the same receipts.jsonl chain dogfood-lifecycle-session-end.sh
+# writes to, hash-chained the same way (payload_hash/prev_chain_hash/
+# chain_hash), so a refusal is a first-class, permanently receipted event,
+# not merely a stderr message the operator happens to see. Both steps are
+# best-effort (never change this hook's exit 2 verdict; a logging failure
+# here must not turn a real refusal into a silent allow OR crash the hook).
+if command -v jq >/dev/null 2>&1 && command -v b3sum >/dev/null 2>&1 && [ "$(type -t dogfood_append_event 2>/dev/null)" = "function" ]; then
+  {
+    action_hash=$(printf '%s' "$cmd" | b3sum --no-names 2>/dev/null | cut -c1-64)
+    dogfood_append_event "$sid" "Bash" "Blocked" "$action_hash" "$action_hash"
+
+    recs="$(dogfood_lifecycle_dir)/receipts.jsonl"
+    genesis=$(printf '0%.0s' $(seq 1 64))
+    prev_chain="$genesis"
+    if [ -f "$recs" ]; then
+      last_line=$(tail -n 1 "$recs" 2>/dev/null || true)
+      if [ -n "$last_line" ]; then
+        last_chain=$(printf '%s' "$last_line" | jq -r '.chain_hash? // empty' 2>/dev/null || true)
+        [ -n "$last_chain" ] && prev_chain="$last_chain"
+      fi
+    fi
+    refusal_payload=$(jq -ncS \
+      --arg session_id "$sid" \
+      --arg plan_digest "$plan_digest" \
+      --arg action "$cmd" \
+      --arg reason "$check_err" \
+      '{action: $action, kind: "plan-admission-refusal", plan_digest: $plan_digest, reason: $reason, session_id: $session_id}')
+    payload_hash=$(printf '%s' "$refusal_payload" | b3sum --no-names - | cut -c1-64)
+    chain_hash=$(printf '%s%s' "$prev_chain" "$payload_hash" | b3sum --no-names - | cut -c1-64)
+    jq -nc \
+      --arg session_id "$sid" \
+      --arg plan_digest "$plan_digest" \
+      --arg action "$cmd" \
+      --arg payload_hash "$payload_hash" \
+      --arg prev_chain_hash "$prev_chain" \
+      --arg chain_hash "$chain_hash" \
+      '{kind: "plan-admission-refusal", session_id: $session_id, plan_digest: $plan_digest, action: $action,
+        payload_hash: $payload_hash, prev_chain_hash: $prev_chain_hash, chain_hash: $chain_hash}' \
+      >> "$recs" 2>/dev/null || true
+  } 2>/dev/null || true
+fi
+
 exit 2

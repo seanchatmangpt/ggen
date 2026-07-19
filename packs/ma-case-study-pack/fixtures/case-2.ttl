@@ -1,0 +1,179 @@
+# case-2.ttl -- a SECOND, wholly independent full-coverage case instance,
+# added in the 2026-07-19 L5-push pass to close the disclosed Generalization
+# gap named in docs/packs/L5_VALIDATION_REPORT.md's ma-case-study-pack
+# section: "Only one full-coverage case instance exists against the pack's
+# own schema ... the other fixtures are narrow single-purpose proof
+# fixtures, not additional independent domain cases." This file is that
+# second independent instance -- a DIFFERENT acquirer, DIFFERENT target,
+# DIFFERENT deal IRI namespace, DIFFERENT outcome (terminated, not pending),
+# validated against the SAME unchanged ontology.ttl/shapes.ttl -- no schema
+# change was needed to admit it, which is the concrete evidence for the L3
+# generalization bar ("two independent case instances validated by the same
+# schema unchanged").
+#
+# WHAT THIS FILE ADDS BEYOND case.ttl (not merely a copy with names changed):
+#   - Concept 8 (negotiated deal terms + counter-offer sequencing) is
+#     EXERCISED HERE for the first time in this pack's fixtures: case.ttl
+#     asserts no ma:DealTermLineItem or ma:CounterOffer individual at all.
+#     This file asserts 2 typed deal-term line items (PricePerShare,
+#     EscrowPercentage) and a 2-move counter-offer chain
+#     (ma:supersedes), giving CQ8.1/CQ8.2/CQ8.3 real instance data to
+#     answer against for the first time.
+#   - ma:Failed vote outcome and ma:Terminated deal status (case.ttl only
+#     exercises ma:Passed / ma:PendingRegulatoryApproval) -- a different,
+#     less happy-path branch through the same closed enumerations.
+#   - A ma:Withdrawn-eligible board authority path is NOT included (only one
+#     of the 6 processes is deliberately omitted here, disclosed rather than
+#     silently implied complete: this file does not assert a
+#     ma:BoardResolution, on the narrative theory that the board never
+#     reached a vote before the shareholder vote failed and the deal was
+#     terminated -- a realistic, not an evasive, omission).
+#
+# SCENARIO: Solvane Analytics Group, Inc. (acquirer, fictional) proposes to
+# acquire Northgate Materials Corp. (target, fictional) for USD 340,000,000.
+# The shareholder vote FAILS (48.2% for, below the majority threshold
+# implied by the case narrative), and the deal is subsequently TERMINATED
+# per its termination provision. Same fictional-entity convention as
+# case.ttl's own header states -- no real company is referenced.
+
+@prefix rdf:              <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:               <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov:              <http://www.w3.org/ns/prov#> .
+@prefix dcterms:           <http://purl.org/dc/terms/> .
+@prefix schema:            <https://schema.org/> .
+@prefix cmns-cls:          <https://www.omg.org/spec/Commons/Classifiers/> .
+@prefix cmns-id:           <https://www.omg.org/spec/Commons/Identifiers/> .
+@prefix fibo-be-le-lei:    <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LEIEntities/> .
+@prefix fibo-be-oac-cctl:  <https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/CorporateControl/> .
+@prefix fibo-fnd-agr-ctr:  <https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/> .
+@prefix fibo-cae-ce-act:   <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/> .
+@prefix ma:                <http://seanchatmangpt.github.io/packs/ma-case-study#> .
+
+# Vocabulary restatement, disclosed (same reason as case.ttl's own header:
+# `ggen graph validate --files` validates each file independently, so
+# ma:MergerAcquisitionShape's sh:class check needs ma:Terminated's `a
+# ma:DealStatus` triple present in this file too).
+ma:Terminated a ma:DealStatus .
+
+# ── Concept 1: LEI-registered legal entities ────────────────────────────────
+
+<https://deals.solvane-analytics.example.org/identifier/lei-solvane-analytics-group>
+    a fibo-be-le-lei:LegalEntityIdentifier ;
+    dcterms:identifier "5493004321SOLVANEAG" .
+
+<https://deals.solvane-analytics.example.org/entity/acquirer-solvane-analytics-group>
+    a fibo-be-le-lei:LEIRegisteredEntity ;
+    fibo-be-le-lei:hasLegalFormAbbreviation "INC" ;
+    cmns-id:isIdentifiedBy <https://deals.solvane-analytics.example.org/identifier/lei-solvane-analytics-group> ;
+    dcterms:description "Acquirer: Solvane Analytics Group, Inc. (Delaware), a fictional data-analytics holding company." .
+
+<https://deals.solvane-analytics.example.org/identifier/lei-northgate-materials>
+    a fibo-be-le-lei:LegalEntityIdentifier ;
+    dcterms:identifier "5493008765NORTHGATEM" .
+
+<https://deals.solvane-analytics.example.org/entity/target-northgate-materials>
+    a fibo-be-le-lei:LEIRegisteredEntity ;
+    fibo-be-le-lei:hasLegalFormAbbreviation "CORP" ;
+    cmns-id:isIdentifiedBy <https://deals.solvane-analytics.example.org/identifier/lei-northgate-materials> ;
+    dcterms:description "Target: Northgate Materials Corp. (Texas), a fictional specialty-materials manufacturer." .
+
+# ── Concept 2: ownership interest ───────────────────────────────────────────
+
+<https://deals.solvane-analytics.example.org/relationship/SAG-2026-0077-ownership>
+    a fibo-be-le-lei:RelationshipRecord ;
+    fibo-be-le-lei:hasOwnershipPercentage "100.00"^^xsd:decimal ;
+    dcterms:description "Full (100%) ownership interest in Northgate Materials Corp. proposed to be acquired by Solvane Analytics Group, Inc." .
+
+# ── The deal itself ──────────────────────────────────────────────────────
+
+<https://deals.solvane-analytics.example.org/deal/SAG-2026-0077>
+    a fibo-cae-ce-act:MergerAcquisition ;
+    cmns-cls:isClassifiedBy ma:Terminated ;
+    schema:amount [
+        a schema:MonetaryAmount ;
+        schema:value 340000000 ;
+        schema:currency "USD"
+    ] ;
+    dcterms:description "Solvane Analytics Group, Inc. proposed acquisition of Northgate Materials Corp. for aggregate consideration of USD 340,000,000; terminated 2026-06-30 after the target shareholder vote failed." .
+
+# ── Concept 4: representation/warranty + disclosure exception ──────────────
+
+<https://deals.solvane-analytics.example.org/clause/rep-target-environmental-compliance>
+    a fibo-fnd-agr-ctr:Representation ;
+    dcterms:description "Northgate Materials Corp. represents that its facilities are in material compliance with applicable environmental law." .
+
+<https://deals.solvane-analytics.example.org/disclosure/schedule-4-02-remediation-order>
+    a ma:DisclosureScheduleItem ;
+    ma:qualifiesClause <https://deals.solvane-analytics.example.org/clause/rep-target-environmental-compliance> ;
+    ma:scheduleItemNumber "Schedule 4.02" .
+
+# ── Concept 3: due-diligence items (2, both closed one way or another) ─────
+
+<https://deals.solvane-analytics.example.org/ddi/environmental-remediation-review>
+    a ma:DueDiligenceItem ;
+    ma:dueDiligenceDisposition ma:Satisfied .
+
+<https://deals.solvane-analytics.example.org/ddi/customer-concentration-review>
+    a ma:DueDiligenceItem ;
+    ma:dueDiligenceDisposition ma:Open .
+
+# ── Concept 8: negotiated deal terms + counter-offer chain (NEW coverage) ──
+
+<https://deals.solvane-analytics.example.org/term-sheet/original-offer-price-per-share>
+    a ma:DealTermLineItem , fibo-fnd-agr-ctr:NonBindingTerm ;
+    ma:termType ma:PricePerShare ;
+    ma:termValue "42.50"^^xsd:decimal .
+
+<https://deals.solvane-analytics.example.org/term-sheet/original-offer-escrow>
+    a ma:DealTermLineItem ;
+    ma:termType ma:EscrowPercentage ;
+    ma:termValue "10.00"^^xsd:decimal .
+
+<https://deals.solvane-analytics.example.org/counteroffer/northgate-counter-1>
+    a ma:CounterOffer , fibo-fnd-agr-ctr:NonBindingTerm ;
+    ma:supersedes <https://deals.solvane-analytics.example.org/term-sheet/original-offer-price-per-share> ;
+    prov:wasAttributedTo <https://deals.solvane-analytics.example.org/entity/target-northgate-materials> .
+
+<https://deals.solvane-analytics.example.org/counteroffer/solvane-counter-2>
+    a ma:CounterOffer ;
+    ma:supersedes <https://deals.solvane-analytics.example.org/counteroffer/northgate-counter-1> ;
+    prov:wasAttributedTo <https://deals.solvane-analytics.example.org/entity/acquirer-solvane-analytics-group> .
+
+# ── Concept 9: financing commitment + condition ─────────────────────────────
+
+<https://deals.solvane-analytics.example.org/financing/condition-shareholder-approval>
+    a ma:FinancingOutCondition ;
+    dcterms:description "The debt commitment is contingent on the target shareholder vote approving the transaction." .
+
+<https://deals.solvane-analytics.example.org/financing/debt-commitment-crescent-lending>
+    a ma:FinancingCommitment ;
+    dcterms:description "Crescent Lending Partners debt-commitment letter for USD 200,000,000 of acquisition financing." ;
+    ma:subjectToCondition <https://deals.solvane-analytics.example.org/financing/condition-shareholder-approval> .
+
+# ── Concept 7: shareholder action -- vote FAILS (different branch than
+#    case.ttl's ma:Passed) ──────────────────────────────────────────────────
+
+<https://deals.solvane-analytics.example.org/agent/shareholder-delta-capital>
+    a fibo-be-oac-cctl:VotingShareholder ;
+    dcterms:description "Delta Capital Advisors, a fictional institutional shareholder of Northgate Materials Corp." .
+
+<https://deals.solvane-analytics.example.org/agent/shareholder-epsilon-retirement-fund>
+    a fibo-be-oac-cctl:VotingShareholder ;
+    dcterms:description "Epsilon Retirement Fund, a fictional institutional shareholder of Northgate Materials Corp." .
+
+<https://deals.solvane-analytics.example.org/vote/target-shareholder-vote-2026-06-28>
+    a ma:ShareholderVote ;
+    ma:quorumPercentage "71.00"^^xsd:decimal ;
+    ma:voteOutcome ma:Failed .
+
+<https://deals.solvane-analytics.example.org/ballot/ballot-001-delta>
+    a ma:Ballot ;
+    dcterms:isPartOf <https://deals.solvane-analytics.example.org/vote/target-shareholder-vote-2026-06-28> ;
+    prov:wasAttributedTo <https://deals.solvane-analytics.example.org/agent/shareholder-delta-capital> ;
+    ma:ballotDirection ma:Against .
+
+<https://deals.solvane-analytics.example.org/ballot/ballot-002-epsilon>
+    a ma:Ballot ;
+    dcterms:isPartOf <https://deals.solvane-analytics.example.org/vote/target-shareholder-vote-2026-06-28> ;
+    prov:wasAttributedTo <https://deals.solvane-analytics.example.org/agent/shareholder-epsilon-retirement-fund> ;
+    ma:ballotDirection ma:For .

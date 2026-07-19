@@ -6,6 +6,7 @@
 # exit codes and output (no mocks, no behavior verification).
 
 @prefix ctt:  <http://seanchatmangpt.github.io/packs/chicago-tdd-tools#> .
+@prefix cnv:  <http://seanchatmangpt.github.io/packs/clap-noun-verb#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
 
@@ -23,6 +24,10 @@ ctt:expectExitCode a rdfs:Property ; rdfs:label "expected exit code" ; rdfs:rang
 ctt:stdoutNeedle  a rdfs:Property ; rdfs:label "required stdout substring" ; rdfs:range xsd:string .
 ctt:stderrNeedle  a rdfs:Property ; rdfs:label "required stderr substring" ; rdfs:range xsd:string .
 ctt:coversAxiom   a rdfs:Property ; rdfs:label "axiom this proof covers" ; rdfs:range xsd:string .
+ctt:composesCommand a rdfs:Property ;
+  rdfs:label "clap-noun-verb Command this boundary test composes its argv from" ;
+  rdfs:comment "Points at a cnv:Command individual (defined by clap-noun-verb-pack or a consuming project's own domain.ttl, not by this pack) so ctt:args for THIS test is derived by joining ?cmd cnv:noun/cnv:verb rather than hand-typed as a free-text literal -- partial closure of the Handler-gap axis: the invocation SHAPE (noun+verb) is composed from another pack's generated command surface; the expected exit code/needle remain this pack's own observed axiom, not (yet) derivable from cnv:Command alone since clap-noun-verb-pack's ontology carries no success-postcondition property." ;
+  rdfs:range ctt:CliBoundaryTest .
 
 # ── Individuals ─────────────────────────────────────────────────────
 
@@ -50,6 +55,23 @@ ctt:receiptctl-version
   # true rather than what was originally assumed.
   ctt:stdoutNeedle "cli " ;
   ctt:coversAxiom "receiptctl --version exits 0 and prints a version string" .
+
+ctt:receiptctl-algorithm-list
+  a ctt:CliBoundaryTest ;
+  rdfs:label "receiptctl algorithm list boundary proof (argv composed from clap-noun-verb-pack)" ;
+  ctt:testName "receiptctl_algorithm_list_succeeds" ;
+  ctt:binary "receiptctl" ;
+  # NOTE: no ctt:args literal here -- the invocation argv is composed at
+  # sync time by joining ctt:composesCommand's target cnv:Command's
+  # cnv:noun/cnv:verb (see cli_boundary_tests.rs.tmpl's SPARQL, which BINDs
+  # CONCAT(?noun, " ", ?verb) as ?args when a literal ctt:args is absent).
+  # This is a real generated command from clap-noun-verb-pack + this
+  # project's own domain.ttl (schema/domain.ttl's cnv:AlgorithmList), not a
+  # value this pack's ontology invented.
+  ctt:composesCommand cnv:AlgorithmList ;
+  ctt:expectExitCode 0 ;
+  ctt:stdoutNeedle "[" ;
+  ctt:coversAxiom "receiptctl algorithm list (argv composed from clap-noun-verb-pack's AlgorithmList command) exits 0 and prints a JSON array" .
 
 ctt:receiptctl-unknown-verb
   a ctt:CliBoundaryTest ;

@@ -88,7 +88,10 @@ fn command_snapshot_thin_thins_to_byte_budget() {
 #[test]
 fn command_snapshot_delete_deletes_oldest_or_all() {
     let c = find_command("snapshot", "delete");
-    assert_eq!(c.doc, "Delete the oldest, or all, local snapshots.");
+    assert_eq!(
+        c.doc,
+        "Delete specific local APFS snapshots (by name/date, or the oldest N)."
+    );
 }
 
 #[test]
@@ -96,7 +99,7 @@ fn command_receipt_verify_checks_measured_reclaim() {
     let c = find_command("receipt", "verify");
     assert_eq!(
         c.doc,
-        "Verify measured reclaim against the receipt's claim, within tolerance."
+        "Verify the contents, integrity, and filesystem consistency of a deletion receipt."
     );
 }
 

@@ -146,6 +146,63 @@
 #     checked and rejected: it is a generic "account of the resource," not
 #     specifically the causal rationale a pattern-derivation exists to name.
 #
+# ============================================================================
+# L5-PUSH ADDITIONS (this pass) -- disclosed exactly like every other minted
+# term above, not silently introduced:
+#
+#   smon:severity + smon:Severity  a CLOSED 3-concept severity scheme (Low /
+#     Medium / High) attached to smon:EscalationObligation, so a downstream
+#     planner has a real, usable prioritization signal instead of a bare
+#     unparameterized obligation node (Matrix 2's Derivation-power L3 bar:
+#     "Derives obligations with parameters ... usable by a downstream
+#     planner"). NOT a hardcoded constant: hook.ttl's companion
+#     `smon:prioritize_escalation_obligation` hook (below) computes it from a
+#     real COUNT(?otherQ) aggregate over how many OTHER same-topic
+#     GroundingQuestion turns exist in the session (confirmed live, this
+#     pass, against crates/praxis-graphlaw/src/sparql/plan.rs: `Aggregate`/
+#     `PlanAggregationFunction::Count` IS implemented, unlike
+#     Expression::Add/Subtract, which is why deadline below stays
+#     categorical rather than arithmetic on timestamps). No public ontology
+#     term names "how urgent a derived governance finding is" as a closed,
+#     hook-computed scheme; schema.org's `priority` is a free string with no
+#     defined vocabulary and no domain tie to a PROV-shaped finding node.
+#   smon:deadlineHint + smon:DeadlineHint  a CLOSED 2-concept categorical
+#     scheme (ActNow / NextSession) bound 1:1 to severity (High -> ActNow,
+#     Low/Medium -> NextSession) by the SAME hook, never by arithmetic on
+#     smon:sequenceIndex or a timestamp (this engine does not implement
+#     Expression::Add -- see smon:immediatelyFollows's disclosure above,
+#     unchanged and still true this pass). Deliberately NOT an xsd:dateTime:
+#     asserting a fabricated absolute deadline the hook cannot actually
+#     compute would be exactly the "fake it" failure this pass is required
+#     to avoid.
+#   smon:status + smon:ObligationStatus  a CLOSED 3-concept scheme (Open /
+#     Discharged / Refused) on smon:EscalationObligation. The derivation
+#     hook always asserts smon:status smon:Open (an obligation is born open);
+#     nothing in this pack's hooks ever transitions it -- discharge/refusal
+#     is recorded by a SEPARATE, later fact-assertion (exactly mirroring how
+#     smon:turnKind itself is always an input fact, never hook-computed; see
+#     the CLASSIFICATION-IS-INPUT FENCE above -- the SAME discipline applied
+#     to lifecycle state). `queries/open_obligations.rq` (shipped this pass)
+#     is the real, checked-in query surface over this property.
+#   smon:dischargedAt + smon:refusalReason  xsd:dateTime / xsd:string on
+#     EscalationObligation, present only once smon:status moves off Open;
+#     required together with the corresponding status value by
+#     shapes.ttl's new sh:or branch (below).
+#   smon:UngovernedTransition  a SEPARATE derived-fact class (companion hook
+#     `smon:flag_ungoverned_transition`, hook.ttl) marking a GroundingQuestion
+#     turn whose immediately-following response is smon:Other -- i.e. NEITHER
+#     a SurveyResponse (the one pattern this pack governs) NOR a RunResponse/
+#     BlockerResponse (the two "handled correctly" kinds already proven never
+#     to fire the escalation, per README's adversarial check 1). This is the
+#     real, positive "any transition falling outside every governed pattern
+#     is itself detectable and flagged" mechanism Matrix 2's Governance-
+#     coverage L5 bar names -- scoped honestly to the ONE process this pack
+#     actually models (the grounding-question/response pattern), not the
+#     whole of Claude Code's behavior (see "still not L5" in this pass's
+#     final scoring for why one governed happy-path plus this one catch-all
+#     is not yet "the whole process").
+# ============================================================================
+#
 # CLASSIFICATION-IS-INPUT FENCE: see the block above this header's public-
 # vocabulary list. Repeated here at the end because it is the load-bearing
 # constraint of this entire pack.
@@ -262,3 +319,103 @@ smon:Other
     skos:notation "other" ;
     skos:prefLabel "Other" ;
     rdfs:comment  "Any turn not classified as one of the four kinds above." .
+
+# ── L5-push additions: obligation parameters (severity, deadline hint) ────
+# See the "L5-PUSH ADDITIONS" header block above for full disclosure of why
+# each of these exists and what public terms were checked and rejected.
+
+smon:Severity
+    a            rdfs:Class ;
+    rdfs:label   "Severity" ;
+    rdfs:comment "Closed 3-concept severity scheme (Low/Medium/High) for a derived smon:EscalationObligation. Computed by smon:prioritize_escalation_obligation (hook.ttl) from a real COUNT aggregate over same-topic repeat GroundingQuestion turns -- never a hardcoded constant." .
+
+smon:SeverityScheme
+    a            skos:ConceptScheme ;
+    rdfs:label   "Escalation severity scheme" .
+
+smon:Low    a smon:Severity , skos:Concept ; skos:inScheme smon:SeverityScheme ; skos:notation "low"    ; skos:prefLabel "Low" ;    rdfs:comment "Exactly 2 same-topic GroundingQuestion turns total (the minimum that can fire the hook at all)." .
+smon:Medium a smon:Severity , skos:Concept ; skos:inScheme smon:SeverityScheme ; skos:notation "medium" ; skos:prefLabel "Medium" ; rdfs:comment "3 same-topic GroundingQuestion turns total." .
+smon:High   a smon:Severity , skos:Concept ; skos:inScheme smon:SeverityScheme ; skos:notation "high"   ; skos:prefLabel "High" ;   rdfs:comment "4 or more same-topic GroundingQuestion turns total -- the system has been asked about repeatedly and survey-only responses have not resolved it." .
+
+smon:severity
+    a            rdf:Property ;
+    rdfs:label   "severity" ;
+    rdfs:domain  smon:EscalationObligation ;
+    rdfs:range   smon:Severity ;
+    rdfs:comment "How urgent this escalation is, computed from the real count of same-topic GroundingQuestion turns in the session (see smon:Severity). A parameter a downstream planner can branch on, not a bare unparameterized obligation node." .
+
+smon:DeadlineHint
+    a            rdfs:Class ;
+    rdfs:label   "DeadlineHint" ;
+    rdfs:comment "Closed 2-concept categorical urgency-window scheme (ActNow/NextSession). Deliberately categorical, not xsd:dateTime: this engine does not implement arithmetic FILTER expressions (Expression::Add/Subtract; see smon:immediatelyFollows's disclosure above), so a fabricated absolute deadline the hook cannot actually compute is never asserted." .
+
+smon:DeadlineHintScheme
+    a            skos:ConceptScheme ;
+    rdfs:label   "Escalation deadline-hint scheme" .
+
+smon:ActNow      a smon:DeadlineHint , skos:Concept ; skos:inScheme smon:DeadlineHintScheme ; skos:notation "act-now"      ; skos:prefLabel "ActNow" ;      rdfs:comment "Bound to smon:High severity: the escalation should be actuated in the current session, not deferred." .
+smon:NextSession a smon:DeadlineHint , skos:Concept ; skos:inScheme smon:DeadlineHintScheme ; skos:notation "next-session" ; skos:prefLabel "NextSession" ; rdfs:comment "Bound to smon:Low/smon:Medium severity: worth surfacing, not yet urgent enough to interrupt the current session." .
+
+smon:deadlineHint
+    a            rdf:Property ;
+    rdfs:label   "deadlineHint" ;
+    rdfs:domain  smon:EscalationObligation ;
+    rdfs:range   smon:DeadlineHint ;
+    rdfs:comment "Categorical urgency window, deterministically bound to smon:severity by smon:prioritize_escalation_obligation (hook.ttl): High -> ActNow, Low/Medium -> NextSession." .
+
+# ── L5-push additions: obligation lifecycle (status, discharge, refusal) ──
+
+smon:ObligationStatus
+    a            rdfs:Class ;
+    rdfs:label   "ObligationStatus" ;
+    rdfs:comment "Closed 3-concept lifecycle-state scheme (Open/Discharged/Refused) for smon:EscalationObligation. Every obligation is born smon:Open (asserted by the derivation hook itself); a transition to Discharged or Refused is a SEPARATE, later fact assertion -- this pack's hooks never self-transition an obligation's status, mirroring the CLASSIFICATION-IS-INPUT discipline applied to lifecycle state instead of turn-kind." .
+
+smon:ObligationStatusScheme
+    a            skos:ConceptScheme ;
+    rdfs:label   "Obligation lifecycle-status scheme" .
+
+smon:Open        a smon:ObligationStatus , skos:Concept ; skos:inScheme smon:ObligationStatusScheme ; skos:notation "open"        ; skos:prefLabel "Open" ;        rdfs:comment "Derived, not yet discharged or refused. Asserted by the derivation hook at CONSTRUCT time -- an obligation is always born in this state." .
+smon:Discharged  a smon:ObligationStatus , skos:Concept ; skos:inScheme smon:ObligationStatusScheme ; skos:notation "discharged"  ; skos:prefLabel "Discharged" ;  rdfs:comment "The escalation was actually acted on (a real build/run happened). Requires smon:dischargedAt (xsd:dateTime) -- enforced by shapes.ttl." .
+smon:Refused     a smon:ObligationStatus , skos:Concept ; skos:inScheme smon:ObligationStatusScheme ; skos:notation "refused"     ; skos:prefLabel "Refused" ;     rdfs:comment "The escalation was reviewed and explicitly declined (e.g. a human judged the repeat question was NOT actually the same underlying ask). Requires smon:refusalReason (xsd:string) -- enforced by shapes.ttl." .
+
+smon:status
+    a            rdf:Property ;
+    rdfs:label   "status" ;
+    rdfs:domain  smon:EscalationObligation ;
+    rdfs:range   smon:ObligationStatus ;
+    rdfs:comment "Current lifecycle state. queries/open_obligations.rq (shipped this pass) is the real, checked-in query surface: SELECT obligations WHERE smon:status smon:Open." .
+
+smon:dischargedAt
+    a            rdf:Property ;
+    rdfs:label   "dischargedAt" ;
+    rdfs:domain  smon:EscalationObligation ;
+    rdfs:range   xsd:dateTime ;
+    rdfs:comment "When a smon:Discharged obligation was actually acted on. Required together with smon:status smon:Discharged; see shapes.ttl." .
+
+smon:refusalReason
+    a            rdf:Property ;
+    rdfs:label   "refusalReason" ;
+    rdfs:domain  smon:EscalationObligation ;
+    rdfs:range   xsd:string ;
+    rdfs:comment "Why a smon:Refused obligation was declined. Required together with smon:status smon:Refused; see shapes.ttl." .
+
+# ── L5-push additions: ungoverned-transition catch-all detector ───────────
+
+smon:UngovernedTransition
+    a            rdfs:Class ;
+    rdfs:label   "UngovernedTransition" ;
+    rdfs:comment "Derived by the companion hook smon:flag_ungoverned_transition (hook.ttl): a GroundingQuestion turn whose immediately-following response is smon:Other -- neither the one pattern this pack governs (SurveyResponse -> possible escalation) nor a RunResponse/BlockerResponse (the two kinds already proven, by README's adversarial check 1, never to warrant escalation). Scoped honestly to the grounding-question/response process this pack models, not the whole of Claude Code's behavior -- see ontology.ttl's L5-push header for why this is a real, positive, currently-narrow catch-all rather than a claim of total process coverage." .
+
+smon:hasUngovernedResponse
+    a            rdf:Property ;
+    rdfs:label   "hasUngovernedResponse" ;
+    rdfs:domain  smon:UngovernedTransition ;
+    rdfs:range   smon:Turn ;
+    rdfs:comment "Links an UngovernedTransition to the smon:Other-classified response turn that triggered the flag." .
+
+smon:hasUngovernedQuestion
+    a            rdf:Property ;
+    rdfs:label   "hasUngovernedQuestion" ;
+    rdfs:domain  smon:UngovernedTransition ;
+    rdfs:range   smon:Turn ;
+    rdfs:comment "Links an UngovernedTransition to the GroundingQuestion turn whose response was not governed by any known pattern." .

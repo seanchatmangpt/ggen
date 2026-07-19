@@ -330,6 +330,85 @@ classified correctly — not a running guardrail.
   capture hook exists yet for conversational turns; this pack is the vocabulary + derivation
   hook only, not the capture wiring.
 
+## L5-push additions (this pass) and honest re-score
+
+Real, verified additions made against `docs/packs/L5_VALIDATION_REPORT.md`'s named per-dimension
+gaps for this pack (all commands below actually run this pass, not narrated):
+
+- **Derivation power (L2 -> L3):** `ontology.ttl` adds `smon:severity`/`smon:Severity`
+  (Low/Medium/High) and `smon:deadlineHint`/`smon:DeadlineHint` (ActNow/NextSession) to
+  `smon:EscalationObligation`. `hook.ttl`'s three `smon:prioritize_escalation_obligation_{low,
+  medium,high}` hooks (replacing the old unparameterized `smon:derive_escalation_obligation`,
+  removed to avoid a duplicate-node regression — see hook.ttl's own note) compute severity from a
+  REAL `COUNT` aggregate (via a sub-`SELECT ... GROUP BY`) over how many same-topic
+  `GroundingQuestion` turns exist in the session — confirmed live against the real
+  `praxis_graphlaw::TripleStore` engine (COUNT, GROUP BY, sub-SELECTs-in-WHERE, and `>=` all
+  verified to evaluate correctly via a throwaway scratch harness this pass, never committed).
+  **Still not L4/L5:** no obligation *chaining* into ordered discharge plans, and no standing
+  re-derivation as new turns arrive live — still one `materialize()` per invocation.
+- **Obligation lifecycle (L1 -> L3):** `smon:status`/`smon:ObligationStatus`
+  (Open/Discharged/Refused), `smon:dischargedAt`, `smon:refusalReason` added.
+  `shapes.ttl`'s `EscalationObligationShape` enforces "Discharged requires dischargedAt" /
+  "Refused requires refusalReason" as **pure SHACL Core** (`sh:or` + `sh:not` + `sh:hasValue`) —
+  an earlier draft used `sh:sparql`, which this pass discovered is a **silent no-op**
+  in this engine (`SHACL_SPARQL_BOUNDARY = "CORE_ONLY"` in
+  `crates/praxis-graphlaw/src/shacl/model.rs` rejects every `sh:sparql` constraint at load time —
+  a real, confirmed engine limitation, not a bug in this pack's shape). `queries/
+  open_obligations.rq` is a real, checked-in, engine-verified query for open obligations (its own
+  header discloses a second real engine finding: `ORDER BY` on this engine's `query()` path
+  silently returns zero rows, so it is intentionally omitted rather than shipped broken).
+  `fixtures/pattern-fires-discharged.ttl` demonstrates the Discharged state and its enforced
+  constraint (a real induced-tamper test: deleting `smon:dischargedAt` makes `ggen graph
+  validate --shapes` fail closed, confirmed live). **Still not L4/L5:** no overdue-obligation
+  escalation, and no hook-driven closed loop from discharge back into new facts.
+- **Governance coverage (L1 -> L3, one governed pattern -> two, plus a catch-all):**
+  `smon:UngovernedTransition`/`smon:hasUngovernedQuestion`/`smon:hasUngovernedResponse` (ontology)
+  + `smon:flag_ungoverned_transition` (hook.ttl) positively detect a `GroundingQuestion` turn
+  whose response is `smon:Other` — neither the one pattern this pack governs nor the two kinds
+  already proven (README's adversarial check 1) never to warrant escalation.
+  `fixtures/pattern-ungoverned.ttl` proves it fires (confirmed live, this pass, against the real
+  engine) and does not false-positive on any other fixture. **Still not L5:** scoped to the one
+  process this pack models (grounding-question/response), not literally every transition in
+  Claude Code's behavior — a real, positive, narrow catch-all, not total coverage.
+- **Actuation closure (L1 -> L2, partial):** `scripts/actuate_escalation.py` is a real, shipped
+  actuation script: loads ontology+hook+input, extracts every `kh:Action`'s CONSTRUCT text
+  VERBATIM from `hook.ttl`, executes it via `rdflib`'s independent SPARQL 1.1 engine (this pack's
+  established dual-engine-verification convention), and writes a receipt JSON (SHA-256 hash of
+  derived triples, timestamp, per-hook fire/no-fire) — confirmed live against
+  `fixtures/pattern-fires.ttl` (fires), `fixtures/pattern-does-not-fire.ttl` (refuses to fire,
+  receipted `any_hook_fired: false`), `fixtures/pattern-ungoverned.ttl` (the catch-all fires),
+  and a missing-input-file case (real refusal path, `"outcome": "refused"`, exit 1, receipt still
+  written). **Still not L3/L4/L5:** this script must still be invoked by a human/CI job — there
+  is no live, unattended trigger, and no re-observe step feeding the receipt back into the graph
+  as a new fact (the closed-loop bar). Named accurately as a step toward L3, not a claim of L3.
+- **Input acquisition (L2 -> L3, partial):** `scripts/capture_and_validate.sh` chains
+  `transcript_to_turtle.py` (capture) directly into `ggen graph validate --shapes` (admission) as
+  ONE command — closing the exact gap the audit and maturity doc both named ("transcript_to_
+  turtle.py exists but isn't wired"). Confirmed live against a real transcript this pass (capture
+  succeeds, `shapes_conform: true`). **Still not L4/L5:** one invocation per transcript, not a
+  continuous/SHACL-gated-on-ingest daemon, and the pack does not yet own retention policy.
+- **Fire precision (L4, evidence strengthened, not yet L5):**
+  `scripts/measure_fire_precision_multi_session.py` extends README's Stage 3 analysis (previously
+  ONE archived transcript, analyzed once) across 4 additional real, independently-dated
+  `-Users-sac-ggen` session transcripts this pass — `fixtures/precision_report_multi_session.json`
+  is the real, checked-in output (313 real turns across 4 sessions; zero false-fire regressions —
+  the hook correctly stayed silent on all 4, consistent with the original single-session finding
+  that it under-fires on unfixed topic-tag/turn-kind granularity, never over-fires). **Honestly
+  still not L5:** this is real firing counts over multiple real dated sessions (genuine "over
+  time" data, not a repeated snapshot), but it does NOT include independent human-verified
+  ground-truth labels for these 4 additional sessions the way Stage 3 did for the original one —
+  a true precision/recall metric needs that labeling, which this pass's time budget did not
+  cover. See the script's own module docstring for this exact scope limit.
+- **Composability (blocked, not attempted as a fake):** the audit's own next-step names
+  `dogfood-lifecycle-pack` as "the natural candidate" for a real co-fire test — but that pack has
+  **zero `kh:Hook` definitions** (confirmed: `find packs/dogfood-lifecycle-pack -name hook.ttl` →
+  empty; its `hooks/` directory is shell scripts, not `kh:` Turtle), so there is no second hook to
+  co-fire with anywhere in this repo. Building one would require editing
+  `packs/dogfood-lifecycle-pack/`, explicitly off-limits for this task (another agent may be
+  working on it concurrently). No RDF precedence facts were added pointing at a nonexistent hook
+  — that would be exactly the "fake it" failure this exercise exists to catch. Composability
+  stays at its prior level; the concrete blocker is named, not hidden.
+
 ## Fence
 
 Observation/derivation only. No class, predicate, or individual is named `authorize` / `permit`

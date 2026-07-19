@@ -19,6 +19,18 @@
 #   pi:fitnessProvenance — CONSTRUCT-derived from evidence in wasm4pm.
 # This pack generates catalog surfaces only; evidence/witness vocabulary
 # belongs to the wasm4pm-compat family.
+#
+# TARGET-API FIDELITY (2026-07-18, honest partial status): only 1 of the 60
+# rows below (pi:Algo_ocel_dfg) carries a pi:verifiedAgainst fact and only
+# that one is exercised by a real compiled call in
+# templates/algorithms_target_fidelity_proof.rs.tmpl -- the only wasmExport
+# literal in this whole catalog that corresponds to an actually-reachable
+# `pub fn` in a crate this workspace can compile against (`wasm4pm-compat`
+# 26.6.29's `discover_ocel_dfg`). The other 59 wasmExport values are WASM
+# exports of the `wasm4pm` crate itself, which is not (and per this
+# project's own process-intelligence-boundary rule, cannot be) a dependency
+# reachable from here to verify against. Do not read the presence of this
+# note as "all 60 rows verified" -- it is not.
 
 # ── Vocabulary (self-contained) ─────────────────────────────────────────────
 
@@ -80,6 +92,11 @@ pi:inputFormat a rdf:Property ;
   rdfs:domain pi:ProcessIntelligenceAlgorithm ;
   rdfs:range xsd:string ;
   rdfs:comment "Required input format: xes | ocel | bpmn | pnml | petri_net_handle | any." .
+
+pi:verifiedAgainst a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Dated, one-time hand-verification note recording that this algorithm's pi:wasmExport literal was checked to actually resolve against a real, pinned target crate (crate name@version::fn_name, verification date). Absence means UNVERIFIED, not confirmed-absent -- see docs note in this file's header on how many of the 60 rows currently carry this fact." .
 
 # ── Instances: DISCOVERY (20 of 20) ─────────────────────────────────────────
 
@@ -478,7 +495,8 @@ pi:Algo_ocel_dfg a pi:ProcessIntelligenceAlgorithm ;
   pi:speedTier      "5"^^xsd:integer ;
   pi:qualityTier    "55"^^xsd:integer ;
   pi:wasmExport     "discover_ocel_dfg" ;
-  pi:inputFormat    "ocel" .
+  pi:inputFormat    "ocel" ;
+  pi:verifiedAgainst "wasm4pm-compat@26.6.29::discover_ocel_dfg (real pub fn confirmed present in ~/.cargo/registry/src/*/wasm4pm-compat-26.6.29/src/dfg.rs; generated proof in tests/algorithms_target_fidelity_proof.rs actually calls it, 2026-07-18)" .
 
 pi:Algo_ocel_dfg_per_type a pi:ProcessIntelligenceAlgorithm ;
   pi:algorithmId    "ocel_dfg_per_type" ;
@@ -786,7 +804,7 @@ pi:Algo_playout a pi:ProcessIntelligenceAlgorithm ;
   pi:qualityTier    "80"^^xsd:integer ;
   pi:wasmExport     "petri_net_playout" ;
   pi:cliAlias       "playout" ;
-  pi:inputFormat    "xes" .
+  pi:inputFormat    "petri_net_handle" .
 
 # ── Instances: IMPORT / EXPORT (4 of 4) ─────────────────────────────────────
 

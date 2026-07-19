@@ -13,4 +13,21 @@ conformance, fitness, precision, and variant extraction are owned by
 | `pack_lock_verified` | `Pack` | `emit_pack_lock_verified` |
 | `receipt_chained` | `SyncReceipt` | `emit_receipt_chained` |
 
-See `src/wasm4pm_compat_events.rs` for the generated `EmittedEventType` enum.
+## Declared attributes (per event type)
+
+| Event type | Attribute | Type |
+|------------|-----------|------|
+| `graph_union_hashed` | `graph_hash` | `string` |
+| `pack_lock_verified` | `pack_hash` | `string` |
+| `receipt_chained` | `chain_hash` | `string` |
+
+## Emission order
+
+A real `ggen sync run` emits these event types in the order the ontology's
+`w4pm:precedes` facts state:
+
+1. `graph_union_hashed` precedes `pack_lock_verified`
+1. `pack_lock_verified` precedes `receipt_chained`
+
+See `src/wasm4pm_compat_events.rs` for the generated `EmittedEventType` enum
+and `emit_*` functions.

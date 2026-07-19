@@ -1,6 +1,7 @@
 ---
 to: src/wasm4pm_crate_catalog.rs
-force: true
+freeze_policy: checksum
+freeze_slots_dir: .ggen/freeze/wasm4pm-pack
 sparql:
   crates: |
     PREFIX w4c: <http://seanchatmangpt.github.io/packs/wasm4pm-crate#>

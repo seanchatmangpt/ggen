@@ -14,6 +14,12 @@ sparql:
     SELECT ?path ?doc WHERE {
       ?d a mfa:AuthorityDir ; mfa:path ?path ; rdfs:comment ?doc .
     } ORDER BY ?path
+  handoffs: |
+    PREFIX mfa: <http://seanchatmangpt.github.io/packs/mfact#>
+    SELECT ?fromActor ?toActor WHERE {
+      ?from mfa:handsOffTo ?to ; mfa:actor ?fromActor .
+      ?to mfa:actor ?toActor .
+    } ORDER BY ?fromActor
 ---
 //! Typed catalog of ~/mfact's ggen-projects -> Lean-admits -> mfact-certifies
 //! pipeline and its 5 top-level authority directories, transcribed from
@@ -47,3 +53,93 @@ pub struct MfactAuthorityDir {
 pub const MFACT_AUTHORITY_DIRS: &[MfactAuthorityDir] = &[
 {% for row in dirs %}    MfactAuthorityDir { path: "{{ row.path }}", doc: "{{ row.doc }}" },
 {% endfor %}];
+
+/// A `mfa:handsOffTo` edge between two pipeline stages, keyed by actor name
+/// (the actor is the stable, human-legible identity for a stage: no two
+/// stages share an actor). Rendered from the SAME `mfa:handsOffTo` relation
+/// `next_stage` below walks -- this const and that function are both
+/// projections of one ontology fact, not two independently-typed sources of
+/// truth that could silently disagree.
+pub const MFACT_HANDOFFS: &[(&str, &str)] = &[
+{% for row in handoffs %}    ("{{ row.fromActor }}", "{{ row.toActor }}"),
+{% endfor %}];
+
+/// Error returned by [`validate_pipeline_order`] when the generated catalog
+/// itself violates the invariant the ontology's `mfa:order` facts are
+/// supposed to guarantee (strictly increasing, no gaps from 1). This is
+/// real control flow driven by ontology data, not a restated const: a
+/// future ontology edit that duplicates or misorders `mfa:order` values
+/// makes this function actually fail at runtime, not just at test time.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MfactCatalogError {
+    /// Two adjacent stages (by array position) do not have strictly
+    /// increasing `order` -- carries both orders for diagnostics.
+    OutOfOrder { prev_order: u32, next_order: u32 },
+    /// The catalog is empty; there is no pipeline to validate.
+    EmptyPipeline,
+}
+
+impl std::fmt::Display for MfactCatalogError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::OutOfOrder { prev_order, next_order } => write!(
+                f,
+                "mfact pipeline out of order: stage with order {prev_order} is followed by order {next_order}"
+            ),
+            Self::EmptyPipeline => write!(f, "mfact pipeline has no stages"),
+        }
+    }
+}
+
+impl std::error::Error for MfactCatalogError {}
+
+/// Look up a pipeline stage by its `mfa:actor` name. Real lookup logic over
+/// the ontology-derived catalog, not a restated fact -- returns `None` for
+/// any actor the ontology does not declare (e.g. a typo), which is the
+/// error path a caller must handle.
+pub fn stage_for_actor(actor: &str) -> Option<&'static MfactStage> {
+    MFACT_PIPELINE.iter().find(|s| s.actor == actor)
+}
+
+/// Look up an authority directory by its `mfa:path`. Mirrors
+/// [`stage_for_actor`] for the other catalog table.
+pub fn dir_for_path(path: &str) -> Option<&'static MfactAuthorityDir> {
+    MFACT_AUTHORITY_DIRS.iter().find(|d| d.path == path)
+}
+
+/// The stage a given stage hands off to, per `mfa:handsOffTo`. Returns
+/// `None` for the terminal stage (`Certify`, which carries no
+/// `mfa:handsOffTo` triple) -- a real, ontology-driven branch, not a
+/// hardcoded "last element" special case.
+pub fn next_stage(stage: &MfactStage) -> Option<&'static MfactStage> {
+    MFACT_HANDOFFS
+        .iter()
+        .find(|(from, _)| *from == stage.actor)
+        .and_then(|(_, to_actor)| stage_for_actor(to_actor))
+}
+
+/// Validate that the generated catalog's `order` values are strictly
+/// increasing by array position, returning the specific out-of-order pair
+/// on failure instead of merely asserting in a test. This is the pack's
+/// first real behavioral entry point: its output is fully determined by
+/// `mfa:order` facts in the ontology, with no hand-written business logic
+/// beyond the walk itself.
+///
+/// # Errors
+/// Returns [`MfactCatalogError::EmptyPipeline`] if the catalog has no
+/// stages, or [`MfactCatalogError::OutOfOrder`] on the first adjacent pair
+/// whose `order` does not strictly increase.
+pub fn validate_pipeline_order() -> Result<(), MfactCatalogError> {
+    if MFACT_PIPELINE.is_empty() {
+        return Err(MfactCatalogError::EmptyPipeline);
+    }
+    for pair in MFACT_PIPELINE.windows(2) {
+        if pair[0].order >= pair[1].order {
+            return Err(MfactCatalogError::OutOfOrder {
+                prev_order: pair[0].order,
+                next_order: pair[1].order,
+            });
+        }
+    }
+    Ok(())
+}

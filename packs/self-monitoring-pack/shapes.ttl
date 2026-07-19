@@ -94,4 +94,76 @@ smon:EscalationObligationShape
         sh:maxCount    1 ;
         sh:datatype    xsd:string ;
         sh:message     "An EscalationObligation must carry exactly one smon:reason (xsd:string)." ;
+    ] ;
+    # L5-push: parameterized fields (Derivation power) -- required so every
+    # EscalationObligation this pack's hooks ever produce carries a real,
+    # planner-usable severity/deadline pair, not just the two turn links.
+    sh:property [
+        sh:path        smon:severity ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:in          ( smon:Low smon:Medium smon:High ) ;
+        sh:message     "An EscalationObligation must carry exactly one smon:severity from the closed 3-concept scheme." ;
+    ] ;
+    sh:property [
+        sh:path        smon:deadlineHint ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:in          ( smon:ActNow smon:NextSession ) ;
+        sh:message     "An EscalationObligation must carry exactly one smon:deadlineHint from the closed 2-concept scheme." ;
+    ] ;
+    # L5-push: lifecycle (Obligation lifecycle) -- status is always required;
+    # dischargedAt/refusalReason are required ONLY once status leaves Open.
+    sh:property [
+        sh:path        smon:status ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:in          ( smon:Open smon:Discharged smon:Refused ) ;
+        sh:message     "An EscalationObligation must carry exactly one smon:status from the closed 3-concept lifecycle scheme." ;
+    ] ;
+    # NOTE ON ENGINE BOUNDARY (confirmed this pass, not assumed): an earlier
+    # draft of this shape expressed "if status=Discharged then dischargedAt
+    # required" as two sh:sparql SPARQLConstraint nodes. Direct testing
+    # against a real fixture (a Discharged obligation deliberately missing
+    # smon:dischargedAt) showed shapes_conform: true -- a SILENT NO-OP, not a
+    # working conditional check. Reading
+    # crates/praxis-graphlaw/src/shacl/sparql.rs::check_sparql_boundary
+    # confirmed why: `SHACL_SPARQL_BOUNDARY` in
+    # crates/praxis-graphlaw/src/shacl/model.rs is hardcoded "CORE_ONLY",
+    # which rejects EVERY sh:sparql constraint at load time by design (a
+    # deliberate SHACL-Core-only dialect boundary, not a bug) -- an
+    # engine-level fact this pack cannot change (crates/praxis-graphlaw is
+    # shared infrastructure, off-limits to this pack-level pass). Replaced
+    # below with the equivalent expressed in pure SHACL Core (sh:or + sh:not
+    # + sh:hasValue), which the same direct testing confirms DOES enforce
+    # (see the pack's verification commands) -- implication "if P then Q" as
+    # the standard Core encoding "(NOT P) OR Q".
+    sh:or (
+        [ sh:not [ sh:property [ sh:path smon:status ; sh:hasValue smon:Discharged ] ] ]
+        [ sh:property [ sh:path smon:dischargedAt ; sh:minCount 1 ; sh:datatype xsd:dateTime ] ]
+    ) ;
+    sh:or (
+        [ sh:not [ sh:property [ sh:path smon:status ; sh:hasValue smon:Refused ] ] ]
+        [ sh:property [ sh:path smon:refusalReason ; sh:minCount 1 ; sh:datatype xsd:string ] ]
+    ) .
+
+# L5-push: catch-all governance-coverage detector's own shape, so its output
+# is validatable exactly like smon:EscalationObligation's.
+smon:UngovernedTransitionShape
+    a sh:NodeShape ;
+    sh:targetClass smon:UngovernedTransition ;
+
+    sh:property [
+        sh:path        smon:hasUngovernedQuestion ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:class       smon:Turn ;
+        sh:message     "An UngovernedTransition must link exactly one GroundingQuestion turn via smon:hasUngovernedQuestion." ;
+    ] ;
+    sh:property [
+        sh:path        smon:hasUngovernedResponse ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:class       smon:Turn ;
+        sh:message     "An UngovernedTransition must link exactly one smon:Other-classified response turn via smon:hasUngovernedResponse." ;
     ] .

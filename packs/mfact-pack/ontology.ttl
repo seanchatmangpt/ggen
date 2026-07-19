@@ -29,6 +29,29 @@ mfa:Certify
     rdfs:label "Certify" ;
     rdfs:comment "mfact certifies the admitted result: every standing claim (proven/stated counts, gate results, fixture status) is computed from a build, axiom audit, or git commit -- never hand-typed prose." .
 
+# --- Relational structure (closes part of the ontology-expressiveness gap
+# named in docs/packs/L5_VALIDATION_REPORT.md: "no relations between
+# PipelineStage and AuthorityDir"). mfa:handsOffTo chains the pipeline
+# instead of leaving stage order as a bare integer with no encoded
+# adjacency; mfa:writesTo/mfa:readsFrom ground each stage's actual
+# interaction with the authority-directory layer, both grounded directly in
+# the README prose already quoted in this file's header comment and in
+# mfa:PacksDir/mfa:ProcintDir/mfa:ReleaseDir/mfa:ArtifactLedger below (no
+# new claims about mfact beyond what its own README already states).
+mfa:handsOffTo a rdf:Property ;
+    rdfs:domain mfa:PipelineStage ; rdfs:range mfa:PipelineStage ;
+    rdfs:comment "The next stage in the pipeline that receives this stage's output. Encodes pipeline adjacency as a checkable relation, not merely an mfa:order integer a template must independently sort." .
+mfa:readsFrom a rdf:Property ;
+    rdfs:domain mfa:PipelineStage ; rdfs:range mfa:AuthorityDir ;
+    rdfs:comment "An authority directory this stage consumes as input." .
+mfa:writesTo a rdf:Property ;
+    rdfs:domain mfa:PipelineStage ; rdfs:range mfa:AuthorityDir ;
+    rdfs:comment "An authority directory this stage produces/updates output in." .
+
+mfa:Project mfa:handsOffTo mfa:Admit ; mfa:readsFrom mfa:PacksDir ; mfa:writesTo mfa:ProcintDir .
+mfa:Admit   mfa:handsOffTo mfa:Certify ; mfa:readsFrom mfa:ProcintDir .
+mfa:Certify mfa:writesTo mfa:ReleaseDir ; mfa:writesTo mfa:PaperDir ; mfa:writesTo mfa:ArtifactLedger .
+
 mfa:AuthorityDir a rdfs:Class ; rdfs:label "mfact top-level authority directory" .
 mfa:path a rdf:Property ; rdfs:domain mfa:AuthorityDir ; rdfs:range xsd:string .
 

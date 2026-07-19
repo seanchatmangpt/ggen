@@ -1,33 +1,36 @@
 //! Proof test for `chicago-tdd-tools-pack`'s sibling generated file
-//! (`tests/chicago_tdd_tools_boundary.rs`, from `cli_boundary_tests.rs.tmpl`),
-//! asserted against literal values hand-transcribed from
-//! `packs/chicago-tdd-tools-pack/ontology.ttl`.
+//! (`tests/chicago_tdd_tools_boundary.rs`, from `cli_boundary_tests.rs.tmpl`).
 //!
-//! Deliberately NO `sparql:` frontmatter key in this template (see
-//! `cli_boundary_tests.rs.tmpl` / `cli_boundary_doc.md.tmpl` for the query
-//! that *does* exist): this pack's two other templates generate `#[test]`
-//! functions that spawn an EXTERNAL binary (`ctt:binary`, e.g. `receiptctl`)
-//! the consuming project builds -- that binary is not shipped by this pack
-//! and there is no reusable in-process function or data catalog here to
-//! import and call directly (unlike the standard catalog-generating packs).
-//! So the check available to this proof is: read back the REAL, already-
-//! rendered text of the sibling generated file (produced by an independent
-//! Tera + SPARQL execution against `ontology.ttl` in the same `ggen sync`
-//! run) and assert that literal fn signatures / exit-code assertions /
-//! stdout-stderr needles / axiom doc-comments -- all copied by hand from
-//! the ontology, never recomputed via the same query path that produced the
-//! sibling file -- actually appear in it. A templating regression, a
-//! dropped `WHERE`-clause row, a mis-ordered `ORDER BY`, or a future
-//! ontology edit that silently changes a needle/exit-code without updating
-//! this proof will make these assertions fail.
+//! Unlike the pre-2026-07-18 version of this file, `EXPECTED` below is no
+//! longer hand-transcribed from `ontology.ttl` inside the `.tmpl` source: it
+//! is rendered from the SAME `sparql: tests` query that
+//! `cli_boundary_tests.rs.tmpl` runs against `ontology.ttl` in the same
+//! `ggen sync` pass. That closes the drift gap the L5 audit named directly
+//! (`docs/packs/L5_VALIDATION_REPORT.md`, chicago-tdd-tools-pack, Test
+//! generation / Regeneration lifecycle rows): adding, removing, or editing a
+//! `ctt:CliBoundaryTest` individual now re-derives both the sibling file AND
+//! this proof's expectations from one query path, instead of requiring a
+//! second by-hand edit to an `EXPECTED` Rust array baked into the template.
+//! `EXPECTED_TEST_COUNT` is `tests.len()` at render time, not a hardcoded `3`.
+//!
+//! What is still NOT closed, and why: the two generated files are
+//! independent Tera+SPARQL renders of the same query, so this proof cannot
+//! call the sibling file's logic in-process (there is no reusable in-process
+//! artifact here — see `pack.toml`'s description). It still reads the
+//! REAL, already-rendered text of `tests/chicago_tdd_tools_boundary.rs` off
+//! disk and asserts the query-derived literals appear in it verbatim. That
+//! remaining gap (two renders of one query, not one render checked twice) is
+//! a `ggen-engine` template-composition limitation (no import/no cross-
+//! template artifact reuse today), not something this pack's own files can
+//! close without touching shared engine code.
 
 use std::env;
 use std::fs;
 use std::path::PathBuf;
 
-/// One hand-transcribed expectation copied from `ontology.ttl`'s
-/// `ctt:CliBoundaryTest` individuals -- NOT re-derived from the SPARQL
-/// query in `cli_boundary_tests.rs.tmpl`.
+/// One expectation, rendered directly from the `sparql: tests` query above
+/// (the same query `cli_boundary_tests.rs.tmpl` runs) — no longer a
+/// hand-transcribed literal baked into this template's Rust source.
 struct ExpectedBoundaryTest {
     /// Exact `fn <name>(` substring expected in the generated file.
     fn_signature: &'static str,
@@ -41,12 +44,21 @@ struct ExpectedBoundaryTest {
     axiom_doc: &'static str,
 }
 
-/// `ontology.ttl` defines exactly 3 `ctt:CliBoundaryTest` individuals (no
-/// more, no fewer) -- a hand count, not a query result.
-const EXPECTED_TEST_COUNT: usize = 3;
+/// Number of `ctt:CliBoundaryTest` individuals the SPARQL query above found
+/// at the time of the last `ggen sync run` — derived from `tests | length`,
+/// not a hand count.
+const EXPECTED_TEST_COUNT: usize = 4;
 
 const EXPECTED: [ExpectedBoundaryTest; EXPECTED_TEST_COUNT] = [
-    // ctt:receiptctl-help
+    // receiptctl_algorithm_list_succeeds
+    ExpectedBoundaryTest {
+        fn_signature: "fn receiptctl_algorithm_list_succeeds()",
+        exit_code_call: "output.assert_exit_code(0);",
+        stdout_call: Some("output.assert_stdout_contains(\"[\");"),
+        stderr_call: None,
+        axiom_doc: "/// Covers: receiptctl algorithm list (argv composed from clap-noun-verb-pack's AlgorithmList command) exits 0 and prints a JSON array",
+    },
+    // receiptctl_help_lists_verbs
     ExpectedBoundaryTest {
         fn_signature: "fn receiptctl_help_lists_verbs()",
         exit_code_call: "output.assert_exit_code(0);",
@@ -54,25 +66,21 @@ const EXPECTED: [ExpectedBoundaryTest; EXPECTED_TEST_COUNT] = [
         stderr_call: None,
         axiom_doc: "/// Covers: receiptctl --help exits 0 with usage text",
     },
-    // ctt:receiptctl-version
-    ExpectedBoundaryTest {
-        fn_signature: "fn receiptctl_version_emits_name()",
-        exit_code_call: "output.assert_exit_code(0);",
-        // Trailing space is load-bearing: clap-noun-verb's `--version`
-        // prints a generic "cli <version>" string, not the binary/package
-        // name (see ontology.ttl's NOTE on this individual, verified live
-        // against a real clap-noun-verb 26.7.4 consumer).
-        stdout_call: Some("output.assert_stdout_contains(\"cli \");"),
-        stderr_call: None,
-        axiom_doc: "/// Covers: receiptctl --version exits 0 and prints a version string",
-    },
-    // ctt:receiptctl-unknown-verb
+    // receiptctl_unknown_verb_fails_closed
     ExpectedBoundaryTest {
         fn_signature: "fn receiptctl_unknown_verb_fails_closed()",
         exit_code_call: "output.assert_exit_code(1);",
         stdout_call: None,
         stderr_call: Some("output.assert_stderr_contains(\"error\");"),
         axiom_doc: "/// Covers: an unknown subcommand exits nonzero with a clap error on stderr",
+    },
+    // receiptctl_version_emits_name
+    ExpectedBoundaryTest {
+        fn_signature: "fn receiptctl_version_emits_name()",
+        exit_code_call: "output.assert_exit_code(0);",
+        stdout_call: Some("output.assert_stdout_contains(\"cli \");"),
+        stderr_call: None,
+        axiom_doc: "/// Covers: receiptctl --version exits 0 and prints a version string",
     },
 ];
 
@@ -94,13 +102,13 @@ fn read_generated_boundary_file() -> String {
 }
 
 #[test]
-fn generated_file_has_exactly_three_boundary_tests() {
+fn generated_file_has_expected_boundary_test_count() {
     let generated = read_generated_boundary_file();
     // Count only lines that ARE `#[test]` (the real attribute), not lines
     // that merely mention it -- the generated file's own module doc comment
     // literally contains the text "`#[test]`" in prose describing what each
     // item does, which a naive `.matches("#[test]").count()` would count as
-    // a 4th occurrence alongside the 3 real attributes (discovered by
+    // an extra occurrence alongside the real attributes (discovered by
     // actually running this test against a real consumer,
     // `examples/receiptctl`, not assumed).
     let actual_count = generated
@@ -110,87 +118,48 @@ fn generated_file_has_exactly_three_boundary_tests() {
     assert_eq!(
         actual_count, EXPECTED_TEST_COUNT,
         "expected exactly {EXPECTED_TEST_COUNT} #[test] fns in the \
-         generated boundary file (transcribed from ontology.ttl), found {actual_count}"
+         generated boundary file (query-derived from ontology.ttl), found {actual_count}"
     );
 }
 
 #[test]
-fn generated_file_covers_help_boundary_axiom() {
+fn generated_file_covers_every_query_derived_axiom() {
     let generated = read_generated_boundary_file();
-    let expected = &EXPECTED[0];
-    assert!(
-        generated.contains(expected.fn_signature),
-        "missing expected fn signature {:?} in generated file",
-        expected.fn_signature
-    );
-    assert!(
-        generated.contains(expected.exit_code_call),
-        "missing expected exit-code assertion {:?}",
-        expected.exit_code_call
-    );
-    assert!(
-        generated.contains(expected.stdout_call.expect("literal Some in EXPECTED[0]")),
-        "missing expected stdout assertion {:?}",
-        expected.stdout_call
-    );
-    assert!(
-        generated.contains(expected.axiom_doc),
-        "missing expected axiom doc comment {:?}",
-        expected.axiom_doc
-    );
-}
-
-#[test]
-fn generated_file_covers_version_boundary_axiom() {
-    let generated = read_generated_boundary_file();
-    let expected = &EXPECTED[1];
-    assert!(
-        generated.contains(expected.fn_signature),
-        "missing expected fn signature {:?} in generated file",
-        expected.fn_signature
-    );
-    assert!(
-        generated.contains(expected.exit_code_call),
-        "missing expected exit-code assertion {:?}",
-        expected.exit_code_call
-    );
-    assert!(
-        generated.contains(expected.stdout_call.expect("literal Some in EXPECTED[1]")),
-        "missing expected stdout assertion {:?} (note the load-bearing \
-         trailing space before the closing quote)",
-        expected.stdout_call
-    );
-    assert!(
-        generated.contains(expected.axiom_doc),
-        "missing expected axiom doc comment {:?}",
-        expected.axiom_doc
-    );
-}
-
-#[test]
-fn generated_file_covers_unknown_verb_boundary_axiom() {
-    let generated = read_generated_boundary_file();
-    let expected = &EXPECTED[2];
-    assert!(
-        generated.contains(expected.fn_signature),
-        "missing expected fn signature {:?} in generated file",
-        expected.fn_signature
-    );
-    assert!(
-        generated.contains(expected.exit_code_call),
-        "missing expected exit-code assertion {:?}",
-        expected.exit_code_call
-    );
-    assert!(
-        generated.contains(expected.stderr_call.expect("literal Some in EXPECTED[2]")),
-        "missing expected stderr assertion {:?}",
-        expected.stderr_call
-    );
-    assert!(
-        generated.contains(expected.axiom_doc),
-        "missing expected axiom doc comment {:?}",
-        expected.axiom_doc
-    );
+    for expected in EXPECTED.iter() {
+        assert!(
+            generated.contains(expected.fn_signature),
+            "missing expected fn signature {:?} in generated file",
+            expected.fn_signature
+        );
+        assert!(
+            generated.contains(expected.exit_code_call),
+            "missing expected exit-code assertion {:?} for {:?}",
+            expected.exit_code_call,
+            expected.fn_signature
+        );
+        if let Some(stdout_call) = expected.stdout_call {
+            assert!(
+                generated.contains(stdout_call),
+                "missing expected stdout assertion {:?} for {:?}",
+                stdout_call,
+                expected.fn_signature
+            );
+        }
+        if let Some(stderr_call) = expected.stderr_call {
+            assert!(
+                generated.contains(stderr_call),
+                "missing expected stderr assertion {:?} for {:?}",
+                stderr_call,
+                expected.fn_signature
+            );
+        }
+        assert!(
+            generated.contains(expected.axiom_doc),
+            "missing expected axiom doc comment {:?} for {:?}",
+            expected.axiom_doc,
+            expected.fn_signature
+        );
+    }
 }
 
 /// Chicago TDD guard: the generated boundary tests must spawn a real

@@ -1,6 +1,8 @@
 ---
 to: src/affidavit_catalog.rs
 force: true
+freeze_policy: checksum
+freeze_slots_dir: .ggen/freeze/affidavit-pack
 sparql:
   stages: |
     PREFIX afd: <http://seanchatmangpt.github.io/packs/affidavit#>

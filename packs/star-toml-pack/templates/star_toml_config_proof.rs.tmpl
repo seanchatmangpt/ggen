@@ -1,6 +1,7 @@
 ---
 to: tests/star_toml_config_proof.rs
-force: true
+freeze_policy: checksum
+freeze_slots_dir: .ggen/freeze/star_toml_config_proof
 ---
 //! Executable proof for `star-toml-pack`'s generated config-admission module
 //! (`src/star_toml_config.rs`).
@@ -19,6 +20,13 @@ force: true
 //!
 //! Exercises the real `star_toml::load_file` parse+deserialize path against
 //! real `TempDir`-backed TOML files -- no mocks, no stubs.
+//!
+//! `retry_count` (the ontology's one `stp:required=false` field) is
+//! deliberately omitted from every fixture below except
+//! `optional_field_omitted_deserializes_as_none` -- proving `stp:required`
+//! actually reshapes the generated struct (`Option<u32>` + `#[serde(default)]`)
+//! rather than merely documenting an assumption already baked into the
+//! template.
 
 #[path = "../src/star_toml_config.rs"]
 mod star_toml_config;
@@ -43,6 +51,7 @@ fn structural_shape_matches_ontology() {
         telemetry: TelemetryConfig {
             exporter_endpoint: "http://otel-collector:4318".to_string(),
             sample_rate: 0.25,
+            retry_count: Some(3),
         },
     };
 
@@ -53,6 +62,7 @@ fn structural_shape_matches_ontology() {
     assert!(cfg.admission.fail_closed);
     assert_eq!(cfg.telemetry.exporter_endpoint, "http://otel-collector:4318");
     assert_eq!(cfg.telemetry.sample_rate, 0.25);
+    assert_eq!(cfg.telemetry.retry_count, Some(3));
 }
 
 /// Write `contents` to `name` inside `dir` and return the real path -- a
@@ -146,6 +156,34 @@ sample_rate = 0.25
     assert!(
         result.is_err(),
         "missing required field `fail_closed` must be rejected, not defaulted"
+    );
+}
+
+/// `stp:required=false` proof: `retry_count` omitted from `[telemetry]`
+/// must deserialize as `None`, not be rejected and not silently default to
+/// a hardcoded numeric value -- proving `#[serde(default)]` on an
+/// `Option<u32>` field, not `deny_unknown_fields` swallowing it.
+#[test]
+fn optional_field_omitted_deserializes_as_none() {
+    let dir = TempDir::new().expect("real tempdir");
+    let path = write_toml(
+        &dir,
+        "star_toml_optional_omitted.toml",
+        r#"
+[admission]
+witness_dir = ".witness"
+fail_closed = true
+
+[telemetry]
+exporter_endpoint = "http://otel-collector:4318"
+sample_rate = 0.25
+"#,
+    );
+
+    let cfg = StarTomlConfig::load(&path).expect("omitting an optional field must still admit");
+    assert_eq!(
+        cfg.telemetry.retry_count, None,
+        "omitted stp:required=false field must deserialize as None, not panic or default to a number"
     );
 }
 

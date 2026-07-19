@@ -1,17 +1,84 @@
-# mcpp-pack ontology — partial command surface of ~/mcpp, grepped from its
-# README's literal "mcpp <noun> <verb>" invocations (not source-audited;
-# treat as a known-incomplete sample, not the full CLI surface).
+# mcpp-pack ontology — command surface of ~/mcpp.
+#
+# Source-verification pass (L2 target-API-fidelity bar: "verified by hand
+# against one target version, once"): every `cnv:Command` individual below
+# was hand-checked on 2026-07-18 against the real `#[verb]` function
+# signatures in ~/mcpp at pinned commit `ae1106887a824f107dc8ac76daff6ef1b8dbf6c4`
+# (github.com/seanchatmangpt/mcpp), not merely grepped from README prose.
+# Exact source citations (file:line, read directly, not inferred):
+#   aat live     -> crates/mcpp-server/src/cmds/aat.rs:76   fn live(release: Option<String>)
+#   aat run      -> crates/mcpp-server/src/cmds/aat.rs:27   fn run(release: Option<String>)
+#   aat verify   -> crates/mcpp-server/src/cmds/aat.rs:130  fn verify(release: Option<String>, require_live: Option<bool>)
+#   completions install -> crates/mcpp-server/src/cmds/completions.rs:53 fn install(shell: String)
+#   lsp routes   -> crates/mcpp-server/src/cmds/lsp.rs:16   fn routes()
+#   receipt list -> crates/mcpp-server/src/cmds/receipt.rs:17 fn list()
+#   relay verify-chain -> crates/mcpp-server/src/cmds/relay.rs:331 fn verify_chain(chain: String, trust_list: Option<PathBuf>)
+#   settlement verify -> crates/mcpp-server/src/cmds/settlement.rs:288 fn verify(release: String, chain: Option<String>)
+#   template lint -> crates/mcpp-server/src/cmds/template.rs:18 fn lint(path: Option<String>, format: Option<String>)
+#
+# This verification pass found and fixed one real fidelity bug the prior
+# README-grep introduced: the real verb is `relay verify-chain`
+# (`fn verify_chain`, README line 226: `mcpp relay verify-chain --chain
+# <path> --trust-list <path>`), not `relay verify` -- the previous
+# individual (`mcp:relay-verify`, verb "verify") named a command that does
+# not exist in ~/mcpp. Corrected below to `mcp:relay-verify-chain`.
+#
+# `cnv:args` (reused verbatim from packs/clap-noun-verb-pack's ontology,
+# same `field|rust_type|required|about@@...` encoding) now carries the real
+# argument names/types/cardinality read from the signatures above -- this
+# is the structural-facts half of the ontology-expressiveness L3 bar
+# ("argument names/types/cardinality, error cases"). Error-case facts
+# (the other L3 half) and behavioral contracts (L4: pre/post-conditions,
+# state transitions) are not yet modeled; see pack.toml and
+# docs/packs/L5_VALIDATION_REPORT.md for the remaining gap.
+#
+# Still self-acknowledged as a partial command surface: these are the 9
+# commands this pass could ground (either via the original README grep or,
+# now, direct source reading), not a full enumeration of every `#[verb]` in
+# ~/mcpp/crates/mcpp-server/src/cmds/ (that directory has more nouns --
+# eve, release, live_debug, automl, init, settlement's status/plan verbs,
+# receipt's show/emit/export/revoke/replay/archive/query verbs, etc. --
+# not modeled here; adding them is direct future work, not a blocker).
 
 @prefix cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#> .
 @prefix mcp: <http://seanchatmangpt.github.io/packs/mcpp#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-mcp:aat-live         a cnv:Command ; cnv:noun "aat"         ; cnv:verb "live"   ; rdfs:comment "Run a live AAT (admissible-action-trace) trace." .
-mcp:aat-run          a cnv:Command ; cnv:noun "aat"         ; cnv:verb "run"    .
-mcp:aat-verify       a cnv:Command ; cnv:noun "aat"         ; cnv:verb "verify" .
-mcp:completions-install a cnv:Command ; cnv:noun "completions" ; cnv:verb "install" .
-mcp:lsp-routes       a cnv:Command ; cnv:noun "lsp"         ; cnv:verb "routes" .
-mcp:receipt-list     a cnv:Command ; cnv:noun "receipt"     ; cnv:verb "list"   .
-mcp:relay-verify     a cnv:Command ; cnv:noun "relay"       ; cnv:verb "verify" .
-mcp:settlement-verify a cnv:Command ; cnv:noun "settlement" ; cnv:verb "verify" .
-mcp:template-lint    a cnv:Command ; cnv:noun "template"    ; cnv:verb "lint"   .
+mcp:aat-live
+    a cnv:Command ; cnv:noun "aat" ; cnv:verb "live" ;
+    rdfs:comment "Run a live AAT (admissible-action-trace) trace." ;
+    cnv:args "release|Option<String>|false|CalVer release tag, e.g. v26.5.19." .
+
+mcp:aat-run
+    a cnv:Command ; cnv:noun "aat" ; cnv:verb "run" ;
+    cnv:args "release|Option<String>|false|CalVer release tag, e.g. v26.5.19." .
+
+mcp:aat-verify
+    a cnv:Command ; cnv:noun "aat" ; cnv:verb "verify" ;
+    cnv:args "release|Option<String>|false|CalVer release tag.@@require_live|Option<bool>|false|Cross-check the live verdict too." .
+
+mcp:completions-install
+    a cnv:Command ; cnv:noun "completions" ; cnv:verb "install" ;
+    cnv:args "shell|String|true|Target shell: bash, zsh, or fish." .
+
+mcp:lsp-routes
+    a cnv:Command ; cnv:noun "lsp" ; cnv:verb "routes" ;
+    cnv:args "" .
+
+mcp:receipt-list
+    a cnv:Command ; cnv:noun "receipt" ; cnv:verb "list" ;
+    cnv:args "" .
+
+mcp:relay-verify-chain
+    a cnv:Command ; cnv:noun "relay" ; cnv:verb "verify-chain" ;
+    rdfs:comment "Verify a multi-hop BLAKE3 relay chain end-to-end; reports the broken hop on failure." ;
+    cnv:args "chain|String|true|Path to the relay chain file.@@trust_list|Option<PathBuf>|false|Path to a trust-list file to validate hops against." .
+
+mcp:settlement-verify
+    a cnv:Command ; cnv:noun "settlement" ; cnv:verb "verify" ;
+    rdfs:comment "INFORMATIONAL settlement verification -- never gates admission (K-P09)." ;
+    cnv:args "release|String|true|CalVer release tag.@@chain|Option<String>|false|Relay chain id to verify settlement against." .
+
+mcp:template-lint
+    a cnv:Command ; cnv:noun "template" ; cnv:verb "lint" ;
+    cnv:args "path|Option<String>|false|Directory to lint (default: routes/).@@format|Option<String>|false|Output format: text, json, or markdown." .

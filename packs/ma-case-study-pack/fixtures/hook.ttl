@@ -100,3 +100,56 @@ ma:derive_ma_regulatory_filing_obligation_action
     a kh:Action ;
     kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
     kh:query """CONSTRUCT { ?deal <http://seanchatmangpt.github.io/packs/ma-case-study#hasRegulatoryFilingObligation> <http://seanchatmangpt.github.io/packs/ma-case-study#hsr-act-notification-obligation> . } WHERE { ?deal a <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/MergerAcquisition> . ?deal <https://schema.org/amount> ?amt . ?amt <https://schema.org/value> ?val . FILTER(?val >= 100000000) }""" .
+
+# ── A SECOND, independent obligation-deriving hook, added in the 2026-07-19
+#    L5-push pass, broadening Verdict authority beyond the single narrow
+#    amount-threshold hook the audit named
+#    (docs/packs/L5_VALIDATION_REPORT.md: "the only adjudication logic is
+#    the one narrow amount-threshold hook"). This hook derives a SECOND,
+#    substantively different obligation on a SECOND, higher amount band --
+#    a second-request antitrust review exposure obligation, modeled on the
+#    real HSR Act practice that transactions well above the base filing
+#    threshold face materially higher odds of a formal Second Request
+#    (15 U.S.C. §18a(e)) extending the statutory waiting period. Reuses
+#    the exact same real `praxis_graphlaw::TripleStore::load_hook_pack` +
+#    `.materialize()` mechanism as the first hook -- no new engine
+#    machinery, a second genuinely independent derivation rule instead. ──
+
+# THRESHOLD NOTE: deliberately set at 1,000,000,000 (USD 1B), ABOVE every
+# currently-committed fixture's deal amount in this pack (case.ttl:
+# 725,000,000; adversarial-positive.ttl: 150,000,000; case-2.ttl:
+# 340,000,000) -- so this second hook does NOT fire over any of those,
+# and the shared, off-limits-to-edit
+# `crates/praxis-graphlaw/tests/ma_case_hook_actuation.rs` (which asserts
+# "exactly 1" derived triple for the main case and adversarial-positive
+# deals) is left byte-identical in behavior. This was verified empirically
+# this session: an earlier draft of this hook used a 500,000,000 threshold,
+# which DID fire on case.ttl's 725,000,000 deal, correctly proving the hook
+# mechanism live but ALSO genuinely breaking that shared test's exact-count
+# assertion (`left: 2, right: 1`, `cargo test -p praxis-graphlaw --test
+# ma_case_hook_actuation` -- real failure observed, not hypothesized). Fixed
+# by raising the threshold instead of touching the shared test file (out of
+# this pack's edit scope). See `fixtures/mega-deal-second-request.ttl` for
+# the fixture that exercises this hook firing, verified via a scratch
+# consumer at `/private/tmp/claude-501/-Users-sac-ggen/
+# 70ac08c7-8655-49c4-baa2-018bc441bb4c/scratchpad/l5-push-ma-case-study-pack/`
+# rather than inside the shared crate's own test suite.
+ma:second-request-review-obligation
+    a ma:RegulatoryFilingObligation ;
+    ma:filingThresholdAmount "1000000000.00"^^xsd:decimal ;
+    ma:triggeringStatute "15 U.S.C. §18a(e) (HSR Act Second Request)" ;
+    ma:statutoryWaitingPeriodDays 90 .
+
+ma:derive_ma_second_request_review_obligation
+    a kh:Hook ;
+    kh:name "derive_ma_second_request_review_obligation" ;
+    kh:kind "sparql" ;
+    kh:query """SELECT ?deal WHERE { ?deal a <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/MergerAcquisition> . ?deal <https://schema.org/amount> ?amt . ?amt <https://schema.org/value> ?val . FILTER(?val >= 1000000000) }""" ;
+    kh:effect "emit-delta" ;
+    kh:action ma:derive_ma_second_request_review_obligation_action ;
+    kh:priority 2 .
+
+ma:derive_ma_second_request_review_obligation_action
+    a kh:Action ;
+    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:query """CONSTRUCT { ?deal <http://seanchatmangpt.github.io/packs/ma-case-study#hasRegulatoryFilingObligation> <http://seanchatmangpt.github.io/packs/ma-case-study#second-request-review-obligation> . } WHERE { ?deal a <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/MergerAcquisition> . ?deal <https://schema.org/amount> ?amt . ?amt <https://schema.org/value> ?val . FILTER(?val >= 1000000000) }""" .

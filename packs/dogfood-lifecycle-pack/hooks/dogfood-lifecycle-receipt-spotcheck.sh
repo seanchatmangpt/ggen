@@ -23,7 +23,9 @@
 # richer OcelCausalFrame chain, none of which this script attempts).
 
 set -uo pipefail
-recs="/Users/sac/praxis/.cargo-cicd/lifecycle/receipts.jsonl"
+# shellcheck source=./dogfood-lib.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/dogfood-lib.sh"
+recs="$(dogfood_lifecycle_dir)/receipts.jsonl"
 
 command -v jq >/dev/null 2>&1 || { echo "spotcheck: jq not found"; exit 1; }
 command -v b3sum >/dev/null 2>&1 || { echo "spotcheck: b3sum not found"; exit 1; }
@@ -47,6 +49,26 @@ while IFS= read -r line; do
   [ -z "$line" ] && continue
   count=$((count + 1))
 
+  # v26.7.18: a chained record is now EITHER a session-validation record
+  # (blake3/tool_events/parse_valid/invocations_seen/governance_gap) OR a
+  # rotation record (rotated/from/to/rotated_at) OR a refusal record
+  # (kind:"plan-admission-refusal") -- rotation and refusal records do not
+  # carry payload_hash/chain_hash at all (rotation) or are chained over a
+  # DIFFERENT payload shape (refusal); this spot-check only recomputes
+  # session-validation records (has("blake3")), matching what
+  # dogfood-lifecycle-session-end.sh itself chains via that exact payload
+  # shape. Records of the other two kinds are counted but not recomputed --
+  # a disclosed narrowing of this bash-only smoke test, not a silent skip.
+  has_blake3=$(printf '%s' "$line" | jq -r 'has("blake3")')
+  if [ "$has_blake3" != "true" ]; then
+    echo "spotcheck: record $count is a non-session-validation chained record (rotation/refusal) -- not recomputed by this bash-only smoke test"
+    prev_expected_from_this=$(printf '%s' "$line" | jq -r '.chain_hash? // empty')
+    if [ -n "$prev_expected_from_this" ]; then
+      expected_prev="$prev_expected_from_this"
+    fi
+    continue
+  fi
+
   session_log=$(printf '%s' "$line" | jq -r '.session_log')
   blake3=$(printf '%s' "$line" | jq -r '.blake3')
   tool_events=$(printf '%s' "$line" | jq -r '.tool_events')
@@ -55,12 +77,32 @@ while IFS= read -r line; do
   stored_prev=$(printf '%s' "$line" | jq -r '.prev_chain_hash')
   stored_chain=$(printf '%s' "$line" | jq -r '.chain_hash')
 
-  payload=$(jq -ncS \
-    --arg session_log "$session_log" \
-    --arg blake3 "$blake3" \
-    --argjson tool_events "$tool_events" \
-    --argjson parse_valid "$parse_valid" \
-    '{blake3: $blake3, parse_valid: $parse_valid, session_log: $session_log, tool_events: $tool_events}')
+  # Records written before the v26.7.18 governance-coverage upgrade have no
+  # invocations_seen/governance_gap keys at all -- reconstruct the payload
+  # in whichever of the two shapes this specific record actually used, so
+  # older already-chained records keep recomputing correctly rather than
+  # being broken by a schema change (same non-retroactive discipline as the
+  # original flat->chained upgrade documented above).
+  has_governance_fields=$(printf '%s' "$line" | jq -r 'has("invocations_seen")')
+  if [ "$has_governance_fields" = "true" ]; then
+    invocations_seen=$(printf '%s' "$line" | jq -r '.invocations_seen')
+    governance_gap=$(printf '%s' "$line" | jq -r '.governance_gap')
+    payload=$(jq -ncS \
+      --arg session_log "$session_log" \
+      --arg blake3 "$blake3" \
+      --argjson tool_events "$tool_events" \
+      --argjson parse_valid "$parse_valid" \
+      --argjson invocations_seen "$invocations_seen" \
+      --argjson governance_gap "$governance_gap" \
+      '{blake3: $blake3, parse_valid: $parse_valid, session_log: $session_log, tool_events: $tool_events, invocations_seen: $invocations_seen, governance_gap: $governance_gap}')
+  else
+    payload=$(jq -ncS \
+      --arg session_log "$session_log" \
+      --arg blake3 "$blake3" \
+      --argjson tool_events "$tool_events" \
+      --argjson parse_valid "$parse_valid" \
+      '{blake3: $blake3, parse_valid: $parse_valid, session_log: $session_log, tool_events: $tool_events}')
+  fi
   recomputed_payload_hash=$(printf '%s' "$payload" | b3sum --no-names - | cut -c1-64)
   recomputed_chain=$(printf '%s%s' "$stored_prev" "$recomputed_payload_hash" | b3sum --no-names - | cut -c1-64)
 

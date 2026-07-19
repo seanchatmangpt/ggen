@@ -1,0 +1,13 @@
+// NOTE (fixed during the L5 push's cross-pack verification pass, 2026-07-19):
+// this template originally targeted `to: src/lib.rs` with `inject: true` --
+// which works in isolation (one pack, its own scratch consumer) but hits this
+// engine's own FM-WRITE-008 duplicate-output guard the moment a SECOND pack
+// with the same pattern is wired into the same real consumer (confirmed live:
+// wasm4pm-cognition-pack and wasm4pm-facts-pack collided on src/lib.rs inside
+// examples/receiptctl, which wires both). Retargeted to a pack-unique file;
+// the consumer now needs one `include!("<this-file>");` line in their own
+// lib.rs to mount it -- a real, disclosed remaining consumer-effort gap, not
+// the "consumer wires ggen.toml, done" this template originally claimed.
+
+#[path = "w4pm_cognition_dispatch_handler.rs"]
+pub mod w4pm_cognition_dispatch_handler;

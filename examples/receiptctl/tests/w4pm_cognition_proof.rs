@@ -15,6 +15,8 @@
 
 #[path = "../src/w4pm_cognition_catalog.rs"]
 mod w4pm_cognition_catalog;
+#[path = "../src/w4pm_cognition_dispatch_handler.rs"]
+mod w4pm_cognition_dispatch_handler;
 #[path = "../src/w4pm_cognition_dispatch.rs"]
 mod w4pm_cognition_dispatch;
 

@@ -20,7 +20,8 @@ force: true
 mod mfw_catalog;
 
 use mfw_catalog::{
-    AuthoritySurface, MfwCrate, MFW_AUTHORITY_SURFACES, MFW_CRATES, MFW_CYCLE,
+    is_valid_transition, next_stage, AuthoritySurface, MfwCrate, MFW_AUTHORITY_SURFACES,
+    MFW_CRATES, MFW_CYCLE, NEXT_STAGE,
 };
 
 fn find_surface(path: &str) -> &'static AuthoritySurface {
@@ -197,4 +198,45 @@ fn crate_names_have_no_duplicates() {
         );
         seen.push(c.name);
     }
+}
+
+/// Behavioral proof of `next_stage`/`is_valid_transition`, the real dispatch
+/// logic driven by `mfw:nextStage` ontology data (see `mfw_catalog.rs.tmpl`'s
+/// own `self_check` module for the SPARQL-count-derived structural half of
+/// this same proof). Hand-transcribed against `ontology.ttl` the same way
+/// every other check in this file is -- every `mfw:nextStage` edge asserted
+/// there, checked here.
+#[test]
+fn next_stage_matches_every_hand_transcribed_ontology_edge() {
+    let expected = [
+        ("observe", "admit"),
+        ("admit", "preserve standing"),
+        ("preserve standing", "calculate residual"),
+        ("calculate residual", "manufacture candidate"),
+        ("manufacture candidate", "verify"),
+        ("verify", "authorize"),
+        ("authorize", "actuate"),
+        ("actuate", "receipt"),
+        ("receipt", "replay"),
+        ("replay", "observe"),
+    ];
+    assert_eq!(NEXT_STAGE.len(), expected.len());
+    for (from, to) in expected {
+        assert_eq!(
+            next_stage(from),
+            Some(to),
+            "next_stage({from:?}) should be {to:?}"
+        );
+        assert!(is_valid_transition(from, to));
+    }
+}
+
+/// `is_valid_transition` must reject both a skip-ahead and a
+/// never-transcribed stage name -- a negative-path check no positive spot
+/// check above exercises.
+#[test]
+fn is_valid_transition_refuses_a_skip_ahead_and_an_unknown_stage() {
+    assert!(!is_valid_transition("observe", "verify"));
+    assert!(!is_valid_transition("nonexistent-stage", "observe"));
+    assert_eq!(next_stage("nonexistent-stage"), None);
 }

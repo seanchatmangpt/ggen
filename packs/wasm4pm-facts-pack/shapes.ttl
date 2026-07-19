@@ -1,0 +1,146 @@
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix compat: <https://wasm4pm.dev/ns#> .
+@prefix pi:     <https://wasm4pm.dev/pi#> .
+
+# SHACL shapes for wasm4pm-facts-pack's two classes. These are executable
+# cardinality/range/datatype constraints -- not documentation -- runnable via
+# `ggen graph validate` and wireable into a consumer's own `[law].shapes`.
+# Their purpose is to let a *different* template author regenerate an
+# equivalent, non-broken system from ontology.ttl alone: the shapes say
+# exactly which properties are required, singular, and what datatype/pattern
+# they must have, so a second template set has a machine-checkable contract
+# to target instead of having to reverse-engineer it from the one shipped
+# .tmpl file.
+
+compat:CognitionBreedShape
+  a sh:NodeShape ;
+  sh:targetClass compat:CognitionBreed ;
+  sh:property [
+    sh:path compat:breedId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-z][a-z0-9_]*$" ;
+  ] ;
+  sh:property [
+    sh:path compat:breedLabel ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path compat:breedDoc ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path compat:citation ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  # breedStatus/breedStanding is deliberately NOT constrained here as an
+  # asserted property: it is CONSTRUCT-derived by ontology/rules/breed_standing.n3
+  # from the presence of compat:citation, never hand-asserted in a fact file.
+  # A shape that required it directly on the individual would contradict that
+  # design and silently invite hand-asserting it to satisfy validation.
+  sh:property [
+    sh:path compat:modulePath ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    # optional: 0 or 1, only present when the Rust module name differs from
+    # breedId (documented in ontology.ttl's header comment).
+  ] .
+
+pi:ProcessIntelligenceAlgorithmShape
+  a sh:NodeShape ;
+  sh:targetClass pi:ProcessIntelligenceAlgorithm ;
+  sh:property [
+    sh:path pi:algorithmId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-z][a-z0-9_]*$" ;
+  ] ;
+  sh:property [
+    sh:path pi:algorithmLabel ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path pi:algorithmDoc ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path pi:citation ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path pi:outputType ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ( "petrinet" "dfg" "tree" "model" "ml_result" "analytics" "declare" ) ;
+  ] ;
+  sh:property [
+    sh:path pi:category ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+      "discovery" "conformance" "simulation" "prediction" "import_export"
+      "agentic" "discovery_analytics" "ml_analytics" "object_centric"
+    ) ;
+  ] ;
+  sh:property [
+    sh:path pi:speedTier ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 100 ;
+  ] ;
+  sh:property [
+    sh:path pi:qualityTier ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 100 ;
+  ] ;
+  sh:property [
+    sh:path pi:wasmExport ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path pi:inputFormat ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path pi:standing ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    # Rung values from wasm4pm's own 11-rung manufactured-reason ladder
+    # (~/wasm4pm/ggen/ontology-algorithms/algorithm-vocabulary.ttl's
+    # pi:standing rdfs:comment): REGISTERED | DISPATCHABLE | REPLAYABLE.
+    sh:in ( "REGISTERED" "DISPATCHABLE" "REPLAYABLE" ) ;
+  ] ;
+  sh:property [
+    sh:path pi:cliAlias ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    # optional: only present when the algorithm exposes a CLI shortcut
+    # (documented in ontology.ttl's header comment).
+  ] .

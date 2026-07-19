@@ -12,6 +12,23 @@
 w4c:Crate a rdfs:Class ; rdfs:label "wasm4pm workspace crate" .
 w4c:purpose a rdf:Property ; rdfs:domain w4c:Crate ; rdfs:range xsd:string .
 
+# w4c:dependsOn -- real intra-workspace crate dependency edges, transcribed by
+# hand-grepping each member crate's own Cargo.toml [dependencies] table for a
+# `{workspace-member-name} = { ... }` / `{ path = "../..." }` line naming
+# another w4c:Crate individual (external deps like wasm4pm-compat, serde, etc.
+# are deliberately excluded -- this property models only the closed graph over
+# the 9 individuals declared above). Verified against
+# ~/wasm4pm@b6fedcbef8d5fbdab4dbb9827226e802fe961a71 (2026-07-18):
+#   wasm4pm/Cargo.toml            -> wasm4pm-cognition (optional), miniml-core (optional, feature "miniml")
+#   crates/wasm4pm-cli/Cargo.toml -> wasm4pm
+#   crates/wasm4pm-cognition/Cargo.toml -> prolog8
+#   crates/wasm4pm-planner/Cargo.toml   -> prolog8, wasm4pm, wasm4pm-cognition
+# tps-metrics, miniml-core, prolog8, ocpq, bench-tools have zero intra-workspace
+# dependency edges onto another individual in this list (ocpq depends only on
+# the external wasm4pm-compat crate, not on any w4c:Crate).
+w4c:dependsOn a rdf:Property ; rdfs:domain w4c:Crate ; rdfs:range w4c:Crate ;
+    rdfs:comment "Direct intra-workspace crate dependency, hand-verified against a dated ~/wasm4pm commit (see property comment)." .
+
 w4c:wasm4pm
     a w4c:Crate ; rdfs:label "wasm4pm" ;
     w4c:purpose "High-performance process mining algorithms in WebAssembly for JavaScript/TypeScript." .
@@ -47,3 +64,9 @@ w4c:bench-tools
 w4c:wasm4pm-planner
     a w4c:Crate ; rdfs:label "wasm4pm-planner" ;
     w4c:purpose "wasm4pm-native PDDL-subset temporal planner with prolog8 admission gating and an MCP server -- a fresh design drawing on bcinr-pddl's durative-action scheduler and capability-router pattern." .
+
+# --- dependency edges (see w4c:dependsOn comment above for provenance) ---
+w4c:wasm4pm            w4c:dependsOn w4c:wasm4pm-cognition, w4c:miniml-core .
+w4c:wasm4pm-cli        w4c:dependsOn w4c:wasm4pm .
+w4c:wasm4pm-cognition  w4c:dependsOn w4c:prolog8 .
+w4c:wasm4pm-planner    w4c:dependsOn w4c:prolog8, w4c:wasm4pm, w4c:wasm4pm-cognition .

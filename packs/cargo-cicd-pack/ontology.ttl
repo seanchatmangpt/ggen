@@ -1,36 +1,148 @@
 # cargo-cicd-pack ontology — real command surface of ~/cargo-cicd
-# (crates.io `cargo-cicd`), transcribed from its README's "Command overview"
-# table. Reuses cnv:Command/cnv:Noun/cnv:Verb from packs/clap-noun-verb-pack
-# (IRI reuse, not re-minted) because cargo-cicd is itself built on
-# clap-noun-verb 26.6.2 (confirmed: ~/cargo-cicd/Cargo.toml).
+# (crates.io `cargo-cicd`). Reuses cnv:Command/cnv:Noun/cnv:Verb from
+# packs/clap-noun-verb-pack (IRI reuse, not re-minted) because cargo-cicd is
+# itself built on clap-noun-verb 26.6.2+ (confirmed: ~/cargo-cicd/Cargo.toml).
+#
+# SOURCE-AUDIT (2026-07-18, cargo-cicd v26.7.6 on disk at ~/cargo-cicd):
+# every row below was re-verified against `#[verb(...)]` attributes in
+# ~/cargo-cicd/src/nouns/*.rs (each `cc:sourceFile` triple cites the exact
+# file), superseding the prior README-only transcription. Two real
+# discrepancies this audit surfaced against the earlier README-derived pass:
+#
+#   1. `doctor` is NOT a bare noun with an empty verb. `src/nouns/doctor.rs`
+#      defines three real verbs -- `repo`, `evidence`, `diff` -- via
+#      `#[verb("repo")]`/`#[verb("evidence")]`/`#[verb("diff")]`. The
+#      README's prose ("Bare noun, no verb") describes an older or
+#      simplified surface than the actual source. `cc:doctor-bare` below is
+#      RETAINED (marked deprecated) so the previously-generated/tested
+#      literal shape doesn't silently vanish, but the three real verb rows
+#      are now the authoritative facts.
+#   2. `trybuild`'s real verbs are `changed`, `update`, `review`
+#      (src/nouns/trybuild.rs) -- not `changed`/`full` as an earlier reading
+#      of the README table implied. `trybuild` was previously ABSENT from
+#      this ontology entirely (26 commands transcribed, none under
+#      `trybuild`) despite being a documented top-level noun in the
+#      "Command overview" table; this audit adds it for the first time.
+#
+# Thirteen additional nouns present in `~/cargo-cicd`'s real source
+# (`src/nouns/*.rs`) but absent from the prior 26-command transcription are
+# added below, each with a `cc:sourceFile` triple recording exactly where it
+# was verified: trybuild, pipeline, sbom, hooks, verify, certification,
+# ocel, receipt, trace, standing, gate, release_gate, claude_context.
+#
+# `~/cargo-cicd/ontology/public/cargo-cicd-capabilities.ttl` (the target
+# project's OWN authoritative SKOS/PROV-O ontology, v26.6.2, 9 concepts —
+# one per "default feature" command) was also cross-checked: all 9 of its
+# `cc:noun`/`cc:verb` pairs (StatusShow, TargetShow, TargetPrune,
+# TestChanged, TrybuildChanged, GitStatus, GitClose, PublishRun,
+# WorkspaceDoctor) match this file's noun/verb pairs exactly. Those 9 rows
+# additionally carry `cc:targetOntologyConcept`, pointing at the target's own
+# IRI for that capability -- the closest this pack currently gets to
+# Target-API fidelity's L5 bar ("tracks the target's ontology, not its
+# API"): where the target ships a machine-readable concept, this ontology
+# cites it by IRI instead of re-describing it in prose. The other 36 rows
+# have no such target-side ontology entry to cite (cargo-cicd's own
+# ontology only models the 9 default-feature commands) — those remain
+# source-file-verified facts, not ontology-tracked ones.
 
 @prefix cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#> .
 @prefix cc:  <http://seanchatmangpt.github.io/packs/cargo-cicd#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ccup: <https://cargo-cicd.rs/ontology/> .
 
-cc:status-show    a cnv:Command ; cnv:noun "status"    ; cnv:verb "show"     ; rdfs:comment "Workspace status: dirty files, pending tests, trybuild result, publish readiness." .
-cc:status-audit   a cnv:Command ; cnv:noun "status"    ; cnv:verb "audit"    .
-cc:workspace-doctor  a cnv:Command ; cnv:noun "workspace" ; cnv:verb "doctor"   ; rdfs:comment "Diagnoses Cargo.toml, toolchain, git repo, cicd.toml." .
-cc:workspace-validate a cnv:Command ; cnv:noun "workspace" ; cnv:verb "validate" .
-cc:workspace-list    a cnv:Command ; cnv:noun "workspace" ; cnv:verb "list"    .
-cc:workspace-sync    a cnv:Command ; cnv:noun "workspace" ; cnv:verb "sync"    .
-cc:target-show    a cnv:Command ; cnv:noun "target"    ; cnv:verb "show"     ; rdfs:comment "Reports target/ directory size." .
-cc:target-prune   a cnv:Command ; cnv:noun "target"    ; cnv:verb "prune"    .
-cc:test-changed   a cnv:Command ; cnv:noun "test"      ; cnv:verb "changed"  ; rdfs:comment "Runs only tests for crates whose source changed since the last green commit." .
-cc:test-run       a cnv:Command ; cnv:noun "test"      ; cnv:verb "run"      .
-cc:test-bench     a cnv:Command ; cnv:noun "test"      ; cnv:verb "bench"    .
-cc:git-status     a cnv:Command ; cnv:noun "git"       ; cnv:verb "status"   .
-cc:git-fetch      a cnv:Command ; cnv:noun "git"       ; cnv:verb "fetch"    .
-cc:git-stage      a cnv:Command ; cnv:noun "git"       ; cnv:verb "stage"    .
-cc:git-commit     a cnv:Command ; cnv:noun "git"       ; cnv:verb "commit"   .
-cc:git-diff       a cnv:Command ; cnv:noun "git"       ; cnv:verb "diff"     .
-cc:git-close      a cnv:Command ; cnv:noun "git"       ; cnv:verb "close"    ; rdfs:comment "Lawful branch-close sequence." .
-cc:publish-run      a cnv:Command ; cnv:noun "publish" ; cnv:verb "run"      ; rdfs:comment "Publishes eligible workspace crates to crates.io after verifying release readiness." .
-cc:publish-check    a cnv:Command ; cnv:noun "publish" ; cnv:verb "check"    .
-cc:publish-validate a cnv:Command ; cnv:noun "publish" ; cnv:verb "validate" .
-cc:evidence-doctor a cnv:Command ; cnv:noun "evidence" ; cnv:verb "doctor" ; rdfs:comment "Adjudicates and inspects recorded process evidence (XES/OCEL logs)." .
-cc:evidence-list   a cnv:Command ; cnv:noun "evidence" ; cnv:verb "list"   .
-cc:evidence-audit  a cnv:Command ; cnv:noun "evidence" ; cnv:verb "audit"  .
-cc:evidence-show   a cnv:Command ; cnv:noun "evidence" ; cnv:verb "show"   .
-cc:evidence-reset  a cnv:Command ; cnv:noun "evidence" ; cnv:verb "reset"  .
-cc:doctor a cnv:Command ; cnv:noun "doctor" ; cnv:verb "" ; rdfs:comment "Bare noun, no verb: diagnoses repository health against a recorded baseline and reports evidence drift." .
+# ── status (source: src/nouns/status.rs) ──────────────────────────────────
+cc:status-show    a cnv:Command ; cnv:noun "status"    ; cnv:verb "show"     ; rdfs:comment "Workspace status: dirty files, pending tests, trybuild result, publish readiness." ; cc:sourceFile "src/nouns/status.rs" ; cc:targetOntologyConcept ccup:StatusShow .
+cc:status-audit   a cnv:Command ; cnv:noun "status"    ; cnv:verb "audit"    ; cc:sourceFile "src/nouns/status.rs" .
+
+# ── workspace (source: src/nouns/workspace.rs) ────────────────────────────
+cc:workspace-doctor  a cnv:Command ; cnv:noun "workspace" ; cnv:verb "doctor"   ; rdfs:comment "Diagnoses Cargo.toml, toolchain, git repo, cicd.toml." ; cc:sourceFile "src/nouns/workspace.rs" ; cc:targetOntologyConcept ccup:WorkspaceDoctor .
+cc:workspace-validate a cnv:Command ; cnv:noun "workspace" ; cnv:verb "validate" ; cc:sourceFile "src/nouns/workspace.rs" .
+cc:workspace-list    a cnv:Command ; cnv:noun "workspace" ; cnv:verb "list"    ; cc:sourceFile "src/nouns/workspace.rs" .
+cc:workspace-sync    a cnv:Command ; cnv:noun "workspace" ; cnv:verb "sync"    ; cc:sourceFile "src/nouns/workspace.rs" .
+
+# ── target (source: src/nouns/target.rs) ──────────────────────────────────
+cc:target-show    a cnv:Command ; cnv:noun "target"    ; cnv:verb "show"     ; rdfs:comment "Reports target/ directory size." ; cc:sourceFile "src/nouns/target.rs" ; cc:targetOntologyConcept ccup:TargetShow .
+cc:target-prune   a cnv:Command ; cnv:noun "target"    ; cnv:verb "prune"    ; cc:sourceFile "src/nouns/target.rs" ; cc:targetOntologyConcept ccup:TargetPrune .
+
+# ── test (source: src/nouns/test.rs) ──────────────────────────────────────
+cc:test-changed   a cnv:Command ; cnv:noun "test"      ; cnv:verb "changed"  ; rdfs:comment "Runs only tests for crates whose source changed since the last green commit." ; cc:sourceFile "src/nouns/test.rs" ; cc:targetOntologyConcept ccup:TestChanged .
+cc:test-run       a cnv:Command ; cnv:noun "test"      ; cnv:verb "run"      ; cc:sourceFile "src/nouns/test.rs" .
+cc:test-bench     a cnv:Command ; cnv:noun "test"      ; cnv:verb "bench"    ; cc:sourceFile "src/nouns/test.rs" .
+
+# ── git (source: src/nouns/git.rs) ────────────────────────────────────────
+cc:git-status     a cnv:Command ; cnv:noun "git"       ; cnv:verb "status"   ; cc:sourceFile "src/nouns/git.rs" ; cc:targetOntologyConcept ccup:GitStatus .
+cc:git-fetch      a cnv:Command ; cnv:noun "git"       ; cnv:verb "fetch"    ; cc:sourceFile "src/nouns/git.rs" .
+cc:git-stage      a cnv:Command ; cnv:noun "git"       ; cnv:verb "stage"    ; cc:sourceFile "src/nouns/git.rs" .
+cc:git-commit     a cnv:Command ; cnv:noun "git"       ; cnv:verb "commit"   ; cc:sourceFile "src/nouns/git.rs" .
+cc:git-diff       a cnv:Command ; cnv:noun "git"       ; cnv:verb "diff"     ; cc:sourceFile "src/nouns/git.rs" .
+cc:git-close      a cnv:Command ; cnv:noun "git"       ; cnv:verb "close"    ; rdfs:comment "Lawful branch-close sequence." ; cc:sourceFile "src/nouns/git.rs" ; cc:targetOntologyConcept ccup:GitClose .
+
+# ── publish (source: src/nouns/publish.rs) ────────────────────────────────
+cc:publish-run      a cnv:Command ; cnv:noun "publish" ; cnv:verb "run"      ; rdfs:comment "Publishes eligible workspace crates to crates.io after verifying release readiness." ; cc:sourceFile "src/nouns/publish.rs" ; cc:targetOntologyConcept ccup:PublishRun .
+cc:publish-check    a cnv:Command ; cnv:noun "publish" ; cnv:verb "check"    ; cc:sourceFile "src/nouns/publish.rs" .
+cc:publish-validate a cnv:Command ; cnv:noun "publish" ; cnv:verb "validate" ; cc:sourceFile "src/nouns/publish.rs" .
+
+# ── evidence (source: src/nouns/evidence.rs) ──────────────────────────────
+cc:evidence-doctor a cnv:Command ; cnv:noun "evidence" ; cnv:verb "doctor" ; rdfs:comment "Adjudicates and inspects recorded process evidence (XES/OCEL logs)." ; cc:sourceFile "src/nouns/evidence.rs" .
+cc:evidence-list   a cnv:Command ; cnv:noun "evidence" ; cnv:verb "list"   ; cc:sourceFile "src/nouns/evidence.rs" .
+cc:evidence-audit  a cnv:Command ; cnv:noun "evidence" ; cnv:verb "audit"  ; cc:sourceFile "src/nouns/evidence.rs" .
+cc:evidence-show   a cnv:Command ; cnv:noun "evidence" ; cnv:verb "show"   ; cc:sourceFile "src/nouns/evidence.rs" .
+cc:evidence-reset  a cnv:Command ; cnv:noun "evidence" ; cnv:verb "reset"  ; cc:sourceFile "src/nouns/evidence.rs" .
+
+# ── doctor (source: src/nouns/doctor.rs) ──────────────────────────────────
+# CORRECTED 2026-07-18: doctor has three real verbs, not a bare empty verb
+# (see header note #1). `cc:doctor-bare` is kept, deprecated, for backward
+# compatibility with anything already keyed on the old bare-noun shape.
+cc:doctor-repo     a cnv:Command ; cnv:noun "doctor" ; cnv:verb "repo"     ; rdfs:comment "Diagnoses repository health against a recorded baseline and reports evidence drift." ; cc:sourceFile "src/nouns/doctor.rs" .
+cc:doctor-evidence a cnv:Command ; cnv:noun "doctor" ; cnv:verb "evidence" ; cc:sourceFile "src/nouns/doctor.rs" .
+cc:doctor-diff     a cnv:Command ; cnv:noun "doctor" ; cnv:verb "diff"     ; rdfs:comment "Diffs current repository health against a previously written baseline." ; cc:sourceFile "src/nouns/doctor.rs" .
+cc:doctor-bare a cnv:Command ; cnv:noun "doctor" ; cnv:verb "" ; rdfs:comment "DEPRECATED 2026-07-18: superseded by cc:doctor-repo/cc:doctor-evidence/cc:doctor-diff -- source audit found doctor is not actually a bare noun with an empty verb; retained only so previously-generated literal shapes do not silently vanish." .
+
+# ── trybuild (source: src/nouns/trybuild.rs) -- NEW, added 2026-07-18 ─────
+cc:trybuild-changed a cnv:Command ; cnv:noun "trybuild" ; cnv:verb "changed" ; rdfs:comment "Runs trybuild compile-fail/compile-pass fixtures for crates changed since the last green commit." ; cc:sourceFile "src/nouns/trybuild.rs" ; cc:targetOntologyConcept ccup:TrybuildChanged .
+cc:trybuild-update  a cnv:Command ; cnv:noun "trybuild" ; cnv:verb "update"  ; cc:sourceFile "src/nouns/trybuild.rs" .
+cc:trybuild-review  a cnv:Command ; cnv:noun "trybuild" ; cnv:verb "review"  ; cc:sourceFile "src/nouns/trybuild.rs" .
+
+# ── pipeline (source: src/nouns/pipeline.rs) -- NEW, added 2026-07-18 ─────
+cc:pipeline-run      a cnv:Command ; cnv:noun "pipeline" ; cnv:verb "run"      ; rdfs:comment "Runs the workspace's CI/CD pipeline definition." ; cc:sourceFile "src/nouns/pipeline.rs" .
+cc:pipeline-status   a cnv:Command ; cnv:noun "pipeline" ; cnv:verb "status"   ; cc:sourceFile "src/nouns/pipeline.rs" .
+cc:pipeline-validate a cnv:Command ; cnv:noun "pipeline" ; cnv:verb "validate" ; cc:sourceFile "src/nouns/pipeline.rs" .
+
+# ── sbom (source: src/nouns/sbom.rs) -- NEW, added 2026-07-18 ────────────
+cc:sbom-generate a cnv:Command ; cnv:noun "sbom" ; cnv:verb "generate" ; rdfs:comment "Generates a Software Bill of Materials (SBOM) via CycloneDX." ; cc:sourceFile "src/nouns/sbom.rs" .
+cc:sbom-show     a cnv:Command ; cnv:noun "sbom" ; cnv:verb "show"     ; cc:sourceFile "src/nouns/sbom.rs" .
+
+# ── hooks (source: src/nouns/hooks.rs) -- NEW, added 2026-07-18 ──────────
+cc:hooks-install       a cnv:Command ; cnv:noun "hooks" ; cnv:verb "install"       ; rdfs:comment "Installs git hooks that integrate cargo-cicd with an external CI provider." ; cc:sourceFile "src/nouns/hooks.rs" .
+cc:hooks-uninstall     a cnv:Command ; cnv:noun "hooks" ; cnv:verb "uninstall"     ; cc:sourceFile "src/nouns/hooks.rs" .
+cc:hooks-pre-tool-use  a cnv:Command ; cnv:noun "hooks" ; cnv:verb "pre-tool-use"  ; cc:sourceFile "src/nouns/hooks.rs" .
+
+# ── verify (source: src/nouns/verify.rs) -- NEW, added 2026-07-18 ────────
+cc:verify-repo a cnv:Command ; cnv:noun "verify" ; cnv:verb "repo" ; rdfs:comment "Verifies a repository against configured checks, including semver compatibility." ; cc:sourceFile "src/nouns/verify.rs" .
+
+# ── certification (source: src/nouns/certification.rs) -- NEW, added 2026-07-18
+cc:certification-show a cnv:Command ; cnv:noun "certification" ; cnv:verb "show" ; rdfs:comment "IEC 61508 / ISO 26262 compliance summary for cargo-cicd certification." ; cc:sourceFile "src/nouns/certification.rs" .
+
+# ── ocel (source: src/nouns/ocel.rs) -- NEW, added 2026-07-18 ────────────
+cc:ocel-replay a cnv:Command ; cnv:noun "ocel" ; cnv:verb "replay" ; rdfs:comment "Replays recorded OCEL process-evidence events." ; cc:sourceFile "src/nouns/ocel.rs" .
+
+# ── receipt (source: src/nouns/receipt.rs) -- NEW, added 2026-07-18 ──────
+cc:receipt-verify a cnv:Command ; cnv:noun "receipt" ; cnv:verb "verify" ; rdfs:comment "Verifies a recorded receipt's integrity." ; cc:sourceFile "src/nouns/receipt.rs" .
+cc:receipt-audit  a cnv:Command ; cnv:noun "receipt" ; cnv:verb "audit"  ; cc:sourceFile "src/nouns/receipt.rs" .
+
+# ── trace (source: src/nouns/trace.rs) -- NEW, added 2026-07-18 ──────────
+cc:trace-profile a cnv:Command ; cnv:noun "trace" ; cnv:verb "profile" ; rdfs:comment "Profiles and reports timing traces for cargo-cicd operations." ; cc:sourceFile "src/nouns/trace.rs" .
+
+# ── standing (source: src/nouns/standing.rs) -- NEW, added 2026-07-18 ────
+cc:standing-refresh a cnv:Command ; cnv:noun "standing" ; cnv:verb "refresh" ; rdfs:comment "Refreshes generated standing documents from current repository state." ; cc:sourceFile "src/nouns/standing.rs" .
+cc:standing-verify  a cnv:Command ; cnv:noun "standing" ; cnv:verb "verify"  ; cc:sourceFile "src/nouns/standing.rs" .
+cc:standing-report  a cnv:Command ; cnv:noun "standing" ; cnv:verb "report"  ; cc:sourceFile "src/nouns/standing.rs" .
+
+# ── gate (source: src/nouns/gate.rs) -- NEW, added 2026-07-18 ────────────
+cc:gate-repo a cnv:Command ; cnv:noun "gate" ; cnv:verb "repo" ; rdfs:comment "Evaluates repository-level release gate conditions." ; cc:sourceFile "src/nouns/gate.rs" .
+
+# ── release_gate (source: src/nouns/release_gate.rs) -- NEW, added 2026-07-18
+cc:release-gate-check a cnv:Command ; cnv:noun "release_gate" ; cnv:verb "check" ; rdfs:comment "Checks whether release-gate conditions are currently satisfied." ; cc:sourceFile "src/nouns/release_gate.rs" .
+
+# ── claude_context (source: src/nouns/claude_context.rs) -- NEW, added 2026-07-18
+cc:claude-context-show a cnv:Command ; cnv:noun "claude_context" ; cnv:verb "show" ; rdfs:comment "Shows the Claude agent context snapshot for the current repository." ; cc:sourceFile "src/nouns/claude_context.rs" .

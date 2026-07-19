@@ -102,3 +102,65 @@ dfl:SessionShape
         sh:minCount    1 ;
         sh:message     "A session must be associated with its acting agent (prov:wasAssociatedWith)." ;
     ] .
+
+# ── Obligation shape (v26.7.18 obligation-derivation extension) ────────────
+# Every dfl:Obligation node -- whether hand-asserted in a fixture or
+# CONSTRUCTed by hook.ttl's derive_review_obligation hook -- must carry its
+# source event, target agent, severity, deadline, and status. A discharged
+# obligation additionally carries dfl:dischargedBy (not required at the
+# Open state, hence sh:minCount 0 on it here).
+dfl:ObligationShape
+    a sh:NodeShape ;
+    sh:targetClass dfl:Obligation ;
+    sh:property [
+        sh:path        dfl:derivedFrom ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:class       dfl:ToolEvent ;
+        sh:message     "An Obligation must record the ToolEvent it was derived from (dfl:derivedFrom)." ;
+    ] ;
+    sh:property [
+        sh:path        dfl:obligationTarget ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:class       prov:Agent ;
+        sh:message     "An Obligation must name the agent responsible for discharging it (dfl:obligationTarget)." ;
+    ] ;
+    sh:property [
+        sh:path        dfl:severity ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:in          ( dfl:High dfl:Medium dfl:Low ) ;
+        sh:message     "An Obligation must carry exactly one dfl:severity from {dfl:High, dfl:Medium, dfl:Low}." ;
+    ] ;
+    sh:property [
+        sh:path        dfl:deadline ;
+        sh:minCount    1 ;
+        sh:maxCount    1 ;
+        sh:datatype    xsd:duration ;
+        sh:message     "An Obligation must carry exactly one dfl:deadline (xsd:duration)." ;
+    ] ;
+    # dfl:obligationStatus is OPTIONAL (sh:minCount 0), not required: the
+    # derive_review_obligation hook (hook.ttl) deliberately never asserts
+    # dfl:Open (praxis-graphlaw's kh:effect "emit-delta" is append-only, so
+    # asserting Open would make it permanently coexist with a later
+    # dfl:Discharged rather than being superseded -- see hook.ttl's own
+    # disclosure comment). An Obligation with NO obligationStatus triple at
+    # all is the "open" state; discharge_review_obligation asserts
+    # dfl:Discharged exactly once when it fires. Hand-authored fixtures MAY
+    # still assert dfl:Open explicitly (the value remains valid), but the
+    # hook itself does not.
+    sh:property [
+        sh:path        dfl:obligationStatus ;
+        sh:minCount    0 ;
+        sh:maxCount    1 ;
+        sh:in          ( dfl:Open dfl:Discharged dfl:Refused ) ;
+        sh:message     "If present, dfl:obligationStatus must be exactly one of {dfl:Open, dfl:Discharged, dfl:Refused}." ;
+    ] ;
+    sh:property [
+        sh:path        dfl:dischargedBy ;
+        sh:minCount    0 ;
+        sh:maxCount    1 ;
+        sh:class       dfl:ToolEvent ;
+        sh:message     "If present, dfl:dischargedBy must name exactly one ToolEvent." ;
+    ] .

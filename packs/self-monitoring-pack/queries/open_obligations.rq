@@ -1,0 +1,39 @@
+# open_obligations.rq -- L5-push: shipped, checked-in query surface over
+# smon:EscalationObligation's lifecycle status (Matrix 2's Obligation-
+# lifecycle L3 bar: "Discharge is recorded; open obligations are
+# queryable"). Real query, not narrated: run it with any SPARQL-1.1-capable
+# engine (this pack's own praxis_graphlaw::TripleStore::query, or a
+# standard oxigraph::store::Store, per this pack's established
+# dual-engine-verification convention) against a post-materialize() store
+# or any dump of one.
+#
+# Returns every EscalationObligation whose smon:status is smon:Open (i.e.
+# NOT YET smon:Discharged or smon:Refused). A downstream planner/reviewer
+# sorts the (already small) result set by ?severity/?priorSeq itself.
+#
+# CONFIRMED ENGINE LIMITATION (this pass, not assumed): an earlier draft of
+# this query added `ORDER BY DESC(?severity) ASC(?priorSeq)` for exactly
+# that triage order. Direct testing against the real engine
+# (`praxis_graphlaw::TripleStore::query`, via a throwaway scratch harness,
+# never committed) showed ANY `ORDER BY` clause on this query -- even a
+# single bare variable with no `DESC`/`ASC` wrapper -- silently returns ZERO
+# rows instead of an error, though the identical WHERE clause without
+# `ORDER BY` returns the expected row. This is a real gap in
+# `crate::sparql`'s `query()` execution path specifically (the separate
+# CONSTRUCT/`materialize()` path used elsewhere in this pack is unaffected).
+# `ORDER BY` is intentionally omitted here rather than shipped broken or
+# silently wrong.
+
+PREFIX smon: <http://seanchatmangpt.github.io/packs/self-monitoring#>
+
+SELECT ?obligation ?prior ?repeat ?severity ?deadlineHint ?reason
+WHERE {
+  ?obligation a smon:EscalationObligation ;
+              smon:status smon:Open ;
+              smon:hasPriorGroundingQuestion ?prior ;
+              smon:hasGroundingQuestion ?repeat ;
+              smon:severity ?severity ;
+              smon:deadlineHint ?deadlineHint ;
+              smon:reason ?reason .
+  ?prior smon:sequenceIndex ?priorSeq .
+}

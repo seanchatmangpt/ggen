@@ -6,6 +6,20 @@
 
 use chicago_tdd_tools::cli_proof::CliHarness;
 
+/// Covers: receiptctl algorithm list (argv composed from clap-noun-verb-pack's AlgorithmList command) exits 0 and prints a JSON array
+#[test]
+fn receiptctl_algorithm_list_succeeds() {
+    // Arrange + Act: real subprocess boundary crossing.
+    let output = CliHarness::cargo_bin("receiptctl")
+        .args("algorithm list".split_whitespace())
+        .run()
+        .expect("CliHarness run for receiptctl_algorithm_list_succeeds");
+
+    // Assert: observable state, not mock interactions.
+    output.assert_exit_code(0);
+    output.assert_stdout_contains("[");
+}
+
 /// Covers: receiptctl --help exits 0 with usage text
 #[test]
 fn receiptctl_help_lists_verbs() {

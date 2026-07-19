@@ -46,12 +46,34 @@
 # ============================================================================
 
 # Concept 1: an LEI-registered legal entity must carry at least one LEI.
+#
+# GAP CLOSED (2026-07-19, L5-push pass): the shape as originally authored
+# checked `sh:inversePath fibo-be-le-lei:isQuantifiedBy` with `sh:minCount 0`
+# -- both the WRONG property (fixtures actually link via `cmns-id:
+# isIdentifiedBy`, never `isQuantifiedBy`) and a vacuous cardinality (`0`
+# means "no requirement", so nothing could ever fail this shape). This was
+# the exact disclosed adversarial-resistance gap named in
+# `adversarial-negative.ttl`'s header item 3 and in
+# `docs/packs/L5_VALIDATION_REPORT.md`'s ma-case-study-pack section
+# ("the pack's own disclosed LEI-shape gap means at least one
+# deliberately-gamed input is NOT refused today"). Fixed by requiring
+# `cmns-id:isIdentifiedBy` (the property every LEI-bearing fixture in this
+# pack actually uses) with a real `sh:minCount 1`. Verified this session:
+# `adversarial-negative.ttl` (whose target counterparty deliberately omits
+# this property, per that file's own header item 3) now fails SHACL
+# validation on this shape too, in addition to its other 2 disclosed
+# violations -- confirmed via `ggen graph validate` producing 3 violations
+# instead of 2 (see this pack's STANDING.md changelog entry).
+@prefix cmns-id: <https://www.omg.org/spec/Commons/Identifiers/> .
+
 ma:LEIRegisteredEntityShape
     a sh:NodeShape ;
     sh:targetClass fibo-be-le-lei:LEIRegisteredEntity ;
     sh:property [
-        sh:path     [ sh:inversePath fibo-be-le-lei:isQuantifiedBy ] ;
-        sh:minCount 0 ;
+        sh:path     cmns-id:isIdentifiedBy ;
+        sh:minCount 1 ;
+        sh:class    fibo-be-le-lei:LegalEntityIdentifier ;
+        sh:message  "An LEI-registered entity must carry at least one cmns-id:isIdentifiedBy link to a fibo-be-le-lei:LegalEntityIdentifier." ;
     ] ;
     sh:property [
         sh:path     fibo-be-le-lei:hasLegalFormAbbreviation ;

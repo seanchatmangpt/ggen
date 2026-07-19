@@ -3,16 +3,28 @@ to: tests/chicago_tdd_tools_boundary.rs
 sparql:
   tests: |
     PREFIX ctt: <http://seanchatmangpt.github.io/packs/chicago-tdd-tools#>
+    PREFIX cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#>
     SELECT ?test_name ?binary ?args ?exit_code ?stdout_needle ?stderr_needle ?axiom
     WHERE {
       ?t a ctt:CliBoundaryTest ;
          ctt:testName ?test_name ;
          ctt:binary ?binary ;
-         ctt:args ?args ;
          ctt:expectExitCode ?exit_code ;
          ctt:coversAxiom ?axiom .
       OPTIONAL { ?t ctt:stdoutNeedle ?stdout_needle }
       OPTIONAL { ?t ctt:stderrNeedle ?stderr_needle }
+      {
+        # Free-text argv, hand-typed by this pack's own ontology.
+        ?t ctt:args ?args .
+      } UNION {
+        # Argv composed from another pack's (or the consuming project's)
+        # own generated command surface -- ctt:composesCommand points at a
+        # cnv:Command individual, and the invocation shape is derived by
+        # joining its cnv:noun/cnv:verb, not hand-typed here.
+        ?t ctt:composesCommand ?cmd .
+        ?cmd cnv:noun ?noun ; cnv:verb ?verb .
+        BIND(CONCAT(?noun, " ", ?verb) AS ?args)
+      }
     }
     ORDER BY ?test_name
 ---

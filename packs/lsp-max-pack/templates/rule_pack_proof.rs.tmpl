@@ -23,6 +23,21 @@ force: true
 //! each rule's `pattern` as a real compiled regex against literal
 //! positive/negative code snippets -- proving the pattern actually
 //! catches (and doesn't over-catch) the code smell it claims to.
+//!
+//! Fidelity note (verified 2026-07-18 against `~/lsp-max/src/rule_pack_server.rs`,
+//! the real target this pack's output is consumed by): the generated
+//! `[[rules]]` shape (`id`, `name`, `severity`, `pattern`, `path_globs`,
+//! `exclude_globs`, `message`, `rationale`, `eval_budget`) matches
+//! `rule_pack_server.rs::Rule` field-for-field, and its `evaluate()`
+//! function compiles `pattern` with `regex::Regex` and calls
+//! `Regex::find_iter` per line -- there is no AhoCorasick engine anywhere
+//! in that path. `ParsedRule` below is intentionally a hand-written
+//! structural echo of that real `Rule` type (not an import of it: this
+//! generated-artifacts crate has no path/git dependency on `~/lsp-max`),
+//! so a field this pack emits but the real struct doesn't have (or vice
+//! versa) still won't be caught by `toml::from_str` alone -- this is the
+//! honest boundary of what a config-file-shape proof can certify without
+//! depending on the real external crate.
 
 use std::fs;
 use std::path::Path;
@@ -40,6 +55,7 @@ struct ParsedRule {
     exclude_globs: Vec<String>,
     message: String,
     rationale: String,
+    eval_budget: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -52,6 +68,7 @@ struct Expected {
     name: &'static str,
     severity: &'static str,
     pattern: &'static str,
+    eval_budget: &'static str,
     message: &'static str,
     rationale: &'static str,
     positive: &'static [&'static str],
@@ -71,6 +88,7 @@ const EXPECTED_RULES: &[Expected] = &[
         name: "Unwrap in production path",
         severity: "error",
         pattern: r"\.unwrap\(\)|\.expect\(",
+        eval_budget: "sync",
         message: "unwrap()/expect() outside #[cfg(test)] panics the language server; return Result instead.",
         rationale: "An lsp-max server must never panic mid-request; RulePackServer handlers return ClassifiedFindings, not aborts.",
         positive: &["value.unwrap();", "x.expect(\"y\")"],
@@ -81,6 +99,7 @@ const EXPECTED_RULES: &[Expected] = &[
         name: "Raw protocol fallback",
         severity: "warning",
         pattern: r"serde_json::Value|json!\(",
+        eval_budget: "background",
         message: "Raw JSON fallback detected; use the generated metaModel.json protocol types.",
         rationale: "Protocol completeness must not be faked with untyped serde_json fallback.",
         positive: &["let v: serde_json::Value = default_value();", "json!({\"a\": 1})"],
@@ -91,6 +110,7 @@ const EXPECTED_RULES: &[Expected] = &[
         name: "Wall clock in server code",
         severity: "error",
         pattern: r"SystemTime::now|Instant::now",
+        eval_budget: "sync",
         message: "Wall-clock reads make receipts nondeterministic; thread time in from the transport boundary.",
         rationale: "Deterministic replay of an lsp-max session requires clock-free handler logic.",
         positive: &["let t = SystemTime::now();", "let start = Instant::now();"],
@@ -168,13 +188,18 @@ fn every_generated_rule_matches_one_hand_transcribed_expectation() {
         assert_eq!(rule.message, expected.message, "message mismatch for {}", expected.id);
         assert_eq!(rule.rationale, expected.rationale, "rationale mismatch for {}", expected.id);
         assert_eq!(
+            rule.eval_budget, expected.eval_budget,
+            "eval_budget mismatch for {} (ontology-sourced lm:evalBudget, must be \"sync\" or \"background\" to match the real lsp-max EvalBudget enum's #[serde(rename_all = \"snake_case\")])",
+            expected.id
+        );
+        assert_eq!(
             rule.path_globs, EXPECTED_PATH_GLOBS,
-            "path_globs mismatch for {} (template-hardcoded literal, not ontology-sourced)",
+            "path_globs mismatch for {} (ontology-sourced lm:pathGlobs, not a template-hardcoded literal)",
             expected.id
         );
         assert_eq!(
             rule.exclude_globs, EXPECTED_EXCLUDE_GLOBS,
-            "exclude_globs mismatch for {} (template-hardcoded literal, not ontology-sourced)",
+            "exclude_globs mismatch for {} (ontology-sourced lm:excludeGlobs, not a template-hardcoded literal)",
             expected.id
         );
     }

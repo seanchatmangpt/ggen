@@ -1,7 +1,7 @@
 ---
 to: src/clap_noun_verb_routes.rs
 sparql:
-  commands: "PREFIX cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#> SELECT ?noun ?verb ?handler ?doc ?return_type ?args WHERE { ?c a cnv:Command ; cnv:noun ?noun ; cnv:verb ?verb ; cnv:handler ?handler ; cnv:doc ?doc ; cnv:returnType ?return_type ; cnv:args ?args } ORDER BY ?noun ?verb"
+  commands: "PREFIX cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#> SELECT ?noun ?verb ?handler ?doc ?return_type ?args ?static_response WHERE { ?c a cnv:Command ; cnv:noun ?noun ; cnv:verb ?verb ; cnv:handler ?handler ; cnv:doc ?doc ; cnv:returnType ?return_type ; cnv:args ?args . OPTIONAL { ?c cnv:staticResponse ?static_response } } ORDER BY ?noun ?verb"
   nouns: "PREFIX cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?noun ?about WHERE { ?n a cnv:Noun ; rdfs:label ?noun ; rdfs:comment ?about } ORDER BY ?noun"
 skip_if: "ggen:local-override"
 ---
@@ -21,6 +21,7 @@ skip_if: "ggen:local-override"
 
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
+use serde_json::json;
 
 {%- set reserved = ["as","break","const","continue","crate","dyn","else","enum","extern","false","fn","for","if","impl","in","let","loop","match","mod","move","mut","pub","ref","return","self","Self","static","struct","super","trait","true","try","type","unsafe","use","where","while","async","await","abstract","become","box","do","final","macro","override","priv","typeof","unsized","virtual","yield"] -%}
 
@@ -42,6 +43,12 @@ fn {{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}(
 {%- endfor %}
 {%- endif %}
 ) -> Result<{{ cmd.return_type }}> {
+{%- if cmd.static_response %}
+    // Zero-handler command: cnv:staticResponse fully specifies this
+    // command's behavior in the ontology. No `crate::verbs::handlers::*`
+    // fn is called or required to exist for `{{ cmd.noun }} {{ cmd.verb }}`.
+    Ok({{ cmd.static_response }})
+{%- else %}
     crate::verbs::handlers::{{ cmd.handler }}(
 {%- if cmd.args %}
 {%- for spec in cmd.args | split(pat="@@") %}
@@ -52,6 +59,7 @@ fn {{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}(
 {%- endfor %}
 {%- endif %}
     )
+{%- endif %}
 }
 
 {% endfor %}
@@ -95,12 +103,16 @@ mod clap_noun_verb_routes_proof_tests {
     // pass, even with `inject: true` on one of them) by construction: there
     // is only ever one template, one `to:` target, for this file.
     //
-    // Every expected value below is a literal the author hand-transcribed
-    // from `packs/clap-noun-verb-pack/ontology.ttl`, never re-derived via the
-    // same SPARQL SELECT that produced the wrapper fns/docs above -- so a
-    // dropped, renamed, or mis-typed `cnv:Command`/`cnv:Noun` individual, or
-    // a broken required/optional-arg mapping, fails these tests even though
-    // it would not fail a tautological self-comparison.
+    // Tier 1's per-command literals below (token/name/email fixture values)
+    // are still hand-written proof INPUTS -- that's normal Chicago-TDD
+    // arrange-phase data, not a drift risk. Tier 2's EXPECTED_* constants,
+    // by contrast, are rendered by this same template pass from the
+    // `commands`/`nouns` SPARQL projection that also produced the routes
+    // above (see this template's own Tera for-loops in Tier 2 below). A
+    // dropped, renamed, or mis-typed `cnv:Command`/`cnv:Noun` individual
+    // changes the generated routes AND the generated expectations in the
+    // same regen, so this is a real drift canary against the ontology, not
+    // a tautological self-comparison of hand-copied strings.
     use super::*;
 
     // ---- Tier 1: real calls through the generated wrapper into the real,
@@ -132,6 +144,21 @@ mod clap_noun_verb_routes_proof_tests {
         );
     }
 
+    // cnv:SessionPing carries cnv:staticResponse -- its ENTIRE behavior,
+    // not just its signature, is specified in ontology.ttl. This asserts
+    // on actual output CONTENT (not merely `.is_ok()`), and the expected
+    // content below is the literal ontology fact
+    // `json!({ "status": "alive", "noun": "session", "verb": "ping" })`,
+    // reached with zero hand-written `crate::verbs::handlers::*` code:
+    // there is no `session_ping_handler` anywhere in this crate.
+    #[test]
+    fn session_ping_is_zero_handler_and_returns_its_ontology_specified_body() {
+        let result = session_ping().expect("session_ping has no handler dependency; always Ok");
+        assert_eq!(result["status"], "alive");
+        assert_eq!(result["noun"], "session");
+        assert_eq!(result["verb"], "ping");
+    }
+
     #[test]
     fn user_create_required_name_with_optional_email_present() {
         // cnv:UserCreate cnv:args
@@ -155,11 +182,27 @@ mod clap_noun_verb_routes_proof_tests {
 
     // ---- Tier 2: drift canary. Re-reads this same generated file's own
     // source text at compile time and checks it against literal
-    // counts/strings hand-transcribed from the ontology. This catches
-    // someone adding/removing a `cnv:Command`/`cnv:Noun` individual without
-    // updating this test, which Tier 1 alone would not (Tier 1 only
-    // exercises the three commands that already exist by name, so it can't
-    // notice a deleted command or noun).
+    // counts/strings rendered by THIS SAME TEMPLATE PASS from the same
+    // `commands`/`nouns` SPARQL-projected context that produced the routes
+    // above (see this template's own command/noun for-loops that emitted
+    // the wrapper fns and noun registrations) --
+    // NOT hand-transcribed by a human re-reading ontology.ttl. An ontology
+    // edit that adds/removes/renames a `cnv:Command`/`cnv:Noun` individual
+    // therefore regenerates BOTH the production code and these expected
+    // literals in the same `ggen sync` pass: there is no separate manual
+    // transcription step left to drift out of sync with the ontology.
+    const EXPECTED_COMMAND_COUNT: usize = {{ commands | length }};
+    const EXPECTED_NOUN_COUNT: usize = {{ nouns | length }};
+    const EXPECTED_DOCS: &[&str] = &[
+{%- for cmd in commands %}
+        "{{ cmd.doc }}",
+{%- endfor %}
+    ];
+    const EXPECTED_NOUN_DESCRIPTIONS: &[&str] = &[
+{%- for row in nouns %}
+        "{{ row.about }}",
+{%- endfor %}
+    ];
     //
     // `src/clap_noun_verb_routes.rs` is this pack's own fixed `to:` path
     // (see this template's frontmatter) -- not derived from `file!()`, so
@@ -197,44 +240,52 @@ mod clap_noun_verb_routes_proof_tests {
     }
 
     #[test]
-    fn generated_source_has_at_least_this_packs_three_verb_commands() {
+    fn generated_source_has_at_least_this_packs_verb_commands() {
         let count = routes_only().matches("#[verb(").count();
         assert!(
-            count >= 3,
-            "expected at least the 3 verb commands cnv:SessionLogin/SessionVerify/UserCreate \
-             from this pack's own ontology.ttl, found {count} in the generated routes portion \
-             (a consuming project's own ontology may legitimately add more)"
+            count >= EXPECTED_COMMAND_COUNT,
+            "expected at least the {EXPECTED_COMMAND_COUNT} verb commands from this pack's own \
+             ontology.ttl (count itself rendered from the same `commands` SPARQL projection), \
+             found {count} in the generated routes portion (a consuming project's own ontology \
+             may legitimately add more)"
         );
     }
 
     #[test]
-    fn generated_source_has_at_least_this_packs_two_registered_nouns() {
+    fn generated_source_has_at_least_this_packs_registered_nouns() {
         let count = routes_only()
             .matches("CommandRegistry::register_noun(")
             .count();
         assert!(
-            count >= 2,
-            "expected at least the 2 nouns cnv:SessionNoun/UserNoun from this pack's own \
-             ontology.ttl, found {count} in the generated routes portion (a consuming \
-             project's own ontology may legitimately add more)"
+            count >= EXPECTED_NOUN_COUNT,
+            "expected at least the {EXPECTED_NOUN_COUNT} nouns from this pack's own ontology.ttl \
+             (count itself rendered from the same `nouns` SPARQL projection), found {count} in \
+             the generated routes portion (a consuming project's own ontology may legitimately \
+             add more)"
         );
     }
 
     #[test]
     fn generated_source_carries_literal_command_docs_from_ontology() {
-        assert!(GENERATED_SOURCE
-            .contains("Start an authenticated session and persist the token."));
-        assert!(GENERATED_SOURCE.contains(
-            "Verify the active session token against the stored keyring credential."
-        ));
-        assert!(GENERATED_SOURCE
-            .contains("Create a user resource and emit its serialized record."));
+        for doc in EXPECTED_DOCS {
+            assert!(
+                GENERATED_SOURCE.contains(doc),
+                "generated routes missing doc comment {doc:?} (rendered from the same \
+                 `commands` projection as the routes themselves)"
+            );
+        }
     }
 
     #[test]
     fn generated_source_carries_literal_noun_descriptions_from_ontology() {
-        assert!(GENERATED_SOURCE.contains("\"Manage authenticated session tokens.\""));
-        assert!(GENERATED_SOURCE.contains("\"Manage user resources.\""));
+        for about in EXPECTED_NOUN_DESCRIPTIONS {
+            let needle = format!("\"{about}\"");
+            assert!(
+                GENERATED_SOURCE.contains(&needle),
+                "generated routes missing noun description {needle:?} (rendered from the same \
+                 `nouns` projection as the registrations themselves)"
+            );
+        }
     }
 
     #[test]
