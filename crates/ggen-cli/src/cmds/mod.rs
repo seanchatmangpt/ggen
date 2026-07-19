@@ -41,8 +41,10 @@ pub mod init;
 // registered by ggen-engine both become top-level clap subcommands named
 // "sync" -- clap_builder's debug_asserts panics on the duplicate name in
 // debug builds, and release builds would silently shadow one path with the
-// other. File retained on disk at cmds/sync.rs, not deleted, per this
-// project's fix-forward doctrine.
+// other. REMOVED (2026-07-18, release hardening pass): sync.rs still imported
+// ggen_core::* against the fully-deleted ggen-core crate, and was unreachable
+// via this mod tree besides. File deleted (cmds/sync.rs); recoverable from
+// git history if ever needed.
 // pub mod sync;
 // REMOVED (2026-07-17, ggen-core removal): wizard.rs imported ggen_core::codegen APIs
 // with no ggen-engine port ever built; abandoned rather than ported. File deleted
@@ -57,15 +59,19 @@ pub mod a2a;
 pub mod agent; // AGI-facing lifecycle surface (`ggen agent <verb>`) over crate::agent::PackAgent (ported from ggen_core, T041)
 pub mod capability; // capability surfaces → atomic packs (`ggen capability enable/list/inspect`)
                     // ARCHIVED (v26.7.16 routing flip): replaced by ggen-engine's `doctor` noun
-                    // (verb `run`). Same root-flat-verb-vs-noun collision as `sync` above. File
-                    // retained on disk at cmds/doctor.rs, not deleted, per this project's
-                    // fix-forward doctrine.
+                    // (verb `run`). Same root-flat-verb-vs-noun collision as `sync` above.
+                    // REMOVED (2026-07-18, release hardening pass): doctor.rs still imported
+                    // ggen_core::* against the fully-deleted ggen-core crate, and was
+                    // unreachable via this mod tree besides. File deleted (cmds/doctor.rs);
+                    // recoverable from git history if ever needed.
                     // pub mod doctor;
 #[cfg(feature = "experimental")]
 pub mod framework; // Framework bridge commands (LangChain, etc.)
                    // ARCHIVED (v26.7.16 routing flip): replaced by ggen-engine's `graph` noun
-                   // (verb `validate`). File retained on disk at cmds/graph.rs, not deleted,
-                   // per this project's fix-forward doctrine.
+                   // (verb `validate`). REMOVED (2026-07-18, release hardening pass): graph.rs
+                   // still imported ggen_core::* against the fully-deleted ggen-core crate, and
+                   // was unreachable via this mod tree besides. File deleted (cmds/graph.rs);
+                   // recoverable from git history if ever needed.
                    // pub mod graph;
 #[cfg(feature = "lsp")]
 pub mod lsp; // ggen lsp noun (start/check/init/serve/mine/metrics/replay/field-status/emit_pack/verify_pack) — opt-in: --features lsp

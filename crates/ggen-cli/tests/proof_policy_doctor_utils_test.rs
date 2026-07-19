@@ -10,8 +10,10 @@
     unused_mut
 )]
 
-//! Executable-proof integration tests for `ggen policy`, `ggen doctor check`,
-//! and `ggen utils env`.
+//! Executable-proof integration tests for `ggen policy` and `ggen utils env`.
+//! (`ggen doctor` is proven separately — see the file:line note below; no
+//! `doctor` test lives in this file despite the module doc historically
+//! claiming otherwise.)
 //!
 //! **Chicago TDD Principles** (mirrors `sync_command_test.rs` /
 //! `integration_utils_e2e.rs`):
@@ -30,8 +32,14 @@
 //! - policy validate   crates/ggen-cli/src/cmds/policy.rs:212
 //! - policy show       crates/ggen-cli/src/cmds/policy.rs:259
 //! - policy check      crates/ggen-cli/src/cmds/policy.rs:319
-//! - doctor check      crates/ggen-cli/src/cmds/doctor.rs:160
 //! - utils env         crates/ggen-cli/src/cmds/utils.rs:103
+//!
+//! `ggen doctor` is NOT proven in this file (the cmds/doctor.rs:160 claim this
+//! line used to make was stale even before that file was deleted 2026-07-18 —
+//! no `#[test]` for it ever existed here). The live implementation is
+//! `handle_doctor`, crates/ggen-engine/src/verbs/handlers.rs:759, proven by
+//! crates/ggen-engine/tests/doctor_e2e.rs and
+//! crates/ggen-cli/tests/doctor_adversarial_tests.rs.
 
 use assert_cmd::Command;
 use predicates::prelude::*;
@@ -354,16 +362,11 @@ fn policy_check_does_not_panic() {
 }
 
 // ============================================================================
-// doctor check  (crates/ggen-cli/src/cmds/doctor.rs:160)
-// ============================================================================
-
-/// PROOF (positive): `doctor check` reads the REAL cwd and reports
-/// `ggen.toml` PRESENT when a real `ggen.toml` exists in the working directory
-/// (doctor.rs:165-167).
-///
-/// Observable assertion: success exit + stdout indicates the check passed /
-/// found ggen.toml. A stub ignoring the filesystem could not distinguish this
-/// from the absent case below.
+// doctor — proven elsewhere, not in this file. See crates/ggen-engine/src/
+// verbs/handlers.rs:759 (handle_doctor), crates/ggen-engine/tests/doctor_e2e.rs,
+// and crates/ggen-cli/tests/doctor_adversarial_tests.rs. (The cmds/doctor.rs:160
+// claim this block used to make was stale before that file was deleted
+// 2026-07-18 — no `#[test]` for it ever existed in this file.)
 // ============================================================================
 // utils env  (crates/ggen-cli/src/cmds/utils.rs:103)
 // ============================================================================

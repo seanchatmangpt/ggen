@@ -153,22 +153,31 @@ and no wrong-context refusal are footguns waiting to surface as confusing suppor
 
 ---
 
-## TECH-DEBT-001 — 515 pre-existing test-quality violations found by `ggen-cheat-scanner` (TECH-DEBT)
+## TECH-DEBT-001 — 464 pre-existing test-quality violations found by `ggen-cheat-scanner` (TECH-DEBT)
 
 **Source evidence:** `cargo run -p ggen-cheat-scanner` (added in #257) run against `main`
-post-#257 merge.
-**Breakdown:**
-- **~510 `CHEAT-T03` (no-assertion-test)** — `#[test]` functions with zero
+post-#257 merge. **Reconfirmed 2026-07-18** (release hardening pass) at exactly this count,
+after `ggen-core`'s deletion and after this same pass's removal of 4 orphaned files under
+`crates/ggen-cli/src/cmds/`.
+**Breakdown (reconfirmed 2026-07-18):**
+- **456 `CHEAT-T03` (no-assertion-test)** — `#[test]` functions with zero
   `assert*!`/`.unwrap()`/`.expect()`/panic-triggering calls in their body (can never fail no
   matter what the code under test does). Spread across `chicago-tdd-tools`, `ggen-cli/tests/*`,
-  `ggen-core/src/*`, `bcinr-mfw-ir`, `bcinr-pddl`.
-- **3 `CHEAT-T01` (vacuous-assert)** — `assert!(true)`-only test bodies, in `chicago-tdd-tools`'s
+  `bcinr-mfw-ir`, `bcinr-pddl`.
+- **7 `CHEAT-T01` (vacuous-assert)** — `assert!(true)`-only test bodies, in `chicago-tdd-tools`'s
   observability feature-gate tests.
 - **1 `CHEAT-T04` (mock-import)** — a `FakeDataGenerator`-style mock-like `Default` impl at
   `chicago-tdd-tools/src/core/builders.rs:883`.
+
+**Note on the count change (515 → 464):** this section originally reported 515 findings,
+measured against `main` post-#257. `ggen-core` was fully deleted from the workspace in PR #259
+(2026-07-17) — some of that original 515's `CHEAT-T03` findings lived under the
+now-nonexistent `ggen-core/src/*`, and were retired along with the crate, not fixed by triage.
+464 is the real current count, not a partial fix.
+
 **Impact:** none of these are shipped-product bugs — they're test-suite debt giving false
 confidence that untested paths are covered. Not fixed in #257; needs a dedicated triage pass
-(not all 510 `CHEAT-T03` hits are necessarily equally severe — some may be legitimate
+(not all 456 `CHEAT-T03` hits are necessarily equally severe — some may be legitimate
 compile-only/type-shape tests).
 **Reproduce:** `cargo run -p ggen-cheat-scanner` from the repo root (exits nonzero with a full
 `file:line` violation list when any are found).

@@ -72,6 +72,7 @@ impl GgenMcpServer {
         // itself and handles BOTH the frontmatter-per-template schema and the
         // `[[generation.rules]]` declarative schema automatically (T070), so
         // the separate manifest-parse step is subsumed, not preserved.
+        let sync_started = std::time::Instant::now();
         let report = ggen_engine::sync::sync(&base_path, ggen_engine::sync::SyncOptions::default())
             .map_err(|e| {
                 rmcp::model::ErrorData::internal_error(
@@ -79,6 +80,7 @@ impl GgenMcpServer {
                     None,
                 )
             })?;
+        let duration_ms = sync_started.elapsed().as_millis();
 
         // NOTE: no LLM-service hook here. The old handler connected an
         // optional `Box<dyn LlmService>` via `ggen_core::codegen::pipeline::
@@ -109,13 +111,19 @@ impl GgenMcpServer {
         //                                    engine-derived).
         //   - "files_count"              -> mapped from `report.written.len()`
         //                                    (was `state.generated_files.len()`).
-        //   - "duration_ms"              -> DROPPED. `SyncReport` carries no
-        //                                    timing field and `sync()` does not
-        //                                    expose a start instant; ggen-engine
-        //                                    treats wall-clock timing as
-        //                                    non-deterministic receipt content
-        //                                    (see sync.rs's `ts_ns` note), so
-        //                                    there is no equivalent to map to.
+        //   - "duration_ms"              -> RESTORED (2026-07-18) via a local
+        //                                    `Instant`/`elapsed()` measured
+        //                                    around the `sync()` call above.
+        //                                    `SyncReport` itself still carries
+        //                                    no timing field, and ggen-engine
+        //                                    still correctly treats wall-clock
+        //                                    timing as non-deterministic
+        //                                    receipt content (see sync.rs's
+        //                                    `ts_ns` note) -- but this is a
+        //                                    transport-layer MCP response
+        //                                    metric, not receipt content, so
+        //                                    measuring it locally here does not
+        //                                    touch that invariant.
         //   - (new) "graph_hash_hex"     -> ADDED from `report.graph_hash_hex`,
         //                                    the closest ggen-engine equivalent
         //                                    to a content-identity hash for the
@@ -127,6 +135,7 @@ impl GgenMcpServer {
             "task_id": params.task_id,
             "files_count": report.written.len(),
             "graph_hash_hex": report.graph_hash_hex,
+            "duration_ms": duration_ms,
         });
 
         let mut meta = rmcp::model::Meta::default();

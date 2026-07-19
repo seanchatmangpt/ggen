@@ -17,8 +17,22 @@
 # root src, not praxis-graphlaw's own internals testing itself). Excluding
 # them here is what makes the guard test the actual boundary instead of
 # flagging praxis-graphlaw's own test suite for testing its own module.
+#
+# `crates/bcinr-pddl/` and `crates/chicago-tdd-tools/` added to the exclusion
+# (2026-07-19, v26.7.18 release hardening): both were vendored by PR #255
+# (2026-07-17), after this guard was written, and were never added here --
+# confirmed 2026-07-19 that every `bcinr_powl(_receipt)::` reference in either
+# crate is inert, not ggen crossing the boundary: `chicago-tdd-tools/src/
+# observability/receipt.rs`'s hit is inside a ```rust,ignore``` doc-comment
+# example (never compiled); `bcinr-pddl/src/ground/dict.rs`'s hit is a bare
+# `//!` prose mention, not an import; `bcinr-pddl/src/mfw/planner.rs` and
+# `bcinr-pddl/tests/mfw_capacity2_fixture.rs` are both gated behind
+# `#[cfg(feature = "mfw-planner")]` / `#![cfg(feature = "mfw-planner")]`, a
+# feature PR #255 deliberately dropped from `bcinr-pddl/Cargo.toml`'s
+# `[features]` table (see that file's own comment) -- with no such feature
+# declared, this code can never compile into any build, default or otherwise.
 set -euo pipefail
-EXCLUDE_DIRS=(--exclude-dir=praxis-core --exclude-dir=praxis-graphlaw)
+EXCLUDE_DIRS=(--exclude-dir=praxis-core --exclude-dir=praxis-graphlaw --exclude-dir=bcinr-pddl --exclude-dir=chicago-tdd-tools)
 
 if grep -rn "${EXCLUDE_DIRS[@]}" --include="*.rs" "praxis_graphlaw::chatman" crates/ src/ 2>/dev/null; then
   echo "FAIL: praxis_graphlaw::chatman referenced above -- ggen must not cross the Process Intelligence Boundary." >&2
