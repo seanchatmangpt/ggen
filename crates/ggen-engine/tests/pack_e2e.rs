@@ -556,6 +556,89 @@ fn two_packs_colliding_output_aborts_sync_without_rollback_or_lock() {
     );
 }
 
+/// Write `root/<name>/` as a pack with TWO separate template files (distinct
+/// filenames, so `load_templates`'s sorted-path walk sees two distinct
+/// entries) whose frontmatter both set the identical `to:` target
+/// `to_path` — the intra-pack analogue of `write_pack`'s single-template
+/// packs used by the cross-pack collision test above.
+fn write_pack_with_intra_pack_collision(root: &Path, name: &str, to_path: &str) {
+    let pack_dir = root.join(name);
+    std::fs::create_dir_all(pack_dir.join("templates")).expect("mkdir pack templates");
+
+    std::fs::write(
+        pack_dir.join("pack.toml"),
+        format!(
+            "[pack]\nname = \"{name}\"\nversion = \"0.1.0\"\ndescription = \"test pack {name}\"\n"
+        ),
+    )
+    .expect("write pack.toml");
+
+    std::fs::write(
+        pack_dir.join("ontology.ttl"),
+        "@prefix dom: <http://example.com/ontology#> .\ndom:Widget a dom:DomainClass .\n",
+    )
+    .expect("write ontology.ttl");
+
+    std::fs::write(
+        pack_dir.join("templates").join("rule_one.rs.tmpl"),
+        format!("---\nto: {to_path}\n---\npub const ONE: &str = \"one\";\n"),
+    )
+    .expect("write template rule_one");
+    std::fs::write(
+        pack_dir.join("templates").join("rule_two.rs.tmpl"),
+        format!("---\nto: {to_path}\n---\npub const TWO: &str = \"two\";\n"),
+    )
+    .expect("write template rule_two");
+}
+
+/// Condition 9 (一出力一所有が守られる, `packs/ggen-release-pack/ontology.ttl`)
+/// narrow gap: `two_packs_colliding_output_aborts_sync_without_rollback_or_lock`
+/// above proves CROSS-pack collisions are refused. It does not prove that
+/// ONE pack's own two templates/rules claiming the same output are caught
+/// the same way. `discover_templates` (`sync.rs`) flattens project
+/// templates and every resolved pack's templates into a single
+/// `Vec<(PathBuf, Template)>` with no pack-affinity tag preserved on either
+/// the `Template` or the later `PendingWrite`, and the duplicate-target
+/// refusal (`sync.rs`, the `seen: BTreeMap<&str, usize>` scan right before
+/// Stage 5) counts occurrences of `to:` across that whole flat list with no
+/// notion of "owner" at all — so reading the code strongly suggests an
+/// intra-pack collision hits the identical `FM-WRITE-008` refusal. This
+/// test proves that empirically instead of leaving it as an inference.
+#[test]
+fn same_pack_two_templates_colliding_output_aborts_sync_identically() {
+    let dir = TempDir::new().expect("tempdir");
+    write_pack_with_intra_pack_collision(dir.path(), "pack-solo", "src/collision.rs");
+    let project = write_single_pack_project(dir.path(), "solo-project", "pack-solo");
+
+    let err = sync(
+        &project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect_err("must refuse intra-pack collision the same way as cross-pack");
+    let msg = err.to_string();
+    assert!(msg.contains("FM-WRITE-008"), "{msg}");
+    assert!(msg.contains("src/collision.rs"), "{msg}");
+
+    // Same no-partial-state guarantee as the cross-pack case: the refusal
+    // fires during Stage 4 (render), before Stage 5 (write) ever starts, so
+    // neither template's content lands and no lock/receipt appears.
+    assert!(
+        !project.join("src/collision.rs").exists(),
+        "intra-pack collision must refuse before any write"
+    );
+    assert!(
+        !project.join("ggen.lock").exists(),
+        "ggen.lock must not be written"
+    );
+    assert!(
+        !project.join(RECEIPT_REL_PATH).exists(),
+        "receipt must not be written"
+    );
+}
+
 /// Path to the real, production `[validation].gates`-wired cross-pack
 /// contamination gate at the repo root (condition 8, 合成時に意味汚染がない) —
 /// `../..` from this crate's manifest dir to the workspace root, the same
