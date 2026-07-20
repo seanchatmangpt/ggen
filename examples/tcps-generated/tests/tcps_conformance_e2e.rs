@@ -55,13 +55,14 @@ fn copy_tree(src: &Path, dst: &Path) {
 /// The 6 packs this example wires in `ggen.toml`'s `[packs]` table -- kept as
 /// one list so `scaffold()` and any future pack additions stay in sync by
 /// construction rather than by remembering to update two places.
-const WIRED_PACKS: [&str; 6] = [
+const WIRED_PACKS: [&str; 7] = [
     "tcps-core-pack",
     "tcps-release-pack",
     "tcps-std-pack",
     "tcps-ffi-pack",
     "tcps-wasm-pack",
     "tcps-cli-pack",
+    "ggen-verify-pack",
 ];
 
 /// Copy this example project (`ggen.toml`, `Cargo.toml`, `schema/`) plus every
@@ -84,6 +85,34 @@ fn scaffold() -> (TempDir, PathBuf) {
             .unwrap_or_else(|e| panic!("copy {name}: {e}"));
     }
     copy_tree(&this_crate.join("schema"), &project.join("schema"));
+    // The consumer-local evidence mini-pack (ggen.toml wires `evidence` as a
+    // path pack). Deliberately NOT copied from the live checkout: live
+    // evidence records whatever reality was at last verify.sh run, and if
+    // that includes "this test suite was red," copying it here would make
+    // the suite unable to ever go green (the gate would refuse the scaffold
+    // sync because the suite was red because the gate refused...). The e2e
+    // exercises pack/template machinery under a controlled green fixture;
+    // the evidence-gate refusal paths are proven by their own dedicated
+    // cases with controlled red/missing fixtures.
+    std::fs::create_dir_all(project.join("evidence")).expect("mkdir evidence");
+    std::fs::copy(
+        this_crate.join("evidence/pack.toml"),
+        project.join("evidence/pack.toml"),
+    )
+    .expect("copy evidence pack.toml");
+    copy_tree(
+        &this_crate.join("evidence/templates"),
+        &project.join("evidence/templates"),
+    );
+    std::fs::write(
+        project.join("evidence/ontology.ttl"),
+        "@prefix ver: <http://seanchatmangpt.github.io/packs/ggen-verify#> .\n\
+         ver:check-build a ver:Check ; ver:name \"build\" ; ver:exitCode 0 .\n\
+         ver:check-test a ver:Check ; ver:name \"test-workspace\" ; ver:exitCode 0 .\n\
+         ver:check-clippy a ver:Check ; ver:name \"clippy-reference-gate\" ; ver:exitCode 0 .\n\
+         ver:check-bi a ver:Check ; ver:name \"byte-identity\" ; ver:exitCode 0 .\n",
+    )
+    .expect("seed evidence");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
     std::fs::create_dir_all(project.join("src")).expect("mkdir src");
     // Seed lib.rs the way the checked-in scaffold starts out (before
@@ -315,14 +344,16 @@ fn graph_validate_passes_on_generated_project() {
 }
 
 /// Negative case: a fact injected into the CONSUMER's own project ontology
-/// (`schema/domain.ttl`) that violates tcps-core-pack's shipped
-/// `shapes.ttl` (`tcps:ModuleShape`) -- a module that `tcps:dependsOnModule`
-/// an IRI that is never declared as a `tcps:Module` anywhere in the union
-/// graph (no `a tcps:Module`, no `tcps:name`: a genuinely dangling
-/// reference, not merely an undeclared-but-plausible one). The shapes gate
-/// evaluates the union graph (pack ontology + consumer ontology) at sync
-/// time and must refuse before writing any output (`FM-PACK-013`, see
-/// `crates/ggen-engine/src/sync.rs`'s per-pack shapes.ttl loop).
+/// (`schema/domain.ttl`) that violates tcps-core-pack's shipped SPARQL
+/// gates (`gates/010_dangling_reference.rq` / `020_referenced_module_name.rq`,
+/// translated from the former `shapes.ttl`'s `tcps:ModuleShape`) -- a module
+/// that `tcps:dependsOnModule` an IRI that is never declared as a
+/// `tcps:Module` anywhere in the union graph (no `a tcps:Module`, no
+/// `tcps:name`: a genuinely dangling reference, not merely an
+/// undeclared-but-plausible one). The gate queries evaluate the union graph
+/// (pack ontology + consumer ontology) at sync time and must refuse before
+/// writing any output (`FM-PACK-013`, see `crates/ggen-engine/src/sync.rs`'s
+/// per-pack `gates/*.rq` loop).
 #[test]
 fn shapes_gate_refuses_dangling_module_dependency() {
     let (_dir, project) = scaffold();
@@ -359,7 +390,7 @@ fn shapes_gate_refuses_dangling_module_dependency() {
 /// Positive control for the negative case above: same shape of fact
 /// (`tcps:dependsOnModule` on a `tcps:Module` individual added via the
 /// consumer's own ontology), but pointing at a REAL, already-declared
-/// module (`tcps:語彙Module`) instead of a dangling one. Proves the shape
+/// module (`tcps:語彙Module`) instead of a dangling one. Proves the gate
 /// actually discriminates a dangling reference rather than refusing every
 /// sync outright.
 #[test]

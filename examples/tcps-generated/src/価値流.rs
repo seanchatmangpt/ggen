@@ -57,4 +57,3 @@ impl<const 上限: usize> 価値流<上限> {
         self.件数
     }
 }
-

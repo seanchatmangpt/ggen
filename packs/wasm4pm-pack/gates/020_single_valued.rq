@@ -1,0 +1,10 @@
+# MESSAGE: a w4c:Crate must carry exactly one rdfs:label and exactly one w4c:purpose (translated from shapes.ttl's sh:maxCount 1 constraints; any row = a subject carrying two distinct values for ?p)
+PREFIX w4c:  <http://seanchatmangpt.github.io/packs/wasm4pm-crate#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?s ?p WHERE {
+  ?s a w4c:Crate .
+  VALUES ?p { rdfs:label w4c:purpose }
+  ?s ?p ?v1 , ?v2 .
+  FILTER(?v1 != ?v2)
+}
+ORDER BY ?s ?p

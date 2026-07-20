@@ -1,0 +1,40 @@
+# MESSAGE: dfl value constraints: skos:notation is an xsd:string from the closed tool-name scheme {Bash, Edit, Write, Read, Grep, Glob, Task, WebFetch, WebSearch}; dfl:outcome is one of {dfl:Ok, dfl:Error, dfl:Blocked}; dfl:deadline is xsd:duration; dfl:obligationStatus (if present) is one of {dfl:Open, dfl:Discharged, dfl:Refused}; dcterms:isPartOf targets a dfl:Session; dfl:derivedFrom / dfl:dischargedBy / dfl:escalatedBy target a dfl:ToolEvent; dfl:obligationTarget targets a prov:Agent (translated from shapes.ttl sh:datatype / sh:in / sh:class; the sh:class checks run against the union graph, where the referenced node's rdf:type is co-loaded)
+PREFIX dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#>
+PREFIX prov:    <http://www.w3.org/ns/prov#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX skos:    <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a dfl:ToolEvent ; skos:notation ?value . BIND(skos:notation AS ?p)
+    FILTER(
+      DATATYPE(?value) != xsd:string ||
+      STR(?value) NOT IN ("Bash", "Edit", "Write", "Read", "Grep", "Glob", "Task", "WebFetch", "WebSearch")
+    )
+  } UNION {
+    ?s a dfl:ToolEvent ; dfl:outcome ?value . BIND(dfl:outcome AS ?p)
+    FILTER(?value NOT IN (dfl:Ok, dfl:Error, dfl:Blocked))
+  } UNION {
+    ?s a dfl:ToolEvent ; dcterms:isPartOf ?value . BIND(dcterms:isPartOf AS ?p)
+    FILTER NOT EXISTS { ?value a dfl:Session }
+  } UNION {
+    ?s a dfl:Obligation ; dfl:deadline ?value . BIND(dfl:deadline AS ?p)
+    FILTER(DATATYPE(?value) != xsd:duration)
+  } UNION {
+    ?s a dfl:Obligation ; dfl:obligationStatus ?value . BIND(dfl:obligationStatus AS ?p)
+    FILTER(?value NOT IN (dfl:Open, dfl:Discharged, dfl:Refused))
+  } UNION {
+    ?s a dfl:Obligation ; dfl:derivedFrom ?value . BIND(dfl:derivedFrom AS ?p)
+    FILTER NOT EXISTS { ?value a dfl:ToolEvent }
+  } UNION {
+    ?s a dfl:Obligation ; dfl:obligationTarget ?value . BIND(dfl:obligationTarget AS ?p)
+    FILTER NOT EXISTS { ?value a prov:Agent }
+  } UNION {
+    ?s a dfl:Obligation ; dfl:dischargedBy ?value . BIND(dfl:dischargedBy AS ?p)
+    FILTER NOT EXISTS { ?value a dfl:ToolEvent }
+  } UNION {
+    ?s a dfl:Obligation ; dfl:escalatedBy ?value . BIND(dfl:escalatedBy AS ?p)
+    FILTER NOT EXISTS { ?value a dfl:ToolEvent }
+  }
+}
+ORDER BY ?s ?p

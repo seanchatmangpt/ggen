@@ -1,0 +1,14 @@
+---
+to: src/generated/144_144_proof_templates.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章144 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 144: 144. Proof Templates
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

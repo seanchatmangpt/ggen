@@ -1,0 +1,11 @@
+@prefix pack: <https://example.org/ggen/pack#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+pack:章226
+    a pack:生成単位 ;
+    dcterms:title "226. Japanese Vocabulary as Canonical Law"@en ;
+    pack:出力経路 "src/generated/226_226_japanese_vocabulary_as_canonical_law.rs" ;
+    pack:順序 226 ;
+    pack:根拠 pack:独立参照 ;
+    prov:wasDerivedFrom pack:参照実装_v26_7_19 .

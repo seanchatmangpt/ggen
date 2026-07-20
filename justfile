@@ -427,3 +427,24 @@ lsp-max-new:
         cargo check --manifest-path "$toml"
     done
     echo "all scaffold crates OK"
+
+# ── self-hosted verification (ggen-verify-pack pilot) ─────────────────────────
+
+# Run the tcps-generated self-verification loop: emit real check evidence,
+# sync (ggen-verify-pack gates refuse red/missing/stale evidence), verify the
+# receipt chain. One command replaces the hand-run matrix.
+verify-tcps:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd examples/tcps-generated
+    bash scripts/verify.sh
+    # The evidence mini-pack's content changes every emitter run BY DESIGN,
+    # which collides with ggen.lock's pack-content pinning (FM-PACK-008).
+    # Re-lock intentionally each run. KNOWN LIMITATION of the pilot: this
+    # also re-locks the six real packs, weakening lock protection for the
+    # duration of this recipe; the proper fix is the planned `ggen verify`
+    # engine verb writing evidence through a lock-exempt channel.
+    rm -f ggen.lock
+    ../../target/debug/ggen sync run
+    ../../target/debug/ggen receipt verify
+    echo "verify-tcps: evidence green, gates passed, receipt chain verified"

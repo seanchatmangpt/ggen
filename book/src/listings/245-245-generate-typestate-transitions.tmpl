@@ -1,0 +1,14 @@
+---
+to: src/generated/245_245_generate_typestate_transitions.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章245 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 245: 245. Generate Typestate Transitions
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

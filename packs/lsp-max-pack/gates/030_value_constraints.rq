@@ -1,0 +1,24 @@
+# MESSAGE: lm:LintRule value constraints: lm:ruleId matches LSPMAX-<CODE>-<NNN>; lm:severity is one of error/warning/info/hint (the 4 strings rule_pack_server.rs's severity match arm recognizes); lm:evalBudget is one of sync/background (rule_pack_server.rs::EvalBudget); string properties are non-empty (translated from shapes.ttl sh:pattern/sh:in/sh:minLength)
+PREFIX lm:   <http://seanchatmangpt.github.io/packs/lsp-max#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a lm:LintRule ; lm:ruleId ?value . BIND(lm:ruleId AS ?p)
+    FILTER(!REGEX(STR(?value), "^LSPMAX-[A-Z]+-[0-9]{3}$"))
+  } UNION {
+    ?s a lm:LintRule ; lm:severity ?value . BIND(lm:severity AS ?p)
+    FILTER(STR(?value) NOT IN ("error", "warning", "info", "hint"))
+  } UNION {
+    ?s a lm:LintRule ; lm:evalBudget ?value . BIND(lm:evalBudget AS ?p)
+    FILTER(STR(?value) NOT IN ("sync", "background"))
+  } UNION {
+    ?s a lm:LintRule ; ?p ?value .
+    VALUES ?p { lm:name lm:pattern lm:pathGlobs lm:excludeGlobs lm:message lm:rationale }
+    FILTER(STRLEN(STR(?value)) = 0)
+  } UNION {
+    ?s a lm:RulePack ; ?p ?value .
+    VALUES ?p { rdfs:label lm:packDescription }
+    FILTER(STRLEN(STR(?value)) = 0)
+  }
+}
+ORDER BY ?s ?p

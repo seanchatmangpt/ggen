@@ -1,0 +1,11 @@
+@prefix pack: <https://example.org/ggen/pack#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+pack:章70
+    a pack:生成単位 ;
+    dcterms:title "70. Pack-Local Vocabulary"@en ;
+    pack:出力経路 "src/generated/070_70_pack_local_vocabulary.rs" ;
+    pack:順序 70 ;
+    pack:根拠 pack:独立参照 ;
+    prov:wasDerivedFrom pack:参照実装_v26_7_19 .

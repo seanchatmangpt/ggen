@@ -1,0 +1,8 @@
+# MESSAGE: every ex:Capability must carry ex:order and ex:code (translated from the retired shapes.ttl sh:minCount 1; any row = a subject missing the bound ?missing property)
+PREFIX ex: <https://example.org/level-five#>
+SELECT ?s ?missing WHERE {
+  ?s a ex:Capability .
+  VALUES ?missing { ex:order ex:code }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

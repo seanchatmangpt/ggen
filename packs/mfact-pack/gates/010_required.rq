@@ -1,0 +1,20 @@
+# MESSAGE: every mfa:PipelineStage must carry exactly one mfa:order/mfa:actor/rdfs:label/rdfs:comment, every mfa:AuthorityDir exactly one non-empty mfa:path/rdfs:comment, and every mfa:ReceiptEngine exactly one mfa:hashAlgorithm/mfa:orderingStrategy/mfa:refusesDuplicates/mfa:sourceFile/rdfs:comment (translated from shapes.ttl sh:minCount 1; any row = a subject missing the bound ?missing property)
+PREFIX mfa:  <http://seanchatmangpt.github.io/packs/mfact#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a mfa:PipelineStage .
+    VALUES ?missing { mfa:order mfa:actor rdfs:label rdfs:comment }
+  } UNION {
+    ?s a mfa:AuthorityDir .
+    VALUES ?missing { mfa:path rdfs:comment }
+  } UNION {
+    ?s a mfa:ReceiptEngine .
+    VALUES ?missing {
+      mfa:hashAlgorithm mfa:orderingStrategy mfa:refusesDuplicates
+      mfa:sourceFile rdfs:comment
+    }
+  }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

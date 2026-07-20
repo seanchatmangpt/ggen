@@ -1,0 +1,27 @@
+# MESSAGE: mfa:order must be an xsd:integer >= 1, mfa:refusesDuplicates an xsd:boolean, and every constrained string property (mfa:actor, rdfs:label, rdfs:comment, mfa:path, mfa:hashAlgorithm, mfa:orderingStrategy, mfa:sourceFile) non-empty (translated from shapes.ttl sh:datatype/sh:minInclusive/sh:minLength)
+PREFIX mfa:  <http://seanchatmangpt.github.io/packs/mfact#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a mfa:PipelineStage ; mfa:order ?value . BIND(mfa:order AS ?p)
+    FILTER(DATATYPE(?value) != xsd:integer || ?value < 1)
+  } UNION {
+    ?s a mfa:PipelineStage ; ?p ?value .
+    VALUES ?p { mfa:actor rdfs:label rdfs:comment }
+    FILTER(STRLEN(STR(?value)) = 0)
+  } UNION {
+    ?s a mfa:AuthorityDir ; ?p ?value .
+    VALUES ?p { mfa:path rdfs:comment }
+    FILTER(STRLEN(STR(?value)) = 0)
+  } UNION {
+    ?s a mfa:ReceiptEngine ; ?p ?value .
+    VALUES ?p { mfa:hashAlgorithm mfa:orderingStrategy mfa:sourceFile rdfs:comment }
+    FILTER(STRLEN(STR(?value)) = 0)
+  } UNION {
+    ?s a mfa:ReceiptEngine ; mfa:refusesDuplicates ?value .
+    BIND(mfa:refusesDuplicates AS ?p)
+    FILTER(DATATYPE(?value) != xsd:boolean)
+  }
+}
+ORDER BY ?s ?p

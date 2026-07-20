@@ -30,4 +30,3 @@ impl 観察立脚点 {
         matches!(self, Self::現地確認済み(_))
     }
 }
-

@@ -1,0 +1,14 @@
+---
+to: src/generated/249_249_fix_the_module_struct_shadowing_defect.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章249 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 249: 249. Fix the Module/Struct Shadowing Defect
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

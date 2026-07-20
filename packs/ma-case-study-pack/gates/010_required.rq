@@ -1,0 +1,64 @@
+# MESSAGE: required M&A properties (translated from shapes.ttl sh:minCount 1; any row = a subject missing the bound ?missing property): an LEI-registered entity carries cmns-id:isIdentifiedBy; a relationship record its hasOwnershipPercentage; a Representation / Warranty / Commitment its dcterms:description; an Authorization both hasAuthorizingParty and hasAuthorizedParty; a merger/acquisition its classifying cmns-cls:isClassifiedBy; a due-diligence item its ma:dueDiligenceDisposition; a disclosure-schedule item its ma:qualifiesClause + ma:scheduleItemNumber; a regulatory filing obligation its ma:filingThresholdAmount + ma:triggeringStatute + ma:statutoryWaitingPeriodDays; a board resolution its ma:authorizesTransaction + prov:generatedAtTime; a shareholder vote its ma:quorumPercentage + ma:voteOutcome; a ballot its dcterms:isPartOf + prov:wasAttributedTo + ma:ballotDirection; a deal term line item its ma:termType + ma:termValue; a counter-offer its ma:supersedes + prov:wasAttributedTo; a financing commitment its ma:subjectToCondition
+PREFIX ma:      <http://seanchatmangpt.github.io/packs/ma-case-study#>
+PREFIX prov:    <http://www.w3.org/ns/prov#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX cmns-id:    <https://www.omg.org/spec/Commons/Identifiers/>
+PREFIX cmns-bauth: <https://www.omg.org/spec/Commons/BusinessAuthorizations/>
+PREFIX cmns-cls:   <https://www.omg.org/spec/Commons/Classifiers/>
+PREFIX fibo-be-le-lei:    <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LEIEntities/>
+PREFIX fibo-fnd-agr-ctr:  <https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/>
+PREFIX fibo-fnd-agr-agr:  <https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Agreements/>
+PREFIX fibo-cae-ce-act:   <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a fibo-be-le-lei:LEIRegisteredEntity .
+    VALUES ?missing { cmns-id:isIdentifiedBy }
+  } UNION {
+    ?s a fibo-be-le-lei:RelationshipRecord .
+    VALUES ?missing { fibo-be-le-lei:hasOwnershipPercentage }
+  } UNION {
+    ?s a fibo-fnd-agr-ctr:Representation .
+    VALUES ?missing { dcterms:description }
+  } UNION {
+    ?s a fibo-fnd-agr-ctr:Warranty .
+    VALUES ?missing { dcterms:description }
+  } UNION {
+    ?s a fibo-fnd-agr-agr:Commitment .
+    VALUES ?missing { dcterms:description }
+  } UNION {
+    ?s a cmns-bauth:Authorization .
+    VALUES ?missing { cmns-bauth:hasAuthorizingParty cmns-bauth:hasAuthorizedParty }
+  } UNION {
+    ?s a fibo-cae-ce-act:MergerAcquisition .
+    VALUES ?missing { cmns-cls:isClassifiedBy }
+  } UNION {
+    ?s a ma:DueDiligenceItem .
+    VALUES ?missing { ma:dueDiligenceDisposition }
+  } UNION {
+    ?s a ma:DisclosureScheduleItem .
+    VALUES ?missing { ma:qualifiesClause ma:scheduleItemNumber }
+  } UNION {
+    ?s a ma:RegulatoryFilingObligation .
+    VALUES ?missing { ma:filingThresholdAmount ma:triggeringStatute ma:statutoryWaitingPeriodDays }
+  } UNION {
+    ?s a ma:BoardResolution .
+    VALUES ?missing { ma:authorizesTransaction prov:generatedAtTime }
+  } UNION {
+    ?s a ma:ShareholderVote .
+    VALUES ?missing { ma:quorumPercentage ma:voteOutcome }
+  } UNION {
+    ?s a ma:Ballot .
+    VALUES ?missing { dcterms:isPartOf prov:wasAttributedTo ma:ballotDirection }
+  } UNION {
+    ?s a ma:DealTermLineItem .
+    VALUES ?missing { ma:termType ma:termValue }
+  } UNION {
+    ?s a ma:CounterOffer .
+    VALUES ?missing { ma:supersedes prov:wasAttributedTo }
+  } UNION {
+    ?s a ma:FinancingCommitment .
+    VALUES ?missing { ma:subjectToCondition }
+  }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

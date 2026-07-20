@@ -1,0 +1,13 @@
+# MESSAGE: the latest recorded sync's andon is not Green -- the previous sync completed in a non-Green state and that history is now law; investigate the prior sync before generating on top of it. Requires [law] reflexive = true. Only the LATEST ggenr:Sync is gated: older non-Green entries are permanent history and refusing on them forever would brick the project rather than govern it.
+PREFIX ggenr: <http://seanchatmangpt.github.io/ggen/receipt#>
+SELECT ?sync ?andon WHERE {
+  ?sync a ggenr:Sync ;
+        ggenr:index ?i ;
+        ggenr:andon ?andon .
+  FILTER NOT EXISTS {
+    ?other a ggenr:Sync ;
+           ggenr:index ?j .
+    FILTER(?j > ?i)
+  }
+  FILTER(STR(?andon) != "Green")
+}

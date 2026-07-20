@@ -843,10 +843,13 @@ fn wasm4pm_algorithms_pack_syncs() {
 
 // ── Gap-closure additions (L5 push, tracks A1/A2) ──────────────────────────
 //
-// A1: pack-shipped `shapes.ttl` files are evaluated against the union graph
-// at sync time and refuse the sync on violation (`FM-PACK-013`) — the
-// engine-level "drift is refused by construction" mechanism the maturity
-// audits repeatedly named as missing.
+// A1: pack-shipped `gates/*.rq` SPARQL gate queries are evaluated against
+// the union graph at sync time and refuse the sync on violation
+// (`FM-PACK-013`) — the engine-level "drift is refused by construction"
+// mechanism the maturity audits repeatedly named as missing. (Originally
+// implemented as pack `shapes.ttl` SHACL gates; replaced by SPARQL gates so
+// the identical gate runs under both graph engines. A leftover shapes.ttl
+// is a loud `FM-PACK-012` migration refusal, proven below.)
 //
 // A2: `[templates] aggregate_modules = true` emits one engine-owned
 // `src/ggen_pack_mods.rs` aggregator, closing the per-pack lib.rs-collision
@@ -856,8 +859,8 @@ fn wasm4pm_algorithms_pack_syncs() {
 /// template) into `dir/<name>/`, returning nothing — the caller wires it via
 /// a relative `{ path = "../<name>" }` like the real scaffold does. The
 /// ontology content is caller-supplied so tests can make it violate or
-/// conform to a caller-supplied shapes.ttl.
-fn write_synthetic_pack(dir: &Path, name: &str, ontology_ttl: &str, shapes_ttl: Option<&str>) {
+/// conform to a caller-supplied `gates/gate.rq` SPARQL gate query.
+fn write_synthetic_pack(dir: &Path, name: &str, ontology_ttl: &str, gate_rq: Option<&str>) {
     let pack = dir.join(name);
     std::fs::create_dir_all(pack.join("templates")).expect("mkdir pack templates");
     std::fs::write(
@@ -868,8 +871,9 @@ fn write_synthetic_pack(dir: &Path, name: &str, ontology_ttl: &str, shapes_ttl: 
     )
     .expect("write pack.toml");
     std::fs::write(pack.join("ontology.ttl"), ontology_ttl).expect("write pack ontology");
-    if let Some(shapes) = shapes_ttl {
-        std::fs::write(pack.join("shapes.ttl"), shapes).expect("write pack shapes");
+    if let Some(gate) = gate_rq {
+        std::fs::create_dir_all(pack.join("gates")).expect("mkdir pack gates");
+        std::fs::write(pack.join("gates/gate.rq"), gate).expect("write pack gate");
     }
     // One trivial static template so the pack passes FM-PACK-005 (zero
     // templates refused) without depending on any graph content.
@@ -910,25 +914,22 @@ fn scaffold_synthetic_consumer(
     project
 }
 
-const SHAPE_MAX_ONE_VAL: &str = r#"
-@prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix ex: <http://example.org/gap#> .
-
-ex:ThingShape
-    a sh:NodeShape ;
-    sh:targetClass ex:Thing ;
-    sh:property [
-        sh:path ex:val ;
-        sh:maxCount 1 ;
-        sh:message "a Thing must carry exactly one ex:val (mirror-drift guard)" ;
-    ] .
+/// SPARQL gate: the maxCount-1 equivalent of the old SHACL shape — any
+/// ex:Thing carrying two distinct ex:val values is a violation row.
+const GATE_MAX_ONE_VAL: &str = r#"# MESSAGE: a Thing must carry exactly one ex:val (mirror-drift guard)
+PREFIX ex: <http://example.org/gap#>
+SELECT ?thing ?v1 ?v2 WHERE {
+  ?thing a ex:Thing ; ex:val ?v1 , ?v2 .
+  FILTER(STR(?v1) < STR(?v2))
+}
+ORDER BY ?thing
 "#;
 
 #[test]
-fn pack_shapes_gate_refuses_a_violating_union_graph() {
+fn pack_gate_refuses_a_violating_union_graph() {
     let dir = TempDir::new().expect("tempdir");
 
-    // The pack's OWN facts conform (one ex:val), and it ships the shape.
+    // The pack's OWN facts conform (one ex:val), and it ships the gate.
     write_synthetic_pack(
         dir.path(),
         "guarded-pack",
@@ -937,7 +938,7 @@ fn pack_shapes_gate_refuses_a_violating_union_graph() {
 @prefix ex:  <http://example.org/gap#> .
 ex:t1 a ex:Thing ; ex:val "from-pack" .
 "#,
-        Some(SHAPE_MAX_ONE_VAL),
+        Some(GATE_MAX_ONE_VAL),
     );
     let project = scaffold_synthetic_consumer(dir.path(), &["guarded-pack"], false);
 
@@ -978,6 +979,53 @@ ex:t1 ex:val "diverged-in-consumer" .
         .expect("run sync 2")
         .assert_success();
     assert!(project.join("guarded-pack_marker.txt").is_file());
+}
+
+/// A pack still shipping the legacy SHACL gate file (`shapes.ttl`) is a
+/// loud, typed `FM-PACK-012` migration refusal — a file that used to be law
+/// must never be silently ignored — and nothing is written.
+#[test]
+fn legacy_pack_shapes_ttl_is_refused_loudly() {
+    let dir = TempDir::new().expect("tempdir");
+    write_synthetic_pack(
+        dir.path(),
+        "legacy-pack",
+        "@prefix ex: <http://example.org/gap#> .\n",
+        None,
+    );
+    // The legacy artifact: an (even empty) shapes.ttl next to ontology.ttl.
+    std::fs::write(
+        dir.path().join("legacy-pack/shapes.ttl"),
+        "@prefix sh: <http://www.w3.org/ns/shacl#> .\n",
+    )
+    .expect("write legacy shapes.ttl");
+    let project = scaffold_synthetic_consumer(dir.path(), &["legacy-pack"], false);
+
+    let output = CliHarness::cargo_bin("ggen")
+        .args(["sync", "run"])
+        .current_dir(&project)
+        .run()
+        .expect("run sync");
+    output.assert_failure();
+    output.assert_stderr_contains("FM-PACK-012");
+    output.assert_stderr_contains("legacy-pack");
+    output.assert_stderr_contains("no longer supported");
+    output.assert_stderr_contains("gates/*.rq");
+    assert!(
+        !project.join("legacy-pack_marker.txt").exists(),
+        "a refused sync must not have written any template output"
+    );
+
+    // Deleting the legacy file clears the refusal: the same project syncs.
+    std::fs::remove_file(dir.path().join("legacy-pack/shapes.ttl")).expect("rm shapes.ttl");
+    std::fs::remove_file(project.join("ggen.lock")).ok();
+    CliHarness::cargo_bin("ggen")
+        .args(["sync", "run"])
+        .current_dir(&project)
+        .run()
+        .expect("run sync 2")
+        .assert_success();
+    assert!(project.join("legacy-pack_marker.txt").is_file());
 }
 
 #[test]

@@ -1,0 +1,14 @@
+---
+to: src/generated/313_313_author_the_templates.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章313 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 313: 313. Author the Templates
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

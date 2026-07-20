@@ -1,0 +1,40 @@
+# MESSAGE: closed vocabularies and typed targets: smon:turnKind is one of the 5-concept scheme (GroundingQuestion/SurveyResponse/RunResponse/BlockerResponse/Other), smon:severity one of Low/Medium/High, smon:deadlineHint one of ActNow/NextSession, smon:status one of Open/Discharged/Refused, smon:sequenceIndex an xsd:integer, a turn's dcterms:isPartOf targets a dfl:Session, obligation/ungoverned turn links target smon:Turn individuals, and smon:escalates targets a smon:PrioritizedEscalationObligation (translated from shapes.ttl sh:in/sh:datatype/sh:class)
+PREFIX smon:    <http://seanchatmangpt.github.io/packs/self-monitoring#>
+PREFIX dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a smon:Turn ; smon:sequenceIndex ?value . BIND(smon:sequenceIndex AS ?p)
+    FILTER(DATATYPE(?value) != xsd:integer)
+  } UNION {
+    ?s a smon:Turn ; smon:turnKind ?value . BIND(smon:turnKind AS ?p)
+    FILTER(?value NOT IN (
+      smon:GroundingQuestion, smon:SurveyResponse, smon:RunResponse,
+      smon:BlockerResponse, smon:Other
+    ))
+  } UNION {
+    ?s a smon:Turn ; dcterms:isPartOf ?value . BIND(dcterms:isPartOf AS ?p)
+    FILTER NOT EXISTS { ?value a dfl:Session }
+  } UNION {
+    ?s smon:severity ?value . BIND(smon:severity AS ?p)
+    FILTER(?value NOT IN (smon:Low, smon:Medium, smon:High))
+  } UNION {
+    ?s smon:deadlineHint ?value . BIND(smon:deadlineHint AS ?p)
+    FILTER(?value NOT IN (smon:ActNow, smon:NextSession))
+  } UNION {
+    ?s smon:status ?value . BIND(smon:status AS ?p)
+    FILTER(?value NOT IN (smon:Open, smon:Discharged, smon:Refused))
+  } UNION {
+    ?s ?p ?value .
+    VALUES ?p {
+      smon:hasPriorGroundingQuestion smon:hasGroundingQuestion
+      smon:hasUngovernedQuestion smon:hasUngovernedResponse
+    }
+    FILTER NOT EXISTS { ?value a smon:Turn }
+  } UNION {
+    ?s smon:escalates ?value . BIND(smon:escalates AS ?p)
+    FILTER NOT EXISTS { ?value a smon:PrioritizedEscalationObligation }
+  }
+}
+ORDER BY ?s ?p

@@ -1,0 +1,14 @@
+---
+to: src/generated/118_118_generating_japanese_rust.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章118 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 118: 118. Generating Japanese Rust
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

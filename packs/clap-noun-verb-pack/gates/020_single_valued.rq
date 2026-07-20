@@ -1,0 +1,15 @@
+# MESSAGE: every cnv:Command/cnv:Noun scalar property is single-valued (translated from shapes.ttl sh:maxCount 1; any row = a subject carrying two distinct values for ?p)
+PREFIX cnv:  <http://seanchatmangpt.github.io/packs/clap-noun-verb#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?s ?p WHERE {
+  {
+    ?s a cnv:Command .
+    VALUES ?p { cnv:noun cnv:verb cnv:handler cnv:doc cnv:returnType cnv:args cnv:staticResponse }
+  } UNION {
+    ?s a cnv:Noun .
+    VALUES ?p { rdfs:label rdfs:comment }
+  }
+  ?s ?p ?v1 , ?v2 .
+  FILTER(?v1 != ?v2)
+}
+ORDER BY ?s ?p

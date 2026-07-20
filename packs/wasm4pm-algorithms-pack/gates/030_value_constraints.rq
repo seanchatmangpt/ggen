@@ -1,0 +1,32 @@
+# MESSAGE: pi:ProcessIntelligenceAlgorithm value constraints: algorithmLabel is PascalCase (the generated Rust enum variant name); category/outputType/inputFormat come from their closed enumerations (9/7/6 values); speedTier is an xsd:integer in [1, 80] and qualityTier in [0, 100]; algorithmId/algorithmDoc/citation are non-empty; cliAlias, when present, is non-empty (templates COALESCE a missing alias to "") — translated from shapes.ttl sh:pattern/sh:in/sh:minInclusive/sh:maxInclusive/sh:minLength
+PREFIX pi:  <https://wasm4pm.dev/pi#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a pi:ProcessIntelligenceAlgorithm ; pi:algorithmLabel ?value . BIND(pi:algorithmLabel AS ?p)
+    FILTER(!REGEX(STR(?value), "^[A-Z][A-Za-z0-9]*$"))
+  } UNION {
+    ?s a pi:ProcessIntelligenceAlgorithm ; pi:category ?value . BIND(pi:category AS ?p)
+    FILTER(STR(?value) NOT IN (
+      "discovery", "discovery_analytics", "object_centric", "ml_analytics",
+      "conformance", "simulation", "prediction", "import_export", "agentic"
+    ))
+  } UNION {
+    ?s a pi:ProcessIntelligenceAlgorithm ; pi:outputType ?value . BIND(pi:outputType AS ?p)
+    FILTER(STR(?value) NOT IN ("dfg", "petrinet", "declare", "tree", "analytics", "ml_result", "model"))
+  } UNION {
+    ?s a pi:ProcessIntelligenceAlgorithm ; pi:inputFormat ?value . BIND(pi:inputFormat AS ?p)
+    FILTER(STR(?value) NOT IN ("xes", "ocel", "bpmn", "pnml", "petri_net_handle", "any"))
+  } UNION {
+    ?s a pi:ProcessIntelligenceAlgorithm ; pi:speedTier ?value . BIND(pi:speedTier AS ?p)
+    FILTER(DATATYPE(?value) != xsd:integer || ?value < 1 || ?value > 80)
+  } UNION {
+    ?s a pi:ProcessIntelligenceAlgorithm ; pi:qualityTier ?value . BIND(pi:qualityTier AS ?p)
+    FILTER(DATATYPE(?value) != xsd:integer || ?value < 0 || ?value > 100)
+  } UNION {
+    ?s a pi:ProcessIntelligenceAlgorithm ; ?p ?value .
+    VALUES ?p { pi:algorithmId pi:algorithmDoc pi:citation pi:cliAlias }
+    FILTER(STRLEN(STR(?value)) = 0)
+  }
+}
+ORDER BY ?s ?p

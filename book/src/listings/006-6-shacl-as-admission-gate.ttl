@@ -1,0 +1,22 @@
+# MESSAGE: 6. SPARQL Gates as Admission: malformed data must stop before rendering
+# (translated from the retired SHACL shape: sh:minCount 1 / sh:maxCount 1 /
+#  sh:datatype xsd:string on pack:生成単位 — any returned row is a violation)
+PREFIX pack: <https://example.org/ggen/pack#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+SELECT ?s ?violation WHERE {
+  {
+    ?s a pack:生成単位 .
+    VALUES ?required { pack:出力経路 pack:根拠 }
+    FILTER NOT EXISTS { ?s ?required ?any }
+    BIND(?required AS ?violation)
+  } UNION {
+    ?s a pack:生成単位 ; pack:出力経路 ?v1 , ?v2 .
+    FILTER(?v1 != ?v2)
+    BIND(pack:出力経路 AS ?violation)
+  } UNION {
+    ?s a pack:生成単位 ; pack:出力経路 ?v .
+    FILTER(DATATYPE(?v) != xsd:string)
+    BIND(pack:出力経路 AS ?violation)
+  }
+}
+ORDER BY ?s ?violation

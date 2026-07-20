@@ -82,4 +82,3 @@ impl<const 上限: usize> 受領台帳<上限> {
         self.件数
     }
 }
-

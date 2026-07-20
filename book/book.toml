@@ -1,0 +1,16 @@
+[book]
+title = "ggen: Manufacturing Level Five Packs"
+authors = ["Sean Chatman"]
+language = "en"
+multilingual = false
+src = "src"
+
+[build]
+build-dir = "book"
+create-missing = false
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+additional-css = ["theme/level-five.css"]
+git-repository-url = "https://github.com/seanchatmangpt/ggen"

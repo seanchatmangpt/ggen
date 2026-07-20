@@ -1,0 +1,14 @@
+---
+to: src/generated/117_117_unicode_identifiers.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章117 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 117: 117. Unicode Identifiers
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

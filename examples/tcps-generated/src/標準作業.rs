@@ -101,4 +101,3 @@ impl<const 上限: usize> 標準作業<上限> {
         matches!(self.状態, 標準状態::現行)
     }
 }
-

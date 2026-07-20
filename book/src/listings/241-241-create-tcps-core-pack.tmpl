@@ -1,0 +1,14 @@
+---
+to: src/generated/241_241_create_tcps_core_pack.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章241 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 241: 241. Create `tcps-core-pack`
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

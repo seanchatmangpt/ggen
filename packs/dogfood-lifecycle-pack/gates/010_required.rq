@@ -1,0 +1,30 @@
+# MESSAGE: every dfl:ToolEvent must carry its session ref (dcterms:isPartOf), tool name (skos:notation), outcome (dfl:outcome), acting agent (prov:wasAssociatedWith), input entity (prov:used), result entity (prov:generated) AND at least one ordering property (dfl:sequenceIndex or time:inXSDDateTimeStamp); every dfl:Session its dcterms:identifier + prov:wasAssociatedWith; every dfl:Obligation its dfl:derivedFrom + dfl:obligationTarget + dfl:severity + dfl:deadline (translated from shapes.ttl sh:minCount 1 plus the ordering sh:or; any row = a subject missing the bound ?missing property — a row binding ?missing to dfl:sequenceIndex from the last branch means BOTH ordering properties are absent)
+PREFIX dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#>
+PREFIX prov:    <http://www.w3.org/ns/prov#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX skos:    <http://www.w3.org/2004/02/skos/core#>
+PREFIX time:    <http://www.w3.org/2006/time#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a dfl:ToolEvent .
+    VALUES ?missing {
+      dcterms:isPartOf skos:notation dfl:outcome
+      prov:wasAssociatedWith prov:used prov:generated
+    }
+    FILTER NOT EXISTS { ?s ?missing ?any }
+  } UNION {
+    ?s a dfl:Session .
+    VALUES ?missing { dcterms:identifier prov:wasAssociatedWith }
+    FILTER NOT EXISTS { ?s ?missing ?any }
+  } UNION {
+    ?s a dfl:Obligation .
+    VALUES ?missing { dfl:derivedFrom dfl:obligationTarget dfl:severity dfl:deadline }
+    FILTER NOT EXISTS { ?s ?missing ?any }
+  } UNION {
+    ?s a dfl:ToolEvent .
+    BIND(dfl:sequenceIndex AS ?missing)
+    FILTER NOT EXISTS { ?s dfl:sequenceIndex ?i }
+    FILTER NOT EXISTS { ?s time:inXSDDateTimeStamp ?t }
+  }
+}
+ORDER BY ?s ?missing

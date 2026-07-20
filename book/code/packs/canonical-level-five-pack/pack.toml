@@ -1,0 +1,4 @@
+[pack]
+name = "canonical-level-five-pack"
+version = "26.7.19"
+description = "Complete catalog pack with generated proof and independent reference; law is enforced by gates/*.rq SPARQL gate queries (ASK true = violation, SELECT any row = violation), migrated from the book bundle's original shapes.ttl SHACL shape"

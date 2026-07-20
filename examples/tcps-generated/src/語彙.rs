@@ -72,4 +72,3 @@ pub const fn 小さい方(左: u32, 右: u32) -> u32 {
 pub const fn 大きい方(左: u32, 右: u32) -> u32 {
     if 左 > 右 { 左 } else { 右 }
 }
-

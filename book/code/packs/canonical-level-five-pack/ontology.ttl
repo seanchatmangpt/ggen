@@ -1,0 +1,6 @@
+@prefix ex: <https://example.org/level-five#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:Alpha a ex:Capability ; rdfs:label "alpha" ; ex:order 1 ; ex:code 10 .
+ex:Beta  a ex:Capability ; rdfs:label "beta"  ; ex:order 2 ; ex:code 20 .
+ex:Gamma a ex:Capability ; rdfs:label "gamma" ; ex:order 3 ; ex:code 30 .

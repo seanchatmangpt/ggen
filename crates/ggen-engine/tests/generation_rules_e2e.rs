@@ -613,19 +613,51 @@ fn law_gate_denial_violation_refuses_declarative_rules_sync() {
     );
 }
 
-/// A SHACL shapes file (`[validation].shacl`) whose constraint the ontology
-/// violates refuses the sync, naming the focus node — proof the SHACL gate
-/// reads from `validation.shacl` (not a duplicated `law.shapes` field) and
-/// actually validates, for the declarative-rules path.
+/// A `[validation].gates` SPARQL gate whose SELECT returns a row against
+/// the ontology refuses the sync, naming the offending node (first-row
+/// bindings embedded in the error) — proof the gate stage reads from
+/// `validation.gates` (not a duplicated `law.gates` field) and actually
+/// evaluates, for the declarative-rules path.
 #[test]
-fn law_gate_shacl_violation_refuses_declarative_rules_sync_naming_focus_node() {
-    const SHAPES: &str = r#"
-@prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix ex: <http://example.org/> .
-ex:DogShape a sh:NodeShape ;
-    sh:targetClass ex:Dog ;
-    sh:property [ sh:path ex:license ; sh:minCount 1 ] .
-"#;
+fn law_gate_violation_refuses_declarative_rules_sync_naming_offending_node() {
+    const GATE: &str = "# MESSAGE: every Dog must carry an ex:license\n\
+                        PREFIX ex: <http://example.org/>\n\
+                        SELECT ?dog WHERE {\n\
+                        \x20 ?dog a ex:Dog .\n\
+                        \x20 FILTER NOT EXISTS { ?dog ex:license ?lic }\n\
+                        }\n\
+                        ORDER BY ?dog\n";
+    let dir = TempDir::new().expect("tempdir");
+    write_manifest(
+        dir.path(),
+        "[validation]\ngates = [\"gates/dog.rq\"]\n\n[[generation.rules]]\nname = \"static\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Dog> }\" }\ntemplate = { inline = \"static\\n\" }\noutput_file = \"out/static.txt\"\n",
+    );
+    write_ontology(dir.path(), ONTOLOGY_REX_DOG);
+    std::fs::create_dir_all(dir.path().join("gates")).expect("mkdir gates");
+    std::fs::write(dir.path().join("gates/dog.rq"), GATE).expect("write gate");
+
+    let err = sync(dir.path(), SyncOptions::default())
+        .expect_err("unlicensed dog must refuse the SPARQL gate");
+    let msg = err.to_string();
+    assert!(msg.contains("FM-LAW-018"), "{msg}");
+    assert!(
+        msg.contains("rex"),
+        "refusal must name the offending node (first-row bindings): {msg}"
+    );
+    assert!(
+        msg.contains("every Dog must carry an ex:license"),
+        "refusal must carry the gate's MESSAGE text: {msg}"
+    );
+    assert!(
+        !dir.path().join("out/static.txt").exists(),
+        "gate must precede writes"
+    );
+}
+
+/// A legacy non-empty `[validation].shacl` is a loud, typed FM-LAW-017
+/// migration refusal — never silently ignored — and nothing is written.
+#[test]
+fn legacy_validation_shacl_is_refused_loudly() {
     let dir = TempDir::new().expect("tempdir");
     write_manifest(
         dir.path(),
@@ -633,18 +665,16 @@ ex:DogShape a sh:NodeShape ;
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
     std::fs::create_dir_all(dir.path().join("shapes")).expect("mkdir shapes");
-    std::fs::write(dir.path().join("shapes/dog.ttl"), SHAPES).expect("write shapes");
+    std::fs::write(dir.path().join("shapes/dog.ttl"), "# legacy\n").expect("write shapes");
 
     let err = sync(dir.path(), SyncOptions::default())
-        .expect_err("unlicensed dog must refuse the SHACL gate");
+        .expect_err("a non-empty [validation].shacl must refuse loudly");
     let msg = err.to_string();
-    assert!(msg.contains("FM-LAW-018"), "{msg}");
-    assert!(
-        msg.contains("rex"),
-        "refusal must name the focus node: {msg}"
-    );
+    assert!(msg.contains("FM-LAW-017"), "{msg}");
+    assert!(msg.contains("no longer supported"), "{msg}");
+    assert!(msg.contains("[validation].gates"), "{msg}");
     assert!(
         !dir.path().join("out/static.txt").exists(),
-        "gate must precede writes"
+        "refused run must write nothing"
     );
 }

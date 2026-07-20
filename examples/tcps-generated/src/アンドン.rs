@@ -47,4 +47,3 @@ impl<const 上限: usize> アンドン盤<上限> {
         self.件数
     }
 }
-

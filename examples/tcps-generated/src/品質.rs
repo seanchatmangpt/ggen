@@ -41,4 +41,3 @@ pub struct 不良品 {
     pub 数量: 数量,
     pub 異常: 異常,
 }
-

@@ -1,0 +1,11 @@
+@prefix pack: <https://example.org/ggen/pack#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+pack:章72
+    a pack:生成単位 ;
+    dcterms:title "72. Modeling Types"@en ;
+    pack:出力経路 "src/generated/072_72_modeling_types.rs" ;
+    pack:順序 72 ;
+    pack:根拠 pack:独立参照 ;
+    prov:wasDerivedFrom pack:参照実装_v26_7_19 .

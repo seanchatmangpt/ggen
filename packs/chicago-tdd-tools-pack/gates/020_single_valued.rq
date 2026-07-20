@@ -1,0 +1,12 @@
+# MESSAGE: every ctt:CliBoundaryTest property is single-valued (translated from shapes.ttl sh:maxCount 1; any row = a test individual carrying two distinct values for ?p)
+PREFIX ctt: <http://seanchatmangpt.github.io/packs/chicago-tdd-tools#>
+SELECT ?s ?p WHERE {
+  ?s a ctt:CliBoundaryTest .
+  VALUES ?p {
+    ctt:testName ctt:binary ctt:expectExitCode ctt:stdoutNeedle
+    ctt:stderrNeedle ctt:coversAxiom ctt:composesCommand
+  }
+  ?s ?p ?v1 , ?v2 .
+  FILTER(?v1 != ?v2)
+}
+ORDER BY ?s ?p

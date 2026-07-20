@@ -1,0 +1,14 @@
+# MESSAGE: verification evidence is red -- a recorded check has a nonzero exit code and is not an allowlisted ver:KnownDivergence (fix the failure or, if it is a genuine reference-inherited divergence, add a named ver:KnownDivergence individual with its reason -- never bury a red check)
+PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>
+SELECT ?checkName ?exitCode ?summary WHERE {
+  ?c a ver:Check ;
+     ver:name ?checkName ;
+     ver:exitCode ?exitCode .
+  OPTIONAL { ?c ver:summary ?summary }
+  FILTER(?exitCode != 0)
+  FILTER NOT EXISTS {
+    ?kd a ver:KnownDivergence ;
+        ver:name ?checkName .
+  }
+}
+ORDER BY ?checkName

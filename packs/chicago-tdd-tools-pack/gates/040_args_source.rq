@@ -1,0 +1,12 @@
+# MESSAGE: every ctt:CliBoundaryTest must supply EXACTLY ONE of a literal ctt:args or a ctt:composesCommand pointer — never both, never neither — because every generating template's sparql: tests query UNIONs these two branches and BINDs a single ?args value per row; zero matches silently drops the row from every generated artifact with no diagnostic (translated from shapes.ttl's sh:xone)
+PREFIX ctt: <http://seanchatmangpt.github.io/packs/chicago-tdd-tools#>
+SELECT ?s WHERE {
+  {
+    ?s a ctt:CliBoundaryTest .
+    FILTER NOT EXISTS { ?s ctt:args ?a }
+    FILTER NOT EXISTS { ?s ctt:composesCommand ?c }
+  } UNION {
+    ?s a ctt:CliBoundaryTest ; ctt:args ?a2 ; ctt:composesCommand ?c2 .
+  }
+}
+ORDER BY ?s

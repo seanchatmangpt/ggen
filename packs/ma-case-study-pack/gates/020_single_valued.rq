@@ -1,0 +1,43 @@
+# MESSAGE: single-valued M&A properties (translated from shapes.ttl sh:maxCount 1; any row = a subject carrying two distinct values for ?p): exactly one hasOwnershipPercentage per relationship record; one classifying cmns-cls:isClassifiedBy per merger/acquisition; one ma:dueDiligenceDisposition per due-diligence item; one ma:scheduleItemNumber per disclosure-schedule item; one filingThresholdAmount / triggeringStatute / statutoryWaitingPeriodDays per regulatory filing obligation; one ma:authorizesTransaction per board resolution; one quorumPercentage / voteOutcome per shareholder vote; one dcterms:isPartOf / prov:wasAttributedTo / ballotDirection per ballot; one termType / termValue per deal term line item; one ma:supersedes per counter-offer
+PREFIX ma:      <http://seanchatmangpt.github.io/packs/ma-case-study#>
+PREFIX prov:    <http://www.w3.org/ns/prov#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX cmns-cls:   <https://www.omg.org/spec/Commons/Classifiers/>
+PREFIX fibo-be-le-lei:  <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LEIEntities/>
+PREFIX fibo-cae-ce-act: <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/>
+SELECT ?s ?p WHERE {
+  {
+    ?s a fibo-be-le-lei:RelationshipRecord .
+    VALUES ?p { fibo-be-le-lei:hasOwnershipPercentage }
+  } UNION {
+    ?s a fibo-cae-ce-act:MergerAcquisition .
+    VALUES ?p { cmns-cls:isClassifiedBy }
+  } UNION {
+    ?s a ma:DueDiligenceItem .
+    VALUES ?p { ma:dueDiligenceDisposition }
+  } UNION {
+    ?s a ma:DisclosureScheduleItem .
+    VALUES ?p { ma:scheduleItemNumber }
+  } UNION {
+    ?s a ma:RegulatoryFilingObligation .
+    VALUES ?p { ma:filingThresholdAmount ma:triggeringStatute ma:statutoryWaitingPeriodDays }
+  } UNION {
+    ?s a ma:BoardResolution .
+    VALUES ?p { ma:authorizesTransaction }
+  } UNION {
+    ?s a ma:ShareholderVote .
+    VALUES ?p { ma:quorumPercentage ma:voteOutcome }
+  } UNION {
+    ?s a ma:Ballot .
+    VALUES ?p { dcterms:isPartOf prov:wasAttributedTo ma:ballotDirection }
+  } UNION {
+    ?s a ma:DealTermLineItem .
+    VALUES ?p { ma:termType ma:termValue }
+  } UNION {
+    ?s a ma:CounterOffer .
+    VALUES ?p { ma:supersedes }
+  }
+  ?s ?p ?v1 , ?v2 .
+  FILTER(?v1 != ?v2)
+}
+ORDER BY ?s ?p

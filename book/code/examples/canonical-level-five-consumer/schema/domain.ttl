@@ -1,0 +1,6 @@
+# canonical-level-five-consumer project ontology — the teaching pack
+# (canonical-level-five-pack) is fully self-contained, driven from its own
+# ontology.ttl individuals; this project contributes prefix declarations only.
+
+@prefix ex: <https://example.org/level-five#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .

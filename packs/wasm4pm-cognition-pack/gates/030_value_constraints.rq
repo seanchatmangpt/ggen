@@ -1,0 +1,20 @@
+# MESSAGE: compat:breedId must be snake_case (^[a-z][a-z0-9_]*$), compat:breedLabel a PascalCase Rust enum-variant identifier (consumed verbatim by cognition_catalog.rs.tmpl's `CognitionBreedId::{{ row.breed_label }}` interpolation), and compat:breedFamily one of the 13 families actually asserted in ontology.ttl (translated from shapes.ttl sh:pattern/sh:in — the enumeration is the literal grep'd set, not invented)
+PREFIX compat: <https://wasm4pm.dev/ns#>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a compat:CognitionBreed ; compat:breedId ?value . BIND(compat:breedId AS ?p)
+    FILTER(!REGEX(STR(?value), "^[a-z][a-z0-9_]*$"))
+  } UNION {
+    ?s a compat:CognitionBreed ; compat:breedLabel ?value . BIND(compat:breedLabel AS ?p)
+    FILTER(!REGEX(STR(?value), "^[A-Z][A-Za-z0-9]*$"))
+  } UNION {
+    ?s a compat:CognitionBreed ; compat:breedFamily ?value . BIND(compat:breedFamily AS ?p)
+    FILTER(STR(?value) NOT IN (
+      "planning", "reasoning", "uncertainty", "classic_systems",
+      "classic_systems_ext_meta", "abduction", "temporal_spatial",
+      "constraint_sat", "learning", "analogy_memory", "autoinstinct",
+      "belief_uncertainty_ext", "planning_ext"
+    ))
+  }
+}
+ORDER BY ?s ?p

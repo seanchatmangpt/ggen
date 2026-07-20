@@ -116,7 +116,7 @@ session next touches `wasm4pm-algorithms-pack`.
 **Cannot verify against a live `examples/receiptctl` sync this round:** that
 consumer's `ggen.lock` was stale against unrelated concurrent changes to
 `chicago-tdd-tools-pack` in this working tree (a different pack's
-`shapes.ttl` now reports a violation against the receiptctl union graph),
+`gates/*.rq` now reports a violation against the receiptctl union graph),
 which blocked a full `ggen sync run` there independent of anything in this
 pack. Not fixed here — editing another pack's files is out of scope for this
 round; the scratch-consumer verification above is the substitute evidence.

@@ -1,0 +1,14 @@
+---
+to: src/generated/111_111_skip_if_and_local_freeze.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章111 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 111: 111. `skip_if` and Local Freeze
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

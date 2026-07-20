@@ -1,0 +1,19 @@
+{
+  "schema": "https://example.org/ggen/receipt/v1",
+  "chapter": 332,
+  "subject": "332. Laboratory Twelve: Emit a Complete Receipt Chain",
+  "version": "v26.7.19",
+  "inputs": {
+    "ontology_sha256": "<record-at-run-time>",
+    "template_sha256": "<record-at-run-time>"
+  },
+  "checks": [
+    "shape-admission",
+    "sync",
+    "compile",
+    "test",
+    "sync-twice",
+    "manifest-diff"
+  ],
+  "outcome": "must-be-recorded-not-assumed"
+}

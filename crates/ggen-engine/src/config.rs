@@ -60,8 +60,8 @@ pub struct GgenConfig {
 }
 
 /// `[law]` — law-state inputs for the sync pipeline: rule files are
-/// materialized into the graph after the Enrich stage; shapes files gate
-/// rendering (violations are a typed refusal).
+/// materialized into the graph after the Enrich stage; SPARQL gate files
+/// gate rendering (violations are a typed refusal).
 #[derive(Debug, Clone, Default, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Law {
@@ -69,10 +69,24 @@ pub struct Law {
     /// listed order.
     #[serde(default)]
     pub rules: Vec<PathBuf>,
-    /// Turtle SHACL shapes file paths, relative to the manifest, each
-    /// validated against the post-materialization graph.
+    /// **Legacy, refused at sync time.** Turtle SHACL shapes file paths.
+    /// The SHACL sync gate was replaced by [`Law::gates`] (engine-
+    /// independent SPARQL gate queries); a non-empty `shapes` list makes
+    /// `sync` fail closed with a typed `[FM-LAW-012]` migration error. The
+    /// field stays deserializable (rather than being deleted) precisely so
+    /// an old config gets that clear refusal instead of an opaque
+    /// unknown-field serde error. `ggen law validate` (author-time tooling)
+    /// still reads it.
     #[serde(default)]
     pub shapes: Vec<PathBuf>,
+    /// SPARQL gate file paths (`*.rq`), relative to the manifest, each
+    /// evaluated against the post-materialization graph in listed order.
+    /// Each file holds optional leading `# MESSAGE: <text>` comment line(s)
+    /// followed by one query: ASK → `true` is a violation; SELECT → any
+    /// returned row is a violation (`[FM-LAW-013]`). Plain SPARQL, so gates
+    /// behave identically under the GraphLaw and Oxigraph engines.
+    #[serde(default)]
+    pub gates: Vec<PathBuf>,
     /// Opt-in reflexive receipts: when `true`, `<root>/.ggen-v2/receipt-log.jsonl`
     /// (if it exists) is parsed at Stage 1 and each successfully-parsed sync
     /// receipt is inserted into the graph as a fixed-shape `ggenr:Sync`
@@ -308,6 +322,9 @@ impl Validate for Law {
                 &shape.to_string_lossy(),
                 Some(false),
             );
+        }
+        for (i, gate) in self.gates.iter().enumerate() {
+            v.check_path(&format!("gates[{i}]"), &gate.to_string_lossy(), Some(false));
         }
     }
 }

@@ -1,0 +1,14 @@
+---
+to: src/generated/248_248_the_14_of_14_acceptance_gate.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章248 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 248: 248. The 14-of-14 Acceptance Gate
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

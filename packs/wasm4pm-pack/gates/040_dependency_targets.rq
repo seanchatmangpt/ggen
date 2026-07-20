@@ -1,0 +1,7 @@
+# MESSAGE: every w4c:dependsOn target must itself be a w4c:Crate individual -- no dangling/external-crate edges in this closed graph (translated from shapes.ttl's sh:class w4c:Crate constraint on w4c:dependsOn; note shapes.ttl's own comment: SHACL has no native not-equal-to-self constraint without sh:sparql, so self-loop freedom is NOT checked here -- it remains covered only by the generated proof test no_edge_is_a_self_loop in wasm4pm_crate_deps_proof.rs.tmpl, unchanged by this migration)
+PREFIX w4c: <http://seanchatmangpt.github.io/packs/wasm4pm-crate#>
+SELECT ?s ?target WHERE {
+  ?s w4c:dependsOn ?target .
+  FILTER NOT EXISTS { ?target a w4c:Crate }
+}
+ORDER BY ?s ?target

@@ -1,0 +1,11 @@
+@prefix pack: <https://example.org/ggen/pack#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+pack:章215
+    a pack:生成単位 ;
+    dcterms:title "215. Build the Ontology-to-Module Matrix"@en ;
+    pack:出力経路 "src/generated/215_215_build_the_ontology_to_module_matrix.rs" ;
+    pack:順序 215 ;
+    pack:根拠 pack:独立参照 ;
+    prov:wasDerivedFrom pack:参照実装_v26_7_19 .

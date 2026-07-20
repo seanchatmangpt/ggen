@@ -1,0 +1,22 @@
+# MESSAGE: dfl scalar properties are single-valued: a ToolEvent's skos:notation + dfl:outcome, a Session's dcterms:identifier, an Obligation's dfl:derivedFrom / dfl:obligationTarget / dfl:severity / dfl:deadline / dfl:obligationStatus / dfl:dischargedBy / dfl:escalatedBy (translated from shapes.ttl sh:maxCount 1; any row = a subject carrying two distinct values for ?p)
+PREFIX dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX skos:    <http://www.w3.org/2004/02/skos/core#>
+SELECT ?s ?p WHERE {
+  {
+    ?s a dfl:ToolEvent .
+    VALUES ?p { skos:notation dfl:outcome }
+  } UNION {
+    ?s a dfl:Session .
+    VALUES ?p { dcterms:identifier }
+  } UNION {
+    ?s a dfl:Obligation .
+    VALUES ?p {
+      dfl:derivedFrom dfl:obligationTarget dfl:severity dfl:deadline
+      dfl:obligationStatus dfl:dischargedBy dfl:escalatedBy
+    }
+  }
+  ?s ?p ?v1 , ?v2 .
+  FILTER(?v1 != ?v2)
+}
+ORDER BY ?s ?p

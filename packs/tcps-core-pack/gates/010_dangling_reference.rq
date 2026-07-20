@@ -1,0 +1,7 @@
+# MESSAGE: tcps:dependsOnModule must point at a declared tcps:Module individual (no dangling reference) (translated from shapes.ttl tcps:ModuleShape sh:property[sh:path tcps:dependsOnModule; sh:class tcps:Module]; any row = a dependency reference whose target is not typed tcps:Module)
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-core#>
+SELECT ?s ?dep WHERE {
+  ?s tcps:dependsOnModule ?dep .
+  FILTER NOT EXISTS { ?dep a tcps:Module }
+}
+ORDER BY ?s ?dep

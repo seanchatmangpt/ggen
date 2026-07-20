@@ -371,6 +371,17 @@ impl GgenManifest {
                 )));
             }
         }
+        // `[validation].gates` (SPARQL gate files, the shacl successor):
+        // same declared-path-must-exist contract.
+        for gate_path in &self.validation.gates {
+            let full_path = base_path.join(gate_path);
+            if !full_path.exists() {
+                return Err(ConfigError::Validation(format!(
+                    "SPARQL gate file not found: {}",
+                    full_path.display()
+                )));
+            }
+        }
         Ok(())
     }
 

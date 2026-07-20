@@ -394,7 +394,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         extract_start.elapsed().as_millis() as u64,
     );
 
-    // ── Stage 2b: Law — materialize rules, then gate (SHACL, denials) ───
+    // ── Stage 2b: Law — materialize rules, then gate (denials, SPARQL gates)
     //
     // All optional-when-unconfigured: an absent `[law]` table runs no law
     // stage at all, so pre-law projects sync unchanged. With the oxigraph
@@ -488,81 +488,157 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             ));
         }
     }
-    for rel in &config.law.shapes {
-        let shape_path = root.join(rel);
-        let shapes_ttl = std::fs::read_to_string(&shape_path).map_err(|e| {
+    // `[law].shapes` (SHACL) was replaced by `[law].gates` (SPARQL gate
+    // queries, below). The field stays deserializable so a legacy config
+    // gets THIS clear, typed refusal instead of a serde unknown-field error
+    // — a file that used to be law must never be silently ignored.
+    if !config.law.shapes.is_empty() {
+        return Err(AppError::fm_law(
+            12,
+            format!(
+                "[law].shapes ({} SHACL shapes file(s) declared) is no longer \
+                 supported at sync time; SHACL shape gates were replaced by \
+                 engine-independent SPARQL gate queries. Remediation: migrate to \
+                 [law].gates = [\"…/*.rq\"] — each file holds one ASK (true = \
+                 violation) or SELECT (any row = violation) query, optionally \
+                 preceded by `# MESSAGE: <text>` comment lines.",
+                config.law.shapes.len()
+            ),
+        ));
+    }
+
+    // `[law].gates`: SPARQL gate queries over the post-materialization
+    // union graph. Engine-independent by construction — `GraphEngine::query`
+    // answers ASK/SELECT on both backends (the GraphLaw store delegates to
+    // its oxigraph mirror, which holds every materialized derived fact), so
+    // the same gate refuses the same facts under either engine.
+    for rel in &config.law.gates {
+        let gate_path = root.join(rel);
+        let src = std::fs::read_to_string(&gate_path).map_err(|e| {
             AppError::fm_law(
                 12,
                 format!(
-                    "SHACL shapes file `{}` unreadable: {e}. Remediation: fix [law].shapes.",
-                    shape_path.display()
+                    "SPARQL gate file `{}` unreadable: {e}. Remediation: fix [law].gates.",
+                    gate_path.display()
                 ),
             )
         })?;
         closure.insert(
-            rel_display(root, &shape_path),
-            hash_file_or_missing(&shape_path),
+            rel_display(root, &gate_path),
+            hash_file_or_missing(&gate_path),
         );
-        let outcome = graph.validate_shacl(&shapes_ttl)?;
-        if !outcome.conforms {
-            return Err(AppError::fm_law(
-                13,
-                format!(
-                    "SHACL shapes `{}` report {} violation(s): {}. \
-                     Remediation: fix the offending focus nodes or the shapes.",
-                    rel.display(),
-                    outcome.violations.len(),
-                    outcome.violations.join("; ")
-                ),
-            ));
+        let gate = parse_gate_source(&src);
+        match evaluate_gate(graph.as_ref(), &gate.query)? {
+            GateOutcome::Pass => {}
+            GateOutcome::NotAGate => {
+                return Err(AppError::fm_law(
+                    12,
+                    format!(
+                        "SPARQL gate `{}` is not a gate query: it must be an ASK \
+                         (true = violation) or a SELECT (any row = violation), not \
+                         a CONSTRUCT/DESCRIBE. Remediation: fix [law].gates.",
+                        rel.display()
+                    ),
+                ));
+            }
+            GateOutcome::Violation(detail) => {
+                return Err(AppError::fm_law(
+                    13,
+                    format!(
+                        "SPARQL gate `{}` refused the sync: {}{detail}. \
+                         Remediation: fix the offending facts or the gate query.",
+                        rel.display(),
+                        gate.message_prefix(),
+                    ),
+                ));
+            }
         }
     }
 
-    // Pack-shipped SHACL shapes: any resolved pack may carry a `shapes.ttl`
-    // next to its `ontology.ttl`. Each one is evaluated against the same
-    // union graph the templates will render from, and any violation refuses
-    // the sync outright — this is what makes cross-pack data drift (e.g. two
-    // packs mirroring the same subject IRI with diverged property values,
-    // which previously surfaced only as a downstream rustc duplicate-variant
+    // Pack-shipped SPARQL gates: any resolved pack may carry a `gates/`
+    // directory of `*.rq` files next to its `ontology.ttl`. Each one is
+    // evaluated (in sorted filename order) against the same union graph the
+    // templates will render from, and any violation refuses the sync
+    // outright — this is what makes cross-pack data drift (e.g. two packs
+    // mirroring the same subject IRI with diverged property values, which
+    // previously surfaced only as a downstream rustc duplicate-variant
     // error, or not at all) refusable at sync time instead of detectable
-    // only by whichever consumer happens to compile the union. Packs without
-    // a `shapes.ttl` are unaffected. The shapes file joins the receipt
-    // closure like every other governing input.
+    // only by whichever consumer happens to compile the union. Packs
+    // without a `gates/` directory are unaffected. Every gate file joins
+    // the receipt closure like every other governing input. This replaces
+    // the previous pack `shapes.ttl` SHACL gate: gates are plain ASK/SELECT
+    // queries, so they behave identically under both graph engines.
     for pack in &packs {
-        let shape_path = pack.root.join("shapes.ttl");
-        if !shape_path.is_file() {
-            continue;
-        }
-        let shapes_ttl = std::fs::read_to_string(&shape_path).map_err(|e| {
-            AppError::fm_pack(
+        // A pack still shipping the legacy SHACL gate file gets a loud,
+        // typed refusal — a file that used to be law must never be silently
+        // ignored.
+        let legacy_shapes = pack.root.join("shapes.ttl");
+        if legacy_shapes.exists() {
+            return Err(AppError::fm_pack(
                 12,
                 format!(
-                    "pack `{}`: shapes.ttl at `{}` exists but is unreadable: {e}. \
-                     Remediation: fix the file's permissions/encoding or remove it.",
+                    "pack `{}`: shapes.ttl at `{}` is no longer supported; pack \
+                     SHACL shape gates were replaced by engine-independent SPARQL \
+                     gate queries. Remediation: migrate to gates/*.rq — each file \
+                     holds one ASK (true = violation) or SELECT (any row = \
+                     violation) query, optionally preceded by `# MESSAGE: <text>` \
+                     comment lines — then delete shapes.ttl.",
                     pack.name,
-                    shape_path.display()
-                ),
-            )
-        })?;
-        closure.insert(
-            rel_display(root, &shape_path),
-            hash_file_or_missing(&shape_path),
-        );
-        let outcome = graph.validate_shacl(&shapes_ttl)?;
-        if !outcome.conforms {
-            return Err(AppError::fm_pack(
-                13,
-                format!(
-                    "pack `{}` shapes.ttl reports {} violation(s) against the union \
-                     graph: {}. Remediation: fix the offending facts (in this pack, \
-                     another pack, or the project ontology — the shapes gate the \
-                     UNION, so a violation may come from any graph source), or fix \
-                     the shapes.",
-                    pack.name,
-                    outcome.violations.len(),
-                    outcome.violations.join("; ")
+                    legacy_shapes.display()
                 ),
             ));
+        }
+        for gate_path in list_gate_files(&pack.root.join("gates"), &pack.name)? {
+            let src = std::fs::read_to_string(&gate_path).map_err(|e| {
+                AppError::fm_pack(
+                    12,
+                    format!(
+                        "pack `{}`: gate `{}` exists but is unreadable: {e}. \
+                         Remediation: fix the file's permissions/encoding or remove it.",
+                        pack.name,
+                        gate_path.display()
+                    ),
+                )
+            })?;
+            closure.insert(
+                rel_display(root, &gate_path),
+                hash_file_or_missing(&gate_path),
+            );
+            let gate = parse_gate_source(&src);
+            match evaluate_gate(graph.as_ref(), &gate.query)? {
+                GateOutcome::Pass => {}
+                GateOutcome::NotAGate => {
+                    return Err(AppError::fm_pack(
+                        12,
+                        format!(
+                            "pack `{}`: gate `{}` is not a gate query: it must be an \
+                             ASK (true = violation) or a SELECT (any row = \
+                             violation), not a CONSTRUCT/DESCRIBE. Remediation: fix \
+                             or remove the gate file.",
+                            pack.name,
+                            gate_path.display()
+                        ),
+                    ));
+                }
+                GateOutcome::Violation(detail) => {
+                    return Err(AppError::fm_pack(
+                        13,
+                        format!(
+                            "pack `{}` gate `{}` refused the sync against the union \
+                             graph: {}{detail}. Remediation: fix the offending facts \
+                             (in this pack, another pack, or the project ontology — \
+                             gates run against the UNION, so a violation may come \
+                             from any graph source), or fix the gate query.",
+                            pack.name,
+                            gate_path
+                                .file_name()
+                                .unwrap_or(gate_path.as_os_str())
+                                .to_string_lossy(),
+                            gate.message_prefix(),
+                        ),
+                    ));
+                }
+            }
         }
     }
 
@@ -873,6 +949,154 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         }
     }
     Ok(report)
+}
+
+// ---------------------------------------------------------------------------
+// SPARQL gate queries — the engine-independent sync gate convention
+// ---------------------------------------------------------------------------
+
+/// A parsed SPARQL gate file: optional leading `# MESSAGE: <text>` comment
+/// line(s) (the operator-facing violation text), then one ASK or SELECT
+/// query. ASK → `true` is a violation; SELECT → any returned row is a
+/// violation. Used by `[law].gates`, pack `gates/*.rq`, and the
+/// declarative-rules `[validation].gates` (see `crate::generation_rules`).
+pub(crate) struct GateFile {
+    /// Joined text of the leading `# MESSAGE:` lines, if any.
+    pub message: Option<String>,
+    /// The query text (everything after the leading MESSAGE block —
+    /// further `#` lines are ordinary SPARQL comments and stay in place).
+    pub query: String,
+}
+
+impl GateFile {
+    /// `"<message>: "` when a MESSAGE was declared, `""` otherwise —
+    /// prefix form for violation error text.
+    pub(crate) fn message_prefix(&self) -> String {
+        self.message
+            .as_deref()
+            .map(|m| format!("{m}: "))
+            .unwrap_or_default()
+    }
+}
+
+/// Split a gate file's source into its optional leading `# MESSAGE:` block
+/// and the query text. Only *leading* `# MESSAGE:` lines are consumed;
+/// everything from the first non-MESSAGE line onward (including plain `#`
+/// comments, which are valid SPARQL) is the query.
+pub(crate) fn parse_gate_source(src: &str) -> GateFile {
+    let mut message_lines: Vec<String> = Vec::new();
+    let mut query_lines: Vec<&str> = Vec::new();
+    let mut in_header = true;
+    for line in src.lines() {
+        if in_header {
+            if let Some(rest) = line.trim_start().strip_prefix("# MESSAGE:") {
+                message_lines.push(rest.trim().to_string());
+                continue;
+            }
+            in_header = false;
+        }
+        query_lines.push(line);
+    }
+    GateFile {
+        message: if message_lines.is_empty() {
+            None
+        } else {
+            Some(message_lines.join(" "))
+        },
+        query: query_lines.join("\n"),
+    }
+}
+
+/// Outcome of evaluating one gate query.
+pub(crate) enum GateOutcome {
+    /// ASK returned `false`, or SELECT returned zero rows.
+    Pass,
+    /// ASK returned `true`, or SELECT returned ≥1 row — the detail string
+    /// carries the row count and the first row's bindings.
+    Violation(String),
+    /// The query produced CONSTRUCT/DESCRIBE results — not a gate; the
+    /// caller refuses with its own typed "invalid gate file" code.
+    NotAGate,
+}
+
+/// Evaluate one gate query against `graph` via [`GraphEngine::query`] —
+/// plain SPARQL, so the identical gate refuses the identical facts under
+/// both the GraphLaw and the Oxigraph engine.
+///
+/// # Errors
+/// Propagates query parse/evaluation failures (fail closed).
+pub(crate) fn evaluate_gate(graph: &dyn GraphEngine, query: &str) -> Result<GateOutcome> {
+    match graph.query(query)? {
+        EngineQueryResults::Boolean(false) => Ok(GateOutcome::Pass),
+        EngineQueryResults::Boolean(true) => {
+            Ok(GateOutcome::Violation("ASK returned true".to_string()))
+        }
+        EngineQueryResults::Solutions(rows) => match rows.first() {
+            None => Ok(GateOutcome::Pass),
+            Some(first) => {
+                let bindings: Vec<String> = first
+                    .iter()
+                    .map(|(var, value)| format!("?{var} = {}", engine_value_display(value)))
+                    .collect();
+                Ok(GateOutcome::Violation(format!(
+                    "SELECT returned {} row(s); first row: {{ {} }}",
+                    rows.len(),
+                    bindings.join(", ")
+                )))
+            }
+        },
+        EngineQueryResults::Graph(_) => Ok(GateOutcome::NotAGate),
+    }
+}
+
+/// Plain display form of an [`EngineValue`] for gate violation messages.
+fn engine_value_display(value: &crate::graph::EngineValue) -> String {
+    match value {
+        crate::graph::EngineValue::Bool(b) => b.to_string(),
+        crate::graph::EngineValue::Int(n) => n.to_string(),
+        crate::graph::EngineValue::Float(f) => f.to_string(),
+        crate::graph::EngineValue::String(s) => s.clone(),
+    }
+}
+
+/// The sorted `*.rq` files under a pack's `gates/` directory. A missing
+/// directory is simply "no gates" (empty vec); a directory that exists but
+/// cannot be enumerated is a typed `[FM-PACK-012]` refusal — an existing
+/// gate directory whose contents cannot be seen must never be silently
+/// treated as gateless (fail-open).
+fn list_gate_files(gates_dir: &Path, pack_name: &str) -> Result<Vec<PathBuf>> {
+    if !gates_dir.is_dir() {
+        return Ok(Vec::new());
+    }
+    let entries = std::fs::read_dir(gates_dir).map_err(|e| {
+        AppError::fm_pack(
+            12,
+            format!(
+                "pack `{pack_name}`: gates directory `{}` exists but is unreadable: {e}. \
+                 Remediation: fix the directory's permissions or remove it.",
+                gates_dir.display()
+            ),
+        )
+    })?;
+    let mut paths: Vec<PathBuf> = Vec::new();
+    for entry in entries {
+        let path = entry
+            .map_err(|e| {
+                AppError::fm_pack(
+                    12,
+                    format!(
+                        "pack `{pack_name}`: gates directory `{}` entry unreadable: {e}.",
+                        gates_dir.display()
+                    ),
+                )
+            })?
+            .path();
+        if path.is_file() && path.extension().is_some_and(|e| e == "rq") {
+            paths.push(path);
+        }
+    }
+    paths.sort();
+    Ok(paths)
 }
 
 /// Root-relative display form of a closure input path (falls back to the

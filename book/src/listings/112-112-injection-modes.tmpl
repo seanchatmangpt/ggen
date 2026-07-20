@@ -1,0 +1,14 @@
+---
+to: src/generated/112_112_injection_modes.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章112 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 112: 112. Injection Modes
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

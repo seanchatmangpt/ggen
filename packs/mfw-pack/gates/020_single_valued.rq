@@ -1,0 +1,18 @@
+# MESSAGE: every constrained mfw:CycleStage/mfw:AuthoritySurface/mfw:Crate property is single-valued — in particular each stage has exactly one outgoing mfw:nextStage edge, so the cycle cannot branch (translated from shapes.ttl sh:maxCount 1; any row = a subject carrying two distinct values for ?p)
+PREFIX mfw:  <http://seanchatmangpt.github.io/packs/mfw#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?s ?p WHERE {
+  {
+    ?s a mfw:CycleStage .
+    VALUES ?p { mfw:order rdfs:label mfw:nextStage }
+  } UNION {
+    ?s a mfw:AuthoritySurface .
+    VALUES ?p { mfw:path rdfs:comment mfw:standingAuthority }
+  } UNION {
+    ?s a mfw:Crate .
+    VALUES ?p { rdfs:label }
+  }
+  ?s ?p ?v1 , ?v2 .
+  FILTER(?v1 != ?v2)
+}
+ORDER BY ?s ?p

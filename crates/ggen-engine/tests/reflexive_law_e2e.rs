@@ -22,11 +22,12 @@ use chicago_tdd_tools::cli_proof::CliHarness;
 use tempfile::TempDir;
 
 /// Write a minimal synthetic pack (pack.toml + ontology.ttl + one trivial
-/// template) into `dir/<name>/`, optionally with `shapes.ttl` and/or
-/// `hook.ttl`. Mirrors `framework_packs_e2e.rs::write_synthetic_pack`,
-/// extended with a `hook_ttl` parameter.
+/// template) into `dir/<name>/`, optionally with a `gates/gate.rq` SPARQL
+/// gate and/or `hook.ttl`. Mirrors
+/// `framework_packs_e2e.rs::write_synthetic_pack`, extended with a
+/// `hook_ttl` parameter.
 fn write_synthetic_pack(
-    dir: &Path, name: &str, ontology_ttl: &str, shapes_ttl: Option<&str>, hook_ttl: Option<&str>,
+    dir: &Path, name: &str, ontology_ttl: &str, gate_rq: Option<&str>, hook_ttl: Option<&str>,
 ) {
     let pack = dir.join(name);
     std::fs::create_dir_all(pack.join("templates")).expect("mkdir pack templates");
@@ -38,8 +39,9 @@ fn write_synthetic_pack(
     )
     .expect("write pack.toml");
     std::fs::write(pack.join("ontology.ttl"), ontology_ttl).expect("write pack ontology");
-    if let Some(shapes) = shapes_ttl {
-        std::fs::write(pack.join("shapes.ttl"), shapes).expect("write pack shapes");
+    if let Some(gate) = gate_rq {
+        std::fs::create_dir_all(pack.join("gates")).expect("mkdir pack gates");
+        std::fs::write(pack.join("gates/gate.rq"), gate).expect("write pack gate");
     }
     if let Some(hook) = hook_ttl {
         std::fs::write(pack.join("hook.ttl"), hook).expect("write pack hook");
@@ -194,27 +196,20 @@ fn hooks_live_and_are_queryable_by_templates() {
 }
 
 #[test]
-fn hook_derived_facts_are_shape_gated() {
+fn hook_derived_facts_are_gate_checked() {
     let dir = TempDir::new().expect("tempdir");
-    // A shapes.ttl violated ONLY by the fact the hook derives: ex:derived
-    // must have at most 0 ex:flag values (i.e. any ex:flag on it violates).
-    let shapes = r#"
-@prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix ex: <http://example.org/gap#> .
-ex:DerivedShape
-    a sh:NodeShape ;
-    sh:targetNode ex:derived ;
-    sh:property [
-        sh:path ex:flag ;
-        sh:maxCount 0 ;
-        sh:message "ex:derived must never carry ex:flag (hook-derived-only guard)" ;
-    ] .
-"#;
+    // A SPARQL gate violated ONLY by the fact the hook derives: any
+    // ex:flag on ex:derived is a violation (ASK true = violation). The
+    // triple exists in no loaded document — only materialization can put
+    // it in the graph — so a refusal here proves pack gates run AFTER
+    // materialize(), over the post-materialization union.
+    let gate = "# MESSAGE: ex:derived must never carry ex:flag (hook-derived-only guard)\n\
+                ASK { <http://example.org/gap#derived> <http://example.org/gap#flag> ?f }\n";
     write_synthetic_pack(
         dir.path(),
         "hook-pack",
         "@prefix ex: <http://example.org/gap#> .\n",
-        Some(shapes),
+        Some(gate),
         Some(HOOK_TTL),
     );
     write_flag_template(&dir.path().join("hook-pack"));

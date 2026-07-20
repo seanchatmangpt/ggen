@@ -49,12 +49,12 @@ failing loudly -- this is a known, named, unclosed gap (see
 pack), not a silent one: the registry template's own header comment and this
 file both say so.
 
-## Verifying the shapes
+## Verifying the gates
 
-```bash
-ggen graph validate --files packs/wasm4pm-facts-pack/ontology.ttl \
-  --shapes packs/wasm4pm-facts-pack/shapes.ttl
-```
+`shapes.ttl` (SHACL) was replaced by `gates/*.rq` (SPARQL ASK/SELECT gate queries,
+evaluated by `ggen sync run` itself against the union graph -- no separate validate
+invocation is required). See `gates/010_required.rq`, `gates/020_single_valued.rq`,
+and `gates/030_value_constraints.rq`.
 
 ## Verifying upstream fidelity
 

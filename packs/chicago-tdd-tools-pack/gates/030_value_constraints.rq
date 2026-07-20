@@ -1,0 +1,13 @@
+# MESSAGE: ctt:testName must be a legal Rust fn identifier (spliced verbatim into `fn {{ row.test_name }}()` with no escaping) and ctt:expectExitCode an xsd:integer in [0, 255] (real process exit codes; -1 is CliHarness's reserved "no code" value, never an assertable expectation) — translated from shapes.ttl sh:pattern/sh:datatype/sh:minInclusive/sh:maxInclusive
+PREFIX ctt: <http://seanchatmangpt.github.io/packs/chicago-tdd-tools#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a ctt:CliBoundaryTest ; ctt:testName ?value . BIND(ctt:testName AS ?p)
+    FILTER(!REGEX(STR(?value), "^[a-z][a-z0-9_]*$"))
+  } UNION {
+    ?s a ctt:CliBoundaryTest ; ctt:expectExitCode ?value . BIND(ctt:expectExitCode AS ?p)
+    FILTER(DATATYPE(?value) != xsd:integer || ?value < 0 || ?value > 255)
+  }
+}
+ORDER BY ?s ?p

@@ -1,0 +1,8 @@
+# MESSAGE: tcps_ffi:LibModule must have a non-empty tcps_ffi:sourceText (verbatim source, not a placeholder); tcps_ffi:HeaderFile must have a non-empty tcps_ffi:sourceText (verbatim source, not a placeholder); tcps_ffi:CargoManifest must have a non-empty tcps_ffi:sourceText (verbatim source, not a placeholder) — this file checks presence (translated from shapes.ttl sh:minCount 1; any row = a typed individual missing tcps_ffi:sourceText)
+PREFIX tcps_ffi: <http://seanchatmangpt.github.io/packs/tcps-ffi#>
+SELECT ?s ?class WHERE {
+  ?s a ?class .
+  VALUES ?class { tcps_ffi:LibModule tcps_ffi:HeaderFile tcps_ffi:CargoManifest }
+  FILTER NOT EXISTS { ?s tcps_ffi:sourceText ?v }
+}
+ORDER BY ?s ?class

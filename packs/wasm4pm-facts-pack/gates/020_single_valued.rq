@@ -1,0 +1,19 @@
+# MESSAGE: every compat:CognitionBreed/pi:ProcessIntelligenceAlgorithm property (including the optional compat:modulePath and pi:cliAlias) is single-valued (translated from shapes.ttl sh:maxCount 1; any row = a subject carrying two distinct values for ?p)
+PREFIX compat: <https://wasm4pm.dev/ns#>
+PREFIX pi:     <https://wasm4pm.dev/pi#>
+SELECT ?s ?p WHERE {
+  {
+    ?s a compat:CognitionBreed .
+    VALUES ?p { compat:breedId compat:breedLabel compat:breedDoc compat:citation compat:modulePath }
+  } UNION {
+    ?s a pi:ProcessIntelligenceAlgorithm .
+    VALUES ?p {
+      pi:algorithmId pi:algorithmLabel pi:algorithmDoc pi:citation pi:outputType
+      pi:category pi:speedTier pi:qualityTier pi:wasmExport pi:inputFormat pi:standing
+      pi:cliAlias
+    }
+  }
+  ?s ?p ?v1 , ?v2 .
+  FILTER(?v1 != ?v2)
+}
+ORDER BY ?s ?p

@@ -1,0 +1,10 @@
+# MESSAGE: every mcpp Command must carry cnv:noun, cnv:verb, and a file:line-cited mcp:errorCase (translated from shapes.ttl sh:minCount 1; scoped to subjects in the mcpp# namespace because this pack reuses the shared cnv:Command class — an unscoped gate would wrongly demand mcp:errorCase from other packs' command rows in the same union graph, a claim the original per-consumer SHACL wiring never had to face)
+PREFIX cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#>
+PREFIX mcp: <http://seanchatmangpt.github.io/packs/mcpp#>
+SELECT ?s ?missing WHERE {
+  ?s a cnv:Command .
+  FILTER(STRSTARTS(STR(?s), "http://seanchatmangpt.github.io/packs/mcpp#"))
+  VALUES ?missing { cnv:noun cnv:verb mcp:errorCase }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

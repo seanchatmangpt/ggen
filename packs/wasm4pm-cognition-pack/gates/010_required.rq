@@ -1,0 +1,8 @@
+# MESSAGE: every compat:CognitionBreed must carry breedId/breedLabel/breedDoc/citation/breedFamily (translated from shapes.ttl sh:minCount 1; compat:modulePath stays genuinely optional; any row = a breed missing the bound ?missing property)
+PREFIX compat: <https://wasm4pm.dev/ns#>
+SELECT ?s ?missing WHERE {
+  ?s a compat:CognitionBreed .
+  VALUES ?missing { compat:breedId compat:breedLabel compat:breedDoc compat:citation compat:breedFamily }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

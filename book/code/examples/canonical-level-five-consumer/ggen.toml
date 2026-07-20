@@ -1,0 +1,16 @@
+[project]
+name = "canonical-level-five-consumer"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+ex = "https://example.org/level-five#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[packs]
+canonical = { path = "../../packs/canonical-level-five-pack" }
+
+[templates]
+dir = "templates"
+aggregate_modules = true

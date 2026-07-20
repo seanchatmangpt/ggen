@@ -1,0 +1,11 @@
+# MESSAGE: every pi:ProcessIntelligenceAlgorithm must carry algorithmId/algorithmLabel/algorithmDoc/citation/category/outputType/inputFormat/speedTier/qualityTier/wasmExport (translated from shapes.ttl sh:minCount 1; pi:cliAlias stays genuinely optional; any row = an algorithm missing the bound ?missing property)
+PREFIX pi: <https://wasm4pm.dev/pi#>
+SELECT ?s ?missing WHERE {
+  ?s a pi:ProcessIntelligenceAlgorithm .
+  VALUES ?missing {
+    pi:algorithmId pi:algorithmLabel pi:algorithmDoc pi:citation pi:category
+    pi:outputType pi:inputFormat pi:speedTier pi:qualityTier pi:wasmExport
+  }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

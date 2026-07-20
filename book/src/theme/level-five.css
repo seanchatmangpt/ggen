@@ -1,0 +1,5 @@
+:root { --content-max-width: 980px; }
+.content main { line-height: 1.58; }
+blockquote { border-left: 4px solid #666; padding-left: 1rem; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+table { width: 100%; }

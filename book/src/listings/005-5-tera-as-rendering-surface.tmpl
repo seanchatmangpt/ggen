@@ -1,0 +1,14 @@
+---
+to: src/generated/005_5_tera_as_rendering_surface.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章5 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 5: 5. Tera as Rendering Surface
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

@@ -1,0 +1,7 @@
+# MESSAGE: tcps_ffi:dependsOnModule must point at a declared individual (no dangling reference); Referenced individual must have a tcps_ffi:name (i.e. must actually be declared in the graph, not merely typed) (translated from shapes.ttl sh:node tcps_ffi:ReferencedIndividualShape, inlined: any row = a dependsOnModule object lacking tcps_ffi:name)
+PREFIX tcps_ffi: <http://seanchatmangpt.github.io/packs/tcps-ffi#>
+SELECT ?s ?ref WHERE {
+  ?s tcps_ffi:dependsOnModule ?ref .
+  FILTER NOT EXISTS { ?ref tcps_ffi:name ?n }
+}
+ORDER BY ?s ?ref

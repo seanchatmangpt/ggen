@@ -1,0 +1,14 @@
+---
+to: src/generated/178_178_detect_template_drift.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章178 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 178: 178. Detect Template Drift
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

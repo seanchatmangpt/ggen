@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Level Five Certification Bundle",
+  "type": "object",
+  "required": [
+    "pack",
+    "reference",
+    "dimensions",
+    "consumers",
+    "receipts"
+  ],
+  "properties": {
+    "pack": {
+      "type": "string"
+    },
+    "reference": {
+      "type": "object"
+    },
+    "dimensions": {
+      "type": "array",
+      "minItems": 7
+    },
+    "consumers": {
+      "type": "array",
+      "minItems": 2
+    },
+    "receipts": {
+      "type": "array",
+      "minItems": 1
+    }
+  }
+}

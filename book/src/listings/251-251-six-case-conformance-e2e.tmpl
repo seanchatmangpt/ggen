@@ -1,0 +1,14 @@
+---
+to: src/generated/251_251_six_case_conformance_e2e.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章251 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 251: 251. Six-Case Conformance E2E
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

@@ -1,0 +1,11 @@
+@prefix pack: <https://example.org/ggen/pack#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+pack:章76
+    a pack:生成単位 ;
+    dcterms:title "76. Modeling Tests"@en ;
+    pack:出力経路 "src/generated/076_76_modeling_tests.rs" ;
+    pack:順序 76 ;
+    pack:根拠 pack:独立参照 ;
+    prov:wasDerivedFrom pack:参照実装_v26_7_19 .
