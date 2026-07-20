@@ -119,6 +119,46 @@ gen:ReproducibleBuildTest a gen:Generation ;
     # implies. That stronger claim remains unverified.
     gen:crossHostVerified false .
 
+# ── Cross-host reproducibility CI mechanism (condition 20, follow-up) ───────
+# gen:ReproducibleBuildTest above proved same-host determinism only (both
+# builds ran on ONE machine). This individual records the follow-up: a real
+# GitHub Actions mechanism wired into .github/workflows/release.yml that
+# builds x86_64-unknown-linux-gnu TWICE as two independent jobs
+# (build-release-repro-a / build-release-repro-b), each on its own
+# ubuntu-latest-labeled but genuinely separate, independently-provisioned
+# ephemeral VM (never the same host, even under a shared runner label), with
+# deliberately no actions/cache step so neither replica can silently inherit
+# the other's build output. A third job (verify-cross-host-reproducibility)
+# needs: both replicas and fails the workflow (non-zero exit) the moment
+# their sha256 hashes diverge. This is additive-only: none of the 4 existing
+# real matrix legs in build-release were touched.
+#
+# Honest status: the mechanism is WIRED, not yet EXERCISED. release.yml only
+# triggers on `v*` tag push (see its `on:` block); no tag has been pushed
+# since this mechanism landed on this commit, so it has never actually run
+# in GitHub Actions and has produced no real pass/fail receipt yet. Validated
+# instead by: (1) `python3 -c "import yaml; yaml.safe_load(...)"` parsing the
+# whole file without error, (2) `actionlint .github/workflows/release.yml`
+# returning a clean exit 0, and (3) a direct read of the parsed job graph
+# confirming `verify-cross-host-reproducibility`'s `needs:` list is exactly
+# `[build-release-repro-a, build-release-repro-b]`. None of that is a
+# substitute for a real green run -- treat this row as PARTIAL, not ALIVE,
+# until a real tagged release exercises it.
+gen:CrossHostReproducibilityCI a gen:Generation ;
+    gen:inspects gen:ReproducibleBuildTest ;
+    gen:commit "5630f4fac7bfbb1efdda2c1c677eec736c0d716c" ;
+    gen:mechanismPath ".github/workflows/release.yml" ;
+    gen:mechanismJobs "build-release-repro-a, build-release-repro-b, verify-cross-host-reproducibility" ;
+    gen:targetCovered "x86_64-unknown-linux-gnu" ;
+    gen:targetsNotCovered "aarch64-unknown-linux-gnu, x86_64-apple-darwin, aarch64-apple-darwin" ;
+    gen:yamlValidated true ;
+    gen:actionlintClean true ;
+    gen:needsGraphVerified true ;
+    # Has this mechanism ever actually run and produced a pass/fail result?
+    gen:everExecuted false ;
+    gen:executionBlockedBy "release.yml on: push tags v* -- no v* tag has been pushed since this commit" ;
+    gen:mechanismWired true .
+
 # ── Independent artifact regeneration test (condition 21) ───────────────────
 # The book's own distributed artifacts (book/dist/*.md, *.html, and
 # MANIFEST.sha256 -- the 配布物 this condition names) were regenerated TWICE,

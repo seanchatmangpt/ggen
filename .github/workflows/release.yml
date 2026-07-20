@@ -126,5 +126,137 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # ── Cross-host reproducibility gate (L5 condition 20) ───────────────────────
+  # build-release above never builds the SAME target triple twice, so nothing
+  # in that matrix can be diffed for byte-identical reproducibility. The two
+  # jobs below build x86_64-unknown-linux-gnu (cheapest/fastest of the 4 real
+  # targets) TWICE, as two independent GitHub Actions jobs. Two matrix/job
+  # legs that share a runner label (both "ubuntu-latest") are still two
+  # separate, independently-provisioned ephemeral VMs — never the same
+  # machine — so comparing their sha256 output is a genuine cross-host
+  # reproducibility test, distinct from the same-host test already recorded
+  # in .specify/generations.ttl's gen:ReproducibleBuildTest (two CARGO_TARGET_DIRs
+  # on ONE machine). Deliberately no `actions/cache` step in either replica job:
+  # the GitHub Actions cache backend is shared across jobs in this repo, and
+  # restoring replica B from a cache replica A populated would silently turn
+  # this into a cache-hit comparison instead of two genuinely independent cold
+  # builds — the one failure mode that would make this gate lie.
+  build-release-repro-a:
+    name: Cross-Host Repro — Replica A (x86_64-unknown-linux-gnu)
+    needs: [release-health]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    outputs:
+      sha256: ${{ steps.hash.outputs.sha256 }}
+      host: ${{ steps.hash.outputs.host }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b  # stable (2024-06)
+        with:
+          toolchain: stable
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Build release (replica A, cold — no cache)
+        run: cargo build --release --target x86_64-unknown-linux-gnu -p ggen-cli-lib --bin ggen --locked
+
+      - name: Hash replica A binary
+        id: hash
+        run: |
+          set -euo pipefail
+          SHA=$(sha256sum target/x86_64-unknown-linux-gnu/release/ggen | awk '{print $1}')
+          echo "sha256=${SHA}" >> "$GITHUB_OUTPUT"
+          echo "host=$(hostname)" >> "$GITHUB_OUTPUT"
+          echo "Replica A host: $(hostname)"
+          echo "Replica A sha256: ${SHA}"
+
+      - name: Archive replica A binary for audit
+        run: |
+          mkdir -p release-repro-a
+          cp target/x86_64-unknown-linux-gnu/release/ggen release-repro-a/ggen-x86_64-unknown-linux-gnu-repro-a
+
+      - name: Upload replica A artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: repro-build-a
+          path: release-repro-a/ggen-x86_64-unknown-linux-gnu-repro-a
+          retention-days: 7
+
+  build-release-repro-b:
+    name: Cross-Host Repro — Replica B (x86_64-unknown-linux-gnu)
+    needs: [release-health]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    outputs:
+      sha256: ${{ steps.hash.outputs.sha256 }}
+      host: ${{ steps.hash.outputs.host }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b  # stable (2024-06)
+        with:
+          toolchain: stable
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Build release (replica B, cold — no cache)
+        run: cargo build --release --target x86_64-unknown-linux-gnu -p ggen-cli-lib --bin ggen --locked
+
+      - name: Hash replica B binary
+        id: hash
+        run: |
+          set -euo pipefail
+          SHA=$(sha256sum target/x86_64-unknown-linux-gnu/release/ggen | awk '{print $1}')
+          echo "sha256=${SHA}" >> "$GITHUB_OUTPUT"
+          echo "host=$(hostname)" >> "$GITHUB_OUTPUT"
+          echo "Replica B host: $(hostname)"
+          echo "Replica B sha256: ${SHA}"
+
+      - name: Archive replica B binary for audit
+        run: |
+          mkdir -p release-repro-b
+          cp target/x86_64-unknown-linux-gnu/release/ggen release-repro-b/ggen-x86_64-unknown-linux-gnu-repro-b
+
+      - name: Upload replica B artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: repro-build-b
+          path: release-repro-b/ggen-x86_64-unknown-linux-gnu-repro-b
+          retention-days: 7
+
+  verify-cross-host-reproducibility:
+    name: Verify Cross-Host Reproducibility (x86_64-unknown-linux-gnu)
+    needs: [build-release-repro-a, build-release-repro-b]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Compare replica sha256 hashes (fail loudly on divergence)
+        run: |
+          set -euo pipefail
+          HASH_A="${{ needs.build-release-repro-a.outputs.sha256 }}"
+          HASH_B="${{ needs.build-release-repro-b.outputs.sha256 }}"
+          HOST_A="${{ needs.build-release-repro-a.outputs.host }}"
+          HOST_B="${{ needs.build-release-repro-b.outputs.host }}"
+          echo "Replica A — host: ${HOST_A}, sha256: ${HASH_A}"
+          echo "Replica B — host: ${HOST_B}, sha256: ${HASH_B}"
+
+          if [ -z "${HASH_A}" ] || [ -z "${HASH_B}" ]; then
+            echo "ANDON: one or both replica hashes are empty — cannot verify cross-host reproducibility"
+            exit 1
+          fi
+
+          if [ "${HASH_A}" = "${HASH_B}" ]; then
+            echo "Cross-host reproducibility CONFIRMED for x86_64-unknown-linux-gnu:"
+            echo "  two independently-provisioned runners (${HOST_A} != ${HOST_B} expected) produced"
+            echo "  BIT-IDENTICAL ggen binaries — sha256 ${HASH_A}"
+          else
+            echo "ANDON: cross-host reproducibility FAILED for x86_64-unknown-linux-gnu"
+            echo "  replica A (${HOST_A}): ${HASH_A}"
+            echo "  replica B (${HOST_B}): ${HASH_B}"
+            echo "  same commit/toolchain/Cargo.lock produced DIFFERENT binaries on two separate hosts"
+            exit 1
+          fi
+
   # Note: Homebrew formula update is done manually
   # SHA256 checksums are available in release assets as *.sha256 files
