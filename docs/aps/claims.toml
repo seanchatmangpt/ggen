@@ -160,3 +160,20 @@ falsifier = "cargo audit"
 evidence = { commit = "1b32d7b06", date = "2026-07-17", method = "cargo audit + cargo tree -i per version + two real cargo update --precise 0.41.0 attempts, both refused by upstream version reqs" }
 notes = "RUSTSEC-2026-0194/0195 (quick-xml, severity 7.5 high, DoS-class): fix requires quick-xml >=0.41.0, but all three vulnerable copies (0.31.0, 0.36.2, 0.37.5) are pinned by third parties — oxigraph 0.5.9's oxrdfxml/sparesults (sparesults pinned =0.3.3 by praxis-graphlaw), wasm4pm-compat 26.6.29 via star-toml, and dev-only process_mining. Not fixable in this repo without upstream releases. Exception requires explicit maintainer admission — set exception_admitted_by to record it. RISK ACCEPTED 2026-07-20 by the repo owner (Sean Chatman): both advisories are DoS-class (unbounded allocation / quadratic runtime on adversarial XML input), not RCE or memory-corruption; ggen's own runtime does not parse untrusted XML from an external attacker over a network boundary (oxrdfxml/sparesults consume locally-authored or CI-controlled RDF/XML, quick-xml is dev-only via process_mining). Standing stays BLOCKED — this is an admitted exception, not a fix; re-evaluate once sparesults/oxigraph or the praxis-graphlaw pin ships quick-xml >=0.41.0."
 exception_admitted_by = "sean-chatman-2026-07-20"
+
+# ── Dev-gate (pre-commit) claims ─────────────────────────────────────────────
+# L5 condition 10 (docs/PUBLICATION_JUDGMENT.md) asks whether required evidence
+# enters ONLY via this ledger. Investigation 2026-07-20 found `just pre-commit`'s
+# own 9-gate outcome had zero ledger presence — the gates run and pass/fail, but
+# nothing routes that result here. This entry closes that gap for exactly one of
+# the 9 gates (the one currently red); the other 8 remain untracked as claims —
+# see that condition's Basis note for the itemized scope of what does and does
+# not route through this ledger.
+
+[[claims]]
+id = "dev.guard-cheat-scan"
+standing = "BLOCKED"
+gates = ["pre-commit"]
+falsifier = "cargo run --quiet -p ggen-cheat-scanner --bin ggen-cheat-scanner"
+evidence = { commit = "5630f4fac", date = "2026-07-20", method = "real run via `just guard-cheat-scan`, exit code 1" }
+notes = "464 findings (7 CHEAT-T01 vacuous-assert, 456 CHEAT-T03 no-assertion-test, 1 CHEAT-T04 mock-import) across 1151 scanned files — reconfirmed live at this coordinate, matching the count justfile's own guard-cheat-scan comment and docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md's TECH-DEBT-001 already documented in prose. This is real, tracked, pre-existing debt, not a regression: standing is BLOCKED (proven failing), not silenced or downgraded to a warning. `just pre-commit` as a whole is red until this is triaged. Prior to this entry, this gate's outcome existed only as prose (the justfile comment + the jira doc); it had no ledger entry, no falsifier command recorded as re-runnable evidence, and guard-claims-schema (which validates THIS ledger's own structure) had no way to notice its absence. This entry is the mechanism-level fix for that one gap — it does not imply the other 8 pre-commit gates (fmt-check, check, lint, test-lib, coherence-check, guard-process-intelligence-boundary, guard-claims-schema, guard-pack-proofs) now have ledger entries; they still do not."
