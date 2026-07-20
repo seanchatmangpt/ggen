@@ -1,0 +1,7 @@
+# MESSAGE: a ccn:Law individual is missing ccn:statement -- every constitutional Law must carry its own principle text (the whole point of this pack is a faithful admitted-semantics mirror; a Law with no statement is a placeholder, not law). Add ccn:statement transcribing the principle from .specify/memory/constitution.md.
+PREFIX ccn: <http://seanchatmangpt.github.io/packs/ggen-constitution#>
+SELECT ?law WHERE {
+  ?law a ccn:Law .
+  FILTER NOT EXISTS { ?law ccn:statement ?s }
+}
+ORDER BY ?law

@@ -1,0 +1,159 @@
+# generations.ttl — Generation-ledger ontology (G0, G1) for the heal-thyself-r1
+# reflexive-law work. GENERATED-DOC SOURCE: docs/GENERATIONS.md is GENERATED from
+# this file by the `docs-generations-ledger` rule in root ggen.toml. Edit THIS
+# file, not docs/GENERATIONS.md.
+#
+# Every literal fact below was verified by reading the cited file or running the
+# cited command on 2026-07-19 (branch feat/heal-thyself-r1). Nothing here is
+# estimated or inferred.
+@prefix gen:   <http://ggen.org/generations#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+
+gen:Generation  a rdfs:Class ; rdfs:label "one round of self-manufacture, receipted separately from the round that inspects it" .
+gen:DoDCondition a rdfs:Class ; rdfs:label "one row of the 15-condition doctrine Definition-of-Done" .
+
+# ── G0: the manufacturing state this round started from ────────────────────
+# commit verified via `git log -1 --format=%H` on branch feat/heal-thyself-r1
+# (this is also the tip commit at the time these facts were written).
+gen:G0 a gen:Generation ;
+    gen:commit "ad91067020cfe468a4cf77d1bd8ab11072ddd71a" ;
+    gen:commitSubject "feat: L5 pack ecosystem -- SPARQL gates on both engines, TCPS reference conformance, self-hosted verification, generated manuals/book, reflexive receipts" ;
+    # verified: grep -A5 '[workspace.package]' Cargo.toml -> version = "26.7.18"
+    gen:workspaceVersion "26.7.18" ;
+    # verified: cat rust-toolchain.toml -> [toolchain] channel = "nightly-2026-06-22"
+    gen:toolchain "nightly-2026-06-22" ;
+    # No receipt-chain re-verification, no fresh `just pre-commit` run, and no
+    # `ggen receipt verify` invocation was performed for G0 as part of writing
+    # this ledger -- the label is honest about that, not a claim of health.
+    gen:binaryStanding "unverified-reproducibility" .
+
+# ── G1: what THIS round manufactures ────────────────────────────────────────
+# Every count below was read from the live file, not estimated.
+gen:G1 a gen:Generation ;
+    gen:inspects gen:G0 ;
+    # verified: grep -c '^[[generation.rules]]' ggen.toml -> 9 pre-existing rules
+    # at the moment this round's own "docs-generations-ledger" rule was added
+    # (re-checked at that moment, since an earlier check in this same session
+    # read 7 -- the workspace can be edited concurrently by other sessions per
+    # CLAUDE.md's "Git Hooks & Build Gotchas" note). After adding this round's
+    # own rule the file carries 10 total.
+    gen:rootManifestRuleCountBefore 9 ;
+    gen:rootManifestRuleCountAfter 10 ;
+    # verified: find book/src -type f | wc -l -> 735 (BEFORE this round's chapter
+    # addition); book/scripts/check_book.py reported "OK: 367 links, 367 markdown
+    # files" before, "OK: 368 links, 368 markdown files" after admitting chapter 337.
+    gen:bookOutputFileCountBefore 735 ;
+    gen:bookChapterLinksBefore 367 ;
+    gen:bookChapterLinksAfter 368 ;
+    # verified: packs/claude-code-pack declares 4 output targets via `to:` in its
+    # templates (.claude/agents/independent-verifier.md,
+    # .claude/agents/pack-transcriber.md, .claude/workflows/implement-verify.js,
+    # .claude/skills/l5-pack-method/SKILL.md) -- checked each path on disk with
+    # `[ -f ... ]` and ALL FOUR were MISSING. The pack has never actually been
+    # synced into this repository's .claude/ tree; claude-code-pack's declared
+    # surface and .claude/'s actual on-disk content are currently disjoint.
+    gen:claudeCodePackDeclaredOutputs 4 ;
+    gen:claudeCodePackOutputsPresentOnDisk 0 ;
+    # verified: the file exists and is executable (`ls -la`), and its header
+    # comment documents the split: evidence/checks.ttl + receipts/inspection-receipt.json
+    # emitted by this script, judged by packs/ggen-verify-pack/gates/*.rq at the
+    # next `ggen sync run` -- "it records reality, it does not judge it."
+    gen:selfHostedEvidenceLoopScript "examples/tcps-generated/scripts/verify.sh" ;
+    gen:selfHostedEvidenceLoopExitsZeroAlways true .
+
+# ── 15-condition doctrine Definition-of-Done ────────────────────────────────
+# Status is asserted only where a concrete file, command, or test result was
+# checked THIS session (2026-07-19). Anything not checked is NOT MET, not
+# "probably fine" -- an unhonest MET here is the exact "self-certification"
+# failure mode chapter 337 (packs/level-five-book-pack) names.
+
+gen:dod01 a gen:DoDCondition ;
+    gen:order 1 ;
+    gen:text "docs/GENERATIONS.md is machine-GENERATED from .specify/generations.ttl by a root ggen.toml [[generation.rules]] entry, never hand-edited." ;
+    gen:status "NOT MET" ;
+    gen:evidence "The rule (`docs-generations-ledger`) and its template exist and were independently checked: the ontology parses (96 quads, `ggen graph validate`) and the Tera template's `sparql()`/`{% for %}`/`{% endfor %}` blocks are balanced. But a full `ggen sync run` -- the only thing that actually writes docs/GENERATIONS.md -- currently aborts on an earlier, unrelated rule (see dod02) before reaching this one, so docs/GENERATIONS.md has not yet been produced by the pipeline. Marking this MET before a sync actually emits the file would itself be the self-certification failure chapter 337 names." .
+
+gen:dod02 a gen:DoDCondition ;
+    gen:order 2 ;
+    gen:text "`just gen-receipt` runs a real `ggen sync run` and completes successfully, printing a real one-line confirmation." ;
+    gen:status "NOT MET" ;
+    gen:evidence "The justfile `gen-receipt` recipe was added and its shape verified (invokes `{{GGEN}} sync run`, echoes a confirmation line) -- but running the underlying command this round (`cargo run -p ggen-cli-lib --bin ggen -- sync run --dry-run`) FAILS before reaching this ledger's own rule: a pre-existing, unrelated bug in the `docs-constitution-mirror` rule (packs/ggen-constitution-pack/templates/constitution.md.tmpl's front-matter `laws:` query variable is not populated by the engine -- FM-GEN-008 TEMPLATE_VARIABLE_MISSING) aborts the whole sync first. Confirmed via `git diff --stat -- packs/ggen-constitution-pack/` returning empty that this round did not introduce that bug. `.specify/generations.ttl` itself was independently validated with `ggen graph validate --files .specify/generations.ttl` (96 quads, valid Turtle, no parse errors), so this rule's own input is sound; it simply has not been exercised end-to-end because an earlier rule in the same manifest currently fails closed." .
+
+gen:dod03 a gen:DoDCondition ;
+    gen:order 3 ;
+    gen:text "G0 and G1 are receipted by DIFFERENT rounds -- the round that writes a rule never also certifies it in the same commit." ;
+    gen:status "NOT MET" ;
+    gen:evidence "G0 and G1 are both authored in the SAME commit/round that wrote this file. No separate inspecting round (a hypothetical G2) has run yet; the chapter's own doctrine (packs/level-five-book-pack chapter 337) names this as the standard to clear, not yet cleared." .
+
+gen:dod04 a gen:DoDCondition ;
+    gen:order 4 ;
+    gen:text "`.ggen-v2/receipt.json` exists and its BLAKE3 chain hash was verified via `ggen receipt verify` after this round's sync." ;
+    gen:status "NOT MET" ;
+    gen:evidence "Not run as part of writing this ledger; G0's binary_standing is honestly recorded as \"unverified-reproducibility\" for the same reason." .
+
+gen:dod05 a gen:DoDCondition ;
+    gen:order 5 ;
+    gen:text "claude-code-pack's 4 declared output files (2 agents, 1 workflow, 1 skill) are all present on disk under .claude/." ;
+    gen:status "NOT MET" ;
+    gen:evidence "Checked all 4 declared `to:` targets with `[ -f ... ]`: independent-verifier.md, pack-transcriber.md, implement-verify.js, l5-pack-method/SKILL.md -- 0 of 4 exist. The pack has not been synced into this repo state." .
+
+gen:dod06 a gen:DoDCondition ;
+    gen:order 6 ;
+    gen:text "level-five-book-pack is wired into root ggen.toml's [[generation.rules]] so the book regenerates on `ggen sync run` rather than being a standalone artifact." ;
+    gen:status "NOT MET" ;
+    gen:evidence "grep for \"level-five-book\" / \"book-pack\" in ggen.toml returned zero matches; none of the 7 existing [[generation.rules]] reference this pack. book/src/ is populated but not currently reachable from the live sync pipeline." .
+
+gen:dod07 a gen:DoDCondition ;
+    gen:order 7 ;
+    gen:text "book/scripts/check_book.py passes (every SUMMARY.md link resolves to an existing file with the required section markers)." ;
+    gen:status "MET" ;
+    gen:evidence "Ran `python3 book/scripts/check_book.py` after admitting chapter 337 and its SUMMARY.md entry -- \"OK: 368 links, 368 markdown files\" (was 367 before this round)." .
+
+gen:dod08 a gen:DoDCondition ;
+    gen:order 8 ;
+    gen:text "The self-hosted evidence loop (examples/tcps-generated/scripts/verify.sh) has been RUN this round and its evidence/checks.ttl + receipts/inspection-receipt.json inspected, not merely confirmed to exist." ;
+    gen:status "NOT MET" ;
+    gen:evidence "Only the script's existence, executable bit, and header comment were verified (`ls -la`, `head -40`). It was not executed as part of this round's work." .
+
+gen:dod09 a gen:DoDCondition ;
+    gen:order 9 ;
+    gen:text "`just pre-commit`'s 9 gates all pass on the current tree after this round's edits." ;
+    gen:status "NOT MET" ;
+    gen:evidence "Not run this session; this round only touched .specify/generations.ttl, ggen.toml, justfile, packs/level-five-book-pack/ontology.ttl, and book/src/**, none of which were compiled or gated before this ledger was written." .
+
+gen:dod10 a gen:DoDCondition ;
+    gen:order 10 ;
+    gen:text "The generation ledger (.specify/generations.ttl) itself is admitted by a SHACL or SPARQL gate the same way other packs' individuals are (e.g. level-five-book-pack's gates/010_required.rq)." ;
+    gen:status "NOT MET" ;
+    gen:evidence "No gates/*.rq or SHACL shape file was authored for gen:Generation or gen:DoDCondition individuals this round." .
+
+gen:dod11 a gen:DoDCondition ;
+    gen:order 11 ;
+    gen:text "A second `ggen sync run` on an unchanged graph is byte-identical for docs/GENERATIONS.md (idempotency proven, not assumed)." ;
+    gen:status "NOT MET" ;
+    gen:evidence "Not verified this round -- would require running ggen sync run twice and diffing docs/GENERATIONS.md, which was not done." .
+
+gen:dod12 a gen:DoDCondition ;
+    gen:order 12 ;
+    gen:text "The new book chapter (337, 自らを造る機械は、自らを検査しなければならない) is reachable via the pack's own `to: \"src/{{ path }}\"` templated render, not only via a hand-written book/src file." ;
+    gen:status "NOT MET" ;
+    gen:evidence "Because level-five-book-pack is not wired into ggen.toml (see dod06), book/src/tcps-standing/337-jikoken-kensa.md was written by hand to satisfy check_book.py; ggen sync run was never invoked to render it from the ontology addition." .
+
+gen:dod13 a gen:DoDCondition ;
+    gen:order 13 ;
+    gen:text "OTEL pipeline spans (pipeline.load/extract/validate/generate/emit) were captured for the sync run that produced docs/GENERATIONS.md, per the project's OTEL Validation requirement." ;
+    gen:status "NOT MET" ;
+    gen:evidence "No RUST_LOG=trace capture was performed this round." .
+
+gen:dod14 a gen:DoDCondition ;
+    gen:order 14 ;
+    gen:text "This round's commit message cites concrete receipts (test counts, gate results) rather than narrated completion, per docs/jira and CLAUDE.md's Evidence-First Principle." ;
+    gen:status "NOT MET" ;
+    gen:evidence "No commit has been made yet as of writing this ledger; this row cannot be MET until that commit exists and is checked." .
+
+gen:dod15 a gen:DoDCondition ;
+    gen:order 15 ;
+    gen:text "A named future round (G2) exists that will independently inspect G1's claims -- i.e. this ledger names its own successor rather than claiming final standing." ;
+    gen:status "NOT MET" ;
+    gen:evidence "gen:G1 records `gen:inspects gen:G0`, but no gen:G2 individual has been created; G1 has not yet been inspected by anything but the round that wrote it. This is the literal condition chapter 337 warns against, disclosed rather than hidden." .

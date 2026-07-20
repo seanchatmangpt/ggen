@@ -1,0 +1,20 @@
+{
+  "release": "v26.7.20",
+  "flavor": "candidate",
+  "source_standing": "believable-claimed",
+  "binary_standing": "unverified-on-artifact-host",
+  "l5_publication_claim": "WITHHELD",
+  "l5_publication_claim_reason": "self-manufacture generations (current ggen producing a candidate ggen, candidate producing a next-generation ggen, and the generation-2/generation-3 fixed point) are not yet proven -- see docs/PUBLICATION_JUDGMENT.md",
+  "reasons": [
+    "source_standing is asserted from this repo's own passing gates (just pre-commit, verify-tcps, docs-sync), not independently re-derived by a second, dissimilar toolchain",
+    "binary_standing has not been established on the artifact-generation host running this pack -- it names the CI job that must run and pass before a binary_standing upgrade is honest",
+    "no generation-0-to-3 self-manufacture receipt chain exists yet for ggen itself (the generations ledger only carries G0/G1, not a full candidate-generates-candidate loop)"
+  ],
+  "establish_binary_standing_with": [
+    ".github/workflows/publish-candidate.yml (this pack's own workflow)",
+    ".github/workflows/release.yml (fired by the v$VERSION tag on an all-green publish-candidate run)",
+    "just pre-commit",
+    "just verify-tcps"
+  ]
+}
+

@@ -1,0 +1,97 @@
+name: Publish Candidate
+
+on:
+  push:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+# This workflow only ever reads repo state and (on an all-green run) creates+pushes a tag —
+# it never uploads release assets itself. Tag creation fires the existing tags-only
+# .github/workflows/release.yml, which does the asset build/upload under its own permissions.
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish-candidate:
+    name: Verify and tag release candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      # Mirrors .github/workflows/release.yml's build-release job toolchain setup exactly:
+      # dtolnay/rust-toolchain, stable, pinned by digest. The workspace's rust-toolchain.toml
+      # pins nightly for local dev; release engineering deliberately builds on stable, matching
+      # the existing release.yml precedent rather than introducing a second toolchain policy.
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b # stable (2024-06)
+        with:
+          toolchain: stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-publish-candidate-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build debug binary
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Self-hosted verification loop (verify-tcps)
+        run: just verify-tcps
+
+      - name: Docs-through-ggen drift gate (docs-sync)
+        run: |
+          just docs-sync
+          if ! git diff --quiet; then
+            echo "ANDON: docs-sync produced changes not already committed — drift detected"
+            git status --porcelain
+            git diff --stat
+            exit 1
+          fi
+          echo "docs-sync: no drift"
+
+      - name: Book gates (check_book / check_level_five)
+        run: |
+          python3 book/scripts/check_book.py
+          python3 book/scripts/check_level_five.py
+
+      - name: Guard — pack proofs
+        run: just guard-pack-proofs
+
+      - name: Guard — claims schema (schema-only mode)
+        run: just guard-claims-schema
+
+      - name: Guard — publish standing (FULL / strict mode)
+        run: just guard-publish-standing
+
+      - name: Version consistency check
+        run: ./scripts/ci/guard-version-consistency.sh
+
+      - name: Create and push release tag
+        if: success()
+        run: |
+          set -euo pipefail
+          VERSION="$(grep -m1 '^version' Cargo.toml | sed -E 's/version *= *"([^"]+)"/\1/')"
+          TAG="v${VERSION}"
+          if git rev-parse "refs/tags/${TAG}" >/dev/null 2>&1; then
+            echo "tag ${TAG} already exists — nothing to do"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${TAG}" -m "Release candidate ${TAG}: publish-candidate all-green"
+          git push origin "${TAG}"
+          echo "pushed ${TAG} — this fires .github/workflows/release.yml"
+

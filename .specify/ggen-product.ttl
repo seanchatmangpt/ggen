@@ -1,0 +1,639 @@
+# .specify/ggen-product.ttl
+#
+# GENERATED-BY-HAND (not `ggen sync`) — a product-mirror ontology asserting facts
+# about ggen's own real command surface, FM-* diagnostic codes, and pipeline stages.
+# Every individual below is verified against a real file:line citation at the time
+# this file was written (2026-07-19). Conformance is enforced by the Chicago-TDD test
+# crates/ggen-engine/tests/product_mirror_conformance.rs, which re-scans the cited
+# source files at test time and asserts two-way equality against this file.
+#
+# Do NOT hand-add an individual here without a matching real source occurrence —
+# the conformance test will fail closed (TTL-only drift) if you do.
+
+@prefix prod: <http://ggen.org/product#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+prod:doc a prod:ProductMirror ;
+    rdfs:comment "Real command surface, FM-* diagnostic codes, and pipeline stages for ggen, mirrored from source." .
+
+# ---------------------------------------------------------------------------
+# CLI verbs (clap_noun_verb_macros::verb("...") attribute sites in
+# crates/ggen-engine/src/verbs/*.rs)
+# ---------------------------------------------------------------------------
+
+prod:verb_doctor_run a prod:CliVerb ;
+    prod:noun "doctor" ;
+    prod:verb "run" ;
+    prod:citation "crates/ggen-engine/src/verbs/doctor.rs:10" .
+
+prod:verb_graph_validate a prod:CliVerb ;
+    prod:noun "graph" ;
+    prod:verb "validate" ;
+    prod:citation "crates/ggen-engine/src/verbs/graph.rs:20" .
+
+prod:verb_law_derive a prod:CliVerb ;
+    prod:noun "law" ;
+    prod:verb "derive" ;
+    prod:citation "crates/ggen-engine/src/verbs/law.rs:10" .
+
+prod:verb_law_explain a prod:CliVerb ;
+    prod:noun "law" ;
+    prod:verb "explain" ;
+    prod:citation "crates/ggen-engine/src/verbs/law.rs:15" .
+
+prod:verb_law_export a prod:CliVerb ;
+    prod:noun "law" ;
+    prod:verb "export" ;
+    prod:citation "crates/ggen-engine/src/verbs/law.rs:20" .
+
+prod:verb_law_load a prod:CliVerb ;
+    prod:noun "law" ;
+    prod:verb "load" ;
+    prod:citation "crates/ggen-engine/src/verbs/law.rs:25" .
+
+prod:verb_law_validate a prod:CliVerb ;
+    prod:noun "law" ;
+    prod:verb "validate" ;
+    prod:citation "crates/ggen-engine/src/verbs/law.rs:30" .
+
+prod:verb_receipt_history a prod:CliVerb ;
+    prod:noun "receipt" ;
+    prod:verb "history" ;
+    prod:citation "crates/ggen-engine/src/verbs/receipt.rs:10" .
+
+prod:verb_receipt_verify a prod:CliVerb ;
+    prod:noun "receipt" ;
+    prod:verb "verify" ;
+    prod:citation "crates/ggen-engine/src/verbs/receipt.rs:15" .
+
+prod:verb_sync_run a prod:CliVerb ;
+    prod:noun "sync" ;
+    prod:verb "run" ;
+    prod:citation "crates/ggen-engine/src/verbs/sync.rs:14" .
+
+# ---------------------------------------------------------------------------
+# Pipeline stages (span-name string literals in crates/ggen-engine/src/sync.rs)
+# ---------------------------------------------------------------------------
+
+prod:stage_load a prod:PipelineStage ;
+    prod:spanName "pipeline.load" ;
+    prod:citation "crates/ggen-engine/src/sync.rs:176" .
+
+prod:stage_extract a prod:PipelineStage ;
+    prod:spanName "pipeline.extract" ;
+    prod:citation "crates/ggen-engine/src/sync.rs:374" .
+
+prod:stage_validate a prod:PipelineStage ;
+    prod:spanName "pipeline.validate" ;
+    prod:citation "crates/ggen-engine/src/sync.rs:404" .
+
+prod:stage_generate a prod:PipelineStage ;
+    prod:spanName "pipeline.generate" ;
+    prod:citation "crates/ggen-engine/src/sync.rs:662" .
+
+prod:stage_emit a prod:PipelineStage ;
+    prod:spanName "pipeline.emit" ;
+    prod:citation "crates/ggen-engine/src/sync.rs:896" .
+
+# ---------------------------------------------------------------------------
+# FM-* diagnostic codes (real AppError::fm_<family>(<number>, ...) call sites
+# across crates/ggen-engine/src and crates/ggen-config/src, excluding error.rs
+# itself, which only defines the constructors + doctests/tests). One citation
+# per (family, number) pair — the first real call site found.
+# ---------------------------------------------------------------------------
+
+prod:fm_CHAIN_2 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "2"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1863" .
+
+prod:fm_CHAIN_3 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "3"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1712" .
+
+prod:fm_CHAIN_4 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "4"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1895" .
+
+prod:fm_CHAIN_5 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "5"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/verbs/handlers.rs:502" .
+
+prod:fm_CHAIN_6 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "6"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/verbs/handlers.rs:518" .
+
+prod:fm_CHAIN_7 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "7"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/verbs/handlers.rs:538" .
+
+prod:fm_CHAIN_8 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "8"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1796" .
+
+prod:fm_CHAIN_9 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "9"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1826" .
+
+prod:fm_CHAIN_10 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "10"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1878" .
+
+prod:fm_CHAIN_11 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "11"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1911" .
+
+prod:fm_CONFIG_1 a prod:DiagnosticCode ;
+    prod:family "CONFIG" ;
+    prod:number "1"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/config.rs:201" .
+
+prod:fm_CONFIG_2 a prod:DiagnosticCode ;
+    prod:family "CONFIG" ;
+    prod:number "2"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/config.rs:212" .
+
+prod:fm_CONFIG_3 a prod:DiagnosticCode ;
+    prod:family "CONFIG" ;
+    prod:number "3"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/schema_dispatch.rs:98" .
+
+prod:fm_CONFIG_4 a prod:DiagnosticCode ;
+    prod:family "CONFIG" ;
+    prod:number "4"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1560" .
+
+prod:fm_GEN_1 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "1"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:402" .
+
+prod:fm_GEN_2 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "2"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:418" .
+
+prod:fm_GEN_4 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "4"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:572" .
+
+prod:fm_GEN_5 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "5"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:663" .
+
+prod:fm_GEN_6 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "6"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:676" .
+
+prod:fm_GEN_7 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "7"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:717" .
+
+prod:fm_GEN_9 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "9"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:911" .
+
+prod:fm_GEN_10 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "10"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:1038" .
+
+prod:fm_GEN_11 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "11"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:858" .
+
+prod:fm_GEN_12 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "12"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:869" .
+
+prod:fm_GEN_13 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "13"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:207" .
+
+prod:fm_GEN_14 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "14"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:221" .
+
+prod:fm_GRAPH_1 a prod:DiagnosticCode ;
+    prod:family "GRAPH" ;
+    prod:number "1"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:40" .
+
+prod:fm_GRAPH_2 a prod:DiagnosticCode ;
+    prod:family "GRAPH" ;
+    prod:number "2"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:52" .
+
+prod:fm_GRAPH_3 a prod:DiagnosticCode ;
+    prod:family "GRAPH" ;
+    prod:number "3"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:119" .
+
+prod:fm_GRAPH_4 a prod:DiagnosticCode ;
+    prod:family "GRAPH" ;
+    prod:number "4"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:135" .
+
+prod:fm_GRAPH_5 a prod:DiagnosticCode ;
+    prod:family "GRAPH" ;
+    prod:number "5"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:1228" .
+
+prod:fm_GRAPH_6 a prod:DiagnosticCode ;
+    prod:family "GRAPH" ;
+    prod:number "6"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:1048" .
+
+prod:fm_GRAPH_7 a prod:DiagnosticCode ;
+    prod:family "GRAPH" ;
+    prod:number "7"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1686" .
+
+prod:fm_GRAPH_8 a prod:DiagnosticCode ;
+    prod:family "GRAPH" ;
+    prod:number "8"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:92" .
+
+prod:fm_GRAPH_9 a prod:DiagnosticCode ;
+    prod:family "GRAPH" ;
+    prod:number "9"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:107" .
+
+prod:fm_KEY_1 a prod:DiagnosticCode ;
+    prod:family "KEY" ;
+    prod:number "1"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/keys.rs:47" .
+
+prod:fm_KEY_2 a prod:DiagnosticCode ;
+    prod:family "KEY" ;
+    prod:number "2"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/keys.rs:56" .
+
+prod:fm_KEY_3 a prod:DiagnosticCode ;
+    prod:family "KEY" ;
+    prod:number "3"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/keys.rs:90" .
+
+prod:fm_KEY_4 a prod:DiagnosticCode ;
+    prod:family "KEY" ;
+    prod:number "4"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/keys.rs:118" .
+
+prod:fm_KEY_5 a prod:DiagnosticCode ;
+    prod:family "KEY" ;
+    prod:number "5"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/keys.rs:130" .
+
+prod:fm_KEY_6 a prod:DiagnosticCode ;
+    prod:family "KEY" ;
+    prod:number "6"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/keys.rs:147" .
+
+prod:fm_KEY_7 a prod:DiagnosticCode ;
+    prod:family "KEY" ;
+    prod:number "7"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/keys.rs:167" .
+
+prod:fm_KEY_8 a prod:DiagnosticCode ;
+    prod:family "KEY" ;
+    prod:number "8"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/keys.rs:187" .
+
+prod:fm_KEY_9 a prod:DiagnosticCode ;
+    prod:family "KEY" ;
+    prod:number "9"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/keys.rs:213" .
+
+prod:fm_LAW_1 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "1"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:703" .
+
+prod:fm_LAW_2 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "2"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:719" .
+
+prod:fm_LAW_3 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "3"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:729" .
+
+prod:fm_LAW_4 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "4"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:812" .
+
+prod:fm_LAW_5 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "5"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:834" .
+
+prod:fm_LAW_6 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "6"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:838" .
+
+prod:fm_LAW_7 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "7"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:906" .
+
+prod:fm_LAW_8 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "8"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:933" .
+
+prod:fm_LAW_9 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "9"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:880" .
+
+prod:fm_LAW_10 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "10"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:420" .
+
+prod:fm_LAW_11 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "11"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:479" .
+
+prod:fm_LAW_12 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "12"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:496" .
+
+prod:fm_LAW_13 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "13"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:545" .
+
+prod:fm_LAW_14 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "14"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/law_engine.rs:151" .
+
+prod:fm_LAW_15 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "15"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:273" .
+
+prod:fm_LAW_16 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "16"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:290" .
+
+prod:fm_LAW_17 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "17"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:307" .
+
+prod:fm_LAW_18 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "18"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:350" .
+
+prod:fm_PACK_1 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "1"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack.rs:105" .
+
+prod:fm_PACK_2 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "2"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack.rs:251" .
+
+prod:fm_PACK_3 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "3"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack.rs:261" .
+
+prod:fm_PACK_4 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "4"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:208" .
+
+prod:fm_PACK_5 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "5"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack.rs:295" .
+
+prod:fm_PACK_6 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "6"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack.rs:354" .
+
+prod:fm_PACK_8 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "8"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack.rs:475" .
+
+prod:fm_PACK_9 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "9"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack.rs:457" .
+
+prod:fm_PACK_10 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "10"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack.rs:166" .
+
+prod:fm_PACK_11 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "11"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack.rs:220" .
+
+prod:fm_PACK_12 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "12"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:577" .
+
+prod:fm_PACK_13 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "13"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:624" .
+
+prod:fm_PACK_14 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "14"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:450" .
+
+prod:fm_SHELL_1 a prod:DiagnosticCode ;
+    prod:family "SHELL" ;
+    prod:number "1"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/shell_safety.rs:47" .
+
+prod:fm_SHELL_2 a prod:DiagnosticCode ;
+    prod:family "SHELL" ;
+    prod:number "2"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1344" .
+
+prod:fm_SHELL_3 a prod:DiagnosticCode ;
+    prod:family "SHELL" ;
+    prod:number "3"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1346" .
+
+prod:fm_TPL_1 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "1"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/template.rs:183" .
+
+prod:fm_TPL_2 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "2"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/template.rs:201" .
+
+prod:fm_TPL_3 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "3"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/lint.rs:273" .
+
+prod:fm_TPL_4 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "4"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/lint.rs:287" .
+
+prod:fm_TPL_5 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "5"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/lint.rs:320" .
+
+prod:fm_TPL_6 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "6"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1401" .
+
+prod:fm_TPL_7 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "7"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1415" .
+
+prod:fm_TPL_8 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "8"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1405" .
+
+prod:fm_TPL_9 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "9"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1487" .
+
+prod:fm_TPL_10 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "10"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/lint.rs:305" .
+
+prod:fm_TPL_11 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "11"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1662" .
+
+prod:fm_TPL_12 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "12"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/template.rs:191" .
+
+prod:fm_TPL_13 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "13"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/template.rs:194" .
+
+prod:fm_TPL_14 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "14"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1442" .
+
+prod:fm_TPL_15 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "15"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/template.rs:424" .
+
+prod:fm_TPL_16 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "16"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1167" .
+
+prod:fm_TPL_17 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "17"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1213" .
+
+prod:fm_TPL_18 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "18"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1652" .
+
+prod:fm_WATCH_1 a prod:DiagnosticCode ;
+    prod:family "WATCH" ;
+    prod:number "1"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/watch.rs:65" .
+
+prod:fm_WATCH_2 a prod:DiagnosticCode ;
+    prod:family "WATCH" ;
+    prod:number "2"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/watch.rs:75" .
+
+prod:fm_WRITE_1 a prod:DiagnosticCode ;
+    prod:family "WRITE" ;
+    prod:number "1"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/write.rs:255" .
+
+prod:fm_WRITE_2 a prod:DiagnosticCode ;
+    prod:family "WRITE" ;
+    prod:number "2"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/write.rs:262" .
+
+prod:fm_WRITE_3 a prod:DiagnosticCode ;
+    prod:family "WRITE" ;
+    prod:number "3"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/write.rs:112" .
+
+prod:fm_WRITE_4 a prod:DiagnosticCode ;
+    prod:family "WRITE" ;
+    prod:number "4"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/write.rs:331" .
+
+prod:fm_WRITE_5 a prod:DiagnosticCode ;
+    prod:family "WRITE" ;
+    prod:number "5"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/write.rs:144" .
+
+prod:fm_WRITE_6 a prod:DiagnosticCode ;
+    prod:family "WRITE" ;
+    prod:number "6"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/write.rs:221" .
+
+prod:fm_WRITE_7 a prod:DiagnosticCode ;
+    prod:family "WRITE" ;
+    prod:number "7"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/write.rs:73" .
+
+prod:fm_WRITE_8 a prod:DiagnosticCode ;
+    prod:family "WRITE" ;
+    prod:number "8"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:876" .
+
+prod:fm_WRITE_9 a prod:DiagnosticCode ;
+    prod:family "WRITE" ;
+    prod:number "9"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1294" .

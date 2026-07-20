@@ -132,6 +132,35 @@ pub enum CoreError {
         /// Why the declared name failed to resolve to `expected`'s authority.
         reason: String,
     },
+
+    /// Receipt-epoch migration (`crate::receipt_epoch`): a [`crate::receipt_record::ReceiptRecord`]
+    /// declared a `schema` string this reader does not recognize as either
+    /// [`crate::receipt_epoch::SCHEMA_V1`] or [`crate::receipt_epoch::SCHEMA_V2`] --
+    /// most likely a future schema this build predates. Refused rather than
+    /// silently treated as legacy or v2.
+    #[error("unrecognized receipt schema: {0}")]
+    UnrecognizedReceiptSchema(String),
+
+    /// Receipt-epoch migration: the record's declared `schema` string
+    /// contradicts whether its `v2` payload is present (schema says v1 but a
+    /// `v2` payload exists, or schema says v2 but no `v2` payload is
+    /// present) -- a receipt that lies about its own shape.
+    #[error("receipt schema/payload mismatch: {0}")]
+    ReceiptSchemaPayloadMismatch(String),
+
+    /// Receipt-epoch ceiling monotonicity
+    /// (`crate::receipt_epoch::ReceiptEpochV2Builder::build`): an explicit
+    /// ceiling override was requested that exceeds
+    /// `meet(recoverable(prev), supported(new evidence))` -- refused rather
+    /// than silently accepted, since a receipt's ceiling must never claim
+    /// more confidence than the evidence chain actually supports.
+    #[error("ceiling {requested:?} exceeds allowed meet {allowed:?}")]
+    CeilingExceedsMeet {
+        /// The ceiling the caller tried to force.
+        requested: crate::receipt_epoch::CeilingLevel,
+        /// The highest ceiling `meet(recoverable(prev), supported(new))` allows.
+        allowed: crate::receipt_epoch::CeilingLevel,
+    },
 }
 
 /// Every [`CoreError`] name, in declaration order. Mirrors
@@ -143,7 +172,7 @@ pub enum CoreError {
 /// `tests::all_core_error_names_matches_enum` below, which builds one
 /// instance of every variant and zip-checks `name()` against this array in
 /// order.
-pub const ALL_CORE_ERROR_NAMES: [&str; 14] = [
+pub const ALL_CORE_ERROR_NAMES: [&str; 17] = [
     "ObligationUnmet",
     "SignatureInvalid",
     "ChainMismatch",
@@ -158,6 +187,9 @@ pub const ALL_CORE_ERROR_NAMES: [&str; 14] = [
     "ArazzoSourceReceiptMissing",
     "ArazzoProjectionDigestMismatch",
     "ArazzoDialectAuthorityMismatch",
+    "UnrecognizedReceiptSchema",
+    "ReceiptSchemaPayloadMismatch",
+    "CeilingExceedsMeet",
 ];
 
 impl CoreError {
@@ -183,6 +215,9 @@ impl CoreError {
             CoreError::ArazzoSourceReceiptMissing(_) => "ArazzoSourceReceiptMissing",
             CoreError::ArazzoProjectionDigestMismatch(_) => "ArazzoProjectionDigestMismatch",
             CoreError::ArazzoDialectAuthorityMismatch { .. } => "ArazzoDialectAuthorityMismatch",
+            CoreError::UnrecognizedReceiptSchema(_) => "UnrecognizedReceiptSchema",
+            CoreError::ReceiptSchemaPayloadMismatch(_) => "ReceiptSchemaPayloadMismatch",
+            CoreError::CeilingExceedsMeet { .. } => "CeilingExceedsMeet",
         }
     }
 }
@@ -201,7 +236,7 @@ mod tests {
     fn all_core_error_names_len_matches_array() {
         assert_eq!(
             ALL_CORE_ERROR_NAMES.len(),
-            14,
+            17,
             "ALL_CORE_ERROR_NAMES size drifted"
         );
     }
@@ -247,6 +282,12 @@ mod tests {
                 declared: "gate".to_string(),
                 expected: "gate",
                 reason: "gate".to_string(),
+            },
+            CoreError::UnrecognizedReceiptSchema("gate".to_string()),
+            CoreError::ReceiptSchemaPayloadMismatch("gate".to_string()),
+            CoreError::CeilingExceedsMeet {
+                requested: crate::receipt_epoch::CeilingLevel::Green,
+                allowed: crate::receipt_epoch::CeilingLevel::Yellow,
             },
         ];
         assert_eq!(all.len(), ALL_CORE_ERROR_NAMES.len());

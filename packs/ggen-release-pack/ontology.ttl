@@ -1,0 +1,240 @@
+@prefix grp: <http://seanchatmangpt.github.io/packs/ggen-release#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# Classes
+#################################################################
+
+grp:CiWorkflow a rdfs:Class ;
+    rdfs:label "A GitHub Actions CI workflow definition for ggen's own release engineering" .
+
+grp:ReleaseArtifact a rdfs:Class ;
+    rdfs:label "A non-workflow release-engineering artifact (standing declaration, publication judgment)" .
+
+#################################################################
+# CiWorkflow individuals
+#################################################################
+
+# NOTE: trigger is push:[main] ONLY. Never schedule/cron — a candidate-publish run must be
+# provoked by a real commit landing on main, not a clock. Tag creation (the step that fires
+# release.yml) only happens from inside a green run of THIS workflow, so main-push is the
+# correct and only trigger.
+grp:PublishCandidateWorkflow a grp:CiWorkflow ;
+    rdfs:label "publish-candidate: ggen's own self-verification-then-tag pipeline" ;
+    grp:triggerEvent "push" ;
+    grp:triggerBranch "main" ;
+    grp:permission "contents:write" ;
+    grp:workflowBody """name: Publish Candidate
+
+on:
+  push:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+# This workflow only ever reads repo state and (on an all-green run) creates+pushes a tag —
+# it never uploads release assets itself. Tag creation fires the existing tags-only
+# .github/workflows/release.yml, which does the asset build/upload under its own permissions.
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish-candidate:
+    name: Verify and tag release candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      # Mirrors .github/workflows/release.yml's build-release job toolchain setup exactly:
+      # dtolnay/rust-toolchain, stable, pinned by digest. The workspace's rust-toolchain.toml
+      # pins nightly for local dev; release engineering deliberately builds on stable, matching
+      # the existing release.yml precedent rather than introducing a second toolchain policy.
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b # stable (2024-06)
+        with:
+          toolchain: stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-publish-candidate-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build debug binary
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Self-hosted verification loop (verify-tcps)
+        run: just verify-tcps
+
+      - name: Docs-through-ggen drift gate (docs-sync)
+        run: |
+          just docs-sync
+          if ! git diff --quiet; then
+            echo "ANDON: docs-sync produced changes not already committed — drift detected"
+            git status --porcelain
+            git diff --stat
+            exit 1
+          fi
+          echo "docs-sync: no drift"
+
+      - name: Book gates (check_book / check_level_five)
+        run: |
+          python3 book/scripts/check_book.py
+          python3 book/scripts/check_level_five.py
+
+      - name: Guard — pack proofs
+        run: just guard-pack-proofs
+
+      - name: Guard — claims schema (schema-only mode)
+        run: just guard-claims-schema
+
+      - name: Guard — publish standing (FULL / strict mode)
+        run: just guard-publish-standing
+
+      - name: Version consistency check
+        run: ./scripts/ci/guard-version-consistency.sh
+
+      - name: Create and push release tag
+        if: success()
+        run: |
+          set -euo pipefail
+          VERSION="$(grep -m1 '^version' Cargo.toml | sed -E 's/version *= *\"([^\"]+)\"/\\1/')"
+          TAG="v${VERSION}"
+          if git rev-parse "refs/tags/${TAG}" >/dev/null 2>&1; then
+            echo "tag ${TAG} already exists — nothing to do"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${TAG}" -m "Release candidate ${TAG}: publish-candidate all-green"
+          git push origin "${TAG}"
+          echo "pushed ${TAG} — this fires .github/workflows/release.yml"
+""" .
+
+#################################################################
+# ReleaseArtifact individuals
+#################################################################
+
+grp:ReleaseStandingJsonArtifact a grp:ReleaseArtifact ;
+    rdfs:label "ggen release standing declaration (JSON)" ;
+    grp:artifactPath "RELEASE_STANDING.json" ;
+    grp:artifactBody """{
+  "release": "v26.7.20",
+  "flavor": "candidate",
+  "source_standing": "believable-claimed",
+  "binary_standing": "unverified-on-artifact-host",
+  "l5_publication_claim": "WITHHELD",
+  "l5_publication_claim_reason": "self-manufacture generations (current ggen producing a candidate ggen, candidate producing a next-generation ggen, and the generation-2/generation-3 fixed point) are not yet proven -- see docs/PUBLICATION_JUDGMENT.md",
+  "reasons": [
+    "source_standing is asserted from this repo's own passing gates (just pre-commit, verify-tcps, docs-sync), not independently re-derived by a second, dissimilar toolchain",
+    "binary_standing has not been established on the artifact-generation host running this pack -- it names the CI job that must run and pass before a binary_standing upgrade is honest",
+    "no generation-0-to-3 self-manufacture receipt chain exists yet for ggen itself (the generations ledger only carries G0/G1, not a full candidate-generates-candidate loop)"
+  ],
+  "establish_binary_standing_with": [
+    ".github/workflows/publish-candidate.yml (this pack's own workflow)",
+    ".github/workflows/release.yml (fired by the v$VERSION tag on an all-green publish-candidate run)",
+    "just pre-commit",
+    "just verify-tcps"
+  ]
+}
+""" .
+
+grp:ReleaseStandingMdArtifact a grp:ReleaseArtifact ;
+    rdfs:label "ggen release standing declaration (Markdown)" ;
+    grp:artifactPath "RELEASE_STANDING.md" ;
+    grp:artifactBody """# Release Standing — ggen v26.7.20 candidate
+
+## Accepted source standing
+
+- The 17-crate workspace builds and this repo's own `just pre-commit` gate chain is defined
+  and runnable (fmt-check, check, lint, test-lib, coherence-check,
+  guard-process-intelligence-boundary, guard-cheat-scan, guard-claims-schema, guard-pack-proofs).
+- `just verify-tcps` (the self-hosted evidence loop over `examples/tcps-generated`) is a real,
+  runnable command backed by a receipt chain (`ggen receipt verify`).
+- `just docs-sync` re-syncs the root manifest and the Level Five Packs book and asserts the
+  result is a content no-op (`git diff --quiet`); this pack's workflow makes that assertion a
+  CI-enforced Andon rather than a manual habit.
+- `scripts/ci/guard-publish-standing.sh` (this repo's no-overclaiming claims ledger gate) exists
+  in both schema-only (pre-commit) and full/strict (pre-publish) modes and this pack's workflow
+  runs both, in that order, before any tag is pushed.
+
+## Standing NOT claimed
+
+- **Binary standing** is `unverified-on-artifact-host`: this document is generated by `ggen sync`
+  on whatever host runs the sync, and that host's build/test/clippy run is not, by itself,
+  evidence a *tagged release* binary is sound -- that is what `.github/workflows/release.yml`
+  (fired by this pack's tag-push step) establishes independently, per target, in CI.
+- **L5 publication claim is WITHHELD.** ggen's own 第五水準 (Level Five) publication bar
+  (GGEN-v26.7.20-製品要求書・構成設計書.md, 第二十九章, 23 conditions) requires, among other
+  things, a current-generation-to-candidate-to-next-generation self-manufacture loop with a
+  generation-2/generation-3 fixed point and an independent, dissimilar-toolchain double-check.
+  None of that loop has been run and receipted for ggen itself as of this pack's generation.
+  See `docs/PUBLICATION_JUDGMENT.md` for the full condition-by-condition table -- most
+  conditions there are marked NOT MET. A green `publish-candidate` run and a green
+  `release.yml` matrix build establish that the *candidate compiles, passes its own gates, and
+  produces installable binaries* -- they do not, by themselves, establish the L5 self-manufacture
+  claim.
+""" .
+
+grp:PublicationJudgmentArtifact a grp:ReleaseArtifact ;
+    rdfs:label "ggen L5 publication judgment table (Markdown)" ;
+    grp:artifactPath "docs/PUBLICATION_JUDGMENT.md" ;
+    grp:artifactBody """# Publication Judgment — ggen v26.7.20
+
+GENERATED by `ggen sync` from `packs/ggen-release-pack/ontology.ttl`, itself transcribed from
+`GGEN-v26.7.20-製品要求書・構成設計書.md`, 第八編 (第二十九章「公開可能条件」, the 23 conditions
+that must ALL hold before ggen may be published as a Level Five self-manufacturing system) --
+edit the source `.md` chapter's intent then the ontology, not this file.
+
+第二十九章 is explicit: 一件でも未達がある場合、第五水準として公開してはならない
+("if even one condition is unmet, it must not be published as Level Five"). The table below is
+this pack's honest, per-condition standing for ggen itself as of this generation. Most rows are
+NOT MET -- this repo has real, passing `just pre-commit`/`verify-tcps` gates, but has not run and
+receipted the generation-0-through-3 self-manufacture loop the chapter requires.
+
+| # | Condition (transcribed) | Status | Basis |
+|---|---|---|---|
+| 1 | 全製品面が意味図式から生成される (every product surface is generated from the semantic schema) | PARTIAL | Most CLI/config/docs surfaces sync from `.specify/*.ttl`; not yet ALL surfaces (see architecture.md's ggen.toml two-schema note) |
+| 2 | 現行ggenが候補ggenを生成する (current ggen generates a candidate ggen) | NOT MET | No recorded run of current ggen generating a full candidate ggen workspace |
+| 3 | 候補ggenが次世代ggenを生成する (the candidate generates a next-generation ggen) | NOT MET | Depends on condition 2; not attempted |
+| 4 | 世代二と世代三が製品種類別固定点を満たす (generation 2 and 3 reach a per-product-type fixed point) | NOT MET | No generation 2/3 exist yet to compare |
+| 5 | 独立検査路が存在する (an independent inspection path exists) | PARTIAL | `verify-tcps` + `guard-*` scripts exist, but no dissimilar-toolchain second inspection path is wired |
+| 6 | 異種二重製造または異種二重検査が成立する (heterogeneous dual manufacture or dual inspection holds) | NOT MET | Single toolchain/pipeline only |
+| 7 | 複数の実利用先を生成できる (can generate multiple real consumers) | PARTIAL | Multiple packs exist (28 pack dirs); not all independently verified against real downstream consumers |
+| 8 | 合成時に意味汚染がない (no semantic contamination at composition time) | UNVERIFIED | No automated cross-pack semantic-contamination check exists |
+| 9 | 一出力一所有が守られる (one-output-one-owner is preserved) | PARTIAL | `ggen sync`'s write layer enforces target-root containment; ownership-per-output is not separately audited |
+| 10 | 必須証拠が正式な証拠搬送路から入る (required evidence enters only via a formal evidence-carrying path) | PARTIAL | `docs/aps/claims.toml` + `guard-publish-standing.sh` is a real evidence ledger; not all claims route through it yet |
+| 11 | 赤、欠落、古さが実際に製造を止める (red/missing/stale evidence actually halts manufacture) | ALIVE | `guard-publish-standing.sh` full mode fails the build on BLOCKED-without-exception publish-gated claims; this pack's workflow runs it before tagging |
+| 12 | アンドンが憲法判定から導出される (Andon is derived from constitutional judgment) | PARTIAL | Andon-signal discipline exists (`.claude/rules/andon/signals.md`); not formally derived from a machine-checked constitution object for every gate |
+| 13 | 義務数が憲法判定後の未解決義務から計算される (obligation count is computed from unresolved obligations post-constitutional-judgment) | UNVERIFIED | `praxis-core::Obligation` exists; no single ggen-wide obligation count is computed and surfaced |
+| 14 | standing上限が四軸の最弱値として記録される (standing ceiling is recorded as the weakest of four axes) | NOT MET | No four-axis standing-ceiling computation exists for ggen as a whole |
+| 15 | 製品種類別同値関係が全項目に明示される (per-product-type equivalence relations are stated for every item) | NOT MET | Not defined |
+| 16 | 不明が省略されない (unknowns are never omitted) | ALIVE | This table itself follows that discipline -- UNVERIFIED/NOT MET rows are stated, not omitted |
+| 17 | 第二世代受領証が使用される (generation-2 receipts are used) | PARTIAL | Receipt v2 schema work is in progress (see task #104); not yet the sole receipt format everywhere |
+| 18 | 旧受領証から新受領証への移行が受領される (migration from old to new receipt format is itself receipted) | PARTIAL | Migration work in progress; no closing migration receipt yet |
+| 19 | 受領鎖を再生すると同じ憲法判定になる (replaying the receipt chain reproduces the same judgment) | PARTIAL | `ggen receipt verify` checks chain-hash integrity; full judgment-replay determinism is not separately proven |
+| 20 | 実行形式が定められた再現環境で再現される (the executable reproduces in a defined reproducible environment) | NOT MET | No reproducible-build pipeline (bit-identical rebuild) exists for ggen's own binary |
+| 21 | 配布物が独立して再生成される (distributed artifacts are independently regenerated) | NOT MET | Not attempted |
+| 22 | 改善一件を手直しなしで次世代へ渡す (one real improvement passes to the next generation with zero manual touch-up) | NOT MET | No such improvement has been run end-to-end and receipted |
+| 23 | 公開判定自体が受領証へ記録される (the publication judgment itself is recorded to a receipt) | PARTIAL | This document is `ggen sync`-generated and can be receipted like any other sync output; no dedicated publication-judgment receipt field exists yet |
+
+## Conclusion
+
+Per 第二十九章's own rule, one unmet condition is sufficient to withhold Level Five publication.
+Conditions 2, 3, 4, 6, 14, 15, 20, 21, and 22 above are NOT MET. **ggen v26.7.20 is a release
+candidate, not a Level Five publication.** `RELEASE_STANDING.json`/`.md` record
+`l5_publication_claim: WITHHELD` accordingly.
+""" .

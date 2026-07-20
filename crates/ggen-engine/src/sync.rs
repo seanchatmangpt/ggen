@@ -28,6 +28,10 @@ use std::{
 };
 
 use praxis_core::{
+    receipt_epoch::{
+        read_receipt_epoch, AdmissionDecision, AdmissionItem, AndonLevel, CeilingLevel,
+        ComponentLevels, ObservedOutcome, ReceiptEpochV2Builder, SCHEMA_V2,
+    },
     receipt_record::{ReceiptRecord, RECEIPT_RECORD_VERSION},
     Andon,
 };
@@ -1820,7 +1824,8 @@ pub(crate) fn write_receipt(root: &Path, report: &SyncReport) -> Result<()> {
     // by `receipt history`.
     let receipt_path = root.join(RECEIPT_REL_PATH);
     let log_path = root.join(RECEIPT_LOG_REL_PATH);
-    let prev_chain_hash_hex = match read_prev_head(&receipt_path, &log_path)? {
+    let prev_head = read_prev_head(&receipt_path, &log_path)?;
+    let prev_chain_hash_hex = match &prev_head {
         Some(prev) => {
             let recomputed = prev.record.recompute_chain_hash().map_err(|e| {
                 AppError::fm_chain(9, format!("previous receipt chain recompute failed: {e}"))
@@ -1837,10 +1842,91 @@ pub(crate) fn write_receipt(root: &Path, report: &SyncReport) -> Result<()> {
                     ),
                 ));
             }
-            prev.record.chain_hash_hex
+            prev.record.chain_hash_hex.clone()
         }
         None => "0".repeat(64),
     };
+
+    // ── Receipt epoch v2 ────────────────────────────────────────────────
+    //
+    // Every output-decision entry becomes one itemized admission item.
+    // `ggen sync` today only reaches this point after every stage in the
+    // pipeline has already returned `Ok` -- there is no per-file
+    // quarantine/refusal concept yet -- so every item is honestly
+    // `Admitted`; the precedence machinery (`derive_andon`) is real and
+    // wired for the day a future stage does quarantine/refuse a specific
+    // output, not a decorative pass-through. The equivalence map is left
+    // all-`Unknown`: this call site does not itself evaluate cross-generation
+    // docs/tests/gates equivalence, and claiming otherwise would overclaim
+    // checks that were never run (see `.claude/rules/no-overclaiming-rust.md`).
+    let admission_items: Vec<AdmissionItem> = report
+        .decisions
+        .iter()
+        .map(|(path, reason)| AdmissionItem {
+            evidence_id: path.clone(),
+            observed_outcome: ObservedOutcome::Pass,
+            decision: AdmissionDecision::Admitted,
+            reason: reason.clone(),
+            obligations_discharged: Vec::new(),
+            obligations_created: Vec::new(),
+        })
+        .collect();
+
+    let prev_ceiling = match &prev_head {
+        Some(prev) => read_receipt_epoch(&prev.record)
+            .map_err(|e| {
+                AppError::fm_chain(10, format!("previous receipt epoch unreadable: {e}"))
+            })?
+            .standing_ceiling,
+        // Genesis: no prior evidence to constrain the ceiling yet -- Green
+        // is the lattice's top/identity element (see `CeilingLevel::Green`).
+        None => CeilingLevel::Green,
+    };
+
+    // This generation's only real signal is "did every output admit
+    // cleanly", so all four named components mirror that single level
+    // (see `ComponentLevels::uniform`'s doc comment) rather than fabricating
+    // independent lint/test/fmt results this call site never observed.
+    let provisional_level = if admission_items
+        .iter()
+        .any(|i| i.decision == AdmissionDecision::Refused)
+    {
+        AndonLevel::Red
+    } else if admission_items
+        .iter()
+        .any(|i| i.decision == AdmissionDecision::Quarantined)
+    {
+        AndonLevel::Yellow
+    } else {
+        AndonLevel::Green
+    };
+    let components = ComponentLevels::uniform(provisional_level);
+
+    let mut epoch_builder = ReceiptEpochV2Builder::new(prev_ceiling, components);
+    for item in admission_items {
+        epoch_builder = epoch_builder.admission_item(item);
+    }
+    let epoch = epoch_builder
+        .build()
+        .map_err(|e| AppError::fm_chain(11, format!("receipt epoch construction failed: {e}")))?;
+
+    // The legacy top-level `Andon` field is derived from the same v2
+    // precedence, not hardcoded -- this is the hardcoded-`Green` literal
+    // this migration replaces.
+    let legacy_andon = match epoch.andon {
+        AndonLevel::Green => Andon::Green,
+        AndonLevel::Yellow => Andon::Overridden {
+            by: "ggen.sync.v2".to_string(),
+            reason: "quarantined admission item(s); see receipt v2.admission".to_string(),
+            at: 0,
+        },
+        AndonLevel::Red => Andon::Halted {
+            unmet: Vec::new(),
+            refusals: Vec::new(),
+            at: 0,
+        },
+    };
+    let legacy_obligation_count = epoch.obligation_count.remaining().unwrap_or(0);
 
     let mut record = ReceiptRecord {
         version: RECEIPT_RECORD_VERSION,
@@ -1854,9 +1940,11 @@ pub(crate) fn write_receipt(root: &Path, report: &SyncReport) -> Result<()> {
         payload_hash_hex,
         prev_chain_hash_hex,
         chain_hash_hex: String::new(),
-        andon: Andon::Green,
-        obligation_count: 0,
+        andon: legacy_andon,
+        obligation_count: legacy_obligation_count,
         signature_hex: None,
+        schema: SCHEMA_V2.to_string(),
+        v2: Some(epoch),
     };
     let chain = record
         .recompute_chain_hash()

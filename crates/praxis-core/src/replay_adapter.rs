@@ -209,6 +209,8 @@ mod tests {
             obligation_count: 0,
             object_ids: vec!["law:abc".to_string()],
             signature_hex: None,
+            schema: crate::receipt_epoch::SCHEMA_V1.to_string(),
+            v2: None,
         };
         let metrics = replay_receipt_lifecycle(&record).expect("must replay");
         assert_eq!(metrics.fitness, 0x0001_0000);

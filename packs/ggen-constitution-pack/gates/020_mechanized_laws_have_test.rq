@@ -1,0 +1,8 @@
+# MESSAGE: a ccn:Law claims ccn:mechanized true but carries no ccn:provenBy -- a mechanized claim with no cited test/gate is exactly the self-certification failure Principle XI (Law 14) forbids ("a self-reported level contradicted by its own evidence is refused"). Either add a real ccn:provenBy test/gate name found by grep, or set ccn:mechanized false with an honest ccn:note.
+PREFIX ccn: <http://seanchatmangpt.github.io/packs/ggen-constitution#>
+SELECT ?law WHERE {
+  ?law a ccn:Law ;
+       ccn:mechanized true .
+  FILTER NOT EXISTS { ?law ccn:provenBy ?p }
+}
+ORDER BY ?law

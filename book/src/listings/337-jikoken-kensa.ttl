@@ -1,0 +1,7 @@
+@prefix gen: <http://ggen.org/generations#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+gen:G1 a gen:Generation ;
+    gen:manufactures "adds one book:Chapter, one gen-receipt recipe, one docs/GENERATIONS.md rule" ;
+    gen:inspectedBy gen:G2 ;
+    gen:selfCertified false .

@@ -1,6 +1,6 @@
 [project]
 name = "ggen"
-version = "26.7.1"
+version = "26.7.20"
 description = "Specification-driven code generation from RDF ontologies — A = μ(O)"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
@@ -13,6 +13,10 @@ imports = [
   ".specify/cli-proof-tests.ttl",
   ".specify/repo-facts.ttl",
   ".specify/maturity.ttl",
+  ".specify/ggen-product.ttl",
+  ".specify/generations.ttl",
+  "packs/ggen-constitution-pack/ontology.ttl",
+  "packs/ggen-release-pack/ontology.ttl",
 ]
 
 [ontology.prefixes]
@@ -134,6 +138,83 @@ template    = { file = ".specify/templates/docs/readme_region.md.tera" }
 output_file = "README.md"
 skip_empty  = false
 mode        = "Merge"
+
+[[generation.rules]]
+name        = "docs-constitution-mirror"
+query       = { inline = """
+PREFIX ccn: <http://seanchatmangpt.github.io/packs/ggen-constitution#>
+SELECT ?num WHERE { ?law a ccn:Law ; ccn:principleNumber ?num . } ORDER BY ?num
+""" }
+template    = { file = "packs/ggen-constitution-pack/templates/constitution.md.tmpl" }
+output_file = "CONSTITUTION.md"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "docs-generations-ledger"
+query       = { inline = """
+PREFIX gen: <http://ggen.org/generations#>
+SELECT ?commit WHERE { gen:G0 a gen:Generation ; gen:commit ?commit . } ORDER BY ?commit
+""" }
+template    = { file = ".specify/templates/docs/generations_ledger.md.tera" }
+output_file = "docs/GENERATIONS.md"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "docs-product-mirror"
+query       = { inline = """
+PREFIX prod: <http://ggen.org/product#>
+SELECT ?x WHERE { ?x a prod:ProductMirror . } ORDER BY ?x
+""" }
+template    = { file = ".specify/templates/docs/product.md.tera" }
+output_file = "docs/PRODUCT.md"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "ggen-release-publish-candidate-workflow"
+query       = { inline = """
+PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
+SELECT ?body WHERE { grp:PublishCandidateWorkflow grp:workflowBody ?body . } ORDER BY ?body
+""" }
+template    = { file = ".specify/templates/docs/ggen_publish_candidate_workflow.yml.tera" }
+output_file = ".github/workflows/publish-candidate.yml"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "ggen-release-standing-json"
+query       = { inline = """
+PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
+SELECT ?body WHERE { grp:ReleaseStandingJsonArtifact grp:artifactBody ?body . } ORDER BY ?body
+""" }
+template    = { file = ".specify/templates/docs/ggen_release_standing_json.tera" }
+output_file = "RELEASE_STANDING.json"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "ggen-release-standing-md"
+query       = { inline = """
+PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
+SELECT ?body WHERE { grp:ReleaseStandingMdArtifact grp:artifactBody ?body . } ORDER BY ?body
+""" }
+template    = { file = ".specify/templates/docs/ggen_release_standing_md.tera" }
+output_file = "RELEASE_STANDING.md"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "ggen-publication-judgment"
+query       = { inline = """
+PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
+SELECT ?body WHERE { grp:PublicationJudgmentArtifact grp:artifactBody ?body . } ORDER BY ?body
+""" }
+template    = { file = ".specify/templates/docs/ggen_publication_judgment.md.tera" }
+output_file = "docs/PUBLICATION_JUDGMENT.md"
+skip_empty  = false
+mode        = "Overwrite"
 
 [sync]
 enabled = true

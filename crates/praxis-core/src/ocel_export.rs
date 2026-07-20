@@ -163,6 +163,8 @@ mod tests {
             obligation_count: 0,
             object_ids: vec![format!("law:instr{instruction_id}")],
             signature_hex: None,
+            schema: crate::receipt_epoch::SCHEMA_V1.to_string(),
+            v2: None,
         }
     }
 
