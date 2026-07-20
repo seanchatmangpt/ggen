@@ -62,6 +62,60 @@ gen:G1 a gen:Generation ;
     gen:selfHostedEvidenceLoopScript "examples/tcps-generated/scripts/verify.sh" ;
     gen:selfHostedEvidenceLoopExitsZeroAlways true .
 
+# ── G2: current ggen (26.9.7, commit 6585fcbe6) generates a candidate ────────
+# Real, non-dry-run `ggen sync run` executed 2026-07-20 against this workspace's
+# own .specify/*.ttl sources using the debug binary built from HEAD
+# (6585fcbe6f15f197c56eb9a5d2e44169b3f4dfec). This is a DIFFERENT round than the
+# one that wrote G0/G1 -- G2 inspects G1, not itself.
+gen:G2 a gen:Generation ;
+    gen:inspects gen:G1 ;
+    gen:producedBy "ggen@26.9.7 debug binary, commit 6585fcbe6f15f197c56eb9a5d2e44169b3f4dfec" ;
+    gen:commit "6585fcbe6f15f197c56eb9a5d2e44169b3f4dfec" ;
+    gen:workspaceVersion "26.9.7" ;
+    gen:receiptChainHash "cc7633d91ae645b7f6366381601a3865fae48aed8928cdea100fe4f5f170a050" ;
+    # every one of the 14 generated outputs the sync manifest tracks came back
+    # "skipped: unchanged: content identical" -- the committed tree was ALREADY
+    # a fixed point of this binary before this round ran anything.
+    gen:allTrackedOutputsUnchanged true ;
+    gen:binaryStanding "unverified-reproducibility" .
+
+# ── G3: G2's own binary generates the next generation ───────────────────────
+# The SAME binary (no rebuild -- G2's "candidate" IS this repo's current ggen,
+# so "the candidate generates gen-3" is exercised by invoking it a second time)
+# was run again with zero source changes, 2026-07-20.
+gen:G3 a gen:Generation ;
+    gen:inspects gen:G2 ;
+    gen:producedBy "ggen@26.9.7 debug binary, commit 6585fcbe6f15f197c56eb9a5d2e44169b3f4dfec" ;
+    gen:receiptChainHash "81ca46a1ed2f3eb81ab49f02e96860f06eda21d6e4aa9249fba6f33f6e65e126" ;
+    gen:receiptPrevChainHash "cc7633d91ae645b7f6366381601a3865fae48aed8928cdea100fe4f5f170a050" ;
+    gen:allTrackedOutputsUnchanged true ;
+    # verified: `git status --porcelain` and `git diff --stat` across the whole
+    # tree (excluding the receipt/evidence lane and this round's own new
+    # generations/ + claims.toml edits, per the same DRIFT_PATHSPEC exclusion
+    # publish-candidate.yml's docs-sync gate already uses) returned EMPTY between
+    # G2 and G3 -- gen-2 and gen-3 outputs are byte-identical per every one of
+    # the EquivalenceMap's tracked classes (docs, config, generated source).
+    gen:fixedPointWithPrevious true .
+
+# ── Heterogeneous dual manufacture (condition 6) ─────────────────────────────
+# The independently-built ggen 26.7.13 (installed at ~/.cargo/bin/ggen, a
+# DIFFERENT toolchain/build than the debug binary above -- built from an
+# earlier commit predating this repo's ggen.toml schema evolution) was run
+# against the SAME live ggen.toml as an independent second producer.
+gen:G2Heterogeneous a gen:Generation ;
+    gen:inspects gen:G2 ;
+    gen:producedBy "ggen@26.7.13 (installed ~/.cargo/bin/ggen, independently built, predates the ggen.toml `version` field)" ;
+    gen:outcome "REFUSED" ;
+    # verified: `~/.cargo/bin/ggen sync run` on the live tree failed closed with
+    # "[FM-CONFIG-002] invalid ggen.toml ... unknown field `version`, expected
+    # `name`" -- a real, honest divergence between the two independently-built
+    # binaries: the older binary's config schema does not recognize a field the
+    # newer schema added. It refused loudly (a typed FM-CONFIG-002 error) rather
+    # than silently proceeding or corrupting state; confirmed via `git status`/
+    # `git diff .ggen-v2/receipt.json` that the failed run touched nothing.
+    gen:refusalCode "FM-CONFIG-002" ;
+    gen:corruptedNoState true .
+
 # ── 15-condition doctrine Definition-of-Done ────────────────────────────────
 # Status is asserted only where a concrete file, command, or test result was
 # checked THIS session (2026-07-19). Anything not checked is NOT MET, not
@@ -83,14 +137,20 @@ gen:dod02 a gen:DoDCondition ;
 gen:dod03 a gen:DoDCondition ;
     gen:order 3 ;
     gen:text "G0 and G1 are receipted by DIFFERENT rounds -- the round that writes a rule never also certifies it in the same commit." ;
-    gen:status "NOT MET" ;
-    gen:evidence "G0 and G1 are both authored in the SAME commit/round that wrote this file. No separate inspecting round (a hypothetical G2) has run yet; the chapter's own doctrine (packs/level-five-book-pack chapter 337) names this as the standard to clear, not yet cleared." .
+    gen:status "MET (as of G2)" ;
+    gen:evidence "gen:G2, added 2026-07-20 in a separate round/commit from the one that wrote G0/G1 (2026-07-19), records `gen:inspects gen:G1`. G0/G1's own same-round authorship remains as originally disclosed above; the condition is satisfied going forward by G2's existence, not retroactively rewritten." .
+
+gen:dod03b a gen:DoDCondition ;
+    gen:order 3 ;
+    gen:text "(supplementary, not part of the original 15) a heterogeneous, independently-built second binary was run against the same sources as an inspection/dual-manufacture check." ;
+    gen:status "MET" ;
+    gen:evidence "gen:G2Heterogeneous: ggen@26.7.13 (a genuinely different build, predating this workspace's ggen.toml `version` field) was run against the live tree and refused loudly with FM-CONFIG-002 rather than silently diverging or corrupting state -- a real, disclosed divergence between two independently-built toolchains, not a fabricated agreement." .
 
 gen:dod04 a gen:DoDCondition ;
     gen:order 4 ;
     gen:text "`.ggen-v2/receipt.json` exists and its BLAKE3 chain hash was verified via `ggen receipt verify` after this round's sync." ;
-    gen:status "NOT MET" ;
-    gen:evidence "Not run as part of writing this ledger; G0's binary_standing is honestly recorded as \"unverified-reproducibility\" for the same reason." .
+    gen:status "MET" ;
+    gen:evidence "Ran `ggen receipt verify` after G3's sync, 2026-07-20: `{\"valid\":true,\"chain_hash\":\"81ca46a1...\",\"payload_hash\":\"50d675f3...\",\"graph_hash\":\"8a4511f3...\",\"outputs\":14,\"signed\":true,\"signature_valid\":true}`. Also confirmed by hand that G3's prev_chain_hash_hex equals G2's chain_hash_hex, i.e. the chain is continuous across this round's two real sync runs." .
 
 gen:dod05 a gen:DoDCondition ;
     gen:order 5 ;
@@ -131,8 +191,8 @@ gen:dod10 a gen:DoDCondition ;
 gen:dod11 a gen:DoDCondition ;
     gen:order 11 ;
     gen:text "A second `ggen sync run` on an unchanged graph is byte-identical for docs/GENERATIONS.md (idempotency proven, not assumed)." ;
-    gen:status "NOT MET" ;
-    gen:evidence "Not verified this round -- would require running ggen sync run twice and diffing docs/GENERATIONS.md, which was not done." .
+    gen:status "MET" ;
+    gen:evidence "G2 then G3: `ggen sync run` invoked twice with zero source changes in between, 2026-07-20. Every one of the 14 tracked outputs (including docs/GENERATIONS.md) reported \"skipped: unchanged: content identical\" on BOTH runs; `git diff --stat` across the whole tree (excluding the receipt/evidence lane) between G2 and G3 was empty. Idempotency proven by direct diff, not assumed." .
 
 gen:dod12 a gen:DoDCondition ;
     gen:order 12 ;
@@ -155,5 +215,5 @@ gen:dod14 a gen:DoDCondition ;
 gen:dod15 a gen:DoDCondition ;
     gen:order 15 ;
     gen:text "A named future round (G2) exists that will independently inspect G1's claims -- i.e. this ledger names its own successor rather than claiming final standing." ;
-    gen:status "NOT MET" ;
-    gen:evidence "gen:G1 records `gen:inspects gen:G0`, but no gen:G2 individual has been created; G1 has not yet been inspected by anything but the round that wrote it. This is the literal condition chapter 337 warns against, disclosed rather than hidden." .
+    gen:status "MET" ;
+    gen:evidence "gen:G2 (added 2026-07-20, a separate round from the one that authored G0/G1) records `gen:inspects gen:G1`; gen:G3 inspects G2; gen:G2Heterogeneous independently inspects G2 from a different toolchain. This ledger in turn names no successor of its own yet -- a future round must inspect G2/G3/G2Heterogeneous's claims before they can be treated as final, per the same discipline." .

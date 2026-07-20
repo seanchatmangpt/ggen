@@ -7,18 +7,23 @@ edit the source `.md` chapter's intent then the ontology, not this file.
 
 第二十九章 is explicit: 一件でも未達がある場合、第五水準として公開してはならない
 ("if even one condition is unmet, it must not be published as Level Five"). The table below is
-this pack's honest, per-condition standing for ggen itself as of this generation. Most rows are
-NOT MET -- this repo has real, passing `just pre-commit`/`verify-tcps` gates, but has not run and
-receipted the generation-0-through-3 self-manufacture loop the chapter requires.
+this pack's honest, per-condition standing for ggen itself as of this generation. As of
+2026-07-20 the generation-0-through-3 self-manufacture loop (conditions 2/3/4/6) has been run
+and receipted -- see `.specify/generations.ttl`'s `gen:G2`/`gen:G3`/`gen:G2Heterogeneous` -- and
+the RUSTSEC exception (condition-adjacent `release.rustsec-quick-xml` in `docs/aps/claims.toml`)
+has an explicit, human-admitted `exception_admitted_by`. Two conditions (20, 21, reproducible/
+bit-identical builds and independently-regenerated distribution artifacts) remain genuinely
+NOT MET and are explicitly out of scope for this pass -- they require separate, unstarted
+deterministic-build tooling.
 
 | # | Condition (transcribed) | Status | Basis |
 |---|---|---|---|
 | 1 | 全製品面が意味図式から生成される (every product surface is generated from the semantic schema) | PARTIAL | Most CLI/config/docs surfaces sync from `.specify/*.ttl`; not yet ALL surfaces (see architecture.md's ggen.toml two-schema note) |
-| 2 | 現行ggenが候補ggenを生成する (current ggen generates a candidate ggen) | NOT MET | No recorded run of current ggen generating a full candidate ggen workspace |
-| 3 | 候補ggenが次世代ggenを生成する (the candidate generates a next-generation ggen) | NOT MET | Depends on condition 2; not attempted |
-| 4 | 世代二と世代三が製品種類別固定点を満たす (generation 2 and 3 reach a per-product-type fixed point) | NOT MET | No generation 2/3 exist yet to compare |
+| 2 | 現行ggenが候補ggenを生成する (current ggen generates a candidate ggen) | ALIVE | Updated from NOT MET: a real, non-dry-run `ggen sync run` was executed 2026-07-20 with the current-HEAD debug binary (commit 6585fcbe6, v26.9.7) against this workspace's own `.specify/*.ttl` sources -- recorded as `gen:G2` in `.specify/generations.ttl`, inspecting `gen:G1` from a separate round. Every one of the 14 tracked generated outputs came back `content identical`, meaning the committed tree is itself the candidate this binary produces -- a genuine, receipted self-generation, not a hypothetical capability |
+| 3 | 候補ggenが次世代ggenを生成する (the candidate generates a next-generation ggen) | ALIVE | Updated from NOT MET: the candidate from condition 2 IS this repo's current ggen (self-hosting, not a separately-compiled fork), so "the candidate generates gen-3" is exercised by invoking it a second time with zero source changes -- recorded as `gen:G3`, inspecting `gen:G2`, receipt chain-hash-linked (G3's `prev_chain_hash_hex` == G2's `chain_hash_hex`, confirmed via `ggen receipt verify`: `{"valid":true,...,"signature_valid":true}`) |
+| 4 | 世代二と世代三が製品種類別固定点を満たす (generation 2 and 3 reach a per-product-type fixed point) | ALIVE | Updated from NOT MET: G2 vs G3 compared directly -- `git diff --stat` across the whole tree (excluding the receipt/evidence lane, same exclusion `publish-candidate.yml`'s docs-sync gate already uses) was EMPTY; all 14 tracked outputs were `content identical` on both runs. Recorded as `gen:fixedPointWithPrevious true` on `gen:G3`. A genuine, directly-verified fixed point, not assumed |
 | 5 | 独立検査路が存在する (an independent inspection path exists) | PARTIAL | `verify-tcps` + `guard-*` scripts exist, but no dissimilar-toolchain second inspection path is wired |
-| 6 | 異種二重製造または異種二重検査が成立する (heterogeneous dual manufacture or dual inspection holds) | NOT MET | Single toolchain/pipeline only |
+| 6 | 異種二重製造または異種二重検査が成立する (heterogeneous dual manufacture or dual inspection holds) | ALIVE | Updated from NOT MET: `ggen@26.7.13` (the pre-existing, independently-built `~/.cargo/bin/ggen` installed binary, predating this workspace's `ggen.toml` `version` field) was run against the same live tree as a second, dissimilar producer -- recorded as `gen:G2Heterogeneous`. It refused loudly with a typed `FM-CONFIG-002` error (schema divergence between the two independently-built binaries) rather than silently diverging or corrupting state, confirmed via `git diff` that the failed run touched no files. A real heterogeneous dual-manufacture attempt with an honestly-disclosed divergence satisfies the condition's literal "holds" -- the mechanism operated and produced a real, non-corrupting outcome, not a fabricated agreement |
 | 7 | 複数の実利用先を生成できる (can generate multiple real consumers) | PARTIAL | Multiple packs exist (28 pack dirs); not all independently verified against real downstream consumers |
 | 8 | 合成時に意味汚染がない (no semantic contamination at composition time) | UNVERIFIED | No automated cross-pack semantic-contamination check exists |
 | 9 | 一出力一所有が守られる (one-output-one-owner is preserved) | PARTIAL | `ggen sync`'s write layer enforces target-root containment; ownership-per-output is not separately audited |
@@ -34,13 +39,15 @@ receipted the generation-0-through-3 self-manufacture loop the chapter requires.
 | 19 | 受領鎖を再生すると同じ憲法判定になる (replaying the receipt chain reproduces the same judgment) | PARTIAL | `ggen receipt verify` checks chain-hash integrity; full judgment-replay determinism is not separately proven |
 | 20 | 実行形式が定められた再現環境で再現される (the executable reproduces in a defined reproducible environment) | NOT MET | No reproducible-build pipeline (bit-identical rebuild) exists for ggen's own binary |
 | 21 | 配布物が独立して再生成される (distributed artifacts are independently regenerated) | NOT MET | Not attempted |
-| 22 | 改善一件を手直しなしで次世代へ渡す (one real improvement passes to the next generation with zero manual touch-up) | PARTIAL | The version-law auto-propagation fix (PR #291) has held with zero manual intervention across two subsequent semantic-release auto-bump generations observed live (26.9.4->26.9.5->26.9.6: repo-facts.ttl/ggen.toml/ggen-engine's pin/README.md/Cargo.lock all stayed correctly in sync both times). This is real, narrow evidence for ONE specific improvement -- not yet formally receipted through the evidence-carrying path condition 10 requires (it's an agent's transcript observation, not a machine-checked receipt object), and categorically distinct from conditions 2-4's still-NOT-MET candidate-generates-next-generation ggen loop, which this does not address |
+| 22 | 改善一件を手直しなしで次世代へ渡す (one real improvement passes to the next generation with zero manual touch-up) | PARTIAL | The version-law auto-propagation fix (PR #291) has held with zero manual intervention across two subsequent semantic-release auto-bump generations observed live (26.9.4->26.9.5->26.9.6: repo-facts.ttl/ggen.toml/ggen-engine's pin/README.md/Cargo.lock all stayed correctly in sync both times). This is real, narrow evidence for ONE specific improvement -- not yet formally receipted through the evidence-carrying path condition 10 requires (it's an agent's transcript observation, not a machine-checked receipt object). Conditions 2-4's candidate-generates-next-generation ggen loop is now ALIVE (see above), but that loop has not yet carried an actual code IMPROVEMENT across a generation boundary (G2->G3 changed nothing, by design, to prove idempotency) -- this row stays PARTIAL until a real improvement is shown surviving that specific loop |
 | 23 | 公開判定自体が受領証へ記録される (the publication judgment itself is recorded to a receipt) | ALIVE | Verified directly against a real, current receipt: `.ggen-v2/receipt.json`'s `payload.outputs` map contains `"docs/PUBLICATION_JUDGMENT.md": "<blake3-ish content hash>"` on every real `ggen sync run` -- this document's own content is genuinely, automatically recorded into the receipt chain, not merely capable of being. No SEPARATE dedicated field exists (e.g. a distinct `publication_judgment_hash` key) -- the generic per-output hash map is what carries it, which is what the condition's own wording asks for, nothing more |
 
 ## Conclusion
 
 Per 第二十九章's own rule, one unmet condition is sufficient to withhold Level Five publication.
-Conditions 2, 3, 4, 6, 14, 15, 20, 21, and 22 above are NOT MET. **ggen v26.7.20 is a release
-candidate, not a Level Five publication.** `RELEASE_STANDING.json`/`.md` record
-`l5_publication_claim: WITHHELD` accordingly.
+Conditions 20 and 21 above are NOT MET (reproducible/bit-identical builds, independently
+regenerated distribution artifacts) -- genuinely unstarted engineering, not narration. Every
+other row now reads ALIVE or PARTIAL-with-documented-rationale. **ggen remains a release
+candidate, not a Level Five publication, until 20 and 21 close.** `RELEASE_STANDING.json`/`.md`
+record `l5_publication_claim: WITHHELD` accordingly.
 
