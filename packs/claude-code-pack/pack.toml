@@ -1,0 +1,17 @@
+[pack]
+name = "claude-code-pack"
+version = "26.7.19"
+description = """
+Generates Claude Code multi-agent workflow scripts (the Workflow tool's
+JS harness format: export const meta { name, description, phases } +
+phase()/agent()/parallel() body) from RDF individuals, mirroring the
+orchestration structure proven across this repo's own development
+sessions: parallel implementation fan-out, then a sequential verify
+agent, with the standing rule that a workflow's own self-report is
+never accepted as proof (the consumer re-runs the matrix).
+
+The ontology models ccw:Workflow -> ccw:Phase -> ccw:AgentJob, with
+prompts as authored literals (same sourceText discipline as
+tcps-core-pack). The gate refuses any workflow that lacks a verify
+phase -- the discipline is law, not convention.
+"""

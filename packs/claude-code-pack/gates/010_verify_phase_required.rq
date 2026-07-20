@@ -1,0 +1,10 @@
+# MESSAGE: every ccw:Workflow must own exactly one phase with ccw:isVerifyPhase true -- a workflow without an independent verification phase encodes the trust-the-self-report failure mode this pack exists to prevent
+PREFIX ccw: <http://seanchatmangpt.github.io/packs/claude-code#>
+SELECT ?workflow WHERE {
+  ?workflow a ccw:Workflow .
+  FILTER NOT EXISTS {
+    ?workflow ccw:hasPhase ?p .
+    ?p ccw:isVerifyPhase true .
+  }
+}
+ORDER BY ?workflow

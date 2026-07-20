@@ -1,0 +1,38 @@
+{#- The single GENERATED region of CLAUDE.md (mode = Merge). The engine's merge
+    algorithm (crates/ggen-engine/src/generation_rules.rs, `mod merge`) supports
+    exactly ONE `<<<<<<< GENERATED … ======= … >>>>>>> MANUAL` marker set per
+    file, so the three generated tables (Crate Map, Commands, Diagnostic Codes)
+    live contiguously in this one block; the manual sections around them are
+    preserved byte-for-byte by the merge. -#}
+{%- set docrows = sparql(query='PREFIX rf: <http://ggen.org/repo-facts#> SELECT ?cmi ?dgi WHERE { rf:doc rf:crateMapIntro ?cmi ; rf:diagIntro ?dgi . } ORDER BY ?cmi') -%}
+{%- set doc = sparql_first(rows=docrows) -%}
+{%- set crates = sparql(query='PREFIX rf: <http://ggen.org/repo-facts#> SELECT ?o ?dir ?p WHERE { ?c a rf:Crate ; rf:order ?o ; rf:dir ?dir ; rf:summaryPurpose ?p . } ORDER BY ?o') -%}
+{%- set recipes = sparql(query='PREFIX rf: <http://ggen.org/repo-facts#> SELECT ?o ?cmd ?p ?t WHERE { ?r a rf:Recipe ; rf:order ?o ; rf:command ?cmd ; rf:purpose ?p ; rf:timeout ?t . } ORDER BY ?o') -%}
+{%- set diags = sparql(query='PREFIX rf: <http://ggen.org/repo-facts#> SELECT ?o ?code ?s ?sev ?m ?own WHERE { ?d a rf:DiagnosticCode ; rf:order ?o ; rf:code ?code ; rf:surface ?s ; rf:severity ?sev ; rf:meaning ?m ; rf:owner ?own . } ORDER BY ?o') -%}
+### Crate Map ({{ crates | length }} workspace crates, generated from `.specify/repo-facts.ttl`)
+
+{{ doc.cmi }}
+
+| Crate | Purpose (from Cargo.toml / lib.rs) |
+|-------|-------------------------------------|
+{% for r in crates -%}
+| `{{ r.dir }}` | {{ r.p }} |
+{% endfor %}
+### Commands (generated)
+
+Use `just` as the entry point for all tasks (native cargo recipes; Makefile.toml is historical reference only).
+
+| Command | Purpose | Timeout |
+|---------|---------|---------|
+{% for r in recipes -%}
+| {{ r.cmd }} | {{ r.p }} | {{ r.t }} |
+{% endfor %}
+### Diagnostic Codes (Law Surfaces, generated)
+
+{{ doc.dgi }}
+
+| Code | Law Surface | Severity | Meaning | Owner |
+|------|-------------|----------|---------|-------|
+{% for r in diags -%}
+| {{ r.code }} | {{ r.s }} | {{ r.sev }} | {{ r.m }} | {{ r.own }} |
+{% endfor -%}

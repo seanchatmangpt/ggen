@@ -1,0 +1,4 @@
+[pack]
+name = "level-five-book-pack"
+version = "0.1.0"
+description = "Level Five book transcription pack: 366 book:Chapter + 366 book:Listing individuals carrying verbatim book:sourceText, fanned out to book/src/ via two per-row templates (engine per-row `to:` interpolation). ontology.ttl is a mechanical merge of per-chapter fragments; the book source is the law, generated book/src files are the product."

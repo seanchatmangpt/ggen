@@ -1,0 +1,16 @@
+[project]
+name = "level-five-book"
+
+[ontology]
+source = "schema/book-domain.ttl"
+
+[ontology.prefixes]
+book = "http://seanchatmangpt.github.io/packs/level-five-book#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[packs]
+level-five-book-pack = { path = "../packs/level-five-book-pack" }
+
+[templates]
+dir = "templates"

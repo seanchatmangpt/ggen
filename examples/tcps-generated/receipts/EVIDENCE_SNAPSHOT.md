@@ -5,10 +5,10 @@ Raw admitted `ver:Check` facts as of the last sync (source: this consumer's
 
 | Check | Exit | Recorded | Bound to graph hash |
 |---|---|---|---|
-| build | 0 | 2026-07-20T03:47:47Z | bd2681276a86c0af8694c143f9892a1687545551bf61afb74fb3ec2112be57eb |
-| byte-identity | 0 | 2026-07-20T03:47:47Z | bd2681276a86c0af8694c143f9892a1687545551bf61afb74fb3ec2112be57eb |
-| clippy-blanket-warnings | 101 | 2026-07-20T03:47:47Z | bd2681276a86c0af8694c143f9892a1687545551bf61afb74fb3ec2112be57eb |
-| clippy-reference-gate | 0 | 2026-07-20T03:47:47Z | bd2681276a86c0af8694c143f9892a1687545551bf61afb74fb3ec2112be57eb |
-| fmt-check | 1 | 2026-07-20T03:47:47Z | bd2681276a86c0af8694c143f9892a1687545551bf61afb74fb3ec2112be57eb |
-| test-workspace | 0 | 2026-07-20T03:47:47Z | bd2681276a86c0af8694c143f9892a1687545551bf61afb74fb3ec2112be57eb |
+| build | 0 | 2026-07-20T05:56:42Z | 2cb80b5311cfd208c4d3197fbd6082bdaa6f306cc69fd13126590ac275149c0c |
+| byte-identity | 0 | 2026-07-20T05:56:42Z | 2cb80b5311cfd208c4d3197fbd6082bdaa6f306cc69fd13126590ac275149c0c |
+| clippy-blanket-warnings | 101 | 2026-07-20T05:56:42Z | 2cb80b5311cfd208c4d3197fbd6082bdaa6f306cc69fd13126590ac275149c0c |
+| clippy-reference-gate | 0 | 2026-07-20T05:56:42Z | 2cb80b5311cfd208c4d3197fbd6082bdaa6f306cc69fd13126590ac275149c0c |
+| fmt-check | 1 | 2026-07-20T05:56:42Z | 2cb80b5311cfd208c4d3197fbd6082bdaa6f306cc69fd13126590ac275149c0c |
+| test-workspace | 0 | 2026-07-20T05:56:42Z | 2cb80b5311cfd208c4d3197fbd6082bdaa6f306cc69fd13126590ac275149c0c |
 

@@ -448,3 +448,19 @@ verify-tcps:
     ../../target/debug/ggen sync run
     ../../target/debug/ggen receipt verify
     echo "verify-tcps: evidence green, gates passed, receipt chain verified"
+
+# ── docs-through-ggen drift gate ──────────────────────────────────────────────
+
+# Re-sync the repo's own generated docs (root ./ggen.toml manifest: maturity
+# model, architecture rules, TCPS status, CLAUDE.md/README.md merge regions)
+# and the Level Five Packs book (book/ggen.toml), then run the book checkers.
+# Docs are committed in their generated state, so both syncs must be content
+# no-ops — any resulting `git diff` is drift and this gate exists to catch it.
+docs-sync:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ./target/debug/ggen sync run
+    (cd book && ../target/debug/ggen sync run)
+    python3 book/scripts/check_book.py
+    python3 book/scripts/check_level_five.py
+    echo "docs-sync: root manuals + book re-synced, checkers green"

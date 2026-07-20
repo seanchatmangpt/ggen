@@ -1,0 +1,577 @@
+@prefix lsp:    <https://lsp-max.rs/ontology/> .
+@prefix law:    <https://lsp-max.rs/law/> .
+@prefix ccc:    <https://claude-code-config-lsp.rs/ontology/> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+# ══════════════════════════════════════════════════════════════════════════════
+# CLASS DEFINITIONS
+# ══════════════════════════════════════════════════════════════════════════════
+
+ccc:ConfigSurface      a rdfs:Class ; rdfs:label "Config Surface" ; rdfs:comment "A file type the server watches and analyzes" .
+ccc:DiagnosticRule     a rdfs:Class ; rdfs:label "Diagnostic Rule" ; rdfs:comment "A law declared as a diagnostic code" .
+ccc:SchemaField        a rdfs:Class ; rdfs:label "Schema Field" ; rdfs:comment "A field within a config surface" .
+ccc:SemanticTokenType  a rdfs:Class ; rdfs:label "Semantic Token Type" ; rdfs:comment "A token type in the server's legend" .
+ccc:VirtualDocument    a rdfs:Class ; rdfs:label "Virtual Document" ; rdfs:comment "A virtual URI the server serves" .
+ccc:DeclareConstraint  a rdfs:Class ; rdfs:label "Declare Constraint" ; rdfs:comment "A constraint in the server's process model" .
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PROPERTY DEFINITIONS
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ConfigSurface properties
+ccc:filePattern       a rdf:Property ; rdfs:label "File Pattern" ; rdfs:comment "Glob pattern matched against URI" .
+ccc:languageId        a rdf:Property ; rdfs:label "Language ID" ; rdfs:comment "LSP language identifier" .
+ccc:analyzerModule       a rdf:Property ; rdfs:label "Analyzer Module" ; rdfs:comment "Rust module name for the analyzer (snake_case)" .
+ccc:analyzerModulePascal a rdf:Property ; rdfs:label "Analyzer Module Pascal" ; rdfs:comment "Rust struct prefix for the analyzer (PascalCase)" .
+ccc:parserKind        a rdf:Property ; rdfs:label "Parser Kind" ; rdfs:comment "json | frontmatter | markdown | toml | shell" .
+ccc:schemaSource      a rdf:Property ; rdfs:label "Schema Source" ; rdfs:comment "schemastore | inline | none" .
+ccc:schemaUrl         a rdf:Property ; rdfs:label "Schema URL" ; rdfs:comment "URL for schemastore-sourced schemas" .
+
+# DiagnosticRule properties
+ccc:diagCode          a rdf:Property ; rdfs:label "Diagnostic Code" ; rdfs:comment "Error code identifier (e.g. CCC-JSON-001)" .
+ccc:diagMessage       a rdf:Property ; rdfs:label "Diagnostic Message" ; rdfs:comment "User-facing error message" .
+ccc:diagSeverity      a rdf:Property ; rdfs:label "Diagnostic Severity" ; rdfs:comment "error | warning | information | hint" .
+ccc:diagFamily        a rdf:Property ; rdfs:label "Diagnostic Family" ; rdfs:comment "json | md | toml | hook" .
+ccc:diagSurface       a rdf:Property ; rdfs:label "Diagnostic Surface" ; rdfs:comment "Links to ccc:ConfigSurface" .
+ccc:diagLawAxis       a rdf:Property ; rdfs:label "Diagnostic Law Axis" ; rdfs:comment "LawAxis variant name" .
+
+# SchemaField properties
+ccc:fieldName         a rdf:Property ; rdfs:label "Field Name" ; rdfs:comment "JSON/TOML key or YAML front-matter field name" .
+ccc:fieldType         a rdf:Property ; rdfs:label "Field Type" ; rdfs:comment "string | boolean | object | array | enum" .
+ccc:fieldRequired     a rdf:Property ; rdfs:label "Field Required" ; rdfs:comment "Boolean: is this field required" .
+ccc:fieldDescription  a rdf:Property ; rdfs:label "Field Description" ; rdfs:comment "Human-readable field description" .
+ccc:fieldEnumValues   a rdf:Property ; rdfs:label "Field Enum Values" ; rdfs:comment "Space-separated list of valid enum values" .
+ccc:fieldSurface      a rdf:Property ; rdfs:label "Field Surface" ; rdfs:comment "Links to ccc:ConfigSurface" .
+ccc:fieldParent       a rdf:Property ; rdfs:label "Field Parent" ; rdfs:comment "Parent field IRI for nested fields" .
+
+# SemanticTokenType properties
+ccc:tokenTypeName     a rdf:Property ; rdfs:label "Token Type Name" ; rdfs:comment "LSP semantic token type string" .
+ccc:tokenDescription  a rdf:Property ; rdfs:label "Token Description" ; rdfs:comment "Description of what this token marks" .
+ccc:tokenSurfaces     a rdf:Property ; rdfs:label "Token Surfaces" ; rdfs:comment "Which surfaces this token type appears on" .
+
+# VirtualDocument properties
+ccc:vdocUri           a rdf:Property ; rdfs:label "Virtual Document URI" ; rdfs:comment "URI pattern (e.g. claude-config://schema/settings)" .
+ccc:vdocTitle         a rdf:Property ; rdfs:label "Virtual Document Title" ; rdfs:comment "User-facing title" .
+ccc:vdocDescription   a rdf:Property ; rdfs:label "Virtual Document Description" ; rdfs:comment "What this document contains" .
+
+# DeclareConstraint properties
+ccc:constraintType    a rdf:Property ; rdfs:label "Constraint Type" ; rdfs:comment "Init | Response | ExactlyOne | Precedence | etc." .
+ccc:constraintA       a rdf:Property ; rdfs:label "Constraint Activity A" ; rdfs:comment "First activity in constraint" .
+ccc:constraintB       a rdf:Property ; rdfs:label "Constraint Activity B" ; rdfs:comment "Second activity in constraint (optional)" .
+
+# ══════════════════════════════════════════════════════════════════════════════
+# CONFIG SURFACE INDIVIDUALS
+# ══════════════════════════════════════════════════════════════════════════════
+
+ccc:SettingsJson
+    a ccc:ConfigSurface ;
+    ccc:filePattern "**/.claude/settings*.json" ;
+    ccc:languageId "claude-config-json" ;
+    ccc:analyzerModule "json" ;
+    ccc:analyzerModulePascal "Json" ;
+    ccc:parserKind "json" ;
+    ccc:schemaSource "schemastore" ;
+    ccc:schemaUrl "https://json.schemastore.org/claude-code-settings.json" ;
+    rdfs:label "Claude Code settings.json" .
+
+ccc:McpJson
+    a ccc:ConfigSurface ;
+    ccc:filePattern "**/mcp.json" ;
+    ccc:languageId "claude-config-json" ;
+    ccc:analyzerModule "json" ;
+    ccc:analyzerModulePascal "Json" ;
+    ccc:parserKind "json" ;
+    ccc:schemaSource "inline" ;
+    rdfs:label "MCP servers (mcp.json)" .
+
+ccc:PluginJson
+    a ccc:ConfigSurface ;
+    ccc:filePattern "**/plugin.json" ;
+    ccc:languageId "claude-config-json" ;
+    ccc:analyzerModule "json" ;
+    ccc:analyzerModulePascal "Json" ;
+    ccc:parserKind "json" ;
+    ccc:schemaSource "schemastore" ;
+    ccc:schemaUrl "https://anthropic.com/claude-code/plugin.schema.json" ;
+    rdfs:label "Plugin manifest (plugin.json)" .
+
+ccc:MarketplaceJson
+    a ccc:ConfigSurface ;
+    ccc:filePattern "**/marketplace.json" ;
+    ccc:languageId "claude-config-json" ;
+    ccc:analyzerModule "json" ;
+    ccc:analyzerModulePascal "Json" ;
+    ccc:parserKind "json" ;
+    ccc:schemaSource "inline" ;
+    rdfs:label "Plugin marketplace catalog (marketplace.json)" .
+
+ccc:KeybindingsJson
+    a ccc:ConfigSurface ;
+    ccc:filePattern "**/keybindings.json" ;
+    ccc:languageId "claude-config-json" ;
+    ccc:analyzerModule "json" ;
+    ccc:analyzerModulePascal "Json" ;
+    ccc:parserKind "json" ;
+    ccc:schemaSource "inline" ;
+    rdfs:label "Key bindings (keybindings.json)" .
+
+ccc:AgentMd
+    a ccc:ConfigSurface ;
+    ccc:filePattern "**/.claude/agents/*.md" ;
+    ccc:languageId "claude-config-markdown" ;
+    ccc:analyzerModule "frontmatter" ;
+    ccc:analyzerModulePascal "Frontmatter" ;
+    ccc:parserKind "frontmatter" ;
+    ccc:schemaSource "inline" ;
+    rdfs:label "Agent definition (.claude/agents/*.md)" .
+
+ccc:SkillMd
+    a ccc:ConfigSurface ;
+    ccc:filePattern "**/.claude/skills/*/SKILL.md" ;
+    ccc:languageId "claude-config-markdown" ;
+    ccc:analyzerModule "frontmatter" ;
+    ccc:analyzerModulePascal "Frontmatter" ;
+    ccc:parserKind "frontmatter" ;
+    ccc:schemaSource "inline" ;
+    rdfs:label "Skill definition (.claude/skills/*/SKILL.md)" .
+
+ccc:ClaudeMd
+    a ccc:ConfigSurface ;
+    ccc:filePattern "**/CLAUDE.md" ;
+    ccc:languageId "claude-config-markdown" ;
+    ccc:analyzerModule "claude_md" ;
+    ccc:analyzerModulePascal "ClaudeMd" ;
+    ccc:parserKind "markdown" ;
+    ccc:schemaSource "none" ;
+    rdfs:label "Project documentation (CLAUDE.md)" .
+
+ccc:AgentsMd
+    a ccc:ConfigSurface ;
+    ccc:filePattern "**/AGENTS.md" ;
+    ccc:languageId "claude-config-markdown" ;
+    ccc:analyzerModule "claude_md" ;
+    ccc:analyzerModulePascal "ClaudeMd" ;
+    ccc:parserKind "markdown" ;
+    ccc:schemaSource "none" ;
+    rdfs:label "Agent inventory (AGENTS.md)" .
+
+ccc:LspMaxAutoToml
+    a ccc:ConfigSurface ;
+    ccc:filePattern "**/.claude/lsp-max-auto.toml" ;
+    ccc:languageId "claude-config-toml" ;
+    ccc:analyzerModule "toml" ;
+    ccc:analyzerModulePascal "Toml" ;
+    ccc:parserKind "toml" ;
+    ccc:schemaSource "inline" ;
+    rdfs:label "LSP auto-discovery (.claude/lsp-max-auto.toml)" .
+
+ccc:HookScript
+    a ccc:ConfigSurface ;
+    ccc:filePattern "**/.claude/hooks/*.sh" ;
+    ccc:languageId "shellscript" ;
+    ccc:analyzerModule "hook" ;
+    ccc:analyzerModulePascal "Hook" ;
+    ccc:parserKind "shell" ;
+    ccc:schemaSource "none" ;
+    rdfs:label "Hook script (.claude/hooks/*.sh)" .
+
+# ══════════════════════════════════════════════════════════════════════════════
+# DIAGNOSTIC RULE INDIVIDUALS
+# ══════════════════════════════════════════════════════════════════════════════
+
+ccc:CCC_JSON_001
+    a ccc:DiagnosticRule ;
+    ccc:diagCode "CCC-JSON-001" ;
+    ccc:diagFamily "json" ;
+    ccc:diagSurface ccc:SettingsJson ;
+    ccc:diagMessage "Unknown top-level field" ;
+    ccc:diagSeverity "warning" ;
+    ccc:diagLawAxis "Protocol" .
+
+ccc:CCC_JSON_002
+    a ccc:DiagnosticRule ;
+    ccc:diagCode "CCC-JSON-002" ;
+    ccc:diagFamily "json" ;
+    ccc:diagSurface ccc:SettingsJson ;
+    ccc:diagMessage "Required field missing in hook entry (hooks[].hooks[].command)" ;
+    ccc:diagSeverity "error" ;
+    ccc:diagLawAxis "Hook" .
+
+ccc:CCC_JSON_003
+    a ccc:DiagnosticRule ;
+    ccc:diagCode "CCC-JSON-003" ;
+    ccc:diagFamily "json" ;
+    ccc:diagSurface ccc:SettingsJson ;
+    ccc:diagMessage "Invalid enum value for field" ;
+    ccc:diagSeverity "error" ;
+    ccc:diagLawAxis "Protocol" .
+
+ccc:CCC_JSON_005
+    a ccc:DiagnosticRule ;
+    ccc:diagCode "CCC-JSON-005" ;
+    ccc:diagFamily "json" ;
+    ccc:diagSurface ccc:McpJson ;
+    ccc:diagMessage "Missing type field on MCP server entry (must be stdio)" ;
+    ccc:diagSeverity "error" ;
+    ccc:diagLawAxis "Protocol" .
+
+ccc:CCC_JSON_007
+    a ccc:DiagnosticRule ;
+    ccc:diagCode "CCC-JSON-007" ;
+    ccc:diagFamily "json" ;
+    ccc:diagSurface ccc:PluginJson ;
+    ccc:diagMessage "Missing $schema field" ;
+    ccc:diagSeverity "warning" ;
+    ccc:diagLawAxis "Protocol" .
+
+ccc:CCC_JSON_009
+    a ccc:DiagnosticRule ;
+    ccc:diagCode "CCC-JSON-009" ;
+    ccc:diagFamily "json" ;
+    ccc:diagSurface ccc:MarketplaceJson ;
+    ccc:diagMessage "Invalid source.source enum value" ;
+    ccc:diagSeverity "error" ;
+    ccc:diagLawAxis "Protocol" .
+
+ccc:CCC_MD_001
+    a ccc:DiagnosticRule ;
+    ccc:diagCode "CCC-MD-001" ;
+    ccc:diagFamily "md" ;
+    ccc:diagSurface ccc:AgentMd ;
+    ccc:diagMessage "Missing required name field in front-matter" ;
+    ccc:diagSeverity "error" ;
+    ccc:diagLawAxis "Documentation" .
+
+ccc:CCC_MD_002
+    a ccc:DiagnosticRule ;
+    ccc:diagCode "CCC-MD-002" ;
+    ccc:diagFamily "md" ;
+    ccc:diagSurface ccc:AgentMd ;
+    ccc:diagMessage "Missing required description field in front-matter" ;
+    ccc:diagSeverity "error" ;
+    ccc:diagLawAxis "Documentation" .
+
+ccc:CCC_MD_003
+    a ccc:DiagnosticRule ;
+    ccc:diagCode "CCC-MD-003" ;
+    ccc:diagFamily "md" ;
+    ccc:diagSurface ccc:AgentMd ;
+    ccc:diagMessage "Unknown tool in tools array" ;
+    ccc:diagSeverity "warning" ;
+    ccc:diagLawAxis "Protocol" .
+
+ccc:CCC_MD_005
+    a ccc:DiagnosticRule ;
+    ccc:diagCode "CCC-MD-005" ;
+    ccc:diagFamily "md" ;
+    ccc:diagSurface ccc:SkillMd ;
+    ccc:diagMessage "user-invocable field must be boolean" ;
+    ccc:diagSeverity "error" ;
+    ccc:diagLawAxis "Type" .
+
+ccc:CCC_MD_006
+    a ccc:DiagnosticRule ;
+    ccc:diagCode "CCC-MD-006" ;
+    ccc:diagFamily "md" ;
+    ccc:diagSurface ccc:ClaudeMd ;
+    ccc:diagMessage "Missing H1 title" ;
+    ccc:diagSeverity "warning" ;
+    ccc:diagLawAxis "Documentation" .
+
+ccc:CCC_TOML_001
+    a ccc:DiagnosticRule ;
+    ccc:diagCode "CCC-TOML-001" ;
+    ccc:diagFamily "toml" ;
+    ccc:diagSurface ccc:LspMaxAutoToml ;
+    ccc:diagMessage "Missing [[server]].id field" ;
+    ccc:diagSeverity "error" ;
+    ccc:diagLawAxis "Protocol" .
+
+ccc:CCC_TOML_002
+    a ccc:DiagnosticRule ;
+    ccc:diagCode "CCC-TOML-002" ;
+    ccc:diagFamily "toml" ;
+    ccc:diagSurface ccc:LspMaxAutoToml ;
+    ccc:diagMessage "Invalid priority enum value" ;
+    ccc:diagSeverity "error" ;
+    ccc:diagLawAxis "Protocol" .
+
+ccc:CCC_HOOK_001
+    a ccc:DiagnosticRule ;
+    ccc:diagCode "CCC-HOOK-001" ;
+    ccc:diagFamily "hook" ;
+    ccc:diagSurface ccc:HookScript ;
+    ccc:diagMessage "Hook script is not executable" ;
+    ccc:diagSeverity "error" ;
+    ccc:diagLawAxis "Security" .
+
+ccc:CCC_HOOK_002
+    a ccc:DiagnosticRule ;
+    ccc:diagCode "CCC-HOOK-002" ;
+    ccc:diagFamily "hook" ;
+    ccc:diagSurface ccc:HookScript ;
+    ccc:diagMessage "Hook script path does not exist" ;
+    ccc:diagSeverity "error" ;
+    ccc:diagLawAxis "Security" .
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SCHEMA FIELD INDIVIDUALS (sample fields; complete list expands dramatically)
+# ══════════════════════════════════════════════════════════════════════════════
+
+ccc:settings_effortLevel
+    a ccc:SchemaField ;
+    ccc:fieldName "effortLevel" ;
+    ccc:fieldSurface ccc:SettingsJson ;
+    ccc:fieldType "enum" ;
+    ccc:fieldRequired "false"^^xsd:boolean ;
+    ccc:fieldEnumValues "low medium high xhigh max" ;
+    ccc:fieldDescription "Reasoning effort level. low=fastest/cheapest, max=most thorough/expensive." .
+
+ccc:settings_model
+    a ccc:SchemaField ;
+    ccc:fieldName "model" ;
+    ccc:fieldSurface ccc:SettingsJson ;
+    ccc:fieldType "enum" ;
+    ccc:fieldRequired "false"^^xsd:boolean ;
+    ccc:fieldEnumValues "opus sonnet haiku fable opus-4-8 sonnet-4-6 haiku-4-5" ;
+    ccc:fieldDescription "Default Claude model to use for agent invocation." .
+
+ccc:settings_permissions
+    a ccc:SchemaField ;
+    ccc:fieldName "permissions" ;
+    ccc:fieldSurface ccc:SettingsJson ;
+    ccc:fieldType "object" ;
+    ccc:fieldRequired "false"^^xsd:boolean ;
+    ccc:fieldDescription "Permission control: allow and deny lists plus default mode." .
+
+ccc:agent_name
+    a ccc:SchemaField ;
+    ccc:fieldName "name" ;
+    ccc:fieldSurface ccc:AgentMd ;
+    ccc:fieldType "string" ;
+    ccc:fieldRequired "true"^^xsd:boolean ;
+    ccc:fieldDescription "Unique identifier for this agent; must match invocation name." .
+
+ccc:agent_description
+    a ccc:SchemaField ;
+    ccc:fieldName "description" ;
+    ccc:fieldSurface ccc:AgentMd ;
+    ccc:fieldType "string" ;
+    ccc:fieldRequired "true"^^xsd:boolean ;
+    ccc:fieldDescription "One-line description shown in agent list and when invoked." .
+
+ccc:skill_name
+    a ccc:SchemaField ;
+    ccc:fieldName "name" ;
+    ccc:fieldSurface ccc:SkillMd ;
+    ccc:fieldType "string" ;
+    ccc:fieldRequired "true"^^xsd:boolean ;
+    ccc:fieldDescription "Unique identifier for this skill; must match invocation name." .
+
+ccc:skill_description
+    a ccc:SchemaField ;
+    ccc:fieldName "description" ;
+    ccc:fieldSurface ccc:SkillMd ;
+    ccc:fieldType "string" ;
+    ccc:fieldRequired "true"^^xsd:boolean ;
+    ccc:fieldDescription "One-line description shown in skill list." .
+
+ccc:plugin_schema
+    a ccc:SchemaField ;
+    ccc:fieldName "$schema" ;
+    ccc:fieldSurface ccc:PluginJson ;
+    ccc:fieldType "string" ;
+    ccc:fieldRequired "true"^^xsd:boolean ;
+    ccc:fieldDescription "Must reference https://anthropic.com/claude-code/plugin.schema.json" .
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SEMANTIC TOKEN TYPE INDIVIDUALS
+# ══════════════════════════════════════════════════════════════════════════════
+
+ccc:TokenHookType
+    a ccc:SemanticTokenType ;
+    ccc:tokenTypeName "keyword" ;
+    ccc:tokenDescription "Hook event type names: PreToolUse, SessionStart, PostToolUse, FileChanged, Stop" ;
+    ccc:tokenSurfaces ccc:SettingsJson .
+
+ccc:TokenPermissionPattern
+    a ccc:SemanticTokenType ;
+    ccc:tokenTypeName "string" ;
+    ccc:tokenDescription "Permission allow/deny pattern values (Bash, Read, Write, mcp__*, etc.)" ;
+    ccc:tokenSurfaces ccc:SettingsJson .
+
+ccc:TokenEnumValue
+    a ccc:SemanticTokenType ;
+    ccc:tokenTypeName "enumMember" ;
+    ccc:tokenDescription "Enum field values (effortLevel, defaultMode, type, priority)" ;
+    ccc:tokenSurfaces ccc:SettingsJson, ccc:McpJson, ccc:LspMaxAutoToml .
+
+ccc:TokenJsonField
+    a ccc:SemanticTokenType ;
+    ccc:tokenTypeName "property" ;
+    ccc:tokenDescription "JSON field names (keys in objects)" ;
+    ccc:tokenSurfaces ccc:SettingsJson, ccc:McpJson, ccc:PluginJson, ccc:KeybindingsJson .
+
+ccc:TokenFrontmatterDelimiter
+    a ccc:SemanticTokenType ;
+    ccc:tokenTypeName "namespace" ;
+    ccc:tokenDescription "YAML front-matter delimiter (---)" ;
+    ccc:tokenSurfaces ccc:AgentMd, ccc:SkillMd .
+
+ccc:TokenTomlArray
+    a ccc:SemanticTokenType ;
+    ccc:tokenTypeName "variable" ;
+    ccc:tokenDescription "TOML array keys ([[server]])" ;
+    ccc:tokenSurfaces ccc:LspMaxAutoToml .
+
+# ══════════════════════════════════════════════════════════════════════════════
+# VIRTUAL DOCUMENT INDIVIDUALS
+# ══════════════════════════════════════════════════════════════════════════════
+
+ccc:SchemaSettingsDoc
+    a ccc:VirtualDocument ;
+    ccc:vdocUri "claude-config://schema/settings" ;
+    ccc:vdocTitle "settings.json Schema Reference" ;
+    ccc:vdocDescription "Full settings.json field reference rendered from ontology." .
+
+ccc:SchemaAgentDoc
+    a ccc:VirtualDocument ;
+    ccc:vdocUri "claude-config://schema/agent" ;
+    ccc:vdocTitle "Agent Front-matter Schema" ;
+    ccc:vdocDescription "Agent definition front-matter fields and rules." .
+
+ccc:SchemaSkillDoc
+    a ccc:VirtualDocument ;
+    ccc:vdocUri "claude-config://schema/skill" ;
+    ccc:vdocTitle "Skill Front-matter Schema" ;
+    ccc:vdocDescription "SKILL.md front-matter fields and rules." .
+
+ccc:HealthDoc
+    a ccc:VirtualDocument ;
+    ccc:vdocUri "claude-config://health" ;
+    ccc:vdocTitle "Claude Code Config Health Report" ;
+    ccc:vdocDescription "Aggregated diagnostics across all Claude Code configuration files in the workspace." .
+
+# ══════════════════════════════════════════════════════════════════════════════
+# DECLARE CONSTRAINT INDIVIDUALS (process model for OCEL)
+# ══════════════════════════════════════════════════════════════════════════════
+
+ccc:c_init_open_document
+    a ccc:DeclareConstraint ;
+    ccc:constraintType "Init" ;
+    ccc:constraintA "DocumentOpened" .
+
+ccc:c_resp_diagnostics
+    a ccc:DeclareConstraint ;
+    ccc:constraintType "Response" ;
+    ccc:constraintA "DocumentOpened" ;
+    ccc:constraintB "DiagnosticsPublished" .
+
+ccc:c_resp_hover
+    a ccc:DeclareConstraint ;
+    ccc:constraintType "Response" ;
+    ccc:constraintA "HoverRequested" ;
+    ccc:constraintB "HoverProvided" .
+
+ccc:c_resp_completion
+    a ccc:DeclareConstraint ;
+    ccc:constraintType "Response" ;
+    ccc:constraintA "CompletionRequested" ;
+    ccc:constraintB "CompletionProvided" .
+
+ccc:c_prec_workspace_indexed
+    a ccc:DeclareConstraint ;
+    ccc:constraintType "Precedence" ;
+    ccc:constraintA "WorkspaceIndexed" ;
+    ccc:constraintB "LsifExported" .
+
+ccc:c_absence_error_on_syntax
+    a ccc:DeclareConstraint ;
+    ccc:constraintType "Absence" ;
+    ccc:constraintA "InvalidJsonSyntax" .
+
+# ══════════════════════════════════════════════════════════════════════════════
+# LSP 3.18 METHOD STATUS (all methods declared ADMITTED for this server)
+# ══════════════════════════════════════════════════════════════════════════════
+
+# Text Document Methods — Synchronous, Immediate
+lsp:textDocument_hover                  law:status law:ADMITTED .
+lsp:textDocument_completion             law:status law:ADMITTED .
+lsp:textDocument_definition             law:status law:ADMITTED .
+lsp:textDocument_references             law:status law:ADMITTED .
+lsp:textDocument_documentSymbol         law:status law:ADMITTED .
+lsp:textDocument_documentHighlight      law:status law:ADMITTED .
+lsp:textDocument_selectionRange         law:status law:ADMITTED .
+lsp:textDocument_formatting             law:status law:ADMITTED .
+lsp:textDocument_rangeFormatting        law:status law:ADMITTED .
+lsp:textDocument_rangesFormatting       law:status law:ADMITTED .
+lsp:textDocument_linkedEditingRange     law:status law:ADMITTED .
+lsp:textDocument_moniker                law:status law:ADMITTED .
+lsp:textDocument_foldingRange           law:status law:ADMITTED .
+lsp:textDocument_documentLink           law:status law:ADMITTED .
+lsp:textDocument_signatureHelp          law:status law:ADMITTED .
+
+# Text Document Hierarchy Methods
+lsp:textDocument_prepareCallHierarchy   law:status law:ADMITTED .
+lsp:callHierarchy_incomingCalls         law:status law:ADMITTED .
+lsp:callHierarchy_outgoingCalls         law:status law:ADMITTED .
+lsp:textDocument_prepareTypeHierarchy   law:status law:ADMITTED .
+lsp:typeHierarchy_supertypes            law:status law:ADMITTED .
+lsp:typeHierarchy_subtypes              law:status law:ADMITTED .
+
+# Text Document Advanced Features — LSP 3.18 New/Extended
+lsp:textDocument_inlayHint              law:status law:ADMITTED .
+lsp:inlayHint_resolve                   law:status law:ADMITTED .
+lsp:textDocument_inlineValue            law:status law:ADMITTED .
+lsp:textDocument_inlineCompletion       law:status law:ADMITTED .
+
+# Code Actions
+lsp:textDocument_codeAction             law:status law:ADMITTED .
+lsp:codeAction_resolve                  law:status law:ADMITTED .
+lsp:textDocument_codeLens               law:status law:ADMITTED .
+lsp:codeLens_resolve                    law:status law:ADMITTED .
+
+# Rename
+lsp:textDocument_rename                 law:status law:ADMITTED .
+lsp:textDocument_prepareRename          law:status law:ADMITTED .
+
+# Diagnostics (Pull Model)
+lsp:textDocument_diagnostic             law:status law:ADMITTED .
+lsp:workspace_diagnostic                law:status law:ADMITTED .
+
+# Workspace Methods
+lsp:workspace_symbol                    law:status law:ADMITTED .
+lsp:workspaceSymbol_resolve             law:status law:ADMITTED .
+lsp:workspace_textDocumentContent       law:status law:ADMITTED .
+
+# max/* Protocol Extension Methods
+lsp:max_snapshot                        law:status law:ADMITTED .
+lsp:max_conformance_vector              law:status law:ADMITTED .
+lsp:max_explain_diagnostic              law:status law:ADMITTED .
+lsp:max_repair_plan                     law:status law:ADMITTED .
+lsp:max_apply_repair_transaction        law:status law:ADMITTED .
+lsp:max_export_analysis_bundle          law:status law:ADMITTED .
+lsp:max_run_gate                        law:status law:ADMITTED .
+lsp:max_rule_packs                      law:status law:ADMITTED .
+lsp:max_rule_pack_status                law:status law:ADMITTED .
+lsp:max_rule_pack_diff                  law:status law:ADMITTED .
+lsp:max_workspace_conformance           law:status law:ADMITTED .
+lsp:max_lsif                            law:status law:ADMITTED .
+lsp:max_hook                            law:status law:ADMITTED .
+lsp:max_hook_graph                      law:status law:ADMITTED .
+lsp:max_chain                           law:status law:ADMITTED .
+lsp:max_propagate                       law:status law:ADMITTED .
+lsp:max_autonomic_loop                  law:status law:ADMITTED .
+lsp:max_manifold_snapshot               law:status law:ADMITTED .
+lsp:max_lawful_transition               law:status law:ADMITTED .
+lsp:max_admission                       law:status law:ADMITTED .
+lsp:max_refusal                         law:status law:ADMITTED .
+lsp:max_replay                          law:status law:ADMITTED .
+lsp:max_release_actuation               law:status law:ADMITTED .
+
+# Methods NOT supported (read-only surface)
+lsp:textDocument_willSaveWaitUntil      law:status law:REFUSED ; law:reason "read-only surface — server emits diagnostics and suggestions only" .
+
+# End of ontology

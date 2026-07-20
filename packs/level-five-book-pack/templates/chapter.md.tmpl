@@ -1,0 +1,13 @@
+---
+to: "src/{{ path }}"
+force: true
+sparql:
+  rows: |
+    PREFIX book: <http://seanchatmangpt.github.io/packs/level-five-book#>
+    SELECT ?path ?source WHERE {
+      ?chapter a book:Chapter ;
+               book:sourcePath ?path ;
+               book:sourceText ?source .
+    } ORDER BY ?path
+---
+{{ source | trim_end }}

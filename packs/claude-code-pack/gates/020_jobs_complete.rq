@@ -1,0 +1,19 @@
+# MESSAGE: every ccw:AgentJob/ccw:Agent/ccw:Skill must carry its full property set (prompt/label/name/description/tools as applicable) and every ccw:Phase a title and order -- a definition missing its prompt generates an empty agent or skill
+PREFIX ccw: <http://seanchatmangpt.github.io/packs/claude-code#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a ccw:AgentJob .
+    VALUES ?missing { ccw:prompt ccw:label }
+  } UNION {
+    ?s a ccw:Agent .
+    VALUES ?missing { ccw:name ccw:description ccw:tools ccw:prompt }
+  } UNION {
+    ?s a ccw:Skill .
+    VALUES ?missing { ccw:name ccw:description ccw:prompt }
+  } UNION {
+    ?s a ccw:Phase .
+    VALUES ?missing { ccw:title ccw:order }
+  }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing
