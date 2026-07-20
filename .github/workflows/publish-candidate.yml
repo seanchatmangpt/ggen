@@ -28,22 +28,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Mirrors .github/workflows/release.yml's build-release job toolchain setup exactly:
-      # dtolnay/rust-toolchain, stable, pinned by digest. The workspace's rust-toolchain.toml
-      # pins nightly for local dev; release engineering deliberately builds on stable, matching
-      # the existing release.yml precedent rather than introducing a second toolchain policy.
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b # stable (2024-06)
-        with:
-          toolchain: stable
-
-      - name: Cache cargo registry
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ runner.os }}-publish-candidate-cargo-${{ hashFiles('**/Cargo.lock') }}
+      # Corrected (post-first-run failure): this workspace's root Cargo.toml carries
+      # [patch.crates-io] path deps to sibling checkouts, and .cargo/config.toml
+      # unconditionally sets `rustc-wrapper = "sccache"` -- a bare dtolnay/rust-toolchain
+      # step (this workflow's original approach, modeled on release.yml's simpler binary
+      # build) fails immediately with "could not execute process 'sccache ... rustc -vV'"
+      # because sccache was never installed and the sibling repos were never provisioned.
+      # ci.yml's own jobs all go through this shared composite action for exactly that
+      # reason -- reuse it here instead of re-deriving toolchain setup.
+      - name: Setup ggen build
+        uses: ./.github/actions/setup-ggen-build
 
       - name: Build debug binary
         run: cargo build -p ggen-cli-lib --bin ggen
