@@ -187,6 +187,20 @@ jobs:
           sed -i "0,/^version = \".*\"/s//version = \"$NEW_VERSION\"/" Cargo.toml
           cat Cargo.toml | head -5
 
+      # This workspace also carries the version in three other places, guarded
+      # by crates/ggen-engine/tests/version_consistency_e2e.rs. Before this step
+      # existed, three consecutive auto-bumps (#280, #282, #284) drifted these
+      # out of sync with Cargo.toml, requiring a manual fix-forward PR each time
+      # (#281/#283/#285). Keep them in lockstep here instead of relying on a
+      # human to notice the gate failure after the fact.
+      - name: Update version-law files (repo-facts.ttl, ggen.toml, ggen-engine pin)
+        run: |
+          NEW_VERSION="${{ needs.analyze-commits.outputs.next-version }}"
+          sed -i "s/rf:workspaceVersion \"[^\"]*\"/rf:workspaceVersion \"$NEW_VERSION\"/" .specify/repo-facts.ttl
+          sed -i "0,/^version = \".*\"/s//version = \"$NEW_VERSION\"/" ggen.toml
+          sed -i "0,/^version = \".*\"/s//version = \"$NEW_VERSION\"/" crates/ggen-engine/Cargo.toml
+          grep -n "$NEW_VERSION" .specify/repo-facts.ttl ggen.toml crates/ggen-engine/Cargo.toml
+
       - name: Update Helm chart version
         run: |
           NEW_VERSION="${{ needs.analyze-commits.outputs.next-version }}"
@@ -215,7 +229,7 @@ jobs:
           # (that's exactly what `git add Cargo.toml helm/*/Chart.yaml || true`
           # did: the pathspec error made git add fail atomically for BOTH
           # arguments, and `|| true` silently swallowed it).
-          git add Cargo.toml
+          git add Cargo.toml .specify/repo-facts.ttl ggen.toml crates/ggen-engine/Cargo.toml
           shopt -s nullglob
           helm_charts=(helm/*/Chart.yaml)
           if [ ${#helm_charts[@]} -gt 0 ]; then
