@@ -1,0 +1,10 @@
+This directory is required to exist by examples/receiptctl/ggen.toml's
+[templates].dir = "templates" config, but this example sources its actual
+templates from its [[packs]] entries, not from local files here. Git does
+not track empty directories, so on a fresh checkout (e.g. CI) this directory
+was silently absent, causing `ggen sync run` to fail with FM-CONFIG-004
+(templates dir unreadable). Same root cause as
+examples/tcps-generated/templates/.gitkeep (see that file's note) --
+discovered here via the justfile's guard-pack-proofs recipe, which syncs
+this example too. This .gitkeep exists solely to keep the directory present
+after `git clone`.
