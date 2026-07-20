@@ -1,0 +1,243 @@
+2026-07-20T18:17:31.493019Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=ai/generated.tmpl template.error=  --> 28:7
+   |
+28 |     {{#each fields}}
+   |       ^---
+   |
+   = expected a value that can be negated or an array of values
+2026-07-20T18:17:31.655106Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=cleanroom/ci-pipeline.tmpl template.error=  --> 46:62
+   |
+46 |           key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+   |                                                              ^---
+   |
+   = expected an identifier (must start with a-z)
+2026-07-20T18:17:31.670099Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=cli/cli-crate/Cargo.toml.tmpl template.error=  --> 30:25
+   |
+30 | {{ core_crate | replace("-", "_") }} = { path = "../{{ core_crate }}", version.workspace = true }
+   |                         ^---
+   |
+   = expected an identifier (must start with a-z)
+2026-07-20T18:17:31.672874Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=cli/cli-crate/src/cmds/noun/verb.rs.tmpl template.error=  --> 16:29
+   |
+16 | use {{ core_crate | replace("-", "_") }}::{{ noun }}::{{ verb }}::{Input, execute as domain_execute};
+   |                             ^---
+   |
+   = expected an identifier (must start with a-z)
+2026-07-20T18:17:31.674698Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=cli/core-crate/Cargo.toml.tmpl template.error=  --> 31:33
+   |
+31 | name = "{{ core_crate | replace("-", "_") }}"
+   |                                 ^---
+   |
+   = expected an identifier (must start with a-z)
+2026-07-20T18:17:31.690411Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=cli/noun-verb-cli/scripts/generate-noun-verb-cli.sh template.error=   --> 830:1
+    |
+830 | 
+    | ^---
+    |
+    = expected a comment end (`#}`)
+2026-07-20T18:17:31.759668Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=database-with-migrations.tmpl template.error=  --> 30:3
+   |
+30 | {{!-- 🚧 PLACEHOLDER: Replace with actual CREATE TABLE statement --}}
+   |   ^---
+   |
+   = expected a value that can be negated or an array of values
+2026-07-20T18:17:31.774737Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=elixir-a2a/agents.ex.tera template.error= --> 2:73
+  |
+2 | defmodule {{agent.appModule}}.Agents.{{agent.agentName | title | replace: "-", ""}} do
+  |                                                                         ^---
+  |
+  = expected `or`, `and`, `not`, `<=`, `>=`, `<`, `>`, `==`, `!=`, `+`, `-`, `*`, `/`, `%`, a filter, or a variable end (`}}`)
+2026-07-20T18:17:31.775157Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=elixir-a2a/router.ex.tera template.error=  --> 14:96
+   |
+14 |   forward "/{{agent.path}}", to: {{agent.appModule}}.Agents.{{agent.agentName | title | replace: "-", ""}}
+   |                                                                                                ^---
+   |
+   = expected `or`, `and`, `not`, `<=`, `>=`, `<`, `>`, `==`, `!=`, `+`, `-`, `*`, `/`, `%`, a filter, or a variable end (`}}`)
+2026-07-20T18:17:31.775524Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=elixir-a2a/supervisor.ex.tera template.error=  --> 16:69
+   |
+16 |       {{agent.appModule}}.Agents.{{agent.agentName | title | replace: "-", ""}},
+   |                                                                     ^---
+   |
+   = expected `or`, `and`, `not`, `<=`, `>=`, `<`, `>`, `==`, `!=`, `+`, `-`, `*`, `/`, `%`, a filter, or a variable end (`}}`)
+2026-07-20T18:17:31.780259Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=ggen/rust-struct.tera template.error=  --> 19:31
+   |
+19 | {% set _ = seen_classes.append(field.class_name) %}
+   |                               ^---
+   |
+   = expected `or`, `and`, `not`, `<=`, `>=`, `<`, `>`, `==`, `!=`, `+`, `-`, `*`, `/`, `%`, a filter, or `%}` or `-%}`
+2026-07-20T18:17:31.793955Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=llm_construct/signature.rs.tera template.error=  --> 93:38
+   |
+93 |             "{{ field.name }}"{{ "," if not loop.last }}
+   |                                      ^---
+   |
+   = expected `or`, `and`, `not`, `<=`, `>=`, `<`, `>`, `==`, `!=`, a filter, or a variable end (`}}`)
+2026-07-20T18:17:31.865114Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=mcp-board-report/shell/dr-drill.sh.tera template.error=   --> 304:1
+    |
+304 | 
+    | ^---
+    |
+    = expected a comment end (`#}`)
+2026-07-20T18:17:31.982840Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=ollama/test.tmpl template.error=  --> 28:7
+   |
+28 |     {{#each fields}}
+   |       ^---
+   |
+   = expected a value that can be negated or an array of values
+2026-07-20T18:17:32.015383Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=papers/acm-journal.tmpl template.error=  --> 34:44
+   |
+34 | {% for author in paper.hasAuthor | sort_by("authorOrder") %}
+   |                                            ^---
+   |
+   = expected an identifier (must start with a-z)
+2026-07-20T18:17:32.015938Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=papers/arxiv-preprint.tmpl template.error=  --> 40:44
+   |
+40 | {% for author in paper.hasAuthor | sort_by("authorOrder") %}
+   |                                            ^---
+   |
+   = expected an identifier (must start with a-z)
+2026-07-20T18:17:32.016214Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=papers/bibtex-references.tmpl template.error=  --> 15:47
+   |
+15 | {% for bib in paper.hasBibliography | sort_by("year") %}
+   |                                               ^---
+   |
+   = expected an identifier (must start with a-z)
+2026-07-20T18:17:32.016710Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=papers/ieee-conference.tmpl template.error=  --> 36:44
+   |
+36 | {% for author in paper.hasAuthor | sort_by("authorOrder") %}
+   |                                            ^---
+   |
+   = expected an identifier (must start with a-z)
+2026-07-20T18:17:32.017227Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=papers/neurips-conference.tmpl template.error=  --> 39:44
+   |
+39 | {% for author in paper.hasAuthor | sort_by("authorOrder") %}
+   |                                            ^---
+   |
+   = expected an identifier (must start with a-z)
+2026-07-20T18:17:32.019288Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=papers/phd-thesis.tmpl template.error=   --> 138:53
+    |
+138 | {% for subsection in section.subsectionOf | sort_by("sectionOrder") %}
+    |                                                     ^---
+    |
+    = expected an identifier (must start with a-z)
+2026-07-20T18:17:32.020889Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=production-readiness-demo.tmpl template.error=   --> 110:3
+    |
+110 | {{!-- 🚧 PLACEHOLDER: Database migration system --}}
+    |   ^---
+    |
+    = expected a value that can be negated or an array of values
+2026-07-20T18:17:32.040074Z  WARN ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate"}: ggen_engine::template: templates/**/* glob: skipping unparseable template file (it will still fail loudly if a rule or include actually uses it) template.path=rust.tmpl template.error= --> 6:12
+  |
+6 |     println!("Hello, {{name}}!");
+  |            ^---
+  |
+  = expected `or`, `and`, `not`, `<=`, `>=`, `<`, `>`, `==`, `!=`, `+`, `-`, `*`, `/`, `%`, a filter, or a variable end (`}}`)
+2026-07-20T18:17:32.154741Z  INFO ggen.cli{command=sync run version="26.9.7"}:pipeline.emit{operation.name="pipeline.emit" operation.type="pipeline" pipeline.stage="emit" pipeline.duration_ms=0 pipeline.files_generated=0}: ggen_engine::generation_rules: close time.busy=925µs time.idle=5.01ms
+2026-07-20T18:17:32.155644Z  INFO ggen.cli{command=sync run version="26.9.7"}:pipeline.generate{operation.name="pipeline.generate" operation.type="pipeline" pipeline.stage="generate" pipeline.duration_ms=704}: ggen_engine::generation_rules: close time.busy=704ms time.idle=6.87ms
+2026-07-20T18:17:32.155659Z  INFO ggen.cli{command=sync run version="26.9.7"}:pipeline.validate{operation.name="pipeline.validate" operation.type="pipeline" pipeline.stage="validate" pipeline.duration_ms=0}: ggen_engine::generation_rules: close time.busy=3.00µs time.idle=731ms
+2026-07-20T18:17:32.155675Z  INFO ggen.cli{command=sync run version="26.9.7"}:pipeline.extract{operation.name="pipeline.extract" operation.type="pipeline" pipeline.stage="extract" pipeline.duration_ms=2}: ggen_engine::generation_rules: close time.busy=2.04ms time.idle=731ms
+2026-07-20T18:17:32.156346Z  INFO ggen.cli{command=sync run version="26.9.7"}:pipeline.load{operation.name="pipeline.load" operation.type="pipeline" pipeline.stage="load" pipeline.duration_ms=35}: ggen_engine::generation_rules: close time.busy=35.4ms time.idle=734ms
+{
+  "written": [],
+  "skipped": [
+    [
+      "crates/ggen-cli/src/generated_commands.rs",
+      "unchanged: content identical"
+    ],
+    [
+      "crates/ggen-cli/tests/generated/cli_proof_tests.rs",
+      "unchanged: content identical"
+    ],
+    [
+      "docs/packs/PACK_MATURITY_MODEL.md",
+      "unchanged: content identical"
+    ],
+    [
+      ".claude/rules/architecture.md",
+      "unchanged: content identical"
+    ],
+    [
+      "docs/packs/TCPS-STATUS.md",
+      "unchanged: content identical"
+    ],
+    [
+      "CLAUDE.md",
+      "unchanged: merged content identical"
+    ],
+    [
+      "README.md",
+      "unchanged: merged content identical"
+    ],
+    [
+      "CONSTITUTION.md",
+      "unchanged: content identical"
+    ],
+    [
+      "docs/GENERATIONS.md",
+      "unchanged: content identical"
+    ],
+    [
+      "docs/PRODUCT.md",
+      "unchanged: content identical"
+    ],
+    [
+      ".github/workflows/publish-candidate.yml",
+      "unchanged: content identical"
+    ],
+    [
+      "RELEASE_STANDING.json",
+      "unchanged: content identical"
+    ],
+    [
+      "RELEASE_STANDING.md",
+      "unchanged: content identical"
+    ],
+    [
+      "docs/PUBLICATION_JUDGMENT.md",
+      "unchanged: content identical"
+    ]
+  ],
+  "graph_hash_hex": "8a4511f3b170fbcfefbd68974973c198bfa61b1e0baf45c048f522dfaf803566",
+  "decisions": {
+    ".claude/rules/architecture.md": "skipped: unchanged: content identical",
+    ".github/workflows/publish-candidate.yml": "skipped: unchanged: content identical",
+    "CLAUDE.md": "skipped: unchanged: merged content identical",
+    "CONSTITUTION.md": "skipped: unchanged: content identical",
+    "README.md": "skipped: unchanged: merged content identical",
+    "RELEASE_STANDING.json": "skipped: unchanged: content identical",
+    "RELEASE_STANDING.md": "skipped: unchanged: content identical",
+    "crates/ggen-cli/src/generated_commands.rs": "skipped: unchanged: content identical",
+    "crates/ggen-cli/tests/generated/cli_proof_tests.rs": "skipped: unchanged: content identical",
+    "docs/GENERATIONS.md": "skipped: unchanged: content identical",
+    "docs/PRODUCT.md": "skipped: unchanged: content identical",
+    "docs/PUBLICATION_JUDGMENT.md": "skipped: unchanged: content identical",
+    "docs/packs/PACK_MATURITY_MODEL.md": "skipped: unchanged: content identical",
+    "docs/packs/TCPS-STATUS.md": "skipped: unchanged: content identical"
+  },
+  "packs": {},
+  "closure": {
+    ".specify/cli-commands.ttl": "039131ee32a1a2feac5e711170108737ea8ddb8fcf0d8998cdcdcdd0f2134594",
+    ".specify/cli-proof-tests.ttl": "68bfa04bb5bd6354f2fc749ce485cce844a836165b5e46328f0545678a2935c6",
+    ".specify/generations.ttl": "9918d81e88e30dd70f4760d21d5c19150112891117d978cabcfc586b556a5b0a",
+    ".specify/ggen-product.ttl": "179ccd00945cf18755a01fe319ed143a6ff4f7c1dda684c492efdaba78ee627b",
+    ".specify/maturity.ttl": "f58c7c97118d31bc2dc3a8f7b8ac5fdee4db362de8076b1be4233651725207d3",
+    ".specify/queries/cli-proof-tests.rq": "1004cfee5e4adbb56a67ecbba69f880c4516797675ec329818fcaa9fe1bb7ff5",
+    ".specify/repo-facts.ttl": "5aa286e50d62978bc978d8db29dfbf6cff5ea033a6787a81fecf49c450510f68",
+    ".specify/templates/cli/cli_proof_test.rs.tera": "42e0efa0724690b35f8d02ea465d1d8f2a080cff97d7bc92fdbe869daf5cbd7c",
+    ".specify/templates/cli/commands-reference.rs.tera": "e24234ff62ec3db822982b2762fcce412c7c71ea0af28475db0fa31cb938d6ff",
+    ".specify/templates/docs/architecture_rules.md.tera": "c04abdfb7f36d03775b3aaa5d6e161bdaf407cb487583c7d7c647f8e9bbf46a9",
+    ".specify/templates/docs/claude_md_region.md.tera": "6de959577a9eac07fb4c46d86bc28007dd37ad256000df53718e479888aa286c",
+    ".specify/templates/docs/generations_ledger.md.tera": "8aaed2ceab61b17a3457df2c85bdfc1a507fa7d5f91d814ee44eecb080be8ef2",
+    ".specify/templates/docs/ggen_publication_judgment.md.tera": "5730ff5252e14a6b865a40b71b47954bb63e664f926c465463ed6971f538d52c",
+    ".specify/templates/docs/ggen_publish_candidate_workflow.yml.tera": "6373e299fa68ccfd8ec4286e2f26b4ba2ef85644b08f08c93124ed615b963cdc",
+    ".specify/templates/docs/ggen_release_standing_json.tera": "95509fe3e05e21579d4171602211300861584068039e8c80aef8c5bddaae8bb9",
+    ".specify/templates/docs/ggen_release_standing_md.tera": "dbb5628c58ca729ea9c5727f584c6b5e9eab5caaeacb857b8988a162d2e429b2",
+    ".specify/templates/docs/pack_maturity_model.md.tera": "02a5521192e91937c324e042935204944df7319366ea5ac12c5ea816ceda3d76",
+    ".specify/templates/docs/product.md.tera": "1ca86279b516d3ec162330b3b6894416f77e21458dc128fd05f4812deb394e48",
+    ".specify/templates/docs/readme_region.md.tera": "bd74e87411a2714f33609d28d787f8c7ee209a7e378b9da4da4e7699bfb9d98f",
+    ".specify/templates/docs/tcps_status.md.tera": "9b1f749b16b22824169686ccf747521f162cdf715022e1aa8a70d544c14db16d",
+    "actuator": "ggen@26.9.7",
+    "packs/ggen-constitution-pack/ontology.ttl": "32c345b848c471e51896809e9082a044a65dda000996da5950ec9c2337cec253",
+    "packs/ggen-constitution-pack/templates/constitution.md.tmpl": "9dc1bdca185ad7edec92931f77d2908782a486473366a0351083742c4d4a30b1",
+    "packs/ggen-release-pack/ontology.ttl": "e9f461a4d772436f335f29b5c6a790108cd4c54f0a54c263c1d96ee0375b59ae"
+  }
+}
+2026-07-20T18:17:32.156732Z  INFO ggen.cli{command=sync run version="26.9.7"}: ggen_cli_lib: close time.busy=774ms time.idle=10.5µs
